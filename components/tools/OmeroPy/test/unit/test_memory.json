@@ -55,12 +55,12 @@
         "name": "global-adaptive-4G",
         "input": {
             "omero.mem.strategy": "adaptive",
-            "omero.mem.mem_total": "4000"
+            "omero.mem.use_total": "4000"
         },
         "output": {
             "blitz" : [
-                "-Xmx1600m",
-                "-XX:MaxPermSize=128m"
+                "-Xmx600m",
+                "-XX:MaxPermSize=256m"
             ]
         }
     },
@@ -68,11 +68,11 @@
         "name": "global-adaptive-8G",
         "input": {
             "omero.mem.strategy": "adaptive",
-            "omero.mem.mem_total": "8000"
+            "omero.mem.use_total": "8000"
         },
         "output": {
             "blitz" : [
-                "-Xmx3200m",
+                "-Xmx1200m",
                 "-XX:MaxPermSize=512m"
             ]
         }
@@ -81,12 +81,12 @@
         "name": "global-adaptive-16G",
         "input": {
             "omero.mem.strategy": "adaptive",
-            "omero.mem.mem_total": "16000"
+            "omero.mem.use_total": "16000"
         },
         "output": {
             "blitz" : [
-                "-Xmx6400m",
-                "-XX:MaxPermSize=512m"
+                "-Xmx2400m",
+                "-XX:MaxPermSize=1g"
             ]
         }
     },
@@ -107,7 +107,7 @@
     {
         "name": "global-percent-50per",
         "input": {
-            "omero.mem.mem_total": "8000",
+            "omero.mem.use_total": "8000",
             "omero.mem.strategy": "percent",
             "omero.mem.percent": "50"
         },
@@ -121,16 +121,16 @@
     {
         "name": "percent-defaults-8GB",
         "input": {
-            "omero.mem.mem_total": "8000",
+            "omero.mem.use_total": "8000",
             "omero.mem.strategy": "percent"
         },
         "output": {
             "blitz" : [
-                "-Xmx3200m",
+                "-Xmx1200m",
                 "-XX:MaxPermSize=128m"
             ],
             "pixeldata" : [
-                "-Xmx1600m",
+                "-Xmx1200m",
                 "-XX:MaxPermSize=128m"
             ],
             "indexer" : [

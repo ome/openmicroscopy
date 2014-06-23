@@ -82,6 +82,7 @@ class Settings(object):
                 ("perm_gen", "128m"),
                 ("heap_dump", "off"),
                 ("heap_size", "512m"),
+                ("use_total", None),
                 ("max_total", "16000"),
                 ("min_total", "3413"),
         ):
@@ -91,6 +92,7 @@ class Settings(object):
             self.collapsed = dict(default_map)
         else:
             self.collapsed = dict()
+
         if settings_map is not None:
             for k, v in settings_map.items():
                 self.collapsed[k] = v
@@ -194,8 +196,8 @@ class PercentStrategy(Strategy):
     """
 
     PERCENT_DEFAULTS = (
-        ("blitz", 40),
-        ("pixeldata", 20),
+        ("blitz", 15),
+        ("pixeldata", 15),
         ("indexer", 10),
         ("repository", 10),
         ("other", 1),
@@ -204,7 +206,8 @@ class PercentStrategy(Strategy):
     def __init__(self, name, settings=None):
         super(PercentStrategy, self).__init__(name, settings)
         self.defaults = dict(self.PERCENT_DEFAULTS)
-        self.settings.heap_size = "%sm" % self.calculate_heap_size()
+        self.settings.overwrite("heap_size",
+                                "%sm" % self.calculate_heap_size())
 
     def get_percent(self):
         other = self.defaults.get("other", "1")
@@ -219,10 +222,10 @@ class PercentStrategy(Strategy):
         """
         if method is None:
             method = self.system_memory_mb
-        available, total = method()
+        available, active, total = method()
 
         percent = self.get_percent()
-        calculated = total * int(percent) / 100
+        calculated = active * int(percent) / 100
         return calculated
 
     def system_memory_mb(self):
@@ -231,15 +234,20 @@ class PercentStrategy(Strategy):
         """
 
         available, total = None, None
-        pymem = self._system_memory_mb_psutil()
-        if pymem is not None:
-            available, total = pymem
+        if self.settings.use_total is not None:
+            total = int(self.settings.use_total)
+            available = total
         else:
-            available, total = self._system_memory_mb_java()
+            pymem = self._system_memory_mb_psutil()
+            if pymem is not None:
+                available, total = pymem
+            else:
+                available, total = self._system_memory_mb_java()
 
-        total = min(total, float(self.settings.max_total))
-        total = max(total, float(self.settings.min_total))
-        return available, total
+        max_total = int(self.settings.max_total)
+        min_total = int(self.settings.min_total)
+        active = max(min(total, max_total), min_total)
+        return available, active, total
 
     def _system_memory_mb_psutil(self):
         try:
@@ -292,23 +300,8 @@ class PercentStrategy(Strategy):
     def usage_table(self, min=10, max=20):
         total_mb = [2**x for x in range(min, max)]
         for total in total_mb:
-            method = lambda: (total, total)
+            method = lambda: (total, total, total)
             yield total, self.calculate_heap_size(method)
-
-
-class BigImageStrategy(PercentStrategy):
-    """
-    Extends PercentStrategy to give blitz
-    and pixeldata the same percentage (35)
-    """
-
-    PERCENT_DEFAULTS = {
-        "blitz": 35,
-        "pixeldata": 35,
-        "indexer": 10,
-        "repository": 10,
-        "other": 1,
-    }
 
 
 class AdaptiveStrategy(PercentStrategy):
@@ -319,29 +312,25 @@ class AdaptiveStrategy(PercentStrategy):
 
     def __init__(self, name, settings=None):
         super(AdaptiveStrategy, self).__init__(name, settings)
-        available, total = self.system_memory_mb()  # max_total is set
+        available, active, total = self.system_memory_mb()  # max_total is set
+
         if settings is None:
             settings = Settings()
+
         if total <= 4000:
-            self.defaults["blitz"] = 25
-            self.defaults["pixeldata"] = 25
+            settings.overwrite("max_total", .75 * total)
+            if total >= 2000:
+                settings.overwrite("perm_gen", "256m")
         elif total <= 8000:
-            self.defaults["blitz"] = 35
-            self.defaults["pixeldata"] = 25
-            settings.overwrite("perm_gen", "512m")
-        elif total <= 16000:
-            self.defaults["blitz"] = 35
-            self.defaults["pixeldata"] = 35
+            settings.overwrite("max_total", .50 * total)
             settings.overwrite("perm_gen", "512m")
         else:
-            self.defaults["blitz"] = 25
-            self.defaults["pixeldata"] = 25
+            settings.overwrite("max_total", .33 * total)
             settings.overwrite("perm_gen", "1g")
 
 
 STRATEGY_REGISTRY["manual"] = ManualStrategy
 STRATEGY_REGISTRY["percent"] = PercentStrategy
-STRATEGY_REGISTRY["bigimage"] = BigImageStrategy
 STRATEGY_REGISTRY["adaptive"] = AdaptiveStrategy
 
 
@@ -426,7 +415,7 @@ def usage_charts(path,
         s = Strategy(name, settings=cfg[0])
         y = []
         for total in x:
-            method = lambda: (total, total)
+            method = lambda: (total, total, total)
             y.append(s.calculate_heap_size(method))
         return y
 

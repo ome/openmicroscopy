@@ -154,12 +154,7 @@ class TestStrategy(object):
         strategy = PercentStrategy("blitz")
         table = list(strategy.usage_table(15, 16))[0]
         assert table[0] == 2**15
-        assert table[1] == 2**15*40/100
-
-    def test_default_percents(self):
-        pers = PercentStrategy("pixeldata")
-        adas = AdaptiveStrategy("pixeldata")
-        assert pers.get_percent() != adas.get_percent()
+        assert table[1] == 2**15*15/100
 
 
 class AdjustFixture(object):
@@ -196,7 +191,6 @@ def template_xml():
 
 
 class TestAdjustStrategy(object):
-
 
     @pytest.mark.parametrize("fixture", AFS)
     def test_adjust(self, fixture):
