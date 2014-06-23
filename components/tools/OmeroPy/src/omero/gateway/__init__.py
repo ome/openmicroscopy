@@ -3514,13 +3514,16 @@ class _BlitzGateway (object):
         if fields:
             fieldqueries = []
             for f in fields:
+                fieldTokens = []
                 for t in tokens:
                     if len(t) > 0:
                         if t not in ("AND", "OR"):
-                            fieldqueries.append('%s:%s' % (f, t))
+                            fieldTokens.append('%s:%s' % (f, t))
                         else:
-                            fieldqueries.append(t)
-            text = " ".join(fieldqueries)
+                            fieldTokens.append(t)
+                fieldqueries.append("(%s)" % " ".join(fieldTokens))
+            # E.g. (name:CSFV AND name:dv) OR (description:CSFV AND description:dv)
+            text = " OR ".join(fieldqueries)
         else:
             text = " ".join(tokens)
 
