@@ -82,7 +82,8 @@ class Settings(object):
                 ("perm_gen", "128m"),
                 ("heap_dump", "off"),
                 ("heap_size", "512m"),
-                ("mem_total", "16000"),
+                ("max_total", "16000"),
+                ("min_total", "3413"),
         ):
             setattr(self, name, self.lookup(name, default))
 
@@ -230,15 +231,14 @@ class PercentStrategy(Strategy):
         """
 
         available, total = None, None
-        if self.settings.mem_total:
-            total = long(self.settings.mem_total)
+        pymem = self._system_memory_mb_psutil()
+        if pymem is not None:
+            available, total = pymem
         else:
-            pymem = self._system_memory_mb_psutil()
-            if pymem is not None:
-                available, total = pymem
-            else:
-                available, total = self._system_memory_mb_java()
+            available, total = self._system_memory_mb_java()
 
+        total = min(total, float(self.settings.max_total))
+        total = max(total, float(self.settings.min_total))
         return available, total
 
     def _system_memory_mb_psutil(self):
@@ -319,7 +319,7 @@ class AdaptiveStrategy(PercentStrategy):
 
     def __init__(self, name, settings=None):
         super(AdaptiveStrategy, self).__init__(name, settings)
-        available, total = self.system_memory_mb()  # mem_total is set
+        available, total = self.system_memory_mb()  # max_total is set
         if settings is None:
             settings = Settings()
         if total <= 4000:
@@ -419,7 +419,7 @@ def usage_charts(path,
         (Settings({}), 'A'),
         (Settings({"percent": "20"}), 'B'),
         (Settings({}), 'C'),
-        (Settings({"mem_total": "10000"}), 'D'),
+        (Settings({"max_total": "10000"}), 'D'),
     )
 
     def f(cfg):
@@ -445,7 +445,7 @@ def usage_charts(path,
         cfg = y_configs[which]
         s = cfg[0]
         txt = "%s %sGB\n" % (
-            cfg[1], int(s.mem_total)/1000,
+            cfg[1], int(s.max_total)/1000,
         )
         text(2, 14, txt, fontsize=20)
 
