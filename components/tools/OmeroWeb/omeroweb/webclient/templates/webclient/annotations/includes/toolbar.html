@@ -94,12 +94,26 @@
                 <a id="create-ometiff" href="{% url 'ome_tiff_script' manager.image.id %}" 
                 title="Create OME-TIFF File for Download">Export as OME-TIFF...</a>
             </li>
-            <li id="download-jpeg"><a href="{% url 'web_render_image_download' manager.image.id %}" title="Download as JPEG">JPEG</a></li>
             {% else %}
             <li class="disabled">
                 <a id="create-ometiff" href="#" class="disabled"
                 title="Create OME-TIFF File for Download">Export as OME-TIFF...</a>
             </li>
+            <li>{{ manager.}}
+            {% endif %}
+
+            {% if manager.image %}
+              <li id="download-jpeg">
+                <a href="{% url 'web_render_image_download' manager.image.id %}" title="Download as JPEG">JPEG</a>
+              </li>
+            {% else %}
+              {% if filesetInfo %}
+              <li>
+                <a href="#"
+                  onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&format=jpeg');"
+                  title="Download as JPEGs (zip)">JPEG</a>
+              </li>
+              {% endif %}
             {% endif %}
         </ul>
     </div>
