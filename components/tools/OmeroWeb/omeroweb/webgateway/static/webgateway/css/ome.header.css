@@ -348,7 +348,7 @@
 			position: relative !important;
 			width: 180px !important;
 			box-shadow: 0 0 0 white !important;
-			overflow-y: scroll;
+			overflow-y: auto;
 			overflow-x: hidden;
 			float: right;
 		}
