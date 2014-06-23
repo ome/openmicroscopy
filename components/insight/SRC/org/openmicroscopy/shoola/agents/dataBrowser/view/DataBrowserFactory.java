@@ -38,10 +38,13 @@ import java.util.Map.Entry;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
+import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -107,6 +110,17 @@ public class DataBrowserFactory
 	{
 		return singleton.createSearchDataBrowser(result);
 	}
+	
+	/**
+         * Creates a browser to display the results.
+         * 
+         * @param result The value to set.
+         * @return See above.
+         */
+        public static final DataBrowser getSearchBrowser(AdvancedSearchResultCollection result)
+        {
+                return singleton.createSearchDataBrowser(result);
+        }
 
 	/**
 	 * Returns the browser used for searching data.
@@ -650,6 +664,23 @@ public class DataBrowserFactory
 		searchBrowser = comp;
 		return comp;
 	}
+	
+	
+	/**
+         * Creates a new {@link DataBrowser} for the passed result.
+         * 
+         * @param result The result of the search.
+         * @return See above.
+         */
+        private DataBrowser createSearchDataBrowser(AdvancedSearchResultCollection result)
+        {
+                DataBrowserModel model = new AdvancedResultSearchModel(result);
+                DataBrowserComponent comp = new DataBrowserComponent(model);
+                model.initialize(comp);
+                comp.initialize();
+                searchBrowser = comp;
+                return comp;
+        }
 
     /** 
      * Sorts the passed collection of <code>DataObject</code>s by id.
