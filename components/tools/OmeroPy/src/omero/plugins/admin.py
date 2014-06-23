@@ -772,12 +772,30 @@ present, the user will enter a console""")
 
     @with_config
     def memory(self, args, config, verbose=True):
+        from xml.etree.ElementTree import XML
         from omero.install.memory import adjust_settings
-        rv = adjust_settings(config)
+        templates = self.ctx.dir / "etc" / "grid" / "templates.xml"
+        generated = self.ctx.dir / "etc" / "grid" / "generated.xml"
+        generated.remove()
+        config2 = omero.config.ConfigXml(str(generated))
+        template_xml = XML(templates.text())
+        rv = adjust_settings(config, template_xml)
         for k, v in sorted(rv.items()):
             if verbose:
                 self.ctx.out("%s=%s" % (k, v))
+        def clear_tail(elem):
+            elem.tail = ""
+            if elem.text is not None and not elem.text.strip():
+                elem.text = ""
+            for child in elem.getchildren():
+                clear_tail(child)
+        clear_tail(template_xml)
+        import pdb; pdb.set_trace()
+        config2.write_element(template_xml)
+        config2.XML = None  # Prevent re-saving
+        config2.close()
         config.save()
+
 
     @with_config
     def diagnostics(self, args, config):

@@ -259,30 +259,33 @@ class ConfigXml(object):
         # First step is to add a new self.INTERNAL block to it
         # which has self.DEFAULT set to the current default,
         # and then copies all the values from that profile.
-        variables = list()
         default = self.env_config.for_save(self)
         internal = SubElement(icegrid, "properties", id=self.INTERNAL)
         SubElement(internal, "property", name=self.DEFAULT, value=default)
         SubElement(internal, "property", name=self.KEY, value=self.VERSION)
+
         to_copy = self.properties(default)
         if to_copy is not None:
             for x in to_copy.getchildren():
                 if x.get("name") != self.DEFAULT and x.get("name") != self.KEY:
                     SubElement(internal, "property", x.attrib)
-                    variables.append(x)
         else:
             # Doesn't exist, create it
             properties = SubElement(icegrid, "properties", id=default)
             SubElement(properties, "property", name=self.KEY, value=self.VERSION)
+
         # Now we simply reproduce all the other blocks
         prop_list = self.properties(None, True)
         for k, p in prop_list:
             self.clear_text(p)
             icegrid.append(p)
-        # And make variables of all the active properties
-        for variable in variables:
-            SubElement(icegrid, "variable", variable.attrib)
 
+        # Now add a single extension point which will be
+        # contain a parsed version of templates.xml
+        SubElement(icegrid, "include", file="generated.xml")
+        self.write_element(icegrid)
+
+    def write_element(self, icegrid):
         temp_file = path.path(self.filename + ".temp")
         try:
             temp_file.write_text(self.element_to_xml(icegrid))
