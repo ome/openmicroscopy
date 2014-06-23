@@ -564,6 +564,7 @@ def groups(request, conn=None, **kwargs):
 @render_response_admin()
 def manage_group(request, action, gid=None, conn=None, **kwargs):
     template = "webadmin/group_form.html"
+    msgs = []
     
     experimenters = list(conn.getObjects("Experimenter"))
     experimenters.sort(key=lambda x: x.getLastName().lower())
@@ -646,31 +647,40 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
 
                 context = getEditFormContext()
                 context['ome'] = {}
+                
+                permissions_error = False
                 try:
                     conn.updateGroup(group, name, perm, listOfOwners, description)
-
-                    new_members = getSelectedExperimenters(conn, mergeLists(members,owners))
-                    removalFails = conn.setMembersOfGroup(group, new_members)
-                    if len(removalFails) == 0:
-                        return HttpResponseRedirect(reverse("wagroups"))
-                    # If we've failed to remove user...
-                    msgs = []
-                    # prepare error messages
-                    for e in removalFails:
-                        url = reverse("wamanageexperimenterid", args=["edit", e.id])
-                        msgs.append("Can't remove user <a href='%s'>%s</a> from their only group"
-                            % (url, e.getFullName()))
-                    # refresh the form and add messages
-                    context['ome']['message'] = "<br>".join(msgs)
                 except omero.SecurityViolation, ex:
                     if ex.message.startswith('Cannot change permissions'):
-                        context['ome']['message'] = "Downgrade to private group not currently possible"
+                        permissions_error = True
+                        msgs.append("Downgrade to private group not currently possible")
                     else:
-                        raise
+                        msgs.append(ex.message)
+                
+                new_members = getSelectedExperimenters(conn, mergeLists(members,owners))
+                removalFails = conn.setMembersOfGroup(group, new_members)
+                if len(removalFails) == 0 and not permissions_error:
+                    return HttpResponseRedirect(reverse("wagroups"))
+                # If we've failed to remove user...
+                
+                # prepare error messages
+                for e in removalFails:
+                    url = reverse("wamanageexperimenterid", args=["edit", e.id])
+                    msgs.append("Can't remove user <a href='%s'>%s</a> from their only group"
+                        % (url, e.getFullName()))
+                # refresh the form and add messages
+                context = getEditFormContext()
+                
     else:
         return HttpResponseRedirect(reverse("wagroups"))
     
+    context['userId'] = conn.getEventContext().userId
     context['template'] = template
+    
+    if len(msgs) > 0:
+        context['ome'] = {}
+        context['ome']['message'] = "<br>".join(msgs)
     return context
 
 
@@ -679,23 +689,32 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
 def manage_group_owner(request, action, gid, conn=None, **kwargs):
     template = "webadmin/group_form_owner.html"
     
-    userId = conn.getEventContext().userId
     group = conn.getObject("ExperimenterGroup", gid)
-    memberIds = [m.id for m in group.getMembers()]
-    ownerIds = [e.id for e in group.getOwners()]
     experimenters = list(conn.getObjects("Experimenter"))
+    userId = conn.getEventContext().userId
     
-    experimenterDefaultIds = list()
-    for e in experimenters:
-        if e != userId and e.getDefaultGroup() is not None and e.getDefaultGroup().id == group.id:
-            experimenterDefaultIds.append(str(e.id))
-    
-    msgs = []
-    if action == 'edit':
+    def getEditFormContext():
+        group = conn.getObject("ExperimenterGroup", gid)
+        memberIds = [m.id for m in group.getMembers()]
+        ownerIds = [e.id for e in group.getOwners()]
         permissions = getActualPermissions(group)
         form = GroupOwnerForm(initial={'permissions': permissions, 'members':memberIds, 'owners':ownerIds, 'experimenters':experimenters})
-        context = {'form':form, 'gid': gid, 'permissions': permissions, 'group':group, 'experimenterDefaultGroups':",".join(experimenterDefaultIds), 'ownerIds':(",".join(str(x) for x in ownerIds if x != userId)), 'userId':userId}
+        context = {'form':form, 'gid': gid, 'permissions': permissions, "group": group}
+        
+        experimenterDefaultIds = list()
+        for e in experimenters:
+            if e != userId and e.getDefaultGroup() is not None and e.getDefaultGroup().id == group.id:
+                experimenterDefaultIds.append(str(e.id))
+        context['experimenterDefaultGroups'] = ",".join(experimenterDefaultIds)
+        context['ownerIds'] = (",".join(str(x) for x in ownerIds if x != userId))
+        
+        return context
+
+    msgs = []
+    if action == 'edit':
+        context = getEditFormContext()
     elif action == "save":
+        
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamyaccount", args=["edit", group.id]))
         else:
@@ -707,16 +726,24 @@ def manage_group_owner(request, action, gid, conn=None, **kwargs):
                 
                 listOfOwners = getSelectedExperimenters(conn, owners)
                 conn.setOwnersOfGroup(group, listOfOwners)
-                
-                permissions = int(permissions)
-                if getActualPermissions(group) != permissions:
-                    perm = setActualPermissions(permissions)
-                    conn.updatePermissions(group, perm)
 
                 new_members = getSelectedExperimenters(conn, members)
                 removalFails = conn.setMembersOfGroup(group, new_members)
                 
-                if len(removalFails) == 0:
+                permissions = int(permissions)
+                permissions_error = False
+                if getActualPermissions(group) != permissions:
+                    perm = setActualPermissions(permissions)
+                    try:
+                        conn.updatePermissions(group, perm)
+                    except omero.SecurityViolation, ex:
+                        permissions_error = True
+                        if ex.message.startswith('Cannot change permissions'):
+                            msgs.append("Downgrade to private group not currently possible")
+                        else:
+                            msgs.append(ex.message)
+                
+                if len(removalFails) == 0 and not permissions_error:
                     return HttpResponseRedirect(reverse("wamyaccount"))
                 # If we've failed to remove user...
                 # prepare error messages
@@ -725,12 +752,13 @@ def manage_group_owner(request, action, gid, conn=None, **kwargs):
                     msgs.append("Can't remove user <a href='%s'>%s</a> from their only group"
                         % (url, e.getFullName()))
                 # refresh the form and add messages
-                form = GroupOwnerForm(initial={'permissions': permissions, 'members':memberIds, 'owners':ownerIds, 'experimenters':experimenters})
-            context = {'form':form, 'gid': gid, 'permissions': permissions, 'group':group, 'experimenterDefaultGroups':",".join(experimenterDefaultIds), 'ownerIds':(",".join(str(x) for x in ownerIds if x != userId)), 'userId':userId}
+                context = getEditFormContext()
     else:
         return HttpResponseRedirect(reverse("wamyaccount"))
     
+    context['userId'] = userId
     context['template'] = template
+    
     if len(msgs) > 0:
         context['ome'] = {}
         context['ome']['message'] = "<br>".join(msgs)
