@@ -30,6 +30,7 @@ import pytest
 from omero.config import ConfigXml, xml
 
 from omero.install.memory import adjust_settings
+from omero.install.memory import AdaptiveStrategy
 from omero.install.memory import ManualStrategy
 from omero.install.memory import PercentStrategy
 from omero.install.memory import Settings
@@ -155,12 +156,18 @@ class TestStrategy(object):
         assert table[0] == 2**15
         assert table[1] == 2**15*40/100
 
+    def test_default_percents(self):
+        pers = PercentStrategy("pixeldata")
+        adas = AdaptiveStrategy("pixeldata")
+        assert pers.get_percent() != adas.get_percent()
+
 
 class AdjustFixture(object):
 
-    def __init__(self, input, output, **kwargs):
+    def __init__(self, input, output, name, **kwargs):
         self.input = input
         self.output = output
+        self.name = name
         self.kwargs = kwargs
 
     def validate(self, rv):
@@ -168,7 +175,8 @@ class AdjustFixture(object):
             assert k in rv
             found = rv[k]
             settings = found.pop(0)
-            assert v == found
+            assert v == found, "%s.%s: %s <> %s" % (self.name, k,
+                                                    v, found)
 
 
 import json
@@ -176,7 +184,7 @@ f = open(__file__[:-3] + ".json", "r")
 data = json.load(f)
 AFS = []
 for x in data:
-    AFS.append(AdjustFixture(x["input"], x["output"]))
+    AFS.append(AdjustFixture(x["input"], x["output"], x["name"]))
 
 
 def template_xml():

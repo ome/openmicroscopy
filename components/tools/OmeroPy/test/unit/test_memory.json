@@ -60,7 +60,7 @@
         "output": {
             "blitz" : [
                 "-Xmx1600m",
-                "-XX:MaxPermSize=512m"
+                "-XX:MaxPermSize=128m"
             ]
         }
     },
@@ -72,8 +72,8 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx2000m",
-                "-XX:MaxPermSize=1g"
+                "-Xmx3200m",
+                "-XX:MaxPermSize=512m"
             ]
         }
     },
@@ -85,8 +85,8 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx5600m",
-                "-XX:MaxPermSize=1g"
+                "-Xmx6400m",
+                "-XX:MaxPermSize=512m"
             ]
         }
     },
@@ -105,7 +105,7 @@
         }
     },
     {
-        "name": "global-percent",
+        "name": "global-percent-50per",
         "input": {
             "omero.mem.mem_total": "8000",
             "omero.mem.strategy": "percent",
@@ -114,6 +114,27 @@
         "output": {
             "blitz" : [
                 "-Xmx4000m",
+                "-XX:MaxPermSize=128m"
+            ]
+        }
+    },
+    {
+        "name": "percent-defaults-8GB",
+        "input": {
+            "omero.mem.mem_total": "8000",
+            "omero.mem.strategy": "percent"
+        },
+        "output": {
+            "blitz" : [
+                "-Xmx3200m",
+                "-XX:MaxPermSize=128m"
+            ],
+            "pixeldata" : [
+                "-Xmx1600m",
+                "-XX:MaxPermSize=128m"
+            ],
+            "indexer" : [
+                "-Xmx800m",
                 "-XX:MaxPermSize=128m"
             ]
         }
