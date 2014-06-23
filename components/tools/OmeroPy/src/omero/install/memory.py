@@ -76,7 +76,7 @@ class Settings(object):
         self.settings_map = settings_map
         self.default_map = default_map
         for name, default in (
-                ("strategy", PercentStrategy),
+                ("strategy", AdaptiveStrategy),
                 ("perm_gen", "128m"),
                 ("heap_dump", "off"),
                 ("heap_size", "512m"),
@@ -173,6 +173,12 @@ class PercentStrategy(Strategy):
         super(PercentStrategy, self).__init__(name, settings)
         self.settings.heap_size = "%sm" % self.calculate_heap_size()
 
+    def get_percent(self):
+        other = self.PERCENT_DEFAULTS.get("other", "1")
+        default = self.PERCENT_DEFAULTS.get(self.name, other)
+        percent = self.settings.lookup("percent", default)
+        return percent
+
     def calculate_heap_size(self, method=None):
         """
         Re-calculates the appropriate heap size based on some metric
@@ -182,9 +188,7 @@ class PercentStrategy(Strategy):
             method = self.system_memory_mb
         available, total = method()
 
-        other = self.PERCENT_DEFAULTS.get("other", "1")
-        default = self.PERCENT_DEFAULTS.get(self.name, other)
-        percent = self.settings.lookup("percent", default)
+        percent = self.get_percent()
         calculated = total * int(percent) / 100
         return calculated
 
@@ -260,8 +264,48 @@ class PercentStrategy(Strategy):
             yield total, self.calculate_heap_size(method)
 
 
+class BigImageStrategy(PercentStrategy):
+    """
+    Extends PercentStrategy to give blitz
+    and pixeldata the same percentage (35)
+    """
+
+    PERCENT_DEFAULTS = {
+        "blitz": 35,
+        "pixeldata": 35,
+        "indexer": 10,
+        "repository": 10,
+        "other": 1,
+    }
+
+
+class AdaptiveStrategy(PercentStrategy):
+    """
+    PercentStrategy which modifies its default
+    values based on the available memory
+    """
+
+    def __init__(self, name, settings=None):
+        super(AdaptiveStrategy, self).__init__(name, settings)
+        available, total = self.system_memory_mb()  # mem_total is set
+        if total <= 4000:
+            self.PERCENT_DEFAULTS["blitz"] = 25
+            self.PERCENT_DEFAULTS["pixeldata"] = 25
+        elif total <= 8000:
+            self.PERCENT_DEFAULTS["blitz"] = 35
+            self.PERCENT_DEFAULTS["pixeldata"] = 25
+        elif total <= 16000:
+            self.PERCENT_DEFAULTS["blitz"] = 35
+            self.PERCENT_DEFAULTS["pixeldata"] = 35
+        else:
+            self.PERCENT_DEFAULTS["blitz"] = 25
+            self.PERCENT_DEFAULTS["pixeldata"] = 25
+
+
 STRATEGY_REGISTRY["manual"] = ManualStrategy
 STRATEGY_REGISTRY["percent"] = PercentStrategy
+STRATEGY_REGISTRY["bigimage"] = BigImageStrategy
+STRATEGY_REGISTRY["adaptive"] = AdaptiveStrategy
 
 
 def adjust_settings(config,
@@ -294,8 +338,8 @@ def adjust_settings(config,
 
 
 def usage_charts(path,
-                 min=10, max=16,
-                 Strategy=PercentStrategy, name="blitz"):
+                 min=8, max=16,
+                 Strategy=AdaptiveStrategy, name="blitz"):
     # See http://matplotlib.org/examples/pylab_examples/anscombe.html
 
     from pylab import array
@@ -307,7 +351,7 @@ def usage_charts(path,
     from pylab import savefig
     from pylab import text
 
-    points = 10
+    points = 50
     x = array([2**(x/points)/1000 \
                for x in range(min*points, max*points)])
     y_configs = (
