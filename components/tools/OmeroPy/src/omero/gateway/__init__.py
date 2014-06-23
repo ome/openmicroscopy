@@ -3537,11 +3537,11 @@ class _BlitzGateway (object):
                 def actualSearch ():
                     search.onlyType(t().OMERO_CLASS, ctx)
                     # search.bySomeMustNone(some, [], [])
-                    search.byFullText(text)
+                    search.byFullText(text, ctx)
                 timeit(actualSearch)()
                 # get results
                 def searchProcessing ():
-                    return search.results()
+                    return search.results(ctx)
                 p = 0
                 # we do pagination by loading until the required page
                 while search.hasNext(ctx):
