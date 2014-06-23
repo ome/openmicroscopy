@@ -288,7 +288,7 @@ class ConfigXml(object):
     def write_element(self, icegrid):
         temp_file = path.path(self.filename + ".temp")
         try:
-            temp_file.write_text(self.element_to_xml(icegrid))
+            temp_file.write_text(tostring(icegrid, "utf-8"))
             if sys.platform == "win32":
                 os.remove(self.filename)
             temp_file.rename(self.filename)
