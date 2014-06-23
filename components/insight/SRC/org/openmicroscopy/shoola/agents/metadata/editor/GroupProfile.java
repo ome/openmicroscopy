@@ -110,19 +110,20 @@ class GroupProfile
     	ref = (GroupData) model.getRefObject();
     	namePane = new JTextField();
     	descriptionPane = new JTextField();
+    	final boolean mayChangePermissions = model.isAdministrator() || model.isGroupLeader(ref);
     	//permission level
 
     	permissionsPane = new PermissionsPane(ref.getPermissions(),
     			UIUtilities.BACKGROUND_COLOR);
     	level = permissionsPane.getPermissions();
-    	permissionsPane.allowDowngrade(!model.isAdministrator());
+    	permissionsPane.allowDowngrade(!mayChangePermissions);
     	permissionsPane.setBorder(
     			BorderFactory.createTitledBorder("Permissions"));
     	//permissionsPane.displayWarningText();
     	permissionsPane.addPropertyChangeListener(this);
     	namePane.setText(ref.getName());
     	descriptionPane.setText(ref.getDescription());
-    	canEdit = !model.isSystemGroup(ref.getId()) && (model.isAdministrator() || model.isGroupLeader(ref));
+    	canEdit = mayChangePermissions && !model.isSystemGroup(ref.getId());
     	namePane.setEditable(canEdit);
     	namePane.setEnabled(canEdit);
     	descriptionPane.setEditable(canEdit);
