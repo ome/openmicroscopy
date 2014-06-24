@@ -78,10 +78,26 @@ checksumProviderFactory = ome.util.checksum.ChecksumProviderFactoryImpl;
 sha1= ome.util.checksum.ChecksumType.SHA1;
 hasher = checksumProviderFactory.getProvider(sha1);
 
-%code for small file.
+%code for large files as well.
 fid = fopen(f.Name);
-byteArray = fread(fid,[1, fileLength], 'uint8');
-rawFileStore.write(byteArray, 0, fileLength);
+lengthvec=262144;
+if fileLength<=lengthvec
+    lengthvec=fileLength;
+end
+byteArray = fread(fid,[1, fileLength], 'uint8');%include skip bytes in every loop
+
+fileLength1=1:lengthvec:fileLength;
+for i=1:length(fileLength1)
+    filestart1=fileLength1(i);
+    if i==length(fileLength1)
+        filestop1=fileLength;
+    else
+        filestop1=fileLength1(i+1)-1;
+    end
+    rawFileStore.write(byteArray(filestart1:filestop1), (filestart1-1), length(byteArray(filestart1:filestop1)));
+    
+end
+
 hasher.putBytes(byteArray);
 fclose(fid);
 
