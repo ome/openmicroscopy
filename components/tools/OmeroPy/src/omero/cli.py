@@ -199,7 +199,7 @@ class Parser(ArgumentParser):
         group.add_argument(
             "-q", "--quiet", action="store_true",
             help="Quiet mode. Causes most warning and diagnostic messages to "
-            " be suppressed.")
+            "be suppressed.")
 
     def _check_value(self, action, value):
         # converted value must be one of the choices (if specified)
