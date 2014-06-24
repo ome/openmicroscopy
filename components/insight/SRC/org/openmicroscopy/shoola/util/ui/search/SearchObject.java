@@ -73,7 +73,7 @@ public class SearchObject
 	 * @param icon			The icon associated to this object.
 	 * @param description	The description associated to this object.
 	 */
-	SearchObject(int index, ImageIcon icon, String description)
+	public SearchObject(int index, ImageIcon icon, String description)
 	{
 		this.index = index;
 		this.icon = icon;
