@@ -645,8 +645,12 @@ class IntensityResultsView
 				}
 			}
 		}
-		if (shapeList.size() > 0) {
-			view.calculateStats(shapeList);
+		if (shapeList.isEmpty()) {
+		    if (!analysisResults.isEmpty()) {
+		        displayAnalysisResults();
+		    }
+		} else {
+		    view.calculateStats(shapeList);
 		}
 	}
 	
