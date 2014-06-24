@@ -108,82 +108,82 @@ public class SearchContext
 	public static final int                 ANNOTATION = 14;
 	
 	/** Indicates not to take into account the time criteria. */
-	static final int				ANY_DATE = 0;
+	public static final int				ANY_DATE = 0;
 	
 	/** Indicates to search for objects imported in the last 2 weeks. */
-	static final int 				LAST_TWO_WEEKS = 1; 
+	public static final int 				LAST_TWO_WEEKS = 1; 
 	
 	/** Indicates to search for objects imported in the last month. */
-	static final int				LAST_MONTH = 2; 
+	public static final int				LAST_MONTH = 2; 
 	
 	/** Indicates to search for objects imported in the last 2 months. */
-	static final int				LAST_TWO_MONTHS = 3; 
+	public static final int				LAST_TWO_MONTHS = 3; 
 	
 	/** Indicates to search for objects imported in the last year. */
-	static final int				ONE_YEAR = 4; 
+	public static final int				ONE_YEAR = 4; 
 	
 	/** 
 	 * Indicates to search for objects imported during a given period of 
 	 * time. 
 	 */
-	static final int				RANGE = 5; 
+	public static final int				RANGE = 5; 
 	
 	/** Maximum number of time options. */
-	static final int 				MAX = 5;
+	public static final int 				MAX = 5;
 	
 	/** Identifies the number of results {@link #LEVEL_ONE_VALUE}. */
-	static final int				LEVEL_ONE = 0;
+	public static final int				LEVEL_ONE = 0;
 	
 	/** Identifies the number of results {@link #LEVEL_TWO_VALUE}. */
-	static final int				LEVEL_TWO = 1;
+	public static final int				LEVEL_TWO = 1;
 	
 	/** Identifies the number of results {@link #LEVEL_THREE_VALUE}. */
-	static final int				LEVEL_THREE = 2;
+	public static final int				LEVEL_THREE = 2;
 	
 	/** Identifies the number of results {@link #LEVEL_FOUR_VALUE}. */
-	static final int				LEVEL_FOUR = 3;
+	public static final int				LEVEL_FOUR = 3;
 	
 	/** The number of options for possible returned results. */
-	static final int				MAX_RESULTS = 3;
+	public static final int				MAX_RESULTS = 3;
 	
 	/** The number of results returned. */
-	static final int				LEVEL_ONE_VALUE = 50;
+	public static final int				LEVEL_ONE_VALUE = 50;
 	
 	/** The number of results returned. */
-	static final int				LEVEL_TWO_VALUE = 100;
+	public static final int				LEVEL_TWO_VALUE = 100;
 	
 	/** The number of results returned. */
-	static final int				LEVEL_THREE_VALUE = 250;
+	public static final int				LEVEL_THREE_VALUE = 250;
 	
 	/** The number of results returned. */
-	static final int				LEVEL_FOUR_VALUE = 500;
+	public static final int				LEVEL_FOUR_VALUE = 500;
 	
 	/** Identifies all the formats to search for. */
-	static final int				ALL_FORMATS = 0;
+	public static final int				ALL_FORMATS = 0;
 	
 	/** Indicates to search for <code>HTML</code> files only. */
-	static final int				HTML = 1;
+	public static final int				HTML = 1;
 	
 	/** Indicates to search for <code>HTML</code> files only. */
-	static final int				PDF = 2;
+	public static final int				PDF = 2;
 	
 	/** Indicates to search for <code>HTML</code> files only. */
-	static final int				EXCEL = 3;
+	public static final int				EXCEL = 3;
 	
 	/** Indicates to search for <code>HTML</code> files only. */
-	static final int				POWER_POINT = 4;
+	public static final int				POWER_POINT = 4;
 	
 	/** Indicates to search for <code>HTML</code> files only. */
-	static final int				WORD = 5;
+	public static final int				WORD = 5;
 	
 	/** Indicates to search for <code>HTML</code> files only. */
-	static final int				XML = 6;
+	public static final int				XML = 6;
 	
 	/** Indicates to search for <code>HTML</code> files only. */
-	static final int				TEXT = 7;
+	public static final int				TEXT = 7;
 	
 	/** The max number of supported formats. */
-	static final int				MAX_FORMAT = 8;
+	public static final int				MAX_FORMAT = 8;
 	
 	/** The query to search for. */
 	private String[]		terms;
@@ -255,7 +255,7 @@ public class SearchContext
 	 * @param none		The terms that cannot be in the document.
 	 * @param context	Collection of context.
 	 */
-	SearchContext(String[] terms, List<Integer> context)
+	public SearchContext(String[] terms, List<Integer> context)
 	{
 		this.terms = terms;
 		this.context = context;
@@ -299,7 +299,7 @@ public class SearchContext
 	 * @param startTime	The start time.
 	 * @param endTime	The end time.
 	 */
-	void setTime(Timestamp startTime, Timestamp endTime)
+	public void setTime(Timestamp startTime, Timestamp endTime)
 	{
 		this.startTime = startTime;
 		this.endTime = endTime;
@@ -318,7 +318,7 @@ public class SearchContext
 	 * 
 	 * @param users The value to set.
 	 */
-	void setSelectedOwner(long user) { this.selectedOwner = user; }
+	public void setSelectedOwner(long user) { this.selectedOwner = user; }
 	
 	/**
 	 * Sets the collection of selected users if any.
@@ -426,7 +426,7 @@ public class SearchContext
 	 * 
 	 * @return See above.
 	 */
-	int getDateIndex() { return dateIndex; }
+	public int getDateIndex() { return dateIndex; }
 	
 	/**
 	 * Returns the time index. One of the following constants:

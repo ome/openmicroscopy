@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.search;
+package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 
 //Java imports
@@ -40,6 +40,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -49,6 +50,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 
+
+
 //Third-party libraries
 import org.jdesktop.swingx.JXDatePicker;
 import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
@@ -57,6 +60,11 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.search.ExperimenterContext;
+import org.openmicroscopy.shoola.util.ui.search.GroupContext;
+import org.openmicroscopy.shoola.util.ui.search.SearchContext;
+import org.openmicroscopy.shoola.util.ui.search.SearchObject;
+import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
 
 import pojos.ExperimenterData;
 

@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.search;
+package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 
 //Java imports
@@ -42,6 +42,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
+
+
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
 
@@ -55,6 +57,9 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.search.GroupContext;
+import org.openmicroscopy.shoola.util.ui.search.SearchContext;
+import org.openmicroscopy.shoola.util.ui.search.SearchObject;
 
 import pojos.ExperimenterData;
 import pojos.GroupData;

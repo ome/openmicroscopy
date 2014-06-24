@@ -45,7 +45,7 @@ import pojos.GroupData;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since Beta4.4
  */
-class GroupContext
+public class GroupContext
 {
         /** ID indicating all groups should be included in the search */
         public static final int ALL_GROUPS_ID = Integer.MAX_VALUE;
@@ -64,7 +64,7 @@ class GroupContext
 	 * @param group The name of the group to handle.
 	 * @param id The identifier of the group.
 	 */
-	GroupContext(String group, long id)
+	public GroupContext(String group, long id)
 	{
 		this.group = group;
 		this.id = id;
@@ -76,7 +76,7 @@ class GroupContext
          * @param group The name of the group to handle.
          * @param id The identifier of the group.
          */
-        GroupContext(GroupData group)
+        public GroupContext(GroupData group)
         {
                 this.group = group.getName();
                 this.id = group.getId();
@@ -91,7 +91,7 @@ class GroupContext
 	 * 
 	 * @return See above.
 	 */
-	long getId() { return id; }
+	public long getId() { return id; }
 	
 	
     	public List<ExperimenterContext> getExperimenters() {

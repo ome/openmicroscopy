@@ -25,7 +25,7 @@ package org.openmicroscopy.shoola.util.ui.search;
 
 import pojos.ExperimenterData;
 
-class ExperimenterContext
+public class ExperimenterContext
 {
         /** ID indicating all experimenters should be included in the search */
         public static final int ALL_EXPERIMENTERS_ID = Integer.MAX_VALUE;
@@ -42,7 +42,7 @@ class ExperimenterContext
 	 * @param experimenter The name of the experimenter to handle.
 	 * @param id The identifier of the experimenter.
 	 */
-	ExperimenterContext(String experimenter, long id)
+	public ExperimenterContext(String experimenter, long id)
 	{
 		this.experimenter = experimenter;
 		this.id = id;
@@ -62,7 +62,7 @@ class ExperimenterContext
 	 * 
 	 * @return See above.
 	 */
-	long getId() { return id; }
+	public long getId() { return id; }
 	
 	/**
 	 * Overridden to return the name of the experimenter.
