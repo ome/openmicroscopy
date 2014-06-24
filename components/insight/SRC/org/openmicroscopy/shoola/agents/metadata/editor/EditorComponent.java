@@ -289,6 +289,10 @@ class EditorComponent
 		model.setRootObject(refObject);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		view.setRootObject(oldObject);
+		
+		// have to load the filesets immediately to determine if the
+		// show file path button in the toolbar should be activated or not
+		loadFileset(-1);
 	}
 
 	/** 
