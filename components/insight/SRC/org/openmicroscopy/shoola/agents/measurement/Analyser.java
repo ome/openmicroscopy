@@ -130,7 +130,7 @@ public class Analyser
             registry.getLogger().error(this, msg);
         }
         UserNotifier un = registry.getUserNotifier();
-    	un.notifyInfo("Analysing data", "An error occurred while analysing " +
+    	un.notifyInfo("Analyzing data", "An error occurred while analyzing " +
     			"the data.");
     	viewer.setStatsShapes(null);
     }
