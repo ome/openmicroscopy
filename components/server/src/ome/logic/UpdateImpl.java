@@ -220,6 +220,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
 
         CreationLogLoader logs = new CreationLogLoader(localQuery, row);
         FullTextIndexer fti = new FullTextIndexer(logs);
+        fti.setApplicationContext(this.executor.getContext());
 
         final FullTextThread ftt = new FullTextThread(sessionManager, executor,
                 fti, this.fullTextBridge, true);
@@ -332,8 +333,9 @@ class CreationLogLoader extends EventLogLoader {
     private IObject obj;
 
     public CreationLogLoader(LocalQuery query, IObject obj) {
-        this.query = query;
         this.obj = obj;
+        this.query = query;
+        setQueryService(query);
     }
 
     @Override
