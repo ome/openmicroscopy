@@ -197,7 +197,7 @@ class Parser(ArgumentParser):
         group.add_argument("--sudo", metavar="ADMINUSER",
             help = "Create session as this admin. Changes meaning of password!")
         group.add_argument(
-            "-q", dest="isquiet", action="store_true",
+            "-q", "--quiet", action="store_true",
             help="Quiet mode. Causes most warning and diagnostic messages to "
             " be suppressed.")
 
@@ -950,7 +950,7 @@ class CLI(cmd.Cmd, Context):
         args.prog = self.parser.prog
         self.waitForPlugins()
 
-        self.isquiet = getattr(args, "isquiet", False)
+        self.isquiet = getattr(args, "quiet", False)
 
         debug_str = getattr(args, "debug", "")
         debug_opts = set([x.lower() for x in debug_str.split(",")])
