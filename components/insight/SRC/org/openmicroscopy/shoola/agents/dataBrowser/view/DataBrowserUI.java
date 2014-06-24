@@ -87,9 +87,6 @@ class DataBrowserUI
 	/** ID to select the fields view. */
 	static final int			FIELDS_VIEW = 2;
 	
-	/** ID to select the fields view. */
-        static final int                        SEARCH_VIEW = 3;
-	
 	/** ID to sort the node alphabetically. */
 	static final int			SORT_BY_NAME = 2;
 	
@@ -311,10 +308,6 @@ class DataBrowserUI
 				if (v != null) 
 				    v.refreshTable();
 				break;
-			case SEARCH_VIEW:
-			    SearchResultView srv = model.getSearchResultView();
-                            if (srv != null)
-                                srv.refreshTable();
     	}
     }
     
@@ -380,15 +373,6 @@ class DataBrowserUI
 				v.repaint();
 				add(v, BorderLayout.CENTER);
 				break;
-			case SEARCH_VIEW:
-			    selectedView = index;
-			    SearchResultView sv = model.getSearchResultView();
-			    if(sv==null) {
-			        sv = model.createSearchResultView();
-			    }
-			    sv.refreshTable();
-			    add(sv, BorderLayout.CENTER);
-                            break;
 		}
     	add(statusBar, BorderLayout.SOUTH);
     	toolBar.setSelectedViewIndex(selectedView);

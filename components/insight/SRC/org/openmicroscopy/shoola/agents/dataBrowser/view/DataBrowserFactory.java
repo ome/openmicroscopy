@@ -110,17 +110,6 @@ public class DataBrowserFactory
 	{
 		return singleton.createSearchDataBrowser(result);
 	}
-	
-	/**
-         * Creates a browser to display the results.
-         * 
-         * @param result The value to set.
-         * @return See above.
-         */
-        public static final DataBrowser getSearchBrowser(AdvancedSearchResultCollection result)
-        {
-                return singleton.createSearchDataBrowser(result);
-        }
 
 	/**
 	 * Returns the browser used for searching data.

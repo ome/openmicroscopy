@@ -305,7 +305,6 @@ public class AdvancedFinder
 		SearchParameters searchContext = new SearchParameters(scope, types, terms);
 		searchContext.setTimeInterval(start, end);
 		searchContext.setUserId(ctx.getSelectedOwner());
-//		searchContext.getGroupIds().addAll(ctx.getSelectedGroups());
 		
 		List<Long> groups = ctx.getSelectedGroups();
 		List<SecurityContext> l = new ArrayList<SecurityContext>();
@@ -319,7 +318,6 @@ public class AdvancedFinder
 		loader.load();
 		state = Finder.SEARCH;
 		setSearchEnabled(true);
-		
 	}
 	
 	/**
