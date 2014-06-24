@@ -14,7 +14,6 @@ import pytest
 import omero
 import datetime, time
 
-@pytest.mark.xfail(reason="See ticket #11539")
 class TestSearch(lib.ITest):
 
     def test2541(self):
@@ -61,7 +60,6 @@ class TestSearch(lib.ITest):
         searcher = self.new_client(group)
         self._3164(owner, searcher)
 
-    @pytest.mark.xfail(reason="See ticket #11539")
     def test3721Ordering(self):
         """
         Creates two tags and checks that boosting
