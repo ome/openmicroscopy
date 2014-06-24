@@ -28,6 +28,7 @@ import datetime
 import Ice
 import logging
 import traceback
+import json
 
 from time import time
 
@@ -54,7 +55,8 @@ from forms import GlobalSearchForm, ShareForm, BasketShareForm, \
                     MetadataFilterForm, MetadataDetectorForm, MetadataChannelForm, \
                     MetadataEnvironmentForm, MetadataObjectiveForm, MetadataObjectiveSettingsForm, MetadataStageLabelForm, \
                     MetadataLightSourceForm, MetadataDichroicForm, MetadataMicroscopeForm, \
-                    FilesAnnotationForm, WellIndexForm
+                    FilesAnnotationForm, WellIndexForm, \
+                    NewTagsAnnotationFormSet
 
 from controller.index import BaseIndex
 from controller.basket import BaseBasket
@@ -1227,6 +1229,7 @@ def annotate_comment(request, conn=None, **kwargs):
     else:
         return HttpResponse(str(form_multi.errors))      # TODO: handle invalid form error
 
+
 @login_required(setGroupContext=True)
 @render_response()
 def annotate_tags(request, conn=None, **kwargs):
@@ -1239,6 +1242,7 @@ def annotate_tags(request, conn=None, **kwargs):
 
     # Get appropriate manager, either to list available Tags to add to single object, or list ALL Tags (multiple objects)
     manager = None
+    self_id = conn.getEventContext().userId
     if obj_count == 1:
         for t in selected:
             if len(selected[t]) > 0:
@@ -1257,40 +1261,73 @@ def annotate_tags(request, conn=None, **kwargs):
         elif o_type in ("share", "sharecomment"):
             manager = BaseShare(conn, o_id)
 
-    if manager is not None:
-        tags = manager.getTagsByObject()
+        manager.annotationList()
+        selected_tags = [(tag.id,
+                          unwrap(tag.link.details.owner.id),
+                          "%s %s" % (unwrap(tag.link.details.owner.firstName), unwrap(tag.link.details.owner.lastName)),
+                          unwrap(tag.link.details.getPermissions().canDelete()),
+                          str(datetime.datetime.fromtimestamp(unwrap(tag.link.details.getCreationEvent().getTime()) / 1000)),
+                          self_id == unwrap(tag.link.details.owner.id),
+                          )
+                         for tag in manager.tag_annotations]
     else:
         manager = BaseContainer(conn)
-        for dtype, objs in oids.items():
-            if len(objs) > 0:
-                # NB: we only support a single data-type now. E.g. 'image' OR 'dataset' etc.
-                tags = manager.getTagsByObject(parent_type=dtype, parent_ids=[o.getId() for o in objs])
-                break
+        selected_tags = []
 
     initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'],
             'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisition'], 'wells':oids['well']}
-    initial['tags'] = tags
+
+    jsonmode = request.GET.get('jsonmode')
+    if jsonmode:
+        try:
+            offset = int(request.GET.get('offset'))
+            limit = int(request.GET.get('limit', 1000))
+        except:
+            offset = limit = None
+        if jsonmode == 'tagcount':
+            tag_count = manager.getTagCount()
+        else:
+            manager.loadTagsRecursive(eid=-1, offset=offset, limit=limit)
+            all_tags = manager.tags_recursive
+            all_tags_owners = manager.tags_recursive_owners
 
     if request.method == 'POST':
         # handle form submission
         form_tags = TagsAnnotationForm(initial=initial, data=request.REQUEST.copy())
+        newtags_formset = NewTagsAnnotationFormSet(prefix='newtags', data=request.REQUEST.copy())
         # Create new tags or Link existing tags...
-        if form_tags.is_valid():
-            tag = form_tags.cleaned_data['tag']
-            description = form_tags.cleaned_data['description']
-            tags = form_tags.cleaned_data['tags']
-            added_tags = [];
-            if tags is not None and len(tags)>0:
-                added_tags = manager.createAnnotationsLinks('tag', tags, oids, well_index=index)
-            if tag is not None and tag != "":
-                new_tag_id = manager.createTagAnnotations(tag, description, oids, well_index=index)
-                added_tags.append(new_tag_id)
-            if len(added_tags) == 0:
-                return HttpResponse("<div>No Tags Added</div>")
+        if form_tags.is_valid() and newtags_formset.is_valid():
+            # filter down previously selected tags to the ones owned by current user
+            selected_tag_ids = [stag[0] for stag in selected_tags if stag[5]]
+            added_tags = [stag[0] for stag in selected_tags if not stag[5]]
+            tags = [tag for tag in form_tags.cleaned_data['tags'] if tag not in selected_tag_ids]
+            removed = [tag for tag in selected_tag_ids if tag not in form_tags.cleaned_data['tags']]
+            if tags:
+                manager.createAnnotationsLinks(
+                    'tag',
+                    tags,
+                    oids,
+                    well_index=index,
+                )
+            for form in newtags_formset.forms:
+                added_tags.append(manager.createTagAnnotations(
+                    form.cleaned_data['tag'],
+                    form.cleaned_data['description'],
+                    oids,
+                    well_index=index,
+                    tag_group_id=form.cleaned_data['tagset'],
+                ))
+            for remove in removed:
+                tag_manager = BaseContainer(conn, tag=remove)
+                tag_manager.remove([
+                        "%s-%s" % (dtype, obj.id)
+                        for dtype, objs in oids.items()
+                        for obj in objs
+                    ], index, tag_owner_id=self_id)
             template = "webclient/annotations/tags.html"
             context = {}
             # Now we lookup the object-annotations (same as for def batch_annotate above)
-            batchAnns = manager.loadBatchAnnotations(oids, ann_ids=added_tags, addedByMe=(obj_count==1))
+            batchAnns = manager.loadBatchAnnotations(oids, ann_ids=form_tags.cleaned_data['tags'] + added_tags)
             if obj_count > 1:
                 context["batchAnns"] = batchAnns
                 context['batch_ann'] = True
@@ -1305,9 +1342,31 @@ def annotate_tags(request, conn=None, **kwargs):
         else:
             return HttpResponse(str(form_tags.errors))      # TODO: handle invalid form error
 
+    elif jsonmode == 'tagcount':
+        # send number of tags for better paging progress bar
+        return dict(tag_count=tag_count)
+
+    elif jsonmode == 'tags':
+        # send tag information without descriptions
+        return list((i, t, o, s) for i, d, t, o, s in all_tags)
+
+    elif jsonmode == 'desc':
+        # send descriptions for tags
+        return dict((i, d) for i, d, t, o, s in all_tags)
+
+    elif jsonmode == 'owners':
+        # send owner information
+        return all_tags_owners
+
     else:
         form_tags = TagsAnnotationForm(initial=initial)
-        context = {'form_tags': form_tags, 'index': index}
+        newtags_formset = NewTagsAnnotationFormSet(prefix='newtags')
+        context = {
+            'form_tags': form_tags,
+            'newtags_formset': newtags_formset,
+            'index': index,
+            'selected_tags': json.dumps(selected_tags),
+        }
         template = "webclient/annotations/tags_form.html"
     context['template'] = template
     return context

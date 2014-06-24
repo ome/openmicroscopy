@@ -214,24 +214,28 @@
                     $("#add_tags_form").dialog("open");
                     // load form via AJAX...
                     var load_url = $(this).attr('href');
-                    $("#add_tags_form").load(load_url);
+                    $("#add_tags_form").html('').load(load_url);
                     return false;
                 });
                 // set-up the tags form to use dialog
                 $("#add_tags_form").dialog({
                     autoOpen: false,
                     resizable: false,
-                    height: 450,
-                    width:420,
+                    height: 520,
+                    width: 780,
                     modal: true,
                     buttons: {
-                        "Accept": function() {
+                        "Save": function() {
                             // simply submit the form (AJAX handling set-up above)
-                            $("#add_tags_form").submit();
+                            $("#add_tags_form").trigger('prepare-submit').submit();
                             $( this ).dialog( "close" );
                         },
                         "Cancel": function() {
                             $( this ).dialog( "close" );
+                        },
+                        "Reset": function() {
+                            // discard all changes and reload the form
+                            $("#add_tags_form").html('').load($("#launch_tags_form").attr('href'));
                         }
                     }
                 });
@@ -239,8 +243,8 @@
                     success: function(data) {
                         $("#add_tags_form").dialog( "close" );      // hide in case it was submitted via 'Enter'
                         // update the list of tags
-                        var $tag = $(data);
-                        $("#tags_container").prepend($tag).hide_if_empty();
+                        var $tag = $(data.trim());
+                        $("#tags_container").empty().append($tag).hide_if_empty();
                         $(".tooltip", $tag).tooltip_init();
                     }
                 });

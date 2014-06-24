@@ -24,7 +24,7 @@
 #
 
 import omero
-from omero.rtypes import rstring, rlong
+from omero.rtypes import rstring, rlong, unwrap
 from django.conf import settings
 from django.utils.encoding import smart_str
 import logging
@@ -298,6 +298,22 @@ class BaseContainer(BaseController):
         self.tags.sort(key=lambda x: x.getTextValue() and x.getTextValue().lower())
         self.t_size = len(self.tags)
     
+    def loadTagsRecursive(self, eid=None, offset=None, limit=1000):
+        if eid is not None:
+            if eid == -1:       # Load data for all users
+                if self.canUseOthersAnns():
+                    eid = None
+                else:
+                    eid = self.conn.getEventContext().userId
+            else:
+                self.experimenter = self.conn.getObject("Experimenter", eid)
+        else:
+            eid = self.conn.getEventContext().userId
+        self.tags_recursive, self.tags_recursive_owners = self.conn.listTagsRecursive(eid, offset, limit)
+
+    def getTagCount(self, eid=None):
+        return self.conn.getTagCount(eid)
+
     def loadDataByTag(self):
         pr_list = list(self.conn.getObjectsByAnnotations('Project',[self.tag.id]))
         ds_list = list(self.conn.getObjectsByAnnotations('Dataset',[self.tag.id]))
@@ -544,7 +560,7 @@ class BaseContainer(BaseController):
         if self.image is not None:
             return sort_tags(self.image.listOrphanedAnnotations(eid=eid, anntype='Tag'))
         elif self.dataset is not None:
-            return sort_tags(self.dataset.listOrphanedAnnotations(eid=eid, anntype='Tag'))
+            return sort_tags(self.dataset.listOrphanedAnnotations(eid=eid, anntype='Tag', ns=['any']))
         elif self.project is not None:
             return sort_tags(self.project.listOrphanedAnnotations(eid=eid, anntype='Tag'))
         elif self.well is not None:
@@ -674,7 +690,7 @@ class BaseContainer(BaseController):
         return self.conn.getObject("CommentAnnotation", ann.getId())
 
     
-    def createTagAnnotations(self, tag, desc, oids, well_index=0):
+    def createTagAnnotations(self, tag, desc, oids, well_index=0, tag_group_id=None):
         """
         Creates a new tag (with description) OR uses existing tag with the specified name if found.
         Links the tag to the specified objects.
@@ -692,6 +708,17 @@ class BaseContainer(BaseController):
             ann.textValue = rstring(str(tag))
             ann.setDescription(rstring(str(desc)))
             ann = self.conn.saveAndReturnObject(ann)
+            if tag_group_id:  # Put new tag in given tag set
+                tag_group = None
+                try:
+                    tag_group = self.conn.getObject('TagAnnotation', tag_group_id)
+                except:
+                    pass
+                if tag_group is not None:
+                    link = omero.model.AnnotationAnnotationLinkI()
+                    link.parent = tag_group._obj
+                    link.child = ann._obj
+                    self.conn.saveObject(link)
 
         new_links = list()
         parent_objs = []
@@ -1012,11 +1039,12 @@ class BaseContainer(BaseController):
             return 'No data was choosen.'
         return 
     
-    def remove( self, parents, index):
+    def remove( self, parents, index, tag_owner_id=None):
         """
-        Removes the current object (file, tag, comment, dataset, plate, image) from it's parents by
+        Removes the current object (file, tag, comment, dataset, plate, image) from its parents by
         manually deleting the link.
         For Comments, we check whether it becomes an orphan & delete if true
+        If self.tag and owner_id is specified, only remove the tag if it is owned by that owner
         
         @param parents:     List of parent IDs, E.g. ['image-123']
         """
@@ -1032,7 +1060,9 @@ class BaseContainer(BaseController):
                 parentId = w.getWellSample(index=index).image().getId()
             if self.tag:
                 for al in self.tag.getParentLinks(dtype, [parentId]):
-                    if al is not None and al.canDelete():
+                    if al is not None and al.canDelete() and (
+                        tag_owner_id is None or
+                        unwrap(al.details.owner.id) == tag_owner_id):
                         self.conn.deleteObjectDirect(al._obj)
             elif self.file:
                 for al in self.file.getParentLinks(dtype, [parentId]):
