@@ -63,31 +63,31 @@ class ImageTableView
 	 * Bound property indicating that the nodes in the table have been selected.
 	 */
 	static final String	TABLE_NODES_SELECTION_PROPERTY = "tableNodesSelection";
-	
+
 	/** Bound property indicating to display a pop-up menu. */
 	static final String TABLE_SELECTION_MENU_PROPERTY = "tableSelectionMenu";
-	
+
 	/** 
 	 * Bound property indicating to view the last selected node if 
 	 * it is an image.
 	 */
 	static final String TABLE_SELECTION_VIEW_PROPERTY = "tableSelectionView";
-	
+
 	/** 
 	 * Bound property indicating to roll over the node.
 	 */
 	static final String TABLE_SELECTION_ROLL_OVER_PROPERTY =
 		"tableSelectionRollOver";
-	
+
 	/** Reference to the table displaying the nodes. */
 	private ImageTable 			table;
-	
+
 	/** Reference to the model. */
 	private DataBrowserModel 	model;
-	
+
 	/** The magnification factor of thumbnail.*/
 	private double magnification;
-	
+
 	/** 
 	 * Initializes the components composing the display. 
 	 * 
@@ -97,7 +97,7 @@ class ImageTableView
 	{
 		table = new ImageTable(root, this, model);
 	}
-	
+
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
@@ -107,7 +107,7 @@ class ImageTableView
 		pane.setBackground(UIUtilities.BACKGROUND_COLOR);
 		add(pane, BorderLayout.CENTER);
 	}
-	
+
 	/** 
 	 * Creates a new instance. 
 	 * 
@@ -121,7 +121,7 @@ class ImageTableView
 		initComponents(root);
 		buildGUI();
 	}
-	
+
 	/**
      * Brings up the popup menu on top of the specified component at the
      * specified point.
@@ -133,7 +133,7 @@ class ImageTableView
 	{
 		firePropertyChange(TABLE_SELECTION_MENU_PROPERTY, null, location);
 	}
-	
+
 	/**
      * Returns the {@link ViewerSorter}.
      * 
@@ -143,7 +143,7 @@ class ImageTableView
     
 	/** Refreshes the table when filtering data. */
 	void refreshTable() { table.refreshTable(); }
-	
+
 	/** 
 	 * Sets the collection of selected nodes.
 	 * 
@@ -185,7 +185,7 @@ class ImageTableView
 		firePropertyChange(TABLE_SELECTION_ROLL_OVER_PROPERTY,
 				Boolean.valueOf(false), node);
 	}
-	
+
 	/**
 	 * Marks the nodes on which a given operation could not be performed
 	 * e.g. paste rendering settings.
@@ -197,7 +197,7 @@ class ImageTableView
 	{
 		table.markUnmodifiedNodes(type, ids);
 	}
-	
+
 	/**
 	 * Sets the magnification factor.
 	 * 
@@ -207,12 +207,12 @@ class ImageTableView
 	{
 		this.magnification = magnification;
 	}
-	
+
 	/**
 	 * Returns the magnification factor.
 	 * 
 	 * @return See above.
 	 */
 	double getMagnification() { return magnification; }
-	
+
 }

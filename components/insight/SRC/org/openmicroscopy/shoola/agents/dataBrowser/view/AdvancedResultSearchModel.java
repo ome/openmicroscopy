@@ -74,6 +74,8 @@ class AdvancedResultSearchModel
 	/** The result to display. */
 	private AdvancedSearchResultCollection results;
 	
+	private List<ImageDisplay> data = new ArrayList<ImageDisplay>();
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -97,7 +99,13 @@ class AdvancedResultSearchModel
             
             Set<ImageDisplay> vis = new HashSet<ImageDisplay>();
             
-            vis.addAll(DataBrowserTranslator.transformHierarchy(results.getDataObjects(-1, null)));
+            Set set = DataBrowserTranslator.transformHierarchy(results.getDataObjects(-1, null));
+            vis.addAll(set);
+            
+            Iterator it = set.iterator();
+            while(it.hasNext()) {
+                data.add((ImageDisplay) it.next());
+            }
 
             browser = BrowserFactory.createBrowser(vis);
 	}
@@ -122,6 +130,6 @@ class AdvancedResultSearchModel
 	 * No-operation implementation in our case.
 	 * @see DataBrowserModel#getNodes()
 	 */
-	protected List<ImageDisplay> getNodes() { return null; }
+	protected List<ImageDisplay> getNodes() { return data; }
 
 }
