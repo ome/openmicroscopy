@@ -312,3 +312,27 @@ class TestSearch(lib.ITest):
                            [x.id.val for x in search.results()]
         finally:
             search.close()
+
+    def test_word_portions(self):
+        word = "onomatopoeia"
+        client = self.new_client()
+        tag = omero.model.TagAnnotationI()
+        tag.textValue = omero.rtypes.rstring(word)
+        tag = client.sf.getUpdateService().saveAndReturnObject(tag)
+        self.root.sf.getUpdateService().indexObject(tag)
+
+        search = client.sf.createSearchService()
+        search.onlyType("TagAnnotation")
+
+        try:
+            for idx in range(len(word)-1, 6, -1):
+                base = word[0:idx]
+                for pattern in ("%s*", "%s~0.1"):
+                    q = pattern % base
+                    search.byFullText(q)
+                    assert search.hasNext(), "Nothing for " + q
+                    assert [tag.id.val] == \
+                           [x.id.val for x in search.results()]
+
+        finally:
+            search.close()
