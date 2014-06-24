@@ -331,7 +331,7 @@ var tagging_form = function(
 
         var process_desc = function() {
             for (var id in all_tags) {
-                all_tags[id].d = raw_desc[id];
+                all_tags[id].d = raw_desc[id] || "";
             }
             update_html();
             finalize_load();

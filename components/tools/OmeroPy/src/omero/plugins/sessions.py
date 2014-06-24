@@ -489,6 +489,7 @@ class SessionsControl(BaseControl):
         else:
             sf.setSecurityContext(omero.model.ExperimenterGroupI(group_id,
                                                                  False))
+            self.ctx._event_context = sf.getAdminService().getEventContext()
             self.ctx.out("Group '%s' (id=%s) switched to '%s' (id=%s)"
                          % (old_name, old_id, group_name, group_id))
 
@@ -531,9 +532,13 @@ class SessionsControl(BaseControl):
                         msg = "Unknown exception"
 
                     if rv is None and args.purge:
-                        self.ctx.dbg("Purging %s / %s / %s"
-                                     % (server, name, uuid))
-                        store.remove(server, name, uuid)
+                        try:
+                            self.ctx.dbg("Purging %s / %s / %s"
+                                         % (server, name, uuid))
+                            store.remove(server, name, uuid)
+                        except IOError, ioe:
+                            self.ctx.dbg("Aborting session purging. %s" % ioe)
+                            break
 
                     if server == previous[0] and name == previous[1] and \
                             uuid == previous[2]:

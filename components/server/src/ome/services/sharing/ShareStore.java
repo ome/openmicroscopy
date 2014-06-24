@@ -1,5 +1,5 @@
 /*
- *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2008 - 2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -20,7 +20,6 @@ import ome.services.sharing.data.Obj;
 import ome.services.sharing.data.ShareData;
 import ome.services.sharing.data.ShareItem;
 import ome.services.util.IceUtil;
-import ome.system.EventContext;
 import ome.tools.hibernate.QueryBuilder;
 
 import org.slf4j.Logger;
@@ -57,7 +56,6 @@ public abstract class ShareStore {
      */
     public ShareData getShareIfAccessible(long shareId, boolean isAdmin,
             long userId) {
-
         ShareData data = get(shareId);
         if (data == null) {
             return null;
@@ -81,12 +79,11 @@ public abstract class ShareStore {
         data.objectMap = map(objects);
         data.objectList = list(data.objectMap);
 
-        List<ShareItem> shareItems = asItems(share.getId(),
-                data.objectList, members, guests);
+        List<ShareItem> shareItems = asItems(share.getId(), data.objectList,
+                members, guests);
 
         doSet(share, data, shareItems);
         return data;
-
     }
 
     public void update(Share share, ShareData data) {
@@ -111,7 +108,6 @@ public abstract class ShareStore {
     }
 
     public final ShareData parse(long id, byte[] data) {
-
         if (data == null) {
             return null; // EARLY EXIT!
         }
@@ -128,10 +124,11 @@ public abstract class ShareStore {
             is.readPendingObjects();
         } catch (UnmarshalOutOfBoundsException oob) {
             log.error("Share " + id + " is malformed. Creating empty share.");
-            shareData[0] = new ShareData(id, -1L, Collections
-                    .<Long> emptyList(), Collections.<String> emptyList(),
-                    Collections.<String, List<Long>> emptyMap(), Collections
-                            .<Obj> emptyList(), false, 0L);
+            shareData[0] = new ShareData(id, -1L,
+                    Collections.<Long> emptyList(),
+                    Collections.<String> emptyList(),
+                    Collections.<String, List<Long>> emptyMap(),
+                    Collections.<Obj> emptyList(), false, 0L);
             // Eventually we'll need to handle conversion, etc. here or above
         } catch (MarshalException me) {
             // Likely a encoding issue. Return a null and let handling code
@@ -257,11 +254,12 @@ public abstract class ShareStore {
             List<Long> ids = items.get(key);
             for (Long id : ids) {
                 if (id == null) {
-                    throw new ValidationException("Cannot add object with null id!");
+                    throw new ValidationException(
+                            "Cannot add object with null id!");
                 }
                 Obj obj = new Obj();
                 obj.type = key;
-                obj.id = id; 
+                obj.id = id;
                 objList.add(obj);
             }
         }
