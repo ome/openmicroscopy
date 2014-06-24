@@ -456,11 +456,16 @@
         <macrodef name="publishArtifact">
             <attribute name="pattern" default="${target.dir}/[artifact](-[classifier]).[ext]"/>
             <attribute name="haltonmissing" default="true"/>
+            <attribute name="resolver" default="${omero.resolver}"/>
+            <attribute name="publishivy" default="true"/>
+            <attribute name="settingsRef" default="ivy.${ant.project.name}"/>
+            <attribute name="conf" default="*"/>
             <sequential>
                 <delete file="${target.dir}/${ivy.module}.xml"/> <!-- delete last produced ivy file to be sure a new one will be generated -->
-                <ivy:publish settingsRef="ivy.${ant.project.name}" artifactspattern="@{pattern}" resolver="${omero.resolver}"
+                <ivy:publish settingsRef="@{settingsRef}" artifactspattern="@{pattern}" resolver="@{resolver}"
                     pubrevision="${omero.version}" pubdate="${now}" status="integration" overwrite="true" forcedeliver="true"
-                    haltonmissing="@{haltonmissing}" warnonmissing="@{haltonmissing}"/>
+                    haltonmissing="@{haltonmissing}" warnonmissing="@{haltonmissing}" publishivy="@{publishivy}"
+                    conf="@{conf}"/>
             </sequential>
         </macrodef>
 

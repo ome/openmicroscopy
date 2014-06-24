@@ -481,6 +481,17 @@ omero.version=${omero.version}
         <!-- empty by default -->
     </target>
 
+    <target name="artifactory" depends="prepare">
+        <ivy:settings id="ivy.${ant.project.name}.artifactory" file="${etc.dir}/ivysettings.xml"/>
+        <ivy:resolve file="ivy.xml" type="jar,egg" conf="client" settingsRef="ivy.${ant.project.name}.artifactory" log="quiet"/>
+        <publishArtifact
+            resolver="artifactory-publish"
+            settingsRef="ivy.${ant.project.name}.artifactory"
+            haltonmissing="false"
+            publishivy="false"
+            conf="client"/>
+    </target>
+
     <target name="clean">
         <delete dir="${target.dir}"/>
     </target>

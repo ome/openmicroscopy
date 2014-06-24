@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2010 - 2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -342,6 +342,20 @@ public interface SqlAction {
 
     long selectCurrentEventLog(String key);
 
+    /**
+     * Returns the percent (e.g. 0-100%) as calculated by the number of rows
+     * represented as completed by the configuration table row of this key
+     * divided by the total number of rows in the event log. Since this
+     * method executes 2 counts over the event log table, it can take a
+     * significant amount of time.
+     *
+     * @param key
+             PersistentEventLogLoader key for lookup in the configuration table
+     * @return float
+     *      value between 0 and 100 of the percent completed
+     */
+    float getEventLogPercent(String key);
+
     void setCurrentEventLog(long id, String key);
 
     void delCurrentEventLog(String key);
@@ -403,6 +417,15 @@ public interface SqlAction {
     void rollbackSavepoint(String savepoint);
 
     void deferConstraints();
+
+    /**
+     * Returns a map of Share ID to Share data blob.
+     *
+     * @param ids
+     *            IDs of Shares for which data blobs are to be returned.
+     * @return map of ID to data blob.
+     */
+    Map<Long, byte[]> getShareData(List<Long> ids);
 
     //
     // Previously PgArrayHelper
@@ -867,6 +890,12 @@ public interface SqlAction {
             return Long.valueOf(value);
         }
 
+        public float getEventLogPercent(String key) {
+            Float value = _jdbc().queryForObject(
+                _lookup("log_loader_percent"), Float.class, key); //$NON-NLS-1$
+            return value;
+        }
+
         public void setCurrentEventLog(long id, String key) {
 
             int count = _jdbc().update(
@@ -932,6 +961,30 @@ public interface SqlAction {
                         experimenterID, null, dn);
             }
 
+        }
+
+        public Map<Long, byte[]> getShareData(List<Long> ids) {
+            final Map<Long, byte[]> rv = new HashMap<Long, byte[]>();
+            if (ids == null || ids.isEmpty()) {
+                return rv;
+            }
+
+            final Map<String, List<Long>> params = new HashMap<String, List<Long>>();
+            params.put("ids", ids);
+
+            RowMapper<Object> mapper = new RowMapper<Object>() {
+                @Override
+                public Object mapRow(ResultSet arg0, int arg1)
+                        throws SQLException {
+                    Long id = arg0.getLong(1);
+                    byte[] data = arg0.getBytes(2);
+                    rv.put(id, data);
+                    return null;
+                }
+            };
+            _jdbc().query(_lookup("share_data"), //$NON-NLS-1$
+                    mapper, params);
+            return rv;
         }
     }
 

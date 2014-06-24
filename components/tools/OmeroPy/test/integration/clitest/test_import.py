@@ -81,11 +81,11 @@ class TestImport(CLITest):
         self.args += ["import"]
         self.add_client_dir()
 
-    def set_sudo_args(self):
+    def set_conn_args(self):
         passwd = self.root.getProperty("omero.rootpass")
         host = self.root.getProperty("omero.host")
         port = self.root.getProperty("omero.port")
-        self.args = ["import", "--sudo", "root", "-w", passwd]
+        self.args = ["import", "-w", passwd]
         self.args += ["-s", host, "-p",  port]
         self.add_client_dir()
 
@@ -103,7 +103,8 @@ class TestImport(CLITest):
             match = re.match(pattern, line)
             if match:
                 break
-        return query.get(obj_type, int(match.group('id')))
+        return query.get(obj_type, int(match.group('id')),
+                         {"omero.group": "-1"})
 
     def get_linked_annotation(self, oid):
         """Retrieve the comment annotation linked to the image"""
@@ -297,7 +298,8 @@ class TestImport(CLITest):
         fakefile.write('')
 
         # Create argument list using sudo
-        self.set_sudo_args()
+        self.set_conn_args()
+        self.args += ['--sudo', 'root']
         self.args += ["-u", user.omeName.val]
         self.args += [str(fakefile)]
 
@@ -307,49 +309,48 @@ class TestImport(CLITest):
         obj = self.get_object(e, 'Image', query=client.sf.getQueryService())
         assert obj.details.owner.id.val == user.id.val
 
-    @pytest.mark.xfail(reason="See ticket #12288")
     def testImportMultiGroup(self, tmpdir, capfd):
         """Test import using sudo argument"""
 
         # Create new client/user belonging in 2 groups and fake file
         group1 = self.new_group()
-        user = self.new_user(group=group1)
+        client, user = self.new_client_and_user(group=group1)
         group2 = self.new_group([user])
         fakefile = tmpdir.join("test.fake")
         fakefile.write('')
 
-        # Create argument list using sudo
+        # Create argument list
+        self.set_conn_args()
+        self.args += ["-u", user.omeName.val]
         self.args += ["-g", group2.name.val]
         self.args += [str(fakefile)]
 
         # Invoke CLI import command and retrieve stdout/stderr
         self.cli.invoke(self.args, strict=True)
         o, e = capfd.readouterr()
-        client = self.new_client(user=user, group=group2)
         obj = self.get_object(e, 'Image', query=client.sf.getQueryService())
         assert obj.details.owner.id.val == user.id.val
         assert obj.details.group.id.val == group2.id.val
 
-    @pytest.mark.xfail(reason="See ticket #12288")
     def testImportAsRootMultiGroup(self, tmpdir, capfd):
         """Test import using sudo argument"""
 
         # Create new client/user belonging in 2 groups and fake file
         group1 = self.new_group()
-        user = self.new_user(group=group1)
+        client, user = self.new_client_and_user(group=group1)
         group2 = self.new_group([user])
         fakefile = tmpdir.join("test.fake")
         fakefile.write('')
 
         # Create argument list using sudo
-        self.set_sudo_args()
+        self.set_conn_args()
+        self.args += ['--sudo', 'root']
         self.args += ["-u", user.omeName.val, "-g", group2.name.val]
         self.args += [str(fakefile)]
 
         # Invoke CLI import command and retrieve stdout/stderr
         self.cli.invoke(self.args, strict=True)
         o, e = capfd.readouterr()
-        client = self.new_client(user=user, group=group2)
         obj = self.get_object(e, 'Image', query=client.sf.getQueryService())
         assert obj.details.owner.id.val == user.id.val
         assert obj.details.group.id.val == group2.id.val

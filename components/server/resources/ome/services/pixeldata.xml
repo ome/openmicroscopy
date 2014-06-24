@@ -92,6 +92,14 @@
   </bean>
 
   <!-- Workaround for session mgr dependency#5216-->
-  <bean id="dbPatchCheck" class="java.lang.Object"/>
+
+ <bean id="dbPatchCheck" class="java.lang.Object"/>
+
+ <bean id="metrics" class="ome.system.metrics.Metrics">
+    <property name="slf4jReporter" value="true"/>
+    <property name="beginsWith">
+        <list><value>ome.services.pixeldata</value></list>
+    </property>
+ </bean>
 
 </beans>
