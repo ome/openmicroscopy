@@ -154,7 +154,12 @@ class DataBrowserUI
 		if (model.getType() == DataBrowserModel.WELLS)
 			plateGridUI = new PlateGridUI((WellsModel) model, controller);
 		statusBar = new DataBrowserStatusBar(this);
-		selectedView = THUMB_VIEW;
+		if(model.getType()==DataBrowserModel.SEARCH) {
+		    selectedView = SEARCH_VIEW;
+		}
+		else {
+		    selectedView = THUMB_VIEW;
+		}
 		factor = Thumbnail.SCALING_FACTOR;
 		setNumberOfImages(-1);
 		setLayout(new BorderLayout(0, 0));
