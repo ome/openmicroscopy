@@ -70,11 +70,6 @@ import pojos.ImageData;
 class AdvancedResultSearchModel 
 	extends DataBrowserModel
 {
-
-	/** The result to display. */
-	private AdvancedSearchResultCollection results;
-	
-	private List<ImageDisplay> data = new ArrayList<ImageDisplay>();
 	
 	/**
 	 * Creates a new instance.
@@ -83,24 +78,17 @@ class AdvancedResultSearchModel
 	 */
 	AdvancedResultSearchModel(AdvancedSearchResultCollection results)
 	{
-//		super(null);
-//		if (results  == null) 
-//			throw new IllegalArgumentException("No results.");
-//		this.results = results;
-//		
-//		for(AdvancedSearchResult result : results) {
-//		    
-//		}
 		
 	    super(null);
             if (results  == null) 
                     throw new IllegalArgumentException("No results.");
-            this.results = results;
             
             Set<ImageDisplay> vis = new HashSet<ImageDisplay>();
             
             Set set = DataBrowserTranslator.transformHierarchy(results.getDataObjects(-1, null));
             vis.addAll(set);
+            
+            List<ImageDisplay> data = new ArrayList<ImageDisplay>();
             
             Iterator it = set.iterator();
             while(it.hasNext()) {
@@ -130,6 +118,6 @@ class AdvancedResultSearchModel
 	 * No-operation implementation in our case.
 	 * @see DataBrowserModel#getNodes()
 	 */
-	protected List<ImageDisplay> getNodes() { return data; }
+	protected List<ImageDisplay> getNodes() { return null; }
 
 }

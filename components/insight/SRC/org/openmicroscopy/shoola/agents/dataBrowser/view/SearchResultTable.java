@@ -73,7 +73,7 @@ public class SearchResultTable extends JTable {
         TableCellRenderer defaultRenderer = new MyRenderer();
         setDefaultRenderer(DataObject.class, defaultRenderer);
         setDefaultRenderer(String.class, defaultRenderer);
-        setDefaultRenderer(Icon.class, new IconCellRenderer());
+        setDefaultRenderer(Icon.class, defaultRenderer);
         
         setDefaultEditor(DataObject.class, new DataObjectEditor());
 
