@@ -214,4 +214,35 @@ class TestSearch(lib.ITest):
         #"CommentAnnotation", "%s*" % uuid[0:6], None)
         assert cann.id.val ==  rv[0].id.val
 
+    def testFilename(self):
+        client = self.new_client()
+        uuid = self.uuid()
+        uuid = uuid.replace("-", "")
+        uuid = "t" + self.uuid().replace("-", "")[0:8]
+        image = self.importSingleImage(uuid, client)
+        self.root.sf.getUpdateService().indexObject(image)
+        search = client.sf.createSearchService()
+        search.onlyType("Image")
+        search.setAllowLeadingWildcard(True)
 
+        def supported(x):
+            search.byFullText(x)
+            assert search.hasNext(), "None found for " + x
+            assert [image.id.val] == \
+                [x.id.val for x in search.results()]
+            assert not search.hasNext()
+
+        def unsupported(x):
+            search.byFullText(x)
+            assert not search.hasNext(), "Found for %s!" % x
+
+        for x, m in (
+            (".fake", supported),
+            ("fake", supported),
+            ("%s*" % uuid, supported),
+            #
+            (uuid, unsupported),
+            ("*.fake", unsupported),
+            ("%s*.fake" % uuid, unsupported)):
+
+            m(x)
