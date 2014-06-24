@@ -60,12 +60,13 @@ public class SearchResultTable extends JTable {
 
     SearchResultView view;
 
-    DataBrowserModel model;
+    AdvancedResultSearchModel model;
     
     List<DataObject> data;
 
-    public SearchResultTable(List<DataObject> data) {
+    public SearchResultTable(List<DataObject> data, DataBrowserModel browserModel) {
         this.data = data;
+        this.model = (AdvancedResultSearchModel)browserModel;
         initTable();
     }
 
@@ -83,7 +84,7 @@ public class SearchResultTable extends JTable {
     }
 
     public void refreshTable() {
-        setModel(new SearchResultTableModel(data));
+        setModel(new SearchResultTableModel(data, model));
     }
 
     public void setHighlightedNodes(List<ImageDisplay> nodes) {

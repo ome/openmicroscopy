@@ -31,6 +31,7 @@ import java.util.Set;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -43,6 +44,8 @@ class SearchResultView extends JPanel {
 
     List<DataObject> objs = new ArrayList<DataObject>();
 
+    DataBrowserModel browserModel = null;
+    
     /** Reference to the table displaying the nodes. */
     private SearchResultTable objsTable;
 
@@ -59,7 +62,7 @@ class SearchResultView extends JPanel {
             objs.add(obj);
         }
 
-        objsTable = new SearchResultTable(objs);
+        objsTable = new SearchResultTable(objs, browserModel);
 
     }
 
@@ -81,7 +84,8 @@ class SearchResultView extends JPanel {
      * @param root
      *            The root of the tree.
      */
-    SearchResultView(ImageDisplay root) {
+    SearchResultView(ImageDisplay root, DataBrowserModel browserModel) {
+        this.browserModel = browserModel;
         initComponents(root);
         buildGUI();
     }

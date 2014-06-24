@@ -29,6 +29,7 @@ import javax.swing.Icon;
 import javax.swing.table.DefaultTableModel;
 
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -36,20 +37,23 @@ import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
-import sun.net.www.content.text.plain;
 
 public class SearchResultTableModel extends DefaultTableModel {
 
     List<DataObject> data = new ArrayList<DataObject>();
 
     final DateFormat df = new SimpleDateFormat("MMM dd, yyyy hh:mm a");
-    
-    public SearchResultTableModel(List<DataObject> data) {
-        super(new String[] {"Type", "Name", "Date", "Group"," "}, data.size());
+
+    AdvancedResultSearchModel model;
+
+    public SearchResultTableModel(List<DataObject> data,
+            AdvancedResultSearchModel model) {
+        super(new String[] { "Type", "Name", "Date", "Group", " " }, data
+                .size());
         this.data = data;
+        this.model = model;
     }
 
-    
     @Override
     public Object getValueAt(int row, int column) {
         Object result = "N/A";
@@ -76,60 +80,64 @@ public class SearchResultTableModel extends DefaultTableModel {
 
         return result;
     }
-    
+
     private String getDate(DataObject obj) {
-        
+
         try {
             return df.format(new Date(obj.getCreated().getTime()));
         } catch (Exception e) {
             return "N/A";
         }
-  
+
     }
-    
+
     private String getGroup(DataObject obj) {
-        return ""+obj.getGroupId();
+        return "" + obj.getGroupId();
     }
-    
+
     public Icon getIcon(DataObject obj) {
-        if(obj instanceof ImageData) {
-            return IconManager.getInstance().getIcon(IconManager.IMAGE);
-        }
-        else if(obj instanceof ProjectData) {
-            return IconManager.getInstance().getIcon(IconManager.PROJECT);
-        }
-        else if(obj instanceof DatasetData) {
-            return IconManager.getInstance().getIcon(IconManager.DATASET);
-        }
-        else if(obj instanceof ScreenData) {
-            return IconManager.getInstance().getIcon(IconManager.DATASET);
-        }
-        else if(obj instanceof PlateData) {
-            return IconManager.getInstance().getIcon(IconManager.DATASET);
+
+        if (obj instanceof ImageData) {
+//            Thumbnail thumb = model.getThumbnail(obj.getId());
+//            return thumb.getIcon() == null ? IconManager.getInstance().getIcon(
+//                    IconManager.IMAGE) : thumb.getIcon();
+            return IconManager.getInstance().getIcon(IconManager.IMAGE); 
         }
         
+        else if (obj instanceof ProjectData) {
+            return IconManager.getInstance().getIcon(IconManager.PROJECT);
+        } 
+        
+        else if (obj instanceof DatasetData) {
+            return IconManager.getInstance().getIcon(IconManager.DATASET);
+        } 
+        
+        else if (obj instanceof ScreenData) {
+            return IconManager.getInstance().getIcon(IconManager.DATASET);
+        } 
+        
+        else if (obj instanceof PlateData) {
+            return IconManager.getInstance().getIcon(IconManager.DATASET);
+        }
+
         return IconManager.getInstance().getIcon(IconManager.TRANSPARENT);
     }
-    
+
     public String getIconString(DataObject obj) {
-        if(obj instanceof ImageData) {
+        if (obj instanceof ImageData) {
             return "[Thumbnail]";
-        }
-        else if(obj instanceof ProjectData) {
+        } else if (obj instanceof ProjectData) {
             return "[Icon Project]";
-        }
-        else if(obj instanceof DatasetData) {
+        } else if (obj instanceof DatasetData) {
             return "[Icon Dataset]";
-        }
-        else if(obj instanceof ScreenData) {
+        } else if (obj instanceof ScreenData) {
             return "[Icon Screen]";
-        }
-        else if(obj instanceof PlateData) {
+        } else if (obj instanceof PlateData) {
             return "[Icon Plate]";
         }
         return "N/A";
     }
-    
+
     @Override
     public Class<?> getColumnClass(int column) {
         switch (column) {
@@ -168,7 +176,7 @@ public class SearchResultTableModel extends DefaultTableModel {
 
     @Override
     public boolean isCellEditable(int row, int column) {
-        return column==4;
+        return column == 4;
     }
 
 }
