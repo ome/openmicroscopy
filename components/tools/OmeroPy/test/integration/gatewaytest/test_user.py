@@ -17,8 +17,9 @@ import pytest
 
 from omero.gateway.scripts import dbhelpers
 
+
 class TestUser (object):
-    def testUsers (self, gatewaywrapper):
+    def testUsers(self, gatewaywrapper):
         gatewaywrapper.loginAsUser()
         # Try reconnecting without disconnect
         gatewaywrapper._has_connected = False
@@ -26,7 +27,7 @@ class TestUser (object):
         gatewaywrapper.loginAsAuthor()
         gatewaywrapper.loginAsAdmin()
 
-    def testSaveAs (self, gatewaywrapper):
+    def testSaveAs(self, gatewaywrapper):
         for u in (gatewaywrapper.AUTHOR, gatewaywrapper.ADMIN):
             # Test image should be owned by author
             gatewaywrapper.loginAsAuthor()
@@ -36,14 +37,18 @@ class TestUser (object):
             gatewaywrapper.doLogin(u)
             gatewaywrapper.gateway.SERVICE_OPTS.setOmeroGroup('-1')
             image = gatewaywrapper.getTestImage()
-            assert ownername ==  gatewaywrapper.AUTHOR.name
+            assert ownername == gatewaywrapper.AUTHOR.name
             # Create some object
             param = omero.sys.Parameters()
-            param.map = {'ns': omero.rtypes.rstring('weblitz.UserTest.testSaveAs')}
-            anns = gatewaywrapper.gateway.getQueryService().findAllByQuery('from CommentAnnotation as a where a.ns=:ns', param)
-            assert len(anns) ==  0
+            param.map = {
+                'ns': omero.rtypes.rstring('weblitz.UserTest.testSaveAs')}
+            queryService = gatewaywrapper.gateway.getQueryService()
+            anns = queryService.findAllByQuery(
+                'from CommentAnnotation as a where a.ns=:ns', param)
+            assert len(anns) == 0
             gatewaywrapper.gateway.SERVICE_OPTS.setOmeroGroup()
-            ann = omero.gateway.CommentAnnotationWrapper(conn=gatewaywrapper.gateway)
+            ann = omero.gateway.CommentAnnotationWrapper(
+                conn=gatewaywrapper.gateway)
             ann.setNs(param.map['ns'].val)
             ann.setValue('foo')
             ann.saveAs(image.getDetails())
@@ -51,15 +56,22 @@ class TestUser (object):
             # Annotations are owned by author
             gatewaywrapper.loginAsAuthor()
             try:
-                anns = gatewaywrapper.gateway.getQueryService().findAllByQuery('from CommentAnnotation as a where a.ns=:ns', param)
-                assert len(anns) ==  1
-                assert omero.gateway.CommentAnnotationWrapper(gatewaywrapper.gateway, anns[0]).getOwnerOmeName(), gatewaywrapper.AUTHOR.name
+                queryService = gatewaywrapper.gateway.getQueryService()
+                anns = queryService.findAllByQuery(
+                    'from CommentAnnotation as a where a.ns=:ns', param)
+                assert len(anns) == 1
+                assert omero.gateway.CommentAnnotationWrapper(
+                    gatewaywrapper.gateway, anns[0]).getOwnerOmeName(), \
+                    gatewaywrapper.AUTHOR.name
             finally:
-                gatewaywrapper.gateway.getUpdateService().deleteObject(ann._obj)
-                anns = gatewaywrapper.gateway.getQueryService().findAllByQuery('from CommentAnnotation as a where a.ns=:ns', param)
-                assert len(anns) ==  0
+                gatewaywrapper.gateway.getUpdateService().deleteObject(
+                    ann._obj)
+                queryService = gatewaywrapper.gateway.getQueryService()
+                anns = queryService.findAllByQuery(
+                    'from CommentAnnotation as a where a.ns=:ns', param)
+                assert len(anns) == 0
 
-    def testCrossGroupSave (self, gatewaywrapper):
+    def testCrossGroupSave(self, gatewaywrapper):
         gatewaywrapper.loginAsUser()
         uid = gatewaywrapper.gateway.getUserId()
         gatewaywrapper.loginAsAdmin()
@@ -78,7 +90,8 @@ class TestUser (object):
         assert g.getDetails().permissions.isGroupWrite()
 
         gatewaywrapper.loginAsUser()
-        # User is now a member of the group to which testDataset belongs, which has groupWrite==True
+        # User is now a member of the group to which testDataset belongs,
+        # which has groupWrite==True
         # But the default group for User is diferent
         try:
             gatewaywrapper.gateway.SERVICE_OPTS.setOmeroGroup('-1')
@@ -88,11 +101,11 @@ class TestUser (object):
             d.setName(n+'_1')
             d.save()
             d = gatewaywrapper.gateway.getObject('dataset', did)
-            assert d.getName() ==  n+'_1'
+            assert d.getName() == n+'_1'
             d.setName(n)
             d.save()
             d = gatewaywrapper.gateway.getObject('dataset', did)
-            assert d.getName() ==  n
+            assert d.getName() == n
         finally:
             gatewaywrapper.loginAsAdmin()
             admin = gatewaywrapper.gateway.getAdminService()
@@ -100,32 +113,35 @@ class TestUser (object):
             admin.changePermissions(g._obj, omero.model.PermissionsI(perms))
 
     @pytest.mark.xfail(reason="ticket 11545")
-    def testCrossGroupRead (self, gatewaywrapper):
+    def testCrossGroupRead(self, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()
-        u = gatewaywrapper.gateway.getUpdateService()
         p = gatewaywrapper.getTestProject()
-        assert str(p.getDetails().permissions)[4] ==  '-'
+        assert str(p.getDetails().permissions)[4] == '-'
         d = p.getDetails()
         g = d.getGroup()
         gatewaywrapper.loginAsUser()
         gatewaywrapper.gateway.SERVICE_OPTS.setOmeroGroup('-1')
-        assert not g.getId() in gatewaywrapper.gateway.getEventContext().memberOfGroups
+        assert not g.getId() in \
+            gatewaywrapper.gateway.getEventContext().memberOfGroups
         assert gatewaywrapper.gateway.getObject('project', p.getId()) is None
 
-    def testGroupOverObjPermissions (self, gatewaywrapper):
+    def testGroupOverObjPermissions(self, gatewaywrapper):
         """ Object accesss must be dependent only of group permissions """
-        ns = 'omero.test.ns'
         # Author
         gatewaywrapper.loginAsAuthor()
         # create group with rw----
         # create project and annotation in that group
-        p = dbhelpers.ProjectEntry('testAnnotationPermissions', None, create_group='testAnnotationPermissions', group_perms='rw----')
+        p = dbhelpers.ProjectEntry(
+            'testAnnotationPermissions', None,
+            create_group='testAnnotationPermissions', group_perms='rw----')
         try:
             p = p.create(gatewaywrapper.gateway)
         except dbhelpers.BadGroupPermissionsException:
             gatewaywrapper.loginAsAdmin()
             admin = gatewaywrapper.gateway.getAdminService()
-            admin.changePermissions(admin.lookupGroup('testAnnotationPermissions'), omero.model.PermissionsI('rw----'))
+            admin.changePermissions(
+                admin.lookupGroup('testAnnotationPermissions'),
+                omero.model.PermissionsI('rw----'))
             gatewaywrapper.loginAsAuthor()
             p = p.create(gatewaywrapper.gateway)
         pid = p.getId()
@@ -153,15 +169,15 @@ class TestUser (object):
             gatewaywrapper.loginAsAuthor()
             gatewaywrapper.gateway.SERVICE_OPTS.setOmeroGroup('-1')
             pa = gatewaywrapper.gateway.getObject('project', pid)
-            assert pa !=  None
+            assert pa is not None
             # User
             # read project and annotation
             gatewaywrapper.loginAsUser()
             gatewaywrapper.gateway.SERVICE_OPTS.setOmeroGroup('-1')
-            assert gatewaywrapper.gateway.getObject('project',  pid) is not None
+            assert gatewaywrapper.gateway.getObject(
+                'project', pid) is not None
         finally:
             gatewaywrapper.loginAsAuthor()
-            handle = gatewaywrapper.gateway.deleteObjects('Project', [p.getId()], deleteAnns=True, deleteChildren=True)
+            handle = gatewaywrapper.gateway.deleteObjects(
+                'Project', [p.getId()], deleteAnns=True, deleteChildren=True)
             gatewaywrapper.waitOnCmd(gatewaywrapper.gateway.c, handle)
-
-        
