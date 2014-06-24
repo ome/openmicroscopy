@@ -3072,7 +3072,7 @@ class TreeViewerComponent
     public void setSearchResult(Object result)
 	{
 		Map<SecurityContext, AdvancedSearchResultCollection> tmp = (Map<SecurityContext, AdvancedSearchResultCollection>) result;
-		
+
 		MetadataViewer metadata = model.getMetadataViewer();
 		if (metadata != null) {
 			metadata.setRootObject(null, -1, null);
@@ -3084,13 +3084,13 @@ class TreeViewerComponent
 			return;
 		}
 		
-		Map<SecurityContext, Collection<DataObject>> dataObjects = new HashMap<SecurityContext, Collection<DataObject>>();
-		for(Entry<SecurityContext, AdvancedSearchResultCollection> e : tmp.entrySet()) {
-		    dataObjects.put(e.getKey(), e.getValue().getDataObjects(-1, null));
-		}
-		
+		AdvancedSearchResultCollection allResults = new AdvancedSearchResultCollection();
+                for(AdvancedSearchResultCollection r : tmp.values()) {
+                    allResults.addAll(r);
+                }
+                
 		//Need to recycle the search browser.
-		DataBrowser db = DataBrowserFactory.getSearchBrowser(dataObjects);
+		DataBrowser db = DataBrowserFactory.getSearchBrowser(allResults);
 		if (db != null && view.getDisplayMode() == SEARCH_MODE) {
 			db.setExperimenter(TreeViewerAgent.getUserDetails());
 			db.addPropertyChangeListener(controller);
