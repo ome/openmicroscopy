@@ -31,6 +31,54 @@
 class TestGetObject (object):
 
 
+    def testBuildSearchQuery(self, gatewaywrapper):
+
+        gatewaywrapper.loginAsAuthor()
+        conn = gatewaywrapper.gateway
+
+        def assertQuery(input, fields, output, wildcard):
+            query, wc = conn.buildSearchQuery(input, fields)
+            assert query == output
+            assert wc == wildcard
+
+        # No fields are provided
+        assertQuery("dv", [], "dv", False)
+        assertQuery("test dv", [], "test dv", False)
+        assertQuery("*test dv", [], "*test dv", True)           # * wildcards
+        assertQuery("test *dv", [], "test *dv", True)
+        assertQuery("?test dv", [], "?test dv", True)           # ? wildcards
+        assertQuery("test ?dv", [], "test ?dv", True)
+        assertQuery("test * dv", [], "test dv", False)          # single wildcards ignored
+        assertQuery("test *.dv", [], "test dv", False)
+        assertQuery('test "*dv"', [], 'test "*dv"', False)      # wildcards have no effect in "*quotes"
+        assertQuery('"?test *dv"', [], '"?test *dv"', False)
+        assertQuery('(test-dv}', [], 'test dv', False)            # strip all non-alpha-numerics
+        assertQuery('*test_dv', [], '*test_dv', True)           # except wildcards (and underscores?)
+        assertQuery("test AND dv", [], "test AND dv", False)    # AND operator is preserved
+
+        # single field
+        assertQuery("dv", ['name'], "(name:dv)", False)
+        assertQuery("test dv", ['name'], "(name:test name:dv)", False)
+        assertQuery("*test dv", ['name'], "(name:*test name:dv)", True)         # * wildcards
+        assertQuery("test *dv", ['name'], "(name:test name:*dv)", True)
+        assertQuery("?test dv", ['name'], "(name:?test name:dv)", True)         # ? wildcards
+        assertQuery("test ?dv", ['name'], "(name:test name:?dv)", True)
+        assertQuery("test * dv", ['name'], "(name:test name:dv)", False)        # single wildcards ignored
+        assertQuery("test *.dv", ['name'], "(name:test name:dv)", False)
+        assertQuery('test "*dv"', ['name'], '(name:test name:"*dv")', False)    # wildcards have no effect in "*quotes"
+        assertQuery('"?test *dv"', ['name'], '(name:"?test *dv")', False)
+        assertQuery('(test-dv}', ['name'], '(name:test name:dv)', False)        # strip all non-alpha-numerics
+        assertQuery('*test_dv', ['name'], '(name:*test_dv)', True)               # except wildcards (and underscores?)
+        assertQuery("test AND dv", ['name'], "(name:test AND name:dv)", False)  # AND operator is preserved
+
+        # multiple fields
+        f = ['name', 'description']
+        assertQuery("dv", f, "(name:dv) OR (description:dv)", False)
+        assertQuery("test dv", f, "(name:test name:dv) OR (description:test description:dv)", False)
+        assertQuery("*test dv", f, "(name:*test name:dv) OR (description:*test description:dv)", True)         # * wildcards
+        assertQuery("test *dv", f, "(name:test name:*dv) OR (description:test description:*dv)", True)
+
+
     def testSearchObjects(self, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()
 
