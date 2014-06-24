@@ -634,17 +634,17 @@ public class SearchComponent
 	/** Subclasses should override this method. */
 	protected void help() {}
 
-    @Override
-    public void eventFired(AgentEvent e) {
-        if(e instanceof SearchEvent) {
-            SearchEvent evt = (SearchEvent) e;
-            if(evt.getQuery().trim().length()>0) {
-                uiDelegate.reset();
-                uiDelegate.setTerms(Collections.singletonList(evt.getQuery()));
-                search();
+	
+        public void eventFired(AgentEvent e) {
+            if (e instanceof SearchEvent) {
+                SearchEvent evt = (SearchEvent) e;
+                if (evt.getQuery().trim().length() > 0) {
+                    uiDelegate.reset();
+                    uiDelegate.setTerms(Collections.singletonList(evt.getQuery()));
+                    search();
+                }
             }
-        } 
-        
-    }
+    
+        }
 	
 }
