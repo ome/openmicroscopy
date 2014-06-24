@@ -71,11 +71,15 @@ class BaseSearch(BaseController):
 
         self.containers={}
         resultCount = 0
+        self.searchError = None
 
-        for dt in onlyTypes:
-            dt = str(dt)
-            if dt in ['project', 'dataset', 'image', 'screen', 'plate']:
-                self.containers[dt] = doSearch(dt)
-                resultCount += len(self.containers[dt])
+        try:
+            for dt in onlyTypes:
+                dt = str(dt)
+                if dt in ['project', 'dataset', 'image', 'screen', 'plate']:
+                    self.containers[dt] = doSearch(dt)
+                    resultCount += len(self.containers[dt])
+        except Exception, x:
+            self.searchError = "Your query for '%s' caused a search error: %s" % (query, x.message)
 
         self.c_size = resultCount
