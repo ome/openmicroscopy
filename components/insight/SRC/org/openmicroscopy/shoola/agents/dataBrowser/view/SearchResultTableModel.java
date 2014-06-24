@@ -25,7 +25,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.swing.Icon;
 import javax.swing.table.DefaultTableModel;
+
+import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -88,7 +91,27 @@ public class SearchResultTableModel extends DefaultTableModel {
         return ""+obj.getGroupId();
     }
     
-    public String getIcon(DataObject obj) {
+    public Icon getIcon(DataObject obj) {
+        if(obj instanceof ImageData) {
+            return IconManager.getInstance().getIcon(IconManager.IMAGE);
+        }
+        else if(obj instanceof ProjectData) {
+            return IconManager.getInstance().getIcon(IconManager.PROJECT);
+        }
+        else if(obj instanceof DatasetData) {
+            return IconManager.getInstance().getIcon(IconManager.DATASET);
+        }
+        else if(obj instanceof ScreenData) {
+            return IconManager.getInstance().getIcon(IconManager.DATASET);
+        }
+        else if(obj instanceof PlateData) {
+            return IconManager.getInstance().getIcon(IconManager.DATASET);
+        }
+        
+        return IconManager.getInstance().getIcon(IconManager.TRANSPARENT);
+    }
+    
+    public String getIconString(DataObject obj) {
         if(obj instanceof ImageData) {
             return "[Thumbnail]";
         }
@@ -111,7 +134,7 @@ public class SearchResultTableModel extends DefaultTableModel {
     public Class<?> getColumnClass(int column) {
         switch (column) {
             case 0:
-                return String.class;
+                return Icon.class;
             case 1:
                 return String.class;
             case 2:
