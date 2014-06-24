@@ -175,6 +175,8 @@ abstract class DataBrowserModel
     /** Reference to the browser. */
     protected ImageTableView	tableView;
     
+    protected SearchResultView searchResultView;
+    
     /** The number of images. */
     protected int				numberOfImages;
     
@@ -350,7 +352,8 @@ abstract class DataBrowserModel
      */
     SearchResultView createSearchResultView()
     {
-        if (searchResultView != null) return searchResultView;
+        if (searchResultView != null)
+            return searchResultView;
         searchResultView = new SearchResultView((ImageDisplay) browser.getUI());
         return searchResultView;
     }
@@ -436,6 +439,10 @@ abstract class DataBrowserModel
      * @return See above.
      */
     ImageTableView getTableView() { return tableView; }
+    
+    SearchResultView getSearchView() {
+        return searchResultView;
+    }
     
     /**
      * Called by the <code>DataBrowser</code> after creation to allow this
