@@ -12,7 +12,10 @@
 import test.integration.library as lib
 import pytest
 import omero
-import datetime, time
+import datetime
+import time
+import os
+
 
 class TestSearch(lib.ITest):
 
@@ -214,11 +217,16 @@ class TestSearch(lib.ITest):
         #"CommentAnnotation", "%s*" % uuid[0:6], None)
         assert cann.id.val ==  rv[0].id.val
 
-    def testFilename(self):
-        client = self.new_client()
+
+    def simple_uuid(self):
         uuid = self.uuid()
         uuid = uuid.replace("-", "")
         uuid = "t" + self.uuid().replace("-", "")[0:8]
+        return uuid
+
+    def testFilename(self):
+        client = self.new_client()
+        uuid = self.simple_uuid()
         image = self.importSingleImage(uuid, client)
         self.root.sf.getUpdateService().indexObject(image)
         search = client.sf.createSearchService()
@@ -246,3 +254,61 @@ class TestSearch(lib.ITest):
             ("%s*.fake" % uuid, unsupported)):
 
             m(x)
+
+        search.close()
+
+    def attached_image(self, uuid, client, path, mimetype):
+        _ = omero.rtypes.rstring
+        image = self.importSingleImage(uuid, client)
+        ofile = omero.model.OriginalFileI()
+        ofile.mimetype = _(mimetype)
+        ofile.path = _(os.path.dirname(path))
+        ofile.name = _(os.path.basename(path))
+        ofile = client.upload(path, ofile=ofile)
+        link = omero.model.ImageAnnotationLinkI()
+        link.parent = image
+        link.child = omero.model.FileAnnotationI()
+        link.child.file = ofile.proxy()
+        link = client.sf.getUpdateService().saveObject(link)
+        self.root.sf.getUpdateService().indexObject(image)
+        return image
+
+    def test_csv_attachment(self, tmpdir):
+        uuid = self.simple_uuid()
+        client = self.new_client()
+        filename = "%s.csv" % uuid
+        csv = tmpdir.join(filename)
+        csv.write("Header1,Header2\nGFP\n100.0\n")
+        image = self.attached_image(
+            uuid, client, str(csv), "text/csv")
+
+        search = client.sf.createSearchService()
+        try:
+            search.onlyType("Image")
+            search.byFullText("GFP")
+            assert search.hasNext()
+            assert [image.id.val] == \
+                [x.id.val for x in search.results()]
+        finally:
+            search.close()
+
+    def test_txt_attachment(self, tmpdir):
+        uuid = self.simple_uuid()
+        client = self.new_client()
+        filename = "weird attachment.txt"
+        txt = tmpdir.join(filename)
+        txt.write("crazy")
+        image = self.attached_image(
+            uuid, client, str(txt), "text/plain")
+
+        search = client.sf.createSearchService()
+        try:
+            for t in ("Image", "Annotation"):
+                search.onlyType("Image")
+                for x in ("crazy", "weird"):
+                    search.byFullText(x)
+                    assert search.hasNext()
+                    assert [image.id.val] == \
+                           [x.id.val for x in search.results()]
+        finally:
+            search.close()
