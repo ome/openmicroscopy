@@ -19,7 +19,10 @@
 
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.table.DefaultTableModel;
@@ -36,8 +39,10 @@ public class SearchResultTableModel extends DefaultTableModel {
 
     List<DataObject> data = new ArrayList<DataObject>();
 
+    final DateFormat df = new SimpleDateFormat("MMM dd, yyyy hh:mm a");
+    
     public SearchResultTableModel(List<DataObject> data) {
-        super(new String[] {"Type", "Name", " "}, data.size());
+        super(new String[] {"Type", "Name", "Date", "Group"," "}, data.size());
         this.data = data;
     }
 
@@ -56,11 +61,31 @@ public class SearchResultTableModel extends DefaultTableModel {
                 result = getObjectName(obj);
                 break;
             case 2:
+                result = getDate(obj);
+                break;
+            case 3:
+                result = getGroup(obj);
+                break;
+            case 4:
                 result = obj;
                 break;
         }
 
         return result;
+    }
+    
+    private String getDate(DataObject obj) {
+        
+        try {
+            return df.format(new Date(obj.getCreated().getTime()));
+        } catch (Exception e) {
+            return "N/A";
+        }
+  
+    }
+    
+    private String getGroup(DataObject obj) {
+        return ""+obj.getGroupId();
     }
     
     public String getIcon(DataObject obj) {
@@ -90,10 +115,13 @@ public class SearchResultTableModel extends DefaultTableModel {
             case 1:
                 return String.class;
             case 2:
+                return String.class;
+            case 3:
+                return String.class;
+            case 4:
                 return DataObject.class;
-
             default:
-                return null;
+                return String.class;
         }
     }
 
@@ -117,7 +145,7 @@ public class SearchResultTableModel extends DefaultTableModel {
 
     @Override
     public boolean isCellEditable(int row, int column) {
-        return column==2;
+        return column==4;
     }
 
 }

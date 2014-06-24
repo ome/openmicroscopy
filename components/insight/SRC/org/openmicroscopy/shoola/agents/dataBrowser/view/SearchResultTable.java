@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEve
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.treetable.renderers.IconCellRenderer;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 import pojos.DataObject;
@@ -71,8 +72,8 @@ public class SearchResultTable extends JTable {
     public void initTable() {
         TableCellRenderer defaultRenderer = new MyRenderer();
         setDefaultRenderer(DataObject.class, defaultRenderer);
-        setDefaultRenderer(Icon.class, defaultRenderer);
         setDefaultRenderer(String.class, defaultRenderer);
+        setDefaultRenderer(Icon.class, new IconCellRenderer());
         
         setDefaultEditor(DataObject.class, new DataObjectEditor());
 
