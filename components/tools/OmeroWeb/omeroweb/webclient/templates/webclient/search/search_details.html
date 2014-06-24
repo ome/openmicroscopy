@@ -69,6 +69,13 @@
 
     <div>
     {% block search_results %}
+
+        {% if manager.searchError %}
+        <div class="error" style="font-size: 120%; margin-top: 50px; text-align: center">
+            {{ manager.searchError }}
+        </div>
+        {% endif %}
+
         {% if manager.c_size or foundById %}
         
         <table id="dataTable" class="tablesorter">
