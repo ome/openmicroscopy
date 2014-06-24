@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerControl 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -228,9 +228,7 @@ class MetadataViewerControl
 					break;
 			}
 		} else if (Renderer.VIEWED_BY_PROPERTY.equals(name)) {
-			List l = (List) evt.getNewValue();
-			view.setLocationAndSource((Component) l.get(0), (Point) l.get(1));
-			model.loadViewedBy((Component) l.get(0), (Point) l.get(1));
+		        model.loadViewedBy();
 		} else if (Renderer.SAVE_SETTINGS_PROPERTY.equals(name)) {
 			model.saveSettings() ;
 		}

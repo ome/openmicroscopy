@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.Renderer 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -38,6 +38,7 @@ import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
+import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
@@ -632,12 +633,8 @@ public interface Renderer
 
     /** 
      * Retrieves the rendering settings set by other users. 
-     * 
-     * @param source The component that requested the pop-up menu.
-     * @param location The point at which to display the menu, relative to the
-     *                  <code>component</code>'s coordinates.
      */
-    void retrieveRelatedSettings(Component source, Point location);
+    void retrieveRelatedSettings();
 
     /** 
      * Indicates that the rendering settings are being loaded if 
@@ -648,7 +645,7 @@ public interface Renderer
      * @param list The list of objects displaying the rendering settings
      *             and the associated images.
      */
-    void loadRndSettings(boolean loading, List results);
+    void loadRndSettings(boolean loading, List<ViewedByItem> results);
 
     /**
      * Returns the size of a tile.

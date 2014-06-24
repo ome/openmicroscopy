@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerModel 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -914,32 +914,29 @@ class MetadataViewerModel
 			}
 		}
 		this.viewedBy = m;
-		Renderer rnd = getEditor().getRenderer();
-		if (rnd != null) {
-		    rnd.loadRndSettings(true, null);
-		}
 	}
 	
 	/**
 	 * Starts an asynchronous call to load the rendering settings
 	 * associated to the image.
-	 * 
-	 * @param source The component invoking the loading.
-     * @param location The location of the mouse pressed.
 	 */
-	void fireViewedByLoading(Component source, Point location)
+	void fireViewedByLoading()
 	{
 		ImageData img = null;
 		if (refObject instanceof ImageData) img = (ImageData) refObject;
 		else if (refObject instanceof WellSampleData) 
 			img = ((WellSampleData) refObject).getImage();
 		if (img == null) return;
+                Renderer rnd = getEditor().getRenderer();
+                if (rnd == null) {
+                    // nothing to do if the renderer has not been set yet
+                    return;
+                }
 		getEditor().getRenderer().loadRndSettings(false, null);
 		loaderID++;
 		ctx = retrieveContext(img);
 		RenderingSettingsLoader loader = new RenderingSettingsLoader(component,
 				ctx, img.getDefaultPixels().getId(), loaderID);
-		loader.setLocation(source, location);
 		loaders.put(loaderID, loader);
 		loader.load();
 	}
@@ -975,7 +972,9 @@ class MetadataViewerModel
 	void applyRenderingSettings(RndProxyDef rndDef)
 	{
 		Renderer rnd = getEditor().getRenderer();
-		if (rnd != null) rnd.resetSettings(rndDef, true);
+		if (rnd != null) { 
+		    rnd.resetSettings(rndDef, true);
+		}
 	}
 	
 	/**

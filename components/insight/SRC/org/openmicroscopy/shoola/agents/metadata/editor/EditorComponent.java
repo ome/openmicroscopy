@@ -701,6 +701,8 @@ class EditorComponent
 			if (d.getDialogType() == FigureDialog.ROI_MOVIE)
 				model.firePlaneInfoLoading(EditorModel.DEFAULT_CHANNEL, 0);
 		}
+		// load other users' rendering settings
+		model.getRenderer().retrieveRelatedSettings();
 	}
 
 	/** 

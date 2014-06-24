@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.actions.ManageRndSettingsAction
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -24,10 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata.actions;
 
 
 //Java imports
-import java.awt.Component;
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import javax.swing.Action;
 
 //Third-party libraries
@@ -52,7 +49,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 public class ManageRndSettingsAction 
 	extends RndAction
-	implements MouseListener
 {
 
 	/** Indicates to set the minimum and maximum for all channels. */
@@ -67,17 +63,11 @@ public class ManageRndSettingsAction
 	/** Indicates to apply the settings to all selected images. */
 	public static final int APPLY_TO_ALL = 3;
 	
-	/** Indicates to the settings of the owner. */
-	public static final int SET_OWNER_SETTING = 4;
-	
 	/** Indicates to set the minimum and maximum for all channels. */
 	public static final int ABSOLUTE_MIN_MAX = 5;
 	
 	/** Indicates to save the rendering settings. */
 	public static final int SAVE = 6;
-	
-	/** The description of the action if {@link #SET_OWNER_SETTING}. */
-	public static final String NAME_OWNER = "Saved by";
 
 	/** The description of the action if {@link #SAVE}. */
 	public static final String NAME_SAVE = "Apply";
@@ -181,14 +171,6 @@ public class ManageRndSettingsAction
 				putValue(Action.SMALL_ICON, 
 						icons.getIcon(IconManager.RND_APPLY_TO_ALL));
 				break;
-			case SET_OWNER_SETTING:
-				putValue(Action.NAME, NAME_OWNER);
-				putValue(Action.SHORT_DESCRIPTION, 
-						UIUtilities.formatToolTipText(
-								DESCRIPTION_SET_OWNER_SETTING));
-				putValue(Action.SMALL_ICON, 
-						icons.getIcon(IconManager.RND_OWNER));
-				break;
 			case SAVE:
 				setEnabled(model.canAnnotate());
 				putValue(Action.SHORT_DESCRIPTION, 
@@ -241,45 +223,5 @@ public class ManageRndSettingsAction
 				model.saveSettings();
 		}
 	}
-
-	/** 
-	 * Brings up the menu displaying the user who viewed the selected image.
-	 * @see MouseListener#mouseReleased(MouseEvent)
-	 */
-	public void mouseReleased(MouseEvent me)
-	{
-		if (index != SET_OWNER_SETTING) return;
-		Object source = me.getSource();
-		if (source instanceof Component) 
-			model.retrieveRelatedSettings((Component) source, me.getPoint());
-	}
-	
-	/**
-	 * Required by the {@link MouseListener} I/F but no-operation implementation 
-	 * in our case.
-	 * @see MouseListener#mouseClicked(MouseEvent)
-	 */
-	public void mouseClicked(MouseEvent me) {}
-
-	/**
-	 * Required by the {@link MouseListener} I/F but no-operation implementation 
-	 * in our case.
-	 * @see MouseListener#mouseEntered(MouseEvent)
-	 */
-	public void mouseEntered(MouseEvent me) {}
-
-	/**
-	 * Required by the {@link MouseListener} I/F but no-operation implementation 
-	 * in our case.
-	 * @see MouseListener#mouseExited(MouseEvent)
-	 */
-	public void mouseExited(MouseEvent me) {}
-
-	/**
-	 * Required by the {@link MouseListener} I/F but no-operation implementation 
-	 * in our case.
-	 * @see MouseListener#mousePressed(MouseEvent)
-	 */
-	public void mousePressed(MouseEvent me) {}
 
 }
