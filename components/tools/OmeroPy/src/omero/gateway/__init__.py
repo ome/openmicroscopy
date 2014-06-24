@@ -3452,7 +3452,7 @@ class _BlitzGateway (object):
     ###################
     # Searching stuff #
 
-    def searchObjects(self, obj_types, text, created=None, fields=[], batchSize=1000, page=0, searchGroup=None, ownedBy=None):
+    def searchObjects(self, obj_types, text, created=None, fields=(), batchSize=1000, page=0, searchGroup=None, ownedBy=None):
         """
         Search objects of type "Project", "Dataset", "Image", "Screen", "Plate"
         Returns a list of results
@@ -3476,18 +3476,17 @@ class _BlitzGateway (object):
             types = [getWrapper(o) for o in obj_types]
         search = self.createSearchService()
 
-        search.setBatchSize(batchSize)
-
         ctx = self.SERVICE_OPTS.copy()
         if searchGroup is not None:
             ctx.setOmeroGroup(searchGroup)
+
+        search.setBatchSize(batchSize, ctx)
         if ownedBy is not None:
             ownedBy = long(ownedBy)
             if ownedBy >= 0:
                 details = omero.model.DetailsI()
                 details.setOwner(omero.model.ExperimenterI(ownedBy, False))
-                search.onlyOwnedBy(details)
-
+                search.onlyOwnedBy(details, ctx)
 
         fields = [str(f) for f in fields]
         # # for each phrase or token, we strip out all non alpha-numeric
@@ -3495,20 +3494,24 @@ class _BlitzGateway (object):
         # To preserve quoted phrases we split by "
         phrases = text.split('"')
         tokens = []
+        leadingWc = False
         for i, p in enumerate(phrases):
             if len(p) == 0:
                 continue
             if i%2 == 0:    # even: outside quotes - strip everything
                 tks = re.findall(r"[\w\*\?]+", p)
                 for t in tks:
+                    # remove single wildcards
+                    if t in ("*", "?"):
+                        continue
                     # Need to enable wildcards for leading * or ? not in quotes
                     if t[0] in ("*","?"):
-                        search.setAllowLeadingWildcard(True)
-                        break
-                tokens.extend(tks)
+                        leadingWc = True
+                    tokens.append(t)
             else:
                 tokens.append('"%s"' % p)   # wrap back into "double quotes"
-
+        if leadingWc:
+            search.setAllowLeadingWildcard(True, ctx)
 
         # if we have fields, prepend each token with field:token
         if fields:
@@ -3531,7 +3534,7 @@ class _BlitzGateway (object):
 
         try:
             if created:
-                search.onlyCreatedBetween(created[0], created[1]);
+                search.onlyCreatedBetween(created[0], created[1], ctx);
             rv = []
             for t in types:
                 def actualSearch ():
