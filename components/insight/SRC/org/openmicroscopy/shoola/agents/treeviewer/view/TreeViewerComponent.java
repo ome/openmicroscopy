@@ -3073,29 +3073,24 @@ class TreeViewerComponent
 	{
 		Map<SecurityContext, AdvancedSearchResultCollection> tmp = (Map<SecurityContext, AdvancedSearchResultCollection>) result;
 		
-		AdvancedSearchResultCollection results = new AdvancedSearchResultCollection();
-		for(AdvancedSearchResultCollection r : tmp.values()) {
-		    results.addAll(r);
-		}
-		
 		MetadataViewer metadata = model.getMetadataViewer();
 		if (metadata != null) {
 			metadata.setRootObject(null, -1, null);
 		}
-		if (results == null || results.size() == 0) {
+		if (tmp == null || tmp.size() == 0) {
 			//UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
         	//un.notifyInfo("Search", "No results found.");
         	view.removeAllFromWorkingPane();
 			return;
 		}
 		
-//		Map<SecurityContext, Collection<DataObject>> dataObjects = new HashMap<SecurityContext, Collection<DataObject>>();
-//		for(Entry<SecurityContext, AdvancedSearchResultCollection> e : results.entrySet()) {
-//		    dataObjects.put(e.getKey(), e.getValue().getDataObjects(-1, null));
-//		}
+		Map<SecurityContext, Collection<DataObject>> dataObjects = new HashMap<SecurityContext, Collection<DataObject>>();
+		for(Entry<SecurityContext, AdvancedSearchResultCollection> e : tmp.entrySet()) {
+		    dataObjects.put(e.getKey(), e.getValue().getDataObjects(-1, null));
+		}
 		
 		//Need to recycle the search browser.
-		DataBrowser db = DataBrowserFactory.getSearchBrowser(results);
+		DataBrowser db = DataBrowserFactory.getSearchBrowser(dataObjects);
 		if (db != null && view.getDisplayMode() == SEARCH_MODE) {
 			db.setExperimenter(TreeViewerAgent.getUserDetails());
 			db.addPropertyChangeListener(controller);

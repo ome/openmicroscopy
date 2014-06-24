@@ -42,17 +42,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
-
-
-
-
-
-
-
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.view.SearchEvent;
@@ -64,14 +56,8 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
-import pojos.ImageData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ScreenData;
-import pojos.WellData;
 
 /** 
  * Component with advanced search options.
@@ -344,37 +330,22 @@ public class SearchComponent
 				null, NAME_DESCRIPTION);
     	nodes.add(node);
     	
-//    	node = new SearchObject(SearchContext.TEXT_ANNOTATION, null, 
-//					NAME_COMMENTS);
-//    	nodes.add(node);
-//    	
-//    	node = new SearchObject(SearchContext.TAGS, null, NAME_TAGS);
-//    	nodes.add(node);
-//    	
-//    	node = new SearchObject(SearchContext.URL_ANNOTATION, null, NAME_URL);
-//    	nodes.add(node);
-//    	
-//    	node = new SearchObject(SearchContext.FILE_ANNOTATION, null, 
-//					NAME_ATTACHMENT);
-//    	nodes.add(node);
-    	
     	node = new SearchObject(SearchContext.ANNOTATION, null, 
                 NAME_ANNOTATION);
     	nodes.add(node);
     	
     	types = new ArrayList<SearchObject>();
-    	node = new SearchObject(SearchContext.DATASETS, null, "Datasets");
-    	types.add(node);
-    	node = new SearchObject(SearchContext.PROJECTS, null, "Projects");
-    	types.add(node);
+    	
     	node = new SearchObject(SearchContext.IMAGES, null, "Images");
         types.add(node);
-        node = new SearchObject(SearchContext.SCREENS, null, "Screens");
+        node = new SearchObject(SearchContext.DATASETS, null, "Datasets");
+        types.add(node);
+        node = new SearchObject(SearchContext.PROJECTS, null, "Projects");
         types.add(node);
         node = new SearchObject(SearchContext.PLATES, null, "Plates");
         types.add(node);
-//        node = new SearchObject(SearchContext.WELLS, null, "Wells");
-//        types.add(node);
+        node = new SearchObject(SearchContext.SCREENS, null, "Screens");
+        types.add(node);
         
 	}
 	
@@ -492,9 +463,6 @@ public class SearchComponent
                 String[] terms = uiDelegate.getQueryTerms();
                 ctx = new SearchContext(terms, scope);
     
-                //int index = uiDelegate.getSelectedDate();
-                //Timestamp start, end;
-    
                 Timestamp start = uiDelegate.getFromDate();
                 Timestamp end = uiDelegate.getToDate();
                 if (start != null && end != null) {
@@ -503,20 +471,6 @@ public class SearchComponent
                     else
                         ctx.setTime(start, end);
                 };
-                
-//                switch (index) {
-//                    case SearchContext.RANGE:
-//                        start = uiDelegate.getFromDate();
-//                        end = uiDelegate.getToDate();
-//                        if (start != null && end != null && start.after(end))
-//                            ctx.setTime(end, start);
-//                        else
-//                            ctx.setTime(start, end);
-//                        break;
-//                    default:
-//                        ctx.setTime(index);
-//                }
-                
                 
                 ctx.setSelectedOwner(uiDelegate.getUserId());
                 ctx.getSelectedGroups().addAll(getSelectedGroups());
@@ -658,9 +612,6 @@ public class SearchComponent
 			case SEARCH:
 				search();
 				break;
-//			case DATE:
-//				uiDelegate.setDateIndex();
-//				break;
 			case OWNER:
 				userIndex = OWNER;
 				firePropertyChange(OWNER_PROPERTY, Boolean.valueOf(false), 

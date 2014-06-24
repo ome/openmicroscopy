@@ -24,8 +24,6 @@ package org.openmicroscopy.shoola.util.ui.search;
 
 
 //Java imports
-import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -35,19 +33,14 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -55,14 +48,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
-
-
-
-
-
 
 //Third-party libraries
 import org.jdesktop.swingx.JXDatePicker;
@@ -74,7 +59,6 @@ import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.ExperimenterData;
-import pojos.GroupData;
 
 /** 
  * The Component hosting the various fields used to collect the 
@@ -165,12 +149,6 @@ public class SearchPanel
 	/** Button to bring up the tooltips for help. */
 	private JButton					helpBasicButton;
 	
-//	/** Button indicating that the time entered is the creation time. */
-//	private JRadioButton			creationTime;
-	
-//	/** Button indicating that the time entered is the time of update. */
-//	private JRadioButton			updatedTime;
-	
 	/** The component used to perform a basic search. */
 	private JPanel					basicSearchComp;
 	
@@ -251,27 +229,13 @@ public class SearchPanel
 		UIUtilities.unifiedButtonLookAndFeel(helpBasicButton);
 		helpBasicButton.addActionListener(model);
 		helpBasicButton.setActionCommand(""+SearchComponent.HELP);
-		
 
-//		ButtonGroup group = new ButtonGroup();
-//		creationTime = new JRadioButton("Created");
-//		creationTime.setSelected(true);
-//		creationTime.setBackground(UIUtilities.BACKGROUND_COLOR);
-//		updatedTime = new JRadioButton("Updated");
-//		updatedTime.setBackground(UIUtilities.BACKGROUND_COLOR);
-//		group.add(creationTime);
-//		group.add(updatedTime);
 		
 		SearchContext ctx = model.getSearchContext();
 		if (ctx == null) return;
-//		if (ctx.getTimeType() == SearchContext.UPDATED_TIME)
-//			updatedTime.setSelected(true);
 
 		int dateIndex = ctx.getDateIndex();
 		if (dateIndex != -1) dates.setSelectedIndex(dateIndex);
-		
-		//initialize
-//		setDateIndex();
 	}
 	
 	/**
@@ -305,48 +269,50 @@ public class SearchPanel
 	 * @return See above.
 	 */
 	private JPanel buildFields()
-	{
-		
-        List<SearchObject> nodes = model.getNodes();
-		SearchObject n;
-		int m = nodes.size();
-		JCheckBox box;
-		JPanel p = new JPanel();
-		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		GridBagConstraints c = new GridBagConstraints();
-		c.weightx = 1.0;
-		c.gridy = 1;
-		List<Integer> ctxNodes = null;
-		SearchContext ctx = model.getSearchContext();
-		if (ctx != null) ctxNodes = ctx.getContext();
-		if (ctxNodes == null) {
-			for (int i = 0; i < m; i++) {
-				n = nodes.get(i);
-				box = new JCheckBox(n.getDescription());
-				box.setBackground(UIUtilities.BACKGROUND_COLOR);
-				
-				if (i%2 == 0) {
-				    c.gridy++;
-				}
-				
-				p.add(box, c);
-				scopes.put(n.getIndex(), box);
-			}
-		} else {
-			for (int i = 0; i < m; i++) {
-				n = nodes.get(i);
-				box = new JCheckBox(n.getDescription());
-				box.setBackground(UIUtilities.BACKGROUND_COLOR);
-				box.setSelected(ctxNodes.contains(n.getIndex()));
-				if (i%2 == 0) c.gridy++;
-				
-				p.add(box, c);
-				scopes.put(n.getIndex(), box);
-			}
-		}
-		c.gridy++;
-		UIUtilities.setBoldTitledBorder("Restrict to Fields", p);
-		return p;
+	{	
+            List<SearchObject> nodes = model.getNodes();
+            SearchObject n;
+            int m = nodes.size();
+            JCheckBox box;
+            JPanel p = new JPanel();
+            p.setBackground(UIUtilities.BACKGROUND_COLOR);
+            GridBagConstraints c = new GridBagConstraints();
+            c.weightx = 1.0;
+            c.gridy = 1;
+            List<Integer> ctxNodes = null;
+            SearchContext ctx = model.getSearchContext();
+            if (ctx != null)
+                ctxNodes = ctx.getContext();
+            if (ctxNodes == null) {
+                for (int i = 0; i < m; i++) {
+                    n = nodes.get(i);
+                    box = new JCheckBox(n.getDescription());
+                    box.setBackground(UIUtilities.BACKGROUND_COLOR);
+    
+                    if (i % 2 == 0) {
+                        c.gridy++;
+                    }
+    
+                    p.add(box, c);
+                    scopes.put(n.getIndex(), box);
+                }
+            } else {
+                for (int i = 0; i < m; i++) {
+                    n = nodes.get(i);
+                    box = new JCheckBox(n.getDescription());
+                    box.setBackground(UIUtilities.BACKGROUND_COLOR);
+                    box.setSelected(ctxNodes.contains(n.getIndex()));
+                    
+                    if (i % 2 == 0)
+                        c.gridy++;
+    
+                    p.add(box, c);
+                    scopes.put(n.getIndex(), box);
+                }
+            }
+            c.gridy++;
+            UIUtilities.setBoldTitledBorder("Restrict by Field", p);
+            return p;
 	}
 
 	/** 
@@ -366,13 +332,6 @@ public class SearchPanel
             c.gridx = 0;
             c.gridy = 0;
             
-            p.add(new JLabel("Data owned by:"), c);
-            c.gridx = 1;
-            p.add(usersBox, c);
-            
-            c.gridx = 0;
-            c.gridy++;
-            
             p.add(new JLabel("Groups:"), c);
             c.gridx = 1;
             p.add(groupsBox, c);
@@ -383,6 +342,13 @@ public class SearchPanel
                     updateUsersBox();
                 }
             });
+            
+            c.gridx = 0;
+            c.gridy++;
+            
+            p.add(new JLabel("Data owned by:"), c);
+            c.gridx = 1;
+            p.add(usersBox, c);
             
             UIUtilities.setBoldTitledBorder("Scope", p);
             
@@ -452,7 +418,7 @@ public class SearchPanel
             if (selected != null && items.contains(selected)) {
                 usersBox.setSelectedItem(selected);
             } else {
-                usersBox.setSelectedItem(all);
+                usersBox.setSelectedItem(me);
             }
         }
         
@@ -465,47 +431,51 @@ public class SearchPanel
 	 */
 	private JPanel buildType()
 	{
-		JPanel p = new JPanel();
-		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.setLayout(new GridBagLayout());
-        //p.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        GridBagConstraints c = new GridBagConstraints();
-        c.anchor = GridBagConstraints.WEST;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.insets = new Insets(3, 3, 3, 3);
-        List<SearchObject> nodes = model.getTypes();
-        List<Integer> ctxNodes = null;
-		SearchContext ctx = model.getSearchContext();
-		if (ctx != null) ctxNodes = ctx.getType();
-        
-		SearchObject n;
-		int m = nodes.size();
-		JCheckBox box;
-		c.weightx = 1.0;
-		
-		
-		if (ctxNodes == null) {
-			for (int i = 0; i < m; i++) {
-				n = nodes.get(i);
-				box = new JCheckBox(n.getDescription());
-				box.setBackground(UIUtilities.BACKGROUND_COLOR);
-				box.setSelected(true);
-				p.add(box, c);
-				types.put(n.getIndex(), box);
-			}
-		} else {
-			for (int i = 0; i < m; i++) {
-				n = nodes.get(i);
-				box = new JCheckBox(n.getDescription());
-				box.setBackground(UIUtilities.BACKGROUND_COLOR);
-				box.setSelected(ctxNodes.contains(n.getIndex()));
-				p.add(box, c);
-				types.put(n.getIndex(), box);
-			}
-		}
-		
-		UIUtilities.setBoldTitledBorder(TYPE_TITLE, p);
-		return p;
+            JPanel p = new JPanel();
+            p.setBackground(UIUtilities.BACKGROUND_COLOR);
+            p.setLayout(new GridBagLayout());
+            // p.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+            GridBagConstraints c = new GridBagConstraints();
+            c.anchor = GridBagConstraints.WEST;
+            c.fill = GridBagConstraints.HORIZONTAL;
+            c.insets = new Insets(3, 3, 3, 3);
+            List<SearchObject> nodes = model.getTypes();
+            List<Integer> ctxNodes = null;
+            SearchContext ctx = model.getSearchContext();
+            if (ctx != null)
+                ctxNodes = ctx.getType();
+    
+            SearchObject n;
+            int m = nodes.size();
+            JCheckBox box;
+            c.weightx = 1.0;
+    
+            if (ctxNodes == null) {
+                for (int i = 0; i < m; i++) {
+                    n = nodes.get(i);
+                    box = new JCheckBox(n.getDescription());
+                    box.setBackground(UIUtilities.BACKGROUND_COLOR);
+                    box.setSelected(true);
+                    p.add(box, c);
+                    if (i % 2 == 0)
+                        c.gridy++;
+                    types.put(n.getIndex(), box);
+                }
+            } else {
+                for (int i = 0; i < m; i++) {
+                    n = nodes.get(i);
+                    box = new JCheckBox(n.getDescription());
+                    box.setBackground(UIUtilities.BACKGROUND_COLOR);
+                    box.setSelected(ctxNodes.contains(n.getIndex()));
+                    p.add(box, c);
+                    if (i % 2 == 0)
+                        c.gridy++;
+                    types.put(n.getIndex(), box);
+                }
+            }
+    
+            UIUtilities.setBoldTitledBorder(TYPE_TITLE, p);
+            return p;
 	}
 
 	/**
@@ -618,7 +588,6 @@ public class SearchPanel
 		add(datePanel, c);//, "0, 4");
 
 		updateUsersBox();
-//		setDateIndex();
 	}
 
 	/** 
@@ -657,26 +626,6 @@ public class SearchPanel
 		validate();
 		repaint();
 	}
-	
-//	/** 
-//	 * Enables the date fields if the selected index is 
-//	 * {@link SearchContext#RANGE}. 
-//	 */
-//	void setDateIndex()
-//	{
-//		int index = dates.getSelectedIndex();
-//		fromDate.setEnabled(index == SearchContext.RANGE);
-//		fromDate.getEditor().setEnabled(false);
-//		toDate.setEnabled(index == SearchContext.RANGE);
-//		toDate.getEditor().setEnabled(false);
-//	}
-	
-//	/**
-//	 * Returns the currently selected time index.
-//	 * 
-//	 * @return See above.
-//	 */
-//	int getSelectedDate() { return dates.getSelectedIndex(); }
 	
 	
 	/**
@@ -793,19 +742,6 @@ public class SearchPanel
                 return (ExperimenterData) FinderFactory.getRegistry().lookup(
                                 LookupNames.CURRENT_USER_DETAILS);
         }
-
-	
-//	/**
-//	 * Returns the index of the time.
-//	 * 
-//	 * @return See above.
-//	 */
-//	int getTimeIndex()
-//	{
-//		if (creationTime.isSelected()) return SearchContext.CREATION_TIME;
-//		if (updatedTime.isSelected()) return SearchContext.UPDATED_TIME;
-//		return -1;
-//	}
 	
 	
 	long getGroupId() {
