@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -354,7 +356,8 @@ abstract class DataBrowserModel
     {
         if (searchResultView != null)
             return searchResultView;
-        searchResultView = new SearchResultView((ImageDisplay) browser.getUI());
+        searchResultView = new SearchResultView((ImageDisplay) browser.getUI(), this);
+        
         return searchResultView;
     }
     
