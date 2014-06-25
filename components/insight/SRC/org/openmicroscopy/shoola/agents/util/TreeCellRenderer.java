@@ -94,10 +94,10 @@ public class TreeCellRenderer
     /** Reference to the <code>Group RWRW--</code> icon. */
     private static final Icon GROUP_READ_WRITE_ICON;
 
-    /** Reference to the <code>Group</code> icon. */
+    /** Reference to the <code>Group RWRWR-</code> icon. */
     private static final Icon GROUP_PUBLIC_READ_ICON;
 
-    /** Reference to the <code>Group</code> icon. */
+    /** Reference to the <code>Group RWRWRW</code> icon. */
     private static final Icon GROUP_PUBLIC_READ_WRITE_ICON;
 
     static { 
@@ -108,7 +108,7 @@ public class TreeCellRenderer
         GROUP_READ_WRITE_ICON = icons.getIcon(IconManager.READ_WRITE_GROUP);
         GROUP_PUBLIC_READ_ICON = icons.getIcon(IconManager.PUBLIC_GROUP);
         GROUP_PUBLIC_READ_WRITE_ICON = icons.getIcon(
-                IconManager.PUBLIC_GROUP);
+                IconManager.PUBLIC_GROUP_READ_WRITE);
         IMAGE_ICON = icons.getIcon(IconManager.IMAGE);
         DATASET_ICON = icons.getIcon(IconManager.DATASET);
         PROJECT_ICON = icons.getIcon(IconManager.PROJECT);
@@ -127,7 +127,7 @@ public class TreeCellRenderer
     /** Flag indicating if the node to render is the target node.*/
     private boolean isTargetNode;
 
-    /** Flag indicating if the node to render is the target node.*/
+    /** Flag indicating if drag and drop is allowed.*/
     private boolean droppedAllowed;
 
     /** The color used when dragging.*/
