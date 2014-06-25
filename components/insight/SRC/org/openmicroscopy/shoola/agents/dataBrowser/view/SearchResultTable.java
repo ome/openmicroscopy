@@ -25,6 +25,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.EventObject;
 import java.util.List;
+
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -34,10 +35,13 @@ import javax.swing.event.CellEditorListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
+
+import org.jdesktop.swingx.JXTable;
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.DataObject;
 
 /**
@@ -46,7 +50,7 @@ import pojos.DataObject;
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  */
-public class SearchResultTable extends JTable {
+public class SearchResultTable extends JXTable {
 
     /** Reference to the DataBrowserModel */
     private AdvancedResultSearchModel model;
@@ -88,6 +92,7 @@ public class SearchResultTable extends JTable {
      */
     public void refreshTable() {
         setModel(new SearchResultTableModel(data, model));
+        getColumnExt(SearchResultTableModel.VIEWBUTTON_COLUMN_INDEX).setSortable(false);
     }
 
     /**
