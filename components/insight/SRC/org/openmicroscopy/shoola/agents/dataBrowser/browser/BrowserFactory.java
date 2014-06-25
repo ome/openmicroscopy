@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *      This program is free software; you can redistribute it and/or modify
@@ -27,10 +27,6 @@ package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 //Java imports
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-import pojos.DataObject;
 
 
 //Third-party libraries
@@ -60,7 +56,7 @@ public class BrowserFactory
      *                  Don't pass <code>null</code>.           
      * @return A new {@link Browser} object.
      */
-    public static Browser createBrowser(Set topNodes)
+    public static Browser createBrowser(Collection topNodes)
     {
          if (topNodes == null) throw new NullPointerException("No top nodes.");
          

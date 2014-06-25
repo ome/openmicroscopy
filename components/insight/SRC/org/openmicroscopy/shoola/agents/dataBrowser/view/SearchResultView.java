@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.view.ImageTableView 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -25,27 +25,30 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
-
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
+import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.DataObject;
 
-//Third-party libraries
 
+/**
+ * A View for displaying a {@link AdvancedSearchResultCollection}
+ * 
+ * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ */
 class SearchResultView extends JPanel {
 
-    List<DataObject> objs = new ArrayList<DataObject>();
+    /** The DataObjects to be shown */
+    private List<DataObject> objs = new ArrayList<DataObject>();
 
-    DataBrowserModel browserModel = null;
-    
+    /** Reference to the DataBrowserModel */
+    private AdvancedResultSearchModel browserModel = null;
+
     /** Reference to the table displaying the nodes. */
     private SearchResultTable objsTable;
 
@@ -56,7 +59,7 @@ class SearchResultView extends JPanel {
      *            The root node of the tree.
      */
     private void initComponents(ImageDisplay root) {
-        Set<ImageDisplay> nodes = root.getChildrenDisplay();
+        Collection<ImageDisplay> nodes = root.getChildrenDisplay();
         for (ImageDisplay node : nodes) {
             DataObject obj = (DataObject) node.getHierarchyObject();
             objs.add(obj);
@@ -72,6 +75,7 @@ class SearchResultView extends JPanel {
         setBackground(UIUtilities.BACKGROUND_COLOR);
 
         setLayout(new BorderLayout());
+
         add(new JScrollPane(objsTable), BorderLayout.CENTER);
 
     }
@@ -84,12 +88,15 @@ class SearchResultView extends JPanel {
      * @param root
      *            The root of the tree.
      */
-    SearchResultView(ImageDisplay root, DataBrowserModel browserModel) {
+    SearchResultView(ImageDisplay root, AdvancedResultSearchModel browserModel) {
         this.browserModel = browserModel;
         initComponents(root);
         buildGUI();
     }
 
+    /** 
+     * Reloads the table
+     */
     void refreshTable() {
         objsTable.refreshTable();
 

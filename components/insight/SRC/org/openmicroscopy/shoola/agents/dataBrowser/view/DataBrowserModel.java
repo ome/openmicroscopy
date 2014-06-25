@@ -348,7 +348,7 @@ abstract class DataBrowserModel
     }
     
     /**
-     * Creates or recycles the table view.
+     * Creates or recycles the {@link SearchResultView}
      * 
      * @return See above.
      */
@@ -356,7 +356,7 @@ abstract class DataBrowserModel
     {
         if (searchResultView != null)
             return searchResultView;
-        searchResultView = new SearchResultView((ImageDisplay) browser.getUI(), this);
+        searchResultView = new SearchResultView((ImageDisplay)browser.getUI(), (AdvancedResultSearchModel)this);
         
         return searchResultView;
     }

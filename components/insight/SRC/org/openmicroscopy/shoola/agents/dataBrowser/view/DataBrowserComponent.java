@@ -218,6 +218,7 @@ class DataBrowserComponent
 				MAX_ENTRIES);
 		if(model.getType()==DataBrowserModel.SEARCH) {
 		    view.setSelectedView(SEARCH);
+		    model.loadData(false, null); 
 		}
 		else if (model.getNumberOfImages() <= max.intValue() ||
 				model.getType() == DataBrowserModel.WELLS) {
