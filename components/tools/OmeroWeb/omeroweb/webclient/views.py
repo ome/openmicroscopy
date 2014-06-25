@@ -1851,6 +1851,7 @@ def download_placeholder(request):
         zipName = 'OriginalFileDownload'
     targetIds = request.REQUEST.get('ids')      # E.g. image-1|image-2
     defaultName = request.REQUEST.get('name', zipName) # default zip name
+    defaultName = os.path.basename(defaultName)         # remove path
 
     query = "&".join([i.replace("-", "=") for i in targetIds.split("|")])
     download_url = download_url + "?" + query
