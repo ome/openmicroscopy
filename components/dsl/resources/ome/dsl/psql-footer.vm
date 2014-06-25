@@ -278,6 +278,7 @@ CREATE TRIGGER annotation_trigger
         FOR EACH ROW
         EXECUTE PROCEDURE annotation_update_event_trigger();
 
+-- Note: not adding an annotation insert trigger since that would be handled by any links on insert
 
 CREATE OR REPLACE FUNCTION annotation_link_event_trigger() RETURNS "trigger"
     AS '
@@ -298,6 +299,10 @@ LANGUAGE plpgsql;
 #if( ${type.annotated} && !${type.superclass})
 CREATE TRIGGER ${type.tableName()}_annotation_link_event_trigger
         AFTER UPDATE ON ${type.tableName()}annotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('${type.id}');
+CREATE TRIGGER ${type.tableName()}_annotation_link_event_trigger_insert
+        AFTER INSERT ON ${type.tableName()}annotationlink
         FOR EACH ROW
         EXECUTE PROCEDURE annotation_link_event_trigger('${type.id}');
 #end
