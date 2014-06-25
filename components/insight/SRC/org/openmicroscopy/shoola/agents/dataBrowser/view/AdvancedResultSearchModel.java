@@ -195,11 +195,7 @@ public class AdvancedResultSearchModel extends DataBrowserModel {
      * @param img
      */
     public void setThumbnail(long imgId, BufferedImage img) {
-        System.out.println(imgId);
-        System.out.println(img.getHeight());
-
         for (ImageDisplay d : displays) {
-            System.out.println(d);
             if (d.getHierarchyObject() instanceof ImageData
                     && ((ImageData) d.getHierarchyObject()).getId() == imgId) {
                 ImageData refObj = (ImageData) d.getHierarchyObject();

@@ -29,8 +29,8 @@ import java.util.List;
 import javax.swing.Icon;
 import javax.swing.table.DefaultTableModel;
 
-import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
+import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 
 import pojos.DataObject;
@@ -49,6 +49,12 @@ import pojos.ScreenData;
  */
 public class SearchResultTableModel extends DefaultTableModel {
 
+    /** The name of the columns */
+    public static final String[] COLUMN_NAMES = { "Type", "Name", "Date", "Group", " " };
+    
+    /** The index of the column which contains the View buttons (i. e. the last column) */
+    public static final int VIEWBUTTON_COLUMN_INDEX = COLUMN_NAMES.length-1;
+    
     /** Defines the size of the thumbnail icons */
     private static final double THUMB_ZOOM_FACTOR = 0.5;
 
@@ -61,12 +67,12 @@ public class SearchResultTableModel extends DefaultTableModel {
 
     /** A reference to the DataBrowserModel */
     private AdvancedResultSearchModel model;
-
+    
     /** The groups the user has access to */
     @SuppressWarnings("unchecked")
     private Collection<GroupData> groups = TreeViewerAgent
             .getAvailableUserGroups();
-
+    
     /**
      * Creates a new instance
      * @param data The {@link DataObject}s which should be shown in the table
@@ -74,8 +80,7 @@ public class SearchResultTableModel extends DefaultTableModel {
      */
     public SearchResultTableModel(List<DataObject> data,
             AdvancedResultSearchModel model) {
-        super(new String[] { "Type", "Name", "Date", "Group", " " }, data
-                .size());
+        super(COLUMN_NAMES, data.size());
         this.data = data;
         this.model = model;
     }
@@ -83,27 +88,29 @@ public class SearchResultTableModel extends DefaultTableModel {
     @Override
     public Object getValueAt(int row, int column) {
         Object result = "N/A";
-
-        DataObject obj = data.get(row);
-
-        switch (column) {
-            case 0:
-                result = getIcon(obj);
-                break;
-            case 1:
-                result = getObjectName(obj);
-                break;
-            case 2:
-                result = getDate(obj);
-                break;
-            case 3:
-                result = getGroup(obj);
-                break;
-            case 4:
-                result = obj;
-                break;
+        
+        if(row<data.size()) {
+            DataObject obj = data.get(row);
+    
+            switch (column) {
+                case 0:
+                    result = getIcon(obj);
+                    break;
+                case 1:
+                    result = getObjectName(obj);
+                    break;
+                case 2:
+                    result = getDate(obj);
+                    break;
+                case 3:
+                    result = getGroup(obj);
+                    break;
+                case 4:
+                    result = obj;
+                    break;
+            }
         }
-
+        
         return result;
     }
 
@@ -146,23 +153,23 @@ public class SearchResultTableModel extends DefaultTableModel {
         if (obj instanceof ImageData) {
             Thumbnail thumb = model.getThumbnail(obj);
             return thumb == null ? IconManager.getInstance().getIcon(
-                    IconManager.IMAGE) : thumb.getIcon(THUMB_ZOOM_FACTOR);
+                    IconManager.IMAGE_48) : thumb.getIcon(THUMB_ZOOM_FACTOR);
         }
 
         else if (obj instanceof ProjectData) {
-            return IconManager.getInstance().getIcon(IconManager.PROJECT);
+            return IconManager.getInstance().getIcon(IconManager.PROJECT_48);
         }
 
         else if (obj instanceof DatasetData) {
-            return IconManager.getInstance().getIcon(IconManager.DATASET);
+            return IconManager.getInstance().getIcon(IconManager.DATASET_48);
         }
 
         else if (obj instanceof ScreenData) {
-            return IconManager.getInstance().getIcon(IconManager.DATASET);
+            return IconManager.getInstance().getIcon(IconManager.SCREEN_48);
         }
 
         else if (obj instanceof PlateData) {
-            return IconManager.getInstance().getIcon(IconManager.DATASET);
+            return IconManager.getInstance().getIcon(IconManager.PLATE);
         }
 
         return IconManager.getInstance().getIcon(IconManager.TRANSPARENT);
@@ -209,9 +216,10 @@ public class SearchResultTableModel extends DefaultTableModel {
         return name;
     }
 
+    
     @Override
     public boolean isCellEditable(int row, int column) {
-        return column == 4;
+        return column == VIEWBUTTON_COLUMN_INDEX;
     }
 
 }
