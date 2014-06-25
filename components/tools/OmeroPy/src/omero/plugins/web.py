@@ -177,14 +177,14 @@ class WebControl(BaseControl):
                     self.ctx.die(
                         678, "Port conflict: HTTP(%s) and"" fastcgi-tcp(%s)."
                         % (port, settings.APPLICATION_SERVER_PORT))
-            
+
             d = {
                 "ROOT": self.ctx.dir,
                 "OMEROWEBROOT": self.ctx.dir / "lib" / "python" /
                 "omeroweb",
                 "STATIC_URL": settings.STATIC_URL.rstrip("/")
             }
-           
+
             if server == "nginx":
                 if args.system:
                     c = file(self.ctx.dir / "etc" /
@@ -192,7 +192,7 @@ class WebControl(BaseControl):
                 else:
                     c = file(self.ctx.dir / "etc" /
                              "nginx.conf.template").read()
-                
+
                 if settings.APPLICATION_SERVER == settings.FASTCGITCP:
                     fastcgi_pass = "%s:%s" \
                         % (settings.APPLICATION_SERVER_HOST,
@@ -202,7 +202,7 @@ class WebControl(BaseControl):
                         % self.ctx.dir
                 d["FASTCGI_PASS"] = fastcgi_pass
                 d["HTTPPORT"] = port
-                
+
                 try:
                     d["FORCE_SCRIPT_NAME"] = settings.FORCE_SCRIPT_NAME
                     d["FASTCGI_PATH_SCRIPT_INFO"] = \
@@ -216,11 +216,11 @@ class WebControl(BaseControl):
                     d["FORCE_SCRIPT_NAME"] = "/"
                     d["FASTCGI_PATH_SCRIPT_INFO"] = "fastcgi_param PATH_INFO " \
                                                     "$fastcgi_script_name;\n"
-                
+
             if server == "apache":
                 c = file(self.ctx.dir / "etc" /
                          "apache.conf.template").read()
-                
+
                 if settings.APPLICATION_SERVER == settings.FASTCGITCP:
                     fastcgi_external = '-host %s:%s' % \
                         (settings.APPLICATION_SERVER_HOST,
@@ -230,12 +230,12 @@ class WebControl(BaseControl):
                         self.ctx.dir
                 d["FASTCGI_EXTERNAL"] = fastcgi_external
                 d["NOW"] = str(datetime.now())
-                
+
                 try:
                     d["FORCE_SCRIPT_NAME"] = settings.FORCE_SCRIPT_NAME
                 except:
                     d["FORCE_SCRIPT_NAME"] = "/"
-                    
+
             self.ctx.out(c % d)
 
     def syncmedia(self, args):
