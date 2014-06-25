@@ -72,7 +72,7 @@
               {% endwith %}
             <!-- Here we handle multiple images (batch annotate panel) -->
             {% elif filesetInfo %}
-            <li>
+            <li {% if not filesetInfo.count %}class='disabled'{% endif %}>
               <a id="download-origfile"
                 {% ifequal filesetInfo.count 0 %}
                   href="#"
