@@ -25,12 +25,15 @@ package org.openmicroscopy.shoola.util.ui.search;
 
 //Java imports
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
 
 //Third-party libraries
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -101,101 +104,89 @@ public class SearchContext
 	/** Identifying the <code>Description</code> context. */
 	public static final int			CUSTOMIZED = 13;
 	
-	/** Identifying the <code>ID</code> context. */
-	public static final int                 ID = 14;
+	/** Identifying the <code>Annotation</code> context. */
+	public static final int                 ANNOTATION = 14;
 	
 	/** Indicates not to take into account the time criteria. */
-	static final int				ANY_DATE = 0;
+	public static final int				ANY_DATE = 0;
 	
 	/** Indicates to search for objects imported in the last 2 weeks. */
-	static final int 				LAST_TWO_WEEKS = 1; 
+	public static final int 				LAST_TWO_WEEKS = 1; 
 	
 	/** Indicates to search for objects imported in the last month. */
-	static final int				LAST_MONTH = 2; 
+	public static final int				LAST_MONTH = 2; 
 	
 	/** Indicates to search for objects imported in the last 2 months. */
-	static final int				LAST_TWO_MONTHS = 3; 
+	public static final int				LAST_TWO_MONTHS = 3; 
 	
 	/** Indicates to search for objects imported in the last year. */
-	static final int				ONE_YEAR = 4; 
+	public static final int				ONE_YEAR = 4; 
 	
 	/** 
 	 * Indicates to search for objects imported during a given period of 
 	 * time. 
 	 */
-	static final int				RANGE = 5; 
+	public static final int				RANGE = 5; 
 	
 	/** Maximum number of time options. */
-	static final int 				MAX = 5;
+	public static final int 				MAX = 5;
 	
 	/** Identifies the number of results {@link #LEVEL_ONE_VALUE}. */
-	static final int				LEVEL_ONE = 0;
+	public static final int				LEVEL_ONE = 0;
 	
 	/** Identifies the number of results {@link #LEVEL_TWO_VALUE}. */
-	static final int				LEVEL_TWO = 1;
+	public static final int				LEVEL_TWO = 1;
 	
 	/** Identifies the number of results {@link #LEVEL_THREE_VALUE}. */
-	static final int				LEVEL_THREE = 2;
+	public static final int				LEVEL_THREE = 2;
 	
 	/** Identifies the number of results {@link #LEVEL_FOUR_VALUE}. */
-	static final int				LEVEL_FOUR = 3;
+	public static final int				LEVEL_FOUR = 3;
 	
 	/** The number of options for possible returned results. */
-	static final int				MAX_RESULTS = 3;
+	public static final int				MAX_RESULTS = 3;
 	
 	/** The number of results returned. */
-	static final int				LEVEL_ONE_VALUE = 50;
+	public static final int				LEVEL_ONE_VALUE = 50;
 	
 	/** The number of results returned. */
-	static final int				LEVEL_TWO_VALUE = 100;
+	public static final int				LEVEL_TWO_VALUE = 100;
 	
 	/** The number of results returned. */
-	static final int				LEVEL_THREE_VALUE = 250;
+	public static final int				LEVEL_THREE_VALUE = 250;
 	
 	/** The number of results returned. */
-	static final int				LEVEL_FOUR_VALUE = 500;
+	public static final int				LEVEL_FOUR_VALUE = 500;
 	
 	/** Identifies all the formats to search for. */
-	static final int				ALL_FORMATS = 0;
+	public static final int				ALL_FORMATS = 0;
 	
 	/** Indicates to search for <code>HTML</code> files only. */
-	static final int				HTML = 1;
+	public static final int				HTML = 1;
 	
 	/** Indicates to search for <code>HTML</code> files only. */
-	static final int				PDF = 2;
+	public static final int				PDF = 2;
 	
 	/** Indicates to search for <code>HTML</code> files only. */
-	static final int				EXCEL = 3;
+	public static final int				EXCEL = 3;
 	
 	/** Indicates to search for <code>HTML</code> files only. */
-	static final int				POWER_POINT = 4;
+	public static final int				POWER_POINT = 4;
 	
 	/** Indicates to search for <code>HTML</code> files only. */
-	static final int				WORD = 5;
+	public static final int				WORD = 5;
 	
 	/** Indicates to search for <code>HTML</code> files only. */
-	static final int				XML = 6;
+	public static final int				XML = 6;
 	
 	/** Indicates to search for <code>HTML</code> files only. */
-	static final int				TEXT = 7;
+	public static final int				TEXT = 7;
 	
 	/** The max number of supported formats. */
-	static final int				MAX_FORMAT = 8;
+	public static final int				MAX_FORMAT = 8;
 	
-	/** Indicate that the time selected is the creation time. */
-	static final int				CREATION_TIME = 100;
-	
-	/** Indicate that the time selected is the creation time. */
-	static final int				UPDATED_TIME = 101;
-	
-	/** Collection of terms to search for. */
-	private String[]		some;
-	
-	/** Collection of terms to search for. */
-	private String[]		must;
-	
-	/** Collection of terms to search for. */
-	private String[]		none;
+	/** The query to search for. */
+	private String[]		terms;
 	
 	/** Collection of context. */
 	private List<Integer>	context;
@@ -204,7 +195,7 @@ public class SearchContext
 	private List<Integer>	type;
 	
 	/** Collection of selected users. */
-	private List<Long>		selectedOwners;
+	private long		selectedOwner = -1;
 	
 	/** Collection of users to exclude. */
 	private List<String>	excludedOwners;
@@ -254,7 +245,7 @@ public class SearchContext
 	private int				attachmentType;
 	
 	/** Collection of selected groups. */
-	private List<Long>		selectedGroups;
+	private List<Long>		selectedGroups = new ArrayList<Long>();
 	
 	/**
 	 * Creates a new instance.
@@ -264,12 +255,9 @@ public class SearchContext
 	 * @param none		The terms that cannot be in the document.
 	 * @param context	Collection of context.
 	 */
-	SearchContext(String[] some, String[] must, String[] none,
-				List<Integer> context)
+	public SearchContext(String[] terms, List<Integer> context)
 	{
-		this.some = some;
-		this.must = must;
-		this.none = none;
+		this.terms = terms;
 		this.context = context;
 		timeType = -1;
 		attachmentType = ALL_FORMATS;
@@ -311,7 +299,7 @@ public class SearchContext
 	 * @param startTime	The start time.
 	 * @param endTime	The end time.
 	 */
-	void setTime(Timestamp startTime, Timestamp endTime)
+	public void setTime(Timestamp startTime, Timestamp endTime)
 	{
 		this.startTime = startTime;
 		this.endTime = endTime;
@@ -330,7 +318,7 @@ public class SearchContext
 	 * 
 	 * @param users The value to set.
 	 */
-	void setOwners(List<Long> users) { this.selectedOwners = users; }
+	public void setSelectedOwner(long user) { this.selectedOwner = user; }
 	
 	/**
 	 * Sets the collection of selected users if any.
@@ -401,24 +389,6 @@ public class SearchContext
 	}
 	
 	/**
-	 * Sets the time index. One of the following constants:
-	 * {@link #CREATION_TIME}, {@link #UPDATED_TIME}.
-	 * 
-	 * @param index The value to set.
-	 */
-	void setTimeType(int index)
-	{
-		switch (index) {
-			case CREATION_TIME:
-			case UPDATED_TIME:
-				timeType = index;
-				break;
-			default:
-				timeType = -1;
-		}
-	}
-	
-	/**
 	 * Sets the attachments to search for.
 	 * 
 	 * @param type The value to set.
@@ -456,7 +426,7 @@ public class SearchContext
 	 * 
 	 * @return See above.
 	 */
-	int getDateIndex() { return dateIndex; }
+	public int getDateIndex() { return dateIndex; }
 	
 	/**
 	 * Returns the time index. One of the following constants:
@@ -471,21 +441,7 @@ public class SearchContext
 	 * 
 	 * @return See above.
 	 */
-	public String[] getSome() { return some; }
-	
-	/**
-	 * Returns the collection of terms to search for. 
-	 * 
-	 * @return See above.
-	 */
-	public String[] getMust() { return must; }
-	
-	/**
-	 * Returns the collection of terms to search for. 
-	 * 
-	 * @return See above.
-	 */
-	public String[] getNone() { return none; }
+	public String[] getTerms() { return terms==null ? new String[0] : terms; }
 	
 	/**
 	 * Returns the collection of context.
@@ -506,7 +462,7 @@ public class SearchContext
 	 * 
 	 * @return See above.
 	 */
-	public List<Long> getSelectedOwners() { return selectedOwners; }
+	public long getSelectedOwner() { return selectedOwner; }
 	
 	/** 
 	 * Returns the collection of selected users.
@@ -595,5 +551,5 @@ public class SearchContext
 	 * @param results The value to set.
 	 */
 	public void setNumberOfResults(int results) { numberOfResults = results; }
-	
+
 }

@@ -36,12 +36,16 @@ import java.util.Set;
 //Third-party libraries
 
 
+
 import omero.api.StatefulServiceInterfacePrx;
+
 
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
+import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
 import pojos.AnnotationData;
@@ -469,6 +473,16 @@ public class NullOmeroPojoService
 	     */
         public Map<Long, List<DatasetData>> findDatasetsByImageId(SecurityContext ctx,
                 List<Long> imgIds) throws DSOutOfServiceException, DSAccessException {
+            return null;
+        }
+
+        /**
+         * No-operation implementation
+         * @see OmeroDataService#search(SecurityContext, SearchParameters)
+         */
+        public AdvancedSearchResultCollection search(SecurityContext ctx,
+                SearchParameters context) throws DSOutOfServiceException,
+                DSAccessException {
             return null;
         }
 

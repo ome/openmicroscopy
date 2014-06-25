@@ -30,9 +30,11 @@ import java.util.Set;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
+import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 import org.openmicroscopy.shoola.env.data.util.SearchResult;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
@@ -59,7 +61,7 @@ public class QuickFinderLoader
 {
 
 	/** The context of the search.  */
-	private SearchDataContext context;	
+	private SearchParameters context;	
 	
 	/** Handle to the async call so that we can cancel it. */
     private CallHandle  	handle;
@@ -73,7 +75,7 @@ public class QuickFinderLoader
      * @param context The context of the search. 
      */
     public QuickFinderLoader(QuickFinder viewer, List<SecurityContext> ctx, 
-    		SearchDataContext context)
+            SearchParameters context)
     {
     	super(viewer, ctx);
     	if (context == null) 

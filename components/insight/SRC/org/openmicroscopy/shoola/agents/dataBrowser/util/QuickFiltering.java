@@ -34,15 +34,17 @@ import java.util.List;
 
 //Third-party libraries
 
+
+import org.openmicroscopy.shoola.agents.dataBrowser.view.QuickSearch;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.tagging.util.TagCellRenderer;
 import org.openmicroscopy.shoola.agents.util.tagging.util.TagItem;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.util.ui.HistoryDialog;
-import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
 import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
+
 import pojos.DataObject;
 import pojos.TagAnnotationData;
 

@@ -62,6 +62,8 @@ import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 
+
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
@@ -75,10 +77,9 @@ import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
-import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
-import org.openmicroscopy.shoola.util.ui.search.SearchComponent;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
 import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
+
 import pojos.DatasetData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;

@@ -73,7 +73,7 @@ public class SearchObject
 	 * @param icon			The icon associated to this object.
 	 * @param description	The description associated to this object.
 	 */
-	SearchObject(int index, ImageIcon icon, String description)
+	public SearchObject(int index, ImageIcon icon, String description)
 	{
 		this.index = index;
 		this.icon = icon;
@@ -85,21 +85,21 @@ public class SearchObject
 	 * 
 	 * @param description The value to set.
 	 */
-	void setDescription(String description) { this.description = description; }
+	public void setDescription(String description) { this.description = description; }
 	
 	/**
 	 * Sets the result.
 	 * 
 	 * @param result The value to set.
 	 */
-	void setResult(List<String> result) { this.result = result; }
+	public void setResult(List<String> result) { this.result = result; }
 	
 	/**
 	 * Returns the icon.
 	 * 
 	 * @return See above.
 	 */
-	ImageIcon getIcon() { return icon; }
+	public ImageIcon getIcon() { return icon; }
 	
 	/**
 	 * Returns the index.

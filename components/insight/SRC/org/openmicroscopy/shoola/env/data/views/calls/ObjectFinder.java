@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.calls.ObjectFinder 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -39,7 +39,9 @@ import java.util.Map.Entry;
 
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
+import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
@@ -71,7 +73,7 @@ public class ObjectFinder
     private List<SecurityContext> ctx;
     
     /** The context of the search.*/
-    private SearchDataContext searchContext;
+    private SearchParameters searchContext;
     
     /**
      * Creates a {@link BatchCall} to retrieve the data
@@ -85,9 +87,8 @@ public class ObjectFinder
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                Map<SecurityContext, Object> r = new HashMap<SecurityContext, 
-                Object>();
-                r.put(ctx, os.advancedSearchFor(ctx, searchContext));
+                Map<SecurityContext, AdvancedSearchResultCollection> r = new HashMap<SecurityContext, AdvancedSearchResultCollection>();
+                r.put(ctx, os.search(ctx, searchContext));
                 result = r;
             }
         };
@@ -127,7 +128,7 @@ public class ObjectFinder
      * @param searchContext The context of the search.
      */
     public ObjectFinder(List<SecurityContext> ctx,
-    		SearchDataContext searchContext)
+            SearchParameters searchContext)
     {
     	this.ctx = ctx;
     	this.searchContext = searchContext;

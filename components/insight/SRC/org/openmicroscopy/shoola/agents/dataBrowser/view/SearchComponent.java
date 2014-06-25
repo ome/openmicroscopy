@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.search;
+package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 
 //Java imports
@@ -43,16 +43,25 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
 
+
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.jdesktop.swingx.JXBusyLabel;
-
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.view.SearchEvent;
+import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
+import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.event.AgentEvent;
+import org.openmicroscopy.shoola.env.event.AgentEventListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.search.GroupContext;
+import org.openmicroscopy.shoola.util.ui.search.SearchContext;
+import org.openmicroscopy.shoola.util.ui.search.SearchObject;
 
+import pojos.ExperimenterData;
 import pojos.GroupData;
 
 /** 
@@ -70,7 +79,7 @@ import pojos.GroupData;
  */
 public class SearchComponent
 	extends JPanel
-	implements ActionListener
+	implements ActionListener, AgentEventListener
 {
 
 	/** Identifies the text to filter by untagged data. */
@@ -109,6 +118,9 @@ public class SearchComponent
 	/** Identifies the text for searching for attachments. */
 	public static final String		NAME_ATTACHMENT = "Attachments"; 
 	
+	/** Identifies the text for searching for attachments. */
+        public static final String              NAME_ANNOTATION = "Annotations"; 
+        
 	/** Identifies the text for searching for rate. */
 	public static final String		NAME_RATE = "Rate"; 
 	
@@ -117,9 +129,6 @@ public class SearchComponent
 	
 	/** Identifies the text for searching for time. */
 	public static final String		NAME_CUSTOMIZED = "Custom"; 
-	
-        /** Identifies the text for searching for ID. */
-        public static final String              NAME_ID = "ID"; 
 	
 	/** Identifies the text to filter by ROIs. */
         public static final String              HAS_ROIS_TEXT = "Has ROIs";
@@ -163,12 +172,11 @@ public class SearchComponent
 	 */
 	static final int 				ANNOTATOR = 6;
 	
-	/** Action command ID indicating to display the advanced search. */
-	static final int 				ADVANCED_SEARCH = 7;
-	
-	/** Action command ID indicating to display the advanced search. */
-	static final int 				BASIC_SEARCH = 8;
-	
+	/** 
+         * Action command ID indicating to reset the date fields
+         */
+        static final int                                RESET_DATE = 7;
+        
 	/** 
 	 * The size of the invisible components used to separate buttons
 	 * horizontally.
@@ -319,32 +327,31 @@ public class SearchComponent
 	{
 		nodes = new ArrayList<SearchObject>();
 		
-	SearchObject node = new SearchObject(SearchContext.ID, null, NAME_ID);
-	nodes.add(node);
-    	node = new SearchObject(SearchContext.NAME, 
+	SearchObject node = new SearchObject(SearchContext.NAME, 
 				null, NAME_TEXT);
     	nodes.add(node);
+    	
     	node = new SearchObject(SearchContext.DESCRIPTION, 
 				null, NAME_DESCRIPTION);
     	nodes.add(node);
-    	node = new SearchObject(SearchContext.TEXT_ANNOTATION, null, 
-					NAME_COMMENTS);
-    	nodes.add(node);
-    	node = new SearchObject(SearchContext.TAGS, null, NAME_TAGS);
-    	nodes.add(node);
-    	node = new SearchObject(SearchContext.URL_ANNOTATION, null, NAME_URL);
-    	nodes.add(node);
-    	node = new SearchObject(SearchContext.FILE_ANNOTATION, null, 
-					NAME_ATTACHMENT);
+    	
+    	node = new SearchObject(SearchContext.ANNOTATION, null, 
+                NAME_ANNOTATION);
     	nodes.add(node);
     	
     	types = new ArrayList<SearchObject>();
-    	node = new SearchObject(SearchContext.IMAGES, null, "Image");
-    	types.add(node);
-    	node = new SearchObject(SearchContext.DATASETS, null, "Dataset");
-    	types.add(node);
-    	node = new SearchObject(SearchContext.PROJECTS, null, "Project");
-    	types.add(node);
+    	
+    	node = new SearchObject(SearchContext.IMAGES, null, "Images");
+        types.add(node);
+        node = new SearchObject(SearchContext.DATASETS, null, "Datasets");
+        types.add(node);
+        node = new SearchObject(SearchContext.PROJECTS, null, "Projects");
+        types.add(node);
+        node = new SearchObject(SearchContext.PLATES, null, "Plates");
+        types.add(node);
+        node = new SearchObject(SearchContext.SCREENS, null, "Screens");
+        types.add(node);
+        
 	}
 	
 	/**
@@ -355,6 +362,8 @@ public class SearchComponent
 	public SearchComponent(SearchContext context)
 	{
 		searchContext = context;
+		
+		TreeViewerAgent.getRegistry().getEventBus().register(this, SearchEvent.class);
 	}
 	
 	/** Creates a new instance. */
@@ -399,13 +408,13 @@ public class SearchComponent
 	 * 
 	 * @return See above.
 	 */
-	protected List<String> getSome()
+	protected List<String> getTerms()
 	{ 
-		String[] some = uiDelegate.getSome();
+		String[] terms = uiDelegate.getQueryTerms();
 		List<String> l = new ArrayList<String>();
-		if (some != null) {
-			for (int i = 0; i < some.length; i++) {
-				l.add(some[i]);
+		if (terms != null) {
+			for (int i = 0; i < terms.length; i++) {
+				l.add(terms[i]);
 			}
 		}
 		return l; 
@@ -416,9 +425,9 @@ public class SearchComponent
 	 * 
 	 * @param values The values to add.
 	 */
-	protected void setSomeValues(List<String> values)
+	protected void setTerms(List<String> terms)
 	{
-		uiDelegate.setSomeValues(values);
+		uiDelegate.setTerms(terms);
 	}
 	
 	/**
@@ -454,53 +463,64 @@ public class SearchComponent
             List<Integer> scope = uiDelegate.getScope();
             SearchContext ctx;
     
-            if (scope.contains(SearchContext.ID)) {
-                // create search context with search by ID only
-                ctx = new SearchContext(uiDelegate.getSome(), ArrayUtils.EMPTY_STRING_ARRAY,
-                        ArrayUtils.EMPTY_STRING_ARRAY,
-                        Collections.singletonList(SearchContext.ID));
-            } else {
+
                 // Terms cannot be null
-                String[] some = uiDelegate.getSome();
-                String[] must = uiDelegate.getMust();
-                String[] none = uiDelegate.getNone();
-                ctx = new SearchContext(some, must, none, scope);
+                String[] terms = uiDelegate.getQueryTerms();
+                ctx = new SearchContext(terms, scope);
     
-                int index = uiDelegate.getSelectedDate();
-                Timestamp start, end;
-    
-                switch (index) {
-                    case SearchContext.RANGE:
-                        start = uiDelegate.getFromDate();
-                        end = uiDelegate.getToDate();
-                        if (start != null && end != null && start.after(end))
-                            ctx.setTime(end, start);
-                        else
-                            ctx.setTime(start, end);
-                        break;
-                    default:
-                        ctx.setTime(index);
-                }
-                ctx.setOwnerSearchContext(uiDelegate.getOwnerSearchContext());
-                ctx.setAnnotatorSearchContext(uiDelegate
-                        .getAnnotatorSearchContext());
-                ctx.setOwners(uiDelegate.getOwners());
-                ctx.setGroups(uiDelegate.getSelectedGroups());
-                ctx.setAnnotators(uiDelegate.getAnnotators());
-                ctx.setCaseSensitive(uiDelegate.isCaseSensitive());
-                ctx.setAttachmentType(uiDelegate.getAttachment());
-                ctx.setTimeType(uiDelegate.getTimeIndex());
-                ctx.setExcludedOwners(uiDelegate.getExcludedOwners());
-                ctx.setExcludedAnnotators(uiDelegate.getExcludedAnnotators());
-                ctx.setGroups(uiDelegate.getSelectedGroups());
-            }
+                Timestamp start = uiDelegate.getFromDate();
+                Timestamp end = uiDelegate.getToDate();
+                if (start != null && end != null) {
+                    if(start.after(end)) 
+                        ctx.setTime(end, start);
+                    else
+                        ctx.setTime(start, end);
+                };
+                
+                ctx.setSelectedOwner(uiDelegate.getUserId());
+                ctx.getSelectedGroups().addAll(getSelectedGroups());
             
-            ctx.setType(uiDelegate.getType());
-            ctx.setGroups(uiDelegate.getSelectedGroups());
+                ctx.setType(uiDelegate.getType());
             
-            firePropertyChange(SEARCH_PROPERTY, null, ctx);
+                firePropertyChange(SEARCH_PROPERTY, null, ctx);
         }
 	
+        /**
+         * Get the selected groups; i. e. just one if a certain
+         * group was selected, or all groups of the user if 'all'
+         * was selected.
+         * @return
+         */
+        List<Long> getSelectedGroups() {
+            
+            List<Long> result = new ArrayList<Long>();
+            
+            long groupId = uiDelegate.getGroupId();
+            
+            if(groupId==GroupContext.ALL_GROUPS_ID) {
+                ExperimenterData exp = getUserDetails();
+                for(GroupData gd : exp.getGroups()) {
+                    result.add(gd.getId());
+                }
+            }
+            else {
+                 result.add(groupId);
+            }
+            
+            return result;
+        }
+        
+        /**
+         * Returns the current user's details.
+         * 
+         * @return See above.
+         */
+        private ExperimenterData getUserDetails()
+        { 
+                return (ExperimenterData) FinderFactory.getRegistry().lookup(
+                                LookupNames.CURRENT_USER_DETAILS);
+        }
+        
 	/**
 	 * Returns the list of possible groups.
 	 * 
@@ -516,7 +536,7 @@ public class SearchComponent
 		groupsContext = new ArrayList<GroupContext>();
 		while (i.hasNext()) {
 			g = i.next();
-			gc = new GroupContext(g.getName(), g.getId());
+			gc = new GroupContext(g);
 			groupsContext.add(gc);
 		}
 		return groupsContext; 
@@ -547,28 +567,6 @@ public class SearchComponent
 		busyLabel.setEnabled(b);
 		busyLabel.setBusy(b);
 		progressLabel.setText(text);
-	}
-	
-	/**
-	 * Sets the name of the selected user.
-	 * 
-	 * @param userID The id of the owner.
-	 * @param name   The string to set.
-	 */
-	public void setUserString(long userID, String name)
-	{
-		if (name == null) return;
-		name = name.trim();
-		if (name.length() == 0) return;
-		switch (userIndex) {
-			case OWNER:
-				uiDelegate.setOwnerString(userID, name);
-				break;
-			case ANNOTATOR:
-				uiDelegate.setAnnotatorString(name);
-		}
-		validate();
-		repaint();
 	}
 	
 	/**
@@ -605,12 +603,6 @@ public class SearchComponent
 		repaint();
 	}
 	
-	/** Requests focus on the search field. */
-	public void requestFocusOnField()
-	{
-		uiDelegate.advancedSearch(false);
-	}
-	
 	/**
 	 * Cancels or searches.
 	 * @see ActionListener#actionPerformed(ActionEvent)
@@ -625,9 +617,6 @@ public class SearchComponent
 			case SEARCH:
 				search();
 				break;
-			case DATE:
-				uiDelegate.setDateIndex();
-				break;
 			case OWNER:
 				userIndex = OWNER;
 				firePropertyChange(OWNER_PROPERTY, Boolean.valueOf(false), 
@@ -641,15 +630,26 @@ public class SearchComponent
 			case HELP:
 				help();
 				break;
-			case ADVANCED_SEARCH:
-				uiDelegate.advancedSearch(true);
-				break;
-			case BASIC_SEARCH: 
-				uiDelegate.advancedSearch(false);
+			case RESET_DATE:
+			        uiDelegate.resetDate();
+			        break;
 		}
 	}
 
 	/** Subclasses should override this method. */
 	protected void help() {}
+
+	
+        public void eventFired(AgentEvent e) {
+            if (e instanceof SearchEvent) {
+                SearchEvent evt = (SearchEvent) e;
+                if (evt.getQuery().trim().length() > 0) {
+                    uiDelegate.reset();
+                    uiDelegate.setTerms(Collections.singletonList(evt.getQuery()));
+                    search();
+                }
+            }
+    
+        }
 	
 }
