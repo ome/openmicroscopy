@@ -79,7 +79,7 @@ class FsControl(BaseControl):
             "--without-images", action="store_true",
             help="list only sets without images (i.e. corrupt)")
         sets.add_argument(
-            "--with-transfer", nargs="*", action="append",
+            "--with-transfer", nargs="+", action="append",
             help="list sets by their in-place import method")
         sets.add_argument(
             "--check", action="store_true",
