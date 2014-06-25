@@ -18,6 +18,7 @@
 
 package ome.services.eventlogs;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -87,7 +88,9 @@ public class EventLogQueue extends PersistentEventLogLoader {
      *
      * @since 5.0.3
      */
-    private static class Entry {
+    private static class Entry implements Serializable {
+
+        private static final long serialVersionUID = 1L;
 
         /**
          * Id of {@link EventLog} for this entry. If less than 0, then this
@@ -193,7 +196,9 @@ public class EventLogQueue extends PersistentEventLogLoader {
      *
      * @since 5.0.3
      */
-    private static class Data {
+    private static class Data implements Serializable {
+
+        private static final long serialVersionUID = 1L;
 
         /**
          * Intended to hide access to much of the {@link Map} interface in order
@@ -201,7 +206,9 @@ public class EventLogQueue extends PersistentEventLogLoader {
          *
          * @since 5.0.3
          */
-        private class Entries {
+        private class Entries implements Serializable {
+
+            private static final long serialVersionUID = 1L;
 
             private final Map<Long, Entry> entries;
 
@@ -255,7 +262,7 @@ public class EventLogQueue extends PersistentEventLogLoader {
          */
         final private List<String> types;
 
-        final private Counter priorityCount, regularCount, failureCount;
+        final transient private Counter priorityCount, regularCount, failureCount;
 
         public Data(Counter priority, Counter regular, Counter failure,
                 List<String> types) {
