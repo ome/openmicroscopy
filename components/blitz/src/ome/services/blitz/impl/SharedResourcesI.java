@@ -7,8 +7,6 @@
 
 package ome.services.blitz.impl;
 
-import static omero.rtypes.rstring;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -36,27 +34,21 @@ import omero.ValidationException;
 import omero.constants.categories.PROCESSCALLBACK;
 import omero.constants.categories.PROCESSORCALLBACK;
 import omero.constants.topics.PROCESSORACCEPTS;
-import omero.grid.AMI_InternalRepository_getDescription;
-import omero.grid.AMI_InternalRepository_getProxy;
 import omero.grid.AMI_Tables_getTable;
-import omero.grid._InteractiveProcessorTie;
 import omero.grid.InteractiveProcessorI;
 import omero.grid.InteractiveProcessorPrx;
 import omero.grid.InteractiveProcessorPrxHelper;
 import omero.grid.InternalRepositoryPrx;
-import omero.grid.InternalRepositoryPrxHelper;
 import omero.grid.ParamsHelper;
 import omero.grid.ProcessorPrx;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
-import omero.grid.RepositoryPrxHelper;
 import omero.grid.TablePrx;
 import omero.grid.TablePrxHelper;
 import omero.grid.TablesPrx;
 import omero.grid.TablesPrxHelper;
+import omero.grid._InteractiveProcessorTie;
 import omero.grid._SharedResourcesOperations;
-import omero.model.Format;
-import omero.model.FormatI;
 import omero.model.Job;
 import omero.model.JobStatus;
 import omero.model.JobStatusI;
@@ -64,10 +56,10 @@ import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.util.IceMapper;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
