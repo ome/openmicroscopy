@@ -313,21 +313,27 @@ class AdaptiveStrategy(PercentStrategy):
 
     def __init__(self, name, settings=None):
         super(AdaptiveStrategy, self).__init__(name, settings)
-        available, active, total = self.system_memory_mb()  # max_total is set
+        available, active, total = self.system_memory_mb()
 
         if settings is None:
             settings = Settings()
 
+        calc = None
         if total <= 4000:
-            settings.overwrite("max_total", .75 * total)
             if total >= 2000:
                 settings.overwrite("perm_gen", "256m")
+            settings.overwrite("max_total", .75 * total)
         elif total <= 8000:
-            settings.overwrite("max_total", .50 * total)
             settings.overwrite("perm_gen", "512m")
+            calc = (4000, 8000, .75 * 4000, .5 * 8000)
         else:
-            settings.overwrite("max_total", .33 * total)
             settings.overwrite("perm_gen", "1g")
+            calc = (8000, 24000, .5 * 8000, .33 * 24000)
+
+        if calc is not None:
+            x0, x1, y0, y1 = calc
+            new_total = y0 + (y1 - y0) * (total - x0) / (x1 - x0)
+            settings.overwrite("max_total", new_total)
 
 
 STRATEGY_REGISTRY["manual"] = ManualStrategy
