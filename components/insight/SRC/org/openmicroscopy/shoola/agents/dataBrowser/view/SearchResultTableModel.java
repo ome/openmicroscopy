@@ -50,11 +50,15 @@ import pojos.ScreenData;
 public class SearchResultTableModel extends DefaultTableModel {
 
     /** The name of the columns */
-    public static final String[] COLUMN_NAMES = { "Type", "Name", "Date", "Group", " " };
-    
-    /** The index of the column which contains the View buttons (i. e. the last column) */
-    public static final int VIEWBUTTON_COLUMN_INDEX = COLUMN_NAMES.length-1;
-    
+    public static final String[] COLUMN_NAMES = { "Type", "Name", "Date",
+            "Group", " " };
+
+    /**
+     * The index of the column which contains the View buttons (i. e. the last
+     * column)
+     */
+    public static final int VIEWBUTTON_COLUMN_INDEX = COLUMN_NAMES.length - 1;
+
     /** Defines the size of the thumbnail icons */
     private static final double THUMB_ZOOM_FACTOR = 0.5;
 
@@ -67,16 +71,19 @@ public class SearchResultTableModel extends DefaultTableModel {
 
     /** A reference to the DataBrowserModel */
     private AdvancedResultSearchModel model;
-    
+
     /** The groups the user has access to */
     @SuppressWarnings("unchecked")
     private Collection<GroupData> groups = TreeViewerAgent
             .getAvailableUserGroups();
-    
+
     /**
      * Creates a new instance
-     * @param data The {@link DataObject}s which should be shown in the table
-     * @param model Reference to the DataBrowserModel
+     * 
+     * @param data
+     *            The {@link DataObject}s which should be shown in the table
+     * @param model
+     *            Reference to the DataBrowserModel
      */
     public SearchResultTableModel(List<DataObject> data,
             AdvancedResultSearchModel model) {
@@ -87,35 +94,37 @@ public class SearchResultTableModel extends DefaultTableModel {
 
     @Override
     public Object getValueAt(int row, int column) {
+        if (row < 0 || row >= data.size())
+            return null;
+
+        DataObject obj = data.get(row);
+
         Object result = "N/A";
         
-        if(row<data.size()) {
-            DataObject obj = data.get(row);
-    
-            switch (column) {
-                case 0:
-                    result = getIcon(obj);
-                    break;
-                case 1:
-                    result = getObjectName(obj);
-                    break;
-                case 2:
-                    result = getDate(obj);
-                    break;
-                case 3:
-                    result = getGroup(obj);
-                    break;
-                case 4:
-                    result = obj;
-                    break;
-            }
+        switch (column) {
+            case 0:
+                result = getIcon(obj);
+                break;
+            case 1:
+                result = getObjectName(obj);
+                break;
+            case 2:
+                result = getDate(obj);
+                break;
+            case 3:
+                result = getGroup(obj);
+                break;
+            case 4:
+                result = obj;
+                break;
         }
-        
+
         return result;
     }
 
     /**
      * Get the creation date of the {@link DataObject}
+     * 
      * @param obj
      * @return
      */
@@ -131,6 +140,7 @@ public class SearchResultTableModel extends DefaultTableModel {
 
     /**
      * Get the group name the {@link DataObject} belongs to
+     * 
      * @param obj
      * @return
      */
@@ -145,8 +155,10 @@ public class SearchResultTableModel extends DefaultTableModel {
 
     /**
      * Get the {@link Icon} for the {@link DataObject}
+     * 
      * @param obj
-     * @return A general icon (e. g. for DataSets) or a thumbnail icon (for Images); a tranparent icon if the data type is not supported
+     * @return A general icon (e. g. for DataSets) or a thumbnail icon (for
+     *         Images); a tranparent icon if the data type is not supported
      */
     private Icon getIcon(DataObject obj) {
 
@@ -195,6 +207,7 @@ public class SearchResultTableModel extends DefaultTableModel {
 
     /**
      * Get the name of the {@link DataObject}
+     * 
      * @param obj
      * @return
      */
@@ -216,7 +229,6 @@ public class SearchResultTableModel extends DefaultTableModel {
         return name;
     }
 
-    
     @Override
     public boolean isCellEditable(int row, int column) {
         return column == VIEWBUTTON_COLUMN_INDEX;
