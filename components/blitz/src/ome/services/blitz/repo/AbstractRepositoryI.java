@@ -7,6 +7,7 @@
 package ome.services.blitz.repo;
 
 import java.io.File;
+import java.nio.channels.OverlappingFileLockException;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -41,6 +42,7 @@ import omero.api.RenderingEnginePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.cmd.Response;
 import omero.constants.SESSIONUUID;
+import omero.grid.InternalRepositoryPrx;
 import omero.grid.RawAccessRequest;
 import omero.grid.RepositoryPrx;
 import omero.grid.RepositoryPrxHelper;
@@ -303,7 +305,32 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
                     fileMaker.init(sf.getConfigService().getDatabaseUuid());
                 }
 
-                final String line = fileMaker.getLine();
+                String line = null;
+                try {
+                    line = fileMaker.getLine();
+                } catch (OverlappingFileLockException ofle) {
+                    InternalRepositoryPrx[] repos = reg.lookupRepositories();
+                    InternalRepositoryPrx prx = null;
+                    if (repos != null) {
+                        for (int i = 0; i < repos.length; i++) {
+                            if (repos[i] != null) {
+                                if (repos[i].toString().contains(repoUuid)) {
+                                    prx = repos[i];
+                                }
+                            }
+                        }
+                    }
+                    if (prx == null) {
+                        fileMaker.close();
+                        FileMaker newFileMaker = new FileMaker(fileMaker.getDir());
+                        fileMaker.init(sf.getConfigService().getDatabaseUuid());
+                        try {
+                            line = newFileMaker.getLine();
+                        } catch (Exception e) {
+                            throw e;
+                        }
+                    }
+                }
 
                 if (line == null) {
                     repoUuid = repo.generateRepoUuid();

@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileLock;
+import java.nio.channels.OverlappingFileLockException;
 import java.util.Date;
 
 import ome.conditions.InternalException;
@@ -92,7 +93,11 @@ public class FileMaker {
                 throw new InternalException("Not initialized");
             }
 
-            lock = dotLockRaf.getChannel().lock();
+            try {
+                lock = dotLockRaf.getChannel().lock();
+            } catch (OverlappingFileLockException ofle) {
+                throw ofle;
+            }
             dotLockRaf.seek(0);
             dotLockRaf.writeUTF(new Date().toString());
 
