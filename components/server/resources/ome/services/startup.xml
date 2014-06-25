@@ -67,6 +67,13 @@
      <constructor-arg ref="roles"/>
   </bean>
 
+  <bean id="dbInsertTriggerCheck" depends-on="dbPatchCheck"
+     class="ome.services.util.DBInsertTriggerCheck"
+     init-method="start" lazy-init="false">
+     <constructor-arg ref="executor"/>
+     <constructor-arg ref="simpleSqlAction"/>
+  </bean>
+
   <!--
 
   Disabling DropBox directory creation for 4.1. The directories
