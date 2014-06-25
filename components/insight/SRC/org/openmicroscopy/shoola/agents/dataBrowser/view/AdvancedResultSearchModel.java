@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.view.SearchModel 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -22,40 +22,46 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
-//Java imports
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
-
-import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserTranslator;
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
+import org.openmicroscopy.shoola.agents.dataBrowser.SearchThumbnailLoader;
+import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailProvider;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
-import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResult;
 import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
-
 import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.ImageData;
+import pojos.PlateData;
+import pojos.ProjectData;
+import pojos.ScreenData;
 
-//Third-party libraries
-//Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
-import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
+/**
+ * A DataBrowserModel for search results
+ * 
+ * @author  Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ */
+public class AdvancedResultSearchModel extends DataBrowserModel {
 
+    /** Holds all the ImageDisplays */
+    List<ImageDisplay> displays = new ArrayList<ImageDisplay>();
 
-class AdvancedResultSearchModel extends DataBrowserModel {
+    /** Holds the thumbnails */
+    Map<DataObject, Thumbnail> thumbs = new HashMap<DataObject, Thumbnail>();
 
-    List<AdvancedSearchResult> data = new ArrayList<AdvancedSearchResult>();
-
-    Set<ImageDisplay> displays = new HashSet<ImageDisplay>();
+    /** References to the tables to be notified when thumbs have been loaded */
+    List<SearchResultTable> tables = new ArrayList<SearchResultTable>();
 
     /**
      * Creates a new instance.
@@ -63,97 +69,98 @@ class AdvancedResultSearchModel extends DataBrowserModel {
      * @param results
      *            The results to display.
      */
-    AdvancedResultSearchModel(AdvancedSearchResultCollection results) {
+    public AdvancedResultSearchModel(AdvancedSearchResultCollection results) {
 
         super(null);
         if (results == null)
             throw new IllegalArgumentException("No results.");
 
-        Iterator<AdvancedSearchResult> it = results.iterator();
-        while (it.hasNext()) {
-            data.add(it.next());
-        }
+        displays.addAll(createDisplays(results.getDataObjects(-1,
+                ProjectData.class)));
+        displays.addAll(createDisplays(results.getDataObjects(-1,
+                DatasetData.class)));
 
-        Set set = DataBrowserTranslator.transformHierarchy(results
-                .getDataObjects(-1, null));
-        displays.addAll(set);
-        
+        List<DataObject> imgs = results.getDataObjects(-1, ImageData.class);
+        List<ImageDisplay> imgNodes = createDisplays(imgs);
+        displays.addAll(imgNodes);
+
+        displays.addAll(createDisplays(results.getDataObjects(-1,
+                ScreenData.class)));
+        displays.addAll(createDisplays(results.getDataObjects(-1,
+                PlateData.class)));
+
         browser = BrowserFactory.createBrowser(displays);
     }
 
-    private Set<ImageNode> getImageNodes() {
-        Set<ImageNode> nodes = new HashSet<ImageNode>();
-
-        Iterator<ImageDisplay> it = displays.iterator();
-        while (it.hasNext()) {
-            ImageDisplay d = it.next();
-            if (d instanceof ImageNode)
-                nodes.add((ImageNode) d);
-        }
-        return nodes;
+    /**
+     * Registers a table to be notified when thumbs have been loaded
+     * @param table
+     */
+    public void registerTable(SearchResultTable table) {
+        this.tables.add(table);
     }
 
     /**
-     * Overridden to start several loaders.
+     * Creates the {@link ImageDisplay}s for the given {@link DataObject}s
+     * @param dataObjs
+     * @return
      */
+    private List<ImageDisplay> createDisplays(Collection<DataObject> dataObjs) {
+        List<ImageDisplay> result = new ArrayList<ImageDisplay>();
+
+        for (DataObject dataObj : dataObjs) {
+            ImageDisplay d = null;
+
+            if (dataObj instanceof ImageData) {
+                d = new ImageNode("", dataObj, null);
+            } else if (dataObj instanceof ProjectData
+                    || dataObj instanceof DatasetData
+                    || dataObj instanceof ScreenData
+                    || dataObj instanceof PlateData) {
+                d = new ImageSet("", dataObj);
+            }
+
+            if (d != null)
+                result.add(d);
+        }
+
+        return result;
+    }
+
+    @Override
     void loadData(boolean refresh, Collection ids) {
-        Map<Long, List<ImageData>> map = new HashMap<Long, List<ImageData>>();
-        Set<ImageNode> nodes = getImageNodes();
-        if (nodes.size() == 0)
-            return;
-        Iterator<ImageNode> i = nodes.iterator();
-        ImageNode node;
-        ImageData image;
-        long groupId;
-        List<ImageData> imgs;
-        if (ids != null) {
-            ImageData img;
-            while (i.hasNext()) {
-                node = i.next();
-                img = (ImageData) node.getHierarchyObject();
-                if (ids.contains(img.getId())) {
-                    if (node.getThumbnail().getFullScaleThumb() == null) {
-                        image = (ImageData) node.getHierarchyObject();
-                        groupId = image.getGroupId();
-                        if (!map.containsKey(groupId)) {
-                            map.put(groupId, new ArrayList<ImageData>());
-                        }
-                        imgs = map.get(groupId);
-                        imgs.add(image);
-                        imagesLoaded++;
-                    }
-                }
+        loadThumbs();
+    }
+
+    /**
+     * Starts a loader for each group to load the thumbnails
+     */
+    private void loadThumbs() {
+
+        Map<Long, List<DataObject>> map = new HashMap<Long, List<DataObject>>();
+        for (ImageDisplay d : displays) {
+            DataObject obj = (DataObject) d.getHierarchyObject();
+            List<DataObject> objs = map.get(obj.getGroupId());
+            if (objs == null) {
+                objs = new ArrayList<DataObject>();
+                map.put(obj.getGroupId(), objs);
             }
-        } else {
-            while (i.hasNext()) {
-                node = i.next();
-                if (node.getThumbnail().getFullScaleThumb() == null) {
-                    image = (ImageData) node.getHierarchyObject();
-                    groupId = image.getGroupId();
-                    if (!map.containsKey(groupId)) {
-                        map.put(groupId, new ArrayList<ImageData>());
-                    }
-                    imgs = map.get(groupId);
-                    imgs.add(image);
-                    imagesLoaded++;
-                }
+            objs.add(obj);
+        }
+
+        for (Entry<Long, List<DataObject>> e : map.entrySet()) {
+            List<DataObject> imgs = new ArrayList<DataObject>();
+            for (DataObject dataObj : e.getValue()) {
+                if (dataObj instanceof ImageData)
+                    imgs.add((ImageData) dataObj);
+            }
+
+            if (!imgs.isEmpty()) {
+                SearchThumbnailLoader loader = new SearchThumbnailLoader(
+                        component, new SecurityContext(e.getKey()), imgs, this);
+                loader.load();
             }
         }
-        if (map.size() == 0)
-            return;
-        Entry<Long, List<ImageData>> e;
-        Iterator<Entry<Long, List<ImageData>>> j = map.entrySet().iterator();
-        DataBrowserLoader loader;
-        Collection<DataObject> l;
-        while (j.hasNext()) {
-            e = j.next();
-            l = sorter.sort(e.getValue());
-            loader = new ThumbnailLoader(component, new SecurityContext(
-                    e.getKey()), l, l.size());
-            loader.load();
-        }
-        
-        state = DataBrowser.LOADING;
     }
 
     /**
@@ -176,29 +183,50 @@ class AdvancedResultSearchModel extends DataBrowserModel {
     }
 
     /**
-     * No-operation implementation in our case.
-     * 
      * @see DataBrowserModel#getNodes()
      */
     protected List<ImageDisplay> getNodes() {
-        return null;
+        return displays;
     }
 
-    public List<AdvancedSearchResult> getData() {
-        return data;
+    /**
+     * Add a thumbnail for a certain image
+     * @param imgId
+     * @param img
+     */
+    public void setThumbnail(long imgId, BufferedImage img) {
+        System.out.println(imgId);
+        System.out.println(img.getHeight());
+
+        for (ImageDisplay d : displays) {
+            System.out.println(d);
+            if (d.getHierarchyObject() instanceof ImageData
+                    && ((ImageData) d.getHierarchyObject()).getId() == imgId) {
+                ImageData refObj = (ImageData) d.getHierarchyObject();
+                ThumbnailProvider thumb = new ThumbnailProvider(refObj);
+                thumb.setFullScaleThumb(img);
+                thumbs.put(refObj, thumb);
+                break;
+            }
+        }
     }
 
-//    public Thumbnail getThumbnail(long imgId) {
-//        Iterator<ImageNode> it = getImageNodes().iterator();
-//        while (it.hasNext()) {
-//            ImageNode node = it.next();
-//            if (node.getHierarchyObject() instanceof ImageData) {
-//                ImageData img = (ImageData) node.getHierarchyObject();
-//                if (img.getId() == imgId) {
-//                    return node.getThumbnail();
-//                }
-//            }
-//        }
-//        return null;
-//    }
+    /**
+     * Get the thumbnail for a certain image
+     * @param refObj
+     * @return
+     */
+    public Thumbnail getThumbnail(DataObject refObj) {
+        return thumbs.get(refObj);
+    }
+
+    /**
+     * Notifies the tables that the thumbnails have been loaded
+     */
+    public void notifyThumbsLoaded() {
+        for (SearchResultTable table : tables) {
+            table.refreshTable();
+        }
+    }
+
 }

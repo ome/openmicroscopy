@@ -23,10 +23,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
-
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -34,98 +32,98 @@ import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.event.CellEditorListener;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
-
-import org.jdesktop.swingx.JXTable;
-import org.jdesktop.swingx.JXTreeTable;
-import org.jdesktop.swingx.decorator.Highlighter;
-import org.jdesktop.swingx.decorator.HighlighterFactory;
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
-import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
-import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
-import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.treetable.renderers.IconCellRenderer;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 import pojos.DataObject;
-import pojos.ExperimenterData;
-import pojos.ImageData;
 
+/**
+ * A table for displaying a {@link AdvancedSearchResultCollection}
+ * 
+ * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ */
 public class SearchResultTable extends JTable {
 
-    SearchResultView view;
+    /** Reference to the DataBrowserModel */
+    private AdvancedResultSearchModel model;
 
-    AdvancedResultSearchModel model;
-    
-    List<DataObject> data;
+    /** Holds the DataObjects shown in the table */
+    private List<DataObject> data;
 
-    public SearchResultTable(List<DataObject> data, DataBrowserModel browserModel) {
+    /**
+     * Creates a new instance
+     * @param data
+     * @param browserModel
+     */
+    public SearchResultTable(List<DataObject> data,
+            AdvancedResultSearchModel browserModel) {
         this.data = data;
-        this.model = (AdvancedResultSearchModel)browserModel;
+        this.model = browserModel;
+        this.model.registerTable(this);
         initTable();
     }
 
+    /**
+     * Initializes the table; i. e. creates/sets the cell renderers, etc.
+     */
     public void initTable() {
         TableCellRenderer defaultRenderer = new MyRenderer();
         setDefaultRenderer(DataObject.class, defaultRenderer);
         setDefaultRenderer(String.class, defaultRenderer);
         setDefaultRenderer(Icon.class, defaultRenderer);
-        
+
         setDefaultEditor(DataObject.class, new DataObjectEditor());
 
         setBackground(UIUtilities.BACKGROUND_COLOR);
 
-        setRowHeight(50);
+        setRowHeight(75);
     }
 
+    /**
+     * Reloads the table
+     */
     public void refreshTable() {
         setModel(new SearchResultTableModel(data, model));
     }
 
-    public void setHighlightedNodes(List<ImageDisplay> nodes) {
-
-    }
-
-    public void setSelectedNodes(List<DataObject> objects) {
-
-    }
-
+    /**
+     * A custom renderer which shows a JLabel, Icon or Button
+     * depending on the Object it gets
+     */
     class MyRenderer extends DefaultTableCellRenderer {
 
         @Override
         public Component getTableCellRendererComponent(JTable table,
-                final Object value, boolean isSelected, boolean hasFocus, int row,
-                int column) {
-            
-            Color bg = (row%2==0) ? UIUtilities.BACKGROUND_COLOUR_EVEN : UIUtilities.BACKGROUND_COLOUR_ODD;
-            
+                final Object value, boolean isSelected, boolean hasFocus,
+                int row, int column) {
+
+            Color bg = (row % 2 == 0) ? UIUtilities.BACKGROUND_COLOUR_EVEN
+                    : UIUtilities.BACKGROUND_COLOUR_ODD;
+
             JPanel p = new JPanel();
             p.setBackground(bg);
-            
-            if(value instanceof DataObject) {
+
+            if (value instanceof DataObject) {
                 JButton b = new JButton("View");
                 b.addActionListener(new ActionListener() {
-                    
+
                     @Override
                     public void actionPerformed(ActionEvent arg0) {
                         BrowseContainer e = new BrowseContainer(value, null);
                         TreeViewerAgent.getRegistry().getEventBus().post(e);
                     }
                 });
-                
+
                 p.add(b);
-            }
-            else if (value instanceof Icon) {
-                JLabel l = new JLabel((Icon)value);
+            } else if (value instanceof Icon) {
+                JLabel l = new JLabel((Icon) value);
                 l.setBackground(bg);
                 p.add(l);
-            }
-            else {
+            } else {
                 JLabel l = new JLabel(value.toString());
                 l.setBackground(bg);
                 p.add(l);
@@ -135,6 +133,9 @@ public class SearchResultTable extends JTable {
 
     }
 
+    /**
+     * The editor which shows the View button for the last column
+     */
     class DataObjectEditor implements TableCellEditor {
 
         public DataObjectEditor() {
@@ -177,31 +178,27 @@ public class SearchResultTable extends JTable {
         }
 
         @Override
-        public Component getTableCellEditorComponent(JTable arg0, final Object arg1,
-                boolean arg2, int arg3, int arg4) {
+        public Component getTableCellEditorComponent(JTable arg0,
+                final Object arg1, boolean arg2, int arg3, int arg4) {
             JPanel p = new JPanel();
-            p.setBackground(((arg3%2==0) ? UIUtilities.BACKGROUND_COLOUR_EVEN : UIUtilities.BACKGROUND_COLOUR_ODD));
-            
+            p.setBackground(((arg3 % 2 == 0) ? UIUtilities.BACKGROUND_COLOUR_EVEN
+                    : UIUtilities.BACKGROUND_COLOUR_ODD));
+
             JButton b = new JButton("View");
             b.addActionListener(new ActionListener() {
-                
+
                 @Override
                 public void actionPerformed(ActionEvent arg0) {
                     BrowseContainer e = new BrowseContainer(arg1, null);
                     TreeViewerAgent.getRegistry().getEventBus().post(e);
                 }
             });
-            
+
             p.add(b);
-            
+
             return p;
         }
 
     }
     
-    protected static ExperimenterData getUserDetails()
-    {
-        return (ExperimenterData) TreeViewerAgent.getRegistry().lookup(
-                                        LookupNames.CURRENT_USER_DETAILS);
-    }
 }

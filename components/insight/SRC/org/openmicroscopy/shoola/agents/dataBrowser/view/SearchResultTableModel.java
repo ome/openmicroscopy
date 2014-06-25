@@ -22,6 +22,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -30,22 +31,47 @@ import javax.swing.table.DefaultTableModel;
 
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 
+/**
+ * The Model for the {@link SearchResultTable}
+ * 
+ * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ */
 public class SearchResultTableModel extends DefaultTableModel {
 
-    List<DataObject> data = new ArrayList<DataObject>();
+    /** Defines the size of the thumbnail icons */
+    private static final double THUMB_ZOOM_FACTOR = 0.5;
 
-    final DateFormat df = new SimpleDateFormat("MMM dd, yyyy hh:mm a");
+    /** Defines the format how the date is shown */
+    private static final DateFormat DATE_FORMAT = new SimpleDateFormat(
+            "MMM dd, yyyy hh:mm a");
 
-    AdvancedResultSearchModel model;
+    /** The DataObjects shown in the table */
+    private List<DataObject> data = new ArrayList<DataObject>();
 
+    /** A reference to the DataBrowserModel */
+    private AdvancedResultSearchModel model;
+
+    /** The groups the user has access to */
+    @SuppressWarnings("unchecked")
+    private Collection<GroupData> groups = TreeViewerAgent
+            .getAvailableUserGroups();
+
+    /**
+     * Creates a new instance
+     * @param data The {@link DataObject}s which should be shown in the table
+     * @param model Reference to the DataBrowserModel
+     */
     public SearchResultTableModel(List<DataObject> data,
             AdvancedResultSearchModel model) {
         super(new String[] { "Type", "Name", "Date", "Group", " " }, data
@@ -81,61 +107,65 @@ public class SearchResultTableModel extends DefaultTableModel {
         return result;
     }
 
+    /**
+     * Get the creation date of the {@link DataObject}
+     * @param obj
+     * @return
+     */
     private String getDate(DataObject obj) {
 
         try {
-            return df.format(new Date(obj.getCreated().getTime()));
+            return DATE_FORMAT.format(new Date(obj.getCreated().getTime()));
         } catch (Exception e) {
             return "N/A";
         }
 
     }
 
+    /**
+     * Get the group name the {@link DataObject} belongs to
+     * @param obj
+     * @return
+     */
     private String getGroup(DataObject obj) {
-        return "" + obj.getGroupId();
+        for (GroupData g : groups) {
+            if (g.getId() == obj.getGroupId()) {
+                return g.getName();
+            }
+        }
+        return "[ID: " + obj.getGroupId() + "]";
     }
 
-    public Icon getIcon(DataObject obj) {
+    /**
+     * Get the {@link Icon} for the {@link DataObject}
+     * @param obj
+     * @return A general icon (e. g. for DataSets) or a thumbnail icon (for Images); a tranparent icon if the data type is not supported
+     */
+    private Icon getIcon(DataObject obj) {
 
         if (obj instanceof ImageData) {
-//            Thumbnail thumb = model.getThumbnail(obj.getId());
-//            return thumb.getIcon() == null ? IconManager.getInstance().getIcon(
-//                    IconManager.IMAGE) : thumb.getIcon();
-            return IconManager.getInstance().getIcon(IconManager.IMAGE); 
+            Thumbnail thumb = model.getThumbnail(obj);
+            return thumb == null ? IconManager.getInstance().getIcon(
+                    IconManager.IMAGE) : thumb.getIcon(THUMB_ZOOM_FACTOR);
         }
-        
+
         else if (obj instanceof ProjectData) {
             return IconManager.getInstance().getIcon(IconManager.PROJECT);
-        } 
-        
+        }
+
         else if (obj instanceof DatasetData) {
             return IconManager.getInstance().getIcon(IconManager.DATASET);
-        } 
-        
+        }
+
         else if (obj instanceof ScreenData) {
             return IconManager.getInstance().getIcon(IconManager.DATASET);
-        } 
-        
+        }
+
         else if (obj instanceof PlateData) {
             return IconManager.getInstance().getIcon(IconManager.DATASET);
         }
 
         return IconManager.getInstance().getIcon(IconManager.TRANSPARENT);
-    }
-
-    public String getIconString(DataObject obj) {
-        if (obj instanceof ImageData) {
-            return "[Thumbnail]";
-        } else if (obj instanceof ProjectData) {
-            return "[Icon Project]";
-        } else if (obj instanceof DatasetData) {
-            return "[Icon Dataset]";
-        } else if (obj instanceof ScreenData) {
-            return "[Icon Screen]";
-        } else if (obj instanceof PlateData) {
-            return "[Icon Plate]";
-        }
-        return "N/A";
     }
 
     @Override
@@ -156,6 +186,11 @@ public class SearchResultTableModel extends DefaultTableModel {
         }
     }
 
+    /**
+     * Get the name of the {@link DataObject}
+     * @param obj
+     * @return
+     */
     private String getObjectName(DataObject obj) {
         String name = "";
         if (obj instanceof ImageData) {
