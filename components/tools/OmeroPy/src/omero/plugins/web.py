@@ -97,6 +97,11 @@ class WebControl(BaseControl):
             "Advanced use: Creates needed symlinks for static"
             " media files (Performed automatically by 'start')")
 
+        parser.add(
+            sub, self.clearsessions,
+            "Advanced use: Can be run as a cron job or directly to clean "
+            "out expired sessions when file based session engine is used.")
+
         #
         # Developer
         #
@@ -441,6 +446,14 @@ Alias /omero "%(ROOT)s/var/omero.fcgi/"
         rv = self.ctx.call(args, cwd=location)
         if rv != 0:
             self.ctx.die(607, "Failed to collect static content.\n")
+
+    def clearsessions(self, args):
+        # Clean out expired sessions.
+        location = self.ctx.dir / "lib" / "python" / "omeroweb"
+        args = [sys.executable, "manage.py", "clearsessions"]
+        rv = self.ctx.call(args, cwd=location)
+        if rv != 0:
+            self.ctx.die(607, "Failed to clear sessions.\n")
 
     def start(self, args):
         self.collectstatic()
