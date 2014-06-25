@@ -177,7 +177,10 @@ public class EventLogQueue extends PersistentEventLogLoader {
 
         private final Entry entry;
 
-        WrappedEventLog(Entry e) {
+        private final Timer.Context timer;
+
+        WrappedEventLog(Entry e, Timer.Context timer) {
+            this.timer = timer;
             this.entry = e;
             setId(e.eventLog);
             setAction(e.action);
@@ -357,6 +360,11 @@ public class EventLogQueue extends PersistentEventLogLoader {
      */
     final private Timer lookupTime;
 
+    /**
+     * Length of time for processing one {@link WrappedEventLog}.
+     */
+    final private Timer processTime;
+
     final private Counter priorityCount, regularCount, failureCount;
 
     final private Counter nextCount;
@@ -383,6 +391,7 @@ public class EventLogQueue extends PersistentEventLogLoader {
             String[] types, String[] actions) {
 
         this.lookupTime = metrics.timer(this, "lookupTime");
+        this.processTime = metrics.timer(this, "processTime");
         this.nextCount = metrics.counter(this, "nextCount");
         this.priorityCount = metrics.counter(this, "priorityCount");
         this.regularCount = metrics.counter(this, "regularCount");
@@ -460,6 +469,7 @@ public class EventLogQueue extends PersistentEventLogLoader {
                 if (lastReturned != failure.log) {
                     log.error("lastReturned is not failure item!");
                 }
+                lastReturned.timer.stop(); // In case of fail
                 lastReturned = null; // Prevent success later
                 data.fail(failure);
             }
@@ -475,6 +485,7 @@ public class EventLogQueue extends PersistentEventLogLoader {
     private EventLog offer(Entry entry) {
         // First handle the previously returned
         if (this.lastReturned != null) {
+            this.lastReturned.timer.stop(); // In case of success
             Entry last = this.lastReturned.entry;
             last.pass();
             if (last.eventLog >= 0) {
@@ -488,7 +499,7 @@ public class EventLogQueue extends PersistentEventLogLoader {
         if (entry.state != State.OPEN) {
             return null;
         }
-        this.lastReturned = new WrappedEventLog(entry);
+        this.lastReturned = new WrappedEventLog(entry, processTime.time());
         return this.lastReturned;
     }
 
