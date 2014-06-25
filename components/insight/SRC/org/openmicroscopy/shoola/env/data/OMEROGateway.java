@@ -5013,6 +5013,42 @@ class OMEROGateway
             return result;
         }
         
+        /**
+         * Builds the query string
+         * 
+         * @param scopeId
+         *            The scope of the search (Name, Description, ...)
+         * @param searchTerms
+         *            The Terms
+         * @return
+         */
+        private String buildSearchQuery(int scopeId, List<String> searchTerms) {
+            StringBuilder queryString = new StringBuilder();
+    
+            if (scopeId == SearchParameters.NAME) {
+                List<String> terms = formatText(searchTerms, "name");
+                for (String term : terms)
+                    queryString.append(term + " ");
+            }
+            if (scopeId == SearchParameters.DESCRIPTION) {
+                List<String> terms = formatText(searchTerms, "description");
+                for (String term : terms)
+                    queryString.append(term + " ");
+            }
+            if (scopeId == SearchParameters.ANNOTATION) {
+                List<String> terms = formatText(searchTerms, "annotation");
+                for (String term : terms)
+                    queryString.append(term + " ");
+            }
+            if (scopeId == SearchParameters.CUSTOMIZED) {
+                List<String> terms = formatText(searchTerms, "");
+                for (String term : terms)
+                    queryString.append(term + " ");
+            }
+    
+            return queryString.toString();
+        }
+        
 	/**
          * Searches for data.
          *
@@ -5084,32 +5120,11 @@ class OMEROGateway
                     while (it.hasNext()) {
                         int scopeId = it.next();
                         
-                        StringBuilder queryString = new StringBuilder();
+                        String query = buildSearchQuery(scopeId, searchTerms);
                         
-                        if (scopeId == SearchParameters.NAME) {
-                            List<String> terms = formatText(searchTerms, "name");
-                            for(String term : terms) 
-                                queryString.append(term+" ");
-                        } 
-                        if (scopeId == SearchParameters.DESCRIPTION) {
-                            List<String> terms = formatText(searchTerms, "description");
-                            for(String term : terms) 
-                                queryString.append(term+" ");
-                        } 
-                        if (scopeId==SearchParameters.ANNOTATION) {
-                            List<String> terms = formatText(searchTerms, "annotation");
-                            for(String term : terms) 
-                                queryString.append(term+" ");
-                        } 
-                        if (scopeId == SearchParameters.CUSTOMIZED) {
-                            List<String> terms = formatText(searchTerms, "");
-                            for(String term : terms) 
-                                queryString.append(term+" ");
-                        }
+                        System.out.println("Searching for type:"+type.getSimpleName()+" in group:"+ctx.getGroupID()+" for scope:"+scopeId+" query:"+query);
                         
-                        System.out.println("Searching for type:"+type.getSimpleName()+" in group:"+ctx.getGroupID()+" for scope:"+scopeId+" query:"+queryString.toString());
-                        
-                        service.byFullText(queryString.toString());
+                        service.byFullText(query);
     
                         try {
                             if(service.hasNext()) {
