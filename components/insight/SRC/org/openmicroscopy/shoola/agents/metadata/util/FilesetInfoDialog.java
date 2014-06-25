@@ -26,6 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.JScrollPane;
+
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
@@ -84,7 +86,7 @@ public class FilesetInfoDialog extends TinyDialog {
         }
         label.setText(buffer.toString());
         
-        setCanvas(label);
+        setCanvas(new JScrollPane(label));
         
         setTitle(n+" File path(s)");
     }
