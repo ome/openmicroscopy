@@ -3537,6 +3537,9 @@ class _BlitzGateway (object):
         if leadingWc:
             search.setAllowLeadingWildcard(True, ctx)
 
+        if len(text) == 0:
+            return []
+
         logger.debug("Searching for: '%s'" % text);
 
         try:
