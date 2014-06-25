@@ -1699,7 +1699,7 @@ def download_as(request, iid=None, conn=None, **kwargs):
     Downloads the image as a single jpeg/png/tiff or as a zip (if more than one image)
     """
     format = request.REQUEST.get('format', 'png')
-    if format not in ('jpeg', 'png', 'tiff'):
+    if format not in ('jpeg', 'png', 'tif'):
         format = 'png'
     if iid is None:
         imgIds = request.REQUEST.getlist('image')
