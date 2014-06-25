@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 //Java imports
 import java.awt.Cursor;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -37,6 +38,7 @@ import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 
 //Third-party libraries
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
@@ -129,7 +131,7 @@ public abstract class ImageDisplay
      * The set of nodes that have been added to this node.
      * Will always be empty for a leaf node. 
      */
-    private Set<ImageDisplay>	childrenDisplay;
+    private List<ImageDisplay>	childrenDisplay;
     
     /** 
      * The original object in the image hierarchy which is visualized by this 
@@ -202,7 +204,7 @@ public abstract class ImageDisplay
             throw new NullPointerException("No hierarchy object.");
         count = 0;
         this.hierarchyObject = hierarchyObject;
-        childrenDisplay = new HashSet<ImageDisplay>();
+        childrenDisplay = new ArrayList<ImageDisplay>();
         setToolTipText(getNodeName());
     }
     
@@ -223,9 +225,9 @@ public abstract class ImageDisplay
      * 
      * @return A <i>read-only</i> set containing all the child nodes.
      */
-    public Set<ImageDisplay> getChildrenDisplay() 
+    public Collection<ImageDisplay> getChildrenDisplay() 
     { 
-        return Collections.unmodifiableSet(childrenDisplay);
+        return Collections.unmodifiableList(childrenDisplay);
     }
     
     /**
