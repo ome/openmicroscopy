@@ -182,8 +182,7 @@ class WebControl(BaseControl):
                 "ROOT": self.ctx.dir,
                 "OMEROWEBROOT": self.ctx.dir / "lib" / "python" /
                 "omeroweb",
-                "STATIC_URL": settings.STATIC_URL.endswith('/') \
-                        and settings.STATIC_URL[:-1] or settings.STATIC_URL
+                "STATIC_URL": settings.STATIC_URL.rstrip("/")
             }
            
             if server == "nginx":
