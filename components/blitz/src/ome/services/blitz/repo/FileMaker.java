@@ -154,6 +154,9 @@ public class FileMaker {
 
             dbUuid = null;
             repoUuidFile = null;
+            if (!dotLockFile.delete()) {
+                log.warn("Failed to delete .lock");
+            }
             dotLockFile = null;
             repoUuidRaf = null;
             dotLockRaf = null;

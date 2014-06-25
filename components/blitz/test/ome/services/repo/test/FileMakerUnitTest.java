@@ -7,6 +7,8 @@
 
 package ome.services.repo.test;
 
+import java.io.File;
+
 import ome.conditions.InternalException;
 import ome.services.blitz.repo.FileMaker;
 
@@ -51,5 +53,21 @@ public class FileMakerUnitTest extends AbstractRepoUnitTest {
         assertEquals("foo", line);
     }
 
+    public void testClose() throws Exception {
+        String lockFilename = "uuid";
+        StringBuilder sb = new StringBuilder();
+        sb.append(File.separator);
+        sb.append(".omero");
+        sb.append(File.separator);
+        sb.append("repository");
+        sb.append(File.separator);
+        sb.append(lockFilename);
+        sb.append(File.separator);
+        sb.append(".lock");
+        FileMaker fm = new FileMaker(tmpRepo.getAbsolutePath());
+        fm.init(lockFilename);
+        fm.close();
+        assertFalse(new File(fm.getDir() + sb.toString()).exists());
+    }
 
 }
