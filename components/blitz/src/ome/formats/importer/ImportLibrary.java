@@ -703,7 +703,9 @@ public class ImportLibrary implements IObservable
 
     private void checkManagedRepo() {
         if (repo == null) {
-            throw new RuntimeException("No FS! Cannot proceed");
+            throw new RuntimeException(
+                    "Cannot acquire lock on managed repository. Check if "
+                    + "another server is not running.");
         }
     }
 
