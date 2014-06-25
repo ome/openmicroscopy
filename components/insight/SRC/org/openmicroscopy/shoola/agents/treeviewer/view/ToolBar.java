@@ -130,7 +130,7 @@ class ToolBar
     
     private static final int SEARCHFIELD_WIDTH = 12;
     
-    private static final String SEARCHFIELD_TEXT = "Quick Search ...";
+    private static final String SEARCHFIELD_TEXT = "Search ...";
 
     /** Reference to the control. */
     private TreeViewerControl controller;

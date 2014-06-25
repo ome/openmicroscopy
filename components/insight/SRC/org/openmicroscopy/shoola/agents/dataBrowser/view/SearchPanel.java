@@ -378,7 +378,7 @@ public class SearchPanel
          */
         private void updateUsersBox(boolean reset) {
             ExperimenterContext me = new ExperimenterContext("Me", getUserDetails().getId());
-            ExperimenterContext all = new ExperimenterContext("Anyone", ExperimenterContext.ALL_EXPERIMENTERS_ID);
+            ExperimenterContext all = new ExperimenterContext("All", ExperimenterContext.ALL_EXPERIMENTERS_ID);
             ExperimenterContext selected = (usersBox.getSelectedIndex() != -1 && !reset) ? (ExperimenterContext) usersBox.getSelectedItem() : null;
     
             usersBox.removeAllItems();
@@ -630,9 +630,6 @@ public class SearchPanel
 	        for(Entry<Integer, JCheckBox> type : types.entrySet()) {
                     type.getValue().setSelected(true);
                 }
-	        
-		validate();
-		repaint();
 	}
 	
 	
