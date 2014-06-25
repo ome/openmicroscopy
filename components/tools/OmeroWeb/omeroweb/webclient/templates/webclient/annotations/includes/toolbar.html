@@ -103,8 +103,20 @@
             {% endif %}
 
             {% if manager.image %}
-              <li id="download-jpeg">
-                <a href="{% url 'web_render_image_download' manager.image.id %}" title="Download as JPEG">Save As JPEG</a>
+              <li>
+                <a href="{% url 'web_render_image_download' manager.image.id %}" title="Download as JPEG">
+                  Save As JPEG
+                </a>
+              </li>
+              <li>
+                <a href="{% url 'web_render_image_download' manager.image.id %}?format=png" title="Download as PNG">
+                  Save As PNG
+                </a>
+              </li>
+              <li>
+                <a href="{% url 'web_render_image_download' manager.image.id %}?format=tif" title="Download as TIFF">
+                  Save As TIFF
+                </a>
               </li>
             {% else %}
               {% if filesetInfo %}

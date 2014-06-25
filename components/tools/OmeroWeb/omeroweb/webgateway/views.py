@@ -763,11 +763,23 @@ def render_image (request, iid, z=None, t=None, conn=None, **kwargs):
             raise Http404
         webgateway_cache.setImage(request, server_id, img, z, t, jpeg_data)
 
+    format = request.REQUEST.get('format', 'jpeg')
     rsp = HttpResponse(jpeg_data, content_type='image/jpeg')
     if 'download' in kwargs and kwargs['download']:
+        if format == 'png':
+            # convert jpeg data to png...
+            i = Image.open(StringIO(jpeg_data))
+            output = StringIO()
+            i.save(output, 'png')
+            jpeg_data = output.getvalue()
+            output.close()
+            rsp = HttpResponse(jpeg_data, content_type='image/png')
+        # don't seem to need to do this for tiff
+        elif format == 'tif':
+            rsp = HttpResponse(jpeg_data, content_type='image/tif')
         rsp['Content-Type'] = 'application/force-download'
         rsp['Content-Length'] = len(jpeg_data)
-        rsp['Content-Disposition'] = 'attachment; filename=%s.jpg' % (img.getName().replace(" ","_"))
+        rsp['Content-Disposition'] = 'attachment; filename=%s.%s' % (img.getName().replace(" ","_"), format)
     return rsp
 
 @login_required()
