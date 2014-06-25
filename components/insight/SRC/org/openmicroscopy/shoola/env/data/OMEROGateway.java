@@ -5116,47 +5116,52 @@ class OMEROGateway
                     // set the search terms
                     List<String> searchTerms = prepareTextSearch(context.getTerms(), service);       
     
+                    String query = "";
                     Iterator<Integer> it = context.getScope().iterator();
                     while (it.hasNext()) {
                         int scopeId = it.next();
-                        
-                        String query = buildSearchQuery(scopeId, searchTerms);
-                        
-                        System.out.println("Searching for type:"+type.getSimpleName()+" in group:"+ctx.getGroupID()+" for scope:"+scopeId+" query:"+query);
-                        
-                        service.byFullText(query);
     
-                        try {
-                            if(service.hasNext()) {
-                                List<IObject> l = service.results();
-                                Iterator<IObject> k = l.iterator();
-                                IObject object;
-                                long id;
-                                while (k.hasNext()) {
-                                        object = k.next();
-                                        if (searchForClass.equals(object.getClass().getName())) {
-                                                id = object.getId().getValue();
-                                                AdvancedSearchResult sr = new AdvancedSearchResult(scopeId, type, id);
-                                                if (!result.contains(sr))
-                                                        result.add(sr); 
-                                        }
+                        if (query.length() > 0) {
+                            query += " OR ";
+                        }
+                        query += " ( " + buildSearchQuery(scopeId, searchTerms)+ ")";
+    
+                    }
+                    System.out.println("Searching for type:" + type.getSimpleName()+ " in group:" + ctx.getGroupID() + " query:" + query);
+    
+                    service.byFullText(query);
+    
+                    try {
+                        if (service.hasNext()) {
+                            List<IObject> l = service.results();
+                            Iterator<IObject> k = l.iterator();
+                            IObject object;
+                            long id;
+                            while (k.hasNext()) {
+                                object = k.next();
+                                if (searchForClass.equals(object.getClass()
+                                        .getName())) {
+                                    id = object.getId().getValue();
+                                    AdvancedSearchResult sr = new AdvancedSearchResult(
+                                            -1, type, id);
+                                    if (!result.contains(sr))
+                                        result.add(sr);
                                 }
                             }
-                        } catch (Exception e) {
-                            if (e instanceof InternalException)
-                                result.setError(AdvancedSearchResultCollection.GENERAL_ERROR);
-                            else
-                                result.setError(AdvancedSearchResultCollection.TOO_MANY_RESULTS_ERROR);
-                            
-                            c.close(service);
-                            
-                            return result;
                         }
-                        
+                    } catch (Exception e) {
+                        if (e instanceof InternalException)
+                            result.setError(AdvancedSearchResultCollection.GENERAL_ERROR);
+                        else
+                            result.setError(AdvancedSearchResultCollection.TOO_MANY_RESULTS_ERROR);
+    
+                        c.close(service);
+    
+                        return result;
                     }
     
                     service.clearQueries();
-    
+
                 } catch (Throwable e) {
                     handleException(e, "Cannot perform the search.");
                 } 
