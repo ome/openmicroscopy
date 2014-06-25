@@ -80,6 +80,9 @@ class BaseSearch(BaseController):
                     self.containers[dt] = doSearch(dt)
                     resultCount += len(self.containers[dt])
         except Exception, x:
-            self.searchError = "Your query for '%s' caused a search error: %s" % (query, x.message)
+            msg = x.message
+            if "TooManyClauses" in msg:
+                msg = "The wildcard matched too many terms"
+            self.searchError = "Your query for '%s' caused an error: %s." % (query, msg)
 
         self.c_size = resultCount
