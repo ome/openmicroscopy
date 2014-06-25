@@ -59,6 +59,14 @@
         <property name="IceSSL.KeyFile" value="privkey.pem"/>
         <property name="IceSSL.CertAuthFile" value="ca.pem"/>
       </target>
+      <target name="noipv6">
+        <!--
+           You may want to make this property active by
+           default if you are seeing "Protocol family unavailable"
+           errors. To do that, remove the outer "target" element.
+        -->
+        <property name="Ice.IPv6" value="0"/>
+      </target>
     </properties>
 
     <properties id="PythonServer">
