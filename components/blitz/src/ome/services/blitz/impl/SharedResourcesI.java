@@ -77,6 +77,12 @@ public class SharedResourcesI extends AbstractCloseableAmdServant implements
         _SharedResourcesOperations, BlitzOnly, ServiceFactoryAware,
         ParamsHelper.Acquirer { // FIXME
 
+    /**
+     * If no value is passed to this instance, this is the time (1 hour)
+     * which will be used for a script session.
+     */
+    public final static long DEFAULT_TIMEOUT = 60 * 60 * 1000L;
+
     private final static Logger log = LoggerFactory.getLogger(SharedResourcesI.class);
 
     private final Set<String> tableIds = new HashSet<String>();
@@ -89,7 +95,19 @@ public class SharedResourcesI extends AbstractCloseableAmdServant implements
 
     private final ScriptRepoHelper helper;
 
+    /**
+     * How long to wait for shared resources (e.g. TablesPrx) to respond to
+     * requests.
+     */
     private final long waitMillis;
+
+    /**
+     * Length of time (ms) to give a script session to live. Once the session
+     * times out, the process will be killed.
+     *
+     * @since 5.03
+     */
+    private final long timeout;
 
     private ServiceFactoryI sf;
 
@@ -100,11 +118,24 @@ public class SharedResourcesI extends AbstractCloseableAmdServant implements
 
     public SharedResourcesI(BlitzExecutor be, TopicManager topicManager,
                 Registry registry, ScriptRepoHelper helper, long waitMillis) {
+        this( be, topicManager, registry, helper, waitMillis, DEFAULT_TIMEOUT);
+    }
+
+    public SharedResourcesI(BlitzExecutor be, TopicManager topicManager,
+                Registry registry, ScriptRepoHelper helper, long waitMillis,
+                long timeout) {
         super(null, be);
         this.waitMillis = waitMillis;
         this.topicManager = topicManager;
         this.registry = registry;
         this.helper = helper;
+        this.timeout = timeout;
+        // In order to prevent overflow of currentTimeMillis+timeout and more
+        // generally to prevent nonsensical timeouts, we limit to 1 year.
+        if (timeout > DEFAULT_TIMEOUT * 24 * 365) {
+            throw new ome.conditions.InternalException(
+                    "Timeout too large: " + timeout);
+        }
     }
 
     public void setServiceFactory(ServiceFactoryI sf) throws ServerError {
@@ -413,7 +444,7 @@ public class SharedResourcesI extends AbstractCloseableAmdServant implements
             throw new omero.NoProcessorAvailable(null, null, msg, count);
         }
 
-        long timeout = System.currentTimeMillis() + 60 * 60 * 1000L;
+        long timeout = System.currentTimeMillis() + this.timeout;
 
         InteractiveProcessorI ip = new InteractiveProcessorI(sf.principal,
                 sf.sessionManager, sf.executor, server, job, timeout,
