@@ -32,16 +32,28 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.event.CellEditorListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
 import org.jdesktop.swingx.JXTable;
+import org.jdesktop.swingx.decorator.Highlighter;
+import org.jdesktop.swingx.decorator.HighlighterFactory;
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
+import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
+import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.env.event.RequestEvent;
+import org.openmicroscopy.shoola.env.ui.ViewObjectEvent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.treetable.renderers.SelectionHighLighter;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import pojos.DataObject;
 
 /**
@@ -84,7 +96,30 @@ public class SearchResultTable extends JXTable {
 
         setBackground(UIUtilities.BACKGROUND_COLOR);
 
+        Highlighter h = HighlighterFactory.createAlternateStriping(
+                UIUtilities.BACKGROUND_COLOUR_EVEN,
+                UIUtilities.BACKGROUND_COLOUR_ODD);
+        addHighlighter(h);
+        addHighlighter(new SelectionHighLighter((JXTable)this));
+
         setRowHeight(75);
+        
+        getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                int row = getSelectedRow();
+                if(row==-1) {
+                    return;
+                }
+                row = convertRowIndexToModel(row);
+                
+                DataObject obj = (DataObject) getModel().getValueAt(row, SearchResultTableModel.VIEWBUTTON_COLUMN_INDEX);
+                if(obj!=null) {
+                    System.out.println("selected: "+obj.getId());
+                }
+            }
+        });
     }
 
     /**
@@ -106,31 +141,30 @@ public class SearchResultTable extends JXTable {
                 final Object value, boolean isSelected, boolean hasFocus,
                 int row, int column) {
 
-            Color bg = (row % 2 == 0) ? UIUtilities.BACKGROUND_COLOUR_EVEN
-                    : UIUtilities.BACKGROUND_COLOUR_ODD;
-
             JPanel p = new JPanel();
-            p.setBackground(bg);
+            p.setOpaque(true);
 
             if (value instanceof DataObject) {
+                final DataObject dataObj = (DataObject) value;
+                
                 JButton b = new JButton("View");
+                
                 b.addActionListener(new ActionListener() {
 
                     @Override
                     public void actionPerformed(ActionEvent arg0) {
-                        BrowseContainer e = new BrowseContainer(value, null);
-                        TreeViewerAgent.getRegistry().getEventBus().post(e);
+                        RequestEvent ev;
+                        ev = new BrowseContainer(dataObj, null);
+                        TreeViewerAgent.getRegistry().getEventBus().post(ev);
                     }
                 });
 
                 p.add(b);
             } else if (value instanceof Icon) {
                 JLabel l = new JLabel((Icon) value);
-                l.setBackground(bg);
                 p.add(l);
             } else {
                 JLabel l = new JLabel(value.toString());
-                l.setBackground(bg);
                 p.add(l);
             }
             return p;
@@ -186,15 +220,18 @@ public class SearchResultTable extends JXTable {
         public Component getTableCellEditorComponent(JTable arg0,
                 final Object arg1, boolean arg2, int arg3, int arg4) {
             JPanel p = new JPanel();
-            p.setBackground(((arg3 % 2 == 0) ? UIUtilities.BACKGROUND_COLOUR_EVEN
-                    : UIUtilities.BACKGROUND_COLOUR_ODD));
+            p.setOpaque(true);
 
+            final DataObject dataObj = (DataObject) arg1;
+            
             JButton b = new JButton("View");
+            
+            b.setOpaque(true);
             b.addActionListener(new ActionListener() {
 
                 @Override
                 public void actionPerformed(ActionEvent arg0) {
-                    BrowseContainer e = new BrowseContainer(arg1, null);
+                    BrowseContainer e = new BrowseContainer(dataObj, null);
                     TreeViewerAgent.getRegistry().getEventBus().post(e);
                 }
             });

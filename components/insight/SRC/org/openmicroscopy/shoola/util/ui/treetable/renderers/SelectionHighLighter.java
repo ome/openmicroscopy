@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.util.ui.treetable.renderers;
 import java.awt.Component;
 
 
+
+import org.jdesktop.swingx.JXTable;
 //Third-party libraries
 import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.decorator.ColorHighlighter;
@@ -54,7 +56,7 @@ public class SelectionHighLighter
 {	
 	
 	/** The table of reference. */
-	private JXTreeTable table;
+	private JXTable table;
 	
 	/**
 	 * Returns <code>true</code> if the row is in the selected rows field.
@@ -75,7 +77,7 @@ public class SelectionHighLighter
 	 * 
 	 * @param table Reference to the table. Mustn't be <code>null</code>.
 	 */
-	public SelectionHighLighter(JXTreeTable table)
+	public SelectionHighLighter(JXTable table)
 	{
 		if (table == null)
 			throw new IllegalArgumentException("No table specified.");
