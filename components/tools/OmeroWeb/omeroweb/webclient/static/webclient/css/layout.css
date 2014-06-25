@@ -182,11 +182,6 @@
 	    
     /* Left Panel Tabs */    
     
-	#left_panel_tabs {
-
-	}
-	
-    
 	    #left_panel_tab_list, .left_panel_top{
 			background:#B8C2CC; /* Old browsers */
 			background:hsl(210,10%,80%);
