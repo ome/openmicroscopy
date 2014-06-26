@@ -435,6 +435,7 @@ public class TinyDialog
         super.setResizable(b);
         if (b) {
             getRootPane().addMouseMotionListener(new BorderListener(this));
+            getRootPane().addMouseListener(new BorderListener(this));
             //increase border.
             uiDelegate.makeBorders(2);
         }
