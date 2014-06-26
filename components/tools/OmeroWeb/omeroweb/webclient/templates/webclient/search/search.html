@@ -284,7 +284,7 @@
 
                         <!-- when 'All Groups' - can choose 'Me' or 'All users' -->
                         <select name="ownedBy" id="searchByGroupMember--1">
-                            <option value="{{ ome.user.id }}">Me</option>
+                            <option value="{{ ome.user.id }}">{{ ome.user.getFullName }}</option>
                             <option value="-1">All Users</option>
                         </select>
 
@@ -293,10 +293,14 @@
                         <select name="ownedBy" id="searchByGroupMember-{{ grp.id }}">
                             <option value="-1">All Members</option>
                             {% for user in grp.leaders %}}
-                                <option value="{{ user.id }}">{{ user.getFullName }}</option>
+                                <option value="{{ user.id }}" {% ifequal user.id ome.user.id %}selected="selected"{% endifequal %}>
+                                    {{ user.getFullName }}
+                                </option>
                             {% endfor %}
                             {% for user in grp.colleagues %}}
-                                <option value="{{ user.id }}">{{ user.getFullName }}</option>
+                                <option value="{{ user.id }}" {% ifequal user.id ome.user.id %}selected="selected"{% endifequal %}>
+                                    {{ user.getFullName }}
+                                </option>
                             {% endfor %}
                         </select>
                         {% endfor %}
