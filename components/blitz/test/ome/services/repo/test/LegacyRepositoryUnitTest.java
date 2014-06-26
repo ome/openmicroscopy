@@ -193,6 +193,19 @@ public class LegacyRepositoryUnitTest extends AbstractRepoUnitTest {
         assertEquals(uuid, test);
     }
 
+    public void testTakeoverNoRepositoryPrx() throws Exception {
+        newRepoObject();
+        addsRepoServices();
+
+        InternalRepositoryPrx[] repos = {};
+        regMock.expects(atLeastOnce()).method("lookupRepositories")
+                .will(returnValue(repos));
+
+        final LegacyRepositoryI r1 = mk(reg);
+
+        assertTrue(r1.takeover());
+    }
+
     class ExecutorStub implements Stub {
 
         ServiceFactory sf;
