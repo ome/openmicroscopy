@@ -481,8 +481,6 @@ public class AdvancedFinder
 	 */
 	public void setResult(SecurityContext ctx, AdvancedSearchResultCollection result)
 	{
-            setSearchEnabled(false);
-    
             if (result.isError()) {
                 String msg;
                 if (result.getError() == AdvancedSearchResultCollection.GENERAL_ERROR)
@@ -495,8 +493,10 @@ public class AdvancedFinder
             }
     
             results.put(ctx, result);
-            if (results.size() == total)
+            if (results.size() == total) {
+                setSearchEnabled(false);
                 firePropertyChange(RESULTS_FOUND_PROPERTY, null, results);
+            }
 	}
 	
 	/** 
