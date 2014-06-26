@@ -315,28 +315,26 @@ Examples:
         tb = self._table(args)
         tb.cols(cols)
         tb.page(args.offset, args.limit, count)
+
+        # Map any requested transfers as well
+        allowed = args.with_transfer is not None \
+            and args.with_transfer or []
+        allowed = [TRANSFERS.get(x, x) for x in allowed[0]]
+
         for idx, obj in enumerate(objs):
 
             # Map the transfer name to the CLI symbols
             ns = obj[-1]
+            print ns
             if ns is None:
                 ns = ""
             elif ns in TRANSFERS:
                 ns = TRANSFERS[ns]
             obj[-1] = ns
 
-            # Map any requested transfers as well
-            allowed = args.with_transfer is not None \
-                and args.with_transfer or []
-            for idx, x in enumerate(allowed):
-                x = x[0]  # Strip argparse wrapper
-                x = TRANSFERS.get(x, x)  # map
-                allowed[idx] = x
-
             # Filter based on the ns symbols
-            if allowed:
-                if ns not in allowed:
-                    continue
+            if allowed and ns not in allowed:
+                continue
 
             # Now perform check if required
             if args.check:
