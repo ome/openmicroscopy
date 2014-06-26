@@ -185,6 +185,11 @@ class WebControl(BaseControl):
                 "STATIC_URL": settings.STATIC_URL.rstrip("/")
             }
 
+            try:
+                d["FORCE_SCRIPT_NAME"] = settings.FORCE_SCRIPT_NAME.rstrip("/")
+            except:
+                d["FORCE_SCRIPT_NAME"] = "/"
+
             if server == "nginx":
                 if args.system:
                     c = file(self.ctx.dir / "etc" /
@@ -204,7 +209,6 @@ class WebControl(BaseControl):
                 d["HTTPPORT"] = port
 
                 try:
-                    d["FORCE_SCRIPT_NAME"] = settings.FORCE_SCRIPT_NAME
                     d["FASTCGI_PATH_SCRIPT_INFO"] = \
                         "fastcgi_split_path_info ^(%s)(.*)$;\n" \
                         "            " \
@@ -213,7 +217,6 @@ class WebControl(BaseControl):
                         "fastcgi_param SCRIPT_INFO $fastcgi_script_name;\n" \
                         % (settings.FORCE_SCRIPT_NAME)
                 except:
-                    d["FORCE_SCRIPT_NAME"] = "/"
                     d["FASTCGI_PATH_SCRIPT_INFO"] = "fastcgi_param PATH_INFO " \
                                                     "$fastcgi_script_name;\n"
 
@@ -230,11 +233,6 @@ class WebControl(BaseControl):
                         self.ctx.dir
                 d["FASTCGI_EXTERNAL"] = fastcgi_external
                 d["NOW"] = str(datetime.now())
-
-                try:
-                    d["FORCE_SCRIPT_NAME"] = settings.FORCE_SCRIPT_NAME
-                except:
-                    d["FORCE_SCRIPT_NAME"] = "/"
 
             self.ctx.out(c % d)
 
