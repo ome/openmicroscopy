@@ -12,7 +12,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileLock;
-import java.nio.channels.OverlappingFileLockException;
 import java.util.Date;
 
 import ome.conditions.InternalException;
@@ -93,11 +92,7 @@ public class FileMaker {
                 throw new InternalException("Not initialized");
             }
 
-            try {
-                lock = dotLockRaf.getChannel().lock();
-            } catch (OverlappingFileLockException ofle) {
-                throw ofle;
-            }
+            lock = dotLockRaf.getChannel().lock();
             dotLockRaf.seek(0);
             dotLockRaf.writeUTF(new Date().toString());
 
@@ -160,7 +155,8 @@ public class FileMaker {
             dbUuid = null;
             repoUuidFile = null;
             if (!dotLockFile.delete()) {
-                log.warn("Failed to delete .lock");
+                log.warn("Failed to delete lock file: "
+                        + dotLockFile.getAbsolutePath());
             }
             dotLockFile = null;
             repoUuidRaf = null;
