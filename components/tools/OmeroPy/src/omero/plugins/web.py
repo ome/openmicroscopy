@@ -100,7 +100,9 @@ class WebControl(BaseControl):
         parser.add(
             sub, self.clearsessions,
             "Advanced use: Can be run as a cron job or directly to clean "
-            "out expired sessions when file based session engine is used.")
+            "out expired sessions, see "
+            "https://docs.djangoproject.com/en/1.6/topics/http/sessions/"
+            "#clearing-the-session-store for more information.")
 
         #
         # Developer
