@@ -102,4 +102,4 @@ class TestFS(CLITest):
                             strict=True)
             o, e = capsys.readouterr()
             assert self.parse_ids(o) == sorted([
-                x.id.val for (k, v) in f.iteritems() if k == transfer])
+                x.id.val for (k, x) in f.iteritems() if k == transfer])
