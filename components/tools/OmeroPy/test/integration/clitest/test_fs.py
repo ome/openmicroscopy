@@ -23,6 +23,7 @@ from test.integration.clitest.cli import CLITest
 from omero.plugins.fs import FsControl
 import omero
 
+transfers = ['ln_s', 'ln', 'ln_rm']
 
 class TestFS(CLITest):
 
@@ -38,14 +39,20 @@ class TestFS(CLITest):
         self.args = ["fs", "-w", passwd]
         self.args += ["-s", host, "-p",  port]
 
-    def get_fileset(self, i1):
+    def get_fileset(self, i):
         params = omero.sys.ParametersI()
-        params.addIds(i1.id.val)
+        params.addIds([x.id.val for x in i])
         query1 = "select fs from Fileset fs "\
                 "left outer join fetch fs.images as image "\
                 "where image.id in (:ids)"
-        return self.query.projection(query1, params)
+        return self.query.projection(query1, params)[0][0]
 
+    def parse_ids(self, output):
+        ids = []
+        for line in output.split('\n')[:-1]:
+            ids.append(int(line.split(',')[1]))
+        ids.sort()
+        return ids
 
     def testRepos(self, capsys):
         """Test naming arguments for the imported image/plate"""
@@ -76,11 +83,15 @@ class TestFS(CLITest):
 
     def testSets(self, capsys):
 
-        i1 = self.importMIF(1, extra_args=['--transfer=ln_s'])
-        f = self.get_fileset(i1)
+        f = {}
+        i0 = self.importMIF(1)
+        f[None] = self.get_fileset(i0).val
+
+        for transfer in transfers:
+            i = self.importMIF(1, extra_args=['--transfer=%s' % transfer])
+            f[transfer] = self.get_fileset(i).val
 
         self.args += ["sets", "--style=plain"]
         self.cli.invoke(self.args, strict=True)
         o, e = capsys.readouterr()
-
-        assert not o
+        assert self.parse_ids(o) == sorted([x.id.val for x in f.values()])
