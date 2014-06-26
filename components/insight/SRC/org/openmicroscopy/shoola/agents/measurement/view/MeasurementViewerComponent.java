@@ -932,6 +932,7 @@ class MeasurementViewerComponent
 		try {
 			model.removeAllROI();
 			view.rebuildManagerTable();
+			view.clearInspector();
 			view.refreshResultsTable();
 			view.updateDrawingArea();
 		} catch (NoSuchROIException e) {
