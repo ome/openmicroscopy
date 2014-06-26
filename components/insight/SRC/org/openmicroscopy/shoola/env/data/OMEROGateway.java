@@ -5103,7 +5103,6 @@ class OMEROGateway
     
                     // set the owner/group restriction
                     if(context.getUserId()>=0) {
-                        // TODO: Does not work
                         Details ownerRestriction = new DetailsI();
                         Experimenter exp = (Experimenter) findIObject(ctx, Experimenter.class.getName(), context.getUserId());
                         ownerRestriction.setOwner(exp);

@@ -320,6 +320,7 @@ public class SearchComponent
 	{
 		firePropertyChange(CANCEL_SEARCH_PROPERTY,
 				Boolean.valueOf(false), Boolean.valueOf(true));
+		setSearchEnabled(false);
 	}
 	
 	/** Sets the default contexts. */
