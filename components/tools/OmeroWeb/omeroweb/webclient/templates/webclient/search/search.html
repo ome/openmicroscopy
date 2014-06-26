@@ -103,7 +103,7 @@
                     }
                 });
                 // removing dates - clear fields and reset ranges.
-                $(".clearDate").hide().click(function() {
+                $(".clearDate").click(function() {
                     $(this).hide().prev("input").val("");
                     var end = $( "#enddateinput" ).datepicker( "getDate" ) || 0;
                     $( "#startdateinput" ).datepicker( "option", "maxDate", end);
@@ -111,6 +111,12 @@
                     $( "#enddateinput" ).datepicker( "option", "minDate", start);
                     return false;
                 });
+                // hide each 'X' if corresponding date field is empty
+                $(".clearDate").each(function(){
+                    if ($(this).prev().val().length == 0) {
+                        $(this).hide();
+                    }
+                })
                 
                 $(".searching_info, #daterange").tooltip({ 
                     track: true, 
