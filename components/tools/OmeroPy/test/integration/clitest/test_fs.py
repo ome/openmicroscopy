@@ -25,6 +25,7 @@ import omero
 
 transfers = ['ln_s', 'ln', 'ln_rm']
 
+
 class TestFS(CLITest):
 
     def setup_method(self, method):
@@ -43,8 +44,8 @@ class TestFS(CLITest):
         params = omero.sys.ParametersI()
         params.addIds([x.id.val for x in i])
         query1 = "select fs from Fileset fs "\
-                "left outer join fetch fs.images as image "\
-                "where image.id in (:ids)"
+            "left outer join fetch fs.images as image "\
+            "where image.id in (:ids)"
         return self.query.projection(query1, params)[0][0]
 
     def parse_ids(self, output):
@@ -95,3 +96,10 @@ class TestFS(CLITest):
         self.cli.invoke(self.args, strict=True)
         o, e = capsys.readouterr()
         assert self.parse_ids(o) == sorted([x.id.val for x in f.values()])
+
+        for transfer in transfers:
+            self.cli.invoke(self.args + ['--with-transfer', '%s' % transfer],
+                            strict=True)
+            o, e = capsys.readouterr()
+            assert self.parse_ids(o) == sorted([
+                x.id.val for (k, v) in f.iteritems() if k == transfer])
