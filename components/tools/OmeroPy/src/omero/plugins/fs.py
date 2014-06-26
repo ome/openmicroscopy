@@ -317,15 +317,16 @@ Examples:
         tb.page(args.offset, args.limit, count)
 
         # Map any requested transfers as well
-        allowed = args.with_transfer is not None \
-            and args.with_transfer or []
-        allowed = [TRANSFERS.get(x, x) for x in allowed[0]]
+        if args.with_transfer:
+            restricted = [TRANSFERS.get(x, x) for x in args.with_transfer[0]]
+        else:
+            restricted = None
+
 
         for idx, obj in enumerate(objs):
 
             # Map the transfer name to the CLI symbols
             ns = obj[-1]
-            print ns
             if ns is None:
                 ns = ""
             elif ns in TRANSFERS:
@@ -333,7 +334,7 @@ Examples:
             obj[-1] = ns
 
             # Filter based on the ns symbols
-            if allowed and ns not in allowed:
+            if restricted and ns not in restricted:
                 continue
 
             # Now perform check if required
