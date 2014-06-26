@@ -41,6 +41,7 @@ import org.apache.commons.lang.StringUtils;
 //Application-internal dependencies
 import omero.RBool;
 import omero.RDouble;
+import omero.RFloat;
 import omero.RInt;
 import omero.RList;
 import omero.RLong;
@@ -728,10 +729,12 @@ public class ModelMapper
      */
     public static Object convertRTypeToJava(RType type)
     {
+        //return omero.rtypes.unwrap(type);
     	if (type instanceof RString) return ((RString) type).getValue();
     	if (type instanceof RLong) return ((RLong) type).getValue();
     	if (type instanceof RBool) return ((RBool) type).getValue();
     	if (type instanceof RDouble) return ((RDouble) type).getValue();
+    	if (type instanceof RFloat) return ((RFloat) type).getValue();
     	if (type instanceof RInt) return ((RInt) type).getValue();
     	if (type instanceof RList) {
     		List<RType> types = ((RList) type).getValue();
