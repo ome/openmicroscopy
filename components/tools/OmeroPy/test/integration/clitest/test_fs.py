@@ -21,6 +21,7 @@
 
 from test.integration.clitest.cli import CLITest
 from omero.plugins.fs import FsControl
+import omero
 
 
 class TestFS(CLITest):
@@ -36,6 +37,15 @@ class TestFS(CLITest):
         port = self.root.getProperty("omero.port")
         self.args = ["fs", "-w", passwd]
         self.args += ["-s", host, "-p",  port]
+
+    def get_fileset(self, i1):
+        params = omero.sys.ParametersI()
+        params.addIds(i1.id.val)
+        query1 = "select fs from Fileset fs "\
+                "left outer join fetch fs.images as image "\
+                "where image.id in (:ids)"
+        return self.query.projection(query1, params)
+
 
     def testRepos(self, capsys):
         """Test naming arguments for the imported image/plate"""
@@ -63,3 +73,14 @@ class TestFS(CLITest):
                     (",Script," in line) or
                     (",Public,") in line
                 )]
+
+    def testSets(self, capsys):
+
+        i1 = self.importMIF(1, extra_args=['--transfer=ln_s'])
+        f = self.get_fileset(i1)
+
+        self.args += ["sets", "--style=plain"]
+        self.cli.invoke(self.args, strict=True)
+        o, e = capsys.readouterr()
+
+        assert not o
