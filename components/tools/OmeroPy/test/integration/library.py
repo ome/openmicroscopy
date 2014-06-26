@@ -273,7 +273,8 @@ class ITest(object):
         fake = create_path(name, "&series=%d%s.fake" % (seriesCount, append))
         if with_companion:
             open(fake.abspath() + ".ini", "w")
-        pixelIds = self.import_image(filename=fake.abspath(), client=client)
+        pixelIds = self.import_image(filename=fake.abspath(), client=client,
+                                     **kwargs)
         assert seriesCount == len(pixelIds)
 
         images = []
