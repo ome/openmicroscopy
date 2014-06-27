@@ -91,11 +91,11 @@ public class ManageRndSettingsAction
             "Paste the rendering settings.";
 
     /** The name of the action if the index is {@link #RESET}. */
-    private static final String NAME_RESET = "Reset Default";
+    private static final String NAME_RESET = "Reset and Save";
 
     /** The description of the action if the index is {@link #RESET}. */
     private static final String DESCRIPTION_RESET =
-            "Reset the rendering settings created while importing.";
+            "Reset and Save the rendering settings created while importing.";
 
     /** The name of the action if the index is {@link #SET_MIN_MAX}. */
     private static final String NAME_SET_MIN_MAX = "Set Min/Max";
