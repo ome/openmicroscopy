@@ -31,6 +31,9 @@ import java.util.List;
 //Third-party libraries
 
 
+
+import org.apache.commons.lang.StringUtils;
+
 import pojos.DataObject;
 //Application-internal dependencies
 
@@ -77,7 +80,7 @@ public class SearchParameters
 	private List<Class<? extends DataObject>>	types;
 	
 	/** The query terms to search for */
-	private String[] terms = new String[0];
+	private String query;
 
 //	/** The groupIds the search is restricted to.*/
 //	private List<Long> groupIds = new ArrayList<Long>();
@@ -97,9 +100,9 @@ public class SearchParameters
 	 * @param none	None of these terms may be present in the document. 
 	 * 				May be <code>null</code>.
 	 */
-	public SearchParameters(List<Integer> scope, List<Class<? extends DataObject>> types, String[] terms)
+	public SearchParameters(List<Integer> scope, List<Class<? extends DataObject>> types, String query)
 	{
-		this.terms = terms;
+		this.query = query;
 		this.scope = scope;
 		this.types = types;
 	}
@@ -149,7 +152,7 @@ public class SearchParameters
 	 * 
 	 * @return See above.
 	 */
-	public String[] getTerms() { return terms; }
+	public String getQuery() { return query; }
 	
 	/**
 	 * Returns <code>true</code> if the context of the search is valid i.e.
@@ -159,7 +162,7 @@ public class SearchParameters
 	 */
 	public boolean isValid()
 	{
-		return !(terms.length==0 && start == null
+		return !(StringUtils.isEmpty(query) && start == null
                         && end == null);
 	}
 	
@@ -171,16 +174,8 @@ public class SearchParameters
 	 */
 	public boolean hasTextToSearch()
 	{
-		return terms.length>0;
+		return !StringUtils.isEmpty(query);
 	}
-    
-//        public List<Long> getGroupIds() {
-//            return groupIds;
-//        }
-//    
-//        public void setGroupIds(List<Long> groupIds) {
-//            this.groupIds = groupIds;
-//        }
 
         public long getUserId() {
             return userId;

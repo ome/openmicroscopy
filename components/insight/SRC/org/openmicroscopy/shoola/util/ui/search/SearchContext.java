@@ -186,7 +186,7 @@ public class SearchContext
 	public static final int				MAX_FORMAT = 8;
 	
 	/** The query to search for. */
-	private String[]		terms;
+	private String		query;
 	
 	/** Collection of context. */
 	private List<Integer>	context;
@@ -255,9 +255,9 @@ public class SearchContext
 	 * @param none		The terms that cannot be in the document.
 	 * @param context	Collection of context.
 	 */
-	public SearchContext(String[] terms, List<Integer> context)
+	public SearchContext(String query, List<Integer> context)
 	{
-		this.terms = terms;
+		this.query = query;
 		this.context = context;
 		timeType = -1;
 		attachmentType = ALL_FORMATS;
@@ -441,7 +441,7 @@ public class SearchContext
 	 * 
 	 * @return See above.
 	 */
-	public String[] getTerms() { return terms==null ? new String[0] : terms; }
+	public String getQuery() { return query; }
 	
 	/**
 	 * Returns the collection of context.

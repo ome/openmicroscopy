@@ -466,8 +466,8 @@ public class SearchComponent
     
 
                 // Terms cannot be null
-                String[] terms = uiDelegate.getQueryTerms();
-                ctx = new SearchContext(terms, scope);
+                String query = uiDelegate.getQuery();
+                ctx = new SearchContext(query, scope);
     
                 Timestamp start = uiDelegate.getFromDate();
                 Timestamp end = uiDelegate.getToDate();
