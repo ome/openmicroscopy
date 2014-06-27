@@ -46,6 +46,9 @@ class BaseSearch(BaseController):
     
     def search(self, query, onlyTypes, fields, searchGroup, ownedBy, date=None):
         created = None
+        batchSize = 500
+        if len(onlyTypes) == 1:
+            batchSize = 1000
         if date is not None:
             p = str(date).split('_')
             if len(p)>1:
@@ -58,7 +61,13 @@ class BaseSearch(BaseController):
 
         def doSearch(searchType):
             """ E.g. searchType is 'image' """
-            obj_list = list(self.conn.searchObjects([searchType], query, created, fields=fields, searchGroup=searchGroup, ownedBy=ownedBy))
+            obj_list = list(self.conn.searchObjects([searchType],
+                    query,
+                    created,
+                    fields=fields,
+                    batchSize=batchSize,
+                    searchGroup=searchGroup,
+                    ownedBy=ownedBy))
                 
             obj_ids = [o.id for o in obj_list]
             im_annotation_counter = self.conn.getCollectionCount(searchType.title(), "annotationLinks", obj_ids)
