@@ -52,6 +52,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 
 
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -88,6 +89,7 @@ import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.NetworkChecker;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.search.LuceneQueryBuilder;
 import omero.ResourceError;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportCandidates;
@@ -5049,6 +5051,24 @@ class OMEROGateway
             return queryString.toString();
         }
         
+        private List<String> resolveScopeIds(List<Integer> scopeIds) {
+            List<String> result = new ArrayList<String>();
+            
+            for(Integer scopeId : scopeIds) {
+                if (scopeId == SearchParameters.NAME) {
+                    result.add("name");
+                }
+                if (scopeId == SearchParameters.DESCRIPTION) {
+                    result.add("description");
+                }
+                if (scopeId == SearchParameters.ANNOTATION) {
+                    result.add("annotation");
+                }
+            }
+            
+            return result;
+        }
+        
 	/**
          * Searches for data.
          *
@@ -5112,20 +5132,8 @@ class OMEROGateway
                     }
                     
     
-                    // set the search terms
-                    List<String> searchTerms = prepareTextSearch(context.getTerms(), service);       
-    
-                    String query = "";
-                    Iterator<Integer> it = context.getScope().iterator();
-                    while (it.hasNext()) {
-                        int scopeId = it.next();
-    
-                        if (query.length() > 0) {
-                            query += " OR ";
-                        }
-                        query += " ( " + buildSearchQuery(scopeId, searchTerms)+ ")";
-    
-                    }
+                    String query = LuceneQueryBuilder.buildLuceneQuery(resolveScopeIds(context.getScope()), context.getQuery());
+
                     System.out.println("Searching for type:" + type.getSimpleName()+ " in group:" + ctx.getGroupID() + " query:" + query);
     
                     service.byFullText(query);

@@ -696,7 +696,7 @@ class OmeroDataServiceImpl
 		
 		// If terms contain ids only, just add them to the results, 
 		// loadObjects() will remove them later if they can't be found
-		long[] ids = convertSearchTermsToIds(context.getTerms());
+		long[] ids = convertSearchTermsToIds(context.getQuery());
 		if(ids!=null) {
 		    for(long id: ids) {
 		        for(Class<? extends DataObject> type : context.getTypes()) {
@@ -779,11 +779,12 @@ class OmeroDataServiceImpl
          * @param terms
          * @return The ids or null if one or multiple terms contain non numeric characters
          */
-        private long[] convertSearchTermsToIds(String[] terms) {
-            long[] result = new long[terms.length];
+        private long[] convertSearchTermsToIds(String query) {
+            String[] tmp = query.split("\\s|,");
+            long[] result = new long[tmp.length];
             try {
-                for (int i = 0; i < terms.length; i++) {
-                    result[i] = Long.parseLong(terms[i]);
+                for (int i = 0; i < tmp.length; i++) {
+                    result[i] = Long.parseLong(tmp[i]);
                 }
             } catch (NumberFormatException e) {
                 return null;

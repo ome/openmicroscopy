@@ -265,7 +265,7 @@ public class AdvancedFinder
 	 */
 	private void handleSearchContext(SearchContext ctx)
 	{
-		String[] terms = ctx.getTerms();
+		String query = ctx.getQuery();
 		UserNotifier un = FinderFactory.getRegistry().getUserNotifier();
 		Timestamp start = ctx.getStartTime();
 		Timestamp end = ctx.getEndTime();
@@ -274,7 +274,7 @@ public class AdvancedFinder
 			return;
 		}
 		
-		if (terms.length==0) {
+		if (StringUtils.isEmpty(query)) {
 			if (start == null && end == null) {
 				un.notifyInfo(TITLE, "Please enter a term to search for " +
 						"or a valid time interval.");
@@ -303,7 +303,7 @@ public class AdvancedFinder
 			if (k != null) types.add(k);
 		}
 		
-		SearchParameters searchContext = new SearchParameters(scope, types, terms);
+		SearchParameters searchContext = new SearchParameters(scope, types, query);
 		searchContext.setTimeInterval(start, end);
 		searchContext.setUserId(ctx.getSelectedOwner());
 		

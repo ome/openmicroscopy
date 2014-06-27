@@ -715,6 +715,11 @@ public class SearchPanel
 		fullTextArea.setText(text.toString());
 	}
 	
+	String getQuery()
+        {
+	    return fullTextArea.getText();
+        }
+	
 	/**
 	 * Returns the terms that may be in the document.
 	 * 
