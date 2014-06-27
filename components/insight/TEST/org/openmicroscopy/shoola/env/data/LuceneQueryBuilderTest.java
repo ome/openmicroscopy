@@ -60,7 +60,7 @@ public class LuceneQueryBuilderTest {
         raw = "test * dv";  expected = "test dv";
         checkQuery(fields, raw, expected);
         
-        raw = "test *.dv";  expected = "test *.dv";
+        raw = "test *.dv";  expected = "test dv";
         checkQuery(fields, raw, expected);
         
         raw = "test \"*dv\"";  expected = "test \"*dv\"";
@@ -69,7 +69,7 @@ public class LuceneQueryBuilderTest {
         raw = "\"?test *dv\"";  expected = "\"?test *dv\"";
         checkQuery(fields, raw, expected);
         
-        raw = "test-dv";  expected = "test\\-dv";
+        raw = "test-dv";  expected = "test dv";
         checkQuery(fields, raw, expected);
         
         raw = "*test_dv";  expected = "*test_dv";
@@ -104,7 +104,7 @@ public class LuceneQueryBuilderTest {
         raw = "test * dv";  expected = "name:test name:dv";
         checkQuery(fields, raw, expected);
         
-        raw = "test *.dv";  expected = "name:test name:*.dv";
+        raw = "test *.dv";  expected = "name:test name:dv";
         checkQuery(fields, raw, expected);
         
         raw = "test \"*dv\"";  expected = "name:test name:\"*dv\"";
@@ -113,7 +113,7 @@ public class LuceneQueryBuilderTest {
         raw = "\"?test *.dv\"";  expected = "name:\"?test *.dv\"";
         checkQuery(fields, raw, expected);
         
-        raw = "(test-dv}";  expected = "name:\\(test\\-dv\\}";
+        raw = "(test-dv}";  expected = "name:test name:dv";
         checkQuery(fields, raw, expected);
         
         raw = "*test_dv";  expected = "name:*test_dv";
