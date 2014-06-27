@@ -3661,7 +3661,7 @@ class EditorModel
 		} catch (Exception e) {
 			//ignore
 		}
-		return pixels != null;
+		return pixels != null && !isLargeImage();
 	}
 	
 	/**
