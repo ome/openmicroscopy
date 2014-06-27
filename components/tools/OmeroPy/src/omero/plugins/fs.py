@@ -271,6 +271,10 @@ Examples:
 
         client = self.ctx.conn(args)
         service = client.sf.getQueryService()
+        admin = client.sf.getAdminService()
+
+        if args.check and not admin.getEventContext().isAdmin:
+            self.error_admin_only(fatal=True)
 
         select = (
             "select fs.id, fs.templatePrefix, "
