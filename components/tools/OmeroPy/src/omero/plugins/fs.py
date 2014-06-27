@@ -326,7 +326,6 @@ Examples:
         else:
             restricted = None
 
-
         for idx, obj in enumerate(objs):
 
             # Map the transfer name to the CLI symbols
