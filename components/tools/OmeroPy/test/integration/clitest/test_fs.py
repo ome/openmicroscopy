@@ -24,7 +24,7 @@ from omero.plugins.fs import FsControl
 import omero
 
 transfers = ['ln_s', 'ln', 'ln_rm']
-repos = ['Managed', 'Public', 'ScriptRepos']
+repos = ['Managed', 'Public', 'Script']
 
 
 class TestFS(CLITest):
@@ -55,9 +55,15 @@ class TestFS(CLITest):
             ids.append(int(line.split(',')[1]))
         return ids
 
+    def parse_repos(self, output):
+        ids = []
+        for line in output.split('\n')[:-1]:
+            ids.append(line.split(',')[3])
+        return ids
+
     def testRepos(self, capsys):
-        """Test naming arguments for the imported image/plate"""
-        print "X"*100
+        """Test repos subcommand"""
+
         self.args += ["repos", "--style=plain"]
         self.cli.invoke(self.args, strict=True)
         o, e = capsys.readouterr()
@@ -68,19 +74,7 @@ class TestFS(CLITest):
         if errs:
             raise Exception(errs)
 
-        example = \
-        """
-        0,1,2596178c-2bbd-432d-9d3a-82567df189e5,Managed,/tmp/Iracyid4/ManagedRepository
-        1,2,44e61b9c-de08-4af5-9ed9-7181ea0f71c9,Public,/tmp/Iracyid4
-        2,3,ScriptRepo,Script,/opt/ome2/dist/lib/scripts\n',
-        """
-        outs = [line
-                for line in o.split("\n")
-                if line.strip() and (
-                    (",Managed," in line) or
-                    (",Script," in line) or
-                    (",Public,") in line
-                )]
+        assert set(self.parse_repos(o)) == set(repos)
 
     def testSets(self, capsys):
 
@@ -101,5 +95,5 @@ class TestFS(CLITest):
             self.cli.invoke(self.args + ['--with-transfer', '%s' % transfer],
                             strict=True)
             o, e = capsys.readouterr()
-            assert set(self.parse_ids(o) == \
+            assert set(self.parse_ids(o)) == \
                 set([x.id.val for (k, x) in f.iteritems() if k == transfer])
