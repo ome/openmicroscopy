@@ -24,6 +24,7 @@ from omero.plugins.fs import FsControl
 import omero
 
 transfers = ['ln_s', 'ln', 'ln_rm']
+repos = ['Managed', 'Public', 'ScriptRepos']
 
 
 class TestFS(CLITest):
@@ -52,7 +53,6 @@ class TestFS(CLITest):
         ids = []
         for line in output.split('\n')[:-1]:
             ids.append(int(line.split(',')[1]))
-        ids.sort()
         return ids
 
     def testRepos(self, capsys):
@@ -95,11 +95,11 @@ class TestFS(CLITest):
         self.args += ["sets", "--style=plain"]
         self.cli.invoke(self.args, strict=True)
         o, e = capsys.readouterr()
-        assert self.parse_ids(o) == sorted([x.id.val for x in f.values()])
+        assert set(self.parse_ids(o)) == set([x.id.val for x in f.values()])
 
         for transfer in transfers:
             self.cli.invoke(self.args + ['--with-transfer', '%s' % transfer],
                             strict=True)
             o, e = capsys.readouterr()
-            assert self.parse_ids(o) == sorted([
-                x.id.val for (k, x) in f.iteritems() if k == transfer])
+            assert set(self.parse_ids(o)_ == \
+                set([x.id.val for (k, x) in f.iteritems() if k == transfer])
