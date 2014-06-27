@@ -50,7 +50,7 @@ class LoadControl(BaseControl):
         for file in args.infile:
             self.ctx.dbg("Loading file %s" % file)
             for line in file:
-                self.ctx.invoke(line)
+                self.ctx.invoke(line, strict=True)
 
 
 class ShellControl(BaseControl):
