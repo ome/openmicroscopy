@@ -37,132 +37,113 @@ public class LuceneQueryBuilderTest {
         List<String> fields = new ArrayList<String>();
         
         
-     // +        # No fields are provided
-     // ----------------------------------
+        // No fields are provided
         
-     // +        assertQuery("dv", [], "dv", False)
         raw = "dv";  expected = "dv";
         checkQuery(fields, raw, expected);
         
-     // +        assertQuery("test dv", [], "test dv", False)
         raw = "test dv";  expected = "test dv";
         checkQuery(fields, raw, expected);
         
-     // +        assertQuery("*test dv", [], "*test dv", True)           # * wildcards
         raw = "*test dv";  expected = "*test dv";
         checkQuery(fields, raw, expected);
         
-     // +        assertQuery("test *dv", [], "test *dv", True)
         raw = "test *dv";  expected = "test *dv";
         checkQuery(fields, raw, expected);
         
-     // +        assertQuery("?test dv", [], "?test dv", True)           # ? wildcards
         raw = "?test dv";  expected = "?test dv";
         checkQuery(fields, raw, expected);
         
-     // +        assertQuery("test ?dv", [], "test ?dv", True)
         raw = "test ?dv";  expected = "test ?dv";
         checkQuery(fields, raw, expected);
         
-     // +        assertQuery("test * dv", [], "test dv", False)          # single wildcards ignored
         raw = "test * dv";  expected = "test dv";
         checkQuery(fields, raw, expected);
         
-     // +        assertQuery("test *.dv", [], "test dv", False)
-        raw = "test *.dv";  expected = "test dv";
+        raw = "test *.dv";  expected = "test *.dv";
         checkQuery(fields, raw, expected);
         
-     // +        assertQuery('test "*dv"', [], 'test "*dv"', False)      # wildcards have no effect in "*quotes"
         raw = "test \"*dv\"";  expected = "test \"*dv\"";
         checkQuery(fields, raw, expected);
         
-     // +        assertQuery('"?test *dv"', [], '"?test *dv"', False)
         raw = "\"?test *dv\"";  expected = "\"?test *dv\"";
         checkQuery(fields, raw, expected);
         
-     // +        assertQuery('(test-dv}', [], 'test dv', False)            # strip all non-alpha-numerics
-        raw = "test-dv";  expected = "test dv )";
+        raw = "test-dv";  expected = "test\\-dv";
         checkQuery(fields, raw, expected);
         
-     // +        assertQuery('*test_dv', [], '*test_dv', True)           # except wildcards (and underscores?)
         raw = "*test_dv";  expected = "*test_dv";
         checkQuery(fields, raw, expected);
         
-     // +        assertQuery("test AND dv", [], "test AND dv", False)    # AND operator is preserved
-        raw = "test AND dv";  expected = "test AND dv";
+        raw = "test AND dv";  expected = "(test) AND (dv)";
         checkQuery(fields, raw, expected);
        
         
         
-     // +        # single field
-     // ----------------------------------
+        // single field
         fields.add("name");
         
-     // +        assertQuery("dv", ['name'], "(name:dv)", False)
         raw = "dv";  expected = "name:dv";
         checkQuery(fields, raw, expected);
         
-     // +        assertQuery("test dv", ['name'], "(name:test name:dv)", False)
         raw = "test dv";  expected = "name:test name:dv";
         checkQuery(fields, raw, expected);
         
-     // +        assertQuery("*test dv", ['name'], "(name:*test name:dv)", True)         # * wildcards
         raw = "*test dv";  expected = "name:*test name:dv";
         checkQuery(fields, raw, expected);
         
-     // +        assertQuery("test *dv", ['name'], "(name:test name:*dv)", True)
         raw = "test *dv";  expected = "name:test name:*dv";
         checkQuery(fields, raw, expected);
-     // +        assertQuery("?test dv", ['name'], "(name:?test name:dv)", True)         # ? wildcards
+        
         raw = "?test dv";  expected = "name:?test name:dv";
         checkQuery(fields, raw, expected);
         
-     // +        assertQuery("test ?dv", ['name'], "(name:test name:?dv)", True)
         raw = "test ?dv";  expected = "name:test name:?dv";
         checkQuery(fields, raw, expected);
-     // +        assertQuery("test * dv", ['name'], "(name:test name:dv)", False)        # single wildcards ignored
+
         raw = "test * dv";  expected = "name:test name:dv";
         checkQuery(fields, raw, expected);
         
-     // +        assertQuery("test *.dv", ['name'], "(name:test name:dv)", False)
-        raw = "test *.dv";  expected = "name:test name:dv";
+        raw = "test *.dv";  expected = "name:test name:*.dv";
         checkQuery(fields, raw, expected);
         
-     // +        assertQuery('test "*dv"', ['name'], '(name:test name:"*dv")', False)    # wildcards have no effect in "*quotes"
-        raw = "test \"*dv\"";  expected = "name:test name:*dv";
+        raw = "test \"*dv\"";  expected = "name:test name:\"*dv\"";
         checkQuery(fields, raw, expected);
         
-     // +        assertQuery('"?test *dv"', ['name'], '(name:"?test *dv")', False)
-        raw = "\"?test *.dv\"";  expected = "name:\"?test dv\"";
+        raw = "\"?test *.dv\"";  expected = "name:\"?test *.dv\"";
         checkQuery(fields, raw, expected);
         
-     // +        assertQuery('(test-dv}', ['name'], '(name:test name:dv)', False)        # strip all non-alpha-numerics
-        raw = "(test-dv}";  expected = "name:test name:dv";
+        raw = "(test-dv}";  expected = "name:\\(test\\-dv\\}";
         checkQuery(fields, raw, expected);
         
-     // +        assertQuery('*test_dv', ['name'], '(name:*test_dv)', True)               # except wildcards (and underscores?)
         raw = "*test_dv";  expected = "name:*test_dv";
         checkQuery(fields, raw, expected);
         
-     // +        assertQuery("test AND dv", ['name'], "(name:test AND name:dv)", False)  # AND operator is preserved
-        raw = "test AND dv";  expected = "name:test AND name:dv";
+        raw = "test AND dv";  expected = "(name:test) AND (name:dv)";
         checkQuery(fields, raw, expected);
         
         
-     // +
-     // +        # multiple fields
-     // ----------------------------------
-     // +        f = ['name', 'description']
-     // +        assertQuery("dv", f, "(name:dv) OR (description:dv)", False)
-     // +        assertQuery("test dv", f, "(name:test name:dv) OR (description:test description:dv)", False)
-     // +        assertQuery("*test dv", f, "(name:*test name:dv) OR (description:*test description:dv)", True)         # * wildcards
-     // +        assertQuery("test *dv", f, "(name:test name:*dv) OR (description:test description:*dv)", True)
+        // multiple fields
+        fields.add("description");
         
+        raw = "dv";  expected = "name:dv description:dv";
+        checkQuery(fields, raw, expected);
+        
+        raw = "test dv";  expected = "name:test description:test name:dv description:dv";
+        checkQuery(fields, raw, expected);
+        
+        raw = "*test dv";  expected = "name:*test description:*test name:dv description:dv";
+        checkQuery(fields, raw, expected);
+        
+        raw = "test *dv";  expected = "name:test description:test name:*dv description:*dv";
+        checkQuery(fields, raw, expected);
+        
+        raw = "a b AND c AND d f";  expected = "name:a description:a name:f description:f (name:b description:b) AND (name:c description:c) AND (name:d description:d)";
+        checkQuery(fields, raw, expected);
     }
     
     private void checkQuery(List<String> fields, String raw, String expected) throws InvalidQueryException {
-        System.out.println("Checking query: "+raw);
         String processed = LuceneQueryBuilder.buildLuceneQuery(fields, raw);
-        Assert.assertEquals(processed, expected);
+        Assert.assertEquals(processed, expected, "Failed on query: "+raw);
     }
 }
