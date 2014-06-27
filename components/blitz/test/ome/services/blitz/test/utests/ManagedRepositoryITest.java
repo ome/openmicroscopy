@@ -18,6 +18,8 @@ import ome.services.blitz.repo.ManagedRepositoryI;
 import ome.services.blitz.repo.RepositoryDao;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.util.ChecksumAlgorithmMapper;
+import ome.system.ServiceFactory;
+import omero.ServerError;
 import omero.grid.ImportLocation;
 import omero.model.ChecksumAlgorithm;
 import omero.model.ChecksumAlgorithmI;
@@ -86,14 +88,9 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
             return super.commonRoot(paths);
         }
 
-        @Override
-        public String expandTemplate(String template, EventContext ec) {
-            return super.expandTemplate(template, ec);
-        }
-
-        @Override
-        public void createTemplateDir(FsFile rootPath, FsFile userPath, Ice.Current curr) throws omero.ServerError {
-            super.createTemplateDir(rootPath, userPath, curr);
+        protected String expandTemplate(String template, EventContext ctx) throws ServerError {
+            super.templateRoot = new FsFile(template);
+            return super.expandTemplateRootOwnedPath(ctx, (ServiceFactory) null).toString();
         }
     }
 
@@ -154,14 +151,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     @Test
-    public void testExpandTemplateEmptyStringOnNullToken() {
-        EventContext ecStub = newEventContext();
-        String actual = this.tmri.expandTemplate(null, ecStub);
-        Assert.assertEquals(0, actual.length());
-    }
-
-    @Test
-    public void testExpandTemplateTokenOnMalformedToken() {
+    public void testExpandTemplateTokenOnMalformedToken() throws ServerError {
         EventContext ecStub = newEventContext();
         String expected = "foo";
         String actual = this.tmri.expandTemplate(expected, ecStub);
@@ -169,7 +159,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     @Test
-    public void testExpandTemplateYear() {
+    public void testExpandTemplateYear() throws ServerError {
         EventContext ecStub = newEventContext();
         String expected = Integer.toString(cal.get(Calendar.YEAR));
         String actual = this.tmri.expandTemplate("%year%", ecStub);
@@ -177,7 +167,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     @Test
-    public void testExpandTemplateMonth() {
+    public void testExpandTemplateMonth() throws ServerError {
         EventContext ecStub = newEventContext();
         String expected = Integer.toString(cal.get(Calendar.MONTH)+1);
         if (expected.length() == 1)
@@ -187,7 +177,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     @Test
-    public void testExpandTemplateMonthName() {
+    public void testExpandTemplateMonthName() throws ServerError {
         EventContext ecStub = newEventContext();
         DateFormatSymbols dateFormat = new DateFormatSymbols();
         String expected = dateFormat.getMonths()
@@ -197,7 +187,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     @Test
-    public void testExpandTemplateDay() {
+    public void testExpandTemplateDay() throws ServerError {
         EventContext ecStub = newEventContext();
         String expected = String.format("%02d", cal.get(Calendar.DAY_OF_MONTH));
         String actual = this.tmri.expandTemplate("%day%", ecStub);
@@ -205,7 +195,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     @Test
-    public void testExpandTemplateUserName() {
+    public void testExpandTemplateUserName() throws ServerError {
         String expected = "user-1";
         EventContext ecStub = newEventContext();
         ecStub.userName = expected;
@@ -214,7 +204,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     @Test
-    public void testExpandTemplateGroupName() {
+    public void testExpandTemplateGroupName() throws ServerError {
         String expected = "group-1";
         EventContext ecStub = newEventContext();
         ecStub.groupName = expected;
@@ -222,7 +212,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         Assert.assertEquals(expected, actual);
     }
     @Test
-    public void testExpandTemplateGroupNamePerms() {
+    public void testExpandTemplateGroupNamePerms() throws ServerError {
         String expected = "group-1-rwrwrw";
         EventContext ecStub = newEventContext();
         ecStub.groupName = "group-1";
@@ -232,7 +222,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     @Test
-    public void testExpandTemplateSession() {
+    public void testExpandTemplateSession() throws ServerError {
         String expected = UUID.randomUUID().toString();
         EventContext ecStub = newEventContext();
         ecStub.sessionUuid = expected;
@@ -241,7 +231,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     @Test
-    public void testExpandTemplateEscape() {
+    public void testExpandTemplateEscape() throws ServerError {
         String expected = "%%";
         EventContext ecStub = newEventContext();
         String actual = this.tmri.expandTemplate("%%", ecStub);
@@ -249,7 +239,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     @Test
-    public void testExpandTemplateEscape2() {
+    public void testExpandTemplateEscape2() throws ServerError {
         String expected = "%%-grp";
         EventContext ecStub = newEventContext();
         ecStub.groupName = "grp";
@@ -258,7 +248,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     @Test
-    public void testExpandTemplateEscape3() {
+    public void testExpandTemplateEscape3() throws ServerError {
         String expected = "%%george";
         EventContext ecStub = newEventContext();
         String actual = this.tmri.expandTemplate("%%george", ecStub);
@@ -266,7 +256,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     @Test
-    public void testExpandTemplateUnknown() {
+    public void testExpandTemplateUnknown() throws ServerError {
         String expected = "%björk%";
         EventContext ecStub = newEventContext();
         String actual = this.tmri.expandTemplate("%björk%", ecStub);
