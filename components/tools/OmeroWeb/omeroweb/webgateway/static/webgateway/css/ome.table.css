@@ -120,11 +120,7 @@ table#drivespaceTable tbody tr:hover{
 			        transition:background .2s linear  ; 	
 		 }
 	 	
-		 .tablesorter_basic tbody tr:hover {
-			 background:none;
-		 }
-		
-	 
+
 		 .tablesorter tbody tr:nth-child(even) {
 			 background-color:hsl(210,3%,94%);
 		 }
@@ -132,10 +128,9 @@ table#drivespaceTable tbody tr:hover{
 		  .tablesorter_basic tbody tr {
 		  }
 		  
- 		 .tablesorter tbody tr:nth-child(even) {
- 			 background-color:hsl(210,3%,94%);
- 		 }
-		  
+		 .tablesorter_basic tbody tr:hover {
+			 background:none;
+		 }
 		 
 		 
 		 
