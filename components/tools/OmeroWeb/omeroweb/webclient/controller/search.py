@@ -91,7 +91,8 @@ class BaseSearch(BaseController):
         except Exception, x:
             msg = x.message
             if "TooManyClauses" in msg:
-                msg = "The wildcard matched too many terms"
-            self.searchError = "Your query for '%s' caused an error: %s." % (query, msg)
+                self.searchError = "Please try to narrow down your query. The wildcard matched too many terms."
+            else:
+                self.searchError = "Your query for '%s' caused an error: %s." % (query, msg)
 
         self.c_size = resultCount
