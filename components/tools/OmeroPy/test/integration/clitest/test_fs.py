@@ -101,5 +101,5 @@ class TestFS(CLITest):
             self.cli.invoke(self.args + ['--with-transfer', '%s' % transfer],
                             strict=True)
             o, e = capsys.readouterr()
-            assert set(self.parse_ids(o)_ == \
+            assert set(self.parse_ids(o) == \
                 set([x.id.val for (k, x) in f.iteritems() if k == transfer])
