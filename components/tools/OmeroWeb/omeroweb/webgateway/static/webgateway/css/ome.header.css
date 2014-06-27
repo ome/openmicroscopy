@@ -340,13 +340,12 @@
 		}
 		
 		#listViewPort {
-		    /*height: 450px;*/
-		    width: 360px;
+		    width: 440px;
 		}
 
 		.usersList {
 			position: relative !important;
-			width: 180px !important;
+			width: 220px !important;
 			box-shadow: 0 0 0 white !important;
 			overflow-y: auto;
 			overflow-x: hidden;
