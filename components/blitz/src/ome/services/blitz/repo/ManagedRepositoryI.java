@@ -679,18 +679,6 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         /**
-         * Expand %eventid% to the event's ID.
-         * @param prefix path component text preceding the expansion term, may be empty
-         * @param suffix path component text following the expansion term, may be empty
-         * @return entire replaced path component, may be unchanged to be revisited,
-         * or {@code null} if it has been wholly processed; otherwise it will be created
-         */
-        @SuppressWarnings("unused")  /* used by create() via Method.invoke */
-        public String expandEventId(String prefix, String suffix) {
-            return prefix + ctx.eventId + suffix;
-        }
-
-        /**
          * Expand %perms% to the group's permissions.
          * @param prefix path component text preceding the expansion term, may be empty
          * @param suffix path component text following the expansion term, may be empty
