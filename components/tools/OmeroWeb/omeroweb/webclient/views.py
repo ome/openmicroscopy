@@ -571,7 +571,8 @@ def load_searching(request, form=None, conn=None, **kwargs):
         date = None
         if startdate is not None:
             if enddate is None:
-                enddate = startdate
+                n = datetime.datetime.now()
+                enddate = "%s-%02d-%02d" % (n.year, n.month, n.day)
             date = "%s_%s" % (startdate, enddate)
 
         # by default, if user has not specified any types:
