@@ -20,8 +20,10 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from test.integration.clitest.cli import CLITest
+from omero.cli import NonZeroReturnCode
 from omero.plugins.fs import FsControl
 import omero
+import pytest
 
 transfers = ['ln_s', 'ln', 'ln_rm']
 repos = ['Managed', 'Public', 'Script']
@@ -62,7 +64,7 @@ class TestFS(CLITest):
         return ids
 
     def testRepos(self, capsys):
-        """Test repos subcommand"""
+        """Test fs repos subcommand"""
 
         self.args += ["repos", "--style=plain"]
         self.cli.invoke(self.args, strict=True)
@@ -76,7 +78,8 @@ class TestFS(CLITest):
 
         assert set(self.parse_repos(o)) == set(repos)
 
-    def testSets(self, capsys):
+    def testSetsWithTransfer(self, capsys):
+        """Test --with-transfer option of fs sets subcommand"""
 
         f = {}
         i0 = self.importMIF(1)
@@ -97,3 +100,10 @@ class TestFS(CLITest):
             o, e = capsys.readouterr()
             assert set(self.parse_ids(o)) == \
                 set([x.id.val for (k, x) in f.iteritems() if k == transfer])
+
+    def testSetsCheckAdminOnly(self):
+        """Test fs sets --check is admin-only"""
+
+        self.args += ["sets", "--check"]
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
