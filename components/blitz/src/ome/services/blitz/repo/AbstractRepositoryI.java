@@ -322,7 +322,8 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
                     }
                     if (prx == null) {
                         fileMaker.close();
-                        FileMaker newFileMaker = new FileMaker(fileMaker.getDir());
+                        FileMaker newFileMaker = new FileMaker(new File(
+                                fileMaker.getDir()).getAbsolutePath());
                         fileMaker.init(sf.getConfigService().getDatabaseUuid());
                         try {
                             line = newFileMaker.getLine();
