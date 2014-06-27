@@ -3477,6 +3477,9 @@ class _BlitzGateway (object):
             else:
                 tokens.append('"%s"' % p)   # wrap back into "double quotes"
 
+        if len(tokens) == 0:
+            return "", False
+
         # if we have fields, prepend each token with field:token
         if fields:
             fieldqueries = []
