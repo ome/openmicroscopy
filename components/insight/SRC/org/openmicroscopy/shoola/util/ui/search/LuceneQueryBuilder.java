@@ -51,26 +51,6 @@ public class LuceneQueryBuilder {
         WILD_CARDS.add("~");
     }
     
-    /** Special characters which have to be escaped */
-    private static List<Character> SPECIAL_CHARS = new ArrayList<Character>();
-    static {
-        // From Lucene documentation:  + - && || ! ( ) { } [ ] ^ " ~ * ? : \
-        SPECIAL_CHARS.add(Character.valueOf('+'));
-        SPECIAL_CHARS.add(Character.valueOf('-'));
-        SPECIAL_CHARS.add(Character.valueOf('&'));
-        SPECIAL_CHARS.add(Character.valueOf('|'));
-        SPECIAL_CHARS.add(Character.valueOf('!'));
-        SPECIAL_CHARS.add(Character.valueOf('('));
-        SPECIAL_CHARS.add(Character.valueOf(')'));
-        SPECIAL_CHARS.add(Character.valueOf('{'));
-        SPECIAL_CHARS.add(Character.valueOf('}'));
-        SPECIAL_CHARS.add(Character.valueOf('['));
-        SPECIAL_CHARS.add(Character.valueOf(']'));
-        SPECIAL_CHARS.add(Character.valueOf('^'));
-        SPECIAL_CHARS.add(Character.valueOf(':'));
-        SPECIAL_CHARS.add(Character.valueOf('\\'));
-    }
-    
     /**
      * Builds a query with the provided input terms over the given fields 
      * @param fields
@@ -81,8 +61,8 @@ public class LuceneQueryBuilder {
     public static String buildLuceneQuery(List<String> fields, String input) throws InvalidQueryException {
         StringBuilder result = new StringBuilder();
 
-        input = replaceCommasWithSpaces(input);
-
+        input = replaceNonAlphaNummeric(input);
+        
         List<String> terms = split(input);
 
         if (!CollectionUtils.isEmpty(fields)) {
@@ -126,29 +106,32 @@ public class LuceneQueryBuilder {
     }
     
     /**
-     * Removes non alpha-nummeric characters from a String
+     * Replaces non alpha-numeric characters (excluding underscore) 
+     * with spaces (which act like OR); will not replace any characters
+     * within quotes.
      * @param s
      * @return
      */
-    @SuppressWarnings("unused")
-    private static String removeNonAlphaNummeric(String s) {
-        return s.replaceAll("[^\\p{Alnum}&&[^\\*\\?\\~]]", "");
-    }
-    
-    /**
-     * Escapes lucene specific characters
-     * @param s
-     * @return
-     */
-    private static String escapeCharacters(String s) {
-        StringBuilder result = new StringBuilder();
+    private static String replaceNonAlphaNummeric(String s) {
+
+        char[] result = new char[s.length()];
+
+        boolean insideQuotes = false;
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
-            if (SPECIAL_CHARS.contains(c))
-                result.append('\\');
-            result.append(c);
+            if (c == '"') {
+                insideQuotes = !insideQuotes;
+                result[i] = c;
+                continue;
+            }
+            if (!insideQuotes && !Character.isLetterOrDigit(c)
+                    && !WILD_CARDS.contains("" + c) && c != '_')
+                result[i] = ' ';
+            else
+                result[i] = c;
         }
-        return result.toString();
+
+        return new String(result);
     }
     
     /**
@@ -249,29 +232,6 @@ public class LuceneQueryBuilder {
         return result;
     }
     
-    /**
-     * Replaces commas outside of quotes with spaces, to have only one
-     * search term delimiter
-     * @param s
-     * @return
-     */
-    private static String replaceCommasWithSpaces(String s) {
-        char[] result = new char[s.length()];
-
-        boolean insideQuotes = false;
-        for (int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
-            if (c == '"') {
-                insideQuotes = !insideQuotes;
-            }
-            if (c == ',')
-                result[i] = ' ';
-            else
-                result[i] = c;
-        }
-
-        return new String(result);
-    }
     
     /**
      * Splits input string by whitespaces, taking quotes into account
@@ -291,7 +251,6 @@ public class LuceneQueryBuilder {
                 result.add("\"" + s.trim() + "\"");
             } else {
                 s = m.group(2);
-                s = escapeCharacters(s);
                 if (!isWildcardOnly(s))
                     result.add(s.trim());
             }
@@ -301,12 +260,12 @@ public class LuceneQueryBuilder {
     }
     
     public static void main(String... args) throws InvalidQueryException {
-       //String test = " a_bc d.ef *xyz \"1 2 3\" AND \"4 5 6\" AND \"7 89\" zyx* \"asdf ljk\" 123,456 \"ab\",\"cd\", *, ghj ? wer, ab AND cd";
+       String test = " a_bc d.ef *xyz \"1 2 3\" AND \"4 5 6\" AND \"7 89\" zyx* \"asdf ljk\" 123,456 \"ab\",\"cd\", *, ghj ? wer, ab AND cd";
        // String test = "\"1 2 3\" AND \"4 5 6\" AND \"7 89\" ";
-        String test = "a b AND c AND d f";
+       // String test = "a b AND c AND d f";
         List<String> fields = new ArrayList<String>();
-        fields.add("name");
-        fields.add("description");
+        //fields.add("name");
+        //fields.add("description");
         
         String q = buildLuceneQuery(fields, test);
         System.out.println(q);
