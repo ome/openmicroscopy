@@ -44,13 +44,20 @@ class LoadControl(BaseControl):
     def _configure(self, parser):
         parser.add_argument("infile", nargs="*", type=FileType("r"),
                             default=[sys.stdin])
+        parser.add_argument(
+            "-k", "--keep-going", action="store_true", default=False,
+            help="Continue as much as possible after an error.")
         parser.set_defaults(func=self.__call__)
 
     def __call__(self, args):
         for file in args.infile:
             self.ctx.dbg("Loading file %s" % file)
             for line in file:
-                self.ctx.invoke(line, strict=True)
+                self.ctx.invoke(line, strict=(not args.keep_going))
+
+                if args.keep_going:
+                    while self.ctx.rv != 0:
+                        self.ctx.invoke(line, strict=(not args.keep_going))
 
 
 class ShellControl(BaseControl):
