@@ -57,7 +57,6 @@ import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
-import org.openmicroscopy.shoola.agents.metadata.util.FilesetInfoDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
