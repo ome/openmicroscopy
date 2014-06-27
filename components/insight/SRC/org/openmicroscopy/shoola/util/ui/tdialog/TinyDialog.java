@@ -437,7 +437,7 @@ public class TinyDialog
             getRootPane().addMouseMotionListener(new BorderListener(this));
             getRootPane().addMouseListener(new BorderListener(this));
             //increase border.
-            uiDelegate.makeBorders(2);
+            uiDelegate.makeBorders(4);
         }
     }
 
