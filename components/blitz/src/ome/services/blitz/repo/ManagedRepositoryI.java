@@ -93,6 +93,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
 
 import Ice.Current;
 
@@ -241,7 +242,8 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         // at this point, the template path should not yet exist on the filesystem
-        final FsFile relPath = createTemplatePath(paths, __current);
+        final List<FsFile> sortedPaths = Ordering.usingToString().immutableSortedCopy(paths);
+        final FsFile relPath = createTemplatePath(sortedPaths, __current);
         fs.setTemplatePrefix(rstring(relPath.toString() + FsFile.separatorChar));
 
         final Class<? extends FormatReader> readerClass = getReaderClass(fs, __current);
