@@ -136,7 +136,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
     private final FilePathNamingValidator filePathNamingValidator;
 
     /* template paths: matches any special expansion term */
-    private static final Pattern TEMPLATE_TERM = Pattern.compile("%([a-zA-Z]+)(:([^%]+))?%");
+    private static final Pattern TEMPLATE_TERM = Pattern.compile("%([a-zA-Z]+)(:([^%/]+))?%");
 
     /* template paths: the root and user portions separately, never null */
     /*private final*/ protected FsFile templateRoot;  /* exposed for unit testing only */
