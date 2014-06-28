@@ -927,7 +927,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
          * @param count the natural number identifying the set of extra directories
          * @return the extra directories
          */
-        private List<String> getExtraSubdirectories(String prefix, String suffix, int digits, int count) {
+        private List<String> getExtraSubdirectories(String prefix, String suffix, int digits, long count) {
             final List<String> subdirectories = new ArrayList<String>();
             StringBuffer paddedCount = new StringBuffer();
             paddedCount.append(count);
@@ -953,7 +953,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
          * @param count the natural number identifying the set of extra directories
          * @return a repository path that includes the extra directories
          */
-        private String getSubdirsRepositoryPath(String prefix, String suffix, int digits, int count) {
+        private String getSubdirsRepositoryPath(String prefix, String suffix, int digits, long count) {
             final List<String> path = new ArrayList<String>(done);
             path.addAll(getExtraSubdirectories(prefix, suffix, digits, count));
             return Joiner.on(FsFile.separatorChar).join(path);
@@ -1040,11 +1040,11 @@ public class ManagedRepositoryI extends PublicRepositoryI
                 return null;
             }
             /* pinpoint not-overfull directory with binary search */
-            Integer inclusiveLower = null;
-            Integer exclusiveHigher = null;
-            int count;
+            Long inclusiveLower = null;
+            Long exclusiveHigher = null;
+            long count;
             while (true) {
-                final int toProbe;
+                final long toProbe;
                 if (inclusiveLower == null) {
                     /* no bounds yet */
                     toProbe = 0;
