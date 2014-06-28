@@ -255,12 +255,10 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         Assert.assertEquals(expected, actual);
     }
 
-    @Test
+    @Test(expectedExceptions = ServerError.class)
     public void testExpandTemplateUnknown() throws ServerError {
-        String expected = "%björk%";
         EventContext ecStub = newEventContext();
-        String actual = this.tmri.expandTemplate("%björk%", ecStub);
-        Assert.assertEquals(expected, actual);
+        String actual = this.tmri.expandTemplate("%undefinedTerm%", ecStub);
     }
 
     /**
