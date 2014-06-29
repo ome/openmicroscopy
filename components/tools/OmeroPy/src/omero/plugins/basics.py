@@ -55,9 +55,8 @@ class LoadControl(BaseControl):
             for line in file:
                 self.ctx.invoke(line, strict=(not args.keep_going))
 
-                if args.keep_going:
-                    while self.ctx.rv != 0:
-                        self.ctx.invoke(line, strict=(not args.keep_going))
+                if self.ctx.rv != 0:
+                    self.ctx.err("Skipping: %s" % line)
 
 
 class ShellControl(BaseControl):
