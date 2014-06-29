@@ -84,21 +84,23 @@ lengthvec=262144;
 if fileLength<=lengthvec
     lengthvec=fileLength;
 end
-byteArray = fread(fid,[1, fileLength], 'uint8');%include skip bytes in every loop
 
 fileLength1=1:lengthvec:fileLength;
 for i=1:length(fileLength1)
+
     filestart1=fileLength1(i);
     if i==length(fileLength1)
         filestop1=fileLength;
     else
         filestop1=fileLength1(i+1)-1;
     end
-    rawFileStore.write(byteArray(filestart1:filestop1), (filestart1-1), length(byteArray(filestart1:filestop1)));
-    
+
+    byteArray = fread(fid,[filestart1, filestop1], 'uint8');%include skip bytes in every loop
+    rawFileStore.write(byteArray, (filestart1-1), length(byteArray));
+    hasher.putBytes(byteArray, (filestart1-1), length(byteArray));
+
 end
 
-hasher.putBytes(byteArray);
 fclose(fid);
 
 % Save and close the service
