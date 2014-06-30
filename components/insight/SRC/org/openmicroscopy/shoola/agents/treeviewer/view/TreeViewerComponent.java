@@ -1579,6 +1579,13 @@ class TreeViewerComponent
 	    return count == ids.size();
 	}
 
+	public void handleSearchSelectionEvent(SearchSelectionEvent evt) {
+	    MetadataViewer mv = model.getMetadataViewer();
+	    ExperimenterData exp = getUserDetails();
+	    mv.setRootObject(evt.getDataObject(), exp.getId(), new SecurityContext(exp.getGroupId()));
+	    mv.refresh();
+	}
+	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#setSelectedNode(Object)
@@ -3066,13 +3073,7 @@ class TreeViewerComponent
 		firePropertyChange(DISPLAY_MODE_PROPERTY, oldMode, newMode);
 	}
 	
-	public void doSearch(SearchEvent evt) {
-	    if(view.getDisplayMode()!=TreeViewer.SEARCH_MODE) {
-	       int oldMode = view.getDisplayMode();
-	       view.showAdvancedFinder(); 
-	       int newMode = view.getDisplayMode();
-	       firePropertyChange(DISPLAY_MODE_PROPERTY, oldMode, newMode);
-	    }
+	public void handleSearchEvent(SearchEvent evt) {
 	    view.selectSearchPane();
 	    AdvancedFinder finder = model.getAdvancedFinder();
             finder.handleSearchEvent(evt);

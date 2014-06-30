@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.view.SearchSelectionEvent;
 import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
@@ -116,7 +117,7 @@ public class SearchResultTable extends JXTable {
                 
                 DataObject obj = (DataObject) getModel().getValueAt(row, SearchResultTableModel.VIEWBUTTON_COLUMN_INDEX);
                 if(obj!=null) {
-                    System.out.println("selected: "+obj.getId());
+                    TreeViewerAgent.getRegistry().getEventBus().post(new SearchSelectionEvent(obj));
                 }
             }
         });
