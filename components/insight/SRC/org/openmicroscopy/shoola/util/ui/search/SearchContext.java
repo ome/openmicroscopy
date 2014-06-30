@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.util.ui.search;
 //Java imports
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -34,9 +33,6 @@ import java.util.List;
 
 //Third-party libraries
 
-
-
-import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
