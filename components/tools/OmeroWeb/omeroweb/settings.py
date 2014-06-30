@@ -211,6 +211,7 @@ def leave_none_unset_int(s):
     if s is not None:
         return int(s)
 
+CUSTOM_HOST = CUSTOM_SETTINGS.get("Ice.Default.Host", "localhost")
 CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.login_logo": ["LOGIN_LOGO", None, leave_none_unset],
     "omero.web.apps": ["ADDITIONAL_APPS", '[]', json.loads],
@@ -247,7 +248,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.login_view": ["LOGIN_VIEW", "weblogin", str],
     "omero.web.send_broken_link_emails": ["SEND_BROKEN_LINK_EMAILS", "true", parse_boolean],
     "omero.web.server_email": ["SERVER_EMAIL", None, identity],
-    "omero.web.server_list": ["SERVER_LIST", '[["localhost", 4064, "omero"]]', json.loads],
+    "omero.web.server_list": ["SERVER_LIST", '[["%s", 4064, "omero"]]' % CUSTOM_HOST, json.loads],
     # Configuration options for the viewer. -1: zoom in fully, 0: zoom out fully, unset: zoom to fit window
     "omero.web.viewer.initial_zoom_level": ["VIEWER_INITIAL_ZOOM_LEVEL", None, leave_none_unset_int],
     # the following parameters configure when to show/hide the 'Volume viewer' icon in the Image metadata panel
@@ -294,7 +295,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.webstart_jar": ["WEBSTART_JAR", "omero.insight.jar", str],
     "omero.web.webstart_icon": ["WEBSTART_ICON", "webstart/img/icon-omero-insight.png", str],
     "omero.web.webstart_heap": ["WEBSTART_HEAP", "1024m", str],
-    "omero.web.webstart_host": ["WEBSTART_HOST", "localhost", str],
+    "omero.web.webstart_host": ["WEBSTART_HOST", CUSTOM_HOST, str],
     "omero.web.webstart_port": ["WEBSTART_PORT", "4064", str],
     "omero.web.webstart_class": ["WEBSTART_CLASS", "org.openmicroscopy.shoola.Main", str],
     "omero.web.webstart_title": ["WEBSTART_TITLE", "OMERO.insight", str],
@@ -305,6 +306,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     # Allowed hosts: https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
     "omero.web.allowed_hosts": ["ALLOWED_HOSTS", '["*"]', json.loads],
 }
+del CUSTOM_HOST
 
 
 def process_custom_settings(module):
