@@ -130,7 +130,7 @@ class IntensityResultsView
 		"Remove all the Results from table.";
 	
 	/** The save button name. */
-	private final static String SAVE_NAME = "Export to Excel";
+	private final static String SAVE_NAME = "Export to Excel...";
 	
 	/** Tooltip for the save button. */
 	private final static String SAVE_DESCRIPTION = "Save Intensities " +
