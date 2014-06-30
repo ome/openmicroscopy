@@ -184,7 +184,8 @@ class ITest(object):
         img.acquisitionDate = rtime(0)
         return img
 
-    def import_image(self, filename=None, client=None, extra_args=None):
+    def import_image(self, filename=None, client=None, extra_args=None,
+                     **kwargs):
         if filename is None:
             filename = self.OmeroPy / ".." / ".." / ".." / \
                 "components" / "common" / "test" / "tinyTest.d3d.dv"
