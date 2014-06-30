@@ -413,7 +413,7 @@ public class AdvancedFinder
 	 * 
 	 * @param groups The available groups.
 	 */
-	AdvancedFinder(Collection<GroupData> groups)
+	AdvancedFinder(ctx.getSelectedGroup())
 	{
 		//sort
 		displayMode = LookupNames.EXPERIMENTER_DISPLAY;
