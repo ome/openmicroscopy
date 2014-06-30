@@ -403,7 +403,7 @@ def adjust_settings(config, template_xml,
 
 
 def usage_charts(path,
-                 min=8, max=16,
+                 min=0, max=20,
                  Strategy=AdaptiveStrategy, name="blitz"):
     # See http://matplotlib.org/examples/pylab_examples/anscombe.html
 
@@ -416,7 +416,7 @@ def usage_charts(path,
     from pylab import savefig
     from pylab import text
 
-    points = 50
+    points = 200
     x = array([2**(x/points)/1000 \
                for x in range(min*points, max*points)])
     y_configs = (
@@ -439,19 +439,16 @@ def usage_charts(path,
     y3 = f(y_configs[2])
     y4 = f(y_configs[3])
 
-    axis_values = [0, 20, 2, 20]
-    tick_values = (4, 8, 12, 16)
+    axis_values = [0, 20, 0, 6]
 
     def ticks_f():
-        setp(gca(), yticks=tick_values, xticks=tick_values)
+        setp(gca(), xticks=(8, 16), yticks=(2, 4))
 
     def text_f(which):
         cfg = y_configs[which]
         s = cfg[0]
-        txt = "%s %sGB\n" % (
-            cfg[1], int(s.max_total)/1000,
-        )
-        text(2, 14, txt, fontsize=20)
+        txt = "%s" % (cfg[1],)
+        text(2, 2, txt, fontsize=20)
 
     subplot(221)
     plot(x, y1)

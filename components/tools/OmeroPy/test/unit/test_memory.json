@@ -74,7 +74,7 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx600m",
+                "-Xmx1600m",
                 "-XX:MaxPermSize=256m"
             ]
         }
@@ -87,7 +87,7 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx1200m",
+                "-Xmx3200m",
                 "-XX:MaxPermSize=512m"
             ]
         }
@@ -100,7 +100,7 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx2400m",
+                "-Xmx6400m",
                 "-XX:MaxPermSize=1g"
             ]
         }
