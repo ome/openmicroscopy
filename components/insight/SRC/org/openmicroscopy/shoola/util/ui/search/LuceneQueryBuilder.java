@@ -305,7 +305,7 @@ public class LuceneQueryBuilder {
     }
     
     /**
-     * Get todays date
+     * Get tomorrows date
      * @return
      */
     private static String tomorrow() {
