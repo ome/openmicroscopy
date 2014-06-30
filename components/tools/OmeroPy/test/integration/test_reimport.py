@@ -223,7 +223,7 @@ class TestReimportArchivedFiles(lib.ITest):
             fileset in order to prevent import.
             It can be safely deleted.
             """)
-        readme_obj = self.client.upload(readme_path,
+        readme_obj = self.client.upload(str(readme_path),
                                         name="README.txt")
 
         new_img = self.createSynthetic()
