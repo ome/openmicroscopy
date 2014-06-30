@@ -22,6 +22,7 @@ package ome.services.blitz.repo.path;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -72,7 +73,7 @@ public class FsFile {
      * Construct an instance.
      * @param components the components of the path to which this instance corresponds, may be null
      */
-    public FsFile(List<String> components) {
+    public FsFile(Collection<String> components) {
         if (components == null || components.isEmpty()) {
             this.components = Collections.emptyList();
             this.path = "";
