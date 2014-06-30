@@ -93,6 +93,8 @@ public class LegacyRepositoryUnitTest extends AbstractRepoUnitTest {
     private OriginalFile file() {
         OriginalFile f = new OriginalFile(1L, true);
         f.getDetails().setPermissions(Permissions.WORLD_IMMUTABLE);
+        f.setPath("foo");
+        f.setName("bar");
         return f;
     }
 
