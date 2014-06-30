@@ -42,7 +42,7 @@ public class SearchParameters
 
         public static final int DATE_IMPORT = 0;
     
-        public static final int DATE_AQUISITION = 1;
+        public static final int DATE_ACQUISITION = 1;
     
 	/** Identifying the <code>Annotation</code> context. */
 	public static final int			TEXT_ANNOTATION = 0;

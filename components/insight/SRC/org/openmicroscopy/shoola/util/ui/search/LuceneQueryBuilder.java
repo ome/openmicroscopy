@@ -52,7 +52,7 @@ public class LuceneQueryBuilder {
     
     public static final String DATE_IMPORT = "details.creationEvent.time";
     
-    public static final String DATE_AQUISITION ="acquisitionDate";
+    public static final String DATE_ACQUISITION ="acquisitionDate";
     
     /** Wild cards we support */
     private static final List<String> WILD_CARDS = new ArrayList<String>();

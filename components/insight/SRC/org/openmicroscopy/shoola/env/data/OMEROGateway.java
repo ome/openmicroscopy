@@ -5138,8 +5138,8 @@ class OMEROGateway
                            Timestamp end = context.getEnd();
                            from = start!=null ? new Date(start.getTime()) : null;
                            to = end!=null ? new Date(end.getTime()) : null;
-                           if(context.getDateType()==SearchParameters.DATE_AQUISITION)
-                               dateType = LuceneQueryBuilder.DATE_AQUISITION;
+                           if(context.getDateType()==SearchParameters.DATE_ACQUISITION)
+                               dateType = LuceneQueryBuilder.DATE_ACQUISITION;
                            else 
                                dateType = LuceneQueryBuilder.DATE_IMPORT;
                     }

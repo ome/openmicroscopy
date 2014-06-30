@@ -87,7 +87,7 @@ public class SearchPanel
 	extends JPanel
 {	
 	
-        public static final String ITEM_AQUISITIONDATE = "Aquisition date";
+        public static final String ITEM_ACQUISITIONDATE = "Acquisition date";
         
         public static final String ITEM_IMPORTDATE = "Import date";
         
@@ -562,7 +562,7 @@ public class SearchPanel
             c.gridx = 0;
             c.gridy = 0;
             dateBox = new JComboBox();
-            dateBox.addItem(ITEM_AQUISITIONDATE);
+            dateBox.addItem(ITEM_ACQUISITIONDATE);
             dateBox.addItem(ITEM_IMPORTDATE);
             p.add(dateBox);
             
