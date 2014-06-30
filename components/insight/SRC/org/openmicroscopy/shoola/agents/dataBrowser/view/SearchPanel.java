@@ -206,9 +206,9 @@ public class SearchPanel
 		scopes = new HashMap<Integer, JCheckBox>(model.getNodes().size());
 		types = new HashMap<Integer, JCheckBox>(model.getTypes().size());
 		IconManager icons = IconManager.getInstance();
- 		fromDate = UIUtilities.createDatePicker(false);
+ 		fromDate = UIUtilities.createDatePicker(true);
  		fromDate.setBackground(UIUtilities.BACKGROUND_COLOR);
-		toDate = UIUtilities.createDatePicker(false);
+		toDate = UIUtilities.createDatePicker(true);
 		toDate.setBackground(UIUtilities.BACKGROUND_COLOR);
 		
 		clearDate = new JButton(icons.getIcon(IconManager.CLOSE));
