@@ -209,8 +209,11 @@ class PercentStrategy(Strategy):
     def __init__(self, name, settings=None):
         super(PercentStrategy, self).__init__(name, settings)
         self.defaults = dict(self.PERCENT_DEFAULTS)
+
+    def get_heap_size(self):
         self.settings.overwrite("heap_size",
                                 "%sm" % self.calculate_heap_size())
+        return super(PercentStrategy, self).get_heap_size()
 
     def get_percent(self):
         other = self.defaults.get("other", "1")
