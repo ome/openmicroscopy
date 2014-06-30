@@ -19,10 +19,13 @@ import ome.services.blitz.repo.PublicRepositoryI;
 import ome.services.blitz.repo.RepositoryDaoImpl;
 import ome.services.blitz.repo.path.FilePathRestrictionInstance;
 import ome.services.util.Executor;
+import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 import ome.testing.MockServiceFactory;
 import ome.util.checksum.ChecksumProviderFactory;
+import omero.grid.InternalRepositoryPrx;
+import omero.model.enums.ChecksumAlgorithmAdler32;
 
 import org.jmock.Mock;
 import org.jmock.core.Invocation;
@@ -64,22 +67,34 @@ public class LegacyRepositoryUnitTest extends AbstractRepoUnitTest {
                 returnValue("mockuuid"));
         sf.mockQuery.expects(atLeastOnce()).method("findByString").will(
                 returnValue(file()));
+        sf.mockQuery.expects(atLeastOnce()).method("findByQuery");
+        sf.mockAdmin.expects(atLeastOnce()).method("moveToCommonSpace");
 
         exMock.expects(atLeastOnce()).method("execute").will(
                 new ExecutorStub(sf));
-
+        exMock.expects(atLeastOnce()).method("getContext")
+                .will(returnValue(OmeroContext.getManagedServerContext()));
+        oaMock.expects(atLeastOnce()).method("find");
+        oaMock.expects(atLeastOnce()).method("createDirectProxy");
     }
 
     private LegacyRepositoryI mk() throws Exception {
+        return mk(reg);
+    }
+
+    private LegacyRepositoryI mk(Registry registry) throws Exception {
         Principal p = new Principal("sessionUuid", "system", "Internal");
-        return new LegacyRepositoryI(oa, reg, ex, p, tmpRepo.getAbsolutePath(),
-                new PublicRepositoryI(new RepositoryDaoImpl(p, ex), cpf, null,
+        return new LegacyRepositoryI(oa, registry, ex, p, tmpRepo.getAbsolutePath(),
+                new PublicRepositoryI(new RepositoryDaoImpl(p, ex), cpf,
+                        ChecksumAlgorithmAdler32.value,
                         FilePathRestrictionInstance.UNIX_REQUIRED.name));
     }
 
     private OriginalFile file() {
         OriginalFile f = new OriginalFile(1L, true);
         f.getDetails().setPermissions(Permissions.WORLD_IMMUTABLE);
+        f.setPath("foo");
+        f.setName("bar");
         return f;
     }
 
@@ -178,6 +193,19 @@ public class LegacyRepositoryUnitTest extends AbstractRepoUnitTest {
         raf = new RandomAccessFile(existing, "rw");
         test = raf.readUTF();
         assertEquals(uuid, test);
+    }
+
+    public void testTakeoverNoRepositoryPrx() throws Exception {
+        newRepoObject();
+        addsRepoServices();
+
+        InternalRepositoryPrx[] repos = {};
+        regMock.expects(atLeastOnce()).method("lookupRepositories")
+                .will(returnValue(repos));
+
+        final LegacyRepositoryI r1 = mk(reg);
+
+        assertTrue(r1.takeover());
     }
 
     class ExecutorStub implements Stub {
