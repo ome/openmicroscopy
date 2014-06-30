@@ -46,7 +46,7 @@ class LoadControl(BaseControl):
                             default=[sys.stdin])
         parser.add_argument(
             "-k", "--keep-going", action="store_true", default=False,
-            help="Continue as much as possible after an error.")
+            help="Continue processing after an error.")
         parser.set_defaults(func=self.__call__)
 
     def __call__(self, args):
@@ -56,7 +56,8 @@ class LoadControl(BaseControl):
                 self.ctx.invoke(line, strict=(not args.keep_going))
 
                 if self.ctx.rv != 0:
-                    self.ctx.err("Skipping: %s" % line)
+                    self.ctx.err("Ignoring error: %s" % line)
+                    self.ctx.rv = 0
 
 
 class ShellControl(BaseControl):
