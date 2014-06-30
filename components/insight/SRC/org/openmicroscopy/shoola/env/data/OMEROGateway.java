@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -47,6 +48,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 
 
 
@@ -5105,21 +5107,17 @@ class OMEROGateway
                     service.onlyType(searchForClass);
                     service.setBatchSize(batchSize);
 
-                    // set the time
-                    Timestamp start = context.getStart();
-                    Timestamp end = context.getEnd();
-
-                    if (start != null && end != null)
-                        service.onlyCreatedBetween(
-                                omero.rtypes.rtime(start.getTime()),
-                                omero.rtypes.rtime(end.getTime()));
-                    else if (start != null && end == null)
-                        service.onlyCreatedBetween(
-                                omero.rtypes.rtime(start.getTime()),
-                                null);
-                    else if (start == null && end != null)
-                        service.onlyCreatedBetween(null,
-                                omero.rtypes.rtime(end.getTime()));
+//                    if (start != null && end != null)
+//                        service.onlyCreatedBetween(
+//                                omero.rtypes.rtime(start.getTime()),
+//                                omero.rtypes.rtime(end.getTime()));
+//                    else if (start != null && end == null)
+//                        service.onlyCreatedBetween(
+//                                omero.rtypes.rtime(start.getTime()),
+//                                null);
+//                    else if (start == null && end != null)
+//                        service.onlyCreatedBetween(null,
+//                                omero.rtypes.rtime(end.getTime()));
     
                     // set the owner/group restriction
                     if(context.getUserId()>=0) {
@@ -5131,8 +5129,22 @@ class OMEROGateway
                         service.onlyOwnedBy(ownerRestriction);
                     }
                     
-    
-                    String query = LuceneQueryBuilder.buildLuceneQuery(resolveScopeIds(context.getScope()), context.getQuery());
+                    Date from = null;
+                    Date to = null;
+                    String dateType = null;
+                    if(context.getDateType()!=-1) {
+                        // set the time
+                           Timestamp start = context.getStart();
+                           Timestamp end = context.getEnd();
+                           from = start!=null ? new Date(start.getTime()) : null;
+                           to = end!=null ? new Date(end.getTime()) : null;
+                           if(context.getDateType()==SearchParameters.DATE_AQUISITION)
+                               dateType = LuceneQueryBuilder.DATE_AQUISITION;
+                           else 
+                               dateType = LuceneQueryBuilder.DATE_IMPORT;
+                    }
+                    
+                    String query = LuceneQueryBuilder.buildLuceneQuery(resolveScopeIds(context.getScope()), from, to, dateType, context.getQuery());
 
                     System.out.println("Searching for type:" + type.getSimpleName()+ " in group:" + ctx.getGroupID() + " query:" + query);
     

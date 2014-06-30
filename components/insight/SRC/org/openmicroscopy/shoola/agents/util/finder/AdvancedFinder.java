@@ -304,7 +304,7 @@ public class AdvancedFinder
 		}
 		
 		SearchParameters searchContext = new SearchParameters(scope, types, query);
-		searchContext.setTimeInterval(start, end);
+		searchContext.setTimeInterval(start, end, ctx.getTimeType());
 		searchContext.setUserId(ctx.getSelectedOwner());
 		
 		List<Long> groups = ctx.getSelectedGroups();

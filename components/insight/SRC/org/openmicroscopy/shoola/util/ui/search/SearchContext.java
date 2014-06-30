@@ -35,6 +35,8 @@ import java.util.List;
 //Third-party libraries
 
 
+
+import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -229,8 +231,8 @@ public class SearchContext
 	private int				numberOfResults;
 	
 	/** 
-	 * One of following constants: {@link #CREATION_TIME}, 
-	 * {@link #UPDATED_TIME}.
+	 * One of following constants: {@link SearchParameters#DATE_IMPORT}, 
+	 * {@link SearchParameters#DATE_AQUISITION}.
 	 */
 	private int				timeType;
 	
@@ -371,7 +373,12 @@ public class SearchContext
 		dateIndex = index;
 	}
 	
-	/** 
+	
+	public void setTimeType(int timeType) {
+        this.timeType = timeType;
+    }
+
+    /** 
 	 * Sets the collection of users to exclude.
 	 * 
 	 * @param users The value to set.

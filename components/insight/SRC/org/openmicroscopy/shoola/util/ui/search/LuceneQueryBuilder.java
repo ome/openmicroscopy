@@ -19,13 +19,18 @@
 
 package org.openmicroscopy.shoola.util.ui.search;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Utility class for building lucene queries<br>
@@ -43,12 +48,52 @@ import org.apache.commons.collections.CollectionUtils;
  */
 public class LuceneQueryBuilder {
 
+    private static final DateFormat DATEFORMAT = new SimpleDateFormat("yyyyMMdd");
+    
+    public static final String DATE_IMPORT = "details.creationEvent.time";
+    
+    public static final String DATE_AQUISITION ="acquisitionDate";
+    
     /** Wild cards we support */
-    private static List<String> WILD_CARDS = new ArrayList<String>();
+    private static final List<String> WILD_CARDS = new ArrayList<String>();
     static {
         WILD_CARDS.add("*");
         WILD_CARDS.add("?");
         WILD_CARDS.add("~");
+    }
+    
+    /**
+     * Builds a query with the provided input terms over the given fields 
+     * @param fields
+     * @param input
+     * @return
+     * @throws InvalidQueryException
+     */
+    public static String buildLuceneQuery(List<String> fields, Date from, Date to, String dateType, String input) throws InvalidQueryException {
+
+        if(from==null && to==null)
+            return buildLuceneQuery(fields, input);
+        
+        StringBuilder result = new StringBuilder();
+
+        String basicQuery = buildLuceneQuery(fields, input);
+        if(!StringUtils.isEmpty(basicQuery))
+            result.append("("+basicQuery+")");
+        else
+            result.append(basicQuery);
+        
+        // Lucence date range TO is exclusive, so have to add a day to it
+        String dateFrom = beginOfTime();
+        String dateTo = tomorrow();
+        if(from!=null)
+            dateFrom = DATEFORMAT.format(from);
+        if(to!=null) {
+            dateTo = DATEFORMAT.format(addOneDay(to));
+        }
+        
+        result.append(" AND "+dateType+":["+dateFrom+" TO "+dateTo+"]");
+        
+        return result.toString();
     }
     
     /**
@@ -257,6 +302,34 @@ public class LuceneQueryBuilder {
         }
 
         return result;
+    }
+    
+    /**
+     * Get todays date
+     * @return
+     */
+    private static String tomorrow() {
+        return DATEFORMAT.format(addOneDay(new Date()));
+    }
+    
+    /**
+     * Get the earliest possbile date
+     * @return
+     */
+    private static String beginOfTime() {
+        return DATEFORMAT.format(new Date(0));
+    }
+    
+    /**
+     * Adds a day to a given date
+     * @param date
+     * @return
+     */
+    private static Date addOneDay(Date date) {
+        Calendar tmp = Calendar.getInstance();
+        tmp.setTime(date);
+        tmp.add(Calendar.DAY_OF_MONTH, 1);
+        return tmp.getTime();
     }
     
     public static void main(String... args) throws InvalidQueryException {
