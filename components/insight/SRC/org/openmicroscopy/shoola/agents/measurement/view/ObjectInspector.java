@@ -479,7 +479,14 @@ class ObjectInspector
 													"Figures selection"+e);
 		}
 	}
-	
+
+    /** Clear the inspector after saving the data. */
+	void clearData()
+	{
+	    FigureTableModel tm = (FigureTableModel) fieldTable.getModel();
+	    tm.clearData();
+	}
+
 	/**
 	 * Get the AttributeKey which is handled by a certain row
 	 * @param row The row which AttributeKey to get 
