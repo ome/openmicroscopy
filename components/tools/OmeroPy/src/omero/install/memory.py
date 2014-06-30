@@ -311,6 +311,14 @@ class AdaptiveStrategy(PercentStrategy):
     values based on the available memory
     """
 
+    PERCENT_DEFAULTS = (
+        ("blitz", 40),
+        ("pixeldata", 40),
+        ("indexer", 10),
+        ("repository", 10),
+        ("other", 1),
+    )
+
     def __init__(self, name, settings=None):
         super(AdaptiveStrategy, self).__init__(name, settings)
         available, active, total = self.system_memory_mb()
