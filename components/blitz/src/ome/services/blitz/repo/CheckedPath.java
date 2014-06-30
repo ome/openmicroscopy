@@ -21,7 +21,8 @@ package ome.services.blitz.repo;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.List;
 
 import javax.activation.MimetypesFileTypeMap;
@@ -85,16 +86,15 @@ public class CheckedPath {
      */
     private FsFile processSpecialDirectories(FsFile fsFile) throws ValidationException {
         final List<String> oldComponents = fsFile.getComponents();
-        final List<String> newComponents = new ArrayList<String>(oldComponents.size());
+        final Deque<String> newComponents = new ArrayDeque<String>(oldComponents.size());
         for (final String oldComponent : oldComponents)
             if (PARENT_DIR.equals(oldComponent))
                 if (newComponents.isEmpty())
                     throw new ValidationException(null, null, "Path may not make references above root");
                 else
-                    // with Java 1.6 use a Deque
-                    newComponents.remove(newComponents.size() - 1);
+                    newComponents.removeLast();
             else if (!SAME_DIR.equals(oldComponent))
-                newComponents.add(oldComponent);
+                newComponents.addLast(oldComponent);
         return new FsFile(newComponents);
     }
 
