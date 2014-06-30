@@ -32,7 +32,7 @@ import java.util.Deque;
 public class FleetingDirectory {
     /* the directory deletion that should follow */
     private final Deque<File> created = new ArrayDeque<File>();
-    
+
     /**
      * Ensure that the given directory exists, 
      * by creating it and its parents if necessary.
@@ -41,13 +41,13 @@ public class FleetingDirectory {
     public FleetingDirectory(File directory) {
         directory = directory.getAbsoluteFile();
         final Deque<File> toCreate = new ArrayDeque<File>();
-        
+
         /* find which directories need to be created */
         while (!directory.exists()) {
             toCreate.push(directory);
             directory = directory.getParentFile();
         }
-        
+
         /* create the directories, noting that they must later be deleted */
         while (!toCreate.isEmpty()) {
             final File nextToCreate = toCreate.pop();
@@ -55,7 +55,7 @@ public class FleetingDirectory {
             created.push(nextToCreate);
         }
     }
-    
+
     /**
      * Delete the directories that were created in constructing this instance.
      */
