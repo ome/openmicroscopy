@@ -47,6 +47,7 @@ import javax.swing.JFrame;
 
 
 
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
@@ -102,6 +103,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
+import org.openmicroscopy.shoola.agents.util.finder.AdvancedFinder;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.GroupManagerDialog;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
@@ -3062,6 +3064,18 @@ class TreeViewerComponent
 				}
 		}
 		firePropertyChange(DISPLAY_MODE_PROPERTY, oldMode, newMode);
+	}
+	
+	public void doSearch(SearchEvent evt) {
+	    if(view.getDisplayMode()!=TreeViewer.SEARCH_MODE) {
+	       int oldMode = view.getDisplayMode();
+	       view.showAdvancedFinder(); 
+	       int newMode = view.getDisplayMode();
+	       firePropertyChange(DISPLAY_MODE_PROPERTY, oldMode, newMode);
+	    }
+	    view.selectSearchPane();
+	    AdvancedFinder finder = model.getAdvancedFinder();
+            finder.handleSearchEvent(evt);
 	}
 	
 	/**

@@ -475,7 +475,7 @@ public class TreeViewerAgent
     }
     
     private void handleSearchEvent(SearchEvent evt) {
-        //TreeViewerFactory.getTreeViewer(getUserDetails()).showSearch();
+        TreeViewerFactory.getTreeViewer(getUserDetails()).doSearch(evt);
     }
     
     /**

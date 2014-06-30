@@ -81,7 +81,7 @@ import pojos.GroupData;
  */
 public class SearchComponent
 	extends JPanel
-	implements ActionListener, AgentEventListener
+	implements ActionListener
 {
 
 	/** Identifies the text to filter by untagged data. */
@@ -365,8 +365,6 @@ public class SearchComponent
 	public SearchComponent(SearchContext context)
 	{
 		searchContext = context;
-		
-		TreeViewerAgent.getRegistry().getEventBus().register(this, SearchEvent.class);
 	}
 	
 	/** Creates a new instance. */
@@ -648,18 +646,11 @@ public class SearchComponent
 
 	/** Subclasses should override this method. */
 	protected void help() {}
-
 	
-        public void eventFired(AgentEvent e) {
-            if (e instanceof SearchEvent) {
-                SearchEvent evt = (SearchEvent) e;
-                if (evt.getQuery().trim().length() > 0) {
-                    uiDelegate.reset();
-                    uiDelegate.setTerms(Collections.singletonList(evt.getQuery()));
-                    search();
-                }
-            }
-    
-        }
+	public void handleSearchEvent(SearchEvent evt) {
+	    uiDelegate.reset();
+            uiDelegate.setTerms(Collections.singletonList(evt.getQuery()));
+            search();
+	}
 	
 }
