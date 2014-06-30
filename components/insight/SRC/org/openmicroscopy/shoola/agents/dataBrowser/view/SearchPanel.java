@@ -52,6 +52,7 @@ import javax.swing.JToolBar;
 
 
 
+
 //Third-party libraries
 import org.jdesktop.swingx.JXDatePicker;
 import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
@@ -86,6 +87,10 @@ public class SearchPanel
 	extends JPanel
 {	
 	
+        public static final String ITEM_AQUISITIONDATE = "Aquisition date";
+        
+        public static final String ITEM_IMPORTDATE = "Import date";
+        
 	/** The title of the type UI component. */
 	private static final String		TYPE_TITLE = "Type";
 	
@@ -171,6 +176,8 @@ public class SearchPanel
 	
 	/** The box displaying the users.*/
         private JComboBox usersBox;
+        
+        private JComboBox dateBox;
 	
 	/**
 	 * Creates a <code>JComboBox</code> with the available groups.
@@ -544,12 +551,23 @@ public class SearchPanel
 	{
 		
             JPanel p = new JPanel();
+            
             p.setBackground(UIUtilities.BACKGROUND_COLOR);
+            
             p.setLayout(new GridBagLayout());
             GridBagConstraints c = new GridBagConstraints();
             c.anchor = GridBagConstraints.WEST;
             c.fill = GridBagConstraints.HORIZONTAL;
     
+            c.gridx = 0;
+            c.gridy = 0;
+            dateBox = new JComboBox();
+            dateBox.addItem(ITEM_AQUISITIONDATE);
+            dateBox.addItem(ITEM_IMPORTDATE);
+            p.add(dateBox);
+            
+            c.gridy++;
+            
             p.add(buildTimeRange(), c);
     
             UIUtilities.setBoldTitledBorder("Date", p); 
@@ -657,6 +675,10 @@ public class SearchPanel
 		return new Timestamp(d.getTime());
 	}
 
+	public String getDateType() {
+	    return (String) dateBox.getSelectedItem();
+	}
+	
 	/** 
 	 * Returns the scope of the search.
 	 * 

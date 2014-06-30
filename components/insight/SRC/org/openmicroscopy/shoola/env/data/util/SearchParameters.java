@@ -40,6 +40,10 @@ import pojos.DataObject;
 public class SearchParameters
 {
 
+        public static final int DATE_IMPORT = 0;
+    
+        public static final int DATE_AQUISITION = 1;
+    
 	/** Identifying the <code>Annotation</code> context. */
 	public static final int			TEXT_ANNOTATION = 0;
 	
@@ -72,6 +76,8 @@ public class SearchParameters
 	
 	/** The upper bound of the time interval. */
 	private Timestamp 				end;
+	
+	private int dateType = -1;
 	
 	/** The scope of the search. Mustn't not be <code>null</code>. */
 	private List<Integer>			scope;
@@ -113,10 +119,11 @@ public class SearchParameters
 	 * @param start The lower bound of the time interval.
 	 * @param end	The upper bound of the time interval.
 	 */
-	public void setTimeInterval(Timestamp start, Timestamp end)
+	public void setTimeInterval(Timestamp start, Timestamp end, int type)
 	{
 		this.start = start;
 		this.end = end;
+		this.dateType = type;
 	}
 	
 	/**
@@ -184,5 +191,14 @@ public class SearchParameters
         public void setUserId(long userId) {
             this.userId = userId;
         }
+
+        public int getDateType() {
+            return dateType;
+        }
+
+        public void setDateType(int dateType) {
+            this.dateType = dateType;
+        }
+        
         
 }

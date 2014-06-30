@@ -44,6 +44,7 @@ import javax.swing.JSeparator;
 
 
 
+
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
 
@@ -52,6 +53,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.view.SearchEvent;
 import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 //Application-internal dependencies
@@ -476,7 +478,14 @@ public class SearchComponent
                         ctx.setTime(end, start);
                     else
                         ctx.setTime(start, end);
-                };
+                }
+                else if(start!=null) {
+                    ctx.setTime(start, null);
+                }
+                else if(end!=null) {
+                    ctx.setTime(null, end);
+                }
+                ctx.setTimeType(uiDelegate.getDateType().equals(SearchPanel.ITEM_AQUISITIONDATE) ? SearchParameters.DATE_AQUISITION : SearchParameters.DATE_IMPORT);
                 
                 ctx.setSelectedOwner(uiDelegate.getUserId());
                 ctx.getSelectedGroups().addAll(getSelectedGroups());

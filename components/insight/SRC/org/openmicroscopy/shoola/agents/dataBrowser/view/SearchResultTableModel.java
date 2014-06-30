@@ -50,7 +50,7 @@ import pojos.ScreenData;
 public class SearchResultTableModel extends DefaultTableModel {
 
     /** The name of the columns */
-    public static final String[] COLUMN_NAMES = { "Type", "Name", "Date",
+    public static final String[] COLUMN_NAMES = { "Type", "Name", "Date (Aquisition/Import)",
             "Group", " " };
 
     /**
@@ -99,7 +99,7 @@ public class SearchResultTableModel extends DefaultTableModel {
 
         DataObject obj = data.get(row);
 
-        Object result = "N/A";
+        Object result = "--";
         
         switch (column) {
             case 0:
@@ -129,13 +129,18 @@ public class SearchResultTableModel extends DefaultTableModel {
      * @return
      */
     private String getDate(DataObject obj) {
-
+        String aDate = "--";
+        String iDate = "--";
+        
         try {
-            return DATE_FORMAT.format(new Date(obj.getCreated().getTime()));
+            if(obj instanceof ImageData) {
+                aDate = DATE_FORMAT.format(new Date(((ImageData)obj).getAcquisitionDate().getTime()));
+            }
+            iDate = DATE_FORMAT.format(new Date(obj.getCreated().getTime()));
         } catch (Exception e) {
-            return "N/A";
         }
-
+        
+        return aDate+" / "+iDate;
     }
 
     /**
