@@ -217,7 +217,7 @@ class HdfStorage(object):
         try:
             if self.__hdf_path.exists() and self.__hdf_path.size == 0:
                 mode = "w"
-            return tables.openFile(self.__hdf_path, mode=mode,\
+            return tables.openFile(str(self.__hdf_path), mode=mode,\
                 title="OMERO HDF Measurement Storage", rootUEP="/")
         except (tables.HDF5ExtError, IOError), io:
             msg = "HDFStorage initialized with bad path: %s" % self.__hdf_path
