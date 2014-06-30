@@ -685,6 +685,10 @@ class TreeViewerWin
     	}
     }
     
+    void selectSearchPane() {
+        searchPane.setCollapsed(false);
+    }
+    
     /** 
      * Returns the type of layout of the browser.
      * 

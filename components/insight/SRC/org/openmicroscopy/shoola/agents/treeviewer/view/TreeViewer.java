@@ -32,6 +32,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -789,6 +790,8 @@ public interface TreeViewer
 	/** Shows or hides the searching component. */
 	public void showSearch();
     
+	public void doSearch(SearchEvent evt);
+	
 	/**
 	 * Sets the result of the search.
 	 * 
