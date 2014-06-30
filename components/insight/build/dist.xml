@@ -67,10 +67,14 @@
    <property name="dist.jar.ij.file" value="omero_ij.jar"/>
   <property name="dist.bundle.name" value="OMERO.insight"/>
   <property name="dist.bundle.ij.name" value="OMERO.insight-ij"/>
-  <fileset id="dist.launch.scripts" dir="${base.launch.dir}">
-    <include name="importer-cli"/>
-    <include name="*.sh"/>
-    <include name="*.bat"/>
+  <fileset id="dist.launch.importer.scripts" dir="${base.launch.dir}">
+    <include name="*importer*"/>
+  </fileset>
+  <fileset id="dist.launch.insight.scripts" dir="${base.launch.dir}">
+    <include name="*insight*"/>
+  </fileset>
+  <fileset id="dist.launch.editor.scripts" dir="${base.launch.dir}">
+    <include name="*editor*"/>
   </fileset>
   <property name="dist.installfile"
             location="${base.launch.dir}/INSTALL.txt"/>
@@ -250,7 +254,7 @@
       <zipfileset dir="${app.config.dir}" prefix="${dist.zip.prefix.linux}/${dist.app.config.dir.name}"/>
       <zipfileset refid="app.libs" prefix="${dist.zip.prefix.linux}/${dist.app.lib.dir.name}"/>
       <zipfileset dir="${dist.dir}" prefix="${dist.zip.prefix.linux}" includes="${dist.jar.file}"/>
-      <zipfileset refid="dist.launch.scripts" prefix="${dist.zip.prefix.linux}" filemode="775"/>
+      <zipfileset refid="dist.launch.insight.scripts" prefix="${dist.zip.prefix.linux}" filemode="775"/>
       <zipfileset file="${dist.installfile}" prefix="${dist.zip.prefix.linux}"/>
       <zipfileset file="${base.licensefile}" fullpath="${dist.zip.prefix.linux}/LICENSE"/>
     </zip>
@@ -478,7 +482,7 @@
     <property name="dist.zip.prefix.osx"
               value="${dist.bundle.name}-${dist.bundle.version}-mac"/>
     <zip destfile="${dist.dir}/${dist.zip.prefix.osx}.zip">
-      <zipfileset refid="dist.launch.scripts" prefix="${dist.zip.prefix.osx}" filemode="775"/>
+      <zipfileset refid="dist.launch.insight.scripts" prefix="${dist.zip.prefix.osx}" filemode="775"/>
       <zipfileset prefix="${dist.zip.prefix.osx}/${dist.app.config.dir.name}"
                   dir="${app.config.dir}"/>
       <zipfileset prefix="${dist.zip.prefix.osx}" dir="${dist.dir}"
@@ -607,7 +611,8 @@
   <property name="dist.zip.prefix.editor.osx"
             value="${distEditor.bundle.name}-${dist.bundle.version}-mac"/>
 	  <zip destfile="${dist.dir}/${dist.zip.prefix.editor.osx}.zip">
-	     <zipfileset prefix="${dist.zip.prefix.editor.osx}/${dist.app.config.dir.name}"
+            <zipfileset refid="dist.launch.editor.scripts" prefix="${dist.zip.prefix.editor.osx}" filemode="775"/>
+            <zipfileset prefix="${dist.zip.prefix.editor.osx}/${dist.app.config.dir.name}"
 	                 dir="${app.config.dir}"/>
 	     <zipfileset prefix="${dist.zip.prefix.editor.osx}" dir="${dist.dir}"
 	               includes="OMERO.editor.app/**"
@@ -688,6 +693,7 @@
   <property name="dist.zip.prefix.importer.osx"
             value="${distImporter.bundle.name}-${dist.bundle.version}-mac"/>
   <zip destfile="${dist.dir}/${dist.zip.prefix.importer.osx}.zip">
+     <zipfileset refid="dist.launch.importer.scripts" prefix="${dist.zip.prefix.importer.osx}" filemode="775"/>
      <zipfileset prefix="${dist.zip.prefix.importer.osx}/${dist.app.config.dir.name}"
                  dir="${app.config.dir}"/>
      <zipfileset prefix="${dist.zip.prefix.importer.osx}" dir="${dist.dir}"
