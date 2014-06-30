@@ -817,7 +817,13 @@ public class RepositoryDaoImpl implements RepositoryDao {
     public String getUserInstitution(long userId, ServiceFactory sf) {
         final Parameters parameters = new Parameters().addId(userId);
         final List<Object[]> results = sf.getQueryService().projection(LOAD_USER_INSTITUTION, parameters);
-        return results.isEmpty() ? null : (String) results.get(0)[0];
+        if (results instanceof List && results.get(0) instanceof Object[]) {
+            final Object[] firstResult = (Object[]) results.get(0);
+            if (firstResult.length > 0 && firstResult[0] instanceof String) {
+                return (String) firstResult[0];
+            }
+        }
+        return null;
     }
 
     //
