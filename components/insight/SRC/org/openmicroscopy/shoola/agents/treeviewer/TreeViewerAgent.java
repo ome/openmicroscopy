@@ -36,6 +36,7 @@ import javax.swing.JComponent;
 //Third-party libraries
 
 
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
 import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
@@ -48,6 +49,7 @@ import org.openmicroscopy.shoola.agents.events.treeviewer.MoveToEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.NodeToRefreshEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.SearchEvent;
+import org.openmicroscopy.shoola.agents.treeviewer.view.SearchSelectionEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
@@ -475,7 +477,19 @@ public class TreeViewerAgent
     }
     
     private void handleSearchEvent(SearchEvent evt) {
-        TreeViewerFactory.getTreeViewer(getUserDetails()).doSearch(evt);
+        ExperimenterData exp = (ExperimenterData) registry.lookup(
+                LookupNames.CURRENT_USER_DETAILS);
+        if (exp == null) return;
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
+        viewer.handleSearchEvent(evt);
+    }
+    
+    private void handleSearchSelectionEvent(SearchSelectionEvent evt) {
+        ExperimenterData exp = (ExperimenterData) registry.lookup(
+                LookupNames.CURRENT_USER_DETAILS);
+        if (exp == null) return;
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
+        viewer.handleSearchSelectionEvent(evt);
     }
     
     /**
@@ -529,6 +543,7 @@ public class TreeViewerAgent
         bus.register(this, MoveToEvent.class);
         bus.register(this, AnnotatedEvent.class);
         bus.register(this, SearchEvent.class);
+        bus.register(this, SearchSelectionEvent.class);
     }
 
     /**
@@ -590,6 +605,9 @@ public class TreeViewerAgent
 		else if (e instanceof SearchEvent) {
 		        handleSearchEvent((SearchEvent) e); 
 		}
+		else if (e instanceof SearchSelectionEvent) {
+                    handleSearchSelectionEvent((SearchSelectionEvent) e); 
+            }
 	}
 
 }
