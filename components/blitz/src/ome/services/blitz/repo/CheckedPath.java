@@ -87,14 +87,18 @@ public class CheckedPath {
     private FsFile processSpecialDirectories(FsFile fsFile) throws ValidationException {
         final List<String> oldComponents = fsFile.getComponents();
         final Deque<String> newComponents = new ArrayDeque<String>(oldComponents.size());
-        for (final String oldComponent : oldComponents)
-            if (PARENT_DIR.equals(oldComponent))
-                if (newComponents.isEmpty())
+        for (final String oldComponent : oldComponents) {
+            if (PARENT_DIR.equals(oldComponent)) {
+                if (newComponents.isEmpty()) {
                     throw new ValidationException(null, null, "Path may not make references above root");
-                else
+                } else {
                     newComponents.removeLast();
-            else if (!SAME_DIR.equals(oldComponent))
+                }
+            }
+            else if (!SAME_DIR.equals(oldComponent)) {
                 newComponents.addLast(oldComponent);
+            }
+        }
         return new FsFile(newComponents);
     }
 
