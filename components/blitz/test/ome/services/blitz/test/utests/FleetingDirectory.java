@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2012-2014 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,8 @@
 package ome.services.blitz.test.utests;
 
 import java.io.File;
-import java.util.Stack;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 /**
  * Creates a nested directory as with {@link File#mkdirs} while noting
@@ -29,9 +30,8 @@ import java.util.Stack;
  * @since 5.0
  */
 public class FleetingDirectory {
-    /* the directory deletion that should follow *
-     * (in Java SE 6 use a Deque instead) */
-    private final Stack<File> created = new Stack<File>();
+    /* the directory deletion that should follow */
+    private final Deque<File> created = new ArrayDeque<File>();
     
     /**
      * Ensure that the given directory exists, 
@@ -40,7 +40,7 @@ public class FleetingDirectory {
      */
     public FleetingDirectory(File directory) {
         directory = directory.getAbsoluteFile();
-        final Stack<File> toCreate = new Stack<File>();
+        final Deque<File> toCreate = new ArrayDeque<File>();
         
         /* find which directories need to be created */
         while (!directory.exists()) {
