@@ -485,7 +485,7 @@ public class SearchComponent
                 else if(end!=null) {
                     ctx.setTime(null, end);
                 }
-                ctx.setTimeType(uiDelegate.getDateType().equals(SearchPanel.ITEM_AQUISITIONDATE) ? SearchParameters.DATE_AQUISITION : SearchParameters.DATE_IMPORT);
+                ctx.setTimeType(uiDelegate.getDateType().equals(SearchPanel.ITEM_ACQUISITIONDATE) ? SearchParameters.DATE_ACQUISITION : SearchParameters.DATE_IMPORT);
                 
                 ctx.setSelectedOwner(uiDelegate.getUserId());
                 ctx.getSelectedGroups().addAll(getSelectedGroups());
