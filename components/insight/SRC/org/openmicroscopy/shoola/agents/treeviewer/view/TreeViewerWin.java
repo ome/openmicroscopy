@@ -1245,6 +1245,7 @@ class TreeViewerWin
 
 	
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */
+    @Override
     public void setOnScreen()
     {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
