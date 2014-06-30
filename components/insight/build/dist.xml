@@ -243,22 +243,55 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <target name="dist"
           depends="jar, jar-util, jar-ij, dist-osx-openGL, dist-osx, dist-win,
-  	dist-win-openGL,dist-win64-openGL,distEditor-osx, distEditor-win, dist-ij,
-  	distImporter-osx, distImporter-win"
+	dist-win-openGL,dist-win64-openGL,distEditor-osx, distEditor-win,
+	distEditor-linux, dist-ij, distImporter-osx, distImporter-win,
+	distImporter-linux"
           description="Build and package the app for distribution.">
 
     <!-- Main zip -->
-    <property name="dist.zip.prefix.linux"
+    <property name="dist.zip.prefix.insight.linux"
       value="${dist.bundle.name}-${dist.bundle.version}-linux"/>
-    <zip destfile="${dist.dir}/${dist.zip.prefix.linux}.zip">
-      <zipfileset dir="${app.config.dir}" prefix="${dist.zip.prefix.linux}/${dist.app.config.dir.name}"/>
-      <zipfileset refid="app.libs" prefix="${dist.zip.prefix.linux}/${dist.app.lib.dir.name}"/>
-      <zipfileset dir="${dist.dir}" prefix="${dist.zip.prefix.linux}" includes="${dist.jar.file}"/>
-      <zipfileset refid="dist.launch.insight.scripts" prefix="${dist.zip.prefix.linux}" filemode="775"/>
-      <zipfileset file="${dist.installfile}" prefix="${dist.zip.prefix.linux}"/>
-      <zipfileset file="${base.licensefile}" fullpath="${dist.zip.prefix.linux}/LICENSE"/>
+    <zip destfile="${dist.dir}/${dist.zip.prefix.insight.linux}.zip">
+      <zipfileset dir="${app.config.dir}" prefix="${dist.zip.prefix.insight.linux}/${dist.app.config.dir.name}"/>
+      <zipfileset refid="app.libs" prefix="${dist.zip.prefix.insight.linux}/${dist.app.lib.dir.name}"/>
+      <zipfileset dir="${dist.dir}" prefix="${dist.zip.prefix.insight.linux}" includes="${dist.jar.file}"/>
+      <zipfileset refid="dist.launch.insight.scripts" prefix="${dist.zip.prefix.insight.linux}" filemode="775"/>
+      <zipfileset file="${dist.installfile}" prefix="${dist.zip.prefix.insight.linux}"/>
+      <zipfileset file="${base.licensefile}" fullpath="${dist.zip.prefix.insight.linux}/LICENSE"/>
     </zip>
   </target>
+
+  <target name="distImporter-linux"
+          description="Build and package the app for Linux distribution.">
+
+    <property name="dist.zip.prefix.importer.linux"
+      value="${distImporter.name}-${dist.bundle.version}-linux"/>
+    <zip destfile="${dist.dir}/${dist.zip.prefix.importer.linux}.zip">
+      <zipfileset dir="${app.config.dir}" prefix="${dist.zip.prefix.importer.linux}/${dist.app.config.dir.name}"/>
+      <zipfileset refid="app.libs" prefix="${dist.zip.prefix.importer.linux}/${dist.app.lib.dir.name}"/>
+      <zipfileset dir="${dist.dir}" prefix="${dist.zip.prefix.importer.linux}" includes="${dist.jar.file}"/>
+      <zipfileset refid="dist.launch.importer.scripts" prefix="${dist.zip.prefix.importer.linux}" filemode="775"/>
+      <zipfileset file="${dist.installfile}" prefix="${dist.zip.prefix.importer.linux}"/>
+      <zipfileset file="${base.licensefile}" fullpath="${dist.zip.prefix.importer.linux}/LICENSE"/>
+    </zip>
+  </target>
+
+  <target name="distEditor-linux"
+          description="Build and package OMERO.editor for Linux.">
+
+    <!-- Main zip -->
+    <property name="dist.zip.prefix.editor.linux"
+      value="${distEditor.name}-${dist.bundle.version}-linux"/>
+    <zip destfile="${dist.dir}/${dist.zip.prefix.editor.linux}.zip">
+      <zipfileset dir="${app.config.dir}" prefix="${dist.zip.prefix.editor.linux}/${dist.app.config.dir.name}"/>
+      <zipfileset refid="app.libs" prefix="${dist.zip.prefix.editor.linux}/${dist.app.lib.dir.name}"/>
+      <zipfileset dir="${dist.dir}" prefix="${dist.zip.prefix.editor.linux}" includes="${dist.jar.file}"/>
+      <zipfileset refid="dist.launch.editor.scripts" prefix="${dist.zip.prefix.editor.linux}" filemode="775"/>
+      <zipfileset file="${dist.installfile}" prefix="${dist.zip.prefix.editor.linux}"/>
+      <zipfileset file="${base.licensefile}" fullpath="${dist.zip.prefix.editor.linux}/LICENSE"/>
+    </zip>
+  </target>
+
 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * Creates the default distribution bundle under ${dist.dir}.
