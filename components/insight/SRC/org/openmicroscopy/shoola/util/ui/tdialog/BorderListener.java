@@ -85,13 +85,14 @@ class BorderListener
     /** Sets the cursor to be the hand cursor.*/
     private void enter()
     {
-        model.setCursor(Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR));
+        model.getRootPane().setCursor(
+                Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR));
     }
 
     /** Sets the cursor to be the default cursor.*/
     private void exit()
     {
-        model.setCursor(Cursor.getDefaultCursor());
+        model.getRootPane().setCursor(Cursor.getDefaultCursor());
     }
 
     /**
@@ -101,7 +102,8 @@ class BorderListener
     public void mouseDragged(MouseEvent e)
     {
         enter();
-        model.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        model.getRootPane().setCursor(
+                Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         Rectangle bounds = model.getBounds();
         Point p = e.getPoint();
         Dimension min = model.getMinimumSize();
