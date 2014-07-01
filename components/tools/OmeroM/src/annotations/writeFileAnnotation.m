@@ -87,7 +87,7 @@ end
 fileLength1=(1:lengthvec:fileLength);
 resvec=[];
 for i=1:length(fileLength1)
-    
+
     
     filestart1=fileLength1(i);
     if i==length(fileLength1)
@@ -98,15 +98,14 @@ for i=1:length(fileLength1)
     
     fid = fopen(f.Name);
     fseek(fid,filestart1-1,'bof');
-    
-    byteArray = fread(fid,[1, length(filestart1:filestop1)], 'uint8');%include skip bytes in every loop
+  
+    byteArray = fread(fid,[1, length(filestart1:filestop1)], 'uint8');%include skip bytes in every loop 
     rawFileStore.write(byteArray, (filestart1-1), length(byteArray));
     fclose(fid);
-    hasher.putBytes(byteArray, length(byteArray), length(byteArray));    
-    
+    hasher.putBytes(byteArray, 0, length(byteArray));   
+
+
 end
-
-
 
 % Save and close the service
 originalFile = rawFileStore.save();
