@@ -73,58 +73,60 @@ class Settings(object):
     Container for the config options found in etc/grid/config.xml
     """
 
-    def __init__(self, settings_map=None, default_map=None):
-        self.sources = dict()
-        self.settings_map = settings_map
-        self.default_map = default_map
-        for name, default in (
-                ("strategy", AdaptiveStrategy),
-                ("append", ""),
-                ("perm_gen", "128m"),
-                ("heap_dump", "off"),
-                ("heap_size", "512m"),
-                ("use_total", None),
-                ("max_total", "16000"),
-                ("min_total", "3413"),
-        ):
-            setattr(self, name, self.lookup(name, default))
-
-        if default_map is not None:
-            self.collapsed = dict(default_map)
+    def __init__(self, server_values=None, global_values=None):
+        if server_values is None:
+            self.__server = dict()
         else:
-            self.collapsed = dict()
-
-        if settings_map is not None:
-            for k, v in settings_map.items():
-                self.collapsed[k] = v
-
-    def lookup(self, name, default=None):
-        if self.settings_map and name in self.settings_map:
-            self.sources[name] = "server"
-            return self.settings_map[name]
-        elif self.default_map and name in self.default_map:
-            self.sources[name] = "global"
-            return self.default_map[name]
+            self.__server = server_values
+        if global_values is None:
+            self.__global = dict()
         else:
-            self.sources[name] = "default"
+            self.__global = global_values
+        self.__static = {
+                "strategy": AdaptiveStrategy,
+                "append": "",
+                "perm_gen": "128m",
+                "heap_dump": "off",
+                "heap_size": "512m",
+                "use_total": None,
+                "max_total": "16000",
+                "min_total": "3413",
+        }
+        self.__manual= dict()
+
+    def __getattr__(self, key):
+        return self.lookup(key)
+
+    def lookup(self, key, default=None):
+        if key in self.__manual:
+            return self.__manual[key]
+        elif key in self.__server:
+            return self.__server[key]
+        elif key in self.__global:
+            return self.__global[key]
+        elif key in self.__static:
+            return self.__static[key]
+        else:
             return default
 
     def overwrite(self, key, value, always=False):
         if self.was_set(key) and not always:
             # Then we leave it as the user requested
             return
-        # Otherwise, we want to update the value
-        setattr(self, key, value)
-        self.sources[key] = "overwrite"
+        else:
+            self.__manual[key] = value
 
     def was_set(self, key):
-        return self.sources.get(key, "unknown") != "default"
+        return key in self.__server or key in self.__global
 
     def get_strategy(self):
         return STRATEGY_REGISTRY.get(self.strategy, self.strategy)
 
     def __str__(self):
-        return 'Settings(%s)' % self.collapsed
+        rv = dict()
+        rv.update(self.__server)
+        rv.update(self.__global)
+        return 'Settings(%s)' % rv
 
 
 class Strategy(object):
