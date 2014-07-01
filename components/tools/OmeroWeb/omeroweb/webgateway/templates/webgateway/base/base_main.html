@@ -2,7 +2,7 @@
 
 {% comment %}
 <!--
-  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  Copyright (C) 2011-2014 University of Dundee & Open Microscopy Environment.
   All rights reserved.
 
   This program is free software: you can redistribute it and/or modify
@@ -25,4 +25,12 @@
     <!-- Include our current version of jQuery-UI and an ome utility script used by many pages -->
     {% include "webgateway/base/includes/jquery-ui.html" %}
     {% include "webgateway/base/includes/script_src_popup.html" %}
+
+    <!-- Turn touch events into drag events for jquery-ui -->
+    <script type="text/javascript" src="{% static "3rdparty/jquery.ui.touch-punch.min.js" %}"></script>
+
+    <!-- Make the width fit the mobile viewport -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <!-- Allow webclient to be 'added to home-screen' as a full-screen app on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
 {% endblock %}
