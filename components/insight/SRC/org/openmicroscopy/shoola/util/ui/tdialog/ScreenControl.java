@@ -83,10 +83,7 @@ class ScreenControl
     
     /** Dragging control. */
     private boolean         dragging;
-    
-    /** The initial cursor. */
-    private Cursor          initialCursor;
-    
+
     /** The controller. */
     private DialogControl   controller;
     
@@ -128,7 +125,7 @@ class ScreenControl
             throw new IllegalArgumentException("No control.");
         this.controller = controller;
         dragging = false;
-        initialCursor = controller.getModel().getRootPane().getCursor();
+        //initialCursor = controller.getModel().getRootPane().getD
     }
     
     /** 
@@ -159,11 +156,11 @@ class ScreenControl
      * 
      * @param e The event to handle.
      */
-    void  mouseReleased(MouseEvent e)
+    void mouseReleased(MouseEvent e)
     {
         if (!dragging) return;
         moveFrame(e);
-        setCursor(initialCursor);
+        setCursor(Cursor.getDefaultCursor());
         dragging = false;
     }
     
