@@ -59,8 +59,8 @@
         // format script name by replacing '_' with ' '
         var format_script_name = function(name) {
             name = name.replace(/_/g, " ");
-            if (name.endsWith(".py")) {
-                name = name.slice(0,-2) + "..";
+            if (name.indexOf(".") > 0) {
+                name = name.slice(0, name.indexOf(".")) + "...";
             }
             return name
         }
@@ -79,8 +79,9 @@
                         var html = "";
                         for (var i=0; i<script_data.length; i++) {
                             var li = script_data[i],   // dict of 'name' and 'ul' for menu items OR 'id' for scripts
-                                name = format_script_name(li.name);
+                                name = li.name;
                             if (li.id) {
+                                name = format_script_name(name);
                                 html += "<li><a href='{% url 'webindex' %}script_ui/"+ li.id + "/'>" + name + "</a></li>";
                             } else {
                                 html += "<li class='menuItem'><a href='#'>" + name + "</a>";
