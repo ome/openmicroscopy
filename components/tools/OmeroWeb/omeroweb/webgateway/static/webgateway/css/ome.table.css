@@ -110,10 +110,7 @@ table#drivespaceTable tbody tr:hover{
 		 .tablesorter tbody tr:nth-child(even) {
 			 background-color:hsl(210,3%,94%);
 		 }
-		 
-		  .tablesorter_basic tbody tr {
-		  }
-		  
+
 		 .tablesorter_basic tbody tr:hover {
 			 background:none;
 		 }

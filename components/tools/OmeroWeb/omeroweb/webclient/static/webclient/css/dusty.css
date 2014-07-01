@@ -734,11 +734,7 @@ button::-moz-focus-inner {
 
 
 		/* Numbers */
-	
-		.ui-datepicker tbody td:hover {
 
-		}
-	
 			.ui-datepicker tbody td:hover a{
 			    background-color:hsl(205,40%,50%);
 				color:white;
