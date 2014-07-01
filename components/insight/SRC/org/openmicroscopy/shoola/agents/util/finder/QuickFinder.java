@@ -165,7 +165,7 @@ public class QuickFinder
 	 * Implemented as specified by {@link Finder} I/F
 	 * @see Finder#setResult(SecurityContext, Object)
 	 */
-	public void setResult(SecurityContext ctx, AdvancedSearchResultCollection result) {}
+	public void setResult(AdvancedSearchResultCollection result) {}
 
 	/** 
 	 * Implemented as specified by {@link Finder} I/F

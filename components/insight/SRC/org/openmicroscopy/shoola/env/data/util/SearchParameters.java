@@ -40,6 +40,8 @@ import pojos.DataObject;
 public class SearchParameters
 {
 
+        public static final int ALL_GROUPS_ID = -1;
+        
         public static final int DATE_IMPORT = 0;
     
         public static final int DATE_ACQUISITION = 1;
@@ -88,6 +90,8 @@ public class SearchParameters
 	/** The query terms to search for */
 	private String query;
 
+	private long groupId = ALL_GROUPS_ID;
+	
 //	/** The groupIds the search is restricted to.*/
 //	private List<Long> groupIds = new ArrayList<Long>();
 	
@@ -199,6 +203,13 @@ public class SearchParameters
         public void setDateType(int dateType) {
             this.dateType = dateType;
         }
-        
+
+        public long getGroupId() {
+            return groupId;
+        }
+
+        public void setGroupId(long groupId) {
+            this.groupId = groupId;
+        }
         
 }

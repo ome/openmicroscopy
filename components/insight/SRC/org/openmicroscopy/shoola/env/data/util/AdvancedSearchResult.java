@@ -19,14 +19,14 @@
 
 package org.openmicroscopy.shoola.env.data.util;
 
-import omero.model.IObject;
 import pojos.DataObject;
 
 /**
- * Encapsulates a single object found by a search together with the search
- * scope (name, description, etc.) it was found with.
+ * Encapsulates a single object found by a search together with the search scope
+ * (name, description, etc.) it was found with.
  * 
- * Multiple search results are supposed to be held in an {@link AdvancedSearchResultCollection}
+ * Multiple search results are supposed to be held in an
+ * {@link AdvancedSearchResultCollection}
  * 
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
@@ -41,7 +41,10 @@ public class AdvancedSearchResult {
     private Class<? extends DataObject> type;
 
     /** Id of the found object */
-    private long objectId;
+    private long objectId = -1;
+
+    /** Id of the group the object belongs to */
+    private long groupId = -1;
 
     /** The found object itself */
     private DataObject object;
@@ -62,10 +65,12 @@ public class AdvancedSearchResult {
      * @param objectId
      *            Id of the found object
      */
-    public AdvancedSearchResult(int scopeId, Class<? extends DataObject> type, long objectId) {
+    public AdvancedSearchResult(int scopeId, Class<? extends DataObject> type,
+            long objectId, long groupId) {
         this.scopeId = scopeId;
         this.type = type;
         this.objectId = objectId;
+        this.groupId = groupId;
     }
 
     /**
@@ -134,6 +139,22 @@ public class AdvancedSearchResult {
     }
 
     /**
+     * Get the group id of the object
+     * @return
+     */
+    public long getGroupId() {
+        return groupId;
+    }
+
+    /**
+     * Set the group id of the object
+     * @param groupId
+     */
+    public void setGroupId(long groupId) {
+        this.groupId = groupId;
+    }
+
+    /**
      * Set the found object
      * 
      * @param object
@@ -153,14 +174,23 @@ public class AdvancedSearchResult {
                         + type.getSimpleName() + "!");
             type = object.getClass();
         }
+        if (groupId >= 0) {
+            if (object.getGroupId() != groupId)
+                throw new IllegalArgumentException("The object's groupId ("
+                        + object.getGroupId()
+                        + ") does not match the previous set groupId ("
+                        + groupId + ") !");
+            groupId = object.getGroupId();
+        }
+
         this.object = object;
     }
 
     @Override
     public String toString() {
-        return "AdvancedSearchResult [scopeId=" + scopeId + ", type=" + type.getSimpleName()
-                + ", objectId=" + objectId + "]";
+        return "AdvancedSearchResult [scopeId=" + scopeId + ", type="
+                + type.getSimpleName() + ", objectId=" + objectId
+                + ", groupId=" + groupId + "]";
     }
 
-    
 }

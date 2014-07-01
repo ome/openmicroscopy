@@ -88,7 +88,7 @@ public interface Finder
 	 * @param ctx The security context.
 	 * @param result The value to set.
 	 */
-	public void setResult(SecurityContext ctx, AdvancedSearchResultCollection result);
+	public void setResult(AdvancedSearchResultCollection result);
 
 	/** 
 	 * Sets the collection of tags. 

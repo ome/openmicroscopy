@@ -20,7 +20,10 @@
 package org.openmicroscopy.shoola.env.data.util;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import pojos.DataObject;
 
@@ -118,7 +121,29 @@ public class AdvancedSearchResultCollection extends
         }
         return result;
     }
+    
+    public Map<Long, List<AdvancedSearchResult>> getByGroup() {
+        Map<Long, List<AdvancedSearchResult>> result = new HashMap<Long, List<AdvancedSearchResult>>();
+        for(AdvancedSearchResult r : this) {
+            List<AdvancedSearchResult> list = result.get(r.getGroupId());
+            if(list==null) {
+                list = new ArrayList<AdvancedSearchResult>();
+                result.put(r.getGroupId(), list);
+            }
+            list.add(r);
+        }
+        return result;
+    }
 
+    public void consolidate() {
+        Iterator<AdvancedSearchResult> it = this.iterator();
+        while(it.hasNext()) {
+            AdvancedSearchResult r = it.next();
+            if(r.getObject()==null)
+                it.remove();
+        }
+    }
+    
     @Override
     public String toString() {
         String s = "AdvancedSearchResultCollection [error=" + error + "]:\n";

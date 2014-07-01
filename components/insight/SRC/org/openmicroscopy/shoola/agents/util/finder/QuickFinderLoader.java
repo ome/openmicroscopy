@@ -31,6 +31,7 @@ import java.util.Set;
 //Third-party libraries
 
 
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
@@ -40,6 +41,8 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+
+import edu.emory.mathcs.backport.java.util.Collections;
 
 /** 
  * Searches for tags, images, etc.
@@ -74,10 +77,10 @@ public class QuickFinderLoader
      *  @param ctx The security context.
      * @param context The context of the search. 
      */
-    public QuickFinderLoader(QuickFinder viewer, List<SecurityContext> ctx, 
+    public QuickFinderLoader(QuickFinder viewer, SecurityContext ctx, 
             SearchParameters context)
     {
-    	super(viewer, ctx);
+    	super(viewer, Collections.singletonList(ctx));
     	if (context == null) 
     		throw new IllegalArgumentException("No terms to search for.");
     	this.context = context;
@@ -89,7 +92,7 @@ public class QuickFinderLoader
      */
     public void load()
     {
-    	handle = dhView.advancedSearchFor(ctx, context, this);
+    	handle = dhView.advancedSearchFor(ctx.get(0), context, this);
     }
 
     /**

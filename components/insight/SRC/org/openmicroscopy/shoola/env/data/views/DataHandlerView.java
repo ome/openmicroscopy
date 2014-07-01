@@ -201,7 +201,7 @@ public interface DataHandlerView
 	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle advancedSearchFor(List<SecurityContext> ctx,
+	public CallHandle advancedSearchFor(SecurityContext ctx,
 	        SearchParameters context, AgentEventListener observer);
 
 	/**

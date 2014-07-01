@@ -384,7 +384,7 @@ public class SearchPanel
          * @param reset If <code>true</code> reset the selection to 'all'
          */
         private void updateUsersBox(boolean reset) {
-            ExperimenterContext me = new ExperimenterContext("Me", getUserDetails().getId());
+            ExperimenterContext me = new ExperimenterContext(getUserDetails());
             ExperimenterContext all = new ExperimenterContext("All", ExperimenterContext.ALL_EXPERIMENTERS_ID);
             ExperimenterContext selected = (usersBox.getSelectedIndex() != -1 && !reset) ? (ExperimenterContext) usersBox.getSelectedItem() : null;
     
@@ -394,8 +394,8 @@ public class SearchPanel
             List<ExperimenterContext> items = new ArrayList<ExperimenterContext>();
             
             // always add 'me' and 'all'
-            items.add(me);
             items.add(all);
+            items.add(me);
     
             // gather the users from the GroupContexts
             if (groupsBox.getSelectedIndex() > -1) {
