@@ -982,6 +982,8 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
         /**
          * Expand %subdirs% to none or more directories such that the final one contains no more than one thousand entries.
+         * These extra directories are added at the point in the path where the component mentioning %subdirs% occurs, when the
+         * preceding directory has become sufficiently full.
          * @param prefix path component text preceding the expansion term in the first directory, may be empty
          * @param suffix path component text following the expansion term in the first directory, may be empty
          * @return entire replaced path component, may be unchanged to be revisited,
@@ -997,6 +999,8 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
         /**
          * Expand %subdirs% to none or more directories such that the final one contains no more than a certain number of entries.
+         * These extra directories are added at the point in the path where the component mentioning %subdirs% occurs, when the
+         * preceding directory has become sufficiently full.
          * @param prefix path component text preceding the expansion term in the first directory, may be empty
          * @param suffix path component text following the expansion term in the first directory, may be empty
          * @param digitsString the power of ten that is the directory entry limit, e.g., {@code "3"} for one thousand
