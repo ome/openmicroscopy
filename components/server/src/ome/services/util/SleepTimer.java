@@ -58,10 +58,18 @@ public class SleepTimer {
         final Semaphore semaphoreCopy = SHARED_SEMAPHORE;
         if (semaphoreCopy != null) {
             SHARED_SEMAPHORE = null;
-            Thread.yield();
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                // does not matter
+            }
             while (semaphoreCopy.hasQueuedThreads()) {
                 semaphoreCopy.release();
-                Thread.yield();
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    // does not matter
+                }
             }
         }
     }
