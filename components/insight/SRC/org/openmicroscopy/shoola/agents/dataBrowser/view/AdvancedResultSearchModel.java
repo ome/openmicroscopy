@@ -54,6 +54,9 @@ import pojos.ScreenData;
  */
 public class AdvancedResultSearchModel extends DataBrowserModel {
 
+    /** Maximum number of thumbnails to load */
+    private static final int MAX_THUMBS = 100;
+    
     /** Holds all the ImageDisplays */
     List<ImageDisplay> displays = new ArrayList<ImageDisplay>();
 
@@ -137,27 +140,32 @@ public class AdvancedResultSearchModel extends DataBrowserModel {
      */
     private void loadThumbs() {
 
-        Map<Long, List<DataObject>> map = new HashMap<Long, List<DataObject>>();
+        int count = 0;
+        Map<Long, List<ImageData>> map = new HashMap<Long, List<ImageData>>();
         for (ImageDisplay d : displays) {
             DataObject obj = (DataObject) d.getHierarchyObject();
-            List<DataObject> objs = map.get(obj.getGroupId());
+            if (!(obj instanceof ImageData))
+                continue;
+                
+            if(count >= MAX_THUMBS)
+                break;
+            
+            List<ImageData> objs = map.get(obj.getGroupId());
             if (objs == null) {
-                objs = new ArrayList<DataObject>();
+                objs = new ArrayList<ImageData>();
                 map.put(obj.getGroupId(), objs);
             }
-            objs.add(obj);
+            objs.add((ImageData)obj);
+            count++;
         }
 
-        for (Entry<Long, List<DataObject>> e : map.entrySet()) {
-            List<DataObject> imgs = new ArrayList<DataObject>();
-            for (DataObject dataObj : e.getValue()) {
-                if (dataObj instanceof ImageData)
-                    imgs.add((ImageData) dataObj);
-            }
-
+        for (Entry<Long, List<ImageData>> e : map.entrySet()) {
+            List<ImageData> imgs = e.getValue();
             if (!imgs.isEmpty()) {
-                SearchThumbnailLoader loader = new SearchThumbnailLoader(
-                        component, new SecurityContext(e.getKey()), imgs, this);
+                List<DataObject> tmp = new ArrayList<DataObject>(imgs.size());
+                for(ImageData img : imgs)
+                    tmp.add(img);
+                SearchThumbnailLoader loader = new SearchThumbnailLoader(component, new SecurityContext(e.getKey()), tmp, this);
                 loader.load();
             }
         }
