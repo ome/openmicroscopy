@@ -802,7 +802,7 @@ public interface SqlAction {
                 return _jdbc().queryForObject(String.format(
                    _lookup("get_group_info"), table), //$NON-NLS-1$
                     new RowMapper<ExperimenterGroup>() {
-                        /*@Override - JDK5 support */
+                        @Override
                         public ExperimenterGroup mapRow(ResultSet arg0, int arg1)
                             throws SQLException {
                             ExperimenterGroup group = new ExperimenterGroup();

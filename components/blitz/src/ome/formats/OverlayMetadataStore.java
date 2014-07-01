@@ -214,7 +214,7 @@ public class OverlayMetadataStore extends DummyMetadata
         }
     }
 
-    //@Override
+    @Override
     public void setMaskBinData(byte[] binData, int roiIndex, int shapeIndex)
     {
         Mask o = getMask(roiIndex, shapeIndex);
