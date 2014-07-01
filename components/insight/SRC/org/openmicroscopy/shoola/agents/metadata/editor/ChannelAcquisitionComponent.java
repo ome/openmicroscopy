@@ -468,6 +468,8 @@ class ChannelAcquisitionComponent
 			if (set != null)
 				lightPathPane = new FilterGroupComponent(parent, model, set);
 			buildGUI();
+			//load the exposure time
+			exposureTask.setCollapsed(false);
 		}
 	}
 	
