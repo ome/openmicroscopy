@@ -1222,7 +1222,12 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         /* now create the user-owned directories */
-        return expandAndCreateTemplateUserOwnedPath(ctx, rootOwnedExpanded, consistentData, __current);
+        final FsFile wholeExpanded = expandAndCreateTemplateUserOwnedPath(ctx, rootOwnedExpanded, consistentData, __current);
+        if (wholeExpanded.equals(rootOwnedExpanded)) {
+            throw new omero.ApiUsageException(null, null,
+                    "no user-owned directories in expanded form of managed repository template path");
+        }
+        return wholeExpanded;
 }
 
     /** Return value for {@link #trimPaths}. */
