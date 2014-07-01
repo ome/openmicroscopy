@@ -542,7 +542,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         /**
-         * Expand %user% to the user's name.
+         * Expand {@code %user%} to the user's name.
          * @param prefix path component text preceding the expansion term, may be empty
          * @param suffix path component text following the expansion term, may be empty
          * @return entire replaced path component, may be unchanged to be revisited,
@@ -554,7 +554,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         /**
-         * Expand %userid% to the user's ID.
+         * Expand {@code %userid%} to the user's ID.
          * @param prefix path component text preceding the expansion term, may be empty
          * @param suffix path component text following the expansion term, may be empty
          * @return entire replaced path component, may be unchanged to be revisited,
@@ -566,7 +566,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         /**
-         * Expand %group% to the group's name.
+         * Expand {@code %group%} to the group's name.
          * @param prefix path component text preceding the expansion term, may be empty
          * @param suffix path component text following the expansion term, may be empty
          * @return entire replaced path component, may be unchanged to be revisited,
@@ -578,7 +578,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         /**
-         * Expand %groupid% to the group's ID.
+         * Expand {@code %groupid%} to the group's ID.
          * @param prefix path component text preceding the expansion term, may be empty
          * @param suffix path component text following the expansion term, may be empty
          * @return entire replaced path component, may be unchanged to be revisited,
@@ -590,7 +590,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         /**
-         * Expand %year% to the current year.
+         * Expand {@code %year%} to the current year.
          * @param prefix path component text preceding the expansion term, may be empty
          * @param suffix path component text following the expansion term, may be empty
          * @return entire replaced path component, may be unchanged to be revisited,
@@ -602,7 +602,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         /**
-         * Expand %month% to the current month number.
+         * Expand {@code %month%} to the current month number.
          * @param prefix path component text preceding the expansion term, may be empty
          * @param suffix path component text following the expansion term, may be empty
          * @return entire replaced path component, may be unchanged to be revisited,
@@ -614,7 +614,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         /**
-         * Expand %monthname% to the current month name.
+         * Expand {@code %monthname%} to the current month name.
          * @param prefix path component text preceding the expansion term, may be empty
          * @param suffix path component text following the expansion term, may be empty
          * @return entire replaced path component, may be unchanged to be revisited,
@@ -626,7 +626,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         /**
-         * Expand %day% to the current day number in the month.
+         * Expand {@code %day%} to the current day number in the month.
          * @param prefix path component text preceding the expansion term, may be empty
          * @param suffix path component text following the expansion term, may be empty
          * @return entire replaced path component, may be unchanged to be revisited,
@@ -638,7 +638,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         /**
-         * Expand %time% to the current hour, minute, second and millisecond.
+         * Expand {@code %time%} to the current hour, minute, second and millisecond.
          * @param prefix path component text preceding the expansion term, may be empty
          * @param suffix path component text following the expansion term, may be empty
          * @return entire replaced path component, may be unchanged to be revisited,
@@ -655,7 +655,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         /**
-         * Expand %session% to the session's UUID.
+         * Expand {@code %session%} to the session's UUID.
          * @param prefix path component text preceding the expansion term, may be empty
          * @param suffix path component text following the expansion term, may be empty
          * @return entire replaced path component, may be unchanged to be revisited,
@@ -667,7 +667,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         /**
-         * Expand %sessionid% to the session's ID.
+         * Expand {@code %sessionid%} to the session's ID.
          * @param prefix path component text preceding the expansion term, may be empty
          * @param suffix path component text following the expansion term, may be empty
          * @return entire replaced path component, may be unchanged to be revisited,
@@ -679,7 +679,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         /**
-         * Expand %perms% to the group's permissions.
+         * Expand {@code %perms%} to the group's permissions.
          * @param prefix path component text preceding the expansion term, may be empty
          * @param suffix path component text following the expansion term, may be empty
          * @return entire replaced path component, may be unchanged to be revisited,
@@ -691,7 +691,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         /**
-         * Expand %institution% to the user's institution, omitting this component if they do not have one.
+         * Expand {@code %institution%} to the user's institution, omitting this component if they do not have one.
          * @param prefix path component text preceding the expansion term, may be empty
          * @param suffix path component text following the expansion term, may be empty
          * @return entire replaced path component, may be unchanged to be revisited,
@@ -713,7 +713,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         /**
-         * Expand %institution% to the user's institution, using a default if they do not have one.
+         * Expand {@code %institution%} to the user's institution, using a default if they do not have one.
          * @param prefix path component text preceding the expansion term, may be empty
          * @param suffix path component text following the expansion term, may be empty
          * @param defaultForNone the string to use as the institution of users who do not have one set for them
@@ -735,7 +735,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         /**
-         * Expand %hash% to a consistent hash of eight hexadecimal digits.
+         * Expand {@code %hash%} to a consistent hash of eight hexadecimal digits.
          * @param prefix path component text preceding the expansion term, may be empty
          * @param suffix path component text following the expansion term, may be empty
          * @return entire replaced path component, may be unchanged to be revisited,
@@ -747,7 +747,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         /**
-         * Expand %hash% to a consistent hash of the given number of hexadecimal digits.
+         * Expand {@code %hash%} to a consistent hash of the given number of hexadecimal digits.
          * Further comma-separated digits use more of the hash in subdirectories.
          * @param prefix path component text preceding the expansion term in the first directory, may be empty
          * @param suffix path component text following the expansion term in the first directory, may be empty
@@ -798,7 +798,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         /**
-         * Expand %increment% to a uniquely named directory, counting by natural numbers.
+         * Expand {@code %increment%} to a uniquely named directory, counting by natural numbers.
          * @param prefix path component text preceding the expansion term, may be empty
          * @param suffix path component text following the expansion term, may be empty
          * @return entire replaced path component, may be unchanged to be revisited,
@@ -813,7 +813,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         private Set<String> skippedIncrementComponents = new HashSet<String>();
 
         /**
-         * Expand %increment% to a uniquely named directory, counting by natural numbers.
+         * Expand {@code %increment%} to a uniquely named directory, counting by natural numbers.
          * @param prefix path component text preceding the expansion term, may be empty
          * @param suffix path component text following the expansion term, may be empty
          * @param paddingString the minimum number of digits for the natural number, achieved by zero-padding if necessary
@@ -981,9 +981,9 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         /**
-         * Expand %subdirs% to none or more directories such that the final one contains no more than one thousand entries.
-         * These extra directories are added at the point in the path where the component mentioning %subdirs% occurs, when the
-         * preceding directory has become sufficiently full.
+         * Expand {@code %subdirs%} to none or more directories such that the final one contains no more than one thousand entries.
+         * These extra directories are added at the point in the path where the component mentioning {@code %subdirs%} occurs, when
+         * the preceding directory has become sufficiently full.
          * @param prefix path component text preceding the expansion term in the first directory, may be empty
          * @param suffix path component text following the expansion term in the first directory, may be empty
          * @return entire replaced path component, may be unchanged to be revisited,
@@ -998,9 +998,9 @@ public class ManagedRepositoryI extends PublicRepositoryI
         private Set<String> skippedSubdirsComponents = new HashSet<String>();
 
         /**
-         * Expand %subdirs% to none or more directories such that the final one contains no more than a certain number of entries.
-         * These extra directories are added at the point in the path where the component mentioning %subdirs% occurs, when the
-         * preceding directory has become sufficiently full.
+         * Expand {@code %subdirs%} to none or more directories such that the final one contains no more than a certain number of
+         * entries. These extra directories are added at the point in the path where the component mentioning {@code %subdirs%}
+         * occurs, when the preceding directory has become sufficiently full.
          * @param prefix path component text preceding the expansion term in the first directory, may be empty
          * @param suffix path component text following the expansion term in the first directory, may be empty
          * @param digitsString the power of ten that is the directory entry limit, e.g., {@code "3"} for one thousand
