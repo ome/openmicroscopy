@@ -70,29 +70,11 @@ public class ObjectFinder
     private BatchCall loadCall;
     
     /** The security context.*/
-    private List<SecurityContext> ctx;
+    private SecurityContext ctx;
     
     /** The context of the search.*/
     private SearchParameters searchContext;
-    
-    /**
-     * Creates a {@link BatchCall} to retrieve the data
-     * 
-     * @param ctx The security context.
-     * @return The {@link BatchCall}.
-     */
-    private BatchCall searchFor(final SecurityContext ctx)
-    {
-        return new BatchCall("Searching") {
-            public void doCall() throws Exception
-            {
-                OmeroDataService os = context.getDataService();
-                Map<SecurityContext, AdvancedSearchResultCollection> r = new HashMap<SecurityContext, AdvancedSearchResultCollection>();
-                r.put(ctx, os.search(ctx, searchContext));
-                result = r;
-            }
-        };
-    }
+
 	
 	/**
      * Adds the {@link #loadCall} to the computation tree.
@@ -100,11 +82,14 @@ public class ObjectFinder
      */
     protected void buildTree()
     { 
-    	Iterator<SecurityContext> i = ctx.iterator();
-    	while (i.hasNext()) {
-			final SecurityContext sc = i.next();
-			add(searchFor(sc));
-		}
+        loadCall = new BatchCall("Searching") {
+            public void doCall() throws Exception
+            {
+                OmeroDataService os = context.getDataService();
+                result = os.search(ctx, searchContext);
+            }
+        };
+    	add(loadCall);
     }
 
 
@@ -113,13 +98,13 @@ public class ObjectFinder
      * 
      * @return See above.
      */
-    protected Object getPartialResult() { return result; }
+    protected Object getPartialResult() { return null; }
     
     /**
      * Returns the result of the search.
      * @see BatchCallTree#getResult()
      */
-    protected Object getResult() { return null; }
+    protected Object getResult() { return result; }
     
     /**
      * Creates a new instance.
@@ -127,8 +112,7 @@ public class ObjectFinder
      * @param ctx The security context.
      * @param searchContext The context of the search.
      */
-    public ObjectFinder(List<SecurityContext> ctx,
-            SearchParameters searchContext)
+    public ObjectFinder(SecurityContext ctx, SearchParameters searchContext)
     {
     	this.ctx = ctx;
     	this.searchContext = searchContext;

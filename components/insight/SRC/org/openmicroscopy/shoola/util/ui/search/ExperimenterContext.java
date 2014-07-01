@@ -51,7 +51,7 @@ public class ExperimenterContext
 	/**
          * Creates a new instance.
          */
-        ExperimenterContext(ExperimenterData exp)
+	public ExperimenterContext(ExperimenterData exp)
         {
                 this.experimenter = exp.getFirstName()+" "+exp.getLastName();
                 this.id = exp.getId();

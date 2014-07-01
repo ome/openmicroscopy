@@ -5053,6 +5053,11 @@ class OMEROGateway
             return queryString.toString();
         }
         
+        /**
+         * Translates the scopeIds into field names
+         * @param scopeIds
+         * @return
+         */
         private List<String> resolveScopeIds(List<Integer> scopeIds) {
             List<String> result = new ArrayList<String>();
             
@@ -5075,7 +5080,9 @@ class OMEROGateway
          * Searches for data.
          *
          * @param ctx The security context.
-         * @param context The context of search.
+         * @param context The context of search 
+         *         (if context.groupId == -1 the scope of the search will be all groups, otherwise
+         *          the scope of the search will be the group set in the security context)
          * @return The found objects.
          * @throws DSOutOfServiceException  If the connection is broken, or logged
          *                                  in.
@@ -5106,34 +5113,22 @@ class OMEROGateway
                     String searchForClass = PojoMapper.convertTypeForSearch(type);
                     service.onlyType(searchForClass);
                     service.setBatchSize(batchSize);
-
-//                    if (start != null && end != null)
-//                        service.onlyCreatedBetween(
-//                                omero.rtypes.rtime(start.getTime()),
-//                                omero.rtypes.rtime(end.getTime()));
-//                    else if (start != null && end == null)
-//                        service.onlyCreatedBetween(
-//                                omero.rtypes.rtime(start.getTime()),
-//                                null);
-//                    else if (start == null && end != null)
-//                        service.onlyCreatedBetween(null,
-//                                omero.rtypes.rtime(end.getTime()));
     
                     // set the owner/group restriction
                     if(context.getUserId()>=0) {
                         Details ownerRestriction = new DetailsI();
                         Experimenter exp = (Experimenter) findIObject(ctx, Experimenter.class.getName(), context.getUserId());
                         ownerRestriction.setOwner(exp);
-                        ExperimenterGroup group = (ExperimenterGroup) findIObject(ctx, ExperimenterGroup.class.getName(), ctx.getGroupID());
-                        ownerRestriction.setGroup(group);
+//                        ExperimenterGroup group = (ExperimenterGroup) findIObject(ctx, ExperimenterGroup.class.getName(), ctx.getGroupID());
+//                        ownerRestriction.setGroup(group);
                         service.onlyOwnedBy(ownerRestriction);
                     }
                     
+                    // set time
                     Date from = null;
                     Date to = null;
                     String dateType = null;
                     if(context.getDateType()!=-1) {
-                        // set the time
                            Timestamp start = context.getStart();
                            Timestamp end = context.getEnd();
                            from = start!=null ? new Date(start.getTime()) : null;
@@ -5146,13 +5141,21 @@ class OMEROGateway
                     
                     String query = LuceneQueryBuilder.buildLuceneQuery(resolveScopeIds(context.getScope()), from, to, dateType, context.getQuery());
 
-                    System.out.println("Searching for type:" + type.getSimpleName()+ " in group:" + ctx.getGroupID() + " query:" + query);
+                    System.out.println("Searching for type:" + type.getSimpleName()+ " in group:" + context.getGroupId() + " (SecurityContext.groupId="+ctx.getGroupID()+") query:" + query);
     
-                    service.byFullText(query);
-    
+                    Map<String, String> m = new HashMap<String, String>();
+                    if(context.getGroupId()==SearchParameters.ALL_GROUPS_ID) {
+                        m.put("omero.group", "-1");
+                    }
+                    else {
+                        m.put("omero.group", ""+ctx.getGroupID());
+                    }
+                    
+                    service.byFullText(query, m);
+                    
                     try {
-                        if (service.hasNext()) {
-                            List<IObject> l = service.results();
+                        while (service.hasNext(m)) {
+                            List<IObject> l = service.results(m);
                             Iterator<IObject> k = l.iterator();
                             IObject object;
                             long id;
@@ -5161,8 +5164,9 @@ class OMEROGateway
                                 if (searchForClass.equals(object.getClass()
                                         .getName())) {
                                     id = object.getId().getValue();
+                                    System.err.println("id="+id+" groupid="+object.getDetails().getGroup().getId().getValue());
                                     AdvancedSearchResult sr = new AdvancedSearchResult(
-                                            -1, type, id);
+                                            -1, type, id, object.getDetails().getGroup().getId().getValue());
                                     if (!result.contains(sr))
                                         result.add(sr);
                                 }

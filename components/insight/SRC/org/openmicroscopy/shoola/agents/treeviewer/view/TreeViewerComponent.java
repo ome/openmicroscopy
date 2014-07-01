@@ -3083,29 +3083,23 @@ class TreeViewerComponent
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#setSearchResult(Object)
 	 */
-	@SuppressWarnings("unchecked")
     public void setSearchResult(Object result)
 	{
-		Map<SecurityContext, AdvancedSearchResultCollection> tmp = (Map<SecurityContext, AdvancedSearchResultCollection>) result;
+	    AdvancedSearchResultCollection results = (AdvancedSearchResultCollection) result;
 
 		MetadataViewer metadata = model.getMetadataViewer();
 		if (metadata != null) {
 			metadata.setRootObject(null, -1, null);
 		}
-		if (tmp == null || tmp.size() == 0) {
+		if (results == null || results.size() == 0) {
 			//UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
         	//un.notifyInfo("Search", "No results found.");
         	view.removeAllFromWorkingPane();
 			return;
 		}
-		
-		AdvancedSearchResultCollection allResults = new AdvancedSearchResultCollection();
-                for(AdvancedSearchResultCollection r : tmp.values()) {
-                    allResults.addAll(r);
-                }
                 
 		//Need to recycle the search browser.
-		DataBrowser db = DataBrowserFactory.getSearchBrowser(allResults);
+		DataBrowser db = DataBrowserFactory.getSearchBrowser(results);
 		if (db != null && view.getDisplayMode() == SEARCH_MODE) {
 			db.setExperimenter(TreeViewerAgent.getUserDetails());
 			db.addPropertyChangeListener(controller);

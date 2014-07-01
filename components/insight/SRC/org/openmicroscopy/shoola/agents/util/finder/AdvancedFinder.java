@@ -48,6 +48,7 @@ import javax.swing.JPanel;
 
 
 
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -68,6 +69,7 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.search.GroupContext;
 import org.openmicroscopy.shoola.util.ui.search.SearchContext;
 import org.openmicroscopy.shoola.util.ui.search.SearchHelp;
 import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
@@ -117,10 +119,7 @@ public class AdvancedFinder
 	private Collection tags;
 	
 	/** Host the result per group.*/
-	private Map<SecurityContext, AdvancedSearchResultCollection> results;
-	
-	/** The total number of groups to search.*/
-	private int total;
+	private AdvancedSearchResultCollection results;
 	
 	/** The identifier of the group.*/
 	private long groupId;
@@ -307,15 +306,18 @@ public class AdvancedFinder
 		searchContext.setTimeInterval(start, end, ctx.getTimeType());
 		searchContext.setUserId(ctx.getSelectedOwner());
 		
-		List<Long> groups = ctx.getSelectedGroups();
-		List<SecurityContext> l = new ArrayList<SecurityContext>();
-		Iterator<Long> j = groups.iterator();
-		while (j.hasNext()) {
-			l.add(new SecurityContext(j.next()));
+		SecurityContext secCtx;
+		
+		if(ctx.getSelectedGroup()==GroupContext.ALL_GROUPS_ID) {
+		    secCtx = new SecurityContext(getUserDetails().getGroupId());
+		    searchContext.setGroupId(SearchParameters.ALL_GROUPS_ID);
 		}
-		total = l.size();
-		results.clear();
-		loader = new AdvancedFinderLoader(this, l, searchContext);
+		else {
+		    secCtx = new SecurityContext(ctx.getSelectedGroup());
+		    searchContext.setGroupId(ctx.getSelectedGroup());
+		}
+
+		loader = new AdvancedFinderLoader(this, secCtx, searchContext);
 		loader.load();
 		state = Finder.SEARCH;
 		setSearchEnabled(true);
@@ -413,7 +415,7 @@ public class AdvancedFinder
 	 * 
 	 * @param groups The available groups.
 	 */
-	AdvancedFinder(ctx.getSelectedGroup())
+	AdvancedFinder(Collection<GroupData> groups)
 	{
 		//sort
 		displayMode = LookupNames.EXPERIMENTER_DISPLAY;
@@ -424,7 +426,6 @@ public class AdvancedFinder
 		addPropertyChangeListener(CANCEL_SEARCH_PROPERTY, this);
 		addPropertyChangeListener(OWNER_PROPERTY, this);
 		users = new HashMap<Long, ExperimenterData>();
-		results = new HashMap<SecurityContext, AdvancedSearchResultCollection>();
 	}
 
 	/**
@@ -479,7 +480,7 @@ public class AdvancedFinder
 	 * Implemented as specified by {@link Finder} I/F
 	 * @see Finder#setResult(SecurityContext, Object)
 	 */
-	public void setResult(SecurityContext ctx, AdvancedSearchResultCollection result)
+	public void setResult(AdvancedSearchResultCollection result)
 	{
             if (result.isError()) {
                 String msg;
@@ -492,11 +493,9 @@ public class AdvancedFinder
                 return;
             }
     
-            results.put(ctx, result);
-            if (results.size() == total) {
-                setSearchEnabled(false);
-                firePropertyChange(RESULTS_FOUND_PROPERTY, null, results);
-            }
+            results = result;
+            setSearchEnabled(false);
+            firePropertyChange(RESULTS_FOUND_PROPERTY, null, results);
 	}
 	
 	/** 

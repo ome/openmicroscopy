@@ -175,7 +175,7 @@ public class DataHandlerViewImpl
 	 * @see DataHandlerView#advancedSearchFor(List, SearchDataContext,
 	 * 										AgentEventListener)
 	 */
-	public CallHandle advancedSearchFor(List<SecurityContext> ctx,
+	public CallHandle advancedSearchFor(SecurityContext ctx,
 	        SearchParameters context, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new ObjectFinder(ctx, context);

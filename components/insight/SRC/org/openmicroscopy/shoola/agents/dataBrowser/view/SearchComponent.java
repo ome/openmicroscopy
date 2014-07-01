@@ -486,37 +486,13 @@ public class SearchComponent
                 ctx.setTimeType(uiDelegate.getDateType().equals(SearchPanel.ITEM_ACQUISITIONDATE) ? SearchParameters.DATE_ACQUISITION : SearchParameters.DATE_IMPORT);
                 
                 ctx.setSelectedOwner(uiDelegate.getUserId());
-                ctx.getSelectedGroups().addAll(getSelectedGroups());
+                ctx.setSelectedGroup(uiDelegate.getGroupId());
             
                 ctx.setType(uiDelegate.getType());
             
                 firePropertyChange(SEARCH_PROPERTY, null, ctx);
         }
 	
-        /**
-         * Get the selected groups; i. e. just one if a certain
-         * group was selected, or all groups of the user if 'all'
-         * was selected.
-         * @return
-         */
-        List<Long> getSelectedGroups() {
-            
-            List<Long> result = new ArrayList<Long>();
-            
-            long groupId = uiDelegate.getGroupId();
-            
-            if(groupId==GroupContext.ALL_GROUPS_ID) {
-                ExperimenterData exp = getUserDetails();
-                for(GroupData gd : exp.getGroups()) {
-                    result.add(gd.getId());
-                }
-            }
-            else {
-                 result.add(groupId);
-            }
-            
-            return result;
-        }
         
         /**
          * Returns the current user's details.

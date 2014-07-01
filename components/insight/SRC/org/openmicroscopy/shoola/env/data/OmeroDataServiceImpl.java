@@ -42,6 +42,7 @@ import java.util.Set;
 
 
 
+
 //Application-internal dependencies
 import omero.cmd.Delete;
 import omero.cmd.Request;
@@ -710,7 +711,7 @@ class OmeroDataServiceImpl
 		
 		results.addAll(gateway.search(ctx, context));
 
-		loadObjects(ctx, results);
+		loadObjects(results);
 		
 		System.out.println(results);
 		
@@ -723,55 +724,54 @@ class OmeroDataServiceImpl
 	 * @param results
 	 * @throws DSOutOfServiceException
 	 */
-        private void loadObjects(SecurityContext ctx, AdvancedSearchResultCollection results)
+        private void loadObjects(AdvancedSearchResultCollection results)
                 throws DSOutOfServiceException {
             
-            Iterator<AdvancedSearchResult> it = results.iterator();
+            Map<Long, List<AdvancedSearchResult>> byGroup = results.getByGroup();
             
-            while (it.hasNext()) {
-                AdvancedSearchResult r = it.next();
-                DataObject obj;
-    
-                if (r.getType().equals(ImageData.class)) {
-    
-                    Set tmp = null;
+            for(Long groupId : byGroup.keySet()) {
+                SecurityContext ctx = new SecurityContext(groupId);
+                for(AdvancedSearchResult r : byGroup.get(groupId)) {
+                    DataObject obj = null;
                     
-                    try {
-                        tmp = gateway.getContainerImages(ctx, r.getType(),
-                                Collections.singletonList(r.getObjectId()),
-                                new Parameters());
-                    } catch (DSAccessException e) {
-                        // i. e. object cannot be found
-                    }
-    
-                    if (CollectionUtils.isEmpty(tmp)) {
-                        it.remove();
-                        continue;
+                    if (r.getType().equals(ImageData.class)) {
+        
+                        Set tmp = null;
+                        
+                        try {
+                            tmp = gateway.getContainerImages(ctx, r.getType(),
+                                    Collections.singletonList(r.getObjectId()),
+                                    new Parameters());
+                        } catch (DSAccessException e) {
+                            // i. e. object cannot be found
+                        }
+        
+                        if (!CollectionUtils.isEmpty(tmp)) {
+                            obj = (DataObject) tmp.iterator().next();
+                        }
                     } else {
-                        obj = (DataObject) tmp.iterator().next();
+                        
+                        IObject iobj = null;
+                        
+                        try {
+                            iobj = gateway.findIObject(ctx,
+                                    PojoMapper.convertTypeForSearch(r.getType()),
+                                    r.getObjectId());
+                        } catch (DSAccessException e) {
+                            // i. e. object cannot be found
+                        }
+                        
+                        if (iobj != null) {
+                            obj = PojoMapper.asDataObject(iobj);
+                        }
                     }
-                } else {
-                    
-                    IObject iobj = null;
-                    
-                    try {
-                        iobj = gateway.findIObject(ctx,
-                                PojoMapper.convertTypeForSearch(r.getType()),
-                                r.getObjectId());
-                    } catch (DSAccessException e) {
-                        // i. e. object cannot be found
-                    }
-                    
-                    if (iobj == null) {
-                        it.remove();
-                        continue;
-                    } else {
-                        obj = PojoMapper.asDataObject(iobj);
-                    }
+        
+                    if(obj!=null)
+                        r.setObject(obj);
                 }
-    
-                r.setObject(obj);
             }
+            
+            results.consolidate();
         }
 	
         /**

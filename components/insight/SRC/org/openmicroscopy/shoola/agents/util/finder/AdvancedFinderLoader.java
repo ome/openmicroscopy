@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.util.finder;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,7 @@ import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
 
 /** 
  * Searches for data
@@ -76,10 +78,10 @@ public class AdvancedFinderLoader
      * @param context	The context of the search.
      * 					Mustn't be <code>null</code>.
      */
-    public AdvancedFinderLoader(Finder viewer, List<SecurityContext> ctx,
+    public AdvancedFinderLoader(Finder viewer, SecurityContext ctx,
             SearchParameters context)
     {
-    	super(viewer, ctx);
+    	super(viewer, Collections.singletonList(ctx));
     	if (context == null) 
     		throw new IllegalArgumentException("No scope defined.");
     	searchContext = context;
@@ -91,29 +93,16 @@ public class AdvancedFinderLoader
      */
     public void load()
     {
-    	handle = dhView.advancedSearchFor(ctx, searchContext, this);
+    	handle = dhView.advancedSearchFor(ctx.get(0), searchContext, this);
     }
 
     /** 
      * Feeds the results of the search as they arrive.
      * @see FinderLoader#update(DSCallFeedbackEvent)
      */
-    @SuppressWarnings("unchecked")
     public void update(DSCallFeedbackEvent fe) 
     {
-    	if (viewer.getState() == DataBrowser.DISCARDED) return;  //Async cancel.
-        int percDone = fe.getPercentDone();
-        if (percDone == 0) return;
-        
-        Map<SecurityContext, AdvancedSearchResultCollection> m = ( Map<SecurityContext, AdvancedSearchResultCollection>) fe.getPartialResult();
-        if (m != null) {
-                Entry<SecurityContext, AdvancedSearchResultCollection> entry;
-        	Iterator<Entry<SecurityContext, AdvancedSearchResultCollection>> i= m.entrySet().iterator();
-        	while (i.hasNext()) {
-				entry = i.next();
-				viewer.setResult((SecurityContext) entry.getKey(), entry.getValue());
-			}
-        }
+    	
     }
     
     /**
@@ -134,12 +123,11 @@ public class AdvancedFinderLoader
      * Feeds the result back to the viewer. 
      * @see FinderLoader#handleResult(Object)
      */
-    /*
     public void handleResult(Object result)
     {
     	if (viewer.getState() == Finder.DISCARDED) return;  //Async cancel.
-        //viewer.setResult(result);
+        viewer.setResult((AdvancedSearchResultCollection) result);
     }
-    */
+
 
 }
