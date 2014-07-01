@@ -218,7 +218,7 @@ class PercentStrategy(Strategy):
     def get_percent(self):
         other = self.defaults.get("other", "1")
         default = self.defaults.get(self.name, other)
-        percent = self.settings.lookup("percent", default)
+        percent = int(self.settings.lookup("percent", default))
         return percent
 
     def calculate_heap_size(self, method=None):
@@ -316,37 +316,25 @@ class AdaptiveStrategy(PercentStrategy):
     values based on the available memory
     """
 
-    PERCENT_DEFAULTS = (
-        ("blitz", 40),
-        ("pixeldata", 40),
-        ("indexer", 10),
-        ("repository", 10),
-        ("other", 1),
-    )
-
     def __init__(self, name, settings=None):
         super(AdaptiveStrategy, self).__init__(name, settings)
-        available, active, total = self.system_memory_mb()
+        available, active, IGNORE = self.system_memory_mb()
 
         if settings is None:
             settings = Settings()
 
-        calc = None
-        if total <= 4000:
-            if total >= 2000:
+        if active <= 4000:
+            if active >= 2000:
                 settings.overwrite("perm_gen", "256m")
-            settings.overwrite("max_total", .75 * total)
-        elif total <= 8000:
+        elif active <= 8000:
             settings.overwrite("perm_gen", "512m")
-            calc = (4000, 8000, .75 * 4000, .5 * 8000)
         else:
             settings.overwrite("perm_gen", "1g")
-            calc = (8000, 24000, .5 * 8000, .33 * 24000)
 
-        if calc is not None:
-            x0, x1, y0, y1 = calc
-            new_total = y0 + (y1 - y0) * (total - x0) / (x1 - x0)
-            settings.overwrite("max_total", new_total)
+        perc = self.get_percent()
+        x0, x1, y0, y1 = (4000, 24000, perc, 2 * perc)
+        perc = y0 + (y1 - y0) * (active- x0) / (x1 - x0)
+        settings.overwrite("percent", perc)
 
 
 STRATEGY_REGISTRY["manual"] = ManualStrategy

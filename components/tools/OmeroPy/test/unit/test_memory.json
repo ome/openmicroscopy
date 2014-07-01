@@ -74,7 +74,7 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx1365m",
+                "-Xmx600m",
                 "-XX:MaxPermSize=256m"
             ]
         }
@@ -88,7 +88,7 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx1200m",
+                "-Xmx600m",
                 "-XX:MaxPermSize=256m"
             ]
         }
@@ -101,7 +101,7 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx1600m",
+                "-Xmx1440m",
                 "-XX:MaxPermSize=512m"
             ]
         }
@@ -114,7 +114,7 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx3168m",
+                "-Xmx3840m",
                 "-XX:MaxPermSize=1g"
             ]
         }
@@ -128,7 +128,7 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx9600m",
+                "-Xmx7200m",
                 "-XX:MaxPermSize=1g"
             ]
         }
