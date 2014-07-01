@@ -148,8 +148,7 @@ public class SearchResultTable extends JXTable {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     ImageData img = (ImageData) obj;
-                    RequestEvent ev = new ViewImage(new SecurityContext(model
-                            .getCurrentUser().getGroupId()),
+                    RequestEvent ev = new ViewImage(new SecurityContext(obj.getGroupId()),
                             new ViewImageObject(img), null);
                     ImViewerAgent.getRegistry().getEventBus().post(ev);
                 }
