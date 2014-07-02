@@ -77,6 +77,9 @@ class ImportControl(BaseControl):
         parser.add_argument(
             "--javahelp", action="store_true", help="Show the Java help text")
         parser.add_argument(
+            "--advanced-help", action="store_true", dest="java_advanced_help",
+            help="Show the advanced help text")
+        parser.add_argument(
             "---file", nargs="?",
             help="File for storing the standard out of the Java process")
         parser.add_argument(
@@ -193,7 +196,7 @@ class ImportControl(BaseControl):
                 login_args.append("-h")
 
         if "-h" not in login_args and "-f" not in login_args \
-                and not args.java_f:
+                and not args.java_f and not args.java_advanced_help:
             client = self.ctx.conn(args)
             srv = client.getProperty("omero.host")
             prt = client.getProperty("omero.port")
@@ -222,6 +225,7 @@ class ImportControl(BaseControl):
             "java_ns": "--annotation_ns",
             "java_text": "--annotation_text",
             "java_link": "--annotation_link",
+            "java_advanced_help": "--advanced-help",
             }
 
         for attr_name, arg_name in java_args.items():
