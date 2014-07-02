@@ -224,6 +224,9 @@ dt_socket,address=8787,suspend=y" \\
 
         group = reindex.add_mutually_exclusive_group()
         group.add_argument(
+            "--prepare", action="store_true",
+            help="Disables the background indexer in preparation for indexing")
+        group.add_argument(
             "--full", action="store_true",
             help="Reindexes all non-excluded tables sequentially")
         group.add_argument(
@@ -245,6 +248,9 @@ dt_socket,address=8787,suspend=y" \\
         group.add_argument(
             "--wipe", action="store_true",
             help="Delete the existing index files")
+        group.add_argument(
+            "--finish", action="store_true",
+            help="Re-enables the background indexer after for indexing")
 
         ports = Action(
             "ports",
@@ -1281,6 +1287,7 @@ OMERO Diagnostics %s
 
     @with_config
     def reindex(self, args, config):
+
         self.check_access(config=config)
         import omero.java
         server_dir = self.ctx.dir / "lib" / "server"
@@ -1324,7 +1331,9 @@ OMERO Diagnostics %s
         cmd = ["ome.services.fulltext.Main"]
 
         # Python actions
+        early_exit = False
         if args.wipe:
+            early_exit = True
             omero_data_dir = cfg.get("omero.data.dir", "/OMERO")
             self.can_access(omero_data_dir)
             from os.path import sep
@@ -1347,7 +1356,19 @@ OMERO Diagnostics %s
                         os.remove(file)
                     except:
                         self.ctx.err("Failed to remove: %s", file)
+
+        elif args.prepare:
+            early_exit = True
+            self.stop_service("Indexer-0")
+        elif args.finish:
+            early_exit = True
+            self.start_service("Indexer-0")
+
+        if early_exit:
             return  # Early exit!
+
+        if self.check_service("Indexer-0") and not args.prepare:
+            self.ctx.die(578, "Indexer-0 is running")
 
         # Java actions
         if args.full:
@@ -1436,6 +1457,40 @@ OMERO Diagnostics %s
                     rv.append("")
         self.ctx.controls["hql"].display(
             mapped, ("node", "session", "started", "owner", "agent", "notes"))
+
+
+    def check_service(self, name):
+        command = self._cmd()
+        command.extend(["-e", "server state %s" % name])
+        p = self.ctx.popen(command)  # popen
+        rc = p.wait()
+        return rc == 0
+
+    def start_service(self, name):
+        command = self._cmd()
+        command.extend(["-e", "server enable %s" % name])
+        rc = self.ctx.call(command)
+        if rc != 0:
+            self.ctx.err("%s could not be enabled" % name)
+        else:
+            self.ctx.err("%s restarted" % name)
+
+    def stop_service(self, name):
+        command = self._cmd()
+        command.extend(["-e", "server disable %s" % name])
+        rc = self.ctx.call(command)
+        if rc != 0:
+            self.ctx.err("%s may already be disabled" % name)
+        else:
+            command = self._cmd()
+            command.extend(["-e", "server stop %s" % name])
+            rc = self.ctx.call(command)
+            if rc != 0:
+                self.ctx.err("'server stop %s' failed" % name)
+            else:
+                self.ctx.err("%s stopped" % name)
+
+
 try:
     register("admin", AdminControl, HELP)
 except NameError:
