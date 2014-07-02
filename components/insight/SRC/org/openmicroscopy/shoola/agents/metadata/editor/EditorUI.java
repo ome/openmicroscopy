@@ -305,7 +305,28 @@ class EditorUI
     	generalPane.setParentRootObject();
     	userUI.setParentRootObject();
     }
-    
+
+    /** Resets the selected tab when an image or well sample is selected.*/
+    void handleImageSelection()
+    {
+        ImageData img = model.getImage();
+        if (img == null) return;
+        tabPane.setEnabledAt(ACQUISITION_INDEX, img.getId() > 0);
+        boolean preview = model.isPreviewAvailable();
+        tabPane.setEnabledAt(RND_INDEX, preview);
+        if (!preview) {
+            tabPane.setToolTipTextAt(RND_INDEX, 
+                    "Only available for non big images.");
+        }
+        
+        if (getSelectedTab() == RND_INDEX) {
+            tabPane.setComponentAt(RND_INDEX, dummyPanel);
+            if (!preview && 
+                    model.getRndIndex() != 
+                        MetadataViewer.RND_SPECIFIC) 
+                tabPane.setSelectedIndex(GENERAL_INDEX);
+        }
+    }
     /**
      * Updates display when the new root node is set.
      * 
@@ -317,7 +338,7 @@ class EditorUI
 		tabPane.setComponentAt(RND_INDEX, dummyPanel);
 		setDataToSave(false);
 		toolBar.buildUI();
-		tabPane.setToolTipTextAt(RND_INDEX, "");
+		tabPane.setToolTipTextAt(RND_INDEX, RENDERER_DESCRIPTION);
 		boolean preview = false;
 		int selected = getSelectedTab();
 		if (!(uo instanceof DataObject)) {
@@ -345,52 +366,8 @@ class EditorUI
 				tabPane.setEnabledAt(ACQUISITION_INDEX, false);
 				tabPane.setEnabledAt(RND_INDEX, false);
 			} else {
-				if (uo instanceof ImageData) {
-					load = true;
-					ImageData img = (ImageData) uo;
-					tabPane.setEnabledAt(ACQUISITION_INDEX, img.getId() > 0);
-					preview = model.isPreviewAvailable();
-					tabPane.setEnabledAt(RND_INDEX, preview);
-					if (!preview) {
-						tabPane.setToolTipTextAt(RND_INDEX, 
-								"Only available for non big images.");
-					}
-					
-					if (selected == RND_INDEX) {
-						tabPane.setComponentAt(RND_INDEX, dummyPanel);
-						if (!preview && 
-								model.getRndIndex() != 
-									MetadataViewer.RND_SPECIFIC) 
-							tabPane.setSelectedIndex(GENERAL_INDEX);
-					}
-				} else if (uo instanceof WellSampleData) {
-					ImageData img = ((WellSampleData) uo).getImage();
-					if (tabPane.getSelectedIndex() == RND_INDEX) {
-						tabPane.setComponentAt(RND_INDEX, dummyPanel);
-						if (model.canEdit())
-							tabPane.setSelectedIndex(GENERAL_INDEX);
-					}
-					if (img != null && img.getId() >= 0) {
-						load = true;
-						tabPane.setEnabledAt(ACQUISITION_INDEX, true);
-						preview = model.isPreviewAvailable();
-						tabPane.setEnabledAt(RND_INDEX, preview);
-						if (!preview) {
-							tabPane.setToolTipTextAt(RND_INDEX, 
-									"Only available for image of size <= "+
-									RenderingControl.MAX_SIZE+"x"+
-									RenderingControl.MAX_SIZE);
-						}
-						if (selected == RND_INDEX) {
-							tabPane.setComponentAt(RND_INDEX, dummyPanel);
-							//tabPane.setSelectedIndex(GENERAL_INDEX);
-							if (!preview) tabPane.setSelectedIndex(GENERAL_INDEX);
-						}
-					} else {
-						tabPane.setSelectedIndex(GENERAL_INDEX);
-						tabPane.setEnabledAt(ACQUISITION_INDEX, false);
-						tabPane.setEnabledAt(RND_INDEX, false);
-					}
+				if (uo instanceof ImageData || uo instanceof WellSampleData) {
+					handleImageSelection();
 				} else {
 					tabPane.setSelectedIndex(GENERAL_INDEX);
 					tabPane.setEnabledAt(ACQUISITION_INDEX, false);
