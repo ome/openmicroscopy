@@ -47,10 +47,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
-import org.apache.commons.collections.CollectionUtils;
+
 //Third-party libraries
-import org.jdesktop.swingx.JXTaskPane;
 import org.apache.commons.collections.CollectionUtils;
+import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
