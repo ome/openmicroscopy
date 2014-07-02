@@ -9,22 +9,11 @@
 
 """
 
-from path import path
 from omero.cli import CLI
-
 # Workaround for a poorly named module
-map = {}
-
-rootDir = path(__file__).dirname() / ".." / ".." / ".."
-omeroDir = rootDir / "build"
-pluginDir = rootDir / "src" / "omero" / "plugins"
-
-
-def register(key, klass, help, epilog=None):
-    map[key] = klass
-loc = {"register": register}
-execfile(str(pluginDir/"import.py"), loc)
-ImportControl = map["import"]
+plugin = __import__('omero.plugins.import', globals(), locals(),
+                    ['ImportControl'], -1)
+ImportControl = plugin.ImportControl
 
 
 class TestImport(object):
