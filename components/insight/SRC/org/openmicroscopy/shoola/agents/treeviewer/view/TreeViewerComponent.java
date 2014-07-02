@@ -1501,23 +1501,29 @@ class TreeViewerComponent
             }
             mv.setParentRootObject(parent, grandParent);
         }
-
-        TreeImageDisplay[] selection = null;
-        if (browser != null) selection = browser.getSelectedDisplays();
-        if (selection != null && selection.length > 0) {
-            if (selected instanceof WellSampleData) {
-                siblings.add(selected);
-                if (siblings.size() > 1 && !sameSelection)
-                    mv.setRelatedNodes(siblings);
-            } else {
-                siblings = new ArrayList<Object>(selection.length);
-                for (int i = 0; i < selection.length; i++) {
-                    siblings.add(selection[i].getUserObject());
+        
+        if (view.getDisplayMode() == SEARCH_MODE) {
+            siblings.add(selected);
+            mv.setRelatedNodes(siblings);
+        }
+        else {
+            TreeImageDisplay[] selection = null;
+            if (browser != null) selection = browser.getSelectedDisplays();
+            if (selection != null && selection.length > 0) {
+                if (selected instanceof WellSampleData) {
+                    siblings.add(selected);
+                    if (siblings.size() > 1 && !sameSelection)
+                        mv.setRelatedNodes(siblings);
+                } else {
+                    siblings = new ArrayList<Object>(selection.length);
+                    for (int i = 0; i < selection.length; i++) {
+                        siblings.add(selection[i].getUserObject());
+                    }
+                    if (siblings.size() > 1 && !sameSelection)
+                        mv.setRelatedNodes(siblings);
                 }
-                if (siblings.size() > 1 && !sameSelection)
-                    mv.setRelatedNodes(siblings);
+    
             }
-
         }
         if (model.getDataViewer() != null)
             model.getDataViewer().setApplications(
