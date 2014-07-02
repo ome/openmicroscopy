@@ -318,22 +318,23 @@ class AdaptiveStrategy(PercentStrategy):
 
     def __init__(self, name, settings=None):
         super(AdaptiveStrategy, self).__init__(name, settings)
-        available, active, IGNORE = self.system_memory_mb()
+        available, IGNORE, total = self.system_memory_mb()
 
         if settings is None:
             settings = Settings()
 
-        if active <= 4000:
-            if active >= 2000:
+        if total <= 4000:
+            if total >= 2000:
                 settings.overwrite("perm_gen", "256m")
-        elif active <= 8000:
+        elif total <= 8000:
             settings.overwrite("perm_gen", "512m")
         else:
             settings.overwrite("perm_gen", "1g")
 
+        cutoff = min(24000, total)
         perc = self.get_percent()
         x0, x1, y0, y1 = (4000, 24000, perc, 2 * perc)
-        perc = y0 + (y1 - y0) * (active- x0) / (x1 - x0)
+        perc = y0 + (y1 - y0) * (cutoff - x0) / (x1 - x0)
         settings.overwrite("percent", perc)
 
 
