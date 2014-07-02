@@ -107,24 +107,6 @@ table#drivespaceTable tbody tr:hover{
 		 
 	 	
 	 
-	 
-	 
-		 
-		 
-		 .tablesorter tbody tr:hover {
-		 	background-color:hsl(210,15%,85%);
-			-webkit-transition: background .2s linear;
-			-webkit-transition:background .2s linear  ;		
-			   -moz-transition:background .2s linear  ;
-			     -o-transition:background .2s linear  ;
-			        transition:background .2s linear  ; 	
-		 }
-	 	
-		 .tablesorter_basic tbody tr:hover {
-			 background:none;
-		 }
-		
-	 
 		 .tablesorter tbody tr:nth-child(even) {
 			 background-color:hsl(210,3%,94%);
 		 }
@@ -132,10 +114,18 @@ table#drivespaceTable tbody tr:hover{
 		  .tablesorter_basic tbody tr {
 		  }
 		  
- 		 .tablesorter tbody tr:nth-child(even) {
- 			 background-color:hsl(210,3%,94%);
- 		 }
-		  
+		 .tablesorter_basic tbody tr:hover {
+			 background:none;
+		 }
+		 
+ 		 .tablesorter tbody tr:hover {
+		 	background-color:hsl(210,15%,85%);
+			-webkit-transition: background .2s linear;
+			-webkit-transition:background .2s linear  ;		
+			   -moz-transition:background .2s linear  ;
+			     -o-transition:background .2s linear  ;
+			        transition:background .2s linear  ; 	
+		 }
 		 
 		 
 		 
