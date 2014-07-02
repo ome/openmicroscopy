@@ -406,7 +406,19 @@ public class EventLogQueue extends PersistentEventLogLoader {
         this.regularCount = metrics.counter(this, "regularCount");
         this.failureCount = metrics.counter(this, "failureCount");
 
-        this.max = max;
+        // Rough testing shows each entry in the queue to take up about
+        // 100 bytes of storage. If the max would use "too much memory",
+        // then scale it down by 10%. E.g. the default would use ~100MB,
+        // if this is more than 25% of memory, scale down.
+        long memory = Runtime.getRuntime().maxMemory();
+        long queueBytes = max * 100;
+        if (queueBytes >  (.25 * memory)) {
+            this.max = max/10;
+            log.warn("max_partition_size set to more than 25% of "
+                    + "total heap size. Reducing by 1/10th to {}", this.max);
+        } else {
+            this.max = max;
+        }
         this.types = Arrays.asList(types);
         this.actions = Arrays.asList(actions);
         this.data = new Data(priorityCount, regularCount, failureCount,
