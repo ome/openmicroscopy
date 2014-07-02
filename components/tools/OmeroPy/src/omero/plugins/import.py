@@ -157,6 +157,9 @@ class ImportControl(BaseControl):
             help="Comment annotation ID to link all images to (**)")
 
         parser.add_argument(
+            "--depth", default=4, type=int,
+            help="Number of directories to scan down for files")
+        parser.add_argument(
             "path", nargs="*",
             help="Path to be passed to the Java process")
 
@@ -233,6 +236,7 @@ class ImportControl(BaseControl):
                     if isinstance(arg_value, (str, unicode)):
                         login_args.append(arg_value)
 
+        xargs.append("-Domero.import.depth=%s" % args.depth)
         a = self.COMMAND + login_args + args.path
         p = omero.java.popen(
             a, debug=False, xargs=xargs, stdout=out, stderr=err)
