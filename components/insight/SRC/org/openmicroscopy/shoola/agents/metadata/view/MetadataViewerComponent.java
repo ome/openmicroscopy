@@ -1075,8 +1075,8 @@ class MetadataViewerComponent
 	 */
 	public void loadViewedBy()
 	{
-		Object ref = model.getRefObject();
-		if (ref instanceof ImageData || ref instanceof WellSampleData) {
+		ImageData ref = model.getImage();
+		if (ref != null) {
 		    model.fireViewedByLoading();
 		}
 	}
