@@ -26,6 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.JScrollPane;
+
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
@@ -42,10 +44,10 @@ public class FilesetInfoDialog extends TinyDialog {
 
     /** This dialog's default width */
     public final static int DEFAULT_WIDTH = 400;
-    
+
     /** This dialog's default height */
     public final static int DEFAULT_HEIGHT = 100;
-    
+
     /**
      * Creates a new instance
      */
@@ -68,34 +70,34 @@ public class FilesetInfoDialog extends TinyDialog {
         Iterator<String> j;
         int n = 0;
         while (i.hasNext()) {
-                data = i.next();
-                if(inPlaceImport) {
-                    paths = data.getUsedFilePaths();
-                }
-                else {
-                    paths = data.getAbsolutePaths();
-                }
-                j = paths.iterator();
-                n += paths.size();
-                while (j.hasNext()) {
-                        buffer.append(j.next());
-                        buffer.append(System.getProperty("line.separator"));
-                }
+            data = i.next();
+            if (inPlaceImport) {
+                paths = data.getUsedFilePaths();
+            }
+            else {
+                paths = data.getAbsolutePaths();
+            }
+            j = paths.iterator();
+            n += paths.size();
+            while (j.hasNext()) {
+                buffer.append(j.next());
+                buffer.append(System.getProperty("line.separator"));
+            }
         }
         label.setText(buffer.toString());
-        
-        setCanvas(label);
-        
+
+        setCanvas(new JScrollPane(label));
+
         setTitle(n+" File path(s)");
     }
-    
+
     /**
      * Shows the dialog in the center of the screen
      */
     public void open() {
         open(null);
     }
-    
+
     /**
      * Shows the dialog in a certain location
      * @param location See above
@@ -125,7 +127,7 @@ public class FilesetInfoDialog extends TinyDialog {
         setResizable(true);
         getContentPane().setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
         setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
-        if(location!=null) {
+        if (location != null) {
             setLocation(location);
             setVisible(true);
         }
@@ -133,5 +135,5 @@ public class FilesetInfoDialog extends TinyDialog {
             UIUtilities.centerAndShow(this);
         }
     }
-    
+
 }

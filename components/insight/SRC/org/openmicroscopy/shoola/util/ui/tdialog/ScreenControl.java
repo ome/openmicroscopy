@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.tdialog.ScreenControl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -83,10 +83,7 @@ class ScreenControl
     
     /** Dragging control. */
     private boolean         dragging;
-    
-    /** The initial cursor. */
-    private Cursor          initialCursor;
-    
+
     /** The controller. */
     private DialogControl   controller;
     
@@ -128,7 +125,6 @@ class ScreenControl
             throw new IllegalArgumentException("No control.");
         this.controller = controller;
         dragging = false;
-        initialCursor = controller.getModel().getRootPane().getCursor();
     }
     
     /** 
@@ -159,11 +155,11 @@ class ScreenControl
      * 
      * @param e The event to handle.
      */
-    void  mouseReleased(MouseEvent e)
+    void mouseReleased(MouseEvent e)
     {
         if (!dragging) return;
         moveFrame(e);
-        setCursor(initialCursor);
+        setCursor(Cursor.getDefaultCursor());
         dragging = false;
     }
     
