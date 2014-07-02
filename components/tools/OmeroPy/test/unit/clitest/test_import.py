@@ -9,11 +9,15 @@
 
 """
 
+import pytest
+from path import path
 from omero.cli import CLI
 # Workaround for a poorly named module
 plugin = __import__('omero.plugins.import', globals(), locals(),
                     ['ImportControl'], -1)
 ImportControl = plugin.ImportControl
+
+help_arguments = ("-h", "--javahelp", "--advanced-help")
 
 
 class TestImport(object):
@@ -22,6 +26,11 @@ class TestImport(object):
         self.cli = CLI()
         self.cli.register("import", ImportControl, "TEST")
         self.args = ["import"]
+        dist_dir = path(__file__) / ".." / ".." / ".." / ".." / ".." / ".." /\
+             ".." / "dist"  # FIXME: should not be hard-coded
+        dist_dir = dist_dir.abspath()
+        client_dir = dist_dir / "lib" / "client"
+        self.args += ["--clientdir", client_dir]
 
     def testDropBoxArgs(self):
         class MockImportControl(ImportControl):
@@ -45,7 +54,8 @@ omero_cblackburn/6915/dropboxaDCjQlout']
 
         self.cli.invoke(self.args)
 
-    def testHelp(self):
-        """Test help command"""
-        self.args += ["-h"]
+    @pytest.mark.parametrize('help_argument', help_arguments)
+    def testHelp(self, help_argument):
+        """Test help arguments"""
+        self.args += [help_argument]
         self.cli.invoke(self.args, strict=True)
