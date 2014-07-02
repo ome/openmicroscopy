@@ -58,7 +58,7 @@ omero_cblackburn/6915/dropboxaDCjQlout']
     def testHelp(self, help_argument):
         """Test help arguments"""
         self.args += [help_argument]
-        self.cli.invoke(self.args, strict=True)
+        self.cli.invoke(self.args)
 
     @pytest.mark.parametrize("data", (("1", False), ("3", True)))
     def testImportDepth(self, tmpdir, capfd, data):
