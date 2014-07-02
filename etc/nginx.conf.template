@@ -18,6 +18,7 @@ http {
     access_log    %(ROOT)s/var/log/nginx_access.log;
     include       %(ROOT)s/etc/mime.types;
     default_type  application/octet-stream;
+    client_body_temp_path %(ROOT)s/var/nginx_tmp;
     
     sendfile on;
     send_timeout 60s;
