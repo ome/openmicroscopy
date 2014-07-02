@@ -76,7 +76,6 @@ public class Main {
             // are conflicts.
             Scheduler scheduler = context.getBean("scheduler", Scheduler.class);
             scheduler.pauseAll();
-            System.out.println(scheduler.getCurrentlyExecutingJobs());
         } catch (SchedulerException se) {
             throw new RuntimeException(se);
         }
