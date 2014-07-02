@@ -39,6 +39,8 @@ import ome.system.metrics.NullMetrics;
 import ome.system.metrics.Timer;
 import ome.util.SqlAction;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEvent;
 
 /**
@@ -201,6 +203,8 @@ public class EventLogQueue extends PersistentEventLogLoader {
      */
     private static class Data implements Serializable {
 
+        private static final Logger log = LoggerFactory.getLogger(Data.class);
+
         private static final long serialVersionUID = 1L;
 
         /**
@@ -301,17 +305,22 @@ public class EventLogQueue extends PersistentEventLogLoader {
         }
 
         public Entry next() {
+            String which = null;
             Entry entry = null;
             if (!priorityQ.isEmpty()) {
                 entry = priorityQ.remove(0);
                 priorityCount.dec();
+                which = "priority";
             } else if (!regularQ.isEmpty()) {
                 entry = regularQ.remove(0);
                 regularCount.dec();
+                which = "regular";
             } else {
                 throw new IllegalStateException("None available");
             }
             entries(entry.objType).entries.remove(entry.objId);
+            log.debug("Returning {}. Remaining: priority={}, regular={}",
+                    entry, priorityCount.getCount(), regularCount.getCount());
             return entry;
         }
 
