@@ -147,12 +147,99 @@ class Strategy(object):
         if type(self) == Strategy:
             raise Exception("Must subclass!")
 
-    def get_heap_size(self):
-        sz = self.settings.heap_size
+    # Memory helpers
+
+    def system_memory_mb(self):
+        """
+        Returns a tuple, in MB, of available, active, and total memory.
+
+        "total" memory is found by calling to first a Python library
+        (if installed) and otherwise a Java class. If "use_total" is
+        set, it will short-circuit both methods.
+
+        "active" memory is set to "total" but limited by "min_total"
+        and "max_total".
+
+        "available" may not be accurate, and in some cases will be
+        set to total.
+        """
+
+        available, total = None, None
+        if self.settings.use_total is not None:
+            total = int(self.settings.use_total)
+            available = total
+        else:
+            pymem = self._system_memory_mb_psutil()
+            if pymem is not None:
+                available, total = pymem
+            else:
+                available, total = self._system_memory_mb_java()
+
+        max_total = int(self.settings.max_total)
+        min_total = int(self.settings.min_total)
+        active = max(min(total, max_total), min_total)
+        return available, active, total
+
+    def _system_memory_mb_psutil(self):
+        try:
+            import psutil
+            pymem = psutil.virtual_memory()
+            return (pymem.free/1000000, pymem.total/1000000)
+        except ImportError:
+            LOGGER.debug("No psutil installed")
+            return None
+
+    def _system_memory_mb_java(self):
+        import omero.cli
+        import omero.java
+
+        # Copied from db.py. Needs better dir detection
+        cwd = omero.cli.CLI().dir
+        server_jar = cwd / "lib" / "server" / "server.jar"
+        cmd = ["ome.services.util.JvmSettingsCheck", "--psutil"]
+        p = omero.java.popen(["-cp", str(server_jar)] + cmd)
+        o, e = p.communicate()
+
+        if p.poll() != 0:
+            LOGGER.warn("Failed to invoke java:\nout:%s\nerr:%s",
+                        o, e)
+
+        rv = dict()
+        for line in o.split("\n"):
+            line = line.strip()
+            if not line:
+                continue
+            parts = line.split(":")
+            if len(parts) == 1:
+                parts.append("")
+            rv[parts[0]] = parts[1]
+
+        try:
+            free = long(rv["Free"]) / 1000000
+        except:
+            LOGGER.warn("Failed to parse Free from %s", rv)
+            free = 2000
+
+        try:
+            total = long(rv["Total"]) / 1000000
+        except:
+            LOGGER.warn("Failed to parse Total from %s", rv)
+            total = 4000
+
+        return (free, total)
+
+    # API Getters
+
+    def get_heap_size(self, sz=None):
+        if sz is None:
+            sz = self.settings.heap_size
         if str(sz).startswith("-X"):
             return sz
         else:
-            return "-Xmx%s" % sz
+            rv = "-Xmx%s" % sz
+            if rv[-1].lower() not in ("b", "k", "m", "g"):
+                rv = "%sm" % rv
+            return rv
 
     def get_heap_dump(self):
         hd = self.settings.heap_dump
@@ -233,75 +320,6 @@ class PercentStrategy(Strategy):
         percent = self.get_percent()
         calculated = active * int(percent) / 100
         return calculated
-
-    def system_memory_mb(self):
-        """
-        Returns a tuple, in MB, of available and total memory.
-        """
-
-        available, total = None, None
-        if self.settings.use_total is not None:
-            total = int(self.settings.use_total)
-            available = total
-        else:
-            pymem = self._system_memory_mb_psutil()
-            if pymem is not None:
-                available, total = pymem
-            else:
-                available, total = self._system_memory_mb_java()
-
-        max_total = int(self.settings.max_total)
-        min_total = int(self.settings.min_total)
-        active = max(min(total, max_total), min_total)
-        return available, active, total
-
-    def _system_memory_mb_psutil(self):
-        try:
-            import psutil
-            pymem = psutil.virtual_memory()
-            return (pymem.free/1000000, pymem.total/1000000)
-        except ImportError:
-            LOGGER.debug("No psutil installed")
-            return None
-
-    def _system_memory_mb_java(self):
-        import omero.cli
-        import omero.java
-
-        # Copied from db.py. Needs better dir detection
-        cwd = omero.cli.CLI().dir
-        server_jar = cwd / "lib" / "server" / "server.jar"
-        cmd = ["ome.services.util.JvmSettingsCheck", "--psutil"]
-        p = omero.java.popen(["-cp", str(server_jar)] + cmd)
-        o, e = p.communicate()
-
-        if p.poll() != 0:
-            LOGGER.warn("Failed to invoke java:\nout:%s\nerr:%s",
-                        o, e)
-
-        rv = dict()
-        for line in o.split("\n"):
-            line = line.strip()
-            if not line:
-                continue
-            parts = line.split(":")
-            if len(parts) == 1:
-                parts.append("")
-            rv[parts[0]] = parts[1]
-
-        try:
-            free = long(rv["Free"]) / 1000000
-        except:
-            LOGGER.warn("Failed to parse Free from %s", rv)
-            free = 2000
-
-        try:
-            total = long(rv["Total"]) / 1000000
-        except:
-            LOGGER.warn("Failed to parse Total from %s", rv)
-            total = 4000
-
-        return (free, total)
 
     def usage_table(self, min=10, max=20):
         total_mb = [2**x for x in range(min, max)]
