@@ -19,7 +19,11 @@
 
 package org.openmicroscopy.shoola.env.data;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import org.openmicroscopy.shoola.util.ui.search.InvalidQueryException;
@@ -30,8 +34,10 @@ import org.testng.annotations.Test;
 @Test(testName = "LuceneQueryBuilderTest", enabled=false)
 public class LuceneQueryBuilderTest {
 
+    SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
+    
     @Test(testName="buildQueryString")
-    void testBuildQueryString() throws InvalidQueryException {
+    void testBuildQueryString() throws InvalidQueryException, ParseException {
         
         String raw, expected;
         List<String> fields = new ArrayList<String>();
@@ -140,10 +146,41 @@ public class LuceneQueryBuilderTest {
         
         raw = "a b AND c AND d f";  expected = "name:a description:a name:f description:f (name:b description:b) AND (name:c description:c) AND (name:d description:d)";
         checkQuery(fields, raw, expected);
+        
+        // date search
+        // Note: Lucence date range's "to" is exclusive
+        Date from = df.parse("20140701");
+        Date to = df.parse("20140702");
+        String dateType = LuceneQueryBuilder.DATE_ACQUISITION;
+        
+        raw = "a b"; expected = "(name:a description:a name:b description:b) AND acquisitionDate:[20140701 TO 20140703]";
+        checkQuery(fields, from, to, dateType, raw, expected);
+        
+        to = null;
+        dateType = LuceneQueryBuilder.DATE_IMPORT;
+        raw = "a b"; expected = "(name:a description:a name:b description:b) AND details.creationEvent.time:[20140701 TO "+getTomorrowDateString()+"]";
+        checkQuery(fields, from, to, dateType, raw, expected);
+        
+        from = null;
+        to = df.parse("20140702");
+        dateType = LuceneQueryBuilder.DATE_IMPORT;
+        raw = "a b"; expected = "(name:a description:a name:b description:b) AND details.creationEvent.time:[19700101 TO 20140703]";
+        checkQuery(fields, from, to, dateType, raw, expected);
+    }
+    
+    private String getTomorrowDateString() {
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, 1);
+        return df.format(cal.getTime());
     }
     
     private void checkQuery(List<String> fields, String raw, String expected) throws InvalidQueryException {
         String processed = LuceneQueryBuilder.buildLuceneQuery(fields, raw);
+        Assert.assertEquals(processed, expected, "Failed on query: "+raw);
+    }
+    
+    private void checkQuery(List<String> fields, Date from, Date to, String dateType, String raw, String expected) throws InvalidQueryException {
+        String processed = LuceneQueryBuilder.buildLuceneQuery(fields, from, to, dateType, raw);
         Assert.assertEquals(processed, expected, "Failed on query: "+raw);
     }
 }
