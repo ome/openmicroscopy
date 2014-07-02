@@ -512,12 +512,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         </copy>
        	<copy file="components/insight/target/insight-ij.zip" tofile="target/OMERO.insight-ij-${omero.version}.zip"/>
 
-        <!-- This replaces the previous OMERO-trunk-clients build -->
-        <mkdir dir="target/pkg"/>
-        <delete includeemptydirs="true">
-            <fileset dir="target/pkg" includes="**/*"/>
-        </delete>
-        <apply executable="python" dir="${target.dir}/pkg" failonerror="true">
+        <apply executable="python" dir="${target.dir}" failonerror="true">
            <env key="OMERO_VERSION" value="${omero.version}"/>
            <fileset dir="${omero.home}/lib" includes="composite.py"/>
        </apply>
