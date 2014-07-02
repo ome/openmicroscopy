@@ -154,11 +154,6 @@ class TestImport(CLITest):
                 levels.append(splitline[2])
         return levels
 
-    def testHelp(self):
-        """Test help command"""
-        self.args += ["-h"]
-        self.cli.invoke(self.args, strict=True)
-
     @pytest.mark.parametrize("fixture", NFS, ids=NFS_names)
     def testNamingArguments(self, fixture, tmpdir, capfd):
         """Test naming arguments for the imported image/plate"""
