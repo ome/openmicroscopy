@@ -114,7 +114,7 @@
         },
         "output": {
             "blitz" : [
-                "-Xmx4800m",
+                "-Xmx7200m",
                 "-XX:MaxPermSize=1g"
             ]
         }
