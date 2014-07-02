@@ -143,9 +143,12 @@ already be running. This may automatically restart some server components.""")
             "fixpyramids", "Remove empty pyramid pixels files").parser
         # See cleanse options below
 
-        Action(
+        diagnostics = Action(
             "diagnostics",
-            "Run a set of checks on the current, preferably active server")
+            "Run a set of checks on the current, preferably active server").parser
+        diagnostics.add_argument(
+            "--no-logs", action="store_true",
+            help="Skip log parsing")
 
         Action(
             "waitup",
@@ -1037,71 +1040,73 @@ OMERO Diagnostics %s
                     else:
                         self.ctx.err("UNKNOWN!")
 
-        def log_dir(log, cat, cat2, knownfiles):
-            self.ctx.out("")
-            item(cat, "%s" % log.abspath())
-            exists(log)
-            self.ctx.out("")
+        if not args.no_logs:
 
-            if log.exists():
-                files = log.files()
-                files = set([x.basename() for x in files])
-                # Adding known names just in case
-                for x in knownfiles:
-                    files.add(x)
-                files = list(files)
-                files.sort()
-                for x in files:
-                    item(cat2, x)
-                    exists(log / x)
-                item(cat2, "Total size")
-                sz = 0
-                for x in log.walkfiles():
-                    sz += x.size
-                self.ctx.out("%-.2f MB" % (float(sz)/1000000.0))
+            def log_dir(log, cat, cat2, knownfiles):
+                self.ctx.out("")
+                item(cat, "%s" % log.abspath())
+                exists(log)
+                self.ctx.out("")
 
-        log_dir(self.ctx.dir / "var" / "log", "Log dir", "Log files",
+                if log.exists():
+                    files = log.files()
+                    files = set([x.basename() for x in files])
+                    # Adding known names just in case
+                    for x in knownfiles:
+                        files.add(x)
+                    files = list(files)
+                    files.sort()
+                    for x in files:
+                        item(cat2, x)
+                        exists(log / x)
+                    item(cat2, "Total size")
+                    sz = 0
+                    for x in log.walkfiles():
+                        sz += x.size
+                    self.ctx.out("%-.2f MB" % (float(sz)/1000000.0))
+
+            log_dir(self.ctx.dir / "var" / "log", "Log dir", "Log files",
                 ["Blitz-0.log", "Tables-0.log", "Processor-0.log",
                  "Indexer-0.log", "FileServer.log", "MonitorServer.log",
                  "DropBox.log", "TestDropBox.log", "OMEROweb.log"])
 
-        # Parsing well known issues
-        self.ctx.out("")
-        ready = re.compile(".*?ome.services.util.ServerVersionCheck\
-        .*OMERO.Version.*Ready..*?")
-        db_ready = re.compile(".*?Did.you.create.your.database[?].*?")
-        data_dir = re.compile(".*?Unable.to.initialize:.FullText.*?")
-        pg_password = re.compile(".*?org.postgresql.util.PSQLException:\
-        .FATAL:.password.*?authentication.failed.for.user.*?")
-        pg_user = re.compile(""".*?org.postgresql.util.PSQLException:\
-        .FATAL:.role.".*?".does.not.exist.*?""")
-        pg_conn = re.compile(""".*?org.postgresql.util.PSQLException:\
-        .Connection.refused.""")
+            # Parsing well known issues
+            self.ctx.out("")
+            ready = re.compile(".*?ome.services.util.ServerVersionCheck\
+            .*OMERO.Version.*Ready..*?")
+            db_ready = re.compile(".*?Did.you.create.your.database[?].*?")
+            data_dir = re.compile(".*?Unable.to.initialize:.FullText.*?")
+            pg_password = re.compile(".*?org.postgresql.util.PSQLException:\
+            .FATAL:.password.*?authentication.failed.for.user.*?")
+            pg_user = re.compile(""".*?org.postgresql.util.PSQLException:\
+            .FATAL:.role.".*?".does.not.exist.*?""")
+            pg_conn = re.compile(""".*?org.postgresql.util.PSQLException:\
+            .Connection.refused.""")
 
-        issues = {
-            ready: "=> Server restarted <=",
-            db_ready: "Your database configuration is invalid",
-            data_dir: "Did you create your omero.data.dir? E.g. /OMERO",
-            pg_password: "Your postgres password seems to be invalid",
-            pg_user: "Your postgres user is invalid",
-            pg_conn: "Your postgres hostname and/or port is invalid"
-        }
+            issues = {
+                ready: "=> Server restarted <=",
+                db_ready: "Your database configuration is invalid",
+                data_dir: "Did you create your omero.data.dir? E.g. /OMERO",
+                pg_password: "Your postgres password seems to be invalid",
+                pg_user: "Your postgres user is invalid",
+                pg_conn: "Your postgres hostname and/or port is invalid"
+            }
 
-        try:
-            for file in ('Blitz-0.log',):
+            try:
+                for file in ('Blitz-0.log',):
 
-                p = self.ctx.dir / "var" / "log" / file
-                import fileinput
-                for line in fileinput.input([str(p)]):
-                    lno = fileinput.filelineno()
-                    for k, v in issues.items():
-                        if k.match(line):
-                            item('Parsing %s' % file, "[line:%s] %s"
-                                 % (lno, v))
-                            self.ctx.out("")
-                            break
-        except:
-            self.ctx.err("Error while parsing logs")
+                    p = self.ctx.dir / "var" / "log" / file
+                    import fileinput
+                    for line in fileinput.input([str(p)]):
+                        lno = fileinput.filelineno()
+                        for k, v in issues.items():
+                            if k.match(line):
+                                item('Parsing %s' % file, "[line:%s] %s"
+                                    % (lno, v))
+                                self.ctx.out("")
+                                break
+            except:
+                self.ctx.err("Error while parsing logs")
 
         self.ctx.out("")
 
