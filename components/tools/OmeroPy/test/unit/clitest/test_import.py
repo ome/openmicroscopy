@@ -20,6 +20,8 @@ class TestImport(object):
 
     def setup_method(self, method):
         self.cli = CLI()
+        self.cli.register("import", ImportControl, "TEST")
+        self.args = ["import"]
 
     def testDropBoxArgs(self):
         class MockImportControl(ImportControl):
@@ -33,12 +35,17 @@ omero_cblackburn/6915/dropboxuUGl5rerr"
 omero_cblackburn/6915/dropboxaDCjQlout"
 
         self.cli.register("mock-import", MockImportControl, "HELP")
-        cmd = ['-s', 'localhost', '-p', '4064', '-k',
-               'b0742975-03a1-4f6d-b0ac-639943f1a147']
-        cmd += ['mock-import', '---errs=/Users/cblackburn/omero/tmp/\
+        self.args = ['-s', 'localhost', '-p', '4064', '-k',
+                     'b0742975-03a1-4f6d-b0ac-639943f1a147']
+        self.args += ['mock-import', '---errs=/Users/cblackburn/omero/tmp/\
 omero_cblackburn/6915/dropboxuUGl5rerr']
-        cmd += ['---file=/Users/cblackburn/omero/tmp/\
+        self.args += ['---file=/Users/cblackburn/omero/tmp/\
 omero_cblackburn/6915/dropboxaDCjQlout']
-        cmd += ['--', '/OMERO/DropBox/root/tinyTest.d3d.dv']
+        self.args += ['--', '/OMERO/DropBox/root/tinyTest.d3d.dv']
 
-        self.cli.invoke(cmd)
+        self.cli.invoke(self.args)
+
+    def testHelp(self):
+        """Test help command"""
+        self.args += ["-h"]
+        self.cli.invoke(self.args, strict=True)
