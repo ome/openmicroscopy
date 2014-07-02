@@ -3,7 +3,7 @@
 """
    Plugin for our configuring the OMERO.web installation
 
-   Copyright 2009-2013 University of Dundee. All rights reserved.
+   Copyright 2009-2014 University of Dundee. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -127,41 +127,6 @@ class WebControl(BaseControl):
         selenium.add_argument("seleniumserver", help="E.g. localhost")
         selenium.add_argument("hostname", help="E.g. http://localhost:4080")
         selenium.add_argument("browser", help="E.g. firefox")
-
-        test = parser.add(
-            sub, self.test, "Developer use: Runs omero web tests"
-            " (py.test)\n--cov* options depend on pytest-cov plugin")
-        test.add_argument(
-            "--config", action="store", help="ice.config location")
-        test.add_argument(
-            "--basepath", action="store",
-            help="Base omeroweb path (default lib/python/omeroweb)")
-        test.add_argument(
-            "--testpath", action="store",
-            help="Path for test collection (relative to basepath)")
-        test.add_argument(
-            "--string", action="store",
-            help="Only run tests including string.")
-        test.add_argument(
-            "--failfast", action="store_true", default=False,
-            help="Exit on first error")
-        test.add_argument(
-            "--verbose", action="store_true", default=False,
-            help="More verbose output")
-        test.add_argument(
-            "--quiet", action="store_true", default=False,
-            help="Less verbose output")
-        test.add_argument(
-            "--pdb", action="store_true", default=False,
-            help="Fallback to pdb on error")
-        test.add_argument(
-            '--cov', action='append', default=[],
-            help='measure coverage for filesystem path (multi-allowed)')
-        test.add_argument(
-            '--cov-report', action='append', default=[],
-            choices=['term', 'term-missing', 'annotate', 'html', 'xml'],
-            help="type of report to generate: term, term-missing, annotate,"
-            " html, xml (multi-allowed)")
 
     def config(self, args):
         if not args.type:
@@ -342,49 +307,6 @@ Alias /omero "%(ROOT)s/var/omero.fcgi/"
         os.environ['DJANGO_SETTINGS_MODULE'] = \
             os.environ.get('DJANGO_SETTINGS_MODULE', 'omeroweb.settings')
         self.ctx.call(args, cwd=location)
-
-    def test(self, args):
-        try:
-            pass
-        except:
-            self.ctx.die(121, 'test: wrong arguments, run test -h for a list')
-
-        cargs = ['py.test']
-
-        if args.config:
-            self.set_environ(ice_config=args.config)
-        else:
-            self.set_environ(ice_config=self.ctx.dir / 'etc' / 'ice.config')
-
-        if args.basepath:
-            cwd = args.basepath
-        else:
-            cwd = self.ctx.dir / 'lib' / 'python' / 'omeroweb'
-
-        if args.testpath:
-            cargs.extend(['-s', args.testpath])
-        if args.string:
-            cargs.extend(['-k', args.string])
-        if args.failfast:
-            cargs.append('-x')
-        if args.verbose:
-            cargs.append('-v')
-        if args.quiet:
-            cargs.append('-q')
-        if args.pdb:
-            cargs.append('--pdb')
-        for cov in args.cov:
-            cargs.extend(['--cov', cov])
-        for cov_rep in args.cov_report:
-            cargs.extend(['--cov-report', cov_rep])
-
-        os.environ['DJANGO_SETTINGS_MODULE'] = \
-            os.environ.get('DJANGO_SETTINGS_MODULE', 'omeroweb.settings')
-        # The following is needed so the cwd is included in the python path
-        # when using --testpath
-        os.environ['PYTHONPATH'] += ':.'
-
-        self.ctx.call(cargs, cwd=cwd)
 
     def seleniumtest(self, args):
         try:
