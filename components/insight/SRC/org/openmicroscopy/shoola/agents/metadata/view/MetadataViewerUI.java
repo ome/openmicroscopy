@@ -220,13 +220,15 @@ class MetadataViewerUI
             ExperimenterData exp;
             while (i.hasNext()) {
                 exp = (ExperimenterData) i.next();
-                ImageData img = (ImageData) model.getRefObject();
-                boolean isOwnerSetting = img.getOwner().getId() == exp.getId();
-                item = new ViewedByItem(exp, (RndProxyDef) m.get(exp),
-                        isOwnerSetting);
-                item.addPropertyChangeListener(ViewedByItem.VIEWED_BY_PROPERTY,
-                        this);
-                viewedByItems.add(item);
+                ImageData img = model.getImage();
+                if (img != null) {
+                    boolean isOwnerSetting = img.getOwner().getId() == exp.getId();
+                    item = new ViewedByItem(exp, (RndProxyDef) m.get(exp),
+                            isOwnerSetting);
+                    item.addPropertyChangeListener(ViewedByItem.VIEWED_BY_PROPERTY,
+                            this);
+                    viewedByItems.add(item);
+                }
             }
             
             model.getEditor().getRenderer().loadRndSettings(true, null);
