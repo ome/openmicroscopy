@@ -52,14 +52,15 @@ public class FileAnnotationCheckLoader extends BatchCallTree {
      * 
      * @param ctx The security context.
      * @param annotations The @link FileAnnotationData} objects
+     * @param referenceObjects The DataObjects from which the FileAnnotation should be removed
      * @return The {@link BatchCall}.
      */
     private BatchCall makeCall(final SecurityContext ctx,
-            final List<FileAnnotationData> annotations) {
+            final List<FileAnnotationData> annotations, final List<DataObject> referenceObjects) {
         return new BatchCall("Load Parents of annotations") {
             public void doCall() throws Exception {
                 
-                result = new FileAnnotationCheckResult();
+                result = new FileAnnotationCheckResult(referenceObjects);
                 
                 for(FileAnnotationData fd : annotations) {
                     OmeroMetadataService svc = context.getMetadataService();
@@ -96,8 +97,8 @@ public class FileAnnotationCheckLoader extends BatchCallTree {
      * @param ctx The security context.
      * @param annotations The {@link FileAnnotationData} objects
      */
-    public FileAnnotationCheckLoader(SecurityContext ctx, List<FileAnnotationData> annotations) {
-        loadCall = makeCall(ctx, annotations);
+    public FileAnnotationCheckLoader(SecurityContext ctx, List<FileAnnotationData> annotations, List<DataObject> referenceObjects) {
+        loadCall = makeCall(ctx, annotations, referenceObjects);
     }
 
 }

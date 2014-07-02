@@ -262,7 +262,10 @@ CUSTOM_SETTINGS_MAPPINGS = {
             '"/omero/setup_scripts/FLIM_initialise.py", "/omero/import_scripts/Populate_ROI.py"]', parse_paths],
     
     # Add links to the top header: links are ['Link Text', 'link'], where the url is reverse("link") OR simply 'link' (for external urls)
-    "omero.web.ui.top_links": ["TOP_LINKS", '[]', json.loads],  # E.g. '[["Webtest", "webtest_index"]]'
+    "omero.web.ui.top_links": ["TOP_LINKS", '['\
+            '["Data", "webindex", {"title": "Browse Data via Projects, Tags etc"}],'\
+            '["History", "history", {"title": "History"}]'\
+            ']', json.loads],  # E.g. '[["Webtest", "webtest_index"]]'
     
     # Shows/hides users in dropdown menu; default: '{"LEADERS": "Owners", "COLLEAGUES": "Members", "ALL": "All members"}'
     "omero.web.ui.menu.dropdown": ["UI_MENU_DROPDOWN",'{"LEADERS": "Owners", "COLLEAGUES": "Members", "ALL": "All members"}', json.loads],

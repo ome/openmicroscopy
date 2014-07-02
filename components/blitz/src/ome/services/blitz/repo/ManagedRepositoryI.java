@@ -103,9 +103,9 @@ public class ManagedRepositoryI extends PublicRepositoryI
     implements _ManagedRepositoryOperations {
 
     private final static Logger log = LoggerFactory.getLogger(ManagedRepositoryI.class);
-    
+
     private final static int parentDirsToRetain = 3;
-    
+
     /* This class is used in the server-side creation of import containers.
      * The suggestImportPaths method sanitizes the paths in due course.
      * From the server side, we cannot imitate ImportLibrary.createImport
@@ -199,7 +199,27 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * Return a template based directory path. The path will be created
      * by calling {@link #makeDir(String, boolean, Ice.Current)}.
      */
+    public ImportProcessPrx uploadFileset(Fileset fs, ImportSettings settings,
+            Ice.Current __current) throws omero.ServerError {
+
+        ImportLocation location = internalImport(fs, settings, __current);
+        return createUploadProcess(fs, location, settings, __current, true);
+
+    }
+
+    /**
+     * Return a template based directory path. The path will be created
+     * by calling {@link #makeDir(String, boolean, Ice.Current)}.
+     */
     public ImportProcessPrx importFileset(Fileset fs, ImportSettings settings,
+            Ice.Current __current) throws omero.ServerError {
+
+        ImportLocation location = internalImport(fs, settings, __current);
+        return createImportProcess(fs, location, settings, __current);
+
+    }
+
+    private ImportLocation internalImport(Fileset fs, ImportSettings settings,
             Ice.Current __current) throws omero.ServerError {
 
         if (fs == null || fs.sizeOfUsedFiles() < 1) {
@@ -233,17 +253,16 @@ public class ManagedRepositoryI extends PublicRepositoryI
         fs.setTemplatePrefix(rstring(relPath.toString() + FsFile.separatorChar));
 
         final Class<? extends FormatReader> readerClass = getReaderClass(fs, __current);
-        
+
         // The next part of the string which is chosen by the user:
         // /home/bob/myStuff
         FsFile basePath = commonRoot(paths);
 
         // If any two files clash in that chosen basePath directory, then
         // we want to suggest a similar alternative.
-        ImportLocation location =
-                suggestImportPaths(relPath, basePath, paths, readerClass, settings.checksumAlgorithm, __current);
+        return suggestImportPaths(relPath, basePath, paths, readerClass,
+                settings.checksumAlgorithm, __current);
 
-        return createImportProcess(fs, location, settings, __current);
     }
 
     public ImportProcessPrx importPaths(List<String> paths,
@@ -372,6 +391,19 @@ public class ManagedRepositoryI extends PublicRepositoryI
             job.linkOriginalFile((omero.model.OriginalFile) new IceMapper().map(of));
         }
 
+        return createUploadProcess(fs, location, settings, __current, false);
+    }
+
+    /**
+     * Creating the process will register itself in an appropriate
+     * container (i.e. a SessionI or similar) for the current
+     * user and therefore this instance no longer needs to worry
+     * about the maintenance of the object.
+     */
+    protected ImportProcessPrx createUploadProcess(Fileset fs,
+            ImportLocation location, ImportSettings settings,
+            Current __current, boolean uploadOnly) throws ServerError {
+
         // Create CheckedPath objects for use by saveFileset
         final int size = fs.sizeOfUsedFiles();
         final List<CheckedPath> checked = new ArrayList<CheckedPath>();
@@ -384,8 +416,8 @@ public class ManagedRepositoryI extends PublicRepositoryI
         // Since the fileset saved validly, we create a session for the user
         // and return the process.
 
-        final ManagedImportProcessI proc = new ManagedImportProcessI(this, managedFs,
-                location, settings, __current);
+        final ManagedImportProcessI proc = new ManagedImportProcessI(this,
+                managedFs, location, settings, __current);
         processes.addProcess(proc);
         return proc.getProxy();
     }
@@ -404,10 +436,14 @@ public class ManagedRepositoryI extends PublicRepositoryI
                     continue;
                 }
                 final String readerName = versionInfo.get(ImportConfig.VersionInfo.BIO_FORMATS_READER.key).getValue();
-                final Class<?> potentialReaderClass;
+                Class<?> potentialReaderClass;
                 try {
                     potentialReaderClass = Class.forName(readerName);
-                } catch (ClassNotFoundException e) {
+                } catch (NullPointerException npe) {
+                    log.debug("No info provided for reader class");
+                    continue;
+                } catch (Exception e) {
+                    log.warn("Error getting reader class", e);
                     continue;
                 }
                 if (FormatReader.class.isAssignableFrom(potentialReaderClass)) {
@@ -503,7 +539,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         map.put("eventId", Long.toString(ec.eventId));
         map.put("perms", ec.groupPermissions.toString());
         return map;
-    } 
+    }
 
     /**
      * Take the relative path created by
@@ -533,13 +569,13 @@ public class ManagedRepositoryI extends PublicRepositoryI
     private static class Paths {
         final FsFile basePath;
         final List<FsFile> fullPaths;
-        
+
         Paths(FsFile basePath, List<FsFile> fullPaths) {
             this.basePath = basePath;
             this.fullPaths = fullPaths;
         }
     }
-    
+
     /**
      * Trim off the start of long client-side paths.
      * @param basePath the common root
@@ -547,7 +583,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * @param readerClass BioFormats reader for data, may be null
      * @return possibly trimmed common root and full paths
      */
-    protected Paths trimPaths(FsFile basePath, List<FsFile> fullPaths, 
+    protected Paths trimPaths(FsFile basePath, List<FsFile> fullPaths,
             Class<? extends FormatReader> readerClass) {
         // find how many common parent directories to retain according to BioFormats
         Integer commonParentDirsToRetain = null;
@@ -558,12 +594,12 @@ public class ManagedRepositoryI extends PublicRepositoryI
         try {
             commonParentDirsToRetain = readerClass.newInstance().getRequiredDirectories(localStylePaths);
         } catch (Exception e) { }
-        
+
         final List<String> basePathComponents = basePath.getComponents();
         final int baseDirsToTrim;
         if (commonParentDirsToRetain == null) {
             // no help from BioFormats
-            
+
             // find the length of the shortest path, including file name
             int smallestPathLength;
             if (fullPaths.isEmpty())
@@ -576,7 +612,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
                         smallestPathLength = pathLength;
                 }
             }
-            
+
             // plan to trim to try to retain a certain number of parent directories
             baseDirsToTrim = smallestPathLength - parentDirsToRetain - (1 /* file name */);
         }
@@ -594,7 +630,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
         return new Paths(basePath, trimmedPaths);
     }
-    
+
     /**
      * Take a relative path that the user would like to see in his or her
      * upload area, and provide an import location instance whose paths
@@ -607,7 +643,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * @return {@link ImportLocation} instance
      */
     protected ImportLocation suggestImportPaths(FsFile relPath, FsFile basePath, List<FsFile> paths,
-            Class<? extends FormatReader> reader, ChecksumAlgorithm checksumAlgorithm, Ice.Current __current) 
+            Class<? extends FormatReader> reader, ChecksumAlgorithm checksumAlgorithm, Ice.Current __current)
                     throws omero.ServerError {
         final Paths trimmedPaths = trimPaths(basePath, paths, reader);
         basePath = trimmedPaths.basePath;

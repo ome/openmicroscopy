@@ -5,7 +5,7 @@
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -79,13 +79,13 @@ class TabbedPaneUI
 	static final int			TEXTBOX_COLUMN = 2;
 	
 	/** Used by card layout to select colour wheel panel. */
-	private static final String COLOURWHEELPANE = "Color Wheel Pane"; 	
+	private static final String COLOURWHEELPANE = "Color Wheel Pane";
 	
 	/** Used by card layout to select RGB Slider panel. */
-	private static final String RGBSLIDERPANE = "RGB Slider Pane"; 	
+	private static final String RGBSLIDERPANE = "RGB Slider Pane"; 
 	
 	/** Used by card layout to select swatch panel. */
-	private static final String SWATCHPANE = "Swatch Pane"; 	
+	private static final String SWATCHPANE = "Swatch Pane";
 	
 	/** Action id to preview the color changes.*/
 	private static final int	PREVIEW = 0;
@@ -186,7 +186,6 @@ class TabbedPaneUI
         UIUtilities.unifiedButtonLookAndFeel(colourWheelButton);
         colourWheelButton.setBorderPainted(true);
         colourWheelButton.setToolTipText("Show HSV Color Wheel.");
-
         AbstractAction action = new AbstractAction("HSV Wheel Color Button") {
             public void actionPerformed(ActionEvent evt) 
             {

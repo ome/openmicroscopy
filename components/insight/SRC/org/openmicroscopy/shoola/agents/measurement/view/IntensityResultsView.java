@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.measurement.view.NewIntensityResultsView 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -53,6 +53,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
+import org.apache.commons.collections.CollectionUtils;
 //Third-party libraries
 import org.jhotdraw.draw.Figure;
 
@@ -82,9 +83,9 @@ import pojos.ChannelData;
 /** 
  * Displays the intensity results.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
@@ -130,7 +131,7 @@ class IntensityResultsView
 		"Remove all the Results from table.";
 	
 	/** The save button name. */
-	private final static String SAVE_NAME = "Export to Excel";
+	private final static String SAVE_NAME = "Export to Excel...";
 	
 	/** Tooltip for the save button. */
 	private final static String SAVE_DESCRIPTION = "Save Intensities " +
@@ -379,7 +380,31 @@ class IntensityResultsView
 		setLayout(new BorderLayout());
 		add(containerPanel, BorderLayout.CENTER);
 	}
-	
+
+	/**
+	 * Returns <code>true</code> if the shape is already displayed for
+	 * the specified channel, <code>false</code> otherwise.
+	 *
+	 * @param shape The shape to add.
+	 * @param channelName The name of channel to display.
+	 */
+	private boolean isValueDisplayed(ROIShape shape, String channelName)
+	{
+	    long id = shape.getID();
+	    int z = shape.getCoord3D().getZSection();
+	    int t = shape.getCoord3D().getTimePoint();
+	    for (int i = 0; i < resultsModel.getRowCount(); i++) {
+	        ROIShape s = ((ShapeAsID) resultsModel.getValueAt(i, 0)).getShape();
+	        if (s.getID() == id && s.getCoord3D().getZSection() == z &&
+	                s.getCoord3D().getTimePoint() == t) {
+	            //check channel
+	            String v = (String) resultsModel.getValueAt(i, 3);
+	            if (v.equals(channelName))
+	                return true;
+	        }
+	    }
+	    return false;
+	}
 	/** 
 	 * Populates the table with the data. 
 	 * 
@@ -403,18 +428,20 @@ class IntensityResultsView
 		{
 			cName = channelIterator.next();
 			channel = nameMap.get(cName);
-			rowData = new Vector<Object>();
-			rowData.add(shapeID);
-			rowData.add(shape.getCoord3D().getZSection()+1);
-			rowData.add(shape.getCoord3D().getTimePoint()+1);
-			rowData.add(cName);
-			rowData.add(MeasurementAttributes.TEXT.get(shape.getFigure()));
-			rowData.add(channelMin.get(channel));
-			rowData.add(channelMax.get(channel));
-			rowData.add(channelSum.get(channel));
-			rowData.add(channelMean.get(channel));
-			rowData.add(channelStdDev.get(channel));
-			rows.add(rowData);
+			if (!isValueDisplayed(shape, cName)) {
+			    rowData = new Vector<Object>();
+	            rowData.add(shapeID);
+	            rowData.add(shape.getCoord3D().getZSection()+1);
+	            rowData.add(shape.getCoord3D().getTimePoint()+1);
+	            rowData.add(cName);
+	            rowData.add(MeasurementAttributes.TEXT.get(shape.getFigure()));
+	            rowData.add(channelMin.get(channel));
+	            rowData.add(channelMax.get(channel));
+	            rowData.add(channelSum.get(channel));
+	            rowData.add(channelMean.get(channel));
+	            rowData.add(channelStdDev.get(channel));
+	            rows.add(rowData);
+			}
 		}
 		for (Vector<Object> data : rows) {
 			resultsModel.addRow(data);
@@ -505,7 +532,7 @@ class IntensityResultsView
 	 */
 	private boolean validFigures(Set<Figure> selectedFigures)
 	{
-		if (selectedFigures == null || selectedFigures.size() == 0)
+		if (CollectionUtils.isEmpty(selectedFigures))
 			return false;
 		for (Figure figure : selectedFigures)
 			if (figure instanceof MeasureTextFigure)
@@ -522,7 +549,8 @@ class IntensityResultsView
 			view.getDrawingView().getSelectedFigures();
 		if (!validFigures(selectedFigures))
 				return;
-		if (selectedFigures.size() == 0 || state == State.ANALYSING) return;
+		if (CollectionUtils.isEmpty(selectedFigures) ||
+		        state == State.ANALYSING) return;
 		state = State.ANALYSING;
 		List<ROIShape> shapeList = new ArrayList<ROIShape>();
 		final Set<ROIShape> alreadyInTable = getShapesInRows();
@@ -586,7 +614,8 @@ class IntensityResultsView
 	{
 		Set<Figure> selectedFigures = 
 			view.getDrawingView().getSelectedFigures();
-		if (selectedFigures.size() == 0 || state == State.ANALYSING) return;
+		if (CollectionUtils.isEmpty(selectedFigures) ||
+		        state == State.ANALYSING) return;
 		state = State.ANALYSING;
 		setControls(false);
 		List<ROIShape> shapeList = new ArrayList<ROIShape>();
@@ -616,8 +645,12 @@ class IntensityResultsView
 				}
 			}
 		}
-		if (shapeList.size() > 0) {
-			view.calculateStats(shapeList);
+		if (shapeList.isEmpty()) {
+		    if (!analysisResults.isEmpty()) {
+		        displayAnalysisResults();
+		    }
+		} else {
+		    view.calculateStats(shapeList);
 		}
 	}
 	
@@ -670,7 +703,6 @@ class IntensityResultsView
 	        state = State.READY;
 	        return;
 	    }
-
 	    shapeMap = new TreeMap<Coord3D, ROIShape>(new Coord3D());
 	    minStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
 	    maxStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());

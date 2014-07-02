@@ -6813,7 +6813,10 @@ class OMEROGateway
 					coord = (ROICoordinate) entry.getKey();
 					if (!clientCoordMap.containsKey(coord)) {
 						s = (Shape) entry.getValue();
-						if (s != null) updateService.deleteObject(s);
+						if (s != null) {
+						    serverRoi.removeShape(s);
+						    serverRoi = (Roi) updateService.saveAndReturnObject(serverRoi);
+						}
 					} else {
 						s = (Shape) entry.getValue();
 						if (s instanceof Line || s instanceof Polyline) {
@@ -6823,21 +6826,11 @@ class OMEROGateway
 								(s instanceof Polyline &&
 									shape.asIObject() instanceof Line)) {
 								removed.add(coord);
-								updateService.deleteObject(s);
-								deleted.add(shape.getId());
+								serverRoi.removeShape(s);
+								serverRoi = (Roi) updateService.saveAndReturnObject(serverRoi);
+								deleted.add(s.getId().getValue());
 							}
 						}
-					}
-				}
-				/*
-				 * Step 5. retrieve new roi as some are stale.
-				 */
-				if (serverRoi != null) {
-					id = serverRoi.getId().getValue();
-					tempResults = svc.findByImage(imageID, new RoiOptions());
-					for (Roi rrr : tempResults.rois) {
-						if (rrr.getId().getValue() == id)
-							serverRoi = rrr;
 					}
 				}
 

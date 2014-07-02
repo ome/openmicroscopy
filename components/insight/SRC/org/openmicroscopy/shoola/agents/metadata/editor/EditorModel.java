@@ -2968,7 +2968,7 @@ class EditorModel
 	 * @param data 	 The annotations to check
 	 */
 	void fireFileAnnotationRemoveCheck(List<FileAnnotationData> annotations) {
-	    FileAnnotationChecker check = new FileAnnotationChecker(component, getSecurityContext(), annotations);
+	    FileAnnotationChecker check = new FileAnnotationChecker(component, getSecurityContext(), annotations, getSelectedObjects());
 	    check.load();
 	}
 	

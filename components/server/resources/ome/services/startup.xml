@@ -75,4 +75,10 @@
      <constructor-arg index="2" value="server"/>
   </bean>
 
+  <bean id="metrics" class="ome.system.metrics.Metrics"/>
+
+  <bean class="ome.services.util.SleepTimer"
+        lazy-init="false"
+        destroy-method="destroy"/>
+
 </beans>

@@ -1105,6 +1105,12 @@ class MeasurementViewerUI
     		roiInspector.repaint();
     } 
 
+    /** Clear the inspector after saving the data. */
+    void clearInspector()
+    {
+        roiInspector.clearData();
+    }
+
     /**
      * Handles the exception thrown by the <code>ROIComponent</code>.
      * 

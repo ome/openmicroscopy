@@ -40,6 +40,11 @@ public abstract class PersistentEventLogLoader extends EventLogLoader {
     public void setKey(String key) {
         this.key = key;
     }
+
+    public String getKey() {
+        return this.key;
+    }
+
     public void setTypes(ITypes types) {
         this.types = types;
     }

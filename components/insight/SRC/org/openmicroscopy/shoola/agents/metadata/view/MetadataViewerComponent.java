@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -38,15 +38,18 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsSaved;
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
@@ -1068,24 +1071,25 @@ class MetadataViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#loadViewedBy(Component, Point)
+	 * @see MetadataViewer#loadViewedBy()
 	 */
-	public void loadViewedBy(Component source, Point location)
+	public void loadViewedBy()
 	{
 		Object ref = model.getRefObject();
 		if (ref instanceof ImageData || ref instanceof WellSampleData) {
-		    model.fireViewedByLoading(source, location);
+		    model.fireViewedByLoading();
 		}
 	}
 	
+	
 	/**
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#setViewedBy(Map, Component, Point)
+	 * @see MetadataViewer#setViewedBy(Map)
 	 */
-	public void setViewedBy(Map result, Component source, Point location)
+	public void setViewedBy(Map result)
 	{
 		model.setViewedBy(result);
-		view.viewedBy(source, location);
+		view.createViewedByItems();
 		model.fireThumbnailsLoading();
 	}
 	
@@ -1167,6 +1171,8 @@ class MetadataViewerComponent
 			
 			if (imageID >= 0 && model.canAnnotate()) {
 				firePropertyChange(RENDER_THUMBNAIL_PROPERTY, -1, imageID);
+				// reload the viewedby thumbnails after new rendering settings were applied
+				model.fireViewedByLoading();
 			}
 		}
 	}

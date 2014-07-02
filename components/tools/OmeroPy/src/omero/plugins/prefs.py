@@ -111,12 +111,17 @@ class PrefsControl(BaseControl):
             help="Name of the profile which should be made the new active"
             " profile.")
 
+        list = parser.add(
+            sub, self.list,
+            "List all key-value pairs from the current profile")
+        list.set_defaults(func=self.list)
+
         get = parser.add(
             sub, self.get,
-            "Get keys from the current profile. All by default")
+            "Get key-value pairs from the current profile. All by default")
         get.set_defaults(func=self.get)
         get.add_argument(
-            "KEY", nargs="*", help="Name of the key in the current profile")
+            "KEY", nargs="*", help="Names of keys in the current profile")
 
         set = parser.add(
             sub, self.set,
@@ -213,6 +218,11 @@ class PrefsControl(BaseControl):
             config.remove(args.NAME)
         except KeyError:
             self.ctx.err("Unknown configuration: %s" % args.NAME)
+
+    @with_config
+    def list(self, args, config):
+        args.KEY = []
+        self.get(args, config)
 
     @with_config
     def get(self, args, config):

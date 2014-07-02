@@ -31,13 +31,18 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.swing.JPanel;
 
 //Third-party libraries
 
+
 import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.agents.util.ViewedByItem;
+import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 
 /**
  * The {@link Renderer} view. Provides a menu bar, a status bar and a 
@@ -269,11 +274,12 @@ class RendererUI
      *
      * @param results The thumbnails to lay out.
      */
-    void displayViewedBy(List results)
+    void displayViewedBy(List<ViewedByItem> results)
     {
         if (CollectionUtils.isEmpty(results)) return;
         DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
-        pane.displayViewedBy(results);
+        RndProxyDef activeDef = CollectionUtils.isEmpty(model.getRenderingControls()) ? null : model.getRenderingControls().get(0).getRndSettingsCopy();
+        pane.displayViewedBy(results, activeDef);
     }
 
     /**

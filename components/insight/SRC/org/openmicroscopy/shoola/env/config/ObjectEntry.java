@@ -95,6 +95,7 @@ class ObjectEntry
      * Overrides the superclass method to return the correct value. 
      * @see Entry#getName()
      */
+     @Override
 	String getName() { return name; }
 
 }

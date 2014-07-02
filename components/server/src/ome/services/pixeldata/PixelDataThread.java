@@ -31,6 +31,8 @@ import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
+import ome.system.metrics.Metrics;
+import ome.system.metrics.Timer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +41,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.3
  */
@@ -66,6 +68,10 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
      * Spring configuration. Otherwise, it's the main blitz process.
      */
     private final boolean performProcessing;
+
+    private Metrics metrics = null;
+
+    private Timer batchTimer = null;
 
     /**
      * Uses default {@link Principal} for processing
@@ -108,6 +114,11 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
         this.numThreads = numThreads;
     }
 
+    public void setMetrics(Metrics metrics) {
+        this.metrics = metrics;
+        batchTimer = this.metrics.timer(this, "batch");
+    }
+
     /**
      * Called by Spring on creation. Currently a no-op.
      */
@@ -130,7 +141,7 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
 
             // Single-threaded simplification
             if (numThreads == 1) {
-                executor.execute(getPrincipal(), work);
+                go();
                 return;
             }
 
@@ -139,11 +150,11 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
 
             for (int i = 0; i < numThreads; i++) {
                 ecs.submit(new Callable<Object>(){
-                    /* Java5 does not support - @Override */
+                    @Override
                     public Object call()
                         throws Exception
                     {
-                        return executor.execute(getPrincipal(), work);
+                        return go();
                     }
                 });
             }
@@ -161,6 +172,20 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
                 log.error("Interrupted exception during multiple thread handling." +
 				        "Other threads may not have been successfully completed.",
                         ie); // slf4j migration: fatal() to error()
+            }
+        }
+    }
+
+    private Object go() {
+        Timer.Context timer = null;
+        if (batchTimer != null) {
+            timer = batchTimer.time();
+        }
+        try {
+             return executor.execute(getPrincipal(), work);
+        } finally {
+            if (timer != null) {
+                timer.stop();
             }
         }
     }

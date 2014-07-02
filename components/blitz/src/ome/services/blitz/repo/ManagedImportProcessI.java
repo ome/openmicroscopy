@@ -137,12 +137,6 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
     /**
      * Create and register a servant for servicing the import process
      * within a managed repository.
-     *
-     * @param repo
-     * @param fs
-     * @param location
-     * @param settings
-     * @param __current
      */
     public ManagedImportProcessI(ManagedRepositoryI repo, Fileset fs,
             ImportLocation location, ImportSettings settings, Current __current)

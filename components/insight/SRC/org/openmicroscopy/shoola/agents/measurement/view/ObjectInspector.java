@@ -269,7 +269,7 @@ class ObjectInspector
 		Object v = (Boolean) fieldTable.getModel().getValueAt(row, col);
 		Boolean value = Boolean.valueOf(false);
 		if (v != null) value = (Boolean) v;
-		boolean newValue = !(value.booleanValue()); 
+		boolean newValue = !(value.booleanValue());
 		fieldTable.getModel().setValueAt(Boolean.valueOf(newValue), row, col);
 		model.getDrawingView().repaint();
 	}
@@ -479,7 +479,14 @@ class ObjectInspector
 													"Figures selection"+e);
 		}
 	}
-	
+
+    /** Clear the inspector after saving the data. */
+	void clearData()
+	{
+	    FigureTableModel tm = (FigureTableModel) fieldTable.getModel();
+	    tm.clearData();
+	}
+
 	/**
 	 * Get the AttributeKey which is handled by a certain row
 	 * @param row The row which AttributeKey to get 

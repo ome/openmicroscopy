@@ -58,6 +58,7 @@ import com.sun.opengl.util.texture.TextureData;
 //Application-internal dependencies
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportContainer;
+import omero.api.RawPixelsStorePrx;
 import omero.api.RenderingEnginePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.model.Annotation;
@@ -1885,7 +1886,7 @@ class OmeroImageServiceImpl
 	{
 		if (ctx == null) return null;
 		Connector c = gateway.getConnector(ctx, true, false);
-		// Pass close responsiblity off to the caller.
+		// Pass close responsibility off to the caller.
 		return c.getThumbnailService();
 	}
 	
@@ -1914,5 +1915,18 @@ class OmeroImageServiceImpl
         if (def == null) return null;
         return PixelsServicesFactory.convert(def);
     }
+
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroImageService#createPixelsStore(SecurityContext)
+	 */
+	public RawPixelsStorePrx createPixelsStore(SecurityContext ctx)
+	        throws DSAccessException, DSOutOfServiceException
+	{
+	    if (ctx == null) return null;
+	    Connector c = gateway.getConnector(ctx, true, false);
+	    // Pass close responsibility off to the caller.
+	    return c.getPixelsStore();
+	}
 
 }

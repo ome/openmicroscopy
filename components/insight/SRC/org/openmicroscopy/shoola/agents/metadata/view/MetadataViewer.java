@@ -592,18 +592,15 @@ public interface MetadataViewer
 	/**
 	 * Loads the settings associated to a given image.
 	 * 
-	 * @param source The component invoking the loading.
-	 * @param location The location of the mouse pressed.
 	 */
-	void loadViewedBy(Component source, Point location);
+	void loadViewedBy();
 	
 	/**
 	 * Sets the settings linked to a given image.
-	 * 
-	 * @param source The component invoking the loading.
-     * @param location The location of the mouse pressed.
+         *
+	 * @param The map containing the rendering definitions
 	 */
-	void setViewedBy(Map result, Component source, Point location);
+	void setViewedBy(Map result);
 	
 	/**
 	 * Sets the thumbnails of the image currently selected.

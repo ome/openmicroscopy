@@ -432,11 +432,14 @@ module omero {
         ["ami"] interface ManagedRepository extends Repository {
 
             /**
-             * Returns the directory which should be the import location for
-             * the set of paths passed in. Each set of paths consitutes a
-             * single import session. In order to prevent files from being
-             * overwritten or interfering with one another, a new directory
-             * may be created for the current session.
+             * Returns an [ImportProcess] which can be used to upload files.
+             * On [ImportProcess::verifyUpload], an [omero::cmd::Handle] will be
+             * returned which can be watched for knowing when the server-side import
+             * is complete.
+             *
+             * Once the upload is complete, the [ImportProcess] must be closed.
+             * Once [omero::cmd::Handle::getResponse] returns a non-null value, the
+             * handle instance can and must be closed.
              **/
             ImportProcess* importFileset(omero::model::Fileset fs, ImportSettings settings) throws ServerError;
 

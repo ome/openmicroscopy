@@ -335,7 +335,7 @@ class IntensityView
 		initTableModel();
 		channelSummaryTable = new ChannelSummaryTable(channelSummaryModel);
 	
-		showIntensityTable = new JButton("Intensity Values");
+		showIntensityTable = new JButton("Intensity Values...");
 		showIntensityTable.setEnabled(false);
 		showIntensityTable.addActionListener(this);
 		showIntensityTable.setActionCommand(""+SHOW_TABLE_ACTION);
@@ -344,7 +344,7 @@ class IntensityView
 		channelSelection.setVisible(false);
 		channelSelection.addActionListener(this);
 		channelSelection.setActionCommand(""+CHANNEL_SELECTION);
-		saveButton = new JButton("Export to Excel");
+		saveButton = new JButton("Export to Excel...");
 		saveButton.addActionListener(this);
 		saveButton.setActionCommand(""+SAVE_ACTION);
 		saveButton.setEnabled(false);

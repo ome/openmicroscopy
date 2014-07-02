@@ -48,7 +48,7 @@ import Ice
 import omero.gateway
 import omero.scripts
 
-from omero.rtypes import rint, rstring, rlong, rlist, rtime
+from omero.rtypes import rint, rstring, rlong, rlist, rtime, unwrap
 from omero.model import \
                         ExperimenterI, ExperimenterGroupI
 
@@ -347,7 +347,106 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         q = self.getQueryService()
         for ann in q.findAllByQuery(sql, params, self.SERVICE_OPTS):
             yield TagAnnotationWrapper(self, ann)
-    
+
+
+    def listTagsRecursive(self, eid=None, offset=None, limit=1000):
+        """
+        Returns a two-element tuple:
+        * A list of tags, where each tag is a list with the following
+          elements:
+          0: id
+          1: description
+          2: text
+          3: owner id
+          4: list of child tag ids (possibly empty), or 0 if this is not a tag set
+        * A dictionary of user ids mapped to user names
+        """
+
+        params = omero.sys.ParametersI()
+        params.orphan()
+        params.map = {}
+        params.map['ns'] = rstring(omero.constants.metadata.NSINSIGHTTAGSET)
+        if eid is not None:
+            params.map["eid"] = rlong(long(eid))
+
+        q = self.getQueryService()
+
+        if offset is not None:
+            params.page(offset, limit)
+
+        sql = """
+            select ann.id, ann.description, ann.textValue, ann.ns,
+            ann.details.owner.id,
+            ann.details.owner.firstName, ann.details.owner.lastName
+            from TagAnnotation ann
+            """
+        if eid is not None:
+            sql += " where ann.details.owner.id = :eid"
+        sql += " order by ann.id"
+
+        tags = []
+        owners = dict()
+        for element in q.projection(sql, params, self.SERVICE_OPTS):
+            tag_id, description, text, ns, owner, first, last = map(unwrap, element)
+            tags.append([
+                tag_id,
+                description,
+                text,
+                owner,
+                # if tagset, list to be filled in later, otherwise 0
+                [] if ns == omero.constants.metadata.NSINSIGHTTAGSET else 0,
+            ])
+            owners[owner] = "%s %s" % (first, last)
+
+        ids = [tag[0] for tag in tags]
+
+        params.noPage()
+        params.addIds(ids)
+
+        sql = """
+            select aal.parent.id, aal.child.id
+            from AnnotationAnnotationLink aal
+            inner join aal.parent ann
+            where ann.ns=:ns
+            and aal.parent.id in (:ids)
+            """
+        if eid is not None:
+            sql += " and ann.details.owner.id = :eid"
+
+        mapping = dict()
+        if ids:
+            for element in q.projection(sql, params, self.SERVICE_OPTS):
+                parent = unwrap(element[0])
+                child = unwrap(element[1])
+                mapping.setdefault(parent, []).append(child)
+
+        for idx in range(len(tags)):
+            children = mapping.get(tags[idx][0])
+            if children:
+                tags[idx][4] = children
+
+        return tags, owners
+
+
+    def getTagCount(self, eid=None):
+        params = omero.sys.ParametersI()
+        params.orphan()
+        params.map = {}
+
+        q = self.getQueryService()
+
+        sql = """
+            select count(ann)
+            from TagAnnotation ann
+            """
+
+        if eid is not None:
+            params.map["eid"] = rlong(long(eid))
+            sql += " where ann.details.owner.id = :eid"
+
+        return unwrap(q.projection(sql, params, self.SERVICE_OPTS)[0][0])
+
+
     def countOrphans (self, obj_type, eid=None):
         links = {'Dataset':('ProjectDatasetLink', DatasetWrapper), 
                 'Image':('DatasetImageLink', ImageWrapper),

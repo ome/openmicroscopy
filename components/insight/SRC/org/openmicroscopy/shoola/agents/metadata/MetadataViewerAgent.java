@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -30,11 +30,14 @@ import java.util.Iterator;
 import java.util.List;
 
 //Third-party libraries
-
+import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.metadata.ChannelSavedEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DisplayModeEvent;
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewerFactory;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
@@ -283,6 +286,27 @@ public class MetadataViewerAgent
     }
     
     /**
+     * Handles the {@link RndSettingsCopied} event.
+     * 
+     * @param evt
+     *            The event to handle.
+     */
+    private void handleRndSettingsCopied(RndSettingsCopied evt) {
+        Collection<Long> ids = evt.getImagesIDs();
+        if (CollectionUtils.isEmpty(ids))
+            return;
+        Iterator<Long> i = ids.iterator();
+        MetadataViewer viewer;
+        while (i.hasNext()) {
+            viewer = MetadataViewerFactory.getViewerFromId(
+                    ImageData.class.getName(), i.next());
+            if (viewer != null) {
+                viewer.loadViewedBy();
+            }
+        }
+    }
+    
+    /**
      * Updates the view when the mode is changed.
      * 
      * @param evt The event to handle.
@@ -327,6 +351,7 @@ public class MetadataViewerAgent
         bus.register(this, ReconnectedEvent.class);
         bus.register(this, ChannelSavedEvent.class);
         bus.register(this, DisplayModeEvent.class);
+        bus.register(this, RndSettingsCopied.class);
     }
 
     /**
@@ -369,6 +394,8 @@ public class MetadataViewerAgent
 			handleChannelSavedEvent((ChannelSavedEvent) e);
 		else if (e instanceof DisplayModeEvent)
 			handleDisplayModeEvent((DisplayModeEvent) e);
+		else if (e instanceof RndSettingsCopied)
+	            handleRndSettingsCopied((RndSettingsCopied) e);
 	}
 
 }
