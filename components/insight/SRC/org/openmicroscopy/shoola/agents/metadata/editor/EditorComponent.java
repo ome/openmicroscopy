@@ -653,6 +653,10 @@ class EditorComponent
 	public void setPlaneInfo(Collection result, long pixelsID, int channel)
 	{
 		Object ref = model.getRefObject();
+		if (ref instanceof WellSampleData) {
+		    WellSampleData ws = (WellSampleData) ref;
+		    ref = ws.getImage();
+		}
 		if (!(ref instanceof ImageData)) return;
 		ImageData img = (ImageData) ref;
 		if (pixelsID != img.getDefaultPixels().getId()) return;
