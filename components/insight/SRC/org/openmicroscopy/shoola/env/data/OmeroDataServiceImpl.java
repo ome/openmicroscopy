@@ -695,11 +695,22 @@ class OmeroDataServiceImpl
 		
 		AdvancedSearchResultCollection results = new AdvancedSearchResultCollection();
 		
-		// If terms contain ids only, just add them to the results, 
-		// loadObjects() will remove them later if they can't be found
+		// If terms contain ids only, just add them as potential result to the results, 
+		// findByIds() will remove them if they can't be found
 		long[] ids = convertSearchTermsToIds(context.getQuery());
 		if(ids!=null) {
 		    for(long id: ids) {
+		        List<Class<? extends DataObject>> types = new ArrayList<Class<? extends DataObject>>();
+		        if(context.getTypes().isEmpty()) {
+		            types.add(ImageData.class);
+		            types.add(DatasetData.class);
+		            types.add(ProjectData.class);
+		            types.add(ScreenData.class);
+		            types.add(PlateData.class);
+		        }
+		        else {
+		            types = context.getTypes();
+		        }
 		        for(Class<? extends DataObject> type : context.getTypes()) {
 		            AdvancedSearchResult res = new AdvancedSearchResult();
 		            res.setObjectId(id);
@@ -709,78 +720,89 @@ class OmeroDataServiceImpl
 		    }
 		}
 		
+		// search by ID:
+		if(!results.isEmpty())
+		    findByIds(ctx, results, context.getGroupId()==SearchParameters.ALL_GROUPS_ID);
+		
+		// search by text:
 		results.addAll(gateway.search(ctx, context));
 
-		loadObjects(results);
+		// loads the images PixelsData (needed for thumbnail request)
+		initializeImages(results);
 		
 		System.out.println(results);
 		
 		return results;
 	}
-	
+    	
 	/**
-	 * Loads the DataObjects contained in results; removes them from results, if they can't be found.
+	 * Tries to find and load the Objects in results; removes them from results
+	 * if they can't be found.
 	 * @param ctx
 	 * @param results
-	 * @throws DSOutOfServiceException
+	 * @param allGroups
 	 */
-        private void loadObjects(AdvancedSearchResultCollection results)
-                throws DSOutOfServiceException {
-            
-            Map<Long, List<AdvancedSearchResult>> byGroup = results.getByGroup();
-            
-            for(Long groupId : byGroup.keySet()) {
-                SecurityContext ctx = new SecurityContext(groupId);
-                for(AdvancedSearchResult r : byGroup.get(groupId)) {
-                    DataObject obj = null;
-                    
-                    if (r.getType().equals(ImageData.class)) {
-        
-                        Set tmp = null;
-                        
-                        try {
-                            tmp = gateway.getContainerImages(ctx, r.getType(),
-                                    Collections.singletonList(r.getObjectId()),
-                                    new Parameters());
-                        } catch (DSAccessException e) {
-                            // i. e. object cannot be found
-                        }
-        
-                        if (!CollectionUtils.isEmpty(tmp)) {
-                            obj = (DataObject) tmp.iterator().next();
-                        }
-                    } else {
-                        
-                        IObject iobj = null;
-                        
-                        try {
-                            iobj = gateway.findIObject(ctx,
-                                    PojoMapper.convertTypeForSearch(r.getType()),
-                                    r.getObjectId());
-                        } catch (DSAccessException e) {
-                            // i. e. object cannot be found
-                        }
-                        
-                        if (iobj != null) {
-                            obj = PojoMapper.asDataObject(iobj);
-                        }
-                    }
-        
-                    if(obj!=null)
-                        r.setObject(obj);
+        private void findByIds(SecurityContext ctx, AdvancedSearchResultCollection results, boolean allGroups) {
+            Iterator<AdvancedSearchResult> it = results.iterator();
+            while (it.hasNext()) {
+                AdvancedSearchResult r = it.next();
+                IObject obj = null;
+                try {
+                    obj = gateway.findIObject(ctx,
+                            PojoMapper.convertTypeForSearch(r.getType()),
+                            r.getObjectId(), allGroups);
+                } catch (Exception e) {
+                }
+                if (obj == null)
+                    it.remove();
+                else {
+                    r.setObject(PojoMapper.asDataObject(obj));
                 }
             }
-            
-            results.consolidate();
         }
-	
+        
+        /**
+         * Skims through the results and loads all images via the Containerservice. 
+         * This is neccessary to load the image's PixelsData.
+         * @param results
+         */
+        private void initializeImages(AdvancedSearchResultCollection results) {
+            Map<Long, List<AdvancedSearchResult>> byGroup = results
+                    .getByGroup(ImageData.class);
+    
+            for (long groupId : byGroup.keySet()) {
+                List<Long> ids = new ArrayList<Long>();
+                for (AdvancedSearchResult r : byGroup.get(groupId)) {
+                    ids.add(r.getObjectId());
+                }
+    
+                SecurityContext ctx = new SecurityContext(groupId);
+    
+                try {
+                    Set tmp = gateway.getContainerImages(ctx, ImageData.class, ids,
+                            new Parameters());
+                    
+                    for(Object obj : tmp) {
+                        ImageData img = (ImageData) obj;
+                        for(AdvancedSearchResult r : byGroup.get(groupId)) {
+                            if(r.getObjectId()==img.getId()) {
+                                r.setObject(img);
+                                break;
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                }
+            }
+        }
+    	
         /**
          * Tries to convert all search terms into ids;
          * @param terms
          * @return The ids or null if one or multiple terms contain non numeric characters
          */
         private long[] convertSearchTermsToIds(String query) {
-            String[] tmp = query.split("\\s|,");
+            String[] tmp = query.split("\\s|\\s*,\\s*");
             long[] result = new long[tmp.length];
             try {
                 for (int i = 0; i < tmp.length; i++) {

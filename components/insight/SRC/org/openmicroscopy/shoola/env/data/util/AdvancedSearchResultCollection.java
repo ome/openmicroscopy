@@ -123,6 +123,10 @@ public class AdvancedSearchResultCollection extends
     }
     
     public Map<Long, List<AdvancedSearchResult>> getByGroup() {
+           return getByGroup(null);
+    }
+    
+    public Map<Long, List<AdvancedSearchResult>> getByGroup(Class<? extends DataObject> type) {
         Map<Long, List<AdvancedSearchResult>> result = new HashMap<Long, List<AdvancedSearchResult>>();
         for(AdvancedSearchResult r : this) {
             List<AdvancedSearchResult> list = result.get(r.getGroupId());
@@ -130,7 +134,8 @@ public class AdvancedSearchResultCollection extends
                 list = new ArrayList<AdvancedSearchResult>();
                 result.put(r.getGroupId(), list);
             }
-            list.add(r);
+            if(type==null || (r.getType().equals(type)))
+                list.add(r);
         }
         return result;
     }
