@@ -164,32 +164,40 @@ public class AdvancedSearchResult {
             if (object.getId() != objectId)
                 throw new IllegalArgumentException(
                         "objectId does not match the object!");
+        }
+        else {
             objectId = object.getId();
         }
+        
         if (type != null) {
             if (!object.getClass().equals(type))
                 throw new IllegalArgumentException("Cannot add a "
                         + object.getClass().getSimpleName()
                         + " to an AdvancedSearchResult intended for "
                         + type.getSimpleName() + "!");
+        }
+        else {
             type = object.getClass();
         }
+        
         if (groupId >= 0) {
             if (object.getGroupId() != groupId)
                 throw new IllegalArgumentException("The object's groupId ("
                         + object.getGroupId()
                         + ") does not match the previous set groupId ("
                         + groupId + ") !");
+        }
+        else {
             groupId = object.getGroupId();
         }
-
+        
         this.object = object;
     }
 
     @Override
     public String toString() {
         return "AdvancedSearchResult [scopeId=" + scopeId + ", type="
-                + type.getSimpleName() + ", objectId=" + objectId
+                + (type !=null ? type.getSimpleName() : "null") + ", objectId=" + objectId
                 + ", groupId=" + groupId + "]";
     }
 

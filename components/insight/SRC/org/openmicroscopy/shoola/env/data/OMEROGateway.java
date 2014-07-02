@@ -55,6 +55,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 
 
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -102,6 +103,7 @@ import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.util.ProportionalTimeEstimatorImpl;
 import ome.formats.importer.util.TimeEstimator;
+import ome.parameters.Filter;
 import ome.system.UpgradeCheck;
 import ome.util.checksum.ChecksumProvider;
 import ome.util.checksum.ChecksumProviderFactory;
@@ -3555,16 +3557,41 @@ class OMEROGateway
 	IObject findIObject(SecurityContext ctx, String klassName, long id)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
-		try {
-		    IQueryPrx service = c.getQueryService();
-			return service.find(klassName, id);
-		} catch (Throwable t) {
-			handleException(t, "Cannot retrieve the requested object with "+
-					"object ID: "+id);
-		}
-		return null;
+	    return findIObject(ctx, klassName, id, false);
 	}
+	
+	/**
+         * Retrieves an updated version of the specified object.
+         *
+         * @param ctx The security context.
+         * @param klassName The type of object to retrieve.
+         * @param id The object's id.
+         * @return The last version of the object.
+         * @throws DSOutOfServiceException If the connection is broken, or logged in
+         * @throws DSAccessException If an error occurred while trying to
+         * retrieve data from OMERO service.
+         */
+        IObject findIObject(SecurityContext ctx, String klassName, long id, boolean allGroups)
+                throws DSOutOfServiceException, DSAccessException
+        {
+            Connector c = getConnector(ctx, true, false);
+                try {
+                    Map<String, String> m = new HashMap<String, String>();
+                    if(allGroups) {
+                        m.put("omero.group", "-1");
+                    }
+                    else {
+                        m.put("omero.group", ""+ctx.getGroupID());
+                    }
+                    
+                    IQueryPrx service = c.getQueryService();
+                        return service.find(klassName, id, m);
+                } catch (Throwable t) {
+                        handleException(t, "Cannot retrieve the requested object with "+
+                                        "object ID: "+id);
+                }
+                return null;
+        }
 
 	/**
 	 * Retrieves the groups visible by the current experimenter.
@@ -5164,9 +5191,10 @@ class OMEROGateway
                                 if (searchForClass.equals(object.getClass()
                                         .getName())) {
                                     id = object.getId().getValue();
-                                    System.err.println("id="+id+" groupid="+object.getDetails().getGroup().getId().getValue());
-                                    AdvancedSearchResult sr = new AdvancedSearchResult(
-                                            -1, type, id, object.getDetails().getGroup().getId().getValue());
+//                                    AdvancedSearchResult sr = new AdvancedSearchResult(
+//                                            -1, type, id, object.getDetails().getGroup().getId().getValue());
+                                    AdvancedSearchResult sr = new AdvancedSearchResult();
+                                    sr.setObject(PojoMapper.asDataObject(object));
                                     if (!result.contains(sr))
                                         result.add(sr);
                                 }
