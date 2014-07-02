@@ -19,24 +19,26 @@
 
 package org.openmicroscopy.shoola.agents.treeviewer.view;
 
+import java.util.List;
+
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 import pojos.DataObject;
 
 public class SearchSelectionEvent extends RequestEvent {
 
-    private DataObject dataObject;
+    private List<DataObject> dataObjects;
 
-    public SearchSelectionEvent(DataObject dataObject) {
-        this.dataObject = dataObject;
+    public SearchSelectionEvent(List<DataObject> dataObjects) {
+        this.dataObjects = dataObjects;
     }
 
-    public DataObject getDataObject() {
-        return dataObject;
+    public List<DataObject> getDataObjects() {
+        return dataObjects;
     }
 
-    public void setDataObject(DataObject dataObject) {
-        this.dataObject = dataObject;
+    public void setDataObjects(List<DataObject> dataObjects) {
+        this.dataObjects = dataObjects;
     }
     
 }
