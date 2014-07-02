@@ -44,6 +44,7 @@ import javax.swing.JSplitPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
@@ -230,8 +231,10 @@ class MetadataViewerUI
                     viewedByItems.add(item);
                 }
             }
-            
-            model.getEditor().getRenderer().loadRndSettings(true, null);
+            Renderer rnd = model.getEditor().getRenderer();
+            if (rnd != null) {
+                rnd.loadRndSettings(true, null);
+            }
         }
 	
 	/** 
