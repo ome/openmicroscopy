@@ -296,11 +296,17 @@ class PercentStrategy(Strategy):
     def __init__(self, name, settings=None):
         super(PercentStrategy, self).__init__(name, settings)
         self.defaults = dict(self.PERCENT_DEFAULTS)
+        self.use_active = True
 
     def get_heap_size(self):
-        self.settings.overwrite("heap_size",
-                                "%sm" % self.calculate_heap_size())
-        return super(PercentStrategy, self).get_heap_size()
+        """
+        Uses the results of the default settings of
+        calculate_heap_size() as an argument to
+        get_heap_size(), in other words some percent
+        of the active memory.
+        """
+        sz = self.calculate_heap_size()
+        return super(PercentStrategy, self).get_heap_size(sz)
 
     def get_percent(self):
         other = self.defaults.get("other", "1")
@@ -310,15 +316,19 @@ class PercentStrategy(Strategy):
 
     def calculate_heap_size(self, method=None):
         """
-        Re-calculates the appropriate heap size based on some metric
-        and sets the value in the settings.
+        Re-calculates the appropriate heap size based on the
+        value of get_percent(). The "active" memory returned
+        by method() will be used by default, but can be modified
+        to use "total" via the "use_active" flag.
         """
         if method is None:
             method = self.system_memory_mb
+
         available, active, total = method()
+        choice = self.use_active and active or total
 
         percent = self.get_percent()
-        calculated = active * int(percent) / 100
+        calculated = choice * int(percent) / 100
         return calculated
 
     def usage_table(self, min=10, max=20):
@@ -336,24 +346,34 @@ class AdaptiveStrategy(PercentStrategy):
 
     def __init__(self, name, settings=None):
         super(AdaptiveStrategy, self).__init__(name, settings)
-        available, IGNORE, total = self.system_memory_mb()
+        self.use_active = False
+        self.scale_settings()
 
-        if settings is None:
-            settings = Settings()
+    def scale_settings(self):
+        """
+        Changes the default percentage for this instance
+        based on a linear interpolation of the "total"
+        memory available as reported by system_memory_mb()
+
+        Also sets the permgen value to one of 3 levels:
+        256m, 512m, or 1g
+        """
+
+        available, IGNORE, total = self.system_memory_mb()
 
         if total <= 4000:
             if total >= 2000:
-                settings.overwrite("perm_gen", "256m")
+                self.settings.overwrite("perm_gen", "256m")
         elif total <= 8000:
-            settings.overwrite("perm_gen", "512m")
+            self.settings.overwrite("perm_gen", "512m")
         else:
-            settings.overwrite("perm_gen", "1g")
+            self.settings.overwrite("perm_gen", "1g")
 
         cutoff = min(24000, total)
         perc = self.get_percent()
         x0, x1, y0, y1 = (4000, 24000, perc, 2 * perc)
         perc = y0 + (y1 - y0) * (cutoff - x0) / (x1 - x0)
-        settings.overwrite("percent", perc)
+        self.settings.overwrite("percent", perc)
 
 
 STRATEGY_REGISTRY["manual"] = ManualStrategy
