@@ -29,6 +29,9 @@ ImportControl = map["import"]
 
 class TestImport(object):
 
+    def setup_method(self, method):
+        self.cli = CLI()
+
     def testDropBoxArgs(self):
         class MockImportControl(ImportControl):
             def importer(this, args):
@@ -40,14 +43,13 @@ omero_cblackburn/6915/dropboxuUGl5rerr"
                 assert args.file == "/Users/cblackburn/omero/tmp/\
 omero_cblackburn/6915/dropboxaDCjQlout"
 
+        self.cli.register("mock-import", MockImportControl, "HELP")
         cmd = ['-s', 'localhost', '-p', '4064', '-k',
                'b0742975-03a1-4f6d-b0ac-639943f1a147']
-        cmd += ['import', '---errs=/Users/cblackburn/omero/tmp/\
+        cmd += ['mock-import', '---errs=/Users/cblackburn/omero/tmp/\
 omero_cblackburn/6915/dropboxuUGl5rerr']
         cmd += ['---file=/Users/cblackburn/omero/tmp/\
 omero_cblackburn/6915/dropboxaDCjQlout']
         cmd += ['--', '/OMERO/DropBox/root/tinyTest.d3d.dv']
 
-        cli = CLI()
-        cli.register("import", MockImportControl, "HELP")
-        cli.invoke(cmd)
+        self.cli.invoke(cmd)
