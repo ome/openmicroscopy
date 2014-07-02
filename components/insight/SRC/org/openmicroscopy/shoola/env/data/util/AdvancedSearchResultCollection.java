@@ -39,11 +39,11 @@ import pojos.DataObject;
 public class AdvancedSearchResultCollection extends
         ArrayList<AdvancedSearchResult> {
 
-    public static final int NO_ERROR = -1;
+    public static final int NO_ERROR = 0;
     
-    public static final int GENERAL_ERROR = 0;
+    public static final int GENERAL_ERROR = 1;
     
-    public static final int TOO_MANY_RESULTS_ERROR = 1;
+    public static final int TOO_MANY_RESULTS_ERROR = 2;
     
     /** Error code if there was an error with the search */
     private int error = NO_ERROR;
@@ -108,6 +108,12 @@ public class AdvancedSearchResultCollection extends
         return result;
     }
     
+    /**
+     * Get DataObjects filtered by scope and type
+     * @param scopeId
+     * @param type
+     * @return
+     */
     public List<DataObject> getDataObjects(int scopeId, Class<? extends DataObject> type) {
         List<DataObject> result = new ArrayList<DataObject>();
         for (AdvancedSearchResult r : this) {
@@ -122,10 +128,20 @@ public class AdvancedSearchResultCollection extends
         return result;
     }
     
+    /**
+     * Get a perGroup map representation of the results
+     * @return
+     */
     public Map<Long, List<AdvancedSearchResult>> getByGroup() {
            return getByGroup(null);
     }
     
+    /**
+     * Get a perGroup map representation of the results, 
+     * filtered by type
+     * @param type
+     * @return
+     */
     public Map<Long, List<AdvancedSearchResult>> getByGroup(Class<? extends DataObject> type) {
         Map<Long, List<AdvancedSearchResult>> result = new HashMap<Long, List<AdvancedSearchResult>>();
         for(AdvancedSearchResult r : this) {
@@ -140,6 +156,9 @@ public class AdvancedSearchResultCollection extends
         return result;
     }
 
+    /**
+     * Removes results which DataObjects are not set
+     */
     public void consolidate() {
         Iterator<AdvancedSearchResult> it = this.iterator();
         while(it.hasNext()) {
