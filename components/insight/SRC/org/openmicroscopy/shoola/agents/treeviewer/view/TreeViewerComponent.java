@@ -33,6 +33,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -48,8 +49,10 @@ import javax.swing.JFrame;
 
 
 
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
+
 
 
 
@@ -1580,10 +1583,12 @@ class TreeViewerComponent
 	}
 
 	public void handleSearchSelectionEvent(SearchSelectionEvent evt) {
-	    MetadataViewer mv = model.getMetadataViewer();
-	    ExperimenterData exp = getUserDetails();
-	    mv.setRootObject(evt.getDataObject(), exp.getId(), new SecurityContext(exp.getGroupId()));
-	    mv.refresh();
+	    view.forceShowMetaDataView();
+	    // Fake a treeviewer object selection
+	    List<Object> tmp = new ArrayList<Object>(2);
+	    tmp.add(new ArrayList<Object>());
+	    tmp.add(evt.getDataObject());
+	    setSelectedNode(tmp, false);
 	}
 	
 	/**

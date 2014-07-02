@@ -1118,6 +1118,14 @@ class TreeViewerWin
 	}
 	
 	/**
+	 * Makes sure that the metadata view is visible
+	 */
+	void forceShowMetaDataView() {
+	    metadataVisible = true;
+	    resetMetadataViewer();
+	}
+	
+	/**
 	 * Reloads the specified thumbnails.
 	 * 
 	 * @param ids The collection of images' ids to reload.
