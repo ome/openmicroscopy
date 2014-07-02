@@ -145,7 +145,8 @@ already be running. This may automatically restart some server components.""")
 
         diagnostics = Action(
             "diagnostics",
-            "Run a set of checks on the current, preferably active server").parser
+            ("Run a set of checks on the current, "
+             "preferably active server")).parser
         diagnostics.add_argument(
             "--no-logs", action="store_true",
             help="Skip log parsing")
@@ -1071,7 +1072,8 @@ OMERO Diagnostics %s
                         sz += x.size
                     self.ctx.out("%-.2f MB" % (float(sz)/1000000.0))
 
-            log_dir(self.ctx.dir / "var" / "log", "Log dir", "Log files",
+            log_dir(
+                self.ctx.dir / "var" / "log", "Log dir", "Log files",
                 ["Blitz-0.log", "Tables-0.log", "Processor-0.log",
                  "Indexer-0.log", "FileServer.log", "MonitorServer.log",
                  "DropBox.log", "TestDropBox.log", "OMEROweb.log"])
@@ -1107,8 +1109,8 @@ OMERO Diagnostics %s
                         lno = fileinput.filelineno()
                         for k, v in issues.items():
                             if k.match(line):
-                                item('Parsing %s' % file, "[line:%s] %s"
-                                    % (lno, v))
+                                item('Parsing %s' % file,
+                                     "[line:%s] %s" % (lno, v))
                                 self.ctx.out("")
                                 break
             except:
@@ -1457,7 +1459,6 @@ OMERO Diagnostics %s
                     rv.append("")
         self.ctx.controls["hql"].display(
             mapped, ("node", "session", "started", "owner", "agent", "notes"))
-
 
     def check_service(self, name):
         command = self._cmd()
