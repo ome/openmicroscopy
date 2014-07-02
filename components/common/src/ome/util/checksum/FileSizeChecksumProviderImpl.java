@@ -4,7 +4,6 @@ import java.io.File;
 import java.nio.ByteBuffer;
 
 import com.google.common.hash.HashCode;
-import com.google.common.primitives.Longs;
 
 /**
  * Trivial checksum provider whose hash is simply the number of bytes that were put into the calculation.
