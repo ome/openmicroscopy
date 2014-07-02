@@ -83,16 +83,16 @@ class Settings(object):
         else:
             self.__global = global_values
         self.__static = {
-                "strategy": AdaptiveStrategy,
-                "append": "",
-                "perm_gen": "128m",
-                "heap_dump": "off",
-                "heap_size": "512m",
-                "use_total": None,
-                "max_total": "16000",
-                "min_total": "3413",
+            "strategy": AdaptiveStrategy,
+            "append": "",
+            "perm_gen": "128m",
+            "heap_dump": "off",
+            "heap_size": "512m",
+            "use_total": None,
+            "max_total": "16000",
+            "min_total": "3413",
         }
-        self.__manual= dict()
+        self.__manual = dict()
 
     def __getattr__(self, key):
         return self.lookup(key)
@@ -429,7 +429,7 @@ def usage_charts(path,
     from pylab import text
 
     points = 200
-    x = array([2**(x/points)/1000 \
+    x = array([2 ** (x / points) / 1000
                for x in range(min*points, max*points)])
     y_configs = (
         (Settings({}), 'A'),
@@ -458,7 +458,7 @@ def usage_charts(path,
 
     def text_f(which):
         cfg = y_configs[which]
-        s = cfg[0]
+        # s = cfg[0]
         txt = "%s" % (cfg[1],)
         text(2, 2, txt, fontsize=20)
 
