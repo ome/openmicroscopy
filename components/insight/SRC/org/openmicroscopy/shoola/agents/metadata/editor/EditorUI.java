@@ -353,9 +353,7 @@ class EditorUI
 					tabPane.setEnabledAt(RND_INDEX, preview);
 					if (!preview) {
 						tabPane.setToolTipTextAt(RND_INDEX, 
-								"Only available for image of size <= "+
-								RenderingControl.MAX_SIZE+"x"+
-								RenderingControl.MAX_SIZE);
+								"Only available for non big images.");
 					}
 					
 					if (selected == RND_INDEX) {
