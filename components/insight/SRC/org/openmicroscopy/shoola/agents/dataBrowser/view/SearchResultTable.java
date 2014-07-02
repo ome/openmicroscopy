@@ -24,6 +24,7 @@ import java.awt.Component;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
 
@@ -32,6 +33,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -56,6 +58,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.SearchSelectionEvent;
 import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.env.ui.ViewObjectEvent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.treetable.renderers.SelectionHighLighter;
@@ -104,28 +107,46 @@ public class SearchResultTable extends JXTable {
 
         setBackground(UIUtilities.BACKGROUND_COLOR);
 
-//        Highlighter h = HighlighterFactory.createAlternateStriping(
-//                UIUtilities.BACKGROUND_COLOUR_EVEN,
-//                UIUtilities.BACKGROUND_COLOUR_ODD);
-//        addHighlighter(h);
-//        addHighlighter(new SelectionHighLighter((JXTable)this));
-
         setRowHeight(75);
+        
+        getSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         
         getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                int row = getSelectedRow();
-                if(row==-1) {
-                    return;
+                List<DataObject> selectedObjs = new ArrayList<DataObject>();
+                for(int row : getSelectedRows()) {
+                    row = convertRowIndexToModel(row);
+                    DataObject obj = (DataObject) getModel().getValueAt(row, SearchResultTableModel.VIEWBUTTON_COLUMN_INDEX);
+                    if(obj!=null) {
+                        selectedObjs.add(obj);
+                    }
                 }
-                row = convertRowIndexToModel(row);
                 
-                DataObject obj = (DataObject) getModel().getValueAt(row, SearchResultTableModel.VIEWBUTTON_COLUMN_INDEX);
-                if(obj!=null) {
-                    TreeViewerAgent.getRegistry().getEventBus().post(new SearchSelectionEvent(obj));
+                if(!selectedObjs.isEmpty()) {
+                    
+                    if(!isSelectionValid(selectedObjs)) {
+                        UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
+                        un.notifyInfo("Invalid Selection", "A selection of items of different groups is not supported.");
+                        getSelectionModel().clearSelection();
+                        return;
+                    }
+                    
+                    TreeViewerAgent.getRegistry().getEventBus().post(new SearchSelectionEvent(selectedObjs));
                 }
+            }
+            
+            boolean isSelectionValid(List<DataObject> selectedObjs) {
+                long groupId = -1;
+                for(DataObject obj : selectedObjs) {
+                    if(groupId==-1) {
+                        groupId = obj.getGroupId();
+                    }
+                    else if(groupId != obj.getGroupId())
+                        return false;
+                }
+                return true;
             }
         });
     }

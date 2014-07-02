@@ -1381,7 +1381,7 @@ class TreeViewerComponent
 			if (dialog.centerMsgBox() == MessageBox.YES_OPTION) mv.saveData();
 			else mv.clearDataToSave();
 		}
-		boolean sameSelection = true;
+		boolean sameSelection = false;
 		if (view.getDisplayMode() != SEARCH_MODE) {
 			Browser browser = model.getSelectedBrowser();
 			List<Object> oldSelection = browser.getSelectedDataObjects();
@@ -1391,7 +1391,7 @@ class TreeViewerComponent
 		}
 		
 		int size = selection.size();
-		if (size == 1) {
+		if (size == 1 && model.getSelectedBrowser()!=null) {
 			Browser browser = model.getSelectedBrowser();
 			ExperimenterData exp = null;
 			TreeImageDisplay last = null;
@@ -1585,10 +1585,9 @@ class TreeViewerComponent
 	public void handleSearchSelectionEvent(SearchSelectionEvent evt) {
 	    view.forceShowMetaDataView();
 	    // Fake a treeviewer object selection
-	    List<Object> tmp = new ArrayList<Object>(2);
-	    tmp.add(new ArrayList<Object>());
-	    tmp.add(evt.getDataObject());
-	    setSelectedNode(tmp, false);
+	    List<Object> tmp = new ArrayList<Object>();
+	    tmp.add(evt.getDataObjects());
+	    setSelectedNodes(tmp);
 	}
 	
 	/**
