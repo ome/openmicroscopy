@@ -91,7 +91,10 @@ public class LuceneQueryBuilder {
             dateTo = DATEFORMAT.format(addOneDay(to));
         }
         
-        result.append(" AND "+dateType+":["+dateFrom+" TO "+dateTo+"]");
+        if(result.length()>0)
+            result.append(" AND "+dateType+":["+dateFrom+" TO "+dateTo+"]");
+        else 
+            result.append(dateType+":["+dateFrom+" TO "+dateTo+"]");
         
         return result.toString();
     }

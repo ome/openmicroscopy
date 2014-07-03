@@ -31,6 +31,8 @@ import org.openmicroscopy.shoola.util.ui.search.LuceneQueryBuilder;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import edu.emory.mathcs.backport.java.util.Collections;
+
 @Test(testName = "LuceneQueryBuilderTest", enabled=false)
 public class LuceneQueryBuilderTest {
 
@@ -166,6 +168,12 @@ public class LuceneQueryBuilderTest {
         dateType = LuceneQueryBuilder.DATE_IMPORT;
         raw = "a b"; expected = "(name:a description:a name:b description:b) AND details.creationEvent.time:[19700101 TO 20140703]";
         checkQuery(fields, from, to, dateType, raw, expected);
+        
+        // date only search
+        from = df.parse("20110701");
+        to = df.parse("20110704");
+        raw = ""; expected = "details.creationEvent.time:[20110701 TO 20110705]";
+        checkQuery(new ArrayList<String>(), from, to, dateType, raw, expected);
     }
     
     private String getTomorrowDateString() {
