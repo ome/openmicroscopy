@@ -354,3 +354,30 @@ class TestImport(CLITest):
         obj = self.get_object(e, 'Image', query=client.sf.getQueryService())
         assert obj.details.owner.id.val == user.id.val
         assert obj.details.group.id.val == group2.id.val
+
+    @pytest.mark.parametrize("data", (
+        ("--depth=1", False),
+        ("--depth=3", True)
+    ))
+    def testImportDepth(self, tmpdir, capfd, data):
+        """Test import using depth argument"""
+
+        group = self.new_group()
+        client, user = self.new_client_and_user(group=group)
+        dir1 = tmpdir.join("a")
+        dir1.mkdir()
+        dir2 = dir1 / "b"
+        dir2.mkdir()
+        fakefile = dir2 / "test.fake"
+        fakefile.write('')
+
+        self.args += ["-f", "--debug=ERROR"]
+        self.args += [str(dir1)]
+
+        depth, result = data
+        self.cli.invoke(self.args + [depth], strict=True)
+        o, e = capfd.readouterr()
+        if result:
+            assert str(fakefile) in str(o)
+        else:
+            assert str(fakefile) not in str(o)
