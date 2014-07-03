@@ -23,17 +23,13 @@
 import pytest
 
 from test.integration.test_repository import AbstractRepoTest
-from collections import namedtuple
 from omero.plugins.fs import prep_directory
-from omero.rtypes import rstring
-from omero.rtypes import unwrap
+from omero.plugins.fs import rename_fileset
 from omero.sys import ParametersI
 
 
 # Module level marker
 pytestmark = pytest.mark.fs_suite
-
-Entry = namedtuple("Entry", ("level", "id", "path", "mimetype"))
 
 
 class TestRename(AbstractRepoTest):
@@ -44,24 +40,6 @@ class TestRename(AbstractRepoTest):
         self.query = self.client.sf.getQueryService()
         self.update = self.client.sf.getUpdateService()
         self.mrepo = self.client.getManagedRepository()
-
-    def contents(self, path):
-        """
-        Yield Entry objects for each return value
-        from treeList
-        """
-        tree = unwrap(self.mrepo.treeList(path))
-
-        def parse(tree, level=0):
-            for k, v in tree.items():
-                yield Entry(level, v.get("id"),
-                            k, v.get("mimetype"))
-                if "files" in v:
-                    for sub in parse(v.get("files"), level+1):
-                        yield sub
-
-        for entry in parse(tree):
-            yield entry
 
     def assert_rename(self, orig_dir, new_dir):
         """
@@ -75,20 +53,13 @@ class TestRename(AbstractRepoTest):
         assert 3 == len(list(self.contents(orig_dir)))
         assert 1 == len(list(self.contents(new_dir)))
 
-        tomove = []
-        for entry in self.contents(orig_dir):
-            ofile = self.query.get("OriginalFile", entry.id)
-            if entry.level == 1:
-                tomove.append(ofile.path.val + ofile.name.val)
-            path = ofile.path.val
-            ofile.path = rstring(path.replace(orig_dir, new_dir))
-            self.update.saveObject(ofile)
+        rv = rename_fileset(self.client, self.mrepo, orig_dir, new_dir)
 
         # After the move, the old location should be empty
         assert 1 == len(list(self.contents(orig_dir)))
         assert 3 == len(list(self.contents(new_dir)))
 
-        return tomove
+        return rv
 
     def fake_move(self, to_move, new_dir):
         """
