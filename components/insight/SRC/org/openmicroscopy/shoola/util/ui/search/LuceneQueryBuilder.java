@@ -40,7 +40,7 @@ import org.apache.commons.lang.StringUtils;
  * Input query: a b AND c AND d f<br>
  * <br>
  * will be transformed to this lucene expression:<br>
- * name:a description:a name:f description:f (name:b description:b) AND (name:c description:c) AND (name:d description:d)
+ * name:a description:a name:f description:f ((name:b description:b) AND (name:c description:c) AND (name:d description:d))
  * <br>
  * <br>
  * @author  Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp;
@@ -70,13 +70,13 @@ public class LuceneQueryBuilder {
      * @throws InvalidQueryException
      */
     public static String buildLuceneQuery(List<String> fields, Date from, Date to, String dateType, String input) throws InvalidQueryException {
-
-        if(from==null && to==null)
-            return buildLuceneQuery(fields, input);
-        
         StringBuilder result = new StringBuilder();
 
         String basicQuery = buildLuceneQuery(fields, input);
+        
+        if(from==null && to==null)
+            return basicQuery;
+        
         if(!StringUtils.isEmpty(basicQuery))
             result.append("("+basicQuery+")");
         else
@@ -268,13 +268,13 @@ public class LuceneQueryBuilder {
      * @return
      */
     private static String concatenateAndTerms(List<String> terms) {
-        String result = "";
+        String result = "(";
         for (String t : terms) {
-            if (result.length() > 0)
+            if (result.length() > 1)
                 result += " AND ";
             result += "(" + t + ")";
         }
-        return result;
+        return result+")";
     }
     
     

@@ -81,7 +81,7 @@ public class LuceneQueryBuilderTest {
         raw = "*test_dv";  expected = "*test_dv";
         checkQuery(fields, raw, expected);
         
-        raw = "test AND dv";  expected = "(test) AND (dv)";
+        raw = "test AND dv";  expected = "((test) AND (dv))";
         checkQuery(fields, raw, expected);
        
         
@@ -125,7 +125,7 @@ public class LuceneQueryBuilderTest {
         raw = "*test_dv";  expected = "name:*test_dv";
         checkQuery(fields, raw, expected);
         
-        raw = "test AND dv";  expected = "(name:test) AND (name:dv)";
+        raw = "test AND dv";  expected = "((name:test) AND (name:dv))";
         checkQuery(fields, raw, expected);
         
         
@@ -144,11 +144,11 @@ public class LuceneQueryBuilderTest {
         raw = "test *dv";  expected = "name:test description:test name:*dv description:*dv";
         checkQuery(fields, raw, expected);
         
-        raw = "a b AND c AND d f";  expected = "name:a description:a name:f description:f (name:b description:b) AND (name:c description:c) AND (name:d description:d)";
+        raw = "a b AND c AND d f";  expected = "name:a description:a name:f description:f ((name:b description:b) AND (name:c description:c) AND (name:d description:d))";
         checkQuery(fields, raw, expected);
         
         // date search
-        // Note: Lucence date range's "to" is exclusive
+        // Note: Lucence date range's "to" is exclusive, so there has to be added an extra day to it
         Date from = df.parse("20140701");
         Date to = df.parse("20140702");
         String dateType = LuceneQueryBuilder.DATE_ACQUISITION;
