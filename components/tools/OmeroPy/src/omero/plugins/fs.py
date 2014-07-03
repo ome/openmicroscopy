@@ -27,9 +27,11 @@ import sys
 
 from collections import namedtuple
 
+from omero import ServerError
 from omero.cli import admin_only
 from omero.cli import BaseControl
 from omero.cli import CLI
+from omero.cli import ProxyStringType
 
 from omero.rtypes import rstring
 from omero.rtypes import unwrap
@@ -164,6 +166,12 @@ class FsControl(BaseControl):
         images.add_argument(
             "--archived", action="store_true",
             help="list only images with archived data")
+
+        rename = parser.add(sub, self.rename)
+        rename.add_argument(
+            "fileset",
+            type=ProxyStringType("Fileset"),
+            help="Fileset which should be renamed: ID or Fileset:ID")
 
         repos = parser.add(sub, self.repos)
         repos.add_style_argument()
@@ -307,6 +315,35 @@ Examples:
                 self._extended_info(client, row, values)
             tb.row(idx, *tuple(values))
         self.ctx.out(str(tb.build()))
+
+    def rename(self, args):
+        """Moves an existing fileset to a new location.
+
+After the import template (omero.fs.repo.path) has been changed,
+it may be useful to rename an existing fileset to match the new
+template.
+"""
+        fid = args.fileset.id.val
+        client = self.ctx.conn(args)
+        uid = self.ctx._event_context.userId
+        query = client.sf.getQueryService()
+        try:
+            fileset = query.get("Fileset", fid, {"omero.group": "-1"})
+            p = fileset.details.permissions
+            oid = fileset.details.owner.id.val
+            if not p.canEdit():
+                self.ctx.die(110, "Cannot edit Fileset:%s" % fid)
+            elif oid != uid:
+                self.ctx.die(111, "Fileset:%s belongs to %s" % (fid, oid))
+        except ServerError, se:
+            self.ctx.die(
+                112, "Could not load Fileset:%s- %s" % (fid, se.message))
+
+        mrepo = client.getManagedRepository()
+        prefix = prep_directory(client, mrepo)
+        self.ctx.err("Renaming Fileset:%s to %s" % (fid, prefix))
+        rename_fileset(client, mrepo, fileset.templatePrefix.val, prefix)
+        self.ctx.err("Done. You will now need to move the file manually")
 
     def repos(self, args):
         """List all repositories.
