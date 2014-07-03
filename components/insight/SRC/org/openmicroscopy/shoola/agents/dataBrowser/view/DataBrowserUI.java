@@ -388,6 +388,7 @@ class DataBrowserUI
 			case SEARCH_VIEW:
                             selectedView = index;
                             SearchResultView sv = model.createSearchResultView();
+                            sv.addPropertyChangeListener(controller);
                             add(sv, BorderLayout.CENTER);
                             sv.refreshTable();
                             break;
@@ -530,6 +531,8 @@ class DataBrowserUI
 				break;
 			case COLUMNS_VIEW:
 				comp = model.getTableView();
+			case SEARCH_VIEW:
+                            comp = model.getSearchView();
 		}
     	if (comp != null) {
     		popupMenu.populateOpenWith();

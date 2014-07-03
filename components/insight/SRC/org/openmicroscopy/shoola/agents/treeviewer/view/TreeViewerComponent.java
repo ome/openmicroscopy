@@ -50,8 +50,12 @@ import javax.swing.JFrame;
 
 
 
+
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
+
+
 
 
 
@@ -59,6 +63,7 @@ import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import omero.model.OriginalFile;
 
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserFactory;
 import org.openmicroscopy.shoola.agents.events.SaveData;
@@ -103,6 +108,7 @@ import org.openmicroscopy.shoola.agents.util.browser.NodesFinder;
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplayVisitor;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
@@ -1589,8 +1595,10 @@ class TreeViewerComponent
 	}
 
 	public void handleSearchSelectionEvent(SearchSelectionEvent evt) {
+	    // Force the metadataviewer to be shown and fake a treeviewer object
+	    // selection in order to get the metadataviewer show the right stuff 
+	    // (that's pretty weird... is there another/better way?)
 	    view.forceShowMetaDataView();
-	    // Fake a treeviewer object selection
 	    List<Object> tmp = new ArrayList<Object>();
 	    tmp.add(evt.getDataObjects());
 	    setSelectedNodes(tmp);
