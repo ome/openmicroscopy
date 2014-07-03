@@ -24,16 +24,11 @@ import pytest
 
 from test.integration.test_repository import AbstractRepoTest
 from collections import namedtuple
-from omero.cmd import Delete
-from omero.grid import ImportSettings
-from omero.model import ChecksumAlgorithmI
-from omero.model import FilesetI
-from omero.model import FilesetEntryI
-from omero.model import UploadJobI
+from omero.plugins.fs import prep_directory
 from omero.rtypes import rstring
 from omero.rtypes import unwrap
 from omero.sys import ParametersI
-from omero.util.temp_files import create_path
+
 
 # Module level marker
 pytestmark = pytest.mark.fs_suite
@@ -108,51 +103,6 @@ class TestRename(AbstractRepoTest):
             cb = self.raw("mv", [source, new_dir], client=self.root)
             self.assertPasses(cb)
 
-    def prep_directory(self):
-        """
-        Create an empty FS directory by performing an import and
-        then deleting the created fileset.
-        """
-        fs = FilesetI()
-        fs.linkJob(UploadJobI())
-        entry = FilesetEntryI()
-        entry.clientPath = rstring("README.txt")
-        fs.addFilesetEntry(entry)
-        settings = ImportSettings()
-        settings.checksumAlgorithm = ChecksumAlgorithmI()
-        settings.checksumAlgorithm.value = rstring("SHA1-160")
-        proc = self.mrepo.importFileset(fs, settings)
-        try:
-
-            tmp = create_path()
-            prx = proc.getUploader(0)
-            try:
-                tmp.write_text("THIS IS A PLACEHOLDER")
-                hash = self.client.sha1(tmp)
-                with open(tmp, "r") as source:
-                    self.client.write_stream(source, prx)
-            finally:
-                prx.close()
-            tmp.remove()
-
-            handle = proc.verifyUpload([hash])
-            try:
-                req = handle.getRequest()
-                fs = req.activity.parent
-            finally:
-                handle.close()
-
-            delete = Delete()
-            delete.type = "/Fileset"
-            delete.id = fs.id.val
-            cb = self.client.submit(delete)
-            cb.close(True)
-
-        finally:
-            proc.close()
-
-        return fs.templatePrefix
-
     def test_rename(self):
         orig_img = self.importMIF(name="rename",
                                   sizeX=16, sizeY=16,
@@ -165,6 +115,6 @@ class TestRename(AbstractRepoTest):
             "join fs.images img where img.id = :id"
         ), ParametersI().addId(orig_img.id.val))
         orig_dir = orig_fs.templatePrefix.val
-        new_dir = self.prep_directory().val
+        new_dir = prep_directory(self.client, self.mrepo)
         to_move = self.assert_rename(orig_dir, new_dir)
         self.fake_move(to_move, new_dir)

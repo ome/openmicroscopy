@@ -29,6 +29,9 @@ from omero.cli import admin_only
 from omero.cli import BaseControl
 from omero.cli import CLI
 
+from omero.rtypes import rstring
+from omero.util.temp_files import create_path
+
 
 HELP = """Filesystem utilities"""
 
@@ -42,6 +45,61 @@ TRANSFERS = {
     "ome.formats.importer.transfers.SymlinkFileTransfer": "ln_s",
     "ome.formats.importer.transfers.UploadFileTransfer": "",
     }
+
+
+def prep_directory(client, mrepo):
+    """
+    Create an empty FS directory by performing an import and
+    then deleting the created fileset.
+    """
+
+    from omero.cmd import Delete
+    from omero.grid import ImportSettings
+
+    from omero.model import ChecksumAlgorithmI
+    from omero.model import FilesetI
+    from omero.model import FilesetEntryI
+    from omero.model import UploadJobI
+
+    fs = FilesetI()
+    fs.linkJob(UploadJobI())
+    entry = FilesetEntryI()
+    entry.clientPath = rstring("README.txt")
+    fs.addFilesetEntry(entry)
+    settings = ImportSettings()
+    settings.checksumAlgorithm = ChecksumAlgorithmI()
+    settings.checksumAlgorithm.value = rstring("SHA1-160")
+    proc = mrepo.importFileset(fs, settings)
+    try:
+
+        tmp = create_path()
+        prx = proc.getUploader(0)
+        try:
+            tmp.write_text("THIS IS A PLACEHOLDER")
+            hash = client.sha1(tmp)
+            with open(tmp, "r") as source:
+                client.write_stream(source, prx)
+        finally:
+            prx.close()
+        tmp.remove()
+
+        handle = proc.verifyUpload([hash])
+        try:
+            req = handle.getRequest()
+            fs = req.activity.parent
+        finally:
+            handle.close()
+
+        delete = Delete()
+        delete.type = "/Fileset"
+        delete.id = fs.id.val
+        cb = client.submit(delete)
+        cb.close(True)
+
+    finally:
+        proc.close()
+
+    return fs.templatePrefix.val
 
 
 class FsControl(BaseControl):
