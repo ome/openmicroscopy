@@ -81,3 +81,20 @@ omero_cblackburn/6915/dropboxaDCjQlout']
             assert str(fakefile) in str(o)
         else:
             assert str(fakefile) not in str(o)
+
+    def testImportFakeImage(self, tmpdir, capfd):
+        """Test fake image import"""
+
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+
+        self.args += ["-f", "--debug=ERROR"]
+        self.args += [str(fakefile)]
+
+        self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
+        outputlines = str(o).split('\n')
+        reader = 'loci.formats.in.FakeReader'
+        assert outputlines[-2] == str(fakefile)
+        assert outputlines[-3] == \
+            "# Group: %s SPW: false Reader: %s" % (str(fakefile), reader)
