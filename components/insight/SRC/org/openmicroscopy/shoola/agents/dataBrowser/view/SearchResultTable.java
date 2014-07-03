@@ -71,7 +71,6 @@ import org.openmicroscopy.shoola.env.ui.ViewObjectEvent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.treetable.renderers.SelectionHighLighter;
 
-import edu.emory.mathcs.backport.java.util.Collections;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
@@ -93,6 +92,7 @@ public class SearchResultTable extends JXTable {
     /** Holds the DataObjects shown in the table */
     private List<DataObject> data;
 
+    /** A reference to the component holding this table */
     private SearchResultView parent;
     
     /**
@@ -175,6 +175,9 @@ public class SearchResultTable extends JXTable {
         });
     }
 
+   /**
+    * Get the current selected DataObjects
+    */
     public List<DataObject> getSelectedObjects() {
         List<DataObject> selectedObjs = new ArrayList<DataObject>();
         for(int row : getSelectedRows()) {
@@ -188,15 +191,12 @@ public class SearchResultTable extends JXTable {
     }
     
     /**
-     * Reloads the table
+     * Constructs a new TableModel on basis of the 
+     * underlying search results
      */
     public void refreshTable() {
         setModel(new SearchResultTableModel(data, model));
         getColumnExt(SearchResultTableModel.VIEWBUTTON_COLUMN_INDEX).setSortable(false);
-    }
-    
-    public void refresh() {
-        repaint();
     }
 
     private JButton createActionButton(final DataObject obj) {

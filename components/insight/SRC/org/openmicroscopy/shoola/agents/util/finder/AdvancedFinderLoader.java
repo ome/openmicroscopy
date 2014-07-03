@@ -43,7 +43,6 @@ import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
-
 /** 
  * Searches for data
  * This class calls <code>advancedSearchFor</code> method in the

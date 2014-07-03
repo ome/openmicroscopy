@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserUI 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -87,6 +87,7 @@ class DataBrowserUI
 	/** ID to select the fields view. */
 	static final int			FIELDS_VIEW = 2;
 	
+	/** ID to select the search view. */
 	static final int                        SEARCH_VIEW = 3;
 	
 	/** ID to sort the node alphabetically. */

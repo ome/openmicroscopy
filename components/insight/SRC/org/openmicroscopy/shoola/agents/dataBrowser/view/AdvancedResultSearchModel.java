@@ -229,7 +229,7 @@ public class AdvancedResultSearchModel extends DataBrowserModel {
      */
     public void notifyThumbsLoaded() {
         for (SearchResultTable table : tables) {
-            table.refresh();
+            table.repaint();
         }
     }
 

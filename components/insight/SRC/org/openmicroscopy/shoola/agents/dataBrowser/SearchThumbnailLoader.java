@@ -49,6 +49,7 @@ public class SearchThumbnailLoader extends DataBrowserLoader {
      */
     private Collection<DataObject> objects;
 
+    /** Handle to AdvancedResultSearchModel to pass the thumbs on */
     private AdvancedResultSearchModel model;
 
     /** Handle to the asynchronous call so that we can cancel it. */

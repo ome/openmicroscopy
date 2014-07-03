@@ -46,7 +46,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -67,10 +66,6 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
-
-
-
-
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
@@ -128,8 +123,10 @@ class ToolBar
     /** Text indicating to display the groups.*/ 
     private static final String GROUP_DISPLAY_TEXT = "Display Groups";
     
+    /** The width of search field in characters */
     private static final int SEARCHFIELD_WIDTH = 12;
     
+    /** The default text shown in the empty search field */
     private static final String SEARCHFIELD_TEXT = "Search ...";
 
     /** Reference to the control. */
@@ -316,6 +313,9 @@ class ToolBar
         controller.setSelectedGroups(toAdd, toRemove);
     }
 
+    /** 
+     * Fires a search event
+     */
     private void search() {
         TreeViewerAgent.getRegistry().getEventBus().post(new SearchEvent(searchField.getText()));
     }
@@ -795,6 +795,9 @@ class ToolBar
         searchField = initSearchField();
     }
 
+    /**
+     * Initializes the search field 
+     */
     private JTextField initSearchField() {
         final JTextField searchField = new JTextField(SEARCHFIELD_WIDTH);
         searchField.setText(SEARCHFIELD_TEXT);

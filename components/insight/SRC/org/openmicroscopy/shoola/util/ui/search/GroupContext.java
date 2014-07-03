@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.search.GroupContext 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2014 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -25,18 +25,14 @@ package org.openmicroscopy.shoola.util.ui.search;
 
 
 //Java imports
-
-//Third-party libraries
-
 import java.util.ArrayList;
 import java.util.List;
 
+//Third-party libraries
 
-
-
-import pojos.ExperimenterData;
 //Application-internal dependencies
 import pojos.GroupData;
+import pojos.ExperimenterData;
 
 /** 
  * Host information about the group to search into.
@@ -56,6 +52,7 @@ public class GroupContext
 	/** The identifier of the group.*/
 	private long id;
 	
+	/** The experimenters of this group */
 	private List<ExperimenterContext> experimenters = new ArrayList<ExperimenterContext>();
 	
 	/**
@@ -94,10 +91,16 @@ public class GroupContext
 	public long getId() { return id; }
 	
 	
+	/**
+	 * Get this group's experimenters
+	 */
     	public List<ExperimenterContext> getExperimenters() {
             return experimenters;
         }
 
+	/**
+	 * Set this group's experimenters
+	 */
         public void setExperimenters(List<ExperimenterContext> experimenters) {
             this.experimenters = experimenters;
         }

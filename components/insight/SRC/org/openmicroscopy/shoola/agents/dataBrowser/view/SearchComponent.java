@@ -33,7 +33,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -42,13 +41,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
-
-
-
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
-
 import org.jdesktop.swingx.JXBusyLabel;
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.view.SearchEvent;
 import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
@@ -56,13 +53,11 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.GroupContext;
 import org.openmicroscopy.shoola.util.ui.search.SearchContext;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
-
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -623,6 +618,11 @@ public class SearchComponent
 	/** Subclasses should override this method. */
 	protected void help() {}
 	
+	/**
+	 * Handles a SearchEvent (sent by the search field
+	 * in the toolbar); just takes the search query from
+	 * the event and initiates a search with it
+	 */
 	public void handleSearchEvent(SearchEvent evt) {
 	    uiDelegate.reset();
             uiDelegate.setTerms(Collections.singletonList(evt.getQuery()));

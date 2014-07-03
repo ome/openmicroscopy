@@ -32,12 +32,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.swing.JFrame;
 
 //Third-party libraries
-
-
 
 import org.openmicroscopy.shoola.agents.treeviewer.ImageChecker.ImageCheckerType;
 //Application-internal dependencies
@@ -56,7 +53,6 @@ import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
-
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.GroupData;
@@ -361,7 +357,7 @@ public interface TreeViewer
 	 * @param browserType The browser's type.
 	 */
 	public void displayBrowser(int browserType);
-	
+
 	/**
 	 * Brings up the editor to create a data object.
 	 * 
@@ -793,8 +789,10 @@ public interface TreeViewer
 	/** Shows or hides the searching component. */
 	public void showSearch();
     
+        /** Handles a search event */
 	public void handleSearchEvent(SearchEvent evt);
 	
+	/** Handles a search result selection event */
 	public void handleSearchSelectionEvent(SearchSelectionEvent evt);
 	
 	/**

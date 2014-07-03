@@ -45,13 +45,10 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-
-
-
-
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.SearchComponent;
@@ -273,17 +270,14 @@ public class AdvancedFinder
 			return;
 		}
 		
-		if (StringUtils.isEmpty(query)) {
-			if (start == null && end == null) {
-				un.notifyInfo(TITLE, "Please enter a term to search for " +
-						"or a valid time interval.");
-				return;
-			}
+		if (StringUtils.isEmpty(query) && start == null && end == null) {
+			un.notifyInfo(TITLE, "Please enter a term to search for " +
+				"or a valid time interval.");
+			return;
 		}
+		
 		List<Integer> context = ctx.getContext();
 		if (context == null || context.size() == 0) {
-			//un.notifyInfo(TITLE, "Please enter a context.");
-			//return;
 			context = new ArrayList<Integer>();
 			context.add(SearchContext.CUSTOMIZED);
 		}

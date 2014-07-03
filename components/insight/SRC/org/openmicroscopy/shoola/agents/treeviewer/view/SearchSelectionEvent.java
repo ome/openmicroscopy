@@ -25,18 +25,38 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 import pojos.DataObject;
 
+/**
+ * Event to indicate that the user has selected one or more search result
+ * objects.
+ * 
+ * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ */
 public class SearchSelectionEvent extends RequestEvent {
 
+    /** The selected objects */
     private List<DataObject> dataObjects;
 
+    /**
+     * Creates a new instance
+     * @param dataObjects
+     */
     public SearchSelectionEvent(List<DataObject> dataObjects) {
         this.dataObjects = dataObjects;
     }
 
+    /**
+     * Get the selected {@link DataObject}s
+     * @return
+     */
     public List<DataObject> getDataObjects() {
         return dataObjects;
     }
 
+    /**
+     * Set the selected {@link DataObject}s
+     * @param dataObjects
+     */
     public void setDataObjects(List<DataObject> dataObjects) {
         this.dataObjects = dataObjects;
     }

@@ -241,6 +241,7 @@ public class SearchContext
         /** The type of attachments to retrieve. */
         private int                             attachmentType;
         
+        /** The group to search for */
         private long            selectedGroup = GroupContext.ALL_GROUPS_ID;
         
         /**
@@ -539,10 +540,12 @@ public class SearchContext
          */
         public void setNumberOfResults(int results) { numberOfResults = results; }
 
+	/** Set the group to search for */
         public long getSelectedGroup() {
             return selectedGroup;
         }
     
+        /** Get the group to search for */
         public void setSelectedGroup(long selectedGroup) {
             this.selectedGroup = selectedGroup;
         }

@@ -21,18 +21,37 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
+/**
+ * SearchEvent to trigger a default search with the given query
+ * 
+ * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ */
 public class SearchEvent extends RequestEvent {
 
+    /** The search query, i. e. terms */
     private String query;
 
+    /**
+     * Creates a new instance
+     * @param query
+     */
     public SearchEvent(String query) {
         this.query = query;
     }
 
+    /**
+     * Get the query to perform search with
+     * @return
+     */
     public String getQuery() {
         return query;
     }
 
+    /**
+     * Set the query for the search
+     * @param query
+     */
     public void setQuery(String query) {
         this.query = query;
     }

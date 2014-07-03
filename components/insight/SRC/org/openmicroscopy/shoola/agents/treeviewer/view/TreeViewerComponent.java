@@ -41,24 +41,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
 import javax.swing.Icon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 
-
-
-
-
-
-
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
-
-
-
-
-
 
 //Application-internal dependencies
 import omero.model.OriginalFile;
@@ -1147,6 +1135,7 @@ class TreeViewerComponent
 		browser.setDisplayed(!browser.isDisplayed());
 		removeEditor();
 	}
+
 	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
@@ -3091,6 +3080,10 @@ class TreeViewerComponent
 		firePropertyChange(DISPLAY_MODE_PROPERTY, oldMode, newMode);
 	}
 	
+	/**
+	 * Handels a search event, i. e. triggers a search
+         * with the query provided by the SearchEvent
+         */ 
 	public void handleSearchEvent(SearchEvent evt) {
 	    view.selectSearchPane();
 	    AdvancedFinder finder = model.getAdvancedFinder();
@@ -3101,7 +3094,7 @@ class TreeViewerComponent
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#setSearchResult(Object)
 	 */
-    public void setSearchResult(Object result)
+        public void setSearchResult(Object result)
 	{
 	    AdvancedSearchResultCollection results = (AdvancedSearchResultCollection) result;
 
