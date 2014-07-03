@@ -155,7 +155,9 @@ class Parser(ArgumentParser):
     def sub(self):
         return self.add_subparsers(title = "Subcommands", description = OMEROSUBS, metavar = OMEROSUBM)
 
-    def add(self, sub, func, help, **kwargs):
+    def add(self, sub, func, help=None, **kwargs):
+        if help is None:
+            help = func.__doc__
         parser = sub.add_parser(func.im_func.__name__, help=help, description=help)
         parser.set_defaults(func=func, **kwargs)
         return parser
