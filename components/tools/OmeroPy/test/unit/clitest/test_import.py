@@ -32,6 +32,23 @@ class TestImport(object):
         client_dir = dist_dir / "lib" / "client"
         self.args += ["--clientdir", client_dir]
 
+    def mkfakescreen(self, tmpdir):
+
+        screen_dir = tmpdir.join("screen.fake")
+        screen_dir.mkdir()
+        fieldfiles = []
+        for i in [0, 1]:
+            plate_dir = screen_dir / ("Plate00%s" % str(i))
+            plate_dir.mkdir()
+            run_dir = plate_dir / "Run000"
+            run_dir.mkdir()
+            well_dir = run_dir / "WellA000"
+            well_dir.mkdir()
+            fieldfile = (well_dir / "Field000.fake")
+            fieldfile.write('')
+            fieldfiles.append(fieldfile)
+        return fieldfiles
+
     def testDropBoxArgs(self):
         class MockImportControl(ImportControl):
             def importer(this, args):
@@ -98,3 +115,20 @@ omero_cblackburn/6915/dropboxaDCjQlout']
         assert outputlines[-2] == str(fakefile)
         assert outputlines[-3] == \
             "# Group: %s SPW: false Reader: %s" % (str(fakefile), reader)
+
+    def testImportFakeScreen(self, tmpdir, capfd):
+        """Test fake screen import"""
+
+        fieldfiles = self.mkfakescreen(tmpdir)
+
+        self.args += ["-f", "--debug=ERROR"]
+        self.args += [str(fieldfiles[0])]
+
+        self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
+        outputlines = str(o).split('\n')
+        reader = 'loci.formats.in.FakeReader'
+        assert outputlines[-2] == str(fieldfiles[1])
+        assert outputlines[-3] == str(fieldfiles[0])
+        assert outputlines[-4] == \
+            "# Group: %s SPW: false Reader: %s" % (str(fieldfiles[0]), reader)
