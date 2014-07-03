@@ -23,6 +23,7 @@
 import pytest
 
 from test.integration.test_repository import AbstractRepoTest
+from omero.plugins.fs import contents
 from omero.plugins.fs import prep_directory
 from omero.plugins.fs import rename_fileset
 from omero.sys import ParametersI
@@ -41,7 +42,7 @@ class TestRename(AbstractRepoTest):
         self.update = self.client.sf.getUpdateService()
         self.mrepo = self.client.getManagedRepository()
 
-    def assert_rename(self, orig_dir, new_dir):
+    def assert_rename(self, fileset, new_dir):
         """
         Change the path entry for the files contained
         in the orig_dir and then verify that they will
@@ -49,15 +50,17 @@ class TestRename(AbstractRepoTest):
         files on disk ARE NOT MOVED.
         """
 
-        # Before the move the new location should be empty
-        assert 3 == len(list(self.contents(orig_dir)))
-        assert 1 == len(list(self.contents(new_dir)))
+        orig_dir = fileset.templatePrefix.val
 
-        rv = rename_fileset(self.client, self.mrepo, orig_dir, new_dir)
+        # Before the move the new location should be empty
+        assert 3 == len(list(contents(self.mrepo, orig_dir)))
+        assert 1 == len(list(contents(self.mrepo, new_dir)))
+
+        rv = rename_fileset(self.client, self.mrepo, fileset, new_dir)
 
         # After the move, the old location should be empty
-        assert 1 == len(list(self.contents(orig_dir)))
-        assert 3 == len(list(self.contents(new_dir)))
+        assert 1 == len(list(contents(self.mrepo, orig_dir)))
+        assert 3 == len(list(contents(self.mrepo, new_dir)))
 
         return rv
 
@@ -85,7 +88,6 @@ class TestRename(AbstractRepoTest):
             "join fetch uf.originalFile f "
             "join fs.images img where img.id = :id"
         ), ParametersI().addId(orig_img.id.val))
-        orig_dir = orig_fs.templatePrefix.val
         new_dir = prep_directory(self.client, self.mrepo)
-        to_move = self.assert_rename(orig_dir, new_dir)
+        to_move = self.assert_rename(orig_fs, new_dir)
         self.fake_move(to_move, new_dir)

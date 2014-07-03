@@ -128,7 +128,7 @@ def prep_directory(client, mrepo):
     return fs.templatePrefix.val
 
 
-def rename_fileset(client, mrepo, orig_dir, new_dir):
+def rename_fileset(client, mrepo, fileset, new_dir):
     """
     Loads each OriginalFile found under orig_dir and
     updates its path field to point at new_dir. Files
@@ -138,14 +138,23 @@ def rename_fileset(client, mrepo, orig_dir, new_dir):
     tosave = []
     query = client.sf.getQueryService()
     update = client.sf.getUpdateService()
+    orig_dir = fileset.templatePrefix.val
     for entry in contents(mrepo, orig_dir):
+        if entry.level == 0:
+            continue
         ofile = query.get("OriginalFile", entry.id)
         if entry.level == 1:
             tomove.append(ofile.path.val + ofile.name.val)
         path = ofile.path.val
-        ofile.path = rstring(path.replace(orig_dir, new_dir))
+        assert orig_dir in path
+        repl = path.replace(orig_dir, new_dir)
+        ofile.path = rstring(repl)
         tosave.append(ofile)
-    update.saveArray(tosave)
+    fileset.templatePrefix = rstring(new_dir)
+    # TODO: placing the fileset at the end of this list
+    # causes ONLY the fileset to be updated !!
+    tosave.insert(0, fileset)
+    update.saveAndReturnArray(tosave)
     return tomove
 
 
@@ -340,10 +349,17 @@ template.
                 112, "Could not load Fileset:%s- %s" % (fid, se.message))
 
         mrepo = client.getManagedRepository()
+        root = mrepo.root()
         prefix = prep_directory(client, mrepo)
         self.ctx.err("Renaming Fileset:%s to %s" % (fid, prefix))
-        rename_fileset(client, mrepo, fileset.templatePrefix.val, prefix)
-        self.ctx.err("Done. You will now need to move the file manually")
+        tomove = rename_fileset(client, mrepo, fileset, prefix)
+        if not tomove:
+            self.ctx.die(113, "No files moved!")
+        else:
+            self.ctx.err("Done. You will now need to move these files manually:")
+            for path in tomove:
+                f = "/".join([root.path.val, root.name.val, path])
+                self.ctx.out(f)
 
     def repos(self, args):
         """List all repositories.
