@@ -236,6 +236,8 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.caches": ["CACHES", '{"default": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"}}', json.loads],
     "omero.web.webgateway_cache": ["WEBGATEWAY_CACHE", None, leave_none_unset],
     "omero.web.session_engine": ["SESSION_ENGINE", DEFAULT_SESSION_ENGINE, check_session_engine],
+    "omero.web.session_expire_at_browser_close": ["SESSION_EXPIRE_AT_BROWSER_CLOSE", "true", parse_boolean],
+    "omero.web.session_cookie_age": ["SESSION_COOKIE_AGE", 86400, int],
     "omero.web.debug": ["DEBUG", "false", parse_boolean],
     "omero.upgrades.url": ["UPGRADES_URL", "http://upgrade.openmicroscopy.org.uk/", str],
     "omero.web.email_host": ["EMAIL_HOST", None, identity],
@@ -594,12 +596,6 @@ FEEDBACK_APP = 6
 # will store session data. When the default value (None) is used, Django will use the standard temporary 
 # directory for the system.
 SESSION_FILE_PATH = tempfile.gettempdir()
-
-# SESSION_EXPIRE_AT_BROWSER_CLOSE: Whether to expire the session when the user closes his or her browser.
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True # False
-
-# SESSION_COOKIE_AGE: The age of session cookies, in seconds. See How to use sessions.
-SESSION_COOKIE_AGE = 86400 # 1 day in sec (86400)
 
 # FILE_UPLOAD_TEMP_DIR: The directory to store data temporarily while uploading files.
 FILE_UPLOAD_TEMP_DIR = tempfile.gettempdir()
