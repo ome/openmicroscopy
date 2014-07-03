@@ -21,10 +21,14 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EventObject;
 import java.util.List;
 
@@ -34,6 +38,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -47,6 +52,9 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jdesktop.swingx.renderer.WrappingIconPanel;
 import org.jdesktop.swingx.renderer.WrappingProvider;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
@@ -65,7 +73,11 @@ import org.openmicroscopy.shoola.util.ui.treetable.renderers.SelectionHighLighte
 
 import edu.emory.mathcs.backport.java.util.Collections;
 import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.ImageData;
+import pojos.PlateData;
+import pojos.ProjectData;
+import pojos.ScreenData;
 
 /**
  * A table for displaying a {@link AdvancedSearchResultCollection}
@@ -81,13 +93,16 @@ public class SearchResultTable extends JXTable {
     /** Holds the DataObjects shown in the table */
     private List<DataObject> data;
 
+    private SearchResultView parent;
+    
     /**
      * Creates a new instance
      * @param data
      * @param browserModel
      */
-    public SearchResultTable(List<DataObject> data,
+    public SearchResultTable(SearchResultView parent, List<DataObject> data,
             AdvancedResultSearchModel browserModel) {
+        this.parent = parent;
         this.data = data;
         this.model = browserModel;
         this.model.registerTable(this);
@@ -133,7 +148,7 @@ public class SearchResultTable extends JXTable {
                         return;
                     }
                     
-                    TreeViewerAgent.getRegistry().getEventBus().post(new SearchSelectionEvent(selectedObjs));
+                    parent.fireSelectionEvent(selectedObjs);
                 }
             }
             
@@ -147,6 +162,26 @@ public class SearchResultTable extends JXTable {
                         return false;
                 }
                 return true;
+            }
+        });
+        
+        addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+
+                e = SwingUtilities.convertMouseEvent((Component) e.getSource(),
+                        e, SearchResultTable.this);
+
+                Point p = e.getPoint();
+
+                if(e.getButton()==3) {
+//                if ((e.isPopupTrigger()
+//                        || (e.isPopupTrigger() && !UIUtilities.isMacOS()) || (UIUtilities
+//                        .isMacOS() && SwingUtilities.isLeftMouseButton(e) && e
+//                            .isControlDown()))) {
+                    parent.firePopupEvent(p);
+                }
             }
         });
     }

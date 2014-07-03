@@ -1731,7 +1731,7 @@ class DataBrowserComponent
 		Object go;
 		ViewImageObject object;
 		if (uo instanceof ImageData) {
-			if (model instanceof SearchModel) {
+			if (model instanceof SearchModel || model instanceof AdvancedResultSearchModel) {
 				ImageData img = (ImageData) uo;
 				SecurityContext ctx = new SecurityContext(img.getGroupId());
 				object = new ViewImageObject(img);

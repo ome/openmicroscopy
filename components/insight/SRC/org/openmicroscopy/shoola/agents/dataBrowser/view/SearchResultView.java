@@ -24,15 +24,28 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageSet;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.view.SearchSelectionEvent;
 import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.DataObject;
+import pojos.DatasetData;
+import pojos.ImageData;
+import pojos.PlateData;
+import pojos.ProjectData;
+import pojos.ScreenData;
 
 
 /**
@@ -43,6 +56,10 @@ import pojos.DataObject;
  */
 class SearchResultView extends JPanel {
 
+    public static final String CONTEXT_MENU_PROPERTY = "showPopup";
+    
+    public static final String SELECTION_PROPERTY = "selected";
+    
     /** The DataObjects to be shown */
     private List<DataObject> objs = new ArrayList<DataObject>();
 
@@ -65,7 +82,7 @@ class SearchResultView extends JPanel {
             objs.add(obj);
         }
 
-        objsTable = new SearchResultTable(objs, browserModel);
+        objsTable = new SearchResultTable(this, objs, browserModel);
 
     }
 
@@ -80,6 +97,17 @@ class SearchResultView extends JPanel {
 
     }
 
+    void firePopupEvent(Point location)
+    {
+            firePropertyChange(CONTEXT_MENU_PROPERTY, null, location);
+    }
+    
+    void fireSelectionEvent(List<DataObject> nodes)
+    {
+            firePropertyChange(SELECTION_PROPERTY, null, createDisplays(nodes));
+            TreeViewerAgent.getRegistry().getEventBus().post(new SearchSelectionEvent(nodes));
+    }
+    
     /**
      * Creates a new instance.
      * 
@@ -102,4 +130,30 @@ class SearchResultView extends JPanel {
 
     }
 
+    /**
+     * Creates the {@link ImageDisplay}s for the given {@link DataObject}s
+     * @param dataObjs
+     * @return
+     */
+    private List<ImageDisplay> createDisplays(Collection<DataObject> dataObjs) {
+        List<ImageDisplay> result = new ArrayList<ImageDisplay>();
+
+        for (DataObject dataObj : dataObjs) {
+            ImageDisplay d = null;
+
+            if (dataObj instanceof ImageData) {
+                d = new ImageNode("", dataObj, null);
+            } else if (dataObj instanceof ProjectData
+                    || dataObj instanceof DatasetData
+                    || dataObj instanceof ScreenData
+                    || dataObj instanceof PlateData) {
+                d = new ImageSet("", dataObj);
+            }
+
+            if (d != null)
+                result.add(d);
+        }
+
+        return result;
+    }
 }
