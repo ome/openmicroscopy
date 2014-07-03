@@ -99,7 +99,8 @@ class SearchResultView extends JPanel {
 
     void firePopupEvent(Point location)
     {
-            firePropertyChange(CONTEXT_MENU_PROPERTY, null, location);
+            // TODO: Disabled for now, context menu does not for search results
+            //firePropertyChange(CONTEXT_MENU_PROPERTY, null, location);
     }
     
     void fireSelectionEvent(List<DataObject> nodes)
