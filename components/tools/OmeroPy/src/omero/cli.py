@@ -216,6 +216,24 @@ class Parser(ArgumentParser):
                 lines[-1] += choices.pop(0)
             return "\n".join(lines)
 
+
+class ProxyStringType(object):
+    """
+    To make use of the omero.proxy_to_instance method,
+    an instance can be passed to add_argument with a default
+    value:  add_argument(..., type=ProxyStringType("Image"))
+    which will take either a proxy string of the form:
+    "Image:1" or simply the ID itself: "1"
+    """
+
+    def __init__(self, default=None):
+        self.default = default
+
+    def __call__(self, string):
+        return omero.proxy_to_instance(
+            string, default=self.default)
+
+
 class NewFileType(FileType):
     """
     Extension of the argparse.FileType to prevent
