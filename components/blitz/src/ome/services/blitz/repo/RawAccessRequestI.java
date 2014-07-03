@@ -20,6 +20,7 @@ package ome.services.blitz.repo;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -187,6 +188,31 @@ public class RawAccessRequestI extends RawAccessRequest implements IRequest {
             } else {
                 throw new omero.ApiUsageException(null, null,
                         "Command: " + command + " takes just one argument");
+            }
+        } else if ("mv".equals(command)) {
+            if (args.size() == 2) {
+                final CheckedPath source = servant.checkPath(parse(args.get(0)), null, __current);
+                final CheckedPath target = servant.checkPath(parse(args.get(1)), null, __current);
+                boolean success = false;
+                if (target.exists() && target.isDirectory()) {
+                    try {
+                        source.moveToDir(target, false);
+                        success = true;
+                    } catch (java.io.IOException ex) {
+                        success = false;
+                        log.warn("IOException on moveToDir: {}->{}",
+                                source, target, ex);
+                    }
+                } else {
+                    success = source.renameTo(target);
+                }
+                if (!success) {
+                    throw new omero.ResourceError(null, null,
+                        String.format("'mv %s %s' failed", source, target));
+                }
+            } else {
+                throw new omero.ApiUsageException(null, null,
+                        "Command: " + command + " takes two arguments");
             }
         } else if ("checksum".equals(command)) {
             if (args.size() == 3) {
