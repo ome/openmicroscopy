@@ -643,6 +643,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
          * @param suffix path component text following the expansion term, may be empty
          * @return entire replaced path component, may be unchanged to be revisited,
          * or {@code null} if it has been wholly processed; otherwise it will be created
+         * @throws ServerError if the directory could not be created
          */
         @SuppressWarnings("unused")  /* used by create() via Method.invoke */
         public String expandTime(String prefix, String suffix) {
@@ -740,6 +741,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
          * @param suffix path component text following the expansion term, may be empty
          * @return entire replaced path component, may be unchanged to be revisited,
          * or {@code null} if it has been wholly processed; otherwise it will be created
+         * @throws ServerError if the expansion term was improperly specified
          */
         @SuppressWarnings("unused")  /* used by create() via Method.invoke */
         public String expandHash(String prefix, String suffix) throws ServerError {
@@ -754,6 +756,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
          * @param parameters a comma-separated list of how many hexadecimal digits of the hash to use in each directory
          * @return entire replaced path component, may be unchanged to be revisited,
          * or {@code null} if it has been wholly processed; otherwise it will be created
+         * @throws ServerError if the expansion term was improperly specified
          */
         // @SuppressWarnings("unused")  /* used by create() via Method.invoke */
         public String expandHash(String prefix, String suffix, String parameters) throws ServerError {
@@ -803,6 +806,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
          * @param suffix path component text following the expansion term, may be empty
          * @return entire replaced path component, may be unchanged to be revisited,
          * or {@code null} if it has been wholly processed; otherwise it will be created
+         * @throws ServerError if the directory could not be created or the expansion term was improperly specified
          */
         @SuppressWarnings("unused")  /* used by create() via Method.invoke */
         public String expandIncrement(String prefix, String suffix) throws ServerError {
@@ -819,6 +823,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
          * @param paddingString the minimum number of digits for the natural number, achieved by zero-padding if necessary
          * @return entire replaced path component, may be unchanged to be revisited,
          * or {@code null} if it has been wholly processed; otherwise it will be created
+         * @throws ServerError if the directory could not be created or the expansion term was improperly specified
          */
         // @SuppressWarnings("unused")  /* used by create() via Method.invoke */
         public String expandIncrement(String prefix, String suffix, String paddingString) throws ServerError {
@@ -988,6 +993,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
          * @param suffix path component text following the expansion term in the first directory, may be empty
          * @return entire replaced path component, may be unchanged to be revisited,
          * or {@code null} if it has been wholly processed; otherwise it will be created
+         * @throws ServerError if the directory could not be created or the expansion term was improperly specified
          */
         @SuppressWarnings("unused")  /* used by create() via Method.invoke */
         public String expandSubdirs(String prefix, String suffix) throws ServerError {
@@ -1006,6 +1012,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
          * @param digitsString the power of ten that is the directory entry limit, e.g., {@code "3"} for one thousand
          * @return entire replaced path component, may be unchanged to be revisited,
          * or {@code null} if it has been wholly processed; otherwise it will be created
+         * @throws ServerError if the directory could not be created or the expansion term was improperly specified
          */
         // @SuppressWarnings("unused")  /* used by create() via Method.invoke */
         public String expandSubdirs(String prefix, String suffix, String digitsString) throws ServerError {
