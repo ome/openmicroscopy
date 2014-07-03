@@ -79,11 +79,11 @@ class FsControl(BaseControl):
             "--without-images", action="store_true",
             help="list only sets without images (i.e. corrupt)")
         sets.add_argument(
-            "--with-transfer", nargs="*", action="append",
+            "--with-transfer", nargs="+", action="append",
             help="list sets by their in-place import method")
         sets.add_argument(
             "--check", action="store_true",
-            help="checks each fileset for validity")
+            help="checks each fileset for validity (admins only)")
 
         for x in (images, sets):
             x.add_argument(
@@ -271,6 +271,10 @@ Examples:
 
         client = self.ctx.conn(args)
         service = client.sf.getQueryService()
+        admin = client.sf.getAdminService()
+
+        if args.check and not admin.getEventContext().isAdmin:
+            self.error_admin_only(fatal=True)
 
         select = (
             "select fs.id, fs.templatePrefix, "
@@ -315,6 +319,13 @@ Examples:
         tb = self._table(args)
         tb.cols(cols)
         tb.page(args.offset, args.limit, count)
+
+        # Map any requested transfers as well
+        if args.with_transfer:
+            restricted = [TRANSFERS.get(x, x) for x in args.with_transfer[0]]
+        else:
+            restricted = None
+
         for idx, obj in enumerate(objs):
 
             # Map the transfer name to the CLI symbols
@@ -325,18 +336,9 @@ Examples:
                 ns = TRANSFERS[ns]
             obj[-1] = ns
 
-            # Map any requested transfers as well
-            allowed = args.with_transfer is not None \
-                and args.with_transfer or []
-            for idx, x in enumerate(allowed):
-                x = x[0]  # Strip argparse wrapper
-                x = TRANSFERS.get(x, x)  # map
-                allowed[idx] = x
-
             # Filter based on the ns symbols
-            if allowed:
-                if ns not in allowed:
-                    continue
+            if restricted and ns not in restricted:
+                continue
 
             # Now perform check if required
             if args.check:
