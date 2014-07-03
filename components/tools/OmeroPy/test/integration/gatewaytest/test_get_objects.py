@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """
-   gateway tests - Testing the gateway.getObject() and searchObjects() methods
+   gateway tests - Testing the gateway.getObject() and deleteObjects() methods
 
-   Copyright 2013 Glencoe Software, Inc. All rights reserved.
+   Copyright 2013-2014 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
    pytest fixtures used as defined in conftest.py:
@@ -258,24 +258,6 @@ class TestFindObject (object):
 
 
 class TestGetObject (object):
-    def testSearchObjects(self, gatewaywrapper):
-        gatewaywrapper.loginAsAuthor()
-        # search for Projects
-        pros = list( gatewaywrapper.gateway.searchObjects(["Project"], "weblitz") )
-        for p in pros:
-            #assert p.getId() in projectIds
-            assert p.OMERO_CLASS ==  "Project", "Should only return Projects"
-
-        # P/D/I is default objects to search
-        # pdis = list( gatewaywrapper.gateway.simpleSearch("weblitz") )   # method removed from blitz gateway
-        #pdis.sort(key=lambda r: "%s%s"%(r.OMERO_CLASS, r.getId()) )
-        pdiResult = list( gatewaywrapper.gateway.searchObjects(None, "weblitz") )
-        pdiResult.sort(key=lambda r: "%s%s"%(r.OMERO_CLASS, r.getId()) )
-        # can directly check that sorted lists are the same
-        #for r1, r2 in zip(pdis, pdiResult):
-        #    assert r1.OMERO_CLASS ==  r2.OMERO_CLASS
-        #    assert r1.getId() ==  r2.getId()
-
 
     def testListProjects(self, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()

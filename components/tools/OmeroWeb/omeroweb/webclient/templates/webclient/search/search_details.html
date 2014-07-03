@@ -48,7 +48,7 @@
             });
             
             // We init sorting (not cols 0 & 3) but don't sort by default
-            $("#dataTable").tablesorter({headers: { 0: { sorter: false}, 3: {sorter: false} } });
+            $("#dataTable").tablesorter({headers: { 0: { sorter: false}, 4: {sorter: false} } });
 
             $('input#id_search').quicksearch('table#dataTable tbody tr', {
                 'delay': 300,
@@ -69,6 +69,13 @@
 
     <div>
     {% block search_results %}
+
+        {% if manager.searchError %}
+        <div class="error" style="font-size: 120%; margin-top: 50px; text-align: center">
+            {{ manager.searchError }}
+        </div>
+        {% endif %}
+
         {% if manager.c_size or foundById %}
         
         <table id="dataTable" class="tablesorter">
@@ -76,7 +83,8 @@
                 <tr> 
                     <th class="table_images">{% trans "Object" %}</th> 
                     <th class="table_desc">{% trans "Name" %}</th> 
-                    <th class="table_date">{% trans "Date" %}</th> 
+                    <th class="table_date">{% trans "Import Date" %}</th>
+                    <th>{% trans "Group" %}</th>
                     <th>{% trans "Link" %}</th>
                 </tr> 
             </thead>
@@ -92,69 +100,78 @@
                         <img src="{% static "webgateway/img/folder16.png" %}" alt="{{ byId.otype }}" title="{{ c.name }}"/>
                         {% endifequal %}
                     </td>
-                    <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
-                    <td class="date">{{ c.getDate }}</td>
+                    <td class="desc">
+                        <span style="color:red">ID: {{ c.id }}</span>
+                        <a>{{ c.name|truncatebefor:"65" }}</a>
+                    </td>
+                    <td class="date">{{ c.creationEventDate }}</td>
+                    <td class="group">{{ c.getDetails.group.name.val }}</td>
                     <td><a href="{% url 'webindex' %}?show={{ byId.otype }}-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
                         {% trans "Browse" %}
                     </a></td>
                 </tr>
                 {% endwith %}
             {% endfor %}
-            {% for c in manager.containers.projects %}
+            {% for c in manager.containers.project %}
                 <tr id="project-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
                         <img id="{{ c.id }}" src="{% static "webgateway/img/folder16.png" %}" alt="project" title="{{ c.name }}"/>
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
-                    <td class="date">{{ c.getDate }}</td>                    
+                    <td class="date">{{ c.creationEventDate }}</td>
+                    <td class="group">{{ c.getDetails.group.name.val }}</td>
                     <td><a href="{% url 'webindex' %}?show=project-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
                         {% trans "Browse" %}
                     </a></td>
                 </tr>
             {% endfor %}
-            {% for c in manager.containers.screens %}
+            {% for c in manager.containers.screen %}
                 <tr id="screen-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
                         <img id="{{ c.id }}" src="{% static "webclient/image/folder_screen32.png" %}" alt="screen" title="{{ c.name }}"/>
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
-                    <td class="date">{{ c.getDate }}</td>                    
+                    <td class="date">{{ c.creationEventDate }}</td>
+                    <td class="group">{{ c.getDetails.group.name.val }}</td>
                     <td><a href="{% url 'webindex' %}?show=screen-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
                         {% trans "Browse" %}
                     </a></td>
                 </tr>
             {% endfor %}
-            {% for c in manager.containers.datasets %}
+            {% for c in manager.containers.dataset %}
                 <tr id="dataset-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
                         <img id="{{ c.id }}" src="{% static "webgateway/img/folder_image16.png" %}" alt="dataset" title="{{ c.name }}"/>
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
-                    <td class="date">{{ c.getDate }}</td>                    
+                    <td class="date">{{ c.creationEventDate }}</td>
+                    <td class="group">{{ c.getDetails.group.name.val }}</td>
                     <td><a href="{% url 'webindex' %}?show=dataset-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
                         {% trans "Browse" %}
                     </a></td>
                 </tr>
             {% endfor %}
-            {% for c in manager.containers.plates %}
+            {% for c in manager.containers.plate %}
                 <tr id="plate-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
                         <img id="{{ c.id }}" src="{% static "webclient/image/folder_plate32.png" %}" alt="plate" title="{{ c.name }}"/>
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
-                    <td class="date">{{ c.getDate }}</td>                    
+                    <td class="date">{{ c.creationEventDate }}</td>
+                    <td class="group">{{ c.getDetails.group.name.val }}</td>
                     <td><a href="{% url 'webindex' %}?show=plate-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
                         {% trans "Browse" %}
                     </a></td>
                 </tr>
             {% endfor %}
-            {% for c in manager.containers.images %}
+            {% for c in manager.containers.image %}
                 <tr id="image-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
                         <img class="search_thumb" id="{{ c.id }}" src="{% url 'render_thumbnail_resize' 96 c.id  %}" alt="image" title="{{ c.name }}"/>
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
-                    <td class="date">{{ c.getDate }}</td>                    
+                    <td class="date">{{ c.creationEventDate }}</td>
+                    <td class="group">{{ c.getDetails.group.name.val }}</td>
                     <td><a href="{% url 'webindex' %}?show=image-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
                         {% trans "Browse" %}
                     </a></td>
