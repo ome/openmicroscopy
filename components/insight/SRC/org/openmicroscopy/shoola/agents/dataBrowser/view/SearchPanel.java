@@ -31,6 +31,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,10 +55,15 @@ import javax.swing.JToolBar;
 
 
 
+
+
+
 //Third-party libraries
 import org.jdesktop.swingx.JXDatePicker;
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
@@ -208,6 +215,20 @@ public class SearchPanel
 		IconManager icons = IconManager.getInstance();
  		fromDate = UIUtilities.createDatePicker(true);
  		fromDate.setBackground(UIUtilities.BACKGROUND_COLOR);
+ 		
+ 		fromDate.addPropertyChangeListener("date", new PropertyChangeListener() {
+                    
+                    @Override
+                    public void propertyChange(PropertyChangeEvent evt) {
+                        Date d = (Date) evt.getNewValue();
+                        if(d!=null && d.after(new Date())) {
+                            UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
+                            un.notifyWarning("Invalid Date", "Selecting a 'From' date in future doesn't make any sense.");
+                            fromDate.setDate(null);
+                        }
+                    }
+                });
+ 		
 		toDate = UIUtilities.createDatePicker(true);
 		toDate.setBackground(UIUtilities.BACKGROUND_COLOR);
 		
