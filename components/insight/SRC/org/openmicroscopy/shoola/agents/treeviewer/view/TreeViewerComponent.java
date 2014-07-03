@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerComponent
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -38,8 +38,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 import javax.swing.Icon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -57,6 +57,7 @@ import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
+import org.openmicroscopy.shoola.agents.events.treeviewer.ActivitiesEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.ChangeUserGroupEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.CopyItems;
@@ -80,10 +81,14 @@ import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AdminDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.ChgrpObject;
 import org.openmicroscopy.shoola.agents.treeviewer.util.GenericDialog;
+import org.openmicroscopy.shoola.agents.treeviewer.util.LinkNotificationDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.MIFNotificationDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.MoveGroupSelectionDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.NotDeletedObjectDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.OpenWithDialog;
+import org.openmicroscopy.shoola.agents.util.DataObjectRegistration;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.browser.ContainerFinder;
 import org.openmicroscopy.shoola.agents.util.browser.NodesFinder;
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
@@ -95,15 +100,11 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.GroupManagerDialog;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.agents.util.DataObjectRegistration;
-import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
-import org.openmicroscopy.shoola.env.data.events.RemoveGroupEvent;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
@@ -111,7 +112,7 @@ import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadArchivedActivityParam;
-import org.openmicroscopy.shoola.env.data.model.MIFResultObject;
+import org.openmicroscopy.shoola.env.data.model.ImageCheckerResult;
 import org.openmicroscopy.shoola.env.data.model.OpenActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
@@ -125,6 +126,7 @@ import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -134,8 +136,8 @@ import pojos.GroupData;
 import pojos.ImageData;
 import pojos.MultiImageData;
 import pojos.PermissionData;
-import pojos.PlateData;
 import pojos.PlateAcquisitionData;
+import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
@@ -632,6 +634,9 @@ class TreeViewerComponent
 				}
 			} else {
 				db = handleDiscardedBrowser(display);
+				if (visible) {
+				    view.removeAllFromWorkingPane();
+				}
 			}
 			if (db != null) db.setSelectedNodes(null, null);
 			return;
@@ -1298,14 +1303,7 @@ class TreeViewerComponent
 		if (display != null) {
 			Object object = display.getUserObject();
 			metadata.setSelectionMode(single);
-			if (!single) {
-				List<Object> l = new ArrayList<Object>(selection.length);
-				for (int i = 0; i < selection.length; i++) {
-					l.add(selection[i].getUserObject());
-				}
-				if (l.size() > 0)
-					metadata.setRelatedNodes(l);
-			} else {
+			if (single) {
 				ExperimenterData exp = browser.getNodeOwner(display);
 				if (exp == null) exp = model.getUserDetails();
 				// setRootObject relies on selection mode set above
@@ -1318,6 +1316,14 @@ class TreeViewerComponent
 					if (pp != null) gpp = pp.getUserObject();
 					metadata.setParentRootObject(p.getUserObject(), gpp);
 				}
+			} else {
+			    List<Object> l = new ArrayList<Object>(selection.length);
+			    for (int i = 0; i < selection.length; i++) {
+			        l.add(selection[i].getUserObject());
+			    }
+			    if (l.size() > 0) {
+			        metadata.setRelatedNodes(l);
+			    }
 			}
 			if (!model.isFullScreen()) {
 				showDataBrowser(object, display, false);
@@ -1356,6 +1362,8 @@ class TreeViewerComponent
 		Object parent = null;
 		if (n == 2) parent = l.get(1);
 		if (selection == null || selection.size() == 0) return;
+		Object selected = selection.get(0);
+		
 		MetadataViewer mv = model.getMetadataViewer();
 		if (hasDataToSave()) {
 			MessageBox dialog = new MessageBox(view, "Save data", 
@@ -1364,11 +1372,15 @@ class TreeViewerComponent
 			if (dialog.centerMsgBox() == MessageBox.YES_OPTION) mv.saveData();
 			else mv.clearDataToSave();
 		}
-		Object selected = selection.get(0);
+		boolean sameSelection = true;
 		if (view.getDisplayMode() != SEARCH_MODE) {
 			Browser browser = model.getSelectedBrowser();
+			List<Object> oldSelection = browser.getSelectedDataObjects();
 			browser.onSelectedNode(parent, selection, selection.size() > 0);
+			List<Object> newSelection = browser.getSelectedDataObjects();
+			sameSelection = isSameSelection(oldSelection, newSelection);
 		}
+		
 		int size = selection.size();
 		if (size == 1) {
 			Browser browser = model.getSelectedBrowser();
@@ -1389,7 +1401,7 @@ class TreeViewerComponent
 				browse(browser.getLastSelectedDisplay(), null, false);
 			}
 			//Notifies actions.
-			firePropertyChange(SELECTION_PROPERTY, Boolean.valueOf(false), 
+			firePropertyChange(SELECTION_PROPERTY, Boolean.valueOf(false),
 					Boolean.valueOf(true));
 			return;
 		}
@@ -1398,7 +1410,167 @@ class TreeViewerComponent
 		result.add(selection);
 		result.add(selected);
 		result.add(parent);
-		setSelectedNode(result);
+		setSelectedNode(result, sameSelection);
+	}
+
+	/**
+	 * Sets the selected node and loads the annotations if requested.
+	 *
+	 * @param object The object to handle.
+	 * @param sameSelection Pass <code>true</code> if it is the same selection.
+	 *                      Annotation will not be loaded, <code>false</code>
+	 *                      otherwise.
+	 */
+	private void setSelectedNode(Object object, boolean sameSelection)
+	{
+	    if (object == null) return;
+        if (!(object instanceof List)) return;
+        List l = (List) object;
+        int n = l.size();
+        if (n > 3) return;
+        Object selected = l.get(1);
+        Object parent = null;
+        if (n == 3) parent = l.get(2);
+        if (selected instanceof ImageData) {
+            ImageData img = (ImageData) selected;
+            try {
+                img.getDefaultPixels();
+            } catch (Exception e) {
+                UserNotifier un =
+                        TreeViewerAgent.getRegistry().getUserNotifier();
+                un.notifyInfo("Image Not Valid", 
+                        "The selected image is not valid.");
+                return;
+            }
+        } else if (selected instanceof WellSampleData) {
+            WellSampleData ws = (WellSampleData) selected;
+            if (ws.getId() < 0) {
+                UserNotifier un =
+                        TreeViewerAgent.getRegistry().getUserNotifier();
+                un.notifyInfo("Well Not Valid", 
+                        "The selected well is not valid.");
+                return;
+            }
+        }
+        MetadataViewer mv = model.getMetadataViewer();
+        if (hasDataToSave()) {
+            MessageBox dialog = new MessageBox(view, "Save data",
+                    "Do you want to save the modified " +
+                    "data \n before selecting a new item?");
+            if (dialog.centerMsgBox() == MessageBox.YES_OPTION) mv.saveData();
+            else mv.clearDataToSave();
+        }
+        List<Object> siblings = (List<Object>) l.get(0);
+        int size = siblings.size();
+        if (view.getDisplayMode() != SEARCH_MODE) {
+            Browser browser = model.getSelectedBrowser();
+            browser.onSelectedNode(parent, selected, size > 0);
+        }
+        mv.setSelectionMode(size == 0);
+        Browser browser = model.getSelectedBrowser();
+        ExperimenterData exp = null;
+        TreeImageDisplay last = null;
+        if (browser != null) last = browser.getLastSelectedDisplay();
+        if (last != null) exp = browser.getNodeOwner(last);
+        if (exp == null) exp = model.getUserDetails();
+        Object grandParent = null;
+        if (selected instanceof WellSampleData) {
+            if (parent instanceof WellData) 
+                grandParent = ((WellData) parent).getPlate();
+        }
+
+        if (!sameSelection) {
+            if (browser == null) {
+                if (selected instanceof DataObject) {
+                    SecurityContext ctx = new SecurityContext(
+                            ((DataObject) selected).getGroupId());
+                    mv.setRootObject(selected, exp.getId(), ctx);
+                }
+            } else {
+                mv.setRootObject(selected, exp.getId(),
+                        browser.getSecurityContext(last));
+            }
+            mv.setParentRootObject(parent, grandParent);
+        }
+
+        TreeImageDisplay[] selection = null;
+        if (browser != null) selection = browser.getSelectedDisplays();
+        if (selection != null && selection.length > 0) {
+            if (selected instanceof WellSampleData) {
+                siblings.add(selected);
+                if (siblings.size() > 1 && !sameSelection)
+                    mv.setRelatedNodes(siblings);
+            } else {
+                siblings = new ArrayList<Object>(selection.length);
+                for (int i = 0; i < selection.length; i++) {
+                    siblings.add(selection[i].getUserObject());
+                }
+                if (siblings.size() > 1 && !sameSelection)
+                    mv.setRelatedNodes(siblings);
+            }
+
+        }
+        if (model.getDataViewer() != null)
+            model.getDataViewer().setApplications(
+                    TreeViewerFactory.getApplications(
+                            model.getObjectMimeType(selected)));
+        if (!model.isFullScreen()) {
+            browse(browser.getLastSelectedDisplay(), null, false);
+        }
+
+        //Notifies actions.
+        firePropertyChange(SELECTION_PROPERTY, Boolean.valueOf(false),
+                Boolean.valueOf(true));
+	}
+	
+	/**
+	 * Checks if the specified lists contained the same elements.
+	 * Returns <code>true</code> if it is the same selection,
+	 * <code>false</code> otherwise.
+	 *
+	 * @param oldSelection The selection prior to change.
+	 * @param newSelection The new selection
+	 * @return See above.
+	 */
+	private boolean isSameSelection(List<Object> oldSelection,
+	        List<Object> newSelection)
+	{
+	    if (oldSelection == null || newSelection == null) return false;
+	    int s1 = oldSelection.size();
+	    int s2 = newSelection.size();
+	    if (s1 != s2 || (s1 == 0 && s2 > 0) || (s1 > 0 && s2 == 0)) {
+	        return false;
+	    }
+	    List<Long> ids = new ArrayList<Long>();
+	    Class<?> klass = null;
+	    Object object;
+	    DataObject data;
+	    Iterator<Object> i = oldSelection.iterator();
+	    while (i.hasNext()) {
+	        object = i.next();
+	        klass = object.getClass();
+            if (object instanceof DataObject) {
+                data = (DataObject) object;
+                if (!ids.contains(data.getId())) {
+                    ids.add(data.getId());
+                }
+            }
+        }
+	    int count = 0;
+	    i = newSelection.iterator();
+	    while (i.hasNext()) {
+            object = i.next();
+            if (!klass.equals(object.getClass())) {
+                return false;
+            }
+            if (object instanceof DataObject) {
+                data = (DataObject) object;
+                if (ids.contains(data.getId())) {
+                    count++;
+                }
+            }
+        }
+	    return count == ids.size();
 	}
 
 	/**
@@ -1408,102 +1580,24 @@ class TreeViewerComponent
 	public void setSelectedNode(Object object)
 	{
 	    if (object == null) return;
-	    if (!(object instanceof List)) return;
-	    List l = (List) object;
-	    int n = l.size();
-	    if (n > 3) return;
-	    Object selected = l.get(1);
-	    Object parent = null;
-	    if (n == 3) parent = l.get(2);
-	    if (selected instanceof ImageData) {
-	        ImageData img = (ImageData) selected;
-	        try {
-	            img.getDefaultPixels();
-	        } catch (Exception e) {
-	            UserNotifier un =
-	                    TreeViewerAgent.getRegistry().getUserNotifier();
-	            un.notifyInfo("Image Not valid", 
-	                    "The selected image is not valid.");
-	            return;
-	        }
-	    } else if (selected instanceof WellSampleData) {
-	        WellSampleData ws = (WellSampleData) selected;
-	        if (ws.getId() < 0) {
-	            UserNotifier un =
-	                    TreeViewerAgent.getRegistry().getUserNotifier();
-	            un.notifyInfo("Well Not valid", 
-	                    "The selected well is not valid.");
-	            return;
-	        }
-	    }
-	    MetadataViewer mv = model.getMetadataViewer();
-	    if (hasDataToSave()) {
-	        MessageBox dialog = new MessageBox(view, "Save data",
-	                "Do you want to save the modified " +
-	                "data \n before selecting a new item?");
-	        if (dialog.centerMsgBox() == MessageBox.YES_OPTION) mv.saveData();
-	        else mv.clearDataToSave();
-	    }
-
-	    List<Object> siblings = (List<Object>) l.get(0);
-	    int size = siblings.size();
-	    if (view.getDisplayMode() != SEARCH_MODE) {
-	        Browser browser = model.getSelectedBrowser();
-	        browser.onSelectedNode(parent, selected, size > 0);
-	    }
-	    mv.setSelectionMode(size == 0);
-	    Browser browser = model.getSelectedBrowser();
-	    ExperimenterData exp = null;
-	    TreeImageDisplay last = null;
-	    if (browser != null) last = browser.getLastSelectedDisplay();
-	    if (last != null) exp = browser.getNodeOwner(last);
-	    if (exp == null) exp = model.getUserDetails();
-	    Object grandParent = null;
-	    if (selected instanceof WellSampleData) {
-	        if (parent instanceof WellData) 
-	            grandParent = ((WellData) parent).getPlate();
-	    }
-
-	    if (browser == null) {
-	        if (selected instanceof DataObject) {
-	            SecurityContext ctx = new SecurityContext(
-	                    ((DataObject) selected).getGroupId());
-	            mv.setRootObject(selected, exp.getId(), ctx);
-	        }
-	    } else {
-	        mv.setRootObject(selected, exp.getId(),
-	                browser.getSecurityContext(last));
-	    }
-	    mv.setParentRootObject(parent, grandParent);
-
-	    TreeImageDisplay[] selection = null;
-	    if (browser != null) selection = browser.getSelectedDisplays();
-	    if (selection != null && selection.length > 0) {
-	        if (selected instanceof WellSampleData) {
-	            siblings.add(selected);
-	            if (siblings.size() > 1)
-	                mv.setRelatedNodes(siblings);
-	        } else {
-	            siblings = new ArrayList<Object>(selection.length);
-	            for (int i = 0; i < selection.length; i++) {
-	                siblings.add(selection[i].getUserObject());
-	            }
-	            if (siblings.size() > 1)
-	                mv.setRelatedNodes(siblings);
-	        }
-
-	    }
-	    if (model.getDataViewer() != null)
-	        model.getDataViewer().setApplications(
-	                TreeViewerFactory.getApplications(
-	                        model.getObjectMimeType(selected)));
-	    if (!model.isFullScreen()) {
-	        browse(browser.getLastSelectedDisplay(), null, false);
-	    }
-
-	    //Notifies actions.
-	    firePropertyChange(SELECTION_PROPERTY, Boolean.valueOf(false),
-	            Boolean.valueOf(true));
+        if (!(object instanceof List)) return;
+        List l = (List) object;
+        int n = l.size();
+        if (n > 3) return;
+        Object selected = l.get(1);
+        Object parent = null;
+        if (n == 3) parent = l.get(2);
+        List<Object> siblings = (List<Object>) l.get(0);
+        boolean sameSelection = true;
+        if (view.getDisplayMode() != SEARCH_MODE) {
+            Browser browser = model.getSelectedBrowser();
+            List<Object> oldSelection = browser.getSelectedDataObjects();
+            List<Object> newSelection = new ArrayList<Object>();
+            newSelection.add(selected);
+            sameSelection = isSameSelection(oldSelection, newSelection);
+        }
+        
+	    setSelectedNode(object, sameSelection);
 	}
 
 	/**
@@ -1902,7 +1996,11 @@ class TreeViewerComponent
 		} else b = EditorUtil.isUserOwner(ho, id);
 		if (b) return b; //user is the owner.
 		GroupData group = null;
-		if (ho instanceof DataObject) {
+		if (ho instanceof ExperimenterData || ho instanceof GroupData) {
+		    // users and groups should not be deleted at all
+		    return false;
+		}
+		else if (ho instanceof DataObject) {
 			DataObject data = (DataObject) ho;
 			return data.canDelete();
 		} else if (ho instanceof TreeImageTimeSet) {
@@ -4564,7 +4662,7 @@ class TreeViewerComponent
 		}
 		if (node == null) return;
 		TreeViewerAgent.getRegistry().getEventBus().post(
-				new RemoveGroupEvent(model.getSecurityContext(node)));
+				new ActivitiesEvent(model.getSecurityContext(node)));
 		GroupData group = (GroupData) node.getUserObject();
 		Map<Integer, Browser> browsers = model.getBrowsers();
 		Iterator i = browsers.entrySet().iterator();
@@ -4738,13 +4836,13 @@ class TreeViewerComponent
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#handleSplitImage(Map, Object, int)
 	 */
-	public void handleSplitImage(List<MIFResultObject> result,
-			Object action, ImageCheckerType index)
+	public void handleSplitImage(ImageCheckerResult result,
+			final Object action, ImageCheckerType index)
 	{
-		if (!CollectionUtils.isEmpty(result)) {
+		if (!CollectionUtils.isEmpty(result.getMifResults())) {
 			//Indicate what do depending on the index.
 			MIFNotificationDialog dialog = new MIFNotificationDialog(view,
-					result, action, index,
+					result.getMifResults(), action, index,
 					TreeViewerAgent.getAvailableUserGroups());
 			dialog.addPropertyChangeListener(new PropertyChangeListener() {
 				
@@ -4757,6 +4855,25 @@ class TreeViewerComponent
 						moveObject((ChgrpObject) evt.getNewValue());
 					}
 				}
+			});
+			UIUtilities.centerAndShow(dialog);
+			return;
+		}
+		// show a warning if the images to be deleted are linked to multiple datasets:
+		if (ImageCheckerType.DELETE.equals(index) && !result.getMultiLinkedImages().isEmpty()) {
+		        LinkNotificationDialog dialog = new LinkNotificationDialog(view, result);
+			dialog.addPropertyChangeListener(new PropertyChangeListener() {
+				
+				/** 
+				 * Removes the data
+				 */
+				public void propertyChange(PropertyChangeEvent evt) {
+					String name = evt.getPropertyName();
+					if (LinkNotificationDialog.DELETE_PROPERTY.equals(name)) {
+						delete((List) action);
+					}					
+				}
+				
 			});
 			UIUtilities.centerAndShow(dialog);
 			return;

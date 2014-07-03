@@ -24,11 +24,8 @@
 #
 
 
-import datetime
-import traceback
 import logging
 
-from django.conf import settings
 from django import template
 from django.templatetags.static import PrefixNode
 
@@ -53,3 +50,7 @@ def get_static_webclient_prefix(parser, token):
 
     """
     return PrefixNode.handle_token(parser, token, "STATIC_WEBCLIENT_URL")
+
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)

@@ -205,15 +205,13 @@ public class BasicACLVoter implements ACLVoter {
     }
 
     public boolean allowAnnotate(IObject iObject, Details trustedDetails) {
-        EventContext c = currentUser.current();
-        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails,
-            c.getCurrentGroupPermissions(), Scope.ANNOTATE);
+        BasicEventContext c = currentUser.current();
+        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails, Scope.ANNOTATE);
     }
 
     public boolean allowUpdate(IObject iObject, Details trustedDetails) {
-        EventContext c = currentUser.current();
-        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails,
-            c.getCurrentGroupPermissions(), Scope.EDIT);
+        BasicEventContext c = currentUser.current();
+        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails, Scope.EDIT);
     }
 
     public void throwUpdateViolation(IObject iObject) throws SecurityViolation {
@@ -231,9 +229,8 @@ public class BasicACLVoter implements ACLVoter {
     }
 
     public boolean allowDelete(IObject iObject, Details trustedDetails) {
-        EventContext c = currentUser.current();
-        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails,
-                c.getCurrentGroupPermissions(), Scope.DELETE);
+        BasicEventContext c = currentUser.current();
+        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails, Scope.DELETE);
     }
 
     public void throwDeleteViolation(IObject iObject) throws SecurityViolation {
@@ -281,8 +278,8 @@ public class BasicACLVoter implements ACLVoter {
      * @return an int with the bit turned on for each {@link Scope} element
      *     which should be allowed.
      */
-    private int allowUpdateOrDelete(EventContext c, IObject iObject,
-        Details trustedDetails, Permissions grpPermissions, Scope...scopes) {
+    private int allowUpdateOrDelete(BasicEventContext c, IObject iObject,
+        Details trustedDetails, Scope...scopes) {
 
         int rv = 0;
 
@@ -333,12 +330,21 @@ public class BasicACLVoter implements ACLVoter {
             throw new InternalException("trustedDetails are null!");
         }
 
-        // this should never occur.
+        Permissions grpPermissions = c.getCurrentGroupPermissions();
         if (grpPermissions == null || grpPermissions == Permissions.DUMMY) {
-            throw new InternalException(
-                    "Permissions null! Security system "
+            if (trustedDetails.getGroup() != null) {
+                Long gid = trustedDetails.getGroup().getId();
+                grpPermissions = c.getPermissionsForGroup(gid);
+                if (grpPermissions == null && gid.equals(roles.getUserGroupId())) {
+                    grpPermissions = new Permissions(Permissions.EMPTY);
+                }
+            }
+            if (grpPermissions == null) {
+                throw new InternalException(
+                    "Permissions are null! Security system "
                             + "failure -- refusing to continue. The Permissions should "
                             + "be set to a default value.");
+            }
         }
 
         final boolean owner = owner(d, c);
@@ -386,16 +392,8 @@ public class BasicACLVoter implements ACLVoter {
                     !(object instanceof ExperimenterGroup));
 
             final BasicEventContext c = currentUser.current();
-            Permissions grpPermissions = c.getCurrentGroupPermissions();
-            if (grpPermissions == Permissions.DUMMY && details.getGroup() != null) {
-                Long gid = details.getGroup().getId();
-                grpPermissions = c.getPermissionsForGroup(gid);
-                if (grpPermissions == null && gid.equals(roles.getUserGroupId())) {
-                    grpPermissions = new Permissions(Permissions.EMPTY);
-                }
-            }
             final Permissions p = details.getPermissions();
-            final int allow = allowUpdateOrDelete(c, object, details, grpPermissions,
+            final int allow = allowUpdateOrDelete(c, object, details,
                 // This order must match the ordered of restrictions[]
                 // expected by p.copyRestrictions
                 Scope.LINK, Scope.EDIT, Scope.DELETE, Scope.ANNOTATE);

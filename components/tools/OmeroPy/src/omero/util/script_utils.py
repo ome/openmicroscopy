@@ -1089,7 +1089,7 @@ def createNewImage(session, plane2Dlist, imageName, description, dataset=None):
     return image
 
 
-def parseInputs(client, session, processFn=IdentityFn):
+def parseInputs(client, session=None, processFn=IdentityFn):
     """
     parse the inputs from the client object and map it to some other form, values may be transformed by function.
     @param client The client object
@@ -1097,11 +1097,7 @@ def parseInputs(client, session, processFn=IdentityFn):
     @param processFn A function to transform data to some other form.
     @return Parsed inputs as defined by ProcessFn.
     """
-    inputKeys = client.getInputKeys();
-    commandArgs = {};
-    for key in inputKeys:
-        commandArgs[key]=client.getInput(key).getValue();
-    return processFn(commandArgs);
+    return processFn(client.getInputs(unwrap=True))
 
 
 def getROIFromImage(iROIService, imageId, namespace=None):

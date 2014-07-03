@@ -243,6 +243,9 @@ public class BlitzConfiguration {
         try {
             adapter = communicator.createObjectAdapter("BlitzAdapter");
         } catch (Exception e) {
+            // Possible Ice.IPv6 error
+            logger.error("Fatal error creating adapter. " +
+                "See the troubleshooting page", e);
             throw new FatalBeanException(
                     "Could not find Ice config for object adapter [ BlitzAdapter ]");
         }

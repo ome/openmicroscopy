@@ -661,14 +661,45 @@ public class RepositoryDaoImpl implements RepositoryDao {
             final boolean parents,
             final Ice.Current __current) throws ServerError {
         try {
+            /* first check for sudo to find real user's event context */
+            final EventContext effectiveEventContext;
+            final String realSessionUuid = __current.ctx.get(PublicRepositoryI.SUDO_REAL_SESSIONUUID);
+            if (realSessionUuid != null) {
+                final String realGroupName = __current.ctx.get(PublicRepositoryI.SUDO_REAL_GROUP_NAME);
+                final Principal realPrincipal = new Principal(realSessionUuid, realGroupName, null);
+                final Map<String, String> realCtx = new HashMap<String, String>(__current.ctx);
+                realCtx.put(omero.constants.SESSIONUUID.value, realSessionUuid);
+                if (realGroupName == null) {
+                    realCtx.remove(omero.constants.GROUP.value);
+                } else {
+                    realCtx.put(omero.constants.GROUP.value, realGroupName);
+                }
+                effectiveEventContext = (EventContext) executor.execute(realCtx, realPrincipal,
+                        new Executor.SimpleWork(this, "makeDirs", dirs) {
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        return ((LocalAdmin) sf.getAdminService()).getEventContextQuiet();
+                    }
+                });
+            } else {
+                effectiveEventContext = null;
+            }
+            /* now actually make the directories */
             executor.execute(__current.ctx, currentUser(__current),
                 new Executor.SimpleWork(this, "makeDirs", dirs) {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
+                final ome.system.EventContext eventContext;
+                if (effectiveEventContext == null) {
+                    eventContext =
+                        ((LocalAdmin) sf.getAdminService()).getEventContextQuiet();
+                } else {
+                    eventContext = effectiveEventContext;  /* sudo */
+                }
                 for (CheckedPath checked : dirs) {
                     try {
                         repo.makeDir(checked, parents,
-                            session, sf, getSqlAction());
+                            session, sf, getSqlAction(), eventContext);
                     } catch (ServerError se) {
                         throw new Rethrow(se);
                     }
@@ -860,11 +891,25 @@ public class RepositoryDaoImpl implements RepositoryDao {
         final ome.model.core.OriginalFile parentObject
             = new ome.model.core.OriginalFile(parentId, false);
 
-        final LocalAdmin admin = (LocalAdmin) sf.getAdminService();
-        if (!admin.canAnnotate(parentObject)) {
-            throw new ome.conditions.SecurityViolation(
-                    "No annotate access for parent directory: "
-                            + parentId);
+        long parentObjectOwnerId = -1;
+        long parentObjectGroupId = -1;
+        try {
+            final String query = "SELECT details.owner.id, details.group.id FROM OriginalFile WHERE id = :id";
+            final Parameters parameters = new Parameters().addId(parentId);
+            final Object[] results = sf.getQueryService().projection(query, parameters).get(0);
+            parentObjectOwnerId = (Long) results[0];
+            parentObjectGroupId = (Long) results[1];
+        } catch (Exception e) {
+            log.warn("failed to retrieve owner and group details for original file #" + parentId, e);
+        }
+
+        if (parentObjectOwnerId != roles.getRootId() || parentObjectGroupId != roles.getUserGroupId()) {
+            final LocalAdmin admin = (LocalAdmin) sf.getAdminService();
+            if (!admin.canAnnotate(parentObject)) {
+                throw new ome.conditions.SecurityViolation(
+                        "No annotate access for parent directory: "
+                                + parentId);
+            }
         }
     }
 

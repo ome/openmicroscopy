@@ -9,7 +9,14 @@
 
 """
 
-from omero.gateway.pytest_fixtures import *
+from django.http import QueryDict
+
+from omero.gateway.pytest_fixtures import TestDBHelper
+from omeroweb.decorators import login_required
+from omeroweb.webgateway import views
+
+from test_webgateway import fakeRequest
+
 
 class GatewayWrapper (TestDBHelper):
     def __init__ (self):

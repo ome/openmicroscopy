@@ -3,9 +3,7 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# $Id$
-#
-# Copyright 2009 Glencoe Software, Inc. All rights reserved.
+# Copyright 2009-2014 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -49,10 +47,31 @@
      <constructor-arg ref="roles"/>
   </bean>
 
-  <bean id="dbEnumerationCheck"
+  <bean id="dbEnumerationCheck" depends-on="dbPatchCheck"
      class="ome.services.util.DBEnumCheck"
      init-method="start" lazy-init="false">
      <constructor-arg ref="executor"/>
+  </bean>
+
+  <bean id="dbUnsignedInt16BitSizeCheck" depends-on="dbPatchCheck"
+     class="ome.services.util.DBUInt16Check"
+     init-method="start" lazy-init="false">
+     <constructor-arg ref="sessionFactory"/>
+  </bean>
+
+  <bean id="dbBadAnnotationCheck" depends-on="dbPatchCheck"
+     class="ome.services.util.DBBadAnnotationCheck"
+     init-method="start" lazy-init="false">
+     <constructor-arg ref="executor"/>
+     <constructor-arg ref="sessionFactory"/>
+     <constructor-arg ref="roles"/>
+  </bean>
+
+  <bean id="dbInsertTriggerCheck" depends-on="dbPatchCheck"
+     class="ome.services.util.DBInsertTriggerCheck"
+     init-method="start" lazy-init="false">
+     <constructor-arg ref="executor"/>
+     <constructor-arg ref="simpleSqlAction"/>
   </bean>
 
   <!--
@@ -90,5 +109,11 @@
      <constructor-arg index="1" value="${omero.version}"/>
      <constructor-arg index="2" value="server"/>
   </bean>
+
+  <bean id="metrics" class="ome.system.metrics.Metrics"/>
+
+  <bean class="ome.services.util.SleepTimer"
+        lazy-init="false"
+        destroy-method="destroy"/>
 
 </beans>

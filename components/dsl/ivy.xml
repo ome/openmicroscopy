@@ -1,4 +1,4 @@
-<ivy-module version="1.0">
+<ivy-module version="1.0" xmlns:m="http://ant.apache.org/ivy/maven">
   <info
       organisation="omero"
       module="dsl"
@@ -6,24 +6,28 @@
   <configurations>
     <conf name="build"/>
     <conf name="runtime"/>
+    <conf name="client"/>
   </configurations>
   <publications>
     <artifact name="dsl" type="jar"/>
+    <artifact name="dsl" type="pom"/>
+    <artifact name="dsl" type="source" ext="jar" m:classifier="sources"/>
+    <artifact name="dsl" type="javadoc" ext="jar" m:classifier="javadoc"/>
   </publications>
   <dependencies defaultconfmapping="build->default">
     <!-- runtime dependencies for all modules, since dsl is the base of our DAG -->
-    <dependency org="slf4j" name="slf4j-api" rev="${versions.slf4j}" conf="runtime->default"/>
-    <dependency org="slf4j" name="jul-to-slf4j" rev="${versions.slf4j}" conf="runtime->default"/>
-    <dependency org="slf4j" name="jcl-over-slf4j" rev="${versions.slf4j}" conf="runtime->default"/>
+    <dependency org="org.slf4j" name="slf4j-api" rev="${versions.slf4j}" conf="runtime->default"/>
+    <dependency org="org.slf4j" name="jul-to-slf4j" rev="${versions.slf4j}" conf="runtime->default"/>
+    <dependency org="org.slf4j" name="jcl-over-slf4j" rev="${versions.slf4j}" conf="runtime->default"/>
     <dependency org="log4j" name="log4j" rev="${versions.log4j}" conf="runtime->default"/>
-    <dependency org="logback" name="logback-classic" rev="${versions.logback}" conf="runtime->default"/>
-    <dependency org="logback" name="logback-core" rev="${versions.logback}" conf="runtime->default"/>
+    <dependency org="ch.qos.logback" name="logback-classic" rev="${versions.logback}" conf="runtime->default"/>
+    <dependency org="ch.qos.logback" name="logback-core" rev="${versions.logback}" conf="runtime->default"/>
     <dependency org="janino" name="janino" rev="${versions.janino}" conf="runtime->default"/>
-    <dependency org="perf4j" name="perf4j" rev="${versions.perf4j}" conf="build,runtime->default"/>
+    <dependency org="org.perf4j" name="perf4j" rev="${versions.perf4j}" conf="build,runtime->default"/>
     <dependency org="commons-logging" name="commons-logging" rev="${versions.commons-logging}" conf="build,runtime->default"/>
     <dependency org="commons-collections" name="commons-collections" rev="${versions.commons-collections}" conf="build,runtime->default"/>
     <!-- build requirements -->
-    <dependency org="apache" name="ant" rev="${versions.ant}"/>
+    <dependency org="org.apache.ant" name="ant" rev="${versions.ant}"/>
     <dependency org="velocity-tools" name="velocity-tools-generic" rev="${versions.velocity-tools}"/>
     <dependency org="velocity" name="velocity" rev="${versions.velocity}"/>
     <dependency org="emma" name="emma" rev="${versions.emma}"/>
@@ -34,17 +38,17 @@
     <!-- Moving all testing dependencies back to "build" for eclipse .classpath generation-->
     <dependency org="org.springframework" name="org.springframework.test" rev="${versions.spring}" conf="build->*"/>
     <dependency org="org.springframework" name="org.springframework.aop" rev="${versions.spring}" conf="build->default"/>
-    <dependency org="org.springframework" name="com.springsource.org.aopalliance" rev="1.0.0" conf="build->default"/>
-    <dependency org="antlr" name="antlr" rev="2.7.6" conf="build->default"/>
+    <dependency org="org.aopalliance" name="com.springsource.org.aopalliance" rev="1.0.0" conf="build->default"/>
+    <dependency org="antlr" name="antlr" rev="${versions.antlr}" conf="build->default"/>
     <dependency org="commons-beanutils" name="commons-beanutils" rev="${versions.commons-beanutils}" conf="build->default"/>
     <dependency org="jmock" name="jmock" rev="1.0.1" conf="build->default"/>
     <dependency org="junit" name="junit" rev="3.8.1" conf="build->default"/>
-    <dependency org="findbugs" name="findbugs-ant" rev="${versions.findbugs}" conf="build->default"/>
-    <dependency org="jakarta-oro" name="jakarta-oro" rev="2.0.8" conf="build->default"/>
-    <dependency org="jamon" name="jamon" rev="${versions.jamon}" conf="build->default"/>
-    <dependency org="testng" name="testng" rev="${versions.testng}" conf="build->default"/>
+    <dependency org="net.sourceforge.findbugs" name="findbugs-ant" rev="${versions.findbugs}" conf="build->default"/>
+    <dependency org="oro" name="oro" rev="${versions.oro}" conf="build->default"/>
+    <dependency org="com.jamonapi" name="jamon" rev="${versions.jamon}" conf="build->default"/>
+    <dependency org="org.testng" name="testng" rev="${versions.testng}" conf="build->default"/>
+    <dependency org="com.google.guava" name="guava" rev="${versions.guava}" conf="build->default"/>
     <dependency org="com.google.inject" name="guice" rev="2.0" conf="build->default"/>
-    <dependency org="reportng" name="reportng" rev="${versions.reportng}" conf="build->default"/>
-    <dependency org="bf-deps" name="testng" rev="${versions.testng}" conf="build->default"/>
+    <dependency org="org.uncommons" name="reportng" rev="${versions.reportng}" conf="build->default"/>
  </dependencies>
 </ivy-module>

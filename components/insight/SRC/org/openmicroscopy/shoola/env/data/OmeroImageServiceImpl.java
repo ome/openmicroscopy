@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.env.data.OmeroImageServiceImpl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -58,6 +58,7 @@ import com.sun.opengl.util.texture.TextureData;
 //Application-internal dependencies
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportContainer;
+import omero.api.RawPixelsStorePrx;
 import omero.api.RenderingEnginePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.model.Annotation;
@@ -122,10 +123,6 @@ import pojos.WorkflowData;
 * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
 * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
 * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
-* @version 3.0
-* <small>
-* (<b>Internal version:</b> $Revision: $ $Date: $)
-* </small>
 * @since OME3.0
 */
 class OmeroImageServiceImpl
@@ -1889,7 +1886,7 @@ class OmeroImageServiceImpl
 	{
 		if (ctx == null) return null;
 		Connector c = gateway.getConnector(ctx, true, false);
-		// Pass close responsiblity off to the caller.
+		// Pass close responsibility off to the caller.
 		return c.getThumbnailService();
 	}
 	
@@ -1904,6 +1901,32 @@ class OmeroImageServiceImpl
 		RenderingDef def = gateway.getRenderingDef(ctx, pixelsID, userID);
 		if (def == null) return -1L;
 		return def.getId().getValue();
+	}
+
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroImageService#getRenderingDef(SecurityContext, long)
+	 */
+	public RndProxyDef getSettings(SecurityContext ctx, long rndID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+	    if (rndID < 0) return null;
+	    RenderingDef def = gateway.getRenderingDef(ctx, rndID);
+        if (def == null) return null;
+        return PixelsServicesFactory.convert(def);
+    }
+
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroImageService#createPixelsStore(SecurityContext)
+	 */
+	public RawPixelsStorePrx createPixelsStore(SecurityContext ctx)
+	        throws DSAccessException, DSOutOfServiceException
+	{
+	    if (ctx == null) return null;
+	    Connector c = gateway.getConnector(ctx, true, false);
+	    // Pass close responsibility off to the caller.
+	    return c.getPixelsStore();
 	}
 
 }

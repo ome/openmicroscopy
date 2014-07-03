@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.util;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -352,6 +353,8 @@ implements ActionListener, PropertyChangeListener
         initComponents();
         buildGUI();
         pack();
+        // workaround: weird size of the dialog, have to manually set a reasonable size
+        setSize(new Dimension(330,650));
     }
 
     /**

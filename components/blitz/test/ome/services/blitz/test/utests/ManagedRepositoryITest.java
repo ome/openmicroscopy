@@ -92,8 +92,8 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         }
 
         @Override
-        public void createTemplateDir(FsFile template, Ice.Current curr) throws omero.ServerError {
-            super.createTemplateDir(template, curr);
+        public void createTemplateDir(FsFile rootPath, FsFile userPath, Ice.Current curr) throws omero.ServerError {
+            super.createTemplateDir(rootPath, userPath, curr);
         }
     }
 

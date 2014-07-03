@@ -24,299 +24,299 @@
 
 -->
 
-	<echo>Entering ${basedir}...</echo>
+    <echo>Entering ${basedir}...</echo>
 
-	<target name="help">
-		<echo>
-			This build file is intended for import only.
-		</echo>
-	</target>
+    <target name="help">
+        <echo>
+            This build file is intended for import only.
+        </echo>
+    </target>
 
-	<target name="quick" description="Turn off tests">
-		<echo>
+    <target name="quick" description="Turn off tests">
+        <echo>
 
 
                 Deprecated: tests are disabled by default
 
-                </echo>
-		<property name="config.skip" value="true"/>
-		<property name="test.skip" value="true"/>
-		<property name="generate.skip" value="true"/>
-	</target>
+        </echo>
+        <property name="config.skip" value="true"/>
+        <property name="test.skip" value="true"/>
+        <property name="generate.skip" value="true"/>
+    </target>
 
-	<target name="nochecks" description="Turn off checks">
-		<property name="checks.skip" value="true"/>
-	</target>
+    <target name="nochecks" description="Turn off checks">
+        <property name="checks.skip" value="true"/>
+    </target>
 
-	<target name="fail-on-error" description="Fail if tests do not pass">
-		<property name="test.with.fail" value="true"/>
-	</target>
+    <target name="fail-on-error" description="Fail if tests do not pass">
+        <property name="test.with.fail" value="true"/>
+    </target>
 
-	<target name="eclipse" depends="prepare">
-                <tryEclipse settingsRef="ivy.${ant.project.name}"/>
-	</target>
+    <target name="eclipse" depends="prepare">
+        <tryEclipse settingsRef="ivy.${ant.project.name}"/>
+    </target>
 
-        <target name="retrieve" unless="retrieve.done">
-                <property name="retrieve.done" value="true"/>
-                <installIvy/>
-		<ivy:retrieve settingsRef="ivy.${ant.project.name}" pattern="${deps.lib.dir}/[artifact].[ext]" log="quiet" sync="false" symlink="true"/>
-	</target>
+    <target name="retrieve" unless="retrieve.done">
+        <property name="retrieve.done" value="true"/>
+        <installIvy/>
+        <ivy:retrieve settingsRef="ivy.${ant.project.name}"
+            type="jar"
+            pattern="${deps.lib.dir}/[artifact](-[classifier]).[ext]"
+            log="quiet" sync="false" symlink="true"/>
+    </target>
 
-	<target name="prepare" depends="retrieve">
-		<mkdir dir="${deps.lib.dir}"/>
-		<defineClasspath/>
-                <defineVariables/>
-		<makeDirectories/>
-		<copyResource file="${root.dir}/etc/local.properties"/>
-		<copyResource file="${root.dir}/etc/hibernate.properties"/>
-		<copyResource file="${root.dir}/etc/omero.properties"/>
-                <!-- Handling logback*xml separately -->
-                <copy file="${root.dir}/lib/logback-build.xml" tofile="${resrc.dest}/logback.xml" failonerror="true" />
-                <copy file="${root.dir}/lib/logback-build.xml" tofile="${classes.dir}/logback.xml" failonerror="true" />
-                <!-- See #2187 for more information-->
+    <target name="prepare" depends="retrieve">
+        <mkdir dir="${deps.lib.dir}"/>
+        <defineClasspath/>
+        <defineVariables/>
+        <makeDirectories/>
+        <copyResource file="${root.dir}/etc/local.properties"/>
+        <copyResource file="${root.dir}/etc/hibernate.properties"/>
+        <copyResource file="${root.dir}/etc/omero.properties"/>
+        <!-- Handling logback*xml separately -->
+        <copy file="${root.dir}/lib/logback-build.xml" tofile="${resrc.dest}/logback.xml" failonerror="true" />
+        <copy file="${root.dir}/lib/logback-build.xml" tofile="${classes.dir}/logback.xml" failonerror="true" />
+        <!-- See #2187 for more information-->
 
-		<echo file="${classes.dir}/omero.properties" append="true">
+        <echo file="${classes.dir}/omero.properties" append="true">
 omero.version=${omero.version}
-		</echo>
-		<echo file="${resrc.dest}/omero.properties" append="true">
+        </echo>
+        <echo file="${resrc.dest}/omero.properties" append="true">
 omero.version=${omero.version}
-		</echo>
-                <for list="${classes.dir},${resrc.dest}" param="dir">
-                  <sequential>
-                    <if><not><isfileselected file="@{dir}/hibernate.properties">
-                            <contains text="omero.db.port"/>
-                        </isfileselected></not>
-                    <then>
-                        <concat destfile="@{dir}/hibernate.properties" append="true">
-                            <filelist dir="${omero.home}/etc/profiles" files="${omero.db.profile}"/>
-                        </concat>
-                    </then></if>
-                  </sequential>
-                </for>
-		<!-- Used (at least) by server.xml and omero.xml -->
-                <property name="omero.db.url" value="jdbc:postgresql://${omero.db.host}/${omero.db.name}"/>
-		<presetdef name="sql_run">
-			<sql
-				driver="${omero.db.driver}"
-				url="${omero.db.url}"
-				userid="${omero.db.user}"
-				password="${omero.db.pass}"
-				print="false"
+        </echo>
+        <for list="${classes.dir},${resrc.dest}" param="dir">
+            <sequential>
+            <if><not><isfileselected file="@{dir}/hibernate.properties">
+                    <contains text="omero.db.port"/>
+                </isfileselected></not>
+            <then>
+                <concat destfile="@{dir}/hibernate.properties" append="true">
+                    <filelist dir="${omero.home}/etc/profiles" files="${omero.db.profile}"/>
+                </concat>
+            </then></if>
+            </sequential>
+        </for>
+        <!-- Used (at least) by server.xml and omero.xml -->
+        <property name="omero.db.url" value="jdbc:postgresql://${omero.db.host}/${omero.db.name}"/>
+        <presetdef name="sql_run">
+            <sql
+                driver="${omero.db.driver}"
+                url="${omero.db.url}"
+                userid="${omero.db.user}"
+                password="${omero.db.pass}"
+                print="false"
                                 delimiter=";;"
-				classpathref="omero.classpath">
-			</sql>
-		</presetdef>
-	</target>
+                classpathref="omero.classpath">
+            </sql>
+        </presetdef>
+    </target>
 
-	<target name="generate" depends="prepare">
+    <target name="generate" depends="prepare">
                 <pathconvert property="omero.path" refid="omero.classpath"/>
                 <echo file="${resrc.dest}/Classpath.sh">
                   export CLASSPATH=${omero.path}
                 </echo>
-		<copyResources/>
-	</target>
+        <copyResources/>
+    </target>
 
-	<presetdef name="nomemoryjava">
-		<javac
-			fork="yes"
-			sourcepath=""
-			source="${javac.source}"
-			target="${javac.target}"
-			encoding="UTF-8"
-			debug="${javac.debug}"
-			debuglevel="${javac.debuglevel}"
-			deprecation="on">
-		</javac>
-	</presetdef>
+    <presetdef name="nomemoryjava">
+        <javac
+            fork="yes"
+            sourcepath=""
+            source="${javac.source}"
+            target="${javac.target}"
+            encoding="UTF-8"
+            debug="${javac.debug}"
+            debuglevel="${javac.debuglevel}"
+            deprecation="on">
+        </javac>
+    </presetdef>
 
-	<!-- javac macro which can contain any number of path
-	elements for compilation. Usually src.dir and src.dest
-	will need to be compiled together because of inter-
-	dependencies -->
-	<macrodef name="myjavac">
-	        <attribute name="destdir" default="${classes.dir}"/>
-	        <attribute name="classpathref" default="omero.classpath"/>
-	        <element name="srcelements" implicit="yes"/>
-		<sequential>
+    <!-- javac macro which can contain any number of path
+    elements for compilation. Usually src.dir and src.dest
+    will need to be compiled together because of inter-
+    dependencies -->
+    <macrodef name="myjavac">
+        <attribute name="destdir" default="${classes.dir}"/>
+        <attribute name="classpathref" default="omero.classpath"/>
+        <element name="srcelements" implicit="yes"/>
+        <sequential>
 
-		<tempfile property="temp.file" deleteonexit="true" prefix="_omero_build_" suffix=".tmp"/>
-		<concat destfile="${temp.file}">-classpath ${toString:@{classpathref}}</concat>
-		<if>
-			<isset property="javac.maxmem"/>
-			<then>
-				<nomemoryjava
-					destdir="@{destdir}"
-					memoryMaximumSize="${javac.maxmem}"
-				>
-			        <compilerarg value="@${temp.file}"/>
-			        <srcelements/>
-				</nomemoryjava>
-			</then>
-			<else>
-				<nomemoryjava
-					destdir="@{destdir}"
-				>
-			        <compilerarg value="@${temp.file}"/>
-			        <srcelements/>
-				</nomemoryjava>
-			</else>
-		</if>
-		<delete file="${temp.file}" quiet="true" failonerror="false"/>
-		</sequential>
-	</macrodef>
+        <tempfile property="temp.file" deleteonexit="true" prefix="_omero_build_" suffix=".tmp"/>
+        <concat destfile="${temp.file}">-classpath ${toString:@{classpathref}}</concat>
+        <if>
+            <isset property="javac.maxmem"/>
+            <then>
+                <nomemoryjava
+                    destdir="@{destdir}"
+                    memoryMaximumSize="${javac.maxmem}"
+                >
+                    <compilerarg value="@${temp.file}"/>
+                    <srcelements/>
+                </nomemoryjava>
+            </then>
+            <else>
+                <nomemoryjava
+                    destdir="@{destdir}"
+                >
+                    <compilerarg value="@${temp.file}"/>
+                    <srcelements/>
+                </nomemoryjava>
+            </else>
+        </if>
+        <delete file="${temp.file}" quiet="true" failonerror="false"/>
+        </sequential>
+    </macrodef>
 
-	<target name="compile" depends="generate" unless="skip.compile">
-		<myjavac>
-		  <src path="${src.dir}"/>
-		  <src path="${src.dest}"/>
-		</myjavac>
-	</target>
+    <target name="compile" depends="generate" unless="skip.compile">
+        <myjavac>
+          <src path="${src.dir}"/>
+          <src path="${src.dest}"/>
+        </myjavac>
+    </target>
 
-	<target name="testng-init" unless="testng.init.done">
-		<property name="testng.init.done" value="true"/>
-		<installIvy/>
-		<defineClasspath/>
-		<ivy:settings id="ivy.${ant.project.name}.test" file="${etc.dir}/ivysettings.xml"/>
-		<ivy:resolve settingsRef="ivy.${ant.project.name}.test" file="${basedir}/test.xml" type="jar" log="quiet"/>
-		<ivy:retrieve settingsRef="ivy.${ant.project.name}.test" pattern="${deps.lib.dir}/test/[artifact].[ext]" log="quiet" sync="false" symlink="true"/>
-		<taskdef name="testng" classname="org.testng.TestNGAntTask" classpathref="omero.test.classpath"/>
-		<taskdef resource="emma_ant.properties" classpathref="omero.classpath" />
-		<presetdef name="nomemorytestng">
-			<testng outputDir="${testreports.dir}"
-				haltonfailure="${test.with.fail}"
-				haltonskipped="${test.with.fail}"
-				verbose="${testng.verbose}"
-				groups="@{groups}"
-				methods="@{methods}"
-				testnames="@{testnames}"
-				useDefaultListeners="${testng.useDefaultListeners}"
-				listeners="org.uncommons.reportng.HTMLReporter,org.uncommons.reportng.JUnitXMLReporter"
-				>
-				<classpath>
-					<pathelement location="${emmaclasses.dir}"/>
-					<path refid="omero.test.classpath"/>
-					<pathelement location="${testclasses.dir}"/>
-					<pathelement location="${classes.dir}"/>
-					<pathelement location="${test.dir}"/>
-				</classpath>
-				<jvmarg value="-XX:MaxPermSize=256m"/>
-				<jvmarg value="-Demma.coverage.out.file=${target.dir}/coverage.emma" />
-				<jvmarg value="-Dlogback.configuration=logback-build.xml"/>
-				<jvmarg value="-Domero.db.name=${omero.db.name}"/>
-				<jvmarg value="-Domero.db.host=${omero.db.host}"/>
-				<jvmarg value="-Domero.db.port=${omero.db.port}"/>
-				<jvmarg value="-Domero.db.user=${omero.db.user}"/>
-				<jvmarg value="-Domero.db.pass=${omero.db.pass}"/>
-				<jvmarg value="-Domero.data.dir=${omero.data.dir}"/>
-				<jvmarg value="-Domero.testing=true"/>
-				<jvmarg value="-Domero.db.poolsize=${omero.db.poolsize}"/>
-			</testng>
-		</presetdef>
-	</target>
+    <target name="testng-init" unless="testng.init.done">
+        <property name="testng.init.done" value="true"/>
+        <installIvy/>
+        <defineClasspath/>
+        <ivy:settings id="ivy.${ant.project.name}.test" file="${etc.dir}/ivysettings.xml"/>
+        <ivy:resolve settingsRef="ivy.${ant.project.name}.test" file="${basedir}/test.xml" type="jar" log="quiet"/>
+        <ivy:retrieve settingsRef="ivy.${ant.project.name}.test" pattern="${deps.lib.dir}/test/[artifact].[ext]" log="quiet" sync="false" symlink="true"/>
+        <taskdef name="testng" classname="org.testng.TestNGAntTask" classpathref="omero.test.classpath"/>
+        <taskdef resource="emma_ant.properties" classpathref="omero.classpath" />
+        <presetdef name="nomemorytestng">
+            <testng outputDir="${testreports.dir}"
+                haltonfailure="${test.with.fail}"
+                haltonskipped="${test.with.fail}"
+                verbose="${testng.verbose}"
+                groups="@{groups}"
+                methods="@{methods}"
+                testnames="@{testnames}"
+                useDefaultListeners="${testng.useDefaultListeners}"
+                listeners="org.uncommons.reportng.HTMLReporter,org.uncommons.reportng.JUnitXMLReporter"
+                >
+                <classpath>
+                    <pathelement location="${emmaclasses.dir}"/>
+                    <path refid="omero.test.classpath"/>
+                    <pathelement location="${testclasses.dir}"/>
+                    <pathelement location="${classes.dir}"/>
+                    <pathelement location="${test.dir}"/>
+                </classpath>
+                <jvmarg value="-XX:MaxPermSize=256m"/>
+                <jvmarg value="-Demma.coverage.out.file=${target.dir}/coverage.emma" />
+                <jvmarg value="-Dlogback.configuration=logback-build.xml"/>
+                <jvmarg value="-Domero.db.name=${omero.db.name}"/>
+                <jvmarg value="-Domero.db.host=${omero.db.host}"/>
+                <jvmarg value="-Domero.db.port=${omero.db.port}"/>
+                <jvmarg value="-Domero.db.user=${omero.db.user}"/>
+                <jvmarg value="-Domero.db.pass=${omero.db.pass}"/>
+                <jvmarg value="-Domero.data.dir=${omero.data.dir}"/>
+                <jvmarg value="-Domero.testing=true"/>
+                <jvmarg value="-Domero.db.poolsize=${omero.db.poolsize}"/>
+            </testng>
+        </presetdef>
+    </target>
 
-	<macrodef name="suite">
-		<attribute name="groups" default=""/>
-		<attribute name="methods" default=""/>
-		<attribute name="testnames" default=""/>
-		<element name="files" implicit="yes"/>
-		<sequential>
-		<if>
-			<isset property="javac.maxmem"/>
-			<then>
-				<nomemorytestng
+    <macrodef name="suite">
+        <attribute name="groups" default=""/>
+        <attribute name="methods" default=""/>
+        <attribute name="testnames" default=""/>
+        <element name="files" implicit="yes"/>
+        <sequential>
+        <if>
+            <isset property="javac.maxmem"/>
+            <then>
+                <nomemorytestng
                         groups="@{groups}"
                         methods="@{methods}"
                         testnames="@{testnames}"
-				>
-					<files/>
-					<jvmarg value="-Xmx${javac.maxmem}"/>
-				</nomemorytestng>
-			</then>
-			<else>
-				<nomemorytestng
+                >
+                    <files/>
+                    <jvmarg value="-Xmx${javac.maxmem}"/>
+                </nomemorytestng>
+            </then>
+            <else>
+                <nomemorytestng
                         groups="@{groups}"
                         methods="@{methods}"
                         testnames="@{testnames}"
-				>
-					<files/>
-				</nomemorytestng>
-			</else>
-		</if>
-		</sequential>
-	</macrodef>
+                >
+                    <files/>
+                </nomemorytestng>
+            </else>
+        </if>
+        </sequential>
+    </macrodef>
 
 
-	<target name="test-compile" depends="testng-init" unless="test.skip">
-		<!-- may be overridden by fail-on-error -->
-		<property name="test.with.fail" value="false"/>
-		<property name="emma.enabled"   value="true"/>
-	        <property name="unit.suite" value="unit.testng.xml"/>
-		<copyTestResources/>
-		<javac
-			fork="yes"
-			debug="on"
-			destdir="${testclasses.dir}"
-			encoding="UTF-8"
-			classpathref="omero.test.classpath" >
-			<src path="${test.dir}"/>
-		</javac>
-		<jar destfile="${target.dir}/${ivy.module}.jar">
-			<fileset dir="${testclasses.dir}" includes="**/*.class,**/*.xml,**/*.txt,**/*.properties,**/*.dv,**/*.bmp,**/*.jpg,**/*.png"/>
-		</jar>
-		<delete file="${target.dir}/${ivy.module}.xml"/> <!-- delete last produced ivy file to be sure a new one will be generated -->
-		<ivy:publish artifactspattern="${target.dir}/[module].[ext]" resolver="test-resolver" settingsRef="ivy.${ant.project.name}"
-		   pubrevision="${omero.version}" pubdate="${now}" status="integration" overwrite="true"/>
-		<path id="emma.classpath">
-			<pathelement location="${classes.dir}"/>
-		</path>
-		<emma enabled="${emma.enabled}" >
-			<instr instrpathref="emma.classpath"
-				destdir="${emmaclasses.dir}"
-				metadatafile="${target.dir}/metadata.emma"
-				merge="true"
-			/>
-		</emma>
-	</target>
+    <target name="test-compile" depends="testng-init" unless="test.skip">
+        <!-- may be overridden by fail-on-error -->
+        <property name="test.with.fail" value="false"/>
+        <property name="emma.enabled"   value="true"/>
+            <property name="unit.suite" value="unit.testng.xml"/>
+        <copyTestResources/>
+        <myjavac
+            destdir="${testclasses.dir}"
+            classpathref="omero.test.classpath" >
+            <src path="${test.dir}"/>
+        </myjavac>
+        <jar destfile="${target.dir}/${ivy.module}.jar">
+            <fileset dir="${testclasses.dir}" includes="**/*.class,**/*.xml,**/*.txt,**/*.properties,**/*.dv,**/*.bmp,**/*.jpg,**/*.png"/>
+        </jar>
+        <delete file="${target.dir}/${ivy.module}.xml"/> <!-- delete last produced ivy file to be sure a new one will be generated -->
+        <ivy:publish artifactspattern="${target.dir}/[module].[ext]" resolver="test-resolver" settingsRef="ivy.${ant.project.name}"
+           pubrevision="${omero.version}" pubdate="${now}" status="integration" overwrite="true"/>
+        <path id="emma.classpath">
+            <pathelement location="${classes.dir}"/>
+        </path>
+        <emma enabled="${emma.enabled}" >
+            <instr instrpathref="emma.classpath"
+                destdir="${emmaclasses.dir}"
+                metadatafile="${target.dir}/metadata.emma"
+                merge="true"
+            />
+        </emma>
+    </target>
 
-	<target name="test-single" if="TEST">
-		<suite>
-			<classfileset dir="${testclasses.dir}">
-				<include name="**/${TEST}.class"/>
-			</classfileset>
-		</suite>
-	</target>
+    <target name="test-single" if="TEST">
+        <suite>
+            <classfileset dir="${testclasses.dir}">
+                <include name="**/${TEST}.class"/>
+            </classfileset>
+        </suite>
+    </target>
 
-	<target name="test-suite" unless="TEST" depends="testng-init">
-		<suite>
-			<xmlfileset dir="${test.dir}">
-				<include name="${unit.suite}"/>
-			</xmlfileset>
-		</suite>
-	</target>
+    <target name="test-suite" unless="TEST" depends="testng-init">
+        <suite>
+            <xmlfileset dir="${test.dir}">
+                <include name="${unit.suite}"/>
+            </xmlfileset>
+        </suite>
+    </target>
 
-	<target name="test-groups" unless="TEST">
-		<!-- may be overridden by fail-on-error -->
-		<property name="test.with.fail" value="false"/>
-		<property name="integration.suite" value="integration.testng.xml"/>
-		<suite groups="${GROUPS}">
+    <target name="test-groups" unless="TEST">
+        <!-- may be overridden by fail-on-error -->
+        <property name="test.with.fail" value="false"/>
+        <property name="integration.suite" value="integration.testng.xml"/>
+        <suite groups="${GROUPS}">
                     <classfileset dir="${testclasses.dir}">
                             <include name="**/*.class"/>
                     </classfileset>
                 </suite>
-	</target>
+    </target>
 
-	<target name="test-methods" unless="TEST">
-		<!-- may be overridden by fail-on-error -->
-		<property name="test.with.fail" value="false"/>
-		<property name="integration.suite" value="integration.testng.xml"/>
-		<suite methods="${METHODS}">
+    <target name="test-methods" unless="TEST">
+        <!-- may be overridden by fail-on-error -->
+        <property name="test.with.fail" value="false"/>
+        <property name="integration.suite" value="integration.testng.xml"/>
+        <suite methods="${METHODS}">
                     <classfileset dir="${testclasses.dir}">
                             <include name="**/*.class"/>
                     </classfileset>
                 </suite>
-	</target>
+    </target>
 
-	<target name="test" depends="test-compile" unless="test.skip">
+    <target name="test" depends="test-compile" unless="test.skip">
                 <if><isset property="TEST"/><then>
                         <antcall target="test-single" inheritRefs="true" inheritAll="true"/></then>
                     <elseif><isset property="GROUPS"/><then>
@@ -329,151 +329,198 @@ omero.version=${omero.version}
                         <antcall target="test-suite" inheritRefs="true" inheritAll="true"/>
                     </else>
                 </if>
-		<emma enabled="${emma.enabled}" >
-			<report sourcepath="${src.dir}" >
-				<fileset dir="${target.dir}" includes="*.emma"/>
-				<html outfile="${target.dir}/coverage.html" />
-				<xml outfile="${target.dir}/coverage.xml" />
-			</report>
-		</emma>
-	</target>
+        <emma enabled="${emma.enabled}" >
+            <report sourcepath="${src.dir}" >
+                <fileset dir="${target.dir}" includes="*.emma"/>
+                <html outfile="${target.dir}/coverage.html" />
+                <xml outfile="${target.dir}/coverage.xml" />
+            </report>
+        </emma>
+    </target>
 
-	<target name="integration" depends="test-compile" unless="test.skip">
-		<!-- may be overridden by fail-on-error -->
-		<property name="test.with.fail" value="false"/>
-		<property name="integration.suite" value="integration.testng.xml"/>
-		<if>
-			<available file="${test.dir}/${integration.suite}" />
-			<then>
-				<suite>
-					<xmlfileset dir="${test.dir}">
-						<include name="${integration.suite}"/>
-					</xmlfileset>
-				</suite>
-			</then>
-		</if>
-		<emma enabled="${emma.enabled}" >
-			<report sourcepath="${src.dir}" >
-				<fileset dir="${target.dir}" includes="*.emma"/>
-				<html outfile="${target.dir}/coverage.html" />
-				<xml outfile="${target.dir}/coverage.xml" />
-			</report>
-		</emma>
-	</target>
+    <target name="integration" depends="test-compile" unless="test.skip">
+        <!-- may be overridden by fail-on-error -->
+        <property name="test.with.fail" value="false"/>
+        <property name="integration.suite" value="integration.testng.xml"/>
+        <if>
+            <available file="${test.dir}/${integration.suite}" />
+            <then>
+                <suite>
+                    <xmlfileset dir="${test.dir}">
+                        <include name="${integration.suite}"/>
+                    </xmlfileset>
+                </suite>
+            </then>
+        </if>
+        <emma enabled="${emma.enabled}" >
+            <report sourcepath="${src.dir}" >
+                <fileset dir="${target.dir}" includes="*.emma"/>
+                <html outfile="${target.dir}/coverage.html" />
+                <xml outfile="${target.dir}/coverage.xml" />
+            </report>
+        </emma>
+    </target>
 
 
-	<target name="package" depends="compile">
-		<pathconvert property="mf.classpath"
-			refid="omero.compile.classpath"
-			pathsep=" " dirsep="/">
-			<flattenmapper/>
-		</pathconvert>
+    <target name="package" depends="compile,package-extra">
+        <pathconvert property="mf.classpath"
+            refid="omero.compile.classpath"
+            pathsep=" " dirsep="/">
+            <flattenmapper/>
+        </pathconvert>
                 <property name="mf.classpath.and.jars" value="../../etc ${mf.classpath} services.jar extensions.jar"/>
-		<jar destfile="${target.dir}/${ivy.module}.jar" update="true">
-			<manifest>
-				<attribute name="Class-Path" value="${mf.classpath.and.jars}"/>
-				<attribute name="Main-Class" value="${main.class}"/>
-			</manifest>
-			<fileset dir="${classes.dir}">
-				<exclude name="local.properties"/>
-				<exclude name="logback.xml"/>
-				<exclude name="logback-build.xml"/>
-			</fileset>
-		</jar>
-	</target>
+        <jar destfile="${target.dir}/${ivy.module}.jar" update="true">
+            <manifest>
+                <attribute name="Class-Path" value="${mf.classpath.and.jars}"/>
+                <attribute name="Main-Class" value="${main.class}"/>
+            </manifest>
+            <fileset dir="${classes.dir}">
+                <exclude name="local.properties"/>
+                <exclude name="logback.xml"/>
+                <exclude name="logback-build.xml"/>
+            </fileset>
+        </jar>
+    </target>
 
-	<target name="load-findbugs" depends="prepare">
-		<property name="findbugs.path"   value="omero.classpath"/>
-		<property name="findbugs.type"   value="jar"/>
-		<property name="findbugs.target" value="${target.dir}/${ivy.module}.${findbugs.type}"/>
-		<property name="findbugs.home"   value="${omero.home}/lib/findbugs-${versions.findbugs}"/>
-		<taskdef name="find-bugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask" classpathref="omero.classpath"/>
-		<taskdef resource="checkstyletask.properties" classpathref="omero.classpath"/>
-		<condition property="no.findbugs"><not><available file="${findbugs.target}"/></not></condition>
-		<macrodef name="do-find-bugs">
-			<sequential>
-			<find-bugs home="${findbugs.home}" output="xml:withMessages" outputFile="${target.dir}/findbugs.xml"
+    <target name="package-extra">
+        <jar destfile="${target.dir}/${ivy.module}-sources.jar">
+            <fileset dir="${src.dir}" includes="**/*.java"/>
+            <fileset dir="${src.dest}" includes="**/*.java"/>
+        </jar>
+        <mkdir dir="${target.dir}/javadocs"/>
+        <javadoc
+            classpathref="omero.classpath"
+            failonerror="true"
+            Verbose="false"
+            maxmemory="${javadoc.maxmem}"
+            destdir="${target.dir}/javadocs"
+            author="true"
+            version="true"
+            use="true"
+            encoding="UTF-8"
+            docencoding="UTF-8"
+            breakiterator="true"
+            useexternalfile="true">
+            <fileset dir="${src.dir}" includes="**/*.java"/>
+            <fileset dir="${src.dest}" includes="**/*.java"/>
+        </javadoc>
+        <jar destfile="${target.dir}/${ivy.module}-javadoc.jar">
+                <fileset dir="${target.dir}/javadocs"/>
+        </jar>
+    </target>
+
+    <target name="load-findbugs" depends="prepare">
+        <property name="findbugs.path"   value="omero.classpath"/>
+        <property name="findbugs.type"   value="jar"/>
+        <property name="findbugs.target" value="${target.dir}/${ivy.module}.${findbugs.type}"/>
+        <property name="findbugs.home"   value="${omero.home}/lib/findbugs-${versions.findbugs}"/>
+        <taskdef name="find-bugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask" classpathref="omero.classpath"/>
+        <taskdef resource="checkstyletask.properties" classpathref="omero.classpath"/>
+        <condition property="no.findbugs"><not><available file="${findbugs.target}"/></not></condition>
+        <macrodef name="do-find-bugs">
+            <sequential>
+            <find-bugs home="${findbugs.home}" output="xml:withMessages" outputFile="${target.dir}/findbugs.xml"
                                    excludeFilter="${import.dir}/excludebugs.xml">
-				<class location="${findbugs.target}" />
-				<auxClasspath>
-					<path refid="${findbugs.path}"/>
-				</auxClasspath>
-				<sourcePath>
-					<path>
-						<pathelement location="${src.dir}"/>
-						<pathelement location="${src.dest}"/>
-					</path>
-				</sourcePath>
-			</find-bugs>
-			</sequential>
-		</macrodef>
-		<macrodef name="do-checkstyle">
-                        <attribute name="config" default="${omero.home}/docs/styles/checkstyle.xml"/>
-                        <attribute name="failOnViolation" default="false"/>
-                        <attribute name="toFile" default="${target.dir}/checkstyle.xml"/>
-                        <element name="srcelements" implicit="yes"/>
-			<sequential>
-			<checkstyle config="@{config}" failOnViolation="@{failOnViolation}">
-				<formatter type="xml" toFile="@{toFile}"/>
+                <class location="${findbugs.target}" />
+                <auxClasspath>
+                    <path refid="${findbugs.path}"/>
+                </auxClasspath>
+                <sourcePath>
+                    <path>
+                        <pathelement location="${src.dir}"/>
+                        <pathelement location="${src.dest}"/>
+                    </path>
+                </sourcePath>
+            </find-bugs>
+            </sequential>
+        </macrodef>
+        <macrodef name="do-checkstyle">
+            <attribute name="config" default="${omero.home}/docs/styles/checkstyle.xml"/>
+            <attribute name="failOnViolation" default="false"/>
+            <attribute name="toFile" default="${target.dir}/checkstyle.xml"/>
+            <element name="srcelements" implicit="yes"/>
+            <sequential>
+            <checkstyle config="@{config}" failOnViolation="@{failOnViolation}">
+                <formatter type="xml" toFile="@{toFile}"/>
                                 <srcelements/>
-			</checkstyle>
-			</sequential>
-		</macrodef>
-	</target>
+            </checkstyle>
+            </sequential>
+        </macrodef>
+    </target>
 
-	<target name="headers" description="Run checkstyle header check" depends="load-findbugs">
-		<do-checkstyle config="${omero.home}/docs/styles/headers.xml" toFile="${target.dir}/headers.xml" failOnViolation="true">
-			<fileset dir="${basedir}" includes="**/*"/>
-		</do-checkstyle>
-	</target>
+    <target name="headers" description="Run checkstyle header check" depends="load-findbugs">
+        <do-checkstyle config="${omero.home}/docs/styles/headers.xml" toFile="${target.dir}/headers.xml" failOnViolation="true">
+            <fileset dir="${basedir}" includes="**/*"/>
+        </do-checkstyle>
+    </target>
 
-	<target name="findbugs" description="Run findbugs on components' jar" depends="load-findbugs" unless="no.findbugs">
-		<do-find-bugs/>
-		<do-checkstyle>
-			<fileset dir="${basedir}" includes="**/*.java"/>
-		</do-checkstyle>
-	</target>
+    <target name="findbugs" description="Run findbugs on components' jar" depends="load-findbugs" unless="no.findbugs">
+        <do-find-bugs/>
+        <do-checkstyle>
+            <fileset dir="${basedir}" includes="**/*.java"/>
+        </do-checkstyle>
+    </target>
 
-	<target name="install" depends="package">
-		<publishArtifact/>
-	</target>
+    <target name="install" depends="package">
+        <property name="ivy.pom.version" value="${omero.version}"/>
+        <ivy:makepom ivyfile="${basedir}/ivy.xml" pomfile="${target.dir}/${ivy.module}.pom">
+            <mapping conf="build" scope="compile"/>
+            <mapping conf="runtime" scope="compile"/>
+            <mapping conf="client" scope="compile"/>
+            <mapping conf="server" scope="compile"/>
+            <mapping conf="default" scope="compile"/>
+            <mapping conf="*" scope="compile"/>
+            <dependency group="ome" artifact="bio-formats" version="${omero.version}" optional="true"/>
+        </ivy:makepom>
+        <publishArtifact/>
+    </target>
 
-	<!-- Previously dependend on integration, but that may need special controls.
-	For the time being, depenending solely on "install" -->
-	<target name="dist" depends="install">
-		<!-- empty by default -->
-	</target>
+    <!-- Previously dependend on integration, but that may need special controls.
+    For the time being, depenending solely on "install" -->
+    <target name="dist" depends="install">
+        <!-- empty by default -->
+    </target>
 
-	<target name="clean">
-		<delete dir="${target.dir}"/>
-	</target>
+    <target name="artifactory" depends="prepare">
+        <ivy:settings id="ivy.${ant.project.name}.artifactory" file="${etc.dir}/ivysettings.xml"/>
+        <ivy:resolve file="ivy.xml" type="jar,egg" conf="client" settingsRef="ivy.${ant.project.name}.artifactory" log="quiet"/>
+        <publishArtifact
+            resolver="artifactory-publish"
+            settingsRef="ivy.${ant.project.name}.artifactory"
+            haltonmissing="false"
+            publishivy="false"
+            conf="client"/>
+    </target>
 
-	<!-- NON-LIFECYCLE HELPER TARGETS -->
+    <target name="clean">
+        <delete dir="${target.dir}"/>
+    </target>
 
-	<target name="strict-test" depends="fail-on-error,clean-tests,test"/>
+    <!-- NON-LIFECYCLE HELPER TARGETS -->
 
-	<target name="clean-tests">
-		<delete dir="${testclasses.dir}"/>
-		<delete dir="${testreports.dir}"/>
-	</target>
+    <target name="strict-test" depends="fail-on-error,clean-tests,test"/>
 
-	<target name="refresh" if="eclipse.running">
-		<eclipse.refreshLocal resource="omero-dsl" depth="infinite"/>
-		<eclipse.refreshLocal resource="omero-common" depth="infinite"/>
-		<eclipse.refreshLocal resource="omero-server" depth="infinite"/>
-		<eclipse.refreshLocal resource="omero-client" depth="infinite"/>
-		<eclipse.refreshLocal resource="omero-shoola-adapter" depth="infinite"/>
-		<eclipse.refreshLocal resource="missing" depth="infinite"/>
-	</target>
+    <target name="clean-tests">
+        <delete dir="${testclasses.dir}"/>
+        <delete dir="${testreports.dir}"/>
+    </target>
 
-	<macrodef name="copyResource">
-		<attribute name="file"/>
-		<sequential>
-		<basename property="props.file.prop" file="@{file}"/>
-		<copy file="@{file}" todir="${resrc.dest}" failonerror="true" />
-		<copy file="@{file}" todir="${classes.dir}" failonerror="true" />
-		</sequential>
-	</macrodef>
+    <target name="refresh" if="eclipse.running">
+        <eclipse.refreshLocal resource="omero-dsl" depth="infinite"/>
+        <eclipse.refreshLocal resource="omero-common" depth="infinite"/>
+        <eclipse.refreshLocal resource="omero-server" depth="infinite"/>
+        <eclipse.refreshLocal resource="omero-client" depth="infinite"/>
+        <eclipse.refreshLocal resource="omero-shoola-adapter" depth="infinite"/>
+        <eclipse.refreshLocal resource="missing" depth="infinite"/>
+    </target>
+
+    <macrodef name="copyResource">
+        <attribute name="file"/>
+        <sequential>
+        <basename property="props.file.prop" file="@{file}"/>
+        <copy file="@{file}" todir="${resrc.dest}" failonerror="true" />
+        <copy file="@{file}" todir="${classes.dir}" failonerror="true" />
+        </sequential>
+    </macrodef>
 
 </project>
-

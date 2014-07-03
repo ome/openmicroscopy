@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.env.data.views.calls.StructuredAnnotationLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -92,7 +92,7 @@ public class StructuredAnnotationLoader
     		final List<Long> rootIDs, final Class<?> annotationType,
     		final List<String> nsInclude, final List<String> nsExlcude)
     {
-        return new BatchCall("Loading Specified annotation") {
+        return new BatchCall("Loading Specified Annotation") {
             public void doCall() throws Exception
             {
             	OmeroMetadataService os = context.getMetadataService();
@@ -115,7 +115,7 @@ public class StructuredAnnotationLoader
     private BatchCall loadAnnotations(final Class annotationType,
     		final long userID)
     {
-        return new BatchCall("Loading Existing annotations") {
+        return new BatchCall("Loading Existing Annotations") {
             public void doCall() throws Exception
             {
                 OmeroMetadataService os = context.getMetadataService();
@@ -136,7 +136,7 @@ public class StructuredAnnotationLoader
     private BatchCall loadAnnotations(final List<SecurityContext> ctx,
     		final Class annotationType, final long userID)
     {
-        return new BatchCall("Loading Existing annotations") {
+        return new BatchCall("Loading Existing Annotations") {
             public void doCall() throws Exception
             {
                 OmeroMetadataService os = context.getMetadataService();
@@ -206,7 +206,7 @@ public class StructuredAnnotationLoader
      */
     private BatchCall loadStructuredData(final Object object, final long userID)
     {
-        return new BatchCall("Loading Ratings") {
+        return new BatchCall("Loading Structured Data") {
             public void doCall() throws Exception
             {
             	OmeroMetadataService os = context.getMetadataService();
@@ -229,7 +229,7 @@ public class StructuredAnnotationLoader
     private BatchCall loadStructuredData(final List<DataObject> data,
     	final long userID, final boolean viewed)
     {
-        return new BatchCall("Loading Ratings") {
+        return new BatchCall("Loading Structured Data") {
             public void doCall() throws Exception
             {
             	OmeroMetadataService os = context.getMetadataService();
@@ -246,7 +246,7 @@ public class StructuredAnnotationLoader
      */
     private BatchCall loadAnnotation(final long annotationID)
     {
-        return new BatchCall("Loading Ratings") {
+        return new BatchCall("Loading Annotation") {
             public void doCall() throws Exception
             {
             	OmeroMetadataService os = context.getMetadataService();

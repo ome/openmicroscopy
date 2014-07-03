@@ -30,20 +30,59 @@
 
 <div class="standard_form">
 
-    <h1>{% trans "Available Tags" %}:</h1>
-    
-    {{ form_tags.tags }}{% if form_tags.tags.field.required %}*{% endif %}
 
-    <h1>{% trans "Add a new tag" %}</h1>
-    
-		
-		<label>Tag Name:</label>
-		{{ form_tags.tag }}
-       
-	  
-       	<label>Description:</label>
-        {{ form_tags.description }}
-       
+    <h1>{% trans "Select from available tags" %}:</h1>
+
+
+    <div style="float: left;">
+
+        <h1>{% trans "Available Tags" %}: <span id="id_tags_selected"></span></h1>
+{% comment %}Spaces in placeholder are important so user can input the actual placeholder text without it getting removed{% endcomment %}
+        <input type="text" id="id_tag_filter" placeholder="Filter   " />
+        <div class="tag_selection_wrapper filtered">
+            <div id="id_all_tags" class="tag_selection"></div>
+        </div>
+        <div>
+            Filter by
+            <select name="filter_mode">
+                <option value="start">start of tag name</option>
+                <option value="any" selected="selected">anywhere in tag name</option>
+            </select><br />
+            Filter by owner
+            <select name="filter_owner_mode">
+                <option value="all">All</option>
+                <option value="me">owned by me</option>
+                <option value="others">owned by others</option>
+            </select>
+        </div>
+    </div>
+
+
+    <div id="id_move_tags">
+
+        <button id="id_tag_select_button"> <img src="{% static "webclient/image/icon_arrow_right.png" %}" /> </button>
+        <button id="id_tag_deselect_button"> <img src="{% static "webclient/image/icon_arrow_left.png" %}" /> </button>
+
+    </div>
+
+    <div style="float: left;">
+
+        <h1>{% trans "Selected Tags" %}:</h1>
+        <div class="tag_selection_wrapper">
+            <div id="id_selected_tags" class="tag_selection"></div>
+        </div>
+
+    </div>
+
+    <div style="clear: left; padding-top: 15px;">
+        <h1 id="id_selected_tag_set">
+            {% trans "Add a new tag and select it immediately" %}:</h1>
+
+        <input type="text" id="id_tag" placeholder='Tag   '/>
+        <textarea id="tag_description" placeholder='Description   '></textarea>
+
+        <button id="id_add_new_tag"> Add </button>
+    </div>
 
         <!-- hidden fields used to specify the objects we're tagging -->
         <div class="hiddenField">{{ form_tags.image }}</div>
@@ -55,5 +94,11 @@
         <div class="hiddenField">{{ form_tags.well }}</div>
         <div class="hiddenField"><input type="text" name="index" value="{{ index }}"/></div>
 
+        <div class="hiddenField">{{ form_tags.tags }}</div>
+        <div class="hiddenField">{{ newtags_formset.management_form }}</div>
 
 </div>
+
+<script>
+    tagging_form({{ selected_tags|safe }}, "{{ newtags_formset.prefix }}", "{{ form_tags.tags.auto_id }}", {{ ome.user.id }}, "{{ ome.user.firstName|escape }} {{ ome.user.lastName|escape }}");
+</script>

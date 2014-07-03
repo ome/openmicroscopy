@@ -30,9 +30,7 @@ import traceback
 import logging
 import json
 
-from django.conf import settings
 from django import template
-from django.utils.translation import ugettext, ungettext
 
 register = template.Library()
 
@@ -125,7 +123,7 @@ def shortening(value, arg):
             return value
         elif l >= length: 
             return value[:front]+"..."+value[l-end:]
-    except Exception, x:
+    except Exception:
         logger.error(traceback.format_exc())
         return value
 

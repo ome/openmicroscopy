@@ -31,10 +31,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 try:
-    from PIL import Image, ImageDraw # see ticket:2597
+    from PIL import Image # see ticket:2597
 except ImportError:
     try:
-        import Image, ImageDraw # see ticket:2597
+        import Image # see ticket:2597
     except:
         logger.error("You need to install the Python Imaging Library. Get it at http://www.pythonware.com/products/pil/")
         logger.error(traceback.format_exc())
@@ -43,32 +43,24 @@ from StringIO import StringIO
 
 import time
 from datetime import datetime
-from types import IntType, ListType, TupleType, UnicodeType, StringType
 
 import Ice
-import Glacier2
 import omero.gateway
 import omero.scripts
 
-from omero.rtypes import *
-from omero.model import FileAnnotationI, TagAnnotationI, \
-                        DatasetI, ProjectI, ImageI, ScreenI, PlateI, \
-                        DetectorI, FilterI, ObjectiveI, InstrumentI, \
-                        LaserI, ExperimenterI, ExperimenterGroupI
+from omero.rtypes import rint, rstring, rlong, rlist, rtime, unwrap
+from omero.model import \
+                        ExperimenterI, ExperimenterGroupI
 
-from omero.gateway import FileAnnotationWrapper, TagAnnotationWrapper, ExperimenterWrapper, \
-                ExperimenterGroupWrapper, WellWrapper, AnnotationWrapper, \
+from omero.gateway import TagAnnotationWrapper, \
+                AnnotationWrapper, \
                 OmeroGatewaySafeCallWrapper, CommentAnnotationWrapper
 
-from omero.sys import ParametersI
+from omero.gateway import KNOWN_WRAPPERS
 
 from django.utils.encoding import smart_str
-from django.utils.translation import ugettext as _
 from django.conf import settings
-from django.core.mail import send_mail
 from django.core.mail import EmailMultiAlternatives
-
-from omeroweb.connector import Server
 
 try:
     import hashlib
@@ -85,7 +77,6 @@ def defaultThumbnail(size=(120,120)):
         size = (size[0],size[0])
     img = Image.open(settings.DEFAULT_IMG)
     img.thumbnail(size, Image.ANTIALIAS)
-    draw = ImageDraw.Draw(img)
     f = cStringIO.StringIO()
     img.save(f, "PNG")
     f.seek(0)
@@ -348,7 +339,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         params.map = {}
         params.map['ns'] = rstring(omero.constants.metadata.NSINSIGHTTAGSET)
         
-        sql = "select tg from TagAnnotation tg where ((ns=:ns) or ((ns is null or ns='') and not exists ( select aal from AnnotationAnnotationLink as aal where aal.child=tg.id))) "
+        sql = "select tg from TagAnnotation tg where ((ns=:ns) or (not exists ( select aal from AnnotationAnnotationLink as aal where aal.child=tg.id))) "
         if eid is not None:
             params.map["eid"] = rlong(long(eid))
             sql+=" and tg.details.owner.id = :eid"
@@ -356,7 +347,106 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         q = self.getQueryService()
         for ann in q.findAllByQuery(sql, params, self.SERVICE_OPTS):
             yield TagAnnotationWrapper(self, ann)
-    
+
+
+    def listTagsRecursive(self, eid=None, offset=None, limit=1000):
+        """
+        Returns a two-element tuple:
+        * A list of tags, where each tag is a list with the following
+          elements:
+          0: id
+          1: description
+          2: text
+          3: owner id
+          4: list of child tag ids (possibly empty), or 0 if this is not a tag set
+        * A dictionary of user ids mapped to user names
+        """
+
+        params = omero.sys.ParametersI()
+        params.orphan()
+        params.map = {}
+        params.map['ns'] = rstring(omero.constants.metadata.NSINSIGHTTAGSET)
+        if eid is not None:
+            params.map["eid"] = rlong(long(eid))
+
+        q = self.getQueryService()
+
+        if offset is not None:
+            params.page(offset, limit)
+
+        sql = """
+            select ann.id, ann.description, ann.textValue, ann.ns,
+            ann.details.owner.id,
+            ann.details.owner.firstName, ann.details.owner.lastName
+            from TagAnnotation ann
+            """
+        if eid is not None:
+            sql += " where ann.details.owner.id = :eid"
+        sql += " order by ann.id"
+
+        tags = []
+        owners = dict()
+        for element in q.projection(sql, params, self.SERVICE_OPTS):
+            tag_id, description, text, ns, owner, first, last = map(unwrap, element)
+            tags.append([
+                tag_id,
+                description,
+                text,
+                owner,
+                # if tagset, list to be filled in later, otherwise 0
+                [] if ns == omero.constants.metadata.NSINSIGHTTAGSET else 0,
+            ])
+            owners[owner] = "%s %s" % (first, last)
+
+        ids = [tag[0] for tag in tags]
+
+        params.noPage()
+        params.addIds(ids)
+
+        sql = """
+            select aal.parent.id, aal.child.id
+            from AnnotationAnnotationLink aal
+            inner join aal.parent ann
+            where ann.ns=:ns
+            and aal.parent.id in (:ids)
+            """
+        if eid is not None:
+            sql += " and ann.details.owner.id = :eid"
+
+        mapping = dict()
+        if ids:
+            for element in q.projection(sql, params, self.SERVICE_OPTS):
+                parent = unwrap(element[0])
+                child = unwrap(element[1])
+                mapping.setdefault(parent, []).append(child)
+
+        for idx in range(len(tags)):
+            children = mapping.get(tags[idx][0])
+            if children:
+                tags[idx][4] = children
+
+        return tags, owners
+
+
+    def getTagCount(self, eid=None):
+        params = omero.sys.ParametersI()
+        params.orphan()
+        params.map = {}
+
+        q = self.getQueryService()
+
+        sql = """
+            select count(ann)
+            from TagAnnotation ann
+            """
+
+        if eid is not None:
+            params.map["eid"] = rlong(long(eid))
+            sql += " where ann.details.owner.id = :eid"
+
+        return unwrap(q.projection(sql, params, self.SERVICE_OPTS)[0][0])
+
+
     def countOrphans (self, obj_type, eid=None):
         links = {'Dataset':('ProjectDatasetLink', DatasetWrapper), 
                 'Image':('DatasetImageLink', ImageWrapper),
@@ -682,7 +772,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         
         img = Image.open(settings.DEFAULT_USER)
         img.thumbnail((150,150), Image.ANTIALIAS)
-        draw = ImageDraw.Draw(img)
         f = cStringIO.StringIO()
         img.save(f, "PNG")
         f.seek(0)
@@ -1482,10 +1571,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                     except:
                         logger.error(traceback.format_exc())
                 recipients = self.prepareRecipients(members)
-            except Exception, x:
+            except Exception:
                 logger.error(traceback.format_exc())
             else:
-                blitz = Server.get(pk=blitz_id)
                 t = settings.EMAIL_TEMPLATES["add_comment_to_share"]
                 message = t['text_content'] % (host, blitz_id)
                 message_html = t['html_content'] % (host, blitz_id, host, blitz_id)
@@ -1532,7 +1620,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if enable:
             try:
                 recipients = self.prepareRecipients(ms)
-            except Exception, x:
+            except Exception:
                 logger.error(traceback.format_exc())
             else:
                 t = settings.EMAIL_TEMPLATES["create_share"]
@@ -1564,10 +1652,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if len(add_members) > 0:
             try:
                 recipients = self.prepareRecipients(add_members)
-            except Exception, x:
+            except Exception:
                 logger.error(traceback.format_exc())
             else:
-                blitz = Server.get(pk=blitz_id)
                 t = settings.EMAIL_TEMPLATES["add_member_to_share"]
                 message = t['text_content'] % (host, blitz_id, self.getUser().getFullName())
                 message_html = t['html_content'] % (host, blitz_id, host, blitz_id, self.getUser().getFullName())
@@ -1585,10 +1672,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if len(rm_members) > 0:
             try:
                 recipients = self.prepareRecipients(rm_members)
-            except Exception, x:
+            except Exception:
                 logger.error(traceback.format_exc())
             else:
-                blitz = Server.get(pk=blitz_id)
                 t = settings.EMAIL_TEMPLATES["remove_member_from_share"]
                 message = t['text_content'] % (host, blitz_id)
                 message_html = t['html_content'] % (host, blitz_id, host, blitz_id)
@@ -2153,7 +2239,7 @@ class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
     def getChannels (self):
         try:
             return super(ImageWrapper, self).getChannels()
-        except Exception, x:
+        except Exception:
             logger.error('Failed to load channels:', exc_info=True)
             return None
 

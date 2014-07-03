@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -76,7 +75,6 @@ import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
 import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
 import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
-import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
@@ -121,7 +119,7 @@ class DocComponent
 	static final int		LOAD_FROM_LOCAL = 1;
 	
 	/** Action id to unlink the annotation. */
-	private static final int UNLINK = 0;
+	private static final int REMOVE = 0;
 	
 	/** Action id to edit the annotation. */
 	private static final int EDIT = 1;
@@ -131,9 +129,6 @@ class DocComponent
 	
 	/** Action id to open the annotation. */
 	private static final int OPEN = 3;
-	
-	/** Action id to open the annotation. */
-	private static final int DELETE = 4;
 
 	/** Collection of filters supported. */
 	private static final ImmutableCollection<CustomizedFileFilter> FILTERS =
@@ -159,9 +154,6 @@ class DocComponent
 	
 	/** Button to open the file linked to the annotation. */
 	private JMenuItem		openButton;
-	
-	/** Button to delete the file annotation. */
-	private JMenuItem		deleteButton;
 	
 	/** Button to display information. */
 	private JMenuItem		infoButton;
@@ -242,10 +234,6 @@ class DocComponent
 				openButton.setEnabled(false);
 				openButton.setVisible(false);
 			}
-			if (deleteButton != null) {
-				deleteButton.setEnabled(false);
-				deleteButton.setVisible(false);
-			}
 			return count > 0;
 		}
 		boolean b = false;
@@ -277,12 +265,6 @@ class DocComponent
 			openButton.setVisible(b);
 			if (b) count++;
 		}
-		if (deleteButton != null) {
-			b = model.canDelete(data);
-			deleteButton.setEnabled(b);
-			deleteButton.setVisible(b);
-			if (b) count++;
-		}
 		return count > 0;
 	}
 	
@@ -309,7 +291,6 @@ class DocComponent
 			if (unlinkButton != null) popMenu.add(unlinkButton);
 			if (downloadButton != null) popMenu.add(downloadButton);
 			if (openButton != null) popMenu.add(openButton);
-			if (deleteButton != null) popMenu.add(deleteButton);
 			if (infoButton != null) popMenu.add(infoButton);
 		}
 		popMenu.show(invoker, p.x, p.y);
@@ -355,7 +336,7 @@ class DocComponent
 		if (annotators.size() == 0) return;
 		Iterator<ExperimenterData> i = annotators.iterator();
 		ExperimenterData annotator;
-		buf.append("<b>Added by:</b><br>");
+		buf.append("<b>Linked by:</b><br>");
 		while (i.hasNext()) {
 			annotator =  i.next();
 			buf.append(EditorUtil.formatExperimenter(annotator)+"<br>");
@@ -567,30 +548,6 @@ class DocComponent
 		}
 	}
 	
-	/**
-	 * Confirms with the user that he/she wants to delete the attachment.
-	 * 
-	 * @param location The location of the mouse pressed.
-	 */
-	private void deleteDocument(Point location)
-	{
-		JFrame f = 
-			MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-		MessageBox box = new MessageBox(f, "Delete attachment",
-				"Are you sure you want to delete the attachment?");
-		Dimension d = box.getSize();
-		if (location != null) {
-			Point p = new Point(location.x-d.width, location.y);
-			if (box.showMsgBox(p) == MessageBox.YES_OPTION)
-				firePropertyChange(AnnotationUI.DELETE_ANNOTATION_PROPERTY,
-					null, this);
-		} else {
-			if (box.centerMsgBox() == MessageBox.YES_OPTION)
-				firePropertyChange(AnnotationUI.DELETE_ANNOTATION_PROPERTY,
-					null, this);
-		}
-	}
-	
 	/** Initializes the various buttons. */
 	private void initButtons()
 	{
@@ -618,26 +575,13 @@ class DocComponent
 		unlinkButton = new JMenuItem(icons.getIcon(IconManager.MINUS_12));
 		unlinkButton.setText("Remove");
 		unlinkButton.addActionListener(this);
-		unlinkButton.setActionCommand(""+UNLINK);
+		unlinkButton.setActionCommand(""+REMOVE);
 		if (data instanceof FileAnnotationData) {
 			FileAnnotationData fa = (FileAnnotationData) data;
 			unlinkButton.setToolTipText("Remove the attachment.");
 			
 			if (fa.getId() > 0) {
-				if (deletable) {
-					deleteButton = new JMenuItem(icons.getIcon(
-							IconManager.DELETE_12));
-					deleteButton.setText("Delete");
-					deleteButton.addMouseListener(new MouseAdapter() {
-						
-						public void mousePressed(MouseEvent e) {
-							Point p = e.getPoint();
-							SwingUtilities.convertPointToScreen(p,
-									menuButton);
-							deleteDocument(p);
-						}
-					});
-				}
+				unlinkButton.setEnabled(deletable);
 				downloadButton = new JMenuItem(icons.getIcon(
 						IconManager.DOWNLOAD_12));
 				downloadButton.setText("Download...");
@@ -823,7 +767,6 @@ class DocComponent
 		if (downloadButton != null) count++;
 		if (infoButton != null) count++;
 		if (openButton != null) count++;
-		if (deleteButton != null) count++;
 		if (count > 0 && data != null) {
 			menuButton.setEnabled(true);
 			if (model.isAcrossGroups()) menuButton.setEnabled(false);
@@ -991,17 +934,8 @@ class DocComponent
 	{
 		int index = Integer.parseInt(e.getActionCommand());
 		switch (index) {
-			case UNLINK:
+			case REMOVE:
 				firePropertyChange(AnnotationUI.REMOVE_ANNOTATION_PROPERTY,
-						null, this);
-				break;
-			case DELETE:
-				JFrame f = 
-					MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-				MessageBox box = new MessageBox(f, "Delete attachment",
-						"Are you sure you want to delete the attachment?");
-				if (box.centerMsgBox() == MessageBox.YES_OPTION)
-					firePropertyChange(AnnotationUI.DELETE_ANNOTATION_PROPERTY,
 						null, this);
 				break;
 			case EDIT:

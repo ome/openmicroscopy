@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2006-2013 University of Dundee. All rights reserved.
+ *   Copyright 2006-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -136,19 +136,7 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
             long pixOwner = pixelsObj.getDetails().getOwner().getId();
             long currentUser = ec.getCurrentUserId();
             if (currentUser != pixOwner) {
-                // ticket:1434 and shoola:ticket:1157. If this is graph critical
-                // and we couldn't find a rendering def for the current user,
-                // then we try to find one for the pixels owner. As in the
-                // thumbnail bean we also have to check if we're in a read-only
-                // group and not the owner of the Pixels object as well.
-
-                Permissions currentGroupPermissions =
-                    ec.getCurrentGroupPermissions();
-                Permissions readOnly = Permissions.parseString("rwr---");
-                if (isGraphCritical
-                    || currentGroupPermissions.identical(readOnly)) {
-                    rd = retrieveRndSettingsFor(pixId, pixOwner);
-                }
+                rd = retrieveRndSettingsFor(pixId, pixOwner);
             }
         }
         return rd;

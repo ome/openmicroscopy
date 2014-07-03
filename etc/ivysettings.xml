@@ -16,34 +16,66 @@
   <properties file="${ivy.settings.dir}/local.properties.example"/>
   <properties file="${ivy.settings.dir}/local.properties"/>
   <properties file="${ivy.settings.dir}/../target/omero.version"/>
+
   <settings defaultResolver="${omero.resolver}"/>
-  <caches defaultCacheDir="${ivy.settings.dir}/../lib/cache"/>
+
+  <credentials host="artifacts.openmicroscopy.org" realm="Artifactory Realm"
+        username="${artifactory.username}" passwd="${artifactory.password}"/>
+
+  <caches default="local" defaultCacheDir="${ivy.settings.dir}/../lib/cache">
+      <!-- local is intended for all products built from this repository,
+           while maven is for any stable, unchanging jar that is being
+           downloaded -->
+      <cache name="local" basedir="${ivy.settings.dir}/../lib/cache"/>
+      <cache name="maven" basedir="${user.home}/.m2/repository/"
+        artifactPattern="[orgPath]/[module]/[revision]/[artifact]-[revision].[ext]"
+        ivyPattern="[orgPath]/[module]/[revision]/[artifact]-[revision].ivy"
+        lockStrategy="artifact-lock"
+        defaultTTL="0ms"/>
+  </caches>
+
   <resolvers>
 
     <!-- Main resolver which has as its first resolver the location
     where all our jars will be published -->
     <chain name="omero-resolver" returnFirst="true">
-      <filesystem name="main" checkmodified="true" changingMatcher="regexp" changingPattern=".*DEV.*">
-        <artifact pattern="${ivy.settings.dir}/../target/repository/[artifact]-[revision].[type]" />
-        <ivy pattern="${ivy.settings.dir}/../target/repository/[module]-[revision].ivy"/>
+
+      <!-- Build-internal repositories -->
+      <filesystem name="main" checkmodified="true" changingMatcher="regexp" changingPattern=".*SNAPSHOT.*" cache="local">
+        <artifact pattern="${ivy.settings.dir}/../target/repository/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]" />
+        <ivy pattern="${ivy.settings.dir}/../target/repository/[organisation]/[module]/[revision]/[module]-[revision](-[classifier]).ivy"/>
       </filesystem>
-      <filesystem name="repo">
+      <filesystem name="repo" cache="local">
         <artifact pattern="${ivy.settings.dir}/../lib/repository/[artifact]-[revision].[type]" />
         <ivy pattern="${ivy.settings.dir}/../lib/repository/[module]-[revision].ivy"/>
       </filesystem>
-      <filesystem name="test" checkmodified="true" changingMatcher="regexp" changingPattern=".*DEV.*">
+      <filesystem name="test" checkmodified="true" changingMatcher="regexp" changingPattern=".*SNAPSHOT.*" cache="local">
         <artifact pattern="${ivy.settings.dir}/../target/test-repository/[artifact]-[revision].[type]" />
         <ivy pattern="${ivy.settings.dir}/../target/test-repository/[module]-[revision].ivy"/>
       </filesystem>
-      <filesystem name="bio-formats" checkmodified="true" changingMatcher="regexp" changingPattern=".*DEV.*">
+      <filesystem name="bio-formats" checkmodified="true" changingMatcher="regexp" changingPattern=".*SNAPSHOT.*" cache="local">
         <artifact pattern="${ivy.settings.dir}/../components/bioformats/jar/[artifact]-[revision].[type]" />
         <ivy pattern="${ivy.settings.dir}/../components/bioformats/jar/[module]-[revision].ivy"/>
       </filesystem>
-      <url name="com.springsource.repository.bundles.release">
+
+      <!-- Lookup via maven cache -->
+      <filesystem name="user-maven" m2compatible="true" force="false" cache="local">
+        <artifact pattern="${user.home}/.m2/repository/[orgPath]/[module]/[revision]/[artifact]-[revision].[ext]"/>
+        <ivy pattern="${user.home}/.m2/repository/[orgPath]/[module]/[revision]/[artifact]-[revision].ivy"/>
+      </filesystem>
+
+      <!-- Remote downloads; cached to '~/.m2/repository' -->
+      <ibiblio name="maven2" m2compatible="true" cache="maven"
+          usepoms="false" useMavenMetadata="false"/>
+      <ibiblio name="artifactory" cache="maven"
+          usepoms="false" useMavenMetadata="false"
+          m2compatible="true" root="http://artifacts.openmicroscopy.org/artifactory/maven/"/>
+
+      <url name="com.springsource.repository.bundles.release" cache="maven">
         <ivy pattern="http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
         <artifact pattern="http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
       </url>
-      <url name="com.springsource.repository.bundles.external">
+      <url name="com.springsource.repository.bundles.external" cache="maven">
         <ivy pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
         <artifact pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
       </url>
@@ -58,7 +90,7 @@
 
    <!-- Resolver for all the test jars which should not be shipped -->
     <chain name="test-resolver" returnFirst="true">
-      <filesystem name="test" checkmodified="true" changingMatcher="regexp" changingPattern=".*DEV.*">
+      <filesystem name="test" checkmodified="true" changingMatcher="regexp" changingPattern=".*SNAPSHOT.*" cache="local">
         <artifact pattern="${ivy.settings.dir}/../target/test-repository/[artifact]-[revision].[type]" />
         <ivy pattern="${ivy.settings.dir}/../target/test-repository/[module]-[revision].ivy"/>
       </filesystem>
@@ -66,10 +98,15 @@
     </chain>
 
     <!-- Hudson resolver. Used by hudson to build a central repository -->
-    <filesystem name="hudson-repository">
+    <filesystem name="hudson-repository" cache="local">
         <ivy pattern="${user.home}/.hudson/repository/[organisation]/[module]/ivys/ivy-[revision].xml"/>
         <artifact pattern="${user.home}/.hudson/repository/[organisation]/[module]/[type]s/[artifact]-[revision].[ext]"/>
     </filesystem>
+
+    <url name="artifactory-publish">
+        <artifact pattern="http://artifacts.openmicroscopy.org/artifactory/${artifactory.repository}/[organization]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"/>
+        <ivy pattern="http://artifacts.openmicroscopy.org/artifactory/${artifactory.repository}/[organization]/[module]/[revision]/ivy-[revision](-[classifier]).xml" />
+    </url>
 
   </resolvers>
 

@@ -39,7 +39,7 @@ public class RepoRawFileStoreI extends RawFileStoreI {
      *
      */
     interface Callback {
-        
+
         /**
          * Called if and only if the write method is successful.
          */

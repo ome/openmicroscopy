@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.search.SearchPanel 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -42,6 +42,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -66,7 +67,6 @@ import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 
 /** 
  * The Component hosting the various fields used to collect the 
@@ -297,6 +297,8 @@ public class SearchPanel
 	
 	private JPanel groupRow;
 	
+	private JXTaskPane datePane;
+	
 	/**
 	 * Returns the selected groups.
 	 * 
@@ -306,7 +308,7 @@ public class SearchPanel
 	{
 		if (groupsBox == null) return model.getGroups();
 		GroupContext ctx = (GroupContext) groupsBox.getSelectedItem();
-		if (ctx.getId() < 0) return model.getGroups();
+		if (ctx.getId() < 0 || ctx.getId() == GroupContext.ALL_GROUPS_ID) return model.getGroups();
 		List<GroupContext> groups = new ArrayList<GroupContext>();
 		groups.add(ctx);
 		Iterator<JComboBox> i = groupsBoxes.iterator();
@@ -328,9 +330,9 @@ public class SearchPanel
 	private JComboBox createBox()
 	{
 		List<GroupContext> groups = model.getGroups();
-		Object[] values = new Object[groups.size()];
-		//values[0] = new GroupContext("All your groups", -1);
-		int j = 0;
+		Object[] values = new Object[groups.size()+1];
+		values[0] = new GroupContext("All groups", GroupContext.ALL_GROUPS_ID);
+		int j = 1;
 		Iterator<GroupContext> i = groups.iterator();
 		while (i.hasNext()) {
 			values[j] = i.next();
@@ -730,8 +732,20 @@ public class SearchPanel
 				n = nodes.get(i);
 				box = new JCheckBox(n.getDescription());
 				box.setBackground(UIUtilities.BACKGROUND_COLOR);
-				if (i == 0) box.setSelected(true);
-				if (i%2 == 0) c.gridy++;
+				if (i == 0) {
+				    // 'ID' checkbox
+				    // if gets selected, disable all other search options (see IDBoxListener)
+				    final JCheckBox idBox = box;
+				    idBox.addActionListener(new IDBoxListener(idBox));
+				}
+				else if (i == 1) {
+				    // 'Name' checkbox, check it by default
+				    box.setSelected(true); 
+				}  
+				
+				if (i%2 == 0) {
+				    c.gridy++;
+				}
 				
 				p.add(box, c);
 				scopes.put(n.getIndex(), box);
@@ -752,7 +766,7 @@ public class SearchPanel
 		//UIUtilities.setBoldTitledBorder(SCOPE_TITLE, p);
 		return p;
 	}
-	
+
 	/** 
 	 * Builds and lays out the component displaying the various types.
 	 * 
@@ -1077,10 +1091,10 @@ public class SearchPanel
 		c.gridy++;
 		add(pane, c);//, "0, 2");
 		//add(UIUtilities.buildTaskPane(buildUsers(), USER_TITLE, true), "0, 3");
-		pane = UIUtilities.createTaskPane(DATE_TITLE, null); 
-		pane.add(buildDate());
+		datePane = UIUtilities.createTaskPane(DATE_TITLE, null); 
+		datePane.add(buildDate());
 		c.gridy++;
-		add(pane, c);//, "0, 4");
+		add(datePane, c);//, "0, 4");
 
 		setDateIndex();
 	}
@@ -1462,4 +1476,115 @@ public class SearchPanel
 		repaint();
 	}
 	
+	/**
+	 * Disables all other search options when the ID checkbox is selected.
+	 * Enables them again, when the ID checkbox is deselected again; also restores the
+	 * state of the checkboxes (i.e. if they were checked or unchecked) before the
+	 * user selected the ID checkbox.
+	 */
+	class IDBoxListener implements ActionListener {
+	    
+	    /** Reference to the ID checkbox */
+	    JCheckBox box;
+	    
+	    /** 
+	     * Variable for holding a certain state of all checkboxes (which are checked and
+	     * which are unchecked), where key:scope and value:checked(true)/unchecked(false)
+	     */
+	    Map<Integer, Boolean> previousState;
+	    
+	    /**
+	     * Creates a new ActionListener for the ID checkbox
+	     * @param box The JCheckbox marking the ID search scope
+	     */
+	    IDBoxListener(JCheckBox box) {
+	        this.box = box;
+	    }
+	   
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                if (box.isSelected()) {
+                    Map<Integer, Boolean> checkMap = createIDOnlyStateMap();
+                    previousState = setContextCheckBoxStates(checkMap);
+                    setAllCheckBoxesEnabled(false);
+                    box.setEnabled(true);
+                    advancedSearch(false);
+                    searchBasicButton.setEnabled(false);
+                    fromDate.setEnabled(false);
+                    toDate.setEnabled(false);
+                    dates.setEnabled(false);
+                    creationTime.setEnabled(false);
+                    updatedTime.setEnabled(false);
+                    for (JButton b : controls) {
+                        b.setEnabled(false);
+                    }
+                }
+                else {
+                    if (previousState != null) {
+                        setContextCheckBoxStates(previousState);
+                        box.setSelected(false);
+                    }
+                    setAllCheckBoxesEnabled(true);
+                    datePane.setEnabled(true);
+                    searchBasicButton.setEnabled(true);
+                    fromDate.setEnabled(true);
+                    toDate.setEnabled(true);
+                    dates.setEnabled(true);
+                    creationTime.setEnabled(true);
+                    updatedTime.setEnabled(true);
+                    for (JButton b : controls) {
+                        b.setEnabled(true);
+                    }
+                }
+            }
+            
+            /**
+             * Sets all checkboxes to a certain state (i. e. check/unchecks them);
+             * Returns the previous state;
+             * @param states The states to apply to the checkboxes (key:scope, value:checked(true)/unchecked(false)
+             * @return The previous state of the checkboxes
+             */
+            private Map<Integer, Boolean> setContextCheckBoxStates(Map<Integer, Boolean> states) {
+                Map<Integer, Boolean> prevStatus = new HashMap<Integer, Boolean>();
+                for (Entry<Integer, Boolean> entry : states.entrySet()) {
+                    JCheckBox box = scopes.get(entry.getKey());
+                    if (box == null) {
+                        continue;
+                    }
+                    prevStatus.put(entry.getKey(), box.isSelected());
+                    box.setSelected(entry.getValue());
+                }
+                return prevStatus;
+            }
+            
+            /**
+             * Helper method: Creates a 'state map' in which only the ID checkbox is checked;
+             * By applying this state map (see {@link #setContextCheckBoxStates(Map)} only
+             * the ID checkbox will be checked, all other checkboxes will be unchecked.
+             * @return See above
+             */
+            private Map<Integer, Boolean> createIDOnlyStateMap() {
+                Map<Integer, Boolean> result = new HashMap<Integer, Boolean>();
+                for (Entry<Integer, JCheckBox> entry : scopes.entrySet()) {
+                    if (entry.getKey().intValue() == SearchContext.ID) {
+                        result.put(entry.getKey(), true);
+                    }
+                    else {
+                        result.put(entry.getKey(), false);
+                    }
+                }
+                return result;
+            }
+            
+            /**
+             * Helper method for enabling (enabled==<code>true</code>), respectively
+             * disabling(enabled==<code>false</code>) all checkboxes
+             * @param enabled
+             */
+            private void setAllCheckBoxesEnabled(boolean enabled) {
+                for (Entry<Integer, JCheckBox> entry : scopes.entrySet()) {
+                    entry.getValue().setEnabled(enabled);
+                }
+            }
+	}
 }

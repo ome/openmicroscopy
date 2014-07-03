@@ -19,7 +19,7 @@
  * implementation, for use by the server and via the
  * InteractiveProcessor wrapper by clients.
  *
- * See http://www.openmicroscopy.org/site/community/scripts
+ * See http://www.openmicroscopy.org/site/support/omero5/developers/scripts/
  */
 
 module omero {
@@ -547,12 +547,18 @@ module omero {
         // The following classes and types will not be needed by the casual user.
         //
 
+        /*
+         * Forward definition of the Processor interface.
+         */
+        interface Processor;
+
         /**
          * Internal callback interface which is passed to the [Processor::accepts] method
          * to query whether or not a processor will accept a certain operation.
          **/
         interface ProcessorCallback {
-            void isAccepted(bool accepted, string sessionUuid, string processorConn);
+            void isAccepted(bool accepted, string sessionUuid, string procConn);
+            void isProxyAccepted(bool accepted, string sessionUuid, Processor* procProxy);
             void responseRunning(omero::api::LongList jobIds);
         };
 

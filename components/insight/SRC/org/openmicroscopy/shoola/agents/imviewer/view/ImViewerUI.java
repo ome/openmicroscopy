@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.iviewer.view.ImViewerUI
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -2585,6 +2585,14 @@ class ImViewerUI
 	 * @return See above.
 	 */
 	boolean isBigImage() { return model.isBigImage(); }
+
+	/**
+	 * Returns <code>true</code> if it is a large image,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isLargePlane() { return model.isLargePlane(); }
 
 	/**
 	 * Returns the view as a component.

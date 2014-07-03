@@ -4,23 +4,26 @@
 /*
  *   $Id$
  *
- *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2008-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 """
 import pytest
 import omero
-import omero_model_ImageI # For Image
-from omero.rtypes import *
+import omero.model  # For Image
+from omero.rtypes import rint, rlong, rstring, rmap, rdouble, rclass, robject
+from omero.rtypes import rlist, rfloat, rbool, rset, rtime, rinternal, rarray
+from omero.rtypes import rtype, wrap, unwrap
 
 # Data
 ids = [rlong(1)]
+
 
 class TestModel(object):
 
     def testConversionMethod(self):
         assert None == rtype(None)
-        assert rlong(1) == rtype(rlong(1)) # Returns self
+        assert rlong(1) == rtype(rlong(1))  # Returns self
         assert rbool(True) == rtype(True)
         # Unsupported
         # assert rdouble(0) == rtype(Double.valueOf(0))
@@ -46,10 +49,10 @@ class TestModel(object):
     def testObjectCreationEqualsAndHash(self):
 
         # RBool
-        true1 = rbool(True);
-        true2 = rbool(True);
-        false1 = rbool(False);
-        false2 = rbool(False);
+        true1 = rbool(True)
+        true2 = rbool(True)
+        false1 = rbool(False)
+        false2 = rbool(False)
         assert true1 == true2
         assert false1 == false2
         assert true1.getValue()
@@ -58,17 +61,17 @@ class TestModel(object):
         assert true1 != false1
 
         # RDouble
-        double_zero1 = rdouble(0.0);
-        double_zero2 = rdouble(0.0);
-        double_notzero1 = rdouble(1.1);
-        double_notzero1b = rdouble(1.1);
+        double_zero1 = rdouble(0.0)
+        double_zero2 = rdouble(0.0)
+        double_notzero1 = rdouble(1.1)
+        double_notzero1b = rdouble(1.1)
         double_notzero2 = rdouble(2.2)
         assert double_zero1.getValue() == 0.0
         assert double_notzero1.getValue() == 1.1
         assert double_zero1 == double_zero2
-        assert double_zero1 !=  double_notzero1
+        assert double_zero1 != double_notzero1
         assert double_notzero1 == double_notzero1b
-        assert double_notzero1 !=  double_notzero2
+        assert double_notzero1 != double_notzero2
 
         # RFloat
         float_zero1 = rfloat(0.0)
@@ -79,9 +82,9 @@ class TestModel(object):
         assert float_zero1.getValue() == 0.0
         assert float_notzero1.getValue() == 1.1
         assert float_zero1 == float_zero2
-        assert float_zero1 !=  float_notzero1
+        assert float_zero1 != float_notzero1
         assert float_notzero1 == float_notzero1b
-        assert float_notzero1 !=  float_notzero2
+        assert float_notzero1 != float_notzero2
 
         # RInt
         int_zero1 = rint(0)
@@ -92,9 +95,9 @@ class TestModel(object):
         assert int_zero1.getValue() == 0
         assert int_notzero1.getValue() == 1
         assert int_zero1 == int_zero2
-        assert int_zero1 !=  int_notzero1
+        assert int_zero1 != int_notzero1
         assert int_notzero1 == int_notzero1b
-        assert int_notzero1 !=  int_notzero2
+        assert int_notzero1 != int_notzero2
 
         # RLong
         long_zero1 = rlong(0)
@@ -105,9 +108,9 @@ class TestModel(object):
         assert long_zero1.getValue() == 0
         assert long_notzero1.getValue() == 1
         assert long_zero1 == long_zero2
-        assert long_zero1 !=  long_notzero1
+        assert long_zero1 != long_notzero1
         assert long_notzero1 == long_notzero1b
-        assert long_notzero1 !=  long_notzero2
+        assert long_notzero1 != long_notzero2
 
         # RTime
         time_zero1 = rtime(0)
@@ -118,9 +121,9 @@ class TestModel(object):
         assert time_zero1.getValue() == 0
         assert time_notzero1.getValue() == 1
         assert time_zero1 == time_zero2
-        assert time_zero1 !=  time_notzero1
+        assert time_zero1 != time_notzero1
         assert time_notzero1 == time_notzero1b
-        assert time_notzero1 !=  time_notzero2
+        assert time_notzero1 != time_notzero2
 
         # RInternal
         internal_null1 = rinternal(None)
@@ -129,9 +132,9 @@ class TestModel(object):
         internal_notnull2 = rinternal(omero.grid.JobParams())
         assert internal_null1 == internal_null2
         assert internal_null1 == internal_null2
-        assert internal_null1 !=  internal_notnull2
+        assert internal_null1 != internal_notnull2
         assert internal_notnull1 == internal_notnull1
-        assert internal_notnull1 !=  internal_notnull2
+        assert internal_notnull1 != internal_notnull2
 
         # RObject
         object_null1 = robject(None)
@@ -140,9 +143,9 @@ class TestModel(object):
         object_notnull2 = robject(omero.model.ImageI())
         assert object_null1 == object_null2
         assert object_null1 == object_null2
-        assert object_null1 !=  object_notnull2
+        assert object_null1 != object_notnull2
         assert object_notnull1 == object_notnull1
-        assert object_notnull1 !=  object_notnull2
+        assert object_notnull1 != object_notnull2
 
         # RString
         string_null1 = rstring(None)
@@ -152,9 +155,9 @@ class TestModel(object):
         string_notnull2 = rstring("str2")
         assert string_null1 == string_null2
         assert string_null1 == string_null2
-        assert string_null1 !=  string_notnull2
+        assert string_null1 != string_notnull2
         assert string_notnull1 == string_notnull1
-        assert string_notnull1 !=  string_notnull2
+        assert string_notnull1 != string_notnull2
         assert string_notnull1 == string_notnull1b
 
         # RClass
@@ -165,9 +168,9 @@ class TestModel(object):
         class_notnull2 = rclass("str2")
         assert class_null1 == class_null2
         assert class_null1 == class_null2
-        assert class_null1 !=  class_notnull2
+        assert class_null1 != class_notnull2
         assert class_notnull1 == class_notnull1
-        assert class_notnull1 !=  class_notnull2
+        assert class_notnull1 != class_notnull2
         assert class_notnull1 == class_notnull1b
 
     def testArrayCreationEqualsHash(self):
@@ -184,9 +187,9 @@ class TestModel(object):
         array_null3 = rarray(*[])
 
         # All different since the contents are mutable.
-        assert not array_null1 is  array_notnull1
-        assert not array_null1 is  array_null2
-        assert not array_null1 is  array_null3
+        assert array_null1 is not array_notnull1
+        assert array_null1 is not array_null2
+        assert array_null1 is not array_null3
 
     def testListCreationEqualsHash(self):
 
@@ -202,9 +205,9 @@ class TestModel(object):
         list_null3 = rlist(*[])
 
         # All different since the contents are mutable.
-        assert not list_null1 is  list_notnull1
-        assert not list_null1 is  list_null2
-        assert not list_null1 is  list_null3
+        assert list_null1 is not list_notnull1
+        assert list_null1 is not list_null2
+        assert list_null1 is not list_null3
 
     def testSetCreationEqualsHash(self):
 
@@ -220,9 +223,9 @@ class TestModel(object):
         set_null3 = rset(*[])
 
         # All different since the contents are mutable.
-        assert not set_null1 is  set_notnull1
-        assert not set_null1 is  set_null2
-        assert not set_null1 is  set_null3
+        assert set_null1 is not set_notnull1
+        assert set_null1 is not set_null2
+        assert set_null1 is not set_null3
 
     def testMapCreationEqualsHash(self):
 
@@ -240,9 +243,9 @@ class TestModel(object):
         map_null3 = rmap(**{})
 
         # All different since the contents are mutable.
-        assert not map_null1 is  map_notnull1
-        assert not map_null1 is  map_null2  # TODO Different with maps
-        assert not map_null1 is  map_null3  # TODO Different with maps
+        assert map_null1 is not map_notnull1
+        assert map_null1 is not map_null2  # TODO Different with maps
+        assert map_null1 is not map_null3  # TODO Different with maps
 
     #
     # Python only
@@ -266,8 +269,9 @@ class TestModel(object):
 
     def testPassThroughNoneAndRTypes(self):
         """
-        To prevent having to check for isintance(int,...) or isintance(RInt,...)
-        all over the place, the static methods automaticalyl check for acceptable
+        To prevent having to check for isintance(int,...) or
+        isintance(RInt,...) all over the place, the static methods
+        automatically check for acceptable
         types and simply pass them through. Similarly, the primitive types all
         check for None and return a null RType if necessary.
         """
@@ -281,71 +285,71 @@ class TestModel(object):
         assert rdouble(0.0) == rdouble(rdouble(0.0))
         assert rdouble(0.0) == rdouble(rdouble(0))
         assert rdouble(0.0) == rdouble(rdouble("0.0"))
-        pytest.raises(ValueError, lambda : rdouble("string"))
+        pytest.raises(ValueError, lambda: rdouble("string"))
         # Float
         assert None == rfloat(None)
         assert rfloat(0.0) == rfloat(rfloat(0.0))
         assert rfloat(0.0) == rfloat(rfloat(0))
         assert rfloat(0.0) == rfloat(rfloat("0.0"))
-        pytest.raises(ValueError, lambda : rfloat("string"))
+        pytest.raises(ValueError, lambda: rfloat("string"))
         # Long
         assert None == rlong(None)
         assert rlong(0) == rlong(rlong(0))
         assert rlong(0) == rlong(rlong(0.0))
         assert rlong(0) == rlong(rlong("0"))
-        pytest.raises(ValueError, lambda : rlong("string"))
+        pytest.raises(ValueError, lambda: rlong("string"))
         # Time
         assert None == rtime(None)
         assert rtime(0) == rtime(rtime(0))
         assert rtime(0) == rtime(rtime(0.0))
         assert rtime(0) == rtime(rtime("0"))
-        pytest.raises(ValueError, lambda : rtime("string"))
+        pytest.raises(ValueError, lambda: rtime("string"))
         # Int
         assert None == rint(None)
         assert rint(0) == rint(rint(0))
         assert rint(0) == rint(rint(0.0))
         assert rint(0) == rint(rint("0"))
-        pytest.raises(ValueError, lambda : rint("string"))
+        pytest.raises(ValueError, lambda: rint("string"))
         #
         # Starting here handling of null is different.
         #
         # String
         assert rstring("") == rstring(None)
         assert rstring("a") == rstring(rstring("a"))
-        pytest.raises(ValueError, lambda : rstring(0))
+        pytest.raises(ValueError, lambda: rstring(0))
         # Class
         assert rclass("") == rclass(None)
         assert rclass("c") == rclass(rclass("c"))
-        pytest.raises(ValueError, lambda : rclass(0))
+        pytest.raises(ValueError, lambda: rclass(0))
         # Internal
         internal = omero.Internal()
         assert rinternal(None) == rinternal(None)
         assert rinternal(internal) == rinternal(rinternal(internal))
-        pytest.raises(ValueError, lambda : rinternal("string"))
+        pytest.raises(ValueError, lambda: rinternal("string"))
         # Object
         obj = omero.model.ImageI()
         assert robject(None) == robject(None)
         assert robject(obj) == robject(robject(obj))
-        pytest.raises(ValueError, lambda : robject("string"))
+        pytest.raises(ValueError, lambda: robject("string"))
         #
         # Same does not hold for collections
         #
         # Array
         assert rarray([]) == rarray(None)
-        ## assert rarray(obj) == rarray(rarray(obj))
-        ## pytest.raises(ValueError, lambda : rarray("string"))
+        # assert rarray(obj) == rarray(rarray(obj))
+        # pytest.raises(ValueError, lambda : rarray("string"))
         # List
         assert rlist([]) == rlist(None)
-        ## assert rlist(obj) == rlist(rlist(obj))
-        ## pytest.raises(ValueError, lambda : rlist("string"))
+        # assert rlist(obj) == rlist(rlist(obj))
+        # pytest.raises(ValueError, lambda : rlist("string"))
         # Set
         assert rset([]) == rset(None)
-        ## assert rset(obj) == rset(rset(obj))
-        ## pytest.raises(ValueError, lambda : rset("string"))
+        # assert rset(obj) == rset(rset(obj))
+        # pytest.raises(ValueError, lambda : rset("string"))
         # Map
         assert rmap({}) == rmap(None)
-        ## assert rmap(obj) == rmap(rmap(obj))
-        ## pytest.raises(ValueError, lambda : rmap("string"))
+        # assert rmap(obj) == rmap(rmap(obj))
+        # pytest.raises(ValueError, lambda : rmap("string"))
 
     def testUnwrap(self):
         # NUMS plain
@@ -399,38 +403,39 @@ class TestModel(object):
         assert [1] == unwrap([1])
         # rtype in collection
         assert [1] == unwrap([rint(1)])
-        assert {"a":1} == unwrap({"a":1})
-        ## plain in rcollection ILLEGAL
-        ## assert [1] == unwrap(rlist([1]))
-        ## assert {"a":1} == unwrap(rmap({"a":1}))
+        assert {"a": 1} == unwrap({"a": 1})
+        # plain in rcollection ILLEGAL
+        # assert [1] == unwrap(rlist([1]))
+        # assert {"a":1} == unwrap(rmap({"a":1}))
         # rtype in rcollection
         assert [1] == unwrap(rlist([rint(1)]))
-        assert {"a":1} == unwrap(rmap({"a":rint(1)}))
+        assert {"a": 1} == unwrap(rmap({"a": rint(1)}))
         # rtype keys ILLEGAL
-        ## assert {"a":1} == unwrap(rmap({rstring("a"):rint(1)}))
+        # assert {"a":1} == unwrap(rmap({rstring("a"):rint(1)}))
         # recursion, ticket:1977
-        m1 = rmap({"a":rint(1)})
+        m1 = rmap({"a": rint(1)})
         m1.val["m1"] = m1
-        m2 = {"a":1}
+        m2 = {"a": 1}
         m2["m1"] = m2
-        m3 = unwrap(m1)
+        unwrap(m1)
         assert m2["a"] == unwrap(m1)["a"]
-        assert type(m2["m1"]) == type(unwrap(m1)["m1"]) # Can't compare directly "maximum recursion depth exceeded in cmp"
+        # Can't compare directly "maximum recursion depth exceeded in cmp"
+        assert type(m2["m1"]) == type(unwrap(m1)["m1"])
 
     def testWrap(self):
-        rv = wrap([1,2,3])
+        rv = wrap([1, 2, 3])
         assert isinstance(rv, omero.RList)
-        assert [1 == 2,3], unwrap(rv)
+        assert [1 == 2, 3], unwrap(rv)
         for x in rv.val:
             assert isinstance(x, omero.RInt)
 
-        rv = wrap({"a":1})
+        rv = wrap({"a": 1})
         assert isinstance(rv, omero.RMap)
         assert "a" in rv.val
         assert isinstance(rv.val["a"], omero.RInt)
         assert 1 == rv.val["a"].val
 
-        pytest.raises(ValueError, wrap, {1:2})
+        pytest.raises(ValueError, wrap, {1: 2})
 
     def testResuingClass(self):
         myLong = rlong(5)
@@ -440,4 +445,3 @@ class TestModel(object):
         ctor1 = myLong.__class__(5)
         ctor2 = myLongFromString.__class__("5")
         assert ctor1.val == ctor2.val
-

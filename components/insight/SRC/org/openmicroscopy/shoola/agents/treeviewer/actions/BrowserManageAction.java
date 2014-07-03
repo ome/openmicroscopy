@@ -271,26 +271,26 @@ public class BrowserManageAction
  						if (model.canLink(selected[i].getUserObject())) 
  							count++;
  					}
- 		    		if (index == CUT) {
- 		    			if (ho instanceof DatasetData) {
- 		    				if (!(parent instanceof ProjectData)) {
- 		    					setEnabled(false);
- 		    					return;
- 		    				}
- 		    			} else if (ho instanceof ImageData) {
- 		    				if (!(parent instanceof DatasetData || 
- 		    						parent instanceof TagAnnotationData)) {
- 		    					setEnabled(false);
- 		    					return;
- 		    				}
- 		    			} else if (ho instanceof PlateData) {
- 		    				if (!(parent instanceof ScreenData)) {
- 		    					setEnabled(false);
- 		    					return;
- 		    				}
- 		    			}
- 		    		}
- 		    		setEnabled(count == selected.length);
+ 		    		if (index == COPY) {
+ 	                    if (ho instanceof DatasetData) {
+ 	                        if (!(parent instanceof ProjectData)) {
+ 	                            setEnabled(false);
+ 	                            return;
+ 	                        }
+ 	                    } else if (ho instanceof ImageData) {
+ 	                        if (!(parent instanceof DatasetData ||
+ 	                                parent instanceof TagAnnotationData)) {
+ 	                            setEnabled(false);
+ 	                            return;
+ 	                        }
+ 	                    } else if (ho instanceof PlateData) {
+ 	                        if (!(parent instanceof ScreenData)) {
+ 	                            setEnabled(false);
+ 	                            return;
+ 	                        }
+ 	                    }
+ 	                }
+ 	                setEnabled(count == selected.length);
  				} else if (ho instanceof ExperimenterData) {
  					setEnabled(model.getBrowserType() == 
  						Browser.ADMIN_EXPLORER);

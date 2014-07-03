@@ -2328,12 +2328,248 @@ tr.figImageData:hover .rowDragHandle {
 
 
 
+input#id_tag_filter {
+    background: #fff url(../image/search.png) no-repeat right center;
+    width: 334px;
+    height: 15px;
+    margin-bottom: 0;
+    border: 1px solid #9ea5ac;
+}
+input#id_tag {
+    margin-top: 0;
+    height: 1.1em;
+    float: left;
+    width: 200px;
+    vertical-align: top;
+}
+textarea#tag_description {
+    width: 464px;
+    height: 1.1em;
+    margin: 0 5px 0 10px;
+    vertical-align: top;
+}
+button#id_add_new_tag {
+    vertical-align: top;
+    margin-top: 0px;
+    height: 25px;
+}
+div#id_move_tags {
+    float: left;
+    width: 40px;
+    padding: 120px 0 40px;
+    margin: 10px;
+    text-align: center;
+}
+div#id_move_tags button {
+    width: 25px;
+    height: 25px;
+    margin-bottom: 10px;
+    border: 1px solid #9ea5ac;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    -moz-box-shadow: 0px 1px 0px rgba(255,255,255,1);
+    -webkit-box-shadow: 0px 1px 0px rgba(255,255,255,1);
+    box-shadow: 0px 1px 0px rgba(255,255,255,1);
+    
+}
+/* wrapper is a hack to make overflow:hidden work with .selectable()
+   without it items become deselected when scrollbar is clicked */
+div.tag_selection_wrapper {
+    height: 200px;
+    width: 335px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    font-size: larger;
+    border: 1px solid #9ea5ac;
+    padding: 3px;
+    padding-right: 0;
+    background-color: white;
+    cursor: pointer;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: moz-none;
+    -ms-user-select: none;
+    user-select: none;
+}
+div.tag_selection_wrapper.filtered {
+    height: 175px;
+}
+div.tag_selection {
+    overflow: visible;
+}
+div.tag_selection div {
+    white-space: nowrap;
+    padding-left: 22px;
+    padding-top: 2px;
+    height: 1.5em;
+}
+div.tag_selection div.alltags-tagset {
+    background: url(../image/left_sidebar_icon_tags.png) no-repeat left center;
+}
+div.tag_selection div.alltags-tag {
+    background: url(../image/left_sidebar_icon_tag.png) no-repeat left center;
+}
+div.tag_selection div.alltags-childtag {
+    background: url(../image/left_sidebar_icon_tag.png) no-repeat left center;
+    margin-left: 20px;
+}
+div.tag_selection div.alltags-locked {
+    background: url(../image/icon_tag_unremovable.png) no-repeat left center;
+}
+div#id_selected_tags div.alltags-childtag {
+    margin-left: 0;
+}
+div.tag_selection div.ui-selected {
+    background-color: hsl(215,20%,75%) !important;
+}
+div.tag_selection div:hover {
+    background-color: #f0f0f0;
+}
+div.tag_selection div.filtered {
+    display: none;
+}
+div.tag_selection span.alltags-take {
+    background: url(../image/icon-add-to-tags.png) no-repeat center center;
+    float: relative; top: 1px; right: -322px;
+    width: 20px;
+    height: 16px;
+    vertical-align: middle;
+}
+div.tag_selection div.owner-tagged span.alltags-take {
+    background-image: url(../image/icon-added-to-tags.png);
+}
+.tagset-title {
+    color: #5d8499;
+    font-weight: normal;
+}
+#id_tag_info_button {
+    float: right;
+    border-radius: 3px;
+    width: 30px;
+    height: 30px;
+    background: hsl(210,8%,80%);
+    border: solid 1px hsl(210,8%,70%);
+    margin: 3px 5px 0 0;
+}
 
+/* #Progress Bar
+================================================== */
+.ui-progressbar {
+  background-color: #ccc;
+  height: 14px !important;
+  -moz-border-radius: 2px;
+  -webkit-border-radius: 2px;
+  border-radius: 2px;
+  -moz-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3), 0 0 0 rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3), 0 0px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3), 0 0 0 rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  padding-right: 1px;
+  width: 68px;
+}
 
+.progress-striped {
+  -moz-background-size: 30px 30px;
+  -webkit-background-size: 30px 30px;
+  background-size: 30px 30px;
+  background-image: -moz-linear-gradient(135deg, rgba(255, 255, 255, .5) 25%, transparent 25%,
+          transparent 50%, rgba(255, 255, 255, .5) 50%, rgba(255, 255, 255, .5) 75%,
+          transparent 75%, transparent);
+  background-image: -webkit-gradient(linear, left top, right bottom,
+          color-stop(.25, rgba(255, 255, 255, .5)), color-stop(.25, transparent),
+          color-stop(.5, transparent), color-stop(.5, rgba(255, 255, 255, .5)),
+          color-stop(.75, rgba(255, 255, 255, .5)), color-stop(.75, transparent),
+          to(transparent));
+  background-image: -webkit-linear-gradient(135deg, rgba(255, 255, 255, .5) 25%, transparent 25%,
+          transparent 50%, rgba(255, 255, 255, .5) 50%, rgba(255, 255, 255, .5) 75%,
+          transparent 75%, transparent);
+  background-image: -ms-linear-gradient(135deg, rgba(255, 255, 255, .5) 25%, transparent 25%,
+          transparent 50%, rgba(255, 255, 255, .5) 50%, rgba(255, 255, 255, .5) 75%,
+          transparent 75%, transparent);
+  background-image: linear-gradient(135deg, rgba(255, 255, 255, .5) 25%, transparent 25%,
+          transparent 50%, rgba(255, 255, 255, .5) 50%, rgba(255, 255, 255, .5) 75%,
+          transparent 75%, transparent);
+  -webkit-animation: animate-stripes 3s linear infinite;
+  -moz-animation: animate-stripes 3s linear infinite;
 
+}
 
+/*animates the stripes*/
+@-moz-keyframes animate-stripes {
+  0% {background-position: 0 0;} 100% {background-position: 60px 0;}
+}
 
+@-webkit-keyframes animate-stripes {
+  0% {background-position: 0 0;} 100% {background-position: 60px 0;}
+}
 
+.ui-progressbar-value {
+  height: 15px !important;
+  background-color: #476a93;
+  background-image: -moz-linear-gradient(top, #98b8d7, #476a9e);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#98b8d7), to(#476a9e));
+  background-image: -webkit-linear-gradient(top, #98b8d7, #476a9e);
+  background-image: linear-gradient(to bottom, #98b8d7, #476a9e);
+  background-repeat: repeat-x;
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ff80a1a2', endColorstr='#ff547879', GradientType=0);
+  -moz-border-radius: 1px;
+  -webkit-border-radius: 1px;
+  border-right: 1px solid #628c51;
+  border-left: 1px solid #628c51;
+  border-radius: 1px;
+  -moz-box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(0, 0, 0, 0.2);
+  height: 100%;
+  -moz-transition: width .4s ease-in-out;
+  -webkit-transition: width .4s ease-in-out;
+  -ms-transition: width .4s ease-in-out;
+  transition: width .4s ease-in-out;
+  width: 0;
+}
 
+#add_tags_progress {
+    margin: 15px 0 0 10px;
+}
 
+#add_tags_progress > div {
+    float: left;
+}
 
+#add_tags_progress .progress-label {
+    margin-top: 2px;
+    width: 95px;
+    text-align: left;
+}
+
+#add_tags_progress .progress-striped {
+    width: 200px;
+    margin: 0 10px;
+}
+
+/* tooltip formatting */
+#tooltip hr {
+    border: 0;
+    height: 1px;
+    background-color: #aaaaaa;
+}
+#tooltip img {
+    margin: 3px 10px 3px 5px;
+    vertical-align: middle;
+}
+#tooltip {
+    color: #ffffff;
+}
+
+/* disabled dialog button */
+.ui-dialog .ui-dialog-buttonpane button.ui-state-disabled, .ui-dialog .ui-dialog-buttonpane button.ui-state-disabled:hover {
+    background: hsl(210,8%,80%);
+    color: gray;
+}
+
+/* placeholders in input boxes */
+.standard_form input[type=text].placeholder, .standard_form textarea.placeholder {
+  color: #aaa;
+}

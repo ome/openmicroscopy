@@ -15,17 +15,22 @@ function fas = getDatasetFileAnnotations(session, ids, varargin)
 %    fas = getDatasetFileAnnotations(session,  ids, 'exclude', exclude)
 %    excludes file annotations with the input namespace.
 %
+%    fas = getDatasetFileAnnotations(session, ids, 'owner', ownerid)
+%    returns the file annotations owned by the user specified by ownerid.
+%    Use -1 to return the file annotations owned by all users.
+%
 %    Examples:
 %
 %        fas = getDatasetFileAnnotations(session, ids)
 %        fas = getDatasetFileAnnotations(session, datasets)
 %        fas = getDatasetFileAnnotations(session, ids, 'include', include)
 %        fas = getDatasetFileAnnotations(session, ids, 'exclude', exclude)
+%        fas = getDatasetFileAnnotations(session, ids, 'owner', -1)
 %
 % See also: GETOBJECTANNOTATIONS, GETDATASETCOMMENTANNOTATIONS,
 % GETDATASETTAGANNOTATIONS, GETDATASETXMLANNOTATIONS
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify

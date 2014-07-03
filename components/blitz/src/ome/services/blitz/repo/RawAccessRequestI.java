@@ -20,14 +20,15 @@ package ome.services.blitz.repo;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import Ice.Current;
 
 import ome.io.nio.FileBuffer;
+
 import ome.services.blitz.fire.Registry;
+import ome.services.blitz.util.ChecksumAlgorithmMapper;
 
 import omero.ServerError;
 import omero.cmd.ERR;
@@ -39,6 +40,7 @@ import omero.cmd.Unknown;
 import omero.grid.InternalRepositoryPrx;
 import omero.grid.RawAccessRequest;
 import omero.grid.RepositoryException;
+import omero.model.ChecksumAlgorithm;
 
 /**
  * Command request for accessing a repository directly.
@@ -127,8 +129,8 @@ public class RawAccessRequestI extends RawAccessRequest implements IRequest {
             log.debug("Calling raw access for command " + command);
             return repo.rawAccess(this);
         }
-        catch (ServerError e) {
-            throw helper.cancel(new ERR(), e, "raw-access");
+        catch (Throwable t) {
+            throw helper.cancel(new ERR(), t, "raw-access");
         } finally {
             log.debug("Done calling raw access for command " + command);
         }
@@ -185,6 +187,23 @@ public class RawAccessRequestI extends RawAccessRequest implements IRequest {
             } else {
                 throw new omero.ApiUsageException(null, null,
                         "Command: " + command + " takes just one argument");
+            }
+        } else if ("checksum".equals(command)) {
+            if (args.size() == 3) {
+                final String checksumType = args.get(0);
+                final ChecksumAlgorithm algo = ChecksumAlgorithmMapper.getChecksumAlgorithm(checksumType);
+                final String expectedHash = args.get(1);
+                final CheckedPath checked = servant.checkPath(parse(args.get(2)), algo, __current);
+                final String currentHash = checked.hash();
+                if (!currentHash.equals(expectedHash)) {
+                    // TODO: ADD ANNOTATION TO DATABASE HERE!
+                    throw new omero.ResourceError(null, null, String.format(
+                            "Checksum mismatch (%s): expected=%s found=%s",
+                            checksumType, expectedHash, currentHash));
+                }
+            } else {
+                throw new omero.ApiUsageException(null, null,
+                        "'checksum' requires HASHER HASH FILEPATH, not: " + args.toString());
             }
         } else {
             throw new omero.ApiUsageException(null, null,

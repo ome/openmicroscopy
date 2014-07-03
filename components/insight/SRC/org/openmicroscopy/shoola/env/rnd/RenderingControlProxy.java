@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.rnd.RenderingControlProxy
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -53,6 +53,8 @@ import omero.model.Pixels;
 import omero.model.QuantumDef;
 import omero.model.RenderingModel;
 import omero.romio.PlaneDef;
+
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.cache.CacheService;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.ConnectionExceptionHandler;
@@ -64,6 +66,7 @@ import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
 import pojos.ChannelData;
+import pojos.ExperimenterData;
 import pojos.PixelsData;
 
 /** 
@@ -228,6 +231,11 @@ class RenderingControlProxy
     {
     	if (shutDown) return;
     	retry = 0;
+    	if (e instanceof Ice.OperationNotExistException) {
+    	    RenderingServiceException ex = new RenderingServiceException(e);
+            ex.setIndex(RenderingServiceException.OPERATION_NOT_SUPPORTED);
+            throw ex;
+    	}
     	if (!handleConnectionException(e))
 			throw new RenderingServiceException(message+"\n\n"+ 
 					printErrorText(e), e);
@@ -812,7 +820,19 @@ class RenderingControlProxy
 			throw ex;
 		}
 	}
-	
+
+	/**
+	 * Returns the identifier of the user currently logged in.
+	 * 
+	 * @return See above.
+	 */
+	private long getUserID()
+	{
+	    ExperimenterData exp = (ExperimenterData) context.lookup(
+                LookupNames.CURRENT_USER_DETAILS);
+	    return exp.getId();
+	}
+
     /**
      * Creates a new instance.
      * 
@@ -868,7 +888,8 @@ class RenderingControlProxy
                 metadata[cm.getIndex()] = cm;
             }
             if (rndDefs.size() < 1) {
-            	this.rndDef = new RndProxyDef();
+                this.rndDef = context.getImageService().getSettings(ctx,
+                        servant.getRenderingDefId());
             	initialize();
             } else {
             	this.rndDef = rndDefs.get(0);
@@ -882,6 +903,28 @@ class RenderingControlProxy
             tmpSolutionForNoiseReduction();
 		} catch (Exception e) {
 		}
+    }
+
+    /**
+     * Reloads the settings after a saveAs w/o creating a thumbnail
+     * This method should only be invoked after a save as to update the
+     * other rendering engine.
+     *
+     * @param rndId The identifier of the rendering settigns.
+     *  @throws RenderingServiceException If an error occurred while setting
+     *                                    the value.
+     * @throws DSOutOfServiceException    If the connection is broken.
+     */
+    void loadRenderingSettings(long rndId)
+       throws RenderingServiceException, DSOutOfServiceException
+    {
+        isSessionAlive();
+        try {
+            servant.loadRenderingDef(rndId);
+            servant.load();
+        } catch (Throwable e) {
+            handleException(e, "An error occurred while loading the settings.");
+        }
     }
 
     /**
@@ -1399,21 +1442,32 @@ class RenderingControlProxy
      * @see RenderingControl#saveCurrentSettings()
      */
     public RndProxyDef saveCurrentSettings()
-    	throws RenderingServiceException, DSOutOfServiceException
-    {
-    	isSessionAlive();
-    	try {
-    		servant.saveCurrentSettings();
-    		Iterator<RenderingControl> i = slaves.iterator();
-    		while (i.hasNext())
-    			i.next().saveCurrentSettings();
-			return rndDef.copy();
-		} catch (Throwable e) {
-			handleException(e, "An error occurred while saving the current " +
-					"settings.");
-		}
-		return null;
-    }
+            throws RenderingServiceException, DSOutOfServiceException
+            {
+        isSessionAlive();
+        Iterator<RenderingControl> i = slaves.iterator();
+        try {
+            long userID = getUserID();
+            long ownerID = rndDef.getOwnerID();
+            if (userID == ownerID) {
+                servant.saveCurrentSettings();
+                while (i.hasNext())
+                    i.next().saveCurrentSettings();
+                return rndDef.copy();
+            } else {
+                long id = servant.saveAsNewSettings();
+                rndDef = context.getImageService().getSettings(ctx, id);
+                while (i.hasNext()) {
+                    ((RenderingControlProxy) i.next()).loadRenderingSettings(id);
+                }
+                return rndDef.copy();
+            }
+        } catch (Throwable e) {
+            handleException(e, "An error occurred while saving the current " +
+                    "settings.");
+        }
+        return null;
+            }
 
     /** 
      * Implemented as specified by {@link RenderingControl}.

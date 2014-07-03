@@ -70,7 +70,7 @@ public class TestChangeAttribute implements Modification {
         final long grp3 = (Long)
             fixture.execute(new Executor.SimpleWork(this, "addUserToNewGroup"){
             @Transactional(readOnly=false)
-            /*@Override*/
+            @Override
             public Object doWork(Session session, ServiceFactory sf) {
                 String uuid = UUID.randomUUID().toString();
                 long grp3 = simpleRP.createGroup(uuid, Permissions.PRIVATE, true);

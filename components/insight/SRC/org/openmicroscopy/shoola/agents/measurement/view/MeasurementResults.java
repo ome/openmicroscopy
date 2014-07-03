@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.measurement.view.MeasurementResults 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -279,19 +279,6 @@ class MeasurementResults
 	private void buildGUI()
 	{
 		setLayout(new BorderLayout());
-		/*
-		scrollPane = new JScrollPane(results);
-		add(scrollPane, BorderLayout.CENTER);
-		scrollPane.setVerticalScrollBar(scrollPane.createVerticalScrollBar());
-		scrollPane.setHorizontalScrollBar(
-				scrollPane.createHorizontalScrollBar());
-		JPanel panel = new JPanel();
-		//panel.setLayout(new FlowLayout());
-		panel.add(resultsWizardButton);
-		panel.add(refreshButton);
-		panel.add(saveButton);
-		add(panel, BorderLayout.SOUTH);
-		*/
 		JPanel centrePanel = new JPanel();
 		centrePanel.setLayout(new BorderLayout());
 		scrollPane = new JScrollPane(results);
@@ -315,11 +302,6 @@ class MeasurementResults
 	private void createAllFields()
 	{
 		allFields = new ArrayList<AnnotationField>();
-		/*
-		allFields.add(new AnnotationField(AnnotationKeys.TEXT,
-						AnnotationDescription.annotationDescription.get(
-							AnnotationKeys.TEXT), false)); 
-							*/
 		allFields.add(new AnnotationField(AnnotationKeys.CENTREX,
 			AnnotationDescription.annotationDescription.get(
 							AnnotationKeys.CENTREX), false)); 
@@ -369,12 +351,7 @@ class MeasurementResults
 	 */
 	private void createDefaultFields()
 	{
-		fields = new ArrayList<AnnotationField>();	
-		/*
-		fields.add(new AnnotationField(AnnotationKeys.TEXT,
-			AnnotationDescription.annotationDescription.get(
-				AnnotationKeys.TEXT), false)); 
-				*/
+		fields = new ArrayList<AnnotationField>();
 		fields.add(new AnnotationField(AnnotationKeys.CENTREX,
 			AnnotationDescription.annotationDescription.get(
 				AnnotationKeys.CENTREX), false)); 
@@ -411,7 +388,7 @@ class MeasurementResults
 	 * @param model		 Reference to the Model. Mustn't be <code>null</code>.
 	 * @param view		 Reference to the View. Mustn't be <code>null</code>.
 	 */
-	MeasurementResults(MeasurementViewerControl	controller, 
+	MeasurementResults(MeasurementViewerControl controller, 
 					MeasurementViewerModel model, MeasurementViewerUI view)
 	{
 		if (controller == null)
@@ -619,22 +596,6 @@ class MeasurementResults
 		ResultsTable()
 		{
 			super();
-			/*
-			setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-			
-			int columnWidth = 0;
-			FontMetrics metrics = getFontMetrics(getFont());
-			int w;
-			for(int i = 0 ; i < getColumnCount(); i++)
-			{
-				w =  metrics.stringWidth(getColumnName(i));
-				columnWidth = Math.max(w, COLUMNWIDTH);
-				TableColumn col;
-				col = getColumnModel().getColumn(i);
-				col.setMinWidth(columnWidth);
-				col.setPreferredWidth(columnWidth);
-			}
-			 */
 		}
 		
 		/**
@@ -713,20 +674,26 @@ class MeasurementResults
 			MeasurementObject rowData = values.get(row);
 			Object value = rowData.getElement(col);
 			if (value instanceof List) {
-				List l = (List) value;
+				List<Object> l = (List<Object>) value;
 				
 				if (l.size() == 1) return l.get(0);
-				StringBuffer buffer = new StringBuffer();
-				Iterator i = l.iterator();
+				StringBuilder buffer = new StringBuilder();
+				Iterator<Object> i = l.iterator();
 				Object v;
 				double total = 0;
 				while (i.hasNext()) {
 					v = i.next();
 					if (v instanceof Number) {
-						total += ((Number) v).doubleValue();
+					    double d = ((Number) v).doubleValue();
+						total += d;
+						buffer.append(UIUtilities.formatToDecimal(d));
+						buffer.append(" ");
 					}
 				}
-				return total;
+				if (total > 0) {
+				    buffer.append("= "+UIUtilities.formatToDecimal(total));
+				}
+				return buffer.toString();
 			}
 	    	return rowData.getElement(col);
 		}

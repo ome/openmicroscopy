@@ -37,6 +37,8 @@
     {% endfor %}
 {% else %}
     {% for tag in tags %}
-        {% include "webclient/annotations/tag.html" %}
+        {% with can_remove=tag.link.canDelete %}
+            {% include "webclient/annotations/tag.html" %}
+        {% endwith %}
     {% endfor %}
 {% endif %}

@@ -24,6 +24,7 @@
     <dirname property="up-one" file="${up-two}"/>
     <property name="import.dir" value="${up-one}/antlib/resources"/>
     <import file="${import.dir}/global.xml"/>
+    <import file="${import.dir}/version.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
 
     <import file="../common.xml"/>
@@ -32,6 +33,10 @@
 
     <target name="install" depends="package">
         <publishArtifact haltonmissing="false"/>
+    </target>
+
+    <target name="package-extra">
+        <!-- no-op -->
     </target>
 
     <target name="tools-build" depends="tools-init,package,install" description="Creates all artifacts for tools/target"/>

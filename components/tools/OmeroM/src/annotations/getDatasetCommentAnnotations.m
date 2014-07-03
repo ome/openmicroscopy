@@ -15,17 +15,22 @@ function cas = getDatasetCommentAnnotations(session, ids, varargin)
 %    cas = getDatasetCommentAnnotations(session,  ids, 'exclude', exclude)
 %    excludes comment annotations with the input namespace.
 %
+%    cas = getDatasetCommentAnnotations(session, ids, 'owner', ownerid)
+%    returns the comment annotations owned by the user specified by
+%    ownerid. Use -1 to return the comment annotations owned by all users.
+%
 %    Examples:
 %
 %        cas = getDatasetCommentAnnotations(session, ids)
 %        cas = getDatasetCommentAnnotations(session, datasets)
 %        cas = getDatasetCommentAnnotations(session, ids, 'include', include)
 %        cas = getDatasetCommentAnnotations(session, ids, 'exclude', exclude)
+%        cas = getDatasetCommentAnnotations(session, ids, 'owner', -1)
 %
 % See also: GETOBJECTANNOTATIONS, GETDATASETFILEANNOTATIONS,
 % GETDATASETTAGANNOTATIONS, GETDATASETXMLANNOTATIONS
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify

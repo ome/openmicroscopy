@@ -49,6 +49,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
+
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
@@ -3244,6 +3245,38 @@ class OMEROGateway
 		}
 		return new ArrayList();
 	}
+	
+	/**
+	 * Finds all DatasetImageLinks for a given list of image ids
+	 * @param ctx The security context.
+	 * @param children A list of image ids.
+	 * @param userID The id of the user.
+	 * @return See above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+        List findDatasetLinks(SecurityContext ctx, List children, long userID) throws DSOutOfServiceException,
+                DSAccessException {
+            Connector c = getConnector(ctx, true, false);
+            try {
+                IQueryPrx service = c.getQueryService();
+                // have to fetch the Dataset, too; otherwise Dataset.name won't be initialized
+                String sql = "SELECT link FROM DatasetImageLink AS link LEFT JOIN FETCH link.parent dataset WHERE "
+                        + "link.child.id IN (:childIDs)";
+                ParametersI param = new ParametersI();
+                param.addLongs("childIDs", children);
+    
+                if (userID >= 0) {
+                    sql += " and link.details.owner.id = :userID";
+                    param.map.put("userID", omero.rtypes.rlong(userID));
+                }
+                return service.findAllByQuery(sql, param);
+            } catch (Throwable t) {
+                handleException(t, "Cannot retrieve the requested datasets for "
+                        + "the specified children");
+            }
+            return new ArrayList();
+        }
 
 	/**
 	 * Finds all the links.
@@ -3294,6 +3327,65 @@ class OMEROGateway
 		return new ArrayList();
 	}
 
+	/**
+	 * Returns the annotations links.
+	 *
+	 * @param ctx The security context.
+     * @param node The type of node to handle.
+     * @param nodeIDs The id of the nodes if any.
+     * @param children The collection of annotations' identifiers
+     * @param userID The user's identifier or <code>-1</code>.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occurred while trying to
+     *                           retrieve data from OMERO service.
+	 */
+	Multimap<Long, IObject> findAnnotationLinks(SecurityContext ctx,
+	        Class<?> node, List<Long> nodeIDs,
+            List<Long> children, long userID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Connector c = getConnector(ctx, true, false);
+        Multimap<Long, IObject> map = ArrayListMultimap.create();
+        try {
+            IQueryPrx service = c.getQueryService();
+            String table = getAnnotationTableLink(node);
+            if (table == null) return null;
+            StringBuffer sb = new StringBuffer();
+            sb.append("select link from "+table+" as link ");
+            sb.append("left outer join fetch link.child child ");
+            sb.append("left outer join fetch link.parent parent ");
+            sb.append("left outer join fetch parent.details.owner ");
+            sb.append("left outer join fetch child.details.owner ");
+            sb.append("left outer join fetch link.details.owner ");
+            sb.append("where link.child.id in (:childIDs)");
+
+            ParametersI param = new ParametersI();
+            param.addLongs("childIDs", children);
+            sb.append(" and link.parent.id in (:parentIDs)");
+            param.addLongs("parentIDs", nodeIDs);
+            if (userID >= 0) {
+                sb.append(" and link.details.owner.id = :userID");
+                param.map.put("userID", omero.rtypes.rlong(userID));
+            }
+            List<IObject> list = service.findAllByQuery(sb.toString(), param);
+            if (CollectionUtils.isNotEmpty(list)) {
+                Iterator<IObject> j = list.iterator();
+                IObject link;
+                while (j.hasNext()) {
+                    link = (IObject) j.next();
+                    IObject p = ModelMapper.getParentFromLink(link);
+                    map.put(p.getId().getValue(), link);
+                }
+            }
+            return map;
+        } catch (Throwable t) {
+            handleException(t, "Cannot retrieve the requested link for "+
+            "the specified children");
+        }
+        return map;
+    }
+	
 	/**
 	 * Finds the links if any between the specified parent and children.
 	 *
@@ -3707,11 +3799,7 @@ class OMEROGateway
 			FileOutputStream stream = new FileOutputStream(file);
 			try {
 				try {
-					if (of != null && of.getSize() != null) {
-						size = of.getSize().getValue();
-					} else {
-						size = store.size();
-					}
+				    size = store.size();
 					for (offset = 0; (offset+INC) < size;) {
 						stream.write(store.read(offset, INC));
 						offset += INC;
@@ -4976,6 +5064,10 @@ class OMEROGateway
 					fSome = formatText(some, "url");
 					fMust = formatText(must, "url");
 					fNone = formatText(none, "url");
+				} else if (key == SearchDataContext.ID) {
+    				        fSome = formatText(some, "id");
+    				        fMust = formatText(must, "id");
+    				        fNone = formatText(none, "id");
 				} else {
 					fSome = formatText(some, "");
 					fMust = formatText(must, "");
@@ -6333,6 +6425,11 @@ class OMEROGateway
 	            failingChecksums = cve.failingChecksums;
 	            return new ImportException(cve);
 	        } finally {
+	            try {
+	                proc.close();
+	            } catch (Exception e) {
+	                dsFactory.getLogger().error(this, "Cannot close import process.");
+	            }
 	            library.notifyObservers(new ImportEvent.FILESET_UPLOAD_END(
 	                    null, 0, srcFiles.length, null, null, srcFiles,
 	                    checksums, failingChecksums, null));
@@ -6718,7 +6815,10 @@ class OMEROGateway
 					coord = (ROICoordinate) entry.getKey();
 					if (!clientCoordMap.containsKey(coord)) {
 						s = (Shape) entry.getValue();
-						if (s != null) updateService.deleteObject(s);
+						if (s != null) {
+						    serverRoi.removeShape(s);
+						    serverRoi = (Roi) updateService.saveAndReturnObject(serverRoi);
+						}
 					} else {
 						s = (Shape) entry.getValue();
 						if (s instanceof Line || s instanceof Polyline) {
@@ -6728,21 +6828,11 @@ class OMEROGateway
 								(s instanceof Polyline &&
 									shape.asIObject() instanceof Line)) {
 								removed.add(coord);
-								updateService.deleteObject(s);
-								deleted.add(shape.getId());
+								serverRoi.removeShape(s);
+								serverRoi = (Roi) updateService.saveAndReturnObject(serverRoi);
+								deleted.add(s.getId().getValue());
 							}
 						}
-					}
-				}
-				/*
-				 * Step 5. retrieve new roi as some are stale.
-				 */
-				if (serverRoi != null) {
-					id = serverRoi.getId().getValue();
-					tempResults = svc.findByImage(imageID, new RoiOptions());
-					for (Roi rrr : tempResults.rois) {
-						if (rrr.getId().getValue() == id)
-							serverRoi = rrr;
 					}
 				}
 
@@ -8354,5 +8444,29 @@ class OMEROGateway
             handleException(t, "Cannot load log files for " + rootType+".");
         }
         return new HashMap();
+    }
+
+    /**
+     * Retrieves the rendering settings for the specified pixels set.
+     *
+     * @param ctx The security context.
+     * @param rndID The rendering settings ID.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged
+     *                                 in.
+     * @throws DSAccessException       If an error occurred while trying to
+     *                                 retrieve data from OMEDS service.
+     */
+    RenderingDef getRenderingDef(SecurityContext ctx, long rndID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Connector c = getConnector(ctx, true, false);
+        try {
+            IPixelsPrx service = c.getPixelsService();
+            return service.loadRndSettings(rndID);
+        } catch (Exception e) {
+            handleException(e, "Cannot retrieve the rendering settings");
+        }
+        return null;
     }
 }

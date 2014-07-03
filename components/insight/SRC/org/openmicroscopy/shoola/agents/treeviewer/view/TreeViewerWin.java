@@ -289,7 +289,8 @@ class TreeViewerWin
         List<JMenu> menus = new ArrayList<JMenu>();
         menus.add(createFileMenu());
         menus.add(createEditMenu());
-        menus.add(createViewMenu());
+        JMenu m = createViewMenu();
+        if (m != null) menus.add(m);
         JMenuBar bar = tb.getTaskBarMenuBar();
         bar.setName("menu bar");
         List<JMenu> existingMenus = new ArrayList<JMenu>();
@@ -351,38 +352,37 @@ class TreeViewerWin
      */
     private JMenu createViewMenu()
     {
+        if (getLayoutType().equals(JXTASKPANE_TYPE)) return null;
         JMenu menu = new JMenu("View");
         menu.setMnemonic(KeyEvent.VK_V);
         JCheckBoxMenuItem item = new JCheckBoxMenuItem();
-        if (!getLayoutType().equals(JXTASKPANE_TYPE)) {
-        	 Map<Integer, Browser> browsers = model.getBrowsers();
-             Browser browser = browsers.get(Browser.PROJECTS_EXPLORER);
-             item.setSelected(browser.isDisplayed());
-             item.setAction(controller.getAction(
-                    		 TreeViewerControl.HIERARCHY_EXPLORER));
-             menu.add(item);
-             item = new JCheckBoxMenuItem();
-             browser = browsers.get(Browser.FILES_EXPLORER);
-             item.setSelected(browser.isDisplayed());
-             item.setAction(
-            		 controller.getAction(TreeViewerControl.FILES_EXPLORER));
-             menu.add(item);
-             item = new JCheckBoxMenuItem();
-             browser = browsers.get(Browser.TAGS_EXPLORER);
-             item.setSelected(browser.isDisplayed());
-             item.setAction(
-            		 controller.getAction(TreeViewerControl.TAGS_EXPLORER));
-             menu.add(item);
-             item = new JCheckBoxMenuItem();
-             browser = browsers.get(Browser.IMAGES_EXPLORER);
-             item.setSelected(browser.isDisplayed());
-             item.setAction(
-            		 controller.getAction(TreeViewerControl.IMAGES_EXPLORER));
-             menu.add(item);
-        }
+        Map<Integer, Browser> browsers = model.getBrowsers();
+        Browser browser = browsers.get(Browser.PROJECTS_EXPLORER);
+        item.setSelected(browser.isDisplayed());
+        item.setAction(controller.getAction(
+                TreeViewerControl.HIERARCHY_EXPLORER));
+        menu.add(item);
+        item = new JCheckBoxMenuItem();
+        browser = browsers.get(Browser.FILES_EXPLORER);
+        item.setSelected(browser.isDisplayed());
+        item.setAction(
+                controller.getAction(TreeViewerControl.FILES_EXPLORER));
+        menu.add(item);
+        item = new JCheckBoxMenuItem();
+        browser = browsers.get(Browser.TAGS_EXPLORER);
+        item.setSelected(browser.isDisplayed());
+        item.setAction(
+                controller.getAction(TreeViewerControl.TAGS_EXPLORER));
+        menu.add(item);
+        item = new JCheckBoxMenuItem();
+        browser = browsers.get(Browser.IMAGES_EXPLORER);
+        item.setSelected(browser.isDisplayed());
+        item.setAction(
+                controller.getAction(TreeViewerControl.IMAGES_EXPLORER));
+        menu.add(item);
         return menu;
     }
-    
+
     /**
      * Helper method to create the <code>File</code> menu.
      * 
@@ -1245,6 +1245,7 @@ class TreeViewerWin
 
 	
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */
+    @Override
     public void setOnScreen()
     {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();

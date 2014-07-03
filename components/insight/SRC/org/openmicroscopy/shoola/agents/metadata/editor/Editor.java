@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.Editor 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -36,6 +36,7 @@ import javax.swing.JComponent;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.FileAnnotationCheckResult;
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
@@ -232,14 +233,11 @@ public interface Editor
 
 	/** Loads the existing tags. */
 	public void loadExistingTags();
-	
-	/**
-	 * Deletes the specified annotation.
-	 * 
-	 * @param data The annotation to delete.
-	 */
-	public void deleteAnnotation(AnnotationData data);
 
+	public void removeFileAnnotations(List<FileAnnotationData> annotations);
+	
+	public void handleFileAnnotationRemoveCheck(FileAnnotationCheckResult result);
+	
 	/**
 	 * Sets the image acquisition data.
 	 * 
@@ -522,8 +520,15 @@ public interface Editor
 	 */
 	void setFileset(Set<FilesetData> result);
 
-	/** Loads the file set associated to the image.*/
-	void loadFileset();
+	/** Loads the file set associated to the image.
+	 * 
+	 * @param trigger The action which triggered the loading,
+	 * see {@link EditorControl#FILE_PATH_TOOLBAR}
+	 * or {@link EditorControl#FILE_PATH_INPLACE_ICON}; 
+	 * (pass -1 or any other unreserved value to load the filesets automatically
+	 *  without user trigger)
+	 * */
+	void loadFileset(int trigger);
 
 	/**
 	 * Loads the rendering engine depending on the selected pane or component

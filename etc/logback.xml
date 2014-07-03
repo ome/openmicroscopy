@@ -116,6 +116,11 @@
   <logger name="ome.dsl.utests" level="WARN"/>
   <logger name="ome.util.utests.PojoOptionsTest" level="WARN"/>
 
+  <!-- IMAGEJ /////////////////////////////////////////////////////////////// -->
+  <!-- These categories are omitted by ImageJ components which pick up our
+       slf4j/logback configuration during scripting -->
+  <logger name="org.bushe" level="INFO"/>
+
   <!-- DATABASE /////////////////////////////////////////////////////////////// -->
   <logger name="bitronix" level="WARN"/>
   <!-- Limit memory WARNing -->
@@ -123,7 +128,7 @@
   <!-- Limit fail-safe cleanup -->
   <logger name="org.hibernate.engine.loading.LoadContexts" level="ERROR"/>
   <!-- This is bogus, and will be caught by our exception handlers anyway -->
-  <logger name="org.hibernate.util.JDBCExceptionReporter" level="ERROR"/>
+  <logger name="org.hibernate.util.JDBCExceptionReporter" level="OFF" additivity="false"/>
   <!-- Printed on startup -->
   <logger name="org.hibernate.search.engine.DocumentBuilderContainedEntity" level="ERROR"/>
   <!-- Other overly verbose messages -->
@@ -145,6 +150,11 @@
   </logger>
 
   <logger name="ome.annotations">
+    <level value="INFO"/>
+    <appender-ref ref="SIFT"/>
+  </logger>
+
+  <logger name="ome.formats">
     <level value="INFO"/>
     <appender-ref ref="SIFT"/>
   </logger>

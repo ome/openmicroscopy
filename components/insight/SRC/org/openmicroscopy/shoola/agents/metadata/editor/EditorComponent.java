@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.EditorComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -34,8 +34,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -43,7 +43,9 @@ import javax.swing.JFrame;
 
 //Third-party libraries
 
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.FileAnnotationCheckResult;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
@@ -51,20 +53,21 @@ import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.util.FigureDialog;
-import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
+import org.openmicroscopy.shoola.agents.metadata.util.FileAttachmentWarningDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.flim.FLIMResultsDialog;
+import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AnnotationLinkData;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.util.Target;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -119,6 +122,9 @@ class EditorComponent
 	
 	/** The dialog used to display script.*/
 	private ScriptingDialog dialog;
+	
+	/** A pointer to keep track which was the action which triggered the fileset loading */
+	private int filesetLoadTrigger = -1;
 	
 	/**
 	 * Returns the collection of annotation that cannot be removed 
@@ -210,17 +216,13 @@ class EditorComponent
 		String title = "";
 		String text = "";
 		Icon icon = null;
-		boolean single = model.isSingleMode();
 		if (TagAnnotationData.class.equals(type)) {
 			title = "Tags Selection";
-			if (single)
-				text = "Select the Tags to add or remove, \nor Create new Tags";
-			else text = "Select the Tags to add, \nor Create new Tags";
+			text = "Select from available tags";
 			icon = icons.getIcon(IconManager.TAGS_48);
 		} else if (FileAnnotationData.class.equals(type)) {
 			title = "Attachments Selection";
-			if (single) text = "Select the Attachments to add or remove.";
-			else text = "Select the Attachments to add.";
+			text = "Select from available attachments";
 			icon = icons.getIcon(IconManager.ATTACHMENT_48);
 		}
 		SelectionWizard wizard = new SelectionWizard(
@@ -287,6 +289,10 @@ class EditorComponent
 		model.setRootObject(refObject);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		view.setRootObject(oldObject);
+		
+		// have to load the filesets immediately to determine if the
+		// show file path button in the toolbar should be activated or not
+		loadFileset(-1);
 	}
 
 	/** 
@@ -306,59 +312,47 @@ class EditorComponent
 	public void setExistingTags(Collection tags)
 	{
 		model.setExistingTags(tags);
-		
+		List<TagAnnotationData> selected = new ArrayList<TagAnnotationData>();
 		List<Long> ids = new ArrayList<Long>();
-		
 		TagAnnotationData tag;
-		Collection<TagAnnotationData> setTags = 
-				model.getCommonTags();
+		Collection<TagAnnotationData> setTags = model.getCommonTags();
 		if (setTags != null) {
 			Iterator<TagAnnotationData> k = setTags.iterator();
 			while (k.hasNext()) {
 				tag = k.next();
-				if (model.isAnnotationUsedByUser(tag))
-					ids.add(tag.getId());
+				if (model.isAnnotationUsedByUser(tag)) {
+				    ids.add(tag.getId());
+				    selected.add(tag);
+				}
 			}
 		}
 		
 		List<TagAnnotationData> available = new ArrayList<TagAnnotationData>();
-		if (tags != null) {
+		if (CollectionUtils.isNotEmpty(tags)) {
 			Iterator i = tags.iterator();
 			TagAnnotationData data;
-			String ns;
 			Set<TagAnnotationData> l;
 			Iterator<TagAnnotationData> j;
 			while (i.hasNext()) {
 				data = (TagAnnotationData) i.next();
-				ns = data.getNameSpace();
-				if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
-					l = data.getTags();
-					if (l != null) {
-						j = l.iterator();
-						while (j.hasNext()) {
-							tag = j.next();
-							if (!ids.contains(tag.getId()))
-								available.add(tag);
-						}
-					}
-				} else {
-					if (!ids.contains(data.getId()))
-						available.add(data);
+				if (!ids.contains(data.getId())) {
+                    available.add(data);
 				}
 			}
 		}
 		if (controller.getFigureDialog() != null) {
 			List<TagAnnotationData> all = new ArrayList<TagAnnotationData>();
 			all.addAll(available);
-			if (setTags != null && setTags.size() > 0) all.addAll(setTags);
+			if (CollectionUtils.isNotEmpty(setTags)) {
+			    all.addAll(setTags);
+			}
 			controller.getFigureDialog().setTags(all);
 			return;
 		}
-		showSelectionWizard(TagAnnotationData.class, available, setTags,
-							true);
+		showSelectionWizard(TagAnnotationData.class, available, selected, true);
 		setStatus(false);
 	}
-	
+
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#setChannelsData(Map, boolean)
@@ -437,19 +431,22 @@ class EditorComponent
 		if (attachments == null) return;
 		model.setExistingAttachments(attachments);
 		Collection setAttachments = model.getCommonAttachments();
-		
+		List selected = new ArrayList();
 		List<Long> ids = new ArrayList<Long>();
 		if (setAttachments != null) {
 			Iterator<FileAnnotationData> k = setAttachments.iterator();
 			FileAnnotationData file;
 			while (k.hasNext()) {
 				file = k.next();
-				if (model.isAnnotationUsedByUser(file))
-					ids.add(file.getId());
+				if (model.isAnnotationUsedByUser(file)) {
+				    selected.add(file);
+				    ids.add(file.getId());
+				}
 			}
 		}
 		
 		List available = new ArrayList();
+		
 		if (attachments != null) {
 			Iterator i = attachments.iterator();
 			FileAnnotationData data;
@@ -459,7 +456,7 @@ class EditorComponent
 					available.add(data);
 			}
 		}
-		showSelectionWizard(FileAnnotationData.class, available, setAttachments,
+		showSelectionWizard(FileAnnotationData.class, available, selected,
 							true);
 		setStatus(false);
 	}
@@ -498,28 +495,6 @@ class EditorComponent
 
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#deleteAnnotation(AnnotationData)
-	 */
-	public void deleteAnnotation(AnnotationData data)
-	{
-		if (data == null) return;
-		String s = null;
-		if (data instanceof FileAnnotationData) 
-			s = "Do you want to delete the attachment?";
-		if (s == null) return;
-		JFrame owner = 
-			MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-		MessageBox msg = new MessageBox(owner, "Delete", s);
-		int option = msg.centerMsgBox();
-		if (option == MessageBox.YES_OPTION) {
-			List<AnnotationData> toRemove = new ArrayList<AnnotationData>(1);
-			toRemove.add(data);
-			//model.fireAnnotationSaving(toAdd, toRemove);
-		}
-	}
-
-	/** 
-	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#setImageAcquisitionData(ImageAcquisitionData)
 	 */
 	public void setImageAcquisitionData(ImageAcquisitionData map)
@@ -530,6 +505,43 @@ class EditorComponent
 		view.setStatus(false);
 	}
 
+    public void removeFileAnnotations(List<FileAnnotationData> annotations) {
+            model.fireFileAnnotationRemoveCheck(annotations);
+    }
+
+    public void handleFileAnnotationRemoveCheck(final FileAnnotationCheckResult result) {
+        if (!result.getSingleParentAnnotations().isEmpty()) {
+            
+            JFrame f = MetadataViewerAgent.getRegistry().getTaskBar()
+                    .getFrame();
+            
+            FileAttachmentWarningDialog dlg = new FileAttachmentWarningDialog(f, result);
+            dlg.addPropertyChangeListener(new PropertyChangeListener() {
+                
+                @Override
+                public void propertyChange(PropertyChangeEvent arg0) {
+                    if(arg0.getPropertyName().equals(FileAttachmentWarningDialog.DELETE_PROPERTY)) {
+                        for (FileAnnotationData fd : result.getSingleParentAnnotations()) {
+                          view.deleteAnnotation(fd);
+                        }
+                        for (FileAnnotationData fd : result.getAllAnnotations()) {
+                            view.unlinkAttachedFile(fd);
+                        }
+                    }
+                    
+                }
+            });
+            UIUtilities.centerAndShow(dlg);
+        }
+
+        else {
+            for (FileAnnotationData fd : result.getAllAnnotations()) {
+                view.unlinkAttachedFile(fd);
+            }
+        }
+    }
+	
+	
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#loadImageAcquisitionData()
@@ -641,6 +653,10 @@ class EditorComponent
 	public void setPlaneInfo(Collection result, long pixelsID, int channel)
 	{
 		Object ref = model.getRefObject();
+		if (ref instanceof WellSampleData) {
+		    WellSampleData ws = (WellSampleData) ref;
+		    ref = ws.getImage();
+		}
 		if (!(ref instanceof ImageData)) return;
 		ImageData img = (ImageData) ref;
 		if (pixelsID != img.getDefaultPixels().getId()) return;
@@ -1187,15 +1203,16 @@ class EditorComponent
 	public void setFileset(Set<FilesetData> set)
 	{
 		model.setFileset(set);
-		view.displayFileset();
+		view.displayFileset(filesetLoadTrigger);
 	}
 
-    /** 
+    	/** 
 	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#loadFileset()
+	 * @see Editor#loadFileset(int)
 	 */
-	public void loadFileset()
+	public void loadFileset(int trigger)
 	{
+	        this.filesetLoadTrigger = trigger;
 		model.fireFilesetLoading();
 	}
 

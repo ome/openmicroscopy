@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.ButtonGroup;
+import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 
@@ -70,6 +71,8 @@ class SearchContextMenu
     /** Collections of UI nodes hosting the <code>SearchObject</code>s. */
     private List		items;
     
+    private ButtonGroup group;
+    
     /**
      * Builds and lays out the UI.
      * 
@@ -85,7 +88,7 @@ class SearchContextMenu
     		boolean singleSelection)
     {
     	Iterator i; 
-		ButtonGroup group = new ButtonGroup();
+		group = new ButtonGroup();
 		SearchObject node;
 		if (type.equals(NodeRadioMenuItem.class)) {
 			NodeRadioMenuItem uiNode;
@@ -236,12 +239,16 @@ class SearchContextMenu
      */
     void setSelectedNode(SearchObject node)
     {
-    	Iterator i = items.iterator();
-    	Object uiNode;
-    	NodeMenuItem nmItem;
-    	NodeCheckMenuItem ncmItem;
-    	NodeRadioMenuItem rItem;
-    	while (i.hasNext()) {
+        if(node==null) {
+            group.clearSelection();
+        }
+        else {
+        	Iterator i = items.iterator();
+        	Object uiNode;
+        	NodeMenuItem nmItem;
+        	NodeCheckMenuItem ncmItem;
+        	NodeRadioMenuItem rItem;
+        	while (i.hasNext()) {
     		uiNode = i.next();
 			if (uiNode instanceof NodeMenuItem) {
 				nmItem = (NodeMenuItem) uiNode;
@@ -266,6 +273,7 @@ class SearchContextMenu
 				}
 			}
 		}
+        }
     }
 	/**
 	 * Fires a property change when a new menu item is selected.

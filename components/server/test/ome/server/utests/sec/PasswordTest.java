@@ -444,12 +444,12 @@ public class PasswordTest extends MockObjectTestCase {
     }
 
     private void ldapCreatesUser(boolean andReturns) {
-        mockLdap.expects(once()).method("createUserFromLdap").will(
+        mockLdap.expects(once()).method("createUser").will(
                 returnValue(andReturns));
     }
 
     private void ldapCreatesUserAndThrows() {
-        mockLdap.expects(once()).method("createUserFromLdap").will(
+        mockLdap.expects(once()).method("createUser").will(
                 throwException(new ApiUsageException("")));
     }
 

@@ -150,6 +150,9 @@ class Type(omero.grid.Param):
         self.prototype = wrap(arg)
         return self
 
+    def name(self):
+        return self._name
+
     def __get(self, val, func = True):
         if val is not None:
             if func:

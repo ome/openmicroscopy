@@ -160,6 +160,21 @@ class Parser(ArgumentParser):
         parser.set_defaults(func=func, **kwargs)
         return parser
 
+    def add_limit_arguments(self):
+        self.add_argument(
+            "--limit", help="maximum number of return values (default=25)", type=int,
+            default=25)
+        self.add_argument(
+            "--offset", help="number of entries to skip (default=0)", type=int, default=0)
+
+    def add_style_argument(self):
+        from omero.util.text import find_style
+        from omero.util.text import list_styles
+        self.add_argument(
+            "--style", help=
+            "use alternative output style (default=sql)",
+            choices=list_styles())
+
     def add_login_arguments(self):
         group = self.add_argument_group('Login arguments',
             'Optional session arguments')
@@ -175,7 +190,10 @@ class Parser(ArgumentParser):
             help = "OMERO username")
         group.add_argument("-w", "--password",
             help = "OMERO password")
-        group.add_argument("-k", "--key", help = "OMERO session key (UUID of an active session)")
+        group.add_argument("-k", "--key",
+            help = "OMERO session key (UUID of an active session)")
+        group.add_argument("--sudo", metavar="ADMINUSER",
+            help = "Create session as this admin. Changes meaning of password!")
 
     def _check_value(self, action, value):
         # converted value must be one of the choices (if specified)
@@ -246,6 +264,13 @@ class ExceptionHandler(object):
             if "org.hibernate.exception.ConstraintViolationException: could not insert" in str(ve):
                 return True
 
+    def handle_failed_request(self, rfe):
+        import Ice
+        if isinstance(rfe, Ice.OperationNotExistException):
+            return "Operation not supported by the server: %s" % rfe.operation
+        else:
+            return "Unknown Ice.RequestFailedException"
+
 
 class Context:
     """Simple context used for default logic. The CLI registry which registers
@@ -298,7 +323,8 @@ class Context:
         """
         sessions = self.controls["sessions"]
 
-        login = self.subparsers.add_parser("login", help="Shortcut for 'sessions login'")
+        login = self.subparsers.add_parser("login", help="Shortcut for 'sessions login'",
+                                           description=sessions.login.__doc__)
         login.set_defaults(func=lambda args:sessions.login(args))
         sessions._configure_login(login)
 
@@ -424,6 +450,26 @@ class Context:
 
 #####################################################
 #
+
+
+def admin_only(func):
+    """
+    Checks that the current user is an admin or throws an exception.
+    """
+    def _check_admin(*args, **kwargs):
+        args = list(args)
+        self = args[0]
+        plugin_args = args[1]
+        client = self.ctx.conn(plugin_args)
+        ec = client.sf.getAdminService().getEventContext()
+        if not ec.isAdmin:
+            self.ctx.die(111, "Admins only!")
+
+    from omero.util.decorators import wraps
+    _check_admin = wraps(func)(_check_admin)
+    return _check_admin
+
+
 class BaseControl(object):
     """Controls get registered with a CLI instance on loadplugins().
 
@@ -686,6 +732,13 @@ class BaseControl(object):
         # Fallback
         completions = [method for method in dir(self) if callable(getattr(self, method)) ]
         return [ str(method + " ") for method in completions if method.startswith(text) and not method.startswith("_") ]
+
+    def error_admin_only(self, msg="SecurityViolation: Admins only!",
+                         code=111, fatal=True):
+        if fatal:
+            self.ctx.die(code, msg)
+        else:
+            self.ctx.err(msg)
 
 
 class CLI(cmd.Cmd, Context):
@@ -1056,6 +1109,9 @@ class CLI(cmd.Cmd, Context):
                 self._client = None
 
         if args is not None:
+            if "sessions" not in self.controls:
+                # Most likely to happen during development
+                self.die(111, "No sessions control! Cannot login")
             self.controls["sessions"].login(args)
 
         return self._client # Possibly added by "login"
@@ -1186,12 +1242,8 @@ def argv(args=sys.argv):
                 for g in glob.glob(p):
                     cli._plugin_paths.append(g)
 
-        class PluginLoader(Thread):
-            def run(self):
-                cli.loadplugins()
-	# Disabling background loading
-	# until 2.4 hangs are fixed
-        PluginLoader().run() # start()
+        # For argparse dispatch, this cannot be done lazily
+        cli.loadplugins()
 
         if len(args) > 1:
             cli.invoke(args[1:])

@@ -152,21 +152,29 @@ public class ROIAnalyser
         int n = channels.size();
         Integer w;
         ROIShape shape;
+        boolean close = false;
         for (int i = 0; i < shapes.length; ++i) {
             shape = shapes[i];
+            close = i == shapes.length-1;
             if (checkPlane(shape.getZ(), shape.getT())) {
                 stats = new HashMap<Integer, ROIShapeStats>(n);
                 j = channels.iterator();
                 List<Point> points = shape.getFigure().getPoints();
+                int count = 0;
+                boolean last = false;
                 while (j.hasNext()) {
                     w = j.next();
                     if (checkChannel(w.intValue())) {
                         computer =  new ROIShapeStats();
                         runner.register(computer);
-                        runner.iterate(ctx, shape, points, w.intValue());
+                        if (close) {
+                            last = count == channels.size()-1;
+                        }
+                        runner.iterate(ctx, shape, points, w.intValue(), last);
                         runner.remove(computer);
                         stats.put(w, computer);
                     }
+                    count++;
                 }
                 r.put(shape, stats);
             }

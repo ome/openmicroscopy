@@ -93,7 +93,7 @@ public class Deletion {
             this.em = em;
         }
 
-        /* @Override - JDK6 only */
+        @Override
         public void setApplicationContext(ApplicationContext ctx)
             throws BeansException {
             this.ctx = (OmeroContext) ctx;

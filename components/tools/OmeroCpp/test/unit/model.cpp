@@ -251,7 +251,7 @@ TEST(ModelTest, PrimaryPixels ) {
 
     ImageIPtr i = new ImageI();
 
-    ASSERT_EQ( true, i->isPixelsLoaded() );
+    ASSERT_TRUE( i->isPixelsLoaded() );
     ASSERT_EQ( 0, i->sizeOfPixels() );
     bool called = false;
     ImagePixelsSeq::iterator beg = i->beginPixels();
@@ -260,13 +260,13 @@ TEST(ModelTest, PrimaryPixels ) {
         called = true;
         beg++;
     }
-    ASSERT_EQ( false, called );
+    ASSERT_FALSE( called );
 
 
     PixelsIPtr p = new PixelsI();
     i->addPixels( p );
 
-    ASSERT_EQ( true, i->isPixelsLoaded() );
+    ASSERT_TRUE( i->isPixelsLoaded() );
     ASSERT_EQ( 1, i->sizeOfPixels() );
     ASSERT_EQ( p, i->beginPixels()[0] );
     beg = i->beginPixels();
@@ -280,7 +280,7 @@ TEST(ModelTest, PrimaryPixels ) {
 
     i->unloadPixels();
 
-    ASSERT_EQ( false, i->isPixelsLoaded() );
+    ASSERT_FALSE( i->isPixelsLoaded() );
     ASSERT_EQ( -1, i->sizeOfPixels() );
     try {
         i->beginPixels();

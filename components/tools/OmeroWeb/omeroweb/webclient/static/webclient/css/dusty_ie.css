@@ -242,11 +242,8 @@
 			.btn_download {background:  transparent url('../../webgateway/img/icon_download.png') center center no-repeat;}
 			.btn_filetype {background:  transparent url('../../webgateway/img/icon_filetype.png') center center no-repeat;}
 			.btn_view_error {background:  transparent url('../../webgateway/img/icon_view_error.png') center center no-repeat;}
-			.btn_info {background:  transparent url('../../webgateway/img/icon_info.png' ) center center no-repeat;}
-			.btn_add {background:  transparent url('../../webgateway/img/icon_add.png' ) center center no-repeat;}
-			.btn_scientist {background: transparent  url('../../webgateway/img/icon_add_scientist.png') center center no-repeat;}
-			.btn_group {background: transparent  url('../../webgateway/img/icon_add_group.png') center center no-repeat;}
-			.btn_delete {background: transparent  url('../../webgateway/img/icon_delete.png') center center no-repeat;}
+			.btn_info {background:  transparent url('../../webgateway/img/icon_info.png') center center no-repeat;}
+			.btn_add {background:  transparent url('../../webgateway/img/icon_add.png') center center no-repeat;}
 			.btn_edit {background: transparent url('../../webgateway/img/icon_edit.png') center center no-repeat;}
 			.btn_link {background: transparent url('../../webgateway/img/icon_link.png') center center no-repeat; 
         	    float:right;
@@ -684,7 +681,7 @@
 	}
 
 		.contextbox_dark::after {
-			background: url(../images/contextbox_arrowup.png) no-repeat;
+			background: url('../../webgateway/img/contextbox_arrowup.png') no-repeat;
 		}
 
 		.contextbox_dark h1 {

@@ -19,10 +19,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import settings
 import logging
-
-from django.utils.datastructures import SortedDict
 
 logger = logging.getLogger(__name__)
 

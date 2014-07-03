@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserUI
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -41,6 +41,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -1234,7 +1235,7 @@ class BrowserUI
      * 
      * @param node The node to handle.
      */
-    private void sortNode(TreeImageTimeSet node)
+    private void sortNode(TreeImageSet node)
     {
     	DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
     	List children = node.getChildrenDisplay();
@@ -1253,7 +1254,7 @@ class BrowserUI
     		if (children.size() != 0) {
     			j = children.iterator();
     			while (j.hasNext())
-					sortNode((TreeImageTimeSet) j.next());
+					sortNode((TreeImageSet) j.next());
         	} else buildEmptyNode(node);
     	}
     }
@@ -1330,8 +1331,9 @@ class BrowserUI
 				bottom.add(object);
 			else if (uo instanceof ExperimenterData)
 				bottom.add(object);
-			else if (object instanceof SmartFolder)
-				bottom.add(object);
+			else if (object instanceof SmartFolder ||
+			        object instanceof TreeFileSet)
+				bottom2.add(object);
 		}
 		List<TreeImageDisplay> all = new ArrayList<TreeImageDisplay>();
 		if (top.size() > 0) all.addAll(top);
@@ -1707,6 +1709,7 @@ class BrowserUI
     	List all;
         switch (model.getBrowserType()) {
 			case Browser.IMAGES_EXPLORER:
+			case Browser.FILES_EXPLORER:
 				for (int i = 0; i < n; i++) {
 					node = (TreeImageDisplay) root.getChildAt(i);
 					children = node.getChildrenDisplay();
@@ -1714,10 +1717,11 @@ class BrowserUI
 					TreeImageDisplay child;
 					while (j.hasNext()) {
 						child = (TreeImageDisplay) j.next();
-						if (child instanceof TreeImageTimeSet)
-							sortNode((TreeImageTimeSet) child);
+						if (child instanceof TreeImageTimeSet ||
+						    child instanceof TreeFileSet)
+							sortNode((TreeImageSet) child);
 					}
-				}	       
+				}
 				break;
 			case Browser.ADMIN_EXPLORER:
 				for (int i = 0; i < n; i++) {
@@ -1725,7 +1729,7 @@ class BrowserUI
 					children = node.getChildrenDisplay();
 					node.removeAllChildren();
 					dtm.reload(node);
-					if (children.size() != 0) {
+					if (!children.isEmpty()) {
 						if (node.getUserObject() instanceof GroupData) {
 							all = prepareSortedList(sorter.sort(children));
 							buildTreeNode(node, all, dtm);
@@ -1737,7 +1741,7 @@ class BrowserUI
 					while (j.hasNext()) {
 						setExpandedParent((TreeImageDisplay) j.next(), true);
 					}
-				}	        
+				}
 				break;
 			default:
 				for (int i = 0; i < n; i++) {
@@ -1745,9 +1749,20 @@ class BrowserUI
 					children = node.getChildrenDisplay();
 					node.removeAllChildren();
 					dtm.reload(node);
-					if (children.size() != 0) {
+					if (!children.isEmpty()) {
 						if (node.getUserObject() instanceof ExperimenterData) {
-							all = prepareSortedList(sorter.sort(children));
+						    List<Object> sets = new ArrayList<Object>();
+						    List<Object> toSort = new ArrayList<Object>();
+							Iterator k = children.iterator();
+							while (k.hasNext()) {
+                                Object object = (Object) k.next();
+                                if (object instanceof TreeFileSet) {
+                                    sets.add((TreeFileSet) object);
+                                } else toSort.add(object);
+                            }
+							sets.addAll(sorter.sort(toSort));
+							Collections.reverse(sets);
+							all = prepareSortedList(sets);
 							buildTreeNode(node, all, dtm);
 						} else {
 							buildTreeNode(node, sorter.sort(children), dtm);

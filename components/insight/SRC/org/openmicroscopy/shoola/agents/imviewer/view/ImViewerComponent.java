@@ -767,6 +767,14 @@ class ImViewerComponent
 	 */
 	public boolean isZoomFitToWindow() { return model.isZoomFitToWindow(); }
 
+	/**
+         * Implemented as specified by the {@link ImViewer} interface.
+         * @see ImViewer#isRendererLoaded()
+         */
+	public boolean isRendererLoaded() {
+	    return model.isRendererLoaded();
+	}
+	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#setColorModel(int)
@@ -2766,7 +2774,7 @@ class ImViewerComponent
 		int index = view.getUICompressionLevel();
 		if (old == index) return;
 		view.setCompressionLevel(index);
-		if (!model.isBigImage())
+		if (!model.isLargePlane())
 			ImViewerFactory.setCompressionLevel(index);
 		renderXYPlane();
 	}
@@ -3134,7 +3142,7 @@ class ImViewerComponent
 			default:
 				controller.setPreferences();
 				//tmp store compression
-				if (!model.isBigImage())
+				if (!model.isLargePlane())
 				ImViewerFactory.setCompressionLevel(
 						view.getUICompressionLevel());
 				if (!saveOnClose(notifyUser)) {

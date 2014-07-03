@@ -26,10 +26,13 @@ TEST(RTypeTest, RBool)
 }
 
 template <typename T>
-void assertRValues(T rv1, T rv2) {
-    ASSERT_LT(rv1, rv2);
-    ASSERT_LT(rv1, rv2);
-    ASSERT_NE(rv1, rv2);
+void assertRValues(const T rv1, const T rv2) {
+    ASSERT_TRUE(-1 == rv1->compare(rv2));
+    ASSERT_TRUE(1 == rv2->compare(rv1));
+    ASSERT_FALSE(rv1 == rv2);
+    ASSERT_TRUE(rv1 != rv2);
+    ASSERT_TRUE(rv1 < rv2);
+    ASSERT_TRUE(rv2 > rv1);
 
     ASSERT_LT(rv1->getValue(), rv2->getValue());
     ASSERT_LT(rv1->getValue(), rv2->getValue());

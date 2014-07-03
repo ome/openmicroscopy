@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.ToolBar 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -32,15 +32,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowFocusListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.swing.BorderFactory;
@@ -53,7 +50,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
@@ -67,6 +63,7 @@ import org.jdesktop.swingx.JXBusyLabel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.util.FilesetInfoDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptSubMenu;
@@ -77,15 +74,11 @@ import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.JavaFilter;
 import org.openmicroscopy.shoola.util.filter.file.MatlabFilter;
 import org.openmicroscopy.shoola.util.filter.file.PythonFilter;
-import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
-
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
-import pojos.FilesetData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.WellSampleData;
@@ -203,7 +196,7 @@ class ToolBar
 		pathButton.setText("Show File Paths...");
 		pathButton.setToolTipText("Show file paths on the server.");
 		pathButton.addActionListener(controller);
-		pathButton.setActionCommand(""+EditorControl.FILE_PATH);
+		pathButton.setActionCommand(""+EditorControl.FILE_PATH_TOOLBAR);
 		pathButton.setEnabled(model.isSingleMode() && model.getImage() != null);
 		linkMenu.add(pathButton);
     	return linkMenu;
@@ -471,17 +464,19 @@ class ToolBar
 		}
 		linkButton = new JButton(icons.getIcon(IconManager.LINK));
 		linkButton.addMouseListener(new MouseAdapter() {
-			
-			/**
-			 * Launches the dialog when the user releases the mouse.
-			 * MouseAdapter#mouseReleased(MouseEvent)
-			 */
-			public void mouseReleased(MouseEvent e)
-			{
-				location = e.getPoint();
-				component = (Component) e.getSource();
-				createLinkMenu().show(component, location.x, location.y);
-			}
+		    
+                    /**
+                     * Launches the dialog when the user releases the mouse.
+                     * MouseAdapter#mouseReleased(MouseEvent)
+                     */
+                    public void mouseReleased(MouseEvent e) {
+                        if (linkButton.isEnabled()) {
+                            location = e.getPoint();
+                            component = (Component) e.getSource();
+                            createLinkMenu().show(component, location.x, location.y);
+                        }
+                    }
+                    
 		});
 		
 		UIUtilities.unifiedButtonLookAndFeel(linkButton);
@@ -537,6 +532,17 @@ class ToolBar
     	*/
     	//bar.add(scriptsButton);
     	return bar;
+    }
+    
+    /**
+     * Enables or disables the Show File path button
+     * @param b <code>true</code> enables the button; disables the button otherwise
+     */
+    public void enableFilePathButton(boolean b) {
+        if(!model.isSingleMode() || model.getImage() == null) {
+            b = false;
+        }
+        linkButton.setEnabled(b);
     }
     
     /** Builds and lays out the UI. */
@@ -731,6 +737,9 @@ class ToolBar
 			scriptsButton.setEnabled(false);
 			return;
 		}
+                if (!(ref instanceof ImageData)) {
+                    linkButton.setEnabled(false);
+                }
 		viewButton.setEnabled(false);
     	exportAsOmeTiffButton.setEnabled(false);
     	if (pathButton != null) pathButton.setEnabled(false);
@@ -804,58 +813,12 @@ class ToolBar
 		}
 	}
 	
-	/** Displays the file set associated to the image.*/
-	void displayFileset()
-	{
-		Set<FilesetData> set = model.getFileset();
-		if (set == null) return;
-		Iterator<FilesetData> i = set.iterator();
-		FilesetData data;
-		MultilineLabel label = new MultilineLabel();
-		StringBuffer buffer = new StringBuffer();
-		List<String> paths;
-		Iterator<String> j;
-		int n = 0;
-		while (i.hasNext()) {
-			data = i.next();
-			paths = data.getAbsolutePaths();
-			j = paths.iterator();
-			n += paths.size();
-			while (j.hasNext()) {
-				buffer.append(j.next());
-				buffer.append(System.getProperty("line.separator"));
-			}
-		}
-		label.setText(buffer.toString());
-		TinyDialog d = new TinyDialog(null, new JScrollPane(label),
-				TinyDialog.CLOSE_ONLY);
-		d.setTitle(n+" File path(s)");
-		
-		d.addWindowFocusListener(new WindowFocusListener() {
-			
-			/** 
-			 * Closes the dialog when the window loses focus.
-			 * @see WindowFocusListener#windowLostFocus(WindowEvent)
-			 */
-			public void windowLostFocus(WindowEvent evt) {
-				TinyDialog d = (TinyDialog) evt.getSource();
-				d.setClosed(true);
-				d.closeWindow();
-			}
-			
-			/** 
-			 * Required by the I/F but no-operation in our case.
-			 * @see WindowFocusListener#windowGainedFocus(WindowEvent)
-			 */
-			public void windowGainedFocus(WindowEvent evt) {}
-		});
-		d.setResizable(true);
-		d.getContentPane().setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
-		SwingUtilities.convertPointToScreen(location, component);
-		d.setSize(400, 100);
-		d.setLocation(location);
-		d.setVisible(true);
-	}
-	
+        /** Displays the file set associated to the image. */
+        void displayFileset() {
+            SwingUtilities.convertPointToScreen(location, component);
+            FilesetInfoDialog d = new FilesetInfoDialog();
+            d.setData(model.getFileset(), model.isInplaceImport());
+            d.open(location);
+        }
 }
 

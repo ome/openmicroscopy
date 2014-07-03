@@ -64,6 +64,7 @@ end
 
 % Create client object
 client = javaObject('omero.client', connArgs{:});
+client.setAgent('OMERO.matlab');
 
 if nargout > 1,
     % Create session

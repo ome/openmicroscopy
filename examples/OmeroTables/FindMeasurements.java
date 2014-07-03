@@ -53,6 +53,7 @@ public class FindMeasurements {
 
         } finally {
             client.closeSession();
+            System.exit(0);
         }
     }
 

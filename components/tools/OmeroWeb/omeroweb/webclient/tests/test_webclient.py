@@ -25,7 +25,6 @@
 # - gatewaywrapper
 #
 
-from omero.gateway.pytest_fixtures import *
 
 def testUserProxy (gatewaywrapper):
     gatewaywrapper.loginAsAuthor()

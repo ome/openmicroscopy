@@ -7,6 +7,7 @@
 package ome.services.blitz.repo;
 
 import java.io.File;
+import java.nio.channels.OverlappingFileLockException;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -41,6 +42,7 @@ import omero.api.RenderingEnginePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.cmd.Response;
 import omero.constants.SESSIONUUID;
+import omero.grid.InternalRepositoryPrx;
 import omero.grid.RawAccessRequest;
 import omero.grid.RepositoryPrx;
 import omero.grid.RepositoryPrxHelper;
@@ -303,7 +305,29 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
                     fileMaker.init(sf.getConfigService().getDatabaseUuid());
                 }
 
-                final String line = fileMaker.getLine();
+                String line = null;
+                try {
+                    line = fileMaker.getLine();
+                } catch (OverlappingFileLockException ofle) {
+                    InternalRepositoryPrx[] repos = reg.lookupRepositories();
+                    InternalRepositoryPrx prx = null;
+                    if (repos != null) {
+                        for (int i = 0; i < repos.length; i++) {
+                            if (repos[i] != null) {
+                                if (repos[i].toString().contains(repoUuid)) {
+                                    prx = repos[i];
+                                }
+                            }
+                        }
+                    }
+                    if (prx == null) {
+                        fileMaker.close();
+                        FileMaker newFileMaker = new FileMaker(new File(
+                                fileMaker.getDir()).getAbsolutePath());
+                        fileMaker.init(sf.getConfigService().getDatabaseUuid());
+                        line = newFileMaker.getLine();
+                    }
+                }
 
                 if (line == null) {
                     repoUuid = repo.generateRepoUuid();
@@ -315,17 +339,20 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
                 .findByString(ome.model.core.OriginalFile.class,
                         "hash", repoUuid);
 
+                final String path = FilenameUtils.normalize(
+                        new File(fileMaker.getDir()).getAbsolutePath());
+                final String pathName = FilenameUtils.getName(path);
+                final String pathDir = FilenameUtils.getFullPath(path);
                 if (r == null) {
 
                     if (line != null) {
                         log.warn("Couldn't find repository object: " + line);
                     }
 
-                    String path = FilenameUtils.normalize(new File(fileMaker.getDir()).getAbsolutePath());
                     r = new ome.model.core.OriginalFile();
                     r.setHash(repoUuid);
-                    r.setName(FilenameUtils.getName(path));
-                    r.setPath(FilenameUtils.getFullPath(path));
+                    r.setName(pathName);
+                    r.setPath(pathDir);
                     Timestamp t = new Timestamp(System.currentTimeMillis());
                     r.setAtime(t);
                     r.setMtime(t);
@@ -339,6 +366,15 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
                     log.info(String.format(
                             "Registered new repository %s (uuid=%s)", r
                                     .getName(), repoUuid));
+                } else if (!r.getPath().equals(pathDir) ||
+                        !r.getName().equals(pathName)) {
+                    final String oldPath = r.getPath();
+                    final String oldName = r.getName();
+                    r.setPath(pathDir);
+                    r.setName(pathName);
+                    r = sf.getUpdateService().saveAndReturnObject(r);
+                    log.warn("Data directory moved: {}{} updated to {}{}",
+                            oldPath, oldName, pathDir, pathName);
                 }
 
                 // ticket:1794 - only adds if necessary

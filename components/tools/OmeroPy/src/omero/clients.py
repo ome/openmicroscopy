@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 
-   Copyright 2009 Glencoe Software, Inc. All rights reserved.
+   Copyright 2009 - 2014 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -119,7 +119,7 @@ class BaseClient(object):
         if id.properties == None:
             id.properties = Ice.createProperties(args)
 
-        id.properties.parseCommandLineOptions("omero", args);
+        id.properties.parseCommandLineOptions("omero", args)
         if host:
             id.properties.setProperty("omero.host", str(host))
         if not port:
@@ -174,7 +174,7 @@ class BaseClient(object):
         """
 
         if not id:
-            raise omero.ClientError("No initialization data provided.");
+            raise omero.ClientError("No initialization data provided.")
 
         # Strictly necessary for this class to work
         id.properties.setProperty("Ice.ImplicitContext", "Shared")
@@ -398,6 +398,18 @@ class BaseClient(object):
         """
         return self.getCommunicator().getImplicitContext()
 
+    def getContext(self, group=None):
+        """
+        Returns a copy of the implicit context's context, i.e.
+        dict(getImplicitContext().getContext()) for use as the
+        last argument to any remote method.
+        """
+        ctx = self.getImplicitContext().getContext()
+        ctx = dict(ctx)
+        if group is not None:
+            ctx["omero.group"] = str(group)
+        return ctx
+
     def getProperties(self):
         """
         Returns the active properties for this instance
@@ -494,7 +506,7 @@ class BaseClient(object):
                     self.__logger.warning(\
                     "%s - createSession retry: %s"% (reason, retries) )
                 try:
-                    ctx = dict(self.getImplicitContext().getContext())
+                    ctx = self.getContext()
                     ctx[omero.constants.AGENT] = self.__agent
                     rtr = self.getRouter(self.__ic)
                     prx = rtr.createSession(username, password, ctx)
@@ -639,6 +651,19 @@ class BaseClient(object):
         finally:
             self.__lock.release()
 
+    def getManagedRepository(self):
+        repoMap = self.getSession().sharedResources().repositories()
+        prx = None
+        found = False
+        for prx in repoMap.proxies:
+            if not prx:
+                continue
+            prx = omero.grid.ManagedRepositoryPrx.checkedCast(prx)
+            if prx:
+                found = True
+                break
+        return prx
+
     def getRouter(self, comm):
         """
         Acquires the default router, and throws an exception
@@ -734,13 +759,7 @@ class BaseClient(object):
             try:
                 prx.setFileId(ofile.id.val)
                 prx.truncate(size) # ticket:2337
-                offset = 0
-                while True:
-                    block = file.read(block_size)
-                    if not block:
-                        break
-                    prx.write(block, offset, len(block))
-                    offset += len(block)
+                self.write_stream(file, prx, block_size)
             finally:
                 prx.close()
         finally:
@@ -748,17 +767,33 @@ class BaseClient(object):
 
         return ofile
 
+    def write_stream(self, file, prx, block_size=1024*1024):
+        offset = 0
+        while True:
+            block = file.read(block_size)
+            if not block:
+                break
+            prx.write(block, offset, len(block))
+            offset += len(block)
+
     def download(self, ofile, filename = None, block_size = 1024*1024, filehandle = None):
+        if not self.__sf:
+            raise omero.ClientError("No session. Use createSession first.")
+
+        # Search for objects in all groups. See #12146
+        ctx = self.getContext(group=-1)
         prx = self.__sf.createRawFileStore()
+
         try:
             if not ofile or not ofile.id:
                 raise omero.ClientError("No file to download")
-            ofile = self.__sf.getQueryService().get("OriginalFile", ofile.id.val)
+            ofile = self.__sf.getQueryService().get("OriginalFile", ofile.id.val,
+                                                    ctx)
 
             if block_size > ofile.size.val:
                 block_size = ofile.size.val
 
-            prx.setFileId(ofile.id.val)
+            prx.setFileId(ofile.id.val, ctx)
 
             size = ofile.size.val
             offset = 0
@@ -781,6 +816,20 @@ class BaseClient(object):
                     filehandle.close()
         finally:
             prx.close()
+
+    def submit(self, req, loops=10, ms=500, failonerror=True, ctx=None):
+        handle = self.getSession().submit(req, ctx)
+        return self.waitOnCmd(
+            handle, loops=loops, ms=ms, failonerror=failonerror)
+
+    def waitOnCmd(self, handle, loops=10, ms=500, failonerror=True):
+        callback = omero.callbacks.CmdCallbackI(self, handle)
+        callback.loop(loops, ms)  # Throw LockTimeout
+        rsp = callback.getResponse()
+        if isinstance(rsp, omero.cmd.ERR):
+            if failonerror:
+                raise omero.CmdError(rsp)
+        return callback
 
     def getStatefulServices(self):
         """
@@ -876,7 +925,7 @@ class BaseClient(object):
         except:
             self.__logger.warning("Cannot get session service for killSession. Using closeSession")
             self.closeSession()
-            return -1;
+            return -1
 
         count = 0
         try:
@@ -960,6 +1009,7 @@ class BaseClient(object):
         Returns all items in the "output" shared (session) memory
         """
         return self._env(unwrap, "getOutputKeys")
+
     #
     # Misc.
     #
@@ -1013,7 +1063,7 @@ class BaseClient(object):
             pass
         def _closeSession(self):
             try:
-                self.oa.deactivate();
+                self.oa.deactivate()
             except Exception, e:
                 sys.err.write("On session closed: " + str(e))
 
