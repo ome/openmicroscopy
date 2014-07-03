@@ -99,12 +99,14 @@ def getIntOrDefault(request, name, default):
 
 def login(request):
     """
-    Webclient Login - Also can be used by other Apps to log in to OMERO.
-    Uses the 'server' id from request to lookup the server-id (index), host and port from settings. E.g. "localhost", 4064.
-    Stores these details, along with username, password etc in the request.session.
-    Resets other data parameters in the request.session.
-    Tries to get connection to OMERO and if this works, then we are redirected to the 'index' page or url specified in REQUEST.
-    If we can't connect, the login page is returned with appropriate error messages.
+    Webclient Login - Also can be used by other Apps to log in to OMERO. Uses
+    the 'server' id from request to lookup the server-id (index), host and
+    port from settings. E.g. "localhost", 4064. Stores these details, along
+    with username, password etc in the request.session. Resets other data
+    parameters in the request.session. Tries to get connection to OMERO and
+    if this works, then we are redirected to the 'index' page or url
+    specified in REQUEST. If we can't connect, the login page is returned
+    with appropriate error messages.
     """
 
     request.session.modified = True

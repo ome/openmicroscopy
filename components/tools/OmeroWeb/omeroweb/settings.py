@@ -164,8 +164,9 @@ DEVELOPMENT = "development"
 DEFAULT_SERVER_TYPE = FASTCGITCP
 ALL_SERVER_TYPES = (FASTCGITCP, FASTCGI, DEVELOPMENT)
 
-DEFAULT_SESSION_ENGINE = 'django.contrib.sessions.backends.file'
-SESSION_ENGINE_VALUES = ('django.contrib.sessions.backends.db',
+DEFAULT_SESSION_ENGINE = 'omeroweb.filesessionstore'
+SESSION_ENGINE_VALUES = ('omeroweb.filesessionstore',
+                         'django.contrib.sessions.backends.db',
                          'django.contrib.sessions.backends.file',
                          'django.contrib.sessions.backends.cache',
                          'django.contrib.sessions.backends.cached_db')
