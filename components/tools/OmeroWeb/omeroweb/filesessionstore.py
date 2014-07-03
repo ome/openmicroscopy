@@ -79,7 +79,8 @@ class SessionStore(SessionBase):
         """
         expiry = session_data.get('_session_expiry', None)
         if expiry is None:
-            expiry = self._last_modification() + datetime.timedelta(seconds=settings.SESSION_COOKIE_AGE)
+            expiry = self._last_modification() + \
+                    datetime.timedelta(seconds=settings.SESSION_COOKIE_AGE)
         return expiry
 
     def load(self):
