@@ -87,8 +87,15 @@ public class AdvancedSearchResultCollection extends
 
         return false;
     }
+    
+    
+   @Override
+    public void clear() {
+        super.clear();
+        error = NO_ERROR;
+    }
 
-   /**
+/**
     * Get all results of a certain scope and/or type
     * @param scopeId The scope to filter for, see {@link SearchDataContext}
     * @param type The type to filter for, see {@link DataObject}
