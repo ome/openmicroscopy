@@ -119,7 +119,7 @@ public class AdvancedFinder
 	private Collection tags;
 	
 	/** Host the result per group.*/
-	private AdvancedSearchResultCollection results;
+	private AdvancedSearchResultCollection results = new AdvancedSearchResultCollection();
 	
 	/** The identifier of the group.*/
 	private long groupId;
