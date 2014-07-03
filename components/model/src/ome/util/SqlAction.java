@@ -23,7 +23,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import ome.conditions.InternalException;
-import ome.model.IObject;
 import ome.model.core.Channel;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
@@ -38,7 +37,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
@@ -182,6 +180,19 @@ public interface SqlAction {
      * @return possibly empty list of ids.
      */
     List<Long> findRepoFiles(String repoUuid, String dirname);
+
+    /**
+     * Get the ID of the checksum algorithm of the given name.
+     * @param name a name
+     * @return the algorithm's ID, or {@code null} if one of that name does not exist
+     */
+    Long getChecksumAlgorithmId(String name);
+
+    /**
+     * Add a checksum algorithm of the given name.
+     * @param name a name
+     */
+    void addChecksumAlgorithm(String name);
 
     /**
      * Record-class which matches _fs_deletelog. It will be used both as the
@@ -999,6 +1010,20 @@ public interface SqlAction {
             _jdbc().query(_lookup("share_data"), //$NON-NLS-1$
                     mapper, params);
             return rv;
+        }
+
+        @Override
+        public Long getChecksumAlgorithmId(String name) {
+            try {
+                return _jdbc().queryForLong(_lookup("checksum_algorithm_get"), name);
+            } catch (EmptyResultDataAccessException e) {
+                return null;
+            }
+        }
+
+        @Override
+        public void addChecksumAlgorithm(String name) {
+            _jdbc().update(_lookup("checksum_algorithm_add"), name);
         }
     }
 
