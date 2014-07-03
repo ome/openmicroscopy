@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.ChannelAcquisitionComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -468,6 +468,8 @@ class ChannelAcquisitionComponent
 			if (set != null)
 				lightPathPane = new FilterGroupComponent(parent, model, set);
 			buildGUI();
+			//load the exposure time
+			exposureTask.setCollapsed(false);
 		}
 	}
 	
@@ -480,22 +482,31 @@ class ChannelAcquisitionComponent
 	{
 		if (channel.getIndex() != index) return;
 		Collection result = model.getChannelPlaneInfo(index);
-		String[][] values = new String[1][result.size()];
-		String[] names = new String[result.size()];
+		String[][] values = new String[2][result.size()+1];
+		String[] names = new String[result.size()+1];
 		int i = 0;
 		Iterator j = result.iterator();
 		PlaneInfo info;
 		Map<String, Object> details;
 		List<String> notSet;
+		names[0] = "t index";
+		values[0][i] = "Delta T";
+		values[1][i] = "Exposure";
+		i++;
 		while (j.hasNext()) {
 			info = (PlaneInfo) j.next();
 			details = EditorUtil.transformPlaneInfo(info);
 			notSet = (List<String>) details.get(EditorUtil.NOT_SET);
 			if (!notSet.contains(EditorUtil.EXPOSURE_TIME)) {
-				values[0][i] = details.get(EditorUtil.EXPOSURE_TIME)+
+			    values[0][i] = details.get(EditorUtil.DELTA_T)+
+			            EditorUtil.TIME_UNIT;
+				values[1][i] = details.get(EditorUtil.EXPOSURE_TIME)+
 				EditorUtil.TIME_UNIT;
-			} else values[0][i] = "--";
-			names[i] = "t="+(i+1);
+			} else {
+			    values[0][i] = "--";
+			    values[1][i] = "--";
+			}
+			names[i] = "t="+(i-1);
 			i++;
 		}
 		JTable table = new JTable(values, names);
