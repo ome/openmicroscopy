@@ -130,14 +130,7 @@ public class SearchResultTable extends JXTable {
             
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                List<DataObject> selectedObjs = new ArrayList<DataObject>();
-                for(int row : getSelectedRows()) {
-                    row = convertRowIndexToModel(row);
-                    DataObject obj = (DataObject) getModel().getValueAt(row, SearchResultTableModel.VIEWBUTTON_COLUMN_INDEX);
-                    if(obj!=null) {
-                        selectedObjs.add(obj);
-                    }
-                }
+                List<DataObject> selectedObjs = getSelectedObjects();
                 
                 if(!selectedObjs.isEmpty()) {
                     
@@ -176,22 +169,34 @@ public class SearchResultTable extends JXTable {
                 Point p = e.getPoint();
 
                 if(e.getButton()==3) {
-//                if ((e.isPopupTrigger()
-//                        || (e.isPopupTrigger() && !UIUtilities.isMacOS()) || (UIUtilities
-//                        .isMacOS() && SwingUtilities.isLeftMouseButton(e) && e
-//                            .isControlDown()))) {
                     parent.firePopupEvent(p);
                 }
             }
         });
     }
 
+    public List<DataObject> getSelectedObjects() {
+        List<DataObject> selectedObjs = new ArrayList<DataObject>();
+        for(int row : getSelectedRows()) {
+            row = convertRowIndexToModel(row);
+            DataObject obj = (DataObject) getModel().getValueAt(row, SearchResultTableModel.VIEWBUTTON_COLUMN_INDEX);
+            if(obj!=null) {
+                selectedObjs.add(obj);
+            }
+        }
+        return selectedObjs;
+    }
+    
     /**
      * Reloads the table
      */
     public void refreshTable() {
         setModel(new SearchResultTableModel(data, model));
         getColumnExt(SearchResultTableModel.VIEWBUTTON_COLUMN_INDEX).setSortable(false);
+    }
+    
+    public void refresh() {
+        repaint();
     }
 
     private JButton createActionButton(final DataObject obj) {
