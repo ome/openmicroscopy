@@ -512,7 +512,7 @@ DELETE FROM annotation
       WHERE discriminator IN ('/basic/text/uri/', '/basic/text/url/');
 
 DELETE FROM configuration
-      WHERE name = 'DB check DBBadAnnotationCheck';
+      WHERE name = ('DB check DBBadAnnotationCheck', 'DB check DBInsertTriggerCheck');
 
 
 -- Annotation link triggers for search
