@@ -356,10 +356,16 @@ template.
         if not tomove:
             self.ctx.die(113, "No files moved!")
         else:
-            self.ctx.err("Done. You will now need to move these files manually:")
+            self.ctx.err(
+                "Done. You will now need to move these files manually:")
+            self.ctx.err(
+                "-----------------------------------------------------")
+            b = "".join([root.path.val, root.name.val])
+            t = "/".join([b, prefix])
             for path in tomove:
-                f = "/".join([root.path.val, root.name.val, path])
-                self.ctx.out(f)
+                f = "/".join([b, path])
+                cmd = "mv %s %s" % (f, t)
+                self.ctx.out(cmd)
 
     def repos(self, args):
         """List all repositories.
