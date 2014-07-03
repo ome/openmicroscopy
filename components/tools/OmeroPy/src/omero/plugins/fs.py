@@ -25,11 +25,14 @@ fs plugin for querying repositories, filesets, and the like.
 
 import sys
 
+from collections import namedtuple
+
 from omero.cli import admin_only
 from omero.cli import BaseControl
 from omero.cli import CLI
 
 from omero.rtypes import rstring
+from omero.rtypes import unwrap
 from omero.util.temp_files import create_path
 
 
@@ -45,6 +48,27 @@ TRANSFERS = {
     "ome.formats.importer.transfers.SymlinkFileTransfer": "ln_s",
     "ome.formats.importer.transfers.UploadFileTransfer": "",
     }
+
+Entry = namedtuple("Entry", ("level", "id", "path", "mimetype"))
+
+
+def contents(mrepo, path):
+    """
+    Yield Entry namedtuples for each return value
+    from treeList for the given path.
+    """
+    tree = unwrap(mrepo.treeList(path))
+
+    def parse(tree, level=0):
+        for k, v in tree.items():
+            yield Entry(level, v.get("id"),
+                        k, v.get("mimetype"))
+            if "files" in v:
+                for sub in parse(v.get("files"), level+1):
+                    yield sub
+
+    for entry in parse(tree):
+        yield entry
 
 
 def prep_directory(client, mrepo):
@@ -100,6 +124,27 @@ def prep_directory(client, mrepo):
         proc.close()
 
     return fs.templatePrefix.val
+
+
+def rename_fileset(client, mrepo, orig_dir, new_dir):
+    """
+    Loads each OriginalFile found under orig_dir and
+    updates its path field to point at new_dir. Files
+    are not yet moved.
+    """
+    tomove = []
+    tosave = []
+    query = client.sf.getQueryService()
+    update = client.sf.getUpdateService()
+    for entry in contents(mrepo, orig_dir):
+        ofile = query.get("OriginalFile", entry.id)
+        if entry.level == 1:
+            tomove.append(ofile.path.val + ofile.name.val)
+        path = ofile.path.val
+        ofile.path = rstring(path.replace(orig_dir, new_dir))
+        tosave.append(ofile)
+    update.saveArray(tosave)
+    return tomove
 
 
 class FsControl(BaseControl):
