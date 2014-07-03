@@ -39,10 +39,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-
-
-
-
 //Application-internal dependencies
 import omero.cmd.Delete;
 import omero.cmd.Request;

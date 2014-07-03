@@ -56,8 +56,10 @@ import pojos.ScreenData;
  */
 class SearchResultView extends JPanel {
 
+    /** Property for showing the context menu */
     public static final String CONTEXT_MENU_PROPERTY = "showPopup";
     
+    /** Property indicating a selection event */
     public static final String SELECTION_PROPERTY = "selected";
     
     /** The DataObjects to be shown */
@@ -97,12 +99,19 @@ class SearchResultView extends JPanel {
 
     }
 
+    /**
+     * Fires a Property to display the context menu
+     */
     void firePopupEvent(Point location)
     {
             // TODO: Disabled for now, context menu does not for search results
             //firePropertyChange(CONTEXT_MENU_PROPERTY, null, location);
     }
     
+    /**
+     * Fires a Property indicating a selection event
+     * @param nodes The selected DataObjects
+     */
     void fireSelectionEvent(List<DataObject> nodes)
     {
             firePropertyChange(SELECTION_PROPERTY, null, createDisplays(nodes));
@@ -125,10 +134,10 @@ class SearchResultView extends JPanel {
 
     /** 
      * Reloads the table
+     * (by creating a new TableModel)
      */
     void refreshTable() {
         objsTable.refreshTable();
-
     }
 
     /**

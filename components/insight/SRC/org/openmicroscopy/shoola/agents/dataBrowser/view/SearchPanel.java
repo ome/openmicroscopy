@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
-
-//Java imports
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -42,7 +40,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -51,20 +48,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
-
-
-
-
-
-
-
-//Third-party libraries
 import org.jdesktop.swingx.JXDatePicker;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -73,7 +61,6 @@ import org.openmicroscopy.shoola.util.ui.search.GroupContext;
 import org.openmicroscopy.shoola.util.ui.search.SearchContext;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
 import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
-
 import pojos.ExperimenterData;
 
 /** 
@@ -94,8 +81,10 @@ public class SearchPanel
 	extends JPanel
 {	
 	
+	/** Indicates that the date is to be interpreted as acquisition date */
         public static final String ITEM_ACQUISITIONDATE = "Acquisition date";
         
+        /** Indicates that the date is to be interpreted as import date */
         public static final String ITEM_IMPORTDATE = "Import date";
         
 	/** The title of the type UI component. */
@@ -155,6 +144,7 @@ public class SearchPanel
 	/** Date used to specify the ending of the time interval. */
 	private JXDatePicker			toDate;
 	
+	/** Button to clear both date fields */
 	private JButton clearDate;
 	
 	/** Reference to the model .*/
@@ -184,6 +174,7 @@ public class SearchPanel
 	/** The box displaying the users.*/
         private JComboBox usersBox;
         
+        /** Box for selecting the type of the dates */
         private JComboBox dateBox;
 	
 	/**
@@ -696,7 +687,10 @@ public class SearchPanel
 		return new Timestamp(d.getTime());
 	}
 
-	public String getDateType() {
+	/**
+	 * Returns the type of the date (acquisition/import)
+         */
+	String getDateType() {
 	    return (String) dateBox.getSelectedItem();
 	}
 	
@@ -796,7 +790,9 @@ public class SearchPanel
                                 LookupNames.CURRENT_USER_DETAILS);
         }
 	
-	
+	/**
+ 	 * Get the selected groupId
+	 */
 	long getGroupId() {
 	    long result = GroupContext.ALL_GROUPS_ID;
 	    if(groupsBox.getSelectedIndex()>=0) {
@@ -806,6 +802,9 @@ public class SearchPanel
 	    return result;
 	}
 	
+	/**
+	 * Get the selected userId
+	 */
 	long getUserId() {
             long result = -1;
             if(usersBox.getSelectedIndex()>=0) {

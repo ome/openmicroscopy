@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.util.finder.QuickFinderLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -25,11 +25,11 @@ package org.openmicroscopy.shoola.agents.util.finder;
 
 
 //Java imports
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
-
 
 
 //Application-internal dependencies
@@ -41,8 +41,6 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 /** 
  * Searches for tags, images, etc.

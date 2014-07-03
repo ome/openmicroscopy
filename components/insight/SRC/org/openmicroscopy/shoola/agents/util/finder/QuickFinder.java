@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.util.finder.QuickFinder 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -32,7 +32,6 @@ import java.util.Iterator;
 import java.util.List;
 
 //Third-party libraries
-
 
 import org.openmicroscopy.shoola.agents.dataBrowser.view.QuickSearch;
 //Application-internal dependencies

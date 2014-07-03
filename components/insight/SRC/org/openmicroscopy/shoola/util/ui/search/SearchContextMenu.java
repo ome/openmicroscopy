@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.search.SearchContextMenu 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -59,8 +59,8 @@ public class SearchContextMenu
 	implements ActionListener
 {
 
-	/** Bound property indicating that a new item is selected. */
-	public static final String SEARCH_CONTEXT_PROPERTY = "searchContext";
+    /** Bound property indicating that a new item is selected. */
+    public static final String SEARCH_CONTEXT_PROPERTY = "searchContext";
 	
 	/** The width of the component. */
     private int			width;

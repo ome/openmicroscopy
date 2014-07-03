@@ -29,7 +29,6 @@ import java.util.List;
 
 //Third-party libraries
 
-
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
@@ -41,7 +40,6 @@ import org.openmicroscopy.shoola.env.data.views.calls.ObjectFinder;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.SwitchUserGroupLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
-
 import pojos.ExperimenterData;
 
 /** 

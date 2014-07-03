@@ -37,13 +37,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-
 import javax.swing.Action;
 
 
 //Third-party libraries
-
-
 
 import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
@@ -80,7 +77,6 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.ui.PlateGrid;
 import org.openmicroscopy.shoola.util.ui.PlateGridObject;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
-
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;

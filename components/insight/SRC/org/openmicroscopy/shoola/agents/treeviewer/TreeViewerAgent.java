@@ -30,12 +30,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
 import javax.swing.JComponent;
 
 //Third-party libraries
-
-
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
@@ -67,7 +64,6 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.ActivityProcessEvent;
 import org.openmicroscopy.shoola.env.ui.ViewObjectEvent;
-
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -476,6 +472,9 @@ public class TreeViewerAgent
     	TreeViewerFactory.onAnnotated(evt.getData(), evt.getCount());
     }
     
+    /**
+     * Passes the SearchEvent on to the Treeviewer 
+     */
     private void handleSearchEvent(SearchEvent evt) {
         ExperimenterData exp = (ExperimenterData) registry.lookup(
                 LookupNames.CURRENT_USER_DETAILS);
@@ -484,6 +483,9 @@ public class TreeViewerAgent
         viewer.handleSearchEvent(evt);
     }
     
+    /**
+     * Passes the SearchSelectionEvent on to the Treeviewer 
+     */
     private void handleSearchSelectionEvent(SearchSelectionEvent evt) {
         ExperimenterData exp = (ExperimenterData) registry.lookup(
                 LookupNames.CURRENT_USER_DETAILS);
@@ -602,12 +604,10 @@ public class TreeViewerAgent
 			handleMoveToEvent((MoveToEvent) e);
 		else if (e instanceof AnnotatedEvent)
 			handleAnnotatedEvent((AnnotatedEvent) e);
-		else if (e instanceof SearchEvent) {
+		else if (e instanceof SearchEvent) 
 		        handleSearchEvent((SearchEvent) e); 
-		}
-		else if (e instanceof SearchSelectionEvent) {
+		else if (e instanceof SearchSelectionEvent) 
                     handleSearchSelectionEvent((SearchSelectionEvent) e); 
-            }
 	}
 
 }

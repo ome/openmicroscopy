@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.search.GroupContext 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -25,6 +25,12 @@ package org.openmicroscopy.shoola.util.ui.search;
 
 import pojos.ExperimenterData;
 
+/** 
+ * Host information about the experimenter to search for.
+ *
+ * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ */
 public class ExperimenterContext
 {
         /** ID indicating all experimenters should be included in the search */

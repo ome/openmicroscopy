@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserModel 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -177,6 +177,7 @@ abstract class DataBrowserModel
     /** Reference to the browser. */
     protected ImageTableView	tableView;
     
+    /** Reference to the SearchResultView. */
     protected SearchResultView searchResultView;
     
     /** The number of images. */
@@ -443,6 +444,11 @@ abstract class DataBrowserModel
      */
     ImageTableView getTableView() { return tableView; }
     
+    /**
+     * Returns the SearchResultView.
+     * 
+     * @return See above.
+     */
     SearchResultView getSearchView() {
         return searchResultView;
     }

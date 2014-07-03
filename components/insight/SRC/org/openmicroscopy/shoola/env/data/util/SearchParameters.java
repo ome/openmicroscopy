@@ -29,21 +29,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 //Third-party libraries
-
-
-
 import org.apache.commons.lang.StringUtils;
 
-import pojos.DataObject;
 //Application-internal dependencies
+import pojos.DataObject;
+
 
 public class SearchParameters
 {
-
+	/** The ID for searching across all groups*/
         public static final int ALL_GROUPS_ID = -1;
         
+        /** Indicates that the date has to be interpreted as import date*/
         public static final int DATE_IMPORT = 0;
     
+    	 /** Indicates that the date has to be interpreted as acquisition date*/
         public static final int DATE_ACQUISITION = 1;
     
 	/** Identifying the <code>Annotation</code> context. */
@@ -91,9 +91,6 @@ public class SearchParameters
 	private String query;
 
 	private long groupId = ALL_GROUPS_ID;
-	
-//	/** The groupIds the search is restricted to.*/
-//	private List<Long> groupIds = new ArrayList<Long>();
 	
 	/** The userId the search is restricted to.*/
 	private long userId = -1;
