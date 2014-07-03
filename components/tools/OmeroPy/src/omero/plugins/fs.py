@@ -51,7 +51,7 @@ class FsControl(BaseControl):
         parser.add_login_arguments()
         sub = parser.sub()
 
-        images = parser.add(sub, self.images, self.images.__doc__)
+        images = parser.add(sub, self.images)
         images.add_style_argument()
         images.add_limit_arguments()
         images.add_argument(
@@ -62,13 +62,13 @@ class FsControl(BaseControl):
             "--archived", action="store_true",
             help="list only images with archived data")
 
-        repos = parser.add(sub, self.repos, self.repos.__doc__)
+        repos = parser.add(sub, self.repos)
         repos.add_style_argument()
         repos.add_argument(
             "--managed", action="store_true",
             help="repos only managed repositories")
 
-        sets = parser.add(sub, self.sets, self.sets.__doc__)
+        sets = parser.add(sub, self.sets)
         sets.add_style_argument()
         sets.add_limit_arguments()
         sets.add_argument(
