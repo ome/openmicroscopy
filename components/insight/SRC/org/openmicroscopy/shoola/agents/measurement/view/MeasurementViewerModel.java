@@ -1400,7 +1400,6 @@ class MeasurementViewerModel
 		} else {
 			this.analysisResults = new LinkedHashMap();
 		}
-		//this.analysisResults = analysisResults;
 		//sort the map.
 		if (analysisResults != null) {
 			List newList = sorter.sort(analysisResults.keySet());
