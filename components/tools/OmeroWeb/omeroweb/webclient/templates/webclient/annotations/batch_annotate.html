@@ -288,21 +288,8 @@
     </h1>
 
     <div style="position: relative; float: right">
-	    <!-- multi-object link -->
-        <button id="show_link_btn" class="btn silver btn_link" title="Link to the selected Objects">
-			<span></span>
-		</button>
-		<div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
-            <table><tr><td>
-                <input type="text" size="30" 
-                value="{{ webclient_path }}?show={{ link_string }}"/>
-            </td><td>
-                <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
-            </td></tr></table>
-		</div>
 
-        <!-- Publishing Options (Figure Scripts) -->
-        {% include "webclient/annotations/includes/figure_scripts_menu.html" %}
+        {% include "webclient/annotations/includes/toolbar.html" %}
 
     </div>
 
