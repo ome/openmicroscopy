@@ -22,6 +22,22 @@
 
 $(document).ready(function() {
 
+    $("#right_panel").bind('resize', function(event) {
+
+        // This behaviour is also in the metatdata_preview.html itself
+        var vpWidth = $(this).width() - 50,
+            vpHeight = Math.min(vpWidth, $("#preview_tab").height() - 100);
+        vpHeight = Math.max(300, vpHeight);
+
+        if (OME.preview_viewport) {
+            // Need to set a few sizes, then call viewport.refresh()
+            $("#viewport").css({'width': vpWidth + 'px', 'height': vpHeight + 'px'});
+            $("#viewport-vp").css({'width': vpWidth + 'px'});
+            $("#viewport-top").css({'height': vpHeight + 'px'});
+            OME.preview_viewport.refresh(true);
+        }
+    });
+
     $("#preview_tab").omeroweb_right_plugin({
         plugin_index:{{ forloop.counter }},
         load_plugin_content: function(selected, obj_dtype, obj_id) {    // Url based on selected object(s)
