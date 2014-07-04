@@ -733,6 +733,13 @@ class BaseControl(object):
         completions = [method for method in dir(self) if callable(getattr(self, method)) ]
         return [ str(method + " ") for method in completions if method.startswith(text) and not method.startswith("_") ]
 
+    def error_admin_only(self, msg="SecurityViolation: Admins only!",
+                         code=111, fatal=True):
+        if fatal:
+            self.ctx.die(code, msg)
+        else:
+            self.ctx.err(msg)
+
 
 class CLI(cmd.Cmd, Context):
     """
