@@ -3,11 +3,11 @@
         server_name  $hostname;
 
          # weblitz django apps serve media from here
-        location /static {
+        location %(STATIC_URL)s {
             alias %(OMEROWEBROOT)s/static;
         }
 
-        location / {
+        location %(FORCE_SCRIPT_NAME)s {
             if (-f %(ROOT)s/var/maintenance.html) {
                error_page 503 /maintenance.html;
                return 503;
@@ -26,7 +26,7 @@
             fastcgi_param SERVER_PORT $server_port;
             fastcgi_pass_header Authorization;
             fastcgi_intercept_errors on;
-            fastcgi_read_timeout 300;
+            fastcgi_read_timeout 60;
             # Uncomment if nginx SSL module is enabled or you are using nginx 1.1.11 or later
             # -- See: #10273, http://nginx.org/en/CHANGES
             # fastcgi_param HTTPS $https;
