@@ -75,7 +75,8 @@ class ImportControl(BaseControl):
         parser.add_login_arguments()
 
         parser.add_argument(
-            "--javahelp", action="store_true", help="Show the Java help text")
+            "--javahelp", "--java-help",
+            action="store_true", help="Show the Java help text")
         parser.add_argument(
             "--advanced-help", action="store_true", dest="java_advanced_help",
             help="Show the advanced help text")
