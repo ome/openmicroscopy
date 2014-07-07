@@ -19,20 +19,19 @@
 
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
+import java.awt.FontMetrics;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-
 import javax.swing.Icon;
 import javax.swing.table.DefaultTableModel;
 
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
-
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.GroupData;
@@ -79,6 +78,8 @@ public class SearchResultTableModel extends DefaultTableModel {
     private Collection<GroupData> groups = TreeViewerAgent
             .getAvailableUserGroups();
 
+    private SearchResultTable parent;
+    
     /**
      * Creates a new instance
      * 
@@ -87,9 +88,10 @@ public class SearchResultTableModel extends DefaultTableModel {
      * @param model
      *            Reference to the DataBrowserModel
      */
-    public SearchResultTableModel(List<DataObject> data,
+    public SearchResultTableModel(SearchResultTable parent, List<DataObject> data,
             AdvancedResultSearchModel model) {
         super(COLUMN_NAMES, data.size());
+        this.parent = parent;
         this.data = data;
         this.model = model;
     }
@@ -148,7 +150,7 @@ public class SearchResultTableModel extends DefaultTableModel {
             // goes wrong, just stick to '--' for the date
         }
 
-        return aDate + " / " + iDate;
+        return aDate + "<br/>" + iDate;
     }
 
     /**
@@ -237,9 +239,36 @@ public class SearchResultTableModel extends DefaultTableModel {
         } else if (obj instanceof PlateData) {
             name = ((PlateData) obj).getName();
         }
+        
+        
+        FontMetrics fm = parent.getGraphics().getFontMetrics();
+        int colWidth = parent.getColumn(1).getWidth();
+        int textWidth = fm.stringWidth(name); 
+        if (textWidth > colWidth) {
+            int max = (int) ((double) colWidth / (double) textWidth * name
+                    .length());
+            // TODO: FontMetrics.stringWidth doesn't seem to work properly, but with 
+            // an additional cut-off of 10 it seems to work fine for now.
+            name = cut(name, max-10);
+            textWidth = fm.stringWidth(name);
+        }
+        
         return name;
     }
 
+    /**
+     * Replaces the begin of String s with '...' so that
+     * it does not exceed the give length maxLength
+     * @param s The String to cut
+     * @param maxLength The max lenght to cut the String to
+     */
+    private String cut(String s, int maxLength) {
+        if(s.length()-3>maxLength) {
+            return "..."+s.substring(s.length()-maxLength, s.length());
+        }
+        return s;
+    }
+    
     @Override
     public boolean isCellEditable(int row, int column) {
         return column == VIEWBUTTON_COLUMN_INDEX;
