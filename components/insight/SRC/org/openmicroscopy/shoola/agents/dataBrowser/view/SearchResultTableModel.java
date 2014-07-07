@@ -32,6 +32,7 @@ import javax.swing.table.DefaultTableModel;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.GroupData;
@@ -249,24 +250,11 @@ public class SearchResultTableModel extends DefaultTableModel {
                     .length());
             // TODO: FontMetrics.stringWidth doesn't seem to work properly, but with 
             // an additional cut-off of 10 it seems to work fine for now.
-            name = cut(name, max-10);
+            name = EditorUtil.truncate(name, max-10, true);
             textWidth = fm.stringWidth(name);
         }
         
         return name;
-    }
-
-    /**
-     * Replaces the begin of String s with '...' so that
-     * it does not exceed the give length maxLength
-     * @param s The String to cut
-     * @param maxLength The max lenght to cut the String to
-     */
-    private String cut(String s, int maxLength) {
-        if(s.length()-3>maxLength) {
-            return "..."+s.substring(s.length()-maxLength, s.length());
-        }
-        return s;
     }
     
     @Override
