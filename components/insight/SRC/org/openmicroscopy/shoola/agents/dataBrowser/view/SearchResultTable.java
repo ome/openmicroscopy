@@ -20,6 +20,7 @@
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 import java.awt.Component;
+import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -104,7 +105,7 @@ public class SearchResultTable extends JXTable {
 
         setBackground(UIUtilities.BACKGROUND_COLOR);
 
-        setRowHeight(75);
+        setRowHeight(70);
 
         getSelectionModel().setSelectionMode(
                 ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -188,9 +189,29 @@ public class SearchResultTable extends JXTable {
      * Constructs a new TableModel on basis of the underlying search results
      */
     public void refreshTable() {
-        setModel(new SearchResultTableModel(data, model));
+        setModel(new SearchResultTableModel(this, data, model));
         getColumnExt(SearchResultTableModel.VIEWBUTTON_COLUMN_INDEX)
                 .setSortable(false);
+        
+        int wI = 80;
+        int wB = 140;
+        int wD = 180;
+        int wG = 200;
+        getColumn(0).setMinWidth(wI);
+        getColumn(0).setMaxWidth(wI);
+        getColumn(0).setPreferredWidth(wI);
+        getColumn(0).setWidth(wI);
+        getColumn(2).setMinWidth(wD);
+        getColumn(2).setMaxWidth(wD);
+        getColumn(2).setPreferredWidth(wD);
+        getColumn(2).setWidth(wD);
+        getColumn(3).setMaxWidth(wG);
+        getColumn(3).setPreferredWidth(wG);
+        getColumn(3).setWidth(wG);
+        getColumn(4).setMinWidth(wB);
+        getColumn(4).setMaxWidth(wB);
+        getColumn(4).setPreferredWidth(wB);
+        getColumn(4).setWidth(wB);
     }
 
     private JButton createActionButton(final DataObject obj) {
@@ -251,8 +272,15 @@ public class SearchResultTable extends JXTable {
                 JLabel l = new JLabel((Icon) value);
                 p.add(l);
             } else {
-                JLabel l = new JLabel(value.toString());
+                String s = value.toString();
+                if(s.matches(".*\\<.*\\>.*")) {
+                    s = "<html>"+s+"</html>";
+                }
+                JLabel l = new JLabel(s);
                 p.add(l);
+                
+                if(column==1)
+                    p.setLayout(new FlowLayout(FlowLayout.LEFT));
             }
 
             return p;
