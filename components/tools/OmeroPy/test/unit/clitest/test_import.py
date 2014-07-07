@@ -17,7 +17,7 @@ plugin = __import__('omero.plugins.import', globals(), locals(),
                     ['ImportControl'], -1)
 ImportControl = plugin.ImportControl
 
-help_arguments = ("-h", "--javahelp", "--advanced-help")
+help_arguments = ("-h", "--javahelp", "--java-help", "--advanced-help")
 
 
 class TestImport(object):
