@@ -131,4 +131,4 @@ omero_cblackburn/6915/dropboxaDCjQlout']
         assert outputlines[-2] == str(fieldfiles[1])
         assert outputlines[-3] == str(fieldfiles[0])
         assert outputlines[-4] == \
-            "# Group: %s SPW: false Reader: %s" % (str(fieldfiles[0]), reader)
+            "# Group: %s SPW: true Reader: %s" % (str(fieldfiles[0]), reader)
