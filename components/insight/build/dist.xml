@@ -515,7 +515,6 @@
     <property name="dist.zip.prefix.osx"
               value="${dist.bundle.name}-${dist.bundle.version}-mac"/>
     <zip destfile="${dist.dir}/${dist.zip.prefix.osx}.zip">
-      <zipfileset refid="dist.launch.insight.scripts" prefix="${dist.zip.prefix.osx}" filemode="775"/>
       <zipfileset prefix="${dist.zip.prefix.osx}/${dist.app.config.dir.name}"
                   dir="${app.config.dir}"/>
       <zipfileset prefix="${dist.zip.prefix.osx}" dir="${dist.dir}"
@@ -644,7 +643,6 @@
   <property name="dist.zip.prefix.editor.osx"
             value="${distEditor.bundle.name}-${dist.bundle.version}-mac"/>
 	  <zip destfile="${dist.dir}/${dist.zip.prefix.editor.osx}.zip">
-            <zipfileset refid="dist.launch.editor.scripts" prefix="${dist.zip.prefix.editor.osx}" filemode="775"/>
             <zipfileset prefix="${dist.zip.prefix.editor.osx}/${dist.app.config.dir.name}"
 	                 dir="${app.config.dir}"/>
 	     <zipfileset prefix="${dist.zip.prefix.editor.osx}" dir="${dist.dir}"
@@ -726,7 +724,6 @@
   <property name="dist.zip.prefix.importer.osx"
             value="${distImporter.bundle.name}-${dist.bundle.version}-mac"/>
   <zip destfile="${dist.dir}/${dist.zip.prefix.importer.osx}.zip">
-     <zipfileset refid="dist.launch.importer.scripts" prefix="${dist.zip.prefix.importer.osx}" filemode="775"/>
      <zipfileset prefix="${dist.zip.prefix.importer.osx}/${dist.app.config.dir.name}"
                  dir="${app.config.dir}"/>
      <zipfileset prefix="${dist.zip.prefix.importer.osx}" dir="${dist.dir}"
