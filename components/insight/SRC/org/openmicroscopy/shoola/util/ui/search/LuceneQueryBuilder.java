@@ -40,20 +40,24 @@ import org.apache.commons.lang.StringUtils;
  * Input query: a b AND c AND d f<br>
  * <br>
  * will be transformed to this lucene expression:<br>
- * name:a description:a name:f description:f ((name:b description:b) AND (name:c description:c) AND (name:d description:d))
+ * name:a description:a name:f description:f ((name:b description:b) AND (name:c
+ * description:c) AND (name:d description:d)) <br>
  * <br>
- * <br>
- * @author  Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ * 
+ * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ * 
+ * @since 5.0
  */
 public class LuceneQueryBuilder {
 
-    private static final DateFormat DATEFORMAT = new SimpleDateFormat("yyyyMMdd");
-    
+    private static final DateFormat DATEFORMAT = new SimpleDateFormat(
+            "yyyyMMdd");
+
     public static final String DATE_IMPORT = "details.creationEvent.time";
-    
-    public static final String DATE_ACQUISITION ="acquisitionDate";
-    
+
+    public static final String DATE_ACQUISITION = "acquisitionDate";
+
     /** Wild cards we support */
     private static final List<String> WILD_CARDS = new ArrayList<String>();
     static {
@@ -61,56 +65,62 @@ public class LuceneQueryBuilder {
         WILD_CARDS.add("?");
         WILD_CARDS.add("~");
     }
-    
+
     /**
-     * Builds a query with the provided input terms over the given fields 
+     * Builds a query with the provided input terms over the given fields
+     * 
      * @param fields
      * @param input
      * @return
      * @throws InvalidQueryException
      */
-    public static String buildLuceneQuery(List<String> fields, Date from, Date to, String dateType, String input) throws InvalidQueryException {
+    public static String buildLuceneQuery(List<String> fields, Date from,
+            Date to, String dateType, String input)
+            throws InvalidQueryException {
         StringBuilder result = new StringBuilder();
 
         String basicQuery = buildLuceneQuery(fields, input);
-        
-        if(from==null && to==null)
+
+        if (from == null && to == null)
             return basicQuery;
-        
-        if(!StringUtils.isEmpty(basicQuery))
-            result.append("("+basicQuery+")");
+
+        if (!StringUtils.isEmpty(basicQuery))
+            result.append("(" + basicQuery + ")");
         else
             result.append(basicQuery);
-        
+
         // Lucence date range TO is exclusive, so have to add a day to it
         String dateFrom = beginOfTime();
         String dateTo = tomorrow();
-        if(from!=null)
+        if (from != null)
             dateFrom = DATEFORMAT.format(from);
-        if(to!=null) {
+        if (to != null) {
             dateTo = DATEFORMAT.format(addOneDay(to));
         }
-        
-        if(result.length()>0)
-            result.append(" AND "+dateType+":["+dateFrom+" TO "+dateTo+"]");
-        else 
-            result.append(dateType+":["+dateFrom+" TO "+dateTo+"]");
-        
+
+        if (result.length() > 0)
+            result.append(" AND " + dateType + ":[" + dateFrom + " TO "
+                    + dateTo + "]");
+        else
+            result.append(dateType + ":[" + dateFrom + " TO " + dateTo + "]");
+
         return result.toString();
     }
-    
+
     /**
-     * Builds a query with the provided input terms over the given fields 
+     * Builds a query with the provided input terms over the given fields
+     * 
      * @param fields
      * @param input
      * @return
      * @throws InvalidQueryException
      */
-    public static String buildLuceneQuery(List<String> fields, String input) throws InvalidQueryException {
+    public static String buildLuceneQuery(List<String> fields, String input)
+            throws InvalidQueryException {
         StringBuilder result = new StringBuilder();
 
         input = replaceNonAlphaNummeric(input);
-        
+
         List<String> terms = split(input);
 
         if (!CollectionUtils.isEmpty(fields)) {
@@ -127,14 +137,16 @@ public class LuceneQueryBuilder {
 
         return result.toString().trim();
     }
-    
+
     /**
      * Attaches the field names to the different terms;
+     * 
      * @param fields
      * @param terms
      * @return
      */
-    private static List<String> attachFields(List<String> fields, List<String> terms) {
+    private static List<String> attachFields(List<String> fields,
+            List<String> terms) {
         List<String> result = new ArrayList<String>();
         for (String term : terms) {
             if (term.equals("AND")) {
@@ -152,11 +164,11 @@ public class LuceneQueryBuilder {
         }
         return result;
     }
-    
+
     /**
-     * Replaces non alpha-numeric characters (excluding underscore) 
-     * with spaces (which act like OR); will not replace any characters
-     * within quotes.
+     * Replaces non alpha-numeric characters (excluding underscore) with spaces
+     * (which act like OR); will not replace any characters within quotes.
+     * 
      * @param s
      * @return
      */
@@ -181,23 +193,26 @@ public class LuceneQueryBuilder {
 
         return new String(result);
     }
-    
+
     /**
      * Checks if a String just contains a wildcard character only
+     * 
      * @param s
      * @return
      */
     private static boolean isWildcardOnly(String s) {
         return s.matches("[\\*\\?\\~]+");
     }
-    
+
     /**
      * Reassembles the AND expressions, i. e. creates the single term "a and b"
      * from the terms "a" "and" "b"
+     * 
      * @param terms
      * @return
      */
-    private static List<String> assembleAndClauses(List<String> terms) throws InvalidQueryException {
+    private static List<String> assembleAndClauses(List<String> terms)
+            throws InvalidQueryException {
         List<String> result = new ArrayList<String>();
 
         if (CollectionUtils.isEmpty(terms))
@@ -222,19 +237,22 @@ public class LuceneQueryBuilder {
             if (i < terms.size() - 1) {
                 String next = terms.get(i + 1);
                 if (next.equals("AND")) {
-                    // if next term is AND put this term to the end of the and terms list
-                    // and indicate that we are within an AND expression
+                    // if next term is AND put this term to the end of the and
+                    // terms list and indicate that we are within an AND
+                    // expression
                     andTerms.add(term);
                     withinAndTerm = true;
                     i++;
                 } else {
                     if (withinAndTerm) {
-                        // if we're still within the AND expression put it to the end list
-                        // and indicate that the end of this AND expression is reached
+                        // if we're still within the AND expression put it to
+                        // the end list and indicate that the end of this AND
+                        // expression is reached
                         andTerms.add(term);
                         withinAndTerm = false;
                     } else {
-                        // end of AND reached or there was no AND expression at all
+                        // end of AND reached or there was no AND expression at
+                        // all
                         if (!andTerms.isEmpty()) {
                             // if there was one, built the expression
                             result.add(concatenateAndTerms(andTerms));
@@ -263,10 +281,10 @@ public class LuceneQueryBuilder {
 
         return result;
     }
-    
-    
+
     /**
      * Just concatenates the Strings separated by AND
+     * 
      * @param terms
      * @return
      */
@@ -277,12 +295,12 @@ public class LuceneQueryBuilder {
                 result += " AND ";
             result += "(" + t + ")";
         }
-        return result+")";
+        return result + ")";
     }
-    
-    
+
     /**
      * Splits input string by whitespaces, taking quotes into account
+     * 
      * @param input
      * @return
      */
@@ -306,25 +324,28 @@ public class LuceneQueryBuilder {
 
         return result;
     }
-    
+
     /**
-     * Get tomorrows date
+     * Get tomorrow's date
+     * 
      * @return
      */
     private static String tomorrow() {
         return DATEFORMAT.format(addOneDay(new Date()));
     }
-    
+
     /**
-     * Get the earliest possbile date
+     * Get the earliest possible date
+     * 
      * @return
      */
     private static String beginOfTime() {
         return DATEFORMAT.format(new Date(0));
     }
-    
+
     /**
      * Adds a day to a given date
+     * 
      * @param date
      * @return
      */
@@ -334,16 +355,5 @@ public class LuceneQueryBuilder {
         tmp.add(Calendar.DAY_OF_MONTH, 1);
         return tmp.getTime();
     }
-    
-    public static void main(String... args) throws InvalidQueryException {
-       String test = " a_bc d.ef *xyz \"1 2 3\" AND \"4 5 6\" AND \"7 89\" zyx* \"asdf ljk\" 123,456 \"ab\",\"cd\", *, ghj ? wer, ab AND cd";
-       // String test = "\"1 2 3\" AND \"4 5 6\" AND \"7 89\" ";
-       // String test = "a b AND c AND d f";
-        List<String> fields = new ArrayList<String>();
-        //fields.add("name");
-        //fields.add("description");
-        
-        String q = buildLuceneQuery(fields, test);
-        System.out.println(q);
-    }
+
 }

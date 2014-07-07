@@ -19,16 +19,13 @@
 
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.EventObject;
 import java.util.List;
 
@@ -47,42 +44,26 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
 import org.jdesktop.swingx.JXTable;
-import org.jdesktop.swingx.decorator.Highlighter;
-import org.jdesktop.swingx.decorator.HighlighterFactory;
-import org.jdesktop.swingx.renderer.WrappingIconPanel;
-import org.jdesktop.swingx.renderer.WrappingProvider;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageSet;
-import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
-import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
-import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEvent;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
-import org.openmicroscopy.shoola.agents.treeviewer.view.SearchSelectionEvent;
 import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import org.openmicroscopy.shoola.env.ui.ViewObjectEvent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.treetable.renderers.SelectionHighLighter;
 
 import pojos.DataObject;
-import pojos.DatasetData;
 import pojos.ImageData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ScreenData;
 
 /**
  * A table for displaying a {@link AdvancedSearchResultCollection}
  * 
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ * 
+ * @since 5.0
  */
 public class SearchResultTable extends JXTable {
 
@@ -94,9 +75,10 @@ public class SearchResultTable extends JXTable {
 
     /** A reference to the component holding this table */
     private SearchResultView parent;
-    
+
     /**
      * Creates a new instance
+     * 
      * @param data
      * @param browserModel
      */
@@ -123,41 +105,52 @@ public class SearchResultTable extends JXTable {
         setBackground(UIUtilities.BACKGROUND_COLOR);
 
         setRowHeight(75);
-        
-        getSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        
-        getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                List<DataObject> selectedObjs = getSelectedObjects();
-                
-                if(!selectedObjs.isEmpty()) {
-                    
-                    if(!isSelectionValid(selectedObjs)) {
-                        UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
-                        un.notifyInfo("Invalid Selection", "A selection of items of different groups is not supported.");
-                        getSelectionModel().clearSelection();
-                        return;
+
+        getSelectionModel().setSelectionMode(
+                ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+
+        getSelectionModel().addListSelectionListener(
+                new ListSelectionListener() {
+
+                    @Override
+                    public void valueChanged(ListSelectionEvent e) {
+                        List<DataObject> selectedObjs = getSelectedObjects();
+
+                        if (!selectedObjs.isEmpty()) {
+
+                            if (!isSelectionValid(selectedObjs)) {
+                                UserNotifier un = DataBrowserAgent
+                                        .getRegistry().getUserNotifier();
+                                un.notifyInfo("Invalid Selection",
+                                        "A selection of items of different groups is not supported.");
+                                getSelectionModel().clearSelection();
+                                return;
+                            }
+
+                            parent.fireSelectionEvent(selectedObjs);
+                        }
                     }
-                    
-                    parent.fireSelectionEvent(selectedObjs);
-                }
-            }
-            
-            boolean isSelectionValid(List<DataObject> selectedObjs) {
-                long groupId = -1;
-                for(DataObject obj : selectedObjs) {
-                    if(groupId==-1) {
-                        groupId = obj.getGroupId();
+
+                    /**
+                     * Returns <code>true</code> if all {@link DataObject}s in
+                     * selectedObjs belong to the same group; <code>false</code>
+                     * otherwise.
+                     * 
+                     * @param selectedObjs
+                     * @return
+                     */
+                    boolean isSelectionValid(List<DataObject> selectedObjs) {
+                        long groupId = -1;
+                        for (DataObject obj : selectedObjs) {
+                            if (groupId == -1) {
+                                groupId = obj.getGroupId();
+                            } else if (groupId != obj.getGroupId())
+                                return false;
+                        }
+                        return true;
                     }
-                    else if(groupId != obj.getGroupId())
-                        return false;
-                }
-                return true;
-            }
-        });
-        
+                });
+
         addMouseListener(new MouseAdapter() {
 
             @Override
@@ -168,35 +161,36 @@ public class SearchResultTable extends JXTable {
 
                 Point p = e.getPoint();
 
-                if(e.getButton()==3) {
+                if (e.getButton() == 3) {
                     parent.firePopupEvent(p);
                 }
             }
         });
     }
 
-   /**
-    * Get the current selected DataObjects
-    */
+    /**
+     * Get the current selected DataObjects
+     */
     public List<DataObject> getSelectedObjects() {
         List<DataObject> selectedObjs = new ArrayList<DataObject>();
-        for(int row : getSelectedRows()) {
+        for (int row : getSelectedRows()) {
             row = convertRowIndexToModel(row);
-            DataObject obj = (DataObject) getModel().getValueAt(row, SearchResultTableModel.VIEWBUTTON_COLUMN_INDEX);
-            if(obj!=null) {
+            DataObject obj = (DataObject) getModel().getValueAt(row,
+                    SearchResultTableModel.VIEWBUTTON_COLUMN_INDEX);
+            if (obj != null) {
                 selectedObjs.add(obj);
             }
         }
         return selectedObjs;
     }
-    
+
     /**
-     * Constructs a new TableModel on basis of the 
-     * underlying search results
+     * Constructs a new TableModel on basis of the underlying search results
      */
     public void refreshTable() {
         setModel(new SearchResultTableModel(data, model));
-        getColumnExt(SearchResultTableModel.VIEWBUTTON_COLUMN_INDEX).setSortable(false);
+        getColumnExt(SearchResultTableModel.VIEWBUTTON_COLUMN_INDEX)
+                .setSortable(false);
     }
 
     private JButton createActionButton(final DataObject obj) {
@@ -209,8 +203,8 @@ public class SearchResultTable extends JXTable {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     ImageData img = (ImageData) obj;
-                    RequestEvent ev = new ViewImage(new SecurityContext(obj.getGroupId()),
-                            new ViewImageObject(img), null);
+                    RequestEvent ev = new ViewImage(new SecurityContext(obj
+                            .getGroupId()), new ViewImageObject(img), null);
                     ImViewerAgent.getRegistry().getEventBus().post(ev);
                 }
             });
@@ -220,18 +214,20 @@ public class SearchResultTable extends JXTable {
 
                 @Override
                 public void actionPerformed(ActionEvent arg0) {
-                    System.out.println("Dummy listener");
+                    // TODO: There's no way of programmaticaly browsing to an
+                    // entity in the TreeViewer, yet. Therefore this button is
+                    // disabled for now.
                 }
             });
             button.setEnabled(false);
         }
-        
+
         return button;
     }
-    
+
     /**
-     * A custom renderer which shows a JLabel, Icon or Button
-     * depending on the Object it gets
+     * A custom renderer which shows a JLabel, Icon or Button depending on the
+     * Object it gets
      */
     class MyRenderer extends DefaultTableCellRenderer {
 
@@ -242,11 +238,12 @@ public class SearchResultTable extends JXTable {
 
             JPanel p = new JPanel();
 
-            if(isSelected) 
+            if (isSelected)
                 p.setBackground(UIUtilities.SELECTED_BACKGROUND_COLOUR);
             else
-                p.setBackground(row%2==0 ? UIUtilities.BACKGROUND_COLOUR_EVEN : UIUtilities.BACKGROUND_COLOUR_ODD);
-            
+                p.setBackground(row % 2 == 0 ? UIUtilities.BACKGROUND_COLOUR_EVEN
+                        : UIUtilities.BACKGROUND_COLOUR_ODD);
+
             if (value instanceof DataObject) {
                 final DataObject dataObj = (DataObject) value;
                 p.add(createActionButton(dataObj));
@@ -257,7 +254,7 @@ public class SearchResultTable extends JXTable {
                 JLabel l = new JLabel(value.toString());
                 p.add(l);
             }
-            
+
             return p;
         }
 
@@ -311,17 +308,18 @@ public class SearchResultTable extends JXTable {
                 final Object arg1, boolean arg2, int arg3, int arg4) {
             JPanel p = new JPanel();
 
-            if(arg2) 
+            if (arg2)
                 p.setBackground(UIUtilities.SELECTED_BACKGROUND_COLOUR);
             else
-                p.setBackground(arg3%2==0 ? UIUtilities.BACKGROUND_COLOUR_EVEN : UIUtilities.BACKGROUND_COLOUR_ODD);
-            
+                p.setBackground(arg3 % 2 == 0 ? UIUtilities.BACKGROUND_COLOUR_EVEN
+                        : UIUtilities.BACKGROUND_COLOUR_ODD);
+
             final DataObject dataObj = (DataObject) arg1;
             p.add(createActionButton(dataObj));
-            
+
             return p;
         }
 
     }
-    
+
 }

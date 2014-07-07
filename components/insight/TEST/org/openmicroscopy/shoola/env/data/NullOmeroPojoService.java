@@ -24,7 +24,6 @@
 package org.openmicroscopy.shoola.env.data;
 
 
-
 //Java imports
 import java.io.File;
 import java.sql.Timestamp;
@@ -35,19 +34,13 @@ import java.util.Set;
 
 //Third-party libraries
 
-
-
-import omero.api.StatefulServiceInterfacePrx;
-
-
-
 //Application-internal dependencies
+import omero.api.StatefulServiceInterfacePrx;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
-
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;

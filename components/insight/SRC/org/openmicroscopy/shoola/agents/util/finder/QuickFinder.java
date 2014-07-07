@@ -33,8 +33,8 @@ import java.util.List;
 
 //Third-party libraries
 
-import org.openmicroscopy.shoola.agents.dataBrowser.view.QuickSearch;
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.view.QuickSearch;
 import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;

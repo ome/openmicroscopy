@@ -26,6 +26,8 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
  * 
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ *
+ * @since 5.0
  */
 public class SearchEvent extends RequestEvent {
 

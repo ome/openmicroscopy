@@ -738,17 +738,19 @@ class OmeroDataServiceImpl
 	 * @param results
 	 * @param allGroups
 	 */
-        private void findByIds(SecurityContext ctx, AdvancedSearchResultCollection results, boolean allGroups) {
+        private void findByIds(SecurityContext ctx, AdvancedSearchResultCollection results, boolean allGroups) throws DSOutOfServiceException{
             Iterator<AdvancedSearchResult> it = results.iterator();
             while (it.hasNext()) {
                 AdvancedSearchResult r = it.next();
                 IObject obj = null;
-                try {
-                    obj = gateway.findIObject(ctx,
-                            PojoMapper.convertTypeForSearch(r.getType()),
-                            r.getObjectId(), allGroups);
-                } catch (Exception e) {
-                }
+                    try {
+                        obj = gateway.findIObject(ctx,
+                                PojoMapper.convertTypeForSearch(r.getType()),
+                                r.getObjectId(), allGroups);
+                    } catch (DSAccessException e) {
+                        // Object can't be found/loaded; just skip it
+                        // and remove the regarding search result
+                    }
                 if (obj == null)
                     it.remove();
                 else {
@@ -759,7 +761,7 @@ class OmeroDataServiceImpl
         
         /**
          * Skims through the results and loads all images via the Containerservice. 
-         * This is neccessary to load the image's PixelsData.
+         * This is necessary to load the image's PixelsData.
          * @param results
          */
         private void initializeImages(AdvancedSearchResultCollection results) {
@@ -798,6 +800,7 @@ class OmeroDataServiceImpl
          * @return The ids or null if one or multiple terms contain non numeric characters
          */
         private long[] convertSearchTermsToIds(String query) {
+            // split by commas and spaces
             String[] tmp = query.split("\\s|\\s*,\\s*");
             long[] result = new long[tmp.length];
             try {
@@ -805,6 +808,7 @@ class OmeroDataServiceImpl
                     result[i] = Long.parseLong(tmp[i]);
                 }
             } catch (NumberFormatException e) {
+                // hit a term with non numeric characters
                 return null;
             }
             return result;

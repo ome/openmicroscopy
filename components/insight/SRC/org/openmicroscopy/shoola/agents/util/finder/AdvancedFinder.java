@@ -302,7 +302,7 @@ public class AdvancedFinder
 		
 		SecurityContext secCtx;
 		
-		if(ctx.getSelectedGroup()==GroupContext.ALL_GROUPS_ID) {
+		if (ctx.getSelectedGroup() == GroupContext.ALL_GROUPS_ID) {
 		    secCtx = new SecurityContext(getUserDetails().getGroupId());
 		    searchContext.setGroupId(SearchParameters.ALL_GROUPS_ID);
 		}
@@ -597,7 +597,6 @@ public class AdvancedFinder
 				while (j.hasNext()) {
 					exp = j.next();
 					users.put(exp.getId(), exp);
-					
 				}
 				//uiValue += value;
 			}

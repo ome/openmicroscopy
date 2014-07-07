@@ -46,12 +46,14 @@ import pojos.ScreenData;
  * 
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ * 
+ * @since 5.0
  */
 public class SearchResultTableModel extends DefaultTableModel {
 
     /** The name of the columns */
-    public static final String[] COLUMN_NAMES = { "Type", "Name", "Date (Aquisition/Import)",
-            "Group", " " };
+    public static final String[] COLUMN_NAMES = { "Type", "Name",
+            "Date (Acquisition/Import)", "Group", " " };
 
     /**
      * The index of the column which contains the View buttons (i. e. the last
@@ -95,12 +97,14 @@ public class SearchResultTableModel extends DefaultTableModel {
     @Override
     public Object getValueAt(int row, int column) {
         if (row < 0 || row >= data.size())
-            return null;
+            throw new ArrayIndexOutOfBoundsException(row
+                    + " is not within the valid range of rows [0,"
+                    + (data.size() - 1) + "]");
 
         DataObject obj = data.get(row);
 
         Object result = "--";
-        
+
         switch (column) {
             case 0:
                 result = getIcon(obj);
@@ -123,7 +127,7 @@ public class SearchResultTableModel extends DefaultTableModel {
     }
 
     /**
-     * Get the creation date of the {@link DataObject}
+     * Get the acquisition/creation date of the {@link DataObject}
      * 
      * @param obj
      * @return
@@ -131,16 +135,20 @@ public class SearchResultTableModel extends DefaultTableModel {
     private String getDate(DataObject obj) {
         String aDate = "--";
         String iDate = "--";
-        
+
         try {
-            if(obj instanceof ImageData) {
-                aDate = DATE_FORMAT.format(new Date(((ImageData)obj).getAcquisitionDate().getTime()));
+            if (obj instanceof ImageData) {
+                // just images have an acquisition date
+                aDate = DATE_FORMAT.format(new Date(((ImageData) obj)
+                        .getAcquisitionDate().getTime()));
             }
             iDate = DATE_FORMAT.format(new Date(obj.getCreated().getTime()));
         } catch (Exception e) {
+            // if there is no date, date is invalid or the text conversion
+            // goes wrong, just stick to '--' for the date
         }
-        
-        return aDate+" / "+iDate;
+
+        return aDate + " / " + iDate;
     }
 
     /**
@@ -224,9 +232,7 @@ public class SearchResultTableModel extends DefaultTableModel {
             name = ((DatasetData) obj).getName();
         } else if (obj instanceof ProjectData) {
             name = ((ProjectData) obj).getName();
-        } else if (obj instanceof ImageData) {
-            name = ((ImageData) obj).getName();
-        } else if (obj instanceof ScreenData) {
+        }  else if (obj instanceof ScreenData) {
             name = ((ScreenData) obj).getName();
         } else if (obj instanceof PlateData) {
             name = ((PlateData) obj).getName();

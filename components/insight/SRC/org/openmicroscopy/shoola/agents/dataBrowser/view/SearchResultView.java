@@ -47,21 +47,22 @@ import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 
-
 /**
  * A View for displaying a {@link AdvancedSearchResultCollection}
  * 
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ * 
+ * @since 5.0
  */
 class SearchResultView extends JPanel {
 
     /** Property for showing the context menu */
     public static final String CONTEXT_MENU_PROPERTY = "showPopup";
-    
+
     /** Property indicating a selection event */
     public static final String SELECTION_PROPERTY = "selected";
-    
+
     /** The DataObjects to be shown */
     private List<DataObject> objs = new ArrayList<DataObject>();
 
@@ -102,22 +103,23 @@ class SearchResultView extends JPanel {
     /**
      * Fires a Property to display the context menu
      */
-    void firePopupEvent(Point location)
-    {
-            // TODO: Disabled for now, context menu does not for search results
-            //firePropertyChange(CONTEXT_MENU_PROPERTY, null, location);
+    void firePopupEvent(Point location) {
+        // TODO: Disabled for now, context menu does not work for search results
+        // firePropertyChange(CONTEXT_MENU_PROPERTY, null, location);
     }
-    
+
     /**
      * Fires a Property indicating a selection event
-     * @param nodes The selected DataObjects
+     * 
+     * @param nodes
+     *            The selected DataObjects
      */
-    void fireSelectionEvent(List<DataObject> nodes)
-    {
-            firePropertyChange(SELECTION_PROPERTY, null, createDisplays(nodes));
-            TreeViewerAgent.getRegistry().getEventBus().post(new SearchSelectionEvent(nodes));
+    void fireSelectionEvent(List<DataObject> nodes) {
+        firePropertyChange(SELECTION_PROPERTY, null, createDisplays(nodes));
+        TreeViewerAgent.getRegistry().getEventBus()
+                .post(new SearchSelectionEvent(nodes));
     }
-    
+
     /**
      * Creates a new instance.
      * 
@@ -132,9 +134,8 @@ class SearchResultView extends JPanel {
         buildGUI();
     }
 
-    /** 
-     * Reloads the table
-     * (by creating a new TableModel)
+    /**
+     * Reloads the table (by creating a new TableModel)
      */
     void refreshTable() {
         objsTable.refreshTable();
@@ -142,6 +143,7 @@ class SearchResultView extends JPanel {
 
     /**
      * Creates the {@link ImageDisplay}s for the given {@link DataObject}s
+     * 
      * @param dataObjs
      * @return
      */

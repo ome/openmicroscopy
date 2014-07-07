@@ -1386,7 +1386,7 @@ class TreeViewerComponent
 		}
 		
 		int size = selection.size();
-		if (size == 1 && model.getSelectedBrowser()!=null) {
+		if (size == 1 && model.getSelectedBrowser() != null) {
 			Browser browser = model.getSelectedBrowser();
 			ExperimenterData exp = null;
 			TreeImageDisplay last = null;
@@ -1586,7 +1586,7 @@ class TreeViewerComponent
 	public void handleSearchSelectionEvent(SearchSelectionEvent evt) {
 	    // Force the metadataviewer to be shown and fake a treeviewer object
 	    // selection in order to get the metadataviewer show the right stuff 
-	    // (that's pretty weird... is there another/better way?)
+	    // (TODO: That's pretty weird... is there another/better way?)
 	    view.forceShowMetaDataView();
 	    List<Object> tmp = new ArrayList<Object>();
 	    tmp.add(evt.getDataObjects());

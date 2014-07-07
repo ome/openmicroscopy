@@ -368,8 +368,10 @@ public interface OmeroDataService
          *                                  in.
          * @throws DSAccessException        If an error occurred while trying to
          *                                  retrieve data from OMEDS service.
+         *                                  
+         * @deprecated As of release 5.0.3, replaced by {@link #search(SecurityContext, SearchParameters)}
          */
-	@Deprecated
+	@Deprecated 
         public Object advancedSearchFor(SecurityContext ctx,
                         SearchDataContext context)
                 throws DSOutOfServiceException, DSAccessException;

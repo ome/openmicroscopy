@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.env.data.util;
 
 //Java imports
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
 
 //Third-party libraries
@@ -170,7 +169,7 @@ public class SearchParameters
 	 */
 	public boolean isValid()
 	{
-		return !(StringUtils.isEmpty(query) && start == null
+		return !(StringUtils.isBlank(query) && start == null
                         && end == null);
 	}
 	
@@ -182,7 +181,7 @@ public class SearchParameters
 	 */
 	public boolean hasTextToSearch()
 	{
-		return !StringUtils.isEmpty(query);
+		return !StringUtils.isBlank(query);
 	}
 
         public long getUserId() {

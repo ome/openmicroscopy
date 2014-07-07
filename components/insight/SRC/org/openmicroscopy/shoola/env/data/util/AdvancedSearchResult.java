@@ -30,7 +30,8 @@ import pojos.DataObject;
  * 
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
- * @version 5.0
+ * 
+ * @since 5.0
  */
 public class AdvancedSearchResult {
 
@@ -140,6 +141,7 @@ public class AdvancedSearchResult {
 
     /**
      * Get the group id of the object
+     * 
      * @return
      */
     public long getGroupId() {
@@ -148,6 +150,7 @@ public class AdvancedSearchResult {
 
     /**
      * Set the group id of the object
+     * 
      * @param groupId
      */
     public void setGroupId(long groupId) {
@@ -164,41 +167,38 @@ public class AdvancedSearchResult {
             if (object.getId() != objectId)
                 throw new IllegalArgumentException(
                         "objectId does not match the object!");
-        }
-        else {
+        } else {
             objectId = object.getId();
         }
-        
+
         if (type != null) {
             if (!object.getClass().equals(type))
                 throw new IllegalArgumentException("Cannot add a "
                         + object.getClass().getSimpleName()
                         + " to an AdvancedSearchResult intended for "
                         + type.getSimpleName() + "!");
-        }
-        else {
+        } else {
             type = object.getClass();
         }
-        
+
         if (groupId >= 0) {
             if (object.getGroupId() != groupId)
                 throw new IllegalArgumentException("The object's groupId ("
                         + object.getGroupId()
                         + ") does not match the previous set groupId ("
                         + groupId + ") !");
-        }
-        else {
+        } else {
             groupId = object.getGroupId();
         }
-        
+
         this.object = object;
     }
 
     @Override
     public String toString() {
         return "AdvancedSearchResult [scopeId=" + scopeId + ", type="
-                + (type !=null ? type.getSimpleName() : "null") + ", objectId=" + objectId
-                + ", groupId=" + groupId + "]";
+                + (type != null ? type.getSimpleName() : "null")
+                + ", objectId=" + objectId + ", groupId=" + groupId + "]";
     }
 
 }

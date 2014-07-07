@@ -23,22 +23,12 @@
 package org.openmicroscopy.shoola.agents.util.finder;
 
 //Java imports
-
-//Third-party libraries
+import java.util.Collections;
 
 //Application-internal dependencies
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
-import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
-import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResult;
 import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
-import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;

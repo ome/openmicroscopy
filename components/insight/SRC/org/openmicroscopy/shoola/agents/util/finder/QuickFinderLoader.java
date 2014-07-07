@@ -31,7 +31,6 @@ import java.util.Set;
 
 //Third-party libraries
 
-
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;

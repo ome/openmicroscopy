@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.treetable.renderers.SelectionHighLighter 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -27,8 +27,6 @@ package org.openmicroscopy.shoola.util.ui.treetable.renderers;
 import java.awt.Component;
 
 
-
-import org.jdesktop.swingx.JXTable;
 //Third-party libraries
 import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.decorator.ColorHighlighter;
@@ -56,7 +54,7 @@ public class SelectionHighLighter
 {	
 	
 	/** The table of reference. */
-	private JXTable table;
+	private JXTreeTable table;
 	
 	/**
 	 * Returns <code>true</code> if the row is in the selected rows field.
@@ -77,7 +75,7 @@ public class SelectionHighLighter
 	 * 
 	 * @param table Reference to the table. Mustn't be <code>null</code>.
 	 */
-	public SelectionHighLighter(JXTable table)
+	public SelectionHighLighter(JXTreeTable table)
 	{
 		if (table == null)
 			throw new IllegalArgumentException("No table specified.");
