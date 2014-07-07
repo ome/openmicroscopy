@@ -1636,6 +1636,19 @@
         padding-bottom:25px;
         margin-bottom:25px;
     }
+        #searchHints {
+            font-size: 120%;
+            background: #fef69c;
+            padding: 3px;
+            border: solid #ddd 1px;
+            margin-bottom: 10px;
+        }
+
+        #searchHints strong {
+            display:block;
+            width:35px;
+            float:left;
+        }
 
         #searching input[type=text], #searching textarea{
             width:65%;
@@ -1644,9 +1657,11 @@
         #startdateinput, #enddateinput {
             width:30% !important;
         }
-    
-        #criteria {
-            float:left;
+
+        .clearDate {
+            position: absolute;
+            right: 5px;
+            top: -5px;
         }
 
         .criteria {

@@ -36,6 +36,7 @@ import traceback
 import time
 import array
 import math
+import re
 from decimal import Decimal
 
 from gettext import gettext as _
@@ -3451,7 +3452,55 @@ class _BlitzGateway (object):
     ###################
     # Searching stuff #
 
-    def searchObjects(self, obj_types, text, created=None):
+    def buildSearchQuery(self, text, fields=()):
+
+        fields = [str(f) for f in fields]
+        # # for each phrase or token, we strip out all non alpha-numeric
+        # except when inside double quotes. 
+        # To preserve quoted phrases we split by "
+        phrases = text.split('"')
+        tokens = []
+        leadingWc = False
+        for i, p in enumerate(phrases):
+            if len(p) == 0:
+                continue
+            if i%2 == 0:    # even: outside quotes - strip everything
+                tks = re.findall(r"[\w\*\?]+", p)
+                for t in tks:
+                    # remove single wildcards
+                    if t in ("*", "?"):
+                        continue
+                    # Need to enable wildcards for leading * or ? not in quotes
+                    if t[0] in ("*","?"):
+                        leadingWc = True
+                    tokens.append(t)
+            else:
+                tokens.append('"%s"' % p)   # wrap back into "double quotes"
+
+        if len(tokens) == 0:
+            return "", False
+
+        # if we have fields, prepend each token with field:token
+        if fields:
+            fieldqueries = []
+            for f in fields:
+                fieldTokens = []
+                for t in tokens:
+                    if len(t) > 0:
+                        if t not in ("AND", "OR"):
+                            fieldTokens.append('%s:%s' % (f, t))
+                        else:
+                            fieldTokens.append(t)
+                fieldqueries.append("(%s)" % " ".join(fieldTokens))
+            # E.g. (name:CSFV AND name:dv) OR (description:CSFV AND description:dv)
+            text = " OR ".join(fieldqueries)
+        else:
+            text = " ".join(tokens)
+
+        return text, leadingWc
+
+
+    def searchObjects(self, obj_types, text, created=None, fields=(), batchSize=1000, page=0, searchGroup=None, ownedBy=None):
         """
         Search objects of type "Project", "Dataset", "Image", "Screen", "Plate"
         Returns a list of results
@@ -3474,21 +3523,50 @@ class _BlitzGateway (object):
                 return KNOWN_WRAPPERS.get(obj_type.lower(), None)
             types = [getWrapper(o) for o in obj_types]
         search = self.createSearchService()
+
+        ctx = self.SERVICE_OPTS.copy()
+        if searchGroup is not None:
+            ctx.setOmeroGroup(searchGroup)
+
+        search.setBatchSize(batchSize, ctx)
+        if ownedBy is not None:
+            ownedBy = long(ownedBy)
+            if ownedBy >= 0:
+                details = omero.model.DetailsI()
+                details.setOwner(omero.model.ExperimenterI(ownedBy, False))
+                search.onlyOwnedBy(details, ctx)
+
+        text, leadingWc = self.buildSearchQuery(text, fields)
+        if leadingWc:
+            search.setAllowLeadingWildcard(True, ctx)
+
+        if len(text) == 0:
+            return []
+
+        logger.debug("Searching for: '%s'" % text);
+
         try:
             if created:
-                search.onlyCreatedBetween(created[0], created[1]);
-            if text[0] in ('?','*'):
-                search.setAllowLeadingWildcard(True)
+                search.onlyCreatedBetween(created[0], created[1], ctx);
             rv = []
             for t in types:
                 def actualSearch ():
-                    search.onlyType(t().OMERO_CLASS, self.SERVICE_OPTS)
-                    search.byFullText(text, self.SERVICE_OPTS)
+                    search.onlyType(t().OMERO_CLASS, ctx)
+                    # search.bySomeMustNone(some, [], [])
+                    search.byFullText(text, ctx)
                 timeit(actualSearch)()
-                if search.hasNext(self.SERVICE_OPTS):
-                    def searchProcessing ():
-                        rv.extend(map(lambda x: t(self, x), search.results()))
-                    timeit(searchProcessing)()
+                # get results
+                def searchProcessing ():
+                    return search.results(ctx)
+                p = 0
+                # we do pagination by loading until the required page
+                while search.hasNext(ctx):
+                    results = timeit(searchProcessing)()
+                    if p == page:
+                        rv.extend(map(lambda x: t(self, x), results))
+                        break;
+                    p += 1
+
         finally:
             search.close()
         return rv
