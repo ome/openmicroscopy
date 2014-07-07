@@ -23,6 +23,7 @@
  */
 package org.openmicroscopy.shoola.util.ui.search;
 
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import pojos.ExperimenterData;
 
 /**
@@ -34,6 +35,10 @@ import pojos.ExperimenterData;
  * @since 5.0
  */
 public class ExperimenterContext {
+    
+    /** Maximum characters to use for the name */
+    private static final int MAX_CHARS = 25;
+    
     /** ID indicating all experimenters should be included in the search */
     public static final int ALL_EXPERIMENTERS_ID = Integer.MAX_VALUE;
 
@@ -52,6 +57,10 @@ public class ExperimenterContext {
      *            The identifier of the experimenter.
      */
     public ExperimenterContext(String experimenter, long id) {
+        if(experimenter.length()>MAX_CHARS) {
+            experimenter = EditorUtil.truncate(experimenter, MAX_CHARS, false);
+        }
+        
         this.experimenter = experimenter;
         this.id = id;
     }
@@ -60,7 +69,18 @@ public class ExperimenterContext {
      * Creates a new instance.
      */
     public ExperimenterContext(ExperimenterData exp) {
-        this.experimenter = exp.getFirstName() + " " + exp.getLastName();
+        String fName = exp.getFirstName();
+        String lName = exp.getLastName();
+        if (fName.length() + lName.length() > MAX_CHARS) {
+            fName = fName.charAt(0) + ".";
+
+            if (fName.length() + lName.length() > MAX_CHARS) {
+                int left = MAX_CHARS - fName.length();
+                lName = EditorUtil.truncate(lName, left, false);
+            }
+        }
+        
+        this.experimenter = fName + " " + lName;
         this.id = exp.getId();
     }
 

@@ -33,6 +33,7 @@ import java.util.List;
 //Application-internal dependencies
 import pojos.GroupData;
 import pojos.ExperimenterData;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 
 /** 
  * Host information about the group to search into.
@@ -43,6 +44,9 @@ import pojos.ExperimenterData;
  */
 public class GroupContext
 {
+        /** Maximum characters to use for the name */
+        private static final int MAX_CHARS = 25;
+    
         /** ID indicating all groups should be included in the search */
         public static final int ALL_GROUPS_ID = Integer.MAX_VALUE;
         
@@ -63,6 +67,10 @@ public class GroupContext
 	 */
 	public GroupContext(String group, long id)
 	{
+                if (group.length() > MAX_CHARS) {
+                    group = EditorUtil.truncate(group, MAX_CHARS, false);
+                }
+	    
 		this.group = group;
 		this.id = id;
 	}
@@ -75,7 +83,13 @@ public class GroupContext
          */
         public GroupContext(GroupData group)
         {
-                this.group = group.getName();
+                String groupName = group.getName();
+                
+                if(groupName.length()>MAX_CHARS) {
+                    groupName = EditorUtil.truncate(groupName, MAX_CHARS, false);
+                }
+            
+                this.group = groupName;
                 this.id = group.getId();
                 
                 for(Object exp : group.getExperimenters()) {
