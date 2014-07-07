@@ -251,7 +251,9 @@ class MetadataViewerUI
                     item.setImage(img);
                 }
             }
-            model.getEditor().getRenderer().loadRndSettings(false, viewedByItems);
+            Renderer renderer = model.getEditor().getRenderer();
+            if (renderer != null) // the renderer might not have been set yet
+                model.getEditor().getRenderer().loadRndSettings(false, viewedByItems);
         }
 	
 	/**
