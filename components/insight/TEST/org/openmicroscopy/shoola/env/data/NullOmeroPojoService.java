@@ -479,4 +479,13 @@ public class NullOmeroPojoService
             return null;
         }
 
+        /**
+         * No-operation implementation
+         * @see OmeroDataService#search(SecurityContext, SearchParameters, int)
+         */
+        public AdvancedSearchResultCollection search(SecurityContext ctx,
+                SearchParameters context, int maxResults) throws DSOutOfServiceException,
+                DSAccessException {
+            return null;
+        }
 }

@@ -674,12 +674,23 @@ class OmeroDataServiceImpl
                 return results;
         }
         
+        /**
+         * Implemented as specified by {@link OmeroDataService}.
+         * @see OmeroDataService#advancedSearchFor(List, SearchDataContext)
+         */
+        public AdvancedSearchResultCollection search(SecurityContext ctx,
+                SearchParameters context)
+                throws DSOutOfServiceException, DSAccessException
+        {
+            return search(ctx, context, -1);
+        }
+        
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#advancedSearchFor(List, SearchDataContext)
 	 */
 	public AdvancedSearchResultCollection search(SecurityContext ctx,
-	        SearchParameters context)
+	        SearchParameters context, int maxResults)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (ctx == null)
@@ -723,10 +734,12 @@ class OmeroDataServiceImpl
 		// search by text:
 		results.addAll(gateway.search(ctx, context));
 
-		// loads the images PixelsData (needed for thumbnail request)
-		initializeImages(results);
-		
-		System.out.println(results);
+                if (maxResults > 0 && results.size() > maxResults) {
+                    results.setError(AdvancedSearchResultCollection.TOO_MANY_RESULTS_ERROR);
+                } else {
+                    // loads the images PixelsData (needed for thumbnail request)
+                    initializeImages(results);
+                }
 		
 		return results;
 	}

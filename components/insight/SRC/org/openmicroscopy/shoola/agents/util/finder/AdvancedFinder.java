@@ -481,9 +481,10 @@ public class AdvancedFinder
                 if (result.getError() == AdvancedSearchResultCollection.GENERAL_ERROR)
                     msg = "Invalid search expression";
                 else
-                    msg = "Too many results.";
+                    msg = "Too many results, please refine your search criteria.";
                 UserNotifier un = FinderFactory.getRegistry().getUserNotifier();
                 un.notifyError("Search error", msg);
+                setSearchEnabled(false);
                 return;
             }
     
