@@ -77,9 +77,9 @@ public class SearchThumbnailLoader extends DataBrowserLoader {
     public SearchThumbnailLoader(DataBrowser viewer, SecurityContext ctx,
             Collection<ImageData> imgs, AdvancedResultSearchModel model) {
         super(viewer, ctx);
-        if (objects == null)
+        if (imgs == null)
             throw new NullPointerException(
-                    "The provided collection of DataObjects shouldn't be null.");
+                    "The provided collection of images shouldn't be null.");
 
         this.model = model;
 
