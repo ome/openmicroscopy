@@ -478,7 +478,8 @@ public class TreeViewerAgent
     private void handleSearchEvent(SearchEvent evt) {
         ExperimenterData exp = (ExperimenterData) registry.lookup(
                 LookupNames.CURRENT_USER_DETAILS);
-        if (exp == null) return;
+        if (exp == null) 
+        	return;
         TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
         viewer.handleSearchEvent(evt);
     }
@@ -489,7 +490,8 @@ public class TreeViewerAgent
     private void handleSearchSelectionEvent(SearchSelectionEvent evt) {
         ExperimenterData exp = (ExperimenterData) registry.lookup(
                 LookupNames.CURRENT_USER_DETAILS);
-        if (exp == null) return;
+        if (exp == null) 
+        	return;
         TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
         viewer.handleSearchSelectionEvent(evt);
     }

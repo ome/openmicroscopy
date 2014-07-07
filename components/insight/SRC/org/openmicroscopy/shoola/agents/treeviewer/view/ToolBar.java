@@ -815,14 +815,14 @@ class ToolBar
             
             @Override
             public void focusLost(FocusEvent e) {
-                if(searchField.getText().trim().equals("")) {
+                if (searchField.getText().trim().equals("")) {
                     searchField.setText(SEARCHFIELD_TEXT);
                 }
             }
             
             @Override
             public void focusGained(FocusEvent e) {
-                if(searchField.getText().equals(SEARCHFIELD_TEXT)) {
+                if (searchField.getText().equals(SEARCHFIELD_TEXT)) {
                     searchField.setText("");
                 }
                 else {

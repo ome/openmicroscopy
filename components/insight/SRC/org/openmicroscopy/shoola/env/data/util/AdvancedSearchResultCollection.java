@@ -28,44 +28,46 @@ import java.util.Map;
 import pojos.DataObject;
 
 /**
- * Holds the results of a search; a collection of
- * {@link AdvancedSearchResult}s
+ * Holds the results of a search; a collection of {@link AdvancedSearchResult}s
  * 
- * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; 
- * <a href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
- * @version 5.0
- *
+ * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ * 
+ * @since 5.0
+ * 
  */
 public class AdvancedSearchResultCollection extends
         ArrayList<AdvancedSearchResult> {
 
     public static final int NO_ERROR = 0;
-    
+
     public static final int GENERAL_ERROR = 1;
-    
+
     public static final int TOO_MANY_RESULTS_ERROR = 2;
-    
+
     /** Error code if there was an error with the search */
     private int error = NO_ERROR;
 
     /**
-     * @return <code>true</code> if there was an error with
-     * the search, <code>false</code> otherwise
+     * @return <code>true</code> if there was an error with the search,
+     *         <code>false</code> otherwise
      */
     public boolean isError() {
-        return error!=NO_ERROR;
+        return error != NO_ERROR;
     }
 
     /**
      * Set the error state
-     * @param error 
+     * 
+     * @param error
      */
     public void setError(int error) {
         this.error = error;
     }
-    
+
     /**
      * Get the error code
+     * 
      * @return
      */
     public int getError() {
@@ -87,77 +89,84 @@ public class AdvancedSearchResultCollection extends
 
         return false;
     }
-    
-    
-   @Override
+
+    @Override
     public void clear() {
         super.clear();
         error = NO_ERROR;
     }
 
-/**
-    * Get all results of a certain scope and/or type
-    * @param scopeId The scope to filter for, see {@link SearchDataContext}
-    * @param type The type to filter for, see {@link DataObject}
-    * @return
-    */
-    public List<AdvancedSearchResult> getResults(int scopeId, Class<? extends DataObject> type) {
+    /**
+     * Get all results of a certain scope and/or type
+     * 
+     * @param scopeId
+     *            The scope to filter for, see {@link SearchDataContext}
+     * @param type
+     *            The type to filter for, see {@link DataObject}
+     * @return
+     */
+    public List<AdvancedSearchResult> getResults(int scopeId,
+            Class<? extends DataObject> type) {
         List<AdvancedSearchResult> result = new ArrayList<AdvancedSearchResult>();
         for (AdvancedSearchResult r : this) {
-            if (scopeId<0 && r.getScopeId() != scopeId) {
+            if (scopeId < 0 && r.getScopeId() != scopeId) {
                 continue;
             }
-            if (type!=null && !r.getType().equals(type)) {
+            if (type != null && !r.getType().equals(type)) {
                 continue;
             }
             result.add(r);
         }
         return result;
     }
-    
+
     /**
      * Get DataObjects filtered by scope and type
+     * 
      * @param scopeId
      * @param type
      * @return
      */
-    public List<DataObject> getDataObjects(int scopeId, Class<? extends DataObject> type) {
+    public List<DataObject> getDataObjects(int scopeId,
+            Class<? extends DataObject> type) {
         List<DataObject> result = new ArrayList<DataObject>();
         for (AdvancedSearchResult r : this) {
-            if (scopeId>=0 && r.getScopeId() != scopeId) {
+            if (scopeId >= 0 && r.getScopeId() != scopeId) {
                 continue;
             }
-            if (type!=null && !r.getType().equals(type)) {
+            if (type != null && !r.getType().equals(type)) {
                 continue;
             }
             result.add(r.getObject());
         }
         return result;
     }
-    
+
     /**
      * Get a perGroup map representation of the results
+     * 
      * @return
      */
     public Map<Long, List<AdvancedSearchResult>> getByGroup() {
-           return getByGroup(null);
+        return getByGroup(null);
     }
-    
+
     /**
-     * Get a perGroup map representation of the results, 
-     * filtered by type
+     * Get a perGroup map representation of the results, filtered by type
+     * 
      * @param type
      * @return
      */
-    public Map<Long, List<AdvancedSearchResult>> getByGroup(Class<? extends DataObject> type) {
+    public Map<Long, List<AdvancedSearchResult>> getByGroup(
+            Class<? extends DataObject> type) {
         Map<Long, List<AdvancedSearchResult>> result = new HashMap<Long, List<AdvancedSearchResult>>();
-        for(AdvancedSearchResult r : this) {
+        for (AdvancedSearchResult r : this) {
             List<AdvancedSearchResult> list = result.get(r.getGroupId());
-            if(list==null) {
+            if (list == null) {
                 list = new ArrayList<AdvancedSearchResult>();
                 result.put(r.getGroupId(), list);
             }
-            if(type==null || (r.getType().equals(type)))
+            if (type == null || (r.getType().equals(type)))
                 list.add(r);
         }
         return result;
@@ -168,21 +177,20 @@ public class AdvancedSearchResultCollection extends
      */
     public void consolidate() {
         Iterator<AdvancedSearchResult> it = this.iterator();
-        while(it.hasNext()) {
+        while (it.hasNext()) {
             AdvancedSearchResult r = it.next();
-            if(r.getObject()==null)
+            if (r.getObject() == null)
                 it.remove();
         }
     }
-    
+
     @Override
     public String toString() {
         String s = "AdvancedSearchResultCollection [error=" + error + "]:\n";
-        for(AdvancedSearchResult r : this) {
-            s += r.toString()+"\n";
+        for (AdvancedSearchResult r : this) {
+            s += r.toString() + "\n";
         }
         return s;
     }
 
-    
 }

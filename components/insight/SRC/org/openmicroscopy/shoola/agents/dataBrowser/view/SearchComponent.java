@@ -115,7 +115,7 @@ public class SearchComponent
 	/** Identifies the text for searching for attachments. */
 	public static final String		NAME_ATTACHMENT = "Attachments"; 
 	
-	/** Identifies the text for searching for attachments. */
+	/** Identifies the text for searching for annotations. */
         public static final String              NAME_ANNOTATION = "Annotations"; 
         
 	/** Identifies the text for searching for rate. */

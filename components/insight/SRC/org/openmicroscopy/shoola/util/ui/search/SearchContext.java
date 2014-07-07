@@ -98,7 +98,7 @@ public class SearchContext
         /** Identifying the <code>Description</code> context. */
         public static final int                 DESCRIPTION = 12;
         
-        /** Identifying the <code>Description</code> context. */
+        /** Identifying the <code>Customized</code> context. */
         public static final int                 CUSTOMIZED = 13;
         
         /** Identifying the <code>Annotation</code> context. */
@@ -196,9 +196,6 @@ public class SearchContext
         
         /** Collection of users to exclude. */
         private List<String>    excludedOwners;
-        
-        /** Collection of selected users. */
-        private List<String>    selectedAnnotators;
         
         /** Collection of users to exclude. */
         private List<String>    excludedAnnotators;
@@ -304,18 +301,11 @@ public class SearchContext
         }
         
         /**
-         * Sets the collection of selected users if any.
+         * Sets the user context for the search
          * 
-         * @param users The value to set.
+         * @param user The value to set.
          */
         public void setSelectedOwner(long user) { this.selectedOwner = user; }
-        
-        /**
-         * Sets the collection of selected users if any.
-         * 
-         * @param users The value to set.
-         */
-        void setAnnotators(List<String> users) { this.selectedAnnotators = users; }
         
         /**
          * Sets the {@link #startTime} and {@link #endTime} depending on the
@@ -453,13 +443,6 @@ public class SearchContext
         public long getSelectedOwner() { return selectedOwner; }
         
         /** 
-         * Returns the collection of selected users.
-         * 
-         * @return See above.
-         */
-        public List<String> getSelectedAnnotators() { return selectedAnnotators; }
-        
-        /** 
          * Returns the collection of users to exclude.
          * 
          * @return See above.
@@ -540,12 +523,12 @@ public class SearchContext
          */
         public void setNumberOfResults(int results) { numberOfResults = results; }
 
-	/** Set the group to search for */
+	/** Get the group to search for */
         public long getSelectedGroup() {
             return selectedGroup;
         }
     
-        /** Get the group to search for */
+        /** Set the group to search for */
         public void setSelectedGroup(long selectedGroup) {
             this.selectedGroup = selectedGroup;
         }

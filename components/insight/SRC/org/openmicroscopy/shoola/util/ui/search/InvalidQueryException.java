@@ -21,9 +21,11 @@ package org.openmicroscopy.shoola.util.ui.search;
 
 /**
  * Exception to indicate that the query string was invalid
- *
+ * 
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ * 
+ * @since 5.0
  */
 public class InvalidQueryException extends Exception {
 
@@ -43,5 +45,4 @@ public class InvalidQueryException extends Exception {
         super(arg0);
     }
 
-    
 }

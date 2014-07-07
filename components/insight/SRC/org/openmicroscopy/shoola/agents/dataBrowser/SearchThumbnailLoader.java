@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.agents.dataBrowser;
 
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.openmicroscopy.shoola.agents.dataBrowser.view.AdvancedResultSearchModel;
@@ -34,13 +35,16 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
 
 import pojos.DataObject;
+import pojos.ImageData;
 
 /**
  * Loads all thumbnails for the specified images. This class calls the
- * <code>loadThumbnails</code> method in the <code>HierarchyBrowsingView</code>.
+ * {@link HierarchyBrowsingView#loadThumbnails} method.
  * 
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ * 
+ * @since 5.0
  */
 public class SearchThumbnailLoader extends DataBrowserLoader {
     /**
@@ -71,12 +75,21 @@ public class SearchThumbnailLoader extends DataBrowserLoader {
      *            the thumbnails to
      */
     public SearchThumbnailLoader(DataBrowser viewer, SecurityContext ctx,
-            Collection<DataObject> objects, AdvancedResultSearchModel model) {
+            Collection<ImageData> imgs, AdvancedResultSearchModel model) {
         super(viewer, ctx);
         if (objects == null)
-            throw new IllegalArgumentException("Collection shouldn't be null.");
-        this.objects = objects;
+            throw new NullPointerException(
+                    "The provided collection of DataObjects shouldn't be null.");
+
         this.model = model;
+
+        // transform the List of ImageData into a List of DataObjects
+        // (the underlying call to HierarchyBrowsingView.loadThumbnails
+        // just takes a List of DataObjects)
+        this.objects = new ArrayList<DataObject>(imgs.size());
+        for (ImageData img : imgs)
+            objects.add(img);
+
     }
 
     /**

@@ -31,6 +31,8 @@ import pojos.DataObject;
  * 
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ * 
+ * @since 5.0
  */
 public class SearchSelectionEvent extends RequestEvent {
 
@@ -39,6 +41,7 @@ public class SearchSelectionEvent extends RequestEvent {
 
     /**
      * Creates a new instance
+     * 
      * @param dataObjects
      */
     public SearchSelectionEvent(List<DataObject> dataObjects) {
@@ -47,6 +50,7 @@ public class SearchSelectionEvent extends RequestEvent {
 
     /**
      * Get the selected {@link DataObject}s
+     * 
      * @return
      */
     public List<DataObject> getDataObjects() {
@@ -55,10 +59,11 @@ public class SearchSelectionEvent extends RequestEvent {
 
     /**
      * Set the selected {@link DataObject}s
+     * 
      * @param dataObjects
      */
     public void setDataObjects(List<DataObject> dataObjects) {
         this.dataObjects = dataObjects;
     }
-    
+
 }

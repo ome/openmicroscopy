@@ -216,7 +216,7 @@ class DataBrowserComponent
 		//Determine the view depending on the number of image.
 		Integer max = (Integer) DataBrowserAgent.getRegistry().lookup(
 				MAX_ENTRIES);
-		if(model.getType()==DataBrowserModel.SEARCH) {
+		if (model.getType() == DataBrowserModel.SEARCH) {
 		    view.setSelectedView(SEARCH);
 		    model.loadData(false, null); 
 		}

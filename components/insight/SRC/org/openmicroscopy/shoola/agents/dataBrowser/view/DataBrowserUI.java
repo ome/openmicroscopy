@@ -157,7 +157,7 @@ class DataBrowserUI
 		if (model.getType() == DataBrowserModel.WELLS)
 			plateGridUI = new PlateGridUI((WellsModel) model, controller);
 		statusBar = new DataBrowserStatusBar(this);
-		if(model.getType()==DataBrowserModel.SEARCH) {
+		if (model.getType() == DataBrowserModel.SEARCH) {
 		    selectedView = SEARCH_VIEW;
 		}
 		else {

@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.SearchThumbnailLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailProvider;
@@ -39,6 +40,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
@@ -49,14 +51,16 @@ import pojos.ScreenData;
 /**
  * A DataBrowserModel for search results
  * 
- * @author  Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ * 
+ * @since 5.0
  */
 public class AdvancedResultSearchModel extends DataBrowserModel {
 
     /** Maximum number of thumbnails to load */
     private static final int MAX_THUMBS = 100;
-    
+
     /** Holds all the ImageDisplays */
     List<ImageDisplay> displays = new ArrayList<ImageDisplay>();
 
@@ -97,6 +101,7 @@ public class AdvancedResultSearchModel extends DataBrowserModel {
 
     /**
      * Registers a table to be notified when thumbs have been loaded
+     * 
      * @param table
      */
     public void registerTable(SearchResultTable table) {
@@ -105,6 +110,7 @@ public class AdvancedResultSearchModel extends DataBrowserModel {
 
     /**
      * Creates the {@link ImageDisplay}s for the given {@link DataObject}s
+     * 
      * @param dataObjs
      * @return
      */
@@ -146,34 +152,30 @@ public class AdvancedResultSearchModel extends DataBrowserModel {
             DataObject obj = (DataObject) d.getHierarchyObject();
             if (!(obj instanceof ImageData))
                 continue;
-                
-            if(count >= MAX_THUMBS)
+
+            if (count >= MAX_THUMBS)
                 break;
-            
+
             List<ImageData> objs = map.get(obj.getGroupId());
             if (objs == null) {
                 objs = new ArrayList<ImageData>();
                 map.put(obj.getGroupId(), objs);
             }
-            objs.add((ImageData)obj);
+            objs.add((ImageData) obj);
             count++;
         }
 
         for (Entry<Long, List<ImageData>> e : map.entrySet()) {
             List<ImageData> imgs = e.getValue();
             if (!imgs.isEmpty()) {
-                List<DataObject> tmp = new ArrayList<DataObject>(imgs.size());
-                for(ImageData img : imgs)
-                    tmp.add(img);
-                SearchThumbnailLoader loader = new SearchThumbnailLoader(component, new SecurityContext(e.getKey()), tmp, this);
+                SearchThumbnailLoader loader = new SearchThumbnailLoader(
+                        component, new SecurityContext(e.getKey()), imgs, this);
                 loader.load();
             }
         }
     }
 
     /**
-     * Creates a concrete loader.
-     * 
      * @see DataBrowserModel#createDataLoader(boolean, Collection)
      */
     protected List<DataBrowserLoader> createDataLoader(boolean refresh,
@@ -199,6 +201,7 @@ public class AdvancedResultSearchModel extends DataBrowserModel {
 
     /**
      * Add a thumbnail for a certain image
+     * 
      * @param imgId
      * @param img
      */
@@ -217,6 +220,7 @@ public class AdvancedResultSearchModel extends DataBrowserModel {
 
     /**
      * Get the thumbnail for a certain image
+     * 
      * @param refObj
      * @return
      */
