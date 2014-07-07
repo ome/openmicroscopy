@@ -32,21 +32,25 @@ class TestImport(object):
         client_dir = dist_dir / "lib" / "client"
         self.args += ["--clientdir", client_dir]
 
-    def mkfakescreen(self, tmpdir):
+    def mkfakescreen(self, tmpdir, nplates=2, nruns=2, nwells=2, nfields=4):
 
         screen_dir = tmpdir.join("screen.fake")
         screen_dir.mkdir()
         fieldfiles = []
-        for i in [0, 1]:
-            plate_dir = screen_dir / ("Plate00%s" % str(i))
+        for iplate in range(nplates):
+            plate_dir = screen_dir / ("Plate00%s" % str(iplate))
             plate_dir.mkdir()
-            run_dir = plate_dir / "Run000"
-            run_dir.mkdir()
-            well_dir = run_dir / "WellA000"
-            well_dir.mkdir()
-            fieldfile = (well_dir / "Field000.fake")
-            fieldfile.write('')
-            fieldfiles.append(fieldfile)
+            for irun in range(nruns):
+                run_dir = plate_dir / ("Run00%s" % str(irun))
+                run_dir.mkdir()
+                for iwell in range(nwells):
+                    well_dir = run_dir / ("WellA00%s" % str(iwell))
+                    well_dir.mkdir()
+                    for ifield in range(nfields):
+                        fieldfile = (well_dir / ("Field00%s.fake" %
+                                                 str(ifield)))
+                        fieldfile.write('')
+                        fieldfiles.append(fieldfile)
         return fieldfiles
 
     def testDropBoxArgs(self):
@@ -128,7 +132,7 @@ omero_cblackburn/6915/dropboxaDCjQlout']
         o, e = capfd.readouterr()
         outputlines = str(o).split('\n')
         reader = 'loci.formats.in.FakeReader'
-        assert outputlines[-2] == str(fieldfiles[1])
-        assert outputlines[-3] == str(fieldfiles[0])
-        assert outputlines[-4] == \
+        assert outputlines[-len(fieldfiles)-2] == \
             "# Group: %s SPW: true Reader: %s" % (str(fieldfiles[0]), reader)
+        for i in range(len(fieldfiles)):
+            assert outputlines[-1-len(fieldfiles)+i] == str(fieldfiles[i])
