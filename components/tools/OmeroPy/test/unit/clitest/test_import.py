@@ -53,6 +53,24 @@ class TestImport(object):
                         fieldfiles.append(fieldfile)
         return fieldfiles
 
+    def mkfakepattern(self, tmpdir, nangles=7, ntimepoints=10):
+
+        spim_dir = tmpdir.join("SPIM")
+        spim_dir.mkdir()
+        tiffiles = []
+        for angle in range(1, nangles + 1):
+            for timepoint in range(1, ntimepoints + 1):
+                tiffile = (spim_dir / ("spim_TL%s_Angle%s.fake" %
+                                       (str(timepoint), str(angle))))
+                tiffile.write('')
+                print str(tiffile)
+                tiffiles.append(tiffile)
+        patternfile = spim_dir / "spim.pattern"
+        patternfile.write("spim_TL<1-%s>_Angle<1-%s>.fake"
+                          % (str(ntimepoints), str(nangles)))
+        assert len(tiffiles) == nangles * ntimepoints
+        return patternfile, tiffiles
+
     def testDropBoxArgs(self):
         class MockImportControl(ImportControl):
             def importer(this, args):
@@ -136,3 +154,22 @@ omero_cblackburn/6915/dropboxaDCjQlout']
             "# Group: %s SPW: true Reader: %s" % (str(fieldfiles[0]), reader)
         for i in range(len(fieldfiles)):
             assert outputlines[-1-len(fieldfiles)+i] == str(fieldfiles[i])
+
+    def testImportPattern(self, tmpdir, capfd):
+        """Test pattern import"""
+
+        patternfile, tiffiles = self.mkfakepattern(tmpdir)
+
+        self.args += ["-f", "--debug=ERROR"]
+        self.args += [str(patternfile)]
+
+        self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
+        outputlines = str(o).split('\n')
+        reader = 'loci.formats.in.FilePatternReader'
+        print o
+        assert outputlines[-len(tiffiles)-3] == \
+            "# Group: %s SPW: false Reader: %s" % (str(patternfile), reader)
+        assert outputlines[-len(tiffiles)-2] == str(patternfile)
+        for i in range(len(tiffiles)):
+            assert outputlines[-1-len(tiffiles)+i] == str(tiffiles[i])
