@@ -57,9 +57,6 @@ class TestModel(object):
         the state of the import.
         """
 
-        # This should be passed in by the client
-        clientInfo = omero.model.FilesetVersionInfoI()
-
         # This will be created server-side
         serverInfo = omero.model.FilesetVersionInfoI()
         serverInfo.bioformatsReader = _("ExampleReader")
@@ -74,7 +71,7 @@ class TestModel(object):
         # Now that the basics are setup, we
         # need to link to all of the original files.
         fs = omero.model.FilesetI()
-        fs.addFilesetEntry(self.mkentry("main_file.txt")) # First!
+        fs.addFilesetEntry(self.mkentry("main_file.txt"))  # First!
         fs.addFilesetEntry(self.mkentry("uf1.data"))
         fs.addFilesetEntry(self.mkentry("uf2.data"))
 
@@ -86,7 +83,7 @@ class TestModel(object):
         # step, and must be completed by the clients
         # before any other activity.
         job1 = omero.model.UploadJobI()
-        job1.scheduledFor = rtime(time.time() * 1000) # Now
+        job1.scheduledFor = rtime(time.time() * 1000)  # Now
         # Set this "started" since we're expecting
         # upload to be in process.
 

@@ -13,17 +13,17 @@
 """
 
 import omero
-from omero.gateway.scripts import dbhelpers
 import time
+
 
 class TestDelete (object):
 
-    def _prepareObjectsToDelete (self, gateway, ns):
+    def _prepareObjectsToDelete(self, gateway, ns):
         """ creates a couple of annotations used in testDeleteObjects* """
         q = gateway.getQueryService()
-        ids = [x.id.val for x in \
-               q.findAllByQuery("from CommentAnnotation where ns='%s'" % ns, None)]
-        assert len(ids) ==  0
+        ids = [x.id.val for x in q.findAllByQuery(
+               "from CommentAnnotation where ns='%s'" % ns, None)]
+        assert len(ids) == 0
         u = gateway.getUpdateService()
         ann = omero.gateway.CommentAnnotationWrapper()
         ann.setNs(ns)
@@ -33,12 +33,12 @@ class TestDelete (object):
         ann.setNs(ns)
         ann.setValue('')
         u.saveObject(ann._obj)
-        ids = [x.id.val for x in \
-               q.findAllByQuery("from CommentAnnotation where ns='%s'" % ns, None)]
-        assert len(ids) ==  2
+        ids = [x.id.val for x in q.findAllByQuery(
+               "from CommentAnnotation where ns='%s'" % ns, None)]
+        assert len(ids) == 2
         return ids
 
-    def testDeleteObjectsUnwrapped (self, gatewaywrapper):
+    def testDeleteObjectsUnwrapped(self, gatewaywrapper):
         """ tests async delete objects """
         ns = 'testDeleteObjects-'+str(time.time())
         gatewaywrapper.loginAsAuthor()
@@ -52,15 +52,16 @@ class TestDelete (object):
             dcs.append(omero.cmd.Delete('/Annotation', long(oid), op))
         doall = omero.cmd.DoAll()
         doall.requests = dcs
-        handle = gatewaywrapper.gateway.c.sf.submit(doall, gatewaywrapper.gateway.SERVICE_OPTS)
+        handle = gatewaywrapper.gateway.c.sf.submit(
+            doall, gatewaywrapper.gateway.SERVICE_OPTS)
         gatewaywrapper.gateway._waitOnCmd(handle)
         handle.close()
         q = gatewaywrapper.gateway.getQueryService()
-        ids = [x.id.val for x in \
-               q.findAllByQuery("from CommentAnnotation where ns='%s'" % ns, None)]
-        assert len(ids) ==  0
+        ids = [x.id.val for x in q.findAllByQuery(
+               "from CommentAnnotation where ns='%s'" % ns, None)]
+        assert len(ids) == 0
 
-    def testDeleteObjects (self, gatewaywrapper):
+    def testDeleteObjects(self, gatewaywrapper):
         """ tests the call to deleteObjects """
         ns = 'testDeleteObjects-'+str(time.time())
         gatewaywrapper.loginAsAuthor()
@@ -69,6 +70,6 @@ class TestDelete (object):
         gatewaywrapper.gateway._waitOnCmd(handle)
         handle.close()
         q = gatewaywrapper.gateway.getQueryService()
-        ids = [x.id.val for x in \
-               q.findAllByQuery("from CommentAnnotation where ns='%s'" % ns, None)]
-        assert len(ids) ==  0
+        ids = [x.id.val for x in q.findAllByQuery(
+               "from CommentAnnotation where ns='%s'" % ns, None)]
+        assert len(ids) == 0
