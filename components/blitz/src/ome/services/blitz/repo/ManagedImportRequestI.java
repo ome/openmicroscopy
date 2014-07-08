@@ -299,14 +299,20 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         if (autoClose) {
             log.info("Auto-closing...");
             try {
-                HandlePrx handle = process.getHandle();
-                try {
+                if (handle == null) {
+                    log.warn("No handle for closing");
+                } else {
                     handle.close();
-                } finally {
-                    process.close();
                 }
             } catch (Throwable t) {
-                log.error("Failed on autoClose", t);
+                log.error("Failed to close handle on autoClose", t);
+            }
+            try {
+                process.close();
+            } catch (Ice.ObjectNotExistException onee) {
+                // Likely already closed.
+            } catch (Throwable t) {
+                log.error("Failed to close process on autoClose", t);
             }
         }
     }
