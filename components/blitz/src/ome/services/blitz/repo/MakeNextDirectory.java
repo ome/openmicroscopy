@@ -75,7 +75,7 @@ abstract class MakeNextDirectory {
             final long toProbe;
             if (inclusiveLower == null) {
                 /* no bounds yet */
-                toProbe = 1;
+                toProbe = 0;
                 final List<String> path = getPathFor(toProbe);
                 if (isAcceptable(path)) {
                     /* use the first of the directories */
@@ -87,7 +87,7 @@ abstract class MakeNextDirectory {
                 }
             } else if (exclusiveHigher == null) {
                 /* only a lower bound, look further */
-                toProbe = inclusiveLower << 1;
+                toProbe = inclusiveLower == 0 ? 1 : inclusiveLower << 1;
                 final List<String> path = getPathFor(toProbe);
                 if (isAcceptable(path)) {
                     /* found upper bound */
