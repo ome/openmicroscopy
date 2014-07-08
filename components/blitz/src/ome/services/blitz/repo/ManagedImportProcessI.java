@@ -322,6 +322,8 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
         req.logFile = logFile;
         final AMD_submit submit = repo.submitRequest(sf, req, this.current);
         this.handle = submit.ret;
+        // TODO: in 5.1 this should be added to the request object
+        ((ManagedImportRequestI) req).handle = submit.ret;
         return submit.ret;
     }
 

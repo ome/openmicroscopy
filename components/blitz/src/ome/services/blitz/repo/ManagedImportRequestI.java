@@ -150,6 +150,12 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
     private final String token;
 
+    /**
+     * Set by ManagedImportProcessI when verifyUpload has been called.
+     */
+    public HandlePrx handle;
+
+
     public ManagedImportRequestI(Registry reg, TileSizes sizes,
             RepositoryDao dao, OMEROWrapper wrapper, String token) {
         this.reg = reg;
