@@ -48,9 +48,12 @@ import org.jdesktop.swingx.JXTable;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
+import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEvent;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -235,12 +238,13 @@ public class SearchResultTable extends JXTable {
 
                 @Override
                 public void actionPerformed(ActionEvent arg0) {
-                    // TODO: There's no way of programmaticaly browsing to an
-                    // entity in the TreeViewer, yet. Therefore this button is
-                    // disabled for now.
+                    DataObjectSelectionEvent event = 
+                            new DataObjectSelectionEvent(obj.getClass(), obj.getId());
+                    event.setSelectTab(true);
+                    EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
+                    bus.post(event);
                 }
             });
-            button.setEnabled(false);
         }
 
         return button;
