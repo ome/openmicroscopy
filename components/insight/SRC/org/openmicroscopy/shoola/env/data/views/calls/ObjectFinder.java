@@ -52,9 +52,6 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 public class ObjectFinder 
 	extends BatchCallTree
 {
-
-    /** The maximum number of search results */
-    private static final int MAX_RESULTS = 2000;
     
 	 /** The root nodes of the found trees. */
     private Object result;
@@ -79,7 +76,7 @@ public class ObjectFinder
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                result = os.search(ctx, searchContext, MAX_RESULTS);
+                result = os.search(ctx, searchContext);
             }
         };
     	add(loadCall);

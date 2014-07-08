@@ -5023,7 +5023,7 @@ class OMEROGateway
                     service.byFullText(query, m);
                     
                     try {
-                        while (service.hasNext(m)) {
+                        if (service.hasNext(m)) {
                             List<IObject> l = service.results(m);
                             Iterator<IObject> k = l.iterator();
                             IObject object;

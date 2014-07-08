@@ -356,25 +356,6 @@ public interface OmeroDataService
 	public AdvancedSearchResultCollection search(SecurityContext ctx,
 	        SearchParameters context)
 		throws DSOutOfServiceException, DSAccessException;
-
-	/**
-         * Retrieves the objects specified by the context of the search
-         * and returns an object hosting various elements used for the display.
-         *
-         * @param ctx The security context.
-         * @param context The context of the search.
-         * @param maxResults If set (i. e. > 0) and value is exceeded 
-         *       the search will be stopped and the result's error flag
-         *       set to {@link AdvancedSearchResultCollection#TOO_MANY_RESULTS_ERROR}
-         * @return See above.
-         * @throws DSOutOfServiceException  If the connection is broken, or logged
-         *                                  in.
-         * @throws DSAccessException        If an error occurred while trying to
-         *                                  retrieve data from OMEDS service.
-         */
-	public AdvancedSearchResultCollection search(SecurityContext ctx,
-                SearchParameters context, int maxResults)
-                        throws DSOutOfServiceException, DSAccessException;
 	
 	/**
          * Retrieves the objects specified by the context of the search
