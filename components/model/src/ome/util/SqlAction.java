@@ -106,6 +106,12 @@ public interface SqlAction {
     String createIdsTempTable(Collection<Long> ids);
 
     /**
+     * Creates an insert trigger of the given name, for the given table,
+     * with the given procedure. No error handling is performed.
+     */
+    void createInsertTrigger(String name, String table, String procedure);
+
+    /**
      * Returns true if the given string is the UUID of a session that is
      * currently active.
      *
@@ -512,6 +518,14 @@ public interface SqlAction {
             t.printStackTrace(pw);
             pw.close();
             return sw.toString();
+        }
+
+        public void createInsertTrigger(String name, String table, String procedure) {
+            _jdbc().update(String.format("DROP TRIGGER IF EXISTS %s ON %s",
+                    name, table));
+            _jdbc().update(String.format("CREATE TRIGGER %s AFTER INSERT ON " +
+                    "%s FOR EACH ROW EXECUTE PROCEDURE %s",
+                    name, table, procedure));
         }
 
         public String rewriteHql(String query, String key, Object value) {
