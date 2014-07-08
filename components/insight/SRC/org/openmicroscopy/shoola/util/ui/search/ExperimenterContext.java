@@ -24,6 +24,8 @@
 package org.openmicroscopy.shoola.util.ui.search;
 
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.ExperimenterData;
 
 /**
@@ -76,7 +78,7 @@ public class ExperimenterContext {
 
             if (fName.length() + lName.length() > MAX_CHARS) {
                 int left = MAX_CHARS - fName.length();
-                lName = EditorUtil.truncate(lName, left, false);
+                lName = UIUtilities.truncate(lName, left, false);
             }
         }
         

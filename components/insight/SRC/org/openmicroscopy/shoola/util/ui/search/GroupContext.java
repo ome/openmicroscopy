@@ -30,10 +30,13 @@ import java.util.List;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import pojos.GroupData;
 import pojos.ExperimenterData;
+
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Host information about the group to search into.
@@ -68,7 +71,7 @@ public class GroupContext
 	public GroupContext(String group, long id)
 	{
                 if (group.length() > MAX_CHARS) {
-                    group = EditorUtil.truncate(group, MAX_CHARS, false);
+                    group = UIUtilities.truncate(group, MAX_CHARS, false);
                 }
 	    
 		this.group = group;
