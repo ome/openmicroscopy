@@ -20,8 +20,6 @@ import static omero.rtypes.robject;
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Timestamp;
@@ -54,6 +52,7 @@ import omero.ApiUsageException;
 import omero.RTime;
 import omero.RType;
 import omero.ServerError;
+import omero.rtypes.Conversion;
 import omero.model.PermissionsI;
 import omero.romio.BlueBand;
 import omero.romio.GreenBand;
@@ -61,7 +60,6 @@ import omero.romio.RedBand;
 import omero.romio.XY;
 import omero.romio.XZ;
 import omero.romio.ZY;
-import omero.rtypes.Conversion;
 import omero.sys.EventContext;
 import omero.sys.Filter;
 import omero.sys.Options;
@@ -355,22 +353,6 @@ public class IceMapper extends ome.util.ModelMapper implements
         se.serverExceptionClass = t.getClass().getName();
         se.serverStackTrace = stackAsString(t);
         return se;
-    }
-
-    public static String stackAsString(Throwable t) {
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        t.printStackTrace(pw);
-        Throwable cause = t.getCause();
-        while (cause != null && cause != t) {
-            cause.printStackTrace(pw);
-            t = cause;
-            cause = t.getCause();
-        }
-        pw.flush();
-        pw.close();
-
-        return sw.getBuffer().toString();
     }
 
     // Classes

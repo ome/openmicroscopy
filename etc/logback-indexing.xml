@@ -53,6 +53,7 @@
   <logger name="ome.services.blitz.impl.ServiceFactoryI" level="INFO"/>
   <logger name="ome.services.blitz.impl.OmeroMetadata" level="DEBUG"/>
   <logger name="ome.services.blitz.util.ShutdownSafeEhcacheManagerFactoryBean" level="WARN"/>
+  <logger name="ome.services.util.DBUserCheck" level="WARN"/>
   <!-- Adapters are also too so is a bit verbose -->
   <logger name="ome.adapters" level="ERROR"/>
 

@@ -527,7 +527,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
         final IceMapper mapper = new IceMapper();
 
         try {
-            return (List<Fileset>) mapper.map((ome.model.fs.Fileset)
+            return (List<Fileset>) mapper.map((List<ome.model.fs.Fileset>)
                     executor.execute(current.ctx, currentUser(current),
                             new Executor.SimpleWork(
                     this, "loadFilesets", ids) {
