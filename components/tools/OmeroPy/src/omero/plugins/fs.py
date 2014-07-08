@@ -183,6 +183,10 @@ class FsControl(BaseControl):
             "fileset",
             type=ProxyStringType("Fileset"),
             help="Fileset which should be renamed: ID or Fileset:ID")
+        rename.add_argument(
+            "--move", action="store_true",
+            help=("If admin, request that the files be "
+                  "moved server-side (Experimental!)"))
 
         repos = parser.add(sub, self.repos)
         repos.add_style_argument()
@@ -339,6 +343,11 @@ template.
         uid = self.ctx._event_context.userId
         isAdmin = self.ctx._event_context.isAdmin
         query = client.sf.getQueryService()
+
+
+        if args.move and not isAdmin:
+            self.ctx.die(109, "Must be an admin to use the --move feature")
+
         try:
             fileset = query.get("Fileset", fid, {"omero.group": "-1"})
             p = fileset.details.permissions
@@ -367,28 +376,39 @@ template.
             new_client.joinSession(session.uuid.val)
             client = new_client
 
+        tomove = []
         try:
             mrepo = client.getManagedRepository()
             root = mrepo.root()
             prefix = prep_directory(client, mrepo)
             self.ctx.err("Renaming Fileset:%s to %s" % (fid, prefix))
             tomove = rename_fileset(client, mrepo, fileset, prefix)
-            if not tomove:
-                self.ctx.die(113, "No files moved!")
-            else:
-                self.ctx.err(
-                    "Done. You will now need to move these files manually:")
-                self.ctx.err(
-                    "-----------------------------------------------------")
-                b = "".join([root.path.val, root.name.val])
-                t = "/".join([b, prefix])
-                for path in tomove:
-                    f = "/".join([b, path])
-                    cmd = "mv %s %s" % (f, t)
-                    self.ctx.out(cmd)
         finally:
             if new_client is not None:
                 new_client.__del__()
+
+        if not tomove:
+            self.ctx.die(113, "No files moved!")
+        elif args.move:
+            from omero.grid import RawAccessRequest
+            for path in tomove:
+                raw = RawAccessRequest()
+                raw.repoUuid = root.hash.val
+                raw.command = "mv"
+                raw.args = [path, prefix]
+                self.ctx.err("Moving %s to %s" % (path, prefix))
+                self.ctx._client.submit(raw)
+        else:
+            self.ctx.err(
+                "Done. You will now need to move these files manually:")
+            self.ctx.err(
+                "-----------------------------------------------------")
+            b = "".join([root.path.val, root.name.val])
+            t = "/".join([b, prefix])
+            for path in tomove:
+                f = "/".join([b, path])
+                cmd = "mv %s %s" % (f, t)
+                self.ctx.out(cmd)
 
     def repos(self, args):
         """List all repositories.
