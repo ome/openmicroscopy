@@ -83,13 +83,13 @@ class Settings(object):
         else:
             self.__global = global_values
         self.__static = {
-            "strategy": AdaptiveStrategy,
+            "strategy": PercentStrategy,
             "append": "",
             "perm_gen": "128m",
             "heap_dump": "off",
             "heap_size": "512m",
             "use_total": None,
-            "max_total": "16000",
+            "max_total": "48000",
             "min_total": "3413",
         }
         self.__manual = dict()
@@ -314,6 +314,20 @@ class PercentStrategy(Strategy):
         percent = int(self.settings.lookup("percent", default))
         return percent
 
+    def get_perm_gen(self):
+        available, active, total = self.system_memory_mb()
+        choice = self.use_active and active or total
+
+        if choice <= 4000:
+            if choice >= 2000:
+                self.settings.overwrite("perm_gen", "256m")
+        elif choice <= 8000:
+            self.settings.overwrite("perm_gen", "512m")
+        else:
+            self.settings.overwrite("perm_gen", "1g")
+
+        return super(PercentStrategy, self).get_perm_gen()
+
     def calculate_heap_size(self, method=None):
         """
         Re-calculates the appropriate heap size based on the
@@ -338,47 +352,8 @@ class PercentStrategy(Strategy):
             yield total, self.calculate_heap_size(method)
 
 
-class AdaptiveStrategy(PercentStrategy):
-    """
-    PercentStrategy which modifies its default
-    values based on the available memory
-    """
-
-    def __init__(self, name, settings=None):
-        super(AdaptiveStrategy, self).__init__(name, settings)
-        self.use_active = False
-        self.scale_settings()
-
-    def scale_settings(self):
-        """
-        Changes the default percentage for this instance
-        based on a linear interpolation of the "total"
-        memory available as reported by system_memory_mb()
-
-        Also sets the permgen value to one of 3 levels:
-        256m, 512m, or 1g
-        """
-
-        available, IGNORE, total = self.system_memory_mb()
-
-        if total <= 4000:
-            if total >= 2000:
-                self.settings.overwrite("perm_gen", "256m")
-        elif total <= 8000:
-            self.settings.overwrite("perm_gen", "512m")
-        else:
-            self.settings.overwrite("perm_gen", "1g")
-
-        cutoff = min(24000, total)
-        perc = self.get_percent()
-        x0, x1, y0, y1 = (4000, 24000, perc, 2 * perc)
-        perc = y0 + (y1 - y0) * (cutoff - x0) / (x1 - x0)
-        self.settings.overwrite("percent", perc)
-
-
 STRATEGY_REGISTRY["manual"] = ManualStrategy
 STRATEGY_REGISTRY["percent"] = PercentStrategy
-STRATEGY_REGISTRY["adaptive"] = AdaptiveStrategy
 
 
 def adjust_settings(config, template_xml,
@@ -436,7 +411,7 @@ def adjust_settings(config, template_xml,
 
 def usage_charts(path,
                  min=0, max=20,
-                 Strategy=AdaptiveStrategy, name="blitz"):
+                 Strategy=PercentStrategy, name="blitz"):
     # See http://matplotlib.org/examples/pylab_examples/anscombe.html
 
     from pylab import array

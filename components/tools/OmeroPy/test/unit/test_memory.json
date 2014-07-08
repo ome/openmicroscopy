@@ -67,9 +67,9 @@
         }
     },
     {
-        "name": "global-adaptive-4G",
+        "name": "global-percent-4G",
         "input": {
-            "omero.mem.strategy": "adaptive",
+            "omero.mem.strategy": "percent",
             "omero.mem.use_total": "4000"
         },
         "output": {
@@ -80,9 +80,9 @@
         }
     },
     {
-        "name": "global-adaptive-4G-min-1G",
+        "name": "global-percent-4G-min-1G",
         "input": {
-            "omero.mem.strategy": "adaptive",
+            "omero.mem.strategy": "percent",
             "omero.mem.use_total": "4000",
             "omero.mem.min_total": "1000"
         },
@@ -94,23 +94,49 @@
         }
     },
     {
-        "name": "global-adaptive-8G",
+        "name": "global-percent-8G",
         "input": {
-            "omero.mem.strategy": "adaptive",
+            "omero.mem.strategy": "percent",
             "omero.mem.use_total": "8000"
         },
         "output": {
             "blitz" : [
-                "-Xmx1440m",
+                "-Xmx1200m",
                 "-XX:MaxPermSize=512m"
             ]
         }
     },
     {
-        "name": "global-adaptive-24G",
+        "name": "global-percent-24G",
         "input": {
-            "omero.mem.strategy": "adaptive",
+            "omero.mem.strategy": "percent",
             "omero.mem.use_total": "24000"
+        },
+        "output": {
+            "blitz" : [
+                "-Xmx3600m",
+                "-XX:MaxPermSize=1g"
+            ]
+        }
+    },
+    {
+        "name": "global-percent-24G-max-24G",
+        "input": {
+            "omero.mem.strategy": "percent",
+            "omero.mem.use_total": "24000"
+        },
+        "output": {
+            "blitz" : [
+                "-Xmx3600m",
+                "-XX:MaxPermSize=1g"
+            ]
+        }
+    },
+    {
+        "name": "global-percent-48G-max-48G",
+        "input": {
+            "omero.mem.strategy": "percent",
+            "omero.mem.use_total": "48000"
         },
         "output": {
             "blitz" : [
@@ -120,11 +146,10 @@
         }
     },
     {
-        "name": "global-adaptive-24G-max-24G",
+        "name": "global-percent-64G-max-64G",
         "input": {
-            "omero.mem.strategy": "adaptive",
-            "omero.mem.use_total": "24000",
-            "omero.mem.max_total": "24000"
+            "omero.mem.strategy": "percent",
+            "omero.mem.use_total": "64000"
         },
         "output": {
             "blitz" : [
@@ -157,7 +182,7 @@
         "output": {
             "blitz" : [
                 "-Xmx4000m",
-                "-XX:MaxPermSize=128m"
+                "-XX:MaxPermSize=512m"
             ]
         }
     },
@@ -170,15 +195,15 @@
         "output": {
             "blitz" : [
                 "-Xmx1200m",
-                "-XX:MaxPermSize=128m"
+                "-XX:MaxPermSize=512m"
             ],
             "pixeldata" : [
                 "-Xmx1200m",
-                "-XX:MaxPermSize=128m"
+                "-XX:MaxPermSize=512m"
             ],
             "indexer" : [
                 "-Xmx800m",
-                "-XX:MaxPermSize=128m"
+                "-XX:MaxPermSize=512m"
             ]
         }
     }
