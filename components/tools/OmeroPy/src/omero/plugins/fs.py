@@ -27,6 +27,7 @@ import sys
 
 from collections import namedtuple
 
+from omero import client as Client
 from omero import ServerError
 from omero.cli import admin_only
 from omero.cli import BaseControl
@@ -35,6 +36,7 @@ from omero.cli import ProxyStringType
 
 from omero.rtypes import rstring
 from omero.rtypes import unwrap
+from omero.sys import Principal
 from omero.util.temp_files import create_path
 
 
@@ -335,6 +337,7 @@ template.
         fid = args.fileset.id.val
         client = self.ctx.conn(args)
         uid = self.ctx._event_context.userId
+        isAdmin = self.ctx._event_context.isAdmin
         query = client.sf.getQueryService()
         try:
             fileset = query.get("Fileset", fid, {"omero.group": "-1"})
@@ -343,32 +346,49 @@ template.
             gid = fileset.details.group.id.val
             if not p.canEdit():
                 self.ctx.die(110, "Cannot edit Fileset:%s" % fid)
-            elif oid != uid:
+            elif oid != uid and not isAdmin:
                 self.ctx.die(111, "Fileset:%s belongs to %s" % (fid, oid))
         except ServerError, se:
             self.ctx.die(
                 112, "Could not load Fileset:%s- %s" % (fid, se.message))
 
 
+        new_client = None
+        if oid != uid:
+            user = query.get("Experimenter", oid)
+            group = query.get("ExperimenterGroup", gid)
+            principal = Principal(
+                user.omeName.val, group.name.val, "Sessions")
+            service = client.sf.getSessionService()
+            session = service.createSessionWithTimeouts(
+                principal, 0, 30000)
+            props = client.getPropertyMap()
+            new_client = Client(props)
+            new_client.joinSession(session.uuid.val)
+            client = new_client
 
-        mrepo = client.getManagedRepository()
-        root = mrepo.root()
-        prefix = prep_directory(client, mrepo)
-        self.ctx.err("Renaming Fileset:%s to %s" % (fid, prefix))
-        tomove = rename_fileset(client, mrepo, fileset, prefix)
-        if not tomove:
-            self.ctx.die(113, "No files moved!")
-        else:
-            self.ctx.err(
-                "Done. You will now need to move these files manually:")
-            self.ctx.err(
-                "-----------------------------------------------------")
-            b = "".join([root.path.val, root.name.val])
-            t = "/".join([b, prefix])
-            for path in tomove:
-                f = "/".join([b, path])
-                cmd = "mv %s %s" % (f, t)
-                self.ctx.out(cmd)
+        try:
+            mrepo = client.getManagedRepository()
+            root = mrepo.root()
+            prefix = prep_directory(client, mrepo)
+            self.ctx.err("Renaming Fileset:%s to %s" % (fid, prefix))
+            tomove = rename_fileset(client, mrepo, fileset, prefix)
+            if not tomove:
+                self.ctx.die(113, "No files moved!")
+            else:
+                self.ctx.err(
+                    "Done. You will now need to move these files manually:")
+                self.ctx.err(
+                    "-----------------------------------------------------")
+                b = "".join([root.path.val, root.name.val])
+                t = "/".join([b, prefix])
+                for path in tomove:
+                    f = "/".join([b, path])
+                    cmd = "mv %s %s" % (f, t)
+                    self.ctx.out(cmd)
+        finally:
+            if new_client is not None:
+                new_client.__del__()
 
     def repos(self, args):
         """List all repositories.
