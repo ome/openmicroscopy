@@ -1,3 +1,8 @@
+/* Notice: This file is adjusted slightly from the original from http://code.google.com/p/guava-libraries/
+ * and from its ancestor whose bytecode is included with OMERO in com/google/common/hash/ inside guava.jar:
+ * the Java package is changed from com.google.common.hash and the @Nullable annotation is removed.
+ * It is required only for 5.0.3 <= OMERO < 5.1.0. */
+
 /*
  * Copyright (C) 2011 The Guava Authors
  *
@@ -12,7 +17,7 @@
  * the License.
  */
 
-package com.google.common.hash;
+package ome.util.checksum;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -25,8 +30,6 @@ import com.google.common.primitives.UnsignedInts;
 
 import java.io.Serializable;
 import java.security.MessageDigest;
-
-import javax.annotation.Nullable;
 
 /**
  * An immutable hash code of arbitrary bit length.
@@ -351,7 +354,7 @@ public abstract class HashCode {
   }
 
   @Override
-  public final boolean equals(@Nullable Object object) {
+  public final boolean equals(Object object) {
     if (object instanceof HashCode) {
       HashCode that = (HashCode) object;
       return bits() == that.bits() && equalsSameBits(that);
