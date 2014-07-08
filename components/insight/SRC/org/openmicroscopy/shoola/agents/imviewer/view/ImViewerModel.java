@@ -2601,40 +2601,53 @@ class ImViewerModel
 		return (image instanceof WellSampleData);
 	}
 
-	/**
-	 * Loads the bird eye view image for big image.
-	 */
-	void fireBirdEyeViewRetrieval()
-	{
-		// use the lowest resolution
-		Renderer rnd = metadataViewer.getRenderer();
-		if (rnd == null) return;
-		ResolutionLevel level = getResolutionDescription();
-		Dimension d = level.getTileSize();
-		int w = d.width;
-		int h = d.height;
-		double ratio = 1;
-		w = tiledImageSizeX;
-		h = tiledImageSizeY;
-		int ref = BIRD_EYE_SIZE_LOWER;
-		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
-		if (screen.height > 1200 && screen.height <= 1600)
-			ref = BIRD_EYE_SIZE_MEDIUM;
-		else if (screen.height > 1600)
-			ref = BIRD_EYE_SIZE_HEIGH;
-		if (w < ref || h < ref) ratio = 1;
-		else {
-			if (w >= h) ratio = (double) ref/w;
-			else ratio = (double) ref/h;
-		}
-		ratio = (double) ref/Factory.THUMB_DEFAULT_WIDTH;
-		state = ImViewer.LOADING_BIRD_EYE_VIEW;
-		BirdEyeLoader loader = new BirdEyeLoader(component, ctx, getImage(),
-				ratio);
-		loader.load();
-		loaders.put(BIRD_EYE_VIEW, loader);
-	}
+        /**
+         * Loads the bird eye view image for big image.
+         * @param scale If <code>true</code> just loads the thumbnail and scales it up (fast), 
+         *     otherwise requests the image with the intended size from the server directly (slow);
+         */
+        void fireBirdEyeViewRetrieval(boolean scale) {
+            // use the lowest resolution
+            Renderer rnd = metadataViewer.getRenderer();
+            if (rnd == null)
+                return;
+            int w = tiledImageSizeX;
+            int h = tiledImageSizeY;
+            BirdEyeLoader loader;
+            if (scale) {
+                double ratio = 1;
+                int ref = BIRD_EYE_SIZE_LOWER;
+                Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+                if (screen.height > 1200 && screen.height <= 1600)
+                    ref = BIRD_EYE_SIZE_MEDIUM;
+                else if (screen.height > 1600)
+                    ref = BIRD_EYE_SIZE_HEIGH;
+                if (w < ref || h < ref)
+                    ratio = 1;
+                else {
+                    if (w >= h)
+                        ratio = (double) ref / w;
+                    else
+                        ratio = (double) ref / h;
+                }
+                ratio = (double) ref / Factory.THUMB_DEFAULT_WIDTH;
+                state = ImViewer.LOADING_BIRD_EYE_VIEW;
+                loader = new BirdEyeLoader(component, ctx, getImage(), ratio);
+            } else {
+                int imgSize = BIRD_EYE_SIZE_LOWER;
+                Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+                if (screen.height > 1200 && screen.height <= 1600)
+                    imgSize = BIRD_EYE_SIZE_MEDIUM;
+                else if (screen.height > 1600)
+                    imgSize = BIRD_EYE_SIZE_HEIGH;
+                
+                loader = new BirdEyeLoader(component, ctx, getImage(), imgSize);
+            }
 
+            loader.load();
+            loaders.put(BIRD_EYE_VIEW, loader);
+	}
+	
 	/**
 	 * Returns the size of the tile.
 	 * 
@@ -2864,15 +2877,23 @@ class ImViewerModel
 		state = ImViewer.CANCELLED;
 	}
 	
-	/**
-	 * Sets the image for the bird eye view.
-	 * 
-	 * @param image The image to set.
-	 */
-	void setBirdEyeView(BufferedImage image)
+        /**
+         * Sets the image for the bird eye view. (If it is a scaled image, the image
+         * will be used temporary while a request for an unscaled image (better
+         * quality) is triggered)
+         * 
+         * @param image
+         *            The image to set.
+         * @param scaled
+         *            Indicates if the image is a scaled image
+         */
+	void setBirdEyeView(BufferedImage image, boolean scaled)
 	{
 		loaders.remove(BIRD_EYE_VIEW);
 		getBrowser().setBirdEyeView(image);
+		if (scaled) {
+		    fireBirdEyeViewRetrieval(false);
+		}
 	}
 
 	/** 
