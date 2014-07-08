@@ -2545,4 +2545,27 @@ public class UIUtilities
     	}
 		return text.toString();
     }
+
+    /**
+     * Returns the last characters of the name when the name is longer that the
+     * specified value.
+     *
+     * @param name The name to truncate.
+     * @param maxLength The maximum length.
+     * @param start Pass <code>true</code> to truncate the start of the word,
+     *              <code>false</code> to truncate the end.
+     * @return See above.
+     */
+    public static String truncate(String name, int maxLength, boolean start)
+    {
+        if (name == null) return "";
+        int v = maxLength+UIUtilities.DOTS.length();
+        int n = name.length();
+        if (n > v) {
+            n = n-1;
+            if (start) return UIUtilities.DOTS+name.substring(n-maxLength, n);
+            return name.substring(0, maxLength)+UIUtilities.DOTS;
+        }
+        return name;
+    }
 }
