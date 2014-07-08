@@ -295,7 +295,11 @@ module omero {
               * the import will be closed as soon as complete. This will prevent
               * clients from finding out the status of the import itself.
               **/
+
+             /*
+             DISABLE on 5.0.3
              bool autoClose;
+             */
         };
 
 
