@@ -70,7 +70,6 @@ import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.util.Target;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.AnnotationData;
@@ -723,8 +722,7 @@ class EditorComponent
 				index == RenderingControlLoader.RELOAD)
 			return;
 		ImageData image = model.getImage();
-		if (image == null) return;
-		if (image.getId() < 0) return;
+		if (image == null || image.getId() < 0) return;
 		PixelsData pixels = image.getDefaultPixels();
 		if  (pixels == null) return;
 		int value;
@@ -1184,8 +1182,12 @@ class EditorComponent
 	 */
 	public void setLargeImage(Boolean value)
 	{
+	    ImageData img = model.getImage();
+	    if (img == null) return;
 		model.setLargeImage(value);
 		view.onSizeLoaded();
+		view.handleImageSelection();
+		loadRnd();
 	}
 	
     /** 

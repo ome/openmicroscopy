@@ -3668,11 +3668,7 @@ class EditorModel
 		} catch (Exception e) {
 			//ignore
 		}
-		if (pixels == null) return false;
-		int size = 1500;
-		if (pixels.getSizeX() <= size && pixels.getSizeY() <= size)
-			return true;
-		return false;
+		return pixels != null && !isLargeImage();
 	}
 	
 	/**

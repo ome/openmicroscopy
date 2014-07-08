@@ -269,8 +269,6 @@ class MetadataViewerComponent
 	public void setMetadata(Map<DataObject, StructuredDataResults> results,
 			int loaderID)
 	{
-	    //load rnd.
-	    model.loadRnd();
 		if (results == null || results.size() == 0) return;
 		//Need to check the size of the results map.
 		Browser browser = model.getBrowser();
