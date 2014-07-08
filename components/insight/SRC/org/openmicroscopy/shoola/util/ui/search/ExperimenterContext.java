@@ -23,7 +23,6 @@
  */
 package org.openmicroscopy.shoola.util.ui.search;
 
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.ExperimenterData;
@@ -60,7 +59,7 @@ public class ExperimenterContext {
      */
     public ExperimenterContext(String experimenter, long id) {
         if(experimenter.length()>MAX_CHARS) {
-            experimenter = EditorUtil.truncate(experimenter, MAX_CHARS, false);
+            experimenter = UIUtilities.truncate(experimenter, MAX_CHARS, false);
         }
         
         this.experimenter = experimenter;
