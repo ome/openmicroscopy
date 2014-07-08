@@ -54,12 +54,12 @@ TRANSFERS = {
 Entry = namedtuple("Entry", ("level", "id", "path", "mimetype"))
 
 
-def contents(mrepo, path):
+def contents(mrepo, path, ctx=None):
     """
     Yield Entry namedtuples for each return value
     from treeList for the given path.
     """
-    tree = unwrap(mrepo.treeList(path))
+    tree = unwrap(mrepo.treeList(path, ctx))
 
     def parse(tree, level=0):
         for k, v in tree.items():
@@ -128,7 +128,7 @@ def prep_directory(client, mrepo):
     return fs.templatePrefix.val
 
 
-def rename_fileset(client, mrepo, fileset, new_dir):
+def rename_fileset(client, mrepo, fileset, new_dir, ctx=None):
     """
     Loads each OriginalFile found under orig_dir and
     updates its path field to point at new_dir. Files
@@ -139,10 +139,10 @@ def rename_fileset(client, mrepo, fileset, new_dir):
     query = client.sf.getQueryService()
     update = client.sf.getUpdateService()
     orig_dir = fileset.templatePrefix.val
-    for entry in contents(mrepo, orig_dir):
+    for entry in contents(mrepo, orig_dir, ctx):
         if entry.level == 0:
             continue
-        ofile = query.get("OriginalFile", entry.id)
+        ofile = query.get("OriginalFile", entry.id, ctx)
         if entry.level == 1:
             tomove.append(ofile.path.val + ofile.name.val)
         path = ofile.path.val
@@ -154,7 +154,7 @@ def rename_fileset(client, mrepo, fileset, new_dir):
     # TODO: placing the fileset at the end of this list
     # causes ONLY the fileset to be updated !!
     tosave.insert(0, fileset)
-    update.saveAndReturnArray(tosave)
+    update.saveAndReturnArray(tosave, ctx)
     return tomove
 
 
@@ -340,6 +340,7 @@ template.
             fileset = query.get("Fileset", fid, {"omero.group": "-1"})
             p = fileset.details.permissions
             oid = fileset.details.owner.id.val
+            gid = fileset.details.group.id.val
             if not p.canEdit():
                 self.ctx.die(110, "Cannot edit Fileset:%s" % fid)
             elif oid != uid:
@@ -347,6 +348,8 @@ template.
         except ServerError, se:
             self.ctx.die(
                 112, "Could not load Fileset:%s- %s" % (fid, se.message))
+
+
 
         mrepo = client.getManagedRepository()
         root = mrepo.root()
