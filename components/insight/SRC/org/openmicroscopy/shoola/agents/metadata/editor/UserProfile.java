@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.UserProfile 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,6 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
@@ -578,11 +579,11 @@ class UserProfile
         if (!(refObject instanceof ExperimenterData)) return false;
         ExperimenterData ref = (ExperimenterData) refObject;
         long userID = MetadataViewerAgent.getUserDetails().getId();
-        Set leaders = group.getLeaders();
+        Set<ExperimenterData> leaders = group.getLeaders();
         ExperimenterData exp;
         boolean isOwner = false;
         if (leaders != null) {
-            Iterator i = leaders.iterator();
+            Iterator<ExperimenterData> i = leaders.iterator();
             while (i.hasNext()) {
                 exp = (ExperimenterData) i.next();
                 if (exp.getId() == ref.getId()) {

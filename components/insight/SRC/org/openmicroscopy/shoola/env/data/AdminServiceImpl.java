@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.AdminServiceImpl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -379,9 +379,8 @@ class AdminServiceImpl
 			throw new IllegalArgumentException("No group to update.");
 		gateway.updateGroup(ctx, group, permissions);
 		gateway.joinSession();
-		
-		group = (GroupData) PojoMapper.asDataObject(
-				(ExperimenterGroup) gateway.findIObject(ctx, group.asGroup()));
+
+		group = gateway.loadGroups(ctx, group.getGroupId()).get(0);
 		//Review update
 		Collection groups = (Collection) context.lookup(
 				LookupNames.USER_GROUP_DETAILS);

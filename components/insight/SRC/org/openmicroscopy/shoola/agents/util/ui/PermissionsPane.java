@@ -79,7 +79,7 @@ public class PermissionsPane
 		
 	/** Warning message. */
 	private static final String WARNING = " Changing group to Private may fail if links"
-	        + " have been\n created under Read-Annotate permissions.";
+	        + " have been\n created under Read-Annotate permissions. Make the change?";
 	
 	/** Indicate that the group has <code>RWRA--</code>. */
     //private JRadioButton		collaborativeGroupBox;

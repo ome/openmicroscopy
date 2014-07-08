@@ -1,7 +1,7 @@
 /*
  * pojos.GroupData
  *
- *   Copyright 2006-2013 University of Dundee. All rights reserved.
+ *   Copyright 2006-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -111,13 +111,10 @@ public class GroupData extends DataObject {
 	public static final String DEFAULT = "default";
 
     /** All experimenters in this group */
-    private Set experimenters;
+    private Set<ExperimenterData> experimenters;
 
     /** The leaders of the group. */
-    private Set leaders;
-    
-    /** The users that belong to the group who are not owners.*/
-    private Set members;
+    private Set<ExperimenterData> leaders;
     
     /** Creates a new instance. */
     public GroupData() {
@@ -204,7 +201,7 @@ public class GroupData extends DataObject {
      * 
      * @return See above.
      */
-    public Set getLeaders() {
+    public Set<ExperimenterData> getLeaders() {
         if (leaders == null
                 && asGroup().sizeOfGroupExperimenterMap() >= 0) {
         	leaders = new HashSet<ExperimenterData>();
@@ -216,7 +213,7 @@ public class GroupData extends DataObject {
             }
         }
 
-        return leaders == null ? null : new HashSet(leaders);
+        return leaders == null ? null : new HashSet<ExperimenterData>(leaders);
     }
     
     /**
@@ -224,7 +221,7 @@ public class GroupData extends DataObject {
      * 
      * @return See above.
      */
-    public Set getExperimenters() {
+    public Set<ExperimenterData> getExperimenters() {
         if (experimenters == null
                 && asGroup().sizeOfGroupExperimenterMap() >= 0) {
             experimenters = new HashSet<ExperimenterData>();
@@ -235,7 +232,7 @@ public class GroupData extends DataObject {
             }
         }
 
-        return experimenters == null ? null : new HashSet(experimenters);
+        return experimenters == null ? null : new HashSet<ExperimenterData>(experimenters);
     }
 
     /**
@@ -243,18 +240,18 @@ public class GroupData extends DataObject {
      * 
      * @return See above.
      */
-    public Set getMembersOnly() {
-    	Set leaders = getLeaders();
-    	Set experimenters = getExperimenters();
+    public Set<ExperimenterData> getMembersOnly() {
+    	Set<ExperimenterData> leaders = getLeaders();
+    	Set<ExperimenterData> experimenters = getExperimenters();
     	if (leaders == null || leaders.size() == 0) return experimenters;
     	if (experimenters == null || experimenters.size() == 0)
     		return leaders;
     	List<Long> ids = new ArrayList<Long>(leaders.size());
-    	Iterator i = leaders.iterator();
+    	Iterator<ExperimenterData> i = leaders.iterator();
     	while (i.hasNext()) {
 			ids.add(((ExperimenterData) i.next()).getId());
 		}
-    	Set members = new HashSet();
+    	Set<ExperimenterData> members = new HashSet<ExperimenterData>();
     	i = experimenters.iterator();
     	ExperimenterData exp;
     	while (i.hasNext()) {
