@@ -31,14 +31,6 @@ import loci.formats.IFormatReader;
 import loci.formats.MissingLibraryException;
 import loci.formats.UnknownFormatException;
 import loci.formats.UnsupportedCompressionException;
-import loci.formats.in.MIASReader;
-
-import org.apache.commons.codec.binary.Hex;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
-
-import ch.qos.logback.classic.ClassicConstants;
 
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.OverlayMetadataStore;
@@ -49,6 +41,7 @@ import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.util.ErrorHandler;
 import ome.io.nio.TileSizes;
 import ome.services.blitz.fire.Registry;
+import ome.util.Utils;
 
 import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
@@ -58,6 +51,7 @@ import omero.cmd.HandlePrx;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
 import omero.cmd.Response;
+import omero.constants.namespaces.NSAUTOCLOSE;
 import omero.grid.ImportRequest;
 import omero.grid.ImportResponse;
 import omero.model.Annotation;
@@ -72,6 +66,12 @@ import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.ScriptJob;
 import omero.model.ThumbnailGenerationJob;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+
+import ch.qos.logback.classic.ClassicConstants;
 
 /**
  * Wrapper around {@link FilesetJobLink} instances which need to be handled
@@ -283,7 +283,14 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
     }
 
     private void autoClose() {
-        if (settings.autoClose) {
+        boolean autoClose = false;
+        for (Annotation a : settings.userSpecifiedAnnotationList) {
+            if (NSAUTOCLOSE.value.equals(a.getNs().getValue())) {
+                autoClose = true;
+                continue;
+            }
+        }
+        if (autoClose) {
             log.info("Auto-closing...");
             try {
                 HandlePrx handle = process.getHandle();
