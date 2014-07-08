@@ -9,7 +9,7 @@ OMERO.py |release| API documentation
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    omero/omero
    omeroweb/omeroweb
@@ -19,8 +19,6 @@ Contents:
 
 .. autosummary::
    :toctree: omeroweb
-
-.. autosummary
 
    sphinx.environment.BuildEnvironment
    sphinx.util.relative_uri
