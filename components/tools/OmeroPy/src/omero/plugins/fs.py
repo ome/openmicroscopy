@@ -344,7 +344,6 @@ template.
         isAdmin = self.ctx._event_context.isAdmin
         query = client.sf.getQueryService()
 
-
         if args.move and not isAdmin:
             self.ctx.die(109, "Must be an admin to use the --move feature")
 
@@ -360,7 +359,6 @@ template.
         except ServerError, se:
             self.ctx.die(
                 112, "Could not load Fileset:%s- %s" % (fid, se.message))
-
 
         new_client = None
         if oid != uid:
