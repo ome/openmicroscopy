@@ -22,8 +22,6 @@ package ome.util.checksum;
 import java.io.File;
 import java.nio.ByteBuffer;
 
-import com.google.common.hash.HashCode;
-
 /**
  * Trivial checksum provider whose hash is simply the number of bytes that were put into the calculation.
  * 
