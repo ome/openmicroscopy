@@ -5010,8 +5010,7 @@ class OMEROGateway
                     }
                     
                     String query = LuceneQueryBuilder.buildLuceneQuery(resolveScopeIds(context.getScope()), from, to, dateType, context.getQuery());
-
-                    System.out.println("Searching for type:" + type.getSimpleName()+ " in group:" + context.getGroupId() + " (SecurityContext.groupId="+ctx.getGroupID()+") query:" + query);
+                    dsFactory.getLogger().info(this, "Performing lucene search for type "+ type.getSimpleName()+ ": "+query);
     
                     Map<String, String> m = new HashMap<String, String>();
                     if(context.getGroupId()==SearchParameters.ALL_GROUPS_ID) {
