@@ -35,7 +35,6 @@ import java.util.List;
 import pojos.GroupData;
 import pojos.ExperimenterData;
 
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -89,7 +88,7 @@ public class GroupContext
                 String groupName = group.getName();
                 
                 if(groupName.length()>MAX_CHARS) {
-                    groupName = EditorUtil.truncate(groupName, MAX_CHARS, false);
+                    groupName = UIUtilities.truncate(groupName, MAX_CHARS, false);
                 }
             
                 this.group = groupName;
