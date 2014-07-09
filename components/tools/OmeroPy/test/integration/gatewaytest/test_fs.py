@@ -32,6 +32,7 @@ import pytest
 # Module level marker
 pytestmark = pytest.mark.fs_suite
 
+
 class TestFileset(object):
 
     @pytest.fixture(autouse=True)
@@ -45,7 +46,8 @@ class TestFileset(object):
 
         # Assume image is not imported pre-FS
         filesCount = image.countFilesetFiles()
-        assert filesCount > 0, "Imported image should be linked to original files"
+        assert filesCount > 0, \
+            "Imported image should be linked to original files"
 
         # List the 'imported image files' (from fileset), check the number
         filesInFileset = list(image.getImportedImageFiles())
