@@ -28,6 +28,7 @@ import sys
 from collections import namedtuple
 
 from omero import client as Client
+from omero import CmdError
 from omero import ServerError
 from omero.cli import admin_only
 from omero.cli import BaseControl
@@ -568,14 +569,12 @@ Examples:
                     raw.repoUuid = desc.hash.val
                     raw.command = "checksum"
                     raw.args = map(str, row)
-                    cb = client.submit(raw)
                     try:
-                        rsp = cb.getResponse()
-                        if not isinstance(rsp, OK):
-                            err = rsp
-                            break
-                    finally:
+                        cb = client.submit(raw)
                         cb.close(True)
+                    except CmdError, ce:
+                        err = ce.err
+                        self.ctx.dbg(err)
 
                 if err:
                     obj.append("ERROR!")
