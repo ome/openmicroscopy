@@ -1,4 +1,4 @@
-function projects = getProjects(session, varargin)
+function [projects, datasets] = getProjects(session, varargin)
 % GETPROJECTS Retrieve project objects from the server
 %
 %   projects = getProjects(session) returns all the projects owned by the
@@ -21,6 +21,9 @@ function projects = getProjects(session, varargin)
 %   projects identified by the input ids owned by the input owner in the
 %   context of the session group.
 %
+%   [projects, datasets] = getProjects(session, [],...) returns all the
+%   orphaned datasets in addition to all the projects.
+%
 %   Examples:
 %
 %      projects = getProjects(session);
@@ -29,11 +32,12 @@ function projects = getProjects(session, varargin)
 %      projects = getProjects(session, ids, 'owner', ownerId);
 %      projects = getProjects(session, ids, false);
 %      projects = getProjects(session, ids, false, 'owner', ownerId);
+%      [projects, datasets] = getProjects(session, [], false);
 %
 %
 % See also: GETOBJECTS, GETDATASETS, GETIMAGES
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -61,7 +65,10 @@ parameters = omero.sys.ParametersI();
 % Load the images attached to the datasets if loaded is True
 if ip.Results.loaded, parameters.leaves(); end
 
+% If more than one output arguments, set orphan
+if nargout > 1, parameters.orphan(); end
+
 % Delegate unmatched arguments check to getObjects function
 unmatchedArgs =[fieldnames(ip.Unmatched)' struct2cell(ip.Unmatched)'];
-projects = getObjects(session, 'project', ip.Results.ids, parameters,...
-    unmatchedArgs{:});
+[projects, datasets] = getObjects(session, 'project', ip.Results.ids,...
+    parameters, unmatchedArgs{:});
