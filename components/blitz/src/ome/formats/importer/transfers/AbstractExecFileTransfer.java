@@ -130,7 +130,7 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
             }
         } finally {
             if (!FileUtils.deleteQuietly(location)) {
-                log.warn("Failed to deleted {}", location);
+                log.warn("Failed to delete {}", location);
             }
         }
     }
