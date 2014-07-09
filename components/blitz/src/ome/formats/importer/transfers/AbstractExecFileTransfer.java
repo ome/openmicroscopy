@@ -41,7 +41,14 @@ import omero.model.OriginalFile;
  */
 public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
 
-    private static String SEPARATOR = System.getProperty("line.separator");
+    private static final String SEPARATOR = System.getProperty("line.separator");
+
+    private static final boolean ACTIVE_CLOSE;
+
+    static {
+        String ac = System.getProperty("omero.import.active_close");
+        ACTIVE_CLOSE = Boolean.parseBoolean(ac);
+    }
 
     /**
      * "Transfer" files by soft-linking them into place. This method is likely
@@ -113,7 +120,9 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
         try {
             rawFileStore.write(uuid.getBytes(), 0, uuid.getBytes().length);
         } finally {
-            rawFileStore.close();
+            if (ACTIVE_CLOSE) {
+                rawFileStore.close();
+            }
         }
         try {
             if (!uuid.equals(FileUtils.readFileToString(location))) {
