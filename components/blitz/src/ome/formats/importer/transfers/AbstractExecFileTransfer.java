@@ -125,12 +125,20 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
             }
         }
         try {
-            if (!uuid.equals(FileUtils.readFileToString(location))) {
+            if (!location.exists()) {
+                throw new RuntimeException(location + " does not exist!");
+            } else if (!location.canRead()) {
+                throw new RuntimeException(location + " cannot be read!");
+            } else if (!uuid.equals(FileUtils.readFileToString(location))) {
                 throw new RuntimeException("Check text not found in " + location);
             }
         } finally {
-            if (!FileUtils.deleteQuietly(location)) {
-                log.warn("Failed to delete {}", location);
+            if (!location.canWrite()) {
+                throw new RuntimeException(location + " test file cannot be modified locally!");
+            }
+            boolean deleted = FileUtils.deleteQuietly(location);
+            if (!deleted) {
+                throw new RuntimeException(location + " test file could not be cleaned up!");
             }
         }
     }
