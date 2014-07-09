@@ -13,7 +13,7 @@ function originalFile = updateOriginalFile(session, originalFile, filePath)
 %
 % See also: writeFileAnnotation, updateFileAnnotation
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -68,7 +68,6 @@ if fileLength<=lengthvec
 end
 
 fileLength1=(1:lengthvec:fileLength);
-resvec=[];
 for i=1:length(fileLength1)
     
     
@@ -91,7 +90,7 @@ for i=1:length(fileLength1)
 end
 
 % Truncate the file to fileLength in case a smaller file is uploaded
-rawFileStore.truncate(fileLength)
+rawFileStore.truncate(fileLength);
 
 % Save and close the service
 originalFile = rawFileStore.save();
