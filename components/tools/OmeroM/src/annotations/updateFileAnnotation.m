@@ -23,7 +23,7 @@ function fileAnnotation = updateFileAnnotation(session, fileAnnotation, filePath
 %        fileAnnotation = updateFileAnnotation(session, fileAnnotation,
 %        filePath, 'namespace', 'new.namespace');
 %
-% See also: createFileAnnotation, updateOriginalFile
+% See also: writeFileAnnotation, updateOriginalFile
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
