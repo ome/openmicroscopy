@@ -148,7 +148,10 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
     private List<Plate> plateList;
 
+    private boolean autoClose;
+
     private final String token;
+
 
     /**
      * Set by ManagedImportProcessI when verifyUpload has been called.
@@ -208,6 +211,8 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             annotationList = settings.userSpecifiedAnnotationList;
             doThumbnails = settings.doThumbnails == null ? true :
                 settings.doThumbnails.getValue();
+
+            detectAutoClose();
 
             fileName = file.getFullFsPath();
             shortName = file.getName();
@@ -288,14 +293,30 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         }
     }
 
-    private void autoClose() {
-        boolean autoClose = false;
+    private void detectAutoClose() {
         for (Annotation a : settings.userSpecifiedAnnotationList) {
-            if (NSAUTOCLOSE.value.equals(a.getNs().getValue())) {
+            String ns = null;
+            if (a.isLoaded()) {
+                ns = a.getNs() == null ? null : a.getNs().getValue();
+            } else {
+                if (a.getId() == null) {
+                    // not sure what we can do with this annotation then.
+                    continue;
+                }
+                ome.model.annotations.Annotation a2 =
+                    (ome.model.annotations.Annotation) helper.getSession()
+                        .get(ome.model.annotations.Annotation.class,
+                            a.getId().getValue());
+                ns = a2.getNs();
+            }
+            if (NSAUTOCLOSE.value.equals(ns)) {
                 autoClose = true;
-                continue;
+                return;
             }
         }
+    }
+
+    private void autoClose() {
         if (autoClose) {
             log.info("Auto-closing...");
             try {
