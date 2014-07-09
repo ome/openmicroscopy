@@ -72,4 +72,4 @@ if ~isempty(ip.Results.namespace),
 end
 
 % Save the file annotation
-fa = updateService.saveAndReturnObject(fa);
+fa = session.getUpdateService().saveAndReturnObject(fa);
