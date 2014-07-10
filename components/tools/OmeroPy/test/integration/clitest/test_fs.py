@@ -22,7 +22,7 @@
 from test.integration.clitest.cli import CLITest
 from omero.cli import NonZeroReturnCode
 from omero.plugins.fs import FsControl
-import omero
+
 import pytest
 
 transfers = ['ln_s', 'ln', 'ln_rm']
