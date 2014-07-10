@@ -32,6 +32,8 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -48,6 +50,8 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
@@ -4922,30 +4926,8 @@ class OMEROGateway
 
 		return new HashSet();
 	}
-        
-        /**
-         * Translates the scopeIds into field names
-         * @param scopeIds
-         * @return
-         */
-        private List<String> resolveScopeIds(List<Integer> scopeIds) {
-            List<String> result = new ArrayList<String>();
-            
-            for(Integer scopeId : scopeIds) {
-                if (scopeId == SearchParameters.NAME) {
-                    result.add("name");
-                }
-                if (scopeId == SearchParameters.DESCRIPTION) {
-                    result.add("description");
-                }
-                if (scopeId == SearchParameters.ANNOTATION) {
-                    result.add("annotation");
-                }
-            }
-            
-            return result;
-        }
-        
+
+	
 	/**
          * Searches for data.
          *
@@ -5009,9 +4991,6 @@ class OMEROGateway
                                dateType = LuceneQueryBuilder.DATE_IMPORT;
                     }
                     
-                    String query = LuceneQueryBuilder.buildLuceneQuery(resolveScopeIds(context.getScope()), from, to, dateType, context.getQuery());
-                    dsFactory.getLogger().info(this, "Performing lucene search for type "+ type.getSimpleName()+ ": "+query);
-    
                     Map<String, String> m = new HashMap<String, String>();
                     if(context.getGroupId()==SearchParameters.ALL_GROUPS_ID) {
                         m.put("omero.group", "-1");
@@ -5020,7 +4999,22 @@ class OMEROGateway
                         m.put("omero.group", ""+ctx.getGroupID());
                     }
                     
-                    service.byFullText(query, m);
+                    if (isVersion53()) {
+                        // the lucene query can be build server side
+                        DateFormat df = new SimpleDateFormat("yyyyMMdd");
+                        String fields = resolveScopeIdsAsString(context.getScope());
+                        String dFrom = from != null ? df.format(from) : null;
+                        String dTo = to != null ? df.format(to) : null;
+                        service.byLuceneQueryBuilder(fields, dFrom, dTo, dateType,
+                                context.getQuery(), m);
+                    } else {
+                        // have to build lucene query client side for versions pre 5.0.3
+                        String query = LuceneQueryBuilder.buildLuceneQuery(
+                                resolveScopeIds(context.getScope()), from, to,
+                                dateType, context.getQuery());
+                        dsFactory.getLogger().info(this, "Performing lucene search for type " + type.getSimpleName() + ": " + query);
+                        service.byFullText(query, m);
+                    }
                     
                     try {
                         if (service.hasNext(m)) {
@@ -5066,6 +5060,70 @@ class OMEROGateway
             return result;
         }
 
+	/**
+         * Translates the scopeIds into field names
+         * @param scopeIds
+         * @return
+         */
+        private List<String> resolveScopeIds(List<Integer> scopeIds) {
+            List<String> result = new ArrayList<String>();
+            
+            for(Integer scopeId : scopeIds) {
+                if (scopeId == SearchParameters.NAME) {
+                    result.add("name");
+                }
+                if (scopeId == SearchParameters.DESCRIPTION) {
+                    result.add("description");
+                }
+                if (scopeId == SearchParameters.ANNOTATION) {
+                    result.add("annotation");
+                }
+            }
+            
+            return result;
+        }
+        
+        /**
+         * Translates the scopeIds into field names as comma separated String
+         * 
+         * @param scopeIds
+         * @return
+         */
+        private String resolveScopeIdsAsString(List<Integer> scopeIds) {
+            String result = "";
+    
+            for (Integer scopeId : scopeIds) {
+                if (result.length() > 0)
+                    result += ",";
+                if (scopeId == SearchParameters.NAME) {
+                    result += "name";
+                }
+                if (scopeId == SearchParameters.DESCRIPTION) {
+                    result += "description";
+                }
+                if (scopeId == SearchParameters.ANNOTATION) {
+                    result += "annotation";
+                }
+            }
+    
+            return result;
+        }
+        
+        /**
+         * Just checks if the server is version >= 5.0.3
+         * 
+         * @return
+         * @throws DSOutOfServiceException
+         */
+        private boolean isVersion53() throws DSOutOfServiceException {
+            String tmp[] = getServerVersion().split("\\.");
+            int v1 = Integer.parseInt(tmp[0]);
+            int v2 = Integer.parseInt(tmp[1]);
+            int v3 = Integer.parseInt(tmp[2]);
+    
+            return v1 >= 5 && (v2 >= 1 || v3 >= 3);
+        }
+        
 	/**
 	 * Searches for data.
 	 *
