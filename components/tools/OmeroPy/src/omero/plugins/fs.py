@@ -27,6 +27,8 @@ import sys
 
 from collections import namedtuple
 
+from omero_ext.argparse import SUPPRESS
+
 from omero import client as Client
 from omero import CmdError
 from omero import ServerError
@@ -221,9 +223,7 @@ class FsControl(BaseControl):
             type=ProxyStringType("Fileset"),
             help="Fileset which should be renamed: ID or Fileset:ID")
         rename.add_argument(
-            "--move", action="store_true",
-            help=("If admin, request that the files be "
-                  "moved server-side (Experimental!)"))
+            "--move", action="store_true", help=SUPPRESS)
 
         repos = parser.add(sub, self.repos)
         repos.add_style_argument()
@@ -369,7 +369,7 @@ Examples:
         self.ctx.out(str(tb.build()))
 
     def rename(self, args):
-        """Moves an existing fileset to a new location.
+        """Moves an existing fileset to a new location (admin-only)
 
 After the import template (omero.fs.repo.path) has been changed,
 it may be useful to rename an existing fileset to match the new
@@ -381,8 +381,8 @@ template.
         isAdmin = self.ctx._event_context.isAdmin
         query = client.sf.getQueryService()
 
-        if args.move and not isAdmin:
-            self.ctx.die(109, "Must be an admin to use the --move feature")
+        if not isAdmin:
+            self.error_admin_only(fatal=True)
 
         try:
             fileset = query.get("Fileset", fid, {"omero.group": "-1"})
