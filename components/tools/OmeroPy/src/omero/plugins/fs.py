@@ -36,6 +36,7 @@ from omero.cli import admin_only
 from omero.cli import BaseControl
 from omero.cli import CLI
 from omero.cli import ProxyStringType
+from omero.cmd import DoAll
 
 from omero.rtypes import rstring
 from omero.rtypes import unwrap
@@ -121,10 +122,19 @@ def prep_directory(client, mrepo):
         finally:
             handle.close()
 
-        delete = Delete()
-        delete.type = "/Fileset"
-        delete.id = fs.id.val
-        cb = client.submit(delete)
+        dir = unwrap(mrepo.treeList(fs.templatePrefix.val))
+        oid = dir.items()[0][1].get("id")
+        ofile = client.sf.getQueryService().get("OriginalFile", oid)
+
+        delete1 = Delete()
+        delete1.type = "/Fileset"
+        delete1.id = fs.id.val
+        delete2 = Delete()
+        delete2.type = "/OriginalFile"
+        delete2.id = ofile.id.val
+        doall = DoAll()
+        doall.requests = [delete1, delete2]
+        cb = client.submit(doall)
         cb.close(True)
 
     finally:

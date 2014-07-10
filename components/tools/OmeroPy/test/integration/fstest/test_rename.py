@@ -146,16 +146,4 @@ class TestRename(AbstractRepoTest):
         mrepo = self.client.getManagedRepository()
         new_dir = prep_directory(self.client, mrepo)
         tree = list(contents(mrepo, new_dir))
-        assert 1 == len(tree)
-        cmd = Delete("/OriginalFile", tree[0].id)
-        cb = self.client.submit(cmd)
-        rsp = cb.getResponse()
-        raw = RawAccessRequest()
-        raw.repoUuid = mrepo.root().hash.val
-        raw.command = "exists"
-        raw.args = [new_dir]
-        try:
-            self.root.submit(raw).close(True)
-        except CmdError, ce:
-            msg = ce.err.parameters.get("message", "")
-            assert "file does not exist" in msg
+        assert 0 == len(tree)
