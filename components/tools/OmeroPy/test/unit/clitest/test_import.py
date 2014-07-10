@@ -38,6 +38,7 @@ class TestImport(object):
         if with_ds_store:
             ds_store = child / ".DS_STORE"
             ds_store.write("")
+        return child
 
     def mkfakescreen(self, screen_dir, nplates=2, nruns=2, nwells=2,
                      nfields=4, with_ds_store=False):
@@ -49,7 +50,7 @@ class TestImport(object):
                 with_ds_store=with_ds_store)
             for irun in range(nruns):
                 run_dir = self.mkdir(
-                    plate_dir, "Run00%s" % str(iplate),
+                    plate_dir, "Run00%s" % str(irun),
                     with_ds_store=with_ds_store)
                 for iwell in range(nwells):
                     well_dir = self.mkdir(
