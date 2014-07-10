@@ -3552,7 +3552,8 @@ class _BlitzGateway (object):
         return text, leadingWc
 
 
-    def searchObjects(self, obj_types, text, created=None, fields=(), batchSize=1000, page=0, searchGroup=None, ownedBy=None):
+    def searchObjects(self, obj_types, text, created=None, fields=(), batchSize=1000, page=0, searchGroup=None, ownedBy=None,
+                      useAcquisitionDate=False):
         """
         Search objects of type "Project", "Dataset", "Image", "Screen", "Plate"
         Returns a list of results
@@ -3560,6 +3561,7 @@ class _BlitzGateway (object):
         @param obj_types:   E.g. ["Dataset", "Image"]
         @param text:        The text to search for
         @param created:     L{omero.rtime} list or tuple (start, stop)
+        @param useAcquisitionDate if True, then use Image.acquisitionDate rather than import date for queries.
         @return:            List of Object wrappers. E.g. L{ImageWrapper}
         """
         if not text:
@@ -3606,6 +3608,7 @@ class _BlitzGateway (object):
 
         d_from = parse_time(created, 0)
         d_to = parse_time(created, 1)
+        d_type = useAcquisitionDate and "acquisitionDate" or "details.creationEvent.time"
 
         try:
             rv = []
@@ -3614,9 +3617,7 @@ class _BlitzGateway (object):
                     search.onlyType(t().OMERO_CLASS, ctx)
                     search.byLuceneQueryBuilder(
                         ",".join(fields),
-                        d_from, d_to,
-                        # FIXME: Hard-coded for the moment
-                        "details.creationEvent.time",
+                        d_from, d_to, d_type,
                         text, ctx)
 
                 timeit(actualSearch)()
