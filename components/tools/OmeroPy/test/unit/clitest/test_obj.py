@@ -23,8 +23,6 @@
 Test of the omero/plugins/tx.py module
 """
 
-import pytest
-
 from omero.api import IQueryPrx
 from omero.api import IUpdatePrx
 from omero.api import ServiceFactoryPrx
