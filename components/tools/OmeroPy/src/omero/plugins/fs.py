@@ -173,8 +173,6 @@ def rename_fileset(client, mrepo, fileset, new_dir, ctx=None):
     toname = parts[-2] + ".log"
     target = "/".join([topath, toname])
     source = "/".join([log.path.val, log.name.val])
-    import pdb
-    pdb.set_trace()
     tomove.append((source, target))
     log.path = rstring(topath)
     log.name = rstring(toname)
