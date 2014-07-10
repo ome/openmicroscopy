@@ -3599,7 +3599,7 @@ class _BlitzGateway (object):
                 t = c[i]
                 t = unwrap(t)
                 if t is not None:
-                    t = time.localtime(d_from/1000)
+                    t = time.localtime(t / 1000)
                     t = time.strftime("%Y%m%d", t)
                     return t
             except:
