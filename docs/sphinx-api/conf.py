@@ -44,6 +44,8 @@ release = os.environ.get('OMERO_RELEASE', 'UNKNOWN')
 
 # -- Options for HTML output ---------------------------------------------------
 
+html_theme = 'api_theme'
+
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
 html_logo = '../sphinx/common/images/ome-tight.svg'
@@ -55,7 +57,7 @@ source_suffix = '.rst'
 htmlhelp_basename = project+ ' doc'
 
 # Add any paths that contain custom themes here, relative to this directory.
-html_theme_path = ['../sphinx/common/themes']
+html_theme_path = ['../sphinx/common/themes', 'themes']
 
 # -- Options for LaTeX output --------------------------------------------------
 
