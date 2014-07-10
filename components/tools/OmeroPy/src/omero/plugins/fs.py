@@ -157,6 +157,30 @@ def rename_fileset(client, mrepo, fileset, new_dir, ctx=None):
     # TODO: placing the fileset at the end of this list
     # causes ONLY the fileset to be updated !!
     tosave.insert(0, fileset)
+
+    # And now move the log file as well:
+    from omero.sys import ParametersI
+    q = ("select o from FilesetJobLink l "
+         "join l.parent as fs join l.child as j "
+         "join j.originalFileLinks l2 join l2.child as o "
+         "where fs.id = :id and "
+         "o.mimetype = 'application/omero-log-file'")
+    log = query.findByQuery(
+        q, ParametersI().addId(fileset.id.val))
+    parts = new_dir.split("/")
+    # Final element is empty
+    topath = "/".join(parts[0:-2]+[""])
+    toname = parts[-2] + ".log"
+    target = "/".join([topath, toname])
+    source = "/".join([log.path.val, log.name.val])
+    import pdb
+    pdb.set_trace()
+    tomove.append((source, target))
+    log.path = rstring(topath)
+    log.name = rstring(toname)
+    tosave.append(log)
+
+    # Done. Save in one transaction and return tomove
     update.saveAndReturnArray(tosave, ctx)
     return tomove
 
