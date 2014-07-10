@@ -229,7 +229,7 @@ public class CommandLineImporter {
                 transfer.afterTransfer(handler.errorCount(), paths);
 
             } catch (CleanupFailure e) {
-                log.error("rcode=3 on failed cleanup");
+                log.error("Failed to cleanup {} files", e.getFailedFiles().size());
                 return 3;
             }
         }

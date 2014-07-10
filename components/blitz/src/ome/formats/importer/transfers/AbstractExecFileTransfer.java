@@ -41,6 +41,8 @@ import omero.model.OriginalFile;
  */
 public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
 
+    private static final String LINE = "\n---------------------------------------------------\n";
+
     private static final String SEPARATOR = System.getProperty("line.separator");
 
     private static final boolean ACTIVE_CLOSE;
@@ -126,21 +128,33 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
         }
         try {
             if (!location.exists()) {
-                throw new RuntimeException(location + " does not exist!");
+                throw failLocationCheck(location, "does not exist");
             } else if (!location.canRead()) {
-                throw new RuntimeException(location + " cannot be read!");
+                throw failLocationCheck(location, "cannot be read");
             } else if (!uuid.equals(FileUtils.readFileToString(location))) {
-                throw new RuntimeException("Check text not found in " + location);
+                throw failLocationCheck(location, "does not match check text");
             }
         } finally {
             if (!location.canWrite()) {
-                throw new RuntimeException(location + " test file cannot be modified locally!");
-            }
-            boolean deleted = FileUtils.deleteQuietly(location);
-            if (!deleted) {
-                throw new RuntimeException(location + " test file could not be cleaned up!");
+                throw failLocationCheck(location, "cannot be modified locally");
+            } else {
+                boolean deleted = FileUtils.deleteQuietly(location);
+                if (!deleted) {
+                    throw failLocationCheck(location, "could not be cleaned up");
+                }
             }
         }
+    }
+
+    protected RuntimeException failLocationCheck(File location, String msg) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(LINE);
+        sb.append(String.format("Check failed: %s %s!\n", location, msg));
+        sb.append("You likely do not have access to the ManagedRepository ");
+        sb.append("for in-place import.\n");
+        sb.append("Aborting...");
+        sb.append(LINE);
+        throw new RuntimeException(sb.toString());
     }
 
     /**
@@ -175,7 +189,7 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
             }
             sw.append("\n");
             sw.append("output:");
-            sw.append("\n---------------------------------------------------\n");
+            sw.append(LINE);
             String line = "";
             BufferedReader br = new BufferedReader(
                    new InputStreamReader(process.getInputStream()));
@@ -183,7 +197,7 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
                sw.append(line);
                sw.append(SEPARATOR);
             }
-            sw.append("\n---------------------------------------------------\n");
+            sw.append(LINE);
             String msg = sw.toString();
             log.error(msg);
             throw new RuntimeException(msg);
@@ -200,5 +214,9 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
      * @return
      */
     protected abstract ProcessBuilder createProcessBuilder(File file, File location);
+
+    protected void printLine() {
+        log.error("*******************************************");
+    }
 
 }
