@@ -3,13 +3,13 @@
 
 """
    Integration test focused on the BfPixelsStore API
-   
+
    This test compares data got through BFPixelsStore using
    different methods. No file needs to be imported for these
    tests. bfpixelsstoreexternal.py tests that the methods
    return the same data as the equivalent rps methods would
    for imported data.
-   
+
    Copyright 2011-2013 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
@@ -22,8 +22,6 @@ from path import path
 from omero.rtypes import *
 from test.integration.test_repository import AbstractRepoTest
 
-# Module level marker
-pytestmark = pytest.mark.fs_suite
 
 class TestRepoRawFileStore(AbstractRepoTest):
 
