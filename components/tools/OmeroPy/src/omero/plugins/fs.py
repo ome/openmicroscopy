@@ -147,7 +147,7 @@ def rename_fileset(client, mrepo, fileset, new_dir, ctx=None):
             continue
         ofile = query.get("OriginalFile", entry.id, ctx)
         if entry.level == 1:
-            tomove.append(ofile.path.val + ofile.name.val)
+            tomove.append((ofile.path.val + ofile.name.val, new_dir))
         path = ofile.path.val
         assert orig_dir in path
         repl = path.replace(orig_dir, new_dir)
@@ -390,12 +390,12 @@ template.
             self.ctx.die(113, "No files moved!")
         elif args.move:
             from omero.grid import RawAccessRequest
-            for path in tomove:
+            for from_path, to_path in tomove:
                 raw = RawAccessRequest()
                 raw.repoUuid = root.hash.val
                 raw.command = "mv"
-                raw.args = [path, prefix]
-                self.ctx.err("Moving %s to %s" % (path, prefix))
+                raw.args = [from_path, to_path]
+                self.ctx.err("Moving %s to %s" % (from_path, to_path))
                 self.ctx._client.submit(raw)
         else:
             self.ctx.err(
@@ -403,9 +403,9 @@ template.
             self.ctx.err(
                 "-----------------------------------------------------")
             b = "".join([root.path.val, root.name.val])
-            t = "/".join([b, prefix])
-            for path in tomove:
-                f = "/".join([b, path])
+            for from_path, to_path in tomove:
+                t = "/".join([b, to_path])
+                f = "/".join([b, from_path])
                 cmd = "mv %s %s" % (f, t)
                 self.ctx.out(cmd)
 

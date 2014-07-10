@@ -70,7 +70,7 @@ class TestRename(AbstractRepoTest):
 
         return rv
 
-    def fake_move(self, to_move, new_dir):
+    def fake_move(self, to_move):
         """
         This methods uses an admin-only backdoor in order to
         perform the desired move. Sysadmins would move likely
@@ -79,8 +79,8 @@ class TestRename(AbstractRepoTest):
             mv old_dir/* new_dir/
 
         """
-        for source in to_move:
-            cb = self.raw("mv", [source, new_dir], client=self.root)
+        for source, target in to_move:
+            cb = self.raw("mv", [source, target], client=self.root)
             self.assertPasses(cb)
 
     @pytest.mark.parametrize("data", (
@@ -129,4 +129,4 @@ class TestRename(AbstractRepoTest):
             assert not allowed
 
         if renamer == "root":
-            self.fake_move(to_move, new_dir)
+            self.fake_move(to_move)
