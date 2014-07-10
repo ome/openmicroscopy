@@ -1766,6 +1766,7 @@ public class UIUtilities
 	 * @param editable Pass <code>true</code> to allow users to modify the date
 	 * 				   from the editor, <code>false</code> otherwise. The
 	 *				   default value is <code>true</code>.
+	 * @param dateFormat The date format which is used for the text field
 	 * @return See above.
 	 */
 	public static JXDatePicker createDatePicker(boolean editable, String dateFormat)
@@ -1782,14 +1783,26 @@ public class UIUtilities
 	}
 	
 	/**
-	 * Creates a date picker.
+	 * Creates an editable date picker, with default
+	 * date format
 	 * 
 	 * @return See above.
 	 */
 	public static JXDatePicker createDatePicker()
 	{
-		return createDatePicker(true, UIUtilities.DATE_FORMAT);
+		return createDatePicker(true);
 	}
+	
+	/**
+         * Creates a date picker.
+         * 
+         * @param editable Makes the picker's text fields editable or not.
+         * @return See above.
+         */
+        public static JXDatePicker createDatePicker(boolean editable)
+        {
+                return createDatePicker(editable, UIUtilities.DATE_FORMAT);
+        }
 	
 	/**
 	 * Wraps up the passed text at at word boundaries (whitespace) if they are 
