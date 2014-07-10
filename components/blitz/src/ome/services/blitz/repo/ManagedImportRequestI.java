@@ -294,7 +294,16 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
     }
 
     private void detectAutoClose() {
+
+        // PythonImporter et al. may pass a null settings.
+        if (settings == null) {
+            return;
+        }
+
         for (Annotation a : settings.userSpecifiedAnnotationList) {
+            if (a == null) {
+                continue;
+            }
             String ns = null;
             if (a.isLoaded()) {
                 ns = a.getNs() == null ? null : a.getNs().getValue();
