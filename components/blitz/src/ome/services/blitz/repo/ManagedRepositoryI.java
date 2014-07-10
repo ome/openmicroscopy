@@ -1064,11 +1064,13 @@ public class ManagedRepositoryI extends PublicRepositoryI
                                 throw (RuntimeException) cause;
                             } else {
                                 final String message = "unexpected exception in expanding \"" + pattern + '"';
-                                throw new ServerError(null, null, message, cause);
+                                // TODO after dropping Ice 3.3: throw new ServerError(null, null, message, cause);
+                                throw new ServerError(null, null, message + ": " + cause);
                             }
                         } catch (/* Java SE 7 ReflectiveOperation*/Exception e) {
                             final String message = "unexpected exception in expanding \"" + pattern + '"';
-                            throw new ServerError(null, null, message, e);
+                            // TODO after dropping Ice 3.3: throw new ServerError(null, null, message, e);
+                            throw new ServerError(null, null, message + ": " + e);
                         }
                     }
                     if (!(pattern == null || oldPattern.equals(pattern))) {
