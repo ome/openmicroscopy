@@ -43,14 +43,6 @@ class TestFS(CLITest):
         self.args = ["fs", "-w", passwd]
         self.args += ["-s", host, "-p",  port]
 
-    def get_fileset(self, i):
-        params = omero.sys.ParametersI()
-        params.addIds([x.id.val for x in i])
-        query1 = "select fs from Fileset fs "\
-            "left outer join fetch fs.images as image "\
-            "where image.id in (:ids)"
-        return self.query.projection(query1, params)[0][0]
-
     def parse_ids(self, output):
         ids = []
         for line in output.split('\n')[:-1]:
