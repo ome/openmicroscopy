@@ -54,7 +54,7 @@ class TestImport(object):
                     with_ds_store=with_ds_store)
                 for iwell in range(nwells):
                     well_dir = self.mkdir(
-                        run_dir, "WellA00%s" % str(iplate),
+                        run_dir, "WellA00%s" % str(iwell),
                         with_ds_store=with_ds_store)
                     for ifield in range(nfields):
                         fieldfile = (well_dir / ("Field00%s.fake" %
