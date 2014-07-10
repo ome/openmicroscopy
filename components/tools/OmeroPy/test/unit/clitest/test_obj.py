@@ -54,7 +54,6 @@ class MockCLI(CLI):
             self._out = [out]
 
 
-@pytest.mark.cliobj
 class TxBase(object):
 
     def setup_method(self, method):
