@@ -650,9 +650,8 @@ present, the user will enter a console""")
                 self._start_service(config, descript, svc_name, pasw, user)
         else:
             if args.foreground:
-                command = ["icegridnode", "--pidfile", str(self._pid()),
-                           "--nochdir", self._icecfg(), "--deploy",
-                           str(descript)] + args.targets
+                command = ["icegridnode", "--nochdir", self._icecfg(),
+                           "--deploy", str(descript)] + args.targets
             else:
                 command = ["icegridnode", "--daemon", "--pidfile",
                            str(self._pid()), "--nochdir", self._icecfg(),
