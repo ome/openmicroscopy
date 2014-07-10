@@ -54,6 +54,7 @@ import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.FilePathNamingValidator;
 import ome.services.blitz.repo.path.FilePathRestrictionInstance;
 import ome.services.blitz.repo.path.FsFile;
+import ome.services.blitz.repo.path.MakeNextDirectory;
 import ome.services.blitz.util.ChecksumAlgorithmMapper;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
@@ -668,7 +669,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
             final MakeNextDirectory directoryMaker = new MakeNextDirectory() {
 
                 @Override
-                List<String> getPathFor(long index) {
+                public List<String> getPathFor(long index) {
                     final int hour = now.get(Calendar.HOUR_OF_DAY);
                     final int minute = now.get(Calendar.MINUTE);
                     final int second = now.get(Calendar.SECOND);
@@ -678,12 +679,12 @@ public class ManagedRepositoryI extends PublicRepositoryI
                 }
 
                 @Override
-                boolean isAcceptable(List<String> path) throws ServerError {
+                public boolean isAcceptable(List<String> path) throws ServerError {
                     return !checkPath(getFullPathWith(path), null, current).exists();
                 }
 
                 @Override
-                void usePath(List<String> path) throws ServerError {
+                public void usePath(List<String> path) throws ServerError {
                     makeDir(getFullPathWith(path), false, current);
                 }
             };
@@ -848,17 +849,17 @@ public class ManagedRepositoryI extends PublicRepositoryI
             final MakeNextDirectory directoryMaker = new MakeNextDirectory() {
 
                 @Override
-                List<String> getPathFor(long index) {
+                public List<String> getPathFor(long index) {
                     return Collections.singletonList(prefix + Strings.padStart(Long.toString(index + 1), padding, '0') + suffix);
                 }
 
                 @Override
-                boolean isAcceptable(List<String> path) throws ServerError {
+                public boolean isAcceptable(List<String> path) throws ServerError {
                     return !checkPath(getFullPathWith(path), null, current).exists();
                 }
 
                 @Override
-                void usePath(List<String> path) throws ServerError {
+                public void usePath(List<String> path) throws ServerError {
                     makeDir(getFullPathWith(path), false, current);
                 }
             };
@@ -951,17 +952,17 @@ public class ManagedRepositoryI extends PublicRepositoryI
             final MakeNextDirectory directoryMaker = new MakeNextDirectory() {
 
                 @Override
-                List<String> getPathFor(long index) {
+                public List<String> getPathFor(long index) {
                     return getExtraSubdirectories(prefix, suffix, digits, index);
                 }
 
                 @Override
-                boolean isAcceptable(List<String> path) throws ServerError {
+                public boolean isAcceptable(List<String> path) throws ServerError {
                     return directoryContentsCount(getFullPathWith(path)) < limit;
                 }
 
                 @Override
-                void usePath(List<String> path) throws ServerError {
+                public void usePath(List<String> path) throws ServerError {
                     makeDir(getFullPathWith(path), true, current);
                 }
             };

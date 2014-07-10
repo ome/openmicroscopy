@@ -17,7 +17,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package ome.services.blitz.repo;
+package ome.services.blitz.repo.path;
 
 import java.util.List;
 import java.util.Random;
@@ -32,7 +32,7 @@ import omero.ServerError;
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.0.3
  */
-abstract class MakeNextDirectory {
+public abstract class MakeNextDirectory {
     private Random rng = new Random();
 
     /**
@@ -41,7 +41,7 @@ abstract class MakeNextDirectory {
      * @param index a non-negative index
      * @return the subdirectories for that index
      */
-    abstract List<String> getPathFor(long index);
+    public abstract List<String> getPathFor(long index);
 
     /**
      * If the circumstances (filesystem, etc.) are such that it is okay to use the given subdirectories.
@@ -49,14 +49,14 @@ abstract class MakeNextDirectory {
      * @return if the path may be used
      * @throws ServerError if the path could not be tested
      */
-    abstract boolean isAcceptable(List<String> path) throws ServerError;
+    public abstract boolean isAcceptable(List<String> path) throws ServerError;
 
     /**
      * Actually use the path. For instance, may create the directory or ensure that it exists.
      * @param path the subdirectories to use
      * @throws ServerError if the path could not be used
      */
-    abstract void usePath(List<String> path) throws ServerError;
+    public abstract void usePath(List<String> path) throws ServerError;
 
     /**
      * Use the first acceptable path (that with the lowest {@code index} for {@link #getPathFor(long)})
@@ -64,7 +64,7 @@ abstract class MakeNextDirectory {
      * @return the used subdirectories
      * @throws ServerError if the first acceptable path could not be found or used
      */
-    List<String> useFirstAcceptable() throws ServerError {
+    public List<String> useFirstAcceptable() throws ServerError {
         /* highest unacceptable index found so far */
         Long inclusiveLower = null;
         /* lowest acceptable index found so far */
