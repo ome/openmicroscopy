@@ -566,6 +566,7 @@ def load_searching(request, form=None, conn=None, **kwargs):
         searchGroup = request.REQUEST.get('searchGroup', None)
         ownedBy = request.REQUEST.get('ownedBy', None)
 
+        useAcquisitionDate = toBoolean(request.REQUEST.get('useAcquisitionDate'))
         startdate = request.REQUEST.get('startdateinput', None)
         startdate = startdate is not None and smart_str(startdate) or None
         enddate = request.REQUEST.get('enddateinput', None)
@@ -582,7 +583,7 @@ def load_searching(request, form=None, conn=None, **kwargs):
             onlyTypes = ['image']
 
         # search is carried out and results are stored in manager.containers.images etc.
-        manager.search(query_search, onlyTypes, fields, searchGroup, ownedBy, date)
+        manager.search(query_search, onlyTypes, fields, searchGroup, ownedBy, useAcquisitionDate, date)
 
         try:
             searchById = long(query_search)

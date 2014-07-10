@@ -44,7 +44,7 @@ class BaseSearch(BaseController):
         BaseController.__init__(self, conn)
 
     
-    def search(self, query, onlyTypes, fields, searchGroup, ownedBy, date=None):
+    def search(self, query, onlyTypes, fields, searchGroup, ownedBy, useAcquisitionDate, date=None):
         created = None
         batchSize = 500
         if len(onlyTypes) == 1:
@@ -67,8 +67,8 @@ class BaseSearch(BaseController):
                     fields=fields,
                     batchSize=batchSize,
                     searchGroup=searchGroup,
-                    ownedBy=ownedBy))
-                
+                    ownedBy=ownedBy,
+                    useAcquisitionDate=useAcquisitionDate))
             obj_ids = [o.id for o in obj_list]
             im_annotation_counter = self.conn.getCollectionCount(searchType.title(), "annotationLinks", obj_ids)
 
