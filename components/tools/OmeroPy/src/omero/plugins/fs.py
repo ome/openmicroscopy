@@ -137,6 +137,11 @@ def rename_fileset(client, mrepo, fileset, new_dir, ctx=None):
     updates its path field to point at new_dir. Files
     are not yet moved.
     """
+
+    from omero.constants.namespaces import NSFSRENAME
+    from omero.model import CommentAnnotationI
+    from omero.model import FilesetAnnotationLinkI
+
     tomove = []
     tosave = []
     query = client.sf.getQueryService()
@@ -157,6 +162,15 @@ def rename_fileset(client, mrepo, fileset, new_dir, ctx=None):
     # TODO: placing the fileset at the end of this list
     # causes ONLY the fileset to be updated !!
     tosave.insert(0, fileset)
+
+    # Add an annotation to the fileset as well so
+    # we can detect if something's gone wrong.
+    link = FilesetAnnotationLinkI()
+    link.parent = fileset.proxy()
+    link.child = CommentAnnotationI()
+    link.child.ns = rstring(NSFSRENAME)
+    link.child.textValue = rstring("previous=%s" % orig_dir)
+    tosave.insert(1, link)
 
     # And now move the log file as well:
     from omero.sys import ParametersI

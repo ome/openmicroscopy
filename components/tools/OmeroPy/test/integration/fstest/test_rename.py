@@ -23,6 +23,7 @@
 import pytest
 
 from test.integration.test_repository import AbstractRepoTest
+from omero.constants.namespaces import NSFSRENAME
 from omero.plugins.fs import contents
 from omero.plugins.fs import prep_directory
 from omero.plugins.fs import rename_fileset
@@ -90,7 +91,7 @@ class TestRename(AbstractRepoTest):
         ("user1", "root", "rwra--", True),
         ("root", "root", "rwra--", True),
     ))
-    def test_rename(self, data):
+    def test_rename_permissions(self, data):
         owner, renamer, perms, allowed = data
         group = self.new_group(perms=perms)
         clients = {
@@ -102,14 +103,7 @@ class TestRename(AbstractRepoTest):
                                   sizeX=16, sizeY=16,
                                   with_companion=True,
                                   client=clients[owner])[0]
-
-        query = clients[owner].sf.getQueryService()
-        orig_fs = query.findByQuery((
-            "select fs from Fileset fs "
-            "join fetch fs.usedFiles uf "
-            "join fetch uf.originalFile f "
-            "join fs.images img where img.id = :id"
-        ), ParametersI().addId(orig_img.id.val))
+        orig_fs = self.get_fileset([orig_img], clients[owner])
 
         uid = orig_fs.details.owner.id.val
         gid = orig_fs.details.group.id.val
@@ -130,3 +124,17 @@ class TestRename(AbstractRepoTest):
 
         if renamer == "root":
             self.fake_move(to_move)
+
+    def test_rename_annotation(self):
+        ns = NSFSRENAME
+        mrepo = self.client.getManagedRepository()
+        orig_img = self.importMIF(with_companion=True)
+        orig_fs = self.get_fileset(orig_img)
+        new_dir = prep_directory(self.client, mrepo)
+        self.assert_rename(orig_fs, new_dir)
+        ann = self.query.projection((
+            "select a.id from FilesetAnnotationLink l "
+            "join l.child as a where l.parent.id = :id "
+            "and a.ns = :ns"),
+            ParametersI().addId(orig_fs.id).addString("ns", ns))
+        assert ann
