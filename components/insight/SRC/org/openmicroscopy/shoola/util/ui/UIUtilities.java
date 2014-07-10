@@ -1768,15 +1768,15 @@ public class UIUtilities
 	 *				   default value is <code>true</code>.
 	 * @return See above.
 	 */
-	public static JXDatePicker createDatePicker(boolean editable)
+	public static JXDatePicker createDatePicker(boolean editable, String dateFormat)
 	{
 		String[] dateFormats = new String[1];
-		dateFormats[0] = UIUtilities.DATE_FORMAT;
+		dateFormats[0] = dateFormat;
 		JXDatePicker picker = new JXDatePicker();
 		picker.setToolTipText(DATE_TOOLTIP);
 		picker.setFormats(dateFormats);
 		picker.getEditor().setBackground(BACKGROUND);
-		picker.getEditor().setColumns(6);
+		//picker.getEditor().setColumns(6);
 		picker.getEditor().setEditable(editable);
 		return picker;
 	}
@@ -1788,7 +1788,7 @@ public class UIUtilities
 	 */
 	public static JXDatePicker createDatePicker()
 	{
-		return createDatePicker(true);
+		return createDatePicker(true, UIUtilities.DATE_FORMAT);
 	}
 	
 	/**

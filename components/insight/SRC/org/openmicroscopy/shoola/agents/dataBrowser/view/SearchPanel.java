@@ -95,6 +95,11 @@ public class SearchPanel extends JPanel {
     /** The number of columns of the search areas. */
     private static final int AREA_COLUMNS = 12;
 
+    /** The date format for the date pickers */
+    private static final String DATE_PICKER_FORMAT = "yyyy/MM/dd";
+
+    private static final String DATE_TOOLTIP = "<html>Please select a date from the drop-down menu or enter<br> a date in the format Year/Month/Day (e. g. 2014/07/10)</html>";
+ 
     /** Possible time options. */
     private static String[] dateOptions;
 
@@ -207,9 +212,8 @@ public class SearchPanel extends JPanel {
         scopes = new HashMap<Integer, JCheckBox>(model.getNodes().size());
         types = new HashMap<Integer, JCheckBox>(model.getTypes().size());
         IconManager icons = IconManager.getInstance();
-        fromDate = UIUtilities.createDatePicker(true);
+        fromDate = UIUtilities.createDatePicker(true, DATE_PICKER_FORMAT);
         fromDate.setBackground(UIUtilities.BACKGROUND_COLOR);
-
         fromDate.addPropertyChangeListener("date",
                 new PropertyChangeListener() {
 
@@ -225,10 +229,12 @@ public class SearchPanel extends JPanel {
                         }
                     }
                 });
-
-        toDate = UIUtilities.createDatePicker(true);
+        fromDate.setToolTipText(DATE_TOOLTIP);
+        
+        toDate = UIUtilities.createDatePicker(true, DATE_PICKER_FORMAT);
         toDate.setBackground(UIUtilities.BACKGROUND_COLOR);
-
+        toDate.setToolTipText(DATE_TOOLTIP);
+        
         clearDate = new JButton(icons.getIcon(IconManager.CLOSE));
         clearDate.setToolTipText("Reset the dates");
         UIUtilities.unifiedButtonLookAndFeel(clearDate);
