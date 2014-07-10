@@ -23,6 +23,9 @@
 import pytest
 
 from test.integration.test_repository import AbstractRepoTest
+from omero import CmdError
+from omero.cmd import Delete
+from omero.grid import RawAccessRequest
 from omero.constants.namespaces import NSFSRENAME
 from omero.plugins.fs import contents
 from omero.plugins.fs import prep_directory
@@ -138,3 +141,21 @@ class TestRename(AbstractRepoTest):
             "and a.ns = :ns"),
             ParametersI().addId(orig_fs.id).addString("ns", ns))
         assert ann
+
+    def test_prep_and_delete(self):
+        mrepo = self.client.getManagedRepository()
+        new_dir = prep_directory(self.client, mrepo)
+        tree = list(contents(mrepo, new_dir))
+        assert 1 == len(tree)
+        cmd = Delete("/OriginalFile", tree[0].id)
+        cb = self.client.submit(cmd)
+        rsp = cb.getResponse()
+        raw = RawAccessRequest()
+        raw.repoUuid = mrepo.root().hash.val
+        raw.command = "exists"
+        raw.args = [new_dir]
+        try:
+            self.root.submit(raw).close(True)
+        except CmdError, ce:
+            msg = ce.err.parameters.get("message", "")
+            assert "file does not exist" in msg

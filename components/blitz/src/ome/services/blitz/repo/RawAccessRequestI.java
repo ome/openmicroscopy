@@ -131,7 +131,8 @@ public class RawAccessRequestI extends RawAccessRequest implements IRequest {
             return repo.rawAccess(this);
         }
         catch (Throwable t) {
-            throw helper.cancel(new ERR(), t, "raw-access");
+            throw helper.cancel(new ERR(), t, "raw-access",
+                    "command", command);
         } finally {
             log.debug("Done calling raw access for command " + command);
         }
@@ -163,6 +164,12 @@ public class RawAccessRequestI extends RawAccessRequest implements IRequest {
                 } else if (!checked.markModified()) {
                     throw new RepositoryException(null, null, "cannot touch file: " + checked);
                 }
+            }
+        } else if ("exists".equals(command)) {
+            final String arg = args.get(0);
+            final CheckedPath checked = servant.checkPath(parse(arg), null, __current);
+            if (!checked.exists()) {
+                    throw new RepositoryException(null, null, "file does not exist: " + checked);
             }
         } else if ("mkdir".equals(command)) {
             boolean parents = false;
