@@ -32,20 +32,29 @@ class TestImport(object):
         client_dir = dist_dir / "lib" / "client"
         self.args += ["--clientdir", client_dir]
 
-    def mkfakescreen(self, tmpdir, nplates=2, nruns=2, nwells=2, nfields=4):
+    def mkdir(self, parent, name, with_ds_store=False):
+        child = parent / name
+        child.mkdir()
+        if with_ds_store:
+            ds_store = child / ".DS_STORE"
+            ds_store.write("")
 
-        screen_dir = tmpdir.join("screen.fake")
-        screen_dir.mkdir()
+    def mkfakescreen(self, screen_dir, nplates=2, nruns=2, nwells=2,
+                     nfields=4, with_ds_store=False):
+
         fieldfiles = []
         for iplate in range(nplates):
-            plate_dir = screen_dir / ("Plate00%s" % str(iplate))
-            plate_dir.mkdir()
+            plate_dir = self.mkdir(
+                screen_dir, "Plate00%s" % str(iplate),
+                with_ds_store=with_ds_store)
             for irun in range(nruns):
-                run_dir = plate_dir / ("Run00%s" % str(irun))
-                run_dir.mkdir()
+                run_dir = self.mkdir(
+                    plate_dir, "Run00%s" % str(iplate),
+                    with_ds_store=with_ds_store)
                 for iwell in range(nwells):
-                    well_dir = run_dir / ("WellA00%s" % str(iwell))
-                    well_dir.mkdir()
+                    well_dir = self.mkdir(
+                        run_dir, "WellA00%s" % str(iplate),
+                        with_ds_store=with_ds_store)
                     for ifield in range(nfields):
                         fieldfile = (well_dir / ("Field00%s.fake" %
                                                  str(ifield)))
@@ -138,10 +147,14 @@ omero_cblackburn/6915/dropboxaDCjQlout']
         assert outputlines[-3] == \
             "# Group: %s SPW: false Reader: %s" % (str(fakefile), reader)
 
-    def testImportFakeScreen(self, tmpdir, capfd):
+    @pytest.mark.parametrize('with_ds_store', (True, False))
+    def testImportFakeScreen(self, tmpdir, capfd, with_ds_store):
         """Test fake screen import"""
 
-        fieldfiles = self.mkfakescreen(tmpdir)
+        screen_dir = tmpdir.join("screen.fake")
+        screen_dir.mkdir()
+        fieldfiles = self.mkfakescreen(
+            screen_dir, with_ds_store=with_ds_store)
 
         self.args += ["-f", "--debug=ERROR"]
         self.args += [str(fieldfiles[0])]
