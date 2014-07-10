@@ -498,7 +498,6 @@ Examples:
         from omero.constants.namespaces import NSFILETRANSFER
         from omero_sys_ParametersI import ParametersI
         from omero.rtypes import unwrap
-        from omero.cmd import OK
 
         client = self.ctx.conn(args)
         service = client.sf.getQueryService()
