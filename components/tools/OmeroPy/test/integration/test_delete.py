@@ -35,7 +35,6 @@ import os
 from omero.rtypes import rstring, rtime, rlist, rlong
 
 
-@pytest.mark.fs_suite
 class TestDelete(lib.ITest):
 
     def testBasicUsage(self):

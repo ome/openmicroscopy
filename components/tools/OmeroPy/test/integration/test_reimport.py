@@ -40,9 +40,6 @@ from omero.rtypes import unwrap
 from omero.sys import ParametersI
 from omero.util.temp_files import create_path
 
-# Module level marker
-pytestmark = pytest.mark.fs_suite
-
 
 class TestReimportArchivedFiles(lib.ITest):
 
