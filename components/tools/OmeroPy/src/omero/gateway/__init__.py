@@ -3508,7 +3508,7 @@ class _BlitzGateway (object):
 
         fields = [str(f) for f in fields]
         # # for each phrase or token, we strip out all non alpha-numeric
-        # except when inside double quotes. 
+        # except when inside double quotes.
         # To preserve quoted phrases we split by "
         phrases = text.split('"')
         tokens = []
@@ -3588,24 +3588,37 @@ class _BlitzGateway (object):
                 details.setOwner(omero.model.ExperimenterI(ownedBy, False))
                 search.onlyOwnedBy(details, ctx)
 
-        text, leadingWc = self.buildSearchQuery(text, fields)
-        if leadingWc:
-            search.setAllowLeadingWildcard(True, ctx)
+        # Matching OMEROGateway.search()
+        search.setAllowLeadingWildcard(True)
+        search.setCaseSentivice(False)
 
-        if len(text) == 0:
-            return []
+        def parse_time(c, i):
+            try:
+                t = c[i]
+                t = unwrap(t)
+                if t is not None:
+                    t = time.localtime(d_from/1000)
+                    t = time.strftime("%Y%m%d", t)
+                    return t
+            except:
+                pass
+            return None
 
-        logger.debug("Searching for: '%s'" % text);
+        d_from = parse_time(created, 0)
+        d_to = parse_time(created, 1)
 
         try:
-            if created:
-                search.onlyCreatedBetween(created[0], created[1], ctx);
             rv = []
             for t in types:
                 def actualSearch ():
                     search.onlyType(t().OMERO_CLASS, ctx)
-                    # search.bySomeMustNone(some, [], [])
-                    search.byFullText(text, ctx)
+                    search.byLuceneQueryBuilder(
+                        ",".join(fields),
+                        d_from, d_to,
+                        # FIXME: Hard-coded for the moment
+                        "details.creationEvent.time",
+                        text, ctx)
+
                 timeit(actualSearch)()
                 # get results
                 def searchProcessing ():
