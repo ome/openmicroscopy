@@ -184,9 +184,6 @@ public class SearchComponent
 	protected SearchPanel 			uiDelegate;
 	
 	/** Button to close the dialog. */
-	private JButton					cancelButton;
-	
-	/** Button to close the dialog. */
 	private JButton					searchButton;
 	
 	/** Component indicating the progress of the search. */
@@ -224,12 +221,6 @@ public class SearchComponent
 	private void initComponents(List<JButton> controls)
 	{
 		uiDelegate = new SearchPanel(this, controls);
-		cancelButton = new JButton();
-		cancelButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-		cancelButton.setToolTipText("Cancel the search");
-		cancelButton.setActionCommand(""+CANCEL);
-		cancelButton.setText("Cancel");
-		cancelButton.addActionListener(this);
 		searchButton = new JButton("Search");
 		searchButton.setToolTipText("Search");
 		searchButton.setActionCommand(""+SEARCH);
@@ -254,8 +245,6 @@ public class SearchComponent
 		bar.setBackground(UIUtilities.BACKGROUND_COLOR);
         bar.setBorder(null); 
         bar.add(searchButton);
-        bar.add(Box.createRigidArea(H_SPACER_SIZE));
-        bar.add(cancelButton);
         JPanel p = UIUtilities.buildComponentPanel(bar);
         p.setBackground(UIUtilities.BACKGROUND_COLOR);
         return p;
