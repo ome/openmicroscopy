@@ -23,9 +23,6 @@
 import pytest
 
 from test.integration.test_repository import AbstractRepoTest
-from omero import CmdError
-from omero.cmd import Delete
-from omero.grid import RawAccessRequest
 from omero.constants.namespaces import NSFSRENAME
 from omero.plugins.fs import contents
 from omero.plugins.fs import prep_directory
