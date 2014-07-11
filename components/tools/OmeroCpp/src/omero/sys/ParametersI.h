@@ -11,11 +11,7 @@
 
 #include <omero/System.h>
 #include <IceUtil/Config.h>
-#if ICE_INT_VERSION / 100 >= 304
-#   include <Ice/Handle.h>
-#else
-#   include <IceUtil/Handle.h>
-#endif
+#include <Ice/Handle.h>
 #include <Ice/Config.h>
 #include <iostream>
 #include <string>
@@ -35,11 +31,9 @@ namespace omero {
     }
 }
 
-#if ICE_INT_VERSION / 100 >= 304
 namespace IceInternal {
   OMERO_API ::Ice::Object* upCast(::omero::sys::ParametersI*);
 }
-#endif
 
 namespace omero {
 
@@ -55,11 +49,7 @@ namespace omero {
 	 * Until this is fixed, using the internal handle type is a
 	 * workaround.
 	 */
-#if ICE_INT_VERSION / 100 >= 304
         typedef IceInternal::Handle<ParametersI> ParametersIPtr;
-#else
-        typedef IceUtil::Handle<ParametersI> ParametersIPtr;
-#endif
 
         /*
          * Helper subclass of omero::sys::Parameters for simplifying method

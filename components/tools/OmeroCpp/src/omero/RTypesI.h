@@ -13,11 +13,7 @@
 #include <omero/RTypes.h>
 #include <Ice/Ice.h>
 #include <IceUtil/Config.h>
-#if ICE_INT_VERSION / 100 >= 304
-#   include <Ice/Handle.h>
-#else
-#   include <IceUtil/Handle.h>
-#endif
+#include <Ice/Handle.h>
 #include <string>
 #include <map>
 
@@ -45,11 +41,9 @@ namespace omero {
     }
 }
 
-#if ICE_INT_VERSION / 100 >= 304
 namespace IceInternal {
   OMERO_API ::Ice::LocalObject* upCast(::omero::rtypes::ObjectFactory*);
 }
-#endif
 
 namespace omero {
 
@@ -319,11 +313,7 @@ namespace omero {
         // ========================================================================
 
         // Conversion classes are for omero.model <--> ome.model only (no python)
-#if ICE_INT_VERSION / 100 >= 304
         typedef IceInternal::Handle<ObjectFactory> ObjectFactoryPtr;
-#else
-        typedef IceUtil::Handle<ObjectFactory> ObjectFactoryPtr;
-#endif
 
         class ObjectFactory : virtual public Ice::ObjectFactory {
         protected:

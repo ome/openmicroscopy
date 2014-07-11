@@ -8,12 +8,8 @@
 #define OMERO_CLIENTF_H
 
 #include <IceUtil/Config.h>
-#if ICE_INT_VERSION / 100 >= 304
-#   include <Ice/Handle.h>
-#   include <Ice/Object.h>
-#else
-#   include <IceUtil/Handle.h>
-#endif
+#include <Ice/Handle.h>
+#include <Ice/Object.h>
 
 #ifndef OMERO_API
 #   ifdef OMERO_API_EXPORTS
@@ -28,11 +24,9 @@ namespace omero {
     class CallbackI;
 }
 
-#if ICE_INT_VERSION / 100 >= 304
 namespace IceInternal {
   OMERO_API ::Ice::Object* upCast(::omero::CallbackI*);
 }
-#endif
 
 namespace omero {
     /*
@@ -44,11 +38,6 @@ namespace omero {
      */
     typedef IceUtil::Handle<client> client_ptr;
 
-#if ICE_INT_VERSION / 100 >= 304
     typedef IceInternal::Handle<CallbackI> CallbackIPtr;
-#else
-    typedef IceUtil::Handle<CallbackI> CallbackIPtr;
-#endif
-
 }
 #endif // OMERO_CLIENTF_H

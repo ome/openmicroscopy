@@ -12,11 +12,7 @@
 #include <omero/model/Permissions.h>
 #include <Ice/Config.h>
 #include <IceUtil/Config.h>
-#if ICE_INT_VERSION / 100 >= 304
-#   include <Ice/Handle.h>
-#else
-#   include <IceUtil/Handle.h>
-#endif
+#include <Ice/Handle.h>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -35,11 +31,9 @@ namespace omero {
   }
 }
 
-#if ICE_INT_VERSION / 100 >= 304
 namespace IceInternal {
   OMERO_API ::Ice::Object* upCast(::omero::model::PermissionsI*);
 }
-#endif
 
 namespace omero {
   namespace model {
@@ -55,11 +49,7 @@ namespace omero {
    *
    */
 
-#if ICE_INT_VERSION / 100 >= 304
   typedef IceInternal::Handle<PermissionsI> PermissionsIPtr;
-#else
-  typedef IceUtil::Handle<PermissionsI> PermissionsIPtr;
-#endif
 
 class OMERO_API PermissionsI : virtual public Permissions {
 

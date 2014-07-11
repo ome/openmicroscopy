@@ -16,11 +16,7 @@
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Config.h>
 #include <IceUtil/Thread.h>
-#if ICE_INT_VERSION / 100 >= 304
-#   include <Ice/Handle.h>
-#else
-#   include <IceUtil/Handle.h>
-#endif
+#include <Ice/Handle.h>
 #include <omero/client.h>
 #include <omero/RTypesI.h>
 #include <omero/Scripts.h>
@@ -44,12 +40,10 @@ namespace omero {
     }
 }
 
-#if ICE_INT_VERSION / 100 >= 304
 namespace IceInternal {
   OMERO_API ::Ice::Object* upCast(::omero::callbacks::ProcessCallbackI*);
   OMERO_API ::Ice::Object* upCast(::omero::callbacks::CmdCallbackI*);
 }
-#endif
 
 namespace omero {
 

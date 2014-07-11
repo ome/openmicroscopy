@@ -8,9 +8,7 @@
 
 #include <omero/model/DetailsI.h>
 
-#if ICE_INT_VERSION / 100 >= 304
 ::Ice::Object* IceInternal::upCast(::omero::model::DetailsI* p) { return p; }
-#endif
 
 namespace omero {
 
