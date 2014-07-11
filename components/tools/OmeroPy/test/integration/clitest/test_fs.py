@@ -75,11 +75,11 @@ class TestFS(CLITest):
 
         f = {}
         i0 = self.importMIF(1)
-        f[None] = self.get_fileset(i0).val
+        f[None] = self.get_fileset(i0)
 
         for transfer in transfers:
             i = self.importMIF(1, extra_args=['--transfer=%s' % transfer])
-            f[transfer] = self.get_fileset(i).val
+            f[transfer] = self.get_fileset(i)
 
         self.args += ["sets", "--style=plain"]
         self.cli.invoke(self.args, strict=True)
