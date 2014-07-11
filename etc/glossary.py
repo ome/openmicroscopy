@@ -24,6 +24,27 @@ Parser for the omero.properties file to generate RST
 mark up.
 """
 
+HEADER_MAPPING = {
+    "data": "Core",
+    "db": "Core",
+    "cluster": "Grid",
+    "grid": "Grid",
+    "checksum": "FS",
+    "fs": "FS",
+    "managed": "FS",
+    "ldap": "LDAP",
+    "sessions": "Performance",
+    "threads": "Performance",
+    "throttling": "Performance",
+    "launcher": "Scripts",
+    "process": "Scripts",
+    "scripts": "Scripts",
+    "security": "Security",
+    "resetpassword": "Security",
+    "upgrades": "Misc",
+}
+
+
 TOP = \
 """Configuration properties
 ========================
@@ -60,7 +81,7 @@ PROPERTY = \
 """
     %(key)s
 %(txt)s
-        Default: %(val)s
+        Default: "%(val)s"
 """
 
 
@@ -179,29 +200,9 @@ class PropertyParser(object):
     def __iter__(self):
         return iter(self.l)
 
-
-if __name__ == "__main__":
-    ap = argparse.ArgumentParser()
-    g = ap.add_mutually_exclusive_group()
-    g.add_argument("--rst", action="store_true")
-    g.add_argument("--dbg", action="store_true")
-    g.add_argument("--keys", action="store_true")
-    ap.add_argument("files", nargs="+")
-    ns = ap.parse_args()
-
-    pp = PropertyParser()
-
-    if ns.dbg:
-        logging.basicConfig(level=10)
-        pp.parse(ns.files)
-        for x in pp:
-            print "Found:", len(x)
-
-    elif ns.keys:
-        logging.basicConfig(level=20)
+    def data(self):
         data = defaultdict(list)
-        pp.parse(ns.files)
-        for x in pp:
+        for x in self:
             if x.key is None:
                 raise Exception("Bad key: %s" % x)
             parts = x.key.split(".")
@@ -210,24 +211,59 @@ if __name__ == "__main__":
 
             parts = parts[1:]
             data[parts[0]].append(".".join(parts[1:]))
+        return data
 
+    def headers(self):
+        data = list(self)
+        data.sort(lambda a, b: cmp(a.key, b.key))
+        headers = defaultdict(list)
+        for x in data:
+            key = x.key.split(".")[1]
+            key = HEADER_MAPPING.get(key, key.title())
+            headers[key].append(x)
+        return headers
+
+
+if __name__ == "__main__":
+    ap = argparse.ArgumentParser()
+    g = ap.add_mutually_exclusive_group()
+    g.add_argument("--rst", action="store_true")
+    g.add_argument("--dbg", action="store_true")
+    g.add_argument("--keys", action="store_true")
+    g.add_argument("--headers", action="store_true")
+    ap.add_argument("files", nargs="+")
+    ns = ap.parse_args()
+
+
+    if ns.dbg:
+        logging.basicConfig(level=10)
+    else:
+        logging.basicConfig(level=20)
+
+
+    pp = PropertyParser()
+    pp.parse(ns.files)
+
+    if ns.dbg:
+        for x in pp:
+            print "Found:", len(x)
+
+    elif ns.keys:
+        data = pp.data()
         for k, v in sorted(data.items()):
             print "%s (%s)" % (k, len(v))
             for i in v:
                 print "\t", i
 
-    elif ns.rst:
-        logging.basicConfig(level=20)
-        pp.parse(ns.files)
-        data = list(pp)
-        data.sort(lambda a, b: cmp(a.key, b.key))
-        headers = defaultdict(list)
-        for x in data:
-            key = x.key.split(".")[1]
-            headers[key].append(x)
+    elif ns.headers:
+        headers = pp.headers()
+        for k, v in sorted(headers.items()):
+            print "%s (%s)" % (k, len(v))
 
+    elif ns.rst:
         print TOP
-        for header in headers:
+        headers = pp.headers()
+        for header in sorted(headers):
             properties = ""
 
             for p in headers[header]:
@@ -243,7 +279,7 @@ if __name__ == "__main__":
             m = {"header": header,
                  "hline": hline,
                  "properties": properties,
-                 "reference": header}
+                 "reference": header.lower()}
             print HEADER % m
 
     else:
