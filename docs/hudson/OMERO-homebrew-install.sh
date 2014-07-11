@@ -96,6 +96,9 @@ else
 fi
 bin/brew install postgres
 
+# Fix for PIL installation
+ln -s /usr/local/include/freetype2 /usr/local/include/freetype
+
 # Install OMERO Python dependencies
 bash bin/omero_python_deps
 
