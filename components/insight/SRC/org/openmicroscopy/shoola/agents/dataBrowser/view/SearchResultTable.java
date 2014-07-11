@@ -48,12 +48,9 @@ import org.jdesktop.swingx.JXTable;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
-import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEvent;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
-import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -195,7 +192,7 @@ public class SearchResultTable extends JXTable {
         setModel(new SearchResultTableModel(this, data, model));
         getColumnExt(SearchResultTableModel.VIEWBUTTON_COLUMN_INDEX)
                 .setSortable(false);
-        
+
         int wI = 80;
         int wB = 140;
         int wD = 180;
@@ -218,7 +215,7 @@ public class SearchResultTable extends JXTable {
     }
 
     private JButton createActionButton(final DataObject obj) {
-        JButton button;
+        JButton button = null;
 
         if (obj instanceof ImageData) {
             button = new JButton("View");
@@ -233,18 +230,23 @@ public class SearchResultTable extends JXTable {
                 }
             });
         } else {
-            button = new JButton("Browse");
-            button.addActionListener(new ActionListener() {
+            // TODO: Have to remove the Browse Button for now; first it must
+            // be ensured that DataObjectSelectionEvent are handled properly,
+            // i. e. they also can navigate to nodes which are not yet already
+            // visible/expanded.
 
-                @Override
-                public void actionPerformed(ActionEvent arg0) {
-                    DataObjectSelectionEvent event = 
-                            new DataObjectSelectionEvent(obj.getClass(), obj.getId());
-                    event.setSelectTab(true);
-                    EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-                    bus.post(event);
-                }
-            });
+            // button = new JButton("Browse");
+            // button.addActionListener(new ActionListener() {
+            //
+            // @Override
+            // public void actionPerformed(ActionEvent arg0) {
+            // DataObjectSelectionEvent event =
+            // new DataObjectSelectionEvent(obj.getClass(), obj.getId());
+            // event.setSelectTab(true);
+            // EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
+            // bus.post(event);
+            // }
+            // });
         }
 
         return button;
@@ -271,19 +273,21 @@ public class SearchResultTable extends JXTable {
 
             if (value instanceof DataObject) {
                 final DataObject dataObj = (DataObject) value;
-                p.add(createActionButton(dataObj));
+                JButton b = createActionButton(dataObj);
+                if (b != null)
+                    p.add(b);
             } else if (value instanceof Icon) {
                 JLabel l = new JLabel((Icon) value);
                 p.add(l);
             } else {
                 String s = value.toString();
-                if(s.matches(".*\\<.*\\>.*")) {
-                    s = "<html>"+s+"</html>";
+                if (s.matches(".*\\<.*\\>.*")) {
+                    s = "<html>" + s + "</html>";
                 }
                 JLabel l = new JLabel(s);
                 p.add(l);
-                
-                if(column==1)
+
+                if (column == 1)
                     p.setLayout(new FlowLayout(FlowLayout.LEFT));
             }
 
@@ -347,7 +351,9 @@ public class SearchResultTable extends JXTable {
                         : UIUtilities.BACKGROUND_COLOUR_ODD);
 
             final DataObject dataObj = (DataObject) arg1;
-            p.add(createActionButton(dataObj));
+            JButton b = createActionButton(dataObj);
+            if (b != null)
+                p.add(b);
 
             return p;
         }
