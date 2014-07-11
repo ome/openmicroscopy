@@ -46,7 +46,7 @@ HEADER_MAPPING = {
 
 
 TOP = \
-"""Configuration properties
+    """Configuration properties
 ========================
 
 The primary form of configuration is via the use of key/value properties,
@@ -62,11 +62,10 @@ used to change those properties that you would like to customize.
 Examples of doing this are on the main :doc:`Unix <unix/server-installation>`
 and :doc:`Windows <windows/server-installation>` pages, as well as the
 :doc:`LDAP installation <server-ldap>` page.
-
 """
 
 HEADER = \
-"""
+    """
 %(header)s
 %(hline)s
 
@@ -78,11 +77,15 @@ HEADER = \
 """
 
 PROPERTY = \
-"""
+    """
     %(key)s
 %(txt)s
         Default: "%(val)s"
 """
+
+BLACK_LIST = ("##", "versions", "omero.upgrades")
+
+STOP = "### END"
 
 
 import argparse
@@ -144,16 +147,14 @@ class PropertyParser(object):
     def parse(self, argv=None):
         for line in fileinput.input(argv):
             line = line[:-1]
-            if line.startswith("### END"):
+
+            if line.startswith(STOP):
                 self.cleanup()
                 break
-            elif line.startswith("##"):
+            if self.black_list(line):
                 self.cleanup()
                 continue
             elif not line.strip():
-                self.cleanup()
-                continue
-            elif line.startswith("versions"):
                 self.cleanup()
                 continue
             elif line.startswith("#"):
@@ -168,6 +169,11 @@ class PropertyParser(object):
                 else:
                     fail("unknown line: %s" % line)
         return self.l
+
+    def black_list(self, line):
+        for x in BLACK_LIST:
+            if line.startswith(x):
+                return True
 
     def cleanup(self):
         if self.p is not None:
@@ -245,8 +251,7 @@ if __name__ == "__main__":
     pp.parse(ns.files)
 
     if ns.dbg:
-        for x in pp:
-            print "Found:", len(x)
+        print "Found:", len(list(pp))
 
     elif ns.keys:
         data = pp.data()
