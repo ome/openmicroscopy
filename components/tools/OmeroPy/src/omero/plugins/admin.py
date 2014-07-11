@@ -350,8 +350,8 @@ present, the user will enter a console""")
 
         for name in ("start", "startasync"):
             self.actions[name].add_argument(
-                "--fg", "--foreground", action="store_true", default=False,
-                help="Start server in foreground mode (no Windows service)")
+                "--foreground", action="store_true",
+                help="Start server in foreground mode (no daemon/service)")
             self.actions[name].add_argument(
                 "-u", "--user",
                 help="Service Log On As user name. If none given, the value"
