@@ -20,7 +20,7 @@ function fa = writeFileAnnotation(session, filePath, varargin)
 %        fa = writeFileAnnotation(session, filePath, 'description',
 %        description)
 %
-% See also: WRITETEXTANNOTATION
+% See also: WRITETEXTANNOTATION, updateOriginalFile
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
@@ -48,16 +48,8 @@ ip.addParamValue('namespace', '', @ischar);
 ip.addParamValue('description', '', @ischar);
 ip.parse(session, filePath, varargin{:});
 
-% Create java io File
-[~, f] = fileattrib(filePath);
-[path, name, ext] = fileparts(f.Name);
-fileLength = length(java.io.File(filePath));
-
 % Create original file
 originalFile = omero.model.OriginalFileI;
-originalFile.setName(rstring([name ext]));
-originalFile.setPath(rstring(path));
-originalFile.setSize(rlong(fileLength));
 originalFile.setHasher(omero.model.ChecksumAlgorithmI());
 originalFile.getHasher.setValue(rstring('SHA1-160'));
 
@@ -65,35 +57,7 @@ if ~isempty(ip.Results.mimetype),
     originalFile.setMimetype(rstring(ip.Results.mimetype));
 end
 
-% now we save the originalFile object
-updateService = session.getUpdateService();
-originalFile = updateService.saveAndReturnObject(originalFile);
-
-% Initialize the service to load the raw data
-rawFileStore = session.createRawFileStore();
-rawFileStore.setFileId(originalFile.getId().getValue());
-
-% Initialize provider to compute client-side checksum
-checksumProviderFactory = ome.util.checksum.ChecksumProviderFactoryImpl;
-sha1= ome.util.checksum.ChecksumType.SHA1;
-hasher = checksumProviderFactory.getProvider(sha1);
-
-%code for small file.
-fid = fopen(f.Name);
-byteArray = fread(fid,[1, fileLength], 'uint8');
-rawFileStore.write(byteArray, 0, fileLength);
-hasher.putBytes(byteArray);
-fclose(fid);
-
-% Save and close the service
-originalFile = rawFileStore.save();
-rawFileStore.close();
-
-% Compare checksums client-side and server-sid
-clientHash = char(hasher.checksumAsString());
-serverHash = char(originalFile.getHash().getValue());
-msg = 'File checksum mismatch on upload: %s (client has %s, server has %s)';
-assert(isequal(clientHash, serverHash), msg, f.Name, clientHash, serverHash);
+originalFile = updateOriginalFile(session, originalFile, filePath);
 
 % Create a file annotation
 fa = omero.model.FileAnnotationI;
@@ -108,4 +72,4 @@ if ~isempty(ip.Results.namespace),
 end
 
 % Save the file annotation
-fa = updateService.saveAndReturnObject(fa);
+fa = session.getUpdateService().saveAndReturnObject(fa);
