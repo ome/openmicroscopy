@@ -711,6 +711,7 @@ class OmeroDataServiceImpl
 		            AdvancedSearchResult res = new AdvancedSearchResult();
 		            res.setObjectId(id);
 		            res.setType(type);
+		            res.setIdMatch(true);
 		            results.add(res);
 		        }
 		    }

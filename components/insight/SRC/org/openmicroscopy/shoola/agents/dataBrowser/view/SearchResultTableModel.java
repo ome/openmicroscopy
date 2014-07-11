@@ -254,7 +254,13 @@ public class SearchResultTableModel extends DefaultTableModel {
             textWidth = fm.stringWidth(name);
         }
         
-        return name;
+        String idPrefix = null;
+        if (model.isIdMatch(obj.getClass(), obj.getId())) {
+            idPrefix = "<font color=\"#ff0000\"><b>[ID: " + obj.getId()
+                    + "]</b></font> ";
+        }
+        
+        return idPrefix!=null ? idPrefix+""+name : name;
     }
     
     @Override

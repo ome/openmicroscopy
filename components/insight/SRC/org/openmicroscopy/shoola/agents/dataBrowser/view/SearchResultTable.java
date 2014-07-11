@@ -195,19 +195,10 @@ public class SearchResultTable extends JXTable {
 
         int wI = 80;
         int wB = 140;
-        int wD = 180;
-        int wG = 200;
         getColumn(0).setMinWidth(wI);
         getColumn(0).setMaxWidth(wI);
         getColumn(0).setPreferredWidth(wI);
         getColumn(0).setWidth(wI);
-        getColumn(2).setMinWidth(wD);
-        getColumn(2).setMaxWidth(wD);
-        getColumn(2).setPreferredWidth(wD);
-        getColumn(2).setWidth(wD);
-        getColumn(3).setMaxWidth(wG);
-        getColumn(3).setPreferredWidth(wG);
-        getColumn(3).setWidth(wG);
         getColumn(4).setMinWidth(wB);
         getColumn(4).setMaxWidth(wB);
         getColumn(4).setPreferredWidth(wB);

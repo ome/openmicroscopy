@@ -38,6 +38,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
+import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResult;
 import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
@@ -62,14 +63,17 @@ public class AdvancedResultSearchModel extends DataBrowserModel {
     private static final int MAX_THUMBS = 100;
 
     /** Holds all the ImageDisplays */
-    List<ImageDisplay> displays = new ArrayList<ImageDisplay>();
+    private List<ImageDisplay> displays = new ArrayList<ImageDisplay>();
 
     /** Holds the thumbnails */
-    Map<DataObject, Thumbnail> thumbs = new HashMap<DataObject, Thumbnail>();
+    private Map<DataObject, Thumbnail> thumbs = new HashMap<DataObject, Thumbnail>();
 
     /** References to the tables to be notified when thumbs have been loaded */
-    List<SearchResultTable> tables = new ArrayList<SearchResultTable>();
+    private List<SearchResultTable> tables = new ArrayList<SearchResultTable>();
 
+    /** Reference to the search results */
+    private AdvancedSearchResultCollection results;
+    
     /**
      * Creates a new instance.
      * 
@@ -81,20 +85,24 @@ public class AdvancedResultSearchModel extends DataBrowserModel {
         super(null);
         if (results == null)
             throw new IllegalArgumentException("No results.");
+        
+        this.results = results;
 
         displays.addAll(createDisplays(results.getDataObjects(-1,
                 ProjectData.class)));
+        
+        displays.addAll(createDisplays(results.getDataObjects(-1,
+                ScreenData.class)));
+        
         displays.addAll(createDisplays(results.getDataObjects(-1,
                 DatasetData.class)));
 
+        displays.addAll(createDisplays(results.getDataObjects(-1,
+                PlateData.class)));
+        
         List<DataObject> imgs = results.getDataObjects(-1, ImageData.class);
         List<ImageDisplay> imgNodes = createDisplays(imgs);
         displays.addAll(imgNodes);
-
-        displays.addAll(createDisplays(results.getDataObjects(-1,
-                ScreenData.class)));
-        displays.addAll(createDisplays(results.getDataObjects(-1,
-                PlateData.class)));
 
         browser = BrowserFactory.createBrowser(displays);
     }
@@ -237,4 +245,20 @@ public class AdvancedResultSearchModel extends DataBrowserModel {
         }
     }
 
+    /**
+     * Checks if the search result corresponding to the provided type and id is
+     * an ID match
+     * 
+     * @param type
+     * @param id
+     * @return
+     */
+    public boolean isIdMatch(Class<? extends DataObject> type, long id) {
+        for (AdvancedSearchResult r : results) {
+            if (r.isIdMatch() && r.getObjectId() == id
+                    && r.getType().equals(type))
+                return true;
+        }
+        return false;
+    }
 }

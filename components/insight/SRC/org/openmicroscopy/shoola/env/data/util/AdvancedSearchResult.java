@@ -49,6 +49,9 @@ public class AdvancedSearchResult {
 
     /** The found object itself */
     private DataObject object;
+    
+    /** Indicates that this result is an ID match */
+    private boolean idMatch = false;
 
     /**
      * Create a new instance
@@ -155,6 +158,21 @@ public class AdvancedSearchResult {
      */
     public void setGroupId(long groupId) {
         this.groupId = groupId;
+    }
+
+    /** 
+     * Indicates if this result is an ID match 
+     */
+    public boolean isIdMatch() {
+        return idMatch;
+    }
+
+    /**
+     * Set to <code>true</code> if this result is an ID match
+     * @param idMatch
+     */
+    public void setIdMatch(boolean idMatch) {
+        this.idMatch = idMatch;
     }
 
     /**
