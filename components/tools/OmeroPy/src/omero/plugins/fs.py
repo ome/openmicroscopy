@@ -36,7 +36,6 @@ from omero.cli import admin_only
 from omero.cli import BaseControl
 from omero.cli import CLI
 from omero.cli import ProxyStringType
-from omero.cmd import DoAll
 
 from omero.rtypes import rstring
 from omero.rtypes import unwrap
@@ -86,6 +85,7 @@ def prep_directory(client, mrepo):
     """
 
     from omero.cmd import Delete
+    from omero.cmd import DoAll
     from omero.grid import ImportSettings
 
     from omero.model import ChecksumAlgorithmI
@@ -159,15 +159,33 @@ def rename_fileset(client, mrepo, fileset, new_dir, ctx=None):
     query = client.sf.getQueryService()
     update = client.sf.getUpdateService()
     orig_dir = fileset.templatePrefix.val
+
+    def parse_parent(dir):
+        """
+        Note that final elements are empty
+        """
+        parts = dir.split("/")
+        parpath = "/".join(parts[0:-2]+[""])
+        parname = parts[-2]
+        logname = parts[-2] + ".log"
+        return parpath, parname, logname
+
+    orig_parpath, orig_parname, orig_logname = parse_parent(orig_dir)
+    new_parpath, new_parname, new_logname = parse_parent(new_dir)
+
     for entry in contents(mrepo, orig_dir, ctx):
-        if entry.level == 0:
-            continue
+
         ofile = query.get("OriginalFile", entry.id, ctx)
-        if entry.level == 1:
-            tomove.append((ofile.path.val + ofile.name.val, new_dir))
         path = ofile.path.val
-        assert orig_dir in path
-        repl = path.replace(orig_dir, new_dir)
+
+        if entry.level == 0:
+            tomove.append((orig_dir, new_dir))
+            assert orig_parpath in path
+            repl = path.replace(orig_parpath, new_parpath)
+            ofile.name = rstring(new_parname)
+        else:
+            assert orig_dir in path
+            repl = path.replace(orig_dir, new_dir)
         ofile.path = rstring(repl)
         tosave.append(ofile)
     fileset.templatePrefix = rstring(new_dir)
@@ -193,16 +211,14 @@ def rename_fileset(client, mrepo, fileset, new_dir, ctx=None):
          "o.mimetype = 'application/omero-log-file'")
     log = query.findByQuery(
         q, ParametersI().addId(fileset.id.val))
-    parts = new_dir.split("/")
-    # Final element is empty
-    topath = "/".join(parts[0:-2]+[""])
-    toname = parts[-2] + ".log"
-    target = "/".join([topath, toname])
-    source = "/".join([log.path.val, log.name.val])
-    tomove.append((source, target))
-    log.path = rstring(topath)
-    log.name = rstring(toname)
-    tosave.append(log)
+
+    if log != None:
+        target = new_parpath + new_logname
+        source = orig_parpath + orig_logname
+        tomove.append((source, target))
+        log.path = rstring(new_parpath)
+        log.name = rstring(new_logname)
+        tosave.append(log)
 
     # Done. Save in one transaction and return tomove
     update.saveAndReturnArray(tosave, ctx)
