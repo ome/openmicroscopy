@@ -276,12 +276,6 @@ set(OMERO_COMMON_SOURCES
     ${OMERO_COMMON_STATIC_ICE_SOURCES}
     ${OMERO_COMMON_GENERATED_ICE_SOURCES})
 
-message(STATUS "omero-common (headers): ${OMERO_COMMON_HEADERS}")
-message(STATUS "omero-common (sources): ${OMERO_COMMON_SOURCES}")
-
-add_library(omero-common SHARED ${OMERO_COMMON_HEADERS} ${OMERO_COMMON_SOURCES})
-target_link_libraries(omero-common Ice IceUtil Glacier2)
-
 
 set(OMERO_MODEL_STATIC_MODEL_HEADERS
     src/omero/model/DetailsI.h
@@ -303,12 +297,6 @@ set(OMERO_MODEL_SOURCES
     ${OMERO_MODEL_STATIC_ICE_SOURCES}
     ${OMERO_MODEL_GENERATED_ICE_SOURCES})
 
-message(STATUS "omero-model (headers): ${OMERO_MODEL_HEADERS}")
-message(STATUS "omero-model (sources): ${OMERO_MODEL_SOURCES}")
-
-add_library(omero-model SHARED ${OMERO_MODEL_HEADERS} ${OMERO_MODEL_SOURCES})
-target_link_libraries(omero-model omero-common Ice IceUtil Glacier2)
-
 
 set(OMERO_API_STATIC_HEADERS)
 set(OMERO_API_STATIC_SOURCES)
@@ -323,12 +311,6 @@ set(OMERO_API_SOURCES
     ${OMERO_API_GENERATED_SOURCES_ABS}
     ${OMERO_API_STATIC_ICE_SOURCES}
     ${OMERO_API_GENERATED_ICE_SOURCES})
-
-message(STATUS "omero-api (headers): ${OMERO_API_HEADERS}")
-message(STATUS "omero-api (sources): ${OMERO_API_SOURCES}")
-
-add_library(omero-api SHARED ${OMERO_API_HEADERS} ${OMERO_API_SOURCES})
-target_link_libraries(omero-api omero-common Ice IceUtil Glacier2)
 
 
 set(OMERO_CLIENT_STATIC_HEADERS
@@ -365,11 +347,15 @@ set(OMERO_CLIENT_SOURCES
     ${OMERO_CLIENT_STATIC_ICE_SOURCES}
     ${OMERO_CLIENT_GENERATED_ICE_SOURCES})
 
-add_library(omero-client SHARED ${OMERO_CLIENT_HEADERS} ${OMERO_CLIENT_SOURCES})
-target_link_libraries(omero-client omero-api omero-model omero-common Ice IceUtil Glacier2)
+add_library(omero-client SHARED
+            ${OMERO_COMMON_HEADERS} ${OMERO_COMMON_SOURCES}
+            ${OMERO_MODEL_HEADERS} ${OMERO_MODEL_SOURCES}
+            ${OMERO_API_HEADERS} ${OMERO_API_SOURCES}
+            ${OMERO_CLIENT_HEADERS} ${OMERO_CLIENT_SOURCES})
+target_link_libraries(omero-client Ice IceUtil Glacier2)
 
-message(STATUS "omero-client (headers): ${OMERO_CLIENT_HEADERS}")
-message(STATUS "omero-client (sources): ${OMERO_CLIENT_SOURCES}")
+message(STATUS "omero-client (headers): ${OMERO_COMMON_HEADERS} ${OMERO_MODEL_HEADERS} ${OMERO_API_HEADERS} ${OMERO_CLIENT_HEADERS}")
+message(STATUS "omero-client (sources): ${OMERO_COMMON_SOURCES} ${OMERO_MODEL_SOURCES} ${OMERO_API_SOURCES} ${OMERO_CLIENT_SOURCES}")
 
 add_custom_target(gensrc
                   DEPENDS ${OMERO_COMMON_HEADERS} ${OMERO_COMMON_SOURCES}
@@ -377,10 +363,7 @@ add_custom_target(gensrc
                           ${OMERO_API_HEADERS} ${OMERO_API_SOURCES}
                           ${OMERO_CLIENT_HEADERS} ${OMERO_CLIENT_SOURCES})
 
-install(TARGETS omero-common
-                omero-model
-                omero-api
-                omero-client
+install(TARGETS omero-client
         LIBRARY
         DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR})
 
@@ -396,17 +379,3 @@ install(FILES ${OMERO_CLIENT_STATIC_UTIL_HEADERS}
 
 add_subdirectory(test)
 add_subdirectory(utils)
-
-#set(test_headers_SOURCES "")
-#file(MAKE_DIRECTORY gen/test/headers)
-#foreach(header ${MODEL_GENERATED_MODEL_HEADERS} ${MODEL_GENERATED_ENUM_HEADERS} ${OMERO_STATIC_HEADERS})
-#  string(REPLACE "/" "_" genheader ${header})
-#  string(REGEX REPLACE "\\.h$" ".cpp" genheader ${genheader})
-#  string(REGEX REPLACE "^(gen|src)/" "" include ${header})
-#  string(CONFIGURE "#include <@include@>" src)
-#  file(WRITE "gen/test/headers/${genheader}" "${src}")
-#  list(APPEND test_headers_SOURCES "gen/test/headers/${genheader}")
-##  set(test_headers_SOURCES ${test_headers_SOURCES} PARENT_SCOPE )
-#endforeach(header)
-#add_executable(test/headers test/headers.cpp ${test_headers_SOURCES})
-#target_link_libraries(test/headers omero-client)
