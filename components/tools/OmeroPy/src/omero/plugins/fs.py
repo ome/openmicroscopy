@@ -212,7 +212,7 @@ def rename_fileset(client, mrepo, fileset, new_dir, ctx=None):
     log = query.findByQuery(
         q, ParametersI().addId(fileset.id.val))
 
-    if log != None:
+    if log is not None:
         target = new_parpath + new_logname
         source = orig_parpath + orig_logname
         tomove.append((source, target))
