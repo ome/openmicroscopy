@@ -27,8 +27,6 @@ import java.util.List;
  * Local-only file transfer mechanism which makes use of hard-linking
  * followed by the deletion of the original source file.
  *
- * This is only useful where the command "ln source target" will work.
- *
  * @since 5.0
  */
 public class MoveFileTransfer extends HardlinkFileTransfer {
@@ -40,14 +38,14 @@ public class MoveFileTransfer extends HardlinkFileTransfer {
     public void afterTransfer(int errors, List<String> srcFiles) throws CleanupFailure {
 
         if (errors > 0) {
-            log.error("*******************************************");
+            printLine();
             log.error("{} error(s) found.", errors);
             log.error("MoveFileTransfer cleanup not performed!", errors);
             log.error("The following files will *not* be deleted:");
             for (String srcFile : srcFiles) {
                 log.error("\t{}", srcFile);
             }
-            log.error("*******************************************");
+            printLine();
             return;
         }
 
@@ -66,6 +64,14 @@ public class MoveFileTransfer extends HardlinkFileTransfer {
         }
 
         if (!failedFiles.isEmpty()) {
+            printLine();
+            log.error("Cleanup failed!", errors);
+            log.error("{} files could not be removed and will need to " +
+                "be handled manually", failedFiles.size());
+            for (File failedFile : failedFiles) {
+                log.error("\t{}", failedFile.getAbsolutePath());
+            }
+            printLine();
             throw new CleanupFailure(failedFiles);
         }
     }

@@ -21,19 +21,22 @@ package ome.formats.importer.transfers;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Local-only file transfer mechanism which makes use of hard-linking.
  *
- * This is only useful where the command "ln source target" will work.
+ * This is only useful where the commands "ln source target" (Unix) or
+ * "mklink /H source target" (Windows) will work.
  *
  * @since 5.0
  */
 public class HardlinkFileTransfer extends AbstractExecFileTransfer {
 
     /**
-     * Executes "ln file location" and fails on non-0 return codes.
+     * Executes "ln file location" (Unix) or "mklink /H file location" (Windows)
+     * and fails on non-0 return codes.
      *
      * @param file
      * @param location
@@ -42,8 +45,20 @@ public class HardlinkFileTransfer extends AbstractExecFileTransfer {
      */
     protected ProcessBuilder createProcessBuilder(File file, File location) {
         ProcessBuilder pb = new ProcessBuilder();
-        // Doesn't currently support Windows
-        pb.command("ln", file.getAbsolutePath(), location.getAbsolutePath());
+        List<String> args = new ArrayList<String>();
+        if (isWindows()) {
+            args.add("cmd");
+            args.add("/c");
+            args.add("mklink");
+            args.add("/H");
+            args.add(location.getAbsolutePath());
+            args.add(file.getAbsolutePath());
+        } else {
+            args.add("ln");
+            args.add(file.getAbsolutePath());
+            args.add(location.getAbsolutePath());
+        }
+        pb.command(args);
         return pb;
     }
 

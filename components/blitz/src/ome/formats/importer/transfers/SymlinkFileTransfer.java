@@ -21,18 +21,22 @@ package ome.formats.importer.transfers;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Local-only file transfer mechanism which makes use of soft-linking.
- * This is only useful where the command "ln -s source target" will work.
+ *
+ *  This is only useful where the commands "ln -s source target" (Unix) or
+ * "mklink source target" (Windows) will work.
  *
  * @since 5.0
  */
 public class SymlinkFileTransfer extends AbstractExecFileTransfer {
 
     /**
-     * Executes "ln -s file location" and fails on non-0 return codes.
+     * Executes "ln -s file location" (Unix) or "mklink file location" (Windows)
+     * and fails on non-0 return codes.
      *
      * @param file
      * @param location
@@ -41,7 +45,20 @@ public class SymlinkFileTransfer extends AbstractExecFileTransfer {
      */
     protected ProcessBuilder createProcessBuilder(File file, File location) {
         ProcessBuilder pb = new ProcessBuilder();
-        pb.command("ln", "-s", file.getAbsolutePath(), location.getAbsolutePath());
+        List<String> args = new ArrayList<String>();
+        if (isWindows()) {
+            args.add("cmd");
+            args.add("/c");
+            args.add("mklink");
+            args.add(location.getAbsolutePath());
+            args.add(file.getAbsolutePath());
+        } else {
+            args.add("ln");
+            args.add("-s");
+            args.add(file.getAbsolutePath());
+            args.add(location.getAbsolutePath());
+        }
+        pb.command(args);
         return pb;
     }
 

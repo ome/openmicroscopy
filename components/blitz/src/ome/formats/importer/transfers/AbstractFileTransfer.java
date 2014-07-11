@@ -123,6 +123,8 @@ public abstract class AbstractFileTransfer implements FileTransfer {
             if (rawFileStore != null) {
                 try {
                     rawFileStore.close();
+                } catch (Ice.ObjectNotExistException onne) {
+                    // already closed by checkLocation or similar.
                 } catch (Exception e) {
                     log.error("error in closing raw file store", e);
                 }
@@ -138,4 +140,14 @@ public abstract class AbstractFileTransfer implements FileTransfer {
         }
 
     }
+
+    /**
+     * Uses os.name to determine whether or not this JVM is running
+     * under Windows. This is mostly used for determining which executables
+     * to run.
+     */
+    protected boolean isWindows() {
+        return System.getProperty("os.name").startsWith("Windows");
+    }
+
 }
