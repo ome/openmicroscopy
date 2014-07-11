@@ -64,17 +64,17 @@ class TestRename(AbstractRepoTest):
 
         # Before the move the new location should be empty
         assert 3 == len(list(contents(mrepo, orig_dir, ctx)))
-        assert 1 == len(list(contents(mrepo, new_dir, ctx)))
+        assert 0 == len(list(contents(mrepo, new_dir, ctx)))
 
         rv = rename_fileset(client, mrepo, fileset, new_dir, ctx=ctx)
 
         # After the move, the old location should be empty
-        assert 1 == len(list(contents(mrepo, orig_dir, ctx)))
+        assert 0 == len(list(contents(mrepo, orig_dir, ctx)))
         assert 3 == len(list(contents(mrepo, new_dir, ctx)))
 
         return rv
 
-    def fake_move(self, to_move):
+    def fake_move(self, tomove):
         """
         This methods uses an admin-only backdoor in order to
         perform the desired move. Sysadmins would move likely
@@ -83,7 +83,7 @@ class TestRename(AbstractRepoTest):
             mv old_dir/* new_dir/
 
         """
-        for source, target in to_move:
+        for source, target in tomove:
             cb = self.raw("mv", [source, target], client=self.root)
             self.assertPasses(cb)
 
@@ -119,14 +119,14 @@ class TestRename(AbstractRepoTest):
 
         new_dir = prep_directory(client, mrepo)
         try:
-            to_move = self.assert_rename(
+            tomove = self.assert_rename(
                 orig_fs, new_dir, client=client, mrepo=mrepo, ctx=ctx)
             assert allowed
         except SecurityViolation:
             assert not allowed
 
         if renamer == "root":
-            self.fake_move(to_move)
+            self.fake_move(tomove)
 
     def test_rename_annotation(self):
         ns = NSFSRENAME
