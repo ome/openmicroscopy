@@ -61,7 +61,7 @@ try
     store.logVersionInfo(config.getIniVersionNumber());t2=toc;
     
     %CZI job paths (Column 1 : Ticket or PR number);
-    czi_job={9398,'/ome/data_repo/from_skyking/zeiss-czi/greg';11204,'/ome/apache_repo/7405';12003,'/ome/data_repo/from_skyking/zeiss-czi/stephane/AO5.czi';11166,'/ome/data_repo/from_skyking/zeiss-czi/zeiss/zen-2012/ApoTome';11166,'/ome/data_repo/from_skyking/zeiss-czi/zeiss/zen-2012/CellObserver SD';11233,'/ome/team/rleigh/7601';11233,'/ome/apache_repo/7601';11784,'/ome/team/rleigh/7771';12189,'/ome/data_repo/from_Biozentrum_Basel/Charles/SPIM/large_timeseries_700GB/'};
+    czi_job={9398,'/ome/data_repo/from_skyking/zeiss-czi/greg';11204,'/ome/apache_repo/7405';12003,'/ome/data_repo/from_skyking/zeiss-czi/stephane/AO5.czi';11166,'/ome/data_repo/from_skyking/zeiss-czi/zeiss/zen-2012/ApoTome';11166,'/ome/data_repo/from_skyking/zeiss-czi/zeiss/zen-2012/CellObserver SD';11233,'/ome/apache_repo/7601';12189,'/ome/data_repo/from_Biozentrum_Basel/Charles/SPIM/large_timeseries_700GB/'};
     czi_job{10,1}=1123;%This is the PR number
     czi_job{10,2}='/ome/data_repo/from_Dresden/Pavel_Tomancak/Dmel';%Please make sure the .pattern file exists within this directory
     
