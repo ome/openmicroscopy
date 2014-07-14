@@ -315,12 +315,15 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
         // TODO: Should eventually be from a new omero.client
         req.clientUuid = UUID.randomUUID().toString();
         req.repoUuid = repo.getRepoUuid();
+        req.process = this.proxy;
         req.activity = link;
         req.location = location;
         req.settings = settings;
         req.logFile = logFile;
         final AMD_submit submit = repo.submitRequest(sf, req, this.current);
         this.handle = submit.ret;
+        // TODO: in 5.1 this should be added to the request object
+        ((ManagedImportRequestI) req).handle = submit.ret;
         return submit.ret;
     }
 

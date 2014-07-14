@@ -147,3 +147,25 @@ class TestCliImport(lib.ITest):
         assert 1 == len(ann)
         assert "test" == ann[0].ns.val
         assert "test" == ann[0].textValue.val
+
+    def testAutoClose(self):
+        fixture = Fixture(*self.new_client_and_user())
+
+        pix = self.import_image(
+            filename=fixture.img,
+            client=fixture.client,
+            extra_args=["--auto_close"])
+
+        assert len(pix) == 0
+
+        # Check that there are no servants leftover
+        stateful = []
+        for x in range(10):
+            stateful = fixture.client.getStatefulServices()
+            if stateful:
+                import time
+                time.sleep(0.5)  # Give the backend some time to close
+            else:
+                break
+
+        assert len(stateful) == 0
