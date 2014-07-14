@@ -368,6 +368,7 @@ def adjust_settings(config, template_xml,
     from xml.etree.ElementTree import Element
     from collections import defaultdict
 
+    replacements = dict()
     options = dict()
     for template in template_xml.findall("server-template"):
         for server in template.findall("server"):
@@ -375,6 +376,11 @@ def adjust_settings(config, template_xml,
                 o = option.text
                 if o.startswith("MEMORY:"):
                     options[o[7:]] = (server, option)
+            for props in server.findall("properties"):
+                for prop in props.findall("property"):
+                    name = prop.attrib.get("name", "")
+                    if name.startswith("REPLACEMENT:"):
+                        replacements[name[12:]] = (server, prop)
 
     rv = defaultdict(list)
     m = config.as_map()
@@ -399,13 +405,34 @@ def adjust_settings(config, template_xml,
         idx = 0
         for v in settings:
             rv[name].append(v)
-            if idx == 1:
+            if idx == 0:
                 option.text = v
             else:
                 elem = Element("option")
                 elem.text = v
                 server.insert(idx, elem)
             idx += 1
+
+        # Now we check for any other properties and
+        # put them where the replacement should go.
+        for k, v in m.items():
+            r = []
+            suffix = ".%s" % name
+            size = len(suffix)
+            if k.endswith(suffix):
+                k = k[:-size]
+                r.append((k, v))
+
+        server, replacement = replacements[name]
+        idx = 0
+        for k, v in r:
+            if idx == 0:
+                replacement.attrib["name"] = k
+                replacement.attrib["value"] = v
+            else:
+                elem = Element("property", name=k, value=v)
+                server.append(elem)
+
     return rv
 
 
