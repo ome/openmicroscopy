@@ -544,18 +544,20 @@ Examples:
         if args.check and not admin.getEventContext().isAdmin:
             self.error_admin_only(fatal=True)
 
+        annselect = (
+            "(select ann.textValue from Fileset f4 "
+             "join f4.annotationLinks fal join fal.child ann "
+             "where f4.id = fs.id and ann.ns =:ns) ")
         select = (
             "select fs.id, fs.templatePrefix, "
             "(select size(f2.images) from Fileset f2 where f2.id = fs.id),"
-            "(select size(f3.usedFiles) from Fileset f3 where f3.id = fs.id),"
-            "ann.textValue ")
+            "(select size(f3.usedFiles) from Fileset f3 where f3.id = fs.id),") \
+                + annselect
         query1 = (
             "from Fileset fs "
-            "left outer join fs.annotationLinks fal "
-            "left outer join fal.child ann "
-            "where (ann is null or ann.ns = :ns) ")
+            "where 1 = 1 ")
         query2 = (
-            "group by fs.id, fs.templatePrefix, ann.textValue ")
+            "group by fs.id, fs.templatePrefix ")
 
         if args.order:
             if args.order == "newest":
