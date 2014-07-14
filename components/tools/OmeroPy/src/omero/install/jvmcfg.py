@@ -28,10 +28,10 @@ from shlex import split
 
 import logging
 
-LOGGER = logging.getLogger("omero.install.memory")
+LOGGER = logging.getLogger("omero.install.jvmcfg")
 
 
-def strip_prefix(map, prefix=("omero", "mem")):
+def strip_prefix(map, prefix=("omero", "jvmcfg")):
     """
     For the given dictionary, remove a copy of the
     dictionary where all entries not matching the
@@ -388,9 +388,9 @@ def adjust_settings(config, template_xml,
             ("pixeldata", pixeldata), ("repository", repository))
 
     for name, StrategyType in loop:
-        prefix = "omero.mem.%s" % name
+        prefix = "omero.jvmcfg.%s" % name
         specific = strip_prefix(m, prefix=prefix)
-        defaults = strip_prefix(m, prefix="omero.mem")
+        defaults = strip_prefix(m, prefix="omero.jvmcfg")
         settings = Settings(specific, defaults)
         rv[name].append(settings)
         if StrategyType is None:
