@@ -138,8 +138,11 @@ class SearchControl(HqlControl):
 
                     if not search.hasNext(ctx):
                         self.ctx.die(433, "No results found.")
+
+                    self.ctx.set("search.results", [])
                     while search.hasNext(ctx):
                         results = search.results(ctx)
+                        self.ctx.get("search.results").extend(results)
                         results = [[x] for x in results]
                         if not args.ids_only:
                             results = [[robject(x[0])] for x in results]
