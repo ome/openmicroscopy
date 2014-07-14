@@ -546,13 +546,15 @@ Examples:
 
         annselect = (
             "(select ann.textValue from Fileset f4 "
-             "join f4.annotationLinks fal join fal.child ann "
-             "where f4.id = fs.id and ann.ns =:ns) ")
+            "join f4.annotationLinks fal join fal.child ann "
+            "where f4.id = fs.id and ann.ns =:ns) ")
         select = (
             "select fs.id, fs.templatePrefix, "
-            "(select size(f2.images) from Fileset f2 where f2.id = fs.id),"
-            "(select size(f3.usedFiles) from Fileset f3 where f3.id = fs.id),") \
-                + annselect
+            "(select size(f2.images) from Fileset f2 "
+            "where f2.id = fs.id),"
+            "(select size(f3.usedFiles) from Fileset f3 "
+            "where f3.id = fs.id),") \
+            + annselect
         query1 = (
             "from Fileset fs "
             "where 1 = 1 ")
