@@ -1,0 +1,107 @@
+{% extends "webadmin/admin_base.html" %}
+{% load i18n %}
+{% load common_tags %}
+
+{% comment %}
+<!--
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+{% block title %}{% trans "OMERO Users" %}{% endblock %}
+
+{% block link %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'webadmin/css/picklist.css' %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static '3rdparty/jquery.chosen/chosen.css' %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static 'webadmin/css/chosen.css' %}" type="text/css" media="screen"/>
+
+    <link rel="stylesheet" href="{% static 'webgateway/css/ome.table.css' %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static '3rdparty/jquery.tablesorter/jquery.tablesorter.css' %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static 'webadmin/css/email.css' %}" type="text/css" media="screen"/>
+    
+	<!--[if lte IE 8]>
+		<link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.table_ie.css" %}" />
+	<![endif]-->
+	
+{% endblock %}
+
+{% block script %}
+    {{ block.super }}
+    
+    <script type="text/javascript" src="{% static '3rdparty/jquery.tablesorter/jquery.tablesorter.js' %}"></script>
+    <script type="text/javascript" src="{% static '3rdparty/jquery.quicksearch.js' %}"></script>
+    <script type="text/javascript" src="{% static 'webclient/javascript/jquery.form.js' %}"></script>
+    <script type="text/javascript" src="{% static '3rdparty/jquery.chosen/chosen.jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static '3rdparty/jquery.selectboxes.js' %}"></script>
+
+    <script type="text/javascript">
+      $(document).ready(function() 
+      {
+
+        $("#id_groups").chosen({placeholder_text:'Choose one or more groups'});
+        $("#id_experimenters").chosen({placeholder_text:'Choose one or more users'});
+
+        // Disable user/group fields if 'all' field is checked, and vice-versa
+        $("#id_everyone").change(function(e){
+          var state =  $(e.target).is(':checked');
+          // Disable/Enable Users/Groups
+          $('#id_experimenters').prop('disabled', state).trigger("liszt:updated");
+          $('#id_groups').prop('disabled', state).trigger("liszt:updated");
+        });
+      });
+
+    </script>
+
+{% endblock %}
+
+{% block center_details %}
+{{ block.super }}
+
+<div id="email_content">
+    <div class="one_column_content">
+      <h1>{% trans "Email Announcement" %}</h1>
+
+      {% if messages %}
+        {% for message in messages %}
+          <div class="message{% if message.tags %} {{ message.tags }}{% endif %}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+
+      <form action="{% url 'waemail' %}" method="POST" class="standard_form settings_form">{% csrf_token %}
+        {% if form.non_field_errors %}
+          Error: {{ form.non_field_errors }}
+        {% endif %}
+
+        {% for field in form %}
+          {% if field.errors %}<div style="clear:both">{{ field.errors }}</div>{% endif %}
+
+            {{ field.label_tag }}
+            {{ field }}
+          <br />
+        {% endfor %}
+        <br />
+
+        <div>Note: Checking 'Include inactive users' enables sending email to inactive users. If this is not checked, any selection above will ignore inactive users. E.g. If a group selected above has an inactive user, they will not be emailed unless this option is checked. Selecting an inactive user above and not checking this option will result in an error.</div>
+  
+        <input type="submit" value="{% trans 'Send' %}" />
+
+      </form>
+
+    </div>
+</div>
+{% endblock %}
