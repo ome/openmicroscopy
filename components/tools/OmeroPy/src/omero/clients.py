@@ -833,25 +833,30 @@ class BaseClient(object):
                failonerror=True, ctx=None, failontimeout=True):
         handle = self.getSession().submit(req, ctx)
         return self.waitOnCmd(
-            handle, loops=loops, ms=ms, failonerror=failonerror)
+            handle, loops=loops, ms=ms,
+            failonerror=failonerror,
+            failontimeout=failontimeout,
+            closehandle=True)
 
     def waitOnCmd(self, handle, loops=10, ms=500,
-                  failonerror=True, failontimeout=True):
+                  failonerror=True,
+                  failontimeout=False,
+                  closehandle=False):
 
         from omero import LockTimeout
 
         try:
             callback = omero.callbacks.CmdCallbackI(self, handle)
         except:
-            # If the handle won't escape this method, close it.
-            handle.close()
+            # Since the callback won't escape this method, close it.
+            callback.close(closehandle)
             raise
 
         try:
             callback.loop(loops, ms)  # Throw LockTimeout
         except LockTimeout:
             if failontimeout:
-                callback.close(True)
+                callback.close(closehandle)
                 raise
             else:
                 return callback
@@ -859,7 +864,7 @@ class BaseClient(object):
         rsp = callback.getResponse()
         if isinstance(rsp, omero.cmd.ERR):
             if failonerror:
-                callback.close(True)
+                callback.close(closehandle)
                 raise omero.CmdError(rsp)
         return callback
 

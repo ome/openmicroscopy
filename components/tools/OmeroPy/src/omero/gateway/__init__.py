@@ -3431,8 +3431,15 @@ class _BlitzGateway (object):
         handle = self.c.sf.submit(doall, self.SERVICE_OPTS)
         return handle
 
-    def _waitOnCmd(self, handle, loops=10, ms=500, failonerror=True):
-        return self.c.waitOnCmd(handle, loops=loops, ms=ms, failonerror=failonerror)
+    def _waitOnCmd(self, handle, loops=10, ms=500,
+                   failonerror=True,
+                   failontimeout=False,
+                   closehandle=False):
+
+        return self.c.waitOnCmd(handle, loops=loops, ms=ms,
+                                failonerror=failonerror,
+                                failontimeout=failontimeout,
+                                closehandle=closehandle)
 
     def chmodGroup(self, group_Id, permissions):
         """

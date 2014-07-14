@@ -650,8 +650,8 @@ class TestRecursiveDelete(AbstractRepoTest):
         gateway = BlitzGateway(client_obj=self.client)
         handle = gateway.deleteObjects("/OriginalFile", [id])
         try:
-            pytest.raises(Exception,
-                    gateway._waitOnCmd, handle, failonerror=True)
+            with pytest.raises(CmdError):
+                gateway._waitOnCmd(handle, failonerror=True)
         finally:
             handle.close()
 
