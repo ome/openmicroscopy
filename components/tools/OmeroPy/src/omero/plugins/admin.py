@@ -152,8 +152,8 @@ already be running. This may automatically restart some server components.""")
             help="Skip log parsing")
 
         Action(
-            "memory",
-            "Reset memory usage values based on the current system")
+            "jvmcfg",
+            "Reset JVM settings based on the current system")
 
         Action(
             "waitup",
@@ -515,7 +515,7 @@ present, the user will enter a console""")
         First checks for a valid installation, then checks the grid,
         then registers the action: "node HOST start"
         """
-        self.memory(args, config, verbose=False)
+        self.jvmcfg(args, config, verbose=False)
         self.check_access(config=config)
         self.checkice()
         self.check_node(args)
@@ -639,7 +639,7 @@ present, the user will enter a console""")
 
     @with_config
     def deploy(self, args, config):
-        self.memory(args, config, verbose=False)
+        self.jvmcfg(args, config, verbose=False)
         self.check_access()
         self.checkice()
         descript = self._descript(args)
@@ -829,9 +829,9 @@ present, the user will enter a console""")
                     config_service=client.sf.getConfigService())
 
     @with_config
-    def memory(self, args, config, verbose=True):
+    def jvmcfg(self, args, config, verbose=True):
         from xml.etree.ElementTree import XML
-        from omero.install.memory import adjust_settings
+        from omero.install.jvmcfg import adjust_settings
         templates = self.ctx.dir / "etc" / "grid" / "templates.xml"
         generated = self.ctx.dir / "etc" / "grid" / "generated.xml"
         if generated.exists():
@@ -840,8 +840,8 @@ present, the user will enter a console""")
         template_xml = XML(templates.text())
         rv = adjust_settings(config, template_xml)
         if verbose:
-            self.ctx.out("Memory settings:")
-            self.ctx.out("================")
+            self.ctx.out("JVM Settings:")
+            self.ctx.out("============")
             for k, v in sorted(rv.items()):
                 sb = " ".join([str(x) for x in v])
                 self.ctx.out("%s=%s" % (k, sb))
