@@ -29,8 +29,13 @@ package org.openmicroscopy.shoola.agents.metadata;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.env.data.AdminService;
+import org.openmicroscopy.shoola.env.data.DSAccessException;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.data.ProcessReport;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
 import pojos.GroupData;
 
 /** 
@@ -62,7 +67,7 @@ public class GroupEditor
 	private GroupData group;
 	
 	/** The permissions level or <code>-1</code>. */
-	private int permissions;
+	private int permissions = -1;
 	
 	/** The index indicating the action to perform.*/
 	private int index;
@@ -109,6 +114,7 @@ public class GroupEditor
         if (group == null)
             throw new IllegalArgumentException("No group to edit.");
         this.group = group;
+        this.permissions = -1;
         this.index = index;
     }
     
@@ -120,7 +126,7 @@ public class GroupEditor
 	{
 	    switch (index) {
 	    case UPDATE:
-	        handle = adminView.updateGroup(ctx, group, permissions, this);
+	        handle = adminView.updateGroup(ctx, group, this);
 	        break;
 	    case CHANGE:
 	        handle = adminView.changeGroup(ctx, group, viewer.getCurrentUser(),
@@ -141,9 +147,42 @@ public class GroupEditor
     public void handleResult(Object result) 
     {
     	if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
+    	
+    	AdminService os = MetadataViewerAgent.getRegistry()
+                .getAdminService();
+    	
     	switch (index) {
         case UPDATE:
-            viewer.onAdminUpdated((GroupData) result);
+            if(result instanceof GroupData) {
+                viewer.onAdminUpdated((GroupData) result);
+                
+                if(permissions>-1) {
+               	     // if the permissions have also changed, do this
+                     // in an extra step
+                    try {
+                        os.updateGroupPermissions(ctx, (GroupData)result, permissions, this);
+                    } catch (DSOutOfServiceException e) {
+                        viewer.onPermissionUpdateFailed();
+                    } catch (DSAccessException e) {
+                        viewer.onPermissionUpdateFailed();
+                    }
+                }
+            }
+            else if(result instanceof ProcessReport){
+                // result of a permission change - error
+                viewer.onPermissionUpdateFailed();
+            }
+            else if(result instanceof omero.cmd.OK) {
+                // result of a permission change - success
+                try {
+                    group = os.reloadGroup(ctx, group);
+                    viewer.onAdminUpdated(group);
+                } catch (DSOutOfServiceException e) {
+                    viewer.onPermissionUpdateFailed();
+                } catch (DSAccessException e) {
+                    viewer.onPermissionUpdateFailed();
+                }
+            }
             break;
         }
     }

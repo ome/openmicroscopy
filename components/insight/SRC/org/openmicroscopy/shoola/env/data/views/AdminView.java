@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.AdminView 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -109,12 +109,11 @@ public interface AdminView
 	 * 
 	 * @param ctx The security context.
 	 * @param group The group to update. Mustn't be <code>null</code>.
-	 * @param permissions The desired permissions level or <code>-1</code>.
 	 * @param observer	Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle updateGroup(SecurityContext ctx, GroupData group,
-			int permissions, AgentEventListener observer);
+	public CallHandle updateGroup(SecurityContext ctx, GroupData group, AgentEventListener observer);
+
 	
 	/**
 	 * Creates and returns the experimenters.
