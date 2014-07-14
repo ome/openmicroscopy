@@ -249,7 +249,7 @@ class FsControl(BaseControl):
             type=ProxyStringType("Fileset"),
             help="Fileset which should be renamed: ID or Fileset:ID")
         rename.add_argument(
-            "--move", action="store_true", help=SUPPRESS)
+            "--no-move", action="store_true", help=SUPPRESS)
 
         repos = parser.add(sub, self.repos)
         repos.add_style_argument()
@@ -450,7 +450,7 @@ template.
 
         if not tomove:
             self.ctx.die(113, "No files moved!")
-        elif args.move:
+        elif not args.no_move:
             from omero.grid import RawAccessRequest
             for from_path, to_path in tomove:
                 raw = RawAccessRequest()
