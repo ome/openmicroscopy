@@ -327,14 +327,16 @@ jQuery.fn.viewportImage = function(options) {
         setZoomCenter({'vp':center, 'image':{'x':imgx, 'y':imgy}});
 
         var zc = getZoomCenter();
-        imgx = zc.image.x;
-        imgy = zc.image.y;
-        var cx = zc.vp.x;
-        var cy = zc.vp.y;
-        // after the image is resized to width & height, need to re-calculate left & top
-        var newleft = -parseInt((imgx * width) - cx);
-        var newtop = -parseInt((imgy * height) - cy);
-        dragdiv.css({'top': newtop+'px', 'left': newleft+'px'});
+        if (zc) {
+          imgx = zc.image.x;
+          imgy = zc.image.y;
+          var cx = zc.vp.x;
+          var cy = zc.vp.y;
+          // after the image is resized to width & height, need to re-calculate left & top
+          var newleft = -parseInt((imgx * width) - cx, 10);
+          var newtop = -parseInt((imgy * height) - cy, 10);
+          dragdiv.css({'top': newtop+'px', 'left': newleft+'px'});
+        }
       }
 
       cur_zoom = val;
@@ -342,10 +344,10 @@ jQuery.fn.viewportImage = function(options) {
       imageheight = height;
       this.doMove(0, 0);
       if (!changing) {
-	changing = setTimeout(function () {
+          changing = setTimeout(function () {
           image.trigger("zoom", [cur_zoom]);
           changing = null;
-			      }, 20);
+        }, 20);
       }
       image.trigger("instant_zoom", [cur_zoom]);
       image.attr({width: width, height: height});
