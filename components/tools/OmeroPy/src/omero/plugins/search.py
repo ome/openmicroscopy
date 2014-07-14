@@ -52,14 +52,6 @@ class SearchControl(HqlControl):
             action="store_true",
             help="Pass the search string directly to Lucene with no parsing")
         parser.add_argument(
-            "--all",
-            action="store_true",
-            help="Perform query on all groups")
-        parser.add_argument(
-            "--full",
-            action="store_true",
-            help="Print more info from the results")
-        parser.add_argument(
             "--field", nargs="*",
             default=(),
             help=("Fields which should be searched "
@@ -82,11 +74,8 @@ class SearchControl(HqlControl):
         parser.add_argument(
             "type",
             help="Object type to search for, e.g. 'Image' or 'Well'")
-        parser.add_argument(
-            "search_string", nargs="?",
-            help="Lucene search string")
+        HqlControl._configure(self, parser)
         parser.set_defaults(func=self.search)
-        parser.add_login_arguments()
 
     def date(self, user_string):
         try:
@@ -120,7 +109,7 @@ class SearchControl(HqlControl):
 
         else:
             group = None
-            if args.all:
+            if args.admin:
                 group = "-1"
             ctx = c.getContext(group)
             search = c.sf.createSearchService()
@@ -134,7 +123,7 @@ class SearchControl(HqlControl):
                     if args.no_parse:
                         if args._from or args._to or args.field:
                             self.ctx.err("Ignoring from/to/fields")
-                        search.byFullText(args.search_string)
+                        search.byFullText(args.query)
                     else:
                         try:
                             if args.date_type == "import":
@@ -142,19 +131,19 @@ class SearchControl(HqlControl):
                             search.byLuceneQueryBuilder(
                                 ",".join(args.field),
                                 args._from, args._to, args.date_type,
-                                args.search_string)
+                                args.query)
                         except OperationNotExistException:
-                            self.ctx.err("Server does not suppoert byLuceneQueryBuilder")
-                            search.byFullText(args.search_string)
+                            self.ctx.err("Server does not support byLuceneQueryBuilder")
+                            search.byFullText(args.query)
 
                     if not search.hasNext(ctx):
                         self.ctx.die(433, "No results found.")
                     while search.hasNext(ctx):
                         results = search.results(ctx)
                         results = [[x] for x in results]
-                        if args.full:
+                        if not args.ids_only:
                             results = [[robject(x[0])] for x in results]
-                        self.display(results)
+                        self.display(results, idsonly=args.ids_only)
                 except omero.ApiUsageException, aue:
                     self.ctx.die(434, aue.message)
 
