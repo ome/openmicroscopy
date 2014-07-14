@@ -18,7 +18,6 @@ from Ice import OperationNotExistException
 from omero.cli import CLI
 from omero.plugins.hql import HqlControl
 from omero.rtypes import robject
-from omero.rtypes import rstring
 
 
 HELP = """Search for object ids by string.
@@ -72,7 +71,8 @@ class SearchControl(HqlControl):
             "--date-type",
             default="acquisitionDate",
             choices=("acquisitionDate", "import"),
-            help="Which field to use for --from/--to (default: acquisitionDate)")
+            help=("Which field to use for --from/--to "
+                  "(default: acquisitionDate)"))
         parser.add_argument(
             "type",
             help="Object type to search for, e.g. 'Image' or 'Well'")
@@ -135,7 +135,8 @@ class SearchControl(HqlControl):
                                 args._from, args._to, args.date_type,
                                 args.query, ctx)
                         except OperationNotExistException:
-                            self.ctx.err("Server does not support byLuceneQueryBuilder")
+                            self.ctx.err(
+                                "Server does not support byLuceneQueryBuilder")
                             search.byFullText(args.query)
 
                     if not search.hasNext(ctx):
