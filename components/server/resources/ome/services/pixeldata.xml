@@ -95,7 +95,7 @@
 
  <bean id="dbPatchCheck" class="java.lang.Object"/>
 
-  <alias name="${omero.metrics.indexer_impl}" alias="metrics"/>
+  <alias name="${omero.metrics.bean}" alias="metrics"/>
 
  <bean id="defaultMetrics" class="ome.system.metrics.DefaultMetrics">
     <property name="slf4jMinutes" value="${omero.metrics.slf4j_minutes}"/>
