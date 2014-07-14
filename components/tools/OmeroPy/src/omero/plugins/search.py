@@ -59,11 +59,13 @@ class SearchControl(HqlControl):
         parser.add_argument(
             "--from",
             dest="_from",
+            metavar="YYYY-MM-DD",
             type=self.date,
             help="Start date for limiting searches (YYYY-MM-DD)")
         parser.add_argument(
             "--to",
             dest="_to",
+            metavar="YYYY-MM-DD",
             type=self.date,
             help="End date for limiting searches (YYYY-MM-DD")
         parser.add_argument(
@@ -131,7 +133,7 @@ class SearchControl(HqlControl):
                             search.byLuceneQueryBuilder(
                                 ",".join(args.field),
                                 args._from, args._to, args.date_type,
-                                args.query)
+                                args.query, ctx)
                         except OperationNotExistException:
                             self.ctx.err("Server does not support byLuceneQueryBuilder")
                             search.byFullText(args.query)
@@ -146,7 +148,9 @@ class SearchControl(HqlControl):
                         results = [[x] for x in results]
                         if not args.ids_only:
                             results = [[robject(x[0])] for x in results]
-                        self.display(results, idsonly=args.ids_only)
+                        self.display(results,
+                                     style=args.style,
+                                     idsonly=args.ids_only)
                 except omero.ApiUsageException, aue:
                     self.ctx.die(434, aue.message)
 
