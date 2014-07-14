@@ -31,6 +31,7 @@ import loci.formats.IFormatReader;
 import loci.formats.MissingLibraryException;
 import loci.formats.UnknownFormatException;
 import loci.formats.UnsupportedCompressionException;
+import loci.formats.in.MIASReader;
 
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.OverlayMetadataStore;
@@ -41,7 +42,6 @@ import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.util.ErrorHandler;
 import ome.io.nio.TileSizes;
 import ome.services.blitz.fire.Registry;
-import ome.util.Utils;
 
 import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
@@ -67,9 +67,12 @@ import omero.model.Plate;
 import omero.model.ScriptJob;
 import omero.model.ThumbnailGenerationJob;
 
+import org.apache.commons.codec.binary.Hex;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+
 
 import ch.qos.logback.classic.ClassicConstants;
 
