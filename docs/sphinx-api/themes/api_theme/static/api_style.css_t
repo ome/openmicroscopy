@@ -3,12 +3,17 @@
 div.sphinxsidebar {
     float: left;
 }
+
 div.bodywrapper {
     margin: 0 0 0 240px;
-    overflow: auto;
 }
+
 div.sphinxsidebarwrapper {
     padding: 10px 0px 0px 10px;
+}
+
+div.admonition, div.warning {
+    display: inline-block;
 }
 
 body {
@@ -25,7 +30,6 @@ div.document {
 
 div.related {
     font-size: 14px;
-    overflow: auto;
 }
 
 a.internal > em {
