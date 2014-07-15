@@ -21,6 +21,7 @@ import java.util.Map;
 import ome.conditions.ApiUsageException;
 import ome.model.IAnnotated;
 import ome.model.IObject;
+import ome.model.core.Image;
 import ome.system.ServiceFactory;
 import ome.util.search.InvalidQueryException;
 import ome.util.search.LuceneQueryBuilder;
@@ -132,7 +133,14 @@ public class FullText extends SearchAction {
             throw new ApiUsageException(
                     "Invalid date format, dates must be in format YYYYMMDD.");
         }
-        
+
+        if (LuceneQueryBuilder.DATE_ACQUISITION.equals(dateType) &&
+                !values.onlyTypes.contains(Image.class)) {
+            // Ignore acquisition ranges for non-images
+            dFrom = null;
+            dTo = null;
+        }
+
         try {
             this.queryStr = LuceneQueryBuilder.buildLuceneQuery(fieldsArray, dFrom,
                     dTo, dateType, query);
