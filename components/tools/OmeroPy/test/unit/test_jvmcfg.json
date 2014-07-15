@@ -67,24 +67,37 @@
         }
     },
     {
-        "name": "global-percent-4G",
+        "name": "global-percent-1G-default-min",
         "input": {
             "omero.jvmcfg.strategy": "percent",
-            "omero.jvmcfg.system_memory": "4000"
+            "omero.jvmcfg.system_memory": "1000"
         },
         "output": {
             "blitz" : [
-                "-Xmx600m",
+                "-Xmx511m",
                 "-XX:MaxPermSize=256m"
             ]
         }
     },
     {
-        "name": "global-percent-4G-min-1G",
+        "name": "global-percent-1G-min-1G",
         "input": {
             "omero.jvmcfg.strategy": "percent",
-            "omero.jvmcfg.system_memory": "4000",
+            "omero.jvmcfg.system_memory": "1000",
             "omero.jvmcfg.min_system_memory": "1000"
+        },
+        "output": {
+            "blitz" : [
+                "-Xmx150m",
+                "-XX:MaxPermSize=128m"
+            ]
+        }
+    },
+    {
+        "name": "global-percent-4G",
+        "input": {
+            "omero.jvmcfg.strategy": "percent",
+            "omero.jvmcfg.system_memory": "4000"
         },
         "output": {
             "blitz" : [
@@ -120,20 +133,7 @@
         }
     },
     {
-        "name": "global-percent-24G-max-24G",
-        "input": {
-            "omero.jvmcfg.strategy": "percent",
-            "omero.jvmcfg.system_memory": "24000"
-        },
-        "output": {
-            "blitz" : [
-                "-Xmx3600m",
-                "-XX:MaxPermSize=1g"
-            ]
-        }
-    },
-    {
-        "name": "global-percent-48G-max-48G",
+        "name": "global-percent-48G",
         "input": {
             "omero.jvmcfg.strategy": "percent",
             "omero.jvmcfg.system_memory": "48000"
@@ -146,7 +146,7 @@
         }
     },
     {
-        "name": "global-percent-64G-max-64G",
+        "name": "global-percent-64G-default-max",
         "input": {
             "omero.jvmcfg.strategy": "percent",
             "omero.jvmcfg.system_memory": "64000"
@@ -154,6 +154,20 @@
         "output": {
             "blitz" : [
                 "-Xmx7200m",
+                "-XX:MaxPermSize=1g"
+            ]
+        }
+    },
+    {
+        "name": "global-percent-64G-max-64G",
+        "input": {
+            "omero.jvmcfg.strategy": "percent",
+            "omero.jvmcfg.system_memory": "64000",
+            "omero.jvmcfg.max_system_memory": "64000"
+        },
+        "output": {
+            "blitz" : [
+                "-Xmx9600m",
                 "-XX:MaxPermSize=1g"
             ]
         }
