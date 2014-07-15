@@ -55,6 +55,7 @@ try
     config.port.set(props.port);
     config.targetClass.set('omero.model.Dataset');
     config.sessionKey.set((session.getAdminService.getEventContext.sessionUuid));
+    config.checksumAlgorithm.set('FILE_SIZE')
     
     %Metadatastore Object
     tic;store = handle(config.createStore());
