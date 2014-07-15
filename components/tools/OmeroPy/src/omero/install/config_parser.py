@@ -229,6 +229,11 @@ class PropertyParser(object):
             headers[key].append(x)
         return headers
 
+    def print_defaults(self):
+        values = ["%s=%s" % (p.key, p.val) for p in self]
+        for x in sorted(values):
+            print x
+
     def print_keys(self):
         data = self.data()
         for k, v in sorted(data.items()):

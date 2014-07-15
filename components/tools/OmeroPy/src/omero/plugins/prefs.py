@@ -166,6 +166,9 @@ class PrefsControl(BaseControl):
             "Parse the etc/omero.properties file for readability")
         parse_group = parse.add_mutually_exclusive_group()
         parse_group.add_argument(
+            "--defaults", action="store_true",
+            help="Show key/value configuration defaults")
+        parse_group.add_argument(
             "--rst", action="store_true",
             help="Generate reStructuredText from omero.properties)")
         parse_group.add_argument(
@@ -345,8 +348,10 @@ class PrefsControl(BaseControl):
             pp.print_headers()
         elif args.keys:
             pp.print_keys()
-        else:
+        elif args.rst:
             pp.print_rst()
+        else:
+            pp.print_defaults()
 
     @with_rw_config
     def load(self, args, config):
