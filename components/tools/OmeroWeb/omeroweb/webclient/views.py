@@ -1067,7 +1067,7 @@ def getIds(request):
     return selected
 
 
-@login_required(setGroupContext=True)
+@login_required()
 @render_response()
 def batch_annotate(request, conn=None, **kwargs):
     """
@@ -1095,16 +1095,23 @@ def batch_annotate(request, conn=None, **kwargs):
 
     obj_ids = []
     obj_labels = []
+    groupIds = set()
+    annotationBlocked = False
     for key in objs:
         obj_ids += ["%s=%s"%(key,o.id) for o in objs[key]]
         for o in objs[key]:
+            groupIds.add(o.getDetails().group.id.val)
+            if not o.canAnnotate():
+                annotationBlocked = "Can't add annotations because you don't have permissions"
             obj_labels.append( {'type':key.title(), 'id':o.id, 'name':o.getName()} )
     obj_string = "&".join(obj_ids)
     link_string = "|".join(obj_ids).replace("=", "-")
 
     context = {'form_comment':form_comment, 'obj_string':obj_string, 'link_string': link_string,
             'obj_labels': obj_labels, 'batchAnns': batchAnns, 'batch_ann':True, 'index': index,
-            'figScripts':figScripts, 'filesetInfo': filesetInfo}
+            'figScripts':figScripts, 'filesetInfo': filesetInfo, 'annotationBlocked': annotationBlocked}
+    if len(groupIds) > 1:
+        context['annotationBlocked'] = "Can't add annotations because objects are in different groups"
     context['template'] = "webclient/annotations/batch_annotate.html"
     context['webclient_path'] = request.build_absolute_uri(reverse('webindex'))
     return context
