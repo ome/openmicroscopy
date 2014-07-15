@@ -294,3 +294,19 @@ class TestPrefs(object):
             self.invoke("set %s %s" % (k, v))
         self.invoke("list")
         self.assertStdoutStderr(capsys, out=data[1])
+
+    @pytest.mark.parametrize("data", (
+        ("omero.a=b\nomero.c=d\n##igmore=me\n",
+         "omero.a=b\nomero.c=d",
+         "a (1)\n\t\nc (1)"),
+    ))
+    def testDefaultsParsing(self, tmpdir, capsys, data):
+        input, defaults, keys = data
+        cfg = tmpdir.join("test.cfg")
+        cfg.write(input)
+        self.invoke("parse --file=%s" % cfg)
+        self.assertStdoutStderr(capsys, out=defaults)
+        self.invoke("parse --file=%s --defaults" % cfg)
+        self.assertStdoutStderr(capsys, out=defaults)
+        self.invoke("parse --file=%s --keys" % cfg)
+        self.assertStdoutStderr(capsys, out=keys)

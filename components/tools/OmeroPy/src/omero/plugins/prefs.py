@@ -164,6 +164,9 @@ class PrefsControl(BaseControl):
         parse = parser.add(
             sub, self.parse,
             "Parse the etc/omero.properties file for readability")
+        parse.add_argument(
+            "-f", "--file", type=ExistingFile('r'),
+            help="Alternative location for a Java properties file")
         parse_group = parse.add_mutually_exclusive_group()
         parse_group.add_argument(
             "--defaults", action="store_true",
@@ -340,9 +343,14 @@ class PrefsControl(BaseControl):
                 self.ctx.out(k)
 
     def parse(self, args):
+        if args.file:
+            args.file.close()
+            cfg = path(args.file.name)
+        else:
+            cfg = self.dir / "etc" / "omero.properties"
+
         from omero.install.config_parser import PropertyParser
         pp = PropertyParser()
-        cfg = self.dir / "etc" / "omero.properties"
         pp.parse(str(cfg.abspath()))
         if args.headers:
             pp.print_headers()
