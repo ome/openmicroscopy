@@ -20,8 +20,6 @@
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 import java.awt.FontMetrics;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -53,7 +51,7 @@ public class SearchResultTableModel extends DefaultTableModel {
 
     /** The name of the columns */
     public static final String[] COLUMN_NAMES = { "Type", "Name",
-            "Date (Acquisition/Import)", "Group", " " };
+            "Acquired", "Imported", "Group", " " };
 
     /**
      * The index of the column which contains the View buttons (i. e. the last
@@ -63,10 +61,6 @@ public class SearchResultTableModel extends DefaultTableModel {
 
     /** Defines the size of the thumbnail icons */
     private static final double THUMB_ZOOM_FACTOR = 0.5;
-
-    /** Defines the format how the date is shown */
-    private static final DateFormat DATE_FORMAT = new SimpleDateFormat(
-            "MMM dd, yyyy hh:mm a");
 
     /** The DataObjects shown in the table */
     private List<DataObject> data = new ArrayList<DataObject>();
@@ -116,12 +110,15 @@ public class SearchResultTableModel extends DefaultTableModel {
                 result = getObjectName(obj);
                 break;
             case 2:
-                result = getDate(obj);
+                result = getADate(obj);
                 break;
             case 3:
-                result = getGroup(obj);
+                result = getIDate(obj);
                 break;
             case 4:
+                result = getGroup(obj);
+                break;
+            case 5:
                 result = obj;
                 break;
         }
@@ -130,28 +127,26 @@ public class SearchResultTableModel extends DefaultTableModel {
     }
 
     /**
-     * Get the acquisition/creation date of the {@link DataObject}
+     * Get the acquisition date of the {@link DataObject}
      * 
      * @param obj
      * @return
      */
-    private String getDate(DataObject obj) {
-        String aDate = "--";
-        String iDate = "--";
-
-        try {
-            if (obj instanceof ImageData) {
-                // just images have an acquisition date
-                aDate = DATE_FORMAT.format(new Date(((ImageData) obj)
-                        .getAcquisitionDate().getTime()));
-            }
-            iDate = DATE_FORMAT.format(new Date(obj.getCreated().getTime()));
-        } catch (Exception e) {
-            // if there is no date, date is invalid or the text conversion
-            // goes wrong, just stick to '--' for the date
-        }
-
-        return aDate + "<br/>" + iDate;
+    private Date getADate(DataObject obj) {
+        if(obj instanceof ImageData)
+            return new Date(((ImageData) obj).getAcquisitionDate().getTime());
+        else
+            return null;
+    }
+    
+    /**
+     * Get the creation date of the {@link DataObject}
+     * 
+     * @param obj
+     * @return
+     */
+    private Date getIDate(DataObject obj) {
+        return new Date(obj.getCreated().getTime());
     }
 
     /**
