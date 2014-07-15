@@ -80,7 +80,7 @@ PROPERTY = \
     """
     %(key)s
 %(txt)s
-        Default: "%(val)s"
+        Default: `%(val)s`
 """
 
 BLACK_LIST = ("##", "versions", "omero.upgrades")
