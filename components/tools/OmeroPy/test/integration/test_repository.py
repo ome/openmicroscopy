@@ -16,6 +16,7 @@ import pytest
 import test.integration.library as lib
 import omero
 
+from omero import CmdError
 from omero.callbacks import CmdCallbackI
 from omero.cmd import ERR
 from omero.gateway import BlitzGateway
