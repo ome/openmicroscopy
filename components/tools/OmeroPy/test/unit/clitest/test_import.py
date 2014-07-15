@@ -32,6 +32,55 @@ class TestImport(object):
         client_dir = dist_dir / "lib" / "client"
         self.args += ["--clientdir", client_dir]
 
+    def mkdir(self, parent, name, with_ds_store=False):
+        child = parent / name
+        child.mkdir()
+        if with_ds_store:
+            ds_store = child / ".DS_STORE"
+            ds_store.write("")
+        return child
+
+    def mkfakescreen(self, screen_dir, nplates=2, nruns=2, nwells=2,
+                     nfields=4, with_ds_store=False):
+
+        fieldfiles = []
+        for iplate in range(nplates):
+            plate_dir = self.mkdir(
+                screen_dir, "Plate00%s" % str(iplate),
+                with_ds_store=with_ds_store)
+            for irun in range(nruns):
+                run_dir = self.mkdir(
+                    plate_dir, "Run00%s" % str(irun),
+                    with_ds_store=with_ds_store)
+                for iwell in range(nwells):
+                    well_dir = self.mkdir(
+                        run_dir, "WellA00%s" % str(iwell),
+                        with_ds_store=with_ds_store)
+                    for ifield in range(nfields):
+                        fieldfile = (well_dir / ("Field00%s.fake" %
+                                                 str(ifield)))
+                        fieldfile.write('')
+                        fieldfiles.append(fieldfile)
+        return fieldfiles
+
+    def mkfakepattern(self, tmpdir, nangles=7, ntimepoints=10):
+
+        spim_dir = tmpdir.join("SPIM")
+        spim_dir.mkdir()
+        tiffiles = []
+        for angle in range(1, nangles + 1):
+            for timepoint in range(1, ntimepoints + 1):
+                tiffile = (spim_dir / ("spim_TL%s_Angle%s.fake" %
+                                       (str(timepoint), str(angle))))
+                tiffile.write('')
+                print str(tiffile)
+                tiffiles.append(tiffile)
+        patternfile = spim_dir / "spim.pattern"
+        patternfile.write("spim_TL<1-%s>_Angle<1-%s>.fake"
+                          % (str(ntimepoints), str(nangles)))
+        assert len(tiffiles) == nangles * ntimepoints
+        return patternfile, tiffiles
+
     def testDropBoxArgs(self):
         class MockImportControl(ImportControl):
             def importer(this, args):
@@ -98,3 +147,43 @@ omero_cblackburn/6915/dropboxaDCjQlout']
         assert outputlines[-2] == str(fakefile)
         assert outputlines[-3] == \
             "# Group: %s SPW: false Reader: %s" % (str(fakefile), reader)
+
+    @pytest.mark.parametrize('with_ds_store', (True, False))
+    def testImportFakeScreen(self, tmpdir, capfd, with_ds_store):
+        """Test fake screen import"""
+
+        screen_dir = tmpdir.join("screen.fake")
+        screen_dir.mkdir()
+        fieldfiles = self.mkfakescreen(
+            screen_dir, with_ds_store=with_ds_store)
+
+        self.args += ["-f", "--debug=ERROR"]
+        self.args += [str(fieldfiles[0])]
+
+        self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
+        outputlines = str(o).split('\n')
+        reader = 'loci.formats.in.FakeReader'
+        assert outputlines[-len(fieldfiles)-2] == \
+            "# Group: %s SPW: true Reader: %s" % (str(fieldfiles[0]), reader)
+        for i in range(len(fieldfiles)):
+            assert outputlines[-1-len(fieldfiles)+i] == str(fieldfiles[i])
+
+    def testImportPattern(self, tmpdir, capfd):
+        """Test pattern import"""
+
+        patternfile, tiffiles = self.mkfakepattern(tmpdir)
+
+        self.args += ["-f", "--debug=ERROR"]
+        self.args += [str(patternfile)]
+
+        self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
+        outputlines = str(o).split('\n')
+        reader = 'loci.formats.in.FilePatternReader'
+        print o
+        assert outputlines[-len(tiffiles)-3] == \
+            "# Group: %s SPW: false Reader: %s" % (str(patternfile), reader)
+        assert outputlines[-len(tiffiles)-2] == str(patternfile)
+        for i in range(len(tiffiles)):
+            assert outputlines[-1-len(tiffiles)+i] == str(tiffiles[i])
