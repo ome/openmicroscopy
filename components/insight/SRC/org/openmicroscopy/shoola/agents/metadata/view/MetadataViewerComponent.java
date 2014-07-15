@@ -671,6 +671,16 @@ class MetadataViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#onPermissionUpdateFailed()
+	 */
+	public void onPermissionUpdateFailed() {
+	    MetadataViewerAgent.getRegistry().getUserNotifier().notifyError("Error", "Could not change group permissions");
+	    firePropertyChange(CLEAR_SAVE_DATA_PROPERTY, null, null);
+            setRootObject(null, -1, null);
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#loadParents()
 	 */
 	public void loadParents()

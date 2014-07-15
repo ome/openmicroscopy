@@ -24,8 +24,6 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 
 
 //Java imports
-import java.awt.Component;
-import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -622,27 +620,29 @@ class MetadataViewerModel
 	 */
 	void fireAdminSaving(AdminObject data, boolean asynch)
 	{
-	    MetadataLoader loader = null;
         SecurityContext c = ctx;
         if (MetadataViewerAgent.isAdministrator())
             c = getAdminContext();
+        
+        MetadataLoader loader;
+        GroupData group = data.getGroup();
+        
         switch (data.getIndex()) {
             case AdminObject.UPDATE_GROUP:
-                GroupData group = data.getGroup();
                 loaderID++;
                 loader = new GroupEditor(component, c, group, 
                         data.getPermissions(), loaderID, GroupEditor.UPDATE);
                 loaders.put(loaderID, loader);
+                loader.load();
+                state = MetadataViewer.SAVING;
                 break;
             case AdminObject.UPDATE_EXPERIMENTER:
                 loaderID++;
                 loader = new AdminEditor(component, c, data.getGroup(),
                         data.getExperimenters(), loaderID);
                 loaders.put(loaderID, loader);
-        }   
-        if (loader != null) {
-            loader.load();
-            state = MetadataViewer.SAVING;
+                loader.load();
+                state = MetadataViewer.SAVING;
         }
 	}
 	
