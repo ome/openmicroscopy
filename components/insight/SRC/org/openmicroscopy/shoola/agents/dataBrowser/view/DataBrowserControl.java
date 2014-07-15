@@ -76,8 +76,6 @@ import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.ui.PlateGrid;
 import org.openmicroscopy.shoola.util.ui.PlateGridObject;
-import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
-import org.openmicroscopy.shoola.util.ui.search.SearchComponent;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -540,10 +538,10 @@ class DataBrowserControl
                 EditorDialog.CREATE_PROPERTY.equals(name)) {
             DataObject object = (DataObject) evt.getNewValue();
             model.createDataObject(object);
-        } else if (ImageTableView.TABLE_NODES_SELECTION_PROPERTY.equals(name)) {
+        } else if (ImageTableView.TABLE_NODES_SELECTION_PROPERTY.equals(name) || SearchResultView.SELECTION_PROPERTY.equals(name)) {
             List<ImageDisplay> selected = (List) evt.getNewValue();
             model.setTableNodesSelected(selected);
-        } else if (ImageTableView.TABLE_SELECTION_MENU_PROPERTY.equals(name)) {
+        } else if (ImageTableView.TABLE_SELECTION_MENU_PROPERTY.equals(name) || SearchResultView.CONTEXT_MENU_PROPERTY.equals(name)) {
             Point location = (Point) evt.getNewValue();
             if (location != null) view.showPopup(location);
         } else if (Browser.POPUP_POINT_PROPERTY.equals(name)) {

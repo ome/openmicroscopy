@@ -789,6 +789,12 @@ public interface TreeViewer
 	/** Shows or hides the searching component. */
 	public void showSearch();
     
+        /** Handles a search event */
+	public void handleSearchEvent(SearchEvent evt);
+	
+	/** Handles a search result selection event */
+	public void handleSearchSelectionEvent(SearchSelectionEvent evt);
+	
 	/**
 	 * Sets the result of the search.
 	 * 
