@@ -13,9 +13,7 @@
 #include <omero/ClientErrors.h>
 #include <omero/ObjectFactoryRegistrar.h>
 
-#if ICE_INT_VERSION / 100 >= 304
 ::Ice::LocalObject* IceInternal::upCast(::omero::rtypes::ObjectFactory* p) { return p; }
-#endif
 
 namespace omero {
 
