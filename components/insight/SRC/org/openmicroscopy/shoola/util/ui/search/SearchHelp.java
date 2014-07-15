@@ -36,7 +36,6 @@ import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -47,21 +46,11 @@ import javax.swing.border.TitledBorder;
 
 //Third-party libraries
 
-
-
-
-
-
-
-
-
-
-
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 
 /** 
  * Dialog presenting how to use the Search widget.
