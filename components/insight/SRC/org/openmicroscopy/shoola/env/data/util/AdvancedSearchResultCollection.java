@@ -39,11 +39,18 @@ import pojos.DataObject;
 public class AdvancedSearchResultCollection extends
         ArrayList<AdvancedSearchResult> {
 
+    /** No error */
     public static final int NO_ERROR = 0;
 
+    /** Some other error */
     public static final int GENERAL_ERROR = 1;
 
+    /** The search has to many results */
     public static final int TOO_MANY_RESULTS_ERROR = 2;
+    
+    /** The search has to many clauses, e.g. a 'a*' search term 
+     *  would expand to too many single clauses */
+    public static final int TOO_MANY_CLAUSES = 3;
 
     /** Error code if there was an error with the search */
     private int error = NO_ERROR;

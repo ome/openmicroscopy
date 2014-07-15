@@ -722,7 +722,10 @@ class OmeroDataServiceImpl
 		    findByIds(ctx, results, context.getGroupId()==SearchParameters.ALL_GROUPS_ID);
 		
 		// search by text:
-		results.addAll(gateway.search(ctx, context));
+		AdvancedSearchResultCollection searchResults = gateway.search(ctx, context);
+		results.addAll(searchResults);
+		if (searchResults.isError()) 
+		    results.setError(searchResults.getError());
 
                 // loads the images PixelsData (needed for thumbnail request)
                 initializeImages(results);

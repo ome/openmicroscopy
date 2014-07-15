@@ -5037,11 +5037,16 @@ class OMEROGateway
                             }
                         }
                     } catch (Exception e) {
-                        if (e instanceof InternalException)
-                            result.setError(AdvancedSearchResultCollection.GENERAL_ERROR);
-                        else
+                        if (e instanceof InternalException) {
+                            if(e.toString().contains("TooManyClauses")) 
+                                result.setError(AdvancedSearchResultCollection.TOO_MANY_CLAUSES);
+                            else
+                                result.setError(AdvancedSearchResultCollection.GENERAL_ERROR);
+                        }
+                        else {
                             result.setError(AdvancedSearchResultCollection.TOO_MANY_RESULTS_ERROR);
-    
+                        }
+                        
                         c.close(service);
     
                         return result;
