@@ -215,8 +215,4 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
      */
     protected abstract ProcessBuilder createProcessBuilder(File file, File location);
 
-    protected void printLine() {
-        log.error("*******************************************");
-    }
-
 }

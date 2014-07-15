@@ -45,6 +45,8 @@ import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEve
 import org.openmicroscopy.shoola.agents.events.treeviewer.MoveToEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.NodeToRefreshEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.view.SearchEvent;
+import org.openmicroscopy.shoola.agents.treeviewer.view.SearchSelectionEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
@@ -471,6 +473,30 @@ public class TreeViewerAgent
     }
     
     /**
+     * Passes the SearchEvent on to the Treeviewer 
+     */
+    private void handleSearchEvent(SearchEvent evt) {
+        ExperimenterData exp = (ExperimenterData) registry.lookup(
+                LookupNames.CURRENT_USER_DETAILS);
+        if (exp == null) 
+        	return;
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
+        viewer.handleSearchEvent(evt);
+    }
+    
+    /**
+     * Passes the SearchSelectionEvent on to the Treeviewer 
+     */
+    private void handleSearchSelectionEvent(SearchSelectionEvent evt) {
+        ExperimenterData exp = (ExperimenterData) registry.lookup(
+                LookupNames.CURRENT_USER_DETAILS);
+        if (exp == null) 
+        	return;
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
+        viewer.handleSearchSelectionEvent(evt);
+    }
+    
+    /**
      * Implemented as specified by {@link Agent}.
      * @see Agent#activate(boolean)
      */
@@ -520,6 +546,8 @@ public class TreeViewerAgent
         bus.register(this, ReconnectedEvent.class);
         bus.register(this, MoveToEvent.class);
         bus.register(this, AnnotatedEvent.class);
+        bus.register(this, SearchEvent.class);
+        bus.register(this, SearchSelectionEvent.class);
     }
 
     /**
@@ -578,6 +606,10 @@ public class TreeViewerAgent
 			handleMoveToEvent((MoveToEvent) e);
 		else if (e instanceof AnnotatedEvent)
 			handleAnnotatedEvent((AnnotatedEvent) e);
+		else if (e instanceof SearchEvent) 
+		        handleSearchEvent((SearchEvent) e); 
+		else if (e instanceof SearchSelectionEvent) 
+                    handleSearchSelectionEvent((SearchSelectionEvent) e); 
 	}
 
 }

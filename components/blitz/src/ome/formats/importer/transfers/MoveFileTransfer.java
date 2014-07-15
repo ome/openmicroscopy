@@ -19,8 +19,6 @@
 
 package ome.formats.importer.transfers;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,47 +30,10 @@ import java.util.List;
 public class MoveFileTransfer extends HardlinkFileTransfer {
 
     /**
-     * Deletes all hard-linked files
+     * Deletes all hard-linked files if there were no errors.
      */
     @Override
     public void afterTransfer(int errors, List<String> srcFiles) throws CleanupFailure {
-
-        if (errors > 0) {
-            printLine();
-            log.error("{} error(s) found.", errors);
-            log.error("MoveFileTransfer cleanup not performed!", errors);
-            log.error("The following files will *not* be deleted:");
-            for (String srcFile : srcFiles) {
-                log.error("\t{}", srcFile);
-            }
-            printLine();
-            return;
-        }
-
-        List<File> failedFiles = new ArrayList<File>();
-        for (String path : srcFiles) {
-            File srcFile = new File(path);
-            try {
-                log.info("Deleting source file {}...", srcFile);
-                if (!srcFile.delete()) {
-                    throw new RuntimeException("Failed to delete.");
-                }
-            } catch (Exception e) {
-                log.error("Failed to remove source file {}", srcFile);
-                failedFiles.add(srcFile);
-            }
-        }
-
-        if (!failedFiles.isEmpty()) {
-            printLine();
-            log.error("Cleanup failed!", errors);
-            log.error("{} files could not be removed and will need to " +
-                "be handled manually", failedFiles.size());
-            for (File failedFile : failedFiles) {
-                log.error("\t{}", failedFile.getAbsolutePath());
-            }
-            printLine();
-            throw new CleanupFailure(failedFiles);
-        }
+        deleteTransferredFiles(errors, srcFiles);
     }
 }

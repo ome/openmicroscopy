@@ -171,8 +171,7 @@
       <server id="Blitz-${index}" exe="${JAVA}" activation="always" pwd="${OMERO_HOME}">
         <option>MEMORY:blitz</option>
         <target name="debug">
-            <option>-Xdebug</option>
-            <option>-Xrunjdwp:server=y,transport=dt_socket,address=8787,suspend=y</option>
+          <option>-agentlib:jdwp=server=y,suspend=y,transport=dt_socket,address=8787</option>
         </target>
         <target name="blitz-gc">
             <option>-verbose:gc</option>

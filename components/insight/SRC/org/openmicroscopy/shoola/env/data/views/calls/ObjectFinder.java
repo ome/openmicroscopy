@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.calls.ObjectFinder 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -30,16 +30,8 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
-import org.openmicroscopy.shoola.env.data.model.DeletableObject;
-import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
+import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
@@ -60,7 +52,7 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 public class ObjectFinder 
 	extends BatchCallTree
 {
-
+    
 	 /** The root nodes of the found trees. */
     private Object result;
     
@@ -68,30 +60,11 @@ public class ObjectFinder
     private BatchCall loadCall;
     
     /** The security context.*/
-    private List<SecurityContext> ctx;
+    private SecurityContext ctx;
     
     /** The context of the search.*/
-    private SearchDataContext searchContext;
-    
-    /**
-     * Creates a {@link BatchCall} to retrieve the data
-     * 
-     * @param ctx The security context.
-     * @return The {@link BatchCall}.
-     */
-    private BatchCall searchFor(final SecurityContext ctx)
-    {
-        return new BatchCall("Searching") {
-            public void doCall() throws Exception
-            {
-                OmeroDataService os = context.getDataService();
-                Map<SecurityContext, Object> r = new HashMap<SecurityContext, 
-                Object>();
-                r.put(ctx, os.advancedSearchFor(ctx, searchContext));
-                result = r;
-            }
-        };
-    }
+    private SearchParameters searchContext;
+
 	
 	/**
      * Adds the {@link #loadCall} to the computation tree.
@@ -99,11 +72,14 @@ public class ObjectFinder
      */
     protected void buildTree()
     { 
-    	Iterator<SecurityContext> i = ctx.iterator();
-    	while (i.hasNext()) {
-			final SecurityContext sc = i.next();
-			add(searchFor(sc));
-		}
+        loadCall = new BatchCall("Searching") {
+            public void doCall() throws Exception
+            {
+                OmeroDataService os = context.getDataService();
+                result = os.search(ctx, searchContext);
+            }
+        };
+    	add(loadCall);
     }
 
 
@@ -112,13 +88,13 @@ public class ObjectFinder
      * 
      * @return See above.
      */
-    protected Object getPartialResult() { return result; }
+    protected Object getPartialResult() { return null; }
     
     /**
      * Returns the result of the search.
      * @see BatchCallTree#getResult()
      */
-    protected Object getResult() { return null; }
+    protected Object getResult() { return result; }
     
     /**
      * Creates a new instance.
@@ -126,8 +102,7 @@ public class ObjectFinder
      * @param ctx The security context.
      * @param searchContext The context of the search.
      */
-    public ObjectFinder(List<SecurityContext> ctx,
-    		SearchDataContext searchContext)
+    public ObjectFinder(SecurityContext ctx, SearchParameters searchContext)
     {
     	this.ctx = ctx;
     	this.searchContext = searchContext;

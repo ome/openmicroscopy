@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserModel 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -174,6 +176,9 @@ abstract class DataBrowserModel
     
     /** Reference to the browser. */
     protected ImageTableView	tableView;
+    
+    /** Reference to the SearchResultView. */
+    protected SearchResultView searchResultView;
     
     /** The number of images. */
     protected int				numberOfImages;
@@ -344,6 +349,20 @@ abstract class DataBrowserModel
     }
     
     /**
+     * Creates or recycles the {@link SearchResultView}
+     * 
+     * @return See above.
+     */
+    SearchResultView createSearchResultView()
+    {
+        if (searchResultView != null)
+            return searchResultView;
+        searchResultView = new SearchResultView((ImageDisplay)browser.getUI(), (AdvancedResultSearchModel)this);
+        
+        return searchResultView;
+    }
+    
+    /**
      * Returns the current state.
      * 
      * @return See above.
@@ -424,6 +443,15 @@ abstract class DataBrowserModel
      * @return See above.
      */
     ImageTableView getTableView() { return tableView; }
+    
+    /**
+     * Returns the SearchResultView.
+     * 
+     * @return See above.
+     */
+    SearchResultView getSearchView() {
+        return searchResultView;
+    }
     
     /**
      * Called by the <code>DataBrowser</code> after creation to allow this

@@ -24,7 +24,6 @@
 package org.openmicroscopy.shoola.env.data;
 
 
-
 //Java imports
 import java.io.File;
 import java.sql.Timestamp;
@@ -35,15 +34,13 @@ import java.util.Set;
 
 //Third-party libraries
 
-
-import omero.api.StatefulServiceInterfacePrx;
-
-
 //Application-internal dependencies
+import omero.api.StatefulServiceInterfacePrx;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
+import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
-
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -472,4 +469,23 @@ public class NullOmeroPojoService
             return null;
         }
 
+        /**
+         * No-operation implementation
+         * @see OmeroDataService#search(SecurityContext, SearchParameters)
+         */
+        public AdvancedSearchResultCollection search(SecurityContext ctx,
+                SearchParameters context) throws DSOutOfServiceException,
+                DSAccessException {
+            return null;
+        }
+
+        /**
+         * No-operation implementation
+         * @see OmeroDataService#search(SecurityContext, SearchParameters, int)
+         */
+        public AdvancedSearchResultCollection search(SecurityContext ctx,
+                SearchParameters context, int maxResults) throws DSOutOfServiceException,
+                DSAccessException {
+            return null;
+        }
 }

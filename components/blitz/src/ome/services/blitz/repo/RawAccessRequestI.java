@@ -20,6 +20,7 @@ package ome.services.blitz.repo;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -130,7 +131,8 @@ public class RawAccessRequestI extends RawAccessRequest implements IRequest {
             return repo.rawAccess(this);
         }
         catch (Throwable t) {
-            throw helper.cancel(new ERR(), t, "raw-access");
+            throw helper.cancel(new ERR(), t, "raw-access",
+                    "command", command);
         } finally {
             log.debug("Done calling raw access for command " + command);
         }
@@ -163,6 +165,12 @@ public class RawAccessRequestI extends RawAccessRequest implements IRequest {
                     throw new RepositoryException(null, null, "cannot touch file: " + checked);
                 }
             }
+        } else if ("exists".equals(command)) {
+            final String arg = args.get(0);
+            final CheckedPath checked = servant.checkPath(parse(arg), null, __current);
+            if (!checked.exists()) {
+                    throw new RepositoryException(null, null, "file does not exist: " + checked);
+            }
         } else if ("mkdir".equals(command)) {
             boolean parents = false;
             for (String arg: args) {
@@ -187,6 +195,31 @@ public class RawAccessRequestI extends RawAccessRequest implements IRequest {
             } else {
                 throw new omero.ApiUsageException(null, null,
                         "Command: " + command + " takes just one argument");
+            }
+        } else if ("mv".equals(command)) {
+            if (args.size() == 2) {
+                final CheckedPath source = servant.checkPath(parse(args.get(0)), null, __current);
+                final CheckedPath target = servant.checkPath(parse(args.get(1)), null, __current);
+                boolean success = false;
+                if (target.exists() && target.isDirectory()) {
+                    try {
+                        source.moveToDir(target, false);
+                        success = true;
+                    } catch (java.io.IOException ex) {
+                        success = false;
+                        log.warn("IOException on moveToDir: {}->{}",
+                                source, target, ex);
+                    }
+                } else {
+                    success = source.renameTo(target);
+                }
+                if (!success) {
+                    throw new omero.ResourceError(null, null,
+                        String.format("'mv %s %s' failed", source, target));
+                }
+            } else {
+                throw new omero.ApiUsageException(null, null,
+                        "Command: " + command + " takes two arguments");
             }
         } else if ("checksum".equals(command)) {
             if (args.size() == 3) {
