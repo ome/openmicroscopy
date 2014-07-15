@@ -153,12 +153,14 @@ public class GroupEditor
     	
     	switch (index) {
         case UPDATE:
-            if(result instanceof GroupData) {
+            if (result instanceof GroupData) {
+                // result of a GroupData update (name, desc., ...)
                 viewer.onAdminUpdated((GroupData) result);
                 
-                if(permissions>-1) {
-               	     // if the permissions have also changed, do this
-                     // in an extra step
+                if (permissions>-1) {
+                    // if the permissions have also changed,
+                    // apply this change in an extra step and
+                    // reuse 'this' instance as callback adapter
                     try {
                         os.updateGroupPermissions(ctx, (GroupData)result, permissions, this);
                     } catch (DSOutOfServiceException e) {
@@ -168,11 +170,11 @@ public class GroupEditor
                     }
                 }
             }
-            else if(result instanceof ProcessReport){
+            else if (result instanceof ProcessReport){
                 // result of a permission change - error
                 viewer.onPermissionUpdateFailed();
             }
-            else if(result instanceof omero.cmd.OK) {
+            else if (result instanceof omero.cmd.OK) {
                 // result of a permission change - success
                 try {
                     group = os.reloadGroup(ctx, group);
