@@ -74,6 +74,12 @@
      <constructor-arg ref="simpleSqlAction"/>
   </bean>
 
+  <bean id="dbFileSizeChecksumCheck" depends-on="dbPatchCheck"
+     class="ome.services.util.DBFileSizeChecksumCheck"
+     init-method="start" lazy-init="false">
+     <constructor-arg ref="executor"/>
+  </bean>
+
   <!--
 
   Disabling DropBox directory creation for 4.1. The directories
