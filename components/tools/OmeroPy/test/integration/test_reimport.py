@@ -206,7 +206,6 @@ class TestReimportArchivedFiles(lib.ITest):
         assert pyramidSize == rsp.pyramidSize
         assert thumbnailSize == rsp.thumbnailSize
 
-    @pytestmark
     def testConvertSynthetic(self):
         """
         Convert a pre-FS file to FS
