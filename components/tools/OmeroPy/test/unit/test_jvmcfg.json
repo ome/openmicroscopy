@@ -70,7 +70,7 @@
         "name": "global-percent-4G",
         "input": {
             "omero.jvmcfg.strategy": "percent",
-            "omero.jvmcfg.use_total": "4000"
+            "omero.jvmcfg.system_memory": "4000"
         },
         "output": {
             "blitz" : [
@@ -83,8 +83,8 @@
         "name": "global-percent-4G-min-1G",
         "input": {
             "omero.jvmcfg.strategy": "percent",
-            "omero.jvmcfg.use_total": "4000",
-            "omero.jvmcfg.min_total": "1000"
+            "omero.jvmcfg.system_memory": "4000",
+            "omero.jvmcfg.min_system_memory": "1000"
         },
         "output": {
             "blitz" : [
@@ -97,7 +97,7 @@
         "name": "global-percent-8G",
         "input": {
             "omero.jvmcfg.strategy": "percent",
-            "omero.jvmcfg.use_total": "8000"
+            "omero.jvmcfg.system_memory": "8000"
         },
         "output": {
             "blitz" : [
@@ -110,7 +110,7 @@
         "name": "global-percent-24G",
         "input": {
             "omero.jvmcfg.strategy": "percent",
-            "omero.jvmcfg.use_total": "24000"
+            "omero.jvmcfg.system_memory": "24000"
         },
         "output": {
             "blitz" : [
@@ -123,7 +123,7 @@
         "name": "global-percent-24G-max-24G",
         "input": {
             "omero.jvmcfg.strategy": "percent",
-            "omero.jvmcfg.use_total": "24000"
+            "omero.jvmcfg.system_memory": "24000"
         },
         "output": {
             "blitz" : [
@@ -136,7 +136,7 @@
         "name": "global-percent-48G-max-48G",
         "input": {
             "omero.jvmcfg.strategy": "percent",
-            "omero.jvmcfg.use_total": "48000"
+            "omero.jvmcfg.system_memory": "48000"
         },
         "output": {
             "blitz" : [
@@ -149,7 +149,7 @@
         "name": "global-percent-64G-max-64G",
         "input": {
             "omero.jvmcfg.strategy": "percent",
-            "omero.jvmcfg.use_total": "64000"
+            "omero.jvmcfg.system_memory": "64000"
         },
         "output": {
             "blitz" : [
@@ -175,7 +175,7 @@
     {
         "name": "global-percent-50per",
         "input": {
-            "omero.jvmcfg.use_total": "8000",
+            "omero.jvmcfg.system_memory": "8000",
             "omero.jvmcfg.strategy": "percent",
             "omero.jvmcfg.percent": "50"
         },
@@ -189,7 +189,7 @@
     {
         "name": "percent-defaults-8GB",
         "input": {
-            "omero.jvmcfg.use_total": "8000",
+            "omero.jvmcfg.system_memory": "8000",
             "omero.jvmcfg.strategy": "percent"
         },
         "output": {
