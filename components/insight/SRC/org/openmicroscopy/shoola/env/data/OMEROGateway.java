@@ -5102,7 +5102,9 @@ class OMEROGateway
                     result += "description";
                 }
                 if (scopeId == SearchParameters.ANNOTATION) {
-                    result += "annotation";
+                    // TODO: adding file.xyz is a workaround for these things not 
+                    // being part of the annotation index, can be removed again for > 5.0
+                    result += "annotation, file.name, file.path, file.contents, file.format";
                 }
             }
     
