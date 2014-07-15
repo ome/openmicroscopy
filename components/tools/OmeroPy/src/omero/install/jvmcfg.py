@@ -88,9 +88,9 @@ class Settings(object):
             "perm_gen": "128m",
             "heap_dump": "off",
             "heap_size": "512m",
-            "use_total": None,
-            "max_total": "48000",
-            "min_total": "3413",
+            "system_memory": None,
+            "max_system_memory": "48000",
+            "min_system_memory": "3413",
         }
         self.__manual = dict()
 
@@ -154,19 +154,19 @@ class Strategy(object):
         Returns a tuple, in MB, of available, active, and total memory.
 
         "total" memory is found by calling to first a Python library
-        (if installed) and otherwise a Java class. If "use_total" is
-        set, it will short-circuit both methods.
+        (if installed) and otherwise a Java class. If
+        "system_memory" is set, it will short-circuit both methods.
 
-        "active" memory is set to "total" but limited by "min_total"
-        and "max_total".
+        "active" memory is set to "total" but limited by "min_system_memory"
+        and "max_system_memory".
 
         "available" may not be accurate, and in some cases will be
         set to total.
         """
 
         available, total = None, None
-        if self.settings.use_total is not None:
-            total = int(self.settings.use_total)
+        if self.settings.system_memory is not None:
+            total = int(self.settings.system_memory)
             available = total
         else:
             pymem = self._system_memory_mb_psutil()
@@ -175,9 +175,9 @@ class Strategy(object):
             else:
                 available, total = self._system_memory_mb_java()
 
-        max_total = int(self.settings.max_total)
-        min_total = int(self.settings.min_total)
-        active = max(min(total, max_total), min_total)
+        max_system_memory = int(self.settings.max_system_memory)
+        min_system_memory = int(self.settings.min_system_memory)
+        active = max(min(total, max_system_memory), min_system_memory)
         return available, active, total
 
     def _system_memory_mb_psutil(self):
@@ -457,7 +457,7 @@ def usage_charts(path,
         (Settings({}), 'A'),
         (Settings({"percent": "20"}), 'B'),
         (Settings({}), 'C'),
-        (Settings({"max_total": "10000"}), 'D'),
+        (Settings({"max_system_memory": "10000"}), 'D'),
     )
 
     def f(cfg):
