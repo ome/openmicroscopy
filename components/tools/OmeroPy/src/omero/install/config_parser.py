@@ -256,9 +256,12 @@ class PropertyParser(object):
                 t = p.txt
                 t = ["%6s%s" % (" ", x) for x in t.split("\n")]
                 t = "\n".join(t)
+                v = p.val
+                if not p.val:
+                    v = "(empty)"
                 m = {"key": p.key,
                      "txt": t,
-                     "val": p.val}
+                     "val": v}
                 properties += PROPERTY % m
 
             hline = "-" * len(header)
