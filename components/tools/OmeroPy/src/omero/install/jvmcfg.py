@@ -90,7 +90,7 @@ class Settings(object):
             "heap_size": "512m",
             "system_memory": None,
             "max_system_memory": "48000",
-            "min_system_memory": "3413",
+            "min_system_memory": "3414",
         }
         self.__manual = dict()
 
