@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.AdminViewImpl 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -31,6 +31,7 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
@@ -70,17 +71,16 @@ class AdminViewImpl
 				AdminLoader.EXPERIMENTER_UPDATE);
 		return cmd.exec(observer);
 	}
-
+	
 	/**
-	 * Implemented as specified by the {@link AdminView} interface.
-	 * @see AdminView#updateGroup(SecurityContext, GroupData, int, AgentEventListener)
-	 */
-	public CallHandle updateGroup(SecurityContext ctx, GroupData group,
-			int permissions, AgentEventListener observer)
-	{
-		BatchCallTree cmd = new AdminLoader(ctx, group, permissions);
-		return cmd.exec(observer);
-	}
+         * Implemented as specified by the {@link AdminView} interface.
+         * @see AdminView#updateGroup(SecurityContext, GroupData, AgentEventListener)
+         */
+        public CallHandle updateGroup(SecurityContext ctx, GroupData group, AgentEventListener observer)
+        {
+                BatchCallTree cmd = new AdminLoader(ctx, group);
+                return cmd.exec(observer);
+        }
 	
 	/**
 	 * Implemented as specified by the {@link AdminView} interface.
