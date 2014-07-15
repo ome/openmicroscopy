@@ -36,16 +36,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 //Third-party libraries
-
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.FileAnnotationCheckResult;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
@@ -74,7 +72,6 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-
 import pojos.AnnotationData;
 import pojos.ChannelAcquisitionData;
 import pojos.ChannelData;
