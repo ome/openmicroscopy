@@ -161,6 +161,10 @@ class PrefsControl(BaseControl):
             help="Files to read from. Default to standard input if not"
             " specified")
 
+        parse = parser.add(
+            sub, self.parse,
+            "Parse the etc/omero.properties file for readability")
+
         parser.add(sub, self.edit, "Present the properties for the current"
                    " profile in your editor. Saving them will update your"
                    " profile.")
@@ -321,6 +325,13 @@ class PrefsControl(BaseControl):
         for k in config.keys():
             if k not in config.IGNORE:
                 self.ctx.out(k)
+
+    def parse(self, args):
+        from omero.install.config_parser import PropertyParser
+        pp = PropertyParser()
+        cfg = self.dir / "etc" / "omero.properties"
+        pp.parse(str(cfg.abspath()))
+        pp.print_rst()
 
     @with_rw_config
     def load(self, args, config):
