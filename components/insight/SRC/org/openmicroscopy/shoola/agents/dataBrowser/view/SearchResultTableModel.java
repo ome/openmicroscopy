@@ -192,8 +192,10 @@ public class SearchResultTableModel extends DefaultTableModel {
             return IconManager.getInstance().getIcon(IconManager.DATASET_48);
         }
 
+        // TODO: These are 16px icons, replace with 48px ones, if/once we have some
+        
         else if (obj instanceof ScreenData) {
-            return IconManager.getInstance().getIcon(IconManager.SCREEN_48);
+            return IconManager.getInstance().getIcon(IconManager.SCREEN);
         }
 
         else if (obj instanceof PlateData) {
