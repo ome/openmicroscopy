@@ -207,16 +207,23 @@ class GroupProfile
     {
     	JPanel p = new JPanel();
     	p.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	GroupData group = (GroupData) model.getRefObject();
-    	Set<ExperimenterData> leaders = group.getLeaders();
-    	if (leaders == null || leaders.size() == 0) return p;
     	
-    	Iterator<ExperimenterData> i = leaders.iterator();
-    	ExperimenterData exp;
-    	while (i.hasNext()) {
-			exp = (ExperimenterData) i.next();
-			p.add(new JLabel(EditorUtil.formatExperimenter(exp)));
-		}
+    	if (model.getRefObject() instanceof GroupData) {
+        	GroupData group = (GroupData) model.getRefObject();
+        	Set<ExperimenterData> leaders = group.getLeaders();
+        	if (leaders == null || leaders.size() == 0) return p;
+        	
+        	Iterator<ExperimenterData> i = leaders.iterator();
+        	ExperimenterData exp;
+        	while (i.hasNext()) {
+    			exp = (ExperimenterData) i.next();
+    			p.add(new JLabel(EditorUtil.formatExperimenter(exp)));
+    		}
+    	}
+    	else {
+    	  return p;
+    	}
+    
     	JPanel content = UIUtilities.buildComponentPanel(p);
     	content.setBackground(UIUtilities.BACKGROUND_COLOR);
     	content.setBorder(BorderFactory.createTitledBorder("Owners"));
