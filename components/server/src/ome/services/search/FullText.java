@@ -136,7 +136,13 @@ public class FullText extends SearchAction {
         try {
             this.queryStr = LuceneQueryBuilder.buildLuceneQuery(fieldsArray, dFrom,
                     dTo, dateType, query);
-            log.info("Generated Lucene query: "+this.queryStr);
+            if (this.queryStr.isEmpty()) {
+                q = null;
+                log.info("Generated empty Lucene query");
+                return; // EARLY EXIT!
+            } else {
+                log.info("Generated Lucene query: "+this.queryStr);
+            }
         } catch (InvalidQueryException e1) {
             throw new ApiUsageException(
                     "Invalid query: "+e1.getMessage());
@@ -292,6 +298,10 @@ public class FullText extends SearchAction {
 
     @Transactional(readOnly = true)
     public Object doWork(Session s, ServiceFactory sf) {
+
+        if (q == null) {
+            return null;
+        }
 
         final Class<?> cls = values.onlyTypes.get(0);
         FullTextSession session = Search.createFullTextSession(s);

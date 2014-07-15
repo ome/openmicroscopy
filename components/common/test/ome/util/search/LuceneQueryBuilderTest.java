@@ -40,6 +40,9 @@ public class LuceneQueryBuilderTest extends TestCase{
         String raw, expected;
         List<String> fields = new ArrayList<String>();
         
+        // Invalid
+        raw = "%"; expected = "";
+        checkQuery(fields, raw, expected);
         
         // No fields are provided
         
