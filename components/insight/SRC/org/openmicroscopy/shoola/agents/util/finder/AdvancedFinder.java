@@ -477,11 +477,18 @@ public class AdvancedFinder
 	public void setResult(AdvancedSearchResultCollection result)
 	{
             if (result.isError()) {
-                String msg;
-                if (result.getError() == AdvancedSearchResultCollection.GENERAL_ERROR)
-                    msg = "Invalid search expression";
-                else
-                    msg = "Too many results, please refine your search criteria.";
+                String msg = "";
+                switch (result.getError()) {
+                    case AdvancedSearchResultCollection.GENERAL_ERROR:
+                        msg = "Invalid search expression";
+                        break;
+                    case AdvancedSearchResultCollection.TOO_MANY_RESULTS_ERROR:
+                        msg = "Too many results, please refine your search criteria.";
+                        break;
+                    case AdvancedSearchResultCollection.TOO_MANY_CLAUSES:
+                        msg = "Please try to narrow down your query. The wildcard matched too many terms.";
+                        break;
+                }
                 UserNotifier un = FinderFactory.getRegistry().getUserNotifier();
                 un.notifyError("Search error", msg);
                 setSearchEnabled(false);
