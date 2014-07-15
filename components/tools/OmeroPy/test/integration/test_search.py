@@ -336,3 +336,15 @@ class TestSearch(lib.ITest):
 
         finally:
             search.close()
+
+    def test_empty_query_string(self):
+        query = "%"
+        client = self.new_client()
+
+        search = client.sf.createSearchService()
+        search.onlyType("Image")
+
+        try:
+            search.byLuceneQueryBuilder("", "", "", "", "%")
+        finally:
+            search.close()
