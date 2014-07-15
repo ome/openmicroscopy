@@ -229,45 +229,21 @@ class PropertyParser(object):
             headers[key].append(x)
         return headers
 
-
-if __name__ == "__main__":
-    ap = argparse.ArgumentParser()
-    g = ap.add_mutually_exclusive_group()
-    g.add_argument("--rst", action="store_true")
-    g.add_argument("--dbg", action="store_true")
-    g.add_argument("--keys", action="store_true")
-    g.add_argument("--headers", action="store_true")
-    ap.add_argument("files", nargs="+")
-    ns = ap.parse_args()
-
-
-    if ns.dbg:
-        logging.basicConfig(level=10)
-    else:
-        logging.basicConfig(level=20)
-
-
-    pp = PropertyParser()
-    pp.parse(ns.files)
-
-    if ns.dbg:
-        print "Found:", len(list(pp))
-
-    elif ns.keys:
-        data = pp.data()
+    def print_keys(self):
+        data = self.data()
         for k, v in sorted(data.items()):
             print "%s (%s)" % (k, len(v))
             for i in v:
                 print "\t", i
 
-    elif ns.headers:
-        headers = pp.headers()
+    def print_headers(self):
+        headers = self.headers()
         for k, v in sorted(headers.items()):
             print "%s (%s)" % (k, len(v))
 
-    elif ns.rst:
+    def print_rst(self):
         print TOP
-        headers = pp.headers()
+        headers = self.headers()
         for header in sorted(headers):
             properties = ""
 
@@ -287,5 +263,32 @@ if __name__ == "__main__":
                  "reference": header.lower()}
             print HEADER % m
 
+if __name__ == "__main__":
+    ap = argparse.ArgumentParser()
+    g = ap.add_mutually_exclusive_group()
+    g.add_argument("--rst", action="store_true")
+    g.add_argument("--dbg", action="store_true")
+    g.add_argument("--keys", action="store_true")
+    g.add_argument("--headers", action="store_true")
+    ap.add_argument("files", nargs="+")
+    ns = ap.parse_args()
+
+    if ns.dbg:
+        logging.basicConfig(level=10)
+    else:
+        logging.basicConfig(level=20)
+
+    pp = PropertyParser()
+    pp.parse(ns.files)
+
+    if ns.dbg:
+        print "Found:", len(list(pp))
+
+    elif ns.keys:
+        pp.print_keys()
+    elif ns.headers:
+        pp.print_headers()
+    elif ns.rst:
+        pp.print_rst()
     else:
         raise Exception(ns)
