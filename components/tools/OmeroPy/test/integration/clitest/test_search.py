@@ -27,7 +27,9 @@ from datetime import timedelta
 
 from test.integration.clitest.cli import CLITest
 from omero.cli import NonZeroReturnCode
+from omero.model import DatasetI
 from omero.plugins.search import SearchControl
+from omero.rtypes import rstring
 
 
 class TestSearch(CLITest):
@@ -36,6 +38,14 @@ class TestSearch(CLITest):
         self._uuid = self.uuid().replace("-", "")
         self._image = self.importMIF(name=self._uuid)[0]
         self.root.sf.getUpdateService().indexObject(self._image)
+
+    def mkdataset(self):
+        self._uuid_ds = self.uuid().replace("-", "")
+        self._dataset = DatasetI()
+        self._dataset.name = rstring(self._uuid_ds)
+        update = self.client.sf.getUpdateService()
+        self._dataset = update.saveAndReturnObject(self._dataset)
+        self.root.sf.getUpdateService().indexObject(self._dataset)
 
     def short(self):
         return self._uuid[0:8]
@@ -55,12 +65,14 @@ class TestSearch(CLITest):
         self.cli.invoke(self.args, strict=True)
         return self.cli.get("search.results")
 
-    def assertSearch(self, args, success=True):
+    def assertSearch(self, args, success=True, name=None):
+        if name is None:
+            name = self._uuid
         self.args.extend(list(args))
         if success:
             results = self.go()
             assert 1 == len(results)
-            assert self._uuid in results[0].name.val
+            assert name in results[0].name.val
         else:
             with pytest.raises(NonZeroReturnCode):
                 results = self.go()
@@ -131,3 +143,11 @@ class TestSearch(CLITest):
         short = self.short()
         args = ["Image", short + "*", "--no-parse"]
         self.assertSearch(args)
+
+    def test_search_dataset_acquisition(self):
+        self.mkdataset()
+        txt = self._uuid_ds[0:8] + "*"
+        _from = "--from=%s" % self.days_ago(1)
+        _to = "--to=%s" % self.days_ago(-1)
+        args = ["Dataset", txt, _from, _to]
+        self.assertSearch(args, name=self._uuid_ds)
