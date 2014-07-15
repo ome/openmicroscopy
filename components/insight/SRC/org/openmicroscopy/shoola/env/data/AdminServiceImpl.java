@@ -400,6 +400,10 @@ class AdminServiceImpl
                 cb.setAdapter(adapter);
         }
 	
+        /**
+         * Implemented as specified by {@link AdminService}.
+         * @see AdminService#reloadGroup(SecurityContext, GroupData)
+         */
         public GroupData reloadGroup(SecurityContext ctx, GroupData group)
                 throws DSOutOfServiceException, DSAccessException {
             group = gateway.loadGroups(ctx, group.getGroupId()).get(0);

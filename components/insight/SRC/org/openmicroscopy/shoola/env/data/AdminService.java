@@ -123,10 +123,18 @@ public interface AdminService
      * @throws DSAccessException If an error occurred while trying to
      * retrieve data from OMERO service. 
      */
-    void updateGroupPermissions(SecurityContext ctx, GroupData group,
+    public void updateGroupPermissions(SecurityContext ctx, GroupData group,
             int permissions, DSCallAdapter adapter)
                     throws DSOutOfServiceException, DSAccessException;
     
+    /**
+     * Reloads a group from the server
+     * @param ctx The security context.
+     * @param group The group to load.
+     * @return
+     * @throws DSOutOfServiceException
+     * @throws DSAccessException
+     */
     public GroupData reloadGroup(SecurityContext ctx, GroupData group)
             throws DSOutOfServiceException, DSAccessException ;
     
