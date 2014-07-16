@@ -360,7 +360,7 @@ public class CommandLineImporter {
             + "    --checksum_algorithm=ARG\tChoose a possibly faster algorithm for detecting file corruption,\n"
             + "                            \te.g. Adler-32 (fast), CRC-32 (fast), MD5-128,\n"
             + "                            \t     Murmur3-32, Murmur3-128, SHA1-160 (slow, default)\n\n"
-            + "  e.g. $ bin/omero import --checksum_algorithm=CRC-32 foo.tiff\n"
+            + "  e.g. $ bin/omero import -- --checksum_algorithm=CRC-32 foo.tiff\n"
             + "       $ ./importer-cli --checksum_algorithm=Murmur3-128 bar.tiff\n"
             + "\n"
             + "Report bugs to <ome-users@lists.openmicroscopy.org.uk>");
