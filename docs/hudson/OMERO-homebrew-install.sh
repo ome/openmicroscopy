@@ -142,6 +142,9 @@ bin/omero logout
 
 # Start OMERO.web
 bin/brew install nginx
-bin/omero web config nginx > $(bin/brew --prefix omero)/etx/nginx.conf
-nginx -c $(bin/brew --prefix omero)/etx/nginx.conf
+bin/omero web config nginx > $(bin/brew --prefix omero)/etc/nginx.conf
+nginx -c $(bin/brew --prefix omero)/etc/nginx.conf
 bin/omero web start
+
+bin/omero web stop
+nginx -c $(bin/brew --prefix omero)/etc/nginx.conf - stop
