@@ -45,6 +45,13 @@ class BaseSearch(BaseController):
 
     
     def search(self, query, onlyTypes, fields, searchGroup, ownedBy, useAcquisitionDate, date=None):
+
+        # If fields contains 'annotation', we really want to search files too
+        fields = set(fields)
+        if "annotation" in fields:
+            fields = fields.union(("file.name", "file.path", "file.format", "file.contents"))
+        fields = list(fields)
+
         created = None
         batchSize = 500
         if len(onlyTypes) == 1:
