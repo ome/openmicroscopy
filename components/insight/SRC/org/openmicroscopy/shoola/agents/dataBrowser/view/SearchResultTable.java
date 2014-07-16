@@ -114,6 +114,9 @@ public class SearchResultTable extends JXTable {
 
         setRowHeight(70);
 
+        // disable column dragging:
+        getTableHeader().setReorderingAllowed(false);
+        
         getSelectionModel().setSelectionMode(
                 ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
