@@ -212,6 +212,8 @@ public class SearchResultTableModel extends DefaultTableModel {
             case 3:
                 return String.class;
             case 4:
+                return String.class;
+            case 5:
                 return DataObject.class;
             default:
                 return String.class;
