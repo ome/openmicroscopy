@@ -47,11 +47,11 @@ clean:
 api:
 	if [ ! -d omero ]; then \
 	  mkdir omero; \
-	  sphinx-apidoc -T -o omero ../../dist/lib/python/omero; \
+	  sphinx-apidoc -T -e -d 2 -o omero ../../dist/lib/python/omero; \
 	fi
 	if [ ! -d omeroweb ]; then \
 	  mkdir omeroweb; \
-	  sphinx-apidoc -T -o omeroweb ../../dist/lib/python/omeroweb; \
+	  sphinx-apidoc -T -e -d 2 -o omeroweb ../../dist/lib/python/omeroweb; \
 	fi
 
 html: api
