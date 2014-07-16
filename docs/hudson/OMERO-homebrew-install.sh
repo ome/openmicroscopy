@@ -75,7 +75,7 @@ cd /usr/local
 
 # Install Bio-Formats
 bin/brew install bioformats
-showinf -version
+VERBOSE=1 bin/brew test bioformats
 
 ###################################################################
 # OMERO installation
@@ -92,6 +92,9 @@ else
     bin/brew install omero
     export PYTHONPATH=$OMERO_PYTHONPATH
 fi
+VERBOSE=1 bin/brew test omero
+
+# Install PostgreSL
 bin/brew install postgres
 
 # Install OMERO Python dependencies
