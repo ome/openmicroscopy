@@ -139,3 +139,9 @@ bin/omero login -s localhost -u root -w root_password
 touch test.fake
 bin/omero import test.fake
 bin/omero logout
+
+# Start OMERO.web
+bin/brew install nginx
+bin/omero web config nginx > $(bin/brew --prefix omero)/etx/nginx.conf
+nginx -c $(bin/brew --prefix omero)/etx/nginx.conf
+bin/omero web start
