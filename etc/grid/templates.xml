@@ -220,6 +220,7 @@
           <properties refid="Blitz"/>
           <properties refid="MultiThreaded"/>
           <properties refid="Profile"/>
+          <property name="REPLACEMENT:blitz" value="REPLACEME"/>
         </properties>
       </server>
     </server-template>
@@ -244,8 +245,7 @@
           <properties refid="SingleThreaded"/>
           <properties refid="Profile"/>
           <!-- Silence these -->
-          <property name="omero.throttling.method_time.warn" value="3600000"/><!--1 hour -->
-          <property name="omero.throttling.method_time.error" value="86400000"/><!-- 1 day -->
+          <property name="REPLACEMENT:indexer" value="REPLACEME"/>
         </properties>
       </server>
     </server-template>
@@ -271,6 +271,7 @@
           <properties refid="SingleThreaded"/>
           <properties refid="Profile"/>
           <property name="omero.repo.dir" value="${dir}"/>
+          <property name="REPLACEMENT:pixeldata" value="REPLACEME"/>
         </properties>
       </server>
     </server-template>
@@ -298,6 +299,7 @@
           <properties refid="MultiThreaded"/>
           <properties refid="Repository"/>
           <properties refid="Profile"/>
+          <property name="REPLACEMENT:repository" value="REPLACEME"/>
         </properties>
       </server>
     </server-template>

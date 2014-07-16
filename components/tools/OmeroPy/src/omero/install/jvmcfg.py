@@ -28,10 +28,10 @@ from shlex import split
 
 import logging
 
-LOGGER = logging.getLogger("omero.install.memory")
+LOGGER = logging.getLogger("omero.install.jvmcfg")
 
 
-def strip_prefix(map, prefix=("omero", "mem")):
+def strip_prefix(map, prefix=("omero", "jvmcfg")):
     """
     For the given dictionary, remove a copy of the
     dictionary where all entries not matching the
@@ -88,9 +88,9 @@ class Settings(object):
             "perm_gen": "128m",
             "heap_dump": "off",
             "heap_size": "512m",
-            "use_total": None,
-            "max_total": "48000",
-            "min_total": "3413",
+            "system_memory": None,
+            "max_system_memory": "48000",
+            "min_system_memory": "3414",
         }
         self.__manual = dict()
 
@@ -154,19 +154,19 @@ class Strategy(object):
         Returns a tuple, in MB, of available, active, and total memory.
 
         "total" memory is found by calling to first a Python library
-        (if installed) and otherwise a Java class. If "use_total" is
-        set, it will short-circuit both methods.
+        (if installed) and otherwise a Java class. If
+        "system_memory" is set, it will short-circuit both methods.
 
-        "active" memory is set to "total" but limited by "min_total"
-        and "max_total".
+        "active" memory is set to "total" but limited by "min_system_memory"
+        and "max_system_memory".
 
         "available" may not be accurate, and in some cases will be
         set to total.
         """
 
         available, total = None, None
-        if self.settings.use_total is not None:
-            total = int(self.settings.use_total)
+        if self.settings.system_memory is not None:
+            total = int(self.settings.system_memory)
             available = total
         else:
             pymem = self._system_memory_mb_psutil()
@@ -175,9 +175,9 @@ class Strategy(object):
             else:
                 available, total = self._system_memory_mb_java()
 
-        max_total = int(self.settings.max_total)
-        min_total = int(self.settings.min_total)
-        active = max(min(total, max_total), min_total)
+        max_system_memory = int(self.settings.max_system_memory)
+        min_system_memory = int(self.settings.min_system_memory)
+        active = max(min(total, max_system_memory), min_system_memory)
         return available, active, total
 
     def _system_memory_mb_psutil(self):
@@ -368,6 +368,7 @@ def adjust_settings(config, template_xml,
     from xml.etree.ElementTree import Element
     from collections import defaultdict
 
+    replacements = dict()
     options = dict()
     for template in template_xml.findall("server-template"):
         for server in template.findall("server"):
@@ -375,6 +376,11 @@ def adjust_settings(config, template_xml,
                 o = option.text
                 if o.startswith("MEMORY:"):
                     options[o[7:]] = (server, option)
+            for props in server.findall("properties"):
+                for prop in props.findall("property"):
+                    name = prop.attrib.get("name", "")
+                    if name.startswith("REPLACEMENT:"):
+                        replacements[name[12:]] = (server, prop)
 
     rv = defaultdict(list)
     m = config.as_map()
@@ -382,9 +388,9 @@ def adjust_settings(config, template_xml,
             ("pixeldata", pixeldata), ("repository", repository))
 
     for name, StrategyType in loop:
-        prefix = "omero.mem.%s" % name
+        prefix = "omero.jvmcfg.%s" % name
         specific = strip_prefix(m, prefix=prefix)
-        defaults = strip_prefix(m, prefix="omero.mem")
+        defaults = strip_prefix(m, prefix="omero.jvmcfg")
         settings = Settings(specific, defaults)
         rv[name].append(settings)
         if StrategyType is None:
@@ -399,13 +405,34 @@ def adjust_settings(config, template_xml,
         idx = 0
         for v in settings:
             rv[name].append(v)
-            if idx == 1:
+            if idx == 0:
                 option.text = v
             else:
                 elem = Element("option")
                 elem.text = v
                 server.insert(idx, elem)
             idx += 1
+
+        # Now we check for any other properties and
+        # put them where the replacement should go.
+        for k, v in m.items():
+            r = []
+            suffix = ".%s" % name
+            size = len(suffix)
+            if k.endswith(suffix):
+                k = k[:-size]
+                r.append((k, v))
+
+        server, replacement = replacements[name]
+        idx = 0
+        for k, v in r:
+            if idx == 0:
+                replacement.attrib["name"] = k
+                replacement.attrib["value"] = v
+            else:
+                elem = Element("property", name=k, value=v)
+                server.append(elem)
+
     return rv
 
 
@@ -430,7 +457,7 @@ def usage_charts(path,
         (Settings({}), 'A'),
         (Settings({"percent": "20"}), 'B'),
         (Settings({}), 'C'),
-        (Settings({"max_total": "10000"}), 'D'),
+        (Settings({"max_system_memory": "10000"}), 'D'),
     )
 
     def f(cfg):
