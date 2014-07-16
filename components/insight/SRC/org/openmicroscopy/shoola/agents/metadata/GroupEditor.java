@@ -63,6 +63,8 @@ public class GroupEditor
     /** Indicates to change the default group.*/
     public static final int CHANGE = 1;
     
+    private static final String GROUP_PERMISSION_ERROR_MSG = "Could not change group permissions";
+    
 	/** The group to update. */
 	private GroupData group;
 	
@@ -164,15 +166,15 @@ public class GroupEditor
                     try {
                         os.updateGroupPermissions(ctx, (GroupData)result, permissions, this);
                     } catch (DSOutOfServiceException e) {
-                        viewer.onPermissionUpdateFailed();
+                        MetadataViewerAgent.getRegistry().getUserNotifier().notifyError("Error", GROUP_PERMISSION_ERROR_MSG);
                     } catch (DSAccessException e) {
-                        viewer.onPermissionUpdateFailed();
+                        MetadataViewerAgent.getRegistry().getUserNotifier().notifyError("Error", GROUP_PERMISSION_ERROR_MSG);
                     }
                 }
             }
             else if (result instanceof ProcessReport){
                 // result of a permission change - error
-                viewer.onPermissionUpdateFailed();
+                MetadataViewerAgent.getRegistry().getUserNotifier().notifyError("Error", GROUP_PERMISSION_ERROR_MSG);
             }
             else if (result instanceof omero.cmd.OK) {
                 // result of a permission change - success
@@ -180,9 +182,9 @@ public class GroupEditor
                     group = os.reloadGroup(ctx, group);
                     viewer.onAdminUpdated(group);
                 } catch (DSOutOfServiceException e) {
-                    viewer.onPermissionUpdateFailed();
+                    MetadataViewerAgent.getRegistry().getLogger().debug(this, "Couldn't reload group.");
                 } catch (DSAccessException e) {
-                    viewer.onPermissionUpdateFailed();
+                    MetadataViewerAgent.getRegistry().getLogger().debug(this, "Couldn't reload group.");
                 }
             }
             break;
