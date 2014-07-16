@@ -28,14 +28,12 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Desktop;
-import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
+
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -50,7 +48,6 @@ import javax.swing.border.TitledBorder;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 
 /** 
  * Dialog presenting how to use the Search widget.
@@ -68,14 +65,16 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 public class SearchHelp 
 	extends JDialog
 {
-
-        // TODO: Replace with URL directly pointing to the search help page
-        private static final String HELP_URL = "http://help.openmicroscopy.org/";
-        
 	/** Button to close the window. */
 	private JButton closeButton;
 	
-	/** Closes and disposes. */
+	private String helpURL = "";
+	
+	/** Indicates if there was a problem opening the webbrowser */
+	private boolean helpWebbrowserError = false;
+	
+
+    /** Closes and disposes. */
 	private void close()
 	{
 		setVisible(false);
@@ -90,7 +89,6 @@ public class SearchHelp
 		
 			public void actionPerformed(ActionEvent e) {
 				close();
-		
 			}
 		
 		});
@@ -109,7 +107,7 @@ public class SearchHelp
 		content.setLayout(lay);
 		content.setBorder(new TitledBorder(""));
 		content.add(new JLabel(formatText()));
-		content.add(linkout("OMERO Help Website", HELP_URL));
+		content.add(linkout("OMERO Help Website", helpURL));
 		return content;
 	}
 	
@@ -171,18 +169,21 @@ public class SearchHelp
                 try {
                     Desktop.getDesktop().browse(new URI(url));
                 } catch (Exception ex) {
-                    TreeViewerAgent
-                            .getRegistry()
-                            .getUserNotifier()
-                            .notifyError(
-                                    "Could not open web browser",
-                                    "Please open your web browser and go to page: "
-                                            + url);
+                    helpWebbrowserError = true;
+                    close();
                 }
             }
         });
 
         return l;
+	}
+	
+	/**
+	 * Checks if there was an error opening the webbrowser
+	 * @return
+	 */
+	public boolean hasError() {
+	    return helpWebbrowserError;
 	}
 	
 	/** Builds and lays out the UI. */
@@ -201,10 +202,12 @@ public class SearchHelp
 	 * Creates a new instance. 
 	 * 
 	 * @param owner The owner of the frame.
+	 * @param helpURL URL for the search help website
 	 */
-	public SearchHelp(JFrame owner)
+	public SearchHelp(JFrame owner, String helpURL)
 	{
 		super(owner);
+		this.helpURL = helpURL;
 		setModal(true);
 		setResizable(false);
 		initComponents();
