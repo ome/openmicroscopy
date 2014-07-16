@@ -105,7 +105,7 @@ public class SharedResourcesI extends AbstractCloseableAmdServant implements
      * Length of time (ms) to give a script session to live. Once the session
      * times out, the process will be killed.
      *
-     * @since 5.03
+     * @since 5.0.3
      */
     private final long timeout;
 
@@ -443,8 +443,6 @@ public class SharedResourcesI extends AbstractCloseableAmdServant implements
             updateJob(job.getId().getValue(), "Error", msg, current);
             throw new omero.NoProcessorAvailable(null, null, msg, count);
         }
-
-        long timeout = System.currentTimeMillis() + this.timeout;
 
         InteractiveProcessorI ip = new InteractiveProcessorI(sf.principal,
                 sf.sessionManager, sf.executor, server, job, timeout,
