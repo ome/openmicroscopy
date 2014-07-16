@@ -66,21 +66,14 @@ and :doc:`Windows <windows/server-installation>` pages, as well as the
 
 HEADER = \
     """
+.. _%(reference)s_configuration:
+
 %(header)s
 %(hline)s
 
 .. glossary::
 
-    %(properties)s
-
-.. _%(reference)s_configuration:
-"""
-
-PROPERTY = \
-    """
-    %(key)s
-%(txt)s
-        Default: `%(val)s`
+%(properties)s
 """
 
 BLACK_LIST = ("##", "versions", "omero.upgrades")
@@ -191,7 +184,8 @@ class PropertyParser(object):
 
     def append(self, line):
         self.init()
-        self.p.append(line[1:])
+        # Assume line starts with "# " and strip
+        self.p.append(line[2:])
 
     def detect(self, line):
         if self.in_progress:
@@ -247,22 +241,20 @@ class PropertyParser(object):
             print "%s (%s)" % (k, len(v))
 
     def print_rst(self):
+        space4 = " " * 4
+        space6 = " " * 6
         print TOP
         headers = self.headers()
         for header in sorted(headers):
             properties = ""
-
             for p in headers[header]:
-                t = p.txt
-                t = ["%6s%s" % (" ", x) for x in t.split("\n")]
-                t = "\n".join(t)
+                properties += "%s%s\n" % (space4, p.key)
+                for line in p.txt.split("\n"):
+                    properties += "%s%s\n" % (space6, line)
                 v = p.val
                 if not p.val:
-                    v = "(empty)"
-                m = {"key": p.key,
-                     "txt": t,
-                     "val": v}
-                properties += PROPERTY % m
+                    v = "[empty]"
+                properties += "%sDefault: `%s`\n\n" % (space6, v)
 
             hline = "-" * len(header)
             m = {"header": header,
