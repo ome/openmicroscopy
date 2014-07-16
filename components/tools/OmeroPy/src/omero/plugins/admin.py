@@ -99,7 +99,11 @@ come up, i.e. status == 0
 
 If the first argument can be found as a file, it will be deployed as the
 application descriptor rather than etc/grid/default.xml. All other arguments
-will be used as targets to enable optional sections of the descriptor""",
+will be used as targets to enable optional sections of the descriptor.
+
+On Windows, two arguments (-u and -w) specify the Windows service Log On As
+user credentials. If not specified, omero.windows.user and omero.windows.pass
+will be used.""",
             wait=True)
 
         Action("startasync", "The same as start but returns immediately",)
@@ -348,18 +352,16 @@ present, the user will enter a console""")
             "--nodeonly", action="store_true",
             help="If set, then only tests if the icegridnode is running")
 
-        for name in ("start", "startasync"):
+        for name in ("start", "startasync", "restart", "restartasync"):
             self.actions[name].add_argument(
                 "--foreground", action="store_true",
                 help="Start server in foreground mode (no daemon/service)")
             self.actions[name].add_argument(
                 "-u", "--user",
-                help="Service Log On As user name. If none given, the value"
-                " of omero.windows.user will be used. (Windows-only)")
+                help="Windows Service Log On As user name.")
             self.actions[name].add_argument(
-                "-w", "--password",
-                help="Service Log On As user password. If none given, the"
-                " value of omero.windows.pass will be used. (Windows-only)")
+                "-w", "--password", metavar="PW",
+                help="Windows Service Log On As user password.")
 
         for name in ("start", "startasync", "deploy", "restart",
                      "restartasync"):
