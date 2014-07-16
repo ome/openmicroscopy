@@ -17,6 +17,9 @@ clean()
 build_java()
 {
     TEST="-p" ./build.py build-default test-compile
+    ./build.py -java test -Dtest.with.fail=true
+    ./build.py -f components/model/build.xml test -Dtest.with.fail=true
+    ./build.py -f components/common/build.xml test -Dtest.with.fail=true
 }
 
 build_python()
