@@ -373,11 +373,6 @@ public interface MetadataViewer
 	public void onAdminUpdated(Object data);
 	
 	/**
-	 * Indicates that a group permission update failed
-	 */
-	public void onPermissionUpdateFailed();
-	
-	/**
 	 * Loads the containers hosting the currently edited object.
 	 */
 	public void loadParents();
