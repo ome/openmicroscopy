@@ -415,7 +415,7 @@ class Context:
 
     def out(self, text, newline = True):
         """
-        Expects as single string as argument"
+        Expects a single string as argument.
         """
         self.safePrint(text, sys.stdout, newline)
 
@@ -596,7 +596,7 @@ class BaseControl(object):
 
     def _pid(self):
         """
-        Returns a path of the form "_nodedata() / _node() + ".pid",
+        Returns a path of the form _nodedata() / (_node() + ".pid"),
         i.e. a file named NODENAME.pid in the node's data directory.
         """
         pidfile = self._nodedata() / (self._node() + ".pid")
