@@ -263,6 +263,7 @@ class ConfigXml(object):
         internal = SubElement(icegrid, "properties", id=self.INTERNAL)
         SubElement(internal, "property", name=self.DEFAULT, value=default)
         SubElement(internal, "property", name=self.KEY, value=self.VERSION)
+
         to_copy = self.properties(default)
         if to_copy is not None:
             for x in to_copy.getchildren():
@@ -272,15 +273,22 @@ class ConfigXml(object):
             # Doesn't exist, create it
             properties = SubElement(icegrid, "properties", id=default)
             SubElement(properties, "property", name=self.KEY, value=self.VERSION)
+
         # Now we simply reproduce all the other blocks
         prop_list = self.properties(None, True)
         for k, p in prop_list:
             self.clear_text(p)
             icegrid.append(p)
 
+        # Now add a single extension point which will be
+        # contain a parsed version of templates.xml
+        SubElement(icegrid, "include", file="generated.xml")
+        self.write_element(icegrid)
+
+    def write_element(self, icegrid):
         temp_file = path.path(self.filename + ".temp")
         try:
-            temp_file.write_text(self.element_to_xml(icegrid))
+            temp_file.write_text(tostring(icegrid, "utf-8"))
             if sys.platform == "win32":
                 os.remove(self.filename)
             temp_file.rename(self.filename)

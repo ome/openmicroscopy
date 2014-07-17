@@ -147,6 +147,10 @@ already be running. This may automatically restart some server components.""")
             "Run a set of checks on the current, preferably active server")
 
         Action(
+            "memory",
+            "Reset memory usage values based on the current system")
+
+        Action(
             "waitup",
             "Used by start after calling startasync to wait on status==0",
             wait=True)
@@ -453,7 +457,7 @@ present, the user will enter a console""")
         First checks for a valid installation, then checks the grid,
         then registers the action: "node HOST start"
         """
-
+        self.memory(args, config, verbose=False)
         self.check_access(config=config)
         self.checkice()
         self.check_node(args)
@@ -577,6 +581,7 @@ present, the user will enter a console""")
 
     @with_config
     def deploy(self, args, config):
+        self.memory(args, config, verbose=False)
         self.check_access()
         self.checkice()
         descript = self._descript(args)
@@ -764,6 +769,37 @@ present, the user will enter a console""")
         fixpyramids(data_dir=args.data_dir, dry_run=args.dry_run,
                     query_service=client.sf.getQueryService(),
                     config_service=client.sf.getConfigService())
+
+    @with_config
+    def memory(self, args, config, verbose=True):
+        from xml.etree.ElementTree import XML
+        from omero.install.memory import adjust_settings
+        templates = self.ctx.dir / "etc" / "grid" / "templates.xml"
+        generated = self.ctx.dir / "etc" / "grid" / "generated.xml"
+        if generated.exists():
+            generated.remove()
+        config2 = omero.config.ConfigXml(str(generated))
+        template_xml = XML(templates.text())
+        rv = adjust_settings(config, template_xml)
+        if verbose:
+            self.ctx.out("Memory settings:")
+            self.ctx.out("================")
+            for k, v in sorted(rv.items()):
+                sb = " ".join([str(x) for x in v])
+                self.ctx.out("%s=%s" % (k, sb))
+
+        def clear_tail(elem):
+            elem.tail = ""
+            if elem.text is not None and not elem.text.strip():
+                elem.text = ""
+            for child in elem.getchildren():
+                clear_tail(child)
+
+        clear_tail(template_xml)
+        config2.write_element(template_xml)
+        config2.XML = None  # Prevent re-saving
+        config2.close()
+        config.save()
 
     @with_config
     def diagnostics(self, args, config):
