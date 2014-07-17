@@ -105,8 +105,10 @@
                         <span style="color:red">ID: {{ c.id }}</span>
                         <a>{{ c.name|truncatebefor:"65" }}</a>
                     </td>
-                    <td class="date">{{ c.getDate }}</td>
-                    <td class="date">{% ifequal byId.otype 'image' %}{{ c.creationEventDate }}{% endifequal %}</td>
+                    <td class="date">{{ c.getDate|date:"Y-m-d H:i:s" }}</td>
+                    <td class="date">
+                        {% ifequal byId.otype 'image' %}{{ c.creationEventDate|date:"Y-m-d H:i:s" }}{% endifequal %}
+                    </td>
                     <td class="group">{{ c.getDetails.group.name.val }}</td>
                     <td><a href="{% url 'webindex' %}?show={{ byId.otype }}-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
                         {% trans "Browse" %}
@@ -121,7 +123,7 @@
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="date"></td>
-                    <td class="date">{{ c.creationEventDate }}</td>
+                    <td class="date">{{ c.creationEventDate|date:"Y-m-d H:i:s" }}</td>
                     <td class="group">{{ c.getDetails.group.name.val }}</td>
                     <td><a href="{% url 'webindex' %}?show=project-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
                         {% trans "Browse" %}
@@ -135,7 +137,7 @@
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="date"></td>
-                    <td class="date">{{ c.creationEventDate }}</td>
+                    <td class="date">{{ c.creationEventDate|date:"Y-m-d H:i:s" }}</td>
                     <td class="group">{{ c.getDetails.group.name.val }}</td>
                     <td><a href="{% url 'webindex' %}?show=screen-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
                         {% trans "Browse" %}
@@ -149,7 +151,7 @@
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="date"></td>
-                    <td class="date">{{ c.creationEventDate }}</td>
+                    <td class="date">{{ c.creationEventDate|date:"Y-m-d H:i:s" }}</td>
                     <td class="group">{{ c.getDetails.group.name.val }}</td>
                     <td><a href="{% url 'webindex' %}?show=dataset-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
                         {% trans "Browse" %}
@@ -163,7 +165,7 @@
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="date"></td>
-                    <td class="date">{{ c.creationEventDate }}</td>
+                    <td class="date">{{ c.creationEventDate|date:"Y-m-d H:i:s" }}</td>
                     <td class="group">{{ c.getDetails.group.name.val }}</td>
                     <td><a href="{% url 'webindex' %}?show=plate-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
                         {% trans "Browse" %}
@@ -176,8 +178,8 @@
                         <img class="search_thumb" id="{{ c.id }}" src="{% url 'render_thumbnail_resize' 96 c.id  %}" alt="image" title="{{ c.name }}"/>
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
-                    <td class="date">{{ c.getDate }}</td>
-                    <td class="date">{{ c.creationEventDate }}</td>
+                    <td class="date">{{ c.getDate|date:"Y-m-d H:i:s" }}</td>
+                    <td class="date">{{ c.creationEventDate|date:"Y-m-d H:i:s" }}</td>
                     <td class="group">{{ c.getDetails.group.name.val }}</td>
                     <td><a href="{% url 'webindex' %}?show=image-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
                         {% trans "Browse" %}
