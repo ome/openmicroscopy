@@ -83,7 +83,9 @@ def run(args,\
         xargs = None,\
         chdir = None,\
         debug = None,\
-        debug_string = DEFAULT_DEBUG):
+        debug_string = DEFAULT_DEBUG,
+        stdout = subprocess.PIPE,\
+        stderr = subprocess.PIPE):
     """
     Execute a Java process, either via subprocess waiting for the process to finish and
     returning the output or if use_exec is True, via os.execvpe with the current environment.

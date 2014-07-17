@@ -65,12 +65,12 @@
         <prop key="hibernate.search.analyzer">${omero.search.analyzer}</prop>
         <prop key="hibernate.search.worker.batch_size">1</prop><!-- FIXME : ${omero.search.batch}-->
         <!-- batch -->
-        <prop key="hibernate.search.default.indexwriter.batch.merge_factor">25</prop>
-        <prop key="hibernate.search.default.indexwriter.batch.ram_buffer_size">64</prop>
+        <prop key="hibernate.search.default.indexwriter.batch.merge_factor">${omero.search.merge_factor}</prop>
+        <prop key="hibernate.search.default.indexwriter.batch.ram_buffer_size">${omero.search.ram_buffer_size}</prop>
         <prop key="hibernate.search.default.indexwriter.batch.max_field_length">2147483647</prop><!-- Integer.MAX_VALUE -->
         <!-- tx -->
-        <prop key="hibernate.search.default.indexwriter.transaction.merge_factor">25</prop>
-        <prop key="hibernate.search.default.indexwriter.transaction.ram_buffer_size">64</prop>
+        <prop key="hibernate.search.default.indexwriter.transaction.merge_factor">${omero.search.merge_factor}</prop>
+        <prop key="hibernate.search.default.indexwriter.transaction.ram_buffer_size">${omero.search.ram_buffer_size}</prop>
         <prop key="hibernate.search.default.indexwriter.transaction.max_field_length">2147483647</prop><!-- Integer.MAX_VALUE -->
       </props>
     </property>

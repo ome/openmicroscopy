@@ -32,6 +32,7 @@ import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 import ome.system.metrics.Metrics;
+import ome.system.metrics.NullMetrics;
 import ome.system.metrics.Timer;
 
 import org.slf4j.Logger;
@@ -69,9 +70,7 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
      */
     private final boolean performProcessing;
 
-    private Metrics metrics = null;
-
-    private Timer batchTimer = null;
+    private final Timer batchTimer;
 
     /**
      * Uses default {@link Principal} for processing
@@ -82,11 +81,27 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
     }
 
     /**
-     * Uses default {@link Principal} for processing
+     * Uses default {@link Principal} for processing and a {@link NullMetrics}
+     * instance.
      */
     public PixelDataThread(SessionManager manager, Executor executor,
             PixelDataHandler handler, String uuid, int numThreads) {
-        this(manager, executor, handler, DEFAULT_PRINCIPAL, uuid, numThreads);
+        this(manager, executor, handler, DEFAULT_PRINCIPAL, uuid, numThreads,
+                new NullMetrics());
+    }
+
+    /**
+     * Calculates {@link #performProcessing} based on the existence of the
+     * "pixelDataTrigger" and passes all parameters to
+     * {@link #PixelDataThread(boolean, SessionManager, Executor, PixelDataHandler, Principal, String, int) the main ctor}
+     * passing a {@link NullMetrics} as necessary.
+     */
+    public PixelDataThread(SessionManager manager, Executor executor,
+            PixelDataHandler handler, Principal principal, String uuid,
+            int numThreads) {
+        this(executor.getContext().containsBean("pixelDataTrigger"),
+            manager, executor, handler, principal, uuid, numThreads,
+            new NullMetrics());
     }
 
     /**
@@ -94,11 +109,38 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
      * "pixelDataTrigger" and passes all parameters to
      * {@link #PixelDataThread(boolean, SessionManager, Executor, PixelDataHandler, Principal, String, int) the main ctor}.
      */
-    public PixelDataThread(SessionManager manager, Executor executor,
+    public PixelDataThread(
+            SessionManager manager, Executor executor,
+            PixelDataHandler handler, String uuid,
+            int numThreads, Metrics metrics) {
+        this(executor.getContext().containsBean("pixelDataTrigger"),
+                manager, executor, handler, DEFAULT_PRINCIPAL,
+                uuid, numThreads, metrics);
+    }
+
+    /**
+     * Calculates {@link #performProcessing} based on the existence of the
+     * "pixelDataTrigger" and passes all parameters to
+     * {@link #PixelDataThread(boolean, SessionManager, Executor, PixelDataHandler, Principal, String, int) the main ctor}.
+     */
+    public PixelDataThread(
+            SessionManager manager, Executor executor,
+            PixelDataHandler handler, Principal principal, String uuid,
+            int numThreads, Metrics metrics) {
+        this(executor.getContext().containsBean("pixelDataTrigger"),
+                manager, executor, handler, principal, 
+                uuid, numThreads, metrics);
+    }
+
+    /**
+     * Calls main constructor with {@link NullMetrics}.
+     */
+    public PixelDataThread(boolean performProcessing,
+            SessionManager manager, Executor executor,
             PixelDataHandler handler, Principal principal, String uuid,
             int numThreads) {
-        this(executor.getContext().containsBean("pixelDataTrigger"),
-            manager, executor, handler, principal, uuid, numThreads);
+        this(performProcessing, manager, executor, handler, principal, 
+                uuid, numThreads, new NullMetrics());
     }
 
     /**
@@ -107,16 +149,12 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
     public PixelDataThread(boolean performProcessing,
             SessionManager manager, Executor executor,
             PixelDataHandler handler, Principal principal, String uuid,
-            int numThreads) {
+            int numThreads, Metrics metrics) {
         super(manager, executor, handler, principal);
         this.performProcessing = performProcessing;
         this.uuid = uuid;
         this.numThreads = numThreads;
-    }
-
-    public void setMetrics(Metrics metrics) {
-        this.metrics = metrics;
-        batchTimer = this.metrics.timer(this, "batch");
+        this.batchTimer = metrics.timer(this, "batch");
     }
 
     /**
@@ -177,16 +215,11 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
     }
 
     private Object go() {
-        Timer.Context timer = null;
-        if (batchTimer != null) {
-            timer = batchTimer.time();
-        }
+        final Timer.Context timer = batchTimer.time();
         try {
              return executor.execute(getPrincipal(), work);
         } finally {
-            if (timer != null) {
-                timer.stop();
-            }
+            timer.stop();
         }
     }
 
@@ -203,6 +236,7 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
      */
     public void stop() {
         log.info("Shutting down PixelDataThread");
+        ((PixelDataHandler) this.work).loader.setStop(true);
     }
 
     public void onApplicationEvent(final MissingPyramidMessage mpm) {

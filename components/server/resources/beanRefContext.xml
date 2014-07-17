@@ -18,6 +18,20 @@
     </constructor-arg>
   </bean>
 
+  <bean    id="ome.datalayer"
+          class="ome.system.OmeroContext"
+          lazy-init="true">
+    <constructor-arg index="0">
+      <list>
+        <value>classpath:ome/config.xml</value>
+        <value>classpath:ome/services/messaging.xml</value>
+        <value>classpath:ome/services/datalayer.xml</value>
+        <value>classpath:ome/services/sec-primitives.xml</value>
+      </list>
+    </constructor-arg>
+    <constructor-arg index="1" ref="ome.model"/>
+  </bean>
+
   <bean    id="ome.server"
           class="ome.system.OmeroContext"
           lazy-init="true">

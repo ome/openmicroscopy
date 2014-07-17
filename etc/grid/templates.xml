@@ -244,6 +244,9 @@
           <properties refid="Blitz"/>
           <properties refid="SingleThreaded"/>
           <properties refid="Profile"/>
+          <!-- Silence these -->
+          <property name="omero.throttling.method_time.warn" value="3600000"/><!--1 hour -->
+          <property name="omero.throttling.method_time.error" value="86400000"/><!-- 1 day -->
         </properties>
       </server>
     </server-template>

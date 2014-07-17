@@ -20,14 +20,34 @@ package ome.system.metrics;
 
 
 /**
- * Thin-interface around {@link com.codahale.metrics.Metrics}.
+ * Thin wrapper around {@link com.codahale.metrics.Snapshot}
  */
-public interface Metrics {
+public interface Snapshot {
 
-    Counter counter(Object obj, String name);
+    double get75thPercentile();
 
-    Timer timer(Object obj, String name);
+    double get95thPercentile();
 
-    Histogram histogram(Object obj, String name);
+    double get98thPercentile();
+
+    double get999thPercentile();
+
+    double get99thPercentile();
+
+    long getMax();
+
+    double getMean();
+
+    double getMedian();
+
+    long getMin();
+
+    double getStdDev();
+
+    double getValue(double quantile);
+
+    long[] getValues();
+
+    int size();
 
 }

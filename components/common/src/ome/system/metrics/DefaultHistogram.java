@@ -20,14 +20,25 @@ package ome.system.metrics;
 
 
 /**
- * Thin-interface around {@link com.codahale.metrics.Metrics}.
+ * Thin wrapper around {@link com.codahale.metrics.Histogram}
  */
-public interface Metrics {
+public class DefaultHistogram implements Histogram {
 
-    Counter counter(Object obj, String name);
+    private final com.codahale.metrics.Histogram h;
 
-    Timer timer(Object obj, String name);
+    public DefaultHistogram(com.codahale.metrics.Histogram h) {
+        this.h = h;
+    }
 
-    Histogram histogram(Object obj, String name);
+    public Snapshot getSnapshot() {
+        return new DefaultSnapshot(this.h.getSnapshot());
+    }
+
+    /**
+     * @see com.codahale.metrics.Histogram#update(int)
+     */
+    public void update(int done) {
+        this.h.update(done);
+    }
 
 }

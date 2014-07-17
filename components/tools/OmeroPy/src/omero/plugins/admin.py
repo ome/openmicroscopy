@@ -18,6 +18,7 @@ import os
 import sys
 import stat
 import platform
+import datetime
 import portalocker
 
 from path import path
@@ -142,9 +143,13 @@ already be running. This may automatically restart some server components.""")
             "fixpyramids", "Remove empty pyramid pixels files").parser
         # See cleanse options below
 
-        Action(
+        diagnostics = Action(
             "diagnostics",
-            "Run a set of checks on the current, preferably active server")
+            ("Run a set of checks on the current, "
+             "preferably active server")).parser
+        diagnostics.add_argument(
+            "--no-logs", action="store_true",
+            help="Skip log parsing")
 
         Action(
             "memory",
@@ -164,31 +169,68 @@ already be running. This may automatically restart some server components.""")
             "reindex",
             """Re-index the Lucene index
 
-Command-line tool for re-index the database. This command must be run on the
-machine where /OMERO/FullText is located.
+Command-line tool for re-indexing the database. This command must be run on the
+machine where the FullText directory is located. In most cases, you will want
+to disable the background indexer before running most of these commands.
+
+See http://www.openmicroscopy.org/site/support/omero/sysadmins/search.html
+for more information.
 
 Examples:
-  bin/omero admin reindex --full                                             \
-          # All objects
-  bin/omero admin reindex --class ome.model.core.Image                       \
-          # Only images
-  JAVA_OPTS="-Dlogback.configurationFile=stderr.xml" \
-  bin/omero admin reindex --full\
+
+  # 1. Reset the 'last indexed' counter. Defaults to 0
+  bin/omero admin reindex --reset 0
+
+  # 2. Delete the contents of a corrupt FullText directory
+  bin/omero admin reindex --wipe
+
+  # 3. Run indexer in the foreground. Disable the background first
+  bin/omero admin reindex --foreground
+
+Other commands (usually unnecessary):
+
+  # Index all objects in the database.
+  bin/omero admin reindex --full
+
+  # Index one specific class
+  bin/omero admin reindex --class ome.model.core.Image
+
   # Passing arguments to Java
+  JAVA_OPTS="-Dlogback.configurationFile=stderr.xml" \\
+  bin/omero admin reindex --foreground
 
-
-LIMITATION: omero.db.pass values do not currently get passed to the Java
-            process. You will need to all passwordless login to PostgreSQL. In
-            fact, only the following properties are passed:
-
-            omero.data.dir
-            omero.search.*
-            omero.db.* (excluding pass)
+  JAVA_OPTS="-Xdebug -Xrunjdwp:server=y,transport=\
+dt_socket,address=8787,suspend=y" \\
+  bin/omero admin reindex --foreground
 
 """).parser
+
         reindex.add_argument(
-            "--jdwp", help="Activate remote debugging")
+            "--jdwp", action="store_true",
+            help="Activate remote debugging")
+        reindex.add_argument(
+            "--mem", default="1024m",
+            help="Heap size to use")
+        reindex.add_argument(
+            "--batch", default="500",
+            help="Number of items to index before reporting status")
+        reindex.add_argument(
+            "--merge_factor", default="100",
+            help=("Higher means merge less frequently. "
+                  "Faster but needs more RAM"))
+        reindex.add_argument(
+            "--ram_buffer_size", default="1000",
+            help=("Number of MBs to use for the indexing. "
+                  "Higher is faster."))
+        reindex.add_argument(
+            "--lock_factory", default="native",
+            help=("Choose Lucene lock factory by class or "
+                  "'native', 'simple', 'none'"))
+
         group = reindex.add_mutually_exclusive_group()
+        group.add_argument(
+            "--prepare", action="store_true",
+            help="Disables the background indexer in preparation for indexing")
         group.add_argument(
             "--full", action="store_true",
             help="Reindexes all non-excluded tables sequentially")
@@ -196,8 +238,24 @@ LIMITATION: omero.db.pass values do not currently get passed to the Java
             "--events", action="store_true",
             help="Reindexes all non-excluded event logs chronologically")
         group.add_argument(
+            "--reset", default=None,
+            help="Reset the index counter")
+        group.add_argument(
+            "--dryrun", action="store_true",
+            help=("Run through all events, incrementing the counter. "
+                  "NO INDEXING OCCURS"))
+        group.add_argument(
+            "--foreground", action="store_true",
+            help=("Run indexer in the foreground (suggested)"))
+        group.add_argument(
             "--class", nargs="+",
             help="Reindexes the given classes sequentially")
+        group.add_argument(
+            "--wipe", action="store_true",
+            help="Delete the existing index files")
+        group.add_argument(
+            "--finish", action="store_true",
+            help="Re-enables the background indexer after for indexing")
 
         ports = Action(
             "ports",
@@ -1025,71 +1083,74 @@ OMERO Diagnostics %s
                     else:
                         self.ctx.err("UNKNOWN!")
 
-        def log_dir(log, cat, cat2, knownfiles):
-            self.ctx.out("")
-            item(cat, "%s" % log.abspath())
-            exists(log)
-            self.ctx.out("")
+        if not args.no_logs:
 
-            if log.exists():
-                files = log.files()
-                files = set([x.basename() for x in files])
-                # Adding known names just in case
-                for x in knownfiles:
-                    files.add(x)
-                files = list(files)
-                files.sort()
-                for x in files:
-                    item(cat2, x)
-                    exists(log / x)
-                item(cat2, "Total size")
-                sz = 0
-                for x in log.walkfiles():
-                    sz += x.size
-                self.ctx.out("%-.2f MB" % (float(sz)/1000000.0))
+            def log_dir(log, cat, cat2, knownfiles):
+                self.ctx.out("")
+                item(cat, "%s" % log.abspath())
+                exists(log)
+                self.ctx.out("")
 
-        log_dir(self.ctx.dir / "var" / "log", "Log dir", "Log files",
+                if log.exists():
+                    files = log.files()
+                    files = set([x.basename() for x in files])
+                    # Adding known names just in case
+                    for x in knownfiles:
+                        files.add(x)
+                    files = list(files)
+                    files.sort()
+                    for x in files:
+                        item(cat2, x)
+                        exists(log / x)
+                    item(cat2, "Total size")
+                    sz = 0
+                    for x in log.walkfiles():
+                        sz += x.size
+                    self.ctx.out("%-.2f MB" % (float(sz)/1000000.0))
+
+            log_dir(
+                self.ctx.dir / "var" / "log", "Log dir", "Log files",
                 ["Blitz-0.log", "Tables-0.log", "Processor-0.log",
                  "Indexer-0.log", "FileServer.log", "MonitorServer.log",
                  "DropBox.log", "TestDropBox.log", "OMEROweb.log"])
 
-        # Parsing well known issues
-        self.ctx.out("")
-        ready = re.compile(".*?ome.services.util.ServerVersionCheck\
-        .*OMERO.Version.*Ready..*?")
-        db_ready = re.compile(".*?Did.you.create.your.database[?].*?")
-        data_dir = re.compile(".*?Unable.to.initialize:.FullText.*?")
-        pg_password = re.compile(".*?org.postgresql.util.PSQLException:\
-        .FATAL:.password.*?authentication.failed.for.user.*?")
-        pg_user = re.compile(""".*?org.postgresql.util.PSQLException:\
-        .FATAL:.role.".*?".does.not.exist.*?""")
-        pg_conn = re.compile(""".*?org.postgresql.util.PSQLException:\
-        .Connection.refused.""")
+            # Parsing well known issues
+            self.ctx.out("")
+            ready = re.compile(".*?ome.services.util.ServerVersionCheck\
+            .*OMERO.Version.*Ready..*?")
+            db_ready = re.compile(".*?Did.you.create.your.database[?].*?")
+            data_dir = re.compile(".*?Unable.to.initialize:.FullText.*?")
+            pg_password = re.compile(".*?org.postgresql.util.PSQLException:\
+            .FATAL:.password.*?authentication.failed.for.user.*?")
+            pg_user = re.compile(""".*?org.postgresql.util.PSQLException:\
+            .FATAL:.role.".*?".does.not.exist.*?""")
+            pg_conn = re.compile(""".*?org.postgresql.util.PSQLException:\
+            .Connection.refused.""")
 
-        issues = {
-            ready: "=> Server restarted <=",
-            db_ready: "Your database configuration is invalid",
-            data_dir: "Did you create your omero.data.dir? E.g. /OMERO",
-            pg_password: "Your postgres password seems to be invalid",
-            pg_user: "Your postgres user is invalid",
-            pg_conn: "Your postgres hostname and/or port is invalid"
-        }
+            issues = {
+                ready: "=> Server restarted <=",
+                db_ready: "Your database configuration is invalid",
+                data_dir: "Did you create your omero.data.dir? E.g. /OMERO",
+                pg_password: "Your postgres password seems to be invalid",
+                pg_user: "Your postgres user is invalid",
+                pg_conn: "Your postgres hostname and/or port is invalid"
+            }
 
-        try:
-            for file in ('Blitz-0.log',):
+            try:
+                for file in ('Blitz-0.log',):
 
-                p = self.ctx.dir / "var" / "log" / file
-                import fileinput
-                for line in fileinput.input([str(p)]):
-                    lno = fileinput.filelineno()
-                    for k, v in issues.items():
-                        if k.match(line):
-                            item('Parsing %s' % file, "[line:%s] %s"
-                                 % (lno, v))
-                            self.ctx.out("")
-                            break
-        except:
-            self.ctx.err("Error while parsing logs")
+                    p = self.ctx.dir / "var" / "log" / file
+                    import fileinput
+                    for line in fileinput.input([str(p)]):
+                        lno = fileinput.filelineno()
+                        for k, v in issues.items():
+                            if k.match(line):
+                                item('Parsing %s' % file,
+                                     "[line:%s] %s" % (lno, v))
+                                self.ctx.out("")
+                                break
+            except:
+                self.ctx.err("Error while parsing logs")
 
         self.ctx.out("")
 
@@ -1264,13 +1325,17 @@ OMERO Diagnostics %s
 
     @with_config
     def reindex(self, args, config):
+
         self.check_access(config=config)
         import omero.java
         server_dir = self.ctx.dir / "lib" / "server"
         log_config_file = self.ctx.dir / "etc" / "logback-indexing-cli.xml"
         logback = "-Dlogback.configurationFile=%s" % log_config_file
         classpath = [file.abspath() for file in server_dir.files("*.jar")]
-        xargs = [logback, "-Xmx1024M", "-cp", os.pathsep.join(classpath)]
+        xargs = [logback, "-cp", os.pathsep.join(classpath)]
+        # See etc/grid/templates.xml
+        for v in (("warn", "3600000"), ("error", "86400000")):
+            xargs.append("-Domero.throttling.method_time.%s=%s" % v)
 
         cfg = config.as_map()
         config.close()  # Early close. See #9800
@@ -1286,10 +1351,73 @@ OMERO Diagnostics %s
             if k.startswith("omero.search"):
                 xargs.append("-D%s=%s" % (k, cfg[k]))
 
+        locks = {"native": "org.apache.lucene.store.NativeFSLockFactory",
+                 "simple": "org.apache.lucene.store.SimpleFSLockFactory",
+                 "none": "org.apache.lucene.store.NoLockFactory"}
+        lock = locks.get(args.lock_factory, args.lock_factory)
+
+        year2 = datetime.datetime.now().year + 2
+        factory_class = "org.apache.lucene.store.FSDirectoryLockFactoryClass"
+        xargs2 = ["-Xmx%s" % args.mem,
+                  "-Domero.search.cron=1 1 1 1 1 ? %s" % year2,
+                  "-Domero.search.batch=%s" % args.batch,
+                  "-Domero.search.merge_factor=%s" % args.merge_factor,
+                  "-Domero.search.ram_buffer_size=%s" % args.ram_buffer_size,
+                  "-D%s=%s" % (factory_class, lock)]
+        xargs.extend(xargs2)
+
         cmd = ["ome.services.fulltext.Main"]
 
+        # Python actions
+        early_exit = False
+        if args.wipe:
+            early_exit = True
+            omero_data_dir = cfg.get("omero.data.dir", "/OMERO")
+            self.can_access(omero_data_dir)
+            from os.path import sep
+            from glob import glob
+            pattern = sep.join([omero_data_dir, "FullText", "*"])
+            files = glob(pattern)
+            total = 0
+            self.ctx.err("Wiping %s files matching %s" % (len(files), pattern))
+            for file in files:
+                size = os.path.getsize(file)
+                total += 0
+                print file, size
+            print "Total:", size
+            yes = self.ctx.input("Enter 'y' to continue:")
+            if not yes.lower().startswith("y"):
+                return
+            else:
+                for file in files:
+                    try:
+                        os.remove(file)
+                    except:
+                        self.ctx.err("Failed to remove: %s", file)
+
+        elif args.prepare:
+            early_exit = True
+            self.stop_service("Indexer-0")
+        elif args.finish:
+            early_exit = True
+            self.start_service("Indexer-0")
+
+        if early_exit:
+            return  # Early exit!
+
+        if self.check_service("Indexer-0") and not args.prepare:
+            self.ctx.die(578, "Indexer-0 is running")
+
+        # Java actions
         if args.full:
             cmd.append("full")
+        elif args.dryrun:
+            cmd.append("dryrun")
+        elif args.foreground:
+            cmd.append("foreground")
+        elif args.reset is not None:
+            cmd.append("reset")
+            cmd.append(args.reset)
         elif args.events:
             cmd.append("events")
         elif getattr(args, "class"):
@@ -1304,9 +1432,9 @@ OMERO Diagnostics %s
 
         self.ctx.dbg(
             "Launching Java: %s, debug=%s, xargs=%s" % (cmd, debug, xargs))
-        p = omero.java.popen(
-            cmd, debug=debug, xargs=xargs, stdout=sys.stdout,
-            stderr=sys.stderr)  # FIXME. Shouldn't use std{out,err}
+        p = omero.java.run(cmd,
+                           use_exec=True, debug=debug, xargs=xargs,
+                           stdout=sys.stdout, stderr=sys.stderr)
         self.ctx.rv = p.wait()
 
     def ports(self, args):
@@ -1367,6 +1495,39 @@ OMERO Diagnostics %s
                     rv.append("")
         self.ctx.controls["hql"].display(
             mapped, ("node", "session", "started", "owner", "agent", "notes"))
+
+    def check_service(self, name):
+        command = self._cmd()
+        command.extend(["-e", "server state %s" % name])
+        p = self.ctx.popen(command)  # popen
+        rc = p.wait()
+        return rc == 0
+
+    def start_service(self, name):
+        command = self._cmd()
+        command.extend(["-e", "server enable %s" % name])
+        rc = self.ctx.call(command)
+        if rc != 0:
+            self.ctx.err("%s could not be enabled" % name)
+        else:
+            self.ctx.err("%s restarted" % name)
+
+    def stop_service(self, name):
+        command = self._cmd()
+        command.extend(["-e", "server disable %s" % name])
+        rc = self.ctx.call(command)
+        if rc != 0:
+            self.ctx.err("%s may already be disabled" % name)
+        else:
+            command = self._cmd()
+            command.extend(["-e", "server stop %s" % name])
+            rc = self.ctx.call(command)
+            if rc != 0:
+                self.ctx.err("'server stop %s' failed" % name)
+            else:
+                self.ctx.err("%s stopped" % name)
+
+
 try:
     register("admin", AdminControl, HELP)
 except NameError:
