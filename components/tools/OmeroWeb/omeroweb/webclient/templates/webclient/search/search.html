@@ -1,5 +1,6 @@
 {% extends "webclient/base/base_container.html" %}
 {% load i18n %}
+{% load common_filters %}
 
 
 {% comment %}
@@ -290,8 +291,12 @@
 
                         <!-- when 'All Groups' - can choose 'Me' or 'All users' -->
                         <select name="ownedBy" id="searchByGroupMember--1">
-                            <option value="{{ ome.user.id }}">{{ ome.user.getFullName }}</option>
                             <option value="-1">All Users</option>
+                            {% for user in myColleagues %}}
+                                <option value="{{ user.id }}" {% ifequal user.id ome.user.id %}selected="selected"{% endifequal %}>
+                                    {{ user.getFullName|truncateafter:"50" }}
+                                </option>
+                            {% endfor %}
                         </select>
 
                         <!-- for each group we can choose users - only show <select> for 1 group at a time -->
@@ -300,12 +305,12 @@
                             <option value="-1">All Members</option>
                             {% for user in grp.leaders %}}
                                 <option value="{{ user.id }}" {% ifequal user.id ome.user.id %}selected="selected"{% endifequal %}>
-                                    {{ user.getFullName }}
+                                    {{ user.getFullName|truncateafter:"50" }}
                                 </option>
                             {% endfor %}
                             {% for user in grp.colleagues %}}
                                 <option value="{{ user.id }}" {% ifequal user.id ome.user.id %}selected="selected"{% endifequal %}>
-                                    {{ user.getFullName }}
+                                    {{ user.getFullName|truncateafter:"50" }}
                                 </option>
                             {% endfor %}
                         </select>
