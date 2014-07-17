@@ -582,6 +582,7 @@ public class SearchPanel extends JPanel {
         c.gridx = 0;
         c.gridy = 0;
         dateBox = new JComboBox();
+        dateBox.setToolTipText("Select the type of date (Acquisition date applies to images only)");
         dateBox.addItem(ITEM_IMPORTDATE);
         dateBox.addItem(ITEM_ACQUISITIONDATE);
         p.add(dateBox);
