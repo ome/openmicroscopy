@@ -1523,7 +1523,7 @@ OMERO Diagnostics %s
 
     def check_service(self, name):
         command = self._cmd()
-        command.extend(["-e", "server state %s" % name])
+        command.extend(["-e", "server pid %s" % name])
         p = self.ctx.popen(command)  # popen
         rc = p.wait()
         return rc == 0
