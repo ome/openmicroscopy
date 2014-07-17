@@ -3504,54 +3504,6 @@ class _BlitzGateway (object):
     ###################
     # Searching stuff #
 
-    def buildSearchQuery(self, text, fields=()):
-
-        fields = [str(f) for f in fields]
-        # # for each phrase or token, we strip out all non alpha-numeric
-        # except when inside double quotes.
-        # To preserve quoted phrases we split by "
-        phrases = text.split('"')
-        tokens = []
-        leadingWc = False
-        for i, p in enumerate(phrases):
-            if len(p) == 0:
-                continue
-            if i%2 == 0:    # even: outside quotes - strip everything
-                tks = re.findall(r"[\w\*\?]+", p)
-                for t in tks:
-                    # remove single wildcards
-                    if t in ("*", "?"):
-                        continue
-                    # Need to enable wildcards for leading * or ? not in quotes
-                    if t[0] in ("*","?"):
-                        leadingWc = True
-                    tokens.append(t)
-            else:
-                tokens.append('"%s"' % p)   # wrap back into "double quotes"
-
-        if len(tokens) == 0:
-            return "", False
-
-        # if we have fields, prepend each token with field:token
-        if fields:
-            fieldqueries = []
-            for f in fields:
-                fieldTokens = []
-                for t in tokens:
-                    if len(t) > 0:
-                        if t not in ("AND", "OR"):
-                            fieldTokens.append('%s:%s' % (f, t))
-                        else:
-                            fieldTokens.append(t)
-                fieldqueries.append("(%s)" % " ".join(fieldTokens))
-            # E.g. (name:CSFV AND name:dv) OR (description:CSFV AND description:dv)
-            text = " OR ".join(fieldqueries)
-        else:
-            text = " ".join(tokens)
-
-        return text, leadingWc
-
-
     def searchObjects(self, obj_types, text, created=None, fields=(), batchSize=1000, page=0, searchGroup=None, ownedBy=None,
                       useAcquisitionDate=False):
         """
