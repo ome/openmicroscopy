@@ -387,11 +387,22 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         groups = myGroups
     new_container_form = ContainerForm()
 
-    context = {'init':init, 'myGroups':myGroups, 'new_container_form':new_container_form, 'global_search_form':global_search_form}
-    context['groups'] = groups
-    context['active_group'] = conn.getObject("ExperimenterGroup", long(active_group))
     for g in groups:
         g.groupSummary()    # load leaders / members
+
+    # colleagues required for search.html page only.
+    myColleagues = {}
+    if menu == "search":
+        for g in groups:
+            for c in g.leaders + g.colleagues:
+                myColleagues[c.id] = c
+        myColleagues = myColleagues.values()
+        myColleagues.sort(key=lambda x: x.getLastName().lower())
+
+    context = {'init':init, 'myGroups':myGroups, 'new_container_form':new_container_form, 'global_search_form':global_search_form}
+    context['groups'] = groups
+    context['myColleagues'] = myColleagues
+    context['active_group'] = conn.getObject("ExperimenterGroup", long(active_group))
     context['active_user'] = conn.getObject("Experimenter", long(user_id))
 
     context['isLeader'] = conn.isLeader()
