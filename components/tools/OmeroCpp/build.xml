@@ -33,12 +33,7 @@
         </exec>
     </target>
 
-    <target name="test-compile" depends="build" unless="env.NOMAKE">
-        <property name="cmake.buildargs" value=""/>
-        <exec executable="cmake" dir="${cmake.builddir}" failonerror="true">
-            <arg line="--build . --target tests -- ${cmake.buildargs}"/>
-        </exec>
-    </target>
+    <target name="test-compile" depends="build" unless="env.NOMAKE"/>
 
     <target name="test" depends="test-compile" if="unit.exe-exists" unless="env.NOMAKE">
         <exec executable="ctest" dir="${cmake.builddir}" failonerror="true">
