@@ -31,7 +31,6 @@
 
 class TestGetObject (object):
 
-
     def testSearchObjects(self, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()
 
