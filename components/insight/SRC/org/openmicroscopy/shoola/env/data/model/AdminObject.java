@@ -116,7 +116,7 @@ public class AdminObject
 	private int index;
 	
 	/** Indicates the permissions associated to the group. */
-	private int permissions;
+	private int permissions = -1;
 	
 	/**
 	 * Creates a new instance.
