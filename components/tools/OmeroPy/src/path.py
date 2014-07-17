@@ -304,7 +304,7 @@ class path(_base):
         can be used to test if one path object is contained
         within another:
 
-            p1 = path.path("/tmp)
+            p1 = path.path("/tmp")
             p2 = path.path("/tmp/foo")
             if p2.parpath(p1):
                 print "p2 is contained in p1"
