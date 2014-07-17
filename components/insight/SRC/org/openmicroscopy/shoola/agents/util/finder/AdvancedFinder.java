@@ -101,9 +101,8 @@ public class AdvancedFinder
 	implements Finder, PropertyChangeListener
 {
 	
-        // TODO: Replace with URL directly pointing to the search help page
         /** URL which links to the search help website */
-        private static final String HELP_URL = "http://help.openmicroscopy.org/";
+        private static final String HELP_URL = "http://help.openmicroscopy.org/search.html";
     
 	/** The default title of the notification message. */
 	private static final String TITLE = "Search";

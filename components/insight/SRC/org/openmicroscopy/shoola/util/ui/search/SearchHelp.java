@@ -135,13 +135,13 @@ public class SearchHelp
 		buf.append("<h3 bgcolor=#FFFFF0>Wildcard Searches</h3>");
 		buf.append("<p>To perform a single character wildcard search, use " +
 				"the (\"?\") symbol. For example:</p>");
-		buf.append("<p bgcolor=#FFFFFF>Mitosi?</p>");
-		buf.append("<p><b>Will return images labelled Mitosis</b></p>");
+		buf.append("<p bgcolor=#FFFFFF>Aurora?</p>");
+		buf.append("<p><b>Will match items labelled AuroraA and AuroraB</b></p>");
 		buf.append("<p>To perform a multiple character wildcard search, " +
 				"use the (\"*\") symbol. For example</p>");
 		buf.append("<p bgcolor=#FFFFFF>Mito*</p>");
-		buf.append("<p><b>Will return any image labelled beginning " +
-				"with Mitosis</b></p>");
+		buf.append("<p><b>Will return any item labelled beginning " +
+				"with Mito</b></p>");
 		buf.append("<h3 bgcolor=#FFFFF0>AND Searches</h3>");
 		buf.append("<p>To search for multiple compulsory terms, use the AND keyword. For example:</p> ");
 		buf.append("<p bgcolor=#FFFFFF>GFP AND H2B</p>");
