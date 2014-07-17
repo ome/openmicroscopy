@@ -2877,7 +2877,28 @@ class _BlitzGateway (object):
         containerService = self.getContainerService()
         updateService = self.getUpdateService()
 
+        pixelsId = None
+
         import numpy
+        from omero.util.tiles import TileLoopIteration, RPSTileLoop
+
+        class PlaneIteration(TileLoopIteration):
+
+            def __init__ (self, plane):
+                self.plane = plane
+                self.sizeX = plane.shape[1]
+                self.sizeY = plane.shape[0]
+ 
+            def run(self, data, z, c, t, x, y, tileWidth, tileHeight, tileCount):
+                cols = self.sizeX/tileWidth
+                rows = self.sizeY/tileHeight
+                x1 = (tileCount % cols) * tileWidth
+                x2 = x1 + tileWidth
+                y1 = (tileCount/rows) * tileHeight
+                y2 = y1 + tileHeight
+                tile = self.plane[y1:y2, x1:x2]
+                tile2d = list(tile.flatten())
+                data.setTile(tile2d, z, c, t, x, y, tileWidth, tileHeight)
 
         def createImage(firstPlane, channelList):
             """ Create our new Image once we have the first plane in hand """
@@ -2915,13 +2936,16 @@ class _BlitzGateway (object):
 
         def uploadPlane(plane, z, c, t, convertToType):
             # if we're given a numpy dtype, need to convert plane to that dtype
-            if convertToType is not None:
-                p = numpy.zeros(plane.shape, dtype=convertToType)
-                p += plane
-                plane = p
-            byteSwappedPlane = plane.byteswap()
-            convertedPlane = byteSwappedPlane.tostring();
-            rawPixelsStore.setPlane(convertedPlane, z, c, t, self.SERVICE_OPTS)
+            # if convertToType is not None:
+            #     p = numpy.zeros(plane.shape, dtype=convertToType)
+            #     p += plane
+            #     plane = p
+            # byteSwappedPlane = plane.byteswap()
+            # convertedPlane = byteSwappedPlane.tostring();
+            # rawPixelsStore.setPlane(convertedPlane, z, c, t, self.SERVICE_OPTS)
+
+            loop = RPSTileLoop(self.c.sf, omero.model.PixelsI(pixelsId, False))
+            loop.forEachTile(256, 256, PlaneIteration(plane))
 
         image = None
         dtype = None
@@ -2935,7 +2959,7 @@ class _BlitzGateway (object):
                         if image == None:   # use the first plane to create image.
                             image, dtype = createImage(plane, channelList)
                             pixelsId = image.getPrimaryPixels().getId().getValue()
-                            rawPixelsStore.setPixelsId(pixelsId, True, self.SERVICE_OPTS)
+                            # rawPixelsStore.setPixelsId(pixelsId, True, self.SERVICE_OPTS)
                         uploadPlane(plane, theZ, theC, theT, dtype)
                         # init or update min and max for this channel
                         minValue = plane.min()
