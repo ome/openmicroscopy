@@ -112,7 +112,7 @@ public class SearchResultTable extends JXTable {
 
         setBackground(UIUtilities.BACKGROUND_COLOR);
 
-        setRowHeight(70);
+        setRowHeight(42);
 
         // disable column dragging:
         getTableHeader().setReorderingAllowed(false);

@@ -60,7 +60,7 @@ public class SearchResultTableModel extends DefaultTableModel {
     public static final int VIEWBUTTON_COLUMN_INDEX = COLUMN_NAMES.length - 1;
 
     /** Defines the size of the thumbnail icons */
-    private static final double THUMB_ZOOM_FACTOR = 0.5;
+    private static final double THUMB_ZOOM_FACTOR = 0.3;
 
     /** The DataObjects shown in the table */
     private List<DataObject> data = new ArrayList<DataObject>();
@@ -176,18 +176,16 @@ public class SearchResultTableModel extends DefaultTableModel {
         if (obj instanceof ImageData) {
             Thumbnail thumb = model.getThumbnail(obj);
             return thumb == null ? IconManager.getInstance().getIcon(
-                    IconManager.IMAGE_48) : thumb.getIcon(THUMB_ZOOM_FACTOR);
+                    IconManager.IMAGE) : thumb.getIcon(THUMB_ZOOM_FACTOR);
         }
 
         else if (obj instanceof ProjectData) {
-            return IconManager.getInstance().getIcon(IconManager.PROJECT_48);
+            return IconManager.getInstance().getIcon(IconManager.PROJECT);
         }
 
         else if (obj instanceof DatasetData) {
-            return IconManager.getInstance().getIcon(IconManager.DATASET_48);
+            return IconManager.getInstance().getIcon(IconManager.DATASET);
         }
-
-        // TODO: These are 16px icons, replace with 48px ones, if/once we have some
         
         else if (obj instanceof ScreenData) {
             return IconManager.getInstance().getIcon(IconManager.SCREEN);
