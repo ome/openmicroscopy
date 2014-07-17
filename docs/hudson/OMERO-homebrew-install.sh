@@ -141,10 +141,16 @@ bin/omero import test.fake
 bin/omero logout
 
 # Start OMERO.web
+bin/omero config set omero.web.application_server "fastcgi-tcp"
+bin/omero config set omero.web.debug True
 bin/brew install nginx
 bin/omero web config nginx > $(bin/brew --prefix omero)/etc/nginx.conf
 nginx -c $(bin/brew --prefix omero)/etc/nginx.conf
 bin/omero web start
 
+# Stop OMERO.web
 bin/omero web stop
-nginx -c $(bin/brew --prefix omero)/etc/nginx.conf - stop
+nginx -c $(bin/brew --prefix omero)/etc/nginx.conf -s stop
+
+# Stop the server
+bin/omero admin stop
