@@ -981,7 +981,7 @@ def getPlaneInfo(iQuery, pixelsId, asOrderedList = True):
     @param iQuery The query service.
     @param pixelsId The pixels for Id.
     @param asOrderedList
-    @return list of planeInfoTimes or map["z:t:c:]
+    @return list of planeInfoTimes or map[z:t:c:]
     """
     query = "from PlaneInfo as Info where pixels.id='"+str(pixelsId)+"' orderby info.deltaT"
     infoList = iQuery.findAllByQuery(query,None)
