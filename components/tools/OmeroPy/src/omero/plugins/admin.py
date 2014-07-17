@@ -352,10 +352,12 @@ present, the user will enter a console""")
             "--nodeonly", action="store_true",
             help="If set, then only tests if the icegridnode is running")
 
-        for name in ("start", "startasync", "restart", "restartasync"):
+        for name in ("start", "restart"):
             self.actions[name].add_argument(
                 "--foreground", action="store_true",
                 help="Start server in foreground mode (no daemon/service)")
+
+        for name in ("start", "startasync", "restart", "restartasync"):
             self.actions[name].add_argument(
                 "-u", "--user",
                 help="Windows Service Log On As user name.")
@@ -640,9 +642,10 @@ present, the user will enter a console""")
 
         command = None
         descript = self._descript(args)
+        foreground = hasattr(args, "foreground") and args.foreground
 
         if self._isWindows():
-            if args.foreground:
+            if foreground:
                 command = """icegridnode.exe "%s" --deploy "%s" %s\
                 """ % (self._icecfg(), descript, args.targets)
             else:
@@ -651,7 +654,7 @@ present, the user will enter a console""")
                 svc_name = "OMERO.%s" % args.node
                 self._start_service(config, descript, svc_name, pasw, user)
         else:
-            if args.foreground:
+            if foreground:
                 command = ["icegridnode", "--nochdir", self._icecfg(),
                            "--deploy", str(descript)] + args.targets
             else:
