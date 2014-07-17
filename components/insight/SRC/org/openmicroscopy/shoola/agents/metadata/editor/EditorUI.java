@@ -318,7 +318,6 @@ class EditorUI
 		setDataToSave(false);
 		toolBar.buildUI();
 		tabPane.setToolTipTextAt(RND_INDEX, "");
-		boolean preview = false;
 		int selected = getSelectedTab();
 		if (!(uo instanceof DataObject)) {
 			//saved = false;
@@ -349,19 +348,11 @@ class EditorUI
 					load = true;
 					ImageData img = (ImageData) uo;
 					tabPane.setEnabledAt(ACQUISITION_INDEX, img.getId() > 0);
-					preview = model.isPreviewAvailable();
-					tabPane.setEnabledAt(RND_INDEX, preview);
-					if (!preview) {
-						tabPane.setToolTipTextAt(RND_INDEX, 
-								"Only available for image of size <= "+
-								RenderingControl.MAX_SIZE+"x"+
-								RenderingControl.MAX_SIZE);
-					}
+					tabPane.setEnabledAt(RND_INDEX, false);
 					
 					if (selected == RND_INDEX) {
 						tabPane.setComponentAt(RND_INDEX, dummyPanel);
-						if (!preview && 
-								model.getRndIndex() != 
+						if (model.getRndIndex() != 
 									MetadataViewer.RND_SPECIFIC) 
 							tabPane.setSelectedIndex(GENERAL_INDEX);
 					}
@@ -375,18 +366,10 @@ class EditorUI
 					if (img != null && img.getId() >= 0) {
 						load = true;
 						tabPane.setEnabledAt(ACQUISITION_INDEX, true);
-						preview = model.isPreviewAvailable();
-						tabPane.setEnabledAt(RND_INDEX, preview);
-						if (!preview) {
-							tabPane.setToolTipTextAt(RND_INDEX, 
-									"Only available for image of size <= "+
-									RenderingControl.MAX_SIZE+"x"+
-									RenderingControl.MAX_SIZE);
-						}
+						tabPane.setEnabledAt(RND_INDEX, false);
 						if (selected == RND_INDEX) {
 							tabPane.setComponentAt(RND_INDEX, dummyPanel);
-							//tabPane.setSelectedIndex(GENERAL_INDEX);
-							if (!preview) tabPane.setSelectedIndex(GENERAL_INDEX);
+							tabPane.setSelectedIndex(GENERAL_INDEX);
 						}
 					} else {
 						tabPane.setSelectedIndex(GENERAL_INDEX);
@@ -1089,6 +1072,7 @@ class EditorUI
 	void onSizeLoaded()
 	{
 		toolBar.onSizeLoaded();
+		tabPane.setEnabledAt(RND_INDEX, model.isPreviewAvailable());
 	}
 
 	/** Displays the file set.
