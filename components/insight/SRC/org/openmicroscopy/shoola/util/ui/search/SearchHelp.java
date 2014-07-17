@@ -131,25 +131,16 @@ public class SearchHelp
 	private String formatText()
 	{
 		StringBuffer buf = new StringBuffer();
-		buf.append("<html><body bgcolor=#F0F0F0>");
-		buf.append("<h3 bgcolor=#FFFFF0>Wildcard Searches</h3>");
-		buf.append("<p>To perform a single character wildcard search, use " +
-				"the (\"?\") symbol. For example:</p>");
-		buf.append("<p bgcolor=#FFFFFF>Aurora?</p>");
-		buf.append("<p><b>Will match items labelled AuroraA and AuroraB</b></p>");
-		buf.append("<p>To perform a multiple character wildcard search, " +
-				"use the (\"*\") symbol. For example</p>");
-		buf.append("<p bgcolor=#FFFFFF>Mito*</p>");
-		buf.append("<p><b>Will return any item labelled beginning " +
-				"with Mito</b></p>");
-		buf.append("<h3 bgcolor=#FFFFF0>AND Searches</h3>");
-		buf.append("<p>To search for multiple compulsory terms, use the AND keyword. For example:</p> ");
-		buf.append("<p bgcolor=#FFFFFF>GFP AND H2B</p>");
-		buf.append("<p><b>Results will contain both terms, GFP and H2B</b></p>");
-		buf.append("<p/>");
-		buf.append("<p>For more information see:</p>");
-		buf.append("</body></html>");
-		return buf.toString();
+                buf.append("<html><body>");
+                buf.append("<table>");
+                buf.append("<tr><td>?</td><td>Single character wildcard</td>");
+                buf.append("<tr><td>*</td><td>Multiple character wildcard</td>");
+                buf.append("<tr><td>AND</td><td>Results will contain both terms. E.g: GFP AND H2B</td>");
+                buf.append("</table>");
+                buf.append("<p/>");
+                buf.append("<p>For more information see:</p>");
+                buf.append("</body></html>");
+                return buf.toString();
 	}
 	
 	/**
@@ -191,8 +182,8 @@ public class SearchHelp
 	{
 		Container c = getContentPane();
 		IconManager icons = IconManager.getInstance();
-		TitlePanel title = new TitlePanel("Search Tips", "Tips about search",
-							icons.getIcon(IconManager.HELP_48));
+		TitlePanel title = new TitlePanel("Search Tips", "",
+							icons.getIcon(IconManager.HELP));
 		c.add(title, BorderLayout.NORTH);
 		c.add(buildMain(), BorderLayout.CENTER);
 		c.add(buildControl(), BorderLayout.SOUTH);
