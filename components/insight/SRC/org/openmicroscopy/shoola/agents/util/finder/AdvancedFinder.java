@@ -32,6 +32,7 @@ import java.beans.PropertyChangeListener;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -44,6 +45,8 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
+
 
 
 //Third-party libraries
@@ -419,7 +422,7 @@ public class AdvancedFinder
 		displayMode = LookupNames.EXPERIMENTER_DISPLAY;
 		sorter = new ViewerSorter();
 		List<GroupData> l = sorter.sort(groups);
-		initialize(createControls(), l);
+		initialize(l);
 		addPropertyChangeListener(SEARCH_PROPERTY, this);
 		addPropertyChangeListener(CANCEL_SEARCH_PROPERTY, this);
 		addPropertyChangeListener(OWNER_PROPERTY, this);
