@@ -39,6 +39,7 @@ import omero.grid.ImportProcessPrxHelper;
 import omero.model.Annotation;
 import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
+import omero.model.Fileset;
 import omero.model.Screen;
 
 import org.apache.commons.lang.time.StopWatch;
@@ -54,6 +55,9 @@ import org.slf4j.LoggerFactory;
 public class CommandLineImporter {
 
     public static final int DEFAULT_WAIT = -1;
+
+    /** Marker used to indicate that no new file paths are imported. **/
+    private final static String[] REIMPORT = new String[] {};
 
     /** Logger for this class. */
     private static Logger log = LoggerFactory.getLogger(CommandLineImporter.class);
@@ -112,11 +116,10 @@ public class CommandLineImporter {
         this.transfer = transfer;
         candidates = new ImportCandidates(reader, paths, handler);
 
-        if (paths == null || paths.length == 0 || getUsedFiles) {
-
+        if (paths == null || (paths.length == 0 && paths != REIMPORT)
+                || getUsedFiles) {
             store = null;
             library = null;
-
         } else {
 
             // Ensure that we have all of our required login arguments
@@ -298,7 +301,7 @@ public class CommandLineImporter {
             + "  -l READER_FILE\t\t\tUse the list of readers rather than the default\n"
             + "  -d DATASET_ID\t\t\t\tOMERO dataset ID to import image into\n"
             + "  -r SCREEN_ID\t\t\t\tOMERO screen ID to import plate into\n"
-
+            + "  --reimport FILESET_ID\t\t\t\tOMERO fileset ID to reimport\n"
             + "  --report\t\t\t\tReport errors to the OME team\n"
             + "  --upload\t\t\t\tUpload broken files with report\n"
             + "  --logs\t\t\t\tUpload log file with report\n"
@@ -472,6 +475,8 @@ public class CommandLineImporter {
                 new LongOpt("wait_completed", LongOpt.NO_ARGUMENT, null, 18);
         LongOpt autoClose =
                 new LongOpt("auto_close", LongOpt.NO_ARGUMENT, null, 19);
+        LongOpt reimport =
+                new LongOpt("reimport", LongOpt.REQUIRED_ARGUMENT, null, 22);
 
         // DEPRECATED OPTIONS
         LongOpt plateName = new LongOpt(
@@ -485,12 +490,13 @@ public class CommandLineImporter {
                                 agent, annotationNamespace, annotationText,
                                 annotationLink, transferOpt, advancedHelp,
                                 checksumAlgorithm, minutesWait, closeCompleted,
-                                waitCompleted, autoClose,
+                                waitCompleted, autoClose, reimport,
                                 plateName, plateDescription});
         int a;
 
         boolean doCloseCompleted = false;
         boolean doWaitCompleted = false;
+        boolean doReimport = false;
         boolean getUsedFiles = false;
         config.agent.set("importer-cli");
 
@@ -594,6 +600,17 @@ public class CommandLineImporter {
             case 19: {
                 minutesToWait = 0;
                 config.autoClose.set(true);
+                break;
+            }
+            case 22: {
+                String fileset = g.getOptarg();
+                if (fileset.startsWith("Fileset:")) {
+                    fileset = fileset.substring(
+                            "Fileset:".length());
+                }
+                config.targetId.set(Long.parseLong(fileset));
+                config.targetClass.set(Fileset.class.getName());
+                doReimport = true;
                 break;
             }
             // ADVANCED END ---------------------------------------------------
@@ -732,8 +749,13 @@ public class CommandLineImporter {
             if (rest.length == 1 && "-".equals(rest[0])) {
                 rest = stdin();
             }
-            c = new CommandLineImporter(config, rest, getUsedFiles,
-                    transfer, minutesToWait);
+            if (doReimport) {
+                c = new CommandLineImporter(config, REIMPORT,
+                        false, transfer, minutesToWait);
+            } else {
+                c = new CommandLineImporter(config, rest, getUsedFiles,
+                        transfer, minutesToWait);
+            }
             rc = c.start();
         } catch (Throwable t) {
             log.error("Error during import process.", t);
