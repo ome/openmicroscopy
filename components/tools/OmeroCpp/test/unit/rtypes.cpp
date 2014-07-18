@@ -21,8 +21,8 @@ TEST(RTypeTest, RBool)
     RBoolPtr f = rbool(false);
     ASSERT_FALSE(f->getValue());
 
-    ASSERT_EQ(t, rbool(true));
-    ASSERT_NE(t, f);
+    ASSERT_TRUE(t == rbool(true));
+    ASSERT_TRUE(t != f);
 }
 
 template <typename T>
@@ -34,9 +34,9 @@ void assertRValues(const T rv1, const T rv2) {
     ASSERT_TRUE(rv1 < rv2);
     ASSERT_TRUE(rv2 > rv1);
 
-    ASSERT_LT(rv1->getValue(), rv2->getValue());
-    ASSERT_LT(rv1->getValue(), rv2->getValue());
-    ASSERT_NE(rv1->getValue(), rv2->getValue());
+    ASSERT_TRUE(rv1->getValue() < rv2->getValue());
+    ASSERT_TRUE(rv1->getValue() < rv2->getValue());
+    ASSERT_TRUE(rv1->getValue() != rv2->getValue());
 
     ASSERT_EQ(rv1->compare(rv2), -1);
     ASSERT_EQ(rv2->compare(rv1), 1);
