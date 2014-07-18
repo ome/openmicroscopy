@@ -1,5 +1,6 @@
 {% extends "webclient/base/base_container.html" %}
 {% load i18n %}
+{% load common_filters %}
 
 
 {% comment %}
@@ -44,6 +45,16 @@
     <script type="text/javascript">
         $(document).ready(function() 
             {
+
+                // Disable the groups/users dropdown menu.
+                $("#groupsUsersButton")
+                    .css('background-image', 'url()')
+                    .attr('title', 'Use "Scope" in form below to search within specific Groups / Users');
+                setTimeout(function(){
+                    // make sure we remove click handler AFTER it's been added
+                    $("#groupsUsersButton").off('click');
+                },500);
+
                 var $ownedBy = $("select[name='ownedBy']");
 
                 var selectUsersFromGroup = function(groupId) {
@@ -230,6 +241,13 @@
                             <li> <strong> * </strong> Multiple character wildcard</li>
                             <li> <strong> AND </strong> Results will contain both terms. E.g: GFP AND H2B</li>
                         </ul>
+                        <br>
+                        <div>
+                            For more info, see the
+                            <a title="Open link in new Tab" target="new" href="http://help.openmicroscopy.org/search.html">
+                                User Help</a>
+                            pages.
+                        </div>
                     </div>
 
                     <div style="clear:both"></div>
@@ -290,8 +308,12 @@
 
                         <!-- when 'All Groups' - can choose 'Me' or 'All users' -->
                         <select name="ownedBy" id="searchByGroupMember--1">
-                            <option value="{{ ome.user.id }}">{{ ome.user.getFullName }}</option>
                             <option value="-1">All Users</option>
+                            {% for user in myColleagues %}}
+                                <option value="{{ user.id }}" {% ifequal user.id ome.user.id %}selected="selected"{% endifequal %}>
+                                    {{ user.getFullName|truncateafter:"50" }}
+                                </option>
+                            {% endfor %}
                         </select>
 
                         <!-- for each group we can choose users - only show <select> for 1 group at a time -->
@@ -300,12 +322,12 @@
                             <option value="-1">All Members</option>
                             {% for user in grp.leaders %}}
                                 <option value="{{ user.id }}" {% ifequal user.id ome.user.id %}selected="selected"{% endifequal %}>
-                                    {{ user.getFullName }}
+                                    {{ user.getFullName|truncateafter:"50" }}
                                 </option>
                             {% endfor %}
                             {% for user in grp.colleagues %}}
                                 <option value="{{ user.id }}" {% ifequal user.id ome.user.id %}selected="selected"{% endifequal %}>
-                                    {{ user.getFullName }}
+                                    {{ user.getFullName|truncateafter:"50" }}
                                 </option>
                             {% endfor %}
                         </select>
@@ -316,25 +338,32 @@
                         <label for="startdateinput">{% trans "Date" %}:</label>
 
                         <select name="useAcquisitionDate" id="useAcquisitionDate">
-                            <option value="true">AcquisitionDate</option>
-                            <option value="false">ImportDate</option>
+                            <option value="false" title="Date Imported / Created">Import date</option>
+                            <option value="true" title="Date Acquired, for Images only">Acquisition date</option>
                         </select>
+
+                        <span class="searching_info" title="Search by date imported / created or acquired.<br>
+                                Acquisition dates are for Images only.">
+                                <img src="{% static "webgateway/img/help16.png" %}" />
+                            </span>
 
                         <br/>
                         <span style="position: relative">
-                            <input type="text" id="startdateinput" name="startdateinput" value="{{ manager.criteria.period }}" size="12"/>
+                            <input type="text" id="startdateinput" name="startdateinput" size="12"
+                                value="{{ manager.criteria.period }}" title="Search for data 'From' this date"/>
                             <span class="clearDate">
                                 <img src="{% static "webclient/image/icon_basic_delete.png" %}" />
                             </span>
                         </span>
                         -
                         <span style="position: relative">
-                            <input type="text" id="enddateinput" name="enddateinput" value="" size="12"/>
+                            <input type="text" id="enddateinput" name="enddateinput" value="" size="12"
+                                title="Search for data 'To' this date. Leave blank for 'today'."/>
                             <span class="clearDate">
                                 <img src="{% static "webclient/image/icon_basic_delete.png" %}" />
                             </span>
                         </span>
-                        <span id="daterange" title="Date - <small>Specify a particular Creation / Import date or range of dates</small>">
+                        <span id="daterange" title="The 'to' date will be today's date if left blank.">
                                 <img src="{% static "webgateway/img/help16.png" %}" />
                         </span>
 

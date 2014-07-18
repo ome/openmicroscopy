@@ -1099,18 +1099,17 @@
         width:200px;
     }
 
-    #batch_ann_msg, #batch_ann_error {
+    #batch_ann_msg, #batch_ann_error, .postit_msg {
         background: #ffb;
         padding:10px;
         border: solid #ddd 1px;
-        display: none;
-    }
-    #batch_ann_msg, {
-        background: #ffb;
     }
     #batch_ann_error {
         background: #fbb;
         cursor: pointer;
+    }
+    #batch_ann_msg, #batch_ann_error {
+        display: none;
     }
 	
 	
