@@ -45,6 +45,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -100,6 +101,9 @@ public class AdvancedFinder
 	implements Finder, PropertyChangeListener
 {
 	
+        /** URL which links to the search help website */
+        private static final String HELP_URL = "http://help.openmicroscopy.org/search.html";
+    
 	/** The default title of the notification message. */
 	private static final String TITLE = "Search";
 	
@@ -428,8 +432,27 @@ public class AdvancedFinder
 	 */
 	protected void help()
 	{
-		SearchHelp help = new SearchHelp(FinderFactory.getRefFrame());
+		SearchHelp help = new SearchHelp(FinderFactory.getRefFrame(), HELP_URL);
 		UIUtilities.centerAndShow(help);
+		
+		if(help.hasError()) {
+		    showWebbrowserError(HELP_URL);
+		}
+	}
+	
+	/**
+	 * Pops up an UserNotifier indicating that the webbrowser
+	 * for the help website couldn't be opened
+	 * @param url
+	 */
+	public void showWebbrowserError(String url) {
+	    TreeViewerAgent
+            .getRegistry()
+            .getUserNotifier()
+            .notifyError(
+                    "Could not open web browser",
+                    "Please open your web browser and go to page: "
+                            + url);
 	}
 	
 	/** 
@@ -477,11 +500,18 @@ public class AdvancedFinder
 	public void setResult(AdvancedSearchResultCollection result)
 	{
             if (result.isError()) {
-                String msg;
-                if (result.getError() == AdvancedSearchResultCollection.GENERAL_ERROR)
-                    msg = "Invalid search expression";
-                else
-                    msg = "Too many results, please refine your search criteria.";
+                String msg = "";
+                switch (result.getError()) {
+                    case AdvancedSearchResultCollection.GENERAL_ERROR:
+                        msg = "Invalid search expression";
+                        break;
+                    case AdvancedSearchResultCollection.TOO_MANY_RESULTS_ERROR:
+                        msg = "Too many results, please refine your search criteria.";
+                        break;
+                    case AdvancedSearchResultCollection.TOO_MANY_CLAUSES:
+                        msg = "Please try to narrow down your query. The wildcard matched too many terms.";
+                        break;
+                }
                 UserNotifier un = FinderFactory.getRegistry().getUserNotifier();
                 un.notifyError("Search error", msg);
                 setSearchEnabled(false);
