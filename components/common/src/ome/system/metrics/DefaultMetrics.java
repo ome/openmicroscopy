@@ -54,6 +54,8 @@ public class DefaultMetrics implements Metrics, InitializingBean {
 
     private static Logger log = LoggerFactory.getLogger(Metrics.class);
 
+    private static String DOMAIN = Metrics.class.getPackage().getName();
+
     private MetricRegistry registry = new MetricRegistry();
 
     private int slf4jMinutes = 0;
@@ -102,7 +104,7 @@ public class DefaultMetrics implements Metrics, InitializingBean {
         if (slf4jMinutes > 0) {
             final Slf4jReporter reporter = Slf4jReporter.forRegistry(registry)
                 .filter(filter())
-                .outputTo(LoggerFactory.getLogger("ome.system.metrics"))
+                .outputTo(LoggerFactory.getLogger(DOMAIN))
                 .convertRatesTo(TimeUnit.SECONDS)
                 .convertDurationsTo(TimeUnit.MILLISECONDS)
                 .build();
@@ -110,7 +112,8 @@ public class DefaultMetrics implements Metrics, InitializingBean {
         }
 
         if (jmxReporter) {
-            final JmxReporter jmx = JmxReporter.forRegistry(registry).build();
+            final JmxReporter jmx = JmxReporter.forRegistry(registry)
+                    .inDomain(DOMAIN).build();
             jmx.start();
         }
 
