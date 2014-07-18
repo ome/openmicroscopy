@@ -1,4 +1,4 @@
-<ivy-module version="1.0">
+<ivy-module version="1.0" xmlns:m="http://ant.apache.org/ivy/maven">
   <info
       organisation="omero"
       module="OmeroImporter"
@@ -9,6 +9,9 @@
   </configurations>
   <publications>
     <artifact name="OmeroImporter" type="jar"/>
+    <artifact name="OmeroImporter" type="pom"/>
+    <artifact name="OmeroImporter" type="source" ext="jar" m:classifier="sources"/>
+    <artifact name="OmeroImporter" type="javadoc" ext="jar" m:classifier="javadoc"/>
   </publications>
   <dependencies defaultconfmapping="build,client->default">
     <!-- Internal -->
@@ -16,29 +19,29 @@
     <dependency org="omero" name="blitz" rev="${omero.version}" changing="true" conf="build->build"/>
     <dependency org="omero" name="romio" rev="${omero.version}" changing="true" conf="build->build;client->client"/><!-- For bioformats -->
     <!-- Basics (as in DSL) -->
-    <dependency org="slf4j" name="slf4j-api" rev="${versions.slf4j}" conf="client->default"/>
-    <dependency org="slf4j" name="slf4j-log4j12" rev="${versions.slf4j}"/>
+    <dependency org="org.slf4j" name="slf4j-api" rev="${versions.slf4j}" conf="client->default"/>
+    <dependency org="org.slf4j" name="slf4j-log4j12" rev="${versions.slf4j}"/>
     <dependency org="log4j" name="log4j" rev="${versions.log4j}"/>
     <dependency org="commons-lang" name="commons-lang" rev="${versions.commons-lang}"/>
     <dependency org="commons-logging" name="commons-logging" rev="${versions.commons-logging}" conf="build,client->default"/>
     <dependency org="commons-collections" name="commons-collections" rev="${versions.commons-collections}" conf="build,client->default"/>
-    <dependency org="org/hibernate" name="hibernate" rev="${versions.hibernate}" conf="build,client->default"/>
+    <dependency org="org.hibernate" name="hibernate-core" rev="${versions.hibernate}" conf="build,client->default"/>
     <!-- Spring -->
     <dependency org="org.springframework" name="org.springframework.core" rev="${versions.spring}" conf="build,client->default"/>
     <!-- Test engine -->
     <dependency org="asm" name="asm" rev="${versions.asm}"/>
     <dependency org="asm" name="asm-attrs" rev="${versions.asm}"/>
     <dependency org="cglib" name="cglib-nodep" rev="${versions.cglib}"/>
-    <dependency org="perf4j" name="perf4j" rev="${versions.perf4j}"/>
+    <dependency org="org.perf4j" name="perf4j" rev="${versions.perf4j}"/>
     <!-- Gui -->
     <dependency org="gui" name="TableLayout" rev="${versions.tablelayout}"/>
-    <dependency org="gui" name="swingx" rev="${versions.swingx}"/>
+    <dependency org="org.swinglabs" name="swingx" rev="${versions.swingx}"/>
     <dependency org="gui" name="omero-clients-util" rev="${versions.clients-util}"/>
-    <dependency org="gui" name="ini4j" rev="0.3.2"/>
-    <dependency org="gui" name="java-getopt" rev="1.0.13"/>
-    <dependency org="gui" name="commons-httpclient" rev="${versions.commons-httpclient}"/>
-    <dependency org="gui" name="commons-codec" rev="${versions.commons-codec}"/>
-    <dependency org="gui" name="commons-io" rev="${versions.commons-io}"/>
+    <dependency org="org.ini4j" name="ini4j" rev="0.3.2"/>
+    <dependency org="gnu.getopt" name="java-getopt" rev="1.0.13"/>
+    <dependency org="commons-httpclient" name="commons-httpclient" rev="${versions.commons-httpclient}"/>
+    <dependency org="commons-codec" name="commons-codec" rev="${versions.commons-codec}"/>
+    <dependency org="commons-io" name="commons-io" rev="${versions.commons-io}"/>
     <dependency org="gui" name="gtkjfilechooser" rev="${versions.gtkjfilechooser}"/>
   </dependencies>
 </ivy-module>

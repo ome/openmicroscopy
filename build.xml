@@ -55,6 +55,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     <property name="gitmatch" value="v.[0-9]*.[0-9]*.[0-9]*"/>
     <property name="import.dir" value="${basedir}/components/antlib/resources"/>
     <import file="${import.dir}/global.xml"/>
+    <import file="${import.dir}/version.xml"/>
 
     <target name="init" depends="check-bioformats,check-ivy,check-scons,check-ice">
         <mkdir dir="${blitz.comp}/generated"/>
@@ -84,6 +85,9 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <installIvy/>
         <ivy:buildlist reference="all.buildpath" settingsRef="ivy.toplevel">
             <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/tools/**, **/tests/**"/>
+        </ivy:buildlist>
+        <ivy:buildlist reference="nobf.buildpath" settingsRef="ivy.toplevel">
+            <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/tools/**, **/tests/**, **/bioformats/**"/>
         </ivy:buildlist>
         <ivy:buildlist reference="blitzserver.buildpath" settingsRef="ivy.toplevel">
             <fileset dir="${omero.home}/components/blitz/" includes="build.xml"/>
@@ -543,15 +547,12 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <zip destfile="${omero.home}/target/OMERO.docs-${omero.version}.zip">
             <zipfileset dir="${dist.dir}/docs" prefix="OMERO.docs-${omero.version}"/>
         </zip>
-
-        <gitdescribe select="\2"> </gitdescribe>
-
         <exec executable="make" failonerror="true" dir="${sphinx.dir}">
-            <env key="SOURCE_BRANCH" value="v.${version.describe}"/>
-            <env key="OMERO_RELEASE" value="${version.describe}"/>
+            <env key="SOURCE_BRANCH" value="v.${omero.shortversion}"/>
+            <env key="OMERO_RELEASE" value="${omero.shortversion}"/>
             <arg line="clean html latexpdf"/>
         </exec>
-        <copy file="${sphinx.dir}/_build/latex/OMERO-${version.describe}.pdf" tofile="${omero.home}/target/OMERO-${version.describe}.pdf" overwrite="true"/>
+        <copy file="${sphinx.dir}/_build/latex/OMERO-${omero.shortversion}.pdf" tofile="${omero.home}/target/OMERO-${omero.shortversion}.pdf" overwrite="true"/>
         <zip destfile="${omero.home}/target/OMERO.sphinx-${omero.version}.zip">
             <zipfileset dir="${sphinx.dir}/_build/html/" prefix="OMERO.sphinx-${omero.version}"/>
         </zip>
@@ -647,6 +648,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <classpath>
                 <fileset dir="lib">
                     <include name="**/*.jar"/>
+                    <exclude name="**/*sources*.jar"/>
                     <exclude name="repository/omero/**"/>
                     <exclude name="repository/omero-tools/**"/>
                     <exclude name="cache/omero/omero_client/jars/**"/>
@@ -722,23 +724,10 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         </replace>
     </target>
 
-    <target name="release-hudson" depends="check-ivy" description="Saves to the hudson repository for dependent builds">
-        <ivy:resolve settingsRef="ivy.toplevel"
-            file="${omero.home}/ivy.xml" type="zip" log="quiet"/>
-        <ivy:publish settingsRef="ivy.toplevel"
-            artifactspattern="${omero.home}/OMERO.server-${omero.version}.zip"
-            srcivypattern="${omero.home}/ivy.xml"
-            resolver="test-resolver"
-            pubrevision="${omero.version}"
-            pubdate="${now}"
-            status="integration"
-            overwrite="true"/>
-            <!-- This causes the ivy file to be modified -->
-            <!--forcedeliver="true"-->
-        <ivy:install settingsRef="ivy.toplevel"
-            organisation="omero" module="main" revision="${omero.version}"
-            from="omero-resolver" to="hudson-repository"
-            transitive="true" overwrite="true"/>
+    <target name="release-hudson" depends="check-ivy"
+            description="Saves to the hudson repository for dependent builds">
+        <iterate buildpathref="nobf.buildpath" target="artifactory"/>
+        <iterate buildpathref="OmeroImporter.buildpath" target="artifactory"/>
     </target>
 
     <target name="release-nsis" description="Creates a Windows installer with NSIS">
@@ -989,39 +978,11 @@ omero.version=${omero.version}
         </sequential>
     </macrodef>
 
-    <macrodef name="gitdescribe">
-        <attribute name="regexp" default="^(v.)?(.*?)(-[0-9]+)?((-)g(.*?))?$"/>
-        <attribute name="select" default="\2"/>
-        <attribute name="match" default="${gitmatch}"/>
-        <sequential>
-        <trycatch>
-            <try>
-                <git command="describe" output="fullversion" failonerror="true">
-                    <args>
-                        <arg value="--match"/>
-                        <arg value="@{match}"/>
-                        <arg line="--dirty"/>
-                    </args>
-                </git>
-                <propertyregex property="version.describe" input="${fullversion}" regexp="@{regexp}" select="@{select}"/>
-            </try>
-            <catch>
-                <echo>UNKNOWN</echo>
-            </catch>
-        </trycatch>
-        </sequential>
-    </macrodef>
-
-    <target name="version">
-        <gitdescribe select="\2\3\5\6">
-        </gitdescribe>
-        <echo>${version.describe}-ice${versions.ice_lib}</echo>
-    </target>
-
     <target name="print-mem">
         <echo>
             javac.maxmem=${javac.maxmem}
             javadoc.maxmem=${javadoc.maxmem}
         </echo>
     </target>
+
 </project>

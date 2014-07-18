@@ -11,7 +11,6 @@
   </publications>
   <dependencies defaultconfmapping="test->*">
     <dependency org="ome" name="specification" rev="${omero.version}" changing="true"/>
-    <dependency org="ome" name="ome-xml" rev="${omero.version}"/>
     <dependency org="testng" name="testng" rev="${versions.testng}"/>
     <dependency org="org.springframework" name="org.springframework.core" rev="${versions.spring}"/>
     <dependency org="commons-logging" name="commons-logging" rev="${versions.commons-logging}"/>

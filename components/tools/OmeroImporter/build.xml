@@ -28,6 +28,7 @@
     <property name="import.dir"       value="${up-one}/antlib/resources"/>
     <property name="importer.name" value="OMERO.importer"/>
     <import file="${import.dir}/global.xml"/>
+    <import file="${import.dir}/version.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
 
     <import file="../common.xml"/>
@@ -140,7 +141,7 @@
 
     <target name="tools-build" depends="tools-init,install" description="Creates all artifacts for tools/target">
         <ivy:resolve file="${basedir}/ivy.xml" type="jar" conf="client" settingsRef="ivy.${ant.project.name}" log="quiet"/>
-        <ivy:retrieve conf="client" pattern="${target.dir}/client-libs/[artifact]-[revision].[ext]" sync="true" log="quiet" settingsRef="ivy.${ant.project.name}"/>
+        <ivy:retrieve conf="client" pattern="${target.dir}/client-libs/[artifact]-[revision](-[classifier]).[ext]" sync="true" log="quiet" settingsRef="ivy.${ant.project.name}"/>
     </target>
 
     <target name="tools-dist" depends="tools-build,release-zip" description="Copied artifacts to tools/target" unless="skip.compile">

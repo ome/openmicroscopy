@@ -73,40 +73,9 @@ def calculate_memory_args():
 
 def choose_omero_version():
     """
-    Returns an array specifying the build parameter for
-    ant. Returned as an array so that an empty value can
-    be extended into the build command.
-
-    If BUILD_NUMER is set, then "-Domero.version=${omero.version}-b${BUILD_NUMBER}"
-    otherwise nothing.
+    No-op. Now handled by components/antlib/resources/version.{xml,py}
     """
-
-    omero_build = os.environ.get("BUILD_NUMBER", "")
-    if omero_build:
-        omero_build = "-b%s" % omero_build
-
-    command = [ find_java(), "omero",BUILD_PY,"-q","version" ]
-    err = ""
-    try:
-        p = popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        omero_version, err = p.communicate()
-        omero_version = omero_version.split()[1]
-
-        # If we're not on hudson, then we don't want to force
-        # users to deal with rebuilding after each commit.
-        # Instead, drop everything except for "-DEV"
-        #
-        # See gh-67 for the discussion.
-        if not omero_build:
-            omero_version = re.sub("([-]DEV)?-\d+-[a-f0-9]+(-dirty)?",\
-                    "-DEV", omero_version)
-        return [ "-Domero.version=%s%s" % (omero_version, omero_build) ]
-    except:
-        print "Error getting version for BUILD_NUMBER=%s" % omero_build
-        if err:
-            print err
-        sys.exit(1)
-
+    return []
 
 def handle_tools(args):
     _ = os.path.sep.join
