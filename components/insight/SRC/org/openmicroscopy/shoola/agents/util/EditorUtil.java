@@ -1075,7 +1075,6 @@ public class EditorUtil
         int v = maxLength+UIUtilities.DOTS.length();
         int n = name.length();
         if (n > v) {
-            n = n-1;
             if (start) return UIUtilities.DOTS+name.substring(n-maxLength, n);
             return name.substring(0, maxLength)+UIUtilities.DOTS;
         }
