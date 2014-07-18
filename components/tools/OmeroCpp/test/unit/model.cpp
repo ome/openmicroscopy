@@ -96,7 +96,7 @@ TEST(ModelTest, Accessors )
   ASSERT_TRUE( img->getName() );
   RStringPtr str = img->getName();
   ASSERT_EQ("name", str->getValue());
-  ASSERT_EQ(str, name );
+  ASSERT_TRUE(str == name );
 
   img->setName(rstring("name2"));
   ASSERT_TRUE( img->getName() );
@@ -268,7 +268,7 @@ TEST(ModelTest, PrimaryPixels ) {
 
     ASSERT_TRUE( i->isPixelsLoaded() );
     ASSERT_EQ( 1, i->sizeOfPixels() );
-    ASSERT_EQ( p, i->beginPixels()[0] );
+    ASSERT_TRUE( p == i->beginPixels()[0] );
     beg = i->beginPixels();
     end = i->endPixels();
     while (beg != end) {
@@ -299,6 +299,6 @@ TEST(ModelTest, OrderedCollectionsTicket2547 ) {
     pixels->addChannel(channel0);
     ASSERT_EQ(1, pixels->sizeOfChannels());
     ChannelPtr old = pixels->setChannel(0, channel1);
-    ASSERT_EQ(old, channel0);
+    ASSERT_TRUE(old == channel0);
     ASSERT_EQ(1, pixels->sizeOfChannels());
 }
