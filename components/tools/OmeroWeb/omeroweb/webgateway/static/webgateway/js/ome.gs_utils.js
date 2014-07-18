@@ -132,7 +132,7 @@ function gs_choiceModalDialog (message, choices, callback, blockui_opts, cancel_
       return false;
     }
   }
-  for (i in choices) {
+  for (var i=0; i < choices.length; i++) {
     message += '<input type="button" onclick="return gs_modal_cb('+i+');" value="'+choices[i].label+'" />'
   }
   if (!blockui_opts) {
