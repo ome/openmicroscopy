@@ -136,9 +136,8 @@ public class FullText extends SearchAction {
 
         if (LuceneQueryBuilder.DATE_ACQUISITION.equals(dateType) &&
                 !values.onlyTypes.contains(Image.class)) {
-            // Ignore acquisition ranges for non-images
-            dFrom = null;
-            dTo = null;
+            // Use import for non-images
+            dateType = LuceneQueryBuilder.DATE_IMPORT;
         }
 
         try {
