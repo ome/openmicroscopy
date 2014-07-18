@@ -45,6 +45,16 @@
     <script type="text/javascript">
         $(document).ready(function() 
             {
+
+                // Disable the groups/users dropdown menu.
+                $("#groupsUsersButton")
+                    .css('background-image', 'url()')
+                    .attr('title', 'Use "Scope" in form below to search within specific Groups / Users');
+                setTimeout(function(){
+                    // make sure we remove click handler AFTER it's been added
+                    $("#groupsUsersButton").off('click');
+                },500);
+
                 var $ownedBy = $("select[name='ownedBy']");
 
                 var selectUsersFromGroup = function(groupId) {
