@@ -36,6 +36,13 @@
 
 cmake_minimum_required(VERSION 2.8)
 
+# Default policy is from 2.8.0
+cmake_policy(VERSION 2.8.0)
+# Set MacOSX @rpath usage globally.
+if (POLICY CMP0042)
+  cmake_policy(SET CMP0042 NEW)
+endif(POLICY CMP0042)
+
 if("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
   message(FATAL_ERROR "In-tree builds are not supported; please run cmake from a separate build directory.")
 endif("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
