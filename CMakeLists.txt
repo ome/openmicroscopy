@@ -69,12 +69,14 @@ option(test "Enable unit tests (requires gtest)" ${BUILD_TESTS})
 set(BUILD_TESTS ${test})
 
 
-message(STATUS "Running build.py to generate C++ and Ice sources; this may take some time")
 # Run build.py to generate C++ and Ice sources.
 if(NOT EXISTS ${PROJECT_SOURCE_DIR}/components/blitz/generated/omero/model/Image.ice)
+  message(STATUS "Running build.py to generate C++ and Ice sources; this may take some time")
   execute_process(COMMAND python build.py build-default
                   RESULT_VARIABLE build_py_fail
-                  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+                  WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+                  OUTPUT_FILE "${PROJECT_BINARY_DIR}/CMakeFiles/OmeroBuildOutput.txt"
+                  ERROR_FILE "${PROJECT_BINARY_DIR}/CMakeFiles/OmeroBuildError.txt")
   if(build_py_fail)
     # On failure we must clean to ensure that we don't leave the
     # sources half-generated since this just leads to build failures
@@ -82,9 +84,13 @@ if(NOT EXISTS ${PROJECT_SOURCE_DIR}/components/blitz/generated/omero/model/Image
     message(STATUS "Failed to run build.py to generate C++ and Ice sources; cleaning.")
     execute_process(COMMAND python build.py clean
                     RESULT_VARIABLE build_py_fail2
-                    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
-    message(FATAL_ERROR "Failed to run build.py to generate C++ and Ice sources.")
+                    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+                    OUTPUT_FILE "${PROJECT_BINARY_DIR}/CMakeFiles/OmeroCleanOutput.txt"
+                    ERROR_FILE "${PROJECT_BINARY_DIR}/CMakeFiles/OmeroCleanError.txt")
+    message(FATAL_ERROR "Failed to run build.py to generate C++ and Ice sources.  See CMakeFiles/OmeroBuildOutput.txt and CMakeFiles/OmeroBuildError.txt")
   endif(build_py_fail)
+else(NOT EXISTS ${PROJECT_SOURCE_DIR}/components/blitz/generated/omero/model/Image.ice)
+  message(STATUS "C++ and Ice sources already generated; skipping running build.py")
 endif(NOT EXISTS ${PROJECT_SOURCE_DIR}/components/blitz/generated/omero/model/Image.ice)
 
 add_subdirectory(components/tools/OmeroCpp)
