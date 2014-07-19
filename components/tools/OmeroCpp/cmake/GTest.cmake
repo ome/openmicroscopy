@@ -1,7 +1,7 @@
 # #%L
-# OMERO C++ libraries (cmake build infrastructure)
+# Bio-Formats C++ libraries (cmake build infrastructure)
 # %%
-# Copyright © 2006 - 2013 Open Microscopy Environment:
+# Copyright © 2006 - 2014 Open Microscopy Environment:
 #   - Massachusetts Institute of Technology
 #   - National Institutes of Health
 #   - University of Dundee
@@ -34,51 +34,13 @@
 # policies, either expressed or implied, of any organization.
 # #L%
 
-cmake_minimum_required(VERSION 2.8)
-
-if("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
-  message(FATAL_ERROR "In-tree builds are not supported; please run cmake from a separate build directory.")
-endif("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
-
-enable_language(CXX)
-
-include(CheckIncludeFileCXX)
-include(CheckCXXCompilerFlag)
-include(CheckCXXSourceCompiles)
-
-include(components/tools/OmeroCpp/cmake/GNUInstallDirs.cmake)
-include(components/tools/OmeroCpp/cmake/CompilerChecks.cmake)
-include(components/tools/OmeroCpp/cmake/GTest.cmake)
-
-find_package(Threads REQUIRED)
-
 # Unit tests
+find_package(Threads REQUIRED)
 find_package(GTest)
 set(BUILD_TESTS OFF)
 if(GTEST_FOUND)
   set(BUILD_TESTS ON)
+  enable_testing()
 endif(GTEST_FOUND)
 option(test "Enable unit tests (requires gtest)" ${BUILD_TESTS})
 set(BUILD_TESTS ${test})
-
-
-message(STATUS "Running build.py to generate C++ and Ice sources; this may take some time")
-# Run build.py to generate C++ and Ice sources.
-if(NOT EXISTS ${PROJECT_SOURCE_DIR}/components/blitz/generated/omero/model/Image.ice)
-  execute_process(COMMAND python build.py build-default
-                  RESULT_VARIABLE build_py_fail
-                  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
-  if(build_py_fail)
-    # On failure we must clean to ensure that we don't leave the
-    # sources half-generated since this just leads to build failures
-    # later on.
-    message(STATUS "Failed to run build.py to generate C++ and Ice sources; cleaning.")
-    execute_process(COMMAND python build.py clean
-                    RESULT_VARIABLE build_py_fail2
-                    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
-    message(FATAL_ERROR "Failed to run build.py to generate C++ and Ice sources.")
-  endif(build_py_fail)
-endif(NOT EXISTS ${PROJECT_SOURCE_DIR}/components/blitz/generated/omero/model/Image.ice)
-
-add_subdirectory(components/tools/OmeroCpp)
-add_subdirectory(examples)
