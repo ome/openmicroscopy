@@ -47,6 +47,8 @@ include_directories("${PROJECT_SOURCE_DIR}/components/blitz/generated"
                     "${CMAKE_CURRENT_SOURCE_DIR}/src"
                     "${CMAKE_CURRENT_BINARY_DIR}/${GEN_DIR}")
 
+option(debug-ice-generation "Dump results of generated Ice source globbing" OFF)
+
 # Find all static Ice slice definitions.
 file(GLOB_RECURSE ICE_API_STATIC_SOURCES RELATIVE        "${PROJECT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/components/blitz/resources/omero/api/*.ice")
 file(GLOB_RECURSE ICE_MODEL_STATIC_SOURCES RELATIVE      "${PROJECT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/components/blitz/resources/omero/model*.ice")
@@ -70,10 +72,12 @@ if(ICE_CLIENT_STATIC_SOURCES)
   list(REMOVE_ITEM ICE_COMMON_STATIC_SOURCES ${ICE_CLIENT_STATIC_SOURCES})
 endif(ICE_CLIENT_STATIC_SOURCES)
 
-message(STATUS "Static slice definitions (common): ${ICE_COMMON_STATIC_SOURCES}")
-message(STATUS "Static slice definitions (api):    ${ICE_API_STATIC_SOURCES}")
-message(STATUS "Static slice definitions (model):  ${ICE_MODEL_STATIC_SOURCES}")
-message(STATUS "Static slice definitions (client): ${ICE_CLIENT_STATIC_SOURCES}")
+if(debug-ice-generation)
+  message(STATUS "Static slice definitions (common): ${ICE_COMMON_STATIC_SOURCES}")
+  message(STATUS "Static slice definitions (api):    ${ICE_API_STATIC_SOURCES}")
+  message(STATUS "Static slice definitions (model):  ${ICE_MODEL_STATIC_SOURCES}")
+  message(STATUS "Static slice definitions (client): ${ICE_CLIENT_STATIC_SOURCES}")
+endif(debug-ice-generation)
 
 # Find all generated Ice slice definitions.
 file(GLOB_RECURSE ICE_API_GENERATED_SOURCES RELATIVE     "${PROJECT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/components/blitz/generated/omero/api/*.ice")
@@ -95,10 +99,12 @@ if(ICE_CLIENT_GENERATED_SOURCES)
   list(REMOVE_ITEM ICE_COMMON_GENERATED_SOURCES ${ICE_CLIENT_GENERATED_SOURCES})
 endif(ICE_CLIENT_GENERATED_SOURCES)
 
-message(STATUS "Generated slice definitions (common): ${ICE_COMMON_GENERATED_SOURCES}")
-message(STATUS "Generated slice definitions (api):    ${ICE_API_GENERATED_SOURCES}")
-message(STATUS "Generated slice definitions (model):  ${ICE_MODEL_GENERATED_SOURCES}")
-message(STATUS "Generated slice definitions (client): ${ICE_CLIENT_GENERATED_SOURCES}")
+if(debug-ice-generation)
+  message(STATUS "Generated slice definitions (common): ${ICE_COMMON_GENERATED_SOURCES}")
+  message(STATUS "Generated slice definitions (api):    ${ICE_API_GENERATED_SOURCES}")
+  message(STATUS "Generated slice definitions (model):  ${ICE_MODEL_GENERATED_SOURCES}")
+  message(STATUS "Generated slice definitions (client): ${ICE_CLIENT_GENERATED_SOURCES}")
+endif(debug-ice-generation)
 
 # Find all generated C++ sources and headers.
 file(GLOB_RECURSE OMERO_API_GENERATED_HEADERS RELATIVE   "${PROJECT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/components/blitz/generated/omero/api/*.h")
@@ -122,14 +128,16 @@ if(OMERO_MODEL_GENERATED_SOURCES)
   list(REMOVE_ITEM OMERO_COMMON_GENERATED_SOURCES ${OMERO_MODEL_GENERATED_SOURCES})
 endif(OMERO_MODEL_GENERATED_SOURCES)
 
-message(STATUS "Generated C++ headers (common): ${OMERO_COMMON_GENERATED_HEADERS}")
-message(STATUS "Generated C++ sources (common): ${OMERO_COMMON_GENERATED_SOURCES}")
-message(STATUS "Generated C++ headers (api):    ${OMERO_API_GENERATED_HEADERS}")
-message(STATUS "Generated C++ sources (api):    ${OMERO_API_GENERATED_SOURCES}")
-message(STATUS "Generated C++ headers (model):  ${OMERO_MODEL_GENERATED_HEADERS}")
-message(STATUS "Generated C++ sources (model):  ${OMERO_MODEL_GENERATED_SOURCES}")
-message(STATUS "Generated C++ headers (client): ${OMERO_CLIENT_GENERATED_HEADERS}")
-message(STATUS "Generated C++ sources (client): ${OMERO_CLIENT_GENERATED_SOURCES}")
+if(debug-ice-generation)
+  message(STATUS "Generated C++ headers (common): ${OMERO_COMMON_GENERATED_HEADERS}")
+  message(STATUS "Generated C++ sources (common): ${OMERO_COMMON_GENERATED_SOURCES}")
+  message(STATUS "Generated C++ headers (api):    ${OMERO_API_GENERATED_HEADERS}")
+  message(STATUS "Generated C++ sources (api):    ${OMERO_API_GENERATED_SOURCES}")
+  message(STATUS "Generated C++ headers (model):  ${OMERO_MODEL_GENERATED_HEADERS}")
+  message(STATUS "Generated C++ sources (model):  ${OMERO_MODEL_GENERATED_SOURCES}")
+  message(STATUS "Generated C++ headers (client): ${OMERO_CLIENT_GENERATED_HEADERS}")
+  message(STATUS "Generated C++ sources (client): ${OMERO_CLIENT_GENERATED_SOURCES}")
+endif(debug-ice-generation)
 
 # Remove client files from the common files.
 set(OMERO_CLIENT_GENERATED_HEADERS)
@@ -354,8 +362,10 @@ add_library(omero-client SHARED
             ${OMERO_CLIENT_HEADERS} ${OMERO_CLIENT_SOURCES})
 target_link_libraries(omero-client Ice IceUtil Glacier2)
 
-message(STATUS "omero-client (headers): ${OMERO_COMMON_HEADERS} ${OMERO_MODEL_HEADERS} ${OMERO_API_HEADERS} ${OMERO_CLIENT_HEADERS}")
-message(STATUS "omero-client (sources): ${OMERO_COMMON_SOURCES} ${OMERO_MODEL_SOURCES} ${OMERO_API_SOURCES} ${OMERO_CLIENT_SOURCES}")
+if(debug-ice-generation)
+  message(STATUS "omero-client (headers): ${OMERO_COMMON_HEADERS} ${OMERO_MODEL_HEADERS} ${OMERO_API_HEADERS} ${OMERO_CLIENT_HEADERS}")
+  message(STATUS "omero-client (sources): ${OMERO_COMMON_SOURCES} ${OMERO_MODEL_SOURCES} ${OMERO_API_SOURCES} ${OMERO_CLIENT_SOURCES}")
+endif(debug-ice-generation)
 
 add_custom_target(gensrc
                   DEPENDS ${OMERO_COMMON_HEADERS} ${OMERO_COMMON_SOURCES}
