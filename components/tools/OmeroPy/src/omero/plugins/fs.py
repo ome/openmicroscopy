@@ -27,8 +27,6 @@ import sys
 
 from collections import namedtuple
 
-from omero_ext.argparse import SUPPRESS
-
 from omero import client as Client
 from omero import CmdError
 from omero import ServerError
