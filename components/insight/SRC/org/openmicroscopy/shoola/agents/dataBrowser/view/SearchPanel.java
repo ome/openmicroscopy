@@ -96,9 +96,9 @@ public class SearchPanel extends JPanel {
     private static final int AREA_COLUMNS = 12;
 
     /** The date format for the date pickers */
-    private static final String DATE_PICKER_FORMAT = "yyyy/MM/dd";
+    private static final String DATE_PICKER_FORMAT = "yyyy-MM-dd";
 
-    private static final String DATE_TOOLTIP = "<html>Please select a date from the drop-down menu or enter<br> a date in the format YYYY/MM/DD (e. g. 2014/07/10)</html>";
+    private static final String DATE_TOOLTIP = "<html>Please select a date from the drop-down menu or enter<br> a date in the format YYYY-MM-DD (e. g. 2014-07-10)</html>";
  
     private static final String DATE_TYPE_TOOLTIP = "Select the type of date (Acquisition date applies to images only)";
     
