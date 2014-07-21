@@ -22,11 +22,13 @@ import static omero.rtypes.rstring;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.DateFormatSymbols;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -52,8 +54,8 @@ import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.FilePathNamingValidator;
 import ome.services.blitz.repo.path.FilePathRestrictionInstance;
 import ome.services.blitz.repo.path.FsFile;
+import ome.services.blitz.repo.path.MakeNextDirectory;
 import ome.services.blitz.util.ChecksumAlgorithmMapper;
-import ome.services.util.SleepTimer;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
@@ -94,8 +96,10 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
+import com.google.common.math.IntMath;
 
 import Ice.Current;
 
@@ -544,6 +548,20 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         /**
+         * Concatenate the given path on to the end of the directories already expanded, and return that full repository path.
+         * @param path a list of subdirectories
+         * @return the full path
+         */
+        private String getFullPathWith(List<String> path) {
+            final StringBuffer sb = new StringBuffer();
+            for (final String component : Iterables.concat(done, path)) {
+                sb.append(FsFile.separatorChar);
+                sb.append(component);
+            }
+            return sb.toString();
+        }
+
+        /**
          * Expand {@code %user%} to the user's name.
          * @param prefix path component text preceding the expansion term, may be empty
          * @param suffix path component text following the expansion term, may be empty
@@ -641,20 +659,37 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
         /**
          * Expand {@code %time%} to the current hour, minute, second and millisecond.
+         * The directory is actually created.
          * @param prefix path component text preceding the expansion term, may be empty
          * @param suffix path component text following the expansion term, may be empty
-         * @return entire replaced path component, may be unchanged to be revisited,
-         * or {@code null} if it has been wholly processed; otherwise it will be created
          * @throws ServerError if the directory could not be created
          */
         @SuppressWarnings("unused")  /* used by create() via Method.invoke */
-        public String expandTime(String prefix, String suffix) {
-            final String time = String.format("%02d-%02d-%02d.%03d",
-                    now.get(Calendar.HOUR_OF_DAY),
-                    now.get(Calendar.MINUTE),
-                    now.get(Calendar.SECOND),
-                    now.get(Calendar.MILLISECOND));
-            return prefix + time + suffix;
+        public void expandAndCreateTime(final String prefix, final String suffix) throws ServerError {
+            final MakeNextDirectory directoryMaker = new MakeNextDirectory() {
+
+                @Override
+                public List<String> getPathFor(long index) {
+                    final int hour = now.get(Calendar.HOUR_OF_DAY);
+                    final int minute = now.get(Calendar.MINUTE);
+                    final int second = now.get(Calendar.SECOND);
+                    final long millisecond = now.get(Calendar.MILLISECOND) + index;
+                    final String time = String.format("%s%02d-%02d-%02d.%03d%s", prefix, hour, minute, second, millisecond, suffix);
+                    return Collections.singletonList(time);
+                }
+
+                @Override
+                public boolean isAcceptable(List<String> path) throws ServerError {
+                    return !checkPath(getFullPathWith(path), null, current).exists();
+                }
+
+                @Override
+                public void usePath(List<String> path) throws ServerError {
+                    makeDir(getFullPathWith(path), false, current);
+                }
+            };
+
+            done.addAll(directoryMaker.useFirstAcceptable());
         }
 
         /**
@@ -788,142 +823,48 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         /**
-         * Get the full repository path for the given increment.
-         * @param prefix path component text preceding the expansion term, may be empty
-         * @param suffix path component text following the expansion term, may be empty
-         * @param padding the minimum number of digits for the natural number, achieved by zero-padding if necessary
-         * @param count the natural number that identifies the unique directory
-         * @return the full repository path
-         */
-        private String getIncrementRepositoryPath(String prefix, String suffix, int padding, int count) {
-            final List<String> path = new ArrayList<String>(done.size() + 1);
-            path.addAll(done);
-            path.add(prefix + Strings.padStart(Integer.toString(count), padding, '0') + suffix);
-            return Joiner.on(FsFile.separatorChar).join(path);
-        }
-
-        /**
          * Expand {@code %increment%} to a uniquely named directory, counting by natural numbers.
+         * The directory is actually created.
          * @param prefix path component text preceding the expansion term, may be empty
          * @param suffix path component text following the expansion term, may be empty
-         * @return entire replaced path component, may be unchanged to be revisited,
-         * or {@code null} if it has been wholly processed; otherwise it will be created
          * @throws ServerError if the directory could not be created or the expansion term was improperly specified
          */
         @SuppressWarnings("unused")  /* used by create() via Method.invoke */
-        public String expandIncrement(String prefix, String suffix) throws ServerError {
-            return expandIncrement(prefix, suffix, "0");
+        public void expandAndCreateIncrement(String prefix, String suffix) throws ServerError {
+            expandAndCreateIncrement(prefix, suffix, "0");
         }
-
-        /* note latest components with %increment% to assure progress in term expansion */
-        private Set<String> skippedIncrementComponents = new HashSet<String>();
 
         /**
          * Expand {@code %increment%} to a uniquely named directory, counting by natural numbers.
+         * The directory is actually created.
          * @param prefix path component text preceding the expansion term, may be empty
          * @param suffix path component text following the expansion term, may be empty
          * @param paddingString the minimum number of digits for the natural number, achieved by zero-padding if necessary
-         * @return entire replaced path component, may be unchanged to be revisited,
-         * or {@code null} if it has been wholly processed; otherwise it will be created
          * @throws ServerError if the directory could not be created or the expansion term was improperly specified
          */
         // @SuppressWarnings("unused")  /* used by create() via Method.invoke */
-        public String expandIncrement(String prefix, String suffix, String paddingString) throws ServerError {
-            if (!createDirectories) {
-                throw new ServerError(null, null,
-                        "%increment% is prohibited among the root-owned directories in the repository template path");
-            }
-            if (TEMPLATE_TERM.matcher(prefix).matches() || TEMPLATE_TERM.matcher(suffix).matches()) {
-                /* there is another term yet to be expanded before this expansion is attempted */
-                final String component = prefix + "%increment:" + paddingString + '%' + suffix;
-                if (skippedIncrementComponents.add(component)) {
-                    /* this is the first try at expanding this term */
-                    return component;
-                } else {
-                    /* this is not the first try at expanding this term, could be an infinite loop */
-                    throw new ServerError(null, null,
-                            "%increment% may not be arbitrarily combined with other expansions " +
-                            "in the same repository template path component, as in \"" + component + '"');
-                }
-            } else {
-                /* useful progress is ahead, so no infinite loop at this point */
-                skippedIncrementComponents.clear();
-            }
+        public void expandAndCreateIncrement(final String prefix, final String suffix, String paddingString) throws ServerError {
             final int padding = Integer.parseInt(paddingString);
-            /* pinpoint next increment with binary search */
-            Integer inclusiveLower = null;
-            Integer exclusiveHigher = null;
-            int count;
-            while (true) {
-                final int toProbe;
-                if (inclusiveLower == null) {
-                    /* no bounds yet */
-                    toProbe = 1;
-                    final String path = getIncrementRepositoryPath(prefix, suffix, padding, toProbe);
-                    if (checkPath(path, null, current).exists()) {
-                        /* found a lower bound */
-                        inclusiveLower = toProbe;
-                    } else {
-                        /* create the first of the directories */
-                        count = toProbe;
-                        break;
-                    }
-                } else if (exclusiveHigher == null) {
-                    /* only a lower bound, look further */
-                    toProbe = inclusiveLower << 1;
-                    final String path = getIncrementRepositoryPath(prefix, suffix, padding, toProbe);
-                    if (checkPath(path, null, current).exists()) {
-                        /* moved lower bound */
-                        inclusiveLower = toProbe;
-                    } else {
-                        /* found upper bound */
-                        exclusiveHigher = toProbe;
-                    }
-                } else if (exclusiveHigher - inclusiveLower < 2) {
-                    /* the tight bounds identify the next directory */
-                    count = exclusiveHigher;
-                    break;
-                } else {
-                    /* tighten bounds */
-                    toProbe = (inclusiveLower + exclusiveHigher) >> 1;
-                    final String path = getIncrementRepositoryPath(prefix, suffix, padding, toProbe);
-                    if (checkPath(path, null, current).exists()) {
-                        inclusiveLower = toProbe;
-                    } else {
-                        exclusiveHigher = toProbe;
-                    }
+
+            final MakeNextDirectory directoryMaker = new MakeNextDirectory() {
+
+                @Override
+                public List<String> getPathFor(long index) {
+                    return Collections.singletonList(prefix + Strings.padStart(Long.toString(index + 1), padding, '0') + suffix);
                 }
-            }
-            while (true) {
-                String path;
-                while (true) {
-                    path = getIncrementRepositoryPath(prefix, suffix, padding, count);
-                    if (checkPath(path, null, current).exists()) {
-                        /* the path has since been created, move on to the next increment */
-                        count++;
-                    } else {
-                        /* the path is ready for creating */
-                        break;
-                    }
+
+                @Override
+                public boolean isAcceptable(List<String> path) throws ServerError {
+                    return !checkPath(getFullPathWith(path), null, current).exists();
                 }
-                try {
-                    /* try creating the next directory */
-                    makeDir(path, false, current);
-                } catch (ServerError e) {
-                    /* is another thread trying to create the same directory? give it time to finish up */
-                    SleepTimer.sleepFor(1000);
-                    if (!checkPath(path, null, current).exists()) {
-                        /* something worse happened */
-                        throw e;
-                    } else {
-                        /* find the first non-existing directory and try again */
-                        continue;
-                    }
+
+                @Override
+                public void usePath(List<String> path) throws ServerError {
+                    makeDir(getFullPathWith(path), false, current);
                 }
-                /* created the directory, so the create method loop need not */
-                done.add(path.substring(path.lastIndexOf(FsFile.separatorChar) + 1));
-                return null;
-            }
+            };
+
+            done.addAll(directoryMaker.useFirstAcceptable());
         }
 
         /**
@@ -953,20 +894,6 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         /**
-         * Get the full repository path for the subdirectories indicated by the arguments.
-         * @param prefix path component text preceding the expansion term in the first directory, may be empty
-         * @param suffix path component text following the expansion term in the first directory, may be empty
-         * @param digits the power of ten that is the directory entry limit, e.g., {@code "3"} for one thousand
-         * @param count the natural number identifying the set of extra directories
-         * @return a repository path that includes the extra directories
-         */
-        private String getSubdirsRepositoryPath(String prefix, String suffix, int digits, long count) {
-            final List<String> path = new ArrayList<String>(done);
-            path.addAll(getExtraSubdirectories(prefix, suffix, digits, count));
-            return Joiner.on(FsFile.separatorChar).join(path);
-        }
-
-        /**
          * Count the entries in the given directory.
          * @param path the repository path for the directory
          * @return the number of entries in the directory, or {@code 0} if the path does not exist but its parent is a directory,
@@ -990,114 +917,57 @@ public class ManagedRepositoryI extends PublicRepositoryI
         /**
          * Expand {@code %subdirs%} to none or more directories such that the final one contains no more than one thousand entries.
          * These extra directories are added at the point in the path where the component mentioning {@code %subdirs%} occurs, when
-         * the preceding directory has become sufficiently full.
+         * the preceding directory has become sufficiently full. The directories are actually created.
          * @param prefix path component text preceding the expansion term in the first directory, may be empty
          * @param suffix path component text following the expansion term in the first directory, may be empty
-         * @return entire replaced path component, may be unchanged to be revisited,
-         * or {@code null} if it has been wholly processed; otherwise it will be created
          * @throws ServerError if the directory could not be created or the expansion term was improperly specified
          */
         @SuppressWarnings("unused")  /* used by create() via Method.invoke */
-        public String expandSubdirs(String prefix, String suffix) throws ServerError {
-            return expandSubdirs(prefix, suffix, "3");
+        public void expandAndCreateSubdirs(String prefix, String suffix) throws ServerError {
+            expandAndCreateSubdirs(prefix, suffix, "3");
         }
-
-        /* note latest components with %subdirs% to assure progress in term expansion */
-        private Set<String> skippedSubdirsComponents = new HashSet<String>();
 
         /**
          * Expand {@code %subdirs%} to none or more directories such that the final one contains no more than a certain number of
          * entries. These extra directories are added at the point in the path where the component mentioning {@code %subdirs%}
-         * occurs, when the preceding directory has become sufficiently full.
+         * occurs, when the preceding directory has become sufficiently full. The directories are actually created.
          * @param prefix path component text preceding the expansion term in the first directory, may be empty
          * @param suffix path component text following the expansion term in the first directory, may be empty
          * @param digitsString the power of ten that is the directory entry limit, e.g., {@code "3"} for one thousand
-         * @return entire replaced path component, may be unchanged to be revisited,
-         * or {@code null} if it has been wholly processed; otherwise it will be created
          * @throws ServerError if the directory could not be created or the expansion term was improperly specified
          */
         // @SuppressWarnings("unused")  /* used by create() via Method.invoke */
-        public String expandSubdirs(String prefix, String suffix, String digitsString) throws ServerError {
-            if (!createDirectories) {
-                throw new ServerError(null, null,
-                        "%subdirs% is prohibited among the root-owned directories in the repository template path");
-            }
-            if (TEMPLATE_TERM.matcher(prefix).matches() || TEMPLATE_TERM.matcher(suffix).matches()) {
-                /* there is another term yet to be expanded before this expansion is attempted */
-                final String component = prefix + "%subdirs:" + digitsString + '%' + suffix;
-                if (skippedSubdirsComponents.add(component)) {
-                    /* this is the first try at expanding this term */
-                    return component;
-                } else {
-                    /* this is not the first try at expanding this term, could be an infinite loop */
-                    throw new ServerError(null, null,
-                            "%subdirs% may not be arbitrarily combined with other expansions " +
-                            "in the same repository template path component, as in \"" + component + '"');
-                }
-            } else {
-                /* useful progress is ahead, so no infinite loop at this point */
-                skippedSubdirsComponents.clear();
-            }
+        public void expandAndCreateSubdirs(final String prefix, final String suffix, String digitsString) throws ServerError {
             final int digits = Integer.parseInt(digitsString);
             if (digits < 1) {
                 throw new ServerError(null, null,
                         "invalid parameter \"" + digitsString + "\" for %subdirs% in the repository template path");
             }
-            /* limit = 10 ^ digits */
-            int limit = 1;
-            for (int i = 0; i < digits; i++) {
-                limit *= 10;
-            }
-            if (directoryContentsCount(Joiner.on(FsFile.separatorChar).join(done)) < limit) {
+            final int limit = IntMath.checkedPow(10, digits);
+            if (directoryContentsCount(getFullPathWith(Collections.<String>emptyList())) < limit) {
                 /* do not yet need to break out into subdirectories */
-                return null;
+                return;
             }
-            /* pinpoint not-overfull directory with binary search */
-            Long inclusiveLower = null;
-            Long exclusiveHigher = null;
-            long count;
-            while (true) {
-                final long toProbe;
-                if (inclusiveLower == null) {
-                    /* no bounds yet */
-                    toProbe = 0;
-                    if (directoryContentsCount(getSubdirsRepositoryPath(prefix, suffix, digits, toProbe)) < limit) {
-                        /* use the first of the directories */
-                        count = toProbe;
-                        break;
-                    } else {
-                        /* found a lower bound */
-                        inclusiveLower = toProbe;
-                    }
-                } else if (exclusiveHigher == null) {
-                    /* only a lower bound, look further */
-                    toProbe = 1 + inclusiveLower << 1;
-                    if (directoryContentsCount(getSubdirsRepositoryPath(prefix, suffix, digits, toProbe)) < limit) {
-                        /* found upper bound */
-                        exclusiveHigher = toProbe;
-                    } else {
-                        /* moved lower bound */
-                        inclusiveLower = toProbe;
-                    }
-                } else if (exclusiveHigher - inclusiveLower < 2) {
-                    /* the tight bounds identify the next directory */
-                    count = exclusiveHigher;
-                    break;
-                } else {
-                    /* tighten bounds */
-                    toProbe = (inclusiveLower + exclusiveHigher) >> 1;
-                    if (directoryContentsCount(getSubdirsRepositoryPath(prefix, suffix, digits, toProbe)) < limit) {
-                        exclusiveHigher = toProbe;
-                    } else {
-                        inclusiveLower = toProbe;
-                    }
+
+            final MakeNextDirectory directoryMaker = new MakeNextDirectory() {
+
+                @Override
+                public List<String> getPathFor(long index) {
+                    return getExtraSubdirectories(prefix, suffix, digits, index);
                 }
-            }
-            /* ensure that the directory exists ... */
-            done.addAll(getExtraSubdirectories(prefix, suffix, digits, count));
-            makeDir(new FsFile(done).toString(), true, current);
-            /* ... so the create method loop need not create it */
-            return null;
+
+                @Override
+                public boolean isAcceptable(List<String> path) throws ServerError {
+                    return directoryContentsCount(getFullPathWith(path)) < limit;
+                }
+
+                @Override
+                public void usePath(List<String> path) throws ServerError {
+                    makeDir(getFullPathWith(path), true, current);
+                }
+            };
+
+            done.addAll(directoryMaker.useFirstAcceptable());
         }
 
         /**
@@ -1109,7 +979,6 @@ public class ManagedRepositoryI extends PublicRepositoryI
             while (!remaining.isEmpty()) {
                 /* work on next directory component */
                 String pattern = remaining.pop();
-                String oldPattern;
                 Matcher matcher = TEMPLATE_TERM.matcher(pattern);
                 boolean isMatcherPristine = true;
                 while (pattern != null) {
@@ -1122,10 +991,9 @@ public class ManagedRepositoryI extends PublicRepositoryI
                             done.add(pattern);
                             break;
                         } else {
-                            /* revisit previous terms in this component */
-                            matcher.reset();
-                            isMatcherPristine = true;
-                            continue;
+                            /* no expansions occurred, else the matcher would have been reset */
+                            throw new ServerError(null, null,
+                                    "cannot expand template repository path component \"" + pattern + '"');
                         }
                     }
 
@@ -1137,28 +1005,75 @@ public class ManagedRepositoryI extends PublicRepositoryI
                     Method expander;
 
                     /* try to expand the term */
-                    oldPattern = pattern;
-                    final String methodName = "expand" + StringUtils.capitalize(term);
-                    if (parameters != null) {
-                        /* with parameters */
+                    final String oldPattern = pattern;
+                    final boolean isTryCreateDirectory = createDirectories &&
+                            !(TEMPLATE_TERM.matcher(prefix).matches() || TEMPLATE_TERM.matcher(suffix).matches());
+                    while (true) {
                         try {
-                            expander = getClass().getMethod(methodName, String.class, String.class, String.class);
-                            pattern = (String) expander.invoke(this, prefix, suffix, parameters);
+                            if (parameters == null) {
+                                /* without parameters */
+                                try {
+                                    /* expand term only */
+                                    final String methodName = "expand" + StringUtils.capitalize(term);
+                                    expander = getClass().getMethod(methodName, String.class, String.class);
+                                    pattern = (String) expander.invoke(this, prefix, suffix);
+                                } catch (NoSuchMethodException e1) {
+                                    if (isTryCreateDirectory) {
+                                        try {
+                                            /* expand term and create directory */
+                                            final String methodName = "expandAndCreate" + StringUtils.capitalize(term);
+                                            expander = getClass().getMethod(methodName, String.class, String.class);
+                                            expander.invoke(this, prefix, suffix);
+                                            pattern = null;
+                                        } catch (NoSuchMethodException e2) {
+                                            /* move on */
+                                        }
+                                    }
+                                }
+                                /* tried without parameters, so move on */
+                                break;
+                            } else {
+                                /* with parameters */
+                                try {
+                                    /* expand term only */
+                                    final String methodName = "expand" + StringUtils.capitalize(term);
+                                    expander = getClass().getMethod(methodName, String.class, String.class, String.class);
+                                    pattern = (String) expander.invoke(this, prefix, suffix, parameters);
+                                    break;
+                                } catch (NoSuchMethodException e1) {
+                                    if (isTryCreateDirectory) {
+                                        try {
+                                            /* expand term and create directory */
+                                            final String methodName = "expandAndCreate" + StringUtils.capitalize(term);
+                                            expander = getClass().getMethod(methodName, String.class, String.class, String.class);
+                                            expander.invoke(this, prefix, suffix, parameters);
+                                            pattern = null;
+                                            break;
+                                        } catch (NoSuchMethodException e2) {
+                                            /* try without parameters */
+                                        }
+                                    }
+                                }
+                                /* failed with parameters, so try without */
+                                log.warn("ignoring parameters \"" + parameters + "\" on \"" + matcher.group(0) +
+                                        "\" in repository template path");
+                                parameters = null;
+                            }
+                        } catch (InvocationTargetException e) {
+                            /* try to unwrap underlying exception from expansion method invocation */
+                            final Throwable cause = e.getCause();
+                            if (cause instanceof ServerError) {
+                                throw (ServerError) cause;
+                            } else if (cause instanceof RuntimeException) {
+                                throw (RuntimeException) cause;
+                            } else {
+                                final String message = "unexpected exception in expanding \"" + pattern + '"';
+                                throw new ServerError(null, null, message, cause);
+                            }
                         } catch (/* Java SE 7 ReflectiveOperation*/Exception e) {
-                            log.warn("ignoring parameters \"" + parameters + "\" on \"" + matcher.group(0) +
-                                    "\" in repository template path");
-                            parameters = null;
+                            final String message = "unexpected exception in expanding \"" + pattern + '"';
+                            throw new ServerError(null, null, message, e);
                         }
-                    }
-                    /* without parameters */
-                    try {
-                        if (parameters == null) {
-                            expander = getClass().getMethod(methodName, String.class, String.class);
-                            pattern = (String) expander.invoke(this, prefix, suffix);
-                        }
-                    } catch (/* Java SE 7 ReflectiveOperation*/Exception e) {
-                        throw new ServerError(null, null,
-                                "repository template path references unknown expansion term \"" + term + '"');
                     }
                     if (!(pattern == null || oldPattern.equals(pattern))) {
                         /* successful expansion, so match against the new form of this component */
@@ -1167,7 +1082,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
                     }
                 }
                 if (pattern != null && createDirectories) {
-                    /* expansion occurred but directory was not created */
+                    /* expansion occurred but directory was not yet created */
                     makeDir(new FsFile(done).toString(), !remaining.isEmpty(), current);
                 }
             }
