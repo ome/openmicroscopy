@@ -296,7 +296,7 @@ class TestPrefs(object):
         self.assertStdoutStderr(capsys, out=data[1])
 
     @pytest.mark.parametrize("data", (
-        ("omero.a=b\nomero.c=d\n##igmore=me\n",
+        ("omero.a=b\nomero.c=d\n##ignore=me\n",
          "omero.a=b\nomero.c=d",
          "a (1)\n\t\nc (1)"),
         ("omero.whitelist=\\\nome.foo,\\\nome.bar\n### END",
@@ -311,6 +311,9 @@ class TestPrefs(object):
         ("omero.user_mapping=\\\na=b,c=d",
          "omero.user_mapping=a=b,c=d",
          "user_mapping (1)"),
+        ("omero.whitelist=ome.foo\nIce.c=d\n",
+         "Ice.c=d\nomero.whitelist=ome.foo",
+         "whitelist (1)"),
     ))
     def testDefaultsParsing(self, tmpdir, capsys, data):
         input, defaults, keys = data
