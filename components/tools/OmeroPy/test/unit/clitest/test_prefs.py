@@ -47,8 +47,8 @@ class TestPrefs(object):
 
     def assertStdoutStderr(self, capsys, out='', err=''):
         o, e = capsys.readouterr()
-        assert o.strip() == out
-        assert e.strip() == err
+        assert (o.strip() == out and
+                e.strip() == err)
 
     def invoke(self, s):
         self.cli.invoke(self.args + s.split(), strict=True)
@@ -299,6 +299,9 @@ class TestPrefs(object):
         ("omero.a=b\nomero.c=d\n##igmore=me\n",
          "omero.a=b\nomero.c=d",
          "a (1)\n\t\nc (1)"),
+        ("omero.whitelist=\\\nome.foo,\\\nome.bar\n### END",
+         "omero.whitelist=ome.foo,ome.bar",
+         "whitelist (1)"),
     ))
     def testDefaultsParsing(self, tmpdir, capsys, data):
         input, defaults, keys = data
