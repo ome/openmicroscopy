@@ -50,7 +50,37 @@ INSERT INTO dbpatch (currentVersion, currentPatch,   previousVersion,     previo
 -- Actual upgrade
 --
 
--- TODO
+-- Add new checksum algorithm to enumeration.
+
+INSERT INTO checksumalgorithm (id, permissions, value) 
+    SELECT ome_nextval('seq_checksumalgorithm'), -52, 'File-Size-64'
+    WHERE NOT EXISTS (SELECT id FROM checksumalgorithm WHERE value = 'File-Size-64');
+
+-- Reverse endianness of hashes calculated with adjusted algorithms.
+
+CREATE FUNCTION reverse_endian(forward TEXT) RETURNS TEXT AS $$
+
+DECLARE
+    index INTEGER := length(forward) - 1;
+    backward TEXT := '';
+
+BEGIN
+    WHILE index > 0 LOOP
+        backward := backward || substring(forward FROM index FOR 2);
+        index := index - 2;
+    END LOOP;
+    IF index = 0 THEN
+        RAISE 'cannot reverse strings of odd length';
+    END IF;
+    RETURN backward;
+END;
+$$ LANGUAGE plpgsql;
+
+UPDATE originalfile SET hash = reverse_endian(hash)
+    WHERE hash IS NOT NULL AND hasher IN
+    (SELECT id FROM checksumalgorithm WHERE value IN ('Adler-32', 'CRC-32'));
+
+DROP FUNCTION reverse_endian(TEXT);
 
 --
 -- FINISHED
