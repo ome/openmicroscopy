@@ -746,9 +746,9 @@ class OmeroDataServiceImpl
                 AdvancedSearchResult r = it.next();
                 IObject obj = null;
                     try {
-                        obj = gateway.findIObject(ctx,
-                                PojoMapper.convertTypeForSearch(r.getType()),
-                                r.getObjectId(), allGroups);
+                        String type = PojoMapper.convertTypeForSearchByQuery(r.getType());
+                        String query = "select x from "+type+" x join fetch x.details.creationEvent where x.id="+r.getObjectId();
+                        obj = gateway.findIObjectByQuery(ctx, query, true);
                     } catch (DSAccessException e) {
                         // Object can't be found/loaded; just skip it
                         // and remove the regarding search result

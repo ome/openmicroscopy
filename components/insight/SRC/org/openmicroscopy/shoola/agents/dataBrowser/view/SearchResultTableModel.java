@@ -153,17 +153,7 @@ public class SearchResultTableModel extends DefaultTableModel {
      * @return
      */
     private Date getIDate(DataObject obj) {
-        try {
-            return new Date(obj.getCreated().getTime());
-        } catch (Exception e) {
-            // TODO: Temporary workaround for ticket 12482, just to 
-            // prevent a crash, does not fix the underlying issue.
-            LogMessage msg = new LogMessage();
-            msg.print("Could not get data from DataObject.");
-            msg.print(e);
-            logger.warn(this, msg);
-            return null;
-        }
+        return new Date(obj.getCreated().getTime());
     }
 
     /**
