@@ -217,6 +217,8 @@ class PropertyParser(object):
             if x.key is None:
                 raise Exception("Bad key: %s" % x)
             parts = x.key.split(".")
+            if parts[0] == "Ice":
+                continue
             if parts[0] != "omero":
                 raise Exception("Bad key: %s" % x)
 
