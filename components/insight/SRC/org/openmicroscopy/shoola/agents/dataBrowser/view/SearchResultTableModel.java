@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+
 import javax.swing.Icon;
 import javax.swing.table.DefaultTableModel;
 
@@ -34,6 +35,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.GroupData;
@@ -105,39 +107,30 @@ public class SearchResultTableModel extends DefaultTableModel {
 
         DataObject obj = data.get(row);
 
-        Object result = "--";
+        Object result = null;
 
-        try {
-            switch (column) {
-                case 0:
-                    result = getIcon(obj);
-                    break;
-                case 1:
-                    result = getObjectName(obj);
-                    break;
-                case 2:
-                    result = getADate(obj);
-                    break;
-                case 3:
-                    result = getIDate(obj);
-                    break;
-                case 4:
-                    result = getGroup(obj);
-                    break;
-                case 5:
-                    result = obj;
-                    break;
-            }
-        } catch (Exception e) {
-            // TODO: Temporary workaround for ticket 12482, just to 
-            // prevent a crash, does not fix the underlying issue.
-            LogMessage msg = new LogMessage();
-            msg.print("Could not get data from DataObject.");
-            msg.print(e);
-            logger.warn(this, msg);
+        switch (column) {
+            case 0:
+                result = getIcon(obj);
+                break;
+            case 1:
+                result = getObjectName(obj);
+                break;
+            case 2:
+                result = getADate(obj);
+                break;
+            case 3:
+                result = getIDate(obj);
+                break;
+            case 4:
+                result = getGroup(obj);
+                break;
+            case 5:
+                result = obj;
+                break;
         }
 
-        return result;
+        return result != null ? result : "--";
     }
 
     /**
@@ -160,7 +153,17 @@ public class SearchResultTableModel extends DefaultTableModel {
      * @return
      */
     private Date getIDate(DataObject obj) {
-        return new Date(obj.getCreated().getTime());
+        try {
+            return new Date(obj.getCreated().getTime());
+        } catch (Exception e) {
+            // TODO: Temporary workaround for ticket 12482, just to 
+            // prevent a crash, does not fix the underlying issue.
+            LogMessage msg = new LogMessage();
+            msg.print("Could not get data from DataObject.");
+            msg.print(e);
+            logger.warn(this, msg);
+            return null;
+        }
     }
 
     /**
