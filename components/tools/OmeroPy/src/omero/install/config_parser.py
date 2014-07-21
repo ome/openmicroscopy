@@ -130,12 +130,15 @@ class Property(object):
         )
 
 
+IN_PROGRESS = "in_progress"
+
+
 class PropertyParser(object):
 
     def __init__(self):
-        self.l = []
-        self.p = None
-        self.in_progress = False
+        self.properties = []
+        self.curr_p = None
+        self.curr_a = None
 
     def parse(self, argv=None):
         try:
@@ -161,14 +164,14 @@ class PropertyParser(object):
                 elif line.endswith("\\"):
                     self.cont(line[:-1])
                 else:
-                    if self.in_progress:
+                    if self.curr_a == IN_PROGRESS:
                         self.cont(line)
                     else:
                         fail("unknown line: %s" % line)
             self.cleanup()  # Handle no newline at end of file
         finally:
             fileinput.close()
-        return self.l
+        return self.properties
 
     def black_list(self, line):
         for x in BLACK_LIST:
@@ -176,15 +179,15 @@ class PropertyParser(object):
                 return True
 
     def cleanup(self):
-        if self.p is not None:
-            if self.p.key is not None:  #: Handle ending '####'
-                self.l.append(self.p)
-                self.p = None
-                self.in_progress = False
+        if self.curr_p is not None:
+            if self.curr_p.key is not None:  #: Handle ending '####'
+                self.properties.append(self.curr_p)
+                self.curr_p = None
+                self.curr_a = None
 
     def init(self):
-        if self.p is None:
-            self.p = Property()
+        if self.curr_p is None:
+            self.curr_p = Property()
 
     def ignore(self):
         self.cleanup()
@@ -192,20 +195,20 @@ class PropertyParser(object):
     def append(self, line):
         self.init()
         # Assume line starts with "# " and strip
-        self.p.append(line[2:])
+        self.curr_p.append(line[2:])
 
     def detect(self, line):
-        if self.in_progress:
+        if self.curr_a == IN_PROGRESS:
             self.cleanup()
         self.init()
-        self.p.detect(line)
-        self.in_progress = True
+        self.curr_p.detect(line)
+        self.curr_a = IN_PROGRESS
 
     def cont(self, line):
-        self.p.cont(line)
+        self.curr_p.cont(line)
 
     def __iter__(self):
-        return iter(self.l)
+        return iter(self.properties)
 
     def data(self):
         data = defaultdict(list)
