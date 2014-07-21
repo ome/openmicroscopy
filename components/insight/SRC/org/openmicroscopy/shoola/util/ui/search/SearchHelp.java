@@ -26,8 +26,18 @@ package org.openmicroscopy.shoola.util.ui.search;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Cursor;
+import java.awt.Desktop;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -37,6 +47,17 @@ import javax.swing.border.TitledBorder;
 
 //Third-party libraries
 
+
+
+
+
+
+
+
+
+
+
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
@@ -59,6 +80,9 @@ public class SearchHelp
 	extends JDialog
 {
 
+        // TODO: Replace with URL directly pointing to the search help page
+        private static final String HELP_URL = "http://help.openmicroscopy.org/";
+        
 	/** Button to close the window. */
 	private JButton closeButton;
 	
@@ -92,8 +116,11 @@ public class SearchHelp
 	private JPanel buildMain()
 	{
 		JPanel content = new JPanel();
+		BoxLayout lay = new BoxLayout(content, BoxLayout.PAGE_AXIS);
+		content.setLayout(lay);
 		content.setBorder(new TitledBorder(""));
 		content.add(new JLabel(formatText()));
+		content.add(linkout("OMERO Help Website", HELP_URL));
 		return content;
 	}
 	
@@ -118,9 +145,6 @@ public class SearchHelp
 	{
 		StringBuffer buf = new StringBuffer();
 		buf.append("<html><body bgcolor=#F0F0F0>");
-		buf.append("Most of the time, a simple search will find relevant " +
-				"results. The following search operators are to help you" +
-				" refining a search");
 		buf.append("<h3 bgcolor=#FFFFF0>Wildcard Searches</h3>");
 		buf.append("<p>To perform a single character wildcard search, use " +
 				"the (\"?\") symbol. For example:</p>");
@@ -131,8 +155,45 @@ public class SearchHelp
 		buf.append("<p bgcolor=#FFFFFF>Mito*</p>");
 		buf.append("<p><b>Will return any image labelled beginning " +
 				"with Mitosis</b></p>");
+		buf.append("<h3 bgcolor=#FFFFF0>AND Searches</h3>");
+		buf.append("<p>To search for multiple compulsory terms, use the AND keyword. For example:</p> ");
+		buf.append("<p bgcolor=#FFFFFF>GFP AND H2B</p>");
+		buf.append("<p><b>Results will contain both terms, GFP and H2B</b></p>");
+		buf.append("<p/>");
+		buf.append("<p>For more information see:</p>");
 		buf.append("</body></html>");
 		return buf.toString();
+	}
+	
+	/**
+	 * Creates a clickable 'link' label, which opens a browser with
+	 * the provided URL
+	 * @param name Name of the link
+	 * @param url The URL to open
+	 * @return
+	 */
+	private JLabel linkout(final String name, final String url) {
+        JLabel l = new JLabel("<html><a href=\"\">" + name + "</a></html>");
+
+        l.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        l.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                try {
+                    Desktop.getDesktop().browse(new URI(url));
+                } catch (Exception ex) {
+                    TreeViewerAgent
+                            .getRegistry()
+                            .getUserNotifier()
+                            .notifyError(
+                                    "Could not open web browser",
+                                    "Please open your web browser and go to page: "
+                                            + url);
+                }
+            }
+        });
+
+        return l;
 	}
 	
 	/** Builds and lays out the UI. */
