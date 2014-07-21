@@ -719,7 +719,7 @@ class OmeroDataServiceImpl
 		
 		// search by ID:
 		if(!results.isEmpty())
-		    findByIds(ctx, results, context.getGroupId()==SearchParameters.ALL_GROUPS_ID);
+		    findByIds(ctx, results, true);
 		
 		// search by text:
 		AdvancedSearchResultCollection searchResults = gateway.search(ctx, context);
