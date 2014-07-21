@@ -139,7 +139,8 @@ class PropertyParser(object):
 
     def parse(self, argv=None):
         for line in fileinput.input(argv):
-            line = line[:-1]
+            if line.endswith("\n"):
+                line = line[:-1]
 
             if line.startswith(STOP):
                 self.cleanup()
@@ -153,9 +154,11 @@ class PropertyParser(object):
             elif line.startswith("#"):
                 self.append(line)
             elif "=" in line:
+                if line.endswith("\\"):
+                    line = line[:-1]
                 self.detect(line)
             elif line.endswith("\\"):
-                self.cont(line[1:])
+                self.cont(line[:-1])
             else:
                 if self.in_progress:
                     self.cont(line)
