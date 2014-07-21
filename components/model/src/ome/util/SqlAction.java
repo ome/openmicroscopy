@@ -360,6 +360,27 @@ public interface SqlAction {
      */
     float getEventLogPercent(String key);
 
+    /**
+     * Loads up to "limit" event logs using partioning so that only the
+     * <em>last</em>  event log of a particular (type, id) pair is returned.
+     * The contents of the object array are:
+     * <ol>
+     * <li>the id of the event log (Long)</li>
+     * <li>the entity type of the event log (String)</li>
+     * <li>the entity id of the event log (Long)</li>
+     * <li>the action of the event log (String)</li>
+     * <li>the number of skipped event logs (Integer)</li>
+     * </ol>
+     * @param types Collection of entityType strings which should be queried
+     * @param actions Collection of ACTION strings which should be queried
+     * @param offset Offset to the row which should be queried first
+     * @param limit Maximum number of rows (after partionting) which should
+     *        be returned.
+     * @return
+     */
+    List<Object[]> getEventLogPartitions(Collection<String> types,
+            Collection<String> actions, long offset, long limit);
+
     void setCurrentEventLog(long id, String key);
 
     void delCurrentEventLog(String key);
@@ -908,6 +929,29 @@ public interface SqlAction {
             Float value = _jdbc().queryForObject(
                 _lookup("log_loader_percent"), Float.class, key); //$NON-NLS-1$
             return value;
+        }
+
+        public List<Object[]> getEventLogPartitions(Collection<String> types,
+                Collection<String> actions, long offset, long limit) {
+            final String query = _lookup("log_loader_partition"); // $NON_NLS-1$
+            final Map<String, Object> params = new HashMap<String, Object>();
+            params.put("types", types);
+            params.put("actions", actions);
+            params.put("currentid", offset);
+            params.put("max", limit);
+            return _jdbc().query(query,
+                new RowMapper<Object[]>() {
+                    @Override
+                    public Object[] mapRow(ResultSet arg0, int arg1)
+                            throws SQLException {
+                        return new Object[] {
+                            arg0.getLong(1),
+                            arg0.getString(2),
+                            arg0.getLong(3),
+                            arg0.getString(4),
+                            arg0.getInt(5)
+                        };
+                    }}, params);
         }
 
         public void setCurrentEventLog(long id, String key) {

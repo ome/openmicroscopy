@@ -21,11 +21,17 @@
 # Version: 1.0
 #
 
+import logging
+
 from django.conf import settings
 from django import forms
 from django.forms import ModelForm
-from django.forms.widgets import Textarea
-from django.forms.widgets import HiddenInput
+from django.forms.widgets import Textarea, SelectMultiple
+from django.forms.widgets import MultipleHiddenInput
+from django.core.mail import get_connection, EmailMultiAlternatives
+from django.contrib import messages
+from smtplib import SMTPException
+from django.core.validators import validate_email
 
 from omeroweb.connector import Server
 
@@ -34,9 +40,12 @@ from omeroweb.custom_forms import NonASCIIForm
 from custom_forms import ServerModelChoiceField, \
         GroupModelChoiceField, GroupModelMultipleChoiceField, \
         ExperimenterModelChoiceField, ExperimenterModelMultipleChoiceField, \
-        DefaultGroupField, OmeNameField
+        DefaultGroupField, OmeNameField, MultiEmailField
 from custom_widgets import DefaultGroupRadioSelect
 
+from .webadmin_utils import resolveExperimenters, removeUnaddressable
+
+logger = logging.getLogger(__name__)
 
 #################################################################
 # Non-model Form
@@ -65,12 +74,12 @@ class ExperimenterForm(NonASCIIForm):
         super(ExperimenterForm, self).__init__(*args, **kwargs)
         self.name_check=name_check
         self.email_check=email_check 
-        
+
         try:
             self.fields['other_groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['groups'], initial=kwargs['initial']['other_groups'], required=False, label="Groups")
         except:
             self.fields['other_groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['groups'], required=False, label="Groups")
-        
+
         try:
             if kwargs['initial']['default_group']: pass
             self.fields['default_group'] = GroupModelChoiceField(queryset=kwargs['initial']['groups'], initial=kwargs['initial']['default_group'], empty_label=u"---------", required=False)
@@ -81,7 +90,7 @@ class ExperimenterForm(NonASCIIForm):
         if kwargs['initial'].has_key('with_password') and kwargs['initial']['with_password']:
             self.fields['password'] = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
             self.fields['confirmation'] = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
-            
+
             self.fields.keyOrder = ['omename', 'password', 'confirmation', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'default_group', 'other_groups']
         else:
             self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'default_group', 'other_groups']
@@ -101,7 +110,7 @@ class ExperimenterForm(NonASCIIForm):
     institution = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
     administrator = forms.CharField(widget=forms.CheckboxInput(), required=False)
     active = forms.CharField(widget=forms.CheckboxInput(), required=False)
-    
+
     def clean_confirmation(self):
         if self.cleaned_data.get('password') or self.cleaned_data.get('confirmation'):
             if len(self.cleaned_data.get('password')) < 3:
@@ -110,7 +119,7 @@ class ExperimenterForm(NonASCIIForm):
                 raise forms.ValidationError('Passwords do not match')
             else:
                 return self.cleaned_data.get('password')
-    
+
     def clean_omename(self):
         if self.name_check:
             raise forms.ValidationError('This username already exists.')
@@ -120,7 +129,7 @@ class ExperimenterForm(NonASCIIForm):
         if self.email_check:
             raise forms.ValidationError('This email already exist.')
         return self.cleaned_data.get('email')
-    
+
     def clean_other_groups(self):
         if self.cleaned_data.get('other_groups') is None or len(self.cleaned_data.get('other_groups')) <= 0:
             raise forms.ValidationError('User must be a member of at least one group.')
@@ -150,8 +159,8 @@ class GroupForm(NonASCIIForm):
             self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], initial=kwargs['initial']['members'], required=False)
         except:
             self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], required=False)
-        
-        
+
+
         self.fields['permissions'] = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions")
         
         if group_is_current_or_system:
@@ -172,19 +181,19 @@ class GroupOwnerForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(GroupOwnerForm, self).__init__(*args, **kwargs)
-        
+
         try:
             if kwargs['initial']['owners']: pass
             self.fields['owners'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], initial=kwargs['initial']['owners'], required=False)
         except:
             self.fields['owners'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], required=False)
-        
+
         try:
             if kwargs['initial']['members']: pass
             self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], initial=kwargs['initial']['members'], required=False)
         except:
             self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], required=False)
-            
+
         self.fields.keyOrder = ['owners', 'members', 'permissions']
             
     permissions = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions")
@@ -275,4 +284,192 @@ class EnumerationEntries(NonASCIIForm):
                 self.fields[str(e.id)] = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), label=i+1)
                     
         self.fields.keyOrder = [str(k) for k in self.fields.keys()]
-    
+
+
+class EmailForm(forms.Form):
+    """
+    Form to gather recipients, subject and message for sending email
+    announcements
+    """
+
+    error_css_class = 'field-error'
+    required_css_class = 'field-required'
+
+    #Define these as None just so I can order them
+    everyone = forms.BooleanField(required=False, label='All Users')
+
+    experimenters = forms.TypedMultipleChoiceField(
+        required=False,
+        coerce=int,
+        label='Users'
+    )
+    groups = forms.TypedMultipleChoiceField(
+        required=False,
+        coerce=int
+    )
+
+    # TODO CC isn't really CC. Maybe change label or change functionality
+    cc = MultiEmailField(required=False)
+    subject = forms.CharField(max_length=100, required=True)
+    message = forms.CharField(widget=Textarea, required=True)
+
+    # Include/Exclude inactive users
+    inactive = forms.BooleanField(label='Include inactive users',
+                                  required=False)
+
+    def __init__(self, experimenters, groups, conn, request, *args, **kwargs):
+        super(EmailForm, self).__init__(*args, **kwargs)
+        # Process Experimenters/Groups into choices (lists of tuples)
+        self.fields['experimenters'].choices = \
+            [(experimenter.id, experimenter.firstName + \
+             ' ' + experimenter.lastName + ' (' + experimenter.omeName + ')' + \
+             (' - Inactive' if not experimenter.isActive() else '')) \
+             for experimenter in experimenters]
+
+        self.fields['groups'].choices = [(group.id, group.name) \
+            for group in groups]
+
+        # TODO If these are adapted to support inactive users for experimenters
+        # and not show the permissions for groups, can use these:
+
+        # self.fields['experimenters'] = ExperimenterModelMultipleChoiceField(
+        #     queryset=experimenters,
+        #     label='Users',
+        #     required=False
+        # )
+
+        # self.fields['groups'] = GroupModelMultipleChoiceField(
+        #     queryset=groups,
+        #     label='Groups',
+        #     required=False,
+        # )
+
+        # Order the form fields
+        # self.fields.keyOrder = ['everyone', 'experimenters', 'groups', 'cc',
+        #                         'subject', 'message', 'inactive']
+
+        self.conn = conn
+        self.request = request
+
+
+    def clean(self):
+        cleaned_data = super(EmailForm, self).clean()
+        everyone = cleaned_data.get("everyone")
+        experimenters = cleaned_data.get("experimenters")
+        groups = cleaned_data.get("groups")
+        cc = cleaned_data.get("cc")
+        inactive = cleaned_data.get('inactive')
+
+        # If nobody addressed, throw an error
+        if not cc and not everyone and not experimenters and not groups:
+            raise forms.ValidationError("At least one addressee must be "
+                                        "specified in one or more of 'all',"
+                                        " 'user', 'group' or 'cc'")
+
+
+        # Email resolution should be done in clean so that an error can
+        # be thrown if there are inactive experimenters in the explicit
+        # addressee list
+
+        self.recipients = set([])
+
+        # Resolve experimenters and groups to addresses
+        if everyone:
+            exp_active, exp_inactive = resolveExperimenters(self.conn, everyone)
+
+            # Include active recipients
+            self.recipients.update(removeUnaddressable(exp_active))
+
+            # Include inactive recipients if enabled, otherwise drop silently
+            if inactive:
+                self.recipients.update(removeUnaddressable(exp_inactive))
+        else:
+            # Process explicitly specified Experimenters
+            exp_active, exp_inactive = resolveExperimenters(
+                self.conn,
+                experimenter_ids=experimenters
+            )
+
+            # Error if inactive experimenters have been specified and inactive
+            # is not checked
+
+            if exp_inactive and not inactive:
+                raise forms.ValidationError(
+                    "Inactive users were explicitly specified but emailing " \
+                    "of inactive users is disabled. Either remove the " \
+                    "inactive users from the experimenters list or enable " \
+                    "emailing of inactive users"
+                )
+
+            # Include active recipients
+            self.recipients.update(removeUnaddressable(exp_active))
+
+            # Error if inactive experimenters have been specified and inactive
+            # is not checked
+            if inactive:
+                self.recipients.update(removeUnaddressable(exp_inactive))
+
+            # Process Groups
+            exp_active, exp_inactive = resolveExperimenters(self.conn,
+                                                            group_ids=groups)
+            # Include active group recipients
+            self.recipients.update(removeUnaddressable(exp_active))
+
+            # Include inactive group recipients if enabled, otherwise drop
+            # silently
+            if inactive:
+                self.recipients.update(removeUnaddressable(exp_inactive))
+
+        # In later django releases, this return is no longer necessary
+        return cleaned_data
+
+    def send_email(self):
+        cleaned_data = self.cleaned_data
+        everyone = cleaned_data.get("everyone")
+        experimenters = cleaned_data.get("experimenters")
+        groups = cleaned_data.get("groups")
+        cc = cleaned_data.get("cc")
+        subject = cleaned_data.get('subject')
+        message = cleaned_data.get('message')
+        inactive = cleaned_data.get('inactive')
+
+        # Get sender 'from' address from settings
+        sender = settings.SERVER_EMAIL
+
+        # Send emails
+        sent_count = 0
+        failed_count = 0
+        failed_addresses = []
+
+        # Resolve experimenters to email addresses
+        addresses = set([exp.email.strip() for exp in self.recipients])
+        # Add cc (using set to remove any duplicates)
+        addresses.update(cc)
+
+        connection = get_connection(fail_silently=False)
+
+        for address in addresses:
+            try:
+                msg = EmailMultiAlternatives(subject, message, sender,
+                                             [address])
+                msg.attach_alternative(message, "text/html")
+                msg.send()
+
+                sent_count += 1
+                logger.info("Email \"%s\" sent to %s" % (subject, address))
+            except SMTPException:
+                failed_addresses.append(address)
+                failed_count += 1
+                logger.error("Email \"%s\" to %s failed" % (subject, address))
+
+        if sent_count > 0:
+            messages.success(self.request, "%s message%s sent" % (sent_count, 's' if sent_count > 1 else ''))
+        else:
+            messages.warning(self.request, "No messages sent")
+
+        # Print message failures
+        if failed_addresses:
+            messages.warning(self.request,
+                             "%s messages failed to: %s" %
+                             (failed_count, ', '.join(failed_addresses)))
+

@@ -650,7 +650,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
 
         <ant antfile="build.xml" dir="docs/sphinx-api" target="clean" inheritAll="false"/>
         <ant antfile="build.xml" dir="docs/sphinx-api" target="html" inheritAll="false">
-            <property name="omero.shortversion" value="${omero.shortversion}"/>
+            <property name="omero.shortversion" value="${omero.version}"/>
         </ant>
 
         <copy todir="${dist.dir}/docs/api/python">

@@ -154,6 +154,7 @@ public class FullTextThread extends ExecutionThread {
      */
     public void stop() {
         log.info("Shutting down Full-Text Indexer");
+        this.indexer.loader.setStop(true);
         boolean acquiredLock = false;
         try {
             acquiredLock = activeLock.tryLock(60, TimeUnit.SECONDS);
@@ -182,4 +183,5 @@ public class FullTextThread extends ExecutionThread {
             DetailsFieldBridge.unlock();
         }
     }
+
 }

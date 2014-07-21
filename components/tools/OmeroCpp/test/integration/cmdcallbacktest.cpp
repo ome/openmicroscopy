@@ -23,11 +23,7 @@
 #include <map>
 #include <IceUtil/RecMutex.h>
 #include <IceUtil/Config.h>
-#if ICE_INT_VERSION / 100 >= 304
-#   include <Ice/Handle.h>
-#else
-#   include <IceUtil/Handle.h>
-#endif
+#include <Ice/Handle.h>
 #include <omero/util/concurrency.h>
 
 using namespace std;

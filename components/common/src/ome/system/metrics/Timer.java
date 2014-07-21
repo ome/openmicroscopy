@@ -22,42 +22,25 @@ package ome.system.metrics;
 /**
  * Thin wrapper around {@link com.codahale.metrics.Timer}
  */
-public class Timer {
+public interface Timer {
 
     /**
      * @see com.codahale.metrics.Timer.Context
      */
-    public static class Context {
+    public static interface Context {
 
-        private final com.codahale.metrics.Timer.Context c;
+        long stop();
 
-        public Context(com.codahale.metrics.Timer.Context c) {
-            this.c = c;
-        }
-
-        public long stop() {
-            return this.c.stop();
-        }
-
-    }
-
-    private final com.codahale.metrics.Timer t;
-
-    public Timer(com.codahale.metrics.Timer t) {
-        this.t = t;
     }
 
     /**
      * @see com.codahale.metrics.Timer#time
      */
-    public Timer.Context time() {
-        return new Context(t.time());
-    }
+    Timer.Context time();
 
     /**
      * @see com.codahale.metrics.Timer#getCount()
      */
-    public long getCount() {
-        return this.t.getCount();
-    }
+    long getCount();
+
 }

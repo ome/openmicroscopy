@@ -335,6 +335,7 @@ DEVELOPMENT_SETTINGS_MAPPINGS = {
     # Rename Orphans in data manager; default: '{"NAME":"Orphaned images", "DESCRIPTION":"This is a virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container."}'
     "omero.web.ui.tree.orphaned": ["UI_TREE_ORPHANED",'{"NAME":"Orphaned images", "DESCRIPTION":"This is a virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container."}', json.loads],
     "omero.web.webstart_admins_only": ["WEBSTART_ADMINS_ONLY", "false", parse_boolean],
+    "omero.web.webadmin.enable_email": ["WEBADMIN_ENABLE_EMAIL", "false", parse_boolean],
 }
 
 def process_custom_settings(module, settings='CUSTOM_SETTINGS_MAPPINGS'):
