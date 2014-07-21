@@ -82,6 +82,10 @@ UPDATE originalfile SET hash = reverse_endian(hash)
 
 DROP FUNCTION reverse_endian(TEXT);
 
+-- Acquisition date is already optional in XML schema.
+
+ALTER TABLE image ALTER COLUMN acquisitiondate DROP NOT NULL;
+
 --
 -- FINISHED
 --
