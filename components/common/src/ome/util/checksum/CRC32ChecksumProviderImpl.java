@@ -28,7 +28,7 @@ import com.google.common.hash.Hashing;
  * @author Blazej Pindelski, bpindelski at dundee.ac.uk
  * @since 5.0
  */
-public final class CRC32ChecksumProviderImpl extends AbstractChecksumProviderReverseEndian {
+public final class CRC32ChecksumProviderImpl extends AbstractChecksumProvider {
 
     protected CRC32ChecksumProviderImpl() {
         super(Hashing.crc32());

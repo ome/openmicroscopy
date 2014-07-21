@@ -29,7 +29,7 @@ import com.google.common.hash.Hashing;
  * @since 5.0
  */
 
-public final class Adler32ChecksumProviderImpl extends AbstractChecksumProviderReverseEndian {
+public final class Adler32ChecksumProviderImpl extends AbstractChecksumProvider {
 
     public Adler32ChecksumProviderImpl() {
         super(Hashing.adler32());
