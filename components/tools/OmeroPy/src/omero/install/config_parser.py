@@ -138,32 +138,35 @@ class PropertyParser(object):
         self.in_progress = False
 
     def parse(self, argv=None):
-        for line in fileinput.input(argv):
-            if line.endswith("\n"):
-                line = line[:-1]
-
-            if line.startswith(STOP):
-                self.cleanup()
-                break
-            if self.black_list(line):
-                self.cleanup()
-                continue
-            elif not line.strip():
-                self.cleanup()
-                continue
-            elif line.startswith("#"):
-                self.append(line)
-            elif "=" in line:
-                if line.endswith("\\"):
+        try:
+            for line in fileinput.input(argv):
+                if line.endswith("\n"):
                     line = line[:-1]
-                self.detect(line)
-            elif line.endswith("\\"):
-                self.cont(line[:-1])
-            else:
-                if self.in_progress:
-                    self.cont(line)
+
+                if line.startswith(STOP):
+                    self.cleanup()
+                    break
+                if self.black_list(line):
+                    self.cleanup()
+                    continue
+                elif not line.strip():
+                    self.cleanup()
+                    continue
+                elif line.startswith("#"):
+                    self.append(line)
+                elif "=" in line:
+                    if line.endswith("\\"):
+                        line = line[:-1]
+                    self.detect(line)
+                elif line.endswith("\\"):
+                    self.cont(line[:-1])
                 else:
-                    fail("unknown line: %s" % line)
+                    if self.in_progress:
+                        self.cont(line)
+                    else:
+                        fail("unknown line: %s" % line)
+        finally:
+            fileinput.close()
         return self.l
 
     def black_list(self, line):
