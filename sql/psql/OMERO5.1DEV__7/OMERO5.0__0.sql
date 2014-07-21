@@ -668,6 +668,41 @@ CREATE TRIGGER wellsample_annotation_link_event_trigger_insert
         FOR EACH ROW
         EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.screen.WellSample');
 
+-- Add new checksum algorithm to enumeration.
+
+INSERT INTO checksumalgorithm (id, permissions, value) 
+    SELECT ome_nextval('seq_checksumalgorithm'), -52, 'File-Size-64'
+    WHERE NOT EXISTS (SELECT id FROM checksumalgorithm WHERE value = 'File-Size-64');
+
+-- Reverse endianness of hashes calculated with adjusted algorithms.
+
+CREATE FUNCTION reverse_endian(forward TEXT) RETURNS TEXT AS $$
+
+DECLARE
+    index INTEGER := length(forward) - 1;
+    backward TEXT := '';
+
+BEGIN
+    WHILE index > 0 LOOP
+        backward := backward || substring(forward FROM index FOR 2);
+        index := index - 2;
+    END LOOP;
+    IF index = 0 THEN
+        RAISE 'cannot reverse strings of odd length';
+    END IF;
+    RETURN backward;
+END;
+$$ LANGUAGE plpgsql;
+
+UPDATE originalfile SET hash = reverse_endian(hash)
+    WHERE hash IS NOT NULL AND hasher IN
+    (SELECT id FROM checksumalgorithm WHERE value IN ('Adler-32', 'CRC-32'));
+
+DROP FUNCTION reverse_endian(TEXT);
+
+-- Acquisition date is already optional in XML schema.
+
+ALTER TABLE image ALTER COLUMN acquisitiondate DROP NOT NULL;
 
 --
 -- FINISHED
