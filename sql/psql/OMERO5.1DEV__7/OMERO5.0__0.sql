@@ -511,8 +511,11 @@ DROP FUNCTION is_too_many_group_ids(VARIADIC group_ids BIGINT[]);
 DELETE FROM annotation
       WHERE discriminator IN ('/basic/text/uri/', '/basic/text/url/');
 
+
+-- Remove all DB checks
+
 DELETE FROM configuration
-      WHERE name in ('DB check DBBadAnnotationCheck', 'DB check DBInsertTriggerCheck');
+      WHERE name LIKE ('DB check %');
 
 
 -- Annotation link triggers for search
