@@ -130,7 +130,8 @@ class Property(object):
         )
 
 
-IN_PROGRESS = "in_progress"
+IN_PROGRESS = "in_progress_action"
+ESCAPED = "escaped_action"
 
 
 class PropertyParser(object):
@@ -157,17 +158,12 @@ class PropertyParser(object):
                     continue
                 elif line.startswith("#"):
                     self.append(line)
-                elif "=" in line:
-                    if line.endswith("\\"):
-                        line = line[:-1]
+                elif "=" in line and self.curr_a != ESCAPED:
                     self.detect(line)
                 elif line.endswith("\\"):
                     self.cont(line[:-1])
                 else:
-                    if self.curr_a == IN_PROGRESS:
-                        self.cont(line)
-                    else:
-                        fail("unknown line: %s" % line)
+                    self.cont(line)
             self.cleanup()  # Handle no newline at end of file
         finally:
             fileinput.close()
@@ -200,9 +196,14 @@ class PropertyParser(object):
     def detect(self, line):
         if self.curr_a == IN_PROGRESS:
             self.cleanup()
+        elif line.endswith("\\"):
+            line = line[:-1]
+            self.curr_a = ESCAPED
+        else:
+            self.curr_a = IN_PROGRESS
+
         self.init()
         self.curr_p.detect(line)
-        self.curr_a = IN_PROGRESS
 
     def cont(self, line):
         self.curr_p.cont(line)

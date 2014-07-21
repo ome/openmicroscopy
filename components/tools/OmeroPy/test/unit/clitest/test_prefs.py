@@ -308,6 +308,9 @@ class TestPrefs(object):
         ("omero.whitelist=\\\nome.foo,\\\nome.bar",
          "omero.whitelist=ome.foo,ome.bar",
          "whitelist (1)"),
+        ("omero.user_mapping=\\\na=b,c=d",
+         "omero.user_mapping=a=b,c=d",
+         "user_mapping (1)"),
     ))
     def testDefaultsParsing(self, tmpdir, capsys, data):
         input, defaults, keys = data
