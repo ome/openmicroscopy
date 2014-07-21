@@ -165,6 +165,7 @@ class PropertyParser(object):
                         self.cont(line)
                     else:
                         fail("unknown line: %s" % line)
+            self.cleanup()  # Handle no newline at end of file
         finally:
             fileinput.close()
         return self.l

@@ -302,6 +302,12 @@ class TestPrefs(object):
         ("omero.whitelist=\\\nome.foo,\\\nome.bar\n### END",
          "omero.whitelist=ome.foo,ome.bar",
          "whitelist (1)"),
+        ("omero.whitelist=\\\nome.foo,\\\nome.bar\n",
+         "omero.whitelist=ome.foo,ome.bar",
+         "whitelist (1)"),
+        ("omero.whitelist=\\\nome.foo,\\\nome.bar",
+         "omero.whitelist=ome.foo,ome.bar",
+         "whitelist (1)"),
     ))
     def testDefaultsParsing(self, tmpdir, capsys, data):
         input, defaults, keys = data
