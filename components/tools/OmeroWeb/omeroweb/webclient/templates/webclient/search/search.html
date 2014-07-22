@@ -107,7 +107,9 @@
                         }, 10);
                     },
                     onClose: function( selectedDate ) {
-                        $( "#startdateinput" ).datepicker( "option", "maxDate", selectedDate );
+                        if (selectedDate){
+                            $( "#startdateinput" ).datepicker( "option", "maxDate", selectedDate );
+                        }
                         if ($(this).val().length > 0) {
                             $(this).next(".clearDate").show();
                         }
