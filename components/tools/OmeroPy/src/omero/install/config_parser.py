@@ -194,12 +194,11 @@ class PropertyParser(object):
         self.curr_p.append(line[2:])
 
     def detect(self, line):
-        if self.curr_a == IN_PROGRESS:
-            self.cleanup()
-        elif line.endswith("\\"):
+        if line.endswith("\\"):
             line = line[:-1]
             self.curr_a = ESCAPED
         else:
+            self.cleanup()
             self.curr_a = IN_PROGRESS
 
         self.init()
