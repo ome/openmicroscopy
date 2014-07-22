@@ -22,7 +22,7 @@
 from test.integration.clitest.cli import CLITest
 from omero.cli import NonZeroReturnCode
 from omero.plugins.fs import FsControl
-import omero
+
 import pytest
 
 transfers = ['ln_s', 'ln', 'ln_rm']
@@ -42,14 +42,6 @@ class TestFS(CLITest):
         port = self.root.getProperty("omero.port")
         self.args = ["fs", "-w", passwd]
         self.args += ["-s", host, "-p",  port]
-
-    def get_fileset(self, i):
-        params = omero.sys.ParametersI()
-        params.addIds([x.id.val for x in i])
-        query1 = "select fs from Fileset fs "\
-            "left outer join fetch fs.images as image "\
-            "where image.id in (:ids)"
-        return self.query.projection(query1, params)[0][0]
 
     def parse_ids(self, output):
         ids = []
@@ -83,11 +75,11 @@ class TestFS(CLITest):
 
         f = {}
         i0 = self.importMIF(1)
-        f[None] = self.get_fileset(i0).val
+        f[None] = self.get_fileset(i0)
 
         for transfer in transfers:
             i = self.importMIF(1, extra_args=['--transfer=%s' % transfer])
-            f[transfer] = self.get_fileset(i).val
+            f[transfer] = self.get_fileset(i)
 
         self.args += ["sets", "--style=plain"]
         self.cli.invoke(self.args, strict=True)

@@ -170,6 +170,7 @@ module omero {
      * General namespaces for <a href="http://www.openmicroscopy.org/site/support/omero5/developers/Modules/StructuredAnnotations.html">StructuredAnnotations</a>
      **/
     module namespaces {
+        const string NSFSRENAME = "openmicroscopy.org/omero/fs/rename";
         const string NSMEASUREMENT = "openmicroscopy.org/omero/measurement";
         const string NSCOMPANIONFILE = "openmicroscopy.org/omero/import/companionFile";
         const string NSLOGFILE = "openmicroscopy.org/omero/import/logFile";

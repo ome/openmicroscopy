@@ -16,6 +16,7 @@ import pytest
 import test.integration.library as lib
 import omero
 
+from omero import CmdError
 from omero.callbacks import CmdCallbackI
 from omero.cmd import ERR
 from omero.gateway import BlitzGateway
@@ -650,8 +651,8 @@ class TestRecursiveDelete(AbstractRepoTest):
         gateway = BlitzGateway(client_obj=self.client)
         handle = gateway.deleteObjects("/OriginalFile", [id])
         try:
-            pytest.raises(Exception,
-                    gateway._waitOnCmd, handle, failonerror=True)
+            with pytest.raises(CmdError):
+                gateway._waitOnCmd(handle, failonerror=True)
         finally:
             handle.close()
 

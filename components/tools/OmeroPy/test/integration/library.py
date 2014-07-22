@@ -394,6 +394,22 @@ class ITest(object):
         image = containerService.getImages("Image", [imageId], None)[0]
         return image
 
+    def get_fileset(self, i, client=None):
+        """
+        Takes an image object and return a fileset object
+        """
+        if client is None:
+            client = self.client
+        query = client.sf.getQueryService()
+
+        params = omero.sys.ParametersI()
+        params.addIds([x.id.val for x in i])
+        query1 = "select fs from Fileset fs "\
+            "left outer join fetch fs.images as image "\
+            "where image.id in (:ids)"
+        rv = unwrap(query.projection(query1, params))
+        return rv[0][0]
+
     def index(self, *objs):
         if objs:
             for obj in objs:

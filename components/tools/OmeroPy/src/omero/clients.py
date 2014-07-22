@@ -829,17 +829,42 @@ class BaseClient(object):
         finally:
             prx.close()
 
-    def submit(self, req, loops=10, ms=500, failonerror=True, ctx=None):
+    def submit(self, req, loops=10, ms=500,
+               failonerror=True, ctx=None, failontimeout=True):
         handle = self.getSession().submit(req, ctx)
         return self.waitOnCmd(
-            handle, loops=loops, ms=ms, failonerror=failonerror)
+            handle, loops=loops, ms=ms,
+            failonerror=failonerror,
+            failontimeout=failontimeout,
+            closehandle=True)
 
-    def waitOnCmd(self, handle, loops=10, ms=500, failonerror=True):
-        callback = omero.callbacks.CmdCallbackI(self, handle)
-        callback.loop(loops, ms)  # Throw LockTimeout
+    def waitOnCmd(self, handle, loops=10, ms=500,
+                  failonerror=True,
+                  failontimeout=False,
+                  closehandle=False):
+
+        from omero import LockTimeout
+
+        try:
+            callback = omero.callbacks.CmdCallbackI(self, handle)
+        except:
+            # Since the callback won't escape this method, close it.
+            callback.close(closehandle)
+            raise
+
+        try:
+            callback.loop(loops, ms)  # Throw LockTimeout
+        except LockTimeout:
+            if failontimeout:
+                callback.close(closehandle)
+                raise
+            else:
+                return callback
+
         rsp = callback.getResponse()
         if isinstance(rsp, omero.cmd.ERR):
             if failonerror:
+                callback.close(closehandle)
                 raise omero.CmdError(rsp)
         return callback
 
