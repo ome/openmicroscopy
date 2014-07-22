@@ -29,6 +29,7 @@ import Ice
 import logging
 import traceback
 import json
+import re
 
 from time import time
 
@@ -596,17 +597,24 @@ def load_searching(request, form=None, conn=None, **kwargs):
         # search is carried out and results are stored in manager.containers.images etc.
         manager.search(query_search, onlyTypes, fields, searchGroup, ownedBy, useAcquisitionDate, date)
 
-        try:
-            searchById = long(query_search)
+        # if the query is only numbers (separated by commas or spaces)
+        # we search for objects by ID
+        isIds = re.compile('^[\d ,]+$')
+        if isIds.search(query_search) is not None:
             conn.SERVICE_OPTS.setOmeroGroup(-1)
-            for t in onlyTypes:
-                t = t[0:-1] # remove 's'
-                if t in ('project', 'dataset', 'image', 'screen', 'plate'):
-                    obj = conn.getObject(t, searchById)
-                    if obj is not None:
-                        foundById.append({'otype': t, 'obj': obj})
-        except ValueError:
-            pass
+            for queryId in re.split(' |,', query_search):
+                if len(queryId) == 0:
+                    continue
+                try:
+                    searchById = long(queryId)
+                    for t in onlyTypes:
+                        t = t[0:-1] # remove 's'
+                        if t in ('project', 'dataset', 'image', 'screen', 'plate'):
+                            obj = conn.getObject(t, searchById)
+                            if obj is not None:
+                                foundById.append({'otype': t, 'obj': obj})
+                except ValueError:
+                    pass
 
     else:
         # simply display the search home page.
