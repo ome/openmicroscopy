@@ -25,23 +25,24 @@ mark up.
 """
 
 HEADER_MAPPING = {
-    "data": "Core",
-    "db": "Core",
-    "cluster": "Grid",
-    "grid": "Grid",
-    "checksum": "FS",
-    "fs": "FS",
-    "managed": "FS",
-    "ldap": "LDAP",
-    "sessions": "Performance",
-    "threads": "Performance",
-    "throttling": "Performance",
-    "launcher": "Scripts",
-    "process": "Scripts",
-    "scripts": "Scripts",
-    "security": "Security",
-    "resetpassword": "Security",
-    "upgrades": "Misc",
+    "omero.data": "Core",
+    "omero.db": "Core",
+    "omero.cluster": "Grid",
+    "omero.grid": "Grid",
+    "omero.checksum": "FS",
+    "omero.fs": "FS",
+    "omero.managed": "FS",
+    "omero.ldap": "LDAP",
+    "omero.sessions": "Performance",
+    "omero.threads": "Performance",
+    "omero.throttling": "Performance",
+    "omero.launcher": "Scripts",
+    "omero.process": "Scripts",
+    "omero.scripts": "Scripts",
+    "omero.security": "Security",
+    "omero.resetpassword": "Security",
+    "omero.upgrades": "Misc",
+    "Ice": "Ice",
 }
 
 
@@ -228,13 +229,20 @@ class PropertyParser(object):
         return data
 
     def headers(self):
-        data = list(self)
-        data.sort(lambda a, b: cmp(a.key, b.key))
         headers = defaultdict(list)
-        for x in data:
-            key = x.key.split(".")[1]
-            key = HEADER_MAPPING.get(key, key.title())
-            headers[key].append(x)
+        for x in self:
+            found = False
+            for header in HEADER_MAPPING:
+                if x.key.startswith(header):
+                    headers.setdefault(HEADER_MAPPING[header], []).append(x)
+                    found = True
+                    break
+            if not found and x.key.startswith('omero.'):
+                parts = x.key.split(".")
+                headers.setdefault(parts[1].title(), []).append(x)
+
+        for key in headers.iterkeys():
+            headers[key].sort(lambda a, b: cmp(a.key, b.key))
         return headers
 
     def print_defaults(self):
