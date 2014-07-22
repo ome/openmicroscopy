@@ -203,6 +203,8 @@ class PropertyParser(object):
 
         self.init()
         self.curr_p.detect(line)
+        if self.curr_a != ESCAPED:
+            self.cleanup()
 
     def cont(self, line):
         self.curr_p.cont(line)
