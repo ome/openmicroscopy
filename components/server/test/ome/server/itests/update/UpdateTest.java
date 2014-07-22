@@ -367,8 +367,7 @@ public class UpdateTest extends AbstractUpdateTest {
 
         // This creates a user in a new group
         Experimenter e = loginNewUser();
-        java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
-        Image i = new Image(testTimestamp, "rootCanDeleteObjectFromOtherGroup");
+        Image i = new Image("rootCanDeleteObjectFromOtherGroup");
         i = this.iUpdate.saveAndReturnObject(i);
 
         loginRootKeepGroup();

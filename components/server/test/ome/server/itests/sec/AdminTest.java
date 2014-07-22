@@ -616,8 +616,7 @@ public class AdminTest extends AbstractManagedContextTest {
 
         // Now make something
         loginUser(e1.getOmeName());
-        java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
-        iUpdate.saveObject(new Image(testTimestamp, "name"));
+        iUpdate.saveObject(new Image("name"));
 
         loginRoot();
         iAdmin.deleteExperimenter(new Experimenter(uid, false));
