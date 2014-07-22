@@ -89,7 +89,8 @@ public class TimelineITest extends AbstractServantTest {
         Map<String, Long> target = new HashMap<String, Long>();
         target.put("Image", 1L);
 
-        Image i = new Image(new Timestamp(System.currentTimeMillis()), "img");
+        Image i = new Image("img");
+        i.setAcquisitionDate(new Timestamp(System.currentTimeMillis()));
         i = user.managedSf.getUpdateService().saveAndReturnObject(i);
 
         assertCountByPeriodMatchesTarget(types, rtime_min(), rtime_max(),
@@ -113,7 +114,8 @@ public class TimelineITest extends AbstractServantTest {
     public void testGetOneImage() throws Exception {
         List<String> types = Arrays.asList("Image");
 
-        Image i = new Image(new Timestamp(System.currentTimeMillis()), "img");
+        Image i = new Image("img");
+        i.setAcquisitionDate(new Timestamp(System.currentTimeMillis()));
         i = user.managedSf.getUpdateService().saveAndReturnObject(i);
 
         Map<String, List<IObject>> rv = assertGetByPeriod(types, rtime_min(),
@@ -128,7 +130,8 @@ public class TimelineITest extends AbstractServantTest {
 
     @Test
     public void testGetEventLog() throws Exception {
-        Image i = new Image(new Timestamp(System.currentTimeMillis()), "img");
+        Image i = new Image("img");
+        i.setAcquisitionDate(new Timestamp(System.currentTimeMillis()));
         i = user.managedSf.getUpdateService().saveAndReturnObject(i);
 
         Dataset d = new Dataset("ds");
@@ -145,7 +148,8 @@ public class TimelineITest extends AbstractServantTest {
     public void testMostRecentImages() throws Exception {
         List<String> types = Arrays.asList("Image");
 
-        Image i = new Image(new Timestamp(System.currentTimeMillis()), "img");
+        Image i = new Image("img");
+        i.setAcquisitionDate(new Timestamp(System.currentTimeMillis()));
         i = user.managedSf.getUpdateService().saveAndReturnObject(i);
 
         Map<String, List<IObject>> rv = assertMostRecent(types, null, false);
@@ -161,7 +165,8 @@ public class TimelineITest extends AbstractServantTest {
     public void testMostRecentMerged() throws Exception {
         List<String> types = Arrays.asList("Image", "Dataset");
 
-        Image i = new Image(new Timestamp(System.currentTimeMillis()), "img");
+        Image i = new Image("img");
+        i.setAcquisitionDate(new Timestamp(System.currentTimeMillis()));
         i = user.managedSf.getUpdateService().saveAndReturnObject(i);
 
         Dataset d = new Dataset("ds");
@@ -180,7 +185,8 @@ public class TimelineITest extends AbstractServantTest {
     public void testJust1RecentImage() throws Exception {
         List<String> types = Arrays.asList("Image");
 
-        Image i = new Image(new Timestamp(System.currentTimeMillis()), "img");
+        Image i = new Image("img");
+        i.setAcquisitionDate(new Timestamp(System.currentTimeMillis()));
         i = user.managedSf.getUpdateService().saveAndReturnObject(i);
 
         ParametersI p = new ParametersI().page(0, 1);
@@ -262,7 +268,6 @@ public class TimelineITest extends AbstractServantTest {
         // Now add a tag annotations
         Image i = new Image();
         i.setName("now");
-        i.setAcquisitionDate(new Timestamp(System.currentTimeMillis()));
         i.linkAnnotation(new TagAnnotation());
         i = user.managedSf.getUpdateService().saveAndReturnObject(i);
 
