@@ -26,8 +26,6 @@ from omero.rtypes import unwrap
 from omero.util.temp_files import create_path
 from omero_version import omero_version
 
-# Module level marker
-pytestmark = pytest.mark.fs_suite
 
 class AbstractRepoTest(lib.ITest):
 

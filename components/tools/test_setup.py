@@ -29,7 +29,9 @@ class PyTest(TestCommand):
                     ('test-verbose', 'v', "more verbose output"),
                     ('test-quiet', 'q', "less verbose output"),
                     ('junitxml=', None, "create junit-xml style report file at 'path'"),
-                    ('pdb',None,"fallback to pdb on error"),]
+                    ('pdb',None,"fallback to pdb on error"),
+                    ('markers', None, "list available markers'"),
+                    ]
 
     def initialize_options(self):
         TestCommand.initialize_options(self)
@@ -43,6 +45,7 @@ class PyTest(TestCommand):
         self.test_verbose = False
         self.junitxml = None
         self.pdb = False
+        self.markers = False
 
     def finalize_options(self):
         TestCommand.finalize_options(self)
@@ -65,6 +68,8 @@ class PyTest(TestCommand):
             self.test_args.extend(['--pdb'])
         print self.test_failfast
         self.test_suite = True
+        if self.markers:
+            self.test_args = "--markers"
         if self.test_ice_config is None:
             self.test_ice_config = os.path.abspath('ice.config')
         if not os.environ.has_key('ICE_CONFIG'):

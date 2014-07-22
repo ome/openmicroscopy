@@ -23,8 +23,6 @@
 Test of the omero/plugins/tx.py module
 """
 
-import pytest
-
 from omero.api import IQueryPrx
 from omero.api import IUpdatePrx
 from omero.api import ServiceFactoryPrx
@@ -54,7 +52,6 @@ class MockCLI(CLI):
             self._out = [out]
 
 
-@pytest.mark.cliobj
 class TxBase(object):
 
     def setup_method(self, method):
