@@ -5,12 +5,12 @@ import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import junit.framework.Assert;
 import loci.formats.FormatReader;
 import ome.services.blitz.fire.Registry;
 import ome.services.blitz.repo.FileMaker;
@@ -19,6 +19,8 @@ import ome.services.blitz.repo.RepositoryDao;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.util.ChecksumAlgorithmMapper;
 import ome.system.ServiceFactory;
+import ome.util.checksum.ChecksumProviderFactoryImpl;
+import ome.util.checksum.ChecksumType;
 import omero.ServerError;
 import omero.grid.ImportLocation;
 import omero.model.ChecksumAlgorithm;
@@ -28,10 +30,9 @@ import static omero.rtypes.rstring;
 import omero.sys.EventContext;
 import omero.util.TempFileManager;
 
-import com.google.common.collect.Sets;
-
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
+import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -262,22 +263,35 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     /**
-     * Test that the checksum algorithms offered by the managed repository
-     * correspond to those listed for enum id
-     * <tt>ome.model.enums.ChecksumAlgorithm</tt> in
-     * <tt>acquisition.ome.xml</tt>.
+     * Test that the checksum algorithms provided by {@link ChecksumProviderFactory} are exactly those of {@link ChecksumType}.
      */
     @Test
-    public void testListChecksumAlgorithms() {
-        final Set<String> expectedAlgorithmNames =
-                Sets.newHashSet("Adler-32", "CRC-32", "MD5-128", "Murmur3-32",
-                        "Murmur3-128", "SHA1-160");
-        for (final ChecksumAlgorithm algorithm :
-            this.tmri.listChecksumAlgorithms(curr)) {
-            Assert.assertTrue(expectedAlgorithmNames.remove(
-                    algorithm.getValue().getValue()));
+    public void testAllChecksumAlgorithmsProvided() throws Exception {
+        final Set<ChecksumType> stillExpecting = EnumSet.allOf(ChecksumType.class);
+        stillExpecting.removeAll(new ChecksumProviderFactoryImpl().getAvailableTypes());
+
+        for (final ChecksumType type : stillExpecting) {
+            Assert.fail("not providing checksum type: " + type);
         }
-        Assert.assertTrue(expectedAlgorithmNames.isEmpty());
+    }
+
+    /**
+     * Test that the checksum algorithms listed in <tt>omero.checksum.supported</tt> are exactly those of {@link ChecksumType}.
+     * Note that the server may still be able to handle checksum algorithms even if they are not listed among those supported.
+     */
+    @Test
+    public void testAllChecksumAlgorithmsSupported() throws Exception {
+        final Set<ChecksumType> stillExpecting = EnumSet.allOf(ChecksumType.class);
+
+        for (final ChecksumAlgorithm listedAlgorithm : tmri.listChecksumAlgorithms(curr)) {
+            final ChecksumType supported = ChecksumAlgorithmMapper.getChecksumType(listedAlgorithm);
+            Assert.assertNotNull(supported, "supporting unknown checksum type: " + listedAlgorithm.getValue().getValue());
+            stillExpecting.remove(supported);
+        }
+
+        for (final ChecksumType type : stillExpecting) {
+            Assert.fail("not supporting checksum type: " + type);
+        }
     }
 
     /**
