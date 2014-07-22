@@ -602,11 +602,15 @@ def load_searching(request, form=None, conn=None, **kwargs):
         isIds = re.compile('^[\d ,]+$')
         if isIds.search(query_search) is not None:
             conn.SERVICE_OPTS.setOmeroGroup(-1)
+            idSet = set()
             for queryId in re.split(' |,', query_search):
                 if len(queryId) == 0:
                     continue
                 try:
                     searchById = long(queryId)
+                    if searchById in idSet:
+                        continue
+                    idSet.add(searchById)
                     for t in onlyTypes:
                         t = t[0:-1] # remove 's'
                         if t in ('project', 'dataset', 'image', 'screen', 'plate'):
