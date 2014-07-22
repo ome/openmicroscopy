@@ -24,13 +24,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+
 import javax.swing.Icon;
 import javax.swing.table.DefaultTableModel;
 
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.env.log.Logger;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.GroupData;
@@ -49,6 +54,8 @@ import pojos.ScreenData;
  */
 public class SearchResultTableModel extends DefaultTableModel {
 
+    private Logger logger = DataBrowserAgent.getRegistry().getLogger();
+    
     /** The name of the columns */
     public static final String[] COLUMN_NAMES = { "Type", "Name",
             "Acquired", "Imported", "Group", " " };
@@ -100,7 +107,7 @@ public class SearchResultTableModel extends DefaultTableModel {
 
         DataObject obj = data.get(row);
 
-        Object result = "--";
+        Object result = null;
 
         switch (column) {
             case 0:
@@ -123,7 +130,7 @@ public class SearchResultTableModel extends DefaultTableModel {
                 break;
         }
 
-        return result;
+        return result != null ? result : "--";
     }
 
     /**
