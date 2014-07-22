@@ -68,16 +68,14 @@ and :doc:`Windows <windows/server-installation>` pages, as well as the
 """
 
 HEADER = \
-    """
-.. _%(reference)s_configuration:
+    """.. _%(reference)s_configuration:
 
 %(header)s
 %(hline)s
 
 .. glossary::
 
-%(properties)s
-"""
+%(properties)s"""
 
 BLACK_LIST = ("##", "versions", "omero.upgrades")
 
@@ -274,7 +272,10 @@ class PropertyParser(object):
             for p in headers[header]:
                 properties += "%s%s\n" % (space4, p.key)
                 for line in p.txt.split("\n"):
-                    properties += "%s%s\n" % (space6, line)
+                    if line:
+                        properties += "%s%s\n" % (space6, line)
+                    else:
+                        properties += "\n"
                 v = p.val
                 if not p.val:
                     v = "[empty]"
