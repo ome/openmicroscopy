@@ -317,6 +317,9 @@ class TestPrefs(object):
         ("omero.a=b\nomero.c=d\nomero.e=f\n##ignore=me\n",
          "omero.a=b\nomero.c=d\nomero.e=f",
          "a (1)\n\t\nc (1)\n\t\ne (1)"),
+        ("omero.a=b\nomero.c=d\nomero.e=f\n##ignore=me\n",
+         "omero.a=b\nomero.c=d\nomero.e=f",
+         "a (1)\n\t\nc (1)\n\t\ne (1)"),
     ))
     def testDefaultsParsing(self, tmpdir, capsys, data):
         input, defaults, keys = data
