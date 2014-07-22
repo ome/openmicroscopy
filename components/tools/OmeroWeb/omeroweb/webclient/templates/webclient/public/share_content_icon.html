@@ -55,6 +55,22 @@
                 primaryIndex = selIndex;
             }
 
+            // This code is also duplicated on containers_icon.html
+            var syncThumbSelection = function() {
+                var $selectee = $("#dataIcons").find("li.ui-selectee");
+                var sel_objs = $("body").data("selected_objects.ome");
+                $selectee.removeClass('ui-selected');    // clear selection
+                var sel_obj, imgId;
+                for (var _s=0; _s<sel_objs.length; _s++) {
+                    sel_obj = sel_objs[_s];
+                    if (sel_obj.rel.replace("-locked","") == "image") {
+                        imgId = sel_obj.id.split("-")[1];
+                        $("#image_icon-"+imgId).addClass('ui-selected');
+                    }
+                }
+            }
+            $("body").bind("selection_change.ome", syncThumbSelection);
+
             // we're not using the 'selectable' plugin (no multiselect)
             $("ul#dataIcons li").addClass('ui-selectee');   // class is for selection UI fix
 
