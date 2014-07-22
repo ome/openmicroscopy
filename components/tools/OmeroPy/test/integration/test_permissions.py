@@ -950,12 +950,17 @@ class TestPermissionProjections(lib.ITest):
             return self._other[who]
 
     def assertPerms(self, perms, fixture):
+        found_arr = []
+        expected_arr = []
         for x in ("Annotate", "Delete", "Edit", "Link"):
             key = "can%s" % x
             found = bool(perms[key])
+            found_arr.append(found)
             expected = bool(getattr(fixture, key))
-            assert "%s mismatch!" % x, found == expected
+            expected_arr.append(expected)
+        assert expected_arr == found_arr
 
+    @pytest.mark.xfail(reason="See ticket #12474")
     @pytest.mark.parametrize("fixture", PFS)
     def testProjectionPermissions(self, fixture):
         writer = self.writer(fixture)
