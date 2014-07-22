@@ -448,8 +448,7 @@ class Context:
         """
         Expects a single string as argument.
         """
-        if not self.isquiet:
-            self.safePrint(text, sys.stderr, newline)
+        self.safePrint(text, sys.stderr, newline)
 
     def dbg(self, text, newline = True, level = 1):
         """
