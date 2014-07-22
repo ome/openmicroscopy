@@ -1113,6 +1113,7 @@ public class MetadataImpl
                 }
             }
         }
-        return Multimaps.asMap(map);
+        /* wrap in a hash map so that ModelMapper may create a new instance */
+        return new HashMap<Long, Set<IObject>>(Multimaps.asMap(map));
     }
 }
