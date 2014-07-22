@@ -116,13 +116,13 @@ class Property(object):
         dbg("detect:" + line)
         idx = line.index("=")
         self.key = line[0:idx]
-        self.val = line[idx+1:]
+        self.val = line[idx+1:].rstrip('\\')
 
     def cont(self, line):
         dbg("cont:  " + line)
         if self.key is None:
             fail("key is none on line: " + line)
-        self.val += line
+        self.val += line.rstrip('\\')
 
     def __str__(self):
         return "Property(key='%s', val='%s', txt='%s')" % (
@@ -155,12 +155,13 @@ class PropertyParser(object):
             elif "=" in line:
                 self.detect(line)
             elif line.endswith("\\"):
-                self.cont(line[1:])
+                self.cont(line)
             else:
                 if self.in_progress:
                     self.cont(line)
                 else:
                     fail("unknown line: %s" % line)
+        self.cleanup()
         return self.l
 
     def black_list(self, line):
@@ -206,6 +207,8 @@ class PropertyParser(object):
             if x.key is None:
                 raise Exception("Bad key: %s" % x)
             parts = x.key.split(".")
+            if parts[0] == "Ice":
+                continue
             if parts[0] != "omero":
                 raise Exception("Bad key: %s" % x)
 

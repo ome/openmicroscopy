@@ -282,9 +282,13 @@ class TestPrefs(object):
         self.assertStdoutStderr(capsys, out='[]')
 
     @pytest.mark.parametrize("data", (
-        ("omero.a=b\nomero.c=d\n##igmore=me\n",
+        ("omero.a=b\nomero.c=d\n##ignore=me\n",
          "omero.a=b\nomero.c=d",
          "a (1)\n\t\nc (1)"),
+        ("omero.a=\\\nb,\\\nc\n", "omero.a=b,c", "a (1)"),
+        ("omero.a=b,\\\nc\nomero.d=e\n", "omero.a=b,c\nomero.d=e",
+         "a (1)\n\t\nd (1)"),
+        ("omero.a=b\nIce.c=d\n", "Ice.c=d\nomero.a=b", "a (1)"),
     ))
     def testDefaultsParsing(self, tmpdir, capsys, data):
         input, defaults, keys = data
