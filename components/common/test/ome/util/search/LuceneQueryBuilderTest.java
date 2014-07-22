@@ -76,12 +76,15 @@ public class LuceneQueryBuilderTest extends TestCase{
         raw = "\"?test *dv\"";  expected = "\"?test *dv\"";
         checkQuery(fields, raw, expected);
         
-        raw = "test-dv";  expected = "test dv";
+        raw = "test-dv";  expected = "test-dv";
         checkQuery(fields, raw, expected);
         
         raw = "*test_dv";  expected = "*test_dv";
         checkQuery(fields, raw, expected);
         
+        raw = "*test-dv";  expected = "*test-dv";
+        checkQuery(fields, raw, expected);
+          
         raw = "test AND dv";  expected = "((test) AND (dv))";
         checkQuery(fields, raw, expected);
        
@@ -120,7 +123,7 @@ public class LuceneQueryBuilderTest extends TestCase{
         raw = "\"?test *.dv\"";  expected = "name:\"?test *.dv\"";
         checkQuery(fields, raw, expected);
         
-        raw = "(test-dv}";  expected = "name:test name:dv";
+        raw = "(test-dv}";  expected = "name:test-dv";
         checkQuery(fields, raw, expected);
         
         raw = "*test_dv";  expected = "name:*test_dv";
