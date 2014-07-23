@@ -272,14 +272,15 @@ public class TimelineITest extends AbstractServantTest {
 
     @Test
     public void testOrderMostRecentObjects() throws Exception {
-        
+        final long now = System.currentTimeMillis();
+
         omero.model.Image i1 = new omero.model.ImageI();
         i1.setName(rstring("first"));
-        i1.setAcquisitionDate(rtime(System.currentTimeMillis()-1));
+        i1.setAcquisitionDate(rtime(now - 1));
         omero.model.Image i2 = new omero.model.ImageI();
         i2.setName(rstring("second"));
-        i2.setAcquisitionDate(rtime(System.currentTimeMillis()+11));
-        
+        i2.setAcquisitionDate(rtime(now + 1));
+
         Project p1 = new ProjectI();
         p1.setName(rstring("between1"));
         
