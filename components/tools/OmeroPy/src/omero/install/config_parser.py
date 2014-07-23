@@ -33,6 +33,7 @@ HEADER_MAPPING = {
     "omero.fs": "FS",
     "omero.managed": "FS",
     "omero.ldap": "LDAP",
+    "omero.jvmcfg": "JVM",
     "omero.sessions": "Performance",
     "omero.threads": "Performance",
     "omero.throttling": "Performance",
