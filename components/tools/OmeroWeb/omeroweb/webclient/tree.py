@@ -68,7 +68,16 @@ def get_perms(conn, object_type, object_id, object_owner_id):
     # object ownership
     if perms is None:
         obj = conn.getObject(object_type, object_id.val)
-        perms = obj.details.permissions
+        perms_obj = obj.details.permissions
+
+        # To be compatible with parse_permissions_css, convert the required
+        # fields to a dictionary
+        restrictions = ('canEdit', 'canAnnotate', 'canLink', 'canDelete')
+        perms = {}
+        for r in restrictions:
+            if getattr(perms_obj, r)():
+                perms[r] = True
+
         # Cache the result
         cache.set( (group_id, object_owner), perms)
 
@@ -86,10 +95,7 @@ def parse_permissions_css(permissions, ownerid, conn):
         @type conn L{omero.gateway.BlitzGateway}
     '''
     restrictions = ('canEdit', 'canAnnotate', 'canLink', 'canDelete')
-    # TODO Revert this when fixed. Workaround for bug:
-    # https://trac.openmicroscopy.org.uk/ome/ticket/12474
-    # permissionsCss = [r for r in restrictions if permissions.get(r)]
-    permissionsCss = [r for r in restrictions if getattr(permissions, r)()]
+    permissionsCss = [r for r in restrictions if permissions.get(r)]
     if ownerid == conn.getUserId():
         permissionsCss.append("canChgrp")
     return ' '.join(permissionsCss)
