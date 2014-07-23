@@ -31,12 +31,15 @@ import logging
 LOGGER = logging.getLogger("omero.install.jvmcfg")
 
 
-def strip_dict(map, prefix=("omero", "jvmcfg"), suffix=()):
+def strip_dict(map, prefix=("omero", "jvmcfg"), suffix=(), limit=1):
     """
     For the given dictionary, return a copy of the
     dictionary where all entries not matching the
-    prefix have been removed and where all remaining
-    keys have had the prefix stripped.
+    prefix, suffix, and limit have been removed and
+    where all remaining keys have had the prefix and
+    suffix stripped. The limit describes the number
+    of elements that are allowed in the new key after
+    stripping prefix and suffix.
     """
     if isinstance(prefix, StringType):
         prefix = tuple(prefix.split("."))
@@ -54,8 +57,10 @@ def strip_dict(map, prefix=("omero", "jvmcfg"), suffix=()):
         if ksz <= (psz + ssz):
             return  # No way to strip if smaller
         if key[0:psz] == prefix and key[ksz-ssz:] == suffix:
-            newkey = ".".join(key[psz:ksz-ssz])
-            rv[newkey] = v
+            newkey = key[psz:ksz-ssz]
+            if len(newkey) == limit:
+                newkey = ".".join(newkey)
+                rv[newkey] = v
 
     for k, v in map.items():
         __strip_dict(k, v, prefix, suffix, rv)

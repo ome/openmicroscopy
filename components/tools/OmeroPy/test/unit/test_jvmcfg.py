@@ -67,8 +67,8 @@ class TestMemoryStrip(object):
         assert {"b": "c"} == rv
 
     def test_2(self):
-        rv = strip_dict({"a.b.c.d": "e"}, prefix="a.b")
-        assert rv["c.d"] == "e"
+        rv = strip_dict({"a.b.c": "d"}, prefix="a.b")
+        assert rv["c"] == "d"
 
     def test_3(self):
         rv = strip_dict({
