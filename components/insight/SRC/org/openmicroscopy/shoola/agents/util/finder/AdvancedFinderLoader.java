@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.util.finder.AdvancedFinderLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -23,19 +23,13 @@
 package org.openmicroscopy.shoola.agents.util.finder;
 
 //Java imports
-
-//Third-party libraries
+import java.util.Collections;
 
 //Application-internal dependencies
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
-import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
-import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
+import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
+import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
@@ -59,7 +53,7 @@ public class AdvancedFinderLoader
 {
 
 	/** Collection of terms to search for. */
-	private SearchDataContext searchContext;
+	private SearchParameters searchContext;
 	
 	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle handle;
@@ -73,10 +67,10 @@ public class AdvancedFinderLoader
      * @param context	The context of the search.
      * 					Mustn't be <code>null</code>.
      */
-    public AdvancedFinderLoader(Finder viewer, List<SecurityContext> ctx,
-    		SearchDataContext context)
+    public AdvancedFinderLoader(Finder viewer, SecurityContext ctx,
+            SearchParameters context)
     {
-    	super(viewer, ctx);
+    	super(viewer, Collections.singletonList(ctx));
     	if (context == null) 
     		throw new IllegalArgumentException("No scope defined.");
     	searchContext = context;
@@ -88,7 +82,7 @@ public class AdvancedFinderLoader
      */
     public void load()
     {
-    	handle = dhView.advancedSearchFor(ctx, searchContext, this);
+    	handle = dhView.advancedSearchFor(ctx.get(0), searchContext, this);
     }
 
     /** 
@@ -97,20 +91,7 @@ public class AdvancedFinderLoader
      */
     public void update(DSCallFeedbackEvent fe) 
     {
-    	if (viewer.getState() == DataBrowser.DISCARDED) return;  //Async cancel.
-        int percDone = fe.getPercentDone();
-        if (percDone == 0) return;
-        Object r = fe.getPartialResult();
-        if (r != null) {
-        	Map m = (Map) r;
-        	Entry entry;
-        	Iterator i= m.entrySet().iterator();
-        	while (i.hasNext()) {
-				entry = (Entry) i.next();
-				viewer.setResult((SecurityContext) entry.getKey(),
-						entry.getValue());
-			}
-        }
+    	
     }
     
     /**
@@ -131,12 +112,11 @@ public class AdvancedFinderLoader
      * Feeds the result back to the viewer. 
      * @see FinderLoader#handleResult(Object)
      */
-    /*
     public void handleResult(Object result)
     {
     	if (viewer.getState() == Finder.DISCARDED) return;  //Async cancel.
-        //viewer.setResult(result);
+        viewer.setResult((AdvancedSearchResultCollection) result);
     }
-    */
+
 
 }

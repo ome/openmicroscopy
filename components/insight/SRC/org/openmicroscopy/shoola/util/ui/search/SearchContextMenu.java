@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.search.SearchContextMenu 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -54,13 +54,13 @@ import javax.swing.JSeparator;
  * </small>
  * @since OME3.0
  */
-class SearchContextMenu
+public class SearchContextMenu
 	extends JPopupMenu
 	implements ActionListener
 {
 
-	/** Bound property indicating that a new item is selected. */
-	static final String SEARCH_CONTEXT_PROPERTY = "searchContext";
+    /** Bound property indicating that a new item is selected. */
+    public static final String SEARCH_CONTEXT_PROPERTY = "searchContext";
 	
 	/** The width of the component. */
     private int			width;
@@ -183,7 +183,7 @@ class SearchContextMenu
      * 							be selected at a time to <code>false</code> 
      * 							otherwise.
      */
-    SearchContextMenu(List<SearchObject> nodes, List<SearchObject> ratedNodes,
+    public SearchContextMenu(List<SearchObject> nodes, List<SearchObject> ratedNodes,
     				int width, boolean singleSelection)
     {
     	this(nodes, ratedNodes, width, NodeMenuItem.class, null, 
@@ -201,7 +201,7 @@ class SearchContextMenu
      * 							be selected at a time to <code>false</code> 
      * 							otherwise.
      */
-    SearchContextMenu(List<SearchObject> nodes, List<SearchObject> ratedNodes,
+    public SearchContextMenu(List<SearchObject> nodes, List<SearchObject> ratedNodes,
     				int width, SearchObject selectedNode, 
     				boolean singleSelection)
     {
@@ -237,7 +237,7 @@ class SearchContextMenu
      * 
      * @param node The <code>SearchObject</code> to handle.
      */
-    void setSelectedNode(SearchObject node)
+    public void setSelectedNode(SearchObject node)
     {
         if(node==null) {
             group.clearSelection();
