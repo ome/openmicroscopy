@@ -28,7 +28,7 @@ class TestCreateImage (object):
             """
             create some fake pixel data tile (2D numpy array)
             """
-            return (x * y)/(1 + x + y)
+            return (x * y)/(x + y) * (x + y)
 
         def planeGen(count):
             tile_max = 255
