@@ -9,6 +9,8 @@
 
 """
 
+from collections import defaultdict
+
 import test.integration.library as lib
 import pytest
 import omero
@@ -109,7 +111,7 @@ class TestSearch(lib.ITest):
     def _3164(self, owner, searcher):
 
         images = list()
-        for i in range(0,5):
+        for i in range(0, 5):
             img = omero.model.ImageI()
             img.name = omero.rtypes.rstring("search_test_%i.tif" % i)
             img.acquisitionDate = omero.rtypes.rtime(0)
@@ -142,22 +144,18 @@ class TestSearch(lib.ITest):
         search.addOrderByAsc("name")
         search.setAllowLeadingWildcard(True)
 
-        failed = {}
-        for text in texts:
-            search.byFullText(str(text))
-            if search.hasNext():
-                sz = len(search.results())
-            else:
-                sz = 0
-            if 5 != sz:
-                failed[text] = sz
+        failed = defaultdict(list)
+        for x in range(10):
+            for text in texts:
+                search.byFullText(str(text))
+                if search.hasNext():
+                    sz = len(search.results())
+                else:
+                    sz = 0
+                if 5 != sz:
+                    failed[text].append(sz)
 
-        msg = ""
-        for k in sorted(failed):
-            msg += """\nFAILED: `%s` returned %s""" % (k, failed[k])
-
-        if msg:
-            assert False, "%s\n" % msg
+        assert not failed
 
     def test8692(self):
         # Test that group admin and system admins can
