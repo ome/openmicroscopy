@@ -20,7 +20,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 """
-Test of the automatic memory setting logic for OMERO startup.
+Test of the automatic JVM setting logic for OMERO startup.
 """
 
 
@@ -29,13 +29,13 @@ import pytest
 
 from omero.config import ConfigXml, xml
 
-from omero.install.memory import adjust_settings
-from omero.install.memory import ManualStrategy
-from omero.install.memory import PercentStrategy
-from omero.install.memory import Settings
-from omero.install.memory import Strategy
-from omero.install.memory import strip_prefix
-from omero.install.memory import usage_charts
+from omero.install.jvmcfg import adjust_settings
+from omero.install.jvmcfg import ManualStrategy
+from omero.install.jvmcfg import PercentStrategy
+from omero.install.jvmcfg import Settings
+from omero.install.jvmcfg import Strategy
+from omero.install.jvmcfg import strip_prefix
+from omero.install.jvmcfg import usage_charts
 
 from omero.util.temp_files import create_path
 
@@ -72,21 +72,21 @@ class TestMemoryStrip(object):
 
     def test_3(self):
         rv = strip_prefix({
-            "omero.mem.foo": "a",
+            "omero.jvmcfg.foo": "a",
             "something.else": "b"})
 
         assert rv["foo"] == "a"
         assert "something.else" not in rv
 
     @pytest.mark.parametrize("input,output", (
-        ({"omero.mem.blitz.heap_size": "1g"}, {"heap_size": "1g"}),
+        ({"omero.jvmcfg.blitz.heap_size": "1g"}, {"heap_size": "1g"}),
         ))
     def test_4(self, input, output):
         p = write_config(input)
         config = ConfigXml(filename=str(p), env_config="default")
         try:
             m = config.as_map()
-            s = strip_prefix(m, "omero.mem.blitz")
+            s = strip_prefix(m, "omero.jvmcfg.blitz")
             assert s == output
         finally:
             config.close()
