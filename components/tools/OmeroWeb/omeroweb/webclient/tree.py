@@ -20,54 +20,32 @@
 ''' Helper functions for views that handle object trees '''
 
 import omero
+from omero.sys import ParametersI
 
 from datetime import datetime
 
-
 # TODO Remove this when fixed. Workaround for bug:
 # https://trac.openmicroscopy.org.uk/ome/ticket/12474
-class CacheSingleton:
-    instance = None
-
-    class __CacheSingleton:
-        def __init__(self):
-            self.cache = {}
-
-        def set(self, key, value):
-            self.cache[key] = value
-
-        def get(self, key):
-            return self.cache.get(key, None)
-
-    def __init__(self):
-        if not CacheSingleton.instance:
-            CacheSingleton.instance = CacheSingleton.__CacheSingleton()
-
-    def set(self, key, value):
-        self.instance.set(key, value)
-
-    def get(self, key):
-        return self.instance.get(key)
-
-# TODO Remove this when fixed. Workaround for bug:
-# https://trac.openmicroscopy.org.uk/ome/ticket/12474
-def get_perms(conn, object_type, object_id, object_owner_id):
-
-    group_id = conn.getEventContext().groupId
-    user_id = conn.getEventContext().userId
-
-    # Determine if the current user is the owner
-    object_owner = user_id == object_owner_id
+def get_perms(conn, object_type, object_id, object_owner_id, object_group_id,
+              cache):
 
     # Attempt to get permissions which have previously been recorded for this
     # group depending on if the object is owned or not
-    cache = CacheSingleton()
-    perms = cache.get( (group_id, object_owner) )
+    perms = cache.get( (object_group_id.val, object_owner_id.val) )
 
     # If no cache, query an object to the get permissions for this group and
     # object ownership
     if perms is None:
-        obj = conn.getObject(object_type, object_id.val)
+        params = ParametersI()
+        params.addId(object_id)
+        q = '''
+            select obj from %s obj where obj.id = :id
+            ''' % object_type
+        qs = conn.getQueryService()
+        obj = qs.projection(q,
+                            params,
+                            conn.SERVICE_OPTS)[0][0].val
+
         perms_obj = obj.details.permissions
 
         # To be compatible with parse_permissions_css, convert the required
@@ -79,8 +57,9 @@ def get_perms(conn, object_type, object_id, object_owner_id):
                 perms[r] = True
 
         # Cache the result
-        cache.set( (group_id, object_owner), perms)
-
+        cache[ (object_group_id.val, object_owner_id.val) ] = perms
+    else:
+        print('Using the cache')
     return perms
 
 def parse_permissions_css(permissions, ownerid, conn):
@@ -197,14 +176,19 @@ def marshal_projects(conn, experimenter_id):
     if experimenter_id is not None:
         params.addId(experimenter_id)
         where_clause = 'where project.details.owner.id = :id'
+
+    # TODO Remove group.ids when fixed. Workaround for bug:
+    # https://trac.openmicroscopy.org.uk/ome/ticket/12474
     q = """
         select project.id,
                project.name,
                project.details.owner.id,
+               project.details.group.id,
                project.details.permissions,
                dataset.id,
                dataset.name,
                dataset.details.owner.id,
+               dataset.details.group.id,
                dataset.details.permissions,
                (select count(id) from DatasetImageLink dil
                   where dil.parent = dataset.id)
@@ -214,15 +198,21 @@ def marshal_projects(conn, experimenter_id):
         %s
         order by lower(project.name), lower(dataset.name)
         """ % (where_clause)
+
+    # TODO Remove this when fixed. Workaround for bug:
+    # https://trac.openmicroscopy.org.uk/ome/ticket/12474
+    cache = {}
+
     for row in query_service.projection(q, params, conn.SERVICE_OPTS):
-        project_id, project_name, project_owner_id, project_permissions, \
-            dataset_id, dataset_name, dataset_owner_id, dataset_permissions, \
-            child_count = row
+        project_id, project_name, project_owner_id, project_group_id, \
+            project_permissions, dataset_id, dataset_name, dataset_owner_id, \
+            dataset_group_id, dataset_permissions, child_count = row
 
         # TODO Remove this when fixed. Workaround for bug:
         # https://trac.openmicroscopy.org.uk/ome/ticket/12474
         project_permissions = get_perms(conn, 'Project', project_id,
-                                        project_owner_id)
+                                        project_owner_id,
+                                        project_group_id, cache)
 
         if len(projects) == 0 or projects[-1]['id'] != project_id.val:
             is_owned = experimenter_id == conn.getUserId()
@@ -241,7 +231,8 @@ def marshal_projects(conn, experimenter_id):
             # TODO Remove this when fixed. Workaround for bug:
             # https://trac.openmicroscopy.org.uk/ome/ticket/12474
             dataset_permissions = get_perms(conn, 'Dataset', dataset_id,
-                                            dataset_owner_id)
+                                            dataset_owner_id, 
+                                            dataset_group_id, cache)
 
             project['datasets'].append(
                 marshal_dataset(conn, (dataset_id,
@@ -270,10 +261,13 @@ def marshal_datasets(conn, experimenter_id):
         params.addId(experimenter_id)
         where_clause = 'and dataset.details.owner.id = :id'
     qs = conn.getQueryService()
+    # TODO Remove group.ids when fixed. Workaround for bug:
+    # https://trac.openmicroscopy.org.uk/ome/ticket/12474
     q = """
         select dataset.id,
                dataset.name,
                dataset.details.owner.id,
+               dataset.details.group.id,
                dataset.details.permissions,
                (select count(id) from DatasetImageLink dil
                  where dil.parent=dataset.id)
@@ -285,12 +279,17 @@ def marshal_datasets(conn, experimenter_id):
         order by lower(dataset.name)
         """ % (where_clause)
 
+    # TODO Remove this when fixed. Workaround for bug:
+    # https://trac.openmicroscopy.org.uk/ome/ticket/12474
+    cache = {}
+
     for e in qs.projection(q, params, conn.SERVICE_OPTS):
         # TODO Revert this when fixed. Workaround for bug:
         # https://trac.openmicroscopy.org.uk/ome/ticket/12474
         # datasets.append(marshal_dataset(conn, e[0:5]))
-        dataset_id, name, owner_id, permissions, child_count = e[0:5]
-        permissions = get_perms(conn, 'Dataset', dataset_id, owner_id)
+        dataset_id, name, owner_id, group_id, permissions, child_count = e[0:6]
+        permissions = get_perms(conn, 'Dataset', dataset_id, owner_id,
+                                group_id, cache)
         datasets.append(marshal_dataset(conn, (dataset_id,
                                                name,
                                                owner_id,
@@ -315,18 +314,23 @@ def marshal_screens(conn, experimenter_id=None):
     if experimenter_id is not None:
         params.addId(experimenter_id)
         where_clause = 'where screen.details.owner.id = :id'
+    # TODO Remove group.ids when fixed. Workaround for bug:
+    # https://trac.openmicroscopy.org.uk/ome/ticket/12474
     q = """
         select screen.id,
                screen.name,
                screen.details.owner.id,
+               screen.details.group.id,
                screen.details.permissions,
                plate.id,
                plate.name,
                plate.details.owner.id,
+               plate.details.group.id,
                plate.details.permissions,
                pa.id,
                pa.name,
                pa.details.owner.id,
+               pa.details.group.id,
                pa.details.permissions,
                pa.startTime,
                pa.endTime
@@ -337,17 +341,23 @@ def marshal_screens(conn, experimenter_id=None):
         %s
         order by lower(screen.name), lower(plate.name), pa.id
         """ % (where_clause)
+
+    # TODO Remove this when fixed. Workaround for bug:
+    # https://trac.openmicroscopy.org.uk/ome/ticket/12474
+    cache = {}
+
     for row in query_service.projection(q, params, conn.SERVICE_OPTS):
-        screen_id, screen_name, screen_owner_id, screen_permissions, \
-            plate_id, plate_name, plate_owner_id, plate_permissions, \
-            acquisition_id, acquisition_name, acquisition_owner_id, \
+        screen_id, screen_name, screen_owner_id, screen_group_id, \
+            screen_permissions, plate_id, plate_name, plate_owner_id, \
+            plate_group_id, plate_permissions, acquisition_id, \
+            acquisition_name, acquisition_owner_id, acquisition_group_id, \
             acquisition_permissions, acquisition_start_time, \
             acquisition_end_time = row
 
         # TODO Remove this when fixed. Workaround for bug:
         # https://trac.openmicroscopy.org.uk/ome/ticket/12474
         screen_permissions = get_perms(conn, 'Screen', screen_id,
-                                       screen_owner_id)
+                                       screen_owner_id, screen_group_id, cache)
 
         if len(screens) == 0 or screen_id.val != screens[-1]['id']:
             is_owned = screen_owner_id.val == conn.getUserId()
@@ -369,7 +379,8 @@ def marshal_screens(conn, experimenter_id=None):
             # TODO Remove this when fixed. Workaround for bug:
             # https://trac.openmicroscopy.org.uk/ome/ticket/12474
             plate_permissions = get_perms(conn, 'Plate', plate_id,
-                                          plate_owner_id)
+                                          plate_owner_id, plate_group_id,
+                                          cache)
 
             screen['plates'].append(marshal_plate(conn, (plate_id,
                                                          plate_name,
@@ -384,7 +395,9 @@ def marshal_screens(conn, experimenter_id=None):
             # https://trac.openmicroscopy.org.uk/ome/ticket/12474
             acquisition_permissions = get_perms(conn, 'PlateAcquisition',
                                                 acquisition_id,
-                                                acquisition_owner_id)
+                                                acquisition_owner_id,
+                                                acquisition_group_id,
+                                                cache)
 
             plate['plateAcquisitions'].append(
                 marshal_plate_acquisition(conn, (acquisition_id,
@@ -415,14 +428,18 @@ def marshal_plates(conn, experimenter_id):
         params.addId(experimenter_id)
         where_clause = 'and plate.details.owner.id = :id'
     query_service = conn.getQueryService()
+    # TODO Remove group.ids when fixed. Workaround for bug:
+    # https://trac.openmicroscopy.org.uk/ome/ticket/12474
     q = """
         select plate.id,
                plate.name,
                plate.details.owner.id,
+               plate.details.group.id,
                plate.details.permissions,
                pa.id,
                pa.name,
                pa.details.owner.id,
+               pa.details.group.id,
                pa.details.permissions,
                pa.startTime,
                pa.endTime
@@ -434,16 +451,23 @@ def marshal_plates(conn, experimenter_id):
         ) %s
         order by lower(plate.name), pa.id
         """ % (where_clause)
+
+    # TODO Remove this when fixed. Workaround for bug:
+    # https://trac.openmicroscopy.org.uk/ome/ticket/12474
+    cache = {}
+
     for row in query_service.projection(q, params, conn.SERVICE_OPTS):
-        plate_id, plate_name, plate_owner_id, plate_permissions, \
-            acquisition_id, acquisition_name, acquisition_owner_id, \
+        plate_id, plate_name, plate_owner_id, plate_group_id, \
+            plate_permissions, acquisition_id, acquisition_name, \
+            acquisition_owner_id, acquisition_group_id, \
             acquisition_permissions, acquisition_start_time, \
             acquisition_end_time = row
         if len(plates) == 0 or plate_id.val != plates[-1]['id']:
             # TODO Remove this when fixed. Workaround for bug:
             # https://trac.openmicroscopy.org.uk/ome/ticket/12474
             plate_permissions = get_perms(conn, 'Plate', plate_id,
-                                          plate_owner_id)
+                                          plate_owner_id, plate_group_id,
+                                          cache)
 
             plates.append(
                 marshal_plate(conn, (plate_id,
@@ -459,7 +483,9 @@ def marshal_plates(conn, experimenter_id):
             # https://trac.openmicroscopy.org.uk/ome/ticket/12474
             acquisition_permissions = get_perms(conn, 'PlateAcquisition',
                                                 acquisition_id,
-                                                acquisition_owner_id)
+                                                acquisition_owner_id,
+                                                acquisition_group_id,
+                                                cache)
 
             plate['plateAcquisitions'].append(
                 marshal_plate_acquisition(conn, (acquisition_id,
