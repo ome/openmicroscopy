@@ -134,6 +134,8 @@ class Settings(object):
         rv = dict()
         rv.update(self.__server)
         rv.update(self.__global)
+        if not rv:
+            rv = ""
         return 'Settings(%s)' % rv
 
 
