@@ -26,7 +26,7 @@ import test.integration.library as lib
 
 from omero.gateway import BlitzGateway
 from omero.model import ProjectI, DatasetI, ScreenI, PlateI, \
-    PlateAcquisitionI, PermissionsI
+    PlateAcquisitionI
 from omero.rtypes import rstring
 from omeroweb.webclient.tree import marshal_datasets, marshal_plates, \
     marshal_projects, marshal_screens
