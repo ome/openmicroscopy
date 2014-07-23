@@ -33,7 +33,7 @@ def get_perms(conn, object_type, object_id, object_owner_id, object_group_id,
     # group depending on if the object is owned or not
     perms = cache.get( (object_group_id.val, object_owner_id.val) )
 
-    # If no cache, query an object to the get permissions for this group and
+    # If no cache, query an object to get the permissions for this group and
     # object ownership
     if perms is None:
         params = ParametersI()
@@ -58,8 +58,7 @@ def get_perms(conn, object_type, object_id, object_owner_id, object_group_id,
 
         # Cache the result
         cache[ (object_group_id.val, object_owner_id.val) ] = perms
-    else:
-        print('Using the cache')
+
     return perms
 
 def parse_permissions_css(permissions, ownerid, conn):
