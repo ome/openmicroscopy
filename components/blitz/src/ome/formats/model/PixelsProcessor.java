@@ -134,6 +134,10 @@ public class PixelsProcessor implements ModelProcessor
                 image = (Image) container.sourceObject;
             }
 
+            /*
+             * Acquisition dates returned to being nullable, but this code may have value following
+             * TODO deeper review of why it was added in the first place.
+
             // If acquistionDate is missing
             if (image.getAcquisitionDate() == null)
             {
@@ -154,6 +158,7 @@ public class PixelsProcessor implements ModelProcessor
                 }
                 image.setAcquisitionDate(rtime(earliestMTime));
             }
+            */
 
             // Ensure that the Image name is set
             String userSpecifiedName = store.getUserSpecifiedName();
