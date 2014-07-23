@@ -8,6 +8,7 @@ set -x
 export PSQL_DIR=${PSQL_DIR:-/usr/local/var/postgres}
 export OMERO_DATA_DIR=${OMERO_DATA_DIR:-/tmp/var/OMERO.data}
 export SCRIPT_NAME=${SCRIPT_NAME:-OMERO.sql}
+export ROOT_PASSWORD=${ROOT_PASSWORD:-omero}
 export ICE=${ICE:-3.5}
 
 # Test whether this script is run in a job environment
@@ -123,7 +124,7 @@ bin/omero config set omero.db.user db_user
 bin/omero config set omero.db.pass db_password
 
 # Run DB script
-bin/omero db script "" "" root_password -f $SCRIPT_NAME
+bin/omero db script "" "" $ROOT_PASSWORD -f $SCRIPT_NAME
 bin/psql -h localhost -U db_user omero_database < $SCRIPT_NAME
 rm $SCRIPT_NAME
 
@@ -135,7 +136,7 @@ bin/omero config set omero.data.dir $OMERO_DATA_DIR
 bin/omero admin start
 
 # Test simple fake import
-bin/omero login -s localhost -u root -w root_password
+bin/omero login -s localhost -u root -w $ROOT_PASSWORD
 touch test.fake
 bin/omero import test.fake
 bin/omero logout
@@ -147,6 +148,11 @@ bin/brew install nginx
 bin/omero web config nginx > $(bin/brew --prefix omero)/etc/nginx.conf
 nginx -c $(bin/brew --prefix omero)/etc/nginx.conf
 bin/omero web start
+
+# Test simple Web connection
+url="http://localhost:8080/webclient/login/?username=root&password=$ROOT_PASSWORD&server=1&noredirect=true"
+resp=$(curl -H "Accept: text/plain" -H "Content-type: text/plain" -X GET $url)
+echo "$resp"
 
 # Stop OMERO.web
 bin/omero web stop
