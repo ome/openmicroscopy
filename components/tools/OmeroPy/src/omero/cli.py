@@ -196,6 +196,10 @@ class Parser(ArgumentParser):
             help = "OMERO session key (UUID of an active session)")
         group.add_argument("--sudo", metavar="ADMINUSER",
             help = "Create session as this admin. Changes meaning of password!")
+        group.add_argument(
+            "-q", "--quiet", action="store_true",
+            help="Quiet mode. Causes most warning and diagnostic messages to "
+            "be suppressed.")
 
     def _check_value(self, action, value):
         # converted value must be one of the choices (if specified)
@@ -313,6 +317,7 @@ class Context:
             self.params = {}
         self.event = get_event(name="CLI")
         self.dir = OMERODIR
+        self.isquiet = False
         self.isdebug = DEBUG # This usage will go away and default will be False
         self.topics = {"debug":"""
 
@@ -943,6 +948,8 @@ class CLI(cmd.Cmd, Context):
         args = self.parser.parse_args(args, previous_args)
         args.prog = self.parser.prog
         self.waitForPlugins()
+
+        self.isquiet = getattr(args, "quiet", False)
 
         debug_str = getattr(args, "debug", "")
         debug_opts = set([x.lower() for x in debug_str.split(",")])
