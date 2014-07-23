@@ -33,6 +33,7 @@ import ome.system.EventContext;
 import ome.system.ServiceFactory;
 import ome.system.SimpleEventContext;
 import ome.util.SqlAction;
+import omero.ServerError;
 import omero.cmd.HandleI.Cancel;
 
 import org.slf4j.Logger;
@@ -227,7 +228,7 @@ public class Helper {
 
     /**
      * Sets the status.flags and the ERR properties appropriately and also
-     * stores the message and stacktrace of the throwable in the parameters. 
+     * stores the message and stacktrace of the throwable in the parameters.
      *
      * @param err
      * @param name
@@ -244,12 +245,17 @@ public class Helper {
             err.parameters.putAll(params);
         }
         if (t != null) {
-            String msg = t.getMessage();
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
             t.printStackTrace(pw);
             String st = sw.toString();
-            err.parameters.put("message", msg);
+            if (t instanceof ServerError) {
+                String msg = ((ServerError) t).message;
+                err.parameters.put("message", msg);
+            } else {
+                String msg = t.getMessage();
+                err.parameters.put("message", msg);
+            }
             err.parameters.put("stacktrace", st);
         }
         rsp.set(err);
@@ -311,7 +317,7 @@ public class Helper {
      *         return null;
      *     }
      * </pre>
-     * 
+     *
      * @param i
      * @param step
      * @return

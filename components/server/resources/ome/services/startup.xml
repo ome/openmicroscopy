@@ -75,7 +75,7 @@
      <constructor-arg index="2" value="server"/>
   </bean>
 
-  <alias name="${omero.metrics.blitz_impl}" alias="metrics"/>
+  <alias name="${omero.metrics.bean}" alias="metrics"/>
 
   <bean id="defaultMetrics" class="ome.system.metrics.DefaultMetrics">
     <property name="graphiteAddress" value="${omero.metrics.graphite}"/>

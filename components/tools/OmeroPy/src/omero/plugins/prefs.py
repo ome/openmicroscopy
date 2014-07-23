@@ -161,6 +161,26 @@ class PrefsControl(BaseControl):
             help="Files to read from. Default to standard input if not"
             " specified")
 
+        parse = parser.add(
+            sub, self.parse,
+            "Parse the etc/omero.properties file for readability")
+        parse.add_argument(
+            "-f", "--file", type=ExistingFile('r'),
+            help="Alternative location for a Java properties file")
+        parse_group = parse.add_mutually_exclusive_group()
+        parse_group.add_argument(
+            "--defaults", action="store_true",
+            help="Show key/value configuration defaults")
+        parse_group.add_argument(
+            "--rst", action="store_true",
+            help="Generate reStructuredText from omero.properties)")
+        parse_group.add_argument(
+            "--keys", action="store_true",
+            help="Print just the keys from omero.properties")
+        parse_group.add_argument(
+            "--headers", action="store_true",
+            help="Print all headers from omero.properties")
+
         parser.add(sub, self.edit, "Present the properties for the current"
                    " profile in your editor. Saving them will update your"
                    " profile.")
@@ -321,6 +341,25 @@ class PrefsControl(BaseControl):
         for k in config.keys():
             if k not in config.IGNORE:
                 self.ctx.out(k)
+
+    def parse(self, args):
+        if args.file:
+            args.file.close()
+            cfg = path(args.file.name)
+        else:
+            cfg = self.dir / "etc" / "omero.properties"
+
+        from omero.install.config_parser import PropertyParser
+        pp = PropertyParser()
+        pp.parse(str(cfg.abspath()))
+        if args.headers:
+            pp.print_headers()
+        elif args.keys:
+            pp.print_keys()
+        elif args.rst:
+            pp.print_rst()
+        else:
+            pp.print_defaults()
 
     @with_rw_config
     def load(self, args, config):

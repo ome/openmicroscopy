@@ -1766,23 +1766,25 @@ public class UIUtilities
 	 * @param editable Pass <code>true</code> to allow users to modify the date
 	 * 				   from the editor, <code>false</code> otherwise. The
 	 *				   default value is <code>true</code>.
+	 * @param dateFormat The date format which is used for the text field
 	 * @return See above.
 	 */
-	public static JXDatePicker createDatePicker(boolean editable)
+	public static JXDatePicker createDatePicker(boolean editable, String dateFormat)
 	{
 		String[] dateFormats = new String[1];
-		dateFormats[0] = UIUtilities.DATE_FORMAT;
+		dateFormats[0] = dateFormat;
 		JXDatePicker picker = new JXDatePicker();
 		picker.setToolTipText(DATE_TOOLTIP);
 		picker.setFormats(dateFormats);
 		picker.getEditor().setBackground(BACKGROUND);
-		picker.getEditor().setColumns(6);
+		//picker.getEditor().setColumns(6);
 		picker.getEditor().setEditable(editable);
 		return picker;
 	}
 	
 	/**
-	 * Creates a date picker.
+	 * Creates an editable date picker, with default
+	 * date format
 	 * 
 	 * @return See above.
 	 */
@@ -1790,6 +1792,17 @@ public class UIUtilities
 	{
 		return createDatePicker(true);
 	}
+	
+	/**
+         * Creates a date picker.
+         * 
+         * @param editable Makes the picker's text fields editable or not.
+         * @return See above.
+         */
+        public static JXDatePicker createDatePicker(boolean editable)
+        {
+                return createDatePicker(editable, UIUtilities.DATE_FORMAT);
+        }
 	
 	/**
 	 * Wraps up the passed text at at word boundaries (whitespace) if they are 
@@ -2544,5 +2557,28 @@ public class UIUtilities
     		text.append("s");
     	}
 		return text.toString();
+    }
+
+    /**
+     * Returns the last characters of the name when the name is longer that the
+     * specified value.
+     *
+     * @param name The name to truncate.
+     * @param maxLength The maximum length.
+     * @param start Pass <code>true</code> to truncate the start of the word,
+     *              <code>false</code> to truncate the end.
+     * @return See above.
+     */
+    public static String truncate(String name, int maxLength, boolean start)
+    {
+        if (name == null) return "";
+        int v = maxLength+UIUtilities.DOTS.length();
+        int n = name.length();
+        if (n > v) {
+            n = n-1;
+            if (start) return UIUtilities.DOTS+name.substring(n-maxLength, n);
+            return name.substring(0, maxLength)+UIUtilities.DOTS;
+        }
+        return name;
     }
 }

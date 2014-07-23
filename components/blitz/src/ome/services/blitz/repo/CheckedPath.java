@@ -269,6 +269,14 @@ public class CheckedPath {
         return this;
     }
 
+    boolean renameTo(CheckedPath target) {
+        return file.renameTo(target.file);
+    }
+
+    void moveToDir(CheckedPath target, boolean createDestDir) throws IOException {
+        FileUtils.moveToDirectory(file, target.file, createDestDir);
+    }
+
     boolean delete() {
         return FileUtils.deleteQuietly(file);
     }

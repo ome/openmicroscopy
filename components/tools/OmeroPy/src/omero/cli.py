@@ -155,7 +155,9 @@ class Parser(ArgumentParser):
     def sub(self):
         return self.add_subparsers(title = "Subcommands", description = OMEROSUBS, metavar = OMEROSUBM)
 
-    def add(self, sub, func, help, **kwargs):
+    def add(self, sub, func, help=None, **kwargs):
+        if help is None:
+            help = func.__doc__
         parser = sub.add_parser(func.im_func.__name__, help=help, description=help)
         parser.set_defaults(func=func, **kwargs)
         return parser
@@ -213,6 +215,24 @@ class Parser(ArgumentParser):
                         lines.append("\t")
                 lines[-1] += choices.pop(0)
             return "\n".join(lines)
+
+
+class ProxyStringType(object):
+    """
+    To make use of the omero.proxy_to_instance method,
+    an instance can be passed to add_argument with a default
+    value:  add_argument(..., type=ProxyStringType("Image"))
+    which will take either a proxy string of the form:
+    "Image:1" or simply the ID itself: "1"
+    """
+
+    def __init__(self, default=None):
+        self.default = default
+
+    def __call__(self, string):
+        return omero.proxy_to_instance(
+            string, default=self.default)
+
 
 class NewFileType(FileType):
     """
