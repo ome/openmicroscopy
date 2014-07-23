@@ -37,16 +37,4 @@
     <property name="targetMethod" value="removeUnusedFiles" />
   </bean>
 
-  <!-- ticket:1230 - Disabling for 4.0.0 due to odd behavior
-  <bean id="removeUnusedFilesTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
-    <description>
-    Runs the update cache thread every 5 seconds so that
-    unreaped sessions will be found and the DestroySessionMessage
-    propagated and all resources freed.
-    </description>
-    <property name="jobDetail" ref="removeUnusedFilesRun" />
-    <property name="cronExpression" value="${omero.data.cron}"/>
-  </bean>
-  -->
-
 </beans>
