@@ -24,6 +24,56 @@ import omero
 from datetime import datetime
 
 
+# TODO Remove this when fixed. Workaround for bug:
+# https://trac.openmicroscopy.org.uk/ome/ticket/12474
+class CacheSingleton:
+    instance = None
+
+    class __CacheSingleton:
+        def __init__(self):
+            self.cache = {}
+
+        def set(self, key, value):
+            self.cache[key] = value
+
+        def get(self, key):
+            return self.cache.get(key, None)
+
+    def __init__(self):
+        if not CacheSingleton.instance:
+            CacheSingleton.instance = CacheSingleton.__CacheSingleton()
+
+    def set(self, key, value):
+        self.instance.set(key, value)
+
+    def get(self, key):
+        return self.instance.get(key)
+
+# TODO Remove this when fixed. Workaround for bug:
+# https://trac.openmicroscopy.org.uk/ome/ticket/12474
+def get_perms(conn, object_type, object_id, object_owner_id):
+
+    group_id = conn.getEventContext().groupId
+    user_id = conn.getEventContext().userId
+
+    # Determine if the current user is the owner
+    object_owner = user_id == object_owner_id
+
+    # Attempt to get permissions which have previously been recorded for this
+    # group depending on if the object is owned or not
+    cache = CacheSingleton()
+    perms = cache.get( (group_id, object_owner) )
+
+    # If no cache, query an object to the get permissions for this group and
+    # object ownership
+    if perms is None:
+        obj = conn.getObject(object_type, object_id.val)
+        perms = obj.details.permissions
+        # Cache the result
+        cache.set( (group_id, object_owner), perms)
+
+    return perms
+
 def parse_permissions_css(permissions, ownerid, conn):
     ''' Parse numeric permissions into a string of space separated
         CSS classes.
@@ -36,7 +86,10 @@ def parse_permissions_css(permissions, ownerid, conn):
         @type conn L{omero.gateway.BlitzGateway}
     '''
     restrictions = ('canEdit', 'canAnnotate', 'canLink', 'canDelete')
-    permissionsCss = [r for r in restrictions if permissions.get(r)]
+    # TODO Revert this when fixed. Workaround for bug:
+    # https://trac.openmicroscopy.org.uk/ome/ticket/12474
+    # permissionsCss = [r for r in restrictions if permissions.get(r)]
+    permissionsCss = [r for r in restrictions if getattr(permissions, r)()]
     if ownerid == conn.getUserId():
         permissionsCss.append("canChgrp")
     return ' '.join(permissionsCss)
@@ -141,6 +194,7 @@ def marshal_projects(conn, experimenter_id):
     q = """
         select project.id,
                project.name,
+               project.details.owner.id,
                project.details.permissions,
                dataset.id,
                dataset.name,
@@ -154,8 +208,13 @@ def marshal_projects(conn, experimenter_id):
         order by lower(project.name), lower(dataset.name)
         """ % (where_clause)
     for row in query_service.projection(q, params, conn.SERVICE_OPTS):
-        project_id, project_name, project_permissions, \
+        project_id, project_name, project_owner_id, project_permissions, \
             dataset_id, dataset_name, dataset_owner_id, child_count = row
+
+        # TODO Remove this when fixed. Workaround for bug:
+        # https://trac.openmicroscopy.org.uk/ome/ticket/12474
+        project_permissions = get_perms(conn, 'Project', project_id,
+                                        project_owner_id)
 
         if len(projects) == 0 or projects[-1]['id'] != project_id.val:
             is_owned = experimenter_id == conn.getUserId()
@@ -170,10 +229,14 @@ def marshal_projects(conn, experimenter_id):
 
         project = projects[-1]
         if dataset_id is not None:
-            project['datasets'].append(marshal_dataset(conn, (
-                dataset_id, dataset_name, dataset_owner_id,
-                project_permissions, child_count
-            )))
+
+            project['datasets'].append(
+                marshal_dataset(conn, (dataset_id,
+                                       dataset_name,
+                                       dataset_owner_id,
+                                       project_permissions,
+                                       child_count) ))
+
         project['childCount'] = len(project['datasets'])
     return projects
 
@@ -208,8 +271,18 @@ def marshal_datasets(conn, experimenter_id):
         ) %s
         order by lower(dataset.name)
         """ % (where_clause)
+
     for e in qs.projection(q, params, conn.SERVICE_OPTS):
-        datasets.append(marshal_dataset(conn, e[0:5]))
+        # TODO Revert this when fixed. Workaround for bug:
+        # https://trac.openmicroscopy.org.uk/ome/ticket/12474
+        # datasets.append(marshal_dataset(conn, e[0:5]))
+        dataset_id, name, owner_id, permissions, child_count = e[0:5]
+        permissions = get_perms(conn, 'Dataset', dataset_id, owner_id)
+        datasets.append(marshal_dataset(conn, (dataset_id,
+                                               name,
+                                               owner_id,
+                                               permissions,
+                                               child_count) ))
     return datasets
 
 
@@ -257,6 +330,12 @@ def marshal_screens(conn, experimenter_id=None):
             acquisition_id, acquisition_name, acquisition_owner_id, \
             acquisition_permissions, acquisition_start_time, \
             acquisition_end_time = row
+
+        # TODO Remove this when fixed. Workaround for bug:
+        # https://trac.openmicroscopy.org.uk/ome/ticket/12474
+        screen_permissions = get_perms(conn, 'Screen', screen_id,
+                                       screen_owner_id)
+
         if len(screens) == 0 or screen_id.val != screens[-1]['id']:
             is_owned = screen_owner_id.val == conn.getUserId()
             perms_css = parse_permissions_css(
@@ -273,17 +352,35 @@ def marshal_screens(conn, experimenter_id=None):
                 len(screen['plates']) == 0 or
                 screen['plates'][-1]['id'] != plate_id.val
                 ):
-            screen['plates'].append(marshal_plate(conn, (
-                plate_id, plate_name, plate_owner_id, plate_permissions
-            )))
+
+            # TODO Remove this when fixed. Workaround for bug:
+            # https://trac.openmicroscopy.org.uk/ome/ticket/12474
+            plate_permissions = get_perms(conn, 'Plate', plate_id,
+                                          plate_owner_id)
+
+            screen['plates'].append(marshal_plate(conn, (plate_id,
+                                                         plate_name,
+                                                         plate_owner_id,
+                                                         plate_permissions) ))
+
             screen['plates'][-1]['plateAcquisitionCount'] = 0
         if acquisition_id is not None:
             plate = screen['plates'][-1]
-            plate['plateAcquisitions'].append(marshal_plate_acquisition(conn, (
-                acquisition_id, acquisition_name, acquisition_owner_id,
-                acquisition_permissions, acquisition_start_time,
-                acquisition_end_time
-            )))
+
+            # TODO Remove this when fixed. Workaround for bug:
+            # https://trac.openmicroscopy.org.uk/ome/ticket/12474
+            acquisition_permissions = get_perms(conn, 'PlateAcquisition',
+                                                acquisition_id,
+                                                acquisition_owner_id)
+
+            plate['plateAcquisitions'].append(
+                marshal_plate_acquisition(conn, (acquisition_id,
+                                                 acquisition_name,
+                                                 acquisition_owner_id,
+                                                 acquisition_permissions,
+                                                 acquisition_start_time,
+                                                 acquisition_end_time) ))
+
             plate['plateAcquisitionCount'] = len(plate['plateAcquisitions'])
         screen['childCount'] = len(screen['plates'])
     return screens
@@ -330,16 +427,34 @@ def marshal_plates(conn, experimenter_id):
             acquisition_permissions, acquisition_start_time, \
             acquisition_end_time = row
         if len(plates) == 0 or plate_id.val != plates[-1]['id']:
-            plates.append(marshal_plate(conn, (
-                plate_id, plate_name, plate_owner_id, plate_permissions
-            )))
+            # TODO Remove this when fixed. Workaround for bug:
+            # https://trac.openmicroscopy.org.uk/ome/ticket/12474
+            plate_permissions = get_perms(conn, 'Plate', plate_id,
+                                          plate_owner_id)
+
+            plates.append(
+                marshal_plate(conn, (plate_id,
+                                     plate_name,
+                                     plate_owner_id,
+                                     plate_permissions) ))
+
+
             plates[-1]['plateAcquisitionCount'] = 0
         plate = plates[-1]
         if acquisition_id is not None:
-            plate['plateAcquisitions'].append(marshal_plate_acquisition(conn, (
-                acquisition_id, acquisition_name, acquisition_owner_id,
-                acquisition_permissions, acquisition_start_time,
-                acquisition_end_time
-            )))
+            # TODO Remove this when fixed. Workaround for bug:
+            # https://trac.openmicroscopy.org.uk/ome/ticket/12474
+            acquisition_permissions = get_perms(conn, 'PlateAcquisition',
+                                                acquisition_id,
+                                                acquisition_owner_id)
+
+            plate['plateAcquisitions'].append(
+                marshal_plate_acquisition(conn, (acquisition_id,
+                                                 acquisition_name,
+                                                 acquisition_owner_id,
+                                                 acquisition_permissions,
+                                                 acquisition_start_time,
+                                                 acquisition_end_time) ))
+
             plate['plateAcquisitionCount'] = len(plate['plateAcquisitions'])
     return plates
