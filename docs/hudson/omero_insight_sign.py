@@ -36,9 +36,9 @@ def usage():
   [-cf certificate-passfile] [-ts yes|no|timestamp-server] [-oz output.zip]
 
 If a zip is given and no -oz option is given a new zip will be created called
-<server>-signed.zip, if -oz is passed an empty string then no zip will be
-created. If a directory is given then no zip will be created unless an output
-zip is specified.
+<server>.zip, if -oz is passed an empty string then no zip will be created. If
+a directory is given then no zip will be created unless an output zip is
+specified.
 
 Passwords can be specified on the command line (-kp, -cp), in a file (-kf, -cf)
 or by entering at the command line when prompted (default).
@@ -298,7 +298,7 @@ def sign_server(args):
             raise Stop('Expected zip-filename to end with .zip')
         serverdir = os.path.basename(args.server[:-4])
         if args.zipout is None:
-            args.zipout = serverdir + '-signed.zip'
+            args.zipout = serverdir + '.zip'
     else:
         serverdir = args.server
 
