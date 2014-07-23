@@ -199,6 +199,7 @@ def marshal_projects(conn, experimenter_id):
                dataset.id,
                dataset.name,
                dataset.details.owner.id,
+               dataset.details.permissions,
                (select count(id) from DatasetImageLink dil
                   where dil.parent = dataset.id)
                from Project as project
@@ -209,7 +210,8 @@ def marshal_projects(conn, experimenter_id):
         """ % (where_clause)
     for row in query_service.projection(q, params, conn.SERVICE_OPTS):
         project_id, project_name, project_owner_id, project_permissions, \
-            dataset_id, dataset_name, dataset_owner_id, child_count = row
+            dataset_id, dataset_name, dataset_owner_id, dataset_permissions, \
+            child_count = row
 
         # TODO Remove this when fixed. Workaround for bug:
         # https://trac.openmicroscopy.org.uk/ome/ticket/12474
@@ -230,11 +232,16 @@ def marshal_projects(conn, experimenter_id):
         project = projects[-1]
         if dataset_id is not None:
 
+            # TODO Remove this when fixed. Workaround for bug:
+            # https://trac.openmicroscopy.org.uk/ome/ticket/12474
+            dataset_permissions = get_perms(conn, 'Dataset', dataset_id,
+                                            dataset_owner_id)
+
             project['datasets'].append(
                 marshal_dataset(conn, (dataset_id,
                                        dataset_name,
                                        dataset_owner_id,
-                                       project_permissions,
+                                       dataset_permissions,
                                        child_count) ))
 
         project['childCount'] = len(project['datasets'])
