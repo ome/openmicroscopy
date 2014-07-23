@@ -31,31 +31,34 @@ import logging
 LOGGER = logging.getLogger("omero.install.jvmcfg")
 
 
-def strip_prefix(map, prefix=("omero", "jvmcfg")):
+def strip_dict(map, prefix=("omero", "jvmcfg"), suffix=()):
     """
-    For the given dictionary, remove a copy of the
+    For the given dictionary, return a copy of the
     dictionary where all entries not matching the
     prefix have been removed and where all remaining
     keys have had the prefix stripped.
     """
     if isinstance(prefix, StringType):
         prefix = tuple(prefix.split("."))
+    if isinstance(suffix, StringType):
+        suffix = tuple(suffix.split("."))
     rv = dict()
     if not map:
         return dict()
 
-    def __strip_prefix(k, v, prefix, rv):
+    def __strip_dict(k, v, prefix, suffix, rv):
         key = tuple(k.split("."))
         ksz = len(key)
         psz = len(prefix)
-        if ksz <= psz:
+        ssz = len(suffix)
+        if ksz <= (psz + ssz):
             return  # No way to strip if smaller
-        if key[0:psz] == prefix:
-            newkey = ".".join(key[psz:])
+        if key[0:psz] == prefix and key[ksz-ssz:] == suffix:
+            newkey = ".".join(key[psz:ksz-ssz])
             rv[newkey] = v
 
     for k, v in map.items():
-        __strip_prefix(k, v, prefix, rv)
+        __strip_dict(k, v, prefix, suffix, rv)
     return rv
 
 
@@ -388,9 +391,8 @@ def adjust_settings(config, template_xml,
             ("pixeldata", pixeldata), ("repository", repository))
 
     for name, StrategyType in loop:
-        prefix = "omero.jvmcfg.%s" % name
-        specific = strip_prefix(m, prefix=prefix)
-        defaults = strip_prefix(m, prefix="omero.jvmcfg")
+        specific = strip_dict(m, suffix=name)
+        defaults = strip_dict(m)
         settings = Settings(specific, defaults)
         rv[name].append(settings)
         if StrategyType is None:
