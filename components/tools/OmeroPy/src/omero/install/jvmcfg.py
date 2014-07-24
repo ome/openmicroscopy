@@ -241,7 +241,7 @@ class Strategy(object):
     # API Getters
 
     def get_heap_size(self, sz=None):
-        if sz is None:
+        if sz is None or self.settings.was_set("heap_size"):
             sz = self.settings.heap_size
         if str(sz).startswith("-X"):
             return sz
