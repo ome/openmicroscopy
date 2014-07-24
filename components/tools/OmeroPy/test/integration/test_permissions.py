@@ -868,19 +868,29 @@ class ProjectionFixture(object):
         self.canEdit = canEdit
         self.canLink = canLink
 
+    def __repr__(self):
+        v = ("PF(perms=%s,writer=%s,reader=%s,"
+             "canRead=%s,canAnnotate=%s,canDelete=%s,"
+             "canEdit=%s,canLink=%s")
+        return v % (
+            self.perms, self.writer, self.reader,
+            self.canRead, self.canAnnotate, self.canDelete,
+            self.canEdit, self.canLink
+        )
+
 PF = ProjectionFixture
 PFS = (
     # Private group as root
-    PF("rw----", "system-admin", "system-admin", 1, 1, 1, 1, 1),
-    PF("rw----", "system-admin", "group-owner", 1, 1, 1, 1, 1),
+    PF("rw----", "system-admin", "system-admin", 1, 0, 1, 1, 0),
+    PF("rw----", "system-admin", "group-owner", 1, 0, 1, 1, 0),
     PF("rw----", "system-admin", "member2", 0),
     # Private group as group-owner
-    PF("rw----", "group-owner", "system-admin", 1, 1, 1, 1, 1),
-    PF("rw----", "group-owner", "group-owner", 1, 1, 1, 1, 1),
+    PF("rw----", "group-owner", "system-admin", 1, 0, 1, 1, 0),
+    PF("rw----", "group-owner", "group-owner", 1, 0, 1, 1, 0),
     PF("rw----", "group-owner", "member2", 0),
     # Private group as member
-    PF("rw----", "member1", "system-admin", 1, 1, 1, 1, 1),
-    PF("rw----", "member1", "group-owner", 1, 1, 1, 1, 1),
+    PF("rw----", "member1", "system-admin", 1, 0, 1, 1, 0),
+    PF("rw----", "member1", "group-owner", 1, 0, 1, 1, 0),
     PF("rw----", "member1", "member2", 0),
     # Read-only group as root
     PF("rwr---", "system-admin", "system-admin", 1, 1, 1, 1, 1),
@@ -893,7 +903,7 @@ PFS = (
     # Read-only group as member
     PF("rwr---", "member1", "system-admin", 1, 1, 1, 1, 1),
     PF("rwr---", "member1", "group-owner", 1, 1, 1, 1, 1),
-    PF("rwr---", "member1", "member2", 1, 1, 0, 0, 0),
+    PF("rwr---", "member1", "member2", 1, 0, 0, 0, 0),
     # Read-annotate group as root
     PF("rwra--", "system-admin", "system-admin", 1, 1, 1, 1, 1),
     PF("rwra--", "system-admin", "group-owner", 1, 1, 1, 1, 1),
@@ -925,6 +935,7 @@ class TestPermissionProjections(lib.ITest):
 
     _group = None
     _other = dict()
+    _cache = dict()
 
     def writer(self, fixture):
         client = self._new_client(fixture.reader, fixture.perms)
@@ -950,12 +961,17 @@ class TestPermissionProjections(lib.ITest):
             return self._other[who]
 
     def assertPerms(self, perms, fixture):
+        found_arr = []
+        expected_arr = []
         for x in ("Annotate", "Delete", "Edit", "Link"):
             key = "can%s" % x
             found = bool(perms[key])
+            found_arr.append(found)
             expected = bool(getattr(fixture, key))
-            assert "%s mismatch!" % x, found == expected
+            expected_arr.append(expected)
+        assert expected_arr == found_arr
 
+    @pytest.mark.xfail(reason="See ticket #12474")
     @pytest.mark.parametrize("fixture", PFS)
     def testProjectionPermissions(self, fixture):
         writer = self.writer(fixture)
@@ -967,8 +983,48 @@ class TestPermissionProjections(lib.ITest):
             perms = unwrap(reader.projection(
                 "select p.details.permissions from Project p where p.id = :id",
                 ParametersI().addId(project.id.val)))[0][0]
+            assert fixture.canRead
         except IndexError:
             # No permissions were returned.
             assert not fixture.canRead
         else:
             self.assertPerms(perms, fixture)
+
+    @pytest.mark.parametrize("fixture", PFS)
+    def testProjectionPermissionsWorkaround(self, fixture):
+        writer = self.writer(fixture)
+        reader = self.reader(fixture)
+        project = ProjectI()
+        project.name = rstring("testProjectPermissions")
+        project = writer.saveAndReturnObject(project)
+
+        group = project.details.group.id.val
+        owner = project.details.owner.id.val
+        key = (group, owner)
+        try:
+            if key in self._cache:
+                # In pytest, this is never actually reached,
+                # since each test is a new instance, but this
+                # would be the performance speed up needed in
+                # clients. See #12474
+                assert False
+            else:
+                proj = unwrap(reader.projection(
+                    "select p from Project p where p.id = :id",
+                    ParametersI().addId(project.id.val),
+                    {"omero:group": str(group)}))[0][0]
+                assert fixture.canRead
+                perms = proj.details.permissions
+                value = {
+                    "perms": str(perms),
+                    "canAnnotate": perms.canAnnotate(),
+                    "canDelete": perms.canDelete(),
+                    "canEdit": perms.canEdit(),
+                    "canLink": perms.canLink(),
+                }
+                self._cache[key] = value
+        except IndexError:
+            # No permissions were returned.
+            assert not fixture.canRead
+        else:
+            self.assertPerms(self._cache[key], fixture)
