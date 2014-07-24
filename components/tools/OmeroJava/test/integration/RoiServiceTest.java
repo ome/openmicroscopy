@@ -63,7 +63,7 @@ public class RoiServiceTest extends AbstractServerTest {
     @Test(groups = "ticket:1679")
     public void testRemoveShape() throws Exception {
         Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         Roi roi = new RoiI();
         roi.setImage(image);
         Rect rect;
@@ -100,7 +100,7 @@ public class RoiServiceTest extends AbstractServerTest {
         IRoiPrx svc = factory.getRoiService();
         // create the roi.
         Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         Roi roi = new RoiI();
         roi.setImage(image);
         Rect rect;

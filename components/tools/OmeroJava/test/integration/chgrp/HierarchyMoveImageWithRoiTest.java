@@ -351,7 +351,7 @@ public class HierarchyMoveImageWithRoiTest extends AbstractServerTest {
      * @throws ServerError
      */
     private Image createSimpleImage() throws ServerError {
-        Image simpleImage = mmFactory.simpleImage(0);
+        Image simpleImage = mmFactory.simpleImage();
         return (Image) iUpdate.saveAndReturnObject(simpleImage);
     }
 }

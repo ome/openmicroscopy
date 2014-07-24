@@ -7,13 +7,11 @@
 package integration;
 
 import static omero.rtypes.rstring;
-import static omero.rtypes.rtime;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -264,11 +262,9 @@ public class ModelMockFactory {
     /**
      * Creates a default image and returns it.
      *
-     * @param time
-     *            The acquisition time.
      * @return See above.
      */
-    public Image simpleImage(long time) {
+    public Image simpleImage() {
         // prepare data
         Image img = new ImageI();
         String uuidAsString = UUID.randomUUID().toString();
@@ -276,7 +272,6 @@ public class ModelMockFactory {
         String uniqueDesc = String.format("test-desc:%s", uuidAsString);
         img.setName(rstring(uniqueName));
         img.setDescription(rstring(uniqueDesc));
-        img.setAcquisitionDate(rtime(time));
         return img;
     }
 
@@ -942,7 +937,7 @@ public class ModelMockFactory {
      */
     public Image createImage(int sizeX, int sizeY, int sizeZ, int sizeT,
             int sizeC) throws Exception {
-        Image image = simpleImage(new Date().getTime());
+        Image image = simpleImage();
         Pixels pixels = createPixels(sizeX, sizeY, sizeZ, sizeT, sizeC);
         image.addPixels(pixels);
         return image;
@@ -998,7 +993,7 @@ public class ModelMockFactory {
                         if (fullImage)
                             sample.setImage(createImage());
                         else
-                            sample.setImage(simpleImage(0));
+                            sample.setImage(simpleImage());
                         well.addWellSample(sample);
                     }
                 } else {
@@ -1010,7 +1005,7 @@ public class ModelMockFactory {
                             if (fullImage)
                                 sample.setImage(createImage());
                             else
-                                sample.setImage(simpleImage(0));
+                                sample.setImage(simpleImage());
                             well.addWellSample(sample);
                             pa.addWellSample(sample);
                         }
@@ -1054,7 +1049,7 @@ public class ModelMockFactory {
                 well.linkReagent(r);
                 for (int field = 0; field < fields; field++) {
                     sample = new WellSampleI();
-                    sample.setImage(simpleImage(0));
+                    sample.setImage(simpleImage());
                     well.addWellSample(sample);
                 }
                 p.addWell(well);

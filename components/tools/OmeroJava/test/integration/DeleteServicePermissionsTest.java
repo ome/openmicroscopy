@@ -137,7 +137,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
 
         // create an owner who then creates the image
         Image img = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         long imageID = img.getId().getValue();
 
         // create another user and try to delete the image
@@ -275,7 +275,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
 
         // owner creates the image
         Image img = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
 
         // tagger creates tag and tags the image
         newUserInGroup(ec);
@@ -312,7 +312,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
 
         // owner creates the image
         Image img = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
 
         omero.client owner = disconnect();
 
@@ -358,7 +358,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
 
         // owner creates the image
         Image img = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
 
         omero.client owner = disconnect();
 

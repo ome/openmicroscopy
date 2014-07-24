@@ -260,7 +260,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
 
         // Plate w/o plate acquisition
         Image i1 = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(10));
+                .simpleImage());
         // Plate with plate acquisition
         List<IObject> links = new ArrayList<IObject>();
         DatasetImageLink link = new DatasetImageLinkI();
