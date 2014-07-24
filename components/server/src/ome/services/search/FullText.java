@@ -44,6 +44,8 @@ import org.hibernate.search.Search;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import static org.apache.lucene.util.Version.LUCENE_30;
+
 /**
  * Search based on Lucene's {@link Query} class. Takes a Google-like search
  * string and returns fully formed objects via Hibernate Search.
@@ -157,7 +159,7 @@ public class FullText extends SearchAction {
         
         try {
             final Analyzer a = analyzer.newInstance();
-            final QueryParser parser = new /*Analyzing*/QueryParser("combined_fields", a);
+            final QueryParser parser = new QueryParser(LUCENE_30, "combined_fields", a);
             parser.setAllowLeadingWildcard(values.leadingWildcard);
             q = parser.parse(queryStr);
         } catch (ParseException pe) {
@@ -216,7 +218,7 @@ public class FullText extends SearchAction {
         this.queryStr = query;
         try {
             final Analyzer a = analyzer.newInstance();
-            final QueryParser parser = new /*Analyzing*/QueryParser("combined_fields", a);
+            final QueryParser parser = new QueryParser(LUCENE_30, "combined_fields", a);
             parser.setAllowLeadingWildcard(values.leadingWildcard);
             q = parser.parse(queryStr);
         } catch (ParseException pe) {
@@ -311,7 +313,7 @@ public class FullText extends SearchAction {
         }
 
         final Class<?> cls = values.onlyTypes.get(0);
-        FullTextSession session = Search.createFullTextSession(s);
+        FullTextSession session = Search.getFullTextSession(s);
         Criteria criteria = criteria(session);
         if (criteria == null) {
             return null; // EARLY EXIT. See criteria method.

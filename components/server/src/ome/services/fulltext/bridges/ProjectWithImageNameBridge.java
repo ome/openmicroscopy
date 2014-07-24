@@ -51,7 +51,7 @@ public class ProjectWithImageNameBridge extends BridgeHelper {
             logger().info("Indexing all image names for " + value);
 
             // Copying lucene options with a new boost value
-            final float reduced_boost = _opts.getBoost().floatValue() / 2;
+            final float reduced_boost = _opts.getBoost() / 2;
             final LuceneOptions opts = new SimpleLuceneOptions(_opts, reduced_boost);
 
             final Project p = (Project) value;
