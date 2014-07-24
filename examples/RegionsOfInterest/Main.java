@@ -39,7 +39,6 @@ public class Main {
 
         Image image = new ImageI();
         image.setName(rstring("roi-example"));
-        image.setAcquisitionDate(rtime(0L));
 
         OriginalFile ofile = new OriginalFileI();
         ofile.setName(rstring("roi-source.xml"));

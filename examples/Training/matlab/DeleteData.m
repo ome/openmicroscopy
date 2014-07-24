@@ -34,7 +34,6 @@ try
     % First create the image.
     image = omero.model.ImageI;
     image.setName(rstring('image name'))
-    image.setAcquisitionDate(rtime(2000000));
     image = session.getUpdateService().saveAndReturnObject(image);
     imageId = image.getId().getValue();
     

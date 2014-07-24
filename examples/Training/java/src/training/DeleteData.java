@@ -72,7 +72,6 @@ public class DeleteData
 		Image img = new ImageI();
 		img.setName(omero.rtypes.rstring("image1"));
 		img.setDescription(omero.rtypes.rstring("descriptionImage1"));
-		img.setAcquisitionDate(omero.rtypes.rtime(1000000));
 		img = (Image) connector.getUpdateService().saveAndReturnObject(img);
 		
 		Delete[] cmds = new Delete[1];
