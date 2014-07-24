@@ -61,6 +61,7 @@ public class PojosLoadHierarchyQueryDefinition extends Query {
         	sb.append("select this from Screen this ");
             sb.append("left outer join fetch this.plateLinks pdl ");
             sb.append("left outer join fetch pdl.child ds ");
+            sb.append("left outer join fetch ds.details.creationEvent ");
             sb.append("left outer join fetch ds.details.updateEvent ");
             sb.append("left outer join fetch ds.plateAcquisitions sa ");
             sb.append("left outer join fetch "
@@ -82,6 +83,7 @@ public class PojosLoadHierarchyQueryDefinition extends Query {
                 sb.append("left outer join fetch sa.wellSample ws ");
                 sb.append("left outer join fetch ws.image img ");
             }
+            sb.append("left outer join fetch img.details.creationEvent as cre ");
             sb.append("left outer join fetch img.details.updateEvent as evt ");
             sb.append("left outer join fetch img.pixels as pix ");
             sb.append("left outer join fetch img.format as format ");
