@@ -28,7 +28,6 @@ import loci.formats.FormatException;
 import loci.formats.FormatReader;
 import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
-import loci.formats.MetadataTools;
 import loci.formats.MissingLibraryException;
 import loci.formats.UnknownFormatException;
 import loci.formats.UnsupportedCompressionException;
@@ -189,7 +188,6 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         try {
             sf = reg.getInternalServiceFactory(
                     sessionUuid, "unused", 3, 1, clientUuid);
-            MetadataTools.setDefaultDateEnabled(false);
             store = new OMEROMetadataStoreClient();
             store.setCurrentLogFile(logFilename, token);
             store.initialize(sf);
