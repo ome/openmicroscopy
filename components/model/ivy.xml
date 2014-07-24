@@ -47,9 +47,8 @@
     <dependency org="org.hibernate" name="hibernate-validator" rev="${versions.hibernate-validator}" conf="build,server->default"/>
     <dependency org="org.hibernate.javax.persistence" name="hibernate-jpa-2.0-api" rev="${versions.persistence-api}" conf="build,server->default"/>
     <dependency org="org.apache.lucene" name="lucene-core" rev="${versions.lucene}" conf="build,server->default"/>
-    <dependency org="org.apache.lucene" name="lucene-highlighter" rev="${versions.lucene}" conf="build,server->default"/>
-    <dependency org="org.apache.lucene" name="lucene-spellchecker" rev="${versions.lucene}" conf="build,server->default"/>
-    <dependency org="org.apache.lucene" name="lucene-misc" rev="${versions.lucene}" conf="build,server->default"/>
+    <dependency org="org.apache.lucene" name="lucene-analyzers" rev="${versions.lucene}" conf="build,server->default"/>
+    <dependency org="org.apache.solr" name="solr-analysis-extras" rev="${versions.lucene}" conf="build,server->default"/>
     <!-- build only -->
     <dependency org="org.hibernate" name="hibernate-tools" rev="${versions.hibernate-tools}" conf="build->default"/>
     <dependency org="freemarker" name="freemarker" rev="${versions.freemarker}" conf="build->default"/>
