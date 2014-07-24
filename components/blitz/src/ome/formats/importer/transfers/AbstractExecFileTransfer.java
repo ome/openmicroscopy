@@ -48,8 +48,12 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
     private static final boolean ACTIVE_CLOSE;
 
     static {
-        String ac = System.getProperty("omero.import.active_close");
+        String ac = System.getProperty("omero.import.active_close", "true");
         ACTIVE_CLOSE = Boolean.parseBoolean(ac);
+    }
+
+    public static void main(String[] args) {
+        System.out.println(ACTIVE_CLOSE);
     }
 
     /**
