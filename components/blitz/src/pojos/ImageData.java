@@ -317,7 +317,7 @@ public class ImageData extends DataObject {
      * @return See above.
      */
     public Timestamp getInserted() {
-        return timeOfEvent(asImage().getDetails().getUpdateEvent());
+        return timeOfEvent(asImage().getDetails().getCreationEvent());
     }
 
     /**
