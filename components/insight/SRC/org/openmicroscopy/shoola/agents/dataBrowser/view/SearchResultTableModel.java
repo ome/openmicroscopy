@@ -33,6 +33,8 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.GroupData;
@@ -245,15 +247,30 @@ public class SearchResultTableModel extends DefaultTableModel {
         
         
         FontMetrics fm = parent.getGraphics().getFontMetrics();
+
         int colWidth = parent.getColumn(1).getWidth();
+        // TODO: There must be some margin or padding from an enclosing component that we ought to take into account.
+        colWidth -= 20;  // interim fudge factor
+
         int textWidth = fm.stringWidth(name); 
         if (textWidth > colWidth) {
-            int max = (int) ((double) colWidth / (double) textWidth * name
-                    .length());
-            // TODO: FontMetrics.stringWidth doesn't seem to work properly, but with 
-            // an additional cut-off of 10 it seems to work fine for now.
-            name = EditorUtil.truncate(name, max-10, true);
-            textWidth = fm.stringWidth(name);
+            /* the name is too long for the column, so truncate it */
+            final int dotsWidth = fm.stringWidth(UIUtilities.DOTS);
+            while (true) {
+                textWidth = dotsWidth + fm.stringWidth(name);
+                if (textWidth <= colWidth) {
+                    /* now short enough to fit in the column */
+                    name = UIUtilities.DOTS + name;
+                    break;
+                }
+                if (name.isEmpty()) {
+                    /* impossibly narrow column */
+                    name = "";
+                    break;
+                }
+                /* must shorten name some more */
+                name = name.substring(1);
+            }
         }
         
         String idPrefix = null;
