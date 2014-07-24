@@ -138,7 +138,6 @@ public class ExporterITest extends AbstractServantTest {
         i.linkAnnotation(terma);
         i = assertSaveAndReturn(i);
         // Image i = new ImageI();
-        // i.setAcquisitionDate(rtime(0));
         // i.setName(rstring("basic export"));
         // i.addPixels(new PixelsI(id, false));
         // i = assertSaveAndReturn(i);

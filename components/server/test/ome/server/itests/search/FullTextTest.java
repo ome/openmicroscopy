@@ -463,7 +463,6 @@ public class FullTextTest extends AbstractTest {
     private Image newImageString(String str, Annotation...anns) {
         Image _i = new Image();
         _i.setName(str);
-        _i.setAcquisitionDate(new Timestamp(0));
         for (Annotation annotation : anns) {
             _i.linkAnnotation(annotation);
         }

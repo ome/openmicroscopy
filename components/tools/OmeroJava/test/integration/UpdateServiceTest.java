@@ -424,11 +424,9 @@ public class UpdateServiceTest extends AbstractServerTest {
 
         Image d1 = new ImageI();
         d1.setName(rstring(name));
-        d1.setAcquisitionDate(rtime(0));
         d1 = (Image) iUpdate.saveAndReturnObject(d1);
 
         Image d2 = new ImageI();
-        d2.setAcquisitionDate(rtime(0));
         d2.setName(rstring(name));
         d2 = (Image) iUpdate.saveAndReturnObject(d2);
 
@@ -1785,7 +1783,6 @@ public class UpdateServiceTest extends AbstractServerTest {
         // comment linked to image
         Image image = new ImageI();
         image.setName(omero.rtypes.rstring("p"));
-        image.setAcquisitionDate(omero.rtypes.rtime(100000));
         image = (Image) iUpdate.saveAndReturnObject(image);
         cp = new CommentAnnotationI();
         cp.setTextValue(omero.rtypes.rstring("comment"));

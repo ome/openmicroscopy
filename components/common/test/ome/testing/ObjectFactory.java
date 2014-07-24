@@ -141,7 +141,6 @@ public class ObjectFactory {
             }
 
             i.setName("test");
-            i.setAcquisitionDate(new Timestamp(System.currentTimeMillis()));
             i.addPixels(p);
 
         }

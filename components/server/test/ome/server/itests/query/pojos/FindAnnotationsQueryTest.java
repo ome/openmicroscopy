@@ -123,7 +123,6 @@ public class FindAnnotationsQueryTest extends AbstractManagedContextTest {
     public void testFindImageAnnotationsReturnsEventTimes() throws Exception {
         Image i = new Image();
         i.setName("ticket:172");
-        i.setAcquisitionDate(new Timestamp(0));
         CommentAnnotation a = new CommentAnnotation();
         a.setNs("");
         a.setTextValue("ticket:172");

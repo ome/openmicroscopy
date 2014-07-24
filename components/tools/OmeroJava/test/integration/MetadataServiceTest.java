@@ -1981,21 +1981,18 @@ public class MetadataServiceTest extends AbstractServerTest {
 
         Image image1 = new ImageI();
         image1.setName(omero.rtypes.rstring("image alpha from fileset one"));
-        image1.setAcquisitionDate(omero.rtypes.rtime(System.currentTimeMillis()));
         image1.setFileset(fileset1);
         image1 = (Image) iUpdate.saveAndReturnObject(image1);
         final long image1Id = image1.getId().getValue();
 
         Image image2 = new ImageI();
         image2.setName(omero.rtypes.rstring("image alpha from fileset two"));
-        image2.setAcquisitionDate(omero.rtypes.rtime(System.currentTimeMillis()));
         image2.setFileset(fileset2);
         image2 = (Image) iUpdate.saveAndReturnObject(image2);
         final long image2Id = image2.getId().getValue();
 
         Image image3 = new ImageI();
         image3.setName(omero.rtypes.rstring("image beta from fileset two"));
-        image3.setAcquisitionDate(omero.rtypes.rtime(System.currentTimeMillis()));
         image3.setFileset(fileset2);
         image3 = (Image) iUpdate.saveAndReturnObject(image3);
         final long image3Id = image3.getId().getValue();

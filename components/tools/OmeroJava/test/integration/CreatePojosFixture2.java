@@ -309,7 +309,6 @@ public class CreatePojosFixture2 {
         Image i = new ImageI();
         i.getDetails().setOwner(e);
         i.setName(rstring(name));
-        i.setAcquisitionDate(rtime(0));
         i = push(i);
         return i;
     }

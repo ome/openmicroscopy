@@ -41,7 +41,6 @@ class TestIContainer(lib.ITest):
         ipojo = self.client.sf.getContainerService()
         i = ImageI()
         i.setName(rstring("name"))
-        i.setAcquisitionDate(rtime(0))
         i = ipojo.createDataObject(i, None)
 
     def testFindAndCountAnnotationsForSharedData(self):
@@ -92,7 +91,6 @@ class TestIContainer(lib.ITest):
         # create image
         img = ImageI()
         img.setName(rstring('test1154-img-%s' % (uuid)))
-        img.setAcquisitionDate(rtime(0))
 
         # default permission 'rw----':
         img = update1.saveAndReturnObject(img)
@@ -153,7 +151,6 @@ class TestIContainer(lib.ITest):
         ipojo = self.client.sf.getContainerService()
         i = ImageI()
         i.setName(rstring("name"))
-        i.setAcquisitionDate(rtime(0))
         i = ipojo.createDataObject(i, None)
         o = i.getDetails().owner
         assert -1 == o.sizeOfGroupExperimenterMap()

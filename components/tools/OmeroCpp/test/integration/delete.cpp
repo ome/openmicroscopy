@@ -34,7 +34,6 @@ TEST(DeleteTest, testSimpleDelete ) {
 
     ImagePtr image = new ImageI();
     image->setName( rstring("testSimpleDelete") );
-    image->setAcquisitionDate( rtime(0) );
     image = ImagePtr::dynamicCast( iupdate->saveAndReturnObject( image ) );
 
     DeletePtr deleteCmd = new Delete("/Image", image->getId()->getValue(), StringMap());

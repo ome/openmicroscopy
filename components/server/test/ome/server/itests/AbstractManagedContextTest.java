@@ -299,7 +299,6 @@ public class AbstractManagedContextTest extends TestCase {
     protected Image new_Image(String name) {
         Image i = new Image();
         i.setName(name);
-        i.setAcquisitionDate(new Timestamp(System.currentTimeMillis()));
         return i;
     }
 

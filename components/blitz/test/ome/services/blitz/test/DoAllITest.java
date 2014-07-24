@@ -70,7 +70,6 @@ public class DoAllITest extends AbstractGraphTest {
             d = new Dataset("OldDoAllData");
             i = new Image();
             i.setName("DoAllData");
-            i.setAcquisitionDate(new Timestamp(0L));
             d.linkImage(i);
             IUpdate update = user.managedSf.getUpdateService();
             d = update.saveAndReturnObject(d);

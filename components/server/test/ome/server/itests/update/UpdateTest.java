@@ -102,7 +102,6 @@ public class UpdateTest extends AbstractUpdateTest {
     @Test(enabled=false)
     public void test_images_pixels() throws Exception {
         Image image = new Image();
-        image.setAcquisitionDate(new Timestamp(System.currentTimeMillis()));
         image.setName("test");
 
         Pixels active = ObjectFactory.createPixelGraph(null);
@@ -214,7 +213,6 @@ public class UpdateTest extends AbstractUpdateTest {
         // http://trac.openmicroscopy.org.uk/ome/ticket/346
 
         img.setName("j.b." + System.currentTimeMillis());
-        img.setAcquisitionDate(new Timestamp(System.currentTimeMillis()));
         img = iUpdate.saveAndReturnObject(img);
         img.unload();
 

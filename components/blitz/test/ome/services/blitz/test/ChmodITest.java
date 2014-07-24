@@ -117,7 +117,6 @@ public class ChmodITest extends AbstractGraphTest {
         // Add data as user
         Image i = new Image();
         i.setName("testReducingPermissionsOkUserOnlyData");
-        i.setAcquisitionDate(new Timestamp(0L));
         i = user.managedSf.getUpdateService().saveAndReturnObject(i);
 
         Dataset d = new Dataset();
@@ -139,7 +138,6 @@ public class ChmodITest extends AbstractGraphTest {
         // Add data as user
         Image i = new Image();
         i.setName("testReducingPermissionsErrGroupDrop");
-        i.setAcquisitionDate(new Timestamp(0L));
         i = user.managedSf.getUpdateService().saveAndReturnObject(i);
 
         // Cross-link as another user
@@ -168,7 +166,6 @@ public class ChmodITest extends AbstractGraphTest {
         // Add data as user
         Image i = new Image();
         i.setName("testReducingPermissionsErrWorldDrop");
-        i.setAcquisitionDate(new Timestamp(0L));
         i = user.managedSf.getUpdateService().saveAndReturnObject(i);
 
         // Cross-link as another user

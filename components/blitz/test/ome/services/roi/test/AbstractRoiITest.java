@@ -101,7 +101,6 @@ public class AbstractRoiITest extends AbstractServantTest {
 
     protected Roi createRoi(String name, Shape... shapes) throws Exception {
         Image i = new ImageI();
-        i.setAcquisitionDate(rtime(0));
         i.setName(rstring(name));
         return createRoi(i, name, shapes);
     }

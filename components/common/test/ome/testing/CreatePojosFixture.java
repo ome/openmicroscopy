@@ -268,7 +268,6 @@ public class CreatePojosFixture {
         Image i = new Image();
         i.getDetails().setOwner(e);
         i.setName(name);
-        i.setAcquisitionDate(new Timestamp(0));
         i = push(i);
         return i;
     }

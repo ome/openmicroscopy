@@ -241,7 +241,6 @@ public class SecurityFilterTest extends AbstractManagedContextTest {
     private Image createImage() {
         Image img = new Image();
         img.setName(ticket117 + ":" + UUID.randomUUID().toString());
-        img.setAcquisitionDate(new Timestamp(0));
         return createObject(img);
     }
 

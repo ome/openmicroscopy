@@ -50,7 +50,6 @@ public class FindContainersQueryTest extends AbstractManagedContextTest {
         String name = "find containers query test";
         Image i = new Image();
         i.setName(name);
-        i.setAcquisitionDate(new Timestamp(0));
         Dataset d = new Dataset();
         d.setName(name);
         i.linkDataset(d);
