@@ -40,6 +40,9 @@ public class LuceneQueryBuilderTest extends TestCase{
         String raw, expected;
         List<String> fields = new ArrayList<String>();
         
+        // Invalid
+        raw = "%"; expected = "";
+        checkQuery(fields, raw, expected);
         
         // No fields are provided
         
@@ -73,12 +76,15 @@ public class LuceneQueryBuilderTest extends TestCase{
         raw = "\"?test *dv\"";  expected = "\"?test *dv\"";
         checkQuery(fields, raw, expected);
         
-        raw = "test-dv";  expected = "test dv";
+        raw = "test-dv";  expected = "test-dv";
         checkQuery(fields, raw, expected);
         
         raw = "*test_dv";  expected = "*test_dv";
         checkQuery(fields, raw, expected);
         
+        raw = "*test-dv";  expected = "*test-dv";
+        checkQuery(fields, raw, expected);
+          
         raw = "test AND dv";  expected = "((test) AND (dv))";
         checkQuery(fields, raw, expected);
        
@@ -117,7 +123,7 @@ public class LuceneQueryBuilderTest extends TestCase{
         raw = "\"?test *.dv\"";  expected = "name:\"?test *.dv\"";
         checkQuery(fields, raw, expected);
         
-        raw = "(test-dv}";  expected = "name:test name:dv";
+        raw = "(test-dv}";  expected = "name:test-dv";
         checkQuery(fields, raw, expected);
         
         raw = "*test_dv";  expected = "name:*test_dv";

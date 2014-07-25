@@ -314,6 +314,13 @@
                         <hr>
 
                         <label for="startdateinput">{% trans "Date" %}:</label>
+
+                        <select name="useAcquisitionDate" id="useAcquisitionDate">
+                            <option value="true">AcquisitionDate</option>
+                            <option value="false">ImportDate</option>
+                        </select>
+
+                        <br/>
                         <span style="position: relative">
                             <input type="text" id="startdateinput" name="startdateinput" value="{{ manager.criteria.period }}" size="12"/>
                             <span class="clearDate">
