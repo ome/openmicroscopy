@@ -1204,10 +1204,14 @@ class TreeViewerModel
 	}
 	
 	/** Clears the result.*/
-	void clearImportResult()
+	void clear()
 	{
 		importFailureCount = 0;
 		importSuccessCount = 0;
+		state = TreeViewer.NEW;
+        recycled = false;
+        refImage = null;
+        importing = false;
 	}
 	
 	/**

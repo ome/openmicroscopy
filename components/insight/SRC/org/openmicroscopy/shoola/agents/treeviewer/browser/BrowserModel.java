@@ -151,10 +151,7 @@ class BrowserModel
     
     /** Reference to the component that embeds this model. */
     protected Browser           	component; 
-    
-    /** The security context for the administrator.*/
-    //private SecurityContext adminContext;
-    
+
     /** 
      * Checks if the specified browser is valid.
      * 
@@ -978,6 +975,14 @@ class BrowserModel
 	Collection getGroups()
 	{
 		return TreeViewerAgent.getAvailableUserGroups();
+	}
+
+	/** Clears after after reconnecting.*/
+	void clear()
+	{
+	    selectedNodes.clear();
+	    if (importedImages != null) importedImages.clear();
+	    containersManager = null;
 	}
 
 }

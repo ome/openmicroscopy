@@ -4049,7 +4049,7 @@ class TreeViewerComponent
 		view.removeAllFromWorkingPane();
 		model.setDataViewer(null);
 		model.setAvailableScripts(null);
-		model.clearImportResult();
+		model.clear();
 		view.onImport();
 		view.clearMenus();
 		//reset metadata
