@@ -38,10 +38,28 @@ ip.addRequired('y', @isscalar);
 ip.addRequired('m', isvalidmaskinput);
 ip.parse(x, y, m);
 
+% Resize matrix to square and multiple of 8
+width = size(m, 2);
+height = size(m, 1);
+new_width = width + (8 - mod(width, 8));
+new_height = height + (8 - mod(height, 8));
+if new_height > new_width
+    m(height+1:new_height, width+1:new_height) = 0;
+else
+    m(height+1:new_width, width+1:new_width) = 0;
+end
+
 % Create Mask shape
 mask = omero.model.MaskI;
 mask.setX(rdouble(x));
 mask.setY(rdouble(y));
 mask.setWidth(rdouble(size(m, 2)));
 mask.setHeight(rdouble(size(m, 1)));
-mask.setBytes(m(:));
+
+% Convert to array of bits
+binary_matrix = dec2bin(m);        
+binary_vector = reshape(str2num(reshape(binary_matrix,[],1)), 8, [])';
+byte_vector = binary_vector * (2.^(size(binary_vector, 2)-1:-1:0))';
+x_bytes = uint8(byte_vector);
+
+mask.setBytes(x_bytes(:));
