@@ -38,6 +38,20 @@
             vpHeight = Math.max(300, vpHeight);
             $("#viewport").css({'width': vpWidth + 'px', 'height': vpHeight + 'px'});
 
+
+            /** functions from omero_image.html TODO: DRY! **/
+            var getMetadata = function () {
+              return OME.preview_viewport.getMetadata();
+            }
+
+            function show_change(obj, val, klass) {
+              if (obj.value != val) {
+                $(obj).addClass(klass);
+              } else {
+                $(obj).removeClass(klass);
+              }
+            }
+
             /**
              * Gets called when an image is initially loaded.
              * This is the place to sync everything; rendering model, quality, channel buttons, etc.
@@ -276,6 +290,45 @@
     <hr>
 
     <span id="wblitz-channels-box"></span>
+
+    <hr>
+
+    <div id="rdef-postit" class="postit" style="width: 480px">
+      <h1> Rendering Details </h1>
+        <div id="rdef-active-area">
+        <a id="rdef-postit-help" href="#" onclick="return showChannelWindowHelp();"><img src="{% static "webgateway/img/question.png" %}" alt="Show help on channel window ranges" /></a>
+        <label for="rd-wblitz-rmodel">Render as Color</label>
+        <input id="rd-wblitz-rmodel" type="checkbox" onchange="return rdChanSelHelper(this);" />
+        <table cellspacing="0">
+          <tr>
+            <th>Visible</th>
+            <th>Wavelength</th>
+            <th>Color</th>
+            <th></th>
+          </tr>
+        </table>
+      </div>
+      <ul>
+        <li class="buttonbar">
+        {% block save_rdef %}
+        {% if image.canAnnotate and not blitzcon.getShareId %}
+          <button id="rdef-reset-btn" class="editor" onclick="return resetImageDefaults(this)" title="Returns the image settings to their original state at time of import.">reset</button>
+          {% if image.canAnnotate %}<button id="rdef-setdef-btn" class="editor" onclick="return setImageDefaults(this)" title="Applies and saves the current settings as default.">save</button>{% endif %}
+          
+        {% endif %}
+        {% endblock save_rdef %}
+        <button id="rdef-default-btn" onclick="return resetRDCW();" title="Returns to the saved settings.">default</button><button id="rdef-undo-btn" onclick="return undoRDCW();" title="Returns to the settings as they were before clicking apply.">undo</button><button id="rdef-redo-btn" onclick="return redoRDCW();" title="Returns to the settings as they were before clicking undo.">redo</button><button id="rdef-apply-btn" onclick="return applyRDCW();" title="Applies the current settings to the open image.">apply</button>
+        </li>
+        {% block batch_copy %}
+        {% if dataset.canOwnerWrite %}
+        <!--<li class="buttonbar"> 
+            <button id="rdef-batchcopy-btn" class="editor" onclick="return batchCopyRDefs(this);" title="Offers options to apply current settings to other images in your manuscript.">Apply to others</button> 
+        </li>-->
+        {% endif %}
+        {% endblock batch_copy %}
+      </ul>
+
+    </div>
 
     <hr>
 
