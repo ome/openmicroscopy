@@ -38,6 +38,9 @@
       .rangeslider {
         border: solid #333333 1px;
       }
+      button.pressed {
+        border-style: inset;
+      }
     </style>
 
 
@@ -60,6 +63,16 @@
             var projectionChange = function (ev, obj, nosync) {}
             // TODO: decide if we need this: In omero_image.html this simply updates greyscale button
             var modelChange = function (ev, obj) {}
+            var channelChange = function (ev, obj, idx, ch) {
+              if (ch.active) {
+                $('#wblitz-ch'+idx).addClass('pressed');
+              } else {
+                $('#wblitz-ch'+idx).removeClass('pressed');
+              }
+              //var t = $('#rd-wblitz-ch'+idx).get(0);
+              //if (t != undefined) t.checked=ch.active;
+              $('#wblitz-ch'+idx).css('background-color', ch.color).attr('title', ch.label);
+            };
 
             function show_change(obj, val, klass) {
               if (obj.value != val) {
@@ -310,10 +323,12 @@
             {% if share_id %}
             OME.preview_viewport = $.WeblitzViewport($("#viewport"), "{% url 'webindex' %}{{ share_id }}", {'mediaroot': '{{ STATIC_URL }}' } );
             OME.preview_viewport.bind('imageLoad', _refresh_cb);
+            OME.preview_viewport.bind('channelChange', channelChange);
             OME.preview_viewport.load({{ manager.image.id }}, null, location.search);
             {% else %}
             OME.preview_viewport = $.WeblitzViewport($("#viewport"), "{% url 'webindex' %}", {'mediaroot': '{{ STATIC_URL }}' } );
             OME.preview_viewport.bind('imageLoad', _refresh_cb);
+            OME.preview_viewport.bind('channelChange', channelChange);
             OME.preview_viewport.load({{ manager.image.id }});
             {% endif %}
 
