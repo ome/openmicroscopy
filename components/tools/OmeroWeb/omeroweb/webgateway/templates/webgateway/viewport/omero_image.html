@@ -262,20 +262,6 @@
   /**
    *
    */
-  var channelChange = function (ev, obj, idx, ch) {
-    if (ch.active) {
-      $('#wblitz-ch'+idx).addClass('pressed');
-    } else {
-      $('#wblitz-ch'+idx).removeClass('pressed');
-    }
-    //var t = $('#rd-wblitz-ch'+idx).get(0);
-    //if (t != undefined) t.checked=ch.active;
-    $('#wblitz-ch'+idx).css('background-color', ch.color).attr('title', ch.label);
-  };
-
-  /**
-   *
-   */
   var linePlotChange = function (ev, show) {
     if (show) {
       if (!viewport.hasLinePlot()) {

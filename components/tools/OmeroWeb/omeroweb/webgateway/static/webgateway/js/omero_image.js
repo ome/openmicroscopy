@@ -15,6 +15,17 @@
         /*$('.picker-selected').html('&nbsp;');*/
     }
 
+    window.channelChange = function (ev, obj, idx, ch) {
+        if (ch.active) {
+            $('#wblitz-ch'+idx).addClass('pressed');
+        } else {
+            $('#wblitz-ch'+idx).removeClass('pressed');
+        }
+        //var t = $('#rd-wblitz-ch'+idx).get(0);
+        //if (t != undefined) t.checked=ch.active;
+        $('#wblitz-ch'+idx).css('background-color', ch.color).attr('title', ch.label);
+    };
+
     window.syncRDCW = function(viewport) {
         var cb;
         var channels = viewport.getChannels();
@@ -247,11 +258,11 @@
                 $(this).parents('tr:first').next().find('.ui-slider-range').css('background-color', $(this).css('background-color'));
             });
 
+        // Don't see any obvious bugs when these are removed.
+        // They are both bound to appropriate triggers on viewport.
         //projectionChange(null,null, true);
-        //viewport.trigger('projectionChange');
-
         //modelChange();
-        //viewport.trigger('modelChange');
+
         syncRDCW(viewport);
 
         $('#wblitz-workarea > .box > div.row').show();

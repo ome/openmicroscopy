@@ -58,27 +58,6 @@
             $("#viewport").css({'width': vpWidth + 'px', 'height': vpHeight + 'px'});
 
 
-            /** functions from omero_image.html TODO: DRY! **/
-            var getMetadata = function () {
-              return OME.preview_viewport.getMetadata();
-            }
-
-            // empty implementation, since we don't support projection in preview
-            var projectionChange = function (ev, obj, nosync) {}
-            // TODO: decide if we need this: In omero_image.html this simply updates greyscale button
-            var modelChange = function (ev, obj) {}
-            var channelChange = function (ev, obj, idx, ch) {
-              if (ch.active) {
-                $('#wblitz-ch'+idx).addClass('pressed');
-              } else {
-                $('#wblitz-ch'+idx).removeClass('pressed');
-              }
-              //var t = $('#rd-wblitz-ch'+idx).get(0);
-              //if (t != undefined) t.checked=ch.active;
-              $('#wblitz-ch'+idx).css('background-color', ch.color).attr('title', ch.label);
-            };
-
-
             if (typeof OME === "undefined") {OME = {}}
 
             {% if share_id %}
