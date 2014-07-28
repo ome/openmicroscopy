@@ -43,7 +43,6 @@ import org.apache.commons.collections.CollectionUtils;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.sys.Roles;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -53,8 +52,6 @@ import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
-import org.openmicroscopy.shoola.env.event.AgentEventListener;
-
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.GroupData;
