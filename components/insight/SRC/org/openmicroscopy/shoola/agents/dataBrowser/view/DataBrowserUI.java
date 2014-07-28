@@ -178,18 +178,15 @@ class DataBrowserUI
 	void buildGUI(boolean full)
 	{
 		removeAll();
-		//int number = model.getNumberOfImages();
 		if (full) {
 			if (model.getType() == DataBrowserModel.WELLS) {
-				//number = -1;
 				add(wellToolBar, BorderLayout.NORTH);
 			} else {
-				//number = toolBar.getItemsPerRow();
 				add(toolBar, BorderLayout.NORTH);
 			}
 			add(statusBar, BorderLayout.SOUTH);
+			statusBar.setVisible(model.getType() != DataBrowserModel.SEARCH);
 		}
-		//if (number > 0) setItemsPerRow(number);
 		add(model.getBrowser().getUI(), BorderLayout.CENTER);
 	}
 	
