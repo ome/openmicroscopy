@@ -69,7 +69,7 @@ class SearchControl(HqlControl):
             help="End date for limiting searches (YYYY-MM-DD")
         parser.add_argument(
             "--date-type",
-            default="acquisitionDate",
+            default="import",
             choices=("acquisitionDate", "import"),
             help=("Which field to use for --from/--to "
                   "(default: acquisitionDate)"))

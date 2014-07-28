@@ -178,8 +178,12 @@
                         <img class="search_thumb" id="{{ c.id }}" src="{% url 'render_thumbnail_resize' 96 c.id  %}" alt="image" title="{{ c.name }}"/>
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
+<<<<<<< HEAD
                     <td class="date">{{ c.getDate|date:"Y-m-d H:i:s" }}</td>
                     <td class="date">{{ c.creationEventDate|date:"Y-m-d H:i:s" }}</td>
+=======
+                    <td class="date">{{ c.getDate }}<br/>{{ c.creationEventDate }}</td>
+>>>>>>> develop
                     <td class="group">{{ c.getDetails.group.name.val }}</td>
                     <td><a href="{% url 'webindex' %}?show=image-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
                         {% trans "Browse" %}

@@ -65,6 +65,13 @@ public class LuceneQueryBuilder {
         WILD_CARDS.add("~");
     }
 
+    /** Punctuation which will not be stripped */
+    private static final List<String> NO_BREAK = new ArrayList<String>();
+    static {
+        NO_BREAK.add("_");
+        NO_BREAK.add("-");
+    }
+
     /**
      * Builds a query with the provided input terms over the given fields
      * 
@@ -184,7 +191,8 @@ public class LuceneQueryBuilder {
                 continue;
             }
             if (!insideQuotes && !Character.isLetterOrDigit(c)
-                    && !WILD_CARDS.contains("" + c) && c != '_')
+                    && !WILD_CARDS.contains("" + c)
+                    && !NO_BREAK.contains("" + c))
                 result[i] = ' ';
             else
                 result[i] = c;

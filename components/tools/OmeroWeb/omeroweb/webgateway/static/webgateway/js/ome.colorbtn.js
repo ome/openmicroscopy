@@ -46,8 +46,8 @@ $.fn.colorbtn = function(cfg) {
         picker.setColor('#'+rgbToHex(jQuery(this).css("background-color")));
       };
       btns.append('<span>Preset</span>');
-      for (e in colors) {
-        if (colors[e] == "") {
+      for (var e=0; e<colors.length; e++) {
+        if (colors[e] === "") {
           btns.append('<br />');
           btns.append('<span>Colors</span>');
 	} else {

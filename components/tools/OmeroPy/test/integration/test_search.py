@@ -348,3 +348,30 @@ class TestSearch(lib.ITest):
             search.byLuceneQueryBuilder("", "", "", "", "%")
         finally:
             search.close()
+
+    @pytest.mark.parametrize("test", (
+        "very small", "very-small", "very_small",
+        "small very",
+        # TODO: "small-very", "small_very", <-- these do NOT work
+    ))
+    @pytest.mark.parametrize("name", (
+        "very-small", "very_small", "very small",
+    ))
+    def test_hyphen_underscore(self, name, test):
+        client = self.new_client()
+        proj = omero.model.ProjectI()
+        proj.name = omero.rtypes.rstring(name)
+        proj = client.sf.getUpdateService().saveAndReturnObject(proj)
+        self.root.sf.getUpdateService().indexObject(proj)
+
+        search = client.sf.createSearchService()
+        search.onlyType("Project")
+
+        try:
+            search.byLuceneQueryBuilder("", "", "", "", test)
+            assert search.hasNext()
+            assert proj.id.val in [
+                x.id.val for x in search.results()
+            ]
+        finally:
+            search.close()

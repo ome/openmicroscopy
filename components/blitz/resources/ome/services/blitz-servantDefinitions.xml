@@ -120,6 +120,7 @@
             <constructor-arg ref="Registry"/>
             <constructor-arg ref="scriptRepoHelper"/>
             <constructor-arg value="${omero.grid.registry_timeout}"/>
+            <constructor-arg value="${omero.scripts.timeout}"/>
         </bean>
     </constructor-arg>
   </bean>

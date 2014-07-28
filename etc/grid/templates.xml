@@ -171,8 +171,7 @@
       <server id="Blitz-${index}" exe="${JAVA}" activation="always" pwd="${OMERO_HOME}">
         <option>MEMORY:blitz</option>
         <target name="debug">
-            <option>-Xdebug</option>
-            <option>-Xrunjdwp:server=y,transport=dt_socket,address=8787,suspend=y</option>
+          <option>-agentlib:jdwp=server=y,suspend=y,transport=dt_socket,address=8787</option>
         </target>
         <target name="blitz-gc">
             <option>-verbose:gc</option>
@@ -221,6 +220,7 @@
           <properties refid="Blitz"/>
           <properties refid="MultiThreaded"/>
           <properties refid="Profile"/>
+          <property name="REPLACEMENT:blitz" value="REPLACEME"/>
         </properties>
       </server>
     </server-template>
@@ -245,8 +245,7 @@
           <properties refid="SingleThreaded"/>
           <properties refid="Profile"/>
           <!-- Silence these -->
-          <property name="omero.throttling.method_time.warn" value="3600000"/><!--1 hour -->
-          <property name="omero.throttling.method_time.error" value="86400000"/><!-- 1 day -->
+          <property name="REPLACEMENT:indexer" value="REPLACEME"/>
         </properties>
       </server>
     </server-template>
@@ -272,6 +271,7 @@
           <properties refid="SingleThreaded"/>
           <properties refid="Profile"/>
           <property name="omero.repo.dir" value="${dir}"/>
+          <property name="REPLACEMENT:pixeldata" value="REPLACEME"/>
         </properties>
       </server>
     </server-template>
@@ -299,6 +299,7 @@
           <properties refid="MultiThreaded"/>
           <properties refid="Repository"/>
           <properties refid="Profile"/>
+          <property name="REPLACEMENT:repository" value="REPLACEME"/>
         </properties>
       </server>
     </server-template>
