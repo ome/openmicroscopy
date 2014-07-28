@@ -1303,6 +1303,10 @@ class TreeViewerControl
 				entry = (Entry) i.next();
 				browser = (Browser) entry.getValue();
 				browser.refreshAdmin(data);
+				if (browser.getBrowserType() == Browser.ADMIN_EXPLORER &&
+				   data instanceof GroupData) {
+				    browser.refreshBrowser();
+				}
 			}
 			view.createTitle();
 		} else if (DataBrowser.TAG_WIZARD_PROPERTY.equals(name)) {
