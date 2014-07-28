@@ -78,28 +78,6 @@
               $('#wblitz-ch'+idx).css('background-color', ch.color).attr('title', ch.label);
             };
 
-            var on_batchCopyRDefs = false;
-            // TODO: try not to rely on global variables!
-            window.applyRDCW = function(final) {
-              if (on_batchCopyRDefs) {
-                return batchCopyRDefs_action('ok');
-              }
-              OME.preview_viewport.setModel($('#rd-wblitz-rmodel').get(0).checked?'c':'g');
-              for (var i=0; i<OME.preview_viewport.getCCount(); i++) {
-                OME.preview_viewport.setChannelActive(i, $('#rd-wblitz-ch'+i).get(0).checked, true);
-                OME.preview_viewport.setChannelColor(i, $('#wblitz-ch'+i+'-color').css('background-color'), true);
-                var noreload = ((i+1) < OME.preview_viewport.getCCount());    // prevent reload, except on the last loop
-                OME.preview_viewport.setChannelWindow(i, $('#wblitz-ch'+i+'-cw-start').get(0).value, $('#wblitz-ch'+i+'-cw-end').get(0).value, noreload);
-              }
-
-              if (final) {
-                OME.preview_viewport.forget_bookmark_channels();
-                $('#rdef-postit').hide();
-              }
-              OME.preview_viewport.save_channels();
-              syncRDCW(OME.preview_viewport);
-            }
-
 
             if (typeof OME === "undefined") {OME = {}}
 
@@ -125,6 +103,10 @@
                     // update thumbnails
                     OME.refreshThumbnails({{ manager.image.id }});
                 });
+            });
+
+            $("#rdef-apply-btn").click(function(){
+              applyRDCW(OME.preview_viewport);
             });
 
         });
@@ -179,7 +161,10 @@
           
         {% endif %}
         {% endblock save_rdef %}
-        <button id="rdef-default-btn" onclick="return resetRDCW();" title="Returns to the saved settings.">default</button><button id="rdef-undo-btn" onclick="return undoRDCW();" title="Returns to the settings as they were before clicking apply.">undo</button><button id="rdef-redo-btn" onclick="return redoRDCW();" title="Returns to the settings as they were before clicking undo.">redo</button><button id="rdef-apply-btn" onclick="return applyRDCW();" title="Applies the current settings to the open image.">apply</button>
+          <button id="rdef-default-btn" onclick="return resetRDCW();" title="Returns to the saved settings.">default</button>
+          <button id="rdef-undo-btn" onclick="return undoRDCW();" title="Returns to the settings as they were before clicking apply.">undo</button>
+          <button id="rdef-redo-btn" onclick="return redoRDCW();" title="Returns to the settings as they were before clicking undo.">redo</button>
+          <button id="rdef-apply-btn" title="Applies the current settings to the open image.">apply</button>
         </li>
         {% block batch_copy %}
         {% if dataset.canOwnerWrite %}

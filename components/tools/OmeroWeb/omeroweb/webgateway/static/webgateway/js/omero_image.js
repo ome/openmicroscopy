@@ -36,6 +36,28 @@
         $('#rd-wblitz-rmodel').attr('checked', !viewport.isGreyModel());
     }
 
+    var on_batchCopyRDefs = false;
+    // TODO: try not to rely on global variables!
+    window.applyRDCW = function(viewport, final) {
+        if (on_batchCopyRDefs) {
+            return batchCopyRDefs_action('ok');
+        }
+        viewport.setModel($('#rd-wblitz-rmodel').get(0).checked?'c':'g');
+        for (var i=0; i<viewport.getCCount(); i++) {
+            viewport.setChannelActive(i, $('#rd-wblitz-ch'+i).get(0).checked, true);
+            viewport.setChannelColor(i, $('#wblitz-ch'+i+'-color').css('background-color'), true);
+            var noreload = ((i+1) < viewport.getCCount());    // prevent reload, except on the last loop
+            viewport.setChannelWindow(i, $('#wblitz-ch'+i+'-cw-start').get(0).value, $('#wblitz-ch'+i+'-cw-end').get(0).value, noreload);
+        }
+
+        if (final) {
+            viewport.forget_bookmark_channels();
+            $('#rdef-postit').hide();
+        }
+        viewport.save_channels();
+        syncRDCW(viewport);
+    }
+
     /**
     * Gets called when an image is initially loaded.
     * This is the place to sync everything; rendering model, quality, channel buttons, etc.

@@ -600,25 +600,6 @@
     syncRDCW(viewport);
   }
 
-  function applyRDCW(final) {
-    if (on_batchCopyRDefs) {
-      return batchCopyRDefs_action('ok');
-    }
-    viewport.setModel($('#rd-wblitz-rmodel').get(0).checked?'c':'g');
-    for (var i=0; i<viewport.getCCount(); i++) {
-      viewport.setChannelActive(i, $('#rd-wblitz-ch'+i).get(0).checked, true);
-      viewport.setChannelColor(i, $('#wblitz-ch'+i+'-color').css('background-color'), true);
-      var noreload = ((i+1) < viewport.getCCount());    // prevent reload, except on the last loop
-      viewport.setChannelWindow(i, $('#wblitz-ch'+i+'-cw-start').get(0).value, $('#wblitz-ch'+i+'-cw-end').get(0).value, noreload);
-    }
-
-    if (final) {
-      viewport.forget_bookmark_channels();
-      $('#rdef-postit').hide();
-    }
-    viewport.save_channels();
-    syncRDCW(viewport);
-  }
 
   function show_image_link() {
     var link = location.href;
@@ -692,7 +673,7 @@
   }
 
   function setImageDefaults (obj, callback, skip_apply) {
-    if (!skip_apply) applyRDCW();
+    if (!skip_apply) applyRDCW(viewport);
     var old = $(obj).html();
     gs_modalJson('{{ viewport_server }}/saveImgRDef/'+viewport.loadedImg.id+'/?'+viewport.getQuery(true),
                  {},
@@ -851,7 +832,10 @@
           
         {% endif %}
         {% endblock save_rdef %}
-        <button id="rdef-default-btn" onclick="return resetRDCW();" title="Returns to the saved settings.">default</button><button id="rdef-undo-btn" onclick="return undoRDCW();" title="Returns to the settings as they were before clicking apply.">undo</button><button id="rdef-redo-btn" onclick="return redoRDCW();" title="Returns to the settings as they were before clicking undo.">redo</button><button id="rdef-apply-btn" onclick="return applyRDCW();" title="Applies the current settings to the open image.">apply</button>
+          <button id="rdef-default-btn" onclick="return resetRDCW();" title="Returns to the saved settings.">default</button>
+          <button id="rdef-undo-btn" onclick="return undoRDCW();" title="Returns to the settings as they were before clicking apply.">undo</button>
+          <button id="rdef-redo-btn" onclick="return redoRDCW();" title="Returns to the settings as they were before clicking undo.">redo</button>
+          <button id="rdef-apply-btn" title="Applies the current settings to the open image.">apply</button>
         </li>
         {% block batch_copy %}
         {% if dataset.canOwnerWrite %}
@@ -1235,6 +1219,10 @@
     // we can bind events to viewportimg for roi_display-plugin to trigger (plugin not created yet)
     viewport.viewportimg.bind("shape_click", handle_shape_selection);
     viewport.viewportimg.bind("rois_loaded", handle_rois_loaded);
+
+    $("#rdef-apply-btn").click(function(){
+      applyRDCW(viewport);
+    });
     
     /* And we're done! */
 
