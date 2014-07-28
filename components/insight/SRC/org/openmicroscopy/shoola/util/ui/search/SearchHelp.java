@@ -135,7 +135,7 @@ public class SearchHelp
                 buf.append("<table>");
                 buf.append("<tr><td>?</td><td>Single character wildcard</td>");
                 buf.append("<tr><td>*</td><td>Multiple character wildcard</td>");
-                buf.append("<tr><td>AND</td><td>Results will contain both terms. E.g: GFP AND H2B</td>");
+                buf.append("<tr><td>AND</td><td>Results will contain both terms e.g. GFP AND H2B</td>");
                 buf.append("</table>");
                 buf.append("<p/>");
                 buf.append("<p>For more information see:</p>");
