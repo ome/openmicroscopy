@@ -28,6 +28,18 @@
     <link rel="stylesheet" href="{% static "webgateway/css/ome.gs_slider.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% static "webgateway/css/ome.viewport.css" %}" type="text/css" media="screen"/>
 
+    <style>
+      /*from omero_image.css*/
+      .ui-slider-handle.ui-state-default {
+        background: #FEE7D6 none repeat scroll 0 0;
+        border: solid #A9A916 1px;
+        transition-duration: 0;
+      }
+      .rangeslider {
+        border: solid #333333 1px;
+      }
+    </style>
+
 
     <script type="text/javascript">
         $(document).ready(function() {
@@ -44,12 +56,64 @@
               return OME.preview_viewport.getMetadata();
             }
 
+            // empty implementation, since we don't support projection in preview
+            var projectionChange = function (ev, obj, nosync) {}
+            // TODO: decide if we need this: In omero_image.html this simply updates greyscale button
+            var modelChange = function (ev, obj) {}
+
             function show_change(obj, val, klass) {
               if (obj.value != val) {
                 $(obj).addClass(klass);
               } else {
                 $(obj).removeClass(klass);
               }
+            }
+
+            function hidePicker () {
+              $(".picker").get(0) && $(".picker").get(0).hide_picker && $(".picker").get(0).hide_picker();
+              /*$('.picker-selected').html('&nbsp;');*/
+            }
+
+            function syncRDCW() {
+              var cb;
+              var channels = OME.preview_viewport.getChannels();
+              for (i=0; i<channels.length; i++) {
+                $('#rd-wblitz-ch'+i).get(0).checked = channels[i].active;
+                $('#wblitz-ch'+i+'-cwslider .ui-slider-range').css('background-color', toRGB(channels[i].color));
+                var w = channels[i].window;
+                $('#wblitz-ch'+i+'-cwslider')
+                    .slider( "option", "min", Math.min(w.min, w.start) )   // extend range if needed
+                    .slider( "option", "max", Math.max(w.max, w.end) );
+                $('#wblitz-ch'+i+'-color').css('background-color', toRGB(channels[i].color));//$('#wblitz-ch'+i).css('background-color'));
+                $('#wblitz-ch'+i+'-cw-start').val(channels[i].window.start).change();
+                $('#wblitz-ch'+i+'-cw-end').val(channels[i].window.end).change();
+              }
+              hidePicker();
+              $('#rdef-undo-btn').attr('disabled', OME.preview_viewport.has_channels_undo()?'':'true');
+              $('#rdef-redo-btn').attr('disabled', OME.preview_viewport.has_channels_redo()?'':'true');
+              //$('#rdef-default-btn').attr('disabled',viewport.has_channels_undo()?'':'true');
+              $('#rd-wblitz-rmodel').attr('checked', !OME.preview_viewport.isGreyModel());
+            }
+            var on_batchCopyRDefs = false;
+            // TODO: try not to rely on global variables!
+            window.applyRDCW = function(final) {
+              if (on_batchCopyRDefs) {
+                return batchCopyRDefs_action('ok');
+              }
+              OME.preview_viewport.setModel($('#rd-wblitz-rmodel').get(0).checked?'c':'g');
+              for (var i=0; i<OME.preview_viewport.getCCount(); i++) {
+                OME.preview_viewport.setChannelActive(i, $('#rd-wblitz-ch'+i).get(0).checked, true);
+                OME.preview_viewport.setChannelColor(i, $('#wblitz-ch'+i+'-color').css('background-color'), true);
+                var noreload = ((i+1) < OME.preview_viewport.getCCount());    // prevent reload, except on the last loop
+                OME.preview_viewport.setChannelWindow(i, $('#wblitz-ch'+i+'-cw-start').get(0).value, $('#wblitz-ch'+i+'-cw-end').get(0).value, noreload);
+              }
+
+              if (final) {
+                OME.preview_viewport.forget_bookmark_channels();
+                $('#rdef-postit').hide();
+              }
+              OME.preview_viewport.save_channels();
+              syncRDCW();
             }
 
             /**
@@ -311,9 +375,9 @@
       <ul>
         <li class="buttonbar">
         {% block save_rdef %}
-        {% if image.canAnnotate and not blitzcon.getShareId %}
+        {% if manager.image.canAnnotate and not blitzcon.getShareId %}
           <button id="rdef-reset-btn" class="editor" onclick="return resetImageDefaults(this)" title="Returns the image settings to their original state at time of import.">reset</button>
-          {% if image.canAnnotate %}<button id="rdef-setdef-btn" class="editor" onclick="return setImageDefaults(this)" title="Applies and saves the current settings as default.">save</button>{% endif %}
+          {% if manager.image.canAnnotate %}<button id="rdef-setdef-btn" class="editor" onclick="return setImageDefaults(this)" title="Applies and saves the current settings as default.">save</button>{% endif %}
           
         {% endif %}
         {% endblock save_rdef %}
