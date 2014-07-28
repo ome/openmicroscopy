@@ -658,14 +658,6 @@ class MetadataViewerComponent
 			setRootObject(null, -1, null);
 		} else setRootObject(o, model.getUserID(), model.getAdminContext());
 		firePropertyChange(ADMIN_UPDATED_PROPERTY, null, data);
-		
-		/*
-		if (data instanceof ExperimenterData || data instanceof GroupData) {
-			firePropertyChange(ADMIN_UPDATED_PROPERTY, null, data);
-			setRootObject(data, model.getUserID());
-		}
-		*/
-		
 	}
 	
 	/** 
