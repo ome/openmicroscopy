@@ -95,11 +95,18 @@
                 {% with c=byId.obj %}
                 <tr id="{{ byId.otype }}-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
-                        {% ifequal byId.otype 'image' %}
-                        <img class="search_thumb" id="{{ c.id }}" src="{% url 'render_thumbnail_resize' 96 c.id  %}" alt="image" title="{{ c.name }}"/>
-                        {% else %}
-                        <img src="{% static "webgateway/img/folder16.png" %}" alt="{{ byId.otype }}" title="{{ c.name }}"/>
-                        {% endifequal %}
+                        {% if byId.otype == 'image' %}
+                            <img class="search_thumb" id="{{ c.id }}" src="{% url 'render_thumbnail_resize' 96 c.id  %}" alt="image" title="{{ c.name }}"/>
+                        {% elif byId.otype == 'project' %}
+                            <img src="{% static "webgateway/img/folder16.png" %}" alt="{{ byId.otype }}" title="{{ c.name }}"/>
+                        {% elif byId.otype == 'dataset' %}
+                            <img src="{% static "webgateway/img/folder_image16.png" %}" alt="{{ byId.otype }}" title="{{ c.name }}"/>
+                        {% elif byId.otype == 'screen' %}
+                            <img src="{% static "webclient/image/folder_screen32.png" %}" alt="{{ byId.otype }}" title="{{ c.name }}"/>
+                        {% elif byId.otype == 'plate' %}
+                            <img src="{% static "webclient/image/folder_plate32.png" %}" alt="{{ byId.otype }}" title="{{ c.name }}"/>
+                        {% endif %}
+
                     </td>
                     <td class="desc">
                         <span style="color:red">ID: {{ c.id }}</span>
