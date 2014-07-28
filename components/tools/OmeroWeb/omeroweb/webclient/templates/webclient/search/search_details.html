@@ -105,10 +105,11 @@
                         <span style="color:red">ID: {{ c.id }}</span>
                         <a>{{ c.name|truncatebefor:"65" }}</a>
                     </td>
-                    <td class="date">{{ c.getDate|date:"Y-m-d H:i:s" }}</td>
                     <td class="date">
-                        {% ifequal byId.otype 'image' %}{{ c.creationEventDate|date:"Y-m-d H:i:s" }}{% endifequal %}
+                        <!-- only show Acquisition dates for 'image'. NB image.getDate() returns AquisitionDate-->
+                        {% ifequal byId.otype 'image' %}{{ c.getDate|date:"Y-m-d H:i:s" }}{% endifequal %}
                     </td>
+                    <td class="date">{{ c.creationEventDate|date:"Y-m-d H:i:s" }}</td>
                     <td class="group">{{ c.getDetails.group.name.val }}</td>
                     <td><a href="{% url 'webindex' %}?show={{ byId.otype }}-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
                         {% trans "Browse" %}
