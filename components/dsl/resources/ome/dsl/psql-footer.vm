@@ -345,7 +345,7 @@ CREATE TRIGGER ${type.tableName()}_annotation_link_delete_trigger
 #foreach($type in $types)
 #foreach($prop in $type.classProperties)
 #if( $prop.class.name == "ome.dsl.MapField" )
-CREATE FUNCTION ${type.tableName()}_${prop.name}_map_entry_delete_trigger_procedure() RETURNS "trigger" AS '
+CREATE FUNCTION ${type.tableName()}_${prop.name}_map_entry_delete_trigger_function() RETURNS "trigger" AS '
 BEGIN
     DELETE FROM ${type.tableName()}_${prop.name}
 #if( $type.superclass && !$type.discriminator )
@@ -353,13 +353,14 @@ BEGIN
 #else
         WHERE ${type.tableName()}_id = OLD.id;
 #end
+    RETURN OLD;
 END;'
 LANGUAGE plpgsql;
 
 CREATE TRIGGER ${type.tableName()}_${prop.name}_map_entry_delete_trigger
     BEFORE DELETE ON ${type.tableName()}
     FOR EACH ROW
-    EXECUTE PROCEDURE ${type.tableName()}_${prop.name}_map_entry_delete_trigger_procedure();
+    EXECUTE PROCEDURE ${type.tableName()}_${prop.name}_map_entry_delete_trigger_function();
 
 #end
 #end
