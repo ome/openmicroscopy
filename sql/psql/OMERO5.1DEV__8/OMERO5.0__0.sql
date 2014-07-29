@@ -712,77 +712,83 @@ ALTER TABLE dbpatch ADD CONSTRAINT unique_dbpatch
 
 -- Trac ticket #12317 -- delete map property values along with their holders
 
-CREATE FUNCTION experimentergroup_config_map_entry_delete_trigger_procedure() RETURNS "trigger" AS '
+CREATE FUNCTION experimentergroup_config_map_entry_delete_trigger_function() RETURNS "trigger" AS '
 BEGIN
     DELETE FROM experimentergroup_config
         WHERE experimentergroup_id = OLD.id;
+    RETURN OLD;
 END;'
 LANGUAGE plpgsql;
 
 CREATE TRIGGER experimentergroup_config_map_entry_delete_trigger
     BEFORE DELETE ON experimentergroup
     FOR EACH ROW
-    EXECUTE PROCEDURE experimentergroup_config_map_entry_delete_trigger_procedure();
+    EXECUTE PROCEDURE experimentergroup_config_map_entry_delete_trigger_function();
 
-CREATE FUNCTION genericexcitationsource_map_map_entry_delete_trigger_procedure() RETURNS "trigger" AS '
+CREATE FUNCTION genericexcitationsource_map_map_entry_delete_trigger_function() RETURNS "trigger" AS '
 BEGIN
     DELETE FROM genericexcitationsource_map
         WHERE genericexcitationsource_id = OLD.lightsource_id;
+    RETURN OLD;
 END;'
 LANGUAGE plpgsql;
  
 CREATE TRIGGER genericexcitationsource_map_map_entry_delete_trigger
     BEFORE DELETE ON genericexcitationsource
     FOR EACH ROW
-    EXECUTE PROCEDURE genericexcitationsource_map_map_entry_delete_trigger_procedure();
+    EXECUTE PROCEDURE genericexcitationsource_map_map_entry_delete_trigger_function();
 
-CREATE FUNCTION imagingenvironment_map_map_entry_delete_trigger_procedure() RETURNS "trigger" AS '
+CREATE FUNCTION imagingenvironment_map_map_entry_delete_trigger_function() RETURNS "trigger" AS '
 BEGIN
     DELETE FROM imagingenvironment_map
         WHERE imagingenvironment_id = OLD.id;
+    RETURN OLD;
 END;'
 LANGUAGE plpgsql;
 
 CREATE TRIGGER imagingenvironment_map_map_entry_delete_trigger
     BEFORE DELETE ON imagingenvironment
     FOR EACH ROW
-    EXECUTE PROCEDURE imagingenvironment_map_map_entry_delete_trigger_procedure();
+    EXECUTE PROCEDURE imagingenvironment_map_map_entry_delete_trigger_function();
 
-CREATE FUNCTION annotation_mapValue_map_entry_delete_trigger_procedure() RETURNS "trigger" AS '
+CREATE FUNCTION annotation_mapValue_map_entry_delete_trigger_function() RETURNS "trigger" AS '
 BEGIN
     DELETE FROM annotation_mapValue
         WHERE annotation_id = OLD.id;
+    RETURN OLD;
 END;'
 LANGUAGE plpgsql;
 
 CREATE TRIGGER annotation_mapValue_map_entry_delete_trigger
     BEFORE DELETE ON annotation
     FOR EACH ROW
-    EXECUTE PROCEDURE annotation_mapValue_map_entry_delete_trigger_procedure();
+    EXECUTE PROCEDURE annotation_mapValue_map_entry_delete_trigger_function();
 
-CREATE FUNCTION metadataimportjob_versionInfo_map_entry_delete_trigger_procedure() RETURNS "trigger" AS '
+CREATE FUNCTION metadataimportjob_versionInfo_map_entry_delete_trigger_function() RETURNS "trigger" AS '
 BEGIN
     DELETE FROM metadataimportjob_versionInfo
         WHERE metadataimportjob_id = OLD.job_id;
+    RETURN OLD;
 END;'
 LANGUAGE plpgsql;
 
 CREATE TRIGGER metadataimportjob_versionInfo_map_entry_delete_trigger
     BEFORE DELETE ON metadataimportjob
     FOR EACH ROW
-    EXECUTE PROCEDURE metadataimportjob_versionInfo_map_entry_delete_trigger_procedure();
+    EXECUTE PROCEDURE metadataimportjob_versionInfo_map_entry_delete_trigger_function();
 
-CREATE FUNCTION uploadjob_versionInfo_map_entry_delete_trigger_procedure() RETURNS "trigger" AS '
+CREATE FUNCTION uploadjob_versionInfo_map_entry_delete_trigger_function() RETURNS "trigger" AS '
 BEGIN
     DELETE FROM uploadjob_versionInfo
         WHERE uploadjob_id = OLD.job_id;
+    RETURN OLD;
 END;'
 LANGUAGE plpgsql;
 
 CREATE TRIGGER uploadjob_versionInfo_map_entry_delete_trigger
     BEFORE DELETE ON uploadjob
     FOR EACH ROW
-    EXECUTE PROCEDURE uploadjob_versionInfo_map_entry_delete_trigger_procedure();
+    EXECUTE PROCEDURE uploadjob_versionInfo_map_entry_delete_trigger_function();
 
 --
 -- FINISHED
