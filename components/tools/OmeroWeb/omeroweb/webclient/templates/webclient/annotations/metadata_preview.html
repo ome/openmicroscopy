@@ -116,6 +116,11 @@
                 OME.refreshThumbnails({{ manager.image.id }});
               });
             });
+            $("#rdef-reset-btn").click(function(){
+              resetImageDefaults(OME.preview_viewport, this, function() {
+                OME.refreshThumbnails({{ manager.image.id }});
+              });
+            });
 
         });
     </script>
@@ -159,7 +164,7 @@
         <li class="buttonbar">
         {% block save_rdef %}
         {% if manager.image.canAnnotate and not blitzcon.getShareId %}
-          <button id="rdef-reset-btn" class="editor" onclick="return resetImageDefaults(this)" title="Returns the image settings to their original state at time of import.">reset</button>
+          <button id="rdef-reset-btn" class="editor" title="Returns the image settings to their original state at time of import.">reset</button>
           {% if manager.image.canAnnotate %}
             <button id="rdef-setdef-btn" class="editor" onclick="return setImageDefaults(this)" title="Applies and saves the current settings as default.">save</button>
           {% endif %}

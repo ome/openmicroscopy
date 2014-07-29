@@ -15,6 +15,28 @@
         /*$('.picker-selected').html('&nbsp;');*/
     }
 
+    window.resetImageDefaults = function (viewport, obj, callback) {
+        var msg = '<h2>Resetting rendering settings</h2><ul><li>This will reset the image rendering settings to their original state at time of import.</li></ul>';
+        var url = viewport.viewport_server + '/resetImgRDef/'+viewport.loadedImg.id+'/';
+        gs_choiceModalJson(msg, [
+                {label: 'ok', url: url, data: {full: true}},
+                {label: 'cancel'}
+            ],
+            function(success, rv) {
+                if (!rv) {
+                    alert('Reset image defaults failed.');
+                } else {
+                    viewport.load(viewport.loadedImg.id, viewport.loadedImg.current.dataset_id);
+                }
+                if (callback) {
+                    callback();
+                }
+            },
+            {css: {width: '50%', left: '25%'}}
+        );
+        return false;
+    }
+
     window.setImageDefaults = function (viewport, obj, callback, skip_apply) {
         if (!skip_apply) applyRDCW(viewport);
         var old = $(obj).html();
