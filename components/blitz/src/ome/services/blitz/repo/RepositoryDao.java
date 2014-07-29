@@ -98,6 +98,15 @@ public interface RepositoryDao {
     boolean canUpdate(IObject obj, Ice.Current current);
 
     /**
+     * Find the original file IDs among those given that are in the given repository.
+     * @param repo a repository UUID
+     * @param ids IDs of original files
+     * @param current applicable ICE context
+     * @return those IDs among those given whose original files are in the given repository
+     */
+    List<Long> filterFilesByRepository(String repo, List<Long> ids, Ice.Current current);
+
+    /**
      * Gets the original file instance for a given file ID.
      * @param fileId a file ID
      * @param current applicable ICE context
@@ -106,7 +115,6 @@ public interface RepositoryDao {
      */
     OriginalFile getOriginalFile(long fileId, Ice.Current current)
             throws SecurityViolation;
-
 
     /**
      * Return a non-null, possibly empty list of {@link OriginalFile} elements

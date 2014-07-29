@@ -1,6 +1,7 @@
 package ome.services.blitz.repo;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +15,8 @@ import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 import org.springframework.aop.framework.Advised;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.google.common.collect.Iterables;
 
 import Ice.Current;
 
@@ -384,6 +387,22 @@ public class RepositoryDaoImpl implements RepositoryDao {
                         }
                     }
                 });
+    }
+
+    public List<Long> filterFilesByRepository(final String repo, List<Long> ids, Ice.Current current) {
+        final List<Long> inRepo = new ArrayList<Long>();
+        for (final List<Long> idBatch : Iterables.partition(ids, 256)) {
+            inRepo.addAll((Collection<Long>) executor
+                    .execute(current.ctx, currentUser(current),
+                            new Executor.SimpleWork(this, "filterFilesByRepository") {
+                        @Override
+                        @Transactional(readOnly = true)
+                        public List<Long> doWork(Session session, ServiceFactory sf) {
+                            return getSqlAction().filterFileIdsByRepo(repo, idBatch);
+                        }
+                    }));
+        }
+        return inRepo;
     }
 
     public OriginalFile getOriginalFile(final long repoId,
