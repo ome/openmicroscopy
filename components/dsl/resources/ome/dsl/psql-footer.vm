@@ -343,8 +343,9 @@ CREATE TRIGGER ${type.tableName()}_annotation_link_delete_trigger
 
 -- First, we install a unique constraint so that it is only possible
 -- to go from versionA/patchA to versionB/patchB once.
+-- message is included so that in-patch adjustments may still be noted in the table.
 --
-alter table dbpatch add constraint unique_dbpatch unique (currentVersion, currentPatch, previousVersion, previousPatch);
+alter table dbpatch add constraint unique_dbpatch unique (currentVersion, currentPatch, previousVersion, previousPatch, message);
 
 --
 -- Since this is a table that we will be using in DB-specific ways, we're also going
