@@ -338,8 +338,35 @@ CREATE TRIGGER ${type.tableName()}_annotation_link_delete_trigger
 -- END #1390
 --
 
+--
+-- #12317 -- delete map property values along with their holders
+--
 
+#foreach($type in $types)
+#foreach($prop in $type.classProperties)
+#if( $prop.class.name == "ome.dsl.MapField" )
+CREATE FUNCTION ${type.tableName()}_${prop.name}_map_entry_delete_trigger_procedure() RETURNS "trigger" AS '
+BEGIN
+    DELETE FROM ${type.tableName()}_${prop.name}
+#if( $type.superclass && !$type.discriminator )
+        WHERE ${type.tableName()}_id = OLD.${type.typeToColumn($type.superclass)}_id;
+#else
+        WHERE ${type.tableName()}_id = OLD.id;
+#end
+END;'
+LANGUAGE plpgsql;
 
+CREATE TRIGGER ${type.tableName()}_${prop.name}_map_entry_delete_trigger
+    BEFORE DELETE ON ${type.tableName()}
+    FOR EACH ROW
+    EXECUTE PROCEDURE ${type.tableName()}_${prop.name}_map_entry_delete_trigger_procedure();
+
+#end
+#end
+#end
+--
+-- done #12317
+--
 
 -- First, we install a unique constraint so that it is only possible
 -- to go from versionA/patchA to versionB/patchB once.
