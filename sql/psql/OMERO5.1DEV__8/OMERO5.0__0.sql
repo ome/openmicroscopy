@@ -704,7 +704,11 @@ DROP FUNCTION reverse_endian(TEXT);
 
 ALTER TABLE image ALTER COLUMN acquisitiondate DROP NOT NULL;
 
--- TODO
+-- Trac ticket #970
+
+ALTER TABLE dbpatch DROP CONSTRAINT unique_dbpatch;
+ALTER TABLE dbpatch ADD CONSTRAINT unique_dbpatch
+  UNIQUE (currentversion, currentpatch, previousversion, previouspatch, message);
 
 --
 -- FINISHED

@@ -50,7 +50,11 @@ INSERT INTO dbpatch (currentVersion, currentPatch,   previousVersion,     previo
 -- Actual upgrade
 --
 
--- TODO
+-- Trac ticket #970
+
+ALTER TABLE dbpatch DROP CONSTRAINT unique_dbpatch;
+ALTER TABLE dbpatch ADD CONSTRAINT unique_dbpatch
+  UNIQUE (currentversion, currentpatch, previousversion, previouspatch, message);
 
 --
 -- FINISHED
