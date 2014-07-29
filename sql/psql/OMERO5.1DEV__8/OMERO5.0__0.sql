@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.0__0 to OMERO5.1DEV__7.
+--- OMERO5 development release upgrade from OMERO5.0__0 to OMERO5.1DEV__8.
 ---
 
 BEGIN;
@@ -44,7 +44,7 @@ DROP FUNCTION omero_assert_db_version(varchar, int);
 
 
 INSERT INTO dbpatch (currentVersion, currentPatch,   previousVersion,     previousPatch)
-             VALUES ('OMERO5.1DEV',     7,              'OMERO5.0',       0);
+             VALUES ('OMERO5.1DEV',     8,              'OMERO5.0',       0);
 
 --
 -- Actual upgrade
@@ -704,16 +704,18 @@ DROP FUNCTION reverse_endian(TEXT);
 
 ALTER TABLE image ALTER COLUMN acquisitiondate DROP NOT NULL;
 
+-- TODO
+
 --
 -- FINISHED
 --
 
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
     WHERE currentVersion  = 'OMERO5.1DEV' AND
-          currentPatch    = 7             AND
+          currentPatch    = 8             AND
           previousVersion = 'OMERO5.0'    AND
           previousPatch   = 0;
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.1DEV__7'||CHR(10)||CHR(10)||CHR(10) AS Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.1DEV__8'||CHR(10)||CHR(10)||CHR(10) AS Status;
 
 COMMIT;
