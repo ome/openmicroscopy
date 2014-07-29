@@ -19,7 +19,7 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.hibernate.Session;
 import org.hibernate.id.IdentifierGenerator;
-import org.hibernate.impl.SessionFactoryImpl;
+import org.hibernate.internal.SessionFactoryImpl;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
 

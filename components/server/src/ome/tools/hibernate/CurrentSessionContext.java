@@ -9,7 +9,7 @@ package ome.tools.hibernate;
 
 import org.hibernate.classic.Session;
 import org.hibernate.context.JTASessionContext;
-import org.hibernate.engine.SessionFactoryImplementor;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
 

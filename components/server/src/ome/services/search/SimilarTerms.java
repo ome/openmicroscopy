@@ -26,7 +26,7 @@ import org.hibernate.Session;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.hibernate.search.SearchFactory;
-import org.hibernate.search.reader.ReaderProvider;
+import org.hibernate.search.indexes.spi.ReaderProvider;
 import org.hibernate.search.store.DirectoryProvider;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;

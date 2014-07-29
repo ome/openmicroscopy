@@ -355,11 +355,6 @@ public class SessionHandler implements MethodInterceptor,
         if (TransactionSynchronizationManager.hasResource(factory)) {
             holder = (SessionHolder) TransactionSynchronizationManager
                     .getResource(factory);
-            // A bit tricky. Works in coordinate with resetThreadSession
-            // since the DUMMY would be replaced anyway.
-            if (holder != null && holder.isEmpty()) {
-                holder = null;
-            }
         }
         return holder == null ? null : holder.getSession();
     }
@@ -406,10 +401,5 @@ class EmptySessionHolder extends SessionHolder {
                         }
                     }
                 }));
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return true;
     }
 }

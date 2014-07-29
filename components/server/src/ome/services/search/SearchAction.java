@@ -29,7 +29,7 @@ import org.hibernate.criterion.CriteriaQuery;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.SimpleExpression;
-import org.hibernate.engine.TypedValue;
+import org.hibernate.engine.spi.TypedValue;
 
 /**
  * Serializable action used by {@link SearchBean} to generate results lazily.

@@ -28,8 +28,8 @@ import ome.util.SqlAction;
 
 import org.hibernate.Filter;
 import org.hibernate.Session;
-import org.hibernate.engine.LoadQueryInfluencers;
-import org.hibernate.engine.SessionImplementor;
+import org.hibernate.engine.spi.LoadQueryInfluencers;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
