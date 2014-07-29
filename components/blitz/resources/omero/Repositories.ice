@@ -484,6 +484,16 @@ module omero {
              * the server, or return null if none of them are supported.
              */
             omero::model::ChecksumAlgorithm suggestChecksumAlgorithm(omero::api::ChecksumAlgorithmList supported);
+
+            /**
+             * Set the checksum algorithm for the original files identified
+             * by the given IDs and calculate their checksum accordingly.
+             * The files must be in this repository.
+             * Returns the IDs of the original files that did not already
+             * have a checksum set for the given algorithm.
+             */
+            omero::api::LongList setChecksumAlgorithm(omero::model::ChecksumAlgorithm hasher, omero::api::LongList ids)
+                throws ServerError;
         };
 
         /**
