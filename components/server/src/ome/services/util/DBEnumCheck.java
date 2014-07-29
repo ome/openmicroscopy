@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import ome.conditions.InternalException;
+import ome.system.PreferenceContext;
 import ome.util.SqlAction;
 
 import org.slf4j.Logger;
@@ -86,8 +87,8 @@ public class DBEnumCheck extends BaseDBCheck {
         return omitlist.contains(name);
     }
 
-    public DBEnumCheck(Executor executor) {
-        super(executor);
+    public DBEnumCheck(Executor executor, PreferenceContext preferences) {
+        super(executor, preferences);
     }
 
     @Override
