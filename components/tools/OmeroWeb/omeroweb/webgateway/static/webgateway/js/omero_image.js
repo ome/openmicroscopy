@@ -207,17 +207,19 @@
         $(".picker").unbind('prepared').unbind('showing').unbind('hiding');
         $('#rdef-postit ul').not('ul:last-child').remove();
 
-        var template = '<tr class="$cls">'
+        var template = '' //<tr class="$cls">'
+        // + '<td><input id="rd-wblitz-ch$idx0" type="checkbox" onchange="rdChanSelHelper(this)" $act></td>'
+        // + '<td>$cwl</td>'
+        // + '<td><button id="wblitz-ch$idx0-color" class="picker squarred">&nbsp;</button></td>'
+        // + '<td class="picker-selected">&nbsp;</td></tr>'
+        + '<tr class="$cls rdef-window">'
         + '<td><input id="rd-wblitz-ch$idx0" type="checkbox" onchange="rdChanSelHelper(this)" $act></td>'
-        + '<td>$cwl</td>'
+        + '<td colspan="5"><table><tr id="wblitz-ch$idx0-cw" class="rangewidget"></tr></table></td>'
         + '<td><button id="wblitz-ch$idx0-color" class="picker squarred">&nbsp;</button></td>'
-        + '<td class="picker-selected">&nbsp;</td></tr>'
-        + '<tr class="$cls rdef-window">'
-        + '<td colspan="5"><div id="wblitz-ch$idx0-cw" class="rangewidget"></div></td>'
-        +'</tr>'
-        + '<tr class="$cls rdef-window">'
-        + '<td colspan="5"><div class="rangeslider" id="wblitz-ch$idx0-cwslider"></div></td>'
         + '</tr>';
+        // + '<tr class="$cls rdef-window">'
+        // + '<td colspan="5"><div class="rangeslider" id="wblitz-ch$idx0-cwslider"></div></td>'
+        // + '</tr>';
 
         tmp = $('#rdef-postit table tr:first');
         tmp.siblings().remove();
@@ -232,7 +234,7 @@
             $('#wblitz-ch'+(i)+'-cw').rangewidget({
                 min: channels[i].window.min,
                 max: channels[i].window.max,
-                template: '<span class="min" title="min: $min">$start</span> - <span class="max" title="max: $max">$end</span>',
+                template: '<td width="10%"><span class="min" title="min: $min">$start</span></td><td><div class="rangeslider" id="wblitz-ch'+i+'-cwslider"></div></td> <td width="10%"><span class="max" title="max: $max">$end</span></td>',
                 lblStart: '',
                 lblEnd: ''});
             $('#wblitz-ch'+i+'-cwslider').slider({

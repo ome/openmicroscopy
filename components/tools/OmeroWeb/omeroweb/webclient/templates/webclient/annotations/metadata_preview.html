@@ -53,6 +53,10 @@
       .rangewidget input {
         width: 4.0em;
       }
+      .rangeslider {
+        background: none repeat scroll 0 0 white;
+        margin: 0.2em 1em;
+      }
     </style>
 
 
@@ -137,17 +141,12 @@
     <hr>
 
     <div id="rdef-postit">
-      <h1> Rendering Details </h1>
         <div id="rdef-active-area">
         <a id="rdef-postit-help" href="#" onclick="return showChannelWindowHelp();"><img src="{% static "webgateway/img/question.png" %}" alt="Show help on channel window ranges" /></a>
         <label for="rd-wblitz-rmodel">Render as Color</label>
         <input id="rd-wblitz-rmodel" type="checkbox" onchange="return rdChanSelHelper(this);" />
-        <table cellspacing="0">
+        <table cellspacing="0" style="font-size:0.9em">
           <tr>
-            <th>Visible</th>
-            <th>Wavelength</th>
-            <th>Color</th>
-            <th></th>
           </tr>
         </table>
       </div>

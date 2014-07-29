@@ -529,7 +529,7 @@ td.title {
 
 .rangeslider {
   background: white;
-  margin: 0.2em 2em 0.2em 2em;
+  margin: 0.2em 1em 0.2em 1em;
 }
 
 .postit-help-btn {
@@ -582,20 +582,6 @@ input.spin-button {
 
 .rangewidget input {
   width: 4.5em;
-}
-
-.rangewidget .min {
-  display: inline-block;
-  width: 10em;
-  text-align: right;
-  font-size: 0.9em;
-}
-
-.rangewidget .max {
-  display: inline-block;
-  width: 10em;
-  text-align: left;
-  font-size: 0.9em;
 }
 
 #rdef-postit table {
