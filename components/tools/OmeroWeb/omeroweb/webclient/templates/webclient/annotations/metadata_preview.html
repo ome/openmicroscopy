@@ -60,15 +60,23 @@
 
             if (typeof OME === "undefined") {OME = {}}
 
+            // init viewport
             {% if share_id %}
             OME.preview_viewport = $.WeblitzViewport($("#viewport"), "{% url 'webindex' %}{{ share_id }}", {'mediaroot': '{{ STATIC_URL }}' } );
-            OME.preview_viewport.bind('imageLoad', _refresh_cb);
-            OME.preview_viewport.bind('channelChange', channelChange);
-            OME.preview_viewport.load({{ manager.image.id }}, null, location.search);
             {% else %}
             OME.preview_viewport = $.WeblitzViewport($("#viewport"), "{% url 'webindex' %}", {'mediaroot': '{{ STATIC_URL }}' } );
+            {% endif %}
+
             OME.preview_viewport.bind('imageLoad', _refresh_cb);
             OME.preview_viewport.bind('channelChange', channelChange);
+            OME.preview_viewport.bind('channelChange', function(){
+              syncRDCW(OME.preview_viewport);
+            });
+
+            // Load image
+            {% if share_id %}
+            OME.preview_viewport.load({{ manager.image.id }}, null, location.search);
+            {% else %}
             OME.preview_viewport.load({{ manager.image.id }});
             {% endif %}
 

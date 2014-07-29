@@ -996,6 +996,9 @@
     viewport.bind('modelChange', modelChange);
     /* Bind channel changes */
     viewport.bind('channelChange', channelChange);
+    viewport.bind('channelChange', function(){
+      syncRDCW(viewport);
+    });
     /* Bind image changes */
     viewport.bind('imageChange', imageChange);
     /* Bind line plot changes */
