@@ -25,7 +25,6 @@ import ome.util.SqlAction;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.perf4j.StopWatch;
@@ -87,17 +86,6 @@ public class DeleteStep extends GraphStep {
             fsQb.select("i.fileset.id").from("Image", "i");
             fsQb.where().and("i.id = :id").param("id", id);
             filesetId = (Long) fsQb.query(session).uniqueResult();
-        }
-
-        if (em.mayHaveMapProperties(iObjectType)) {
-            // Delete any map property entries so that the holder can then be deleted.
-            final Object proxy = session.createQuery("FROM " + iObjectType.getName() + " WHERE id = " + id).uniqueResult();
-            if (proxy != null) {
-                final Class<?> realClass = Hibernate.getClass(proxy);
-                for (final String property : em.getMapProperties(realClass.getName())) {
-                    sql.deleteMapProperty(realClass.getSimpleName(), property, id);
-                }
-            }
         }
 
         // Phase 4: primary action
