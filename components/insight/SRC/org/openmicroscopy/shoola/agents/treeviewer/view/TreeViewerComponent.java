@@ -3102,10 +3102,8 @@ class TreeViewerComponent
 		if (metadata != null) {
 			metadata.setRootObject(null, -1, null);
 		}
-		if (results == null || results.size() == 0) {
-			//UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
-        	//un.notifyInfo("Search", "No results found.");
-        	view.removeAllFromWorkingPane();
+		if (results == null ) {
+        		view.removeAllFromWorkingPane();
 			return;
 		}
                 

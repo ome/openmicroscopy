@@ -215,12 +215,10 @@ public class SearchComponent
 	
 	/** 
 	 * Initializes the components composing the display. 
-	 * 
-	 * @param controls The collection of controls to add.
 	 */
-	private void initComponents(List<JButton> controls)
+	private void initComponents()
 	{
-		uiDelegate = new SearchPanel(this, controls);
+		uiDelegate = new SearchPanel(this);
 		searchButton = new JButton("Search");
 		searchButton.setToolTipText("Search");
 		searchButton.setActionCommand(""+SEARCH);
@@ -363,10 +361,10 @@ public class SearchComponent
 	 * @param controls The collection of controls to add.
 	 * @param groups The collection of groups.
 	 */
-	public void initialize(List<JButton> controls,
+	public void initialize(
 			Collection<GroupData> groups)
 	{
-		initialize(true, controls, groups);
+		initialize(true, groups);
 	}
 	
 	/**
@@ -377,14 +375,13 @@ public class SearchComponent
 	 * @param controls The collection of controls to add.
 	 * @param groups The collection of groups.
 	 */
-	public void initialize(boolean showControl, List<JButton> controls,
-			Collection<GroupData> groups)
+	public void initialize(boolean showControl, Collection<GroupData> groups)
 	{
 		setDefaultContext();
 		if (groups == null)
 			throw new IllegalArgumentException("No groups specified.");
 		this.groups = groups;
-		initComponents(controls);
+		initComponents();
 		buildGUI(showControl);
 	}
 	

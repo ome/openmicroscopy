@@ -3521,6 +3521,38 @@ class OMEROGateway
 	}
 	
 	/**
+	 * Find an IObject by HQL query
+	 * @param ctx The security context
+	 * @param query The hql query string
+	 * @param allGroups If true search for all groups, other just for
+	 *   the SecurityContext's group
+	 * @return The object, if found
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	IObject findIObjectByQuery(SecurityContext ctx, String query, boolean allGroups)
+                throws DSOutOfServiceException, DSAccessException
+        {
+            Connector c = getConnector(ctx, true, false);
+                try {
+                    Map<String, String> m = new HashMap<String, String>();
+                    if(allGroups) {
+                        m.put("omero.group", "-1");
+                    }
+                    else {
+                        m.put("omero.group", ""+ctx.getGroupID());
+                    }
+                    
+                    IQueryPrx service = c.getQueryService();
+                        return service.findByQuery(query, null, m);
+                } catch (Throwable t) {
+                        handleException(t, "Cannot retrieve the requested object with "+
+                                        "query: "+query);
+                }
+                return null;
+        }
+	
+	/**
          * Retrieves an updated version of the specified object.
          *
          * @param ctx The security context.
@@ -5037,11 +5069,16 @@ class OMEROGateway
                             }
                         }
                     } catch (Exception e) {
-                        if (e instanceof InternalException)
-                            result.setError(AdvancedSearchResultCollection.GENERAL_ERROR);
-                        else
+                        if (e instanceof InternalException) {
+                            if(e.toString().contains("TooManyClauses")) 
+                                result.setError(AdvancedSearchResultCollection.TOO_MANY_CLAUSES);
+                            else
+                                result.setError(AdvancedSearchResultCollection.GENERAL_ERROR);
+                        }
+                        else {
                             result.setError(AdvancedSearchResultCollection.TOO_MANY_RESULTS_ERROR);
-    
+                        }
+                        
                         c.close(service);
     
                         return result;
@@ -5102,7 +5139,9 @@ class OMEROGateway
                     result += "description";
                 }
                 if (scopeId == SearchParameters.ANNOTATION) {
-                    result += "annotation";
+                    // TODO: adding file.xyz is a workaround for these things not 
+                    // being part of the annotation index, can be removed again for > 5.0
+                    result += "annotation, file.name, file.path, file.contents, file.format";
                 }
             }
     
