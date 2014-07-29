@@ -102,9 +102,9 @@
                         {% elif byId.otype == 'dataset' %}
                             <img src="{% static "webgateway/img/folder_image16.png" %}" alt="{{ byId.otype }}" title="{{ c.name }}"/>
                         {% elif byId.otype == 'screen' %}
-                            <img src="{% static "webclient/image/folder_screen32.png" %}" alt="{{ byId.otype }}" title="{{ c.name }}"/>
+                            <img src="{% static "webclient/image/folder_screen16.png" %}" alt="{{ byId.otype }}" title="{{ c.name }}"/>
                         {% elif byId.otype == 'plate' %}
-                            <img src="{% static "webclient/image/folder_plate32.png" %}" alt="{{ byId.otype }}" title="{{ c.name }}"/>
+                            <img src="{% static "webclient/image/folder_plate16.png" %}" alt="{{ byId.otype }}" title="{{ c.name }}"/>
                         {% endif %}
 
                     </td>
@@ -141,7 +141,7 @@
             {% for c in manager.containers.screens %}
                 <tr id="screen-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
-                        <img id="{{ c.id }}" src="{% static "webclient/image/folder_screen32.png" %}" alt="screen" title="{{ c.name }}"/>
+                        <img id="{{ c.id }}" src="{% static "webclient/image/folder_screen16.png" %}" alt="screen" title="{{ c.name }}"/>
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="date"></td>
@@ -169,7 +169,7 @@
             {% for c in manager.containers.plates %}
                 <tr id="plate-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
-                        <img id="{{ c.id }}" src="{% static "webclient/image/folder_plate32.png" %}" alt="plate" title="{{ c.name }}"/>
+                        <img id="{{ c.id }}" src="{% static "webclient/image/folder_plate16.png" %}" alt="plate" title="{{ c.name }}"/>
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="date"></td>
