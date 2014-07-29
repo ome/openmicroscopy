@@ -452,8 +452,6 @@ public interface SqlAction {
      */
     Map<Long, byte[]> getShareData(List<Long> ids);
 
-    Integer deleteMapProperty(String table, String property, long id);
-
     //
     // Previously PgArrayHelper
     //

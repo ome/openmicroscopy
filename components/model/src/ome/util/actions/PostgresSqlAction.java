@@ -313,18 +313,6 @@ public class PostgresSqlAction extends SqlAction.Impl {
         });
     }
 
-    public Integer deleteMapProperty(String table, String property, long id) {
-        final String sql = "DELETE FROM " + table + "_" + property + " WHERE " + table + "_id = " + id;
-        return _jdbc().getJdbcOperations().execute(new ConnectionCallback<Integer>() {
-            public Integer doInConnection(java.sql.Connection connection) throws SQLException {
-                final Statement statement = connection.createStatement();
-                final int deletes = statement.executeUpdate(sql);
-                statement.close();
-                return deletes;
-            }
-        });
-    }
-
     public Set<String> currentUserNames() {
         List<String> names = _jdbc().query(_lookup("current_user_names"),  //$NON-NLS-1$
                         new RowMapper<String>() {
