@@ -232,7 +232,7 @@
             $('#wblitz-ch'+(i)+'-cw').rangewidget({
                 min: channels[i].window.min,
                 max: channels[i].window.max,
-                template: '<span class="min">min: $min</span> $start - $end <span class="max">max: $max</span>',
+                template: '<span class="min" title="min: $min">$start</span> - <span class="max" title="max: $max">$end</span>',
                 lblStart: '',
                 lblEnd: ''});
             $('#wblitz-ch'+i+'-cwslider').slider({

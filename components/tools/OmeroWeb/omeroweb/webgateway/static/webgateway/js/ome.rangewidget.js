@@ -54,8 +54,8 @@
         .append('<td><input type="text" id="'+this.id+'-end" /></td>');
       } else {
         self.append(this.cfg.template
-        .replace(/\$min/g,  '<span id="'+this.id+'-min" >'+this.cfg.lblStart+'</span>')
-        .replace(/\$max/g, '<span id="'+this.id+'-max" >'+this.cfg.lblEnd+'</span>')
+        .replace(/\$min/g, this.cfg.lblStart)
+        .replace(/\$max/g, this.cfg.lblEnd)
         .replace(/\$start/g, '<input type="text" id="'+this.id+'-start" />')
         .replace(/\$end/g, '<input type="text" id="'+this.id+'-end" />')
         );
