@@ -112,6 +112,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
   if (server.endsWith("/")) {
     server = server.substring(0, server.length - 1);
   }
+  this.viewport_server = server;
   this.self = jQuery(container);
   this.origHTML = this.self.html();
   this.self.html("");

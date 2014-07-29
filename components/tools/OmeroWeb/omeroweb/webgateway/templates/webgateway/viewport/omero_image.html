@@ -637,23 +637,6 @@
   }
 
 
-  function setImageDefaults (obj, callback, skip_apply) {
-    if (!skip_apply) applyRDCW(viewport);
-    var old = $(obj).html();
-    gs_modalJson('{{ viewport_server }}/saveImgRDef/'+viewport.loadedImg.id+'/?'+viewport.getQuery(true),
-                 {},
-                 function(success, rv) {
-                    $(obj).html(old).attr('disabled', false);
-                    if (!(success && rv)) {
-                        alert('Setting image defaults failed.');
-                    }
-                    if (window.opener && window.opener.OME.refreshThumbnails) {
-                        window.opener.OME.refreshThumbnails({{ image.id }});
-                    }
-                  });
-    return false;
-  }
-
 {% if image.canAnnotate %}
   function resetImageDefaults (obj) {
     var msg = '<h2>Resetting rendering settings</h2><ul><li>This will reset the image rendering settings to their original state at time of import.</li></ul>';
@@ -789,7 +772,9 @@
         {% block save_rdef %}
         {% if image.canAnnotate and not blitzcon.getShareId %}
           <button id="rdef-reset-btn" class="editor" onclick="return resetImageDefaults(this)" title="Returns the image settings to their original state at time of import.">reset</button>
-          {% if image.canAnnotate %}<button id="rdef-setdef-btn" class="editor" onclick="return setImageDefaults(this)" title="Applies and saves the current settings as default.">save</button>{% endif %}
+          {% if image.canAnnotate %}
+            <button id="rdef-setdef-btn" class="editor" title="Applies and saves the current settings as default.">save</button>
+          {% endif %}
           
         {% endif %}
         {% endblock save_rdef %}
@@ -1184,8 +1169,16 @@
     viewport.viewportimg.bind("shape_click", handle_shape_selection);
     viewport.viewportimg.bind("rois_loaded", handle_rois_loaded);
 
+    // set up handlers for 'Save', 'Apply' buttons
     $("#rdef-apply-btn").click(function(){
       applyRDCW(viewport);
+    });
+    $("#rdef-setdef-btn").click(function(){
+      setImageDefaults(viewport, this, function() {
+        if (window.opener && window.opener.OME.refreshThumbnails) {
+            window.opener.OME.refreshThumbnails({{ image.id }});
+        }
+      });
     });
     
     /* And we're done! */

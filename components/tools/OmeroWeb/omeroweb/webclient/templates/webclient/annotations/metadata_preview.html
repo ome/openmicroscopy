@@ -111,6 +111,11 @@
             $("#rdef-apply-btn").click(function(){
               applyRDCW(OME.preview_viewport);
             });
+            $("#rdef-setdef-btn").click(function(){
+              setImageDefaults(OME.preview_viewport, this, function() {
+                OME.refreshThumbnails({{ manager.image.id }});
+              });
+            });
 
         });
     </script>
@@ -155,7 +160,9 @@
         {% block save_rdef %}
         {% if manager.image.canAnnotate and not blitzcon.getShareId %}
           <button id="rdef-reset-btn" class="editor" onclick="return resetImageDefaults(this)" title="Returns the image settings to their original state at time of import.">reset</button>
-          {% if manager.image.canAnnotate %}<button id="rdef-setdef-btn" class="editor" onclick="return setImageDefaults(this)" title="Applies and saves the current settings as default.">save</button>{% endif %}
+          {% if manager.image.canAnnotate %}
+            <button id="rdef-setdef-btn" class="editor" onclick="return setImageDefaults(this)" title="Applies and saves the current settings as default.">save</button>
+          {% endif %}
           
         {% endif %}
         {% endblock save_rdef %}

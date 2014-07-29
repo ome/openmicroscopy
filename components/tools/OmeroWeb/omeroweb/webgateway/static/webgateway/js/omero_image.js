@@ -15,6 +15,23 @@
         /*$('.picker-selected').html('&nbsp;');*/
     }
 
+    window.setImageDefaults = function (viewport, obj, callback, skip_apply) {
+        if (!skip_apply) applyRDCW(viewport);
+        var old = $(obj).html();
+        gs_modalJson(viewport.viewport_server + '/saveImgRDef/'+viewport.loadedImg.id+'/?'+viewport.getQuery(true),
+            {},
+            function(success, rv) {
+                $(obj).html(old).attr('disabled', false);
+                if (!(success && rv)) {
+                    alert('Setting image defaults failed.');
+                }
+                if (callback) {
+                    callback();
+                }
+            });
+        return false;
+    }
+
     window.zindex_automator = function(klass, basez, wspace) {
         if (!wspace) {
             wspace = $(klass);
