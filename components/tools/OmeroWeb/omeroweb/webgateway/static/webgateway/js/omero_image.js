@@ -15,6 +15,32 @@
         /*$('.picker-selected').html('&nbsp;');*/
     }
 
+    window.zindex_automator = function(klass, basez, wspace) {
+        if (!wspace) {
+            wspace = $(klass);
+        }
+        var sorter = function (a,b) {
+            return parseInt(a.css('z-index'))-parseInt(b.css('z-index'));
+        };
+        var tofront = function (e) {
+            var self = this;
+            var z = basez;
+            var objs = new Array();
+            $(klass).each(function () {
+                this != self && objs.push($(this));
+            });
+            $.each(objs.sort(sorter), function () {
+                this.css('z-index', z);
+                z++;
+            });
+            $(self).css('z-index', z);
+        };
+        $.each(wspace, function () {
+            $(this).bind('opening', tofront);
+            $(this).bind('mousedown', tofront);
+        });
+    }
+
     window.channelChange = function (ev, obj, idx, ch) {
         if (ch.active) {
             $('#wblitz-ch'+idx).addClass('pressed');
@@ -26,11 +52,18 @@
         $('#wblitz-ch'+idx).css('background-color', ch.color).attr('title', ch.label);
     };
 
+    window.syncChannelsActive = function(viewport) {
+        var channels = viewport.getChannels();
+        for (i=0; i<channels.length; i++) {
+            $('#rd-wblitz-ch'+i).get(0).checked = channels[i].active;
+        }
+    }
+
     window.syncRDCW = function(viewport) {
         var cb;
         var channels = viewport.getChannels();
         for (i=0; i<channels.length; i++) {
-            $('#rd-wblitz-ch'+i).get(0).checked = channels[i].active;
+            // $('#rd-wblitz-ch'+i).get(0).checked = channels[i].active;
             $('#wblitz-ch'+i+'-cwslider .ui-slider-range').css('background-color', toRGB(channels[i].color));
             var w = channels[i].window;
             $('#wblitz-ch'+i+'-cwslider')
@@ -45,6 +78,7 @@
         $('#rdef-redo-btn').attr('disabled', viewport.has_channels_redo()?'':'true');
         //$('#rdef-default-btn').attr('disabled',viewport.has_channels_undo()?'':'true');
         $('#rd-wblitz-rmodel').attr('checked', !viewport.isGreyModel());
+        syncChannelsActive(viewport);
     }
 
     var on_batchCopyRDefs = false;
@@ -243,8 +277,12 @@
             .colorbtn()
             .bind('showing', function () {
                 var t = $(this).parents('.postit');
-                var offset = t.offset();
-                offset.left += t.width();
+                if (t.length) {
+                  var offset = t.offset();
+                  offset.left += t.width();
+                } else {
+                  var offset = {'top':'200px', 'right': '300px'};
+                }
                 $('#cbpicker-box').css(offset);
                 $('.picker-selected').html('&nbsp;');
                 $(this).parent().siblings('.picker-selected').html('&gt;');

@@ -632,31 +632,6 @@
     }
   }
 
-  function zindex_automator (klass, basez, wspace) {
-    if (!wspace) {
-      wspace = $(klass);
-    }
-    var sorter = function (a,b) {
-      return parseInt(a.css('z-index'))-parseInt(b.css('z-index'));
-    };
-    var tofront = function (e) {
-      var self = this;
-      var z = basez;
-      var objs = new Array();
-      $(klass).each(function () {
-        this != self && objs.push($(this));
-      });
-      $.each(objs.sort(sorter), function () {
-        this.css('z-index', z);
-        z++;
-      });
-      $(self).css('z-index', z);
-    };
-    $.each(wspace, function () {
-      $(this).bind('opening', tofront);
-      $(this).bind('mousedown', tofront);
-    });
-  }
 
   function setImageDefaults (obj, callback, skip_apply) {
     if (!skip_apply) applyRDCW(viewport);
@@ -996,8 +971,8 @@
     viewport.bind('modelChange', modelChange);
     /* Bind channel changes */
     viewport.bind('channelChange', channelChange);
-    viewport.bind('channelChange', function(){
-      syncRDCW(viewport);
+    viewport.bind('imageChange', function(){
+      syncChannelsActive(viewport);
     });
     /* Bind image changes */
     viewport.bind('imageChange', imageChange);

@@ -41,6 +41,15 @@
       button.pressed {
         border-style: inset;
       }
+      .postit{
+        font-size: 0.9em;
+      }
+      .postit h1 {
+        font-size: 2.0em;
+      }
+      .postit, .postit h1 {
+        background-color: #eee;
+      }
     </style>
 
 
@@ -69,8 +78,8 @@
 
             OME.preview_viewport.bind('imageLoad', _refresh_cb);
             OME.preview_viewport.bind('channelChange', channelChange);
-            OME.preview_viewport.bind('channelChange', function(){
-              syncRDCW(OME.preview_viewport);
+            OME.preview_viewport.bind('imageChange', function(){
+              syncChannelsActive(OME.preview_viewport);
             });
 
             // Load image
@@ -124,7 +133,7 @@
 
     <hr>
 
-    <div id="rdef-postit" class="postit" style="width: 480px">
+    <div id="rdef-postit">
       <h1> Rendering Details </h1>
         <div id="rdef-active-area">
         <a id="rdef-postit-help" href="#" onclick="return showChannelWindowHelp();"><img src="{% static "webgateway/img/question.png" %}" alt="Show help on channel window ranges" /></a>
