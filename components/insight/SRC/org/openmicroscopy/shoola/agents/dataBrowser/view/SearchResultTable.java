@@ -26,7 +26,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.EventObject;
 import java.util.List;
 
@@ -68,6 +71,10 @@ import pojos.ImageData;
  */
 public class SearchResultTable extends JXTable {
 
+    /** Defines the format how the date is shown */
+    private static final DateFormat DATE_FORMAT = new SimpleDateFormat(
+            "yyyy-MM-dd hh:mm:ss"); //2013-04-20 18:13:43
+    
     /** Reference to the DataBrowserModel */
     private AdvancedResultSearchModel model;
 
@@ -105,8 +112,11 @@ public class SearchResultTable extends JXTable {
 
         setBackground(UIUtilities.BACKGROUND_COLOR);
 
-        setRowHeight(70);
+        setRowHeight(42);
 
+        // disable column dragging:
+        getTableHeader().setReorderingAllowed(false);
+        
         getSelectionModel().setSelectionMode(
                 ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
@@ -262,7 +272,11 @@ public class SearchResultTable extends JXTable {
                 p.setBackground(row % 2 == 0 ? UIUtilities.BACKGROUND_COLOUR_EVEN
                         : UIUtilities.BACKGROUND_COLOUR_ODD);
 
-            if (value instanceof DataObject) {
+            if (value==null) {
+                JLabel l = new JLabel("--");
+                p.add(l);
+            }
+            else if (value instanceof DataObject) {
                 final DataObject dataObj = (DataObject) value;
                 JButton b = createActionButton(dataObj);
                 if (b != null)
@@ -270,7 +284,11 @@ public class SearchResultTable extends JXTable {
             } else if (value instanceof Icon) {
                 JLabel l = new JLabel((Icon) value);
                 p.add(l);
-            } else {
+            } else if (value instanceof Date) {
+                JLabel l = new JLabel(DATE_FORMAT.format((Date)value));
+                p.add(l);
+            }
+            else {
                 String s = value.toString();
                 if (s.matches(".*\\<.*\\>.*")) {
                     s = "<html>" + s + "</html>";

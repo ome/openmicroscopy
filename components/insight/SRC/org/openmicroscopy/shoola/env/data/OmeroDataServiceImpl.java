@@ -719,10 +719,13 @@ class OmeroDataServiceImpl
 		
 		// search by ID:
 		if(!results.isEmpty())
-		    findByIds(ctx, results, context.getGroupId()==SearchParameters.ALL_GROUPS_ID);
+		    findByIds(ctx, results, true);
 		
 		// search by text:
-		results.addAll(gateway.search(ctx, context));
+		AdvancedSearchResultCollection searchResults = gateway.search(ctx, context);
+		results.addAll(searchResults);
+		if (searchResults.isError()) 
+		    results.setError(searchResults.getError());
 
                 // loads the images PixelsData (needed for thumbnail request)
                 initializeImages(results);
@@ -743,9 +746,9 @@ class OmeroDataServiceImpl
                 AdvancedSearchResult r = it.next();
                 IObject obj = null;
                     try {
-                        obj = gateway.findIObject(ctx,
-                                PojoMapper.convertTypeForSearch(r.getType()),
-                                r.getObjectId(), allGroups);
+                        String type = PojoMapper.convertTypeForSearchByQuery(r.getType());
+                        String query = "select x from "+type+" x join fetch x.details.creationEvent where x.id="+r.getObjectId();
+                        obj = gateway.findIObjectByQuery(ctx, query, true);
                     } catch (DSAccessException e) {
                         // Object can't be found/loaded; just skip it
                         // and remove the regarding search result
