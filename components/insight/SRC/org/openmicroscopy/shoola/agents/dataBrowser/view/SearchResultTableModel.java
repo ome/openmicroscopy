@@ -27,14 +27,10 @@ import java.util.List;
 
 import javax.swing.Icon;
 import javax.swing.table.DefaultTableModel;
-
-import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.env.log.Logger;
 
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -54,14 +50,12 @@ import pojos.ScreenData;
  */
 public class SearchResultTableModel extends DefaultTableModel {
 
-    private Logger logger = DataBrowserAgent.getRegistry().getLogger();
-    
     /** The name of the columns */
     public static final String[] COLUMN_NAMES = { "Type", "Name",
             "Acquired", "Imported", "Group", " " };
 
     /**
-     * The index of the column which contains the View buttons (i. e. the last
+     * The index of the column which contains the View buttons (i.e. the last
      * column)
      */
     public static final int VIEWBUTTON_COLUMN_INDEX = COLUMN_NAMES.length - 1;
@@ -80,11 +74,12 @@ public class SearchResultTableModel extends DefaultTableModel {
     private Collection<GroupData> groups = TreeViewerAgent
             .getAvailableUserGroups();
 
+    /** Reference to the parent.*/
     private SearchResultTable parent;
-    
+
     /**
      * Creates a new instance
-     * 
+     *
      * @param data
      *            The {@link DataObject}s which should be shown in the table
      * @param model
@@ -135,9 +130,9 @@ public class SearchResultTableModel extends DefaultTableModel {
 
     /**
      * Get the acquisition date of the {@link DataObject}
-     * 
-     * @param obj
-     * @return
+     *
+     * @param obj The object to handle.
+     * @return Returns the date or <code>null</code>.
      */
     private Date getADate(DataObject obj) {
         if(obj instanceof ImageData)
@@ -145,12 +140,12 @@ public class SearchResultTableModel extends DefaultTableModel {
         else
             return null;
     }
-    
+
     /**
      * Get the creation date of the {@link DataObject}
-     * 
-     * @param obj
-     * @return
+     *
+     * @param obj The object to handle.
+     * @return Returns the date or <code>null</code>.
      */
     private Date getIDate(DataObject obj) {
         return new Date(obj.getCreated().getTime());
@@ -158,9 +153,9 @@ public class SearchResultTableModel extends DefaultTableModel {
 
     /**
      * Get the group name the {@link DataObject} belongs to
-     * 
-     * @param obj
-     * @return
+     *
+     * @param obj The object to handle.
+     * @return See above.
      */
     private String getGroup(DataObject obj) {
         for (GroupData g : groups) {
@@ -173,10 +168,10 @@ public class SearchResultTableModel extends DefaultTableModel {
 
     /**
      * Get the {@link Icon} for the {@link DataObject}
-     * 
-     * @param obj
-     * @return A general icon (e. g. for DataSets) or a thumbnail icon (for
-     *         Images); a tranparent icon if the data type is not supported
+     *
+     * @param obj The object to handle.
+     * @return A general icon (e.g. for DataSets) or a thumbnail icon (for
+     *         Images); a transparent icon if the data type is not supported
      */
     private Icon getIcon(DataObject obj) {
 
@@ -193,7 +188,7 @@ public class SearchResultTableModel extends DefaultTableModel {
         else if (obj instanceof DatasetData) {
             return IconManager.getInstance().getIcon(IconManager.DATASET);
         }
-        
+
         else if (obj instanceof ScreenData) {
             return IconManager.getInstance().getIcon(IconManager.SCREEN);
         }
@@ -227,9 +222,9 @@ public class SearchResultTableModel extends DefaultTableModel {
 
     /**
      * Get the name of the {@link DataObject}
-     * 
-     * @param obj
-     * @return
+     *
+     * @param obj The object to handle.
+     * @return See above.
      */
     private String getObjectName(DataObject obj) {
         String name = "";
@@ -244,8 +239,7 @@ public class SearchResultTableModel extends DefaultTableModel {
         } else if (obj instanceof PlateData) {
             name = ((PlateData) obj).getName();
         }
-        
-        
+
         FontMetrics fm = parent.getGraphics().getFontMetrics();
 
         int colWidth = parent.getColumn(1).getWidth();
@@ -272,7 +266,7 @@ public class SearchResultTableModel extends DefaultTableModel {
                 name = name.substring(1);
             }
         }
-        
+
         String idPrefix = null;
         if (model.isIdMatch(obj.getClass(), obj.getId())) {
             idPrefix = "<font color=\"#ff0000\"><b>[ID: " + obj.getId()
@@ -281,7 +275,7 @@ public class SearchResultTableModel extends DefaultTableModel {
         
         return idPrefix!=null ? idPrefix+""+name : name;
     }
-    
+
     @Override
     public boolean isCellEditable(int row, int column) {
         return column == VIEWBUTTON_COLUMN_INDEX;
