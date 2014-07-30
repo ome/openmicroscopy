@@ -750,7 +750,6 @@
           <button id="rdef-default-btn" title="Returns to the saved settings.">default</button>
           <button id="rdef-undo-btn" onclick="return undoRDCW();" title="Returns to the settings as they were before clicking apply.">undo</button>
           <button id="rdef-redo-btn" onclick="return redoRDCW();" title="Returns to the settings as they were before clicking undo.">redo</button>
-          <button id="rdef-apply-btn" title="Applies the current settings to the open image.">apply</button>
         </li>
         {% block batch_copy %}
         {% if dataset.canOwnerWrite %}
@@ -1138,10 +1137,7 @@
     viewport.viewportimg.bind("shape_click", handle_shape_selection);
     viewport.viewportimg.bind("rois_loaded", handle_rois_loaded);
 
-    // set up handlers for 'Save', 'Apply' buttons
-    $("#rdef-apply-btn").click(function(){
-      applyRDCW(viewport);
-    });
+    // set up handlers for 'Save' button
     $("#rdef-setdef-btn").click(function(){
       setImageDefaults(viewport, this, function() {
         if (window.opener && window.opener.OME.refreshThumbnails) {
