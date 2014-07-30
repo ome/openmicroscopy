@@ -873,7 +873,10 @@ present, the user will enter a console""")
             self.ctx.out("JVM Settings:")
             self.ctx.out("============")
             for k, v in sorted(rv.items()):
+                settings = v.pop(0)
                 sb = " ".join([str(x) for x in v])
+                if str(settings) != "Settings()":
+                    sb += " # %s" % settings
                 self.ctx.out("%s=%s" % (k, sb))
 
         def clear_tail(elem):
