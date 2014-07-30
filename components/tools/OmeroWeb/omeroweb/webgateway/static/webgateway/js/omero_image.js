@@ -289,6 +289,9 @@
                 slide: function(event, ui) {
                     $('#wblitz-ch'+$(event.target).data('channel-idx')+'-cw-start').val(ui.values[0]).change();
                     $('#wblitz-ch'+$(event.target).data('channel-idx')+'-cw-end').val(ui.values[1]).change();
+                },
+                stop: function(event, ui) {
+                    applyRDCW(viewport);
                 }
                 }).data('channel-idx', i);
             cb = function (i) {
@@ -303,6 +306,11 @@
                 };
             };
             $('#wblitz-ch'+i+'-cw-start').val(channels[i].window.start).unbind('change').bind('change', cb(i));
+            $('#wblitz-ch'+i+'-cw-start').keyup(function(event){
+                if (event.keyCode === 13){
+                    applyRDCW(viewport);
+                }
+            });
             cb = function (i) {
                 return function (e) {
                     var new_end = e.target.value,
@@ -315,6 +323,11 @@
                 };
             };
             $('#wblitz-ch'+i+'-cw-end').val(channels[i].window.end).unbind('change').bind('change', cb(i));
+            $('#wblitz-ch'+i+'-cw-end').keyup(function(event){
+                if (event.keyCode === 13){
+                    applyRDCW(viewport);
+                }
+            });
         };
 
 
