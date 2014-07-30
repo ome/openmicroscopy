@@ -57,6 +57,21 @@
         background: none repeat scroll 0 0 white;
         margin: 0.2em 1em;
       }
+
+      /* custom */
+      #wblitz-channels-box {
+        width: 25px;
+        float:left;
+        position: relative;
+        top: 50px;
+      }
+      #wblitz-channels-box button {
+        width: 25px;
+        float: left;
+        position: relative;
+        left: -5px;
+        text-indent: 1000px; /** hide text **/
+      }
     </style>
 
 
@@ -68,7 +83,7 @@
         $(document).ready(function() {
 
             // Fix size according to right panel size... NB: this behaviour is also in right_plugin.preview.js
-            var vpWidth = $("#right_panel").width() - 50,
+            var vpWidth = $("#right_panel").width() - 75,
               vpHeight = Math.min(vpWidth, $("#preview_tab").height() - 100);
             vpHeight = Math.max(300, vpHeight);
             $("#viewport").css({'width': vpWidth + 'px', 'height': vpHeight + 'px'});
@@ -140,16 +155,16 @@
 				</span>
 			</button>
 
+    <div style="clear:both"></div>
 
+    <div id="wblitz-channels-box"></div>
 
-    <div class="miniview" id="viewport">
+    <div id="vp_container" style="position: relative; left: 25px">
+      <div class="miniview" id="viewport">
+      </div>
     </div>
 
     <div style="clear:both"></div>
-
-    <hr>
-
-    <span id="wblitz-channels-box"></span>
 
     <hr>
 
