@@ -20,6 +20,7 @@
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 import java.awt.FontMetrics;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -30,6 +31,7 @@ import javax.swing.table.DefaultTableModel;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.DataObject;
@@ -135,10 +137,12 @@ public class SearchResultTableModel extends DefaultTableModel {
      * @return Returns the date or <code>null</code>.
      */
     private Date getADate(DataObject obj) {
-        if(obj instanceof ImageData)
-            return new Date(((ImageData) obj).getAcquisitionDate().getTime());
-        else
-            return null;
+        if (obj instanceof ImageData) {
+            Timestamp time = EditorUtil.getAcquisitionTime((ImageData) obj);
+            if (time == null) return null;
+            return new Date(time.getTime());
+        }
+        return null;
     }
 
     /**
@@ -147,8 +151,10 @@ public class SearchResultTableModel extends DefaultTableModel {
      * @param obj The object to handle.
      * @return Returns the date or <code>null</code>.
      */
-    private Date getIDate(DataObject obj) {
-        return new Date(obj.getCreated().getTime());
+    private Object getIDate(DataObject obj) {
+        Timestamp time = obj.getCreated();
+        if (time == null) return null; //in case it is not loaded.
+        return new Date(time.getTime());
     }
 
     /**
