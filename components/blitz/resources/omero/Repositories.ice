@@ -489,6 +489,7 @@ module omero {
              * Set the checksum algorithm for the original files identified
              * by the given IDs and calculate their checksum accordingly.
              * The files must be in this repository.
+             * Existing checksums are checked before being changed.
              * Returns the IDs of the original files that did not already
              * have a checksum set for the given algorithm.
              */
