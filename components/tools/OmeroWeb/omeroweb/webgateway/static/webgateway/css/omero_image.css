@@ -316,7 +316,7 @@ button.pressed {
   background-color: #D1D3D5;   
 }
 
-.postit button {
+.postit button .preset-color-btn{
   width: 18px;
   height: 16px;
   padding: 0px;

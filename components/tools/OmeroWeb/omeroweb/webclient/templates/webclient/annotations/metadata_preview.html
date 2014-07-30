@@ -80,6 +80,9 @@
         var PLATE_LINKS_URL_999 = '{% url 'webgateway_object_table_query' 'Screen.plateLinks.child.wells' 999 %}';
         var PLATE_WELLS_URL_999 = '{% url 'webgateway_object_table_query' 'Plate.wells' 999 %}';
 
+        // not needed, but prevents error message
+        var rdChanSelHelper = function() {};
+
         $(document).ready(function() {
 
             // Fix size according to right panel size... NB: this behaviour is also in right_plugin.preview.js
@@ -123,9 +126,13 @@
                 });
             });
 
-            $("#rdef-apply-btn").click(function(){
+            var applysettings = function(){
               applyRDCW(OME.preview_viewport);
-            });
+            }
+
+            $("#rdef-apply-btn").click(applysettings);
+            $('#rd-wblitz-rmodel').click(applysettings);
+
             $("#rdef-setdef-btn").click(function(){
               setImageDefaults(OME.preview_viewport, this, function() {
                 OME.refreshThumbnails({{ manager.image.id }});

@@ -338,8 +338,7 @@
                 zindex_automator('.postit', 210, $('#cbpicker-box'));
             })
             .bind('changed', function () {
-                $("#rd-wblitz-rmodel").attr('checked', true);     // if we're updating color - show color (not greyscale)
-                $(this).parents('tr:first').next().find('.ui-slider-range').css('background-color', $(this).css('background-color'));
+                applyRDCW(viewport);
             });
 
         // Don't see any obvious bugs when these are removed.
