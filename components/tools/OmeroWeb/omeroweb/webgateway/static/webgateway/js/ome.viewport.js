@@ -897,7 +897,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
       channels_undo_stack_ptr--;
       var entry = channels_undo_stack[channels_undo_stack_ptr];
       this.setModel(entry.model);
-      for (var i in entry.channels) {
+      for (var i=0; i < entry.channels.length; i++) {
         this.setChannelWindow(i, entry.channels[i].windowStart, entry.channels[i].windowEnd, true);
         this.setChannelColor(i, entry.channels[i].color, true);
         this.setChannelActive(i, entry.channels[i].active, true);

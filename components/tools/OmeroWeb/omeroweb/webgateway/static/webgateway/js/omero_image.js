@@ -15,6 +15,11 @@
         /*$('.picker-selected').html('&nbsp;');*/
     }
 
+    window.resetRDCW = function (viewport) {
+        viewport.reset_channels();
+        syncRDCW(viewport);
+    }
+
     window.resetImageDefaults = function (viewport, obj, callback) {
         var msg = '<h2>Resetting rendering settings</h2><ul><li>This will reset the image rendering settings to their original state at time of import.</li></ul>';
         var url = viewport.viewport_server + '/resetImgRDef/'+viewport.loadedImg.id+'/';

@@ -571,12 +571,6 @@
     showLinePlot();
   };
 
-  function resetRDCW() {
-    viewport.reset_channels();
-    syncRDCW(viewport);
-  }
-
-
   function undoRDCW () {
     viewport.undo_channels();
     syncRDCW(viewport);
@@ -753,7 +747,7 @@
           
         {% endif %}
         {% endblock save_rdef %}
-          <button id="rdef-default-btn" onclick="return resetRDCW();" title="Returns to the saved settings.">default</button>
+          <button id="rdef-default-btn" title="Returns to the saved settings.">default</button>
           <button id="rdef-undo-btn" onclick="return undoRDCW();" title="Returns to the settings as they were before clicking apply.">undo</button>
           <button id="rdef-redo-btn" onclick="return redoRDCW();" title="Returns to the settings as they were before clicking undo.">redo</button>
           <button id="rdef-apply-btn" title="Applies the current settings to the open image.">apply</button>
@@ -1161,6 +1155,9 @@
             window.opener.OME.refreshThumbnails({{ image.id }});
         }
       });
+    });
+    $("#rdef-default-btn").click(function(){
+      resetRDCW(viewport);
     });
     
     /* And we're done! */

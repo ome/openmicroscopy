@@ -51,7 +51,7 @@
         background-color: #eee;
       }
       .rangewidget input {
-        width: 4.0em;
+        width: 3.1em;
       }
       .rangeslider {
         background: none repeat scroll 0 0 white;
@@ -121,6 +121,9 @@
                 OME.refreshThumbnails({{ manager.image.id }});
               });
             });
+            $("#rdef-default-btn").click(function(){
+              resetRDCW(OME.preview_viewport);
+            });
 
         });
     </script>
@@ -171,7 +174,7 @@
           
         {% endif %}
         {% endblock save_rdef %}
-          <button id="rdef-default-btn" onclick="return resetRDCW();" title="Returns to the saved settings.">default</button>
+          <button id="rdef-default-btn" title="Returns to the saved settings.">default</button>
           <button id="rdef-undo-btn" onclick="return undoRDCW();" title="Returns to the settings as they were before clicking apply.">undo</button>
           <button id="rdef-redo-btn" onclick="return redoRDCW();" title="Returns to the settings as they were before clicking undo.">redo</button>
           <button id="rdef-apply-btn" title="Applies the current settings to the open image.">apply</button>
