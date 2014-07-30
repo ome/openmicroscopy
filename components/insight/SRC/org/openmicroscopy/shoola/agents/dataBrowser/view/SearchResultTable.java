@@ -73,7 +73,7 @@ public class SearchResultTable extends JXTable {
 
     /** Defines the format how the date is shown */
     private static final DateFormat DATE_FORMAT = new SimpleDateFormat(
-            "yyyy-MM-dd hh:mm:ss"); //2013-04-20 18:13:43
+            "yyyy-MM-dd HH:mm:ss"); //2013-04-20 18:13:43
     
     /** Reference to the DataBrowserModel */
     private AdvancedResultSearchModel model;
