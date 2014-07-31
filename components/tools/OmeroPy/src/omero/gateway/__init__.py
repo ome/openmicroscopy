@@ -7719,7 +7719,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         return True
 
     @assert_re()
-    def resetDefaults(self):
+    def resetDefaults(self, save=True):
         if not self.canAnnotate():
             return False
         ns = self._conn.CONFIG.IMG_ROPTSNS
@@ -7732,7 +7732,10 @@ class _ImageWrapper (BlitzObjectWrapper):
             self.linkAnnotation(ann)
         ctx = self._conn.SERVICE_OPTS.copy()
         ctx.setOmeroGroup(self.details.group.id.val)
-        self._re.resetDefaults(ctx)
+        if save:
+            self._re.resetDefaults(ctx)
+        else:
+            self._re.resetDefaultsNoSave(ctx)
         return True
 
     def countArchivedFiles (self):
