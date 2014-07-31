@@ -95,20 +95,28 @@
                 {% with c=byId.obj %}
                 <tr id="{{ byId.otype }}-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
-                        {% ifequal byId.otype 'image' %}
-                        <img class="search_thumb" id="{{ c.id }}" src="{% url 'render_thumbnail_resize' 96 c.id  %}" alt="image" title="{{ c.name }}"/>
-                        {% else %}
-                        <img src="{% static "webgateway/img/folder16.png" %}" alt="{{ byId.otype }}" title="{{ c.name }}"/>
-                        {% endifequal %}
+                        {% if byId.otype == 'image' %}
+                            <img class="search_thumb" id="{{ c.id }}" src="{% url 'render_thumbnail_resize' 96 c.id  %}" alt="image" title="{{ c.name }}"/>
+                        {% elif byId.otype == 'project' %}
+                            <img src="{% static "webgateway/img/folder16.png" %}" alt="{{ byId.otype }}" title="{{ c.name }}"/>
+                        {% elif byId.otype == 'dataset' %}
+                            <img src="{% static "webgateway/img/folder_image16.png" %}" alt="{{ byId.otype }}" title="{{ c.name }}"/>
+                        {% elif byId.otype == 'screen' %}
+                            <img src="{% static "webclient/image/folder_screen16.png" %}" alt="{{ byId.otype }}" title="{{ c.name }}"/>
+                        {% elif byId.otype == 'plate' %}
+                            <img src="{% static "webclient/image/folder_plate16.png" %}" alt="{{ byId.otype }}" title="{{ c.name }}"/>
+                        {% endif %}
+
                     </td>
                     <td class="desc">
                         <span style="color:red">ID: {{ c.id }}</span>
                         <a>{{ c.name|truncatebefor:"65" }}</a>
                     </td>
-                    <td class="date">{{ c.getDate|date:"Y-m-d H:i:s" }}</td>
                     <td class="date">
-                        {% ifequal byId.otype 'image' %}{{ c.creationEventDate|date:"Y-m-d H:i:s" }}{% endifequal %}
+                        <!-- only show Acquisition dates for 'image'. NB image.getDate() returns AquisitionDate-->
+                        {% ifequal byId.otype 'image' %}{{ c.getDate|date:"Y-m-d H:i:s" }}{% endifequal %}
                     </td>
+                    <td class="date">{{ c.creationEventDate|date:"Y-m-d H:i:s" }}</td>
                     <td class="group">{{ c.getDetails.group.name.val }}</td>
                     <td><a href="{% url 'webindex' %}?show={{ byId.otype }}-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
                         {% trans "Browse" %}
@@ -133,7 +141,7 @@
             {% for c in manager.containers.screens %}
                 <tr id="screen-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
-                        <img id="{{ c.id }}" src="{% static "webclient/image/folder_screen32.png" %}" alt="screen" title="{{ c.name }}"/>
+                        <img id="{{ c.id }}" src="{% static "webclient/image/folder_screen16.png" %}" alt="screen" title="{{ c.name }}"/>
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="date"></td>
@@ -161,7 +169,7 @@
             {% for c in manager.containers.plates %}
                 <tr id="plate-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
-                        <img id="{{ c.id }}" src="{% static "webclient/image/folder_plate32.png" %}" alt="plate" title="{{ c.name }}"/>
+                        <img id="{{ c.id }}" src="{% static "webclient/image/folder_plate16.png" %}" alt="plate" title="{{ c.name }}"/>
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="date"></td>
