@@ -62,8 +62,8 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 
-import org.openmicroscopy.shoola.env.LookupNames;
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
@@ -4148,17 +4148,57 @@ class OMEROGateway
 	}
 
 	/**
+	 * Updates the group's permissions
+	 * @param ctx The security context.
+         * @param group The group to update.
+         * @param permissions The new permissions.
+	 * @return
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+        RequestCallback updateGroupPermissions(SecurityContext ctx,
+                GroupData group, int permissions) throws DSOutOfServiceException,
+                DSAccessException {
+            if (group.getPermissions().getPermissionsLevel() != permissions
+                    && permissions >= 0) {
+                try {
+                    String r = "rw----";
+                    switch (permissions) {
+                        case GroupData.PERMISSIONS_GROUP_READ:
+                            r = "rwr---";
+                            break;
+                        case GroupData.PERMISSIONS_GROUP_READ_LINK:
+                            r = "rwra--";
+                            break;
+                        case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+                            r = "rwrw--";
+                            break;
+                        case GroupData.PERMISSIONS_PUBLIC_READ:
+                            r = "rwrwr-";
+                    }
+                    Chmod chmod = new Chmod(REF_GROUP, group.getId(), null, r);
+                    List<Request> l = new ArrayList<Request>();
+                    l.add(chmod);
+                    return getConnector(ctx, true, false).submit(l, null);
+                } catch (Throwable e) {
+                    handleException(e, "Cannot update the group's permissions. ");
+                }
+    
+            }
+            return null;
+        }
+	
+	/**
 	 * Updates the specified group.
 	 *
 	 * @param ctx The security context.
 	 * @param group	The group to update.
-	 * @param permissions The new permissions.
+	 * 
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
-	RequestCallback updateGroup(SecurityContext ctx, GroupData group,
-			int permissions)
+	void updateGroup(SecurityContext ctx, GroupData group)
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
@@ -4166,31 +4206,9 @@ class OMEROGateway
 		    IAdminPrx svc = c.getAdminService();
 			ExperimenterGroup g = group.asGroup();
 			svc.updateGroup(g);
-			if (group.getPermissions().getPermissionsLevel() != permissions
-					&& permissions >= 0) {
-				String r = "rw----";
-				switch (permissions) {
-					case GroupData.PERMISSIONS_GROUP_READ:
-						r = "rwr---";
-						break;
-					case GroupData.PERMISSIONS_GROUP_READ_LINK:
-						r = "rwra--";
-						break;
-					case GroupData.PERMISSIONS_GROUP_READ_WRITE:
-						r = "rwrw--";
-						break;
-					case GroupData.PERMISSIONS_PUBLIC_READ:
-						r = "rwrwr-";
-				}
-				Chmod chmod = new Chmod(REF_GROUP, group.getId(), null, r);
-				List<Request> l = new ArrayList<Request>();
-				l.add(chmod);
-				return getConnector(ctx, true, false).submit(l, null);
-			}
 		} catch (Throwable t) {
 			handleException(t, "Cannot update the group. ");
 		}
-		return null;
 	}
 
 	/**
