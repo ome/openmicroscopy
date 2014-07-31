@@ -149,6 +149,16 @@
               resetRDCW(OME.preview_viewport);
             });
 
+            // Undo/redo buttons
+            $("#rdef-undo-btn").click(function(){
+              OME.preview_viewport.undo_channels();
+              syncRDCW(OME.preview_viewport);
+            });
+            $("#rdef-redo-btn").click(function(){
+              OME.preview_viewport.redo_channels();
+              syncRDCW(OME.preview_viewport);
+            });
+
         });
     </script>
 
@@ -194,8 +204,8 @@
           reset
         </button>
         <button style="display:none" id="rdef-default-btn" title="Returns to the saved settings.">default</button>
-        <button style="display:none" id="rdef-undo-btn" onclick="return undoRDCW();" title="Returns to the settings as they were before clicking apply.">undo</button>
-        <button style="display:none" id="rdef-redo-btn" onclick="return redoRDCW();" title="Returns to the settings as they were before clicking undo.">redo</button>
+        <button id="rdef-undo-btn" title="Returns to the settings as they were before clicking apply.">undo</button>
+        <button id="rdef-redo-btn" title="Returns to the settings as they were before clicking undo.">redo</button>
       </li>
       {% block batch_copy %}
       {% if dataset.canOwnerWrite %}
