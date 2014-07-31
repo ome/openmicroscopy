@@ -939,6 +939,14 @@ class RendererComponent
 		}
 	}
 
+       /** 
+        * Implemented as specified by the {@link Renderer} interface.
+        * @see Renderer#isModified()
+        */
+	public boolean isModified() {
+	    return model.isModified();
+	}
+	
 	/** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#validatePixels(PixelsData)

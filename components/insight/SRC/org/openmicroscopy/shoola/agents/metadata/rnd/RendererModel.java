@@ -1348,6 +1348,16 @@ class RendererModel
 		if (rndControl == null) return false;
 		return rndControl.isSameSettings(def, checkPlane);
 	}
+	
+       /**
+        * Returns <code>true</code> if the rendering settings 
+        * have been modified
+        *
+        * @return See above.
+        */
+	boolean isModified() {
+	    return !rndControl.isSameSettings(rndDef, true);
+	}
 
     /**
      * Returns <code>true</code> if the image with the active channels
