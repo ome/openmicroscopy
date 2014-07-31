@@ -301,13 +301,14 @@ public class DomainPane
         familyBox.addActionListener(this);
         familyBox.setActionCommand(""+FAMILY);
         
+        boolean gammaEnabled = family.equals(RendererModel.EXPONENTIAL) ||
+                family.equals(RendererModel.POLYNOMIAL);
         double k = model.getCurveCoefficient();
         gammaSlider = new OneKnobSlider(JSlider.HORIZONTAL, MIN_GAMMA,
         							MAX_GAMMA, (int) (k*FACTOR));
         gammaSlider.setBackground(UIUtilities.BACKGROUND_COLOR);
         gammaSlider.setShowArrows(false);
-        gammaSlider.setEnabled(family.equals(RendererModel.EXPONENTIAL) ||
-                family.equals(RendererModel.POLYNOMIAL));
+        gammaSlider.setEnabled(gammaEnabled);
         gammaSlider.addChangeListener(this);
         gammaSlider.addMouseListener(new MouseAdapter() {
 
@@ -320,8 +321,24 @@ public class DomainPane
         });
         gammaLabel = new JTextField(""+k);
         gammaLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
-        gammaLabel.setEnabled(false);
-        gammaLabel.setEditable(false);
+        gammaLabel.setEnabled(gammaEnabled);
+        gammaLabel.setEditable(true);
+        gammaLabel.addActionListener(new ActionListener() {
+            
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                try {
+                    double value = Double.parseDouble(gammaLabel.getText());
+                    gammaSlider.setValue((int)(value*FACTOR));
+                    int channel = channelsBox.getSelectedIndex();
+                    controller.setCurveCoefficient(channel, value);
+                } catch (NumberFormatException e1) {
+                    gammaLabel.setText(""+(double) gammaSlider.getValue()/FACTOR);
+                }
+            }
+            
+        });
+        
         int v = model.getBitResolution();
         bitDepthSlider = new OneKnobSlider(JSlider.HORIZONTAL, MIN_BIT_DEPTH,
                                 MAX_BIT_DEPTH, convertBitResolution(v));
@@ -842,9 +859,10 @@ public class DomainPane
 		if (familyBox != null) familyBox.setEnabled(b);
 		if (gammaSlider != null) {
 			String family = model.getFamily();
-			gammaSlider.setEnabled(b);
-			gammaSlider.setEnabled(family.equals(RendererModel.EXPONENTIAL) || 
-	                family.equals(RendererModel.POLYNOMIAL));
+			boolean enabled = family.equals(RendererModel.EXPONENTIAL) || 
+	                        family.equals(RendererModel.POLYNOMIAL);
+			gammaSlider.setEnabled(enabled);
+			gammaLabel.setEnabled(enabled);
 		}
 		if (bitDepthSlider != null) bitDepthSlider.setEnabled(b);
 		if (noiseReduction != null) noiseReduction.setEnabled(b);
@@ -973,6 +991,7 @@ public class DomainPane
         if (b) k = model.getCurveCoefficient();
         resetGamma(k);
         gammaSlider.setEnabled(b);
+        gammaLabel.setEnabled(b);
         graphicsPane.onCurveChange(); 
     }
     
@@ -1103,12 +1122,14 @@ public class DomainPane
                 familyBox.setSelectedItem(family);
                 familyBox.addActionListener(this);
                 //set the gamma.
+                boolean enabled = family.equals(RendererModel.EXPONENTIAL) ||
+                        family.equals(RendererModel.POLYNOMIAL);
                 gammaSlider.removeChangeListener(this);
                 gammaSlider.setValue((int) (coefficient*FACTOR));
-                gammaSlider.setEnabled(family.equals(RendererModel.EXPONENTIAL) ||
-                        family.equals(RendererModel.POLYNOMIAL));
+                gammaSlider.setEnabled(enabled);
                 gammaSlider.addChangeListener(this);
                 gammaLabel.setText(""+coefficient);
+                gammaLabel.setEnabled(enabled);
                 controller.setChannelSelection(v, true);
             }
         } catch(NumberFormatException nfe) {  
