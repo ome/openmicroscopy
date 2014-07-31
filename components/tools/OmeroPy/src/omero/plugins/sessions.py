@@ -203,7 +203,7 @@ class SessionsControl(BaseControl):
         Reconnect if possible (assuming parameters are the same)
         """
 
-        if self.ctx.conn():
+        if self.ctx.conn() and not self.ctx.isquiet:
             self.ctx.err("Active client found")
             return  # EARLY EXIT
 
@@ -263,10 +263,10 @@ class SessionsControl(BaseControl):
         #
         pasw = args.password
         if args.key:
-            if name:
+            if name and not self.ctx.isquiet:
                 self.ctx.err("Overriding name since session set")
             name = args.key
-            if args.password:
+            if args.password and not self.ctx.isquiet:
                 self.ctx.err("Ignoring password since key set")
             pasw = args.key
         #
@@ -453,7 +453,8 @@ class SessionsControl(BaseControl):
 
         msg += (" Current group: %s" % ec.groupName)
 
-        self.ctx.err(msg)
+        if not self.ctx.isquiet:
+            self.ctx.err(msg)
 
     def logout(self, args):
         store = self.store(args)
@@ -483,7 +484,7 @@ class SessionsControl(BaseControl):
         ec = self.ctx._event_context  # 5711
         old_id = ec.groupId
         old_name = ec.groupName
-        if old_id == group_id:
+        if old_id == group_id and not self.ctx.isquiet:
             self.ctx.err("Group '%s' (id=%s) is already active"
                          % (group_name, group_id))
         else:
