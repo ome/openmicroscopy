@@ -90,7 +90,7 @@ def monitorPackage():
         elif version[1] == '7':
             current = 'WIN_7'
         else:
-            errorString = "Windows XP, Vista, 7, 2003Server or 2008Server required. You have: %s" % platform.platform()
+            errorString = "Windows XP, Vista, 7 or Server 2003, 2008 or 2008R2 required. You have: %s" % platform.platform()
 
     # Unknown OS.
     else:
