@@ -145,9 +145,6 @@
                 OME.refreshThumbnails({{ manager.image.id }});
               });
             });
-            $("#rdef-default-btn").click(function(){
-              resetRDCW(OME.preview_viewport);
-            });
 
             // Undo/redo buttons
             $("#rdef-undo-btn").click(function(){
@@ -203,7 +200,6 @@
             title="Returns the image settings to their original state at time of import.">
           reset
         </button>
-        <button style="display:none" id="rdef-default-btn" title="Returns to the saved settings.">default</button>
         <button id="rdef-undo-btn" title="Returns to the settings as they were before clicking apply.">undo</button>
         <button id="rdef-redo-btn" title="Returns to the settings as they were before clicking undo.">redo</button>
       </li>
