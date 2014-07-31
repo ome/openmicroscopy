@@ -119,6 +119,12 @@
         }
         hidePicker();
 
+        updateUndoRedo(viewport);
+        $('#rd-wblitz-rmodel').attr('checked', !viewport.isGreyModel());
+        syncChannelsActive(viewport);
+    }
+
+    window.updateUndoRedo = function(viewport) {
         // update disabled status of undo/redo buttons
         if (viewport.has_channels_undo()) {
             $('#rdef-undo-btn').removeAttr('disabled');
@@ -130,9 +136,6 @@
         } else {
             $('#rdef-redo-btn').attr('disabled', 'disabled');
         }
-
-        $('#rd-wblitz-rmodel').attr('checked', !viewport.isGreyModel());
-        syncChannelsActive(viewport);
     }
 
     var on_batchCopyRDefs = false;
@@ -184,6 +187,8 @@
         var doToggle = function(index) {
             return function() {
                 viewport.toggleChannel(index);
+                viewport.save_channels();
+                updateUndoRedo(viewport);
             }
         }
         for (i=0; i<channels.length; i++) {
