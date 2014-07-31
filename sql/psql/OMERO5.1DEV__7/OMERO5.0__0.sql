@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.0__0 to OMERO5.1DEV__6.
+--- OMERO5 development release upgrade from OMERO5.0__0 to OMERO5.1DEV__7.
 ---
 
 BEGIN;
@@ -44,7 +44,7 @@ DROP FUNCTION omero_assert_db_version(varchar, int);
 
 
 INSERT INTO dbpatch (currentVersion, currentPatch,   previousVersion,     previousPatch)
-             VALUES ('OMERO5.1DEV',     6,              'OMERO5.0',       0);
+             VALUES ('OMERO5.1DEV',     7,              'OMERO5.0',       0);
 
 --
 -- Actual upgrade
@@ -511,8 +511,11 @@ DROP FUNCTION is_too_many_group_ids(VARIADIC group_ids BIGINT[]);
 DELETE FROM annotation
       WHERE discriminator IN ('/basic/text/uri/', '/basic/text/url/');
 
+
+-- Remove all DB checks
+
 DELETE FROM configuration
-      WHERE name in ('DB check DBBadAnnotationCheck', 'DB check DBInsertTriggerCheck');
+      WHERE name LIKE ('DB check %');
 
 
 -- Annotation link triggers for search
@@ -665,6 +668,41 @@ CREATE TRIGGER wellsample_annotation_link_event_trigger_insert
         FOR EACH ROW
         EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.screen.WellSample');
 
+-- Add new checksum algorithm to enumeration.
+
+INSERT INTO checksumalgorithm (id, permissions, value) 
+    SELECT ome_nextval('seq_checksumalgorithm'), -52, 'File-Size-64'
+    WHERE NOT EXISTS (SELECT id FROM checksumalgorithm WHERE value = 'File-Size-64');
+
+-- Reverse endianness of hashes calculated with adjusted algorithms.
+
+CREATE FUNCTION reverse_endian(forward TEXT) RETURNS TEXT AS $$
+
+DECLARE
+    index INTEGER := length(forward) - 1;
+    backward TEXT := '';
+
+BEGIN
+    WHILE index > 0 LOOP
+        backward := backward || substring(forward FROM index FOR 2);
+        index := index - 2;
+    END LOOP;
+    IF index = 0 THEN
+        RAISE 'cannot reverse strings of odd length';
+    END IF;
+    RETURN backward;
+END;
+$$ LANGUAGE plpgsql;
+
+UPDATE originalfile SET hash = reverse_endian(hash)
+    WHERE hash IS NOT NULL AND hasher IN
+    (SELECT id FROM checksumalgorithm WHERE value IN ('Adler-32', 'CRC-32'));
+
+DROP FUNCTION reverse_endian(TEXT);
+
+-- Acquisition date is already optional in XML schema.
+
+ALTER TABLE image ALTER COLUMN acquisitiondate DROP NOT NULL;
 
 --
 -- FINISHED
@@ -672,10 +710,10 @@ CREATE TRIGGER wellsample_annotation_link_event_trigger_insert
 
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
     WHERE currentVersion  = 'OMERO5.1DEV' AND
-          currentPatch    = 6             AND
+          currentPatch    = 7             AND
           previousVersion = 'OMERO5.0'    AND
           previousPatch   = 0;
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.1DEV__6'||CHR(10)||CHR(10)||CHR(10) AS Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.1DEV__7'||CHR(10)||CHR(10)||CHR(10) AS Status;
 
 COMMIT;

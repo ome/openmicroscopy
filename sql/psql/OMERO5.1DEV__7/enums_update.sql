@@ -149,6 +149,10 @@ insert into checksumalgorithm (id,permissions,value)
     select ome_nextval('seq_checksumalgorithm'),-35,'SHA1-160' from checksumalgorithm where not exists(
         select 1 from checksumalgorithm where value = 'SHA1-160') limit 1;
 
+insert into checksumalgorithm (id,permissions,value)
+    select ome_nextval('seq_checksumalgorithm'),-35,'File-Size-64' from checksumalgorithm where not exists(
+        select 1 from checksumalgorithm where value = 'File-Size-64') limit 1;
+
 insert into contrastmethod (id,permissions,value)
     select ome_nextval('seq_contrastmethod'),-35,'Brightfield' from contrastmethod where not exists(
         select 1 from contrastmethod where value = 'Brightfield') limit 1;

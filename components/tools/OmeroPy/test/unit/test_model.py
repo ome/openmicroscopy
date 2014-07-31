@@ -311,7 +311,7 @@ class TestModel(object):
         assert info.acquisitionDate.wrapper == rtime
 
         assert not info.name.nullable
-        assert not info.acquisitionDate.nullable
+        assert info.acquisitionDate.nullable
 
         image.setAcquisitionDate("1", wrap=True)
         assert type(image.acquisitionDate) == type(rtime(0))

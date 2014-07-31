@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -27,18 +27,18 @@ import org.testng.annotations.Test;
 
 @Test
 public class CRC32ChecksumProviderImplTest
-    extends AbstractChecksumProviderIntegrationTest {
+    extends AbstractChecksumProviderAlgorithmTest {
 
     private static EnumMap<ChecksumTestVector, String> map =
             new EnumMap<ChecksumTestVector, String>(ChecksumTestVector.class);
 
     @BeforeClass
     public void setUp() {
-        map.put(ChecksumTestVector.ABC, "352441c2");
+        map.put(ChecksumTestVector.ABC, "c2412435");
         map.put(ChecksumTestVector.EMPTYARRAY, "00000000");
-        map.put(ChecksumTestVector.SMALLFILE, "25da8800");
-        map.put(ChecksumTestVector.MEDIUMFILE, "12490048");
-        map.put(ChecksumTestVector.BIGFILE, "bd452902");
+        map.put(ChecksumTestVector.SMALLFILE, "0088da25");
+        map.put(ChecksumTestVector.MEDIUMFILE, "48004912");
+        map.put(ChecksumTestVector.BIGFILE, "022945bd");
     }
 
     public CRC32ChecksumProviderImplTest() {

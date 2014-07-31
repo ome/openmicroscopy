@@ -3508,7 +3508,7 @@ class _BlitzGateway (object):
 
         fields = [str(f) for f in fields]
         # # for each phrase or token, we strip out all non alpha-numeric
-        # except when inside double quotes. 
+        # except when inside double quotes.
         # To preserve quoted phrases we split by "
         phrases = text.split('"')
         tokens = []
@@ -3552,7 +3552,8 @@ class _BlitzGateway (object):
         return text, leadingWc
 
 
-    def searchObjects(self, obj_types, text, created=None, fields=(), batchSize=1000, page=0, searchGroup=None, ownedBy=None):
+    def searchObjects(self, obj_types, text, created=None, fields=(), batchSize=1000, page=0, searchGroup=None, ownedBy=None,
+                      useAcquisitionDate=False):
         """
         Search objects of type "Project", "Dataset", "Image", "Screen", "Plate"
         Returns a list of results
@@ -3560,6 +3561,7 @@ class _BlitzGateway (object):
         @param obj_types:   E.g. ["Dataset", "Image"]
         @param text:        The text to search for
         @param created:     L{omero.rtime} list or tuple (start, stop)
+        @param useAcquisitionDate if True, then use Image.acquisitionDate rather than import date for queries.
         @return:            List of Object wrappers. E.g. L{ImageWrapper}
         """
         if not text:
@@ -3588,24 +3590,36 @@ class _BlitzGateway (object):
                 details.setOwner(omero.model.ExperimenterI(ownedBy, False))
                 search.onlyOwnedBy(details, ctx)
 
-        text, leadingWc = self.buildSearchQuery(text, fields)
-        if leadingWc:
-            search.setAllowLeadingWildcard(True, ctx)
+        # Matching OMEROGateway.search()
+        search.setAllowLeadingWildcard(True)
+        search.setCaseSentivice(False)
 
-        if len(text) == 0:
-            return []
+        def parse_time(c, i):
+            try:
+                t = c[i]
+                t = unwrap(t)
+                if t is not None:
+                    t = time.localtime(t / 1000)
+                    t = time.strftime("%Y%m%d", t)
+                    return t
+            except:
+                pass
+            return None
 
-        logger.debug("Searching for: '%s'" % text);
+        d_from = parse_time(created, 0)
+        d_to = parse_time(created, 1)
+        d_type = useAcquisitionDate and "acquisitionDate" or "details.creationEvent.time"
 
         try:
-            if created:
-                search.onlyCreatedBetween(created[0], created[1], ctx);
             rv = []
             for t in types:
                 def actualSearch ():
                     search.onlyType(t().OMERO_CLASS, ctx)
-                    # search.bySomeMustNone(some, [], [])
-                    search.byFullText(text, ctx)
+                    search.byLuceneQueryBuilder(
+                        ",".join(fields),
+                        d_from, d_to, d_type,
+                        text, ctx)
+
                 timeit(actualSearch)()
                 # get results
                 def searchProcessing ():

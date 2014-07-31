@@ -96,10 +96,12 @@ public class SearchPanel extends JPanel {
     private static final int AREA_COLUMNS = 12;
 
     /** The date format for the date pickers */
-    private static final String DATE_PICKER_FORMAT = "yyyy/MM/dd";
+    private static final String DATE_PICKER_FORMAT = "yyyy-MM-dd";
 
-    private static final String DATE_TOOLTIP = "<html>Please select a date from the drop-down menu or enter<br> a date in the format Year/Month/Day (e. g. 2014/07/10)</html>";
+    private static final String DATE_TOOLTIP = "<html>Please select a date from the drop-down menu or enter<br> a date in the format YYYY-MM-DD (e. g. 2014-07-10)</html>";
  
+    private static final String DATE_TYPE_TOOLTIP = "Select the type of date (Acquisition date applies to images only)";
+    
     /** Possible time options. */
     private static String[] dateOptions;
 
@@ -174,9 +176,6 @@ public class SearchPanel extends JPanel {
 
     /** The component hosting either the advanced or basic search component. */
     private JPanel searchFor;
-
-    /** The collection of buttons to add. */
-    private List<JButton> controls;
 
     /** The box displaying the groups. */
     private JComboBox groupsBox;
@@ -526,24 +525,9 @@ public class SearchPanel extends JPanel {
         basicSearchComp.setBackground(UIUtilities.BACKGROUND_COLOR);
         UIUtilities.setBoldTitledBorder("Search", basicSearchComp);
         basicSearchComp.setLayout(new BoxLayout(basicSearchComp,
-                BoxLayout.Y_AXIS));
+                BoxLayout.X_AXIS));
         basicSearchComp.add(fullTextArea);
-        JToolBar bar = new JToolBar();
-        bar.setBackground(UIUtilities.BACKGROUND_COLOR);
-        bar.setFloatable(false);
-        bar.setRollover(true);
-        bar.setBorder(null);
-        bar.add(helpBasicButton);
-        if (!CollectionUtils.isEmpty(controls)) {
-            Iterator<JButton> i = controls.iterator();
-            while (i.hasNext()) {
-                bar.add(i.next());
-            }
-        }
-        JPanel p = UIUtilities.buildComponentPanel(bar);
-        p.setBackground(UIUtilities.BACKGROUND_COLOR);
-
-        basicSearchComp.add(p);
+        basicSearchComp.add(helpBasicButton);
         return basicSearchComp;
     }
 
@@ -582,8 +566,9 @@ public class SearchPanel extends JPanel {
         c.gridx = 0;
         c.gridy = 0;
         dateBox = new JComboBox();
-        dateBox.addItem(ITEM_ACQUISITIONDATE);
+        dateBox.setToolTipText(DATE_TYPE_TOOLTIP);
         dateBox.addItem(ITEM_IMPORTDATE);
+        dateBox.addItem(ITEM_ACQUISITIONDATE);
         p.add(dateBox);
 
         c.gridy++;
@@ -639,14 +624,11 @@ public class SearchPanel extends JPanel {
      * 
      * @param model
      *            Reference to the model. Mustn't be <code>null</code>.
-     * @param controls
-     *            The collection of buttons to add next to the help etc.
      */
-    SearchPanel(SearchComponent model, List<JButton> controls) {
+    SearchPanel(SearchComponent model) {
         if (model == null)
             throw new IllegalArgumentException("No model.");
         this.model = model;
-        this.controls = controls;
         initComponents();
         buildGUI();
     }

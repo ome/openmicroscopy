@@ -87,6 +87,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
             put("Murmur3-32", ChecksumType.MURMUR32).
             put("Murmur3-128", ChecksumType.MURMUR128).
             put("SHA1-160", ChecksumType.SHA1).
+            put("File-Size-64", ChecksumType.FILE_SIZE).
             build();
 
     /** The id of the original files instance. */

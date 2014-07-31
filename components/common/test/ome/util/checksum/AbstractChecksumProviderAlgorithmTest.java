@@ -38,7 +38,7 @@ import org.testng.annotations.Test;
  * @author Blazej Pindelski, bpindelski at dundee.ac.uk
  * @since 4.4.7
  */
-public abstract class AbstractChecksumProviderIntegrationTest {
+public abstract class AbstractChecksumProviderAlgorithmTest {
 
     ChecksumProvider checksumProvider;
 
@@ -46,7 +46,7 @@ public abstract class AbstractChecksumProviderIntegrationTest {
 
     private EnumMap<ChecksumTestVector, String> checksumValues;
 
-    public AbstractChecksumProviderIntegrationTest(ChecksumProvider cp,
+    public AbstractChecksumProviderAlgorithmTest(ChecksumProvider cp,
             EnumMap<ChecksumTestVector, String> checksumValues) {
         try {
             this.smallFile = ResourceUtils.getFile("classpath:test.jpg");
