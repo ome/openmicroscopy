@@ -118,9 +118,19 @@
                 $('#wblitz-ch'+i+'-cw-end').val(channels[i].window.end).change();
         }
         hidePicker();
-        $('#rdef-undo-btn').attr('disabled', viewport.has_channels_undo()?'':'true');
-        $('#rdef-redo-btn').attr('disabled', viewport.has_channels_redo()?'':'true');
-        //$('#rdef-default-btn').attr('disabled',viewport.has_channels_undo()?'':'true');
+
+        // update disabled status of undo/redo buttons
+        if (viewport.has_channels_undo()) {
+            $('#rdef-undo-btn').removeAttr('disabled');
+        } else {
+            $('#rdef-undo-btn').attr('disabled', 'disabled');
+        }
+        if (viewport.has_channels_redo()) {
+            $('#rdef-redo-btn').removeAttr('disabled');
+        } else {
+            $('#rdef-redo-btn').attr('disabled', 'disabled');
+        }
+
         $('#rd-wblitz-rmodel').attr('checked', !viewport.isGreyModel());
         syncChannelsActive(viewport);
     }
