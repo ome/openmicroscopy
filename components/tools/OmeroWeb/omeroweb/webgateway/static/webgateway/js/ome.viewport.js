@@ -574,6 +574,12 @@ jQuery._WeblitzViewport = function (container, server, options) {
     return _this.loadedImg.size.c;
   };
 
+  this.channelChange = function () {
+    for (var i = 0; i < _this.loadedImg.channels.length; i++) {
+      _this.self.trigger('channelChange', [_this, i, _this.loadedImg.channels[i]]);
+    }
+  }
+
   this.setChannelActive = function (idx, act, noreload) {
     // GreyModel only allows a single active channel, if not 'split' view
     if (this.isGreyModel() && this.getProjection() != 'split') {
@@ -907,6 +913,10 @@ jQuery._WeblitzViewport = function (container, server, options) {
     }
   };
 
+  this.doload = function(){
+    _load();
+  }
+
   this.has_channels_undo = function () {
     return channels_undo_stack_ptr > 0;
   };
@@ -1028,7 +1038,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
           }
         }
         if (t.length > 1) {
-          this.setChannelColor(idx, t[1], true);
+          this.setChannelColor(idx, toRGB(t[1]), true);
         }
       }
     }

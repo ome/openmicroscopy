@@ -141,9 +141,21 @@
               });
             });
             $("#rdef-reset-btn").click(function(){
-              resetImageDefaults(OME.preview_viewport, this, function() {
-                OME.refreshThumbnails({{ manager.image.id }});
-              });
+              // c=1|3118:47337$FFFF00,2|16093:21986$00FF00&m=c&p=normal&ia=0&q=0.9&zm=100&t=1&z=1&x=0&y=0
+              var query = {
+                'c': '1|3118:47337$FFFF00,2|16093:21986$00FF00'
+              }
+              OME.preview_viewport.setQuery(query);
+
+              // seems we need to do a lot of work to update UI
+              OME.preview_viewport.doload();        // loads image
+              syncRDCW(OME.preview_viewport);       // update rdef table
+              OME.preview_viewport.channelChange(); // triggers channel btn update
+
+              // add to undo/redo queue and update undo/redo buttons.
+              OME.preview_viewport.save_channels();
+              updateUndoRedo(OME.preview_viewport);
+
             });
 
             // Undo/redo buttons
