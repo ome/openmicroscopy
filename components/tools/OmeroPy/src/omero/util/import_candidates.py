@@ -42,8 +42,9 @@ def as_stdout(path, readers=""):
 def as_dictionary(path, readers=""):
     """
     Run as_stdout, parses the output and returns a dictionary of the form::
+
         {
-            some_file_in_group : \
+            some_file_in_group :
                 [
                     some_file_in_group
                     some_other_file_in_group
