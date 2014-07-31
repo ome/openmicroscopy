@@ -1150,6 +1150,8 @@ def imageData_json (request, conn=None, _internal=False, **kwargs):
     image = conn.getObject("Image", iid)
     if image is None:
         return HttpJavascriptResponseServerError('""')
+    if request.REQUEST.get('getDefaults') == 'true':
+        image.resetDefaults(save=False)
     rv = imageMarshal(image, key)
     return rv
 

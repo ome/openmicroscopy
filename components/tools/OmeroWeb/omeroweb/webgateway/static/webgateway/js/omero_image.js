@@ -20,26 +20,26 @@
         syncRDCW(viewport);
     }
 
-    window.resetImageDefaults = function (viewport, obj, callback) {
-        var msg = '<h2>Resetting rendering settings</h2><ul><li>This will reset the image rendering settings to their original state at time of import.</li></ul>';
-        var url = viewport.viewport_server + '/resetImgRDef/'+viewport.loadedImg.id+'/';
-        gs_choiceModalJson(msg, [
-                {label: 'ok', url: url, data: {full: true}},
-                {label: 'cancel'}
-            ],
-            function(success, rv) {
-                if (!rv) {
-                    alert('Reset image defaults failed.');
-                } else {
-                    viewport.load(viewport.loadedImg.id, viewport.loadedImg.current.dataset_id);
-                }
+    window.resetImageDefaults = function (viewport, obj, callback) { 
+        viewport.viewportmsg.html("Resetting...").show();
+        $.getJSON(viewport.viewport_server + '/imgData/' + viewport.loadedImg.id + '/?getDefaults=true',
+            function(data){
+                viewport.loadedImg._load(data);
+
+                // seems we need to do a lot of work to update UI
+                viewport.doload();        // loads image
+                syncRDCW(viewport);       // update rdef table
+                viewport.channelChange(); // triggers channel btn update
+
+                // add to undo/redo queue and update undo/redo buttons.
+                viewport.save_channels();
+                updateUndoRedo(viewport);
+
                 if (callback) {
                     callback();
                 }
-            },
-            {css: {width: '50%', left: '25%'}}
+            }
         );
-        return false;
     }
 
     window.setImageDefaults = function (viewport, obj, callback, skip_apply) {
@@ -93,7 +93,7 @@
         }
         //var t = $('#rd-wblitz-ch'+idx).get(0);
         //if (t != undefined) t.checked=ch.active;
-        $('#wblitz-ch'+idx).css('background-color', ch.color).attr('title', ch.label);
+        $('#wblitz-ch'+idx).css('background-color', "#"+rgbToHex(ch.color)).attr('title', ch.label);
     };
 
     window.syncChannelsActive = function(viewport) {
