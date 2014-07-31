@@ -357,7 +357,23 @@ class MetadataViewerModel
 		if (data == null) return refObject;
 		return refObject; 
 	}
-	
+
+	/**
+	 * Returns the image or <code>null</code> if the primary select
+	 * node is an image or a well.
+	 * 
+	 * @return See above.
+	 */
+	ImageData getImage()
+	{
+	    ImageData img = null;
+	    if (refObject instanceof WellSampleData)
+	        img = ((WellSampleData) refObject).getImage();
+	    if (refObject instanceof ImageData)
+	        img = (ImageData) refObject;
+	    return img;
+	}
+
 	/**
 	 * Returns the <code>Browser</code> displaying the metadata.
 	 * 
