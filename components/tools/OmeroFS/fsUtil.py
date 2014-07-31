@@ -32,6 +32,7 @@ def monitorPackage():
                   'WIN_XP'                 : 'fsWin-XP-Monitor',
                   'WIN_2003Server'         : 'fsWin-XP-Monitor',
                   'WIN_2008Server'         : 'fsWin-XP-Monitor',
+                  'WIN_2008ServerR2'       : 'fsWin-XP-Monitor',
                   'WIN_Vista'              : 'fsWin-XP-Monitor',
                   'WIN_7'                  : 'fsWin-XP-Monitor',
                 }
@@ -82,6 +83,8 @@ def monitorPackage():
             current = 'WIN_2003Server'
         elif version[1] == '2008Server':
             current = 'WIN_2008Server'
+        elif version[1] == '2008ServerR2':
+            current = 'WIN_2008ServerR2'
         elif version[1] == 'Vista':
             current = 'WIN_Vista'
         elif version[1] == '7':
