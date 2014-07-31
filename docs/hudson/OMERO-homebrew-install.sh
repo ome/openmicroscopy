@@ -150,8 +150,9 @@ nginx -c $(bin/brew --prefix omero)/etc/nginx.conf
 bin/omero web start
 
 # Test simple Web connection
-url="http://localhost:8080/webclient/login/?username=root&password=$ROOT_PASSWORD&server=1&noredirect=true"
-resp=$(curl -H "Accept: text/plain" -H "Content-type: text/plain" -X GET $url)
+brew install wget
+post_data="username=root&password=$ROOT_PASSWORD&server=1&noredirect=1"
+resp=$(wget --post-data $post_data http://localhost:8080/webclient/login/)
 echo "$resp"
 
 # Stop OMERO.web
