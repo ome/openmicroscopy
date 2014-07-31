@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,12 +19,11 @@
 
 package ome.util.checksum;
 
-import java.util.zip.Adler32;
+import com.google.common.hash.Hashing;
 
 /**
  * An implementation of the {@link ChecksumProvider} interface using Adler32
- * as the message digest algorithm. Passes in a new object of the type
- * {@link NonGuavaHashFunctionImpl} to the parent constructor.
+ * as the message digest algorithm.
  *
  * @author Blazej Pindelski, bpindelski at dundee.ac.uk
  * @since 5.0
@@ -33,7 +32,7 @@ import java.util.zip.Adler32;
 public final class Adler32ChecksumProviderImpl extends AbstractChecksumProvider {
 
     public Adler32ChecksumProviderImpl() {
-        super(new NonGuavaHashFunctionImpl(new Adler32()));
+        super(Hashing.adler32());
     }
 
 }

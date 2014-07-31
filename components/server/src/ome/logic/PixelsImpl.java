@@ -1,15 +1,11 @@
 /*
- *   $Id$
- *
  *   Copyright 2006-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
 package ome.logic;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -27,8 +23,6 @@ import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
 import ome.model.enums.DimensionOrder;
 import ome.model.enums.PixelsType;
-import ome.model.internal.Permissions;
-import ome.model.meta.Session;
 import ome.model.stats.StatsInfo;
 import ome.parameters.Parameters;
 import ome.system.EventContext;
@@ -269,8 +263,7 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 		Pixels pixels = new Pixels();
 		image.setName(name);
 		image.setDescription(description);
-		image.setAcquisitionDate(new Timestamp(new Date().getTime()));
-	
+
 		// Check that the channels in the list are valid. 
 		if (channelList == null || channelList.size() == 0)
 		{

@@ -1329,7 +1329,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.1DEV',  6,    'OMERO5.1DEV',   0,             'Initializing');
+             values ('OMERO5.1DEV',  7,    'OMERO5.1DEV',   0,             'Initializing');
 
 --
 -- Temporarily make event columns nullable; restored below.
@@ -1461,6 +1461,8 @@ insert into checksumalgorithm (id,permissions,value)
     select ome_nextval('seq_checksumalgorithm'),-52,'Murmur3-128';
 insert into checksumalgorithm (id,permissions,value)
     select ome_nextval('seq_checksumalgorithm'),-52,'SHA1-160';
+insert into checksumalgorithm (id,permissions,value)
+    select ome_nextval('seq_checksumalgorithm'),-52,'File-Size-64';
 insert into contrastmethod (id,permissions,value)
     select ome_nextval('seq_contrastmethod'),-52,'Brightfield';
 insert into contrastmethod (id,permissions,value)
@@ -2322,7 +2324,7 @@ after delete on originalfile
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
   where currentVersion = 'OMERO5.1DEV' and
-        currentPatch = 6 and
+        currentPatch = 7 and
         previousVersion = 'OMERO5.1DEV' and
         previousPatch = 0;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,8 +25,14 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * The test vector for the file size checksum algorithm has the input data sizes.
+ * 
+ * @author m.t.b.carroll@dundee.ac.uk
+ * @since 5.0.3
+ */
 @Test
-public class Adler32ChecksumProviderImplTest 
+public class FileSizeChecksumProviderImplTest 
     extends AbstractChecksumProviderAlgorithmTest {
 
     private static EnumMap<ChecksumTestVector, String> map =
@@ -34,19 +40,19 @@ public class Adler32ChecksumProviderImplTest
 
     @BeforeClass
     public void setUp() {
-        map.put(ChecksumTestVector.ABC, "27014d02");
-        map.put(ChecksumTestVector.EMPTYARRAY, "01000000");
-        map.put(ChecksumTestVector.SMALLFILE, "a074942c");
-        map.put(ChecksumTestVector.MEDIUMFILE, "5798ecc1");
-        map.put(ChecksumTestVector.BIGFILE, "73b31b3b");
+        map.put(ChecksumTestVector.ABC, "0300000000000000");
+        map.put(ChecksumTestVector.EMPTYARRAY, "0000000000000000");
+        map.put(ChecksumTestVector.SMALLFILE, "5e20000000000000");
+        map.put(ChecksumTestVector.MEDIUMFILE, "c075000000000000");
+        map.put(ChecksumTestVector.BIGFILE, "3600040000000000");
     }
 
-    public Adler32ChecksumProviderImplTest() {
-        super(new Adler32ChecksumProviderImpl(), map);
+    public FileSizeChecksumProviderImplTest() {
+        super(new FileSizeChecksumProviderImpl(), map);
     }
 
     @AfterMethod
     public void resetChecksum() {
-        super.checksumProvider = new Adler32ChecksumProviderImpl();
+        super.checksumProvider = new FileSizeChecksumProviderImpl();
     }
 }
