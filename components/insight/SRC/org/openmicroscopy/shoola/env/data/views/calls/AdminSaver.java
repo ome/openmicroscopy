@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.calls.AdminSaver 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -118,6 +118,9 @@ public class AdminSaver
             {
             	AdminService os = context.getAdminService();
                 result = os.createExperimenters(ctx, object);
+                for (GroupData group : object.getGroups()) {
+                    os.reloadGroup(ctx, group);
+                }
             }
         };
     }
