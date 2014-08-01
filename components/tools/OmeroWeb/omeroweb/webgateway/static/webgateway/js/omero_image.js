@@ -55,6 +55,8 @@
                 if (callback) {
                     callback();
                 }
+                viewport.setSaved();
+                updateUndoRedo(viewport);
             });
         return false;
     }
@@ -135,6 +137,11 @@
             $('#rdef-redo-btn').removeAttr('disabled');
         } else {
             $('#rdef-redo-btn').attr('disabled', 'disabled');
+        }
+        if (viewport.getSaved()) {
+            $("#rdef-setdef-btn").attr('disabled', 'disabled');
+        } else {
+            $("#rdef-setdef-btn").removeAttr('disabled');
         }
     }
 

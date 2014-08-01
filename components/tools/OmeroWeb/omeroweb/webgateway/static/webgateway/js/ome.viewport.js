@@ -873,6 +873,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
 
   var channels_undo_stack = [];
   var channels_undo_stack_ptr = -1;
+  var saved_undo_stack_ptr = 0;   // channels_undo_stack_ptr will start off here
   var channels_bookmark = null;
 
   var compare_stack_entries = function (e1, e2) {
@@ -929,6 +930,15 @@ jQuery._WeblitzViewport = function (container, server, options) {
       _load();
     }
   };
+
+  // When we Save settings to the server, we can remember the point we saved.
+  this.setSaved = function() {
+    saved_undo_stack_ptr = channels_undo_stack_ptr;
+  }
+  // Do we have any unsaved changes? (undo/redo since we last saved)
+  this.getSaved = function() {
+    return saved_undo_stack_ptr === channels_undo_stack_ptr;
+  }
 
   this.doload = function(){
     _load();
