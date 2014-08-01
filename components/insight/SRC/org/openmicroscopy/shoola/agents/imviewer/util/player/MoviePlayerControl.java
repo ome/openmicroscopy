@@ -187,18 +187,15 @@ class MoviePlayerControl
                                         int type)
     {
         boolean valid = false;
-        int val = 0;
-        int valEnd = 0;
+        int val = 1;
+        int valEnd = 1;
         if (type == TYPE_T) valEnd = model.getMaxT();
         else if (type == TYPE_Z) valEnd = model.getMaxZ();
+        if (valEnd < 1) valEnd = 1;
         try {
             val = Integer.parseInt(start.getText());
             valEnd = Integer.parseInt(end.getText());
-            if (type == TYPE_Z) {
-            	val = val-1;
-            	valEnd = valEnd-1;
-            }
-            if (0 <= val && val < valEnd) valid = true;
+            if (1 <= val && val < valEnd) valid = true;
         } catch(NumberFormatException nfe) {}
         if (!valid) {
             int v = valEnd+1; 
@@ -212,8 +209,8 @@ class MoviePlayerControl
             model.setStartT(val);
             view.setStartT(val);
         } else if (type == TYPE_Z) {
-            model.setStartZ(val);
-            view.setStartZ(val);
+            model.setStartZ(val-1);
+            view.setStartZ(val-1);
         }
     }
     
@@ -231,18 +228,15 @@ class MoviePlayerControl
                                         int type)
     {
         boolean valid = false;
-        int val = 0;
-        int valStart = 0;
-        int max = 0;
+        int val = 1;
+        int valStart = 1;
+        int max = 1;
         if (type == TYPE_T) max = model.getMaxT();
         else if (type == TYPE_Z) max = model.getMaxZ();
+        if (max < 1) max = 1;
         try {
-            val = Integer.parseInt(end.getText());
-            valStart = Integer.parseInt(start.getText());
-            if (type == TYPE_Z) {
-            	val = val-1;
-            	valStart = valStart-1;
-            }
+            val = Integer.parseInt(end.getText())-1;
+            valStart = Integer.parseInt(start.getText())-1;
             if (valStart < val && val <= max) valid = true;
         } catch(NumberFormatException nfe) {}
         if (!valid) {
@@ -389,15 +383,15 @@ class MoviePlayerControl
      */
     public void focusLost(FocusEvent e)
     {
-        String edit = view.editor.getText(), 
+        String edit = view.editor.getText(),
         ed = ""+model.getTimerDelay();
         if (edit == null || !edit.equals(ed)) 
             view.editor.setText(ed);
-        String startT = ""+model.getStartT();
-        String endT = ""+model.getEndT();
+        String startT = ""+(model.getStartT()+1);
+        String endT = ""+(model.getEndT()+1);
         String startVal = view.startT.getText(), endVal = view.endT.getText();
         if (startVal == null || !startVal.equals(startT))
-             view.startT.setText(startT);        
+             view.startT.setText(startT);
         if (endVal == null || !endVal.equals(endT)) 
             view.endT.setText(endT);
         String startZ = ""+(model.getStartZ()+1);
@@ -405,7 +399,7 @@ class MoviePlayerControl
         startVal = view.startZ.getText();
         endVal = view.endZ.getText();
         if (startVal == null || !startVal.equals(startZ))
-            view.startZ.setText(startZ);        
+            view.startZ.setText(startZ);
         if (endVal == null || !endVal.equals(endZ)) 
             view.endZ.setText(endZ);
     }
