@@ -1139,7 +1139,7 @@ def batch_annotate(request, conn=None, **kwargs):
     return context
 
 
-@login_required(setGroupContext=True)
+@login_required()
 @render_response()
 def annotate_file(request, conn=None, **kwargs):
     """
@@ -1151,6 +1151,12 @@ def annotate_file(request, conn=None, **kwargs):
     selected = getIds(request)
     initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'],
             'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisition'], 'wells':oids['well']}
+
+    # Use the first object we find to set context (assume all objects are in same group!)
+    for obs in oids.values():
+        if len(obs) > 0:
+            conn.SERVICE_OPTS.setOmeroGroup(obs[0].getDetails().group.id.val)
+            break
 
     obj_count = sum( [len(selected[types]) for types in selected] )
 
