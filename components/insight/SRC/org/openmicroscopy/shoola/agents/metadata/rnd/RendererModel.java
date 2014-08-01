@@ -848,7 +848,7 @@ class RendererModel
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (rndControl == null) return;
-		rndControl.saveCurrentSettings();
+		rndDef = rndControl.saveCurrentSettings();
 	}
 
 	/**
@@ -1240,7 +1240,9 @@ class RendererModel
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (rndControl == null) return null;
-		return rndControl.saveCurrentSettings();
+		RndProxyDef def = rndControl.saveCurrentSettings();
+		rndDef = def;
+		return def;
 	}
 
 	/**
@@ -1356,7 +1358,10 @@ class RendererModel
         * @return See above.
         */
 	boolean isModified() {
-	    return !rndControl.isSameSettings(rndDef, true);
+	    if(rndControl!=null) {
+	        return !rndControl.isSameSettings(rndDef, true);
+	    }
+	    return false;
 	}
 
     /**

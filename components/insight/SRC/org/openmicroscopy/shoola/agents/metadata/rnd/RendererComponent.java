@@ -869,7 +869,9 @@ class RendererComponent
 	public RndProxyDef saveCurrentSettings()
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		return model.saveCurrentSettings();
+	        RndProxyDef def = model.saveCurrentSettings();
+	        controller.enableActions();
+		return def;
 	}
 
 	/** 

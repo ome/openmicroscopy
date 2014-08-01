@@ -375,8 +375,15 @@ class RendererControl
 			view.setTimepoint(((Integer) evt.getNewValue()).intValue());
 		}   
         
-        RndAction saveAction = actionsMap.get(SAVE);
-        saveAction.setEnabled(model.isModified());
+        enableActions();
     }
 
+    /**
+     * Enables/Disables actions depending on if the current
+     * settings have been modified
+     */
+    public void enableActions() {
+        boolean settingsModified = model.isModified();
+        actionsMap.get(SAVE).setEnabled(settingsModified);
+    }
 }
