@@ -119,16 +119,16 @@ class MoviePlayerUI
 	JComboBox           movieTypes;
 
 	/** Field hosting the start z-section. */
-	JTextField          startZ;
+	NumericalTextField          startZ;
 
 	/** Field hosting the end z-section. */
-	JTextField          endZ;
+	NumericalTextField          endZ;
 
 	/** Field hosting the start timepoint. */
-	JTextField          startT;
+	NumericalTextField          startT;
 
 	/** Field hosting the end timepoint. */
-	JTextField          endT;
+	NumericalTextField          endT;
 
 	/** Box to select to play the movie across z-section. */
 	JCheckBox           acrossZ;
@@ -211,10 +211,14 @@ class MoviePlayerUI
 		zSlider.setPaintLabels(false);
 		if (rangeZ <= 0 || rangeZ > MAX_RANGE) zSlider.setPaintTicks(false);
 		int length = (""+(maxZ+1)).length();
-		startZ = new JTextField(""+(model.getStartZ()+1), length);
+		startZ = new NumericalTextField(minZ+1, maxZ+1);
+		startZ.setText(""+(model.getStartZ()+1));
+		startZ.setColumns(length);
 		startZ.setToolTipText(
 				UIUtilities.formatToolTipText("Enter the start z-section."));
-		endZ = new JTextField(""+(model.getEndZ()+1), length);
+		endZ = new NumericalTextField(minZ+1, maxZ+1);
+		endZ.setText(""+(model.getEndZ()+1));
+		endZ.setColumns(length);
 		endZ.setToolTipText(
 				UIUtilities.formatToolTipText("Enter the end z-section."));
 
@@ -228,20 +232,18 @@ class MoviePlayerUI
 
 		if (rangeT <= 0 || rangeT > MAX_RANGE) tSlider.setPaintTicks(false);
 		length = (""+(maxT+1)).length();
-		startT = new JTextField(""+(model.getStartT()+1), length);
+		startT = new NumericalTextField(minT+1, maxT+1);
+		startT.setText(""+(model.getStartT()+1));
+		startT.setColumns(length);
 		startT.setToolTipText(
 				UIUtilities.formatToolTipText("Enter the start timepoint."));
-		endT = new JTextField(""+(model.getEndT()+1), length);
+		endT = new NumericalTextField(minT+1, maxT+1);
+		endT.setText(""+(model.getEndT()+1));
+		endT.setColumns(length);
 		endT.setToolTipText(
 				UIUtilities.formatToolTipText("Enter the end timepoint."));
 		acrossZ = new JCheckBox("Across Z");
 		acrossT = new JCheckBox("Across T");
-		//acrossZT = new JRadioButton("Across Z and T");
-		
-		//ButtonGroup group = new ButtonGroup();
-		//group.add(acrossZ);
-		//group.add(acrossT);
-		//group.add(acrossZT);
 	}
 
 	/** 
