@@ -19,7 +19,7 @@ def monitorPackage():
     # At the moment a limited subset of platforms is checked for:
     #     * Mac OS 10.5 or higher
     #     * Linux kernel 2.6 then .13 or higher or kernel 3.x.y
-    #     * Windows: XP, 2003Server, 2008Server, Vista, and 7
+    #     * Windows: XP, 2003Server, 2008Server, 2008ServerR2, Vista, and 7
     #
     # Some fine-tuning may need to be applied, some additional Windows platforms added.
     # If any platform-specific stuff in the imported library fails an exception will be
