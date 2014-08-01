@@ -7732,10 +7732,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             self.linkAnnotation(ann)
         ctx = self._conn.SERVICE_OPTS.copy()
         ctx.setOmeroGroup(self.details.group.id.val)
-        if save:
-            self._re.resetDefaults(ctx)
-        else:
-            self._re.resetDefaultsNoSave(ctx)
+        self._re.resetDefaultSettings(save, ctx)
         return True
 
     def countArchivedFiles (self):
