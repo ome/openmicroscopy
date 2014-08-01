@@ -153,6 +153,13 @@
               updateUndoRedo(OME.preview_viewport);
             });
 
+            $("#rdef-fullrange-btn").click(function(){
+              OME.preview_viewport.setChannelFullRange();
+              syncRDCW(OME.preview_viewport);
+              OME.preview_viewport.save_channels();
+              updateUndoRedo(OME.preview_viewport);
+            });
+
             // Undo/redo buttons
             $("#rdef-undo-btn").click(function(){
               OME.preview_viewport.undo_channels();
@@ -210,6 +217,10 @@
         <button id="rdef-minmax-btn" title="Each slider will be set to cover the full range of pixel intensities for that channel">
           min/max
         </button>
+        <button id="rdef-fullrange-btn" title="Each slider will be set to cover the full range of pixel intensities for that channel">
+          full range
+        </button>
+        |
         <button id="rdef-undo-btn" title="Undo the last changes to settings.">undo</button>
         <button id="rdef-redo-btn" title="Returns to the settings as they were before clicking undo.">redo</button>
       </li>

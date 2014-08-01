@@ -651,8 +651,16 @@ jQuery._WeblitzViewport = function (container, server, options) {
   this.setChannelMinMax = function () {
     var channels = _this.loadedImg.channels;
     for (var i=0; i < channels.length; i++) {
-      console.log(i, channels[i].min, channels[i].max);
       this.setChannelWindow(i, channels[i].window.min, channels[i].window.max, true);
+    }
+    _load();
+  }
+
+  this.setChannelFullRange = function () {
+    var channels = _this.loadedImg.channels,
+      pixel_range = _this.loadedImg.pixel_range;
+    for (var i=0; i < channels.length; i++) {
+      this.setChannelWindow(i, pixel_range[0], pixel_range[1], true);
     }
     _load();
   }
