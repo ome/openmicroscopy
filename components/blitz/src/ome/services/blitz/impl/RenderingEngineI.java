@@ -380,7 +380,7 @@ public class RenderingEngineI extends AbstractPyramidServant implements
 
     public void resetDefaultsSettings_async(AMD_RenderingEngine_resetDefaultsSettings __cb,
             boolean save, Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current, save);
     }
     
     public void saveAsNewSettings_async(
