@@ -694,7 +694,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
      * @see RenderingEngine#resetDefaultsSettigns(boolean)
      */
     @RolesAllowed("user")
-    public long resetDefaultsSettings(boolean save) {
+    public long resetDefaultSettings(boolean save) {
         return internalReset(save);
     }
 

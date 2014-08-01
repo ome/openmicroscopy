@@ -131,7 +131,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         RenderingEnginePrx re = factory.createRenderingEngine();
         re.lookupPixels(id);
         if (!(re.lookupRenderingDef(id))) {
-            re.resetDefaultsSettings(true);
+            re.resetDefaultSettings(true);
             re.lookupRenderingDef(id);
         }
         re.load();
@@ -281,7 +281,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         RenderingEnginePrx re = factory.createRenderingEngine();
         re.lookupPixels(id);
         if (!(re.lookupRenderingDef(id))) {
-            re.resetDefaultsSettings(true);
+            re.resetDefaultSettings(true);
             re.lookupRenderingDef(id);
         }
         re.load();
@@ -315,7 +315,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         RenderingEnginePrx re = factory.createRenderingEngine();
         re.lookupPixels(id);
         if (!(re.lookupRenderingDef(id))) {
-            re.resetDefaultsSettings(true);
+            re.resetDefaultSettings(true);
             re.lookupRenderingDef(id);
         }
         re.load();
@@ -391,7 +391,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         RenderingEnginePrx re = factory.createRenderingEngine();
         re.lookupPixels(id);
         if (!(re.lookupRenderingDef(id))) {
-            re.resetDefaultsSettings(true);
+            re.resetDefaultSettings(true);
             re.lookupRenderingDef(id);
         }
         re.load();
@@ -501,12 +501,12 @@ public class RenderingEngineTest extends AbstractServerTest {
         RenderingEnginePrx re = factory.createRenderingEngine();
         re.lookupPixels(id);
         if (!(re.lookupRenderingDef(id))) {
-            re.resetDefaultsSettings(true);
+            re.resetDefaultSettings(true);
             re.lookupRenderingDef(id);
         }
         re.load();
         assertEquals(re.getDefaultT(), def.getDefaultT().getValue());
-        re.resetDefaultsSettings(false);
+        re.resetDefaultSettings(false);
         assertEquals(re.getDefaultT(), t);
         // reload from db
         def = factory.getPixelsService().retrieveRndSettings(id);
@@ -547,12 +547,12 @@ public class RenderingEngineTest extends AbstractServerTest {
         RenderingEnginePrx re = factory.createRenderingEngine();
         re.lookupPixels(id);
         if (!re.lookupRenderingDef(id)) {
-            re.resetDefaultsSettings(true);
+            re.resetDefaultSettings(true);
             re.lookupRenderingDef(id);
         }
         re.load();
         assertEquals(re.getDefaultT(), def.getDefaultT().getValue());
-        re.resetDefaultsSettings(true);
+        re.resetDefaultSettings(true);
         assertEquals(re.getDefaultT(), t);
     }
 
@@ -582,7 +582,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         RenderingEnginePrx re = factory.createRenderingEngine();
         re.lookupPixels(id);
         if (!(re.lookupRenderingDef(id))) {
-            re.resetDefaultsSettings(true);
+            re.resetDefaultSettings(true);
             re.lookupRenderingDef(id);
         }
         re.load();
@@ -619,7 +619,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         RenderingEnginePrx re = factory.createRenderingEngine();
         re.lookupPixels(id);
         if (!(re.lookupRenderingDef(id))) {
-            re.resetDefaultsSettings(true);
+            re.resetDefaultSettings(true);
             re.lookupRenderingDef(id);
         }
         re.load();
@@ -674,7 +674,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         RenderingEnginePrx re = factory.createRenderingEngine();
         re.lookupPixels(id);
         if (!(re.lookupRenderingDef(id))) {
-            re.resetDefaultsSettings(true);
+            re.resetDefaultSettings(true);
             re.lookupRenderingDef(id);
         }
         re.load();
@@ -756,7 +756,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         RenderingEnginePrx re = factory.createRenderingEngine();
         re.lookupPixels(id);
         if (!(re.lookupRenderingDef(id))) {
-            re.resetDefaultsSettings(true);
+            re.resetDefaultSettings(true);
             re.lookupRenderingDef(id);
         }
         re.load();
@@ -819,7 +819,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         RenderingEnginePrx re = factory.createRenderingEngine();
         re.lookupPixels(id);
         if (!(re.lookupRenderingDef(id))) {
-            re.resetDefaultsSettings(true);
+            re.resetDefaultSettings(true);
             re.lookupRenderingDef(id);
         }
         re.load();
@@ -868,7 +868,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         RenderingEnginePrx re = factory.createRenderingEngine();
         re.lookupPixels(id);
         if (!(re.lookupRenderingDef(id))) {
-            re.resetDefaultsSettings(true);
+            re.resetDefaultSettings(true);
             re.lookupRenderingDef(id);
         }
         re.load();
@@ -922,7 +922,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         RenderingEnginePrx re = factory.createRenderingEngine();
         re.lookupPixels(id);
         if (!(re.lookupRenderingDef(id))) {
-            re.resetDefaultsSettings(true);
+            re.resetDefaultSettings(true);
             re.lookupRenderingDef(id);
         }
         re.load();
@@ -984,7 +984,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         RenderingEnginePrx re = factory.createRenderingEngine();
         re.lookupPixels(id);
         if (!(re.lookupRenderingDef(id))) {
-            re.resetDefaultsSettings(true);
+            re.resetDefaultSettings(true);
             re.lookupRenderingDef(id);
         }
         re.load();
@@ -1051,7 +1051,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         RenderingEnginePrx re = factory.createRenderingEngine();
         re.lookupPixels(id);
         if (!(re.lookupRenderingDef(id))) {
-            re.resetDefaultsSettings(true);
+            re.resetDefaultSettings(true);
             re.lookupRenderingDef(id);
         }
         re.load();
@@ -1120,7 +1120,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         RenderingEnginePrx re = factory.createRenderingEngine();
         re.lookupPixels(id);
         if (!(re.lookupRenderingDef(id))) {
-            re.resetDefaultsSettings(true);
+            re.resetDefaultSettings(true);
             re.lookupRenderingDef(id);
         }
         re.load();
@@ -1167,7 +1167,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         RenderingEnginePrx re = factory.createRenderingEngine();
         re.lookupPixels(id);
         if (!(re.lookupRenderingDef(id))) {
-            re.resetDefaultsSettings(true);
+            re.resetDefaultSettings(true);
             re.lookupRenderingDef(id);
         }
         re.load();
@@ -1219,7 +1219,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         RenderingEnginePrx re = factory.createRenderingEngine();
         re.lookupPixels(id);
         if (!(re.lookupRenderingDef(id))) {
-            re.resetDefaultsSettings(true);
+            re.resetDefaultSettings(true);
             re.lookupRenderingDef(id);
         }
         re.load();
@@ -1269,7 +1269,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         RenderingEnginePrx re = factory.createRenderingEngine();
         re.lookupPixels(id);
         if (!(re.lookupRenderingDef(id))) {
-            re.resetDefaultsSettings(true);
+            re.resetDefaultSettings(true);
             re.lookupRenderingDef(id);
         }
         re.load();
@@ -1324,7 +1324,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         RenderingEnginePrx re = factory.createRenderingEngine();
         re.lookupPixels(id);
         if (!(re.lookupRenderingDef(id))) {
-            re.resetDefaultsSettings(true);
+            re.resetDefaultSettings(true);
             re.lookupRenderingDef(id);
         }
         re.load();
@@ -1389,7 +1389,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         RenderingEnginePrx re = factory.createRenderingEngine();
         re.lookupPixels(id);
         if (!(re.lookupRenderingDef(id))) {
-            re.resetDefaultsSettings(true);
+            re.resetDefaultSettings(true);
             re.lookupRenderingDef(id);
         }
         re.load();
@@ -1459,7 +1459,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         RenderingEnginePrx re = factory.createRenderingEngine();
         re.lookupPixels(id);
         if (!(re.lookupRenderingDef(id))) {
-            re.resetDefaultsSettings(true);
+            re.resetDefaultSettings(true);
             re.lookupRenderingDef(id);
         }
         re.load();
@@ -1513,7 +1513,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         RenderingEnginePrx re = factory.createRenderingEngine();
         re.lookupPixels(id);
         if (!(re.lookupRenderingDef(id))) {
-            re.resetDefaultsSettings(true);
+            re.resetDefaultSettings(true);
             re.lookupRenderingDef(id);
         }
         re.load();
@@ -1567,7 +1567,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         RenderingEnginePrx re = factory.createRenderingEngine();
         re.lookupPixels(id);
         if (!(re.lookupRenderingDef(id))) {
-            re.resetDefaultsSettings(true);
+            re.resetDefaultSettings(true);
             re.lookupRenderingDef(id);
         }
         re.load();
@@ -1610,7 +1610,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         RenderingEnginePrx re = factory.createRenderingEngine();
         re.lookupPixels(id);
         if (!(re.lookupRenderingDef(id))) {
-            re.resetDefaultsSettings(true);
+            re.resetDefaultSettings(true);
             re.lookupRenderingDef(id);
         }
         re.load();

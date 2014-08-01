@@ -1478,7 +1478,7 @@ class RenderingControlProxy
     {
     	isSessionAlive();
     	try {
-    		servant.resetDefaultsSettings(false);
+    		servant.resetDefaultSettings(false);
     		Iterator<RenderingControl> i = slaves.iterator();
     		while (i.hasNext())
 				i.next().resetDefaults();
