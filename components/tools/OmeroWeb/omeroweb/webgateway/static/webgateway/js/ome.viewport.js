@@ -648,6 +648,15 @@ jQuery._WeblitzViewport = function (container, server, options) {
     }
   };
 
+  this.setChannelMinMax = function () {
+    var channels = _this.loadedImg.channels;
+    for (var i=0; i < channels.length; i++) {
+      console.log(i, channels[i].min, channels[i].max);
+      this.setChannelWindow(i, channels[i].window.min, channels[i].window.max, true);
+    }
+    _load();
+  }
+
   this.getMetadata = function () {
     return _this.loadedImg.meta;
   };
