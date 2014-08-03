@@ -362,6 +362,11 @@ add_library(omero-client SHARED
             ${OMERO_CLIENT_HEADERS} ${OMERO_CLIENT_SOURCES})
 target_link_libraries(omero-client Ice IceUtil Glacier2)
 
+if(MSVC)
+  set_target_properties(omero-client PROPERTIES
+                        LINK_FLAGS "/INCREMENTAL:NO")
+endif(MSVC)
+
 if(debug-ice-generation)
   message(STATUS "omero-client (headers): ${OMERO_COMMON_HEADERS} ${OMERO_MODEL_HEADERS} ${OMERO_API_HEADERS} ${OMERO_CLIENT_HEADERS}")
   message(STATUS "omero-client (sources): ${OMERO_COMMON_SOURCES} ${OMERO_MODEL_SOURCES} ${OMERO_API_SOURCES} ${OMERO_CLIENT_SOURCES}")
