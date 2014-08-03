@@ -1649,27 +1649,6 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
             applyRenderingSettings(fromImage, originalSettings)
     return json_data
 
-@login_required()
-@jsonp
-def reset_image_rdef_json (request, iid, conn=None, **kwargs):
-    """
-    Reset rendering defs default for this image. Do not delete other related settings.
-    
-    @param request:     http request
-    @param iid:         Image ID
-    @param conn:        L{omero.gateway.BlitzGateway}
-    @return:            json 'true', or 'false' if failed
-    """
-
-    img = conn.getObject("Image", iid)
-
-    if img is not None and img.resetDefaults():
-        user_id = conn.getEventContext().userId
-        server_id = request.session['connector'].server_id
-        webgateway_cache.invalidateObject(server_id, user_id, img)
-        return True
-    else:
-        return False
 
 @login_required()
 def full_viewer (request, iid, conn=None, **kwargs):

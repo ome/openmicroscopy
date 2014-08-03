@@ -251,14 +251,6 @@ Returns 'true' if worked OK.
     - iid:  Image ID.
 """
 
-reset_image_rdef_json = (r'^resetImgRDef/(?P<iid>[^/]+)/$', 'webgateway.views.reset_image_rdef_json')
-"""
-Removes user's rendering settings on an image, reverting to settings created on import. 
-See L{views.reset_image_rdef_json}. 
-    - webgateway/resetImgRDef/<iid>/ params are:
-    - iid:  Image ID.
-"""
-
 list_compatible_imgs_json = (r'^compatImgRDef/(?P<iid>[^/]+)/$', 'webgateway.views.list_compatible_imgs_json')
 """
 json method: returns list of IDs for images that have channels compatible with the specified image, such
@@ -327,7 +319,6 @@ urlpatterns = patterns('',
     full_viewer,
     # rendering def methods
     save_image_rdef_json,
-    reset_image_rdef_json,
     list_compatible_imgs_json,
     copy_image_rdef_json,
     apply_owners_rdef_json,

@@ -98,7 +98,6 @@ urlpatterns = patterns('django.views.generic.simple',
     url(r'^(?:(?P<share_id>[0-9]+)/)?render_col_plot/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/(?P<x>[^/]+)/(?:(?P<w>[^/]+)/)?$', webgateway.render_col_plot, name="web_render_col_plot"),
     url(r'^(?:(?P<share_id>[0-9]+)/)?render_split_channel/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/$', webgateway.render_split_channel, name="web_render_split_channel"),
     url(r'^saveImgRDef/(?P<iid>[^/]+)/$', webgateway.save_image_rdef_json, name="web_save_image_rdef_json"),
-    url(r'^resetImgRDef/(?P<iid>[^/]+)/$', webgateway.reset_image_rdef_json, name="web_reset_image_rdef_json"),
 
 
     # Fileset query (for delete or chgrp dialogs) obj-types and ids in REQUEST data
