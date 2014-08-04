@@ -34,7 +34,12 @@
     window.pasteRdefs = function (viewport) {
 
         var doPaste = function(data) {
-            // ** TODO: check if data rdef is compatible with viewport images (channel count etc)
+            var channels = data.c.split(",");       // c=1|3336:38283$FF0000,2|1649:17015$00FF00
+            if (channels.length != viewport.getChannels().length ||
+                data.pixel_range != viewport.loadedImg.pixel_range.join(":")) {
+                    // images are not compatible - just 'fail silently'
+                    return;
+            }
             viewport.setQuery(data);
             viewport.doload();        // loads image
             syncRDCW(viewport);       // update rdef table
@@ -62,7 +67,6 @@
         } else {
             $.getJSON(viewport.viewport_server + "/getImgRDef/",
                 function(data){
-                    console.log(data, data.rdef);
                     if (data.rdef) {
                         doPaste(data.rdef);
                     }

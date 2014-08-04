@@ -1571,6 +1571,8 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
         rdef = {
             'c': str(r.get('c'))    # channels
         }
+        if r.get('pixel_range'):
+            rdef['pixel_range'] = str(r.get('pixel_range'))
         if r.get('m'):
             rdef['m'] = str(r.get('m'))   # model (grey)
         if r.get('z'):
@@ -1652,6 +1654,7 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
         if originalSettings is not None and fromImage is not None:
             applyRenderingSettings(fromImage, originalSettings)
     return json_data
+
 
 @login_required()
 @jsonp

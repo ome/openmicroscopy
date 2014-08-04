@@ -124,7 +124,9 @@
             $(".btn.copy_rdef").click(function() {
                 var rdefQry = OME.preview_viewport.getQuery();
                 setRdefQuery(rdefQry);
-                $.getJSON(copy_paste_rdef_url + "?" + rdefQry);
+                // also need pixelsType to know if we can paste to target
+                var pr = OME.preview_viewport.loadedImg.pixel_range.join(":");
+                $.getJSON(copy_paste_rdef_url + "?" + rdefQry + "&pixel_range=" + pr);
             });
             $(".btn.paste_rdef").click(function() {
                 pasteRdefs(OME.preview_viewport);
