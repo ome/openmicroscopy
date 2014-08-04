@@ -251,6 +251,12 @@ Returns 'true' if worked OK.
     - iid:  Image ID.
 """
 
+get_image_rdef_json = (r'^getImgRDef/$', 'webgateway.views.get_image_rdef_json')
+"""
+Gets rendering definition from the 'session' if saved.
+Returns json dict of 'c', 'm', 'z', 't'.
+"""
+
 list_compatible_imgs_json = (r'^compatImgRDef/(?P<iid>[^/]+)/$', 'webgateway.views.list_compatible_imgs_json')
 """
 json method: returns list of IDs for images that have channels compatible with the specified image, such
@@ -319,6 +325,7 @@ urlpatterns = patterns('',
     full_viewer,
     # rendering def methods
     save_image_rdef_json,
+    get_image_rdef_json,
     list_compatible_imgs_json,
     copy_image_rdef_json,
     apply_owners_rdef_json,

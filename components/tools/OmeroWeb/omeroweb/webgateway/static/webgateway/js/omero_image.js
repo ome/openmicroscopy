@@ -15,9 +15,59 @@
         /*$('.picker-selected').html('&nbsp;');*/
     }
 
+
+    // Copying and pasting rdefs is purely client-side now (not saved)
+    var rdefQuery;
+    window.setRdefQuery = function (query) {
+        rdefQuery = query;
+    }
+    window.getRdefQuery = function () {
+        return rdefQuery;
+    }
+
+
     window.resetRDCW = function (viewport) {
         viewport.reset_channels();
         syncRDCW(viewport);
+    }
+
+    window.pasteRdefs = function (viewport) {
+
+        var doPaste = function(data) {
+            // ** TODO: check if data rdef is compatible with viewport images (channel count etc)
+            viewport.setQuery(data);
+            viewport.doload();        // loads image
+            syncRDCW(viewport);       // update rdef table
+            viewport.channelChange(); // triggers channel btn update
+
+            // add to undo/redo queue and update undo/redo buttons.
+            viewport.save_channels();
+            updateUndoRedo(viewport);
+        }
+
+        // We see if we have rdef saved in js (fastest).
+        // If not (E.g. page has been refreshed, we check session via /getImgRDef/ json call)
+        var rdefQry = getRdefQuery();
+        if (rdefQry) {
+            var queryValues = rdefQry.split("&"),
+                queryDict = {},
+                kv;
+            for (var i=0; i < queryValues.length; i++) {
+                kv = queryValues[i].split("=");
+                if (kv.length > 1) {
+                    queryDict[kv[0]] = kv[1]
+                }
+            }
+            doPaste(queryDict)
+        } else {
+            $.getJSON(viewport.viewport_server + "/getImgRDef/",
+                function(data){
+                    console.log(data, data.rdef);
+                    if (data.rdef) {
+                        doPaste(data.rdef);
+                    }
+                });
+        }
     }
 
     window.resetImageDefaults = function (viewport, obj, callback) { 

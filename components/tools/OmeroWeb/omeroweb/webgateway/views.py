@@ -1569,14 +1569,18 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
     if r.get('c') is not None:
         # make a map of settings we need
         rdef = {
-            'c': str(r.get('c')),    # channels
-            'm': str(r.get('m')),    # model (grey)
-            'z': str(r.get('z')),    # z & t pos
-            't': str(r.get('t')),
-            'imageId': int(r.get('imageId')),
+            'c': str(r.get('c'))    # channels
         }
+        if r.get('m'):
+            rdef['m'] = str(r.get('m'))   # model (grey)
+        if r.get('z'):
+            rdef['z'] = str(r.get('z'))    # z & t pos
+        if r.get('t'):
+            rdef['t'] = str(r.get('t'))
+            # 'imageId': int(r.get('imageId')),
         request.session.modified = True
         request.session['rdef'] = rdef
+        # remove any previous rdef we may have via 'fromId'
         if request.session.get('fromid') is not None:
             del request.session['fromid']
         return True
@@ -1648,6 +1652,20 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
         if originalSettings is not None and fromImage is not None:
             applyRenderingSettings(fromImage, originalSettings)
     return json_data
+
+@login_required()
+@jsonp
+def get_image_rdef_json (request, conn=None, **kwargs):
+    """
+    Gets any 'rdef' dict from the request.session and
+    returns it as json
+    """
+    rdef = request.session.get('rdef')
+    if (rdef is None):
+        ref = False;
+
+    return {'rdef': rdef}
+
 
 
 @login_required()

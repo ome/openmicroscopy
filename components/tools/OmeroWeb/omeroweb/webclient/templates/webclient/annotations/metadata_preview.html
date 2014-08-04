@@ -118,16 +118,16 @@
             OME.preview_viewport.load({{ manager.image.id }});
             {% endif %}
 
+            // copy and paste refs is in browser via query string,
+            // but we also save to session in case of page reload etc
             var copy_paste_rdef_url = "{% url 'webgateway.views.copy_image_rdef_json' %}";
             $(".btn.copy_rdef").click(function() {
-                $.getJSON(copy_paste_rdef_url + "?fromid={{ manager.image.id }}");
+                var rdefQry = OME.preview_viewport.getQuery();
+                setRdefQuery(rdefQry);
+                $.getJSON(copy_paste_rdef_url + "?" + rdefQry);
             });
-
             $(".btn.paste_rdef").click(function() {
-                $.getJSON(copy_paste_rdef_url + "?toids={{ manager.image.id }}", function(data){
-                    // update thumbnails
-                    OME.refreshThumbnails({{ manager.image.id }});
-                });
+                pasteRdefs(OME.preview_viewport);
             });
 
             var applysettings = function(){
