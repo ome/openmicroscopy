@@ -361,7 +361,7 @@ class MoviePlayer
      *
      * @return See above.
      */
-    int getMaximumTimer() { return Math.max(getMaxZ(), getMaxT()); }
+    int getMaximumTimer() { return Math.max(getMaxZ()+1, getMaxT()+1); }
 
     /**
      * Returns the type of movie currently played. One of the following
