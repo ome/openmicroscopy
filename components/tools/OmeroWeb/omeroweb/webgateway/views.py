@@ -1579,7 +1579,8 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
             rdef['z'] = str(r.get('z'))    # z & t pos
         if r.get('t'):
             rdef['t'] = str(r.get('t'))
-            # 'imageId': int(r.get('imageId')),
+        if r.get('imageId'):
+            rdef['imageId'] = int(r.get('imageId'))
         request.session.modified = True
         request.session['rdef'] = rdef
         # remove any previous rdef we may have via 'fromId'
@@ -1614,8 +1615,10 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
             image.setGreyscaleRenderingModel()
         else:
             image.setColorRenderingModel()
-        image._re.setDefaultZ(long(rdef['z'])-1)
-        image._re.setDefaultT(long(rdef['t'])-1)
+        if 'z' in rdef:
+            image._re.setDefaultZ(long(rdef['z'])-1)
+        if 't' in rdef:
+            image._re.setDefaultT(long(rdef['t'])-1)
         image.saveDefaults()
 
     originalSettings = None
@@ -1665,7 +1668,7 @@ def get_image_rdef_json (request, conn=None, **kwargs):
     """
     rdef = request.session.get('rdef')
     if (rdef is None):
-        ref = False;
+        rdef = False;
 
     return {'rdef': rdef}
 
