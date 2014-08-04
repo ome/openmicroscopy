@@ -11,8 +11,9 @@
         }
     }
     function hidePicker () {
-        $(".picker").get(0) && $(".picker").get(0).hide_picker && $(".picker").get(0).hide_picker();
-        /*$('.picker-selected').html('&nbsp;');*/
+        if ($(".picker").get(0) && $(".picker").get(0).hide_picker) {
+            $(".picker").get(0).hide_picker();
+        }
     }
 
 
@@ -20,16 +21,16 @@
     var rdefQuery;
     window.setRdefQuery = function (query) {
         rdefQuery = query;
-    }
+    };
     window.getRdefQuery = function () {
         return rdefQuery;
-    }
+    };
 
 
     window.resetRDCW = function (viewport) {
         viewport.reset_channels();
         syncRDCW(viewport);
-    }
+    };
 
     window.pasteRdefs = function (viewport) {
 
@@ -48,7 +49,7 @@
             // add to undo/redo queue and update undo/redo buttons.
             viewport.save_channels();
             updateUndoRedo(viewport);
-        }
+        };
 
         // We see if we have rdef saved in js (fastest).
         // If not (E.g. page has been refreshed, we check session via /getImgRDef/ json call)
@@ -60,10 +61,10 @@
             for (var i=0; i < queryValues.length; i++) {
                 kv = queryValues[i].split("=");
                 if (kv.length > 1) {
-                    queryDict[kv[0]] = kv[1]
+                    queryDict[kv[0]] = kv[1];
                 }
             }
-            doPaste(queryDict)
+            doPaste(queryDict);
         } else {
             $.getJSON(viewport.viewport_server + "/getImgRDef/",
                 function(data){
@@ -72,9 +73,9 @@
                     }
                 });
         }
-    }
+    };
 
-    window.resetImageDefaults = function (viewport, obj, callback) { 
+    window.resetImageDefaults = function (viewport, obj, callback) {
         viewport.viewportmsg.html("Resetting...").show();
         $.getJSON(viewport.viewport_server + '/imgData/' + viewport.loadedImg.id + '/?getDefaults=true',
             function(data){
@@ -94,7 +95,7 @@
                 }
             }
         );
-    }
+    };
 
     window.setImageDefaults = function (viewport, obj, callback, skip_apply) {
         if (!skip_apply) applyRDCW(viewport);
@@ -113,21 +114,23 @@
                 updateUndoRedo(viewport);
             });
         return false;
-    }
+    };
 
     window.zindex_automator = function(klass, basez, wspace) {
         if (!wspace) {
             wspace = $(klass);
         }
         var sorter = function (a,b) {
-            return parseInt(a.css('z-index'))-parseInt(b.css('z-index'));
+            return parseInt(a.css('z-index'), 10)-parseInt(b.css('z-index'), 10);
         };
         var tofront = function (e) {
             var self = this;
             var z = basez;
-            var objs = new Array();
+            var objs = [];
             $(klass).each(function () {
-                this != self && objs.push($(this));
+                if (this != self) {
+                    objs.push($(this));
+                }
             });
             $.each(objs.sort(sorter), function () {
                 this.css('z-index', z);
@@ -139,7 +142,7 @@
             $(this).bind('opening', tofront);
             $(this).bind('mousedown', tofront);
         });
-    }
+    };
 
     window.channelChange = function (ev, obj, idx, ch) {
         if (ch.active) {
@@ -157,7 +160,7 @@
         for (i=0; i<channels.length; i++) {
             $('#rd-wblitz-ch'+i).get(0).checked = channels[i].active;
         }
-    }
+    };
 
     window.syncRDCW = function(viewport) {
         var cb;
@@ -178,7 +181,7 @@
         updateUndoRedo(viewport);
         $('#rd-wblitz-rmodel').attr('checked', !viewport.isGreyModel());
         syncChannelsActive(viewport);
-    }
+    };
 
     window.updateUndoRedo = function(viewport) {
         // update disabled status of undo/redo buttons
@@ -197,7 +200,7 @@
         } else {
             $("#rdef-setdef-btn").removeAttr('disabled');
         }
-    }
+    };
 
     var on_batchCopyRDefs = false;
     // TODO: try not to rely on global variables!
@@ -219,7 +222,7 @@
         }
         viewport.save_channels();
         syncRDCW(viewport);
-    }
+    };
 
     /**
     * Gets called when an image is initially loaded.
@@ -250,14 +253,14 @@
                 viewport.toggleChannel(index);
                 viewport.save_channels();
                 updateUndoRedo(viewport);
-            }
-        }
+            };
+        };
         for (i=0; i<channels.length; i++) {
-            $('<button id="wblitz-ch'+i+'"\
-                class="squared' + (channels[i].active?' pressed':'') + '"\
-                style="background-color: #'+channels[i].color+'"\
-                title="'+channels[i].label+'"\
-                >'+channels[i].label+'</button>')
+            $('<button id="wblitz-ch'+i+
+                '"class="squared' + (channels[i].active?' pressed':'') +
+                '"style="background-color: #' + channels[i].color +
+                '"title="' + channels[i].label +
+                '">'+channels[i].label+'</button>')
             .appendTo(box)
             .bind('click', doToggle(i));
         }
@@ -286,8 +289,8 @@
                     for (var col in result.data.columns) {
                         var label = result.data.columns[col];
                         var value = '';
-                        for (var row in result.data.rows) {
-                          value += result.data.rows[row][col] + '<br />';
+                        for (var r in result.data.rows) {
+                          value += result.data.rows[r][col] + '<br />';
                         }
                         var row = $('<tr><td class="title"></td><td></td></tr>');
                         row.addClass(col % 2 == 1 ? 'odd' : 'even');
@@ -318,31 +321,73 @@
         $('#wblitz-image-z-count').html(tmp.z);
         $('#wblitz-image-t-count').html(tmp.t);
         tmp = viewport.getPixelSizes();
-        $('#wblitz-image-pixel-size-x').html(tmp.x==0?'-':(tmp.x.lengthformat()));
-        $('#wblitz-image-pixel-size-y').html(tmp.y==0?'-':(tmp.y.lengthformat()));
-        $('#wblitz-image-pixel-size-z').html(tmp.z==0?'-':(tmp.z.lengthformat()));
+        $('#wblitz-image-pixel-size-x').html(tmp.x===0?'-':(tmp.x.lengthformat()));
+        $('#wblitz-image-pixel-size-y').html(tmp.y===0?'-':(tmp.y.lengthformat()));
+        $('#wblitz-image-pixel-size-z').html(tmp.z===0?'-':(tmp.z.lengthformat()));
 
         /* Fill in the Rendering Details box */
 
         $(".picker").unbind('prepared').unbind('showing').unbind('hiding');
         $('#rdef-postit ul').not('ul:last-child').remove();
 
-        var template = ''
-        + '<tr class="$cls rdef-window">'
-        + '<td><input id="rd-wblitz-ch$idx0" class="rd-wblitz-ch" type="checkbox" onchange="rdChanSelHelper(this)" $act></td>'
-        + '<td><table><tr id="wblitz-ch$idx0-cw" class="rangewidget"></tr></table></td>'
-        + '<td><button id="wblitz-ch$idx0-color" class="picker squarred" title="Choose Color">&nbsp;</button></td>'
-        + '</tr>';
+        var template = '' +
+          '<tr class="$cls rdef-window">' +
+          '<td><input id="rd-wblitz-ch$idx0" class="rd-wblitz-ch" type="checkbox" onchange="rdChanSelHelper(this)" $act></td>' +
+          '<td><table><tr id="wblitz-ch$idx0-cw" class="rangewidget"></tr></table></td>' +
+          '<td><button id="wblitz-ch$idx0-color" class="picker squarred" title="Choose Color">&nbsp;</button></td>' +
+          '</tr>';
 
         tmp = $('#rdef-postit table tr:first');
         tmp.siblings().remove();
+
+        var start_cb = function (i) {
+            return function (e) {
+                var new_start = e.target.value,
+                    $sl = $('#wblitz-ch'+i+'-cwslider'),
+                    end = $sl.slider('values')[1],
+                    min = $sl.slider( "option", "min" );
+                $sl.slider('values', 0, Math.min(new_start, end));    // ensure start < end
+                $sl.slider( "option", "min", Math.min(min, new_start) );   // extend range if needed
+                show_change($('#wblitz-ch'+i+'-cw-start').get(0), channels[i].window.start, 'changed');
+            };
+        };
+        var end_cb = function (i) {
+            return function (e) {
+                var new_end = e.target.value,
+                    $sl = $('#wblitz-ch'+i+'-cwslider'),
+                    start = $sl.slider('values')[0],
+                    max = $sl.slider( "option", "max" );
+                $sl.slider('values', 1, Math.max(new_end, start));    // ensure end > start
+                $sl.slider( "option", "max", Math.max(max, new_end) );   // extend range if needed
+                show_change($('#wblitz-ch'+i+'-cw-end').get(0), channels[i].window.end, 'changed');
+            };
+        };
+        var slide_cb = function() {
+            return function(event, ui) {
+                $('#wblitz-ch'+$(event.target).data('channel-idx')+'-cw-start').val(ui.values[0]).change();
+                $('#wblitz-ch'+$(event.target).data('channel-idx')+'-cw-end').val(ui.values[1]).change();
+            };
+        };
+        var stop_cb = function() {
+            return function(event, ui) {
+                applyRDCW(viewport);
+            };
+        };
+        var keyup_cb = function() {
+            return function(event){
+                if (event.keyCode === 13){
+                    applyRDCW(viewport);
+                }
+            };
+        };
+
         for (i=channels.length-1; i>=0; i--) {
             tmp.after(template
                 .replace(/\$act/g, channels[i].active?'checked':'')
                 .replace(/\$idx0/g, i) // Channel Index, 0 based
                 .replace(/\$idx1/g, i+1) // Channel Index, 1 based
                 .replace(/\$cwl/g, channels[i].label) // Wavelength
-                .replace(/\$cls/g, i/2!=parseInt(i/2)?'even':'odd') // class
+                .replace(/\$cls/g, i/2!=parseInt(i/2, 10)?'even':'odd') // class
             );
             $('#wblitz-ch'+(i)+'-cw').rangewidget({
                 min: channels[i].window.min,
@@ -355,67 +400,33 @@
                 min: Math.min(channels[i].window.min, channels[i].window.start+1),  // range may extend outside min/max pixel
                 max: Math.max(channels[i].window.max, channels[i].window.end-1),
                 values: [ channels[i].window.start+1, channels[i].window.end-1 ],
-                slide: function(event, ui) {
-                    $('#wblitz-ch'+$(event.target).data('channel-idx')+'-cw-start').val(ui.values[0]).change();
-                    $('#wblitz-ch'+$(event.target).data('channel-idx')+'-cw-end').val(ui.values[1]).change();
-                },
-                stop: function(event, ui) {
-                    applyRDCW(viewport);
-                }
+                slide: slide_cb(),
+                stop: stop_cb(),
                 }).data('channel-idx', i);
-            cb = function (i) {
-                return function (e) {
-                    var new_start = e.target.value,
-                    $sl = $('#wblitz-ch'+i+'-cwslider'),
-                    end = $sl.slider('values')[1]
-                    min = $sl.slider( "option", "min" );
-                    $sl.slider('values', 0, Math.min(new_start, end));    // ensure start < end
-                    $sl.slider( "option", "min", Math.min(min, new_start) );   // extend range if needed
-                    show_change($('#wblitz-ch'+i+'-cw-start').get(0), channels[i].window.start, 'changed');
-                };
-            };
-            $('#wblitz-ch'+i+'-cw-start').val(channels[i].window.start).unbind('change').bind('change', cb(i));
-            $('#wblitz-ch'+i+'-cw-start').keyup(function(event){
-                if (event.keyCode === 13){
-                    applyRDCW(viewport);
-                }
-            });
-            cb = function (i) {
-                return function (e) {
-                    var new_end = e.target.value,
-                    $sl = $('#wblitz-ch'+i+'-cwslider'),
-                    start = $sl.slider('values')[0]
-                    max = $sl.slider( "option", "max" );
-                    $sl.slider('values', 1, Math.max(new_end, start));    // ensure end > start
-                    $sl.slider( "option", "max", Math.max(max, new_end) );   // extend range if needed
-                    show_change($('#wblitz-ch'+i+'-cw-end').get(0), channels[i].window.end, 'changed');
-                };
-            };
-            $('#wblitz-ch'+i+'-cw-end').val(channels[i].window.end).unbind('change').bind('change', cb(i));
-            $('#wblitz-ch'+i+'-cw-end').keyup(function(event){
-                if (event.keyCode === 13){
-                    applyRDCW(viewport);
-                }
-            });
-        };
+            $('#wblitz-ch'+i+'-cw-start').val(channels[i].window.start).unbind('change').bind('change', start_cb(i));
+            $('#wblitz-ch'+i+'-cw-start').keyup(keyup_cb());
+            $('#wblitz-ch'+i+'-cw-end').val(channels[i].window.end).unbind('change').bind('change', end_cb(i));
+            $('#wblitz-ch'+i+'-cw-end').keyup(keyup_cb());
+        }
 
 
         /* Prepare color picker buttons */
         $(".picker")
             .colorbtn()
             .bind('showing', function () {
-                var t = $(this).parents('.postit');
+                var t = $(this).parents('.postit'),
+                    offset;
                 if (t.length) {
-                  var offset = t.offset();
+                  offset = t.offset();
                   offset.left += t.width();
                 } else {
-                  var offset = {'top':'200px', 'right': '300px'};
+                  offset = {'top':'200px', 'right': '300px'};
                 }
                 $('#cbpicker-box').css(offset);
                 $('.picker-selected').html('&nbsp;');
                 $(this).parent().siblings('.picker-selected').html('&gt;');
             })
-            .bind('hiding', function () {$(this).parent().siblings('.picker-selected').html('&nbsp;')})
+            .bind('hiding', function () {$(this).parent().siblings('.picker-selected').html('&nbsp;');})
             .bind('prepared', function () {
                 zindex_automator('.postit', 210, $('#cbpicker-box'));
             })
