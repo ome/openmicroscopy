@@ -4,7 +4,7 @@
    Primary OmeroPy types
 
    Classes:
-      - omero.client    -- Main OmeroPy connector object
+      omero.client    -- Main OmeroPy connector object
 
    Copyright 2007, 2008 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
