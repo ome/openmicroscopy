@@ -437,6 +437,8 @@ module omero {
              * returned which can be watched for knowing when the server-side import
              * is complete.
              *
+             * Client paths set in the fileset entries must /-separate their components.
+             *
              * Once the upload is complete, the [ImportProcess] must be closed.
              * Once [omero::cmd::Handle::getResponse] returns a non-null value, the
              * handle instance can and must be closed.
