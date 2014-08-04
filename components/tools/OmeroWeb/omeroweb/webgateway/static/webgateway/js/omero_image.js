@@ -330,8 +330,8 @@
         var template = ''
         + '<tr class="$cls rdef-window">'
         + '<td><input id="rd-wblitz-ch$idx0" class="rd-wblitz-ch" type="checkbox" onchange="rdChanSelHelper(this)" $act></td>'
-        + '<td colspan="5"><table><tr id="wblitz-ch$idx0-cw" class="rangewidget"></tr></table></td>'
-        + '<td><button id="wblitz-ch$idx0-color" class="picker squarred">&nbsp;</button></td>'
+        + '<td><table><tr id="wblitz-ch$idx0-cw" class="rangewidget"></tr></table></td>'
+        + '<td><button id="wblitz-ch$idx0-color" class="picker squarred" title="Choose Color">&nbsp;</button></td>'
         + '</tr>';
 
         tmp = $('#rdef-postit table tr:first');

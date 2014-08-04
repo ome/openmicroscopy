@@ -67,10 +67,12 @@
       }
       #wblitz-channels-box button {
         width: 25px;
+        height: 25px;
         float: left;
         position: relative;
         left: -5px;
-        text-indent: 1000px; /** hide text **/
+        text-indent: -1000px; /** hide text **/
+        margin: 2px 0;
       }
       /** hide channel checkboxes from rdef table **/
       input.rd-wblitz-ch {
@@ -122,7 +124,6 @@
             // but we also save to session in case of page reload etc
             var copy_paste_rdef_url = "{% url 'webgateway.views.copy_image_rdef_json' %}";
             $("button.copy_rdef").click(function() {
-                console.log("CPOY");
                 var rdefQry = OME.preview_viewport.getQuery();
                 // also need pixelsType to know if we can paste to target
                 var pr = OME.preview_viewport.loadedImg.pixel_range.join(":");
@@ -132,7 +133,6 @@
                 $.getJSON(copy_paste_rdef_url + "?" + rdefQry);
             });
             $("button.paste_rdef").click(function() {
-                console.log("PASTE");
                 pasteRdefs(OME.preview_viewport);
             });
 
