@@ -121,14 +121,18 @@
             // copy and paste refs is in browser via query string,
             // but we also save to session in case of page reload etc
             var copy_paste_rdef_url = "{% url 'webgateway.views.copy_image_rdef_json' %}";
-            $(".btn.copy_rdef").click(function() {
+            $("button.copy_rdef").click(function() {
+                console.log("CPOY");
                 var rdefQry = OME.preview_viewport.getQuery();
-                setRdefQuery(rdefQry);
                 // also need pixelsType to know if we can paste to target
                 var pr = OME.preview_viewport.loadedImg.pixel_range.join(":");
-                $.getJSON(copy_paste_rdef_url + "?" + rdefQry + "&pixel_range=" + pr);
+                rdefQry = rdefQry + "&pixel_range=" + pr
+                // save locally and to session
+                setRdefQuery(rdefQry);
+                $.getJSON(copy_paste_rdef_url + "?" + rdefQry);
             });
-            $(".btn.paste_rdef").click(function() {
+            $("button.paste_rdef").click(function() {
+                console.log("PASTE");
                 pasteRdefs(OME.preview_viewport);
             });
 
@@ -207,6 +211,11 @@
             title="Applies and saves the current settings as default.">
           save
         </button>
+
+        |
+
+        <button id="rdef-undo-btn" title="Undo the last changes to settings.">undo</button>
+        <button id="rdef-redo-btn" title="Returns to the settings as they were before clicking undo.">redo</button>
       </li>
     </ul>
     <ul>
@@ -223,8 +232,12 @@
           full range
         </button>
         |
-        <button id="rdef-undo-btn" title="Undo the last changes to settings.">undo</button>
-        <button id="rdef-redo-btn" title="Returns to the settings as they were before clicking undo.">redo</button>
+        <button class="copy_rdef" title="Copy Rendering Settings">
+          Copy
+        </button>
+        <button class="paste_rdef" title="Paste Rendering Settings">
+          Paste
+        </button>
       </li>
       {% block batch_copy %}
       {% if dataset.canOwnerWrite %}
@@ -246,16 +259,5 @@
         </table>
       </div>
     </div>
-
-    <hr>
-
-    Rendering Settings:
-    <button class="btn silver btn_text copy_rdef" title="Copy Rendering Settings">
-        <span>Copy</span>
-    </button>
-
-    <button class="btn silver btn_text paste_rdef" title="Paste Rendering Settings">
-        <span>Paste</span>
-    </button>
 
 </div>
