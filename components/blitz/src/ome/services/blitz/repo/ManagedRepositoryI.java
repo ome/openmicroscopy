@@ -51,7 +51,6 @@ import ome.model.core.OriginalFile;
 import ome.model.meta.Experimenter;
 import ome.services.blitz.gateway.services.util.ServiceUtilities;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
-import ome.services.blitz.repo.path.FilePathNamingValidator;
 import ome.services.blitz.repo.path.FilePathRestrictionInstance;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.repo.path.MakeNextDirectory;
@@ -139,8 +138,6 @@ public class ManagedRepositoryI extends PublicRepositoryI
             Joiner.on(',').join(Collections2.transform(ChecksumAlgorithmMapper.getAllChecksumAlgorithms(),
                     ChecksumAlgorithmMapper.CHECKSUM_ALGORITHM_NAMER));
 
-    private final FilePathNamingValidator filePathNamingValidator;
-
     /* template paths: matches any special expansion term */
     private static final Pattern TEMPLATE_TERM = Pattern.compile("%([a-zA-Z]+)(:([^%/]+))?%");
 
@@ -189,7 +186,6 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         this.processes = processes;
-        this.filePathNamingValidator = new FilePathNamingValidator(this.filePathRestrictions);
         this.rootSessionUuid = rootSessionUuid;
         this.userGroupId = roles.getUserGroupId();
         log.info("Repository template: " + template);
@@ -1242,11 +1238,13 @@ public class ManagedRepositoryI extends PublicRepositoryI
         basePath = trimmedPaths.basePath;
         paths = trimmedPaths.fullPaths;
 
-        // validate paths
-        this.filePathNamingValidator.validateFilePathNaming(relPath);
-        this.filePathNamingValidator.validateFilePathNaming(basePath);
-        for (final FsFile path : paths) {
-            this.filePathNamingValidator.validateFilePathNaming(path);
+        // sanitize paths (should already be sanitary; could introduce conflicts)
+        final Function<String, String> sanitizer = serverPaths.getPathSanitizer();
+        relPath = relPath.transform(sanitizer);
+        basePath = basePath.transform(sanitizer);
+        int index = paths.size();
+        while (--index >= 0) {
+            paths.set(index, paths.get(index).transform(sanitizer));
         }
 
         // Static elements which will be re-used throughout
