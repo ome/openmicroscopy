@@ -37,7 +37,7 @@ TEST(ClientUsageTest, testUseSharedMemory )
     ASSERT_EQ(1, (int)client->getInputKeys().size());
     std::vector<std::string> keys = client->getInputKeys();
     std::vector<std::string>::iterator it = find(keys.begin(), keys.end(), "a");
-    ASSERT_NE( it, keys.end() );
+    ASSERT_TRUE( it != keys.end() );
     ASSERT_EQ("b", omero::RStringPtr::dynamicCast(client->getInput("a"))->getValue());
 
     client->closeSession();
