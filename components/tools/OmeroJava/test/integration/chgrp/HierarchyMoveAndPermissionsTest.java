@@ -464,7 +464,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         // new user
         EventContext user2 = newUserInGroup(ctx);
         Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(10));
+                .simpleImage());
         long imageId = image.getId().getValue();
         // now link the image and dataset.
         DatasetImageLink link = new DatasetImageLinkI();
@@ -531,7 +531,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         // new user
         EventContext user2 = newUserInGroup(ctx);
         Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(10));
+                .simpleImage());
         long imageId = image.getId().getValue();
         // now link the image and dataset.
         DatasetImageLink link = new DatasetImageLinkI();
@@ -598,7 +598,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         iAdmin.getEventContext(); // Refresh
 
         Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(10));
+                .simpleImage());
         long imageId = image.getId().getValue();
         // now link the image and dataset.
         DatasetImageLink link = new DatasetImageLinkI();
@@ -674,7 +674,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         EventContext ctx2 = newUserInGroup(ctx);
 
         Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(10));
+                .simpleImage());
         long imageId = image.getId().getValue();
         // now link the image and dataset.
         DatasetImageLink link = new DatasetImageLinkI();

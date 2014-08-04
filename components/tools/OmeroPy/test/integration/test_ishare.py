@@ -114,7 +114,6 @@ class TestIShare(lib.ITest):
         # create image
         img = ImageI()
         img.setName(rstring('test8118-img-%s' % uuid))
-        img.setAcquisitionDate(rtime(0))
         img = update_serv.saveAndReturnObject(img)
         img.unload()
 
@@ -155,7 +154,6 @@ class TestIShare(lib.ITest):
         # create image
         img = ImageI()
         img.setName(rstring('test1154-img-%s' % uuid))
-        img.setAcquisitionDate(rtime(0))
         img = update1.saveAndReturnObject(img)
         img.unload()
 
@@ -204,7 +202,6 @@ class TestIShare(lib.ITest):
         # create image
         img = ImageI()
         img.setName(rstring('test1154-img-%s' % uuid))
-        img.setAcquisitionDate(rtime(0))
         img = update1.saveAndReturnObject(img)
         img.unload()
 
@@ -254,7 +251,6 @@ class TestIShare(lib.ITest):
         # create image
         img = ImageI()
         img.setName(rstring('test-img in dataset-%s' % uuid))
-        img.setAcquisitionDate(rtime(0))
         img = update.saveAndReturnObject(img)
         img.unload()
 
@@ -484,7 +480,6 @@ class TestIShare(lib.ITest):
         # create image
         img = ImageI()
         img.setName(rstring('test2327'))
-        img.setAcquisitionDate(rtime(0))
         img = update1.saveAndReturnObject(img)
         img.unload()
 

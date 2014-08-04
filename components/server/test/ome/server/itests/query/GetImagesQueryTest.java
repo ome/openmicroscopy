@@ -475,7 +475,6 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
 
     private Image createImage() {
         Image i1 = new Image();
-        i1.setAcquisitionDate(new Timestamp(0L));
         i1.setName(this.getClass().getName());
         return iUpdate.saveAndReturnObject(i1);
     }

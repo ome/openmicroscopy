@@ -428,7 +428,6 @@ class ImageEntry (ObjectEntry):
     def _createWithoutPixels (self, client, dataset):
         img = omero.model.ImageI()
         img.setName(omero.gateway.omero_type(self.name))
-        img.setAcquisitionDate(rtime(0))
         if not dataset.imageLinksLoaded:
             print ".!."
             dataset._obj._imageLinksSeq = []

@@ -38,7 +38,6 @@ public class PaginationTest extends AbstractManagedContextTest {
             Image[] images = new Image[10000];
             for (int i = 0; i < images.length; i++) {
                 images[i] = new Image();
-                images[i].setAcquisitionDate(new Timestamp(0));
                 images[i].setName("__bigtest__");
             }
             ids = iUpdate.saveAndReturnIds(images);

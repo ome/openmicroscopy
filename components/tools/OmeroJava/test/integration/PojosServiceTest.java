@@ -426,7 +426,7 @@ public class PojosServiceTest extends AbstractServerTest {
         Dataset d = (Dataset) iUpdate.saveAndReturnObject(mmFactory
                 .simpleDatasetData().asIObject());
         Image img = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         // link the 2
         DatasetImageLink link = new DatasetImageLinkI();
         link.setParent(d);
@@ -519,7 +519,7 @@ public class PojosServiceTest extends AbstractServerTest {
                 .simpleDatasetData().asIObject());
         Dataset d2 = (Dataset) iUpdate.saveAndReturnObject(mmFactory
                 .simpleDatasetData().asIObject());
-        Image i = (Image) iUpdate.saveAndReturnObject(mmFactory.simpleImage(0));
+        Image i = (Image) iUpdate.saveAndReturnObject(mmFactory.simpleImage());
         // link the d and i
         DatasetImageLink link = new DatasetImageLinkI();
         link.setParent(d1);
@@ -546,7 +546,7 @@ public class PojosServiceTest extends AbstractServerTest {
     @Test(groups = "ticket:318")
     public void testGetImagesByOwner() throws Exception {
         Image i1 = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(0));
+                .saveAndReturnObject(mmFactory.simpleImage());
         Dataset d = (Dataset) iUpdate.saveAndReturnObject(mmFactory
                 .simpleDatasetData().asIObject());
         DatasetImageLink link = new DatasetImageLinkI();
@@ -625,7 +625,7 @@ public class PojosServiceTest extends AbstractServerTest {
     @Test(groups = "ticket:318")
     public void testDuplicateDatasetImageLink() throws Exception {
         Image i1 = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(0));
+                .saveAndReturnObject(mmFactory.simpleImage());
         Dataset d = (Dataset) iUpdate.saveAndReturnObject(mmFactory
                 .simpleDatasetData().asIObject());
         DatasetImageLink link = new DatasetImageLinkI();
@@ -710,7 +710,7 @@ public class PojosServiceTest extends AbstractServerTest {
         long d1 = d.getId().getValue();
 
         Image image1 = (Image) update.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         // link the 2
         DatasetImageLink link = new DatasetImageLinkI();
         link.setParent(d);
@@ -725,7 +725,7 @@ public class PojosServiceTest extends AbstractServerTest {
                 .asIObject());
         long d2 = d.getId().getValue();
         Image image2 = (Image) f.getUpdateService().saveAndReturnObject(
-                mmFactory.simpleImage(0));
+                mmFactory.simpleImage());
         link = new DatasetImageLinkI();
         link.setParent(d);
         link.setChild(image2);
@@ -841,7 +841,7 @@ public class PojosServiceTest extends AbstractServerTest {
         param.leaves();
         param.exp(omero.rtypes.rlong(id));
 
-        Image i = (Image) iUpdate.saveAndReturnObject(mmFactory.simpleImage(0));
+        Image i = (Image) iUpdate.saveAndReturnObject(mmFactory.simpleImage());
         Dataset d = (Dataset) iUpdate.saveAndReturnObject(mmFactory
                 .simpleDatasetData().asIObject());
         Project p = (Project) iUpdate.saveAndReturnObject(mmFactory
@@ -938,8 +938,9 @@ public class PojosServiceTest extends AbstractServerTest {
         ParametersI po = new ParametersI();
         po.leaves();
         po.startTime(omero.rtypes.rtime(startTime - 1));
-        Image i = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(startTime));
+        Image i = mmFactory.simpleImage();
+        i.setAcquisitionDate(omero.rtypes.rtime(startTime));
+        i = (Image) iUpdate.saveAndReturnObject(i);
 
         List result = iContainer.getImagesByOptions(po);
         assertTrue(result.size() > 0);
@@ -985,7 +986,7 @@ public class PojosServiceTest extends AbstractServerTest {
         Dataset d = (Dataset) iUpdate.saveAndReturnObject(mmFactory
                 .simpleDatasetData().asIObject());
         Image img = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         // link the 2
         DatasetImageLink link = new DatasetImageLinkI();
         link.setParent(d);
@@ -1285,7 +1286,7 @@ public class PojosServiceTest extends AbstractServerTest {
         Dataset d = (Dataset) iUpdate.saveAndReturnObject(mmFactory
                 .simpleDatasetData().asIObject());
         Image i = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(10));
+                .saveAndReturnObject(mmFactory.simpleImage());
         // link the project and the dataset
         ProjectDatasetLink l = new ProjectDatasetLinkI();
         l.setParent((Project) p.proxy());
@@ -1334,7 +1335,7 @@ public class PojosServiceTest extends AbstractServerTest {
         Dataset d = (Dataset) iUpdate.saveAndReturnObject(mmFactory
                 .simpleDatasetData().asIObject());
         Image i = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(10));
+                .saveAndReturnObject(mmFactory.simpleImage());
         // link the project and the dataset
         DatasetImageLink link = new DatasetImageLinkI();
         link.setParent((Dataset) d.proxy());
@@ -1367,7 +1368,7 @@ public class PojosServiceTest extends AbstractServerTest {
     @Test
     public void testFindContainerHierarchyFromImage() throws Exception {
         Image i = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(10));
+                .saveAndReturnObject(mmFactory.simpleImage());
 
         ParametersI param = new ParametersI();
         List<Long> ids = new ArrayList<Long>();
@@ -1388,7 +1389,7 @@ public class PojosServiceTest extends AbstractServerTest {
     @Test
     public void testFindContainerHierarchyWrongType() throws Exception {
         Image i = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(10));
+                .saveAndReturnObject(mmFactory.simpleImage());
 
         ParametersI param = new ParametersI();
         List<Long> ids = new ArrayList<Long>();
@@ -1469,9 +1470,9 @@ public class PojosServiceTest extends AbstractServerTest {
     public void testGetImagesBySplitFilesetsImageAsRoot() throws Exception {
         // first create a project
         Image i1 = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(0));
+                .saveAndReturnObject(mmFactory.simpleImage());
         Image i2 = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(0));
+                .saveAndReturnObject(mmFactory.simpleImage());
         Fileset fileset = newFileset();
         fileset.addImage(i1);
         fileset.addImage(i2);
@@ -1515,9 +1516,9 @@ public class PojosServiceTest extends AbstractServerTest {
     public void testGetImagesBySplitFilesetsImageAsRootAll() throws Exception {
         // first create a project
         Image i1 = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(0));
+                .saveAndReturnObject(mmFactory.simpleImage());
         Image i2 = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(0));
+                .saveAndReturnObject(mmFactory.simpleImage());
         Fileset fileset = newFileset();
         fileset.addImage(i1);
         fileset.addImage(i2);
@@ -1546,9 +1547,9 @@ public class PojosServiceTest extends AbstractServerTest {
     public void testGetImagesBySplitFilesetsDatasetAsRoot() throws Exception {
         // first create a project
         Image i1 = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(0));
+                .saveAndReturnObject(mmFactory.simpleImage());
         Image i2 = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(0));
+                .saveAndReturnObject(mmFactory.simpleImage());
         Fileset fileset = newFileset();
         fileset.addImage(i1);
         fileset.addImage(i2);
@@ -1599,9 +1600,9 @@ public class PojosServiceTest extends AbstractServerTest {
     public void testGetImagesBySplitFilesetsProjectAsRoot() throws Exception {
         // first create a project
         Image i1 = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(0));
+                .saveAndReturnObject(mmFactory.simpleImage());
         Image i2 = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(0));
+                .saveAndReturnObject(mmFactory.simpleImage());
         Fileset fileset = newFileset();
         fileset.addImage(i1);
         fileset.addImage(i2);
@@ -1663,9 +1664,9 @@ public class PojosServiceTest extends AbstractServerTest {
             throws Exception {
         // first create a project
         Image i1 = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(0));
+                .saveAndReturnObject(mmFactory.simpleImage());
         Image i2 = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(0));
+                .saveAndReturnObject(mmFactory.simpleImage());
         Fileset fileset = newFileset();
         fileset.addImage(i1);
         fileset.addImage(i2);
@@ -1712,9 +1713,9 @@ public class PojosServiceTest extends AbstractServerTest {
             throws Exception {
         // first create a project
         Image i1 = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(0));
+                .saveAndReturnObject(mmFactory.simpleImage());
         Image i2 = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(0));
+                .saveAndReturnObject(mmFactory.simpleImage());
         Fileset fileset = newFileset();
         fileset.addImage(i1);
         fileset.addImage(i2);
@@ -1778,11 +1779,11 @@ public class PojosServiceTest extends AbstractServerTest {
     public void testGetImagesBySplitFilesetsMixedRoot() throws Exception {
         // first create a project
         Image i1 = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(0));
+                .saveAndReturnObject(mmFactory.simpleImage());
         Image i2 = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(0));
+                .saveAndReturnObject(mmFactory.simpleImage());
         Image i3 = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(0));
+                .saveAndReturnObject(mmFactory.simpleImage());
 
         Fileset fileset = newFileset();
         fileset.addImage(i1);
@@ -1839,11 +1840,11 @@ public class PojosServiceTest extends AbstractServerTest {
             throws Exception {
         // first create a project
         Image i1 = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(0));
+                .saveAndReturnObject(mmFactory.simpleImage());
         Image i2 = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(0));
+                .saveAndReturnObject(mmFactory.simpleImage());
         Image i3 = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(0));
+                .saveAndReturnObject(mmFactory.simpleImage());
 
         Fileset fileset = newFileset();
         fileset.addImage(i1);
@@ -1923,11 +1924,11 @@ public class PojosServiceTest extends AbstractServerTest {
             throws Exception {
         // first create a project
         Image i1 = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(0));
+                .saveAndReturnObject(mmFactory.simpleImage());
         Image i2 = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(0));
+                .saveAndReturnObject(mmFactory.simpleImage());
         Image i3 = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(0));
+                .saveAndReturnObject(mmFactory.simpleImage());
 
         Fileset fileset = newFileset();
         fileset.addImage(i1);
@@ -1975,11 +1976,11 @@ public class PojosServiceTest extends AbstractServerTest {
             throws Exception {
         // first create a project
         Image i1 = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(0));
+                .saveAndReturnObject(mmFactory.simpleImage());
         Image i2 = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(0));
+                .saveAndReturnObject(mmFactory.simpleImage());
         Image i3 = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(0));
+                .saveAndReturnObject(mmFactory.simpleImage());
 
         Fileset fileset = newFileset();
         fileset.addImage(i1);
@@ -2006,11 +2007,11 @@ public class PojosServiceTest extends AbstractServerTest {
             throws Exception {
         // first create a project
         Image i1 = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(0));
+                .saveAndReturnObject(mmFactory.simpleImage());
         Image i2 = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(0));
+                .saveAndReturnObject(mmFactory.simpleImage());
         Image i3 = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(0));
+                .saveAndReturnObject(mmFactory.simpleImage());
 
         Fileset fileset = newFileset();
         fileset.addImage(i1);

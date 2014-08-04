@@ -211,7 +211,6 @@ public class PersistentEventLogLoaderTest extends AbstractManagedContextTest {
     protected Pixels pixels() {
         Image image = new Image();
         image.setName("pixeldatatest");
-        image.setAcquisitionDate(new Timestamp(System.currentTimeMillis()));
 
         Pixels pixels = new Pixels();
         pixels.setSizeX(1);
