@@ -166,7 +166,7 @@ public abstract class AbstractFileTransfer implements FileTransfer {
         if (errors > 0) {
             printLine();
             log.error("{} error(s) found.", errors);
-            log.error("MoveFileTransfer cleanup not performed!", errors);
+            log.error("{} cleanup not performed!", getClass().getSimpleName());
             log.error("The following files will *not* be deleted:");
             for (String srcFile : srcFiles) {
                 log.error("\t{}", srcFile);
@@ -191,7 +191,7 @@ public abstract class AbstractFileTransfer implements FileTransfer {
 
         if (!failedFiles.isEmpty()) {
             printLine();
-            log.error("Cleanup failed!", errors);
+            log.error("Cleanup failed!");
             log.error("{} files could not be removed and will need to " +
                 "be handled manually", failedFiles.size());
             for (File failedFile : failedFiles) {
