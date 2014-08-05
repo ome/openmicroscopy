@@ -223,7 +223,6 @@
         if (on_batchCopyRDefs) {
             return batchCopyRDefs_action('ok');
         }
-        viewport.setModel($('#rd-wblitz-rmodel').get(0).checked?'c':'g');
         for (var i=0; i<viewport.getCCount(); i++) {
             viewport.setChannelActive(i, $('#rd-wblitz-ch'+i).get(0).checked, true);
             viewport.setChannelColor(i, $('#wblitz-ch'+i+'-color').css('background-color'), true);
@@ -239,6 +238,14 @@
         syncRDCW(viewport);
     };
 
+
+    window.setModel = function(viewport, model) {
+        // this may turn channels on/off
+        viewport.setModel(model);
+        viewport.save_channels();
+        syncRDCW(viewport);     // update undo/redo etc
+    };
+
     /**
     * Gets called when an image is initially loaded.
     * This is the place to sync everything; rendering model, quality, channel buttons, etc.
@@ -248,7 +255,6 @@
 
         $('#wblitz-rmodel').attr('checked', !viewport.isGreyModel());
         $('#wblitz-invaxis').attr('checked', viewport.loadedImg.rdefs.invertAxis);
-        //$('#rd-wblitz-rmodel').attr('checked', !viewport.isGreyModel());
 
         var q = viewport.getQuality();
         if (q) {
@@ -347,7 +353,7 @@
 
         var template = '' +
           '<tr class="$cls rdef-window">' +
-          '<td><input id="rd-wblitz-ch$idx0" class="rd-wblitz-ch" type="checkbox" onchange="rdChanSelHelper(this)" $act></td>' +
+          '<td><input id="rd-wblitz-ch$idx0" class="rd-wblitz-ch" type="checkbox" $act></td>' +
           '<td><table><tr id="wblitz-ch$idx0-cw" class="rangewidget"></tr></table></td>' +
           '<td><button id="wblitz-ch$idx0-color" class="picker squarred" title="Choose Color">&nbsp;</button></td>' +
           '</tr>';
@@ -423,6 +429,11 @@
             $('#wblitz-ch'+i+'-cw-end').val(channels[i].window.end).unbind('change').bind('change', end_cb(i));
             $('#wblitz-ch'+i+'-cw-end').keyup(keyup_cb());
         }
+
+        // bind clicking on channel checkboxes
+        $(".rd-wblitz-ch").each(function(i){
+            $(this).bind('click', doToggle(i));
+        });
 
 
         /* Prepare color picker buttons */

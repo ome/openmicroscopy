@@ -129,10 +129,10 @@
                 pasteRdefs(OME.preview_viewport);
             });
 
-            var applysettings = function(){
-              applyRDCW(OME.preview_viewport);
-            }
-            $('#rd-wblitz-rmodel').click(applysettings);
+            // handle 'Color' checkbox
+            $('#rd-wblitz-rmodel').click(function(e){
+              setModel(OME.preview_viewport, $(this).get(0).checked?'c':'g');
+            });
 
             $("#rdef-setdef-btn").click(function(){
               setImageDefaults(OME.preview_viewport, this, function() {

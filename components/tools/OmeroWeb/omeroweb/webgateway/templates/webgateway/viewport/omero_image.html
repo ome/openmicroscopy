@@ -195,21 +195,10 @@
     return false;
   }
 
-  var rdChanSelHelper = function (e) {
-    if (!$('#rd-wblitz-rmodel').get(0).checked && viewport.getProjection() != 'split') {
-      // Grey model selected and not in 'split' view, select a single channel active
-      var t = $('[id^=rd-wblitz-ch]').filter(':checked');
-      if (t.size() > 1) {
-        if (e.checked) {
-          t.filter('[id!='+e.id+']:checked').attr('checked', false);
-        } else {
-          t.filter(':checked').not(':first').attr('checked', false);
-        }
-      } else if (t.size() == 0) {
-        $('[id^=rd-wblitz-ch]:first').attr('checked', true)
-      }
-    }
-    return false;
+  // for some reason we have to bind 'Color' checkbox click like this
+  var handleModelCheckbox = function (e) {
+    // apply change to greyscale immediately
+    setModel(viewport, $("#rd-wblitz-rmodel").get(0).checked?'c':'g');
   }
 
 
@@ -258,8 +247,9 @@
     } else {
       btns.removeClass('forcegrey');
     }
+    // update both checkboxes to keep in sync.
     $('#wblitz-rmodel').attr('checked', !viewport.isGreyModel());
-    //$('#rd-wblitz-rmodel').attr('checked', !viewport.isGreyModel());
+    $('#rd-wblitz-rmodel').attr('checked', !viewport.isGreyModel());
     //syncRDCW(viewport);
   };
 
@@ -730,7 +720,7 @@
         <div id="rdef-active-area">
         <a id="rdef-postit-help" href="#" onclick="return showChannelWindowHelp();"><img src="{% static "webgateway/img/question.png" %}" alt="Show help on channel window ranges" /></a>
         <label for="rd-wblitz-rmodel">Render as Color</label>
-        <input id="rd-wblitz-rmodel" type="checkbox" onchange="return rdChanSelHelper(this);" />
+        <input id="rd-wblitz-rmodel" type="checkbox" onchange="return handleModelCheckbox();"/>
         <table cellspacing="0">
           <tr>
           </tr>
@@ -832,7 +822,7 @@
           </div>
           <div class="even row">
             <label for="wblitz-rmodel">Color</label>
-            <input id="wblitz-rmodel" type="checkbox" onclick="viewport.setModel(this.checked?'c':'g');" />
+            <input id="wblitz-rmodel" type="checkbox" />
 	    {% comment %}<!-- #8766 {% if not blitzcon.isAnonymous and image.canWrite %}
 	    <br />
             <label for="wblitz-invaxis">Invert Z/T Axis</label>
@@ -933,6 +923,11 @@
     viewport.bind('linePlotChange', linePlotChange);
     /* Bind line plot position pick */
     viewport.bind('linePlotPos', linePlotPos);
+
+    // 'Color' checkbox to left of image
+    $("#wblitz-rmodel").click(function(){
+      setModel(viewport, $(this).get(0).checked?'c':'g');
+    });
 
     /* Prepare pop tools */
     $(".popover > h1")

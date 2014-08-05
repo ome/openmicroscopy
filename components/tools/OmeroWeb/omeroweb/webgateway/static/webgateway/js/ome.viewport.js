@@ -750,7 +750,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
       if (this.isGreyModel()) {
         var found = false;
         for (var idx=0; idx < this.loadedImg.channels.length; idx++) {
-          if (_this.loadedImg.channels[idx].active) {
+          if (this.loadedImg.channels[idx].active) {
             this.setChannelActive(idx, true, true);
             found = true;
             break;
