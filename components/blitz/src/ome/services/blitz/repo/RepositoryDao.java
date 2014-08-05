@@ -3,13 +3,16 @@ package ome.services.blitz.repo;
 import java.util.List;
 
 import org.hibernate.Session;
+import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
 
 import ome.api.RawFileStore;
 import ome.io.nio.FileBuffer;
+import ome.parameters.Parameters;
 import ome.services.RawFileBean;
 import ome.services.blitz.repo.path.FsFile;
+import ome.services.util.Executor;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
 import ome.util.SqlAction.DeleteLog;
@@ -101,7 +104,7 @@ public interface RepositoryDao {
      * Find the original file IDs among those given that are in the given repository.
      * @param repo a repository UUID
      * @param ids IDs of original files
-     * @param current applicable ICE context
+     * @param Ice method invocation context
      * @return those IDs among those given whose original files are in the given repository
      */
     List<Long> filterFilesByRepository(String repo, List<Long> ids, Ice.Current current);
@@ -278,4 +281,27 @@ public interface RepositoryDao {
     void makeDirs(PublicRepositoryI repo, List<CheckedPath> dirs, boolean parents,
             Ice.Current c) throws ServerError;
 
+    /**
+     * Retrieve the checksum algorithm of the given name.
+     * @param name a checksum algorithm name, must exist
+     * @param Ice method invocation context
+     * @return the corresponding checksum algorithm model object
+     */
+    ome.model.enums.ChecksumAlgorithm getChecksumAlgorithm(String name, Ice.Current current);
+
+    /**
+     * Retrieve the original file of the given ID.
+     * @param id the ID of an original file, must exist
+     * @param Ice method invocation context
+     * @return the corresponding original file model object
+     */
+    ome.model.core.OriginalFile getOriginalFileWithHasher(long id, Ice.Current current);
+
+    /**
+     * Save the given model object.
+     * @param object a model object
+     * @param Ice method invocation context
+     * @return {@code null}
+     */
+    void saveObject(ome.model.IObject object, Ice.Current current);
 }

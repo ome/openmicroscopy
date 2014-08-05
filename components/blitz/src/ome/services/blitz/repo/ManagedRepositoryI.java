@@ -47,10 +47,8 @@ import ome.api.IUpdate;
 import ome.conditions.ApiUsageException;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
-import ome.model.IObject;
 import ome.model.core.OriginalFile;
 import ome.model.meta.Experimenter;
-import ome.parameters.Parameters;
 import ome.services.blitz.gateway.services.util.ServiceUtilities;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.FilePathNamingValidator;
@@ -58,8 +56,6 @@ import ome.services.blitz.repo.path.FilePathRestrictionInstance;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.repo.path.MakeNextDirectory;
 import ome.services.blitz.util.ChecksumAlgorithmMapper;
-import ome.services.util.Executor;
-import ome.system.Principal;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
@@ -95,8 +91,6 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -343,96 +337,23 @@ public class ManagedRepositoryI extends PublicRepositoryI
         return null;
     }
 
-    /**
-     * Create a worker that retrieves the checksum algorithm of the given name.
-     * @param name a checksum algorithm name, must exist
-     * @return the corresponding checksum algorithm model object
-     */
-    private Executor.Work<ome.model.enums.ChecksumAlgorithm> getChecksumAlgorithmWorker(final String name) {
-        return new Executor.Work<ome.model.enums.ChecksumAlgorithm>() {
-
-            @Override
-            public String description() {
-                return "get a checksum algorithm by name " + name;
-            }
-
-            @Override
-            @Transactional(readOnly = true)
-            public ome.model.enums.ChecksumAlgorithm doWork(Session session, ServiceFactory sf) {
-                final String query = "FROM ChecksumAlgorithm WHERE value = :name";
-                final Parameters params = new Parameters().addString("name", name);
-                final List<Object[]> results = sf.getQueryService().projection(query, params);
-                return (ome.model.enums.ChecksumAlgorithm) results.get(0)[0];
-            }
-        };
-    }
-
-    /**
-     * Create a worker that retrieves the original file of the given ID.
-     * @param id the ID of an original file, must exist
-     * @return the corresponding original file model object
-     */
-    private Executor.Work<OriginalFile> getOriginalFileWorker(final long id) {
-        return new Executor.Work<OriginalFile>() {
-
-            @Override
-            public String description() {
-                return "get an original file #" + id + ", with hasher joined";
-            }
-
-            @Override
-            @Transactional(readOnly = true)
-            public OriginalFile doWork(Session session, ServiceFactory sf) {
-                final String query = "FROM OriginalFile o LEFT OUTER JOIN FETCH o.hasher WHERE o.id = :id";
-                final Parameters params = new Parameters().addId(id);
-                final List<Object[]> results = sf.getQueryService().projection(query, params);
-                return (OriginalFile) results.get(0)[0];
-            }
-        };
-    }
-
-    /**
-     * Create a worker that saves the given model object.
-     * @param object a model object
-     * @return {@code null}
-     */
-    private Executor.Work<?> getSaveObjectWorker(final IObject object) {
-        return new Executor.Work<Object>() {
-
-            @Override
-            public String description() {
-                return "save the model object " + object;
-            }
-
-            @Override
-            @Transactional(readOnly = false)
-            public Object doWork(Session session, ServiceFactory sf) {
-                sf.getUpdateService().saveObject(object);
-                return null;
-            }
-        };
-    }
-
     public List<Long> setChecksumAlgorithm(ChecksumAlgorithm toHasherWrapped, List<Long> ids, Current __current)
             throws ServerError {
-        /* set up an all-groups query context */
-        final String sessionID = __current.ctx.get(omero.constants.SESSIONUUID.value);
-        final Map<String, String> allGroupsContext = new HashMap<String, String>(__current.ctx);
-        allGroupsContext.put("omero.group", "-1");
-        Principal allGroupsPrincipal = new Principal(sessionID, "-1", null);
+        /* set up an invocation context in which the group may be adjusted freely */
+        final Current adjustedGroupCurrent = makeAdjustedCurrent(__current);
+        adjustedGroupCurrent.ctx = new HashMap<String, String>(__current.ctx);
+        adjustedGroupCurrent.ctx.put(omero.constants.GROUP.value, "-1");
 
         /* get the hasher to which to set the files */
         final String toHasherName = toHasherWrapped.getValue().getValue();
-        final ome.model.enums.ChecksumAlgorithm toHasher = (ome.model.enums.ChecksumAlgorithm)
-                executor.execute(allGroupsContext, allGroupsPrincipal, getChecksumAlgorithmWorker(toHasherName));
+        final ome.model.enums.ChecksumAlgorithm toHasher = repositoryDao.getChecksumAlgorithm(toHasherName, adjustedGroupCurrent);
         final ChecksumType toType = ChecksumAlgorithmMapper.getChecksumType(toHasher);
 
         /* set the specified files that are in this repository */
         final List<Long> adjustedFiles = new ArrayList<Long>();
-        for (final long id : repositoryDao.filterFilesByRepository(getRepoUuid(), ids, __current)) {
+        for (final long id : repositoryDao.filterFilesByRepository(getRepoUuid(), ids, adjustedGroupCurrent)) {
             /* get one of the files */
-            final OriginalFile file = (OriginalFile)
-                    executor.execute(allGroupsContext, allGroupsPrincipal, getOriginalFileWorker(id));
+            final OriginalFile file = repositoryDao.getOriginalFileWithHasher(id, adjustedGroupCurrent);
             final FsFile fsPath = new FsFile(file.getPath() + file.getName());
             final String osPath = serverPaths.getServerFileFromFsFile(fsPath).getAbsolutePath();
 
@@ -464,9 +385,9 @@ public class ManagedRepositoryI extends PublicRepositoryI
             /* update the file's checksum */
             file.setHasher(toHasher);
             file.setHash(toHash);
-            final String fileGroup = Long.toString(file.getDetails().getGroup().getId());
-            final Principal fileGroupPrincipal = new Principal(sessionID, fileGroup, null);
-            executor.execute(__current.ctx, fileGroupPrincipal, getSaveObjectWorker(file));
+            adjustedGroupCurrent.ctx.put(omero.constants.GROUP.value, Long.toString(file.getDetails().getGroup().getId()));
+            repositoryDao.saveObject(file, adjustedGroupCurrent);
+            adjustedGroupCurrent.ctx.put(omero.constants.GROUP.value, "-1");
             adjustedFiles.add(id);
         }
         return adjustedFiles;
