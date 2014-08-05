@@ -149,9 +149,6 @@ public class ManagedRepositoryI extends PublicRepositoryI
     /* checks that FS file paths are legally named for the underlying file system */
     private final FilePathNamingValidator filePathNamingValidator;
 
-    /* executor for performing actions within a transactional context in a session */
-    private final Executor executor;
-
     /* template paths: matches any special expansion term */
     private static final Pattern TEMPLATE_TERM = Pattern.compile("%([a-zA-Z]+)(:([^%/]+))?%");
 
@@ -172,12 +169,11 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * @param dao
      */
     public ManagedRepositoryI(String template, RepositoryDao dao) throws Exception {
-        this(template, dao, null, new ProcessContainer(), new ChecksumProviderFactoryImpl(),
+        this(template, dao, new ProcessContainer(), new ChecksumProviderFactoryImpl(),
                 ALL_CHECKSUM_ALGORITHMS, FilePathRestrictionInstance.UNIX_REQUIRED.name, null, new Roles());
     }
 
     public ManagedRepositoryI(String template, RepositoryDao dao,
-            Executor executor,
             ProcessContainer processes,
             ChecksumProviderFactory checksumProviderFactory,
             String checksumAlgorithmSupported,
@@ -185,8 +181,6 @@ public class ManagedRepositoryI extends PublicRepositoryI
             String rootSessionUuid,
             Roles roles) throws ServerError {
         super(dao, checksumProviderFactory, checksumAlgorithmSupported, pathRules);
-
-        this.executor = executor;
 
         int splitPoint = template.lastIndexOf("//");
         if (splitPoint < 0) {

@@ -63,7 +63,6 @@
           <bean class="ome.services.blitz.repo.ManagedRepositoryI">
               <constructor-arg value="${omero.fs.repo.path}"/>
               <constructor-arg ref="repositoryDao"/>
-              <constructor-arg ref="executor"/>
               <constructor-arg ref="processContainer"/>
               <constructor-arg ref="checksumProviderFactory"/>
               <constructor-arg value="${omero.checksum.supported}"/>
