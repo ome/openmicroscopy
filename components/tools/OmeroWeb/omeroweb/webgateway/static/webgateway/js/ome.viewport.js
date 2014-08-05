@@ -692,9 +692,9 @@ jQuery._WeblitzViewport = function (container, server, options) {
       // if switching from 'split', and we're greyscale, need to check we only have 1 channel on
       if (was_split && this.isGreyModel()) {
         var found = false;
-        for (var i in _this.loadedImg.channels) {
-          if (_this.loadedImg.channels[i].active) {
-            this.setChannelActive(i, true, true);
+        for (var idx = 0; idx < _this.loadedImg.channels.length; idx++) {
+          if (_this.loadedImg.channels[idx].active) {
+            this.setChannelActive(idx, true, true);
             found = true;
             break;
           }

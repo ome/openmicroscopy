@@ -301,10 +301,10 @@
             var onAnnotations = function(result) {
                 if (result.data && result.data.rows) {
                     var table = $("#bulk-annotations").show().next().show().children("table");
-                    for (var col in result.data.columns) {
+                    for (var col = 0; col < result.data.columns.length; col++) {
                         var label = result.data.columns[col];
                         var value = '';
-                        for (var r in result.data.rows) {
+                        for (var r = 0; r < result.data.rows.length; r++) {
                           value += result.data.rows[r][col] + '<br />';
                         }
                         var row = $('<tr><td class="title"></td><td></td></tr>');
