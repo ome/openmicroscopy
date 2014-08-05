@@ -3,16 +3,12 @@ package ome.services.blitz.repo;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.springframework.transaction.annotation.Transactional;
-
 import Ice.Current;
 
 import ome.api.RawFileStore;
 import ome.io.nio.FileBuffer;
-import ome.parameters.Parameters;
 import ome.services.RawFileBean;
 import ome.services.blitz.repo.path.FsFile;
-import ome.services.util.Executor;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
 import ome.util.SqlAction.DeleteLog;
