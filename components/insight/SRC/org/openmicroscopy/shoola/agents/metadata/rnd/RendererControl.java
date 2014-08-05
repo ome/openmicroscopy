@@ -120,6 +120,9 @@ class RendererControl
     /** Identifies the action to save the rendering settings. */
     static final Integer    SAVE = Integer.valueOf(16);
     
+    /** Identifies the action to save the rendering settings. */
+    static final Integer    RND_REDO = Integer.valueOf(17);
+    
     /**
      * Reference to the {@link Renderer} component, which, in this context,
      * is regarded as the Model.
@@ -148,8 +151,6 @@ class RendererControl
         actionsMap.put(VIEW, new ViewAction(model));
         actionsMap.put(RND_MIN_MAX, new ManageRndSettingsAction(model, 
         		ManageRndSettingsAction.MIN_MAX));
-        actionsMap.put(RND_UNDO, new ManageRndSettingsAction(model, 
-        		ManageRndSettingsAction.UNDO));
         actionsMap.put(RND_RESET, new ManageRndSettingsAction(model, 
         		ManageRndSettingsAction.RESET));
         actionsMap.put(APPLY_TO_ALL, new ManageRndSettingsAction(model, 
@@ -158,6 +159,16 @@ class RendererControl
         		ManageRndSettingsAction.ABSOLUTE_MIN_MAX));
         actionsMap.put(SAVE, new ManageRndSettingsAction(model, 
         		ManageRndSettingsAction.SAVE));
+        
+        ManageRndSettingsAction a = new ManageRndSettingsAction(model, 
+                ManageRndSettingsAction.UNDO);
+        a.setEnabled(false);
+        actionsMap.put(RND_UNDO, a);
+        
+        a = new ManageRndSettingsAction(model, 
+                ManageRndSettingsAction.REDO);
+        a.setEnabled(false);
+        actionsMap.put(RND_REDO, a);
     }
     
     /** 
@@ -332,6 +343,19 @@ class RendererControl
     public void propertyChange(PropertyChangeEvent evt)
     {
         String name = evt.getPropertyName();
+        
+        if(RenderingDefinitionHistory.CAN_REDO.equals(name)) {
+            boolean value = (Boolean)evt.getNewValue();
+            actionsMap.get(RND_REDO).setEnabled(value);
+        }
+
+        if(RenderingDefinitionHistory.CAN_UNDO.equals(name)) {
+            boolean value = (Boolean)evt.getNewValue();
+            actionsMap.get(RND_UNDO).setEnabled(value);
+        }
+        
+        enableActions();
+        
         /*
         } else if (name.equals(
             CodomainMapContextDialog.UPDATE_MAP_CONTEXT_PROPERTY)) {
@@ -374,8 +398,6 @@ class RendererControl
 		} else if (Renderer.T_SELECTED_PROPERTY.equals(name)) {
 			view.setTimepoint(((Integer) evt.getNewValue()).intValue());
 		}   
-        
-        enableActions();
     }
 
     /**

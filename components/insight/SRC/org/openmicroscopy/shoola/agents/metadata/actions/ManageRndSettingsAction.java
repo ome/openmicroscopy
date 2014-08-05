@@ -68,6 +68,9 @@ public class ManageRndSettingsAction
 	
 	/** Indicates to save the rendering settings. */
 	public static final int SAVE = 6;
+	
+	/** Indicates to undo the changes. */
+        public static final int REDO = 7;
 
 	/** The description of the action if {@link #SAVE}. */
 	public static final String NAME_SAVE = "Save";
@@ -84,6 +87,9 @@ public class ManageRndSettingsAction
 	/** The description of the action if {@link #UNDO}. */
 	private static final String NAME_UNDO = "Undo";
 	
+	/** The description of the action if {@link #UNDO}. */
+        private static final String NAME_REDO = "Redo";
+	
 	/** The description of the action if {@link #RESET}. */
 	private static final String NAME_RESET = "Reset";
 	
@@ -96,8 +102,11 @@ public class ManageRndSettingsAction
 		"Set the Pixels Intensity interval to the full range for all channels.";
 	
 	/** The description of the action if {@link #UNDO}. */
-	private static final String DESCRIPTION_UNDO = "Undo the changes.";
+	private static final String DESCRIPTION_UNDO = "Undo the last change.";
 	
+	/** The description of the action if {@link #RESET}. */
+        private static final String DESCRIPTION_REDO = "Redo the last change.";
+        
 	/** The description of the action if {@link #RESET}. */
 	private static final String DESCRIPTION_RESET = 
 		"Reset the rendering settings created while importing.";
@@ -153,15 +162,24 @@ public class ManageRndSettingsAction
 				putValue(Action.SHORT_DESCRIPTION, 
 						UIUtilities.formatToolTipText(DESCRIPTION_RESET));
 				putValue(Action.SMALL_ICON, 
-						icons.getIcon(IconManager.RND_REDO));
+						icons.getIcon(IconManager.RND_RESET));
 				break;
 			case UNDO:
+			        setEnabled(false);
 				putValue(Action.NAME, NAME_UNDO);
 				putValue(Action.SHORT_DESCRIPTION, 
 						UIUtilities.formatToolTipText(DESCRIPTION_UNDO));
 				putValue(Action.SMALL_ICON, 
 						icons.getIcon(IconManager.RND_UNDO));
 				break;
+			case REDO:
+			        setEnabled(false);
+			        putValue(Action.NAME, NAME_REDO);
+                                putValue(Action.SHORT_DESCRIPTION, 
+                                                UIUtilities.formatToolTipText(DESCRIPTION_REDO));
+                                putValue(Action.SMALL_ICON, 
+                                                icons.getIcon(IconManager.RND_REDO));
+                                break;
 			case APPLY_TO_ALL:
 				setEnabled(model.canAnnotate());
 				putValue(Action.NAME, NAME_APPLY_TO_ALL);
@@ -214,8 +232,11 @@ public class ManageRndSettingsAction
 				model.resetSettings();
 				break;
 			case UNDO:
-				model.resetSettings(model.getInitialRndSettings(), true);
-				break;
+			        model.historyBack();
+                                break;
+			case REDO:
+                                model.historyForward();
+                                break;
 			case APPLY_TO_ALL:
 				model.applyToAll();
 				break;

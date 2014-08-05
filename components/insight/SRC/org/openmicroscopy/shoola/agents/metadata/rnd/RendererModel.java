@@ -165,6 +165,9 @@ class RendererModel
     /** The rendering settings. */
     private RndProxyDef rndDef;
 
+    /** Keeps track of the changes to the rendering settings */
+    private RenderingDefinitionHistory history = new RenderingDefinitionHistory();
+    
     /** Reference to the image. */
     private ImageData image;
 
@@ -220,7 +223,10 @@ class RendererModel
 	void setRenderingControl(RenderingControl rndControl)
 	{
 		this.rndControl = rndControl;
-		if (rndControl != null) rndDef = rndControl.getRndSettingsCopy();
+		if (rndControl != null) {
+		    rndDef = rndControl.getRndSettingsCopy();
+		    history.reset();
+		}
 	}
 
 	/**
@@ -849,6 +855,7 @@ class RendererModel
 	{
 		if (rndControl == null) return;
 		rndDef = rndControl.saveCurrentSettings();
+		history.reset();
 	}
 
 	/**
@@ -864,6 +871,13 @@ class RendererModel
 		return rndControl.isActive(w);
 	}
 
+	/**
+         * Returns the reference to the history
+         */
+	RenderingDefinitionHistory getRndDefHistory() {
+	    return history;
+	}
+	
 	/**
 	 * Returns a list of active channels.
 	 * 
@@ -1242,9 +1256,46 @@ class RendererModel
 		if (rndControl == null) return null;
 		RndProxyDef def = rndControl.saveCurrentSettings();
 		rndDef = def;
+		history.reset();
 		return def;
 	}
+	
+	/**
+	 * Undoes the last change to the rendering settings
+	 * @throws RenderingServiceException
+	 * @throws DSOutOfServiceException
+	 */
+	void historyBack() throws RenderingServiceException, DSOutOfServiceException {
+                RndProxyDef def;
+                if (!history.canRedo())
+                    def = history.backward(rndControl.getRndSettingsCopy());
+                else
+                    def = history.backward();
+                
+                resetSettings(def);
+                component.refresh();
+                component.renderPreview();
+	}
+	
+	/**
+	 * Redoes the previous change to the rendering settings
+	 * @throws RenderingServiceException
+	 * @throws DSOutOfServiceException
+	 */
+	void historyForward() throws RenderingServiceException, DSOutOfServiceException {
+	        RndProxyDef def = history.forward();
+                resetSettings(def);
+                component.refresh();
+                component.renderPreview();
+        }
 
+	/**
+	 * Stores the current rendering settings in the history
+	 */
+	void makeHistorySnapshot() {
+	        history.add(rndControl.getRndSettingsCopy());
+	}
+	
 	/**
 	 * Turns on or off the specified channel.
 	 *
