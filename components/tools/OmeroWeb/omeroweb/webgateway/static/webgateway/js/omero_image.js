@@ -41,7 +41,10 @@
                     // images are not compatible - just 'fail silently'
                     return;
             }
-            viewport.setQuery(data);
+            // only pick what we need
+            var pasteData = {'c': data.c,
+                'm': data.m};
+            viewport.setQuery(pasteData);
             viewport.doload();        // loads image
             syncRDCW(viewport);       // update rdef table
             viewport.channelChange(); // triggers channel btn update
