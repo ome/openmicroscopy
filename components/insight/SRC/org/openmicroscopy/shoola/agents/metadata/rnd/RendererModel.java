@@ -1273,8 +1273,6 @@ class RendererModel
                     def = history.backward();
                 
                 resetSettings(def);
-                component.refresh();
-                component.renderPreview();
 	}
 	
 	/**
@@ -1285,8 +1283,6 @@ class RendererModel
 	void historyForward() throws RenderingServiceException, DSOutOfServiceException {
 	        RndProxyDef def = history.forward();
                 resetSettings(def);
-                component.refresh();
-                component.renderPreview();
         }
 
 	/**

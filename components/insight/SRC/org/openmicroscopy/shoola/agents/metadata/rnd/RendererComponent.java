@@ -857,10 +857,11 @@ class RendererComponent
         public void historyBack() {
             try {
                 model.historyBack();
-            } catch (RenderingServiceException e) {
-                e.printStackTrace();
-            } catch (DSOutOfServiceException e) {
-                e.printStackTrace();
+                refresh();
+                firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.valueOf(false), 
+                        Boolean.valueOf(true));
+            } catch (Throwable e) {
+                handleException(e);
             }
         }
 	
@@ -872,10 +873,11 @@ class RendererComponent
         public void historyForward() {
             try {
                 model.historyForward();
-            } catch (RenderingServiceException e) {
-                e.printStackTrace();
-            } catch (DSOutOfServiceException e) {
-                e.printStackTrace();
+                refresh();
+                firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.valueOf(false), 
+                        Boolean.valueOf(true));
+            } catch (Throwable e) {
+                handleException(e);
             }
         }
         
