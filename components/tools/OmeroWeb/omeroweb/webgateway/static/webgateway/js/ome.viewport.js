@@ -585,12 +585,12 @@ jQuery._WeblitzViewport = function (container, server, options) {
     if (this.isGreyModel() && this.getProjection() != 'split') {
       /* Only allow activation of channels, and disable all other */
       if (act) {
-	for (var i in _this.loadedImg.channels) {
+	for (var i = 0; i < _this.loadedImg.channels.length; i++) {
           act = i == idx;
           if (act != _this.loadedImg.channels[i].active) {
-	    _this.loadedImg.channels[i].active = act;
-	    _this.self.trigger('channelChange', [_this, i, _this.loadedImg.channels[i]]);
-	  }
+            _this.loadedImg.channels[i].active = act;
+            _this.self.trigger('channelChange', [_this, i, _this.loadedImg.channels[i]]);
+          }
 	}
         if (!noreload) {
 	  _load();
@@ -746,9 +746,9 @@ jQuery._WeblitzViewport = function (container, server, options) {
       /* Alternative to the last model state, leftmost color going grey, selected channel only going color */
       if (this.isGreyModel()) {
         var found = false;
-        for (var i in _this.loadedImg.channels) {
-          if (_this.loadedImg.channels[i].active) {
-            this.setChannelActive(i, true, true);
+        for (var idx=0; idx < this.loadedImg.channels.length; idx++) {
+          if (_this.loadedImg.channels[idx].active) {
+            this.setChannelActive(idx, true, true);
             found = true;
             break;
           }
