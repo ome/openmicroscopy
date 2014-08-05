@@ -30,7 +30,7 @@
 
 	/* User Selection */
 	
-	#user_selection {
+	#group_user_selection {
 	    border-top:solid 1px #333940;
 		filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#8C9198', endColorstr='#70777F',GradientType=0 ); /* IE6-9 */
 	    border-right:solid 1px #393D40;
@@ -39,7 +39,7 @@
 	}
 	
 	
-	#user_selection:hover {
+	#group_user_selection:hover {
 		filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#676F78', endColorstr='#4E5760',GradientType=0 ); /* IE6-9 */
 	}
 	
