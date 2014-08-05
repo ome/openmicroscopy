@@ -122,17 +122,8 @@
 
             // copy and paste refs is in browser via query string,
             // but we also save to session in case of page reload etc
-            var copy_paste_rdef_url = "{% url 'webgateway.views.copy_image_rdef_json' %}";
             $("button.copy_rdef").click(function() {
-                var rdefQry = OME.preview_viewport.getQuery();
-                // also need pixelsType to know if we can manually paste to target
-                var pr = OME.preview_viewport.loadedImg.pixel_range.join(":");
-                rdefQry = rdefQry + "&pixel_range=" + pr
-                // Need imageId for 'apply to all'
-                rdefQry = rdefQry + "&imageId=" + OME.preview_viewport.loadedImg.id
-                // save locally and to session
-                setRdefQuery(rdefQry);
-                $.getJSON(copy_paste_rdef_url + "?" + rdefQry);
+                copyRdefs(OME.preview_viewport);
             });
             $("button.paste_rdef").click(function() {
                 pasteRdefs(OME.preview_viewport);

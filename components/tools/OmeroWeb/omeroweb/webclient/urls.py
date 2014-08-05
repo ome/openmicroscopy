@@ -99,6 +99,7 @@ urlpatterns = patterns('django.views.generic.simple',
     url(r'^(?:(?P<share_id>[0-9]+)/)?render_split_channel/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/$', webgateway.render_split_channel, name="web_render_split_channel"),
     url(r'^saveImgRDef/(?P<iid>[^/]+)/$', webgateway.save_image_rdef_json, name="web_save_image_rdef_json"),
     url(r'^getImgRDef/$', webgateway.get_image_rdef_json, name="web_get_image_rdef_json"),
+    url(r'^copyImgRDef/$', webgateway.copy_image_rdef_json, name="copy_image_rdef_json"),
 
 
     # Fileset query (for delete or chgrp dialogs) obj-types and ids in REQUEST data

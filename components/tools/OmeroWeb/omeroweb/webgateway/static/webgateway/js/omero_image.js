@@ -32,6 +32,18 @@
         syncRDCW(viewport);
     };
 
+    window.copyRdefs = function(viewport) {
+        var rdefQry = viewport.getQuery();
+        // also need pixelsType to know if we can manually paste to target
+        var pr = viewport.loadedImg.pixel_range.join(":");
+        rdefQry = rdefQry + "&pixel_range=" + pr;
+        // Need imageId for 'apply to all'
+        rdefQry = rdefQry + "&imageId=" + viewport.loadedImg.id;
+        // save locally and to session
+        setRdefQuery(rdefQry);
+        $.getJSON(viewport.viewport_server + "/copyImgRDef/?" + rdefQry);
+    };
+
     window.pasteRdefs = function (viewport) {
 
         var doPaste = function(data) {
