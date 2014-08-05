@@ -49,13 +49,24 @@ endif("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
 
 enable_language(CXX)
 
+list(APPEND CMAKE_MODULE_PATH
+     "${PROJECT_SOURCE_DIR}/components/bioformats/cpp/cmake"
+     "${PROJECT_SOURCE_DIR}/components/tools/OmeroCpp/cmake")
+
 include(CheckIncludeFileCXX)
 include(CheckCXXCompilerFlag)
 include(CheckCXXSourceCompiles)
 
-include(components/bioformats/cpp/cmake/GNUInstallDirs.cmake)
-include(components/bioformats/cpp/cmake/CompilerChecks.cmake)
-include(components/bioformats/cpp/cmake/GTest.cmake)
+include(GNUInstallDirs)
+include(CompilerChecks)
+include(GTest)
+
+# For compatibility with scons and java build
+if($ENV{SLICEPATH})
+  set(ICE_SLICE_DIR "$ENV{SLICEPATH}")
+endif($ENV{SLICEPATH})
+# Find Ice programs, includes, slice definitions and libraries
+find_package(Ice 3.4.0 REQUIRED)
 
 find_package(Threads REQUIRED)
 
@@ -68,6 +79,19 @@ endif(GTEST_FOUND)
 option(test "Enable unit tests (requires gtest)" ${BUILD_TESTS})
 set(BUILD_TESTS ${test})
 
+# Set Ice environment based upon the FindIce results (for build.py).
+if(WIN32 AND ICE_BINARY_DIR)
+  file(TO_NATIVE_PATH "${ICE_BINARY_DIR}" NATIVE_ICE_BINARY_DIR)
+  set(ENV{PATH} "${NATIVE_ICE_BINARY_DIR};$ENV{PATH}")
+endif(WIN32 AND ICE_BINARY_DIR)
+if(ICE_HOME)
+  file(TO_NATIVE_PATH "${ICE_HOME}" NATIVE_ICE_HOME)
+  set(ENV{ICE_HOME} "${NATIVE_ICE_HOME}")
+endif(ICE_HOME)
+if(ICE_SLICE_DIR)
+  file(TO_NATIVE_PATH "${ICE_SLICE_DIR}" NATIVE_ICE_SLICE_DIR)
+  set(ENV{SLICEPATH} "${NATIVE_ICE_SLICE_DIR}")
+endif(ICE_SLICE_DIR)
 
 # Run build.py to generate C++ and Ice sources.
 if(NOT EXISTS ${PROJECT_SOURCE_DIR}/components/blitz/generated/omero/model/Image.ice)
