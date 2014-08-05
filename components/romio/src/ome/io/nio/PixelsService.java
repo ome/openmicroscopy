@@ -61,9 +61,6 @@ public class PixelsService extends AbstractFileSystemService
 	 * data and similar. */
 	private transient ApplicationEventPublisher pub;
 
-	/** The DeltaVision file format enumeration value */
-	public static final String DV_FORMAT = "DV";
-
 	/** Suffix for an the image pyramid of a given pixels set. */
 	public static final String PYRAMID_SUFFIX = "_pyramid";
 
