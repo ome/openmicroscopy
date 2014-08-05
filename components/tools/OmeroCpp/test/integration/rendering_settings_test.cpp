@@ -80,7 +80,6 @@ public:
     ImagePtr createBinaryImage() {
         ImagePtr image = new ImageI();
         image->setName(rstring("createBinaryImage"));
-        image->setAcquisitionDate(rtime(0));
         image->addPixels(f.pixels());
         image = ImagePtr::dynamicCast(update()->saveAndReturnObject(image));
         return createBinaryImage(image);

@@ -11,7 +11,6 @@ import static omero.rtypes.rtime;
 import static omero.rtypes.rtime_max;
 import static omero.rtypes.rtime_min;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -231,7 +230,6 @@ public class TimelineITest extends AbstractServantTest {
         // Now add two annotations
         Image i = new Image();
         i.setName("now");
-        i.setAcquisitionDate(new Timestamp(System.currentTimeMillis()));
         i.linkAnnotation(new CommentAnnotation());
         i.linkAnnotation(new LongAnnotation());
         i = user.managedSf.getUpdateService().saveAndReturnObject(i);

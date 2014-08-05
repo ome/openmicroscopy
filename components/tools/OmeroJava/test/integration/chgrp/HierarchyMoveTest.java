@@ -255,7 +255,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         iAdmin.getEventContext(); // Refresh
 
         Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         Roi roi = new RoiI();
         roi.setImage(image);
         Rect rect;
@@ -865,9 +865,9 @@ public class HierarchyMoveTest extends AbstractServerTest {
         Dataset d = (Dataset) iUpdate.saveAndReturnObject(mmFactory
                 .simpleDatasetData().asIObject());
         Image image1 = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         Image image2 = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         List<IObject> links = new ArrayList<IObject>();
         DatasetImageLink link = new DatasetImageLinkI();
         link.setChild(image1);

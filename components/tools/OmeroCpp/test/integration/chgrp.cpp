@@ -39,7 +39,6 @@ TEST(ChgrpTest, testSimpleChgrp ) {
 
     ImagePtr image = new ImageI();
     image->setName( rstring("testSimpleChgrp") );
-    image->setAcquisitionDate( rtime(0) );
     image = ImagePtr::dynamicCast( iupdate->saveAndReturnObject( image ) );
 
     std::map<string, string> options;

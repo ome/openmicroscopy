@@ -274,7 +274,6 @@ public class PojosServiceTest extends AbstractManagedContextTest {
 
     private Image new_Image() {
         Image i = new Image();
-        i.setAcquisitionDate(new Timestamp(0));
         return i;
     }
 

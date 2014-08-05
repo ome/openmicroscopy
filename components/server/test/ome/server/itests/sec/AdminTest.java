@@ -204,7 +204,6 @@ public class AdminTest extends AbstractManagedContextTest {
 
         Image i = new Image();
         i.setName("test");
-        i.setAcquisitionDate(new Timestamp(0));
         i = iUpdate.saveAndReturnObject(i);
 
         // this user should not be able to change things
@@ -258,7 +257,6 @@ public class AdminTest extends AbstractManagedContextTest {
 
         Image i = new Image();
         i.setName("test");
-        i.setAcquisitionDate(new Timestamp(0));
         i = iUpdate.saveAndReturnObject(i);
 
         try {
@@ -327,7 +325,6 @@ public class AdminTest extends AbstractManagedContextTest {
         // create a new image
         Image i = new Image();
         i.setName(UUID.randomUUID().toString());
-        i.setAcquisitionDate(new Timestamp(0));
         i = factory.getUpdateService().saveAndReturnObject(i);
 
         // it should be in some other group
