@@ -58,9 +58,9 @@ var Metadata = function () {
     this.current.z = this.rdefs.defaultZ;
     this.current.t = this.rdefs.defaultT;
       if (this.rdefs.invertAxis) {
-	  var t = this.size.t;
-	  this.size.t = this.size.z;
-	  this.size.z = t;
+        var t = this.size.t;
+        this.size.t = this.size.z;
+        his.size.z = t;
       }
     this.current.zoom = 100;
   };
@@ -239,7 +239,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
   var _reset = function (data, textStatus) {
     hideLoading();
     clearTimeout(ajaxTimeout);
-    if(data==null) {
+    if(!data) {
         loadError("No data received from the server.");
         return;
     }
@@ -513,14 +513,17 @@ jQuery._WeblitzViewport = function (container, server, options) {
    */
   this.refreshPlot = function (cb) {
     if (linePlot && linePlot.position <= (linePlot.isHorizontal() ? this.loadedImg.size.height : this.loadedImg.size.width)) {
-      var _cb = function () { cb && cb(); hideLoading(); };
+      var _cb = function () {
+        if (cb) {cb();}
+        hideLoading();
+      };
       var _error_cb = function () { hideLoading(); showLoading('Error loading line plot!', 5); };
       showLoading('Loading line plot...');
       this.viewportimg.get(0).showOverlay(linePlot.getUrl(), _cb, _error_cb);
     } else {
       this.hidePlot();
     }
-    this.self.trigger('linePlotChange', [linePlot != null]);
+    this.self.trigger('linePlotChange', [!!linePlot]);
   };
 
   var remember_allow_resize;
@@ -578,7 +581,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
     for (var i = 0; i < _this.loadedImg.channels.length; i++) {
       _this.self.trigger('channelChange', [_this, i, _this.loadedImg.channels[i]]);
     }
-  }
+  };
 
   this.setChannelActive = function (idx, act, noreload) {
     // GreyModel only allows a single active channel, if not 'split' view
@@ -593,16 +596,16 @@ jQuery._WeblitzViewport = function (container, server, options) {
           }
 	}
         if (!noreload) {
-	  _load();
-	}
+          _load();
+        }
       }
     } else {
       if (_this.loadedImg.channels[idx].active != act) {
-	_this.loadedImg.channels[idx].active = act;
-	_this.self.trigger('channelChange', [_this, idx, _this.loadedImg.channels[idx]]);
+        _this.loadedImg.channels[idx].active = act;
+        _this.self.trigger('channelChange', [_this, idx, _this.loadedImg.channels[idx]]);
         if (!noreload) {
-	  _load();
-	}
+          _load();
+        }
       }
     }
   };
@@ -654,7 +657,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
       this.setChannelWindow(i, channels[i].window.min, channels[i].window.max, true);
     }
     _load();
-  }
+  };
 
   this.setChannelFullRange = function () {
     var channels = _this.loadedImg.channels,
@@ -663,7 +666,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
       this.setChannelWindow(i, pixel_range[0], pixel_range[1], true);
     }
     _load();
-  }
+  };
 
   this.getMetadata = function () {
     return _this.loadedImg.meta;
@@ -733,7 +736,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
       //var lmc = _this.loadedImg.current.lastModelChannels;
       _this.loadedImg.current.lastModelChannels = [];
       for (var i in _this.loadedImg.channels) {
-	    _this.loadedImg.current.lastModelChannels.push(_this.loadedImg.channels[i].active);
+        _this.loadedImg.current.lastModelChannels.push(_this.loadedImg.channels[i].active);
       }
       ///* This is the last model state retrieval logic */
       //if (lmc) {
@@ -802,14 +805,14 @@ jQuery._WeblitzViewport = function (container, server, options) {
   this.getSizes = function () {
     var s = _this.loadedImg.size;
     var rv = {width: s.width,
-	          height: s.height,
-	          c: s.c};
+        height: s.height,
+        c: s.c};
     if (_this.loadedImg.rdefs.invertAxis) {
-	  rv.z= s.t;
-	  rv.t = s.z;
+      rv.z= s.t;
+      rv.t = s.z;
     } else {
-	  rv.z = s.z;
-	  rv.t = s.t;
+      rv.z = s.z;
+      rv.t = s.t;
     }
     return rv;
   };
@@ -822,11 +825,11 @@ jQuery._WeblitzViewport = function (container, server, options) {
     var p = _this.loadedImg.current;
 	var rv = {};
     if (_this.loadedImg.rdefs.invertAxis) {
-	  rv.t = p.z;
-	  rv.z = p.t;
+      v.t = p.z;
+      v.z = p.t;
     } else {
-	  rv.t = p.t;
-	  rv.z = p.z;
+      rv.t = p.t;
+      rv.z = p.z;
     }
     return rv;
   };
@@ -934,15 +937,15 @@ jQuery._WeblitzViewport = function (container, server, options) {
   // When we Save settings to the server, we can remember the point we saved.
   this.setSaved = function() {
     saved_undo_stack_ptr = channels_undo_stack_ptr;
-  }
+  };
   // Do we have any unsaved changes? (undo/redo since we last saved)
   this.getSaved = function() {
     return saved_undo_stack_ptr === channels_undo_stack_ptr;
-  }
+  };
 
   this.doload = function(){
     _load();
-  }
+  };
 
   this.has_channels_undo = function () {
     return channels_undo_stack_ptr > 0;
@@ -972,7 +975,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
   };
 
   this.back_to_bookmarked_channels = function () {
-    if (channels_bookmark != null) {
+    if (channels_bookmark) {
       channels_undo_stack_ptr = channels_bookmark;
       this.undo_channels(true);
     }
@@ -1069,10 +1072,10 @@ jQuery._WeblitzViewport = function (container, server, options) {
         }
       }
     }
-    query.m && this.setModel(query.m, true);
-    query.q && this.setQuality(query.q, true);
-    query.p && this.setProjection(query.p, true);
-    query.p && this.setInvertedAxis(query.ia, true);
+    if (query.m) this.setModel(query.m, true);
+    if (query.q) this.setQuality(query.q, true);
+    if (query.p) this.setProjection(query.p, true);
+    if (query.p) this.setInvertedAxis(query.ia, true);
     if (query.zm) {
       this.loadedImg.query_zoom = query.zm;  // for big images
       this.setZoom(parseInt(query.zm, 10));
@@ -1083,8 +1086,8 @@ jQuery._WeblitzViewport = function (container, server, options) {
     if (query.z) {
       this.loadedImg.current.z = parseInt(query.z, 10)-1;
     }
-    query.x && this.viewportimg.get(0).setXOffset(parseInt(query.x, 10));
-    query.y && this.viewportimg.get(0).setYOffset(parseInt(query.y, 10));
+    if (query.x) this.viewportimg.get(0).setXOffset(parseInt(query.x, 10));
+    if (query.y) this.viewportimg.get(0).setYOffset(parseInt(query.y, 10));
     if (query.lp) {
       this.prepareLinePlot(query.lp.substring(0,1));
       linePlot.position = parseInt(query.lp.substring(1), 10);
@@ -1092,7 +1095,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
   };
 
   this.getRelUrl = function (append) {
-    append = append != null ? '/'+append : '';
+    append = append !== undefined ? '/'+append : '';
     return this.loadedImg.id + '/' + this.loadedImg.current.z + '/' + this.loadedImg.current.t + append + '/?' + this.getQuery();
   };
 
