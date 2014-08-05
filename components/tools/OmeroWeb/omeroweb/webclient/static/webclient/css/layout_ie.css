@@ -509,14 +509,8 @@
         background: #ffb;
     }
 
-    #batch_ann_msg, #batch_ann_error {
+    #batch_ann_msg, #batch_ann_error, .postit_msg {
         background: #ffb;
-    }
-    #batch_ann_msg, {
-        background: #ffb;
-    }
-    #batch_ann_error {
-        background: #fbb;
     }
 	
 	
