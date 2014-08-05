@@ -420,7 +420,13 @@ public class OmeroMetadata extends DummyMetadata {
     public Timestamp getImageAcquisitionDate(int imageIndex)
     {
         Image o = _getImage(imageIndex);
-        return o != null? new Timestamp(new Instant(o.getAcquisitionDate().getValue())) : null;
+        if (o != null) {
+            final RTime acquisitionDate = o.getAcquisitionDate();
+            if (acquisitionDate != null) {
+                return new Timestamp(new Instant(acquisitionDate.getValue()));
+            }
+        }
+        return null;
     }
 
     @Override

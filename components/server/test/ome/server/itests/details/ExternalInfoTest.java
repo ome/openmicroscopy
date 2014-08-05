@@ -157,7 +157,6 @@ public class ExternalInfoTest extends AbstractManagedContextTest {
     private Image createImage() {
         Image i = new Image();
         i.setName("ticket:371");
-        i.setAcquisitionDate(new Timestamp(0));
         return i;
     }
 

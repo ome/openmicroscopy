@@ -19,6 +19,7 @@
 
 package ome.services.util;
 
+import ome.system.PreferenceContext;
 import ome.util.SqlAction;
 
 import org.slf4j.Logger;
@@ -36,14 +37,21 @@ abstract class BaseDBCheck {
     /** executor useful for performing database adjustments */
     protected final Executor executor;
 
+    /* current database version */
+    private final String version;
+    private final int patch;
+
     private final String configKey = "DB check " + getClass().getSimpleName();
     private final String configValue = getCheckDone();
+    private final String configKeyValue = configKey + ": " + configValue;
 
     /**
      * @param executor executor to use for configuration map check
      */
-    protected BaseDBCheck(Executor executor) {
+    protected BaseDBCheck(Executor executor, PreferenceContext preferences) {
         this.executor = executor;
+        this.version = preferences.getProperty("omero.db.version");
+        this.patch = Integer.parseInt(preferences.getProperty("omero.db.patch"));
     }
 
     /**
@@ -60,6 +68,20 @@ abstract class BaseDBCheck {
     }
 
     /**
+     * The database adjustment is to be performed.
+     */
+    private void checkIsStarting() {
+        executor.executeSql(
+                new Executor.SimpleSqlWork(this, "BaseDBCheck") {
+                    @Transactional(readOnly = false)
+                    public Object doWork(SqlAction sql) {
+                        sql.addMessageWithinDbPatchStart(version, patch, configKeyValue);
+                        return null;
+                    }
+                });
+    }
+
+    /**
      * The database adjustment is now performed.
      * Hereafter {@link #isCheckRequired()} should return {@code false}.
      */
@@ -68,6 +90,7 @@ abstract class BaseDBCheck {
                 new Executor.SimpleSqlWork(this, "BaseDBCheck") {
                     @Transactional(readOnly = false)
                     public Object doWork(SqlAction sql) {
+                        sql.addMessageWithinDbPatchEnd(version, patch, configKeyValue);
                         sql.updateOrInsertConfigValue(configKey, configValue);
                         return null;
                     }
@@ -79,9 +102,10 @@ abstract class BaseDBCheck {
      */
     public void start() {
         if (isCheckRequired()) {
+            checkIsStarting();
             doCheck();
             checkIsDone();
-            log.info("performed " + configKey + ": " + configValue);
+            log.info("performed " + configKeyValue);
         } else if (log.isDebugEnabled()) {
             log.debug("skipped " + configKey);
         }

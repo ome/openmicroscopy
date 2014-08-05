@@ -117,7 +117,6 @@ class TestTickets2000(lib.ITest):
         #images
         im2 = ImageI()
         im2.setName(rstring('test1071-im2-%s' % (uuid)))
-        im2.acquisitionDate = rtime(0)
         im2 = update.saveAndReturnObject(im2)
         im2.unload()
 
@@ -216,7 +215,6 @@ class TestTickets2000(lib.ITest):
         #images
         im2 = ImageI()
         im2.setName(rstring('test1071-im2-%s' % (c2_uuid)))
-        im2.acquisitionDate = rtime(0)
         im2 = c2_update.saveAndReturnObject(im2)
         im2.unload()
 
@@ -398,7 +396,6 @@ class TestTickets2000(lib.ITest):
         # create image and index
         img = ImageI()
         img.setName(rstring('test1154-img-%s' % (uuid)))
-        img.setAcquisitionDate(rtime(0))
         img = update1.saveAndReturnObject(img)
         img.unload()
         self.index(img)
@@ -428,7 +425,6 @@ class TestTickets2000(lib.ITest):
         for i in range(1,2001):
             img = ImageI()
             img.setName(rstring('img1184-%s' % (uuid)))
-            img.setAcquisitionDate(rtime(time.time()))
             # Saving in one go
             #dil = DatasetImageLinkI()
             #dil.setParent(ds)

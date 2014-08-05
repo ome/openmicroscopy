@@ -14,7 +14,6 @@ import static org.testng.AssertJUnit.assertTrue;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -1252,7 +1251,7 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
     @Test
     public void testResetMinMaxForSetForNonValidImage() throws Exception {
         IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-        Image image = mmFactory.simpleImage(new Date().getTime());
+        Image image = mmFactory.simpleImage();
         image = (Image) iUpdate.saveAndReturnObject(image);
         // Image
         // method already tested
@@ -1273,7 +1272,7 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
     public void testResetDefaultByOwnerNonValidImage() throws Exception {
         EventContext ctx = newUserAndGroup("rwra--");
         Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         // Image
         IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
         List<Long> v = prx.resetDefaultsByOwnerInSet(Image.class.getName(),
@@ -1293,7 +1292,7 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
     public void testSetOriginalSettingsInSetNonValidImage() throws Exception {
         EventContext ctx = newUserAndGroup("rwra--");
         Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         // Image
         IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
         List<Long> v = prx.setOriginalSettingsInSet(Image.class.getName(),
@@ -1313,7 +1312,7 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
     public void testResetDefaultInSetNonValidImage() throws Exception {
         EventContext ctx = newUserAndGroup("rwra--");
         Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         // Image
         IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
         List<Long> v = prx.resetDefaultsInSet(Image.class.getName(),

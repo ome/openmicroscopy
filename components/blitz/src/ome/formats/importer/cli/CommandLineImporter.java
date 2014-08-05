@@ -229,7 +229,7 @@ public class CommandLineImporter {
                 transfer.afterTransfer(handler.errorCount(), paths);
 
             } catch (CleanupFailure e) {
-                log.error("rcode=3 on failed cleanup");
+                log.error("Failed to cleanup {} files", e.getFailedFiles().size());
                 return 3;
             }
         }
@@ -358,8 +358,9 @@ public class CommandLineImporter {
             + "  Import speed:\n"
             + "  -------------\n\n"
             + "    --checksum_algorithm=ARG\tChoose a possibly faster algorithm for detecting file corruption,\n"
-            + "                            \te.g. Adler-32 (fast), CRC-32 (fast), MD5-128,\n"
-            + "                            \t     Murmur3-32, Murmur3-128, SHA1-160 (slow, default)\n\n"
+            + "                            \te.g. Adler-32 (fast), CRC-32 (fast), File-Size-64 (fast),\n"
+            + "                            \t     MD5-128, Murmur3-32, Murmur3-128,\n"
+            + "                            \t     SHA1-160 (slow, default)\n\n"
             + "  e.g. $ bin/omero import -- --checksum_algorithm=CRC-32 foo.tiff\n"
             + "       $ ./importer-cli --checksum_algorithm=Murmur3-128 bar.tiff\n"
             + "\n"

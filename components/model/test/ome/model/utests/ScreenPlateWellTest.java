@@ -45,15 +45,14 @@ public class ScreenPlateWellTest extends TestCase {
         reagentC.setName("C");
     }
 
-    private java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
-    public Image i1_1a = new Image(testTimestamp, "i1_1a");
-    public Image i1_1b = new Image(testTimestamp, "i1_1b");
-    public Image i1_2a = new Image(testTimestamp, "i1_2a");
-    public Image i1_2b = new Image(testTimestamp, "i1_2b");
-    public Image i2_1a = new Image(testTimestamp, "i2_1a");
-    public Image i2_1b = new Image(testTimestamp, "i2_1b");
-    public Image i2_2a = new Image(testTimestamp, "i2_2a");
-    public Image i2_2b = new Image(testTimestamp, "i2_2b");
+    public Image i1_1a = new Image("i1_1a");
+    public Image i1_1b = new Image("i1_1b");
+    public Image i1_2a = new Image("i1_2a");
+    public Image i1_2b = new Image("i1_2b");
+    public Image i2_1a = new Image("i2_1a");
+    public Image i2_1b = new Image("i2_1b");
+    public Image i2_2a = new Image("i2_2a");
+    public Image i2_2b = new Image("i2_2b");
 
     @Test
     public void testBuildingAScreen() {

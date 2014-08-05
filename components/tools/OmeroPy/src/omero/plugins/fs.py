@@ -27,8 +27,6 @@ import sys
 
 from collections import namedtuple
 
-from omero_ext.argparse import SUPPRESS
-
 from omero import client as Client
 from omero import CmdError
 from omero import ServerError
@@ -249,7 +247,8 @@ class FsControl(BaseControl):
             type=ProxyStringType("Fileset"),
             help="Fileset which should be renamed: ID or Fileset:ID")
         rename.add_argument(
-            "--no-move", action="store_true", help=SUPPRESS)
+            "--no-move", action="store_true",
+            help="do not move original files and import log")
 
         repos = parser.add(sub, self.repos)
         repos.add_style_argument()
@@ -399,7 +398,8 @@ Examples:
 
 After the import template (omero.fs.repo.path) has been changed,
 it may be useful to rename an existing fileset to match the new
-template.
+template. By default the original files and import log are also
+moved.
 """
         fid = args.fileset.id.val
         client = self.ctx.conn(args)

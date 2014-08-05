@@ -49,7 +49,6 @@ import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsSaved;
-import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
@@ -1073,8 +1072,8 @@ class MetadataViewerComponent
 	 */
 	public void loadViewedBy()
 	{
-		Object ref = model.getRefObject();
-		if (ref instanceof ImageData || ref instanceof WellSampleData) {
+		ImageData ref = model.getImage();
+		if (ref != null) {
 		    model.fireViewedByLoading();
 		}
 	}

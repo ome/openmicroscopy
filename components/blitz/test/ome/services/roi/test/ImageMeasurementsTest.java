@@ -51,7 +51,6 @@ public class ImageMeasurementsTest extends AbstractRoiITest {
     private void setupImage() throws Exception {
         i = new ImageI();
         i.setName(rstring("RoiPerformanceTest"));
-        i.setAcquisitionDate(rtime(0));
         i = assertSaveAndReturn(i);
         i.unload();
     }

@@ -20,19 +20,22 @@
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 import java.awt.FontMetrics;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+
 import javax.swing.Icon;
 import javax.swing.table.DefaultTableModel;
 
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.env.log.Logger;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.GroupData;
@@ -51,9 +54,11 @@ import pojos.ScreenData;
  */
 public class SearchResultTableModel extends DefaultTableModel {
 
+    private Logger logger = DataBrowserAgent.getRegistry().getLogger();
+    
     /** The name of the columns */
     public static final String[] COLUMN_NAMES = { "Type", "Name",
-            "Date (Acquisition/Import)", "Group", " " };
+            "Acquired", "Imported", "Group", " " };
 
     /**
      * The index of the column which contains the View buttons (i. e. the last
@@ -62,11 +67,7 @@ public class SearchResultTableModel extends DefaultTableModel {
     public static final int VIEWBUTTON_COLUMN_INDEX = COLUMN_NAMES.length - 1;
 
     /** Defines the size of the thumbnail icons */
-    private static final double THUMB_ZOOM_FACTOR = 0.5;
-
-    /** Defines the format how the date is shown */
-    private static final DateFormat DATE_FORMAT = new SimpleDateFormat(
-            "MMM dd, yyyy hh:mm a");
+    private static final double THUMB_ZOOM_FACTOR = 0.3;
 
     /** The DataObjects shown in the table */
     private List<DataObject> data = new ArrayList<DataObject>();
@@ -106,7 +107,7 @@ public class SearchResultTableModel extends DefaultTableModel {
 
         DataObject obj = data.get(row);
 
-        Object result = "--";
+        Object result = null;
 
         switch (column) {
             case 0:
@@ -116,42 +117,43 @@ public class SearchResultTableModel extends DefaultTableModel {
                 result = getObjectName(obj);
                 break;
             case 2:
-                result = getDate(obj);
+                result = getADate(obj);
                 break;
             case 3:
-                result = getGroup(obj);
+                result = getIDate(obj);
                 break;
             case 4:
+                result = getGroup(obj);
+                break;
+            case 5:
                 result = obj;
                 break;
         }
 
-        return result;
+        return result != null ? result : "--";
     }
 
     /**
-     * Get the acquisition/creation date of the {@link DataObject}
+     * Get the acquisition date of the {@link DataObject}
      * 
      * @param obj
      * @return
      */
-    private String getDate(DataObject obj) {
-        String aDate = "--";
-        String iDate = "--";
-
-        try {
-            if (obj instanceof ImageData) {
-                // just images have an acquisition date
-                aDate = DATE_FORMAT.format(new Date(((ImageData) obj)
-                        .getAcquisitionDate().getTime()));
-            }
-            iDate = DATE_FORMAT.format(new Date(obj.getCreated().getTime()));
-        } catch (Exception e) {
-            // if there is no date, date is invalid or the text conversion
-            // goes wrong, just stick to '--' for the date
-        }
-
-        return aDate + "<br/>" + iDate;
+    private Date getADate(DataObject obj) {
+        if(obj instanceof ImageData)
+            return new Date(((ImageData) obj).getAcquisitionDate().getTime());
+        else
+            return null;
+    }
+    
+    /**
+     * Get the creation date of the {@link DataObject}
+     * 
+     * @param obj
+     * @return
+     */
+    private Date getIDate(DataObject obj) {
+        return new Date(obj.getCreated().getTime());
     }
 
     /**
@@ -181,18 +183,16 @@ public class SearchResultTableModel extends DefaultTableModel {
         if (obj instanceof ImageData) {
             Thumbnail thumb = model.getThumbnail(obj);
             return thumb == null ? IconManager.getInstance().getIcon(
-                    IconManager.IMAGE_48) : thumb.getIcon(THUMB_ZOOM_FACTOR);
+                    IconManager.IMAGE) : thumb.getIcon(THUMB_ZOOM_FACTOR);
         }
 
         else if (obj instanceof ProjectData) {
-            return IconManager.getInstance().getIcon(IconManager.PROJECT_48);
+            return IconManager.getInstance().getIcon(IconManager.PROJECT);
         }
 
         else if (obj instanceof DatasetData) {
-            return IconManager.getInstance().getIcon(IconManager.DATASET_48);
+            return IconManager.getInstance().getIcon(IconManager.DATASET);
         }
-
-        // TODO: These are 16px icons, replace with 48px ones, if/once we have some
         
         else if (obj instanceof ScreenData) {
             return IconManager.getInstance().getIcon(IconManager.SCREEN);
@@ -217,6 +217,8 @@ public class SearchResultTableModel extends DefaultTableModel {
             case 3:
                 return String.class;
             case 4:
+                return String.class;
+            case 5:
                 return DataObject.class;
             default:
                 return String.class;
@@ -245,15 +247,30 @@ public class SearchResultTableModel extends DefaultTableModel {
         
         
         FontMetrics fm = parent.getGraphics().getFontMetrics();
+
         int colWidth = parent.getColumn(1).getWidth();
+        // TODO: There must be some margin or padding from an enclosing component that we ought to take into account.
+        colWidth -= 20;  // interim fudge factor
+
         int textWidth = fm.stringWidth(name); 
         if (textWidth > colWidth) {
-            int max = (int) ((double) colWidth / (double) textWidth * name
-                    .length());
-            // TODO: FontMetrics.stringWidth doesn't seem to work properly, but with 
-            // an additional cut-off of 10 it seems to work fine for now.
-            name = EditorUtil.truncate(name, max-10, true);
-            textWidth = fm.stringWidth(name);
+            /* the name is too long for the column, so truncate it */
+            final int dotsWidth = fm.stringWidth(UIUtilities.DOTS);
+            while (true) {
+                textWidth = dotsWidth + fm.stringWidth(name);
+                if (textWidth <= colWidth) {
+                    /* now short enough to fit in the column */
+                    name = UIUtilities.DOTS + name;
+                    break;
+                }
+                if (name.isEmpty()) {
+                    /* impossibly narrow column */
+                    name = "";
+                    break;
+                }
+                /* must shorten name some more */
+                name = name.substring(1);
+            }
         }
         
         String idPrefix = null;

@@ -34,7 +34,7 @@ from omero.install.jvmcfg import ManualStrategy
 from omero.install.jvmcfg import PercentStrategy
 from omero.install.jvmcfg import Settings
 from omero.install.jvmcfg import Strategy
-from omero.install.jvmcfg import strip_prefix
+from omero.install.jvmcfg import strip_dict
 from omero.install.jvmcfg import usage_charts
 
 from omero.util.temp_files import create_path
@@ -63,15 +63,15 @@ def write_config(data):
 class TestMemoryStrip(object):
 
     def test_1(self):
-        rv = strip_prefix({"a.b": "c"}, "a")
-        assert rv["b"] == "c"
+        rv = strip_dict({"a.b": "c"}, prefix="a")
+        assert {"b": "c"} == rv
 
     def test_2(self):
-        rv = strip_prefix({"a.b.c.d": "e"}, "a.b")
-        assert rv["c.d"] == "e"
+        rv = strip_dict({"a.b.c": "d"}, prefix="a.b")
+        assert rv["c"] == "d"
 
     def test_3(self):
-        rv = strip_prefix({
+        rv = strip_dict({
             "omero.jvmcfg.foo": "a",
             "something.else": "b"})
 
@@ -79,17 +79,23 @@ class TestMemoryStrip(object):
         assert "something.else" not in rv
 
     @pytest.mark.parametrize("input,output", (
-        ({"omero.jvmcfg.blitz.heap_size": "1g"}, {"heap_size": "1g"}),
+        ({"omero.jvmcfg.heap_size.blitz": "1g"}, {"heap_size": "1g"}),
         ))
     def test_4(self, input, output):
         p = write_config(input)
         config = ConfigXml(filename=str(p), env_config="default")
         try:
             m = config.as_map()
-            s = strip_prefix(m, "omero.jvmcfg.blitz")
+            s = strip_dict(m, suffix="blitz")
             assert s == output
         finally:
             config.close()
+
+    def test_5(self):
+        rv = strip_dict({
+            "omero.jvmcfg.a.blitz": "b",
+        }, suffix="blitz")
+        assert rv["a"] == "b"
 
 
 class TestSettings(object):

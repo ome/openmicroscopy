@@ -460,8 +460,6 @@ public interface SqlAction {
      */
     Map<Long, byte[]> getShareData(List<Long> ids);
 
-    Integer deleteMapProperty(String table, String property, long id);
-
     //
     // Previously PgArrayHelper
     //
@@ -525,6 +523,24 @@ public interface SqlAction {
     int changeGroupPermissions(Long id, Long internal);
 
     int changeTablePermissionsForGroup(String table, Long id, Long internal);
+
+    /**
+     * Add a unique message to the DB patch table within the current patch.
+     * This method marks the start of the corresponding DB adjustment process.
+     * @param version the version of the current DB
+     * @param patch the patch of the current DB
+     * @param message the new message to note
+     */
+    void addMessageWithinDbPatchStart(String version, int patch, String message);
+
+    /**
+     * Add a unique message to the DB patch table within the current patch.
+     * This method marks the end of the corresponding DB adjustment process.
+     * @param version the version of the current DB
+     * @param patch the patch of the current DB
+     * @param message the new message to note
+     */
+    void addMessageWithinDbPatchEnd(String version, int patch, String message);
 
     //
     // End PgArrayHelper
@@ -988,6 +1004,20 @@ public interface SqlAction {
             _jdbc().update(
                 _lookup("log_loader_delete"), key); //$NON-NLS-1$
 
+        }
+
+        @Override
+        public void addMessageWithinDbPatchStart(String version, int patch, String message) {
+            final Map<String, Object> parameters =
+                    ImmutableMap.<String, Object>of("version", version, "patch", patch, "message", message);
+            _jdbc().update(_lookup("adjust_within_patch.start"), parameters);
+        }
+
+        @Override
+        public void addMessageWithinDbPatchEnd(String version, int patch, String message) {
+            final Map<String, Object> parameters =
+                    ImmutableMap.<String, Object>of("version", version, "patch", patch, "message", message);
+            _jdbc().update(_lookup("adjust_within_patch.end"), parameters);
         }
 
         //

@@ -11,7 +11,6 @@ import static omero.rtypes.rtime;
 import static omero.rtypes.rtime_max;
 import static omero.rtypes.rtime_min;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -89,7 +88,7 @@ public class TimelineITest extends AbstractServantTest {
         Map<String, Long> target = new HashMap<String, Long>();
         target.put("Image", 1L);
 
-        Image i = new Image(new Timestamp(System.currentTimeMillis()), "img");
+        Image i = new Image("img");
         i = user.managedSf.getUpdateService().saveAndReturnObject(i);
 
         assertCountByPeriodMatchesTarget(types, rtime_min(), rtime_max(),
@@ -113,7 +112,7 @@ public class TimelineITest extends AbstractServantTest {
     public void testGetOneImage() throws Exception {
         List<String> types = Arrays.asList("Image");
 
-        Image i = new Image(new Timestamp(System.currentTimeMillis()), "img");
+        Image i = new Image("img");
         i = user.managedSf.getUpdateService().saveAndReturnObject(i);
 
         Map<String, List<IObject>> rv = assertGetByPeriod(types, rtime_min(),
@@ -128,7 +127,7 @@ public class TimelineITest extends AbstractServantTest {
 
     @Test
     public void testGetEventLog() throws Exception {
-        Image i = new Image(new Timestamp(System.currentTimeMillis()), "img");
+        Image i = new Image("img");
         i = user.managedSf.getUpdateService().saveAndReturnObject(i);
 
         Dataset d = new Dataset("ds");
@@ -145,7 +144,7 @@ public class TimelineITest extends AbstractServantTest {
     public void testMostRecentImages() throws Exception {
         List<String> types = Arrays.asList("Image");
 
-        Image i = new Image(new Timestamp(System.currentTimeMillis()), "img");
+        Image i = new Image("img");
         i = user.managedSf.getUpdateService().saveAndReturnObject(i);
 
         Map<String, List<IObject>> rv = assertMostRecent(types, null, false);
@@ -161,7 +160,7 @@ public class TimelineITest extends AbstractServantTest {
     public void testMostRecentMerged() throws Exception {
         List<String> types = Arrays.asList("Image", "Dataset");
 
-        Image i = new Image(new Timestamp(System.currentTimeMillis()), "img");
+        Image i = new Image("img");
         i = user.managedSf.getUpdateService().saveAndReturnObject(i);
 
         Dataset d = new Dataset("ds");
@@ -180,7 +179,7 @@ public class TimelineITest extends AbstractServantTest {
     public void testJust1RecentImage() throws Exception {
         List<String> types = Arrays.asList("Image");
 
-        Image i = new Image(new Timestamp(System.currentTimeMillis()), "img");
+        Image i = new Image("img");
         i = user.managedSf.getUpdateService().saveAndReturnObject(i);
 
         ParametersI p = new ParametersI().page(0, 1);
@@ -231,7 +230,6 @@ public class TimelineITest extends AbstractServantTest {
         // Now add two annotations
         Image i = new Image();
         i.setName("now");
-        i.setAcquisitionDate(new Timestamp(System.currentTimeMillis()));
         i.linkAnnotation(new CommentAnnotation());
         i.linkAnnotation(new LongAnnotation());
         i = user.managedSf.getUpdateService().saveAndReturnObject(i);
@@ -262,7 +260,6 @@ public class TimelineITest extends AbstractServantTest {
         // Now add a tag annotations
         Image i = new Image();
         i.setName("now");
-        i.setAcquisitionDate(new Timestamp(System.currentTimeMillis()));
         i.linkAnnotation(new TagAnnotation());
         i = user.managedSf.getUpdateService().saveAndReturnObject(i);
 
@@ -273,14 +270,15 @@ public class TimelineITest extends AbstractServantTest {
 
     @Test
     public void testOrderMostRecentObjects() throws Exception {
-        
+        final long now = System.currentTimeMillis();
+
         omero.model.Image i1 = new omero.model.ImageI();
         i1.setName(rstring("first"));
-        i1.setAcquisitionDate(rtime(System.currentTimeMillis()-1));
+        i1.setAcquisitionDate(rtime(now - 1));
         omero.model.Image i2 = new omero.model.ImageI();
         i2.setName(rstring("second"));
-        i2.setAcquisitionDate(rtime(System.currentTimeMillis()+11));
-        
+        i2.setAcquisitionDate(rtime(now + 1));
+
         Project p1 = new ProjectI();
         p1.setName(rstring("between1"));
         

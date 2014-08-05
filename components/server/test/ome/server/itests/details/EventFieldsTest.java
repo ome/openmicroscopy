@@ -64,7 +64,6 @@ public class EventFieldsTest extends AbstractManagedContextTest {
 
     private Image newImage() {
         Image i = new Image();
-        i.setAcquisitionDate(new Timestamp(0));
         return i;
     }
 

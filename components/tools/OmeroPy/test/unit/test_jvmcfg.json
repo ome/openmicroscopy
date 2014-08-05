@@ -220,5 +220,18 @@
                 "-XX:MaxPermSize=512m"
             ]
         }
+    },
+    {
+        "name": "percent-heapsize",
+        "input": {
+            "omero.jvmcfg.heap_size": "4g",
+            "omero.jvmcfg.strategy": "percent"
+        },
+        "output": {
+            "blitz" : [
+                "-Xmx4g",
+                "-XX:MaxPermSize=256m"
+            ]
+        }
     }
 ]

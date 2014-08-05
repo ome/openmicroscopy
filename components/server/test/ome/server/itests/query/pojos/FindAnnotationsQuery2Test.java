@@ -89,7 +89,6 @@ public class FindAnnotationsQuery2Test extends AbstractManagedContextTest {
     public void testFindImageAnnotationsWithOwnerIds() throws Exception {
         Image i = new Image();
         i.setName("ticket:172");
-        i.setAcquisitionDate(new Timestamp(0));
         CommentAnnotation a = new CommentAnnotation();
         a.setNs("");
         a.setTextValue("ticket:172");

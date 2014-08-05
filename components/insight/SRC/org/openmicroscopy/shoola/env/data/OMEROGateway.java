@@ -62,8 +62,8 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 
-import org.openmicroscopy.shoola.env.LookupNames;
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
@@ -3521,6 +3521,38 @@ class OMEROGateway
 	}
 	
 	/**
+	 * Find an IObject by HQL query
+	 * @param ctx The security context
+	 * @param query The hql query string
+	 * @param allGroups If true search for all groups, other just for
+	 *   the SecurityContext's group
+	 * @return The object, if found
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	IObject findIObjectByQuery(SecurityContext ctx, String query, boolean allGroups)
+                throws DSOutOfServiceException, DSAccessException
+        {
+            Connector c = getConnector(ctx, true, false);
+                try {
+                    Map<String, String> m = new HashMap<String, String>();
+                    if(allGroups) {
+                        m.put("omero.group", "-1");
+                    }
+                    else {
+                        m.put("omero.group", ""+ctx.getGroupID());
+                    }
+                    
+                    IQueryPrx service = c.getQueryService();
+                        return service.findByQuery(query, null, m);
+                } catch (Throwable t) {
+                        handleException(t, "Cannot retrieve the requested object with "+
+                                        "query: "+query);
+                }
+                return null;
+        }
+	
+	/**
          * Retrieves an updated version of the specified object.
          *
          * @param ctx The security context.
@@ -4116,17 +4148,57 @@ class OMEROGateway
 	}
 
 	/**
+	 * Updates the group's permissions
+	 * @param ctx The security context.
+         * @param group The group to update.
+         * @param permissions The new permissions.
+	 * @return
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+        RequestCallback updateGroupPermissions(SecurityContext ctx,
+                GroupData group, int permissions) throws DSOutOfServiceException,
+                DSAccessException {
+            if (group.getPermissions().getPermissionsLevel() != permissions
+                    && permissions >= 0) {
+                try {
+                    String r = "rw----";
+                    switch (permissions) {
+                        case GroupData.PERMISSIONS_GROUP_READ:
+                            r = "rwr---";
+                            break;
+                        case GroupData.PERMISSIONS_GROUP_READ_LINK:
+                            r = "rwra--";
+                            break;
+                        case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+                            r = "rwrw--";
+                            break;
+                        case GroupData.PERMISSIONS_PUBLIC_READ:
+                            r = "rwrwr-";
+                    }
+                    Chmod chmod = new Chmod(REF_GROUP, group.getId(), null, r);
+                    List<Request> l = new ArrayList<Request>();
+                    l.add(chmod);
+                    return getConnector(ctx, true, false).submit(l, null);
+                } catch (Throwable e) {
+                    handleException(e, "Cannot update the group's permissions. ");
+                }
+    
+            }
+            return null;
+        }
+	
+	/**
 	 * Updates the specified group.
 	 *
 	 * @param ctx The security context.
 	 * @param group	The group to update.
-	 * @param permissions The new permissions.
+	 * 
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
-	RequestCallback updateGroup(SecurityContext ctx, GroupData group,
-			int permissions)
+	void updateGroup(SecurityContext ctx, GroupData group)
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
@@ -4134,31 +4206,9 @@ class OMEROGateway
 		    IAdminPrx svc = c.getAdminService();
 			ExperimenterGroup g = group.asGroup();
 			svc.updateGroup(g);
-			if (group.getPermissions().getPermissionsLevel() != permissions
-					&& permissions >= 0) {
-				String r = "rw----";
-				switch (permissions) {
-					case GroupData.PERMISSIONS_GROUP_READ:
-						r = "rwr---";
-						break;
-					case GroupData.PERMISSIONS_GROUP_READ_LINK:
-						r = "rwra--";
-						break;
-					case GroupData.PERMISSIONS_GROUP_READ_WRITE:
-						r = "rwrw--";
-						break;
-					case GroupData.PERMISSIONS_PUBLIC_READ:
-						r = "rwrwr-";
-				}
-				Chmod chmod = new Chmod(REF_GROUP, group.getId(), null, r);
-				List<Request> l = new ArrayList<Request>();
-				l.add(chmod);
-				return getConnector(ctx, true, false).submit(l, null);
-			}
 		} catch (Throwable t) {
 			handleException(t, "Cannot update the group. ");
 		}
-		return null;
 	}
 
 	/**
@@ -5037,11 +5087,16 @@ class OMEROGateway
                             }
                         }
                     } catch (Exception e) {
-                        if (e instanceof InternalException)
-                            result.setError(AdvancedSearchResultCollection.GENERAL_ERROR);
-                        else
+                        if (e instanceof InternalException) {
+                            if(e.toString().contains("TooManyClauses")) 
+                                result.setError(AdvancedSearchResultCollection.TOO_MANY_CLAUSES);
+                            else
+                                result.setError(AdvancedSearchResultCollection.GENERAL_ERROR);
+                        }
+                        else {
                             result.setError(AdvancedSearchResultCollection.TOO_MANY_RESULTS_ERROR);
-    
+                        }
+                        
                         c.close(service);
     
                         return result;
@@ -5102,7 +5157,9 @@ class OMEROGateway
                     result += "description";
                 }
                 if (scopeId == SearchParameters.ANNOTATION) {
-                    result += "annotation";
+                    // TODO: adding file.xyz is a workaround for these things not 
+                    // being part of the annotation index, can be removed again for > 5.0
+                    result += "annotation, file.name, file.path, file.contents, file.format";
                 }
             }
     
@@ -5777,6 +5834,7 @@ class OMEROGateway
 			sb.append("left outer join fetch well.wellSamples as ws ");
 			sb.append("left outer join fetch ws.plateAcquisition as pa ");
 			sb.append("left outer join fetch ws.image as img ");
+			sb.append("left outer join fetch img.details.creationEvent as cre ");
 			sb.append("left outer join fetch img.details.updateEvent as evt ");
 			sb.append("left outer join fetch img.pixels as pix ");
             sb.append("left outer join fetch pix.pixelsType as pt ");
@@ -5821,6 +5879,7 @@ class OMEROGateway
 				sb.append("left outer join fetch well.wellSamples as ws ");
 				sb.append("left outer join fetch ws.plateAcquisition as pa ");
 				sb.append("left outer join fetch ws.image as img ");
+				sb.append("left outer join fetch img.details.creationEvent as cre ");
 				sb.append("left outer join fetch img.details.updateEvent as evt ");
 				sb.append("left outer join fetch img.pixels as pix ");
 	            sb.append("left outer join fetch pix.pixelsType as pt ");
