@@ -385,7 +385,8 @@ public class ManagedRepositoryI extends PublicRepositoryI
             /* update the file's checksum */
             file.setHasher(toHasher);
             file.setHash(toHash);
-            adjustedGroupCurrent.ctx.put(omero.constants.GROUP.value, Long.toString(file.getDetails().getGroup().getId()));
+            final String fileGroup = Long.toString(file.getDetails().getGroup().getId());
+            adjustedGroupCurrent.ctx.put(omero.constants.GROUP.value, fileGroup);
             repositoryDao.saveObject(file, adjustedGroupCurrent);
             adjustedGroupCurrent.ctx.put(omero.constants.GROUP.value, "-1");
             adjustedFiles.add(id);
