@@ -397,7 +397,7 @@ class ServerDialog
 		initComponents(true);
 		initListeners();
 		buildGUI(index);
-		setSize(WINDOW_DIM);
+		pack();
 	}
 	
 	/** 
