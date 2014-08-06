@@ -556,7 +556,7 @@ class path(unicode):
 
         return [p for p in self.listdir(pattern) if p.isfile()]
 
-    def walk(self, pattern=None, errors='strict'):
+    def walk(self, pattern=None, errors='ignore'):
         """ D.walk() -> iterator over files and subdirs, recursively.
 
         The iterator yields path objects naming each child item of

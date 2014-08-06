@@ -182,7 +182,7 @@ if True:
         assert "together" == groupings["A"]["3"], str(groupings)
 
     def testParseAllOfficialScripts(self):
-        for script in SCRIPTS.walk("*.py", errors="ignore"):
+        for script in SCRIPTS.walk("*.py"):
             try:
                 parse_file(str(script))
             except Exception, e:

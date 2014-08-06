@@ -162,7 +162,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         self.env.set("ICE_CONFIG", str(self.config_path))
         # Also actively adding all jars under lib/server to the CLASSPATH
         lib_server = self.omero_home / "lib" / "server"
-        for jar_file in lib_server.walk("*.jar", errors="ignore"):
+        for jar_file in lib_server.walk("*.jar"):
             self.env.append("CLASSPATH", str(jar_file))
 
     def make_files(self):
