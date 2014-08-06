@@ -6880,6 +6880,45 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
         return self.getRenderingModel().value.lower() == 'greyscale'
 
+    def getAllRenderingDefs (self, eid=-1):
+        """
+        Returns a dict of the rendering settings that exist for this Image
+        Can be filtered by owner using the eid parameter.
+
+        @return:    Rdef dict
+        @rtype:     Dict
+        """
+
+        pixelsService = self._conn.getPixelsService()
+        rdefs = pixelsService.retrieveAllRndSettings(self.getPixelsId(), eid)
+        rv = []
+        for rdef in rdefs:
+            d = {}
+            owner = rdef.getDetails().owner
+            d['id'] = rdef.getId().val
+            d['owner'] = {'id':owner.id.val,
+                        'firstName': owner.getFirstName().val,
+                        'lastName': owner.getLastName().val}
+            d['z'] = rdef.getDefaultZ().val
+            d['t'] = rdef.getDefaultT().val
+            d['model'] = rdef.getModel().getValue().val        # greyscale / rgb
+            waves = rdef.iterateWaveRendering()
+            d['c'] = []
+            for w in waves:
+                color = ColorHolder.fromRGBA(w.getRed().val, w.getGreen().val, w.getBlue().val, 255)
+                d['c'].append({
+                        'active': w.getActive().val,
+                        'start': w.getInputStart().val,
+                        'end': w.getInputEnd().val,
+                        'color': color.getHtml(),
+                        'rgb': {'red': w.getRed().val,
+                            'green': w.getGreen().val,
+                            'blue': w.getBlue().val}
+                        })
+            rv.append(d)
+        return rv
+
+
     @assert_re()
     def renderBirdsEyeView (self, size):
         """
