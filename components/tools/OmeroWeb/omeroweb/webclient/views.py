@@ -841,7 +841,25 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None, **kwa
     if c_type == "well":
         manager.image = manager.well.getImage(index)
 
+    rdefs = manager.image.getAllRenderingDefs()
+    # format into rdef strings, E.g. {c: '1|3118:35825$FF0000,2|2086:18975$FFFF00', m: 'c'}
+    rdefQueries = []
+    for r in rdefs:
+        chs = []
+        for i, c in enumerate(r['c']):
+            act = "-"
+            if c['active']:
+                act = ""
+            chs.append('%s%s|%d:%d$%s' % (act, i+1, c['start'], c['end'], c['color']))
+        rdefQueries.append({
+            'id': r['id'],
+            'c': ",".join(chs),
+            'm': r['model'] == 'greyscale' and 'g' or 'c'
+            })
+
     context = {'manager':manager, 'share_id':share_id}
+    context['rdefsJson'] = json.dumps(rdefQueries)
+    context['rdefs'] = rdefs
     context['template'] = "webclient/annotations/metadata_preview.html"
     return context
 

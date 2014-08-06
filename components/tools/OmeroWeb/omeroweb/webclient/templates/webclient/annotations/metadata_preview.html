@@ -78,6 +78,17 @@
       input.rd-wblitz-ch {
         display: none;
       }
+      img.rdef {
+        max-width: 24px;
+        max-height: 24px;
+      }
+      #hoverRdef {
+        display: none;
+        position: fixed;
+        zIndex: 999;
+        width: 96px;
+        height: 96px;
+      }
     </style>
 
 
@@ -169,6 +180,37 @@
               syncRDCW(OME.preview_viewport);
             });
 
+            // Show larger thumbnail when hovering over rdef buttons
+            var $hoverRdef = $("#hoverRdef").hide();
+            $("button.rdef").hover(function(event){
+              var $btn = $(this),
+                src = $('img', $btn).attr('src');
+              $hoverRdef.attr('src', src).show();
+            }, function(){
+              $hoverRdef.hide();
+            });
+            $("button.rdef").mousemove(function(event){
+              $hoverRdef.css({'left': event.clientX+15 + 'px',
+                  'top':event.clientY-96 + 'px'});
+            });
+            // clicking rdef button applies rdef to image
+            // rdefs = [{'id':123, 'c': '1|3118:35825$FF0000,2|2086:18975$FFFF00', 'm': 'c'}}]
+            var rdefs = {{ rdefsJson|safe }}; 
+            $("button.rdef").click(function(){
+              var rdid = $(this).attr('data-rdid');
+              for (var r = 0; r < rdefs.length; r++) {
+                if (rdefs[r].id+"" === rdid) {
+                  OME.preview_viewport.setQuery(rdefs[r]);
+                  OME.preview_viewport.doload();
+                  syncRDCW(OME.preview_viewport);
+                  OME.preview_viewport.save_channels();
+                  updateUndoRedo(OME.preview_viewport);
+                  break;
+                }
+              }
+            })
+
+
         });
     </script>
 
@@ -211,6 +253,8 @@
         <button id="rdef-redo-btn" title="Redo the last changes to settings.">redo</button>
       </li>
     </ul>
+
+    <img id="hoverRdef" src="{% url 'render_thumbnail' manager.image.id %}"/>
     <ul>
       <li>
         <button id="rdef-reset-btn" class="editor"
@@ -231,6 +275,15 @@
         <button class="paste_rdef" title="Paste Rendering Settings">
           Paste
         </button>
+      </li>
+
+      <li>
+        {% for rdef in rdefs %}
+          <button class='rdef' data-rdid="{{ rdef.id }}">
+            <img class='rdef' src="{% url 'render_thumbnail' manager.image.id %}?rdefId={{ rdef.id }}"/>
+            {{ rdef.owner.firstName }} {{ rdef.owner.lastName }}
+          </button>
+        {% endfor %}
       </li>
       {% block batch_copy %}
       {% if dataset.canOwnerWrite %}

@@ -281,6 +281,10 @@ def render_thumbnail (request, iid, w=None, h=None, conn=None, _defcb=None, **kw
     if size == (96,):
         direct = False
     user_id = conn.getUserId()
+    rdefId = request.REQUEST.get('rdefId', None)
+    if rdefId is not None:
+        rdefId = int(rdefId)
+    # TODO - cache handles rdefId
     jpeg_data = webgateway_cache.getThumb(request, server_id, user_id, iid, size)
     if jpeg_data is None:
         prevent_cache = False
@@ -293,7 +297,7 @@ def render_thumbnail (request, iid, w=None, h=None, conn=None, _defcb=None, **kw
             else:
                 raise Http404
         else:
-            jpeg_data = img.getThumbnail(size=size, direct=direct)
+            jpeg_data = img.getThumbnail(size=size, direct=direct, rdefId=rdefId)
             if jpeg_data is None:
                 logger.debug("(c)Image %s not found..." % (str(iid)))
                 if _defcb:
