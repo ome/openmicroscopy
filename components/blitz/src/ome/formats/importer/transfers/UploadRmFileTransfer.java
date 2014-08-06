@@ -22,15 +22,18 @@ package ome.formats.importer.transfers;
 import java.util.List;
 
 /**
- * Local-only file transfer mechanism which makes use of hard-linking
- * followed by the deletion of the original source file.
+ * Version of the default {@link UploadFileTransfer} which
+ * deletes all files in a transfer set if the upload is
+ * successful. This is similar to the {@link MoveFileTransfer}
+ * but should be considered less safe since a remote copy
+ * is involved.
  *
- * @since 5.0
+ * @since 5.0.3
  */
-public class MoveFileTransfer extends HardlinkFileTransfer {
+public class UploadRmFileTransfer extends UploadFileTransfer {
 
     /**
-     * Deletes all hard-linked files if there were no errors.
+     * Deletes all uploaded files if there were no errors.
      */
     @Override
     public void afterTransfer(int errors, List<String> srcFiles) throws CleanupFailure {
