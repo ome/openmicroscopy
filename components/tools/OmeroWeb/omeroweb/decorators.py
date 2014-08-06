@@ -26,7 +26,7 @@ Decorators for use with OMERO.web applications.
 import logging
 import json
 
-from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpResponseForbidden
+from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpResponseForbidden, StreamingHttpResponse
 
 from django.conf import settings
 from django.utils.http import urlencode
@@ -40,7 +40,7 @@ from omeroweb.connector import Connector
 
 logger = logging.getLogger(__name__)
 
-class ConnCleaningHttpResponse(HttpResponse):
+class ConnCleaningHttpResponse(StreamingHttpResponse):
     """Extension of L{HttpResponse} which closes the OMERO connection."""
 
     def close(self):

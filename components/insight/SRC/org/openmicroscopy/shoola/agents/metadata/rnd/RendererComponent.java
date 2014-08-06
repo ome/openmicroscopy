@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -241,7 +242,7 @@ class RendererComponent
         model.initialize(this);
         controller.initialize(this, view);
         view.initialize(controller, model);
-		setSelectedChannel(-1);
+	setSelectedChannel(-1);
     }
     
     /** 
@@ -1102,24 +1103,19 @@ class RendererComponent
 	
 	/** 
 	 * Implemented as specified by the {@link Renderer} interface.
-	 * @see Renderer#retrieveRelatedSettings(Component, Point)
+	 * @see Renderer#retrieveRelatedSettings()
 	 */
-	public void retrieveRelatedSettings(Component source, Point location)
+	public void retrieveRelatedSettings()
 	{
-		List<Object> l = new ArrayList<Object>();
-		l.add(source);
-		l.add(location);
-		firePropertyChange(VIEWED_BY_PROPERTY, null, l);
+		firePropertyChange(VIEWED_BY_PROPERTY, null, "");
 	}
 
 	/** 
 	 * Implemented as specified by the {@link Renderer} interface.
 	 * @see Renderer#loadRndSettings(boolean, List)
 	 */
-	public void loadRndSettings(boolean loading, List results)
+	public void loadRndSettings(boolean loading, List<ViewedByItem> results)
 	{
-		Action a = controller.getAction(RendererControl.RND_OWNER);
-		a.setEnabled(loading);
 		view.displayViewedBy(results);
 	}
 

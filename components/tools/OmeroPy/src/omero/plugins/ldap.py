@@ -104,7 +104,7 @@ user never had a password, one will need to be set!""")
             else:
                 self.ctx.die(1, "No")
         except omero.SecurityViolation:
-            self.ctx.die(111, "SecurityViolation: Admins only!")
+            self.error_admin_only(fatal=True)
 
     def list(self, args):
         c = self.ctx.conn(args)
@@ -136,8 +136,7 @@ user never had a password, one will need to be set!""")
             self.ctx.out(str(tb.build()))
 
         except omero.SecurityViolation:
-            self.ctx.die(131,
-                         "SecurityViolation: Must be an admin to lists DNs")
+            self.error_admin_only(fatal=True)
 
     def getdn(self, args):
         c = self.ctx.conn(args)
@@ -168,7 +167,7 @@ user never had a password, one will need to be set!""")
         try:
             ildap.setDN(exp.id, args.dn)
         except omero.SecurityViolation:
-            self.ctx.die(135, "SecurityViolation: Admins only!")
+            self.error_admin_only(fatal=True)
 
     def discover(self, args):
 

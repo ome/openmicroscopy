@@ -5,7 +5,7 @@
 #
 # $Id$
 #
-# Copyright 2011 Glencoe Software, Inc. All rights reserved.
+# Copyright 2011-2014 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -54,9 +54,18 @@
     </target>
 
     <target name="install" depends="package">
+        <property name="ivy.pom.version" value="${omero.version}"/>
+        <ivy:makepom ivyfile="${basedir}/ivy.xml" pomfile="${target.dir}/${ivy.module}.pom">
+            <mapping conf="build" scope="compile"/>
+            <mapping conf="runtime" scope="compile"/>
+            <mapping conf="client" scope="compile"/>
+            <mapping conf="server" scope="compile"/>
+            <mapping conf="default" scope="compile"/>
+            <mapping conf="*" scope="compile"/>
+            <dependency group="ome" artifact="bio-formats" version="${omero.version}" optional="true"/>
+        </ivy:makepom>
         <publishArtifact haltonmissing="false"/>
     </target>
-
 
     <target name="zips" depends="prepare">
         <insightBuild target="dist"/>
@@ -76,76 +85,28 @@
         </description>
         <!-- Hard coding paths for the moment to work around hudson regex issues -->
         <copy todir="${target.dir}">
-            <fileset dir="${basedir}/OUT/dist" includes="OMERO.insight*.zip" excludes="*-mac*.zip,*-win*.zip"/>
-            <mapper type="regexp" from="OMERO.insight-${omero.version}.zip"  to="insight.zip"/>
-        </copy>
-        <if>
-            <available file="${basedir}/OUT/dist/OMERO.insight-${omero.version}-win.zip"/>
-            <then>
-                <copy todir="${target.dir}">
-                    <fileset dir="${basedir}/OUT/dist" includes="OMERO.insight-${omero.version}-win.zip"/>
-                    <mapper type="regexp" from="OMERO.insight-${omero.version}-win.zip"  to="insight-win.zip"/>
-                </copy>
-            </then>
-        </if> 
-        <if>
-            <available file="${basedir}/OUT/dist/OMERO.insight-${omero.version}-win-openGL.zip"/>
-            <then>
-                <copy todir="${target.dir}">
-                    <fileset dir="${basedir}/OUT/dist" includes="OMERO.insight-${omero.version}-win-openGL.zip"/>
-                    <mapper type="regexp" from="OMERO.insight-${omero.version}-win-openGL.zip"  to="insight-win-openGL.zip"/>
-                </copy>
-            </then>
-        </if>
-        <if>
-            <available file="${basedir}/OUT/dist/OMERO.insight-${omero.version}-win64-openGL.zip"/>
-            <then>
-                <copy todir="${target.dir}">
-                    <fileset dir="${basedir}/OUT/dist" includes="OMERO.insight-${omero.version}-win64-openGL.zip"/>
-                    <mapper type="regexp" from="OMERO.insight-${omero.version}-win64-openGL.zip"  to="insight-win64-openGL.zip"/>
-                </copy>
-            </then>
-        </if>
-        
-        <copy todir="${target.dir}">
-            <fileset dir="${basedir}/OUT/dist" includes="OMERO.insight*-mac.zip"/>
-            <mapper type="regexp" from="OMERO.insight-${omero.version}-+(.*).zip"  to="insight-mac.zip"/>
+            <fileset dir="${basedir}/OUT/dist" includes="OMERO.insight-${omero.version}-*.zip"/>
+            <mapper type="regexp"
+                    from="^OMERO.insight-${omero.version}-(.*).zip"
+                    to="insight-\1.zip"/>
         </copy>
         <copy todir="${target.dir}">
-            <fileset dir="${basedir}/OUT/dist" includes="OMERO.insight*-mac-openGL.zip"/>
-            <mapper type="regexp" from="OMERO.insight-${omero.version}-+(.*).zip"  to="insight-mac-openGL.zip"/>
+            <fileset dir="${basedir}/OUT/dist"
+                     includes="OMERO.editor-${omero.version}-*.zip"/>
+            <mapper type="regexp"
+                    from="^OMERO.editor-${omero.version}-(.*).zip"
+                    to="editor-\1.zip"/>
         </copy>
         <copy todir="${target.dir}">
-            <fileset dir="${basedir}/OUT/dist" includes="OMERO.editor*-mac.zip"/>
-            <mapper type="regexp" from="OMERO.editor-${omero.version}-+(.*).zip"  to="editor-mac.zip"/>
+            <fileset dir="${basedir}/OUT/dist"
+                     includes="OMERO.importer-${omero.version}-*.zip"/>
+            <mapper type="regexp"
+                    from="^OMERO.importer-${omero.version}-(.*).zip"
+                    to="importer-\1.zip"/>
         </copy>
-        
-        <if>
-            <available file="${basedir}/OUT/dist/OMERO.editor-${omero.version}-win.zip"/>
-            <then>
-                <copy todir="${target.dir}">
-                    <fileset dir="${basedir}/OUT/dist" includes="OMERO.editor-${omero.version}-win.zip"/>
-                    <mapper type="regexp" from="OMERO.editor-${omero.version}-win.zip"  to="editor-win.zip"/>
-                </copy>
-            </then>
-        </if>
-        
     	<copy todir="${target.dir}">
     	    <fileset dir="${basedir}/OUT/dist" includes="OMERO.insight-ij*.zip"/>
             <mapper type="regexp" from="OMERO.insight-ij-${omero.version}.zip"  to="insight-ij.zip"/>
-    	</copy>
-        <if>
-            <available file="${basedir}/OUT/dist/OMERO.importer-${omero.version}-win.zip"/>
-            <then>
-                <copy todir="${target.dir}">
-                    <fileset dir="${basedir}/OUT/dist" includes="OMERO.importer-${omero.version}-win.zip"/>
-                    <mapper type="regexp" from="OMERO.importer-${omero.version}-win.zip"  to="importer-win.zip"/>
-                </copy>
-            </then>
-        </if>
-    	<copy todir="${target.dir}">
-    	    <fileset dir="${basedir}/OUT/dist" includes="OMERO.importer*-mac.zip"/>
-            <mapper type="regexp" from="OMERO.importer-${omero.version}-+(.*).zip"  to="importer-mac.zip"/>
     	</copy>
     </target>
 

@@ -19,30 +19,34 @@
 
 package ome.services.fulltext;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
 
-import ome.api.local.LocalShare;
-import ome.conditions.InternalException;
 import ome.model.IAnnotated;
 import ome.model.IGlobal;
 import ome.model.IMutable;
 import ome.model.IObject;
 import ome.model.meta.EventLog;
-import ome.services.eventlogs.*;
+import ome.services.eventlogs.EventLogFailure;
+import ome.services.eventlogs.EventLogLoader;
+import ome.services.eventlogs.PersistentEventLogLoader;
 import ome.services.util.Executor.SimpleWork;
+import ome.system.OmeroContext;
 import ome.system.ServiceFactory;
+import ome.system.metrics.Histogram;
+import ome.system.metrics.Metrics;
+import ome.system.metrics.NullMetrics;
+import ome.system.metrics.Timer;
 import ome.tools.hibernate.QueryBuilder;
 import ome.util.SqlAction;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.hibernate.CacheMode;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,9 +58,14 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public class FullTextIndexer extends SimpleWork {
+public class FullTextIndexer extends SimpleWork implements ApplicationContextAware {
 
     private final static Logger log = LoggerFactory.getLogger(FullTextIndexer.class);
+
+    /**
+     * Default number of loops to wait if no external value is set.
+     */
+    public final static int DEFAULT_REPORTING_LOOPS = 100;
 
     abstract class Action {
         Class type;
@@ -82,7 +91,9 @@ public class FullTextIndexer extends SimpleWork {
 
         @Override
         void log(Logger log) {
-            log.info(String.format("Purged: %s:Id_%d", type, id));
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Purged: %s:Id_%d", type, id));
+            }
         }
     }
 
@@ -110,7 +121,22 @@ public class FullTextIndexer extends SimpleWork {
 
     final protected ParserSession parserSession;
 
+    final protected Timer batchTimer;
+
+    final protected Histogram completeSlow, completeFast;
+
     protected int reps = 5;
+
+    protected long batch;
+
+    /**
+     * Frequency with which the percentage done should be calculated.
+     */
+    protected int reportingLoops = DEFAULT_REPORTING_LOOPS;
+
+    protected boolean dryRun = false;
+
+    protected OmeroContext context = null;
 
     /**
      * Spring injector. Sets the number of indexing runs will be made if there
@@ -118,13 +144,34 @@ public class FullTextIndexer extends SimpleWork {
      */
     public void setRepetitions(int reps) {
         this.reps = reps;
-        ;
+    }
+
+    public void setReportingLoops(int loops) {
+        this.reportingLoops = loops;
+    }
+
+    public void setDryRun(boolean dryRun) {
+        this.dryRun = dryRun;
+    }
+
+    public void setApplicationContext(ApplicationContext ctx) {
+        this.context = (OmeroContext) ctx;
     }
 
     public FullTextIndexer(EventLogLoader ll) {
+        this(ll, new NullMetrics());
+    }
+
+    public FullTextIndexer(EventLogLoader ll, Metrics metrics) {
         super("FullTextIndexer", "index");
         this.loader = ll;
         this.parserSession = new ParserSession();
+        this.batchTimer =
+                metrics.timer(this, "batch");
+        this.completeSlow=
+                metrics.histogram(this, "percentCompleteSlow");
+        this.completeFast =
+                metrics.histogram(this, "percentCompleteFast");
     }
 
     /**
@@ -147,31 +194,62 @@ public class FullTextIndexer extends SimpleWork {
         int count = 1;
         int perbatch = 0;
         long start = System.currentTimeMillis();
+        Timer.Context timer = null;
         do {
+            batch++;
+            timer = batchTimer.time();
+            try {
 
-            // ticket:1254 -
-            // The following is non-portable and can later be refactored
-            // for a more general solution.
-            getSqlAction().deferConstraints();
+                    // ticket:1254 -
+                    // The following is non-portable and can later be refactored
+                    // for a more general solution.
+                    getSqlAction().deferConstraints();
 
-            // s.execute("set statement_timeout=10000");
-            // The Postgresql Driver does not currently support the
-            // "timeout" value on @Transactional and so if a query timeout
-            // is required, then this must be set.
+                    // s.execute("set statement_timeout=10000");
+                    // The Postgresql Driver does not currently support the
+                    // "timeout" value on @Transactional and so if a query timeout
+                    // is required, then this must be set.
 
-            FullTextSession fullTextSession = Search
-                    .getFullTextSession(session);
-            fullTextSession.setFlushMode(FlushMode.MANUAL);
-            fullTextSession.setCacheMode(CacheMode.IGNORE);
-            perbatch = doIndexingWithWorldRead(sf, fullTextSession);
-            count++;
+                    FullTextSession fullTextSession = Search
+                            .getFullTextSession(session);
+                    fullTextSession.setFlushMode(FlushMode.MANUAL);
+                    fullTextSession.setCacheMode(CacheMode.IGNORE);
+                    perbatch = doIndexingWithWorldRead(sf, fullTextSession);
+            } finally {
+                timer.stop();
+                count++;
+            }
         } while (doMore(count));
-        if (perbatch > 0) {
-            log.info(String.format("INDEXED %s objects in %s batch(es) [%s ms.]",
-                    perbatch, (count - 1), (System.currentTimeMillis() - start)));
-        } else {
+
+        if (perbatch == 0) {
             log.debug("No objects indexed");
+        } else {
+            final long elapsed = (System.currentTimeMillis() - start);
+            if (loader instanceof PersistentEventLogLoader) {
+                long currId = ((PersistentEventLogLoader) loader).getCurrentId();
+                long lastId = loader.lastEventLog().getId();
+                String which = "~";
+                double perc = 0.0f;
+                if (batchTimer.getCount() % reportingLoops == 0) {
+                    which = "";
+                    perc = getSqlAction().getEventLogPercent(
+                        ((PersistentEventLogLoader) loader).getKey());
+                    completeSlow.update((int) perc);
+                } else {
+                    perc = 100.0 * ((float) currId) / ((float) lastId);
+                    completeFast.update((int) perc);
+                }
+
+                log.info(String.format("INDEXED %4s objects in batch#%-6s " +
+                    "[%7d ms.]  %s%2d%% done (%d of %d)",
+                    perbatch, batch, elapsed,
+                    which, ((int) perc), currId, lastId));
+            } else {
+                log.info(String.format("INDEXED %4s objects in batch#%-6s " +
+                    "[%7d ms.]", perbatch, batch, elapsed));
+            }
         }
+
         return null;
     }
 
@@ -185,56 +263,66 @@ public class FullTextIndexer extends SimpleWork {
         int count = 0;
 
         for (EventLog eventLog : loader) {
+
+            if (dryRun) {
+                continue;
+            }
+
             if (eventLog != null) {
-                String act = eventLog.getAction();
-                Class type = asClassOrNull(eventLog.getEntityType());
-                if (type != null) {
-                    long id = eventLog.getEntityId();
-
-                    Action action = null;
-                    if ("DELETE".equals(act)) {
-                        action = new Purge(type, id);
-                    } else if ("REINDEX".equals(act) || "UPDATE".equals(act) || "INSERT".equals(act)) {
-                        IObject obj = get(session, type, id);
-                        if (obj == null) {
-                            // This object was deleted before the indexer caught up with
-                            // the INSERT/UDPDATE log. Though this isn't a problem itself,
-                            // this does mean that the indexer is likely going too slow and
-                            // therefore this is at WARN.
-                            log.warn(String.format("Null returned! Purging "
-                                    + "since cannot index %s:Id_%s for %s", type
-                                    .getName(), id, eventLog));
-                            action = new Purge(type, id);
-                        } else {
-                            action = new Index(obj);
-                        }
-                    } else {
-                        // Likely CHGRP-VALIDATION, PIXELDATA or similar.
-                        if (log.isDebugEnabled()) {
-                            log.debug("Unknown action type: " + act);
-                        }
-                    }
-
-                    if (action != null) {
-                        try {
-                            action.go(session);
-                            count++;
-                        } catch (Exception e) {
-                            String msg = "FullTextIndexer stuck! "
-                                    + "Failed to index EventLog: " + eventLog;
-                            log.error(msg, e);
-                            loader.rollback(eventLog);
-                            throw new InternalException(msg);
-                        }
-                        action.log(log);
-                    }
-                }
+                handleEventLog(session, eventLog);
+                count++;
             }
             session.flush();
             parserSession.closeParsedFiles();
 
         }
         return count;
+    }
+
+    protected void handleEventLog(FullTextSession session, EventLog eventLog) {
+        String act = eventLog.getAction();
+        Class type = asClassOrNull(eventLog.getEntityType());
+        if (type != null) {
+            long id = eventLog.getEntityId();
+
+            Action action = null;
+            if ("DELETE".equals(act)) {
+                action = new Purge(type, id);
+            } else if ("REINDEX".equals(act) || "UPDATE".equals(act) || "INSERT".equals(act)) {
+                IObject obj = get(session, type, id);
+                if (obj == null) {
+                    // This object was deleted before the indexer caught up with
+                    // the INSERT/UDPDATE log. Though this isn't a problem itself,
+                    // this does mean that the indexer is likely going too slow.
+                    log.debug(String.format("Null returned! Purging "
+                            + "since cannot index %s:Id_%s for %s", type
+                            .getName(), id, eventLog));
+                    action = new Purge(type, id);
+                } else {
+                    action = new Index(obj);
+                }
+            } else {
+                // Likely CHGRP-VALIDATION, PIXELDATA or similar.
+                if (log.isDebugEnabled()) {
+                    log.debug("Unknown action type: " + act);
+                }
+            }
+
+            if (action != null) {
+                try {
+                    action.go(session);
+                } catch (Exception e) {
+                    try {
+                        this.context.publishMessage(new EventLogFailure(loader, eventLog, e));
+                    } catch (RuntimeException re) {
+                        throw re;
+                    } catch (Throwable e1) {
+                        throw new RuntimeException(e1);
+                    }
+                }
+                action.log(log);
+            }
+        }
     }
 
     /**

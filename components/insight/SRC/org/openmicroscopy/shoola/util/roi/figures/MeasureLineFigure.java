@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -218,6 +218,7 @@ public class MeasureLineFigure
 		angleArray.clear();
 		if (MeasurementAttributes.SHOWMEASUREMENT.get(this))
 		{
+		    g.setColor(MeasurementAttributes.STROKE_COLOR.get(this));
 			if (getPointCount() == 2)
 			{
 				NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
@@ -236,7 +237,6 @@ public class MeasureLineFigure
 				Rectangle2D bounds = new Rectangle2D.Double(lengthPoint.x,
 						lengthPoint.y+rect.getHeight()*2, rect.getWidth(),
 						rect.getHeight());
-				g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
 				g.drawString(lineAngle, (int)bounds.getX(), (int)bounds.getY());
 				boundsArray.add(bounds);
 			}
@@ -254,14 +254,12 @@ public class MeasureLineFigure
 						g);
 				Rectangle2D bounds = new Rectangle2D.Double(getPoint(x).x,
 						getPoint(x).y, rect.getWidth(), rect.getHeight());
-				g.setColor(
-						MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
+
 				g.drawString(lineAngle, (int) bounds.getX(), (int) bounds.getY());
 				boundsArray.add(bounds);
 			}
 			double total = 0;
 			int n = getPointCount();
-			g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
 			String v = "";
 			NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
 			

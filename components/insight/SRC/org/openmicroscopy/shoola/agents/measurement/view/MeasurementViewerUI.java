@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewerUI 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -58,6 +58,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
+import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.DelegationSelectionTool;
 import org.jhotdraw.draw.Drawing;
@@ -774,13 +775,10 @@ class MeasurementViewerUI
 		Collection<Figure> l = model.getSelectedFigures();
 		if (l == null || l.size() == 0) return;
 		Iterator<Figure> i = l.iterator();
-		switch (row) {
-			case ObjectInspector.FILL_COLOR_ROW:
-				AttributeKeys.FILL_COLOR.set(i.next(), color);
-				break;
-			case ObjectInspector.LINE_COLOR_ROW:
-				AttributeKeys.STROKE_COLOR.set(i.next(), color);
-		}
+		
+		AttributeKey attKey = roiInspector.getAttributeKey(row);
+		attKey.set(i.next(), color);
+		
 		model.getDrawingView().repaint();
 	}
     
@@ -1107,6 +1105,12 @@ class MeasurementViewerUI
     		roiInspector.repaint();
     } 
 
+    /** Clear the inspector after saving the data. */
+    void clearInspector()
+    {
+        roiInspector.clearData();
+    }
+
     /**
      * Handles the exception thrown by the <code>ROIComponent</code>.
      * 
@@ -1375,7 +1379,7 @@ class MeasurementViewerUI
 	{
 		if (inGraphView()) graphPane.displayAnalysisResults();
 		else if (inIntensityView()) intensityView.displayAnalysisResults();
-		else if (inIntensityResultsView()) 
+		else if (inIntensityResultsView())
 			intensityResultsView.displayAnalysisResults();
 	}
 	

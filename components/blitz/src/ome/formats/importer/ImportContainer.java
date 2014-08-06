@@ -34,9 +34,12 @@ import ome.formats.importer.transfers.FileTransfer;
 import ome.formats.importer.transfers.UploadFileTransfer;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.FsFile;
+import omero.constants.namespaces.NSAUTOCLOSE;
 import omero.constants.namespaces.NSFILETRANSFER;
 import omero.grid.ImportSettings;
 import omero.model.Annotation;
+import omero.model.BooleanAnnotation;
+import omero.model.BooleanAnnotationI;
 import omero.model.CommentAnnotation;
 import omero.model.CommentAnnotationI;
 import omero.model.Fileset;
@@ -304,6 +307,14 @@ public class ImportContainer
         settings.userSpecifiedDescription = getUserSpecifiedDescription() == null ? null
                 : rstring(getUserSpecifiedDescription());
         settings.userSpecifiedAnnotationList = getCustomAnnotationList();
+
+        // 5.0.x: pass an annotation
+        if (config.autoClose.get()) {
+            BooleanAnnotation ba = new BooleanAnnotationI();
+            ba.setBoolValue(rbool(true));
+            ba.setNs(rstring(NSAUTOCLOSE.value));
+            settings.userSpecifiedAnnotationList.add(ba);
+        }
 
         if (getUserPixels() != null) {
             Double[] source = getUserPixels();

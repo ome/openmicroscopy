@@ -703,7 +703,8 @@ public class ImportLibrary implements IObservable
 
     private void checkManagedRepo() {
         if (repo == null) {
-            throw new RuntimeException("No FS! Cannot proceed");
+            throw new RuntimeException(
+                    "Cannot exclusively use the managed repository.");
         }
     }
 

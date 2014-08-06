@@ -26,6 +26,10 @@ javac.maxmem=1050m
 javadoc.maxmem=1050m
 exe4j.home=/opt/exe4j
 
+artifactory.username=hudson
+artifactory.username=SECRET
+artifactory.repository=ome.staging
+
 # Which version of Ice this build of OMERO is
 # compatible with. If "auto" is set (the default)
 # then either version of Ice will be accepted.

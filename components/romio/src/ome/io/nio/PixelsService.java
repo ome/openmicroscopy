@@ -31,6 +31,8 @@ import ome.io.bioformats.BfPixelBuffer;
 import ome.io.bioformats.BfPyramidPixelBuffer;
 import ome.io.messages.MissingPyramidMessage;
 import ome.io.messages.MissingStatsInfoMessage;
+import ome.system.metrics.Metrics;
+import ome.system.metrics.Timer;
 import ome.model.core.Pixels;
 import ome.model.stats.StatsInfo;
 import ome.util.PixelData;
@@ -89,6 +91,10 @@ public class PixelsService extends AbstractFileSystemService
 	 * Time in ms. which setId must take before a file is memoized
 	 */
 	protected final long memoizerWait;
+
+	private Timer tileTimes;
+
+	private Timer minmaxTimes;
 
 	/** Null plane byte array. */
 	public static final byte[] nullPlane = new byte[] { -128, 127, -128, 127,
@@ -176,6 +182,11 @@ public class PixelsService extends AbstractFileSystemService
         }
     }
 
+    public void setMetrics(Metrics metrics) {
+        this.tileTimes = metrics.timer(this, "tileTimes");
+        this.minmaxTimes = metrics.timer(this, "minmaxTimes");
+    }
+
     public long getMemoizerWait() {
         return memoizerWait;
     }
@@ -243,6 +254,7 @@ public class PixelsService extends AbstractFileSystemService
                 new PixelsPyramidMinMaxStore(pixels.getSizeC());
             BfPixelBuffer bfPixelBuffer = createMinMaxBfPixelBuffer(
                     originalFilePath, series, minMaxStore);
+
             try
             {
                 for (int t = 0; t < pixels.getSizeT(); t++)
@@ -251,7 +263,15 @@ public class PixelsService extends AbstractFileSystemService
                     {
                         for (int z = 0; z < pixels.getSizeZ(); z++)
                         {
-                            bfPixelBuffer.getPlane(z, c, t);
+                            Timer.Context ctx = minmaxTimes == null ?
+                                null : minmaxTimes.time();
+                            try {
+                                bfPixelBuffer.getPlane(z, c, t);
+                            } finally {
+                                if (ctx != null) {
+                                    ctx.stop();
+                                }
+                            }
                         }
                     }
                 }
@@ -392,10 +412,17 @@ public class PixelsService extends AbstractFileSystemService
                 }
                 try
                 {
-                    PixelData tile = source.getTile(z, c, t, x, y, w, h);
-                    pixelsPyramid.setTile(
+                    Timer.Context ctx = tileTimes == null ? null : tileTimes.time();
+                    try {
+                        PixelData tile = source.getTile(z, c, t, x, y, w, h);
+                        pixelsPyramid.setTile(
                             tile.getData().array(), z, c, t, x, y, w, h);
-                    tile.dispose();
+                        tile.dispose();
+                    } finally {
+                        if (ctx != null) {
+                            ctx.stop();
+                        }
+                    }
                 }
                 catch (IOException e1)
                 {
@@ -759,6 +786,7 @@ public class PixelsService extends AbstractFileSystemService
         reader = new ChannelSeparator(reader);
         reader = new Memoizer(reader, getMemoizerWait(), getMemoizerDirectory());
         reader.setFlattenedResolutions(false);
+        reader.setMetadataFiltered(true);
         return reader;
     }
 

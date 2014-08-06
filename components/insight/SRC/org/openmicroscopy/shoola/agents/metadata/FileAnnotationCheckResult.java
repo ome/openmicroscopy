@@ -20,9 +20,12 @@
 package org.openmicroscopy.shoola.agents.metadata;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.commons.collections.CollectionUtils;
 
 import com.google.common.collect.HashMultimap;
 
@@ -42,6 +45,23 @@ public class FileAnnotationCheckResult {
     /** Map holding the results; */
     private HashMultimap<FileAnnotationData, DataObject> linkMap = HashMultimap.create();
     
+    /** The DataObjects from which the FileAnnotations should be removed */
+    private List<DataObject> referenceObjects;
+    
+    /**
+     * Creates a new instance
+     */
+    public FileAnnotationCheckResult() {
+    }
+    
+    /**
+     * Creates a new instance
+     * @param referenceObjects The DataObjects from which the FileAnnotations should be removed
+     */
+    public FileAnnotationCheckResult(List<DataObject> referenceObjects) {
+        this.referenceObjects = referenceObjects;
+    }
+
     /**
      * Get all {@link DataObject}s the given {@link FileAnnotationData} is linked to.
      * This method will never return null, but rather will return an empty list.
@@ -62,15 +82,19 @@ public class FileAnnotationCheckResult {
     }
 
     /**
-     * Get a list of {@link FileAnnotationData} which are linked to only one {@link DataObject}.
-     * This method will never return null, but rather will return an empty list.
+     * Get the {@link FileAnnotationData} which can be deleted, e. g. are not
+     * referenced anywhere else
+     * 
      * @return See above.
      */
-    public List<FileAnnotationData> getSingleParentAnnotations() {
+    public List<FileAnnotationData> getDeleteCandidates() {
         List<FileAnnotationData> result = new ArrayList<FileAnnotationData>();
-        for(FileAnnotationData fd : linkMap.keySet()) {
+        for (FileAnnotationData fd : linkMap.keySet()) {
             Set<DataObject> parents = linkMap.get(fd);
-            if(parents!=null && parents.size()==1) {
+            if(CollectionUtils.isEmpty(referenceObjects) && parents.size()==1) {
+                result.add(fd);
+            }
+            else if (containsAll(referenceObjects, parents)) {
                 result.add(fd);
             }
         }
@@ -83,5 +107,29 @@ public class FileAnnotationCheckResult {
      */
     public Set<FileAnnotationData> getAllAnnotations() {
         return linkMap.keySet();
+    }
+    
+    /**
+     * Checks if all DataObjects of collB are included in collA
+     * 
+     * @param collA
+     * @param collB
+     * @return See above.
+     */
+    boolean containsAll(Collection<DataObject> collA,
+            Collection<DataObject> collB) {
+        for (DataObject b : collB) {
+            boolean contains = false;
+            for (DataObject a : collA) {
+                if (a.getClass().equals(b.getClass()) && a.getId() == b.getId()) {
+                    contains = true;
+                    break;
+                }
+            }
+            if (!contains) {
+                return false;
+            }
+        }
+        return true;
     }
 }

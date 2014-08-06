@@ -4,7 +4,7 @@
    Primary OmeroPy types
 
    Classes:
-      - omero.client    -- Main OmeroPy connector object
+      omero.client    -- Main OmeroPy connector object
 
    Copyright 2007, 2008 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
@@ -94,9 +94,20 @@ class UnloadedCollectionException(ClientError):
     pass
 
 
-def proxy_to_instance(proxy_string):
+def proxy_to_instance(proxy_string, default=None):
+    """
+    Convert a proxy string to an instance. If no
+    default is provided, the string must be of the
+    form: 'Image:1' or 'ImageI:1'. With a default,
+    a string consisting of just the ID is permissible
+    but not required.
+    """
     import omero
     parts = proxy_string.split(":")
+    if len(parts) == 1 and default is not None:
+        proxy_string = "%s:%s" % (default, proxy_string)
+        parts.insert(0, default)
+
     kls = parts[0]
     if not kls.endswith("I"):
         kls += "I"

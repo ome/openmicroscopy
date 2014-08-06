@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerModel 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -24,8 +24,6 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 
 
 //Java imports
-import java.awt.Component;
-import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -357,7 +355,23 @@ class MetadataViewerModel
 		if (data == null) return refObject;
 		return refObject; 
 	}
-	
+
+	/**
+	 * Returns the image or <code>null</code> if the primary select
+	 * node is an image or a well.
+	 * 
+	 * @return See above.
+	 */
+	ImageData getImage()
+	{
+	    ImageData img = null;
+	    if (refObject instanceof WellSampleData)
+	        img = ((WellSampleData) refObject).getImage();
+	    if (refObject instanceof ImageData)
+	        img = (ImageData) refObject;
+	    return img;
+	}
+
 	/**
 	 * Returns the <code>Browser</code> displaying the metadata.
 	 * 
@@ -622,27 +636,29 @@ class MetadataViewerModel
 	 */
 	void fireAdminSaving(AdminObject data, boolean asynch)
 	{
-	    MetadataLoader loader = null;
         SecurityContext c = ctx;
         if (MetadataViewerAgent.isAdministrator())
             c = getAdminContext();
+        
+        MetadataLoader loader;
+        GroupData group = data.getGroup();
+        
         switch (data.getIndex()) {
             case AdminObject.UPDATE_GROUP:
-                GroupData group = data.getGroup();
                 loaderID++;
                 loader = new GroupEditor(component, c, group, 
                         data.getPermissions(), loaderID, GroupEditor.UPDATE);
                 loaders.put(loaderID, loader);
+                loader.load();
+                state = MetadataViewer.SAVING;
                 break;
             case AdminObject.UPDATE_EXPERIMENTER:
                 loaderID++;
                 loader = new AdminEditor(component, c, data.getGroup(),
                         data.getExperimenters(), loaderID);
                 loaders.put(loaderID, loader);
-        }   
-        if (loader != null) {
-            loader.load();
-            state = MetadataViewer.SAVING;
+                loader.load();
+                state = MetadataViewer.SAVING;
         }
 	}
 	
@@ -914,32 +930,29 @@ class MetadataViewerModel
 			}
 		}
 		this.viewedBy = m;
-		Renderer rnd = getEditor().getRenderer();
-		if (rnd != null) {
-		    rnd.loadRndSettings(true, null);
-		}
 	}
 	
 	/**
 	 * Starts an asynchronous call to load the rendering settings
 	 * associated to the image.
-	 * 
-	 * @param source The component invoking the loading.
-     * @param location The location of the mouse pressed.
 	 */
-	void fireViewedByLoading(Component source, Point location)
+	void fireViewedByLoading()
 	{
 		ImageData img = null;
 		if (refObject instanceof ImageData) img = (ImageData) refObject;
 		else if (refObject instanceof WellSampleData) 
 			img = ((WellSampleData) refObject).getImage();
 		if (img == null) return;
+                Renderer rnd = getEditor().getRenderer();
+                if (rnd == null) {
+                    // nothing to do if the renderer has not been set yet
+                    return;
+                }
 		getEditor().getRenderer().loadRndSettings(false, null);
 		loaderID++;
 		ctx = retrieveContext(img);
 		RenderingSettingsLoader loader = new RenderingSettingsLoader(component,
 				ctx, img.getDefaultPixels().getId(), loaderID);
-		loader.setLocation(source, location);
 		loaders.put(loaderID, loader);
 		loader.load();
 	}
@@ -975,7 +988,9 @@ class MetadataViewerModel
 	void applyRenderingSettings(RndProxyDef rndDef)
 	{
 		Renderer rnd = getEditor().getRenderer();
-		if (rnd != null) rnd.resetSettings(rndDef, true);
+		if (rnd != null) { 
+		    rnd.resetSettings(rndDef, true);
+		}
 	}
 	
 	/**

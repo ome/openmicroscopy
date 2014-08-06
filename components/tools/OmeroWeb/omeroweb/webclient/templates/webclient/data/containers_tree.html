@@ -37,7 +37,7 @@
                 <ul>
                     {% for d in c.datasets %}
                         <li id='dataset-{{ d.id }}' rel="dataset{% if not d.isOwned %}-locked{% endif %}" 
-                                class="{{ c.permsCss }}{% if d.childCount %} jstree-closed{% endif %}">
+                                class="{{ d.permsCss }}{% if d.childCount %} jstree-closed{% endif %}">
 							<a href="#">{{ d.name|default:"Dataset"|truncatebefor:"35" }} {% if d.childCount %}
 								<span class="children_count" id="counter-dataset-{{ d.id }}">{{ d.childCount }}
 									<span id="page-dataset-{{ d.id }}"></span></span>{% endif %}

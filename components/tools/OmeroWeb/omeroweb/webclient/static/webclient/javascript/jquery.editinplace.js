@@ -95,10 +95,10 @@
                                                         $("#"+objId+" div.desc").text(new_name);
                                                         $("#"+objId+" div.image img").attr('title', new_name);  // tooltip
                                                         // And in jsTree
-                                                        if (new_name.length > 30) {
-                                                            new_name = '...' + new_name.substring(new_name.length-30, new_name.length)
-                                                        }
-                                                        $("#dataTree").jstree('set_text', $.jstree._focused().get_selected(), new_name);
+                                                        var node = $.jstree._focused().get_selected();
+                                                        // set data and truncate if needed
+                                                        node.children('a').attr('data-name', new_name);
+                                                        OME.truncateNames();
                                                     } else {
                                                         // OR we may be in the search page: Update image name in table...
                                                         var objId = field_id.replace("name","");    // E.g. imagename-123

@@ -266,6 +266,15 @@
             {
                 var copy_paste_rdef_url = "{% url 'webgateway.views.copy_image_rdef_json' %}",
                     apply_owners_rdef_url = "{% url 'webgateway.views.apply_owners_rdef_json' %}";
+
+                // We truncate images when the left panel resizes...
+                $("#left_panel").on('resize', OME.truncateNames);
+                // and also when we load new data in the tree
+                $("#dataTree").on('load_node.jstree', function() {
+                    // wait for images to render, then truncate:
+                    setTimeout(OME.truncateNames, 30);
+                });
+
                 // Copy the selected Image ID to the 'session' (right-click menu only allows this on 'image')
                 var copyRenderingSettings = function(selected) {
                     if (selected.length == 1) {
@@ -1181,13 +1190,6 @@
 {% block left %}
 
 	
-
-    <div id="user_selection">
-
-					
-    {% include "webclient/base/includes/group_user_dropdown.html" %}
-	
-	</div>
 
 
     <div id="left_panel_tabs" class="absolute_fill">

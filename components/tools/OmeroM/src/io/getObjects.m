@@ -1,4 +1,4 @@
-function objects = getObjects(session, type, ids, varargin)
+function [objects, orphans] = getObjects(session, type, ids, varargin)
 % GETOBJECTS Retrieve objects from a given type from the OMERO server
 %
 %   objects = getObjects(session, type, ids) returns all the objects of the
@@ -18,16 +18,20 @@ function objects = getObjects(session, type, ids, varargin)
 %   the objects of the specified type, identified by the input ids, owned
 %   by the input owner in the context of the session group.
 %
+%   [objects, orphans] = getObjects(session, type, [],...) returns all the
+%   orphans in addition to all the queried objects.
+%
 %   Examples:
 %
 %      objects = getObjects(session, type, ids);
 %      objects = getObjects(session, type, ids, parameters);
 %      objects = getObjects(session, type, ids, 'owner', ownerId);
 %      objects = getObjects(session, type, ids, parameters, 'owner', ownerId);
+%      [objects, orphans] = getObjects(session, type, [])
 %
 % See also: GETOBJECTTYPES
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -90,5 +94,17 @@ ids = toJavaList(ids, 'java.lang.Long');
 proxy = session.getContainerService();
 objectList = proxy.loadContainerHierarchy(objectType.class, ids, parameters);
 
+% If orphans are loaded split the lists into two: objects and orphans
+orphanList = java.util.ArrayList();
+if ~isempty(parameters.getOrphan()) && parameters.getOrphan().getValue()
+    for i = objectList.size() - 1 : -1  : 0,
+        if ~isa(objectList.get(i), objectType.class);
+            orphanList.add(objectList.get(i));
+            objectList.remove(i);
+        end
+    end
+end
+
 % Convert java.util.ArrayList into Matlab arrays
 objects = toMatlabList(objectList);
+orphans = toMatlabList(orphanList);

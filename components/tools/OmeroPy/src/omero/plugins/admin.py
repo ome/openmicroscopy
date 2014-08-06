@@ -18,6 +18,7 @@ import os
 import sys
 import stat
 import platform
+import datetime
 import portalocker
 
 from path import path
@@ -98,7 +99,11 @@ come up, i.e. status == 0
 
 If the first argument can be found as a file, it will be deployed as the
 application descriptor rather than etc/grid/default.xml. All other arguments
-will be used as targets to enable optional sections of the descriptor""",
+will be used as targets to enable optional sections of the descriptor.
+
+On Windows, two arguments (-u and -w) specify the Windows service Log On As
+user credentials. If not specified, omero.windows.user and omero.windows.pass
+will be used.""",
             wait=True)
 
         Action("startasync", "The same as start but returns immediately",)
@@ -142,9 +147,17 @@ already be running. This may automatically restart some server components.""")
             "fixpyramids", "Remove empty pyramid pixels files").parser
         # See cleanse options below
 
-        Action(
+        diagnostics = Action(
             "diagnostics",
-            "Run a set of checks on the current, preferably active server")
+            ("Run a set of checks on the current, "
+             "preferably active server")).parser
+        diagnostics.add_argument(
+            "--no-logs", action="store_true",
+            help="Skip log parsing")
+
+        Action(
+            "jvmcfg",
+            "Reset JVM settings based on the current system")
 
         Action(
             "waitup",
@@ -160,31 +173,68 @@ already be running. This may automatically restart some server components.""")
             "reindex",
             """Re-index the Lucene index
 
-Command-line tool for re-index the database. This command must be run on the
-machine where /OMERO/FullText is located.
+Command-line tool for re-indexing the database. This command must be run on the
+machine where the FullText directory is located. In most cases, you will want
+to disable the background indexer before running most of these commands.
+
+See http://www.openmicroscopy.org/site/support/omero/sysadmins/search.html
+for more information.
 
 Examples:
-  bin/omero admin reindex --full                                             \
-          # All objects
-  bin/omero admin reindex --class ome.model.core.Image                       \
-          # Only images
-  JAVA_OPTS="-Dlogback.configurationFile=stderr.xml" \
-  bin/omero admin reindex --full\
+
+  # 1. Reset the 'last indexed' counter. Defaults to 0
+  bin/omero admin reindex --reset 0
+
+  # 2. Delete the contents of a corrupt FullText directory
+  bin/omero admin reindex --wipe
+
+  # 3. Run indexer in the foreground. Disable the background first
+  bin/omero admin reindex --foreground
+
+Other commands (usually unnecessary):
+
+  # Index all objects in the database.
+  bin/omero admin reindex --full
+
+  # Index one specific class
+  bin/omero admin reindex --class ome.model.core.Image
+
   # Passing arguments to Java
+  JAVA_OPTS="-Dlogback.configurationFile=stderr.xml" \\
+  bin/omero admin reindex --foreground
 
-
-LIMITATION: omero.db.pass values do not currently get passed to the Java
-            process. You will need to all passwordless login to PostgreSQL. In
-            fact, only the following properties are passed:
-
-            omero.data.dir
-            omero.search.*
-            omero.db.* (excluding pass)
+  JAVA_OPTS="-Xdebug -Xrunjdwp:server=y,transport=\
+dt_socket,address=8787,suspend=y" \\
+  bin/omero admin reindex --foreground
 
 """).parser
+
         reindex.add_argument(
-            "--jdwp", help="Activate remote debugging")
+            "--jdwp", action="store_true",
+            help="Activate remote debugging")
+        reindex.add_argument(
+            "--mem", default="1024m",
+            help="Heap size to use")
+        reindex.add_argument(
+            "--batch", default="500",
+            help="Number of items to index before reporting status")
+        reindex.add_argument(
+            "--merge_factor", default="100",
+            help=("Higher means merge less frequently. "
+                  "Faster but needs more RAM"))
+        reindex.add_argument(
+            "--ram_buffer_size", default="1000",
+            help=("Number of MBs to use for the indexing. "
+                  "Higher is faster."))
+        reindex.add_argument(
+            "--lock_factory", default="native",
+            help=("Choose Lucene lock factory by class or "
+                  "'native', 'simple', 'none'"))
+
         group = reindex.add_mutually_exclusive_group()
+        group.add_argument(
+            "--prepare", action="store_true",
+            help="Disables the background indexer in preparation for indexing")
         group.add_argument(
             "--full", action="store_true",
             help="Reindexes all non-excluded tables sequentially")
@@ -192,8 +242,24 @@ LIMITATION: omero.db.pass values do not currently get passed to the Java
             "--events", action="store_true",
             help="Reindexes all non-excluded event logs chronologically")
         group.add_argument(
+            "--reset", default=None,
+            help="Reset the index counter")
+        group.add_argument(
+            "--dryrun", action="store_true",
+            help=("Run through all events, incrementing the counter. "
+                  "NO INDEXING OCCURS"))
+        group.add_argument(
+            "--foreground", action="store_true",
+            help=("Run indexer in the foreground (suggested)"))
+        group.add_argument(
             "--class", nargs="+",
             help="Reindexes the given classes sequentially")
+        group.add_argument(
+            "--wipe", action="store_true",
+            help="Delete the existing index files")
+        group.add_argument(
+            "--finish", action="store_true",
+            help="Re-enables the background indexer after for indexing")
 
         ports = Action(
             "ports",
@@ -286,22 +352,26 @@ present, the user will enter a console""")
             "--nodeonly", action="store_true",
             help="If set, then only tests if the icegridnode is running")
 
-        for name in ("start", "startasync"):
+        for name in ("start", "restart"):
+            self.actions[name].add_argument(
+                "--foreground", action="store_true",
+                help="Start server in foreground mode (no daemon/service)")
+
+        for name in ("start", "startasync", "restart", "restartasync"):
             self.actions[name].add_argument(
                 "-u", "--user",
-                help="Service Log On As user name. If none given, the value"
-                " of omero.windows.user will be used. (Windows-only)")
+                help="Windows Service Log On As user name.")
             self.actions[name].add_argument(
-                "-w", "--password",
-                help="Service Log On As user password. If none given, the"
-                " value of omero.windows.pass will be used. (Windows-only)")
+                "-w", "--password", metavar="PW",
+                help="Windows Service Log On As user password.")
 
-        for k in ("start", "startasync", "deploy", "restart", "restartasync"):
-            self.actions[k].add_argument(
+        for name in ("start", "startasync", "deploy", "restart",
+                     "restartasync"):
+            self.actions[name].add_argument(
                 "file", nargs="?",
                 help="Application descriptor. If not provided, a default"
                 " will be used")
-            self.actions[k].add_argument(
+            self.actions[name].add_argument(
                 "targets", nargs="*",
                 help="Targets within the application descriptor which "
                 " should  be activated. Common values are: \"debug\", "
@@ -340,6 +410,101 @@ present, the user will enter a console""")
             finally:
                 win32service.CloseServiceHandle(hscm)
 
+        def _stop_service(self, svc_name):
+            hscm = win32service.OpenSCManager(
+                None, None, win32service.SC_MANAGER_ALL_ACCESS)
+            try:
+                hs = win32service.OpenService(
+                    hscm, svc_name, win32service.SC_MANAGER_ALL_ACCESS)
+                win32service.ControlService(
+                    hs, win32service.SERVICE_CONTROL_STOP)
+                win32service.DeleteService(hs)
+                self.ctx.out("%s service deleted." % svc_name)
+            finally:
+                win32service.CloseServiceHandle(hs)
+                win32service.CloseServiceHandle(hscm)
+
+        def _start_service(self, config, descript, svc_name, pasw, user):
+            output = self._query_service(svc_name)
+            # Now check if the server exists
+            if 0 <= output.find("DOESNOTEXIST"):
+                binpath = """icegridnode.exe "%s" --deploy "%s" --service\
+                    %s""" % (self._icecfg(), descript, svc_name)
+
+                # By default: "NT Authority\Local System"
+                if not user:
+                    try:
+                        user = config.as_map()["omero.windows.user"]
+                    except KeyError:
+                        user = None
+                if user is not None and len(user) > 0:
+                    if "\\" not in user:
+                        computername = win32api.GetComputerName()
+                        user = "\\".join([computername, user])
+                    try:
+                        # See #9967, code based on http://mail.python.org/\
+                        # pipermail/python-win32/2010-October/010791.html
+                        self.ctx.out("Granting SeServiceLogonRight to service"
+                                     " user \"%s\"" % user)
+                        policy_handle = win32security.LsaOpenPolicy(
+                            None, win32security.POLICY_ALL_ACCESS)
+                        sid_obj, domain, tmp = \
+                            win32security.LookupAccountName(None, user)
+                        win32security.LsaAddAccountRights(
+                            policy_handle, sid_obj, ('SeServiceLogonRight',))
+                        win32security.LsaClose(policy_handle)
+                    except pywintypes.error, details:
+                        self.ctx.die(200, "Error during service user set up:"
+                                     " (%s) %s" % (details[0], details[2]))
+                    if not pasw:
+                        try:
+                            pasw = config.as_map()["omero.windows.pass"]
+                        except KeyError:
+                            pasw = self._ask_for_password(
+                                " for service user \"%s\"" % user)
+                else:
+                    pasw = None
+
+                hscm = win32service.OpenSCManager(
+                    None, None, win32service.SC_MANAGER_ALL_ACCESS)
+                try:
+                    self.ctx.out("Installing %s Windows service." % svc_name)
+                    hs = win32service.CreateService(
+                        hscm, svc_name, svc_name,
+                        win32service.SERVICE_ALL_ACCESS,
+                        win32service.SERVICE_WIN32_OWN_PROCESS,
+                        win32service.SERVICE_AUTO_START,
+                        win32service.SERVICE_ERROR_NORMAL, binpath, None, 0,
+                        None, user, pasw)
+                    self.ctx.out("Successfully installed %s Windows service."
+                                 % svc_name)
+                    win32service.CloseServiceHandle(hs)
+                finally:
+                    win32service.CloseServiceHandle(hscm)
+
+            # Then check if the server is already running
+            if 0 <= output.find("RUNNING"):
+                self.ctx.die(201, "%s is already running. Use stop first"
+                                  % svc_name)
+
+            # Finally, try to start the service - delete if startup fails
+            hscm = win32service.OpenSCManager(
+                None, None, win32service.SC_MANAGER_ALL_ACCESS)
+            try:
+                try:
+                    hs = win32service.OpenService(
+                        hscm, svc_name, win32service.SC_MANAGER_ALL_ACCESS)
+                    win32service.StartService(hs, None)
+                    self.ctx.out("Starting %s Windows service." % svc_name)
+                except pywintypes.error, details:
+                    self.ctx.out("%s service startup failed: (%s) %s"
+                                 % (svc_name, details[0], details[2]))
+                    win32service.DeleteService(hs)
+                    self.ctx.die(202, "%s service deleted." % svc_name)
+            finally:
+                win32service.CloseServiceHandle(hs)
+                win32service.CloseServiceHandle(hscm)
+
         def events(self, svc_name):
             def DumpRecord(record):
                 if str(record.SourceName) == svc_name:
@@ -360,6 +525,13 @@ present, the user will enter a console""")
             self.ctx.die(
                 666, "Could not import win32service and/or win32evtlogutil")
 
+        def _start_service(self, config, descript, svc_name, pasw, user):
+            self.ctx.die(
+                666, "Could not import win32service and/or win32evtlogutil")
+
+        def _stop_service(self, svc_name):
+            self.ctx.die(
+                666, "Could not import win32service and/or win32evtlogutil")
     #
     # End Windows Methods
     #
@@ -453,7 +625,7 @@ present, the user will enter a console""")
         First checks for a valid installation, then checks the grid,
         then registers the action: "node HOST start"
         """
-
+        self.jvmcfg(args, config, verbose=False)
         self.check_access(config=config)
         self.checkice()
         self.check_node(args)
@@ -468,98 +640,29 @@ present, the user will enter a console""")
         self._regdata()
         self.check([])
 
-        user = args.user
-        pasw = args.password
+        command = None
         descript = self._descript(args)
+        foreground = hasattr(args, "foreground") and args.foreground
 
         if self._isWindows():
-            svc_name = "OMERO.%s" % args.node
-            output = self._query_service(svc_name)
-
-            # Now check if the server exists
-            if 0 <= output.find("DOESNOTEXIST"):
-                binpath = """icegridnode.exe "%s" --deploy "%s" --service\
-                %s""" % (self._icecfg(), descript, svc_name)
-
-                # By default: "NT Authority\Local System"
-                if not user:
-                    try:
-                        user = config.as_map()["omero.windows.user"]
-                    except KeyError:
-                        user = None
-                if user is not None and len(user) > 0:
-                    if "\\" not in user:
-                        computername = win32api.GetComputerName()
-                        user = "\\".join([computername, user])
-                    try:
-                        # See #9967, code based on http://mail.python.org/\
-                        # pipermail/python-win32/2010-October/010791.html
-                        self.ctx.out("Granting SeServiceLogonRight to service"
-                                     " user \"%s\"" % user)
-                        policy_handle = win32security.LsaOpenPolicy(
-                            None, win32security.POLICY_ALL_ACCESS)
-                        sid_obj, domain, tmp = \
-                            win32security.LookupAccountName(None, user)
-                        win32security.LsaAddAccountRights(
-                            policy_handle, sid_obj, ('SeServiceLogonRight',))
-                        win32security.LsaClose(policy_handle)
-                    except pywintypes.error, details:
-                        self.ctx.die(200, "Error during service user set up:"
-                                     " (%s) %s" % (details[0], details[2]))
-                    if not pasw:
-                        try:
-                            pasw = config.as_map()["omero.windows.pass"]
-                        except KeyError:
-                            pasw = self._ask_for_password(
-                                " for service user \"%s\"" % user)
-                else:
-                    pasw = None
-
-                hscm = win32service.OpenSCManager(
-                    None, None, win32service.SC_MANAGER_ALL_ACCESS)
-                try:
-                    self.ctx.out("Installing %s Windows service." % svc_name)
-                    hs = win32service.CreateService(
-                        hscm, svc_name, svc_name,
-                        win32service.SERVICE_ALL_ACCESS,
-                        win32service.SERVICE_WIN32_OWN_PROCESS,
-                        win32service.SERVICE_AUTO_START,
-                        win32service.SERVICE_ERROR_NORMAL, binpath, None, 0,
-                        None, user, pasw)
-                    self.ctx.out("Successfully installed %s Windows service."
-                                 % svc_name)
-                    win32service.CloseServiceHandle(hs)
-                finally:
-                    win32service.CloseServiceHandle(hscm)
-
-            # Then check if the server is already running
-            if 0 <= output.find("RUNNING"):
-                self.ctx.die(201, "%s is already running. Use stop first"
-                             % svc_name)
-
-            # Finally, try to start the service - delete if startup fails
-            hscm = win32service.OpenSCManager(
-                None, None, win32service.SC_MANAGER_ALL_ACCESS)
-            try:
-                try:
-                    hs = win32service.OpenService(
-                        hscm, svc_name, win32service.SC_MANAGER_ALL_ACCESS)
-                    win32service.StartService(hs, None)
-                    self.ctx.out("Starting %s Windows service." % svc_name)
-                except pywintypes.error, details:
-                    self.ctx.out("%s service startup failed: (%s) %s"
-                                 % (svc_name, details[0], details[2]))
-                    win32service.DeleteService(hs)
-                    self.ctx.die(202, "%s service deleted." % svc_name)
-            finally:
-                win32service.CloseServiceHandle(hs)
-                win32service.CloseServiceHandle(hscm)
-
+            if foreground:
+                command = """icegridnode.exe "%s" --deploy "%s" %s\
+                """ % (self._icecfg(), descript, args.targets)
+            else:
+                user = args.user
+                pasw = args.password
+                svc_name = "OMERO.%s" % args.node
+                self._start_service(config, descript, svc_name, pasw, user)
         else:
-            command = [
-                "icegridnode", "--daemon", "--pidfile", str(self._pid()),
-                "--nochdir", self._icecfg(), "--deploy", str(descript)
-                ] + args.targets
+            if foreground:
+                command = ["icegridnode", "--nochdir", self._icecfg(),
+                           "--deploy", str(descript)] + args.targets
+            else:
+                command = ["icegridnode", "--daemon", "--pidfile",
+                           str(self._pid()), "--nochdir", self._icecfg(),
+                           "--deploy", str(descript)] + args.targets
+
+        if command is not None:
             self.ctx.rv = self.ctx.call(command)
 
     @with_config
@@ -577,6 +680,7 @@ present, the user will enter a console""")
 
     @with_config
     def deploy(self, args, config):
+        self.jvmcfg(args, config, verbose=False)
         self.check_access()
         self.checkice()
         descript = self._descript(args)
@@ -716,18 +820,7 @@ present, the user will enter a console""")
             if 0 <= output.find("DOESNOTEXIST"):
                 self.ctx.die(203, "%s does not exist. Use 'start' first."
                              % svc_name)
-            hscm = win32service.OpenSCManager(
-                None, None, win32service.SC_MANAGER_ALL_ACCESS)
-            try:
-                hs = win32service.OpenService(
-                    hscm, svc_name, win32service.SC_MANAGER_ALL_ACCESS)
-                win32service.ControlService(
-                    hs, win32service.SERVICE_CONTROL_STOP)
-                win32service.DeleteService(hs)
-                self.ctx.out("%s service deleted." % svc_name)
-            finally:
-                win32service.CloseServiceHandle(hs)
-                win32service.CloseServiceHandle(hscm)
+            self._stop_service(svc_name)
         else:
             command = self._cmd("-e", "node shutdown %s" % self._node())
             try:
@@ -764,6 +857,40 @@ present, the user will enter a console""")
         fixpyramids(data_dir=args.data_dir, dry_run=args.dry_run,
                     query_service=client.sf.getQueryService(),
                     config_service=client.sf.getConfigService())
+
+    @with_config
+    def jvmcfg(self, args, config, verbose=True):
+        from xml.etree.ElementTree import XML
+        from omero.install.jvmcfg import adjust_settings
+        templates = self.ctx.dir / "etc" / "grid" / "templates.xml"
+        generated = self.ctx.dir / "etc" / "grid" / "generated.xml"
+        if generated.exists():
+            generated.remove()
+        config2 = omero.config.ConfigXml(str(generated))
+        template_xml = XML(templates.text())
+        rv = adjust_settings(config, template_xml)
+        if verbose:
+            self.ctx.out("JVM Settings:")
+            self.ctx.out("============")
+            for k, v in sorted(rv.items()):
+                settings = v.pop(0)
+                sb = " ".join([str(x) for x in v])
+                if str(settings) != "Settings()":
+                    sb += " # %s" % settings
+                self.ctx.out("%s=%s" % (k, sb))
+
+        def clear_tail(elem):
+            elem.tail = ""
+            if elem.text is not None and not elem.text.strip():
+                elem.text = ""
+            for child in elem.getchildren():
+                clear_tail(child)
+
+        clear_tail(template_xml)
+        config2.write_element(template_xml)
+        config2.XML = None  # Prevent re-saving
+        config2.close()
+        config.save()
 
     @with_config
     def diagnostics(self, args, config):
@@ -989,71 +1116,74 @@ OMERO Diagnostics %s
                     else:
                         self.ctx.err("UNKNOWN!")
 
-        def log_dir(log, cat, cat2, knownfiles):
-            self.ctx.out("")
-            item(cat, "%s" % log.abspath())
-            exists(log)
-            self.ctx.out("")
+        if not args.no_logs:
 
-            if log.exists():
-                files = log.files()
-                files = set([x.basename() for x in files])
-                # Adding known names just in case
-                for x in knownfiles:
-                    files.add(x)
-                files = list(files)
-                files.sort()
-                for x in files:
-                    item(cat2, x)
-                    exists(log / x)
-                item(cat2, "Total size")
-                sz = 0
-                for x in log.walkfiles():
-                    sz += x.size
-                self.ctx.out("%-.2f MB" % (float(sz)/1000000.0))
+            def log_dir(log, cat, cat2, knownfiles):
+                self.ctx.out("")
+                item(cat, "%s" % log.abspath())
+                exists(log)
+                self.ctx.out("")
 
-        log_dir(self.ctx.dir / "var" / "log", "Log dir", "Log files",
+                if log.exists():
+                    files = log.files()
+                    files = set([x.basename() for x in files])
+                    # Adding known names just in case
+                    for x in knownfiles:
+                        files.add(x)
+                    files = list(files)
+                    files.sort()
+                    for x in files:
+                        item(cat2, x)
+                        exists(log / x)
+                    item(cat2, "Total size")
+                    sz = 0
+                    for x in log.walkfiles():
+                        sz += x.size
+                    self.ctx.out("%-.2f MB" % (float(sz)/1000000.0))
+
+            log_dir(
+                self.ctx.dir / "var" / "log", "Log dir", "Log files",
                 ["Blitz-0.log", "Tables-0.log", "Processor-0.log",
                  "Indexer-0.log", "FileServer.log", "MonitorServer.log",
                  "DropBox.log", "TestDropBox.log", "OMEROweb.log"])
 
-        # Parsing well known issues
-        self.ctx.out("")
-        ready = re.compile(".*?ome.services.util.ServerVersionCheck\
-        .*OMERO.Version.*Ready..*?")
-        db_ready = re.compile(".*?Did.you.create.your.database[?].*?")
-        data_dir = re.compile(".*?Unable.to.initialize:.FullText.*?")
-        pg_password = re.compile(".*?org.postgresql.util.PSQLException:\
-        .FATAL:.password.*?authentication.failed.for.user.*?")
-        pg_user = re.compile(""".*?org.postgresql.util.PSQLException:\
-        .FATAL:.role.".*?".does.not.exist.*?""")
-        pg_conn = re.compile(""".*?org.postgresql.util.PSQLException:\
-        .Connection.refused.""")
+            # Parsing well known issues
+            self.ctx.out("")
+            ready = re.compile(".*?ome.services.util.ServerVersionCheck\
+            .*OMERO.Version.*Ready..*?")
+            db_ready = re.compile(".*?Did.you.create.your.database[?].*?")
+            data_dir = re.compile(".*?Unable.to.initialize:.FullText.*?")
+            pg_password = re.compile(".*?org.postgresql.util.PSQLException:\
+            .FATAL:.password.*?authentication.failed.for.user.*?")
+            pg_user = re.compile(""".*?org.postgresql.util.PSQLException:\
+            .FATAL:.role.".*?".does.not.exist.*?""")
+            pg_conn = re.compile(""".*?org.postgresql.util.PSQLException:\
+            .Connection.refused.""")
 
-        issues = {
-            ready: "=> Server restarted <=",
-            db_ready: "Your database configuration is invalid",
-            data_dir: "Did you create your omero.data.dir? E.g. /OMERO",
-            pg_password: "Your postgres password seems to be invalid",
-            pg_user: "Your postgres user is invalid",
-            pg_conn: "Your postgres hostname and/or port is invalid"
-        }
+            issues = {
+                ready: "=> Server restarted <=",
+                db_ready: "Your database configuration is invalid",
+                data_dir: "Did you create your omero.data.dir? E.g. /OMERO",
+                pg_password: "Your postgres password seems to be invalid",
+                pg_user: "Your postgres user is invalid",
+                pg_conn: "Your postgres hostname and/or port is invalid"
+            }
 
-        try:
-            for file in ('Blitz-0.log',):
+            try:
+                for file in ('Blitz-0.log',):
 
-                p = self.ctx.dir / "var" / "log" / file
-                import fileinput
-                for line in fileinput.input([str(p)]):
-                    lno = fileinput.filelineno()
-                    for k, v in issues.items():
-                        if k.match(line):
-                            item('Parsing %s' % file, "[line:%s] %s"
-                                 % (lno, v))
-                            self.ctx.out("")
-                            break
-        except:
-            self.ctx.err("Error while parsing logs")
+                    p = self.ctx.dir / "var" / "log" / file
+                    import fileinput
+                    for line in fileinput.input([str(p)]):
+                        lno = fileinput.filelineno()
+                        for k, v in issues.items():
+                            if k.match(line):
+                                item('Parsing %s' % file,
+                                     "[line:%s] %s" % (lno, v))
+                                self.ctx.out("")
+                                break
+            except:
+                self.ctx.err("Error while parsing logs")
 
         self.ctx.out("")
 
@@ -1228,13 +1358,17 @@ OMERO Diagnostics %s
 
     @with_config
     def reindex(self, args, config):
+
         self.check_access(config=config)
         import omero.java
         server_dir = self.ctx.dir / "lib" / "server"
         log_config_file = self.ctx.dir / "etc" / "logback-indexing-cli.xml"
         logback = "-Dlogback.configurationFile=%s" % log_config_file
         classpath = [file.abspath() for file in server_dir.files("*.jar")]
-        xargs = [logback, "-Xmx1024M", "-cp", os.pathsep.join(classpath)]
+        xargs = [logback, "-cp", os.pathsep.join(classpath)]
+        # See etc/grid/templates.xml
+        for v in (("warn", "3600000"), ("error", "86400000")):
+            xargs.append("-Domero.throttling.method_time.%s=%s" % v)
 
         cfg = config.as_map()
         config.close()  # Early close. See #9800
@@ -1250,10 +1384,73 @@ OMERO Diagnostics %s
             if k.startswith("omero.search"):
                 xargs.append("-D%s=%s" % (k, cfg[k]))
 
+        locks = {"native": "org.apache.lucene.store.NativeFSLockFactory",
+                 "simple": "org.apache.lucene.store.SimpleFSLockFactory",
+                 "none": "org.apache.lucene.store.NoLockFactory"}
+        lock = locks.get(args.lock_factory, args.lock_factory)
+
+        year2 = datetime.datetime.now().year + 2
+        factory_class = "org.apache.lucene.store.FSDirectoryLockFactoryClass"
+        xargs2 = ["-Xmx%s" % args.mem,
+                  "-Domero.search.cron=1 1 1 1 1 ? %s" % year2,
+                  "-Domero.search.batch=%s" % args.batch,
+                  "-Domero.search.merge_factor=%s" % args.merge_factor,
+                  "-Domero.search.ram_buffer_size=%s" % args.ram_buffer_size,
+                  "-D%s=%s" % (factory_class, lock)]
+        xargs.extend(xargs2)
+
         cmd = ["ome.services.fulltext.Main"]
 
+        # Python actions
+        early_exit = False
+        if args.wipe:
+            early_exit = True
+            omero_data_dir = cfg.get("omero.data.dir", "/OMERO")
+            self.can_access(omero_data_dir)
+            from os.path import sep
+            from glob import glob
+            pattern = sep.join([omero_data_dir, "FullText", "*"])
+            files = glob(pattern)
+            total = 0
+            self.ctx.err("Wiping %s files matching %s" % (len(files), pattern))
+            for file in files:
+                size = os.path.getsize(file)
+                total += 0
+                print file, size
+            print "Total:", size
+            yes = self.ctx.input("Enter 'y' to continue:")
+            if not yes.lower().startswith("y"):
+                return
+            else:
+                for file in files:
+                    try:
+                        os.remove(file)
+                    except:
+                        self.ctx.err("Failed to remove: %s", file)
+
+        elif args.prepare:
+            early_exit = True
+            self.stop_service("Indexer-0")
+        elif args.finish:
+            early_exit = True
+            self.start_service("Indexer-0")
+
+        if early_exit:
+            return  # Early exit!
+
+        if self.check_service("Indexer-0") and not args.prepare:
+            self.ctx.die(578, "Indexer-0 is running")
+
+        # Java actions
         if args.full:
             cmd.append("full")
+        elif args.dryrun:
+            cmd.append("dryrun")
+        elif args.foreground:
+            cmd.append("foreground")
+        elif args.reset is not None:
+            cmd.append("reset")
+            cmd.append(args.reset)
         elif args.events:
             cmd.append("events")
         elif getattr(args, "class"):
@@ -1268,9 +1465,9 @@ OMERO Diagnostics %s
 
         self.ctx.dbg(
             "Launching Java: %s, debug=%s, xargs=%s" % (cmd, debug, xargs))
-        p = omero.java.popen(
-            cmd, debug=debug, xargs=xargs, stdout=sys.stdout,
-            stderr=sys.stderr)  # FIXME. Shouldn't use std{out,err}
+        p = omero.java.run(cmd,
+                           use_exec=True, debug=debug, xargs=xargs,
+                           stdout=sys.stdout, stderr=sys.stderr)
         self.ctx.rv = p.wait()
 
     def ports(self, args):
@@ -1331,6 +1528,39 @@ OMERO Diagnostics %s
                     rv.append("")
         self.ctx.controls["hql"].display(
             mapped, ("node", "session", "started", "owner", "agent", "notes"))
+
+    def check_service(self, name):
+        command = self._cmd()
+        command.extend(["-e", "server pid %s" % name])
+        p = self.ctx.popen(command)  # popen
+        rc = p.wait()
+        return rc == 0
+
+    def start_service(self, name):
+        command = self._cmd()
+        command.extend(["-e", "server enable %s" % name])
+        rc = self.ctx.call(command)
+        if rc != 0:
+            self.ctx.err("%s could not be enabled" % name)
+        else:
+            self.ctx.err("%s restarted" % name)
+
+    def stop_service(self, name):
+        command = self._cmd()
+        command.extend(["-e", "server disable %s" % name])
+        rc = self.ctx.call(command)
+        if rc != 0:
+            self.ctx.err("%s may already be disabled" % name)
+        else:
+            command = self._cmd()
+            command.extend(["-e", "server stop %s" % name])
+            rc = self.ctx.call(command)
+            if rc != 0:
+                self.ctx.err("'server stop %s' failed" % name)
+            else:
+                self.ctx.err("%s stopped" % name)
+
+
 try:
     register("admin", AdminControl, HELP)
 except NameError:

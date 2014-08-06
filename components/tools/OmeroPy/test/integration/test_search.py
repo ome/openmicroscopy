@@ -12,9 +12,11 @@
 import test.integration.library as lib
 import pytest
 import omero
-import datetime, time
+import datetime
+import time
+import os
 
-@pytest.mark.xfail(reason="See ticket #11539")
+
 class TestSearch(lib.ITest):
 
     def test2541(self):
@@ -61,7 +63,6 @@ class TestSearch(lib.ITest):
         searcher = self.new_client(group)
         self._3164(owner, searcher)
 
-    @pytest.mark.xfail(reason="See ticket #11539")
     def test3721Ordering(self):
         """
         Creates two tags and checks that boosting
@@ -217,3 +218,160 @@ class TestSearch(lib.ITest):
         assert cann.id.val ==  rv[0].id.val
 
 
+    def simple_uuid(self):
+        uuid = self.uuid()
+        uuid = uuid.replace("-", "")
+        uuid = "t" + self.uuid().replace("-", "")[0:8]
+        return uuid
+
+    def testFilename(self):
+        client = self.new_client()
+        uuid = self.simple_uuid()
+        image = self.importSingleImage(uuid, client)
+        self.root.sf.getUpdateService().indexObject(image)
+        search = client.sf.createSearchService()
+        search.onlyType("Image")
+        search.setAllowLeadingWildcard(True)
+
+        def supported(x):
+            search.byFullText(x)
+            assert search.hasNext(), "None found for " + x
+            assert [image.id.val] == \
+                [x.id.val for x in search.results()]
+            assert not search.hasNext()
+
+        def unsupported(x):
+            search.byFullText(x)
+            assert not search.hasNext(), "Found for %s!" % x
+
+        for x, m in (
+            (".fake", supported),
+            ("fake", supported),
+            ("%s*" % uuid, supported),
+            #
+            (uuid, unsupported),
+            ("*.fake", unsupported),
+            ("%s*.fake" % uuid, unsupported)):
+
+            m(x)
+
+        search.close()
+
+    def attached_image(self, uuid, client, path, mimetype):
+        _ = omero.rtypes.rstring
+        image = self.importSingleImage(uuid, client)
+        ofile = omero.model.OriginalFileI()
+        ofile.mimetype = _(mimetype)
+        ofile.path = _(os.path.dirname(path))
+        ofile.name = _(os.path.basename(path))
+        ofile = client.upload(path, ofile=ofile)
+        link = omero.model.ImageAnnotationLinkI()
+        link.parent = image
+        link.child = omero.model.FileAnnotationI()
+        link.child.file = ofile.proxy()
+        link = client.sf.getUpdateService().saveObject(link)
+        self.root.sf.getUpdateService().indexObject(image)
+        return image
+
+    def test_csv_attachment(self, tmpdir):
+        uuid = self.simple_uuid()
+        client = self.new_client()
+        filename = "%s.csv" % uuid
+        csv = tmpdir.join(filename)
+        csv.write("Header1,Header2\nGFP\n100.0\n")
+        image = self.attached_image(
+            uuid, client, str(csv), "text/csv")
+
+        search = client.sf.createSearchService()
+        try:
+            search.onlyType("Image")
+            search.byFullText("GFP")
+            assert search.hasNext()
+            assert [image.id.val] == \
+                [x.id.val for x in search.results()]
+        finally:
+            search.close()
+
+    def test_txt_attachment(self, tmpdir):
+        uuid = self.simple_uuid()
+        client = self.new_client()
+        filename = "weird attachment.txt"
+        txt = tmpdir.join(filename)
+        txt.write("crazy")
+        image = self.attached_image(
+            uuid, client, str(txt), "text/plain")
+
+        search = client.sf.createSearchService()
+        try:
+            for t in ("Image", "Annotation"):
+                search.onlyType("Image")
+                for x in ("crazy", "weird"):
+                    search.byFullText(x)
+                    assert search.hasNext()
+                    assert [image.id.val] == \
+                           [x.id.val for x in search.results()]
+        finally:
+            search.close()
+
+    def test_word_portions(self):
+        word = "onomatopoeia"
+        client = self.new_client()
+        tag = omero.model.TagAnnotationI()
+        tag.textValue = omero.rtypes.rstring(word)
+        tag = client.sf.getUpdateService().saveAndReturnObject(tag)
+        self.root.sf.getUpdateService().indexObject(tag)
+
+        search = client.sf.createSearchService()
+        search.onlyType("TagAnnotation")
+
+        try:
+            for idx in range(len(word)-1, 6, -1):
+                base = word[0:idx]
+                for pattern in ("%s*", "%s~0.1"):
+                    q = pattern % base
+                    search.byFullText(q)
+                    assert search.hasNext(), "Nothing for " + q
+                    assert [tag.id.val] == \
+                           [x.id.val for x in search.results()]
+
+        finally:
+            search.close()
+
+    def test_empty_query_string(self):
+        query = "%"
+        client = self.new_client()
+
+        search = client.sf.createSearchService()
+        search.onlyType("Image")
+
+        try:
+            search.byLuceneQueryBuilder("", "", "", "", "%")
+        finally:
+            search.close()
+
+    @pytest.mark.parametrize("test", (
+        "very small", "very-small", "very_small",
+        "small very",
+        # TODO: "small-very", "small_very", <-- these do NOT work
+    ))
+    @pytest.mark.parametrize("name", (
+        "very-small", "very_small", "very small",
+    ))
+    def test_hyphen_underscore(self, name, test):
+        client = self.new_client()
+        proj = omero.model.ProjectI()
+        proj.name = omero.rtypes.rstring(name)
+        proj = client.sf.getUpdateService().saveAndReturnObject(proj)
+        self.root.sf.getUpdateService().indexObject(proj)
+
+        search = client.sf.createSearchService()
+        search.onlyType("Project")
+
+        try:
+            search.byLuceneQueryBuilder("", "", "", "", test)
+            assert search.hasNext()
+            assert proj.id.val in [
+                x.id.val for x in search.results()
+            ]
+        finally:
+            search.close()

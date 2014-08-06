@@ -19,8 +19,11 @@
 
 package ome.formats.importer.transfers;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
@@ -38,20 +41,31 @@ import omero.model.OriginalFile;
  */
 public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
 
+    private static final String LINE = "\n---------------------------------------------------\n";
+
+    private static final String SEPARATOR = System.getProperty("line.separator");
+
+    private static final boolean ACTIVE_CLOSE;
+
+    static {
+        String ac = System.getProperty("omero.import.active_close");
+        ACTIVE_CLOSE = Boolean.parseBoolean(ac);
+    }
+
     /**
      * "Transfer" files by soft-linking them into place. This method is likely
      * re-usable for other general "linking" strategies by overriding
      * {@link #createProcessBuilder(File, File)} and the other protected methods here.
      */
     public String transfer(TransferState state) throws IOException, ServerError {
-        final RawFileStorePrx rawFileStore = start(state);
-        final OriginalFile root = state.getRootFile();
-        final OriginalFile ofile = state.getOriginalFile();
-        final File location = getLocalLocation(root, ofile);
-        final File file = state.getFile();
-        final long length = state.getLength();
-        final ChecksumProvider cp = state.getChecksumProvider();
+        RawFileStorePrx rawFileStore = start(state);
         try {
+            final OriginalFile root = state.getRootFile();
+            final OriginalFile ofile = state.getOriginalFile();
+            final File location = getLocalLocation(root, ofile);
+            final File file = state.getFile();
+            final long length = state.getLength();
+            final ChecksumProvider cp = state.getChecksumProvider();
             state.uploadStarted();
             checkLocation(location, rawFileStore);
             exec(file, location);
@@ -105,11 +119,42 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
 
         // First we guarantee that we have the right file
         // If so, we remove it
-        rawFileStore.write(uuid.getBytes(), 0, uuid.getBytes().length);
-        if (!uuid.equals(FileUtils.readFileToString(location))) {
-            throw new RuntimeException("Check text not found in " + location);
+        try {
+            rawFileStore.write(uuid.getBytes(), 0, uuid.getBytes().length);
+        } finally {
+            if (ACTIVE_CLOSE) {
+                rawFileStore.close();
+            }
         }
-        FileUtils.deleteQuietly(location);
+        try {
+            if (!location.exists()) {
+                throw failLocationCheck(location, "does not exist");
+            } else if (!location.canRead()) {
+                throw failLocationCheck(location, "cannot be read");
+            } else if (!uuid.equals(FileUtils.readFileToString(location))) {
+                throw failLocationCheck(location, "does not match check text");
+            }
+        } finally {
+            if (!location.canWrite()) {
+                throw failLocationCheck(location, "cannot be modified locally");
+            } else {
+                boolean deleted = FileUtils.deleteQuietly(location);
+                if (!deleted) {
+                    throw failLocationCheck(location, "could not be cleaned up");
+                }
+            }
+        }
+    }
+
+    protected RuntimeException failLocationCheck(File location, String msg) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(LINE);
+        sb.append(String.format("Check failed: %s %s!\n", location, msg));
+        sb.append("You likely do not have access to the ManagedRepository ");
+        sb.append("for in-place import.\n");
+        sb.append("Aborting...");
+        sb.append(LINE);
+        throw new RuntimeException(sb.toString());
     }
 
     /**
@@ -133,8 +178,29 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
             }
         }
         if (rcode == null || rcode.intValue() != 0) {
-            log.error("transfer process returned {}", rcode);
-            throw new RuntimeException("transfer process returned " + rcode);
+            StringWriter sw = new StringWriter();
+            sw.append("transfer process returned: ");
+            sw.append(Integer.toString(rcode));
+            sw.append("\n");
+            sw.append("command:");
+            for (String arg : pb.command()) {
+                sw.append(" ");
+                sw.append(arg);
+            }
+            sw.append("\n");
+            sw.append("output:");
+            sw.append(LINE);
+            String line = "";
+            BufferedReader br = new BufferedReader(
+                   new InputStreamReader(process.getInputStream()));
+            while ( (line = br.readLine()) != null) {
+               sw.append(line);
+               sw.append(SEPARATOR);
+            }
+            sw.append(LINE);
+            String msg = sw.toString();
+            log.error(msg);
+            throw new RuntimeException(msg);
         }
     }
 

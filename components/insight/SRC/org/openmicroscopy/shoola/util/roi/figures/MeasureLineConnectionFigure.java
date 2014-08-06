@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.util.roi.figures.MeasureLineConnectionFigure 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -173,6 +173,7 @@ public class MeasureLineConnectionFigure
 		if (MeasurementAttributes.SHOWMEASUREMENT.get(this) || 
 				MeasurementAttributes.SHOWID.get(this))
 		{
+		    g.setColor(MeasurementAttributes.STROKE_COLOR.get(this));
 			if (getPointCount() == 2)
 			{
 				NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
@@ -192,8 +193,6 @@ public class MeasureLineConnectionFigure
 					Rectangle2D.Double(lengthPoint.x,
 							lengthPoint.y+rect.getHeight()*2, rect.getWidth(), 
 							rect.getHeight());
-				g.setColor(
-						MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
 				g.drawString(lineAngle, (int)bounds.getX(), (int)bounds.getY());
 				boundsArray.add(bounds);
 			}
@@ -211,8 +210,6 @@ public class MeasureLineConnectionFigure
 						g);
 				Rectangle2D bounds = new Rectangle2D.Double(getPoint(x).x, 
 						getPoint(x).y, rect.getWidth(), rect.getHeight());
-				g.setColor(
-						MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
 				g.drawString(lineAngle, (int)bounds.getX(), (int)bounds.getY());
 				boundsArray.add(bounds);
 			}
@@ -231,8 +228,6 @@ public class MeasureLineConnectionFigure
 				Rectangle2D bounds = new Rectangle2D.Double(getPoint(x).x-15, 
 						getPoint(x).y-15,rect.getWidth()+30, rect.getHeight()+30);
 				Point2D.Double lengthPoint = getLengthPosition(x-1, x);
-				g.setColor(
-						MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
 				g.drawString(lineLength, (int)lengthPoint.x, (int)lengthPoint.y);
 				boundsArray.add(bounds);
 			}

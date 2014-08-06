@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.util.finder.Finder 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -29,6 +29,7 @@ import java.util.Collection;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
 /** 
@@ -87,7 +88,7 @@ public interface Finder
 	 * @param ctx The security context.
 	 * @param result The value to set.
 	 */
-	public void setResult(SecurityContext ctx, Object result);
+	public void setResult(AdvancedSearchResultCollection result);
 
 	/** 
 	 * Sets the collection of tags. 

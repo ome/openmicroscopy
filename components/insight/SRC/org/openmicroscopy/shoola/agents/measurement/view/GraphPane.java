@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.measurement.view.GraphPane 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -26,8 +26,12 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -37,25 +41,37 @@ import java.util.Map.Entry;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
+import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper.StatsType;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.env.log.Logger;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
+import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
+import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
+import org.openmicroscopy.shoola.util.ui.graphutils.ChartObject;
 import org.openmicroscopy.shoola.util.ui.graphutils.HistogramPlot;
 import org.openmicroscopy.shoola.util.ui.graphutils.LinePlot;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
@@ -69,9 +85,6 @@ import pojos.ChannelData;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 class GraphPane
@@ -141,7 +154,10 @@ class GraphPane
 	
 	/** Current shape. */
 	private ROIShape shape;
-	
+
+	/** Button to save the graph as JPEG or PNG.*/
+	private JButton export;
+
 	/**
 	 * Implemented as specified by the I/F {@link TabPaneInterface}
 	 * @see TabPaneInterface#getIndex()
@@ -226,10 +242,60 @@ class GraphPane
 			view.selectFigure(shape.getFigure());
 		state = READY;
 	}
-	
+
+	/**
+	 * Saves the graph as JPEG or PNG.
+	 *
+	 * @param file The file where to save the graph
+	 * @param type The format to save into.
+	 */
+	private void saveGraph(File file, int type)
+	{
+	    try {
+	        if (lineProfileChart != null) {
+	            lineProfileChart.saveAs(file, type);
+	        } else {
+	            histogramChart.saveAs(file, type);
+	        }
+	    } catch (Exception e) {
+	        Logger logger = MeasurementAgent.getRegistry().getLogger();
+	        logger.error(this, "Cannot save the graph: "+e.toString());
+	        UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
+	        un.notifyInfo("Save Results", "An error occurred while saving " +
+	                "the graph.\nPlease try again.");
+	    }
+	}
+
 	/** Initializes the component composing the display. */
 	private void initComponents()
 	{
+	    export = new JButton("Export...");
+	    export.setToolTipText("Export the graph as JPEG or PNG.");
+	    export.addActionListener(new ActionListener() {
+            
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                List<FileFilter> filterList = new ArrayList<FileFilter>();
+                filterList.add(new JPEGFilter());
+                filterList.add(new PNGFilter());
+                FileChooser chooser =
+                        new FileChooser(view, FileChooser.SAVE, "Save Graph",
+                                "Save the graph as JPEG or PNG", filterList);
+                try {
+                    File f = UIUtilities.getDefaultFolder();
+                    if (f != null) chooser.setCurrentDirectory(f);
+                } catch (Exception ex) {}
+                if (chooser.showDialog() != JFileChooser.APPROVE_OPTION) return;
+                File  file = chooser.getFormattedSelectedFile();
+                FileFilter filter = chooser.getSelectedFilter();
+
+                if (filter instanceof JPEGFilter) {
+                    saveGraph(file, ChartObject.SAVE_AS_JPEG);
+                } else if (filter instanceof PNGFilter) {
+                    saveGraph(file, ChartObject.SAVE_AS_PNG);
+                }
+            }
+        });
 		zSlider = new OneKnobSlider();
 		zSlider.setOrientation(JSlider.VERTICAL);
 		zSlider.setPaintTicks(false);
@@ -268,6 +334,7 @@ class GraphPane
 		centrePanel.add(zSlider);
 		centrePanel.add(Box.createHorizontalStrut(5));
 		centrePanel.add(mainPanel);
+		centrePanel.add(export);
 		add(centrePanel);
 		add(tSlider);
 	}
@@ -295,7 +362,8 @@ class GraphPane
 	 * @return See above.
 	 */
 	private LinePlot drawLineplot(String title,  List<String> channelNames, 
-			List<double[][]> data, List<Color> channelColours)
+			List<double[][]> data, List<Color> channelColours,
+			Map<Integer, List<String>> locations)
 	{
 		if (channelNames.size() == 0 || data.size() == 0 || 
 			channelColours.size() == 0)
@@ -305,8 +373,9 @@ class GraphPane
 			return null;
 		LinePlot plot = new LinePlot(title, channelNames, data, 
 			channelColours, channelMinValue(), channelMaxValue());
+		plot.addLocations(locations);
 		plot.setYAxisName("Intensity");
-		plot.setXAxisName("Pixel");
+		plot.setXAxisName("Points");
 		return plot;
 	}
 	
@@ -355,6 +424,8 @@ class GraphPane
 		List<ChannelData> metadata = model.getMetadata();
 		Iterator<ChannelData> j = metadata.iterator();
 		double[] values;
+		Map<Integer, List<String>> locations = new HashMap<Integer, List<String>>();
+		List<String> points = formatPoints(shape.getFigure().getPoints());
 		while (j.hasNext()) {
 			cData = j.next();
 			channel = cData.getIndex();
@@ -372,6 +443,7 @@ class GraphPane
 					channelData.add(values);
 					
 					if (lineProfileFigure(shape)) {
+					    locations.put(channel, points);
 						dataXY = new double[2][values.length];
 						for (int i = 0 ; i < values.length ; i++)
 						{
@@ -392,7 +464,7 @@ class GraphPane
 		histogramChart = null;
 		if (lineProfileFigure(shape))
 			lineProfileChart = drawLineplot("Line Profile", 
-					channelName, channelXYData, channelColour);
+					channelName, channelXYData, channelColour, locations);
 		histogramChart = drawHistogram("Histogram", channelName, 
 				channelData, channelColour, 1001);
 			
@@ -411,7 +483,34 @@ class GraphPane
 		mainPanel.validate();
 		mainPanel.repaint();
 	}
-	
+
+	/**
+	 * Formats the text associated to the specified points.
+	 *
+	 * @param points
+	 * @return See above.
+	 */
+	private List<String> formatPoints(List<Point> points)
+	{
+	    List<String> values = new ArrayList<String>();
+	    Iterator<Point> i = points.iterator();
+	    Point p;
+	    StringBuilder b;
+	    MeasurementUnits units = model.getMeasurementUnits();
+	    double sx = units.getMicronsPixelX();
+	    double sy = units.getMicronsPixelX();
+	    while (i.hasNext()) {
+            p = i.next();
+            b = new StringBuilder();
+            b.append("("+p.x+", "+p.y+")"+UIUtilities.PIXELS_SYMBOL);
+            b.append("\n");
+            b.append("("+UIUtilities.twoDecimalPlaces(p.x*sx)+", "+
+            UIUtilities.twoDecimalPlaces(p.y*sy)+ ")"+EditorUtil.MICRONS_NO_BRACKET);
+            values.add(b.toString());
+        }
+	    return values;
+	}
+
 	/** Indicates the selected plane.*/
 	private void formatPlane()
 	{

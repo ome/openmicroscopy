@@ -18,6 +18,7 @@ import ome.model.annotations.Annotation;
 import ome.model.core.OriginalFile;
 import ome.model.internal.Details;
 import ome.parameters.Parameters;
+import ome.util.search.LuceneQueryBuilder;
 
 import org.hibernate.search.ProjectionConstants;
 
@@ -87,6 +88,16 @@ public interface Search extends ome.api.StatefulServiceInterface,
      * Default {@link #isAllowLeadingWildcard() leading-wildcard setting}
      */
     public final static boolean ALLOW_LEADING_WILDCARD = false;
+    
+    /**
+     * Treat date range as import date
+     */
+    public static final String DATE_TYPE_IMPORT = LuceneQueryBuilder.DATE_IMPORT;
+
+    /**
+     * Treat date range as acquisition date
+     */
+    public static final String DATE_TYPE_ACQUISITION = LuceneQueryBuilder.DATE_ACQUISITION;
 
     // Non-Query State ~
     // =========================================================================
@@ -443,6 +454,19 @@ public interface Search extends ome.api.StatefulServiceInterface,
      */
     void byFullText(String query);
 
+    /**
+     * Builds a Lucene query and passes it to the Lucene backend.
+     * 
+     * @param fields   The fields (comma separated) to search in (name, description, ...)
+     * @param from     The date range from, in the form YYYYMMDD (may be null)
+     * @param to       The date range to (inclusive), in the form YYYYMMDD (may be null)
+     * @param dateType {@link #DATE_TYPE_ACQUISITION} or {@link #DATE_TYPE_IMPORT}
+     * @param query
+     *            May not be null or of zero length.
+     */
+    void byLuceneQueryBuilder(String fields, String from,
+            String to, String dateType, String query);
+    
     /*
      * TODO: An idea: void byWildcardSql();
      */

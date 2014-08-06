@@ -24,6 +24,7 @@ import ome.api.local.LocalAdmin;
 import ome.conditions.InternalException;
 import ome.io.nio.FileBuffer;
 import ome.model.fs.FilesetJobLink;
+import ome.model.meta.Experimenter;
 import ome.parameters.Parameters;
 import ome.services.RawFileBean;
 import ome.services.blitz.repo.path.FsFile;
@@ -85,6 +86,10 @@ public class RepositoryDaoImpl implements RepositoryDao {
     /** Query to load the original file.*/
     private static final String LOAD_ORIGINAL_FILE =
     "select f from OriginalFile as f left outer join fetch f.hasher where ";
+
+    /* query to load a user's institution */
+    private static final String LOAD_USER_INSTITUTION =
+            "SELECT institution FROM " + Experimenter.class.getName() + " WHERE id = :id";
 
     private final static Logger log = LoggerFactory.getLogger(RepositoryDaoImpl.class);
 
@@ -522,7 +527,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
         final IceMapper mapper = new IceMapper();
 
         try {
-            return (List<Fileset>) mapper.map((ome.model.fs.Fileset)
+            return (List<Fileset>) mapper.map((List<ome.model.fs.Fileset>)
                     executor.execute(current.ctx, currentUser(current),
                             new Executor.SimpleWork(
                     this, "loadFilesets", ids) {
@@ -797,6 +802,28 @@ public class RepositoryDaoImpl implements RepositoryDao {
                 return ((LocalAdmin) sf.getAdminService()).getEventContextQuiet();
             }
         });
+    }
+
+    public String getUserInstitution(final long userId, Ice.Current current) {
+        return (String) executor.execute(current.ctx, currentUser(current),
+                new Executor.SimpleWork(this, "getUserInstitution") {
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+                return getUserInstitution(userId, sf);
+            }
+        });
+    }
+
+    public String getUserInstitution(long userId, ServiceFactory sf) {
+        final Parameters parameters = new Parameters().addId(userId);
+        final List<Object[]> results = sf.getQueryService().projection(LOAD_USER_INSTITUTION, parameters);
+        if (results instanceof List && results.get(0) instanceof Object[]) {
+            final Object[] firstResult = (Object[]) results.get(0);
+            if (firstResult.length > 0 && firstResult[0] instanceof String) {
+                return (String) firstResult[0];
+            }
+        }
+        return null;
     }
 
     //

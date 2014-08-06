@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserFactory 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -41,6 +41,7 @@ import java.util.Map.Entry;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
+import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -107,6 +108,17 @@ public class DataBrowserFactory
 	{
 		return singleton.createSearchDataBrowser(result);
 	}
+	
+	/**
+         * Creates a browser to display the results.
+         * 
+         * @param result The value to set.
+         * @return See above.
+         */
+        public static final DataBrowser getSearchBrowser(AdvancedSearchResultCollection results)
+        {
+                return singleton.createSearchDataBrowser(results);
+        }
 
 	/**
 	 * Returns the browser used for searching data.
@@ -650,6 +662,23 @@ public class DataBrowserFactory
 		searchBrowser = comp;
 		return comp;
 	}
+	
+	
+	/**
+         * Creates a new {@link DataBrowser} for the passed result.
+         * 
+         * @param result The result of the search.
+         * @return See above.
+         */
+        private DataBrowser createSearchDataBrowser(AdvancedSearchResultCollection result)
+        {
+                DataBrowserModel model = new AdvancedResultSearchModel(result);
+                DataBrowserComponent comp = new DataBrowserComponent(model);
+                model.initialize(comp);
+                comp.initialize();
+                searchBrowser = comp;
+                return comp;
+        }
 
     /** 
      * Sorts the passed collection of <code>DataObject</code>s by id.

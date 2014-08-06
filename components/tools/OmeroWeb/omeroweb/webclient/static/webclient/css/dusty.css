@@ -167,7 +167,7 @@ button::-moz-focus-inner {
         display:block;
     }
     
-    #general_tab .btn_download {
+    #metadata_general .btn_download {
         background: url(../../webgateway/img/icon_download2.png) center center no-repeat;
     }
     
@@ -734,11 +734,7 @@ button::-moz-focus-inner {
 
 
 		/* Numbers */
-	
-		.ui-datepicker tbody td:hover {
 
-		}
-	
 			.ui-datepicker tbody td:hover a{
 			    background-color:hsl(205,40%,50%);
 				color:white;
@@ -747,6 +743,10 @@ button::-moz-focus-inner {
 			.ui-datepicker tbody a{
 				font-size:1.2em;
 				border: 1px solid #CCCCCC;
+			}
+
+			.ui-datepicker .ui-state-highlight {
+				background-color: #fef49c;
 			}
 
 

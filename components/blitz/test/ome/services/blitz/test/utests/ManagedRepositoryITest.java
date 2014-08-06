@@ -5,12 +5,12 @@ import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import junit.framework.Assert;
 import loci.formats.FormatReader;
 import ome.services.blitz.fire.Registry;
 import ome.services.blitz.repo.FileMaker;
@@ -18,6 +18,10 @@ import ome.services.blitz.repo.ManagedRepositoryI;
 import ome.services.blitz.repo.RepositoryDao;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.util.ChecksumAlgorithmMapper;
+import ome.system.ServiceFactory;
+import ome.util.checksum.ChecksumProviderFactoryImpl;
+import ome.util.checksum.ChecksumType;
+import omero.ServerError;
 import omero.grid.ImportLocation;
 import omero.model.ChecksumAlgorithm;
 import omero.model.ChecksumAlgorithmI;
@@ -26,10 +30,9 @@ import static omero.rtypes.rstring;
 import omero.sys.EventContext;
 import omero.util.TempFileManager;
 
-import com.google.common.collect.Sets;
-
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
+import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -86,14 +89,9 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
             return super.commonRoot(paths);
         }
 
-        @Override
-        public String expandTemplate(String template, EventContext ec) {
-            return super.expandTemplate(template, ec);
-        }
-
-        @Override
-        public void createTemplateDir(FsFile rootPath, FsFile userPath, Ice.Current curr) throws omero.ServerError {
-            super.createTemplateDir(rootPath, userPath, curr);
+        protected String expandTemplate(String template, EventContext ctx) throws ServerError {
+            super.templateRoot = new FsFile(template);
+            return super.expandTemplateRootOwnedPath(ctx, (ServiceFactory) null).toString();
         }
     }
 
@@ -154,14 +152,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     @Test
-    public void testExpandTemplateEmptyStringOnNullToken() {
-        EventContext ecStub = newEventContext();
-        String actual = this.tmri.expandTemplate(null, ecStub);
-        Assert.assertEquals(0, actual.length());
-    }
-
-    @Test
-    public void testExpandTemplateTokenOnMalformedToken() {
+    public void testExpandTemplateTokenOnMalformedToken() throws ServerError {
         EventContext ecStub = newEventContext();
         String expected = "foo";
         String actual = this.tmri.expandTemplate(expected, ecStub);
@@ -169,7 +160,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     @Test
-    public void testExpandTemplateYear() {
+    public void testExpandTemplateYear() throws ServerError {
         EventContext ecStub = newEventContext();
         String expected = Integer.toString(cal.get(Calendar.YEAR));
         String actual = this.tmri.expandTemplate("%year%", ecStub);
@@ -177,7 +168,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     @Test
-    public void testExpandTemplateMonth() {
+    public void testExpandTemplateMonth() throws ServerError {
         EventContext ecStub = newEventContext();
         String expected = Integer.toString(cal.get(Calendar.MONTH)+1);
         if (expected.length() == 1)
@@ -187,7 +178,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     @Test
-    public void testExpandTemplateMonthName() {
+    public void testExpandTemplateMonthName() throws ServerError {
         EventContext ecStub = newEventContext();
         DateFormatSymbols dateFormat = new DateFormatSymbols();
         String expected = dateFormat.getMonths()
@@ -197,7 +188,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     @Test
-    public void testExpandTemplateDay() {
+    public void testExpandTemplateDay() throws ServerError {
         EventContext ecStub = newEventContext();
         String expected = String.format("%02d", cal.get(Calendar.DAY_OF_MONTH));
         String actual = this.tmri.expandTemplate("%day%", ecStub);
@@ -205,7 +196,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     @Test
-    public void testExpandTemplateUserName() {
+    public void testExpandTemplateUserName() throws ServerError {
         String expected = "user-1";
         EventContext ecStub = newEventContext();
         ecStub.userName = expected;
@@ -214,7 +205,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     @Test
-    public void testExpandTemplateGroupName() {
+    public void testExpandTemplateGroupName() throws ServerError {
         String expected = "group-1";
         EventContext ecStub = newEventContext();
         ecStub.groupName = expected;
@@ -222,7 +213,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         Assert.assertEquals(expected, actual);
     }
     @Test
-    public void testExpandTemplateGroupNamePerms() {
+    public void testExpandTemplateGroupNamePerms() throws ServerError {
         String expected = "group-1-rwrwrw";
         EventContext ecStub = newEventContext();
         ecStub.groupName = "group-1";
@@ -232,7 +223,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     @Test
-    public void testExpandTemplateSession() {
+    public void testExpandTemplateSession() throws ServerError {
         String expected = UUID.randomUUID().toString();
         EventContext ecStub = newEventContext();
         ecStub.sessionUuid = expected;
@@ -241,7 +232,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     @Test
-    public void testExpandTemplateEscape() {
+    public void testExpandTemplateEscape() throws ServerError {
         String expected = "%%";
         EventContext ecStub = newEventContext();
         String actual = this.tmri.expandTemplate("%%", ecStub);
@@ -249,7 +240,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     @Test
-    public void testExpandTemplateEscape2() {
+    public void testExpandTemplateEscape2() throws ServerError {
         String expected = "%%-grp";
         EventContext ecStub = newEventContext();
         ecStub.groupName = "grp";
@@ -258,38 +249,49 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     @Test
-    public void testExpandTemplateEscape3() {
+    public void testExpandTemplateEscape3() throws ServerError {
         String expected = "%%george";
         EventContext ecStub = newEventContext();
         String actual = this.tmri.expandTemplate("%%george", ecStub);
         Assert.assertEquals(expected, actual);
     }
 
-    @Test
-    public void testExpandTemplateUnknown() {
-        String expected = "%björk%";
+    @Test(expectedExceptions = ServerError.class)
+    public void testExpandTemplateUnknown() throws ServerError {
         EventContext ecStub = newEventContext();
-        String actual = this.tmri.expandTemplate("%björk%", ecStub);
-        Assert.assertEquals(expected, actual);
+        String actual = this.tmri.expandTemplate("%undefinedTerm%", ecStub);
     }
 
     /**
-     * Test that the checksum algorithms offered by the managed repository
-     * correspond to those listed for enum id
-     * <tt>ome.model.enums.ChecksumAlgorithm</tt> in
-     * <tt>acquisition.ome.xml</tt>.
+     * Test that the checksum algorithms provided by {@link ChecksumProviderFactory} are exactly those of {@link ChecksumType}.
      */
     @Test
-    public void testListChecksumAlgorithms() {
-        final Set<String> expectedAlgorithmNames =
-                Sets.newHashSet("Adler-32", "CRC-32", "MD5-128", "Murmur3-32",
-                        "Murmur3-128", "SHA1-160");
-        for (final ChecksumAlgorithm algorithm :
-            this.tmri.listChecksumAlgorithms(curr)) {
-            Assert.assertTrue(expectedAlgorithmNames.remove(
-                    algorithm.getValue().getValue()));
+    public void testAllChecksumAlgorithmsProvided() throws Exception {
+        final Set<ChecksumType> stillExpecting = EnumSet.allOf(ChecksumType.class);
+        stillExpecting.removeAll(new ChecksumProviderFactoryImpl().getAvailableTypes());
+
+        for (final ChecksumType type : stillExpecting) {
+            Assert.fail("not providing checksum type: " + type);
         }
-        Assert.assertTrue(expectedAlgorithmNames.isEmpty());
+    }
+
+    /**
+     * Test that the checksum algorithms listed in <tt>omero.checksum.supported</tt> are exactly those of {@link ChecksumType}.
+     * Note that the server may still be able to handle checksum algorithms even if they are not listed among those supported.
+     */
+    @Test
+    public void testAllChecksumAlgorithmsSupported() throws Exception {
+        final Set<ChecksumType> stillExpecting = EnumSet.allOf(ChecksumType.class);
+
+        for (final ChecksumAlgorithm listedAlgorithm : tmri.listChecksumAlgorithms(curr)) {
+            final ChecksumType supported = ChecksumAlgorithmMapper.getChecksumType(listedAlgorithm);
+            Assert.assertNotNull(supported, "supporting unknown checksum type: " + listedAlgorithm.getValue().getValue());
+            stillExpecting.remove(supported);
+        }
+
+        for (final ChecksumType type : stillExpecting) {
+            Assert.fail("not supporting checksum type: " + type);
+        }
     }
 
     /**

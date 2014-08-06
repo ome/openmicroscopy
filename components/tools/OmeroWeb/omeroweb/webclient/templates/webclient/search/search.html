@@ -1,5 +1,6 @@
 {% extends "webclient/base/base_container.html" %}
 {% load i18n %}
+{% load common_filters %}
 
 
 {% comment %}
@@ -44,20 +45,91 @@
     <script type="text/javascript">
         $(document).ready(function() 
             {
+
+                // Disable the groups/users dropdown menu.
+                $("#groupsUsersButton")
+                    .css('background-image', 'url()')
+                    .attr('title', 'Use "Scope" in form below to search within specific Groups / Users');
+                setTimeout(function(){
+                    // make sure we remove click handler AFTER it's been added
+                    $("#groupsUsersButton").off('click');
+                },500);
+
+                var $ownedBy = $("select[name='ownedBy']");
+
+                var selectUsersFromGroup = function(groupId) {
+                    $ownedBy.attr("disabled", "disabled").hide();
+                    $("#searchByGroupMember-" + groupId).removeAttr('disabled').show();
+                }
+
+                // Choose group, then pick a user from that group
+                $("#searchGroup").change(function() {
+                    var gid = $(this).val();
+                    selectUsersFromGroup(gid);
+                });
+
+                var gid = -1;
+                $("#searchGroup").val(gid);
+                selectUsersFromGroup(gid);
+
+
                 $("#filtersearch label").inFieldLabels();
 
-                $('#startdateinput, #enddateinput').datepicker({
-                    changeMonth: true, 
+
+                // Init date-pickers...
+                $('#startdateinput').datepicker({
+                    changeMonth: true,
                     changeYear: true,
-                    firstDay: 1, 
-                    dateFormat: 'yy-mm-dd', 
+                    maxDate: 0,     // only allow dates in past.
+                    firstDay: 1,
+                    dateFormat: 'yy-mm-dd',
                     beforeShow: function(input, inst) {
                         // z-index is set to 1 on 'show' - need to reset if AFTER show
                         setTimeout(function(){
                             $("#ui-datepicker-div").css('z-index','50');
                         }, 10);
+                    },
+                    onClose: function( selectedDate ) {
+                        $( "#enddateinput" ).datepicker( "option", "minDate", selectedDate );
+                        $(this).next(".clearDate").show();
                     }
                 });
+                $('#enddateinput').datepicker({
+                    changeMonth: true,
+                    changeYear: true,
+                    maxDate: 0,     // only allow dates in past.
+                    firstDay: 1,
+                    dateFormat: 'yy-mm-dd',
+                    beforeShow: function(input, inst) {
+                        // z-index is set to 1 on 'show' - need to reset if AFTER show
+                        setTimeout(function(){
+                            $("#ui-datepicker-div").css('z-index','50');
+                        }, 10);
+                    },
+                    onClose: function( selectedDate ) {
+                        if (selectedDate){
+                            $( "#startdateinput" ).datepicker( "option", "maxDate", selectedDate );
+                        }
+                        if ($(this).val().length > 0) {
+                            $(this).next(".clearDate").show();
+                        }
+                    }
+                });
+                // removing dates - clear fields and reset ranges.
+                $(".clearDate").click(function() {
+                    $(this).hide().prev("input").val("");
+                    var end = $( "#enddateinput" ).datepicker( "getDate" ) || 0;
+                    $( "#startdateinput" ).datepicker( "option", "maxDate", end);
+                    var start = $( "#startdateinput" ).datepicker( "getDate" );
+                    $( "#enddateinput" ).datepicker( "option", "minDate", start);
+                    return false;
+                });
+                // hide each 'X' if corresponding date field is empty
+                $(".clearDate").each(function(){
+                    if ($(this).prev().val().length == 0) {
+                        $(this).hide();
+                    }
+                })
                 
                 $(".searching_info, #daterange").tooltip({ 
                     track: true, 
@@ -69,88 +141,63 @@
                     top: -15, 
                     left: 5 
                 });
-                
-                $("#search_button").click(function() { 
-                    var url = null;
-                    var query = $("input[name='query']"); 
-                    if (query.val().length <= 0) {
-                        alert("Search must contains some text.");
-                        return false;
-                    } else if (query.val().length <= 1 && query.val().indexOf("*") < 1) {
-                        alert("Wildcard searches (*) must contain more than a single wildcard.");
-                        return false;
-                    } else {
-                        url = query.serialize();
-                    }
-                    
-                    var startdateinput = $("input[name='startdateinput']");
-                    if(startdateinput.val()!=null && startdateinput.val()!="") {
-                        url = url + "&startdateinput="+startdateinput.val();
-                    }
-                    var enddateinput = $("input[name='enddateinput']");
-                    if(enddateinput.val()!=null && enddateinput.val()!="") {
-                        // check if start date is before, otherwise we have problem
-                        var start = startdateinput.val();
-                        var end = enddateinput.val();
-                        if (start==null || start=="") {
-                            alert("Choose start date for range");
+
+                $("#searching_form").ajaxForm({
+                    beforeSubmit: function(fields) {
+
+                        // check we have some search query...
+                        var $query = $("input[name='query']"),
+                            q = $.trim($query.val());
+                        if (q.length <= 0) {
+                            alert("Search must contain some text.");
+                            return false;
+                        } else if (q == "*") {
+                            alert("Wildcard searches (*) must contain more than a single wildcard.");
                             return false;
                         }
-                        if (start > end) {
-                            alert("Start date is after End date");
-                            return false;
+
+                        // check dates
+                        var startdateinput = $("input[name='startdateinput']");
+                        var enddateinput = $("input[name='enddateinput']");
+                        if(enddateinput.val()!=null && enddateinput.val()!="") {
+                            // check if start date is before, otherwise we have problem
+                            var start = startdateinput.val();
+                            var end = enddateinput.val();
+                            if (start==null || start=="") {
+                                alert("Choose start date for range");
+                                return false;
+                            }
+                            if (start > end) {
+                                alert("Start date is after End date");
+                                return false;
+                            }
                         }
-                        url = url + "&enddateinput="+end;
+
+                        // show 'loading...'
+                        $("div#content_details").html('<p>{% trans "Loading data... please wait" %} <img src ="{% static "webgateway/img/spinner.gif" %}"/></p>');
+                        $("#filtersearch").hide().find('input').val("");    // hide and clear filter
+                    },
+                    success: function(html) {
+                        $("div#content_details").html(html);
+                        $("#filtersearch").show();
+                        OME.table_selection_changed();      // clear right panel
                     }
-                    $("input[name='datatype']:checked").each(function(){
-                        if(url != null ) {
-                            url = url+"&"+this.value+"=on";
-                        } else {
-                            url = this.value+"=on";
-                        }
-                    });
-                    $("div#content_details").html('<p>{% trans "Loading data... please wait" %} <img src ="{% static "webgateway/img/spinner.gif" %}"/></p>');
-                    $("div#content_details").load('{% url 'load_searching' "form" %}?'+url);
-                    $("#filtersearch").show();
-                    OME.table_selection_changed();
-                    return false;
                 });
 
-
-            {% if init.query %}
-                $("div#content_details").load('{% url 'load_searching' "form" %}?query={{ init.query|iriencode }}');
-                $("#filtersearch").show();
-                OME.table_selection_changed();
-                var query_string = "{{ init.query }}";
-                query_string = query_string.replace("%20", " ");
-                $("input[name='query']").val(query_string);
-            {% endif %}
+                {% if init.query %}
+                    // query field is already populated with init.query
+                    $("#searching_form").submit();
+                {% endif %}
 
 
-                $("#batch_search_button").click(function() {
-                    var batch_query = $("textarea[name='batch_query']").val();
-                    if (batch_query == "") {
-                        alert("No query entered");
-                        return false;
-                    }
-                    var delimiter = $("input[name='delimiter']:checked").val();
-                    var lines = batch_query.split('\n');
-                    var regex = new RegExp("\\w+D\\d+D\\d+".replace(/D/g, delimiter));
-                    for (var i=0; i<lines.length; i++) {
-                        if (!regex.test(lines[i])) {
-                            alert("Format error at line " + i + ": \n\"" + lines[i] + "\"\n\nDid you select the correct delimiter?");
-                            return false;
-                        }
-                    }
-                    var data = $("#batch_searching_form").serialize();
-                    $("div#content_details").html('<p>{% trans "Loading data... please wait" %} <img src ="{% static "webgateway/img/spinner.gif" %}"/></p>');
-                    $("div#content_details").load('{% url 'load_searching' %}', data);
-                    $("#filtersearch").show();
-                    OME.table_selection_changed()
-                    return false;
-                });
                 OME.table_selection_changed();     // clear selection (hides acquisition & preview tabs)
-        })
+
+                $("#showSearchHints").click(function(event){
+                    event.preventDefault();
+                    $("#searchHints").toggle();
+                    return false;
+                });
+        });
     </script>
 
 {% endblock %}
@@ -176,95 +223,159 @@
 	
 	<div class="left_panel_inner">
 	    
-		<form id="searching_form" class="standard_form">
+		<form id="searching_form" class="standard_form" action="{% url 'load_searching' 'form' %}">
 					
 					<h2>{% trans "General Search" %}</h2>
+
+                    <div style="font-size: 120%; float: right; position: relative; top: -20px">
+                        <a id="showSearchHints" href="#" style="text-decoration:underline">
+                            Show search hints
+
+                            <span class="searching_info" title="? Single character wildcard<br>* Multiple character wildcard<br>'AND' Results will contain both terms. E.g: GFP AND H2B">
+                                <img src="{% static "webgateway/img/help16.png" %}" />
+                            </span>
+                        </a>
+                    </div>
+
+                    <div id="searchHints" style="display: none">
+                        <ul>
+                            <li> <strong> ? </strong> Single character wildcard</li>
+                            <li> <strong> * </strong> Multiple character wildcard</li>
+                            <li> <strong> AND </strong> Results will contain both terms. E.g: GFP AND H2B</li>
+                        </ul>
+                        <br>
+                        <div>
+                            For more info, see the
+                            <a title="Open link in new Tab" target="new" href="http://help.openmicroscopy.org/search.html">
+                                User Help</a>
+                            pages.
+                        </div>
+                    </div>
+
+                    <div style="clear:both"></div>
 					
-						<label for="query">{% trans "Search for" %}:</label>
-						<input class="search" type="text" name="query" value="{{ manager.criteria.query }}" size="35"/>
-	                    <span class="searching_info"
-	                        title="Searching - <small>Performs a single character wildcard search use the <b>'?'</b> symbol.
-	                            The single character wildcard search looks for terms that match that with the single character replaced.
-	                            To perform a multiple character wildcard search use the <b>'*'</b> symbol. <br/><br/>
-	                            For example, to search for <i>'text'</i> or <i>'test'</i> you can use the search: <b>'te?t'</b>.
-	                            Multiple character wildcard searches looks for 0 or more characters.
-	                            For example, to search for <i>'test'</i>, <i>'tests'</i> or <i>'tester'</i>, you can use the search: <b>'test*'</b>.
-	                            You can also use the wildcard searches in the middle or the beginning of a term.</small>">
-	                       	 <img src="{% static "webgateway/img/help16.png" %}" />
-	                    </span>
-	            
-	               	 	<label for="startdateinput">{% trans "Date" %}:</label>
-	                    <input type="text" id="startdateinput" name="startdateinput" value="{{ manager.criteria.period }}" size="12"/> -
-	                    <input type="text" id="enddateinput" name="enddateinput" value="" size="12"/>
-	                    <span id="daterange" title="Date - <small>Specify a particular Creation / Import date or range of dates</small>">
-	                    		<img src="{% static "webgateway/img/help16.png" %}" />
-	                    </span>
+						<label for="query">{% trans "Search" %}:</label>
+						<input class="search" type="text" name="query" value="{{ init.query }}" size="35"/>
 	                
-	            		
-	               	 	<label id="criteria">{% trans "In" %}</label>
+	            		<hr>
+
+	               	 	<label id="criteria">Search for:</label>
 	             
 	                    <ul class="criteria">
 	                        <li><input type="checkbox" name="datatype" value="images" CHECKED />{% trans "Images" %}</li>
-	                        <li><input type="checkbox" name="datatype" value="datasets" />{% trans "Datasets" %}</li>
-	                        <li><input type="checkbox" name="datatype" value="projects" />{% trans "Projects" %}</li>
-	                        <li><input type="checkbox" name="datatype" value="plates" />{% trans "Plates" %}</li>
-	                        <li><input type="checkbox" name="datatype" value="screens" />{% trans "Screens" %}</li>
+	                        <li><input type="checkbox" name="datatype" value="datasets" CHECKED />{% trans "Datasets" %}</li>
+	                        <li><input type="checkbox" name="datatype" value="projects" CHECKED />{% trans "Projects" %}</li>
+	                        <li><input type="checkbox" name="datatype" value="plates" CHECKED />{% trans "Plates" %}</li>
+	                        <li><input type="checkbox" name="datatype" value="screens" CHECKED />{% trans "Screens" %}</li>
 	                    </ul>
+
+                        <hr>
+
+                        <label style="white-space:nowrap;">
+                            Restrict by Field:
+                            <span class="searching_info" title="Restrict search to specified fields.<br>If none chosen, we search across all fields">
+                                <img src="{% static "webgateway/img/help16.png" %}" />
+                            </span>
+                        </label>
+                 
+                        <ul class="criteria">
+                            <li><input type="checkbox" name="field" value="name" />{% trans "Name" %}</li>
+                            <li><input type="checkbox" name="field" value="description" />{% trans "Description" %}</li>
+                            <li style="white-space:nowrap;">
+                                <input type="checkbox" name="field" value="annotation" />{% trans "Annotations" %}<span class="searching_info" title="Includes file attachments, tags, comments etc">
+                                   <img src="{% static "webgateway/img/help16.png" %}" />
+                                </span>
+                            </li>
+                        </ul>
+
+                        <hr>
+
+                        <label>Scope:</label>
+
+                        <br>
+
+                        In group:
+
+                        <select name="searchGroup" id="searchGroup">
+                            <option value="-1">All Groups</option>
+                            {% for grp in myGroups %}
+                                <option value="{{ grp.id }}">{{ grp.getName }}</option>
+                            {% endfor %}
+                        </select>
+
+
+                        <br>
+
+                        Data owned by:
+
+                        <!-- when 'All Groups' - can choose 'Me' or 'All users' -->
+                        <select name="ownedBy" id="searchByGroupMember--1">
+                            <option value="-1">All Users</option>
+                            {% for user in myColleagues %}}
+                                <option value="{{ user.id }}" {% ifequal user.id ome.user.id %}selected="selected"{% endifequal %}>
+                                    {{ user.getFullName|truncateafter:"50" }}
+                                </option>
+                            {% endfor %}
+                        </select>
+
+                        <!-- for each group we can choose users - only show <select> for 1 group at a time -->
+                        {% for grp in groups %}
+                        <select name="ownedBy" id="searchByGroupMember-{{ grp.id }}">
+                            <option value="-1">All Members</option>
+                            {% for user in grp.leaders %}}
+                                <option value="{{ user.id }}" {% ifequal user.id ome.user.id %}selected="selected"{% endifequal %}>
+                                    {{ user.getFullName|truncateafter:"50" }}
+                                </option>
+                            {% endfor %}
+                            {% for user in grp.colleagues %}}
+                                <option value="{{ user.id }}" {% ifequal user.id ome.user.id %}selected="selected"{% endifequal %}>
+                                    {{ user.getFullName|truncateafter:"50" }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        {% endfor %}
+
+                        <hr>
+
+                        <label for="startdateinput">{% trans "Date" %}:</label>
+
+                        <select name="useAcquisitionDate" id="useAcquisitionDate">
+                            <option value="false" title="Date Imported / Created">Import date</option>
+                            <option value="true" title="Date Acquired, for Images only">Acquisition date</option>
+                        </select>
+
+                        <span class="searching_info" title="Search by date imported / created or acquired.<br>
+                                Acquisition dates are for Images only.">
+                                <img src="{% static "webgateway/img/help16.png" %}" />
+                            </span>
+
+                        <br/>
+                        <span style="position: relative">
+                            <input type="text" id="startdateinput" name="startdateinput" size="12"
+                                value="{{ manager.criteria.period }}" title="Search for data 'From' this date"/>
+                            <span class="clearDate">
+                                <img src="{% static "webclient/image/icon_basic_delete.png" %}" />
+                            </span>
+                        </span>
+                        -
+                        <span style="position: relative">
+                            <input type="text" id="enddateinput" name="enddateinput" value="" size="12"
+                                title="Search for data 'To' this date. Leave blank for 'today'."/>
+                            <span class="clearDate">
+                                <img src="{% static "webclient/image/icon_basic_delete.png" %}" />
+                            </span>
+                        </span>
+                        <span id="daterange" title="The 'to' date will be today's date if left blank.">
+                                <img src="{% static "webgateway/img/help16.png" %}" />
+                        </span>
+
+                        <hr>
 					
 			        <input id="search_button" type="submit" value="Search" />
 					 
 	    </form>    
-		
-		
-		
-		
-		
-		
-		
-	    </p>
-	    <div>
-	        <h2>{% trans "Batch searching" %}</h2>
-			
-			{% comment %}
-	        <p>{% trans "The batch searching feature enables you to search for multiple images stored on the server." %}</p>
-			{% endcomment %}
-	    </div>
-	    <p>
-			
-	    <form id="batch_searching_form" class="standard_form">
-	        
-			<label for="batch_query">{% trans "Search for" %}</label>
-            <textarea name="batch_query" cols="30" rows="5" wrap="hard"></textarea>
-            <span class="searching_info"
-                title="Batch search - <small>Each line of the textbox should consist of exactly 3 elements(/columns).
-                    The elements should contain the following information in order: plate name, row, column.
-                    The columns are separated by a delimiter which can be selected below the textbox.<br/><br/>
-+</small><b>Example search:</b><small><pre>
-+Foo    0    0
-+Bar    2    3
-+</pre> The above searches for images in two wells.
 
-                    The first well is located in row 0, column 0 (=well A01) of a plate with name Foo.
-                    The second well is located in row 2, column 3 (=well C04) of a plate with name Bar.</small>">
-			    <img src="{% static "webgateway/img/help16.png" %}" />
-			</span>
-					
-					
-					
-	        {% trans "Delimiter:" %}
-	        <input type="radio" name="delimiter" value="," />
-	        {% trans "comma (,)"  %}
-	        <input type="radio" name="delimiter" value=";" />
-	        {% trans "semi-colon (;)" %}
-	        <input type="radio" name="delimiter" value="\t" checked="yes" />
-	        {% trans "horizontal tab" %}
-	        <input type="radio" name="delimiter" value="|" />
-	        {% trans "vertical bar (|)" %}
-	        <br/>
-			
-			<input id="batch_search_button" type="submit" value="Search"/>
-	    </form>
-	</div>
+    </div>
 </div>
 
 {% endblock %}

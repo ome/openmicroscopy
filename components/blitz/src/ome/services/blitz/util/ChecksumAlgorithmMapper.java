@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -32,6 +32,7 @@ import omero.model.ChecksumAlgorithm;
 import omero.model.ChecksumAlgorithmI;
 import omero.model.enums.ChecksumAlgorithmAdler32;
 import omero.model.enums.ChecksumAlgorithmCRC32;
+import omero.model.enums.ChecksumAlgorithmFileSize64;
 import omero.model.enums.ChecksumAlgorithmMD5128;
 import omero.model.enums.ChecksumAlgorithmMurmur3128;
 import omero.model.enums.ChecksumAlgorithmMurmur332;
@@ -59,6 +60,7 @@ public class ChecksumAlgorithmMapper {
             put(ChecksumAlgorithmMurmur332.value, ChecksumType.MURMUR32).
             put(ChecksumAlgorithmMurmur3128.value, ChecksumType.MURMUR128).
             put(ChecksumAlgorithmSHA1160.value, ChecksumType.SHA1).
+            put(ChecksumAlgorithmFileSize64.value, ChecksumType.FILE_SIZE).
             build();
 
     private static ChecksumAlgorithm getChecksumAlgorithmWithValue(String name) {

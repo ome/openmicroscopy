@@ -66,21 +66,10 @@
                 
                 highlightCurrent();
                 
-                // Disable "Private" perms, unless we're already 'Private' or 'Admin'
-                {% if gid %}
-                {% ifnotequal permissions 0 %}
-                    {% if not ome.eventContext.isAdmin %}
-                        $('#id_permissions_0').attr({
-                            'disabled': true,
-                            'title':"Cannot change group to 'Private'"});
-                    {% endif %}
-                    
-                    $('#id_permissions_0').click(function(){
-                        OME.confirm_dialog("Changing group to Private may fail if links have been created under Read-Annotate permissions",
-                            null, "WARNING", ['OK'], null, 180);
-                    });
-                {% endifnotequal %}
-                {% endif %}
+                $('#id_permissions_0').click(function(){
+                    OME.confirm_dialog("Changing group to Private may fail if links have been created under Read-Annotate permissions",
+                        null, "WARNING", ['OK'], null, 180);
+                });
 
         })
     </script>

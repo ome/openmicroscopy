@@ -170,10 +170,11 @@ public interface MetadataHandlerView
 	 * Loads all {@link DataObject}s the given annotations ({@link FileAnnotationData}) are linked to
 	 * @param ctx The security context.
 	 * @param annotations The annotations ({@link FileAnnotationData})
+	 * @param referenceObjects The DataObjects from which the FileAnnotations should be removed
 	 * @param observer Call-back handler.
 	 * @return See above.
 	 */
-	public CallHandle loadFileAnnotationParents(SecurityContext ctx, List<FileAnnotationData> annotations,
+	public CallHandle checkFileAnnotationDeletion(SecurityContext ctx, List<FileAnnotationData> annotations, List<DataObject> toBeDeletedFromIds,
 			AgentEventListener observer);
 	
 	/**

@@ -89,6 +89,10 @@ class HdfList(object):
     with equal fileno's, portalocker cannot be used to prevent
     the creation of two HdfStorage instances from the same
     Python process.
+
+    This also holds a global lock for all HDF5 calls since libhdf5 is usually
+    compiled without --enable-threadsafe, see
+    https://trac.openmicroscopy.org.uk/ome/ticket/10464
     """
 
     def __init__(self):
@@ -138,7 +142,7 @@ class HdfList(object):
         try:
             return self.__paths[hdfpath]
         except KeyError:
-            return HdfStorage(hdfpath) # Adds itself.
+            return HdfStorage(hdfpath, self._lock) # Adds itself.
 
     @locked
     def remove(self, hdfpath, hdffile):
@@ -164,7 +168,7 @@ class HdfStorage(object):
     """
 
 
-    def __init__(self, file_path):
+    def __init__(self, file_path, hdf5lock):
 
         """
         file_path should be the path to a file in a valid directory where
@@ -184,7 +188,7 @@ class HdfStorage(object):
         self.__hdf_file = HDFLIST.addOrThrow(file_path, self)
         self.__tables = []
 
-        self._lock = threading.RLock()
+        self._lock = hdf5lock
         self._stamp = time.time()
 
         # These are what we'd like to have
@@ -213,7 +217,7 @@ class HdfStorage(object):
         try:
             if self.__hdf_path.exists() and self.__hdf_path.size == 0:
                 mode = "w"
-            return tables.openFile(self.__hdf_path, mode=mode,\
+            return tables.openFile(str(self.__hdf_path), mode=mode,\
                 title="OMERO HDF Measurement Storage", rootUEP="/")
         except (tables.HDF5ExtError, IOError), io:
             msg = "HDFStorage initialized with bad path: %s" % self.__hdf_path

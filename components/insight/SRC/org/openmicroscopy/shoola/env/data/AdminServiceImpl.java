@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.AdminServiceImpl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -43,14 +43,17 @@ import org.apache.commons.collections.CollectionUtils;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.sys.Roles;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.env.event.AgentEventListener;
 
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -371,41 +374,65 @@ class AdminServiceImpl
 	 * Implemented as specified by {@link AdminService}.
 	 * @see AdminService#updateGroup(SecurityContext, GroupData, int)
 	 */
-	public GroupData updateGroup(SecurityContext ctx, GroupData group,
-			int permissions)
+	public GroupData updateGroup(SecurityContext ctx, GroupData group)
 			throws DSOutOfServiceException, DSAccessException
 	{
 		if (group == null)
 			throw new IllegalArgumentException("No group to update.");
-		gateway.updateGroup(ctx, group, permissions);
+		gateway.updateGroup(ctx, group);
 		gateway.joinSession();
-		
-		group = (GroupData) PojoMapper.asDataObject(
-				(ExperimenterGroup) gateway.findIObject(ctx, group.asGroup()));
-		//Review update
-		Collection groups = (Collection) context.lookup(
-				LookupNames.USER_GROUP_DETAILS);
-		Iterator j = groups.iterator();
-		GroupData g;
-		Set available = new HashSet<GroupData>();
-		while (j.hasNext()) {
-			g = (GroupData) j.next();
-			if (g.getId() == group.getId()) available.add(group);
-			else  available.add(g);
-		}
-		context.bind(LookupNames.USER_GROUP_DETAILS, available);
-		List agents = (List) context.lookup(LookupNames.AGENTS);
-		Iterator i = agents.iterator();
-		AgentInfo agentInfo;
-		while (i.hasNext()) {
-			agentInfo = (AgentInfo) i.next();
-			if (agentInfo.isActive()) {
-				agentInfo.getRegistry().bind(
-						LookupNames.USER_GROUP_DETAILS, available);
-			}
-		}
-		return group;
+
+		return reloadGroup(ctx, group);
 	}
+	
+	/**
+         * Implemented as specified by {@link AdminService}.
+         * @see AdminService#updateGroupPermissions(SecurityContext, GroupData, int, DSCallAdapter)
+         */
+        public void updateGroupPermissions(SecurityContext ctx, GroupData group,
+                        int permissions, DSCallAdapter adapter)
+                        throws DSOutOfServiceException, DSAccessException
+        {
+                if (group == null)
+                        throw new IllegalArgumentException("No group to update.");
+                
+                RequestCallback cb = gateway.updateGroupPermissions(ctx, group, permissions);
+                cb.setAdapter(adapter);
+        }
+	
+        /**
+         * Implemented as specified by {@link AdminService}.
+         * @see AdminService#reloadGroup(SecurityContext, GroupData)
+         */
+        public GroupData reloadGroup(SecurityContext ctx, GroupData group)
+                throws DSOutOfServiceException, DSAccessException {
+            group = gateway.loadGroups(ctx, group.getGroupId()).get(0);
+            // Review update
+            Collection groups = (Collection) context
+                    .lookup(LookupNames.USER_GROUP_DETAILS);
+            Iterator j = groups.iterator();
+            GroupData g;
+            Set available = new HashSet<GroupData>();
+            while (j.hasNext()) {
+                g = (GroupData) j.next();
+                if (g.getId() == group.getId())
+                    available.add(group);
+                else
+                    available.add(g);
+            }
+            context.bind(LookupNames.USER_GROUP_DETAILS, available);
+            List agents = (List) context.lookup(LookupNames.AGENTS);
+            Iterator i = agents.iterator();
+            AgentInfo agentInfo;
+            while (i.hasNext()) {
+                agentInfo = (AgentInfo) i.next();
+                if (agentInfo.isActive()) {
+                    agentInfo.getRegistry().bind(LookupNames.USER_GROUP_DETAILS,
+                            available);
+                }
+            }
+            return group;
+        }
 	
 	/**
 	 * Implemented as specified by {@link AdminService}.

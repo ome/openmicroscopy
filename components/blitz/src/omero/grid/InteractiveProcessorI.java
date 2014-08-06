@@ -84,6 +84,10 @@ public class InteractiveProcessorI implements _InteractiveProcessorOperations,
 
     private final String process;
 
+    /**
+     * Number of milliseconds which the session used by this processor
+     * will be allowed to live (timeToLive)
+     */
     private final long timeout;
 
     private final ReadWriteLock rwl = new ReentrantReadWriteLock();
@@ -103,6 +107,13 @@ public class InteractiveProcessorI implements _InteractiveProcessorOperations,
     private Session session;
 
     private JobParams params;
+
+    /**
+     * Milliseconds since the epoch when the session for this processor was
+     * created.
+     */
+    private long started;
+
 
     /**
      * 
@@ -311,7 +322,7 @@ public class InteractiveProcessorI implements _InteractiveProcessorOperations,
     }
 
     public long expires(Current __current) {
-        return timeout;
+        return started + timeout;
     }
 
     public Job getJob(Current __current) {
@@ -497,6 +508,7 @@ public class InteractiveProcessorI implements _InteractiveProcessorOperations,
         newSession.setTimeToIdle(0L);
         newSession.setTimeToLive(timeout);
         newSession = mgr.update(newSession, true);
+        started = System.currentTimeMillis();
 
         return newSession;
     }

@@ -92,6 +92,19 @@
   </bean>
 
   <!-- Workaround for session mgr dependency#5216-->
-  <bean id="dbPatchCheck" class="java.lang.Object"/>
+
+ <bean id="dbPatchCheck" class="java.lang.Object"/>
+
+  <alias name="${omero.metrics.bean}" alias="metrics"/>
+
+ <bean id="defaultMetrics" class="ome.system.metrics.DefaultMetrics">
+    <property name="slf4jMinutes" value="${omero.metrics.slf4j_minutes}"/>
+    <property name="beginsWith">
+        <list><value>ome.services.pixeldata</value></list>
+    </property>
+    <property name="graphiteAddress" value="${omero.metrics.graphite}"/>
+ </bean>
+
+  <bean id="nullMetrics" class="ome.system.metrics.NullMetrics"/>
 
 </beans>

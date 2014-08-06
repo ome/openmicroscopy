@@ -79,18 +79,32 @@ class TestImport(CLITest):
         super(TestImport, self).setup_method(method)
         self.cli.register("import", plugin.ImportControl, "TEST")
         self.args += ["import"]
+        self.add_client_dir()
+
+    def set_conn_args(self):
+        passwd = self.root.getProperty("omero.rootpass")
+        host = self.root.getProperty("omero.host")
+        port = self.root.getProperty("omero.port")
+        self.args = ["import", "-w", passwd]
+        self.args += ["-s", host, "-p",  port]
+        self.add_client_dir()
+
+    def add_client_dir(self):
         dist_dir = self.OmeroPy / ".." / ".." / ".." / "dist"
         client_dir = dist_dir / "lib" / "client"
         self.args += ["--clientdir", client_dir]
 
-    def get_object(self, err, obj_type):
+    def get_object(self, err, obj_type, query=None):
+        if not query:
+            query = self.query
         """Retrieve the created object by parsing the stderr output"""
         pattern = re.compile('^%s:(?P<id>\d+)$' % obj_type)
         for line in reversed(err.split('\n')):
             match = re.match(pattern, line)
             if match:
                 break
-        return self.query.get(obj_type, int(match.group('id')))
+        return query.get(obj_type, int(match.group('id')),
+                         {"omero.group": "-1"})
 
     def get_linked_annotation(self, oid):
         """Retrieve the comment annotation linked to the image"""
@@ -139,11 +153,6 @@ class TestImport(CLITest):
                     not splitline[3] == 'ome.system.UpgradeCheck':
                 levels.append(splitline[2])
         return levels
-
-    def testHelp(self):
-        """Test help command"""
-        self.args += ["-h"]
-        self.cli.invoke(self.args, strict=True)
 
     @pytest.mark.parametrize("fixture", NFS, ids=NFS_names)
     def testNamingArguments(self, fixture, tmpdir, capfd):
@@ -274,3 +283,69 @@ class TestImport(CLITest):
         o, e = capfd.readouterr()
         levels = self.parse_debug_levels(o)
         assert set(levels) <= set(debug_levels[debug_levels.index(level):])
+
+    def testImportAsRoot(self, tmpdir, capfd):
+        """Test import using sudo argument"""
+
+        # Create new client/user and fake file
+        client, user = self.new_client_and_user()
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+
+        # Create argument list using sudo
+        self.set_conn_args()
+        self.args += ['--sudo', 'root']
+        self.args += ["-u", user.omeName.val]
+        self.args += [str(fakefile)]
+
+        # Invoke CLI import command and retrieve stdout/stderr
+        self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
+        obj = self.get_object(e, 'Image', query=client.sf.getQueryService())
+        assert obj.details.owner.id.val == user.id.val
+
+    def testImportMultiGroup(self, tmpdir, capfd):
+        """Test import using sudo argument"""
+
+        # Create new client/user belonging in 2 groups and fake file
+        group1 = self.new_group()
+        client, user = self.new_client_and_user(group=group1)
+        group2 = self.new_group([user])
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+
+        # Create argument list
+        self.set_conn_args()
+        self.args += ["-u", user.omeName.val]
+        self.args += ["-g", group2.name.val]
+        self.args += [str(fakefile)]
+
+        # Invoke CLI import command and retrieve stdout/stderr
+        self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
+        obj = self.get_object(e, 'Image', query=client.sf.getQueryService())
+        assert obj.details.owner.id.val == user.id.val
+        assert obj.details.group.id.val == group2.id.val
+
+    def testImportAsRootMultiGroup(self, tmpdir, capfd):
+        """Test import using sudo argument"""
+
+        # Create new client/user belonging in 2 groups and fake file
+        group1 = self.new_group()
+        client, user = self.new_client_and_user(group=group1)
+        group2 = self.new_group([user])
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+
+        # Create argument list using sudo
+        self.set_conn_args()
+        self.args += ['--sudo', 'root']
+        self.args += ["-u", user.omeName.val, "-g", group2.name.val]
+        self.args += [str(fakefile)]
+
+        # Invoke CLI import command and retrieve stdout/stderr
+        self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
+        obj = self.get_object(e, 'Image', query=client.sf.getQueryService())
+        assert obj.details.owner.id.val == user.id.val
+        assert obj.details.group.id.val == group2.id.val

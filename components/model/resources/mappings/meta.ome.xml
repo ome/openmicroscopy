@@ -2,9 +2,7 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# $Id$
-#
-# Copyright 2006 University of Dundee. All rights reserved.
+# Copyright 2006-2014 University of Dundee. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -92,13 +90,11 @@
 	<type id="ome.model.meta.Event" immutable="true" global="true">
 		<!-- Note: Event is not in model-->
 		<properties>
-<!-- Type & Group are not really optional. Needed to bootstrap.
-        Constraints are added later -->
 			<optional name="status" type="string"/>
 			<required name="time" type="timestamp"/>
 			<required name="experimenter" type="ome.model.meta.Experimenter"/>
-			<optional name="experimenterGroup" type="ome.model.meta.ExperimenterGroup"/>
-			<optional name="type" type="ome.model.enums.EventType"/>
+			<required name="experimenterGroup" type="ome.model.meta.ExperimenterGroup"/>
+			<required name="type" type="ome.model.enums.EventType"/>
 			<optional name="containingEvent" type="ome.model.meta.Event"/>
             <onemany name="logs" type="ome.model.meta.EventLog" inverse="event"/>
 			<manyone name="session" type="ome.model.meta.Session"/>

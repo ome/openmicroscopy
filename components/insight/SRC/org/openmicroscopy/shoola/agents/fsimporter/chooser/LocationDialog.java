@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.fsimporter.chooser.LocationDialog 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2014 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -686,8 +686,9 @@ class LocationDialog extends JDialog implements ActionListener,
 		ExperimenterData loggedInUser = ImporterAgent.getUserDetails();
 		if (user.getId() == loggedInUser.getId()) return true;
 		if (selectedGroup.getPermissions().getPermissionsLevel()
-		        == GroupData.PERMISSIONS_PRIVATE)
-		    return false;
+		        == GroupData.PERMISSIONS_PRIVATE) {
+		    return ImporterAgent.isAdministrator();
+		}
 		boolean isGroupOwner = false;
 		Set<ExperimenterData> leaders =
 				(Set<ExperimenterData>) selectedGroup.getLeaders();

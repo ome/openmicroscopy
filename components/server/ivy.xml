@@ -5,6 +5,7 @@
       status="integration"/>
   <configurations>
     <conf name="build"/>
+    <conf name="client"/>
     <conf name="server"/>
   </configurations>
   <publications>

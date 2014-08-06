@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.GroupProfile 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,6 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
@@ -109,19 +110,20 @@ class GroupProfile
     	ref = (GroupData) model.getRefObject();
     	namePane = new JTextField();
     	descriptionPane = new JTextField();
+    	final boolean mayChangePermissions = model.isAdministrator() || model.isGroupLeader(ref);
     	//permission level
 
     	permissionsPane = new PermissionsPane(ref.getPermissions(),
     			UIUtilities.BACKGROUND_COLOR);
     	level = permissionsPane.getPermissions();
-    	permissionsPane.allowDowngrade(!model.isAdministrator());
+    	permissionsPane.allowDowngrade(!mayChangePermissions);
     	permissionsPane.setBorder(
     			BorderFactory.createTitledBorder("Permissions"));
     	//permissionsPane.displayWarningText();
     	permissionsPane.addPropertyChangeListener(this);
     	namePane.setText(ref.getName());
     	descriptionPane.setText(ref.getDescription());
-    	canEdit = model.isAdministrator() && !model.isSystemGroup(ref.getId());
+    	canEdit = mayChangePermissions && !model.isSystemGroup(ref.getId());
     	namePane.setEditable(canEdit);
     	namePane.setEnabled(canEdit);
     	descriptionPane.setEditable(canEdit);
@@ -205,16 +207,23 @@ class GroupProfile
     {
     	JPanel p = new JPanel();
     	p.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	GroupData group = (GroupData) model.getRefObject();
-    	Set leaders = group.getLeaders();
-    	if (leaders == null || leaders.size() == 0) return p;
     	
-    	Iterator i = leaders.iterator();
-    	ExperimenterData exp;
-    	while (i.hasNext()) {
-			exp = (ExperimenterData) i.next();
-			p.add(new JLabel(EditorUtil.formatExperimenter(exp)));
-		}
+    	if (model.getRefObject() instanceof GroupData) {
+        	GroupData group = (GroupData) model.getRefObject();
+        	Set<ExperimenterData> leaders = group.getLeaders();
+        	if (leaders == null || leaders.size() == 0) return p;
+        	
+        	Iterator<ExperimenterData> i = leaders.iterator();
+        	ExperimenterData exp;
+        	while (i.hasNext()) {
+    			exp = (ExperimenterData) i.next();
+    			p.add(new JLabel(EditorUtil.formatExperimenter(exp)));
+    		}
+    	}
+    	else {
+    	  return p;
+    	}
+    
     	JPanel content = UIUtilities.buildComponentPanel(p);
     	content.setBackground(UIUtilities.BACKGROUND_COLOR);
     	content.setBorder(BorderFactory.createTitledBorder("Owners"));

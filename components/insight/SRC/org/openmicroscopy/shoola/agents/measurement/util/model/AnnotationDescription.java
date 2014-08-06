@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.measurement.util.AnnotationDescription 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -86,13 +86,13 @@ public class AnnotationDescription
 		annotationDescription.put(AnnotationKeys.POINTARRAYX, "Coord List(X)");
 		annotationDescription.put(AnnotationKeys.POINTARRAYY, "Coord List(Y)");
 		annotationDescription.put(AnnotationKeys.VOLUME, "Volume");
-		annotationDescription.put(MeasurementAttributes.FILL_COLOR, "Fill Colour");
+		annotationDescription.put(MeasurementAttributes.FILL_COLOR, "Fill Color");
 		annotationDescription.put(MeasurementAttributes.FONT_SIZE, "Font Size");
-		annotationDescription.put(MeasurementAttributes.STROKE_COLOR, "Line Colour");
+		annotationDescription.put(MeasurementAttributes.STROKE_COLOR, "Line Color");
 		annotationDescription.put(MeasurementAttributes.STROKE_WIDTH, "Line Width");
 		annotationDescription.put(MeasurementAttributes.TEXT_COLOR, "Font Colour");
 		annotationDescription.put(MeasurementAttributes.MEASUREMENTTEXT_COLOUR,
-														"Measurement Colour");
+														"Measurement Color");
 		annotationDescription.put(MeasurementAttributes.SHOWMEASUREMENT,
 														"Show Measurement");
 		annotationDescription.put(MeasurementAttributes.SCALE_PROPORTIONALLY,

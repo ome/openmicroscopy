@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerUI 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -22,14 +22,10 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.view;
 
-
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -37,23 +33,23 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JSplitPane;
-
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
-import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
+
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
@@ -93,37 +89,23 @@ class MetadataViewerUI
     private static final String		DESCRIPTION = "Add comments, tags, etc., " +
     		"to the selected items.";
     
-	/** Reference to the Control. */
-	private MetadataViewerControl 		controller;
+    /** Reference to the Control. */
+    @SuppressWarnings("unused")
+    private MetadataViewerControl 		controller;
 
-	/** Reference to the Model. */
-	private MetadataViewerModel   		model;
+    /** Reference to the Model. */
+    private MetadataViewerModel   		model;
 	
-	/** The component hosting the UI components. */
-	private JPanel						uiDelegate;
+    /** The component hosting the UI components. */
+    private JPanel						uiDelegate;
 	
-	/** The header of the component. */
-	private TitlePanel 					titlePanel;
+    /** The header of the component. */
+    private TitlePanel 					titlePanel;
 	
-	/** 
-	 * The source invoking the menu displaying the list of users
-	 * who viewed the image. 
-	 */
-	private Component					source;
+    /** The current ViewedByItems */
+    private List<ViewedByItem> viewedByItems = new ArrayList<ViewedByItem>();
 	
-	/** 
-	 * The location where to pop up the  menu displaying the list of users
-	 * who viewed the image. 
-	 */
-	private Point						location;
-	
-	/** The menu displaying the user who viewed the image. */
-	private JPopupMenu					viewedByMenu;
-	
-	/** The item used to display the thumbnails. */
-	private JMenuItem					thumbnailsMenuItem;
-	
-	/** 
+    /** 
      * Returns the message corresponding to the <code>DataObject</code>.
      * 
      * @return See above
@@ -137,7 +119,7 @@ class MetadataViewerUI
         return "";
     }
     
-	/** Builds and lays out the GUI. */
+    /** Builds and lays out the GUI. */
     private void buildGUI()
     {
     	IconManager icons = IconManager.getInstance();
@@ -206,7 +188,7 @@ class MetadataViewerUI
 				model.getRefObjectName());
 		uiDelegate.revalidate();
 		uiDelegate.repaint();
-		viewedByMenu = null;
+		viewedByItems.clear();
 	}
 	
 	/**
@@ -225,107 +207,54 @@ class MetadataViewerUI
 	{
 		model.getEditor().onChannelColorChanged(index);
 	}
-	
-	/**
-	 * Sets the location and the source where to pop up the menu.
-	 * 
-	 * @param source	The source to set.
-	 * @param location	The location to set.
-	 */
-	void setLocationAndSource(Component source, Point location)
-	{
-		this.source = source;
-		this.location = location;
-	}
-	
-	/** 
-	 * Displays the menu displaying the list of users who viewed the image.
-	 * 
-	 * @param source The component invoking the loading.
-     * @param location The location of the mouse pressed.
-     */
-	void viewedBy(Component source, Point location)
-	{
-	    if (viewedByMenu == null) {
-	        viewedByMenu = new JPopupMenu();
-	    }
-	    viewedByMenu.removeAll();
-	    Map m = model.getViewedBy();
-        ViewerSorter sorter = new ViewerSorter();
-        List list = sorter.sort(m.keySet());
-        Iterator i = list.iterator();
-        ViewedByItem item ;
-        ExperimenterData exp;
-        while (i.hasNext()) {
-            exp = (ExperimenterData) i.next();
-            item = new ViewedByItem(exp, (RndProxyDef) m.get(exp));
-            item.addPropertyChangeListener(
-                    ViewedByItem.VIEWED_BY_PROPERTY, this);
-            viewedByMenu.add(item);
+    
+        /**
+         * Creates the ViewedByItems
+         */
+        void createViewedByItems() {
+    
+            viewedByItems.clear();
+    
+            Map m = model.getViewedBy();
+            Iterator i = m.keySet().iterator();
+            ViewedByItem item;
+            ExperimenterData exp;
+            while (i.hasNext()) {
+                exp = (ExperimenterData) i.next();
+                ImageData img = model.getImage();
+                if (img != null) {
+                    boolean isOwnerSetting = img.getOwner().getId() == exp.getId();
+                    item = new ViewedByItem(exp, (RndProxyDef) m.get(exp),
+                            isOwnerSetting);
+                    item.addPropertyChangeListener(ViewedByItem.VIEWED_BY_PROPERTY,
+                            this);
+                    viewedByItems.add(item);
+                }
+            }
+            Renderer rnd = model.getEditor().getRenderer();
+            if (rnd != null) {
+                rnd.loadRndSettings(true, null);
+            }
         }
-        showViewedBy();
-	}
-	
-	/** Displays all the thumbnails. */
-	private void showViewedBy()
-	{
-		if (viewedByMenu == null) return;
-		ViewedByItem item, itemNew;
-		Component comp;
-		BufferedImage img;
-		Component[] components = viewedByMenu.getComponents();
-		List<ViewedByItem> items = new ArrayList<ViewedByItem>();
-		for (int i = 0; i < components.length; i++) {
-			comp = components[i];
-			if (comp instanceof ViewedByItem) {
-				item = (ViewedByItem) comp;
-				img = item.getImage();
-				if (img != null) {
-					item.setImage(img);
-					itemNew = new ViewedByItem(item.getExperimenter(), 
-							item.getRndDef(), false);
-					itemNew.setImage(img);
-					itemNew.addPropertyChangeListener(
-							ViewedByItem.VIEWED_BY_PROPERTY, this);
-					items.add(itemNew);
-				}
-			}
-		}
-		model.getEditor().getRenderer().loadRndSettings(true, items);
-	}
 	
 	/** 
 	 * Sets the thumbnails.
 	 * 
 	 * @param thumbnails The value to set.
 	 */
-	void setThumbnails(Map<Long, BufferedImage> thumbnails)
-	{
-		if (viewedByMenu == null) return;
-		Component[] components = viewedByMenu.getComponents();
-		Component comp;
-		ViewedByItem item, itemNew;
-		BufferedImage img;
-		List<ViewedByItem> items = new ArrayList<ViewedByItem>();
-		for (int i = 0; i < components.length; i++) {
-			comp = components[i];
-			if (comp instanceof ViewedByItem) {
-				item = (ViewedByItem) comp;
-				img = thumbnails.get(item.getExperimenterID());
-				if (img != null) {
-					item.setImage(img);
-					itemNew = new ViewedByItem(item.getExperimenter(), 
-							item.getRndDef(), false);
-					itemNew.setImage(img);
-					itemNew.addPropertyChangeListener(
-							ViewedByItem.VIEWED_BY_PROPERTY, this);
-					items.add(itemNew);
-				}
-			}
-		}
-		if (items != null) showViewedBy();
-		model.getEditor().getRenderer().loadRndSettings(true, null);
-	}
+        void setThumbnails(Map<Long, BufferedImage> thumbnails) {
+            if (viewedByItems.isEmpty())
+                return;
+            for (ViewedByItem item : viewedByItems) {
+                BufferedImage img = thumbnails.get(item.getExperimenterID());
+                if (img != null) {
+                    item.setImage(img);
+                }
+            }
+            Renderer renderer = model.getEditor().getRenderer();
+            if (renderer != null) // the renderer might not have been set yet
+                model.getEditor().getRenderer().loadRndSettings(false, viewedByItems);
+        }
 	
 	/**
 	 * Sets the rendering settings.
@@ -334,11 +263,12 @@ class MetadataViewerUI
 	public void propertyChange(PropertyChangeEvent evt)
 	{
 		if (ViewedByItem.VIEWED_BY_PROPERTY.equals(
-				evt.getPropertyName()))
+				evt.getPropertyName())) {
 			model.applyRenderingSettings(
 					(RndProxyDef) evt.getNewValue());
-
+		}
 	}
+	
 	/**
 	 * Overridden so the pack method is not invoked and the component is
 	 * not displayed on screen.

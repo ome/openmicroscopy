@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.RendererControl 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -152,8 +152,6 @@ class RendererControl
         		ManageRndSettingsAction.UNDO));
         actionsMap.put(RND_RESET, new ManageRndSettingsAction(model, 
         		ManageRndSettingsAction.RESET));
-        actionsMap.put(RND_OWNER, new ManageRndSettingsAction(model, 
-        		ManageRndSettingsAction.SET_OWNER_SETTING));
         actionsMap.put(APPLY_TO_ALL, new ManageRndSettingsAction(model, 
         		ManageRndSettingsAction.APPLY_TO_ALL));
         actionsMap.put(RND_ABSOLUTE_MIN_MAX, new ManageRndSettingsAction(model, 

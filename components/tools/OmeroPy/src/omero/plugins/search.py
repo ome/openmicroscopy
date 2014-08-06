@@ -12,9 +12,12 @@ Simple command-line searching. Similar to the hql plugin.
 
 
 import sys
+import time
 
+from Ice import OperationNotExistException
 from omero.cli import CLI
 from omero.plugins.hql import HqlControl
+from omero.rtypes import robject
 
 
 HELP = """Search for object ids by string.
@@ -44,13 +47,45 @@ class SearchControl(HqlControl):
             "--index", action="store_true", default=False,
             help="Index an object as a administrator")
         parser.add_argument(
+            "--no-parse",
+            action="store_true",
+            help="Pass the search string directly to Lucene with no parsing")
+        parser.add_argument(
+            "--field", nargs="*",
+            default=(),
+            help=("Fields which should be searched "
+                  "(e.g. name, description, annotation)"))
+        parser.add_argument(
+            "--from",
+            dest="_from",
+            metavar="YYYY-MM-DD",
+            type=self.date,
+            help="Start date for limiting searches (YYYY-MM-DD)")
+        parser.add_argument(
+            "--to",
+            dest="_to",
+            metavar="YYYY-MM-DD",
+            type=self.date,
+            help="End date for limiting searches (YYYY-MM-DD")
+        parser.add_argument(
+            "--date-type",
+            default="import",
+            choices=("acquisitionDate", "import"),
+            help=("Which field to use for --from/--to "
+                  "(default: acquisitionDate)"))
+        parser.add_argument(
             "type",
             help="Object type to search for, e.g. 'Image' or 'Well'")
-        parser.add_argument(
-            "search_string", nargs="?",
-            help="Lucene search string")
+        HqlControl._configure(self, parser)
         parser.set_defaults(func=self.search)
-        parser.add_login_arguments()
+
+    def date(self, user_string):
+        try:
+            t = time.strptime(user_string, "%Y-%m-%d")
+            return time.strftime("%Y%m%d", t)
+        except Exception, e:
+            self.ctx.dbg(str(e))
+            raise
 
     def search(self, args):
         c = self.ctx.conn(args)
@@ -75,17 +110,48 @@ class SearchControl(HqlControl):
             c.sf.getUpdateService().indexObject(obj)
 
         else:
+            group = None
+            if args.admin:
+                group = "-1"
+            ctx = c.getContext(group)
             search = c.sf.createSearchService()
             try:
                 try:
+                    # Matching OMEROGateway.search()
+                    search.setAllowLeadingWildcard(True)
+                    search.setCaseSentivice(False)
                     search.onlyType(args.type)
-                    search.byFullText(args.search_string)
-                    if not search.hasNext():
+
+                    if args.no_parse:
+                        if args._from or args._to or args.field:
+                            self.ctx.err("Ignoring from/to/fields")
+                        search.byFullText(args.query)
+                    else:
+                        try:
+                            if args.date_type == "import":
+                                args.date_type = "details.creationEvent.time"
+                            search.byLuceneQueryBuilder(
+                                ",".join(args.field),
+                                args._from, args._to, args.date_type,
+                                args.query, ctx)
+                        except OperationNotExistException:
+                            self.ctx.err(
+                                "Server does not support byLuceneQueryBuilder")
+                            search.byFullText(args.query)
+
+                    if not search.hasNext(ctx):
                         self.ctx.die(433, "No results found.")
-                    while search.hasNext():
-                        results = search.results()
+
+                    self.ctx.set("search.results", [])
+                    while search.hasNext(ctx):
+                        results = search.results(ctx)
+                        self.ctx.get("search.results").extend(results)
                         results = [[x] for x in results]
-                        self.display(results)
+                        if not args.ids_only:
+                            results = [[robject(x[0])] for x in results]
+                        self.display(results,
+                                     style=args.style,
+                                     idsonly=args.ids_only)
                 except omero.ApiUsageException, aue:
                     self.ctx.die(434, aue.message)
 

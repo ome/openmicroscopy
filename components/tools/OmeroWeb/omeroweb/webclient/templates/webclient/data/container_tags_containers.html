@@ -27,7 +27,9 @@
     
     {% for i in manager.containers.images %}
         <li id='image-{{ i.id }}' rel="image{% if not i.isOwned %}-locked{% endif %}" class="{{ i.getPermsCss }}">
-            <a href="#">{{ i.name|truncatebefor:"30" }}</a>
+            <a href="#" data-name="{{ i.name }}" >
+            {{ i.name|default:"Image" }}
+          </a>
         </li>
     {% endfor %}
     

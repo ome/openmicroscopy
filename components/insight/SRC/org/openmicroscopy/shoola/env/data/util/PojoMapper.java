@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.util.PojoMapper
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -40,29 +40,42 @@ import java.util.Map.Entry;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import omero.RString;
 import omero.model.BooleanAnnotation;
+import omero.model.BooleanAnnotationI;
 import omero.model.CommentAnnotation;
+import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
+import omero.model.DatasetI;
 import omero.model.DoubleAnnotation;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.FileAnnotation;
+import omero.model.FileAnnotationI;
 import omero.model.Fileset;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.ImageI;
 import omero.model.LongAnnotation;
 import omero.model.Namespace;
 import omero.model.Pixels;
 import omero.model.Plate;
+import omero.model.PlateI;
 import omero.model.Project;
+import omero.model.ProjectI;
 import omero.model.Roi;
 import omero.model.Screen;
+import omero.model.ScreenI;
 import omero.model.TagAnnotation;
+import omero.model.TagAnnotationI;
 import omero.model.TermAnnotation;
+import omero.model.TermAnnotationI;
 import omero.model.TimestampAnnotation;
+import omero.model.TimestampAnnotationI;
 import omero.model.Well;
+import omero.model.WellI;
 import omero.model.WellSample;
 import omero.model.XmlAnnotation;
 import pojos.BooleanAnnotationData;
@@ -355,4 +368,75 @@ public class PojoMapper
         return map;
     }
     
+    /**
+     * Converts the specified type to its corresponding type for search by HQL query
+     *
+     * @param nodeType The type to convert.
+     * @return See above.
+     */
+    public static String convertTypeForSearchByQuery(Class nodeType) {
+        if (nodeType.equals(Image.class) || nodeType.equals(ImageData.class))
+            return Image.class.getSimpleName();
+        else if (nodeType.equals(Dataset.class)
+                || nodeType.equals(DatasetData.class))
+            return Dataset.class.getSimpleName();
+        else if (nodeType.equals(Project.class)
+                || nodeType.equals(ProjectData.class))
+            return Project.class.getSimpleName();
+        else if (nodeType.equals(Screen.class)
+                || nodeType.equals(ScreenData.class))
+            return Screen.class.getSimpleName();
+        else if (nodeType.equals(Well.class) || nodeType.equals(WellData.class))
+            return Well.class.getSimpleName();
+        else if (nodeType.equals(Plate.class)
+                || nodeType.equals(PlateData.class))
+            return Plate.class.getSimpleName();
+        throw new IllegalArgumentException("type not supported");
+    }
+    
+    /**
+     * Converts the specified type to its corresponding type for search.
+     *
+     * @param nodeType The type to convert.
+     * @return See above.
+     */
+    public static String convertTypeForSearch(Class nodeType)
+    {
+            if (nodeType.equals(Image.class) || nodeType.equals(ImageData.class))
+                    return ImageI.class.getName();
+            else if (nodeType.equals(TagAnnotation.class) ||
+                            nodeType.equals(TagAnnotationData.class))
+                    return TagAnnotationI.class.getName();
+            else if (nodeType.equals(BooleanAnnotation.class) ||
+                            nodeType.equals(BooleanAnnotationData.class))
+                    return BooleanAnnotationI.class.getName();
+            else if (nodeType.equals(TermAnnotation.class) ||
+                            nodeType.equals(TermAnnotationData.class))
+                    return TermAnnotationI.class.getName();
+            else if (nodeType.equals(FileAnnotation.class) ||
+                            nodeType.equals(FileAnnotationData.class))
+                    return FileAnnotationI.class.getName();
+            else if (nodeType.equals(CommentAnnotation.class) ||
+                            nodeType.equals(TextualAnnotationData.class))
+                    return CommentAnnotationI.class.getName();
+            else if (nodeType.equals(TimestampAnnotation.class) ||
+                            nodeType.equals(TimeAnnotationData.class))
+                    return TimestampAnnotationI.class.getName();
+            else if (nodeType.equals(Dataset.class) ||
+                    nodeType.equals(DatasetData.class))
+                return DatasetI.class.getName();
+            else if (nodeType.equals(Project.class) ||
+                    nodeType.equals(ProjectData.class))
+                return ProjectI.class.getName();
+            else if (nodeType.equals(Screen.class) ||
+                    nodeType.equals(ScreenData.class))
+                return ScreenI.class.getName();
+            else if (nodeType.equals(Well.class) ||
+                    nodeType.equals(WellData.class))
+                return WellI.class.getName();
+            else if (nodeType.equals(Plate.class) ||
+                    nodeType.equals(PlateData.class))
+                return PlateI.class.getName();
+            throw new IllegalArgumentException("type not supported");
+    }
 }

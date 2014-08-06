@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayer
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -377,7 +377,7 @@ class MoviePlayer
      * 
      * @return See above.
      */
-    int getMaxT() { return model.getRealT(); }
+    int getMaxT() { return model.getRealT()-1; }
 
     /**
      * Returns the maximum number of z-sections minus 1.

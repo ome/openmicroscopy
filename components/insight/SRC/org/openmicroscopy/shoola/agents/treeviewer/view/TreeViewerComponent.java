@@ -49,7 +49,6 @@ import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
 import omero.model.OriginalFile;
-
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserFactory;
 import org.openmicroscopy.shoola.agents.events.SaveData;
@@ -97,6 +96,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
+import org.openmicroscopy.shoola.agents.util.finder.AdvancedFinder;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.GroupManagerDialog;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
@@ -118,6 +118,7 @@ import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.model.TransferableActivityParam;
 import org.openmicroscopy.shoola.env.data.model.TransferableObject;
+import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.ActivityComponent;
@@ -125,7 +126,6 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-
 
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -634,6 +634,9 @@ class TreeViewerComponent
 				}
 			} else {
 				db = handleDiscardedBrowser(display);
+				if (visible) {
+				    view.removeAllFromWorkingPane();
+				}
 			}
 			if (db != null) db.setSelectedNodes(null, null);
 			return;
@@ -1369,7 +1372,7 @@ class TreeViewerComponent
 			if (dialog.centerMsgBox() == MessageBox.YES_OPTION) mv.saveData();
 			else mv.clearDataToSave();
 		}
-		boolean sameSelection = true;
+		boolean sameSelection = false;
 		if (view.getDisplayMode() != SEARCH_MODE) {
 			Browser browser = model.getSelectedBrowser();
 			List<Object> oldSelection = browser.getSelectedDataObjects();
@@ -1379,7 +1382,7 @@ class TreeViewerComponent
 		}
 		
 		int size = selection.size();
-		if (size == 1) {
+		if (size == 1 && model.getSelectedBrowser() != null) {
 			Browser browser = model.getSelectedBrowser();
 			ExperimenterData exp = null;
 			TreeImageDisplay last = null;
@@ -1489,23 +1492,29 @@ class TreeViewerComponent
             }
             mv.setParentRootObject(parent, grandParent);
         }
-
-        TreeImageDisplay[] selection = null;
-        if (browser != null) selection = browser.getSelectedDisplays();
-        if (selection != null && selection.length > 0) {
-            if (selected instanceof WellSampleData) {
-                siblings.add(selected);
-                if (siblings.size() > 1 && !sameSelection)
-                    mv.setRelatedNodes(siblings);
-            } else {
-                siblings = new ArrayList<Object>(selection.length);
-                for (int i = 0; i < selection.length; i++) {
-                    siblings.add(selection[i].getUserObject());
+        
+        if (view.getDisplayMode() == SEARCH_MODE) {
+            siblings.add(selected);
+            mv.setRelatedNodes(siblings);
+        }
+        else {
+            TreeImageDisplay[] selection = null;
+            if (browser != null) selection = browser.getSelectedDisplays();
+            if (selection != null && selection.length > 0) {
+                if (selected instanceof WellSampleData) {
+                    siblings.add(selected);
+                    if (siblings.size() > 1 && !sameSelection)
+                        mv.setRelatedNodes(siblings);
+                } else {
+                    siblings = new ArrayList<Object>(selection.length);
+                    for (int i = 0; i < selection.length; i++) {
+                        siblings.add(selection[i].getUserObject());
+                    }
+                    if (siblings.size() > 1 && !sameSelection)
+                        mv.setRelatedNodes(siblings);
                 }
-                if (siblings.size() > 1 && !sameSelection)
-                    mv.setRelatedNodes(siblings);
+    
             }
-
         }
         if (model.getDataViewer() != null)
             model.getDataViewer().setApplications(
@@ -1570,6 +1579,16 @@ class TreeViewerComponent
 	    return count == ids.size();
 	}
 
+	public void handleSearchSelectionEvent(SearchSelectionEvent evt) {
+	    // Force the metadataviewer to be shown and fake a treeviewer object
+	    // selection in order to get the metadataviewer show the right stuff 
+	    // (TODO: That's pretty weird... is there another/better way?)
+	    view.forceShowMetaDataView();
+	    List<Object> tmp = new ArrayList<Object>();
+	    tmp.add(evt.getDataObjects());
+	    setSelectedNodes(tmp);
+	}
+	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#setSelectedNode(Object)
@@ -3041,7 +3060,6 @@ class TreeViewerComponent
 		DataBrowser db = DataBrowserFactory.getSearchBrowser();
 		int newMode = view.getDisplayMode();
 		view.removeAllFromWorkingPane();
-		model.getAdvancedFinder().requestFocusOnField();
 		switch (newMode) {
 			case EXPLORER_MODE:
 				onSelectedDisplay();
@@ -3059,23 +3077,32 @@ class TreeViewerComponent
 	}
 	
 	/**
+	 * Handels a search event, i. e. triggers a search
+         * with the query provided by the SearchEvent
+         */ 
+	public void handleSearchEvent(SearchEvent evt) {
+	    view.selectSearchPane();
+	    AdvancedFinder finder = model.getAdvancedFinder();
+            finder.handleSearchEvent(evt);
+	}
+	
+	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#setSearchResult(Object)
 	 */
-	public void setSearchResult(Object result)
+        public void setSearchResult(Object result)
 	{
-		Map<SecurityContext, Collection<DataObject>>
-		results = (Map<SecurityContext, Collection<DataObject>>) result;
+	    AdvancedSearchResultCollection results = (AdvancedSearchResultCollection) result;
+
 		MetadataViewer metadata = model.getMetadataViewer();
 		if (metadata != null) {
 			metadata.setRootObject(null, -1, null);
 		}
-		if (results == null || results.size() == 0) {
-			//UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
-        	//un.notifyInfo("Search", "No results found.");
-        	view.removeAllFromWorkingPane();
+		if (results == null ) {
+        		view.removeAllFromWorkingPane();
 			return;
 		}
+                
 		//Need to recycle the search browser.
 		DataBrowser db = DataBrowserFactory.getSearchBrowser(results);
 		if (db != null && view.getDisplayMode() == SEARCH_MODE) {

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.GraphicsPane 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -33,6 +33,8 @@ import java.awt.Insets;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.BorderFactory;
@@ -50,8 +52,8 @@ import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
-import org.openmicroscopy.shoola.agents.metadata.actions.ManageRndSettingsAction;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
@@ -80,6 +82,9 @@ class GraphicsPane
      * (resp. removed) to (resp. from) the maximum (resp. the minimum).
      */
     static final double RATIO = 0.2;
+    
+    /** The title of the viewedby taskpane */
+    static final String VIEWEDBY_TITLE = "Saved by";
 
     /** Slider to select a sub-interval of [0, 255]. */
     private TwoKnobsSlider codomainSlider;
@@ -126,6 +131,9 @@ class GraphicsPane
     /** The preview tool bar. */
     private PreviewToolBar previewToolBar;
 
+    /** The items shown in the 'saved by' taskpane */
+    private List<ViewedByItem> viewedByItems;
+    
     /**
      * Formats the specified value.
      * 
@@ -164,11 +172,9 @@ class GraphicsPane
     {
         IconManager icons = IconManager.getInstance();
         viewedBy = new JXTaskPane();
-        viewedBy.setCollapsed(true);
-        viewedBy.setVisible(false);
         Font font = viewedBy.getFont();
         viewedBy.setFont(font.deriveFont(font.getSize2D()-2));
-        viewedBy.setTitle(ManageRndSettingsAction.NAME_OWNER);
+        viewedBy.setTitle(VIEWEDBY_TITLE);
         viewedBy.setIcon(icons.getIcon(IconManager.RND_OWNER));
         controlsBar = new PreviewControlBar(controller, model);
         uiDelegate = new GraphicsPaneUI(this, model);
@@ -482,44 +488,84 @@ class GraphicsPane
      * Builds and lays out the images as seen by other experimenters.
      *  
      * @param results The thumbnails to lay out.
+     * @param activeRndDef The rendering setting which is currently used
      */
-    void displayViewedBy(List results)
+    void displayViewedBy(List<ViewedByItem> results, RndProxyDef activeRndDef)
     {
-        if (results == null) return;
+        if (results == null) {
+            viewedBy.removeAll();
+            return;
+        }
+         
+        this.viewedByItems = results;
+        Collections.sort(this.viewedByItems, new ViewedByItemComparator());
+        
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         p.setBackground(UIUtilities.BACKGROUND_COLOR);
-        Iterator<ViewedByItem> i = results.iterator();
+        Iterator<ViewedByItem> i = viewedByItems.iterator();
         JPanel row = null;
         int index = 0;
         ViewedByItem item;
         int maxPerRow = 2;
         while (i.hasNext()) {
             item = i.next();
+            item.addPropertyChangeListener(this);
             if (index == 0) {
                 row = new JPanel();
                 row.setBackground(UIUtilities.BACKGROUND_COLOR);
                 row.setLayout(new FlowLayout(FlowLayout.LEFT));
-                row.add(item);
+                row.add(createViewedByPanel(item));
                 index++;
             } else if (index == maxPerRow) {
-                row.add(item);
+                row.add(createViewedByPanel(item));
                 p.add(row);
                 index = 0;
             } else {
-                row.add(item);
+                row.add(createViewedByPanel(item));
                 index++;
             }
         }
         if (index > 0) p.add(row);
+        
+        if(activeRndDef!=null) {
+            highlight(activeRndDef);
+        }
+        
         viewedBy.removeAll();
         JPanel content = UIUtilities.buildComponentPanel(p);
         content.setBackground(UIUtilities.BACKGROUND_COLOR);
         viewedBy.add(content);
-        viewedBy.setVisible(true);
-        viewedBy.setCollapsed(false);
     }
 
+    /**
+     * Wraps the ViewedByItem in a JPanel with empty border acting as inset
+     * @param item The ViewedByItem
+     */
+    private JPanel createViewedByPanel(ViewedByItem item) {
+        JPanel viewedByPanel = new JPanel();
+        viewedByPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
+        viewedByPanel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+        viewedByPanel.add(item);
+        return viewedByPanel;
+    }
+    
+    /**
+     * Draws a border around the ViewedByItem whichs represents
+     * the given RndProxyDef
+     * @param def The RndProxyDef to highlight
+     */
+    void highlight(RndProxyDef def) {
+        for(ViewedByItem item : viewedByItems) {
+            if(item.getRndDef().getData().getId().getValue()==def.getData().getId().getValue()) {
+                ((JPanel)item.getParent()).setBorder(BorderFactory.createLineBorder(UIUtilities.STEELBLUE, 2));
+            }
+            else {
+                ((JPanel)item.getParent()).setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+            }
+        }
+    }
+    
     /**
      * Returns the slider used to set the codomain interval.
      * 
@@ -605,6 +651,24 @@ class GraphicsPane
                 }
             }
         }
+        if(ViewedByItem.VIEWED_BY_PROPERTY.equals(name)) {
+            RndProxyDef def = (RndProxyDef)evt.getNewValue();
+            highlight(def);
+        }
     }
 
+    /**
+     * Comparator which sorts the ViewedByItems by its
+     * experimenter's last name
+     */
+    class ViewedByItemComparator implements Comparator<ViewedByItem> {
+
+        @Override
+        public int compare(ViewedByItem o1, ViewedByItem o2) {
+            String name1 = o1.getExperimenter().getLastName() != null ? o1.getExperimenter().getLastName() : "";
+            String name2 = o2.getExperimenter().getLastName() != null ? o2.getExperimenter().getLastName() : "";
+            return name1.compareToIgnoreCase(name2);
+        }
+        
+    }
 }

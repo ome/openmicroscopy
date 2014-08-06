@@ -40,6 +40,7 @@ import javax.swing.filechooser.FileSystemView;
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
 
+import omero.api.RawPixelsStorePrx;
 import omero.api.StatefulServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
 //Application-internal dependencies
@@ -572,4 +573,8 @@ public class NullRenderingService
         return null;
     }
 
+    public RawPixelsStorePrx createPixelsStore(SecurityContext ctx)
+            throws DSAccessException, DSOutOfServiceException {
+        return null;
+    }
 }

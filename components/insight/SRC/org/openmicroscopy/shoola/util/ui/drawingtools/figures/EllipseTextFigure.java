@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.drawingtools.figures.EllipseTextFigure 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -245,19 +245,22 @@ public class EllipseTextFigure
 			// TODO: I BROKE THIS.
 			//Rectangle2D r = this.getBounds();
 			Font font = AttributeKeys.FONT_FACE.get(this);
+			font = font.deriveFont(
+                                AttributeKeys.FONT_SIZE.get(this).floatValue());
 			FontMetrics fm = g.getFontMetrics(font);
 			double textWidth = fm.stringWidth(text);
 			
 			//Determine with and height of the text.
 			double width = textWidth;
-			if (textWidth > FigureUtil.TEXT_WIDTH)
-				width = FigureUtil.TEXT_WIDTH;
+			double avgCharWidth = textWidth/text.length();
+                        double maxTextWidth = avgCharWidth*FigureUtil.TEXT_WIDTH;
+                        if(textWidth > maxTextWidth) {
+                            width = maxTextWidth;
+                        }
 			double textHeight = (textWidth/width+1)*(fm.getAscent()
 					+fm.getDescent()+fm.getLeading());
 			double x = r.getCenterX()-width/2;
 			double y = r.getCenterY();
-			font = font.deriveFont(
-					AttributeKeys.FONT_SIZE.get(this).intValue());
 			textBounds = new Rectangle2D.Double(x, y, width, textHeight);
 			FontRenderContext frc = g.getFontRenderContext();
 

@@ -1,5 +1,5 @@
 --
--- Copyright 2006 University of Dundee. All rights reserved.
+-- Copyright 2006-2014 University of Dundee. All rights reserved.
 -- Use is subject to license terms supplied in LICENSE.txt
 --
 
@@ -278,6 +278,7 @@ CREATE TRIGGER annotation_trigger
         FOR EACH ROW
         EXECUTE PROCEDURE annotation_update_event_trigger();
 
+-- Note: not adding an annotation insert trigger since that would be handled by any links on insert
 
 CREATE OR REPLACE FUNCTION annotation_link_event_trigger() RETURNS "trigger"
     AS '
@@ -298,6 +299,10 @@ LANGUAGE plpgsql;
 #if( ${type.annotated} && !${type.superclass})
 CREATE TRIGGER ${type.tableName()}_annotation_link_event_trigger
         AFTER UPDATE ON ${type.tableName()}annotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('${type.id}');
+CREATE TRIGGER ${type.tableName()}_annotation_link_event_trigger_insert
+        AFTER INSERT ON ${type.tableName()}annotationlink
         FOR EACH ROW
         EXECUTE PROCEDURE annotation_link_event_trigger('${type.id}');
 #end
@@ -355,6 +360,12 @@ alter table dbpatch alter message set default 'Updating';
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
              values ('@DBVERSION@',  @DBPATCH@,    '@DBVERSION@',   0,             'Initializing');
+
+--
+-- Temporarily make event columns nullable; restored below.
+--
+alter table event alter column "type" drop not null;
+alter table event alter column experimentergroup drop not null;
 
 --
 -- Here we will create the root account and the necessary groups

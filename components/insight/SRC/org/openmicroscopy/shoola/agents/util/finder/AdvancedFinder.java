@@ -32,6 +32,7 @@ import java.beans.PropertyChangeListener;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -45,21 +46,31 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+
+
+
 //Third-party libraries
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
+import org.openmicroscopy.shoola.agents.dataBrowser.view.SearchComponent;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResult;
+import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
+import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.search.SearchComponent;
+import org.openmicroscopy.shoola.util.ui.search.GroupContext;
 import org.openmicroscopy.shoola.util.ui.search.SearchContext;
 import org.openmicroscopy.shoola.util.ui.search.SearchHelp;
 import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
@@ -93,6 +104,9 @@ public class AdvancedFinder
 	implements Finder, PropertyChangeListener
 {
 	
+        /** URL which links to the search help website */
+        private static final String HELP_URL = "http://help.openmicroscopy.org/search.html";
+    
 	/** The default title of the notification message. */
 	private static final String TITLE = "Search";
 	
@@ -109,10 +123,7 @@ public class AdvancedFinder
 	private Collection tags;
 	
 	/** Host the result per group.*/
-	private Map<SecurityContext, Set> results;
-	
-	/** The total number of groups to search.*/
-	private int total;
+	private AdvancedSearchResultCollection results = new AdvancedSearchResultCollection();
 	
 	/** The identifier of the group.*/
 	private long groupId;
@@ -151,21 +162,21 @@ public class AdvancedFinder
 	{
 		switch (value) {
 			case SearchContext.TEXT_ANNOTATION:
-				return SearchDataContext.TEXT_ANNOTATION;
+				return SearchParameters.TEXT_ANNOTATION;
 			case SearchContext.TAGS:
-				return SearchDataContext.TAGS;
+				return SearchParameters.TAGS;
 			case SearchContext.URL_ANNOTATION:
-				return SearchDataContext.URL_ANNOTATION;
+				return SearchParameters.URL_ANNOTATION;
 			case SearchContext.FILE_ANNOTATION:
-				return SearchDataContext.FILE_ANNOTATION;
+				return SearchParameters.FILE_ANNOTATION;
 			case SearchContext.NAME:
-				return SearchDataContext.NAME;
+				return SearchParameters.NAME;
 			case SearchContext.DESCRIPTION:
-				return SearchDataContext.DESCRIPTION;
+				return SearchParameters.DESCRIPTION;
 			case SearchContext.CUSTOMIZED:
-				return SearchDataContext.CUSTOMIZED;
-			case SearchContext.ID:
-			        return SearchDataContext.ID;
+				return SearchParameters.CUSTOMIZED;
+			case SearchContext.ANNOTATION:
+                            return SearchParameters.ANNOTATION;
 			default:
 				return null;
 		}
@@ -177,7 +188,7 @@ public class AdvancedFinder
 	 * @param value The value to convert.
 	 * @return See above.
 	 */
-	private Class convertType(int value)
+	private Class<? extends DataObject> convertType(int value)
 	{
 		switch (value) {
 			case SearchContext.DATASETS: return DatasetData.class;
@@ -186,38 +197,6 @@ public class AdvancedFinder
 			case SearchContext.SCREENS: return ScreenData.class;
 			case SearchContext.PLATES: return PlateData.class;
 			case SearchContext.WELLS: return WellData.class;
-			default:
-				return null;
-		}
-	}
-	
-	/**
-	 * Returns the description associated to the passed value.
-	 * 
-	 * @param value The value to handle.
-	 * @return See above
-	 */
-	private String getScope(int value)
-	{
-		switch (value) {
-			case SearchDataContext.NAME:
-				return NAME_TEXT;
-			case SearchDataContext.DESCRIPTION:
-				return NAME_DESCRIPTION;
-			case SearchDataContext.TEXT_ANNOTATION:
-				return NAME_COMMENTS;
-			case SearchDataContext.TAGS:
-				return NAME_TAGS;
-			case SearchDataContext.URL_ANNOTATION:
-				return NAME_URL;
-			case SearchDataContext.FILE_ANNOTATION:
-				return NAME_ATTACHMENT;
-			case SearchDataContext.TIME:
-				return NAME_TIME;
-			case SearchDataContext.CUSTOMIZED:
-				return NAME_CUSTOMIZED;
-			case SearchDataContext.ID:
-			        return NAME_ID;
 			default:
 				return null;
 		}
@@ -289,9 +268,7 @@ public class AdvancedFinder
 	 */
 	private void handleSearchContext(SearchContext ctx)
 	{
-		String[] some = ctx.getSome();
-		String[] must = ctx.getMust();
-		String[] none = ctx.getNone();
+		String query = ctx.getQuery();
 		UserNotifier un = FinderFactory.getRegistry().getUserNotifier();
 		Timestamp start = ctx.getStartTime();
 		Timestamp end = ctx.getEndTime();
@@ -300,17 +277,14 @@ public class AdvancedFinder
 			return;
 		}
 		
-		if (some == null && must == null && none == null) {
-			if (start == null && end == null) {
-				un.notifyInfo(TITLE, "Please enter a term to search for " +
-						"or a valid time interval.");
-				return;
-			}
+		if (StringUtils.isEmpty(query) && start == null && end == null) {
+			un.notifyInfo(TITLE, "Please enter a term to search for " +
+				"or a valid time interval.");
+			return;
 		}
+		
 		List<Integer> context = ctx.getContext();
 		if (context == null || context.size() == 0) {
-			//un.notifyInfo(TITLE, "Please enter a context.");
-			//return;
 			context = new ArrayList<Integer>();
 			context.add(SearchContext.CUSTOMIZED);
 		}
@@ -321,44 +295,30 @@ public class AdvancedFinder
 			v = convertScope((Integer) i.next());
 			if (v != null) scope.add(v);
 		}
-		List<Class> types = new ArrayList<Class>();
+		List<Class<? extends DataObject>> types = new ArrayList<Class<? extends DataObject>>();
 		i = ctx.getType().iterator();
-		Class k;
+		Class<? extends DataObject> k;
 		while (i.hasNext()) {
 			k = convertType((Integer) i.next());
 			if (k != null) types.add(k);
 		}
 		
-		List<ExperimenterData> owners = fillUsersList(ctx.getSelectedOwners());
-		List<ExperimenterData> annotators = fillUsersList(null);
-		List<ExperimenterData> excludedOwners = fillUsersList(null);
-		List<ExperimenterData> excludedAnnotators = fillUsersList(null);
+		SearchParameters searchContext = new SearchParameters(scope, types, query);
+		searchContext.setTimeInterval(start, end, ctx.getTimeType());
+		searchContext.setUserId(ctx.getSelectedOwner());
 		
-		fillUsersList(ctx.getOwnerSearchContext(), owners, excludedOwners);
-		fillUsersList(ctx.getAnnotatorSearchContext(), annotators, 
-						excludedAnnotators);
+		SecurityContext secCtx;
 		
-		SearchDataContext searchContext = new SearchDataContext(scope, types, 
-										some, must, none);
-		searchContext.setTimeInterval(start, end);
-		if (displayMode == LookupNames.EXPERIMENTER_DISPLAY)
-			searchContext.setOwners(owners);
-
-		searchContext.setAnnotators(annotators);
-		searchContext.setExcludedOwners(excludedOwners);
-		searchContext.setExcludedAnnotators(excludedAnnotators);
-		searchContext.setCaseSensitive(ctx.isCaseSensitive());
-		searchContext.setNumberOfResults(ctx.getNumberOfResults());
-		
-		List<Long> groups = ctx.getSelectedGroups();
-		List<SecurityContext> l = new ArrayList<SecurityContext>();
-		Iterator<Long> j = groups.iterator();
-		while (j.hasNext()) {
-			l.add(new SecurityContext(j.next()));
+		if (ctx.getSelectedGroup() == GroupContext.ALL_GROUPS_ID) {
+		    secCtx = new SecurityContext(getUserDetails().getGroupId());
+		    searchContext.setGroupId(SearchParameters.ALL_GROUPS_ID);
 		}
-		total = l.size();
-		results.clear();
-		loader = new AdvancedFinderLoader(this, l, searchContext);
+		else {
+		    secCtx = new SecurityContext(ctx.getSelectedGroup());
+		    searchContext.setGroupId(ctx.getSelectedGroup());
+		}
+
+		loader = new AdvancedFinderLoader(this, secCtx, searchContext);
 		loader.load();
 		state = Finder.SEARCH;
 		setSearchEnabled(true);
@@ -434,7 +394,7 @@ public class AdvancedFinder
 	{
 		List<String> toAdd = new ArrayList<String>();
 		if (selected == null || selected.size() == 0) {
-			setSomeValues(toAdd);
+			setTerms(toAdd);
 			return;
 		}
 		Iterator i = selected.iterator();
@@ -448,7 +408,7 @@ public class AdvancedFinder
 						SearchUtil.QUOTE_SEPARATOR);
 			} else toAdd.add(value);
 		}	
-		setSomeValues(toAdd);
+		setTerms(toAdd);
 	}
 	
 	/** 
@@ -462,12 +422,11 @@ public class AdvancedFinder
 		displayMode = LookupNames.EXPERIMENTER_DISPLAY;
 		sorter = new ViewerSorter();
 		List<GroupData> l = sorter.sort(groups);
-		initialize(createControls(), l);
+		initialize(l);
 		addPropertyChangeListener(SEARCH_PROPERTY, this);
 		addPropertyChangeListener(CANCEL_SEARCH_PROPERTY, this);
 		addPropertyChangeListener(OWNER_PROPERTY, this);
 		users = new HashMap<Long, ExperimenterData>();
-		results = new HashMap<SecurityContext, Set>();
 	}
 
 	/**
@@ -476,8 +435,27 @@ public class AdvancedFinder
 	 */
 	protected void help()
 	{
-		SearchHelp help = new SearchHelp(FinderFactory.getRefFrame());
+		SearchHelp help = new SearchHelp(FinderFactory.getRefFrame(), HELP_URL);
 		UIUtilities.centerAndShow(help);
+		
+		if(help.hasError()) {
+		    showWebbrowserError(HELP_URL);
+		}
+	}
+	
+	/**
+	 * Pops up an UserNotifier indicating that the webbrowser
+	 * for the help website couldn't be opened
+	 * @param url
+	 */
+	public void showWebbrowserError(String url) {
+	    TreeViewerAgent
+            .getRegistry()
+            .getUserNotifier()
+            .notifyError(
+                    "Could not open web browser",
+                    "Please open your web browser and go to page: "
+                            + url);
 	}
 	
 	/** 
@@ -522,68 +500,30 @@ public class AdvancedFinder
 	 * Implemented as specified by {@link Finder} I/F
 	 * @see Finder#setResult(SecurityContext, Object)
 	 */
-	public void setResult(SecurityContext ctx, Object result)
+	public void setResult(AdvancedSearchResultCollection result)
 	{
-		setSearchEnabled(false);
-		JPanel p = new JPanel();
-		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		String group = getGroupName(ctx);
-		if (group != null && groups.size() > 1)
-			p.add(UIUtilities.setTextFont("Group: "+group));
-		Map map = (Map) result;
-
-		//Format UI component
-		Set nodes = new HashSet();
-		if (map != null) {
-			Set set = map.entrySet();
-			Entry entry;
-			Iterator i = set.iterator();
-			Set<Long> ids = new HashSet<Long>();
-			Collection r;
-			Integer key;
-			String term;
-			Iterator j;
-			DataObject data;
-			JLabel l;
-			Object value;
-			int v;
-			while (i.hasNext()) {
-				entry = (Entry) i.next();
-				key = (Integer) entry.getKey();
-				term = getScope(key);
-				if (term != null) {
-					value = entry.getValue();
-					if (value instanceof Integer) {
-						v = (Integer) value;
-						if (v < 0)
-							l = UIUtilities.setTextFont(term+": Unable to perform search,"
-									+" please refine criteria");
-						else 
-							l = UIUtilities.setTextFont(term+": " +
-									"Too many results.");
-					} else {
-						r = (Collection) value;
-						j = r.iterator();
-						while (j.hasNext()) {
-							data = (DataObject) j.next();
-							if (!ids.contains(data.getId())) {
-								nodes.add(data);
-								ids.add(data.getId());
-							}
-						}
-						l = UIUtilities.setTextFont(term+": "+r.size());
-					}
-					
-					p.add(l);
-				}
-			}
-			
-			addResult(UIUtilities.buildComponentPanel(p), results.size() == 0);
-		}
-		results.put(ctx, nodes);
-		if (results.size() == total)
-			firePropertyChange(RESULTS_FOUND_PROPERTY, null, results);
+            if (result.isError()) {
+                String msg = "";
+                switch (result.getError()) {
+                    case AdvancedSearchResultCollection.GENERAL_ERROR:
+                        msg = "Invalid search expression";
+                        break;
+                    case AdvancedSearchResultCollection.TOO_MANY_RESULTS_ERROR:
+                        msg = "Too many results, please refine your search criteria.";
+                        break;
+                    case AdvancedSearchResultCollection.TOO_MANY_CLAUSES:
+                        msg = "Please try to narrow down your query. The wildcard matched too many terms.";
+                        break;
+                }
+                UserNotifier un = FinderFactory.getRegistry().getUserNotifier();
+                un.notifyError("Search error", msg);
+                setSearchEnabled(false);
+                return;
+            }
+    
+            results = result;
+            setSearchEnabled(false);
+            firePropertyChange(RESULTS_FOUND_PROPERTY, null, results);
 	}
 	
 	/** 
@@ -604,7 +544,7 @@ public class AdvancedFinder
 		Collection selected = new ArrayList<TagAnnotationData>();
 		Iterator i = tags.iterator();
 		TagAnnotationData tag;
-		List<String> l = getSome();
+		List<String> l = getTerms();
 		Collection available = new ArrayList<TagAnnotationData>();
 		
 		while (i.hasNext()) {
@@ -691,9 +631,6 @@ public class AdvancedFinder
 				while (j.hasNext()) {
 					exp = j.next();
 					users.put(exp.getId(), exp);
-					setUserString(exp.getId(), 
-							EditorUtil.formatExperimenter(exp));
-					
 				}
 				//uiValue += value;
 			}

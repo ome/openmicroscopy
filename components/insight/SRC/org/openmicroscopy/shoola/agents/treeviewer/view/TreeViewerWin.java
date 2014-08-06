@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerWin
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -685,6 +685,13 @@ class TreeViewerWin
     	}
     }
     
+    /**
+     * Shows the search panel
+     */
+    void selectSearchPane() {
+        searchPane.setCollapsed(false);
+    }
+    
     /** 
      * Returns the type of layout of the browser.
      * 
@@ -1114,6 +1121,14 @@ class TreeViewerWin
 	}
 	
 	/**
+	 * Makes sure that the metadata view is visible
+	 */
+	void forceShowMetaDataView() {
+	    metadataVisible = true;
+	    resetMetadataViewer();
+	}
+	
+	/**
 	 * Reloads the specified thumbnails.
 	 * 
 	 * @param ids The collection of images' ids to reload.
@@ -1245,6 +1260,7 @@ class TreeViewerWin
 
 	
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */
+    @Override
     public void setOnScreen()
     {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();

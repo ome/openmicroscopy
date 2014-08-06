@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Glencoe Software, Inc. All rights reserved.
+ * Copyright (C) 2012-2014 Glencoe Software, Inc. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,8 @@ package ome.services.blitz.repo;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.List;
 
 import javax.activation.MimetypesFileTypeMap;
@@ -85,16 +86,19 @@ public class CheckedPath {
      */
     private FsFile processSpecialDirectories(FsFile fsFile) throws ValidationException {
         final List<String> oldComponents = fsFile.getComponents();
-        final List<String> newComponents = new ArrayList<String>(oldComponents.size());
-        for (final String oldComponent : oldComponents)
-            if (PARENT_DIR.equals(oldComponent))
-                if (newComponents.isEmpty())
+        final Deque<String> newComponents = new ArrayDeque<String>(oldComponents.size());
+        for (final String oldComponent : oldComponents) {
+            if (PARENT_DIR.equals(oldComponent)) {
+                if (newComponents.isEmpty()) {
                     throw new ValidationException(null, null, "Path may not make references above root");
-                else
-                    // with Java 1.6 use a Deque
-                    newComponents.remove(newComponents.size() - 1);
-            else if (!SAME_DIR.equals(oldComponent))
-                newComponents.add(oldComponent);
+                } else {
+                    newComponents.removeLast();
+                }
+            }
+            else if (!SAME_DIR.equals(oldComponent)) {
+                newComponents.addLast(oldComponent);
+            }
+        }
         return new FsFile(newComponents);
     }
 
@@ -263,6 +267,14 @@ public class CheckedPath {
                     + " does not exist");
         }
         return this;
+    }
+
+    boolean renameTo(CheckedPath target) {
+        return file.renameTo(target.file);
+    }
+
+    void moveToDir(CheckedPath target, boolean createDestDir) throws IOException {
+        FileUtils.moveToDirectory(file, target.file, createDestDir);
     }
 
     boolean delete() {

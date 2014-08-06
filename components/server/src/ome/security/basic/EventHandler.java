@@ -93,7 +93,7 @@ public class EventHandler implements MethodInterceptor, ApplicationListener<Cont
      * {@link ContextMessage.Push} login to the stack or
      * {@link ContextMessage.Pop} remove one.
      */
-    /* Java6 only - @Override */
+    @Override
     public void onApplicationEvent(ContextMessage msg) {
        final CurrentDetails cd = secSys.cd;
        final Session session = factory.getSession();

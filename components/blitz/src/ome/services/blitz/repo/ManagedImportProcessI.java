@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.aop.framework.Advised;
 
 import Ice.Current;
 
@@ -213,6 +214,8 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
 
         boolean success = false;
         RawFileStorePrx prx = repo.file(path, "rw", this.current);
+        registerCallback(prx, i);
+
         try {
             state = new UploadState(prx); // Overwrite
             if (uploaders.putIfAbsent(i, state) != null) {
@@ -233,6 +236,37 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
                 }
             }
         }
+    }
+
+    protected void registerCallback(RawFileStorePrx prx, final int idx) {
+        Object servant = this.sf.getServant(prx.ice_getIdentity());
+        if (servant instanceof Advised) {
+            try {
+                servant = ((Advised) servant).getTargetSource().getTarget();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        RepoRawFileStoreI store = (RepoRawFileStoreI) servant;
+
+        final ManagedImportProcessI proc = this;
+        store.setCallback(new RepoRawFileStoreI.NoOpCallback() {
+
+            @Override
+            public void onWrite(byte[] buf, long position, long length) {
+                proc.setOffset(idx, position+length);
+            }
+
+            /**
+             * During the close process, remove this instance from the
+             * "uploaders" hash map in order to prevent concurrent access
+             * issues.
+             */
+            @Override
+            public void onPreClose() {
+                proc.closeCalled(idx);
+            }
+        });
     }
 
     public HandlePrx verifyUpload(List<String> hashes, Current __current)
@@ -281,12 +315,15 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
         // TODO: Should eventually be from a new omero.client
         req.clientUuid = UUID.randomUUID().toString();
         req.repoUuid = repo.getRepoUuid();
+        req.process = this.proxy;
         req.activity = link;
         req.location = location;
         req.settings = settings;
         req.logFile = logFile;
         final AMD_submit submit = repo.submitRequest(sf, req, this.current);
         this.handle = submit.ret;
+        // TODO: in 5.1 this should be added to the request object
+        ((ManagedImportRequestI) req).handle = submit.ret;
         return submit.ret;
     }
 

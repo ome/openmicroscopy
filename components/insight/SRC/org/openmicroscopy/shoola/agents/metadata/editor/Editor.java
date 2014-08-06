@@ -524,7 +524,9 @@ public interface Editor
 	 * 
 	 * @param trigger The action which triggered the loading,
 	 * see {@link EditorControl#FILE_PATH_TOOLBAR}
-	 * or {@link EditorControl#FILE_PATH_INPLACE_ICON}
+	 * or {@link EditorControl#FILE_PATH_INPLACE_ICON}; 
+	 * (pass -1 or any other unreserved value to load the filesets automatically
+	 *  without user trigger)
 	 * */
 	void loadFileset(int trigger);
 

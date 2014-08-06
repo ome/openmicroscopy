@@ -249,11 +249,12 @@ class PointIterator
      * @param shape The shape to analyze. Mustn't be <code>null</code>.
      * @param points The collection of points contained in the shape.
      * @param w The selected channel.
+     * @param close Pass <code></code>
      * @throws DataSourceException If an error occurs while retrieving plane
      *                             data from the pixels source.
      */
     public void iterate(SecurityContext ctx, ROIShape shape, List<Point> points,
-            int w)
+            int w, boolean close)
     throws DataSourceException
     {
         if (shape == null) throw new NullPointerException("No shapes.");
@@ -265,7 +266,7 @@ class PointIterator
             int t = shape.getT();
             if (z >= 0 && z < sizeZ && t >= 0 && t < sizeT) {
                 notifyPlaneStart(z, w, t, points.size());
-                Plane2D data = source.getPlane(ctx, z, t, w);
+                Plane2D data = source.getPlane(ctx, z, t, w, close);
                 double value;
                 int length = 0;
                 int x1, x2;
@@ -288,6 +289,26 @@ class PointIterator
             //something goes wrong. 
             notifyIterationEnd();
         }
+    }
+    /**
+     * Iterates over the pixels contained in <code>roi</code>.
+     * The pixel values come from the pixels set that was bound to this
+     * iterator at creation time.
+     * All registered {@link PointIteratorObserver}s get notified of every
+     * iterated pixels value. 
+     * 
+     * @param ctx The security context.
+     * @param shape The shape to analyze. Mustn't be <code>null</code>.
+     * @param points The collection of points contained in the shape.
+     * @param w The selected channel.
+     * @throws DataSourceException If an error occurs while retrieving plane
+     *                             data from the pixels source.
+     */
+    public void iterate(SecurityContext ctx, ROIShape shape, List<Point> points,
+            int w)
+    throws DataSourceException
+    {
+        iterate(ctx, shape, points, w, true);
     }
 
 }

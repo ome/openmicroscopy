@@ -18,68 +18,92 @@ from omero.util.temp_files import create_path
 from xml.etree.ElementTree import XML, Element, SubElement, tostring
 
 
+def pair(x):
+    """
+    Takes an XML element and returns a tuple of
+    the form either '(id, x)' or '(name, x)'.
+    """
+    key = x.get("id")
+    if not key:
+        key = x.get("name")
+    return (key, x)
+
+
+def assertXml(elementA, elementB):
+    """
+    Recursively descend through two XML elements
+    comparing them for equality.
+    """
+
+    assert elementA.tag == elementB.tag
+
+    A_attr = elementA.attrib
+    B_attr = elementB.attrib
+    assert len(A_attr) == len(B_attr)
+    for k in A_attr:
+        assert A_attr[k] == B_attr[k], cf(elementA, elementB)
+    for k in B_attr:
+        assert A_attr[k] == B_attr[k], cf(elementA, elementB)
+
+    A_kids = dict([pair(x) for x in elementA.getchildren()])
+    B_kids = dict([pair(x) for x in elementB.getchildren()])
+    for k in A_attr:
+        assertXml(A_kids[k], B_kids[k])
+    for k in B_attr:
+        assertXml(A_kids[k], B_kids[k])
+
+
+def cf(elemA, elemB):
+    """
+    Print out a visual comparison of two
+    XML elements.
+    """
+    return """
+    %s
+
+    === v ===
+
+    %s""" % (totext(elemA), totext(elemB))
+
+
+def initial(default="default"):
+    """
+    Produce a basic icegrid XML element
+    """
+    icegrid = Element("icegrid")
+    properties = SubElement(icegrid, "properties", id=ConfigXml.INTERNAL)
+    SubElement(properties, "property", name=ConfigXml.DEFAULT,
+               value=default)
+    SubElement(properties, "property", name=ConfigXml.KEY,
+               value=ConfigXml.VERSION)
+    properties = SubElement(icegrid, "properties", id=default)
+    SubElement(properties, "property", name=ConfigXml.KEY,
+               value=ConfigXml.VERSION)
+    return icegrid
+
+
+def totext(elem):
+    """
+    Use minidom to generate a string representation
+    of an XML element.
+    """
+    string = tostring(elem, 'utf-8')
+    return xml.dom.minidom.parseString(string).toxml()
+
+
 class TestConfig(object):
-
-    def pair(self, x):
-        key = x.get("id")
-        if not key:
-            key = x.get("name")
-        return (key, x)
-
-    def assertXml(self, elementA, elementB):
-
-        assert elementA.tag == elementB.tag
-
-        A_attr = elementA.attrib
-        B_attr = elementB.attrib
-        assert len(A_attr) == len(B_attr)
-        for k in A_attr:
-            assert A_attr[k] == B_attr[k], self.cf(elementA, elementB)
-        for k in B_attr:
-            assert A_attr[k] == B_attr[k], self.cf(elementA, elementB)
-
-        A_kids = dict([self.pair(x) for x in elementA.getchildren()])
-        B_kids = dict([self.pair(x) for x in elementB.getchildren()])
-        for k in A_attr:
-            self.assertXml(A_kids[k], B_kids[k])
-        for k in B_attr:
-            self.assertXml(A_kids[k], B_kids[k])
-
-    def cf(self, elemA, elemB):
-        return """
-        %s
-
-        === v ===
-
-        %s""" % (self.totext(elemA), self.totext(elemB))
-
-    def initial(self, default="default"):
-        icegrid = Element("icegrid")
-        properties = SubElement(icegrid, "properties", id=ConfigXml.INTERNAL)
-        SubElement(properties, "property", name=ConfigXml.DEFAULT,
-                   value=default)
-        SubElement(properties, "property", name=ConfigXml.KEY,
-                   value=ConfigXml.VERSION)
-        properties = SubElement(icegrid, "properties", id=default)
-        SubElement(properties, "property", name=ConfigXml.KEY,
-                   value=ConfigXml.VERSION)
-        return icegrid
-
-    def totext(self, elem):
-        string = tostring(elem, 'utf-8')
-        return xml.dom.minidom.parseString(string).toxml()
 
     def testBasic(self):
         p = create_path()
         config = ConfigXml(filename=str(p))
         config.close()
-        self.assertXml(self.initial(), XML(p.text()))
+        assertXml(initial(), XML(p.text()))
 
     def testWithEnv(self):
         p = create_path()
         config = ConfigXml(filename=str(p), env_config="FOO")
         config.close()
-        self.assertXml(self.initial("FOO"), XML(p.text()))
+        assertXml(initial("FOO"), XML(p.text()))
 
     def testWithEnvThenWithoutEnv(self):
         """
@@ -147,12 +171,12 @@ class TestConfig(object):
         config = ConfigXml(filename=str(p), env_config="DICT")
         config["omero.data.dir"] = "HOME"
         config.close()
-        initial = self.initial("DICT")
-        _ = SubElement(initial[0][0], "property", name="omero.data.dir",
+        i = initial("DICT")
+        _ = SubElement(i[0][0], "property", name="omero.data.dir",
                        value="HOME")
-        _ = SubElement(initial, "properties", id="DICT")
+        _ = SubElement(i, "properties", id="DICT")
         _ = SubElement(_, "property", name="omero.data.dir", value="HOME")
-        self.assertXml(initial, XML(p.text()))
+        assertXml(i, XML(p.text()))
 
     def testLocking(self):
         p = create_path()

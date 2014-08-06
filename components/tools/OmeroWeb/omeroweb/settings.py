@@ -164,8 +164,9 @@ DEVELOPMENT = "development"
 DEFAULT_SERVER_TYPE = FASTCGITCP
 ALL_SERVER_TYPES = (FASTCGITCP, FASTCGI, DEVELOPMENT)
 
-DEFAULT_SESSION_ENGINE = 'django.contrib.sessions.backends.file'
-SESSION_ENGINE_VALUES = ('django.contrib.sessions.backends.db',
+DEFAULT_SESSION_ENGINE = 'omeroweb.filesessionstore'
+SESSION_ENGINE_VALUES = ('omeroweb.filesessionstore',
+                         'django.contrib.sessions.backends.db',
                          'django.contrib.sessions.backends.file',
                          'django.contrib.sessions.backends.cache',
                          'django.contrib.sessions.backends.cached_db')
@@ -211,6 +212,7 @@ def leave_none_unset_int(s):
     if s is not None:
         return int(s)
 
+CUSTOM_HOST = CUSTOM_SETTINGS.get("Ice.Default.Host", "localhost")
 CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.login_logo": ["LOGIN_LOGO", None, leave_none_unset],
     "omero.web.apps": ["ADDITIONAL_APPS", '[]', json.loads],
@@ -235,6 +237,8 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.caches": ["CACHES", '{"default": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"}}', json.loads],
     "omero.web.webgateway_cache": ["WEBGATEWAY_CACHE", None, leave_none_unset],
     "omero.web.session_engine": ["SESSION_ENGINE", DEFAULT_SESSION_ENGINE, check_session_engine],
+    "omero.web.session_expire_at_browser_close": ["SESSION_EXPIRE_AT_BROWSER_CLOSE", "true", parse_boolean],
+    "omero.web.session_cookie_age": ["SESSION_COOKIE_AGE", 86400, int],
     "omero.web.debug": ["DEBUG", "false", parse_boolean],
     "omero.upgrades.url": ["UPGRADES_URL", "http://upgrade.openmicroscopy.org.uk/", str],
     "omero.web.email_host": ["EMAIL_HOST", None, identity],
@@ -247,7 +251,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.login_view": ["LOGIN_VIEW", "weblogin", str],
     "omero.web.send_broken_link_emails": ["SEND_BROKEN_LINK_EMAILS", "true", parse_boolean],
     "omero.web.server_email": ["SERVER_EMAIL", None, identity],
-    "omero.web.server_list": ["SERVER_LIST", '[["localhost", 4064, "omero"]]', json.loads],
+    "omero.web.server_list": ["SERVER_LIST", '[["%s", 4064, "omero"]]' % CUSTOM_HOST, json.loads],
     # Configuration options for the viewer. -1: zoom in fully, 0: zoom out fully, unset: zoom to fit window
     "omero.web.viewer.initial_zoom_level": ["VIEWER_INITIAL_ZOOM_LEVEL", None, leave_none_unset_int],
     # the following parameters configure when to show/hide the 'Volume viewer' icon in the Image metadata panel
@@ -294,7 +298,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.webstart_jar": ["WEBSTART_JAR", "omero.insight.jar", str],
     "omero.web.webstart_icon": ["WEBSTART_ICON", "webstart/img/icon-omero-insight.png", str],
     "omero.web.webstart_heap": ["WEBSTART_HEAP", "1024m", str],
-    "omero.web.webstart_host": ["WEBSTART_HOST", "localhost", str],
+    "omero.web.webstart_host": ["WEBSTART_HOST", CUSTOM_HOST, str],
     "omero.web.webstart_port": ["WEBSTART_PORT", "4064", str],
     "omero.web.webstart_class": ["WEBSTART_CLASS", "org.openmicroscopy.shoola.Main", str],
     "omero.web.webstart_title": ["WEBSTART_TITLE", "OMERO.insight", str],
@@ -305,6 +309,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     # Allowed hosts: https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
     "omero.web.allowed_hosts": ["ALLOWED_HOSTS", '["*"]', json.loads],
 }
+del CUSTOM_HOST
 
 
 def process_custom_settings(module):
@@ -507,12 +512,6 @@ FEEDBACK_APP = 6
 # will store session data. When the default value (None) is used, Django will use the standard temporary 
 # directory for the system.
 SESSION_FILE_PATH = tempfile.gettempdir()
-
-# SESSION_EXPIRE_AT_BROWSER_CLOSE: Whether to expire the session when the user closes his or her browser.
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True # False
-
-# SESSION_COOKIE_AGE: The age of session cookies, in seconds. See How to use sessions.
-SESSION_COOKIE_AGE = 86400 # 1 day in sec (86400)
 
 # FILE_UPLOAD_TEMP_DIR: The directory to store data temporarily while uploading files.
 FILE_UPLOAD_TEMP_DIR = tempfile.gettempdir()

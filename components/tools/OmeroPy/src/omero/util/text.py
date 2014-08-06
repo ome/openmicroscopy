@@ -48,11 +48,11 @@ class SQLStyle(Style):
                     (table.page_info[0], table.page_info[2]))
 
     def get_rows(self, table):
-        yield self.headers(table)
-        yield self.line(table)
+        yield unicode(self.headers(table))
+        yield unicode(self.line(table))
         for i in range(0, table.length):
             yield self.SEPARATOR.join(table.get_row(i))
-        yield self.status(table)
+        yield unicode(self.status(table))
 
 
 class PlainStyle(Style):
@@ -230,6 +230,8 @@ class Table:
             else:
                 try:
                     x[i].decode("ascii")
+                except UnicodeEncodeError:
+                    yield x.format % x[i]
                 except UnicodeDecodeError:  # Unicode characters are present
                     yield (x.format % x[i].decode("utf-8")).encode("utf-8")
                 except AttributeError:  # Unicode characters are present
@@ -242,7 +244,7 @@ class Table:
             yield row
 
     def __str__(self):
-        return '\n'.join(self.get_rows())
+        return ('\n'.join(self.get_rows())).encode("utf-8")
 
 
 def filesizeformat(bytes):

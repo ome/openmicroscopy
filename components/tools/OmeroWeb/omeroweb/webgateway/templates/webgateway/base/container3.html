@@ -54,6 +54,13 @@
 
 {% block content %}
 
+    <div id="group_user_selection">
+
+          
+    {% include "webclient/base/includes/group_user_dropdown2.html" %}
+  
+  </div>
+
 <div id="left_panel">
 	{% block left %}{% endblock %}
 </div>
@@ -61,7 +68,9 @@
 <div id="center_container">
     <div id="trayhandle_left">
         <div id="swapTree"><img id="lhid_trayhandle_icon_left" class="expanded-left" src="{% static "webgateway/img/spacer.gif" %}"></div>
-        <div id="dragLeft"></div>
+        <div class="dragHandle" style="left: -2px">
+            <div id="dragLeft"></div>
+        </div>
     </div>
 	
     <div id="center_panel">
@@ -70,7 +79,9 @@
 	
     <div id="trayhandle_right">
         <div id="swapMeta"><img id="lhid_trayhandle_icon_right" class="collapsed-right" src="{% static "webgateway/img/spacer.gif" %}"></div>
-        <div id="dragRight"></div>
+        <div class="dragHandle" style="right: -2px">
+            <div id="dragRight"></div>
+        </div>
     </div>
 </div>
 

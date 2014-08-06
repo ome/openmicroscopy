@@ -376,6 +376,9 @@ public class ParamData
      */
     public void setValueToPass(Object valueToPass)
     { 
+        if (valueToPass == null) {
+            valueToPass = getDefaultValue();
+        }
         this.valueToPass = valueToPass;
     }
     /**

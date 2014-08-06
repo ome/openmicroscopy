@@ -19,7 +19,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-import py.test
+import pytest
 import omero
 from omero.plugins.download import DownloadControl
 from omero.cli import NonZeroReturnCode
@@ -60,24 +60,24 @@ class TestDownload(CLITest):
         self.add_groups(user, [group1, group2], owner=True)
         return user, group1, group2
 
-    @py.test.mark.parametrize(
+    @pytest.mark.parametrize(
         'bad_input',
         ['-1', 'OriginalFile:-1', 'FileAnnotation:-1', 'Image:-1'])
     def testInvalidInput(self, bad_input):
         self.args += [bad_input, '-']
-        with py.test.raises(NonZeroReturnCode):
+        with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
 
     # OriginalFile tests
     # ========================================================================
-    @py.test.mark.parametrize('prefix', ['', 'OriginalFile:'])
+    @pytest.mark.parametrize('prefix', ['', 'OriginalFile:'])
     def testNonExistingOriginalFile(self, tmpdir, prefix):
         ofile = self.create_original_file("test")
         self.args += ['%s%s' % (prefix, str(ofile.id.val + 1)), '-']
-        with py.test.raises(NonZeroReturnCode):
+        with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
 
-    @py.test.mark.parametrize('prefix', ['', 'OriginalFile:'])
+    @pytest.mark.parametrize('prefix', ['', 'OriginalFile:'])
     def testOriginalFileTmpfile(self, prefix, tmpdir):
         ofile = self.create_original_file("test")
         tmpfile = tmpdir.join('test')
@@ -86,7 +86,7 @@ class TestDownload(CLITest):
         with open(str(tmpfile)) as f:
             assert f.read() == "test"
 
-    @py.test.mark.parametrize('prefix', ['', 'OriginalFile:'])
+    @pytest.mark.parametrize('prefix', ['', 'OriginalFile:'])
     def testOriginalFileStdout(self, prefix, capsys):
         ofile = self.create_original_file("test")
         self.args += ['%s%s' % (prefix, str(ofile.id.val)), '-']
@@ -94,7 +94,7 @@ class TestDownload(CLITest):
         out, err = capsys.readouterr()
         assert out == "test"
 
-    @py.test.mark.parametrize('prefix', ['', 'OriginalFile:'])
+    @pytest.mark.parametrize('prefix', ['', 'OriginalFile:'])
     def testOriginalFileMultipleGroups(self, prefix, capsys):
         user, group1, group2 = self.setup_user_and_two_groups()
         client = self.new_client(user=user, password="ome")
@@ -113,7 +113,7 @@ class TestDownload(CLITest):
         fa.setFile(ofile)
         fa = self.update.saveAndReturnObject(fa)
         self.args += ['FileAnnotation:%s' % str(fa.id.val + 1), '-']
-        with py.test.raises(NonZeroReturnCode):
+        with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
 
     def testFileAnnotationTmpfile(self, tmpdir):
@@ -155,7 +155,7 @@ class TestDownload(CLITest):
     def testNonExistingImage(self, tmpdir):
         image = self.importSingleImageWithCompanion()
         self.args += ["Image:%s" % str(image.id.val + 1), '-']
-        with py.test.raises(NonZeroReturnCode):
+        with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
 
     def testImage(self, tmpdir):
@@ -176,7 +176,7 @@ class TestDownload(CLITest):
         image = self.importSingleImageWithCompanion()
         tmpfile = tmpdir.join('test')
         self.args += ["Image:%s" % image.id.val, str(tmpfile)]
-        with py.test.raises(NonZeroReturnCode):
+        with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
 
     def testMIF(self, tmpdir):
@@ -192,7 +192,7 @@ class TestDownload(CLITest):
         pixels = self.pix()
         tmpfile = tmpdir.join('test')
         self.args += ["Image:%s" % pixels.getImage().id.val, str(tmpfile)]
-        with py.test.raises(NonZeroReturnCode):
+        with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
 
     def testImageMultipleGroups(self, tmpdir):

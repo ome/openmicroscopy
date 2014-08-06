@@ -67,6 +67,19 @@
      <constructor-arg ref="roles"/>
   </bean>
 
+  <bean id="dbInsertTriggerCheck" depends-on="dbPatchCheck"
+     class="ome.services.util.DBInsertTriggerCheck"
+     init-method="start" lazy-init="false">
+     <constructor-arg ref="executor"/>
+     <constructor-arg ref="simpleSqlAction"/>
+  </bean>
+
+  <bean id="dbFileSizeChecksumCheck" depends-on="dbPatchCheck"
+     class="ome.services.util.DBFileSizeChecksumCheck"
+     init-method="start" lazy-init="false">
+     <constructor-arg ref="executor"/>
+  </bean>
+
   <!--
 
   Disabling DropBox directory creation for 4.1. The directories
@@ -102,5 +115,17 @@
      <constructor-arg index="1" value="${omero.version}"/>
      <constructor-arg index="2" value="server"/>
   </bean>
+
+  <alias name="${omero.metrics.bean}" alias="metrics"/>
+
+  <bean id="defaultMetrics" class="ome.system.metrics.DefaultMetrics">
+    <property name="graphiteAddress" value="${omero.metrics.graphite}"/>
+  </bean>
+
+  <bean id="nullMetrics" class="ome.system.metrics.NullMetrics"/>
+
+  <bean class="ome.services.util.SleepTimer"
+        lazy-init="false"
+        destroy-method="destroy"/>
 
 </beans>

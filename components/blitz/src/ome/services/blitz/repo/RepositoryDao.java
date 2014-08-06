@@ -226,6 +226,22 @@ public interface RepositoryDao {
     EventContext getEventContext(final Ice.Current current);
 
     /**
+     * Get the current user's institution.
+     * @param userId the ID of the user whose institution is to be fetched
+     * @param current the current ICE method invocation context
+     * @return the institution, may be {@code null}
+     */
+    String getUserInstitution(long userId, Ice.Current current);
+
+    /**
+     * Get the current user's institution.
+     * @param userId the ID of the user whose institution is to be fetched
+     * @param sf the service factory to use for the query
+     * @return the institution, may be {@code null}
+     */
+    String getUserInstitution(long userId, ServiceFactory sf);
+
+    /**
      * Call {@link SqlAction.findRepoDeleteLogs(DeleteLog)} with the current
      * context.
      *

@@ -258,7 +258,7 @@ public class FigureTableModel
 		if (figure.getAttribute(key) instanceof Double) 
 		{
 			if (value instanceof Double)
-				figure.setAttribute(keys.get(row), (Double) value);
+				figure.setAttribute(key, (Double) value);
 			if (value instanceof String)
 			{
 				try
@@ -276,7 +276,7 @@ public class FigureTableModel
 			}
 		}
 		else  
-			figure.setAttribute(keys.get(row), value);
+			figure.setAttribute(key, value);
 		values.set(row, value);
 		fireTableCellUpdated(row, col);
 	}

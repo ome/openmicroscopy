@@ -43,17 +43,22 @@ public class FileAnnotationChecker extends EditorLoader {
     /** List of {@link FileAnnotationData} which should be checked */
     private List<FileAnnotationData> annotations;
 
+    /** The DataObjects from which the FileAnnotations should be removed */
+    private List<DataObject> toBeDeletedFrom;
+    
     /**
      * Creates a new instance.
      * 
      * @param viewer Reference to the viewer. Mustn't be <code>null</code>.
      * @param ctx The security context.
      * @param annotations List of {@link FileAnnotationData} which should be checked
+     * @param toBeDeletedFrom The DataObjects from which the FileAnnotations should be removed
      */
     public FileAnnotationChecker(Editor viewer, SecurityContext ctx,
-            List<FileAnnotationData> annotations) {
+            List<FileAnnotationData> annotations, List<DataObject> toBeDeletedFrom) {
         super(viewer, ctx);
         this.annotations = annotations;
+        this.toBeDeletedFrom = toBeDeletedFrom;
     }
 
     /**
@@ -68,7 +73,7 @@ public class FileAnnotationChecker extends EditorLoader {
      * Loads the {@link DataObject}s linked to the {@link FileAnnotationData} objects
      */
     public void load() {
-        handle = mhView.loadFileAnnotationParents(ctx, annotations, this);
+        handle = mhView.checkFileAnnotationDeletion(ctx, annotations, toBeDeletedFrom, this);
     }
 
     /** 

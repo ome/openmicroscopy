@@ -143,6 +143,7 @@ public class PixelsServicesFactory
 		if (rndDef == null) return null;
 		
 		RndProxyDef proxy = new RndProxyDef(rndDef);
+
 		try {
 			long v = rndDef.getDetails().getUpdateEvent().getTime().getValue();
 			proxy.setLastModified(new Timestamp(v));

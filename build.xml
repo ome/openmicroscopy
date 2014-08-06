@@ -90,6 +90,9 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <ivy:buildlist reference="all.buildpath" settingsRef="ivy.toplevel">
             <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/tools/**, **/tests/**"/>
         </ivy:buildlist>
+        <ivy:buildlist reference="nobf.buildpath" settingsRef="ivy.toplevel">
+            <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/tools/**, **/tests/**, **/bioformats/**"/>
+        </ivy:buildlist>
         <ivy:buildlist reference="blitzserver.buildpath" settingsRef="ivy.toplevel">
             <fileset dir="${omero.home}/components/blitz/" includes="build.xml"/>
             <fileset dir="${omero.home}/components/common/" includes="build.xml"/>
@@ -126,6 +129,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <fileset dir="${omero.home}/examples" includes="config.log,**/*.o,**/*.class,**/*.exe"/>
         </delete>
         <ant antfile="build.xml" dir="docs/sphinx" target="clean" inheritAll="false"/>
+        <ant antfile="build.xml" dir="docs/sphinx-api" target="clean" inheritAll="false"/>
     </target>
 
     <macrodef name="setup-py-install">
@@ -508,12 +512,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         </copy>
        	<copy file="components/insight/target/insight-ij.zip" tofile="target/OMERO.insight-ij-${omero.version}.zip"/>
 
-        <!-- This replaces the previous OMERO-trunk-clients build -->
-        <mkdir dir="target/pkg"/>
-        <delete includeemptydirs="true">
-            <fileset dir="target/pkg" includes="**/*"/>
-        </delete>
-        <apply executable="python" dir="${target.dir}/pkg" failonerror="true">
+        <apply executable="python" dir="${target.dir}" failonerror="true">
            <env key="OMERO_VERSION" value="${omero.version}"/>
            <fileset dir="${omero.home}/lib" includes="composite.py"/>
        </apply>
@@ -563,7 +562,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         </emma>
     </target>
 
-    <target name="release-docs" depends="release-javadoc,release-epydoc,release-slice2html" description="Generate Docs for all components under dist/docs/api">
+    <target name="release-docs" depends="release-javadoc,release-epydoc,release-sphinx-api,release-slice2html" description="Generate Docs for all components under dist/docs/api">
         <zip destfile="${omero.home}/target/OMERO.docs-${omero.version}.zip">
             <zipfileset dir="${dist.dir}/docs" prefix="OMERO.docs-${omero.version}"/>
         </zip>
@@ -611,7 +610,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
        </apply>
     </target>
 
-    <target name="release-epydoc"  description="The OmeroPy API Documentation">
+    <target name="release-epydoc"  description="The OmeroPy epydoc API Documentation">
        <mkdir dir="${dist.dir}/docs/api/epydoc"/>
        <exec executable="epydoc" failonerror="true">
            <arg value="--verbose"/>
@@ -642,6 +641,20 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
       href="http://hudson.openmicroscopy.org.uk/userContent/favicon.ico">]]></replacevalue>
        </replace>
 
+    </target>
+
+    <target name="release-sphinx-api" depends="build-py"
+        description="The OmeroPy Sphinx API Documentation">
+        <mkdir dir="${dist.dir}/docs/api/python"/>
+
+        <ant antfile="build.xml" dir="docs/sphinx-api" target="clean" inheritAll="false"/>
+        <ant antfile="build.xml" dir="docs/sphinx-api" target="html" inheritAll="false">
+            <property name="omero.shortversion" value="${omero.version}"/>
+        </ant>
+
+        <copy todir="${dist.dir}/docs/api/python">
+            <fileset dir="docs/sphinx-api/_build/html"/>
+        </copy>
     </target>
 
     <target name="release-javadoc" description="Generate Javadocs for all components under dist/docs/api">
@@ -763,23 +776,9 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         </replace>
     </target>
 
-    <target name="release-hudson" depends="check-ivy" description="Saves to the hudson repository for dependent builds">
-        <ivy:resolve settingsRef="ivy.toplevel"
-            file="${omero.home}/ivy.xml" type="zip" log="quiet"/>
-        <ivy:publish settingsRef="ivy.toplevel"
-            artifactspattern="${omero.home}/OMERO.server-${omero.version}.zip"
-            srcivypattern="${omero.home}/ivy.xml"
-            resolver="test-resolver"
-            pubrevision="${omero.version}"
-            pubdate="${now}"
-            status="integration"
-            overwrite="true"/>
-            <!-- This causes the ivy file to be modified -->
-            <!--forcedeliver="true"-->
-        <ivy:install settingsRef="ivy.toplevel"
-            organisation="omero" module="main" revision="${omero.version}"
-            from="omero-resolver" to="hudson-repository"
-            transitive="true" overwrite="true"/>
+    <target name="release-hudson" depends="check-ivy"
+            description="Saves to the hudson repository for dependent builds">
+        <iterate buildpathref="nobf.buildpath" target="artifactory"/>
     </target>
 
     <target name="release-nsis" description="Creates a Windows installer with NSIS">

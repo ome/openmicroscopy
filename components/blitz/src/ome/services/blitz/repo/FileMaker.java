@@ -154,6 +154,10 @@ public class FileMaker {
 
             dbUuid = null;
             repoUuidFile = null;
+            if (!dotLockFile.delete()) {
+                log.warn("Failed to delete lock file: "
+                        + dotLockFile.getAbsolutePath());
+            }
             dotLockFile = null;
             repoUuidRaf = null;
             dotLockRaf = null;

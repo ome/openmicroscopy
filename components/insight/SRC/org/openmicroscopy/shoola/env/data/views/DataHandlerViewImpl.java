@@ -32,6 +32,7 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
+import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.calls.FilesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
@@ -172,8 +173,8 @@ public class DataHandlerViewImpl
 	 * @see DataHandlerView#advancedSearchFor(List, SearchDataContext,
 	 * 										AgentEventListener)
 	 */
-	public CallHandle advancedSearchFor(List<SecurityContext> ctx,
-			SearchDataContext context, AgentEventListener observer)
+	public CallHandle advancedSearchFor(SecurityContext ctx,
+	        SearchParameters context, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new ObjectFinder(ctx, context);
 		return cmd.exec(observer);

@@ -14,6 +14,7 @@ import pytest
 import omero.columns
 import omero.tables
 import logging
+import threading
 import Ice
 
 from library import TestCase
@@ -38,6 +39,7 @@ class TestHdfStorage(TestCase):
         self.ic = Ice.initialize()
         self.current = Ice.Current()
         self.current.adapter = MockAdapter(self.ic)
+        self.lock = threading.RLock()
 
         for of in omero.columns.ObjectFactories.values():
             of.register(self.ic)
@@ -69,45 +71,48 @@ class TestHdfStorage(TestCase):
         return path(tmpdir) / "test.h5"
 
     def testInvalidFile(self):
-        pytest.raises(omero.ApiUsageException, omero.tables.HdfStorage, None)
-        pytest.raises(omero.ApiUsageException, omero.tables.HdfStorage, '')
+        pytest.raises(
+            omero.ApiUsageException, omero.tables.HdfStorage, None, None)
+        pytest.raises(
+            omero.ApiUsageException, omero.tables.HdfStorage, '', self.lock)
         bad = path(self.tmpdir()) / "doesntexist" / "test.h5"
-        pytest.raises(omero.ApiUsageException, omero.tables.HdfStorage, bad)
+        pytest.raises(
+            omero.ApiUsageException, omero.tables.HdfStorage, bad, self.lock)
 
     def testValidFile(self):
-        hdf = omero.tables.HdfStorage(self.hdfpath())
+        hdf = omero.tables.HdfStorage(self.hdfpath(), self.lock)
         hdf.cleanup()
 
     def testLocking(self):
         tmp = str(self.hdfpath())
-        hdf1 = omero.tables.HdfStorage(tmp)
+        hdf1 = omero.tables.HdfStorage(tmp, self.lock)
         try:
-            omero.tables.HdfStorage(tmp)
+            omero.tables.HdfStorage(tmp, self.lock)
             assert False, "should be locked"
         except omero.LockTimeout:
             pass
         hdf1.cleanup()
-        hdf3 = omero.tables.HdfStorage(tmp)
+        hdf3 = omero.tables.HdfStorage(tmp, self.lock)
         hdf3.cleanup()
 
     def testSimpleCreation(self):
-        hdf = omero.tables.HdfStorage(self.hdfpath())
+        hdf = omero.tables.HdfStorage(self.hdfpath(), self.lock)
         self.init(hdf, False)
         hdf.cleanup()
 
     def testCreationWithMetadata(self):
-        hdf = omero.tables.HdfStorage(self.hdfpath())
+        hdf = omero.tables.HdfStorage(self.hdfpath(), self.lock)
         self.init(hdf, True)
         hdf.cleanup()
 
     def testAddSingleRow(self):
-        hdf = omero.tables.HdfStorage(self.hdfpath())
+        hdf = omero.tables.HdfStorage(self.hdfpath(), self.lock)
         self.init(hdf, True)
         self.append(hdf, {"a": 1, "b": 2, "c": 3})
         hdf.cleanup()
 
     def testModifyRow(self):
-        hdf = omero.tables.HdfStorage(self.hdfpath())
+        hdf = omero.tables.HdfStorage(self.hdfpath(), self.lock)
         self.init(hdf, True)
         self.append(hdf, {"a": 1, "b": 2, "c": 3})
         self.append(hdf, {"a": 5, "b": 6, "c": 7})
@@ -121,7 +126,7 @@ class TestHdfStorage(TestCase):
         hdf.cleanup()
 
     def testReadTicket1951(self):
-        hdf = omero.tables.HdfStorage(self.hdfpath())
+        hdf = omero.tables.HdfStorage(self.hdfpath(), self.lock)
         self.init(hdf, True)
         self.append(hdf, {"a": 1, "b": 2, "c": 3})
         hdf.readCoordinates(hdf._stamp, [0], self.current)
@@ -129,7 +134,7 @@ class TestHdfStorage(TestCase):
         hdf.cleanup()
 
     def testSorting(self):  # Probably shouldn't work
-        hdf = omero.tables.HdfStorage(self.hdfpath())
+        hdf = omero.tables.HdfStorage(self.hdfpath(), self.lock)
         self.init(hdf, True)
         self.append(hdf, {"a": 0, "b": 2, "c": 3})
         self.append(hdf, {"a": 4, "b": 4, "c": 4})
@@ -143,10 +148,10 @@ class TestHdfStorage(TestCase):
 
     def testInitializationOnInitializedFileFails(self):
         p = self.hdfpath()
-        hdf = omero.tables.HdfStorage(p)
+        hdf = omero.tables.HdfStorage(p, self.lock)
         self.init(hdf, True)
         hdf.cleanup()
-        hdf = omero.tables.HdfStorage(p)
+        hdf = omero.tables.HdfStorage(p, self.lock)
         try:
             self.init(hdf, True)
             assert False
@@ -170,11 +175,11 @@ class TestHdfStorage(TestCase):
         t = path(self.tmpdir())
         h = t / "test.h5"
         assert t.exists()
-        hdf = omero.tables.HdfStorage(h)
+        hdf = omero.tables.HdfStorage(h, self.lock)
         hdf.cleanup()
 
     def testStringCol(self):
-        hdf = omero.tables.HdfStorage(self.hdfpath())
+        hdf = omero.tables.HdfStorage(self.hdfpath(), self.lock)
         cols = [omero.columns.StringColumnI("name", "description", 16, None)]
         hdf.initialize(cols)
         cols[0].settable(hdf._HdfStorage__mea)  # Needed for size
@@ -192,7 +197,7 @@ class TestHdfStorage(TestCase):
     # ROIs
     #
     def testMaskColumn(self):
-        hdf = omero.tables.HdfStorage(self.hdfpath())
+        hdf = omero.tables.HdfStorage(self.hdfpath(), self.lock)
         mask = omero.columns.MaskColumnI('mask', 'desc', None)
         hdf.initialize([mask], None)
         mask.imageId = [1, 2]

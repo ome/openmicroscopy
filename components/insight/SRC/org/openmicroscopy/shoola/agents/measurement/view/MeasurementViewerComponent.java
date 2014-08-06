@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewerComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -40,6 +40,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
 
+import org.apache.commons.collections.CollectionUtils;
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.Drawing;
@@ -695,13 +696,6 @@ class MeasurementViewerComponent
 					"in the ANALYSE_SHAPE state: "+state);
 			return;
 		}
-			//throw new IllegalStateException("This method can only be invoked " +
-			//		"in the ANALYSE_SHAPE state: "+state);
-		if (result == null || result.size() == 0) {
-			UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Sets stats results", "No result to display.");
-			return;
-		}
 		model.setAnalysisResults(result);
 		view.displayAnalysisResults();
 		fireStateChange();
@@ -889,7 +883,7 @@ class MeasurementViewerComponent
 				if (i.hasNext())
 				{
 					roiResult = i.next();
-					if (roiResult.getROIs().size() != 0)
+					if (CollectionUtils.isNotEmpty(roiResult.getROIs()))
 						hasResult = true;
 				}
 			}
@@ -910,6 +904,7 @@ class MeasurementViewerComponent
 		}
 		view.refreshToolBar();
 		view.rebuildManagerTable();
+		view.refreshResultsTable();
 		view.updateDrawingArea();
 		view.setReadyStatus();
 		fireStateChange();
@@ -930,6 +925,8 @@ class MeasurementViewerComponent
 		try {
 			model.removeAllROI();
 			view.rebuildManagerTable();
+			view.clearInspector();
+			view.refreshResultsTable();
 			view.updateDrawingArea();
 		} catch (NoSuchROIException e) {
 			reg.getLogger().error(this, "Cannot save the ROI "+e.getMessage());

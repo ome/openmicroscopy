@@ -158,6 +158,19 @@ public class SearchBean extends AbstractStatefulBean implements Search {
         actions.add(byFullText);
 
     }
+    
+    @Transactional
+    @RolesAllowed("user")
+    public void byLuceneQueryBuilder(String fields, String from,
+            String to, String dateType, String query) {
+        SearchAction byFullText;
+        synchronized (values) {
+            byFullText = new FullText(values, fields, from,
+                    to, dateType, query, analyzer);
+        }
+        actions.add(byFullText);
+    }
+    
 
     @Transactional
     @RolesAllowed("user")

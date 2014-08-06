@@ -341,6 +341,6 @@ public class RndProxyDef
      *
      * @return See above.
      */
-    RenderingDef getData() { return data; }
+    public RenderingDef getData() { return data; }
 
 }

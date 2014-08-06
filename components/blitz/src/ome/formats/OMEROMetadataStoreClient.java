@@ -768,7 +768,9 @@ public class OMEROMetadataStoreClient
             return; // EARLY EXIT
         }
 
-        final List<IObject> links = new ArrayList<IObject>();
+        final List<List<IObject>> linkBatches = new ArrayList<List<IObject>>();
+        List<IObject> links = new ArrayList<IObject>();
+        linkBatches.add(links);
         for (int i = 0; i < fs.sizeOfUsedFiles(); i++) {
             OriginalFile of = fs.getFilesetEntry(i).getOriginalFile();
             String fileName = FilenameUtils.concat(
@@ -786,12 +788,19 @@ public class OMEROMetadataStoreClient
                                 image.getId().getValue(), false));
                         iali.setChild(fa);
                         links.add(iali);
+                        if (links.size() > 1000) {
+                            log.info("Batch#{} of companion files", linkBatches.size());
+                            links = new ArrayList<IObject>();
+                            linkBatches.add(links);
+                        }
                     }
                 }
             }
         }
-        if (links.size() > 0) {
-            iUpdate.saveCollection(links);
+        for (List<IObject> batch : linkBatches) {
+            if (batch.size() > 0) {
+                iUpdate.saveCollection(batch);
+            }
         }
     }
 

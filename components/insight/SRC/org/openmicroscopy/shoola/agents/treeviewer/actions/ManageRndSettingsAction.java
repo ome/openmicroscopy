@@ -5,7 +5,7 @@
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -91,11 +91,11 @@ public class ManageRndSettingsAction
             "Paste the rendering settings.";
 
     /** The name of the action if the index is {@link #RESET}. */
-    private static final String NAME_RESET = "Reset Default";
+    private static final String NAME_RESET = "Reset and Save";
 
     /** The description of the action if the index is {@link #RESET}. */
     private static final String DESCRIPTION_RESET =
-            "Reset the rendering settings created while importing.";
+            "Reset and Save the rendering settings created while importing.";
 
     /** The name of the action if the index is {@link #SET_MIN_MAX}. */
     private static final String NAME_SET_MIN_MAX = "Set Min/Max";
@@ -128,12 +128,11 @@ public class ManageRndSettingsAction
     private void handleTreeTimeNode(TreeImageDisplay[] nodes)
     {
         int count = 0;
-        TreeImageTimeSet node;
+        TreeImageDisplay node;
         for (int i = 0; i < nodes.length; i++) {
-            node = (TreeImageTimeSet) nodes[i];
-            if (node.getNumberItems() > 0) {
-                if (model.canAnnotate(node))
-                    count++;
+            node = nodes[i];
+            if (node.getNumberOfItems() > 0 && model.canAnnotate(node)) {
+                count++;
             }
         }
         setEnabled(count == nodes.length);

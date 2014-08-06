@@ -47,8 +47,8 @@ class TestPrefs(object):
 
     def assertStdoutStderr(self, capsys, out='', err=''):
         o, e = capsys.readouterr()
-        assert o.strip() == out
-        assert e.strip() == err
+        assert (o.strip() == out and
+                e.strip() == err)
 
     def invoke(self, s):
         self.cli.invoke(self.args + s.split(), strict=True)
@@ -280,3 +280,40 @@ class TestPrefs(object):
         self.invoke("remove omero.web.test 3")
         self.invoke("get omero.web.test")
         self.assertStdoutStderr(capsys, out='[]')
+
+    @pytest.mark.parametrize("data", (
+        ("omero.a=b\nomero.c=d\n##ignore=me\n",
+         "omero.a=b\nomero.c=d",
+         "a (1)\n\t\nc (1)"),
+        ("omero.whitelist=\\\nome.foo,\\\nome.bar\n### END",
+         "omero.whitelist=ome.foo,ome.bar",
+         "whitelist (1)"),
+        ("omero.whitelist=\\\nome.foo,\\\nome.bar\n",
+         "omero.whitelist=ome.foo,ome.bar",
+         "whitelist (1)"),
+        ("omero.whitelist=\\\nome.foo,\\\nome.bar",
+         "omero.whitelist=ome.foo,ome.bar",
+         "whitelist (1)"),
+        ("omero.user_mapping=\\\na=b,c=d",
+         "omero.user_mapping=a=b,c=d",
+         "user_mapping (1)"),
+        ("omero.whitelist=ome.foo\nIce.c=d\n",
+         "Ice.c=d\nomero.whitelist=ome.foo",
+         "whitelist (1)"),
+        ("omero.a=b\nomero.c=d\nomero.e=f\n##ignore=me\n",
+         "omero.a=b\nomero.c=d\nomero.e=f",
+         "a (1)\n\t\nc (1)\n\t\ne (1)"),
+        ("omero.a=b\nomero.c=d\nomero.e=f\n##ignore=me\n",
+         "omero.a=b\nomero.c=d\nomero.e=f",
+         "a (1)\n\t\nc (1)\n\t\ne (1)"),
+    ))
+    def testDefaultsParsing(self, tmpdir, capsys, data):
+        input, defaults, keys = data
+        cfg = tmpdir.join("test.cfg")
+        cfg.write(input)
+        self.invoke("parse --file=%s" % cfg)
+        self.assertStdoutStderr(capsys, out=defaults)
+        self.invoke("parse --file=%s --defaults" % cfg)
+        self.assertStdoutStderr(capsys, out=defaults)
+        self.invoke("parse --file=%s --keys" % cfg)
+        self.assertStdoutStderr(capsys, out=keys)

@@ -1,0 +1,24 @@
+<!--
+build.xml
+
+Ant build file for OME OMERO Sphinx documentation.
+Download Apache Ant from http://ant.apache.org/.
+Type "ant -p" for a list of targets.
+-->
+
+<project name="sphinx-api" default="html" basedir=".">
+  <description>Build file for sphinx documentation</description>
+  <property name="root.dir" location=".."/>
+  <import file="${root.dir}/sphinx/common/rules.xml"/>
+
+  <target name="sphinx-deps">
+    <apidoc source="../../dist/lib/python/omero" output="omero"/>
+    <apidoc source="../../dist/lib/python/omeroweb" output="omeroweb"/>
+  </target>
+
+  <target name="clean-deps">
+    <delete dir="omero"/>
+    <delete dir="omeroweb"/>
+  </target>
+
+</project>

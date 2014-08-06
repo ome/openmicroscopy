@@ -32,6 +32,7 @@ import java.util.regex.Pattern;
 import java.util.TreeMap;
 
 import loci.formats.IFormatReader;
+import loci.formats.ImageReader;
 import ome.api.IQuery;
 import ome.io.nio.PixelsService;
 import ome.model.annotations.FileAnnotation;
@@ -195,10 +196,19 @@ public class OriginalMetadataRequestI extends OriginalMetadataRequest implements
 
 		final IceMapper mapper = new IceMapper();
 		for (Entry<String, Object> entry : table.entrySet()) {
+			String key = entry.getKey();
+			Object val = entry.getValue();
 			try {
-				rv.put(entry.getKey(), mapper.toRType(entry.getValue()));
+				if (val instanceof Short) {
+					// Likely could be handled in toRType
+					rv.put(key, mapper.toRType(((Short) val).intValue()));
+				} else {
+					rv.put(key, mapper.toRType(val));
+				}
 			} catch (Exception e) {
-				String msg = "Count not convert to rtype " + entry.getValue();
+				String msg = String.format("Could not convert to rtype: " +
+					"key=%s, value=%s, type=%s ", key, val,
+					(val == null ? "null" : val.getClass()));
 				if (helper == null) {
 					// from command-line
 					System.err.println(msg);
@@ -294,12 +304,19 @@ public class OriginalMetadataRequestI extends OriginalMetadataRequest implements
         }
     }
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		OriginalMetadataRequestI omr = new OriginalMetadataRequestI(null);
-		Map<String, RType> global = omr.wrap(null);
-		Map<String, RType> series = omr.wrap(null);
-		printMap("[GlobalMetadata]", global);
-		printMap("[SeriesMetadata]", series);
+		ImageReader reader = new ImageReader();
+		for (String file : args) {
+			reader.setId(file);
+			final Hashtable<String, Object> bfglobal = reader.getGlobalMetadata();
+			final Hashtable<String, Object> bfseries = reader.getSeriesMetadata();
+			Map<String, RType> global = omr.wrap(bfglobal);
+			Map<String, RType> series = omr.wrap(bfseries);
+			printMap("[GlobalMetadata]", global);
+			printMap("[SeriesMetadata]", series);
+		}
+		reader.close();
 	}
 
 	private static void printMap(String title, Map<String, RType> map) {

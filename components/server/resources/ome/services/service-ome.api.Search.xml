@@ -44,7 +44,9 @@
 
   <bean id="fullTextIndexer" class="ome.services.fulltext.FullTextIndexer">
     <constructor-arg ref="eventLogLoader"/>
+    <constructor-arg ref="metrics"/>
     <property name="repetitions" value="${omero.search.repetitions}"/>
+    <property name="reportingLoops" value="${omero.search.reporting_loops}"/>
   </bean>
 
   <bean id="fullTextBridge" class="ome.services.fulltext.FullTextBridge">
@@ -60,7 +62,7 @@
         <entry key="text/plain"        value-ref="fileParser"/>
         <entry key="text/csv"          value-ref="fileParser"/>
         <entry key="text/xml"          value-ref="fileParser"/>
-        <entry key="application/xml"          value-ref="fileParser"/>
+        <entry key="application/xml"   value-ref="fileParser"/>
         <entry key="application/pdf"   value-ref="pdfParser"/>
       </map>
     </constructor-arg>
@@ -73,9 +75,22 @@
     <property name="maxFileSize" value="${omero.search.max_file_size}"/>
   </bean>
 
-  <alias name="persistentEventLogLoader" alias="eventLogLoader"/>
+  <alias name="${omero.search.event_log_loader}" alias="eventLogLoader"/>
 
   <bean id="persistentEventLogLoader" class="ome.services.fulltext.PersistentEventLogLoader">
+    <property name="queryService" ref="internal-ome.api.LocalQuery"/>
+    <property name="sqlAction" ref="simpleSqlAction"/>
+    <property name="key" value="PersistentEventLogLoader.v2.current_id"/>
+    <property name="types" ref="internal-ome.api.ITypes"/>
+    <property name="batchSize" value="${omero.search.batch}"/>
+    <property name="excludes" value="${omero.search.excludes}"/>
+  </bean>
+
+  <bean id="eventLogQueue" class="ome.services.eventlogs.EventLogQueue">
+    <constructor-arg index="0" ref="metrics"/>
+    <constructor-arg index="1" value="${omero.search.max_partition_size}"/>
+    <constructor-arg index="2" value="${omero.search.include_types}"/>
+    <constructor-arg index="3" value="${omero.search.include_actions}"/>
     <property name="queryService" ref="internal-ome.api.LocalQuery"/>
     <property name="sqlAction" ref="simpleSqlAction"/>
     <property name="key" value="PersistentEventLogLoader.v2.current_id"/>

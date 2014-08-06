@@ -690,6 +690,13 @@
   License File: jquery.txt, gpl.txt
 
 
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery.ui.touch-punch.min.js
+  Project:      Touch punch - Enables touch events on mobile web
+  Web Site:     http://touchpunch.furf.com/
+  License:      MIT and GNU GENERAL PUBLIC LICENSE Version 2.
+  License File: jquery.txt, gpl.txt
+
+
   Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/static/webclient/javascript/slider/*
   Project:      Slider 1.02 - javascript slider
   Web Site:     http://webfx.eae.net/dhtml/slider/slider.html

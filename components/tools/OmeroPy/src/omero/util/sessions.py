@@ -310,6 +310,7 @@ class SessionsStore(object):
             sf = client.createSession(sudo, pasw)
             principal = omero.sys.Principal()
             principal.name = name
+            principal.group = props.get("omero.group", None)
             principal.eventType = "User"
             sess = sf.getSessionService().createSessionWithTimeouts(principal, 0, 0)
             client.closeSession()

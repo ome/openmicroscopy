@@ -38,7 +38,7 @@ public class MakePathComponentSafe implements Function<String, String> {
     /**
      * {@inheritDoc}
      */
-    // @Override only since Java SE 6
+    @Override
     public String apply(String string) {
         final String ucString = string.toUpperCase();
         for (final String unsafeName : rules.unsafeNames)

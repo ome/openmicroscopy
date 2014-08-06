@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2008 - 2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -62,10 +62,9 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * 
  * Note: {@link SessionManager} should not be used to obtain the {@link Share}
  * data since it may not be completely in sync. i.e. Don't use SM.find()
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta4
  * @see IShare
@@ -192,7 +191,7 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
         final Map<Long, Long> rv = new HashMap<Long, Long>(shareIds.size());
         sec.runAsAdmin(new AdminAction(){
             public void runAsAdmin() {
-                iQuery.execute(new HibernateCallback(){
+                iQuery.execute(new HibernateCallback<Object>() {
                     public Object doInHibernate(org.hibernate.Session s)
                         throws HibernateException, SQLException {
                         Query q = qb.query(s);
@@ -495,7 +494,7 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
         try {
 
 
-            iQuery.execute(new HibernateCallback() {
+            iQuery.execute(new HibernateCallback<Object>() {
                 public Object doInHibernate(org.hibernate.Session s)
                     throws HibernateException, SQLException {
 
@@ -543,7 +542,7 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
         Long oldShareId = setShareId(-1L);
         try {
             List<SessionAnnotationLink> links =
-                (List<SessionAnnotationLink>) iQuery.execute(new HibernateCallback(){
+                (List<SessionAnnotationLink>) iQuery.execute(new HibernateCallback<Object>(){
                 public Object doInHibernate(org.hibernate.Session arg0)
                         throws HibernateException, SQLException {
 
@@ -576,32 +575,21 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
     @Transactional(readOnly = false)
     public CommentAnnotation addComment(final long shareId,
             @NotNull final String commentText) {
-        
         getShareIfAccessible(shareId);
         ExperimenterGroup group = iQuery.get(Share.class, shareId).getGroup();
-        
         final CommentAnnotation[] rv = new CommentAnnotation[1];
+
         sec.runAsAdmin(group, new AdminAction(){
             public void runAsAdmin() {
-                
                 final Share share = iQuery.get(Share.class, shareId);
                 CommentAnnotation comment = new CommentAnnotation();
                 comment.setTextValue(commentText);
                 comment.setNs(NS_COMMENT);
-                //comment.getDetails().setOwner(commentOwner);
-                SessionAnnotationLink link = share.linkAnnotation(comment);
-                //link.getDetails().setOwner(commentOwner);
-                //
-                // ticket:1434 - no longer setting permissions, since they
-                // will be set to the value of the group automatically.
-                //
-                // comment.getDetails().setPermissions(Permissions.DEFAULT);
-                // link.getDetails().setPermissions(Permissions.DEFAULT);
-
+                share.linkAnnotation(comment);
                 iUpdate.flush();
                 rv[0] = iQuery.get(CommentAnnotation.class, comment.getId());
-
             }});
+
         return rv[0];
     }
 
@@ -811,7 +799,7 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
          * Set<Session> sessions = new HashSet<Session>(); for (ShareData data :
          * datas) { sessions.add(shareToSession(data)); } return sessions;
          */
-        Set<Long> ids = new HashSet<Long>();
+        final Set<Long> ids = new HashSet<Long>();
         for (ShareData data : datas) {
             ids.add(data.id);
         }
@@ -819,22 +807,50 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
             return Collections.emptySet();
         }
 
-        List<Session> list = iQuery.findAllByQuery(
-                "select sh from Session sh "
-                        + "join fetch sh.owner where sh.id in (:ids) ",
-                new Parameters().addIds(ids));
+        List<Session> list = iQuery.execute(new HibernateCallback<Object>() {
+            public Object doInHibernate(org.hibernate.Session arg0)
+                    throws HibernateException, SQLException {
+                BasicSecuritySystem bss = (BasicSecuritySystem) sec;
+                try {
+                    bss.disableReadFilter(arg0);
+                    return arg0
+                            .createQuery(
+                                    "select sh from Session sh "
+                                            + "join fetch sh.owner "
+                                            + "where sh.id in (:ids) ")
+                            .setParameterList("ids", ids).list();
+                } finally {
+                    bss.enableReadFilter(arg0);
+                }
+            }
+        });
         for (Session session : list) {
-            if (session!= null) {
+            if (session != null) {
                 session.putAt("#2733", "ALLOW");
             }
         }
         return new HashSet<Session>(list);
     }
 
-    protected Share shareToSession(ShareData data) {
-        Share share = iQuery.findByQuery("select sh from Share sh "
-                + "join fetch sh.owner where sh.id = :id ", new Parameters()
-                .addId(data.id));
+    protected Share shareToSession(final ShareData data) {
+        Share share = iQuery.execute(new HibernateCallback<Object>() {
+            public Object doInHibernate(org.hibernate.Session arg0)
+                    throws HibernateException, SQLException {
+                BasicSecuritySystem bss = (BasicSecuritySystem) sec;
+                try {
+                    bss.disableReadFilter(arg0);
+                    return arg0
+                            .createQuery(
+                                    "select sh from Share sh "
+                                            + "join fetch sh.owner "
+                                            + "where sh.id = :id")
+                            .setParameter("id", data.id).uniqueResult();
+                } finally {
+                    bss.enableReadFilter(arg0);
+                }
+            }
+        });
+
         if (share != null) {
             share.putAt("#2733", "ALLOW");
         }

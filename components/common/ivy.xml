@@ -19,5 +19,9 @@
     <dependency name="model-${omero.db.profile}" rev="${omero.version}" changing="true" conf="build->build;client->client;server->server"/>
     <!-- Other -->
     <dependency org="com.google.guava" name="guava" rev="${versions.guava}"/>
+    <dependency org="com.codahale.metrics" name="metrics-core" rev="${versions.metrics}"/>
+    <dependency org="com.codahale.metrics" name="metrics-graphite" rev="${versions.metrics}"/>
+    <dependency org="com.codahale.metrics" name="metrics-jvm" rev="${versions.metrics}"/>
+    <dependency org="com.codahale.metrics" name="metrics-logback" rev="${versions.metrics}"/>
   </dependencies>
 </ivy-module>

@@ -38,6 +38,23 @@ public class JvmSettingsCheck {
 
     public final static Log log = LogFactory.getLog(JvmSettingsCheck.class);
 
+    /**
+     * TotalPhysicalMemorySize value from the OperatingSystem JMX bean
+     * at startup.
+     */
+    public final static long TOTAL_PHYSICAL_MEMORY;
+
+    /**
+     * FreePhysicalMemorySize value from the OperatingSystem JMX bean
+     * at startup.
+     */
+    public final static long INITIAL_FREE_PHYSICAL_MEMORY;
+
+    static {
+        TOTAL_PHYSICAL_MEMORY = _get("TotalPhysicalMemorySize");
+        INITIAL_FREE_PHYSICAL_MEMORY = _get("FreePhysicalMemorySize");
+    }
+
     public JvmSettingsCheck() {
         final String fmt = "%s = %6s";
         final Runtime rt = Runtime.getRuntime();
@@ -59,18 +76,27 @@ public class JvmSettingsCheck {
     }
 
     public static long getPhysicalMemory() {
+        return TOTAL_PHYSICAL_MEMORY;
+    }
+
+    private static long _get(String name) {
         try {
             MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
             Object attribute = mBeanServer.getAttribute(
-                new ObjectName("java.lang","type","OperatingSystem"), "TotalPhysicalMemorySize");
+                new ObjectName("java.lang","type","OperatingSystem"), name);
             return Long.valueOf(attribute.toString());
         } catch (Exception e) {
-            log.debug("Failed to get physical memory", e);
+            log.debug("Failed to get: " + name, e);
             return -1;
         }
     }
 
     public static void main(String[] args) {
+        if (args.length >= 1 && "--psutil".equals(args[0])) {
+            System.out.println("Free:" + INITIAL_FREE_PHYSICAL_MEMORY);
+            System.out.println("Total:" + TOTAL_PHYSICAL_MEMORY);
+            return; // EARLY EXIT
+        }
         new JvmSettingsCheck();
     }
 

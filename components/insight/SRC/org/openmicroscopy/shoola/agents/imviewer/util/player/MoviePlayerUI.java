@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerUI
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -219,7 +219,7 @@ class MoviePlayerUI
 				UIUtilities.formatToolTipText("Enter the end z-section."));
 
 		int maxT = model.getMaxT();
-		int minT = model.getMinZ();
+		int minT = model.getMinT();
 		int rangeT = maxT-minT;
 		tSlider = new TwoKnobsSlider(minT, maxT, model.getStartT(), 
 				model.getEndT());
@@ -227,10 +227,11 @@ class MoviePlayerUI
 		tSlider.setPaintLabels(false);
 
 		if (rangeT <= 0 || rangeT > MAX_RANGE) tSlider.setPaintTicks(false);
-		startT = new JTextField(""+model.getStartT(), (""+maxT).length());
+		length = (""+(maxT+1)).length();
+		startT = new JTextField(""+(model.getStartT()+1), length);
 		startT.setToolTipText(
 				UIUtilities.formatToolTipText("Enter the start timepoint."));
-		endT = new JTextField(""+model.getEndT(), (""+maxT).length());
+		endT = new JTextField(""+(model.getEndT()+1), length);
 		endT.setToolTipText(
 				UIUtilities.formatToolTipText("Enter the end timepoint."));
 		acrossZ = new JCheckBox("Across Z");
@@ -503,7 +504,7 @@ class MoviePlayerUI
 	 */
 	void setStartT(int v)
 	{
-		startT.setText(""+v);
+		startT.setText(""+(v+1));
 		tSlider.setStartValue(v);
 	}
 
@@ -525,7 +526,7 @@ class MoviePlayerUI
 	 */
 	void setEndT(int v)
 	{
-		endT.setText(""+v);
+		endT.setText(""+(v+1));
 		tSlider.setEndValue(v);
 	}
 

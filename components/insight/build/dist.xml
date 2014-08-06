@@ -67,10 +67,14 @@
    <property name="dist.jar.ij.file" value="omero_ij.jar"/>
   <property name="dist.bundle.name" value="OMERO.insight"/>
   <property name="dist.bundle.ij.name" value="OMERO.insight-ij"/>
-  <fileset id="dist.launch.scripts" dir="${base.launch.dir}">
-    <include name="importer-cli"/>
-    <include name="*.sh"/>
-    <include name="*.bat"/>
+  <fileset id="dist.launch.importer.scripts" dir="${base.launch.dir}">
+    <include name="*importer*"/>
+  </fileset>
+  <fileset id="dist.launch.insight.scripts" dir="${base.launch.dir}">
+    <include name="*insight*"/>
+  </fileset>
+  <fileset id="dist.launch.editor.scripts" dir="${base.launch.dir}">
+    <include name="*editor*"/>
   </fileset>
   <property name="dist.installfile"
             location="${base.launch.dir}/INSTALL.txt"/>
@@ -239,20 +243,55 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <target name="dist"
           depends="jar, jar-util, jar-ij, dist-osx-openGL, dist-osx, dist-win,
-  	dist-win-openGL,dist-win64-openGL,distEditor-osx, distEditor-win, dist-ij,
-  	distImporter-osx, distImporter-win"
+	dist-win-openGL,dist-win64-openGL,distEditor-osx, distEditor-win,
+	distEditor-linux, dist-ij, distImporter-osx, distImporter-win,
+	distImporter-linux"
           description="Build and package the app for distribution.">
 
     <!-- Main zip -->
-    <zip destfile="${dist.dir}/${main-dist-prefix}.zip">
-      <zipfileset dir="${app.config.dir}" prefix="${main-dist-prefix}/${dist.app.config.dir.name}"/>
-      <zipfileset refid="app.libs" prefix="${main-dist-prefix}/${dist.app.lib.dir.name}"/>
-      <zipfileset dir="${dist.dir}" prefix="${main-dist-prefix}" includes="${dist.jar.file}"/>
-      <zipfileset refid="dist.launch.scripts" prefix="${main-dist-prefix}" filemode="775"/>
-      <zipfileset file="${dist.installfile}" prefix="${main-dist-prefix}"/>
-      <zipfileset file="${base.licensefile}" fullpath="${main-dist-prefix}/LICENSE"/>
+    <property name="dist.zip.prefix.insight.linux"
+      value="${dist.bundle.name}-${dist.bundle.version}-linux"/>
+    <zip destfile="${dist.dir}/${dist.zip.prefix.insight.linux}.zip">
+      <zipfileset dir="${app.config.dir}" prefix="${dist.zip.prefix.insight.linux}/${dist.app.config.dir.name}"/>
+      <zipfileset refid="app.libs" prefix="${dist.zip.prefix.insight.linux}/${dist.app.lib.dir.name}"/>
+      <zipfileset dir="${dist.dir}" prefix="${dist.zip.prefix.insight.linux}" includes="${dist.jar.file}"/>
+      <zipfileset refid="dist.launch.insight.scripts" prefix="${dist.zip.prefix.insight.linux}" filemode="775"/>
+      <zipfileset file="${dist.installfile}" prefix="${dist.zip.prefix.insight.linux}"/>
+      <zipfileset file="${base.licensefile}" fullpath="${dist.zip.prefix.insight.linux}/LICENSE"/>
     </zip>
   </target>
+
+  <target name="distImporter-linux"
+          description="Build and package the app for Linux distribution.">
+
+    <property name="dist.zip.prefix.importer.linux"
+      value="${distImporter.name}-${dist.bundle.version}-linux"/>
+    <zip destfile="${dist.dir}/${dist.zip.prefix.importer.linux}.zip">
+      <zipfileset dir="${app.config.dir}" prefix="${dist.zip.prefix.importer.linux}/${dist.app.config.dir.name}"/>
+      <zipfileset refid="app.libs" prefix="${dist.zip.prefix.importer.linux}/${dist.app.lib.dir.name}"/>
+      <zipfileset dir="${dist.dir}" prefix="${dist.zip.prefix.importer.linux}" includes="${dist.jar.file}"/>
+      <zipfileset refid="dist.launch.importer.scripts" prefix="${dist.zip.prefix.importer.linux}" filemode="775"/>
+      <zipfileset file="${dist.installfile}" prefix="${dist.zip.prefix.importer.linux}"/>
+      <zipfileset file="${base.licensefile}" fullpath="${dist.zip.prefix.importer.linux}/LICENSE"/>
+    </zip>
+  </target>
+
+  <target name="distEditor-linux"
+          description="Build and package OMERO.editor for Linux.">
+
+    <!-- Main zip -->
+    <property name="dist.zip.prefix.editor.linux"
+      value="${distEditor.name}-${dist.bundle.version}-linux"/>
+    <zip destfile="${dist.dir}/${dist.zip.prefix.editor.linux}.zip">
+      <zipfileset dir="${app.config.dir}" prefix="${dist.zip.prefix.editor.linux}/${dist.app.config.dir.name}"/>
+      <zipfileset refid="app.libs" prefix="${dist.zip.prefix.editor.linux}/${dist.app.lib.dir.name}"/>
+      <zipfileset dir="${dist.dir}" prefix="${dist.zip.prefix.editor.linux}" includes="${dist.jar.file}"/>
+      <zipfileset refid="dist.launch.editor.scripts" prefix="${dist.zip.prefix.editor.linux}" filemode="775"/>
+      <zipfileset file="${dist.installfile}" prefix="${dist.zip.prefix.editor.linux}"/>
+      <zipfileset file="${base.licensefile}" fullpath="${dist.zip.prefix.editor.linux}/LICENSE"/>
+    </zip>
+  </target>
+
 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * Creates the default distribution bundle under ${dist.dir}.
@@ -476,7 +515,6 @@
     <property name="dist.zip.prefix.osx"
               value="${dist.bundle.name}-${dist.bundle.version}-mac"/>
     <zip destfile="${dist.dir}/${dist.zip.prefix.osx}.zip">
-      <zipfileset refid="dist.launch.scripts" prefix="${dist.zip.prefix.osx}" filemode="775"/>
       <zipfileset prefix="${dist.zip.prefix.osx}/${dist.app.config.dir.name}"
                   dir="${app.config.dir}"/>
       <zipfileset prefix="${dist.zip.prefix.osx}" dir="${dist.dir}"
@@ -605,7 +643,7 @@
   <property name="dist.zip.prefix.editor.osx"
             value="${distEditor.bundle.name}-${dist.bundle.version}-mac"/>
 	  <zip destfile="${dist.dir}/${dist.zip.prefix.editor.osx}.zip">
-	     <zipfileset prefix="${dist.zip.prefix.editor.osx}/${dist.app.config.dir.name}"
+            <zipfileset prefix="${dist.zip.prefix.editor.osx}/${dist.app.config.dir.name}"
 	                 dir="${app.config.dir}"/>
 	     <zipfileset prefix="${dist.zip.prefix.editor.osx}" dir="${dist.dir}"
 	               includes="OMERO.editor.app/**"

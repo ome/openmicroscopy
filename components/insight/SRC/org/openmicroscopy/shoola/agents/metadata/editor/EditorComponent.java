@@ -36,14 +36,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 //Third-party libraries
-
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.FileAnnotationCheckResult;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
@@ -70,7 +70,6 @@ import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.util.Target;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.AnnotationData;
@@ -289,6 +288,11 @@ class EditorComponent
 		model.setRootObject(refObject);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		view.setRootObject(oldObject);
+		
+		// have to load the filesets immediately to determine if the
+		// show file path button in the toolbar should be activated or not
+		if (refObject != null && DataObject.class.isAssignableFrom(refObject.getClass()))
+		    loadFileset(-1);
 	}
 
 	/** 
@@ -506,7 +510,7 @@ class EditorComponent
     }
 
     public void handleFileAnnotationRemoveCheck(final FileAnnotationCheckResult result) {
-        if (!result.getSingleParentAnnotations().isEmpty()) {
+        if (!result.getDeleteCandidates().isEmpty()) {
             
             JFrame f = MetadataViewerAgent.getRegistry().getTaskBar()
                     .getFrame();
@@ -516,8 +520,8 @@ class EditorComponent
                 
                 @Override
                 public void propertyChange(PropertyChangeEvent arg0) {
-                    if(arg0.getPropertyName().equals(FileAttachmentWarningDialog.DELETE_PROPERTY)) {
-                        for (FileAnnotationData fd : result.getSingleParentAnnotations()) {
+                    if (arg0.getPropertyName().equals(FileAttachmentWarningDialog.DELETE_PROPERTY)) {
+                        for (FileAnnotationData fd : result.getDeleteCandidates()) {
                           view.deleteAnnotation(fd);
                         }
                         for (FileAnnotationData fd : result.getAllAnnotations()) {
@@ -649,6 +653,10 @@ class EditorComponent
 	public void setPlaneInfo(Collection result, long pixelsID, int channel)
 	{
 		Object ref = model.getRefObject();
+		if (ref instanceof WellSampleData) {
+		    WellSampleData ws = (WellSampleData) ref;
+		    ref = ws.getImage();
+		}
 		if (!(ref instanceof ImageData)) return;
 		ImageData img = (ImageData) ref;
 		if (pixelsID != img.getDefaultPixels().getId()) return;
@@ -701,6 +709,8 @@ class EditorComponent
 			if (d.getDialogType() == FigureDialog.ROI_MOVIE)
 				model.firePlaneInfoLoading(EditorModel.DEFAULT_CHANNEL, 0);
 		}
+		// load other users' rendering settings
+		model.getRenderer().retrieveRelatedSettings();
 	}
 
 	/** 
@@ -713,8 +723,7 @@ class EditorComponent
 				index == RenderingControlLoader.RELOAD)
 			return;
 		ImageData image = model.getImage();
-		if (image == null) return;
-		if (image.getId() < 0) return;
+		if (image == null || image.getId() < 0) return;
 		PixelsData pixels = image.getDefaultPixels();
 		if  (pixels == null) return;
 		int value;
@@ -1174,8 +1183,12 @@ class EditorComponent
 	 */
 	public void setLargeImage(Boolean value)
 	{
+	    ImageData img = model.getImage();
+	    if (img == null) return;
 		model.setLargeImage(value);
 		view.onSizeLoaded();
+		view.handleImageSelection();
+		loadRnd();
 	}
 	
     /** 

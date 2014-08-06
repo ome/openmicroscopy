@@ -31,12 +31,21 @@
 
     <script type="text/javascript">
         $(document).ready(function() {
+
+            // Fix size according to right panel size... NB: this behaviour is also in right_plugin.preview.js
+            var vpWidth = $("#right_panel").width() - 50,
+              vpHeight = Math.min(vpWidth, $("#preview_tab").height() - 100);
+            vpHeight = Math.max(300, vpHeight);
+            $("#viewport").css({'width': vpWidth + 'px', 'height': vpHeight + 'px'});
+
+            if (typeof OME === "undefined") {OME = {}}
+
             {% if share_id %}
-            var viewport = $.WeblitzViewport($("#viewport"), "{% url 'webindex' %}{{ share_id }}", {'mediaroot': '{{ STATIC_URL }}' } );
-            viewport.load({{ manager.image.id }}, null, location.search);
+            OME.preview_viewport = $.WeblitzViewport($("#viewport"), "{% url 'webindex' %}{{ share_id }}", {'mediaroot': '{{ STATIC_URL }}' } );
+            OME.preview_viewport.load({{ manager.image.id }}, null, location.search);
             {% else %}
-            var viewport = $.WeblitzViewport($("#viewport"), "{% url 'webindex' %}", {'mediaroot': '{{ STATIC_URL }}' } );
-            viewport.load({{ manager.image.id }});
+            OME.preview_viewport = $.WeblitzViewport($("#viewport"), "{% url 'webindex' %}", {'mediaroot': '{{ STATIC_URL }}' } );
+            OME.preview_viewport.load({{ manager.image.id }});
             {% endif %}
 
             var copy_paste_rdef_url = "{% url 'webgateway.views.copy_image_rdef_json' %}";

@@ -68,7 +68,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
@@ -465,7 +464,7 @@ public class SelectionWizardUI
         tree.setVisible(true);
         tree.setRootVisible(false);
         ToolTipManager.sharedInstance().registerComponent(tree);
-        tree.setCellRenderer(new TreeCellRenderer(user.getId()));
+        tree.setCellRenderer(new TreeCellRenderer(false));
         tree.setShowsRootHandles(true);
         TreeImageSet root = new TreeImageSet("");
         tree.setModel(new DefaultTreeModel(root));
@@ -681,6 +680,8 @@ public class SelectionWizardUI
             TagAnnotationData t = (TagAnnotationData) item.getUserObject();
             if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(t.getNameSpace())) {
                 Set<TagAnnotationData> tags = t.getTags();
+                if (CollectionUtils.isEmpty(tags))
+                    continue;
                 for (TagAnnotationData n : tags) {
                     if (n.getId() == tag.getId()) {
                         parents.add(t);
@@ -815,6 +816,8 @@ public class SelectionWizardUI
                 if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(
                         tag.getNameSpace())) {
                     Set<TagAnnotationData> children = tag.getTags();
+                    if (CollectionUtils.isEmpty(children))
+                        continue;
                     Iterator<TagAnnotationData> j = children.iterator();
                     DataObject o;
                     while (j.hasNext()) {

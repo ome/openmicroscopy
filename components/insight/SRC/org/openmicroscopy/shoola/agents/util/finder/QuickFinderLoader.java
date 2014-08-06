@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.util.finder.QuickFinderLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.util.finder;
 
 
 //Java imports
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -33,6 +34,7 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
+import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 import org.openmicroscopy.shoola.env.data.util.SearchResult;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
@@ -59,7 +61,7 @@ public class QuickFinderLoader
 {
 
 	/** The context of the search.  */
-	private SearchDataContext context;	
+	private SearchParameters context;	
 	
 	/** Handle to the async call so that we can cancel it. */
     private CallHandle  	handle;
@@ -72,10 +74,10 @@ public class QuickFinderLoader
      *  @param ctx The security context.
      * @param context The context of the search. 
      */
-    public QuickFinderLoader(QuickFinder viewer, List<SecurityContext> ctx, 
-    		SearchDataContext context)
+    public QuickFinderLoader(QuickFinder viewer, SecurityContext ctx, 
+            SearchParameters context)
     {
-    	super(viewer, ctx);
+    	super(viewer, Collections.singletonList(ctx));
     	if (context == null) 
     		throw new IllegalArgumentException("No terms to search for.");
     	this.context = context;
@@ -87,7 +89,7 @@ public class QuickFinderLoader
      */
     public void load()
     {
-    	handle = dhView.advancedSearchFor(ctx, context, this);
+    	handle = dhView.advancedSearchFor(ctx.get(0), context, this);
     }
 
     /**

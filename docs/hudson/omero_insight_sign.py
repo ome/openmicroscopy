@@ -34,11 +34,12 @@ def usage():
 %s keystore.jks alias server-zip|server-dir [-v]
   [-kp keystore-password] [-cp certificate-password] [-kf keystore-passfile]
   [-cf certificate-passfile] [-ts yes|no|timestamp-server] [-oz output.zip]
+  [-skipverify]
 
 If a zip is given and no -oz option is given a new zip will be created called
-<server>-signed.zip, if -oz is passed an empty string then no zip will be
-created. If a directory is given then no zip will be created unless an output
-zip is specified.
+<server>.zip, if -oz is passed an empty string then no zip will be created. If
+a directory is given then no zip will be created unless an output zip is
+specified.
 
 Passwords can be specified on the command line (-kp, -cp), in a file (-kf, -cf)
 or by entering at the command line when prompted (default).
@@ -50,6 +51,8 @@ If no timestamping option is given timestamping will be enabled using
 
 If the http_proxy/https_proxy environment variables are set they will be
 automatically used.
+
+A verification step will be automatically run unless -skipverify is passed.
 
 If jarsigner fails, for example due to a timestamping error, it will
 automatically retry %d times before aborting the whole signing process""" % (
@@ -93,6 +96,7 @@ class Args:
         self.certpass = None
         self.timestamper = DEFAULT_TIMESTAMP_SERVER
         self.zipout = None
+        self.skipverify = False
 
         self.httpproxy = self.parse_proxy_envvar('http_proxy')
         self.httpsproxy = self.parse_proxy_envvar('https_proxy')
@@ -130,6 +134,10 @@ class Args:
                     self.timestamper = val
             elif arg == '-oz':
                 self.zipout = getarg(args, n + 1, arg)
+            elif arg == '-skipverify':
+                self.skipverify = True
+                n += 1
+                continue
 
             else:
                 raise Stop(2, 'Unknown argument: %s\n%s' % (arg, usage()))
@@ -167,6 +175,9 @@ def check_jarsigner():
     logging.debug('jarsigner is runnable')
 
 
+###########################################################################
+# Signing
+###########################################################################
 
 def jarsign(jar, alias, keystore, keypass, certpass, timestamper, proxy=None):
     # Additional jarsigner args must come before the jar and alias
@@ -281,6 +292,148 @@ def md5sum(filename):
         f.write('%s  %s\n' % (md5.hexdigest(), os.path.basename(filename)))
 
 
+###########################################################################
+# Verification
+###########################################################################
+
+class Status(object):
+    def __init__(self, jarname):
+        self.jarname = jarname
+        self.verified = None
+        self.warning = None
+        self.unknowncert = None
+        self.notimestamp = None
+        self.nomanifest = None
+        self.expiresoon = None
+
+    def __str__(self):
+        s = '%s %s' % (self.jarname, 'Signed' if self.verified else 'Unsigned')
+        if self.warning:
+            s += ' warning'
+        if self.unknowncert:
+            s += ' unknown-cert'
+        if self.notimestamp:
+            s += ' no-timestamp'
+        if self.nomanifest:
+            s += ' no-manifest'
+        if self.expiresoon:
+            s += ' expire-soon'
+        return s
+
+
+def parse_jarsigner_verify(jarname, out):
+    s = Status(jarname)
+
+    lines = out.split('\n')
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+        elif line == 'jar verified.':
+            assert s.verified is None
+            s.verified = True
+        elif line.startswith('jar is unsigned.'):
+            assert s.verified is None
+            s.verified = False
+        elif line == 'Warning:':
+            assert s.warning is None
+            s.warning = True
+        elif line == 'no manifest.':
+            assert s.nomanifest is None
+            s.nomanifest = True
+        elif line.startswith('This jar contains entries whose certificate '
+                             'chain is not validated.'):
+            assert s.unknowncert is None
+            s.unknowncert = True
+        elif line.startswith('This jar contains signatures that does not '
+                             'include a timestamp.'):
+            assert s.notimestamp is None
+            s.notimestamp = True
+        elif line.startswith('This jar contains entries whose signer '
+                             'certificate will expire within six months.'):
+            assert s.expiresoon is None
+            s.expiresoon = True
+        elif line.startswith('Re-run with the -verbose and -certs options for'
+                             ' more details.'):
+            continue
+        else:
+            raise Stop(2, 'Unexpected output: for %s %s' % (jarname, lines))
+
+    return s
+
+
+def jarverify(jar):
+    cmd = ['jarsigner', '-verify', jar]
+    logging.debug('Running: %s', cmd)
+
+    proc = subprocess.Popen(
+        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = proc.communicate()
+    if proc.returncode != 0:
+        # jarsigner returns 0 irrespective of whether the jar was verified or
+        # not
+        raise Stop(proc.returncode, 'Failed to run %s' % cmd)
+
+    if err:
+        raise Stop(2, 'Unexpected error output from %s\n%s' % (cmd, err))
+    if not out:
+        raise Stop(2, 'No output received from %s' % cmd)
+
+    status = parse_jarsigner_verify(jar, out)
+    logging.info('%s', status)
+    return status
+
+
+def verify_jar_directory(d):
+    if not os.path.isdir(d):
+        raise Stop(3, 'Directory %s not found' % d)
+    jars = glob.glob(os.path.join(d, '*.jar'))
+    statuses = []
+    for jar in jars:
+        status = jarverify(jar)
+        statuses.append(status)
+        logging.debug('%s', status)
+    return statuses
+
+
+def summarise_statuses(statuses):
+    signed = 0
+    warning = 0
+    unknowncert = 0
+    notimestamp = 0
+    nomanifest = 0
+    expiresoon = 0
+    total = len(statuses)
+
+    for s in statuses:
+        if s.verified:
+            signed += 1
+        if s.warning:
+            warning += 1
+        if s.unknowncert:
+            unknowncert += 1
+        if s.notimestamp:
+            notimestamp += 1
+        if s.nomanifest:
+            nomanifest += 1
+        if s.expiresoon:
+            expiresoon += 1
+
+    return ('%d/%d signed %d warn %d unknown-cert %d not-timestamped %d '
+            'no-manifest %d expire-soon' % (
+                signed, total, warning, unknowncert, notimestamp, nomanifest,
+                expiresoon))
+
+
+def verify_jars(jardir):
+    logging.info('Verifying jars')
+    statuses = verify_jar_directory(jardir)
+    s = summarise_statuses(statuses)
+    logging.info('%s', s)
+
+
+###########################################################################
+
 def sign_server(args):
     if args.verbose:
         logging.getLogger().setLevel(logging.DEBUG)
@@ -298,7 +451,7 @@ def sign_server(args):
             raise Stop('Expected zip-filename to end with .zip')
         serverdir = os.path.basename(args.server[:-4])
         if args.zipout is None:
-            args.zipout = serverdir + '-signed.zip'
+            args.zipout = serverdir + '.zip'
     else:
         serverdir = args.server
 
@@ -325,6 +478,9 @@ def sign_server(args):
     for jar in jars:
         jarsign(jar, args.alias, args.keystore, keypass, certpass,
                 args.timestamper, additional_args)
+
+    if not args.skipverify:
+        verify_jars(jardir)
 
     if args.zipout:
         if os.path.exists(args.zipout):

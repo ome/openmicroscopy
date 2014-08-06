@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.util.ui.graphutils.PointRenderer 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -94,7 +94,7 @@ class PointRenderer
 	public PointRenderer(List<Color> colours, List<Shape> shapes) 
 	{
 		if (colours == null)
-			throw new IllegalArgumentException("List of colours cannot " +
+			throw new IllegalArgumentException("List of colors cannot " +
 					"be null.");
 		if (shapes == null)
 			throw new IllegalArgumentException("List of shapes cannot " +

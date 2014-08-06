@@ -36,6 +36,7 @@
     <constructor-arg ref="omeroFilePathResolver"/>
     <constructor-arg ref="backOff"/>
     <constructor-arg ref="tileSizes"/>
+    <property name="metrics" ref="metrics"/>
   </bean>
 
   <bean id="backOff" class="${omero.pixeldata.backoff}">

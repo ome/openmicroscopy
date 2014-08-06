@@ -26,7 +26,7 @@ import test.integration.library as lib
 
 from omero.gateway import BlitzGateway
 from omero.model import ProjectI, DatasetI, ScreenI, PlateI, \
-    PlateAcquisitionI, PermissionsI
+    PlateAcquisitionI
 from omero.rtypes import rstring
 from omeroweb.webclient.tree import marshal_datasets, marshal_plates, \
     marshal_projects, marshal_screens
@@ -66,9 +66,7 @@ def itest(request):
 def client(request, itest):
     """Returns a new user client in a read-only group."""
     # Use group read-only permissions (not private) by default
-    perms = PermissionsI()
-    perms.setGroupRead(True)
-    return itest.new_client(perms=perms.getPerm1())
+    return itest.new_client(perms='rwr---')
 
 
 @pytest.fixture(scope='function')
@@ -456,7 +454,7 @@ class TestTree(object):
             self, conn, projects_different_users):
         project_a, project_b = projects_different_users
         expected = list()
-        perms_css = 'canEdit canAnnotate canLink canDelete'
+        perms_css = ''
         # The underlying query explicitly orders the Projects list by
         # case-insensitive name.
         for project in sorted(projects_different_users, cmp_name_insensitive):
@@ -513,7 +511,7 @@ class TestTree(object):
             self, conn, datasets_different_users):
         dataset_a, dataset_b = datasets_different_users
         expected = list()
-        perms_css = 'canEdit canAnnotate canLink canDelete'
+        perms_css = ''
         # The underlying query explicitly orders the Screens list by
         # case-insensitive name.
         for dataset in sorted(datasets_different_users, cmp_name_insensitive):
@@ -682,7 +680,7 @@ class TestTree(object):
             self, conn, plates_different_users):
         plate_a, plate_b = plates_different_users
         expected = list()
-        perms_css = 'canEdit canAnnotate canLink canDelete'
+        perms_css = ''
         # The underlying query explicitly orders the Plates list by
         # case-insensitive name.
         for plate in sorted(plates_different_users, cmp_name_insensitive):
@@ -850,7 +848,7 @@ class TestTree(object):
             self, conn, screens_different_users):
         screen_a, screen_b = screens_different_users
         expected = list()
-        perms_css = 'canEdit canAnnotate canLink canDelete'
+        perms_css = ''
         # The underlying query explicitly orders the Screens list by
         # case-insensitive name.
         for screen in sorted(screens_different_users, cmp_name_insensitive):

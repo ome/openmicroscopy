@@ -65,8 +65,11 @@ public class BirdEyeLoader
     private ImageData image;
 
     /** The ratio by which to scale the image down.*/
-    private double ratio;
+    private double ratio = -1;
 
+    /** The image size.*/
+    private int imageSize = -1;
+    
     /** Flag indicating that this loader has been cancelled.*/
     private boolean cancelled;
 
@@ -87,19 +90,44 @@ public class BirdEyeLoader
         this.image = image;
         this.ratio = ratio;
     }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param viewer The view this loader is for. Mustn't be <code>null</code>.
+     * @param ctx The security context.
+     * @param image The image to handle.
+     * @param imageSize The requested image size
+     */
+    public BirdEyeLoader(ImViewer viewer, SecurityContext ctx, ImageData image,
+            int imageSize)
+    {
+        super(viewer, ctx);
+        if (image == null)
+            throw new IllegalArgumentException("No image to load.");
+        this.image = image;
+        this.imageSize = imageSize;
+    }
 
     /**
      * Loads the image.
+     * 
      * @see DataLoader#load()
      */
-    public void load()
-    {
-        //Load the thumbnail
+    public void load() {
+        // Load the thumbnail
         List<DataObject> objects = new ArrayList<DataObject>();
         objects.add(image);
-        handle = hiBrwView.loadThumbnails(ctx, objects,
-                Factory.THUMB_DEFAULT_WIDTH, Factory.THUMB_DEFAULT_HEIGHT, -1,
-                HierarchyBrowsingView.IMAGE, this);
+        if (ratio > 0) {
+            // load image with default thumbnail size (fast)
+            handle = hiBrwView.loadThumbnails(ctx, objects,
+                    Factory.THUMB_DEFAULT_WIDTH, Factory.THUMB_DEFAULT_HEIGHT,
+                    -1, HierarchyBrowsingView.IMAGE, this);
+        } else if (imageSize > 0) {
+            // load image with a custom size (might be slow)
+            handle = hiBrwView.loadThumbnails(ctx, objects, imageSize,
+                    imageSize, -1, HierarchyBrowsingView.IMAGE, this);
+        }
     }
 
     /**
@@ -141,9 +169,12 @@ public class BirdEyeLoader
         ThumbnailData data = (ThumbnailData) fe.getPartialResult();
         if (data != null) {
             BufferedImage image = (BufferedImage) data.getThumbnail();
-            if (image != null && ratio != 1)
+            boolean scaled = false;
+            if (image != null && ratio > 0 && ratio != 1) {
                 image = Factory.magnifyImage(ratio, image);
-            viewer.setBirdEyeView(image);
+                scaled = true;
+            }
+            viewer.setBirdEyeView(image, scaled);
         }
     }
 

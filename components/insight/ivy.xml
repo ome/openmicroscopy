@@ -6,23 +6,24 @@
   <configurations>
     <conf name="build"/>
     <conf name="client"/>
+    <conf name="release"/>
   </configurations>
   <publications>
     <artifact name="insight" type="jar"/>
     <artifact name="insight" type="pom"/>
-    <artifact name="insight" type="zip"/>
     <artifact name="insight" type="source" ext="jar" m:classifier="sources"/>
     <artifact name="insight" type="javadoc" ext="jar" m:classifier="javadoc"/>
-    <artifact name="insight-win" type="zip"/>
-    <artifact name="insight-win-openGL" type="zip"/>
-    <artifact name="insight-win64-openGL" type="zip"/>
-    <artifact name="insight-mac" type="zip"/>
-    <artifact name="insight-mac-openGL" type="zip"/>
-    <artifact name="editor-mac" type="zip"/>
-    <artifact name="editor-win" type="zip"/>
-    <artifact name="insight-ij" type="zip"/>
-    <artifact name="importer-mac" type="zip"/>
-    <artifact name="importer-win" type="zip"/>
+    <artifact name="insight" type="zip" conf="release"/>
+    <artifact name="insight-win" type="zip" conf="release"/>
+    <artifact name="insight-win-openGL" type="zip" conf="release"/>
+    <artifact name="insight-win64-openGL" type="zip" conf="release"/>
+    <artifact name="insight-mac" type="zip" conf="release"/>
+    <artifact name="insight-mac-openGL" type="zip" conf="release"/>
+    <artifact name="editor-mac" type="zip" conf="release"/>
+    <artifact name="editor-win" type="zip" conf="release"/>
+    <artifact name="insight-ij" type="zip" conf="release"/>
+    <artifact name="importer-mac" type="zip" conf="release"/>
+    <artifact name="importer-win" type="zip" conf="release"/>
   </publications>
   <dependencies defaultconfmapping="build,client->default">
     <!-- Internal -->

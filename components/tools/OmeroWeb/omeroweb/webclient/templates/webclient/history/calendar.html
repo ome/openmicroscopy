@@ -46,24 +46,24 @@
         }
     </script>
 	
+<div class="cal_nav left_panel_top">
+   
+   	<h1><strong>{{ controller.month_name }}</strong> {{ controller.year }}</h1>
 	
-<div class="calendar">
-    <div class="cal_nav left_panel_top">
-       
-	   	<h1><strong>{{ controller.month_name }}</strong> {{ controller.year }}</h1>
-		
-		
-        <input id="prevMonth" class="button" type="button" alt="{{ controller.last_month_name}}">
-        <input id="nextMonth" class="button" type="button" alt="{{ controller.next_month_name }}" >
-		
-		
-		{% comment %}
-        <input id="prevMonth" class="button" type="button" alt="{{ controller.last_month_name}}" value="{{ controller.last_month_name }}" >
-        <input id="nextMonth" class="button" type="button" alt="{{ controller.next_month_name }}" value="{{ controller.next_month_name }}">
-        {% endcomment %}
-		
-    </div>
 	
+    <input id="prevMonth" class="button" type="button" alt="{{ controller.last_month_name}}">
+    <input id="nextMonth" class="button" type="button" alt="{{ controller.next_month_name }}" >
+	
+	
+	{% comment %}
+    <input id="prevMonth" class="button" type="button" alt="{{ controller.last_month_name}}" value="{{ controller.last_month_name }}" >
+    <input id="nextMonth" class="button" type="button" alt="{{ controller.next_month_name }}" value="{{ controller.next_month_name }}">
+    {% endcomment %}
+	
+</div>
+
+<div class="calendar" style="position: absolute; top:30px; left:0; bottom:0; right:0">
+
 	<div class="left_panel_inner">
     
 		<table>

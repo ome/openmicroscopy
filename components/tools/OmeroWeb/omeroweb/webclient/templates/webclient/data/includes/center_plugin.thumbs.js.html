@@ -91,10 +91,8 @@ $(document).ready(function() {
         if ($.inArray(orel, ["experimenter", "project", "screen"])>-1) {
             update['empty'] = true;
         } else if (oid.indexOf("orphaned")>=0) {
-            if (oid!==crel) {           // check we've not already loaded orphaned
-                update['rel'] = oid;
-                update['url'] = prefix+'load_data/'+orel+'/?view=icon';
-            }
+            update['rel'] = oid;
+            update['url'] = prefix+'load_data/'+orel+'/?view=icon';
         } else if(orel == "plate") {
             if (datatree.is_leaf(selected)) {   // Load Plate if it's a 'leaf' (No PlateAcquisition)...
                 update['rel'] = oid;

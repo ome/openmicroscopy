@@ -2,9 +2,7 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # 
-# $Id$
-# 
-# Copyright 2006 University of Dundee. All rights reserved.
+# Copyright 2006-2014 University of Dundee. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -663,6 +661,7 @@
 		<entry name="Murmur3-32"/>
 		<entry name="Murmur3-128"/>
 		<entry name="SHA1-160"/>
+		<entry name="File-Size-64"/>
 	</enum>
 <!-- Pixels Entity -->
 	<enum id="ome.model.enums.DimensionOrder">

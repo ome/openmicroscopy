@@ -1,7 +1,7 @@
 /* * org.openmicroscopy.shoola.agents.iviewer.view.ImViewer
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -1195,8 +1195,9 @@ public interface ImViewer
 	 * Sets the image displayed in the bird eye view.
 	 * 
 	 * @param result The value to set.
+	 * @param scaled Indicates if the result is a scaled image
 	 */
-	void setBirdEyeView(BufferedImage result);
+	void setBirdEyeView(BufferedImage result, boolean scaled);
 	
     /**
      * Returns the number of rows, default is <code>1</code>.
@@ -1332,4 +1333,9 @@ public interface ImViewer
      * @return See above.
      */
     int getRealSelectedT();
+    
+    /**
+     * Reloads the 'saved by' thumbnails of the the rendering panel
+     */
+    public void reloadRenderingThumbs();
 }

@@ -5,7 +5,7 @@
 # 
 # $Id$
 # 
-# Copyright 2008 Glencoe Software, Inc. All rights reserved.
+# Copyright 2008 - 2014 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -49,6 +49,8 @@
     <!-- init() is called on first usage to handle a cyclical dependency on
     session factory -->
     <bean id="shareStore" class="ome.services.sharing.BlobShareStore"
-        destroy-method="close"/>
+        destroy-method="close">
+        <property name="sqlAction" ref="simpleSqlAction"/>
+    </bean>
 
 </beans>

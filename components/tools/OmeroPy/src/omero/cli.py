@@ -155,7 +155,9 @@ class Parser(ArgumentParser):
     def sub(self):
         return self.add_subparsers(title = "Subcommands", description = OMEROSUBS, metavar = OMEROSUBM)
 
-    def add(self, sub, func, help, **kwargs):
+    def add(self, sub, func, help=None, **kwargs):
+        if help is None:
+            help = func.__doc__
         parser = sub.add_parser(func.im_func.__name__, help=help, description=help)
         parser.set_defaults(func=func, **kwargs)
         return parser
@@ -194,6 +196,10 @@ class Parser(ArgumentParser):
             help = "OMERO session key (UUID of an active session)")
         group.add_argument("--sudo", metavar="ADMINUSER",
             help = "Create session as this admin. Changes meaning of password!")
+        group.add_argument(
+            "-q", "--quiet", action="store_true",
+            help="Quiet mode. Causes most warning and diagnostic messages to "
+            "be suppressed.")
 
     def _check_value(self, action, value):
         # converted value must be one of the choices (if specified)
@@ -213,6 +219,24 @@ class Parser(ArgumentParser):
                         lines.append("\t")
                 lines[-1] += choices.pop(0)
             return "\n".join(lines)
+
+
+class ProxyStringType(object):
+    """
+    To make use of the omero.proxy_to_instance method,
+    an instance can be passed to add_argument with a default
+    value:  add_argument(..., type=ProxyStringType("Image"))
+    which will take either a proxy string of the form:
+    "Image:1" or simply the ID itself: "1"
+    """
+
+    def __init__(self, default=None):
+        self.default = default
+
+    def __call__(self, string):
+        return omero.proxy_to_instance(
+            string, default=self.default)
+
 
 class NewFileType(FileType):
     """
@@ -293,6 +317,7 @@ class Context:
             self.params = {}
         self.event = get_event(name="CLI")
         self.dir = OMERODIR
+        self.isquiet = False
         self.isdebug = DEBUG # This usage will go away and default will be False
         self.topics = {"debug":"""
 
@@ -415,7 +440,7 @@ class Context:
 
     def out(self, text, newline = True):
         """
-        Expects as single string as argument"
+        Expects a single string as argument.
         """
         self.safePrint(text, sys.stdout, newline)
 
@@ -596,7 +621,7 @@ class BaseControl(object):
 
     def _pid(self):
         """
-        Returns a path of the form "_nodedata() / _node() + ".pid",
+        Returns a path of the form _nodedata() / (_node() + ".pid"),
         i.e. a file named NODENAME.pid in the node's data directory.
         """
         pidfile = self._nodedata() / (self._node() + ".pid")
@@ -732,6 +757,13 @@ class BaseControl(object):
         # Fallback
         completions = [method for method in dir(self) if callable(getattr(self, method)) ]
         return [ str(method + " ") for method in completions if method.startswith(text) and not method.startswith("_") ]
+
+    def error_admin_only(self, msg="SecurityViolation: Admins only!",
+                         code=111, fatal=True):
+        if fatal:
+            self.ctx.die(code, msg)
+        else:
+            self.ctx.err(msg)
 
 
 class CLI(cmd.Cmd, Context):
@@ -916,6 +948,8 @@ class CLI(cmd.Cmd, Context):
         args = self.parser.parse_args(args, previous_args)
         args.prog = self.parser.prog
         self.waitForPlugins()
+
+        self.isquiet = getattr(args, "quiet", False)
 
         debug_str = getattr(args, "debug", "")
         debug_opts = set([x.lower() for x in debug_str.split(",")])
