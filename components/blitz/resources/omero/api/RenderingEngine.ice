@@ -71,6 +71,7 @@ module omero {
                 long saveAsNewSettings() throws ServerError;
                 ["deprecated:resetDefaults() is deprecated"] void resetDefaults() throws ServerError;
                 ["deprecated:resetDefaultsNoSave() is deprecated"] void resetDefaultsNoSave() throws ServerError;
+                ["deprecated:resetDefaultsSettings() is deprecated"] long resetDefaultsSettings(bool save) throws ServerError;
                 long resetDefaultSettings(bool save) throws ServerError;
                 void setCompressionLevel(float percentage) throws ServerError;
                 float getCompressionLevel() throws ServerError;
