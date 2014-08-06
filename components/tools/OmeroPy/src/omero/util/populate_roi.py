@@ -882,6 +882,7 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
     def populate(self, columns):
         """
 	Query performed::
+
 		first_roi = columns[self.ROI_COL].values[0]
 		first_roi = self.query_service.findByQuery(
 			'select roi from Roi as roi ' \
