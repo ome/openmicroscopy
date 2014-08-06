@@ -738,8 +738,8 @@
         {% endif %}
         {% endblock save_rdef %}
           <button id="rdef-default-btn" title="Returns to the saved settings.">default</button>
-          <button id="rdef-undo-btn" onclick="return undoRDCW();" title="Returns to the settings as they were before clicking apply.">undo</button>
-          <button id="rdef-redo-btn" onclick="return redoRDCW();" title="Returns to the settings as they were before clicking undo.">redo</button>
+          <button id="rdef-undo-btn" onclick="return undoRDCW();" title="Undo the last changes to settings.">undo</button>
+          <button id="rdef-redo-btn" onclick="return redoRDCW();" title="Redo the last changes to settings.">redo</button>
         </li>
         {% block batch_copy %}
         {% if dataset.canOwnerWrite %}
