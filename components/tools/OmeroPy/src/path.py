@@ -509,7 +509,7 @@ class path(unicode):
 
     # --- Listing, searching, walking, and matching
 
-    def listdir(self, pattern=None):
+    def listdir(self, pattern=None, unreadable_as_empty=False):
         """ D.listdir() -> List of items in this directory.
 
         Use :meth:`files` or :meth:`dirs` instead if you want a listing
@@ -522,11 +522,18 @@ class path(unicode):
 
         .. seealso:: :meth:`files`, :meth:`dirs`
         """
+        try:
+            names = os.listdir(self)
+        except OSError as e:
+            if unreadable_as_empty and e.errno == errno.EACCES:
+                names = []
+            else:
+                raise
         if pattern is None:
             pattern = '*'
         return [
             self / child
-            for child in map(self._always_unicode, os.listdir(self))
+            for child in map(self._always_unicode, names)
             if self._next_class(child).fnmatch(pattern)
         ]
 

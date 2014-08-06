@@ -536,7 +536,7 @@ class DirNode(Node):
         #   should probably be ignored. For instance each directory on a Mac has a .DS_Store file
         #   that could be omitted. 
         #
-        for d in path.listdir('*'):
+        for d in path.listdir(unreadable_as_empty=True):
             self.addChild(d)
 
     def __repr__(self, padding=''):
