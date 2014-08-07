@@ -366,6 +366,7 @@
       <constructor-arg ref="aclVoter"/>
       <constructor-arg ref="roles"/>
       <constructor-arg ref="/OMERO/Pixels"/>
+      <constructor-arg ref="/OMERO/Thumbs"/>
       <property name="iceCommunicator" ref="Ice.Communicator"/>
   </bean>
 
