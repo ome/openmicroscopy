@@ -79,8 +79,8 @@
         display: none;
       }
       img.rdef {
-        max-width: 24px;
-        max-height: 24px;
+        max-width: 12px;
+        max-height: 12px;
       }
       #hoverRdef {
         display: none;
@@ -88,6 +88,9 @@
         zIndex: 999;
         width: 96px;
         height: 96px;
+      }
+      .thin-margin {
+        margin: 3px 0;
       }
     </style>
 
@@ -235,9 +238,7 @@
       </div>
     </div>
 
-    <div style="clear:both"></div>
-
-    <hr>
+    <div style="clear:both; margin-bottom:5px"></div>
 
     <ul>
       <li class="buttonbar">
@@ -251,8 +252,19 @@
 
         <button id="rdef-undo-btn" title="Undo the last changes to settings.">undo</button>
         <button id="rdef-redo-btn" title="Redo the last changes to settings.">redo</button>
+
+        |
+
+        <button class="copy_rdef" title="Copy Rendering Settings">
+          Copy
+        </button>
+        <button class="paste_rdef" title="Paste Rendering Settings">
+          Paste
+        </button>
       </li>
     </ul>
+
+    <hr class="thin-margin"/>
 
     <img id="hoverRdef" src="{% url 'render_thumbnail' manager.image.id %}"/>
     <ul>
@@ -267,13 +279,6 @@
         </button>
         <button id="rdef-fullrange-btn" title="Each slider will be set to cover the full range of pixel intensities for the image">
           full range
-        </button>
-        |
-        <button class="copy_rdef" title="Copy Rendering Settings">
-          Copy
-        </button>
-        <button class="paste_rdef" title="Paste Rendering Settings">
-          Paste
         </button>
       </li>
 
@@ -293,7 +298,7 @@
       {% endif %}
       {% endblock batch_copy %}
     </ul>
-    <hr />
+    <hr class="thin-margin"/>
 
     <div id="rdef-postit">
       <div id="rdef-active-area">
