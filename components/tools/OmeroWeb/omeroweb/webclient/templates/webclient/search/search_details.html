@@ -81,9 +81,10 @@
         <table id="dataTable" class="tablesorter">
             <thead> 
                 <tr> 
-                    <th class="table_images">{% trans "Object" %}</th> 
+                    <th class="table_images">{% trans "Type" %}</th>
                     <th class="table_desc">{% trans "Name" %}</th> 
-                    <th class="table_date">{% trans "Import Date" %}</th>
+                    <th class="table_date">{% trans "Acquired" %}</th>
+                    <th class="table_date">{% trans "Imported" %}</th>
                     <th>{% trans "Group" %}</th>
                     <th>{% trans "Link" %}</th>
                 </tr> 
@@ -104,7 +105,10 @@
                         <span style="color:red">ID: {{ c.id }}</span>
                         <a>{{ c.name|truncatebefor:"65" }}</a>
                     </td>
-                    <td class="date">{{ c.getDate }}<br/>{{ c.creationEventDate }}</td>
+                    <td class="date">{{ c.getDate|date:"Y-m-d H:i:s" }}</td>
+                    <td class="date">
+                        {% ifequal byId.otype 'image' %}{{ c.creationEventDate|date:"Y-m-d H:i:s" }}{% endifequal %}
+                    </td>
                     <td class="group">{{ c.getDetails.group.name.val }}</td>
                     <td><a href="{% url 'webindex' %}?show={{ byId.otype }}-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
                         {% trans "Browse" %}
@@ -112,65 +116,70 @@
                 </tr>
                 {% endwith %}
             {% endfor %}
-            {% for c in manager.containers.project %}
+            {% for c in manager.containers.projects %}
                 <tr id="project-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
                         <img id="{{ c.id }}" src="{% static "webgateway/img/folder16.png" %}" alt="project" title="{{ c.name }}"/>
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
-                    <td class="date">{{ c.creationEventDate }}</td>
+                    <td class="date"></td>
+                    <td class="date">{{ c.creationEventDate|date:"Y-m-d H:i:s" }}</td>
                     <td class="group">{{ c.getDetails.group.name.val }}</td>
                     <td><a href="{% url 'webindex' %}?show=project-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
                         {% trans "Browse" %}
                     </a></td>
                 </tr>
             {% endfor %}
-            {% for c in manager.containers.screen %}
+            {% for c in manager.containers.screens %}
                 <tr id="screen-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
                         <img id="{{ c.id }}" src="{% static "webclient/image/folder_screen32.png" %}" alt="screen" title="{{ c.name }}"/>
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
-                    <td class="date">{{ c.creationEventDate }}</td>
+                    <td class="date"></td>
+                    <td class="date">{{ c.creationEventDate|date:"Y-m-d H:i:s" }}</td>
                     <td class="group">{{ c.getDetails.group.name.val }}</td>
                     <td><a href="{% url 'webindex' %}?show=screen-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
                         {% trans "Browse" %}
                     </a></td>
                 </tr>
             {% endfor %}
-            {% for c in manager.containers.dataset %}
+            {% for c in manager.containers.datasets %}
                 <tr id="dataset-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
                         <img id="{{ c.id }}" src="{% static "webgateway/img/folder_image16.png" %}" alt="dataset" title="{{ c.name }}"/>
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
-                    <td class="date">{{ c.creationEventDate }}</td>
+                    <td class="date"></td>
+                    <td class="date">{{ c.creationEventDate|date:"Y-m-d H:i:s" }}</td>
                     <td class="group">{{ c.getDetails.group.name.val }}</td>
                     <td><a href="{% url 'webindex' %}?show=dataset-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
                         {% trans "Browse" %}
                     </a></td>
                 </tr>
             {% endfor %}
-            {% for c in manager.containers.plate %}
+            {% for c in manager.containers.plates %}
                 <tr id="plate-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
                         <img id="{{ c.id }}" src="{% static "webclient/image/folder_plate32.png" %}" alt="plate" title="{{ c.name }}"/>
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
-                    <td class="date">{{ c.creationEventDate }}</td>
+                    <td class="date"></td>
+                    <td class="date">{{ c.creationEventDate|date:"Y-m-d H:i:s" }}</td>
                     <td class="group">{{ c.getDetails.group.name.val }}</td>
                     <td><a href="{% url 'webindex' %}?show=plate-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
                         {% trans "Browse" %}
                     </a></td>
                 </tr>
             {% endfor %}
-            {% for c in manager.containers.image %}
+            {% for c in manager.containers.images %}
                 <tr id="image-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
                         <img class="search_thumb" id="{{ c.id }}" src="{% url 'render_thumbnail_resize' 96 c.id  %}" alt="image" title="{{ c.name }}"/>
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
-                    <td class="date">{{ c.getDate }}<br/>{{ c.creationEventDate }}</td>
+                    <td class="date">{{ c.getDate|date:"Y-m-d H:i:s" }}</td>
+                    <td class="date">{{ c.creationEventDate|date:"Y-m-d H:i:s" }}</td>
                     <td class="group">{{ c.getDetails.group.name.val }}</td>
                     <td><a href="{% url 'webindex' %}?show=image-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
                         {% trans "Browse" %}

@@ -29,6 +29,7 @@ import Ice
 import logging
 import traceback
 import json
+import re
 
 from time import time
 
@@ -387,11 +388,22 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         groups = myGroups
     new_container_form = ContainerForm()
 
-    context = {'init':init, 'myGroups':myGroups, 'new_container_form':new_container_form, 'global_search_form':global_search_form}
-    context['groups'] = groups
-    context['active_group'] = conn.getObject("ExperimenterGroup", long(active_group))
     for g in groups:
         g.groupSummary()    # load leaders / members
+
+    # colleagues required for search.html page only.
+    myColleagues = {}
+    if menu == "search":
+        for g in groups:
+            for c in g.leaders + g.colleagues:
+                myColleagues[c.id] = c
+        myColleagues = myColleagues.values()
+        myColleagues.sort(key=lambda x: x.getLastName().lower())
+
+    context = {'init':init, 'myGroups':myGroups, 'new_container_form':new_container_form, 'global_search_form':global_search_form}
+    context['groups'] = groups
+    context['myColleagues'] = myColleagues
+    context['active_group'] = conn.getObject("ExperimenterGroup", long(active_group))
     context['active_user'] = conn.getObject("Experimenter", long(user_id))
 
     context['isLeader'] = conn.isLeader()
@@ -580,21 +592,33 @@ def load_searching(request, form=None, conn=None, **kwargs):
 
         # by default, if user has not specified any types:
         if len(onlyTypes) == 0:
-            onlyTypes = ['image']
+            onlyTypes = ['images']
 
         # search is carried out and results are stored in manager.containers.images etc.
         manager.search(query_search, onlyTypes, fields, searchGroup, ownedBy, useAcquisitionDate, date)
 
-        try:
-            searchById = long(query_search)
+        # if the query is only numbers (separated by commas or spaces)
+        # we search for objects by ID
+        isIds = re.compile('^[\d ,]+$')
+        if isIds.search(query_search) is not None:
             conn.SERVICE_OPTS.setOmeroGroup(-1)
-            for t in onlyTypes:
-                if t in ('project', 'dataset', 'image', 'screen', 'plate'):
-                    obj = conn.getObject(t, searchById)
-                    if obj is not None:
-                        foundById.append({'otype': t, 'obj': obj})
-        except ValueError:
-            pass
+            idSet = set()
+            for queryId in re.split(' |,', query_search):
+                if len(queryId) == 0:
+                    continue
+                try:
+                    searchById = long(queryId)
+                    if searchById in idSet:
+                        continue
+                    idSet.add(searchById)
+                    for t in onlyTypes:
+                        t = t[0:-1] # remove 's'
+                        if t in ('project', 'dataset', 'image', 'screen', 'plate'):
+                            obj = conn.getObject(t, searchById)
+                            if obj is not None:
+                                foundById.append({'otype': t, 'obj': obj})
+                except ValueError:
+                    pass
 
     else:
         # simply display the search home page.
@@ -1067,7 +1091,7 @@ def getIds(request):
     return selected
 
 
-@login_required(setGroupContext=True)
+@login_required()
 @render_response()
 def batch_annotate(request, conn=None, **kwargs):
     """
@@ -1095,22 +1119,29 @@ def batch_annotate(request, conn=None, **kwargs):
 
     obj_ids = []
     obj_labels = []
+    groupIds = set()
+    annotationBlocked = False
     for key in objs:
         obj_ids += ["%s=%s"%(key,o.id) for o in objs[key]]
         for o in objs[key]:
+            groupIds.add(o.getDetails().group.id.val)
+            if not o.canAnnotate():
+                annotationBlocked = "Can't add annotations because you don't have permissions"
             obj_labels.append( {'type':key.title(), 'id':o.id, 'name':o.getName()} )
     obj_string = "&".join(obj_ids)
     link_string = "|".join(obj_ids).replace("=", "-")
 
     context = {'form_comment':form_comment, 'obj_string':obj_string, 'link_string': link_string,
             'obj_labels': obj_labels, 'batchAnns': batchAnns, 'batch_ann':True, 'index': index,
-            'figScripts':figScripts, 'filesetInfo': filesetInfo}
+            'figScripts':figScripts, 'filesetInfo': filesetInfo, 'annotationBlocked': annotationBlocked}
+    if len(groupIds) > 1:
+        context['annotationBlocked'] = "Can't add annotations because objects are in different groups"
     context['template'] = "webclient/annotations/batch_annotate.html"
     context['webclient_path'] = request.build_absolute_uri(reverse('webindex'))
     return context
 
 
-@login_required(setGroupContext=True)
+@login_required()
 @render_response()
 def annotate_file(request, conn=None, **kwargs):
     """
@@ -1122,6 +1153,12 @@ def annotate_file(request, conn=None, **kwargs):
     selected = getIds(request)
     initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'],
             'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisition'], 'wells':oids['well']}
+
+    # Use the first object we find to set context (assume all objects are in same group!)
+    for obs in oids.values():
+        if len(obs) > 0:
+            conn.SERVICE_OPTS.setOmeroGroup(obs[0].getDetails().group.id.val)
+            break
 
     obj_count = sum( [len(selected[types]) for types in selected] )
 
@@ -1196,7 +1233,7 @@ def annotate_file(request, conn=None, **kwargs):
     context['template'] = template
     return context
 
-@login_required(setGroupContext=True)
+@login_required()
 @render_response()
 def annotate_comment(request, conn=None, **kwargs):
     """ Handle adding Comments to one or more objects
@@ -1213,6 +1250,12 @@ def annotate_comment(request, conn=None, **kwargs):
     initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'],
             'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisition'], 'wells':oids['well'],
             'shares':oids['share']}
+
+    # Use the first object we find to set context (assume all objects are in same group!)
+    for obs in oids.values():
+        if len(obs) > 0:
+            conn.SERVICE_OPTS.setOmeroGroup(obs[0].getDetails().group.id.val)
+            break
 
     # Handle form submission...
     form_multi = CommentAnnotationForm(initial=initial, data=request.REQUEST.copy())

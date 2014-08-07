@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.0__0 to OMERO5.1DEV__7.
+--- OMERO5 development release upgrade from OMERO5.0__0 to OMERO5.1DEV__8.
 ---
 
 BEGIN;
@@ -44,7 +44,7 @@ DROP FUNCTION omero_assert_db_version(varchar, int);
 
 
 INSERT INTO dbpatch (currentVersion, currentPatch,   previousVersion,     previousPatch)
-             VALUES ('OMERO5.1DEV',     7,              'OMERO5.0',       0);
+             VALUES ('OMERO5.1DEV',     8,              'OMERO5.0',       0);
 
 --
 -- Actual upgrade
@@ -704,16 +704,102 @@ DROP FUNCTION reverse_endian(TEXT);
 
 ALTER TABLE image ALTER COLUMN acquisitiondate DROP NOT NULL;
 
+-- Trac ticket #970
+
+ALTER TABLE dbpatch DROP CONSTRAINT unique_dbpatch;
+ALTER TABLE dbpatch ADD CONSTRAINT unique_dbpatch
+  UNIQUE (currentversion, currentpatch, previousversion, previouspatch, message);
+
+-- Trac ticket #12317 -- delete map property values along with their holders
+
+CREATE FUNCTION experimentergroup_config_map_entry_delete_trigger_function() RETURNS "trigger" AS '
+BEGIN
+    DELETE FROM experimentergroup_config
+        WHERE experimentergroup_id = OLD.id;
+    RETURN OLD;
+END;'
+LANGUAGE plpgsql;
+
+CREATE TRIGGER experimentergroup_config_map_entry_delete_trigger
+    BEFORE DELETE ON experimentergroup
+    FOR EACH ROW
+    EXECUTE PROCEDURE experimentergroup_config_map_entry_delete_trigger_function();
+
+CREATE FUNCTION genericexcitationsource_map_map_entry_delete_trigger_function() RETURNS "trigger" AS '
+BEGIN
+    DELETE FROM genericexcitationsource_map
+        WHERE genericexcitationsource_id = OLD.lightsource_id;
+    RETURN OLD;
+END;'
+LANGUAGE plpgsql;
+ 
+CREATE TRIGGER genericexcitationsource_map_map_entry_delete_trigger
+    BEFORE DELETE ON genericexcitationsource
+    FOR EACH ROW
+    EXECUTE PROCEDURE genericexcitationsource_map_map_entry_delete_trigger_function();
+
+CREATE FUNCTION imagingenvironment_map_map_entry_delete_trigger_function() RETURNS "trigger" AS '
+BEGIN
+    DELETE FROM imagingenvironment_map
+        WHERE imagingenvironment_id = OLD.id;
+    RETURN OLD;
+END;'
+LANGUAGE plpgsql;
+
+CREATE TRIGGER imagingenvironment_map_map_entry_delete_trigger
+    BEFORE DELETE ON imagingenvironment
+    FOR EACH ROW
+    EXECUTE PROCEDURE imagingenvironment_map_map_entry_delete_trigger_function();
+
+CREATE FUNCTION annotation_mapValue_map_entry_delete_trigger_function() RETURNS "trigger" AS '
+BEGIN
+    DELETE FROM annotation_mapValue
+        WHERE annotation_id = OLD.id;
+    RETURN OLD;
+END;'
+LANGUAGE plpgsql;
+
+CREATE TRIGGER annotation_mapValue_map_entry_delete_trigger
+    BEFORE DELETE ON annotation
+    FOR EACH ROW
+    EXECUTE PROCEDURE annotation_mapValue_map_entry_delete_trigger_function();
+
+CREATE FUNCTION metadataimportjob_versionInfo_map_entry_delete_trigger_function() RETURNS "trigger" AS '
+BEGIN
+    DELETE FROM metadataimportjob_versionInfo
+        WHERE metadataimportjob_id = OLD.job_id;
+    RETURN OLD;
+END;'
+LANGUAGE plpgsql;
+
+CREATE TRIGGER metadataimportjob_versionInfo_map_entry_delete_trigger
+    BEFORE DELETE ON metadataimportjob
+    FOR EACH ROW
+    EXECUTE PROCEDURE metadataimportjob_versionInfo_map_entry_delete_trigger_function();
+
+CREATE FUNCTION uploadjob_versionInfo_map_entry_delete_trigger_function() RETURNS "trigger" AS '
+BEGIN
+    DELETE FROM uploadjob_versionInfo
+        WHERE uploadjob_id = OLD.job_id;
+    RETURN OLD;
+END;'
+LANGUAGE plpgsql;
+
+CREATE TRIGGER uploadjob_versionInfo_map_entry_delete_trigger
+    BEFORE DELETE ON uploadjob
+    FOR EACH ROW
+    EXECUTE PROCEDURE uploadjob_versionInfo_map_entry_delete_trigger_function();
+
 --
 -- FINISHED
 --
 
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
     WHERE currentVersion  = 'OMERO5.1DEV' AND
-          currentPatch    = 7             AND
+          currentPatch    = 8             AND
           previousVersion = 'OMERO5.0'    AND
           previousPatch   = 0;
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.1DEV__7'||CHR(10)||CHR(10)||CHR(10) AS Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.1DEV__8'||CHR(10)||CHR(10)||CHR(10) AS Status;
 
 COMMIT;

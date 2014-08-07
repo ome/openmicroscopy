@@ -1308,13 +1308,97 @@ CREATE TRIGGER wellsample_annotation_link_delete_trigger
 -- END #1390
 --
 
+--
+-- #12317 -- delete map property values along with their holders
+--
 
+CREATE FUNCTION experimentergroup_config_map_entry_delete_trigger_function() RETURNS "trigger" AS '
+BEGIN
+    DELETE FROM experimentergroup_config
+        WHERE experimentergroup_id = OLD.id;
+    RETURN OLD;
+END;'
+LANGUAGE plpgsql;
 
+CREATE TRIGGER experimentergroup_config_map_entry_delete_trigger
+    BEFORE DELETE ON experimentergroup
+    FOR EACH ROW
+    EXECUTE PROCEDURE experimentergroup_config_map_entry_delete_trigger_function();
+
+CREATE FUNCTION genericexcitationsource_map_map_entry_delete_trigger_function() RETURNS "trigger" AS '
+BEGIN
+    DELETE FROM genericexcitationsource_map
+        WHERE genericexcitationsource_id = OLD.lightsource_id;
+    RETURN OLD;
+END;'
+LANGUAGE plpgsql;
+
+CREATE TRIGGER genericexcitationsource_map_map_entry_delete_trigger
+    BEFORE DELETE ON genericexcitationsource
+    FOR EACH ROW
+    EXECUTE PROCEDURE genericexcitationsource_map_map_entry_delete_trigger_function();
+
+CREATE FUNCTION imagingenvironment_map_map_entry_delete_trigger_function() RETURNS "trigger" AS '
+BEGIN
+    DELETE FROM imagingenvironment_map
+        WHERE imagingenvironment_id = OLD.id;
+    RETURN OLD;
+END;'
+LANGUAGE plpgsql;
+
+CREATE TRIGGER imagingenvironment_map_map_entry_delete_trigger
+    BEFORE DELETE ON imagingenvironment
+    FOR EACH ROW
+    EXECUTE PROCEDURE imagingenvironment_map_map_entry_delete_trigger_function();
+
+CREATE FUNCTION annotation_mapValue_map_entry_delete_trigger_function() RETURNS "trigger" AS '
+BEGIN
+    DELETE FROM annotation_mapValue
+        WHERE annotation_id = OLD.id;
+    RETURN OLD;
+END;'
+LANGUAGE plpgsql;
+
+CREATE TRIGGER annotation_mapValue_map_entry_delete_trigger
+    BEFORE DELETE ON annotation
+    FOR EACH ROW
+    EXECUTE PROCEDURE annotation_mapValue_map_entry_delete_trigger_function();
+
+CREATE FUNCTION metadataimportjob_versionInfo_map_entry_delete_trigger_function() RETURNS "trigger" AS '
+BEGIN
+    DELETE FROM metadataimportjob_versionInfo
+        WHERE metadataimportjob_id = OLD.job_id;
+    RETURN OLD;
+END;'
+LANGUAGE plpgsql;
+
+CREATE TRIGGER metadataimportjob_versionInfo_map_entry_delete_trigger
+    BEFORE DELETE ON metadataimportjob
+    FOR EACH ROW
+    EXECUTE PROCEDURE metadataimportjob_versionInfo_map_entry_delete_trigger_function();
+
+CREATE FUNCTION uploadjob_versionInfo_map_entry_delete_trigger_function() RETURNS "trigger" AS '
+BEGIN
+    DELETE FROM uploadjob_versionInfo
+        WHERE uploadjob_id = OLD.job_id;
+    RETURN OLD;
+END;'
+LANGUAGE plpgsql;
+
+CREATE TRIGGER uploadjob_versionInfo_map_entry_delete_trigger
+    BEFORE DELETE ON uploadjob
+    FOR EACH ROW
+    EXECUTE PROCEDURE uploadjob_versionInfo_map_entry_delete_trigger_function();
+
+--
+-- done #12317
+--
 
 -- First, we install a unique constraint so that it is only possible
 -- to go from versionA/patchA to versionB/patchB once.
+-- message is included so that in-patch adjustments may still be noted in the table.
 --
-alter table dbpatch add constraint unique_dbpatch unique (currentVersion, currentPatch, previousVersion, previousPatch);
+alter table dbpatch add constraint unique_dbpatch unique (currentVersion, currentPatch, previousVersion, previousPatch, message);
 
 --
 -- Since this is a table that we will be using in DB-specific ways, we're also going
@@ -1329,7 +1413,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.1DEV',  7,    'OMERO5.1DEV',   0,             'Initializing');
+             values ('OMERO5.1DEV',  8,    'OMERO5.1DEV',   0,             'Initializing');
 
 --
 -- Temporarily make event columns nullable; restored below.
@@ -2324,7 +2408,7 @@ after delete on originalfile
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
   where currentVersion = 'OMERO5.1DEV' and
-        currentPatch = 7 and
+        currentPatch = 8 and
         previousVersion = 'OMERO5.1DEV' and
         previousPatch = 0;
 

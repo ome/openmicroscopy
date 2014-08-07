@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.util.ui.login.ServerEditor 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.util.ui.login;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -307,7 +308,10 @@ public class ServerEditor
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         p.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        p.add(new JScrollPane(table));
+        JScrollPane pane = new JScrollPane(table);
+        Dimension d = pane.getPreferredSize();
+        pane.setPreferredSize(new Dimension(d.width, 150));
+        p.add(pane);
         p.add(buildControls());
        
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));

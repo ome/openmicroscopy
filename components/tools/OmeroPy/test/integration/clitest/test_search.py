@@ -23,6 +23,7 @@
 import pytest
 
 from datetime import date
+from datetime import datetime
 from datetime import timedelta
 
 from test.integration.clitest.cli import CLITest
@@ -34,9 +35,14 @@ from omero.rtypes import rstring
 
 class TestSearch(CLITest):
 
-    def mkimage(self):
+    def mkimage(self, with_acquisitionDate=False):
         self._uuid = self.uuid().replace("-", "")
-        self._image = self.importMIF(name=self._uuid)[0]
+        if with_acquisitionDate:
+            filename_date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            self._image = self.importMIF(
+                name=self._uuid, acquisitionDate=filename_date)[0]
+        else:
+            self._image = self.importMIF(name=self._uuid)[0]
         self.root.sf.getUpdateService().indexObject(self._image)
 
     def mkdataset(self):
@@ -116,19 +122,34 @@ class TestSearch(CLITest):
         assert ("ImageI:%s" % self._image.id.val) in o
 
     @pytest.mark.parametrize("data", (
+        (1, None, True, True),
+        (1, None, False, False),
+    ))
+    def test_search_acquisition_date(self, data):
+        from_ago, to_ago, with_acquisitionDate, success = data
+        self.mkimage(with_acquisitionDate=with_acquisitionDate)
+        short = self.short()
+        args = ["Image", short + "*"]
+        if from_ago:
+            args += ["--from=%s" % self.days_ago(from_ago)]
+        if to_ago:
+            args += ["--to=%s" % self.days_ago(to_ago)]
+        args += ["--date-type=acquisitionDate"]
+
+        self.assertSearch(args, success=success)
+
+    @pytest.mark.parametrize("data", (
         (1, None, None, True),
         (1, None, "import", True),
-        (1, None, "acquisitionDate", True),
         (1, -1, None, True),
         (None, 1, None, False),
         (-1, None, None, False),
     ))
-    def test_search_dates(self, data):
+    def test_search_other_dates(self, data):
+        from_ago, to_ago, date_type, success = data
         self.mkimage()
         short = self.short()
-
         args = ["Image", short + "*"]
-        from_ago, to_ago, date_type, success = data
         if from_ago:
             args += ["--from=%s" % self.days_ago(from_ago)]
         if to_ago:
