@@ -853,6 +853,7 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None, **kwa
             chs.append('%s%s|%d:%d$%s' % (act, i+1, c['start'], c['end'], c['color']))
         rdefQueries.append({
             'id': r['id'],
+            'owner': r['owner'],
             'c': ",".join(chs),
             'm': r['model'] == 'greyscale' and 'g' or 'c'
             })

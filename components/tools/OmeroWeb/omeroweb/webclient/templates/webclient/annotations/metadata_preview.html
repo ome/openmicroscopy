@@ -81,6 +81,8 @@
       img.rdef {
         max-width: 12px;
         max-height: 12px;
+        position: relative;
+        top: 2px;
       }
       #hoverRdef {
         display: none;
@@ -148,9 +150,11 @@
               setModel(OME.preview_viewport, $(this).get(0).checked?'c':'g');
             });
 
+            // Save settings
             $("#rdef-setdef-btn").click(function(){
               setImageDefaults(OME.preview_viewport, this, function() {
                 OME.refreshThumbnails({{ manager.image.id }});
+                updateMyRdef(OME.preview_viewport.getQuery());
               });
             });
 
@@ -185,24 +189,14 @@
 
             // Show larger thumbnail when hovering over rdef buttons
             var $hoverRdef = $("#hoverRdef").hide();
-            $("button.rdef").hover(function(event){
-              var $btn = $(this),
-                src = $('img', $btn).attr('src');
-              $hoverRdef.attr('src', src).show();
-            }, function(){
-              $hoverRdef.hide();
-            });
-            $("button.rdef").mousemove(function(event){
-              $hoverRdef.css({'left': event.clientX+15 + 'px',
-                  'top':event.clientY-96 + 'px'});
-            });
-            // clicking rdef button applies rdef to image
-            // rdefs = [{'id':123, 'c': '1|3118:35825$FF0000,2|2086:18975$FFFF00', 'm': 'c'}}]
             var rdefs = {{ rdefsJson|safe }}; 
-            $("button.rdef").click(function(){
-              var rdid = $(this).attr('data-rdid');
+            // All button events are delegated, so will also apply to new buttons
+            $( "#rdef-buttons" )
+            .on( "click", "button", function() {
+              var rdid = $(this).attr('data-rdid'),     // might not know this (if button created by js)
+                ownerid = $(this).attr('data-ownerid');
               for (var r = 0; r < rdefs.length; r++) {
-                if (rdefs[r].id+"" === rdid) {
+                if (rdefs[r].id+"" === rdid || rdefs[r].owner.id+"" === ownerid) {
                   OME.preview_viewport.setQuery(rdefs[r]);
                   OME.preview_viewport.doload();
                   syncRDCW(OME.preview_viewport);
@@ -212,7 +206,68 @@
                 }
               }
             })
+            .on("mouseenter", "button", function() {
+              var $btn = $(this),
+                src = $('img', $btn).attr('src');
+              $hoverRdef.attr('src', src).show();
+            })
+            .on("mouseleave", "button", function() {
+              $hoverRdef.hide();
+            })
+            .on("mousemove", "button", function(event) {
+              $hoverRdef.css({'left': event.clientX+15 + 'px',
+                  'top':event.clientY-96 + 'px'});
+            });
 
+            // when user saves, update their rdef button
+            var updateMyRdef = function(queryString) {
+              var settings = queryString.split("&"),
+                defs = {},
+                kv;
+              for (var s = 0; s < settings.length; s++) {
+                kv = settings[s].split("=");
+                defs[kv[0]] = kv[1];
+              }
+
+              var src = "{% url 'render_thumbnail' manager.image.id %}?_=" + Math.random();
+              // if we already have a button, update thumb
+              var $btn = $("button.rdef[data-ownerid='{{ ome.user.id }}']");
+              if ($btn.length > 0) {
+                // we don't know rdefid but default thumb will be 'ours'
+                $('img.rdef', $btn)
+                    .attr('src', src)
+                    .removeAttr('data-rdid');   // no-longer valid
+                // update 'our' rdef
+                for (var r = 0; r < rdefs.length; r++) {
+                  if (rdefs[r].owner.id+"" === "{{ ome.user.id }}") {
+                    rdefs[r].c = defs.c;
+                    rdefs[r].model = defs.model;
+                    break;
+                  }
+                }
+              } else {
+                // No rdef button exists - need to create one and add to rdefs list
+                var $lastBtn = $("button.rdef").last(),
+                  $newBtn = $lastBtn.clone()
+                    .removeAttr('data-rdid')      // don't know new rdef id
+                    .attr('data-ownerid','{{ ome.user.id }}')
+                    .appendTo($lastBtn.parent());
+                  $newBtn.children('img').attr('src', src);
+                  $newBtn.children('span').text("{{ ome.user.getFullName }}");
+
+                  rdefs.push({
+                    'owner': {'id':{{ ome.user.id }}},
+                    'c': defs.c,
+                    'm': defs.m
+                  })
+              }
+            };
+            // when we load page, force refresh of rdef thumbs (in case they are cached)
+            $("img.rdef").each(function(){
+              var $thumb = $(this),
+                src = $thumb.attr('src');
+                $thumb.attr('src', src + '&_=' + Math.random());
+            })
 
         });
     </script>
@@ -282,11 +337,11 @@
         </button>
       </li>
 
-      <li>
+      <li id='rdef-buttons'>
         {% for rdef in rdefs %}
-          <button class='rdef' data-rdid="{{ rdef.id }}">
+          <button class='rdef' data-ownerid="{{ rdef.owner.id }}" data-rdid="{{ rdef.id }}">
             <img class='rdef' src="{% url 'render_thumbnail' manager.image.id %}?rdefId={{ rdef.id }}"/>
-            {{ rdef.owner.firstName }} {{ rdef.owner.lastName }}
+            <span>{{ rdef.owner.firstName }} {{ rdef.owner.lastName }}</span>
           </button>
         {% endfor %}
       </li>
