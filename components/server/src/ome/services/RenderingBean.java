@@ -701,7 +701,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
      * 
-     * @see RenderingEngine#resetDefaultsSettings(boolean)
+     * @see RenderingEngine#resetDefaultSettings(boolean)
      */
     @RolesAllowed("user")
     public long resetDefaultSettings(boolean save) {
