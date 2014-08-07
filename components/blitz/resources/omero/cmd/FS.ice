@@ -116,6 +116,28 @@ module omero {
 
         };
 
+        /**
+         * Request to determine the disk usage of the given objects
+         * and their contents. File-system paths used by multiple objects
+         * are de-duplicated in the count.
+         *
+         * Permissible classes are:
+         *   ExperimenterGroup, Experimenter, Project, Dataset,
+         *   Screen, Plate, Well, WellSample,
+         *   Image, Pixels, Annotation, Job, Fileset, OriginalFile.
+         **/
+        class DiskUsage extends Request {
+            omero::api::IdListMap objects;
+            bool includeAnnotations;
+        };
+
+        /**
+         * Disk usage report: bytes used on the repository file-system
+         * for specific objects.
+         **/
+        class DiskUsageResponse extends Response {
+            long bytesUsed;
+        };
 
     };
 };
