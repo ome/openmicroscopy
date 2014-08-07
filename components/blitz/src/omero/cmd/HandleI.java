@@ -389,7 +389,8 @@ public class HandleI implements _HandleOperations, IHandle,
             helper.fail(new ERR(), t, "run-fail");
         } finally {
             // getResponse will be called regardless of return/exception state
-            // and therefore any cleanup can happen there.
+            // and therefore any cleanup can happen there as soon as the response
+            // is non-null.
             rsp.set(req.getResponse());
             sw.stop("omero.request.tx");
             notifyCallbacks();
