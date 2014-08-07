@@ -87,8 +87,9 @@ def locked(func):
 
 class TimeIt (object):
     """
-    Decorator to measure the execution time of a function. Assumes that a C{logger} global var
-    is available and is the logger instance from C{logging.getLogger()}.
+    Decorator to measure the execution time of a function. Assumes that a
+    logger global var
+    is available and is the logger instance from :meth:`logging.getLogger`.
 
     @param level: the level to use for logging
     @param name: the name to use when logging, function name is used if None

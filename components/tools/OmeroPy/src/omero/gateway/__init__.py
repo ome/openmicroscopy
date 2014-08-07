@@ -7790,7 +7790,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         :param filterByCurrentUser: Whether or not to filter the count by the
         currently logged in user.
         :return: Number of ROIs found for the currently logged in user if
-        C{filterByCurrentUser} is C{True}, otherwise the total number found.
+        filterByCurrentUser is True, otherwise the total number found.
         """
 
         # Create ROI shape validator (return True if at least one shape is found)
