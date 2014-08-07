@@ -309,7 +309,7 @@ def createLinkFileAnnotation(conn, localPath, parent, output="Output", parenttyp
     Uploads a local file to the server, as an Original File and attaches it to the
     parent (Project, Dataset or Image)
 
-    @param conn:            The L{omero.gateway.BlitzGateway} connection.
+    @param conn:            The :class:`omero.gateway.BlitzGateway` connection.
     @param parent:          The ProjectI or DatasetI or ImageI to attach file to
     @param localPath:       Full Name (and path) of the file location to upload. String
     @param mimetype:        The original file mimetype. E.g. "PNG". String
@@ -339,7 +339,7 @@ def getObjects(conn, params):
     Get the objects specified by the script parameters.
     Assume the parameters contain the keys IDs and Data_Type
 
-    @param conn:            The L{omero.gateway.BlitzGateway} connection.
+    @param conn:            The :class:`omero.gateway.BlitzGateway` connection.
     @param params:          The script parameters
     @return:                The valid objects and a log message
     """

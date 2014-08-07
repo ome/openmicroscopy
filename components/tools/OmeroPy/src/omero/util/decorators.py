@@ -98,7 +98,7 @@ class TimeIt (object):
     def __init__ (self, level=logging.DEBUG, name=None):
         self._level = level
         self._name = name
- 
+
     def __call__ (self, func):
         def wrapped (*args, **kwargs):
             name = self._name or func.func_name
@@ -111,7 +111,7 @@ class TimeIt (object):
 
 def timeit (func):
     """
-    Shortcut version of the L{TimeIt} decorator class.
+    Shortcut version of the :class:`TimeIt` decorator class.
     Logs at logging.DEBUG level.
     """
     def wrapped (*args, **kwargs):
