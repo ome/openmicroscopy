@@ -1757,11 +1757,10 @@ class _BlitzGateway (object):
     def getEventContext (self):
         """
         Returns omero_System_ice.EventContext.
-        It containes::
-            shareId, sessionId, sessionUuid, userId, userName,
-            groupId, groupName, isAdmin, isReadOnly,
-            eventId, eventType, eventType,
-            memberOfGroups, leaderOfGroups
+        It contains: shareId, sessionId, sessionUuid, userId, userName,
+        groupId, groupName, isAdmin, isReadOnly,
+        eventId, eventType, eventType,
+        memberOfGroups, leaderOfGroups
         Also saves context to self._ctx
 
         :return:    Event Context from admin service.
@@ -2694,7 +2693,7 @@ class _BlitzGateway (object):
         :param eid:         Filter results by this owner Id
         :param toInclude:   Only return annotations with these namespaces. List of strings.
         :param toExclude:   Don't return annotations with these namespaces. List of strings.
-        :return:            Generator of :class:`FileAnnotationWrapper`s - with files loaded.
+        :return:            Generator of :class:`FileAnnotationWrapper` - with files loaded.
         """
 
         params = omero.sys.Parameters()
@@ -2843,32 +2842,33 @@ class _BlitzGateway (object):
         Creates a new multi-dimensional image from the sequence of 2D numpy arrays in zctPlanes.
         zctPlanes should be a generator of numpy 2D arrays of shape (sizeY, sizeX) ordered
         to iterate through T first, then C then Z.
-        Example usage:
-        original = conn.getObject("Image", 1)
-        sizeZ = original.getSizeZ()
-        sizeC = original.getSizeC()
-        sizeT = original.getSizeT()
-        clist = range(sizeC)
-        zctList = []
-        for z in range(sizeZ):
-            for c in clist:
-                for t in range(sizeT):
-                    zctList.append( (z,c,t) )
-        def planeGen():
-            planes = original.getPrimaryPixels().getPlanes(zctList)
-            for p in planes:
-                # perform some manipulation on each plane
-                yield p
-        createImageFromNumpySeq (planeGen(), imageName, sizeZ=sizeZ, sizeC=sizeC, sizeT=sizeT, sourceImageId=1, channelList=clist)
+        Example usage::
 
-        :param session          An OMERO service factory or equivalent with getQueryService() etc.
-        :param zctPlanes        A generator of numpy 2D arrays, corresponding to Z-planes of new image.
-        :param imageName        Name of new image
-        :param description      Description for the new image
-        :param dataset          If specified, put the image in this dataset. omero.model.Dataset object
-        :param sourceImageId    If specified, copy this image with metadata, then add pixel data
-        :param channelList      Copies metadata from these channels in source image (if specified). E.g. [0,2]
-        :return The new OMERO image: omero.model.ImageI
+            original = conn.getObject("Image", 1)
+            sizeZ = original.getSizeZ()
+            sizeC = original.getSizeC()
+            sizeT = original.getSizeT()
+            clist = range(sizeC)
+            zctList = []
+            for z in range(sizeZ):
+                for c in clist:
+                    for t in range(sizeT):
+                        zctList.append( (z,c,t) )
+            def planeGen():
+                planes = original.getPrimaryPixels().getPlanes(zctList)
+                for p in planes:
+                    # perform some manipulation on each plane
+                    yield p
+            createImageFromNumpySeq (planeGen(), imageName, sizeZ=sizeZ, sizeC=sizeC, sizeT=sizeT, sourceImageId=1, channelList=clist)
+
+        :param session:         An OMERO service factory or equivalent with getQueryService() etc.
+        :param zctPlanes:       A generator of numpy 2D arrays, corresponding to Z-planes of new image.
+        :param imageName:       Name of new image
+        :param description:     Description for the new image
+        :param dataset:         If specified, put the image in this dataset. omero.model.Dataset object
+        :param sourceImageId:   If specified, copy this image with metadata, then add pixel data
+        :param channelList:     Copies metadata from these channels in source image (if specified). E.g. [0,2]
+        :return: The new OMERO image: omero.model.ImageI
         """
         queryService = self.getQueryService()
         pixelsService = self.getPixelsService()
@@ -3076,7 +3076,7 @@ class _BlitzGateway (object):
         :param fileSize:                The file size
         :param mimetype:                The mimetype of the file. String. E.g. 'text/plain'
         :param ns:                      The file namespace
-        :return:                        New :class:`OriginalFileWrapper `
+        :return:                        New :class:`OriginalFileWrapper`
         """
         updateService = self.getUpdateService()
         rawFileStore = self.createRawFileStore()
@@ -3123,16 +3123,16 @@ class _BlitzGateway (object):
 
     def createOriginalFileFromLocalFile (self, localPath, origFilePathAndName=None, mimetype=None, ns=None):
         """
-        Creates a :class:`OriginalFileWrapper ` from a local file.
+        Creates a :class:`OriginalFileWrapper` from a local file.
         File is uploaded to create an omero.model.OriginalFileI.
-        Returns a new :class:`OriginalFileWrapper `
+        Returns a new :class:`OriginalFileWrapper`
 
         :param conn:                    Blitz connection
         :param localPath:               Location to find the local file to upload
         :param origFilePathAndName:     Provides the 'path' and 'name' of the OriginalFile. If None, use localPath
         :param mimetype:                The mimetype of the file. String. E.g. 'text/plain'
         :param ns:                      The namespace of the file.
-        :return:                        New :class:`OriginalFileWrapper `
+        :return:                        New :class:`OriginalFileWrapper`
         """
         if origFilePathAndName is None:
             origFilePathAndName = localPath
@@ -3362,6 +3362,7 @@ class _BlitzGateway (object):
         """
         Retrieves the current set of delete commands with type (graph spec)
         and options filled.
+
         :return:    Exhaustive list of available delete commands.
         :rtype:     :class:`omero.api.delete.DeleteCommand`
         """
@@ -3376,16 +3377,18 @@ class _BlitzGateway (object):
 
         :param graph_spec:      String to indicate the object type or graph
                                 specification. Examples include:
-                                 * 'Project'
-                                 * 'Dataset'
-                                 * 'Image'
-                                 * 'Screen'
-                                 * 'Plate'
-                                 * 'Well'
-                                 * 'Annotation'
-                                 * '/OriginalFile'
-                                 * '/Image+Only'
-                                 * '/Image/Pixels/Channel'
+
+                                * 'Project'
+                                * 'Dataset'
+                                * 'Image'
+                                * 'Screen'
+                                * 'Plate'
+                                * 'Well'
+                                * 'Annotation'
+                                * '/OriginalFile'
+                                * '/Image+Only'
+                                * '/Image/Pixels/Channel'
+
                                 As of OMERO 4.4.0 the correct case is now
                                 explicitly required, the use of 'project'
                                 or 'dataset' is no longer supported.
@@ -3467,9 +3470,10 @@ class _BlitzGateway (object):
 
         :param graph_spec:      String to indicate the object type or graph
                                 specification. Examples include:
-                                 * '/Image'
-                                 * '/Project'   # will move contents too.
-                                 * NB: Also supports 'Image' etc for convenience
+
+                                * '/Image'
+                                * '/Project'   # will move contents too.
+                                * NB: Also supports 'Image' etc for convenience
         :param obj_ids:         IDs for the objects to move.
         :param group_id:        The group to move the data to.
         """
@@ -3520,7 +3524,7 @@ class _BlitzGateway (object):
         :param obj_types:   E.g. ["Dataset", "Image"]
         :param text:        The text to search for
         :param created:     :class:`omero.rtime` list or tuple (start, stop)
-        :param useAcquisitionDate if True, then use Image.acquisitionDate rather than import date for queries.
+        :param useAcquisitionDate: if True, then use Image.acquisitionDate rather than import date for queries.
         :return:            List of Object wrappers. E.g. :class:`ImageWrapper`
         """
         if not text:
@@ -3910,6 +3914,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
     def _register (klass, regklass):
         """
         Adds the AnnotationWrapper regklass to class registry
+
         :param regklass:    The wrapper class, E.g. :class:`DoubleAnnotationWrapper`
         :type regklass:     :class:`AnnotationWrapper` subclass
         """
@@ -4894,9 +4899,9 @@ class _PlateWrapper (BlitzObjectWrapper):
 
     def _listChildren (self, **kwargs):
         """
-        Lists Wells in this plate, not sorted. Saves wells to _childcache map, where key is (row, column).
-_
-        :rtype: list of omero.model.WellI objects
+        Lists Wells in this plate, not sorted. Saves wells to :attr:`_childcache` map, where key is (row, column).
+
+        :rtype: list of :class:`omero.model.WellI` objects
         :return: child objects.
         """
         if self._childcache is None:
@@ -4949,8 +4954,8 @@ _
         """
         Returns a grid of WellWrapper objects, indexed by [row][col].
 
-        :rtype:     2D array of :class:`WellWrapper`s. Empty well positions
-        are None
+        :rtype:     2D array of :class:`WellWrapper`. Empty well positions
+                    are None
         """
         grid = self.getGridSize()
         childw = self._getChildWrapper()
@@ -5404,6 +5409,7 @@ class ColorHolder (object):
     def setAlpha (self, val):
         """
         Set alpha, as int 0..255.
+
         :param val: value of alpha.
         """
 
@@ -5510,12 +5516,12 @@ class _LightPathWrapper (BlitzObjectWrapper):
         self.OMERO_CLASS = 'LightPath'
 
     def getExcitationFilters(self):
-        """ Returns list of excitation :class:`FilterWrapper`s. Ordered
+        """ Returns list of excitation :class:`FilterWrapper`. Ordered
         collections can contain nulls"""
         return [FilterWrapper(self._conn, link.child) for link in self.copyExcitationFilterLink() if link is not None]
 
     def getEmissionFilters(self):
-        """ Returns list of emission :clas:`FilterWrapper`s """
+        """ Returns list of emission :class:`FilterWrapper` """
         return [FilterWrapper(self._conn, link.child) for link in self.copyEmissionFilterLink()]
 
 LightPathWrapper = _LightPathWrapper
@@ -5538,10 +5544,10 @@ class _PixelsWrapper (BlitzObjectWrapper):
 
     def getPixelsType (self):
         """
-        This simply wraps the omero::model::PixelsType object in a
+        This simply wraps the :class:`omero.model.PixelsType` object in a
         BlitzObjectWrapper. Shouldn't be needed when this is done automatically.
 
-        It has the methods `getValue' and `getBitSize'.
+        It has the methods :meth:`getValue` and :meth:`getBitSize`.
         """
         return BlitzObjectWrapper(self._conn, self._obj.getPixelsType())
 
@@ -7206,7 +7212,7 @@ class _ImageWrapper (BlitzObjectWrapper):
 
         :param z:       Z index
         :param t:       T index
-        @compression:   Image compression level
+        :param compression:   Image compression level
         :return:        A PIL Image or None
         :rtype:         PIL Image.
         """
@@ -7748,7 +7754,7 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     def getArchivedFiles (self):
         """
-        Returns a generator of :class:`OriginalFileWrapper`s corresponding to the archived files linked to primary pixels
+        Returns a generator of :class:`OriginalFileWrapper` corresponding to the archived files linked to primary pixels
         ** Deprecated ** Use :meth:`getImportedImageFiles`.
         """
         warnings.warn("Deprecated. Use getImportedImageFiles()", DeprecationWarning)
@@ -7756,7 +7762,7 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     def getImportedImageFiles (self):
         """
-        Returns a generator of :class:`OriginalFileWrapper`s corresponding to the Imported image
+        Returns a generator of :class:`OriginalFileWrapper` corresponding to the Imported image
         files that created this image, if available.
         """
         # If we have an FS image, return Fileset files.
@@ -7787,10 +7793,11 @@ class _ImageWrapper (BlitzObjectWrapper):
         Count number of ROIs associated to an image
 
         :param shapeType: Filter by shape type ("Rect",...).
-        :param filterByCurrentUser: Whether or not to filter the count by the
-        currently logged in user.
+        :param filterByCurrentUser: Whether or not to filter the count by
+                                    the currently logged in user.
         :return: Number of ROIs found for the currently logged in user if
-        filterByCurrentUser is True, otherwise the total number found.
+                 filterByCurrentUser is True, otherwise the total number
+                 found.
         """
 
         # Create ROI shape validator (return True if at least one shape is found)
