@@ -241,7 +241,7 @@ class TempFileManager(object):
         """
         Similar to tempfile.mkstemp name but immediately closes
         the file descriptor returned and passes back just the name.
-        This prevents various Windows issues"
+        This prevents various Windows issues.
         """
         fd, name = tempfile.mkstemp(prefix = prefix, suffix = suffix, dir = dir, text = text)
         self.logger.debug("Added file %s", name)

@@ -31,7 +31,7 @@
 
 	/* User Selection */
 	
-	#user_selection {
+	#group_user_selection {
 	    border-top:solid 1px #333940;
 		border-top: solid 1px hsl(210,20%,20%);
 		-webkit-box-shadow:0 1px 0 0 rgba(255,255,255,0.05), inset 0 1px 0 rgba(255,255,255,.05); /* Saf3.0+, Chrome */
@@ -54,7 +54,7 @@
 	}
 	
 	
-	#user_selection:hover {
+	#group_user_selection:hover {
 		background-color:hsla(212,8%,44%,1); 
 	}
 	
@@ -181,11 +181,6 @@
 	
 	    
     /* Left Panel Tabs */    
-    
-	#left_panel_tabs {
-		top:33px;
-	}
-	
     
 	    #left_panel_tab_list, .left_panel_top{
 			background:#B8C2CC; /* Old browsers */
@@ -1104,18 +1099,17 @@
         width:200px;
     }
 
-    #batch_ann_msg, #batch_ann_error {
+    #batch_ann_msg, #batch_ann_error, .postit_msg {
         background: #ffb;
         padding:10px;
         border: solid #ddd 1px;
-        display: none;
-    }
-    #batch_ann_msg, {
-        background: #ffb;
     }
     #batch_ann_error {
         background: #fbb;
         cursor: pointer;
+    }
+    #batch_ann_msg, #batch_ann_error {
+        display: none;
     }
 	
 	
@@ -1636,6 +1630,19 @@
         padding-bottom:25px;
         margin-bottom:25px;
     }
+        #searchHints {
+            font-size: 120%;
+            background: #fef69c;
+            padding: 3px;
+            border: solid #ddd 1px;
+            margin-bottom: 10px;
+        }
+
+        #searchHints strong {
+            display:block;
+            width:35px;
+            float:left;
+        }
 
         #searching input[type=text], #searching textarea{
             width:65%;
@@ -1644,9 +1651,11 @@
         #startdateinput, #enddateinput {
             width:30% !important;
         }
-    
-        #criteria {
-            float:left;
+
+        .clearDate {
+            position: absolute;
+            right: 5px;
+            top: -5px;
         }
 
         .criteria {
@@ -1780,13 +1789,17 @@
 			#experimenters_tab a{
 				background:url(../image/icon_scientist_36.png) center 40% no-repeat;
 			}
-			
+
 			#groups_tab a {
 				background:url(../image/icon_scientist_group_36.png) center 40% no-repeat;
 			}
 			
 			#drivespace_tab a{
 				background:url(../../webclient/image/icon_settings_drivespace.png) center 14px no-repeat;
+			}
+
+			#email_tab a{
+				background:url(../../webclient/image/icon_settings_mail.png) center 14px no-repeat;
 			}
     
 			

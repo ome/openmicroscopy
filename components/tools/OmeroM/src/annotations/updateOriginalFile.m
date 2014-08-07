@@ -11,9 +11,9 @@ function originalFile = updateOriginalFile(session, originalFile, filePath)
 %        originalFile = updateOriginalFile(session, fa.getFile(), filePath)
 
 %
-% See also: createFileAnnotation
+% See also: writeFileAnnotation, updateFileAnnotation
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -61,13 +61,36 @@ hasher = checksumProviderFactory.getProvider(sha1);
 rawFileStore = session.createRawFileStore();
 rawFileStore.setFileId(originalFile.getId().getValue());
 
-%code for small file.
-fid = fopen(absolutePath);
-byteArray = fread(fid,[1, fileLength], 'uint8');
-rawFileStore.write(byteArray, 0, fileLength);
+%code for large files as well.
+lengthvec=262144;
+if fileLength<=lengthvec
+    lengthvec=fileLength;
+end
+
+fileLength1=(1:lengthvec:fileLength);
+for i=1:length(fileLength1)
+    
+    
+    filestart1=fileLength1(i);
+    if i==length(fileLength1)
+        filestop1=fileLength;
+    else
+        filestop1=fileLength1(i+1)-1;
+    end
+    
+    fid = fopen(f.Name);
+    fseek(fid,filestart1-1,'bof');
+    
+    byteArray = fread(fid,[1, length(filestart1:filestop1)], 'uint8');%include skip bytes in every loop
+    rawFileStore.write(byteArray, (filestart1-1), length(byteArray));
+    fclose(fid);
+    hasher.putBytes(byteArray, 0, length(byteArray));
+    
+    
+end
+
+% Truncate the file to fileLength in case a smaller file is uploaded
 rawFileStore.truncate(fileLength);
-hasher.putBytes(byteArray);
-fclose(fid);
 
 % Save and close the service
 originalFile = rawFileStore.save();

@@ -39,13 +39,24 @@ do
   done
 done
 
+# Create orphaned datasets
+for (( j=1; j<=$nDatasets; j++ ))
+do
+  bin/omero obj new Dataset name='Orphaned dataset '$j
+done
+
 # Import Image
 echo "Importing image file"
 touch "test&sizeT=10&sizeZ=5&sizeC=3.fake"
 bin/omero import "test&sizeT=10&sizeZ=5&sizeC=3.fake" > image_import.log 2>&1
 imageid=$(sed -n -e 's/^Image://p' image_import.log)
 
-# Import plate
+# Create screen/plate
+screen=$(bin/omero obj new Screen name='Screen')
+plate=$(bin/omero obj new Plate name='Plate')
+bin/omero obj new ScreenPlateLink parent=$screen child=$plate
+
+# Import orphaned plate
 echo "Importing SPW file"
 touch "SPW&plates=1&plateRows=1&plateCols=1&fields=1&plateAcqs=1.fake"
 bin/omero import "SPW&plates=1&plateRows=1&plateCols=1&fields=1&plateAcqs=1.fake" > plate_import.log 2>&1

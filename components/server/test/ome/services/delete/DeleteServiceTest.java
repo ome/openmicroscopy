@@ -319,7 +319,6 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
         WellSample ws = new WellSample();
         Image i = new Image();
         i.setName("ticket:1228");
-        i.setAcquisitionDate(new Timestamp(0));
         
         // Linking
         p.addWell(w1);
@@ -358,7 +357,6 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
 
         Image i = new Image();
         i.setName("ticket:1228");
-        i.setAcquisitionDate(new Timestamp(0));
         i.linkAnnotation(ta);
         
         // Linking

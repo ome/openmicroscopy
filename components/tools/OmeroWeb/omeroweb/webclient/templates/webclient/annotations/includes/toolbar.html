@@ -27,29 +27,116 @@
         <span></span>
     </button>
     <div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
-        <input type="text" size="30">
-        <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
+
+        <table>
+          <tr><td>
+            <!-- In 'batch_annotate' panel we have 'link_string'. In 'metadata_general' we use js to get value -->
+            <input type="text" size="30"
+              {% if link_string %}
+              value="{{ webclient_path }}?show={{ link_string }}"
+              {% endif %}
+              />
+          </td><td>
+            <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
+          </td></tr>
+        </table>
     </div>
 
-    {% if manager.image %}
+    <!-- This is used for 'batch annotate' panel with 'filesetCount'... -->
+    <!-- ... and for single images -->
+
+    {% if manager.image or filesetInfo %}
     <!-- download options -->
     <div class="toolbar_dropdown">
         <button class="btn silver btn_download" title="Download Image as...">
             <span></span>
         </button>
         <ul class="dropdown">
-            {% if manager.image.countImportedImageFiles %}
+            <!-- Here we handle a single image (in metadata general) - see below for multiple images (batch annotate) -->
+            {% if manager.image.getImportedFilesInfo.count %}
+              {% with filesetInfo=manager.image.getImportedFilesInfo %}
             <li>
-                <a id="download-origfile" href="{% url 'archived_files' manager.image.id %}"
-                title="Download {{ manager.image.countImportedImageFiles }} Archived file{{ manager.image.countImportedImageFiles|pluralize:'s (zip)' }}">
-                Archived file{{ manager.image.countImportedImageFiles|pluralize:'s (zip)' }}</a>
+                <!-- if we have a single orig file, download directly. Otherwise popup a 
+                  'preparing zip' download placeholder -->
+                <a id="download-origfile" 
+                  {% ifequal filesetInfo.count 1 %}
+                    href="{% url 'archived_files' manager.image.id %}"
+                  {% else %}
+                    href="#"
+                    onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids=image-{{ manager.image.id }}&fileCount={{ fileCount }}&name={{ manager.image.name }}');"
+                  {% endifequal %}
+                title="Download {{ filesetInfo.count }} original imported file{{ filesetInfo.count|pluralize:'s as zip'}} ({{ filesetInfo.size|filesizeformat }})"
+                >
+                Download...</a>
+            </li>
+              {% endwith %}
+            <!-- Here we handle multiple images (batch annotate panel) -->
+            {% elif filesetInfo %}
+            <li {% if not filesetInfo.count %}class='disabled'{% endif %}>
+              <a id="download-origfile"
+                {% ifequal filesetInfo.count 0 %}
+                  href="#"
+                {% else %}
+                  {% ifequal filesetInfo.count 1 %}
+                    href="{% url 'archived_files' %}?{{ obj_string }}"
+                  {% else %}
+                    href="#"
+                    onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&fileCount={{ filesetInfo.count }}');"
+                  {% endifequal %}
+                {% endifequal %}
+                title="Download {{ filesetInfo.count }} original imported file{{ filesetInfo.count|pluralize:'s as zip'}} ({{ filesetInfo.size|filesizeformat }})"
+                >
+                Download...</a>
             </li>
             {% endif %}
+            {% if manager.image %}
             <li>
                 <a id="create-ometiff" href="{% url 'ome_tiff_script' manager.image.id %}" 
-                title="Create OME-TIFF File for Download">OME-TIFF</a>
+                title="Create OME-TIFF File for Download">Export as OME-TIFF...</a>
             </li>
-            <li id="download-jpeg"><a href="{% url 'web_render_image_download' manager.image.id %}" title="Download as JPEG">JPEG</a></li>
+            {% else %}
+            <li class="disabled">
+                <a id="create-ometiff" href="#" class="disabled"
+                title="Create OME-TIFF File for Download">Export as OME-TIFF...</a>
+            </li>
+            <li>{{ manager.}}
+            {% endif %}
+
+            {% if manager.image %}
+              <li>
+                <a href="{% url 'web_render_image_download' manager.image.id %}" title="Download as JPEG">
+                  Save As JPEG
+                </a>
+              </li>
+              <li>
+                <a href="{% url 'web_render_image_download' manager.image.id %}?format=png" title="Download as PNG">
+                  Save As PNG
+                </a>
+              </li>
+              <li>
+                <a href="{% url 'web_render_image_download' manager.image.id %}?format=tif" title="Download as TIFF">
+                  Save As TIFF
+                </a>
+              </li>
+            {% else %}
+              {% if filesetInfo %}
+              <li>
+                <a href="#"
+                  onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&format=jpeg');"
+                  title="Download as JPEGs (zip)">Save As JPEG</a>
+              </li>
+              <li>
+                <a href="#"
+                  onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&format=png');"
+                  title="Download as PNGs (zip)">Save As PNG</a>
+              </li>
+              <li>
+                <a href="#"
+                  onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&format=tif');"
+                  title="Download as TIFFs (zip)">Save As TIFF</a>
+              </li>
+              {% endif %}
+            {% endif %}
         </ul>
     </div>
 

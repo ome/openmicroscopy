@@ -75,7 +75,11 @@ class ImportControl(BaseControl):
         parser.add_login_arguments()
 
         parser.add_argument(
-            "--javahelp", action="store_true", help="Show the Java help text")
+            "--javahelp", "--java-help",
+            action="store_true", help="Show the Java help text")
+        parser.add_argument(
+            "--advanced-help", action="store_true", dest="java_advanced_help",
+            help="Show the advanced help text")
         parser.add_argument(
             "---file", nargs="?",
             help="File for storing the standard out of the Java process")
@@ -157,6 +161,9 @@ class ImportControl(BaseControl):
             help="Comment annotation ID to link all images to (**)")
 
         parser.add_argument(
+            "--depth", default=4, type=int,
+            help="Number of directories to scan down for files")
+        parser.add_argument(
             "path", nargs="*",
             help="Path to be passed to the Java process")
 
@@ -190,7 +197,7 @@ class ImportControl(BaseControl):
                 login_args.append("-h")
 
         if "-h" not in login_args and "-f" not in login_args \
-                and not args.java_f:
+                and not args.java_f and not args.java_advanced_help:
             client = self.ctx.conn(args)
             srv = client.getProperty("omero.host")
             prt = client.getProperty("omero.port")
@@ -219,6 +226,7 @@ class ImportControl(BaseControl):
             "java_ns": "--annotation_ns",
             "java_text": "--annotation_text",
             "java_link": "--annotation_link",
+            "java_advanced_help": "--advanced-help",
             }
 
         for attr_name, arg_name in java_args.items():
@@ -233,6 +241,7 @@ class ImportControl(BaseControl):
                     if isinstance(arg_value, (str, unicode)):
                         login_args.append(arg_value)
 
+        xargs.append("-Domero.import.depth=%s" % args.depth)
         a = self.COMMAND + login_args + args.path
         p = omero.java.popen(
             a, debug=False, xargs=xargs, stdout=out, stderr=err)

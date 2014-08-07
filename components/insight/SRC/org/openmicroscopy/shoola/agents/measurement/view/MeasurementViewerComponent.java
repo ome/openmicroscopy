@@ -696,13 +696,6 @@ class MeasurementViewerComponent
 					"in the ANALYSE_SHAPE state: "+state);
 			return;
 		}
-			//throw new IllegalStateException("This method can only be invoked " +
-			//		"in the ANALYSE_SHAPE state: "+state);
-		if (result == null || result.size() == 0) {
-			UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Sets stats results", "No result to display.");
-			return;
-		}
 		model.setAnalysisResults(result);
 		view.displayAnalysisResults();
 		fireStateChange();

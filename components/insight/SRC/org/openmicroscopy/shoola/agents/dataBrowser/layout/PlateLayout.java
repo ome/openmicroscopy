@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.layout;
 //Java imports
 import java.awt.Dimension;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -87,7 +88,7 @@ public class PlateLayout
     {
         if (node.getParentDisplay() != null) return;
         if (CollectionUtils.isEmpty(oldNodes)) {
-            Set nodes = node.getChildrenDisplay();
+            Collection nodes = node.getChildrenDisplay();
             Iterator i = nodes.iterator();
             ImageDisplay n;
             List<ImageDisplay> l = new ArrayList<ImageDisplay>();

@@ -18,137 +18,16 @@
 
 package ome.system.metrics;
 
-import static com.codahale.metrics.MetricRegistry.name;
-
-import java.lang.management.ManagementFactory;
-import java.util.Collection;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-
-import ch.qos.logback.classic.LoggerContext;
-
-import com.codahale.metrics.JmxReporter;
-import com.codahale.metrics.Metric;
-import com.codahale.metrics.MetricFilter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.MetricSet;
-import com.codahale.metrics.Slf4jReporter;
-import com.codahale.metrics.jvm.BufferPoolMetricSet;
-import com.codahale.metrics.jvm.FileDescriptorRatioGauge;
-import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
-import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
-import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
-import com.codahale.metrics.logback.InstrumentedAppender;
 
 /**
- * Spring bean for configuring metrics in this JVM.
+ * Thin-interface around {@link com.codahale.metrics.Metrics}.
  */
-public class Metrics implements InitializingBean {
+public interface Metrics {
 
-    private static Logger log = LoggerFactory.getLogger(Metrics.class);
+    Counter counter(Object obj, String name);
 
-    private MetricRegistry registry = new MetricRegistry();
+    Timer timer(Object obj, String name);
 
-    private boolean slf4jReporter = false;
+    Histogram histogram(Object obj, String name);
 
-    private boolean jmxReporter = true;
-
-    private boolean jvmInstrumentation = true;
-
-    private boolean logbackInstrumentation = true;
-
-    private Collection<String> beginsWith = null;
-
-    public void setSlf4jReporter(boolean activate) {
-        this.slf4jReporter = activate;
-    }
-
-    public void setBeginsWith(Collection<String> prefixes) {
-        this.beginsWith = prefixes;
-    }
-
-    private MetricFilter filter() {
-        return new MetricFilter() {
-            @Override
-            public boolean matches(String arg0, Metric arg1) {
-                if (beginsWith == null) {
-                    return true;
-                } else {
-                    for (String b : beginsWith) {
-                        if (arg0.startsWith(b)) {
-                            return true;
-                        }
-                    }
-                }
-                return false;
-            }};
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        if (slf4jReporter) {
-            final Slf4jReporter reporter = Slf4jReporter.forRegistry(registry)
-                .filter(filter())
-                .outputTo(LoggerFactory.getLogger("ome.system.metrics"))
-                .convertRatesTo(TimeUnit.SECONDS)
-                .convertDurationsTo(TimeUnit.MILLISECONDS)
-                .build();
-            reporter.start(60, TimeUnit.MINUTES);
-        }
-
-        if (jmxReporter) {
-            final JmxReporter jmx = JmxReporter.forRegistry(registry).build();
-            jmx.start();
-        }
-
-        if (jvmInstrumentation) {
-            BufferPoolMetricSet bufferPoolMetrics = new BufferPoolMetricSet(ManagementFactory.getPlatformMBeanServer());
-            registerAll("jvm.buffers", bufferPoolMetrics, registry);
-            registerAll("jvm.gc", new GarbageCollectorMetricSet(), registry);
-            registerAll("jvm.memory", new MemoryUsageGaugeSet(), registry);
-            registerAll("jvm.threads", new ThreadStatesGaugeSet(), registry);
-            registry.register("jvm.fileDescriptorCountRatio", new FileDescriptorRatioGauge());
-        }
-
-        if (logbackInstrumentation) {
-            try {
-                final LoggerContext factory = (LoggerContext) LoggerFactory.getILoggerFactory();
-                final ch.qos.logback.classic.Logger root = factory.getLogger(Logger.ROOT_LOGGER_NAME);
-
-                final InstrumentedAppender metrics = new InstrumentedAppender(registry);
-                metrics.setContext(root.getLoggerContext());
-                metrics.start();
-                root.addAppender(metrics);
-            } catch (Exception e) {
-                log.error("Failed to instrumentation logback", e);
-            }
-        }
-    }
-
-    public Counter counter(Object obj, String name) {
-        return new Counter(registry.counter(name(obj.getClass(), name)));
-    }
-
-    public Timer timer(Object obj, String name) {
-        return new Timer(registry.timer(name(obj.getClass(), name)));
-    }
-
-    public Histogram histogram(Object obj, String name) {
-        return new Histogram(registry.histogram(name(obj.getClass(), name)));
-    }
-
-    private void registerAll(String prefix, MetricSet metrics, MetricRegistry registry) {
-        for (Map.Entry<String, Metric> entry : metrics.getMetrics().entrySet()) {
-          String name = MetricRegistry.name(prefix, entry.getKey());
-          if (entry.getValue() instanceof MetricSet) {
-              registerAll(name, (MetricSet) entry.getValue(), registry);
-          } else {
-              registry.register(name,  entry.getValue());
-          }
-        }
-      }
 }

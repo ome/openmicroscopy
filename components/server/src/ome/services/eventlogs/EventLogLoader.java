@@ -12,12 +12,13 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import ome.api.IQuery;
 import ome.model.IObject;
 import ome.model.meta.EventLog;
-import ome.parameters.Filter;
 import ome.parameters.Parameters;
+import ome.services.fulltext.FullTextIndexer;
 import ome.services.messages.ReindexMessage;
 import ome.tools.hibernate.QueryBuilder;
 import ome.util.Utils;
@@ -77,6 +78,12 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
      * {@link #rollback(EventLog)} mechanism.
      */
     private final EventBacklog backlog = new EventBacklog();
+
+    /**
+     * Marker set when {@link #stop()} is called in order to stop execution
+     * after which {@link #hasNext()} will always return false.
+     */
+    final private AtomicBoolean stop = new AtomicBoolean(false);
 
     private EventLog eventLog;
 
@@ -139,6 +146,10 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
      * {@link #eventLog}. Otherwise, just tests that field for null.
      */
     public boolean hasNext() {
+
+        if (stop.get()) {
+            return false;
+        }
 
         // If we have an event log, we always return true so that we always
         // have a clean slate. (And it's simply being honest)
@@ -268,5 +279,25 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
                 addEventLog(trueClass, obj.getId());
             }
         }
+    }
+
+    /**
+     * Returns true if the stop flag has been set on this instance.
+     */
+    public boolean isStopSet() {
+        return this.stop.get();
+    }
+
+    /**
+     * Called by controlling objects (a worker thread) in order
+     * to free up the thread.
+     */
+    public void setStop(boolean stop) {
+        if (stop) {
+            log.info("Shutting down EventLogLoader");
+        } else {
+            log.info("Restarting EventLogLoader");
+        }
+        this.stop.set(stop);
     }
 }

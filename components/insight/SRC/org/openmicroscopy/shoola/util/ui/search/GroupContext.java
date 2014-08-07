@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.search.GroupContext 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2014 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -25,11 +25,17 @@ package org.openmicroscopy.shoola.util.ui.search;
 
 
 //Java imports
+import java.util.ArrayList;
+import java.util.List;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import pojos.GroupData;
+import pojos.ExperimenterData;
+
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Host information about the group to search into.
@@ -38,8 +44,11 @@ import pojos.GroupData;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since Beta4.4
  */
-class GroupContext
+public class GroupContext
 {
+        /** Maximum characters to use for the name */
+        private static final int MAX_CHARS = 25;
+    
         /** ID indicating all groups should be included in the search */
         public static final int ALL_GROUPS_ID = Integer.MAX_VALUE;
         
@@ -49,29 +58,96 @@ class GroupContext
 	/** The identifier of the group.*/
 	private long id;
 	
+	/** The experimenters of this group */
+	private List<ExperimenterContext> experimenters = new ArrayList<ExperimenterContext>();
+	
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param group The name of the group to handle.
 	 * @param id The identifier of the group.
 	 */
-	GroupContext(String group, long id)
+	public GroupContext(String group, long id)
 	{
+                if (group.length() > MAX_CHARS) {
+                    group = UIUtilities.truncate(group, MAX_CHARS, false);
+                }
+	    
 		this.group = group;
 		this.id = id;
 	}
 	
 	/**
+         * Creates a new instance.
+         * 
+         * @param group The name of the group to handle.
+         * @param id The identifier of the group.
+         */
+        public GroupContext(GroupData group)
+        {
+                String groupName = group.getName();
+                
+                if(groupName.length()>MAX_CHARS) {
+                    groupName = UIUtilities.truncate(groupName, MAX_CHARS, false);
+                }
+            
+                this.group = groupName;
+                this.id = group.getId();
+                
+                for(Object exp : group.getExperimenters()) {
+                    this.experimenters.add(new ExperimenterContext((ExperimenterData)exp));
+                }
+        }
+        
+	/**
 	 * Returns the id of the group hosted by the component.
 	 * 
 	 * @return See above.
 	 */
-	long getId() { return id; }
+	public long getId() { return id; }
+	
 	
 	/**
+	 * Get this group's experimenters
+	 */
+    	public List<ExperimenterContext> getExperimenters() {
+            return experimenters;
+        }
+
+	/**
+	 * Set this group's experimenters
+	 */
+        public void setExperimenters(List<ExperimenterContext> experimenters) {
+            this.experimenters = experimenters;
+        }
+
+        /**
 	 * Overridden to return the name of the group.
 	 * @see Object#toString()
 	 */
 	public String toString() { return group; }
 
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + (int) (id ^ (id >>> 32));
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            GroupContext other = (GroupContext) obj;
+            if (id != other.id)
+                return false;
+            return true;
+        }
+
+	
 }

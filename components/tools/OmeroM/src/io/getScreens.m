@@ -1,4 +1,4 @@
-function screens = getScreens(session, varargin)
+function [screens, plates] = getScreens(session, varargin)
 % GETSCREENS Retrieve screen objects from the OMERO server
 %
 %   screens = getScreens(session) returns all the screens owned by the
@@ -17,16 +17,20 @@ function screens = getScreens(session, varargin)
 %   screens identified by the input ids owned by the input user in the
 %   context of the session group.
 %
+%   [screens, plates] = getScreens(session, [],...) returns all the
+%   orphaned platest in addition to all the projects.
+%
 %   Examples:
 %
 %      screens = getScreens(session);
 %      screens = getScreens(session, 'owner', ownerId);
 %      screens = getScreens(session, ids);
 %      screens = getScreens(session, ids, 'owner', ownerId);
+%      [screens, plates] = getScreens(session, []);
 %
 % See also: GETOBJECTS, GETPLATES, GETIMAGES
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -49,6 +53,12 @@ ip.addOptional('ids', [], @(x) isempty(x) || (isvector(x) && isnumeric(x)));
 ip.KeepUnmatched = true;
 ip.parse(varargin{:});
 
+parameters = omero.sys.ParametersI();
+
+% If more than one output arguments, set orphan
+if nargout > 1, parameters.orphan(); end
+
 % Delegate unmatched arguments check to getObjects function
 unmatchedArgs =[fieldnames(ip.Unmatched)' struct2cell(ip.Unmatched)'];
-screens = getObjects(session, 'screen', ip.Results.ids, unmatchedArgs{:});
+[screens, plates] = getObjects(session, 'screen', ip.Results.ids,...
+    parameters, unmatchedArgs{:});

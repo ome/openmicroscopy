@@ -36,13 +36,13 @@ import java.util.Set;
 //Third-party libraries
 
 
-
-
 //Application-internal dependencies
 import omero.api.StatefulServiceInterfacePrx;
 
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
+import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
 import pojos.DataObject;
@@ -353,10 +353,29 @@ public interface OmeroDataService
 	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Object advancedSearchFor(SecurityContext ctx,
-			SearchDataContext context)
+	public AdvancedSearchResultCollection search(SecurityContext ctx,
+	        SearchParameters context)
 		throws DSOutOfServiceException, DSAccessException;
-
+	
+	/**
+         * Retrieves the objects specified by the context of the search
+         * and returns an object hosting various elements used for the display.
+         *
+         * @param ctx The security context.
+         * @param context The context of the search.
+         * @return See above.
+         * @throws DSOutOfServiceException  If the connection is broken, or logged
+         *                                  in.
+         * @throws DSAccessException        If an error occurred while trying to
+         *                                  retrieve data from OMEDS service.
+         *                                  
+         * @deprecated As of release 5.0.3, replaced by {@link #search(SecurityContext, SearchParameters)}
+         */
+	@Deprecated 
+        public Object advancedSearchFor(SecurityContext ctx,
+                        SearchDataContext context)
+                throws DSOutOfServiceException, DSAccessException;
+        
 	/**
 	 * Finds the objects containing the object identifying by the specified
 	 * type and id e.g. find the datasets containing a given image.

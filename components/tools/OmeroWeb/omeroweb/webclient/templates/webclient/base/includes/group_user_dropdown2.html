@@ -1,0 +1,198 @@
+{% load common_tags %}
+
+{% comment %}
+<!--
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+
+{% if groups %}
+<script>
+    $(document).ready(function(){
+
+        var $groupList = $("#groupList"),
+            $listViewPort = $("#listViewPort"),
+            $usersList = $(".usersList"),
+            DROPDOWN_HEIGHT = $(document).height()-110;
+
+        // prepare lists for show/hide
+        $groupList.css('max-height', DROPDOWN_HEIGHT + 'px');
+        $usersList.css('max-height', DROPDOWN_HEIGHT + 'px');
+        $groupList.css('visibility', 'visible');
+        $listViewPort.css('visibility', 'visible').hide();
+        $usersList.css('visibility', 'visible').hide();
+
+        // Button toggles visibility of group chooser dropdown
+        $("#groupsUsersButton").click(function(event){
+            event.preventDefault();
+
+            if ($listViewPort.is(":visible")) {
+                $listViewPort.hide();
+            } else {
+                $listViewPort.show();
+            }
+            return false;
+        });
+
+        // When hover or click on a Group, show Users...
+        $( "#groupList" ).on( "mouseenter click", "li a", function(event) {
+            event.preventDefault();
+            var gid = $(this).attr("data-gid");
+            $usersList.hide();
+            $("#groupMembers-" + gid).show();
+            return false;
+        });
+
+        // Any clicks that bubble up to body hide list...
+        $('body').click(function(event) {
+            $listViewPort.hide();
+        });
+
+    });
+</script>
+
+<ul id="group_user_chooser">
+	
+	
+    <li class="dropdown_menu">
+       
+	    <!-- Group / User drop-down -->
+        
+        <div id="groupsUsersButton" title="Switch Group/User">
+            <img 
+            {% if active_group.getDetails.getPermissions.isGroupWrite %} src="{% static 'webclient/image/group_green16.png' %}"
+            {% else %}
+                {% if active_group.getDetails.getPermissions.isGroupAnnotate %} src="{% static "webclient/image/group_orange16.png" %}"
+                {% else %}
+                    {% if active_group.details.permissions.isGroupRead %} src="{% static "webclient/image/group_red16.png" %}"
+                    {% else %}
+                        src="{% static "webclient/image/personal16.png" %}"
+                    {% endif %}
+                {% endif %}
+            {% endif %} />
+            <span>{{ active_group.name }}</span><span>{{ active_user.getFullName }}</span>
+        </div>
+
+        <div id="listViewPort" class="dropdown">
+
+
+        <ul id="groupList" class="submenu" style="box-shadow:0 0 0 white; top:0; bottom:0; overflow-y: auto; overflow-x: hidden; position: relative; float: left; width:220px">
+
+        {% if ome.eventContext.isAdmin %}
+            <li class="non_selectable"><strong>My Groups</strong></li>
+        {% endif %}
+
+        {% for grp in myGroups %}
+            <li {% ifequal grp.id eContext.context.groupId %}class="current_group"{% endifequal %}>
+                <a href="#" data-gid="{{ grp.id }}">
+                    <img
+                    {% if grp.getDetails.getPermissions.isGroupWrite %} src="{% static 'webclient/image/group_green16.png' %}"
+                    {% else %}
+                        {% if grp.getDetails.getPermissions.isGroupAnnotate %} src="{% static "webclient/image/group_orange16.png" %}"
+                        {% else %}
+                            {% if grp.details.permissions.isGroupRead %} src="{% static "webclient/image/group_red16.png" %}"
+                            {% else %}
+                                src="{% static "webclient/image/personal16.png" %}"
+                            {% endif %}
+                        {% endif %}
+                    {% endif %} />
+                    {{ grp.getName }}
+                </a>
+            </li>
+        {% endfor %}
+
+        {% if ome.eventContext.isAdmin %}
+            <li class="non_selectable"><strong>ALL Groups</strong></li>
+
+            {% for grp in groups %}
+                <li {% ifequal grp.id eContext.context.groupId %}class="current_group"{% endifequal %}>
+                    <a href="#" data-gid="{{ grp.id }}">
+                        <img
+                        {% if grp.getDetails.getPermissions.isGroupWrite %} src="{% static 'webclient/image/group_green16.png' %}"
+                        {% else %}
+                            {% if grp.getDetails.getPermissions.isGroupAnnotate %} src="{% static "webclient/image/group_orange16.png" %}"
+                            {% else %}
+                                {% if grp.details.permissions.isGroupRead %} src="{% static "webclient/image/group_red16.png" %}"
+                                {% else %}
+                                    src="{% static "webclient/image/personal16.png" %}"
+                                {% endif %}
+                            {% endif %}
+                        {% endif %} />
+                        {{ grp.getName }}
+                    </a>
+                </li>
+            {% endfor %}
+        {% endif %}
+        </ul>
+
+
+        {% for grp in groups %}
+                    <ul title="Switch to this Group and User" class="usersList" id="groupMembers-{{ grp.id }}" style="top:0px">
+                        {% if grp.all %}
+                            <li>
+                                {% ifequal grp.id active_group.id %}
+                                <a href="{{ current_url }}?experimenter=-1">
+                                    <!-- otherwise we switch group too -->
+                                {% else %}
+                                <a href="{% url 'change_active_group' %}?active_group={{grp.id}}&url={{ current_url }}?experimenter=-1">
+                                {% endifequal %}
+                                    {% setting UI_MENU_DROPDOWN.ALL %}
+                                </a>
+                            </li>
+                        {% endif %}
+                        
+                        {% if grp.leaders %}
+                            <li class="non_selectable"><strong>{% setting UI_MENU_DROPDOWN.LEADERS %}</strong></li>
+                            {% for user in grp.leaders %}
+                                <li {% ifequal user.id experimenter %}class="current_user"{% endifequal %}>
+                                    <!-- if this user is in current group, we just switch user -->
+                                    {% ifequal grp.id active_group.id %}
+                                    <a href="{{ current_url }}?experimenter={{user.id}}">
+                                    <!-- otherwise we switch group too -->
+                                    {% else %}
+                                    <a href="{% url 'change_active_group' %}?active_group={{grp.id}}&url={{ current_url }}?experimenter={{user.id}}">
+                                    {% endifequal %}
+                                        {{ user.getFullName }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        {% endif %}
+                        
+                        {% if grp.colleagues %}
+                            <li class="non_selectable"><strong>{% setting UI_MENU_DROPDOWN.COLLEAGUES %}</strong></li>
+                            {% for user in grp.colleagues %}
+                                <li {% ifequal user.id experimenter %}class="current_user"{% endifequal %}>
+                                    {% ifequal grp.id active_group.id %}
+                                    <a href="{{ current_url }}?experimenter={{user.id}}">
+                                    {% else %}
+                                    <a href="{% url 'change_active_group' %}?active_group={{grp.id}}&url={{ current_url }}?experimenter={{user.id}}">
+                                    {% endifequal %}
+                                        {{ user.getFullName }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        {% endif %}
+                    </ul>
+        {% endfor %}
+
+        <div style="clear:both"></div>
+
+        </div>
+    </li>
+</ul>
+{% endif %}

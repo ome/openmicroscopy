@@ -81,7 +81,7 @@ table#drivespaceTable tbody tr:hover{
 		 	
 	 
 		 .tablesorter .table_desc {
-			 width:50%;
+			 width:45%;
 		 }
 	 
 			 .tablesorter a{
@@ -92,7 +92,7 @@ table#drivespaceTable tbody tr:hover{
 	 
 	 
 		 .tablesorter .table_date {
-			 width:30%;
+			 width:25%;
 		 }
 	 
 	 
@@ -110,10 +110,7 @@ table#drivespaceTable tbody tr:hover{
 		 .tablesorter tbody tr:nth-child(even) {
 			 background-color:hsl(210,3%,94%);
 		 }
-		 
-		  .tablesorter_basic tbody tr {
-		  }
-		  
+
 		 .tablesorter_basic tbody tr:hover {
 			 background:none;
 		 }

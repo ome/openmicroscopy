@@ -37,7 +37,14 @@ class TestSessions(CLITest):
         host = self.root.getProperty("omero.host")
         port = self.root.getProperty("omero.port")
         self.args = ["sessions", "login", "-w", passwd]
-        self.args += ["%s@%s:%s" % (user.omeName.val, host, port)]
+        self.conn_string = "%s@%s:%s" % (user.omeName.val, host, port)
+        self.args += [self.conn_string]
+
+    def get_connection_string(self):
+        ec = self.cli.controls["sessions"].ctx._event_context
+        return 'session %s (%s). Idle timeout: 10.0 min. ' \
+            'Current group: %s\n' % (ec.sessionUuid, self.conn_string,
+                                     ec.groupName)
 
     # Help subcommands
     # ========================================================================
@@ -52,6 +59,46 @@ class TestSessions(CLITest):
 
     # Login subcommand
     # ========================================================================
+    @pytest.mark.parametrize("quiet", [True, False])
+    def testLoginStderr(self, capsys, quiet):
+        user = self.new_user()
+        self.set_login_args(user)
+        if quiet:
+            self.args += ["-q"]
+        self.cli.invoke(self.args, strict=True)
+        o, e = capsys.readouterr()
+        assert not o
+        if quiet:
+            assert not e
+        else:
+            assert e == 'Created ' + self.get_connection_string()
+
+        join_args = ["sessions", "login", self.conn_string]
+        if quiet:
+            join_args += ["-q"]
+        self.cli.invoke(join_args, strict=True)
+        o, e = capsys.readouterr()
+        assert not o
+        if quiet:
+            assert not e
+        else:
+            assert e == 'Using ' + self.get_connection_string()
+
+        host = self.root.getProperty("omero.host")
+        port = self.root.getProperty("omero.port")
+        ec = self.cli.controls["sessions"].ctx._event_context
+        join_args = ["sessions", "login", "-k", ec.sessionUuid,
+                     "%s:%s" % (host, port)]
+        if quiet:
+            join_args += ["-q"]
+        self.cli.invoke(join_args, strict=True)
+        o, e = capsys.readouterr()
+        assert not o
+        if quiet:
+            assert not e
+        else:
+            assert e == 'Joined ' + self.get_connection_string()
+
     def testLoginAsRoot(self):
         user = self.new_user()
         self.set_login_args(user)

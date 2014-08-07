@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserUI 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -87,6 +87,9 @@ class DataBrowserUI
 	/** ID to select the fields view. */
 	static final int			FIELDS_VIEW = 2;
 	
+	/** ID to select the search view. */
+	static final int                        SEARCH_VIEW = 3;
+	
 	/** ID to sort the node alphabetically. */
 	static final int			SORT_BY_NAME = 2;
 	
@@ -154,7 +157,12 @@ class DataBrowserUI
 		if (model.getType() == DataBrowserModel.WELLS)
 			plateGridUI = new PlateGridUI((WellsModel) model, controller);
 		statusBar = new DataBrowserStatusBar(this);
-		selectedView = THUMB_VIEW;
+		if (model.getType() == DataBrowserModel.SEARCH) {
+		    selectedView = SEARCH_VIEW;
+		}
+		else {
+		    selectedView = THUMB_VIEW;
+		}
 		factor = Thumbnail.SCALING_FACTOR;
 		setNumberOfImages(-1);
 		setLayout(new BorderLayout(0, 0));
@@ -170,18 +178,15 @@ class DataBrowserUI
 	void buildGUI(boolean full)
 	{
 		removeAll();
-		//int number = model.getNumberOfImages();
 		if (full) {
 			if (model.getType() == DataBrowserModel.WELLS) {
-				//number = -1;
 				add(wellToolBar, BorderLayout.NORTH);
 			} else {
-				//number = toolBar.getItemsPerRow();
 				add(toolBar, BorderLayout.NORTH);
 			}
 			add(statusBar, BorderLayout.SOUTH);
+			statusBar.setVisible(model.getType() != DataBrowserModel.SEARCH);
 		}
-		//if (number > 0) setItemsPerRow(number);
 		add(model.getBrowser().getUI(), BorderLayout.CENTER);
 	}
 	
@@ -305,7 +310,14 @@ class DataBrowserUI
 				break;
 			case COLUMNS_VIEW:
 				ImageTableView v = model.getTableView();
-				if (v != null) v.refreshTable();
+				if (v != null) 
+				    v.refreshTable();
+				break;
+			case SEARCH_VIEW:
+                            SearchResultView sv = model.getSearchView();
+                            if (sv != null) 
+                                sv.refreshTable();
+                            break;
     	}
     }
     
@@ -370,6 +382,14 @@ class DataBrowserUI
 				v.validate();
 				v.repaint();
 				add(v, BorderLayout.CENTER);
+				break;
+			case SEARCH_VIEW:
+                            selectedView = index;
+                            SearchResultView sv = model.createSearchResultView();
+                            sv.addPropertyChangeListener(controller);
+                            add(sv, BorderLayout.CENTER);
+                            sv.refreshTable();
+                            break;
 		}
     	add(statusBar, BorderLayout.SOUTH);
     	toolBar.setSelectedViewIndex(selectedView);
@@ -509,6 +529,8 @@ class DataBrowserUI
 				break;
 			case COLUMNS_VIEW:
 				comp = model.getTableView();
+			case SEARCH_VIEW:
+                            comp = model.getSearchView();
 		}
     	if (comp != null) {
     		popupMenu.populateOpenWith();

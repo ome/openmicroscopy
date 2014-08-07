@@ -19,10 +19,8 @@ using namespace omero::grid;
 using namespace omero::rtypes;
 using namespace omero::api::_cpp_delete;
 
-#if ICE_INT_VERSION / 100 >= 304
 ::Ice::Object* IceInternal::upCast(::omero::callbacks::ProcessCallbackI* p) { return p; }
 ::Ice::Object* IceInternal::upCast(::omero::callbacks::CmdCallbackI* p) { return p; }
-#endif
 
 namespace omero {
 

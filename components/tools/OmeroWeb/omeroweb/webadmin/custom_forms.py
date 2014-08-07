@@ -32,6 +32,7 @@ from django.forms.widgets import SelectMultiple, MultipleHiddenInput
 from django.forms import ModelChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import smart_unicode
+from django.core.validators import validate_email
 
 ##################################################################
 # Fields
@@ -398,3 +399,25 @@ class DefaultGroupField(ChoiceField):
 
         # Always return the cleaned data.
         return value
+
+class MultiEmailField(forms.Field):
+    """
+    A field to process comma seperated email into an array of stripped strings
+    """
+
+    def to_python(self, value):
+        """Normalize data to a list of strings."""
+        # Return an empty list if no input was given.
+        if not value:
+            return []
+
+        return [v.strip() for v in value.split(',')]
+
+    def validate(self, value):
+        """Check if value consists only of valid emails."""
+
+        # Use the parent's handling of required fields, etc.
+        super(MultiEmailField, self).validate(value)
+
+        for email in value:
+            validate_email(email)

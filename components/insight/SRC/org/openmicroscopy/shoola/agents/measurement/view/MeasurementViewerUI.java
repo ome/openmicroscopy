@@ -1379,7 +1379,7 @@ class MeasurementViewerUI
 	{
 		if (inGraphView()) graphPane.displayAnalysisResults();
 		else if (inIntensityView()) intensityView.displayAnalysisResults();
-		else if (inIntensityResultsView()) 
+		else if (inIntensityResultsView())
 			intensityResultsView.displayAnalysisResults();
 	}
 	

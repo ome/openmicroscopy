@@ -28,6 +28,38 @@ from omero.rtypes import rstring
 from omero.rtypes import rtime
 
 
+class TestProxyString(object):
+
+    @pytest.mark.parametrize("data", (
+        ("", None, None, None),
+        ("1", None, None, None),
+        ("Image", None, None, None),
+        ("ImageI", None, None, None),
+        ("Image:1", None, ImageI, 1),
+        ("ImageI:1", None, ImageI, 1),
+        ("ImageI:1", "ImageI", ImageI, 1),
+        ("Image:1", "ImageI", ImageI, 1),
+        ("1", "ImageI", ImageI, 1),
+        ("1", "Image", ImageI, 1),
+    ))
+    def testAll(self, data):
+        source = data[0]
+        default = data[1]
+        type = data[2]
+        id = data[3]
+        err = (type is None and id is None)
+        try:
+            obj = omero.proxy_to_instance(source, default)
+            assert isinstance(obj, type)
+            assert obj.id == id
+            assert not obj.loaded
+            if err:
+                assert False, "should have raised"
+        except Exception, e:
+            if not err:
+                assert "should not have raised", e
+
+
 class TestModel(object):
 
     def testVirtual(self):
@@ -279,7 +311,7 @@ class TestModel(object):
         assert info.acquisitionDate.wrapper == rtime
 
         assert not info.name.nullable
-        assert not info.acquisitionDate.nullable
+        assert info.acquisitionDate.nullable
 
         image.setAcquisitionDate("1", wrap=True)
         assert type(image.acquisitionDate) == type(rtime(0))

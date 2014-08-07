@@ -9,6 +9,4 @@
 #include <omero/clientF.h>
 #include <omero/client.h>
 
-#if ICE_INT_VERSION / 100 >= 304
 ::Ice::Object* IceInternal::upCast(::omero::CallbackI* p) { return p; }
-#endif

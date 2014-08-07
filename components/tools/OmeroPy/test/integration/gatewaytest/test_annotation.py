@@ -13,13 +13,15 @@
 
 """
 
-import time, datetime
+import time
+import datetime
 import os
 
 import omero.gateway
 
 
-def _testAnnotation (obj, annclass, ns, value, sameOwner=False, testOwner=None):
+def _testAnnotation(obj, annclass, ns, value, sameOwner=False,
+                    testOwner=None):
     gateway = obj._conn
     # Make sure it doesn't yet exist
     obj.removeAnnotations(ns)
@@ -34,10 +36,12 @@ def _testAnnotation (obj, annclass, ns, value, sameOwner=False, testOwner=None):
         # checks that default sameOwner=False
         obj.linkAnnotation(ann)
     ann = obj.getAnnotation(ns)
-    # Make sure the group for the annotation is the same as the original object. (#120)
+    # Make sure the group for the annotation is the same as the original
+    # object. (#120)
     assert ann.getDetails().getGroup() == obj.getDetails().getGroup()
     tval = hasattr(value, 'val') and value.val or value
-    assert ann.getValue() == value, '%s != %s' % (str(ann.getValue()), str(tval))
+    assert ann.getValue() == value, '%s != %s' % (str(ann.getValue()),
+                                                  str(tval))
     assert ann.getNs() == ns,  '%s != %s' % (str(ann.getNs()), str(ns))
     if testOwner is not None:
         testOwner(obj, ann)
@@ -51,10 +55,12 @@ def _testAnnotation (obj, annclass, ns, value, sameOwner=False, testOwner=None):
         # checks that default sameOwner=False
         annclass.createAndLink(target=obj, ns=ns, val=value)
     ann = obj.getAnnotation(ns)
-    # Make sure the group for the annotation is the same as the original object. (#120)
+    # Make sure the group for the annotation is the same as the original
+    # object. (#120)
     assert ann.getDetails().getGroup() == obj.getDetails().getGroup()
     tval = hasattr(value, 'val') and value.val or value
-    assert ann.getValue() == value, '%s != %s' % (str(ann.getValue()), str(tval))
+    assert ann.getValue() == value, '%s != %s' % (str(ann.getValue()),
+                                                  str(tval))
     assert ann.getNs() == ns,  '%s != %s' % (str(ann.getNs()), str(ns))
     if testOwner is not None:
         testOwner(obj, ann)
@@ -64,7 +70,8 @@ def _testAnnotation (obj, annclass, ns, value, sameOwner=False, testOwner=None):
 
 TESTANN_NS = 'omero.gateway.test_annotation'
 
-def testSameOwner (gatewaywrapper):
+
+def testSameOwner(gatewaywrapper):
     """
         tests project.linkAnnotation(sameOwner=False)
         Tests sameOwner default is False (was True for 4.4.x but False in 5.0)
@@ -86,25 +93,25 @@ def testSameOwner (gatewaywrapper):
                     TESTANN_NS, 'some value',
                     sameOwner=True, testOwner=sameOwner)
 
-    return _testAnnotation(p,
-                    omero.gateway.CommentAnnotationWrapper,
-                    TESTANN_NS, 'some value',
-                    sameOwner=False, testOwner=differentOwner)
+    return _testAnnotation(
+        p, omero.gateway.CommentAnnotationWrapper,
+        TESTANN_NS, 'some value', sameOwner=False, testOwner=differentOwner)
 
 
-def testCommentAnnotation (author_testimg_generated):
+def testCommentAnnotation(author_testimg_generated):
     return _testAnnotation(author_testimg_generated,
                            omero.gateway.CommentAnnotationWrapper,
                            TESTANN_NS, 'some value')
 
-def testNonDefGroupAnnotation (gatewaywrapper):
+
+def testNonDefGroupAnnotation(gatewaywrapper):
     p = gatewaywrapper.getTestProject2()
     return _testAnnotation(p,
                            omero.gateway.CommentAnnotationWrapper,
                            TESTANN_NS, 'some value')
 
 
-def testTimestampAnnotation (author_testimg_generated):
+def testTimestampAnnotation(author_testimg_generated):
     now = time.time()
     t = datetime.datetime.fromtimestamp(int(now))
     _testAnnotation(author_testimg_generated,
@@ -117,33 +124,39 @@ def testTimestampAnnotation (author_testimg_generated):
     t = datetime.datetime.fromtimestamp(t.val / 1000.0)
     ann = author_testimg_generated.getAnnotation(TESTANN_NS)
     assert ann.getValue() == t, '%s != %s' % (str(ann.getValue()), str(t))
-    assert ann.getNs() == TESTANN_NS,  '%s != %s' % (str(ann.getNs()), str(TESTANN_NS))
+    assert ann.getNs() == TESTANN_NS,  '%s != %s' % (str(ann.getNs()),
+                                                     str(TESTANN_NS))
     # Remove and check
     author_testimg_generated.removeAnnotations(TESTANN_NS)
     assert author_testimg_generated.getAnnotation(TESTANN_NS) is None
-    # A simple int stating secs since the epoch, also not fitting in the general test case
+    # A simple int stating secs since the epoch, also not fitting in the
+    # general test case
     t = int(now)
     omero.gateway.TimestampAnnotationWrapper.createAndLink(
         target=author_testimg_generated, ns=TESTANN_NS, val=t)
     t = datetime.datetime.fromtimestamp(t)
     ann = author_testimg_generated.getAnnotation(TESTANN_NS)
     assert ann.getValue() == t, '%s != %s' % (str(ann.getValue()), str(t))
-    assert ann.getNs() == TESTANN_NS,  '%s != %s' % (str(ann.getNs()), str(TESTANN_NS))
+    assert ann.getNs() == TESTANN_NS,  '%s != %s' % (str(ann.getNs()),
+                                                     str(TESTANN_NS))
     # Remove and check
     author_testimg_generated.removeAnnotations(TESTANN_NS)
     assert author_testimg_generated.getAnnotation(TESTANN_NS) is None
 
-def testBooleanAnnotation (author_testimg_generated):
+
+def testBooleanAnnotation(author_testimg_generated):
     _testAnnotation(author_testimg_generated,
                     omero.gateway.BooleanAnnotationWrapper,
                     TESTANN_NS, True)
 
-def testLongAnnotation (author_testimg_generated):
+
+def testLongAnnotation(author_testimg_generated):
     _testAnnotation(author_testimg_generated,
                     omero.gateway.LongAnnotationWrapper,
                     TESTANN_NS, 1000L)
 
-def testDualLinkedAnnotation (author_testimg_generated):
+
+def testDualLinkedAnnotation(author_testimg_generated):
     """ Tests linking the same annotation to 2 separate objects """
     dataset = author_testimg_generated.getParent()
     assert dataset is not None
@@ -157,7 +170,8 @@ def testDualLinkedAnnotation (author_testimg_generated):
     ann.setValue(value)
     author_testimg_generated.linkAnnotation(ann)
     dataset.linkAnnotation(ann)
-    assert author_testimg_generated.getAnnotation(TESTANN_NS).getValue() == value
+    assert author_testimg_generated.getAnnotation(TESTANN_NS).getValue() == \
+        value
     assert dataset.getAnnotation(TESTANN_NS).getValue() == value
     author_testimg_generated.removeAnnotations(TESTANN_NS)
     assert author_testimg_generated.getAnnotation(TESTANN_NS) is None
@@ -165,7 +179,8 @@ def testDualLinkedAnnotation (author_testimg_generated):
     dataset.removeAnnotations(TESTANN_NS)
     assert dataset.getAnnotation(TESTANN_NS) is None
 
-def testListAnnotations (author_testimg_generated):
+
+def testListAnnotations(author_testimg_generated):
     """ Other small things that need to be tested """
     ns1 = TESTANN_NS
     ns2 = ns1 + '_2'
@@ -200,18 +215,19 @@ def testListAnnotations (author_testimg_generated):
     assert obj.getAnnotation(ns1) is None
     assert obj.getAnnotation(ns2) is None
 
-def testFileAnnotation (author_testimg_generated, gatewaywrapper):
+
+def testFileAnnotation(author_testimg_generated, gatewaywrapper):
     """ Creates a file annotation from a local file """
     tempFileName = "tempFile"
     f = open(tempFileName, 'w')
     fileText = "Test text for writing to file for upload"
     f.write(fileText)
     f.close()
-    fileSize = os.path.getsize(tempFileName)
     ns = TESTANN_NS
     image = author_testimg_generated
 
-    # use the same file to create various file annotations with different namespaces
+    # use the same file to create various file annotations with different
+    # namespaces
     fileAnn = gatewaywrapper.gateway.createFileAnnfromLocalFile(
         tempFileName, mimetype='text/plain', ns=ns)
     image.linkAnnotation(fileAnn)
@@ -226,7 +242,8 @@ def testFileAnnotation (author_testimg_generated, gatewaywrapper):
     adminId = gatewaywrapper.gateway.getUser().getId()
     gatewaywrapper.loginAsAuthor()
 
-    # test listing of File Annotations. Should exclude companion files by default and all files should be loaded
+    # test listing of File Annotations. Should exclude companion files by
+    # default and all files should be loaded
     gateway = gatewaywrapper.gateway
     eid = gateway.getUser().getId()
     fas = list(gateway.listFileAnnotations(eid=eid, toInclude=[ns]))
@@ -234,27 +251,33 @@ def testFileAnnotation (author_testimg_generated, gatewaywrapper):
     assert fileAnn.getId() in faIds
     assert compAnn.getId() not in faIds
     for fa in fas:
-        assert fa.getNs() == ns, "All files should be filtered by this namespace"
-        assert fa._obj.file.loaded, "All file annotations should have files loaded"
+        assert fa.getNs() == ns, \
+            "All files should be filtered by this namespace"
+        assert fa._obj.file.loaded, \
+            "All file annotations should have files loaded"
 
     # filtering by namespace
-    fas = list(gateway.listFileAnnotations(toInclude=["nothing.with.this.namespace"], eid=eid))
-    assert len(fas) == 0, "No file annotations should exist with bogus namespace"
+    fas = list(gateway.listFileAnnotations(
+        toInclude=["nothing.with.this.namespace"], eid=eid))
+    assert len(fas) == 0, \
+        "No file annotations should exist with bogus namespace"
 
-    # filtering files by a different user should not return the annotations above.
+    # filtering files by a different user should not return the annotations
+    # above.
     fas = list(gateway.listFileAnnotations(eid=adminId))
     faIds = [fa.id for fa in fas]
     assert fileAnn.getId() not in faIds
     assert compAnn.getId() not in faIds
 
-    image._conn = gatewaywrapper.gateway  # needs a fresh connection, original was closed already
+    # needs a fresh connection, original was closed already
+    image._conn = gatewaywrapper.gateway
     ann = image.getAnnotation(ns)
     annId = ann.getId()
     assert ann.OMERO_TYPE == omero.model.FileAnnotationI
     for t in ann.getFileInChunks():
         assert str(t) == fileText   # we get whole text in one chunk
 
-    # delete what we created 
+    # delete what we created
     assert gateway.getObject("Annotation", annId) is not None
     link = ann.link
     gateway.deleteObjectDirect(link._obj)        # delete link
@@ -262,17 +285,18 @@ def testFileAnnotation (author_testimg_generated, gatewaywrapper):
     gateway.deleteObjectDirect(ann._obj.file)    # then the file
     assert gateway.getObject("Annotation", annId) is None
 
-def testFileAnnNonDefaultGroup (author_testimg_generated, gatewaywrapper):
+
+def testFileAnnNonDefaultGroup(author_testimg_generated, gatewaywrapper):
     """ Test conn.createFileAnnfromLocalFile() respects SERVICE_OPTS """
     gatewaywrapper.loginAsAuthor()
     userId = gatewaywrapper.gateway.getUser().getId()
-    defGid = gatewaywrapper.gateway.getDefaultGroup(userId).getId()
     ctx = gatewaywrapper.gateway.getAdminService().getEventContext()
     uuid = ctx.sessionUuid
 
     # Admin creates a new group with user
     gatewaywrapper.loginAsAdmin()
-    gid = gatewaywrapper.gateway.createGroup("testFileAnnNonDefaultGroup-%s" % uuid, member_Ids=[userId])
+    gid = gatewaywrapper.gateway.createGroup(
+        "testFileAnnNonDefaultGroup-%s" % uuid, member_Ids=[userId])
 
     # login as Author again (into 'default' group)
     gatewaywrapper.loginAsAuthor()
@@ -284,21 +308,21 @@ def testFileAnnNonDefaultGroup (author_testimg_generated, gatewaywrapper):
     fileText = "Test text for writing to file for upload"
     f.write(fileText)
     f.close()
-    fileSize = os.path.getsize(tempFileName)
     ns = TESTANN_NS
     fileAnn = conn.createFileAnnfromLocalFile(
         tempFileName, mimetype='text/plain', ns=ns)
     os.remove(tempFileName)
     assert fileAnn.getDetails().group.id.val == gid
 
-def testUnlinkAnnotation (author_testimg_generated):
+
+def testUnlinkAnnotation(author_testimg_generated):
     """ Tests the use of unlinkAnnotations. See #7301 """
 
     # Setup test dataset
     dataset = author_testimg_generated.getParent()
     assert dataset is not None
     gateway = dataset._conn
-    
+
     # Make really sure there are no annotations
     dataset.removeAnnotations(TESTANN_NS)
     assert dataset.getAnnotation(TESTANN_NS) is None
@@ -312,4 +336,3 @@ def testUnlinkAnnotation (author_testimg_generated):
     # Unlink annotations
     dataset.unlinkAnnotations(TESTANN_NS)
     assert dataset.getAnnotation(TESTANN_NS) is None
-

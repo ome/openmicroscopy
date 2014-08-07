@@ -30,6 +30,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -71,9 +72,12 @@ import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResult;
+import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
+import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 
@@ -589,11 +593,93 @@ class OmeroDataServiceImpl
 	}
 
 	/**
+         * Implemented as specified by {@link OmeroDataService}.
+         * @see OmeroDataService#advancedSearchFor(List, SearchDataContext)
+         */
+        public Object advancedSearchFor(SecurityContext ctx,
+                        SearchDataContext context)
+                throws DSOutOfServiceException, DSAccessException
+        {
+                if (ctx == null)
+                        throw new IllegalArgumentException("No security context defined.");
+                if (context == null)
+                        throw new IllegalArgumentException("No search context defined.");
+                if (!context.isValid())
+                        throw new IllegalArgumentException("Search context not valid.");
+                Map<Integer, Object> results = new HashMap<Integer, Object>();
+
+                if (!context.hasTextToSearch()) {
+                        results.put(SearchDataContext.TIME,
+                                        gateway.searchByTime(ctx, context));
+                        return results;
+                }
+                Object result = gateway.performSearch(ctx, context);
+                //Should returns a search context for the moment.
+                //collection of images only.
+                Map m = (Map) result;
+
+                Integer key;
+                List value;
+                Iterator k;
+                Set<Long> imageIDs = new HashSet<Long>();
+                Set images;
+                DataObject img;
+                List owners = context.getOwners();
+                Set<Long> ownerIDs = new HashSet<Long>();
+                if (owners != null) {
+                        k = owners.iterator();
+                        while (k.hasNext()) {
+                                ownerIDs.add(((DataObject) k.next()).getId());
+                        }
+                }
+                if (m == null) return results;
+
+                Set<DataObject> nodes;
+                Object v;
+                Iterator i = m.entrySet().iterator();
+                Entry entry;
+                while (i.hasNext()) {
+                        entry = (Entry) i.next();
+                        key = (Integer) entry.getKey();
+                        v =  entry.getValue();
+                        if (v instanceof Integer) {
+                                results.put(key, v);
+                        } else {
+                                value = (List) v;
+                                nodes = new HashSet<DataObject>();
+                                results.put(key, nodes);
+                                if (value.size() > 0) {
+                                        switch (key) {
+                                                case SearchDataContext.NAME:
+                                                case SearchDataContext.DESCRIPTION:
+                                                case SearchDataContext.TAGS:
+                                                case SearchDataContext.TEXT_ANNOTATION:
+                                                case SearchDataContext.FILE_ANNOTATION:
+                                                case SearchDataContext.URL_ANNOTATION:
+                                                case SearchDataContext.CUSTOMIZED:
+                                                        images = gateway.getContainerImages(ctx,
+                                                                        ImageData.class, value, new Parameters());
+                                                        k = images.iterator();
+                                                        while (k.hasNext()) {
+                                                                img = (DataObject) k.next();
+                                                                if (!imageIDs.contains(img.getId())) {
+                                                                        imageIDs.add(img.getId());
+                                                                        nodes.add(img);
+                                                                }
+                                                        }
+                                        }
+                                }
+                        }
+                }
+                return results;
+        }
+
+	/**
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#advancedSearchFor(List, SearchDataContext)
 	 */
-	public Object advancedSearchFor(SecurityContext ctx,
-			SearchDataContext context)
+	public AdvancedSearchResultCollection search(SecurityContext ctx,
+	        SearchParameters context)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (ctx == null)
@@ -602,74 +688,133 @@ class OmeroDataServiceImpl
 			throw new IllegalArgumentException("No search context defined.");
 		if (!context.isValid())
 			throw new IllegalArgumentException("Search context not valid.");
-		Map<Integer, Object> results = new HashMap<Integer, Object>();
-
-		if (!context.hasTextToSearch()) {
-			results.put(SearchDataContext.TIME,
-					gateway.searchByTime(ctx, context));
-			return results;
+		
+		AdvancedSearchResultCollection results = new AdvancedSearchResultCollection();
+		
+		// If terms contain ids only, just add them as potential result to the results, 
+		// findByIds() will remove them if they can't be found
+		long[] ids = convertSearchTermsToIds(context.getQuery());
+		if(ids!=null) {
+		    for(long id: ids) {
+		        List<Class<? extends DataObject>> types = new ArrayList<Class<? extends DataObject>>();
+		        if(context.getTypes().isEmpty()) {
+		            types.add(ImageData.class);
+		            types.add(DatasetData.class);
+		            types.add(ProjectData.class);
+		            types.add(ScreenData.class);
+		            types.add(PlateData.class);
+		        }
+		        else {
+		            types = context.getTypes();
+		        }
+		        for(Class<? extends DataObject> type : context.getTypes()) {
+		            AdvancedSearchResult res = new AdvancedSearchResult();
+		            res.setObjectId(id);
+		            res.setType(type);
+		            res.setIdMatch(true);
+		            results.add(res);
+		        }
+		    }
 		}
-		Object result = gateway.performSearch(ctx, context);
-		//Should returns a search context for the moment.
-		//collection of images only.
-		Map m = (Map) result;
+		
+		// search by ID:
+		if(!results.isEmpty())
+		    findByIds(ctx, results, true);
+		
+		// search by text:
+		AdvancedSearchResultCollection searchResults = gateway.search(ctx, context);
+		results.addAll(searchResults);
+		if (searchResults.isError()) 
+		    results.setError(searchResults.getError());
 
-		Integer key;
-		List value;
-		Iterator k;
-		Set<Long> imageIDs = new HashSet<Long>();
-		Set images;
-		DataObject img;
-		List owners = context.getOwners();
-		Set<Long> ownerIDs = new HashSet<Long>();
-		if (owners != null) {
-			k = owners.iterator();
-			while (k.hasNext()) {
-				ownerIDs.add(((DataObject) k.next()).getId());
-			}
-		}
-		if (m == null) return results;
-
-		Set<DataObject> nodes;
-		Object v;
-		Iterator i = m.entrySet().iterator();
-		Entry entry;
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			key = (Integer) entry.getKey();
-			v =  entry.getValue();
-			if (v instanceof Integer) {
-				results.put(key, v);
-			} else {
-				value = (List) v;
-				nodes = new HashSet<DataObject>();
-				results.put(key, nodes);
-				if (value.size() > 0) {
-					switch (key) {
-						case SearchDataContext.NAME:
-						case SearchDataContext.DESCRIPTION:
-						case SearchDataContext.TAGS:
-						case SearchDataContext.TEXT_ANNOTATION:
-						case SearchDataContext.FILE_ANNOTATION:
-						case SearchDataContext.URL_ANNOTATION:
-						case SearchDataContext.CUSTOMIZED:
-						case SearchDataContext.ID:
-							images = gateway.getContainerImages(ctx,
-									ImageData.class, value, new Parameters());
-							k = images.iterator();
-							while (k.hasNext()) {
-								img = (DataObject) k.next();
-								if (!imageIDs.contains(img.getId())) {
-									imageIDs.add(img.getId());
-									nodes.add(img);
-								}
-							}
-					}
-				}
-			}
-		}
+                // loads the images PixelsData (needed for thumbnail request)
+                initializeImages(results);
+		
 		return results;
 	}
+    	
+	/**
+	 * Tries to find and load the Objects in results; removes them from results
+	 * if they can't be found.
+	 * @param ctx
+	 * @param results
+	 * @param allGroups
+	 */
+        private void findByIds(SecurityContext ctx, AdvancedSearchResultCollection results, boolean allGroups) throws DSOutOfServiceException{
+            Iterator<AdvancedSearchResult> it = results.iterator();
+            while (it.hasNext()) {
+                AdvancedSearchResult r = it.next();
+                IObject obj = null;
+                    try {
+                        String type = PojoMapper.convertTypeForSearchByQuery(r.getType());
+                        String query = "select x from "+type+" x join fetch x.details.creationEvent where x.id="+r.getObjectId();
+                        obj = gateway.findIObjectByQuery(ctx, query, true);
+                    } catch (DSAccessException e) {
+                        // Object can't be found/loaded; just skip it
+                        // and remove the regarding search result
+                    }
+                if (obj == null)
+                    it.remove();
+                else {
+                    r.setObject(PojoMapper.asDataObject(obj));
+                }
+            }
+        }
+        
+        /**
+         * Skims through the results and loads all images via the Containerservice. 
+         * This is necessary to load the image's PixelsData.
+         * @param results
+         */
+        private void initializeImages(AdvancedSearchResultCollection results) {
+            Map<Long, List<AdvancedSearchResult>> byGroup = results
+                    .getByGroup(ImageData.class);
+    
+            for (long groupId : byGroup.keySet()) {
+                List<Long> ids = new ArrayList<Long>();
+                for (AdvancedSearchResult r : byGroup.get(groupId)) {
+                    ids.add(r.getObjectId());
+                }
+    
+                SecurityContext ctx = new SecurityContext(groupId);
+    
+                try {
+                    Set tmp = gateway.getContainerImages(ctx, ImageData.class, ids,
+                            new Parameters());
+                    
+                    for(Object obj : tmp) {
+                        ImageData img = (ImageData) obj;
+                        for(AdvancedSearchResult r : byGroup.get(groupId)) {
+                            if(r.getObjectId()==img.getId()) {
+                                r.setObject(img);
+                                break;
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                }
+            }
+        }
+    	
+        /**
+         * Tries to convert all search terms into ids;
+         * @param terms
+         * @return The ids or null if one or multiple terms contain non numeric characters
+         */
+        private long[] convertSearchTermsToIds(String query) {
+            // split by commas and spaces
+            String[] tmp = query.split("\\s|\\s*,\\s*");
+            long[] result = new long[tmp.length];
+            try {
+                for (int i = 0; i < tmp.length; i++) {
+                    result[i] = Long.parseLong(tmp[i]);
+                }
+            } catch (NumberFormatException e) {
+                // hit a term with non numeric characters
+                return null;
+            }
+            return result;
+        }
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.

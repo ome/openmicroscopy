@@ -25,7 +25,7 @@ Decorators for use with OMERO.web applications.
 
 import logging
 
-from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpResponseForbidden
+from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpResponseForbidden, StreamingHttpResponse
 
 from django.conf import settings
 from django.utils.http import urlencode
@@ -71,7 +71,7 @@ def get_client_ip(request):
     return ip
 
 
-class ConnCleaningHttpResponse(HttpResponse):
+class ConnCleaningHttpResponse(StreamingHttpResponse):
     """Extension of L{HttpResponse} which closes the OMERO connection."""
 
     def close(self):

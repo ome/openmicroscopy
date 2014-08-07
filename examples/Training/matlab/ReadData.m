@@ -31,15 +31,29 @@ try
     imageId = p.imageid;
     plateId = p.plateid;
     
-    % Retrieve all the unloaded projects owned by session owner.
+    % Retrieve all the projects and orphaned datasets owned by session
+    % owner.
     % If a project contains datasets, the datasets will automatically be
-    % loaded but not the images.
-    disp('Listing projects')
-    projects = getProjects(session, [], false);
+    % loaded but the images contained in the datasets are not loaded.
+    disp('Listing projects and orphaned datasets')
+    [projects, orphanedDatasets] = getProjects(session, [], false);
     fprintf(1, 'Found %g projects\n', numel(projects));
     for i = 1 : numel(projects),
         datasets = toMatlabList(projects(i).linkedDatasetList);
-        fprintf(1, '  Project %g: found %g datasets\n', i, numel(datasets));
+        fprintf(1, '  Project %g: %s (%g) - %g datasets\n', i,...
+            char(projects(i).getName().getValue()),...
+            projects(i).getId().getValue(), numel(datasets));
+        for j = 1 : numel(datasets),
+            fprintf(1, '    Dataset %g: %s (%d)\n',...
+                j, char(datasets(j).getName().getValue()),...
+                datasets(j).getId().getValue());
+        end
+    end
+    fprintf(1, 'Found %g orphaned datasets\n', numel(orphanedDatasets));
+    for j = 1 : numel(orphanedDatasets),
+        fprintf(1, '  Orphaned dataset %g: %s (%d)\n',...
+            j, char(orphanedDatasets(j).getName().getValue()),...
+            orphanedDatasets(j).getId().getValue());
     end
     fprintf(1, '\n');
     
@@ -97,21 +111,30 @@ try
     % load the data, you can use the method `findAllByQuery`.
     
     % load Screen and plate owned by the user currently logged in
-    disp('Listing screens')
-    screens = getScreens(session);
-    fprintf(1, '  Found %g screens\n', numel(screens));
-    
+    disp('Listing screens and orphaned plates')
+    [screens, orphanedPlates] = getScreens(session);
+    fprintf(1, 'Found %g screens\n', numel(screens));
     for i = 1 : numel(screens),
         plates = toMatlabList(screens(i).linkedPlateList);
-        fprintf(1, '  Screen %g: found %g plates\n', i, numel(plates));
+        fprintf(1, '  Screen %g: %s (%g) - %g plates\n', i,...
+            char(screens(i).getName().getValue()),...
+            screens(i).getId().getValue(), numel(plates));
         for j = 1 : numel(plates),
             plateAcquisitions = toMatlabList(plates(j).copyPlateAcquisitions());
-            fprintf(1, '  Screen %g - plate %g: found %g plate runs\n',...
-                i, j, numel(plateAcquisitions));
+            fprintf(1, '    Plate %g: %s (%d) - %g plate runs\n',...
+                i, j, char(plates(j).getName().getValue()),...
+                plates(j).getId().getValue(), numel(plateAcquisitions));
             for k = 1 : numel(plateAcquisitions),
                 pa = plateAcquisitions(k);
             end
         end
+    end
+    fprintf(1, 'Found %g orphaned plates\n', numel(orphanedPlates));
+    for i = 1 : numel(orphanedPlates),
+        plateAcquisitions = toMatlabList(orphanedPlates(i).copyPlateAcquisitions());
+        fprintf(1, '  Orphaned plate %g: %s (%g) - %g plate runs\n', i,...
+            char(orphanedPlates(i).getName().getValue()),...
+            orphanedPlates(i).getId().getValue(), numel(plateAcquisitions));
     end
     fprintf(1, '\n');
     
@@ -123,6 +146,7 @@ try
     wells = session.getQueryService().findAllByQuery(['select well from Well as well left outer join fetch well.plate as pt left outer join fetch well.wellSamples as ws left outer join fetch ws.plateAcquisition as pa left outer join fetch ws.image as img left outer join fetch img.pixels as pix left outer join fetch pix.pixelsType as pt where well.plate.id =  ', num2str(plateId)], []);
     wells = toMatlabList(wells);
     fprintf(1, 'Found %g wells\n ', numel(wells));
+    
     for i = 1:numel(wells),
         wellSamples = toMatlabList(wells(i).copyWellSamples());
         fprintf(1, 'Well %g - Found %g well samples\n ', i, numel(wellSamples));

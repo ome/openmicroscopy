@@ -152,7 +152,6 @@ public class ChgrpITest extends AbstractGraphTest {
 
         // Create data
         Image i = new ImageI();
-        i.setAcquisitionDate(rtime(0));
         i.setName(rstring("ticket:6422"));
         Dataset d = new DatasetI();
         d.setName(rstring("ticket:6422"));
@@ -177,7 +176,6 @@ public class ChgrpITest extends AbstractGraphTest {
 
         // Create data
         Image i = new ImageI();
-        i.setAcquisitionDate(rtime(0));
         i.setName(rstring("ticket:6422"));
         Dataset d = new DatasetI();
         d.setName(rstring("ticket:6422"));

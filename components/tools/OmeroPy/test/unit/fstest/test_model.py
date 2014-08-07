@@ -29,7 +29,7 @@ import time
 import omero
 import omero.all
 
-from omero.rtypes import rstring as _
+from omero.rtypes import rstring
 from omero.rtypes import rtime
 
 
@@ -40,11 +40,11 @@ class TestModel(object):
         parts = clientPath.split("/")
         path = "/".join(parts[:-1])
         name = parts[-1]
-        originalFile.path = _(path)
-        originalFile.name = _(name)
+        originalFile.path = rstring(path)
+        originalFile.name = rstring(name)
         # etc.
         entry = omero.model.FilesetEntryI()
-        entry.clientPath = _(clientPath)
+        entry.clientPath = rstring(clientPath)
         entry.originalFile = originalFile
         return entry
 
@@ -57,25 +57,20 @@ class TestModel(object):
         the state of the import.
         """
 
-        if False:
-            # This should be passed in by the client
-            clientInfo = omero.model.FilesetVersionInfoI()
-
-            # This will be created server-side
-            serverInfo = omero.model.FilesetVersionInfoI()
-            serverInfo.bioformatsReader = _("ExampleReader")
-            serverInfo.bioformatsVersion = _("v4.4.5 git: abc123")
-            serverInfo.omeroVersion = _("v.4.4.4 git: def456")
-            serverInfo.osName = _("Linux")
-            serverInfo.osArchitecture = _("amd64")
-            serverInfo.osVersion = _("2.6.38-8-generic")
-            # Something returned by Locale.getDefault().toString()
-            serverInfo.locale = "en_US"
+        # This will be created server-side
+        serverInfo = {}
+        serverInfo['bioformatsReader'] = rstring("ExampleReader")
+        serverInfo['bioformatsVersion'] = rstring("v4.4.5 git: abc123"),
+        serverInfo['omeroVersion'] = rstring("v.4.4.4 git: def456"),
+        serverInfo['osName'] = rstring("Linux"),
+        serverInfo['osArchitecture'] = rstring("amd64"),
+        serverInfo['osVersion'] = rstring("2.6.38-8-generic"),
+        serverInfo['locale'] = rstring("en_US")
 
         # Now that the basics are setup, we
         # need to link to all of the original files.
         fs = omero.model.FilesetI()
-        fs.addFilesetEntry(self.mkentry("main_file.txt")) # First!
+        fs.addFilesetEntry(self.mkentry("main_file.txt"))  # First!
         fs.addFilesetEntry(self.mkentry("uf1.data"))
         fs.addFilesetEntry(self.mkentry("uf2.data"))
 
@@ -87,7 +82,7 @@ class TestModel(object):
         # step, and must be completed by the clients
         # before any other activity.
         job1 = omero.model.UploadJobI()
-        job1.scheduledFor = rtime(time.time() * 1000) # Now
+        job1.scheduledFor = rtime(time.time() * 1000)  # Now
         # Set this "started" since we're expecting
         # upload to be in process.
 

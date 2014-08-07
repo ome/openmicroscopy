@@ -21,7 +21,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import ome.conditions.InternalException;
-import ome.model.IObject;
 import ome.model.core.Channel;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
@@ -36,9 +35,10 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+
+import com.google.common.collect.ImmutableMap;
 
 /**
  * Single wrapper for all JDBC activities.
@@ -104,6 +104,12 @@ public interface SqlAction {
      * name. The table is only available for the period if the transaction.
      */
     String createIdsTempTable(Collection<Long> ids);
+
+    /**
+     * Creates an insert trigger of the given name, for the given table,
+     * with the given procedure. No error handling is performed.
+     */
+    void createInsertTrigger(String name, String table, String procedure);
 
     /**
      * Returns true if the given string is the UUID of a session that is
@@ -354,6 +360,27 @@ public interface SqlAction {
      */
     float getEventLogPercent(String key);
 
+    /**
+     * Loads up to "limit" event logs using partioning so that only the
+     * <em>last</em>  event log of a particular (type, id) pair is returned.
+     * The contents of the object array are:
+     * <ol>
+     * <li>the id of the event log (Long)</li>
+     * <li>the entity type of the event log (String)</li>
+     * <li>the entity id of the event log (Long)</li>
+     * <li>the action of the event log (String)</li>
+     * <li>the number of skipped event logs (Integer)</li>
+     * </ol>
+     * @param types Collection of entityType strings which should be queried
+     * @param actions Collection of ACTION strings which should be queried
+     * @param offset Offset to the row which should be queried first
+     * @param limit Maximum number of rows (after partionting) which should
+     *        be returned.
+     * @return
+     */
+    List<Object[]> getEventLogPartitions(Collection<String> types,
+            Collection<String> actions, long offset, long limit);
+
     void setCurrentEventLog(long id, String key);
 
     void delCurrentEventLog(String key);
@@ -425,8 +452,6 @@ public interface SqlAction {
      */
     Map<Long, byte[]> getShareData(List<Long> ids);
 
-    Integer deleteMapProperty(String table, String property, long id);
-
     //
     // Previously PgArrayHelper
     //
@@ -491,6 +516,24 @@ public interface SqlAction {
 
     int changeTablePermissionsForGroup(String table, Long id, Long internal);
 
+    /**
+     * Add a unique message to the DB patch table within the current patch.
+     * This method marks the start of the corresponding DB adjustment process.
+     * @param version the version of the current DB
+     * @param patch the patch of the current DB
+     * @param message the new message to note
+     */
+    void addMessageWithinDbPatchStart(String version, int patch, String message);
+
+    /**
+     * Add a unique message to the DB patch table within the current patch.
+     * This method marks the end of the corresponding DB adjustment process.
+     * @param version the version of the current DB
+     * @param patch the patch of the current DB
+     * @param message the new message to note
+     */
+    void addMessageWithinDbPatchEnd(String version, int patch, String message);
+
     //
     // End PgArrayHelper
     //
@@ -512,6 +555,14 @@ public interface SqlAction {
             t.printStackTrace(pw);
             pw.close();
             return sw.toString();
+        }
+
+        public void createInsertTrigger(String name, String table, String procedure) {
+            _jdbc().update(String.format("DROP TRIGGER IF EXISTS %s ON %s",
+                    name, table));
+            _jdbc().update(String.format("CREATE TRIGGER %s AFTER INSERT ON " +
+                    "%s FOR EACH ROW EXECUTE PROCEDURE %s",
+                    name, table, procedure));
         }
 
         public String rewriteHql(String query, String key, Object value) {
@@ -896,6 +947,29 @@ public interface SqlAction {
             return value;
         }
 
+        public List<Object[]> getEventLogPartitions(Collection<String> types,
+                Collection<String> actions, long offset, long limit) {
+            final String query = _lookup("log_loader_partition"); // $NON_NLS-1$
+            final Map<String, Object> params = new HashMap<String, Object>();
+            params.put("types", types);
+            params.put("actions", actions);
+            params.put("currentid", offset);
+            params.put("max", limit);
+            return _jdbc().query(query,
+                new RowMapper<Object[]>() {
+                    @Override
+                    public Object[] mapRow(ResultSet arg0, int arg1)
+                            throws SQLException {
+                        return new Object[] {
+                            arg0.getLong(1),
+                            arg0.getString(2),
+                            arg0.getLong(3),
+                            arg0.getString(4),
+                            arg0.getInt(5)
+                        };
+                    }}, params);
+        }
+
         public void setCurrentEventLog(long id, String key) {
 
             int count = _jdbc().update(
@@ -913,6 +987,20 @@ public interface SqlAction {
             _jdbc().update(
                 _lookup("log_loader_delete"), key); //$NON-NLS-1$
 
+        }
+
+        @Override
+        public void addMessageWithinDbPatchStart(String version, int patch, String message) {
+            final Map<String, Object> parameters =
+                    ImmutableMap.<String, Object>of("version", version, "patch", patch, "message", message);
+            _jdbc().update(_lookup("adjust_within_patch.start"), parameters);
+        }
+
+        @Override
+        public void addMessageWithinDbPatchEnd(String version, int patch, String message) {
+            final Map<String, Object> parameters =
+                    ImmutableMap.<String, Object>of("version", version, "patch", patch, "message", message);
+            _jdbc().update(_lookup("adjust_within_patch.end"), parameters);
         }
 
         //

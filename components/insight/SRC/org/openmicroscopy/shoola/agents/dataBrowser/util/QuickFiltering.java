@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.util.QuickFiltering 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -35,12 +35,12 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.view.QuickSearch;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.tagging.util.TagCellRenderer;
 import org.openmicroscopy.shoola.agents.util.tagging.util.TagItem;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.util.ui.HistoryDialog;
-import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
 import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
 import pojos.DataObject;

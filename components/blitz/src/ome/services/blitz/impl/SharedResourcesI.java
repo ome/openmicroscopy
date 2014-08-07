@@ -7,8 +7,6 @@
 
 package ome.services.blitz.impl;
 
-import static omero.rtypes.rstring;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -36,27 +34,21 @@ import omero.ValidationException;
 import omero.constants.categories.PROCESSCALLBACK;
 import omero.constants.categories.PROCESSORCALLBACK;
 import omero.constants.topics.PROCESSORACCEPTS;
-import omero.grid.AMI_InternalRepository_getDescription;
-import omero.grid.AMI_InternalRepository_getProxy;
 import omero.grid.AMI_Tables_getTable;
-import omero.grid._InteractiveProcessorTie;
 import omero.grid.InteractiveProcessorI;
 import omero.grid.InteractiveProcessorPrx;
 import omero.grid.InteractiveProcessorPrxHelper;
 import omero.grid.InternalRepositoryPrx;
-import omero.grid.InternalRepositoryPrxHelper;
 import omero.grid.ParamsHelper;
 import omero.grid.ProcessorPrx;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
-import omero.grid.RepositoryPrxHelper;
 import omero.grid.TablePrx;
 import omero.grid.TablePrxHelper;
 import omero.grid.TablesPrx;
 import omero.grid.TablesPrxHelper;
+import omero.grid._InteractiveProcessorTie;
 import omero.grid._SharedResourcesOperations;
-import omero.model.Format;
-import omero.model.FormatI;
 import omero.model.Job;
 import omero.model.JobStatus;
 import omero.model.JobStatusI;
@@ -64,10 +56,10 @@ import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.util.IceMapper;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
@@ -85,6 +77,12 @@ public class SharedResourcesI extends AbstractCloseableAmdServant implements
         _SharedResourcesOperations, BlitzOnly, ServiceFactoryAware,
         ParamsHelper.Acquirer { // FIXME
 
+    /**
+     * If no value is passed to this instance, this is the time (1 hour)
+     * which will be used for a script session.
+     */
+    public final static long DEFAULT_TIMEOUT = 60 * 60 * 1000L;
+
     private final static Logger log = LoggerFactory.getLogger(SharedResourcesI.class);
 
     private final Set<String> tableIds = new HashSet<String>();
@@ -97,7 +95,19 @@ public class SharedResourcesI extends AbstractCloseableAmdServant implements
 
     private final ScriptRepoHelper helper;
 
+    /**
+     * How long to wait for shared resources (e.g. TablesPrx) to respond to
+     * requests.
+     */
     private final long waitMillis;
+
+    /**
+     * Length of time (ms) to give a script session to live. Once the session
+     * times out, the process will be killed.
+     *
+     * @since 5.0.3
+     */
+    private final long timeout;
 
     private ServiceFactoryI sf;
 
@@ -108,11 +118,24 @@ public class SharedResourcesI extends AbstractCloseableAmdServant implements
 
     public SharedResourcesI(BlitzExecutor be, TopicManager topicManager,
                 Registry registry, ScriptRepoHelper helper, long waitMillis) {
+        this( be, topicManager, registry, helper, waitMillis, DEFAULT_TIMEOUT);
+    }
+
+    public SharedResourcesI(BlitzExecutor be, TopicManager topicManager,
+                Registry registry, ScriptRepoHelper helper, long waitMillis,
+                long timeout) {
         super(null, be);
         this.waitMillis = waitMillis;
         this.topicManager = topicManager;
         this.registry = registry;
         this.helper = helper;
+        this.timeout = timeout;
+        // In order to prevent overflow of currentTimeMillis+timeout and more
+        // generally to prevent nonsensical timeouts, we limit to 1 year.
+        if (timeout > DEFAULT_TIMEOUT * 24 * 365) {
+            throw new ome.conditions.InternalException(
+                    "Timeout too large: " + timeout);
+        }
     }
 
     public void setServiceFactory(ServiceFactoryI sf) throws ServerError {
@@ -420,8 +443,6 @@ public class SharedResourcesI extends AbstractCloseableAmdServant implements
             updateJob(job.getId().getValue(), "Error", msg, current);
             throw new omero.NoProcessorAvailable(null, null, msg, count);
         }
-
-        long timeout = System.currentTimeMillis() + 60 * 60 * 1000L;
 
         InteractiveProcessorI ip = new InteractiveProcessorI(sf.principal,
                 sf.sessionManager, sf.executor, server, job, timeout,

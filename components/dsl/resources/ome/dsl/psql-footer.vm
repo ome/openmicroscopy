@@ -278,6 +278,7 @@ CREATE TRIGGER annotation_trigger
         FOR EACH ROW
         EXECUTE PROCEDURE annotation_update_event_trigger();
 
+-- Note: not adding an annotation insert trigger since that would be handled by any links on insert
 
 CREATE OR REPLACE FUNCTION annotation_link_event_trigger() RETURNS "trigger"
     AS '
@@ -298,6 +299,10 @@ LANGUAGE plpgsql;
 #if( ${type.annotated} && !${type.superclass})
 CREATE TRIGGER ${type.tableName()}_annotation_link_event_trigger
         AFTER UPDATE ON ${type.tableName()}annotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('${type.id}');
+CREATE TRIGGER ${type.tableName()}_annotation_link_event_trigger_insert
+        AFTER INSERT ON ${type.tableName()}annotationlink
         FOR EACH ROW
         EXECUTE PROCEDURE annotation_link_event_trigger('${type.id}');
 #end
@@ -333,13 +338,42 @@ CREATE TRIGGER ${type.tableName()}_annotation_link_delete_trigger
 -- END #1390
 --
 
+--
+-- #12317 -- delete map property values along with their holders
+--
 
+#foreach($type in $types)
+#foreach($prop in $type.classProperties)
+#if( $prop.class.name == "ome.dsl.MapField" )
+CREATE FUNCTION ${type.tableName()}_${prop.name}_map_entry_delete_trigger_function() RETURNS "trigger" AS '
+BEGIN
+    DELETE FROM ${type.tableName()}_${prop.name}
+#if( $type.superclass && !$type.discriminator )
+        WHERE ${type.tableName()}_id = OLD.${type.typeToColumn($type.superclass)}_id;
+#else
+        WHERE ${type.tableName()}_id = OLD.id;
+#end
+    RETURN OLD;
+END;'
+LANGUAGE plpgsql;
 
+CREATE TRIGGER ${type.tableName()}_${prop.name}_map_entry_delete_trigger
+    BEFORE DELETE ON ${type.tableName()}
+    FOR EACH ROW
+    EXECUTE PROCEDURE ${type.tableName()}_${prop.name}_map_entry_delete_trigger_function();
+
+#end
+#end
+#end
+--
+-- done #12317
+--
 
 -- First, we install a unique constraint so that it is only possible
 -- to go from versionA/patchA to versionB/patchB once.
+-- message is included so that in-patch adjustments may still be noted in the table.
 --
-alter table dbpatch add constraint unique_dbpatch unique (currentVersion, currentPatch, previousVersion, previousPatch);
+alter table dbpatch add constraint unique_dbpatch unique (currentVersion, currentPatch, previousVersion, previousPatch, message);
 
 --
 -- Since this is a table that we will be using in DB-specific ways, we're also going

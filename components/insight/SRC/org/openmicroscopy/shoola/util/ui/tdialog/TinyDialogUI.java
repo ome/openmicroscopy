@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.util.ui.tdialog.TinyWindowUI
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -106,11 +106,12 @@ public class TinyDialogUI
     private JComponent      canvas;
       
     /** Creates and sets the window and its content's borders. */
-    private void makeBorders()
+    void makeBorders(int increment)
     {
         JRootPane rootPane = window.getRootPane();
         rootPane.setBorder(
-               BorderFactory.createLineBorder(BORDER_COLOR, BORDER_THICKNESS));
+               BorderFactory.createLineBorder(BORDER_COLOR,
+                       BORDER_THICKNESS+increment));
         if (canvas != null) {
             canvas.setBorder(BorderFactory.createBevelBorder(
                     BevelBorder.LOWERED, INNER_BORDER_HIGHLIGHT, 
@@ -217,7 +218,7 @@ public class TinyDialogUI
         canvas = new ThumbnailCanvas(image);
         canvas.setToolTipText(window.title);
         makeComponentsSize(image.getWidth(), image.getHeight()); 
-        makeBorders();
+        makeBorders(0);
         buildUI();
     }
     
@@ -234,7 +235,7 @@ public class TinyDialogUI
         if (c == null) throw new NullPointerException("No component.");
         initialize(window);
         canvas = c;
-        makeBorders();
+        makeBorders(0);
         buildUI();
     }
     
@@ -247,7 +248,7 @@ public class TinyDialogUI
     TinyDialogUI(TinyDialog window)
     {
         initialize(window);
-        makeBorders();
+        makeBorders(0);
         buildUI();
     }
     

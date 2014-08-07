@@ -1,1 +1,1 @@
-from omero.gateway.pytest_fixtures import *
+pytest_plugins = "omero.gateway.pytest_fixtures"

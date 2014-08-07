@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerUI
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -119,16 +119,16 @@ class MoviePlayerUI
 	JComboBox           movieTypes;
 
 	/** Field hosting the start z-section. */
-	JTextField          startZ;
+	NumericalTextField          startZ;
 
 	/** Field hosting the end z-section. */
-	JTextField          endZ;
+	NumericalTextField          endZ;
 
 	/** Field hosting the start timepoint. */
-	JTextField          startT;
+	NumericalTextField          startT;
 
 	/** Field hosting the end timepoint. */
-	JTextField          endT;
+	NumericalTextField          endT;
 
 	/** Box to select to play the movie across z-section. */
 	JCheckBox           acrossZ;
@@ -211,15 +211,19 @@ class MoviePlayerUI
 		zSlider.setPaintLabels(false);
 		if (rangeZ <= 0 || rangeZ > MAX_RANGE) zSlider.setPaintTicks(false);
 		int length = (""+(maxZ+1)).length();
-		startZ = new JTextField(""+(model.getStartZ()+1), length);
+		startZ = new NumericalTextField(minZ+1, maxZ+1);
+		startZ.setText(""+(model.getStartZ()+1));
+		startZ.setColumns(length);
 		startZ.setToolTipText(
 				UIUtilities.formatToolTipText("Enter the start z-section."));
-		endZ = new JTextField(""+(model.getEndZ()+1), length);
+		endZ = new NumericalTextField(minZ+1, maxZ+1);
+		endZ.setText(""+(model.getEndZ()+1));
+		endZ.setColumns(length);
 		endZ.setToolTipText(
 				UIUtilities.formatToolTipText("Enter the end z-section."));
 
 		int maxT = model.getMaxT();
-		int minT = model.getMinZ();
+		int minT = model.getMinT();
 		int rangeT = maxT-minT;
 		tSlider = new TwoKnobsSlider(minT, maxT, model.getStartT(), 
 				model.getEndT());
@@ -227,20 +231,19 @@ class MoviePlayerUI
 		tSlider.setPaintLabels(false);
 
 		if (rangeT <= 0 || rangeT > MAX_RANGE) tSlider.setPaintTicks(false);
-		startT = new JTextField(""+model.getStartT(), (""+maxT).length());
+		length = (""+(maxT+1)).length();
+		startT = new NumericalTextField(minT+1, maxT+1);
+		startT.setText(""+(model.getStartT()+1));
+		startT.setColumns(length);
 		startT.setToolTipText(
 				UIUtilities.formatToolTipText("Enter the start timepoint."));
-		endT = new JTextField(""+model.getEndT(), (""+maxT).length());
+		endT = new NumericalTextField(minT+1, maxT+1);
+		endT.setText(""+(model.getEndT()+1));
+		endT.setColumns(length);
 		endT.setToolTipText(
 				UIUtilities.formatToolTipText("Enter the end timepoint."));
 		acrossZ = new JCheckBox("Across Z");
 		acrossT = new JCheckBox("Across T");
-		//acrossZT = new JRadioButton("Across Z and T");
-		
-		//ButtonGroup group = new ButtonGroup();
-		//group.add(acrossZ);
-		//group.add(acrossT);
-		//group.add(acrossZT);
 	}
 
 	/** 
@@ -503,7 +506,7 @@ class MoviePlayerUI
 	 */
 	void setStartT(int v)
 	{
-		startT.setText(""+v);
+		startT.setText(""+(v+1));
 		tSlider.setStartValue(v);
 	}
 
@@ -525,7 +528,7 @@ class MoviePlayerUI
 	 */
 	void setEndT(int v)
 	{
-		endT.setText(""+v);
+		endT.setText(""+(v+1));
 		tSlider.setEndValue(v);
 	}
 

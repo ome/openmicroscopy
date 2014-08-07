@@ -28,13 +28,15 @@ class HqlControl(BaseControl):
         parser.set_defaults(func=self.__call__)
         parser.add_argument("query", nargs="?", help="Single query to run")
         parser.add_argument(
-            "-q", "--quiet", action="store_true", help="No user input")
-        parser.add_argument(
             "--admin", help="Run an admin query (deprecated; use 'all')",
             default=False, action="store_true")
         parser.add_argument(
             "--all", help="Perform query on all groups", default=False,
             action="store_true", dest="admin")
+        parser.add_argument(
+            "--ids-only",
+            action="store_true",
+            help="Show only the ids of returned objects")
         parser.add_limit_arguments()
         parser.add_style_argument()
         parser.add_login_arguments()
@@ -43,7 +45,7 @@ class HqlControl(BaseControl):
         if args.query:
             self.hql(args)
         else:
-            if args.quiet:
+            if self.ctx.isquiet:
                 self.ctx.die(67, "Can't ask for query with --quiet option")
             while True:
                 args.query = self.ctx.input("Enter query:")
@@ -64,8 +66,9 @@ class HqlControl(BaseControl):
         p = ParametersI()
         p.page(args.offset, args.limit)
         rv = self.project(q, args.query, p, ice_map)
-        has_details = self.display(rv, style=args.style)
-        if args.quiet or not sys.stdout.isatty():
+        has_details = self.display(rv, style=args.style,
+                                   idsonly=args.ids_only)
+        if self.ctx.isquiet or not sys.stdout.isatty():
             return
 
         input = """
@@ -93,9 +96,9 @@ To quit, enter 'q' or just enter.
                 self.ctx.dbg("\nCurrent page: offset=%s, limit=%s\n" %
                              (p.theFilter.offset.val, p.theFilter.limit.val))
                 rv = self.project(q, args.query, p, ice_map)
-                self.display(rv, style=args.style)
+                self.display(rv, style=args.style, idsonly=args.ids_only)
             elif id.startswith("r"):
-                self.display(rv, style=args.style)
+                self.display(rv, style=args.style, idsonly=args.ids_only)
             else:
                 try:
                     id = long(id)
@@ -122,7 +125,7 @@ To quit, enter 'q' or just enter.
                     self.ctx.out("%s = %s" % (key, value))
             continue
 
-    def display(self, rv, cols=None, style=None):
+    def display(self, rv, cols=None, style=None, idsonly=False):
         import omero.all
         import omero.rtypes
         from omero.util.text import TableBuilder
@@ -136,7 +139,7 @@ To quit, enter 'q' or just enter.
             id = ""
             values = {}
             # Handling for simple lookup
-            if len(object_list) == 1 and \
+            if not idsonly and len(object_list) == 1 and \
                     isinstance(object_list[0], omero.rtypes.RObjectI):
                 has_details.append(idx)
                 o = object_list[0].val

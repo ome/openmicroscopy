@@ -111,7 +111,7 @@ class DeleteCallbackI(object):
     milliseconds and then return the number of errors if any or None
     if the delete is not yet complete.
 
-    Example usage:
+    Example usage::
 
         cb = DeleteCallbackI(client, handle)
         errors = None
@@ -204,7 +204,7 @@ class CmdCallbackI(omero.cmd.CmdCallback):
     getResponse. Subclasses can override methods for handling
     based on the completion status.
 
-    Example usage:
+    Example usage::
 
         cb = CmdCallbackI(client, handle)
         response = None

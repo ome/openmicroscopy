@@ -12,15 +12,15 @@ jdk:
 
 before_install:
     - sudo apt-get -qq update
-    - sudo apt-get install -qq git
-    - sudo apt-get install -qq zeroc-ice34
-    - sudo apt-get install -qq python-imaging python-numpy python-tables python-genshi
+    - travis_retry sudo apt-get install -qq git
+    - travis_retry sudo apt-get install -qq zeroc-ice34
+    - travis_retry sudo apt-get install -qq python-imaging python-numpy python-tables python-genshi
     - git config github.token 3bc7fc530b01081559eb911f59ccfec7f4fb2592
     - git config --global user.email snoopycrimecop@gmail.com
     - git config --global user.name 'Snoopy Crime Cop'
     - sudo pip install scc pytest
     - scc travis-merge
-    - if [[ $BUILD == 'build-python' ]]; then sudo pip install flake8; fi
+    - if [[ $BUILD == 'build-python' ]]; then travis_retry sudo pip install flake8; fi
 
 install:
 

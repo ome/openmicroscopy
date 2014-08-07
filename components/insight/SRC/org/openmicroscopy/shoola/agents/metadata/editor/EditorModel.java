@@ -1357,19 +1357,26 @@ class EditorModel
 	{
 		return MetadataViewerAgent.isAdministrator();
 	}
-	
+
+    /**
+     * Returns <code>true</code> if the user currently logged in, is a leader
+     * of their default group, <code>false</code> otherwise.
+     */
+    boolean isGroupLeader()
+    {
+        return isGroupLeader(MetadataViewerAgent.getUserDetails().getDefaultGroup());
+    }
+
 	/**
 	 * Returns <code>true</code> if the user currently logged in, is a leader
-	 * of the selected group, <code>false</code> otherwise.
-	 * 
-	 * @return
+	 * of the given group, <code>false</code> otherwise.
 	 */
-	boolean isGroupLeader()
+	boolean isGroupLeader(GroupData group)
 	{
 		ExperimenterData exp = MetadataViewerAgent.getUserDetails();
 		Collection groups = MetadataViewerAgent.getAvailableUserGroups();
 		if (groups == null) return false;
-		long groupID = exp.getDefaultGroup().getId();
+		final long groupID = group.getId();
 		Iterator i = groups.iterator();
 		GroupData g;
 		Set leaders = null;
@@ -3661,11 +3668,7 @@ class EditorModel
 		} catch (Exception e) {
 			//ignore
 		}
-		if (pixels == null) return false;
-		int size = 1500;
-		if (pixels.getSizeX() <= size && pixels.getSizeY() <= size)
-			return true;
-		return false;
+		return pixels != null && !isLargeImage();
 	}
 	
 	/**

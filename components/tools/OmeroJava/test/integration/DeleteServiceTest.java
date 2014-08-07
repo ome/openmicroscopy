@@ -303,7 +303,7 @@ public class DeleteServiceTest extends AbstractServerTest {
     @Test
     public void testDeleteBasicImage() throws Exception {
         Image img = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         assertNotNull(img);
         long id = img.getId().getValue();
         delete(new Delete(REF_IMAGE, id, null));
@@ -538,9 +538,9 @@ public class DeleteServiceTest extends AbstractServerTest {
         Dataset d = (Dataset) iUpdate.saveAndReturnObject(mmFactory
                 .simpleDatasetData().asIObject());
         Image image1 = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         Image image2 = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         List<IObject> links = new ArrayList<IObject>();
         DatasetImageLink link = new DatasetImageLinkI();
         link.setChild(image1);
@@ -586,9 +586,9 @@ public class DeleteServiceTest extends AbstractServerTest {
         Dataset d = (Dataset) iUpdate.saveAndReturnObject(mmFactory
                 .simpleDatasetData().asIObject());
         Image image1 = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         Image image2 = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         List<IObject> links = new ArrayList<IObject>();
         DatasetImageLink link = new DatasetImageLinkI();
         link.setChild(image1);
@@ -1063,7 +1063,7 @@ public class DeleteServiceTest extends AbstractServerTest {
     @Test
     public void testDeleteImageWithROIs() throws Exception {
         Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         Roi roi = new RoiI();
         roi.setImage(image);
         Rect rect;
@@ -1112,7 +1112,7 @@ public class DeleteServiceTest extends AbstractServerTest {
     @Test
     public void testDeleteROIs() throws Exception {
         Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         Roi roi = new RoiI();
         roi.setImage(image);
         Rect rect;
@@ -1724,9 +1724,9 @@ public class DeleteServiceTest extends AbstractServerTest {
         int n = SHARABLE_TO_KEEP.size();
         // images
         Image img1 = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         Image img2 = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         List<Long> ids = createSharableAnnotation(img1, img2);
         assertEquals(n, ids.size());
         // now delete the image 1.
@@ -1801,7 +1801,7 @@ public class DeleteServiceTest extends AbstractServerTest {
     @Test
     public void testDeleteSharableTagAsRoot() throws Exception {
         Image img1 = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(mmFactory
                 .simpleDatasetData().asIObject());
         Project p1 = (Project) iUpdate.saveAndReturnObject(mmFactory
@@ -1881,7 +1881,7 @@ public class DeleteServiceTest extends AbstractServerTest {
     @Test
     public void testDeleteSharableTermAsRoot() throws Exception {
         Image img1 = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(mmFactory
                 .simpleDatasetData().asIObject());
         Project p1 = (Project) iUpdate.saveAndReturnObject(mmFactory
@@ -1961,7 +1961,7 @@ public class DeleteServiceTest extends AbstractServerTest {
     @Test
     public void testDeleteSharableFileAsRoot() throws Exception {
         Image img1 = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(mmFactory
                 .simpleDatasetData().asIObject());
         Project p1 = (Project) iUpdate.saveAndReturnObject(mmFactory
@@ -2786,7 +2786,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         iUpdate.saveAndReturnObject(pl);
 
         Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         DatasetImageLink dl = new DatasetImageLinkI();
         dl.link(new DatasetI(d.getId().getValue(), false), new ImageI(image
                 .getId().getValue(), false));
@@ -3342,9 +3342,9 @@ public class DeleteServiceTest extends AbstractServerTest {
     @Test(groups = { "ticket:2945" })
     public void testDeleteTaggedImages() throws Exception {
         Image img1 = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         Image img2 = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         List<Long> ids = createSharableAnnotation(img1, img2);
         assertTrue(ids.size() > 0);
         delete(new Delete(REF_IMAGE, img1.getId().getValue(), null));

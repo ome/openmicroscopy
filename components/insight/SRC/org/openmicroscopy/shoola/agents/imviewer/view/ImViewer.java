@@ -1195,8 +1195,9 @@ public interface ImViewer
 	 * Sets the image displayed in the bird eye view.
 	 * 
 	 * @param result The value to set.
+	 * @param scaled Indicates if the result is a scaled image
 	 */
-	void setBirdEyeView(BufferedImage result);
+	void setBirdEyeView(BufferedImage result, boolean scaled);
 	
     /**
      * Returns the number of rows, default is <code>1</code>.

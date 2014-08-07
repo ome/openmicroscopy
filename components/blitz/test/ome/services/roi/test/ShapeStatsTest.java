@@ -42,7 +42,6 @@ public class ShapeStatsTest extends AbstractRoiITest {
         Image i = new ImageI();
         i.addPixels(p);
         i.setName(rstring("statsOfRect"));
-        i.setAcquisitionDate(rtime(0));
         Rect r = geomTool.rect(0, 0, 10, 10);
         Roi roi = createRoi(i, "statsOfRect", r);
         ShapeStats stats = assertStats(roi.getPrimaryShape());
@@ -57,7 +56,6 @@ public class ShapeStatsTest extends AbstractRoiITest {
         Image i = new ImageI();
         i.addPixels(p);
         i.setName(rstring("statsOfRectImplicitChannels"));
-        i.setAcquisitionDate(rtime(0));
         Rect r = geomTool.rect(0, 0, 10, 10);
         Roi roi = createRoi(i, "statsOfRect", r);
 
@@ -73,7 +71,6 @@ public class ShapeStatsTest extends AbstractRoiITest {
         Image i = new ImageI();
         i.addPixels(p);
         i.setName(rstring("statsOfRectExplicitChannels"));
-        i.setAcquisitionDate(rtime(0));
         Rect r = geomTool.rect(0, 0, 10, 10);
         // Now add one channel
         LogicalChannel lc = (LogicalChannel) assertFindByQuery(

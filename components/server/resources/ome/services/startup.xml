@@ -53,6 +53,7 @@
      class="ome.services.util.DBEnumCheck"
      init-method="start" lazy-init="false">
      <constructor-arg ref="executor"/>
+     <constructor-arg ref="preferenceContext"/>
   </bean>
 
   <bean id="serverDirectoryCheck"
@@ -75,10 +76,17 @@
      <constructor-arg index="2" value="server"/>
   </bean>
 
-  <bean id="metrics" class="ome.system.metrics.Metrics"/>
+  <alias name="${omero.metrics.bean}" alias="metrics"/>
+
+  <bean id="defaultMetrics" class="ome.system.metrics.DefaultMetrics">
+    <property name="graphiteAddress" value="${omero.metrics.graphite}"/>
+  </bean>
+
+  <bean id="nullMetrics" class="ome.system.metrics.NullMetrics"/>
 
   <bean class="ome.services.util.SleepTimer"
         lazy-init="false"
         destroy-method="destroy"/>
+
 
 </beans>

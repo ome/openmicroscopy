@@ -3,7 +3,7 @@
 """
    Plugin for our configuring the OMERO.web installation
 
-   Copyright 2009-2013 University of Dundee. All rights reserved.
+   Copyright 2009-2014 University of Dundee. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -97,6 +97,13 @@ class WebControl(BaseControl):
             "Advanced use: Creates needed symlinks for static"
             " media files (Performed automatically by 'start')")
 
+        parser.add(
+            sub, self.clearsessions,
+            "Advanced use: Can be run as a cron job or directly to clean "
+            "out expired sessions.\n See "
+            "https://docs.djangoproject.com/en/1.6/topics/http/sessions/"
+            "#clearing-the-session-store for more information.")
+
         #
         # Developer
         #
@@ -128,41 +135,6 @@ class WebControl(BaseControl):
         selenium.add_argument("hostname", help="E.g. http://localhost:4080")
         selenium.add_argument("browser", help="E.g. firefox")
 
-        test = parser.add(
-            sub, self.test, "Developer use: Runs omero web tests"
-            " (py.test)\n--cov* options depend on pytest-cov plugin")
-        test.add_argument(
-            "--config", action="store", help="ice.config location")
-        test.add_argument(
-            "--basepath", action="store",
-            help="Base omeroweb path (default lib/python/omeroweb)")
-        test.add_argument(
-            "--testpath", action="store",
-            help="Path for test collection (relative to basepath)")
-        test.add_argument(
-            "--string", action="store",
-            help="Only run tests including string.")
-        test.add_argument(
-            "--failfast", action="store_true", default=False,
-            help="Exit on first error")
-        test.add_argument(
-            "--verbose", action="store_true", default=False,
-            help="More verbose output")
-        test.add_argument(
-            "--quiet", action="store_true", default=False,
-            help="Less verbose output")
-        test.add_argument(
-            "--pdb", action="store_true", default=False,
-            help="Fallback to pdb on error")
-        test.add_argument(
-            '--cov', action='append', default=[],
-            help='measure coverage for filesystem path (multi-allowed)')
-        test.add_argument(
-            '--cov-report', action='append', default=[],
-            choices=['term', 'term-missing', 'annotate', 'html', 'xml'],
-            help="type of report to generate: term, term-missing, annotate,"
-            " html, xml (multi-allowed)")
-
     def config(self, args):
         if not args.type:
             self.ctx.out(
@@ -177,7 +149,27 @@ class WebControl(BaseControl):
                     self.ctx.die(
                         678, "Port conflict: HTTP(%s) and"" fastcgi-tcp(%s)."
                         % (port, settings.APPLICATION_SERVER_PORT))
+
+            d = {
+                "ROOT": self.ctx.dir,
+                "OMEROWEBROOT": self.ctx.dir / "lib" / "python" /
+                "omeroweb",
+                "STATIC_URL": settings.STATIC_URL.rstrip("/")
+            }
+
+            try:
+                d["FORCE_SCRIPT_NAME"] = settings.FORCE_SCRIPT_NAME.rstrip("/")
+            except:
+                d["FORCE_SCRIPT_NAME"] = "/"
+
             if server == "nginx":
+                if args.system:
+                    c = file(self.ctx.dir / "etc" /
+                             "nginx.conf.system.template").read()
+                else:
+                    c = file(self.ctx.dir / "etc" /
+                             "nginx.conf.template").read()
+
                 if settings.APPLICATION_SERVER == settings.FASTCGITCP:
                     fastcgi_pass = "%s:%s" \
                         % (settings.APPLICATION_SERVER_HOST,
@@ -185,21 +177,10 @@ class WebControl(BaseControl):
                 else:
                     fastcgi_pass = "unix:%s/var/django_fcgi.sock" \
                         % self.ctx.dir
-                if args.system:
-                    c = file(self.ctx.dir / "etc" /
-                             "nginx.conf.system.template").read()
-                else:
-                    c = file(self.ctx.dir / "etc" /
-                             "nginx.conf.template").read()
-                d = {
-                    "ROOT": self.ctx.dir,
-                    "OMEROWEBROOT": self.ctx.dir / "lib" / "python" /
-                    "omeroweb",
-                    "HTTPPORT": port,
-                    "FASTCGI_PASS": fastcgi_pass,
-                    }
-                if hasattr(settings, 'FORCE_SCRIPT_NAME') \
-                        and len(settings.FORCE_SCRIPT_NAME) > 0:
+                d["FASTCGI_PASS"] = fastcgi_pass
+                d["HTTPPORT"] = port
+
+                try:
                     d["FASTCGI_PATH_SCRIPT_INFO"] = \
                         "fastcgi_split_path_info ^(%s)(.*)$;\n" \
                         "            " \
@@ -207,11 +188,14 @@ class WebControl(BaseControl):
                         "            " \
                         "fastcgi_param SCRIPT_INFO $fastcgi_script_name;\n" \
                         % (settings.FORCE_SCRIPT_NAME)
-                else:
-                    d["FASTCGI_PATH_SCRIPT_INFO"] = \
-                        "fastcgi_param PATH_INFO $fastcgi_script_name;\n"
-                self.ctx.out(c % d)
+                except:
+                    d["FASTCGI_PATH_SCRIPT_INFO"] = "fastcgi_param PATH_INFO " \
+                                                    "$fastcgi_script_name;\n"
+
             if server == "apache":
+                c = file(self.ctx.dir / "etc" /
+                         "apache.conf.template").read()
+
                 if settings.APPLICATION_SERVER == settings.FASTCGITCP:
                     fastcgi_external = '-host %s:%s' % \
                         (settings.APPLICATION_SERVER_HOST,
@@ -219,93 +203,10 @@ class WebControl(BaseControl):
                 else:
                     fastcgi_external = '-socket "%s/var/django_fcgi.sock"' % \
                         self.ctx.dir
-                stanza = """###
-# apache config for omero
-# this file should be loaded *after* ssl.conf
-#
-# -D options to control configurations
-#  OmeroWebClientRedirect - redirect / to /omero/webclient
-#  OmeroWebAdminRedirect  - redirect / to /omero/webadmin
-#  OmeroForceSSL - redirect all http requests to https
+                d["FASTCGI_EXTERNAL"] = fastcgi_external
+                d["NOW"] = str(datetime.now())
 
-###
-### Example SSL stanza for OMERO.web created %(NOW)s
-###
-
-# Eliminate overlap warnings with the default ssl vhost
-# Requires SNI (http://wiki.apache.org/httpd/NameBasedSSLVHostsWithSNI) \
-support
-# most later versions of mod_ssl and OSes will support it
-# if you see "You should not use name-based virtual hosts in conjunction \
-with SSL!!"
-# or similar start apache with -D DISABLE_SNI and modify ssl.conf
-#<IfDefine !DISABLE_SNI>
-#  NameVirtualHost *:443
-#</IfDefine>
-#
-## force https/ssl
-#<IfDefine OmeroForceSSL>
-#  RewriteEngine on
-#  RewriteCond %%{HTTPS} !on
-#  RewriteRule (.*) https://%%{HTTP_HOST}%%{REQUEST_URI} [L]
-#</IfDefine>
-#
-#<VirtualHost _default_:443>
-#
-#  ErrorLog logs/ssl_error_log
-#  TransferLog logs/ssl_access_log
-#  LogLevel warn
-#
-#  SSLEngine on
-#  SSLProtocol all -SSLv2
-#  SSLCipherSuite ALL:!ADH:!EXPORT:!SSLv2:RC4+RSA:+HIGH:+MEDIUM:+LOW
-#  SSLCertificateFile /etc/pki/tls/certs/server.crt
-#  SSLCertificateKeyFile /etc/pki/tls/private/server.key
-#
-#  # SSL Protocol Adjustments:
-#  SetEnvIf User-Agent ".*MSIE.*" \
-#    nokeepalive ssl-unclean-shutdown \
-#    downgrade-1.0 force-response-1.0
-#
-#  # Per-Server Logging:
-#  CustomLog logs/ssl_request_log \
-#    "%%t %%h %%{SSL_PROTOCOL}x %%{SSL_CIPHER}x \"%%r\" %%b"
-#
-#</VirtualHost>
-
-RewriteEngine on
-RewriteRule ^/?$ /omero/ [R]
-
-###
-### Stanza for OMERO.web created %(NOW)s
-###
-FastCGIExternalServer "%(ROOT)s/var/omero.fcgi" %(FASTCGI_EXTERNAL)s
-
-<Directory "%(ROOT)s/var">
-    Options -Indexes FollowSymLinks
-    Order allow,deny
-    Allow from all
-</Directory>
-
-<Directory "%(STATIC)s">
-    Options -Indexes FollowSymLinks
-    Order allow,deny
-    Allow from all
-</Directory>
-
-Alias /static %(STATIC)s
-Alias /omero "%(ROOT)s/var/omero.fcgi/"
-"""
-                d = {
-                    "ROOT": self.ctx.dir,
-                    "STATIC": self.ctx.dir / "lib" / "python" / "omeroweb" /
-                    "static",
-                    "OMEROWEBROOT": self.ctx.dir / "lib" / "python" /
-                    "omeroweb",
-                    "FASTCGI_EXTERNAL": fastcgi_external,
-                    "NOW": str(datetime.now()),
-                    }
-                self.ctx.out(stanza % d)
+            self.ctx.out(c % d)
 
     def syncmedia(self, args):
         self.collectstatic()
@@ -342,49 +243,6 @@ Alias /omero "%(ROOT)s/var/omero.fcgi/"
         os.environ['DJANGO_SETTINGS_MODULE'] = \
             os.environ.get('DJANGO_SETTINGS_MODULE', 'omeroweb.settings')
         self.ctx.call(args, cwd=location)
-
-    def test(self, args):
-        try:
-            pass
-        except:
-            self.ctx.die(121, 'test: wrong arguments, run test -h for a list')
-
-        cargs = ['py.test']
-
-        if args.config:
-            self.set_environ(ice_config=args.config)
-        else:
-            self.set_environ(ice_config=self.ctx.dir / 'etc' / 'ice.config')
-
-        if args.basepath:
-            cwd = args.basepath
-        else:
-            cwd = self.ctx.dir / 'lib' / 'python' / 'omeroweb'
-
-        if args.testpath:
-            cargs.extend(['-s', args.testpath])
-        if args.string:
-            cargs.extend(['-k', args.string])
-        if args.failfast:
-            cargs.append('-x')
-        if args.verbose:
-            cargs.append('-v')
-        if args.quiet:
-            cargs.append('-q')
-        if args.pdb:
-            cargs.append('--pdb')
-        for cov in args.cov:
-            cargs.extend(['--cov', cov])
-        for cov_rep in args.cov_report:
-            cargs.extend(['--cov-report', cov_rep])
-
-        os.environ['DJANGO_SETTINGS_MODULE'] = \
-            os.environ.get('DJANGO_SETTINGS_MODULE', 'omeroweb.settings')
-        # The following is needed so the cwd is included in the python path
-        # when using --testpath
-        os.environ['PYTHONPATH'] += ':.'
-
-        self.ctx.call(cargs, cwd=cwd)
 
     def seleniumtest(self, args):
         try:
@@ -441,6 +299,14 @@ Alias /omero "%(ROOT)s/var/omero.fcgi/"
         rv = self.ctx.call(args, cwd=location)
         if rv != 0:
             self.ctx.die(607, "Failed to collect static content.\n")
+
+    def clearsessions(self, args):
+        # Clean out expired sessions.
+        location = self.ctx.dir / "lib" / "python" / "omeroweb"
+        args = [sys.executable, "manage.py", "clearsessions"]
+        rv = self.ctx.call(args, cwd=location)
+        if rv != 0:
+            self.ctx.die(607, "Failed to clear sessions.\n")
 
     def start(self, args):
         self.collectstatic()

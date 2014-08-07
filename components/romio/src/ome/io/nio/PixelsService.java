@@ -786,6 +786,7 @@ public class PixelsService extends AbstractFileSystemService
         reader = new ChannelSeparator(reader);
         reader = new Memoizer(reader, getMemoizerWait(), getMemoizerDirectory());
         reader.setFlattenedResolutions(false);
+        reader.setMetadataFiltered(true);
         return reader;
     }
 

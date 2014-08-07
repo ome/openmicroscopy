@@ -8,6 +8,8 @@
 package ome.util;
 
 // Java imports
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.Array;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -277,6 +279,22 @@ public abstract class ModelMapper extends ContextFilter {
         throw new InternalException("Could not instantiate object of type "
                 + targetType + " while trying to map " + current + "\n"
                 + e.getMessage());
+    }
+
+    public static String stackAsString(Throwable t) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        t.printStackTrace(pw);
+        Throwable cause = t.getCause();
+        while (cause != null && cause != t) {
+            cause.printStackTrace(pw);
+            t = cause;
+            cause = t.getCause();
+        }
+        pw.flush();
+        pw.close();
+
+        return sw.getBuffer().toString();
     }
 
 }

@@ -28,6 +28,28 @@
   Loaded by AJAX into a form dialog.
 -->
 {% endcomment %}
+<script type="text/javascript">
+    $(document).ready(function(){
+        $(":button:contains('Accept')",
+            $("#choose_attachments_form").parent()).attr("disabled", "disabled").addClass(
+                'ui-state-disabled');
+        
+        $('#id_annotation_file, #id_files').change(
+            function(){
+                if ($(this).val()){
+                    $(":button:contains('Accept')",
+                        $("#choose_attachments_form").parent()
+                            ).removeAttr("disabled").removeClass('ui-state-disabled');
+                }
+                else {
+                    $(":button:contains('Accept')",
+                        $("#choose_attachments_form").parent()).attr("disabled", "disabled").addClass(
+                            'ui-state-disabled');
+            }
+        });
+        
+    });
+</script>
 
 <div>
 
@@ -39,19 +61,16 @@
 <p>
     <h1>And/Or Attach an existing File:</h1>
     <span>Select the attachments to add</span>
-    <table>
-        <tr>
-            <td>{{ form_file.files }}</td>
-        </tr>
-        <!-- hidden fields to specify the objects we're annotating -->
-        <tr class="hiddenField"><td>{{ form_file.image }}</td></tr>
-        <tr class="hiddenField"><td>{{ form_file.dataset }}</td></tr>
-        <tr class="hiddenField"><td>{{ form_file.project }}</td></tr>
-        <tr class="hiddenField"><td>{{ form_file.screen }}</td></tr>
-        <tr class="hiddenField"><td>{{ form_file.plate }}</td></tr>
-        <tr class="hiddenField"><td>{{ form_file.acquisition }}</td></tr>
-        <tr class="hiddenField"><td>{{ form_file.well }}</td></tr>
-        <tr class="hiddenField"><input type="text" name="index" value="{{ index }}"/></tr>
-    </table>
+    
+    <div>{{ form_file.files }}</div>
+    <!-- hidden fields used to specify the objects we're tagging -->
+    <div class="hiddenField">{{ form_file.image }}</div>
+    <div class="hiddenField">{{ form_file.dataset }}</div>
+    <div class="hiddenField">{{ form_file.project }}</div>
+    <div class="hiddenField">{{ form_file.screen }}</div>
+    <div class="hiddenField">{{ form_file.plate }}</div>
+    <div class="hiddenField">{{ form_file.acquisition }}</div>
+    <div class="hiddenField">{{ form_file.well }}</div>
+    <div class="hiddenField"><input type="text" name="index" value="{{ index }}"/></div>
 
 </p>

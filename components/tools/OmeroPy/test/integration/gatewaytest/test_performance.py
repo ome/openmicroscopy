@@ -20,14 +20,17 @@ import pytest
 import omero
 import time
 
-
 from omero.rtypes import rstring, rlong
+
 
 class TestPerformance (object):
 
     @pytest.mark.xfail(reason="ticket 11494")
     def testListFileAnnotations(self, gatewaywrapper):
-        """ testListFileAnnotations: test speed of getObjects('FileAnnotation') vv listFileAnnotations() """
+        """
+        testListFileAnnotations: test speed of getObjects('FileAnnotation') vv
+        listFileAnnotations()
+        """
         gatewaywrapper.loginAsAuthor()
         updateService = gatewaywrapper.gateway.getUpdateService()
 
@@ -47,44 +50,51 @@ class TestPerformance (object):
         ns = "omero.gatewaytest.PerformanceTest.testListFileAnnotations"
         fileCount = 250
 
-        fileAnnIds = [createFileAnnotation("testListFileAnnotations%s"%i, ns) for i in range(fileCount)]
+        fileAnnIds = [createFileAnnotation("testListFileAnnotations%s" % i,
+                      ns) for i in range(fileCount)]
 
         # test speed of listFileAnnotations
         startTime = time.time()
         fileCount = 0
         fileAnns = gatewaywrapper.gateway.listFileAnnotations(toInclude=[ns])
         for fa in fileAnns:
-            name = fa.getFileName()
-            fileCount +=1
+            fa.getFileName()
+            fileCount += 1
         t1 = time.time() - startTime
-        print "listFileAnnotations for %d files = %s secs" % (fileCount, t1)    # Typically 1.4 secs
+        print "listFileAnnotations for %d files = %s secs" % (fileCount, t1)
+        # Typically 1.4 secs
 
         # test speed of getOjbects("Annotation") - lazy loading file names
         startTime = time.time()
         fileCount = 0
-        fileAnns = gatewaywrapper.gateway.getObjects("FileAnnotation", attributes={'ns':ns})
+        fileAnns = gatewaywrapper.gateway.getObjects(
+            "FileAnnotation", attributes={'ns': ns})
         for fa in fileAnns:
-            name = fa.getFileName()
-            fileCount +=1
+            fa.getFileName()
+            fileCount += 1
         t2 = time.time() - startTime
-        print "getObjects, lazy loading file names for %d files = %s secs" % (fileCount, t2) # Typically 2.8 secs
+        print "getObjects, lazy loading file names for %d files = %s secs" \
+            % (fileCount, t2)  # Typically 2.8 secs
 
         # test speed of getOjbects("Annotation") - NO loading file names
         startTime = time.time()
         fileCount = 0
-        fileAnns = gatewaywrapper.gateway.getObjects("FileAnnotation", attributes={'ns':ns})
+        fileAnns = gatewaywrapper.gateway.getObjects(
+            "FileAnnotation", attributes={'ns': ns})
         for fa in fileAnns:
-            fid = fa.getId()
-            fileCount +=1
+            fa.getId()
+            fileCount += 1
         t3 = time.time() - startTime
-        print "getObjects, NO file names for %d files = %s secs" % (fileCount, t3)      # Typically 0.4 secs
+        print "getObjects, NO file names for %d files = %s secs" \
+            % (fileCount, t3)  # Typically 0.4 secs
 
-        assert t1 < t2, "Blitz listFileAnnotations() should be faster than getObjects('FileAnnotation')"
-        assert t3 < t2, "Blitz getObjects('FileAnnotation') should be faster without fa.getFileName()"
-        assert t3 < t1, "Blitz getting unloaded 'FileAnnotation' should be faster than listFileAnnotations()"
+        assert t1 < t2, "Blitz listFileAnnotations() should be faster " \
+            "than getObjects('FileAnnotation')"
+        assert t3 < t2, "Blitz getObjects('FileAnnotation') should be " \
+            "faster without fa.getFileName()"
+        assert t3 < t1, "Blitz getting unloaded 'FileAnnotation' should be" \
+            " faster than listFileAnnotations()"
 
         # now delete what we have created
         handle = gatewaywrapper.gateway.deleteObjects("Annotation", fileAnnIds)
         gatewaywrapper.waitOnCmd(gatewaywrapper.gateway.c, handle)
-
-

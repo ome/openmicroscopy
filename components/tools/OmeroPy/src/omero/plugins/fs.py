@@ -25,9 +25,20 @@ fs plugin for querying repositories, filesets, and the like.
 
 import sys
 
+from collections import namedtuple
+
+from omero import client as Client
+from omero import CmdError
+from omero import ServerError
 from omero.cli import admin_only
 from omero.cli import BaseControl
 from omero.cli import CLI
+from omero.cli import ProxyStringType
+
+from omero.rtypes import rstring
+from omero.rtypes import unwrap
+from omero.sys import Principal
+from omero.util.temp_files import create_path
 
 
 HELP = """Filesystem utilities"""
@@ -40,8 +51,177 @@ TRANSFERS = {
     "ome.formats.importer.transfers.HardlinkFileTransfer": "ln",
     "ome.formats.importer.transfers.MoveFileTransfer": "ln_rm",
     "ome.formats.importer.transfers.SymlinkFileTransfer": "ln_s",
+    "ome.formats.importer.transfers.UploadRmFileTransfer": "upload_rm",
     "ome.formats.importer.transfers.UploadFileTransfer": "",
     }
+
+Entry = namedtuple("Entry", ("level", "id", "path", "mimetype"))
+
+
+def contents(mrepo, path, ctx=None):
+    """
+    Yield Entry namedtuples for each return value
+    from treeList for the given path.
+    """
+    tree = unwrap(mrepo.treeList(path, ctx))
+
+    def parse(tree, level=0):
+        for k, v in tree.items():
+            yield Entry(level, v.get("id"),
+                        k, v.get("mimetype"))
+            if "files" in v:
+                for sub in parse(v.get("files"), level+1):
+                    yield sub
+
+    for entry in parse(tree):
+        yield entry
+
+
+def prep_directory(client, mrepo):
+    """
+    Create an empty FS directory by performing an import and
+    then deleting the created fileset.
+    """
+
+    from omero.cmd import Delete
+    from omero.cmd import DoAll
+    from omero.grid import ImportSettings
+
+    from omero.model import ChecksumAlgorithmI
+    from omero.model import FilesetI
+    from omero.model import FilesetEntryI
+    from omero.model import UploadJobI
+
+    fs = FilesetI()
+    fs.linkJob(UploadJobI())
+    entry = FilesetEntryI()
+    entry.clientPath = rstring("README.txt")
+    fs.addFilesetEntry(entry)
+    settings = ImportSettings()
+    settings.checksumAlgorithm = ChecksumAlgorithmI()
+    settings.checksumAlgorithm.value = rstring("SHA1-160")
+    proc = mrepo.importFileset(fs, settings)
+    try:
+
+        tmp = create_path()
+        prx = proc.getUploader(0)
+        try:
+            tmp.write_text("THIS IS A PLACEHOLDER")
+            hash = client.sha1(tmp)
+            with open(tmp, "r") as source:
+                client.write_stream(source, prx)
+        finally:
+            prx.close()
+        tmp.remove()
+
+        handle = proc.verifyUpload([hash])
+        try:
+            req = handle.getRequest()
+            fs = req.activity.parent
+        finally:
+            handle.close()
+
+        dir = unwrap(mrepo.treeList(fs.templatePrefix.val))
+        oid = dir.items()[0][1].get("id")
+        ofile = client.sf.getQueryService().get("OriginalFile", oid)
+
+        delete1 = Delete()
+        delete1.type = "/Fileset"
+        delete1.id = fs.id.val
+        delete2 = Delete()
+        delete2.type = "/OriginalFile"
+        delete2.id = ofile.id.val
+        doall = DoAll()
+        doall.requests = [delete1, delete2]
+        cb = client.submit(doall)
+        cb.close(True)
+
+    finally:
+        proc.close()
+
+    return fs.templatePrefix.val
+
+
+def rename_fileset(client, mrepo, fileset, new_dir, ctx=None):
+    """
+    Loads each OriginalFile found under orig_dir and
+    updates its path field to point at new_dir. Files
+    are not yet moved.
+    """
+
+    from omero.constants.namespaces import NSFSRENAME
+    from omero.model import CommentAnnotationI
+    from omero.model import FilesetAnnotationLinkI
+
+    tomove = []
+    tosave = []
+    query = client.sf.getQueryService()
+    update = client.sf.getUpdateService()
+    orig_dir = fileset.templatePrefix.val
+
+    def parse_parent(dir):
+        """
+        Note that final elements are empty
+        """
+        parts = dir.split("/")
+        parpath = "/".join(parts[0:-2]+[""])
+        parname = parts[-2]
+        logname = parts[-2] + ".log"
+        return parpath, parname, logname
+
+    orig_parpath, orig_parname, orig_logname = parse_parent(orig_dir)
+    new_parpath, new_parname, new_logname = parse_parent(new_dir)
+
+    for entry in contents(mrepo, orig_dir, ctx):
+
+        ofile = query.get("OriginalFile", entry.id, ctx)
+        path = ofile.path.val
+
+        if entry.level == 0:
+            tomove.append((orig_dir, new_dir))
+            assert orig_parpath in path
+            repl = path.replace(orig_parpath, new_parpath)
+            ofile.name = rstring(new_parname)
+        else:
+            assert orig_dir in path
+            repl = path.replace(orig_dir, new_dir)
+        ofile.path = rstring(repl)
+        tosave.append(ofile)
+    fileset.templatePrefix = rstring(new_dir)
+    # TODO: placing the fileset at the end of this list
+    # causes ONLY the fileset to be updated !!
+    tosave.insert(0, fileset)
+
+    # Add an annotation to the fileset as well so
+    # we can detect if something's gone wrong.
+    link = FilesetAnnotationLinkI()
+    link.parent = fileset.proxy()
+    link.child = CommentAnnotationI()
+    link.child.ns = rstring(NSFSRENAME)
+    link.child.textValue = rstring("previous=%s" % orig_dir)
+    tosave.insert(1, link)
+
+    # And now move the log file as well:
+    from omero.sys import ParametersI
+    q = ("select o from FilesetJobLink l "
+         "join l.parent as fs join l.child as j "
+         "join j.originalFileLinks l2 join l2.child as o "
+         "where fs.id = :id and "
+         "o.mimetype = 'application/omero-log-file'")
+    log = query.findByQuery(
+        q, ParametersI().addId(fileset.id.val))
+
+    if log is not None:
+        target = new_parpath + new_logname
+        source = orig_parpath + orig_logname
+        tomove.append((source, target))
+        log.path = rstring(new_parpath)
+        log.name = rstring(new_logname)
+        tosave.append(log)
+
+    # Done. Save in one transaction and return tomove
+    update.saveAndReturnArray(tosave, ctx)
+    return tomove
 
 
 class FsControl(BaseControl):
@@ -51,7 +231,7 @@ class FsControl(BaseControl):
         parser.add_login_arguments()
         sub = parser.sub()
 
-        images = parser.add(sub, self.images, self.images.__doc__)
+        images = parser.add(sub, self.images)
         images.add_style_argument()
         images.add_limit_arguments()
         images.add_argument(
@@ -62,13 +242,22 @@ class FsControl(BaseControl):
             "--archived", action="store_true",
             help="list only images with archived data")
 
-        repos = parser.add(sub, self.repos, self.repos.__doc__)
+        rename = parser.add(sub, self.rename)
+        rename.add_argument(
+            "fileset",
+            type=ProxyStringType("Fileset"),
+            help="Fileset which should be renamed: ID or Fileset:ID")
+        rename.add_argument(
+            "--no-move", action="store_true",
+            help="do not move original files and import log")
+
+        repos = parser.add(sub, self.repos)
         repos.add_style_argument()
         repos.add_argument(
             "--managed", action="store_true",
             help="repos only managed repositories")
 
-        sets = parser.add(sub, self.sets, self.sets.__doc__)
+        sets = parser.add(sub, self.sets)
         sets.add_style_argument()
         sets.add_limit_arguments()
         sets.add_argument(
@@ -79,11 +268,11 @@ class FsControl(BaseControl):
             "--without-images", action="store_true",
             help="list only sets without images (i.e. corrupt)")
         sets.add_argument(
-            "--with-transfer", nargs="*", action="append",
+            "--with-transfer", nargs="+", action="append",
             help="list sets by their in-place import method")
         sets.add_argument(
             "--check", action="store_true",
-            help="checks each fileset for validity")
+            help="checks each fileset for validity (admins only)")
 
         for x in (images, sets):
             x.add_argument(
@@ -205,6 +394,87 @@ Examples:
             tb.row(idx, *tuple(values))
         self.ctx.out(str(tb.build()))
 
+    def rename(self, args):
+        """Moves an existing fileset to a new location (admin-only)
+
+After the import template (omero.fs.repo.path) has been changed,
+it may be useful to rename an existing fileset to match the new
+template. By default the original files and import log are also
+moved.
+"""
+        fid = args.fileset.id.val
+        client = self.ctx.conn(args)
+        uid = self.ctx._event_context.userId
+        isAdmin = self.ctx._event_context.isAdmin
+        query = client.sf.getQueryService()
+
+        if not isAdmin:
+            self.error_admin_only(fatal=True)
+
+        try:
+            fileset = query.get("Fileset", fid, {"omero.group": "-1"})
+            p = fileset.details.permissions
+            oid = fileset.details.owner.id.val
+            gid = fileset.details.group.id.val
+            if not p.canEdit():
+                self.ctx.die(110, "Cannot edit Fileset:%s" % fid)
+            elif oid != uid and not isAdmin:
+                self.ctx.die(111, "Fileset:%s belongs to %s" % (fid, oid))
+        except ServerError, se:
+            self.ctx.die(
+                112, "Could not load Fileset:%s- %s" % (fid, se.message))
+
+        new_client = None
+        if oid != uid:
+            user = query.get("Experimenter", oid)
+            group = query.get("ExperimenterGroup", gid)
+            principal = Principal(
+                user.omeName.val, group.name.val, "Sessions")
+            service = client.sf.getSessionService()
+            session = service.createSessionWithTimeouts(
+                principal, 0, 30000)
+            props = client.getPropertyMap()
+            new_client = Client(props)
+            new_client.joinSession(session.uuid.val)
+            client = new_client
+
+        tomove = []
+        try:
+            mrepo = client.getManagedRepository()
+            root = mrepo.root()
+            prefix = prep_directory(client, mrepo)
+            self.ctx.err("Renaming Fileset:%s to %s" % (fid, prefix))
+            tomove = rename_fileset(client, mrepo, fileset, prefix)
+        finally:
+            if new_client is not None:
+                new_client.__del__()
+
+        if not tomove:
+            self.ctx.die(113, "No files moved!")
+        elif not args.no_move:
+            from omero.grid import RawAccessRequest
+            for from_path, to_path in tomove:
+                raw = RawAccessRequest()
+                raw.repoUuid = root.hash.val
+                raw.command = "mv"
+                raw.args = [from_path, to_path]
+                self.ctx.err("Moving %s to %s" % (from_path, to_path))
+                try:
+                    self.ctx._client.submit(raw)
+                except CmdError, ce:
+                    self.ctx.die(114, ce.err)
+        else:
+            self.ctx.err(
+                "Done. You will now need to move these files manually:")
+            self.ctx.err(
+                "-----------------------------------------------------")
+            b = "".join([root.path.val, root.name.val])
+            for from_path, to_path in tomove:
+                t = "/".join([b, to_path])
+                f = "/".join([b, from_path])
+                cmd = "mv %s %s" % (f, t)
+                self.ctx.out(cmd)
+
     def repos(self, args):
         """List all repositories.
 
@@ -267,23 +537,30 @@ Examples:
         from omero.constants.namespaces import NSFILETRANSFER
         from omero_sys_ParametersI import ParametersI
         from omero.rtypes import unwrap
-        from omero.cmd import OK
 
         client = self.ctx.conn(args)
         service = client.sf.getQueryService()
+        admin = client.sf.getAdminService()
 
+        if args.check and not admin.getEventContext().isAdmin:
+            self.error_admin_only(fatal=True)
+
+        annselect = (
+            "(select ann.textValue from Fileset f4 "
+            "join f4.annotationLinks fal join fal.child ann "
+            "where f4.id = fs.id and ann.ns =:ns) ")
         select = (
             "select fs.id, fs.templatePrefix, "
-            "(select size(f2.images) from Fileset f2 where f2.id = fs.id),"
-            "(select size(f3.usedFiles) from Fileset f3 where f3.id = fs.id),"
-            "ann.textValue ")
+            "(select size(f2.images) from Fileset f2 "
+            "where f2.id = fs.id),"
+            "(select size(f3.usedFiles) from Fileset f3 "
+            "where f3.id = fs.id),") \
+            + annselect
         query1 = (
             "from Fileset fs "
-            "left outer join fs.annotationLinks fal "
-            "left outer join fal.child ann "
-            "where (ann is null or ann.ns = :ns) ")
+            "where 1 = 1 ")
         query2 = (
-            "group by fs.id, fs.templatePrefix, ann.textValue ")
+            "group by fs.id, fs.templatePrefix ")
 
         if args.order:
             if args.order == "newest":
@@ -315,6 +592,13 @@ Examples:
         tb = self._table(args)
         tb.cols(cols)
         tb.page(args.offset, args.limit, count)
+
+        # Map any requested transfers as well
+        if args.with_transfer:
+            restricted = [TRANSFERS.get(x, x) for x in args.with_transfer[0]]
+        else:
+            restricted = None
+
         for idx, obj in enumerate(objs):
 
             # Map the transfer name to the CLI symbols
@@ -325,18 +609,9 @@ Examples:
                 ns = TRANSFERS[ns]
             obj[-1] = ns
 
-            # Map any requested transfers as well
-            allowed = args.with_transfer is not None \
-                and args.with_transfer or []
-            for idx, x in enumerate(allowed):
-                x = x[0]  # Strip argparse wrapper
-                x = TRANSFERS.get(x, x)  # map
-                allowed[idx] = x
-
             # Filter based on the ns symbols
-            if allowed:
-                if ns not in allowed:
-                    continue
+            if restricted and ns not in restricted:
+                continue
 
             # Now perform check if required
             if args.check:
@@ -363,14 +638,12 @@ Examples:
                     raw.repoUuid = desc.hash.val
                     raw.command = "checksum"
                     raw.args = map(str, row)
-                    cb = client.submit(raw)
                     try:
-                        rsp = cb.getResponse()
-                        if not isinstance(rsp, OK):
-                            err = rsp
-                            break
-                    finally:
+                        cb = client.submit(raw)
                         cb.close(True)
+                    except CmdError, ce:
+                        err = ce.err
+                        self.ctx.dbg(err)
 
                 if err:
                     obj.append("ERROR!")

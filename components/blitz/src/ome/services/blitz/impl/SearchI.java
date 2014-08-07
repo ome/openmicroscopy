@@ -20,6 +20,7 @@ import omero.api.AMD_Search_allTypes;
 import omero.api.AMD_Search_and;
 import omero.api.AMD_Search_byAnnotatedWith;
 import omero.api.AMD_Search_byFullText;
+import omero.api.AMD_Search_byLuceneQueryBuilder;
 import omero.api.AMD_Search_byGroupForTags;
 import omero.api.AMD_Search_byHqlQuery;
 import omero.api.AMD_Search_bySimilarTerms;
@@ -61,10 +62,6 @@ import omero.api.AMD_Search_setMergedBatches;
 import omero.api.AMD_Search_setReturnUnloaded;
 import omero.api.AMD_Search_setUseProjections;
 import omero.api.AMD_Search_unordered;
-import omero.api.AMD_StatefulServiceInterface_activate;
-import omero.api.AMD_StatefulServiceInterface_close;
-import omero.api.AMD_StatefulServiceInterface_passivate;
-import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
 import omero.api._SearchOperations;
 import omero.model.Annotation;
 import omero.model.Details;
@@ -127,6 +124,13 @@ public class SearchI extends AbstractCloseableAmdServant implements _SearchOpera
     public void byFullText_async(AMD_Search_byFullText __cb, String query,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, query);
+
+    }
+    
+    public void byLuceneQueryBuilder_async(AMD_Search_byLuceneQueryBuilder __cb, String fields, String from,
+            String to, String dateType, String query, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, fields, from,
+                to, dateType, query);
 
     }
 

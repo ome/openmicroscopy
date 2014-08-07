@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.calls.AdminLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -183,13 +183,13 @@ public class AdminLoader
      * @return The {@link BatchCall}.
      */
     private BatchCall updateGroup(final SecurityContext ctx,
-    		final GroupData group, final int permissions)
+    		final GroupData group)
     {
         return new BatchCall("Update group") {
             public void doCall() throws Exception
             {
             	AdminService os = context.getAdminService();
-                result = os.updateGroup(ctx, group, permissions);
+                result = os.updateGroup(ctx, group);
             }
         };
     }
@@ -436,13 +436,12 @@ public class AdminLoader
      * 
      * @param ctx The security context.
      * @param group The group to update. Mustn't be <code>null</code>.
-     * @param permissions The desired permissions level or <code>-1</code>.
      */
-    public AdminLoader(SecurityContext ctx, GroupData group, int permissions)
+    public AdminLoader(SecurityContext ctx, GroupData group)
     {
     	if (group == null)
     		throw new IllegalArgumentException("Group not valid.");
-    	loadCall = updateGroup(ctx, group, permissions);
+    	loadCall = updateGroup(ctx, group);
     }
     
     /**

@@ -34,6 +34,7 @@ jQuery.fn.viewportImage = function(options) {
     var wrapdiv = jQuery(dragdiv_dom.parentNode);
     var overlay = $('<img id="'+insideId+'-ovl">').appendTo(dragdiv);
     overlay.addClass('weblitz-viewport-img').hide();
+    var zoomCenter = null;
     
     // big images
     var viewerBean = null;
@@ -286,22 +287,67 @@ jQuery.fn.viewportImage = function(options) {
     this.getZoom = function () {
         return cur_zoom;
     };
-    this.setZoom = function (val, width, height) {
+
+
+    // setZoomCenter sets zoomCenter with a short timeout to reset to null
+    var clearCenterTimeout;
+    var setZoomCenter = function(center) {
+      zoomCenter = zoomCenter || center;
+      if (clearCenterTimeout) {
+        clearTimeout(clearCenterTimeout);
+      }
+      clearCenterTimeout = setTimeout(function(){
+        zoomCenter = null;
+      }, 100);
+    };
+    var getZoomCenter = function() {
+      return zoomCenter;
+    };
+
+    this.setZoom = function (val, width, height, center) {
       if (width != null && height != null) {
         orig_width = width;
         orig_height = height;
       }
       width = parseInt(orig_width*val/100, 10);
       height = parseInt(orig_height*val/100, 10);
+
+      // center is point in viewport - image should zoom on this spot
+      if (center) {
+
+        var left = parseInt(dragdiv.css('left'), 10),
+            top = parseInt(dragdiv.css('top'), 10);
+
+        // find point on image that must stay at viewport centre (as a fraction of w or h)
+        var imgx = (center.x - left) / image.attr('width');
+        var imgy = (center.y - top) / image.attr('height');
+
+        // cache the viewport centre and image centre to re-use for a whole series of zoom events
+        // only sets zoomCenter if expired (sets at start of new zoom)
+        setZoomCenter({'vp':center, 'image':{'x':imgx, 'y':imgy}});
+
+        var zc = getZoomCenter();
+        if (zc) {
+          imgx = zc.image.x;
+          imgy = zc.image.y;
+          var cx = zc.vp.x;
+          var cy = zc.vp.y;
+          // after the image is resized to width & height, need to re-calculate left & top
+          var newleft = -parseInt((imgx * width) - cx, 10);
+          var newtop = -parseInt((imgy * height) - cy, 10);
+          dragdiv.css({'top': newtop+'px', 'left': newleft+'px'});
+        }
+      }
+
       cur_zoom = val;
       imagewidth = width;
       imageheight = height;
       this.doMove(0, 0);
       if (!changing) {
-	changing = setTimeout(function () {
+          changing = setTimeout(function () {
           image.trigger("zoom", [cur_zoom]);
           changing = null;
-			      }, 20);
+        }, 20);
       }
       image.trigger("instant_zoom", [cur_zoom]);
       image.attr({width: width, height: height});
@@ -321,16 +367,22 @@ jQuery.fn.viewportImage = function(options) {
       this.setZoom(parseInt(ztf, 10));
     };
 
-    this.doZoom = function (increment, justDirection) {
+    this.doZoom = function (increment, justDirection, center) {
       if (justDirection) {
         var t = Math.max(1,((imagewidth+3)*cur_zoom/imagewidth) - cur_zoom);
         increment = cur_zoom + (increment>0?t:-t);
       }
-      this.setZoom(parseInt(increment, 10));
+      this.setZoom(parseInt(increment, 10), null, null, center);
     };
 
     dragdiv.bind('mousewheel', function (e, delta) {
-      _this.doZoom(delta, true);
+      // calculate zoom point within viewport
+       var o = wrapdiv.offset(),
+          relX = e.pageX - o.left,
+          relY = e.pageY - o.top,
+          cxcy = {'x':relX,
+              'y':relY};
+      _this.doZoom(delta, true, cxcy);
       e.preventDefault();
     });
 

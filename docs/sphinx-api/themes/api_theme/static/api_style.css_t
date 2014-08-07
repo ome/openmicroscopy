@@ -1,0 +1,38 @@
+@import url("sphinxdoc.css");
+
+div.sphinxsidebar {
+    float: left;
+}
+
+div.bodywrapper {
+    margin: 0 0 0 240px;
+}
+
+div.sphinxsidebarwrapper {
+    padding: 10px 0px 0px 10px;
+}
+
+div.admonition, div.warning {
+    display: inline-block;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-size: medium;
+    border-style: none;
+}
+
+div.document {
+    font-size: 14px;
+    line-height 150%;
+}
+
+div.related {
+    font-size: 14px;
+}
+
+a.internal > em {
+    /* Remove italics from hyperlinks to internal content*/
+    font-style: normal;
+}

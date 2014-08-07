@@ -102,7 +102,6 @@ public class MeasurementTable {
     Long makeImage(omero.client client) throws ServerError {
         Image image = new ImageI();
         image.setName(omero.rtypes.rstring("MeasurementTable Example"));
-        image.setAcquisitionDate(omero.rtypes.rtime(System.currentTimeMillis()));
         image = (Image) factory.getUpdateService().saveAndReturnObject(image);
         return image.getId().getValue();
     }

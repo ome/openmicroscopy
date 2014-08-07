@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.search;
+package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 
 //Java imports
@@ -37,6 +37,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
@@ -49,13 +50,20 @@ import javax.swing.border.BevelBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+
+
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
+
+
 
 //Application-internal dependencies
 import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.search.SearchContextMenu;
+import org.openmicroscopy.shoola.util.ui.search.SearchObject;
+import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
 
 /** 
  * Basic panel with text field for searching.

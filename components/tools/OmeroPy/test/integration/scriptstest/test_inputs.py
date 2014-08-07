@@ -25,6 +25,7 @@
 """
 
 import test.integration.library as lib
+import pytest
 import omero
 import omero.processor
 import omero.scripts
@@ -92,6 +93,7 @@ class TestInputs(lib.ITest):
             finally:
                 rfs.close()
 
+    @pytest.mark.xfail(reason="ticket #12314")
     def testInputs(self):
         import logging
         logging.basicConfig(level=10)

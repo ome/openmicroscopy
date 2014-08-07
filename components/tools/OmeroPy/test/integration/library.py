@@ -184,7 +184,8 @@ class ITest(object):
         img.acquisitionDate = rtime(0)
         return img
 
-    def import_image(self, filename=None, client=None, extra_args=None):
+    def import_image(self, filename=None, client=None, extra_args=None,
+                     **kwargs):
         if filename is None:
             filename = self.OmeroPy / ".." / ".." / ".." / \
                 "components" / "common" / "test" / "tinyTest.d3d.dv"
@@ -273,7 +274,8 @@ class ITest(object):
         fake = create_path(name, "&series=%d%s.fake" % (seriesCount, append))
         if with_companion:
             open(fake.abspath() + ".ini", "w")
-        pixelIds = self.import_image(filename=fake.abspath(), client=client)
+        pixelIds = self.import_image(filename=fake.abspath(), client=client,
+                                     **kwargs)
         assert seriesCount == len(pixelIds)
 
         images = []
@@ -391,6 +393,22 @@ class ITest(object):
         # Reloading image to prevent error on old pixels updateEvent
         image = containerService.getImages("Image", [imageId], None)[0]
         return image
+
+    def get_fileset(self, i, client=None):
+        """
+        Takes an image object and return a fileset object
+        """
+        if client is None:
+            client = self.client
+        query = client.sf.getQueryService()
+
+        params = omero.sys.ParametersI()
+        params.addIds([x.id.val for x in i])
+        query1 = "select fs from Fileset fs "\
+            "left outer join fetch fs.images as image "\
+            "where image.id in (:ids)"
+        rv = unwrap(query.projection(query1, params))
+        return rv[0][0]
 
     def index(self, *objs):
         if objs:

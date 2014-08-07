@@ -15,9 +15,6 @@
 /***********************************/
 /* Horizontal Slider generic rules */
 
-.hslider { 
-}
-
 .hslider .slider-line { 
   cursor: pointer;
   font-size: 1px;
@@ -71,9 +68,6 @@
 
 /*********************************/
 /* Vertical Slider generic rules */
-
-.vslider { 
-}
 
 .vslider .slider-line { 
   cursor: pointer;

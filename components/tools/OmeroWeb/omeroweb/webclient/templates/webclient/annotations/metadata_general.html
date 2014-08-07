@@ -488,7 +488,7 @@
             <div style="clear:both"></div>
             <div id="fs_paths_popup" style="display:none; background: #fff; border: solid 1px #ddd; margin-bottom:5px">
                 <img title="Close" src="{% static 'webgateway/img/close.gif' %}" style="float:right; margin:3px"/>
-                <div style="margin: 4px">{{ manager.image.countImportedImageFiles }} Image file{{ manager.image.countImportedImageFiles|pluralize:'s'}}:</div>
+                <div style="margin: 4px">{{ manager.image.getImportedFilesInfo.count }} Image file{{ manager.image.getImportedFilesInfo.count|pluralize:'s'}}:</div>
                 <textarea readonly="true" style="width:99%; float:right; resize:none; border:none; padding:5px 0 0 0; margin:0px"></textarea>
                 <div style="clear:both"></div>
             </div>

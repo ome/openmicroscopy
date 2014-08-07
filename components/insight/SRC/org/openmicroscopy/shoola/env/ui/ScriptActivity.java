@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.ui.ScriptActivity
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -102,7 +102,7 @@ public class ScriptActivity
         if (script == null)
             throw new IllegalArgumentException("Parameters not valid.");
         if (script.isParametersLoaded() && !script.allRequiredValuesPopulated())
-            throw new IllegalArgumentException("No all required fields " +
+            throw new IllegalArgumentException("Not all required fields " +
                     "have been filled.");
         initialize(DESCRIPTION_RUN_CREATION+script.getDisplayedName(),
                 script.getIcon());

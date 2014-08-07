@@ -38,7 +38,6 @@ public class PaginationTest extends AbstractManagedContextTest {
             Image[] images = new Image[10000];
             for (int i = 0; i < images.length; i++) {
                 images[i] = new Image();
-                images[i].setAcquisitionDate(new Timestamp(0));
                 images[i].setName("__bigtest__");
             }
             ids = iUpdate.saveAndReturnIds(images);
@@ -110,8 +109,6 @@ public class PaginationTest extends AbstractManagedContextTest {
         Dataset d = (Dataset) iQuery.findByQuery("select d from Dataset d "
                 + "join fetch d.imageLinks " + "where size(d.imageLinks) = "
                 + size, new Parameters(new Filter().page(0, 1)));
-        java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System
-                .currentTimeMillis());
         if (d == null) {
             d = new Dataset("big dataset");
             d = iUpdate.saveAndReturnObject(d);
@@ -119,7 +116,7 @@ public class PaginationTest extends AbstractManagedContextTest {
                 DatasetImageLink[] links = new DatasetImageLink[batch];
                 for (int j = 0; j < batch; j++) {
                     links[j] = new DatasetImageLink();
-                    links[j].link(d.proxy(), new Image(testTimestamp,
+                    links[j].link(d.proxy(), new Image(
                             "image in big dataset " + i * i));
                 }
                 iUpdate.saveArray(links);
@@ -136,8 +133,6 @@ public class PaginationTest extends AbstractManagedContextTest {
                         + "where size(p.datasetLinks) = " + batch
                         + " and size(d.imageLinks) = " + size, new Parameters(
                         new Filter().page(0, 1)));
-        java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System
-                .currentTimeMillis());
         if (p == null) {
             p = new Project("big project");
             p = iUpdate.saveAndReturnObject(p);
@@ -149,7 +144,7 @@ public class PaginationTest extends AbstractManagedContextTest {
                 DatasetImageLink[] links = new DatasetImageLink[batch];
                 for (int j = 0; j < batch; j++) {
                     links[j] = new DatasetImageLink();
-                    links[j].link(d.proxy(), new Image(testTimestamp,
+                    links[j].link(d.proxy(), new Image(
                             "image in big project " + i * i));
                 }
                 iUpdate.saveArray(links);

@@ -28,7 +28,6 @@ from omero.util.temp_files import create_path
 from omero.cli import NonZeroReturnCode
 
 
-@pytest.mark.cliobj
 class TestObj(CLITest):
 
     def setup_method(self, method):

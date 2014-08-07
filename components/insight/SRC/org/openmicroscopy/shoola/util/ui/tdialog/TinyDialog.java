@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.tdialog.TinyWindow
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -70,7 +70,7 @@ public class TinyDialog
     public final static int BOTH = 0;
 
     /** Indicates to only show the close button. */
-    public final static int		CLOSE_ONLY = 1;
+    public final static int CLOSE_ONLY = 1;
 
     /** Indicates to only show the size button. */
     public final static int SIZE_ONLY = 2;
@@ -88,7 +88,7 @@ public class TinyDialog
     private Dimension restoreSize;
 
     /** The View component that renders this frame. */
-    protected TinyDialogUI  uiDelegate;
+    protected TinyDialogUI uiDelegate;
 
     /** The Controller component that renders this frame. */
     protected DialogControl controller;
@@ -107,7 +107,7 @@ public class TinyDialog
 
     /** 
      * One of the following: {@link #BOTH}, {@link #CLOSE_ONLY} or 
-     * {@link #SIZE_ONLY}. 
+     * {@link #SIZE_ONLY}.
      */
     private int buttonIndex;
 
@@ -433,8 +433,13 @@ public class TinyDialog
     public void setResizable(boolean b)
     {
         super.setResizable(b);
-        if (b)
-            getRootPane().addMouseMotionListener(new BorderListener(this));
+        if (b) {
+            BorderListener l = new BorderListener(this);
+            getRootPane().addMouseMotionListener(l);
+            getRootPane().addMouseListener(l);
+            //increase border.
+            uiDelegate.makeBorders(4);
+        }
     }
 
     /** 

@@ -44,6 +44,7 @@ import javax.swing.JSplitPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
@@ -220,16 +221,20 @@ class MetadataViewerUI
             ExperimenterData exp;
             while (i.hasNext()) {
                 exp = (ExperimenterData) i.next();
-                ImageData img = (ImageData) model.getRefObject();
-                boolean isOwnerSetting = img.getOwner().getId() == exp.getId();
-                item = new ViewedByItem(exp, (RndProxyDef) m.get(exp),
-                        isOwnerSetting);
-                item.addPropertyChangeListener(ViewedByItem.VIEWED_BY_PROPERTY,
-                        this);
-                viewedByItems.add(item);
+                ImageData img = model.getImage();
+                if (img != null) {
+                    boolean isOwnerSetting = img.getOwner().getId() == exp.getId();
+                    item = new ViewedByItem(exp, (RndProxyDef) m.get(exp),
+                            isOwnerSetting);
+                    item.addPropertyChangeListener(ViewedByItem.VIEWED_BY_PROPERTY,
+                            this);
+                    viewedByItems.add(item);
+                }
             }
-            
-            model.getEditor().getRenderer().loadRndSettings(true, null);
+            Renderer rnd = model.getEditor().getRenderer();
+            if (rnd != null) {
+                rnd.loadRndSettings(true, null);
+            }
         }
 	
 	/** 
@@ -246,7 +251,9 @@ class MetadataViewerUI
                     item.setImage(img);
                 }
             }
-            model.getEditor().getRenderer().loadRndSettings(false, viewedByItems);
+            Renderer renderer = model.getEditor().getRenderer();
+            if (renderer != null) // the renderer might not have been set yet
+                model.getEditor().getRenderer().loadRndSettings(false, viewedByItems);
         }
 	
 	/**

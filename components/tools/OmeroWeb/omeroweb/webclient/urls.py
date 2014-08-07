@@ -104,6 +104,9 @@ urlpatterns = patterns('django.views.generic.simple',
     # Fileset query (for delete or chgrp dialogs) obj-types and ids in REQUEST data
     url( r'^fileset_check/(?P<action>((?i)delete|chgrp))/$', views.fileset_check, name="fileset_check"),
 
+    # Popup for downloading original archived files for images
+    url( r'^download_placeholder/$', views.download_placeholder, name="download_placeholder" ),
+
     # chgrp - 'group_id', obj-types and ids in POST data
     url( r'^chgrp/$', views.chgrp, name="chgrp"),
     

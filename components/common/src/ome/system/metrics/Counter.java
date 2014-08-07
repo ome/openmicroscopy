@@ -22,27 +22,21 @@ package ome.system.metrics;
 /**
  * Thin wrapper around {@link com.codahale.metrics.Counter}
  */
-public class Counter {
-
-
-    private final com.codahale.metrics.Counter c;
-
-    public Counter(com.codahale.metrics.Counter c) {
-        this.c = c;
-    }
+public interface Counter {
 
     /**
      * @see com.codahale.metrics.Counter#inc
      */
-    public void inc() {
-        c.inc();
-    }
+    void inc();
 
     /**
      * @see com.codahale.metrics.Counter#getCount()
      */
-    public long getCount() {
-        return c.getCount();
-    }
+    long getCount();
+
+    /**
+     * @see com.codahale.metrics.Counter#dec()}
+     */
+    void dec();
 
 }

@@ -119,19 +119,19 @@ jQuery._WeblitzPlateview = function (container, options) {
     var table = $('<table></table>').appendTo(_this.self);
     var tr = $('<tr></tr>').appendTo(table);
     tr.append('<th>&nbsp;</th>');
-    for (i in data.collabels) {
+    for (var i=0; i<data.collabels.length; i++) {
       tr.append('<th>'+data.collabels[i]+'</th>');
     }
     var tclick = function (tdata,thumb) {
       return function () {
         _this.self.trigger('thumbClick', [tdata, this]);
-      }
+      };
     };
-    for (i in data.rowlabels) {
+    for (i=0; i < data.rowlabels.length; i++) {
       tr = $('<tr></tr>').appendTo(table);
       tr.append('<th>'+data.rowlabels[i]+'</th>');
-      for (j in data.grid[i]) {
-        if (data.grid[i][j] == null) {
+      for (var j=0; j<data.grid[i].length; j++) {
+        if (data.grid[i][j] === null) {
         tr.append('<td class="placeholder"><div class="placeholder" style="width:'+opts.width+'px;height:'+opts.height+'px;line-height:'+opts.height+'px;">&nbsp;</div></td>');
         } else {
           data.grid[i][j]._wellpos = data.rowlabels[i]+data.collabels[j];

@@ -32,9 +32,13 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -47,6 +51,8 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -56,8 +62,8 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 
-import org.openmicroscopy.shoola.env.LookupNames;
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
@@ -69,9 +75,12 @@ import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
+import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResult;
+import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
+import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -80,6 +89,7 @@ import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.NetworkChecker;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.search.LuceneQueryBuilder;
 import omero.ResourceError;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportCandidates;
@@ -90,7 +100,7 @@ import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.util.ProportionalTimeEstimatorImpl;
 import ome.formats.importer.util.TimeEstimator;
-
+import ome.parameters.Filter;
 import ome.system.UpgradeCheck;
 import ome.util.checksum.ChecksumProvider;
 import ome.util.checksum.ChecksumProviderFactory;
@@ -211,6 +221,7 @@ import omero.model.TermAnnotationI;
 import omero.model.TimestampAnnotation;
 import omero.model.TimestampAnnotationI;
 import omero.model.Well;
+import omero.model.WellI;
 import omero.model.WellSample;
 import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.model.XmlAnnotation;
@@ -1601,36 +1612,6 @@ class OMEROGateway
 		return null;
 	}
 
-	/**
-	 * Converts the specified type to its corresponding type for search.
-	 *
-	 * @param nodeType The type to convert.
-	 * @return See above.
-	 */
-	private String convertTypeForSearch(Class nodeType)
-	{
-		if (nodeType.equals(Image.class))
-			return ImageI.class.getName();
-		else if (nodeType.equals(TagAnnotation.class) ||
-				nodeType.equals(TagAnnotationData.class))
-			return TagAnnotationI.class.getName();
-		else if (nodeType.equals(BooleanAnnotation.class) ||
-				nodeType.equals(BooleanAnnotationData.class))
-			return BooleanAnnotationI.class.getName();
-		else if (nodeType.equals(TermAnnotation.class) ||
-				nodeType.equals(TermAnnotationData.class))
-			return TermAnnotationI.class.getName();
-		else if (nodeType.equals(FileAnnotation.class) ||
-				nodeType.equals(FileAnnotationData.class))
-			return FileAnnotationI.class.getName();
-		else if (nodeType.equals(CommentAnnotation.class) ||
-				nodeType.equals(TextualAnnotationData.class))
-			return CommentAnnotationI.class.getName();
-		else if (nodeType.equals(TimestampAnnotation.class) ||
-				nodeType.equals(TimeAnnotationData.class))
-			return TimestampAnnotationI.class.getName();
-		throw new IllegalArgumentException("type not supported");
-	}
 
 	/**
 	 * Creates a new instance.
@@ -3536,16 +3517,73 @@ class OMEROGateway
 	IObject findIObject(SecurityContext ctx, String klassName, long id)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
-		try {
-		    IQueryPrx service = c.getQueryService();
-			return service.find(klassName, id);
-		} catch (Throwable t) {
-			handleException(t, "Cannot retrieve the requested object with "+
-					"object ID: "+id);
-		}
-		return null;
+	    return findIObject(ctx, klassName, id, false);
 	}
+	
+	/**
+	 * Find an IObject by HQL query
+	 * @param ctx The security context
+	 * @param query The hql query string
+	 * @param allGroups If true search for all groups, other just for
+	 *   the SecurityContext's group
+	 * @return The object, if found
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	IObject findIObjectByQuery(SecurityContext ctx, String query, boolean allGroups)
+                throws DSOutOfServiceException, DSAccessException
+        {
+            Connector c = getConnector(ctx, true, false);
+                try {
+                    Map<String, String> m = new HashMap<String, String>();
+                    if(allGroups) {
+                        m.put("omero.group", "-1");
+                    }
+                    else {
+                        m.put("omero.group", ""+ctx.getGroupID());
+                    }
+                    
+                    IQueryPrx service = c.getQueryService();
+                        return service.findByQuery(query, null, m);
+                } catch (Throwable t) {
+                        handleException(t, "Cannot retrieve the requested object with "+
+                                        "query: "+query);
+                }
+                return null;
+        }
+	
+	/**
+         * Retrieves an updated version of the specified object.
+         *
+         * @param ctx The security context.
+         * @param klassName The type of object to retrieve.
+         * @param id The object's id.
+         * @return The last version of the object.
+         * @throws DSOutOfServiceException If the connection is broken, or logged in
+         * @throws DSAccessException If an error occurred while trying to
+         * retrieve data from OMERO service.
+         */
+        IObject findIObject(SecurityContext ctx, String klassName, long id, boolean allGroups)
+                throws DSOutOfServiceException, DSAccessException
+        {
+            Connector c = getConnector(ctx, true, false);
+                try {
+                    Map<String, String> m = new HashMap<String, String>();
+                    if(allGroups) {
+                        m.put("omero.group", "-1");
+                    }
+                    else {
+                        m.put("omero.group", ""+ctx.getGroupID());
+                    }
+                    
+                    IQueryPrx service = c.getQueryService();
+                        return service.find(klassName, id, m);
+                } catch (Throwable t) {
+                        handleException(t, "Cannot retrieve the requested object with "+
+                                        "object ID: "+id);
+                }
+                return null;
+        }
 
 	/**
 	 * Retrieves the groups visible by the current experimenter.
@@ -4110,17 +4148,57 @@ class OMEROGateway
 	}
 
 	/**
+	 * Updates the group's permissions
+	 * @param ctx The security context.
+         * @param group The group to update.
+         * @param permissions The new permissions.
+	 * @return
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+        RequestCallback updateGroupPermissions(SecurityContext ctx,
+                GroupData group, int permissions) throws DSOutOfServiceException,
+                DSAccessException {
+            if (group.getPermissions().getPermissionsLevel() != permissions
+                    && permissions >= 0) {
+                try {
+                    String r = "rw----";
+                    switch (permissions) {
+                        case GroupData.PERMISSIONS_GROUP_READ:
+                            r = "rwr---";
+                            break;
+                        case GroupData.PERMISSIONS_GROUP_READ_LINK:
+                            r = "rwra--";
+                            break;
+                        case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+                            r = "rwrw--";
+                            break;
+                        case GroupData.PERMISSIONS_PUBLIC_READ:
+                            r = "rwrwr-";
+                    }
+                    Chmod chmod = new Chmod(REF_GROUP, group.getId(), null, r);
+                    List<Request> l = new ArrayList<Request>();
+                    l.add(chmod);
+                    return getConnector(ctx, true, false).submit(l, null);
+                } catch (Throwable e) {
+                    handleException(e, "Cannot update the group's permissions. ");
+                }
+    
+            }
+            return null;
+        }
+	
+	/**
 	 * Updates the specified group.
 	 *
 	 * @param ctx The security context.
 	 * @param group	The group to update.
-	 * @param permissions The new permissions.
+	 * 
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
-	RequestCallback updateGroup(SecurityContext ctx, GroupData group,
-			int permissions)
+	void updateGroup(SecurityContext ctx, GroupData group)
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Connector c = getConnector(ctx, true, false);
@@ -4128,31 +4206,9 @@ class OMEROGateway
 		    IAdminPrx svc = c.getAdminService();
 			ExperimenterGroup g = group.asGroup();
 			svc.updateGroup(g);
-			if (group.getPermissions().getPermissionsLevel() != permissions
-					&& permissions >= 0) {
-				String r = "rw----";
-				switch (permissions) {
-					case GroupData.PERMISSIONS_GROUP_READ:
-						r = "rwr---";
-						break;
-					case GroupData.PERMISSIONS_GROUP_READ_LINK:
-						r = "rwra--";
-						break;
-					case GroupData.PERMISSIONS_GROUP_READ_WRITE:
-						r = "rwrw--";
-						break;
-					case GroupData.PERMISSIONS_PUBLIC_READ:
-						r = "rwrwr-";
-				}
-				Chmod chmod = new Chmod(REF_GROUP, group.getId(), null, r);
-				List<Request> l = new ArrayList<Request>();
-				l.add(chmod);
-				return getConnector(ctx, true, false).submit(l, null);
-			}
 		} catch (Throwable t) {
 			handleException(t, "Cannot update the group. ");
 		}
-		return null;
 	}
 
 	/**
@@ -4921,6 +4977,210 @@ class OMEROGateway
 		return new HashSet();
 	}
 
+	
+	/**
+         * Searches for data.
+         *
+         * @param ctx The security context.
+         * @param context The context of search 
+         *         (if context.groupId == -1 the scope of the search will be all groups, otherwise
+         *          the scope of the search will be the group set in the security context)
+         * @return The found objects.
+         * @throws DSOutOfServiceException  If the connection is broken, or logged
+         *                                  in.
+         * @throws DSAccessException        If an error occurred while trying to
+         *                                  retrieve data from OMEDS service.
+         */
+	AdvancedSearchResultCollection search(SecurityContext ctx, SearchParameters context)
+                throws DSOutOfServiceException, DSAccessException {
+    
+	    AdvancedSearchResultCollection result = new AdvancedSearchResultCollection();
+    
+	    if(context.getTypes().isEmpty()) {
+	        return result;
+	    }
+	    
+            Connector c = getConnector(ctx, true, false);
+            SearchPrx service = null;
+            service = c.getSearchService();
+            
+            int batchSize = context.getTypes().size()==1 ? 1000 : context.getTypes().size()*500;
+            
+            for (Class<? extends DataObject> type : context.getTypes()) {
+                try {
+                    // set general parameters
+                    service.clearQueries();
+                    service.setAllowLeadingWildcard(true);
+                    service.setCaseSentivice(false);
+                    String searchForClass = PojoMapper.convertTypeForSearch(type);
+                    service.onlyType(searchForClass);
+                    service.setBatchSize(batchSize);
+    
+                    // set the owner/group restriction
+                    if(context.getUserId()>=0) {
+                        Details ownerRestriction = new DetailsI();
+                        Experimenter exp = (Experimenter) findIObject(ctx, Experimenter.class.getName(), context.getUserId());
+                        ownerRestriction.setOwner(exp);
+//                        ExperimenterGroup group = (ExperimenterGroup) findIObject(ctx, ExperimenterGroup.class.getName(), ctx.getGroupID());
+//                        ownerRestriction.setGroup(group);
+                        service.onlyOwnedBy(ownerRestriction);
+                    }
+                    
+                    // set time
+                    Date from = null;
+                    Date to = null;
+                    String dateType = null;
+                    if(context.getDateType()!=-1) {
+                           Timestamp start = context.getStart();
+                           Timestamp end = context.getEnd();
+                           from = start!=null ? new Date(start.getTime()) : null;
+                           to = end!=null ? new Date(end.getTime()) : null;
+                           if(context.getDateType()==SearchParameters.DATE_ACQUISITION)
+                               dateType = LuceneQueryBuilder.DATE_ACQUISITION;
+                           else 
+                               dateType = LuceneQueryBuilder.DATE_IMPORT;
+                    }
+                    
+                    Map<String, String> m = new HashMap<String, String>();
+                    if(context.getGroupId()==SearchParameters.ALL_GROUPS_ID) {
+                        m.put("omero.group", "-1");
+                    }
+                    else {
+                        m.put("omero.group", ""+ctx.getGroupID());
+                    }
+                    
+                    if (isVersion53()) {
+                        // the lucene query can be build server side
+                        DateFormat df = new SimpleDateFormat("yyyyMMdd");
+                        String fields = resolveScopeIdsAsString(context.getScope());
+                        String dFrom = from != null ? df.format(from) : null;
+                        String dTo = to != null ? df.format(to) : null;
+                        service.byLuceneQueryBuilder(fields, dFrom, dTo, dateType,
+                                context.getQuery(), m);
+                    } else {
+                        // have to build lucene query client side for versions pre 5.0.3
+                        String query = LuceneQueryBuilder.buildLuceneQuery(
+                                resolveScopeIds(context.getScope()), from, to,
+                                dateType, context.getQuery());
+                        dsFactory.getLogger().info(this, "Performing lucene search for type " + type.getSimpleName() + ": " + query);
+                        service.byFullText(query, m);
+                    }
+                    
+                    try {
+                        if (service.hasNext(m)) {
+                            List<IObject> l = service.results(m);
+                            Iterator<IObject> k = l.iterator();
+                            IObject object;
+                            long id;
+                            while (k.hasNext()) {
+                                object = k.next();
+                                if (searchForClass.equals(object.getClass()
+                                        .getName())) {
+                                    id = object.getId().getValue();
+//                                    AdvancedSearchResult sr = new AdvancedSearchResult(
+//                                            -1, type, id, object.getDetails().getGroup().getId().getValue());
+                                    AdvancedSearchResult sr = new AdvancedSearchResult();
+                                    sr.setObject(PojoMapper.asDataObject(object));
+                                    if (!result.contains(sr))
+                                        result.add(sr);
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        if (e instanceof InternalException) {
+                            if(e.toString().contains("TooManyClauses")) 
+                                result.setError(AdvancedSearchResultCollection.TOO_MANY_CLAUSES);
+                            else
+                                result.setError(AdvancedSearchResultCollection.GENERAL_ERROR);
+                        }
+                        else {
+                            result.setError(AdvancedSearchResultCollection.TOO_MANY_RESULTS_ERROR);
+                        }
+                        
+                        c.close(service);
+    
+                        return result;
+                    }
+    
+                    service.clearQueries();
+
+                } catch (Throwable e) {
+                    handleException(e, "Cannot perform the search.");
+                } 
+            }
+    
+            if (service != null)
+                c.close(service);
+            
+            return result;
+        }
+
+	/**
+         * Translates the scopeIds into field names
+         * @param scopeIds
+         * @return
+         */
+        private List<String> resolveScopeIds(List<Integer> scopeIds) {
+            List<String> result = new ArrayList<String>();
+            
+            for(Integer scopeId : scopeIds) {
+                if (scopeId == SearchParameters.NAME) {
+                    result.add("name");
+                }
+                if (scopeId == SearchParameters.DESCRIPTION) {
+                    result.add("description");
+                }
+                if (scopeId == SearchParameters.ANNOTATION) {
+                    result.add("annotation");
+                }
+            }
+            
+            return result;
+        }
+        
+        /**
+         * Translates the scopeIds into field names as comma separated String
+         * 
+         * @param scopeIds
+         * @return
+         */
+        private String resolveScopeIdsAsString(List<Integer> scopeIds) {
+            String result = "";
+    
+            for (Integer scopeId : scopeIds) {
+                if (result.length() > 0)
+                    result += ",";
+                if (scopeId == SearchParameters.NAME) {
+                    result += "name";
+                }
+                if (scopeId == SearchParameters.DESCRIPTION) {
+                    result += "description";
+                }
+                if (scopeId == SearchParameters.ANNOTATION) {
+                    // TODO: adding file.xyz is a workaround for these things not 
+                    // being part of the annotation index, can be removed again for > 5.0
+                    result += "annotation, file.name, file.path, file.contents, file.format";
+                }
+            }
+    
+            return result;
+        }
+        
+        /**
+         * Just checks if the server is version >= 5.0.3
+         * 
+         * @return
+         * @throws DSOutOfServiceException
+         */
+        private boolean isVersion53() throws DSOutOfServiceException {
+            String tmp[] = getServerVersion().split("\\.");
+            int v1 = Integer.parseInt(tmp[0]);
+            int v2 = Integer.parseInt(tmp[1]);
+            int v3 = Integer.parseInt(tmp[2]);
+    
+            return v1 >= 5 && (v2 >= 1 || v3 >= 3);
+        }
+        
 	/**
 	 * Searches for data.
 	 *
@@ -5078,7 +5338,7 @@ class OMEROGateway
 					//service.onlyOwnedBy(d);
 					service.bySomeMustNone(fSome, fMust, fNone);
 					size = handleSearchResult(
-							convertTypeForSearch(Image.class), rType,
+					        PojoMapper.convertTypeForSearch(Image.class), rType,
 							service);
 					if (size instanceof Integer)
 						results.put(key, size);
@@ -5088,7 +5348,7 @@ class OMEROGateway
 						service.bySomeMustNone(fSomeSec, fMustSec,
 								fNoneSec);
 						size = handleSearchResult(
-								convertTypeForSearch(Image.class),
+								PojoMapper.convertTypeForSearch(Image.class),
 								rType, service);
 						if (size instanceof Integer)
 							results.put(key, size);
@@ -5146,7 +5406,7 @@ class OMEROGateway
 			//service.bySomeMustNone(fSome, fMust, fNone);
 			service.bySomeMustNone(t, null, null);
 			Object size = handleSearchResult(
-					convertTypeForSearch(annotationType), rType, service);
+			        PojoMapper.convertTypeForSearch(annotationType), rType, service);
 			if (size instanceof Integer) rType = new ArrayList();
 			return rType;
 		} catch (Exception e) {
@@ -5574,6 +5834,7 @@ class OMEROGateway
 			sb.append("left outer join fetch well.wellSamples as ws ");
 			sb.append("left outer join fetch ws.plateAcquisition as pa ");
 			sb.append("left outer join fetch ws.image as img ");
+			sb.append("left outer join fetch img.details.creationEvent as cre ");
 			sb.append("left outer join fetch img.details.updateEvent as evt ");
 			sb.append("left outer join fetch img.pixels as pix ");
             sb.append("left outer join fetch pix.pixelsType as pt ");
@@ -5618,6 +5879,7 @@ class OMEROGateway
 				sb.append("left outer join fetch well.wellSamples as ws ");
 				sb.append("left outer join fetch ws.plateAcquisition as pa ");
 				sb.append("left outer join fetch ws.image as img ");
+				sb.append("left outer join fetch img.details.creationEvent as cre ");
 				sb.append("left outer join fetch img.details.updateEvent as evt ");
 				sb.append("left outer join fetch img.pixels as pix ");
 	            sb.append("left outer join fetch pix.pixelsType as pt ");

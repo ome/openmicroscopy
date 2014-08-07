@@ -59,6 +59,20 @@
         <property name="IceSSL.KeyFile" value="privkey.pem"/>
         <property name="IceSSL.CertAuthFile" value="ca.pem"/>
       </target>
+      <target name="noipv6">
+        <!--
+           Activate this option by appending "noipv6" to your start
+           command: bin/omero admin start noipv6
+
+           You may want to make this property active by
+           default if you are seeing "Protocol family unavailable"
+           errors. To do that, use bin/omero config set Ice.IPv6 0
+
+           See https://www.openmicroscopy.org/site/support/omero5/sysadmins/troubleshooting.html#server-fails-to-start
+           for more information.
+        -->
+        <property name="Ice.IPv6" value="0"/>
+      </target>
     </properties>
 
     <properties id="PythonServer">
@@ -100,7 +114,7 @@
    </properties>
 
    <properties id="DropBox">
-       <!-- config settings for OmeroFS (moved from fsConfig) 
+       <!-- config settings for OmeroFS (moved from fsConfig)
             All times are in seconds.
        -->
        <!-- These duplicate info that could be got from elsewhere -->
@@ -155,9 +169,9 @@
       <parameter name="jmxhost" default=""/>
       <parameter name="jmxport" default="3001"/>
       <server id="Blitz-${index}" exe="${JAVA}" activation="always" pwd="${OMERO_HOME}">
+        <option>MEMORY:blitz</option>
         <target name="debug">
-            <option>-Xdebug</option>
-            <option>-Xrunjdwp:server=y,transport=dt_socket,address=8787,suspend=y</option>
+          <option>-agentlib:jdwp=server=y,suspend=y,transport=dt_socket,address=8787</option>
         </target>
         <target name="blitz-gc">
             <option>-verbose:gc</option>
@@ -181,27 +195,6 @@
         </target>
         <target name="Blitz-hprof">
             <option>-agentlib:hprof=cpu=samples,cutoff=0,thread=y,interval=1,depth=50,force=y,file=${OMERO_LOGS}Blitz-${index}.hprof</option>
-        </target>
-        <target name="heap-dump">
-            <option>-XX:+HeapDumpOnOutOfMemoryError</option>
-        </target>
-        <target name="heap-dump-tmp">
-            <option>-XX:+HeapDumpOnOutOfMemoryError</option>
-            <option>-XX:HeapDumpPath=/tmp</option>
-        </target>
-        <option>-Xmx512M</option>
-        <!--
-             MaxPermSize needs to be set for most operating systems using Hibernate 3.3+
-             with any largish heap size. The value below should be sufficient for most
-             cases. The value will be added to the "-Xmx" value for the total memory used
-             by the JVM (here: 512+128 = 640MB).
-
-             See #4670
-        -->
-        <option>-XX:MaxPermSize=128m</option>
-        <target name="memcfg">
-            <option>${omero.blitz.maxmemory}</option>
-            <option>${omero.blitz.permgen}</option>
         </target>
         <option>-Djava.awt.headless=true</option>
         <option>-Dlogback.configurationFile=${OMERO_ETC}logback.xml</option>
@@ -227,6 +220,7 @@
           <properties refid="Blitz"/>
           <properties refid="MultiThreaded"/>
           <properties refid="Profile"/>
+          <property name="REPLACEMENT:blitz" value="REPLACEME"/>
         </properties>
       </server>
     </server-template>
@@ -235,14 +229,7 @@
       <parameter name="index"/>
       <parameter name="config" default="default"/>
       <server id="Indexer-${index}" exe="${JAVA}" activation="always" pwd="${OMERO_HOME}">
-        <target name="heap-dump">
-            <option>-XX:+HeapDumpOnOutOfMemoryError</option>
-        </target>
-        <target name="heap-dump-tmp">
-            <option>-XX:+HeapDumpOnOutOfMemoryError</option>
-            <option>-XX:HeapDumpPath=/tmp</option>
-        </target>
-        <option>-Xmx256M</option>
+        <option>MEMORY:indexer</option>
         <option>-Djava.awt.headless=true</option>
         <option>-Dlogback.configurationFile=${OMERO_ETC}logback-indexing.xml</option>
         <option>-Domero.logfile=${OMERO_LOGFILE}</option>
@@ -257,6 +244,8 @@
           <properties refid="Blitz"/>
           <properties refid="SingleThreaded"/>
           <properties refid="Profile"/>
+          <!-- Silence these -->
+          <property name="REPLACEMENT:indexer" value="REPLACEME"/>
         </properties>
       </server>
     </server-template>
@@ -266,14 +255,7 @@
       <parameter name="dir"/>
       <parameter name="config" default="default"/>
       <server id="PixelData-${index}" exe="${JAVA}" activation="always" pwd="${OMERO_HOME}">
-        <target name="heap-dump">
-            <option>-XX:+HeapDumpOnOutOfMemoryError</option>
-        </target>
-        <target name="heap-dump-tmp">
-            <option>-XX:+HeapDumpOnOutOfMemoryError</option>
-            <option>-XX:HeapDumpPath=/tmp</option>
-        </target>
-        <option>-Xmx256M</option>
+        <option>MEMORY:pixeldata</option>
         <option>-Djava.awt.headless=true</option>
         <option>-Dlogback.configurationFile=${OMERO_ETC}logback-indexing.xml</option>
         <option>-Domero.logfile=${OMERO_LOGFILE}</option>
@@ -289,6 +271,7 @@
           <properties refid="SingleThreaded"/>
           <properties refid="Profile"/>
           <property name="omero.repo.dir" value="${dir}"/>
+          <property name="REPLACEMENT:pixeldata" value="REPLACEME"/>
         </properties>
       </server>
     </server-template>
@@ -298,14 +281,7 @@
       <parameter name="dir"/>
       <parameter name="config" default="default"/>
       <server id="Repository-${index}" exe="${JAVA}" activation="always" pwd="${OMERO_HOME}">
-        <target name="heap-dump">
-            <option>-XX:+HeapDumpOnOutOfMemoryError</option>
-        </target>
-        <target name="heap-dump-tmp">
-            <option>-XX:+HeapDumpOnOutOfMemoryError</option>
-            <option>-XX:HeapDumpPath=/tmp</option>
-        </target>
-        <option>-Xmx400M</option>
+        <option>MEMORY:repository</option>
         <option>-Djava.awt.headless=true</option>
         <option>-Dlogback.configurationFile=${OMERO_ETC}logback.xml</option>
         <option>-Domero.logfile=${OMERO_LOGFILE}</option>
@@ -323,6 +299,7 @@
           <properties refid="MultiThreaded"/>
           <properties refid="Repository"/>
           <properties refid="Profile"/>
+          <property name="REPLACEMENT:repository" value="REPLACEME"/>
         </properties>
       </server>
     </server-template>
@@ -330,22 +307,6 @@
     <!--
       Python Servers
     -->
-
-    <!--<server-template id="WebTemplate"> 
-      <parameter name="act" default="always"/>
-      <server id="Web" exe="${PYTHON}" activation="${act}" pwd="${OMEROPY_HOME}omeroweb"> 
-        <option>manage.py</option> 
-        <option>runserver</option> 
-        <option>noreload</option> 
-        <option>0.0.0.0:8000</option>
-        <env>${PYTHONPATH}</env> 
-        <adapter name="WebAdapter" register-process="true" endpoints="tcp" server-lifetime="false"/>
-        <properties>
-            <properties refid="SingleThreaded"/>
-            <properties refid="Profile"/>
-        </properties> 
-      </server> 
-    </server-template>-->
 
     <server-template id="ProcessorTemplate">
       <parameter name="index"/>
@@ -470,20 +431,6 @@
           <!-- By adding an omero.fstest.config property, the behavior of the
           DropBox sever will change! -->
           <property name="omero.fstest.config" value="${OMERO_ETC}testdropbox.config"/>
-        </properties>
-      </server>
-    </server-template>
-
-    <server-template id="ShellTemplate">
-      <parameter name="id"/>
-      <parameter name="exe" default="${PYTHON}"/>
-      <parameter name="act" default="always"/>
-      <server id="${id}" exe="${exe}" activation="${act}">
-        <option>lib/python/shellserver.py</option>
-        <option>${id}</option>
-        <adapter name="${id}Adapter" endpoints="tcp"/>
-        <properties>
-          <properties refid="Profile"/>
         </properties>
       </server>
     </server-template>

@@ -30,9 +30,10 @@ import javax.swing.Action;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
-import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.GroupData;
 
@@ -56,7 +57,7 @@ public class GroupSelectionAction
 	 */
 	private void setPermissions()
 	{
-		int iconID = IconManager.PERSONAL;
+		int iconID = IconManager.PRIVATE_GROUP_DD_12;
 		String desc = "";
 		switch (group.getPermissions().getPermissionsLevel()) {
 			case GroupData.PERMISSIONS_PRIVATE:

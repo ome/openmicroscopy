@@ -15,7 +15,7 @@ TEST(OperatorsTest, EqualityOperatorOnPointers)
 {
   ImagePtr img1 = new_ImageI();
   ImagePtr img2 = new_ImageI();
-  ASSERT_NE( img1, img2 );
+  ASSERT_TRUE( img1 != img2 );
 }
 
 TEST(OperatorsTest, EqualityOperatorOnRawObject)

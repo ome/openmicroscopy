@@ -102,7 +102,6 @@ public class UpdateTest extends AbstractUpdateTest {
     @Test(enabled=false)
     public void test_images_pixels() throws Exception {
         Image image = new Image();
-        image.setAcquisitionDate(new Timestamp(System.currentTimeMillis()));
         image.setName("test");
 
         Pixels active = ObjectFactory.createPixelGraph(null);
@@ -214,7 +213,6 @@ public class UpdateTest extends AbstractUpdateTest {
         // http://trac.openmicroscopy.org.uk/ome/ticket/346
 
         img.setName("j.b." + System.currentTimeMillis());
-        img.setAcquisitionDate(new Timestamp(System.currentTimeMillis()));
         img = iUpdate.saveAndReturnObject(img);
         img.unload();
 
@@ -367,8 +365,7 @@ public class UpdateTest extends AbstractUpdateTest {
 
         // This creates a user in a new group
         Experimenter e = loginNewUser();
-        java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
-        Image i = new Image(testTimestamp, "rootCanDeleteObjectFromOtherGroup");
+        Image i = new Image("rootCanDeleteObjectFromOtherGroup");
         i = this.iUpdate.saveAndReturnObject(i);
 
         loginRootKeepGroup();

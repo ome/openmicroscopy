@@ -56,13 +56,16 @@ from django.utils.translation import ugettext as _
 from django.views.defaults import page_not_found, server_error
 from django.views import debug
 from django.utils.encoding import smart_str
+from django.views.generic.edit import FormView
+from django.utils.decorators import method_decorator
+from django.views.generic import TemplateView
 
 from webclient.webclient_gateway import OmeroWebGateway
 
 from forms import LoginForm, ForgottonPasswordForm, ExperimenterForm, \
                    GroupForm, GroupOwnerForm, MyAccountForm, ChangePassword, \
                    ContainedExperimentersForm, UploadPhotoForm, \
-                   EnumerationEntry, EnumerationEntries
+                   EnumerationEntry, EnumerationEntries, EmailForm
 
 from omeroweb.webadmin.webadmin_utils import toBoolean, upgradeCheck
 
@@ -70,6 +73,8 @@ from omeroweb.connector import Server
 from omeroweb.http import HttpJsonResponse, HttpJPEGResponse
 from omeroweb.webclient.decorators import login_required, render_response
 from omeroweb.connector import Connector
+
+from .webadmin_utils import removeUnaddressable
 
 logger = logging.getLogger(__name__)
 
@@ -864,3 +869,55 @@ def load_drivespace(request, conn=None, **kwargs):
     offset = request.REQUEST.get('offset', 0)
     rv = usersData(conn, offset)
     return HttpJsonResponse(rv)
+
+@login_required(isAdmin=True)
+@render_response_admin()
+def email(request, conn=None, **kwargs):
+    """
+    View to gather recipients, subject and message for sending email
+    announcements
+    """
+
+    # Check that the appropriate web settings are available
+    if not (settings.SERVER_EMAIL or settings.EMAIL_HOST or
+        settings.EMAIL_PORT):
+        return {'template': 'webadmin/noemail.html'}
+
+    if settings.EMAIL_USE_TLS and not (settings.EMAIL_HOST_USER or
+        settings.EMAIL_HOST_PASSWORD):
+        return {'template': 'webadmin/noemail.html'}
+
+    # Get experimenters and groups.
+    experimenters = list(conn.getObjects("Experimenter"))
+    groups = list(conn.getObjects("ExperimenterGroup"))
+
+    # Sort experimenters and groups
+    # Validating and getting the email addresses here is important if we do
+    # not wish to display users who are not addressable
+    experimenters = removeUnaddressable(experimenters)
+    experimenters.sort(key=lambda x: x.getFirstName().lower())
+    groups.sort(key=lambda x: x.getName().lower())
+
+    if request.method == 'POST': # If the form has been submitted...
+        # ContactForm was defined in the the previous section
+        form = EmailForm(experimenters, groups, conn, request,
+                         data=request.POST) # A form bound to the POST data
+
+        if form.is_valid(): # All validation rules pass
+            form.send_email()
+            # Go back to a blank form
+            return HttpResponseRedirect(reverse("waemail"))
+
+    else:
+        form = EmailForm(experimenters, groups, conn, request) # Unbound form
+
+    return {'template': 'webadmin/email.html', 'form': form}
+
+# Problem where render_response_admin was not populating required
+# admin details:
+# Explanation is that the CBV FormView returns an http response so the decorator
+# render_response_admin simply bails out and returns this
+# I think maybe the render_response decorator should not be adding context
+# because it fails in situations like this, better to insert that context
+# using a template tag when required
+

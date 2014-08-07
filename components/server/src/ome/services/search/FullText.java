@@ -7,9 +7,12 @@
 
 package ome.services.search;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,7 +21,10 @@ import java.util.Map;
 import ome.conditions.ApiUsageException;
 import ome.model.IAnnotated;
 import ome.model.IObject;
+import ome.model.core.Image;
 import ome.system.ServiceFactory;
+import ome.util.search.InvalidQueryException;
+import ome.util.search.LuceneQueryBuilder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +56,9 @@ public class FullText extends SearchAction {
     public final static String ALL_PROJECTIONS = "__ALL_PROJECTIONS";
 
     public final static String TOTAL_SIZE = "TOTAL_SIZE";
+    
+    private static final DateFormat DATEFORMAT = new SimpleDateFormat(
+            "yyyyMMdd");
 
     private static final Logger log = LoggerFactory.getLogger(FullText.class);
 
@@ -61,6 +70,121 @@ public class FullText extends SearchAction {
 
     private final Class<? extends Analyzer> analyzer;
 
+    /**
+     * Constructs a new instance; Builds a Lucence query with the provided
+     * arguments and passes it on the Lucene parser
+     * 
+     * @param values
+     * @param fields
+     *            Comma separated field names (name, description, etc.)
+     * @param from
+     *            Date range from in form YYYYMMDD
+     * @param to
+     *            Date range to in form YYYYMMDD
+     * @param dateType
+     *            Type of date {@link ome.api.Search#DATE_TYPE_ACQUISITION} or
+     *            {@link ome.api.Search#DATE_TYPE_IMPORT}
+     * @param query
+     *            The terms to search for
+     * @param analyzer
+     */
+    public FullText(SearchValues values, String fields, String from,
+            String to, String dateType, String query,
+            Class<? extends Analyzer> analyzer) {
+        super(values);
+        Assert.notNull(analyzer, "Analyzer required");
+        this.analyzer = analyzer;
+        
+        if (values.onlyTypes == null || values.onlyTypes.size() != 1) {
+            throw new ApiUsageException(
+                    "Searches by full text are currently limited to a single type.\n"
+                            + "Plese use Search.onlyType()");
+        }
+
+        if ( (query == null || query.length() < 1) && (from == null || from.length() < 1) && (to == null || to.length() < 1)) {
+            throw new IllegalArgumentException("Query string must be non-empty if no date range is provided");
+        }
+
+        if ((query.startsWith("*") || query.startsWith("?"))
+                && !values.leadingWildcard) {
+            throw new ApiUsageException("Searches starting with a leading "
+                    + "wildcard (*,?) can be slow.\nPlease use "
+                    + "setAllowLeadingWildcard() to permit this usage.");
+        }
+
+        if (query.equals("*")) {
+            throw new ApiUsageException(
+                    "Wildcard searches (*) must contain more than a single wildcard. ");
+        }
+        
+        List<String> fieldsArray = new ArrayList<String>();
+        String[] tmp = fields.split("\\,");
+        for(String t : tmp) {
+            t = t.trim();
+            if(t.length()>0)
+                fieldsArray.add(t);
+        }
+        Date dFrom;
+        Date dTo;
+        try {
+            dFrom = (from!=null && from.trim().length()>0) ? DATEFORMAT.parse(from) : null;
+            dTo = (to!=null && to.trim().length()>0) ? DATEFORMAT.parse(to) : null;
+        } catch (java.text.ParseException e1) {
+            throw new ApiUsageException(
+                    "Invalid date format, dates must be in format YYYYMMDD.");
+        }
+
+        if (LuceneQueryBuilder.DATE_ACQUISITION.equals(dateType) &&
+                !values.onlyTypes.contains(Image.class)) {
+            // Use import for non-images
+            dateType = LuceneQueryBuilder.DATE_IMPORT;
+        }
+
+        try {
+            this.queryStr = LuceneQueryBuilder.buildLuceneQuery(fieldsArray, dFrom,
+                    dTo, dateType, query);
+            if (this.queryStr.isEmpty()) {
+                q = null;
+                log.info("Generated empty Lucene query");
+                return; // EARLY EXIT!
+            } else {
+                log.info("Generated Lucene query: "+this.queryStr);
+            }
+        } catch (InvalidQueryException e1) {
+            throw new ApiUsageException(
+                    "Invalid query: "+e1.getMessage());
+        }
+        
+        try {
+            final Analyzer a = analyzer.newInstance();
+            final QueryParser parser = new /*Analyzing*/QueryParser("combined_fields", a);
+            parser.setAllowLeadingWildcard(values.leadingWildcard);
+            q = parser.parse(queryStr);
+        } catch (ParseException pe) {
+            final String msg = queryStr + " caused a parse exception: " +
+                pe.getMessage();
+            // No longer logging these, since it's a simple user error
+            ApiUsageException aue = new ApiUsageException(msg);
+            throw aue;
+        } catch (InstantiationException e) {
+            ApiUsageException aue = new ApiUsageException(analyzer.getName()
+                    + " cannot be instantiated.");
+            throw aue;
+        } catch (IllegalAccessException e) {
+            ApiUsageException aue = new ApiUsageException(analyzer.getName()
+                    + " cannot be instantiated.");
+            throw aue;
+        }
+    }
+    
+    /**
+     * Creates a new instance; Passes the query directly on to the Lucene
+     * parser.
+     * 
+     * @param values
+     * @param query
+     * @param analyzer
+     */
     public FullText(SearchValues values, String query,
             Class<? extends Analyzer> analyzer) {
         super(values);
@@ -181,6 +305,10 @@ public class FullText extends SearchAction {
 
     @Transactional(readOnly = true)
     public Object doWork(Session s, ServiceFactory sf) {
+
+        if (q == null) {
+            return null;
+        }
 
         final Class<?> cls = values.onlyTypes.get(0);
         FullTextSession session = Search.createFullTextSession(s);

@@ -50,6 +50,6 @@ urlpatterns = patterns('',
 
     url( r'^change_avatar/(?P<eid>[0-9]+)/(?:(?P<action>[a-z]+)/)?$', views.manage_avatar, name="wamanageavatar"),
     url( r'^myphoto/$', views.myphoto, name="wamyphoto"),
-
+    url( r'^email/$', views.email, name="waemail"),
 )
 

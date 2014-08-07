@@ -46,7 +46,9 @@ import javax.swing.tree.TreePath;
 
 //Third-party libraries
 
+
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.treeviewer.ExperimenterLoadedDataEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
@@ -199,8 +201,11 @@ class BrowserComponent
 		    	}
 			}
 	    }
-	    model.loadRefreshExperimenterData(m, null, -1, null, null);
-		fireStateChange();
+	    
+	    if(!MapUtils.isEmpty(m)) {
+                model.loadRefreshExperimenterData(m, null, -1, null, null);
+                fireStateChange();
+	    }
 	}
 	
     /**

@@ -40,9 +40,6 @@ from omero.rtypes import unwrap
 from omero.sys import ParametersI
 from omero.util.temp_files import create_path
 
-# Module level marker
-pytestmark = pytest.mark.fs_suite
-
 
 class TestReimportArchivedFiles(lib.ITest):
 
@@ -209,7 +206,6 @@ class TestReimportArchivedFiles(lib.ITest):
         assert pyramidSize == rsp.pyramidSize
         assert thumbnailSize == rsp.thumbnailSize
 
-    @pytestmark
     def testConvertSynthetic(self):
         """
         Convert a pre-FS file to FS
@@ -223,7 +219,7 @@ class TestReimportArchivedFiles(lib.ITest):
             fileset in order to prevent import.
             It can be safely deleted.
             """)
-        readme_obj = self.client.upload(readme_path,
+        readme_obj = self.client.upload(str(readme_path),
                                         name="README.txt")
 
         new_img = self.createSynthetic()
