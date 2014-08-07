@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.0__0 to OMERO5.1DEV__6.
+--- OMERO5 development release upgrade from OMERO5.0__0 to OMERO5.1DEV__9.
 ---
 
 BEGIN;
@@ -44,7 +44,7 @@ DROP FUNCTION omero_assert_db_version(varchar, int);
 
 
 INSERT INTO dbpatch (currentVersion, currentPatch,   previousVersion,     previousPatch)
-             VALUES ('OMERO5.1DEV',     6,              'OMERO5.0',       0);
+             VALUES ('OMERO5.1DEV',     9,              'OMERO5.0',       0);
 
 --
 -- Actual upgrade
