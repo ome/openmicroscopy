@@ -341,6 +341,10 @@
   CREATE INDEX i_detector_group ON detector(group_id);
   CREATE INDEX i_Detector_type ON detector(type);
   CREATE INDEX i_Detector_instrument ON detector(instrument);
+  CREATE INDEX i_detectorannotationlink_owner ON detectorannotationlink(owner_id);
+  CREATE INDEX i_detectorannotationlink_group ON detectorannotationlink(group_id);
+  CREATE INDEX i_DetectorAnnotationLink_parent ON detectorannotationlink(parent);
+  CREATE INDEX i_DetectorAnnotationLink_child ON detectorannotationlink(child);
   CREATE INDEX i_detectorsettings_owner ON detectorsettings(owner_id);
   CREATE INDEX i_detectorsettings_group ON detectorsettings(group_id);
   CREATE INDEX i_DetectorSettings_binning ON detectorsettings(binning);
@@ -348,6 +352,10 @@
   CREATE INDEX i_dichroic_owner ON dichroic(owner_id);
   CREATE INDEX i_dichroic_group ON dichroic(group_id);
   CREATE INDEX i_Dichroic_instrument ON dichroic(instrument);
+  CREATE INDEX i_dichroicannotationlink_owner ON dichroicannotationlink(owner_id);
+  CREATE INDEX i_dichroicannotationlink_group ON dichroicannotationlink(group_id);
+  CREATE INDEX i_DichroicAnnotationLink_parent ON dichroicannotationlink(parent);
+  CREATE INDEX i_DichroicAnnotationLink_child ON dichroicannotationlink(child);
   CREATE INDEX i_Event_experimenter ON event(experimenter);
   CREATE INDEX i_Event_experimenterGroup ON event(experimenterGroup);
   CREATE INDEX i_Event_type ON event(type);
@@ -388,6 +396,10 @@
   CREATE INDEX i_Filter_type ON filter(type);
   CREATE INDEX i_Filter_transmittanceRange ON filter(transmittanceRange);
   CREATE INDEX i_Filter_instrument ON filter(instrument);
+  CREATE INDEX i_filterannotationlink_owner ON filterannotationlink(owner_id);
+  CREATE INDEX i_filterannotationlink_group ON filterannotationlink(group_id);
+  CREATE INDEX i_FilterAnnotationLink_parent ON filterannotationlink(parent);
+  CREATE INDEX i_FilterAnnotationLink_child ON filterannotationlink(child);
   CREATE INDEX i_filterset_owner ON filterset(owner_id);
   CREATE INDEX i_filterset_group ON filterset(group_id);
   CREATE INDEX i_FilterSet_instrument ON filterset(instrument);
@@ -420,6 +432,10 @@
   CREATE INDEX i_instrument_owner ON instrument(owner_id);
   CREATE INDEX i_instrument_group ON instrument(group_id);
   CREATE INDEX i_Instrument_microscope ON instrument(microscope);
+  CREATE INDEX i_instrumentannotationlink_owner ON instrumentannotationlink(owner_id);
+  CREATE INDEX i_instrumentannotationlink_group ON instrumentannotationlink(group_id);
+  CREATE INDEX i_InstrumentAnnotationLink_parent ON instrumentannotationlink(parent);
+  CREATE INDEX i_InstrumentAnnotationLink_child ON instrumentannotationlink(child);
   CREATE INDEX i_job_owner ON job(owner_id);
   CREATE INDEX i_job_group ON job(group_id);
   CREATE INDEX i_Job_status ON job(status);
@@ -434,6 +450,10 @@
   CREATE INDEX i_lightpath_owner ON lightpath(owner_id);
   CREATE INDEX i_lightpath_group ON lightpath(group_id);
   CREATE INDEX i_LightPath_dichroic ON lightpath(dichroic);
+  CREATE INDEX i_lightpathannotationlink_owner ON lightpathannotationlink(owner_id);
+  CREATE INDEX i_lightpathannotationlink_group ON lightpathannotationlink(group_id);
+  CREATE INDEX i_LightPathAnnotationLink_parent ON lightpathannotationlink(parent);
+  CREATE INDEX i_LightPathAnnotationLink_child ON lightpathannotationlink(child);
   CREATE INDEX i_lightpathemissionfilterlink_owner ON lightpathemissionfilterlink(owner_id);
   CREATE INDEX i_lightpathemissionfilterlink_group ON lightpathemissionfilterlink(group_id);
   CREATE INDEX i_LightPathEmissionFilterLink_parent ON lightpathemissionfilterlink(parent);
@@ -449,6 +469,10 @@
   CREATE INDEX i_lightsource_owner ON lightsource(owner_id);
   CREATE INDEX i_lightsource_group ON lightsource(group_id);
   CREATE INDEX i_LightSource_instrument ON lightsource(instrument);
+  CREATE INDEX i_lightsourceannotationlink_owner ON lightsourceannotationlink(owner_id);
+  CREATE INDEX i_lightsourceannotationlink_group ON lightsourceannotationlink(group_id);
+  CREATE INDEX i_LightSourceAnnotationLink_parent ON lightsourceannotationlink(parent);
+  CREATE INDEX i_LightSourceAnnotationLink_child ON lightsourceannotationlink(child);
   CREATE INDEX i_link_owner ON link(owner_id);
   CREATE INDEX i_link_group ON link(group_id);
   CREATE INDEX i_logicalchannel_owner ON logicalchannel(owner_id);
@@ -491,6 +515,10 @@
   CREATE INDEX i_Objective_immersion ON objective(immersion);
   CREATE INDEX i_Objective_correction ON objective(correction);
   CREATE INDEX i_Objective_instrument ON objective(instrument);
+  CREATE INDEX i_objectiveannotationlink_owner ON objectiveannotationlink(owner_id);
+  CREATE INDEX i_objectiveannotationlink_group ON objectiveannotationlink(group_id);
+  CREATE INDEX i_ObjectiveAnnotationLink_parent ON objectiveannotationlink(parent);
+  CREATE INDEX i_ObjectiveAnnotationLink_child ON objectiveannotationlink(child);
   CREATE INDEX i_objectivesettings_owner ON objectivesettings(owner_id);
   CREATE INDEX i_objectivesettings_group ON objectivesettings(group_id);
   CREATE INDEX i_ObjectiveSettings_medium ON objectivesettings(medium);
@@ -508,10 +536,6 @@
   CREATE INDEX i_Pixels_relatedTo ON pixels(relatedTo);
   CREATE INDEX i_Pixels_pixelsType ON pixels(pixelsType);
   CREATE INDEX i_Pixels_dimensionOrder ON pixels(dimensionOrder);
-  CREATE INDEX i_pixelsannotationlink_owner ON pixelsannotationlink(owner_id);
-  CREATE INDEX i_pixelsannotationlink_group ON pixelsannotationlink(group_id);
-  CREATE INDEX i_PixelsAnnotationLink_parent ON pixelsannotationlink(parent);
-  CREATE INDEX i_PixelsAnnotationLink_child ON pixelsannotationlink(child);
   CREATE INDEX i_pixelsoriginalfilemap_owner ON pixelsoriginalfilemap(owner_id);
   CREATE INDEX i_pixelsoriginalfilemap_group ON pixelsoriginalfilemap(group_id);
   CREATE INDEX i_PixelsOriginalFileMap_parent ON pixelsoriginalfilemap(parent);
@@ -587,6 +611,10 @@
   CREATE INDEX i_shape_owner ON shape(owner_id);
   CREATE INDEX i_shape_group ON shape(group_id);
   CREATE INDEX i_Shape_roi ON shape(roi);
+  CREATE INDEX i_shapeannotationlink_owner ON shapeannotationlink(owner_id);
+  CREATE INDEX i_shapeannotationlink_group ON shapeannotationlink(group_id);
+  CREATE INDEX i_ShapeAnnotationLink_parent ON shapeannotationlink(parent);
+  CREATE INDEX i_ShapeAnnotationLink_child ON shapeannotationlink(child);
   CREATE INDEX i_Share_group ON share("group");
   CREATE INDEX i_ShareMember_parent ON sharemember(parent);
   CREATE INDEX i_ShareMember_child ON sharemember(child);
@@ -615,10 +643,6 @@
   CREATE INDEX i_WellSample_plateAcquisition ON wellsample(plateAcquisition);
   CREATE INDEX i_WellSample_well ON wellsample(well);
   CREATE INDEX i_WellSample_image ON wellsample(image);
-  CREATE INDEX i_wellsampleannotationlink_owner ON wellsampleannotationlink(owner_id);
-  CREATE INDEX i_wellsampleannotationlink_group ON wellsampleannotationlink(group_id);
-  CREATE INDEX i_WellSampleAnnotationLink_parent ON wellsampleannotationlink(parent);
-  CREATE INDEX i_WellSampleAnnotationLink_child ON wellsampleannotationlink(child);
 
 --
 -- Finally, a function for showing our permissions
@@ -747,9 +771,11 @@ CREATE SEQUENCE seq_dataset; INSERT INTO _lock_ids (name, id) SELECT 'seq_datase
 CREATE SEQUENCE seq_datasetannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_datasetannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_datasetimagelink; INSERT INTO _lock_ids (name, id) SELECT 'seq_datasetimagelink', nextval('_lock_seq');
 CREATE SEQUENCE seq_detector; INSERT INTO _lock_ids (name, id) SELECT 'seq_detector', nextval('_lock_seq');
+CREATE SEQUENCE seq_detectorannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_detectorannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_detectorsettings; INSERT INTO _lock_ids (name, id) SELECT 'seq_detectorsettings', nextval('_lock_seq');
 CREATE SEQUENCE seq_detectortype; INSERT INTO _lock_ids (name, id) SELECT 'seq_detectortype', nextval('_lock_seq');
 CREATE SEQUENCE seq_dichroic; INSERT INTO _lock_ids (name, id) SELECT 'seq_dichroic', nextval('_lock_seq');
+CREATE SEQUENCE seq_dichroicannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_dichroicannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_dimensionorder; INSERT INTO _lock_ids (name, id) SELECT 'seq_dimensionorder', nextval('_lock_seq');
 CREATE SEQUENCE seq_event; INSERT INTO _lock_ids (name, id) SELECT 'seq_event', nextval('_lock_seq');
 CREATE SEQUENCE seq_eventlog; INSERT INTO _lock_ids (name, id) SELECT 'seq_eventlog', nextval('_lock_seq');
@@ -768,6 +794,7 @@ CREATE SEQUENCE seq_filesetannotationlink; INSERT INTO _lock_ids (name, id) SELE
 CREATE SEQUENCE seq_filesetentry; INSERT INTO _lock_ids (name, id) SELECT 'seq_filesetentry', nextval('_lock_seq');
 CREATE SEQUENCE seq_filesetjoblink; INSERT INTO _lock_ids (name, id) SELECT 'seq_filesetjoblink', nextval('_lock_seq');
 CREATE SEQUENCE seq_filter; INSERT INTO _lock_ids (name, id) SELECT 'seq_filter', nextval('_lock_seq');
+CREATE SEQUENCE seq_filterannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_filterannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_filterset; INSERT INTO _lock_ids (name, id) SELECT 'seq_filterset', nextval('_lock_seq');
 CREATE SEQUENCE seq_filtersetemissionfilterlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_filtersetemissionfilterlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_filtersetexcitationfilterlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_filtersetexcitationfilterlink', nextval('_lock_seq');
@@ -780,16 +807,19 @@ CREATE SEQUENCE seq_imageannotationlink; INSERT INTO _lock_ids (name, id) SELECT
 CREATE SEQUENCE seq_imagingenvironment; INSERT INTO _lock_ids (name, id) SELECT 'seq_imagingenvironment', nextval('_lock_seq');
 CREATE SEQUENCE seq_immersion; INSERT INTO _lock_ids (name, id) SELECT 'seq_immersion', nextval('_lock_seq');
 CREATE SEQUENCE seq_instrument; INSERT INTO _lock_ids (name, id) SELECT 'seq_instrument', nextval('_lock_seq');
+CREATE SEQUENCE seq_instrumentannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_instrumentannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_job; INSERT INTO _lock_ids (name, id) SELECT 'seq_job', nextval('_lock_seq');
 CREATE SEQUENCE seq_joboriginalfilelink; INSERT INTO _lock_ids (name, id) SELECT 'seq_joboriginalfilelink', nextval('_lock_seq');
 CREATE SEQUENCE seq_jobstatus; INSERT INTO _lock_ids (name, id) SELECT 'seq_jobstatus', nextval('_lock_seq');
 CREATE SEQUENCE seq_lasermedium; INSERT INTO _lock_ids (name, id) SELECT 'seq_lasermedium', nextval('_lock_seq');
 CREATE SEQUENCE seq_lasertype; INSERT INTO _lock_ids (name, id) SELECT 'seq_lasertype', nextval('_lock_seq');
 CREATE SEQUENCE seq_lightpath; INSERT INTO _lock_ids (name, id) SELECT 'seq_lightpath', nextval('_lock_seq');
+CREATE SEQUENCE seq_lightpathannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_lightpathannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_lightpathemissionfilterlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_lightpathemissionfilterlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_lightpathexcitationfilterlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_lightpathexcitationfilterlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_lightsettings; INSERT INTO _lock_ids (name, id) SELECT 'seq_lightsettings', nextval('_lock_seq');
 CREATE SEQUENCE seq_lightsource; INSERT INTO _lock_ids (name, id) SELECT 'seq_lightsource', nextval('_lock_seq');
+CREATE SEQUENCE seq_lightsourceannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_lightsourceannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_link; INSERT INTO _lock_ids (name, id) SELECT 'seq_link', nextval('_lock_seq');
 CREATE SEQUENCE seq_logicalchannel; INSERT INTO _lock_ids (name, id) SELECT 'seq_logicalchannel', nextval('_lock_seq');
 CREATE SEQUENCE seq_medium; INSERT INTO _lock_ids (name, id) SELECT 'seq_medium', nextval('_lock_seq');
@@ -803,12 +833,12 @@ CREATE SEQUENCE seq_node; INSERT INTO _lock_ids (name, id) SELECT 'seq_node', ne
 CREATE SEQUENCE seq_nodeannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_nodeannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_otf; INSERT INTO _lock_ids (name, id) SELECT 'seq_otf', nextval('_lock_seq');
 CREATE SEQUENCE seq_objective; INSERT INTO _lock_ids (name, id) SELECT 'seq_objective', nextval('_lock_seq');
+CREATE SEQUENCE seq_objectiveannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_objectiveannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_objectivesettings; INSERT INTO _lock_ids (name, id) SELECT 'seq_objectivesettings', nextval('_lock_seq');
 CREATE SEQUENCE seq_originalfile; INSERT INTO _lock_ids (name, id) SELECT 'seq_originalfile', nextval('_lock_seq');
 CREATE SEQUENCE seq_originalfileannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_originalfileannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_photometricinterpretation; INSERT INTO _lock_ids (name, id) SELECT 'seq_photometricinterpretation', nextval('_lock_seq');
 CREATE SEQUENCE seq_pixels; INSERT INTO _lock_ids (name, id) SELECT 'seq_pixels', nextval('_lock_seq');
-CREATE SEQUENCE seq_pixelsannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_pixelsannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_pixelsoriginalfilemap; INSERT INTO _lock_ids (name, id) SELECT 'seq_pixelsoriginalfilemap', nextval('_lock_seq');
 CREATE SEQUENCE seq_pixelstype; INSERT INTO _lock_ids (name, id) SELECT 'seq_pixelstype', nextval('_lock_seq');
 CREATE SEQUENCE seq_planeinfo; INSERT INTO _lock_ids (name, id) SELECT 'seq_planeinfo', nextval('_lock_seq');
@@ -834,6 +864,7 @@ CREATE SEQUENCE seq_screenplatelink; INSERT INTO _lock_ids (name, id) SELECT 'se
 CREATE SEQUENCE seq_session; INSERT INTO _lock_ids (name, id) SELECT 'seq_session', nextval('_lock_seq');
 CREATE SEQUENCE seq_sessionannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_sessionannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_shape; INSERT INTO _lock_ids (name, id) SELECT 'seq_shape', nextval('_lock_seq');
+CREATE SEQUENCE seq_shapeannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_shapeannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_sharemember; INSERT INTO _lock_ids (name, id) SELECT 'seq_sharemember', nextval('_lock_seq');
 CREATE SEQUENCE seq_stagelabel; INSERT INTO _lock_ids (name, id) SELECT 'seq_stagelabel', nextval('_lock_seq');
 CREATE SEQUENCE seq_statsinfo; INSERT INTO _lock_ids (name, id) SELECT 'seq_statsinfo', nextval('_lock_seq');
@@ -843,7 +874,6 @@ CREATE SEQUENCE seq_well; INSERT INTO _lock_ids (name, id) SELECT 'seq_well', ne
 CREATE SEQUENCE seq_wellannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_wellannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_wellreagentlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_wellreagentlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_wellsample; INSERT INTO _lock_ids (name, id) SELECT 'seq_wellsample', nextval('_lock_seq');
-CREATE SEQUENCE seq_wellsampleannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_wellsampleannotationlink', nextval('_lock_seq');
 
 
 --
@@ -926,6 +956,14 @@ CREATE OR REPLACE FUNCTION annotation_update_event_trigger() RETURNS "trigger"
             INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.containers.Dataset'');
         END LOOP;
 
+        FOR rec IN SELECT id, parent FROM detectorannotationlink WHERE child = new.id LOOP
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.acquisition.Detector'');
+        END LOOP;
+
+        FOR rec IN SELECT id, parent FROM dichroicannotationlink WHERE child = new.id LOOP
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.acquisition.Dichroic'');
+        END LOOP;
+
         FOR rec IN SELECT id, parent FROM experimenterannotationlink WHERE child = new.id LOOP
             INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.meta.Experimenter'');
         END LOOP;
@@ -938,8 +976,24 @@ CREATE OR REPLACE FUNCTION annotation_update_event_trigger() RETURNS "trigger"
             INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.fs.Fileset'');
         END LOOP;
 
+        FOR rec IN SELECT id, parent FROM filterannotationlink WHERE child = new.id LOOP
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.acquisition.Filter'');
+        END LOOP;
+
         FOR rec IN SELECT id, parent FROM imageannotationlink WHERE child = new.id LOOP
             INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.core.Image'');
+        END LOOP;
+
+        FOR rec IN SELECT id, parent FROM instrumentannotationlink WHERE child = new.id LOOP
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.acquisition.Instrument'');
+        END LOOP;
+
+        FOR rec IN SELECT id, parent FROM lightpathannotationlink WHERE child = new.id LOOP
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.acquisition.LightPath'');
+        END LOOP;
+
+        FOR rec IN SELECT id, parent FROM lightsourceannotationlink WHERE child = new.id LOOP
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.acquisition.LightSource'');
         END LOOP;
 
         FOR rec IN SELECT id, parent FROM namespaceannotationlink WHERE child = new.id LOOP
@@ -950,12 +1004,12 @@ CREATE OR REPLACE FUNCTION annotation_update_event_trigger() RETURNS "trigger"
             INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.meta.Node'');
         END LOOP;
 
-        FOR rec IN SELECT id, parent FROM originalfileannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.core.OriginalFile'');
+        FOR rec IN SELECT id, parent FROM objectiveannotationlink WHERE child = new.id LOOP
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.acquisition.Objective'');
         END LOOP;
 
-        FOR rec IN SELECT id, parent FROM pixelsannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.core.Pixels'');
+        FOR rec IN SELECT id, parent FROM originalfileannotationlink WHERE child = new.id LOOP
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.core.OriginalFile'');
         END LOOP;
 
         FOR rec IN SELECT id, parent FROM planeinfoannotationlink WHERE child = new.id LOOP
@@ -990,12 +1044,12 @@ CREATE OR REPLACE FUNCTION annotation_update_event_trigger() RETURNS "trigger"
             INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.meta.Session'');
         END LOOP;
 
-        FOR rec IN SELECT id, parent FROM wellannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.screen.Well'');
+        FOR rec IN SELECT id, parent FROM shapeannotationlink WHERE child = new.id LOOP
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.roi.Shape'');
         END LOOP;
 
-        FOR rec IN SELECT id, parent FROM wellsampleannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.screen.WellSample'');
+        FOR rec IN SELECT id, parent FROM wellannotationlink WHERE child = new.id LOOP
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.screen.Well'');
         END LOOP;
 
         SELECT INTO cnt count(*) FROM _updated_annotations;
@@ -1057,6 +1111,22 @@ CREATE TRIGGER dataset_annotation_link_event_trigger_insert
         AFTER INSERT ON datasetannotationlink
         FOR EACH ROW
         EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.containers.Dataset');
+CREATE TRIGGER detector_annotation_link_event_trigger
+        AFTER UPDATE ON detectorannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.Detector');
+CREATE TRIGGER detector_annotation_link_event_trigger_insert
+        AFTER INSERT ON detectorannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.Detector');
+CREATE TRIGGER dichroic_annotation_link_event_trigger
+        AFTER UPDATE ON dichroicannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.Dichroic');
+CREATE TRIGGER dichroic_annotation_link_event_trigger_insert
+        AFTER INSERT ON dichroicannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.Dichroic');
 CREATE TRIGGER experimenter_annotation_link_event_trigger
         AFTER UPDATE ON experimenterannotationlink
         FOR EACH ROW
@@ -1081,6 +1151,14 @@ CREATE TRIGGER fileset_annotation_link_event_trigger_insert
         AFTER INSERT ON filesetannotationlink
         FOR EACH ROW
         EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.fs.Fileset');
+CREATE TRIGGER filter_annotation_link_event_trigger
+        AFTER UPDATE ON filterannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.Filter');
+CREATE TRIGGER filter_annotation_link_event_trigger_insert
+        AFTER INSERT ON filterannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.Filter');
 CREATE TRIGGER image_annotation_link_event_trigger
         AFTER UPDATE ON imageannotationlink
         FOR EACH ROW
@@ -1089,6 +1167,30 @@ CREATE TRIGGER image_annotation_link_event_trigger_insert
         AFTER INSERT ON imageannotationlink
         FOR EACH ROW
         EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.core.Image');
+CREATE TRIGGER instrument_annotation_link_event_trigger
+        AFTER UPDATE ON instrumentannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.Instrument');
+CREATE TRIGGER instrument_annotation_link_event_trigger_insert
+        AFTER INSERT ON instrumentannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.Instrument');
+CREATE TRIGGER lightpath_annotation_link_event_trigger
+        AFTER UPDATE ON lightpathannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.LightPath');
+CREATE TRIGGER lightpath_annotation_link_event_trigger_insert
+        AFTER INSERT ON lightpathannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.LightPath');
+CREATE TRIGGER lightsource_annotation_link_event_trigger
+        AFTER UPDATE ON lightsourceannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.LightSource');
+CREATE TRIGGER lightsource_annotation_link_event_trigger_insert
+        AFTER INSERT ON lightsourceannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.LightSource');
 CREATE TRIGGER namespace_annotation_link_event_trigger
         AFTER UPDATE ON namespaceannotationlink
         FOR EACH ROW
@@ -1105,6 +1207,14 @@ CREATE TRIGGER node_annotation_link_event_trigger_insert
         AFTER INSERT ON nodeannotationlink
         FOR EACH ROW
         EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.meta.Node');
+CREATE TRIGGER objective_annotation_link_event_trigger
+        AFTER UPDATE ON objectiveannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.Objective');
+CREATE TRIGGER objective_annotation_link_event_trigger_insert
+        AFTER INSERT ON objectiveannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.Objective');
 CREATE TRIGGER originalfile_annotation_link_event_trigger
         AFTER UPDATE ON originalfileannotationlink
         FOR EACH ROW
@@ -1113,14 +1223,6 @@ CREATE TRIGGER originalfile_annotation_link_event_trigger_insert
         AFTER INSERT ON originalfileannotationlink
         FOR EACH ROW
         EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.core.OriginalFile');
-CREATE TRIGGER pixels_annotation_link_event_trigger
-        AFTER UPDATE ON pixelsannotationlink
-        FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.core.Pixels');
-CREATE TRIGGER pixels_annotation_link_event_trigger_insert
-        AFTER INSERT ON pixelsannotationlink
-        FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.core.Pixels');
 CREATE TRIGGER planeinfo_annotation_link_event_trigger
         AFTER UPDATE ON planeinfoannotationlink
         FOR EACH ROW
@@ -1185,6 +1287,14 @@ CREATE TRIGGER session_annotation_link_event_trigger_insert
         AFTER INSERT ON sessionannotationlink
         FOR EACH ROW
         EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.meta.Session');
+CREATE TRIGGER shape_annotation_link_event_trigger
+        AFTER UPDATE ON shapeannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.roi.Shape');
+CREATE TRIGGER shape_annotation_link_event_trigger_insert
+        AFTER INSERT ON shapeannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.roi.Shape');
 CREATE TRIGGER well_annotation_link_event_trigger
         AFTER UPDATE ON wellannotationlink
         FOR EACH ROW
@@ -1193,14 +1303,6 @@ CREATE TRIGGER well_annotation_link_event_trigger_insert
         AFTER INSERT ON wellannotationlink
         FOR EACH ROW
         EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.screen.Well');
-CREATE TRIGGER wellsample_annotation_link_event_trigger
-        AFTER UPDATE ON wellsampleannotationlink
-        FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.screen.WellSample');
-CREATE TRIGGER wellsample_annotation_link_event_trigger_insert
-        AFTER INSERT ON wellsampleannotationlink
-        FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.screen.WellSample');
 
 -- Delete triggers to go with update triggers (See #9337)
 CREATE OR REPLACE FUNCTION annotation_link_delete_trigger() RETURNS "trigger"
@@ -1230,6 +1332,14 @@ CREATE TRIGGER dataset_annotation_link_delete_trigger
         BEFORE DELETE ON datasetannotationlink
         FOR EACH ROW
         EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.containers.Dataset');
+CREATE TRIGGER detector_annotation_link_delete_trigger
+        BEFORE DELETE ON detectorannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.acquisition.Detector');
+CREATE TRIGGER dichroic_annotation_link_delete_trigger
+        BEFORE DELETE ON dichroicannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.acquisition.Dichroic');
 CREATE TRIGGER experimenter_annotation_link_delete_trigger
         BEFORE DELETE ON experimenterannotationlink
         FOR EACH ROW
@@ -1242,10 +1352,26 @@ CREATE TRIGGER fileset_annotation_link_delete_trigger
         BEFORE DELETE ON filesetannotationlink
         FOR EACH ROW
         EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.fs.Fileset');
+CREATE TRIGGER filter_annotation_link_delete_trigger
+        BEFORE DELETE ON filterannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.acquisition.Filter');
 CREATE TRIGGER image_annotation_link_delete_trigger
         BEFORE DELETE ON imageannotationlink
         FOR EACH ROW
         EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.core.Image');
+CREATE TRIGGER instrument_annotation_link_delete_trigger
+        BEFORE DELETE ON instrumentannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.acquisition.Instrument');
+CREATE TRIGGER lightpath_annotation_link_delete_trigger
+        BEFORE DELETE ON lightpathannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.acquisition.LightPath');
+CREATE TRIGGER lightsource_annotation_link_delete_trigger
+        BEFORE DELETE ON lightsourceannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.acquisition.LightSource');
 CREATE TRIGGER namespace_annotation_link_delete_trigger
         BEFORE DELETE ON namespaceannotationlink
         FOR EACH ROW
@@ -1254,14 +1380,14 @@ CREATE TRIGGER node_annotation_link_delete_trigger
         BEFORE DELETE ON nodeannotationlink
         FOR EACH ROW
         EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.meta.Node');
+CREATE TRIGGER objective_annotation_link_delete_trigger
+        BEFORE DELETE ON objectiveannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.acquisition.Objective');
 CREATE TRIGGER originalfile_annotation_link_delete_trigger
         BEFORE DELETE ON originalfileannotationlink
         FOR EACH ROW
         EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.core.OriginalFile');
-CREATE TRIGGER pixels_annotation_link_delete_trigger
-        BEFORE DELETE ON pixelsannotationlink
-        FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.core.Pixels');
 CREATE TRIGGER planeinfo_annotation_link_delete_trigger
         BEFORE DELETE ON planeinfoannotationlink
         FOR EACH ROW
@@ -1294,14 +1420,14 @@ CREATE TRIGGER session_annotation_link_delete_trigger
         BEFORE DELETE ON sessionannotationlink
         FOR EACH ROW
         EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.meta.Session');
+CREATE TRIGGER shape_annotation_link_delete_trigger
+        BEFORE DELETE ON shapeannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.roi.Shape');
 CREATE TRIGGER well_annotation_link_delete_trigger
         BEFORE DELETE ON wellannotationlink
         FOR EACH ROW
         EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.screen.Well');
-CREATE TRIGGER wellsample_annotation_link_delete_trigger
-        BEFORE DELETE ON wellsampleannotationlink
-        FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.screen.WellSample');
 
 
 --
@@ -1413,7 +1539,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.1DEV',  8,    'OMERO5.1DEV',   0,             'Initializing');
+             values ('OMERO5.1DEV',  9,    'OMERO5.1DEV',   0,             'Initializing');
 
 --
 -- Temporarily make event columns nullable; restored below.
@@ -2408,7 +2534,7 @@ after delete on originalfile
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
   where currentVersion = 'OMERO5.1DEV' and
-        currentPatch = 8 and
+        currentPatch = 9 and
         previousVersion = 'OMERO5.1DEV' and
         previousPatch = 0;
 
