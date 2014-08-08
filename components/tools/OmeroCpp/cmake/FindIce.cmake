@@ -178,7 +178,7 @@ function(_Ice_FIND)
   endforeach(root ${ice_roots})
 
   # On Windows, look in standard install locations.  Different versions
-  # of ice install in different places and support different compiler
+  # of Ice install in different places and support different compiler
   # versions.  Look only in the locations compatible with the compiler
   # in use.  For newer versions which this hardcoded logic can't
   # support, ICE_HOME and/or the other configuration options must be
