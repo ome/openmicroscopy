@@ -119,24 +119,31 @@ module omero {
         /**
          * Request to determine the disk usage of the given objects
          * and their contents. File-system paths used by multiple objects
-         * are de-duplicated in the count.
+         * are de-duplicated in the total count.
          *
-         * Permissible classes are:
+         * Permissible classes include:
          *   ExperimenterGroup, Experimenter, Project, Dataset,
          *   Screen, Plate, Well, WellSample,
          *   Image, Pixels, Annotation, Job, Fileset, OriginalFile.
          **/
         class DiskUsage extends Request {
             omero::api::IdListMap objects;
-            bool includeAnnotations;
         };
 
         /**
-         * Disk usage report: bytes used on the repository file-system
-         * for specific objects.
+         * Disk usage report: bytes used on the repository file-system for
+         * specific objects. The counts from the map may sum to more than
+         * the total if different types of object refer to the same file.
+         * Common referers include:
+         *   Annotation for file annotations
+         *   FilesetEntry for OMERO 5 image files (OMERO.fs)
+         *   Job for import logs
+         *   Pixels for pyramids and OMERO 4 images and archived files
+         *   Thumbnail for the image thumbnails
          **/
         class DiskUsageResponse extends Response {
-            long bytesUsed;
+            omero::api::StringLongMap bytesByReferer;
+            long totalBytesUsed;
         };
 
     };
