@@ -267,7 +267,28 @@
               var $thumb = $(this),
                 src = $thumb.attr('src');
                 $thumb.attr('src', src + '&_=' + Math.random());
-            })
+            });
+
+
+            {% if manager.image.canAnnotate %}
+            var pid = OME.getParentId();    // E.g. dataset-123 OR plate-456
+            if (pid) {
+              $("#rdef-save-all")
+                .attr('title', "Apply and Save settings to all images in " + pid)
+                .removeAttr("disabled")
+                .click(function(){
+                  var typeId = pid.split("-");
+                  var rdefQry = OME.preview_viewport.getQuery();
+                  // need to paste current settings to all images...
+                  var url = "{% url 'webgateway.views.copy_image_rdef_json' %}";
+                  url += "?toids=" + typeId[1] + "&to_type=" + typeId[0];
+                  url += "&" + rdefQry + "&imageId=" + OME.preview_viewport.loadedImg.id;   // Need imageId for 'apply to all'
+                  $.getJSON(url, function() {
+                    OME.refreshThumbnails();
+                  });
+                });
+            }
+            {% endif %}
 
         });
     </script>
@@ -300,9 +321,12 @@
         <button id="rdef-setdef-btn" class="editor"
             {% if not manager.image.canAnnotate or blitzcon.getShareId %}disabled='true'{% endif %}
             title="Applies and saves the current settings as default.">
-          save
+          Save
         </button>
 
+        <button id="rdef-save-all" disabled="true" title="Cannot apply settings to other images">
+          Save to All
+        </button>
         |
 
         <button id="rdef-undo-btn" title="Undo the last changes to settings.">undo</button>

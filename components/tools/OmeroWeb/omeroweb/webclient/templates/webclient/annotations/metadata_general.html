@@ -354,31 +354,9 @@
 
                 // Channel name editing
             {% if manager.image or manager.well.getWellSample.image %}
-                // we need to know parent for the 'apply to all'
-                var getParentId = function() {
-                    if (typeof $.jstree === "undefined") {
-                        return;
-                    }
-                    var datatree = $.jstree._focused();
-                    if (!datatree) return;
-                    var sel = datatree.data.ui.selected,
-                        result;
-                    var p = /^(plate-[0-9]+)$/;
-                    if (p.test(sel.attr('id'))) {
-                        return sel.attr('id');
-                    }
-                    var parent = sel.parent().parent(),
-                        parent_id = parent.attr('id');
-                    if (p.test(parent_id)) {
-                        return parent_id;
-                    }
-                    if (/^dataset-([0-9]+)$/.test(parent_id)) {
-                        return parent_id;
-                    }
-                }
                 var $chNameForm = $("#channel_names_edit");
                 // set up form with Parent
-                var pid = getParentId();    // E.g. dataset-123 OR plate-456
+                var pid = OME.getParentId();    // E.g. dataset-123 OR plate-456
                 if (typeof pid === "undefined") {
                     $chNameForm.find("button[name=apply]").hide();  // hide 'apply to all'
                 } else {
