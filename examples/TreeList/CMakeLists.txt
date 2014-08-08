@@ -34,7 +34,8 @@
 # policies, either expressed or implied, of any organization.
 # #L%
 
-add_executable(treelist Main.cpp AllProjects.h PrintProjects.h Usage.h)
+file(GLOB treelist_sources RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.cpp" "*.h")
+add_executable(treelist ${treelist_sources})
 target_link_libraries(treelist omero-client)
 
 install(TARGETS treelist

@@ -34,7 +34,8 @@
 # policies, either expressed or implied, of any organization.
 # #L%
 
-add_executable(region Main.cpp)
+file(GLOB region_sources RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.cpp" "*.h")
+add_executable(region ${region_sources})
 target_link_libraries(region omero-client)
 
 install(TARGETS region
