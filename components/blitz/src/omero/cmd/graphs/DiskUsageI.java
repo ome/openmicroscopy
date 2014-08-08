@@ -23,8 +23,10 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
@@ -205,7 +207,7 @@ public class DiskUsageI extends DiskUsage implements IRequest {
     }
 
     @Override
-    public Long step(int step) throws Cancel {
+    public DiskUsageResponse step(int step) throws Cancel {
         helper.assertStep(step);
         if (step != 0) {
             throw helper.cancel(new ERR(), new IllegalArgumentException(), "disk usage operation has no step " + step);
@@ -225,8 +227,7 @@ public class DiskUsageI extends DiskUsage implements IRequest {
     public void buildResponse(int step, Object object) {
         helper.assertResponse(step);
         if (step == 0) {
-            final DiskUsageResponse response = new DiskUsageResponse((Long) object);
-            helper.setResponseIfNull(response);
+            helper.setResponseIfNull((DiskUsageResponse) object);
         }
     }
 
@@ -242,16 +243,35 @@ public class DiskUsageI extends DiskUsage implements IRequest {
      * @param path a file path
      * @return the file's size, or {@code 0} if the file does not exist
      */
-    private long getFileSize(String path) {
+    private static long getFileSize(String path) {
         final File file = new File(path);
         return file.exists() ? file.length() : 0;
+    }
+
+    /**
+     * Add given size to given type in size-by-type totals. Does not add to map unless {@code fileSize > 0}.
+     * @param sizeByType sizes by types
+     * @param type a type
+     * @param size a size
+     */
+    private static void addToSizeByType(Map<String, Long> sizeByType, String type, Long size) {
+        if (size <= 0) {
+            return;
+        }
+        Long sizeThisType = sizeByType.get(type);
+        if (sizeThisType == null) {
+            sizeThisType = size;
+        } else {
+            sizeThisType += size;
+        }
+        sizeByType.put(type, sizeThisType);
     }
 
     /**
      * Calculate the disk usage of the model objects specified in the request.
      * @return the total usage, in bytes
      */
-    private long getDiskUsage() {
+    private DiskUsageResponse getDiskUsage() {
         final IQuery queryService = helper.getServiceFactory().getQueryService();
 
         final int batchSize = 256;
@@ -259,6 +279,13 @@ public class DiskUsageI extends DiskUsage implements IRequest {
         final SetMultimap<String, Long> objectsToProcess = HashMultimap.create();
         final SetMultimap<String, Long> objectsProcessed = HashMultimap.create();
         long size = 0;
+
+        /* original file ID to types that refer to them */
+        final SetMultimap<Long, String> typesWithFiles = HashMultimap.create();
+        /* original file ID to file size */
+        final Map<Long, Long> fileSizes = new HashMap<Long, Long>();
+        /* total disk usage in bytes broken down by type of referring object */
+        final Map<String, Long> sizeByType = new HashMap<String, Long>();
 
         /* note the objects to process */
 
@@ -299,21 +326,27 @@ public class DiskUsageI extends DiskUsage implements IRequest {
                 /* Pixels may have /OMERO/Pixels/<id> files */
                 for (final Long id : idsToQuery) {
                     final String pixelsPath = pixelsService.getPixelsPath(id);
-                    size += getFileSize(pixelsPath);
-                    size += getFileSize(pixelsPath + PixelsService.PYRAMID_SUFFIX);
+                    final Long fileSize = getFileSize(pixelsPath) + getFileSize(pixelsPath + PixelsService.PYRAMID_SUFFIX);
+                    size += fileSize;
+                    addToSizeByType(sizeByType, className, fileSize);
                 }
             } else if ("Thumbnail".equals(className)) {
                 /* Thumbnails may have /OMERO/Thumbnails/<id> files */
                 for (final Long id : idsToQuery) {
                     final String thumbnailPath = thumbnailService.getThumbnailPath(id);
-                    size += getFileSize(thumbnailPath);
+                    final Long fileSize = getFileSize(thumbnailPath);
+                    size += fileSize;
+                    addToSizeByType(sizeByType, className, fileSize);
                 }
             } else if ("OriginalFile".equals(className)) {
                 /* OriginalFiles have their size noted */
-                final String hql = "SELECT size FROM OriginalFile WHERE id IN (:ids)";
+                final String hql = "SELECT id, size FROM OriginalFile WHERE id IN (:ids)";
                 for (final Object[] resultRow : queryService.projection(hql, parameters)) {
-                    if (resultRow != null && resultRow[0] instanceof Long) {
-                        size += (Long) resultRow[0];
+                    if (resultRow != null && resultRow[1] instanceof Long) {
+                        final Long fileId   = (Long) resultRow[0];
+                        final Long fileSize = (Long) resultRow[1];
+                        size += fileSize;
+                        fileSizes.put(fileId, fileSize);
                     }
                 }
             } else if ("Experimenter".equals(className)) {
@@ -340,12 +373,16 @@ public class DiskUsageI extends DiskUsage implements IRequest {
                 final String hql = query.getValue();
                 for (final Object[] resultRow : queryService.projection(hql, parameters)) {
                     if (resultRow != null && resultRow[0] instanceof Long) {
-                        objectsToProcess.put(resultClassName, (Long) resultRow[0]);
+                        final Long resultId = (Long) resultRow[0];
+                        objectsToProcess.put(resultClassName, resultId);
+                        if ("OriginalFile".equals(resultClassName)) {
+                            typesWithFiles.put(resultId, className);
+                        }
                     }
                 }
             }
-            /* also watch for annotations on the current objects */
-            if (includeAnnotations && ANNOTATABLE_OBJECTS.contains(className)) {
+            if (ANNOTATABLE_OBJECTS.contains(className)) {
+                /* also watch for annotations on the current objects */
                 final String hql = "SELECT child.id FROM " + className + "AnnotationLink WHERE parent.id IN (:ids)";
                 for (final Object[] resultRow : queryService.projection(hql, parameters)) {
                     objectsToProcess.put("Annotation", (Long) resultRow[0]);
@@ -362,6 +399,19 @@ public class DiskUsageI extends DiskUsage implements IRequest {
             LOGGER.debug("final size is " + size + " bytes");
         }
 
-        return size;
+        /* collate file sizes by referer type */
+        for (final Map.Entry<Long, Long> fileIdSize : fileSizes.entrySet()) {
+            final Long fileId = fileIdSize.getKey();
+            final Long fileSize = fileIdSize.getValue();
+            Set<String> types = typesWithFiles.get(fileId);
+            if (types.isEmpty()) {
+                types = ImmutableSet.of("OriginalFile");
+            }
+            for (final String type : types) {
+                addToSizeByType(sizeByType, type, fileSize);
+            }
+        }
+
+        return new DiskUsageResponse(sizeByType, size);
     }
 }
