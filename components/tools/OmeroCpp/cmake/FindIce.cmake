@@ -351,16 +351,43 @@ function(_Ice_FIND)
       list(APPEND ice_include_paths "${program_files_path}/Ice-3.5.1/include")
       list(APPEND ice_slice_paths "${program_files_path}/Ice-3.5.1/slice")
     endif((MSVC_VERSION EQUAL 1800) OR (MSVC_VERSION GREATER 1800 AND MSVC_VERSION LESS 1900))
+  else(MSVC_VERSION)
+    set(ice_locations
+        /opt/Ice
+        /opt/Ice-3
+        /opt/Ice-3.5
+        /opt/Ice-3.5.1
+        /opt/Ice-3.5.0
+        /opt/Ice-3.4
+        /opt/Ice-3.4.2
+        /opt/Ice-3.4.1
+        /opt/Ice-3.4.0
+        /opt/Ice-3.3
+        /opt/Ice-3.3.1
+        /opt/Ice-3.3.0)
+
+    foreach(path ${ice_locations})
+      # Prefer 64-bit variants if present and using a 64-bit compiler
+      if (CMAKE_SIZEOF_VOID_P MATCHES 8)
+        list(APPEND ice_binary_paths "${path}/bin/x64")
+        list(APPEND ice_binary_paths "${path}/lib/x64")
+        list(APPEND ice_binary_paths "${path}/lib64")
+      list(APPEND ice_binary_paths "${path}/bin")
+      list(APPEND ice_binary_paths "${path}/lib")
+      endif (CMAKE_SIZEOF_VOID_P MATCHES 8)
+      list(APPEND ice_binary_paths "${path}/include")
+      list(APPEND ice_binary_paths "${path}/slice")
+    endforeach(path)
   endif(MSVC_VERSION)
 
-if(ICE_DEBUG)
-  message(STATUS "--------FindIce.cmake search debug--------")
-  message(STATUS "ICE binary path search order: ${ice_binary_paths}")
-  message(STATUS "ICE include path search order: ${ice_include_paths}")
-  message(STATUS "ICE slice path search order: ${ice_slice_paths}")
-  message(STATUS "ICE library path search order: ${ice_library_paths}")
-  message(STATUS "----------------")
-endif(ICE_DEBUG)
+  if(ICE_DEBUG)
+    message(STATUS "--------FindIce.cmake search debug--------")
+    message(STATUS "ICE binary path search order: ${ice_binary_paths}")
+    message(STATUS "ICE include path search order: ${ice_include_paths}")
+    message(STATUS "ICE slice path search order: ${ice_slice_paths}")
+    message(STATUS "ICE library path search order: ${ice_library_paths}")
+    message(STATUS "----------------")
+  endif(ICE_DEBUG)
 
   set(ice_programs
       slice2cpp
