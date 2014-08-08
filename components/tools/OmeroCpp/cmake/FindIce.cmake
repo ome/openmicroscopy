@@ -9,7 +9,7 @@
 #
 #   find_package(Ice
 #     [version] [EXACT]      # Minimum or EXACT version e.g. 3.5.1
-#     [REQUIRED]             # Fail with error if Ice is not found
+#     [REQUIRED])            # Fail with error if Ice is not found
 #
 # This module reports information about the Ice installation in
 # several variables.  General variables::
@@ -44,8 +44,8 @@
 #   ICEXML_LIBRARY - IceXML library
 #   SLICE_LIBRARY - Slice library
 #
-# Ice directories for C++ includes and slice includes are reported
-# in::
+# Ice directories for C++ programs, includes and slice includes and libraries
+# are reported in::
 #
 #   ICE_BINARY_DIR - the directory containing the Ice programs
 #   ICE_INCLUDE_DIR - the directory containing the Ice headers
