@@ -486,6 +486,16 @@ module omero {
             omero::model::ChecksumAlgorithm suggestChecksumAlgorithm(omero::api::ChecksumAlgorithmList supported);
 
             /**
+             * Verify the checksum for the original files identified by
+             * the given IDs.
+             * The files must be in this repository.
+             * Returns the IDs of the original files whose checksums
+             * do not match the file on disk.
+             */
+            omero::api::LongList verifyChecksums(omero::api::LongList ids)
+                throws ServerError;
+
+            /**
              * Set the checksum algorithm for the original files identified
              * by the given IDs and calculate their checksum accordingly.
              * The files must be in this repository.

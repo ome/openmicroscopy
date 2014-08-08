@@ -337,6 +337,36 @@ public class ManagedRepositoryI extends PublicRepositoryI
         return null;
     }
 
+    public List<Long> verifyChecksums(List<Long> ids, Current __current) throws ServerError {
+        /* set up an invocation context in which the group is set to -1, for "all groups" */
+        final Current allGroupsCurrent = makeAdjustedCurrent(__current);
+        allGroupsCurrent.ctx = new HashMap<String, String>(__current.ctx);
+        allGroupsCurrent.ctx.put(omero.constants.GROUP.value, "-1");
+
+        /* verify the checksum of the specified files that are in this repository */
+        final List<Long> mismatchFiles = new ArrayList<Long>();
+        for (final long id : repositoryDao.filterFilesByRepository(getRepoUuid(), ids, allGroupsCurrent)) {
+            /* get one of the files */
+            final OriginalFile file = repositoryDao.getOriginalFileWithHasher(id, allGroupsCurrent);
+            final FsFile fsPath = new FsFile(file.getPath() + file.getName());
+            final String osPath = serverPaths.getServerFileFromFsFile(fsPath).getAbsolutePath();
+
+            /* check the file's checksum */
+            final ome.model.enums.ChecksumAlgorithm hasher = file.getHasher();
+            final String hash = file.getHash();
+            if (hasher != null && hash != null) {
+                /* has a valid checksum, so check it */
+                final ChecksumProvider fromProvider =
+                        checksumProviderFactory.getProvider(ChecksumAlgorithmMapper.getChecksumType(hasher));
+                fromProvider.putFile(osPath);
+                if (!fromProvider.checksumAsString().equals(hash)) {
+                    mismatchFiles.add(id);
+                }
+            }
+        }
+        return mismatchFiles;
+    }
+
     public List<Long> setChecksumAlgorithm(ChecksumAlgorithm toHasherWrapped, List<Long> ids, Current __current)
             throws ServerError {
         /* set up an invocation context in which the group may be adjusted freely */
