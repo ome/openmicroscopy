@@ -273,7 +273,8 @@ jQuery._WeblitzViewport = function (container, server, options) {
     if (_this.loadedImg.current.query) {
       _this.setQuery(_this.loadedImg.current.query);
     }
-    _this.refresh();
+    // refresh allow_resize = true, seems to *prevent* resize (good) but don't fully understand
+    _this.refresh(true);
     _load(function () {
       //_this.refresh();
       if (!_this.loadedImg.current.query.zm && !_this.loadedImg.tiles) {
