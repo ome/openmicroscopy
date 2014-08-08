@@ -318,9 +318,13 @@
 
     <ul>
       <li class="buttonbar">
-        <button id="rdef-setdef-btn" class="editor"
-            {% if not manager.image.canAnnotate or blitzcon.getShareId %}disabled='true'{% endif %}
-            title="Applies and saves the current settings as default.">
+        <button id="rdef-setdef-btn" class="editor" disabled='true'
+            {% if manager.image.canAnnotate %}
+              title="Saves the current settings."
+            {% else %}
+            title="You don't have permission to save settings."
+            {% endif %}
+            >
           Save
         </button>
 
@@ -349,7 +353,6 @@
     <ul>
       <li>
         <button id="rdef-reset-btn" class="editor"
-            {% if not manager.image.canAnnotate or blitzcon.getShareId %}disabled='true'{% endif %}
             title="Returns the image settings to their original state at time of import.">
           reset
         </button>

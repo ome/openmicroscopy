@@ -210,7 +210,8 @@
         } else {
             $('#rdef-redo-btn').attr('disabled', 'disabled');
         }
-        if (viewport.getSaved()) {
+        var canSaveRdef = viewport.loadedImg.perms.canAnnotate;
+        if (viewport.getSaved() || !canSaveRdef) {
             $("#rdef-setdef-btn").attr('disabled', 'disabled');
         } else {
             $("#rdef-setdef-btn").removeAttr('disabled');
