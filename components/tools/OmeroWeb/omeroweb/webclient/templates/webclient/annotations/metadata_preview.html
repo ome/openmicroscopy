@@ -290,6 +290,15 @@
             }
             {% endif %}
 
+            $("#preview_open_viewer").click(function(){
+
+              var url = "{% if share_id %}{% url 'web_image_viewer' share_id manager.image.id %}{% else %}{% url 'web_image_viewer' manager.image.id %}{% endif %}";
+              url += "?" + OME.preview_viewport.getQuery();
+
+              OME.openPopup(url);
+              return false;
+            });
+
         });
     </script>
 
@@ -299,7 +308,7 @@
 	
 <!-- open-image link -->
 
-			<button class="btn silver btn_text" href="#" onclick="return OME.openPopup('{% if share_id %}{% url 'web_image_viewer' share_id manager.image.id %}{% else %}{% url 'web_image_viewer' manager.image.id %}{% endif %}')" alt="View" title="Open full viewer">
+			<button id="preview_open_viewer" class="btn silver btn_text" href="#" alt="View" title="Open full viewer">
 				<span>
                 {% trans "Launch full viewer" %} 
 				</span>
