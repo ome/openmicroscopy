@@ -35,14 +35,10 @@
 # #L%
 
 if(BUILD_TESTS)
-  add_executable(unit
-                 client.cpp
-                 concurrency.cpp
-                 model.cpp
-                 operators.cpp
-                 parameters.cpp
-                 perms.cpp
-                 rtypes.cpp)
+
+  file(GLOB unit_sources RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.cpp" "*.h")
+
+  add_executable(unit ${unit_sources})
 
   target_link_libraries(unit omero-client)
   target_link_libraries(unit omero-test ${TEST_LIBS})
