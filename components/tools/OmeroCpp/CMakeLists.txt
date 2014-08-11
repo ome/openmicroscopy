@@ -393,5 +393,13 @@ install(FILES ${OMERO_COMMON_STATIC_SYS_HEADERS}
 install(FILES ${OMERO_CLIENT_STATIC_UTIL_HEADERS}
         DESTINATION ${omero_includedir}/util)
 
+set(LIBRARY_PREFIX OMERO_CLIENT)
+set(LIBRARY_NAME omero-client)
+set(LIBRARY_HEADER omero/client.h)
+configure_file(${PROJECT_SOURCE_DIR}/components/bioformats/cpp/cmake/TemplateConfig.cmake.in
+               ${CMAKE_CURRENT_BINARY_DIR}/omero-client-config.cmake)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/omero-client-config.cmake
+        DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/cmake)
+
 add_subdirectory(test)
 add_subdirectory(utils)
