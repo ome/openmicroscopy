@@ -228,6 +228,8 @@
                  classpath="${lib.dir}/repository/ant-contrib-1.0b3.jar"/>
 
         <available property="jdk1.6+" classname="java.util.ServiceLoader"/>
+        <available property="jdk1.7+" classname="java.util.Objects"/>
+        <available property="jdk1.8+" classname="java.util.stream.IntStream"/>
 
         <if>
             <and>
