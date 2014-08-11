@@ -173,7 +173,10 @@
     window.syncChannelsActive = function(viewport) {
         var channels = viewport.getChannels();
         for (i=0; i<channels.length; i++) {
-            $('#rd-wblitz-ch'+i).get(0).checked = channels[i].active;
+            var $chbx = $('#rd-wblitz-ch'+i);
+            if ($chbx.length > 0) {     // in case this is called before UI is built
+                $chbx.get(0).checked = channels[i].active;
+            }
         }
     };
 
