@@ -249,6 +249,14 @@
             </else>
         </if>
 
+        <if>
+            <isset property="jdk1.8+"/>
+            <then>
+                <property name="javadoc.doclint" value="-Xdoclint:none"/>
+            </then>
+        </if>
+        <property name="javadoc.doclint" value=""/>
+
         <!-- Now, if the memory settings have not been changed
         check the defaults passed in on the command line -->
         <if><and><not><isset property="javac.maxmem"/></not>
