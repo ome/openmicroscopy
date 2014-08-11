@@ -361,6 +361,8 @@ add_library(omero-client SHARED
             ${OMERO_API_HEADERS} ${OMERO_API_SOURCES}
             ${OMERO_CLIENT_HEADERS} ${OMERO_CLIENT_SOURCES})
 target_link_libraries(omero-client Ice IceUtil Glacier2)
+set_target_properties(omero-client PROPERTIES
+                      VERSION ${OME_VERSION_SHORT})
 
 if(MSVC)
   set_target_properties(omero-client PROPERTIES
