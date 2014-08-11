@@ -45,6 +45,13 @@ class BaseSearch(BaseController):
 
     
     def search(self, query, onlyTypes, fields, searchGroup, ownedBy, useAcquisitionDate, date=None):
+
+        # If fields contains 'annotation', we really want to search files too
+        fields = set(fields)
+        if "annotation" in fields:
+            fields = fields.union(("file.name", "file.path", "file.format", "file.contents"))
+        fields = list(fields)
+
         created = None
         batchSize = 500
         if len(onlyTypes) == 1:
@@ -60,8 +67,9 @@ class BaseSearch(BaseController):
                 d1 = datetime.datetime.strptime(p[0]+" 00:00:00", "%Y-%m-%d %H:%M:%S")
 
         def doSearch(searchType):
-            """ E.g. searchType is 'image' """
-            obj_list = list(self.conn.searchObjects([searchType],
+            """ E.g. searchType is 'images' """
+            objType = searchType[0:-1]  # remove 's'
+            obj_list = list(self.conn.searchObjects([objType],
                     query,
                     created,
                     fields=fields,
@@ -70,7 +78,7 @@ class BaseSearch(BaseController):
                     ownedBy=ownedBy,
                     useAcquisitionDate=useAcquisitionDate))
             obj_ids = [o.id for o in obj_list]
-            im_annotation_counter = self.conn.getCollectionCount(searchType.title(), "annotationLinks", obj_ids)
+            im_annotation_counter = self.conn.getCollectionCount(objType.title(), "annotationLinks", obj_ids)
 
             im_list_with_counters = []
             for o in obj_list:
@@ -85,7 +93,7 @@ class BaseSearch(BaseController):
         try:
             for dt in onlyTypes:
                 dt = str(dt)
-                if dt in ['project', 'dataset', 'image', 'screen', 'plate']:
+                if dt in ['projects', 'datasets', 'images', 'screens', 'plates']:
                     self.containers[dt] = doSearch(dt)
                     resultCount += len(self.containers[dt])
         except Exception, x:

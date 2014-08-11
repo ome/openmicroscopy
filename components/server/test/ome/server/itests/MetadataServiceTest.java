@@ -253,7 +253,6 @@ public class MetadataServiceTest
         
         Image i = new Image();
     	i.setName("image 1");
-    	i.setAcquisitionDate(new Timestamp(0));
     	//create a comment annotation and a tag annotation
         TagAnnotation t3 = new TagAnnotation();
         t3.setTextValue("tag 3");
@@ -364,7 +363,6 @@ public class MetadataServiceTest
     	Dataset d = new Dataset();
     	d.setName("dataset 1");
     	Image i = new Image();
-    	i.setAcquisitionDate(new Timestamp(0));
       	i.setName("image 1");
       	p.linkAnnotation(t1);
       	d.linkAnnotation(t1);

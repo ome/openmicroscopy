@@ -25,28 +25,32 @@ mark up.
 """
 
 HEADER_MAPPING = {
-    "data": "Core",
-    "db": "Core",
-    "cluster": "Grid",
-    "grid": "Grid",
-    "checksum": "FS",
-    "fs": "FS",
-    "managed": "FS",
-    "ldap": "LDAP",
-    "sessions": "Performance",
-    "threads": "Performance",
-    "throttling": "Performance",
-    "launcher": "Scripts",
-    "process": "Scripts",
-    "scripts": "Scripts",
-    "security": "Security",
-    "resetpassword": "Security",
-    "upgrades": "Misc",
+    "omero.data": "Core",
+    "omero.db": "Core",
+    "omero.cluster": "Grid",
+    "omero.grid": "Grid",
+    "omero.checksum": "FS",
+    "omero.fs": "FS",
+    "omero.managed": "FS",
+    "omero.ldap": "LDAP",
+    "omero.jvmcfg": "JVM",
+    "omero.sessions": "Performance",
+    "omero.threads": "Performance",
+    "omero.throttling": "Performance",
+    "omero.launcher": "Scripts",
+    "omero.process": "Scripts",
+    "omero.scripts": "Scripts",
+    "omero.security": "Security",
+    "omero.resetpassword": "Security",
+    "omero.upgrades": "Misc",
+    "Ice": "Ice",
 }
 
 
 TOP = \
-    """Configuration properties
+    """.. This file is auto-generated from omero.properties. DO NOT EDIT IT
+
+Configuration properties
 ========================
 
 The primary form of configuration is via the use of key/value properties,
@@ -65,16 +69,14 @@ and :doc:`Windows <windows/server-installation>` pages, as well as the
 """
 
 HEADER = \
-    """
-.. _%(reference)s_configuration:
+    """.. _%(reference)s_configuration:
 
 %(header)s
 %(hline)s
 
 .. glossary::
 
-%(properties)s
-"""
+%(properties)s"""
 
 BLACK_LIST = ("##", "versions", "omero.upgrades")
 
@@ -130,38 +132,44 @@ class Property(object):
         )
 
 
+IN_PROGRESS = "in_progress_action"
+ESCAPED = "escaped_action"
+
+
 class PropertyParser(object):
 
     def __init__(self):
-        self.l = []
-        self.p = None
-        self.in_progress = False
+        self.properties = []
+        self.curr_p = None
+        self.curr_a = None
 
     def parse(self, argv=None):
-        for line in fileinput.input(argv):
-            line = line[:-1]
+        try:
+            for line in fileinput.input(argv):
+                if line.endswith("\n"):
+                    line = line[:-1]
 
-            if line.startswith(STOP):
-                self.cleanup()
-                break
-            if self.black_list(line):
-                self.cleanup()
-                continue
-            elif not line.strip():
-                self.cleanup()
-                continue
-            elif line.startswith("#"):
-                self.append(line)
-            elif "=" in line:
-                self.detect(line)
-            elif line.endswith("\\"):
-                self.cont(line[1:])
-            else:
-                if self.in_progress:
-                    self.cont(line)
+                if line.startswith(STOP):
+                    self.cleanup()
+                    break
+                if self.black_list(line):
+                    self.cleanup()
+                    continue
+                elif not line.strip():
+                    self.cleanup()
+                    continue
+                elif line.startswith("#"):
+                    self.append(line)
+                elif "=" in line and self.curr_a != ESCAPED:
+                    self.detect(line)
+                elif line.endswith("\\"):
+                    self.cont(line[:-1])
                 else:
-                    fail("unknown line: %s" % line)
-        return self.l
+                    self.cont(line)
+            self.cleanup()  # Handle no newline at end of file
+        finally:
+            fileinput.close()
+        return self.properties
 
     def black_list(self, line):
         for x in BLACK_LIST:
@@ -169,15 +177,15 @@ class PropertyParser(object):
                 return True
 
     def cleanup(self):
-        if self.p is not None:
-            if self.p.key is not None:  #: Handle ending '####'
-                self.l.append(self.p)
-                self.p = None
-                self.in_progress = False
+        if self.curr_p is not None:
+            if self.curr_p.key is not None:  #: Handle ending '####'
+                self.properties.append(self.curr_p)
+                self.curr_p = None
+                self.curr_a = None
 
     def init(self):
-        if self.p is None:
-            self.p = Property()
+        if self.curr_p is None:
+            self.curr_p = Property()
 
     def ignore(self):
         self.cleanup()
@@ -185,20 +193,26 @@ class PropertyParser(object):
     def append(self, line):
         self.init()
         # Assume line starts with "# " and strip
-        self.p.append(line[2:])
+        self.curr_p.append(line[2:])
 
     def detect(self, line):
-        if self.in_progress:
+        if line.endswith("\\"):
+            line = line[:-1]
+            self.curr_a = ESCAPED
+        else:
             self.cleanup()
+            self.curr_a = IN_PROGRESS
+
         self.init()
-        self.p.detect(line)
-        self.in_progress = True
+        self.curr_p.detect(line)
+        if self.curr_a != ESCAPED:
+            self.cleanup()
 
     def cont(self, line):
-        self.p.cont(line)
+        self.curr_p.cont(line)
 
     def __iter__(self):
-        return iter(self.l)
+        return iter(self.properties)
 
     def data(self):
         data = defaultdict(list)
@@ -206,6 +220,8 @@ class PropertyParser(object):
             if x.key is None:
                 raise Exception("Bad key: %s" % x)
             parts = x.key.split(".")
+            if parts[0] == "Ice":
+                continue
             if parts[0] != "omero":
                 raise Exception("Bad key: %s" % x)
 
@@ -214,13 +230,20 @@ class PropertyParser(object):
         return data
 
     def headers(self):
-        data = list(self)
-        data.sort(lambda a, b: cmp(a.key, b.key))
         headers = defaultdict(list)
-        for x in data:
-            key = x.key.split(".")[1]
-            key = HEADER_MAPPING.get(key, key.title())
-            headers[key].append(x)
+        for x in self:
+            found = False
+            for header in HEADER_MAPPING:
+                if x.key.startswith(header):
+                    headers.setdefault(HEADER_MAPPING[header], []).append(x)
+                    found = True
+                    break
+            if not found and x.key.startswith('omero.'):
+                parts = x.key.split(".")
+                headers.setdefault(parts[1].title(), []).append(x)
+
+        for key in headers.iterkeys():
+            headers[key].sort(lambda a, b: cmp(a.key, b.key))
         return headers
 
     def print_defaults(self):
@@ -250,7 +273,10 @@ class PropertyParser(object):
             for p in headers[header]:
                 properties += "%s%s\n" % (space4, p.key)
                 for line in p.txt.split("\n"):
-                    properties += "%s%s\n" % (space6, line)
+                    if line:
+                        properties += "%s%s\n" % (space6, line)
+                    else:
+                        properties += "\n"
                 v = p.val
                 if not p.val:
                     v = "[empty]"

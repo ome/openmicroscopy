@@ -222,7 +222,7 @@ public class MetadataServiceTest extends AbstractServerTest {
         // link the image
         // create an image and link the annotation
         Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         ImageAnnotationLinkI link = new ImageAnnotationLinkI();
         link.setParent(image);
         link.setChild(data);
@@ -724,7 +724,7 @@ public class MetadataServiceTest extends AbstractServerTest {
         f = client.createSession(uuid, uuid);
         // Create an image.
         Image img = (Image) f.getUpdateService().saveAndReturnObject(
-                mmFactory.simpleImage(0));
+                mmFactory.simpleImage());
         // Link the tag and the image.
         ImageAnnotationLinkI link = new ImageAnnotationLinkI();
         link.setChild((Annotation) tagData);
@@ -766,7 +766,7 @@ public class MetadataServiceTest extends AbstractServerTest {
         tag.setTextValue(omero.rtypes.rstring("tag1"));
         Annotation tagData = (Annotation) iUpdate.saveAndReturnObject(tag);
         Image img = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         // Link the tag and the image.
         ImageAnnotationLinkI link = new ImageAnnotationLinkI();
         link.setChild((Annotation) tagData.proxy());
@@ -1318,9 +1318,9 @@ public class MetadataServiceTest extends AbstractServerTest {
     @Test
     public void testLoadSpecifiedAnnotationLinkedToImages() throws Exception {
         Image img1 = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         Image img2 = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
 
         LongAnnotation data1 = new LongAnnotationI();
         data1.setLongValue(omero.rtypes.rlong(1L));
@@ -1769,7 +1769,7 @@ public class MetadataServiceTest extends AbstractServerTest {
     public void testLoadSpecifiedAnnotationLinkedToImageWithModuloNS()
             throws Exception {
         Image img1 = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
 
         XmlAnnotation data1 = new XmlAnnotationI();
         data1.setTextValue(omero.rtypes.rstring("with modulo ns"));
@@ -1981,21 +1981,18 @@ public class MetadataServiceTest extends AbstractServerTest {
 
         Image image1 = new ImageI();
         image1.setName(omero.rtypes.rstring("image alpha from fileset one"));
-        image1.setAcquisitionDate(omero.rtypes.rtime(System.currentTimeMillis()));
         image1.setFileset(fileset1);
         image1 = (Image) iUpdate.saveAndReturnObject(image1);
         final long image1Id = image1.getId().getValue();
 
         Image image2 = new ImageI();
         image2.setName(omero.rtypes.rstring("image alpha from fileset two"));
-        image2.setAcquisitionDate(omero.rtypes.rtime(System.currentTimeMillis()));
         image2.setFileset(fileset2);
         image2 = (Image) iUpdate.saveAndReturnObject(image2);
         final long image2Id = image2.getId().getValue();
 
         Image image3 = new ImageI();
         image3.setName(omero.rtypes.rstring("image beta from fileset two"));
-        image3.setAcquisitionDate(omero.rtypes.rtime(System.currentTimeMillis()));
         image3.setFileset(fileset2);
         image3 = (Image) iUpdate.saveAndReturnObject(image3);
         final long image3Id = image3.getId().getValue();

@@ -516,7 +516,7 @@ public class SharingTest extends AbstractManagedContextTest {
         assertEquals(1, share.getContentMap(id).size());
 
         Dataset d2 = new Dataset("elements transitively");
-        Image i2 = new Image(new Timestamp(0), "transitive image");
+        Image i2 = new Image("transitive image");
         d2.linkImage(i2);
         d2 = iUpdate.saveAndReturnObject(d2);
 
@@ -586,7 +586,7 @@ public class SharingTest extends AbstractManagedContextTest {
     public void testUserAddsPrivateImageAndThenShares() {
 
         Experimenter owner = loginNewUser();
-        Image i = new Image(new Timestamp(System.currentTimeMillis()), "test");
+        Image i = new Image("test");
         i.getDetails().setPermissions(Permissions.USER_PRIVATE);
         i = iUpdate.saveAndReturnObject(i);
 

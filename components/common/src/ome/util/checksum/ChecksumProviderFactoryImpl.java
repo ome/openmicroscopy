@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,6 @@
 package ome.util.checksum;
 
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
@@ -44,6 +43,8 @@ public class ChecksumProviderFactoryImpl implements ChecksumProviderFactory {
         // Dumb implementation for now
         // TODO: remove the switch statement
         switch (checksumType) {
+            case FILE_SIZE:
+                return new FileSizeChecksumProviderImpl();
             case ADLER32:
                 return new Adler32ChecksumProviderImpl();
             case CRC32:

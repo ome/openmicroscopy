@@ -20,6 +20,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 
 import ome.annotations.NotNull;
@@ -1094,8 +1095,7 @@ public class MetadataImpl
         } else {
             rootIdByFileset = null;
         }
-        // TODO: Once we upgrade the Guava JAR, make map a SetMultimap and return Multimaps.asMap(map);
-        final Map<Long, Set<IObject>> map = new HashMap<Long, Set<IObject>>();
+        final SetMultimap<Long, IObject> map = HashMultimap.create();
         final Set<Long> filesetIds = rootIdByFileset == null ? ids : rootIdByFileset.keySet();
         if (CollectionUtils.isNotEmpty(filesetIds)) {
             for (final Object[] result : iQuery.projection(LOAD_IMPORT_LOGS,
@@ -1109,15 +1109,11 @@ public class MetadataImpl
                     mapKeys = rootIdByFileset.get(filesetId);
                 }
                 for (final Long mapKey : mapKeys) {
-                    Set<IObject> logFiles = map.get(mapKey);
-                    if (logFiles == null) {
-                        logFiles = new HashSet<IObject>();
-                        map.put(mapKey,  logFiles);
-                    }
-                    logFiles.add(logFile);
+                    map.put(mapKey, logFile);
                 }
             }
         }
-        return map;
+        /* wrap in a hash map so that ModelMapper may create a new instance */
+        return new HashMap<Long, Set<IObject>>(Multimaps.asMap(map));
     }
 }

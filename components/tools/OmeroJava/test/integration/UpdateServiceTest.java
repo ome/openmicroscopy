@@ -136,7 +136,7 @@ public class UpdateServiceTest extends AbstractServerTest {
      */
     @Test
     public void testVersionHandling() throws Exception {
-        Image img = mmFactory.simpleImage(0);
+        Image img = mmFactory.simpleImage();
         img.setName(rstring("version handling"));
         Image sent = (Image) iUpdate.saveAndReturnObject(img);
         long version = sent.getDetails().getUpdateEvent().getId().getValue();
@@ -158,7 +158,7 @@ public class UpdateServiceTest extends AbstractServerTest {
     @Test(groups = "ticket:118")
     public void tesVersionNotIncreasingAfterUpdate() throws Exception {
         CommentAnnotation ann = new CommentAnnotationI();
-        Image img = mmFactory.simpleImage(0);
+        Image img = mmFactory.simpleImage();
         img.setName(rstring("version_test"));
         img = (Image) iUpdate.saveAndReturnObject(img);
 
@@ -188,7 +188,7 @@ public class UpdateServiceTest extends AbstractServerTest {
     @Test(groups = "ticket:118")
     public void testVersionNotIncreasingOnUnmodifiedObject() throws Exception {
         Image img = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         assertNotNull(img.getDetails().getUpdateEvent());
         long id = img.getDetails().getUpdateEvent().getId().getValue();
         Image test = (Image) iUpdate.saveAndReturnObject(img);
@@ -240,7 +240,7 @@ public class UpdateServiceTest extends AbstractServerTest {
      */
     @Test(groups = "ticket:1106")
     public void testEmptyImage() throws Exception {
-        Image p = (Image) iUpdate.saveAndReturnObject(mmFactory.simpleImage(0));
+        Image p = (Image) iUpdate.saveAndReturnObject(mmFactory.simpleImage());
         ImageData img = new ImageData(p);
         assertNotNull(p);
         assertTrue(p.getId().getValue() > 0);
@@ -258,7 +258,7 @@ public class UpdateServiceTest extends AbstractServerTest {
     @Test
     public void testCreateImageWithPixels() throws Exception {
         Image img = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         assertNotNull(img);
         Pixels pixels = mmFactory.createPixels();
         img.addPixels(pixels);
@@ -424,11 +424,9 @@ public class UpdateServiceTest extends AbstractServerTest {
 
         Image d1 = new ImageI();
         d1.setName(rstring(name));
-        d1.setAcquisitionDate(rtime(0));
         d1 = (Image) iUpdate.saveAndReturnObject(d1);
 
         Image d2 = new ImageI();
-        d2.setAcquisitionDate(rtime(0));
         d2.setName(rstring(name));
         d2 = (Image) iUpdate.saveAndReturnObject(d2);
 
@@ -482,7 +480,7 @@ public class UpdateServiceTest extends AbstractServerTest {
      */
     private void linkAnnotationAndObjects(Annotation data) throws Exception {
         // Image
-        Image i = (Image) iUpdate.saveAndReturnObject(mmFactory.simpleImage(0));
+        Image i = (Image) iUpdate.saveAndReturnObject(mmFactory.simpleImage());
         ImageAnnotationLink l = new ImageAnnotationLinkI();
         l.setParent((Image) i.proxy());
         l.setChild((Annotation) data.proxy());
@@ -670,7 +668,7 @@ public class UpdateServiceTest extends AbstractServerTest {
                 .saveAndReturnObject(annotation);
         assertNotNull(data);
         // Image
-        Image i = (Image) iUpdate.saveAndReturnObject(mmFactory.simpleImage(0));
+        Image i = (Image) iUpdate.saveAndReturnObject(mmFactory.simpleImage());
         ImageAnnotationLink l = new ImageAnnotationLinkI();
         l.setParent((Image) i.proxy());
         l.setChild((Annotation) data.proxy());
@@ -726,7 +724,7 @@ public class UpdateServiceTest extends AbstractServerTest {
 
         // create an image.
         Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
 
         // create the tag.
         TagAnnotationI tag = new TagAnnotationI();
@@ -991,7 +989,7 @@ public class UpdateServiceTest extends AbstractServerTest {
     @Test
     public void testCreateROIWithEllipse() throws Exception {
         ImageI image = (ImageI) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         RoiI roi = new RoiI();
         roi.setImage(image);
         RoiI serverROI = (RoiI) iUpdate.saveAndReturnObject(roi);
@@ -1043,7 +1041,7 @@ public class UpdateServiceTest extends AbstractServerTest {
     @Test
     public void testCreateROIWithPoint() throws Exception {
         Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         Roi roi = new RoiI();
         roi.setImage(image);
         Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
@@ -1091,7 +1089,7 @@ public class UpdateServiceTest extends AbstractServerTest {
     @Test
     public void testCreateROIWithRectangle() throws Exception {
         Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         Roi roi = new RoiI();
         roi.setImage(image);
         Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
@@ -1156,7 +1154,7 @@ public class UpdateServiceTest extends AbstractServerTest {
     @Test
     public void testCreateROIWithPolygon() throws Exception {
         Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         Roi roi = new RoiI();
         roi.setImage(image);
         Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
@@ -1206,7 +1204,7 @@ public class UpdateServiceTest extends AbstractServerTest {
     @Test
     public void testCreateROIWithPolyline() throws Exception {
         Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         Roi roi = new RoiI();
         roi.setImage(image);
         Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
@@ -1255,7 +1253,7 @@ public class UpdateServiceTest extends AbstractServerTest {
     @Test
     public void testCreateROIWithLine() throws Exception {
         Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         Roi roi = new RoiI();
         roi.setImage(image);
         Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
@@ -1308,7 +1306,7 @@ public class UpdateServiceTest extends AbstractServerTest {
     @Test
     public void testCreateROIWithMask() throws Exception {
         Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         Roi roi = new RoiI();
         roi.setImage(image);
         Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
@@ -1625,9 +1623,9 @@ public class UpdateServiceTest extends AbstractServerTest {
         assertNotNull(data);
         // Image
         Image i1 = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(0));
+                .saveAndReturnObject(mmFactory.simpleImage());
         Image i2 = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(0));
+                .saveAndReturnObject(mmFactory.simpleImage());
         List<IObject> links = new ArrayList<IObject>();
         ImageAnnotationLink l = new ImageAnnotationLinkI();
         l.setParent((Image) i1.proxy());
@@ -1675,9 +1673,9 @@ public class UpdateServiceTest extends AbstractServerTest {
         assertNotNull(data);
         // Image
         Image i1 = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(0));
+                .saveAndReturnObject(mmFactory.simpleImage());
         Image i2 = (Image) iUpdate
-                .saveAndReturnObject(mmFactory.simpleImage(0));
+                .saveAndReturnObject(mmFactory.simpleImage());
         ImageAnnotationLink l = new ImageAnnotationLinkI();
         l.setParent((Image) i1.proxy());
         l.setChild((Annotation) data.proxy());
@@ -1785,7 +1783,6 @@ public class UpdateServiceTest extends AbstractServerTest {
         // comment linked to image
         Image image = new ImageI();
         image.setName(omero.rtypes.rstring("p"));
-        image.setAcquisitionDate(omero.rtypes.rtime(100000));
         image = (Image) iUpdate.saveAndReturnObject(image);
         cp = new CommentAnnotationI();
         cp.setTextValue(omero.rtypes.rstring("comment"));
@@ -1844,7 +1841,7 @@ public class UpdateServiceTest extends AbstractServerTest {
     @Test
     public void testCreateROIWithPolylineUsingSchema() throws Exception {
         Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         Roi roi = new RoiI();
         roi.setImage(image);
         Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
@@ -1893,7 +1890,7 @@ public class UpdateServiceTest extends AbstractServerTest {
     @Test
     public void testCreateROIWithPolygonUsingSchema() throws Exception {
         Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .simpleImage(0));
+                .simpleImage());
         Roi roi = new RoiI();
         roi.setImage(image);
         Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);

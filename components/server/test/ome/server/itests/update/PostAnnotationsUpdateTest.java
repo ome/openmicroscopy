@@ -23,8 +23,7 @@ public class PostAnnotationsUpdateTest extends AbstractUpdateTest {
     @Test
     public void testUpdateReloadsAfterMerge() {
         Pixels pix = ObjectFactory.createPixelGraph(null);
-        java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
-        Image i = new Image(testTimestamp, "size");
+        Image i = new Image("size");
         Dataset d = new Dataset("size");
         i.addPixels(pix);
         i = iUpdate.saveAndReturnObject(i);
@@ -56,11 +55,10 @@ public class PostAnnotationsUpdateTest extends AbstractUpdateTest {
 
     @Test
     public void testUpdateReloadsAfterMergeOfArray() {
-        java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
         Image[] imgs = new Image[2];
-        imgs[0] = new Image(testTimestamp, "arr");
+        imgs[0] = new Image("arr");
         imgs[0].addPixels(ObjectFactory.createPixelGraph(null));
-        imgs[1] = new Image(testTimestamp, "arr");
+        imgs[1] = new Image("arr");
         imgs[1].addPixels(ObjectFactory.createPixelGraph(null));
 
         IObject[] objs = iUpdate.saveAndReturnArray(imgs);

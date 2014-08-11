@@ -30,6 +30,7 @@ from conf import *
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.autosummary', 'sphinx.ext.todo', 'sphinx.ext.coverage', 'sphinx.ext.pngmath']
 
+autodoc_default_flags = ['members', 'undoc-members', 'private-members']
 # General information about the project.
 project = u'OMERO.py API'
 targetname = 'OmeroPyAPI'

@@ -369,6 +369,32 @@ public class PojoMapper
     }
     
     /**
+     * Converts the specified type to its corresponding type for search by HQL query
+     *
+     * @param nodeType The type to convert.
+     * @return See above.
+     */
+    public static String convertTypeForSearchByQuery(Class nodeType) {
+        if (nodeType.equals(Image.class) || nodeType.equals(ImageData.class))
+            return Image.class.getSimpleName();
+        else if (nodeType.equals(Dataset.class)
+                || nodeType.equals(DatasetData.class))
+            return Dataset.class.getSimpleName();
+        else if (nodeType.equals(Project.class)
+                || nodeType.equals(ProjectData.class))
+            return Project.class.getSimpleName();
+        else if (nodeType.equals(Screen.class)
+                || nodeType.equals(ScreenData.class))
+            return Screen.class.getSimpleName();
+        else if (nodeType.equals(Well.class) || nodeType.equals(WellData.class))
+            return Well.class.getSimpleName();
+        else if (nodeType.equals(Plate.class)
+                || nodeType.equals(PlateData.class))
+            return Plate.class.getSimpleName();
+        throw new IllegalArgumentException("type not supported");
+    }
+    
+    /**
      * Converts the specified type to its corresponding type for search.
      *
      * @param nodeType The type to convert.

@@ -26,8 +26,15 @@ package org.openmicroscopy.shoola.util.ui.search;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Cursor;
+import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.net.URI;
+
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -58,11 +65,16 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 public class SearchHelp 
 	extends JDialog
 {
-
 	/** Button to close the window. */
 	private JButton closeButton;
 	
-	/** Closes and disposes. */
+	private String helpURL = "";
+	
+	/** Indicates if there was a problem opening the webbrowser */
+	private boolean helpWebbrowserError = false;
+	
+
+    /** Closes and disposes. */
 	private void close()
 	{
 		setVisible(false);
@@ -77,7 +89,6 @@ public class SearchHelp
 		
 			public void actionPerformed(ActionEvent e) {
 				close();
-		
 			}
 		
 		});
@@ -92,8 +103,11 @@ public class SearchHelp
 	private JPanel buildMain()
 	{
 		JPanel content = new JPanel();
+		BoxLayout lay = new BoxLayout(content, BoxLayout.PAGE_AXIS);
+		content.setLayout(lay);
 		content.setBorder(new TitledBorder(""));
 		content.add(new JLabel(formatText()));
+		content.add(linkout("OMERO Help Website", helpURL));
 		return content;
 	}
 	
@@ -117,22 +131,50 @@ public class SearchHelp
 	private String formatText()
 	{
 		StringBuffer buf = new StringBuffer();
-		buf.append("<html><body bgcolor=#F0F0F0>");
-		buf.append("Most of the time, a simple search will find relevant " +
-				"results. The following search operators are to help you" +
-				" refining a search");
-		buf.append("<h3 bgcolor=#FFFFF0>Wildcard Searches</h3>");
-		buf.append("<p>To perform a single character wildcard search, use " +
-				"the (\"?\") symbol. For example:</p>");
-		buf.append("<p bgcolor=#FFFFFF>Mitosi?</p>");
-		buf.append("<p><b>Will return images labelled Mitosis</b></p>");
-		buf.append("<p>To perform a multiple character wildcard search, " +
-				"use the (\"*\") symbol. For example</p>");
-		buf.append("<p bgcolor=#FFFFFF>Mito*</p>");
-		buf.append("<p><b>Will return any image labelled beginning " +
-				"with Mitosis</b></p>");
-		buf.append("</body></html>");
-		return buf.toString();
+                buf.append("<html><body>");
+                buf.append("<table>");
+                buf.append("<tr><td>?</td><td>Single character wildcard</td>");
+                buf.append("<tr><td>*</td><td>Multiple character wildcard</td>");
+                buf.append("<tr><td>AND</td><td>Results will contain both terms e.g. GFP AND H2B</td>");
+                buf.append("</table>");
+                buf.append("<p/>");
+                buf.append("<p>For more information see:</p>");
+                buf.append("</body></html>");
+                return buf.toString();
+	}
+	
+	/**
+	 * Creates a clickable 'link' label, which opens a browser with
+	 * the provided URL
+	 * @param name Name of the link
+	 * @param url The URL to open
+	 * @return
+	 */
+	private JLabel linkout(final String name, final String url) {
+        JLabel l = new JLabel("<html><a href=\"\">" + name + "</a></html>");
+
+        l.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        l.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                try {
+                    Desktop.getDesktop().browse(new URI(url));
+                } catch (Exception ex) {
+                    helpWebbrowserError = true;
+                    close();
+                }
+            }
+        });
+
+        return l;
+	}
+	
+	/**
+	 * Checks if there was an error opening the webbrowser
+	 * @return
+	 */
+	public boolean hasError() {
+	    return helpWebbrowserError;
 	}
 	
 	/** Builds and lays out the UI. */
@@ -140,8 +182,8 @@ public class SearchHelp
 	{
 		Container c = getContentPane();
 		IconManager icons = IconManager.getInstance();
-		TitlePanel title = new TitlePanel("Search Tips", "Tips about search",
-							icons.getIcon(IconManager.HELP_48));
+		TitlePanel title = new TitlePanel("Search Tips", "",
+							icons.getIcon(IconManager.HELP));
 		c.add(title, BorderLayout.NORTH);
 		c.add(buildMain(), BorderLayout.CENTER);
 		c.add(buildControl(), BorderLayout.SOUTH);
@@ -151,10 +193,12 @@ public class SearchHelp
 	 * Creates a new instance. 
 	 * 
 	 * @param owner The owner of the frame.
+	 * @param helpURL URL for the search help website
 	 */
-	public SearchHelp(JFrame owner)
+	public SearchHelp(JFrame owner, String helpURL)
 	{
 		super(owner);
+		this.helpURL = helpURL;
 		setModal(true);
 		setResizable(false);
 		initComponents();

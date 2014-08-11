@@ -18,22 +18,23 @@ LOG = logging.getLogger("omero.version")
 def needs_upgrade(client_version, server_version, verbose = False):
     """
     Tests whether the client version is behind the server version.
-    For example:
+    For example::
 
-    import omero
-    from omero_version import omero_version as client_version
-    
-    client = omero.client()
-    session = client.createSession()
-    config = session.getConfigService()
-    server_version = config.getVersion()
+        import omero
+        from omero_version import omero_version as client_version
 
-    upgrade = needs_upgrade(client_version, server_version)
-    if upgrade:
-       # Inform client
+        client = omero.client()
+        session = client.createSession()
+        config = session.getConfigService()
+        server_version = config.getVersion()
 
-    Alternatively, from the command-line:
-    ./versions.py --quiet 4.1.0 4.2.0-DEV || echo upgrade
+        upgrade = needs_upgrade(client_version, server_version)
+        if upgrade:
+           # Inform client
+
+    Alternatively, from the command-line::
+
+        ./versions.py --quiet 4.1.0 4.2.0-DEV || echo upgrade
 
     """
     try:

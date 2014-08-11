@@ -229,7 +229,7 @@ public class CommandLineImporter {
                 transfer.afterTransfer(handler.errorCount(), paths);
 
             } catch (CleanupFailure e) {
-                log.error("rcode=3 on failed cleanup");
+                log.error("Failed to cleanup {} files", e.getFailedFiles().size());
                 return 3;
             }
         }
@@ -344,6 +344,7 @@ public class CommandLineImporter {
             + "\n"
             + "  Background imports:\n"
             + "  -------------------\n\n"
+            + "    --auto_close            \tClose completed imports immediately.\n\n"
             + "    --minutes_wait=ARG      \tChoose how long the importer will wait on server-side processing.\n"
             + "                            \tARG > 0 implies the number of minutes to wait.\n"
             + "                            \tARG = 0 exits immediately. Use a *_completed option to clean up.\n"
@@ -358,8 +359,9 @@ public class CommandLineImporter {
             + "  Import speed:\n"
             + "  -------------\n\n"
             + "    --checksum_algorithm=ARG\tChoose a possibly faster algorithm for detecting file corruption,\n"
-            + "                            \te.g. Adler-32 (fast), CRC-32 (fast), MD5-128,\n"
-            + "                            \t     Murmur3-32, Murmur3-128, SHA1-160 (slow, default)\n\n"
+            + "                            \te.g. Adler-32 (fast), CRC-32 (fast), File-Size-64 (fast),\n"
+            + "                            \t     MD5-128, Murmur3-32, Murmur3-128,\n"
+            + "                            \t     SHA1-160 (slow, default)\n\n"
             + "  e.g. $ bin/omero import -- --checksum_algorithm=CRC-32 foo.tiff\n"
             + "       $ ./importer-cli --checksum_algorithm=Murmur3-128 bar.tiff\n"
             + "\n"
@@ -463,12 +465,14 @@ public class CommandLineImporter {
                 new LongOpt("close_completed", LongOpt.NO_ARGUMENT, null, 17);
         LongOpt waitCompleted =
                 new LongOpt("wait_completed", LongOpt.NO_ARGUMENT, null, 18);
+        LongOpt autoClose =
+                new LongOpt("auto_close", LongOpt.NO_ARGUMENT, null, 19);
 
         // DEPRECATED OPTIONS
         LongOpt plateName = new LongOpt(
-                "plate_name", LongOpt.REQUIRED_ARGUMENT, null, 19);
+                "plate_name", LongOpt.REQUIRED_ARGUMENT, null, 20);
         LongOpt plateDescription = new LongOpt(
-                "plate_description", LongOpt.REQUIRED_ARGUMENT, null, 20);
+                "plate_description", LongOpt.REQUIRED_ARGUMENT, null, 21);
 
         Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:h",
                 new LongOpt[] { debug, report, upload, logs, email,
@@ -476,7 +480,8 @@ public class CommandLineImporter {
                                 agent, annotationNamespace, annotationText,
                                 annotationLink, transferOpt, advancedHelp,
                                 checksumAlgorithm, minutesWait, closeCompleted,
-                                waitCompleted, plateName, plateDescription});
+                                waitCompleted, autoClose,
+                                plateName, plateDescription});
         int a;
 
         boolean doCloseCompleted = false;
@@ -580,9 +585,14 @@ public class CommandLineImporter {
                 doWaitCompleted = true;
                 break;
             }
+            case 19: {
+                minutesToWait = 0;
+                config.autoClose.set(true);
+                break;
+            }
             // ADVANCED END ---------------------------------------------------
             // DEPRECATED OPTIONS
-            case 19: {
+            case 20: {
                 if (userSpecifiedNameAlreadySet) {
                     usage();
                 }
@@ -590,7 +600,7 @@ public class CommandLineImporter {
                 userSpecifiedNameAlreadySet = true;
                 break;
             }
-            case 20: {
+            case 21: {
                 if (userSpecifiedDescriptionAlreadySet) {
                     usage();
                 }
@@ -811,7 +821,12 @@ class ImportCloser {
                 final ServiceInterfacePrx prx = sf.getByName(service);
                 final ImportProcessPrx imPrx = ImportProcessPrxHelper.checkedCast(prx);
                 if (imPrx != null) {
-                    rv.add(imPrx);
+                    try {
+                        imPrx.ice_ping();
+                        rv.add(imPrx);
+                    } catch (Ice.ObjectNotExistException onee) {
+                        // ignore
+                    }
                 }
             } catch (Exception e) {
                 log.warn("Failure accessing active service", e);

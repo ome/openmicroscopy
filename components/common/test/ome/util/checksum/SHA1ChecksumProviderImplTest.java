@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 
 @Test
 public class SHA1ChecksumProviderImplTest
-    extends AbstractChecksumProviderIntegrationTest {
+    extends AbstractChecksumProviderAlgorithmTest {
 
     private static EnumMap<ChecksumTestVector, String> map =
             new EnumMap<ChecksumTestVector, String>(ChecksumTestVector.class);

@@ -4,7 +4,7 @@
    Primary OmeroPy types
 
    Classes:
-      - omero.client    -- Main OmeroPy connector object
+      omero.client    -- Main OmeroPy connector object
 
    Copyright 2007, 2008 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
@@ -53,7 +53,7 @@ __import_style__ = None
 
 def client_wrapper(*args, **kwargs):
     """
-    Returns an instance of L{omero.gateway.BlitzGateway} created with all
+    Returns an instance of :class:`omero.gateway.BlitzGateway` created with all
     arguments passed to this method
 
     @return:    See above

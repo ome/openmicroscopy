@@ -149,6 +149,7 @@ def internal_service_factory(communicator, user="root", group=None, retries=6, i
     work internally to the grid, i.e. behind the Glacier2
     firewall. It is intended for internal servers to
     be able to create sessions for accessing the database. ::
+
         communicator := Ice.Communicator used to find the registry
         user         := Username which should have a session created
         group        := Group into which the session should be logged
@@ -743,7 +744,7 @@ class Environment:
 def get_user(default = None):
     """
     Returns the username. For most purposes, this value
-    will be the same as getpass.getuser on *nix and
+    will be the same as getpass.getuser on \*nix and
     win32api.GetUserName on Windows, but in some situations
     (when running without a terminal, etc) getuser may throw
     a KeyError. In which case, or if the username resolves to
@@ -813,7 +814,8 @@ def edit_path(path_or_obj, start_text):
 #From: http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/157035
 def tail_lines(filename,linesback=10,returnlist=0):
     """Does what "tail -10 filename" would have done
-       Parameters::
+       Parameters:
+
             filename   file to read
             linesback  Number of lines to read from end of file
             returnlist Return a list containing the lines instead of a string

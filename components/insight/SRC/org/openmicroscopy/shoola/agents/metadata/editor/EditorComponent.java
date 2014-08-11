@@ -36,14 +36,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 //Third-party libraries
-
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.FileAnnotationCheckResult;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
@@ -291,7 +291,8 @@ class EditorComponent
 		
 		// have to load the filesets immediately to determine if the
 		// show file path button in the toolbar should be activated or not
-		loadFileset(-1);
+		if (refObject != null && DataObject.class.isAssignableFrom(refObject.getClass()))
+		    loadFileset(-1);
 	}
 
 	/** 

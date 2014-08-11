@@ -19,54 +19,21 @@
 
 package ome.formats.importer.transfers;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Local-only file transfer mechanism which makes use of hard-linking
  * followed by the deletion of the original source file.
  *
- * This is only useful where the command "ln source target" will work.
- *
  * @since 5.0
  */
 public class MoveFileTransfer extends HardlinkFileTransfer {
 
     /**
-     * Deletes all hard-linked files
+     * Deletes all hard-linked files if there were no errors.
      */
     @Override
     public void afterTransfer(int errors, List<String> srcFiles) throws CleanupFailure {
-
-        if (errors > 0) {
-            log.error("*******************************************");
-            log.error("{} error(s) found.", errors);
-            log.error("MoveFileTransfer cleanup not performed!", errors);
-            log.error("The following files will *not* be deleted:");
-            for (String srcFile : srcFiles) {
-                log.error("\t{}", srcFile);
-            }
-            log.error("*******************************************");
-            return;
-        }
-
-        List<File> failedFiles = new ArrayList<File>();
-        for (String path : srcFiles) {
-            File srcFile = new File(path);
-            try {
-                log.info("Deleting source file {}...", srcFile);
-                if (!srcFile.delete()) {
-                    throw new RuntimeException("Failed to delete.");
-                }
-            } catch (Exception e) {
-                log.error("Failed to remove source file {}", srcFile);
-                failedFiles.add(srcFile);
-            }
-        }
-
-        if (!failedFiles.isEmpty()) {
-            throw new CleanupFailure(failedFiles);
-        }
+        deleteTransferredFiles(errors, srcFiles);
     }
 }

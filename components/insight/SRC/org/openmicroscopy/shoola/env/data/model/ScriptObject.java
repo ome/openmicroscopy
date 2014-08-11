@@ -142,6 +142,7 @@ public class ScriptObject
         IDENTIFIER_KEYS = new ArrayList<String>();
         IDENTIFIER_KEYS.add("id");
         IDENTIFIER_KEYS.add("ids");
+        IDENTIFIER_KEYS.add("image_id");//ij support.
     }
 
     /** The id of the script. */
@@ -624,7 +625,7 @@ public class ScriptObject
      */
     public boolean isIdentifier(String key)
     {
-        if (key == null) return false;
+        if (StringUtils.isBlank(key)) return false;
         key = key.trim().toLowerCase();
         return IDENTIFIER_KEYS.contains(key);
     }
@@ -641,6 +642,22 @@ public class ScriptObject
         return DATA_TYPE.equals(key);
     }
 
+    /**
+     * 
+     * @param data
+     * @param key
+     * @return
+     */
+    public boolean isSupportedType(pojos.DataObject data, String key)
+    {
+        if (data == null || StringUtils.isBlank(key)) return false;
+        if (key.contains("_")) {
+            String[] values = key.split("_");
+            Class<?> type = convertDataType(values[0]);
+            return (data.getClass().equals(type));
+        }
+        return false;
+    }
     /**
      * Overridden to return the name of the script.
      * @see java.lang.Object#toString()

@@ -2,8 +2,6 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # 
-# $Id$
-# 
 # Copyright 2006-2014 University of Dundee. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
@@ -18,12 +16,11 @@
 	<type id="ome.model.core.Image" named="true" described="true" annotated="true"><!-- TODO: review-->
 		<properties>
 			<!-- Acquisition Context 1 -->
-			<required name="acquisitionDate" type="timestamp"/>
+			<optional name="acquisitionDate" type="timestamp"/>
 			<optional name="archived" type="boolean"/>
 			<optional name="partial" type="boolean"/>
 			<optional name="format" type="ome.model.enums.Format"/>
 			<!-- Note: in the model acquisitionDate is called creationDate but the DB already has a creation date for the object -->
-			<!-- Note: in the model acquisitionDate(creationDate) is optional so if not available should be set to current time on import-->
 			<optional name="imagingEnvironment" type="ome.model.acquisition.ImagingEnvironment"/>
 			<!-- Note: objectiveSettings maps to ObjectiveRef (ID and values) in model-->
 			<optional name="objectiveSettings" type="ome.model.acquisition.ObjectiveSettings"/>
@@ -669,6 +666,7 @@
 		<entry name="Murmur3-32"/>
 		<entry name="Murmur3-128"/>
 		<entry name="SHA1-160"/>
+		<entry name="File-Size-64"/>
 	</enum>
 <!-- Pixels Entity -->
 	<enum id="ome.model.enums.DimensionOrder">

@@ -28,8 +28,6 @@ class HqlControl(BaseControl):
         parser.set_defaults(func=self.__call__)
         parser.add_argument("query", nargs="?", help="Single query to run")
         parser.add_argument(
-            "-q", "--quiet", action="store_true", help="No user input")
-        parser.add_argument(
             "--admin", help="Run an admin query (deprecated; use 'all')",
             default=False, action="store_true")
         parser.add_argument(
@@ -47,7 +45,7 @@ class HqlControl(BaseControl):
         if args.query:
             self.hql(args)
         else:
-            if args.quiet:
+            if self.ctx.isquiet:
                 self.ctx.die(67, "Can't ask for query with --quiet option")
             while True:
                 args.query = self.ctx.input("Enter query:")
@@ -70,7 +68,7 @@ class HqlControl(BaseControl):
         rv = self.project(q, args.query, p, ice_map)
         has_details = self.display(rv, style=args.style,
                                    idsonly=args.ids_only)
-        if args.quiet or not sys.stdout.isatty():
+        if self.ctx.isquiet or not sys.stdout.isatty():
             return
 
         input = """

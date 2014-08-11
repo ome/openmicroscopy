@@ -101,8 +101,8 @@ public class FullText extends SearchAction {
                             + "Plese use Search.onlyType()");
         }
 
-        if (query == null || query.length() < 1) {
-            throw new IllegalArgumentException("Query string must be non-empty");
+        if ( (query == null || query.length() < 1) && (from == null || from.length() < 1) && (to == null || to.length() < 1)) {
+            throw new IllegalArgumentException("Query string must be non-empty if no date range is provided");
         }
 
         if ((query.startsWith("*") || query.startsWith("?"))

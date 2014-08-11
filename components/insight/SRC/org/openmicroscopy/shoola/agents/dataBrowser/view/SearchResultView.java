@@ -24,11 +24,13 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
@@ -72,6 +74,10 @@ class SearchResultView extends JPanel {
     /** Reference to the table displaying the nodes. */
     private SearchResultTable objsTable;
 
+    /** Reference to the 'content' panel, either the table showing 
+        the results or the panel indicating that there are no results */
+    private Component contentPanel;
+    
     /**
      * Initializes the components composing the display.
      * 
@@ -79,14 +85,21 @@ class SearchResultView extends JPanel {
      *            The root node of the tree.
      */
     private void initComponents(ImageDisplay root) {
+        
         Collection<ImageDisplay> nodes = root.getChildrenDisplay();
         for (ImageDisplay node : nodes) {
             DataObject obj = (DataObject) node.getHierarchyObject();
             objs.add(obj);
         }
-
-        objsTable = new SearchResultTable(this, objs, browserModel);
-
+        
+        if(objs.isEmpty()) {
+            contentPanel = new JPanel();
+            ((JPanel)contentPanel).add(new JLabel("No results found"));
+        }
+        else { 
+            objsTable = new SearchResultTable(this, objs, browserModel);
+            contentPanel = objsTable;
+        }
     }
 
     /** Builds and lays out the UI. */
@@ -96,8 +109,7 @@ class SearchResultView extends JPanel {
 
         setLayout(new BorderLayout());
 
-        add(new JScrollPane(objsTable), BorderLayout.CENTER);
-
+        add(new JScrollPane(contentPanel), BorderLayout.CENTER);
     }
 
     /**
@@ -138,7 +150,8 @@ class SearchResultView extends JPanel {
      * Reloads the table (by creating a new TableModel)
      */
     void refreshTable() {
-        objsTable.refreshTable();
+        if(objsTable!=null)
+            objsTable.refreshTable();
     }
 
     /**

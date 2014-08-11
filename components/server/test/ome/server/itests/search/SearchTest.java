@@ -70,16 +70,13 @@ import org.testng.annotations.Test;
 @Test(groups = { "query", "fulltext", "search" })
 public class SearchTest extends AbstractTest {
 
-    private java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System
-            .currentTimeMillis());
-
     // User Examples
     // =========================================================================
     // This section tests provides various small example tests, and doesn't
     // try to comprehensively test the API
 
     public void testComplicatedLuceneQueries() {
-        Image i = new Image(testTimestamp, "Image with A - 1 reagent");
+        Image i = new Image("Image with A - 1 reagent");
         i = this.iUpdate.saveAndReturnObject(i);
         this.iUpdate.indexObject(i);
 
@@ -113,7 +110,7 @@ public class SearchTest extends AbstractTest {
 
         String uuid = uuid();
         String part = uuid.substring(0, uuid.indexOf("DASH"));
-        Image i = new Image(testTimestamp, "myIQueryImageTest");
+        Image i = new Image("myIQueryImageTest");
         TagAnnotation tag = new TagAnnotation();
         tag.setNs("theNamespaceInMyIQueryTest");
         tag.setTextValue("some test and an " + uuid + " to search");
@@ -175,9 +172,9 @@ public class SearchTest extends AbstractTest {
         String base2 = base + "2";
         String base3 = base + "3";
 
-        Image i1 = new Image(testTimestamp, base1);
-        Image i2 = new Image(testTimestamp, base2);
-        Image i3 = new Image(testTimestamp, base3);
+        Image i1 = new Image(base1);
+        Image i2 = new Image(base2);
+        Image i3 = new Image(base3);
 
         i1 = iUpdate.saveAndReturnObject(i1);
         i2 = iUpdate.saveAndReturnObject(i2);
@@ -339,7 +336,6 @@ public class SearchTest extends AbstractTest {
     public void testSimpleFullTextSearch() {
 
         Image i = new Image();
-        i.setAcquisitionDate(testTimestamp);
         i.setName(uuid());
         i = iUpdate.saveAndReturnObject(i);
 
@@ -369,7 +365,6 @@ public class SearchTest extends AbstractTest {
     public void testWildcardFullTextSearch() {
 
         Image i = new Image();
-        i.setAcquisitionDate(testTimestamp);
         i.setName(uuid());
         i = iUpdate.saveAndReturnObject(i);
 
@@ -417,7 +412,6 @@ public class SearchTest extends AbstractTest {
         final String[] missing = new String[] { jkl, mno, pqr, _456 };
 
         Image i = new Image();
-        i.setAcquisitionDate(testTimestamp);
         i.setName(abc + " " + def + " " + ghi);
         i = iUpdate.saveAndReturnObject(i);
         iUpdate.indexObject(i);
@@ -546,7 +540,7 @@ public class SearchTest extends AbstractTest {
     public void testAnnotatedWith() {
 
         String uuid = uuid();
-        Image i = new Image(testTimestamp, uuid);
+        Image i = new Image(uuid);
         TagAnnotation tag = new TagAnnotation();
         tag.setTextValue(uuid);
         i.linkAnnotation(tag);
@@ -596,7 +590,7 @@ public class SearchTest extends AbstractTest {
     public void testAnnotatedWithNoValue() {
 
         String uuid = uuid();
-        Image i = new Image(testTimestamp, uuid);
+        Image i = new Image(uuid);
         TagAnnotation tag = new TagAnnotation();
         tag.setTextValue(uuid);
         i.linkAnnotation(tag);
@@ -621,8 +615,8 @@ public class SearchTest extends AbstractTest {
 
     @Test
     public void testAnnotatedWithMultiple() {
-        Image i1 = new Image(testTimestamp, "i1");
-        Image i2 = new Image(testTimestamp, "i2");
+        Image i1 = new Image("i1");
+        Image i2 = new Image("i2");
 
         String uuid = uuid();
         TagAnnotation ta = new TagAnnotation();
@@ -664,8 +658,8 @@ public class SearchTest extends AbstractTest {
 
         String uuid1 = uuid();
         String uuid2 = uuid();
-        Image i1 = new Image(testTimestamp, uuid1);
-        Image i2 = new Image(testTimestamp, uuid2);
+        Image i1 = new Image(uuid1);
+        Image i2 = new Image(uuid2);
         i1 = iUpdate.saveAndReturnObject(i1);
         i2 = iUpdate.saveAndReturnObject(i2);
         iUpdate.indexObject(i1);
@@ -716,8 +710,8 @@ public class SearchTest extends AbstractTest {
 
         String uuid1 = uuid();
         String uuid2 = uuid();
-        Image i1 = new Image(testTimestamp, uuid1);
-        Image i2 = new Image(testTimestamp, uuid2);
+        Image i1 = new Image(uuid1);
+        Image i2 = new Image(uuid2);
         TagAnnotation t2 = new TagAnnotation();
         i2.linkAnnotation(t2);
         i1 = iUpdate.saveAndReturnObject(i1);
@@ -755,8 +749,8 @@ public class SearchTest extends AbstractTest {
 
         String uuid1 = uuid();
         String uuid2 = uuid();
-        Image i1 = new Image(testTimestamp, uuid1);
-        Image i2 = new Image(testTimestamp, uuid2);
+        Image i1 = new Image(uuid1);
+        Image i2 = new Image(uuid2);
         TagAnnotation t2 = new TagAnnotation();
         i2.linkAnnotation(t2);
         i1 = iUpdate.saveAndReturnObject(i1);
@@ -784,8 +778,8 @@ public class SearchTest extends AbstractTest {
 
         String uuid1 = uuid();
         String uuid2 = uuid();
-        Image i1 = new Image(testTimestamp, uuid1);
-        Image i2 = new Image(testTimestamp, uuid2);
+        Image i1 = new Image(uuid1);
+        Image i2 = new Image(uuid2);
         TagAnnotation t2 = new TagAnnotation();
         i2.linkAnnotation(t2);
         i1 = iUpdate.saveAndReturnObject(i1);
@@ -824,8 +818,8 @@ public class SearchTest extends AbstractTest {
         // byTagForGroups, byGroupForTags
 
         String uuid = uuid();
-        Image i1 = new Image(testTimestamp, uuid);
-        Image i2 = new Image(testTimestamp, uuid);
+        Image i1 = new Image(uuid);
+        Image i2 = new Image(uuid);
         TagAnnotation tag = new TagAnnotation();
         tag.setTextValue(uuid);
         i1.linkAnnotation(tag);
@@ -894,7 +888,7 @@ public class SearchTest extends AbstractTest {
         user.setOwner(e);
 
         String name = uuid();
-        Image i = new Image(testTimestamp, name);
+        Image i = new Image(name);
         TagAnnotation tag = new TagAnnotation();
         tag.setTextValue(name);
         i.linkAnnotation(tag);
@@ -1005,7 +999,7 @@ public class SearchTest extends AbstractTest {
         user.setGroup(g);
 
         String name = uuid();
-        Image i = new Image(testTimestamp, name);
+        Image i = new Image(name);
         TagAnnotation tag = new TagAnnotation();
         tag.setTextValue(name);
         i.linkAnnotation(tag);
@@ -1122,7 +1116,6 @@ public class SearchTest extends AbstractTest {
 
         String name = uuid();
         Image i = new Image();
-        i.setAcquisitionDate(testTimestamp);
         i.setName(name);
         TagAnnotation tag = new TagAnnotation();
         tag.setTextValue(name);
@@ -1237,7 +1230,6 @@ public class SearchTest extends AbstractTest {
 
         String name = uuid();
         Image i = new Image();
-        i.setAcquisitionDate(testTimestamp);
         i.setName(name);
         TagAnnotation tag = new TagAnnotation();
         tag.setTextValue(name);
@@ -1349,7 +1341,6 @@ public class SearchTest extends AbstractTest {
 
         String name = uuid();
         Image i = new Image();
-        i.setAcquisitionDate(testTimestamp);
         i.setName(name);
         TagAnnotation tag = new TagAnnotation();
         tag.setTextValue(name);
@@ -1461,7 +1452,6 @@ public class SearchTest extends AbstractTest {
         String name = uuid();
         String tag = uuid();
         Image i = new Image();
-        i.setAcquisitionDate(testTimestamp);
         i.setName(name);
         TagAnnotation t = new TagAnnotation();
         t.setTextValue(tag);
@@ -1538,7 +1528,6 @@ public class SearchTest extends AbstractTest {
 
         String name = uuid();
         Image i = new Image();
-        i.setAcquisitionDate(testTimestamp);
         i.setName(name);
         i = iUpdate.saveAndReturnObject(i);
 
@@ -1583,9 +1572,9 @@ public class SearchTest extends AbstractTest {
     @Test(groups = { "HHH-879", "broken" })
     public void testOnlyAnnotatedWithMultiple() {
         String name = uuid();
-        Image onlyTag = new Image(testTimestamp, name);
-        Image onlyBool = new Image(testTimestamp, name);
-        Image both = new Image(testTimestamp, name);
+        Image onlyTag = new Image(name);
+        Image onlyBool = new Image(name);
+        Image both = new Image(name);
 
         TagAnnotation tag = new TagAnnotation();
         tag.setTextValue("tag");
@@ -1627,8 +1616,8 @@ public class SearchTest extends AbstractTest {
     @Test
     public void testMergedBatches() {
         String uuid1 = uuid(), uuid2 = uuid();
-        Image i1 = new Image(testTimestamp, uuid1);
-        Image i2 = new Image(testTimestamp, uuid2);
+        Image i1 = new Image(uuid1);
+        Image i2 = new Image(uuid2);
         i1 = iUpdate.saveAndReturnObject(i1);
         i2 = iUpdate.saveAndReturnObject(i2);
         iUpdate.indexObject(i1);
@@ -1658,10 +1647,10 @@ public class SearchTest extends AbstractTest {
         String uuid = uuid();
         TagAnnotation tag = new TagAnnotation();
         tag.setTextValue(uuid);
-        Image i1 = new Image(testTimestamp, uuid);
+        Image i1 = new Image(uuid);
         i1.setDescription("a");
         i1.linkAnnotation(tag);
-        Image i2 = new Image(testTimestamp, uuid);
+        Image i2 = new Image(uuid);
         i2.setDescription("b");
         i2.linkAnnotation(tag);
         i1 = iUpdate.saveAndReturnObject(i1);
@@ -1784,7 +1773,7 @@ public class SearchTest extends AbstractTest {
         // description, which should could before the other image with the "a"
         // description if we reverse the id order
 
-        Image i3 = new Image(testTimestamp, uuid);
+        Image i3 = new Image(uuid);
         i3.setDescription("a");
         i3.linkAnnotation(tag);
         i3 = iUpdate.saveAndReturnObject(i3);
@@ -1821,7 +1810,7 @@ public class SearchTest extends AbstractTest {
     @Test
     public void testFetchAnnotations() {
         String uuid = uuid();
-        Image i = new Image(testTimestamp, uuid);
+        Image i = new Image(uuid);
         TagAnnotation tag = new TagAnnotation();
         tag.setTextValue(uuid);
         LongAnnotation la = new LongAnnotation();
@@ -2006,7 +1995,7 @@ public class SearchTest extends AbstractTest {
     @Test(groups = "ticket:975")
     public void testImagesAndTagsReturnedSimple() {
 
-        Image i = new Image(testTimestamp, "annotation");
+        Image i = new Image("annotation");
         TagAnnotation tag = new TagAnnotation();
         tag.setTextValue("annotation");
         i.linkAnnotation(tag);
@@ -2041,12 +2030,12 @@ public class SearchTest extends AbstractTest {
     @Test(groups = "ticket:975")
     public void testImagesAndTagsReturnedAccurate() {
 
-        Image i = new Image(testTimestamp, "annotation");
+        Image i = new Image("annotation");
         IUpdate update = this.factory.getUpdateService();
         i = update.saveAndReturnObject(i);
         update.indexObject(i);
 
-        i = new Image(testTimestamp, "foo");
+        i = new Image("foo");
         TagAnnotation tag = new TagAnnotation();
         tag.setTextValue("annotation");
         i.linkAnnotation(tag);
@@ -2084,7 +2073,7 @@ public class SearchTest extends AbstractTest {
 
         // Save a public image
         Experimenter user1 = loginNewUser(Permissions.COLLAB_READONLY);
-        Image i = new Image(testTimestamp, "foo");
+        Image i = new Image("foo");
         i = update.saveAndReturnObject(i);
         update.indexObject(i);
         ids.add(i.getId());
@@ -2124,7 +2113,7 @@ public class SearchTest extends AbstractTest {
 
         IUpdate update = this.factory.getUpdateService();
 
-        Image i = new Image(testTimestamp, "foo");
+        Image i = new Image("foo");
         TagAnnotation tag = new TagAnnotation();
         tag.setTextValue("annotation");
         i.linkAnnotation(tag);
@@ -2159,7 +2148,7 @@ public class SearchTest extends AbstractTest {
 
         IUpdate update = this.factory.getUpdateService();
 
-        Image i = new Image(testTimestamp, "foo");
+        Image i = new Image("foo");
         TagAnnotation tag = new TagAnnotation();
         tag.setTextValue("annotation");
         FileAnnotation file = new FileAnnotation();
@@ -2199,7 +2188,7 @@ public class SearchTest extends AbstractTest {
 
         // Save a public image
         Experimenter user1 = loginNewUser();
-        Image i = new Image(testTimestamp, "foo");
+        Image i = new Image("foo");
         i = update.saveAndReturnObject(i);
         update.indexObject(i);
         ids.add(i.getId());
@@ -2239,7 +2228,7 @@ public class SearchTest extends AbstractTest {
         Executor ex = (Executor) this.applicationContext.getBean("executor");
 
         Experimenter user1 = loginNewUser();
-        Image i = new Image(testTimestamp, "user1");
+        Image i = new Image("user1");
         i = this.iUpdate.saveAndReturnObject(i);
 
         Experimenter user2 = loginNewUser();
@@ -2277,7 +2266,6 @@ public class SearchTest extends AbstractTest {
 
         // Add an image as the owner
         Image i = new Image();
-        i.setAcquisitionDate(testTimestamp);
         i.setName("Some text " + uuid + " blah blah");
         i = this.iUpdate.saveAndReturnObject(i);
 
@@ -2332,7 +2320,7 @@ public class SearchTest extends AbstractTest {
     public void testAddingTermAnnotation() throws Exception {
 
         String uuid = uuid();
-        Image i = new Image(testTimestamp, "name");
+        Image i = new Image("name");
         TermAnnotation term = new TermAnnotation();
         term.setTermValue("go:" + uuid);
         i.linkAnnotation(term);
@@ -2358,7 +2346,7 @@ public class SearchTest extends AbstractTest {
     public void testFileAnnotationIsFindableByFileName() throws Exception {
 
         String uuid = uuid();
-        Image i = new Image(testTimestamp, "name");
+        Image i = new Image("name");
         FileAnnotation fa = new FileAnnotation();
         FileUploader uploader = new FileUploader(this.factory, "my-text", uuid,
                 "/dev/null");
@@ -2388,7 +2376,7 @@ public class SearchTest extends AbstractTest {
 
         String name = uuid();
         String tag = uuid();
-        Image i = new Image(testTimestamp, name);
+        Image i = new Image(name);
         i = iUpdate.saveAndReturnObject(i);
         iUpdate.indexObject(i);
 
@@ -2421,8 +2409,8 @@ public class SearchTest extends AbstractTest {
         String[] parts = uuid.split("-");
         String rejoined = parts[1] + "-" + parts[3] + "-" + parts[2];
 
-        Image image1 = new Image(testTimestamp, uuid);
-        Image image2 = new Image(testTimestamp, rejoined);
+        Image image1 = new Image(uuid);
+        Image image2 = new Image(rejoined);
         image1 = iUpdate.saveAndReturnObject(image1);
         image2 = iUpdate.saveAndReturnObject(image2);
         iUpdate.indexObject(image1);
@@ -2461,7 +2449,7 @@ public class SearchTest extends AbstractTest {
 
         String name = uuid();
         String tag = "aurora";
-        Image i = new Image(testTimestamp, name);
+        Image i = new Image(name);
         TagAnnotation aurora = new TagAnnotation();
         aurora.setTextValue("aurora");
         TagAnnotation jj99 = new TagAnnotation();

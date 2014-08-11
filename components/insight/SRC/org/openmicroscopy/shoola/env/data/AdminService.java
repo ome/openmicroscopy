@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.AdminService 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -32,11 +32,11 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
-
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -103,16 +103,41 @@ public interface AdminService
      * 
      * @param ctx The security context.
      * @param group The group to update.
-     * @param permissions The desired permissions level or <code>-1</code>.
      * @return See above.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occurred while trying to
      * retrieve data from OMERO service. 
      */
-    public GroupData updateGroup(SecurityContext ctx, GroupData group,
-            int permissions)
+    public GroupData updateGroup(SecurityContext ctx, GroupData group)
                     throws DSOutOfServiceException, DSAccessException;
 
+    /**
+     * Updates the specified group's permissions.
+     * 
+     * @param ctx The security context.
+     * @param group The group to update.
+     * @param permissions The desired permissions level
+     * @param adapter	The adapter to handle the result
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occurred while trying to
+     * retrieve data from OMERO service. 
+     */
+    public void updateGroupPermissions(SecurityContext ctx, GroupData group,
+            int permissions, DSCallAdapter adapter)
+                    throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Reloads a group from the server
+     * @param ctx The security context.
+     * @param group The group to load.
+     * @return
+     * @throws DSOutOfServiceException
+     * @throws DSAccessException
+     */
+    public GroupData reloadGroup(SecurityContext ctx, GroupData group)
+            throws DSOutOfServiceException, DSAccessException ;
+    
     /**
      * Changes the current group of the specified user.
      * 

@@ -162,8 +162,6 @@ module omero {
         const string NSEDITORPROTOCOL = "openmicroscopy.org/omero/editor/protocol";
         const string NSEDITOREXPERIMENT = "openmicroscopy.org/omero/editor/experiment";
         const string NSMOVIE = "openmicroscopy.org/omero/movie";
-        
-
     };
 
     /**
@@ -172,19 +170,21 @@ module omero {
     module namespaces {
         const string NSFSRENAME = "openmicroscopy.org/omero/fs/rename";
         const string NSMEASUREMENT = "openmicroscopy.org/omero/measurement";
+        const string NSAUTOCLOSE = "openmicroscopy.org/omero/import/autoClose";
         const string NSCOMPANIONFILE = "openmicroscopy.org/omero/import/companionFile";
         const string NSLOGFILE = "openmicroscopy.org/omero/import/logFile";
         const string NSFILETRANSFER = "openmicroscopy.org/omero/import/fileTransfer";
         const string NSEXPERIMENTERPHOTO = "openmicroscopy.org/omero/experimenter/photo";
         const string NSBULKANNOTATIONS = "openmicroscopy.org/omero/bulk_annotations";
         const string NSOMETIFF = "openmicroscopy.org/omero/ome_tiff";
+
         //
         // omero.grid.Param.namespaces in Scripts.ice
         //
         const string NSCREATED = "openmicroscopy.org/omero/scripts/results/created";
         const string NSDOWNLOAD = "openmicroscopy.org/omero/scripts/results/download";
         const string NSVIEW = "openmicroscopy.org/omero/scripts/results/view";
-        
+
         //
         // modulo namespaces for <a href="http://www.openmicroscopy.org/site/support/ome-model/developers/6d-7d-and-8d-storage.html">6d-7d-and-8d-storage</a>
         //
@@ -195,11 +195,11 @@ module omero {
      * Namespaces for analysis.
      **/
     module analysis {
-    
+
        /** namespaces related to the FLIM analysis. **/
        module flim {
          const string NSFLIM = "openmicroscopy.org/omero/analysis/flim";
-         
+
          //keywords associated to the namespace.
          const string KEYWORDFLIMCELL = "Cell";
          const string KEYWORDFLIMBACKGROUND = "Background";

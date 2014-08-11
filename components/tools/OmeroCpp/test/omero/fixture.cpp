@@ -24,7 +24,6 @@ using namespace omero::rtypes;
 omero::model::ImagePtr new_ImageI()
 {
     omero::model::ImagePtr img = new omero::model::ImageI();
-    img->setAcquisitionDate(omero::rtypes::rtime(0));
     return img;
 }
 

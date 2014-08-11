@@ -163,7 +163,6 @@ public class FileParserTest extends AbstractTest {
 
     private Image new_Image() {
         Image i = new Image();
-        i.setAcquisitionDate(new Timestamp(0));
         return i;
     }
 

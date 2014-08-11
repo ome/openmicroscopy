@@ -33,13 +33,6 @@ import loci.formats.UnknownFormatException;
 import loci.formats.UnsupportedCompressionException;
 import loci.formats.in.MIASReader;
 
-import org.apache.commons.codec.binary.Hex;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
-
-import ch.qos.logback.classic.ClassicConstants;
-
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.OverlayMetadataStore;
 import ome.formats.importer.ImportConfig;
@@ -54,9 +47,11 @@ import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
 import omero.cmd.ERR;
 import omero.cmd.HandleI.Cancel;
+import omero.cmd.HandlePrx;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
 import omero.cmd.Response;
+import omero.constants.namespaces.NSAUTOCLOSE;
 import omero.grid.ImportRequest;
 import omero.grid.ImportResponse;
 import omero.model.Annotation;
@@ -71,6 +66,15 @@ import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.ScriptJob;
 import omero.model.ThumbnailGenerationJob;
+
+import org.apache.commons.codec.binary.Hex;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+
+
+import ch.qos.logback.classic.ClassicConstants;
 
 /**
  * Wrapper around {@link FilesetJobLink} instances which need to be handled
@@ -147,7 +151,16 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
     private List<Plate> plateList;
 
+    private boolean autoClose;
+
     private final String token;
+
+
+    /**
+     * Set by ManagedImportProcessI when verifyUpload has been called.
+     */
+    public HandlePrx handle;
+
 
     public ManagedImportRequestI(Registry reg, TileSizes sizes,
             RepositoryDao dao, OMEROWrapper wrapper, String token) {
@@ -202,6 +215,8 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             doThumbnails = settings.doThumbnails == null ? true :
                 settings.doThumbnails.getValue();
 
+            detectAutoClose();
+
             fileName = file.getFullFsPath();
             shortName = file.getName();
             format = null;
@@ -237,36 +252,115 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         } finally {
             MDC.clear();
         }
+    }
 
+    private void cleanupReader() {
+        try {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } finally {
+                    reader = null;
+                }
+            }
+        } catch (Throwable e){
+            log.error("Failed on cleanupReader", e);
+        }
+    }
 
+    private void cleanupStore() {
+        try {
+            if (store != null) {
+                try {
+                    store.logout();
+                } finally {
+                    store = null;
+                }
+            }
+        } catch (Throwable e) {
+            log.error("Failed on cleanupStore", e);
+        }
+    }
+
+    private void cleanupSession() {
+        try {
+            if (sf != null) {
+                try {
+                    sf.destroy();
+                } finally {
+                    sf = null;
+                }
+            }
+        } catch (Throwable e) {
+            log.error("Failed on cleanupSession", e);
+        }
+    }
+
+    private void detectAutoClose() {
+
+        // PythonImporter et al. may pass a null settings.
+        if (settings == null || settings.userSpecifiedAnnotationList == null) {
+            return;
+        }
+
+        for (Annotation a : settings.userSpecifiedAnnotationList) {
+            if (a == null) {
+                continue;
+            }
+            String ns = null;
+            if (a.isLoaded()) {
+                ns = a.getNs() == null ? null : a.getNs().getValue();
+            } else {
+                if (a.getId() == null) {
+                    // not sure what we can do with this annotation then.
+                    continue;
+                }
+                ome.model.annotations.Annotation a2 =
+                    (ome.model.annotations.Annotation) helper.getSession()
+                        .get(ome.model.annotations.Annotation.class,
+                            a.getId().getValue());
+                ns = a2.getNs();
+            }
+            if (NSAUTOCLOSE.value.equals(ns)) {
+                autoClose = true;
+                return;
+            }
+        }
+    }
+
+    private void autoClose() {
+        if (autoClose) {
+            log.info("Auto-closing...");
+            try {
+                if (handle == null) {
+                    log.warn("No handle for closing");
+                } else {
+                    handle.close();
+                }
+            } catch (Throwable t) {
+                log.error("Failed to close handle on autoClose", t);
+            }
+            try {
+                process.close();
+            } catch (Ice.ObjectNotExistException onee) {
+                // Likely already closed.
+            } catch (Throwable t) {
+                log.error("Failed to close process on autoClose", t);
+            }
+        }
     }
 
     /**
      * Called during {@link #getResponse()}.
      */
     private void cleanup() {
-
         MDC.put("fileset", logFilename);
         try {
-            if (reader != null) {
-                reader.close();
-            }
-        } catch (Throwable e){
-            log.error(e.toString()); // slf4j migration: toString()
-        }
-        try {
-            if (store != null) {
-                store.logout();
-            }
-        } catch (Throwable e) {
-            log.error(e.toString()); // slf4j migration: toString()
-        }
-        try {
-            if (sf != null) {
-                sf.destroy();
-            }
-        } catch (Throwable e) {
-            log.error(e.toString()); // slf4j migration: toString()
+            cleanupReader();
+            cleanupStore();
+            cleanupSession();
+        } finally {
+            autoClose();
         }
         log.info(ClassicConstants.FINALIZE_SESSION_MARKER, "Finalizing log file.");
         MDC.clear();
@@ -372,8 +466,11 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
     }
 
     public Response getResponse() {
-        cleanup();
-        return helper.getResponse();
+        Response rsp = helper.getResponse();
+        if (rsp != null) {
+            cleanup();
+        }
+        return rsp;
     }
 
     //

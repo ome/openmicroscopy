@@ -19,8 +19,11 @@
 
 package ome.formats.importer.transfers;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
@@ -47,7 +50,8 @@ public abstract class AbstractFileTransfer implements FileTransfer {
         ln(HardlinkFileTransfer.class),
         ln_rm(MoveFileTransfer.class),
         ln_s(SymlinkFileTransfer.class),
-        upload(UploadFileTransfer.class);
+        upload(UploadFileTransfer.class),
+        upload_rm(UploadRmFileTransfer.class);
         Class<?> kls;
         Transfers(Class<?> kls) {
             this.kls = kls;
@@ -138,4 +142,64 @@ public abstract class AbstractFileTransfer implements FileTransfer {
         }
 
     }
+
+    /**
+     * Uses os.name to determine whether or not this JVM is running
+     * under Windows. This is mostly used for determining which executables
+     * to run.
+     */
+    protected boolean isWindows() {
+        return System.getProperty("os.name").startsWith("Windows");
+    }
+
+    protected void printLine() {
+        log.error("*******************************************");
+    }
+
+    /**
+     * Method used by subclasses during {@link #afterTransfer(int, List<String>)}
+     * if they would like to remove all the files transferred in the set.
+     */
+    protected void deleteTransferredFiles(int errors, List<String> srcFiles)
+        throws CleanupFailure {
+
+        if (errors > 0) {
+            printLine();
+            log.error("{} error(s) found.", errors);
+            log.error("{} cleanup not performed!", getClass().getSimpleName());
+            log.error("The following files will *not* be deleted:");
+            for (String srcFile : srcFiles) {
+                log.error("\t{}", srcFile);
+            }
+            printLine();
+            return;
+        }
+
+        List<File> failedFiles = new ArrayList<File>();
+        for (String path : srcFiles) {
+            File srcFile = new File(path);
+            try {
+                log.info("Deleting source file {}...", srcFile);
+                if (!srcFile.delete()) {
+                    throw new RuntimeException("Failed to delete.");
+                }
+            } catch (Exception e) {
+                log.error("Failed to remove source file {}", srcFile);
+                failedFiles.add(srcFile);
+            }
+        }
+
+        if (!failedFiles.isEmpty()) {
+            printLine();
+            log.error("Cleanup failed!");
+            log.error("{} files could not be removed and will need to " +
+                "be handled manually", failedFiles.size());
+            for (File failedFile : failedFiles) {
+                log.error("\t{}", failedFile.getAbsolutePath());
+            }
+            printLine();
+            throw new CleanupFailure(failedFiles);
+        }
+    }
+
 }

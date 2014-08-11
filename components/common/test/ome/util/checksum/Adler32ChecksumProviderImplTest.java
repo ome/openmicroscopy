@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -27,18 +27,18 @@ import org.testng.annotations.Test;
 
 @Test
 public class Adler32ChecksumProviderImplTest 
-    extends AbstractChecksumProviderIntegrationTest {
+    extends AbstractChecksumProviderAlgorithmTest {
 
     private static EnumMap<ChecksumTestVector, String> map =
             new EnumMap<ChecksumTestVector, String>(ChecksumTestVector.class);
 
     @BeforeClass
     public void setUp() {
-        map.put(ChecksumTestVector.ABC, "024d0127");
-        map.put(ChecksumTestVector.EMPTYARRAY, "00000001");
-        map.put(ChecksumTestVector.SMALLFILE, "2c9474a0");
-        map.put(ChecksumTestVector.MEDIUMFILE, "c1ec9857");
-        map.put(ChecksumTestVector.BIGFILE, "3b1bb373");
+        map.put(ChecksumTestVector.ABC, "27014d02");
+        map.put(ChecksumTestVector.EMPTYARRAY, "01000000");
+        map.put(ChecksumTestVector.SMALLFILE, "a074942c");
+        map.put(ChecksumTestVector.MEDIUMFILE, "5798ecc1");
+        map.put(ChecksumTestVector.BIGFILE, "73b31b3b");
     }
 
     public Adler32ChecksumProviderImplTest() {

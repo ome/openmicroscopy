@@ -220,7 +220,6 @@ public class UniqueResultTest extends AbstractManagedContextTest {
         for (int i = 0; i < howMany; i++) {
             Image img = new Image();
             img.setName(name);
-            img.setAcquisitionDate(new Timestamp(0));
             results.add(iUpdate.saveAndReturnObject(img).getId());
         }
         return results;

@@ -237,7 +237,7 @@ public class QueryTest extends AbstractManagedContextTest {
     }
 
     public void testNullFromGetPrimaryPixelsWithNoPixels() throws Exception {
-        Image i = new Image(new Timestamp(0), "null from get primary pixels");
+        Image i = new Image("null from get primary pixels");
         i = iUpdate.saveAndReturnObject(i);
         i = iQuery.get(Image.class, i.getId());
         assertEquals(-1, i.sizeOfPixels());

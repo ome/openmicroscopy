@@ -1071,11 +1071,10 @@ public class EditorUtil
      */
     public static String truncate(String name, int maxLength, boolean start)
     {
-        if (name == null) return "";
+        if (name == null || maxLength < 0) return "";
         int v = maxLength+UIUtilities.DOTS.length();
         int n = name.length();
         if (n > v) {
-            n = n-1;
             if (start) return UIUtilities.DOTS+name.substring(n-maxLength, n);
             return name.substring(0, maxLength)+UIUtilities.DOTS;
         }

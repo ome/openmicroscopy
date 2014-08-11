@@ -20,10 +20,6 @@ Contents:
 .. autosummary::
    :toctree: omeroweb
 
-   sphinx.environment.BuildEnvironment
-   sphinx.util.relative_uri
-
-
 Indices and tables
 ==================
 

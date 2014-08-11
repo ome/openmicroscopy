@@ -1466,6 +1466,8 @@ insert into checksumalgorithm (id,permissions,value)
     select ome_nextval('seq_checksumalgorithm'),-52,'Murmur3-128';
 insert into checksumalgorithm (id,permissions,value)
     select ome_nextval('seq_checksumalgorithm'),-52,'SHA1-160';
+insert into checksumalgorithm (id,permissions,value)
+    select ome_nextval('seq_checksumalgorithm'),-52,'File-Size-64';
 insert into contrastmethod (id,permissions,value)
     select ome_nextval('seq_contrastmethod'),-52,'Brightfield';
 insert into contrastmethod (id,permissions,value)
