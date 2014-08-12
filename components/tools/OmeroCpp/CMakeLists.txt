@@ -342,10 +342,7 @@ add_library(omero-client SHARED
             ${OMERO_MODEL_HEADERS} ${OMERO_MODEL_SOURCES}
             ${OMERO_API_HEADERS} ${OMERO_API_SOURCES}
             ${OMERO_CLIENT_HEADERS} ${OMERO_CLIENT_SOURCES})
-target_link_libraries(omero-client
-                      "${ICE_LIBRARY}"
-                      "${ICEUTIL_LIBRARY}"
-                      "${GLACIER2_LIBRARY}")
+target_link_libraries(omero-client ${Ice_LIBRARIES})
 set_target_properties(omero-client PROPERTIES
                       VERSION ${OME_VERSION_SHORT})
 
