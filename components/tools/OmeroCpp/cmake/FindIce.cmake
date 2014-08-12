@@ -199,42 +199,24 @@ function(_Ice_FIND)
   # support, ICE_HOME and/or the other configuration options must be
   # used, in which case the above logic will be used instead.
   if(vcver)
-    set(_x86 "(x86)")
-    if (CMAKE_SIZEOF_VOID_P MATCHES 8)
-      set (program_files_path "$ENV{ProgramFiles${_x86}}/ZeroC")
-    else (CMAKE_SIZEOF_VOID_P MATCHES 8)
-      set (program_files_path "$ENV{ProgramFiles}/ZeroC")
-    endif (CMAKE_SIZEOF_VOID_P MATCHES 8)
-    file(TO_CMAKE_PATH "${program_files_path}" program_files_path)
-
-    string(TOUPPER "${vcver}" VCVER)
-
-    set(ice_locations
-        ${program_files_path}
-        "C:/")
-
     foreach(ice_version ${ice_versions})
-      foreach(ice_location ${ice_locations})
-
-        # Search for version-specific VS builds before generic location
-        list(APPEND ice_binary_paths "${ice_location}/Ice-${ice_version}/bin/${vcver}${_x64}")
-        list(APPEND ice_library_paths "${ice_location}/Ice-${ice_version}/lib/${vcver}${_x64}")
-        list(APPEND ice_binary_paths "${ice_location}/Ice-${ice_version}/bin/${vcver}")
-        list(APPEND ice_library_paths "${ice_location}/Ice-${ice_version}/lib/${vcver}")
-        list(APPEND ice_binary_paths "${ice_location}/Ice-${ice_version}-${VCVER}/bin${_x64}")
-        list(APPEND ice_library_paths "${ice_location}/Ice-${ice_version}-${VCVER}/lib${_x64}")
-        list(APPEND ice_binary_paths "${ice_location}/Ice-${ice_version}-${VCVER}/bin")
-        list(APPEND ice_library_paths "${ice_location}/Ice-${ice_version}-${VCVER}/lib")
-        list(APPEND ice_binary_paths "${ice_location}/Ice-${ice_version}/bin${_x64}")
-        list(APPEND ice_library_paths "${ice_location}/Ice-${ice_version}/lib${_x64}")
-        list(APPEND ice_binary_paths "${ice_location}/Ice-${ice_version}/bin")
-        list(APPEND ice_library_paths "${ice_location}/Ice-${ice_version}/lib")
-        list(APPEND ice_include_paths "${ice_location}/Ice-${ice_version}/include")
-        list(APPEND ice_slice_paths "${ice_location}/Ice-${ice_version}/slice")
-
-      endforeach(ice_location)
+      get_filename_component(ice_location
+                             "[HKEY_LOCAL_MACHINE\\SOFTWARE\\ZeroC\\Ice ${ice_version};InstallDir]"
+                             ABSOLUTE)
+      if(ice_location AND NOT "${ice_location}" STREQUAL "/registry")
+        # Search for version-specific Visual Studio builds before generic location
+        list(APPEND ice_binary_paths "${ice_location}/bin/${vcver}${_x64}")
+        list(APPEND ice_library_paths "${ice_location}/lib/${vcver}${_x64}")
+        list(APPEND ice_binary_paths "${ice_location}/bin/${vcver}")
+        list(APPEND ice_library_paths "${ice_location}/lib/${vcver}")
+        list(APPEND ice_binary_paths "${ice_location}/bin${_x64}")
+        list(APPEND ice_library_paths "${ice_location}/lib${_x64}")
+        list(APPEND ice_binary_paths "${ice_location}/bin")
+        list(APPEND ice_library_paths "${ice_location}/lib")
+        list(APPEND ice_include_paths "${ice_location}/include")
+        list(APPEND ice_slice_paths "${ice_location}/slice")
+      endif(ice_location AND NOT "${ice_location}" STREQUAL "/registry")
     endforeach(ice_version)
-
   else(vcver)
     foreach(ice_version ${ice_versions})
       # Prefer 64-bit variants if present (and using a 64-bit compiler)
