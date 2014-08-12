@@ -77,14 +77,14 @@ function(ome_version)
     set(OME_VCS_DATE ${commit_date_unix} PARENT_SCOPE)
     set(OME_VCS_DATE_S ${commit_date_string} PARENT_SCOPE)
 
-    execute_process(COMMAND git describe --match=v.[0-9]* --exact
+    execute_process(COMMAND git describe "--match=v*[0-9]*.[0-9]*.[0-9]*" --exact
                     OUTPUT_VARIABLE describe_exact_output
                     RESULT_VARIABLE describe_exact_fail
                     ERROR_QUIET
                     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
     string(REPLACE "\n" "" describe_exact_output "${describe_exact_output}")
 
-    execute_process(COMMAND git describe --match=v.[0-9]*
+    execute_process(COMMAND git describe "--match=v*[0-9]*.[0-9]*.[0-9]*"
                     OUTPUT_VARIABLE describe_output
                     RESULT_VARIABLE describe_fail
                     ERROR_QUIET
@@ -104,9 +104,9 @@ function(ome_version)
     endif(NOT describe_exact_fail)
   endif(EXISTS "${PROJECT_SOURCE_DIR}/components/tools/OmeroCpp/cmake/GitVersion.cmake")
 
-  string(REGEX MATCH "^v\\.(.*)" commit_valid1 ${OME_VERSION})
+  string(REGEX MATCH "^v\\.?(.*)" commit_valid1 ${OME_VERSION})
   if (commit_valid1)
-    string(REGEX REPLACE "^v\\.(.*)" "\\1" OME_VERSION ${OME_VERSION})
+    string(REGEX REPLACE "^v\\.?(.*)" "\\1" OME_VERSION ${OME_VERSION})
   endif (commit_valid1)
 
   set(OME_VERSION ${OME_VERSION} PARENT_SCOPE)
