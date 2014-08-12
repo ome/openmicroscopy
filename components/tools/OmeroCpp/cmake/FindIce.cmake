@@ -19,15 +19,15 @@
 #
 # Ice programs are reported in::
 #
-#   SLICE2CPP_EXECUTABLE - path to slice2cpp executable
-#   SLICE2CS_EXECUTABLE - path to slice2cs executable
-#   SLICE2FREEZEJ_EXECUTABLE - path to slice2freezej executable
-#   SLICE2FREEZE_EXECUTABLE - path to slice2freeze executable
-#   SLICE2HTML_EXECUTABLE - path to slice2html executable
-#   SLICE2JAVA_EXECUTABLE - path to slice2java executable
-#   SLICE2PHP_EXECUTABLE - path to slice2php executable
-#   SLICE2PY_EXECUTABLE - path to slice2py executable
-#   SLICE2RB_EXECUTABLE - path to slice2rb executable
+#   Ice_SLICE2CPP_EXECUTABLE - path to slice2cpp executable
+#   Ice_SLICE2CS_EXECUTABLE - path to slice2cs executable
+#   Ice_SLICE2FREEZEJ_EXECUTABLE - path to slice2freezej executable
+#   Ice_SLICE2FREEZE_EXECUTABLE - path to slice2freeze executable
+#   Ice_SLICE2HTML_EXECUTABLE - path to slice2html executable
+#   Ice_SLICE2JAVA_EXECUTABLE - path to slice2java executable
+#   Ice_SLICE2PHP_EXECUTABLE - path to slice2php executable
+#   Ice_SLICE2PY_EXECUTABLE - path to slice2py executable
+#   Ice_SLICE2RB_EXECUTABLE - path to slice2rb executable
 #
 # Ice libraries are reported in::
 #
@@ -83,9 +83,7 @@
 #   ICE_DEBUG - Set to ON to enable debug output from FindIce.
 
 #=============================================================================
-# Written by Roger Leigh <rleigh@codelibre.net>
 # Copyright 2014 University of Dundee
-#=============================================================================
 #
 # Distributed under the OSI-approved BSD License (the "License");
 # see accompanying file Copyright.txt for details.
@@ -243,13 +241,13 @@ function(_Ice_FIND)
   else(vcver)
     foreach(ice_version ${ice_versions})
       # Prefer 64-bit variants if present (and using a 64-bit compiler)
-      list(APPEND ice_binary_paths "/opt/${ice_version}/bin${_x64}")
+      list(APPEND ice_binary_paths  "/opt/${ice_version}/bin${_x64}")
+      list(APPEND ice_binary_paths  "/opt/${ice_version}/bin")
       list(APPEND ice_library_paths "/opt/${ice_version}/lib${_x64}")
       list(APPEND ice_library_paths "/opt/${ice_version}/${_lib64}")
-      list(APPEND ice_binary_paths "/opt/${ice_version}/bin")
       list(APPEND ice_library_paths "/opt/${ice_version}/lib")
       list(APPEND ice_include_paths "/opt/${ice_version}/include")
-      list(APPEND ice_slice_paths "/opt/${ice_version}/slice")
+      list(APPEND ice_slice_paths   "/opt/${ice_version}/slice")
     endforeach(ice_version)
   endif(vcver)
 
@@ -290,7 +288,7 @@ function(_Ice_FIND)
   # Find all Ice programs
   foreach(program ${ice_programs})
     string(TOUPPER "${program}" program_upcase)
-    set(program_var "${program_upcase}_EXECUTABLE")
+    set(program_var "Ice_${program_upcase}_EXECUTABLE")
     find_program("${program_var}" "${program}"
       PATHS "${ICE_BINARY_DIR}"
             ${ice_binary_paths}
@@ -304,12 +302,12 @@ function(_Ice_FIND)
   set(ICE_BINARY_DIR "${FOUND_ICE_BINARY_DIR}" PARENT_SCOPE)
 
   # Get version.
-  if(SLICE2CPP_EXECUTABLE)
+  if(Ice_SLICE2CPP_EXECUTABLE)
     # Execute in C locale for safety
     set(_Ice_SAVED_LC_ALL "$ENV{LC_ALL}")
     set(ENV{LC_ALL} C)
 
-    execute_process(COMMAND ${SLICE2CPP_EXECUTABLE} --version
+    execute_process(COMMAND ${Ice_SLICE2CPP_EXECUTABLE} --version
       ERROR_VARIABLE Ice_VERSION_SLICE2CPP_FULL
       ERROR_STRIP_TRAILING_WHITESPACE)
 
@@ -319,7 +317,7 @@ function(_Ice_FIND)
     # Make short version
     string(REGEX REPLACE "^(.*)\\.[^.]*$" "\\1" Ice_VERSION_SLICE2CPP_SHORT "${Ice_VERSION_SLICE2CPP_FULL}")
     set(ICE_VERSION "${Ice_VERSION_SLICE2CPP_FULL}" PARENT_SCOPE)
-  endif(SLICE2CPP_EXECUTABLE)
+  endif(Ice_SLICE2CPP_EXECUTABLE)
 
   # Find include directory
   find_path(ICE_INCLUDE_DIR
@@ -372,15 +370,15 @@ if(ICE_DEBUG)
   message(STATUS "ICE_INCLUDE_DIR directory: ${ICE_INCLUDE_DIR}")
   message(STATUS "ICE_SLICE_DIR directory: ${ICE_SLICE_DIR}")
   message(STATUS "ICE_LIBRARY_DIR directory: ${ICE_LIBRARY_DIR}")
-  message(STATUS "slice2cpp executable: ${SLICE2CPP_EXECUTABLE}")
-  message(STATUS "slice2cs executable: ${SLICE2CS_EXECUTABLE}")
-  message(STATUS "slice2freezej executable: ${SLICE2FREEZEJ_EXECUTABLE}")
-  message(STATUS "slice2freeze executable: ${SLICE2FREEZE_EXECUTABLE}")
-  message(STATUS "slice2html executable: ${SLICE2HTML_EXECUTABLE}")
-  message(STATUS "slice2java executable: ${SLICE2JAVA_EXECUTABLE}")
-  message(STATUS "slice2php executable: ${SLICE2PHP_EXECUTABLE}")
-  message(STATUS "slice2py executable: ${SLICE2PY_EXECUTABLE}")
-  message(STATUS "slice2rb executable: ${SLICE2RB_EXECUTABLE}")
+  message(STATUS "slice2cpp executable: ${Ice_SLICE2CPP_EXECUTABLE}")
+  message(STATUS "slice2cs executable: ${Ice_SLICE2CS_EXECUTABLE}")
+  message(STATUS "slice2freezej executable: ${Ice_SLICE2FREEZEJ_EXECUTABLE}")
+  message(STATUS "slice2freeze executable: ${Ice_SLICE2FREEZE_EXECUTABLE}")
+  message(STATUS "slice2html executable: ${Ice_SLICE2HTML_EXECUTABLE}")
+  message(STATUS "slice2java executable: ${Ice_SLICE2JAVA_EXECUTABLE}")
+  message(STATUS "slice2php executable: ${Ice_SLICE2PHP_EXECUTABLE}")
+  message(STATUS "slice2py executable: ${Ice_SLICE2PY_EXECUTABLE}")
+  message(STATUS "slice2rb executable: ${Ice_SLICE2RB_EXECUTABLE}")
   message(STATUS "Freeze library: ${FREEZE_LIBRARY}")
   message(STATUS "Glacier2 library: ${GLACIER2_LIBRARY}")
   message(STATUS "Ice library: ${ICE_LIBRARY}")
@@ -398,7 +396,7 @@ endif(ICE_DEBUG)
 
 include(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(Ice
-                                  REQUIRED_VARS SLICE2CPP_EXECUTABLE
+                                  REQUIRED_VARS Ice_SLICE2CPP_EXECUTABLE
                                                 ICE_INCLUDE_DIR
                                                 ICE_SLICE_DIR
                                                 ICE_LIBRARY
