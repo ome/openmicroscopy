@@ -300,8 +300,10 @@ function(_Ice_FIND)
 
     # Make short version
     string(REGEX REPLACE "^(.*)\\.[^.]*$" "\\1" Ice_VERSION_SLICE2CPP_SHORT "${Ice_VERSION_SLICE2CPP_FULL}")
-    set(ICE_VERSION "${Ice_VERSION_SLICE2CPP_FULL}" PARENT_SCOPE)
+    set(_ICE_VERSION "${Ice_VERSION_SLICE2CPP_FULL}" PARENT_SCOPE)
   endif(Ice_SLICE2CPP_EXECUTABLE)
+
+  message(STATUS "Ice version: ${Ice_VERSION_SLICE2CPP_FULL}")
 
   # The following searches prefer the version found; note reverse
   # order due to prepending.
@@ -348,6 +350,7 @@ function(_Ice_FIND)
   set(Ice_SLICE_DIR "${ICE_SLICE_DIR}" PARENT_SCOPE)
 
   # Find all Ice libraries
+  set(ICE_LIBS_ALLFOUND ON)
   foreach(component ${Ice_FIND_COMPONENTS})
     string(TOUPPER "${component}" component_upcase)
     set(component_lib "${component_upcase}_LIBRARY")
@@ -366,12 +369,40 @@ function(_Ice_FIND)
     endif("${component_lib}")
     mark_as_advanced("${component_found}")
     set("${component_found}" "${${component_found}}" PARENT_SCOPE)
+    if("${component_found}")
+      if ("Ice_FIND_REQUIRED_${component}")
+        list(APPEND ICE_LIBS_FOUND "${component} (required)")
+      else("Ice_FIND_REQUIRED_${component}")
+        list(APPEND ICE_LIBS_FOUND "${component} (optional)")
+      endif("Ice_FIND_REQUIRED_${component}")
+    else("${component_found}")
+      if ("Ice_FIND_REQUIRED_${component}")
+        set(ICE_LIBS_ALLFOUND OFF)
+        list(APPEND ICE_LIBS_NOTFOUND "${component} (required)")
+      else("Ice_FIND_REQUIRED_${component}")
+        list(APPEND ICE_LIBS_NOTFOUND "${component} (optional)")
+      endif("Ice_FIND_REQUIRED_${component}")
+    endif("${component_found}")
     if(NOT FOUND_ICE_LIBRARY_DIR)
       get_filename_component(FOUND_ICE_LIBRARY_DIR "${${component_lib}}" PATH)
     endif(NOT FOUND_ICE_LIBRARY_DIR)
   endforeach(component)
+  set(_ICE_LIBS_ALLFOUND "${ICE_LIBS_ALLFOUND}" PARENT_SCOPE)
   set(Ice_LIBRARIES "${ICE_LIBRARIES}" PARENT_SCOPE)
   set(Ice_LIBRARY_DIR "${FOUND_ICE_LIBRARY_DIR}" PARENT_SCOPE)
+
+  if(ICE_LIBS_FOUND)
+    message(STATUS "Found the following Ice libraries:")
+    foreach(found ${ICE_LIBS_FOUND})
+      message(STATUS "  ${found}")
+    endforeach(found)
+  endif(ICE_LIBS_FOUND)
+  if(ICE_LIBS_NOTFOUND)
+    message(STATUS "The following Ice libraries were not found:")
+    foreach(notfound ${ICE_LIBS_NOTFOUND})
+      message(STATUS "  ${notfound}")
+    endforeach(notfound)
+  endif(ICE_LIBS_NOTFOUND)
 
   if(ICE_DEBUG)
     message(STATUS "--------FindIce.cmake search debug--------")
@@ -387,7 +418,7 @@ _Ice_FIND()
 
 if(ICE_DEBUG)
   message(STATUS "--------FindIce.cmake results debug--------")
-  message(STATUS "ICE_VERSION number: ${ICE_VERSION}")
+  message(STATUS "ICE_VERSION number: ${_ICE_VERSION}")
   message(STATUS "ICE_HOME directory: ${ICE_HOME}")
   message(STATUS "Ice_BINARY_DIR directory: ${Ice_BINARY_DIR}")
   message(STATUS "Ice_INCLUDE_DIR directory: ${Ice_INCLUDE_DIR}")
@@ -418,7 +449,9 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS(Ice
                                   REQUIRED_VARS Ice_SLICE2CPP_EXECUTABLE
                                                 Ice_INCLUDE_DIR
                                                 Ice_SLICE_DIR
-                                                ICE_LIBRARY
-                                  VERSION_VAR ICE_VERSION)
+                                                _ICE_LIBS_ALLFOUND
+                                  VERSION_VAR _ICE_VERSION
+                                  FAIL_MESSAGE "Failed to find all Ice components")
 
-unset(ICE_VERSION)
+unset(_ICE_VERSION)
+unset(_ICE_LIBS_ALLFOUND)
