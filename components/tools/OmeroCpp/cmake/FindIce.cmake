@@ -8,14 +8,23 @@
 # Use this module by invoking find_package with the form::
 #
 #   find_package(Ice
-#     [version] [EXACT]      # Minimum or EXACT version e.g. 3.5.1
-#     [REQUIRED])            # Fail with error if Ice is not found
+#     [version] [EXACT]       # Minimum or EXACT version e.g. 3.5.1
+#     [REQUIRED]              # Fail with error if Ice is not found
+#     [COMPONENTS <libs...>]) # Ice libraries by their name
+#
+# Components can include any of: Freeze Glacier2 Ice IceBox IceDB
+# IceGrid IcePatch IceSSL IceStorm IceUtil IceXML Slice.
 #
 # This module reports information about the Ice installation in
 # several variables.  General variables::
 #
 #   Ice_VERSION - Ice release version
 #   Ice_FOUND - true if the main programs and libraries were found
+#   ICE_LIBRARIES - component libraries to be linked
+#   Ice_BINARY_DIR - the directory containing the Ice programs
+#   Ice_INCLUDE_DIR - the directory containing the Ice headers
+#   Ice_SLICE_DIR - the directory containing the Ice slice interface definitions
+#   Ice_LIBRARY_DIR - the directory containing the Ice libraries
 #
 # Ice programs are reported in::
 #
@@ -29,28 +38,10 @@
 #   Ice_SLICE2PY_EXECUTABLE - path to slice2py executable
 #   Ice_SLICE2RB_EXECUTABLE - path to slice2rb executable
 #
-# Ice libraries are reported in::
+# Ice component libraries are reported in::
 #
-#   FREEZE_LIBRARY - Freeze library
-#   GLACIER2_LIBRARY - Glacier2 library
-#   ICE_LIBRARY - Ice library
-#   ICEBOX_LIBRARY - IceBox library
-#   ICEDB_LIBRARY - IceDB library
-#   ICEGRID_LIBRARY - IceGrid library
-#   ICEPATCH2_LIBRARY - IcePatch library
-#   ICESSL_LIBRARY - IceSSL library
-#   ICESTORM_LIBRARY - IceStorm library
-#   ICEUTIL_LIBRARY - IceUtil library
-#   ICEXML_LIBRARY - IceXML library
-#   SLICE_LIBRARY - Slice library
-#
-# Ice directories for C++ programs, includes and slice includes and libraries
-# are reported in::
-#
-#   Ice_BINARY_DIR - the directory containing the Ice programs
-#   Ice_INCLUDE_DIR - the directory containing the Ice headers
-#   Ice_SLICE_DIR - the directory containing the Ice slice interface definitions
-#   Ice_LIBRARY_DIR - the directory containing the Ice libraries
+#   Ice_<C>_FOUND - ON if component library was found
+#   ICE_<C>_LIBRARY - component library
 #
 # This module reads hints about search results from variables::
 #
@@ -81,6 +72,8 @@
 # Other variables one may set to control this module are::
 #
 #   ICE_DEBUG - Set to ON to enable debug output from FindIce.
+
+# Written by Roger Leigh <rleigh@codelibre.net>
 
 #=============================================================================
 # Copyright 2014 University of Dundee
@@ -241,24 +234,15 @@ function(_Ice_FIND)
   else(vcver)
     foreach(ice_version ${ice_versions})
       # Prefer 64-bit variants if present (and using a 64-bit compiler)
-      list(APPEND ice_binary_paths  "/opt/${ice_version}/bin${_x64}")
-      list(APPEND ice_binary_paths  "/opt/${ice_version}/bin")
-      list(APPEND ice_library_paths "/opt/${ice_version}/lib${_x64}")
-      list(APPEND ice_library_paths "/opt/${ice_version}/${_lib64}")
-      list(APPEND ice_library_paths "/opt/${ice_version}/lib")
-      list(APPEND ice_include_paths "/opt/${ice_version}/include")
-      list(APPEND ice_slice_paths   "/opt/${ice_version}/slice")
+      list(APPEND ice_binary_paths  "/opt/Ice-${ice_version}/bin${_x64}")
+      list(APPEND ice_binary_paths  "/opt/Ice-${ice_version}/bin")
+      list(APPEND ice_library_paths "/opt/Ice-${ice_version}/lib${_x64}")
+      list(APPEND ice_library_paths "/opt/Ice-${ice_version}/${_lib64}")
+      list(APPEND ice_library_paths "/opt/Ice-${ice_version}/lib")
+      list(APPEND ice_include_paths "/opt/Ice-${ice_version}/include")
+      list(APPEND ice_slice_paths   "/opt/Ice-${ice_version}/slice")
     endforeach(ice_version)
   endif(vcver)
-
-  if(ICE_DEBUG)
-    message(STATUS "--------FindIce.cmake search debug--------")
-    message(STATUS "ICE binary path search order: ${ice_binary_paths}")
-    message(STATUS "ICE include path search order: ${ice_include_paths}")
-    message(STATUS "ICE slice path search order: ${ice_slice_paths}")
-    message(STATUS "ICE library path search order: ${ice_library_paths}")
-    message(STATUS "----------------")
-  endif(ICE_DEBUG)
 
   set(ice_programs
       slice2cpp
@@ -319,6 +303,26 @@ function(_Ice_FIND)
     set(ICE_VERSION "${Ice_VERSION_SLICE2CPP_FULL}" PARENT_SCOPE)
   endif(Ice_SLICE2CPP_EXECUTABLE)
 
+  # The following searches prefer the version found; note reverse
+  # order due to prepending.
+  if(NOT MSVC)
+    list(INSERT ice_slice_paths   0 "/opt/Ice-${Ice_VERSION_SLICE2CPP_SHORT}/slice")
+    list(INSERT ice_include_paths 0 "/opt/Ice-${Ice_VERSION_SLICE2CPP_SHORT}/include")
+    list(INSERT ice_library_paths 0 "/opt/Ice-${Ice_VERSION_SLICE2CPP_SHORT}/lib")
+    list(INSERT ice_library_paths 0 "/opt/Ice-${Ice_VERSION_SLICE2CPP_SHORT}/${_lib64}")
+    list(INSERT ice_library_paths 0 "/opt/Ice-${Ice_VERSION_SLICE2CPP_SHORT}/lib${_x64}")
+    list(INSERT ice_binary_paths  0 "/opt/Ice-${Ice_VERSION_SLICE2CPP_SHORT}/bin")
+    list(INSERT ice_binary_paths  0 "/opt/Ice-${Ice_VERSION_SLICE2CPP_SHORT}/bin${_x64}")
+
+    list(INSERT ice_slice_paths   0 "/opt/Ice-${Ice_VERSION_SLICE2CPP_FULL}/slice")
+    list(INSERT ice_include_paths 0 "/opt/Ice-${Ice_VERSION_SLICE2CPP_FULL}/include")
+    list(INSERT ice_library_paths 0 "/opt/Ice-${Ice_VERSION_SLICE2CPP_FULL}/lib")
+    list(INSERT ice_library_paths 0 "/opt/Ice-${Ice_VERSION_SLICE2CPP_FULL}/${_lib64}")
+    list(INSERT ice_library_paths 0 "/opt/Ice-${Ice_VERSION_SLICE2CPP_FULL}/lib${_x64}")
+    list(INSERT ice_binary_paths  0 "/opt/Ice-${Ice_VERSION_SLICE2CPP_FULL}/bin")
+    list(INSERT ice_binary_paths  0 "/opt/Ice-${Ice_VERSION_SLICE2CPP_FULL}/bin${_x64}")
+  endif(NOT MSVC)
+
   # Find include directory
   find_path(ICE_INCLUDE_DIR
             NAMES "Ice/Ice.h"
@@ -326,38 +330,57 @@ function(_Ice_FIND)
                    ${ice_include_paths})
   set(Ice_INCLUDE_DIR "${ICE_INCLUDE_DIR}" PARENT_SCOPE)
 
+  # In common use on Linux and MacOS X (homebrew); prefer version-specific dir
+  list(APPEND ice_slice_paths
+    "/usr/local/share/Ice-${Ice_VERSION_SLICE2CPP_FULL}/slice"
+    "/usr/local/share/Ice-${Ice_VERSION_SLICE2CPP_SHORT}/slice"
+    "/usr/local/share/Ice/slice"
+    "/usr/share/Ice-${Ice_VERSION_SLICE2CPP_FULL}/slice"
+    "/usr/share/Ice-${Ice_VERSION_SLICE2CPP_SHORT}/slice"
+    "/usr/share/Ice/slice")
+
   # Find slice directory
   find_path(ICE_SLICE_DIR
             NAMES "Ice/Connection.ice"
             PATHS "${ICE_SLICEDIR}"
                   ${ice_slice_paths}
-                  "/usr/local/share/Ice-${Ice_VERSION_SLICE2CPP_FULL}/slice"
-                  "/usr/local/share/Ice-${Ice_VERSION_SLICE2CPP_SHORT}/slice"
-                  "/usr/local/share/Ice/slice"
-                  "/usr/share/Ice-${Ice_VERSION_SLICE2CPP_FULL}/slice"
-                  "/usr/share/Ice-${Ice_VERSION_SLICE2CPP_SHORT}/slice"
-                  "/usr/share/Ice/slice"
             NO_DEFAULT_PATH)
   set(Ice_SLICE_DIR "${ICE_SLICE_DIR}" PARENT_SCOPE)
 
   # Find all Ice libraries
-  foreach(library ${ice_libraries})
-    string(TOUPPER "${library}" library_upcase)
-    set(library_var "${library_upcase}_LIBRARY")
-    find_library("${library_var}" "${library}"
+  foreach(component ${Ice_FIND_COMPONENTS})
+    string(TOUPPER "${component}" component_upcase)
+    set(component_lib "${component_upcase}_LIBRARY")
+    set(component_found "${component_upcase}_FOUND")
+    find_library("${component_lib}" "${component}"
       PATHS
         "${ICE_LIBRARYDIR}"
         ${ice_library_paths}
       HINT
         "${ICE_HOME}/lib"
       DOC "Ice slice translator")
-    mark_as_advanced(library_var)
-    set("${library_var}" "${${library_var}}" PARENT_SCOPE)
+    mark_as_advanced("${component_lib}")
+    if("${component_lib}")
+      set("${component_found}" ON)
+      list(APPEND ICE_LIBRARIES "${${component_lib}}")
+    endif("${component_lib}")
+    mark_as_advanced("${component_found}")
+    set("${component_found}" "${${component_found}}" PARENT_SCOPE)
     if(NOT FOUND_ICE_LIBRARY_DIR)
-      get_filename_component(FOUND_ICE_LIBRARY_DIR "${${library_var}}" PATH)
+      get_filename_component(FOUND_ICE_LIBRARY_DIR "${${component_lib}}" PATH)
     endif(NOT FOUND_ICE_LIBRARY_DIR)
-  endforeach(library ${ice_libraries})
+  endforeach(component)
+  set(Ice_LIBRARIES "${ICE_LIBRARIES}" PARENT_SCOPE)
   set(Ice_LIBRARY_DIR "${FOUND_ICE_LIBRARY_DIR}" PARENT_SCOPE)
+
+  if(ICE_DEBUG)
+    message(STATUS "--------FindIce.cmake search debug--------")
+    message(STATUS "ICE binary path search order: ${ice_binary_paths}")
+    message(STATUS "ICE include path search order: ${ice_include_paths}")
+    message(STATUS "ICE slice path search order: ${ice_slice_paths}")
+    message(STATUS "ICE library path search order: ${ice_library_paths}")
+    message(STATUS "----------------")
+  endif(ICE_DEBUG)
 endfunction(_Ice_FIND)
 
 _Ice_FIND()
@@ -370,6 +393,7 @@ if(ICE_DEBUG)
   message(STATUS "Ice_INCLUDE_DIR directory: ${Ice_INCLUDE_DIR}")
   message(STATUS "Ice_SLICE_DIR directory: ${Ice_SLICE_DIR}")
   message(STATUS "Ice_LIBRARY_DIR directory: ${Ice_LIBRARY_DIR}")
+  message(STATUS "Ice_LIBRARIES: ${Ice_LIBRARIES}")
   message(STATUS "slice2cpp executable: ${Ice_SLICE2CPP_EXECUTABLE}")
   message(STATUS "slice2cs executable: ${Ice_SLICE2CS_EXECUTABLE}")
   message(STATUS "slice2freezej executable: ${Ice_SLICE2FREEZEJ_EXECUTABLE}")
@@ -379,18 +403,13 @@ if(ICE_DEBUG)
   message(STATUS "slice2php executable: ${Ice_SLICE2PHP_EXECUTABLE}")
   message(STATUS "slice2py executable: ${Ice_SLICE2PY_EXECUTABLE}")
   message(STATUS "slice2rb executable: ${Ice_SLICE2RB_EXECUTABLE}")
-  message(STATUS "Freeze library: ${FREEZE_LIBRARY}")
-  message(STATUS "Glacier2 library: ${GLACIER2_LIBRARY}")
-  message(STATUS "Ice library: ${ICE_LIBRARY}")
-  message(STATUS "IceBox library: ${ICEBOX_LIBRARY}")
-  message(STATUS "IceDB library: ${ICEDB_LIBRARY}")
-  message(STATUS "IceGrid library: ${ICEGRID_LIBRARY}")
-  message(STATUS "IcePatch2 library: ${ICEPATCH2_LIBRARY}")
-  message(STATUS "IceSSL library: ${ICESSL_LIBRARY}")
-  message(STATUS "IceStorm library: ${ICESTORM_LIBRARY}")
-  message(STATUS "IceUtil library: ${ICEUTIL_LIBRARY}")
-  message(STATUS "IceXML library: ${ICEXML_LIBRARY}")
-  message(STATUS "Slice library: ${SLICE_LIBRARY}")
+  foreach(component ${Ice_FIND_COMPONENTS})
+    string(TOUPPER "${component}" component_upcase)
+    set(component_lib "${component_upcase}_LIBRARY")
+    set(component_found "${component_upcase}_FOUND")
+    message(STATUS "${component} library found: ${${component_found}}")
+    message(STATUS "${component} library: ${${component_lib}}")
+  endforeach(component ${Ice_FIND_COMPONENTS})
   message(STATUS "----------------")
 endif(ICE_DEBUG)
 
