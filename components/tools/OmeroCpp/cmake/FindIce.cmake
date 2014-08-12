@@ -124,14 +124,18 @@ function(_Ice_FIND)
       3.3.0)
 
   # Set up search paths, taking compiler into account.  Search ICE_HOME,
-  # with ICE_HOME in the environment as a fallback
+  # with ICE_HOME in the environment as a fallback if unset.
   if(ICE_HOME)
     list(APPEND ice_roots "${ICE_HOME}")
+  else(ICE_HOME)
+    if("$ENV{ICE_HOME}" STREQUAL "")
+    else("$ENV{ICE_HOME}" STREQUAL "")
+      file(TO_CMAKE_PATH "$ENV{ICE_HOME}" NATIVE_PATH)
+      list(APPEND ice_roots "${NATIVE_PATH}")
+      set(ICE_HOME "${NATIVE_PATH}"
+          CACHE PATH "Location of the Ice installation" FORCE)
+    endif("$ENV{ICE_HOME}" STREQUAL "")
   endif(ICE_HOME)
-  if(EXISTS "$ENV{ICE_HOME}")
-    file(TO_CMAKE_PATH "$ENV{ICE_HOME}" NATIVE_PATH)
-    list(APPEND ice_roots "${NATIVE_PATH}")
-  endif(EXISTS "$ENV{ICE_HOME}")
 
   if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     # 64-bit path suffix
@@ -186,7 +190,7 @@ function(_Ice_FIND)
     # Common directories
     list(APPEND ice_library_paths "${root}/lib")
     list(APPEND ice_slice_paths "${root}/slice")
-  endforeach(root ${ice_roots})
+  endforeach(root)
 
   # On Windows, look in standard install locations.  Different versions
   # of Ice install in different places and support different compiler
