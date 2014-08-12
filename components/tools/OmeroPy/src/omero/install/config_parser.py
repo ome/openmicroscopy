@@ -50,8 +50,8 @@ HEADER_MAPPING = {
 TOP = \
     """.. This file is auto-generated from omero.properties. DO NOT EDIT IT
 
-Configuration properties
-========================
+Configuration properties glossary
+=================================
 
 The primary form of configuration is via the use of key/value properties,
 stored in :file:`etc/grid/config.xml` and read on server startup. Backing up
