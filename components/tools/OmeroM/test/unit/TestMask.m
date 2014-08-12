@@ -23,11 +23,12 @@
 classdef TestMask < TestShape
     
     properties
-        x = 10;
-        y = 10;
-        mask = ones(20, 30);
-        w
-        h
+        x = 0
+        y = 0
+        width = 4
+        height = 4
+        mask
+        bytes
     end
     
     methods
@@ -35,58 +36,56 @@ classdef TestMask < TestShape
             self = self@TestShape(name);
         end
         
-        function setUp(self)
-            self.createMask()
-        end
-        
-        function createMask(self, coordinates)
-            if nargin < 2 || coordinates
-                self.shape = createMask(self.x, self.y, self.mask);
-            else
-                self.shape = createMask(self.mask);
-            end
-            self.w = size(self.mask, 2);
-            self.h = size(self.mask, 1);
-        end
-        
-        % Mask
-        function testSimpleMask(self)
-            assertTrue(isa(self.shape, 'omero.model.MaskI'));
-            assertEqual(self.shape.getX().getValue(), self.x);
-            assertEqual(self.shape.getY().getValue(), self.y);
-            assertEqual(self.shape.getWidth().getValue(), self.w);
-            assertEqual(self.shape.getHeight().getValue(), self.h);
-            assertEqual(self.shape.getBytes(), int8(self.mask(:)));
-        end
-        
-        function testMaskWithoutCoordinates(self)
-            self.createMask(false);
-            
-            assertTrue(isa(self.shape, 'omero.model.MaskI'));
-            assertEqual(self.shape.getX().getValue(), 0);
-            assertEqual(self.shape.getY().getValue(), 0);
-            assertEqual(self.shape.getWidth().getValue(), self.w);
-            assertEqual(self.shape.getHeight().getValue(), self.h);
-            assertEqual(self.shape.getBytes(), int8(self.mask(:)));
-        end
-        
-        function testLogicalInput(self)
-            self.mask = logical(self.mask);
-            self.createMask();
-            
-            assertTrue(isa(self.shape, 'omero.model.MaskI'));
-            assertEqual(self.shape.getX().getValue(), self.x);
-            assertEqual(self.shape.getY().getValue(), self.y);
-            assertEqual(self.shape.getWidth().getValue(), self.w);
-            assertEqual(self.shape.getHeight().getValue(), self.h);
-            assertEqual(self.shape.getBytes(), int8(self.mask(:)));
+        % Input check
+        function testNoInput(self)
+            assertExceptionThrown(@() createMask(),...
+                'MATLAB:minrhs');
         end
         
         function testNullMask(self)
             self.mask = ones(0,0);
-            assertExceptionThrown(@() self.createMask(),...
+            assertExceptionThrown(@() createMask(ones(0, 0)),...
                 'MATLAB:InputParser:ArgumentFailedValidation');
+        end
+        
+        % Mask
+        function checkMask(self)
+            assertTrue(isa(self.shape, 'omero.model.MaskI'));
+            assertEqual(self.shape.getX().getValue(), self.x);
+            assertEqual(self.shape.getY().getValue(), self.y);
+            assertEqual(self.shape.getWidth().getValue(), self.width);
+            assertEqual(self.shape.getHeight().getValue(), self.height);
+            assertEqual(self.shape.getBytes(), self.bytes);
+        end
+        
+        function testDefault(self)
+            self.mask = zeros(self.width, self.height);
+            self.bytes = zeros(self.width * self.height / 8, 1, 'int8');
+            self.shape = createMask(self.mask);
+            self.checkMask();
+        end
+        
+        function testZeroCoordinates(self)
+            self.mask = zeros(self.width, self.height);
+            self.bytes = zeros(self.width * self.height / 8, 1, 'int8');
+            self.shape = createMask(0, 0, self.mask);
+            self.checkMask();
+        end
+        
+        function testLogicalInput(self)
+            self.mask = false(self.width, self.height);
+            self.bytes = zeros(self.width * self.height / 8, 1, 'int8');
+            self.shape = createMask(self.mask);
+            self.checkMask();
+        end
+        
+        function testNonZeroCoordinates(self)
+            self.x = 10;
+            self.y = 20;
+            self.mask = false(self.width, self.height);
+            self.bytes = zeros(self.width * self.height / 8, 1, 'int8');
+            self.shape = createMask(self.x, self.y, self.mask);
+            self.checkMask();
         end
     end
 end
-
