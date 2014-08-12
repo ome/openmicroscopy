@@ -114,7 +114,10 @@ try
     session.submit(doAll);
     
     % Create a mask covering half of the image
-    m = false(size(I, 1), size(I, 2) / 2);
+    pixels = image.getPrimaryPixels();
+    sizeX = pixels.getSizeX().getValue();
+    sizeY = pixels.getSizeY().getValue();
+    m = false(sizeY, sizeX / 2);
     m(end/4:3*end/4,end/2:end)=true;
     mask = createMask(m);
     setShapeCoordinates(mask, 0, 0, 0);
@@ -125,9 +128,9 @@ try
     fprintf(1, 'Created ROI %g\n', roi.getId().getValue());
     
     % Create a mask shape at a position different from (0, 0)
-    m = true(size(I, 1)/8 - 3, size(I, 2)/8 - 5);
+    m = true(sizeY/8 - 3, sizeX/8 - 5);
     m(end/4 : 3 * end/4, end/4 : 3 * end/4) = false;
-    mask = createMask(5 * size(I, 1) / 8, 5 * size(I, 1)/8, m);
+    mask = createMask(5 * sizeY / 8, 5 * sizeX/8, m);
     setShapeCoordinates(mask, 0, 0, 0);
     roi = omero.model.RoiI();
     roi.addShape(mask);
