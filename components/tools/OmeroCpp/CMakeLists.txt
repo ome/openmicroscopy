@@ -180,7 +180,7 @@ function(icegen in outsrc outhdr)
         OUTPUT ${GEN_DIR}/${ICECPP} ${GEN_DIR}/${ICEHPP}
         WORKING_DIRECTORY gen
         COMMAND ${CMAKE_COMMAND} -E make_directory "${ICE_PATH}"
-        COMMAND "${SLICE2CPP_EXECUTABLE}" ${SLICEOPTS} ${incdir} "--output-dir=${ICE_PATH}" "${PROJECT_SOURCE_DIR}/${icesrc}"
+        COMMAND "${Ice_SLICE2CPP_EXECUTABLE}" ${SLICEOPTS} ${incdir} "--output-dir=${ICE_PATH}" "${PROJECT_SOURCE_DIR}/${icesrc}"
         DEPENDS "${PROJECT_SOURCE_DIR}/${icesrc}")
       install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${GEN_DIR}/${ICEHPP}
               DESTINATION "${CMAKE_INSTALL_FULL_INCLUDEDIR}/${ICE_PATH}")
