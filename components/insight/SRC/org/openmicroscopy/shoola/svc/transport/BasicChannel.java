@@ -109,8 +109,10 @@ class BasicChannel
         } catch (Exception e) {
             new TransportException("Cannot create security context", e);
         }
+        //return new SSLConnectionSocketFactory(sslcontext,
+        //        SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
         return new SSLConnectionSocketFactory(sslcontext,
-                SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
+                SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
     }
     
     /**
