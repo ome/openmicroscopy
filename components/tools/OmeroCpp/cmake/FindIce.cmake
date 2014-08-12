@@ -47,18 +47,18 @@
 # Ice directories for C++ programs, includes and slice includes and libraries
 # are reported in::
 #
-#   ICE_BINARY_DIR - the directory containing the Ice programs
-#   ICE_INCLUDE_DIR - the directory containing the Ice headers
-#   ICE_SLICE_DIR - the directory containing the Ice slice interface definitions
-#   ICE_LIBRARY_DIR - the directory containing the Ice libraries
+#   Ice_BINARY_DIR - the directory containing the Ice programs
+#   Ice_INCLUDE_DIR - the directory containing the Ice headers
+#   Ice_SLICE_DIR - the directory containing the Ice slice interface definitions
+#   Ice_LIBRARY_DIR - the directory containing the Ice libraries
 #
 # This module reads hints about search results from variables::
 #
 #   ICE_HOME - the root of the Ice installation
-#   ICE_BINARY_DIR - the directory containing the Ice programs
-#   ICE_INCLUDE_DIR - the directory containing the Ice headers
-#   ICE_SLICE_DIR - the directory containing the Ice slice interface definitions
-#   ICE_LIBRARY_DIR - the directory containing the Ice libraries
+#   ICE_BINARYDIR - the directory containing the Ice programs
+#   ICE_INCLUDEDIR - the directory containing the Ice headers
+#   ICE_SLICEDIR - the directory containing the Ice slice interface definitions
+#   ICE_LIBRARYDIR - the directory containing the Ice libraries
 #
 # The environment variable :envvar:`ICE_HOME` may also be used, unless
 # overridden by setting the ICE_HOME variable.
@@ -70,7 +70,7 @@
 #   available and a specific version is required.  On Windows,
 #   ICE_HOME is usually sufficient since the package is contained in a
 #   single directory.  On Unix, the programs, headers and libraries
-#   will usually be in standard locations, but ICE_SLICE_DIR might not
+#   will usually be in standard locations, but Ice_SLICE_DIR might not
 #   be automatically detected.  All the other variables are defaulted
 #   using ICE_HOME, if set.  It's possible to set ICE_HOME and
 #   selectively specify alternative locations for the other
@@ -99,21 +99,21 @@ set(ICE_HOME NOTFOUND
     CACHE PATH "Location of the Ice installation")
 mark_as_advanced(FORCE ICE_HOME)
 
-set(ICE_BINARY_DIR NOTFOUND
+set(ICE_BINARYDIR NOTFOUND
     CACHE PATH "Location of the Ice programs")
-mark_as_advanced(FORCE ICE_BINARY_DIR)
+mark_as_advanced(FORCE ICE_BINARYDIR)
 
-set(ICE_INCLUDE_DIR NOTFOUND
+set(ICE_INCLUDEDIR NOTFOUND
     CACHE PATH "Location of the Ice headers")
-mark_as_advanced(FORCE ICE_INCLUDE_DIR)
+mark_as_advanced(FORCE ICE_INCLUDEDIR)
 
-set(ICE_SLICE_DIR NOTFOUND
+set(ICE_SLICEDIR NOTFOUND
     CACHE PATH "Location of the Ice slice interface definitions")
-mark_as_advanced(FORCE ICE_SLICE_DIR)
+mark_as_advanced(FORCE ICE_SLICEDIR)
 
-set(ICE_LIBRARY_DIR NOTFOUND
+set(ICE_LIBRARYDIR NOTFOUND
     CACHE PATH "Location of the Ice libraries")
-mark_as_advanced(FORCE ICE_LIBRARY_DIR)
+mark_as_advanced(FORCE ICE_LIBRARYDIR)
 
 function(_Ice_FIND)
   # Released versions of Ice, including generic short forms
@@ -290,7 +290,7 @@ function(_Ice_FIND)
     string(TOUPPER "${program}" program_upcase)
     set(program_var "Ice_${program_upcase}_EXECUTABLE")
     find_program("${program_var}" "${program}"
-      PATHS "${ICE_BINARY_DIR}"
+      PATHS "${ICE_BINARYDIR}"
             ${ice_binary_paths}
       DOC "Ice slice translator")
     mark_as_advanced(program_var)
@@ -299,7 +299,7 @@ function(_Ice_FIND)
       get_filename_component(FOUND_ICE_BINARY_DIR "${${program_var}}" PATH)
     endif(NOT FOUND_ICE_BINARY_DIR)
   endforeach(program ${ice_programs})
-  set(ICE_BINARY_DIR "${FOUND_ICE_BINARY_DIR}" PARENT_SCOPE)
+  set(Ice_BINARY_DIR "${FOUND_ICE_BINARY_DIR}" PARENT_SCOPE)
 
   # Get version.
   if(Ice_SLICE2CPP_EXECUTABLE)
@@ -322,14 +322,14 @@ function(_Ice_FIND)
   # Find include directory
   find_path(ICE_INCLUDE_DIR
             NAMES "Ice/Ice.h"
-            PATHS  "${ICE_INCLUDE_DIR}"
+            PATHS  "${ICE_INCLUDEDIR}"
                    ${ice_include_paths})
-  set(ICE_INCLUDE_DIR "${ICE_INCLUDE_DIR}" PARENT_SCOPE)
+  set(Ice_INCLUDE_DIR "${ICE_INCLUDE_DIR}" PARENT_SCOPE)
 
   # Find slice directory
   find_path(ICE_SLICE_DIR
             NAMES "Ice/Connection.ice"
-            PATHS "${ICE_SLICE_DIR}"
+            PATHS "${ICE_SLICEDIR}"
                   ${ice_slice_paths}
                   "/usr/local/share/Ice-${Ice_VERSION_SLICE2CPP_FULL}/slice"
                   "/usr/local/share/Ice-${Ice_VERSION_SLICE2CPP_SHORT}/slice"
@@ -338,7 +338,7 @@ function(_Ice_FIND)
                   "/usr/share/Ice-${Ice_VERSION_SLICE2CPP_SHORT}/slice"
                   "/usr/share/Ice/slice"
             NO_DEFAULT_PATH)
-  set(ICE_SLICE_DIR "${ICE_SLICE_DIR}" PARENT_SCOPE)
+  set(Ice_SLICE_DIR "${ICE_SLICE_DIR}" PARENT_SCOPE)
 
   # Find all Ice libraries
   foreach(library ${ice_libraries})
@@ -346,7 +346,7 @@ function(_Ice_FIND)
     set(library_var "${library_upcase}_LIBRARY")
     find_library("${library_var}" "${library}"
       PATHS
-        "${ICE_LIBRARY_DIR}"
+        "${ICE_LIBRARYDIR}"
         ${ice_library_paths}
       HINT
         "${ICE_HOME}/lib"
@@ -357,7 +357,7 @@ function(_Ice_FIND)
       get_filename_component(FOUND_ICE_LIBRARY_DIR "${${library_var}}" PATH)
     endif(NOT FOUND_ICE_LIBRARY_DIR)
   endforeach(library ${ice_libraries})
-  set(ICE_LIBRARY_DIR "${FOUND_ICE_LIBRARY_DIR}" PARENT_SCOPE)
+  set(Ice_LIBRARY_DIR "${FOUND_ICE_LIBRARY_DIR}" PARENT_SCOPE)
 endfunction(_Ice_FIND)
 
 _Ice_FIND()
@@ -366,10 +366,10 @@ if(ICE_DEBUG)
   message(STATUS "--------FindIce.cmake results debug--------")
   message(STATUS "ICE_VERSION number: ${ICE_VERSION}")
   message(STATUS "ICE_HOME directory: ${ICE_HOME}")
-  message(STATUS "ICE_BINARY_DIR directory: ${ICE_BINARY_DIR}")
-  message(STATUS "ICE_INCLUDE_DIR directory: ${ICE_INCLUDE_DIR}")
-  message(STATUS "ICE_SLICE_DIR directory: ${ICE_SLICE_DIR}")
-  message(STATUS "ICE_LIBRARY_DIR directory: ${ICE_LIBRARY_DIR}")
+  message(STATUS "Ice_BINARY_DIR directory: ${Ice_BINARY_DIR}")
+  message(STATUS "Ice_INCLUDE_DIR directory: ${Ice_INCLUDE_DIR}")
+  message(STATUS "Ice_SLICE_DIR directory: ${Ice_SLICE_DIR}")
+  message(STATUS "Ice_LIBRARY_DIR directory: ${Ice_LIBRARY_DIR}")
   message(STATUS "slice2cpp executable: ${Ice_SLICE2CPP_EXECUTABLE}")
   message(STATUS "slice2cs executable: ${Ice_SLICE2CS_EXECUTABLE}")
   message(STATUS "slice2freezej executable: ${Ice_SLICE2FREEZEJ_EXECUTABLE}")
@@ -397,8 +397,8 @@ endif(ICE_DEBUG)
 include(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(Ice
                                   REQUIRED_VARS Ice_SLICE2CPP_EXECUTABLE
-                                                ICE_INCLUDE_DIR
-                                                ICE_SLICE_DIR
+                                                Ice_INCLUDE_DIR
+                                                Ice_SLICE_DIR
                                                 ICE_LIBRARY
                                   VERSION_VAR ICE_VERSION)
 
