@@ -118,6 +118,20 @@ set(ICE_LIBRARY_DIR NOTFOUND
 mark_as_advanced(FORCE ICE_LIBRARY_DIR)
 
 function(_Ice_FIND)
+  # Released versions of Ice, including generic short forms
+  set(ice_versions
+      3
+      3.5
+      3.5.1
+      3.5.0
+      3.4
+      3.4.2
+      3.4.1
+      3.4.0
+      3.3
+      3.3.1
+      3.3.0)
+
   # Set up search paths, taking compiler into account.  Search ICE_HOME,
   # with ICE_HOME in the environment as a fallback
   if(ICE_HOME)
@@ -135,32 +149,42 @@ function(_Ice_FIND)
     set(_lib64 "lib64")
   endif(CMAKE_SIZEOF_VOID_P EQUAL 8)
 
+  if(MSVC_VERSION)
+    # VS 8.0
+    if((MSVC_VERSION EQUAL 1400) OR (MSVC_VERSION GREATER 1400 AND MSVC_VERSION LESS 1500))
+      set(vcver vc80)
+    endif((MSVC_VERSION EQUAL 1400) OR (MSVC_VERSION GREATER 1400 AND MSVC_VERSION LESS 1500))
+    # VS 9.0
+    if((MSVC_VERSION EQUAL 1500) OR (MSVC_VERSION GREATER 1500 AND MSVC_VERSION LESS 1600))
+      set(vcver vc90)
+    endif((MSVC_VERSION EQUAL 1500) OR (MSVC_VERSION GREATER 1500 AND MSVC_VERSION LESS 1600))
+    # VS 10.0
+    if((MSVC_VERSION EQUAL 1600) OR (MSVC_VERSION GREATER 1600 AND MSVC_VERSION LESS 1700))
+      set(vcver vc100)
+    endif((MSVC_VERSION EQUAL 1600) OR (MSVC_VERSION GREATER 1600 AND MSVC_VERSION LESS 1700))
+    # VS 11.0
+    if((MSVC_VERSION EQUAL 1700) OR (MSVC_VERSION GREATER 1700 AND MSVC_VERSION LESS 1800))
+      set(vcver vc110)
+    endif((MSVC_VERSION EQUAL 1700) OR (MSVC_VERSION GREATER 1700 AND MSVC_VERSION LESS 1800))
+    # VS 12.0
+    if((MSVC_VERSION EQUAL 1800) OR (MSVC_VERSION GREATER 1800 AND MSVC_VERSION LESS 1900))
+      set(vcver vc120)
+    endif((MSVC_VERSION EQUAL 1800) OR (MSVC_VERSION GREATER 1800 AND MSVC_VERSION LESS 1900))
+    # VS 14.0
+    if((MSVC_VERSION EQUAL 1900) OR (MSVC_VERSION GREATER 1900 AND MSVC_VERSION LESS 2000))
+      set(vcver vc140)
+    endif((MSVC_VERSION EQUAL 1900) OR (MSVC_VERSION GREATER 1900 AND MSVC_VERSION LESS 2000))
+  endif(MSVC_VERSION)
+
   foreach(root ${ice_roots})
     # For compatibility with ZeroC Windows builds.
-    if(MSVC)
-      # Versions prior to VS 10.0 don't use vcnnn subdirectories.
-      # VS 10.0
-      if((MSVC_VERSION EQUAL 1600) OR (MSVC_VERSION GREATER 1600 AND MSVC_VERSION LESS 1700))
-        list(APPEND ice_binary_paths "${root}/bin/vc100${_x64}")
-        list(APPEND ice_library_paths "${root}/lib/vc100${_x64}")
-        list(APPEND ice_binary_paths "${root}/bin/vc100")
-        list(APPEND ice_library_paths "${root}/lib/vc100")
-      endif((MSVC_VERSION EQUAL 1600) OR (MSVC_VERSION GREATER 1600 AND MSVC_VERSION LESS 1700))
-      # VS 11.0
-      if((MSVC_VERSION EQUAL 1700) OR (MSVC_VERSION GREATER 1700 AND MSVC_VERSION LESS 1800))
-        list(APPEND ice_binary_paths "${root}/bin/vc110${_x64}")
-        list(APPEND ice_library_paths "${root}/lib/vc110${_x64}")
-        list(APPEND ice_binary_paths "${root}/bin/vc110")
-        list(APPEND ice_library_paths "${root}/lib/vc110")
-      endif((MSVC_VERSION EQUAL 1700) OR (MSVC_VERSION GREATER 1700 AND MSVC_VERSION LESS 1800))
-      # VS 12.0
-      if((MSVC_VERSION EQUAL 1800) OR (MSVC_VERSION GREATER 1800 AND MSVC_VERSION LESS 1900))
-        list(APPEND ice_binary_paths "${root}/bin/vc120${_x64}")
-        list(APPEND ice_library_paths "${root}/lib/vc120${_x64}")
-        list(APPEND ice_binary_paths "${root}/bin/vc120")
-        list(APPEND ice_library_paths "${root}/lib/vc120")
-      endif((MSVC_VERSION EQUAL 1800) OR (MSVC_VERSION GREATER 1800 AND MSVC_VERSION LESS 1900))
-    endif(MSVC)
+    if(vcver)
+      # Versions prior to VS 10.0 don't use vcnnn subdirectories, but are harmless to check.
+      list(APPEND ice_binary_paths "${root}/bin/${vcver}${_x64}")
+      list(APPEND ice_library_paths "${root}/lib/${vcver}${_x64}")
+      list(APPEND ice_binary_paths "${root}/bin/${vcver}")
+      list(APPEND ice_library_paths "${root}/lib/${vcver}")
+    endif(vcver)
     # Generic 64-bit directories
     list(APPEND ice_binary_paths "${root}/bin${_x64}")
     list(APPEND ice_library_paths "${root}/${_lib64}")
@@ -179,7 +203,7 @@ function(_Ice_FIND)
   # in use.  For newer versions which this hardcoded logic can't
   # support, ICE_HOME and/or the other configuration options must be
   # used, in which case the above logic will be used instead.
-  if(MSVC_VERSION)
+  if(vcver)
     set(_x86 "(x86)")
     if (CMAKE_SIZEOF_VOID_P MATCHES 8)
       set (program_files_path "$ENV{ProgramFiles${_x86}}/ZeroC")
@@ -188,149 +212,46 @@ function(_Ice_FIND)
     endif (CMAKE_SIZEOF_VOID_P MATCHES 8)
     file(TO_CMAKE_PATH "${program_files_path}" program_files_path)
 
-    # VS 8.0
-    if((MSVC_VERSION EQUAL 1400) OR (MSVC_VERSION GREATER 1400 AND MSVC_VERSION LESS 1500))
-      # 3.3.1
-      list(APPEND ice_binary_paths "C:/Ice-3.3.1/bin${_x64}")
-      list(APPEND ice_library_paths "C:/Ice-3.3.1/lib${_x64}")
-      list(APPEND ice_binary_paths "C:/Ice-3.3.1/bin")
-      list(APPEND ice_library_paths "C:/Ice-3.3.1/lib")
-      list(APPEND ice_include_paths "C:/Ice-3.3.1/include")
-      list(APPEND ice_slice_paths "C:/Ice-3.3.1/slice")
-      # 3.3.0
-      list(APPEND ice_binary_paths "C:/Ice-3.3.0/bin${_x64}")
-      list(APPEND ice_library_paths "C:/Ice-3.3.0/lib${_x64}")
-      list(APPEND ice_binary_paths "C:/Ice-3.3.0/bin")
-      list(APPEND ice_library_paths "C:/Ice-3.3.0/lib")
-      list(APPEND ice_include_paths "C:/Ice-3.3.0/include")
-      list(APPEND ice_slice_paths "C:/Ice-3.3.0/slice")
-    endif((MSVC_VERSION EQUAL 1400) OR (MSVC_VERSION GREATER 1400 AND MSVC_VERSION LESS 1500))
+    string(TOUPPER "${vcver}" VCVER)
 
-    # VS 9.0
-    if((MSVC_VERSION EQUAL 1500) OR (MSVC_VERSION GREATER 1500 AND MSVC_VERSION LESS 1600))
-      # 3.4.2
-      list(APPEND ice_binary_paths "${program_files_path}/Ice-3.4.2/bin${_x64}")
-      list(APPEND ice_library_paths "${program_files_path}/Ice-3.4.2/lib${_x64}")
-      list(APPEND ice_binary_paths "${program_files_path}/Ice-3.4.2/bin")
-      list(APPEND ice_library_paths "${program_files_path}/Ice-3.4.2/lib")
-      list(APPEND ice_include_paths "C:/Ice-3.4.2/include")
-      list(APPEND ice_slice_paths "C:/Ice-3.4.2/slice")
-      # 3.4.1
-      list(APPEND ice_binary_paths "${program_files_path}/Ice-3.4.1/bin${_x64}")
-      list(APPEND ice_library_paths "${program_files_path}/Ice-3.4.1/lib${_x64}")
-      list(APPEND ice_binary_paths "${program_files_path}/Ice-3.4.1/bin")
-      list(APPEND ice_library_paths "${program_files_path}/Ice-3.4.1/lib")
-      list(APPEND ice_include_paths "C:/Ice-3.4.1/include")
-      list(APPEND ice_slice_paths "C:/Ice-3.4.1/slice")
-      # 3.4.0
-      list(APPEND ice_binary_paths "${program_files_path}/Ice-3.4.0/bin${_x64}")
-      list(APPEND ice_library_paths "${program_files_path}/Ice-3.4.0/lib${_x64}")
-      list(APPEND ice_binary_paths "${program_files_path}/Ice-3.4.0/bin")
-      list(APPEND ice_library_paths "${program_files_path}/Ice-3.4.0/lib")
-      list(APPEND ice_include_paths "C:/Ice-3.4.0/include")
-      list(APPEND ice_slice_paths "C:/Ice-3.4.0/slice")
-      # 3.3.1
-      list(APPEND ice_binary_paths "C:/Ice-3.3.1-VC90/bin${_x64}")
-      list(APPEND ice_library_paths "C:/Ice-3.3.1-VC90/lib${_x64}")
-      list(APPEND ice_binary_paths "C:/Ice-3.3.1-VC90/bin")
-      list(APPEND ice_library_paths "C:/Ice-3.3.1-VC90/lib")
-      list(APPEND ice_include_paths "C:/Ice-3.3.1-VC90/include")
-      list(APPEND ice_slice_paths "C:/Ice-3.3.1-VC90/slice")
-      # 3.3.0
-      list(APPEND ice_binary_paths "C:/Ice-3.3.0-VC90/bin${_x64}")
-      list(APPEND ice_library_paths "C:/Ice-3.3.0-VC90/lib${_x64}")
-      list(APPEND ice_binary_paths "C:/Ice-3.3.0-VC90/bin")
-      list(APPEND ice_library_paths "C:/Ice-3.3.0-VC90/lib")
-      list(APPEND ice_include_paths "C:/Ice-3.3.0-VC90/include")
-      list(APPEND ice_slice_paths "C:/Ice-3.3.0-VC90/slice")
-    endif((MSVC_VERSION EQUAL 1500) OR (MSVC_VERSION GREATER 1500 AND MSVC_VERSION LESS 1600))
-
-    # VS 10.0
-    if((MSVC_VERSION EQUAL 1600) OR (MSVC_VERSION GREATER 1600 AND MSVC_VERSION LESS 1700))
-      # 3.5.1
-      list(APPEND ice_binary_paths "${program_files_path}/Ice-3.5.1/bin${_x64}")
-      list(APPEND ice_library_paths "${program_files_path}/Ice-3.5.1/lib${_x64}")
-      list(APPEND ice_binary_paths "${program_files_path}/Ice-3.5.1/bin")
-      list(APPEND ice_library_paths "${program_files_path}/Ice-3.5.1/lib")
-      list(APPEND ice_include_paths "${program_files_path}/Ice-3.5.1/include")
-      list(APPEND ice_slice_paths "${program_files_path}/Ice-3.5.1/slice")
-      # 3.5.0
-      list(APPEND ice_binary_paths "${program_files_path}/Ice-3.5.0/bin${_x64}")
-      list(APPEND ice_library_paths "${program_files_path}/Ice-3.5.0/lib${_x64}")
-      list(APPEND ice_binary_paths "${program_files_path}/Ice-3.5.0/bin")
-      list(APPEND ice_library_paths "${program_files_path}/Ice-3.5.0/lib")
-      list(APPEND ice_include_paths "${program_files_path}/Ice-3.5.0/include")
-      list(APPEND ice_slice_paths "${program_files_path}/Ice-3.5.0/slice")
-      # 3.4.2
-      list(APPEND ice_binary_paths "${program_files_path}/Ice-3.4.2/bin/vc100${_x64}")
-      list(APPEND ice_library_paths "${program_files_path}/Ice-3.4.2/lib/vc100${_x64}")
-      list(APPEND ice_binary_paths "${program_files_path}/Ice-3.4.2/bin/vc100")
-      list(APPEND ice_library_paths "${program_files_path}/Ice-3.4.2/lib/vc100")
-      list(APPEND ice_include_paths "${program_files_path}/Ice-3.4.2/include")
-      list(APPEND ice_slice_paths "${program_files_path}/Ice-3.4.2/slice")
-      # 3.4.1
-      list(APPEND ice_binary_paths "${program_files_path}/Ice-3.4.1/bin/vc100${_x64}")
-      list(APPEND ice_library_paths "${program_files_path}/Ice-3.4.1/lib/vc100${_x64}")
-      list(APPEND ice_binary_paths "${program_files_path}/Ice-3.4.1/bin/vc100")
-      list(APPEND ice_library_paths "${program_files_path}/Ice-3.4.1/lib/vc100")
-      list(APPEND ice_include_paths "${program_files_path}/Ice-3.4.1/include")
-      list(APPEND ice_slice_paths "${program_files_path}/Ice-3.4.1/slice")
-    endif((MSVC_VERSION EQUAL 1600) OR (MSVC_VERSION GREATER 1600 AND MSVC_VERSION LESS 1700))
-
-    # VS 11.0
-    if((MSVC_VERSION EQUAL 1700) OR (MSVC_VERSION GREATER 1700 AND MSVC_VERSION LESS 1800))
-      # 3.5.1
-      list(APPEND ice_binary_paths "${program_files_path}/Ice-3.5.1/bin/vc110${_x64}")
-      list(APPEND ice_library_paths "${program_files_path}/Ice-3.5.1/lib/vc110${_x64}")
-      list(APPEND ice_binary_paths "${program_files_path}/Ice-3.5.1/bin/vc110")
-      list(APPEND ice_library_paths "${program_files_path}/Ice-3.5.1/lib/vc110")
-      list(APPEND ice_include_paths "${program_files_path}/Ice-3.5.1/include")
-      list(APPEND ice_slice_paths "${program_files_path}/Ice-3.5.1/slice")
-      # 3.5.0
-      list(APPEND ice_binary_paths "${program_files_path}/Ice-3.5.0/bin/vc110${_x64}")
-      list(APPEND ice_library_paths "${program_files_path}/Ice-3.5.0/lib/vc110${_x64}")
-      list(APPEND ice_binary_paths "${program_files_path}/Ice-3.5.0/bin/vc110")
-      list(APPEND ice_library_paths "${program_files_path}/Ice-3.5.0/lib/vc110")
-      list(APPEND ice_include_paths "${program_files_path}/Ice-3.5.0/include")
-      list(APPEND ice_slice_paths "${program_files_path}/Ice-3.5.0/slice")
-    endif((MSVC_VERSION EQUAL 1700) OR (MSVC_VERSION GREATER 1700 AND MSVC_VERSION LESS 1800))
-
-    # VS 12.0
-    if((MSVC_VERSION EQUAL 1800) OR (MSVC_VERSION GREATER 1800 AND MSVC_VERSION LESS 1900))
-      # 3.5.1
-      list(APPEND ice_binary_paths "${program_files_path}/Ice-3.5.1/bin/vc120${_x64}")
-      list(APPEND ice_library_paths "${program_files_path}/Ice-3.5.1/lib/vc120${_x64}")
-      list(APPEND ice_binary_paths "${program_files_path}/Ice-3.5.1/bin/vc120")
-      list(APPEND ice_library_paths "${program_files_path}/Ice-3.5.1/lib/vc120")
-      list(APPEND ice_include_paths "${program_files_path}/Ice-3.5.1/include")
-      list(APPEND ice_slice_paths "${program_files_path}/Ice-3.5.1/slice")
-    endif((MSVC_VERSION EQUAL 1800) OR (MSVC_VERSION GREATER 1800 AND MSVC_VERSION LESS 1900))
-  else(MSVC_VERSION)
     set(ice_locations
-        /opt/Ice
-        /opt/Ice-3
-        /opt/Ice-3.5
-        /opt/Ice-3.5.1
-        /opt/Ice-3.5.0
-        /opt/Ice-3.4
-        /opt/Ice-3.4.2
-        /opt/Ice-3.4.1
-        /opt/Ice-3.4.0
-        /opt/Ice-3.3
-        /opt/Ice-3.3.1
-        /opt/Ice-3.3.0)
+        ${program_files_path}
+        "C:/")
 
-    foreach(path ${ice_locations})
-      # Prefer 64-bit variants if present and using a 64-bit compiler
-      list(APPEND ice_binary_paths "${path}/bin${_x64}")
-      list(APPEND ice_binary_paths "${path}/lib${_x64}")
-      list(APPEND ice_binary_paths "${path}/${_lib64}")
-      list(APPEND ice_binary_paths "${path}/bin")
-      list(APPEND ice_binary_paths "${path}/lib")
-      list(APPEND ice_binary_paths "${path}/include")
-      list(APPEND ice_binary_paths "${path}/slice")
-    endforeach(path)
-  endif(MSVC_VERSION)
+    foreach(ice_version ${ice_versions})
+      foreach(ice_location ${ice_locations})
+
+        # Search for version-specific VS builds before generic location
+        list(APPEND ice_binary_paths "${ice_location}/Ice-${ice_version}/bin/${vcver}${_x64}")
+        list(APPEND ice_library_paths "${ice_location}/Ice-${ice_version}/lib/${vcver}${_x64}")
+        list(APPEND ice_binary_paths "${ice_location}/Ice-${ice_version}/bin/${vcver}")
+        list(APPEND ice_library_paths "${ice_location}/Ice-${ice_version}/lib/${vcver}")
+        list(APPEND ice_binary_paths "${ice_location}/Ice-${ice_version}-${VCVER}/bin${_x64}")
+        list(APPEND ice_library_paths "${ice_location}/Ice-${ice_version}-${VCVER}/lib${_x64}")
+        list(APPEND ice_binary_paths "${ice_location}/Ice-${ice_version}-${VCVER}/bin")
+        list(APPEND ice_library_paths "${ice_location}/Ice-${ice_version}-${VCVER}/lib")
+        list(APPEND ice_binary_paths "${ice_location}/Ice-${ice_version}/bin${_x64}")
+        list(APPEND ice_library_paths "${ice_location}/Ice-${ice_version}/lib${_x64}")
+        list(APPEND ice_binary_paths "${ice_location}/Ice-${ice_version}/bin")
+        list(APPEND ice_library_paths "${ice_location}/Ice-${ice_version}/lib")
+        list(APPEND ice_include_paths "${ice_location}/Ice-${ice_version}/include")
+        list(APPEND ice_slice_paths "${ice_location}/Ice-${ice_version}/slice")
+
+      endforeach(ice_location)
+    endforeach(ice_version)
+
+  else(vcver)
+    foreach(ice_version ${ice_versions})
+      # Prefer 64-bit variants if present (and using a 64-bit compiler)
+      list(APPEND ice_binary_paths "/opt/${ice_version}/bin${_x64}")
+      list(APPEND ice_library_paths "/opt/${ice_version}/lib${_x64}")
+      list(APPEND ice_library_paths "/opt/${ice_version}/${_lib64}")
+      list(APPEND ice_binary_paths "/opt/${ice_version}/bin")
+      list(APPEND ice_library_paths "/opt/${ice_version}/lib")
+      list(APPEND ice_include_paths "/opt/${ice_version}/include")
+      list(APPEND ice_slice_paths "/opt/${ice_version}/slice")
+    endforeach(ice_version)
+  endif(vcver)
 
   if(ICE_DEBUG)
     message(STATUS "--------FindIce.cmake search debug--------")
