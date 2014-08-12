@@ -846,7 +846,8 @@ class Locks {
             }
 
             if (to != null && field != null) {
-                for (Class<?> c : Impl.hierarchy(sfi.getAllClassMetadata(), to)) {
+                Map<String, ClassMetadata> m = sfi.getAllClassMetadata();
+                for (Class<?> c : Impl.hierarchy(m, to)) {
                     value.put(c.getName(), field);
                 }
             }
