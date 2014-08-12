@@ -39,13 +39,10 @@ file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${GEN_DIR})
 
 include_directories(src gen)
 
-if(NOT DEFINED ENV{ICE_HOME} AND EXISTS "/usr/share/Ice")
-  set(ENV{ICE_HOME} "/usr/share/Ice")
-endif(NOT DEFINED ENV{ICE_HOME} AND EXISTS "/usr/share/Ice")
-
 include_directories("${PROJECT_SOURCE_DIR}/components/blitz/generated"
                     "${CMAKE_CURRENT_SOURCE_DIR}/src"
-                    "${CMAKE_CURRENT_BINARY_DIR}/${GEN_DIR}")
+                    "${CMAKE_CURRENT_BINARY_DIR}/${GEN_DIR}"
+                    "${ICE_INCLUDE_DIR}")
 
 option(debug-ice-generation "Dump results of generated Ice source globbing" OFF)
 
@@ -150,25 +147,10 @@ if(OMERO_CLIENT_GENERATED_SOURCES)
   list(REMOVE_ITEM OMERO_COMMON_GENERATED_SOURCES ${OMERO_CLIENT_GENERATED_SOURCES})
 endif(OMERO_CLIENT_GENERATED_SOURCES)
 
-
-if(DEFINED ENV{SLICEPATH} AND EXISTS $ENV{SLICEPATH})
-  set(ICEINCLUDE $ENV{SLICEPATH})
-elseif(DEFINED ENV{ICE_HOME} AND EXISTS $ENV{ICE_HOME}/slice)
-  set(ICEINCLUDE $ENV{ICE_HOME}/slice)
-endif(DEFINED ENV{SLICEPATH} AND EXISTS $ENV{SLICEPATH})
-
-set(SLICE2CPP slice2cpp)
-if(DEFINED ENV{ICE_HOME} AND EXISTS $ENV{ICE_HOME}/bin/slice2cpp)
-  set(SLICE2CPP $ENV{ICE_HOME}/bin/slice2cpp)
-endif(DEFINED ENV{ICE_HOME} AND EXISTS $ENV{ICE_HOME}/bin/slice2cpp)
-if(DEFINED ENV{SLICE2CPP})
-  set(SLICE2CPP $ENV{SLICE2CPP})
-endif(DEFINED ENV{SLICE2CPP})
-
 list(APPEND SLICEOPTS "-I${PROJECT_SOURCE_DIR}/components/blitz/generated" "-I${PROJECT_SOURCE_DIR}/components/blitz/resources")
-if(DEFINED ICEINCLUDE)
-  list(APPEND SLICEOPTS "-I${ICEINCLUDE}")
-endif(DEFINED ICEINCLUDE)
+if(ICE_SLICE_DIR)
+  list(APPEND SLICEOPTS "-I${ICE_SLICE_DIR}")
+endif(ICE_SLICE_DIR)
 if(WIN32)
   list(APPEND SLICEOPTS --dll-export OMERO_API)
 endif(WIN32)
@@ -198,7 +180,7 @@ function(icegen in outsrc outhdr)
         OUTPUT ${GEN_DIR}/${ICECPP} ${GEN_DIR}/${ICEHPP}
         WORKING_DIRECTORY gen
         COMMAND ${CMAKE_COMMAND} -E make_directory "${ICE_PATH}"
-        COMMAND "${SLICE2CPP}" ${SLICEOPTS} ${incdir} "--output-dir=${ICE_PATH}" "${PROJECT_SOURCE_DIR}/${icesrc}"
+        COMMAND "${SLICE2CPP_EXECUTABLE}" ${SLICEOPTS} ${incdir} "--output-dir=${ICE_PATH}" "${PROJECT_SOURCE_DIR}/${icesrc}"
         DEPENDS "${PROJECT_SOURCE_DIR}/${icesrc}")
       install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${GEN_DIR}/${ICEHPP}
               DESTINATION "${CMAKE_INSTALL_FULL_INCLUDEDIR}/${ICE_PATH}")
@@ -360,11 +342,15 @@ add_library(omero-client SHARED
             ${OMERO_MODEL_HEADERS} ${OMERO_MODEL_SOURCES}
             ${OMERO_API_HEADERS} ${OMERO_API_SOURCES}
             ${OMERO_CLIENT_HEADERS} ${OMERO_CLIENT_SOURCES})
-target_link_libraries(omero-client Ice IceUtil Glacier2)
+target_link_libraries(omero-client
+                      "${ICE_LIBRARY}"
+                      "${ICEUTIL_LIBRARY}"
+                      "${GLACIER2_LIBRARY}")
 
 if(MSVC)
   set_target_properties(omero-client PROPERTIES
-                        LINK_FLAGS "/INCREMENTAL:NO")
+                        LINK_FLAGS "/INCREMENTAL:NO"
+                        DEFINE_SYMBOL "OMERO_API_EXPORTS")
 endif(MSVC)
 
 if(debug-ice-generation)
