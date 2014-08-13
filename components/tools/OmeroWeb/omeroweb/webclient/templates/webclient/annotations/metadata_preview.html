@@ -131,10 +131,10 @@
 
             // copy and paste refs is in browser via query string,
             // but we also save to session in case of page reload etc
-            $("button.copy_rdef").click(function() {
+            $("input.copy_rdef").click(function() {
                 copyRdefs(OME.preview_viewport);
             });
-            $("button.paste_rdef").click(function() {
+            $("input.paste_rdef").click(function() {
                 pasteRdefs(OME.preview_viewport);
             });
 
@@ -287,7 +287,7 @@
 
     <div style="clear:both; height:20px"></div>
 
-    <ul>
+    <ul class="toolbar" style="border-right-width: 0; margin-top: 8px;">
       <li class="buttonbar">
         <button id="rdef-setdef-btn" class="editor" disabled='true'
             {% if manager.image.canAnnotate %}
@@ -296,26 +296,30 @@
             title="You don't have permission to save settings."
             {% endif %}
             >
-          Save
+          <img src="{% static 'webclient/image/icon_save.png' %}" style="position:relative; top:2px" />
+          <span>
+            Save
+          </span>
         </button>
 
         <button id="rdef-save-all" disabled="true" title="Cannot apply settings to other images">
-          Save to All
-        </button>
-        |
-
-        <button id="rdef-undo-btn" title="Undo the last changes to settings.">undo</button>
-        <button id="rdef-redo-btn" title="Redo the last changes to settings.">redo</button>
-
-        |
-
-        <button class="copy_rdef" title="Copy Rendering Settings">
-          Copy
-        </button>
-        <button class="paste_rdef" title="Paste Rendering Settings">
-          Paste
+          <img src="{% static 'webclient/image/icon_save.png' %}" style="position:relative; top:2px" />
+          <span>
+            Save to All
+          </span>
         </button>
       </li>
+
+
+      <!-- class='button-disabled' -->
+      <li><input id="rdef-undo-btn" style="float:right" class="button" type="image" src="{% static "webclient/image/icon_undo16.png" %}" title="Undo the last changes to settings" /> </li>
+      <li><input id="rdef-redo-btn" style="float:right" class="button" type="image" src="{% static "webclient/image/icon_redo16.png" %}" title="Redo the last changes to settings" /> </li>
+      
+      <li class="seperator"></li>
+
+      <!-- class='button-disabled' -->
+      <li><input style="float:right" class="copy_rdef button" type="image" src="{% static "webclient/image/icon_toolbar_copy.png" %}" title="Copy Rendering Settings" /> </li>
+      <li><input style="float:right" class="paste_rdef button" type="image" src="{% static "webclient/image/icon_toolbar_paste.png" %}" title="Paste Rendering Settings" /> </li>
     </ul>
 
     <div id="rdef-postit">
