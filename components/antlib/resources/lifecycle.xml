@@ -129,7 +129,6 @@ omero.version=${omero.version}
             debug="${javac.debug}"
             debuglevel="${javac.debuglevel}"
             deprecation="on">
-          <compilerarg value="${javadoc.doclint}"/>
         </javac>
     </presetdef>
 
