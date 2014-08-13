@@ -79,8 +79,8 @@
         display: none;
       }
       img.rdef {
-        max-width: 12px;
-        max-height: 12px;
+        max-width: 64px;
+        max-height: 64px;
         position: relative;
         top: 2px;
       }
@@ -356,6 +356,17 @@
       </li>
     </ul>
 
+    <div id="rdef-postit">
+      <div id="rdef-active-area">
+        <label for="rd-wblitz-rmodel">Render as Color</label>
+        <input id="rd-wblitz-rmodel" type="checkbox" onchange="return rdChanSelHelper(this);" />
+        <table cellspacing="0" style="font-size:0.9em">
+          <tr>
+          </tr>
+        </table>
+      </div>
+    </div>
+
     <hr class="thin-margin"/>
 
     <img id="hoverRdef" src="{% url 'render_thumbnail' manager.image.id %}"/>
@@ -376,7 +387,7 @@
       <li id='rdef-buttons'>
         {% for rdef in rdefs %}
           <button class='rdef' data-ownerid="{{ rdef.owner.id }}" data-rdid="{{ rdef.id }}">
-            <img class='rdef' src="{% url 'render_thumbnail' manager.image.id %}?rdefId={{ rdef.id }}"/>
+            <img class='rdef' src="{% url 'render_thumbnail' manager.image.id %}?rdefId={{ rdef.id }}"/><br>
             <span>{{ rdef.owner.firstName }} {{ rdef.owner.lastName }}</span>
           </button>
         {% endfor %}
@@ -390,17 +401,6 @@
       {% endblock batch_copy %}
     </ul>
     <hr class="thin-margin"/>
-
-    <div id="rdef-postit">
-      <div id="rdef-active-area">
-        <label for="rd-wblitz-rmodel">Render as Color</label>
-        <input id="rd-wblitz-rmodel" type="checkbox" onchange="return rdChanSelHelper(this);" />
-        <table cellspacing="0" style="font-size:0.9em">
-          <tr>
-          </tr>
-        </table>
-      </div>
-    </div>
 
     <hr />
     <h3>ROI count: {{ manager.image.getROICount }}</h3>
