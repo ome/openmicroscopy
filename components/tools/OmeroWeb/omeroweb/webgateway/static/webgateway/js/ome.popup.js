@@ -23,6 +23,12 @@ if (typeof OME === "undefined") {
     OME = {};
 }
 
+// Not ideal to use js for this, but...
+// from http://stackoverflow.com/questions/3514784/what-is-the-best-way-to-detect-a-handheld-device-in-jquery
+OME.isMobileDevice = function() {
+    return (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Silk/i).test(navigator.userAgent);
+};
+
 Number.prototype.filesizeformat = function () {
     /*
     Formats the value like a 'human-readable' file size (i.e. 13 KB, 4.1 MB,

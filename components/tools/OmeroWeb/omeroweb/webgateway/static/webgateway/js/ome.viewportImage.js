@@ -438,6 +438,27 @@ jQuery.fn.viewportImage = function(options) {
       }
     });
 
+    // If we're on a tablet, use hammer.js for gestures
+    if (OME.isMobileDevice()) {
+      var myElement = dragdiv.get(0);
+      var mc = new Hammer(myElement);
+      mc.get('pan').set({ direction: Hammer.DIRECTION_ALL });
+      // "panstart" is not fired until after other pan events...
+      mc.on("panleft panright panup pandown", function(event) {
+          if (drag_px === undefined) {
+            self.doMove(event.deltaX, event.deltaY);
+          } else {
+            self.doMove(event.center.x-drag_px, event.center.y-drag_py);
+          }
+          drag_px = event.center.x;
+          drag_py = event.center.y;
+      });
+      // ...so we use "panend" instead to distinguish start/end
+      mc.on("panend", function(event) {
+        drag_px = undefined;
+      });
+    }
+
     this.getBigImageContainer = function () {
         return viewerBean;
     };
