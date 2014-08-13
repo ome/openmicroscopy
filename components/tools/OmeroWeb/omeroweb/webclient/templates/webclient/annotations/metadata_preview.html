@@ -84,13 +84,6 @@
         position: relative;
         top: 2px;
       }
-      #hoverRdef {
-        display: none;
-        position: fixed;
-        zIndex: 999;
-        width: 96px;
-        height: 96px;
-      }
       .thin-margin {
         margin: 3px 0;
       }
@@ -187,37 +180,6 @@
               syncRDCW(OME.preview_viewport);
             });
 
-            // Show larger thumbnail when hovering over rdef buttons
-            var $hoverRdef = $("#hoverRdef").hide();
-            var rdefs = {{ rdefsJson|safe }}; 
-            // All button events are delegated, so will also apply to new buttons
-            $( "#rdef-buttons" )
-            .on( "click", "button", function() {
-              var rdid = $(this).attr('data-rdid'),     // might not know this (if button created by js)
-                ownerid = $(this).attr('data-ownerid');
-              for (var r = 0; r < rdefs.length; r++) {
-                if (rdefs[r].id+"" === rdid || rdefs[r].owner.id+"" === ownerid) {
-                  OME.preview_viewport.setQuery(rdefs[r]);
-                  OME.preview_viewport.doload();
-                  syncRDCW(OME.preview_viewport);
-                  OME.preview_viewport.save_channels();
-                  updateUndoRedo(OME.preview_viewport);
-                  break;
-                }
-              }
-            })
-            .on("mouseenter", "button", function() {
-              var $btn = $(this),
-                src = $('img', $btn).attr('src');
-              $hoverRdef.attr('src', src).show();
-            })
-            .on("mouseleave", "button", function() {
-              $hoverRdef.hide();
-            })
-            .on("mousemove", "button", function(event) {
-              $hoverRdef.css({'left': event.clientX+15 + 'px',
-                  'top':event.clientY-96 + 'px'});
-            });
 
             // when user saves, update their rdef button
             var updateMyRdef = function(queryString) {
@@ -369,7 +331,6 @@
 
     <hr class="thin-margin"/>
 
-    <img id="hoverRdef" src="{% url 'render_thumbnail' manager.image.id %}"/>
     <ul>
       <li>
         <button id="rdef-reset-btn" class="editor"
