@@ -180,6 +180,23 @@
               syncRDCW(OME.preview_viewport);
             });
 
+            var rdefs = {{ rdefsJson|safe }};
+            // All button events are delegated, so will also apply to new buttons
+            $( "#rdef-buttons" )
+            .on( "click", "button", function() {
+              var rdid = $(this).attr('data-rdid'),     // might not know this (if button created by js)
+                ownerid = $(this).attr('data-ownerid');
+              for (var r = 0; r < rdefs.length; r++) {
+                if (rdefs[r].id+"" === rdid || rdefs[r].owner.id+"" === ownerid) {
+                  OME.preview_viewport.setQuery(rdefs[r]);
+                  OME.preview_viewport.doload();
+                  syncRDCW(OME.preview_viewport);
+                  OME.preview_viewport.save_channels();
+                  updateUndoRedo(OME.preview_viewport);
+                  break;
+                }
+              }
+            });
 
             // when user saves, update their rdef button
             var updateMyRdef = function(queryString) {
