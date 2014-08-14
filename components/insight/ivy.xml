@@ -27,10 +27,16 @@
   </publications>
   <dependencies defaultconfmapping="build,client->default">
     <!-- Internal -->
-    <dependency org="omero" name="blitz" rev="${omero.version}" changing="true" conf="build->build;client->client"/>
+    <dependency org="omero" name="blitz" rev="${omero.version}" changing="true" conf="build->build;client->client">
+        <exclude ext="pom"/>
+    </dependency>
     <!-- For UpgradeCheck -->
-    <dependency org="omero" name="common" rev="${omero.version}" changing="true" conf="build->build;client->client" transitive="false"/>
-    <dependency org="omero" name="model-${omero.db.profile}" rev="${omero.version}" changing="true" conf="build->build;client->client" transitive="false"/>
+    <dependency org="omero" name="common" rev="${omero.version}" changing="true" conf="build->build;client->client" transitive="false">
+        <exclude ext="pom"/>
+    </dependency>
+    <dependency org="omero" name="model-${omero.db.profile}" rev="${omero.version}" changing="true" conf="build->build;client->client" transitive="false">
+        <exclude ext="pom"/>
+    </dependency>
     <!-- For build -->
     <dependency org="insight" name="jarbundler" rev="${versions.jarbundler}" conf="build->default"/>
     <!-- From classpath -->
