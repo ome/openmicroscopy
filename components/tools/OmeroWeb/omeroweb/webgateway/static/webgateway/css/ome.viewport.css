@@ -123,3 +123,9 @@ div.weblitz-viewport-tiles img {
 .pick-pos {
   cursor: crosshair;
 }
+
+.rd-wblitz-ch {
+  width: 19px;
+  height: 19px;
+  margin-right: 5px;
+}

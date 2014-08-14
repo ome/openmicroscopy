@@ -161,9 +161,12 @@
 
     window.channelChange = function (ev, obj, idx, ch) {
         if (ch.active) {
+            // similar buttons beside image and in rdef table
             $('#wblitz-ch'+idx).addClass('pressed');
+            $('#rd-wblitz-ch'+idx).addClass('pressed');
         } else {
             $('#wblitz-ch'+idx).removeClass('pressed');
+            $('#rd-wblitz-ch'+idx).removeClass('pressed');
         }
         //var t = $('#rd-wblitz-ch'+idx).get(0);
         //if (t != undefined) t.checked=ch.active;
@@ -357,7 +360,8 @@
 
         var template = '' +
           '<tr class="$cls rdef-window">' +
-          '<td><input id="rd-wblitz-ch$idx0" class="rd-wblitz-ch" type="checkbox" $act></td>' +
+          '<td><button id="rd-wblitz-ch$idx0" class="rd-wblitz-ch squared $act" style="background-color: #$col" ' +
+            'title="$label"></button></td>' +
           '<td><table><tr id="wblitz-ch$idx0-cw" class="rangewidget"></tr></table></td>' +
           '<td><button id="wblitz-ch$idx0-color" class="picker squarred" title="Choose Color">&nbsp;</button></td>' +
           '</tr>';
@@ -408,7 +412,8 @@
 
         for (i=channels.length-1; i>=0; i--) {
             tmp.after(template
-                .replace(/\$act/g, channels[i].active?'checked':'')
+                .replace(/\$act/g, channels[i].active?'pressed':'')
+                .replace(/\$col/g, channels[i].color)
                 .replace(/\$idx0/g, i) // Channel Index, 0 based
                 .replace(/\$idx1/g, i+1) // Channel Index, 1 based
                 .replace(/\$cwl/g, channels[i].label) // Wavelength
