@@ -915,22 +915,6 @@
     return false;
   }
 
-  function nextPrevImage(direction) {
-    var $current = window.opener.$("#image_icon-{{ image.id }}")
-
-    if( direction == -1 ) {
-      $li = $current.prev()
-    } else {
-      $li = $current.next()
-    }
-
-    var id = $li.find("img").attr('id')
-
-    if( id ) {
-      window.location.href = "{{ viewport_server }}/img_detail/" + id
-    }
-  }
-
 {% if image.canAnnotate %}
   function resetImageDefaults (obj) {
     var msg = '<h2>Resetting rendering settings</h2><ul><li>This will reset the image rendering settings to their original state at time of import.</li></ul>';
@@ -1461,7 +1445,24 @@
         }
         return false;
     });
-    
+
+
+    function nextPrevImage(direction) {
+      var $current = window.opener.$("#image_icon-{{ image.id }}")
+
+      if( direction == -1 ) {
+        $li = $current.prev()
+      } else {
+        $li = $current.next()
+      }
+
+      var id = $li.find("img").attr('id')
+
+      if( id ) {
+        window.location.href = "{{ viewport_server }}/img_detail/" + id
+      }
+    }
+
     $(document).keydown(function(e) {
         switch(e.which) {
             case 37: // left
