@@ -31,15 +31,15 @@ $.fn.colorbtn = function(cfg) {
     var self = jQuery(this);
 
     var callback = function (color) {
-      self.attr('data-color', color);
+      self.attr('data-picked-color', color);
       jQuery('input#'+self[0].cfg.prefix+'-tb').attr('value', color.substring(1).toUpperCase());
     };
 
     var ok_callback = function () {
       // On 'OK' we get the color saved by 'callback' above and apply it to the color-btn, then trigger
-      var data_color = self.attr('data-color');
+      var data_color = self.attr('data-picked-color');
       if (data_color) {
-        self.css('background-color', data_color);
+        self.attr('data-color', data_color);
         self.trigger('changed');
       }
     };
@@ -99,9 +99,9 @@ $.fn.colorbtn = function(cfg) {
         .bind('click',function(){
           jQuery("#"+that.cfg.prefix+"-box").hide();
         });
-      self.removeAttr('data-color');
+      self.removeAttr('data-picked-color');
 
-      var color = '#'+rgbToHex(self.css("background-color"));
+      var color = '#'+rgbToHex(self.attr("data-color"));
       picker.linkTo(null_cb).setColor(color).linkTo(callback);
       jQuery("#"+this.cfg.prefix+"-tb").attr('value', color.substring(1).toUpperCase());
       jQuery("#"+this.cfg.prefix+"-defc").css("background-color", self.css("background-color"));

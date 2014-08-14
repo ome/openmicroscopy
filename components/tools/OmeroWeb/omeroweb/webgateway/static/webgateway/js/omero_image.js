@@ -190,7 +190,7 @@
             $('#wblitz-ch'+i+'-cwslider')
                 .slider( "option", "min", Math.min(w.min, w.start) )   // extend range if needed
                 .slider( "option", "max", Math.max(w.max, w.end) );
-                $('#wblitz-ch'+i+'-color').css('background-color', toRGB(channels[i].color));//$('#wblitz-ch'+i).css('background-color'));
+                $('#wblitz-ch'+i+'-color').attr('data-color', toRGB(channels[i].color));//$('#wblitz-ch'+i).css('background-color'));
                 $('#wblitz-ch'+i+'-cw-start').val(channels[i].window.start).change();
                 $('#wblitz-ch'+i+'-cw-end').val(channels[i].window.end).change();
         }
@@ -229,7 +229,7 @@
         }
         for (var i=0; i<viewport.getCCount(); i++) {
             viewport.setChannelActive(i, $('#rd-wblitz-ch'+i).get(0).checked, true);
-            viewport.setChannelColor(i, $('#wblitz-ch'+i+'-color').css('background-color'), true);
+            viewport.setChannelColor(i, $('#wblitz-ch'+i+'-color').attr('data-color'), true);
             var noreload = ((i+1) < viewport.getCCount());    // prevent reload, except on the last loop
             viewport.setChannelWindow(i, $('#wblitz-ch'+i+'-cw-start').get(0).value, $('#wblitz-ch'+i+'-cw-end').get(0).value, noreload);
         }
