@@ -24,7 +24,8 @@
 #   Ice_LIBRARIES - component libraries to be linked
 #   Ice_BINARY_DIR - the directory containing the Ice programs
 #   Ice_INCLUDE_DIR - the directory containing the Ice headers
-#   Ice_SLICE_DIR - the directory containing the Ice slice interface definitions
+#   Ice_SLICE_DIR - the directory containing the Ice slice interface
+#                   definitions
 #   Ice_LIBRARY_DIR - the directory containing the Ice libraries
 #
 # Ice programs are reported in::
@@ -46,31 +47,35 @@
 #
 # Note that ``<C>`` is the uppercased name of the component.
 #
-# This module reads hints about search results from variables::
+# This module reads hints about search results from::
 #
 #   ICE_HOME - the root of the Ice installation
-#   ICE_BINARYDIR - the directory containing the Ice programs
-#   ICE_INCLUDEDIR - the directory containing the Ice headers
-#   ICE_SLICEDIR - the directory containing the Ice slice interface definitions
-#   ICE_LIBRARYDIR - the directory containing the Ice libraries
 #
-# The environment variable :envvar:`ICE_HOME` may also be used, unless
-# overridden by setting the ICE_HOME variable.
+# The environment variable :envvar:`ICE_HOME` may also be used; the
+# ICE_HOME variable takes precedence.
+#
+# The following cache variables may also be set::
+#
+#   ICE_<P>_EXECUTABLE - the path to executable <P>
+#   ICE_INCLUDE_DIR - the directory containing the Ice headers
+#   ICE_SLICE_DIR - the directory containing the Ice slice interface
+#                   definitions
+#   ICE_<C>_LIBRARIES - the libraries for component <C>
 #
 # .. note::
 #
-#   These variables are not all required to be set, and in most cases
-#   will not require setting at all unless multiple Ice versions are
-#   available and a specific version is required.  On Windows,
-#   ICE_HOME is usually sufficient since the package is contained in a
-#   single directory.  On Unix, the programs, headers and libraries
-#   will usually be in standard locations, but Ice_SLICE_DIR might not
-#   be automatically detected.  All the other variables are defaulted
-#   using ICE_HOME, if set.  It's possible to set ICE_HOME and
-#   selectively specify alternative locations for the other
-#   components; this might be required for e.g. newer versions of
-#   Visual Studio if the heuristics are not sufficient to identify the
-#   correct programs and libraries.
+#   In most cases none of the above variables will require setting,
+#   unless multiple Ice versions are available and a specific version
+#   is required.  On Windows, the most recent version of Ice will be
+#   found through the registry.  On Unix, the programs, headers and
+#   libraries will usually be in standard locations, but Ice_SLICE_DIR
+#   might not be automatically detected (commonly known locations are
+#   searched).  All the other variables are defaulted using ICE_HOME,
+#   if set.  It's possible to set ICE_HOME and selectively specify
+#   alternative locations for the other components; this might be
+#   required for e.g. newer versions of Visual Studio if the
+#   heuristics are not sufficient to identify the correct programs and
+#   libraries for the specific Visual Studio version.
 #
 # Other variables one may set to control this module are::
 #
@@ -156,26 +161,17 @@ function(_Ice_FIND)
     endif((MSVC_VERSION EQUAL 1900) OR (MSVC_VERSION GREATER 1900 AND MSVC_VERSION LESS 2000))
   endif(MSVC_VERSION)
 
-  foreach(root ${ice_roots})
-    # For compatibility with ZeroC Windows builds.
-    if(vcver)
-      # Versions prior to VS 10.0 don't use vcnnn subdirectories, but are harmless to check.
-      list(APPEND ice_binary_paths "${root}/bin/${vcver}${_x64}")
-      list(APPEND ice_library_paths "${root}/lib/${vcver}${_x64}")
-      list(APPEND ice_binary_paths "${root}/bin/${vcver}")
-      list(APPEND ice_library_paths "${root}/lib/${vcver}")
-    endif(vcver)
-    # Generic 64-bit directories
-    list(APPEND ice_binary_paths "${root}/bin${_x64}")
-    list(APPEND ice_library_paths "${root}/${_lib64}")
-    list(APPEND ice_library_paths "${root}/lib${_x64}")
-    # Generic 64-bit or 32-bit directories
-    list(APPEND ice_binary_paths "${root}/bin")
-    list(APPEND ice_include_paths "${root}/include")
-    # Common directories
-    list(APPEND ice_library_paths "${root}/lib")
-    list(APPEND ice_slice_paths "${root}/slice")
-  endforeach(root)
+  # For compatibility with ZeroC Windows builds.
+  if(vcver)
+    # Earlier Ice (3.3) builds don't use vcnnn subdirectories, but are harmless to check.
+    list(APPEND ice_binary_suffixes "bin/${vcver}${_x64}" "bin/${vcver}")
+    list(APPEND ice_library_suffixes "lib/${vcver}${_x64}" "lib/${vcver}")
+  endif(vcver)
+  # Generic 64-bit and 32-bit directories
+  list(APPEND ice_binary_suffixes "bin${_x64}" "bin")
+  list(APPEND ice_library_suffixes "${_lib64}" "lib${_x64}" "lib")
+  list(APPEND ice_include_suffixes "include")
+  list(APPEND ice_slice_suffixes "slice")
 
   # On Windows, look in standard install locations.  Different versions
   # of Ice install in different places and support different compiler
@@ -208,29 +204,13 @@ function(_Ice_FIND)
       endif(NOT ice_location OR "${ice_location}" STREQUAL "/registry")
 
       if(ice_location AND NOT "${ice_location}" STREQUAL "/registry")
-        # Search for version-specific Visual Studio builds before generic location
-        list(APPEND ice_binary_paths "${ice_location}/bin/${vcver}${_x64}")
-        list(APPEND ice_library_paths "${ice_location}/lib/${vcver}${_x64}")
-        list(APPEND ice_binary_paths "${ice_location}/bin/${vcver}")
-        list(APPEND ice_library_paths "${ice_location}/lib/${vcver}")
-        list(APPEND ice_binary_paths "${ice_location}/bin${_x64}")
-        list(APPEND ice_library_paths "${ice_location}/lib${_x64}")
-        list(APPEND ice_binary_paths "${ice_location}/bin")
-        list(APPEND ice_library_paths "${ice_location}/lib")
-        list(APPEND ice_include_paths "${ice_location}/include")
-        list(APPEND ice_slice_paths "${ice_location}/slice")
+        list(APPEND ice_roots "${ice_location}")
       endif(ice_location AND NOT "${ice_location}" STREQUAL "/registry")
     endforeach(ice_version)
   else(vcver)
     foreach(ice_version ${ice_versions})
       # Prefer 64-bit variants if present (and using a 64-bit compiler)
-      list(APPEND ice_binary_paths  "/opt/Ice-${ice_version}/bin${_x64}")
-      list(APPEND ice_binary_paths  "/opt/Ice-${ice_version}/bin")
-      list(APPEND ice_library_paths "/opt/Ice-${ice_version}/lib${_x64}")
-      list(APPEND ice_library_paths "/opt/Ice-${ice_version}/${_lib64}")
-      list(APPEND ice_library_paths "/opt/Ice-${ice_version}/lib")
-      list(APPEND ice_include_paths "/opt/Ice-${ice_version}/include")
-      list(APPEND ice_slice_paths   "/opt/Ice-${ice_version}/slice")
+      list(APPEND ice_roots "/opt/Ice-${ice_version}")
     endforeach(ice_version)
   endif(vcver)
 
@@ -262,13 +242,14 @@ function(_Ice_FIND)
   # Find all Ice programs
   foreach(program ${ice_programs})
     string(TOUPPER "${program}" program_upcase)
+    set(cache_var "ICE_${program_upcase}_EXECUTABLE")
     set(program_var "Ice_${program_upcase}_EXECUTABLE")
-    find_program("${program_var}" "${program}"
-      HINTS "${ICE_BINARYDIR}"
-             ${ice_binary_paths}
+    find_program("${cache_var}" "${program}"
+      HINTS ${ice_roots}
+      PATH_SUFFIXES ${ice_binary_suffixes}
       DOC "Ice ${program} executable")
     mark_as_advanced(program_var)
-    set("${program_var}" "${${program_var}}" PARENT_SCOPE)
+    set("${program_var}" "${${cache_var}}" PARENT_SCOPE)
     if(NOT FOUND_ICE_BINARY_DIR)
       get_filename_component(FOUND_ICE_BINARY_DIR "${${program_var}}" PATH)
     endif(NOT FOUND_ICE_BINARY_DIR)
@@ -298,45 +279,31 @@ function(_Ice_FIND)
   # The following searches prefer the version found; note reverse
   # order due to prepending.
   if(NOT MSVC)
-    list(INSERT ice_slice_paths   0 "/opt/Ice-${Ice_VERSION_SLICE2CPP_SHORT}/slice")
-    list(INSERT ice_include_paths 0 "/opt/Ice-${Ice_VERSION_SLICE2CPP_SHORT}/include")
-    list(INSERT ice_library_paths 0 "/opt/Ice-${Ice_VERSION_SLICE2CPP_SHORT}/lib")
-    list(INSERT ice_library_paths 0 "/opt/Ice-${Ice_VERSION_SLICE2CPP_SHORT}/${_lib64}")
-    list(INSERT ice_library_paths 0 "/opt/Ice-${Ice_VERSION_SLICE2CPP_SHORT}/lib${_x64}")
-    list(INSERT ice_binary_paths  0 "/opt/Ice-${Ice_VERSION_SLICE2CPP_SHORT}/bin")
-    list(INSERT ice_binary_paths  0 "/opt/Ice-${Ice_VERSION_SLICE2CPP_SHORT}/bin${_x64}")
-
-    list(INSERT ice_slice_paths   0 "/opt/Ice-${Ice_VERSION_SLICE2CPP_FULL}/slice")
-    list(INSERT ice_include_paths 0 "/opt/Ice-${Ice_VERSION_SLICE2CPP_FULL}/include")
-    list(INSERT ice_library_paths 0 "/opt/Ice-${Ice_VERSION_SLICE2CPP_FULL}/lib")
-    list(INSERT ice_library_paths 0 "/opt/Ice-${Ice_VERSION_SLICE2CPP_FULL}/${_lib64}")
-    list(INSERT ice_library_paths 0 "/opt/Ice-${Ice_VERSION_SLICE2CPP_FULL}/lib${_x64}")
-    list(INSERT ice_binary_paths  0 "/opt/Ice-${Ice_VERSION_SLICE2CPP_FULL}/bin")
-    list(INSERT ice_binary_paths  0 "/opt/Ice-${Ice_VERSION_SLICE2CPP_FULL}/bin${_x64}")
+    list(INSERT ice_roots 0 "/opt/Ice-${Ice_VERSION_SLICE2CPP_SHORT}")
+    list(INSERT ice_roots 0 "/opt/Ice-${Ice_VERSION_SLICE2CPP_FULL}")
   endif(NOT MSVC)
 
   # Find include directory
   find_path(ICE_INCLUDE_DIR
             NAMES "Ice/Ice.h"
-            HINTS "${ICE_INCLUDEDIR}"
-                  ${ice_include_paths}
+            HINTS ${ice_roots}
+            PATH_SUFFIXES ${ice_include_suffixes}
             DOC "Ice include directory")
   set(Ice_INCLUDE_DIR "${ICE_INCLUDE_DIR}" PARENT_SCOPE)
 
   # In common use on Linux and MacOS X (homebrew); prefer version-specific dir
   list(APPEND ice_slice_paths
-    "/usr/local/share/Ice-${Ice_VERSION_SLICE2CPP_FULL}/slice"
-    "/usr/local/share/Ice-${Ice_VERSION_SLICE2CPP_SHORT}/slice"
-    "/usr/local/share/Ice/slice"
-    "/usr/share/Ice-${Ice_VERSION_SLICE2CPP_FULL}/slice"
-    "/usr/share/Ice-${Ice_VERSION_SLICE2CPP_SHORT}/slice"
-    "/usr/share/Ice/slice")
+       /usr/local/share /usr/share)
+  list(APPEND ice_slice_suffixes
+       "Ice-${Ice_VERSION_SLICE2CPP_FULL}/slice"
+       "Ice-${Ice_VERSION_SLICE2CPP_SHORT}/slice")
 
   # Find slice directory
   find_path(ICE_SLICE_DIR
             NAMES "Ice/Connection.ice"
-            HINTS "${ICE_SLICEDIR}"
+            HINTS ${ice_roots}
                   ${ice_slice_paths}
+            PATH_SUFFIXES ${ice_slice_suffixes}
             NO_DEFAULT_PATH
             DOC "Ice slice directory")
   set(Ice_SLICE_DIR "${ICE_SLICE_DIR}" PARENT_SCOPE)
@@ -345,18 +312,20 @@ function(_Ice_FIND)
   set(ICE_LIBS_ALLFOUND ON)
   foreach(component ${Ice_FIND_COMPONENTS})
     string(TOUPPER "${component}" component_upcase)
-    set(component_lib "${component_upcase}_LIBRARIES")
+    set(component_cache "ICE_${component_upcase}_LIBRARIES")
+    set(component_lib "Ice_${component_upcase}_LIBRARIES")
     set(component_found "${component_upcase}_FOUND")
-    find_library("${component_lib}" "${component}"
-      HINTS "${ICE_LIBRARYDIR}"
-            ${ice_library_paths}
+    find_library("${component_cache}" "${component}"
+      HINTS ${ice_roots}
+      PATH_SUFFIXES ${ice_library_suffixes}
       DOC "Ice ${component} library")
-    mark_as_advanced("${component_lib}")
-    if("${component_lib}")
+    mark_as_advanced("${component_cache}")
+    if("${component_cache}")
       set("${component_found}" ON)
-      list(APPEND ICE_LIBRARIES "${${component_lib}}")
-    endif("${component_lib}")
+      list(APPEND ICE_LIBRARIES "${${component_cache}}")
+    endif("${component_cache}")
     mark_as_advanced("${component_found}")
+    set("${component_lib}" "${${component_cache}}" PARENT_SCOPE)
     set("${component_found}" "${${component_found}}" PARENT_SCOPE)
     if("${component_found}")
       if ("Ice_FIND_REQUIRED_${component}")
@@ -373,7 +342,7 @@ function(_Ice_FIND)
       endif("Ice_FIND_REQUIRED_${component}")
     endif("${component_found}")
     if(NOT FOUND_ICE_LIBRARY_DIR)
-      get_filename_component(FOUND_ICE_LIBRARY_DIR "${${component_lib}}" PATH)
+      get_filename_component(FOUND_ICE_LIBRARY_DIR "${${component_cache}}" PATH)
     endif(NOT FOUND_ICE_LIBRARY_DIR)
   endforeach(component)
   set(_ICE_LIBS_ALLFOUND "${ICE_LIBS_ALLFOUND}" PARENT_SCOPE)
@@ -395,10 +364,10 @@ function(_Ice_FIND)
 
   if(ICE_DEBUG)
     message(STATUS "--------FindIce.cmake search debug--------")
-    message(STATUS "ICE binary path search order: ${ice_binary_paths}")
-    message(STATUS "ICE include path search order: ${ice_include_paths}")
-    message(STATUS "ICE slice path search order: ${ice_slice_paths}")
-    message(STATUS "ICE library path search order: ${ice_library_paths}")
+    message(STATUS "ICE binary path search order: ${ice_roots}")
+    message(STATUS "ICE include path search order: ${ice_roots}")
+    message(STATUS "ICE slice path search order: ${ice_roots} ${ice_slice_paths}")
+    message(STATUS "ICE library path search order: ${ice_roots}")
     message(STATUS "----------------")
   endif(ICE_DEBUG)
 endfunction(_Ice_FIND)
@@ -425,7 +394,7 @@ if(ICE_DEBUG)
   message(STATUS "slice2rb executable: ${Ice_SLICE2RB_EXECUTABLE}")
   foreach(component ${Ice_FIND_COMPONENTS})
     string(TOUPPER "${component}" component_upcase)
-    set(component_lib "${component_upcase}_LIBRARIES")
+    set(component_lib "Ice_${component_upcase}_LIBRARIES")
     set(component_found "${component_upcase}_FOUND")
     message(STATUS "${component} library found: ${${component_found}}")
     message(STATUS "${component} library: ${${component_lib}}")
