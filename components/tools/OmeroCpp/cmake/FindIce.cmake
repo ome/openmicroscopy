@@ -173,12 +173,8 @@ function(_Ice_FIND)
   list(APPEND ice_include_suffixes "include")
   list(APPEND ice_slice_suffixes "slice")
 
-  # On Windows, look in standard install locations.  Different versions
-  # of Ice install in different places and support different compiler
-  # versions.  Look only in the locations compatible with the compiler
-  # in use.  For newer versions which this hardcoded logic can't
-  # support, ICE_HOME and/or the other configuration options must be
-  # used, in which case the above logic will be used instead.
+  # On Windows, look in the registry for install locations.  Different
+  # versions of Ice install support different compiler versions.
   if(vcver)
     foreach(ice_version ${ice_versions})
       # Ice 3.3 releases use a Visual Studio year suffix and value is
@@ -224,20 +220,6 @@ function(_Ice_FIND)
       slice2php
       slice2py
       slice2rb)
-
-  set(ice_libraries
-      Freeze
-      Glacier2
-      Ice
-      IceBox
-      IceDB
-      IceGrid
-      IcePatch2
-      IceSSL
-      IceStorm
-      IceUtil
-      IceXML
-      Slice)
 
   # Find all Ice programs
   foreach(program ${ice_programs})
