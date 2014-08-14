@@ -915,6 +915,22 @@
     return false;
   }
 
+  function nextPrevImage(direction) {
+    var $current = window.opener.$("#image_icon-{{ image.id }}")
+
+    if( direction == -1 ) {
+      $li = $current.prev()
+    } else {
+      $li = $current.next()
+    }
+
+    var id = $li.find("img").attr('id')
+
+    if( id ) {
+      window.location.href = "{{ viewport_server }}/img_detail/" + id
+    }
+  }
+
 {% if image.canAnnotate %}
   function resetImageDefaults (obj) {
     var msg = '<h2>Resetting rendering settings</h2><ul><li>This will reset the image rendering settings to their original state at time of import.</li></ul>';
@@ -1174,6 +1190,14 @@
                         show_tooltip(this, 'curr-link'); return false;">
                 Image Link
             </a><br />
+          </div>
+          <div class="odd row">
+             <button class="btn prev_next_image prev" title="Previous Image">
+                <span>Prev Image</span>
+            </button>
+            <button class="btn prev_next_image next" title="Next Image">
+                <span>Next Image</span>
+            </button>
           </div>
 {% block roi_buttons %}
           <div id="roi_controls">
@@ -1438,6 +1462,28 @@
         return false;
     });
     
+    $(document).keydown(function(e) {
+        switch(e.which) {
+            case 37: // left
+                 nextPrevImage(-1)
+            break;
+
+            case 39: // right
+                nextPrevImage(1)
+            break;
+
+            default: return;
+        }
+        e.preventDefault();
+    });
+
+    $(".btn.prev_next_image").click(function(){
+        if ( $(this).hasClass('prev') ){
+            nextPrevImage(-1)
+        } else {
+            nextPrevImage(1)
+        }
+    })
     
     // we can bind events to viewportimg for roi_display-plugin to trigger (plugin not created yet)
     viewport.viewportimg.bind("shape_click", handle_shape_selection);
@@ -1456,6 +1502,5 @@
 {% endblock content_script %}
   /* ]]> */
 </script>
-
 
 {% endblock %}
