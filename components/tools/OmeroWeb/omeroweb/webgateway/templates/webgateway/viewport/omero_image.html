@@ -1451,9 +1451,9 @@
       var $current = window.opener.$("#image_icon-{{ image.id }}")
 
       if( direction == -1 ) {
-        $li = $current.prev()
+        $li = $current.prevAll(":visible").first();
       } else {
-        $li = $current.next()
+        $li = $current.nextAll(":visible").first();
       }
 
       var id = $li.find("img").attr('id')
