@@ -41,8 +41,10 @@
 #
 # Ice component libraries are reported in::
 #
-#   Ice_<C>_FOUND - ON if component library was found
-#   Ice_<C>_LIBRARY - component library
+#   Ice_<C>_FOUND - ON if component was found
+#   Ice_<C>_LIBRARIES - libraries for component
+#
+# Note that ``<C>`` is the uppercased name of the component.
 #
 # This module reads hints about search results from variables::
 #
@@ -284,7 +286,7 @@ function(_Ice_FIND)
     find_program("${program_var}" "${program}"
       PATHS "${ICE_BINARYDIR}"
             ${ice_binary_paths}
-      DOC "Ice slice translator")
+      DOC "Ice ${program} executable")
     mark_as_advanced(program_var)
     set("${program_var}" "${${program_var}}" PARENT_SCOPE)
     if(NOT FOUND_ICE_BINARY_DIR)
@@ -337,7 +339,8 @@ function(_Ice_FIND)
   find_path(ICE_INCLUDE_DIR
             NAMES "Ice/Ice.h"
             PATHS  "${ICE_INCLUDEDIR}"
-                   ${ice_include_paths})
+                   ${ice_include_paths}
+            DOC "Ice include directory")
   set(Ice_INCLUDE_DIR "${ICE_INCLUDE_DIR}" PARENT_SCOPE)
 
   # In common use on Linux and MacOS X (homebrew); prefer version-specific dir
@@ -354,14 +357,15 @@ function(_Ice_FIND)
             NAMES "Ice/Connection.ice"
             PATHS "${ICE_SLICEDIR}"
                   ${ice_slice_paths}
-            NO_DEFAULT_PATH)
+            NO_DEFAULT_PATH
+            DOC "Ice slice directory")
   set(Ice_SLICE_DIR "${ICE_SLICE_DIR}" PARENT_SCOPE)
 
   # Find all Ice libraries
   set(ICE_LIBS_ALLFOUND ON)
   foreach(component ${Ice_FIND_COMPONENTS})
     string(TOUPPER "${component}" component_upcase)
-    set(component_lib "${component_upcase}_LIBRARY")
+    set(component_lib "${component_upcase}_LIBRARIES")
     set(component_found "${component_upcase}_FOUND")
     find_library("${component_lib}" "${component}"
       PATHS
@@ -369,7 +373,7 @@ function(_Ice_FIND)
         ${ice_library_paths}
       HINT
         "${ICE_HOME}/lib"
-      DOC "Ice slice translator")
+      DOC "Ice ${component} library")
     mark_as_advanced("${component_lib}")
     if("${component_lib}")
       set("${component_found}" ON)
@@ -444,7 +448,7 @@ if(ICE_DEBUG)
   message(STATUS "slice2rb executable: ${Ice_SLICE2RB_EXECUTABLE}")
   foreach(component ${Ice_FIND_COMPONENTS})
     string(TOUPPER "${component}" component_upcase)
-    set(component_lib "${component_upcase}_LIBRARY")
+    set(component_lib "${component_upcase}_LIBRARIES")
     set(component_found "${component_upcase}_FOUND")
     message(STATUS "${component} library found: ${${component_found}}")
     message(STATUS "${component} library: ${${component_lib}}")
