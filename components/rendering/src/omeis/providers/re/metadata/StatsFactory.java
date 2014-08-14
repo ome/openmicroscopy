@@ -262,11 +262,11 @@ public class StatsFactory {
     		minmax[0] = 0;
     		minmax[1] = 65535;
     	} else if (PlaneFactory.INT32.equals(typeAsString)) {
-    		minmax[0] = -32768;
-			minmax[1] = 32767;
+    		minmax[0] = -Math.pow(2, 32)/2;
+			minmax[1] = Math.pow(2, 32)/2-1;
     	} else if (PlaneFactory.UINT32.equals(typeAsString)) {
     		minmax[0] = 0;
-			minmax[1] = 65535;
+			minmax[1] = Math.pow(2, 32)-1;
     	} else if (PlaneFactory.FLOAT_TYPE.equals(typeAsString) ||
     			PlaneFactory.DOUBLE_TYPE.equals(typeAsString)) {
     		//b/c we don't know if it is signed or not
