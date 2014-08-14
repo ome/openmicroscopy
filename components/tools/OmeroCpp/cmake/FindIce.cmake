@@ -264,8 +264,8 @@ function(_Ice_FIND)
     string(TOUPPER "${program}" program_upcase)
     set(program_var "Ice_${program_upcase}_EXECUTABLE")
     find_program("${program_var}" "${program}"
-      PATHS "${ICE_BINARYDIR}"
-            ${ice_binary_paths}
+      HINTS "${ICE_BINARYDIR}"
+             ${ice_binary_paths}
       DOC "Ice ${program} executable")
     mark_as_advanced(program_var)
     set("${program_var}" "${${program_var}}" PARENT_SCOPE)
@@ -318,8 +318,8 @@ function(_Ice_FIND)
   # Find include directory
   find_path(ICE_INCLUDE_DIR
             NAMES "Ice/Ice.h"
-            PATHS  "${ICE_INCLUDEDIR}"
-                   ${ice_include_paths}
+            HINTS "${ICE_INCLUDEDIR}"
+                  ${ice_include_paths}
             DOC "Ice include directory")
   set(Ice_INCLUDE_DIR "${ICE_INCLUDE_DIR}" PARENT_SCOPE)
 
@@ -335,7 +335,7 @@ function(_Ice_FIND)
   # Find slice directory
   find_path(ICE_SLICE_DIR
             NAMES "Ice/Connection.ice"
-            PATHS "${ICE_SLICEDIR}"
+            HINTS "${ICE_SLICEDIR}"
                   ${ice_slice_paths}
             NO_DEFAULT_PATH
             DOC "Ice slice directory")
@@ -348,11 +348,8 @@ function(_Ice_FIND)
     set(component_lib "${component_upcase}_LIBRARIES")
     set(component_found "${component_upcase}_FOUND")
     find_library("${component_lib}" "${component}"
-      PATHS
-        "${ICE_LIBRARYDIR}"
-        ${ice_library_paths}
-      HINT
-        "${ICE_HOME}/lib"
+      HINTS "${ICE_LIBRARYDIR}"
+            ${ice_library_paths}
       DOC "Ice ${component} library")
     mark_as_advanced("${component_lib}")
     if("${component_lib}")
