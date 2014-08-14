@@ -12,15 +12,16 @@
 #     [REQUIRED]              # Fail with error if Ice is not found
 #     [COMPONENTS <libs...>]) # Ice libraries by their name
 #
-# Components can include any of: Freeze Glacier2 Ice IceBox IceDB
-# IceGrid IcePatch IceSSL IceStorm IceUtil IceXML Slice.
+# Components can include any of: ``Freeze``, ``Glacier2``, ``Ice``,
+# ``IceBox``, ``IceDB``, ``IceGrid``, ``IcePatch``, ``IceSSL``,
+# ``IceStorm``, ``IceUtil``, ``IceXML``, or ``Slice``.
 #
 # This module reports information about the Ice installation in
 # several variables.  General variables::
 #
 #   Ice_VERSION - Ice release version
 #   Ice_FOUND - true if the main programs and libraries were found
-#   ICE_LIBRARIES - component libraries to be linked
+#   Ice_LIBRARIES - component libraries to be linked
 #   Ice_BINARY_DIR - the directory containing the Ice programs
 #   Ice_INCLUDE_DIR - the directory containing the Ice headers
 #   Ice_SLICE_DIR - the directory containing the Ice slice interface definitions
@@ -41,7 +42,7 @@
 # Ice component libraries are reported in::
 #
 #   Ice_<C>_FOUND - ON if component library was found
-#   ICE_<C>_LIBRARY - component library
+#   Ice_<C>_LIBRARY - component library
 #
 # This module reads hints about search results from variables::
 #
