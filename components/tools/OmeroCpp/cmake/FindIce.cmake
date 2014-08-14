@@ -147,27 +147,29 @@ function(_Ice_FIND)
   if(MSVC_VERSION)
     # VS 8.0
     if((MSVC_VERSION EQUAL 1400) OR (MSVC_VERSION GREATER 1400 AND MSVC_VERSION LESS 1500))
-      set(vcver vc80)
+      set(vcver "vc80")
+      set(vcyear "2005")
     endif((MSVC_VERSION EQUAL 1400) OR (MSVC_VERSION GREATER 1400 AND MSVC_VERSION LESS 1500))
     # VS 9.0
     if((MSVC_VERSION EQUAL 1500) OR (MSVC_VERSION GREATER 1500 AND MSVC_VERSION LESS 1600))
-      set(vcver vc90)
+      set(vcver "vc90")
+      set(vcyear "2008")
     endif((MSVC_VERSION EQUAL 1500) OR (MSVC_VERSION GREATER 1500 AND MSVC_VERSION LESS 1600))
     # VS 10.0
     if((MSVC_VERSION EQUAL 1600) OR (MSVC_VERSION GREATER 1600 AND MSVC_VERSION LESS 1700))
-      set(vcver vc100)
+      set(vcver "vc100")
     endif((MSVC_VERSION EQUAL 1600) OR (MSVC_VERSION GREATER 1600 AND MSVC_VERSION LESS 1700))
     # VS 11.0
     if((MSVC_VERSION EQUAL 1700) OR (MSVC_VERSION GREATER 1700 AND MSVC_VERSION LESS 1800))
-      set(vcver vc110)
+      set(vcver "vc110")
     endif((MSVC_VERSION EQUAL 1700) OR (MSVC_VERSION GREATER 1700 AND MSVC_VERSION LESS 1800))
     # VS 12.0
     if((MSVC_VERSION EQUAL 1800) OR (MSVC_VERSION GREATER 1800 AND MSVC_VERSION LESS 1900))
-      set(vcver vc120)
+      set(vcver "vc120")
     endif((MSVC_VERSION EQUAL 1800) OR (MSVC_VERSION GREATER 1800 AND MSVC_VERSION LESS 1900))
     # VS 14.0
     if((MSVC_VERSION EQUAL 1900) OR (MSVC_VERSION GREATER 1900 AND MSVC_VERSION LESS 2000))
-      set(vcver vc140)
+      set(vcver "vc140")
     endif((MSVC_VERSION EQUAL 1900) OR (MSVC_VERSION GREATER 1900 AND MSVC_VERSION LESS 2000))
   endif(MSVC_VERSION)
 
@@ -200,9 +202,28 @@ function(_Ice_FIND)
   # used, in which case the above logic will be used instead.
   if(vcver)
     foreach(ice_version ${ice_versions})
-      get_filename_component(ice_location
-                             "[HKEY_LOCAL_MACHINE\\SOFTWARE\\ZeroC\\Ice ${ice_version};InstallDir]"
-                             ABSOLUTE)
+      # Ice 3.3 releases use a Visual Studio year suffix and value is
+      # enclosed in double quotes, though only the leading quote is
+      # returned by get_filename_component.
+      unset(ice_location)
+      if(vcyear)
+        get_filename_component(ice_location
+                               "[HKEY_LOCAL_MACHINE\\SOFTWARE\\ZeroC\\Ice ${ice_version} for Visual Studio ${vcyear};InstallDir]"
+                               PATH)
+        if(ice_location AND NOT ("${ice_location}" STREQUAL "/registry" OR "${ice_location}" STREQUAL "/"))
+          string(REGEX REPLACE "^\"(.*)\"?$" "\\1" ice_location "${ice_location}")
+          get_filename_component(ice_location "${ice_location}" ABSOLUTE)
+        else(ice_location AND NOT ("${ice_location}" STREQUAL "/registry" OR "${ice_location}" STREQUAL "/"))
+          unset(ice_location)
+        endif(ice_location AND NOT ("${ice_location}" STREQUAL "/registry" OR "${ice_location}" STREQUAL "/"))
+      endif(vcyear)
+      # Ice 3.4+ releases don't use a suffix
+      if(NOT ice_location OR "${ice_location}" STREQUAL "/registry")
+        get_filename_component(ice_location
+                               "[HKEY_LOCAL_MACHINE\\SOFTWARE\\ZeroC\\Ice ${ice_version};InstallDir]"
+                               ABSOLUTE)
+      endif(NOT ice_location OR "${ice_location}" STREQUAL "/registry")
+
       if(ice_location AND NOT "${ice_location}" STREQUAL "/registry")
         # Search for version-specific Visual Studio builds before generic location
         list(APPEND ice_binary_paths "${ice_location}/bin/${vcver}${_x64}")
