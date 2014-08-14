@@ -91,26 +91,6 @@
 # (To distribute this file outside of CMake, substitute the full
 #  License text for the above reference.)
 
-set(ICE_HOME NOTFOUND
-    CACHE PATH "Location of the Ice installation")
-mark_as_advanced(FORCE ICE_HOME)
-
-set(ICE_BINARYDIR NOTFOUND
-    CACHE PATH "Location of the Ice programs")
-mark_as_advanced(FORCE ICE_BINARYDIR)
-
-set(ICE_INCLUDEDIR NOTFOUND
-    CACHE PATH "Location of the Ice headers")
-mark_as_advanced(FORCE ICE_INCLUDEDIR)
-
-set(ICE_SLICEDIR NOTFOUND
-    CACHE PATH "Location of the Ice slice interface definitions")
-mark_as_advanced(FORCE ICE_SLICEDIR)
-
-set(ICE_LIBRARYDIR NOTFOUND
-    CACHE PATH "Location of the Ice libraries")
-mark_as_advanced(FORCE ICE_LIBRARYDIR)
-
 function(_Ice_FIND)
   # Released versions of Ice, including generic short forms
   set(ice_versions
