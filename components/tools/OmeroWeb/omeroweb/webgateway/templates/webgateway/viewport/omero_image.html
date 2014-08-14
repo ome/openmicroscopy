@@ -1464,6 +1464,10 @@
     }
 
     $(document).keydown(function(e) {
+
+        // ignore keystrokes on other inputs, sliders etc.
+        if ($(e.target).prop("tagName") !== "BODY") return;
+
         switch(e.which) {
             case 37: // left
                  nextPrevImage(-1)
