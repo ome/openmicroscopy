@@ -324,12 +324,23 @@ button.pressed {
 }
 
 .postit .buttonbar {
-  text-align: center;
+  list-style: none;
 }
 
-.postit .buttonbar button {
-  height: 28px;
-  width: 65px;
+.postit .buttonbar input.button{
+  padding: 6px 5px;
+}
+
+.postit .buttonbar li {
+  float: left;
+  position: relative;
+  height: 26px;
+}
+
+.buttonbar input.button-disabled {
+opacity: 0.3;
+background: none;
+cursor: default !important;
 }
 
 #metadata-postit { 
@@ -399,7 +410,6 @@ img.figure-box-hide {
 }
 
 .postit li {
-  width: 100%;
   margin-bottom: 0.5em;
   text-align: center;
 }

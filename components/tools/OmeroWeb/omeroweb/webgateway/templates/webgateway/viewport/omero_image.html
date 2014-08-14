@@ -718,6 +718,46 @@
     <div id="rdef-postit" class="postit" style="width: 480px">
       <h1> Rendering Details </h1>
         <div id="rdef-active-area">
+
+      <ul class="buttonbar" style="border-right-width: 0; margin-top: 5px; margin-bottom: 8px">
+      <li>
+        <button id="rdef-setdef-btn" class="editor" disabled='true'
+            {% if manager.image.canAnnotate %}
+              title="Saves the current settings."
+            {% else %}
+            title="You don't have permission to save settings."
+            {% endif %}
+            >
+          <img src="{% static 'webclient/image/icon_save.png' %}" style="position:relative; top:2px" />
+          <span>
+            Save
+          </span>
+        </button>
+      </li>
+
+
+      <!-- class='button-disabled' -->
+      <li>
+        <input id="rdef-undo-btn" class="button" type="image"
+        src="{% static "webclient/image/icon_undo16.png" %}" title="Undo the last changes to settings"
+        onclick="return undoRDCW();"/>
+      </li>
+      <li><input id="rdef-redo-btn" class="button" type="image"
+        src="{% static "webclient/image/icon_redo16.png" %}" title="Redo the last changes to settings"
+        onclick="return redoRDCW();"/> </li>
+      
+      <li class="seperator"></li>
+
+      <!-- class='button-disabled' -->
+      <li><input class="copy_rdef button" type="image" src="{% static "webclient/image/icon_toolbar_copy.png" %}"
+        title="Copy Rendering Settings" /> </li>
+      <li><input class="paste_rdef button" type="image" src="{% static "webclient/image/icon_toolbar_paste.png" %}"
+        title="Paste Rendering Settings" /> </li>
+    </ul>
+
+    <div style="clear:both"></div>
+
+      <div>
         <a id="rdef-postit-help" href="#" onclick="return showChannelWindowHelp();"><img src="{% static "webgateway/img/question.png" %}" alt="Show help on channel window ranges" /></a>
         <label for="rd-wblitz-rmodel">Render as Color</label>
         <input id="rd-wblitz-rmodel" type="checkbox" onchange="return handleModelCheckbox();"/>
@@ -726,29 +766,7 @@
           </tr>
         </table>
       </div>
-      <ul>
-        <li class="buttonbar">
-        {% block save_rdef %}
-        {% if image.canAnnotate and not blitzcon.getShareId %}
-          <button id="rdef-reset-btn" class="editor" title="Returns the image settings to their original state at time of import.">reset</button>
-          {% if image.canAnnotate %}
-            <button id="rdef-setdef-btn" class="editor" title="Saves the current settings.">save</button>
-          {% endif %}
-          
-        {% endif %}
-        {% endblock save_rdef %}
-          <button id="rdef-default-btn" title="Returns to the saved settings.">default</button>
-          <button id="rdef-undo-btn" onclick="return undoRDCW();" title="Undo the last changes to settings.">undo</button>
-          <button id="rdef-redo-btn" onclick="return redoRDCW();" title="Redo the last changes to settings.">redo</button>
-        </li>
-        {% block batch_copy %}
-        {% if dataset.canOwnerWrite %}
-        <!--<li class="buttonbar"> 
-            <button id="rdef-batchcopy-btn" class="editor" onclick="return batchCopyRDefs(this);" title="Offers options to apply current settings to other images in your manuscript.">Apply to others</button> 
-        </li>-->
-        {% endif %}
-        {% endblock batch_copy %}
-      </ul>
+      </div>
 
     </div>
 
@@ -1027,12 +1045,12 @@
     });
 
     var copy_paste_rdef_url = "{% url 'webgateway.views.copy_image_rdef_json' %}";
-    $(".btn.copy_rdef").click(function() {
+    $(".copy_rdef").click(function() {
         // copy the current rendering settings to the 'session'
         $.getJSON(copy_paste_rdef_url + "?"+ viewport.getQuery(true) + "&imageId=" + viewport.loadedImg.id);
     });
 
-    $(".btn.paste_rdef").click(function() {
+    $(".paste_rdef").click(function() {
         $.getJSON(copy_paste_rdef_url + "?toids={{ image.id }}", function(data){
           // refresh UI
           viewport.load({{ image.id }});

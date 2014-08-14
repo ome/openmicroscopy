@@ -290,8 +290,8 @@
 
     <div style="clear:both; height:20px"></div>
 
-    <ul class="toolbar" style="border-right-width: 0; margin-top: 8px;">
-      <li class="buttonbar">
+    <ul class="toolbar" style="border-right-width: 0; margin-top: 5px; margin-bottom: 8px">
+      <li>
         <button id="rdef-setdef-btn" class="editor" disabled='true'
             {% if manager.image.canAnnotate %}
               title="Saves the current settings."
@@ -315,14 +315,14 @@
 
 
       <!-- class='button-disabled' -->
-      <li><input id="rdef-undo-btn" style="float:right" class="button" type="image" src="{% static "webclient/image/icon_undo16.png" %}" title="Undo the last changes to settings" /> </li>
-      <li><input id="rdef-redo-btn" style="float:right" class="button" type="image" src="{% static "webclient/image/icon_redo16.png" %}" title="Redo the last changes to settings" /> </li>
+      <li><input id="rdef-undo-btn" class="button" type="image" src="{% static "webclient/image/icon_undo16.png" %}" title="Undo the last changes to settings" /> </li>
+      <li><input id="rdef-redo-btn" class="button" type="image" src="{% static "webclient/image/icon_redo16.png" %}" title="Redo the last changes to settings" /> </li>
       
       <li class="seperator"></li>
 
       <!-- class='button-disabled' -->
-      <li><input style="float:right" class="copy_rdef button" type="image" src="{% static "webclient/image/icon_toolbar_copy.png" %}" title="Copy Rendering Settings" /> </li>
-      <li><input style="float:right" class="paste_rdef button" type="image" src="{% static "webclient/image/icon_toolbar_paste.png" %}" title="Paste Rendering Settings" /> </li>
+      <li><input class="copy_rdef button" type="image" src="{% static "webclient/image/icon_toolbar_copy.png" %}" title="Copy Rendering Settings" /> </li>
+      <li><input class="paste_rdef button" type="image" src="{% static "webclient/image/icon_toolbar_paste.png" %}" title="Paste Rendering Settings" /> </li>
     </ul>
 
     <div id="rdef-postit">
@@ -338,6 +338,7 @@
 
     <hr class="thin-margin"/>
 
+    <h3>Rendering Settings:</h3>
     <ul>
       <li>
         <button id="rdef-reset-btn" class="editor"
@@ -360,13 +361,6 @@
           </button>
         {% endfor %}
       </li>
-      {% block batch_copy %}
-      {% if dataset.canOwnerWrite %}
-      <!--<li class="buttonbar">
-          <button id="rdef-batchcopy-btn" class="editor" onclick="return batchCopyRDefs(this);" title="Offers options to apply current settings to other images in your manuscript.">Apply to others</button>
-      </li>-->
-      {% endif %}
-      {% endblock batch_copy %}
     </ul>
     <hr class="thin-margin"/>
 

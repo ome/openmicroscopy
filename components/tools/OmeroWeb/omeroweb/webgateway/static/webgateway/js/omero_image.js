@@ -207,14 +207,14 @@
     window.updateUndoRedo = function(viewport) {
         // update disabled status of undo/redo buttons
         if (viewport.has_channels_undo()) {
-            $('#rdef-undo-btn').removeAttr('disabled');
+            $('#rdef-undo-btn').removeClass('button-disabled');
         } else {
-            $('#rdef-undo-btn').attr('disabled', 'disabled');
+            $('#rdef-undo-btn').addClass('button-disabled');
         }
         if (viewport.has_channels_redo()) {
-            $('#rdef-redo-btn').removeAttr('disabled');
+            $('#rdef-redo-btn').removeClass('button-disabled');
         } else {
-            $('#rdef-redo-btn').attr('disabled', 'disabled');
+            $('#rdef-redo-btn').addClass('button-disabled');
         }
         var canSaveRdef = viewport.loadedImg.perms.canAnnotate;
         if (viewport.getSaved() || !canSaveRdef) {
@@ -356,7 +356,7 @@
         /* Fill in the Rendering Details box */
 
         $(".picker").unbind('prepared').unbind('showing').unbind('hiding');
-        $('#rdef-postit ul').not('ul:last-child').remove();
+        // $('#rdef-postit ul').not('ul:last-child').remove();
 
         var template = '' +
           '<tr class="$cls rdef-window">' +
