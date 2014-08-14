@@ -16,6 +16,7 @@ import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
 import ome.model.enums.PixelsType;
 import omeis.providers.re.data.PlaneFactory;
+import omeis.providers.re.metadata.StatsFactory;
 
 /**
  * Subclasses Work on explicit pixel types. Taking into
@@ -195,42 +196,7 @@ public abstract class QuantumStrategy {
     {
         double range;
         String typeAsString = type.getValue();
-        if (PlaneFactory.INT8.equals(typeAsString)) {
-            pixelsTypeMin = -128;
-            pixelsTypeMax = 127;
-        } else if (PlaneFactory.UINT8.equals(typeAsString)) {
-            pixelsTypeMin = 0;
-            pixelsTypeMax = 255;
-        } else if (PlaneFactory.INT16.equals(typeAsString)) {
-            pixelsTypeMin = -32768;
-            pixelsTypeMax = 32767;
-        } else if (PlaneFactory.UINT16.equals(typeAsString)) {
-            pixelsTypeMin = 0;
-            pixelsTypeMax = 65535;
-        } else if (PlaneFactory.INT32.equals(typeAsString)) {
-            if (withRange) {
-                range = globalMax - globalMin;
-                if (range < 0x10000) { 
-                    pixelsTypeMin = -32768;
-                    pixelsTypeMax = 32767;
-                }
-            } else {
-                pixelsTypeMin = -32768;
-                pixelsTypeMax = 32767;
-            }
-        } else if (PlaneFactory.UINT32.equals(typeAsString)) {
-            if (withRange) {
-                range = globalMax - globalMin;
-                if (range < 0x10000) { 
-                    pixelsTypeMin = 0;
-                    pixelsTypeMax = 65535;
-                }
-            } else {
-                pixelsTypeMin = 0;
-                pixelsTypeMax = 65535;
-            }
-
-        } else if (PlaneFactory.FLOAT_TYPE.equals(typeAsString) ||
+        if (PlaneFactory.FLOAT_TYPE.equals(typeAsString) ||
                 PlaneFactory.DOUBLE_TYPE.equals(typeAsString)) {
             if (withRange) {
                 range = globalMax - globalMin;
@@ -247,6 +213,11 @@ public abstract class QuantumStrategy {
                 pixelsTypeMin = 0;
                 pixelsTypeMax = 32767;
             }
+        } else {
+            StatsFactory sf = new StatsFactory();
+            double[] values = sf.initPixelsRange(type);
+            pixelsTypeMin = values[0];
+            pixelsTypeMax = values[1];
         }
     }
 
