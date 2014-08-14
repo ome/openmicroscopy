@@ -248,7 +248,7 @@ function(_Ice_FIND)
       HINTS ${ice_roots}
       PATH_SUFFIXES ${ice_binary_suffixes}
       DOC "Ice ${program} executable")
-    mark_as_advanced(program_var)
+    mark_as_advanced(cache_var)
     set("${program_var}" "${${cache_var}}" PARENT_SCOPE)
     if(NOT FOUND_ICE_BINARY_DIR)
       get_filename_component(FOUND_ICE_BINARY_DIR "${${program_var}}" PATH)
@@ -257,12 +257,12 @@ function(_Ice_FIND)
   set(Ice_BINARY_DIR "${FOUND_ICE_BINARY_DIR}" PARENT_SCOPE)
 
   # Get version.
-  if(Ice_SLICE2CPP_EXECUTABLE)
+  if(ICE_SLICE2CPP_EXECUTABLE)
     # Execute in C locale for safety
     set(_Ice_SAVED_LC_ALL "$ENV{LC_ALL}")
     set(ENV{LC_ALL} C)
 
-    execute_process(COMMAND ${Ice_SLICE2CPP_EXECUTABLE} --version
+    execute_process(COMMAND ${ICE_SLICE2CPP_EXECUTABLE} --version
       ERROR_VARIABLE Ice_VERSION_SLICE2CPP_FULL
       ERROR_STRIP_TRAILING_WHITESPACE)
 
@@ -272,7 +272,7 @@ function(_Ice_FIND)
     # Make short version
     string(REGEX REPLACE "^(.*)\\.[^.]*$" "\\1" Ice_VERSION_SLICE2CPP_SHORT "${Ice_VERSION_SLICE2CPP_FULL}")
     set(_ICE_VERSION "${Ice_VERSION_SLICE2CPP_FULL}" PARENT_SCOPE)
-  endif(Ice_SLICE2CPP_EXECUTABLE)
+  endif(ICE_SLICE2CPP_EXECUTABLE)
 
   message(STATUS "Ice version: ${Ice_VERSION_SLICE2CPP_FULL}")
 
