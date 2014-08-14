@@ -25,7 +25,7 @@ $(document).ready(function() {
     $("#right_panel").bind('resize', function(event) {
 
         // This behaviour is also in the metatdata_preview.html itself
-        var vpWidth = $(this).width() - 75,
+        var vpWidth = $(this).width() - 50,
             vpHeight = Math.min(vpWidth, $("#preview_tab").height() - 100);
         vpHeight = Math.max(300, vpHeight);
 

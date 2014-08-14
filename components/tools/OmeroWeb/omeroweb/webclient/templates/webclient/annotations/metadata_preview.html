@@ -59,12 +59,6 @@
       }
 
       /* custom */
-      #wblitz-channels-box {
-        width: 25px;
-        float:left;
-        position: relative;
-        top: 50px;
-      }
       #wblitz-channels-box button {
         width: 25px;
         height: 25px;
@@ -97,7 +91,7 @@
         $(document).ready(function() {
 
             // Fix size according to right panel size... NB: this behaviour is also in right_plugin.preview.js
-            var vpWidth = $("#right_panel").width() - 75,
+            var vpWidth = $("#right_panel").width() - 50,
               vpHeight = Math.min(vpWidth, $("#preview_tab").height() - 100);
             vpHeight = Math.max(300, vpHeight);
             $("#viewport").css({'width': vpWidth + 'px', 'height': vpHeight + 'px'});
@@ -291,12 +285,8 @@
 
     <div style="clear:both"></div>
 
-    <div id="wblitz-channels-box"></div>
-
-    <div id="vp_container" style="position: relative; left: 25px">
       <div class="miniview" id="viewport">
       </div>
-    </div>
 
     <div style="clear:both; height:20px"></div>
 
@@ -380,7 +370,6 @@
     </ul>
     <hr class="thin-margin"/>
 
-    <hr />
     <h3>ROI count: {{ manager.image.getROICount }}</h3>
 
 </div>
