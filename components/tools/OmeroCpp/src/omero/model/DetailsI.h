@@ -64,75 +64,37 @@ namespace omero {
 
           DetailsI(const omero::client* client = NULL);
 
-          const omero::client* getClient() const {
-              return client;
-          }
+          const omero::client* getClient() const;
 
-          const omero::api::ServiceFactoryPrx getSession() const {
-              return session;
-          }
+          const omero::api::ServiceFactoryPrx getSession() const;
 
-          /*const*/ omero::sys::EventContextPtr getEventContext() const {
-              return event;
-          }
+          /*const*/ omero::sys::EventContextPtr getEventContext() const;
 
-          /*const*/ std::map<std::string, std::string> getCallContext() const {
-              return call;
-          }
+          /*const*/ std::map<std::string, std::string> getCallContext() const;
 
-          virtual omero::model::ExperimenterPtr getOwner(const Ice::Current& current = Ice::Current()) {
-              return owner ;
-          }
+          virtual omero::model::ExperimenterPtr getOwner(const Ice::Current& current = Ice::Current());
 
-	  virtual void setOwner(const omero::model::ExperimenterPtr& _owner, const Ice::Current& current = Ice::Current()) {
-		owner = _owner ;
+	  virtual void setOwner(const omero::model::ExperimenterPtr& _owner, const Ice::Current& current = Ice::Current());
 
-	  }
+	  virtual omero::model::ExperimenterGroupPtr getGroup(const Ice::Current& current = Ice::Current());
 
-	  virtual omero::model::ExperimenterGroupPtr getGroup(const Ice::Current& current = Ice::Current()) {
-		return group ;
-	  }
+	  virtual void setGroup(const omero::model::ExperimenterGroupPtr& _group, const Ice::Current& current = Ice::Current());
 
-	  virtual void setGroup(const omero::model::ExperimenterGroupPtr& _group, const Ice::Current& current = Ice::Current()) {
-		group = _group ;
+	  virtual omero::model::EventPtr getCreationEvent(const Ice::Current& current = Ice::Current());
 
-	  }
+	  virtual void setCreationEvent(const omero::model::EventPtr& _creationEvent, const Ice::Current& current = Ice::Current());
 
-	  virtual omero::model::EventPtr getCreationEvent(const Ice::Current& current = Ice::Current()) {
-		return creationEvent ;
-	  }
+	  virtual omero::model::EventPtr getUpdateEvent(const Ice::Current& current = Ice::Current());
 
-	  virtual void setCreationEvent(const omero::model::EventPtr& _creationEvent, const Ice::Current& current = Ice::Current()) {
-		creationEvent = _creationEvent ;
+	  virtual void setUpdateEvent(const omero::model::EventPtr& _updateEvent, const Ice::Current& current = Ice::Current());
 
-	  }
+	  virtual omero::model::PermissionsPtr getPermissions(const Ice::Current& current = Ice::Current());
 
-	  virtual omero::model::EventPtr getUpdateEvent(const Ice::Current& current = Ice::Current()) {
-		return updateEvent ;
-	  }
+	  virtual void setPermissions(const omero::model::PermissionsPtr& _permissions, const Ice::Current& current = Ice::Current());
 
-	  virtual void setUpdateEvent(const omero::model::EventPtr& _updateEvent, const Ice::Current& current = Ice::Current()) {
-		updateEvent = _updateEvent ;
+	  virtual omero::model::ExternalInfoPtr getExternalInfo(const Ice::Current& current = Ice::Current());
 
-	  }
-
-	  virtual omero::model::PermissionsPtr getPermissions(const Ice::Current& current = Ice::Current()) {
-		return permissions ;
-	  }
-
-	  virtual void setPermissions(const omero::model::PermissionsPtr& _permissions, const Ice::Current& current = Ice::Current()) {
-		permissions = _permissions ;
-
-	  }
-
-	  virtual omero::model::ExternalInfoPtr getExternalInfo(const Ice::Current& current = Ice::Current()) {
-		return externalInfo ;
-	  }
-
-	  virtual void setExternalInfo(const omero::model::ExternalInfoPtr& _externalInfo, const Ice::Current& current = Ice::Current()) {
-		externalInfo = _externalInfo ;
-
-	  }
+	  virtual void setExternalInfo(const omero::model::ExternalInfoPtr& _externalInfo, const Ice::Current& current = Ice::Current());
 
 	};
 
