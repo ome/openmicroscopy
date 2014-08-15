@@ -104,21 +104,28 @@ public:
 /*
  * Clears one result from the current queue.
  */
-#define assertResults(count, search) _assertResults(count, search, true)
-#define assertAtLeastResults(count, search) _assertResults(count, search, false)
-#define _assertResults(count, search, exact) \
-    if (count > 0) { \
-        ASSERT_TRUE( search->hasNext() ); \
-        if (exact) { \
-            ASSERT_EQ((unsigned int) count, search->results().size() ); \
-        } else { \
-            ASSERT_GE(search->results().size(), (unsigned int)count); \
-        } \
-    } else { \
-        if (search->hasNext()) { \
-            ASSERT_EQ((unsigned int)0, search->results().size()); \
-        } \
-    } \
+void
+assertResults(int count, SearchPrx& search, bool exact = true)
+{
+    if (count > 0) {
+        ASSERT_TRUE( search->hasNext() );
+        if (exact) {
+            ASSERT_EQ((unsigned int) count, search->results().size() );
+        } else {
+            ASSERT_GE(search->results().size(), (unsigned int)count);
+        }
+    } else {
+        if (search->hasNext()) {
+            ASSERT_EQ((unsigned int)0, search->results().size());
+        }
+    }
+}
+
+void
+assertAtLeastResults(int count, SearchPrx& search)
+{
+  assertResults(count, search, false);
+}
 
 TEST(SearchTest, RootSearch )
 {
@@ -1535,11 +1542,11 @@ TEST(SearchTest, DISABLED_testOnlyAnnotatedWithMultiple ) {
 
     search->onlyAnnotatedWith(stringSet("TagAnnotation"));
     search->byFullText(name);
-    ASSERT_EQ( (unsigned int) 2, search->results().size());
+    ASSERT_EQ(2U, search->results().size());
 
     search->onlyAnnotatedWith(stringSet("BooleanAnnotation"));
     search->byFullText(name);
-    ASSERT_EQ( (unsigned int) 2, search->results().size());
+    ASSERT_EQ(2U, search->results().size());
 
     search->onlyAnnotatedWith(stringSet("BooleanAnnotation", "TagAnnotation"));
     search->byFullText(name);
