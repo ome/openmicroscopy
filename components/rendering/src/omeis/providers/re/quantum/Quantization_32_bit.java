@@ -23,13 +23,9 @@
 
 package omeis.providers.re.quantum;
 
-// Java imports
-
-// Third-party libraries
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// Application-internal dependencies
 import ome.model.display.QuantumDef;
 import ome.model.enums.PixelsType;
 
@@ -41,10 +37,10 @@ import ome.model.enums.PixelsType;
  * the 5D-notion of OME image, we first compute the normalized parameters. We
  * determine a pseudo-decile (not decile in maths terms) interval and compute
  * the associated parameters to reduce the irrelevant values (noiseReduction).
- * 
- * 
- * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
- *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ *
+ *
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ *          <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since OME5.1
  */
 public class Quantization_32_bit extends QuantumStrategy {
@@ -72,7 +68,7 @@ public class Quantization_32_bit extends QuantumStrategy {
 
     /** The upper bound of the decile interval. */
     private double Q9;
-    
+
     /**
      * The mapping parameters from the sub-interval of [Q1, Q9] to the device
      * space.
@@ -87,7 +83,7 @@ public class Quantization_32_bit extends QuantumStrategy {
 
     /**
      * Initializes the coefficient of the normalize mapping operation.
-     * 
+     *
      * @param k
      *            The coefficient of the selected curve.
      */
@@ -102,7 +98,7 @@ public class Quantization_32_bit extends QuantumStrategy {
      * Initializes the parameter to map the pixels intensities to the device
      * space and returned the default initial depending on the value of the
      * noise reduction flag.
-     * 
+     *
      * @param dStart
      *            The input window start.
      * @param dEnd
@@ -113,22 +109,22 @@ public class Quantization_32_bit extends QuantumStrategy {
         cdStart = qDef.getCdStart().intValue();
         cdEnd = qDef.getCdEnd().intValue();
         double denum = dEnd - dStart, num = MAX;
-        
+
         double v = 0, b = dStart;
         int e = 0;
         double startMin = min;
         double startMax = max;
         Q1 = min;
         Q9 = max;
-        
+
         if (dStart <= startMin) {
-        	Q1 = dStart;
+            Q1 = dStart;
         }
         if (dEnd >= startMax) Q9 = dEnd;
         if (startMin == startMax) v = 1;
         double decile = (startMax - startMin) / DECILE;
         if (getNoiseReduction()) {
-        	Q1 += decile;
+            Q1 += decile;
             Q9 -= decile;
             denum = Q9 - Q1;
             v = DECILE;
@@ -153,7 +149,7 @@ public class Quantization_32_bit extends QuantumStrategy {
         }
         aDecile = num / denum;
         bDecile = aDecile * b - e;
-        
+
         return v;
     }
 
@@ -163,7 +159,7 @@ public class Quantization_32_bit extends QuantumStrategy {
 
     /**
      * Creates a new strategy.
-     * 
+     *
      * @param qd
      *            Quantum definition object, contained mapping data.
      * @param type
@@ -175,7 +171,7 @@ public class Quantization_32_bit extends QuantumStrategy {
 
     /**
      * Implemented as specified in {@link QuantumStrategy}.
-     * 
+     *
      * @see QuantumStrategy#quantize(double)
      */
     @Override
@@ -187,7 +183,7 @@ public class Quantization_32_bit extends QuantumStrategy {
         } else if (x > dEnd) {
             return (byte) cdEnd;
         }
-        
+
         double k = getCurveCoefficient();
         double a1 = (qDef.getCdEnd().intValue() - qDef.getCdStart().intValue())
                 / qDef.getBitResolution().doubleValue();
@@ -197,7 +193,7 @@ public class Quantization_32_bit extends QuantumStrategy {
         // Initializes the decile map.
         double v = initDecileMap(dStart, dEnd);
         QuantumMap normalize = new PolynomialMap();
-        
+
         if (x > Q1) {
             if (x <= Q9) {
                 v = aDecile * normalize.transform(x, 1) - bDecile;
@@ -207,7 +203,7 @@ public class Quantization_32_bit extends QuantumStrategy {
         } else {
             v = cdStart;
         }
-        
+
         v = aNormalized * (valueMapper.transform(v, k) - ysNormalized);
         v = Math.round(v);
         v = Math.round(a1 * v + cdStart);
