@@ -166,7 +166,7 @@ TEST(SearchTest, IQuerySearch )
     // IQuery provides a simple, stateless method for search
     IObjectList list;
     list = f.query()->findAllByFullText("Image",uuid,0);
-    ASSERT_EQ((unsigned int)1, list.size());
+    ASSERT_EQ(1U, list.size());
 }
 
 
@@ -457,15 +457,17 @@ TEST(SearchTest, testSimpleFullTextSearch ) {
 }
 
 
-
-vector<string> sa(const char* s1 = 0, const char* s2 = 0) {
-    vector<string> v;
-    if (s1)
-        v.push_back(s1);
-    if (s2)
-        v.push_back(s2);
+namespace
+{
+    vector<string> sa(const char* s1 = 0, const char* s2 = 0) {
+        vector<string> v;
+        if (s1)
+            v.push_back(s1);
+        if (s2)
+            v.push_back(s2);
     
-    return v;
+        return v;
+    }
 }
 
 TEST(SearchTest, testSomeMustNone ) {
@@ -1013,27 +1015,30 @@ TEST(SearchTest, testOnlyOwnedByGroup ) {
     assertResults(0, search);
 }
 
-omero::RTimePtr oneHourAgo() {
-    time_t start = time (NULL);
-    tm* mn = localtime(&start);
-    mn->tm_hour = mn->tm_hour - 1;
-    Ice::Long millis = mktime(mn) * 1000;
-    return rtime(millis);
-}
+namespace
+{
+    omero::RTimePtr oneHourAgo() {
+        time_t start = time (NULL);
+        tm* mn = localtime(&start);
+        mn->tm_hour = mn->tm_hour - 1;
+        Ice::Long millis = mktime(mn) * 1000;
+        return rtime(millis);
+    }
 
-omero::RTimePtr inOneHour() {
-    time_t start = time (NULL);
-    tm* mn = localtime(&start);
-    mn->tm_hour = mn->tm_hour + 1;
-    Ice::Long millis = mktime(mn) * 1000;
-    return rtime(millis);
-}
+    omero::RTimePtr inOneHour() {
+        time_t start = time (NULL);
+        tm* mn = localtime(&start);
+        mn->tm_hour = mn->tm_hour + 1;
+        Ice::Long millis = mktime(mn) * 1000;
+        return rtime(millis);
+    }
 
-omero::RTimePtr now() {
-    time_t start = time (NULL);
-    tm* mn = localtime(&start);
-    Ice::Long millis = mktime(mn) * 1000;
-    return rtime(millis);
+    omero::RTimePtr now() {
+        time_t start = time (NULL);
+        tm* mn = localtime(&start);
+        Ice::Long millis = mktime(mn) * 1000;
+        return rtime(millis);
+    }
 }
 
 TEST(SearchTest, testOnlyCreateBetween ) {
