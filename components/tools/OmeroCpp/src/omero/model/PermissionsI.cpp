@@ -92,7 +92,7 @@ namespace omero {
             }
 
             // and if it is positive, then it's safe to cast to unsigned.
-            if (restrictions.size() > (unsigned) restriction) {
+            if (restrictions.size() > static_cast<unsigned int>(restriction)) {
                 return restrictions[restriction];
             }
             return false;
