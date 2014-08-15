@@ -7,13 +7,11 @@
 #
 
 """
-    Plugin reporting for disk usage
+    Plugin for reporting disk usage
 
 """
 
 from omero.cli import CLI, CmdControl
-from omero.rtypes import rlong
-from omero.rtypes import rstring
 
 import sys
 
