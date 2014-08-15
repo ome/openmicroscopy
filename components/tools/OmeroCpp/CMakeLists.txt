@@ -37,7 +37,7 @@
 set(GEN_DIR gen)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${GEN_DIR})
 
-include_directories(src gen)
+include_directories(src gen ${ICE_INCLUDE_DIR})
 
 include_directories("${PROJECT_SOURCE_DIR}/components/blitz/generated"
                     "${CMAKE_CURRENT_SOURCE_DIR}/src"
