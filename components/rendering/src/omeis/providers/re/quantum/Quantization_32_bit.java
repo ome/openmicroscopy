@@ -52,21 +52,12 @@ public class Quantization_32_bit extends QuantumStrategy {
     /** The logger for this particular class */
     private static Logger log = LoggerFactory.getLogger(Quantization_32_bit.class);
 
-    /** The look-up table. */
-    private byte[] LUT;
-
     /** The lowest pixel intensity value. */
     private int min;
 
     /** The uppest pixel intensity value. */
     private int max;
 
-    /** The lower bound of the table. */
-    private int lutMin;
-    
-    /** The upper bound of the table. */
-    private int lutMax;
-    
     /** The input start normalized value. */
     private double ysNormalized;
 
@@ -93,68 +84,7 @@ public class Quantization_32_bit extends QuantumStrategy {
      * {@link QuantumDef} if the noise reduction flag is <code>true</code>.
      */
     private int cdStart, cdEnd;
-    
-    /**
-     * Initializes the LUT. Comparable getGlobalMin and getGlobalMax assumed to
-     * be Integer, QuantumStrategy enforces min &lt; max. QuantumFactory makes
-     * sure 0 &lt; max-min &lt; 2^N where N = 8 or N = 16. LUT size is at most
-     * 256 bytes if N = 8 or 2^16 bytes = 2^6Kb = 64Kb if N = 16.
-     * 
-     * @param s The lower bound.
-     * @param e The upper bound.
-     */
-    private void initLUT(int s, int e)
-    {
-        min = (int) getGlobalMin();
-        max = (int) getGlobalMax();
-        
-        lutMin = (int) getPixelsTypeMin();
-        lutMax = (int) getPixelsTypeMax();
-        if (lutMax == 0) { //couldn't initialize the value
-        	if (s < min) lutMin = s;
-        	else lutMin = min;
-        	if (e > max) lutMax = e;
-        	else lutMax = max;
-        }
-        int range = lutMax - lutMin;
-        if (range > MAX_SIZE_LUT) 
-        {
-        	// We want to avoid *huge* memory allocations below so if we
-        	// couldn't initialize the value above and our lutMax and lutMin
-        	// have been assigned out of range values we want to choke, not
-        	// cause the server to throw a java.lang.OutOfMemory exception.
-        	// *** Ticket #1353 -- Chris Allan <callan@blackcat.ca> ***
-        	throw new IllegalArgumentException(String.format(
-        			"Lookup table of size %d greater than supported size %d",
-        			range, MAX_SIZE_LUT));
-        }
-        LUT = new byte[lutMax-lutMin+1];
-    }
 
-    /**
-     * Resets the LUT. We rebuild the LUT if and only if the 
-     * pixels type range was not determined at init time.
-     * 
-     * @param s The lower bound.
-     * @param e The upper bound.
-     */
-    private void resetLUT(int s, int e)
-    {
-    	int pMax = (int) getPixelsTypeMax();
-    	if (pMax != 0) return;
-    	if (s < lutMin && e > lutMax) {
-    		lutMin = s;
-    		lutMax = e;
-    		LUT = new byte[lutMax-lutMin+1];
-    	} else if (s < lutMin && e <= lutMax) {
-    		lutMin = s;
-    		LUT = new byte[lutMax-lutMin+1];
-    	} else if (s >= lutMin && e > lutMax) {
-    		lutMax = e;
-    		LUT = new byte[lutMax-lutMin+1];
-    	} 
-    }
-    
     /**
      * Initializes the coefficient of the normalize mapping operation.
      * 
@@ -227,72 +157,9 @@ public class Quantization_32_bit extends QuantumStrategy {
         return v;
     }
 
-    /**
-     * Maps the input interval onto the codomain [cdStart, cdEnd] sub-interval
-     * of [0, 255]. Since the user can select the bitResolution 2^n-1 where n =
-     * 1..8, 2 steps. The mapping is the composition of 2 transformations: The
-     * first one <code>f</code> is one of the map selected by the user
-     * f:[inputStart, inputEnd]-&lt;[0, 2^n-1]. The second one <code>g</code>
-     * is a linear map: y = a1*x+b1 where b1 = codomainStart and a1 =
-     * (qDef.cdEnd-qDef.cdStart)/((double) qDef.bitResolution); g: [0,
-     * 2^n-1]-&lt;[cdStart, cdEnd]. For some reasons, we cannot compute directly
-     * gof.
-     */
-    private void buildLUT() {
-    	double dStart = getWindowStart(), dEnd = getWindowEnd();
-        if (LUT == null) {
-            initLUT((int) dStart, (int) dEnd);
-        } else {
-        	resetLUT((int) dStart, (int) dEnd);
-        }
-        // Comparable assumed to be Integer
-        // domain
-        
-        double k = getCurveCoefficient();
-        double a1 = (qDef.getCdEnd().intValue() - qDef.getCdStart().intValue())
-                / qDef.getBitResolution().doubleValue();
-
-        // Initializes the normalized map.
-        initNormalizedMap(k);
-        // Initializes the decile map.
-        double v = initDecileMap(dStart, dEnd);
-        QuantumMap normalize = new PolynomialMap();
-        
-
-        // Build the LUT
-        
-        int x = lutMin;
-        for (; x < dStart; ++x) {
-            LUT[x - lutMin] = (byte) cdStart;
-        }
-
-        for (; x < dEnd; ++x) {
-        	if (x > Q1) {
-                if (x <= Q9) {
-                    v = aDecile * normalize.transform(x, 1) - bDecile;
-                } else {
-                    v = cdEnd;
-                }
-            } else {
-                v = cdStart;
-            }
-        	
-            v = aNormalized * (valueMapper.transform(v, k) - ysNormalized);
-            v = Math.round(v);
-            v = Math.round(a1 * v + cdStart);
-            LUT[x - lutMin] = (byte) v;
-        }
-
-        for (; x <= lutMax; ++x) {
-            LUT[x - lutMin] = (byte) cdEnd;
-        }
-    }
-
     /** The input window size changed, rebuild the LUT. */
     @Override
-    protected void onWindowChange() {
-        buildLUT();
-    }
+    protected void onWindowChange() {}
 
     /**
      * Creates a new strategy.
@@ -313,41 +180,38 @@ public class Quantization_32_bit extends QuantumStrategy {
      */
     @Override
     public int quantize(double value) throws QuantizationException {
+        double dStart = getWindowStart(), dEnd = getWindowEnd();
         int x = (int) value;
-        /*
-        if (x < min || x > max) {
-            throw new QuantizationException("The value " + x
-                    + " is not in the interval [" + min + "," + max + "]");
+        if (x < dStart) {
+            return (byte) cdStart;
+        } else if (x > dEnd) {
+            return (byte) cdEnd;
         }
-        int i = LUT[x - min];
-        return i & 0xFF; // assumed x in [min, max]
-        */
-        /*
-        if (x < lutMin || x > lutMax) {
-            throw new QuantizationException("The value " + x
-                   + " is not in the interval [" + lutMin + "," + lutMax + "]");
+        
+        double k = getCurveCoefficient();
+        double a1 = (qDef.getCdEnd().intValue() - qDef.getCdStart().intValue())
+                / qDef.getBitResolution().doubleValue();
+
+        // Initializes the normalized map.
+        initNormalizedMap(k);
+        // Initializes the decile map.
+        double v = initDecileMap(dStart, dEnd);
+        QuantumMap normalize = new PolynomialMap();
+        
+        if (x > Q1) {
+            if (x <= Q9) {
+                v = aDecile * normalize.transform(x, 1) - bDecile;
+            } else {
+                v = cdEnd;
+            }
+        } else {
+            v = cdStart;
         }
-        */
-        int diff;
-        if (x < lutMin) {
-        	double r = getOriginalGlobalMax()-getOriginalGlobalMin();
-        	if (r != 0) {
-        		double f = (lutMax-lutMin)/r;
-        		x = (int) (f*(x-lutMin));
-        		if (x < lutMin) x = lutMin;
-        	} else x = lutMin;
- 
-        }
-        if (x > lutMax) {
-        	double r = getOriginalGlobalMax()-getOriginalGlobalMin();
-        	if (r != 0) {
-        		double f = (lutMax-lutMin)/r;
-        		x = (int) (f*(x-lutMin));
-        		if (x > lutMax) x = lutMax;
-        	} else x = lutMax;
-        }
-        int i = LUT[x - lutMin];
-        return i & 0xFF; // assumed x in [min, max]
+        
+        v = aNormalized * (valueMapper.transform(v, k) - ysNormalized);
+        v = Math.round(v);
+        v = Math.round(a1 * v + cdStart);
+        return (byte) v;
     }
 
 }
