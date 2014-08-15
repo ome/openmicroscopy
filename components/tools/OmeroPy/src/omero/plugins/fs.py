@@ -31,7 +31,7 @@ from omero import client as Client
 from omero import CmdError
 from omero import ServerError
 from omero.cli import admin_only
-from omero.cli import BaseControl
+from omero.cli import CmdControl
 from omero.cli import CLI
 from omero.cli import ProxyStringType
 
@@ -224,7 +224,7 @@ def rename_fileset(client, mrepo, fileset, new_dir, ctx=None):
     return tomove
 
 
-class FsControl(BaseControl):
+class FsControl(CmdControl):
 
     def _configure(self, parser):
 
@@ -273,6 +273,24 @@ class FsControl(BaseControl):
         sets.add_argument(
             "--check", action="store_true",
             help="checks each fileset for validity (admins only)")
+
+        usage = parser.add(sub, self.usage)
+        usage.add_login_arguments()
+        usage.add_style_argument()
+        usage.add_argument("--wait", type=long, help="Number of seconds to"+\
+                " wait for the processing to complete (Indefinite < 0; No wait=0).", default=-1)
+        usage.add_argument(
+            "--size_only", action="store_true",
+            help="Print total bytes used in bytes")
+        usage.add_argument(
+            "--report", action="store_true",
+            help="Print detailed breakdown of disk usage")
+        usage.add_argument(
+            "--units", choices="KMGTP",
+            help="Units to use for disk usage")
+        usage.add_argument(
+            "obj", nargs="+",
+            help="Objects to be queried in the form '<Class>:<Id>[,<Id> ...]'")
 
         for x in (images, sets):
             x.add_argument(
@@ -673,6 +691,89 @@ Examples:
         for idx, pair in enumerate(repos):
             if MRepo.checkedCast(pair[1]):
                 return pair
+
+    def usage(self, args):
+        from omero.cmd import DiskUsage
+
+        client = self.ctx.conn(args)
+        req = DiskUsage()
+        req.objects = self._parse_obj(args.obj)
+        cb = None
+        try:
+            rsp, status, cb = self.response(client, req, wait=args.wait)
+            self._print_report(req, rsp, status, args)
+        finally:
+            if cb is not None:
+                cb.close(True)  # Close handle
+
+    def _parse_obj(self, obj):
+        """
+        Take the positional arguments and marshal them into
+        a dictionary for the command argument.
+        """
+        objects = {}
+        for o in obj:
+            try:
+                parts = o.split(":", 1)
+                assert len(parts) == 2
+                type = parts[0]
+                ids = parts[1].split(",")
+                ids = map(long, ids)
+                objects[type] = ids
+            except:
+                raise ValueError("Bad object: ", o)
+
+        return objects
+
+    def _to_units(self, size, units):
+        """
+        Convert from bytes to KiB, MiB, GiB, TiB or PiB.
+        """
+        oneK = 1024.0
+        powers = {'K': 1, 'M': 2, 'G': 3, 'T': 4, 'P': 5}
+        if units in powers.keys():
+            return round(size/oneK**powers[units], 2)
+        else:
+            raise ValueError("Unrecognized units: ", units)
+
+    def _print_report(self, req, rsp, status, args):
+        """
+        Output the total bytes used or the error,
+        optionally provide more details.
+        """
+        err = self.get_error(rsp)
+        if err:
+            self.ctx.err(err)
+        else:
+            if args.size_only:
+                self.ctx.out(rsp.totalBytesUsed)
+            elif args.units:
+                size = self._to_units(rsp.totalBytesUsed, args.units)
+                files = rsp.totalFileCount
+                self.ctx.out(
+                    "Total disk usage: %d %siB in %d files"
+                    % (size, args.units, files))
+            else:
+                self.ctx.out(
+                    "Total disk usage: %d bytes in %d files"
+                    % (rsp.totalBytesUsed, rsp.totalFileCount))
+
+        if args.report and not args.size_only:
+            self._print_detailed_report(req, rsp, status, args)
+
+    def _print_detailed_report(self, req, rsp, status, args):
+        """
+        Print a breakdown of disk usage in table form.
+        """
+        from omero.util.text import TableBuilder
+        tb = TableBuilder("component", "size (bytes)", "files")
+        if args.style:
+            tb.set_style(args.style)
+
+        for (element, size) in rsp.bytesUsedByReferer.items():
+            row = [element, size, rsp.fileCountByReferer[element]]
+            tb.row(*tuple(row))
+        self.ctx.out(str(tb.build()))
 
 try:
     register("fs", FsControl, HELP)
