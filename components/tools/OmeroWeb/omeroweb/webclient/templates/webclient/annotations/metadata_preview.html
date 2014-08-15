@@ -138,7 +138,7 @@
 
             // handle 'Color' checkbox
             $('#rd-wblitz-rmodel').click(function(e){
-              setModel(OME.preview_viewport, $(this).get(0).checked?'c':'g');
+              setModel(OME.preview_viewport, $(this).get(0).checked?'g':'c');
             });
 
             // Save settings
@@ -341,8 +341,8 @@
 
     <div id="rdef-postit">
       <div id="rdef-active-area">
-        <input id="rd-wblitz-rmodel" type="checkbox" onchange="return rdChanSelHelper(this);" />
-        <label for="rd-wblitz-rmodel">Render as Color</label>
+        <input id="rd-wblitz-rmodel" type="checkbox" />
+        <label for="rd-wblitz-rmodel">Grayscale</label>
         <table cellspacing="0" style="font-size:0.9em">
           <tr>
           </tr>

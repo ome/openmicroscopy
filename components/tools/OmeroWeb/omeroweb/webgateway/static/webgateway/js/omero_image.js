@@ -212,7 +212,7 @@
         hidePicker();
 
         updateUndoRedo(viewport);
-        $('#rd-wblitz-rmodel').attr('checked', !viewport.isGreyModel());
+        $('#rd-wblitz-rmodel').attr('checked', viewport.isGreyModel());
         syncChannelsActive(viewport);
     };
 
@@ -272,7 +272,7 @@
     window._refresh_cb = function (ev, viewport) {
         /* Sync inputs with initial values */
 
-        $('#wblitz-rmodel').attr('checked', !viewport.isGreyModel());
+        $('#wblitz-rmodel').attr('checked', viewport.isGreyModel());
         $('#wblitz-invaxis').attr('checked', viewport.loadedImg.rdefs.invertAxis);
 
         var q = viewport.getQuality();
