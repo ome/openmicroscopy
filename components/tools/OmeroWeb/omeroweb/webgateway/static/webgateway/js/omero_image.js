@@ -199,7 +199,7 @@
         var cb;
         var channels = viewport.getChannels();
         for (i=0; i<channels.length; i++) {
-            // $('#rd-wblitz-ch'+i).get(0).checked = channels[i].active;
+            $('#rd-wblitz-ch'+i).css('background-color', toRGB(channels[i].color));
             $('#wblitz-ch'+i+'-cwslider .ui-slider-range').css('background-color', toRGB(channels[i].color));
             var w = channels[i].window;
             $('#wblitz-ch'+i+'-cwslider')
@@ -298,7 +298,7 @@
         for (i=0; i<channels.length; i++) {
             $('<button id="wblitz-ch'+i+
                 '"class="squared' + (channels[i].active?' pressed':'') +
-                '"style="background-color: #' + channels[i].color +
+                '"style="background-color: #' + rgbToHex(channels[i].color) +
                 '"title="' + channels[i].label +
                 '">'+channels[i].label+'</button>')
             .appendTo(box)
@@ -425,7 +425,8 @@
         for (i=channels.length-1; i>=0; i--) {
             tmp.after(template
                 .replace(/\$act/g, channels[i].active?'pressed':'')
-                .replace(/\$col/g, channels[i].color)
+                .replace(/\$col/g, rgbToHex(channels[i].color))
+                .replace(/\$label/g, channels[i].label)
                 .replace(/\$idx0/g, i) // Channel Index, 0 based
                 .replace(/\$idx1/g, i+1) // Channel Index, 1 based
                 .replace(/\$cwl/g, channels[i].label) // Wavelength
