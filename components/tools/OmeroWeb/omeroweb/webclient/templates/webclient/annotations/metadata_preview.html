@@ -78,6 +78,9 @@
       .thin-margin {
         margin: 3px 0;
       }
+      #rdef-active-area td {
+        padding: 0 0 4px 0;
+      }
     </style>
 
 
@@ -288,7 +291,7 @@
 				</span>
 			</button>
 
-    <div style="clear:both"></div>
+    <div style="clear:both; margin-bottom: 3px"></div>
 
       <div class="miniview" id="viewport">
       </div>
@@ -347,21 +350,22 @@
       </div>
     </div>
 
-    <hr class="thin-margin"/>
-
-    <h3 style="margin-bottom:2px">Apply Settings:</h3>
     <ul>
       <li>
         <button id="rdef-minmax-btn" title="Each slider will be set to cover the min/max pixel intensities for that channel">
-          Min/max
+          Min/Max
         </button>
         <button id="rdef-fullrange-btn" title="Each slider will be set to cover the full range of pixel intensities for the image">
-          Full range
+          Full Range
         </button>
         <button id="rdef-reset-btn" title="Applies the original settings for this image">
           Original
         </button>
       </li>
+
+      <hr class="thin-margin"/>
+
+      <h3 style="margin-bottom:2px; margin-top:4px">Select User Settings:</h3>
 
       <li id='rdef-buttons'>
         {% for rdef in rdefs %}
