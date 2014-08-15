@@ -73,6 +73,7 @@
         max-height: 64px;
         position: relative;
         top: 2px;
+        margin-bottom: 3px;
       }
       .thin-margin {
         margin: 3px 0;
@@ -337,8 +338,8 @@
 
     <div id="rdef-postit">
       <div id="rdef-active-area">
-        <label for="rd-wblitz-rmodel">Render as Color</label>
         <input id="rd-wblitz-rmodel" type="checkbox" onchange="return rdChanSelHelper(this);" />
+        <label for="rd-wblitz-rmodel">Render as Color</label>
         <table cellspacing="0" style="font-size:0.9em">
           <tr>
           </tr>
@@ -348,18 +349,17 @@
 
     <hr class="thin-margin"/>
 
-    <h3>Rendering Settings:</h3>
+    <h3 style="margin-bottom:2px">Apply Settings:</h3>
     <ul>
       <li>
-        <button id="rdef-reset-btn" class="editor"
-            title="Returns the image settings to their original state at time of import.">
-          reset
-        </button>
         <button id="rdef-minmax-btn" title="Each slider will be set to cover the min/max pixel intensities for that channel">
-          min/max
+          Min/max
         </button>
         <button id="rdef-fullrange-btn" title="Each slider will be set to cover the full range of pixel intensities for the image">
-          full range
+          Full range
+        </button>
+        <button id="rdef-reset-btn" title="Applies the original settings for this image">
+          Original
         </button>
       </li>
 
