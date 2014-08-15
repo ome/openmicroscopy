@@ -462,7 +462,10 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <arg value="openmicroscopy"/>
             <arg value="${omero.shortversion}"/>
             <arg value="${omero.plainversion}"/>
+            <arg value="${omero.vcs.revision}"/>
+            <arg value="${omero.vcs.date}"/>
             <arg value="components/antlib/resources/gitversion.xml"/>
+            <arg value="components/tools/OmeroCpp/cmake/GitVersion.cmake"/>
             <arg value="${target.dir}"/>
         </exec>
     </target>

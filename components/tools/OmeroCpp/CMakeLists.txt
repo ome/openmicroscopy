@@ -346,6 +346,8 @@ target_link_libraries(omero-client
                       "${ICE_LIBRARY}"
                       "${ICEUTIL_LIBRARY}"
                       "${GLACIER2_LIBRARY}")
+set_target_properties(omero-client PROPERTIES
+                      VERSION ${OME_VERSION_SHORT})
 
 if(MSVC)
   set_target_properties(omero-client PROPERTIES
@@ -378,6 +380,14 @@ install(FILES ${OMERO_COMMON_STATIC_SYS_HEADERS}
         DESTINATION ${omero_includedir}/sys)
 install(FILES ${OMERO_CLIENT_STATIC_UTIL_HEADERS}
         DESTINATION ${omero_includedir}/util)
+
+set(LIBRARY_PREFIX OMERO_CLIENT)
+set(LIBRARY_NAME omero-client)
+set(LIBRARY_HEADER omero/client.h)
+configure_file(${PROJECT_SOURCE_DIR}/components/bioformats/cpp/cmake/TemplateConfig.cmake.in
+               ${CMAKE_CURRENT_BINARY_DIR}/omero-client-config.cmake)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/omero-client-config.cmake
+        DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/cmake)
 
 add_subdirectory(test)
 add_subdirectory(utils)
