@@ -295,27 +295,16 @@
     $('#wblitz-lp-cur').html('showing: ' + (viewport.getLinePlot().isHorizontal() ? 'Y': 'X') + ' = ' + parseInt($('#wblitz-lp-editpos').val()));
   }
 
-  /**
-   *
-   */
-  var imageChange = function (ev, obj) {
-    $('#wblitz-t-curr').html(viewport.getTPos());
-    $('#wblitz-z-curr').html(viewport.getZPos());
-    $('#wblitz-t-count').html(viewport.getTCount());
-    $('#wblitz-z-count').html(viewport.getZCount());
 
+  var axisChange = function () {
     if(viewport.loadedImg.rdefs.invertAxis) {
       $('#z-axis-legend').attr('src', '{% static "webgateway/img/t_axis_revert.gif" %}');
       $('#t-axis-legend').attr('src', '{% static "webgateway/img/z_axis_revert.gif" %}');
     } else {
       $('#z-axis-legend').attr('src', '{% static "webgateway/img/z_axis.gif" %}');
       $('#t-axis-legend').attr('src', '{% static "webgateway/img/t_axis.gif" %}');
-    };
-
-    if (viewport.hasLinePlot() || $('#wblitz-lp-enable').attr('checked')) {
-      viewport.refreshPlot();
     }
-  };
+  }
   
   /**
   *     ROI load & table methods 
@@ -936,7 +925,10 @@
       syncChannelsActive(viewport);
     });
     /* Bind image changes */
-    viewport.bind('imageChange', imageChange);
+    viewport.bind('imageChange', function(){
+      imageChange(viewport);
+      axisChange();
+    });
     /* Bind line plot changes */
     viewport.bind('linePlotChange', linePlotChange);
     /* Bind line plot position pick */

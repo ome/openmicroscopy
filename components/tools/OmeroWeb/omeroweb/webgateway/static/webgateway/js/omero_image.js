@@ -173,6 +173,18 @@
         $('#wblitz-ch'+idx).css('background-color', "#"+rgbToHex(ch.color)).attr('title', ch.label);
     };
 
+
+    window.imageChange = function (viewport) {
+        $('#wblitz-t-curr').html(viewport.getTPos());
+        $('#wblitz-z-curr').html(viewport.getZPos());
+        $('#wblitz-t-count').html(viewport.getTCount());
+        $('#wblitz-z-count').html(viewport.getZCount());
+
+        if (viewport.hasLinePlot() || $('#wblitz-lp-enable').attr('checked')) {
+            viewport.refreshPlot();
+        }
+    };
+
     window.syncChannelsActive = function(viewport) {
         var channels = viewport.getChannels();
         for (i=0; i<channels.length; i++) {

@@ -111,6 +111,10 @@
             OME.preview_viewport.bind('imageChange', function(){
               syncChannelsActive(OME.preview_viewport);
             });
+            /* Bind image changes */
+            OME.preview_viewport.bind('imageChange', function(){
+              imageChange(OME.preview_viewport);
+            });
 
             // Load image
             {% if share_id %}
@@ -289,6 +293,12 @@
       </div>
 
     <div style="clear:both; height:20px"></div>
+
+    <div style="text-align: right">
+      Z: <span id="wblitz-z-curr">?</span>/<span id="wblitz-z-count">?</span> &nbsp
+      T: <span id="wblitz-t-curr">1</span>/<span id="wblitz-t-count">1</span>
+    </div>
+
 
     <ul class="toolbar" style="border-right-width: 0; margin-top: 5px; margin-bottom: 8px">
       <li>
