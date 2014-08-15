@@ -387,8 +387,8 @@ namespace omero {
 
         };
 
-    };
-};
+    }
+}
 
 
 #endif // OMERO_CALLBACKS_H
