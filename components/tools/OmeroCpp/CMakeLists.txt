@@ -42,7 +42,7 @@ include_directories(src gen)
 include_directories("${PROJECT_SOURCE_DIR}/components/blitz/generated"
                     "${CMAKE_CURRENT_SOURCE_DIR}/src"
                     "${CMAKE_CURRENT_BINARY_DIR}/${GEN_DIR}"
-                    "${ICE_INCLUDE_DIR}")
+                    "${Ice_INCLUDE_DIRS}")
 
 option(debug-ice-generation "Dump results of generated Ice source globbing" OFF)
 
@@ -148,9 +148,9 @@ if(OMERO_CLIENT_GENERATED_SOURCES)
 endif(OMERO_CLIENT_GENERATED_SOURCES)
 
 list(APPEND SLICEOPTS "-I${PROJECT_SOURCE_DIR}/components/blitz/generated" "-I${PROJECT_SOURCE_DIR}/components/blitz/resources")
-if(ICE_SLICE_DIR)
-  list(APPEND SLICEOPTS "-I${ICE_SLICE_DIR}")
-endif(ICE_SLICE_DIR)
+foreach(slicedir ${Ice_SLICE_DIRS})
+  list(APPEND SLICEOPTS "-I${slicedir}")
+endforeach(slicedir)
 if(WIN32)
   list(APPEND SLICEOPTS --dll-export OMERO_API)
 endif(WIN32)

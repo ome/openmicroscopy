@@ -22,11 +22,9 @@
 #   Ice_VERSION - Ice release version
 #   Ice_FOUND - true if the main programs and libraries were found
 #   Ice_LIBRARIES - component libraries to be linked
-#   Ice_BINARY_DIR - the directory containing the Ice programs
-#   Ice_INCLUDE_DIR - the directory containing the Ice headers
-#   Ice_SLICE_DIR - the directory containing the Ice slice interface
-#                   definitions
-#   Ice_LIBRARY_DIR - the directory containing the Ice libraries
+#   Ice_INCLUDE_DIRS - the directories containing the Ice headers
+#   Ice_SLICE_DIRS - the directories containing the Ice slice interface
+#                    definitions
 #
 # Ice programs are reported in::
 #
@@ -49,18 +47,18 @@
 #
 # This module reads hints about search results from::
 #
-#   ICE_HOME - the root of the Ice installation
+#   Ice_HOME - the root of the Ice installation
 #
 # The environment variable :envvar:`ICE_HOME` may also be used; the
-# ICE_HOME variable takes precedence.
+# Ice_HOME variable takes precedence.
 #
 # The following cache variables may also be set::
 #
-#   ICE_<P>_EXECUTABLE - the path to executable <P>
-#   ICE_INCLUDE_DIR - the directory containing the Ice headers
-#   ICE_SLICE_DIR - the directory containing the Ice slice interface
+#   Ice_<P>_EXECUTABLE - the path to executable <P>
+#   Ice_INCLUDE_DIR - the directory containing the Ice headers
+#   Ice_SLICE_DIR - the directory containing the Ice slice interface
 #                   definitions
-#   ICE_<C>_LIBRARIES - the libraries for component <C>
+#   Ice_<C>_LIBRARY - the library for component <C>
 #
 # .. note::
 #
@@ -68,10 +66,10 @@
 #   unless multiple Ice versions are available and a specific version
 #   is required.  On Windows, the most recent version of Ice will be
 #   found through the registry.  On Unix, the programs, headers and
-#   libraries will usually be in standard locations, but Ice_SLICE_DIR
+#   libraries will usually be in standard locations, but Ice_SLICE_DIRS
 #   might not be automatically detected (commonly known locations are
-#   searched).  All the other variables are defaulted using ICE_HOME,
-#   if set.  It's possible to set ICE_HOME and selectively specify
+#   searched).  All the other variables are defaulted using Ice_HOME,
+#   if set.  It's possible to set Ice_HOME and selectively specify
 #   alternative locations for the other components; this might be
 #   required for e.g. newer versions of Visual Studio if the
 #   heuristics are not sufficient to identify the correct programs and
@@ -79,7 +77,7 @@
 #
 # Other variables one may set to control this module are::
 #
-#   ICE_DEBUG - Set to ON to enable debug output from FindIce.
+#   Ice_DEBUG - Set to ON to enable debug output from FindIce.
 
 # Written by Roger Leigh <rleigh@codelibre.net>
 
@@ -96,6 +94,8 @@
 # (To distribute this file outside of CMake, substitute the full
 #  License text for the above reference.)
 
+# The Ice checks are contained in a function due to the large number
+# of temporary variables needed.
 function(_Ice_FIND)
   # Released versions of Ice, including generic short forms
   set(ice_versions
@@ -111,19 +111,19 @@ function(_Ice_FIND)
       3.3.1
       3.3.0)
 
-  # Set up search paths, taking compiler into account.  Search ICE_HOME,
+  # Set up search paths, taking compiler into account.  Search Ice_HOME,
   # with ICE_HOME in the environment as a fallback if unset.
-  if(ICE_HOME)
-    list(APPEND ice_roots "${ICE_HOME}")
-  else(ICE_HOME)
+  if(Ice_HOME)
+    list(APPEND ice_roots "${Ice_HOME}")
+  else(Ice_HOME)
     if("$ENV{ICE_HOME}" STREQUAL "")
     else("$ENV{ICE_HOME}" STREQUAL "")
       file(TO_CMAKE_PATH "$ENV{ICE_HOME}" NATIVE_PATH)
       list(APPEND ice_roots "${NATIVE_PATH}")
-      set(ICE_HOME "${NATIVE_PATH}"
+      set(Ice_HOME "${NATIVE_PATH}"
           CACHE PATH "Location of the Ice installation" FORCE)
     endif("$ENV{ICE_HOME}" STREQUAL "")
-  endif(ICE_HOME)
+  endif(Ice_HOME)
 
   if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     # 64-bit path suffix
@@ -224,7 +224,7 @@ function(_Ice_FIND)
   # Find all Ice programs
   foreach(program ${ice_programs})
     string(TOUPPER "${program}" program_upcase)
-    set(cache_var "ICE_${program_upcase}_EXECUTABLE")
+    set(cache_var "Ice_${program_upcase}_EXECUTABLE")
     set(program_var "Ice_${program_upcase}_EXECUTABLE")
     find_program("${cache_var}" "${program}"
       HINTS ${ice_roots}
@@ -232,19 +232,15 @@ function(_Ice_FIND)
       DOC "Ice ${program} executable")
     mark_as_advanced(cache_var)
     set("${program_var}" "${${cache_var}}" PARENT_SCOPE)
-    if(NOT FOUND_ICE_BINARY_DIR)
-      get_filename_component(FOUND_ICE_BINARY_DIR "${${program_var}}" PATH)
-    endif(NOT FOUND_ICE_BINARY_DIR)
   endforeach(program ${ice_programs})
-  set(Ice_BINARY_DIR "${FOUND_ICE_BINARY_DIR}" PARENT_SCOPE)
 
   # Get version.
-  if(ICE_SLICE2CPP_EXECUTABLE)
+  if(Ice_SLICE2CPP_EXECUTABLE)
     # Execute in C locale for safety
     set(_Ice_SAVED_LC_ALL "$ENV{LC_ALL}")
     set(ENV{LC_ALL} C)
 
-    execute_process(COMMAND ${ICE_SLICE2CPP_EXECUTABLE} --version
+    execute_process(COMMAND ${Ice_SLICE2CPP_EXECUTABLE} --version
       ERROR_VARIABLE Ice_VERSION_SLICE2CPP_FULL
       ERROR_STRIP_TRAILING_WHITESPACE)
 
@@ -253,8 +249,8 @@ function(_Ice_FIND)
 
     # Make short version
     string(REGEX REPLACE "^(.*)\\.[^.]*$" "\\1" Ice_VERSION_SLICE2CPP_SHORT "${Ice_VERSION_SLICE2CPP_FULL}")
-    set(_ICE_VERSION "${Ice_VERSION_SLICE2CPP_FULL}" PARENT_SCOPE)
-  endif(ICE_SLICE2CPP_EXECUTABLE)
+    set(Ice_VERSION "${Ice_VERSION_SLICE2CPP_FULL}" PARENT_SCOPE)
+  endif(Ice_SLICE2CPP_EXECUTABLE)
 
   message(STATUS "Ice version: ${Ice_VERSION_SLICE2CPP_FULL}")
 
@@ -266,12 +262,12 @@ function(_Ice_FIND)
   endif(NOT MSVC)
 
   # Find include directory
-  find_path(ICE_INCLUDE_DIR
+  find_path(Ice_INCLUDE_DIR
             NAMES "Ice/Ice.h"
             HINTS ${ice_roots}
             PATH_SUFFIXES ${ice_include_suffixes}
             DOC "Ice include directory")
-  set(Ice_INCLUDE_DIR "${ICE_INCLUDE_DIR}" PARENT_SCOPE)
+  set(Ice_INCLUDE_DIR "${Ice_INCLUDE_DIR}" PARENT_SCOPE)
 
   # In common use on Linux and MacOS X (homebrew); prefer version-specific dir
   list(APPEND ice_slice_paths
@@ -281,21 +277,20 @@ function(_Ice_FIND)
        "Ice-${Ice_VERSION_SLICE2CPP_SHORT}/slice")
 
   # Find slice directory
-  find_path(ICE_SLICE_DIR
+  find_path(Ice_SLICE_DIR
             NAMES "Ice/Connection.ice"
             HINTS ${ice_roots}
                   ${ice_slice_paths}
             PATH_SUFFIXES ${ice_slice_suffixes}
             NO_DEFAULT_PATH
             DOC "Ice slice directory")
-  set(Ice_SLICE_DIR "${ICE_SLICE_DIR}" PARENT_SCOPE)
+  set(Ice_SLICE_DIR "${Ice_SLICE_DIR}" PARENT_SCOPE)
 
   # Find all Ice libraries
-  set(ICE_LIBS_ALLFOUND ON)
+  set(Ice_REQUIRED_LIBS_FOUND ON)
   foreach(component ${Ice_FIND_COMPONENTS})
     string(TOUPPER "${component}" component_upcase)
-    set(component_cache "ICE_${component_upcase}_LIBRARIES")
-    set(component_lib "Ice_${component_upcase}_LIBRARIES")
+    set(component_cache "Ice_${component_upcase}_LIBRARY")
     set(component_found "${component_upcase}_FOUND")
     find_library("${component_cache}" "${component}"
       HINTS ${ice_roots}
@@ -304,66 +299,88 @@ function(_Ice_FIND)
     mark_as_advanced("${component_cache}")
     if("${component_cache}")
       set("${component_found}" ON)
-      list(APPEND ICE_LIBRARIES "${${component_cache}}")
+      list(APPEND Ice_LIBRARY "${${component_cache}}")
     endif("${component_cache}")
     mark_as_advanced("${component_found}")
-    set("${component_lib}" "${${component_cache}}" PARENT_SCOPE)
+    set("${component_cache}" "${${component_cache}}" PARENT_SCOPE)
     set("${component_found}" "${${component_found}}" PARENT_SCOPE)
     if("${component_found}")
       if ("Ice_FIND_REQUIRED_${component}")
-        list(APPEND ICE_LIBS_FOUND "${component} (required)")
+        list(APPEND Ice_LIBS_FOUND "${component} (required)")
       else("Ice_FIND_REQUIRED_${component}")
-        list(APPEND ICE_LIBS_FOUND "${component} (optional)")
+        list(APPEND Ice_LIBS_FOUND "${component} (optional)")
       endif("Ice_FIND_REQUIRED_${component}")
     else("${component_found}")
       if ("Ice_FIND_REQUIRED_${component}")
-        set(ICE_LIBS_ALLFOUND OFF)
-        list(APPEND ICE_LIBS_NOTFOUND "${component} (required)")
+        set(Ice_REQUIRED_LIBS_FOUND OFF)
+        list(APPEND Ice_LIBS_NOTFOUND "${component} (required)")
       else("Ice_FIND_REQUIRED_${component}")
-        list(APPEND ICE_LIBS_NOTFOUND "${component} (optional)")
+        list(APPEND Ice_LIBS_NOTFOUND "${component} (optional)")
       endif("Ice_FIND_REQUIRED_${component}")
     endif("${component_found}")
-    if(NOT FOUND_ICE_LIBRARY_DIR)
-      get_filename_component(FOUND_ICE_LIBRARY_DIR "${${component_cache}}" PATH)
-    endif(NOT FOUND_ICE_LIBRARY_DIR)
   endforeach(component)
-  set(_ICE_LIBS_ALLFOUND "${ICE_LIBS_ALLFOUND}" PARENT_SCOPE)
-  set(Ice_LIBRARIES "${ICE_LIBRARIES}" PARENT_SCOPE)
-  set(Ice_LIBRARY_DIR "${FOUND_ICE_LIBRARY_DIR}" PARENT_SCOPE)
+  set(_Ice_REQUIRED_LIBS_FOUND "${Ice_REQUIRED_LIBS_FOUND}" PARENT_SCOPE)
+  set(Ice_LIBRARY "${Ice_LIBRARY}" PARENT_SCOPE)
 
-  if(ICE_LIBS_FOUND)
+  if(Ice_LIBS_FOUND)
     message(STATUS "Found the following Ice libraries:")
-    foreach(found ${ICE_LIBS_FOUND})
+    foreach(found ${Ice_LIBS_FOUND})
       message(STATUS "  ${found}")
     endforeach(found)
-  endif(ICE_LIBS_FOUND)
-  if(ICE_LIBS_NOTFOUND)
+  endif(Ice_LIBS_FOUND)
+  if(Ice_LIBS_NOTFOUND)
     message(STATUS "The following Ice libraries were not found:")
-    foreach(notfound ${ICE_LIBS_NOTFOUND})
+    foreach(notfound ${Ice_LIBS_NOTFOUND})
       message(STATUS "  ${notfound}")
     endforeach(notfound)
-  endif(ICE_LIBS_NOTFOUND)
+  endif(Ice_LIBS_NOTFOUND)
 
-  if(ICE_DEBUG)
+  if(Ice_DEBUG)
     message(STATUS "--------FindIce.cmake search debug--------")
     message(STATUS "ICE binary path search order: ${ice_roots}")
     message(STATUS "ICE include path search order: ${ice_roots}")
     message(STATUS "ICE slice path search order: ${ice_roots} ${ice_slice_paths}")
     message(STATUS "ICE library path search order: ${ice_roots}")
     message(STATUS "----------------")
-  endif(ICE_DEBUG)
+  endif(Ice_DEBUG)
 endfunction(_Ice_FIND)
 
 _Ice_FIND()
 
-if(ICE_DEBUG)
+include(FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(Ice
+                                  FOUND_VAR Ice_FOUND
+                                  REQUIRED_VARS Ice_SLICE2CPP_EXECUTABLE
+                                                Ice_INCLUDE_DIR
+                                                Ice_SLICE_DIR
+                                                Ice_LIBRARY
+                                                _Ice_REQUIRED_LIBS_FOUND
+                                  VERSION_VAR Ice_VERSION
+                                  FAIL_MESSAGE "Failed to find all Ice components")
+
+unset(_Ice_REQUIRED_LIBS_FOUND)
+
+if(Ice_FOUND)
+  set(Ice_INCLUDE_DIRS "${Ice_INCLUDE_DIR}")
+  set(Ice_SLICE_DIRS "${Ice_SLICE_DIR}")
+  set(Ice_LIBRARIES "${Ice_LIBRARY}")
+  foreach(component ${Ice_FIND_COMPONENTS})
+    string(TOUPPER "${component}" component_upcase)
+    set(component_cache "Ice_${component_upcase}_LIBRARY")
+    set(component_lib "Ice_${component_upcase}_LIBRARIES")
+    set(component_found "${component_upcase}_FOUND")
+    if("${component_found}")
+      set("${component_lib}" "${${component_cache}}")
+    endif("${component_found}")
+  endforeach(component ${Ice_FIND_COMPONENTS})
+endif(Ice_FOUND)
+
+if(Ice_DEBUG)
   message(STATUS "--------FindIce.cmake results debug--------")
-  message(STATUS "ICE_VERSION number: ${_ICE_VERSION}")
-  message(STATUS "ICE_HOME directory: ${ICE_HOME}")
-  message(STATUS "Ice_BINARY_DIR directory: ${Ice_BINARY_DIR}")
+  message(STATUS "Ice_VERSION number: ${Ice_VERSION}")
+  message(STATUS "Ice_HOME directory: ${Ice_HOME}")
   message(STATUS "Ice_INCLUDE_DIR directory: ${Ice_INCLUDE_DIR}")
   message(STATUS "Ice_SLICE_DIR directory: ${Ice_SLICE_DIR}")
-  message(STATUS "Ice_LIBRARY_DIR directory: ${Ice_LIBRARY_DIR}")
   message(STATUS "Ice_LIBRARIES: ${Ice_LIBRARIES}")
   message(STATUS "slice2cpp executable: ${Ice_SLICE2CPP_EXECUTABLE}")
   message(STATUS "slice2cs executable: ${Ice_SLICE2CS_EXECUTABLE}")
@@ -382,16 +399,4 @@ if(ICE_DEBUG)
     message(STATUS "${component} library: ${${component_lib}}")
   endforeach(component ${Ice_FIND_COMPONENTS})
   message(STATUS "----------------")
-endif(ICE_DEBUG)
-
-include(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(Ice
-                                  REQUIRED_VARS Ice_SLICE2CPP_EXECUTABLE
-                                                Ice_INCLUDE_DIR
-                                                Ice_SLICE_DIR
-                                                _ICE_LIBS_ALLFOUND
-                                  VERSION_VAR _ICE_VERSION
-                                  FAIL_MESSAGE "Failed to find all Ice components")
-
-unset(_ICE_VERSION)
-unset(_ICE_LIBS_ALLFOUND)
+endif(Ice_DEBUG)
