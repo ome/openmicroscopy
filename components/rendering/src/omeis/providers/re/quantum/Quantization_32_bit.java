@@ -23,6 +23,9 @@
 
 package omeis.providers.re.quantum;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,6 +83,9 @@ public class Quantization_32_bit extends QuantumStrategy {
      * {@link QuantumDef} if the noise reduction flag is <code>true</code>.
      */
     private int cdStart, cdEnd;
+
+    /** The mapped values.*/
+    private Map<Double, Integer> values;
 
     /**
      * Initializes the coefficient of the normalize mapping operation.
@@ -153,9 +159,11 @@ public class Quantization_32_bit extends QuantumStrategy {
         return v;
     }
 
-    /** The input window size changed, rebuild the LUT. */
+    /** The input window size changed, re-map the values. */
     @Override
-    protected void onWindowChange() {}
+    protected void onWindowChange() {
+        values.clear();
+    }
 
     /**
      * Creates a new strategy.
@@ -167,6 +175,7 @@ public class Quantization_32_bit extends QuantumStrategy {
      */
     public Quantization_32_bit(QuantumDef qd, PixelsType type) {
         super(qd, type);
+        values = new HashMap<Double, Integer>();
     }
 
     /**
@@ -176,14 +185,15 @@ public class Quantization_32_bit extends QuantumStrategy {
      */
     @Override
     public int quantize(double value) throws QuantizationException {
-        double dStart = getWindowStart(), dEnd = getWindowEnd();
-        int x = (int) value;
-        if (x < dStart) {
-            return (byte) cdStart;
-        } else if (x > dEnd) {
-            return (byte) cdEnd;
+        if (values.containsKey(value)) {
+            return values.get(value).intValue();
         }
-
+        double dStart = getWindowStart(), dEnd = getWindowEnd();
+        if (value < dStart) {
+            return ((byte) cdStart) & 0xFF;
+        } else if (value > dEnd) {
+            return ((byte) cdEnd) & 0xFF;
+        }
         double k = getCurveCoefficient();
         double a1 = (qDef.getCdEnd().intValue() - qDef.getCdStart().intValue())
                 / qDef.getBitResolution().doubleValue();
@@ -194,9 +204,9 @@ public class Quantization_32_bit extends QuantumStrategy {
         double v = initDecileMap(dStart, dEnd);
         QuantumMap normalize = new PolynomialMap();
 
-        if (x > Q1) {
-            if (x <= Q9) {
-                v = aDecile * normalize.transform(x, 1) - bDecile;
+        if (value > Q1) {
+            if (value <= Q9) {
+                v = aDecile * normalize.transform(value, 1) - bDecile;
             } else {
                 v = cdEnd;
             }
@@ -207,7 +217,9 @@ public class Quantization_32_bit extends QuantumStrategy {
         v = aNormalized * (valueMapper.transform(v, k) - ysNormalized);
         v = Math.round(v);
         v = Math.round(a1 * v + cdStart);
-        return (byte) v;
+        int x = ((byte) v) & 0xFF;
+        values.put(value, x);
+        return x;
     }
 
 }
