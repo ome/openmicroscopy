@@ -10,11 +10,12 @@
 
 """
 import time
-import datetime
 import pytest
 import test.integration.library as lib
 import omero
-from omero.rtypes import *
+
+from omero.rtypes import rint, rlong, rstring, rtime
+
 
 class TestITimeline(lib.ITest):
 
@@ -28,9 +29,9 @@ class TestITimeline(lib.ITest):
         timeline = sf.getTimelineService()
 
         im_ids = dict()
-        for i in range(0,10):
+        for i in range(0, 10):
             # create image
-            acquired = long(time.time()*1000)
+            acquired = long(time.time() * 1000)
             img = omero.model.ImageI()
             img.setName(rstring('test-img-%s' % (uuid)))
             img.setAcquisitionDate(rtime(acquired))
@@ -56,10 +57,10 @@ class TestITimeline(lib.ITest):
         A = rtime(long(start))
         B = rtime(long(end))
         counter = M(['Image'], A, B, p)
-        assert counter['Image'] ==  10
+        assert counter['Image'] == 10
         # And with #9609
         counter = M(['Image'], A, B, p, {"omero.group": "-1"})
-        assert counter['Image'] ==  10
+        assert counter['Image'] == 10
 
         p2 = omero.sys.Parameters()
         p2.map = {}
@@ -69,34 +70,36 @@ class TestITimeline(lib.ITest):
         f2.limit = rint(5)
         p2.theFilter = f2
 
-        #p.map["start"] = rtime(long(start))
-        #p.map["end"] = rtime(long(end))
+        # p.map["start"] = rtime(long(start))
+        # p.map["end"] = rtime(long(end))
 
         M = timeline.getMostRecentObjects
         res = M(['Image'], p2, False)["Image"]
-        assert 5 ==  len(res)
+        assert 5 == len(res)
         # And with #9609
         res = M(['Image'], p2, False, {"omero.group": "-1"})["Image"]
-        assert 5 ==  len(res)
+        assert 5 == len(res)
 
         # 1st element should be the 9th from the im_ids
-        assert im_ids[9][0] ==  res[0].id.val
+        assert im_ids[9][0] == res[0].id.val
         # 2nd element should be the 8th from the im_ids
-        assert im_ids[8][0] ==  res[1].id.val
+        assert im_ids[8][0] == res[1].id.val
         # 3rd element should be the 7th from the im_ids
-        assert im_ids[7][0] ==  res[2].id.val
+        assert im_ids[7][0] == res[2].id.val
         # 4th element should be the 6th from the im_ids
-        assert im_ids[6][0] ==  res[3].id.val
+        assert im_ids[6][0] == res[3].id.val
         # 5th element should be the 5th from the im_ids
-        assert im_ids[5][0] ==  res[4].id.val
-
+        assert im_ids[5][0] == res[4].id.val
 
     def testCollaborativeTimeline(self):
-        """ Create some images as one user - test if another user can see these events in timeline. """
+        """
+        Create some images as one user - test if another user
+        can see these events in timeline.
+        """
 
-        group = self.new_group(perms = "rwr---")
-        client1 = self.new_client(group = group)
-        client2 = self.new_client(group = group)
+        group = self.new_group(perms="rwr---")
+        client1 = self.new_client(group=group)
+        client2 = self.new_client(group=group)
 
         # log in as first user & create images
         update1 = client1.sf.getUpdateService()
@@ -104,9 +107,9 @@ class TestITimeline(lib.ITest):
         admin1 = client1.sf.getAdminService()
 
         im_ids = dict()
-        for i in range(0,10):
+        for i in range(0, 10):
             # create image
-            acquired = long(time.time()*1000)
+            acquired = long(time.time() * 1000)
             img = omero.model.ImageI()
             img.setName(rstring('test-img-%s' % (client1.sf)))
             img.setAcquisitionDate(rtime(acquired))
@@ -124,7 +127,7 @@ class TestITimeline(lib.ITest):
         ownerId = rlong(admin1.getEventContext().userId)
         groupId = rlong(admin1.getEventContext().groupId)
 
-        def assert_timeline(timeline, start, end, ownerId = None, groupId = None):
+        def assert_timeline(timeline, start, end, ownerId=None, groupId=None):
             p = omero.sys.Parameters()
             p.map = {}
             f = omero.sys.Filter()
@@ -134,14 +137,17 @@ class TestITimeline(lib.ITest):
                 f.groupId = groupId
             p.theFilter = f
 
-            counter = timeline.countByPeriod(['Image'], rtime(long(start)), rtime(long(end)), p)
-            assert 10 ==  counter['Image']
-            data = timeline.getByPeriod(['Image'], rtime(long(start)), rtime(long(end)), p, False)
-            assert 10 ==  len(data['Image'])
+            counter = timeline.countByPeriod(
+                ['Image'], rtime(long(start)), rtime(long(end)), p)
+            assert 10 == counter['Image']
+            data = timeline.getByPeriod(
+                ['Image'], rtime(long(start)), rtime(long(end)), p, False)
+            assert 10 == len(data['Image'])
 
         assert_timeline(timeline1, start, end, ownerId, groupId)
 
-        # now log in as another user (default group is same as user-created images above)
+        # now log in as another user (default group is same as user-created
+        # images above)
         timeline2 = client2.sf.getTimelineService()
         assert_timeline(timeline2, start, end, ownerId, groupId)
 
@@ -157,8 +163,8 @@ class TestITimeline(lib.ITest):
         ds.unload()
 
         # Here we assume that this test is not run within the last 1 second
-        start = long(time.time()*1000 - 86400)
-        end = long(time.time()*1000 + 86400)
+        start = long(time.time() * 1000 - 86400)
+        end = long(time.time() * 1000 + 86400)
 
         p = omero.sys.Parameters()
         p.map = {}
@@ -181,13 +187,13 @@ class TestITimeline(lib.ITest):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         update = self.root.sf.getUpdateService()
         timeline = self.root.sf.getTimelineService()
-        
+
         # create dataset
         ds = omero.model.DatasetI()
         ds.setName(rstring('test1154-ds-%s' % (uuid)))
         ds = update.saveAndReturnObject(ds)
         ds.unload()
-        
+
         # create tag
         ann = omero.model.TagAnnotationI()
         ann.textValue = rstring('tag-%s' % (uuid))
@@ -196,7 +202,7 @@ class TestITimeline(lib.ITest):
         t_ann.setParent(ds)
         t_ann.setChild(ann)
         update.saveObject(t_ann)
-        
+
         p = omero.sys.Parameters()
         p.map = {}
         f = omero.sys.Filter()
@@ -223,27 +229,27 @@ class TestITimeline(lib.ITest):
         update = self.root.sf.getUpdateService()
         timeline = self.root.sf.getTimelineService()
         query = self.root.sf.getQueryService()
-        
+
         # create dataset
         to_save = list()
-        for i in range(0,10):
+        for i in range(0, 10):
             ds = omero.model.DatasetI()
-            ds.setName(rstring("ds-%i-%s" % (i,uuid)))
+            ds.setName(rstring("ds-%i-%s" % (i, uuid)))
             to_save.append(ds)
-        
+
         dss = update.saveAndReturnArray(to_save)
-        
+
         # create tag
-        for i in range(0,10):
+        for i in range(0, 10):
             ds1 = query.get("Dataset", dss[i].id.val)
             ann = omero.model.TagAnnotationI()
-            ann.textValue = rstring('tag-%i-%s' % (i,uuid))
-            ann.setDescription(rstring('desc-%i-%s' % (i,uuid)))
+            ann.textValue = rstring('tag-%i-%s' % (i, uuid))
+            ann.setDescription(rstring('desc-%i-%s' % (i, uuid)))
             t_ann = omero.model.DatasetAnnotationLinkI()
             t_ann.setParent(ds1)
             t_ann.setChild(ann)
             update.saveObject(t_ann)
-        
+
         p = omero.sys.Parameters()
         p.map = {}
         f = omero.sys.Filter()
@@ -251,23 +257,22 @@ class TestITimeline(lib.ITest):
         f.limit = rint(10)
         p.theFilter = f
 
-
         M = timeline.getMostRecentAnnotationLinks
-        tagids = set([e.child.id.val for e in \
-                M(None, ['TagAnnotation'], None, p)])
-        assert len(tagids) ==  10
+        tagids = set([e.child.id.val for e in
+                      M(None, ['TagAnnotation'], None, p)])
+        assert len(tagids) == 10
 
         # And under #9609
-        tagids = set([e.child.id.val for e in \
-                M(None, ['TagAnnotation'], None, p, {"omero.group":"-1"})])
-        assert len(tagids) ==  10
-
+        tagids = set([e.child.id.val for e in
+                     M(None, ['TagAnnotation'], None, p,
+                       {"omero.group": "-1"})])
+        assert len(tagids) == 10
 
         ann = omero.model.TagAnnotationI()
         ann.textValue = rstring('tag-%s' % (uuid))
         ann.setDescription(rstring('desc-%s' % (uuid)))
         ann = update.saveAndReturnObject(ann)
-        for i in range(0,10):
+        for i in range(0, 10):
             ds1 = query.get("Dataset", dss[i].id.val)
             ann1 = query.get("TagAnnotation", ann.id.val)
             t_ann = omero.model.DatasetAnnotationLinkI()
@@ -275,14 +280,15 @@ class TestITimeline(lib.ITest):
             t_ann.setChild(ann1)
             update.saveObject(t_ann)
 
-        tids = set([e.child.id.val for e in \
-                M(None, ['TagAnnotation'], None, p)])
-        assert len(tids) ==  10
+        tids = set([e.child.id.val for e in
+                    M(None, ['TagAnnotation'], None, p)])
+        assert len(tids) == 10
 
         # And again #9609
-        tids = set([e.child.id.val for e in \
-                M(None, ['TagAnnotation'], None, p, {"omero.group": "-1"})])
-        assert len(tids) ==  10
+        tids = set([e.child.id.val for e in
+                    M(None, ['TagAnnotation'], None, p,
+                      {"omero.group": "-1"})])
+        assert len(tids) == 10
 
     def test3234(self):
 
@@ -290,10 +296,9 @@ class TestITimeline(lib.ITest):
         user_object = omero.model.ExperimenterI(user_context.userId, False)
 
         share = self.root.sf.getShareService()
-        share_id = share.createShare("description", None, None, [user_object], None, True)
+        share.createShare(
+            "description", None, None, [user_object], None, True)
 
         timeline = self.client.sf.getTimelineService()
         timeline.getMostRecentShareCommentLinks(None)
         timeline.getMostRecentShareCommentLinks(None, {"omero.group": "-1"})
-
-
