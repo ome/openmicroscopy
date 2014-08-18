@@ -81,7 +81,7 @@
                     href="{% url 'archived_files' %}?{{ obj_string }}"
                   {% else %}
                     href="#"
-                    onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&fileCount={{ filesetInfo.count }}');"
+                    onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&fileCount={{ filesetInfo.count }}&index={{ index }}');"
                   {% endifequal %}
                 {% endifequal %}
                 title="Download {{ filesetInfo.count }} original imported file{{ filesetInfo.count|pluralize:'s as zip'}} ({{ filesetInfo.size|filesizeformat }})"
@@ -122,17 +122,17 @@
               {% if filesetInfo %}
               <li>
                 <a href="#"
-                  onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&format=jpeg');"
+                  onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&format=jpeg&index={{ index }}');"
                   title="Download as JPEGs (zip)">Save As JPEG</a>
               </li>
               <li>
                 <a href="#"
-                  onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&format=png');"
+                  onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&format=png&index={{ index }}');"
                   title="Download as PNGs (zip)">Save As PNG</a>
               </li>
               <li>
                 <a href="#"
-                  onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&format=tif');"
+                  onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&format=tif&index={{ index }}');"
                   title="Download as TIFFs (zip)">Save As TIFF</a>
               </li>
               {% endif %}

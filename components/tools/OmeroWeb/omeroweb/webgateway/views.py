@@ -1713,14 +1713,29 @@ def download_as(request, iid=None, conn=None, **kwargs):
     format = request.REQUEST.get('format', 'png')
     if format not in ('jpeg', 'png', 'tif'):
         format = 'png'
+
+    imgIds = []
+    wellIds = []
     if iid is None:
         imgIds = request.REQUEST.getlist('image')
         if len(imgIds) == 0:
-            return HttpResponseServerError("No images specified in request. Use ?image=123")
+            wellIds = request.REQUEST.getlist('well')
+            if len(wellIds) == 0:
+                return HttpResponseServerError("No images or wells specified in request. Use ?image=123 or ?well=123")
     else:
         imgIds = [iid]
 
-    images = list(conn.getObjects("Image", imgIds))
+    images = []
+    if imgIds:
+        images = list(conn.getObjects("Image", imgIds))
+    elif wellIds:
+        try:
+            index = int(request.REQUEST.get("index", 0))
+        except ValueError:
+            index = 0
+        for w in conn.getObjects("Well", wellIds):
+            images.append(w.getWellSample(index).image())
+
     if len(images) == 0:
         msg = "Cannot download as %s. Images (ids: %s) not found." % (format, imgIds)
         logger.debug(msg)
@@ -1795,14 +1810,27 @@ def archived_files(request, iid=None, conn=None, **kwargs):
     """
     Downloads the archived file(s) as a single file or as a zip (if more than one file)
     """
+    imgIds = []
+    wellIds = []
     if iid is None:
         imgIds = request.REQUEST.getlist('image')
         if len(imgIds) == 0:
-            return HttpResponseServerError("No images specified in request. Use ?image=123")
+            wellIds = request.REQUEST.getlist('well')
+            if len(wellIds) == 0:
+                return HttpResponseServerError("No images or wells specified in request. Use ?image=123 or ?well=123")
     else:
         imgIds = [iid]
 
-    images = list(conn.getObjects("Image", imgIds))
+    images = []
+    if imgIds:
+        images = list(conn.getObjects("Image", imgIds))
+    elif wellIds:
+        try:
+            index = int(request.REQUEST.get("index", 0))
+        except ValueError:
+            index = 0
+        for w in conn.getObjects("Well", wellIds):
+            images.append(w.getWellSample(index).image())
     if len(images) == 0:
         logger.debug("Cannot download archived file becuase Images not found.")
         return HttpResponseServerError("Cannot download archived file becuase Images not found (ids: %s)." % (imgIds))
