@@ -35,4 +35,3 @@ class TestIUpdate(lib.ITest):
         """
         tags = self.tags()
         self.update.saveCollection(tags)
-
