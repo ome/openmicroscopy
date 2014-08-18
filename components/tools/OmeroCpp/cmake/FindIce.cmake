@@ -269,12 +269,14 @@ function(_Ice_FIND)
             DOC "Ice include directory")
   set(Ice_INCLUDE_DIR "${Ice_INCLUDE_DIR}" PARENT_SCOPE)
 
-  # In common use on Linux and MacOS X (homebrew); prefer version-specific dir
+  # In common use on Linux, MacOS X (homebrew) and FreeBSD; prefer
+  # version-specific dir
   list(APPEND ice_slice_paths
        /usr/local/share /usr/share)
   list(APPEND ice_slice_suffixes
        "Ice-${Ice_VERSION_SLICE2CPP_FULL}/slice"
-       "Ice-${Ice_VERSION_SLICE2CPP_SHORT}/slice")
+       "Ice-${Ice_VERSION_SLICE2CPP_SHORT}/slice"
+       Ice)
 
   # Find slice directory
   find_path(Ice_SLICE_DIR
