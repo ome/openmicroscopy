@@ -6865,8 +6865,8 @@ class _ImageWrapper (BlitzObjectWrapper):
         Returns a dict of the rendering settings that exist for this Image
         Can be filtered by owner using the eid parameter.
 
-        @return:    Rdef dict
-        @rtype:     Dict
+        :return:    Rdef dict
+        :rtype:     Dict
         """
 
         pixelsService = self._conn.getPixelsService()
