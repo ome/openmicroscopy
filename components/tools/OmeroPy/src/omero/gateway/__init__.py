@@ -36,7 +36,6 @@ import traceback
 import time
 import array
 import math
-import re
 from decimal import Decimal
 
 from gettext import gettext as _
