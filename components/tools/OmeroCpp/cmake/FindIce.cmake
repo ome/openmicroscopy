@@ -20,7 +20,7 @@
 # several variables.  General variables::
 #
 #   Ice_VERSION - Ice release version
-#   Ice_FOUND - true if the main programs and libraries were found
+#   ICE_FOUND - true if the main programs and libraries were found
 #   Ice_LIBRARIES - component libraries to be linked
 #   Ice_INCLUDE_DIRS - the directories containing the Ice headers
 #   Ice_SLICE_DIRS - the directories containing the Ice slice interface
@@ -349,7 +349,6 @@ _Ice_FIND()
 
 include(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(Ice
-                                  FOUND_VAR Ice_FOUND
                                   REQUIRED_VARS Ice_SLICE2CPP_EXECUTABLE
                                                 Ice_INCLUDE_DIR
                                                 Ice_SLICE_DIR
@@ -360,7 +359,7 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS(Ice
 
 unset(_Ice_REQUIRED_LIBS_FOUND)
 
-if(Ice_FOUND)
+if(ICE_FOUND)
   set(Ice_INCLUDE_DIRS "${Ice_INCLUDE_DIR}")
   set(Ice_SLICE_DIRS "${Ice_SLICE_DIR}")
   set(Ice_LIBRARIES "${Ice_LIBRARY}")
@@ -377,7 +376,7 @@ if(Ice_FOUND)
     unset(_Ice_component_lib)
     unset(_Ice_component_found)
   endforeach(_Ice_component)
-endif(Ice_FOUND)
+endif(ICE_FOUND)
 
 if(Ice_DEBUG)
   message(STATUS "--------FindIce.cmake results debug--------")
