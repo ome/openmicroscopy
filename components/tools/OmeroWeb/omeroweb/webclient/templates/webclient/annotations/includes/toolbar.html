@@ -45,7 +45,7 @@
     <!-- This is used for 'batch annotate' panel with 'filesetCount'... -->
     <!-- ... and for single images -->
 
-    {% if manager.image or filesetInfo %}
+    {% if image or filesetInfo %}
     <!-- download options -->
     <div class="toolbar_dropdown">
         <button class="btn silver btn_download" title="Download Image as...">
@@ -53,17 +53,17 @@
         </button>
         <ul class="dropdown">
             <!-- Here we handle a single image (in metadata general) - see below for multiple images (batch annotate) -->
-            {% if manager.image.getImportedFilesInfo.count %}
-              {% with filesetInfo=manager.image.getImportedFilesInfo %}
+            {% if image.getImportedFilesInfo.count %}
+              {% with filesetInfo=image.getImportedFilesInfo %}
             <li>
                 <!-- if we have a single orig file, download directly. Otherwise popup a 
                   'preparing zip' download placeholder -->
                 <a id="download-origfile" 
                   {% ifequal filesetInfo.count 1 %}
-                    href="{% url 'archived_files' manager.image.id %}"
+                    href="{% url 'archived_files' image.id %}"
                   {% else %}
                     href="#"
-                    onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids=image-{{ manager.image.id }}&fileCount={{ fileCount }}&name={{ manager.image.name }}');"
+                    onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids=image-{{ image.id }}&fileCount={{ fileCount }}&name={{ image.name }}');"
                   {% endifequal %}
                 title="Download {{ filesetInfo.count }} original imported file{{ filesetInfo.count|pluralize:'s as zip'}} ({{ filesetInfo.size|filesizeformat }})"
                 >
@@ -89,9 +89,9 @@
                 Download...</a>
             </li>
             {% endif %}
-            {% if manager.image %}
+            {% if image %}
             <li>
-                <a id="create-ometiff" href="{% url 'ome_tiff_script' manager.image.id %}" 
+                <a id="create-ometiff" href="{% url 'ome_tiff_script' image.id %}" 
                 title="Create OME-TIFF File for Download">Export as OME-TIFF...</a>
             </li>
             {% else %}
@@ -102,19 +102,19 @@
             <li>{{ manager.}}
             {% endif %}
 
-            {% if manager.image %}
+            {% if image %}
               <li>
-                <a href="{% url 'web_render_image_download' manager.image.id %}" title="Download as JPEG">
+                <a href="{% url 'web_render_image_download' image.id %}" title="Download as JPEG">
                   Save As JPEG
                 </a>
               </li>
               <li>
-                <a href="{% url 'web_render_image_download' manager.image.id %}?format=png" title="Download as PNG">
+                <a href="{% url 'web_render_image_download' image.id %}?format=png" title="Download as PNG">
                   Save As PNG
                 </a>
               </li>
               <li>
-                <a href="{% url 'web_render_image_download' manager.image.id %}?format=tif" title="Download as TIFF">
+                <a href="{% url 'web_render_image_download' image.id %}?format=tif" title="Download as TIFF">
                   Save As TIFF
                 </a>
               </li>
@@ -140,7 +140,7 @@
         </ul>
     </div>
 
-    {% if manager.image.showOriginalFilePaths %}
+    {% if image.showOriginalFilePaths %}
       <!-- show original file paths -->
       <button id="show_fs_files_btn" class="btn silver btn_fspath" title="Show file paths on server">
         <span></span>
