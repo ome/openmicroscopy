@@ -6361,7 +6361,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         :param _r:          If True, don't reset default rendering (return None if no rDef exists)
         :type _r:           Boolean
         :param rdefId:      Rendering def ID to use for rendering thumbnail
-        :type:              Long
+        :type rdefId:       Long
         :return:            Thumbnail Store or None
         :rtype:             :class:`ProxyObjectWrapper`
         """
