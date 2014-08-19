@@ -131,10 +131,10 @@ module omero {
         };
 
         /**
-         * Disk usage report: bytes used on the repository file-system for
-         * specific objects. The counts from the map may sum to more than
-         * the total if different types of object refer to the same file.
-         * Common referers include:
+         * Disk usage report: bytes used and non-empty file counts on the
+         * repository file-system for specific objects. The counts from the
+         * maps may sum to more than the total if different types of object
+         * refer to the same file. Common referers include:
          *   Annotation for file annotations
          *   FilesetEntry for OMERO 5 image files (OMERO.fs)
          *   Job for import logs
@@ -142,7 +142,9 @@ module omero {
          *   Thumbnail for the image thumbnails
          **/
         class DiskUsageResponse extends Response {
-            omero::api::StringLongMap bytesByReferer;
+            omero::api::StringIntMap fileCountByReferer;
+            omero::api::StringLongMap bytesUsedByReferer;
+            int totalFileCount;
             long totalBytesUsed;
         };
 
