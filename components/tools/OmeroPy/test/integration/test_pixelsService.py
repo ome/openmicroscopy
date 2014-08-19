@@ -33,12 +33,13 @@ class TestPixelsService(lib.ITest):
 
     def testCreateImage(self):
         """
-        Create a new image 
+        Create a new image
         """
         pixelsService = self.client.sf.getPixelsService()
         queryService = self.client.sf.getQueryService()
 
-        pixelsType = queryService.findByQuery("from PixelsType as p where p.value='int8'", None)
+        pixelsType = queryService.findByQuery(
+            "from PixelsType as p where p.value='int8'", None)
         assert pixelsType is not None
 
         sizeX = 1
@@ -46,7 +47,9 @@ class TestPixelsService(lib.ITest):
         sizeZ = 1
         sizeT = 1
         channelList = range(1, 4)
-        iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, "testCreateImage", description=None)
+        pixelsService.createImage(
+            sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType,
+            "testCreateImage", description=None)
 
     def test9655(self):
         # Create an image without statsinfo objects and attempt
@@ -72,4 +75,3 @@ class TestPixelsService(lib.ITest):
         re.lookupPixels(pixels_id)
         re.lookupRenderingDef(pixels_id)
         re.getPixels()
-
