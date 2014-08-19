@@ -28,7 +28,7 @@ class TestRPS(lib.ITest):
         try:
             rps.setPixelsId(pix.id.val, True)
             sha1 = hex(rps.calculateMessageDigest())
-            assert sha1 ==  pix.sha1.val
+            assert sha1 == pix.sha1.val
         finally:
             rps.close()
 
@@ -39,7 +39,7 @@ class TestRPS(lib.ITest):
             rps.setPixelsId(pix.id.val, True)
             self.write(pix, rps)
         finally:
-            rps.close() # save is automatic
+            rps.close()  # save is automatic
         self.check_pix(pix)
 
     def testTicket4737WithSave(self):
@@ -56,9 +56,14 @@ class TestRPS(lib.ITest):
 
     def testTicket4737WithForEachTile(self):
         pix = self.pix()
+
         class Iteration(TileLoopIteration):
-            def run(self, data, z, c, t, x, y, tileWidth, tileHeight, tileCount):
-                data.setTile([5]*tileWidth*tileHeight, z, c, t, x, y, tileWidth, tileHeight)
+
+            def run(self, data, z, c, t, x, y,
+                    tileWidth, tileHeight, tileCount):
+                data.setTile(
+                    [5] * tileWidth * tileHeight,
+                    z, c, t, x, y, tileWidth, tileHeight)
 
         loop = RPSTileLoop(self.client.getSession(), pix)
         loop.forEachTile(256, 256, Iteration())
@@ -103,7 +108,7 @@ class TestRPS(lib.ITest):
                     success = True
                 except omero.MissingPyramidException, mpm:
                     assert pix.id.val == mpm.pixelsID
-                    backOff = mpm.backOff/1000
+                    backOff = mpm.backOff / 1000
                     event = concurrency.get_event("testRomio")
                     event.wait(backOff)  # seconds
                 i -= 1
@@ -139,7 +144,7 @@ class TestRPS(lib.ITest):
                     success = True
                 except omero.MissingPyramidException, mpm:
                     assert pix.id.val == mpm.pixelsID
-                    backOff = mpm.backOff/1000
+                    backOff = mpm.backOff / 1000
                     event = concurrency.get_event("testRomio")
                     event.wait(backOff)  # seconds
                 i -= 1
@@ -174,7 +179,7 @@ class TestRPS(lib.ITest):
                     success = True
                 except omero.MissingPyramidException, mpm:
                     assert pix.id.val == mpm.pixelsID
-                    backOff = mpm.backOff/1000
+                    backOff = mpm.backOff / 1000
                     event = concurrency.get_event("testRomio")
                     event.wait(backOff)  # seconds
                 i -= 1
@@ -184,7 +189,9 @@ class TestRPS(lib.ITest):
             # access the file without exceptions
             event = concurrency.get_event("concurrenct_pyramids")
             root_sf = self.root.sf
+
             class T(threading.Thread):
+
                 def run(self):
                     self.success = 0
                     self.failure = 0
@@ -255,7 +262,7 @@ class TestTiles(lib.ITest):
             """
             create some fake pixel data tile (2D numpy array)
             """
-            return (x * y)/(1 + x + y)
+            return (x * y) / (1 + x + y)
 
         def mktile(w, h):
             tile = fromfunction(f, (w, h))
