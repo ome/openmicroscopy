@@ -11,14 +11,7 @@
 """
 
 import test.integration.library as lib
-import omero
-from omero_model_PixelsI import PixelsI
-from omero_model_ImageI import ImageI
-from omero_model_DatasetI import DatasetI
-from omero_model_ExperimenterI import ExperimenterI
-from omero_model_ExperimenterGroupI import ExperimenterGroupI
-from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
-from omero_model_DatasetImageLinkI import DatasetImageLinkI
+
 
 class TestSimple(lib.ITest):
 
@@ -26,4 +19,3 @@ class TestSimple(lib.ITest):
         admin = self.client.sf.getAdminService()
         ec = admin.getEventContext()
         assert ec
-
