@@ -14,7 +14,7 @@ import test.integration.library as lib
 import pytest
 
 from omero.rtypes import rstring, rlong
-from omero.util.concurrency import get_event
+
 
 class TestRFS(lib.ITest):
 
@@ -44,7 +44,7 @@ class TestRFS(lib.ITest):
         ofile = self.file()
         rfs = self.client.sf.createRawFileStore()
         rfs.setFileId(ofile.id.val)
-        rfs.write([0,1,2,3], 0, 4)
+        rfs.write([0, 1, 2, 3], 0, 4)
         rfs.close()
         self.check_file(ofile)
 
@@ -52,7 +52,8 @@ class TestRFS(lib.ITest):
     def testTicket1961WithKillSession(self):
         ofile = self.file()
         grp = self.client.sf.getAdminService().getEventContext().groupName
-        session = self.client.sf.getSessionService().createUserSession(1*1000, 10000, grp)
+        session = self.client.sf.getSessionService().createUserSession(
+            1 * 1000, 10000, grp)
         properties = self.client.getPropertyMap()
 
         c = omero.client(properties)
@@ -60,7 +61,7 @@ class TestRFS(lib.ITest):
 
         rfs = s.createRawFileStore()
         rfs.setFileId(ofile.id.val)
-        rfs.write([0,1,2,3], 0, 4)
+        rfs.write([0, 1, 2, 3], 0, 4)
 
         c.killSession()
         self.check_file(ofile)
@@ -70,12 +71,13 @@ class TestRFS(lib.ITest):
         ofile = self.file()
         rfs = self.client.sf.createRawFileStore()
         rfs.setFileId(ofile.id.val)
-        rfs.write([0,1,2,3], 0, 4)
+        rfs.write([0, 1, 2, 3], 0, 4)
         ofile = rfs.save()
         self.check_file(ofile)
         rfs.close()
         ofile2 = self.query.get("OriginalFile", ofile.id.val)
-        assert ofile.details.updateEvent.id.val ==  ofile2.details.updateEvent.id.val
+        assert ofile.details.updateEvent.id.val \
+            == ofile2.details.updateEvent.id.val
 
     @pytest.mark.xfail(reason="see ticket 11534")
     def testNoWrite(self):
@@ -128,7 +130,6 @@ class TestRFS(lib.ITest):
         ofile = self.dummy_file(client)
 
         # Synthetically null the size
-        old_size = ofile.size
         ofile.size = None
         client.sf.getUpdateService().saveObject(ofile)
 
@@ -157,4 +158,3 @@ class TestRFS(lib.ITest):
             assert rfs.getFileId() == ofile.id.val
         except:
             rfs.close()
-
