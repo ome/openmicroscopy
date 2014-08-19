@@ -161,6 +161,9 @@
 	<property name="resrc.dest"      value="${generated.dir}/resources"/>
 	<property name="done.dir"        value="${generated.dir}/.done"/>
 
+	<!-- OS name/version/architecture for embedding in release zips -->
+        <property name="platform" value="${os.name}-${os.version}-${os.arch}"/>
+
 	<path id="source.path">
 		<fileset dir="${src.dir}">
 			<include name="**/*.java"/>
