@@ -110,13 +110,13 @@ assertResults(int count, SearchPrx& search, bool exact = true)
     if (count > 0) {
         ASSERT_TRUE( search->hasNext() );
         if (exact) {
-            ASSERT_EQ((unsigned int) count, search->results().size() );
+            ASSERT_EQ(static_cast<unsigned int>(count), search->results().size());
         } else {
-            ASSERT_GE(search->results().size(), (unsigned int)count);
+            ASSERT_GE(search->results().size(), static_cast<unsigned int>(count));
         }
     } else {
         if (search->hasNext()) {
-            ASSERT_EQ((unsigned int)0, search->results().size());
+            ASSERT_EQ(0U, search->results().size());
         }
     }
 }
