@@ -61,6 +61,58 @@ class TileLoop(object):
         """
         raise NotImplementedError()
 
+    def getTileSequence(self, sizeX, sizeY, sizeZ, sizeC, sizeT,
+                    tileWidth, tileHeight):
+
+        """
+        Provides a list of tile coordinates as used by forEachTile()
+        so that the order of tiles can be determined by users of this class.
+        Returns a list of dicts with keys: z, c, t, x, y, w, h.
+
+        :param sizeX: int
+        :param sizeY: int
+        :param sizeZ: int
+        :param sizeC: int
+        :param sizeT: int
+        :param tileWidth: <b>Maximum</b> width of the tile requested.
+        The tile request itself will be smaller than the original tile
+        width requested if <code>x + tileWidth > sizeX</code>.
+        :param tileHeight: <b>Maximum</b> height of the tile requested.
+        The tile request itself will be smaller if
+        <code>y + tileHeight > sizeY</code>.
+        :returns: List of dicts with keys: z, c, t, x, y, w, h.
+        """
+
+
+        tiles = []
+        for t in range(0, sizeT):
+
+            for c in range(0, sizeC):
+
+                for z in range(0, sizeZ):
+
+                    for tileOffsetY in range(
+                            0, ((sizeY + tileHeight - 1) / tileHeight)):
+
+                        for tileOffsetX in range(
+                                0, ((sizeX + tileWidth - 1) / tileWidth)):
+
+                            x = tileOffsetX * tileWidth
+                            y = tileOffsetY * tileHeight
+                            w = tileWidth
+
+                            if (w + x > sizeX):
+                                w = sizeX - x
+
+                            h = tileHeight
+                            if (h + y > sizeY):
+                                h = sizeY - y
+
+                            tiles.append({'z': z, 'c': c, 't': t,
+                                              'x': x, 'y': y, 'w': w, 'h': h,})
+        return tiles
+
+
     def forEachTile(self, sizeX, sizeY, sizeZ, sizeC, sizeT,
                     tileWidth, tileHeight, iteration):
         """
@@ -86,32 +138,13 @@ class TileLoop(object):
 
         try:
             tileCount = 0
-            for t in range(0, sizeT):
+            for t in self.getTileSequence(sizeX, sizeY, sizeZ, sizeC, sizeT,
+                    tileWidth, tileHeight):
 
-                for c in range(0, sizeC):
+                iteration.run(data, t['z'], t['c'], t['t'],
+                        t['x'], t['y'], t['w'], t['h'], tileCount)
+                tileCount += 1
 
-                    for z in range(0, sizeZ):
-
-                        for tileOffsetY in range(
-                                0, ((sizeY + tileHeight - 1) / tileHeight)):
-
-                            for tileOffsetX in range(
-                                    0, ((sizeX + tileWidth - 1) / tileWidth)):
-
-                                x = tileOffsetX * tileWidth
-                                y = tileOffsetY * tileHeight
-                                w = tileWidth
-
-                                if (w + x > sizeX):
-                                    w = sizeX - x
-
-                                h = tileHeight
-                                if (h + y > sizeY):
-                                    h = sizeY - y
-
-                                iteration.run(data, z, c, t,
-                                              x, y, w, h, tileCount)
-                                tileCount += 1
             return tileCount
 
         finally:
