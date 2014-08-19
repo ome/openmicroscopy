@@ -10,7 +10,9 @@
 """
 
 import test.integration.library as lib
-from omero.rtypes import *
+import omero
+
+from omero.rtypes import rstring
 
 
 class TestModel42(lib.ITest):
@@ -82,4 +84,3 @@ class TestTicket2290(lib.ITest):
         rect = omero.model.RectI()
         roi.addShape(rect)
         roi = self.update.saveAndReturnObject(roi)
-
