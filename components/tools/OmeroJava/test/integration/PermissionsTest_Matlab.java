@@ -1,66 +1,25 @@
 package integration;
 
-import omero.RString;
-import omero.rtypes;
-import omero.api.IAdminPrx;
-import omero.cmd.Chgrp;
-import omero.cmd.DoAll;
-import omero.cmd.CmdCallbackI;
-
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
-import omero.grid.Column;
-import omero.grid.LongColumn;
-import omero.grid.TablePrx;
-import omero.model.Channel;
-import omero.model.Dataset;
-import omero.model.DatasetImageLink;
-import omero.model.DatasetImageLinkI;
+import omero.RString;
+import omero.api.IAdminPrx;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
-import omero.model.FileAnnotation;
-import omero.model.FileAnnotationI;
-import omero.model.IObject;
-import omero.model.Image;
-import omero.model.LogicalChannel;
-import omero.model.OriginalFile;
 import omero.model.Permissions;
 import omero.model.PermissionsI;
-import omero.model.Pixels;
-import omero.model.Plate;
-import omero.model.PlateAcquisition;
-import omero.model.PlateAnnotationLink;
-import omero.model.PlateAnnotationLinkI;
-import omero.model.PlateI;
-import omero.model.Project;
-import omero.model.ProjectDatasetLink;
-import omero.model.ProjectDatasetLinkI;
-import omero.model.Reagent;
-import omero.model.Rect;
-import omero.model.RectI;
-import omero.model.Roi;
-import omero.model.RoiAnnotationLink;
-import omero.model.RoiAnnotationLinkI;
-import omero.model.RoiI;
-import omero.model.Screen;
-import omero.model.ScreenPlateLink;
-import omero.model.ScreenPlateLinkI;
-import omero.model.Shape;
-import omero.model.StatsInfo;
-import omero.model.Well;
-import omero.model.WellSample;
-import omero.sys.EventContext;
+
+import org.testng.annotations.Test;
+
+import edu.emory.mathcs.backport.java.util.Arrays;
 
 public class PermissionsTest_Matlab extends AbstractServerTest{
 
 	@SuppressWarnings("unchecked")
-	void Database_Setup () {
+	@Test
+	void Database_Setup () throws Exception{
 		omero.client client = newRootOmeroClient();
 
 		//Permission table lists the types of groups that would be created (two copies of each)
@@ -79,7 +38,7 @@ public class PermissionsTest_Matlab extends AbstractServerTest{
 			{
 				String groupName = perm_type[j] + Integer.toString(i);
 
-				final ExperimenterGroup group = new ExperimenterGroupI();
+				ExperimenterGroup group = new ExperimenterGroupI();
 				group.setName(omero.rtypes.rstring(groupName));
 				final Permissions perms = new PermissionsI(perm_table[j]);
 				group.getDetails().setPermissions(perms);
@@ -122,8 +81,8 @@ public class PermissionsTest_Matlab extends AbstractServerTest{
 			//Add the last 4 users to one group alone
 			else
 			{
-				default_group =  groups1.get(0);
-				target_groups = (List<ExperimenterGroup>) groups2.get(cntr);
+				default_group =  groups1.get(cntr);				
+				target_groups = (List<ExperimenterGroup>) Arrays.asList(new Object[] {groups2.get(cntr)});
 				cntr = cntr+1;
 			}
 			
