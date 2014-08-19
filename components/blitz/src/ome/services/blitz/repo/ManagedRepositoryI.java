@@ -359,7 +359,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
                 final ChecksumProvider fromProvider =
                         checksumProviderFactory.getProvider(ChecksumAlgorithmMapper.getChecksumType(hasher));
                 fromProvider.putFile(osPath);
-                if (!fromProvider.checksumAsString().equals(hash)) {
+                if (!fromProvider.checksumAsString().equalsIgnoreCase(hash)) {
                     mismatchFiles.add(id);
                 }
             }
