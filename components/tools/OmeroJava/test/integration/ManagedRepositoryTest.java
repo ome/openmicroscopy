@@ -763,6 +763,17 @@ public class ManagedRepositoryTest extends AbstractServerTest {
     }
 
     /**
+     * Corrupt the existing checksum of the given file.
+     * @param fileId the original file's ID
+     * @throws ServerError unexpected
+     */
+    private void corruptChecksum(long fileId) throws ServerError {
+        final OriginalFile file = getFile(fileId);
+        file.setHash(omero.rtypes.rstring("corrupted hash"));
+        iUpdate.saveObject(file);
+    }
+
+    /**
      * Assert that the checksum of the given file is as expected.
      * @param fileId the ID of the original file to check
      * @param expectedHasher the expected hasher of the file, may be {@code null}
@@ -900,11 +911,38 @@ public class ManagedRepositoryTest extends AbstractServerTest {
         assertFileChecksum(fileId, md5Algorithm.getValue().getValue(), md5Hash);
 
         /* corrupt the file's old checksum */
-        final OriginalFile file = getFile(fileId);
-        file.setHash(omero.rtypes.rstring("corrupted hash"));
-        iUpdate.saveObject(file);
+        corruptChecksum(fileId);
 
         /* attempt to set the file to its new checksum */
         repo.setChecksumAlgorithm(murmur128Algorithm, ImmutableList.of(fileId));
+    }
+
+    /**
+     * Test that bad file checksums are correctly reported.
+     * @throws ServerError unexpected
+     */
+    public void testVerifyChecksums() throws ServerError {
+        /* upload the files */
+        final long fileId1 = uploadSampleFile();
+        final long fileId2 = uploadSampleFile();
+        final long fileId3 = uploadSampleFile();
+        final long fileId4 = uploadSampleFile();
+        final List<Long> fileIds = ImmutableList.of(fileId1, fileId2, fileId3, fileId4);
+
+        /* set the files' checksum */
+        final ChecksumAlgorithm shaAlgorithm = ChecksumAlgorithmMapper.getChecksumAlgorithm("SHA1-160");
+        final List<Long> changedIds = repo.setChecksumAlgorithm(shaAlgorithm, fileIds);
+        Assert.assertEquals(changedIds.size(), fileIds.size(), "expected to have changed the files' checksum");
+
+        /* corrupt some files' checksums */
+        final List<Long> corruptedFileIds = ImmutableList.of(fileId2, fileId3);
+        for (final long corruptedFileId : corruptedFileIds) {
+            corruptChecksum(corruptedFileId);
+        }
+
+        /* check that only the expected files have a bad checksum */
+        final List<Long> failedVerificationIds = repo.verifyChecksums(fileIds);
+        Assert.assertEqualsNoOrder(failedVerificationIds.toArray(), corruptedFileIds.toArray(),
+                "expected the exactly corrupted files to fail checksum verification");
     }
 }
