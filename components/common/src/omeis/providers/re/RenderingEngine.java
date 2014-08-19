@@ -535,7 +535,7 @@ public interface RenderingEngine extends StatefulServiceInterface {
      * @param save Pass <code>true</code> to save the settings,
      *             <code>false</code> otherwise.
      */
-    public long resetDefaultsSettings(boolean save);
+    public long resetDefaultSettings(boolean save);
 
 	/**
 	 * Sets the current compression level for the service. (The default is 85%)

@@ -77,7 +77,7 @@ div.weblitz-viewport-tiles img {
 
 .vslider { 
   position: absolute;
-  width: 10px;
+  width: 13px;
   height: 100%;
   display: block;
   top: 0px;
@@ -86,7 +86,7 @@ div.weblitz-viewport-tiles img {
 
 .hslider { 
   position: relative;
-  height: 10px;
+  height: 13px;
   /*bottom: -3px;*/
   display: block;
   font-size: 0.1em;
@@ -103,11 +103,6 @@ div.weblitz-viewport-tiles img {
   font-size: 0.1em;
   left: -1px; 
   top: -1px;
-}
-
-.vslider .slider-line {
-  width: 8px;
-  _width: 100%;
 }
 
 .draggable {
