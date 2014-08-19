@@ -193,6 +193,71 @@ public class DiskUsageI extends DiskUsage implements IRequest {
         ANNOTATABLE_OBJECTS = builder.build();
     }
 
+    /* USAGE STATISTICS TRACKING */
+
+    /**
+     * Track the disk usage subtotals and totals. Not thread-safe.
+     * @author m.t.b.carroll@dundee.ac.uk
+     * @since 5.1
+     */
+    private static class Usage {
+        private final Map<String, Integer> countByType = new HashMap<String, Integer>();
+        private final Map<String, Long> sizeByType = new HashMap<String, Long>();
+
+        private int totalCount = 0;
+        private long totalSize = 0;
+
+        private boolean bumpTotals = false;
+
+        /**
+         * The next call to {@link #add(String, Long)} may bump {@link #totalCount} and {@link #totalSize}.
+         * @return this instance, for method chaining
+         */
+        Usage bumpTotals() {
+            bumpTotals = true;
+            return this;
+        }
+
+        /**
+         * Adjust counts and sizes according to given type and size.
+         * Does not adjust anything unless {@code size > 0}.
+         * @see #bumpTotals()
+         * @param type a type
+         * @param size a size
+         */
+        void add(String type, Long size) {
+            if (size <= 0) {
+                bumpTotals = false;
+                return;
+            }
+            Long sizeThisType = sizeByType.get(type);
+            if (sizeThisType == null) {
+                countByType.put(type, Integer.valueOf(1));
+                sizeByType.put(type, size);
+            } else {
+                countByType.put(type, countByType.get(type) + 1);
+                sizeByType.put(type, sizeThisType + size);
+            }
+            if (bumpTotals) {
+                totalCount++;
+                totalSize += size;
+                bumpTotals = false;
+            }
+        }
+
+        /**
+         * @return a disk usage response corresponding to the current usage
+         */
+        public DiskUsageResponse getDiskUsageResponse() {
+            return new DiskUsageResponse(countByType, sizeByType, totalCount, totalSize);
+        }
+
+        @Override
+        public String toString() {
+            return "files = " + totalCount + ", bytes = " + totalSize;
+        }
+    }
+
     /* CMD REQUEST FRAMEWORK */
 
     @Override
@@ -249,25 +314,6 @@ public class DiskUsageI extends DiskUsage implements IRequest {
     }
 
     /**
-     * Add given size to given type in size-by-type totals. Does not add to map unless {@code fileSize > 0}.
-     * @param sizeByType sizes by types
-     * @param type a type
-     * @param size a size
-     */
-    private static void addToSizeByType(Map<String, Long> sizeByType, String type, Long size) {
-        if (size <= 0) {
-            return;
-        }
-        Long sizeThisType = sizeByType.get(type);
-        if (sizeThisType == null) {
-            sizeThisType = size;
-        } else {
-            sizeThisType += size;
-        }
-        sizeByType.put(type, sizeThisType);
-    }
-
-    /**
      * Calculate the disk usage of the model objects specified in the request.
      * @return the total usage, in bytes
      */
@@ -278,14 +324,12 @@ public class DiskUsageI extends DiskUsage implements IRequest {
 
         final SetMultimap<String, Long> objectsToProcess = HashMultimap.create();
         final SetMultimap<String, Long> objectsProcessed = HashMultimap.create();
-        long size = 0;
+        final Usage usage = new Usage();
 
         /* original file ID to types that refer to them */
         final SetMultimap<Long, String> typesWithFiles = HashMultimap.create();
         /* original file ID to file size */
         final Map<Long, Long> fileSizes = new HashMap<Long, Long>();
-        /* total disk usage in bytes broken down by type of referring object */
-        final Map<String, Long> sizeByType = new HashMap<String, Long>();
 
         /* note the objects to process */
 
@@ -326,17 +370,14 @@ public class DiskUsageI extends DiskUsage implements IRequest {
                 /* Pixels may have /OMERO/Pixels/<id> files */
                 for (final Long id : idsToQuery) {
                     final String pixelsPath = pixelsService.getPixelsPath(id);
-                    final Long fileSize = getFileSize(pixelsPath) + getFileSize(pixelsPath + PixelsService.PYRAMID_SUFFIX);
-                    size += fileSize;
-                    addToSizeByType(sizeByType, className, fileSize);
+                    usage.bumpTotals().add(className, getFileSize(pixelsPath));
+                    usage.bumpTotals().add(className, getFileSize(pixelsPath + PixelsService.PYRAMID_SUFFIX));
                 }
             } else if ("Thumbnail".equals(className)) {
                 /* Thumbnails may have /OMERO/Thumbnails/<id> files */
                 for (final Long id : idsToQuery) {
                     final String thumbnailPath = thumbnailService.getThumbnailPath(id);
-                    final Long fileSize = getFileSize(thumbnailPath);
-                    size += fileSize;
-                    addToSizeByType(sizeByType, className, fileSize);
+                    usage.bumpTotals().add(className, getFileSize(thumbnailPath));
                 }
             } else if ("OriginalFile".equals(className)) {
                 /* OriginalFiles have their size noted */
@@ -345,7 +386,6 @@ public class DiskUsageI extends DiskUsage implements IRequest {
                     if (resultRow != null && resultRow[1] instanceof Long) {
                         final Long fileId   = (Long) resultRow[0];
                         final Long fileSize = (Long) resultRow[1];
-                        size += fileSize;
                         fileSizes.put(fileId, fileSize);
                     }
                 }
@@ -391,15 +431,15 @@ public class DiskUsageI extends DiskUsage implements IRequest {
 
             if (LOGGER.isDebugEnabled()) {
                 Collections.sort(idsToQuery);
-                LOGGER.debug("size is " + size + " bytes after processing " + className + " " + Joiner.on(", ").join(idsToQuery));
+                LOGGER.debug("usage is " + usage + " after processing " + className + " " + Joiner.on(", ").join(idsToQuery));
             }
         }
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("final size is " + size + " bytes");
+            LOGGER.debug("final usage is " + usage);
         }
 
-        /* collate file sizes by referer type */
+        /* collate file counts and sizes by referer type */
         for (final Map.Entry<Long, Long> fileIdSize : fileSizes.entrySet()) {
             final Long fileId = fileIdSize.getKey();
             final Long fileSize = fileIdSize.getValue();
@@ -407,11 +447,12 @@ public class DiskUsageI extends DiskUsage implements IRequest {
             if (types.isEmpty()) {
                 types = ImmutableSet.of("OriginalFile");
             }
+            usage.bumpTotals();
             for (final String type : types) {
-                addToSizeByType(sizeByType, type, fileSize);
+                usage.add(type, fileSize);
             }
         }
 
-        return new DiskUsageResponse(sizeByType, size);
+        return usage.getDiskUsageResponse();
     }
 }
