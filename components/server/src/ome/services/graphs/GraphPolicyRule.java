@@ -49,7 +49,7 @@ import com.google.common.collect.ImmutableSet;
  * A graph policy rule specifies a component of a {@link GraphPolicy}.
  * It is designed to be conveniently created using Spring by supplying configuration metadata to the bean container.
  * @author m.t.b.carroll@dundee.ac.uk
- * @since 5.0.x TODO
+ * @since 5.1.0
  */
 public class GraphPolicyRule {
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphPolicyRule.class);
@@ -84,7 +84,7 @@ public class GraphPolicyRule {
     /**
      * Matches model object instances term on either side of a link among objects.
      * @author m.t.b.carroll@dundee.ac.uk
-     * @since 5.0.x TODO
+     * @since 5.1.0
      */
     private static interface TermMatch {
         /**
@@ -183,7 +183,7 @@ public class GraphPolicyRule {
     /**
      * Matches relationships between a pair of linked model object instance terms.
      * @author m.t.b.carroll@dundee.ac.uk
-     * @since 5.0.x TODO
+     * @since 5.1.0
      */
     private static class RelationshipMatch {
         private final TermMatch leftTerm;
@@ -232,7 +232,7 @@ public class GraphPolicyRule {
     /**
      * A change to effect if a rule's matchers match.
      * @author m.t.b.carroll@dundee.ac.uk
-     * @since 5.0.x TODO
+     * @since 5.1.0
      */
     private static class Change {
         private final String namedTerm;
@@ -275,7 +275,7 @@ public class GraphPolicyRule {
     /**
      * A policy rule with matchers and changes that can now be applied having been parsed from the text-based configuration.
      * @author m.t.b.carroll@dundee.ac.uk
-     * @since 5.0.x TODO
+     * @since 5.1.0
      */
     private static class ParsedPolicyRule {
         final String asString;

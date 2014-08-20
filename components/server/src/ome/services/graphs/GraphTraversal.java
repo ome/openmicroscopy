@@ -57,7 +57,7 @@ import ome.services.graphs.GraphPolicy.Orphan;
 /**
  * An experimental re-implementation of graph traversal functionality.
  * @author m.t.b.carroll@dundee.ac.uk
- * @since 5.0.x TODO
+ * @since 5.1.0
  */
 public class GraphTraversal {
 
@@ -69,7 +69,7 @@ public class GraphTraversal {
     /**
      * A tuple noting the state of a mapped object instance in the current graph traversal.
      * @author m.t.b.carroll@dundee.ac.uk
-     * @since 5.0.x TODO
+     * @since 5.1.0
      */
     private static final class DetailsWithCI extends Details {
         /* more useful than IObject for equals and hashCode */
@@ -117,7 +117,7 @@ public class GraphTraversal {
      * An immutable tuple of class name, instance ID.
      * Within this class, equality and hash code is determined wholly by these values.
      * @author m.t.b.carroll@dundee.ac.uk
-     * @since 5.0.x TODO
+     * @since 5.1.0
      */
     private static final class CI {
         final String className;
@@ -185,7 +185,7 @@ public class GraphTraversal {
      * An immutable tuple of class name, property name.
      * Within this class, equality and hash code is determined wholly by these values.
      * @author m.t.b.carroll@dundee.ac.uk
-     * @since 5.0.x TODO
+     * @since 5.1.0
      */
     private static final class CP {
         final String className;
@@ -238,7 +238,7 @@ public class GraphTraversal {
      * An immutable tuple of class name, property name, instance ID.
      * Within this class, equality and hash code is determined wholly by these values.
      * @author m.t.b.carroll@dundee.ac.uk
-     * @since 5.0.x TODO
+     * @since 5.1.0
      */
     private static final class CPI {
         final String className;
@@ -321,7 +321,7 @@ public class GraphTraversal {
      *   <li>{@link #queue} contains exactly the instances that are in {@link #included} or {@link #deleted}.</li>
      * </ol>
      * @author m.t.b.carroll@dundee.ac.uk
-     * @since 5.0.x TODO
+     * @since 5.1.0
      */
     private static class Planning {
         /* process state */
@@ -344,7 +344,7 @@ public class GraphTraversal {
     /**
      * Executes the planned operation.
      * @author m.t.b.carroll@dundee.ac.uk
-     * @since 5.0.x TODO
+     * @since 5.1.0
      */
     public interface Processor {
 

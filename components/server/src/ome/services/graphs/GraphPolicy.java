@@ -27,14 +27,14 @@ import ome.model.IObject;
 /**
  * A policy guides how to traverse the graph. This class' methods are expected to be fast.
  * @author m.t.b.carroll@dundee.ac.uk
- * @since 5.0.x TODO
+ * @since 5.1.0
  */
 public abstract class GraphPolicy {
 
     /**
      * The action to take on an object instance.
      * @author m.t.b.carroll@dundee.ac.uk
-     * @since 5.0.x TODO
+     * @since 5.1.0
      */
     public static enum Action {
         /** do not include the object in the operation */
@@ -50,7 +50,7 @@ public abstract class GraphPolicy {
     /**
      * If an object instance has any {@link Action#EXCLUDE}d <q>parents</q> that would prevent it from being <q>orphaned</q>.
      * @author m.t.b.carroll@dundee.ac.uk
-     * @since 5.0.x TODO
+     * @since 5.1.0
      */
     public static enum Orphan {
         /** it is not known and it does not matter if the object is an orphan: effort should not yet be made to find out */
@@ -66,7 +66,7 @@ public abstract class GraphPolicy {
     /**
      * A tuple noting the state of a mapped object instance in the current graph traversal.
      * @author m.t.b.carroll@dundee.ac.uk
-     * @since 5.0.x TODO
+     * @since 5.1.0
      */
     public static abstract class Details {
         /** the unloaded instance */

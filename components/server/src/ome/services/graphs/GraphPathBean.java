@@ -58,7 +58,7 @@ import ome.tools.spring.OnContextRefreshedEventListener;
 /**
  * The graph path bean holds the Hiberate object mapping and assists navigation thereof.
  * @author m.t.b.carroll@dundee.ac.uk
- * @since 5.0.x TODO
+ * @since 5.1.0
  */
 public class GraphPathBean extends OnContextRefreshedEventListener {
 
@@ -67,14 +67,14 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
     /**
      * How entities may be <q>unlinked</q> from the value of a property.
      * @author m.t.b.carroll@dundee.ac.uk
-     * @since 5.0.x TODO
+     * @since 5.1.0
      */
     static enum PropertyKind { OPTIONAL, REQUIRED, COLLECTION };
 
     /**
      * A tuple used in initialization to note mapping object properties for processing.
      * @author m.t.b.carroll@dundee.ac.uk
-     * @since 5.0.x TODO
+     * @since 5.1.0
      */
     private static class PropertyDetails {
         final String holder;
