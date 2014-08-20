@@ -1176,10 +1176,10 @@
             </a><br />
           </div>
           <div class="odd row">
-             <button class="btn prev_next_image prev" title="Previous Image">
+             <button class="btn prev_next_image prev" title="Previous Image" disabled="disabled">
                 <span>< Prev</span>
             </button>
-            <button class="btn prev_next_image next" title="Next Image">
+            <button class="btn prev_next_image next" title="Next Image" disabled="disabled">
                 <span>Next ></span>
             </button>
           </div>
@@ -1447,16 +1447,25 @@
     });
 
 
+    var $currentImg = window.opener.$("#image_icon-{{ image.id }}")
+    var prevImgId = $currentImg.prevAll(":visible").first().find("img").attr('id');
+    var nextImgId = $currentImg.nextAll(":visible").first().find("img").attr('id');
+
+    if (prevImgId) {
+      $(".btn.prev_next_image.prev").removeAttr('disabled');
+    }
+    if (nextImgId) {
+      $(".btn.prev_next_image.next").removeAttr('disabled');
+    }
+
     function nextPrevImage(direction) {
-      var $current = window.opener.$("#image_icon-{{ image.id }}")
+      var id;
 
       if( direction == -1 ) {
-        $li = $current.prevAll(":visible").first();
+        id = prevImgId;
       } else {
-        $li = $current.nextAll(":visible").first();
+        id = nextImgId
       }
-
-      var id = $li.find("img").attr('id')
 
       if( id ) {
         window.location.href = "{{ viewport_server }}/img_detail/" + id
