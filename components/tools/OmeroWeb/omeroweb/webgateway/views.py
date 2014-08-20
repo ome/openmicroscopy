@@ -476,7 +476,6 @@ def get_shape_thumbnail (request, conn, image, s, compress_quality):
         bBox = (shape['x']-50, shape['y']-50, 100, 100)
     else:
         logger.debug("Shape type not supported: %s" % str(type(s)))
-    #print shape
 
     # we want to render a region larger than the bounding box
     x,y,w,h = bBox
@@ -1866,11 +1865,18 @@ def archived_files(request, iid=None, conn=None, **kwargs):
     else:
         import tempfile
         temp = tempfile.NamedTemporaryFile(suffix='.archive')
+        zipName = request.REQUEST.get('zipname', image.getName())
+        if not zipName.endswith('.zip'):
+            zipName = "%s.zip" % zipName
         try:
             temp_zip_dir = tempfile.mkdtemp()
             logger.debug("download dir: %s" % temp_zip_dir)
             try:
                 for a in files:
+                    # Need to be sure that the zip name does not match any file within it
+                    # since OS X will unzip as a single file instead of a directory
+                    if zipName == "%s.zip" % a.name:
+                        zipName = "%s_folder.zip" % a.name
                     temp_f = os.path.join(temp_zip_dir, a.name)
                     f = open(str(temp_f),"wb")
                     try:
@@ -1890,11 +1896,6 @@ def archived_files(request, iid=None, conn=None, **kwargs):
                     # delete temp dir
             finally:
                 shutil.rmtree(temp_zip_dir, ignore_errors=True)
-
-            zipName = request.REQUEST.get('zipname', image.getName())
-            zipName = zipName.replace(" ","_").replace(",", ".")        # ',' in name causes duplicate headers
-            if not zipName.endswith('.zip'):
-                zipName = "%s.zip" % zipName
 
             # return the zip or single file
             archivedFile_data = FileWrapper(temp)
