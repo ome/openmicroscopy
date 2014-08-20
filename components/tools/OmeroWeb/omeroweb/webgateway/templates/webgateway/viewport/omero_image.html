@@ -1177,10 +1177,10 @@
           </div>
           <div class="odd row">
              <button class="btn prev_next_image prev" title="Previous Image">
-                <span>Prev Image</span>
+                <span>< Prev</span>
             </button>
             <button class="btn prev_next_image next" title="Next Image">
-                <span>Next Image</span>
+                <span>Next ></span>
             </button>
           </div>
 {% block roi_buttons %}
@@ -1463,6 +1463,7 @@
       }
     }
 
+    // Prev / Next keys
     $(document).keydown(function(e) {
 
         // ignore keystrokes on other inputs, sliders etc.
@@ -1470,11 +1471,11 @@
 
         switch(e.which) {
             case 37: // left
-                 nextPrevImage(-1)
+                 nextPrevImage(-1);
             break;
 
             case 39: // right
-                nextPrevImage(1)
+                nextPrevImage(1);
             break;
 
             default: return;
@@ -1484,11 +1485,11 @@
 
     $(".btn.prev_next_image").click(function(){
         if ( $(this).hasClass('prev') ){
-            nextPrevImage(-1)
+            nextPrevImage(-1);
         } else {
-            nextPrevImage(1)
+            nextPrevImage(1);
         }
-    })
+    });
     
     // we can bind events to viewportimg for roi_display-plugin to trigger (plugin not created yet)
     viewport.viewportimg.bind("shape_click", handle_shape_selection);
