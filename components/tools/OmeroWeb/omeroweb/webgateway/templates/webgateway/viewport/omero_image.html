@@ -1447,10 +1447,27 @@
     });
 
 
-    var $currentImg = window.opener.$("#image_icon-{{ image.id }}")
-    var prevImgId = $currentImg.prevAll(":visible").first().find("img").attr('id');
-    var nextImgId = $currentImg.nextAll(":visible").first().find("img").attr('id');
+    // Check the Parent window for Previous / Next images...
+    var $currentImg = window.opener.$("#image_icon-{{ image.id }}"),
+        prevImgId, nextImgId;
+    if ($currentImg.length === 1) {
+      // Main thumbnails window
+      var prevImgId = $currentImg.prevAll(":visible").first().find("img").attr('id');
+      var nextImgId = $currentImg.nextAll(":visible").first().find("img").attr('id');
+    } else if ($currentImg.length === 0) {
+      // if not found, try "Search" results page layout
+      $currentImg = window.opener.$("#image-{{ image.id }}");
+      prevImgId = prevImgId || $currentImg.prevAll(":visible").first().attr('id');  // E.g: image-123
+      if (prevImgId) {
+        prevImgId = prevImgId.split('image-')[1];     // will be undefined if E.g: 'dataset-123'
+      }
+      nextImgId = nextImgId || $currentImg.nextAll(":visible").first().attr('id');
+      if (nextImgId) {
+        nextImgId = nextImgId.split('image-')[1];
+      }
+    }
 
+    // Enable Prev / Next buttons if available (disabled by default)
     if (prevImgId) {
       $(".btn.prev_next_image.prev").removeAttr('disabled');
     }
@@ -1458,15 +1475,14 @@
       $(".btn.prev_next_image.next").removeAttr('disabled');
     }
 
+    // Handle Prev / Next button clicks or keys
     function nextPrevImage(direction) {
       var id;
-
       if( direction == -1 ) {
         id = prevImgId;
       } else {
         id = nextImgId
       }
-
       if( id ) {
         window.location.href = "{{ viewport_server }}/img_detail/" + id
       }
