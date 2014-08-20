@@ -121,7 +121,7 @@ public class LoggingImportMonitor implements IObserver
             importedImages += event.pixels.size();
             createdFilesets++;
             for (IObject object : event.objects) {
-                if (object.getClass().getSimpleName().equals(PLATE_CLASS)) {
+                if (PLATE_CLASS.equals(object.getClass().getSimpleName())) {
                     createdPlates++;
                 }
             }
