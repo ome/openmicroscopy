@@ -296,6 +296,7 @@ public class CommandLineImporter {
             + "  -r SCREEN_ID\t\t\t\tOMERO screen ID to import plate into\n"
 
             + "  --report\t\t\t\tReport errors to the OME team\n"
+            + "  --summary\t\t\t\tPrint overall import summary\n"
             + "  --upload\t\t\t\tUpload broken files with report\n"
             + "  --logs\t\t\t\tUpload log file with report\n"
             + "  --email EMAIL\t\t\t\tEmail for reported errors\n"
@@ -431,6 +432,7 @@ public class CommandLineImporter {
         LongOpt debug = new LongOpt(
                 "debug", LongOpt.OPTIONAL_ARGUMENT, null, 1);
         LongOpt report = new LongOpt("report", LongOpt.NO_ARGUMENT, null, 2);
+        LongOpt summary = new LongOpt("summary", LongOpt.NO_ARGUMENT, null, 22);
         LongOpt upload = new LongOpt("upload", LongOpt.NO_ARGUMENT, null, 3);
         LongOpt logs = new LongOpt("logs", LongOpt.NO_ARGUMENT, null, 4);
         LongOpt email = new LongOpt(
@@ -475,7 +477,7 @@ public class CommandLineImporter {
                 "plate_description", LongOpt.REQUIRED_ARGUMENT, null, 21);
 
         Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:h",
-                new LongOpt[] { debug, report, upload, logs, email,
+                new LongOpt[] { debug, summary, report, upload, logs, email,
                                 name, description, noThumbnails,
                                 agent, annotationNamespace, annotationText,
                                 annotationLink, transferOpt, advancedHelp,
@@ -557,6 +559,10 @@ public class CommandLineImporter {
             }
             case 13: {
                 advUsage();
+                break;
+            }
+            case 22: {
+                config.summary.set(true);
                 break;
             }
             // ADVANCED START -------------------------------------------------
