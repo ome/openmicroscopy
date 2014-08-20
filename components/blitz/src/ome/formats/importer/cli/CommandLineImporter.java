@@ -41,6 +41,7 @@ import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.Screen;
 
+import org.apache.commons.lang.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +57,9 @@ public class CommandLineImporter {
 
     /** Logger for this class. */
     private static Logger log = LoggerFactory.getLogger(CommandLineImporter.class);
+
+    /** StopWatch instance **/
+    private final StopWatch sw = new StopWatch();
 
     /** Name that will be used for usage() */
     private static final String APP_NAME = "importer-cli";
@@ -210,11 +214,11 @@ public class CommandLineImporter {
         }
 
         else {
+            sw.start();
             library.addObserver(new LoggingImportMonitor());
             // error handler has been configured in constructor from main args
             library.addObserver(this.handler);
             successful = library.importCandidates(config, candidates);
-            report();
             try {
                 List<String> paths = new ArrayList<String>();
                 for (ImportContainer ic : candidates.getContainers()) {
@@ -231,6 +235,9 @@ public class CommandLineImporter {
             } catch (CleanupFailure e) {
                 log.error("Failed to cleanup {} files", e.getFailedFiles().size());
                 return 3;
+            } finally {
+                sw.stop();
+                report();
             }
         }
 
@@ -242,8 +249,12 @@ public class CommandLineImporter {
         boolean report = config.sendReport.get();
         boolean files = config.sendFiles.get();
         boolean logs = config.sendLogFile.get();
+        boolean summary = config.summary.get();
         if (report) {
-           handler.update(null, new ImportEvent.DEBUG_SEND(files, logs));
+            handler.update(null, new ImportEvent.DEBUG_SEND(files, logs));
+        } else if (summary) {
+            library.notifyObservers(new ImportEvent.IMPORT_SUMMARY(
+                    sw.getTime(), handler.errorCount()));
         }
     }
 
