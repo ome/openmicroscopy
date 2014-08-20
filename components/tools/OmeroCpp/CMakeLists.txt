@@ -42,7 +42,7 @@ include_directories(src gen)
 include_directories("${PROJECT_SOURCE_DIR}/components/blitz/generated"
                     "${CMAKE_CURRENT_SOURCE_DIR}/src"
                     "${CMAKE_CURRENT_BINARY_DIR}/${GEN_DIR}"
-                    "${ICE_INCLUDE_DIR}")
+                    "${Ice_INCLUDE_DIRS}")
 
 option(debug-ice-generation "Dump results of generated Ice source globbing" OFF)
 
@@ -148,9 +148,9 @@ if(OMERO_CLIENT_GENERATED_SOURCES)
 endif(OMERO_CLIENT_GENERATED_SOURCES)
 
 list(APPEND SLICEOPTS "-I${PROJECT_SOURCE_DIR}/components/blitz/generated" "-I${PROJECT_SOURCE_DIR}/components/blitz/resources")
-if(ICE_SLICE_DIR)
-  list(APPEND SLICEOPTS "-I${ICE_SLICE_DIR}")
-endif(ICE_SLICE_DIR)
+foreach(slicedir ${Ice_SLICE_DIRS})
+  list(APPEND SLICEOPTS "-I${slicedir}")
+endforeach(slicedir)
 if(WIN32)
   list(APPEND SLICEOPTS --dll-export OMERO_API)
 endif(WIN32)
@@ -180,7 +180,7 @@ function(icegen in outsrc outhdr)
         OUTPUT ${GEN_DIR}/${ICECPP} ${GEN_DIR}/${ICEHPP}
         WORKING_DIRECTORY gen
         COMMAND ${CMAKE_COMMAND} -E make_directory "${ICE_PATH}"
-        COMMAND "${SLICE2CPP_EXECUTABLE}" ${SLICEOPTS} ${incdir} "--output-dir=${ICE_PATH}" "${PROJECT_SOURCE_DIR}/${icesrc}"
+        COMMAND "${Ice_SLICE2CPP_EXECUTABLE}" ${SLICEOPTS} ${incdir} "--output-dir=${ICE_PATH}" "${PROJECT_SOURCE_DIR}/${icesrc}"
         DEPENDS "${PROJECT_SOURCE_DIR}/${icesrc}")
       install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${GEN_DIR}/${ICEHPP}
               DESTINATION "${CMAKE_INSTALL_FULL_INCLUDEDIR}/${ICE_PATH}")
@@ -342,10 +342,7 @@ add_library(omero-client SHARED
             ${OMERO_MODEL_HEADERS} ${OMERO_MODEL_SOURCES}
             ${OMERO_API_HEADERS} ${OMERO_API_SOURCES}
             ${OMERO_CLIENT_HEADERS} ${OMERO_CLIENT_SOURCES})
-target_link_libraries(omero-client
-                      "${ICE_LIBRARY}"
-                      "${ICEUTIL_LIBRARY}"
-                      "${GLACIER2_LIBRARY}")
+target_link_libraries(omero-client ${Ice_LIBRARIES})
 set_target_properties(omero-client PROPERTIES
                       VERSION ${OME_VERSION_SHORT})
 
