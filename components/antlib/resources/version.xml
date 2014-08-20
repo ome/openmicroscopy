@@ -21,12 +21,15 @@
         omero.plainversion      e.g. 5.0.0-SNAPSHOT
         omero.shortversion      e.g. 5.0.0
 
+        omero.vcs.revision      git commit hash
+        omero.vcs.date          git commit date
+
         The omero.v namespace is for properties internal to this build file
         and should not be modified.
     </description>
 
-    <property name="gitmatch" value="v.[0-9]*.[0-9]*.[0-9]*"/>
-    <property name="omero.v.regexp" value="^(v.)?(.*?)(-[0-9]+)?((-)g(.*?))?$"/>
+    <property name="gitmatch" value="v*[0-9]*.[0-9]*.[0-9]*"/>
+    <property name="omero.v.regexp" value="^(v\.?)?(.*?)(-[0-9]+)?((-)g(.*?))?$"/>
 
     <!-- Unset from etc/local.properties -->
     <if>
@@ -54,6 +57,8 @@
             <omero_v_was_preset property="omero.version"/>
             <omero_v_was_preset property="omero.plainversion"/>
             <omero_v_was_preset property="omero.shortversion"/>
+            <omero_v_was_preset property="omero.vcs.revision"/>
+            <omero_v_was_preset property="omero.vcs.date"/>
 
             <!-- *OR* they'll be set by git -->
             <git command="describe" output="omero.v.git" failonerror="true">
@@ -63,6 +68,7 @@
                     <arg line="--dirty"/>
                 </args>
             </git>
+
             <propertyregex property="omero.shortversion"
                 input="${omero.v.git}" regexp="${omero.v.regexp}" select="\2"/>
             <propertyregex property="omero.plainversion"
@@ -77,11 +83,29 @@
             <property name="omero.version.source" value="git"/>
             <property name="omero.plainversion.source" value="git"/>
             <property name="omero.shortversion.source" value="git"/>
+            <git command="log" output="omero.vcs.revision" failonerror="true">
+              <args>
+                <arg value="-1"/>
+                <arg value="HEAD"/>
+                <arg value="--pretty=%h"/>
+              </args>
+            </git>
+            <git command="log" output="omero.vcs.date" failonerror="true">
+              <args>
+                <arg value="-1"/>
+                <arg value="${omero.vcs.revision}"/>
+                <arg value="--pretty=%ai"/>
+              </args>
+            </git>
+            <property name="omero.vcs.revision.source" value="git"/>
+            <property name="omero.vcs.date.source" value="git"/>
         </try>
         <catch>
             <!-- *OR* we'll finally fall back to UNKNOWN -->
             <property name="omero.plainversion" value="UNKNOWN"/>
             <property name="omero.shortversion" value="UNKNOWN"/>
+            <property name="omero.vcs.revision" value="UNKNOWN"/>
+            <property name="omero.vcs.date" value="UNKNOWN"/>
 
             <!-- And compose omero.version from those -->
             <property name="omero.version" value="${omero.plainversion}-ice${versions.ice_lib}"/>
@@ -89,6 +113,8 @@
             <property name="omero.plainversion.source" value="ant"/>
             <property name="omero.shortversion.source" value="ant"/>
             <property name="omero.version.source" value="ant"/>
+            <property name="omero.vcs.revision.source" value="ant"/>
+            <property name="omero.vcs.date.source" value="ant"/>
         </catch>
     </trycatch>
 
@@ -97,6 +123,8 @@
         <echo>Official:               ${omero.version} (${omero.version.source})</echo>
         <echo>Plain:                  ${omero.plainversion} (${omero.plainversion.source})</echo>
         <echo>Short:                  ${omero.shortversion} (${omero.shortversion.source})</echo>
+        <echo>Git revision:           ${omero.vcs.revision} (${omero.vcs.revision.source})</echo>
+        <echo>Git revision date:      ${omero.vcs.date} (${omero.vcs.date.source})</echo>
     </target>
 
 </project>
