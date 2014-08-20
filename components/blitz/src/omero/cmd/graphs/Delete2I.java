@@ -43,7 +43,7 @@ import omero.util.IceMapper;
 /**
  * An experimental Delete for exercising the {@link ome.services.graphs.GraphPathBean} from clients.
  * @author m.t.b.carroll@dundee.ac.uk
- * @since 5.0.x TODO
+ * @since 5.1.0
  */
 public class Delete2I extends Delete2 implements IRequest {
 
@@ -126,7 +126,7 @@ public class Delete2I extends Delete2 implements IRequest {
     /**
      * A <q>delete</q> processor that deletes model objects.
      * @author m.t.b.carroll@dundee.ac.uk
-     * @since 5.0.x TODO
+     * @since 5.1.0
      */
     private final class InternalProcessor extends BaseGraphTraversalProcessor {
 

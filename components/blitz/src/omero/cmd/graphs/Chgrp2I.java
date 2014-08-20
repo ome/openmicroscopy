@@ -44,7 +44,7 @@ import omero.util.IceMapper;
 /**
  * An experimental Chgrp for exercising the {@link ome.services.graphs.GraphPathBean} from clients.
  * @author m.t.b.carroll@dundee.ac.uk
- * @since 5.0.x TODO
+ * @since 5.1.0
  */
 public class Chgrp2I extends Chgrp2 implements IRequest {
 
@@ -127,7 +127,7 @@ public class Chgrp2I extends Chgrp2 implements IRequest {
     /**
      * A <q>chgrp</q> processor that updates model objects' group.
      * @author m.t.b.carroll@dundee.ac.uk
-     * @since 5.0.x TODO
+     * @since 5.1.0
      */
     private final class InternalProcessor extends BaseGraphTraversalProcessor {
 

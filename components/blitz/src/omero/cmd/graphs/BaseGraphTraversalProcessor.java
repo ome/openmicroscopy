@@ -39,7 +39,7 @@ import ome.services.graphs.GraphTraversal;
 /**
  * Useful methods for {@link GraphTraversal.Processor} instances to share.
  * @author m.t.b.carroll@dundee.ac.uk
- * @since 5.0.x TODO
+ * @since 5.1.0
  */
 public abstract class BaseGraphTraversalProcessor implements GraphTraversal.Processor {
     protected final Session session;

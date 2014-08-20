@@ -33,7 +33,7 @@ import omero.cmd.Request;
 /**
  * Create request objects that are executed using the {@link ome.services.graphs.GraphPathBean}.
  * @author m.t.b.carroll@dundee.ac.uk
- * @since 5.0.x TODO
+ * @since 5.1.0
  */
 public class GraphRequestFactory {
     private final GraphPathBean graphPathBean;
