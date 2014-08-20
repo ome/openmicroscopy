@@ -444,8 +444,8 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     </target>
 
     <target name="release-cpp" depends="build-cpp" description="Package built C++ library, headers and examples">
-        <zip destfile="${omero.home}//target/OMERO.cpp-${omero.version}-${os.name}-${os.version}-${os.arch}.zip">
-            <zipfileset dir="${target.dir}/OMERO.cpp-${omero.version}-${os.name}-${os.version}-${os.arch}" prefix="/target/OMERO.cpp-${omero.version}-${os.name}-${os.version}-${os.arch}"/>
+        <zip destfile="${omero.home}//target/OMERO.cpp-${omero.version}-${platform}.zip">
+            <zipfileset dir="${target.dir}/OMERO.cpp-${omero.version}-${platform}" prefix="/target/OMERO.cpp-${omero.version}-${platform}"/>
         </zip>
     </target>
 
