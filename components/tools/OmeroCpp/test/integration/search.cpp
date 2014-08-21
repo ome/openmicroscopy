@@ -104,21 +104,28 @@ public:
 /*
  * Clears one result from the current queue.
  */
-#define assertResults(count, search) _assertResults(count, search, true)
-#define assertAtLeastResults(count, search) _assertResults(count, search, false)
-#define _assertResults(count, search, exact) \
-    if (count > 0) { \
-        ASSERT_TRUE( search->hasNext() ); \
-        if (exact) { \
-            ASSERT_EQ((unsigned int) count, search->results().size() ); \
-        } else { \
-            ASSERT_GE(search->results().size(), (unsigned int)count); \
-        } \
-    } else { \
-        if (search->hasNext()) { \
-            ASSERT_EQ((unsigned int)0, search->results().size()); \
-        } \
-    } \
+void
+assertResults(int count, SearchPrx& search, bool exact = true)
+{
+    if (count > 0) {
+        ASSERT_TRUE( search->hasNext() );
+        if (exact) {
+            ASSERT_EQ(static_cast<unsigned int>(count), search->results().size());
+        } else {
+            ASSERT_GE(search->results().size(), static_cast<unsigned int>(count));
+        }
+    } else {
+        if (search->hasNext()) {
+            ASSERT_EQ(0U, search->results().size());
+        }
+    }
+}
+
+void
+assertAtLeastResults(int count, SearchPrx& search)
+{
+  assertResults(count, search, false);
+}
 
 TEST(SearchTest, RootSearch )
 {
@@ -159,7 +166,7 @@ TEST(SearchTest, IQuerySearch )
     // IQuery provides a simple, stateless method for search
     IObjectList list;
     list = f.query()->findAllByFullText("Image",uuid,0);
-    ASSERT_EQ((unsigned int)1, list.size());
+    ASSERT_EQ(1U, list.size());
 }
 
 
@@ -450,15 +457,17 @@ TEST(SearchTest, testSimpleFullTextSearch ) {
 }
 
 
-
-vector<string> sa(const char* s1 = 0, const char* s2 = 0) {
-    vector<string> v;
-    if (s1)
-        v.push_back(s1);
-    if (s2)
-        v.push_back(s2);
+namespace
+{
+    vector<string> sa(const char* s1 = 0, const char* s2 = 0) {
+        vector<string> v;
+        if (s1)
+            v.push_back(s1);
+        if (s2)
+            v.push_back(s2);
     
-    return v;
+        return v;
+    }
 }
 
 TEST(SearchTest, testSomeMustNone ) {
@@ -1006,27 +1015,30 @@ TEST(SearchTest, testOnlyOwnedByGroup ) {
     assertResults(0, search);
 }
 
-omero::RTimePtr oneHourAgo() {
-    time_t start = time (NULL);
-    tm* mn = localtime(&start);
-    mn->tm_hour = mn->tm_hour - 1;
-    Ice::Long millis = mktime(mn) * 1000;
-    return rtime(millis);
-}
+namespace
+{
+    omero::RTimePtr oneHourAgo() {
+        time_t start = time (NULL);
+        tm* mn = localtime(&start);
+        mn->tm_hour = mn->tm_hour - 1;
+        Ice::Long millis = mktime(mn) * 1000;
+        return rtime(millis);
+    }
 
-omero::RTimePtr inOneHour() {
-    time_t start = time (NULL);
-    tm* mn = localtime(&start);
-    mn->tm_hour = mn->tm_hour + 1;
-    Ice::Long millis = mktime(mn) * 1000;
-    return rtime(millis);
-}
+    omero::RTimePtr inOneHour() {
+        time_t start = time (NULL);
+        tm* mn = localtime(&start);
+        mn->tm_hour = mn->tm_hour + 1;
+        Ice::Long millis = mktime(mn) * 1000;
+        return rtime(millis);
+    }
 
-omero::RTimePtr now() {
-    time_t start = time (NULL);
-    tm* mn = localtime(&start);
-    Ice::Long millis = mktime(mn) * 1000;
-    return rtime(millis);
+    omero::RTimePtr now() {
+        time_t start = time (NULL);
+        tm* mn = localtime(&start);
+        Ice::Long millis = mktime(mn) * 1000;
+        return rtime(millis);
+    }
 }
 
 TEST(SearchTest, testOnlyCreateBetween ) {
@@ -1535,11 +1547,11 @@ TEST(SearchTest, DISABLED_testOnlyAnnotatedWithMultiple ) {
 
     search->onlyAnnotatedWith(stringSet("TagAnnotation"));
     search->byFullText(name);
-    ASSERT_EQ( (unsigned int) 2, search->results().size());
+    ASSERT_EQ(2U, search->results().size());
 
     search->onlyAnnotatedWith(stringSet("BooleanAnnotation"));
     search->byFullText(name);
-    ASSERT_EQ( (unsigned int) 2, search->results().size());
+    ASSERT_EQ(2U, search->results().size());
 
     search->onlyAnnotatedWith(stringSet("BooleanAnnotation", "TagAnnotation"));
     search->byFullText(name);

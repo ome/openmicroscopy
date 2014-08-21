@@ -124,8 +124,8 @@ namespace omero {
         };
 
 
-    };
+    }
 
-};
+}
 
 #endif // OMERO_UTIL_TILES_H

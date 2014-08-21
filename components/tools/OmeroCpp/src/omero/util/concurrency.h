@@ -41,8 +41,9 @@ namespace omero {
                 void clear();
                 bool wait(const IceUtil::Time& timeout);
             };
-        };
-    };
-};
+
+        }
+    }
+}
 
 #endif // OMERO_UTIL_CONCURRENCY_H
