@@ -19,6 +19,7 @@
 
 package ome.services.graphs;
 
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -64,18 +65,41 @@ public abstract class GraphPolicy {
     }
 
     /**
+     * Abilities that the user may have to operate upon model objects.
+     * @author m.t.b.carroll@dundee.ac.uk
+     * @since 5.1.0
+     */
+    public static enum Ability {
+        /**
+         *  the user's ability to update the object, as judged by
+         * {@link ome.security.ACLVoter#allowUpdate(IObject, ome.model.internal.Details)}
+         */
+        UPDATE,
+
+        /**
+         *  the user's ability to delete the object, as judged by
+         * {@link ome.security.ACLVoter#allowDelete(IObject, ome.model.internal.Details)}
+         */
+        DELETE;
+    }
+
+    /**
      * A tuple noting the state of a mapped object instance in the current graph traversal.
      * @author m.t.b.carroll@dundee.ac.uk
      * @since 5.1.0
      */
     public static abstract class Details {
+
         /** the unloaded instance */
         public final IObject subject;
-        /** TODO permissions */
-        public final Object permissions = null;
+
+        /** the current permissions on the object */
+        public final Set<Ability> permissions;
+
         /** the current plan for the object, may be mutated by {@link Policy#review(Map, Details, Map, Set)} */
         public Action action;
-        /** 
+
+        /**
          * the current <q>orphan</q> state of the object, may be mutated by {@link Policy#review(Map, Details, Map, Set)};
          * applies only if {@link #action} is {@link Action#EXCLUDE}
          */
@@ -87,11 +111,21 @@ public abstract class GraphPolicy {
          * @param subject the object whose details these are
          * @param action the current plan for the object
          * @param orphan the current <q>orphan</q> state of the object
+         * @param mayUpdate if the object may be updated
+         * @param mayDelete if the object may be deleted
          */
-        Details(IObject subject, Action action, Orphan orphan) {
+        Details(IObject subject, Action action, Orphan orphan, boolean mayUpdate, boolean mayDelete) {
             this.subject = subject;
             this.action = action;
             this.orphan = orphan;
+
+            permissions = EnumSet.noneOf(Ability.class);
+            if (mayUpdate) {
+                permissions.add(Ability.UPDATE);
+            }
+            if (mayDelete) {
+                permissions.add(Ability.DELETE);
+            }
         }
     }
 

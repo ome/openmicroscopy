@@ -82,9 +82,11 @@ public class GraphTraversal {
          * @param subject the object whose details these are
          * @param action the current plan for the object
          * @param orphan the current <q>orphan</q> state of the object
+         * @param mayUpdate if the object may be updated
+         * @param mayDelete if the object may be deleted
          */
-        DetailsWithCI(IObject subject, Action action, Orphan orphan) {
-            super(subject, action, orphan);
+        DetailsWithCI(IObject subject, Action action, Orphan orphan, boolean mayUpdate, boolean mayDelete) {
+            super(subject, action, orphan, mayUpdate, mayDelete);
             this.subjectAsCI = new CI(subject);
         }
 
@@ -340,6 +342,9 @@ public class GraphTraversal {
         final SetMultimap<CI, CI> befores = HashMultimap.create();
         final SetMultimap<CI, CI> afters = HashMultimap.create();
         final Map<CI, Set<CI>> blockedBy = new HashMap<CI, Set<CI>>();
+        /* permissions */
+        final Set<CI> mayUpdate = new HashSet<CI>();
+        final Set<CI> mayDelete = new HashSet<CI>();
     }
 
     /**
@@ -416,7 +421,7 @@ public class GraphTraversal {
         for (final IObject instance : objectInstances) {
             if (instance instanceof HibernateProxy) {
                 final CI object = new CI(instance);
-                policy.noteDetails(instance, object.className, object.id);
+                noteDetails(instance, object);
                 planning.included.add(object);
             } else {
                 objectsToQuery.put(instance.getClass().getName(), instance.getId());
@@ -490,6 +495,22 @@ public class GraphTraversal {
     }
 
     /**
+     * Note the details of the given object.
+     * @param objectInstance a Hibernate proxy object
+     * @param object the class and ID of the object instance
+     */
+    private void noteDetails(IObject objectInstance, CI object) {
+        final ome.model.internal.Details objectDetails = objectInstance.getDetails();
+        if (aclVoter.allowUpdate(objectInstance, objectDetails)) {
+            planning.mayUpdate.add(object);
+        }
+        if (aclVoter.allowDelete(objectInstance, objectDetails)) {
+            planning.mayDelete.add(object);
+        }
+        policy.noteDetails(objectInstance, object.className, object.id);
+    }
+
+    /**
      * Convert the indicated objects to {@link CI}s with their actual class identified.
      * @param session a Hibernate session
      * @param objects the objects to query
@@ -504,7 +525,7 @@ public class GraphTraversal {
                 for (final Object proxy : session.createQuery(query).setParameterList("ids", ids).list()) {
                     final IObject instance = (IObject) proxy;
                     final CI object = new CI(instance);
-                    policy.noteDetails(instance, object.className, object.id);
+                    noteDetails(instance, object);
                     returnValue.add(object);
                 }
             }
@@ -545,7 +566,7 @@ public class GraphTraversal {
                     final IObject linkedInstance = (IObject) resultRow[1];
                     final CI linker = new CI(linkerInstance);
                     final CI linked = new CI(linkedInstance);
-                    policy.noteDetails(linkedInstance, linked.className, linked.id);
+                    noteDetails(linkedInstance, linked);
                     planning.forwardLinksCached.put(linkProperty.toCPI(linker.id), linked);
                     if (propertyIsAccessible) {
                         planning.befores.put(linked, linker);
@@ -569,7 +590,7 @@ public class GraphTraversal {
                     final IObject linkedInstance = (IObject) resultRow[1];
                     final CI linker = new CI(linkerInstance);
                     final CI linked = new CI(linkedInstance);
-                    policy.noteDetails(linkerInstance, linker.className, linker.id);
+                    noteDetails(linkerInstance, linker);
                     planning.backwardLinksCached.put(linkProperty.toCPI(linked.id), linker);
                     if (propertyIsAccessible) {
                         planning.befores.put(linked, linker);
@@ -664,10 +685,10 @@ public class GraphTraversal {
     private Details getDetails(Map<CI, Details> cache, CI object) throws GraphException {
         Details details = cache.get(object);
         if (details == null) {
-            final Action linkerAction = getAction(object);
-            final Orphan linkerIsOrphan = linkerAction == Action.EXCLUDE ?
-                    getOrphan(object) : Orphan.IRRELEVANT;
-            details =  new DetailsWithCI(object.toIObject(), linkerAction, linkerIsOrphan);
+            final Action action = getAction(object);
+            final Orphan orphan = action == Action.EXCLUDE ? getOrphan(object) : Orphan.IRRELEVANT;
+            details =  new DetailsWithCI(object.toIObject(), action, orphan,
+                    planning.mayUpdate.contains(object), planning.mayDelete.contains(object));
             cache.put(object, details);
         }
         return details;
