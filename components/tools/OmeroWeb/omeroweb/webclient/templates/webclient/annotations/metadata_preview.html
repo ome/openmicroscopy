@@ -254,6 +254,9 @@
                 .attr('title', "Apply and Save settings to all images in " + pid)
                 .removeAttr("disabled")
                 .click(function(){
+                  var $span = $('span', this),
+                    spanTxt = $span.text();
+                  $span.text("Saving...");
                   var typeId = pid.split("-");
                   var rdefQry = OME.preview_viewport.getQuery();
                   // need to paste current settings to all images...
@@ -261,7 +264,9 @@
                   url += "?toids=" + typeId[1] + "&to_type=" + typeId[0];
                   url += "&" + rdefQry + "&imageId=" + OME.preview_viewport.loadedImg.id;   // Need imageId for 'apply to all'
                   $.getJSON(url, function() {
+                    $span.text(spanTxt);
                     OME.refreshThumbnails();
+                    updateMyRdef(OME.preview_viewport.getQuery());
                   });
                 });
             }
