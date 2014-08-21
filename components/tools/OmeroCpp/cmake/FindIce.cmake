@@ -5,13 +5,7 @@
 # Find the ZeroC Internet Communication Engine (ICE) programs,
 # libraries and datafiles.
 #
-# Use this module by invoking find_package with the form::
-#
-#   find_package(Ice
-#     [version] [EXACT]       # Minimum or EXACT version e.g. 3.5.1
-#     [REQUIRED]              # Fail with error if Ice is not found
-#     [COMPONENTS <libs...>]) # Ice libraries by their name
-#
+# This module supports multiple components.
 # Components can include any of: ``Freeze``, ``Glacier2``, ``Ice``,
 # ``IceBox``, ``IceDB``, ``IceGrid``, ``IcePatch``, ``IceSSL``,
 # ``IceStorm``, ``IceUtil``, ``IceXML``, or ``Slice``.
@@ -115,58 +109,52 @@ function(_Ice_FIND)
   # with ICE_HOME in the environment as a fallback if unset.
   if(Ice_HOME)
     list(APPEND ice_roots "${Ice_HOME}")
-  else(Ice_HOME)
-    if("$ENV{ICE_HOME}" STREQUAL "")
-    else("$ENV{ICE_HOME}" STREQUAL "")
+  else()
+    if(NOT "$ENV{ICE_HOME}" STREQUAL "")
       file(TO_CMAKE_PATH "$ENV{ICE_HOME}" NATIVE_PATH)
       list(APPEND ice_roots "${NATIVE_PATH}")
       set(Ice_HOME "${NATIVE_PATH}"
           CACHE PATH "Location of the Ice installation" FORCE)
-    endif("$ENV{ICE_HOME}" STREQUAL "")
-  endif(Ice_HOME)
+    endif()
+  endif()
 
   if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     # 64-bit path suffix
     set(_x64 "/x64")
     # 64-bit library directory
     set(_lib64 "lib64")
-  endif(CMAKE_SIZEOF_VOID_P EQUAL 8)
+  endif()
 
   if(MSVC_VERSION)
     # VS 8.0
     if(NOT MSVC_VERSION VERSION_LESS 1400 AND MSVC_VERSION VERSION_LESS 1500)
       set(vcver "vc80")
       set(vcyear "2005")
-    endif(NOT MSVC_VERSION VERSION_LESS 1400 AND MSVC_VERSION VERSION_LESS 1500)
     # VS 9.0
-    if(NOT MSVC_VERSION VERSION_LESS 1500 AND MSVC_VERSION VERSION_LESS 1600)
+    elseif(NOT MSVC_VERSION VERSION_LESS 1500 AND MSVC_VERSION VERSION_LESS 1600)
       set(vcver "vc90")
       set(vcyear "2008")
-    endif(NOT MSVC_VERSION VERSION_LESS 1500 AND MSVC_VERSION VERSION_LESS 1600)
     # VS 10.0
-    if(NOT MSVC_VERSION VERSION_LESS 1600 AND MSVC_VERSION VERSION_LESS 1700)
+    elseif(NOT MSVC_VERSION VERSION_LESS 1600 AND MSVC_VERSION VERSION_LESS 1700)
       set(vcver "vc100")
-    endif(NOT MSVC_VERSION VERSION_LESS 1600 AND MSVC_VERSION VERSION_LESS 1700)
     # VS 11.0
-    if(NOT MSVC_VERSION VERSION_LESS 1700 AND MSVC_VERSION VERSION_LESS 1800)
+    elseif(NOT MSVC_VERSION VERSION_LESS 1700 AND MSVC_VERSION VERSION_LESS 1800)
       set(vcver "vc110")
-    endif(NOT MSVC_VERSION VERSION_LESS 1700 AND MSVC_VERSION VERSION_LESS 1800)
     # VS 12.0
-    if(NOT MSVC_VERSION VERSION_LESS 1800 AND MSVC_VERSION VERSION_LESS 1900)
+    elseif(NOT MSVC_VERSION VERSION_LESS 1800 AND MSVC_VERSION VERSION_LESS 1900)
       set(vcver "vc120")
-    endif(NOT MSVC_VERSION VERSION_LESS 1800 AND MSVC_VERSION VERSION_LESS 1900)
     # VS 14.0
-    if(NOT MSVC_VERSION VERSION_LESS 1900 AND MSVC_VERSION VERSION_LESS 2000)
+    elseif(NOT MSVC_VERSION VERSION_LESS 1900 AND MSVC_VERSION VERSION_LESS 2000)
       set(vcver "vc140")
-    endif(NOT MSVC_VERSION VERSION_LESS 1900 AND MSVC_VERSION VERSION_LESS 2000)
-  endif(MSVC_VERSION)
+    endif()
+  endif()
 
   # For compatibility with ZeroC Windows builds.
   if(vcver)
     # Earlier Ice (3.3) builds don't use vcnnn subdirectories, but are harmless to check.
     list(APPEND ice_binary_suffixes "bin/${vcver}${_x64}" "bin/${vcver}")
     list(APPEND ice_library_suffixes "lib/${vcver}${_x64}" "lib/${vcver}")
-  endif(vcver)
+  endif()
   # Generic 64-bit and 32-bit directories
   list(APPEND ice_binary_suffixes "bin${_x64}" "bin")
   list(APPEND ice_library_suffixes "${_lib64}" "lib${_x64}" "lib")
@@ -188,27 +176,27 @@ function(_Ice_FIND)
         if(ice_location AND NOT ("${ice_location}" STREQUAL "/registry" OR "${ice_location}" STREQUAL "/"))
           string(REGEX REPLACE "^\"(.*)\"?$" "\\1" ice_location "${ice_location}")
           get_filename_component(ice_location "${ice_location}" ABSOLUTE)
-        else(ice_location AND NOT ("${ice_location}" STREQUAL "/registry" OR "${ice_location}" STREQUAL "/"))
+        else()
           unset(ice_location)
-        endif(ice_location AND NOT ("${ice_location}" STREQUAL "/registry" OR "${ice_location}" STREQUAL "/"))
-      endif(vcyear)
+        endif()
+      endif()
       # Ice 3.4+ releases don't use a suffix
       if(NOT ice_location OR "${ice_location}" STREQUAL "/registry")
         get_filename_component(ice_location
                                "[HKEY_LOCAL_MACHINE\\SOFTWARE\\ZeroC\\Ice ${ice_version};InstallDir]"
                                ABSOLUTE)
-      endif(NOT ice_location OR "${ice_location}" STREQUAL "/registry")
+      endif()
 
       if(ice_location AND NOT "${ice_location}" STREQUAL "/registry")
         list(APPEND ice_roots "${ice_location}")
-      endif(ice_location AND NOT "${ice_location}" STREQUAL "/registry")
-    endforeach(ice_version)
-  else(vcver)
+      endif()
+    endforeach()
+  else()
     foreach(ice_version ${ice_versions})
       # Prefer 64-bit variants if present (and using a 64-bit compiler)
       list(APPEND ice_roots "/opt/Ice-${ice_version}")
-    endforeach(ice_version)
-  endif(vcver)
+    endforeach()
+  endif()
 
   set(ice_programs
       slice2cpp
@@ -232,7 +220,7 @@ function(_Ice_FIND)
       DOC "Ice ${program} executable")
     mark_as_advanced(cache_var)
     set("${program_var}" "${${cache_var}}" PARENT_SCOPE)
-  endforeach(program ${ice_programs})
+  endforeach()
 
   # Get version.
   if(Ice_SLICE2CPP_EXECUTABLE)
@@ -250,7 +238,7 @@ function(_Ice_FIND)
     # Make short version
     string(REGEX REPLACE "^(.*)\\.[^.]*$" "\\1" Ice_VERSION_SLICE2CPP_SHORT "${Ice_VERSION_SLICE2CPP_FULL}")
     set(Ice_VERSION "${Ice_VERSION_SLICE2CPP_FULL}" PARENT_SCOPE)
-  endif(Ice_SLICE2CPP_EXECUTABLE)
+  endif()
 
   message(STATUS "Ice version: ${Ice_VERSION_SLICE2CPP_FULL}")
 
@@ -259,7 +247,7 @@ function(_Ice_FIND)
   if(NOT MSVC)
     list(INSERT ice_roots 0 "/opt/Ice-${Ice_VERSION_SLICE2CPP_SHORT}")
     list(INSERT ice_roots 0 "/opt/Ice-${Ice_VERSION_SLICE2CPP_FULL}")
-  endif(NOT MSVC)
+  endif()
 
   # Find include directory
   find_path(Ice_INCLUDE_DIR
@@ -302,25 +290,25 @@ function(_Ice_FIND)
     if("${component_cache}")
       set("${component_found}" ON)
       list(APPEND Ice_LIBRARY "${${component_cache}}")
-    endif("${component_cache}")
+    endif()
     mark_as_advanced("${component_found}")
     set("${component_cache}" "${${component_cache}}" PARENT_SCOPE)
     set("${component_found}" "${${component_found}}" PARENT_SCOPE)
     if("${component_found}")
       if ("Ice_FIND_REQUIRED_${component}")
         list(APPEND Ice_LIBS_FOUND "${component} (required)")
-      else("Ice_FIND_REQUIRED_${component}")
+      else()
         list(APPEND Ice_LIBS_FOUND "${component} (optional)")
-      endif("Ice_FIND_REQUIRED_${component}")
-    else("${component_found}")
+      endif()
+    else()
       if ("Ice_FIND_REQUIRED_${component}")
         set(Ice_REQUIRED_LIBS_FOUND OFF)
         list(APPEND Ice_LIBS_NOTFOUND "${component} (required)")
-      else("Ice_FIND_REQUIRED_${component}")
+      else()
         list(APPEND Ice_LIBS_NOTFOUND "${component} (optional)")
-      endif("Ice_FIND_REQUIRED_${component}")
-    endif("${component_found}")
-  endforeach(component)
+      endif()
+    endif()
+  endforeach()
   set(_Ice_REQUIRED_LIBS_FOUND "${Ice_REQUIRED_LIBS_FOUND}" PARENT_SCOPE)
   set(Ice_LIBRARY "${Ice_LIBRARY}" PARENT_SCOPE)
 
@@ -328,14 +316,14 @@ function(_Ice_FIND)
     message(STATUS "Found the following Ice libraries:")
     foreach(found ${Ice_LIBS_FOUND})
       message(STATUS "  ${found}")
-    endforeach(found)
-  endif(Ice_LIBS_FOUND)
+    endforeach()
+  endif()
   if(Ice_LIBS_NOTFOUND)
     message(STATUS "The following Ice libraries were not found:")
     foreach(notfound ${Ice_LIBS_NOTFOUND})
       message(STATUS "  ${notfound}")
-    endforeach(notfound)
-  endif(Ice_LIBS_NOTFOUND)
+    endforeach()
+  endif()
 
   if(Ice_DEBUG)
     message(STATUS "--------FindIce.cmake search debug--------")
@@ -344,8 +332,8 @@ function(_Ice_FIND)
     message(STATUS "ICE slice path search order: ${ice_roots} ${ice_slice_paths}")
     message(STATUS "ICE library path search order: ${ice_roots}")
     message(STATUS "----------------")
-  endif(Ice_DEBUG)
-endfunction(_Ice_FIND)
+  endif()
+endfunction()
 
 _Ice_FIND()
 
@@ -372,13 +360,13 @@ if(ICE_FOUND)
     set(_Ice_component_found "${_Ice_component_upcase}_FOUND")
     if("${_Ice_component_found}")
       set("${_Ice_component_lib}" "${${_Ice_component_cache}}")
-    endif("${_Ice_component_found}")
+    endif()
     unset(_Ice_component_upcase)
     unset(_Ice_component_cache)
     unset(_Ice_component_lib)
     unset(_Ice_component_found)
-  endforeach(_Ice_component)
-endif(ICE_FOUND)
+  endforeach()
+endif()
 
 if(Ice_DEBUG)
   message(STATUS "--------FindIce.cmake results debug--------")
@@ -402,6 +390,6 @@ if(Ice_DEBUG)
     set(component_found "${component_upcase}_FOUND")
     message(STATUS "${component} library found: ${${component_found}}")
     message(STATUS "${component} library: ${${component_lib}}")
-  endforeach(component ${Ice_FIND_COMPONENTS})
+  endforeach()
   message(STATUS "----------------")
-endif(Ice_DEBUG)
+endif()
