@@ -119,6 +119,9 @@ omero.version=${omero.version}
         <copyResources/>
     </target>
 
+<path id="lib.path.ref">
+    <fileset dir="/Library/Java/JavaVirtualMachines/jdk1.7.0_67.jdk/Contents/Home/jre/lib" includes="rt.jar"/>
+  </path>
     <presetdef name="nomemoryjava">
         <javac
             fork="yes"
@@ -128,7 +131,9 @@ omero.version=${omero.version}
             encoding="UTF-8"
             debug="${javac.debug}"
             debuglevel="${javac.debuglevel}"
+            bootclasspath="${javac.bootclasspath}"
             deprecation="on">
+            <!--<compilerarg value="-J-Xbootclasspath/p:${javac.bootclasspath}"/>-->
         </javac>
     </presetdef>
 
