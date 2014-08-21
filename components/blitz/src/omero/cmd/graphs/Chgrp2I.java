@@ -28,6 +28,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import ome.model.IObject;
 import ome.model.meta.ExperimenterGroup;
+import ome.security.ACLVoter;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphTraversal;
@@ -52,6 +53,7 @@ public class Chgrp2I extends Chgrp2 implements IRequest {
     private static final ImmutableMap<String, String> ALL_GROUPS_CONTEXT = ImmutableMap.of(Login.OMERO_GROUP, "-1");
 
     private final IceMapper iceMapper = new IceMapper();
+    private final ACLVoter aclVoter;
     private final GraphPathBean graphPathBean;
     private final GraphPolicy graphPolicy;
  
@@ -60,10 +62,12 @@ public class Chgrp2I extends Chgrp2 implements IRequest {
 
     /**
      * Construct a new <q>chgrp</q> request; called from {@link GraphRequestFactory#getRequest(Class)}.
+     * @param aclVoter ACL voter for permissions checking
      * @param graphPathBean the graph path bean to use
      * @param graphPolicy the graph policy to apply for chgrp
      */
-    public Chgrp2I(GraphPathBean graphPathBean, GraphPolicy graphPolicy) {
+    public Chgrp2I(ACLVoter aclVoter, GraphPathBean graphPathBean, GraphPolicy graphPolicy) {
+        this.aclVoter = aclVoter;
         this.graphPathBean = graphPathBean;
         this.graphPolicy = graphPolicy;
     }
@@ -77,7 +81,7 @@ public class Chgrp2I extends Chgrp2 implements IRequest {
     public void init(Helper helper) {
         this.helper = helper;
         helper.setSteps(3);
-        graphTraversal = new GraphTraversal(graphPathBean, graphPolicy, new InternalProcessor());
+        graphTraversal = new GraphTraversal(aclVoter, graphPathBean, graphPolicy, new InternalProcessor());
     }
 
     @Override

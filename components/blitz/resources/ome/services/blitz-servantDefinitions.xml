@@ -354,6 +354,7 @@
   </bean>
 
   <bean id="graphRequestFactory" class="omero.cmd.graphs.GraphRequestFactory">
+      <constructor-arg ref="aclVoter"/>
       <constructor-arg ref="graphPathBean"/>
       <constructor-arg>
           <map>

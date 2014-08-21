@@ -49,6 +49,7 @@ import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 
 import ome.model.IObject;
+import ome.security.ACLVoter;
 import ome.services.graphs.GraphPathBean.PropertyKind;
 import ome.services.graphs.GraphPolicy.Action;
 import ome.services.graphs.GraphPolicy.Details;
@@ -380,6 +381,7 @@ public class GraphTraversal {
         void processInstances(String className, Collection<Long> ids);
     }
 
+    private final ACLVoter aclVoter;
     private final GraphPathBean bean;
     private final Planning planning;
     private final GraphPolicy policy;
@@ -387,11 +389,13 @@ public class GraphTraversal {
 
     /**
      * Construct a new instance of a graph traversal manager.
+     * @param aclVoter ACL voter for permissions checking
      * @param graphPathBean the graph path bean
      * @param policy how to determine which related objects to include in the operation
      * @param processor how to operate on the resulting target object graph
      */
-    public GraphTraversal(GraphPathBean graphPathBean, GraphPolicy policy, Processor processor) {
+    public GraphTraversal(ACLVoter aclVoter, GraphPathBean graphPathBean, GraphPolicy policy, Processor processor) {
+        this.aclVoter = aclVoter;
         this.bean = graphPathBean;
         this.planning = new Planning();
         this.policy = policy;
