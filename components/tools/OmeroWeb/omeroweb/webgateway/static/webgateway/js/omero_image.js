@@ -17,16 +17,6 @@
     }
 
 
-    // Copying and pasting rdefs is purely client-side now (not saved)
-    var rdefQuery;
-    window.setRdefQuery = function (query) {
-        rdefQuery = query;
-    };
-    window.getRdefQuery = function () {
-        return rdefQuery;
-    };
-
-
     window.resetRDCW = function (viewport) {
         viewport.reset_channels();
         syncRDCW(viewport);
@@ -39,8 +29,7 @@
         rdefQry = rdefQry + "&pixel_range=" + pr;
         // Need imageId for 'apply to all'
         rdefQry = rdefQry + "&imageId=" + viewport.loadedImg.id;
-        // save locally and to session
-        setRdefQuery(rdefQry);
+        // save to session
         $.getJSON(viewport.viewport_server + "/copyImgRDef/?" + rdefQry);
     };
 
@@ -66,28 +55,14 @@
             updateUndoRedo(viewport);
         };
 
-        // We see if we have rdef saved in js (fastest).
-        // If not (E.g. page has been refreshed, we check session via /getImgRDef/ json call)
-        var rdefQry = getRdefQuery();
-        if (rdefQry) {
-            var queryValues = rdefQry.split("&"),
-                queryDict = {},
-                kv;
-            for (var i=0; i < queryValues.length; i++) {
-                kv = queryValues[i].split("=");
-                if (kv.length > 1) {
-                    queryDict[kv[0]] = kv[1];
+        // check session via /getImgRDef/ json call
+        $.getJSON(viewport.viewport_server + "/getImgRDef/",
+            function(data){
+                if (data.rdef) {
+                    doPaste(data.rdef);
                 }
             }
-            doPaste(queryDict);
-        } else {
-            $.getJSON(viewport.viewport_server + "/getImgRDef/",
-                function(data){
-                    if (data.rdef) {
-                        doPaste(data.rdef);
-                    }
-                });
-        }
+        );
     };
 
     window.resetImageDefaults = function (viewport, obj, callback) {

@@ -21,7 +21,7 @@
     {% for href in extra_css %}
     <link rel="stylesheet" type="text/css" href="{{ href }}" />
     {% endfor %}
-    
+
     <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.viewport.css" %}" media="all" />
     <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.gs_slider.css" %}" media="all" />
     <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/base.css" %}" media="all" />
@@ -45,11 +45,11 @@
     {% for src in extra_js %}
     <script type="text/javascript" src="{{ src }}"></script>
     {% endfor %}
-    
+
     <script type="text/javascript" src="{% static "3rdparty/jquery-1.7.2.js" %}"></script>
-    
+
     <script type="text/javascript" src="{% static "webgateway/js/ome.popup.js" %}"></script>
-    
+
 	<script type="text/javascript" src="{% static "3rdparty/aop.js" %}"></script>
 
 	<script type="text/javascript" src="{% static "webgateway/js/ome.gs_utils.js" %}"></script>
@@ -57,7 +57,7 @@
 	<script type="text/javascript" src="{% static "webgateway/js/ome.gs_slider.js" %}"></script>
 	<script type="text/javascript" src="{% static "webgateway/js/ome.viewport.js" %}"></script>
   <script type="text/javascript" src="{% static "webgateway/js/omero_image.js" %}"></script>
-	
+
     <script type="text/javascript" src="{% static "3rdparty/jquery-ui-1.8.19/ui/jquery-ui.js" %}"></script>
     <script type="text/javascript" src="{% static "webgateway/js/ome.smartdialog.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/JQuerySpinBtn/JQuerySpinBtn.js" %}"></script>
@@ -74,19 +74,19 @@
 
     <!-- big images -->
 
-    <script type="text/javascript" src="{% static "3rdparty/panojs/extjs/ext-core.js" %}"></script>    
-    <script type="text/javascript" src="{% static "3rdparty/panojs/utils.js" %}"></script>    
+    <script type="text/javascript" src="{% static "3rdparty/panojs/extjs/ext-core.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/panojs/utils.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/panojs/PanoJS.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/panojs/controls.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/panojs/pyramid_Bisque.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/panojs/pyramid_imgcnv.js" %}"></script>
-    <script type="text/javascript" src="{% static "3rdparty/panojs/pyramid_Zoomify.js" %}"></script>        
+    <script type="text/javascript" src="{% static "3rdparty/panojs/pyramid_Zoomify.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/panojs/control_thumbnail.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/panojs/control_info.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/panojs/control_svg.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/panojs/control_roi.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.mousewheel.js" %}"></script>
-    
+
 {% endblock %}
 
 
@@ -209,7 +209,7 @@
   var setProjection = function (obj) {
     viewport.setProjection($(obj).attr('value'));
   };
-          
+
   /**
    * Checks the currently selected rendering projection and applies interface customizations as needed.
    * Bound to the viewport projectionChange event.
@@ -233,7 +233,7 @@
       var disable_intmax = (viewport.loadedImg.rdefs.invertAxis || viewport.getSizes().z < 2);
       $('[name="wblitz-proj"][value=intmax]').attr('disabled', disable_intmax);
     }
-    
+
     //nosync || syncRDCW(viewport);
   };
 
@@ -306,9 +306,9 @@
       $('#t-axis-legend').attr('src', '{% static "webgateway/img/t_axis.gif" %}');
     }
   }
-  
+
   /**
-  *     ROI load & table methods 
+  *     ROI load & table methods
   */
 
   var refresh_rois = function () {
@@ -322,11 +322,11 @@
   var show_rois = function () {
       var theT = viewport.getTPos();
         var theZ = viewport.getZPos();
-        
+
       {% if image %}
         // if the ROI plugin has not been initialised (method not available...) init and load ROIs...
       if (!viewport.viewportimg.get(0).show_rois) {
-          var options = {'width':{{ image.getSizeX }}, 
+          var options = {'width':{{ image.getSizeX }},
                      'height':{{ image.getSizeY }},
                      'json_url':'{% url 'webgateway_get_rois_json' image.id %}'};
           if (viewport.loadedImg.tiles) {
@@ -337,31 +337,31 @@
           viewport.viewportimg.get(0).setRoiZoom(viewport.viewportimg.get(0).getZoom());
       }
       {% endif %}
-      
+
       // Show postit. Table will be built on callback from loading
       $("#roi_table_postit").show();
 
-      // loads ROIs (if needed) and shows. 
+      // loads ROIs (if needed) and shows.
     viewport.viewportimg.get(0).show_rois(theZ, theT);
   }
-  
-  
+
+
   var hide_rois = function() {
-      // hides the display of ROIs. 
+      // hides the display of ROIs.
       if (viewport.viewportimg.get(0).hide_rois) {
           viewport.viewportimg.get(0).hide_rois();
       }
       $("#roi_table_postit").hide();
   }
-  
+
   var NOZT = "";
   // builds an html table of ROI data. All collapsed.
   var build_roi_table = function() {
       var $roi_table = $("#roi_small_table");
       var json = viewport.viewportimg.get(0).get_roi_json();
-      
+
       $roi_table.find('tbody').remove();
-      
+
       // give users a small selection of colours for lines on roi_thumbnails
       var colours = {'red':'#f00', 'white':'#fff', 'black':'#000', 'blue':'#00f', 'green':'#0f0', 'yellow':'#ff0'}
       var color_picker = "";
@@ -370,7 +370,7 @@
       }
       var toggle_roi_thumbs = "<input type='checkbox' id='toggle_roi_thumbs' title='Show ROI Previews' />";
       var toggle_shape_text = "<input type='checkbox' id='toggle_shape_text' checked='true' title='Show/Hide ROI text labels' />";
-      
+
       // thead for whole table:
       var roi_html = "<thead id='roi_table_head'><tr>";
       roi_html += "<th></th>";
@@ -382,7 +382,7 @@
       roi_html += "<th title='Pick colour of ROI outlines'><div style='white-space:nowrap;'>" + toggle_roi_thumbs + "Preview</div>"+ color_picker + "</th>";
       roi_html += "</tr></thead>";
       $roi_table.append($(roi_html));
-      
+
       get_shape_icon_src = function(type, klass) {
           var shape_icons = {'Line':'line16.png', 'Ellipse':'ellipse16.png', 'Polygon':'polygon16.png', 'Rectangle':'rectangle16.png',
             'Point':'point16.png', 'Label':'text16.png', 'PolyLine':'line16.png'}
@@ -401,11 +401,11 @@
       for (var r=0; r<json.length; r++) {
           var roi = json[r];
           var shapes = roi['shapes'];
-          
+
           // thumbnail of roi - display small & popup full-size
-          var line_color = 'f00';   // store current line color, used when we 'show' thumbs to get url. 
+          var line_color = 'f00';   // store current line color, used when we 'show' thumbs to get url.
           var roiThumbHtml = "<img src='' id='"+ roi['id'] +"_roi_thumb' color='"+ line_color +"' width=50 height=33 class='roi_thumb'>";
-          
+
           // process the shapes first - note first shape & text
           var roiIcon = null;
           var roiText = "";
@@ -438,7 +438,7 @@
                   indent = " &nbsp";
               }
               var shapeThumbHtml = "<img src='' id='"+ shape['id'] +"_shape_thumb' color='"+ line_color +"' width=50 height=33 class='roi_thumb shape_thumb'>";
-              
+
               shapesHtml += "<tr id='"+shape['id']+"_shape' class='shape_row'>";
               // clicking on any cell of a shape 'shape_cell' selects it
               shapesHtml += "<td></td>";
@@ -458,7 +458,7 @@
           }
           if (roiText == null) roiText = "";
           shapesHtml += '</tbody>';
-          
+
           // new tbody for each ROI
           if (tRange != NOZT) tRange = "" + (minZ+1) + ((maxZ != minZ) && ("-"+(maxZ+1)) || (""));
           if (zRange != NOZT) zRange = "" + (minT+1) + ((maxT != minT) && ("-"+(maxT+1)) || (""));
@@ -471,7 +471,7 @@
           roi_html += "<th class='shape_text' title=\""+ roiText +"\"><p>"+ truncate_text(roiText) +"</p></th>";
           roi_html += "<th>"+ roiThumbHtml +"</th>";
           roi_html += "</tr></thead>";
-          
+
           var tbody = $(shapesHtml);
           if (shapes.length > 1) {
               $roi_table.append($(roi_html));      // add the roi thead
@@ -479,7 +479,7 @@
               tbody.addClass('only_child');
           }
           $roi_table.append(tbody);    // add the tbody
-          
+
           // now bind mouseover
           var $roi_thumb_popup = $('#roi_thumb_popup');
           $('.roi_thumb').hover(function(e) {
@@ -493,7 +493,7 @@
           });
       }
   }
-  
+
   // bound to call-back on roi plugin when ROIs loaded
   var handle_rois_loaded = function(e) {
       $("#rois_loading_message").hide();
@@ -503,7 +503,7 @@
       $roi_table.find('tbody.only_child').show();
 
   }
-  
+
   // bound to clicks on shapes in the viewer
     var handle_shape_selection = function(e, shape_id) {
         var $roi_table = $("#roi_small_table");
@@ -515,7 +515,7 @@
         var arrow_src = '{% static "webgateway/img/arrowDown_grey.png" %}';
         $row.parent().prev('thead').find('img.expand_arrow').attr('src', arrow_src);
     }
-    
+
     // update src of roi_thumbnails, based on colour. If 'null', set no src and hide thumbs
     var update_roi_thumbs = function(line_color) {
         // we set visibility based on 'toggle_roi_thumbs' checkbox
@@ -628,7 +628,7 @@
       <p>To change the color displayed for a channel, click on the color box at the right, which opens the "Choose Color" dialog box. You can choose the color using the interactive features at the top.  Hex color codes can be input in the text box.  Preset colors can be selected at the bottom.  Changes take effect when you click "Apply".</p>
       <p>To change the color intensity, drag the slider buttons for the individual channels to the left or right.  This changes the values that are used for the minimum and maximum displays settings. Changes take effect when you click "Apply".</p>
     </div>
- 
+
     <!-- Floating boxes come on top -->
     <div id="curr-link" class="tooltipbox">
       <table cellspacing="0">
@@ -654,7 +654,7 @@
             <table id='roi_small_table' cellpadding='0' cellspacing='0'></table>
         </div>
     </div>
-    
+
     <div id="metadata-postit" class="postit">
       <h1>Image Information</h1>
       <h3 class="can-collapse">Basic Information</h3>
@@ -735,7 +735,7 @@
       <li><input id="rdef-redo-btn" class="button" type="image"
         src="{% static "webclient/image/icon_redo16.png" %}" title="Redo the last changes to settings"
         onclick="return redoRDCW();"/> </li>
-      
+
       <li class="seperator"></li>
 
       <!-- class='button-disabled' -->
@@ -811,7 +811,7 @@
           <div class="odd row">
             <label for="wblitz-lp-enable">Line Plot</label> <input id="wblitz-lp-enable" type="checkbox" onclick="editLinePlot(this.checked)" />
             <div id="wblitz-lp-wrap" style="display: none">
-              <div>Axis: 
+              <div>Axis:
                 <select id="wblitz-lp-axis-select" onchange="prepLinePlot(this.options[this.options.selectedIndex].value)">
                   <option value="h" selected="selected">Horizontal</option>
                   <option value="v">Vertical</option>
@@ -875,7 +875,7 @@
 {% endblock roi_buttons %}
           {% block current_image_tools %}{% endblock %}
         </div>
-            
+
         <!-- Image Viewport -->
         <div id="weblitz-viewport"></div>
         <img id="z-axis-legend" src="{% static "webgateway/img/z_axis.gif" %}" />
@@ -902,8 +902,8 @@
 
   $(document).ready(function () {
     /* Prepare the viewport */
-    
-    
+
+
     viewport = $.WeblitzViewport($('#weblitz-viewport'), '{{ viewport_server }}',{% block viewport_opts %}{'mediaroot': '{{ STATIC_URL }}' }{% endblock %});
     viewport.bind('imageLoad', _refresh_cb);
 
@@ -1029,7 +1029,7 @@
     $('input[name=wblitz-quality]').click(function () {
       viewport.setQuality(this.value);
     });
-    
+
     viewport.bind('imageChange', refresh_rois);
     viewport.bind('instant_zoom', function(e, percent) {
         if (viewport.viewportimg.get(0).setRoiZoom) {
@@ -1039,21 +1039,13 @@
 
     var copy_paste_rdef_url = "{% url 'webgateway.views.copy_image_rdef_json' %}";
     $(".copy_rdef").click(function() {
-        // copy the current rendering settings to the 'session'
-        $.getJSON(copy_paste_rdef_url + "?"+ viewport.getQuery(true) + "&imageId=" + viewport.loadedImg.id);
+        copyRdefs(viewport);
     });
 
     $(".paste_rdef").click(function() {
-        $.getJSON(copy_paste_rdef_url + "?toids={{ image.id }}", function(data){
-          // refresh UI
-          viewport.load({{ image.id }});
-          // update thumbnails
-          if (window.opener && window.opener.OME.refreshThumbnails) {
-            window.opener.OME.refreshThumbnails({{ image.id }});
-          }
-        });
+        pasteRdefs(viewport);
     });
-    
+
     var toggle_th = function($roiThead) {
         $roiThead.next().toggle(0, function(){
             var vis = $roiThead.next().is(':visible');
@@ -1064,7 +1056,7 @@
             $roiThead.find('img.expand_arrow').attr('src', arrow_src);
         });
     }
-    
+
     var handleShapeRowClick = function($shapeRow){
         var shape_id = parseInt($shapeRow.attr('id'));      // E.g. id='123_shape'
         var selected_xy = viewport.viewportimg.get(0).set_selected_shape(shape_id);
@@ -1082,7 +1074,7 @@
             viewport.setTPos(parseInt(t));
         }
     }
-    
+
     $("#roi_small_table").click(function(event) {
         var $target = $(event.target);
         if ($target.attr('id') == "toggle_roi_thumbs") {
@@ -1137,8 +1129,8 @@
         }
         return false;
     });
-    
-    
+
+
     // we can bind events to viewportimg for roi_display-plugin to trigger (plugin not created yet)
     viewport.viewportimg.bind("shape_click", handle_shape_selection);
     viewport.viewportimg.bind("rois_loaded", handle_rois_loaded);
@@ -1161,12 +1153,12 @@
     $("#rdef-default-btn").click(function(){
       resetRDCW(viewport);
     });
-    
+
     /* And we're done! */
 
 {% block initial_resize %}
     /* Set Window Initial Size */
-    //if ($(document).width() < 1024 || $(document).height() < 768) 
+    //if ($(document).width() < 1024 || $(document).height() < 768)
     //  window.resizeTo(1024,768);
 {% endblock %}
     calcResize();
