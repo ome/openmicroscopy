@@ -301,7 +301,9 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
     @RolesAllowed("user")
     public String setStatusAndMessage(String status, String message) {
 
-        JobStatus s = iTypes.getEnumeration(JobStatus.class, status);
+        if (status != null) {
+             JobStatus s = iTypes.getEnumeration(JobStatus.class, status);
+        }
 
         // status can only be null if this is invoked locally, otherwise
         // the @NotNull will prevent that. therefore the return value
