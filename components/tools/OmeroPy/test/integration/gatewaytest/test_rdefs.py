@@ -228,7 +228,8 @@ class TestRDefs (object):
 
     def testGetRdefs(self, gatewaywrapper):
         """
-        Test we can list rdefs for an image and they correspond to the rdefs we've set.
+        Test we can list rdefs for an image and they correspond to the
+        rdefs we've set.
         """
 
         # Admin saves Rdef.
@@ -260,7 +261,6 @@ class TestRDefs (object):
 
         assert adminRdefId is not None
         assert authorRdefId is not None
-
 
         # Test getting different thumbnails
         defaultThumb = self.image.getThumbnail()
