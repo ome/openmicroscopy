@@ -37,7 +37,7 @@ class UsageControl(CmdControl):
             "--report", action="store_true",
             help="Print detailed breakdown of disk usage")
         parser.add_argument(
-            "--units", choices=['K', 'M', 'G', 'T'],
+            "--units", choices="KMGTP",
             help="Units to use for disk usage")
         parser.add_argument(
             "obj", nargs="+",
@@ -50,7 +50,7 @@ class UsageControl(CmdControl):
 
     def parseObj(self, obj):
         """
-        Take the positional arguments and marshal them initialization
+        Take the positional arguments and marshal them into
         a dictionary for the command argument.
         """
         objects = {}
@@ -69,21 +69,14 @@ class UsageControl(CmdControl):
 
     def toUnits(self, size, units):
         """
-        Convert from bytes to KiB, MiB, GiB, or TiB and
-        return a string with the units appended.
+        Convert from bytes to KiB, MiB, GiB, TiB or PiB.
         """
-        oneK = 1024
-        if units:
-            size /= oneK
-            if units in ['M', 'G', 'T']:
-                size /= oneK
-                if units in ['G', 'T']:
-                    size /= oneK
-                    if units == 'T':
-                        size /= oneK
-            return str(size) + " " + units + "iB"
+        oneK = 1024.0
+        powers = {'K': 1, 'M': 2, 'G': 3, 'T': 4, 'P': 5}
+        if units in powers.keys():
+            return round(size/oneK**powers[units], 2)
         else:
-            return str(size) + " bytes"
+            raise ValueError("Unrecognised units: ", units)
 
     def _process_request(self, req, args, client):
         """
@@ -109,13 +102,18 @@ class UsageControl(CmdControl):
         else:
             if args.size_only:
                 self.ctx.out(rsp.totalBytesUsed)
-            else:
+            elif args.units:
                 size = self.toUnits(rsp.totalBytesUsed, args.units)
                 files = rsp.totalFileCount
                 self.ctx.out(
-                    "Total disk usage: %s in %d files" % (size, files))
+                    "Total disk usage: %d %siB in %d files"
+                    % (size, args.units, files))
+            else:
+                self.ctx.out(
+                    "Total disk usage: %d bytes in %d files"
+                    % (rsp.totalBytesUsed, rsp.totalFileCount))
 
-        if args.report:
+        if args.report and not args.size_only:
             self.print_detailed_report(req, rsp, status, args)
 
     def print_detailed_report(self, req, rsp, status, args):
@@ -123,7 +121,7 @@ class UsageControl(CmdControl):
         Print a breakdown of disk usage in table form.
         """
         from omero.util.text import TableBuilder
-        tb = TableBuilder("component", "size", "files")
+        tb = TableBuilder("component", "size (bytes)", "files")
         if args.style:
             tb.set_style(args.style)
 
