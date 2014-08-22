@@ -1679,7 +1679,20 @@ def get_image_rdef_json (request, conn=None, **kwargs):
     """
     rdef = request.session.get('rdef')
     if (rdef is None):
-        rdef = False;
+        fromid = request.session.get('fromid', None)
+        print 'fromid', fromid
+        # We only have an Image to copy rdefs from
+        image = conn.getObject("Image", fromid)
+        if image is not None:
+            rv = imageMarshal(image, None)
+            # return rv
+            chs = []
+            for i, ch in enumerate(rv['channels']):
+                act = ch['active'] and str(i+1) or "-%s" % (i+1)
+                chs.append("%s|%s:%s$%s" % (act, ch['window']['start'], ch['window']['end'], ch['color']))
+            rdef = {'c':(",".join(chs)),
+                    'm': rv['rdefs']['model'],
+                    'pixel_range': "%s:%s" % (rv['pixel_range'][0],rv['pixel_range'][1])}
 
     return {'rdef': rdef}
 
