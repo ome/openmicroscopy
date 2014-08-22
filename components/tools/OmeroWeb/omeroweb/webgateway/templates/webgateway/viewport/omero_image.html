@@ -1175,14 +1175,6 @@
                 Image Link
             </a><br />
           </div>
-          <div class="odd row">
-             <button class="btn prev_next_image prev" title="Previous Image" disabled="disabled">
-                <span>< Prev</span>
-            </button>
-            <button class="btn prev_next_image next" title="Next Image" disabled="disabled">
-                <span>Next ></span>
-            </button>
-          </div>
 {% block roi_buttons %}
           <div id="roi_controls">
                 <h1>ROI Count: {{ roiCount }}</h1>
@@ -1192,6 +1184,14 @@
                 {% endifnotequal %}
           </div>
 {% endblock roi_buttons %}
+          <div class="odd row">
+             <button class="btn prev_next_image prev" title="Previous Image" disabled="disabled">
+                <span>< Prev</span>
+            </button>
+            <button class="btn prev_next_image next" title="Next Image" disabled="disabled">
+                <span>Next ></span>
+            </button>
+          </div>
           {% block current_image_tools %}{% endblock %}
         </div>
             
