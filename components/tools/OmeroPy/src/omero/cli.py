@@ -16,7 +16,7 @@ arguments, sys.argv, and finally from standard-in using the
 cmd.Cmd.cmdloop method.
 
 Josh Moore, josh at glencoesoftware.com
-Copyright (c) 2007, Glencoe Software, Inc.
+Copyright (c) 2007-2014, Glencoe Software, Inc.
 See LICENSE for details.
 
 """
@@ -205,7 +205,7 @@ class Parser(ArgumentParser):
         # converted value must be one of the choices (if specified)
         if action.choices is not None and value not in action.choices:
             msg = 'invalid choice: %r\n\nchoose from:\n' % value
-            choices = sorted(action.choices)
+            choices = list(action.choices)
             msg += self._format_list(choices)
             raise ArgumentError(action, msg)
 
