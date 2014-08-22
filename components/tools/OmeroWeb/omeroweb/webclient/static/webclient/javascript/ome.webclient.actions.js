@@ -367,6 +367,11 @@ OME.refreshThumbnails = function(imageId) {
             base_src = $this.attr('src').split('?')[0];
         $this.attr('src', base_src + "?_="+rdm);
     });
+
+    // Update viewport via global variable
+    if (OME.preview_viewport && OME.preview_viewport.loadedImg.id) {
+        OME.preview_viewport.load(OME.preview_viewport.loadedImg.id);
+    }
 };
 
 OME.truncateNames = (function(){
