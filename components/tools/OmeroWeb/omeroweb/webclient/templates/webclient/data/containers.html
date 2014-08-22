@@ -300,10 +300,27 @@
                     if (rel === 'dataset' || rel === 'plate' || rel === 'acquisition') {
                         rdef_url += '&to_type='+ rel;
                     }
-                    $.getJSON(rdef_url, function(data){
-                        // update thumbnails
-                        OME.refreshThumbnails();
-                    });
+
+                    var confirmMsg = "This will save new rendering settings to " +
+                        selected.length + " " + rel +
+                        (selected.length > 1 ? "s" : "") + ".<br> This cannot be undone.";
+
+                    var rdef_confirm_dialog = OME.confirm_dialog(
+                        confirmMsg,
+                        function() {
+                            var clicked_button_text = rdef_confirm_dialog.data("clicked_button");
+                            if (clicked_button_text === "OK") {
+                                $.getJSON(rdef_url, function(data){
+                                    // update thumbnails
+                                    OME.refreshThumbnails();
+                                });
+                            }
+                        },
+                        "Change Rendering Settings?",
+                        ["OK", "Cancel"],
+                        350,
+                        175
+                    );
                 }
 
                 var applyOwnerRenderingSettings = function(selected) {
@@ -890,7 +907,7 @@
                                         }
                                     },
                                     "reset_rdef": {
-                                        "label" : "Reset and Save",
+                                        "label" : "Set Original and Save",
                                         "icon"  : '{% static "webclient/image/icon_basic_paste_16.png" %}',
                                         "action": function() {
                                             resetRenderingSettings(this.get_selected());
