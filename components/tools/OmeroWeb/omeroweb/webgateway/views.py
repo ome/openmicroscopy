@@ -1525,11 +1525,13 @@ def reset_rdef_json (request, toOwners=False, conn=None, **kwargs):
     r = request.REQUEST
     toids = r.getlist('toids')
     to_type = str(r.get('to_type', 'image'))
+    to_type = to_type.title()
+    if to_type == 'Acquisition':
+        to_type = 'PlateAcquisition'
 
     if len(toids) == 0:
         raise Http404("Need to specify objects in request, E.g. ?totype=dataset&toids=1&toids=2")
 
-    to_type = to_type.title()
     toids = map(lambda x: long(x), toids)
 
     rss = conn.getRenderingSettingsService()
