@@ -2990,7 +2990,11 @@ class _BlitzGateway (object):
         if to_type is None:
             to_type="Image"
         if to_type.lower() == "acquisition":
+            plateIds = []
+            for pa in self.getObjects("PlateAcquisition", toids):
+                plateIds.append(pa.listParents()[0].id)
             to_type = "Plate"
+            toids = plateIds
         to_type = to_type.title()
         if fromimg.canAnnotate():
             ctx = self.SERVICE_OPTS.copy()
