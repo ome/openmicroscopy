@@ -246,9 +246,8 @@ class ProxyStringType(object):
     def __init__(self, default=None):
         self.default = default
 
-    def __call__(self, string):
-        return omero.proxy_to_instance(
-            string, default=self.default)
+    def __call__(self, s):
+        return omero.proxy_to_instance(s, default=self.default)
 
 
 class NewFileType(FileType):
@@ -257,7 +256,7 @@ class NewFileType(FileType):
     overwrite existing files.
     """
     def __call__(self, s):
-        if string != "-" and os.path.exists(s):
+        if s != "-" and os.path.exists(s):
             raise ValueError("File exists: %s" % s)
         return FileType.__call__(self, s)
 
@@ -268,12 +267,12 @@ class ExistingFile(FileType):
     an existing file.
     """
     def __call__(self, s):
-        if not string == "-" and not os.path.exists(s):
+        if not s == "-" and not os.path.exists(s):
             raise ValueError("File does not exist: %s" % s)
-        if not string == "-":
+        if not s == "-":
             return FileType.__call__(self, s)
         else:
-            return string
+            return s
 
 
 class DirectoryType(FileType):
