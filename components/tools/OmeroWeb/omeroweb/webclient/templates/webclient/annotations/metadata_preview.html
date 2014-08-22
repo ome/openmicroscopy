@@ -275,9 +275,12 @@
             $("#preview_open_viewer").click(function(){
 
               var url = "{% if share_id %}{% url 'web_image_viewer' share_id manager.image.id %}{% else %}{% url 'web_image_viewer' manager.image.id %}{% endif %}";
-              url += "?" + OME.preview_viewport.getQuery();
 
-              OME.openPopup(url);
+              var vpQuery = OME.preview_viewport.getQuery();
+              // remove &zm=50
+              vpQuery = vpQuery.replace("&zm=" + OME.preview_viewport.getZoom(), "");
+
+              OME.openPopup(url + "?" + vpQuery);
               return false;
             });
 
