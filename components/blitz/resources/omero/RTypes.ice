@@ -9,8 +9,6 @@
 #ifndef OMERO_RTYPES_ICE
 #define OMERO_RTYPES_ICE
 
-#include <omero/ModelF.ice>
-
 //
 // Simple type definitions used for remoting purposes.
 // See README.ice for a description of the omero module.
@@ -112,8 +110,6 @@ module omero {
   {
   };
 
-
-
   /**
    * A simple Time implementation. The long value is the number
    * of milliseconds since the epoch (January 1, 1970).
@@ -122,16 +118,6 @@ module omero {
   {
     long val;
     long getValue();
-  };
-
-  /**
-   * Wrapper for an [omero::model::IObject] instance.
-   **/
-  ["protected"] class RObject extends RType
-  {
-    omero::model::IObject val;
-    // Here we don't want the pointer being altered
-    omero::model::IObject getValue();
   };
 
   // Collections

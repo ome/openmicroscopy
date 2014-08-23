@@ -81,6 +81,7 @@ DECLARATION BLOCK:
 
 [$ice] \#include <omero/model/IObject.ice>
 [$ice] \#include <omero/RTypes.ice>
+[$ice] \#include <omero/model/RTypes.ice>
 [$ice] \#include <omero/System.ice>
 [$ice] \#include <omero/Collections.ice>
 #if( $type.superclass )
@@ -88,6 +89,7 @@ DECLARATION BLOCK:
 [$ice] \#include <omero/model/${parent}.ice>
 #end
 [$hdr] \#include <omero/RTypes.h>
+[$hdr] \#include <omero/model/RTypes.h>
 [$hdr] \#include <omero/ClientErrors.h>
 [$hdr] \#include <omero/model/IObject.h>
 [$hdr] \#include <omero/model/DetailsI.h>

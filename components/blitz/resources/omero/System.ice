@@ -10,6 +10,7 @@
 #define OMERO_SYSTEM_ICE
 
 #include <omero/RTypes.ice>
+#include <omero/ModelF.ice>
 #include <Ice/BuiltinSequences.ice>
 
 /*

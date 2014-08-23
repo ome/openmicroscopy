@@ -11,6 +11,7 @@
 
 #include <omero/Scripts.h>
 #include <omero/RTypes.h>
+#include <omero/model/RTypes.h>
 #include <Ice/Ice.h>
 #include <IceUtil/Config.h>
 #include <Ice/Handle.h>
