@@ -26,6 +26,8 @@ import ome.model.acquisition.TransmittanceRange;
 import ome.model.core.Channel;
 import ome.model.core.LogicalChannel;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility class to determine the color usually associated to a specified
@@ -41,7 +43,10 @@ import ome.model.core.LogicalChannel;
  * @since OME2.2
  */
 public class ColorsFactory {
-	
+
+    /** The logger for this particular class */
+    private static Logger log = LoggerFactory.getLogger(ColorsFactory.class);
+    
     /** Index of the red component of a color. */
     public static final int RED_INDEX = 0;
     
@@ -255,7 +260,8 @@ public class ColorsFactory {
     	FilterSet f = null;
     	LightPath lp = null;
     	//LightPath
-    	if (valueFilter == null && valueWavelength == null && lc.getLightPath() != null) {
+    	log.info("LightPath " +lc.getLightPath());
+    	if (valueFilter == null && lc.getLightPath() != null) {
     		filters = new ArrayList<Filter>();
     		lp = lc.getLightPath();
     		j = lp.linkedEmissionFilterIterator();
@@ -268,7 +274,8 @@ public class ColorsFactory {
     		}
     	}
     	
-    	if (valueFilter == null && valueWavelength == null && lc.getFilterSet() != null) {
+    	log.info("getFilterSet" +lc.getFilterSet());
+    	if (valueFilter == null && lc.getFilterSet() != null) {
     		filters = new ArrayList<Filter>();
     		f = lc.getFilterSet();
     		j = f.linkedEmissionFilterIterator();
@@ -281,9 +288,9 @@ public class ColorsFactory {
     		}
     	}
     	
-    	
+    	log.info("getLightSourceSettings" +lc.getLightSourceSettings());
     	//Laser
-    	if (valueFilter == null && valueWavelength == null && lc.getLightSourceSettings() != null) {
+    	if (valueFilter == null && lc.getLightSourceSettings() != null) {
     		LightSource ls = lc.getLightSourceSettings().getLightSource();
     		if (ls instanceof Laser) valueWavelength = ((Laser) ls).getWavelength();
     	}
@@ -294,7 +301,7 @@ public class ColorsFactory {
     	if (valueWavelength != null) return determineColor(valueWavelength);
 
     	//light path first
-    	if (valueFilter == null && valueWavelength == null && lp != null) {
+    	if (valueFilter == null && lp != null) {
     		filters = new ArrayList<Filter>();
     		j = lp.linkedExcitationFilterIterator();
     		while (j.hasNext()) {
@@ -317,7 +324,7 @@ public class ColorsFactory {
     			valueFilter = getValueFromFilter(j.next(), false);
     		}
     	}
-    	return determineColor(new Double(valueFilter));
+    	return determineColor(valueFilter != null ?  new Double(valueFilter) : null);
     }
  
     /**
