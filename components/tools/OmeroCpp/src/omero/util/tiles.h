@@ -14,11 +14,11 @@
 #include <omero/api/RawPixelsStore.h>
 #include <omero/model/Pixels.h>
 
-#ifndef OMERO_API
-#   ifdef OMERO_API_EXPORTS
-#       define OMERO_API ICE_DECLSPEC_EXPORT
+#ifndef OMERO_CLIENT
+#   ifdef OMERO_CLIENT_EXPORTS
+#       define OMERO_CLIENT ICE_DECLSPEC_EXPORT
 #   else
-#       define OMERO_API ICE_DECLSPEC_IMPORT
+#       define OMERO_CLIENT ICE_DECLSPEC_IMPORT
 #   endif
 #endif
 
@@ -32,10 +32,10 @@ namespace omero {
 }
 
 namespace IceInternal {
-  OMERO_API ::Ice::Object* upCast(::omero::util::TileData*);
-  OMERO_API ::Ice::Object* upCast(::omero::util::TileLoopIteration*);
-  OMERO_API ::Ice::Object* upCast(::omero::util::TileLoop*);
-  OMERO_API ::Ice::Object* upCast(::omero::util::RPSTileLoop*);
+  OMERO_CLIENT ::Ice::Object* upCast(::omero::util::TileData*);
+  OMERO_CLIENT ::Ice::Object* upCast(::omero::util::TileLoopIteration*);
+  OMERO_CLIENT ::Ice::Object* upCast(::omero::util::TileLoop*);
+  OMERO_CLIENT ::Ice::Object* upCast(::omero::util::RPSTileLoop*);
 }
 
 namespace omero {
@@ -46,7 +46,7 @@ namespace omero {
          */
         typedef IceUtil::Handle<TileData> TileDataPtr;
 
-        class OMERO_API TileData : virtual public IceUtil::Shared {
+        class OMERO_CLIENT TileData : virtual public IceUtil::Shared {
         private:
             // Preventing copy-construction and assigning by value.
             TileData& operator=(const TileData& rv);
@@ -64,7 +64,7 @@ namespace omero {
          */
         typedef IceUtil::Handle<TileLoopIteration> TileLoopIterationPtr;
 
-        class OMERO_API TileLoopIteration : virtual public IceUtil::Shared {
+        class OMERO_CLIENT TileLoopIteration : virtual public IceUtil::Shared {
         private:
             // Preventing copy-construction and assigning by value.
             TileLoopIteration& operator=(const TileLoopIteration& rv);
@@ -81,7 +81,7 @@ namespace omero {
          */
         typedef IceUtil::Handle<TileLoop> TileLoopPtr;
 
-        class OMERO_API TileLoop : virtual public IceUtil::Shared {
+        class OMERO_CLIENT TileLoop : virtual public IceUtil::Shared {
         private:
             // Preventing copy-construction and assigning by value.
             TileLoop& operator=(const TileLoop& rv);
@@ -97,7 +97,7 @@ namespace omero {
         // Forward defs
         typedef IceUtil::Handle<RPSTileLoop> RPSTileLoopPtr;
 
-        class OMERO_API RPSTileData : virtual public TileData {
+        class OMERO_CLIENT RPSTileData : virtual public TileData {
         protected:
             RPSTileLoopPtr loop;
             omero::api::RawPixelsStorePrx rps;
@@ -109,7 +109,7 @@ namespace omero {
             virtual void close();
         };
 
-        class OMERO_API RPSTileLoop : virtual public TileLoop {
+        class OMERO_CLIENT RPSTileLoop : virtual public TileLoop {
         protected:
             omero::api::ServiceFactoryPrx session;
             omero::model::PixelsPtr pixels;

@@ -24,11 +24,11 @@
 #include <omero/cmd/API.h>
 #include <omero/util/concurrency.h>
 
-#ifndef OMERO_API
-#   ifdef OMERO_API_EXPORTS
-#       define OMERO_API ICE_DECLSPEC_EXPORT
+#ifndef OMERO_CLIENT
+#   ifdef OMERO_CLIENT_EXPORTS
+#       define OMERO_CLIENT ICE_DECLSPEC_EXPORT
 #   else
-#       define OMERO_API ICE_DECLSPEC_IMPORT
+#       define OMERO_CLIENT ICE_DECLSPEC_IMPORT
 #   endif
 #endif
 
@@ -41,8 +41,8 @@ namespace omero {
 }
 
 namespace IceInternal {
-  OMERO_API ::Ice::Object* upCast(::omero::callbacks::ProcessCallbackI*);
-  OMERO_API ::Ice::Object* upCast(::omero::callbacks::CmdCallbackI*);
+  OMERO_CLIENT ::Ice::Object* upCast(::omero::callbacks::ProcessCallbackI*);
+  OMERO_CLIENT ::Ice::Object* upCast(::omero::callbacks::CmdCallbackI*);
 }
 
 namespace omero {
@@ -88,7 +88,7 @@ namespace omero {
         /*
          * Simple callback which registers itself with the given process.
          */
-        class OMERO_API ProcessCallbackI : virtual public omero::grid::ProcessCallback {
+        class OMERO_CLIENT ProcessCallbackI : virtual public omero::grid::ProcessCallback {
 
         // Preventing copy-construction and assigning by value.
         private:
@@ -154,7 +154,7 @@ namespace omero {
          *     }
          */
         
-        class OMERO_API DeleteCallbackI : virtual public IceUtil::Shared {
+        class OMERO_CLIENT DeleteCallbackI : virtual public IceUtil::Shared {
 
         // Preventing copy-construction and assigning by value.
         private:
@@ -210,7 +210,7 @@ namespace omero {
          *
          */
 
-        class OMERO_API CmdCallbackI : virtual public omero::cmd::CmdCallback {
+        class OMERO_CLIENT CmdCallbackI : virtual public omero::cmd::CmdCallback {
 
         // Preventing copy-construction and assigning by value.
         private:

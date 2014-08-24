@@ -152,7 +152,7 @@ foreach(slicedir ${Ice_SLICE_DIRS})
   list(APPEND SLICEOPTS "-I${slicedir}")
 endforeach(slicedir)
 if(WIN32)
-  list(APPEND SLICEOPTS --dll-export OMERO_API)
+  list(APPEND SLICEOPTS --dll-export OMERO_ICE)
 endif(WIN32)
 
 set(omero_includedir "${CMAKE_INSTALL_FULL_INCLUDEDIR}/omero")
@@ -266,7 +266,7 @@ set_target_properties(omero-ice PROPERTIES
 if(MSVC)
   set_target_properties(omero-ice PROPERTIES
                         LINK_FLAGS "/INCREMENTAL:NO"
-                        DEFINE_SYMBOL "OMERO_API_EXPORTS")
+                        DEFINE_SYMBOL "OMERO_ICE_EXPORTS")
 endif(MSVC)
 
 set(OMERO_COMMON_STATIC_HEADERS
@@ -363,7 +363,7 @@ set_target_properties(omero-client PROPERTIES
 if(MSVC)
   set_target_properties(omero-client PROPERTIES
                         LINK_FLAGS "/INCREMENTAL:NO"
-                        DEFINE_SYMBOL "OMERO_API_EXPORTS")
+                        DEFINE_SYMBOL "OMERO_CLIENT_EXPORTS")
 endif(MSVC)
 
 if(debug-ice-generation)

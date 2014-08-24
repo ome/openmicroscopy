@@ -25,11 +25,11 @@
 #include <string>
 #include <iosfwd>
 
-#ifndef OMERO_API
-#   ifdef OMERO_API_EXPORTS
-#       define OMERO_API ICE_DECLSPEC_EXPORT
+#ifndef OMERO_CLIENT
+#   ifdef OMERO_CLIENT_EXPORTS
+#       define OMERO_CLIENT ICE_DECLSPEC_EXPORT
 #   else
-#       define OMERO_API ICE_DECLSPEC_IMPORT
+#       define OMERO_CLIENT ICE_DECLSPEC_IMPORT
 #   endif
 #endif
 
@@ -38,7 +38,7 @@ namespace omero {
     /*
      * Simple type for use with the ClientCallback type below.
      */
-    class OMERO_API Callable {
+    class OMERO_CLIENT Callable {
     public:
         Callable() {};
         void operator()() {};
@@ -60,7 +60,7 @@ namespace omero {
      *    http://trac.openmicroscopy.org.uk/ome/wiki/ClientDesign
      *
      */
-    class OMERO_API client : public IceUtil::Shared {
+    class OMERO_CLIENT client : public IceUtil::Shared {
 
         // Preventing copy-construction and assigning by value.
     private:
@@ -374,7 +374,7 @@ namespace omero {
      * Provides basic operator() implementations for each of the methods
      * that the server may call on it.
      */
-    class OMERO_API CallbackI : virtual public omero::api::ClientCallback {
+    class OMERO_CLIENT CallbackI : virtual public omero::api::ClientCallback {
 
         /*
          * omero::client needs access to the Callable fields on the callback.
@@ -406,7 +406,7 @@ namespace omero {
     /*
      * Callable implementation which does nothing.
      */
-    class OMERO_API NoOpCallable : public Callable {
+    class OMERO_CLIENT NoOpCallable : public Callable {
     public:
     NoOpCallable() : Callable() {}
         void operator()(){}
