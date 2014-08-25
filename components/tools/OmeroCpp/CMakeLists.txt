@@ -377,7 +377,7 @@ add_custom_target(gensrc
                           ${OMERO_API_HEADERS} ${OMERO_API_SOURCES}
                           ${OMERO_CLIENT_HEADERS} ${OMERO_CLIENT_SOURCES})
 
-install(TARGETS omero-client
+install(TARGETS omero-ice omero-client
         LIBRARY DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}
         RUNTIME DESTINATION ${CMAKE_INSTALL_FULL_BINDIR})
@@ -391,6 +391,14 @@ install(FILES ${OMERO_COMMON_STATIC_SYS_HEADERS}
         DESTINATION ${omero_includedir}/sys)
 install(FILES ${OMERO_CLIENT_STATIC_UTIL_HEADERS}
         DESTINATION ${omero_includedir}/util)
+
+set(LIBRARY_PREFIX OMERO_ICE)
+set(LIBRARY_NAME omero-ice)
+set(LIBRARY_HEADER omero/RTypes.h)
+configure_file(${PROJECT_SOURCE_DIR}/components/bioformats/cpp/cmake/TemplateConfig.cmake.in
+               ${CMAKE_CURRENT_BINARY_DIR}/omero-ice-config.cmake)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/omero-ice-config.cmake
+        DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/cmake)
 
 set(LIBRARY_PREFIX OMERO_CLIENT)
 set(LIBRARY_NAME omero-client)
