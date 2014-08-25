@@ -7,6 +7,7 @@
 package ome.services.sessions.state;
 
 import java.sql.Timestamp;
+import java.util.Map;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -215,7 +216,7 @@ public class SessionCache implements ApplicationContextAware {
     /**
      *
      */
-    private final ConcurrentHashMap<String, Data> sessions = new ConcurrentHashMap<String, Data>();
+    private final Map<String, Data> sessions = new ConcurrentHashMap<String, Data>();
 
     /**
      *
@@ -237,7 +238,7 @@ public class SessionCache implements ApplicationContextAware {
     /**
      * 
      */
-    private final ConcurrentHashMap<String, Set<SessionCallback>> sessionCallbackMap = new ConcurrentHashMap<String, Set<SessionCallback>>(
+    private final Map<String, Set<SessionCallback>> sessionCallbackMap = new ConcurrentHashMap<String, Set<SessionCallback>>(
             64);
 
     private final AtomicReference<StaleCacheListener> staleCacheListener = new AtomicReference<StaleCacheListener>();

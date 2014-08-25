@@ -18,6 +18,8 @@ omero.db.profile=psql
 # in etc/local.properties
 javac.source=1.6
 javac.target=1.6
+# To be set if compiled with Java 8 and run using Java 7 for example. It should match the javac.target.
+#javac.bootclasspath=PathToJava/lib/rt.jar
 javac.debug=on
 javac.debuglevel=lines,vars,source
 # "300m" suffices on 32 bit machines

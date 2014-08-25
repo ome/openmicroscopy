@@ -143,14 +143,14 @@ class Connector
     private ServiceFactoryPrx entryUnencrypted;
 
     /** Collection of stateless services to prevent re-lookup */
-    private final ConcurrentHashMap<String, ServiceInterfacePrx> statelessServices;
+    private final Map<String, ServiceInterfacePrx> statelessServices;
 
     /** Collection of stateful services to prevent re-lookup.
      * {@link RenderingEnginePrx} and {@link OMEROMetadataStoreClient}
      * instances are stored separately */
     private final Multimap<String, StatefulServiceInterfacePrx> statefulServices;
 
-    private final ConcurrentHashMap<OMEROMetadataStoreClient, String> importStores;
+    private final Map<OMEROMetadataStoreClient, String> importStores;
 
     /** Collection of services to keep alive. */
     private final Multimap<Long, RenderingEnginePrx> reServices;
@@ -165,7 +165,7 @@ class Connector
      * TODO: this should be reviewed, since if getConnector(String) is used
      * outside of the import process there could be a race condition.
      */
-    private final ConcurrentHashMap<String, Connector> derived;
+    private final Map<String, Connector> derived;
 
     /** The name of the group. To be removed when we can use groupId.*/
     private String groupName;

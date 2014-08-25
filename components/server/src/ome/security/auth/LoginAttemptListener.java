@@ -8,6 +8,7 @@
 package ome.security.auth;
 
 import java.security.Permissions;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -36,7 +37,7 @@ public class LoginAttemptListener implements
     private final static Logger log = LoggerFactory
             .getLogger(LoginAttemptListener.class);
 
-    private final ConcurrentHashMap<String, AtomicInteger> counts = new ConcurrentHashMap<String, AtomicInteger>();
+    private final Map<String, AtomicInteger> counts = new ConcurrentHashMap<String, AtomicInteger>();
 
     private final int throttleCount;
 

@@ -128,6 +128,7 @@ omero.version=${omero.version}
             encoding="UTF-8"
             debug="${javac.debug}"
             debuglevel="${javac.debuglevel}"
+            bootclasspath="${javac.bootclasspath}"
             deprecation="on">
         </javac>
     </presetdef>
@@ -400,7 +401,8 @@ omero.version=${omero.version}
             encoding="UTF-8"
             docencoding="UTF-8"
             breakiterator="true"
-            useexternalfile="true">
+            useexternalfile="true"
+            additionalparam="${javadoc.doclint}">
             <fileset dir="${src.dir}" includes="**/*.java"/>
             <fileset dir="${src.dest}" includes="**/*.java"/>
         </javadoc>

@@ -70,7 +70,7 @@ public class HandleI implements _HandleOperations, IHandle,
     /**
      * Callbacks that have been added by clients.
      */
-    private final ConcurrentHashMap<String, CmdCallbackPrx> callbacks =
+    private final Map<String, CmdCallbackPrx> callbacks =
         new ConcurrentHashMap<String, CmdCallbackPrx>();
 
     /**

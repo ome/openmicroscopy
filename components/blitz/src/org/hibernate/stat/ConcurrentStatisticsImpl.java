@@ -23,13 +23,13 @@
  */
 package org.hibernate.stat;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.hibernate.cache.Region;
 import org.hibernate.engine.SessionFactoryImplementor;
 import org.hibernate.util.ArrayHelper;
@@ -91,19 +91,19 @@ public class ConcurrentStatisticsImpl implements Statistics, StatisticsImplement
 	/**
 	 * second level cache statistics per region
 	 */
-	private final ConcurrentMap secondLevelCacheStatistics = new ConcurrentHashMap();
+	private final Map secondLevelCacheStatistics = new ConcurrentHashMap();
 	/**
 	 * entity statistics per name
 	 */
-	private final ConcurrentMap entityStatistics = new ConcurrentHashMap();
+	private final Map entityStatistics = new ConcurrentHashMap();
 	/**
 	 * collection statistics per name
 	 */
-	private final ConcurrentMap collectionStatistics = new ConcurrentHashMap();
+	private final Map collectionStatistics = new ConcurrentHashMap();
 	/**
 	 * entity statistics per query string (HQL or SQL)
 	 */
-	private final ConcurrentMap queryStatistics = null;
+	private final Map queryStatistics = null;
 
 	public ConcurrentStatisticsImpl() {
 		clear();
