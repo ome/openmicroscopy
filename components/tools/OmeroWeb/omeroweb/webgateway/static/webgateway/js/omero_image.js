@@ -348,7 +348,7 @@
         var template = '' +
           '<tr class="$cls rdef-window">' +
           '<td><button id="rd-wblitz-ch$idx0" class="rd-wblitz-ch squared $act" style="background-color: #$col" ' +
-            'title="$label"></button></td>' +
+            'title="$label">$l</button></td>' +
           '<td><table><tr id="wblitz-ch$idx0-cw" class="rangewidget"></tr></table></td>' +
           '<td><button id="wblitz-ch$idx0-color" class="picker squarred" title="Choose Color">&nbsp;</button></td>' +
           '</tr>';
@@ -398,10 +398,13 @@
         };
 
         for (i=channels.length-1; i>=0; i--) {
+            var lbl = channels[i].label.slice(0, 4);
+            lbl = lbl + (channels[i].label.length > 4 ? ".." : "");
             tmp.after(template
                 .replace(/\$act/g, channels[i].active?'pressed':'')
                 .replace(/\$col/g, rgbToHex(channels[i].color))
                 .replace(/\$label/g, channels[i].label)
+                .replace(/\$l/g, lbl)
                 .replace(/\$idx0/g, i) // Channel Index, 0 based
                 .replace(/\$idx1/g, i+1) // Channel Index, 1 based
                 .replace(/\$cwl/g, channels[i].label) // Wavelength
