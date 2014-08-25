@@ -762,4 +762,12 @@ public interface Renderer
      * @return See above.
      */
     ModuloInfo getModuloT();
+    
+    /**
+     * Returns <code>true</code> if the rendering settings 
+     * have been modified
+     *
+     * @return See above.
+     */
+    boolean isModified();
 }

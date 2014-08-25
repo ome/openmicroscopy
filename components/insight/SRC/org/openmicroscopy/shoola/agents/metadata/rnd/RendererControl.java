@@ -373,7 +373,17 @@ class RendererControl
 			view.setZSection(((Integer) evt.getNewValue()).intValue());
 		} else if (Renderer.T_SELECTED_PROPERTY.equals(name)) {
 			view.setTimepoint(((Integer) evt.getNewValue()).intValue());
-		}     
+		}   
+        
+        enableActions();
     }
 
+    /**
+     * Enables/Disables actions depending on if the current
+     * settings have been modified
+     */
+    public void enableActions() {
+        boolean settingsModified = model.isModified();
+        actionsMap.get(SAVE).setEnabled(settingsModified);
+    }
 }

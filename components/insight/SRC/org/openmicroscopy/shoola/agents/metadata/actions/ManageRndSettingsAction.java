@@ -70,7 +70,7 @@ public class ManageRndSettingsAction
 	public static final int SAVE = 6;
 
 	/** The description of the action if {@link #SAVE}. */
-	public static final String NAME_SAVE = "Apply";
+	public static final String NAME_SAVE = "Save";
 
 	/** The description of the action if {@link #APPLY_TO_ALL}. */
 	private static final String NAME_APPLY_TO_ALL = "Apply to All";

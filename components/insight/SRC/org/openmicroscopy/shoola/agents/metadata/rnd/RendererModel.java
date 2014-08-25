@@ -848,7 +848,7 @@ class RendererModel
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (rndControl == null) return;
-		rndControl.saveCurrentSettings();
+		rndDef = rndControl.saveCurrentSettings();
 	}
 
 	/**
@@ -1240,7 +1240,9 @@ class RendererModel
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (rndControl == null) return null;
-		return rndControl.saveCurrentSettings();
+		RndProxyDef def = rndControl.saveCurrentSettings();
+		rndDef = def;
+		return def;
 	}
 
 	/**
@@ -1347,6 +1349,19 @@ class RendererModel
 	{
 		if (rndControl == null) return false;
 		return rndControl.isSameSettings(def, checkPlane);
+	}
+	
+       /**
+        * Returns <code>true</code> if the rendering settings 
+        * have been modified
+        *
+        * @return See above.
+        */
+	boolean isModified() {
+	    if(rndControl!=null) {
+	        return !rndControl.isSameSettings(rndDef, true);
+	    }
+	    return false;
 	}
 
     /**
