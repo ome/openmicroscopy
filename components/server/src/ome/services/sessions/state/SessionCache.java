@@ -215,7 +215,7 @@ public class SessionCache implements ApplicationContextAware {
     /**
      *
      */
-    private final ConcurrentHashMap<String, Data> sessions = new ConcurrentHashMap<String, Data>();
+    private final Map<String, Data> sessions = new ConcurrentHashMap<String, Data>();
 
     /**
      *
@@ -237,7 +237,7 @@ public class SessionCache implements ApplicationContextAware {
     /**
      * 
      */
-    private final ConcurrentHashMap<String, Set<SessionCallback>> sessionCallbackMap = new ConcurrentHashMap<String, Set<SessionCallback>>(
+    private final Map<String, Set<SessionCallback>> sessionCallbackMap = new ConcurrentHashMap<String, Set<SessionCallback>>(
             64);
 
     private final AtomicReference<StaleCacheListener> staleCacheListener = new AtomicReference<StaleCacheListener>();

@@ -8,6 +8,7 @@
 package ome.services.blitz.fire;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,7 +24,6 @@ import org.springframework.context.ApplicationListener;
 
 import Glacier2.CannotCreateSessionException;
 import Glacier2.StringSetPrx;
-
 import ome.logic.HardWiredInterceptor;
 import ome.security.SecuritySystem;
 import ome.services.blitz.impl.ServiceFactoryI;
@@ -39,7 +39,6 @@ import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.Roles;
 import ome.util.messages.MessageException;
-
 import omero.ApiUsageException;
 import omero.WrappedCreateSessionException;
 import omero.api.ClientCallbackPrxHelper;
@@ -98,7 +97,7 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
      * session since there is no method on {@link Ice.ObjectAdapter} to retrieve
      * all servants.
      */
-    protected final ConcurrentHashMap<String, ServantHolder> sessionToHolder
+    protected final Map<String, ServantHolder> sessionToHolder
         = new ConcurrentHashMap<String, ServantHolder>();
 
     public SessionManagerI(Ring ring, Ice.ObjectAdapter adapter,

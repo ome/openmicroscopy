@@ -126,7 +126,7 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
      * invoked with the integer lookup to this map, in which case the instance
      * will be purged.
      */
-    private ConcurrentHashMap<Integer, UploadState> uploaders
+    private Map<Integer, UploadState> uploaders
         = new ConcurrentHashMap<Integer, UploadState>();
 
     /**
