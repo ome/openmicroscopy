@@ -2888,7 +2888,7 @@ def script_run(request, scriptId, conn=None, **kwargs):
     return HttpResponse(json.dumps(rsp), mimetype='json')
 
 
-@login_required(setGroupContext=True)
+@login_required()
 def ome_tiff_script(request, imageId, conn=None, **kwargs):
     """
     Uses the scripting service (Batch Image Export script) to generate OME-TIFF for an
@@ -2901,6 +2901,10 @@ def ome_tiff_script(request, imageId, conn=None, **kwargs):
     scriptService = conn.getScriptService()
     sId = scriptService.getScriptID("/omero/export_scripts/Batch_Image_Export.py")
 
+    image = conn.getObject("Image", imageId)
+    if image is not None:
+        gid = image.getDetails().group.id.val
+        conn.SERVICE_OPTS.setOmeroGroup(gid)
     imageIds = [long(imageId)]
     inputMap = {'Data_Type': wrap('Image'), 'IDs': wrap(imageIds)}
     inputMap['Format'] = wrap('OME-TIFF')
