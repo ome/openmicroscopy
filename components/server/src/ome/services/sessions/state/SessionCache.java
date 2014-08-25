@@ -7,6 +7,7 @@
 package ome.services.sessions.state;
 
 import java.sql.Timestamp;
+import java.util.Map;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
