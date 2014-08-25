@@ -63,7 +63,8 @@ import org.springframework.ldap.filter.EqualsFilter;
 import org.springframework.ldap.filter.Filter;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.common.collect.Maps;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Lists;
 
 /**
@@ -561,7 +562,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
     @RolesAllowed("system")
     public Map<String, Experimenter> discover() {
         Roles r = getSecuritySystem().getSecurityRoles();
-        Map<String, Experimenter> experimenterDNMap = Maps.newHashMap();
+        BiMap<String, Experimenter> experimenterDNMap = HashBiMap.create();
         List<Experimenter> ldapAccounts = Lists.newArrayList();
 
         List<Experimenter> localExperimenters = iQuery.findAllByQuery(
