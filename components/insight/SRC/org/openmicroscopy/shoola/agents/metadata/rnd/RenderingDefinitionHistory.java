@@ -41,6 +41,12 @@ public class RenderingDefinitionHistory {
     /** Property name for current redo ability */
     public static final String CAN_REDO = "canRedo";
 
+    /** Indicates that the previous action was an undo */
+    private static final int PREV_ACTION_BACKWARD = 1;
+    
+    /** Indicates that the previous action was a redo */
+    private static final int PREV_ACTION_FORWARD = 2;
+    
     /** Reference to the PropertyChangeListeners */
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
@@ -50,6 +56,9 @@ public class RenderingDefinitionHistory {
     /** Pointer to the 'current' previous rendering settings */
     private int pointer = -1;
 
+    /** Tracks the last action */
+    private int previousAction = 0;
+    
     /**
      * Creates a new instance
      */
@@ -77,7 +86,7 @@ public class RenderingDefinitionHistory {
      * 
      * @return See above
      */
-    private RndProxyDef getCurrent() {
+    public RndProxyDef getCurrent() {
         if (history.isEmpty())
             return null;
 
@@ -118,11 +127,16 @@ public class RenderingDefinitionHistory {
         boolean oldU = canUndo();
         boolean oldR = canRedo();
 
-        pointer++;
+        if(previousAction==PREV_ACTION_BACKWARD)
+            pointer +=2;
+        else
+            pointer += 1;
 
         this.pcs.firePropertyChange(CAN_UNDO, oldU, canUndo());
         this.pcs.firePropertyChange(CAN_REDO, oldR, canRedo());
-
+        
+        previousAction = PREV_ACTION_FORWARD;
+        
         return getCurrent();
     }
 
@@ -147,12 +161,18 @@ public class RenderingDefinitionHistory {
 
         history.add(def);
 
+        if(previousAction==PREV_ACTION_FORWARD)
+            pointer--;
+        
         RndProxyDef current = getCurrent();
+        
         pointer--;
 
         this.pcs.firePropertyChange(CAN_UNDO, oldU, canUndo());
         this.pcs.firePropertyChange(CAN_REDO, oldR, canRedo());
-
+        
+        previousAction = PREV_ACTION_BACKWARD;
+        
         return current;
     }
 
@@ -165,12 +185,18 @@ public class RenderingDefinitionHistory {
         boolean oldU = canUndo();
         boolean oldR = canRedo();
 
+        if(previousAction==PREV_ACTION_FORWARD)
+            pointer--;
+        
         RndProxyDef def = getCurrent();
+        
         pointer--;
 
         this.pcs.firePropertyChange(CAN_UNDO, oldU, canUndo());
         this.pcs.firePropertyChange(CAN_REDO, oldR, canRedo());
-
+        
+        previousAction = PREV_ACTION_BACKWARD;
+        
         return def;
     }
 
