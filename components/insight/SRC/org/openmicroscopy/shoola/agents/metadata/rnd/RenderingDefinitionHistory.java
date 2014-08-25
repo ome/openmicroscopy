@@ -127,7 +127,7 @@ public class RenderingDefinitionHistory {
         boolean oldU = canUndo();
         boolean oldR = canRedo();
 
-        if(previousAction==PREV_ACTION_BACKWARD)
+        if (previousAction==PREV_ACTION_BACKWARD)
             pointer +=2;
         else
             pointer += 1;
@@ -161,7 +161,7 @@ public class RenderingDefinitionHistory {
 
         history.add(def);
 
-        if(previousAction==PREV_ACTION_FORWARD)
+        if (previousAction==PREV_ACTION_FORWARD)
             pointer--;
         
         RndProxyDef current = getCurrent();
@@ -185,7 +185,7 @@ public class RenderingDefinitionHistory {
         boolean oldU = canUndo();
         boolean oldR = canRedo();
 
-        if(previousAction==PREV_ACTION_FORWARD)
+        if (previousAction==PREV_ACTION_FORWARD)
             pointer--;
         
         RndProxyDef def = getCurrent();

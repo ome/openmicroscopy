@@ -382,10 +382,10 @@ class RendererComponent
 			}
 			model.setSelectedChannel(selectedIndex);
 			view.setSelectedChannel();
-        	if (render) {
+        	if (render) 
         		firePropertyChange(RENDER_PLANE_PROPERTY,
         				Boolean.valueOf(false), Boolean.valueOf(true));
-        	}
+        	
         	firePropertyChange(SELECTED_CHANNEL_PROPERTY, -1,
         			selectedIndex);
 		} catch (Exception ex) {

@@ -344,12 +344,12 @@ class RendererControl
     {
         String name = evt.getPropertyName();
         
-        if(RenderingDefinitionHistory.CAN_REDO.equals(name)) {
+        if (RenderingDefinitionHistory.CAN_REDO.equals(name)) {
             boolean value = (Boolean)evt.getNewValue();
             actionsMap.get(RND_REDO).setEnabled(value);
         }
 
-        if(RenderingDefinitionHistory.CAN_UNDO.equals(name)) {
+        if (RenderingDefinitionHistory.CAN_UNDO.equals(name)) {
             boolean value = (Boolean)evt.getNewValue();
             actionsMap.get(RND_UNDO).setEnabled(value);
         }

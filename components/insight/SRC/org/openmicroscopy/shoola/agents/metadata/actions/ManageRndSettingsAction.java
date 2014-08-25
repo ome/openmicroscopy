@@ -104,7 +104,7 @@ public class ManageRndSettingsAction
 	/** The description of the action if {@link #UNDO}. */
 	private static final String DESCRIPTION_UNDO = "Undo the last change.";
 	
-	/** The description of the action if {@link #RESET}. */
+	/** The description of the action if {@link #REDO}. */
         private static final String DESCRIPTION_REDO = "Redo the last change.";
         
 	/** The description of the action if {@link #RESET}. */
