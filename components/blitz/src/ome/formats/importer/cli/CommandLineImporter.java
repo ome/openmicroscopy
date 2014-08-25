@@ -41,6 +41,7 @@ import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.Screen;
 
+import org.apache.commons.lang.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +57,9 @@ public class CommandLineImporter {
 
     /** Logger for this class. */
     private static Logger log = LoggerFactory.getLogger(CommandLineImporter.class);
+
+    /** StopWatch instance **/
+    private final StopWatch sw = new StopWatch();
 
     /** Name that will be used for usage() */
     private static final String APP_NAME = "importer-cli";
@@ -210,11 +214,11 @@ public class CommandLineImporter {
         }
 
         else {
+            sw.start();
             library.addObserver(new LoggingImportMonitor());
             // error handler has been configured in constructor from main args
             library.addObserver(this.handler);
             successful = library.importCandidates(config, candidates);
-            report();
             try {
                 List<String> paths = new ArrayList<String>();
                 for (ImportContainer ic : candidates.getContainers()) {
@@ -231,6 +235,9 @@ public class CommandLineImporter {
             } catch (CleanupFailure e) {
                 log.error("Failed to cleanup {} files", e.getFailedFiles().size());
                 return 3;
+            } finally {
+                sw.stop();
+                report();
             }
         }
 
@@ -242,8 +249,12 @@ public class CommandLineImporter {
         boolean report = config.sendReport.get();
         boolean files = config.sendFiles.get();
         boolean logs = config.sendLogFile.get();
+        boolean summary = config.summary.get();
         if (report) {
-           handler.update(null, new ImportEvent.DEBUG_SEND(files, logs));
+            handler.update(null, new ImportEvent.DEBUG_SEND(files, logs));
+        } else if (summary) {
+            library.notifyObservers(new ImportEvent.IMPORT_SUMMARY(
+                    sw.getTime(), handler.errorCount()));
         }
     }
 
@@ -296,6 +307,7 @@ public class CommandLineImporter {
             + "  -r SCREEN_ID\t\t\t\tOMERO screen ID to import plate into\n"
 
             + "  --report\t\t\t\tReport errors to the OME team\n"
+            + "  --summary\t\t\t\tPrint overall import summary\n"
             + "  --upload\t\t\t\tUpload broken files with report\n"
             + "  --logs\t\t\t\tUpload log file with report\n"
             + "  --email EMAIL\t\t\t\tEmail for reported errors\n"
@@ -431,6 +443,7 @@ public class CommandLineImporter {
         LongOpt debug = new LongOpt(
                 "debug", LongOpt.OPTIONAL_ARGUMENT, null, 1);
         LongOpt report = new LongOpt("report", LongOpt.NO_ARGUMENT, null, 2);
+        LongOpt summary = new LongOpt("summary", LongOpt.NO_ARGUMENT, null, 22);
         LongOpt upload = new LongOpt("upload", LongOpt.NO_ARGUMENT, null, 3);
         LongOpt logs = new LongOpt("logs", LongOpt.NO_ARGUMENT, null, 4);
         LongOpt email = new LongOpt(
@@ -475,7 +488,7 @@ public class CommandLineImporter {
                 "plate_description", LongOpt.REQUIRED_ARGUMENT, null, 21);
 
         Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:h",
-                new LongOpt[] { debug, report, upload, logs, email,
+                new LongOpt[] { debug, summary, report, upload, logs, email,
                                 name, description, noThumbnails,
                                 agent, annotationNamespace, annotationText,
                                 annotationLink, transferOpt, advancedHelp,
@@ -557,6 +570,10 @@ public class CommandLineImporter {
             }
             case 13: {
                 advUsage();
+                break;
+            }
+            case 22: {
+                config.summary.set(true);
                 break;
             }
             // ADVANCED START -------------------------------------------------
