@@ -34,6 +34,7 @@ import ome.security.ACLVoter;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphTraversal;
+import ome.system.EventContext;
 import ome.system.Login;
 import omero.cmd.Chgrp2;
 import omero.cmd.Chgrp2Response;
@@ -83,6 +84,16 @@ public class Chgrp2I extends Chgrp2 implements IRequest {
     public void init(Helper helper) {
         this.helper = helper;
         helper.setSteps(3);
+
+        /* check that the user is a member of the destination group */
+        final EventContext ec = helper.getEventContext();
+        if (!ec.isCurrentUserAdmin()) {
+            final Collection<Long> groups = ec.getMemberOfGroupsList();
+            if (!groups.contains(groupId)) {
+                throw helper.cancel(new ERR(), new IllegalArgumentException(), "not a member of the chgrp destination group");
+            }
+        }
+
         graphTraversal = new GraphTraversal(aclVoter, graphPathBean, graphPolicy, new InternalProcessor());
     }
 
