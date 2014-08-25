@@ -21,6 +21,7 @@ package ome.services.graphs;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -905,9 +906,78 @@ public class GraphTraversal {
     }
 
     /**
-     * Remove links between the targeted model objects and the remainder of the model object graph.
+     * Assert that the processor may operate upon the given objects with {@link Processor#processInstances(String, Collection)}.
+     * @param className a class name
+     * @param ids instance IDs
+     * @throws GraphException if the user does not have the necessary permissions for all of the objects
      */
-    public void unlinkTargets() {
+    private void assertMayBeProcessed(String className, Collection<Long> ids) throws GraphException {
+        assertPermissions(idsToCIs(className, ids), processor.getRequiredPermissions());
+    }
+
+    /**
+     * Assert that the user may delete the given objects.
+     * @param className a class name
+     * @param ids instance IDs
+     * @throws GraphException if the user may not delete all of the objects
+     */
+    private void assertMayBeDeleted(String className, Collection<Long> ids) throws GraphException {
+        assertPermissions(idsToCIs(className, ids), Collections.singleton(Ability.DELETE));
+    }
+
+    /**
+     * Assert that the user may update the given objects.
+     * @param className a class name
+     * @param ids instance IDs
+     * @throws GraphException if the user may not update all of the objects
+     */
+    private void assertMayBeUpdated(String className, Collection<Long> ids) throws GraphException {
+        assertPermissions(idsToCIs(className, ids), Collections.singleton(Ability.UPDATE));
+    }
+
+    /**
+     * Assert that the user has the given abilities to operate upon the given objects.
+     * @param objects some objects
+     * @param abilities some abilities, may be {@code null}
+     * @throws GraphException if the user does not have all the abilities to operate upon all of the objects
+     */
+    private void assertPermissions(Set<CI> objects, Collection<GraphPolicy.Ability> abilities) throws GraphException {
+        if (abilities == null) {
+            return;
+        }
+        if (abilities.contains(Ability.DELETE)) {
+            final Set<CI> violations = Sets.difference(objects, planning.mayDelete);
+            if (!violations.isEmpty()) {
+                throw new GraphException("not permitted to delete " + Joiner.on(", ").join(violations));
+            }
+        }
+        if (abilities.contains(Ability.UPDATE)) {
+            final Set<CI> violations = Sets.difference(objects, planning.mayUpdate);
+            if (!violations.isEmpty()) {
+                throw new GraphException("not permitted to update " + Joiner.on(", ").join(violations));
+            }
+        }
+    }
+
+    /**
+     * Convert the given IDs to objects of the given class.
+     * @param className a class name
+     * @param ids instance IDs
+     * @return objects of the given class and IDs
+     */
+    private static Set<CI> idsToCIs(String className, Collection<Long> ids) {
+        final Set<CI> objects = new HashSet<CI>();
+        for (final Long id : ids) {
+            objects.add(new CI(className, id));
+        }
+        return objects;
+    }
+
+    /**
+     * Remove links between the targeted model objects and the remainder of the model object graph.
+     * @throws GraphException if the user does not have permission to unlink the targets
+     */
+    public void unlinkTargets() throws GraphException {
         /* accumulate plan for unlinking included/deleted from others */
         final SetMultimap<CP, Long> toNullByCP = HashMultimap.create();
         final Map<CP, SetMultimap<Long, Entry<String, Long>>> linkerToIdToLinked =
@@ -974,13 +1044,17 @@ public class GraphTraversal {
         /* unlink included/deleted by nulling properties */
         for (final Entry<CP, Collection<Long>> nullCurr : toNullByCP.asMap().entrySet()) {
             final CP linker = nullCurr.getKey();
-            for (final List<Long> ids : Iterables.partition(nullCurr.getValue(), BATCH_SIZE)) {
+            final Collection<Long> allIds = nullCurr.getValue();
+            assertMayBeUpdated(linker.className, allIds);
+            for (final List<Long> ids : Iterables.partition(allIds, BATCH_SIZE)) {
                 processor.nullProperties(linker.className, linker.propertyName, ids);
             }
         }
         /* unlink included/deleted by removing from collections */
         for (final Entry<CP, SetMultimap<Long, Entry<String, Long>>> removeCurr : linkerToIdToLinked.entrySet()) {
             final CP linker = removeCurr.getKey();
+            final Collection<Long> allIds = removeCurr.getValue().keySet();
+            assertMayBeUpdated(linker.className, allIds);
             for (final List<Entry<Long, Collection<Entry<String, Long>>>> idMap :
                 Iterables.partition(removeCurr.getValue().asMap().entrySet(), BATCH_SIZE)) {
                 processor.filterProperties(linker.className, linker.propertyName, idMap);
@@ -990,7 +1064,8 @@ public class GraphTraversal {
 
     /**
      * Process the targeted model objects.
-     * @throws GraphException if a cycle is detected in the model object graph
+     * @throws GraphException if the user does not have permission to process the targets or
+     * if a cycle is detected in the model object graph
      */
     public void processTargets() throws GraphException {
         /* process the targets forward across links */
@@ -1025,7 +1100,9 @@ public class GraphTraversal {
             if (!toDelete.isEmpty()) {
                 for (final Entry<String, Collection<Long>> oneClassToDelete : toDelete.asMap().entrySet()) {
                     final String className = oneClassToDelete.getKey();
-                    for (final List<Long> ids : Iterables.partition(oneClassToDelete.getValue(), BATCH_SIZE)) {
+                    final Collection<Long> allIds = oneClassToDelete.getValue();
+                    assertMayBeDeleted(className, allIds);
+                    for (final List<Long> ids : Iterables.partition(allIds, BATCH_SIZE)) {
                         processor.deleteInstances(className, ids);
                     }
                 }
@@ -1034,7 +1111,9 @@ public class GraphTraversal {
             if (!toJoin.isEmpty()) {
                 for (final Entry<String, Collection<Long>> oneClassToJoin : toJoin.asMap().entrySet()) {
                     final String className = oneClassToJoin.getKey();
-                    for (final List<Long> ids : Iterables.partition(oneClassToJoin.getValue(), BATCH_SIZE)) {
+                    final Collection<Long> allIds = oneClassToJoin.getValue();
+                    assertMayBeProcessed(className, allIds);
+                    for (final List<Long> ids : Iterables.partition(allIds, BATCH_SIZE)) {
                         processor.processInstances(className, ids);
                     }
                 }
