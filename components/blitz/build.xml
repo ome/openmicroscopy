@@ -237,7 +237,6 @@
         <do-checkstyle config="${omero.home}/docs/styles/headers.xml" toFile="${target.dir}/headers.xml" failOnViolation="true">
             <fileset dir="${basedir}">
                 <exclude name="**/generated/**"/><!-- Ice generated; TODO: check our code -->
-                <exclude name="**/org/hibernate/stat/ConcurrentStatisticsImpl.java"/><!-- Hibernate override -->
                 <include name="**/*"/>
             </fileset>
         </do-checkstyle>

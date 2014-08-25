@@ -589,14 +589,6 @@
   // Located under components/
   //
 
-  Artifacts:    components/blitz/src/org/hibernate/stat/ConcurrentStatisticsImpl.java
-  Project:      Hibernate. A powerful, high performance object/relational persistence and
-                query service.
-  Web Site:     http://hibernate.org
-  License:      Lesser General Public License (LGPL) v2.1
-  License File: lgpl-v2.1.txt
-
-
   Artifacts:    components/server/src/ome/services/SVGRasterizer.java
   Project:      Batik Java SVG Toolkit
   Web Site:     http://xmlgraphics.apache.org/batik/tools/rasterizer.html
