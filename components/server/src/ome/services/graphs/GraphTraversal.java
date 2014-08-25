@@ -156,7 +156,7 @@ public class GraphTraversal {
                 return actualClass.getConstructor(Long.class, boolean.class).newInstance(id, false);
             } catch (/* TODO Java SE 7 ReflectiveOperation*/Exception e) {
                 throw new GraphException(
-                        "no invokable constructor for: new " + className + "(Long.valueOf(" + id + "L), false)");
+                        "no invocable constructor for: new " + className + "(Long.valueOf(" + id + "L), false)");
             }
         }
 
@@ -962,9 +962,9 @@ public class GraphTraversal {
         }
         /* unlink included/deleted by nulling properties */
         for (final Entry<CP, Collection<Long>> nullCurr : toNullByCP.asMap().entrySet()) {
-            final CP fromCP = nullCurr.getKey();
+            final CP linker = nullCurr.getKey();
             for (final List<Long> ids : Iterables.partition(nullCurr.getValue(), BATCH_SIZE)) {
-                processor.nullProperties(fromCP.className, fromCP.propertyName, ids);
+                processor.nullProperties(linker.className, linker.propertyName, ids);
             }
         }
         /* unlink included/deleted by removing from collections */
@@ -979,8 +979,6 @@ public class GraphTraversal {
 
     /**
      * Process the targeted model objects.
-     * @param planning the state of operation planning
-     * @param processor how to operate on the resulting target object graph
      * @throws GraphException if a cycle is detected in the model object graph
      */
     public void processTargets() throws GraphException {
@@ -998,7 +996,7 @@ public class GraphTraversal {
                 }
             }
             if (nowUnblocked.isEmpty()) {
-                throw new GraphException("cycle detected among " + planning.blockedBy.keySet());
+                throw new GraphException("cycle detected among " + Joiner.on(", ").join(planning.blockedBy.keySet()));
             }
             for (final Set<CI> blockers : planning.blockedBy.values()) {
                 blockers.removeAll(nowUnblocked);
