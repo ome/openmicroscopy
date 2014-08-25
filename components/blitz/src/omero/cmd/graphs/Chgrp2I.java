@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+
 import ome.model.IObject;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.ACLVoter;
@@ -135,6 +137,8 @@ public class Chgrp2I extends Chgrp2 implements IRequest {
      */
     private final class InternalProcessor extends BaseGraphTraversalProcessor {
 
+        private final Collection<GraphPolicy.Ability> requiredAbilities = ImmutableSet.of(GraphPolicy.Ability.UPDATE);
+
         public InternalProcessor() {
             super(helper.getSession());
         }
@@ -144,6 +148,11 @@ public class Chgrp2I extends Chgrp2 implements IRequest {
             final ExperimenterGroup group = (ExperimenterGroup) session.load(ExperimenterGroup.class, groupId);
             final String update = "UPDATE " + className + " SET details.group = :group WHERE id IN (:ids)";
             session.createQuery(update).setParameter("group", group).setParameterList("ids", ids).executeUpdate();
+        }
+
+        @Override
+        public Collection<GraphPolicy.Ability> getRequiredPermissions() {
+            return requiredAbilities;
         }
     }
 }

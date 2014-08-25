@@ -51,6 +51,7 @@ import com.google.common.collect.Sets;
 import ome.model.IObject;
 import ome.security.ACLVoter;
 import ome.services.graphs.GraphPathBean.PropertyKind;
+import ome.services.graphs.GraphPolicy.Ability;
 import ome.services.graphs.GraphPolicy.Action;
 import ome.services.graphs.GraphPolicy.Details;
 import ome.services.graphs.GraphPolicy.Orphan;
@@ -384,6 +385,11 @@ public class GraphTraversal {
          * @param ids applicable instances of class, no more than {@link #BATCH_SIZE}
          */
         void processInstances(String className, Collection<Long> ids);
+
+        /**
+         * @return the permissions required for processing instances with {@link #processInstances(String, Collection)}
+         */
+        Collection<Ability> getRequiredPermissions();
     }
 
     private final ACLVoter aclVoter;
@@ -889,6 +895,11 @@ public class GraphTraversal {
                     log.debug("processor: process " + className + "[" + Joiner.on(',').join(ids) + "]");
                 }
                 processor.processInstances(className, ids);
+            }
+
+            @Override
+            public Collection<Ability> getRequiredPermissions() {
+                return processor.getRequiredPermissions();
             }
         };
     }

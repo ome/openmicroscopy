@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+
 import ome.model.IObject;
 import ome.security.ACLVoter;
 import ome.services.graphs.GraphPathBean;
@@ -134,6 +136,8 @@ public class Delete2I extends Delete2 implements IRequest {
      */
     private final class InternalProcessor extends BaseGraphTraversalProcessor {
 
+        private final Collection<GraphPolicy.Ability> requiredAbilities = ImmutableSet.of(GraphPolicy.Ability.DELETE);
+
         public InternalProcessor() {
             super(helper.getSession());
         }
@@ -141,6 +145,11 @@ public class Delete2I extends Delete2 implements IRequest {
         @Override
         public void processInstances(String className, Collection<Long> ids) {
             deleteInstances(className, ids);
+        }
+
+        @Override
+        public Collection<GraphPolicy.Ability> getRequiredPermissions() {
+            return requiredAbilities;
         }
     }
 }
