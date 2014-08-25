@@ -1133,9 +1133,11 @@ def batch_annotate(request, conn=None, **kwargs):
 
     context = {'form_comment':form_comment, 'obj_string':obj_string, 'link_string': link_string,
             'obj_labels': obj_labels, 'batchAnns': batchAnns, 'batch_ann':True, 'index': index,
-            'figScripts':figScripts, 'filesetInfo': filesetInfo, 'annotationBlocked': annotationBlocked}
+            'figScripts':figScripts, 'filesetInfo': filesetInfo, 'annotationBlocked': annotationBlocked,
+            'differentGroups':False}
     if len(groupIds) > 1:
         context['annotationBlocked'] = "Can't add annotations because objects are in different groups"
+        context['differentGroups'] = True       # E.g. don't run scripts etc
     context['template'] = "webclient/annotations/batch_annotate.html"
     context['webclient_path'] = request.build_absolute_uri(reverse('webindex'))
     return context
@@ -2576,7 +2578,7 @@ def script_ui(request, scriptId, conn=None, **kwargs):
     return {'template':'webclient/scripts/script_ui.html', 'paramData': paramData, 'scriptId': scriptId}
 
 
-@login_required(setGroupContext=True)       # group ctx used for getting Tags etc.
+@login_required()
 @render_response()
 def figure_script(request, scriptName, conn=None, **kwargs):
     """
@@ -2596,6 +2598,10 @@ def figure_script(request, scriptName, conn=None, **kwargs):
         filteredIds = [iid for iid in ints if iid in validObjs.keys()]
         if len(filteredIds) == 0:
             raise Http404("No %ss found with IDs %s" % (dtype, ids))
+        else:
+            # Now we can specify group context - All should be same group
+            gid = validObjs.values()[0].getDetails().group.id.val
+            conn.SERVICE_OPTS.setOmeroGroup(gid)
         return filteredIds, validObjs
 
     context = {}

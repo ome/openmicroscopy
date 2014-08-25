@@ -151,7 +151,9 @@
 
 
     <!-- Publishing Options (Figure Scripts) -->
+    {% if not differentGroups %}
     {% include "webclient/annotations/includes/figure_scripts_menu.html" %}
+    {% endif %}
 
 </div>
 <div style="clear:both"></div>
