@@ -10,7 +10,7 @@
    return the same data as the equivalent rps methods would
    for imported data.
 
-   Copyright 2011-2013 Glencoe Software, Inc. All rights reserved.
+   Copyright 2011-2014 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """

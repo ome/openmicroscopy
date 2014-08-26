@@ -4,7 +4,7 @@
 """
    Integration test focused on the model changes in 4.2
 
-   Copyright 2010-2013 Glencoe Software, Inc. All rights reserved.
+   Copyright 2010-2014 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """

@@ -4,7 +4,7 @@
 """
    Integration test focused on the omero.api.MetadataStore interface
 
-   Copyright 2008-2013 Glencoe Software, Inc. All rights reserved.
+   Copyright 2008-2014 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
