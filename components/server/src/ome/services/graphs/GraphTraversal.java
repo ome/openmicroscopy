@@ -45,7 +45,6 @@ import com.google.common.base.Objects;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 
@@ -917,33 +916,55 @@ public class GraphTraversal {
     }
 
     /**
+     * Determine if the given {@link IObject} class is a system type as judged by {@link SystemTypes#isSystemType(Class)}.
+     * @param className a class name
+     * @return if the class is a system type
+     * @throws GraphException if {@code className} does not name an accessible class
+     */
+    private boolean isSystemType(String className) throws GraphException {
+        try {
+            final Class<? extends IObject> actualClass = (Class<? extends IObject>) Class.forName(className);
+            return systemTypes.isSystemType(actualClass);
+        } catch (ClassNotFoundException e) {
+            throw new GraphException("no model object class named " + className);
+        }
+    }
+
+    /**
      * Assert that the processor may operate upon the given objects with {@link Processor#processInstances(String, Collection)}.
+     * Never fails for system types.
      * @param className a class name
      * @param ids instance IDs
      * @throws GraphException if the user does not have the necessary permissions for all of the objects
      */
     private void assertMayBeProcessed(String className, Collection<Long> ids) throws GraphException {
-        assertPermissions(idsToCIs(className, ids), processor.getRequiredPermissions());
+        if (!isSystemType(className)) {
+            assertPermissions(idsToCIs(className, ids), processor.getRequiredPermissions());
+        }
     }
 
     /**
-     * Assert that the user may delete the given objects.
+     * Assert that the user may delete the given objects. Never fails for system types.
      * @param className a class name
      * @param ids instance IDs
      * @throws GraphException if the user may not delete all of the objects
      */
     private void assertMayBeDeleted(String className, Collection<Long> ids) throws GraphException {
-        assertPermissions(idsToCIs(className, ids), Collections.singleton(Ability.DELETE));
+        if (!isSystemType(className)) {
+            assertPermissions(idsToCIs(className, ids), Collections.singleton(Ability.DELETE));
+        }
     }
 
     /**
-     * Assert that the user may update the given objects.
+     * Assert that the user may update the given objects. Never fails for system types.
      * @param className a class name
      * @param ids instance IDs
      * @throws GraphException if the user may not update all of the objects
      */
     private void assertMayBeUpdated(String className, Collection<Long> ids) throws GraphException {
-        assertPermissions(idsToCIs(className, ids), Collections.singleton(Ability.UPDATE));
+        if (!isSystemType(className)) {
+            assertPermissions(idsToCIs(className, ids), Collections.singleton(Ability.UPDATE));
+        }
     }
 
     /**
