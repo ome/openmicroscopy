@@ -855,7 +855,6 @@ class RendererModel
 	{
 		if (rndControl == null) return;
 		rndDef = rndControl.saveCurrentSettings();
-		history.reset();
 	}
 
 	/**
@@ -961,6 +960,7 @@ class RendererModel
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (rndControl == null) return;
+		makeHistorySnapshot();
 		rndControl.setModel(colorModel);
 	}
 
@@ -1256,7 +1256,6 @@ class RendererModel
 		if (rndControl == null) return null;
 		RndProxyDef def = rndControl.saveCurrentSettings();
 		rndDef = def;
-		history.reset();
 		return def;
 	}
 	
