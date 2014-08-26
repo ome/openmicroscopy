@@ -30,22 +30,18 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JPanel;
-
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
 import org.openmicroscopy.shoola.util.ui.IconManager;
+import org.openmicroscopy.shoola.util.ui.JLabelButton;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
@@ -95,7 +91,7 @@ class ChannelSlider
 	private ChannelButton			channelSelection;
 	
 	/** Button for opening the color picker */
-	private JButton colorPicker;
+	private JLabelButton colorPicker;
 	
 	/** Initializes the component composing the display. */
 	private void initComponents()
@@ -148,13 +144,10 @@ class ChannelSlider
     	channelSelection.setRightClickSupported(false);
     	channelSelection.addPropertyChangeListener(controller);
         
-    	colorPicker = new JButton(IconManager.getInstance().getIcon(IconManager.COLOR_PICKER));
-    	colorPicker.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                controller.showColorPicker(index);
-            }
-        });
+    	
+    	colorPicker = new JLabelButton(IconManager.getInstance().getIcon(IconManager.COLOR_PICKER), true);
+    	colorPicker.addPropertyChangeListener(this);
+    	
 	}
 	
 	/** Builds and lays out the UI. */
@@ -305,6 +298,10 @@ class ChannelSlider
 				controller.setInputInterval(slider.getStartValue(),
 						slider.getEndValue(), channel.getIndex());
 			} 
+		}
+		
+		if(evt.getSource()==colorPicker && name.equals(JLabelButton.SELECTED_PROPERTY)) {
+		    controller.showColorPicker(channel.getIndex());
 		}
 	}
 

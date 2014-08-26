@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.JLabelButton 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -24,8 +24,10 @@ package org.openmicroscopy.shoola.util.ui;
 
 
 //Java imports
+import java.awt.Cursor;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.Icon;
 import javax.swing.JLabel;
 
 //Third-party libraries
@@ -55,6 +57,9 @@ public class JLabelButton
 	/** The action id associated to the label. */
 	private long actionID;
 	
+	/** Indicates if the 'hover' effect is enabled */
+	private boolean hover = false;
+	
 	/** Installs the default listeners. */
 	private void installDefaultListeners()
 	{
@@ -63,6 +68,16 @@ public class JLabelButton
 			public void mouseReleased(MouseEvent e) {
 				onMouseReleased();
 			}
+			
+                        public void mouseEntered(MouseEvent e) {
+                            if(hover)
+                                setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                        }
+            
+                        public void mouseExited(MouseEvent e) {
+                            if(hover)
+                                setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                        }
 		});
 	}
 	
@@ -73,18 +88,57 @@ public class JLabelButton
 	}
 	
 	/**
+         * Creates a default instance.
+         * 
+         * @param text The text to set.
+         */
+        public JLabelButton(String text)
+        {
+                this(text, false);
+        }
+        
+	/**
 	 * Creates a default instance.
 	 * 
 	 * @param text The text to set.
+	 * @param hover If <code>true</code> changes the cursor to a hand
+         *  cursor when above the label
 	 */
-	public JLabelButton(String text)
+	public JLabelButton(String text, boolean hover)
 	{
 		super(text);
 		setBorder(null);
 		actionID = -1;
+		this.hover = hover;
 		installDefaultListeners();
 	}
 
+	/**
+         * Creates a default instance.
+         * 
+         * @param icon The icon to set.
+         */
+        public JLabelButton(Icon icon)
+        {
+                this(icon, false);
+        }
+        
+	/**
+         * Creates a default instance.
+         * 
+         * @param icon The icon to set.
+         * @param hover If <code>true</code> changes the cursor to a hand
+         *  cursor when above the label
+         */
+        public JLabelButton(Icon icon, boolean hover)
+        {
+                super(icon);
+                setBorder(null);
+                actionID = -1;
+                this.hover = hover;
+                installDefaultListeners();
+        }
+        
 	/**
 	 * Sets the action ID.
 	 * 
