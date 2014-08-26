@@ -9,12 +9,8 @@
 """
 Integration tests for tickets between 4000 and 4999
 """
-
-import time
+import omero
 import test.integration.library as lib
-import Glacier2
-
-from omero.rtypes import *
 
 
 class TestTickets5000(lib.ITest):
@@ -26,4 +22,3 @@ class TestTickets5000(lib.ITest):
         tag = omero.model.TagAnnotationI()
         tag = self.update.saveAndReturnObject(tag)
         self.update.deleteObject(tag)
-
