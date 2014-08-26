@@ -689,9 +689,9 @@ class TestShow(object):
         assert first_selected is not None
         assert isinstance(first_selected, ProjectWrapper)
         assert first_selected.getId() == projects[0].id.val
-        assert show.initially_open == projects_show_request['initially_open'][:1]
-        assert show.initially_open_owner == \
-            projects[0].details.owner.id.val
+        assert show.initially_open == \
+            projects_show_request['initially_open'][:1]
+        assert show.initially_open_owner == projects[0].details.owner.id.val
         assert show._first_selected == first_selected
         assert len(show.initially_select) == 2
         assert show.initially_select == \
