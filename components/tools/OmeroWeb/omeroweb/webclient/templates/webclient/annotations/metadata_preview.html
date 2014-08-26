@@ -265,7 +265,7 @@
                   url += "&" + rdefQry + "&imageId=" + OME.preview_viewport.loadedImg.id;   // Need imageId for 'apply to all'
                   $.getJSON(url, function() {
                     $span.text(spanTxt);
-                    OME.refreshThumbnails();
+                    OME.refreshThumbnails({'ignorePreview': true});
                     updateMyRdef(OME.preview_viewport.getQuery());
                   });
                 });
