@@ -83,6 +83,18 @@ def project(request, itest, update_service):
 
 
 @pytest.fixture(scope='function')
+def projects(request, itest, update_service):
+    """Returns 2 new OMERO Projects with required fields set."""
+    project = ProjectI()
+    project.name = rstring(itest.uuid())
+    project = update_service.saveAndReturnObject(project)
+    proj = ProjectI()
+    proj.name = rstring(itest.uuid())
+    proj = update_service.saveAndReturnObject(proj)
+    return [project, proj]
+
+
+@pytest.fixture(scope='function')
 def project_dataset(request, itest, update_service):
     """
     Returns a new OMERO Project and linked Dataset with required fields set.
@@ -247,6 +259,23 @@ def project_path_request(request, project, request_factory, path):
     initially_select = ['project-%d' % project.id.val]
     return {
         'request': request_factory.get(path, data={'path': as_string}),
+        'initially_select': initially_select,
+        'initially_open': initially_select
+    }
+
+
+@pytest.fixture(scope='function')
+def projects_show_request(request, projects, request_factory, path):
+    """
+    Returns a simple GET request object with the 'show' query string
+    variable set in the legacy ("project=id") form.
+    """
+    as_string = 'project-%d|project-%d' % (projects[0].id.val,
+            projects[1].id.val)
+    initially_select = ['project-%d' % projects[0].id.val,
+            'project-%d' % projects[1].id.val]
+    return {
+        'request': request_factory.get(path, data={'show': as_string}),
         'initially_select': initially_select,
         'initially_open': initially_select
     }
@@ -649,6 +678,21 @@ class TestShow(object):
         assert show._first_selected == first_selected
         assert show.initially_select == \
             project_path_request['initially_select']
+
+    def test_projects_legacy_show(self, conn, projects_show_request, projects):
+        show = Show(conn, projects_show_request['request'], None)
+        self.assert_instantiation(show, projects_show_request, conn)
+
+        first_selected = show.first_selected
+        assert first_selected is not None
+        assert isinstance(first_selected, ProjectWrapper)
+        assert first_selected.getId() == projects[0].id.val
+        assert show.initially_open == projects_show_request['initially_open'][:1]
+        assert show.initially_open_owner == projects[0].details.owner.id.val
+        assert show._first_selected == first_selected
+        assert len(show.initially_select) == 2
+        assert show.initially_select == \
+            projects_show_request['initially_select']
 
     def test_project_dataset_legacy_path(
             self, conn, project_dataset_path_request, project_dataset):
