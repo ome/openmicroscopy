@@ -270,10 +270,12 @@ def projects_show_request(request, projects, request_factory, path):
     Returns a simple GET request object with the 'show' query string
     variable set in the legacy ("project=id") form.
     """
-    as_string = 'project-%d|project-%d' % (projects[0].id.val,
-            projects[1].id.val)
-    initially_select = ['project-%d' % projects[0].id.val,
-            'project-%d' % projects[1].id.val]
+    as_string = 'project-%d|project-%d' % \
+        (projects[0].id.val, projects[1].id.val)
+    initially_select = [
+        'project-%d' % projects[0].id.val,
+        'project-%d' % projects[1].id.val
+    ]
     return {
         'request': request_factory.get(path, data={'show': as_string}),
         'initially_select': initially_select,
@@ -688,7 +690,8 @@ class TestShow(object):
         assert isinstance(first_selected, ProjectWrapper)
         assert first_selected.getId() == projects[0].id.val
         assert show.initially_open == projects_show_request['initially_open'][:1]
-        assert show.initially_open_owner == projects[0].details.owner.id.val
+        assert show.initially_open_owner == \
+            projects[0].details.owner.id.val
         assert show._first_selected == first_selected
         assert len(show.initially_select) == 2
         assert show.initially_select == \
