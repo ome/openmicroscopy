@@ -75,6 +75,7 @@ public class RenderingDefinitionHistory {
 
         history.clear();
         pointer = -1;
+        previousAction = 0;
 
         this.pcs.firePropertyChange(CAN_UNDO, oldU, canUndo());
         this.pcs.firePropertyChange(CAN_REDO, oldR, canRedo());
