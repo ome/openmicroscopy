@@ -347,14 +347,15 @@ OME.initToolbarDropdowns = function() {
 
 // Simply add query to thumbnail src to force refresh.
 // By default we do ALL thumbnails, but can also specify ID
-OME.refreshThumbnails = function(imageId) {
+OME.refreshThumbnails = function(options) {
+    options = options || {};
     var rdm = Math.random(),
         thumbs_selector = "#dataIcons img",
         spw_selector = "#spw img";
     // handle Dataset thumbs
-    if (typeof imageId != "undefined") {
-        thumbs_selector += "#"+imageId;
-        spw_selector += "#image-"+imageId;
+    if (options.imageId) {
+        thumbs_selector += "#"+options.imageId;
+        spw_selector += "#image-"+options.imageId;
     }
     $(thumbs_selector).each(function(){
         var $this = $(this),
@@ -369,7 +370,7 @@ OME.refreshThumbnails = function(imageId) {
     });
 
     // Update viewport via global variable
-    if (OME.preview_viewport && OME.preview_viewport.loadedImg.id) {
+    if (!options.ignorePreview && OME.preview_viewport && OME.preview_viewport.loadedImg.id) {
         OME.preview_viewport.load(OME.preview_viewport.loadedImg.id);
     }
 };

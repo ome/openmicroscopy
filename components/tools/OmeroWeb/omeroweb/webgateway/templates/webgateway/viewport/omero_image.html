@@ -1139,19 +1139,9 @@
     $("#rdef-setdef-btn").click(function(){
       setImageDefaults(viewport, this, function() {
         if (window.opener && window.opener.OME.refreshThumbnails) {
-            window.opener.OME.refreshThumbnails({{ image.id }});
+            window.opener.OME.refreshThumbnails({'imageId':{{ image.id }} });
         }
       });
-    });
-    $("#rdef-reset-btn").click(function(){
-      resetImageDefaults(viewport, this, function() {
-        if (window.opener && window.opener.OME.refreshThumbnails) {
-            window.opener.OME.refreshThumbnails({{ image.id }});
-        }
-      });
-    });
-    $("#rdef-default-btn").click(function(){
-      resetRDCW(viewport);
     });
 
     /* And we're done! */
