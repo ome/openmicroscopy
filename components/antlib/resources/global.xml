@@ -324,11 +324,6 @@
         </condition>
 	<property name="ice.home" value=""/>
 
-	<condition property="ice.slicepath" value="${ice.home}/slice">
-	    <available file="${ice.home}/slice" type="dir"/>
-        </condition>
-	<property name="ice.slicepath" value="/ice_home_is_unset_or_invalid"/>
-
 	<condition property="ice.slice2java" value="${ice.home}/bin/slice2java">
 	    <available file="${ice.home}/bin/slice2java"/>
         </condition>
@@ -366,6 +361,11 @@
                 </fail>
             </then>
         </if>
+
+        <propertyregex property="executable.ice.shortversion" input="${executable.ice.version}" select="\1.\2">
+            <regexp pattern="([0-9]*)\.([0-9]*)\.([0-9]*).*"/>
+        </propertyregex>
+
         <if><equals arg1="auto" arg2="${ice.compatibility}"/>
             <then>
                 <if><matches string="${executable.ice.version}" pattern="^3[.]3"/>
@@ -417,6 +417,29 @@
                 </fail>
             </else>
         </if>
+
+	<condition property="ice.slicepath" value="${ice.home}/slice">
+	    <available file="${ice.home}/slice" type="dir"/>
+        </condition>
+	<condition property="ice.slicepath" value="/usr/local/share/Ice-${executable.ice.version}/slice">
+	    <available file="/usr/local/share/Ice-${executable.ice.version}/slice" type="dir"/>
+        </condition>
+	<condition property="ice.slicepath" value="/usr/share/Ice-${executable.ice.version}/slice">
+	    <available file="/usr/share/Ice-${executable.ice.version}/slice" type="dir"/>
+        </condition>
+	<condition property="ice.slicepath" value="/usr/local/share/Ice-${executable.ice.shortversion}/slice">
+	    <available file="/usr/local/share/Ice-${executable.ice.shortversion}/slice" type="dir"/>
+        </condition>
+	<condition property="ice.slicepath" value="/usr/share/Ice-${executable.ice.shortversion}/slice">
+	    <available file="/usr/share/Ice-${executable.ice.shortversion}/slice" type="dir"/>
+        </condition>
+	<condition property="ice.slicepath" value="/usr/local/share/Ice/slice">
+	    <available file="/usr/local/share/Ice/slice" type="dir"/>
+        </condition>
+	<condition property="ice.slicepath" value="/usr/share/Ice/slice">
+	    <available file="/usr/share/Ice/slice" type="dir"/>
+        </condition>
+	<property name="ice.slicepath" value="/ice_home_is_unset_or_invalid"/>
 
         <!--
           The idea for this macro is taken from maven2. Use deps-buildlist
