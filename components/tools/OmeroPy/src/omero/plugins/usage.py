@@ -76,7 +76,7 @@ class UsageControl(CmdControl):
         if units in powers.keys():
             return round(size/oneK**powers[units], 2)
         else:
-            raise ValueError("Unrecognised units: ", units)
+            raise ValueError("Unrecognized units: ", units)
 
     def _process_request(self, req, args, client):
         """
