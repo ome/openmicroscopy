@@ -232,7 +232,7 @@ class TestRDefs (object):
         rdefs we've set.
         """
 
-        # Admin saves Rdef.
+        # Admin saves Rdef (greyscale)
         gatewaywrapper.loginAsAdmin()
         adminId = gatewaywrapper.gateway.getUserId()
         gatewaywrapper.gateway.SERVICE_OPTS.setOmeroGroup('-1')
@@ -240,6 +240,7 @@ class TestRDefs (object):
         self.image.setGreyscaleRenderingModel()
         self.image.saveDefaults()
 
+        # Author saves Rdef (color)
         gatewaywrapper.loginAsAuthor()
         authorId = gatewaywrapper.gateway.getUserId()
         self.image = gatewaywrapper.getTestImage()
@@ -286,3 +287,27 @@ class TestRDefs (object):
         # Test thumbnail store init
         tb = self.image._prepareTB(rdefId=authorRdefId)
         assert tb.getRenderingDefId() == authorRdefId
+
+    def testResetDefaults(self, gatewaywrapper):
+        """
+        Test we can resetDefaults with or without saving.
+        """
+        # Author saves Rdef (greyscale)
+        gatewaywrapper.loginAsAuthor()
+        self.image = gatewaywrapper.getTestImage()
+        self.image.setGreyscaleRenderingModel()
+        self.image.saveDefaults()
+
+        # resetDefaults without saving - shouldn't be greyscale
+        self.image.resetDefaults(save=False)
+        assert not self.image.isGreyscaleRenderingModel()
+
+        # retrieve the image again... Should still be greyscale
+        self.image = gatewaywrapper.getTestImage()
+        assert self.image.isGreyscaleRenderingModel()
+        # Then reset and Save
+        self.image.resetDefaults(save=True)
+
+        # retrieve the image again... Should not be greyscale
+        self.image = gatewaywrapper.getTestImage()
+        assert not self.image.isGreyscaleRenderingModel()
