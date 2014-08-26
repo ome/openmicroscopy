@@ -122,8 +122,8 @@ class GraphicsPane
     /** The equation of the vertical line. */
     private int verticalLine = -1;
 
-    /** Checkbox for switching between grayscale and rgb mode */
-    private JCheckBox grayScale;
+    /** Checkbox for switching between greyscale and rgb mode */
+    private JCheckBox greyScale;
     
     /** Hosts the sliders controlling the pixels intensity values. */
     private List<ChannelSlider> sliders;
@@ -206,11 +206,12 @@ class GraphicsPane
         maxLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
         minLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
         
-        grayScale = new JCheckBox("Grayscale");
-        grayScale.addActionListener(new ActionListener() {
+        greyScale = new JCheckBox("Greyscale");
+        greyScale.setSelected(model.isGreyScale());
+        greyScale.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                model.setGrayscale(grayScale.isSelected());
+                model.setGreyscale(greyScale.isSelected());
             }
         });
         
@@ -283,7 +284,7 @@ class GraphicsPane
         c.fill = GridBagConstraints.NONE;
         
         c.gridy++;
-        content.add(grayScale, c);
+        content.add(greyScale, c);
         
         Iterator<ChannelSlider> i = sliders.iterator();
         while (i.hasNext())  {
