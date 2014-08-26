@@ -535,7 +535,7 @@ class PopupMenu
 		menu.add(copyRndElement);
 		menu.add(pasteRndElement);
 		menu.add(resetRndElement);
-		menu.add(setMinMaxElement);
+		//menu.add(setMinMaxElement);
 		menu.add(setOwnerRndElement);
 		return menu;
 	}

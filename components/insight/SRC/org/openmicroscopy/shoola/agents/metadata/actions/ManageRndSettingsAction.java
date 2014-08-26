@@ -76,7 +76,7 @@ public class ManageRndSettingsAction
 	public static final String NAME_SAVE = "Save";
 
 	/** The description of the action if {@link #APPLY_TO_ALL}. */
-	private static final String NAME_APPLY_TO_ALL = "Apply to All";
+	private static final String NAME_APPLY_TO_ALL = "Save to All";
 	
 	/** The description of the action if {@link #ABSOLUTE_MIN_MAX}. */
 	private static final String NAME_ABSOLUTE_MIN_MAX = "Full Range";
@@ -91,7 +91,7 @@ public class ManageRndSettingsAction
         private static final String NAME_REDO = "Redo";
 	
 	/** The description of the action if {@link #RESET}. */
-	private static final String NAME_RESET = "Reset";
+	private static final String NAME_RESET = "Original";
 	
 	/** The description of the action if {@link #MIN_MAX}. */
 	private static final String DESCRIPTION_MIN_MAX = 
@@ -113,7 +113,7 @@ public class ManageRndSettingsAction
 	
 	/** The description of the action if {@link #APPLY_TO_ALL}. */
 	private static final String DESCRIPTION_APPLY_TO_ALL = 
-		"Apply the rendering settings to all images.";
+		"Apply and save the rendering settings to all images.";
 	
     /** 
      * The description of the action if the index is {@link #SET_OWNER_SETTING}. 
