@@ -1049,6 +1049,8 @@ jQuery._WeblitzViewport = function (container, server, options) {
   };
 
   this.setQuery = function (query) {
+    // setModel first since this affects channels we can have active
+    if (query.m) this.setModel(query.m, true);
     if (query.c) {
       var chs = query.c.split(',');
       for (j=0; j<chs.length; j++) {
@@ -1073,7 +1075,6 @@ jQuery._WeblitzViewport = function (container, server, options) {
         }
       }
     }
-    if (query.m) this.setModel(query.m, true);
     if (query.q) this.setQuality(query.q, true);
     if (query.p) this.setProjection(query.p, true);
     if (query.p) this.setInvertedAxis(query.ia, true);
