@@ -145,7 +145,7 @@ class ChannelSlider
     	channelSelection = new ChannelButton(""+channel.getChannelLabeling(), c, index);
     	channelSelection.setPreferredSize(new Dimension(40,25));
     	channelSelection.setSelected(model.isChannelActive(index));
-    	channelSelection.enablePopupMenu(false);
+    	channelSelection.setRightClickSupported(false);
     	channelSelection.addPropertyChangeListener(controller);
         
     	colorPicker = new JButton(IconManager.getInstance().getIcon(IconManager.COLOR_PICKER));

@@ -93,9 +93,6 @@ public class ChannelButton
 
     /** The pop up menu associated to this component. */
     private ChannelButtonPopupMenu  popupMenu;
-    
-    /** Flag for enabling/disabling the popup menu */
-    private boolean popupEnabled = true;
 
     /** Flag indicating if right-click are supported. */
     private boolean rightClickSupported;
@@ -142,7 +139,7 @@ public class ChannelButton
      */
     private void onReleased(MouseEvent e)
     {
-        if (e.isPopupTrigger() && rightClickSupported && popupEnabled) {
+        if (e.isPopupTrigger() && rightClickSupported) {
             if (popupMenu == null) 
                 popupMenu = new ChannelButtonPopupMenu(this);
             popupMenu.show(this, e.getX(), e.getY());
@@ -332,12 +329,4 @@ public class ChannelButton
      */
     public void actionPerformed(ActionEvent e) { setChannelSelected(); }
 
-    /**
-     *  Enables/Disables the popup menu 
-     *  
-     * @param enabled <code>true</code> to enable, <code>false</code> to disable menu
-     */
-    public void enablePopupMenu(boolean enabled) {
-        this.popupEnabled = enabled;
-    }
 }
