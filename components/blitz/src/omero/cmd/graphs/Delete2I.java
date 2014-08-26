@@ -30,6 +30,7 @@ import com.google.common.collect.ImmutableSet;
 
 import ome.model.IObject;
 import ome.security.ACLVoter;
+import ome.security.SystemTypes;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphTraversal;
@@ -55,6 +56,7 @@ public class Delete2I extends Delete2 implements IRequest {
 
     private final IceMapper iceMapper = new IceMapper();
     private final ACLVoter aclVoter;
+    private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
     private final GraphPolicy graphPolicy;
 
@@ -64,11 +66,13 @@ public class Delete2I extends Delete2 implements IRequest {
     /**
      * Construct a new <q>delete</q> request; called from {@link GraphRequestFactory#getRequest(Class)}.
      * @param aclVoter ACL voter for permissions checking
+     * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean to use
      * @param graphPolicy the graph policy to apply for delete
      */
-    public Delete2I(ACLVoter aclVoter, GraphPathBean graphPathBean, GraphPolicy graphPolicy) {
+    public Delete2I(ACLVoter aclVoter, SystemTypes systemTypes, GraphPathBean graphPathBean, GraphPolicy graphPolicy) {
         this.aclVoter = aclVoter;
+        this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
         this.graphPolicy = graphPolicy;
     }
@@ -82,7 +86,7 @@ public class Delete2I extends Delete2 implements IRequest {
     public void init(Helper helper) {
         this.helper = helper;
         helper.setSteps(3);
-        graphTraversal = new GraphTraversal(aclVoter, graphPathBean, graphPolicy, new InternalProcessor());
+        graphTraversal = new GraphTraversal(aclVoter, systemTypes, graphPathBean, graphPolicy, new InternalProcessor());
     }
 
     @Override

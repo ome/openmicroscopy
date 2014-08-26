@@ -26,6 +26,7 @@ import java.util.Map;
 import com.google.common.collect.ImmutableMap;
 
 import ome.security.ACLVoter;
+import ome.security.SystemTypes;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
@@ -39,19 +40,22 @@ import omero.cmd.Request;
  */
 public class GraphRequestFactory {
     private final ACLVoter aclVoter;
+    private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
     private final Map<Class<? extends Request>, GraphPolicy> graphPolicies;
 
     /**
      * Construct a new graph request factory.
      * @param aclVoter ACL voter for permissions checking
+     * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean
      * @param allRules rules for all request classes that use the graph path bean
      * @throws GraphException if the graph path rules could not be parsed
      */
-    public GraphRequestFactory(ACLVoter aclVoter, GraphPathBean graphPathBean,
+    public GraphRequestFactory(ACLVoter aclVoter, SystemTypes systemTypes, GraphPathBean graphPathBean,
             Map<Class<? extends Request>, List<GraphPolicyRule>> allRules) throws GraphException {
         this.aclVoter = aclVoter;
+        this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
 
         final ImmutableMap.Builder<Class<? extends Request>, GraphPolicy> builder = ImmutableMap.builder();
@@ -72,8 +76,9 @@ public class GraphRequestFactory {
             throw new IllegalArgumentException("no graph traversal policy rules defined for request class " + requestClass);
         }
         try {
-            final Constructor<X> constructor = requestClass.getConstructor(ACLVoter.class, GraphPathBean.class, GraphPolicy.class);
-            return constructor.newInstance(aclVoter, graphPathBean, graphPolicy);
+            final Constructor<X> constructor =
+                    requestClass.getConstructor(ACLVoter.class, SystemTypes.class, GraphPathBean.class, GraphPolicy.class);
+            return constructor.newInstance(aclVoter, systemTypes, graphPathBean, graphPolicy);
         } catch (Exception e) {
             /* TODO: easier to do a ReflectiveOperationException multi-catch in Java SE 7 */
             throw new IllegalArgumentException("cannot instantiate " + requestClass, e);

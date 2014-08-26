@@ -51,6 +51,7 @@ import com.google.common.collect.Sets;
 
 import ome.model.IObject;
 import ome.security.ACLVoter;
+import ome.security.SystemTypes;
 import ome.services.graphs.GraphPathBean.PropertyKind;
 import ome.services.graphs.GraphPolicy.Ability;
 import ome.services.graphs.GraphPolicy.Action;
@@ -394,6 +395,7 @@ public class GraphTraversal {
     }
 
     private final ACLVoter aclVoter;
+    private final SystemTypes systemTypes;
     private final GraphPathBean bean;
     private final Planning planning;
     private final GraphPolicy policy;
@@ -402,12 +404,15 @@ public class GraphTraversal {
     /**
      * Construct a new instance of a graph traversal manager.
      * @param aclVoter ACL voter for permissions checking
+     * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean
      * @param policy how to determine which related objects to include in the operation
      * @param processor how to operate on the resulting target object graph
      */
-    public GraphTraversal(ACLVoter aclVoter, GraphPathBean graphPathBean, GraphPolicy policy, Processor processor) {
+    public GraphTraversal(ACLVoter aclVoter, SystemTypes systemTypes, GraphPathBean graphPathBean, GraphPolicy policy,
+            Processor processor) {
         this.aclVoter = aclVoter;
+        this.systemTypes = systemTypes;
         this.bean = graphPathBean;
         this.planning = new Planning();
         this.policy = policy;
@@ -522,18 +527,24 @@ public class GraphTraversal {
      * @param session a Hibernate session
      * @param objects the objects to query
      * @return {@link CI}s corresponding to the objects
+     * @throws GraphException if any of the specified objects could not be queried
      */
-    private Collection<CI> objectsToCIs(Session session, Multimap<String, Long> objects) {
+    private Collection<CI> objectsToCIs(Session session, SetMultimap<String, Long> objects) throws GraphException {
         final List<CI> returnValue = new ArrayList<CI>(objects.size());
         for (final Entry<String, Collection<Long>> oneQueryClass : objects.asMap().entrySet()) {
             final String queryClassName = oneQueryClass.getKey();
             final String query = "FROM " + queryClassName + " WHERE id IN (:ids)";
             for (final List<Long> ids : Iterables.partition(oneQueryClass.getValue(), BATCH_SIZE)) {
+                int remainingCount = ids.size();
                 for (final Object proxy : session.createQuery(query).setParameterList("ids", ids).list()) {
                     final IObject instance = (IObject) proxy;
                     final CI object = new CI(instance);
                     noteDetails(instance, object);
                     returnValue.add(object);
+                    remainingCount--;
+                }
+                if (remainingCount > 0) {
+                    throw new GraphException("cannot read all the specified objects of class " + queryClassName);
                 }
             }
         }
