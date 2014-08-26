@@ -395,7 +395,7 @@ public class GraphTraversal {
 
     private final ACLVoter aclVoter;
     private final SystemTypes systemTypes;
-    private final GraphPathBean bean;
+    private final GraphPathBean model;
     private final Planning planning;
     private final GraphPolicy policy;
     private final Processor processor;
@@ -412,7 +412,7 @@ public class GraphTraversal {
             Processor processor) {
         this.aclVoter = aclVoter;
         this.systemTypes = systemTypes;
-        this.bean = graphPathBean;
+        this.model = graphPathBean;
         this.planning = new Planning();
         this.policy = policy;
         this.processor = log.isDebugEnabled() ? debugWrap(processor) : processor;
@@ -560,12 +560,12 @@ public class GraphTraversal {
         final SetMultimap<CP, Long> forwardLinksWanted = HashMultimap.create();
         final SetMultimap<CP, Long> backwardLinksWanted = HashMultimap.create();
         for (final CI inclusionCandidate : toCache) {
-            for (final String inclusionCandidateSuperclassName : bean.getSuperclassesOfReflexive(inclusionCandidate.className)) {
-                for (final Entry<String, String> forwardLink : bean.getLinkedTo(inclusionCandidateSuperclassName)) {
+            for (final String inclusionCandidateSuperclassName : model.getSuperclassesOfReflexive(inclusionCandidate.className)) {
+                for (final Entry<String, String> forwardLink : model.getLinkedTo(inclusionCandidateSuperclassName)) {
                     final CP linkProperty = new CP(inclusionCandidateSuperclassName, forwardLink.getValue());
                     forwardLinksWanted.put(linkProperty, inclusionCandidate.id);
                 }
-                for (final Entry<String, String> backwardLink : bean.getLinkedBy(inclusionCandidateSuperclassName)) {
+                for (final Entry<String, String> backwardLink : model.getLinkedBy(inclusionCandidateSuperclassName)) {
                     final CP linkProperty = new CP(backwardLink.getKey(), backwardLink.getValue());
                     backwardLinksWanted.put(linkProperty, inclusionCandidate.id);
                 }
@@ -574,7 +574,7 @@ public class GraphTraversal {
         /* query and cache forward links */
         for (final Entry<CP, Collection<Long>> forwardLink : forwardLinksWanted.asMap().entrySet()) {
             final CP linkProperty = forwardLink.getKey();
-            final boolean propertyIsAccessible = bean.isPropertyAccessible(linkProperty.className, linkProperty.propertyName);
+            final boolean propertyIsAccessible = model.isPropertyAccessible(linkProperty.className, linkProperty.propertyName);
             final String query = "SELECT linker, linked FROM " + linkProperty.className + " AS linker " +
                     "JOIN linker." + linkProperty.propertyName + " AS linked WHERE linker.id IN (:ids)";
             for (final List<Long> ids : Iterables.partition(forwardLink.getValue(), BATCH_SIZE)) {
@@ -598,7 +598,7 @@ public class GraphTraversal {
         /* query and cache backward links */
         for (final Entry<CP, Collection<Long>> backwardLink : backwardLinksWanted.asMap().entrySet()) {
             final CP linkProperty = backwardLink.getKey();
-            final boolean propertyIsAccessible = bean.isPropertyAccessible(linkProperty.className, linkProperty.propertyName);
+            final boolean propertyIsAccessible = model.isPropertyAccessible(linkProperty.className, linkProperty.propertyName);
             final String query = "SELECT linker, linked FROM " + linkProperty.className + " AS linker " +
                     "JOIN linker." + linkProperty.propertyName + " AS linked WHERE linked.id IN (:ids)";
             for (final List<Long> ids : Iterables.partition(backwardLink.getValue(), BATCH_SIZE)) {
@@ -629,8 +629,8 @@ public class GraphTraversal {
      * @param object the object that is no longer {@link Action#EXCLUDE}d
      */
     private void orphanCheckNoLongerExcluded(CI object) {
-        for (final String superclassName : bean.getSuperclassesOfReflexive(object.className)) {
-            for (final Entry<String, String> forwardLink : bean.getLinkedTo(superclassName)) {
+        for (final String superclassName : model.getSuperclassesOfReflexive(object.className)) {
+            for (final Entry<String, String> forwardLink : model.getLinkedTo(superclassName)) {
                 /* next forward link */
                 final CPI linkSource = new CPI (superclassName, forwardLink.getValue(), object.id);
                 for (final CI linked : planning.forwardLinksCached.get(linkSource)) {
@@ -642,7 +642,7 @@ public class GraphTraversal {
                     }
                 }
             }
-            for (final Entry<String, String> backwardLink : bean.getLinkedBy(superclassName)) {
+            for (final Entry<String, String> backwardLink : model.getLinkedBy(superclassName)) {
                 /* next backward link */
                 final CPI linkTarget = new CPI (backwardLink.getKey(), backwardLink.getValue(), object.id);
                 for (final CI linker : planning.backwardLinksCached.get(linkTarget)) {
@@ -727,11 +727,11 @@ public class GraphTraversal {
         final Map<String, Set<Details>> linkedFromDetails = new HashMap<String, Set<Details>>();
         final Map<String, Set<Details>> linkedToDetails   = new HashMap<String, Set<Details>>();
         final Set<String> notNullable = new HashSet<String>();
-        for (final String superclassName : bean.getSuperclassesOfReflexive(object.className)) {
-            for (final Entry<String, String> forwardLink : bean.getLinkedTo(superclassName)) {
+        for (final String superclassName : model.getSuperclassesOfReflexive(object.className)) {
+            for (final Entry<String, String> forwardLink : model.getLinkedTo(superclassName)) {
                 /* next forward link */
                 final CP linkProperty = new CP(superclassName, forwardLink.getValue());
-                if (bean.getPropertyKind(linkProperty.className, linkProperty.propertyName) == PropertyKind.REQUIRED) {
+                if (model.getPropertyKind(linkProperty.className, linkProperty.propertyName) == PropertyKind.REQUIRED) {
                     notNullable.add(linkProperty.toString());
                 }
                 final Set<Details> linkedsDetails = new HashSet<Details>();
@@ -742,10 +742,10 @@ public class GraphTraversal {
                     linkedsDetails.add(getDetails(detailsCache, linked));
                 }
             }
-            for (final Entry<String, String> backwardLink : bean.getLinkedBy(superclassName)) {
+            for (final Entry<String, String> backwardLink : model.getLinkedBy(superclassName)) {
                 /* next backward link */
                 final CP linkProperty = new CP(backwardLink.getKey(), backwardLink.getValue());
-                if (bean.getPropertyKind(linkProperty.className, linkProperty.propertyName) == PropertyKind.REQUIRED) {
+                if (model.getPropertyKind(linkProperty.className, linkProperty.propertyName) == PropertyKind.REQUIRED) {
                     notNullable.add(linkProperty.toString());
                 }
                 final Set<Details> linkersDetails = new HashSet<Details>();
@@ -835,7 +835,7 @@ public class GraphTraversal {
      * @param linked the linked object
      */
     private void addRemoval(Map<CP, SetMultimap<Long, Entry<String, Long>>> linkerToIdToLinked, CPI linker, CI linked) {
-        if (bean.isPropertyAccessible(linker.className, linker.propertyName)) {
+        if (model.isPropertyAccessible(linker.className, linker.propertyName)) {
             SetMultimap<Long, Entry<String, Long>> idMap = linkerToIdToLinked.get(linker.toCP());
             if (idMap == null) {
                 idMap = HashMultimap.create();
@@ -1015,11 +1015,11 @@ public class GraphTraversal {
         final Map<CP, SetMultimap<Long, Entry<String, Long>>> linkerToIdToLinked =
                 new HashMap<CP, SetMultimap<Long, Entry<String, Long>>>();
         for (final CI object : planning.included) {
-            for (final String superclassName : bean.getSuperclassesOfReflexive(object.className)) {
-                for (final Entry<String, String> forwardLink : bean.getLinkedTo(superclassName)) {
+            for (final String superclassName : model.getSuperclassesOfReflexive(object.className)) {
+                for (final Entry<String, String> forwardLink : model.getLinkedTo(superclassName)) {
                     final CP linkProperty = new CP(superclassName, forwardLink.getValue());
                     final boolean isCollection =
-                            bean.getPropertyKind(linkProperty.className, linkProperty.propertyName) == PropertyKind.COLLECTION;
+                            model.getPropertyKind(linkProperty.className, linkProperty.propertyName) == PropertyKind.COLLECTION;
                     final CPI linkSource = linkProperty.toCPI(object.id);
                     for (final CI linked : planning.forwardLinksCached.get(linkSource)) {
                         final Action linkedAction = getAction(linked);
@@ -1033,10 +1033,10 @@ public class GraphTraversal {
                         }
                     }
                 }
-                for (final Entry<String, String> backwardLink : bean.getLinkedBy(superclassName)) {
+                for (final Entry<String, String> backwardLink : model.getLinkedBy(superclassName)) {
                     final CP linkProperty = new CP(backwardLink.getKey(), backwardLink.getValue());
                     final boolean isCollection =
-                            bean.getPropertyKind(linkProperty.className, linkProperty.propertyName) == PropertyKind.COLLECTION;
+                            model.getPropertyKind(linkProperty.className, linkProperty.propertyName) == PropertyKind.COLLECTION;
                     final CPI linkTarget = linkProperty.toCPI(object.id);
                     for (final CI linker : planning.backwardLinksCached.get(linkTarget)) {
                         final Action linkerAction = getAction(linker);
@@ -1053,11 +1053,11 @@ public class GraphTraversal {
             }
         }
         for (final CI object : planning.deleted) {
-            for (final String superclassName : bean.getSuperclassesOfReflexive(object.className)) {
-                for (final Entry<String, String> backwardLink : bean.getLinkedBy(superclassName)) {
+            for (final String superclassName : model.getSuperclassesOfReflexive(object.className)) {
+                for (final Entry<String, String> backwardLink : model.getLinkedBy(superclassName)) {
                     final CP linkProperty = new CP(backwardLink.getKey(), backwardLink.getValue());
                     final boolean isCollection =
-                            bean.getPropertyKind(linkProperty.className, linkProperty.propertyName) == PropertyKind.COLLECTION;
+                            model.getPropertyKind(linkProperty.className, linkProperty.propertyName) == PropertyKind.COLLECTION;
                     final CPI linkTarget = linkProperty.toCPI(object.id);
                     for (final CI linker : planning.backwardLinksCached.get(linkTarget)) {
                         final Action linkerAction = getAction(linker);
