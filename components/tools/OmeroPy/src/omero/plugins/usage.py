@@ -29,6 +29,7 @@ class UsageControl(CmdControl):
 
     def _configure(self, parser):
         super(UsageControl, self)._configure(parser)
+        parser.add_login_arguments()
         parser.add_style_argument()
         parser.add_argument(
             "--size_only", action="store_true",
