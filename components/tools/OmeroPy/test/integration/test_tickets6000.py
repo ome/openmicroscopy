@@ -46,5 +46,3 @@ class TestTickets6000(lib.ITest):
 
         print client.sf
         print uuid
-
-
