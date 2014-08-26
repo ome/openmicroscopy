@@ -30,6 +30,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -44,8 +46,12 @@ import javax.swing.JPanel;
 
 
 
+
+
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
+import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
@@ -95,10 +101,12 @@ class ChannelSlider
 	/** Turn on/off the channel, when used in the viewer. */
 	private ChannelButton			channelSelection;
 	
+	private JButton colorPicker;
+	
 	/** Initializes the component composing the display. */
 	private void initComponents()
 	{
-		int index = channel.getIndex();
+		final int index = channel.getIndex();
 		int f = model.getRoundFactor(index);
     	int s = (int) (model.getWindowStart(index)*f);
         int e = (int) (model.getWindowEnd(index)*f);
@@ -143,14 +151,22 @@ class ChannelSlider
     	channelSelection = new ChannelButton(""+channel.getChannelLabeling(), c, index);
     	channelSelection.setPreferredSize(new Dimension(40,25));
     	channelSelection.setSelected(model.isChannelActive(index));
+    	channelSelection.enablePopupMenu(false);
     	channelSelection.addPropertyChangeListener(controller);
         
+    	colorPicker = new JButton(IconManager.getInstance().getIcon(IconManager.COLOR_PICKER));
+    	colorPicker.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                controller.showColorPicker(index);
+            }
+        });
 	}
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		int w = 300;
+		int w = 230;
                 JPanel p = new JPanel();
                 p.setBackground(UIUtilities.BACKGROUND_COLOR);
                 p.setBorder(null);
@@ -161,6 +177,7 @@ class ChannelSlider
                 setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
                 add(channelSelection);
                 add(p);
+                add(colorPicker);
                 setBackground(UIUtilities.BACKGROUND_COLOR);
 	}
 	

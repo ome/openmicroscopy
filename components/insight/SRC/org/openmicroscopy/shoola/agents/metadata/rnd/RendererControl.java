@@ -186,7 +186,7 @@ class RendererControl
      * 
      * @param channel The index of the selected channel.
      */
-    private void showColorPicker(int channel)
+    void showColorPicker(int channel)
     {
 		colorPickerIndex = channel;
 		Color c = view.getChannelColor(channel);
