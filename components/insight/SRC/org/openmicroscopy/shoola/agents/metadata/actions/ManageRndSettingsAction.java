@@ -69,7 +69,7 @@ public class ManageRndSettingsAction
 	/** Indicates to save the rendering settings. */
 	public static final int SAVE = 6;
 	
-	/** Indicates to undo the changes. */
+	/** Indicates to redo the changes. */
         public static final int REDO = 7;
 
 	/** The description of the action if {@link #SAVE}. */
@@ -87,7 +87,7 @@ public class ManageRndSettingsAction
 	/** The description of the action if {@link #UNDO}. */
 	private static final String NAME_UNDO = "Undo";
 	
-	/** The description of the action if {@link #UNDO}. */
+	/** The description of the action if {@link #REDO}. */
         private static final String NAME_REDO = "Redo";
 	
 	/** The description of the action if {@link #RESET}. */

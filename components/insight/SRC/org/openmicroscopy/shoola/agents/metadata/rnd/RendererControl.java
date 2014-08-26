@@ -120,7 +120,7 @@ class RendererControl
     /** Identifies the action to save the rendering settings. */
     static final Integer    SAVE = Integer.valueOf(16);
     
-    /** Identifies the action to save the rendering settings. */
+    /** Identifies the action to redo the changes. */
     static final Integer    RND_REDO = Integer.valueOf(17);
     
     /**

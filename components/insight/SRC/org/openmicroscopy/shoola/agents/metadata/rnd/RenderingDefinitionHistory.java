@@ -50,7 +50,7 @@ public class RenderingDefinitionHistory {
     /** Reference to the PropertyChangeListeners */
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
-    /** Previous renderings settings */
+    /** Previous rendering settings */
     private List<RndProxyDef> history = new ArrayList<RndProxyDef>();
 
     /** Pointer to the 'current' previous rendering settings */
@@ -128,7 +128,7 @@ public class RenderingDefinitionHistory {
         boolean oldR = canRedo();
 
         if (previousAction==PREV_ACTION_BACKWARD)
-            pointer +=2;
+            pointer += 2;
         else
             pointer += 1;
 
