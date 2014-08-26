@@ -167,9 +167,6 @@ public class DomainPane
      */
     private List<ChannelButton> channelList;
 
-    /** A panel containing the channel buttons. */
-//    private JPanel channelButtonPanel;
-
     /** Slider to select a curve in the family. */
     private OneKnobSlider gammaSlider;
 
@@ -193,9 +190,6 @@ public class DomainPane
 
     /** The component hosting the various options. */
     private JXTaskPane taskPane;
-
-    /** Button to modify the color model. */
-    //private JButton colorModel;
 
     /** Select the lifetime bin. */
     private OneKnobSlider lifetimeSlider;
@@ -368,11 +362,6 @@ public class DomainPane
         histogramButton = new JButton(
                 controller.getAction(RendererControl.HISTOGRAM));
         
-//        colorModel = new JButton(
-//        		controller.getAction(RendererControl.COLOR_MODEL));
-//        colorModel.setBackground(UIUtilities.BACKGROUND_COLOR);
-//        UIUtilities.unifiedButtonLookAndFeel(colorModel);
-//        colorModel.setVisible(false);
         channelList = new ArrayList<ChannelButton>();
         
         if (model.isGeneralIndex()) {
@@ -412,7 +401,6 @@ public class DomainPane
             initSlider(lifetimeSlider, maxBin, model.getSelectedBin(),
                     LITEIME_SLIDER_DESCRIPTION, LIFETIME_SLIDER_TIPSTRING);
             lifetimeSlider.setPaintTicks(false);
-//            channelButtonPanel = createChannelButtons();
         } else {
             if (model.isLifetimeImage()) {
                 lifetimeSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL,
@@ -422,9 +410,7 @@ public class DomainPane
                 initSlider(lifetimeSlider, maxBin, model.getSelectedBin(),
                         LITEIME_SLIDER_DESCRIPTION, LIFETIME_SLIDER_TIPSTRING);
                 lifetimeSlider.setPaintTicks(false);
-//                channelButtonPanel = new JPanel();
-//                channelButtonPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
-            } //else channelButtonPanel = createChannelButtons();
+            }
         }
         graphicsPane.setSelectedPlane();
         channelsBox = new JComboBox();
@@ -470,78 +456,6 @@ public class DomainPane
         bitDepthLabel.repaint();
     }
     
-//    /**
-//     * Creates the channel buttons on the left hand side of the histogram.
-//     * 
-//     * @return panel containing the buttons.
-//     */
-//    private JPanel createChannelButtons()
-//    {
-//        JPanel p = new JPanel();
-//        p.setBackground(UIUtilities.BACKGROUND_COLOR);
-//        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-//        List<ChannelData> data = model.getChannelData();
-//        boolean gs = model.isGreyScale();
-//        ChannelData d;
-//        //ChannelToggleButton item;
-//        ChannelButton item;
-//        p.add(Box.createRigidArea(VBOX));
-//        Dimension dMax = ChannelButton.DEFAULT_MIN_SIZE;
-//        Dimension dim;
-//        Iterator<ChannelData> i = data.iterator();
-//        int j;
-//        List<Integer> active = model.getActiveChannels();
-//        while (i.hasNext()) {
-//			d = i.next();
-//			j = d.getIndex();
-//			item = new ChannelButton(""+d.getChannelLabeling(), 
-//					model.getChannelColor(j), j);
-//			dim = item.getPreferredSize();
-//			if (dim.width > dMax.width) 
-//				dMax = new Dimension(dim.width, dMax.height);
-//			item.setBackground(UIUtilities.BACKGROUND_COLOR);
-//			channelList.add(item);
-//			item.setSelected(active.contains(j));
-//			item.setGrayedOut(gs);
-//			item.addPropertyChangeListener(controller);
-//			p.add(item);
-//			p.add(Box.createRigidArea(VBOX));
-//		}
-// 
-//        Iterator<ChannelButton> index = channelList.iterator();
-//        while (index.hasNext()) 
-//			index.next().setPreferredSize(dMax);
-//
-//        JPanel controls = new JPanel();
-//        controls.setLayout(new GridBagLayout());
-//        GridBagConstraints c = new GridBagConstraints();
-//		c.fill = GridBagConstraints.VERTICAL;
-//		c.anchor = GridBagConstraints.WEST;
-//		c.insets = new Insets(0, 2, 2, 0);
-//		c.gridy = 0;
-//		c.gridx = 0;
-//        controls.setBackground(UIUtilities.BACKGROUND_COLOR);
-//        if (model.isGeneralIndex()) {
-////        	colorModel.setVisible(true);
-//        	JToolBar bar = new JToolBar(JToolBar.VERTICAL);
-//        	bar.setBackground(UIUtilities.BACKGROUND_COLOR);
-//        	bar.setFloatable(false);
-//        	bar.setRollover(true);
-//        	bar.setBorder(null);
-//        	bar.add(colorModel);
-//        	c.anchor = GridBagConstraints.CENTER;
-//        	controls.add(bar, c);
-//        	c.gridy = c.gridy+2;
-//        	c.anchor = GridBagConstraints.WEST;
-//        }
-//        if (channelList.size() > Renderer.MAX_CHANNELS) 
-//        	controls.add(new JScrollPane(p), c);
-//        else controls.add(p, c);
-//        JPanel content = UIUtilities.buildComponentPanel(controls);
-//        content.setBackground(UIUtilities.BACKGROUND_COLOR);
-//        return content;  
-//    }
-    
     /**
      * Creates a panel showing the channel buttons and histogram.
      *  
@@ -585,10 +499,6 @@ public class DomainPane
 		c.insets = new Insets(0, 2, 2, 0);
 		c.gridy = 0;
 		c.gridx = 0;
-//		if (channelButtonPanel != null) {
-//			p.add(channelButtonPanel, c);
-//			c.gridx++;
-//		}
 		p.add(zSlider, c);
 		c.gridx++;
 		p.add(canvas, c);

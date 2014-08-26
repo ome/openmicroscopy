@@ -39,7 +39,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
@@ -47,10 +46,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
-
-
-
-
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
@@ -65,7 +60,6 @@ import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
-
 import pojos.ChannelData;
 
 /** 
@@ -128,6 +122,7 @@ class GraphicsPane
     /** The equation of the vertical line. */
     private int verticalLine = -1;
 
+    /** Checkbox for switching between grayscale and rgb mode */
     private JCheckBox grayScale;
     
     /** Hosts the sliders controlling the pixels intensity values. */

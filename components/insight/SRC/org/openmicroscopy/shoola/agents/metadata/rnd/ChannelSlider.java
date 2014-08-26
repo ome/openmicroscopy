@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.ChannelSlider 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -36,7 +36,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
@@ -44,18 +43,12 @@ import javax.swing.JPanel;
 
 //Third-party libraries
 
-
-
-
-
-
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
-
 import pojos.ChannelData;
 
 /** 
@@ -101,6 +94,7 @@ class ChannelSlider
 	/** Turn on/off the channel, when used in the viewer. */
 	private ChannelButton			channelSelection;
 	
+	/** Button for opening the color picker */
 	private JButton colorPicker;
 	
 	/** Initializes the component composing the display. */

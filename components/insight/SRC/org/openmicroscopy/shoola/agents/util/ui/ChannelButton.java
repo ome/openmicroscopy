@@ -94,6 +94,7 @@ public class ChannelButton
     /** The pop up menu associated to this component. */
     private ChannelButtonPopupMenu  popupMenu;
     
+    /** Flag for enabling/disabling the popup menu */
     private boolean popupEnabled = true;
 
     /** Flag indicating if right-click are supported. */

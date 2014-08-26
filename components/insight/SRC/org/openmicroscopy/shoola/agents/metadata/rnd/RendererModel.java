@@ -1733,6 +1733,11 @@ class RendererModel
         }
     }
 	
+	/**
+         * Set the color mode to grayscale or RGB
+         *
+         * @param b <code>true</code> for switching to grayscale, RGB otherwise 
+         */
 	void setGrayscale(boolean b) {
 	    if(b)
 	        component.setColorModel(Renderer.GREY_SCALE_MODEL, true);
