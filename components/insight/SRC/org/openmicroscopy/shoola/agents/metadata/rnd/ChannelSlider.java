@@ -34,16 +34,22 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 
 //Third-party libraries
+
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
+
 import pojos.ChannelData;
 
 /** 
@@ -134,36 +140,28 @@ class ChannelSlider
         list.add("max: "+max);
         slider.getSlider().setToolTipText(UIUtilities.formatToolTipText(list));
         
-        if (!model.isGeneralIndex()) {
-        	channelSelection = new ChannelButton("", c, index);
-        	channelSelection.setPreferredSize(DEFAULT_SIZE);
-        	channelSelection.setSelected(model.isChannelActive(index));
-        	channelSelection.addPropertyChangeListener(controller);
-        }
+    	channelSelection = new ChannelButton(""+channel.getChannelLabeling(), c, index);
+    	channelSelection.setPreferredSize(new Dimension(40,25));
+    	channelSelection.setSelected(model.isChannelActive(index));
+    	channelSelection.addPropertyChangeListener(controller);
+        
 	}
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		int w = 320;
-		if (model.isGeneralIndex()) {
-			double size[][] = {{w},{TableLayout.PREFERRED}}; // Rows
-			setLayout(new TableLayout(size));
-			add(slider, "0, 0");
-		} else {
-			JPanel p = new JPanel();
-			p.setBorder(null);
-			double size[][] = {{w},  // Columns
-	    	{TableLayout.PREFERRED}}; // Rows
-			p.setLayout(new TableLayout(size));
-			p.add(slider, "0, 0");
-			Dimension d = slider.getPreferredSize();
-			channelSelection.setPreferredSize(new Dimension(d.height, d.height));
-			setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-			add(channelSelection);
-			add(p);
-			setBackground(p.getBackground());
-		}
+		int w = 300;
+                JPanel p = new JPanel();
+                p.setBackground(UIUtilities.BACKGROUND_COLOR);
+                p.setBorder(null);
+                double size[][] = { { w }, // Columns
+                        { TableLayout.PREFERRED } }; // Rows
+                p.setLayout(new TableLayout(size));
+                p.add(slider, "0, 0");
+                setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
+                add(channelSelection);
+                add(p);
+                setBackground(UIUtilities.BACKGROUND_COLOR);
 	}
 	
 	/**

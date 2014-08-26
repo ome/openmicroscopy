@@ -30,6 +30,8 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -37,12 +39,18 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
+
+
+
+
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
@@ -57,6 +65,7 @@ import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
+
 import pojos.ChannelData;
 
 /** 
@@ -119,6 +128,8 @@ class GraphicsPane
     /** The equation of the vertical line. */
     private int verticalLine = -1;
 
+    private JCheckBox grayScale;
+    
     /** Hosts the sliders controlling the pixels intensity values. */
     private List<ChannelSlider> sliders;
 
@@ -199,6 +210,15 @@ class GraphicsPane
         minLabel = new JLabel(formatValue(model.getGlobalMin()));
         maxLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
         minLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
+        
+        grayScale = new JCheckBox("Grayscale");
+        grayScale.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                model.setGrayscale(grayScale.isSelected());
+            }
+        });
+        
         sliders = new ArrayList<ChannelSlider>();
         if (model.getModuloT() != null || !model.isLifetimeImage()) {
             List<ChannelData> channels = model.getChannelData();
@@ -262,6 +282,14 @@ class GraphicsPane
         c.fill = GridBagConstraints.NONE;//reset to default
         c.weightx = 0.0;  
 
+        c.gridy++;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        content.add(new JSeparator(), c);
+        c.fill = GridBagConstraints.NONE;
+        
+        c.gridy++;
+        content.add(grayScale, c);
+        
         Iterator<ChannelSlider> i = sliders.iterator();
         while (i.hasNext())  {
             c.gridy++;

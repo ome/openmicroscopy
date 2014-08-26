@@ -1732,4 +1732,11 @@ class RendererModel
             }
         }
     }
+	
+	void setGrayscale(boolean b) {
+	    if(b)
+	        component.setColorModel(Renderer.GREY_SCALE_MODEL, true);
+	    else
+	        component.setColorModel(Renderer.RGB_MODEL, true);
+	}
 }
