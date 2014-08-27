@@ -45,18 +45,7 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
 
     private static final String SEPARATOR = System.getProperty("line.separator");
 
-    private static final boolean ACTIVE_CLOSE;
-
     private RawFileStorePrx rawFileStore;
-
-    static {
-        String ac = System.getProperty("omero.import.active_close", "true");
-        ACTIVE_CLOSE = Boolean.parseBoolean(ac);
-    }
-
-    public static void main(String[] args) {
-        System.out.println(ACTIVE_CLOSE);
-    }
 
     /**
      * "Transfer" files by soft-linking them into place. This method is likely
@@ -127,7 +116,7 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
         try {
             rawFileStore.write(uuid.getBytes(), 0, uuid.getBytes().length);
         } finally {
-            if (ACTIVE_CLOSE) {
+            if (isWindows()) {
                 rawFileStore.close();
                 rawFileStore = null;
             }
