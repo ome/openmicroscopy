@@ -6578,6 +6578,24 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
         return PixelsWrapper(self._conn, self._obj.getPrimaryPixels())
 
+    @assert_pixels
+    def getThumbVersion(self):
+        """
+        Return the (latest) thumbnail versio, or None if no thumbnail exists
+
+        :return:        Long or None
+        """
+        if self._obj.getPrimaryPixels()._thumbnailsLoaded:
+            tvs = [t.version.val for t in self._obj.getPrimaryPixels().copyThumbnails()]
+        else:
+            pid = self.getPixelsId()
+            query = "select t.version from Thumbnail t where t.pixels = %s" % pid
+            tbs = self._conn.getQueryService().projection(query, None, self._conn.SERVICE_OPTS)
+            tvs = [t[0].val for t in tbs]
+        if len(tvs) > 0:
+            return max(tvs)
+        return None
+
     @assert_re(ignoreExceptions=(omero.ConcurrencyException))
     def getChannels (self):
         """
