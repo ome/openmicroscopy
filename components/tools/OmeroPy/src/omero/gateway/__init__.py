@@ -2209,7 +2209,7 @@ class _BlitzGateway (object):
 
         return self.getObjects("Screen", params=params)
 
-    def listOrphans (self, obj_type, eid=None, params=None):
+    def listOrphans (self, obj_type, eid=None, params=None, loadPixels=False):
         """
         List orphaned Datasets, Images, Plates controlled by the security system,
         Optionally filter by experimenter 'eid'
@@ -2228,13 +2228,24 @@ class _BlitzGateway (object):
                 'Image':('DatasetImageLink', ImageWrapper),
                 'Plate':('ScreenPlateLink', PlateWrapper)}
 
+        if obj_type not in links.keys():
+            raise AttributeError("obj_type must be in %s" % str(links.keys()));
+
         if params is None:
             params = omero.sys.ParametersI()
 
+        wrapper = KNOWN_WRAPPERS.get(obj_type.lower(), None)
+        query = wrapper()._getQueryString()
+
+        if loadPixels and obj_type == 'Image':
+            # left outer join so we don't exclude images that have no thumbnails
+            query += " join fetch obj.pixels as pix left outer join fetch pix.thumbnails"
+
         if eid is not None:
             params.exp(eid)
+            query += " where owner.id = (:eid)"
+            params.map["eid"] = params.theFilter.ownerId
 
-        query, params, wrapper = self.buildQuery(obj_type, params=params)
         query += "where" not in query and " where " or " and "
         query += " not exists (select obl from %s as obl where " \
                  "obl.child=obj.id) " % ( links[obj_type][0])
