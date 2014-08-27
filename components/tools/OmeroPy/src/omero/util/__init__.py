@@ -11,7 +11,6 @@ import os
 import sys
 import Ice
 import path
-import time
 import omero
 import IcePy
 import IceGrid
@@ -21,13 +20,14 @@ import Glacier2
 import threading
 import logging.handlers
 import omero.util.concurrency
-import omero_ext.uuid as uuid # see ticket:3774
+import omero_ext.uuid as uuid  # see ticket:3774
 import omero.ObjectFactoryRegistrar as ofr
 
 from omero.util.decorators import locked
 
-LOGDIR = os.path.join("var","log")
-LOGFORMAT =  """%(asctime)s %(levelname)-5.5s [%(name)40s] (%(threadName)-10s) %(message)s"""
+LOGDIR = os.path.join("var", "log")
+LOGFORMAT = "%(asctime)s %(levelname)-5.5s [%(name)40s] " \
+            "(%(threadName)-10s) %(message)s"
 LOGLEVEL = logging.INFO
 LOGSIZE = 500000000
 LOGNUM = 9
@@ -36,22 +36,29 @@ LOGMODE = "a"
 orig_stdout = sys.stdout
 orig_stderr = sys.stderr
 
+
 def make_logname(self):
     """
-    Generates a logname from the given instance using the module and name from its class
+    Generates a logname from the given instance using the module
+    and name from its class
     """
     log_name = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
     return log_name
 
-def configure_logging(logdir = None, logfile = None, loglevel = LOGLEVEL,\
-    format = LOGFORMAT, filemode = LOGMODE, maxBytes = LOGSIZE, backupCount = LOGNUM, time_rollover = False):
+
+def configure_logging(logdir=None, logfile=None, loglevel=LOGLEVEL,
+                      format=LOGFORMAT, filemode=LOGMODE, maxBytes=LOGSIZE,
+                      backupCount=LOGNUM, time_rollover=False):
 
     if logdir is None or logfile is None:
         handler = logging.StreamHandler()
     elif not time_rollover:
-        handler = logging.handlers.RotatingFileHandler(os.path.join(logdir, logfile), maxBytes = maxBytes, backupCount = backupCount)
+        handler = logging.handlers.RotatingFileHandler(
+            os.path.join(logdir, logfile), maxBytes=maxBytes,
+            backupCount=backupCount)
     else:
-        handler = logging.handlers.TimedRotatingFileHandler(os.path.join(logdir, logfile),'midnight',1)
+        handler = logging.handlers.TimedRotatingFileHandler(
+            os.path.join(logdir, logfile), 'midnight', 1)
         # Windows will not allow renaming (or deleting) a file that's open.
         # There's nothing the logging package can do about that.
         try:
@@ -67,6 +74,7 @@ def configure_logging(logdir = None, logfile = None, loglevel = LOGLEVEL,\
     rootLogger.addHandler(handler)
     return rootLogger
 
+
 def configure_server_logging(props):
     """
     Takes an Ice.Properties instance and configures logging
@@ -74,18 +82,27 @@ def configure_server_logging(props):
     program_name = props.getProperty("Ice.Admin.ServerId")
     # Using Ice.ProgramName on Windows failed
     log_dir = props.getPropertyWithDefault("omero.logging.directory", LOGDIR)
-    log_name = program_name+".log"
-    log_timed = props.getPropertyWithDefault("omero.logging.timedlog","False")[0] in ('T', 't')
-    log_num = int(props.getPropertyWithDefault("omero.logging.lognum",str(LOGNUM)))
-    log_size = int(props.getPropertyWithDefault("omero.logging.logsize",str(LOGSIZE)))
-    log_num = int(props.getPropertyWithDefault("omero.logging.lognum",str(LOGNUM)))
-    log_level = int(props.getPropertyWithDefault("omero.logging.level",str(LOGLEVEL)))
-    configure_logging(log_dir, log_name, loglevel=log_level, maxBytes=log_size, backupCount=log_num, time_rollover = log_timed)
+    log_name = program_name + ".log"
+    log_timed = props.getPropertyWithDefault(
+        "omero.logging.timedlog", "False")[0] in ('T', 't')
+    log_num = int(
+        props.getPropertyWithDefault("omero.logging.lognum", str(LOGNUM)))
+    log_size = int(
+        props.getPropertyWithDefault("omero.logging.logsize", str(LOGSIZE)))
+    log_num = int(
+        props.getPropertyWithDefault("omero.logging.lognum", str(LOGNUM)))
+    log_level = int(
+        props.getPropertyWithDefault("omero.logging.level", str(LOGLEVEL)))
+    configure_logging(log_dir, log_name, loglevel=log_level,
+                      maxBytes=log_size, backupCount=log_num,
+                      time_rollover=log_timed)
 
     sys.stdout = StreamRedirect(logging.getLogger("stdout"))
     sys.stderr = StreamRedirect(logging.getLogger("stderr"))
 
+
 class StreamRedirect(object):
+
     """
     Since all server components should exclusively using the logging module
     any output to stdout or stderr is caught and logged at "WARN". This is
@@ -108,7 +125,9 @@ class StreamRedirect(object):
     def __getattr__(self, name):
         self.internal.warn("No attribute: %s" % name)
 
+
 class Dependency(object):
+
     """
     Centralized logic for declaring and logging a service
     dependency on a non-shipped library. This is called
@@ -140,7 +159,9 @@ class Dependency(object):
             logger.error("Failed to load: '%s'" % self.key)
             return False
 
-def internal_service_factory(communicator, user="root", group=None, retries=6, interval=10, client_uuid=None, stop_event = None):
+
+def internal_service_factory(communicator, user="root", group=None, retries=6,
+                             interval=10, client_uuid=None, stop_event=None):
     """
     Try to return a ServiceFactory from the grid.
 
@@ -158,8 +179,9 @@ def internal_service_factory(communicator, user="root", group=None, retries=6, i
         client_uuid  := Uuid of the client which should be used
     """
     log = logging.getLogger("omero.utils")
-    if stop_event == None:
-        stop_event = omero.util.concurrency.get_event(name="internal_service_factory")
+    if stop_event is None:
+        stop_event = omero.util.concurrency.get_event(
+            name="internal_service_factory")
 
     tryCount = 0
     excpt = None
@@ -176,7 +198,7 @@ def internal_service_factory(communicator, user="root", group=None, retries=6, i
             implicit_ctx.put(omero.constants.CLIENTUUID, client_uuid)
 
     while tryCount < retries:
-        if stop_event.isSet(): # Something is shutting down, exit.
+        if stop_event.isSet():  # Something is shutting down, exit.
             return None
         try:
             blitz = query.findAllObjectsByType("::Glacier2::SessionManager")[0]
@@ -194,6 +216,7 @@ def internal_service_factory(communicator, user="root", group=None, retries=6, i
     if excpt:
         raise excpt
 
+
 def create_admin_session(communicator):
     """
     """
@@ -202,10 +225,11 @@ def create_admin_session(communicator):
     adm = reg.createAdminSession('null', '')
     return adm
 
+
 def add_grid_object(communicator, obj):
     """
     """
-    sid = communicator.identityToString(obj.ice_getIdentity())
+    communicator.identityToString(obj.ice_getIdentity())
     adm = create_admin_session(communicator)
     prx = adm.getAdmin()
     try:
@@ -214,7 +238,8 @@ def add_grid_object(communicator, obj):
         except IceGrid.ObjectExistsException:
             prx.updateObject(obj)
     finally:
-            adm.destroy()
+        adm.destroy()
+
 
 def long_to_path(id, root=""):
     """
@@ -243,7 +268,7 @@ def long_to_path(id, root=""):
             dirno = remaining % 1000
             suffix = os.path.join("Dir-%03d" % dirno, suffix)
 
-    return os.path.join(root, "%s%s" %(suffix,id))
+    return os.path.join(root, "%s%s" % (suffix, id))
 
 
 def load_dotted_class(dotted_class):
@@ -266,6 +291,7 @@ def load_dotted_class(dotted_class):
 
 
 class ServerContext(object):
+
     """
     Context passed to all servants.
 
@@ -285,7 +311,8 @@ class ServerContext(object):
     server shutdown, so should be infrequent)
     """
 
-    def __init__(self, server_id, communicator, stop_event, on_newsession = None):
+    def __init__(self, server_id, communicator, stop_event,
+                 on_newsession=None):
         self._lock = threading.RLock()
         self.logger = logging.getLogger("omero.util.ServerContext")
         self.server_id = server_id
@@ -295,7 +322,7 @@ class ServerContext(object):
         self.on_newsession = None
 
     @locked
-    def add_servant(self, adapter_or_current, servant, ice_identity = None):
+    def add_servant(self, adapter_or_current, servant, ice_identity=None):
         oa = adapter_or_current
         if isinstance(adapter_or_current, (Ice.Current, IcePy.Current)):
             oa = oa.adapter
@@ -309,7 +336,8 @@ class ServerContext(object):
         return prx
 
     def newSession(self):
-        self.session = internal_service_factory(self.communicator, stop_event = self.stop_event)
+        self.session = internal_service_factory(
+            self.communicator, stop_event=self.stop_event)
         if callable(self.on_newsession):
             self.on_newsession(self.session)
 
@@ -317,7 +345,7 @@ class ServerContext(object):
         return hasattr(self, "session")
 
     @locked
-    def getSession(self, recreate = True):
+    def getSession(self, recreate=True):
         """
         Returns the ServiceFactoryPrx configured for the context if
         available. If the context was not configured for sessions,
@@ -333,13 +361,14 @@ class ServerContext(object):
         but also not in Servant.__init__
         """
         if not self.hasSession():
-            raise omero.ApiUsageException("Not configured for server connection")
+            raise omero.ApiUsageException(
+                "Not configured for server connection")
 
         if self.session:
             try:
                 self.session.keepAlive(None)
             except Ice.CommunicatorDestroyedException:
-                self.session = None # Ignore
+                self.session = None  # Ignore
             except Exception, e:
                 self.logger.warn("Connection failure: %s" % e)
                 self.session = None
@@ -377,7 +406,9 @@ class ServerContext(object):
         """
         pass
 
+
 class Server(Ice.Application):
+
     """
     Basic server implementation which can be used for
     implementing a standalone python server which can
@@ -393,14 +424,16 @@ class Server(Ice.Application):
     Usage::
 
         if __name__ == "__main__":
-            app=Server(ServicesI, "ServicesAdapter", Ice.Identity("Services",""))
+            app=Server(
+                ServicesI, "ServicesAdapter", Ice.Identity("Services",""))
             sys.exit(app.main(sys.argv))
 
     app.impl now points to an instance of ServicesI
 
     """
 
-    def __init__(self, impl_class, adapter_name, identity, logdir = LOGDIR, dependencies = ()):
+    def __init__(self, impl_class, adapter_name, identity, logdir=LOGDIR,
+                 dependencies=()):
 
         self.impl_class = impl_class
         self.adapter_name = adapter_name
@@ -410,7 +443,7 @@ class Server(Ice.Application):
         self.dependencies = dependencies
 
     def waitOnStartup(self):
-        ms = 10000 # 10 seconds by default
+        ms = 10000  # 10 seconds by default
         try:
             i = os.environ.get("OMERO_STARTUP_WAIT", "10000")
             ms = int(i)
@@ -419,11 +452,11 @@ class Server(Ice.Application):
 
         try:
             self.logger.info("Waiting %s ms on startup" % ms)
-            self.stop_event.wait(ms/1000)
+            self.stop_event.wait(ms / 1000)
         except:
             self.logger.debug(exc_info=1)
 
-    def run(self,args):
+    def run(self, args):
 
         from omero.rtypes import ObjectFactories as rFactories
         from omero.columns import ObjectFactories as cFactories
@@ -432,7 +465,7 @@ class Server(Ice.Application):
         configure_server_logging(props)
 
         self.logger = logging.getLogger("omero.util.Server")
-        self.logger.info("*"*80)
+        self.logger.info("*" * 80)
         self.waitOnStartup()
         self.logger.info("Starting")
 
@@ -448,25 +481,31 @@ class Server(Ice.Application):
 
         try:
 
-            ofr.registerObjectFactory(self.communicator(), None) # No client
+            ofr.registerObjectFactory(self.communicator(), None)  # No client
             for of in rFactories.values() + cFactories.values():
                 of.register(self.communicator())
 
             try:
-                serverid = self.communicator().getProperties().getProperty("Ice.ServerId")
-                ctx = ServerContext(serverid, self.communicator(), self.stop_event)
+                serverid = self.communicator().getProperties().getProperty(
+                    "Ice.ServerId")
+                ctx = ServerContext(
+                    serverid, self.communicator(), self.stop_event)
                 self.impl = self.impl_class(ctx)
-                getattr(self.impl, "cleanup") # Required per docs
+                getattr(self.impl, "cleanup")  # Required per docs
             except:
                 self.logger.error("Failed initialization", exc_info=1)
                 sys.exit(100)
 
             try:
-                self.adapter = self.communicator().createObjectAdapter(self.adapter_name)
+                self.adapter = self.communicator().createObjectAdapter(
+                    self.adapter_name)
                 self.adapter.activate()
-                ctx.add_servant(self.adapter, self.impl, self.identity) # calls setProxy
-                prx = self.adapter.createDirectProxy(self.identity) # ticket:1978 for non-collocated registries
-                add_grid_object(self.communicator(), prx)     # This must happen _after_ activation
+                # calls setProxy
+                ctx.add_servant(self.adapter, self.impl, self.identity)
+                # ticket:1978 for non-collocated registries
+                prx = self.adapter.createDirectProxy(self.identity)
+                # This must happen _after_ activation
+                add_grid_object(self.communicator(), prx)
             except:
                 self.logger.error("Failed activation", exc_info=1)
                 sys.exit(200)
@@ -474,18 +513,18 @@ class Server(Ice.Application):
             self.logger.info("Entering main loop")
             self.communicator().waitForShutdown()
         finally:
-            self.stop_event.set() # Let's all waits shutdown
+            self.stop_event.set()  # Let's all waits shutdown
             self.logger.info("Cleanup")
             self.cleanup()
             self.logger.info("Stopped")
-            self.logger.info("*"*80)
+            self.logger.info("*" * 80)
 
     def cleanup(self):
         """
         Cleans up all resources that were created by this server.
         Primarily the one servant instance.
         """
-        if hasattr(self,"impl"):
+        if hasattr(self, "impl"):
             try:
                 self.impl.cleanup()
             finally:
@@ -493,15 +532,17 @@ class Server(Ice.Application):
 
 
 class SimpleServant(object):
+
     """
     Base servant initialization. Doesn't create or try to cleanup
     a top-level Resources thread. This is useful for large numbers
     of servants. For servers and other singleton-like servants,
     see "Servant"
     """
+
     def __init__(self, ctx):
         self._lock = threading.RLock()
-        self.prx = None # Proxy which points to self
+        self.prx = None  # Proxy which points to self
         self.ctx = ctx
         self.stop_event = ctx.stop_event
         self.communicator = ctx.communicator
@@ -516,7 +557,9 @@ class SimpleServant(object):
         """
         self.prx = prx
 
+
 class Servant(SimpleServant):
+
     """
     Abstract servant which can be used along with a slice2py
     generated dispatch class as the base type of high-level servants.
@@ -528,9 +571,10 @@ class Servant(SimpleServant):
     registered with self.resources
     """
 
-    def __init__(self, ctx, needs_session = False):
+    def __init__(self, ctx, needs_session=False):
         SimpleServant.__init__(self, ctx)
-        self.resources = omero.util.Resources(sleeptime = 60, stop_event = self.stop_event)
+        self.resources = omero.util.Resources(
+            sleeptime=60, stop_event=self.stop_event)
         if needs_session:
             self.ctx.newSession()
             self.resources.add(self.ctx)
@@ -542,7 +586,7 @@ class Servant(SimpleServant):
         """
         resources = self.resources
         self.resources = None
-        if resources != None:
+        if resources is not None:
             self.logger.info("Cleaning up")
             resources.cleanup()
             self.logger.info("Done")
@@ -559,13 +603,14 @@ class Servant(SimpleServant):
 
 
 class Resources:
+
     """
     Container class for storing resources which should be
     cleaned up on close and periodically checked. Use
     stop_event.set() to stop the internal thread.
     """
 
-    def __init__(self, sleeptime = 60, stop_event = None):
+    def __init__(self, sleeptime=60, stop_event=None):
         """
         Add resources via add(object). They should have a no-arg cleanup()
         and a check() method.
@@ -580,19 +625,23 @@ class Resources:
         self.logger = logging.getLogger("omero.util.Resources")
         self.stop_event = stop_event
         if not self.stop_event:
-            self.stop_event = omero.util.concurrency.get_event(name="Resources")
+            self.stop_event = omero.util.concurrency.get_event(
+                name="Resources")
 
         if sleeptime < 5:
-            raise Exception("Sleep time should be greater than 5: %s" % sleeptime)
+            raise Exception(
+                "Sleep time should be greater than 5: %s" % sleeptime)
 
         self.sleeptime = sleeptime
 
         class Task(threading.Thread):
+
             """
             Internal thread used for checking "stuff"
             """
+
             def run(self):
-                ctx = self.ctx # Outer class
+                ctx = self.ctx  # Outer class
                 ctx.logger.info("Starting")
                 while not ctx.stop_event.isSet():
                     try:
@@ -601,7 +650,8 @@ class Resources:
                         remove = ctx.checkAll(copy)
                         ctx.removeAll(remove)
                     except:
-                        ctx.logger.error("Exception during execution", exc_info = True)
+                        ctx.logger.error(
+                            "Exception during execution", exc_info=True)
 
                     ctx.logger.debug("Sleeping %s" % ctx.sleeptime)
                     # ticket:1531 - Attempting to catch threading issues
@@ -610,9 +660,10 @@ class Resources:
                     except ValueError:
                         pass
 
-                if isinstance(ctx.stop_event, omero.util.concurrency.AtExitEvent):
+                if isinstance(ctx.stop_event,
+                              omero.util.concurrency.AtExitEvent):
                     if ctx.stop_event.atexit:
-                        return # Skipping log. See #3260
+                        return  # Skipping log. See #3260
 
                 ctx.logger.info("Halted")
 
@@ -643,14 +694,14 @@ class Resources:
         remove = []
         for m in copy:
             if self.stop_event.isSet():
-                return # Let cleanup handle this
+                return  # Let cleanup handle this
             self.logger.debug("Checking %s" % m[0])
-            method = getattr(m[0],m[2])
+            method = getattr(m[0], m[2])
             rv = None
             try:
                 rv = method()
             except:
-                self.logger.warn("Error from %s" % method, exc_info = True)
+                self.logger.warn("Error from %s" % method, exc_info=True)
             if not rv:
                 remove.append(m)
         return remove
@@ -666,14 +717,14 @@ class Resources:
         """
         for r in remove:
             if self.stop_event.isSet():
-                return # Let cleanup handle this
+                return  # Let cleanup handle this
             self.logger.debug("Removing %s" % r[0])
             self.safeClean(r)
             self.stuff.remove(r)
 
     @locked
-    def add(self, object, cleanupMethod = "cleanup", checkMethod = "check"):
-        entry = (object,cleanupMethod,checkMethod)
+    def add(self, object, cleanupMethod="cleanup", checkMethod="check"):
+        entry = (object, cleanupMethod, checkMethod)
         self.logger.debug("Adding object %s" % object)
         self.stuff.append(entry)
 
@@ -686,17 +737,19 @@ class Resources:
         self.logger.debug("Cleanup done")
 
     def safeClean(self, m):
-            try:
-                self.logger.debug("Cleaning %s" % m[0])
-                method = getattr(m[0],m[1])
-                method()
-            except:
-                self.logger.error("Error cleaning resource: %s" % m[0], exc_info=1)
+        try:
+            self.logger.debug("Cleaning %s" % m[0])
+            method = getattr(m[0], m[1])
+            method()
+        except:
+            self.logger.error("Error cleaning resource: %s" % m[0], exc_info=1)
 
     def __del__(self):
         self.cleanup()
 
+
 class Environment:
+
     """
     Simple class for creating an executable environment
     """
@@ -732,7 +785,7 @@ class Environment:
         """
         Manually adds a value to the environment string
         """
-        if self.env.has_key(key):
+        if key in self.env.keys():
             self.env[key] = os.pathsep.join([self.env[key], addition])
         else:
             self.set(key, addition)
@@ -741,7 +794,8 @@ class Environment:
 # Miscellaneious utilities
 #
 
-def get_user(default = None):
+
+def get_user(default=None):
     """
     Returns the username. For most purposes, this value
     will be the same as getpass.getuser on \*nix and
@@ -757,10 +811,10 @@ def get_user(default = None):
     rv = None
     try:
         import getpass
-        rv = getpass.getuser() # Uses environment variable or pwd
-    except KeyError: # 6307, probably system
+        rv = getpass.getuser()  # Uses environment variable or pwd
+    except KeyError:  # 6307, probably system
         pass
-    except ImportError: # No pwd on Windows
+    except ImportError:  # No pwd on Windows
         import win32api
         rv = win32api.GetUserName()
 
@@ -781,9 +835,11 @@ def get_user_dir():
         homeprop = os.path.expanduser("~")
 
     if "~" == homeprop:
-        raise Exception("Unexpanded '~' from expanduser: see ticket:5583") # ticket:5583
+        # ticket:5583
+        raise Exception("Unexpanded '~' from expanduser: see ticket:5583")
 
     return homeprop
+
 
 def edit_path(path_or_obj, start_text):
     f = path.path(path_or_obj)
@@ -811,8 +867,10 @@ def edit_path(path_or_obj, start_text):
         re.pid = pid
         raise re
 
-#From: http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/157035
-def tail_lines(filename,linesback=10,returnlist=0):
+# From: http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/157035
+
+
+def tail_lines(filename, linesback=10, returnlist=0):
     """Does what "tail -10 filename" would have done
        Parameters:
 
@@ -821,25 +879,34 @@ def tail_lines(filename,linesback=10,returnlist=0):
             returnlist Return a list containing the lines instead of a string
 
     """
-    avgcharsperline=75
+    avgcharsperline = 75
 
-    file = open(filename,'r')
+    file = open(filename, 'r')
     while 1:
-        try: file.seek(-1 * avgcharsperline * linesback,2)
-        except IOError: file.seek(0)
-        if file.tell() == 0: atstart=1
-        else: atstart=0
+        try:
+            file.seek(-1 * avgcharsperline * linesback, 2)
+        except IOError:
+            file.seek(0)
+        if file.tell() == 0:
+            atstart = 1
+        else:
+            atstart = 0
 
-        lines=file.read().split("\n")
-        if (len(lines) > (linesback+1)) or atstart: break
-        #The lines are bigger than we thought
-        avgcharsperline=avgcharsperline * 1.3 #Inc avg for retry
+        lines = file.read().split("\n")
+        if (len(lines) > (linesback + 1)) or atstart:
+            break
+        # The lines are bigger than we thought
+        avgcharsperline = avgcharsperline * 1.3  # Inc avg for retry
     file.close()
 
-    if len(lines) > linesback: start=len(lines)-linesback -1
-    else: start=0
-    if returnlist: return lines[start:len(lines)-1]
+    if len(lines) > linesback:
+        start = len(lines) - linesback - 1
+    else:
+        start = 0
+    if returnlist:
+        return lines[start:len(lines) - 1]
 
-    out=""
-    for l in lines[start:len(lines)-1]: out=out + l + "\n"
+    out = ""
+    for l in lines[start:len(lines) - 1]:
+        out = out + l + "\n"
     return out
