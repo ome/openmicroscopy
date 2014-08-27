@@ -56,7 +56,7 @@ public class GraphPolicyRule {
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphPolicyRule.class);
 
     private static final Pattern NEW_TERM_PATTERN =
-            Pattern.compile("(\\w+\\:)?(\\!?[\\w]+)?(\\[\\!?[EDIO]+\\])?(\\{\\!?[iroa]+\\})?(\\/\\!?[ud]+)?");
+            Pattern.compile("(\\w+\\:)?(\\!?[\\w]+)?(\\[\\!?[EDIO]+\\])?(\\{\\!?[iroa]+\\})?(\\/\\!?[udo]+)?");
     private static final Pattern EXISTING_TERM_PATTERN = Pattern.compile("(\\w+)");
     private static final Pattern CHANGE_PATTERN = Pattern.compile("(\\w+\\:)(\\[[EDIO\\*]\\])?(\\{[iroa]\\})?");
 
@@ -434,6 +434,8 @@ public class GraphPolicyRule {
                     abilities.add(GraphPolicy.Ability.UPDATE);
                 } else if (ability == 'd') {
                     abilities.add(GraphPolicy.Ability.DELETE);
+                } else if (ability == 'o') {
+                    abilities.add(GraphPolicy.Ability.OWN);
                 } else if (ability == '!') {
                     required = false;
                 }
