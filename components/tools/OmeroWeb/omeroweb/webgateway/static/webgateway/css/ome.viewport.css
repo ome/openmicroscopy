@@ -131,3 +131,7 @@ div.weblitz-viewport-tiles img {
   padding: 1px 2px;
   white-space: nowrap;
 }
+
+.fontWhite {
+  color: white;
+}

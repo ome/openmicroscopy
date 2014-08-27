@@ -16,6 +16,58 @@
         }
     }
 
+    function hexToRgb(hex) {
+        hex = rgbToHex(hex);    // in case 'hex' is actually rgb!
+
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : null;
+    }
+
+    // Calculate value, saturation and hue as in org.openmicroscopy.shoola.util.ui.colour.HSV
+    function isDark(color) {
+
+        var c = hexToRgb(color);
+
+        var min, max, delta;
+        var v, s, h;
+
+        min = Math.min(c.r, c.g, c.b);
+        max = Math.max(c.r, c.g, c.b);
+
+        v = max;
+        delta = max-min;
+
+        if (max !== 0) {
+            s = delta/max;
+        }
+        else {
+            v = 0;
+            s = 0;
+            h = 0;
+        }
+
+        if (c.r==max) {
+            h = (c.g-c.b)/delta;
+        } else if (c.g == max) {
+            h = 2 + (c.b-c.r)/delta;
+        } else {
+            h = 4 +(c.r-c.g)/delta;
+        }
+
+        h = h * 60;
+        if (h < 0) {
+            h += 360;
+        }
+        h = h/360;
+        v = v/255;
+
+        return (v < 0.6 || (h > 0.6 && s > 0.7));
+    }
+
 
     window.resetRDCW = function (viewport) {
         viewport.reset_channels();
@@ -351,7 +403,7 @@
 
         var template = '' +
           '<tr class="$cls rdef-window">' +
-          '<td><button id="rd-wblitz-ch$idx0" class="rd-wblitz-ch squared $act" style="background-color: #$col" ' +
+          '<td><button id="rd-wblitz-ch$idx0" class="rd-wblitz-ch squared $class" style="background-color: #$col" ' +
             'title="$label">$l</button></td>' +
           '<td><table><tr id="wblitz-ch$idx0-cw" class="rangewidget"></tr></table></td>' +
           '<td><button id="wblitz-ch$idx0-color" class="picker squarred" title="Choose Color">&nbsp;</button></td>' +
@@ -402,10 +454,16 @@
         };
 
         for (i=channels.length-1; i>=0; i--) {
+
+            var btnClass = channels[i].active?'pressed':'';
+            if (isDark(channels[i].color)) {
+                btnClass += " fontWhite";
+            }
+
             var lbl = channels[i].label.slice(0, 4);
             lbl = lbl + (channels[i].label.length > 4 ? ".." : "");
             tmp.after(template
-                .replace(/\$act/g, channels[i].active?'pressed':'')
+                .replace(/\$class/g, btnClass)
                 .replace(/\$col/g, rgbToHex(channels[i].color))
                 .replace(/\$label/g, channels[i].label)
                 .replace(/\$l/g, lbl)
