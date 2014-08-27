@@ -249,7 +249,7 @@ public class RenderingDefinitionHistory {
     @Override
     public String toString() {
         return "RenderingDefinitionHistory [history.size()=" + history.size()
-                + ", historyPointer=" + pointer + "]";
+                + ", historyPointer=" + pointer + ", previousAction="+previousAction+"]";
     }
 
 }

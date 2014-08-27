@@ -1266,7 +1266,9 @@ class RendererModel
 	 */
 	void historyBack() throws RenderingServiceException, DSOutOfServiceException {
                 RndProxyDef def;
-                if (!history.canRedo() && !rndControl.isSameSettings(history.getCurrent(), true))
+                boolean canRedo = history.canRedo();
+                boolean isSame = rndControl.isSameSettings(history.getCurrent(), true, true);
+                if (!canRedo && !isSame)
                     def = history.backward(rndControl.getRndSettingsCopy());
                 else
                     def = history.backward();
