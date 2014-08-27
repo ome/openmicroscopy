@@ -194,14 +194,18 @@
     window.updateUndoRedo = function(viewport) {
         // update disabled status of undo/redo buttons
         if (viewport.has_channels_undo()) {
-            $('#rdef-undo-btn').removeClass('button-disabled');
+            $('#rdef-undo-btn').removeClass('button-disabled')
+                .removeAttr('disabled');
         } else {
-            $('#rdef-undo-btn').addClass('button-disabled');
+            $('#rdef-undo-btn').addClass('button-disabled')
+                .attr('disabled', 'disabled');
         }
         if (viewport.has_channels_redo()) {
-            $('#rdef-redo-btn').removeClass('button-disabled');
+            $('#rdef-redo-btn').removeClass('button-disabled')
+                .removeAttr('disabled');
         } else {
-            $('#rdef-redo-btn').addClass('button-disabled');
+            $('#rdef-redo-btn').addClass('button-disabled')
+                .attr('disabled', 'disabled');
         }
         var canSaveRdef = viewport.loadedImg.perms.canAnnotate;
         if (viewport.getSaved() || !canSaveRdef) {
