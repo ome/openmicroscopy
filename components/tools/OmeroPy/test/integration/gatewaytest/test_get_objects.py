@@ -529,6 +529,7 @@ class TestGetObject (object):
         assert image._re.getDefaultZ() == testImage._re.getDefaultZ()
         assert image._re.getDefaultT() == testImage._re.getDefaultT()
         assert image.getOwnerOmeName == testImage.getOwnerOmeName
+        assert image.getThumbVersion() is not None
 
     def testGetProject(self, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()
