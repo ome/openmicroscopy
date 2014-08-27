@@ -66,21 +66,27 @@ public abstract class GraphPolicy {
 
     /**
      * Abilities that the user may have to operate upon model objects.
+     * Note that system users have all abilities.
      * @author m.t.b.carroll@dundee.ac.uk
      * @since 5.1.0
      */
     public static enum Ability {
         /**
-         *  the user's ability to update the object, as judged by
+         * the user's ability to update the object, as judged by
          * {@link ome.security.ACLVoter#allowUpdate(IObject, ome.model.internal.Details)}
          */
         UPDATE,
 
         /**
-         *  the user's ability to delete the object, as judged by
+         * the user's ability to delete the object, as judged by
          * {@link ome.security.ACLVoter#allowDelete(IObject, ome.model.internal.Details)}
          */
-        DELETE;
+        DELETE,
+
+        /**
+         * the user actually owns the object
+         */
+        OWN;
     }
 
     /**
@@ -113,8 +119,9 @@ public abstract class GraphPolicy {
          * @param orphan the current <q>orphan</q> state of the object
          * @param mayUpdate if the object may be updated
          * @param mayDelete if the object may be deleted
+         * @param isOwner if the user owns the object
          */
-        Details(IObject subject, Action action, Orphan orphan, boolean mayUpdate, boolean mayDelete) {
+        Details(IObject subject, Action action, Orphan orphan, boolean mayUpdate, boolean mayDelete, boolean isOwner) {
             this.subject = subject;
             this.action = action;
             this.orphan = orphan;
@@ -125,6 +132,9 @@ public abstract class GraphPolicy {
             }
             if (mayDelete) {
                 permissions.add(Ability.DELETE);
+            }
+            if (isOwner) {
+                permissions.add(Ability.OWN);
             }
         }
     }

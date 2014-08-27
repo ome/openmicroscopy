@@ -32,6 +32,7 @@ import ome.security.SystemTypes;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphTraversal;
+import ome.system.EventContext;
 import ome.system.Login;
 import omero.cmd.Delete2;
 import omero.cmd.Delete2Response;
@@ -83,7 +84,11 @@ public class Delete2I extends Delete2 implements IRequest {
     public void init(Helper helper) {
         this.helper = helper;
         helper.setSteps(3);
-        graphTraversal = new GraphTraversal(aclVoter, systemTypes, graphPathBean, graphPolicy, new InternalProcessor());
+
+        final EventContext eventContext = helper.getEventContext();
+
+        graphTraversal =
+                new GraphTraversal(eventContext, aclVoter, systemTypes, graphPathBean, graphPolicy, new InternalProcessor());
     }
 
     @Override

@@ -49,6 +49,7 @@ import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 
 import ome.model.IObject;
+import ome.model.meta.Experimenter;
 import ome.security.ACLVoter;
 import ome.security.SystemTypes;
 import ome.services.graphs.GraphPathBean.PropertyKind;
@@ -56,6 +57,7 @@ import ome.services.graphs.GraphPolicy.Ability;
 import ome.services.graphs.GraphPolicy.Action;
 import ome.services.graphs.GraphPolicy.Details;
 import ome.services.graphs.GraphPolicy.Orphan;
+import ome.system.EventContext;
 
 /**
  * An experimental re-implementation of graph traversal functionality.
@@ -86,9 +88,10 @@ public class GraphTraversal {
          * @param orphan the current <q>orphan</q> state of the object
          * @param mayUpdate if the object may be updated
          * @param mayDelete if the object may be deleted
+         * @param isOwner if the user owns the object
          */
-        DetailsWithCI(IObject subject, Action action, Orphan orphan, boolean mayUpdate, boolean mayDelete) {
-            super(subject, action, orphan, mayUpdate, mayDelete);
+        DetailsWithCI(IObject subject, Action action, Orphan orphan, boolean mayUpdate, boolean mayDelete, boolean isOwner) {
+            super(subject, action, orphan, mayUpdate, mayDelete, isOwner);
             this.subjectAsCI = new CI(subject);
         }
 
@@ -344,9 +347,10 @@ public class GraphTraversal {
         final SetMultimap<CI, CI> befores = HashMultimap.create();
         final SetMultimap<CI, CI> afters = HashMultimap.create();
         final Map<CI, Set<CI>> blockedBy = new HashMap<CI, Set<CI>>();
-        /* permissions */
+        /* permissions, unused for system users */
         final Set<CI> mayUpdate = new HashSet<CI>();
         final Set<CI> mayDelete = new HashSet<CI>();
+        final Set<CI> owns = new HashSet<CI>();
     }
 
     /**
@@ -393,6 +397,7 @@ public class GraphTraversal {
         Collection<Ability> getRequiredPermissions();
     }
 
+    private final EventContext eventContext;
     private final ACLVoter aclVoter;
     private final SystemTypes systemTypes;
     private final GraphPathBean model;
@@ -402,14 +407,16 @@ public class GraphTraversal {
 
     /**
      * Construct a new instance of a graph traversal manager.
+     * @param eventContext the current event context
      * @param aclVoter ACL voter for permissions checking
      * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean
      * @param policy how to determine which related objects to include in the operation
      * @param processor how to operate on the resulting target object graph
      */
-    public GraphTraversal(ACLVoter aclVoter, SystemTypes systemTypes, GraphPathBean graphPathBean, GraphPolicy policy,
-            Processor processor) {
+    public GraphTraversal(EventContext eventContext, ACLVoter aclVoter, SystemTypes systemTypes, GraphPathBean graphPathBean,
+            GraphPolicy policy, Processor processor) {
+        this.eventContext = eventContext;
         this.aclVoter = aclVoter;
         this.systemTypes = systemTypes;
         this.model = graphPathBean;
@@ -512,12 +519,20 @@ public class GraphTraversal {
      */
     private void noteDetails(IObject objectInstance, CI object) {
         final ome.model.internal.Details objectDetails = objectInstance.getDetails();
-        if (aclVoter.allowUpdate(objectInstance, objectDetails)) {
-            planning.mayUpdate.add(object);
+
+        if (!eventContext.isCurrentUserAdmin()) {
+            if (aclVoter.allowUpdate(objectInstance, objectDetails)) {
+                planning.mayUpdate.add(object);
+            }
+            if (aclVoter.allowDelete(objectInstance, objectDetails)) {
+                planning.mayDelete.add(object);
+            }
+            final Experimenter objectOwner = objectDetails.getOwner();
+            if (objectOwner != null && eventContext.getCurrentUserId().equals(objectOwner.getId())) {
+                planning.owns.add(object);
+            }
         }
-        if (aclVoter.allowDelete(objectInstance, objectDetails)) {
-            planning.mayDelete.add(object);
-        }
+
         policy.noteDetails(objectInstance, object.className, object.id);
     }
 
@@ -701,13 +716,21 @@ public class GraphTraversal {
      */
     private Details getDetails(Map<CI, Details> cache, CI object) throws GraphException {
         Details details = cache.get(object);
+
         if (details == null) {
             final Action action = getAction(object);
             final Orphan orphan = action == Action.EXCLUDE ? getOrphan(object) : Orphan.IRRELEVANT;
-            details =  new DetailsWithCI(object.toIObject(), action, orphan,
-                    planning.mayUpdate.contains(object), planning.mayDelete.contains(object));
+
+            if (eventContext.isCurrentUserAdmin()) {
+                details = new DetailsWithCI(object.toIObject(), action, orphan, true, true, true);
+            } else {
+                details = new DetailsWithCI(object.toIObject(), action, orphan,
+                        planning.mayUpdate.contains(object), planning.mayDelete.contains(object), planning.owns.contains(object));
+            }
+
             cache.put(object, details);
         }
+
         return details;
     }
 
@@ -974,7 +997,7 @@ public class GraphTraversal {
      * @throws GraphException if the user does not have all the abilities to operate upon all of the objects
      */
     private void assertPermissions(Set<CI> objects, Collection<GraphPolicy.Ability> abilities) throws GraphException {
-        if (abilities == null) {
+        if (abilities == null || eventContext.isCurrentUserAdmin()) {
             return;
         }
         if (abilities.contains(Ability.DELETE)) {
@@ -987,6 +1010,12 @@ public class GraphTraversal {
             final Set<CI> violations = Sets.difference(objects, planning.mayUpdate);
             if (!violations.isEmpty()) {
                 throw new GraphException("not permitted to update " + Joiner.on(", ").join(violations));
+            }
+        }
+        if (abilities.contains(Ability.OWN)) {
+            final Set<CI> violations = Sets.difference(objects, planning.owns);
+            if (!violations.isEmpty()) {
+                throw new GraphException("does not own " + Joiner.on(", ").join(violations));
             }
         }
     }
