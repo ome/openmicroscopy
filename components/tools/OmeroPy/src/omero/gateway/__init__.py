@@ -6873,7 +6873,8 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
 
         pixelsService = self._conn.getPixelsService()
-        rdefs = pixelsService.retrieveAllRndSettings(self.getPixelsId(), eid)
+        rdefs = pixelsService.retrieveAllRndSettings(
+            self.getPixelsId(), eid, self._conn.SERVICE_OPTS)
         rv = []
         for rdef in rdefs:
             d = {}
