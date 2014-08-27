@@ -139,7 +139,7 @@ class ChannelSlider
         slider.getSlider().setToolTipText(UIUtilities.formatToolTipText(list));
         
     	channelSelection = new ChannelButton(""+channel.getChannelLabeling(), c, index);
-    	channelSelection.setPreferredSize(new Dimension(40,25));
+    	channelSelection.setPreferredSize(ChannelButton.DEFAULT_MAX_SIZE);
     	channelSelection.setSelected(model.isChannelActive(index));
     	channelSelection.setRightClickSupported(false);
     	channelSelection.addPropertyChangeListener(controller);

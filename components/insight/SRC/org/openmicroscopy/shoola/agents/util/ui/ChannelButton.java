@@ -102,6 +102,9 @@ public class ChannelButton
 
     /** The default font.*/
     private Font originalFont;
+    
+    /** Flat indicating that the text should be trimmed at the end of the String */
+    private boolean trimEnd = true;
 
     /** Fires an event to select the channel. */
     private final void setChannelSelected()
@@ -164,21 +167,25 @@ public class ChannelButton
             int size = fm.stringWidth(UIUtilities.DOTS);
             width += size;
             String s = "";
-            int n = text.length()-1;
+            int n = trimEnd ? 0 : text.length()-1;
             List l = new ArrayList();
             char ch;
             while (fm.stringWidth(s)+size < dimWidth-size) {
                 ch = text.charAt(n);
                 s += ch;
                 l.add(ch);
-                n = n-1;
+                n = trimEnd ? n+1 : n-1;
             }
-            Collections.reverse(l);
+            if(!trimEnd)
+                Collections.reverse(l);
             Iterator i = l.iterator();
-            s = UIUtilities.DOTS;
+            s = trimEnd ? "" : UIUtilities.DOTS;
             while (i.hasNext())
                 s += i.next();
+            if(trimEnd)
+                s += UIUtilities.DOTS;
             super.setText(s);
+            System.out.println("before="+text+" after="+s);
             //reset text
             width = fm.stringWidth(s);
             d = new Dimension(width+10, DEFAULT_MIN_SIZE.height);
@@ -225,8 +232,11 @@ public class ChannelButton
      * @param selected Pass <code>true</code> to select the channel (i.e.
      *                 the channel is rendered), <code>false</code> otherwise
      *                 (i.e. the channel is not rendered.)
+     * @param trimEnd  Pass <code>true</code> if the end of the text should be trimmed,
+     *                 if it is too large to display; <code>false</code> to trim at
+     *                 the beginning.
      */
-    public ChannelButton(String text, Color color, int index, boolean selected)
+    public ChannelButton(String text, Color color, int index, boolean selected, boolean trimEnd)
     {
         super(text, color);
         originalFont = getFont();
@@ -234,12 +244,30 @@ public class ChannelButton
         //Need to parse the String.
         this.index = index;
         rightClickSupported = true;
+        this.trimEnd = trimEnd;
         setSelected(selected);
         addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) { onClick(e); }
             public void mouseReleased(MouseEvent e) { onReleased(e); }
         });
         setPreferredSize(setComponentSize(DEFAULT_MAX_SIZE.width));
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param text The text of the button. The text should correspond to
+     *             the label of the channel.
+     * @param color The background color of the button. Corresponds to the
+     *              color associated to the channel.
+     * @param index The channel index.
+     * @param selected Pass <code>true</code> to select the channel (i.e.
+     *                 the channel is rendered), <code>false</code> otherwise
+     *                 (i.e. the channel is not rendered.)
+     */
+    public ChannelButton(String text, Color color, int index, boolean selected)
+    {
+        this(text, color, index, selected, true);
     }
 
     /**
