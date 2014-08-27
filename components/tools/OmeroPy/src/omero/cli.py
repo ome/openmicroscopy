@@ -267,9 +267,9 @@ class ExistingFile(FileType):
     an existing file.
     """
     def __call__(self, s):
-        if not s == "-" and not os.path.exists(s):
+        if s != "-" and not os.path.exists(s):
             raise ValueError("File does not exist: %s" % s)
-        if not s == "-":
+        if s != "-":
             return FileType.__call__(self, s)
         else:
             return s
@@ -1763,7 +1763,7 @@ class UserGroupControl(BaseControl):
 
         # Test found groups
         if g1 and g2:
-            if not g1.id.val == g2.id.val:
+            if g1.id.val != g2.id.val:
                 self.error_ambiguous_group(id_or_name, fatal=fatal)
                 return None, None
             else:
@@ -1818,7 +1818,7 @@ class UserGroupControl(BaseControl):
 
         # Test found users
         if u1 and u2:
-            if not u1.id.val == u2.id.val:
+            if u1.id.val != u2.id.val:
                 self.error_ambiguous_user(id_or_name, fatal=fatal)
                 return None, None
             else:
