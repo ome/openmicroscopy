@@ -919,7 +919,6 @@ class RendererComponent
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 	        RndProxyDef def = model.saveCurrentSettings();
-	        controller.enableActions();
 		return def;
 	}
 

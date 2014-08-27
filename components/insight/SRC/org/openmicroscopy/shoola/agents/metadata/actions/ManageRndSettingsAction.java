@@ -25,13 +25,22 @@ package org.openmicroscopy.shoola.agents.metadata.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
+import java.util.Arrays;
 import javax.swing.Action;
 
 //Third-party libraries
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
+import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
+import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
+import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -71,6 +80,12 @@ public class ManageRndSettingsAction
 	
 	/** Indicates to redo the changes. */
         public static final int REDO = 7;
+        
+	/** Indicates to copy the rendering settings. */
+	public static final int COPY = 8;
+	
+	/** Indicates to paste the rendering settings */
+	public static final int PASTE = 9;
 
 	/** The description of the action if {@link #SAVE}. */
 	public static final String NAME_SAVE = "Save";
@@ -93,6 +108,12 @@ public class ManageRndSettingsAction
 	/** The description of the action if {@link #RESET}. */
 	private static final String NAME_RESET = "Original";
 	
+	/** The name of the action if {@link #COPY} */
+	private static final String NAME_COPY = "Copy";
+	
+	/** The name of the action if {@link #PASTE} */
+	private static final String NAME_PASTE = "Paste";
+	
 	/** The description of the action if {@link #MIN_MAX}. */
 	private static final String DESCRIPTION_MIN_MAX = 
 		"Set the Pixels Intensity interval to min/max for all channels.";
@@ -114,6 +135,12 @@ public class ManageRndSettingsAction
 	/** The description of the action if {@link #APPLY_TO_ALL}. */
 	private static final String DESCRIPTION_APPLY_TO_ALL = 
 		"Apply and save the rendering settings to all images.";
+	
+	/** The description of the action if {@link #COPY}. */
+	private static final String DESCRIPTION_COPY = "Copy the current settings";
+	
+	/** The description of the action if {@link #PASTE}. */
+	private static final String DESCRIPTION_PASTE = "Paste rendering settings";
 	
     /** 
      * The description of the action if the index is {@link #SET_OWNER_SETTING}. 
@@ -196,6 +223,20 @@ public class ManageRndSettingsAction
 				putValue(Action.SMALL_ICON, 
 						icons.getIcon(IconManager.SAVE));
 				break;
+			case COPY:
+			        putValue(Action.NAME, NAME_COPY);
+                                putValue(Action.SHORT_DESCRIPTION, 
+                                                UIUtilities.formatToolTipText(DESCRIPTION_COPY));
+                                putValue(Action.SMALL_ICON, 
+                                                icons.getIcon(IconManager.COPY));
+                                break;
+			case PASTE:
+			        putValue(Action.NAME, NAME_PASTE);
+			        putValue(Action.SHORT_DESCRIPTION, 
+                                            UIUtilities.formatToolTipText(DESCRIPTION_PASTE));
+			        putValue(Action.SMALL_ICON, 
+                                            icons.getIcon(IconManager.PASTE));
+			        break;
 			default:
 				throw new IllegalArgumentException("Index not valid.");
 		}
@@ -242,7 +283,31 @@ public class ManageRndSettingsAction
 				break;
 			case SAVE:
 				model.saveSettings();
+				break;
+			case COPY:
+    			        copyRndSettings();
+    			        break;
+			case PASTE:
+			        pasteRndSettings();
 		}
 	}
 
+    private void copyRndSettings() {
+        try {
+            model.saveCurrentSettings();
+            
+            CopyRndSettings evt = new CopyRndSettings(model.getRefImage());
+            EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
+            bus.post(evt);
+            
+        } catch (RenderingServiceException e) {
+            e.printStackTrace();
+        } catch (DSOutOfServiceException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void pasteRndSettings() {
+        // TODO: Implement
+    }
 }

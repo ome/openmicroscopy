@@ -123,6 +123,12 @@ class RendererControl
     /** Identifies the action to redo the changes. */
     static final Integer    RND_REDO = Integer.valueOf(17);
     
+    /** Identifies the action to copy the rendering settings. */
+    static final Integer COPY = Integer.valueOf(18);
+    
+    /** Identifies the action to paste the rendering settings. */
+    static final Integer PASTE = Integer.valueOf(19);
+    
     /**
      * Reference to the {@link Renderer} component, which, in this context,
      * is regarded as the Model.
@@ -159,7 +165,7 @@ class RendererControl
         		ManageRndSettingsAction.ABSOLUTE_MIN_MAX));
         actionsMap.put(SAVE, new ManageRndSettingsAction(model, 
         		ManageRndSettingsAction.SAVE));
-        
+
         ManageRndSettingsAction a = new ManageRndSettingsAction(model, 
                 ManageRndSettingsAction.UNDO);
         a.setEnabled(false);
@@ -169,6 +175,11 @@ class RendererControl
                 ManageRndSettingsAction.REDO);
         a.setEnabled(false);
         actionsMap.put(RND_REDO, a);
+        
+        actionsMap.put(COPY, new ManageRndSettingsAction(model, 
+                        ManageRndSettingsAction.COPY));
+        actionsMap.put(PASTE, new ManageRndSettingsAction(model, 
+                        ManageRndSettingsAction.PASTE));
     }
     
     /** 
@@ -354,8 +365,6 @@ class RendererControl
             actionsMap.get(RND_UNDO).setEnabled(value);
         }
         
-        enableActions();
-        
         /*
         } else if (name.equals(
             CodomainMapContextDialog.UPDATE_MAP_CONTEXT_PROPERTY)) {
@@ -398,14 +407,14 @@ class RendererControl
 		} else if (Renderer.T_SELECTED_PROPERTY.equals(name)) {
 			view.setTimepoint(((Integer) evt.getNewValue()).intValue());
 		}   
+        
+        if(Renderer.SAVE_SETTINGS_PROPERTY.equals(name)) {
+            actionsMap.get(SAVE).setEnabled(false);
+        } 
+        else {
+            boolean settingsModified = model.isModified();
+            actionsMap.get(SAVE).setEnabled(settingsModified);
+        }
     }
 
-    /**
-     * Enables/Disables actions depending on if the current
-     * settings have been modified
-     */
-    public void enableActions() {
-        boolean settingsModified = model.isModified();
-        actionsMap.get(SAVE).setEnabled(settingsModified);
-    }
 }

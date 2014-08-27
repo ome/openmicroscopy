@@ -35,8 +35,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
+
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
@@ -57,6 +59,7 @@ import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloParser;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.ChannelData;
 import pojos.ImageData;
 import pojos.PixelsData;
@@ -1419,7 +1422,7 @@ class RendererModel
 	    }
 	    return false;
 	}
-
+        
     /**
      * Returns <code>true</code> if the image with the active channels
      * is an RGB image, <code>false</code> otherwise.

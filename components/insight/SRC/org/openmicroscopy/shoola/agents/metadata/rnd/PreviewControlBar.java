@@ -145,6 +145,17 @@ class PreviewControlBar
             formatButton(b);
             bar.add(b);
         }
+        
+        bar.add(Box.createHorizontalStrut(SPACE));
+        b = new JButton(control.getAction(RendererControl.COPY));
+        formatButton(b);
+        bar.add(b);
+        
+        bar.add(Box.createHorizontalStrut(SPACE));
+        b = new JButton(control.getAction(RendererControl.PASTE));
+        formatButton(b);
+        bar.add(b);
+        
         return bar;
     }
     
