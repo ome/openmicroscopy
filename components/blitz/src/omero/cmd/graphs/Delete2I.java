@@ -21,8 +21,6 @@ package omero.cmd.graphs;
 
 import java.util.Collection;
 import java.util.Map.Entry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -51,7 +49,6 @@ import omero.util.IceMapper;
  */
 public class Delete2I extends Delete2 implements IRequest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Delete2I.class);
     private static final ImmutableMap<String, String> ALL_GROUPS_CONTEXT = ImmutableMap.of(Login.OMERO_GROUP, "-1");
 
     private final IceMapper iceMapper = new IceMapper();
@@ -124,7 +121,7 @@ public class Delete2I extends Delete2 implements IRequest {
             deletedObjectsBuilder.addAll(iceMapper.map(result.getValue()));
             final Delete2Response response = new Delete2Response(deletedObjectsBuilder.build());
             helper.setResponseIfNull(response);
-            LOGGER.info("in delete of " + targetObjects.size() + ", deleted " + response.deletedObjects.size() + " in total");
+            helper.info("in delete of " + targetObjects.size() + ", deleted " + response.deletedObjects.size() + " in total");
         }
     }
 
