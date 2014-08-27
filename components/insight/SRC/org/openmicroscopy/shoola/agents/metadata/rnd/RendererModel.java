@@ -1265,6 +1265,9 @@ class RendererModel
 	 * @throws DSOutOfServiceException
 	 */
 	void historyBack() throws RenderingServiceException, DSOutOfServiceException {
+	        if (rndControl == null)
+	            return;
+	        
                 RndProxyDef def;
                 boolean canRedo = history.canRedo();
                 boolean isSame = rndControl.isSameSettings(history.getCurrent(), true, true);
@@ -1290,7 +1293,8 @@ class RendererModel
 	 * Stores the current rendering settings in the history
 	 */
 	void makeHistorySnapshot() {
-	        history.add(rndControl.getRndSettingsCopy());
+	        if (rndControl != null)
+	            history.add(rndControl.getRndSettingsCopy());
 	}
 	
 	/**
