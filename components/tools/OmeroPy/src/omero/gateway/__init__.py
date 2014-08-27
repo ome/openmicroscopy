@@ -6592,15 +6592,19 @@ class _ImageWrapper (BlitzObjectWrapper):
     @assert_pixels
     def getThumbVersion(self):
         """
-        Return the (latest) thumbnail versio, or None if no thumbnail exists
+        Return the version of (latest) thumbnail owned by current user,
+        or None if no thumbnail exists
 
         :return:        Long or None
         """
+        eid = self._conn.getUserId()
         if self._obj.getPrimaryPixels()._thumbnailsLoaded:
-            tvs = [t.version.val for t in self._obj.getPrimaryPixels().copyThumbnails()]
+            tvs = [t.version.val for t in self._obj.getPrimaryPixels().copyThumbnails() \
+                        if t.getDetails().owner.id.val == eid]
         else:
             pid = self.getPixelsId()
-            query = "select t.version from Thumbnail t where t.pixels = %s" % pid
+            query = "select t.version from Thumbnail t where t.pixels = %s and t.owner_id = %s" \
+                    % (pid, eid)
             tbs = self._conn.getQueryService().projection(query, None, self._conn.SERVICE_OPTS)
             tvs = [t[0].val for t in tbs]
         if len(tvs) > 0:
