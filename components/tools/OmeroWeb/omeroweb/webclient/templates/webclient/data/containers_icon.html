@@ -379,7 +379,7 @@
         {% for c in manager.containers.images %}
             <li class='row' id="image_icon-{{ c.id }}" data-fileset="{{ c.fileset.id.val }}">
                 <div class="image">
-                    <img id="{{ c.id }}" src="{% url 'render_thumbnail_resize' 96 c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
+                    <img id="{{ c.id }}" src="{% url 'render_thumbnail_resize' 96 c.id %}?version={{ c.getThumbVersion|default_if_none:'-1' }}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
                 </div>
                 <!-- NB: '#image_icon-123 div.desc' etc is used to update name when changed in right panel via "editinplace" -->
                 <div class="desc" valign="middle">

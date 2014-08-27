@@ -514,7 +514,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if page is not None:
             p.page(((int(page)-1)*settings.PAGE), settings.PAGE)
         if load_pixels:
-            pixels = "join fetch im.pixels "
+            pixels = "join fetch im.pixels as pix left outer join fetch pix.thumbnails "
         else:
             pixels = ""
         sql = "select im from Image im "\
