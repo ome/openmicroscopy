@@ -26,9 +26,6 @@ import ome.model.acquisition.TransmittanceRange;
 import ome.model.core.Channel;
 import ome.model.core.LogicalChannel;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Utility class to determine the color usually associated to a specified
  * channel depending on its emission wavelength.
@@ -44,9 +41,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ColorsFactory {
 
-    /** The logger for this particular class */
-    private static Logger log = LoggerFactory.getLogger(ColorsFactory.class);
-    
+
     /** Index of the red component of a color. */
     public static final int RED_INDEX = 0;
     
@@ -260,7 +255,6 @@ public class ColorsFactory {
     	FilterSet f = null;
     	LightPath lp = null;
     	//LightPath
-    	log.info("LightPath " +lc.getLightPath());
     	if (valueFilter == null && lc.getLightPath() != null) {
     		filters = new ArrayList<Filter>();
     		lp = lc.getLightPath();
@@ -273,8 +267,6 @@ public class ColorsFactory {
     			valueFilter = getValueFromFilter(j.next(), true);
     		}
     	}
-    	
-    	log.info("getFilterSet" +lc.getFilterSet());
     	if (valueFilter == null && lc.getFilterSet() != null) {
     		filters = new ArrayList<Filter>();
     		f = lc.getFilterSet();
@@ -287,8 +279,6 @@ public class ColorsFactory {
     			valueFilter = getValueFromFilter(j.next(), true);
     		}
     	}
-    	
-    	log.info("getLightSourceSettings" +lc.getLightSourceSettings());
     	//Laser
     	if (valueFilter == null && lc.getLightSourceSettings() != null) {
     		LightSource ls = lc.getLightSourceSettings().getLightSource();
