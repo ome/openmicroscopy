@@ -838,6 +838,7 @@ class RendererComponent
 	public void resetSettings()
 	{
 		try {
+		        model.makeHistorySnapshot();
 			model.resetDefaults();
 			view.resetDefaultRndSettings();
 			firePropertyChange(RENDER_PLANE_PROPERTY, 

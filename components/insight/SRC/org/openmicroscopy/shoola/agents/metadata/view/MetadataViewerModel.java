@@ -989,6 +989,7 @@ class MetadataViewerModel
 	{
 		Renderer rnd = getEditor().getRenderer();
 		if (rnd != null) { 
+		    rnd.makeHistorySnapshot();
 		    rnd.resetSettings(rndDef, true);
 		}
 	}
