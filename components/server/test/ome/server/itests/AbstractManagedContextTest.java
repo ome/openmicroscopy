@@ -57,7 +57,7 @@ import org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor;
 import org.springframework.aop.target.HotSwappableTargetSource;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.mail.MailSender;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate4.HibernateTemplate;
 import org.springframework.util.ResourceUtils;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;

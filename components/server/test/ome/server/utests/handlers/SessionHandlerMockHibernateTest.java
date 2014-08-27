@@ -35,7 +35,7 @@ import org.jmock.core.InvocationMatcher;
 import org.jmock.core.Stub;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.orm.hibernate3.SessionHolder;
+import org.springframework.orm.hibernate4.SessionHolder;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;

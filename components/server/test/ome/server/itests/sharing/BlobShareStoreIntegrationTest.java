@@ -22,7 +22,7 @@ import ome.system.ServiceFactory;
 import ome.server.itests.AbstractManagedContextTest;
 
 import org.hibernate.Session;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate4.HibernateTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;

@@ -6,7 +6,6 @@
  */
 package ome.services.query;
 
-import java.sql.SQLException;
 
 import ome.model.core.Image;
 import ome.parameters.Parameters;
@@ -24,8 +23,7 @@ public class PojosGetImagesByOptionsQueryDefinition extends Query {
     }
 
     @Override
-    protected void buildQuery(Session session) throws HibernateException,
-            SQLException {
+    protected void buildQuery(Session session) throws HibernateException {
 
         // TODO copied from PojosGetImagesQueryDefinition. Should be merged.
         QueryBuilder qb = new QueryBuilder();

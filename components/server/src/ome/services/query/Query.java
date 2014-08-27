@@ -14,7 +14,6 @@
 
 package ome.services.query;
 
-import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -25,7 +24,7 @@ import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate4.HibernateCallback;
 
 import ome.parameters.Parameters;
 import static ome.parameters.Parameters.*;
@@ -215,8 +214,7 @@ public abstract class Query<T> implements HibernateCallback {
      * It also enforces contracts established by {@link Parameters} and
      * {@link ome.parameters.Filter}
      */
-    public Object doInHibernate(Session session) throws HibernateException,
-            SQLException {
+    public Object doInHibernate(Session session) throws HibernateException {
         try {
             enableFilters(session);
             buildQuery(session);
@@ -260,7 +258,7 @@ public abstract class Query<T> implements HibernateCallback {
      * {@link #setQuery(org.hibernate.Query)}
      */
     protected abstract void buildQuery(Session session)
-            throws HibernateException, SQLException;
+            throws HibernateException;
 
     /**
      * provide this Query instance with a {@link org.hibernate.Query} to be used

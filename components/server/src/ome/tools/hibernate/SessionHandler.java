@@ -33,8 +33,7 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.orm.hibernate3.HibernateInterceptor;
-import org.springframework.orm.hibernate3.SessionHolder;
+import org.springframework.orm.hibernate4.SessionHolder;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
@@ -62,8 +61,7 @@ class SessionStatus {
 }
 
 /**
- * interceptor which delegates to
- * {@link org.springframework.orm.hibernate3.HibernateInterceptor} for stateless
+ * interceptor which throws for stateless
  * services but which keeps a {@link java.util.WeakHashMap} of sessions keyed by
  * the stateful service reference.
  * 
@@ -112,8 +110,7 @@ public class SessionHandler implements MethodInterceptor,
             + " constructor should be not null.";
 
     /**
-     * constructor taking a {@link DataSource} and a {@link SessionFactory}. A
-     * new {@link HibernateInterceptor} will be created.
+     * constructor taking a {@link SessionFactory}.
      * 
      * @param dataSource
      *            Not null.
@@ -183,7 +180,7 @@ public class SessionHandler implements MethodInterceptor,
     }
 
     /**
-     * delegates to {@link HibernateInterceptor} or manages sessions internally,
+     * throws for stateless or manages sessions internally,
      * based on the type of service.
      */
     public Object invoke(final MethodInvocation invocation) throws Throwable {

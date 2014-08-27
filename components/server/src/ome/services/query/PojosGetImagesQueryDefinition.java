@@ -9,7 +9,6 @@ package ome.services.query;
 import static ome.parameters.Parameters.CLASS;
 import static ome.parameters.Parameters.IDS;
 
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Map;
 
@@ -30,8 +29,7 @@ public class PojosGetImagesQueryDefinition extends AbstractClassIdsOptionsQuery 
     }
 
     @Override
-    protected void buildQuery(Session session) throws HibernateException,
-            SQLException {
+    protected void buildQuery(Session session) throws HibernateException {
 
         Class klass = (Class) value(CLASS);
         Collection ids = (Collection) value(IDS);

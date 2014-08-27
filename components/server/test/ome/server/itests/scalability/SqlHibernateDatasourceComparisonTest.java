@@ -30,7 +30,7 @@ import org.hibernate.engine.FilterDefinition;
 import org.hibernate.stat.Statistics;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.orm.hibernate3.FilterDefinitionFactoryBean;
-import org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean;
+import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -79,17 +79,17 @@ public class SqlHibernateDatasourceComparisonTest extends TestCase {
         fdfb.setDefaultFilterCondition("true = true");
         fdfb.afterPropertiesSet();
         FilterDefinition fd = (FilterDefinition) fdfb.getObject();
-        AnnotationSessionFactoryBean asfb = new AnnotationSessionFactoryBean();
-        asfb.setHibernateProperties(p);
-        asfb.setConfigLocation(new ClassPathResource("hibernate.cfg.xml"));
-        asfb.setDataSource(ds);
-        asfb.setFilterDefinitions(new FilterDefinition[] { fd });
+        LocalSessionFactoryBean lsfb = new LocalSessionFactoryBean();
+        lsfb.setHibernateProperties(p);
+        lsfb.setConfigLocation(new ClassPathResource("hibernate.cfg.xml"));
+        lsfb.setDataSource(ds);
+        lsfb.setFilterDefinitions(new FilterDefinition[] { fd });
         try {
-            asfb.afterPropertiesSet();
+            lsfb.afterPropertiesSet();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return (SessionFactory) asfb.getObject();
+        return (SessionFactory) lsfb.getObject();
     }
 
     List<Callable<Object>> calls = new ArrayList<Callable<Object>>();

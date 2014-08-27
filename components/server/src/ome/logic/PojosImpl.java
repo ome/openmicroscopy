@@ -14,7 +14,6 @@
 
 package ome.logic;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -56,7 +55,7 @@ import ome.services.query.HierarchyNavigator;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.ImmutableSet;
@@ -364,7 +363,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
             effIds = new HashSet<Long>((List<Long>) iQuery
                     .execute(new HibernateCallback() {
                         public Object doInHibernate(Session s)
-                                throws HibernateException, SQLException {
+                                throws HibernateException {
                             org.hibernate.Query q = s.createQuery(query);
                             q.setParameterList("ids", rootNodeIds);
                             // ticket:1232

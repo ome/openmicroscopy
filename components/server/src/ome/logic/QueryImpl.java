@@ -7,7 +7,6 @@
 
 package ome.logic;
 
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,8 +41,8 @@ import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.metadata.ClassMetadata;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.HibernateTemplate;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,7 +73,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
      * let IQuery continue functioning.
      */
     private HibernateTemplate getHibernateTemplate() {
-        return new HibernateTemplate(getSessionFactory(), false);
+        return new HibernateTemplate(getSessionFactory());
     }
     
     // ~ LOCAL PUBLIC METHODS
@@ -215,7 +214,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
         return (List<T>) getHibernateTemplate().execute(
                 new HibernateCallback() {
                     public Object doInHibernate(Session session)
-                            throws HibernateException, SQLException {
+                            throws HibernateException {
                         Criteria c = session.createCriteria(klass);
                         c.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
                         parseFilter(c, filter);
@@ -412,7 +411,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
                 new HibernateCallback<List<IObject>>() {
                     @SuppressWarnings("rawtypes")
                     public List<IObject> doInHibernate(Session session)
-                            throws HibernateException, SQLException {
+                            throws HibernateException {
                         SearchValues values = new SearchValues();
                         values.onlyTypes = Arrays.asList((Class) type);
                         values.copy(params);
@@ -477,7 +476,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
         return (Long) getHibernateTemplate().execute(
                 new HibernateCallback() {
                     public Object doInHibernate(Session session)
-                            throws HibernateException, SQLException {
+                            throws HibernateException {
                         return qb.query(session).uniqueResult();
                     }
                 });
@@ -506,7 +505,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
         List<Object[]> list = (List<Object[]>) getHibernateTemplate().execute(
                 new HibernateCallback() {
                     public Object doInHibernate(Session session)
-                            throws HibernateException, SQLException {
+                            throws HibernateException {
                         return qb.query(session).list();
                     }
                 });

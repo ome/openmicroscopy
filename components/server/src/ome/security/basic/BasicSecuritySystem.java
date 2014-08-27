@@ -7,7 +7,6 @@
 
 package ome.security.basic;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +19,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
-import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.util.Assert;
 
 import ome.annotations.RevisionDate;
@@ -598,7 +597,7 @@ public class BasicSecuritySystem implements SecuritySystem,
         final LocalQuery query = (LocalQuery) sf.getQueryService();
         query.execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
-                    throws HibernateException, SQLException {
+                    throws HibernateException {
 
                 BasicEventContext c = cd.current();
                 boolean wasAdmin = c.isCurrentUserAdmin();

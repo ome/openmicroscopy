@@ -12,7 +12,7 @@ package ome.api.local;
 // Third-party libraries
 
 // Application-internal dependencies
-import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate4.HibernateCallback;
 
 import ome.services.query.Query;
 
@@ -42,8 +42,8 @@ public interface LocalQuery extends ome.api.IQuery {
      * @param callback
      *            An implementation of the HibernateCallback interface.
      * 
-     * @see org.springframework.orm.hibernate3.HibernateTemplate
-     * @see org.springframework.orm.hibernate3.HibernateCallback
+     * @see org.springframework.orm.hibernate4.HibernateTemplate
+     * @see org.springframework.orm.hibernate4.HibernateCallback
      */
     <T> T execute(HibernateCallback callback);
 

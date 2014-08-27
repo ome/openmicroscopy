@@ -21,7 +21,7 @@ import ome.system.Principal;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate4.HibernateCallback;
 import org.testng.annotations.Test;
 
 public class GroupLeaderTest extends AbstractManagedContextTest {

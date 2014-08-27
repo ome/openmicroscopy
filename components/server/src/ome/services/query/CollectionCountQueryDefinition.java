@@ -15,7 +15,6 @@
 package ome.services.query;
 
 // Java imports
-import java.sql.SQLException;
 import java.util.Collection;
 
 // Third-party libraries
@@ -46,8 +45,7 @@ public class CollectionCountQueryDefinition extends Query {
     }
 
     @Override
-    protected void buildQuery(Session session) throws HibernateException,
-            SQLException {
+    protected void buildQuery(Session session) throws HibernateException {
         String s_field = (String) value("field"); // TODO Generics??? if not
         // in arrays!
         String s_target = LsidUtils.parseType(s_field);
