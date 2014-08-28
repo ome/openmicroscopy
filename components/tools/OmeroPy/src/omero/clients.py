@@ -38,9 +38,6 @@ class BaseClient(object):
         client = omero.client(host = host)               # Defines "omero.host"
         client = omero.client(host = host, port = port)  # Defines "omero.host" and "omero.port"
 
-    For more information, see:
-
-        - U{http://trac.openmicroscopy.org.uk/ome/wiki/ClientDesign}
 
     """
 
@@ -281,7 +278,7 @@ class BaseClient(object):
         omero.api.ISessionPrx#getMyOpenAgentSessions(String).
         """
         self.__agent = agent
-    
+
     def setIP(self, ip):
         """
         Sets the omero.model.Session#getUserIP() string for
@@ -290,7 +287,7 @@ class BaseClient(object):
         omero.api.ISessionPrx#getMyOpenIPSessions(ip).
         """
         self.__ip = ip
-    
+
     def isSecure(self):
         """
         Specifies whether or not this client was created via a call to

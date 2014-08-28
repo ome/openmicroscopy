@@ -325,25 +325,6 @@ namespace omero {
             virtual void destroy() { } // No-op
         };
 
-        // Shared state (flyweight)
-        // =========================================================================
-
-        const omero::RBoolPtr rtrue = new RBoolI(true);
-
-        const omero::RBoolPtr rfalse = new RBoolI(false);
-
-        const omero::RLongPtr rlong0 = new RLongI(0);
-
-        const omero::RIntPtr rint0 = new RIntI(0);
-
-        const omero::RStringPtr remptystr = new RStringI("");
-
-        const omero::RClassPtr remptyclass = new RClassI("");
-
-        const omero::RInternalPtr rnullinternal = new RInternalI(omero::InternalPtr());
-
-        const omero::RObjectPtr rnullobject = new RObjectI(omero::model::IObjectPtr());
-
         // Object factories
         // =========================================================================
 

@@ -3,9 +3,9 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# $Id$
-#
-# Copyright 2008 Glencoe Software, Inc. All rights reserved.
+# Copyright (C) 2005 - 2013 Open Microscopy Environment:
+#   - Glencoe Software, Inc.
+#   - University of Dundee
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -41,8 +41,7 @@ build.xml add "-top" as your first argument. Similarly, you can use "-py", "-jav
 Examples:
   cd components/server &amp;&amp; ../../build.py install
   cd components/server &amp;&amp; ../../build.py -top hot-server
-  cd components/tools/OmeroPy &amp;&amp; ../../../build.py -cpp tools-dist
-  ./build.py -py tools-dist
+  cd components/tools/OmeroPy &amp;&amp; ../../../build.py -py tools-dist
 
 Eclipse
 -------
@@ -266,7 +265,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <antcall target="update-version" inheritRefs="true" inheritAll="true"/>
     </target>
 
-    <target name="build-cpp" description="Build OmeroCpp bindings and copy to dist/lib" depends="init">
+    <target name="build-cpp" description="Build OmeroCpp bindings" depends="init">
         <iterate buildpathref="blitzserver.buildpath" target="dist"/>
         <iterate buildpathref="OmeroCpp.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
@@ -409,12 +408,8 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <ivy:retrieve conf="test" pattern="${dist.dir}/lib/client/[artifact].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
     </target>
 
-    <target name="examples-cpp" description="Build and run OmeroCpp examples">
-        <scons_py dir="${basedir}/examples">
-            <arg value="builddir=${dist.dir}"/>
-            <arg value="run_cpp=1"/>
-            <arg value="no_java=1"/>
-        </scons_py>
+    <target name="examples-cpp" description="Build and run OmeroCpp examples"
+        depends="build-cpp">
     </target>
 
     <target name="examples-java" description="Build and run OmeroJava examples">
@@ -448,12 +443,18 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         </zip>
     </target>
 
-    <target name="release-src-embed" description="Package the release source tree into openmicroscopy-${omero.plainversion}.zip (not functional)"
+    <target name="release-cpp" depends="build-cpp" description="Package built C++ library, headers and examples">
+        <zip destfile="${omero.home}//target/OMERO.cpp-${omero.version}-${platform}.zip">
+            <zipfileset dir="${target.dir}/OMERO.cpp-${omero.version}-${platform}" prefix="/target/OMERO.cpp-${omero.version}-${platform}"/>
+        </zip>
+    </target>
+
+    <target name="release-src-embed" description="Package the release source tree (non-git)"
             depends="check-git" unless="git.exists">
          <fail message="Releasing is only possible from a git repository"/>
     </target>
 
-    <target name="release-src-git" description="Package the git source tree into openmicroscopy-${omero.plainversion}.zip"
+    <target name="release-src-git" description="Package the git source tree (git)"
             depends="check-git" if="git.exists">
         <mkdir dir="${target.dir}"/>
         <exec executable="python" failonerror="true">
@@ -461,12 +462,16 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <arg value="openmicroscopy"/>
             <arg value="${omero.shortversion}"/>
             <arg value="${omero.plainversion}"/>
+            <arg value="${omero.vcs.revision}"/>
+            <arg value="${omero.vcs.date}"/>
             <arg value="components/antlib/resources/gitversion.xml"/>
+            <arg value="components/tools/OmeroCpp/cmake/GitVersion.cmake"/>
             <arg value="${target.dir}"/>
         </exec>
     </target>
 
-    <target name="release-src" depends="release-src-embed,release-src-git"/>
+    <target name="release-src" description="Package the git source tree into openmicroscopy-${omero.plainversion}.zip"
+            depends="release-src-embed,release-src-git"/>
 
     <target name="release-clients" description="Zip the Python, Java, and Matlab zips">
         <zip destfile="${omero.home}/target/OMERO.py-${omero.version}.zip">

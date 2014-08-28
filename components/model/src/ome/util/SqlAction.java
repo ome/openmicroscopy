@@ -292,6 +292,14 @@ public interface SqlAction {
      */
     List<Long> fileIdsInDb(String uuid, Set<String> mimetypes);
 
+    /**
+     * Find the original file IDs among those given that are in the given repository.
+     * @param uuid a repository UUID
+     * @param fileIds IDs of original files
+     * @return those IDs among those given whose original files are in the given repository
+     */
+    List<Long> filterFileIdsByRepo(String uuid, List<Long> fileIds);
+
     Map<String, Object> repoFile(long value);
 
     /**
@@ -706,6 +714,15 @@ public interface SqlAction {
             params.put("repo", uuid);
             query += addMimetypes(mimetypes, params);
             return _jdbc().query(query, new IdRowMapper(), params);
+        }
+
+        public List<Long> filterFileIdsByRepo(String uuid, List<Long> fileIds) {
+            final Map<String, Object> arguments = ImmutableMap.of("repo", uuid, "ids", fileIds);
+            try {
+                return _jdbc().query(_lookup("find_files_in_repo"), new IdRowMapper(), arguments);
+            } catch (EmptyResultDataAccessException e) {
+                return Collections.emptyList();
+            }
         }
 
         //

@@ -26,7 +26,6 @@ import ome.model.acquisition.TransmittanceRange;
 import ome.model.core.Channel;
 import ome.model.core.LogicalChannel;
 
-
 /**
  * Utility class to determine the color usually associated to a specified
  * channel depending on its emission wavelength.
@@ -41,7 +40,8 @@ import ome.model.core.LogicalChannel;
  * @since OME2.2
  */
 public class ColorsFactory {
-	
+
+
     /** Index of the red component of a color. */
     public static final int RED_INDEX = 0;
     
@@ -255,7 +255,7 @@ public class ColorsFactory {
     	FilterSet f = null;
     	LightPath lp = null;
     	//LightPath
-    	if (valueFilter == null && valueWavelength == null && lc.getLightPath() != null) {
+    	if (valueFilter == null && lc.getLightPath() != null) {
     		filters = new ArrayList<Filter>();
     		lp = lc.getLightPath();
     		j = lp.linkedEmissionFilterIterator();
@@ -267,8 +267,7 @@ public class ColorsFactory {
     			valueFilter = getValueFromFilter(j.next(), true);
     		}
     	}
-    	
-    	if (valueFilter == null && valueWavelength == null && lc.getFilterSet() != null) {
+    	if (valueFilter == null && lc.getFilterSet() != null) {
     		filters = new ArrayList<Filter>();
     		f = lc.getFilterSet();
     		j = f.linkedEmissionFilterIterator();
@@ -280,10 +279,8 @@ public class ColorsFactory {
     			valueFilter = getValueFromFilter(j.next(), true);
     		}
     	}
-    	
-    	
     	//Laser
-    	if (valueFilter == null && valueWavelength == null && lc.getLightSourceSettings() != null) {
+    	if (valueFilter == null && lc.getLightSourceSettings() != null) {
     		LightSource ls = lc.getLightSourceSettings().getLightSource();
     		if (ls instanceof Laser) valueWavelength = ((Laser) ls).getWavelength();
     	}
@@ -294,7 +291,7 @@ public class ColorsFactory {
     	if (valueWavelength != null) return determineColor(valueWavelength);
 
     	//light path first
-    	if (valueFilter == null && valueWavelength == null && lp != null) {
+    	if (valueFilter == null && lp != null) {
     		filters = new ArrayList<Filter>();
     		j = lp.linkedExcitationFilterIterator();
     		while (j.hasNext()) {
@@ -317,7 +314,7 @@ public class ColorsFactory {
     			valueFilter = getValueFromFilter(j.next(), false);
     		}
     	}
-    	return determineColor(new Double(valueFilter));
+    	return determineColor(valueFilter != null ?  new Double(valueFilter) : null);
     }
  
     /**

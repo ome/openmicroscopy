@@ -869,7 +869,9 @@ class RendererComponent
 	public RndProxyDef saveCurrentSettings()
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		return model.saveCurrentSettings();
+	        RndProxyDef def = model.saveCurrentSettings();
+	        controller.enableActions();
+		return def;
 	}
 
 	/** 
@@ -939,6 +941,14 @@ class RendererComponent
 		}
 	}
 
+       /** 
+        * Implemented as specified by the {@link Renderer} interface.
+        * @see Renderer#isModified()
+        */
+	public boolean isModified() {
+	    return model.isModified();
+	}
+	
 	/** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#validatePixels(PixelsData)

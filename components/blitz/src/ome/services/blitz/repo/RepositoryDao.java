@@ -3,7 +3,6 @@ package ome.services.blitz.repo;
 import java.util.List;
 
 import org.hibernate.Session;
-
 import Ice.Current;
 
 import ome.api.RawFileStore;
@@ -98,6 +97,15 @@ public interface RepositoryDao {
     boolean canUpdate(IObject obj, Ice.Current current);
 
     /**
+     * Find the original file IDs among those given that are in the given repository.
+     * @param repo a repository UUID
+     * @param ids IDs of original files
+     * @param Ice method invocation context
+     * @return those IDs among those given whose original files are in the given repository
+     */
+    List<Long> filterFilesByRepository(String repo, List<Long> ids, Ice.Current current);
+
+    /**
      * Gets the original file instance for a given file ID.
      * @param fileId a file ID
      * @param current applicable ICE context
@@ -106,7 +114,6 @@ public interface RepositoryDao {
      */
     OriginalFile getOriginalFile(long fileId, Ice.Current current)
             throws SecurityViolation;
-
 
     /**
      * Return a non-null, possibly empty list of {@link OriginalFile} elements
@@ -270,4 +277,27 @@ public interface RepositoryDao {
     void makeDirs(PublicRepositoryI repo, List<CheckedPath> dirs, boolean parents,
             Ice.Current c) throws ServerError;
 
+    /**
+     * Retrieve the checksum algorithm of the given name.
+     * @param name a checksum algorithm name, must exist
+     * @param Ice method invocation context
+     * @return the corresponding checksum algorithm model object
+     */
+    ome.model.enums.ChecksumAlgorithm getChecksumAlgorithm(String name, Ice.Current current);
+
+    /**
+     * Retrieve the original file of the given ID.
+     * @param id the ID of an original file, must exist
+     * @param Ice method invocation context
+     * @return the corresponding original file model object
+     */
+    ome.model.core.OriginalFile getOriginalFileWithHasher(long id, Ice.Current current);
+
+    /**
+     * Save the given model object.
+     * @param object a model object
+     * @param Ice method invocation context
+     * @return {@code null}
+     */
+    void saveObject(ome.model.IObject object, Ice.Current current);
 }

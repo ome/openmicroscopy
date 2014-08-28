@@ -5,6 +5,7 @@
 
     <dirname property="up-two"        file="${basedir}"/>
     <dirname property="up-one"        file="${up-two}"/>
+    <dirname property="toplevel"      file="${up-one}"/>
     <property name="import.dir"       value="${up-one}/antlib/resources"/>
     <property name="copy.dir"         value="target/"/>
 
@@ -12,128 +13,59 @@
     <import file="${import.dir}/version.xml"/>
     <import file="../common.xml"/>
 
+    <property name="cmake.builddir"   value="cppbuild"/>
+    <property name="cmake.installdir" value="${toplevel}/target/OMERO.cpp-${omero.version}-${platform}"/>
+
     <target name="tools-init">
-        <get-source todir="${copy.dir}">
-            <fileset dir="../../blitz/generated" includes="**/*.h,**/*.cpp">
-                <present present="srconly" targetdir="src"/>
-            </fileset>
-        </get-source>
     </target>
 
     <target name="build" unless="env.NOMAKE">
-        <scons_py>
-            <arg value="src"/>
-        </scons_py>
+        <property name="cmake.args" value=""/>
+        <mkdir dir="${cmake.builddir}"/>
+        <exec executable="cmake" dir="${cmake.builddir}" failonerror="true">
+            <arg value="-DCMAKE_INSTALL_PREFIX=${cmake.installdir}/"/>
+            <arg line="${cmake.args}"/>
+            <arg value="${root.dir}"/>
+        </exec>
+        <property name="cmake.buildargs" value=""/>
+        <exec executable="cmake" dir="${cmake.builddir}" failonerror="true">
+            <arg line="--build . -- ${cmake.buildargs}"/>
+        </exec>
     </target>
 
-    <target name="msproj" unless="env.NOMAKE" description="Generate a Visual Studio Project (Windows only)">
-        <scons_py>
-            <arg value="msproj"/>
-        </scons_py>
-    </target>
-
-    <target name="test-compile" unless="env.NOMAKE">
-        <scons_py>
-            <arg value="test"/>
-        </scons_py>
-        <available file="test/unit.exe" property="unit.exe-exists"/>
-        <available file="test/integration.exe" property="integration.exe-exists"/>
-    </target>
-
-    <macrodef name="gtest_run">
-        <attribute name="file" default="test.exe"/>
-        <element name="args" implicit="yes"/>
-        <sequential>
-            <mkdir dir="${basedir}/target/reports"/>
-            <exec dir="${basedir}" executable="${basedir}/test/@{file}/@{file}" failonerror="${test.with.fail}">
-                <env key="ICE_HOME" value="${ice.home}"/>
-                <env key="LD_LIBRARY_PATH" value="${env.LD_LIBRARY_PATH}:${basedir}"/>
-                <env key="DYLD_LIBRARY_PATH" value="${env.DYLD_LIBRARY_PATH}:${basedir}"/>
-                <arg line="--gtest_output=xml:${testreports.dir}/test_results.xml"/>
-                <args/>
-            </exec>
-        </sequential>
-    </macrodef>
+    <target name="test-compile" depends="build" unless="env.NOMAKE"/>
 
     <target name="test" depends="test-compile" if="unit.exe-exists" unless="env.NOMAKE">
-        <if>
-            <isset property="TEST"/>
-            <then>
-                <gtest_run file="unit">
-                    <arg value="--gtest_filter=${TEST}"/>
-                </gtest_run>
-            </then>
-            <else>
-                <gtest_run file="unit">
-                    <arg value="--gtest_color=auto"/>
-                </gtest_run>
-            </else>
-        </if>
+        <exec executable="ctest" dir="${cmake.builddir}" failonerror="true">
+            <arg line="-R test"/>
+        </exec>
     </target>
 
     <target name="integration" depends="test-compile" if="integration.exe-exists" unless="env.NOMAKE">
-        <if>
-            <isset property="TEST"/>
-            <then>
-                <gtest_run file="integration.exe">
-                    <arg value="--gtest_filter=${TEST}"/>
-                </gtest_run>
-            </then>
-            <else>
-                <gtest_run file="integration.exe">
-                    <arg value="--gtest_color=auto"/>
-                </gtest_run>
-            </else>
-        </if>
+        <exec executable="ctest" dir="${cmake.builddir}" failonerror="true">
+            <arg line="-R integration"/>
+        </exec>
     </target>
 
     <target name="tools-build" depends="tools-init,build" description="Use scons to build the libraries" unless="env.NOMAKE"/>
 
     <target name="build-src">
-        <!-- Using ant to copy since scons tends to flatten the Globs() for copy -->
-        <copy todir="../target/include">
-            <fileset dir="src"    includes="**/*.h"/>
-            <fileset dir="target" includes="**/*.h"/>
-        </copy>
-
-        <property name="src.build" value="OMERO.cpp-src-${omero.version}"/>
-        <zip destfile="${omero.home}/target/${src.build}.zip">
-             <zipfileset dir="${basedir}/src"        prefix="${src.build}"      includes="**/*.cpp,**/*.h"/>
-             <zipfileset dir="${basedir}/target"     prefix="${src.build}"      includes="**/*.cpp,**/*.h"/>
-        </zip>
+        <!-- Install into dest dir ${basedir}/target -->
     </target>
 
     <target name="tools-dist" depends="tools-build,build-src" description="Copies files into tools/target" unless="env.NOMAKE">
-        <scons_py>
-            <arg value="install"/>
-        </scons_py>
-
-        <property prefix="compiler" file="${basedir}/compiler.log"/>
-        <property name="compiler.build" value="OMERO.cpp-${omero.version}-${compiler.PLATFORM}-${compiler.CXX}-${compiler.CXXVERSION}-${compiler.ARCH}${compiler.RELEASE}"/>
-        <zip destfile="${omero.home}/target/${compiler.build}.zip">
-             <zipfileset dir="${basedir}/src"        prefix="${compiler.build}/src"     includes="**/*.cpp"/>
-             <zipfileset dir="${basedir}/target"     prefix="${compiler.build}/src"     includes="**/*.cpp"/>
-             <zipfileset dir="${basedir}/src"        prefix="${compiler.build}/include" includes="**/*.h"/>
-             <zipfileset dir="${basedir}/target"     prefix="${compiler.build}/include" includes="**/*.h"/>
-             <zipfileset dir="${basedir}/target/lib" prefix="${compiler.build}/lib"     includes="*omero_client*"/>
-             <zipfileset dir="${basedir}/"           prefix="${compiler.build}/lib"     includes="*.pdb"/>
-             <zipfileset dir="${basedir}/"           prefix="${compiler.build}/logs"    includes="*.log"/>
-        </zip>
-
+        <property name="cmake.buildargs" value=""/>
+        <exec executable="cmake" dir="${cmake.builddir}" failonerror="true">
+            <arg line="--build . --target install -- ${cmake.buildargs}"/>
+        </exec>
     </target>
 
-   <target name="tools-clean">
-        <scons_py>
-            <arg value="-c"/>
-        </scons_py>
-        <delete dir="${copy.dir}"/>
-        <delete dir="${basedir}/.sconf_temp"/>
-        <delete file="${basedir}/.sconsign.dblite"/>
-        <delete file="${basedir}/*.log"/>
+    <target name="tools-clean">
+        <delete dir="${cmake.builddir}"/>
     </target>
 
-    <!-- Temporary: this will be moved to scons.xml -->
+    <target name="clean" depends="tools-clean"/>
+
     <target name="findbugs">
-        <echo>Not yet implemented</echo>
     </target>
 </project>

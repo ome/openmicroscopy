@@ -22,6 +22,13 @@ using namespace omero::api::_cpp_delete;
 ::Ice::Object* IceInternal::upCast(::omero::callbacks::ProcessCallbackI* p) { return p; }
 ::Ice::Object* IceInternal::upCast(::omero::callbacks::CmdCallbackI* p) { return p; }
 
+namespace
+{
+    const std::string FINISHED("FINISHED");
+    const std::string CANCELLED("CANCELLED");
+    const std::string KILLED("KILLED");
+}
+
 namespace omero {
 
     namespace callbacks {
@@ -48,12 +55,12 @@ namespace omero {
             omero::grid::ProcessCallbackPrx pcb = ProcessCallbackPrx::uncheckedCast(prx);
             process->registerCallback(pcb);
 
-        };
+        }
 
         void ProcessCallbackI::close() {
             if (adapter)
                 adapter->remove(id);
-        };
+        }
 
         std::string ProcessCallbackI::block(long ms) {
             if (poll) {
@@ -68,22 +75,22 @@ namespace omero {
             }
             event.wait(Time::milliSeconds(ms));
             return result; // Possibly empty
-        };
+        }
 
         void ProcessCallbackI::processCancelled(bool success, const Ice::Current& current) {
             result = CANCELLED;
             event.set();
-        };
+        }
 
         void ProcessCallbackI::processFinished(int returncode, const Ice::Current& current) {
             result = FINISHED;
             event.set();
-        };
+        }
 
         void ProcessCallbackI::processKilled(bool success, const Ice::Current& current) {
             result = KILLED;
             event.set();
-        };
+        }
 
         //
         // DeleteCallback
@@ -94,12 +101,12 @@ namespace omero {
             adapter(adapter),
             poll(poll),
             handle(handle) {
-        };
+        }
 
         void DeleteCallbackI::close() {
             if (handle)
                 handle->close();
-        };
+        }
 
         DeleteReports DeleteCallbackI::loop(int loops, long ms) {
             int count = 0;
@@ -117,7 +124,7 @@ namespace omero {
             } else {
                 return handle->report();
             }
-        };
+        }
 
         RIntPtr DeleteCallbackI::block(long ms) {
             if (poll) {
@@ -139,12 +146,12 @@ namespace omero {
             event.wait(Time::milliSeconds(ms));
             return result; // Possibly empty
 
-        };
+        }
 
         void DeleteCallbackI::finished(int errors) {
             result = rint(errors);
             event.set();
-        };
+        }
 
         //
         // CmdCallback
@@ -156,7 +163,7 @@ namespace omero {
             handle(handle),
             closeHandle(closeHandle){
                 doinit(category);
-        };
+        }
 
         CmdCallbackI::CmdCallbackI(
             const omero::client_ptr& client, const omero::cmd::HandlePrx handle, bool closeHandle) :
@@ -164,7 +171,7 @@ namespace omero {
             handle(handle),
             closeHandle(closeHandle){
                 doinit(client->getCategory());
-        };
+        }
 
         void CmdCallbackI::doinit(std::string category) {
             this->id = Ice::Identity();
@@ -176,7 +183,7 @@ namespace omero {
             // Now check just in case the process exited VERY quickly
             pollThread = new PollThread(this);
             pollThread->start();
-        };
+        }
         
         void CmdCallbackI::close() {
             if (adapter) {
@@ -190,12 +197,12 @@ namespace omero {
         omero::cmd::ResponsePtr CmdCallbackI::getResponse() {
             IceUtil::RecMutex::Lock lock(mutex);
             return state.first;
-        };
+        }
 
         omero::cmd::StatusPtr CmdCallbackI::getStatus() {
             IceUtil::RecMutex::Lock lock(mutex);
             return state.second;
-        };
+        }
 
         omero::cmd::StatusPtr CmdCallbackI::getStatusOrThrow() {
             IceUtil::RecMutex::Lock lock(mutex);
@@ -204,7 +211,7 @@ namespace omero {
                 throw ClientError(__FILE__, __LINE__, "Status not present!");
             }
             return s;
-        };
+        }
 
         int count(omero::cmd::StateList list, omero::cmd::State s) {
             int c = 0;
@@ -221,13 +228,13 @@ namespace omero {
             omero::cmd::StatusPtr s = getStatusOrThrow();
             return count(s->flags, omero::cmd::CANCELLED) > 0;
 
-        };
+        }
 
         bool CmdCallbackI::isFailure() {
             omero::cmd::StatusPtr s = getStatusOrThrow();
             return count(s->flags, omero::cmd::FAILURE) > 0;
 
-        };
+        }
 
         omero::cmd::ResponsePtr CmdCallbackI::loop(int loops, long ms) {
             int count = 0;
@@ -248,11 +255,11 @@ namespace omero {
                 ss << "Cmd unfinished after " << waited << "seconds.";
                 throw LockTimeout("", "", ss.str(), 5000L, waited);
             }
-        };
+        }
 
         bool CmdCallbackI::block(long ms) {
             return event.wait(Time::milliSeconds(ms));
-        };
+        }
 
         void CmdCallbackI::poll() {
             IceUtil::RecMutex::Lock lock(mutex);
@@ -264,11 +271,11 @@ namespace omero {
             }
             
             pollThread = NULL;
-        };
+        }
 
         void CmdCallbackI::step(int complete, int total, const Ice::Current& current) {
             // no-op
-        };
+        }
 
         void CmdCallbackI::finished(const omero::cmd::ResponsePtr& rsp,
                 const omero::cmd::StatusPtr& status, const Ice::Current& current) {
@@ -276,12 +283,12 @@ namespace omero {
             this->state = s;
             event.set();
             onFinished(rsp, status, current);
-        };
+        }
 
         void CmdCallbackI::onFinished(const omero::cmd::ResponsePtr& rsp,
                 const omero::cmd::StatusPtr& status, const Ice::Current& current) {
             // no-op
-        };
-    };
+        }
+    }
 
-};
+}

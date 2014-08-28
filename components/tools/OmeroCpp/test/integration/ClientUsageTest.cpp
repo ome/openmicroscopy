@@ -32,9 +32,9 @@ TEST(ClientUsageTest, testUseSharedMemory )
     omero::client_ptr client = new omero::client();
     client->createSession();
 
-    ASSERT_EQ(0, (int)client->getInputKeys().size());
+    ASSERT_EQ(0U, client->getInputKeys().size());
     client->setInput("a", rstring("b"));
-    ASSERT_EQ(1, (int)client->getInputKeys().size());
+    ASSERT_EQ(1U, client->getInputKeys().size());
     std::vector<std::string> keys = client->getInputKeys();
     std::vector<std::string>::iterator it = find(keys.begin(), keys.end(), "a");
     ASSERT_TRUE( it != keys.end() );
@@ -60,7 +60,7 @@ TEST(ClientUsageTest, testGetStatefulServices )
     sf->setSecurityContext(new omero::model::ExperimenterGroupI(0L, false));
     sf->createRenderingEngine();
     std::vector<omero::api::StatefulServiceInterfacePrx> srvs = f.root->getStatefulServices();
-    ASSERT_EQ((unsigned int)1, srvs.size());
+    ASSERT_EQ(1U, srvs.size());
     try {
         sf->setSecurityContext(new omero::model::ExperimenterGroupI(1L, false));
         FAIL() << "Should not be allowed";
@@ -69,7 +69,7 @@ TEST(ClientUsageTest, testGetStatefulServices )
     }
     srvs.at(0)->close();
     srvs = f.root->getStatefulServices();
-    ASSERT_EQ((unsigned int)0, srvs.size());
+    ASSERT_EQ(0U, srvs.size());
     sf->setSecurityContext(new omero::model::ExperimenterGroupI(1L, false));
 }
 
