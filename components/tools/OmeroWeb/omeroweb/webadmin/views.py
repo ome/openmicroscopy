@@ -349,11 +349,14 @@ def forgotten_password(request, **kwargs):
                     form = None
                 except Exception, exp:
                     logger.error(traceback.format_exc())
-                    error = exp[0].parameters[exp[0].parameters.keys()[0]]
+                    try:
+                        error = exp[0].parameters[exp[0].parameters.keys()[0]]
+                    except:
+                        error = exp
     else:
         form = ForgottonPasswordForm()
     
-    context = {'error':error, 'form':form, 'build_year':build_year}    
+    context = {'error':error, 'form':form, 'build_year':build_year, 'omero_version':omero_version}    
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)
