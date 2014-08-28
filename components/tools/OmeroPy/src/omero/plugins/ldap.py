@@ -26,8 +26,8 @@ Examples:
   bin/omero ldap getdn beth || echo "No DN"
   bin/omero ldap setdn jack uid=me,ou=example,o=com
   bin/omero ldap setdn jack ""                  # Disables LDAP login.
-  bin/omero ldap discover --commands            # Requires "ldap" module
-  bin/omero ldap create jack                    # User jack must exist in LDAP
+  bin/omero ldap discover --commands
+  bin/omero ldap create bob                     # User bob must exist in LDAP
 
 """
 
@@ -71,10 +71,6 @@ user never had a password, one will need to be set!""")
         discover.add_argument(
             "--commands", action="store_true", default=False,
             help="Print setdn commands on standard out")
-        discover.add_argument(
-            "--urls", help="Override OMERO omero.ldap.urls setting")
-        discover.add_argument(
-            "--base", help="Override OMERO omero.ldap.base setting")
 
         create = parser.add(
             sub, self.create,
