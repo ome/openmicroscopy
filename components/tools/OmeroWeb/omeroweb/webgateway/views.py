@@ -1825,6 +1825,10 @@ def archived_files(request, iid=None, conn=None, **kwargs):
         rsp['Content-Length'] = orig_file.getSize()
         rsp['Content-Disposition'] = 'attachment; filename=%s' % (orig_file.getName().replace(" ","_"))
     else:
+
+        paths = [f.getPath() for f in files]
+        commonPath = os.path.commonprefix(paths)
+
         import tempfile
         temp = tempfile.NamedTemporaryFile(suffix='.archive')
         try:
@@ -1832,7 +1836,14 @@ def archived_files(request, iid=None, conn=None, **kwargs):
             logger.debug("download dir: %s" % temp_zip_dir)
             try:
                 for a in files:
-                    temp_f = os.path.join(temp_zip_dir, a.name)
+                    relPath = os.path.relpath(a.getPath(), commonPath)
+                    temp_d = os.path.join(temp_zip_dir, relPath)
+                    temp_d = os.path.normpath(temp_d)
+                    # create dir if needed
+                    if not os.path.exists(temp_d):
+                        os.makedirs(temp_d)
+                    temp_f = os.path.join(temp_zip_dir, relPath, a.name)
+                    temp_f = os.path.normpath(temp_f)
                     f = open(str(temp_f),"wb")
                     try:
                         for chunk in a.getFileInChunks():
@@ -1843,9 +1854,12 @@ def archived_files(request, iid=None, conn=None, **kwargs):
                 # create zip
                 zip_file = zipfile.ZipFile(temp, 'w', zipfile.ZIP_DEFLATED)
                 try:
-                    a_files = os.path.join(temp_zip_dir, "*")
-                    for name in glob.glob(a_files):
-                        zip_file.write(name, os.path.basename(name))
+                    for root, dirs, files in os.walk(temp_zip_dir):
+                        archive_root = os.path.relpath(root, temp_zip_dir)
+                        for f in files:
+                            fullpath = os.path.join(root, f)
+                            archive_name = os.path.join(archive_root, f)
+                            zip_file.write(fullpath, archive_name)
                 finally:
                     zip_file.close()
                     # delete temp dir
