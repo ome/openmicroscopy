@@ -77,6 +77,8 @@ public class RenderingDefinitionHistory {
         pointer = -1;
         previousAction = 0;
 
+//        System.out.println("reset - "+this);
+        
         this.pcs.firePropertyChange(CAN_UNDO, oldU, canUndo());
         this.pcs.firePropertyChange(CAN_REDO, oldR, canRedo());
     }
@@ -88,13 +90,13 @@ public class RenderingDefinitionHistory {
      * @return See above
      */
     public RndProxyDef getCurrent() {
-        if (history.isEmpty())
+        if (history.isEmpty() || pointer<0)
             return null;
 
-        if (pointer < 0 || pointer >= history.size())
+        if (pointer >= history.size())
             throw new IllegalStateException(
                     "Pointer is not within the valid range: " + pointer
-                            + " [0;" + (history.size() - 1) + "]");
+                            + " [-1;" + (history.size() - 1) + "]");
 
         return history.get(pointer);
     }
@@ -115,8 +117,17 @@ public class RenderingDefinitionHistory {
         history.add(def);
         pointer = history.size() - 1;
 
+        System.out.println("add - "+this);
+        
         this.pcs.firePropertyChange(CAN_UNDO, oldU, canUndo());
         this.pcs.firePropertyChange(CAN_REDO, oldR, canRedo());
+    }
+    
+    /**
+     * Resets the previous action flag to undefined
+     */
+    public void resetPrevAction() {
+        previousAction = 0;
     }
 
     /**
@@ -128,6 +139,7 @@ public class RenderingDefinitionHistory {
         boolean oldU = canUndo();
         boolean oldR = canRedo();
 
+        // have to add an extra step when switching from undo to redo
         if (previousAction==PREV_ACTION_BACKWARD)
             pointer += 2;
         else
@@ -137,6 +149,8 @@ public class RenderingDefinitionHistory {
         this.pcs.firePropertyChange(CAN_REDO, oldR, canRedo());
         
         previousAction = PREV_ACTION_FORWARD;
+        
+//        System.out.println("forward - "+this);
         
         return getCurrent();
     }
@@ -162,6 +176,7 @@ public class RenderingDefinitionHistory {
 
         history.add(def);
 
+        // have to move an extra step back when switching from redo to undo
         if (previousAction==PREV_ACTION_FORWARD)
             pointer--;
         
@@ -173,6 +188,8 @@ public class RenderingDefinitionHistory {
         this.pcs.firePropertyChange(CAN_REDO, oldR, canRedo());
         
         previousAction = PREV_ACTION_BACKWARD;
+        
+//        System.out.println("backward_add - "+this);
         
         return current;
     }
@@ -197,6 +214,8 @@ public class RenderingDefinitionHistory {
         this.pcs.firePropertyChange(CAN_REDO, oldR, canRedo());
         
         previousAction = PREV_ACTION_BACKWARD;
+        
+//        System.out.println("backward - "+this);
         
         return def;
     }

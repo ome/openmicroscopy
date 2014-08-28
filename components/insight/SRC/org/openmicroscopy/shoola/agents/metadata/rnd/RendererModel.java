@@ -1293,8 +1293,12 @@ class RendererModel
 	 * Stores the current rendering settings in the history
 	 */
 	void makeHistorySnapshot() {
-	        if (rndControl != null)
-	            history.add(rndControl.getRndSettingsCopy());
+	        if (rndControl != null ) {
+	            if (history.getCurrent()==null || !rndControl.isSameSettings(history.getCurrent(), true))
+	                history.add(rndControl.getRndSettingsCopy());
+	            else 
+	                history.resetPrevAction();
+	        }
 	}
 	
 	/**
