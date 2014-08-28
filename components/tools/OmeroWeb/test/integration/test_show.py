@@ -549,6 +549,37 @@ def well_name(request):
 
 
 @pytest.fixture(scope='function')
+def multiple_well_by_id_show_request(
+        request, screen_plate_run_well, request_factory, path, well_name,
+        as_string_well_by_name):
+    """
+    Returns a simple GET request object with the 'show' query string
+    specifying 2 wells. The second well is ignored and we initially
+    select and open the first well.
+    """
+    plate, = screen_plate_run_well.linkedPlateList()
+    well_a, well_b = sorted(plate.copyWells(), cmp_well_column)
+    ws_a, ws_b = well_a.copyWellSamples()
+    plate_acquisition = ws_a.plateAcquisition
+    as_string = 'well-%d|well-%d' % (well_a.id.val, well_b.id.val)
+    initially_select = [
+        'acquisition-%d' % plate_acquisition.id.val,
+        'well-%d' % well_a.id.val
+    ]
+    initially_open = [
+        'screen-%d' % screen_plate_run_well.id.val,
+        'plate-%d' % plate.id.val,
+        'acquisition-%d' % plate_acquisition.id.val,
+        'well-%d' % well_a.id.val
+    ]
+    return {
+        'request': request_factory.get(path, data={'show': as_string}),
+        'initially_select': initially_select,
+        'initially_open': initially_open
+    }
+
+
+@pytest.fixture(scope='function')
 def well_by_name_path_request(
         request, screen_plate_well, request_factory, path, well_name):
     """
@@ -940,6 +971,30 @@ class TestShow(object):
         assert show._first_selected == first_selected
         assert len(show.initially_select) == \
             len(tag_by_textvalue_path_request['initially_select'])
+
+
+    # show.initially_open ['plate-104', 'acquisition-103', u'well-401']
+    # show.initially_select ['acquisition-103', u'well-401']
+    def test_multiple_well_by_id(
+            self, conn, multiple_well_by_id_show_request, screen_plate_run_well):
+        show = Show(conn, multiple_well_by_id_show_request['request'], 'usertags')
+        self.assert_instantiation(show, multiple_well_by_id_show_request, conn)
+
+        plate, = screen_plate_run_well.linkedPlateList()
+        well_a, well_b = sorted(plate.copyWells(), cmp_well_column)
+        ws_a, ws_b = well_a.copyWellSamples()
+        plate_acquisition = ws_a.plateAcquisition
+        first_selected = show.first_selected
+        assert first_selected is not None
+        assert isinstance(first_selected, PlateAcquisitionWrapper)
+        assert first_selected.getId() == plate_acquisition.id.val
+        assert show.initially_open == \
+            multiple_well_by_id_show_request['initially_open']
+        assert show.initially_open_owner == \
+            plate.details.owner.id.val
+        assert show._first_selected == first_selected
+        assert show.initially_select == \
+            multiple_well_by_id_show_request['initially_select']
 
     def test_well_by_name(
             self, conn, well_by_name_path_request, screen_plate_well):
