@@ -127,7 +127,6 @@ public class ExistingObjectsSaver
                 	        GroupData group = (GroupData) p;
                 		as.copyExperimenters(ctx, group, (Collection)
                                 entry.getValue());
-                		as.reloadGroup(ctx, group);
                 	} else {
                 		if (p instanceof DataObject) {
                             os.addExistingObjects(ctx,
@@ -136,6 +135,7 @@ public class ExistingObjectsSaver
                 	}
                     
                 }
+                as.refreshGroups(ctx);
                 result = toPaste;
             }
         };
@@ -160,16 +160,7 @@ public class ExistingObjectsSaver
             	if (admin) {
             		AdminService as = context.getAdminService();
             		as.cutAndPasteExperimenters(ctx, toPaste, toRemove);
-            		Set groups = new HashSet();
-            		groups.addAll(toPaste.entrySet());
-            		groups.addAll(toRemove.entrySet());
-            		for (Object o : groups) {
-            		    Entry e = (Entry) o;
-            		    if (e.getKey() instanceof GroupData) {
-            		        GroupData group = (GroupData) e.getKey();
-            		        as.reloadGroup(ctx, group);
-            		    }
-            		}
+            		as.refreshGroups(ctx);
                         result = toPaste; 
             	} else {
             		OmeroDataService os = context.getDataService();

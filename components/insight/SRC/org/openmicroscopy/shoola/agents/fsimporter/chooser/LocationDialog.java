@@ -1589,6 +1589,7 @@ class LocationDialog extends JDialog implements ActionListener,
 	    this.dataType = type;
 	    this.objects = objects;
 	    this.container = container;
+	    this.groups = model.getAvailableGroups();
 	    populateUIWithDisplayData(findWithId(groups, currentGroupId), userID);
 	    setInputsEnabled(true);
 	}

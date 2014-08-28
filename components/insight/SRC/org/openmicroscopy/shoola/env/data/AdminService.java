@@ -32,6 +32,7 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
@@ -136,6 +137,15 @@ public interface AdminService
      * @throws DSAccessException
      */
     public GroupData reloadGroup(SecurityContext ctx, GroupData group)
+            throws DSOutOfServiceException, DSAccessException ;
+    
+    /**
+     * Refreshes the user's group context, see {@link LookupNames#USER_GROUP_DETAILS}
+     * @param ctx
+     * @throws DSOutOfServiceException
+     * @throws DSAccessException
+     */
+    public void refreshGroups(SecurityContext ctx)
             throws DSOutOfServiceException, DSAccessException ;
     
     /**
