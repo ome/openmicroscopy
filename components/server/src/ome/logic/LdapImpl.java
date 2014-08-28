@@ -63,9 +63,8 @@ import org.springframework.ldap.filter.EqualsFilter;
 import org.springframework.ldap.filter.Filter;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * Provides methods for administering user accounts, passwords, as well as
@@ -562,8 +561,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
     @RolesAllowed("system")
     public Map<String, Experimenter> discover() {
         Roles r = getSecuritySystem().getSecurityRoles();
-        BiMap<String, Experimenter> experimenterDNMap = HashBiMap.create();
-        List<Experimenter> ldapAccounts = Lists.newArrayList();
+        Map<String, Experimenter> experimenterDNMap = Maps.newHashMap();
 
         List<Experimenter> localExperimenters = iQuery.findAllByQuery(
                 "select distinct e from Experimenter e "
@@ -571,10 +569,9 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
                 new Parameters().addIds(Lists.newArrayList(r.getRootId(),
                         r.getGuestId())));
 
-        Experimenter ldapAccount;
         for (Experimenter e : localExperimenters) {
             try {
-                ldapAccount = findExperimenter(e.getOmeName());
+                findExperimenter(e.getOmeName());
             } catch (ApiUsageException aue) {
                 // This user doesn't have an LDAP account
                 continue;
