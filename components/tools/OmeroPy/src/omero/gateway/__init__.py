@@ -6603,9 +6603,11 @@ class _ImageWrapper (BlitzObjectWrapper):
                         if t.getDetails().owner.id.val == eid]
         else:
             pid = self.getPixelsId()
-            query = "select t.version from Thumbnail t where t.pixels = %s and t.owner_id = %s" \
-                    % (pid, eid)
-            tbs = self._conn.getQueryService().projection(query, None, self._conn.SERVICE_OPTS)
+            params = omero.sys.ParametersI()
+            params.addLong('pid', pid)
+            params.addLong('ownerId', eid)
+            query = "select t.version from Thumbnail t where t.pixels.id = :pid and t.details.owner.id = :ownerId"
+            tbs = self._conn.getQueryService().projection(query, params, self._conn.SERVICE_OPTS)
             tvs = [t[0].val for t in tbs]
         if len(tvs) > 0:
             return max(tvs)
