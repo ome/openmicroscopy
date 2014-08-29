@@ -47,12 +47,17 @@ include_directories("${PROJECT_SOURCE_DIR}/components/blitz/generated"
 option(debug-ice-generation "Dump results of generated Ice source globbing" OFF)
 
 # Find all static Ice slice definitions.
-file(GLOB_RECURSE ICE_API_STATIC_SOURCES RELATIVE        "${PROJECT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/components/blitz/resources/omero/api/*.ice")
-file(GLOB_RECURSE ICE_MODEL_STATIC_SOURCES RELATIVE      "${PROJECT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/components/blitz/resources/omero/model*.ice")
-file(GLOB_RECURSE ICE_COMMON_STATIC_SOURCES RELATIVE     "${PROJECT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/components/blitz/resources/*.ice")
+file(GLOB_RECURSE ICE_API_STATIC_SOURCES RELATIVE    "${PROJECT_SOURCE_DIR}"
+     "${PROJECT_SOURCE_DIR}/components/blitz/resources/omero/api/*.ice")
+file(GLOB_RECURSE ICE_MODEL_STATIC_SOURCES RELATIVE  "${PROJECT_SOURCE_DIR}"
+     "${PROJECT_SOURCE_DIR}/components/blitz/resources/omero/model/*.ice")
+file(GLOB_RECURSE ICE_COMMON_STATIC_SOURCES RELATIVE "${PROJECT_SOURCE_DIR}"
+     "${PROJECT_SOURCE_DIR}/components/blitz/resources/*.ice")
 
-# Move from common to api:
+# Move from common to api and model:
 list(APPEND ICE_API_STATIC_SOURCES components/blitz/resources/omero/API.ice)
+list(APPEND ICE_API_STATIC_SOURCES components/blitz/resources/omero/ServicesF.ice)
+list(APPEND ICE_MODEL_STATIC_SOURCES components/blitz/resources/omero/ModelF.ice)
 
 # Remove api and model files from the common files.
 if(ICE_API_STATIC_SOURCES)
