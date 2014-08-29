@@ -192,6 +192,29 @@
                 }
             });
 
+            $(".usageByGroup").click(function() {
+              $(".usageByGroup").removeClass('selected');
+              $(this).addClass('selected');
+              var gid = $(this).attr("data-groupid");
+              var url = "{% url 'waindex' %}" + "drivespace_json/group/" + gid +"/";
+              // $("#filterBy").text("Group: " + i.label).show().addClass('selected');
+              plotJson(url, {
+                  success: function(){
+                      $(".totalUsage").text('Group');
+                  }
+              });
+            });
+            $("#myUsage").click(function() {
+              $(".usageByGroup").removeClass('selected');
+              $(this).addClass('selected');
+              var url = "{% url 'waloaddrivespace_user' experimenter.id %}";
+              plotJson(url, {
+                  success: function(){
+                      $(".totalUsage").text('My');
+                  }
+              });
+            });
+
         });
         
     </script>
@@ -341,7 +364,21 @@
     {% endif %}
     
     
-    <div id="drivespace_settings" class="settings_content">
+    <div id="drivespace_settings" class="settings_content" style="position:relative">
+
+        {% if ownedGroups %}
+            <h1>
+                Personal Usage:
+                <a id="myUsage" class="usageBy" href="#">{{ ome.user.getFullName }}</a>
+            </h1>
+              <h1>
+                Usage by Groups I own:
+                {% for group in ownedGroups %}
+                  <a class="usageByGroup usageBy" href="#" data-groupid="{{ group.id }}">{{ group.name }}</a> |
+                {% endfor %}
+            </h1>
+            <hr>
+        {% endif %}
 
         {% include 'webadmin/includes/drivespaceStats.html' %}
     </div>
