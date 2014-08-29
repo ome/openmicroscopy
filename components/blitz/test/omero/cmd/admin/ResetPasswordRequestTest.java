@@ -35,73 +35,73 @@ import org.testng.annotations.Test;
 
 public class ResetPasswordRequestTest extends AbstractServantTest {
 
-	@Override
-	@BeforeClass
-	protected void setUp() throws Exception {
-		super.setUp();
-	}
-	
-	protected ResetPasswordResponse assertRequest(
-			final ResetPasswordRequestI req, Map<String, String> ctx) {
+    @Override
+    @BeforeClass
+    protected void setUp() throws Exception {
+        super.setUp();
+    }
 
-		final Status status = new Status();
+    protected ResetPasswordResponse assertRequest(
+            final ResetPasswordRequestI req, Map<String, String> ctx) {
 
-		@SuppressWarnings("unchecked")
-		List<Object> rv = (List<Object>) user.ex.execute(ctx, user
-				.getPrincipal(), new Executor.SimpleWork(this, "testRequest") {
-			@Transactional(readOnly = false)
-			public List<Object> doWork(Session session, ServiceFactory sf) {
+        final Status status = new Status();
 
-				// from HandleI.steps()
-				List<Object> rv = new ArrayList<Object>();
+        @SuppressWarnings("unchecked")
+        List<Object> rv = (List<Object>) user.ex.execute(ctx, user
+                .getPrincipal(), new Executor.SimpleWork(this, "testRequest") {
+            @Transactional(readOnly = false)
+            public List<Object> doWork(Session session, ServiceFactory sf) {
 
-				Helper helper = new Helper((Request) req, status,
-						getSqlAction(), session, sf);
-				req.init(helper);
+                // from HandleI.steps()
+                List<Object> rv = new ArrayList<Object>();
 
-				int j = 0;
-				while (j < status.steps) {
-					try {
-						rv.add(req.step(j));
-					} catch (Cancel c) {
-						throw c;
-					} catch (Throwable t) {
-						throw helper.cancel(new ERR(), t, "bad-step", "step",
-								"" + j);
-					}
-					j++;
-				}
+                Helper helper = new Helper((Request) req, status,
+                        getSqlAction(), session, sf);
+                req.init(helper);
 
-				return rv;
-			}
-		});
+                int j = 0;
+                while (j < status.steps) {
+                    try {
+                        rv.add(req.step(j));
+                    } catch (Cancel c) {
+                        throw c;
+                    } catch (Throwable t) {
+                        throw helper.cancel(new ERR(), t, "bad-step", "step",
+                                "" + j);
+                    }
+                    j++;
+                }
 
-		// Post-process
-		for (int step = 0; step < status.steps; step++) {
-			Object obj = rv.get(step);
-			req.buildResponse(step, obj);
-		}
+                return rv;
+            }
+        });
 
-		Response rsp = req.getResponse();
-		if (rsp instanceof ERR) {
-			fail(rsp.toString());
-		}
+        // Post-process
+        for (int step = 0; step < status.steps; step++) {
+            Object obj = rv.get(step);
+            req.buildResponse(step, obj);
+        }
 
-		return (ResetPasswordResponse) rsp;
-	}
-	
-	@Test
-	public void testSendEmail() throws Exception {
-		
-		ResetPasswordRequestI req = new ResetPasswordRequestI(
-				(MailUtil) user.ctx.getBean("mailUtil"),
-				(PasswordUtil) user.ctx.getBean("passwordUtil"),
-				(SecuritySystem) user.ctx.getBean("securitySystem"),
-				(PasswordProvider) user.ctx.getBean("passwordProvider"));
-		req.omename = "test";
-		req.email = "user@mail";
-		
-		ResetPasswordResponse rsp = assertRequest(req, null);
-	}
+        Response rsp = req.getResponse();
+        if (rsp instanceof ERR) {
+            fail(rsp.toString());
+        }
+
+        return (ResetPasswordResponse) rsp;
+    }
+
+    @Test
+    public void testSendEmail() throws Exception {
+
+        ResetPasswordRequestI req = new ResetPasswordRequestI(
+                (MailUtil) user.ctx.getBean("mailUtil"),
+                (PasswordUtil) user.ctx.getBean("passwordUtil"),
+                (SecuritySystem) user.ctx.getBean("securitySystem"),
+                (PasswordProvider) user.ctx.getBean("passwordProvider"));
+        req.omename = "test";
+        req.email = "user@mail";
+
+        ResetPasswordResponse rsp = assertRequest(req, null);
+    }
 
 }

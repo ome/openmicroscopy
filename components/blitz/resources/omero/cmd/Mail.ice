@@ -22,7 +22,7 @@ module omero {
 
     module cmd {
  
- 		/**
+         /**
          * Requests an email to be send to all users of the omero
          * determines inactive users, an active members of given groups
          * and/or specific users.
@@ -37,27 +37,27 @@ module omero {
          *  - omero.cmd.SendEmailRequest(subject, body, groupIds=[...], 
          *												userIds=[...] )
          * 		sends email to active members of given groups and selected users 
-	     * 	- CC and BCC parameters: cc=[...], bcc=[...]
+         * 	- CC and BCC parameters: cc=[...], bcc=[...]
          **/
-		class SendEmailRequest extends Request {
-			string subject;
-			string body;
-			bool html;
-			omero::sys::LongList userIds;
-			omero::sys::LongList groupIds;
-			omero::api::StringSet cc;
-			omero::api::StringSet bcc;
-			bool inactive;
-		};
+         class SendEmailRequest extends Request {
+             string subject;
+             string body;
+             bool html;
+             omero::sys::LongList userIds;
+             omero::sys::LongList groupIds;
+             omero::api::StringSet cc;
+             omero::api::StringSet bcc;
+             bool inactive;
+         };
 
-        /**
+         /**
          * Successful response for [SendEmailRequest]. Contains
          * a list of invalid users that has no email address set.
          * If no recipients or invalid users found, an [ERR] will be returned.
          **/
-		class SendEmailResponse extends Response {
-			omero::api::LongList invalidusers;
-        };
+         class SendEmailResponse extends Response {
+             omero::api::LongList invalidusers;
+         };
         
     };
 };

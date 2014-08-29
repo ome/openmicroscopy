@@ -36,75 +36,79 @@ import omero.cmd.ResetPasswordResponse;
  */
 
 public class ResetPasswordRequestI extends ResetPasswordRequest implements
-		IRequest {
+        IRequest {
 
-	private final static Logger log = LoggerFactory.getLogger(ResetPasswordRequestI.class);
-	
-	private static final long serialVersionUID = -1L;
+    private final static Logger log = LoggerFactory
+            .getLogger(ResetPasswordRequestI.class);
 
-	private final ResetPasswordResponse rsp = new ResetPasswordResponse();
+    private static final long serialVersionUID = -1L;
 
-	private String sender = null;
-	
-	private final MailUtil mailUtil;
-	private final PasswordUtil passwordUtil;
+    private final ResetPasswordResponse rsp = new ResetPasswordResponse();
+
+    private String sender = null;
+
+    private final MailUtil mailUtil;
+
+    private final PasswordUtil passwordUtil;
+
     private final SecuritySystem sec;
+
     private final PasswordProvider passwordProvider;
-    
-	private Helper helper;
-	
-	public ResetPasswordRequestI(MailUtil mailUtil, PasswordUtil passwordUtil,
-			SecuritySystem sec, PasswordProvider passwordProvider) {
-		this.mailUtil = mailUtil;
-		this.passwordUtil = passwordUtil;
-		this.sec = sec;
-		this.passwordProvider = passwordProvider;
-	}
-	
-	//
-	// CMD API
-	//
 
-	public Map<String, String> getCallContext() {
-		Map<String, String> all = new HashMap<String, String>();
-		all.put("omero.group", "-1");
-		return all;
-	}
+    private Helper helper;
 
-	public void init(Helper helper) {
-		this.helper = helper;
-		this.sender = mailUtil.getSender();
-		
-		if (omename == null) 
-			throw helper.cancel(new ERR(), null, "no-omename");
+    public ResetPasswordRequestI(MailUtil mailUtil, PasswordUtil passwordUtil,
+            SecuritySystem sec, PasswordProvider passwordProvider) {
+        this.mailUtil = mailUtil;
+        this.passwordUtil = passwordUtil;
+        this.sec = sec;
+        this.passwordProvider = passwordProvider;
+    }
+
+    //
+    // CMD API
+    //
+
+    public Map<String, String> getCallContext() {
+        Map<String, String> all = new HashMap<String, String>();
+        all.put("omero.group", "-1");
+        return all;
+    }
+
+    public void init(Helper helper) {
+        this.helper = helper;
+        this.sender = mailUtil.getSender();
+
+        if (omename == null)
+            throw helper.cancel(new ERR(), null, "no-omename");
         if (email == null)
-        	throw helper.cancel(new ERR(), null, "no-email");
-        
-		this.helper.setSteps(1);
-	}
+            throw helper.cancel(new ERR(), null, "no-email");
 
-	public Object step(int step) throws Cancel {
-		helper.assertStep(step);
-		return resetPassword();
-	}
+        this.helper.setSteps(1);
+    }
 
-	@Override
-	public void finish() throws Cancel {
-		// no-op
-	}
+    public Object step(int step) throws Cancel {
+        helper.assertStep(step);
+        return resetPassword();
+    }
 
-	public void buildResponse(int step, Object object) {
-		helper.assertResponse(step);
-		if (helper.isLast(step)) {
-			helper.setResponseIfNull(rsp);
-		}
-	}
+    @Override
+    public void finish() throws Cancel {
+        // no-op
+    }
 
-	public Response getResponse() {
-		return helper.getResponse();
-	}
-	
-	private boolean isDnById(long id) {
+    public void buildResponse(int step, Object object) {
+        helper.assertResponse(step);
+        if (helper.isLast(step)) {
+            helper.setResponseIfNull(rsp);
+        }
+    }
+
+    public Response getResponse() {
+        return helper.getResponse();
+    }
+
+    private boolean isDnById(long id) {
         String dn = passwordUtil.getDnById(id);
         if (dn != null) {
             return true;
@@ -112,59 +116,65 @@ public class ResetPasswordRequestI extends ResetPasswordRequest implements
             return false;
         }
     }
-	
-	private boolean resetPassword() {
 
-		Experimenter e = null;
-    	try {
-        	e = helper.getServiceFactory().getAdminService().lookupExperimenter(omename);
+    private boolean resetPassword() {
+
+        Experimenter e = null;
+        try {
+            e = helper.getServiceFactory().getAdminService()
+                    .lookupExperimenter(omename);
         } catch (ApiUsageException ex) {
-        	throw helper.cancel(new ERR(), null, "unknown-user", "ApiUsageException",
-        			String.format(ex.getMessage()));
+            throw helper.cancel(new ERR(), null, "unknown-user",
+                    "ApiUsageException", String.format(ex.getMessage()));
         }
         if (e.getEmail() == null)
-        	throw helper.cancel(new ERR(), null, "unknown-email", "ApiUsageException",
-        			String.format("User has no email address."));
+            throw helper.cancel(new ERR(), null, "unknown-email",
+                    "ApiUsageException",
+                    String.format("User has no email address."));
         else if (!e.getEmail().equals(email))
-        	throw helper.cancel(new ERR(), null, "not-match", "ApiUsageException",
-        			String.format("Email address does not match."));
+            throw helper.cancel(new ERR(), null, "not-match",
+                    "ApiUsageException",
+                    String.format("Email address does not match."));
         else if (isDnById(e.getId()))
-        	throw helper.cancel(new ERR(), null, "ldap-user", "ApiUsageException",
-        			String.format("User is authenticated by LDAP server "
-        					+ "you cannot reset this password."));
+            throw helper.cancel(new ERR(), null, "ldap-user",
+                    "ApiUsageException", String
+                            .format("User is authenticated by LDAP server "
+                                    + "you cannot reset this password."));
         else {
-        	final String newPassword = passwordUtil.generateRandomPasswd();
-        	// FIXME
-        	// workaround as sec.runAsAdmin doesn't execute with the root context
-        	// helper.getServiceFactory().getAdminService().changeUserPassword(e.getOmeName(), newPassword);
-        	try {
-        		passwordProvider.changePassword(e.getOmeName(), newPassword);
+            final String newPassword = passwordUtil.generateRandomPasswd();
+            // FIXME
+            // workaround as sec.runAsAdmin doesn't execute with the root
+            // context
+            // helper.getServiceFactory().getAdminService().changeUserPassword(e.getOmeName(),
+            // newPassword);
+            try {
+                passwordProvider.changePassword(e.getOmeName(), newPassword);
                 log.info("Changed password for user: " + e.getOmeName());
             } catch (PasswordChangeException pce) {
-            	log.error(pce.getMessage());
-    			throw helper.cancel(new ERR(), null, "password-change-failed", "PasswordChangeException",
+                log.error(pce.getMessage());
+                throw helper.cancel(new ERR(), null, "password-change-failed",
+                        "PasswordChangeException",
                         String.format(pce.getMessage()));
             }
-        	
-        	
-            
-        	String subject = "OMERO - Reset password";
-            String body = "Dear " + e.getFirstName() + " " + e.getLastName() + " ("
-                    + e.getOmeName() + ")" + " your new password is: "
+
+            String subject = "OMERO - Reset password";
+            String body = "Dear " + e.getFirstName() + " " + e.getLastName()
+                    + " (" + e.getOmeName() + ")" + " your new password is: "
                     + newPassword;
-            
+
             try {
-            	mailUtil.sendEmail(sender, e.getEmail(), subject, body, false, null, null);
-    		} catch (MailException me) {
-    			log.error(me.getMessage());
-    			throw helper.cancel(new ERR(), null, "mail-send-failed", "MailException",
-                        String.format(me.getMessage()));
+                mailUtil.sendEmail(sender, e.getEmail(), subject, body, false,
+                        null, null);
+            } catch (MailException me) {
+                log.error(me.getMessage());
+                throw helper.cancel(new ERR(), null, "mail-send-failed",
+                        "MailException", String.format(me.getMessage()));
             }
-            
+
         }
-		
+
         return true;
-        
-	}
-	
+
+    }
+
 }

@@ -32,74 +32,74 @@ import org.testng.annotations.Test;
 @Test(groups = "integration")
 public class SendEmailRequestTest extends AbstractServantTest {
 
-	@Override
-	@BeforeClass
-	protected void setUp() throws Exception {
-		super.setUp();
-	}
-	
-	protected SendEmailResponse assertRequest(
-			final SendEmailRequestI req, Map<String, String> ctx) {
+    @Override
+    @BeforeClass
+    protected void setUp() throws Exception {
+        super.setUp();
+    }
 
-		final Status status = new Status();
+    protected SendEmailResponse assertRequest(final SendEmailRequestI req,
+            Map<String, String> ctx) {
 
-		@SuppressWarnings("unchecked")
-		List<Object> rv = (List<Object>) user.ex.execute(ctx, user
-				.getPrincipal(), new Executor.SimpleWork(this, "testRequest") {
-			@Transactional(readOnly = false)
-			public List<Object> doWork(Session session, ServiceFactory sf) {
+        final Status status = new Status();
 
-				// from HandleI.steps()
-				List<Object> rv = new ArrayList<Object>();
+        @SuppressWarnings("unchecked")
+        List<Object> rv = (List<Object>) user.ex.execute(ctx, user
+                .getPrincipal(), new Executor.SimpleWork(this, "testRequest") {
+            @Transactional(readOnly = false)
+            public List<Object> doWork(Session session, ServiceFactory sf) {
 
-				Helper helper = new Helper((Request) req, status,
-						getSqlAction(), session, sf);
-				req.init(helper);
+                // from HandleI.steps()
+                List<Object> rv = new ArrayList<Object>();
 
-				int j = 0;
-				while (j < status.steps) {
-					try {
-						rv.add(req.step(j));
-					} catch (Cancel c) {
-						throw c;
-					} catch (Throwable t) {
-						throw helper.cancel(new ERR(), t, "bad-step", "step",
-								"" + j);
-					}
-					j++;
-				}
+                Helper helper = new Helper((Request) req, status,
+                        getSqlAction(), session, sf);
+                req.init(helper);
 
-				return rv;
-			}
-		});
+                int j = 0;
+                while (j < status.steps) {
+                    try {
+                        rv.add(req.step(j));
+                    } catch (Cancel c) {
+                        throw c;
+                    } catch (Throwable t) {
+                        throw helper.cancel(new ERR(), t, "bad-step", "step",
+                                "" + j);
+                    }
+                    j++;
+                }
 
-		// Post-process
-		for (int step = 0; step < status.steps; step++) {
-			Object obj = rv.get(step);
-			req.buildResponse(step, obj);
-		}
+                return rv;
+            }
+        });
 
-		Response rsp = req.getResponse();
-		if (rsp instanceof ERR) {
-			fail(rsp.toString());
-		}
+        // Post-process
+        for (int step = 0; step < status.steps; step++) {
+            Object obj = rv.get(step);
+            req.buildResponse(step, obj);
+        }
 
-		return (SendEmailResponse) rsp;
-	}
-	
-	@Test
-	public void testSendEmail() throws Exception {
-		
-		SendEmailRequestI req = new SendEmailRequestI(
-				(MailUtil) user.ctx.getBean("mailUtil"));
-		req.userIds = new ArrayList<Long>(Arrays.asList(0L));
-		req.groupIds = new ArrayList<Long>(Arrays.asList(0L));
-		req.cc = new ArrayList<String>(Arrays.asList("user@mail"));
-		req.bcc = new ArrayList<String>(Arrays.asList("user@mail"));
-		req.subject = "topic";
-		req.body = "text";
-		
-		SendEmailResponse rsp = assertRequest(req, null);
-	}
-	 
+        Response rsp = req.getResponse();
+        if (rsp instanceof ERR) {
+            fail(rsp.toString());
+        }
+
+        return (SendEmailResponse) rsp;
+    }
+
+    @Test
+    public void testSendEmail() throws Exception {
+
+        SendEmailRequestI req = new SendEmailRequestI(
+                (MailUtil) user.ctx.getBean("mailUtil"));
+        req.userIds = new ArrayList<Long>(Arrays.asList(0L));
+        req.groupIds = new ArrayList<Long>(Arrays.asList(0L));
+        req.cc = new ArrayList<String>(Arrays.asList("user@mail"));
+        req.bcc = new ArrayList<String>(Arrays.asList("user@mail"));
+        req.subject = "topic";
+        req.body = "text";
+
+        SendEmailResponse rsp = assertRequest(req, null);
+    }
+
 }
