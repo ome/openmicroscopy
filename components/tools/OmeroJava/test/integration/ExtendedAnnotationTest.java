@@ -92,12 +92,23 @@ public class ExtendedAnnotationTest extends AbstractServerTest {
         assertNotNull(dal);
         
         // retrieval
-        String sql = "select d from Detector as d left outer join fetch d.annotationLinks where d.id = " + detector.getId().getValue();
+        String sql = "select d from Detector as d left outer join fetch d.annotationLinks as link left outer join fetch link.child as child where d.id = " + detector.getId().getValue();
         detector = (Detector) iQuery.findByQuery(sql, null);
         assertNotNull(detector);
         assertTrue(detector.isAnnotated());
-        assertNotNull(detector.linkedAnnotationList());
+        List<DetectorAnnotationLink> listOfLinks = detector.copyAnnotationLinks();
+        assertNotNull(listOfLinks);
+        assertEquals(1, listOfLinks.size());        
+        assertNotNull(listOfLinks.get(0));
+        DetectorAnnotationLink newDal = listOfLinks.get(0);
+        assertNotNull(newDal);
+        assertNotNull(newDal.getChild());
+ 
+        annotation = (CommentAnnotation) newDal.getChild();
+        assertEquals("commentOnDetector", annotation.getTextValue().getValue());
+        
         assertEquals(1, detector.sizeOfAnnotationLinks());        
+        assertNotNull(detector.linkedAnnotationList());
         assertNotNull(detector.linkedAnnotationList().get(0));
         assertNotNull(detector.linkedAnnotationList().get(0).getId());
 
@@ -122,27 +133,6 @@ public class ExtendedAnnotationTest extends AbstractServerTest {
         Instrument instrument = (Instrument) iUpdate
                 .saveAndReturnObject(mmFactory.createInstrument(uuid));
         assertNotNull(instrument);
-
- /*       Filter f = mmFactory.createFilter(500, 560);
-        f.setInstrument((Instrument) instrument.proxy());
-        f = (Filter) iUpdate.saveAndReturnObject(f);
-        assertNotNull(f);
-
-        Dichroic di = mmFactory.createDichroic();
-        di.setInstrument((Instrument) instrument.proxy());
-        di = (Dichroic) iUpdate.saveAndReturnObject(di);
-        assertNotNull(di);
-
-        Objective o = mmFactory.createObjective();
-        o.setInstrument((Instrument) instrument.proxy());
-        o = (Objective) iUpdate.saveAndReturnObject(o);
-        assertNotNull(o);
-
-        Laser l = mmFactory.createLaser();
-        l.setInstrument((Instrument) instrument.proxy());
-        l = (Laser) iUpdate.saveAndReturnObject(l);
-        assertNotNull(l);
-*/
 
         // creation
         Detector detector = mmFactory.createDetector();
@@ -200,5 +190,28 @@ public class ExtendedAnnotationTest extends AbstractServerTest {
                 assertEquals("commentOnDetectorViaiMetadata", theComAnn.getTextValue().getValue());
             }
         }
+    }
 }
-}
+
+
+/*       Filter f = mmFactory.createFilter(500, 560);
+       f.setInstrument((Instrument) instrument.proxy());
+       f = (Filter) iUpdate.saveAndReturnObject(f);
+       assertNotNull(f);
+
+       Dichroic di = mmFactory.createDichroic();
+       di.setInstrument((Instrument) instrument.proxy());
+       di = (Dichroic) iUpdate.saveAndReturnObject(di);
+       assertNotNull(di);
+
+       Objective o = mmFactory.createObjective();
+       o.setInstrument((Instrument) instrument.proxy());
+       o = (Objective) iUpdate.saveAndReturnObject(o);
+       assertNotNull(o);
+
+       Laser l = mmFactory.createLaser();
+       l.setInstrument((Instrument) instrument.proxy());
+       l = (Laser) iUpdate.saveAndReturnObject(l);
+       assertNotNull(l);
+*/
+
