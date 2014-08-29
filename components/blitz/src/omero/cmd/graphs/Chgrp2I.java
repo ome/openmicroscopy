@@ -150,7 +150,7 @@ public class Chgrp2I extends Chgrp2 implements IRequest {
      */
     private final class InternalProcessor extends BaseGraphTraversalProcessor {
 
-        private final Collection<GraphPolicy.Ability> requiredAbilities = ImmutableSet.of(GraphPolicy.Ability.UPDATE);
+        private final Collection<GraphPolicy.Ability> requiredAbilities = ImmutableSet.of(GraphPolicy.Ability.OWN);
 
         public InternalProcessor() {
             super(helper.getSession());
