@@ -333,9 +333,6 @@ public class Factory
 			int w, boolean interpolate)
 	{
 		if (img == null) return null;
-		
-		System.out.println("interpolate "+interpolate);
-		
 		int width = (int) (img.getWidth()*level)+w;
 		int height = (int) (img.getHeight()*level)+w;
 		if (interpolate) {
