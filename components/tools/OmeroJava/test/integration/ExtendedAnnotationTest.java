@@ -71,6 +71,58 @@ public class ExtendedAnnotationTest extends AbstractServerTest {
                 .saveAndReturnObject(mmFactory.createInstrument(uuid));
         assertNotNull(instrument);
 
+        // creation
+        Detector detector = mmFactory.createDetector();
+        detector.setInstrument((Instrument) instrument.proxy());
+        detector = (Detector) iUpdate.saveAndReturnObject(detector);
+        assertNotNull(detector);
+        
+        // updating
+        detector.setManufacturer(omero.rtypes.rstring("OME Inc"));
+        detector = (Detector) iUpdate.saveAndReturnObject(detector);
+        assertNotNull(detector);
+        
+        // Create annotation
+        CommentAnnotation annotation = new CommentAnnotationI();
+        annotation.setTextValue(omero.rtypes.rstring("commentOnDetector"));
+        DetectorAnnotationLink dal = new DetectorAnnotationLinkI();
+        dal.setParent((Detector)detector.proxy());
+        dal.setChild(annotation);
+        dal = (DetectorAnnotationLink) iUpdate.saveAndReturnObject(dal);
+        assertNotNull(dal);
+        
+        // retrieval
+        String sql = "select d from Detector as d left outer join fetch d.annotationLinks where d.id = " + detector.getId().getValue();
+        detector = (Detector) iQuery.findByQuery(sql, null);
+        assertNotNull(detector);
+        assertTrue(detector.isAnnotated());
+        assertNotNull(detector.linkedAnnotationList());
+        assertEquals(1, detector.sizeOfAnnotationLinks());        
+        assertNotNull(detector.linkedAnnotationList().get(0));
+        assertNotNull(detector.linkedAnnotationList().get(0).getId());
+
+        sql = "select a from Annotation as a where a.id = " + detector.linkedAnnotationList().get(0).getId().getValue();
+        annotation = (CommentAnnotation) iQuery.findByQuery(sql, null);
+        assertNotNull(annotation);
+        assertNotNull(annotation.getTextValue());
+        
+        // comparison
+        assertEquals("OME Inc", detector.getManufacturer().getValue());
+        assertEquals("commentOnDetector", annotation.getTextValue().getValue());
+    }
+
+    /**
+     * Test annotations on instrument.
+     * @throws Exception
+     */
+    @Test
+    public void testAnnotationOnDetectorViaMetadata() throws Exception {
+        String uuid = UUID.randomUUID().toString();
+
+        Instrument instrument = (Instrument) iUpdate
+                .saveAndReturnObject(mmFactory.createInstrument(uuid));
+        assertNotNull(instrument);
+
  /*       Filter f = mmFactory.createFilter(500, 560);
         f.setInstrument((Instrument) instrument.proxy());
         f = (Filter) iUpdate.saveAndReturnObject(f);
@@ -105,20 +157,20 @@ public class ExtendedAnnotationTest extends AbstractServerTest {
         
         // Create annotation
         CommentAnnotation annotation = new CommentAnnotationI();
-        annotation.setTextValue(omero.rtypes.rstring("comment"));
-        Annotation ann = (Annotation) iUpdate.saveAndReturnObject(annotation);
+        annotation.setTextValue(omero.rtypes.rstring("commentOnDetectorViaiMetadata"));
         DetectorAnnotationLink dal = new DetectorAnnotationLinkI();
-        dal.setParent(detector);
-        dal.setChild(ann);
+        dal.setParent((Detector)detector.proxy());
+        dal.setChild(annotation);
         dal = (DetectorAnnotationLink) iUpdate.saveAndReturnObject(dal);
-        detector = (Detector) iUpdate.saveAndReturnObject(detector);
+        assertNotNull(dal);
         
         // retrieval
-        String sql = "select d from Detector as d where d.id = " + detector.getId().getValue();
+        String sql = "select d from Detector as d left outer join fetch d.annotationLinks where d.id = " + detector.getId().getValue();
         detector = (Detector) iQuery.findByQuery(sql, null);
         assertTrue(detector.isAnnotated());
-
-        // load the annotations -- HAS TO BE A BETTER WAY
+        assertEquals(1, detector.sizeOfAnnotationLinks());
+        
+        // load the annotations via iMetadata
         List<Long> ids = new ArrayList<Long>();
         Parameters param = new Parameters();
         List<Long> nodes = new ArrayList<Long>();
@@ -132,28 +184,21 @@ public class ExtendedAnnotationTest extends AbstractServerTest {
         List<IObject> l = result.get(detector.getId().getValue());
         assertNotNull(l);
         assertEquals(1,l.size());
+
+
+        // comparison
+        assertEquals("OME Inc", detector.getManufacturer().getValue());
+
         Iterator<IObject> i = l.iterator();
         IObject o;
-
         while (i.hasNext()) {
             o = i.next();
             if (o instanceof CommentAnnotation) {
                 CommentAnnotation theComAnn = (CommentAnnotation) o;
                 
                 assertNotNull(theComAnn);
-                assertEquals("comment", theComAnn.getTextValue().getValue());
-                assertTrue(false);
+                assertEquals("commentOnDetectorViaiMetadata", theComAnn.getTextValue().getValue());
             }
         }
-
-        assertTrue(false);
-//        assertEquals(1, detector.sizeOfAnnotationLinks());
-//        detector.reloadAnnotationLinks(arg0, arg1);
-//        assertNotNull(detector.linkedAnnotationList());
-//        sql = "select a from Annotation as a where a.id = " + detector.linkedAnnotationList().get(0).getId().getValue();
-//        ann = (Annotation) iQuery.findByQuery(sql, null);
-        
-        // comparison
-        assertEquals("OME Inc", detector.getManufacturer().getValue());
-    }
+}
 }
