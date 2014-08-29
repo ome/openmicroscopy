@@ -31,6 +31,7 @@ import java.util.List;
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
+import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
@@ -40,6 +41,7 @@ import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewerFactory;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
+import org.openmicroscopy.shoola.agents.metadata.view.RndSettingsPasted;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -307,6 +309,25 @@ public class MetadataViewerAgent
     }
     
     /**
+     * Handles a {@link CopyRndSettings} event, i. e. passes the image
+     * reference on to the {@link MetadataViewer}s.
+     * @param evt
+     */
+    private void handleCopyRndSettings(CopyRndSettings evt) {
+        MetadataViewerFactory.setRndSettingsToCopy(evt.getImage());
+    }
+    
+    /**
+     * Handles a {@link RndSettingsPasted} event, i. e. notifies 
+     * the {@link MetadataViewer}s to apply the settings of an
+     * previously set image; see also {@link CopyRndSettings}
+     * @param evt
+     */
+    private void handleRndSettingsPasted() {
+        MetadataViewerFactory.applyCopiedRndSettings();
+    }
+    
+    /**
      * Updates the view when the mode is changed.
      * 
      * @param evt The event to handle.
@@ -352,6 +373,8 @@ public class MetadataViewerAgent
         bus.register(this, ChannelSavedEvent.class);
         bus.register(this, DisplayModeEvent.class);
         bus.register(this, RndSettingsCopied.class);
+        bus.register(this, CopyRndSettings.class);
+        bus.register(this, RndSettingsPasted.class);
     }
 
     /**
@@ -395,7 +418,11 @@ public class MetadataViewerAgent
 		else if (e instanceof DisplayModeEvent)
 			handleDisplayModeEvent((DisplayModeEvent) e);
 		else if (e instanceof RndSettingsCopied)
-	            handleRndSettingsCopied((RndSettingsCopied) e);
+	            	handleRndSettingsCopied((RndSettingsCopied) e);
+		else if (e instanceof CopyRndSettings) 
+                   	 handleCopyRndSettings((CopyRndSettings) e);
+		else if (e instanceof RndSettingsPasted) 
+                    	handleRndSettingsPasted();
 	}
 
 }

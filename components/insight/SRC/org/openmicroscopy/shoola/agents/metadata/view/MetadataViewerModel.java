@@ -161,6 +161,9 @@ class MetadataViewerModel
 	
 	/** The active loaders.*/
 	private Map<Integer, MetadataLoader> loaders;
+	
+	/** Reference to an image from which the rnd settings can be copied */
+	private ImageData copyRenderingSettingsFrom;
 
     /**
      * Creates a new context if <code>null</code>.
@@ -933,8 +936,8 @@ class MetadataViewerModel
 	}
 	
 	/**
-	 * Starts an asynchronous call to load the rendering settings
-	 * associated to the image.
+	 * Starts an asynchronous call to load all rendering settings
+	 * associated to the image and triggers the viewedby items creation
 	 */
 	void fireViewedByLoading()
 	{
@@ -952,9 +955,26 @@ class MetadataViewerModel
 		loaderID++;
 		ctx = retrieveContext(img);
 		RenderingSettingsLoader loader = new RenderingSettingsLoader(component,
-				ctx, img.getDefaultPixels().getId(), loaderID);
+				ctx, img.getDefaultPixels().getId(), loaderID, RenderingSettingsLoader.TASK_VIEWEDBY);
 		loaders.put(loaderID, loader);
 		loader.load();
+	}
+	
+	/**
+	 * Starts an asynchronous call to load the rendering settings of
+	 * an image to copy the settings from, and applies the settings to
+	 * the renderer (does not save them).
+	 * See also {@link #setCopyRenderingSettingsFrom(ImageData)}
+	 */
+	void fireLoadRndSettings() {
+	    if(copyRenderingSettingsFrom==null)
+	        return;
+	    
+            RenderingSettingsLoader loader = new RenderingSettingsLoader(component,
+                    ctx, copyRenderingSettingsFrom.getDefaultPixels().getId(), loaderID,
+                    RenderingSettingsLoader.TASK_COPY_PASTE);
+            loaders.put(loaderID, loader);
+            loader.load();
 	}
 	
 	/** Starts an asynchronous retrieval of the thumbnails. */
@@ -1101,4 +1121,16 @@ class MetadataViewerModel
     /** Loads the rendering engine.*/
     void loadRnd() { editor.loadRnd(); }
 
+    /** 
+     * Set the image from which the rendering settings can be copied.
+     * See also {@link #fireLoadRndSettings()}
+     * @param copyRenderingSettingsFrom
+     */
+    public void setCopyRenderingSettingsFrom(ImageData copyRenderingSettingsFrom) {
+        this.copyRenderingSettingsFrom = copyRenderingSettingsFrom;
+    }
+
+    
+
+    
 }

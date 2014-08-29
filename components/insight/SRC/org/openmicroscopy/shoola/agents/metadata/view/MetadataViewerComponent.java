@@ -942,6 +942,7 @@ class MetadataViewerComponent
 		rnd.refresh();
 		rnd.renderPreview();
 	}
+	
 
 	/**
 	 * Implemented as specified by the {@link MetadataViewer} interface.
@@ -1248,4 +1249,22 @@ class MetadataViewerComponent
 	 */
 	public String toString() { return model.getInstanceToSave(); }
 
+	/**
+         * Implemented as specified by the {@link MetadataViewer} interface.
+         * @see MetadataViewer#setRndSettingsToCopy(ImageData)
+         */
+	public void setRndSettingsToCopy(ImageData img) {
+	    model.setCopyRenderingSettingsFrom(img);
+	}
+	
+	/**
+         * Implemented as specified by the {@link MetadataViewer} interface.
+         * @see MetadataViewer#applyCopiedRndSettings()
+         */
+	public void applyCopiedRndSettings() {
+	    if(getRenderer()==null)
+	        return;
+	    
+	    model.fireLoadRndSettings();
+	}
 }

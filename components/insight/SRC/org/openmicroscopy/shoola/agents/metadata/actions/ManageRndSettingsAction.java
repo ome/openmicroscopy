@@ -38,6 +38,7 @@ import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
+import org.openmicroscopy.shoola.agents.metadata.view.RndSettingsPasted;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
@@ -308,6 +309,7 @@ public class ManageRndSettingsAction
     }
 
     private void pasteRndSettings() {
-        // TODO: Implement
+        EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
+        bus.post(new RndSettingsPasted());
     }
 }

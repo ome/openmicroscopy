@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -252,4 +252,25 @@ public class MetadataViewerFactory
 			viewers.remove(comp);
 	}
 	
+	/**
+         * Sets a reference to an image which settings can be applied (copied) to 
+         * the renderer.
+         * See also {@link #applyCopiedRndSettings()}
+         */
+	public static void setRndSettingsToCopy(ImageData img) {
+	    for(MetadataViewer viewer : singleton.viewers) {
+	        viewer.setRndSettingsToCopy(img);
+	    }
+	}
+	
+	/**
+         * Applies the settings of a previous set image to
+         * the renderer (does not save them).
+         * See also {@link #setRndSettingsToCopy(ImageData)}
+         */
+	public static void applyCopiedRndSettings() {
+	    for(MetadataViewer viewer : singleton.viewers) {
+                viewer.applyCopiedRndSettings();
+            }
+	}
 }
