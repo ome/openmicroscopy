@@ -347,10 +347,10 @@ def forgotten_password(request, **kwargs):
                         handle.close()
                     error = "Password was reset. Check your mailbox."
                     form = None
-                except Exception, exp:
-                    logger.error(traceback.format_exc())
+                except omero.CmdError, exp:
+                    logger.error(exp.err)
                     try:
-                        error = exp[0].parameters[exp[0].parameters.keys()[0]]
+                        error = exp.err.parameters[exp.err.parameters.keys()[0]]
                     except:
                         error = exp
     else:
