@@ -549,7 +549,7 @@ def well_name(request):
 
 
 @pytest.fixture(scope='function')
-def multiple_well_by_id_show_request(
+def wells_by_id_show_request(
         request, screen_plate_run_well, request_factory, path, well_name,
         as_string_well_by_name):
     """
@@ -972,13 +972,10 @@ class TestShow(object):
         assert len(show.initially_select) == \
             len(tag_by_textvalue_path_request['initially_select'])
 
-
-    # show.initially_open ['plate-104', 'acquisition-103', u'well-401']
-    # show.initially_select ['acquisition-103', u'well-401']
     def test_multiple_well_by_id(
-            self, conn, multiple_well_by_id_show_request, screen_plate_run_well):
-        show = Show(conn, multiple_well_by_id_show_request['request'], 'usertags')
-        self.assert_instantiation(show, multiple_well_by_id_show_request, conn)
+            self, conn, wells_by_id_show_request, screen_plate_run_well):
+        show = Show(conn, wells_by_id_show_request['request'], 'usertags')
+        self.assert_instantiation(show, wells_by_id_show_request, conn)
 
         plate, = screen_plate_run_well.linkedPlateList()
         well_a, well_b = sorted(plate.copyWells(), cmp_well_column)
@@ -989,12 +986,12 @@ class TestShow(object):
         assert isinstance(first_selected, PlateAcquisitionWrapper)
         assert first_selected.getId() == plate_acquisition.id.val
         assert show.initially_open == \
-            multiple_well_by_id_show_request['initially_open']
+            wells_by_id_show_request['initially_open']
         assert show.initially_open_owner == \
             plate.details.owner.id.val
         assert show._first_selected == first_selected
         assert show.initially_select == \
-            multiple_well_by_id_show_request['initially_select']
+            wells_by_id_show_request['initially_select']
 
     def test_well_by_name(
             self, conn, well_by_name_path_request, screen_plate_well):
