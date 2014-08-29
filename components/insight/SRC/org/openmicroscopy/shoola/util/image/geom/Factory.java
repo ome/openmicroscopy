@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.image.geom.Factory
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -307,21 +307,50 @@ public class Factory
 	}
 
 	/** 
+         * Magnifies the specified {@link BufferedImage}.
+         * 
+         * @param img The buffered image to magnify.
+         * @param level The magnification factor.
+         * @param w Extra space, necessary b/c of the lens option.
+         * @return The magnified image.
+         */
+        public static BufferedImage magnifyImage(BufferedImage img, double level,
+                        int w)
+        {
+                return magnifyImage(img, level, w, true);
+        }
+        
+	/** 
 	 * Magnifies the specified {@link BufferedImage}.
 	 * 
 	 * @param img The buffered image to magnify.
 	 * @param level The magnification factor.
 	 * @param w Extra space, necessary b/c of the lens option.
+	 * @param interpolate Turns interpolation on or off
 	 * @return The magnified image.
 	 */
 	public static BufferedImage magnifyImage(BufferedImage img, double level,
-			int w)
+			int w, boolean interpolate)
 	{
 		if (img == null) return null;
+		
+		System.out.println("interpolate "+interpolate);
+		
 		int width = (int) (img.getWidth()*level)+w;
 		int height = (int) (img.getHeight()*level)+w;
-		ResampleOp  resampleOp = new ResampleOp(width, height);
-		return resampleOp.filter(img, null);
+		if (interpolate) {
+		    ResampleOp  resampleOp = new ResampleOp(width, height);
+                    return resampleOp.filter(img, null);
+		}
+		else {
+		    // Use plain Graphics2D, as ResampleOp apparently doesn't provide an option
+		    // for disabling interpolation
+		    BufferedImage result = new BufferedImage(width, height, img.getType());
+		    Graphics2D g = result.createGraphics();
+		    g.getRenderingHints().add(new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF));
+		    g.drawImage(img, 0, 0, width, height, 0, 0, img.getWidth(), img.getHeight(), null);
+		    return result;
+		}
 	}
 
 	/** 

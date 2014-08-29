@@ -1338,4 +1338,17 @@ public interface ImViewer
      * Reloads the 'saved by' thumbnails of the the rendering panel
      */
     public void reloadRenderingThumbs();
+    
+    /**
+     * Returns if interpolation is enabled or not
+     * @return
+     */
+    public boolean isInterpolation();
+
+    /**
+     * En-/Disables interpolation
+     * 
+     * @param interpolation
+     */
+    public void setInterpolation(boolean interpolation);
 }
