@@ -58,7 +58,7 @@ public class GraphPolicyRule {
     private static final Pattern NEW_TERM_PATTERN =
             Pattern.compile("(\\w+\\:)?(\\!?[\\w]+)?(\\[\\!?[EDIO]+\\])?(\\{\\!?[iroa]+\\})?(\\/\\!?[udo]+)?");
     private static final Pattern EXISTING_TERM_PATTERN = Pattern.compile("(\\w+)");
-    private static final Pattern CHANGE_PATTERN = Pattern.compile("(\\w+\\:)(\\[[EDIO\\*]\\])?(\\{[iroa]\\})?");
+    private static final Pattern CHANGE_PATTERN = Pattern.compile("(\\w+\\:)(\\[[EDIO\\*]\\])?(\\{[iroa]\\})?(\\/n)?");
 
     private List<String> matches = Collections.emptyList();
     private List<String> changes = Collections.emptyList();
