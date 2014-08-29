@@ -143,14 +143,14 @@ class Connector
     private ServiceFactoryPrx entryUnencrypted;
 
     /** Collection of stateless services to prevent re-lookup */
-    private final ConcurrentHashMap<String, ServiceInterfacePrx> statelessServices;
+    private final Map<String, ServiceInterfacePrx> statelessServices;
 
     /** Collection of stateful services to prevent re-lookup.
      * {@link RenderingEnginePrx} and {@link OMEROMetadataStoreClient}
      * instances are stored separately */
     private final Multimap<String, StatefulServiceInterfacePrx> statefulServices;
 
-    private final ConcurrentHashMap<OMEROMetadataStoreClient, String> importStores;
+    private final Map<OMEROMetadataStoreClient, String> importStores;
 
     /** Collection of services to keep alive. */
     private final Multimap<Long, RenderingEnginePrx> reServices;
