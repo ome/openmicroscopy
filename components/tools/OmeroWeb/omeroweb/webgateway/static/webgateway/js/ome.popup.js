@@ -229,6 +229,30 @@ OME.get_tree_selection = function() {
 };
 
 
+// we need to know parent for Channels or Rdefs 'apply to all'
+OME.getParentId = function() {
+    if (typeof $.jstree === "undefined") {
+        return;
+    }
+    var datatree = $.jstree._focused();
+    if (!datatree) return;
+    var sel = datatree.data.ui.selected,
+        result;
+    var p = /^(plate-[0-9]+)$/;
+    if (p.test(sel.attr('id'))) {
+        return sel.attr('id');
+    }
+    var parent = sel.parent().parent(),
+        parent_id = parent.attr('id');
+    if (p.test(parent_id)) {
+        return parent_id;
+    }
+    if (/^dataset-([0-9]+)$/.test(parent_id)) {
+        return parent_id;
+    }
+};
+
+
 /*
  * Confirm dialog using jquery-ui dialog. http://jqueryui.com/demos/dialog/
  * This code provides a short-cut that doens't need html elements on the page
