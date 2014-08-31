@@ -158,7 +158,7 @@ public class SendEmailRequestI extends SendEmailRequest implements IRequest {
 
         sql.append("select distinct e from Experimenter e "
                 + "left outer join fetch e.groupExperimenterMap m "
-                + "left outer join fetch m.parent g " + "where 1=1 ");
+                + "left outer join fetch m.parent g where 1=1 ");
 
         if (!inactive) {
             sql.append(" and g.id = :active ");

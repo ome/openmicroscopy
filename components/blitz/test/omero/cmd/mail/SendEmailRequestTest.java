@@ -44,7 +44,7 @@ public class SendEmailRequestTest extends AbstractServantTest {
         @SuppressWarnings("unchecked")
         List<Object> rv = (List<Object>) user.ex.execute(ctx, user
                 .getPrincipal(), new Executor.SimpleWork(this, "testRequest") {
-            @Transactional(readOnly = false)
+            @Transactional(readOnly = true)
             public List<Object> doWork(Session session, ServiceFactory sf) {
 
                 // from HandleI.steps()

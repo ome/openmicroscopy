@@ -272,7 +272,6 @@
               <prop key="mail.smtp.auth">${omero.mail.smtp.auth}</prop>
               <prop key="mail.smtp.debug">${omero.mail.smtp.debug}</prop>
               <prop key="mail.smtp.connectiontimeout">${omero.mail.smtp.connectiontimeout}</prop>
-              <prop key="mail.smtp.timeout">${omero.mail.smtp.timeout}</prop>
               <prop key="mail.smtp.starttls.enable">${omero.mail.smtp.starttls.enable}</prop>
               <prop key="mail.smtp.socketFactory.port">${omero.mail.smtp.socketFactory.port}</prop>
               <prop key="mail.smtp.socketFactory.class">${omero.mail.smtp.socketFactory.class}</prop>

@@ -79,13 +79,17 @@ public class MailUtil {
                 message.setFrom(from);
                 message.setSubject(topic);
                 message.setTo(to);
-                if (null != ccrecipients && !ccrecipients.isEmpty())
+                if (ccrecipients != null && !ccrecipients.isEmpty()) {
                     message.setCc(ccrecipients.toArray(new String[ccrecipients
                             .size()]));
-                if (null != bccrecipients && !bccrecipients.isEmpty())
+                }
+
+                if (bccrecipients != null && !bccrecipients.isEmpty()) {
                     message.setCc(bccrecipients
                             .toArray(new String[bccrecipients.size()]));
-                message.setText(body, html);
+                    message.setText(body, html);
+                }
+
             }
 
         };

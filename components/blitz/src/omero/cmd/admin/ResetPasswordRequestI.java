@@ -125,7 +125,7 @@ public class ResetPasswordRequestI extends ResetPasswordRequest implements
                     .lookupExperimenter(omename);
         } catch (ApiUsageException ex) {
             throw helper.cancel(new ERR(), null, "unknown-user",
-                    "ApiUsageException", String.format(ex.getMessage()));
+                    "ApiUsageException", ex.getMessage());
         }
         if (e.getEmail() == null)
             throw helper.cancel(new ERR(), null, "unknown-email",
