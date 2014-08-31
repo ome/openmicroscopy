@@ -138,8 +138,8 @@ public class ResetPasswordRequestI extends ResetPasswordRequest implements
         else if (isDnById(e.getId()))
             throw helper.cancel(new ERR(), null, "ldap-user",
                     "ApiUsageException", String
-                            .format("User is authenticated by LDAP server "
-                                    + "you cannot reset this password."));
+                            .format("User is authenticated by LDAP server. "
+                                    + "You cannot reset this password."));
         else {
             final String newPassword = passwordUtil.generateRandomPasswd();
             // FIXME
