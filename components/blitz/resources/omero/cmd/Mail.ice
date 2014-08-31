@@ -29,14 +29,14 @@ module omero {
          * 
          * examples:
          *  - omero.cmd.SendEmailRequest(subject, body)
-         * 		sends message to everyone who has email set 
-         * 		and is an active user
+         *		sends message to everyone who has email set
+         *		and is an active user
          *  - omero.cmd.SendEmailRequest(subject, body, inactive)
-         * 		sends message to everyone who has email set,
+         *		sends message to everyone who has email set,
          *		even inactive users
-         *  - omero.cmd.SendEmailRequest(subject, body, groupIds=[...], 
-         *												userIds=[...] )
-         * 		sends email to active members of given groups and selected users 
+         *  - omero.cmd.SendEmailRequest(subject, body, groupIds=[...],
+         *		userIds=[...] )
+         *		sends email to active members of given groups and selected users
          * 	- CC and BCC parameters: cc=[...], bcc=[...]
          **/
          class SendEmailRequest extends Request {

@@ -5,7 +5,7 @@
 #
 # $Id$
 #
-# Copyright 2006, 2014 University of Dundee. All rights reserved.
+# Copyright 2006-2014 University of Dundee. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -279,7 +279,7 @@
               <prop key="mail.smtp.socketFactory.fallback">${omero.mail.smtp.socketFactory.fallback}</prop>
               <prop key="mail.smtp.timeout">${omero.mail.smtp.timeout}</prop>
           </props>
-		</constructor-arg>
+      </constructor-arg>
       <constructor-arg ref="smtpAuthenticator" />
   </bean>
   

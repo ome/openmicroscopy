@@ -388,7 +388,7 @@
      <constructor-arg ref="/OMERO/Pixels"/>
      <property name="iceCommunicator" ref="Ice.Communicator"/>
   </bean>
- 
+
   <!-- Other data objects
   ==============================================================================
   -->

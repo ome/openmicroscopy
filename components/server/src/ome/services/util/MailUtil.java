@@ -1,6 +1,4 @@
 /*
- *  $Id$
- *  
  *   Copyright 2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -55,9 +53,9 @@ public class MailUtil {
      * and populate the given new MimeMessage instance and send.
      * 
      * @param from
-     *            email address message is send from
+     *            email address message is sent from
      * @param to
-     *            email address message is send to
+     *            email address message is sent to
      * @param topic
      *            topic of the message
      * @param body
@@ -65,9 +63,9 @@ public class MailUtil {
      * @param html
      *            flag determines the content type to apply.
      * @param ccrecipients
-     *            list of email addresses message is send as copy to
+     *            list of email addresses message is sent as copy to
      * @param bccrecipients
-     *            list of email addresses message is send as blind copy to
+     *            list of email addresses message is sent as blind copy to
      */
     public void sendEmail(final String from, final String to,
             final String topic, final String body, final boolean html,

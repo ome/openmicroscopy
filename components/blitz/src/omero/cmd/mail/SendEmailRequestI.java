@@ -89,7 +89,7 @@ public class SendEmailRequestI extends SendEmailRequest implements IRequest {
         this.bccrecipients = parseBccRecipients();
 
         if (rsp.invalidusers.isEmpty() && this.recipients.isEmpty())
-            throw helper.cancel(new ERR(), null, "no-recipiest");
+            throw helper.cancel(new ERR(), null, "no-recipients");
 
         if (this.recipients.isEmpty())
             this.helper.setSteps(1);
