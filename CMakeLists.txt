@@ -126,3 +126,11 @@ endif(NOT EXISTS ${PROJECT_SOURCE_DIR}/components/blitz/generated/omero/model/Im
 
 add_subdirectory(components/tools/OmeroCpp)
 add_subdirectory(examples)
+
+set(LIBRARY_PREFIX OME)
+configure_file(${PROJECT_SOURCE_DIR}/components/bioformats/cpp/cmake/TemplateShellConfig.cmake.in
+               ${PROJECT_BINARY_DIR}/config)
+if(WIN32)
+configure_file(${PROJECT_SOURCE_DIR}/components/bioformats/cpp/cmake/TemplateCmdConfig.cmake.in
+               ${PROJECT_BINARY_DIR}/config.bat)
+endif()
