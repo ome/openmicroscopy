@@ -18,7 +18,7 @@
 */
 
         .usageBy.selected {
-            text-decoration: underline;
+            border: solid red 1px;
         }
         .legendLabel {
             font-size: 16px;
@@ -58,4 +58,15 @@
             position: absolute;
             top: 10px;
             right: 10px;
+        }
+        .usageBy {
+          border-radius: 3px !important;
+          margin-left: 6px !important;
+          font-size: 95% !important;
+        }
+
+        .hlabel {
+          float:left;
+          position:relative;
+          top:7px;
         }

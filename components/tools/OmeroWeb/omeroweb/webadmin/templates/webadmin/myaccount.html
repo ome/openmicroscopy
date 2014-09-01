@@ -193,7 +193,7 @@
             });
 
             $(".usageByGroup").click(function() {
-              $(".usageByGroup").removeClass('selected');
+              $(".usageBy").removeClass('selected');
               $(this).addClass('selected');
               var gid = $(this).attr("data-groupid");
               var url = "{% url 'waindex' %}" + "drivespace_json/group/" + gid +"/";
@@ -205,7 +205,7 @@
               });
             });
             $("#myUsage").click(function() {
-              $(".usageByGroup").removeClass('selected');
+              $(".usageBy").removeClass('selected');
               $(this).addClass('selected');
               var url = "{% url 'waloaddrivespace_user' experimenter.id %}";
               plotJson(url, {
@@ -368,15 +368,21 @@
 
         {% if ownedGroups %}
             <h1>
-                Personal Usage:
-                <a id="myUsage" class="usageBy" href="#">{{ ome.user.getFullName }}</a>
+                <div class='hlabel'>Personal Usage:</div>
+                <div class="tag">
+                  <a id="myUsage" class="usageBy tag_inner selected" href="#">{{ ome.user.getFullName }}</a>
+                </div>
             </h1>
-              <h1>
-                Usage by Groups I own:
-                {% for group in ownedGroups %}
-                  <a class="usageByGroup usageBy" href="#" data-groupid="{{ group.id }}">{{ group.name }}</a> |
-                {% endfor %}
+            <div style="clear:both"></div>
+            <h1>
+              <div class='hlabel'>Group Usage (where owned):</div>
+              {% for group in ownedGroups %}
+                <div class="tag">
+                  <a class="usageByGroup tag_inner usageBy" href="#" data-groupid="{{ group.id }}">{{ group.name }}</a>
+                </div>
+              {% endfor %}
             </h1>
+            <div style="clear:both"></div>
             <hr>
         {% endif %}
 
