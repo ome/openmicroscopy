@@ -410,25 +410,31 @@
 
 	<condition property="ice.slicepath" value="${ice.home}/slice">
 	    <available file="${ice.home}/slice" type="dir"/>
-        </condition>
+	</condition>
 	<condition property="ice.slicepath" value="/usr/local/share/Ice-${executable.ice.version}/slice">
 	    <available file="/usr/local/share/Ice-${executable.ice.version}/slice" type="dir"/>
-        </condition>
+	</condition>
 	<condition property="ice.slicepath" value="/usr/share/Ice-${executable.ice.version}/slice">
 	    <available file="/usr/share/Ice-${executable.ice.version}/slice" type="dir"/>
-        </condition>
+	</condition>
 	<condition property="ice.slicepath" value="/usr/local/share/Ice-${executable.ice.shortversion}/slice">
 	    <available file="/usr/local/share/Ice-${executable.ice.shortversion}/slice" type="dir"/>
-        </condition>
+	</condition>
 	<condition property="ice.slicepath" value="/usr/share/Ice-${executable.ice.shortversion}/slice">
 	    <available file="/usr/share/Ice-${executable.ice.shortversion}/slice" type="dir"/>
-        </condition>
+	</condition>
 	<condition property="ice.slicepath" value="/usr/local/share/Ice/slice">
 	    <available file="/usr/local/share/Ice/slice" type="dir"/>
-        </condition>
+	</condition>
 	<condition property="ice.slicepath" value="/usr/share/Ice/slice">
 	    <available file="/usr/share/Ice/slice" type="dir"/>
-        </condition>
+	</condition>
+	<condition property="ice.slicepath" value="/usr/local/share/Ice">
+	    <available file="/usr/local/share/Ice" type="dir"/>
+	</condition>
+	<condition property="ice.slicepath" value="/usr/share/Ice">
+	    <available file="/usr/share/Ice" type="dir"/>
+	</condition>
 	<property name="ice.slicepath" value="/ice_home_is_unset_or_invalid"/>
 
         <!--
