@@ -5,7 +5,6 @@
 
 package ome.services.util;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.mail.internet.MimeMessage;
@@ -77,6 +76,7 @@ public class MailUtil {
             public void prepare(MimeMessage mimeMessage) throws Exception {
 
                 MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
+                message.setText(body, html);
                 message.setFrom(from);
                 message.setSubject(topic);
                 message.setTo(to);
@@ -88,9 +88,7 @@ public class MailUtil {
                 if (bccrecipients != null && !bccrecipients.isEmpty()) {
                     message.setCc(bccrecipients
                             .toArray(new String[bccrecipients.size()]));
-                    message.setText(body, html);
                 }
-
             }
 
         };
