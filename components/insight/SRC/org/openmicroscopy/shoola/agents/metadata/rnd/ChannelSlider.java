@@ -274,8 +274,6 @@ class ChannelSlider
     	if (channelSelection == null) return;
     	channelSelection.setSelected(model.isChannelActive(getIndex()));
     	channelSelection.setColor(model.getChannelColor(getIndex()));
-    	channelSelection.setGrayedOut(
-				 Renderer.GREY_SCALE_MODEL.equals(model.getColorModel()));
     }
     
 	/**

@@ -819,14 +819,12 @@ public class DomainPane
         if (active == null) return;
         int index;
         int c = model.getSelectedChannel();
-        boolean gs = model.isGreyScale();
         while (i.hasNext()) {
 			btn = i.next();
 			index = btn.getChannelIndex();
 			btn.setSelected(active.contains(index));
 			if (index == c && !model.isGeneralIndex()) 
 				btn.setBorder(SELECTION_BORDER);
-			btn.setGrayedOut(gs);
 			btn.setColor(model.getChannelColor(index));
 		}
     }
@@ -857,12 +855,10 @@ public class DomainPane
     {
     	Iterator<ChannelButton> i = channelList.iterator();
     	ChannelButton btn;
-    	boolean gs = model.isGreyScale();
     	while (i.hasNext()) {
 			btn = i.next();
 			if (index == btn.getChannelIndex()) {
 				 btn.setColor(model.getChannelColor(index));
-				 if (gs) btn.setGrayedOut(gs);
 			}
 		}
     	graphicsPane.setChannelColor(index);
@@ -873,14 +869,12 @@ public class DomainPane
     void setColorModelChanged() 
     {
         ChannelButton btn;
-        boolean gs = model.isGreyScale();
         int index;
         int selected = model.getSelectedChannel();
         for (int i = 0 ; i < channelList.size() ; i++) {
             btn = channelList.get(i);
             index = btn.getChannelIndex();
             btn.setColor(model.getChannelColor(index));
-            btn.setGrayedOut(gs);
             btn.setSelected(model.isChannelActive(index));
             if (index == selected && !model.isGeneralIndex()) 
             	btn.setBorder(SELECTION_BORDER);

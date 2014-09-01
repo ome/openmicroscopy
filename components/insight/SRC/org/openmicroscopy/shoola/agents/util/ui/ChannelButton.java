@@ -185,7 +185,6 @@ public class ChannelButton
             if(trimEnd)
                 s += UIUtilities.DOTS;
             super.setText(s);
-            System.out.println("before="+text+" after="+s);
             //reset text
             width = fm.stringWidth(s);
             d = new Dimension(width+10, DEFAULT_MIN_SIZE.height);
