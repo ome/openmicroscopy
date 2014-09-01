@@ -23,10 +23,10 @@ if (typeof OME === "undefined") {
     OME = {};
 }
 
-// Not ideal to use js for this, but...
+// Use userAgent to detect mobile devices
 // from http://stackoverflow.com/questions/3514784/what-is-the-best-way-to-detect-a-handheld-device-in-jquery
 OME.isMobileDevice = function() {
-    return (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Silk/i).test(navigator.userAgent);
+    return (/Android|webOS|iPhone|iPad|iPod|BlackBerry|PlayBook|IEMobile|Opera Mini|Mobile Safari|Silk/i).test(navigator.userAgent)
 };
 
 Number.prototype.filesizeformat = function () {
