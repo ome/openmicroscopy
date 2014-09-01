@@ -447,6 +447,8 @@ module omero {
              * returned which can be watched for knowing when the server-side import
              * is complete.
              *
+             * Client paths set in the fileset entries must /-separate their components.
+             *
              * Once the upload is complete, the [ImportProcess] must be closed.
              * Once [omero::cmd::Handle::getResponse] returns a non-null value, the
              * handle instance can and must be closed.
@@ -494,6 +496,30 @@ module omero {
              * the server, or return null if none of them are supported.
              */
             omero::model::ChecksumAlgorithm suggestChecksumAlgorithm(omero::api::ChecksumAlgorithmList supported);
+
+            /**
+             * Verify the checksum for the original files identified by
+             * the given IDs.
+             * The files must be in this repository.
+             * Returns the IDs of the original files whose checksums
+             * do not match the file on disk.
+             */
+            omero::api::LongList verifyChecksums(omero::api::LongList ids)
+                throws ServerError;
+
+            /**
+             * Set the checksum algorithm for the original files identified
+             * by the given IDs and calculate their checksum accordingly.
+             * The files must be in this repository.
+             * Existing checksums are checked before being changed.
+             * If a checksum does not match, ServerError will be thrown;
+             * in this case some other files may already have had their
+             * checksum algorithm set.
+             * Returns the IDs of the original files that did not already
+             * have a checksum set for the given algorithm.
+             */
+            omero::api::LongList setChecksumAlgorithm(omero::model::ChecksumAlgorithm hasher, omero::api::LongList ids)
+                throws ServerError;
         };
 
         /**

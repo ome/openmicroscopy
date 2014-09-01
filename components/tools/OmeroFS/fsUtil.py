@@ -19,7 +19,7 @@ def monitorPackage():
     # At the moment a limited subset of platforms is checked for:
     #     * Mac OS 10.5 or higher
     #     * Linux kernel 2.6 then .13 or higher or kernel 3.x.y
-    #     * Windows: XP, 2003Server, 2008Server, Vista, and 7
+    #     * Windows: XP, 2003Server, 2008Server, 2008ServerR2, Vista, and 7
     #
     # Some fine-tuning may need to be applied, some additional Windows platforms added.
     # If any platform-specific stuff in the imported library fails an exception will be
@@ -32,6 +32,7 @@ def monitorPackage():
                   'WIN_XP'                 : 'fsWin-XP-Monitor',
                   'WIN_2003Server'         : 'fsWin-XP-Monitor',
                   'WIN_2008Server'         : 'fsWin-XP-Monitor',
+                  'WIN_2008ServerR2'       : 'fsWin-XP-Monitor',
                   'WIN_Vista'              : 'fsWin-XP-Monitor',
                   'WIN_7'                  : 'fsWin-XP-Monitor',
                 }
@@ -82,12 +83,14 @@ def monitorPackage():
             current = 'WIN_2003Server'
         elif version[1] == '2008Server':
             current = 'WIN_2008Server'
+        elif version[1] == '2008ServerR2':
+            current = 'WIN_2008ServerR2'
         elif version[1] == 'Vista':
             current = 'WIN_Vista'
         elif version[1] == '7':
             current = 'WIN_7'
         else:
-            errorString = "Windows XP, Vista, 7, 2003Server or 2008Server required. You have: %s" % platform.platform()
+            errorString = "Windows XP, Vista, 7 or Server 2003, 2008 or 2008R2 required. You have: %s" % platform.platform()
 
     # Unknown OS.
     else:

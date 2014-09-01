@@ -444,17 +444,17 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     </target>
 
     <target name="release-cpp" depends="build-cpp" description="Package built C++ library, headers and examples">
-        <zip destfile="${omero.home}//target/OMERO.cpp-${omero.version}-${os.name}-${os.version}-${os.arch}.zip">
-            <zipfileset dir="${target.dir}/OMERO.cpp-${omero.version}-${os.name}-${os.version}-${os.arch}" prefix="/target/OMERO.cpp-${omero.version}-${os.name}-${os.version}-${os.arch}"/>
+        <zip destfile="${omero.home}//target/OMERO.cpp-${omero.version}-${platform}.zip">
+            <zipfileset dir="${target.dir}/OMERO.cpp-${omero.version}-${platform}" prefix="/target/OMERO.cpp-${omero.version}-${platform}"/>
         </zip>
     </target>
 
-    <target name="release-src-embed" description="Package the release source tree into openmicroscopy-${omero.plainversion}.zip (not functional)"
+    <target name="release-src-embed" description="Package the release source tree (non-git)"
             depends="check-git" unless="git.exists">
          <fail message="Releasing is only possible from a git repository"/>
     </target>
 
-    <target name="release-src-git" description="Package the git source tree into openmicroscopy-${omero.plainversion}.zip"
+    <target name="release-src-git" description="Package the git source tree (git)"
             depends="check-git" if="git.exists">
         <mkdir dir="${target.dir}"/>
         <exec executable="python" failonerror="true">
@@ -462,12 +462,16 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <arg value="openmicroscopy"/>
             <arg value="${omero.shortversion}"/>
             <arg value="${omero.plainversion}"/>
+            <arg value="${omero.vcs.revision}"/>
+            <arg value="${omero.vcs.date}"/>
             <arg value="components/antlib/resources/gitversion.xml"/>
+            <arg value="components/tools/OmeroCpp/cmake/GitVersion.cmake"/>
             <arg value="${target.dir}"/>
         </exec>
     </target>
 
-    <target name="release-src" depends="release-src-embed,release-src-git"/>
+    <target name="release-src" description="Package the git source tree into openmicroscopy-${omero.plainversion}.zip"
+            depends="release-src-embed,release-src-git"/>
 
     <target name="release-clients" description="Zip the Python, Java, and Matlab zips">
         <zip destfile="${omero.home}/target/OMERO.py-${omero.version}.zip">
@@ -651,7 +655,8 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                 windowtitle="OMERO (OME Remote Objects) Server"
                 overview="target/docs/overview.html"
                 stylesheetfile="docs/javadocsstyle.css"
-                useexternalfile="true">
+                useexternalfile="true"
+                additionalparam="${javadoc.doclint}">
 
                 <classpath>
                     <fileset dir="lib">

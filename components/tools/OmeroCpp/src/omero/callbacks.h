@@ -49,10 +49,6 @@ namespace omero {
 
     namespace callbacks {
 
-        const std::string FINISHED = "FINISHED";
-        const std::string CANCELLED = "CANCELLED";
-        const std::string KILLED = "KILLED";
-        
         // TODO: use shared_ptr instead of Ice handle
         
         // This wrapper allows for having two different destructors for callbacks
@@ -387,8 +383,8 @@ namespace omero {
 
         };
 
-    };
-};
+    }
+}
 
 
 #endif // OMERO_CALLBACKS_H

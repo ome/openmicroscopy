@@ -301,6 +301,16 @@ public class ImportEvent {
         }
     }
 
+    public static class IMPORT_SUMMARY extends ImportEvent {
+        public final long importTime;
+        public final int errorCount;
+
+        public IMPORT_SUMMARY(long importTime, int errorCount) {
+            this.importTime = importTime;
+            this.errorCount = errorCount;
+        }
+    }
+
     // count-events
 
     public static class LOADING_IMAGE extends COUNT_EVENT {

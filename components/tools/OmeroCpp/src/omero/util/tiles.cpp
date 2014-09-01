@@ -17,30 +17,30 @@ namespace omero {
         //
 
         TileLoopIteration::TileLoopIteration() {
-        };
+        }
 
         TileLoopIteration::~TileLoopIteration() {
-        };
+        }
 
         //
         // TileData
         //
 
         TileData::TileData() {
-        };
+        }
 
         TileData::~TileData() {
-        };
+        }
 
         //
         // TileLoop
         //
 
         TileLoop::TileLoop() {
-        };
+        }
 
         TileLoop::~TileLoop() {
-        };
+        }
 
         int TileLoop::forEachTile(int sizeX, int sizeY, int sizeZ, int sizeT, int sizeC,
                                   int tileHeight, int tileWidth, const TileLoopIterationPtr& iteration) {
@@ -83,7 +83,7 @@ namespace omero {
 
             }
             return tileCount;
-        };
+        }
 
         //
         // RPSTileData
@@ -91,10 +91,10 @@ namespace omero {
 
         RPSTileData::RPSTileData(const RPSTileLoopPtr& loop,
                                  const omero::api::RawPixelsStorePrx& rps) : TileData(), loop(loop), rps(rps) {
-        };
+        }
 
         RPSTileData::~RPSTileData() {
-        };
+        }
 
         Ice::ByteSeq RPSTileData::getTile(int z, int c, int t, int x, int y, int w, int h) {
             return rps->getTile(z, c, t, x, y, w, h);
@@ -121,28 +121,28 @@ namespace omero {
                 throw omero::ClientError(__FILE__, __LINE__, "pixels instance must be managed!");
             }
 
-        };
+        }
 
         RPSTileLoop::~RPSTileLoop() {
-        };
+        }
 
         omero::model::PixelsPtr RPSTileLoop::getPixels() {
             return this->pixels;
-        };
+        }
 
         void RPSTileLoop::setPixels(const omero::model::PixelsPtr& pixels) {
             this->pixels = pixels;
-        };
+        }
 
         TileDataPtr RPSTileLoop::createData() {
             omero::api::RawPixelsStorePrx rps = getSession()->createRawPixelsStore();
             rps->setPixelsId(getPixels()->getId()->getValue(), false); // 'false' is ignored here.
             return new RPSTileData(this, rps);
-        };
+        }
 
         omero::api::ServiceFactoryPrx RPSTileLoop::getSession() {
             return session;
-        };
+        }
 
         int RPSTileLoop::forEachTile(int tileHeight, int tileWidth, const TileLoopIterationPtr& iteration) {
 
@@ -157,8 +157,8 @@ namespace omero {
             int sizeT = pixels->getSizeT()->getValue();
 
             return TileLoop::forEachTile(sizeX, sizeY, sizeZ, sizeT, sizeC, tileWidth, tileHeight, iteration);
-        };
+        }
 
-    };
-};
+    }
+}
 

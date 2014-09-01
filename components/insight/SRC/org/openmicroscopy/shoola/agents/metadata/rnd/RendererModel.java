@@ -165,6 +165,9 @@ class RendererModel
     /** The rendering settings. */
     private RndProxyDef rndDef;
 
+    /** Keeps track of the changes to the rendering settings */
+    private RenderingDefinitionHistory history = new RenderingDefinitionHistory();
+    
     /** Reference to the image. */
     private ImageData image;
 
@@ -220,7 +223,10 @@ class RendererModel
 	void setRenderingControl(RenderingControl rndControl)
 	{
 		this.rndControl = rndControl;
-		if (rndControl != null) rndDef = rndControl.getRndSettingsCopy();
+		if (rndControl != null) {
+		    rndDef = rndControl.getRndSettingsCopy();
+		    history.reset();
+		}
 	}
 
 	/**
@@ -848,7 +854,7 @@ class RendererModel
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (rndControl == null) return;
-		rndControl.saveCurrentSettings();
+		rndDef = rndControl.saveCurrentSettings();
 	}
 
 	/**
@@ -864,6 +870,13 @@ class RendererModel
 		return rndControl.isActive(w);
 	}
 
+	/**
+         * Returns the reference to the history
+         */
+	RenderingDefinitionHistory getRndDefHistory() {
+	    return history;
+	}
+	
 	/**
 	 * Returns a list of active channels.
 	 * 
@@ -947,6 +960,7 @@ class RendererModel
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (rndControl == null) return;
+		makeHistorySnapshot();
 		rndControl.setModel(colorModel);
 	}
 
@@ -1240,9 +1254,53 @@ class RendererModel
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (rndControl == null) return null;
-		return rndControl.saveCurrentSettings();
+		RndProxyDef def = rndControl.saveCurrentSettings();
+		rndDef = def;
+		return def;
 	}
+	
+	/**
+	 * Undoes the last change to the rendering settings
+	 * @throws RenderingServiceException
+	 * @throws DSOutOfServiceException
+	 */
+	void historyBack() throws RenderingServiceException, DSOutOfServiceException {
+	        if (rndControl == null)
+	            return;
+	        
+                RndProxyDef def;
+                boolean canRedo = history.canRedo();
+                boolean isSame = rndControl.isSameSettings(history.getCurrent(), true, true);
+                if (!canRedo && !isSame)
+                    def = history.backward(rndControl.getRndSettingsCopy());
+                else
+                    def = history.backward();
+                
+                resetSettings(def);
+	}
+	
+	/**
+	 * Redoes the previous change to the rendering settings
+	 * @throws RenderingServiceException
+	 * @throws DSOutOfServiceException
+	 */
+	void historyForward() throws RenderingServiceException, DSOutOfServiceException {
+	        RndProxyDef def = history.forward();
+                resetSettings(def);
+        }
 
+	/**
+	 * Stores the current rendering settings in the history
+	 */
+	void makeHistorySnapshot() {
+	        if (rndControl != null ) {
+	            if (history.getCurrent()==null || !rndControl.isSameSettings(history.getCurrent(), true))
+	                history.add(rndControl.getRndSettingsCopy());
+	            else 
+	                history.resetPrevAction();
+	        }
+	}
+	
 	/**
 	 * Turns on or off the specified channel.
 	 *
@@ -1347,6 +1405,19 @@ class RendererModel
 	{
 		if (rndControl == null) return false;
 		return rndControl.isSameSettings(def, checkPlane);
+	}
+	
+       /**
+        * Returns <code>true</code> if the rendering settings 
+        * have been modified
+        *
+        * @return See above.
+        */
+	boolean isModified() {
+	    if(rndControl!=null) {
+	        return !rndControl.isSameSettings(rndDef, true);
+	    }
+	    return false;
 	}
 
     /**

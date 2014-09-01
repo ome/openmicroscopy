@@ -725,6 +725,19 @@ public interface RenderingControl
     public List<Integer> getActiveChannels();
     
     /**
+     * Returns <code>true</code> if the passed rendering settings are the same
+     * than the current one <code>false</code> otherwise.
+     * 
+     * @param def            The original settings. Mustn't be <code>null</code>.
+     * @param checkPlane Pass <code>true</code> to take into account 
+     *                                       the z-section and time-point, <code>false</code> 
+     *                                       otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isSameSettings(RndProxyDef def, boolean checkPlane);
+    
+    /**
 	 * Returns <code>true</code> if the passed rendering settings are the same
 	 * than the current one <code>false</code> otherwise.
 	 * 
@@ -732,10 +745,12 @@ public interface RenderingControl
 	 * @param checkPlane Pass <code>true</code> to take into account 
 	 * 					 the z-section and time-point, <code>false</code> 
 	 * 					 otherwise.
+	 * @param checkInactiveChannels <code>true</code>: all channels will be checked for changes; just
+	 *                                     active channels otherwise
 	 * 
 	 * @return See above.
 	 */
-    public boolean isSameSettings(RndProxyDef def, boolean checkPlane);
+    public boolean isSameSettings(RndProxyDef def, boolean checkPlane, boolean checkInactiveChannels);
 
     /**
      * Returns the id of the pixels set.

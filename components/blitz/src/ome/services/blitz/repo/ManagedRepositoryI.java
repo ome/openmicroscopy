@@ -51,7 +51,6 @@ import ome.model.core.OriginalFile;
 import ome.model.meta.Experimenter;
 import ome.services.blitz.gateway.services.util.ServiceUtilities;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
-import ome.services.blitz.repo.path.FilePathNamingValidator;
 import ome.services.blitz.repo.path.FilePathRestrictionInstance;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.repo.path.MakeNextDirectory;
@@ -59,8 +58,10 @@ import ome.services.blitz.util.ChecksumAlgorithmMapper;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
+import ome.util.checksum.ChecksumProvider;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumProviderFactoryImpl;
+import ome.util.checksum.ChecksumType;
 import omero.RString;
 import omero.ResourceError;
 import omero.ServerError;
@@ -89,7 +90,6 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -139,8 +139,6 @@ public class ManagedRepositoryI extends PublicRepositoryI
             Joiner.on(',').join(Collections2.transform(ChecksumAlgorithmMapper.getAllChecksumAlgorithms(),
                     ChecksumAlgorithmMapper.CHECKSUM_ALGORITHM_NAMER));
 
-    private final FilePathNamingValidator filePathNamingValidator;
-
     /* template paths: matches any special expansion term */
     private static final Pattern TEMPLATE_TERM = Pattern.compile("%([a-zA-Z]+)(:([^%/]+))?%");
 
@@ -189,7 +187,6 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         this.processes = processes;
-        this.filePathNamingValidator = new FilePathNamingValidator(this.filePathRestrictions);
         this.rootSessionUuid = rootSessionUuid;
         this.userGroupId = roles.getUserGroupId();
         log.info("Repository template: " + template);
@@ -333,6 +330,93 @@ public class ManagedRepositoryI extends PublicRepositoryI
             }
         }
         return null;
+    }
+
+    public List<Long> verifyChecksums(List<Long> ids, Current __current) throws ServerError {
+        /* set up an invocation context in which the group is set to -1, for "all groups" */
+        final Current allGroupsCurrent = makeAdjustedCurrent(__current);
+        allGroupsCurrent.ctx = new HashMap<String, String>(__current.ctx);
+        allGroupsCurrent.ctx.put(omero.constants.GROUP.value, "-1");
+
+        /* verify the checksum of the specified files that are in this repository */
+        final List<Long> mismatchFiles = new ArrayList<Long>();
+        for (final long id : repositoryDao.filterFilesByRepository(getRepoUuid(), ids, allGroupsCurrent)) {
+            /* get one of the files */
+            final OriginalFile file = repositoryDao.getOriginalFileWithHasher(id, allGroupsCurrent);
+            final FsFile fsPath = new FsFile(file.getPath() + file.getName());
+            final String osPath = serverPaths.getServerFileFromFsFile(fsPath).getAbsolutePath();
+
+            /* check the file's checksum */
+            final ome.model.enums.ChecksumAlgorithm hasher = file.getHasher();
+            final String hash = file.getHash();
+            if (hasher != null && hash != null) {
+                /* has a valid checksum, so check it */
+                final ChecksumProvider fromProvider =
+                        checksumProviderFactory.getProvider(ChecksumAlgorithmMapper.getChecksumType(hasher));
+                fromProvider.putFile(osPath);
+                if (!fromProvider.checksumAsString().equalsIgnoreCase(hash)) {
+                    mismatchFiles.add(id);
+                }
+            }
+        }
+        return mismatchFiles;
+    }
+
+    public List<Long> setChecksumAlgorithm(ChecksumAlgorithm toHasherWrapped, List<Long> ids, Current __current)
+            throws ServerError {
+        /* set up an invocation context in which the group may be adjusted freely */
+        final Current adjustedGroupCurrent = makeAdjustedCurrent(__current);
+        adjustedGroupCurrent.ctx = new HashMap<String, String>(__current.ctx);
+        adjustedGroupCurrent.ctx.put(omero.constants.GROUP.value, "-1");
+
+        /* get the hasher to which to set the files */
+        final String toHasherName = toHasherWrapped.getValue().getValue();
+        final ome.model.enums.ChecksumAlgorithm toHasher = repositoryDao.getChecksumAlgorithm(toHasherName, adjustedGroupCurrent);
+        final ChecksumType toType = ChecksumAlgorithmMapper.getChecksumType(toHasher);
+
+        /* set the specified files that are in this repository */
+        final List<Long> adjustedFiles = new ArrayList<Long>();
+        for (final long id : repositoryDao.filterFilesByRepository(getRepoUuid(), ids, adjustedGroupCurrent)) {
+            /* get one of the files */
+            final OriginalFile file = repositoryDao.getOriginalFileWithHasher(id, adjustedGroupCurrent);
+            final FsFile fsPath = new FsFile(file.getPath() + file.getName());
+            final String osPath = serverPaths.getServerFileFromFsFile(fsPath).getAbsolutePath();
+
+            /* check the file's existing hasher */
+            final ome.model.enums.ChecksumAlgorithm fromHasher = file.getHasher();
+            final String fromHash = file.getHash();
+            ChecksumProvider fromProvider = null;
+            if (fromHasher != null && fromHash != null) {
+                /* already has a valid hash */
+                if (toHasherName.equals(fromHasher.getValue())) {
+                    /* already hashed in the specified manner */
+                    continue;
+                } else {
+                    /* hashed with a different hasher */
+                    fromProvider = checksumProviderFactory.getProvider(ChecksumAlgorithmMapper.getChecksumType(fromHasher));
+                }
+            }
+            /* find the new hash */
+            final ChecksumProvider toProvider = checksumProviderFactory.getProvider(toType);
+            toProvider.putFile(osPath);
+            final String toHash = toProvider.checksumAsString();
+            if (fromProvider != null) {
+                /* check old hash after new one is calculated */
+                fromProvider.putFile(osPath);
+                if (!fromProvider.checksumAsString().equals(fromHash)) {
+                    throw new ServerError(null, null, "hash mismatch on file ID " + id);
+                }
+            }
+            /* update the file's checksum */
+            file.setHasher(toHasher);
+            file.setHash(toHash);
+            final String fileGroup = Long.toString(file.getDetails().getGroup().getId());
+            adjustedGroupCurrent.ctx.put(omero.constants.GROUP.value, fileGroup);
+            repositoryDao.saveObject(file, adjustedGroupCurrent);
+            adjustedGroupCurrent.ctx.put(omero.constants.GROUP.value, "-1");
+            adjustedFiles.add(id);
+        }
+        return adjustedFiles;
     }
 
     //
@@ -1242,11 +1326,13 @@ public class ManagedRepositoryI extends PublicRepositoryI
         basePath = trimmedPaths.basePath;
         paths = trimmedPaths.fullPaths;
 
-        // validate paths
-        this.filePathNamingValidator.validateFilePathNaming(relPath);
-        this.filePathNamingValidator.validateFilePathNaming(basePath);
-        for (final FsFile path : paths) {
-            this.filePathNamingValidator.validateFilePathNaming(path);
+        // sanitize paths (should already be sanitary; could introduce conflicts)
+        final Function<String, String> sanitizer = serverPaths.getPathSanitizer();
+        relPath = relPath.transform(sanitizer);
+        basePath = basePath.transform(sanitizer);
+        int index = paths.size();
+        while (--index >= 0) {
+            paths.set(index, paths.get(index).transform(sanitizer));
         }
 
         // Static elements which will be re-used throughout

@@ -44,7 +44,6 @@ import ome.util.checksum.ChecksumProviderFactoryImpl;
 import ome.util.checksum.ChecksumType;
 import omero.api.ClientCallback;
 import omero.api.ClientCallbackPrxHelper;
-import omero.api.IAdminPrx;
 import omero.api.ISessionPrx;
 import omero.api.IUpdatePrx;
 import omero.api.RawFileStorePrx;
@@ -58,10 +57,8 @@ import omero.constants.AGENT;
 import omero.constants.IP;
 import omero.model.ChecksumAlgorithm;
 import omero.model.ChecksumAlgorithmI;
-import omero.model.DetailsI;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
-import omero.model.PermissionsI;
 import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.util.ModelObjectFactoryRegistry;
 import omero.util.Resources;
@@ -321,6 +318,7 @@ public class client {
         id.properties.setProperty("Ice.Default.EndpointSelection", "Ordered");
         id.properties.setProperty("Ice.Default.PreferSecure", "1");
         id.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
+        id.properties.setProperty("IceSSL.Protocols", "ssl3, tls");
         id.properties.setProperty("IceSSL.Ciphers", "NONE (DH_anon)");
         id.properties.setProperty("IceSSL.VerifyPeer", "0");
 

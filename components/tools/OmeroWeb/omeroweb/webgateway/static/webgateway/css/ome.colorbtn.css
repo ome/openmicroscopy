@@ -19,3 +19,12 @@
 .cbpicker {
   font-size: 0.7em !important;
 }
+
+.picker {
+	background: url('../img/colorpicker_16.png') center center no-repeat;
+	border-width: 0;
+	width: 18px;
+	height: 18px;
+	border-radius: 3px;
+	margin-left: 5px;
+}

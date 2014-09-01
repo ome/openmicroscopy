@@ -9,7 +9,7 @@
 % This program is distributed in the hope that it will be useful,
 % but WITHOUT ANY WARRANTY; without even the implied warranty of
 % MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-% GNU General Public License for more details.
+% GNU General Public License f4or more details.
 %
 % You should have received a copy of the GNU General Public License along
 % with this program; if not, write to the Free Software Foundation, Inc.,
@@ -48,7 +48,7 @@ try
     disp('Create ellipsoidal shape');
     ellipse = createEllipse(10, 10, 10, 10);
     % indicate on which plane to attach the shape
-    ellipse = setShapeCoordinates(ellipse, 0, 0, 0);
+    ellipse = setShapeCoordinates(ellipse, 0, 1, 0);
     
     % Create the roi.
     roi = omero.model.RoiI;
@@ -61,7 +61,7 @@ try
     roi = session.getUpdateService().saveAndReturnObject(roi);
     fprintf(1, 'Created ROI %g\n', roi.getId().getValue());
     
-    % Check that the shape has been added.
+    % Check that the shapes have been added.
     fprintf(1, 'Reading shapes attached to ROI %g\n', roi.getId().getValue());
     nShapes = roi.sizeOfShapes;
     fprintf(1, 'Found %g shapes\n', nShapes);
@@ -86,7 +86,7 @@ try
         end
     end
     
-    %Retrieve the roi linked to an image.
+    % Retrieve the roi linked to an image.
     fprintf(1, 'Reading ROIs attached to image %g\n', imageId);
     roiResult =  session.getRoiService().findByImage(imageId, []);
     rois = roiResult.rois;
@@ -106,6 +106,37 @@ try
             roi = session.getUpdateService().saveAndReturnObject(roi);
         end
     end
+    
+    % Delete ROI
+    deleteCommand = omero.cmd.Delete('/Roi', roi.getId().getValue(), []);
+    doAll = omero.cmd.DoAll();
+    doAll.requests = toJavaList(deleteCommand);
+    session.submit(doAll);
+    
+    % Create a mask covering half of the image
+    pixels = image.getPrimaryPixels();
+    sizeX = pixels.getSizeX().getValue();
+    sizeY = pixels.getSizeY().getValue();
+    m = false(sizeY, sizeX / 2);
+    m(end/4:3*end/4,end/2:end)=true;
+    mask = createMask(m);
+    setShapeCoordinates(mask, 0, 0, 0);
+    roi = omero.model.RoiI();
+    roi.addShape(mask);
+    roi.setImage(omero.model.ImageI(imageId, false));
+    roi = session.getUpdateService().saveAndReturnObject(roi);
+    fprintf(1, 'Created ROI %g\n', roi.getId().getValue());
+    
+    % Create a mask shape at a position different from (0, 0)
+    m = true(sizeY/8 - 3, sizeX/8 - 5);
+    m(end/4 : 3 * end/4, end/4 : 3 * end/4) = false;
+    mask = createMask(5 * sizeY / 8, 5 * sizeX/8, m);
+    setShapeCoordinates(mask, 0, 0, 0);
+    roi = omero.model.RoiI();
+    roi.addShape(mask);
+    roi.setImage(omero.model.ImageI(imageId, false));
+    roi = session.getUpdateService().saveAndReturnObject(roi);
+    fprintf(1, 'Created ROI %g\n', roi.getId().getValue());
     
 catch err
     client.closeSession();
