@@ -281,6 +281,10 @@ def render_thumbnail (request, iid, w=None, h=None, conn=None, _defcb=None, **kw
     if size == (96,):
         direct = False
     user_id = conn.getUserId()
+    rdefId = request.REQUEST.get('rdefId', None)
+    if rdefId is not None:
+        rdefId = int(rdefId)
+    # TODO - cache handles rdefId
     jpeg_data = webgateway_cache.getThumb(request, server_id, user_id, iid, size)
     if jpeg_data is None:
         prevent_cache = False
@@ -293,7 +297,7 @@ def render_thumbnail (request, iid, w=None, h=None, conn=None, _defcb=None, **kw
             else:
                 raise Http404
         else:
-            jpeg_data = img.getThumbnail(size=size, direct=direct)
+            jpeg_data = img.getThumbnail(size=size, direct=direct, rdefId=rdefId)
             if jpeg_data is None:
                 logger.debug("(c)Image %s not found..." % (str(iid)))
                 if _defcb:
@@ -477,7 +481,6 @@ def get_shape_thumbnail (request, conn, image, s, compress_quality):
         bBox = (shape['x']-50, shape['y']-50, 100, 100)
     else:
         logger.debug("Shape type not supported: %s" % str(type(s)))
-    #print shape
 
     # we want to render a region larger than the bounding box
     x,y,w,h = bBox
@@ -1150,6 +1153,8 @@ def imageData_json (request, conn=None, _internal=False, **kwargs):
     image = conn.getObject("Image", iid)
     if image is None:
         return HttpJavascriptResponseServerError('""')
+    if request.REQUEST.get('getDefaults') == 'true':
+        image.resetDefaults(save=False)
     rv = imageMarshal(image, key)
     return rv
 
@@ -1507,22 +1512,32 @@ def list_compatible_imgs_json (request, iid, conn=None, **kwargs):
 
 @login_required()
 @jsonp
-def apply_owners_rdef_json (request, conn=None, **kwargs):
+def reset_rdef_json (request, toOwners=False, conn=None, **kwargs):
     """
     Simply takes request 'to_type' and 'toids' and
     delegates to Rendering Settings service to reset
-    settings according to the owner's settings.
+    settings accordings.
+
+    @param toOwners:    if True, default to the owner's settings.
     """
 
     r = request.REQUEST
     toids = r.getlist('toids')
     to_type = str(r.get('to_type', 'image'))
-
     to_type = to_type.title()
+    if to_type == 'Acquisition':
+        to_type = 'PlateAcquisition'
+
+    if len(toids) == 0:
+        raise Http404("Need to specify objects in request, E.g. ?totype=dataset&toids=1&toids=2")
+
     toids = map(lambda x: long(x), toids)
 
     rss = conn.getRenderingSettingsService()
-    rss.resetDefaultsByOwnerInSet(to_type, toids)
+    if toOwners:
+        rss.resetDefaultsByOwnerInSet(to_type, toids)
+    else:
+        rss.resetDefaultsInSet(to_type, toids)
 
     return {'OK': True}
 
@@ -1567,17 +1582,23 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
     if r.get('c') is not None:
         # make a map of settings we need
         rdef = {
-            'c': str(r.get('c')),    # channels
-            'm': str(r.get('m')),    # model (grey)
-            'z': str(r.get('z')),    # z & t pos
-            't': str(r.get('t')),
-            'imageId': int(r.get('imageId')),
+            'c': str(r.get('c'))    # channels
         }
+        if r.get('pixel_range'):
+            rdef['pixel_range'] = str(r.get('pixel_range'))
+        if r.get('m'):
+            rdef['m'] = str(r.get('m'))   # model (grey)
+        if r.get('z'):
+            rdef['z'] = str(r.get('z'))    # z & t pos
+        if r.get('t'):
+            rdef['t'] = str(r.get('t'))
+        if r.get('imageId'):
+            rdef['imageId'] = int(r.get('imageId'))
         request.session.modified = True
         request.session['rdef'] = rdef
+        # remove any previous rdef we may have via 'fromId'
         if request.session.get('fromid') is not None:
             del request.session['fromid']
-        return True
 
     # Check session for 'fromid'
     if fromid is None:
@@ -1606,8 +1627,10 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
             image.setGreyscaleRenderingModel()
         else:
             image.setColorRenderingModel()
-        image._re.setDefaultZ(long(rdef['z'])-1)
-        image._re.setDefaultT(long(rdef['t'])-1)
+        if 'z' in rdef:
+            image._re.setDefaultZ(long(rdef['z'])-1)
+        if 't' in rdef:
+            image._re.setDefaultT(long(rdef['t'])-1)
         image.saveDefaults()
 
     originalSettings = None
@@ -1647,27 +1670,34 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
             applyRenderingSettings(fromImage, originalSettings)
     return json_data
 
+
 @login_required()
 @jsonp
-def reset_image_rdef_json (request, iid, conn=None, **kwargs):
+def get_image_rdef_json (request, conn=None, **kwargs):
     """
-    Reset rendering defs default for this image. Do not delete other related settings.
-    
-    @param request:     http request
-    @param iid:         Image ID
-    @param conn:        L{omero.gateway.BlitzGateway}
-    @return:            json 'true', or 'false' if failed
+    Gets any 'rdef' dict from the request.session and
+    returns it as json
     """
+    rdef = request.session.get('rdef')
+    if (rdef is None):
+        fromid = request.session.get('fromid', None)
+        print 'fromid', fromid
+        # We only have an Image to copy rdefs from
+        image = conn.getObject("Image", fromid)
+        if image is not None:
+            rv = imageMarshal(image, None)
+            # return rv
+            chs = []
+            for i, ch in enumerate(rv['channels']):
+                act = ch['active'] and str(i+1) or "-%s" % (i+1)
+                chs.append("%s|%s:%s$%s" % (act, ch['window']['start'], ch['window']['end'], ch['color']))
+            rdef = {'c':(",".join(chs)),
+                    'm': rv['rdefs']['model'],
+                    'pixel_range': "%s:%s" % (rv['pixel_range'][0],rv['pixel_range'][1])}
 
-    img = conn.getObject("Image", iid)
+    return {'rdef': rdef}
 
-    if img is not None and img.resetDefaults():
-        user_id = conn.getEventContext().userId
-        server_id = request.session['connector'].server_id
-        webgateway_cache.invalidateObject(server_id, user_id, img)
-        return True
-    else:
-        return False
+
 
 @login_required()
 def full_viewer (request, iid, conn=None, **kwargs):
@@ -1713,14 +1743,29 @@ def download_as(request, iid=None, conn=None, **kwargs):
     format = request.REQUEST.get('format', 'png')
     if format not in ('jpeg', 'png', 'tif'):
         format = 'png'
+
+    imgIds = []
+    wellIds = []
     if iid is None:
         imgIds = request.REQUEST.getlist('image')
         if len(imgIds) == 0:
-            return HttpResponseServerError("No images specified in request. Use ?image=123")
+            wellIds = request.REQUEST.getlist('well')
+            if len(wellIds) == 0:
+                return HttpResponseServerError("No images or wells specified in request. Use ?image=123 or ?well=123")
     else:
         imgIds = [iid]
 
-    images = list(conn.getObjects("Image", imgIds))
+    images = []
+    if imgIds:
+        images = list(conn.getObjects("Image", imgIds))
+    elif wellIds:
+        try:
+            index = int(request.REQUEST.get("index", 0))
+        except ValueError:
+            index = 0
+        for w in conn.getObjects("Well", wellIds):
+            images.append(w.getWellSample(index).image())
+
     if len(images) == 0:
         msg = "Cannot download as %s. Images (ids: %s) not found." % (format, imgIds)
         logger.debug(msg)
@@ -1795,14 +1840,27 @@ def archived_files(request, iid=None, conn=None, **kwargs):
     """
     Downloads the archived file(s) as a single file or as a zip (if more than one file)
     """
+    imgIds = []
+    wellIds = []
     if iid is None:
         imgIds = request.REQUEST.getlist('image')
         if len(imgIds) == 0:
-            return HttpResponseServerError("No images specified in request. Use ?image=123")
+            wellIds = request.REQUEST.getlist('well')
+            if len(wellIds) == 0:
+                return HttpResponseServerError("No images or wells specified in request. Use ?image=123 or ?well=123")
     else:
         imgIds = [iid]
 
-    images = list(conn.getObjects("Image", imgIds))
+    images = []
+    if imgIds:
+        images = list(conn.getObjects("Image", imgIds))
+    elif wellIds:
+        try:
+            index = int(request.REQUEST.get("index", 0))
+        except ValueError:
+            index = 0
+        for w in conn.getObjects("Well", wellIds):
+            images.append(w.getWellSample(index).image())
     if len(images) == 0:
         logger.debug("Cannot download archived file becuase Images not found.")
         return HttpResponseServerError("Cannot download archived file becuase Images not found (ids: %s)." % (imgIds))
@@ -1831,6 +1889,9 @@ def archived_files(request, iid=None, conn=None, **kwargs):
 
         import tempfile
         temp = tempfile.NamedTemporaryFile(suffix='.archive')
+        zipName = request.REQUEST.get('zipname', image.getName())
+        if not zipName.endswith('.zip'):
+            zipName = "%s.zip" % zipName
         try:
             temp_zip_dir = tempfile.mkdtemp()
             logger.debug("download dir: %s" % temp_zip_dir)
@@ -1844,6 +1905,12 @@ def archived_files(request, iid=None, conn=None, **kwargs):
                         os.makedirs(temp_d)
                     temp_f = os.path.join(temp_zip_dir, relPath, a.name)
                     temp_f = os.path.normpath(temp_f)
+
+                    # Need to be sure that the zip name does not match any file within it
+                    # since OS X will unzip as a single file instead of a directory
+                    if zipName == "%s.zip" % a.name:
+                        zipName = "%s_folder.zip" % a.name
+
                     f = open(str(temp_f),"wb")
                     try:
                         for chunk in a.getFileInChunks():
@@ -1865,11 +1932,6 @@ def archived_files(request, iid=None, conn=None, **kwargs):
                     # delete temp dir
             finally:
                 shutil.rmtree(temp_zip_dir, ignore_errors=True)
-
-            zipName = request.REQUEST.get('zipname', image.getName())
-            zipName = zipName.replace(" ","_")
-            if not zipName.endswith('.zip'):
-                zipName = "%s.zip" % zipName
 
             # return the zip or single file
             archivedFile_data = FileWrapper(temp)

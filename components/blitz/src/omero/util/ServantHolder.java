@@ -10,6 +10,7 @@ package omero.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
@@ -38,7 +39,7 @@ public class ServantHolder {
      * Note: servants are stored by String since {@link Ice.Identity} does not
      * behave properly as a key.
      */
-    private final ConcurrentHashMap<String, Ice.Object> servants = new ConcurrentHashMap<String, Ice.Object>();
+    private final Map<String, Ice.Object> servants = new ConcurrentHashMap<String, Ice.Object>();
 
     /**
      * Write-once map which contains a {@link Lock} for each given name.

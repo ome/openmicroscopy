@@ -655,7 +655,8 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                 windowtitle="OMERO (OME Remote Objects) Server"
                 overview="target/docs/overview.html"
                 stylesheetfile="docs/javadocsstyle.css"
-                useexternalfile="true">
+                useexternalfile="true"
+                additionalparam="${javadoc.doclint}">
 
                 <classpath>
                     <fileset dir="lib">

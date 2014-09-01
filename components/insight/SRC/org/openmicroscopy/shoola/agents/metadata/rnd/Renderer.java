@@ -479,6 +479,21 @@ public interface Renderer
     void setOriginalRndSettings();
 
     /**
+     * Undoes the last change to the rendering settings
+     */
+    void historyBack();
+    
+    /**
+     * Redoes the previous change to the rendering settings
+     */
+    void historyForward();
+    
+    /**
+     * Stores the current rendering settings in the history
+     */
+    void makeHistorySnapshot();
+    
+    /**
      * Returns <code>true</code> if the passed set of pixels is compatible
      * with the pixels set currently rendered.
      * 
