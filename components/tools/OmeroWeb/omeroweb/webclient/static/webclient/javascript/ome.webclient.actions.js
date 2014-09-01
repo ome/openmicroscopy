@@ -67,7 +67,7 @@ OME.handle_tree_selection = function(data) {
     var selected_objs = [];
 
     if (typeof data != 'undefined' && typeof data.inst != 'undefined') {
-        
+
         var selected = data.inst.get_selected();
         var share_id = null;
         if (selected.length == 1) {
@@ -123,7 +123,7 @@ OME.clear_selected = function(force_refresh) {
 
 // called when we change the index of a plate or acquisition
 OME.field_selection_changed = function(field) {
-    
+
     var datatree = $.jstree._focused();
     datatree.data.ui.last_selected;
     $("body")
@@ -170,7 +170,7 @@ OME.handleTableClickSelection = function(event) {
     var $clickedRow = $(event.target).parents('tr:first');
     var rows = $("table#dataTable tbody tr");
     var selIndex = rows.index($clickedRow.get(0));
-    
+
     if ( event.shiftKey ) {
         // get existing selected items
         var $s = $("table#dataTable tbody tr.ui-selected");
@@ -181,7 +181,7 @@ OME.handleTableClickSelection = function(event) {
         }
         var sel_start = rows.index($s.first());
         var sel_end = rows.index($s.last());
-        
+
         // select all rows between new and existing selections
         var new_start, new_end;
         if (selIndex < sel_start) {
@@ -224,7 +224,7 @@ OME.well_selection_changed = function($selected, well_index, plate_class) {
                 "index":well_index,
                 "class":plate_class} );     // assume every well has same permissions as plate
     });
-    
+
     $("body")
         .data("selected_objects.ome", selected_objs)
         .trigger("selection_change.ome");
@@ -347,14 +347,15 @@ OME.initToolbarDropdowns = function() {
 
 // Simply add query to thumbnail src to force refresh.
 // By default we do ALL thumbnails, but can also specify ID
-OME.refreshThumbnails = function(imageId) {
+OME.refreshThumbnails = function(options) {
+    options = options || {};
     var rdm = Math.random(),
         thumbs_selector = "#dataIcons img",
         spw_selector = "#spw img";
     // handle Dataset thumbs
-    if (typeof imageId != "undefined") {
-        thumbs_selector += "#"+imageId;
-        spw_selector += "#image-"+imageId;
+    if (options.imageId) {
+        thumbs_selector += "#"+options.imageId;
+        spw_selector += "#image-"+options.imageId;
     }
     $(thumbs_selector).each(function(){
         var $this = $(this),
@@ -367,12 +368,11 @@ OME.refreshThumbnails = function(imageId) {
             base_src = $this.attr('src').split('?')[0];
         $this.attr('src', base_src + "?_="+rdm);
     });
-    // Preview viewport
-    $("#viewport-img").each(function(){
-        var $this = $(this),
-            base_src = $this.attr('src').split('?')[0];
-        $this.attr('src', base_src + "?_="+rdm);
-    });
+
+    // Update viewport via global variable
+    if (!options.ignorePreview && OME.preview_viewport && OME.preview_viewport.loadedImg.id) {
+        OME.preview_viewport.load(OME.preview_viewport.loadedImg.id);
+    }
 };
 
 OME.truncateNames = (function(){

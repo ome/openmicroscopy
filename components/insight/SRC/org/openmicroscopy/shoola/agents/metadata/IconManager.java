@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.IconManager 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -341,7 +341,7 @@ public class IconManager
     public static final int           ANALYSIS_48 = 94;
     
     /** The <code>Reset</code> icon. */
-    public static final int           RESET = 95;
+    public static final int           RND_RESET = 95;
     
     /** The <code>Up down</code> icon. */
     public static final int           UP_DOWN_9_12 = 96;
@@ -537,14 +537,14 @@ public class IconManager
         relPaths[JAVA_48] = "tango_text-x-java-source48.png";
         relPaths[CPP_48] = "crystal_source_cpp48.png";
         relPaths[ANALYSIS_48] = "nuvola_kcmsystem48.png";
-        relPaths[RESET] = "nuvola_undo16.png";
+        relPaths[RND_RESET] = "nuvola_undo16.png";
         relPaths[UP_DOWN_9_12] = "upDown.png";
         relPaths[UPLOAD_SCRIPT] = "nuvola_script_add16.png";
         relPaths[UPLOAD_SCRIPT_48] = "nuvola_script_add48.png";
         relPaths[USER_PHOTO_22] = "nuvola_personal22.png"; //"nuvola_licq22.png";
         relPaths[USER_PHOTO_48] = "nuvola_personal48.png";//"nuvola_licq48.png";
         relPaths[USER_PHOTO_32] = "nuvola_personal32.png";
-        relPaths[RND_REDO] = "nuvola_undo16.png"; 
+        relPaths[RND_REDO] = "nuvola_redo16.png"; 
         relPaths[RND_MIN_MAX] = "nuvola_rendering_minmax16.png";
         relPaths[RND_OWNER] = "nuvola_rendering_owner16.png";
         relPaths[RND_UNDO] = "nuvola_reset16.png";

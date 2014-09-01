@@ -8,6 +8,7 @@ package ome.services.sessions.state;
 
 import java.sql.Timestamp;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -215,7 +216,7 @@ public class SessionCache implements ApplicationContextAware {
     /**
      *
      */
-    private final ConcurrentHashMap<String, Data> sessions = new ConcurrentHashMap<String, Data>();
+    private final Map<String, Data> sessions = new ConcurrentHashMap<String, Data>();
 
     /**
      *

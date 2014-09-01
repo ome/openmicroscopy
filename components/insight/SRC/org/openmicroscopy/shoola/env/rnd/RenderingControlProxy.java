@@ -1943,10 +1943,19 @@ class RenderingControlProxy
 	}
 
 	/** 
+         * Implemented as specified by {@link RenderingControl}.
+         * @see RenderingControl#isSameSettings(RndProxyDef, boolean)
+         */
+        public boolean isSameSettings(RndProxyDef def, boolean checkPlane)
+        {
+            return isSameSettings(def, checkPlane, false);
+        }
+        
+	/** 
 	 * Implemented as specified by {@link RenderingControl}.
-	 * @see RenderingControl#isSameSettings(RndProxyDef, boolean)
+	 * @see RenderingControl#isSameSettings(RndProxyDef, boolean, boolean)
 	 */
-	public boolean isSameSettings(RndProxyDef def, boolean checkPlane)
+	public boolean isSameSettings(RndProxyDef def, boolean checkPlane, boolean checkInactiveChannels)
 	{
 		if (def == null) return false;
 		if (checkPlane) {
@@ -1977,6 +1986,18 @@ class RenderingControlProxy
 		}
 		
 		if (indexes.size() != oldChannels.size()) return false;
+		
+		if(checkInactiveChannels) {
+                    for (int i = 0; i < getPixelsDimensionsC(); i++) {
+                        channel = def.getChannel(i);
+                        oldChannels.put(i, channel);
+                    }
+        
+                    for (int i = 0; i < getPixelsDimensionsC(); i++) {
+                        indexes.add(i);
+                    }
+		}
+		
 		Iterator<Integer> j = oldChannels.keySet().iterator();
 		int i;
 		while (j.hasNext()) {

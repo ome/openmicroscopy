@@ -151,6 +151,9 @@ class ImportControl(BaseControl):
                      "WARN"],
             metavar="LEVEL")
         java_group.add_argument(
+            "--summary", action="store_true", dest="java_summary",
+            help="Print import summary after import (**)")
+        java_group.add_argument(
             "--annotation_ns", dest="java_ns", metavar="ANNOTATION_NS",
             help="Namespace to use for subsequent annotation (**)")
         java_group.add_argument(
@@ -223,6 +226,7 @@ class ImportControl(BaseControl):
             "java_logs": "--logs",
             "java_email": "--email",
             "java_debug": ("--debug",),
+            "java_summary": "--summary",
             "java_ns": "--annotation_ns",
             "java_text": "--annotation_text",
             "java_link": "--annotation_link",

@@ -154,6 +154,12 @@ class TestImport(CLITest):
                 levels.append(splitline[2])
         return levels
 
+    def parse_summary(self, err):
+        """Parse the summary output from stderr"""
+
+        return re.findall('\d:[\d]{2}:[\d]{2}\.[\d]{3}|\d',
+                          err.split('\n')[-2])
+
     @pytest.mark.parametrize("fixture", NFS, ids=NFS_names)
     def testNamingArguments(self, fixture, tmpdir, capfd):
         """Test naming arguments for the imported image/plate"""
@@ -283,6 +289,37 @@ class TestImport(CLITest):
         o, e = capfd.readouterr()
         levels = self.parse_debug_levels(o)
         assert set(levels) <= set(debug_levels[debug_levels.index(level):])
+
+    def testSummaryArgument(self, tmpdir, capfd):
+        """Test import summary argument"""
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+
+        self.args += [str(fakefile)]
+        self.args += ['--summary']
+        # Invoke CLI import command and retrieve stdout/stderr
+        self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
+        summary = self.parse_summary(e)
+        assert summary
+        assert len(summary) == 5
+
+    @pytest.mark.parametrize("plate", [1, 2, 3])
+    def testSummaryArgumentWithScreen(self, tmpdir, capfd, plate):
+        """Test import summary argument with a screen"""
+        fakefile = tmpdir.join("SPW&plates=%d&plateRows=1&plateCols=1&"
+                               "fields=1&plateAcqs=1.fake" % plate)
+        fakefile.write('')
+
+        self.args += [str(fakefile)]
+        self.args += ['--summary']
+        # Invoke CLI import command and retrieve stdout/stderr
+        self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
+        summary = self.parse_summary(e)
+        assert summary
+        assert len(summary) == 6
+        assert int(summary[3]) == plate
 
     def testImportAsRoot(self, tmpdir, capfd):
         """Test import using sudo argument"""
