@@ -544,6 +544,7 @@
             </path>
             <path id="omero.test.classpath">
               <path refid="omero.classpath" />
+              <path location="${target.dir}/test-classes" />
               <fileset dir="${deps.lib.dir}/test" />
             </path>
             </sequential>
