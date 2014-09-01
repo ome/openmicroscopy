@@ -22,6 +22,7 @@ $.fn.colorbtn = function(cfg) {
     this.cfg = {
       prefix: cfg && cfg.prefix ? cfg.prefix : "cbpicker"
     };
+    var that = this;
 
     var colors = ["f00", "0f0", "00f", "fff", "000", "", "808080", "ffc800", "ff0", "4b0082", "ee82ee"];
     var picker = null;
@@ -30,10 +31,19 @@ $.fn.colorbtn = function(cfg) {
     var self = jQuery(this);
 
     var callback = function (color) {
-      self.css('background-color', color);
+      self.attr('data-picked-color', color);
       jQuery('input#'+self[0].cfg.prefix+'-tb').attr('value', color.substring(1).toUpperCase());
-      self.trigger('changed');
     };
+
+    var ok_callback = function () {
+      // On 'OK' we get the color saved by 'callback' above and apply it to the color-btn, then trigger
+      var data_color = self.attr('data-picked-color');
+      if (data_color) {
+        self.attr('data-color', data_color);
+        self.trigger('changed');
+      }
+    };
+
     var null_cb = function (color) {};
 
     this._prepare_picker = function () {
@@ -51,13 +61,17 @@ $.fn.colorbtn = function(cfg) {
           btns.append('<br />');
           btns.append('<span>Colors</span>');
 	} else {
-          btns.append('<button style="background-color: #'+colors[e]+'">&nbsp;</button>');
+          btns.append('<button class="preset-color-btn" style="background-color: #'+colors[e]+'">&nbsp;</button>');
           btns.find('button:last').click(btn_click);
         }
       }
       //btns.append('<br /><button style="width: 5em;" id="'+this.cfg.prefix+'-defc">&nbsp;</button>');
       //btns.find('button:last').click(btn_click);
       btns.append('<div class="postit-resize-bar"></div>');
+      $('<button id="cbpicker-OK-btn" style="float:right">OK</button>').appendTo(box);
+      $('<button style="float:right">Cancel</button>').appendTo(box).click(function(){
+        jQuery("#"+that.cfg.prefix+"-box").hide();
+      });
       self.trigger('prepared');
       picker = jQuery.farbtastic("#"+this.cfg.prefix);
       jQuery('input#'+this.cfg.prefix+'-tb').bind('change', function () {
@@ -79,7 +93,15 @@ $.fn.colorbtn = function(cfg) {
           picker = jQuery.farbtastic("#"+this.cfg.prefix);
         }
       }
-      var color = '#'+rgbToHex(self.css("background-color"));
+
+      // bind appropriate handler (wraps ref to button)
+      $("#cbpicker-OK-btn").unbind('click').bind('click', ok_callback)
+        .bind('click',function(){
+          jQuery("#"+that.cfg.prefix+"-box").hide();
+        });
+      self.removeAttr('data-picked-color');
+
+      var color = '#'+rgbToHex(self.attr("data-color"));
       picker.linkTo(null_cb).setColor(color).linkTo(callback);
       jQuery("#"+this.cfg.prefix+"-tb").attr('value', color.substring(1).toUpperCase());
       jQuery("#"+this.cfg.prefix+"-defc").css("background-color", self.css("background-color"));

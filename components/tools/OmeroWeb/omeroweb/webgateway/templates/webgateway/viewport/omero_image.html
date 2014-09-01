@@ -18,10 +18,14 @@
 
 
 {% block link %}
+
+    <!-- Make the width fit the mobile viewport -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
     {% for href in extra_css %}
     <link rel="stylesheet" type="text/css" href="{{ href }}" />
     {% endfor %}
-    
+
     <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.viewport.css" %}" media="all" />
     <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.gs_slider.css" %}" media="all" />
     <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/base.css" %}" media="all" />
@@ -45,18 +49,19 @@
     {% for src in extra_js %}
     <script type="text/javascript" src="{{ src }}"></script>
     {% endfor %}
-    
+
     <script type="text/javascript" src="{% static "3rdparty/jquery-1.7.2.js" %}"></script>
-    
+
     <script type="text/javascript" src="{% static "webgateway/js/ome.popup.js" %}"></script>
-    
+
 	<script type="text/javascript" src="{% static "3rdparty/aop.js" %}"></script>
 
 	<script type="text/javascript" src="{% static "webgateway/js/ome.gs_utils.js" %}"></script>
 	<script type="text/javascript" src="{% static "webgateway/js/ome.viewportImage.js" %}"></script>
 	<script type="text/javascript" src="{% static "webgateway/js/ome.gs_slider.js" %}"></script>
 	<script type="text/javascript" src="{% static "webgateway/js/ome.viewport.js" %}"></script>
-	
+  <script type="text/javascript" src="{% static "webgateway/js/omero_image.js" %}"></script>
+
     <script type="text/javascript" src="{% static "3rdparty/jquery-ui-1.8.19/ui/jquery-ui.js" %}"></script>
     <script type="text/javascript" src="{% static "webgateway/js/ome.smartdialog.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/JQuerySpinBtn/JQuerySpinBtn.js" %}"></script>
@@ -73,13 +78,13 @@
 
     <!-- big images -->
 
-    <script type="text/javascript" src="{% static "3rdparty/panojs/extjs/ext-core.js" %}"></script>    
-    <script type="text/javascript" src="{% static "3rdparty/panojs/utils.js" %}"></script>    
+    <script type="text/javascript" src="{% static "3rdparty/panojs/extjs/ext-core.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/panojs/utils.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/panojs/PanoJS.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/panojs/controls.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/panojs/pyramid_Bisque.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/panojs/pyramid_imgcnv.js" %}"></script>
-    <script type="text/javascript" src="{% static "3rdparty/panojs/pyramid_Zoomify.js" %}"></script>        
+    <script type="text/javascript" src="{% static "3rdparty/panojs/pyramid_Zoomify.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/panojs/control_thumbnail.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/panojs/control_info.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/panojs/control_svg.js" %}"></script>
@@ -111,6 +116,10 @@
 {% block full_body %}
 <script type="text/javascript">
   /* <![CDATA[ */
+
+  var PLATE_LINKS_URL_999 = '{% url 'webgateway_object_table_query' 'Screen.plateLinks.child.wells' 999 %}';
+  var PLATE_WELLS_URL_999 = '{% url 'webgateway_object_table_query' 'Plate.wells' 999 %}';
+
 
   /**
    * The viewport object holds the image browsing viewport that has all the logic for connecting to
@@ -193,211 +202,13 @@
     return false;
   }
 
-  var rdChanSelHelper = function (e) {
-    if (!$('#rd-wblitz-rmodel').get(0).checked && viewport.getProjection() != 'split') {
-      // Grey model selected and not in 'split' view, select a single channel active
-      var t = $('[id^=rd-wblitz-ch]').filter(':checked');
-      if (t.size() > 1) {
-        if (e.checked) {
-          t.filter('[id!='+e.id+']:checked').attr('checked', false);
-        } else {
-          t.filter(':checked').not(':first').attr('checked', false);
-        }
-      } else if (t.size() == 0) {
-        $('[id^=rd-wblitz-ch]:first').attr('checked', true)
-      }
-    }
-    return false;
+  // for some reason we have to bind 'Color' checkbox click like this
+  var handleModelCheckbox = function (e) {
+    console.log("handleModelCheckbox");
+    // apply change to greyscale immediately
+    setModel(viewport, $("#rd-wblitz-rmodel").get(0).checked?'g':'c');
   }
 
-  /**
-   * Gets called when an image is initially loaded.
-   * This is the place to sync everything; rendering model, quality, channel buttons, etc.
-   */
-  var _refresh_cb = function (ev, viewport) {
-    /* Sync inputs with initial values */
-
-    $('#wblitz-rmodel').attr('checked', !viewport.isGreyModel());
-    $('#wblitz-invaxis').attr('checked', viewport.loadedImg.rdefs.invertAxis);
-    //$('#rd-wblitz-rmodel').attr('checked', !viewport.isGreyModel());
-
-    var q = viewport.getQuality();
-    if (q) {
-      var qr = $('#wblitz-quality > [value="+q.toFixed(1)+"]');
-      if (qr.length) {
-        qr.attr('selected','selected');
-      }
-    }
-
-    /* Prepare the channels box and the rendering definition for the channels */
-    var box = $('#wblitz-channels-box');
-    var channels = viewport.getChannels();
-    box.empty();
-    for (i=0; i<channels.length; i++) {
-      box.append('<button id="wblitz-ch'+i+'"\
-                 class="squared' + (channels[i].active?' pressed':'') + '"\
-                 style="background-color: #'+channels[i].color+'"\
-                 title="'+channels[i].label+'"\
-                 onclick="viewport.toggleChannel('+i+')">'+channels[i].label+'</button>');
-
-    }
-
-    // disable 'split' view for single channel images.
-    if (channels.length < 2) {
-      $("input[value='split']").attr('disabled', 'disabled');
-    }
-
-    /* Image details */
-    var tmp = getMetadata();
-    $('#wblitz-image-name').html(tmp.imageName);
-    $('#wblitz-image-description-content').html(tmp.imageDescription.replace(/\n/g, '<br />'));
-    $('#wblitz-image-author').html(tmp.imageAuthor);
-    $('#wblitz-image-pub').html(tmp.projectName);
-    $('#wblitz-image-pubid').html(tmp.projectId);
-    $('#wblitz-image-timestamp').html(tmp.imageTimestamp);
-
-    $("#bulk-annotations").hide();
-    $("#bulk-annotations").next().hide();
-    if (tmp.wellId) {
-        // Load bulk annotations for plate
-        var onAnnotations = function(result) {
-            if (result.data && result.data.rows) {
-                var table = $("#bulk-annotations").show().next().show().children("table");
-                for (var col in result.data.columns) {
-                    var label = result.data.columns[col];
-                    var value = '';
-                    for (var row in result.data.rows) {
-                        value += result.data.rows[row][col] + '<br />';
-                    }
-                    var row = $('<tr><td class="title"></td><td></td></tr>');
-                    row.addClass(col % 2 == 1 ? 'odd' : 'even');
-                    $('td:first-child', row).html(label + ":&nbsp;");
-                    $('td:last-child', row).html(value);
-                    table.append(row);
-                }
-            }
-        };
-        $.getJSON('{% url 'webgateway_object_table_query' 'Plate.wells' 999 %}'.replace('999', tmp.wellId) +
-            '?query=Well-' + tmp.wellId +
-            '&callback=?',
-             onAnnotations);
-        $.getJSON('{% url 'webgateway_object_table_query' 'Screen.plateLinks.child.wells' 999 %}'.replace('999', tmp.wellId) +
-            '?query=Well-' + tmp.wellId +
-            '&callback=?',
-             onAnnotations);
-    }
-
-    {% block xtra_metadata %}{% endblock %}
-
-    /*$('#wblitz-shortname').attr('title', tmp.imageName).html(gs_text_trim(tmp.imageName, 15, true));*/
-
-    tmp = viewport.getSizes();
-    $('#wblitz-image-width').html(tmp.width);
-    $('#wblitz-image-height').html(tmp.height);
-    $('#wblitz-image-z-count').html(tmp.z);
-    $('#wblitz-image-t-count').html(tmp.t);
-    tmp = viewport.getPixelSizes();
-    $('#wblitz-image-pixel-size-x').html(tmp.x==0?'-':(tmp.x.lengthformat()));
-    $('#wblitz-image-pixel-size-y').html(tmp.y==0?'-':(tmp.y.lengthformat()));
-    $('#wblitz-image-pixel-size-z').html(tmp.z==0?'-':(tmp.z.lengthformat()));
-
-    /* Fill in the Rendering Details box */
-
-    $(".picker").unbind('prepared').unbind('showing').unbind('hiding');
-    $('#rdef-postit ul').not('ul:last-child').remove();
-
-    var template = '<tr class="$cls">'
-      + '<td><input id="rd-wblitz-ch$idx0" type="checkbox" onchange="rdChanSelHelper(this)" $act></td>'
-      + '<td>$cwl</td>'
-      + '<td><button id="wblitz-ch$idx0-color" class="picker squarred">&nbsp;</button></td>'
-      + '<td class="picker-selected">&nbsp;</td></tr>'
-      + '<tr class="$cls rdef-window">'
-        + '<td colspan="5"><div id="wblitz-ch$idx0-cw" class="rangewidget"></div></td>'
-        +'</tr>'
-      + '<tr class="$cls rdef-window">'
-        + '<td colspan="5"><div class="rangeslider" id="wblitz-ch$idx0-cwslider"></div></td>'
-        + '</tr>';
-
-    tmp = $('#rdef-postit table tr:first');
-    tmp.siblings().remove();
-    for (i=channels.length-1; i>=0; i--) {
-      tmp.after(template
-      .replace(/\$act/g, channels[i].active?'checked':'')
-      .replace(/\$idx0/g, i) // Channel Index, 0 based
-      .replace(/\$idx1/g, i+1) // Channel Index, 1 based
-      .replace(/\$cwl/g, channels[i].label) // Wavelength
-      .replace(/\$cls/g, i/2!=parseInt(i/2)?'even':'odd') // class
-      );
-      $('#wblitz-ch'+(i)+'-cw').rangewidget({
-	min: channels[i].window.min,
-	max: channels[i].window.max,
-        template: '<span class="min">min: $min</span> $start - $end <span class="max">max: $max</span>',
-        lblStart: '',
-        lblEnd: ''});
-      $('#wblitz-ch'+i+'-cwslider').slider({
-        range: true,
-        min: Math.min(channels[i].window.min, channels[i].window.start+1),  // range may extend outside min/max pixel
-        max: Math.max(channels[i].window.max, channels[i].window.end-1),
-        values: [ channels[i].window.start+1, channels[i].window.end-1 ],
-        slide: function(event, ui) {
-          $('#wblitz-ch'+$(event.target).data('channel-idx')+'-cw-start').val(ui.values[0]).change();
-          $('#wblitz-ch'+$(event.target).data('channel-idx')+'-cw-end').val(ui.values[1]).change();
-        }
-        }).data('channel-idx', i);
-      cb = function (i) {
-        return function (e) {
-          var new_start = e.target.value,
-              $sl = $('#wblitz-ch'+i+'-cwslider'),
-              end = $sl.slider('values')[1]
-              min = $sl.slider( "option", "min" );
-          $sl.slider('values', 0, Math.min(new_start, end));    // ensure start < end
-          $sl.slider( "option", "min", Math.min(min, new_start) );   // extend range if needed
-          show_change($('#wblitz-ch'+i+'-cw-start').get(0), channels[i].window.start, 'changed');
-        };
-      }
-      $('#wblitz-ch'+i+'-cw-start').val(channels[i].window.start).unbind('change').bind('change', cb(i));
-      cb = function (i) {
-        return function (e) {
-          var new_end = e.target.value,
-              $sl = $('#wblitz-ch'+i+'-cwslider'),
-              start = $sl.slider('values')[0]
-              max = $sl.slider( "option", "max" );
-          $sl.slider('values', 1, Math.max(new_end, start));    // ensure end > start
-          $sl.slider( "option", "max", Math.max(max, new_end) );   // extend range if needed
-          show_change($('#wblitz-ch'+i+'-cw-end').get(0), channels[i].window.end, 'changed');
-        };
-      }
-      $('#wblitz-ch'+i+'-cw-end').val(channels[i].window.end).unbind('change').bind('change', cb(i));
-    }
-
-
-    /* Prepare color picker buttons */
-    $(".picker")
-      .colorbtn()
-      .bind('showing', function () {
-          var t = $(this).parents('.postit');
-          var offset = t.offset();
-          offset.left += t.width();
-          $('#cbpicker-box').css(offset);
-          $('.picker-selected').html('&nbsp;');
-          $(this).parent().siblings('.picker-selected').html('&gt;');
-      })
-      .bind('hiding', function () {$(this).parent().siblings('.picker-selected').html('&nbsp;')})
-      .bind('prepared', function () {
-        zindex_automator('.postit', 210, $('#cbpicker-box'));
-      })
-      .bind('changed', function () {
-          $("#rd-wblitz-rmodel").attr('checked', true);     // if we're updating color - show color (not greyscale)
-        $(this).parents('tr:first').next().find('.ui-slider-range').css('background-color', $(this).css('background-color'));
-      });
-
-    projectionChange(null,null, true);
-
-    modelChange();
-    syncRDCW();
-        
-    $('#wblitz-workarea > .box > div.row').show();
-  };
 
   /**
    * Set the projection based on the clicked element name.
@@ -405,7 +216,7 @@
   var setProjection = function (obj) {
     viewport.setProjection($(obj).attr('value'));
   };
-          
+
   /**
    * Checks the currently selected rendering projection and applies interface customizations as needed.
    * Bound to the viewport projectionChange event.
@@ -429,8 +240,8 @@
       var disable_intmax = (viewport.loadedImg.rdefs.invertAxis || viewport.getSizes().z < 2);
       $('[name="wblitz-proj"][value=intmax]').attr('disabled', disable_intmax);
     }
-    
-    //nosync || syncRDCW();
+
+    //nosync || syncRDCW(viewport);
   };
 
   /**
@@ -444,23 +255,10 @@
     } else {
       btns.removeClass('forcegrey');
     }
-    $('#wblitz-rmodel').attr('checked', !viewport.isGreyModel());
-    //$('#rd-wblitz-rmodel').attr('checked', !viewport.isGreyModel());
-    //syncRDCW();
-  };
-
-  /**
-   *
-   */
-  var channelChange = function (ev, obj, idx, ch) {
-    if (ch.active) {
-      $('#wblitz-ch'+idx).addClass('pressed');
-    } else {
-      $('#wblitz-ch'+idx).removeClass('pressed');
-    }
-    //var t = $('#rd-wblitz-ch'+idx).get(0);
-    //if (t != undefined) t.checked=ch.active;
-    $('#wblitz-ch'+idx).css('background-color', ch.color).attr('title', ch.label);
+    // update both checkboxes to keep in sync.
+    $('#wblitz-rmodel').attr('checked', viewport.isGreyModel());
+    $('#rd-wblitz-rmodel').attr('checked', viewport.isGreyModel());
+    //syncRDCW(viewport);
   };
 
   /**
@@ -505,30 +303,19 @@
     $('#wblitz-lp-cur').html('showing: ' + (viewport.getLinePlot().isHorizontal() ? 'Y': 'X') + ' = ' + parseInt($('#wblitz-lp-editpos').val()));
   }
 
-  /**
-   *
-   */
-  var imageChange = function (ev, obj) {
-    $('#wblitz-t-curr').html(viewport.getTPos());
-    $('#wblitz-z-curr').html(viewport.getZPos());
-    $('#wblitz-t-count').html(viewport.getTCount());
-    $('#wblitz-z-count').html(viewport.getZCount());
 
+  var axisChange = function () {
     if(viewport.loadedImg.rdefs.invertAxis) {
       $('#z-axis-legend').attr('src', '{% static "webgateway/img/t_axis_revert.gif" %}');
       $('#t-axis-legend').attr('src', '{% static "webgateway/img/z_axis_revert.gif" %}');
     } else {
       $('#z-axis-legend').attr('src', '{% static "webgateway/img/z_axis.gif" %}');
       $('#t-axis-legend').attr('src', '{% static "webgateway/img/t_axis.gif" %}');
-    };
-
-    if (viewport.hasLinePlot() || $('#wblitz-lp-enable').attr('checked')) {
-      viewport.refreshPlot();
     }
-  };
-  
+  }
+
   /**
-  *     ROI load & table methods 
+  *     ROI load & table methods
   */
 
   var refresh_rois = function () {
@@ -542,11 +329,11 @@
   var show_rois = function () {
       var theT = viewport.getTPos();
         var theZ = viewport.getZPos();
-        
+
       {% if image %}
         // if the ROI plugin has not been initialised (method not available...) init and load ROIs...
       if (!viewport.viewportimg.get(0).show_rois) {
-          var options = {'width':{{ image.getSizeX }}, 
+          var options = {'width':{{ image.getSizeX }},
                      'height':{{ image.getSizeY }},
                      'json_url':'{% url 'webgateway_get_rois_json' image.id %}'};
           if (viewport.loadedImg.tiles) {
@@ -557,31 +344,31 @@
           viewport.viewportimg.get(0).setRoiZoom(viewport.viewportimg.get(0).getZoom());
       }
       {% endif %}
-      
+
       // Show postit. Table will be built on callback from loading
       $("#roi_table_postit").show();
 
-      // loads ROIs (if needed) and shows. 
+      // loads ROIs (if needed) and shows.
     viewport.viewportimg.get(0).show_rois(theZ, theT);
   }
-  
-  
+
+
   var hide_rois = function() {
-      // hides the display of ROIs. 
+      // hides the display of ROIs.
       if (viewport.viewportimg.get(0).hide_rois) {
           viewport.viewportimg.get(0).hide_rois();
       }
       $("#roi_table_postit").hide();
   }
-  
+
   var NOZT = "";
   // builds an html table of ROI data. All collapsed.
   var build_roi_table = function() {
       var $roi_table = $("#roi_small_table");
       var json = viewport.viewportimg.get(0).get_roi_json();
-      
+
       $roi_table.find('tbody').remove();
-      
+
       // give users a small selection of colours for lines on roi_thumbnails
       var colours = {'red':'#f00', 'white':'#fff', 'black':'#000', 'blue':'#00f', 'green':'#0f0', 'yellow':'#ff0'}
       var color_picker = "";
@@ -590,7 +377,7 @@
       }
       var toggle_roi_thumbs = "<input type='checkbox' id='toggle_roi_thumbs' title='Show ROI Previews' />";
       var toggle_shape_text = "<input type='checkbox' id='toggle_shape_text' checked='true' title='Show/Hide ROI text labels' />";
-      
+
       // thead for whole table:
       var roi_html = "<thead id='roi_table_head'><tr>";
       roi_html += "<th></th>";
@@ -602,7 +389,7 @@
       roi_html += "<th title='Pick colour of ROI outlines'><div style='white-space:nowrap;'>" + toggle_roi_thumbs + "Preview</div>"+ color_picker + "</th>";
       roi_html += "</tr></thead>";
       $roi_table.append($(roi_html));
-      
+
       get_shape_icon_src = function(type, klass) {
           var shape_icons = {'Line':'line16.png', 'Ellipse':'ellipse16.png', 'Polygon':'polygon16.png', 'Rectangle':'rectangle16.png',
             'Point':'point16.png', 'Label':'text16.png', 'PolyLine':'line16.png'}
@@ -621,11 +408,11 @@
       for (var r=0; r<json.length; r++) {
           var roi = json[r];
           var shapes = roi['shapes'];
-          
+
           // thumbnail of roi - display small & popup full-size
-          var line_color = 'f00';   // store current line color, used when we 'show' thumbs to get url. 
+          var line_color = 'f00';   // store current line color, used when we 'show' thumbs to get url.
           var roiThumbHtml = "<img src='' id='"+ roi['id'] +"_roi_thumb' color='"+ line_color +"' width=50 height=33 class='roi_thumb'>";
-          
+
           // process the shapes first - note first shape & text
           var roiIcon = null;
           var roiText = "";
@@ -658,7 +445,7 @@
                   indent = " &nbsp";
               }
               var shapeThumbHtml = "<img src='' id='"+ shape['id'] +"_shape_thumb' color='"+ line_color +"' width=50 height=33 class='roi_thumb shape_thumb'>";
-              
+
               shapesHtml += "<tr id='"+shape['id']+"_shape' class='shape_row'>";
               // clicking on any cell of a shape 'shape_cell' selects it
               shapesHtml += "<td></td>";
@@ -678,7 +465,7 @@
           }
           if (roiText == null) roiText = "";
           shapesHtml += '</tbody>';
-          
+
           // new tbody for each ROI
           if (tRange != NOZT) tRange = "" + (minZ+1) + ((maxZ != minZ) && ("-"+(maxZ+1)) || (""));
           if (zRange != NOZT) zRange = "" + (minT+1) + ((maxT != minT) && ("-"+(maxT+1)) || (""));
@@ -691,7 +478,7 @@
           roi_html += "<th class='shape_text' title=\""+ roiText +"\"><p>"+ truncate_text(roiText) +"</p></th>";
           roi_html += "<th>"+ roiThumbHtml +"</th>";
           roi_html += "</tr></thead>";
-          
+
           var tbody = $(shapesHtml);
           if (shapes.length > 1) {
               $roi_table.append($(roi_html));      // add the roi thead
@@ -699,7 +486,7 @@
               tbody.addClass('only_child');
           }
           $roi_table.append(tbody);    // add the tbody
-          
+
           // now bind mouseover
           var $roi_thumb_popup = $('#roi_thumb_popup');
           $('.roi_thumb').hover(function(e) {
@@ -713,7 +500,7 @@
           });
       }
   }
-  
+
   // bound to call-back on roi plugin when ROIs loaded
   var handle_rois_loaded = function(e) {
       $("#rois_loading_message").hide();
@@ -723,7 +510,7 @@
       $roi_table.find('tbody.only_child').show();
 
   }
-  
+
   // bound to clicks on shapes in the viewer
     var handle_shape_selection = function(e, shape_id) {
         var $roi_table = $("#roi_small_table");
@@ -735,7 +522,7 @@
         var arrow_src = '{% static "webgateway/img/arrowDown_grey.png" %}';
         $row.parent().prev('thead').find('img.expand_arrow').attr('src', arrow_src);
     }
-    
+
     // update src of roi_thumbnails, based on colour. If 'null', set no src and hide thumbs
     var update_roi_thumbs = function(line_color) {
         // we set visibility based on 'toggle_roi_thumbs' checkbox
@@ -771,35 +558,9 @@
     showLinePlot();
   };
 
-  function resetRDCW() {
-    viewport.reset_channels();
-    syncRDCW();
-  }
-
-  function syncRDCW() {
-    var cb;
-    var channels = viewport.getChannels();
-    for (i=0; i<channels.length; i++) {
-      $('#rd-wblitz-ch'+i).get(0).checked = channels[i].active;
-      $('#wblitz-ch'+i+'-cwslider .ui-slider-range').css('background-color', toRGB(channels[i].color));
-      var w = channels[i].window;
-      $('#wblitz-ch'+i+'-cwslider')
-          .slider( "option", "min", Math.min(w.min, w.start) )   // extend range if needed
-          .slider( "option", "max", Math.max(w.max, w.end) );
-      $('#wblitz-ch'+i+'-color').css('background-color', toRGB(channels[i].color));//$('#wblitz-ch'+i).css('background-color'));
-      $('#wblitz-ch'+i+'-cw-start').val(channels[i].window.start).change();
-      $('#wblitz-ch'+i+'-cw-end').val(channels[i].window.end).change();
-    }
-    hidePicker();
-    $('#rdef-undo-btn').attr('disabled',viewport.has_channels_undo()?'':'true');
-    $('#rdef-redo-btn').attr('disabled',viewport.has_channels_redo()?'':'true');
-    //$('#rdef-default-btn').attr('disabled',viewport.has_channels_undo()?'':'true');
-    $('#rd-wblitz-rmodel').attr('checked', !viewport.isGreyModel());
-  }
-
   function undoRDCW () {
     viewport.undo_channels();
-    syncRDCW();
+    syncRDCW(viewport);
   }
 
   function redoRDCW () {
@@ -807,28 +568,9 @@
       return batchCopyRDefs_action('cancel');
     }
     viewport.redo_channels();
-    syncRDCW();
+    syncRDCW(viewport);
   }
 
-  function applyRDCW(final) {
-    if (on_batchCopyRDefs) {
-      return batchCopyRDefs_action('ok');
-    }
-    viewport.setModel($('#rd-wblitz-rmodel').get(0).checked?'c':'g');
-    for (var i=0; i<viewport.getCCount(); i++) {
-      viewport.setChannelActive(i, $('#rd-wblitz-ch'+i).get(0).checked, true);
-      viewport.setChannelColor(i, $('#wblitz-ch'+i+'-color').css('background-color'), true);
-      var noreload = ((i+1) < viewport.getCCount());    // prevent reload, except on the last loop
-      viewport.setChannelWindow(i, $('#wblitz-ch'+i+'-cw-start').get(0).value, $('#wblitz-ch'+i+'-cw-end').get(0).value, noreload);
-    }
-
-    if (final) {
-      viewport.forget_bookmark_channels();
-      $('#rdef-postit').hide();
-    }
-    viewport.save_channels();
-    syncRDCW();
-  }
 
   function show_image_link() {
     var link = location.href;
@@ -875,73 +617,6 @@
     }
   }
 
-  function zindex_automator (klass, basez, wspace) {
-    if (!wspace) {
-      wspace = $(klass);
-    }
-    var sorter = function (a,b) {
-      return parseInt(a.css('z-index'))-parseInt(b.css('z-index'));
-    };
-    var tofront = function (e) {
-      var self = this;
-      var z = basez;
-      var objs = new Array();
-      $(klass).each(function () {
-        this != self && objs.push($(this));
-      });
-      $.each(objs.sort(sorter), function () {
-        this.css('z-index', z);
-        z++;
-      });
-      $(self).css('z-index', z);
-    };
-    $.each(wspace, function () {
-      $(this).bind('opening', tofront);
-      $(this).bind('mousedown', tofront);
-    });
-  }
-
-  function setImageDefaults (obj, callback, skip_apply) {
-    if (!skip_apply) applyRDCW();
-    var old = $(obj).html();
-    gs_modalJson('{{ viewport_server }}/saveImgRDef/'+viewport.loadedImg.id+'/?'+viewport.getQuery(true),
-                 {},
-                 function(success, rv) {
-                    $(obj).html(old).attr('disabled', false);
-                    if (!(success && rv)) {
-                        alert('Setting image defaults failed.');
-                    }
-                    if (window.opener && window.opener.OME.refreshThumbnails) {
-                        window.opener.OME.refreshThumbnails({{ image.id }});
-                    }
-                  });
-    return false;
-  }
-
-{% if image.canAnnotate %}
-  function resetImageDefaults (obj) {
-    var msg = '<h2>Resetting rendering settings</h2><ul><li>This will reset the image rendering settings to their original state at time of import.</li></ul>';
-    var url = '{{ viewport_server }}/resetImgRDef/'+viewport.loadedImg.id+'/';
-    gs_choiceModalJson(msg, [
-        {label: 'ok', url: url, data: {full: true}},
-        {label: 'cancel'}
-      ],
-      function(success, rv) {
-        if (!rv) {
-          alert('Reset image defaults failed.');
-        } else {
-          viewport.load(viewport.loadedImg.id, viewport.loadedImg.current.dataset_id);
-        }
-        if (window.opener && window.opener.OME.refreshThumbnails) {
-            window.opener.OME.refreshThumbnails({{ image.id }});
-        }
-      },
-      {css: {width: '50%', left: '25%'}}
-    );
-    return false;
-  }
-
-{% endif %}
 
 
   /* ]]> */
@@ -960,7 +635,7 @@
       <p>To change the color displayed for a channel, click on the color box at the right, which opens the "Choose Color" dialog box. You can choose the color using the interactive features at the top.  Hex color codes can be input in the text box.  Preset colors can be selected at the bottom.  Changes take effect when you click "Apply".</p>
       <p>To change the color intensity, drag the slider buttons for the individual channels to the left or right.  This changes the values that are used for the minimum and maximum displays settings. Changes take effect when you click "Apply".</p>
     </div>
- 
+
     <!-- Floating boxes come on top -->
     <div id="curr-link" class="tooltipbox">
       <table cellspacing="0">
@@ -986,7 +661,7 @@
             <table id='roi_small_table' cellpadding='0' cellspacing='0'></table>
         </div>
     </div>
-    
+
     <div id="metadata-postit" class="postit">
       <h1>Image Information</h1>
       <h3 class="can-collapse">Basic Information</h3>
@@ -1040,37 +715,55 @@
     <div id="rdef-postit" class="postit" style="width: 480px">
       <h1> Rendering Details </h1>
         <div id="rdef-active-area">
+
+      <ul class="buttonbar" style="border-right-width: 0; margin-top: 5px; margin-bottom: 8px">
+      <li>
+        <button id="rdef-setdef-btn" class="editor" disabled='true'
+            {% if manager.image.canAnnotate %}
+              title="Saves the current settings."
+            {% else %}
+            title="You don't have permission to save settings."
+            {% endif %}
+            >
+          <img src="{% static 'webclient/image/icon_save.png' %}" style="position:relative; top:2px" />
+          <span>
+            Save
+          </span>
+        </button>
+      </li>
+
+
+      <!-- class='button-disabled' -->
+      <li>
+        <input id="rdef-undo-btn" class="button" type="image"
+        src="{% static "webclient/image/icon_undo16.png" %}" title="Undo the last changes to settings"
+        onclick="return undoRDCW();"/>
+      </li>
+      <li><input id="rdef-redo-btn" class="button" type="image"
+        src="{% static "webclient/image/icon_redo16.png" %}" title="Redo the last changes to settings"
+        onclick="return redoRDCW();"/> </li>
+
+      <li class="seperator"></li>
+
+      <!-- class='button-disabled' -->
+      <li><input class="copy_rdef button" type="image" src="{% static "webclient/image/icon_toolbar_copy.png" %}"
+        title="Copy Rendering Settings" /> </li>
+      <li><input class="paste_rdef button" type="image" src="{% static "webclient/image/icon_toolbar_paste.png" %}"
+        title="Paste Rendering Settings" /> </li>
+    </ul>
+
+    <div style="clear:both"></div>
+
+      <div>
         <a id="rdef-postit-help" href="#" onclick="return showChannelWindowHelp();"><img src="{% static "webgateway/img/question.png" %}" alt="Show help on channel window ranges" /></a>
-        <label for="rd-wblitz-rmodel">Render as Color</label>
-        <input id="rd-wblitz-rmodel" type="checkbox" onchange="return rdChanSelHelper(this);" />
+        <input id="rd-wblitz-rmodel" type="checkbox" onchange="return handleModelCheckbox();"/>
+        <label for="rd-wblitz-rmodel">Greyscale</label>
         <table cellspacing="0">
           <tr>
-            <th>Visible</th>
-            <th>Wavelength</th>
-            <th>Color</th>
-            <th></th>
           </tr>
         </table>
       </div>
-      <ul>
-        <li class="buttonbar">
-        {% block save_rdef %}
-        {% if image.canAnnotate and not blitzcon.getShareId %}
-          <button id="rdef-reset-btn" class="editor" onclick="return resetImageDefaults(this)" title="Returns the image settings to their original state at time of import.">reset</button>
-          {% if image.canAnnotate %}<button id="rdef-setdef-btn" class="editor" onclick="return setImageDefaults(this)" title="Applies and saves the current settings as default.">save</button>{% endif %}
-          
-        {% endif %}
-        {% endblock save_rdef %}
-        <button id="rdef-default-btn" onclick="return resetRDCW();" title="Returns to the saved settings.">default</button><button id="rdef-undo-btn" onclick="return undoRDCW();" title="Returns to the settings as they were before clicking apply.">undo</button><button id="rdef-redo-btn" onclick="return redoRDCW();" title="Returns to the settings as they were before clicking undo.">redo</button><button id="rdef-apply-btn" onclick="return applyRDCW();" title="Applies the current settings to the open image.">apply</button>
-        </li>
-        {% block batch_copy %}
-        {% if dataset.canOwnerWrite %}
-        <!--<li class="buttonbar"> 
-            <button id="rdef-batchcopy-btn" class="editor" onclick="return batchCopyRDefs(this);" title="Offers options to apply current settings to other images in your manuscript.">Apply to others</button> 
-        </li>-->
-        {% endif %}
-        {% endblock batch_copy %}
-      </ul>
+      </div>
 
     </div>
 
@@ -1125,7 +818,7 @@
           <div class="odd row">
             <label for="wblitz-lp-enable">Line Plot</label> <input id="wblitz-lp-enable" type="checkbox" onclick="editLinePlot(this.checked)" />
             <div id="wblitz-lp-wrap" style="display: none">
-              <div>Axis: 
+              <div>Axis:
                 <select id="wblitz-lp-axis-select" onchange="prepLinePlot(this.options[this.options.selectedIndex].value)">
                   <option value="h" selected="selected">Horizontal</option>
                   <option value="v">Vertical</option>
@@ -1143,8 +836,8 @@
             <span id="wblitz-channels-box"></span>
           </div>
           <div class="even row">
-            <label for="wblitz-rmodel">Color</label>
-            <input id="wblitz-rmodel" type="checkbox" onclick="viewport.setModel(this.checked?'c':'g');" />
+            <label for="wblitz-rmodel">Grayscale</label>
+            <input id="wblitz-rmodel" type="checkbox" />
 	    {% comment %}<!-- #8766 {% if not blitzcon.isAnonymous and image.canWrite %}
 	    <br />
             <label for="wblitz-invaxis">Invert Z/T Axis</label>
@@ -1189,7 +882,7 @@
 {% endblock roi_buttons %}
           {% block current_image_tools %}{% endblock %}
         </div>
-            
+
         <!-- Image Viewport -->
         <div id="weblitz-viewport"></div>
         <img id="z-axis-legend" src="{% static "webgateway/img/z_axis.gif" %}" />
@@ -1216,8 +909,8 @@
 
   $(document).ready(function () {
     /* Prepare the viewport */
-    
-    
+
+
     viewport = $.WeblitzViewport($('#weblitz-viewport'), '{{ viewport_server }}',{% block viewport_opts %}{'mediaroot': '{{ STATIC_URL }}' }{% endblock %});
     viewport.bind('imageLoad', _refresh_cb);
 
@@ -1236,12 +929,23 @@
     viewport.bind('modelChange', modelChange);
     /* Bind channel changes */
     viewport.bind('channelChange', channelChange);
+    viewport.bind('imageChange', function(){
+      syncChannelsActive(viewport);
+    });
     /* Bind image changes */
-    viewport.bind('imageChange', imageChange);
+    viewport.bind('imageChange', function(){
+      imageChange(viewport);
+      axisChange();
+    });
     /* Bind line plot changes */
     viewport.bind('linePlotChange', linePlotChange);
     /* Bind line plot position pick */
     viewport.bind('linePlotPos', linePlotPos);
+
+    // 'Color' checkbox to left of image
+    $("#wblitz-rmodel").click(function(){
+      setModel(viewport, $(this).get(0).checked?'g':'c');
+    });
 
     /* Prepare pop tools */
     $(".popover > h1")
@@ -1307,9 +1011,9 @@
       function () {
                     hidePicker();
                     /* viewport.back_to_bookmarked_channels();*/
-                    //syncRDCW();
+                    //syncRDCW(viewport);
                   })
-      .bind('opening', function () { syncRDCW(); viewport.bookmark_channels()});
+      .bind('opening', function () { syncRDCW(viewport); viewport.bookmark_channels()});
 
     $('.can-collapse').click(function () {
       $(this).toggleClass('closed').next().slideToggle();
@@ -1332,7 +1036,7 @@
     $('input[name=wblitz-quality]').click(function () {
       viewport.setQuality(this.value);
     });
-    
+
     viewport.bind('imageChange', refresh_rois);
     viewport.bind('instant_zoom', function(e, percent) {
         if (viewport.viewportimg.get(0).setRoiZoom) {
@@ -1341,22 +1045,14 @@
     });
 
     var copy_paste_rdef_url = "{% url 'webgateway.views.copy_image_rdef_json' %}";
-    $(".btn.copy_rdef").click(function() {
-        // copy the current rendering settings to the 'session'
-        $.getJSON(copy_paste_rdef_url + "?"+ viewport.getQuery(true) + "&imageId=" + viewport.loadedImg.id);
+    $(".copy_rdef").click(function() {
+        copyRdefs(viewport);
     });
 
-    $(".btn.paste_rdef").click(function() {
-        $.getJSON(copy_paste_rdef_url + "?toids={{ image.id }}", function(data){
-          // refresh UI
-          viewport.load({{ image.id }});
-          // update thumbnails
-          if (window.opener && window.opener.OME.refreshThumbnails) {
-            window.opener.OME.refreshThumbnails({{ image.id }});
-          }
-        });
+    $(".paste_rdef").click(function() {
+        pasteRdefs(viewport);
     });
-    
+
     var toggle_th = function($roiThead) {
         $roiThead.next().toggle(0, function(){
             var vis = $roiThead.next().is(':visible');
@@ -1367,7 +1063,7 @@
             $roiThead.find('img.expand_arrow').attr('src', arrow_src);
         });
     }
-    
+
     var handleShapeRowClick = function($shapeRow){
         var shape_id = parseInt($shapeRow.attr('id'));      // E.g. id='123_shape'
         var selected_xy = viewport.viewportimg.get(0).set_selected_shape(shape_id);
@@ -1385,7 +1081,7 @@
             viewport.setTPos(parseInt(t));
         }
     }
-    
+
     $("#roi_small_table").click(function(event) {
         var $target = $(event.target);
         if ($target.attr('id') == "toggle_roi_thumbs") {
@@ -1440,17 +1136,26 @@
         }
         return false;
     });
-    
-    
+
+
     // we can bind events to viewportimg for roi_display-plugin to trigger (plugin not created yet)
     viewport.viewportimg.bind("shape_click", handle_shape_selection);
     viewport.viewportimg.bind("rois_loaded", handle_rois_loaded);
-    
+
+    // set up handlers for 'Save' button
+    $("#rdef-setdef-btn").click(function(){
+      setImageDefaults(viewport, this, function() {
+        if (window.opener && window.opener.OME.refreshThumbnails) {
+            window.opener.OME.refreshThumbnails({'imageId':{{ image.id }} });
+        }
+      });
+    });
+
     /* And we're done! */
 
 {% block initial_resize %}
     /* Set Window Initial Size */
-    //if ($(document).width() < 1024 || $(document).height() < 768) 
+    //if ($(document).width() < 1024 || $(document).height() < 768)
     //  window.resizeTo(1024,768);
 {% endblock %}
     calcResize();

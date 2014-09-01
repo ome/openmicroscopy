@@ -45,6 +45,8 @@ endif(POLICY CMP0042)
 
 project(openmicroscopy)
 
+include(components/tools/OmeroCpp/cmake/Version.cmake)
+
 if("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
   message(FATAL_ERROR "In-tree builds are not supported; please run cmake from a separate build directory.")
 endif("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
@@ -68,7 +70,7 @@ if($ENV{SLICEPATH})
   set(ICE_SLICE_DIR "$ENV{SLICEPATH}")
 endif($ENV{SLICEPATH})
 # Find Ice programs, includes, slice definitions and libraries
-find_package(Ice 3.4.0 REQUIRED)
+find_package(Ice 3.4.0 REQUIRED COMPONENTS Ice IceUtil Glacier2)
 
 find_package(Threads REQUIRED)
 
@@ -82,18 +84,21 @@ option(test "Enable unit tests (requires gtest)" ${BUILD_TESTS})
 set(BUILD_TESTS ${test})
 
 # Set Ice environment based upon the FindIce results (for build.py).
-if(WIN32 AND ICE_BINARY_DIR)
-  file(TO_NATIVE_PATH "${ICE_BINARY_DIR}" NATIVE_ICE_BINARY_DIR)
+get_filename_component(ICE_BINARY_DIR "${Ice_SLICE2CPP_EXECUTABLE}" PATH)
+file(TO_NATIVE_PATH "${ICE_BINARY_DIR}" NATIVE_ICE_BINARY_DIR)
+if(WIN32)
   set(ENV{PATH} "${NATIVE_ICE_BINARY_DIR};$ENV{PATH}")
-endif(WIN32 AND ICE_BINARY_DIR)
-if(ICE_HOME)
-  file(TO_NATIVE_PATH "${ICE_HOME}" NATIVE_ICE_HOME)
+else(WIN32)
+  set(ENV{PATH} "${NATIVE_ICE_BINARY_DIR}:$ENV{PATH}")
+endif(WIN32)
+if(Ice_HOME)
+  file(TO_NATIVE_PATH "${Ice_HOME}" NATIVE_ICE_HOME)
   set(ENV{ICE_HOME} "${NATIVE_ICE_HOME}")
-endif(ICE_HOME)
-if(ICE_SLICE_DIR)
-  file(TO_NATIVE_PATH "${ICE_SLICE_DIR}" NATIVE_ICE_SLICE_DIR)
+endif(Ice_HOME)
+if(Ice_SLICE_DIRS)
+  file(TO_NATIVE_PATH "${Ice_SLICE_DIRS}" NATIVE_ICE_SLICE_DIR)
   set(ENV{SLICEPATH} "${NATIVE_ICE_SLICE_DIR}")
-endif(ICE_SLICE_DIR)
+endif(Ice_SLICE_DIRS)
 
 # Run build.py to generate C++ and Ice sources.
 if(NOT EXISTS ${PROJECT_SOURCE_DIR}/components/blitz/generated/omero/model/Image.ice)

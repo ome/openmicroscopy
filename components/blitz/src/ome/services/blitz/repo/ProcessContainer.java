@@ -20,6 +20,7 @@ package ome.services.blitz.repo;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
@@ -51,7 +52,7 @@ public class ProcessContainer {
 
     private final static class Data {
 
-        private final ConcurrentHashMap<Process, Object> processes =
+        private final Map<Process, Object> processes =
                 new ConcurrentHashMap<Process, Object>();
 
         void add(Process process) {

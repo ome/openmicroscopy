@@ -67,6 +67,7 @@ CONSTANTS -- Don't change for whole file
 #set($JAV_CURRENT = "Ice.Current current" )
 #set($PYC_CURRENT = "current = None" )
 #set($CPP_CURRENT = "const Ice::Current& current" )
+#set($CPP_CURRENT_UNUSED = "const Ice::Current& /* current */" )
 #set($HDR_CURRENT = "${CPP_CURRENT} = Ice::Current()")
 
 
@@ -460,7 +461,7 @@ LOADNESS BLOCK:
 
 [$jav]       public void unload($JAV_CURRENT) {
 [$hdr]       virtual void unload($HDR_CURRENT);
-[$cpp]       void ${PojoI}::unload($CPP_CURRENT) {
+[$cpp]       void ${PojoI}::unload($CPP_CURRENT_UNUSED) {
 [$pyc]       def unload(self, $PYC_CURRENT):
 [$pyc]           self._loaded = False
 [$jav]           loaded = false;
@@ -479,7 +480,7 @@ LOADNESS BLOCK:
 
 [$jav]       public boolean isLoaded($JAV_CURRENT) {
 [$hdr]       virtual bool isLoaded($HDR_CURRENT);
-[$cpp]       bool ${PojoI}::isLoaded($CPP_CURRENT) {
+[$cpp]       bool ${PojoI}::isLoaded($CPP_CURRENT_UNUSED) {
 [$pyc]       def isLoaded(self, $PYC_CURRENT):
 [$pyc]           return self._loaded
 [$jav]           return loaded;
@@ -492,7 +493,7 @@ LOADNESS BLOCK:
 [$jav]       }
 
 [$hdr]       virtual void unloadCollections($HDR_CURRENT);
-[$cpp]       void ${PojoI}::unloadCollections($CPP_CURRENT) {
+[$cpp]       void ${PojoI}::unloadCollections($CPP_CURRENT_UNUSED) {
 [$cpp]           toggleCollectionsLoaded(false);
 [$cpp]       }
 [$pyc]       def unloadCollections(self, $PYC_CURRENT):
@@ -508,7 +509,7 @@ implementations must define.
 [$jav]           return #if($type.global) true #else false #end;
 [$jav]       }
 [$hdr]       virtual bool isGlobal($HDR_CURRENT);
-[$cpp]       bool ${PojoI}::isGlobal($CPP_CURRENT) {
+[$cpp]       bool ${PojoI}::isGlobal($CPP_CURRENT_UNUSED) {
 [$cpp]           return #if($type.global) true #else false #end;
 [$cpp]       }
 [$pyc]       def isGlobal(self, $PYC_CURRENT):
@@ -518,7 +519,7 @@ implementations must define.
 [$jav]           return #if($type.immutable) false #else true #end;
 [$jav]       }
 [$hdr]       virtual bool isMutable($HDR_CURRENT);
-[$cpp]       bool ${PojoI}::isMutable($CPP_CURRENT) {
+[$cpp]       bool ${PojoI}::isMutable($CPP_CURRENT_UNUSED) {
 [$cpp]           return #if($type.immutable) false #else true #end;
 [$cpp]       }
 [$pyc]       def isMutable(self, $PYC_CURRENT):
@@ -528,7 +529,7 @@ implementations must define.
 [$jav]           return #if($type.annotated) true #else false #end;
 [$jav]       }
 [$hdr]       virtual bool isAnnotated($HDR_CURRENT);
-[$cpp]       bool ${PojoI}::isAnnotated($CPP_CURRENT) {
+[$cpp]       bool ${PojoI}::isAnnotated($CPP_CURRENT_UNUSED) {
 [$cpp]           return #if($type.annotated) true #else false #end;
 [$cpp]       }
 [$pyc]       def isAnnotated(self, $PYC_CURRENT):
@@ -538,7 +539,7 @@ implementations must define.
 [$jav]           return #if($type.isLink) true #else false #end;
 [$jav]       }
 [$hdr]       virtual bool isLink($HDR_CURRENT);
-[$cpp]       bool ${PojoI}::isLink($CPP_CURRENT) {
+[$cpp]       bool ${PojoI}::isLink($CPP_CURRENT_UNUSED) {
 [$cpp]           return #if($type.isLink) true #else false #end;
 [$cpp]       }
 [$pyc]       def isLink(self, $PYC_CURRENT):
@@ -554,7 +555,7 @@ and protect later FOREACH blocks with "if (name == 'id' || name == 'details') sk
 
 [$jav]       public omero.model.IObject shallowCopy($JAV_CURRENT) {
 [$hdr]       virtual omero::model::IObjectPtr shallowCopy($HDR_CURRENT);
-[$cpp]       omero::model::IObjectPtr ${PojoI}::shallowCopy($CPP_CURRENT) {
+[$cpp]       omero::model::IObjectPtr ${PojoI}::shallowCopy($CPP_CURRENT_UNUSED) {
 [$pyc]       def shallowCopy(self, $PYC_CURRENT):
 
 [$jav]             if ( ! loaded ) return proxy();
@@ -657,25 +658,25 @@ and protect later FOREACH blocks with "if (name == 'id' || name == 'details') sk
 [$hdr]       virtual omero::RLongPtr getId($HDR_CURRENT);
 [$hdr]       virtual void setId( const omero::RLongPtr& id, $HDR_CURRENT );
 
-[$cpp]       omero::model::IObjectPtr ${PojoI}::proxy($CPP_CURRENT) {
+[$cpp]       omero::model::IObjectPtr ${PojoI}::proxy($CPP_CURRENT_UNUSED) {
 [$cpp]           if ( ! id )  throw new omero::ClientError(__FILE__, __LINE__, "Proxies require an id");
 [$cpp]           return new ${PojoI}( id->getValue(), false );
 [$cpp]       }
 [$cpp]
-[$cpp]       omero::model::DetailsPtr ${PojoI}::getDetails($CPP_CURRENT) {
+[$cpp]       omero::model::DetailsPtr ${PojoI}::getDetails($CPP_CURRENT_UNUSED) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           return details;
 [$cpp]       }
 [$cpp]
-[$cpp]       void ${PojoI}::unloadDetails($CPP_CURRENT) {
+[$cpp]       void ${PojoI}::unloadDetails($CPP_CURRENT_UNUSED) {
 [$cpp]           details = omero::model::DetailsPtr();
 [$cpp]       }
 [$cpp]
-[$cpp]       omero::RLongPtr ${PojoI}::getId($CPP_CURRENT) {
+[$cpp]       omero::RLongPtr ${PojoI}::getId($CPP_CURRENT_UNUSED) {
 [$cpp]           return id;
 [$cpp]       }
 [$cpp]
-[$cpp]       void ${PojoI}::setId(const omero::RLongPtr& _id, $CPP_CURRENT) {
+[$cpp]       void ${PojoI}::setId(const omero::RLongPtr& _id, $CPP_CURRENT_UNUSED) {
 [$cpp]           id = _id;
 [$cpp]       }
 
@@ -729,12 +730,12 @@ The "version" property is not a part of the model but is calculated from mutabil
 [$hdr]       virtual omero::RIntPtr getVersion($HDR_CURRENT);
 [$hdr]       virtual void setVersion( const omero::RIntPtr& version, $HDR_CURRENT );
 
-[$cpp]       omero::RIntPtr ${PojoI}::getVersion($CPP_CURRENT) {
+[$cpp]       omero::RIntPtr ${PojoI}::getVersion($CPP_CURRENT_UNUSED) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           return version;
 [$cpp]       }
 [$cpp]
-[$cpp]       void ${PojoI}::setVersion(const omero::RIntPtr& _version, $CPP_CURRENT) {
+[$cpp]       void ${PojoI}::setVersion(const omero::RIntPtr& _version, $CPP_CURRENT_UNUSED) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           version = _version;
 [$cpp]       }
@@ -1010,7 +1011,7 @@ ASSOCIATION TYPES BLOCK:
 #set( $hasSet  = $property.one2Many)
 #set( $Col = $Ice )
 #set( $JAV_CURRENT_COLL = $JAV_CURRENT)
-#set( $CPP_CURRENT_COLL = $CPP_CURRENT)
+#set( $CPP_CURRENT_COLL = $CPP_CURRENT_UNUSED)
 #set( $HDR_CURRENT_COLL = $HDR_CURRENT)
 #set( $PYC_CURRENT_COLL = $PYC_CURRENT)
 #end
@@ -1127,12 +1128,12 @@ ticket:684 This is necessary to map back and forth from sets.
 [$hdr]     public:
 #end
 
-[$cpp]       $cppType ${PojoI}::get${property.nameCapped}($CPP_CURRENT) {
+[$cpp]       $cppType ${PojoI}::get${property.nameCapped}($CPP_CURRENT_UNUSED) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           return ${open}${fieldName}${close};
 [$cpp]       }
 [$cpp]
-[$cpp]       void ${PojoI}::set${PropertyName}(const ${cppType}& _$property.name, $CPP_CURRENT) {
+[$cpp]       void ${PojoI}::set${PropertyName}(const ${cppType}& _$property.name, $CPP_CURRENT_UNUSED) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           $fieldName = $!{prefix}_${property.name}$!{suffix};
 [$cpp]           $unloadedCpp
@@ -1209,7 +1210,7 @@ sizeOf ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 [$jav]           return ${fieldName}.size();
 [$jav]       }
 [$hdr]       virtual Ice::Int sizeOf${PropertyName}($HDR_CURRENT);
-[$cpp]       Ice::Int ${PojoI}::sizeOf${PropertyName}($CPP_CURRENT) {
+[$cpp]       Ice::Int ${PojoI}::sizeOf${PropertyName}($CPP_CURRENT_UNUSED) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) return -1;
 [$cpp]           return ${fieldName}.size();
@@ -1236,7 +1237,7 @@ Copy ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 [$pyc]
              Here we don't have a vector<$cppType> since the type is typedef'd
 [$hdr]       virtual $cppType copy${PropertyName}($HDR_CURRENT);
-[$cpp]       $cppType ${PojoI}::copy${PropertyName}($CPP_CURRENT) {
+[$cpp]       $cppType ${PojoI}::copy${PropertyName}($CPP_CURRENT_UNUSED) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           $cppType result(${fieldName}.size());
@@ -1304,7 +1305,7 @@ add single
 [$pyc]           target.set$Inverse( self )
 [$pyc]
 [$hdr]       virtual void add${property.fieldName}(const ${property.shortType}Ptr& target, $HDR_CURRENT);
-[$cpp]       void ${PojoI}::add${property.fieldName}(const ${property.shortType}Ptr& target, $CPP_CURRENT) {
+[$cpp]       void ${PojoI}::add${property.fieldName}(const ${property.shortType}Ptr& target, $CPP_CURRENT_UNUSED) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           ${fieldName}.push_back( target );
@@ -1334,7 +1335,7 @@ addAll set
 [$pyc]               target.set$Inverse( self )
 [$pyc]
 [$hdr]       virtual void addAll${property.fieldName}Set(const ${cppType}& targets, $HDR_CURRENT);
-[$cpp]       void ${PojoI}::addAll${property.fieldName}Set(const ${cppType}& targets, $CPP_CURRENT) {
+[$cpp]       void ${PojoI}::addAll${property.fieldName}Set(const ${cppType}& targets, $CPP_CURRENT_UNUSED) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           $cppType::iterator loc = ${fieldName}.end();
@@ -1363,7 +1364,7 @@ remove single
 [$pyc]           target.set$Inverse( None )
 [$pyc]
 [$hdr]       virtual void remove${property.fieldName}(const ${property.shortType}Ptr& target, $HDR_CURRENT);
-[$cpp]       void ${PojoI}::remove${property.fieldName}(const ${property.shortType}Ptr& target, $CPP_CURRENT) {
+[$cpp]       void ${PojoI}::remove${property.fieldName}(const ${property.shortType}Ptr& target, $CPP_CURRENT_UNUSED) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           $cppType::iterator it = std::remove_if(
@@ -1397,7 +1398,7 @@ removeAll multiple
 [$pyc]               self._${fieldName}.remove( elt )
 [$pyc]
 [$hdr]       virtual void removeAll${property.fieldName}Set(const ${cppType}& targets, $HDR_CURRENT);
-[$cpp]       void ${PojoI}::removeAll${property.fieldName}Set(const ${cppType}& targets, $CPP_CURRENT) {
+[$cpp]       void ${PojoI}::removeAll${property.fieldName}Set(const ${cppType}& targets, $CPP_CURRENT_UNUSED) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           ${cppType}::iterator end = ${fieldName}.end();
@@ -1430,7 +1431,7 @@ clear
 [$pyc]           self._${fieldName} = list()
 [$pyc]
 [$hdr]       virtual void clear${PropertyName}($HDR_CURRENT);
-[$cpp]       void ${PojoI}::clear${PropertyName}($CPP_CURRENT) {
+[$cpp]       void ${PojoI}::clear${PropertyName}($CPP_CURRENT_UNUSED) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           $cppType::iterator beg = ${fieldName}.begin();
@@ -1502,7 +1503,7 @@ super class where the property was defined.
 [$pyc]           self._${propLoaded} = True
 [$pyc]
 [$hdr]       virtual void reload${PropertyName}(const ${ActualPojo}Ptr& toCopy, $HDR_CURRENT);
-[$cpp]       void ${PojoI}::reload${PropertyName}(const ${ActualPojo}Ptr& toCopy, $CPP_CURRENT) {
+[$cpp]       void ${PojoI}::reload${PropertyName}(const ${ActualPojo}Ptr& toCopy, $CPP_CURRENT_UNUSED) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (${propLoaded}) {
 [$cpp]               throw omero::ClientError(__FILE__,__LINE__,"Cannot reload active collection: ${fieldName}");
@@ -1573,14 +1574,14 @@ super class where the property was defined.
 
 #set( $CPPRETURNTYPE = "${property.shortType}Ptr")
 [$hdr]       virtual $CPPRETURNTYPE get${property.shortType}(int index, $HDR_CURRENT);
-[$cpp]       $CPPRETURNTYPE ${PojoI}::get${property.shortType}(int index, $CPP_CURRENT) {
+[$cpp]       $CPPRETURNTYPE ${PojoI}::get${property.shortType}(int index, $CPP_CURRENT_UNUSED) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           return ${fieldName}.at(index); // throws out_of_range
 [$cpp]       }
 [$cpp]
 [$hdr]       virtual $CPPRETURNTYPE set${property.shortType}(int index, const ${property.shortType}Ptr& element, $HDR_CURRENT);
-[$cpp]       $CPPRETURNTYPE ${PojoI}::set${property.shortType}(int index, const ${property.shortType}Ptr& element, $CPP_CURRENT) {
+[$cpp]       $CPPRETURNTYPE ${PojoI}::set${property.shortType}(int index, const ${property.shortType}Ptr& element, $CPP_CURRENT_UNUSED) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           $CPPRETURNTYPE old = ${fieldName}.at(index); // throws out_of_range
@@ -1592,14 +1593,14 @@ super class where the property was defined.
 [$cpp]       }
 [$cpp]
 [$hdr]       virtual $CPPRETURNTYPE getPrimary${property.shortType}($HDR_CURRENT);
-[$cpp]       $CPPRETURNTYPE ${PojoI}::getPrimary${property.shortType}($CPP_CURRENT) {
+[$cpp]       $CPPRETURNTYPE ${PojoI}::getPrimary${property.shortType}($CPP_CURRENT_UNUSED) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           return ${fieldName}.at(0); // throws out_of_range
 [$cpp]       }
 [$cpp]
 [$hdr]       virtual $CPPRETURNTYPE setPrimary${property.shortType}(const ${property.shortType}Ptr& element, $HDR_CURRENT);
-[$cpp]       $CPPRETURNTYPE ${PojoI}::setPrimary${property.shortType}(const ${property.shortType}Ptr& element, $CPP_CURRENT) {
+[$cpp]       $CPPRETURNTYPE ${PojoI}::setPrimary${property.shortType}(const ${property.shortType}Ptr& element, $CPP_CURRENT_UNUSED) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           int index = omero::indexOf(${fieldName}, element);
@@ -1676,7 +1677,7 @@ COUNTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 [$jav]       }
 [$jav]
 [$hdr]       virtual omero::sys::CountMap $GETCOUNTMETHOD($HDR_CURRENT);
-[$cpp]       omero::sys::CountMap ${PojoI}::$GETCOUNTMETHOD($CPP_CURRENT) {
+[$cpp]       omero::sys::CountMap ${PojoI}::$GETCOUNTMETHOD($CPP_CURRENT_UNUSED) {
 [$cpp]           return $GETCOUNTVALUE;
 [$cpp]       }
 [$pyc]       def $GETCOUNTMETHOD(self, $PYC_CURRENT):
@@ -1706,7 +1707,7 @@ ADD ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 [$pyc]           return link
 [$pyc]
 [$hdr]       virtual ${property.shortType}Ptr link${property.targetName}(const ${property.shortTarget}Ptr& addition, $HDR_CURRENT);
-[$cpp]       ${property.shortType}Ptr ${PojoI}::link${property.targetName}(const ${property.shortTarget}Ptr& addition, $CPP_CURRENT) {
+[$cpp]       ${property.shortType}Ptr ${PojoI}::link${property.targetName}(const ${property.shortTarget}Ptr& addition, $CPP_CURRENT_UNUSED) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           ${property.shortType}Ptr link = new ${property.shortType}I();
@@ -1745,7 +1746,7 @@ TODO: Should we check for nulls in other?
 #end
 [$pyc]
 [$hdr]       virtual void $ADD2METHOD(const ${property.shortType}Ptr& link, bool bothSides, $HDR_CURRENT);
-[$cpp]       void ${PojoI}::$ADD2METHOD(const ${property.shortType}Ptr& link, bool bothSides, $CPP_CURRENT) {
+[$cpp]       void ${PojoI}::$ADD2METHOD(const ${property.shortType}Ptr& link, bool bothSides, $CPP_CURRENT_UNUSED) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           ${fieldName}.push_back( link );
@@ -1778,7 +1779,7 @@ FIND
 [$pyc]           return result
 [$pyc]
 [$hdr]       virtual $cppType find${property.shortType}(const ${property.shortTarget}Ptr& removal, $HDR_CURRENT);
-[$cpp]       $cppType ${PojoI}::find${property.shortType}(const ${property.shortTarget}Ptr& removal, $CPP_CURRENT) {
+[$cpp]       $cppType ${PojoI}::find${property.shortType}(const ${property.shortTarget}Ptr& removal, $CPP_CURRENT_UNUSED) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           std::vector<${property.shortType}Ptr> result;
@@ -1861,7 +1862,7 @@ REMOVE
 #end
 [$pyc]
 [$hdr]       virtual void unlink${property.targetName}(const ${property.shortTarget}Ptr& removal, $HDR_CURRENT);
-[$cpp]       void ${PojoI}::unlink${property.targetName}(const ${property.shortTarget}Ptr& removal, $CPP_CURRENT) {
+[$cpp]       void ${PojoI}::unlink${property.targetName}(const ${property.shortTarget}Ptr& removal, $CPP_CURRENT_UNUSED) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           std::vector<${property.shortType}Ptr> toRemove = find${property.shortType}(removal);
@@ -1873,7 +1874,7 @@ REMOVE
 [$cpp]           }
 [$cpp]       }
 [$hdr]       virtual void $REMOVE2METHOD(const ${property.shortType}Ptr& link, bool bothSides, $HDR_CURRENT);
-[$cpp]       void ${PojoI}::$REMOVE2METHOD(const ${property.shortType}Ptr& link, bool bothSides, $CPP_CURRENT) {
+[$cpp]       void ${PojoI}::$REMOVE2METHOD(const ${property.shortType}Ptr& link, bool bothSides, $CPP_CURRENT_UNUSED) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           // predicate may do reverse side
@@ -1899,7 +1900,7 @@ Linked Lists
 [$jav]        }
 
 [$hdr]        virtual ${ActualPojo}Linked${property.targetName}Seq linked${property.targetName}List($HDR_CURRENT);
-[$cpp]        ${ActualPojo}Linked${property.targetName}Seq ${PojoI}::linked${property.targetName}List($CPP_CURRENT) {
+[$cpp]        ${ActualPojo}Linked${property.targetName}Seq ${PojoI}::linked${property.targetName}List($CPP_CURRENT_UNUSED) {
 [$cpp]            errorIfUnloaded();
 [$cpp]            if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
 [$cpp]            ${ActualPojo}Linked${property.targetName}Seq linked;
@@ -1957,7 +1958,7 @@ CLASS-LEVEL EXTRA METHODS BLOCK:
 [$pyc]           self.setChild( _child )
 [$pyc]
 [$hdr]       virtual void link(const ${parent}Ptr& parent, const ${child}Ptr& child, $HDR_CURRENT);
-[$cpp]       void ${PojoI}::link(const ${parent}Ptr& _parent, const ${child}Ptr& _child, $CPP_CURRENT) {
+[$cpp]       void ${PojoI}::link(const ${parent}Ptr& _parent, const ${child}Ptr& _child, $CPP_CURRENT_UNUSED) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           setParent( _parent );
 [$cpp]           setChild(  _child  );

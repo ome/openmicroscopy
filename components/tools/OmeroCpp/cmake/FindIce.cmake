@@ -5,87 +5,78 @@
 # Find the ZeroC Internet Communication Engine (ICE) programs,
 # libraries and datafiles.
 #
-# Use this module by invoking find_package with the form::
-#
-#   find_package(Ice
-#     [version] [EXACT]      # Minimum or EXACT version e.g. 3.5.1
-#     [REQUIRED])            # Fail with error if Ice is not found
+# This module supports multiple components.
+# Components can include any of: ``Freeze``, ``Glacier2``, ``Ice``,
+# ``IceBox``, ``IceDB``, ``IceGrid``, ``IcePatch``, ``IceSSL``,
+# ``IceStorm``, ``IceUtil``, ``IceXML``, or ``Slice``.
 #
 # This module reports information about the Ice installation in
 # several variables.  General variables::
 #
 #   Ice_VERSION - Ice release version
-#   Ice_FOUND - true if the main programs and libraries were found
+#   ICE_FOUND - true if the main programs and libraries were found
+#   Ice_LIBRARIES - component libraries to be linked
+#   Ice_INCLUDE_DIRS - the directories containing the Ice headers
+#   Ice_SLICE_DIRS - the directories containing the Ice slice interface
+#                    definitions
 #
 # Ice programs are reported in::
 #
-#   SLICE2CPP_EXECUTABLE - path to slice2cpp executable
-#   SLICE2CS_EXECUTABLE - path to slice2cs executable
-#   SLICE2FREEZEJ_EXECUTABLE - path to slice2freezej executable
-#   SLICE2FREEZE_EXECUTABLE - path to slice2freeze executable
-#   SLICE2HTML_EXECUTABLE - path to slice2html executable
-#   SLICE2JAVA_EXECUTABLE - path to slice2java executable
-#   SLICE2PHP_EXECUTABLE - path to slice2php executable
-#   SLICE2PY_EXECUTABLE - path to slice2py executable
-#   SLICE2RB_EXECUTABLE - path to slice2rb executable
+#   Ice_SLICE2CPP_EXECUTABLE - path to slice2cpp executable
+#   Ice_SLICE2CS_EXECUTABLE - path to slice2cs executable
+#   Ice_SLICE2FREEZEJ_EXECUTABLE - path to slice2freezej executable
+#   Ice_SLICE2FREEZE_EXECUTABLE - path to slice2freeze executable
+#   Ice_SLICE2HTML_EXECUTABLE - path to slice2html executable
+#   Ice_SLICE2JAVA_EXECUTABLE - path to slice2java executable
+#   Ice_SLICE2PHP_EXECUTABLE - path to slice2php executable
+#   Ice_SLICE2PY_EXECUTABLE - path to slice2py executable
+#   Ice_SLICE2RB_EXECUTABLE - path to slice2rb executable
 #
-# Ice libraries are reported in::
+# Ice component libraries are reported in::
 #
-#   FREEZE_LIBRARY - Freeze library
-#   GLACIER2_LIBRARY - Glacier2 library
-#   ICE_LIBRARY - Ice library
-#   ICEBOX_LIBRARY - IceBox library
-#   ICEDB_LIBRARY - IceDB library
-#   ICEGRID_LIBRARY - IceGrid library
-#   ICEPATCH2_LIBRARY - IcePatch library
-#   ICESSL_LIBRARY - IceSSL library
-#   ICESTORM_LIBRARY - IceStorm library
-#   ICEUTIL_LIBRARY - IceUtil library
-#   ICEXML_LIBRARY - IceXML library
-#   SLICE_LIBRARY - Slice library
+#   Ice_<C>_FOUND - ON if component was found
+#   Ice_<C>_LIBRARIES - libraries for component
 #
-# Ice directories for C++ programs, includes and slice includes and libraries
-# are reported in::
+# Note that ``<C>`` is the uppercased name of the component.
 #
-#   ICE_BINARY_DIR - the directory containing the Ice programs
-#   ICE_INCLUDE_DIR - the directory containing the Ice headers
-#   ICE_SLICE_DIR - the directory containing the Ice slice interface definitions
-#   ICE_LIBRARY_DIR - the directory containing the Ice libraries
+# This module reads hints about search results from::
 #
-# This module reads hints about search results from variables::
+#   Ice_HOME - the root of the Ice installation
 #
-#   ICE_HOME - the root of the Ice installation
-#   ICE_BINARY_DIR - the directory containing the Ice programs
-#   ICE_INCLUDE_DIR - the directory containing the Ice headers
-#   ICE_SLICE_DIR - the directory containing the Ice slice interface definitions
-#   ICE_LIBRARY_DIR - the directory containing the Ice libraries
+# The environment variable :envvar:`ICE_HOME` may also be used; the
+# Ice_HOME variable takes precedence.
 #
-# The environment variable :envvar:`ICE_HOME` may also be used, unless
-# overridden by setting the ICE_HOME variable.
+# The following cache variables may also be set::
+#
+#   Ice_<P>_EXECUTABLE - the path to executable <P>
+#   Ice_INCLUDE_DIR - the directory containing the Ice headers
+#   Ice_SLICE_DIR - the directory containing the Ice slice interface
+#                   definitions
+#   Ice_<C>_LIBRARY - the library for component <C>
 #
 # .. note::
 #
-#   These variables are not all required to be set, and in most cases
-#   will not require setting at all unless multiple Ice versions are
-#   available and a specific version is required.  On Windows,
-#   ICE_HOME is usually sufficient since the package is contained in a
-#   single directory.  On Unix, the programs, headers and libraries
-#   will usually be in standard locations, but ICE_SLICE_DIR might not
-#   be automatically detected.  All the other variables are defaulted
-#   using ICE_HOME, if set.  It's possible to set ICE_HOME and
-#   selectively specify alternative locations for the other
-#   components; this might be required for e.g. newer versions of
-#   Visual Studio if the heuristics are not sufficient to identify the
-#   correct programs and libraries.
+#   In most cases none of the above variables will require setting,
+#   unless multiple Ice versions are available and a specific version
+#   is required.  On Windows, the most recent version of Ice will be
+#   found through the registry.  On Unix, the programs, headers and
+#   libraries will usually be in standard locations, but Ice_SLICE_DIRS
+#   might not be automatically detected (commonly known locations are
+#   searched).  All the other variables are defaulted using Ice_HOME,
+#   if set.  It's possible to set Ice_HOME and selectively specify
+#   alternative locations for the other components; this might be
+#   required for e.g. newer versions of Visual Studio if the
+#   heuristics are not sufficient to identify the correct programs and
+#   libraries for the specific Visual Studio version.
 #
 # Other variables one may set to control this module are::
 #
-#   ICE_DEBUG - Set to ON to enable debug output from FindIce.
+#   Ice_DEBUG - Set to ON to enable debug output from FindIce.
+
+# Written by Roger Leigh <rleigh@codelibre.net>
 
 #=============================================================================
-# Written by Roger Leigh <rleigh@codelibre.net>
 # Copyright 2014 University of Dundee
-#=============================================================================
 #
 # Distributed under the OSI-approved BSD License (the "License");
 # see accompanying file Copyright.txt for details.
@@ -97,297 +88,115 @@
 # (To distribute this file outside of CMake, substitute the full
 #  License text for the above reference.)
 
-set(ICE_HOME NOTFOUND
-    CACHE PATH "Location of the Ice installation")
-mark_as_advanced(FORCE ICE_HOME)
-
-set(ICE_BINARY_DIR NOTFOUND
-    CACHE PATH "Location of the Ice programs")
-mark_as_advanced(FORCE ICE_BINARY_DIR)
-
-set(ICE_INCLUDE_DIR NOTFOUND
-    CACHE PATH "Location of the Ice headers")
-mark_as_advanced(FORCE ICE_INCLUDE_DIR)
-
-set(ICE_SLICE_DIR NOTFOUND
-    CACHE PATH "Location of the Ice slice interface definitions")
-mark_as_advanced(FORCE ICE_SLICE_DIR)
-
-set(ICE_LIBRARY_DIR NOTFOUND
-    CACHE PATH "Location of the Ice libraries")
-mark_as_advanced(FORCE ICE_LIBRARY_DIR)
-
+# The Ice checks are contained in a function due to the large number
+# of temporary variables needed.
 function(_Ice_FIND)
-  # Set up search paths, taking compiler into account.  Search ICE_HOME,
-  # with ICE_HOME in the environment as a fallback
-  if(ICE_HOME)
-    list(APPEND ice_roots "${ICE_HOME}")
-  endif(ICE_HOME)
-  if(EXISTS "$ENV{ICE_HOME}")
-    file(TO_CMAKE_PATH "$ENV{ICE_HOME}" NATIVE_PATH)
-    list(APPEND ice_roots "${NATIVE_PATH}")
-  endif(EXISTS "$ENV{ICE_HOME}")
+  # Released versions of Ice, including generic short forms
+  set(ice_versions
+      3
+      3.5
+      3.5.1
+      3.5.0
+      3.4
+      3.4.2
+      3.4.1
+      3.4.0
+      3.3
+      3.3.1
+      3.3.0)
 
-  foreach(root ${ice_roots})
-    # For compatibility with ZeroC Windows builds.
-    if(MSVC)
-      # Versions prior to VS 10.0 don't use vcnnn subdirectories.
-      # VS 10.0
-      if((MSVC_VERSION EQUAL 1600) OR (MSVC_VERSION GREATER 1600 AND MSVC_VERSION LESS 1700))
-        if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-          list(APPEND ice_binary_paths "${root}/bin/vc100/x64")
-          list(APPEND ice_library_paths "${root}/lib/vc100/x64")
-        else(CMAKE_SIZEOF_VOID_P EQUAL 8)
-          list(APPEND ice_binary_paths "${root}/bin/vc100")
-          list(APPEND ice_library_paths "${root}/lib/vc100")
-        endif(CMAKE_SIZEOF_VOID_P EQUAL 8)
-      endif((MSVC_VERSION EQUAL 1600) OR (MSVC_VERSION GREATER 1600 AND MSVC_VERSION LESS 1700))
-      # VS 11.0
-      if((MSVC_VERSION EQUAL 1700) OR (MSVC_VERSION GREATER 1700 AND MSVC_VERSION LESS 1800))
-        if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-          list(APPEND ice_binary_paths "${root}/bin/vc110/x64")
-          list(APPEND ice_library_paths "${root}/lib/vc110/x64")
-        else(CMAKE_SIZEOF_VOID_P EQUAL 8)
-          list(APPEND ice_binary_paths "${root}/bin/vc110")
-          list(APPEND ice_library_paths "${root}/lib/vc110")
-        endif(CMAKE_SIZEOF_VOID_P EQUAL 8)
-      endif((MSVC_VERSION EQUAL 1700) OR (MSVC_VERSION GREATER 1700 AND MSVC_VERSION LESS 1800))
-      # VS 12.0
-      if((MSVC_VERSION EQUAL 1800) OR (MSVC_VERSION GREATER 1800 AND MSVC_VERSION LESS 1900))
-        if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-          list(APPEND ice_binary_paths "${root}/bin/vc120/x64")
-          list(APPEND ice_library_paths "${root}/lib/vc120/x64")
-        else(CMAKE_SIZEOF_VOID_P EQUAL 8)
-          list(APPEND ice_binary_paths "${root}/bin/vc120")
-          list(APPEND ice_library_paths "${root}/lib/vc120")
-        endif(CMAKE_SIZEOF_VOID_P EQUAL 8)
-      endif((MSVC_VERSION EQUAL 1800) OR (MSVC_VERSION GREATER 1800 AND MSVC_VERSION LESS 1900))
-    endif(MSVC)
-    # Generic 64-bit directories
-    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-      list(APPEND ice_binary_paths "${root}/bin/x64")
-      list(APPEND ice_library_paths "${root}/lib64")
-      list(APPEND ice_library_paths "${root}/lib/x64")
-    endif(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    # Generic 64-bit or 32-bit directories
-    list(APPEND ice_binary_paths "${root}/bin")
-    list(APPEND ice_include_paths "${root}/include")
-    # Common directories
-    list(APPEND ice_library_paths "${root}/lib")
-    list(APPEND ice_slice_paths "${root}/slice")
-  endforeach(root ${ice_roots})
+  # Set up search paths, taking compiler into account.  Search Ice_HOME,
+  # with ICE_HOME in the environment as a fallback if unset.
+  if(Ice_HOME)
+    list(APPEND ice_roots "${Ice_HOME}")
+  else()
+    if(NOT "$ENV{ICE_HOME}" STREQUAL "")
+      file(TO_CMAKE_PATH "$ENV{ICE_HOME}" NATIVE_PATH)
+      list(APPEND ice_roots "${NATIVE_PATH}")
+      set(Ice_HOME "${NATIVE_PATH}"
+          CACHE PATH "Location of the Ice installation" FORCE)
+    endif()
+  endif()
 
-  # On Windows, look in standard install locations.  Different versions
-  # of Ice install in different places and support different compiler
-  # versions.  Look only in the locations compatible with the compiler
-  # in use.  For newer versions which this hardcoded logic can't
-  # support, ICE_HOME and/or the other configuration options must be
-  # used, in which case the above logic will be used instead.
+  if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    # 64-bit path suffix
+    set(_x64 "/x64")
+    # 64-bit library directory
+    set(_lib64 "lib64")
+  endif()
+
   if(MSVC_VERSION)
-    set(_x86 "(x86)")
-    if (CMAKE_SIZEOF_VOID_P MATCHES 8)
-      set (program_files_path "$ENV{ProgramFiles${_x86}}/ZeroC")
-    else (CMAKE_SIZEOF_VOID_P MATCHES 8)
-      set (program_files_path "$ENV{ProgramFiles}/ZeroC")
-    endif (CMAKE_SIZEOF_VOID_P MATCHES 8)
-    file(TO_CMAKE_PATH "${program_files_path}" program_files_path)
-
     # VS 8.0
-    if((MSVC_VERSION EQUAL 1400) OR (MSVC_VERSION GREATER 1400 AND MSVC_VERSION LESS 1500))
-      # 3.3.1
-      if (CMAKE_SIZEOF_VOID_P MATCHES 8)
-        list(APPEND ice_binary_paths "C:/Ice-3.3.1/bin/x64")
-        list(APPEND ice_library_paths "C:/Ice-3.3.1/lib/x64")
-      else (CMAKE_SIZEOF_VOID_P MATCHES 8)
-        list(APPEND ice_binary_paths "C:/Ice-3.3.1/bin")
-        list(APPEND ice_library_paths "C:/Ice-3.3.1/lib")
-      endif (CMAKE_SIZEOF_VOID_P MATCHES 8)
-      list(APPEND ice_include_paths "C:/Ice-3.3.1/include")
-      list(APPEND ice_slice_paths "C:/Ice-3.3.1/slice")
-      # 3.3.0
-      if (CMAKE_SIZEOF_VOID_P MATCHES 8)
-        list(APPEND ice_binary_paths "C:/Ice-3.3.0/bin/x64")
-        list(APPEND ice_library_paths "C:/Ice-3.3.0/lib/x64")
-      else (CMAKE_SIZEOF_VOID_P MATCHES 8)
-        list(APPEND ice_binary_paths "C:/Ice-3.3.0/bin")
-        list(APPEND ice_library_paths "C:/Ice-3.3.0/lib")
-      endif (CMAKE_SIZEOF_VOID_P MATCHES 8)
-      list(APPEND ice_include_paths "C:/Ice-3.3.0/include")
-      list(APPEND ice_slice_paths "C:/Ice-3.3.0/slice")
-    endif((MSVC_VERSION EQUAL 1400) OR (MSVC_VERSION GREATER 1400 AND MSVC_VERSION LESS 1500))
-
+    if(NOT MSVC_VERSION VERSION_LESS 1400 AND MSVC_VERSION VERSION_LESS 1500)
+      set(vcver "vc80")
+      set(vcyear "2005")
     # VS 9.0
-    if((MSVC_VERSION EQUAL 1500) OR (MSVC_VERSION GREATER 1500 AND MSVC_VERSION LESS 1600))
-      # 3.4.2
-      if (CMAKE_SIZEOF_VOID_P MATCHES 8)
-        list(APPEND ice_binary_paths "${program_files_path}/Ice-3.4.2/bin/x64")
-        list(APPEND ice_library_paths "${program_files_path}/Ice-3.4.2/lib/x64")
-      else (CMAKE_SIZEOF_VOID_P MATCHES 8)
-        list(APPEND ice_binary_paths "${program_files_path}/Ice-3.4.2/bin")
-        list(APPEND ice_library_paths "${program_files_path}/Ice-3.4.2/lib")
-      endif (CMAKE_SIZEOF_VOID_P MATCHES 8)
-      list(APPEND ice_include_paths "C:/Ice-3.4.2/include")
-      list(APPEND ice_slice_paths "C:/Ice-3.4.2/slice")
-      # 3.4.1
-      if (CMAKE_SIZEOF_VOID_P MATCHES 8)
-        list(APPEND ice_binary_paths "${program_files_path}/Ice-3.4.1/bin/x64")
-        list(APPEND ice_library_paths "${program_files_path}/Ice-3.4.1/lib/x64")
-      else (CMAKE_SIZEOF_VOID_P MATCHES 8)
-        list(APPEND ice_binary_paths "${program_files_path}/Ice-3.4.1/bin")
-        list(APPEND ice_library_paths "${program_files_path}/Ice-3.4.1/lib")
-      endif (CMAKE_SIZEOF_VOID_P MATCHES 8)
-      list(APPEND ice_include_paths "C:/Ice-3.4.1/include")
-      list(APPEND ice_slice_paths "C:/Ice-3.4.1/slice")
-      # 3.4.0
-      if (CMAKE_SIZEOF_VOID_P MATCHES 8)
-        list(APPEND ice_binary_paths "${program_files_path}/Ice-3.4.0/bin/x64")
-        list(APPEND ice_library_paths "${program_files_path}/Ice-3.4.0/lib/x64")
-      else (CMAKE_SIZEOF_VOID_P MATCHES 8)
-        list(APPEND ice_binary_paths "${program_files_path}/Ice-3.4.0/bin")
-        list(APPEND ice_library_paths "${program_files_path}/Ice-3.4.0/lib")
-      endif (CMAKE_SIZEOF_VOID_P MATCHES 8)
-      list(APPEND ice_include_paths "C:/Ice-3.4.0/include")
-      list(APPEND ice_slice_paths "C:/Ice-3.4.0/slice")
-      # 3.3.1
-      if (CMAKE_SIZEOF_VOID_P MATCHES 8)
-        list(APPEND ice_binary_paths "C:/Ice-3.3.1-VC90/bin/x64")
-        list(APPEND ice_library_paths "C:/Ice-3.3.1-VC90/lib/x64")
-      else (CMAKE_SIZEOF_VOID_P MATCHES 8)
-        list(APPEND ice_binary_paths "C:/Ice-3.3.1-VC90/bin")
-        list(APPEND ice_library_paths "C:/Ice-3.3.1-VC90/lib")
-      endif (CMAKE_SIZEOF_VOID_P MATCHES 8)
-      list(APPEND ice_include_paths "C:/Ice-3.3.1-VC90/include")
-      list(APPEND ice_slice_paths "C:/Ice-3.3.1-VC90/slice")
-      # 3.3.0
-      if (CMAKE_SIZEOF_VOID_P MATCHES 8)
-        list(APPEND ice_binary_paths "C:/Ice-3.3.0-VC90/bin/x64")
-        list(APPEND ice_library_paths "C:/Ice-3.3.0-VC90/lib/x64")
-      else (CMAKE_SIZEOF_VOID_P MATCHES 8)
-        list(APPEND ice_binary_paths "C:/Ice-3.3.0-VC90/bin")
-        list(APPEND ice_library_paths "C:/Ice-3.3.0-VC90/lib")
-      endif (CMAKE_SIZEOF_VOID_P MATCHES 8)
-      list(APPEND ice_include_paths "C:/Ice-3.3.0-VC90/include")
-      list(APPEND ice_slice_paths "C:/Ice-3.3.0-VC90/slice")
-    endif((MSVC_VERSION EQUAL 1500) OR (MSVC_VERSION GREATER 1500 AND MSVC_VERSION LESS 1600))
-
+    elseif(NOT MSVC_VERSION VERSION_LESS 1500 AND MSVC_VERSION VERSION_LESS 1600)
+      set(vcver "vc90")
+      set(vcyear "2008")
     # VS 10.0
-    if((MSVC_VERSION EQUAL 1600) OR (MSVC_VERSION GREATER 1600 AND MSVC_VERSION LESS 1700))
-      # 3.5.1
-      if (CMAKE_SIZEOF_VOID_P MATCHES 8)
-        list(APPEND ice_binary_paths "${program_files_path}/Ice-3.5.1/bin/x64")
-        list(APPEND ice_library_paths "${program_files_path}/Ice-3.5.1/lib/x64")
-      else (CMAKE_SIZEOF_VOID_P MATCHES 8)
-        list(APPEND ice_binary_paths "${program_files_path}/Ice-3.5.1/bin")
-        list(APPEND ice_library_paths "${program_files_path}/Ice-3.5.1/lib")
-      endif (CMAKE_SIZEOF_VOID_P MATCHES 8)
-      list(APPEND ice_include_paths "${program_files_path}/Ice-3.5.1/include")
-      list(APPEND ice_slice_paths "${program_files_path}/Ice-3.5.1/slice")
-      # 3.5.0
-      if (CMAKE_SIZEOF_VOID_P MATCHES 8)
-        list(APPEND ice_binary_paths "${program_files_path}/Ice-3.5.0/bin/x64")
-        list(APPEND ice_library_paths "${program_files_path}/Ice-3.5.0/lib/x64")
-      else (CMAKE_SIZEOF_VOID_P MATCHES 8)
-        list(APPEND ice_binary_paths "${program_files_path}/Ice-3.5.0/bin")
-        list(APPEND ice_library_paths "${program_files_path}/Ice-3.5.0/lib")
-      endif (CMAKE_SIZEOF_VOID_P MATCHES 8)
-      list(APPEND ice_include_paths "${program_files_path}/Ice-3.5.0/include")
-      list(APPEND ice_slice_paths "${program_files_path}/Ice-3.5.0/slice")
-      # 3.4.2
-      if (CMAKE_SIZEOF_VOID_P MATCHES 8)
-        list(APPEND ice_binary_paths "${program_files_path}/Ice-3.4.2/bin/vc100/x64")
-        list(APPEND ice_library_paths "${program_files_path}/Ice-3.4.2/lib/vc100/x64")
-      else (CMAKE_SIZEOF_VOID_P MATCHES 8)
-        list(APPEND ice_binary_paths "${program_files_path}/Ice-3.4.2/bin/vc100")
-        list(APPEND ice_library_paths "${program_files_path}/Ice-3.4.2/lib/vc100")
-      endif (CMAKE_SIZEOF_VOID_P MATCHES 8)
-      list(APPEND ice_include_paths "${program_files_path}/Ice-3.4.2/include")
-      list(APPEND ice_slice_paths "${program_files_path}/Ice-3.4.2/slice")
-      # 3.4.1
-      if (CMAKE_SIZEOF_VOID_P MATCHES 8)
-        list(APPEND ice_binary_paths "${program_files_path}/Ice-3.4.1/bin/vc100/x64")
-        list(APPEND ice_library_paths "${program_files_path}/Ice-3.4.1/lib/vc100/x64")
-      else (CMAKE_SIZEOF_VOID_P MATCHES 8)
-        list(APPEND ice_binary_paths "${program_files_path}/Ice-3.4.1/bin/vc100")
-        list(APPEND ice_library_paths "${program_files_path}/Ice-3.4.1/lib/vc100")
-      endif (CMAKE_SIZEOF_VOID_P MATCHES 8)
-      list(APPEND ice_include_paths "${program_files_path}/Ice-3.4.1/include")
-      list(APPEND ice_slice_paths "${program_files_path}/Ice-3.4.1/slice")
-    endif((MSVC_VERSION EQUAL 1600) OR (MSVC_VERSION GREATER 1600 AND MSVC_VERSION LESS 1700))
-
+    elseif(NOT MSVC_VERSION VERSION_LESS 1600 AND MSVC_VERSION VERSION_LESS 1700)
+      set(vcver "vc100")
     # VS 11.0
-    if((MSVC_VERSION EQUAL 1700) OR (MSVC_VERSION GREATER 1700 AND MSVC_VERSION LESS 1800))
-      # 3.5.1
-      if (CMAKE_SIZEOF_VOID_P MATCHES 8)
-        list(APPEND ice_binary_paths "${program_files_path}/Ice-3.5.1/bin/vc110/x64")
-        list(APPEND ice_library_paths "${program_files_path}/Ice-3.5.1/lib/vc110/x64")
-      else (CMAKE_SIZEOF_VOID_P MATCHES 8)
-        list(APPEND ice_binary_paths "${program_files_path}/Ice-3.5.1/bin/vc110")
-        list(APPEND ice_library_paths "${program_files_path}/Ice-3.5.1/lib/vc110")
-      endif (CMAKE_SIZEOF_VOID_P MATCHES 8)
-      list(APPEND ice_include_paths "${program_files_path}/Ice-3.5.1/include")
-      list(APPEND ice_slice_paths "${program_files_path}/Ice-3.5.1/slice")
-      # 3.5.0
-      if (CMAKE_SIZEOF_VOID_P MATCHES 8)
-        list(APPEND ice_binary_paths "${program_files_path}/Ice-3.5.0/bin/vc110/x64")
-        list(APPEND ice_library_paths "${program_files_path}/Ice-3.5.0/lib/vc110/x64")
-      else (CMAKE_SIZEOF_VOID_P MATCHES 8)
-        list(APPEND ice_binary_paths "${program_files_path}/Ice-3.5.0/bin/vc110")
-        list(APPEND ice_library_paths "${program_files_path}/Ice-3.5.0/lib/vc110")
-      endif (CMAKE_SIZEOF_VOID_P MATCHES 8)
-      list(APPEND ice_include_paths "${program_files_path}/Ice-3.5.0/include")
-      list(APPEND ice_slice_paths "${program_files_path}/Ice-3.5.0/slice")
-    endif((MSVC_VERSION EQUAL 1700) OR (MSVC_VERSION GREATER 1700 AND MSVC_VERSION LESS 1800))
-
+    elseif(NOT MSVC_VERSION VERSION_LESS 1700 AND MSVC_VERSION VERSION_LESS 1800)
+      set(vcver "vc110")
     # VS 12.0
-    if((MSVC_VERSION EQUAL 1800) OR (MSVC_VERSION GREATER 1800 AND MSVC_VERSION LESS 1900))
-      # 3.5.1
-      if (CMAKE_SIZEOF_VOID_P MATCHES 8)
-        list(APPEND ice_binary_paths "${program_files_path}/Ice-3.5.1/bin/vc120/x64")
-        list(APPEND ice_library_paths "${program_files_path}/Ice-3.5.1/lib/vc120/x64")
-      else (CMAKE_SIZEOF_VOID_P MATCHES 8)
-        list(APPEND ice_binary_paths "${program_files_path}/Ice-3.5.1/bin/vc120")
-        list(APPEND ice_library_paths "${program_files_path}/Ice-3.5.1/lib/vc120")
-      endif (CMAKE_SIZEOF_VOID_P MATCHES 8)
-      list(APPEND ice_include_paths "${program_files_path}/Ice-3.5.1/include")
-      list(APPEND ice_slice_paths "${program_files_path}/Ice-3.5.1/slice")
-    endif((MSVC_VERSION EQUAL 1800) OR (MSVC_VERSION GREATER 1800 AND MSVC_VERSION LESS 1900))
-  else(MSVC_VERSION)
-    set(ice_locations
-        /opt/Ice
-        /opt/Ice-3
-        /opt/Ice-3.5
-        /opt/Ice-3.5.1
-        /opt/Ice-3.5.0
-        /opt/Ice-3.4
-        /opt/Ice-3.4.2
-        /opt/Ice-3.4.1
-        /opt/Ice-3.4.0
-        /opt/Ice-3.3
-        /opt/Ice-3.3.1
-        /opt/Ice-3.3.0)
+    elseif(NOT MSVC_VERSION VERSION_LESS 1800 AND MSVC_VERSION VERSION_LESS 1900)
+      set(vcver "vc120")
+    # VS 14.0
+    elseif(NOT MSVC_VERSION VERSION_LESS 1900 AND MSVC_VERSION VERSION_LESS 2000)
+      set(vcver "vc140")
+    endif()
+  endif()
 
-    foreach(path ${ice_locations})
-      # Prefer 64-bit variants if present and using a 64-bit compiler
-      if (CMAKE_SIZEOF_VOID_P MATCHES 8)
-        list(APPEND ice_binary_paths "${path}/bin/x64")
-        list(APPEND ice_binary_paths "${path}/lib/x64")
-        list(APPEND ice_binary_paths "${path}/lib64")
-      list(APPEND ice_binary_paths "${path}/bin")
-      list(APPEND ice_binary_paths "${path}/lib")
-      endif (CMAKE_SIZEOF_VOID_P MATCHES 8)
-      list(APPEND ice_binary_paths "${path}/include")
-      list(APPEND ice_binary_paths "${path}/slice")
-    endforeach(path)
-  endif(MSVC_VERSION)
+  # For compatibility with ZeroC Windows builds.
+  if(vcver)
+    # Earlier Ice (3.3) builds don't use vcnnn subdirectories, but are harmless to check.
+    list(APPEND ice_binary_suffixes "bin/${vcver}${_x64}" "bin/${vcver}")
+    list(APPEND ice_library_suffixes "lib/${vcver}${_x64}" "lib/${vcver}")
+  endif()
+  # Generic 64-bit and 32-bit directories
+  list(APPEND ice_binary_suffixes "bin${_x64}" "bin")
+  list(APPEND ice_library_suffixes "${_lib64}" "lib${_x64}" "lib")
+  list(APPEND ice_include_suffixes "include")
+  list(APPEND ice_slice_suffixes "slice")
 
-  if(ICE_DEBUG)
-    message(STATUS "--------FindIce.cmake search debug--------")
-    message(STATUS "ICE binary path search order: ${ice_binary_paths}")
-    message(STATUS "ICE include path search order: ${ice_include_paths}")
-    message(STATUS "ICE slice path search order: ${ice_slice_paths}")
-    message(STATUS "ICE library path search order: ${ice_library_paths}")
-    message(STATUS "----------------")
-  endif(ICE_DEBUG)
+  # On Windows, look in the registry for install locations.  Different
+  # versions of Ice install support different compiler versions.
+  if(vcver)
+    foreach(ice_version ${ice_versions})
+      # Ice 3.3 releases use a Visual Studio year suffix and value is
+      # enclosed in double quotes, though only the leading quote is
+      # returned by get_filename_component.
+      unset(ice_location)
+      if(vcyear)
+        get_filename_component(ice_location
+                               "[HKEY_LOCAL_MACHINE\\SOFTWARE\\ZeroC\\Ice ${ice_version} for Visual Studio ${vcyear};InstallDir]"
+                               PATH)
+        if(ice_location AND NOT ("${ice_location}" STREQUAL "/registry" OR "${ice_location}" STREQUAL "/"))
+          string(REGEX REPLACE "^\"(.*)\"?$" "\\1" ice_location "${ice_location}")
+          get_filename_component(ice_location "${ice_location}" ABSOLUTE)
+        else()
+          unset(ice_location)
+        endif()
+      endif()
+      # Ice 3.4+ releases don't use a suffix
+      if(NOT ice_location OR "${ice_location}" STREQUAL "/registry")
+        get_filename_component(ice_location
+                               "[HKEY_LOCAL_MACHINE\\SOFTWARE\\ZeroC\\Ice ${ice_version};InstallDir]"
+                               ABSOLUTE)
+      endif()
+
+      if(ice_location AND NOT "${ice_location}" STREQUAL "/registry")
+        list(APPEND ice_roots "${ice_location}")
+      endif()
+    endforeach()
+  else()
+    foreach(ice_version ${ice_versions})
+      # Prefer 64-bit variants if present (and using a 64-bit compiler)
+      list(APPEND ice_roots "/opt/Ice-${ice_version}")
+    endforeach()
+  endif()
 
   set(ice_programs
       slice2cpp
@@ -400,43 +209,26 @@ function(_Ice_FIND)
       slice2py
       slice2rb)
 
-  set(ice_libraries
-      Freeze
-      Glacier2
-      Ice
-      IceBox
-      IceDB
-      IceGrid
-      IcePatch2
-      IceSSL
-      IceStorm
-      IceUtil
-      IceXML
-      Slice)
-
   # Find all Ice programs
   foreach(program ${ice_programs})
     string(TOUPPER "${program}" program_upcase)
-    set(program_var "${program_upcase}_EXECUTABLE")
-    find_program("${program_var}" "${program}"
-      PATHS "${ICE_BINARY_DIR}"
-            ${ice_binary_paths}
-      DOC "Ice slice translator")
-    mark_as_advanced(program_var)
-    set("${program_var}" "${${program_var}}" PARENT_SCOPE)
-    if(NOT FOUND_ICE_BINARY_DIR)
-      get_filename_component(FOUND_ICE_BINARY_DIR "${${program_var}}" PATH)
-    endif(NOT FOUND_ICE_BINARY_DIR)
-  endforeach(program ${ice_programs})
-  set(ICE_BINARY_DIR "${FOUND_ICE_BINARY_DIR}" PARENT_SCOPE)
+    set(cache_var "Ice_${program_upcase}_EXECUTABLE")
+    set(program_var "Ice_${program_upcase}_EXECUTABLE")
+    find_program("${cache_var}" "${program}"
+      HINTS ${ice_roots}
+      PATH_SUFFIXES ${ice_binary_suffixes}
+      DOC "Ice ${program} executable")
+    mark_as_advanced(cache_var)
+    set("${program_var}" "${${cache_var}}" PARENT_SCOPE)
+  endforeach()
 
   # Get version.
-  if(SLICE2CPP_EXECUTABLE)
+  if(Ice_SLICE2CPP_EXECUTABLE)
     # Execute in C locale for safety
     set(_Ice_SAVED_LC_ALL "$ENV{LC_ALL}")
     set(ENV{LC_ALL} C)
 
-    execute_process(COMMAND ${SLICE2CPP_EXECUTABLE} --version
+    execute_process(COMMAND ${Ice_SLICE2CPP_EXECUTABLE} --version
       ERROR_VARIABLE Ice_VERSION_SLICE2CPP_FULL
       ERROR_STRIP_TRAILING_WHITESPACE)
 
@@ -445,90 +237,159 @@ function(_Ice_FIND)
 
     # Make short version
     string(REGEX REPLACE "^(.*)\\.[^.]*$" "\\1" Ice_VERSION_SLICE2CPP_SHORT "${Ice_VERSION_SLICE2CPP_FULL}")
-    set(ICE_VERSION "${Ice_VERSION_SLICE2CPP_FULL}" PARENT_SCOPE)
-  endif(SLICE2CPP_EXECUTABLE)
+    set(Ice_VERSION "${Ice_VERSION_SLICE2CPP_FULL}" PARENT_SCOPE)
+  endif()
+
+  message(STATUS "Ice version: ${Ice_VERSION_SLICE2CPP_FULL}")
+
+  # The following searches prefer the version found; note reverse
+  # order due to prepending.
+  if(NOT MSVC)
+    list(INSERT ice_roots 0 "/opt/Ice-${Ice_VERSION_SLICE2CPP_SHORT}")
+    list(INSERT ice_roots 0 "/opt/Ice-${Ice_VERSION_SLICE2CPP_FULL}")
+  endif()
 
   # Find include directory
-  find_path(ICE_INCLUDE_DIR
+  find_path(Ice_INCLUDE_DIR
             NAMES "Ice/Ice.h"
-            PATHS  "${ICE_INCLUDE_DIR}"
-                   ${ice_include_paths})
-  set(ICE_INCLUDE_DIR "${ICE_INCLUDE_DIR}" PARENT_SCOPE)
+            HINTS ${ice_roots}
+            PATH_SUFFIXES ${ice_include_suffixes}
+            DOC "Ice include directory")
+  set(Ice_INCLUDE_DIR "${Ice_INCLUDE_DIR}" PARENT_SCOPE)
+
+  # In common use on Linux, MacOS X (homebrew) and FreeBSD; prefer
+  # version-specific dir
+  list(APPEND ice_slice_paths
+       /usr/local/share /usr/share)
+  list(APPEND ice_slice_suffixes
+       "Ice-${Ice_VERSION_SLICE2CPP_FULL}/slice"
+       "Ice-${Ice_VERSION_SLICE2CPP_SHORT}/slice"
+       Ice)
 
   # Find slice directory
-  find_path(ICE_SLICE_DIR
+  find_path(Ice_SLICE_DIR
             NAMES "Ice/Connection.ice"
-            PATHS "${ICE_SLICE_DIR}"
+            HINTS ${ice_roots}
                   ${ice_slice_paths}
-                  "/usr/local/share/Ice-${Ice_VERSION_SLICE2CPP_FULL}/slice"
-                  "/usr/local/share/Ice-${Ice_VERSION_SLICE2CPP_SHORT}/slice"
-                  "/usr/local/share/Ice/slice"
-                  "/usr/share/Ice-${Ice_VERSION_SLICE2CPP_FULL}/slice"
-                  "/usr/share/Ice-${Ice_VERSION_SLICE2CPP_SHORT}/slice"
-                  "/usr/share/Ice/slice"
-            NO_DEFAULT_PATH)
-  set(ICE_SLICE_DIR "${ICE_SLICE_DIR}" PARENT_SCOPE)
+            PATH_SUFFIXES ${ice_slice_suffixes}
+            NO_DEFAULT_PATH
+            DOC "Ice slice directory")
+  set(Ice_SLICE_DIR "${Ice_SLICE_DIR}" PARENT_SCOPE)
 
   # Find all Ice libraries
-  foreach(library ${ice_libraries})
-    string(TOUPPER "${library}" library_upcase)
-    set(library_var "${library_upcase}_LIBRARY")
-    find_library("${library_var}" "${library}"
-      PATHS
-        "${ICE_LIBRARY_DIR}"
-        ${ice_library_paths}
-      HINT
-        "${ICE_HOME}/lib"
-      DOC "Ice slice translator")
-    mark_as_advanced(library_var)
-    set("${library_var}" "${${library_var}}" PARENT_SCOPE)
-    if(NOT FOUND_ICE_LIBRARY_DIR)
-      get_filename_component(FOUND_ICE_LIBRARY_DIR "${${library_var}}" PATH)
-    endif(NOT FOUND_ICE_LIBRARY_DIR)
-  endforeach(library ${ice_libraries})
-  set(ICE_LIBRARY_DIR "${FOUND_ICE_LIBRARY_DIR}" PARENT_SCOPE)
-endfunction(_Ice_FIND)
+  set(Ice_REQUIRED_LIBS_FOUND ON)
+  foreach(component ${Ice_FIND_COMPONENTS})
+    string(TOUPPER "${component}" component_upcase)
+    set(component_cache "Ice_${component_upcase}_LIBRARY")
+    set(component_found "${component_upcase}_FOUND")
+    find_library("${component_cache}" "${component}"
+      HINTS ${ice_roots}
+      PATH_SUFFIXES ${ice_library_suffixes}
+      DOC "Ice ${component} library")
+    mark_as_advanced("${component_cache}")
+    if("${component_cache}")
+      set("${component_found}" ON)
+      list(APPEND Ice_LIBRARY "${${component_cache}}")
+    endif()
+    mark_as_advanced("${component_found}")
+    set("${component_cache}" "${${component_cache}}" PARENT_SCOPE)
+    set("${component_found}" "${${component_found}}" PARENT_SCOPE)
+    if("${component_found}")
+      if ("Ice_FIND_REQUIRED_${component}")
+        list(APPEND Ice_LIBS_FOUND "${component} (required)")
+      else()
+        list(APPEND Ice_LIBS_FOUND "${component} (optional)")
+      endif()
+    else()
+      if ("Ice_FIND_REQUIRED_${component}")
+        set(Ice_REQUIRED_LIBS_FOUND OFF)
+        list(APPEND Ice_LIBS_NOTFOUND "${component} (required)")
+      else()
+        list(APPEND Ice_LIBS_NOTFOUND "${component} (optional)")
+      endif()
+    endif()
+  endforeach()
+  set(_Ice_REQUIRED_LIBS_FOUND "${Ice_REQUIRED_LIBS_FOUND}" PARENT_SCOPE)
+  set(Ice_LIBRARY "${Ice_LIBRARY}" PARENT_SCOPE)
+
+  if(Ice_LIBS_FOUND)
+    message(STATUS "Found the following Ice libraries:")
+    foreach(found ${Ice_LIBS_FOUND})
+      message(STATUS "  ${found}")
+    endforeach()
+  endif()
+  if(Ice_LIBS_NOTFOUND)
+    message(STATUS "The following Ice libraries were not found:")
+    foreach(notfound ${Ice_LIBS_NOTFOUND})
+      message(STATUS "  ${notfound}")
+    endforeach()
+  endif()
+
+  if(Ice_DEBUG)
+    message(STATUS "--------FindIce.cmake search debug--------")
+    message(STATUS "ICE binary path search order: ${ice_roots}")
+    message(STATUS "ICE include path search order: ${ice_roots}")
+    message(STATUS "ICE slice path search order: ${ice_roots} ${ice_slice_paths}")
+    message(STATUS "ICE library path search order: ${ice_roots}")
+    message(STATUS "----------------")
+  endif()
+endfunction()
 
 _Ice_FIND()
 
-if(ICE_DEBUG)
-  message(STATUS "--------FindIce.cmake results debug--------")
-  message(STATUS "ICE_VERSION number: ${ICE_VERSION}")
-  message(STATUS "ICE_HOME directory: ${ICE_HOME}")
-  message(STATUS "ICE_BINARY_DIR directory: ${ICE_BINARY_DIR}")
-  message(STATUS "ICE_INCLUDE_DIR directory: ${ICE_INCLUDE_DIR}")
-  message(STATUS "ICE_SLICE_DIR directory: ${ICE_SLICE_DIR}")
-  message(STATUS "ICE_LIBRARY_DIR directory: ${ICE_LIBRARY_DIR}")
-  message(STATUS "slice2cpp executable: ${SLICE2CPP_EXECUTABLE}")
-  message(STATUS "slice2cs executable: ${SLICE2CS_EXECUTABLE}")
-  message(STATUS "slice2freezej executable: ${SLICE2FREEZEJ_EXECUTABLE}")
-  message(STATUS "slice2freeze executable: ${SLICE2FREEZE_EXECUTABLE}")
-  message(STATUS "slice2html executable: ${SLICE2HTML_EXECUTABLE}")
-  message(STATUS "slice2java executable: ${SLICE2JAVA_EXECUTABLE}")
-  message(STATUS "slice2php executable: ${SLICE2PHP_EXECUTABLE}")
-  message(STATUS "slice2py executable: ${SLICE2PY_EXECUTABLE}")
-  message(STATUS "slice2rb executable: ${SLICE2RB_EXECUTABLE}")
-  message(STATUS "Freeze library: ${FREEZE_LIBRARY}")
-  message(STATUS "Glacier2 library: ${GLACIER2_LIBRARY}")
-  message(STATUS "Ice library: ${ICE_LIBRARY}")
-  message(STATUS "IceBox library: ${ICEBOX_LIBRARY}")
-  message(STATUS "IceDB library: ${ICEDB_LIBRARY}")
-  message(STATUS "IceGrid library: ${ICEGRID_LIBRARY}")
-  message(STATUS "IcePatch2 library: ${ICEPATCH2_LIBRARY}")
-  message(STATUS "IceSSL library: ${ICESSL_LIBRARY}")
-  message(STATUS "IceStorm library: ${ICESTORM_LIBRARY}")
-  message(STATUS "IceUtil library: ${ICEUTIL_LIBRARY}")
-  message(STATUS "IceXML library: ${ICEXML_LIBRARY}")
-  message(STATUS "Slice library: ${SLICE_LIBRARY}")
-  message(STATUS "----------------")
-endif(ICE_DEBUG)
-
 include(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(Ice
-                                  REQUIRED_VARS SLICE2CPP_EXECUTABLE
-                                                ICE_INCLUDE_DIR
-                                                ICE_SLICE_DIR
-                                                ICE_LIBRARY
-                                  VERSION_VAR ICE_VERSION)
+                                  REQUIRED_VARS Ice_SLICE2CPP_EXECUTABLE
+                                                Ice_INCLUDE_DIR
+                                                Ice_SLICE_DIR
+                                                Ice_LIBRARY
+                                                _Ice_REQUIRED_LIBS_FOUND
+                                  VERSION_VAR Ice_VERSION
+                                  FAIL_MESSAGE "Failed to find all Ice components")
 
-unset(ICE_VERSION)
+unset(_Ice_REQUIRED_LIBS_FOUND)
+
+if(ICE_FOUND)
+  set(Ice_INCLUDE_DIRS "${Ice_INCLUDE_DIR}")
+  set(Ice_SLICE_DIRS "${Ice_SLICE_DIR}")
+  set(Ice_LIBRARIES "${Ice_LIBRARY}")
+  foreach(_Ice_component ${Ice_FIND_COMPONENTS})
+    string(TOUPPER "${_Ice_component}" _Ice_component_upcase)
+    set(_Ice_component_cache "Ice_${_Ice_component_upcase}_LIBRARY")
+    set(_Ice_component_lib "Ice_${_Ice_component_upcase}_LIBRARIES")
+    set(_Ice_component_found "${_Ice_component_upcase}_FOUND")
+    if("${_Ice_component_found}")
+      set("${_Ice_component_lib}" "${${_Ice_component_cache}}")
+    endif()
+    unset(_Ice_component_upcase)
+    unset(_Ice_component_cache)
+    unset(_Ice_component_lib)
+    unset(_Ice_component_found)
+  endforeach()
+endif()
+
+if(Ice_DEBUG)
+  message(STATUS "--------FindIce.cmake results debug--------")
+  message(STATUS "Ice_VERSION number: ${Ice_VERSION}")
+  message(STATUS "Ice_HOME directory: ${Ice_HOME}")
+  message(STATUS "Ice_INCLUDE_DIR directory: ${Ice_INCLUDE_DIR}")
+  message(STATUS "Ice_SLICE_DIR directory: ${Ice_SLICE_DIR}")
+  message(STATUS "Ice_LIBRARIES: ${Ice_LIBRARIES}")
+  message(STATUS "slice2cpp executable: ${Ice_SLICE2CPP_EXECUTABLE}")
+  message(STATUS "slice2cs executable: ${Ice_SLICE2CS_EXECUTABLE}")
+  message(STATUS "slice2freezej executable: ${Ice_SLICE2FREEZEJ_EXECUTABLE}")
+  message(STATUS "slice2freeze executable: ${Ice_SLICE2FREEZE_EXECUTABLE}")
+  message(STATUS "slice2html executable: ${Ice_SLICE2HTML_EXECUTABLE}")
+  message(STATUS "slice2java executable: ${Ice_SLICE2JAVA_EXECUTABLE}")
+  message(STATUS "slice2php executable: ${Ice_SLICE2PHP_EXECUTABLE}")
+  message(STATUS "slice2py executable: ${Ice_SLICE2PY_EXECUTABLE}")
+  message(STATUS "slice2rb executable: ${Ice_SLICE2RB_EXECUTABLE}")
+  foreach(component ${Ice_FIND_COMPONENTS})
+    string(TOUPPER "${component}" component_upcase)
+    set(component_lib "Ice_${component_upcase}_LIBRARIES")
+    set(component_found "${component_upcase}_FOUND")
+    message(STATUS "${component} library found: ${${component_found}}")
+    message(STATUS "${component} library: ${${component_lib}}")
+  endforeach()
+  message(STATUS "----------------")
+endif()

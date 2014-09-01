@@ -197,7 +197,7 @@ public interface Executor extends ApplicationContextAware {
      * must be returned as an {@link Object} so that Hibernate proxies can be
      * properly handled.
      */
-    public interface Work {
+    public interface Work<X> {
 
         /**
          * Returns a description of what this work will be doing for logging
@@ -217,7 +217,7 @@ public interface Executor extends ApplicationContextAware {
          *            non null.
          * @return Any results which will be used by non-wrapped code.
          */
-        Object doWork(Session session, ServiceFactory sf);
+        X doWork(Session session, ServiceFactory sf);
 
     }
 
