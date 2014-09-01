@@ -413,7 +413,7 @@ class RendererControl
         } 
         else {
             boolean settingsModified = model.isModified();
-            actionsMap.get(SAVE).setEnabled(settingsModified);
+            actionsMap.get(SAVE).setEnabled(settingsModified && model.canAnnotate());
         }
     }
 
