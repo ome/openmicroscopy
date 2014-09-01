@@ -85,17 +85,17 @@ VERBOSE=1 bin/brew test bioformats
 # Install PostgreSQL and OMERO
 OMERO_PYTHONPATH=$(bin/brew --prefix omero)/lib/python
 if [ "$ICE" == "3.3" ]; then
-    bin/brew install omero --with-ice33
+    bin/brew install omero --with-ice33 --with-nginx
     ICE_HOME=$(bin/brew --prefix zeroc-ice33)
     export PYTHONPATH=$OMERO_PYTHONPATH:$ICE_HOME/python
     export DYLD_LIBRARY_PATH=$ICE_HOME/lib
 elif [ "$ICE" == "3.4" ]; then
-    bin/brew install omero --with-ice34
+    bin/brew install omero --with-ice34 --with-nginx
     ICE_HOME=$(bin/brew --prefix zeroc-ice34)
     export PYTHONPATH=$OMERO_PYTHONPATH:$ICE_HOME/python
     export DYLD_LIBRARY_PATH=$ICE_HOME/lib
 else
-    bin/brew install omero
+    bin/brew install omero --with-nginx
     export PYTHONPATH=$OMERO_PYTHONPATH
 fi
 VERBOSE=1 bin/brew test omero
@@ -149,7 +149,6 @@ bin/omero logout
 # Start OMERO.web
 bin/omero config set omero.web.application_server "fastcgi-tcp"
 bin/omero config set omero.web.debug True
-bin/brew install nginx
 bin/omero web config nginx > $(bin/brew --prefix omero)/etc/nginx.conf
 nginx -c $(bin/brew --prefix omero)/etc/nginx.conf
 bin/omero web start
