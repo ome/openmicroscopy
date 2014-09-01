@@ -10,6 +10,7 @@ export OMERO_DATA_DIR=${OMERO_DATA_DIR:-/tmp/var/OMERO.data}
 export SCRIPT_NAME=${SCRIPT_NAME:-OMERO.sql}
 export ROOT_PASSWORD=${ROOT_PASSWORD:-omero}
 export ICE=${ICE:-3.5}
+export HTTPPORT=${HTTPPORT:-8080}
 
 # Test whether this script is run in a job environment
 JOB_NAME=${JOB_NAME:-}
@@ -149,14 +150,14 @@ bin/omero logout
 # Start OMERO.web
 bin/omero config set omero.web.application_server "fastcgi-tcp"
 bin/omero config set omero.web.debug True
-bin/omero web config nginx > $(bin/brew --prefix omero)/etc/nginx.conf
+bin/omero web config nginx --http HTTPPORT > $(bin/brew --prefix omero)/etc/nginx.conf
 nginx -c $(bin/brew --prefix omero)/etc/nginx.conf
 bin/omero web start
 
 # Test simple Web connection
 brew install wget
 post_data="username=root&password=$ROOT_PASSWORD&server=1&noredirect=1"
-resp=$(wget --post-data $post_data http://localhost:8080/webclient/login/)
+resp=$(wget --post-data $post_data http://localhost:$HTTPPORT/webclient/login/)
 echo "$resp"
 
 # Stop OMERO.web
