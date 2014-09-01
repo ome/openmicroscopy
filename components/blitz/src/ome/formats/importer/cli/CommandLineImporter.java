@@ -332,6 +332,7 @@ public class CommandLineImporter {
             + "    --transfer=ARG          \tFile transfer method\n\n"
             + "        General options:    \t\n"
             + "          upload          \t# Default\n"
+            + "          upload_rm       \t# Caution! File upload followed by source deletion.\n"
             + "          some.class.Name \t# Use a class on the CLASSPATH.\n\n"
             + "        Server-side options:\t\n"
             + "          ln              \t# Use hard-link.\n"
