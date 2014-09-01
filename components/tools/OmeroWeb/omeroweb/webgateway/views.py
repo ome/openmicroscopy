@@ -481,7 +481,6 @@ def get_shape_thumbnail (request, conn, image, s, compress_quality):
         bBox = (shape['x']-50, shape['y']-50, 100, 100)
     else:
         logger.debug("Shape type not supported: %s" % str(type(s)))
-    #print shape
 
     # we want to render a region larger than the bounding box
     x,y,w,h = bBox
@@ -1744,14 +1743,29 @@ def download_as(request, iid=None, conn=None, **kwargs):
     format = request.REQUEST.get('format', 'png')
     if format not in ('jpeg', 'png', 'tif'):
         format = 'png'
+
+    imgIds = []
+    wellIds = []
     if iid is None:
         imgIds = request.REQUEST.getlist('image')
         if len(imgIds) == 0:
-            return HttpResponseServerError("No images specified in request. Use ?image=123")
+            wellIds = request.REQUEST.getlist('well')
+            if len(wellIds) == 0:
+                return HttpResponseServerError("No images or wells specified in request. Use ?image=123 or ?well=123")
     else:
         imgIds = [iid]
 
-    images = list(conn.getObjects("Image", imgIds))
+    images = []
+    if imgIds:
+        images = list(conn.getObjects("Image", imgIds))
+    elif wellIds:
+        try:
+            index = int(request.REQUEST.get("index", 0))
+        except ValueError:
+            index = 0
+        for w in conn.getObjects("Well", wellIds):
+            images.append(w.getWellSample(index).image())
+
     if len(images) == 0:
         msg = "Cannot download as %s. Images (ids: %s) not found." % (format, imgIds)
         logger.debug(msg)
@@ -1826,14 +1840,27 @@ def archived_files(request, iid=None, conn=None, **kwargs):
     """
     Downloads the archived file(s) as a single file or as a zip (if more than one file)
     """
+    imgIds = []
+    wellIds = []
     if iid is None:
         imgIds = request.REQUEST.getlist('image')
         if len(imgIds) == 0:
-            return HttpResponseServerError("No images specified in request. Use ?image=123")
+            wellIds = request.REQUEST.getlist('well')
+            if len(wellIds) == 0:
+                return HttpResponseServerError("No images or wells specified in request. Use ?image=123 or ?well=123")
     else:
         imgIds = [iid]
 
-    images = list(conn.getObjects("Image", imgIds))
+    images = []
+    if imgIds:
+        images = list(conn.getObjects("Image", imgIds))
+    elif wellIds:
+        try:
+            index = int(request.REQUEST.get("index", 0))
+        except ValueError:
+            index = 0
+        for w in conn.getObjects("Well", wellIds):
+            images.append(w.getWellSample(index).image())
     if len(images) == 0:
         logger.debug("Cannot download archived file becuase Images not found.")
         return HttpResponseServerError("Cannot download archived file becuase Images not found (ids: %s)." % (imgIds))
@@ -1859,11 +1886,19 @@ def archived_files(request, iid=None, conn=None, **kwargs):
     else:
         import tempfile
         temp = tempfile.NamedTemporaryFile(suffix='.archive')
+        zipName = request.REQUEST.get('zipname', image.getName())
+        zipName = zipName.replace(" ","_").replace(",", ".")        # ',' in name causes duplicate headers
+        if not zipName.endswith('.zip'):
+            zipName = "%s.zip" % zipName
         try:
             temp_zip_dir = tempfile.mkdtemp()
             logger.debug("download dir: %s" % temp_zip_dir)
             try:
                 for a in files:
+                    # Need to be sure that the zip name does not match any file within it
+                    # since OS X will unzip as a single file instead of a directory
+                    if zipName == "%s.zip" % a.name:
+                        zipName = "%s_folder.zip" % a.name
                     temp_f = os.path.join(temp_zip_dir, a.name)
                     f = open(str(temp_f),"wb")
                     try:
@@ -1883,11 +1918,6 @@ def archived_files(request, iid=None, conn=None, **kwargs):
                     # delete temp dir
             finally:
                 shutil.rmtree(temp_zip_dir, ignore_errors=True)
-
-            zipName = request.REQUEST.get('zipname', image.getName())
-            zipName = zipName.replace(" ","_").replace(",", ".")        # ',' in name causes duplicate headers
-            if not zipName.endswith('.zip'):
-                zipName = "%s.zip" % zipName
 
             # return the zip or single file
             archivedFile_data = FileWrapper(temp)
