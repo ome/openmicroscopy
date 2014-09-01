@@ -49,11 +49,11 @@ public class SendEmailRequestI extends SendEmailRequest implements IRequest {
 
     private String sender = null;
 
-    private ArrayList<String> recipients = new ArrayList<String>();
+    private List<String> recipients = new ArrayList<String>();
 
-    private ArrayList<String> ccrecipients = new ArrayList<String>();
+    private List<String> ccrecipients = new ArrayList<String>();
 
-    private ArrayList<String> bccrecipients = new ArrayList<String>();
+    private List<String> bccrecipients = new ArrayList<String>();
 
     private final MailUtil mailUtil;
 
@@ -134,7 +134,7 @@ public class SendEmailRequestI extends SendEmailRequest implements IRequest {
         return helper.getResponse();
     }
 
-    private ArrayList<String> parseRecipients() {
+    private List<String> parseRecipients() {
 
         /*
          * Depends on which parameters are set variants of the following query
@@ -198,7 +198,7 @@ public class SendEmailRequestI extends SendEmailRequest implements IRequest {
         return new ArrayList<String>(recipients);
     }
 
-    private ArrayList<String> parseCCRecipients() {
+    private List<String> parseCCRecipients() {
         Set<String> ccrecipients = new HashSet<String>();
         for (final String e : cc) {
             if (e.length() > 5) {
@@ -208,7 +208,7 @@ public class SendEmailRequestI extends SendEmailRequest implements IRequest {
         return new ArrayList<String>(ccrecipients);
     }
 
-    private ArrayList<String> parseBccRecipients() {
+    private List<String> parseBccRecipients() {
         Set<String> bccrecipients = new HashSet<String>();
         for (final String e : bcc) {
             if (e.length() > 5) {

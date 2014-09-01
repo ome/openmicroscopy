@@ -6,6 +6,7 @@
 package ome.services.util;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.mail.internet.MimeMessage;
 
@@ -69,8 +70,8 @@ public class MailUtil {
      */
     public void sendEmail(final String from, final String to,
             final String topic, final String body, final boolean html,
-            final ArrayList<String> ccrecipients,
-            final ArrayList<String> bccrecipients) {
+            final List<String> ccrecipients,
+            final List<String> bccrecipients) {
 
         MimeMessagePreparator preparator = new MimeMessagePreparator() {
             public void prepare(MimeMessage mimeMessage) throws Exception {
