@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.PreviewToolBar 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -84,11 +84,6 @@ class PreviewToolBar
         bar.setBorder(null);
         bar.setRollover(true);
         bar.setFloatable(false);
-        JButton b = new JButton(control.getAction(RendererControl.SAVE));
-        UIUtilities.unifiedButtonLookAndFeel(b);
-        b.setText(ManageRndSettingsAction.NAME_SAVE);
-        b.setBackground(UIUtilities.BACKGROUND_COLOR);
-        bar.add(b);
         setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
         add(bar);
         add(Box.createHorizontalStrut(5));

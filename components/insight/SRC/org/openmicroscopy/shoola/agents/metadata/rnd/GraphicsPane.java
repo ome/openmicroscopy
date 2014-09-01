@@ -130,6 +130,9 @@ class GraphicsPane
 
     /** The component displaying the controls. */
     private PreviewControlBar controlsBar;
+    
+    /** The lower control pane */
+    private PreviewControlBar2 controlsBar2;
 
     /** The Tasks pane, only visible if already viewed by others. */
     private JXTaskPane viewedBy;
@@ -183,6 +186,7 @@ class GraphicsPane
         viewedBy.setTitle(VIEWEDBY_TITLE);
         viewedBy.setIcon(icons.getIcon(IconManager.RND_OWNER));
         controlsBar = new PreviewControlBar(controller, model);
+        controlsBar2 = new PreviewControlBar2(controller);
         uiDelegate = new GraphicsPaneUI(this, model);
         codomainSlider = new TwoKnobsSlider(RendererModel.CD_START,
                 RendererModel.CD_END, model.getCodomainStart(),
@@ -291,6 +295,10 @@ class GraphicsPane
             c.gridy++;
             content.add(i.next(), c);
         }
+        
+        c.gridy++;
+        content.add(controlsBar2, c);
+        
         c.gridy++;
         c.gridwidth = GridBagConstraints.REMAINDER;     //end row
         c.fill = GridBagConstraints.BOTH;

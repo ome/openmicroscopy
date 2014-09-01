@@ -39,6 +39,7 @@ import javax.swing.JToolBar;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.agents.metadata.actions.ManageRndSettingsAction;
 
 /** 
  * Displays the controls
@@ -112,46 +113,39 @@ class PreviewControlBar
         bar.setBorder(null);
         bar.setRollover(true);
         bar.setFloatable(false);
-        JButton b = new JButton(control.getAction(RendererControl.RND_MIN_MAX));
-        preview.setFont(b.getFont());
         
-        formatButton(b);
-        bar.add(b);
-        b = new JButton(control.getAction(RendererControl.RND_ABSOLUTE_MIN_MAX));
-        preview.setFont(b.getFont());
+        bar.add(new JSeparator(JSeparator.VERTICAL));
         
-        formatButton(b);
-        bar.add(b);
-
-        bar.add(Box.createHorizontalStrut(SPACE));
-        b = new JButton(control.getAction(RendererControl.RND_RESET));
+        JButton b = new JButton(control.getAction(RendererControl.SAVE));
+        b.setText(ManageRndSettingsAction.NAME_SAVE);
         formatButton(b);
         bar.add(b);
         
-        bar.add(Box.createHorizontalStrut(SPACE));
-        b = new JButton(control.getAction(RendererControl.RND_UNDO));
-        formatButton(b);
-        bar.add(b);
-        
-        bar.add(Box.createHorizontalStrut(SPACE));
-        b = new JButton(control.getAction(RendererControl.RND_REDO));
-        formatButton(b);
-        bar.add(b);
-        
-        bar.add(Box.createHorizontalStrut(SPACE));
         if (model.isGeneralIndex()) {
-        	bar.add(Box.createHorizontalStrut(SPACE));
+            bar.add(Box.createHorizontalStrut(SPACE));
             b = new JButton(control.getAction(RendererControl.APPLY_TO_ALL));
             formatButton(b);
             bar.add(b);
         }
+
+        bar.add(new JSeparator(JSeparator.VERTICAL));
         
+        b = new JButton(control.getAction(RendererControl.RND_UNDO));
+        formatButton(b);
+        bar.add(b);
         bar.add(Box.createHorizontalStrut(SPACE));
-        b = new JButton(control.getAction(RendererControl.COPY));
+        
+        b = new JButton(control.getAction(RendererControl.RND_REDO));
         formatButton(b);
         bar.add(b);
         
+        bar.add(new JSeparator(JSeparator.VERTICAL));
+        
+        b = new JButton(control.getAction(RendererControl.COPY));
+        formatButton(b);
+        bar.add(b);
         bar.add(Box.createHorizontalStrut(SPACE));
+        
         b = new JButton(control.getAction(RendererControl.PASTE));
         formatButton(b);
         bar.add(b);
