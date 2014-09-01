@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import ome.conditions.ApiUsageException;
 import ome.security.SecuritySystem;
 import ome.security.auth.PasswordProvider;
 import ome.security.auth.PasswordUtil;
@@ -88,7 +89,7 @@ public class ResetPasswordRequestTest extends AbstractServantTest {
         return (ResetPasswordResponse) rsp;
     }
 
-    @Test
+    @Test(expectedExceptions = ApiUsageException.class)
     public void testSendEmail() throws Exception {
 
         ResetPasswordRequestI req = new ResetPasswordRequestI(
