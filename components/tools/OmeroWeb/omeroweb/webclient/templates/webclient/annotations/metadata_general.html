@@ -138,21 +138,27 @@
                 });
 
                 // show original file path links for images
+                var original_file_paths_url;
                 {% if manager.image %}
+                original_file_paths_url = "{% url 'original_file_paths' manager.image.id %}";
+                {% elif manager.well.getWellSample.image %}
+                original_file_paths_url = "{% url 'original_file_paths' manager.well.getWellSample.image.id %}";
+                {% endif %}
                 $("#show_fs_files_btn").click(function(){
                     $("#fs_paths_popup").show();
                     var fs_input = $("#fs_paths_popup textarea");
-                    $.getJSON("{% url 'original_file_paths' manager.image.id %}",
-                        function(data) {
-                            fs_input.val(data.join("\n"));
-                            fs_input.attr("cols", 150);
-                            fs_input.attr("rows", Math.max(3, data.length));
-                        });
+                    if (original_file_paths_url) {
+                        $.getJSON(original_file_paths_url,
+                            function(data) {
+                                fs_input.val(data.join("\n"));
+                                fs_input.attr("cols", 150);
+                                fs_input.attr("rows", Math.max(3, data.length));
+                            });
+                    }
                 });
                 $("#fs_paths_popup img").click(function(){
                     $("#fs_paths_popup").hide();
                 });
-                {% endif %}
 
                 // handle submit of Add Comment form
                 $("#add_comment_form").ajaxForm({
@@ -434,7 +440,9 @@
            
             {% if manager.image %}            
 
-            {% include "webclient/annotations/includes/toolbar.html" %}
+            {% with image=manager.image %}
+                {% include "webclient/annotations/includes/toolbar.html" %}
+            {% endwith %}
 
             <!-- Image Name -->
             {% with obj=manager.image nameText=manager.image.name %}
@@ -586,7 +594,9 @@
             
             {% if manager.well %}            
 
-            {% include "webclient/annotations/includes/toolbar.html" %}
+            {% with image=manager.well.getWellSample.image %}
+                {% include "webclient/annotations/includes/toolbar.html" %}
+            {% endwith %}
 
                         <!-- Image (in WellSample) Description -->
             {% with obj=manager.well.getWellSample.image nameText=manager.well.getWellSample.image.name %}
@@ -608,6 +618,17 @@
             </button>
             
             <div style="clear:both"></div>
+
+            {% if manager.well.getWellSample.image.showOriginalFilePaths %}
+            <!-- duplicated under 'image' above -->
+            <div style="clear:both"></div>
+            <div id="fs_paths_popup" style="display:none; background: #fff; border: solid 1px #ddd; margin-bottom:5px">
+                <img title="Close" src="{% static 'webgateway/img/close.gif' %}" style="float:right; margin:3px"/>
+                <div style="margin: 4px">{{ manager.well.getWellSample.image.getImportedFilesInfo.count }} Image file{{ manager.well.getWellSample.image.getImportedFilesInfo.count|pluralize:'s'}}:</div>
+                <textarea readonly="true" style="width:99%; float:right; resize:none; border:none; padding:5px 0 0 0; margin:0px"></textarea>
+                <div style="clear:both"></div>
+            </div>
+            {% endif %}
 
             <hr/>
             
