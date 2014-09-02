@@ -150,7 +150,7 @@ bin/omero logout
 # Start OMERO.web
 bin/omero config set omero.web.application_server "fastcgi-tcp"
 bin/omero config set omero.web.debug True
-bin/omero web config nginx --http HTTPPORT > $(bin/brew --prefix omero)/etc/nginx.conf
+bin/omero web config nginx --http $HTTPPORT > $(bin/brew --prefix omero)/etc/nginx.conf
 nginx -c $(bin/brew --prefix omero)/etc/nginx.conf
 bin/omero web start
 
