@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import org.hibernate.Filter;
 import org.hibernate.Session;
 import org.springframework.beans.factory.FactoryBean;
-import org.springframework.orm.hibernate3.FilterDefinitionFactoryBean;
 
 /**
  * overrides {@link FilterDefinitionFactoryBean} in order to construct our
