@@ -51,8 +51,11 @@ if(BUILD_TESTS)
                  search.cpp
                  sessions.cpp)
 
-  target_link_libraries(integration omero-client)
-  target_link_libraries(integration omero-test ${TEST_LIBS})
+  target_link_libraries(integration
+                        omero-ice
+                        omero-client
+                        omero-test
+                        ${TEST_LIBS})
 
   add_test(ome-xml/integration integration)
 endif(BUILD_TESTS)
