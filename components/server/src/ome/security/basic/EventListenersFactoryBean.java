@@ -7,36 +7,29 @@
 
 package ome.security.basic;
 
-// Java imports
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Map;
 import java.util.Set;
 
 import ome.security.ACLEventListener;
 import ome.security.ACLVoter;
+import ome.security.basic.EventListeners;
 import ome.tools.hibernate.EventMethodInterceptor;
 import ome.tools.hibernate.ReloadingRefreshEventListener;
 
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInvocation;
-import org.hibernate.event.EventListeners;
+import org.hibernate.event.service.spi.EventListenerRegistry;
+import org.hibernate.event.spi.EventType;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
-import org.springframework.orm.hibernate3.LocalSessionFactoryBean;
 
 /**
  * configuring all the possible {@link EventListeners event listeners} within
  * XML can be cumbersome.
  */
 public class EventListenersFactoryBean extends AbstractFactoryBean {
-
-    private final EventListeners eventListeners = new EventListeners();
-
-    private final Map<String, LinkedList<Object>> map = new HashMap<String, LinkedList<Object>>();
 
     private final CurrentDetails cd;
 
@@ -59,11 +52,11 @@ public class EventListenersFactoryBean extends AbstractFactoryBean {
 
     /**
      * this {@link FactoryBean} produces a {@link Map} instance for use in
-     * {@link LocalSessionFactoryBean#setEventListeners(Map)}
+     * {@link LocalSessionFactoryBean#setEventListeners(EventListeners)}
      */
     @Override
     public Class getObjectType() {
-        return Map.class;
+        return EventListeners.class;
     }
 
     /**
@@ -80,46 +73,8 @@ public class EventListenersFactoryBean extends AbstractFactoryBean {
      */
     @Override
     protected Object createInstance() throws Exception {
-        put("auto-flush", eventListeners.getAutoFlushEventListeners());
-        put("merge", eventListeners.getMergeEventListeners());
-        put("create", eventListeners.getPersistEventListeners());
-        put("create-onflush", eventListeners.getPersistOnFlushEventListeners());
-        put("delete", eventListeners.getDeleteEventListeners());
-        put("dirty-check", eventListeners.getDirtyCheckEventListeners());
-        put("evict", eventListeners.getEvictEventListeners());
-        put("flush", eventListeners.getFlushEventListeners());
-        put("flush-entity", eventListeners.getFlushEntityEventListeners());
-        put("load", eventListeners.getLoadEventListeners());
-        put("load-collection", eventListeners
-                .getInitializeCollectionEventListeners());
-        put("lock", eventListeners.getLockEventListeners());
-        put("refresh", eventListeners.getRefreshEventListeners());
-        put("replicate", eventListeners.getReplicateEventListeners());
-        put("save-update", eventListeners.getSaveOrUpdateEventListeners());
-        put("save", eventListeners.getSaveEventListeners());
-        put("update", eventListeners.getUpdateEventListeners());
-        put("pre-load", eventListeners.getPreLoadEventListeners());
-        put("pre-update", eventListeners.getPreUpdateEventListeners());
-        put("pre-delete", eventListeners.getPreDeleteEventListeners());
-        put("pre-insert", eventListeners.getPreInsertEventListeners());
-        put("post-load", eventListeners.getPostLoadEventListeners());
-        put("post-update", eventListeners.getPostUpdateEventListeners());
-        put("post-delete", eventListeners.getPostDeleteEventListeners());
-        put("post-insert", eventListeners.getPostInsertEventListeners());
-        put("post-commit-update", eventListeners
-                .getPostCommitUpdateEventListeners());
-        put("post-commit-delete", eventListeners
-                .getPostCommitDeleteEventListeners());
-        put("post-commit-insert", eventListeners
-                .getPostCommitInsertEventListeners());
-        assertHasAllKeys();
-        overrides();
-        additions();
-        return map;
+        return new Impl();
     }
-
-    // ~ Configuration
-    // =========================================================================
 
     protected boolean debugAll = false;
 
@@ -128,159 +83,134 @@ public class EventListenersFactoryBean extends AbstractFactoryBean {
         this.debugAll = debug;
     }
 
-    protected void overrides() {
-        override("merge", new MergeEventListener(cd, th));
-        override("save", new SaveEventListener(cd, th));
-        override(new String[] { "replicate", "update" }, getDisablingProxy());
-    }
+    /**
+     * This inner class will have access to all of the bean-configured components needed
+     * to construct our listeners, but can defer registering them until we are in the
+     * process of creating the session in the {@link LocalSessionFactoryBean}.
+     */
+    private class Impl implements EventListeners {
 
-    protected void additions() {
-        // This must be prepended because it updates the alreadyRefreshed
-        // cache before passing the event on the default listener.
-        prepend("refresh", new ReloadingRefreshEventListener());
+        private EventListenerRegistry registry;
 
-        for (String key : map.keySet()) {
-            final String k = key;
-            EventMethodInterceptor emi = new EventMethodInterceptor(
-                    new EventMethodInterceptor.DisableAction() {
-                        @Override
-                        protected boolean disabled(MethodInvocation mi) {
-                            return cd.isDisabled(k);// getType(mi));
-                        }
-                    });
-            append(key, getProxy(emi));
+        public void registerWith(EventListenerRegistry registry) {
+            this.registry = registry;
+            overrides();
+            additions();
         }
 
-        if (voter != null) {
-            ACLEventListener acl = new ACLEventListener(voter);
-            append("post-load", acl);
-            append("pre-insert", acl);
-            append("pre-update", acl);
-            append("pre-delete", acl);
+        // ~ Configuration
+        // =========================================================================
+
+        protected void overrides() {
+            override(EventType.MERGE, new MergeEventListener(cd, th));
+            override(EventType.SAVE, new SaveEventListener(cd, th));
+            override(new EventType[] { EventType.REPLICATE, EventType.UPDATE },
+                    getDisablingProxy());
         }
 
-        EventLogListener ell = new ome.security.basic.EventLogListener(cd);
-        append("post-insert", ell);
-        append("post-update", ell);
-        append("post-delete", ell);
+        protected void additions() {
+            // This must be prepended because it updates the alreadyRefreshed
+            // cache before passing the event on the default listener.
+            prepend(EventType.REFRESH, new ReloadingRefreshEventListener());
 
-        UpdateEventListener uel = new UpdateEventListener(cd);
-        append("pre-update", uel);
-
-        if (debugAll) {
-            Object debug = getDebuggingProxy();
-            for (String key : map.keySet()) {
-                map.get(key).add(debug);
-            }
-        }
-    }
-
-    // ~ Helpers
-    // =========================================================================
-    private void assertHasAllKeys() {
-        // eventListeners has only private state. :(
-    }
-
-    private Class[] allInterfaces() {
-        Set<Class> set = new HashSet<Class>();
-        for (String str : map.keySet()) {
-            Class iface = eventListeners.getListenerClassFor(str);
-            if (iface == null) {
-                logger.warn("No interface found for " + str);
+            for (final EventType type : EventType.values()) {
+                EventMethodInterceptor emi = new EventMethodInterceptor(
+                        new EventMethodInterceptor.DisableAction() {
+                            @Override
+                            protected boolean disabled(MethodInvocation mi) {
+                                return cd.isDisabled(type.eventName());
+                            }
+                        });
+                append(type, getProxy(emi));
             }
 
-            else {
-                set.add(iface);
+            if (voter != null) {
+                ACLEventListener acl = new ACLEventListener(voter);
+                append(EventType.POST_LOAD, acl);
+                append(EventType.PRE_INSERT, acl);
+                append(EventType.PRE_UPDATE, acl);
+                append(EventType.PRE_DELETE, acl);
+            }
+
+            EventLogListener ell = new ome.security.basic.EventLogListener(cd);
+            append(EventType.POST_INSERT, ell);
+            append(EventType.POST_UPDATE, ell);
+            append(EventType.POST_DELETE, ell);
+
+            UpdateEventListener uel = new UpdateEventListener(cd);
+            append(EventType.PRE_UPDATE, uel);
+
+            if (debugAll) {
+                Object debug = getDebuggingProxy();
+                for (EventType type : EventType.values()) {
+                    append(type, debug);
+                }
             }
         }
-        return set.toArray(new Class[set.size()]);
-    }
 
-    private Object getDisablingProxy() {
-        EventMethodInterceptor disable = new EventMethodInterceptor(
-                new EventMethodInterceptor.DisableAction());
-        return getProxy(disable);
-    }
-
-    private Object getDebuggingProxy() {
-        EventMethodInterceptor debug = new EventMethodInterceptor();
-        debug.setDebug(true);
-        return getProxy(debug);
-    }
-
-    private Object getProxy(Advice... adviceArray) {
-        ProxyFactory factory = new ProxyFactory();
-        factory.setInterfaces(allInterfaces());
-        for (Advice advice : adviceArray) {
-            factory.addAdvice(advice);
+        // ~ Helpers
+        // =========================================================================
+        private Class[] allInterfaces() {
+            final Collection<EventType> allTypes = EventType.values();
+            final Set<Class> set = new HashSet<Class>();
+            for (EventType type : allTypes) {
+                set.add(type.baseListenerInterface());
+            }
+            return set.toArray(new Class[set.size()]);
         }
-        return factory.getProxy();
-    }
 
-    // ~ Collection methods
-    // =========================================================================
+        private Object getDisablingProxy() {
+            EventMethodInterceptor disable = new EventMethodInterceptor(
+                    new EventMethodInterceptor.DisableAction());
+            return getProxy(disable);
+        }
 
-    /** calls override for each key */
-    private void override(String[] keys, Object object) {
-        for (String key : keys) {
-            override(key, object);
+        private Object getDebuggingProxy() {
+            EventMethodInterceptor debug = new EventMethodInterceptor();
+            debug.setDebug(true);
+            return getProxy(debug);
         }
-    }
 
-    /** first re-initializes the list for key, and then adds object */
-    private void override(String key, Object object) {
-        put(key, null);
-        append(key, object);
-    }
+        private Object getProxy(Advice... adviceArray) {
+            ProxyFactory factory = new ProxyFactory();
+            factory.setInterfaces(allInterfaces());
+            for (Advice advice : adviceArray) {
+                factory.addAdvice(advice);
+            }
+            return factory.getProxy();
+        }
 
-    /**
-     * appends the objects to the existing list identified by key. If no list is
-     * found, initializes. If there are no objects, just initializes if
-     * necessary.
-     */
-    private void append(String key, Object... objs) {
-        LinkedList<Object> l = map.get(key);
-        if (l == null) {
-            put(key, null);
-            l = map.get(key);
-        }
-        if (objs == null) {
-            return;
-        }
-        for (Object object : objs) {
-            l.addLast(object);
-        }
-    }
+        // ~ Collection methods
+        // =========================================================================
 
-    /**
-     * adds the objects to the existing list identified by key. If no list is
-     * found, initializes. If there are no objects, just initializes if
-     * necessary.
-     */
-    private void prepend(String key, Object... objs) {
-        LinkedList<Object> l = map.get(key);
-        if (l == null) {
-            put(key, null);
-            l = map.get(key);
+        /** calls override for each event type */
+        private void override(EventType[] types, Object object) {
+            for (EventType type : types) {
+                override(type, object);
+            }
         }
-        if (objs == null) {
-            return;
+
+        /** first re-initializes the list for key, and then adds object */
+        private void override(EventType type, Object object) {
+            this.registry.setListeners(type, object);
         }
-        for (Object object : objs) {
-            l.addFirst(object);
+
+        /**
+         * appends the objects to the existing list identified by key. If no list is
+         * found, initializes. If there are no objects, just initializes if
+         * necessary.
+         */
+        private void append(EventType type, Object... objs) {
+            this.registry.appendListeners(type, objs);
+        }
+
+        /**
+         * adds the objects to the existing list identified by key. If no list is
+         * found, initializes. If there are no objects, just initializes if
+         * necessary.
+         */
+        private void prepend(EventType type, Object... objs) {
+            this.registry.prependListeners(type, objs);
         }
     }
-
-    /**
-     * replaces the key with the provided objects or an empty list if none
-     * provided
-     */
-    private void put(String key, Object[] objs) {
-        LinkedList<Object> list = new LinkedList<Object>();
-        if (objs != null) {
-            Collections.addAll(list, objs);
-        }
-        map.put(key, list);
-    }
-
 }
