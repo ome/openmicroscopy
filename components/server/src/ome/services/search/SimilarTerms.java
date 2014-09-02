@@ -26,8 +26,7 @@ import org.hibernate.Session;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.hibernate.search.SearchFactory;
-import org.hibernate.search.indexes.spi.ReaderProvider;
-import org.hibernate.search.store.DirectoryProvider;
+import org.hibernate.search.indexes.IndexReaderAccessor;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -62,14 +61,9 @@ public class SimilarTerms extends SearchAction {
 
         final FullTextSession session = Search.getFullTextSession(s);
         final SearchFactory factory = session.getSearchFactory();
-        final DirectoryProvider[] directory = factory.getDirectoryProviders(cls);
-        final ReaderProvider provider = factory.getReaderProvider();
+        final IndexReaderAccessor ra = factory.getIndexReaderAccessor();
+        final IndexReader reader = ra.open(cls);
 
-        Assert.notEmpty(directory, "Must have a directory provider");
-        Assert.isTrue(directory.length == 1, "Can only handle one directory");
-        
-        final AtomicReader reader = (AtomicReader)provider.openReader(directory[0]);
-        
         final List<TextAnnotation> rv = new ArrayList<TextAnnotation>();
 
         FuzzyTermEnum fuzzy = null;
