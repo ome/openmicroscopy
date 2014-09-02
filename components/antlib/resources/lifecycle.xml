@@ -253,7 +253,7 @@ omero.version=${omero.version}
         <!-- may be overridden by fail-on-error -->
         <property name="test.with.fail" value="false"/>
         <property name="emma.enabled"   value="true"/>
-            <property name="unit.suite" value="unit.testng.xml"/>
+        <property name="unit.suite" value="unit.testng.xml"/>
         <copyTestResources/>
         <myjavac
             destdir="${testclasses.dir}"
