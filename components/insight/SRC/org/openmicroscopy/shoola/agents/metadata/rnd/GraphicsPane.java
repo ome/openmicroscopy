@@ -87,7 +87,7 @@ class GraphicsPane
     static final double RATIO = 0.2;
     
     /** The title of the viewedby taskpane */
-    static final String VIEWEDBY_TITLE = "Saved by";
+    static final String VIEWEDBY_TITLE = "User Settings:";
 
     /** Slider to select a sub-interval of [0, 255]. */
     private TwoKnobsSlider codomainSlider;
@@ -135,7 +135,7 @@ class GraphicsPane
     private PreviewControlBar2 controlsBar2;
 
     /** The Tasks pane, only visible if already viewed by others. */
-    private JXTaskPane viewedBy;
+    private JPanel viewedBy;
 
     /** The preview tool bar. */
     private PreviewToolBar previewToolBar;
@@ -179,12 +179,11 @@ class GraphicsPane
     /** Initializes the components. */
     private void initComponents()
     {
-        IconManager icons = IconManager.getInstance();
-        viewedBy = new JXTaskPane();
+        viewedBy = new JPanel();
         Font font = viewedBy.getFont();
         viewedBy.setFont(font.deriveFont(font.getSize2D()-2));
-        viewedBy.setTitle(VIEWEDBY_TITLE);
-        viewedBy.setIcon(icons.getIcon(IconManager.RND_OWNER));
+        viewedBy.setBackground(UIUtilities.BACKGROUND_COLOR);
+        viewedBy.setLayout(new FlowLayout(FlowLayout.LEFT));
         controlsBar = new PreviewControlBar(controller, model);
         controlsBar2 = new PreviewControlBar2(controller);
         uiDelegate = new GraphicsPaneUI(this, model);
@@ -301,9 +300,16 @@ class GraphicsPane
         
         c.gridy++;
         c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-        c.fill = GridBagConstraints.BOTH;
+        c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1.0;
         c.weighty = 1.0;
+        content.add(new JSeparator(), c);
+        
+        c.gridy++;
+        content.add(new JLabel(VIEWEDBY_TITLE), c);
+        
+        c.gridy++;
+        c.fill = GridBagConstraints.BOTH;
         content.add(viewedBy, c);
         JPanel p = UIUtilities.buildComponentPanel(content);
         p.setBackground(content.getBackground());
@@ -568,6 +574,7 @@ class GraphicsPane
         JPanel content = UIUtilities.buildComponentPanel(p);
         content.setBackground(UIUtilities.BACKGROUND_COLOR);
         viewedBy.add(content);
+        viewedBy.revalidate();
     }
 
     /**
