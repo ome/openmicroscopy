@@ -37,7 +37,7 @@ module omero {
          *  - omero.cmd.SendEmailRequest(subject, body, groupIds=[...],
          *		userIds=[...] )
          *		sends email to active members of given groups and selected users
-         * 	- CC and BCC parameters: cc=[...], bcc=[...]
+         * 	- extra=[...] allows to set extra email address if not in DB
          **/
          class SendEmailRequest extends Request {
              string subject;
@@ -45,8 +45,7 @@ module omero {
              bool html;
              omero::sys::LongList userIds;
              omero::sys::LongList groupIds;
-             omero::api::StringSet cc;
-             omero::api::StringSet bcc;
+             omero::api::StringSet extra;
              bool inactive;
          };
 
@@ -54,9 +53,14 @@ module omero {
          * Successful response for [SendEmailRequest]. Contains
          * a list of invalid users that has no email address set.
          * If no recipients or invalid users found, an [ERR] will be returned.
+         *
+         * - invalidusers is a list of userIds that email didn't pass criteria
+         *					such as was empty or less then 5 characters
+         * - invalidemails is a list of email addresses that send email failed
          **/
          class SendEmailResponse extends Response {
              omero::api::LongList invalidusers;
+             omero::api::StringSet invalidemails;
          };
         
     };

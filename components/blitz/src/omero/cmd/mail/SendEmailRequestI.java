@@ -51,10 +51,6 @@ public class SendEmailRequestI extends SendEmailRequest implements IRequest {
 
     private List<String> recipients = new ArrayList<String>();
 
-    private List<String> ccrecipients = new ArrayList<String>();
-
-    private List<String> bccrecipients = new ArrayList<String>();
-
     private final MailUtil mailUtil;
 
     private Helper helper;
@@ -76,6 +72,9 @@ public class SendEmailRequestI extends SendEmailRequest implements IRequest {
     public void init(Helper helper) {
         this.helper = helper;
 
+        rsp.invalidusers = new ArrayList<Long>();
+        rsp.invalidemails = new ArrayList<String>();
+
         this.sender = mailUtil.getSender();
         if (this.sender.length() < 1)
             throw helper.cancel(new ERR(), null, "no-sender");
@@ -85,16 +84,12 @@ public class SendEmailRequestI extends SendEmailRequest implements IRequest {
             throw helper.cancel(new ERR(), null, "no-body");
 
         this.recipients = parseRecipients();
-        this.ccrecipients = parseCCRecipients();
-        this.bccrecipients = parseBccRecipients();
-
-        if (rsp.invalidusers.isEmpty() && this.recipients.isEmpty())
-            throw helper.cancel(new ERR(), null, "no-recipients");
+        this.recipients.addAll(parseExtraRecipients());
 
         if (this.recipients.isEmpty())
-            this.helper.setSteps(1);
-        else
-            this.helper.setSteps(this.recipients.size());
+            throw helper.cancel(new ERR(), null, "no-recipients");
+
+        this.helper.setSteps(this.recipients.size());
     }
 
     public Object step(int step) throws Cancel {
@@ -107,13 +102,14 @@ public class SendEmailRequestI extends SendEmailRequest implements IRequest {
             return null;
         }
 
+        String email = this.recipients.get(step);
+
         try {
-            mailUtil.sendEmail(this.sender, this.recipients.get(step), subject,
-                    body, html, this.ccrecipients, this.bccrecipients);
+            mailUtil.sendEmail(this.sender, email, subject, body, html, null,
+                    null);
         } catch (MailException me) {
             log.error(me.getMessage());
-            throw helper.cancel(new ERR(), null, "mail-send-failed",
-                    "MailException", String.format(me.getMessage()));
+            rsp.invalidemails.add(email);
         }
         return null;
     }
@@ -149,8 +145,6 @@ public class SendEmailRequestI extends SendEmailRequest implements IRequest {
          * 
          * email must be at least 5 carachters a@b.xx
          */
-
-        rsp.invalidusers = new ArrayList<Long>();
 
         Parameters p = new Parameters();
 
@@ -198,24 +192,16 @@ public class SendEmailRequestI extends SendEmailRequest implements IRequest {
         return new ArrayList<String>(recipients);
     }
 
-    private List<String> parseCCRecipients() {
-        Set<String> ccrecipients = new HashSet<String>();
-        for (final String e : cc) {
+    private List<String> parseExtraRecipients() {
+        Set<String> extraRecipients = new HashSet<String>();
+        for (final String e : extra) {
             if (e.length() > 5) {
-                ccrecipients.add(e);
+                extraRecipients.add(e);
+            } else {
+                rsp.invalidemails.add(e);
             }
         }
-        return new ArrayList<String>(ccrecipients);
-    }
-
-    private List<String> parseBccRecipients() {
-        Set<String> bccrecipients = new HashSet<String>();
-        for (final String e : bcc) {
-            if (e.length() > 5) {
-                bccrecipients.add(e);
-            }
-        }
-        return new ArrayList<String>(bccrecipients);
+        return new ArrayList<String>(extraRecipients);
     }
 
 }
