@@ -111,6 +111,9 @@ public abstract class GraphPolicy {
          */
         public Orphan orphan;
 
+        /** if the user's permissions for the object should be checked before the {@link GraphTraversal.Processor} acts upon it */
+        public boolean isCheckPermissions;
+
         /**
          * Construct a note of an object and its details.
          * {@link #equals(Object)} and {@link #hashCode()} consider only the subject, not the action or orphan.
@@ -120,8 +123,10 @@ public abstract class GraphPolicy {
          * @param mayUpdate if the object may be updated
          * @param mayDelete if the object may be deleted
          * @param isOwner if the user owns the object
+         * @param isCheckPermissions if the user is expected to have the permissions required to process the object
          */
-        Details(IObject subject, Action action, Orphan orphan, boolean mayUpdate, boolean mayDelete, boolean isOwner) {
+        Details(IObject subject, Action action, Orphan orphan, boolean mayUpdate, boolean mayDelete, boolean isOwner,
+                boolean isCheckPermissions) {
             this.subject = subject;
             this.action = action;
             this.orphan = orphan;
@@ -136,6 +141,8 @@ public abstract class GraphPolicy {
             if (isOwner) {
                 permissions.add(Ability.OWN);
             }
+
+            this.isCheckPermissions = isCheckPermissions;
         }
     }
 

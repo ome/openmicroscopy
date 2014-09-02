@@ -38,6 +38,7 @@ import java.util.regex.Pattern;
 import ome.model.IObject;
 import ome.services.graphs.GraphPolicy.Details;
 
+import org.apache.commons.lang.mutable.MutableBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,12 +90,16 @@ public class GraphPolicyRule {
      */
     private static interface TermMatch {
         /**
-         * If this matches the given term. Will not adjust {@code namedTerms} unless the match succeeds.
-         * @param namedTerms the name dictionary of matched terms (to be updated by this method)
+         * If this matches the given term.
+         * Does not adjust {@code namedTerms} or {@code isCheckAllPermissions} unless the match succeeds,
+         * in which case sets {@code isCheckAllPermissions} to {@code false} if
+         * {@code details.isCheckPermissions == false}.
+         * @param namedTerms the name dictionary of matched terms (updated by this method)
+         * @param isCheckAllPermissions if permissions are to be checked for all of the matched objects (updated by this method)
          * @param details the details of the term
          * @return if the term matches
          */
-        boolean isMatch(Map<String, Details> namedTerms, Details details);
+        boolean isMatch(Map<String, Details> namedTerms, MutableBoolean isCheckAllPermissions, Details details);
     }
 
     /**
@@ -112,7 +117,7 @@ public class GraphPolicyRule {
             this.termName = termName;
         }
 
-        public boolean isMatch(Map<String, Details> namedTerms, Details details) {
+        public boolean isMatch(Map<String, Details> namedTerms, MutableBoolean isCheckAllPermissions, Details details) {
             return details.equals(namedTerms.get(termName));
         }
     }
@@ -174,7 +179,7 @@ public class GraphPolicyRule {
             }
         }
 
-        public boolean isMatch(Map<String, Details> namedTerms, Details details) {
+        public boolean isMatch(Map<String, Details> namedTerms, MutableBoolean isCheckAllPermissions, Details details) {
             final Class<? extends IObject> subjectClass = details.subject.getClass();
             if ((requiredClass == null || requiredClass.isAssignableFrom(subjectClass)) &&
                 (prohibitedClass == null || !prohibitedClass.isAssignableFrom(subjectClass)) &&
@@ -224,24 +229,31 @@ public class GraphPolicyRule {
         }
 
         /**
-         * If this matches the given relationship. Will not adjust {@code namedTerms} unless the match succeeds.
+         * If this matches the given relationship.
+         * Does not adjust {@code namedTerms} or {@code isCheckAllPermissions} unless the match succeeds,
+         * in which case sets {@code isCheckAllPermissions} to {@code false} if
+         * {@code leftDetails.isCheckPermissions && rightDetails.isCheckPermissions == false}.
          * @param namedTerms the name dictionary of matched terms (to be updated by this method)
+         * @param isCheckAllPermissions if permissions are to be checked for all of the matched objects
          * @param leftDetails the details of the left term, holding the property
          * @param rightDetails the details of the right term, being a value of the property
          * @param classProperty the name of the declaring class and property
          * @param notNullable if the property is not nullable
          * @return if the relationship matches
          */
-        boolean isMatch(Map<String, Details> namedTerms, Details leftDetails, Details rightDetails,
-                String classProperty, boolean notNullable) {
+        boolean isMatch(Map<String, Details> namedTerms, MutableBoolean isCheckAllPermissions,
+                Details leftDetails, Details rightDetails, String classProperty, boolean notNullable) {
             if ((this.notNullable != null && this.notNullable != notNullable) ||
                 (this.propertyName != null && !classProperty.endsWith(propertyName))) {
                 return false;
             }
             final Map<String, Details> newNamedTerms = new HashMap<String, Details>(namedTerms);
-            final boolean isMatch = leftTerm.isMatch(newNamedTerms, leftDetails) && rightTerm.isMatch(newNamedTerms, rightDetails);
+            final MutableBoolean newIsCheckAllPermissions = new MutableBoolean(isCheckAllPermissions.booleanValue());
+            final boolean isMatch = leftTerm.isMatch(newNamedTerms, newIsCheckAllPermissions, leftDetails) &&
+                                   rightTerm.isMatch(newNamedTerms, newIsCheckAllPermissions, rightDetails);
             if (isMatch) {
                 namedTerms.putAll(newNamedTerms);
+                isCheckAllPermissions.setValue(newIsCheckAllPermissions.booleanValue());
             }
             return isMatch;
         }
@@ -256,17 +268,20 @@ public class GraphPolicyRule {
         private final String namedTerm;
         private final GraphPolicy.Action action;
         private final GraphPolicy.Orphan orphan;
+        private final boolean isOverridePermissions;
 
         /**
          * Construct a change instance.
          * @param namedTerm the term to affect
          * @param action the effect to have on the action, {@code null} for no effect
          * @param orphan the effect to have on the orphan status, {@code null} for no effect
+         * @param isOverridePermissions if permissions checking should be overridden
          */
-        Change(String namedTerm, GraphPolicy.Action action, GraphPolicy.Orphan orphan) {
+        Change(String namedTerm, GraphPolicy.Action action, GraphPolicy.Orphan orphan, boolean isOverridePermissions) {
             this.namedTerm = namedTerm;
             this.action = action;
             this.orphan = orphan;
+            this.isOverridePermissions = isOverridePermissions;
         }
 
         /**
@@ -285,6 +300,9 @@ public class GraphPolicyRule {
             }
             if (orphan != null) {
                 details.orphan = orphan;
+            }
+            if (isOverridePermissions) {
+                details.isCheckPermissions = false;
             }
             return details;
         }
@@ -511,6 +529,7 @@ public class GraphPolicyRule {
         final String termName;
         final GraphPolicy.Action action;
         final GraphPolicy.Orphan orphan;
+        final boolean isOverridePermissions;
 
         /* parse term name */
 
@@ -565,7 +584,22 @@ public class GraphPolicyRule {
             }
         }
 
-        return new Change(termName, action, orphan);
+        /* parse permissions override, if any */
+
+        if (matcher.group(4) == null) {
+            isOverridePermissions = false;
+        } else {
+            switch (matcher.group(4).charAt(1)) {
+            case 'n':
+                isOverridePermissions = true;
+                break;
+            default:
+                isOverridePermissions = false;
+                break;
+            }
+        }
+
+        return new Change(termName, action, orphan, isOverridePermissions);
     }
 
     /**
@@ -634,6 +668,7 @@ public class GraphPolicyRule {
             Details rootObject, Map<String, Set<Details>> linkedTo, Set<String> notNullable,
             ParsedPolicyRule policyRule, Set<Details> changedObjects) throws GraphException {
         final SortedMap<String, Details> namedTerms = new TreeMap<String, Details>();
+        final MutableBoolean isCheckAllPermissions = new MutableBoolean(true);
         if (!policyRule.termMatchers.isEmpty()) {
             /* apply the term matchers */
             final Set<Details> allTerms = new HashSet<Details>();
@@ -646,9 +681,10 @@ public class GraphPolicyRule {
             }
             for (final TermMatch matcher : policyRule.termMatchers) {
                 for (final Details object : allTerms) {
-                    if (matcher.isMatch(namedTerms, object)) {
-                        recordChanges(policyRule, changedObjects, namedTerms);
+                    if (matcher.isMatch(namedTerms, isCheckAllPermissions, object)) {
+                        recordChanges(policyRule, changedObjects, namedTerms, isCheckAllPermissions.booleanValue());
                         namedTerms.clear();
+                        isCheckAllPermissions.setValue(true);
                     }
                 }
             }
@@ -660,9 +696,11 @@ public class GraphPolicyRule {
                 final String classProperty = dataPerProperty.getKey();
                 final boolean isNotNullable = notNullable.contains(dataPerProperty.getKey());
                 for (final Details linkerObject : dataPerProperty.getValue()) {
-                    if (matcher.isMatch(namedTerms, linkerObject, rootObject, classProperty, isNotNullable)) {
-                        recordChanges(policyRule, changedObjects, namedTerms);
+                    if (matcher.isMatch(namedTerms, isCheckAllPermissions,
+                            linkerObject, rootObject, classProperty, isNotNullable)) {
+                        recordChanges(policyRule, changedObjects, namedTerms, isCheckAllPermissions.booleanValue());
                         namedTerms.clear();
+                        isCheckAllPermissions.setValue(true);
                     }
                 }
             }
@@ -671,9 +709,11 @@ public class GraphPolicyRule {
                 final String classProperty = dataPerProperty.getKey();
                 final boolean isNotNullable = notNullable.contains(dataPerProperty.getKey());
                 for (final Details linkedObject : dataPerProperty.getValue()) {
-                    if (matcher.isMatch(namedTerms, rootObject, linkedObject, classProperty, isNotNullable)) {
-                        recordChanges(policyRule, changedObjects, namedTerms);
+                    if (matcher.isMatch(namedTerms, isCheckAllPermissions,
+                            rootObject, linkedObject, classProperty, isNotNullable)) {
+                        recordChanges(policyRule, changedObjects, namedTerms, isCheckAllPermissions.booleanValue());
                         namedTerms.clear();
+                        isCheckAllPermissions.setValue(true);
                     }
                 }
             }
@@ -695,10 +735,11 @@ public class GraphPolicyRule {
             Details rootObject, Map<String, Set<Details>> linkedTo, Set<String> notNullable,
             ParsedPolicyRule policyRule, Set<Details> changedObjects) throws GraphException {
         final SortedMap<String, Details> namedTerms = new TreeMap<String, Details>();
+        final MutableBoolean isCheckAllPermissions = new MutableBoolean(true);
         final Set<TermMatch> unmatchedTerms = new HashSet<TermMatch>(policyRule.termMatchers);
         final Set<RelationshipMatch> unmatchedRelationships = new HashSet<RelationshipMatch>(policyRule.relationshipMatchers);
         for (final TermMatch matcher : unmatchedTerms) {
-            if (matcher.isMatch(namedTerms, rootObject)) {
+            if (matcher.isMatch(namedTerms, isCheckAllPermissions, rootObject)) {
                 unmatchedTerms.remove(matcher);
             }
         }
@@ -708,14 +749,15 @@ public class GraphPolicyRule {
             final boolean isNotNullable = notNullable.contains(dataPerProperty.getKey());
             for (final Details linkerObject : dataPerProperty.getValue()) {
                 for (final TermMatch matcher : unmatchedTerms) {
-                    if (matcher.isMatch(namedTerms, linkerObject)) {
+                    if (matcher.isMatch(namedTerms, isCheckAllPermissions, linkerObject)) {
                         unmatchedTerms.remove(matcher);
                     }
                 }
                 final Iterator<RelationshipMatch> unmatchedIterator = unmatchedRelationships.iterator();
                 while (unmatchedIterator.hasNext()) {
                     final RelationshipMatch matcher = unmatchedIterator.next();
-                    if (matcher.isMatch(namedTerms, linkerObject, rootObject, classProperty, isNotNullable)) {
+                    if (matcher.isMatch(namedTerms, isCheckAllPermissions,
+                            linkerObject, rootObject, classProperty, isNotNullable)) {
                         unmatchedIterator.remove();
                     }
                 }
@@ -727,21 +769,22 @@ public class GraphPolicyRule {
             final boolean isNotNullable = notNullable.contains(dataPerProperty.getKey());
             for (final Details linkedObject : dataPerProperty.getValue()) {
                 for (final TermMatch matcher : unmatchedTerms) {
-                    if (matcher.isMatch(namedTerms, linkedObject)) {
+                    if (matcher.isMatch(namedTerms, isCheckAllPermissions, linkedObject)) {
                         unmatchedTerms.remove(matcher);
                     }
                 }
                 final Iterator<RelationshipMatch> unmatchedIterator = unmatchedRelationships.iterator();
                 while (unmatchedIterator.hasNext()) {
                     final RelationshipMatch matcher = unmatchedIterator.next();
-                    if (matcher.isMatch(namedTerms, rootObject, linkedObject, classProperty, isNotNullable)) {
+                    if (matcher.isMatch(namedTerms, isCheckAllPermissions,
+                            rootObject, linkedObject, classProperty, isNotNullable)) {
                         unmatchedIterator.remove();
                     }
                 }
             }
         }
         if (unmatchedTerms.isEmpty() && unmatchedRelationships.isEmpty()) {
-            recordChanges(policyRule, changedObjects, namedTerms);
+            recordChanges(policyRule, changedObjects, namedTerms, isCheckAllPermissions.booleanValue());
         }
     }
 
@@ -749,35 +792,46 @@ public class GraphPolicyRule {
      * Effect the changes.
      * @param policyRule the policy rule that is now to be effected
      * @param changedObjects the objects affected by the policy rules (to be updated by this method)
-     * @param namedTerms
-     * @throws GraphException
+     * @param namedTerms the name dictionary of matched terms
+     * @param isCheckAllPermissions if permissions are to be checked for all of the matched objects
+     * @throws GraphException if a term to change is one not named among the policy rule's matchers
      */
     private static void recordChanges(ParsedPolicyRule policyRule, Set<Details> changedObjects,
-            Map<String, Details> namedTerms) throws GraphException {
+            Map<String, Details> namedTerms, boolean isCheckAllPermissions) throws GraphException {
+        final StringBuffer logMessage;
         if (LOGGER != null && LOGGER.isDebugEnabled()) {
-            final StringBuffer sb = new StringBuffer();
-            sb.append("matched ");
-            sb.append(policyRule.asString);
-            sb.append(", where ");
+            /* log applicable rule match and old status of terms */
+            logMessage = new StringBuffer();
+            logMessage.append("matched ");
+            logMessage.append(policyRule.asString);
+            logMessage.append(", where ");
             for (final Entry<String, Details> namedTerm : namedTerms.entrySet()) {
-                sb.append(namedTerm.getKey());
-                sb.append(" is ");
-                sb.append(namedTerm.getValue());
-                sb.append(", ");
+                logMessage.append(namedTerm.getKey());
+                logMessage.append(" is ");
+                logMessage.append(namedTerm.getValue());
+                logMessage.append(", ");
             }
-            sb.append("making ");
-            final List<String> newValues = new ArrayList<String>();
-            for (final Change change : policyRule.changes) {
-                final Details newValue = change.toChanged(namedTerms);
-                newValues.add(newValue.toString());
-                changedObjects.add(newValue);
-            }
-            sb.append(Joiner.on(", ").join(newValues));
-            LOGGER.debug(sb.toString());
         } else {
-            for (final Change change : policyRule.changes) {
-                changedObjects.add(change.toChanged(namedTerms));
+            /* not logging rule matches */
+            logMessage = null;
+        }
+        /* note the new changes to the terms */
+        final Set<Details> changedTerms = new HashSet<Details>();
+        for (final Change change : policyRule.changes) {
+            changedTerms.add(change.toChanged(namedTerms));
+        }
+        /* a permissions override on any match propagates to all changed terms */
+        if (!isCheckAllPermissions) {
+            for (final Details changedTerm : changedTerms) {
+                changedTerm.isCheckPermissions = false;
             }
         }
+        if (logMessage != null) {
+            /* log new status of terms */
+            logMessage.append("making ");
+            logMessage.append(Joiner.on(", ").join(changedTerms));
+            LOGGER.debug(logMessage.toString());
+        }
+        changedObjects.addAll(changedTerms);
     }
 }

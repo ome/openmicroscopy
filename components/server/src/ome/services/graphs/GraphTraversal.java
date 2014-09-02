@@ -89,9 +89,11 @@ public class GraphTraversal {
          * @param mayUpdate if the object may be updated
          * @param mayDelete if the object may be deleted
          * @param isOwner if the user owns the object
+         * @param isCheckPermissions if the user is expected to have the permissions required to process the object
          */
-        DetailsWithCI(IObject subject, Action action, Orphan orphan, boolean mayUpdate, boolean mayDelete, boolean isOwner) {
-            super(subject, action, orphan, mayUpdate, mayDelete, isOwner);
+        DetailsWithCI(IObject subject, Action action, Orphan orphan, boolean mayUpdate, boolean mayDelete, boolean isOwner,
+                boolean isCheckPermissions) {
+            super(subject, action, orphan, mayUpdate, mayDelete, isOwner, isCheckPermissions);
             this.subjectAsCI = new CI(subject);
         }
 
@@ -351,6 +353,7 @@ public class GraphTraversal {
         final Set<CI> mayUpdate = new HashSet<CI>();
         final Set<CI> mayDelete = new HashSet<CI>();
         final Set<CI> owns = new HashSet<CI>();
+        final Set<CI> overrides = new HashSet<CI>();
     }
 
     /**
@@ -722,10 +725,11 @@ public class GraphTraversal {
             final Orphan orphan = action == Action.EXCLUDE ? getOrphan(object) : Orphan.IRRELEVANT;
 
             if (eventContext.isCurrentUserAdmin()) {
-                details = new DetailsWithCI(object.toIObject(), action, orphan, true, true, true);
+                details = new DetailsWithCI(object.toIObject(), action, orphan, true, true, true, true);
             } else {
                 details = new DetailsWithCI(object.toIObject(), action, orphan,
-                        planning.mayUpdate.contains(object), planning.mayDelete.contains(object), planning.owns.contains(object));
+                        planning.mayUpdate.contains(object), planning.mayDelete.contains(object), planning.owns.contains(object),
+                        !planning.overrides.contains(object));
             }
 
             cache.put(object, details);
@@ -835,6 +839,10 @@ public class GraphTraversal {
             } else if (!(change.action == Action.OUTSIDE || instance.equals(object))) {
                 /* probably just needs review */
                 planning.toProcess.add(instance);
+            }
+            if (!(change.isCheckPermissions || eventContext.isCurrentUserAdmin())) {
+                /* do not check the user's permissions on this object */
+                planning.overrides.add(instance);
             }
             if (log.isDebugEnabled()) {
                 log.debug("adjusted " + change);
@@ -1000,6 +1008,7 @@ public class GraphTraversal {
         if (abilities == null || eventContext.isCurrentUserAdmin()) {
             return;
         }
+        objects = Sets.difference(objects, planning.overrides);
         if (abilities.contains(Ability.DELETE)) {
             final Set<CI> violations = Sets.difference(objects, planning.mayDelete);
             if (!violations.isEmpty()) {
