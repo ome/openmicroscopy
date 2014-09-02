@@ -293,23 +293,31 @@ public class ManageRndSettingsAction
 		}
 	}
 
+    /** 
+     * Posts a {@link CopyRndSettings} event on the EventBus
+     */ 
     private void copyRndSettings() {
-        try {
-            model.saveCurrentSettings();
+
+            CopyRndSettings evt;
+            if (model.isModified()) {
+                // copy the current 'pending' rendering settings
+                evt = new CopyRndSettings(model.getRndSettingsCopy());
+            }
+            else {
+                // copy the saved rendering settings from the image
+                evt = new CopyRndSettings(model.getRefImage());
+            }
             
-            CopyRndSettings evt = new CopyRndSettings(model.getRefImage());
             EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
             bus.post(evt);
             
-        } catch (RenderingServiceException e) {
-            e.printStackTrace();
-        } catch (DSOutOfServiceException e) {
-            e.printStackTrace();
-        }
     }
 
+    /** 
+     * Posts a {@link RndSettingsPasted} event on the EventBus
+     */ 
     private void pasteRndSettings() {
         EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-        bus.post(new RndSettingsPasted());
+        bus.post(new RndSettingsPasted(model.getRefImage().getId()));
     }
 }

@@ -315,6 +315,7 @@ public class MetadataViewerAgent
      */
     private void handleCopyRndSettings(CopyRndSettings evt) {
         MetadataViewerFactory.setRndSettingsToCopy(evt.getImage());
+        MetadataViewerFactory.setRndSettingsToCopy(evt.getRndDef());
     }
     
     /**
@@ -323,8 +324,8 @@ public class MetadataViewerAgent
      * previously set image; see also {@link CopyRndSettings}
      * @param evt
      */
-    private void handleRndSettingsPasted() {
-        MetadataViewerFactory.applyCopiedRndSettings();
+    private void handleRndSettingsPasted(RndSettingsPasted e) {
+        MetadataViewerFactory.applyCopiedRndSettings(e.getImageId());
     }
     
     /**
@@ -422,7 +423,7 @@ public class MetadataViewerAgent
 		else if (e instanceof CopyRndSettings) 
                    	 handleCopyRndSettings((CopyRndSettings) e);
 		else if (e instanceof RndSettingsPasted) 
-                    	handleRndSettingsPasted();
+                    	handleRndSettingsPasted((RndSettingsPasted) e);
 	}
 
 }

@@ -1255,7 +1255,27 @@ class MetadataViewerComponent
          */
 	public void setRndSettingsToCopy(ImageData img) {
 	    model.setCopyRenderingSettingsFrom(img);
+	    if (getRenderer() != null)
+                getRenderer().onSettingsCopied();
 	}
+	
+	/**
+         * Implemented as specified by the {@link MetadataViewer} interface.
+         * @see MetadataViewer#setRndSettingsToCopy(RndProxyDef)
+         */
+	public void setRndSettingsToCopy(RndProxyDef def) {
+            model.setRndSettingsToCopy(def);
+            if(getRenderer()!=null)
+                getRenderer().onSettingsCopied();
+        }
+	
+	/**
+         * Implemented as specified by the {@link MetadataViewer} interface.
+         * @see MetadataViewer#hasRndSettingsCopied()
+         */
+        public boolean hasRndSettingsCopied() {
+            return model.hasRndSettingsCopied();
+        }
 	
 	/**
          * Implemented as specified by the {@link MetadataViewer} interface.

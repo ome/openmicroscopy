@@ -685,6 +685,14 @@ class RendererComponent
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#onSettingsCopied()
+     */
+	public void onSettingsCopied() {
+	    controller.updatePasteAction();
+	}
+	
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#getDefaultT()
      */
 	public int getDefaultT() { return model.getDefaultT(); }
@@ -898,6 +906,7 @@ class RendererComponent
 	public void resetSettings(RndProxyDef settings, boolean update)
 	{
 		try {
+		        model.makeHistorySnapshot();
 			model.resetSettings(settings);
 			if (update) {
 				view.resetDefaultRndSettings();

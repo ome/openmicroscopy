@@ -165,6 +165,9 @@ class MetadataViewerModel
 	/** Reference to an image from which the rnd settings can be copied */
 	private ImageData copyRenderingSettingsFrom;
 
+	/** 'Pending' rendering settings not yet stored with an image */
+	private RndProxyDef copiedRndSettings;
+	
     /**
      * Creates a new context if <code>null</code>.
      *
@@ -967,6 +970,12 @@ class MetadataViewerModel
 	 * See also {@link #setCopyRenderingSettingsFrom(ImageData)}
 	 */
 	void fireLoadRndSettings() {
+	    
+	    if (copiedRndSettings != null) {
+	        component.getRenderer().resetSettings(copiedRndSettings, true);
+	        return;
+	    }
+	    
 	    if(copyRenderingSettingsFrom==null)
 	        return;
 	    
@@ -1009,7 +1018,6 @@ class MetadataViewerModel
 	{
 		Renderer rnd = getEditor().getRenderer();
 		if (rnd != null) { 
-		    rnd.makeHistorySnapshot();
 		    rnd.resetSettings(rndDef, true);
 		}
 	}
@@ -1123,14 +1131,38 @@ class MetadataViewerModel
 
     /** 
      * Set the image from which the rendering settings can be copied.
-     * See also {@link #fireLoadRndSettings()}
+     * They can be applied be calling {@link #fireLoadRndSettings()}
+     *
      * @param copyRenderingSettingsFrom
      */
     public void setCopyRenderingSettingsFrom(ImageData copyRenderingSettingsFrom) {
-        this.copyRenderingSettingsFrom = copyRenderingSettingsFrom;
+        if (copyRenderingSettingsFrom != null) {
+            this.copiedRndSettings = null;
+            this.copyRenderingSettingsFrom = copyRenderingSettingsFrom;
+        }
     }
 
-    
+    /**
+     * Sets 'pending' rendering settings which have not yet
+     * been saved with an other image.
+     * They can be applied be calling {@link #fireLoadRndSettings()}
+     *
+     * @param copiedRndSettings
+     */
+    public void setRndSettingsToCopy(RndProxyDef copiedRndSettings) {
+        if (copiedRndSettings != null) {
+            this.copiedRndSettings = copiedRndSettings;
+            this.copyRenderingSettingsFrom = null;
+        }
+    }
 
+    /**
+     * Returns if there are copied rendering settings which could 
+     * be pasted.
+     * @return See above
+     */
+    public boolean hasRndSettingsCopied() {
+        return copiedRndSettings!=null || copyRenderingSettingsFrom!=null;
+    }
     
 }

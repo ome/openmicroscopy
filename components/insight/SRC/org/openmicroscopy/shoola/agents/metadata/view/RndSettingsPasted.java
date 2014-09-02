@@ -31,4 +31,23 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
  */
 public class RndSettingsPasted extends RequestEvent {
  
+    /** The image to apply the settings to */
+    private long imageId;
+
+    /**
+     * Creates a new instance
+     * @param imageId The image to apply the settings to
+     */
+    public RndSettingsPasted(long imageId) {
+        this.imageId = imageId;
+    }
+
+    /**
+     * Get the image id to apply the settings to
+     * @return See above
+     */
+    public long getImageId() {
+        return imageId;
+    }
+    
 }

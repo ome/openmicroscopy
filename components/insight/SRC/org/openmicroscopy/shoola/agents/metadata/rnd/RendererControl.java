@@ -47,6 +47,7 @@ import org.openmicroscopy.shoola.agents.metadata.actions.PlaneSlicingAction;
 import org.openmicroscopy.shoola.agents.metadata.actions.ReverseIntensityAction;
 import org.openmicroscopy.shoola.agents.metadata.actions.RndAction;
 import org.openmicroscopy.shoola.agents.metadata.actions.ViewAction;
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
@@ -176,10 +177,15 @@ class RendererControl
         a.setEnabled(false);
         actionsMap.put(RND_REDO, a);
         
-        actionsMap.put(COPY, new ManageRndSettingsAction(model, 
-                        ManageRndSettingsAction.COPY));
-        actionsMap.put(PASTE, new ManageRndSettingsAction(model, 
-                        ManageRndSettingsAction.PASTE));
+        a = new ManageRndSettingsAction(model, 
+                ManageRndSettingsAction.COPY);
+        actionsMap.put(COPY, a);
+        
+        a = new ManageRndSettingsAction(model, 
+                ManageRndSettingsAction.PASTE);
+        a.setEnabled(MetadataViewerFactory.hasRndSettingsCopied(model.getRefImage().getId()));
+        actionsMap.put(PASTE, a);
+        
     }
     
     /** 
@@ -347,6 +353,15 @@ class RendererControl
 	    view.onCurveChange();
 	}
     
+    /**
+     * Enables/Disables the paste action depending on if 
+     * there are rendering settings which can be pasted
+     */
+	void updatePasteAction() {
+	    boolean enabled = MetadataViewerFactory.hasRndSettingsCopied(model.getRefImage().getId());
+	    actionsMap.get(PASTE).setEnabled(enabled);
+	}
+	
     /**
      * Reacts to property change events.
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)

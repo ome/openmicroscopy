@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
 import pojos.ChannelData;
@@ -688,9 +689,23 @@ public interface MetadataViewer
 	void setRndSettingsToCopy(ImageData img);
 	
 	/**
+         * Sets 'pending' rendering settings (not yet stored with an image) which
+         * can be applied (copied) to the renderer.
+         * See also {@link #applyCopiedRndSettings()}
+         */
+	void setRndSettingsToCopy(RndProxyDef def);
+	
+	/**
          * Applies the settings of a previous set image to
          * the renderer (does not save them).
          * See also {@link #setRndSettingsToCopy(ImageData)}
          */
 	void applyCopiedRndSettings();
+	
+        /**
+         * Returns if there are copied rendering settings which could be pasted.
+         * 
+         * @return
+         */
+        boolean hasRndSettingsCopied();
 }

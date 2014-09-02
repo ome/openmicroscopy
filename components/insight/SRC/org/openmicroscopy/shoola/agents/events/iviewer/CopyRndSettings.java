@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -29,6 +29,7 @@ package org.openmicroscopy.shoola.agents.events.iviewer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.event.RequestEvent;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import pojos.ImageData;
 
 /** 
@@ -51,8 +52,12 @@ public class CopyRndSettings
 	/** The image to copy the renderig settings from. */
 	private ImageData		image;
 	
+	/** 'Pending' rendering settings */
+	private RndProxyDef rndDef;
+	
 	/**
 	 * Creates a new instance.
+	 * Used to copy saved rendering settings from an other image.
 	 * 
 	 * @param image The image to copy the rendering settings from.
 	 */
@@ -60,6 +65,18 @@ public class CopyRndSettings
 	{
 		this.image = image;
 	}
+	
+	/**
+         * Creates a new instance.
+         * Used for copying 'pending' rendering settings, i. e.
+         * which have not yet been saved with an image.
+         * 
+         * @param rndDef The copied rendering settings 
+         */
+        public CopyRndSettings(RndProxyDef rndDef)
+        {
+                this.rndDef = rndDef;
+        }
 
 	/**
 	 * Returns the image to copy the rendering settings from.
@@ -67,5 +84,14 @@ public class CopyRndSettings
 	 * @return See above. 
 	 */
     public ImageData getImage() { return image; }
+
+    /**
+     * Returns the copied rendering settings;
+     * @return
+     */
+    public RndProxyDef getRndDef() {
+        return rndDef;
+    }
+    
     
 }
