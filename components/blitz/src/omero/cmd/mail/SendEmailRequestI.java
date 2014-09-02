@@ -19,8 +19,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.mail.MailException;
 
 import ome.api.IQuery;
+import ome.api.local.LocalAdmin;
 import ome.parameters.Parameters;
 import ome.services.util.MailUtil;
+import ome.system.EventContext;
+import ome.system.ServiceFactory;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.ERR;
 import omero.cmd.Helper;
@@ -72,22 +75,38 @@ public class SendEmailRequestI extends SendEmailRequest implements IRequest {
     public void init(Helper helper) {
         this.helper = helper;
 
+        final EventContext ec = ((LocalAdmin) helper.getServiceFactory()
+                .getAdminService()).getEventContextQuiet();
+        if (!ec.isCurrentUserAdmin()) {
+            throw helper.cancel(new ERR(), null, "no-permissions",
+                    "ApiUsageException",
+                    String.format("You have no permissions to send email."));
+        }
+
         rsp.invalidusers = new ArrayList<Long>();
         rsp.invalidemails = new ArrayList<String>();
 
         this.sender = mailUtil.getSender();
         if (this.sender.length() < 1)
-            throw helper.cancel(new ERR(), null, "no-sender");
+            throw helper.cancel(new ERR(), null, "no-sender",
+                    "ApiUsageException",
+                    String.format("omero.mail.from cannot be empty."));
         if (subject.length() < 1)
-            throw helper.cancel(new ERR(), null, "no-subject");
+            throw helper.cancel(new ERR(), null, "no-subject",
+                    "ApiUsageException",
+                    String.format("Email must contain subject."));
         if (body.length() < 1)
-            throw helper.cancel(new ERR(), null, "no-body");
+            throw helper.cancel(new ERR(), null, "no-body",
+                    "ApiUsageException",
+                    String.format("Email must contain body."));
 
         this.recipients = parseRecipients();
         this.recipients.addAll(parseExtraRecipients());
 
         if (this.recipients.isEmpty())
-            throw helper.cancel(new ERR(), null, "no-recipients");
+            throw helper.cancel(new ERR(), null, "no-recipients",
+                    "ApiUsageException",
+                    String.format("List of recipients cannot be empty."));
 
         this.helper.setSteps(this.recipients.size());
     }
