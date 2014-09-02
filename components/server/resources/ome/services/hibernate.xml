@@ -100,14 +100,7 @@
     session is opened for any new stateful session invocation, and will be closed
     once "close()" is invoked.
     </description>
-    <constructor-arg ref="sessionFactory"/>    
-  </bean>
-
-  <bean id="hibernateHandler" class="org.springframework.orm.hibernate3.HibernateInterceptor">
-    <description>
-    Scope: private
-    </description>
-    <property name="sessionFactory" ref="sessionFactory"/>
+    <constructor-arg ref="sessionFactory"/>
   </bean>
 
   <bean id="omeroSessionFactory" class="ome.tools.hibernate.SessionFactory">
