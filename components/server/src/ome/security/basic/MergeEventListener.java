@@ -8,6 +8,7 @@
 package ome.security.basic;
 
 // Java imports
+import java.io.Serializable;
 import java.util.Map;
 
 import ome.annotations.RevisionDate;
@@ -29,7 +30,7 @@ import org.hibernate.event.spi.EventSource;
 import org.hibernate.event.spi.MergeEvent;
 import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.type.ForeignKeyDirection;
-import org.springframework.orm.hibernate3.support.IdTransferringMergeEventListener;
+import org.hibernate.event.internal.DefaultMergeEventListener;
 import org.springframework.util.Assert;
 
 /**
@@ -47,7 +48,7 @@ import org.springframework.util.Assert;
  */
 @RevisionDate("$Date$")
 @RevisionNumber("$Revision$")
-public class MergeEventListener extends IdTransferringMergeEventListener {
+public class MergeEventListener extends DefaultMergeEventListener {
 
     public final static String MERGE_EVENT = "MergeEvent";
 
@@ -158,7 +159,16 @@ public class MergeEventListener extends IdTransferringMergeEventListener {
 
         // the above didn't succeed. process normally.
         if (extant == null) {
+            // Implementation taken from
+            // org.springframework.orm.hibernate3.support.IdTransferringMergeEventListener
+            // (which has been removed from org.springframework.orm.hibernate4)
             super.entityIsTransient(event, copyCache);
+            SessionImplementor session = event.getSession();
+            EntityPersister persister = session.getEntityPersister(event.getEntityName(), event.getEntity());
+            // Extract id from merged copy (which is currently registered with Session).
+            Serializable id = persister.getIdentifier(event.getResult(), session);
+            // Set id on original object (which remains detached).
+            persister.setIdentifier(event.getOriginal(), id, session);
         }
         fillReplacement(event);
     }
