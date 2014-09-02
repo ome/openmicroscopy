@@ -228,6 +228,8 @@
                  classpath="${lib.dir}/repository/ant-contrib-1.0b3.jar"/>
 
         <available property="jdk1.6+" classname="java.util.ServiceLoader"/>
+        <available property="jdk1.7+" classname="java.util.Objects"/>
+        <available property="jdk1.8+" classname="java.util.stream.IntStream"/>
 
         <if>
             <and>
@@ -246,6 +248,14 @@
                 <property name="maxmem.set" value="true"/>
             </else>
         </if>
+
+        <if>
+            <isset property="jdk1.8+"/>
+            <then>
+                <property name="javadoc.doclint" value="-Xdoclint:none"/>
+            </then>
+        </if>
+        <property name="javadoc.doclint" value=""/>
 
         <!-- Now, if the memory settings have not been changed
         check the defaults passed in on the command line -->
