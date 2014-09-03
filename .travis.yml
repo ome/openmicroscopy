@@ -31,3 +31,8 @@ install:
 # Running python tests as script, since there's no compile step.
 script:
     - ./components/tools/travis-build $BUILD
+
+matrix:
+  exclude:
+    - jdk: openjdk7
+      env: BUILD="build-python"
