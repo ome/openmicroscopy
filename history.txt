@@ -1,0 +1,495 @@
+OMERO version history
+=====================
+
+5.0.4 (September 2014)
+----------------------
+
+This is a bug-fix release for the Java 8 issues. It also features a fix for
+uploading masks in OMERO.matlab.
+
+You need to upgrade your OMERO server if you want to take advantage of
+further improvements in Bio-Formats support for ND2 files.
+
+5.0.3 (August 2014)
+-------------------
+
+This is a bug-fix release addressing a number of issues including: 
+
+-  improved metadata saving in MATLAB
+-  many bug fixes for ND2 files
+-  several other bug fixes to formats including LZW, CZI, ScanR, DICOM, InCell
+   6000
+-  support for NDPI and Zeiss LSM files larger than 4GB
+-  export of RGB images in ImageJ
+-  search improvements
+-  group owner enhancements
+-  Webclient updates including multi-file download
+
+To take advantage of improvements in Bio-Formats support for ND2 files, you
+need to upgrade your OMERO.server as well as your clients.
+
+5.0.2 (May 2014)
+----------------
+
+This is a bug-fix release addressing a number of issues across all components,
+including:
+
+-  import improvements for large image datasets
+-  shared rendering settings
+-  better tagging workflows
+-  disk space usage reporting for OMERO.web admins
+-  OMERO.matlab annotation handling
+-  custom Web Start intro page templates
+-  searching by image ID
+
+To take advantage of improvements in Bio-Formats support for .czi files, you
+need to upgrade your OMERO.server as well as your clients.
+
+4.4.11 (April 2014)
+-------------------
+
+This is a bug-fix release for the Java Web Start issue. You only need to
+upgrade if this is a blocker for you and you cannot upgrade to 5.0.x as yet.
+Also note that the OMERO.insight-ij plugin version 4.4.x no longer works for
+Fiji, we are working on a fix for this. Plugin version 5.0.x is unaffected.
+
+5.0.1 (April 2014)
+------------------
+
+This is a bug-fix release addressing a number of issues across all components,
+including:
+
+-  code signing to fix the Java Web Start issues
+-  stability improvements to search
+-  MATLAB fixes
+-  improvements to groups, user menus, file name settings etc
+-  new import scenario documentation covering 'in-place' importing.
+
+5.0.0 (February 2014)
+---------------------
+
+This represents a major change in how the OMERO server handles files at import
+compared with all previous versions of OMERO. Referred to as 'OMERO.fs', this
+change means that OMERO uses Bio-Formats to read your files directly from the
+filesystem in their original format, rather than converting them and
+duplicating the pixel data for storage. In addition, it continues our effort
+to support new multidimensional images. The changes are especially important
+for sites working with large multi-GB datasets, e.g. long time lapse, HCS and
+digital pathology data.
+
+4.4.10 (January 2014)
+---------------------
+
+This is a bug-fix release addressing a number of issues across all components,
+including:
+
+-  improved tile-loading
+-  better network-disconnect handling
+-  more flexible
+-  webapp deployment
+-  Ice 3.5.1 support (except Windows)
+-  improved modification of metadata, users and groups
+
+4.4.9 (October 2013)
+--------------------
+
+This is a bug-fix release addressing a number of issues across all components,
+also including:
+
+-  Ice compatibility issues
+-  new scripting sharing service 
+-  new user help website
+-  new partner project pages.
+
+The minimum system requirement is Java 1.6 (Java 1.5 is no longer supported).
+
+A security vulnerability was identified and resolved, meaning that we strongly
+recommend all users upgrade their OMERO clients and servers.
+
+4.4.8p1 (July 2013)
+-------------------
+
+This is a patch release addressing a network connection problem in the clients
+introduced by a new version of Java.
+
+4.4.8 (May 2013)
+----------------
+
+This is bug-fix release addressing two specific issues: a problem with the
+OMERO.insight client for Linux, and image thumbnails not loading for
+Screens/Plates in Private/Read-Only groups in OMERO.web. You only need to
+upgrade if you are an OMERO.insight user on Linux or you are using OMERO.web
+to view HCS data in Private or Read-Only groups.
+
+4.4.7 (April 2013)
+------------------
+
+This is a point release including several new features and fixes across all
+components. This includes improvements in viewing of 'Big' tiled images, new
+permission features, new OMERO.web features, and several utility functions in
+OMERO.matlab.
+
+4.4.6 (February 2013)
+---------------------
+
+This is bug-fix release addressing a number of issues across all components.
+This includes a major fix to repair the C++ binding support for Ice 3.4. There
+has also been a potentially breaking update to the CLI.
+
+4.4.5 (November 2012)
+---------------------
+
+This is bug-fix release focusing on improvements to the OMERO clients.
+OMERO.web now supports "batch de-annotation", filtering of images by name and
+improved export to OME-TIFF and JPEG. OMERO.insight has fixes to thumbnail
+selection and image importing and exporting.
+
+4.4.4 (September 2012)
+----------------------
+
+This is a bug-fix release addressing a number of issues across all components.
+
+-  OMERO.insight fixes include connection and configuration options and
+   tagging on import.
+-  OMERO.web improvements include big image and ROI viewer fixes,
+   improved admin and group functionality and rendering/zooming fixes.
+-  OMERO.server now has improved LDAP support and VM and homebrew deployments
+   as well as fixes for file downloads above 2GB, permissions, memory leaks
+   and JDK5.
+
+4.4.3 (August 2012)
+-------------------
+
+This is security release - anyone using OMERO 4.4.2 or earlier with LDAP
+authentication should immediately upgrade to 4.4.3.
+
+4.4.2 (August 2012)
+-------------------
+
+This release is a major bug fix for archiving files larger than 2 GB. If you
+do not archive files larger than 2 GB, you do not need to upgrade your clients
+or your server. There is also a minor fix for an OMERO.imagej plugin security
+issue, but it is only necessary to update the version of Bio-Formats that is
+installed in ImageJ.
+
+4.4.1 (July 2012)
+-----------------
+
+This is a minor release which fixes two import issues. See :ticket:`9372`
+and :ticket:`9377`. If you are not using BigTIFF or PerkinElmer .flex files,
+then you do not need to upgrade.
+
+4.4.0 (July 2012)
+-----------------
+
+This is a major release, which focuses on providing new
+functionality for controlling access to data, as well as significant
+improvements in our client applications.
+
+The major theme of 4.4.0 is what we refer to as "Permissions", the system by which users control access to their data. It is now possible to move data
+between groups, and much, much more.
+
+We also added a few more things for users in 4.4.0, like:
+
+-  OMERO.insight webstart
+-  Importing from OMERO.insight is now complete
+-  Better integration of OMERO.insight with ImageJ
+-  A bottom-to-top reworking of the OMERO.web design
+
+For developers and sysadmins, there are a few things as well:
+
+-  Support for Ice 3.4
+-  Removed support for PostgreSQL 8.3
+
+Beta 4.3.4 (January 2012)
+-------------------------
+
+This is a point release is a security update to address an LDAP vulnerability.
+
+Beta 4.3.3 (October 2011)
+-------------------------
+
+This point release is a short follow on to 4.3.2 to handle various issues
+found by users.
+
+Beta 4.3.2 (September 2011)
+---------------------------
+
+This is a point release, focusing on fixes for OMERO.web, export, and
+documentation. A couple of LDAP fixes were also added, following requests from
+the community. We also included something many of you have asked for some
+time, OMERO on virtual machines.
+
+Beta 4.3.1 (July 2011)
+----------------------
+
+This point release focuses on fixes for Big Images, OMERO.web and others.
+
+Beta 4.3.0 (June 2011)
+----------------------
+
+This is a major release, focusing on new functionality for large,
+tiled images, and significant improvements in our client applications.
+
+The major theme of 4.3.0 is what we refer to as "Big Images", namely images
+with X,Y images larger that 4k x 4k. With this release, OMERO's server and
+Java and web clients support tiling and image pyramids. This means we have the
+functionality you have probably seen in online map tools, ready for use in any
+image file format supported by OMERO (and obviously Bio-Formats). This is
+especially important for digital pathology, and other uses of stitched 
+imaging.
+
+While the major focus of 4.3.0 was Big Images, there are a number of other new
+updates. For users, we have worked hard to synchronise functionality and
+appearance across the OMERO clients. This includes viewing of ROIs in
+OMERO.web. We are not done, but we have made a lot of progress. Moreover, data
+import is now MUCH faster and available from within OMERO.insight.
+
+Beta 4.2.2 (December 2010)
+--------------------------
+
+Fixes blocker reported using 4.2.1. Starting with this milestone, all tickets
+for the insight client are managed on Trac.
+
+Beta 4.2.1 (November 2010)
+--------------------------
+
+This is a point release, focusing on fixes for delete functionality, and
+significant improvements in the way OMERO.web production server is deployed.
+
+Beta 4.2.0 (July 2010)
+----------------------
+
+This release is a major step for OMERO, enabling a number of critical features
+for a fully functional data management system:
+
+-  User and Group Permissions and data visibility between users
+-  updates to the OME SPW Model and improvements in HCS data visualisation
+-  SSL connection between OMERO clients and server;
+-  full scripting system, accessible from command line and within 
+   OMERO.insight, including Figure Export and FLIM Analysis
+-  ROIs generated in OMERO.insight stored on server
+-  extended use of OMERO.Tables for analysis results
+-  performance improvements for import and server-side import histories
+-  revamped, fully functional OMERO.web web browser interface
+-  upgrade of Backend libraries in OMERO.server
+
+Beta 4.1.1 (December 2009)
+--------------------------
+
+This release fixes a series of small bugs in our previous Beta 4.1 release.
+
+Beta 4.1 (October 2009)
+-----------------------
+
+Improved support for metadata, especially for confocal microscopy; OMERO
+supports all of the file formats enabled by Bio-Formats. Export to OME-TIFF
+and QuickTime/AVI/MPEG from OMERO. Various improvements to OMERO clients to
+improve workflow and use.
+
+This release introduces OMERO.qa - a feedback mechanism, to allow us to
+communicate more effectively with our community. OMERO.qa supports uploading
+of problematic files, and tracking of responses to any user queries. Moreover,
+OMERO.qa includes a demo feature: in collaboration with Urban Liebel at
+Karlsruhe Institute of Technology, we are providing demo accounts for OMERO.
+Use the Demo link at qa to contact us if you are interested in this.
+
+For users who have had problems with memory-based
+crashes in OMERO.insight, the new OpenGL-based ImageViewer may be of interest.
+Also, we are now taking advantage of our modeling of HCS data, and releasing
+our first clients that support Flex, MIAS, and InCell 1000 file formats.
+OMERO.dropbox has been substantially extended, and now supports all the file
+formats supported by OMERO.
+
+Beta 4.0.1 (April 2009)
+-----------------------
+
+A quick patch release that fixes some bugs and adds some new functionality:
+
+-  Fixed Windows installation and updated docs.
+-  Bug fixes (scriptingEngine, importer).
+-  Fix .lif import, add Li-Cor 2D (OMERO does gels!).
+-  API .dv and OME .ome.tiff now supported by OMERO.fs.
+-  Support negative pixel values in Rendering Engine.
+-  Archived images are now fully supported in OMERO.
+-  OMERO.web merged with OmeroPy in distribution.
+
+Beta 4.0 (March 2009)
+---------------------
+
+This release consists of a major change in the remoting infrastructure,
+complete migration of existing OMERO clients to the ICE framework, two new
+OMERO clients, and integration of OMERO.editor into OMERO.insight.
+
+OMERO.server updates:
+
+-  remove JBOSS, and switch all remoting to ICE
+-  improve session management, supporting creation of many thousands of
+   session
+-  addition of an import service for server-side importing
+-  DB upgrades to support the metadata completion facilities
+-  substantial improvement to the interaction between the indexing engine and
+   the rest of server.
+
+OMERO.importer updates:
+
+-  migration to Blitz interface, giving much faster performance
+-  more efficient importing, complete metadata support for Zeiss LSM510, Leica
+   LIF, Zeiss ZVI, Applied Precision DV, and MetaMorph STK
+-  addition of command line importer for batch import
+
+OMERO.insight updates:
+
+-  migration to Blitz interface, giving much faster performance
+-  updates to metadata display, include complete support for OME Data Model
+-  much expanded integration of protocol management via OMERO.editor, within
+   OMERO.insight
+-  support for image delete
+-  refinement of Projection Interface
+
+OMERO.web: all new browser-based client for OMERO. Enables sharing of images
+with colleagues with an account on server.
+
+OMERO.editor: a management tool for experimental protocols, now fully
+integrated with OMERO.insight, so that protocols and experimental descriptions
+can be saved along with images and datasets. Includes a new parameters
+function, so that protocols in traditional documents can be easily imported
+into OMERO. Supports, tables and .xls files. Also runs as a standalone
+application.
+
+OMERO.fs: a new OMERO client, that monitors a specific directory and enables
+automatic imports. In its first incarnation, has quite limited functionality,
+supporting automatic import of LSM510 files only.
+
+Beta 3.2 (November 2008)
+------------------------
+
+The final update in the Beta3.x series. A number of fixes:
+
+-  faster thumbnailing and better support for large numbers of thumbnails
+-  improved handling of Leica .lei and Zeiss .zvi files
+-  extended support for reading OMERO.editor files in OMERO.insight
+-  measurement tool fixes in OMERO.insight
+-  fixed memory problem in OMERO.insight on Windows
+-  fixed thumbnailing and session bugs on OMERO.server
+-  fixed DB upgrades for older PostgreSQL versions
+
+Beta 3.0 (June 2008)
+--------------------
+
+This release of OMERO is a major update of functionality. In OMERO.server, we
+have added support for StructuredAnnotations a flexible data management
+facility that allows essentially any kind of accessory data to be linked to
+images and experiments stored in OMERO. Alongside this, we provide an indexing
+engine, that provides a flexible searching facility for essentially any text
+stored in an installation of OMERO.server. Finally, we are releasing our first
+examples of clients that use the OMERO.blitz server, a flexible, distributed
+interface that supports a range of client environments. One very exciting
+addition is OMERO matlab, a gateway that can be used to access OMERO from
+Matlab®.
+
+OMERO Beta3.0 includes a substantial reworking of our clients as well.
+OMERO.insight has been substantially updated, with an updated interface to
+provide a more natural workflow and support for many different types of
+annotations, through the StructuredAnnotations facility. The new search
+facilities are supported with smart user interfaces, with auto-complete, etc.
+New file formats have been added to OMERO.importer, including support for
+OME-XML, and an improved import history facility is now available. Finally,
+Beta3.0 includes the first release of our experimental electronic notebook
+tool, OMERO.editor. This represents our recent efforts to capture as much
+metadata around an experiment as possible.
+
+Beta 2.3.3 insight (April 2008)
+-------------------------------
+
+A new Beta 2.3.3 OMERO.insight has been released, this adds rotation to
+ellipse figure, and new format for saving intensity values.
+
+Note: this version saves the ROIs in a format which is incompatible with
+previous saved ROIs.
+
+Beta 2.3.1 importer (February 2008)
+-----------------------------------
+
+A new Beta 2.3.1 OMERO.importer has been released which includes a number of
+new formats: Zeiss AxioVision ZVI (Zeiss Vision Image), Nikon NIS-Elements
+.ND2 , Olympus FluoView FV1000, ICS (Image Cytometry Standard), PerkinElmer
+UltraView, and Jpeg2000.
+
+The OMERO downloads for Beta 2.3 include a number of new options: a
+new import history feature, a Windows server installation, and a new tagging
+feature for OMERO.insight.
+
+Note: milestone:3.0-Beta2.3 and prior Mac OS X installers for OMERO.server do
+not work on Mac OS X Leopard (10.5). Please follow the UNIX-based platform
+manual install instructions. Mac OS X installers for OMERO.insight and
+OMERO.importer work just fine under Leopard and can be used.
+
+Beta 2.3 (December 2007)
+------------------------
+
+This is a patch release for OMERO.server to fix a memory problem. In
+OMERO.insight, updating of the tagging facility, viewing of others' rendering
+settings and support for server-side compression of images before transport to
+client.
+
+Beta 2.2 (November 2007)
+------------------------
+
+In this release we have updated OMERO.server to run a newer version of JBOSS
+and provided support for copying display settings across a range of images.
+More new file formats. OMERO.insight has been updated to support copying
+display settings across many images. Image Viewer has been substantially
+updated.
+
+Beta 2.1 (August 2007)
+----------------------
+
+This is a client-only release. OMERO.insight now supports basic ROI
+measurements and a series of new file formats have been added. The OMERO
+downloads for Beta 2.0 have been simplified. OMERO.insight and OMERO.importer
+have been combined into a single download file called 'OMERO.clients' and the
+user documentation is now included inside of the server and client downloads.
+
+Beta 2.0 (June 2007)
+--------------------
+
+Note: this version will still work with the Beta 1 server release.
+
+This major update provided our first support for multiple platforms via
+OMERO.Blitz. OMERO.insight now supports viewing work of multiple users. Beta 2
+is our first release of the Web2.0-like 'tag' system developed in
+collaboration with :about_plone:`Usable Image <project-history/catriona>`.
+This version addresses issues with using our tools under Java 1.6
+
+Beta 1.1 (March 2007)
+---------------------
+
+Patch release to fix time-out issues.
+
+Beta 1 (January 2007)
+---------------------
+
+The first public OMERO release, providing simple data management. Limited file
+format support (DV, STK, TIFF). Simple data visualization and management.
+
+Milestone M3 (November 2006)
+----------------------------
+
+Rendering and compression API and client-side import. Access control and
+permissions system. Importer based on Bio-Formats.
+
+Milestone M2 (July 2006)
+------------------------
+
+The stateful rendering service is functional and all rendering code moved from
+Shoola Java client to the server. Also, the stateless services
+(IQuery,IUpdate,IPojos) are frozen and testing and documentation is checked
+and solidified.
+
+Milestone M1 (April 2006)
+-------------------------
+
+Contains minimal functionality needed to run Shoola Java client without Perl
+server to demonstrate acceleration of metadata access. Application deployed on
+JBoss (http://www.jboss.org). No ACLs or permissions.
