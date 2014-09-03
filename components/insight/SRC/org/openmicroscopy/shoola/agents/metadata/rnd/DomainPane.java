@@ -157,6 +157,9 @@ public class DomainPane
 
     /** The tipString of the {@link #lifetimeSlider}. */
     private static final String LIFETIME_SLIDER_TIPSTRING = "t";
+    
+    /** Text of the launch in full viewer button */
+    private static final String OPEN_BUTTON_TEXT = "Launch full viewer";
 
     /** Box to select the family used in the mapping process. */
     private JComboBox familyBox;
@@ -205,6 +208,9 @@ public class DomainPane
 
     /** The box hosting the channels. */
     private JComboBox channelsBox;
+    
+    /** Button for opening the full image viewer */
+    private JButton openButton;
 
     /**
      * Attaches listener to the passed slider and sets the default values.
@@ -376,22 +382,6 @@ public class DomainPane
         	initSlider(zSlider, maxZ, model.getDefaultZ(), 
         			Z_SLIDER_DESCRIPTION, Z_SLIDER_TIPSTRING);
         	canvas = new PreviewCanvas();
-        	canvas.addMouseListener(new MouseAdapter() {
-
-        		/**
-        		 * Posts an event to open the viewer when double-clicking 
-        		 * on the canvas.
-        		 */
-        		public void mouseReleased(MouseEvent e)
-        		{
-        			if (e.getClickCount() == 2) {
-        				ActionEvent event = new ActionEvent(
-        						e.getSource(), e.getID(), "");
-        				controller.getAction(
-        						RendererControl.VIEW).actionPerformed(event);
-        			}
-        		}
-        	});
         }
         if (model.hasModuloT()) {
             lifetimeSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL,
@@ -418,6 +408,11 @@ public class DomainPane
         channelsBox.setRenderer(new ColorListRenderer());
         channelsBox.setActionCommand(""+CHANNEL);
         channelsBox.setVisible(model.getMaxC() > 1);
+        
+        openButton = new JButton(controller.getAction(RendererControl.VIEW));
+        openButton.setIcon(null);
+        openButton.setText(OPEN_BUTTON_TEXT);
+        openButton.setToolTipText(null);
     }
     
     /** Populates the channels. */
@@ -499,6 +494,10 @@ public class DomainPane
 		c.insets = new Insets(0, 2, 2, 0);
 		c.gridy = 0;
 		c.gridx = 0;
+		c.gridwidth = GridBagConstraints.REMAINDER;
+		p.add(openButton, c);
+		c.gridwidth = 1;
+		c.gridy++;
 		p.add(zSlider, c);
 		c.gridx++;
 		p.add(canvas, c);
