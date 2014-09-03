@@ -102,11 +102,6 @@ public class SendEmailRequestI extends SendEmailRequest implements IRequest {
         this.recipients = parseRecipients();
         this.recipients.addAll(parseExtraRecipients());
 
-        if (this.recipients.isEmpty())
-            throw helper.cancel(new ERR(), null, "no-recipients",
-                    "ApiUsageException",
-                    String.format("List of recipients cannot be empty."));
-
         this.helper.setSteps(this.recipients.size());
     }
 
