@@ -102,7 +102,13 @@ public class SendEmailRequestI extends SendEmailRequest implements IRequest {
         this.recipients = parseRecipients();
         this.recipients.addAll(parseExtraRecipients());
 
-        this.helper.setSteps(this.recipients.size());
+        rsp.total = this.recipients.size();
+        rsp.success = 0;
+        
+        if (this.recipients.isEmpty())
+            this.helper.setSteps(1);
+        else
+            this.helper.setSteps(this.recipients.size());
     }
 
     public Object step(int step) throws Cancel {
@@ -124,6 +130,7 @@ public class SendEmailRequestI extends SendEmailRequest implements IRequest {
             log.error(me.getMessage());
             rsp.invalidemails.add(email);
         }
+        rsp.success+=1;
         return null;
     }
 

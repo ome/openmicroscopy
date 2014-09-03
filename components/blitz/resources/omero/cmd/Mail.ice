@@ -57,8 +57,11 @@ module omero {
          * - invalidusers is a list of userIds that email didn't pass criteria
          *					such as was empty or less then 5 characters
          * - invalidemails is a list of email addresses that send email failed
+         * - total is a total number of email in the pull to be sent.
          **/
          class SendEmailResponse extends Response {
+         	 long total;
+         	 long success;
              omero::api::LongList invalidusers;
              omero::api::StringSet invalidemails;
          };
