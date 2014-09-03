@@ -61,31 +61,11 @@ class PreviewControlBar
 	/** Space between buttons. */
 	static final int SPACE = 3;
 	
-	/** Text of the preview check box. */
-	private static final String	PREVIEW = "Live Update";
-	
-	/** The description of the preview check box. */
-	private static final String	PREVIEW_DESCRIPTION = "Update the " +
-			"rendering settings immediately. Not available for large " +
-			"images";
-	
 	/** Reference to the control. */
     private RendererControl control;
     
     /** Reference to the model. */
     private RendererModel model;
-    
-    /** Preview option for render settings */
-    private JToggleButton	preview;
-    
-    /** Initializes the components. */
-    private void initComponents()
-    {
-    	preview = new JCheckBox(PREVIEW);
-        preview.setEnabled(!model.isBigImage());
-        preview.setToolTipText(PREVIEW_DESCRIPTION);
-        formatButton(preview);
-    }
     
     /**
      * Formats the specified button.
@@ -114,8 +94,6 @@ class PreviewControlBar
         bar.setRollover(true);
         bar.setFloatable(false);
         
-        bar.add(new JSeparator(JSeparator.VERTICAL));
-        
         JButton b = new JButton(control.getAction(RendererControl.SAVE));
         b.setText(ManageRndSettingsAction.NAME_SAVE);
         formatButton(b);
@@ -126,9 +104,9 @@ class PreviewControlBar
             b = new JButton(control.getAction(RendererControl.APPLY_TO_ALL));
             formatButton(b);
             bar.add(b);
+            bar.add(new JSeparator(JSeparator.VERTICAL));
         }
-
-        bar.add(new JSeparator(JSeparator.VERTICAL));
+        
         
         b = new JButton(control.getAction(RendererControl.RND_UNDO));
         formatButton(b);
@@ -158,8 +136,6 @@ class PreviewControlBar
     {
         setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
         setBackground(UIUtilities.BACKGROUND_COLOR);
-        add(preview);
-        add(new JSeparator(JSeparator.VERTICAL));
         add(buildToolBar());
     }
     
@@ -173,16 +149,7 @@ class PreviewControlBar
     {
     	this.control = control;
     	this.model = model;
-    	initComponents();
     	buildGUI();
     }
     
-    /**
-     * Returns <code>true</code> if the live update is selected, 
-     * <code>false</code> otherwise.
-     * 
-     * @return See above.
-     */
-    boolean isLiveUpdate() { return preview.isSelected(); }
-
 }

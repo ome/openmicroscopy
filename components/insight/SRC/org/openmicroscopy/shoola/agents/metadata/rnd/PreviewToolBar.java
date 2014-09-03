@@ -26,13 +26,21 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 //Java imports
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridLayout;
+
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
 //Third-party libraries
+
+
+
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.actions.ManageRndSettingsAction;
@@ -56,6 +64,14 @@ class PreviewToolBar
     /** Space between buttons. */
     static final int SPACE = 3;
 
+    /** Text of the preview check box. */
+    private static final String     PREVIEW = "Live Update";
+    
+    /** The description of the preview check box. */
+    private static final String     PREVIEW_DESCRIPTION = "Update the " +
+                    "rendering settings immediately. Not available for large " +
+                    "images";
+    
     /** Reference to the control. */
     private RendererControl control;
 
@@ -65,6 +81,9 @@ class PreviewToolBar
     /** Label indicating the selected plane. */
     private JLabel selectedPlane;
 
+    /** Preview option for render settings */
+    private JToggleButton       preview;
+    
     /** Initializes the component. */
     private void initComponents()
     {
@@ -73,23 +92,22 @@ class PreviewToolBar
          selectedPlane.setFont(font.deriveFont(font.getStyle(),
          		font.getSize()-2));
          setSelectedPlane();
+         
+         preview = new JCheckBox(PREVIEW);
+         preview.setEnabled(!model.isBigImage());
+         preview.setToolTipText(PREVIEW_DESCRIPTION);
     }
 
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
     	setBackground(UIUtilities.BACKGROUND_COLOR);
-    	JToolBar bar = new JToolBar();
-    	bar.setBackground(UIUtilities.BACKGROUND_COLOR);
-        bar.setBorder(null);
-        bar.setRollover(true);
-        bar.setFloatable(false);
-        setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        add(bar);
-        add(Box.createHorizontalStrut(5));
+        setLayout(new GridLayout(0,3));
         JPanel p = UIUtilities.buildComponentPanelRight(selectedPlane);
         p.setBackground(UIUtilities.BACKGROUND_COLOR);
         add(p);
+        add(new JLabel()); // currently just a place holder for ROI count
+        add(preview);
     }
 
     /**
@@ -118,4 +136,12 @@ class PreviewToolBar
     	selectedPlane.setText(s);
     }
 
+    /**
+     * Returns <code>true</code> if the live update is selected, 
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isLiveUpdate() { return preview.isSelected(); }
+    
 }

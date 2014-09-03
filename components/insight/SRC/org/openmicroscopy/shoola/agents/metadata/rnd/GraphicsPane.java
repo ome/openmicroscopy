@@ -426,7 +426,7 @@ class GraphicsPane
      * 
      * @return See above.
      */
-    boolean isLiveUpdate() { return controlsBar.isLiveUpdate(); }
+    boolean isLiveUpdate() { return previewToolBar!=null ? previewToolBar.isLiveUpdate() : false; }
 
     /**
      * Returns <code>true</code> if a vertical line has
@@ -620,7 +620,7 @@ class GraphicsPane
     {
         String name = evt.getPropertyName();
         Object source = evt.getSource();
-        if (!controlsBar.isLiveUpdate()) {
+        if (!previewToolBar.isLiveUpdate()) {
             if (TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name)) {
                 paintHorizontal = false;
                 paintVertical = false;
