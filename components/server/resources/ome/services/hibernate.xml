@@ -128,7 +128,7 @@
     <property name="lobHandler" ref="lobHandler"/>
   </bean>
 
-  <bean id="hibernateMBean" class="org.hibernate.jmx.StatisticsService">
+  <bean id="hibernateMBean" class="ome.tools.hibernate.StatisticsService">
    <property name="sessionFactory" ref="sessionFactory"/>
    <property name="statisticsEnabled" value="${omero.db.statistics}"/>
   </bean>

@@ -39,7 +39,7 @@ import org.springframework.jdbc.support.lob.LobHandler;
  * from the hibernate3 version.
  */
 
-class LocalSessionFactoryBean extends org.springframework.orm.hibernate4.LocalSessionFactoryBean {
+public class LocalSessionFactoryBean extends org.springframework.orm.hibernate4.LocalSessionFactoryBean {
 
     private EventListeners eventListeners;
 
