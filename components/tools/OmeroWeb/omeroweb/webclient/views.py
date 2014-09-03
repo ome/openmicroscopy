@@ -98,6 +98,13 @@ def getIntOrDefault(request, name, default):
 ################################################################################
 # views controll
 
+def set_timezone(request):
+    tz = request.REQUEST.get('timezone', None)
+    if tz is not None:
+        request.session.modified = True
+        request.session['django_timezone'] = tz
+    return HttpResponse("OK")
+
 def login(request):
     """
     Webclient Login - Also can be used by other Apps to log in to OMERO. Uses

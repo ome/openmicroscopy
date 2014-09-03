@@ -1,3 +1,4 @@
+{% load tz %}
 {% load i18n %}
 {% load common_filters %}
 {% load wikitags %}
@@ -66,7 +67,7 @@
                 <span class="tooltip_html" style='display:none'>
                     <b>Owner:</b> {{ tag.getOwner.getFullName }}<br />
                     <b>Linked by:</b> {{ tag.link.getDetails.getOwner.getFullName }}<br />
-                    <b>On:</b> {{ tag.link.creationEventDate|date:"Y-m-d H:i:s" }}<br />
+                    <b>On:</b> {{ tag.link.creationEventDate|localtime|date:"Y-m-d H:i:s" }}<br />
                     <b>Description:</b> {{ tag.description|default:""|truncatewords:10  }}
                 </span>
 			{% endif %}

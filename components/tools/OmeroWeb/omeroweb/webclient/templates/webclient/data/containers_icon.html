@@ -1,3 +1,4 @@
+{% load tz %}
 {% load i18n %}
 {% load common_filters %}
 
@@ -386,7 +387,7 @@
                     {{ c.name|truncatebefor:"65" }}
                     <span class="hidden_sort_text">{{ c.name }}</span>
                 </div>
-                <div class="date" valign="middle">{{ c.getDate|date:"d M Y" }} {{ c.getDate|time:"H:i:s" }}</div>
+                <div class="date" valign="middle">{{ c.getDate|localtime|date:"d M Y" }} {{ c.getDate|time:"H:i:s" }}</div>
                 <div class="sizeX" valign="middle">{{ c.getSizeX }}</div>
                 <div class="sizeY" valign="middle">{{ c.getSizeY }}</div>
                 <div class="sizeZ" valign="middle">{{ c.getSizeZ }}</div>

@@ -1,4 +1,6 @@
+{% load tz %}
 {% load common_filters %}
+
 {% comment %}
 <!--
   Copyright (C) 2012-2013 University of Dundee & Open Microscopy Environment.
@@ -27,11 +29,11 @@
     </tr>
     <tr>
         <th>Acquisition Date:</th>
-        <td id='acqu_date'>{{ image.getDate|date:"Y-m-d H:i:s" }}</td> <!-- TODO: Insight is m/d/yy h:min AM/PM -->
+        <td id='acqu_date'>{{ image.getDate|localtime|date:"Y-m-d H:i:s" }}</td> <!-- TODO: Insight is m/d/yy h:min AM/PM -->
     </tr>
     <tr>
         <th>Imported Date:</th>
-        <td id='import_date'>{{ image.creationEventDate|date:"Y-m-d H:i:s" }}</td>
+        <td id='import_date'>{{ image.creationEventDate|localtime|date:"Y-m-d H:i:s" }}</td>
     </tr>
     <tr>
         <th>Dimensions (XY):</th>

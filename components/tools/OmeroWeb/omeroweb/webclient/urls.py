@@ -35,6 +35,8 @@ urlpatterns = patterns('django.views.generic.simple',
     # Home page is the main 'Data' page
     url( r'^$', views.load_template, {'menu':'userdata'}, name="webindex" ),
     
+    url( r'^timezone$', views.set_timezone, name="set_timezone" ),
+    
     # 'Feed' / 'recent'
     url( r'^feed/$', views.feed, name="web_feed" ),
 

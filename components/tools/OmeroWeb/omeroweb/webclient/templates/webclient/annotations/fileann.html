@@ -1,3 +1,4 @@
+{% load tz %}
 {% load i18n %}
 {% load common_filters %}
 {% load wikitags %}
@@ -61,7 +62,7 @@
             <b>Annotation ID:</b> {{ fileann.id }}<br />
             <b>Owner:</b> {{ fileann.getOwner.getFullName }}<br />
             <b>Linked by:</b> {{ fileann.link.getDetails.getOwner.getFullName }}<br />
-            <b>On:</b> {{ fileann.link.creationEventDate|date:"Y-m-d H:i:s" }}<br />
+            <b>On:</b> {{ fileann.link.creationEventDate|localtime|date:"Y-m-d H:i:s" }}<br />
             <b>Description:</b> {{ fileann.description|default:""|truncatewords:10  }}
             {% if fileann.getNs %}
                 <br/><b>Namespace:</b> {{ fileann.getNs }}

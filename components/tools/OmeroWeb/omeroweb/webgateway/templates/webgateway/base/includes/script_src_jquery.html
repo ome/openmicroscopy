@@ -19,3 +19,20 @@
 {% endcomment %}
 
 <script type="text/javascript" src="{% static "3rdparty/jquery-1.7.2.js" %}"></script>
+
+<script type="text/javascript" src="{% static 'webclient/javascript/jstz.js' %}"></script>
+
+<script type="text/javascript">
+
+    var tz = jstz.determine(); // Determines the time zone of the browser client
+    
+    $.ajax({
+        async : false,
+        url: '{% url "set_timezone" %}',
+        data : 'timezone='+tz.name(),
+        dataType: "json",
+        type: "POST"
+        
+    });
+    
+</script>
