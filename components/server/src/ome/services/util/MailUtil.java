@@ -7,6 +7,8 @@ package ome.services.util;
 
 import java.util.List;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import org.slf4j.Logger;
@@ -94,5 +96,23 @@ public class MailUtil {
         };
 
         this.mailSender.send(preparator);
+    }
+    
+    /**
+     * Helper Validate that this address conforms to the syntax rules of RFC
+     * 822.
+     * 
+     * @param email
+     *            email address
+     */
+    public boolean validateEmail(String email) {
+        boolean isValid = true;
+        try {
+            InternetAddress internetAddress = new InternetAddress(email);
+            internetAddress.validate();
+        } catch (AddressException e) {
+            isValid = false;
+        }
+        return isValid;
     }
 }

@@ -23,7 +23,6 @@ import ome.api.local.LocalAdmin;
 import ome.parameters.Parameters;
 import ome.services.util.MailUtil;
 import ome.system.EventContext;
-import ome.system.ServiceFactory;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.ERR;
 import omero.cmd.Helper;
@@ -161,8 +160,6 @@ public class SendEmailRequestI extends SendEmailRequest implements IRequest {
          * :active // active users by default, all = false and e.id in //
          * groupIds (select m.child from GroupExperimenterMap m where
          * m.parent.id in (:gids) ) or e.id in (:eids) // userIds
-         * 
-         * email must be at least 5 carachters a@b.xx
          */
 
         Parameters p = new Parameters();
@@ -202,7 +199,7 @@ public class SendEmailRequestI extends SendEmailRequest implements IRequest {
 
         Set<String> recipients = new HashSet<String>();
         for (final Experimenter e : exps) {
-            if (e.getEmail() != null && e.getEmail().length() > 5) {
+            if (e.getEmail() != null && mailUtil.validateEmail(e.getEmail())) {
                 recipients.add(e.getEmail());
             } else {
                 rsp.invalidusers.add(e.getId());
@@ -214,7 +211,7 @@ public class SendEmailRequestI extends SendEmailRequest implements IRequest {
     private List<String> parseExtraRecipients() {
         Set<String> extraRecipients = new HashSet<String>();
         for (final String e : extra) {
-            if (e.length() > 5) {
+            if (mailUtil.validateEmail(e)) {
                 extraRecipients.add(e);
             } else {
                 rsp.invalidemails.add(e);
@@ -222,5 +219,6 @@ public class SendEmailRequestI extends SendEmailRequest implements IRequest {
         }
         return new ArrayList<String>(extraRecipients);
     }
+ 
 
 }
