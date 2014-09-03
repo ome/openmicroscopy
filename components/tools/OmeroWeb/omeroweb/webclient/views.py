@@ -2893,6 +2893,19 @@ def script_run(request, scriptId, conn=None, **kwargs):
                     logger.debug("Invalid entry for '%s' : %s" % (key, value))
                     continue
 
+    # If we have objects specified via 'IDs' and 'DataType', try to pick correct group
+    if 'IDs' in inputMap.keys() and 'Data_Type' in inputMap.keys():
+        gid = conn.SERVICE_OPTS.getOmeroGroup()
+        conn.SERVICE_OPTS.setOmeroGroup('-1')
+        try:
+            firstObj = conn.getObject(inputMap['Data_Type'].val, unwrap(inputMap['IDs'])[0])
+            newGid = firstObj.getDetails().group.id.val
+            conn.SERVICE_OPTS.setOmeroGroup(newGid)
+        except Exception, x:
+            logger.debug(traceback.format_exc())
+            # if inputMap values not as expected or firstObj is None
+            conn.SERVICE_OPTS.setOmeroGroup(gid)
+
     logger.debug("Running script %s with params %s" % (scriptName, inputMap))
     rsp = run_script(request, conn, sId, inputMap, scriptName)
     return HttpJsonResponse(rsp)
