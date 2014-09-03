@@ -58,6 +58,7 @@ module omero {
          *					such as was empty or less then 5 characters
          * - invalidemails is a list of email addresses that send email failed
          * - total is a total number of email in the pull to be sent.
+         * - success is a number of emails that were sent successfully.
          **/
          class SendEmailResponse extends Response {
          	 long total;
