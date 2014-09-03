@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
-
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -37,10 +36,6 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
 //Third-party libraries
-
-
-
-
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.actions.ManageRndSettingsAction;

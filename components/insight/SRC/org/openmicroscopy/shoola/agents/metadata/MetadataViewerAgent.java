@@ -31,7 +31,6 @@ import java.util.List;
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
-import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
@@ -42,6 +41,7 @@ import org.openmicroscopy.shoola.agents.imviewer.view.ImViewerFactory;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.metadata.view.RndSettingsPasted;
+import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -322,7 +322,7 @@ public class MetadataViewerAgent
      * Handles a {@link RndSettingsPasted} event, i. e. notifies 
      * the {@link MetadataViewer}s to apply the settings of an
      * previously set image; see also {@link CopyRndSettings}
-     * @param evt
+     * @param e
      */
     private void handleRndSettingsPasted(RndSettingsPasted e) {
         MetadataViewerFactory.applyCopiedRndSettings(e.getImageId());

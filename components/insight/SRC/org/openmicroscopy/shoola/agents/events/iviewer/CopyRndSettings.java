@@ -85,13 +85,13 @@ public class CopyRndSettings
 	 */
     public ImageData getImage() { return image; }
 
-    /**
-     * Returns the copied rendering settings;
-     * @return
-     */
-    public RndProxyDef getRndDef() {
-        return rndDef;
-    }
+    	/**
+    	 * Returns the copied rendering settings;
+    	 * @return
+    	 */
+   	 public RndProxyDef getRndDef() {
+  	      return rndDef;
+  	 }
     
     
 }

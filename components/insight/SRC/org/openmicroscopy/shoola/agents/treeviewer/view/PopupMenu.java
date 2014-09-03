@@ -123,9 +123,6 @@ class PopupMenu
 	/** Button to reset default Rnd settings. */
 	private JMenuItem resetRndElement;
 	
-	/** Button to set the min/max for each channel. */
-	private JMenuItem setMinMaxElement;
-	
 	/** Button to reset default Rnd settings. */
 	private JMenuItem setOwnerRndElement;
 	
@@ -318,8 +315,6 @@ class PopupMenu
 				resetRndElement = new JMenuItem(a);
 				initMenuItem(resetRndElement, a.getActionName());
 				a = controller.getAction(TreeViewerControl.SET_RND_SETTINGS);
-				setMinMaxElement = new JMenuItem(a);
-				initMenuItem(setMinMaxElement, a.getActionName());
 				a = controller.getAction(
 						TreeViewerControl.SET_OWNER_RND_SETTINGS);
 				setOwnerRndElement = new JMenuItem(a);
@@ -535,7 +530,6 @@ class PopupMenu
 		menu.add(copyRndElement);
 		menu.add(pasteRndElement);
 		menu.add(resetRndElement);
-		//menu.add(setMinMaxElement);
 		menu.add(setOwnerRndElement);
 		return menu;
 	}

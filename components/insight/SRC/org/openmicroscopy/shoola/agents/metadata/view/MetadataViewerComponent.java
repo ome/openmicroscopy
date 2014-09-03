@@ -942,7 +942,6 @@ class MetadataViewerComponent
 		rnd.refresh();
 		rnd.renderPreview();
 	}
-	
 
 	/**
 	 * Implemented as specified by the {@link MetadataViewer} interface.

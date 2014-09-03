@@ -57,7 +57,7 @@ public class JLabelButton
 	/** The action id associated to the label. */
 	private long actionID;
 	
-	/** Indicates if the 'hover' effect is enabled */
+	/** Indicates if the 'hover' effect (mouse cursor change) is enabled */
 	private boolean hover = false;
 	
 	/** Installs the default listeners. */

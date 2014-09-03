@@ -298,7 +298,7 @@ class ChannelSlider
 			} 
 		}
 		
-		if(evt.getSource()==colorPicker && name.equals(JLabelButton.SELECTED_PROPERTY)) {
+		if (evt.getSource() == colorPicker && name.equals(JLabelButton.SELECTED_PROPERTY)) {
 		    controller.showColorPicker(channel.getIndex());
 		}
 	}

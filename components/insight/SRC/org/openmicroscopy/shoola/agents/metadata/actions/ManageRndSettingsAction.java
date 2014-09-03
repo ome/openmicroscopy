@@ -29,10 +29,6 @@ import java.util.Arrays;
 import javax.swing.Action;
 
 //Third-party libraries
-import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
-import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
-import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
-import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
@@ -43,6 +39,10 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
+import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
+import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
+import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 
 /** 
  * Handles the rendering settings.
@@ -283,7 +283,7 @@ public class ManageRndSettingsAction
 				model.applyToAll();
 				break;
 			case SAVE:
-				model.saveSettings();
+				saveRndSettings();
 				break;
 			case COPY:
     			        copyRndSettings();
@@ -293,6 +293,13 @@ public class ManageRndSettingsAction
 		}
 	}
 
+	/**
+	 * Save the rendering settings
+         */
+	private void saveRndSettings() {
+	    model.saveSettings();
+	}
+	
     /** 
      * Posts a {@link CopyRndSettings} event on the EventBus
      */ 
