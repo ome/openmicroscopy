@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -26,15 +26,12 @@
 """
 
 import Ice
-
 import pytest
-
 import test.integration.library as lib
-
 import omero
 
+from omero.model import ExperimenterGroupI
 from omero.rtypes import rint
-
 from test.integration.helpers import createTestImage
 
 
@@ -46,20 +43,20 @@ class TestThumbnailPerms(lib.ITest):
         readOnlyGroup = self.new_group(perms='rwr---')
         collaborativeGroup = self.new_group(perms='rwra--')
 
-        #new user (group owner)
+        # new user (group owner)
         newOwner = self.new_user(group=privateGroup)
         self.add_groups(newOwner, [readOnlyGroup, collaborativeGroup],
                         owner=True)
 
-        #new user1
+        # new user1
         user1 = self.new_user(group=privateGroup)
         self.add_groups(user1, [readOnlyGroup, collaborativeGroup])
 
-        #new user2
+        # new user2
         user2 = self.new_user(group=privateGroup)
         self.add_groups(user2, [readOnlyGroup, collaborativeGroup])
 
-        ## login as user1 (into their default group)
+        # login as user1 (into their default group)
         # create image in private group
         client_share1 = self.new_client(user=user1, password="ome")
         privateImageId = createTestImage(client_share1.sf)
@@ -71,15 +68,17 @@ class TestThumbnailPerms(lib.ITest):
         # NOT objects from a different context
         a = client_share1.sf.getAdminService()
         me = a.getExperimenter(a.getEventContext().userId)
-        a.setDefaultGroup(me, omero.model.ExperimenterGroupI(readOnlyGroup.id.val, False))
+        a.setDefaultGroup(me, ExperimenterGroupI(readOnlyGroup.id.val, False))
         self.set_context(client_share1, readOnlyGroup.id.val)
 
         # create image and get thumbnail (in read-only group)
         readOnlyImageId = createTestImage(client_share1.sf)
         self.getThumbnail(client_share1.sf, readOnlyImageId)
 
-        # change user into collaborative group. Use object Ids for this, NOT objects from a different context
-        a.setDefaultGroup(me, omero.model.ExperimenterGroupI(collaborativeGroup.id.val, False))
+        # change user into collaborative group. Use object Ids for this, NOT
+        # objects from a different context
+        a.setDefaultGroup(
+            me, ExperimenterGroupI(collaborativeGroup.id.val, False))
         self.set_context(client_share1, collaborativeGroup.id.val)
 
         # create image and get thumbnail (in collaborative group)
@@ -90,9 +89,8 @@ class TestThumbnailPerms(lib.ITest):
         assert self.getThumbnail(client_share1.sf, privateImageId) is None
         assert self.getThumbnail(client_share1.sf, readOnlyImageId) is None
 
-
         # now check that the 'owner' of each group can see all 3 thumbnails.
-        ## login as owner (into private group)
+        # login as owner (into private group)
         owner_client = self.new_client(user=newOwner, password="ome")
 
         group_ctx = {"omero.group": str(privateGroup)}
@@ -104,7 +102,8 @@ class TestThumbnailPerms(lib.ITest):
         # change owner into read-only group.
         o = client_share1.sf.getAdminService()
         me = o.getExperimenter(o.getEventContext().userId)
-        o.setDefaultGroup(me, omero.model.ExperimenterGroupI(readOnlyGroup.id.val, False))
+        o.setDefaultGroup(
+            me, omero.model.ExperimenterGroupI(readOnlyGroup.id.val, False))
         self.set_context(owner_client, readOnlyGroup.id.val)
 
         self.getThumbnail(owner_client.sf, readOnlyImageId)
@@ -113,7 +112,9 @@ class TestThumbnailPerms(lib.ITest):
         assert self.getThumbnail(owner_client.sf, collaborativeImageId) is None
 
         # change owner into collaborative group.
-        o.setDefaultGroup(me, omero.model.ExperimenterGroupI(collaborativeGroup.id.val, False))
+        o.setDefaultGroup(
+            me,
+            omero.model.ExperimenterGroupI(collaborativeGroup.id.val, False))
         self.set_context(owner_client, collaborativeGroup.id.val)
 
         self.getThumbnail(owner_client.sf, collaborativeImageId)
@@ -121,9 +122,8 @@ class TestThumbnailPerms(lib.ITest):
         assert self.getThumbnail(owner_client.sf, privateImageId) is None
         assert self.getThumbnail(owner_client.sf, readOnlyImageId) is None
 
-
-        # now check that the 'user2' of each group can see all thumbnails except private.
-        ## login as user2 (into private group)
+        # now check that the 'user2' of each group can see all thumbnails
+        # except private. login as user2 (into private group)
         user2_client = self.new_client(user=user2, password="ome")
 
         # check that we can't get thumbnails for any images in private group
@@ -134,7 +134,8 @@ class TestThumbnailPerms(lib.ITest):
         # change owner into read-only group.
         u = user2_client.sf.getAdminService()
         me = u.getExperimenter(u.getEventContext().userId)
-        u.setDefaultGroup(me, omero.model.ExperimenterGroupI(readOnlyGroup.id.val, False))
+        u.setDefaultGroup(
+            me, ExperimenterGroupI(readOnlyGroup.id.val, False))
         self.set_context(user2_client, readOnlyGroup.id.val)
 
         self.getThumbnail(user2_client.sf, readOnlyImageId)
@@ -143,7 +144,8 @@ class TestThumbnailPerms(lib.ITest):
         assert self.getThumbnail(user2_client.sf, collaborativeImageId) is None
 
         # change owner into collaborative group.
-        u.setDefaultGroup(me, omero.model.ExperimenterGroupI(collaborativeGroup.id.val, False))
+        u.setDefaultGroup(
+            me, ExperimenterGroupI(collaborativeGroup.id.val, False))
         self.set_context(user2_client, collaborativeGroup.id.val)
 
         self.getThumbnail(user2_client.sf, collaborativeImageId)
@@ -155,12 +157,12 @@ class TestThumbnailPerms(lib.ITest):
 
         # Create private group with two member and one image
         group = self.new_group(perms="rw__--")
-        owner = self.new_client(group=group, admin=True) # Owner of group
-        member = self.new_client(group=group) # Member of group
+        owner = self.new_client(group=group, admin=True)  # Owner of group
+        member = self.new_client(group=group)  # Member of group
         privateImage = self.createTestImage(session=member.sf)
         pId = privateImage.getPrimaryPixels().getId().getValue()
 
-        ## using owner session access thumbnailStore
+        # using owner session access thumbnailStore
         thumbnailStore = owner.sf.createThumbnailStore()
         s = thumbnailStore.getThumbnailByLongestSideSet(rint(16), [pId])
         assert s[pId] != ''
@@ -173,7 +175,7 @@ class TestThumbnailPerms(lib.ITest):
         thumbnailStore = session.createThumbnailStore()
 
         image = session.getQueryService().findByQuery(
-            "select i from Image as i " \
+            "select i from Image as i "
             "join fetch i.pixels where i.id = '%d'" % imageId, None)
         if image is None:
             return None
@@ -186,7 +188,7 @@ class TestThumbnailPerms(lib.ITest):
         assert 1 == len(s)
 
         thumbnailStore.setPixelsId(pId)
-        t = thumbnailStore.getThumbnail(rint(16),rint(16), *ctx)
+        t = thumbnailStore.getThumbnail(rint(16), rint(16), *ctx)
         assert t
         t = thumbnailStore.getThumbnailByLongestSide(rint(16))
         assert t
@@ -265,11 +267,13 @@ class TestThumbnailPerms(lib.ITest):
             for sf, exists in ((owner.sf, for_owner), (other.sf, for_other)):
                 if exists:
                     id = sf.getAdminService().getEventContext().userId
-                    rnd = sf.getPixelsService().retrieveRndSettingsFor(pixels, id)
+                    rnd = sf.getPixelsService().retrieveRndSettingsFor(
+                        pixels, id)
                     assert rnd is not None
                 else:
                     id = sf.getAdminService().getEventContext().userId
-                    rnd = sf.getPixelsService().retrieveRndSettingsFor(pixels, id)
+                    rnd = sf.getPixelsService().retrieveRndSettingsFor(
+                        pixels, id)
                     assert rnd is None
 
         # creation generates a first rendering image
@@ -306,11 +310,13 @@ class TestThumbnailPerms(lib.ITest):
             for sf, exists in ((owner.sf, for_owner), (other.sf, for_other)):
                 if exists:
                     id = sf.getAdminService().getEventContext().userId
-                    rnd = sf.getPixelsService().retrieveRndSettingsFor(pixels, id)
+                    rnd = sf.getPixelsService().retrieveRndSettingsFor(
+                        pixels, id)
                     assert rnd is not None
                 else:
                     id = sf.getAdminService().getEventContext().userId
-                    rnd = sf.getPixelsService().retrieveRndSettingsFor(pixels, id)
+                    rnd = sf.getPixelsService().retrieveRndSettingsFor(
+                        pixels, id)
                     assert rnd is None
 
         # creation generates a first rendering image
@@ -332,8 +338,13 @@ class TestThumbnailPerms(lib.ITest):
         # After thumbnailing there should be no rendering settings
         assert_exists(True, False)
 
-    @pytest.mark.parametrize("method", ("saveCurrent", "saveAs", "request", "resetDefault", "resetDefaultNoSave"))
-    @pytest.mark.parametrize("perms", ("readOnly", "readAnnotate", "readWrite"))
+    @pytest.mark.parametrize(
+        "method", (
+            "saveCurrent", "saveAs",
+            "request", "resetDefault",
+            "resetDefaultNoSave"))
+    @pytest.mark.parametrize(
+        "perms", ("readOnly", "readAnnotate", "readWrite"))
     @pytest.mark.parametrize("roles", ("owner", "admin"))
     def test12145ShareSettingsRnd(self, method, perms, roles):
         """
@@ -425,7 +436,7 @@ class TestThumbnailPerms(lib.ITest):
             # If the other users try to save with
             # that prx though, they'll create a new rdef
             b_prx.load()
-            b_prx.resetDefaultsNoSave()        
+            b_prx.resetDefaultsNoSave()
             c_rdef = b_prx.getRenderingDefId()
             b_prx.close()
             assert c_rdef == b_rdef
@@ -437,7 +448,8 @@ class TestThumbnailPerms(lib.ITest):
         assert not tb.thumbnailExists(rint(96), rint(96))
 
     @pytest.mark.parametrize("roles", ("owner", "admin"))
-    @pytest.mark.parametrize("perms", ("readOnly", "readAnnotate", "readWrite"))
+    @pytest.mark.parametrize(
+        "perms", ("readOnly", "readAnnotate", "readWrite"))
     def test12145ShareSettingsGetThumbnail(self, perms, roles):
         """
         Check that a new thumbnail is created when new
@@ -465,7 +477,7 @@ class TestThumbnailPerms(lib.ITest):
             group = self.new_group(perms="rwrw--")
             owner = self.new_client(group=group)
             other = self.new_client(group=group)
-                
+
         # creation generates a first rendering image
         image = self.createTestImage(session=owner.sf)
         pixels = image.getPrimaryPixels().getId().getValue()
@@ -498,17 +510,20 @@ class TestThumbnailPerms(lib.ITest):
         query = other.sf.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
-        p.map["oid"] = omero.rtypes.rlong(other.sf.getAdminService().getEventContext().userId)
+        p.map["oid"] = omero.rtypes.rlong(
+            other.sf.getAdminService().getEventContext().userId)
         p.map["pid"] = omero.rtypes.rlong(pixels)
         thumbs = query.findAllByQuery(
-            "select t from Thumbnail t join t.pixels p where t.details.owner.id = :oid and p.id = :pid", p)
-        #check that one has been created for the group owner.
+            "select t from Thumbnail t join t.pixels p where \
+            t.details.owner.id = :oid and p.id = :pid", p)
+        # check that one has been created for the group owner.
         assert 1 == len(thumbs)
-        #check that a thum
+        # check that a thum
         tb.close()
 
     @pytest.mark.parametrize("roles", ("owner", "admin"))
-    @pytest.mark.parametrize("perms", ("readOnly", "readAnnotate", "readWrite"))
+    @pytest.mark.parametrize(
+        "perms", ("readOnly", "readAnnotate", "readWrite"))
     def test12145ShareSettingsSetRnd(self, perms, roles):
         """
         Check that a new thumbnail is created when new
@@ -536,7 +551,7 @@ class TestThumbnailPerms(lib.ITest):
             group = self.new_group(perms="rwrw--")
             owner = self.new_client(group=group)
             other = self.new_client(group=group)
-                
+
         # creation generates a first rendering image
         image = self.createTestImage(session=owner.sf)
         pixels = image.getPrimaryPixels().getId().getValue()
@@ -547,16 +562,18 @@ class TestThumbnailPerms(lib.ITest):
         assert tb.thumbnailExists(rint(16), rint(16))
 
         # get thumbnail version
-        query =  owner.sf.getQueryService()
+        query = owner.sf.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
-        p.map["oid"] = omero.rtypes.rlong(owner.sf.getAdminService().getEventContext().userId)
+        p.map["oid"] = omero.rtypes.rlong(
+            owner.sf.getAdminService().getEventContext().userId)
         p.map["pid"] = omero.rtypes.rlong(pixels)
         thumbs = query.findAllByQuery(
-            "select t from Thumbnail t join t.pixels p where t.details.owner.id = :oid and p.id = :pid", p)
+            "select t from Thumbnail t join t.pixels p where \
+            t.details.owner.id = :oid and p.id = :pid", p)
         assert 1 == len(thumbs)
         v_thumb = thumbs[0].getVersion().getValue()
-        
+
         def assert_rdef(sf=None, prx=None):
             if prx is None:
                 prx = sf.createRenderingEngine()
@@ -570,12 +587,12 @@ class TestThumbnailPerms(lib.ITest):
         settings = owner.sf.getPixelsService().loadRndSettings(a_rdef)
         v_def = settings.getVersion().getValue()
         a_prx.load()
-        a_prx.setActive(0, True);
+        a_prx.setActive(0, True)
         a_prx.saveCurrentSettings()
         a_rdef = a_prx.getRenderingDefId()
         settings = owner.sf.getPixelsService().loadRndSettings(a_rdef)
         v_def_new = settings.getVersion().getValue()
-        assert v_def_new == v_def+1
+        assert v_def_new == v_def + 1
         assert settings.getDetails().getOwner().getId().getValue() == ownerId
 
         # retrieve thumbnail and check that it is not created.
@@ -586,13 +603,15 @@ class TestThumbnailPerms(lib.ITest):
         query = other.sf.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
-        p.map["oid"] = omero.rtypes.rlong(other.sf.getAdminService().getEventContext().userId)
+        p.map["oid"] = omero.rtypes.rlong(
+            other.sf.getAdminService().getEventContext().userId)
         p.map["pid"] = omero.rtypes.rlong(pixels)
         thumbs = query.findAllByQuery(
-            "select t from Thumbnail t join t.pixels p where t.details.owner.id = :oid and p.id = :pid", p)
-        #check that one has been created for the group owner.
+            "select t from Thumbnail t join t.pixels p where \
+            t.details.owner.id = :oid and p.id = :pid", p)
+        # check that one has been created for the group owner.
         assert 0 == len(thumbs)
-        #check that a thum
+        # check that a thum
         tb.close()
         query = owner.sf.getQueryService()
         p = omero.sys.Parameters()
@@ -602,5 +621,4 @@ class TestThumbnailPerms(lib.ITest):
             "select t from Thumbnail t join t.pixels p where p.id = :pid", p)
         assert 1 == len(thumbs)
         v_thumb_new = thumbs[0].getVersion().getValue()
-        assert v_thumb_new == v_thumb+1
-
+        assert v_thumb_new == v_thumb + 1

@@ -4,7 +4,7 @@
 """
    Integration test for search testing
 
-   Copyright 2010-2013 Glencoe Software, Inc. All rights reserved.
+   Copyright 2010-2014 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -12,8 +12,6 @@
 import test.integration.library as lib
 import pytest
 import omero
-import datetime
-import time
 import os
 
 
@@ -24,7 +22,6 @@ class TestSearch(lib.ITest):
         Search for private data from another user
         """
         group = self.new_group(perms="rw----")
-        owner = self.new_client(group)
         searcher = self.new_client(group)
         uuid = self.uuid().replace("-", "")
         tag = omero.model.TagAnnotationI()
@@ -33,12 +30,11 @@ class TestSearch(lib.ITest):
         self.root.sf.getUpdateService().indexObject(tag)
         q = searcher.sf.getQueryService()
         r = q.findAllByFullText("TagAnnotation", uuid, None)
-        assert 0 ==  len(r)
+        assert 0 == len(r)
 
     def test3164Private(self):
         group = self.new_group(perms="rw----")
         owner = self.new_client(group)
-        searcher = self.new_client(group)
         self._3164(owner, owner)
 
     def test3164ReadOnlySelf(self):
@@ -87,21 +83,21 @@ class TestSearch(lib.ITest):
         for tag in tags:
             search.byFullText(tag)
             res = search.results()
-            assert tag ==  res[0].ns.val
+            assert tag == res[0].ns.val
 
         boost_query = "%s^10 OR %s^1"
 
         # Boosted
         search.byFullText(boost_query % tuple(tags))
         res = search.results()
-        assert tags[0] ==  res[0].ns.val
-        assert tags[1] ==  res[1].ns.val
+        assert tags[0] == res[0].ns.val
+        assert tags[1] == res[1].ns.val
 
         # Reversed
         search.byFullText(boost_query % tuple(reversed(tags)))
         res = search.results()
-        assert tags[0] ==  res[1].ns.val
-        assert tags[1] ==  res[0].ns.val
+        assert tags[0] == res[1].ns.val
+        assert tags[1] == res[0].ns.val
 
     #
     # Helpers
@@ -109,15 +105,15 @@ class TestSearch(lib.ITest):
     def _3164(self, owner, searcher):
 
         images = list()
-        for i in range(0,5):
+        for i in range(0, 5):
             img = omero.model.ImageI()
             img.name = omero.rtypes.rstring("search_test_%i.tif" % i)
             img.acquisitionDate = omero.rtypes.rtime(0)
             tag = omero.model.TagAnnotationI()
             tag.textValue = omero.rtypes.rstring("tag %i" % i)
-            img.linkAnnotation( tag )
+            img.linkAnnotation(tag)
 
-            images.append(owner.sf.getUpdateService().saveAndReturnObject( img ))
+            images.append(owner.sf.getUpdateService().saveAndReturnObject(img))
             self.index(images[-1])
 
         p = omero.sys.Parameters()
@@ -125,17 +121,19 @@ class TestSearch(lib.ITest):
         p.map["oids"] = omero.rtypes.rlist(im.id for im in images)
 
         sql = "select im from Image im "\
-                "where im.id in (:oids) " \
-                "order by im.id asc"
+            "where im.id in (:oids) " \
+            "order by im.id asc"
         res = owner.sf.getQueryService().findAllByQuery(sql, p)
-        assert 5 ==  len(res)
+        assert 5 == len(res)
 
-        #Searching
-        texts = ("*earch", "*h", "search tif", "search",\
-                 "test", "tag", "t*", "search_test",\
+        # Searching
+        texts = ("*earch", "*h", "search tif", "search",
+                 "test", "tag", "t*", "search_test",
                  "s .tif", ".tif", "tif", "*tif")
 
-        BROKEN = ("*test*.tif", "search*tif", "s*.tif", "*.tif")
+        # Commented out to pass flake8 but these patterns may no longer
+        # be broken with recent chnages to search. (cgb)
+        # BROKEN = ("*test*.tif", "search*tif", "s*.tif", "*.tif")
 
         search = searcher.sf.createSearchService()
         search.onlyType('Image')
@@ -172,13 +170,13 @@ class TestSearch(lib.ITest):
             u = self.new_client(group=g)
             a = self.new_client(group=g, admin=True)
 
-            uuid = self.uuid().replace("-","")
+            uuid = self.uuid().replace("-", "")
 
             # Create a comment as the user
             t = omero.model.CommentAnnotationI()
             t.setTextValue(omero.rtypes.rstring(uuid))
             t = u.sf.getUpdateService().saveAndReturnObject(t)
-            self.root.sf.getUpdateService().indexObject(t) # Index
+            self.root.sf.getUpdateService().indexObject(t)  # Index
 
             # And try to read it back as the leader and the admin
             for sf, who in ((a.sf, "grp-admin"), (self.root.sf, "sys-admin")):
@@ -212,11 +210,10 @@ class TestSearch(lib.ITest):
         cann = update.saveAndReturnObject(cann)
         self.root.sf.getUpdateService().indexObject(cann)
 
-        rv = query.findAllByFullText( \
-                "CommentAnnotation", "%s" % uuid, None)
-        #"CommentAnnotation", "%s*" % uuid[0:6], None)
-        assert cann.id.val ==  rv[0].id.val
-
+        rv = query.findAllByFullText(
+            "CommentAnnotation", "%s" % uuid, None)
+        # "CommentAnnotation", "%s*" % uuid[0:6], None)
+        assert cann.id.val == rv[0].id.val
 
     def simple_uuid(self):
         uuid = self.uuid()
@@ -236,8 +233,7 @@ class TestSearch(lib.ITest):
         def supported(x):
             search.byFullText(x)
             assert search.hasNext(), "None found for " + x
-            assert [image.id.val] == \
-                [x.id.val for x in search.results()]
+            assert [image.id.val] == [i.id.val for i in search.results()]
             assert not search.hasNext()
 
         def unsupported(x):
@@ -245,13 +241,13 @@ class TestSearch(lib.ITest):
             assert not search.hasNext(), "Found for %s!" % x
 
         for x, m in (
-            (".fake", supported),
-            ("fake", supported),
-            ("%s*" % uuid, supported),
-            #
-            (uuid, unsupported),
-            ("*.fake", unsupported),
-            ("%s*.fake" % uuid, unsupported)):
+                (".fake", supported),
+                ("fake", supported),
+                ("%s*" % uuid, supported),
+                #
+                (uuid, unsupported),
+                ("*.fake", unsupported),
+                ("%s*.fake" % uuid, unsupported)):
 
             m(x)
 
@@ -325,7 +321,7 @@ class TestSearch(lib.ITest):
         search.onlyType("TagAnnotation")
 
         try:
-            for idx in range(len(word)-1, 6, -1):
+            for idx in range(len(word) - 1, 6, -1):
                 base = word[0:idx]
                 for pattern in ("%s*", "%s~0.1"):
                     q = pattern % base
@@ -338,7 +334,6 @@ class TestSearch(lib.ITest):
             search.close()
 
     def test_empty_query_string(self):
-        query = "%"
         client = self.new_client()
 
         search = client.sf.createSearchService()

@@ -663,7 +663,7 @@ class ITest(object):
             try:
                 import Image
             except ImportError:
-                print "Pillow not installed"
+                assert False, "Pillow not installed"
         from cStringIO import StringIO
         tfile = StringIO(buf)
         jpeg = Image.open(tfile)  # Raises if invalid
