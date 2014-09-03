@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.browser.BrowserModel
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -160,6 +160,9 @@ class BrowserModel
     /** Collection of retrieved images composing the grid. */
     private Map<Integer, TextureData>	gridImagesAsTextures;
     
+    /** Flag if interpolation should be used for upscaling images */
+    private boolean interpolation = true;
+    
     /**
      * Returns <code>true</code> if the active channels are mapped
      * to <code>Red</code>, <code>Green</code> or <code>Blue</code>,
@@ -303,10 +306,10 @@ class BrowserModel
     		BufferedImage img;
         	while (i.hasNext()) {
         		img = i.next();
-        		gridImages.add(Factory.magnifyImage(img, gridRatio, 0));
+        		gridImages.add(Factory.magnifyImage(img, gridRatio, 0, isInterpolation()));
         		if (b) originalGridImages.add(img);
     		}
-        	combinedImage = Factory.magnifyImage(renderedImage, gridRatio, 0);
+        	combinedImage = Factory.magnifyImage(renderedImage, gridRatio, 0, isInterpolation());
     	}
     }
 
@@ -603,7 +606,7 @@ class BrowserModel
     	if (zoomFactor != ZoomAction.DEFAULT_ZOOM_FACTOR) {
     		BufferedImage img = null;
     		try {
-    			img = Factory.magnifyImage(renderedImage, zoomFactor, 0);
+    			img = Factory.magnifyImage(renderedImage, zoomFactor, 0, isInterpolation());
     			renderedImage.flush();
     		} catch (Throwable e) {
     			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
@@ -625,7 +628,7 @@ class BrowserModel
         if (zoomFactor != ZoomAction.DEFAULT_ZOOM_FACTOR) {
         	BufferedImage img = null;
         	try {
-				img = Factory.magnifyImage(projectedImage, zoomFactor, 0);
+				img = Factory.magnifyImage(projectedImage, zoomFactor, 0, isInterpolation());
 			} catch (Throwable e) {
 				UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
 				un.notifyInfo("Magnification", 
@@ -1300,4 +1303,21 @@ class BrowserModel
 		System.gc();//force garbage collection
 	}
 
+    /**
+     * Returns if interpolation is enabled or not
+     * 
+     * @return
+     */
+    boolean isInterpolation() {
+        return interpolation;
+    }
+
+    /**
+     * En-/Disables interpolation
+     * 
+     * @param interpolation
+     */
+    void setInterpolation(boolean interpolation) {
+        this.interpolation = interpolation;
+    }
 }

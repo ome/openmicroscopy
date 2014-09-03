@@ -16,6 +16,9 @@
 
 import pytest
 
+from cStringIO import StringIO
+from PIL import Image, ImageChops
+
 
 class TestRDefs (object):
     @pytest.fixture(autouse=True)
@@ -222,3 +225,89 @@ class TestRDefs (object):
             self.image = gatewaywrapper.getTestImage()
             admin.unsetGroupOwner(self.image.getDetails().getGroup()._obj,
                                   aobj)
+
+    def testGetRdefs(self, gatewaywrapper):
+        """
+        Test we can list rdefs for an image and they correspond to the
+        rdefs we've set.
+        """
+
+        # Admin saves Rdef (greyscale)
+        gatewaywrapper.loginAsAdmin()
+        adminId = gatewaywrapper.gateway.getUserId()
+        gatewaywrapper.gateway.SERVICE_OPTS.setOmeroGroup('-1')
+        self.image = gatewaywrapper.getTestImage()
+        self.image.setGreyscaleRenderingModel()
+        self.image.saveDefaults()
+
+        # Author saves Rdef (color)
+        gatewaywrapper.loginAsAuthor()
+        authorId = gatewaywrapper.gateway.getUserId()
+        self.image = gatewaywrapper.getTestImage()
+        self.image.setColorRenderingModel()
+        self.image.saveDefaults()
+
+        rdefs = self.image.getAllRenderingDefs()
+        assert len(rdefs) == 2
+
+        adminRdefId = None
+        authorRdefId = None
+        for r in rdefs:
+            if r['owner']['id'] == adminId:
+                adminRdefId = r['id']
+                assert r['model'] == 'greyscale'
+            elif r['owner']['id'] == authorId:
+                authorRdefId = r['id']
+                assert r['model'] == 'rgb'
+
+        assert adminRdefId is not None
+        assert authorRdefId is not None
+
+        # Test getting different thumbnails
+        defaultThumb = self.image.getThumbnail()
+        authorThumb = self.image.getThumbnail(rdefId=authorRdefId)
+        adminThumb = self.image.getThumbnail(rdefId=adminRdefId)
+        # convert to PIL images
+        defaultThumb = Image.open(StringIO(defaultThumb))
+        authorThumb = Image.open(StringIO(authorThumb))
+        adminThumb = Image.open(StringIO(adminThumb))
+
+        # Assert that default thumb and author thumb are same
+        diff = ImageChops.difference(defaultThumb, authorThumb)
+        extrema = diff.convert("L").getextrema()    # min/max of greyscale
+        assert extrema == (0, 0)
+        # Assert that author thumb and admin thumb are different
+        diff = ImageChops.difference(authorThumb, adminThumb)
+        extrema = diff.convert("L").getextrema()
+        assert extrema != (0, 0)
+
+        # Test thumbnail store init
+        tb = self.image._prepareTB(rdefId=adminRdefId)
+        assert tb.getRenderingDefId() == adminRdefId
+        # Test thumbnail store init
+        tb = self.image._prepareTB(rdefId=authorRdefId)
+        assert tb.getRenderingDefId() == authorRdefId
+
+    def testResetDefaults(self, gatewaywrapper):
+        """
+        Test we can resetDefaults with or without saving.
+        """
+        # Author saves Rdef (greyscale)
+        gatewaywrapper.loginAsAuthor()
+        self.image = gatewaywrapper.getTestImage()
+        self.image.setGreyscaleRenderingModel()
+        self.image.saveDefaults()
+
+        # resetDefaults without saving - shouldn't be greyscale
+        self.image.resetDefaults(save=False)
+        assert not self.image.isGreyscaleRenderingModel()
+
+        # retrieve the image again... Should still be greyscale
+        self.image = gatewaywrapper.getTestImage()
+        assert self.image.isGreyscaleRenderingModel()
+        # Then reset and Save
+        self.image.resetDefaults(save=True)
+
+        # retrieve the image again... Should not be greyscale
+        self.image = gatewaywrapper.getTestImage()
+        assert not self.image.isGreyscaleRenderingModel()

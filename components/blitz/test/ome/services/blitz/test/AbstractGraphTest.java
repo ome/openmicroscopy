@@ -14,6 +14,7 @@ import org.jmock.Mock;
 import org.testng.annotations.BeforeClass;
 
 import ome.io.nio.PixelsService;
+import ome.io.nio.ThumbnailService;
 import ome.security.ACLVoter;
 import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
@@ -55,7 +56,8 @@ public class AbstractGraphTest extends AbstractServantTest {
                 user.ctx.getBean(ExtendedMetadata.class),
                 user.ctx.getBean(ACLVoter.class),
                 user.ctx.getBean(Roles.class),
-                user.ctx.getBean("/OMERO/Pixels", PixelsService.class)
+                user.ctx.getBean("/OMERO/Pixels", PixelsService.class),
+                user.ctx.getBean("/OMERO/Thumbs", ThumbnailService.class)
                 );
         rofr.setApplicationContext(ctx);
         rofr.setIceCommunicator(ic);

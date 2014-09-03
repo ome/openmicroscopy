@@ -27,11 +27,14 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 //Java imports
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.Action;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -147,6 +150,9 @@ class ToolBar
 	/** Indicates the loading progress. */
 	private JXBusyLabel				busyLabel;
 
+        /** Checkbox for en-/disabling interpolation */
+	private JCheckBox interpolation;
+	
 	/** The index of the measurement component. */
 	private static final int		MEASUREMENT_INDEX = 13;
 	
@@ -317,6 +323,9 @@ class ToolBar
     	compressionBox = EditorUtil.createComboBox(compression, 0, 
     			getBackground());
     	compressionBox.setBackground(getBackground());
+    	interpolation = new JCheckBox();
+    	interpolation.setBackground(getBackground());
+    	interpolation.setToolTipText("Enables/Disables interpolation when images are scaled up");
         createControlsBar();
     }
     
@@ -328,6 +337,9 @@ class ToolBar
     	JLabel l = new JLabel("Compression:");
     	p.add(l);
     	p.add(compressionBox);
+    	JLabel l2 = new JLabel("Interpolate:");
+    	p.add(l2);
+    	p.add(interpolation);
     	setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
     	setBorder(null);
     	JPanel bars = new JPanel();
@@ -394,6 +406,14 @@ class ToolBar
 		compressionBox.setSelectedIndex(index);
 		compressionBox.addActionListener(
     			controller.getAction(ImViewerControl.COMPRESSION));
+		
+		interpolation.setSelected(pref!=null ? pref.isInterpolation() : true);
+		interpolation.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent arg0) {
+                        controller.setInterpolation(interpolation.isSelected());
+                    }
+                });
     	buildGUI(); 
     }
     

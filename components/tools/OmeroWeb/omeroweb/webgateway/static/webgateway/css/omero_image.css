@@ -316,7 +316,7 @@ button.pressed {
   background-color: #D1D3D5;   
 }
 
-.postit button {
+.postit button .preset-color-btn{
   width: 18px;
   height: 16px;
   padding: 0px;
@@ -324,12 +324,23 @@ button.pressed {
 }
 
 .postit .buttonbar {
-  text-align: center;
+  list-style: none;
 }
 
-.postit .buttonbar button {
-  height: 28px;
-  width: 65px;
+.postit .buttonbar input.button{
+  padding: 6px 5px;
+}
+
+.postit .buttonbar li {
+  float: left;
+  position: relative;
+  height: 26px;
+}
+
+.buttonbar input.button-disabled {
+opacity: 0.3;
+background: none;
+cursor: default !important;
 }
 
 #metadata-postit { 
@@ -399,7 +410,6 @@ img.figure-box-hide {
 }
 
 .postit li {
-  width: 100%;
   margin-bottom: 0.5em;
   text-align: center;
 }
@@ -529,7 +539,7 @@ td.title {
 
 .rangeslider {
   background: white;
-  margin: 0.2em 2em 0.2em 2em;
+  margin: 0.2em 1em 0.2em 1em;
 }
 
 .postit-help-btn {
@@ -582,20 +592,6 @@ input.spin-button {
 
 .rangewidget input {
   width: 4.5em;
-}
-
-.rangewidget .min {
-  display: inline-block;
-  width: 10em;
-  text-align: right;
-  font-size: 0.9em;
-}
-
-.rangewidget .max {
-  display: inline-block;
-  width: 10em;
-  text-align: left;
-  font-size: 0.9em;
 }
 
 #rdef-postit table {

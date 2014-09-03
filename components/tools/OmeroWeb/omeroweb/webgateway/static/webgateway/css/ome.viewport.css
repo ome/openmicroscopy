@@ -118,3 +118,22 @@ div.weblitz-viewport-tiles img {
 .pick-pos {
   cursor: crosshair;
 }
+
+.wb_zoomIn, .wb_zoom11, .wb_zoomOut {
+  position: absolute;
+  z-index: 30;
+  left: 10px;
+  width: 20px;
+}
+
+.rd-wblitz-ch {
+  width: 39px;
+  height: 19px;
+  margin-right: 5px;
+  padding: 1px 2px;
+  white-space: nowrap;
+}
+
+.fontWhite {
+  color: white;
+}

@@ -36,7 +36,6 @@ import traceback
 import time
 import array
 import math
-import re
 from decimal import Decimal
 
 from gettext import gettext as _
@@ -2991,7 +2990,11 @@ class _BlitzGateway (object):
         if to_type is None:
             to_type="Image"
         if to_type.lower() == "acquisition":
+            plateIds = []
+            for pa in self.getObjects("PlateAcquisition", toids):
+                plateIds.append(pa.listParents()[0].id)
             to_type = "Plate"
+            toids = plateIds
         to_type = to_type.title()
         if fromimg.canAnnotate():
             ctx = self.SERVICE_OPTS.copy()
@@ -6355,32 +6358,35 @@ class _ImageWrapper (BlitzObjectWrapper):
         return self._obj.getPrimaryPixels().getId().val
 
     #@setsessiongroup
-    def _prepareTB (self, _r=False):
+    def _prepareTB (self, _r=False, rdefId=None):
         """
         Prepares Thumbnail Store for the image.
 
         :param _r:          If True, don't reset default rendering (return None if no rDef exists)
         :type _r:           Boolean
+        :param rdefId:      Rendering def ID to use for rendering thumbnail
+        :type rdefId:       Long
         :return:            Thumbnail Store or None
         :rtype:             :class:`ProxyObjectWrapper`
         """
 
         pid = self.getPrimaryPixels().id
-        rdid = self._getRDef()
+        if rdefId is None:
+            rdefId = self._getRDef()
         tb = self._conn.createThumbnailStore()
 
         ctx = self._conn.SERVICE_OPTS.copy()
         ctx.setOmeroGroup(self.details.group.id.val)
         has_rendering_settings = tb.setPixelsId(pid, ctx)
         logger.debug("tb.setPixelsId(%d) = %s " % (pid, str(has_rendering_settings)))
-        if rdid is not None:
+        if rdefId is not None:
             try:
-                tb.setRenderingDefId(rdid, ctx)
+                tb.setRenderingDefId(rdefId, ctx)
             except omero.ValidationException:
                 # The annotation exists, but not the rendering def?
-                logger.error('IMG %d, defrdef == %d but object does not exist?' % (self.getId(), rdid))
-                rdid = None
-        if rdid is None:
+                logger.error('IMG %d, defrdef == %d but object does not exist?' % (self.getId(), rdefId))
+                rdefId = None
+        if rdefId is None:
             if not has_rendering_settings:
                 if self._conn.canBeAdmin():
                    ctx.setOmeroUser(self.details.owner.id.val)
@@ -6391,11 +6397,11 @@ class _ImageWrapper (BlitzObjectWrapper):
                     return tb
                 tb.setPixelsId(pid, ctx)
                 try:
-                    rdid = tb.getRenderingDefId(ctx)
+                    rdefId = tb.getRenderingDefId(ctx)
                 except omero.ApiUsageException:         # E.g. No rendering def (because of missing pyramid!)
                     logger.info( "ApiUsageException: getRenderingDefId() failed in _prepareTB")
                     return tb
-                self._onResetDefaults(rdid)
+                self._onResetDefaults(rdefId)
         return tb
 
     def loadOriginalMetadata(self, sort=True):
@@ -6468,7 +6474,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         return rv.getvalue()
 
     #@setsessiongroup
-    def getThumbnail (self, size=(64,64), z=None, t=None, direct=True):
+    def getThumbnail (self, size=(64,64), z=None, t=None, direct=True, rdefId=None):
         """
         Returns a string holding a rendered JPEG of the thumbnail.
 
@@ -6483,12 +6489,13 @@ class _ImageWrapper (BlitzObjectWrapper):
         :type t: number
         :param t: the T position to use for rendering the thumbnail. If not provided default is used.
         :param direct:      If true, force creation of new thumbnail (don't use cached)
+        :param rdefId:      The rendering def to apply to the thumbnail.
         :rtype: string or None
         :return: the rendered JPEG, or None if there was an error.
         """
         tb = None
         try:
-            tb = self._prepareTB()
+            tb = self._prepareTB(rdefId=rdefId)
             if tb is None:
                 return None
             if isinstance(size, IntType):
@@ -6855,6 +6862,46 @@ class _ImageWrapper (BlitzObjectWrapper):
         :rtype:     Boolean
         """
         return self.getRenderingModel().value.lower() == 'greyscale'
+
+    def getAllRenderingDefs (self, eid=-1):
+        """
+        Returns a dict of the rendering settings that exist for this Image
+        Can be filtered by owner using the eid parameter.
+
+        :return:    Rdef dict
+        :rtype:     Dict
+        """
+
+        pixelsService = self._conn.getPixelsService()
+        rdefs = pixelsService.retrieveAllRndSettings(
+            self.getPixelsId(), eid, self._conn.SERVICE_OPTS)
+        rv = []
+        for rdef in rdefs:
+            d = {}
+            owner = rdef.getDetails().owner
+            d['id'] = rdef.getId().val
+            d['owner'] = {'id':owner.id.val,
+                        'firstName': owner.getFirstName().val,
+                        'lastName': owner.getLastName().val}
+            d['z'] = rdef.getDefaultZ().val
+            d['t'] = rdef.getDefaultT().val
+            d['model'] = rdef.getModel().getValue().val        # greyscale / rgb
+            waves = rdef.iterateWaveRendering()
+            d['c'] = []
+            for w in waves:
+                color = ColorHolder.fromRGBA(w.getRed().val, w.getGreen().val, w.getBlue().val, 255)
+                d['c'].append({
+                        'active': w.getActive().val,
+                        'start': w.getInputStart().val,
+                        'end': w.getInputEnd().val,
+                        'color': color.getHtml(),
+                        'rgb': {'red': w.getRed().val,
+                            'green': w.getGreen().val,
+                            'blue': w.getBlue().val}
+                        })
+            rv.append(d)
+        return rv
+
 
     @assert_re()
     def renderBirdsEyeView (self, size):
@@ -7695,7 +7742,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         return True
 
     @assert_re()
-    def resetDefaults(self):
+    def resetDefaults(self, save=True):
         if not self.canAnnotate():
             return False
         ns = self._conn.CONFIG.IMG_ROPTSNS
@@ -7708,7 +7755,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             self.linkAnnotation(ann)
         ctx = self._conn.SERVICE_OPTS.copy()
         ctx.setOmeroGroup(self.details.group.id.val)
-        self._re.resetDefaults(ctx)
+        self._re.resetDefaultSettings(save, ctx)
         return True
 
     def countArchivedFiles (self):

@@ -3025,5 +3025,21 @@ class ImViewerModel
         if (rnd == null) return null;
         return rnd.getModuloT();
     }
+    
+    /**
+     * Returns if interpolation is enabled or not
+     * @return
+     */
+    public boolean isInterpolation() {
+        return browser.isInterpolation();
+    }
+
+    /**
+     * En-/Disables interpolation
+     * @param interpolation
+     */
+    public void setInterpolation(boolean interpolation) {
+        browser.setInterpolation(interpolation);
+    }
 
 }

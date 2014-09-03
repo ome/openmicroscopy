@@ -799,6 +799,7 @@ class ImViewerControl
 			pref.setScaleBarColor(c);
 		index = view.getScaleBarIndex();
 		if (index > 0) pref.setScaleBarIndex(index);
+		pref.setInterpolation(model.isInterpolation());
 		ImViewerFactory.setPreferences(pref);
 	}
 	
@@ -1161,4 +1162,19 @@ class ImViewerControl
 	 */
 	public void componentMoved(ComponentEvent e) {}
 	
+	/**
+	 * Returns if interpolation is enabled or not
+	 * @return
+	 */
+        public boolean isInterpolation() {
+            return model.isInterpolation();
+        }
+    
+        /**
+         * En-/Disables interpolation
+         * @param interpolation
+         */
+        public void setInterpolation(boolean interpolation) {
+            model.setInterpolation(interpolation);
+        }
 }
