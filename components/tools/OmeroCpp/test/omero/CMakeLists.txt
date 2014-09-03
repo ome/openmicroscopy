@@ -42,7 +42,7 @@ if(BUILD_TESTS)
                         ${TEST_LIBS})
 
   if(MSVC)
-    set_target_properties(omero-client PROPERTIES
+    set_target_properties(omero-test PROPERTIES
                           LINK_FLAGS "/INCREMENTAL:NO"
                           DEFINE_SYMBOL "OMERO_TEST_EXPORTS")
   endif(MSVC)
