@@ -223,6 +223,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <iterate buildpathref="tools.buildpath" target="dist"/>
         <!-- Parts of build-dist -->
         <antcall target="copy-licenses" inheritRefs="true" inheritAll="true"/>
+        <antcall target="copy-history" inheritRefs="true" inheritAll="true"/>
         <antcall target="copy-etc" inheritRefs="true" inheritAll="true"/>
         <antcall target="copy-sql" inheritRefs="true" inheritAll="true"/>
         <antcall target="copy-server" inheritRefs="true" inheritAll="true"/>
@@ -818,6 +819,10 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <copy todir="${dist.dir}">
                 <fileset dir="${omero.home}/lib/" includes="licenses/**"/>
             </copy>
+    </target>
+
+    <target name="copy-history" depends="init">
+            <copy file="${omero.home}/history.txt" todir="${dist.dir}/"/>
     </target>
 
     <target name="copy-etc" depends="init">
