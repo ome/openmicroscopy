@@ -14,13 +14,12 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import ome.io.nio.AbstractFileSystemService;
 import ome.io.nio.PixelsService;
+import ome.io.nio.ThumbnailService;
 import ome.security.ACLVoter;
 import ome.security.ChmodStrategy;
 import ome.services.chgrp.ChgrpStepFactory;
 import ome.services.chown.ChownStepFactory;
-import ome.services.delete.DeleteStepFactory;
 import ome.services.delete.Deletion;
 import ome.system.OmeroContext;
 import ome.system.Roles;
@@ -35,6 +34,7 @@ import omero.cmd.graphs.ChgrpI;
 import omero.cmd.graphs.ChmodI;
 import omero.cmd.graphs.ChownI;
 import omero.cmd.graphs.DeleteI;
+import omero.cmd.graphs.DiskUsageI;
 import omero.cmd.graphs.GraphSpecListI;
 
 /**
@@ -55,17 +55,21 @@ public class RequestObjectFactoryRegistry extends
 
     private final PixelsService pixelsService;
 
+    private final ThumbnailService thumbnailService;
+
     private/* final */OmeroContext ctx;
 
     public RequestObjectFactoryRegistry(ExtendedMetadata em,
             ACLVoter voter,
             Roles roles,
-            PixelsService pixelsService) {
+            PixelsService pixelsService,
+            ThumbnailService thumbnailService) {
 
         this.em = em;
         this.voter = voter;
         this.roles = roles;
         this.pixelsService = pixelsService;
+        this.thumbnailService = thumbnailService;
 
     }
 
@@ -161,6 +165,13 @@ public class RequestObjectFactoryRegistry extends
                     @Override
                     public Ice.Object create(String name) {
                         return new ManageImageBinariesI(pixelsService, voter);
+                    }
+                });
+        factories.put(DiskUsageI.ice_staticId(),
+                new ObjectFactory(DiskUsageI.ice_staticId()) {
+                    @Override
+                    public Ice.Object create(String name) {
+                        return new DiskUsageI(pixelsService, thumbnailService);
                     }
                 });
         return factories;
