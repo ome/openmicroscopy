@@ -5,7 +5,16 @@
 #ifndef OMERO_UUID_H
 #define OMERO_UUID_H
 
+#include <Ice/Ice.h>
 #include <string>
+
+#ifndef OMERO_CLIENT
+#   ifdef OMERO_CLIENT_EXPORTS
+#       define OMERO_CLIENT ICE_DECLSPEC_EXPORT
+#   else
+#       define OMERO_CLIENT ICE_DECLSPEC_IMPORT
+#   endif
+#endif
 
 namespace omero
 {
@@ -17,7 +26,7 @@ namespace omero
      *
      * @returns a UUID as a string.
      */
-    std::string
+    OMERO_CLIENT std::string
     generate_uuid ();
 
   }
