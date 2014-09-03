@@ -334,7 +334,9 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
                             accessibleProperties.add(classPropertyName);
                         }
                     }
-                    log.info(sb.toString());
+                    if (log.isDebugEnabled()) {
+                        log.debug(sb.toString());
+                    }
                 }
             }
         }
