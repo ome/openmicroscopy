@@ -306,6 +306,13 @@ public class GraphPolicyRule {
             }
             return details;
         }
+
+        /**
+         * @return if this change actually affects the term's action or orphan status
+         */
+        boolean isEffectiveChange() {
+            return action != null || orphan != null;
+        }
     }
 
     /**
@@ -816,22 +823,24 @@ public class GraphPolicyRule {
             logMessage = null;
         }
         /* note the new changes to the terms */
-        final Set<Details> changedTerms = new HashSet<Details>();
+        final Map<Change, Details> changedTerms = new HashMap<Change, Details>();
         for (final Change change : policyRule.changes) {
-            changedTerms.add(change.toChanged(namedTerms));
+            changedTerms.put(change, change.toChanged(namedTerms));
         }
-        /* a permissions override on any match propagates to all changed terms */
+        /* a permissions override on any match propagates to all truly changed terms */
         if (!isCheckAllPermissions) {
-            for (final Details changedTerm : changedTerms) {
-                changedTerm.isCheckPermissions = false;
+            for (final Entry<Change, Details> changedTerm : changedTerms.entrySet()) {
+                if (changedTerm.getKey().isEffectiveChange()) {
+                    changedTerm.getValue().isCheckPermissions = false;
+                }
             }
         }
         if (logMessage != null) {
             /* log new status of terms */
             logMessage.append("making ");
-            logMessage.append(Joiner.on(", ").join(changedTerms));
+            logMessage.append(Joiner.on(", ").join(changedTerms.values()));
             LOGGER.debug(logMessage.toString());
         }
-        changedObjects.addAll(changedTerms);
+        changedObjects.addAll(changedTerms.values());
     }
 }
