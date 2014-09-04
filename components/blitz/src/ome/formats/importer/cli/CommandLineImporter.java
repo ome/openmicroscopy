@@ -191,7 +191,6 @@ public class CommandLineImporter {
         if (getUsedFiles) {
             try {
                 candidates.print();
-                report();
                 return 0;
             } catch (Throwable t) {
                 log.error("Error retrieving used files.", t);
