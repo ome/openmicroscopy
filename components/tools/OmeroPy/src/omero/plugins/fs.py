@@ -278,8 +278,10 @@ class FsControl(CmdControl):
         usage.set_args_unsorted()
         usage.add_login_arguments()
         usage.add_style_argument()
-        usage.add_argument("--wait", type=long, help="Number of seconds to"+\
-                " wait for the processing to complete (Indefinite < 0; No wait=0).", default=-1)
+        usage.add_argument(
+            "--wait", type=long,
+            help="Number of seconds to wait for the processing to complete "
+            "(Indefinite < 0; No wait=0).", default=-1)
         usage.add_argument(
             "--size_only", action="store_true",
             help="Print total bytes used in bytes")
