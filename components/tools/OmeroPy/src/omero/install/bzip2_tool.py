@@ -11,7 +11,9 @@
 
 """
 
-import os, sys
+import os
+import sys
+
 
 def bzip2_tool(disable=False):
     """
@@ -25,9 +27,10 @@ def bzip2_tool(disable=False):
     b = os.path.join(p, "bzip2.dll")
     d = os.path.join(p, "bzip2_DISABLED.dll")
     if disable:
-        _swap(b,d)
+        _swap(b, d)
     else:
-        _swap(d,b)
+        _swap(d, b)
+
 
 def _swap(f, t):
     if not os.path.exists(f):
