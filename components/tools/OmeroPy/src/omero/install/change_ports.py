@@ -15,9 +15,11 @@
 """
 
 
-import re, sys
+import re
+import sys
 import fileinput
 from path import path
+
 
 def line_has_port(line, port):
     m = re.match("^.*?\D%s\D.*?$" % port, line)
@@ -25,7 +27,8 @@ def line_has_port(line, port):
         m = re.match("^.*?\D%s$" % port, line)
     return m
 
-def change_ports(glacier2, glacier2insecure, registry, revert = False, dir="."):
+
+def change_ports(glacier2, glacier2insecure, registry, revert=False, dir="."):
     """
     Parses the etc configuration files to change
     the current port values. If the files have
@@ -38,8 +41,10 @@ def change_ports(glacier2, glacier2insecure, registry, revert = False, dir="."):
         ./etc/ice.config: omero.port=4064
         ./grid/default.xml:    <variable name="ROUTERPORT"   value="4064"/>
         ./grid/windefault.xml:    <variable name="ROUTERPORT"   value="4064"/>
-        ./internal.cfg:Ice.Default.Locator=IceGrid/Locator:tcp -h 127.0.0.1 -p 4061
-        ./master.cfg:IceGrid.Registry.Client.Endpoints=tcp -h 127.0.0.1 -p 4061
+        ./internal.cfg:Ice.Default.Locator=IceGrid/Locator:tcp -h 127.0.0.1 \
+        -p \ 4061
+        ./master.cfg:IceGrid.Registry.Client.Endpoints=tcp -h 127.0.0.1 \
+        -p 4061
 
     """
     DIR = path(dir)
@@ -61,7 +66,7 @@ def change_ports(glacier2, glacier2insecure, registry, revert = False, dir="."):
         f_glacier2insecure = "4063"
         f_registry = "4061"
 
-    def check_line (l, s, f, t, done):
+    def check_line(l, s, f, t, done):
         """
         @param l: the line
         @param s: the string that denotes this line is supposed to change
@@ -75,24 +80,27 @@ def change_ports(glacier2, glacier2insecure, registry, revert = False, dir="."):
             return True
         return False
 
-    cfgs = [ str(x) for x in ETC.files("*.cfg") ]
+    cfgs = [str(x) for x in ETC.files("*.cfg")]
     found_reg = set()
     for line in fileinput.input(cfgs, inplace=1):
-        if check_line(line, "Ice.Default.Locator", f_registry, t_registry, found_reg):
+        if check_line(line, "Ice.Default.Locator", f_registry, t_registry,
+                      found_reg):
             continue
-        elif check_line(line, "IceGrid.Registry.Client.Endpoints", f_registry, t_registry, found_reg):
+        elif check_line(line, "IceGrid.Registry.Client.Endpoints", f_registry,
+                        t_registry, found_reg):
             continue
         print line,
     fileinput.close()
 
-    xmls = [ str(x) for x in GRID.files("*.xml") ]
+    xmls = [str(x) for x in GRID.files("*.xml")]
 
     found_ssl = set()
     found_tcp = set()
     for line in fileinput.input(xmls, inplace=1):
         if check_line(line, "ROUTERPORT", f_glacier2, t_glacier2, found_ssl):
             continue
-        elif check_line(line, "ROUTER", f_glacier2insecure, t_glacier2insecure, found_tcp):
+        elif check_line(line, "ROUTER", f_glacier2insecure,
+                        t_glacier2insecure, found_tcp):
             continue
         print line,
     fileinput.close()
@@ -102,7 +110,9 @@ def change_ports(glacier2, glacier2insecure, registry, revert = False, dir="."):
         x.write_text("omero.port=%s\n" % t_glacier2, append=True)
     print "Appended omero.port=%s to %s" % (t_glacier2, x)
 
-    for x in ((found_reg, f_registry, t_registry), (found_tcp, f_glacier2insecure, t_glacier2insecure), (found_ssl, f_glacier2, t_glacier2)):
+    for x in ((found_reg, f_registry, t_registry),
+              (found_tcp, f_glacier2insecure, t_glacier2insecure),
+              (found_ssl, f_glacier2, t_glacier2)):
         if x[0]:
             print "Converted: %s=>%s in %s" % (x[1], x[2], ", ".join(x[0]))
         else:
@@ -111,7 +121,8 @@ def change_ports(glacier2, glacier2insecure, registry, revert = False, dir="."):
 if __name__ == "__main__":
     try:
         if len(sys.argv) < 3 or len(sys.argv) > 5:
-            print """ %s [--revert] <glacier2 port> <icegrid registry port> [<glacier2 insecure port>]
+            print """ %s [--revert] <glacier2 port> <icegrid registry port> \
+[<glacier2 insecure port>]
 
     Changes all 4064 ports to the given glacier2 port
     and all 4061 ports to the given registry port. You will
