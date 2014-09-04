@@ -275,6 +275,7 @@ class FsControl(CmdControl):
             help="checks each fileset for validity (admins only)")
 
         usage = parser.add(sub, self.usage)
+        usage.set_args_unsorted()
         usage.add_login_arguments()
         usage.add_style_argument()
         usage.add_argument("--wait", type=long, help="Number of seconds to"+\
