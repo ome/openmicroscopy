@@ -38,6 +38,7 @@ import omero.grid.Column;
 import omero.grid.LongColumn;
 import omero.grid.TablePrx;
 import omero.model.Annotation;
+import omero.model.Arc;
 import omero.model.Channel;
 import omero.model.Dataset;
 import omero.model.DatasetAnnotationLink;
@@ -49,6 +50,7 @@ import omero.model.Detector;
 import omero.model.DetectorSettings;
 import omero.model.Dichroic;
 import omero.model.Experiment;
+import omero.model.Filament;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.Filter;
@@ -61,6 +63,7 @@ import omero.model.ImageI;
 import omero.model.ImagingEnvironment;
 import omero.model.Instrument;
 import omero.model.Laser;
+import omero.model.LightEmittingDiode;
 import omero.model.LightPath;
 import omero.model.LightSettings;
 import omero.model.LightSource;
@@ -155,6 +158,18 @@ public class DeleteServiceTest extends AbstractServerTest {
 
     /** Identifies the detector as root. */
     public static final String REF_DETECTOR = "/Detector";
+
+    /** Identifies the detector as root. */
+    public static final String REF_FILAMENT = "/Filament";
+
+    /** Identifies the detector as root. */
+    public static final String REF_ARC = "/Arc";
+
+    /** Identifies the detector as root. */
+    public static final String REF_LED = "/LightEmittingDiode";
+
+    /** Identifies the detector as root. */
+    public static final String REF_LASER = "/Laser";
 
     /** Identifies the instrument as root. */
     public static final String REF_INSTRUMENT = "/Instrument";
@@ -286,6 +301,30 @@ public class DeleteServiceTest extends AbstractServerTest {
         // add detector to the list
         objects.put(REF_DETECTOR, detector);
 
+        Filament lightFilament = mmFactory.createFilament();
+        lightFilament.setInstrument((Instrument) instrument.proxy());
+        lightFilament = (Filament) iUpdate.saveAndReturnObject(lightFilament);
+        // add light to the list
+        objects.put(REF_FILAMENT, lightFilament);
+
+        Arc lightArc = mmFactory.createArc();
+        lightArc.setInstrument((Instrument) instrument.proxy());
+        lightArc = (Arc) iUpdate.saveAndReturnObject(lightArc);
+        // add light to the list
+        objects.put(REF_ARC, lightArc);
+
+        LightEmittingDiode lightLed = mmFactory.createLightEmittingDiode();
+        lightLed.setInstrument((Instrument) instrument.proxy());
+        lightLed = (LightEmittingDiode) iUpdate.saveAndReturnObject(lightLed);
+        // add light to the list
+        objects.put(REF_LED, lightLed);
+
+        Laser lightLaser = mmFactory.createLaser();
+        lightLaser.setInstrument((Instrument) instrument.proxy());
+        lightLaser = (Laser) iUpdate.saveAndReturnObject(lightLaser);
+        // add light to the list
+        objects.put(REF_LASER, lightLaser);
+
         return objects;
     }
 
@@ -311,12 +350,20 @@ public class DeleteServiceTest extends AbstractServerTest {
             return "select d from Detector as d where d.id = :id";
         } else if (Instrument.class.isAssignableFrom(k)) {
             return "select i from Instrument as i where i.id = :id";
+        } else if (Filament.class.isAssignableFrom(k)) {
+            return "select light from Filament as light where light.id = :id";
+        } else if (Arc.class.isAssignableFrom(k)) {
+            return "select light from Arc as light where light.id = :id";
+        } else if (LightEmittingDiode.class.isAssignableFrom(k)) {
+            return "select light from LightEmittingDiode as light where light.id = :id";
+        } else if (Laser.class.isAssignableFrom(k)) {
+            return "select light from Laser as light where light.id = :id";
         }
         throw new UnsupportedOperationException("Unknown type: " + k);
     }
 
     /**
-     * Test to delete an image w/o pixels.
+     * Test to delete an image w/o pixels. 
      *
      * @throws Exception
      *             Thrown if an error occurred.
