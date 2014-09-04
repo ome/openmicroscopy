@@ -156,6 +156,12 @@ public abstract class GraphPolicy {
      */
     public void noteDetails(IObject object, String realClass, long id) {
         /* This method is a no-op that subclasses may override. */
+
+        /* TODO: If no subclasses require the IObject and PR 3000 is merged,
+         * investigate replacing GraphTraversal's Hibernate.getClass with
+         * HQL that uses Hibernate 4's type function, and then only if
+         * GraphPathBean.getSubclassesOf does not return an empty set.
+         */
     }
 
     /**
