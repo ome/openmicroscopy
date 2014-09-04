@@ -2838,6 +2838,51 @@ class _BlitzGateway (object):
         for e in q.findAllByQuery(sql,p,self.SERVICE_OPTS):
             yield AnnotationWrapper._wrap(self, e)
 
+
+    def createImage(self, sizeX, sizeY, sizeZ, sizeC, sizeT, channelList, dType, imageName, sourceImageId=None, description=None):
+        """ Create New Image """
+
+        import numpy
+
+        containerService = self.getContainerService()
+        queryService = self.getQueryService()
+        pixelsService = self.getPixelsService()
+        updateService = self.getUpdateService()
+
+        convertToType = None
+        if sourceImageId is not None:
+            if channelList is None:
+                channelList = range(sizeC)
+            iId = pixelsService.copyAndResizeImage(sourceImageId, rint(sizeX), rint(sizeY), rint(sizeZ), rint(sizeT), channelList, None, False, self.SERVICE_OPTS)
+            # need to ensure that the plane dtype matches the pixels type of our new image
+            img = self.getObject("Image", iId.getValue())
+            newPtype = img.getPrimaryPixels().getPixelsType().getValue()
+            omeroToNumpy = {'int8':'int8', 'uint8':'uint8', 'int16':'int16', 'uint16':'uint16', 'int32':'int32', 'uint32':'uint32', 'float':'float32', 'double':'double'}
+            if omeroToNumpy[newPtype] != dType:  # firstPlane.dtype.name:
+                convertToType = getattr(numpy, omeroToNumpy[newPtype])
+            img._obj.setName(rstring(imageName))
+            if description is not None:
+                img._obj.setDescription(rstring(description))
+            updateService.saveObject(img._obj, self.SERVICE_OPTS)
+        else:
+            # need to map numpy pixel types to omero - don't handle: bool_, character, int_, int64, object_
+            pTypes = {'int8':'int8', 'int16':'int16', 'uint16':'uint16', 'int32':'int32', 'float_':'float', 'float8':'float',
+                        'float16':'float', 'float32':'float', 'float64':'double', 'complex_':'complex', 'complex64':'complex'}
+            # dType = firstPlane.dtype.name
+            if dType not in pTypes: # try to look up any not named above
+                pType = dType
+            else:
+                pType = pTypes[dType]
+            pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
+            if pixelsType is None:
+                raise Exception("Cannot create an image in omero from numpy array with dtype: %s" % dType)
+            channelList = range(sizeC)
+            iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, imageName, description, self.SERVICE_OPTS)
+
+        imageId = iId.getValue()
+        return containerService.getImages("Image", [imageId], None, self.SERVICE_OPTS)[0], convertToType
+
+
     def createImageFromNumpySeq (self, zctPlanes, imageName, sizeZ=1, sizeC=1, sizeT=1, description=None, dataset=None, sourceImageId=None, channelList=None):
         """
         Creates a new multi-dimensional image from the sequence of 2D numpy arrays in zctPlanes.
@@ -2871,47 +2916,15 @@ class _BlitzGateway (object):
         :param channelList:     Copies metadata from these channels in source image (if specified). E.g. [0,2]
         :return: The new OMERO image: omero.model.ImageI
         """
-        queryService = self.getQueryService()
         pixelsService = self.getPixelsService()
         rawPixelsStore = self.c.sf.createRawPixelsStore()    # Make sure we don't get an existing rpStore
-        containerService = self.getContainerService()
         updateService = self.getUpdateService()
 
         import numpy
 
-        def createImage(firstPlane, channelList):
-            """ Create our new Image once we have the first plane in hand """
-            convertToType = None
-            sizeY, sizeX = firstPlane.shape
-            if sourceImageId is not None:
-                if channelList is None:
-                    channelList = range(sizeC)
-                iId = pixelsService.copyAndResizeImage(sourceImageId, rint(sizeX), rint(sizeY), rint(sizeZ), rint(sizeT), channelList, None, False, self.SERVICE_OPTS)
-                # need to ensure that the plane dtype matches the pixels type of our new image
-                img = self.getObject("Image", iId.getValue())
-                newPtype = img.getPrimaryPixels().getPixelsType().getValue()
-                omeroToNumpy = {'int8':'int8', 'uint8':'uint8', 'int16':'int16', 'uint16':'uint16', 'int32':'int32', 'uint32':'uint32', 'float':'float32', 'double':'double'}
-                if omeroToNumpy[newPtype] != firstPlane.dtype.name:
-                    convertToType = getattr(numpy, omeroToNumpy[newPtype])
-                img._obj.setName(rstring(imageName))
-                updateService.saveObject(img._obj, self.SERVICE_OPTS)
-            else:
-                # need to map numpy pixel types to omero - don't handle: bool_, character, int_, int64, object_
-                pTypes = {'int8':'int8', 'int16':'int16', 'uint16':'uint16', 'int32':'int32', 'float_':'float', 'float8':'float',
-                            'float16':'float', 'float32':'float', 'float64':'double', 'complex_':'complex', 'complex64':'complex'}
-                dType = firstPlane.dtype.name
-                if dType not in pTypes: # try to look up any not named above
-                    pType = dType
-                else:
-                    pType = pTypes[dType]
-                pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
-                if pixelsType is None:
-                    raise Exception("Cannot create an image in omero from numpy array with dtype: %s" % dType)
-                channelList = range(sizeC)
-                iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, imageName, description, self.SERVICE_OPTS)
-
-            imageId = iId.getValue()
-            return containerService.getImages("Image", [imageId], None, self.SERVICE_OPTS)[0], convertToType
+        def createImage(plane):
+            sizeY, sizeX = plane.shape
+            return self.createImage(sizeX, sizeY, sizeZ, sizeC, sizeT, channelList, plane.dtype.name, imageName, sourceImageId, description)
 
         def uploadPlane(plane, z, c, t, convertToType):
             # if we're given a numpy dtype, need to convert plane to that dtype
@@ -2933,7 +2946,8 @@ class _BlitzGateway (object):
                     for theT in range(sizeT):
                         plane = zctPlanes.next()
                         if image == None:   # use the first plane to create image.
-                            image, dtype = createImage(plane, channelList)
+                            sizeY, sizeX = plane.shape
+                            image, dtype = createImage(plane)
                             pixelsId = image.getPrimaryPixels().getId().getValue()
                             rawPixelsStore.setPixelsId(pixelsId, True, self.SERVICE_OPTS)
                         uploadPlane(plane, theZ, theC, theT, dtype)
