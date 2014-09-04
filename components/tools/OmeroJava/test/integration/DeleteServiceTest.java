@@ -153,6 +153,12 @@ public class DeleteServiceTest extends AbstractServerTest {
     /** Identifies the plate as root. */
     public static final String REF_PLATE = "/Plate";
 
+    /** Identifies the detector as root. */
+    public static final String REF_DETECTOR = "/Detector";
+
+    /** Identifies the instrument as root. */
+    public static final String REF_INSTRUMENT = "/Instrument";
+
     /** Identifies the ROI as root. */
     public static final String REF_ROI = "/Roi";
 
@@ -269,6 +275,11 @@ public class DeleteServiceTest extends AbstractServerTest {
                 .simplePlateData().asIObject()));
         objects.put(REF_SCREEN, iUpdate.saveAndReturnObject(mmFactory
                 .simpleScreenData().asIObject()));
+        objects.put(REF_INSTRUMENT, iUpdate.saveAndReturnObject(mmFactory
+                .createInstrument()));
+//        objects.put(REF_DETECTOR, iUpdate.saveAndReturnObject(mmFactory
+//                .createDetector()));
+
         return objects;
     }
 
@@ -290,6 +301,10 @@ public class DeleteServiceTest extends AbstractServerTest {
             return "select p from Plate as p where p.id = :id";
         } else if (Screen.class.isAssignableFrom(k)) {
             return "select s from Screen as s where s.id = :id";
+        } else if (Detector.class.isAssignableFrom(k)) {
+            return "select d from Detector as d where d.id = :id";
+        } else if (Instrument.class.isAssignableFrom(k)) {
+            return "select i from Instrument as i where i.id = :id";
         }
         throw new UnsupportedOperationException("Unknown type: " + k);
     }
@@ -315,6 +330,29 @@ public class DeleteServiceTest extends AbstractServerTest {
         sb.append("where i.id = :id");
         img = (Image) iQuery.findByQuery(sb.toString(), param);
         assertNull(img);
+    }
+
+    /**
+     * Test to delete an empty instrument.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteBasicInstrument() throws Exception {
+        Instrument ins = (Instrument) iUpdate.saveAndReturnObject(mmFactory
+                .createInstrument());
+        assertNotNull(ins);
+        long id = ins.getId().getValue();
+        delete(new Delete(REF_INSTRUMENT, id, null));
+        ParametersI param = new ParametersI();
+        param.addId(id);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("select i from Instrument i ");
+        sb.append("where i.id = :id");
+        ins = (Instrument) iQuery.findByQuery(sb.toString(), param);
+        assertNull(ins);
     }
 
     /**
