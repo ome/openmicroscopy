@@ -10,16 +10,13 @@
 
 """
 
-import os
 import Ice
 import logging
 
 import omero
 import omero.all
 import omero.util.concurrency
-import omero_ext.uuid as uuid # see ticket:3774
-
-from omero.rtypes import *
+import omero_ext.uuid as uuid  # see ticket:3774
 
 
 PROC_LOG = logging.getLogger("omero.scripts.ProcessCallback")
@@ -56,24 +53,24 @@ class ProcessCallbackI(omero.grid.ProcessCallback):
     CANCELLED = "CANCELLED"
     KILLED = "KILLED"
 
-    def __init__(self, adapter_or_client, process, poll = True, category=None):
+    def __init__(self, adapter_or_client, process, poll=True, category=None):
         self.event = omero.util.concurrency.get_event(name="ProcessCallbackI")
         self.result = None
         self.poll = poll
         self.process = process
         self.adapter, self.category = \
-                adapter_and_category(adapter_or_client, category)
+            adapter_and_category(adapter_or_client, category)
 
         self.id = Ice.Identity(str(uuid.uuid4()), self.category)
-        self.prx = self.adapter.add(self, self.id) # OK ADAPTER USAGE
+        self.prx = self.adapter.add(self, self.id)  # OK ADAPTER USAGE
         self.prx = omero.grid.ProcessCallbackPrx.uncheckedCast(self.prx)
         process.registerCallback(self.prx)
 
     def block(self, ms):
         """
-        Should only be used if the default logic of the process methods is kept
-        in place. If "event.set" does not get called, this method will always
-        block for the given milliseconds.
+        Should only be used if the default logic of the process methods is
+        kept in place. If "event.set" does not get called, this method will
+        always block for the given milliseconds.
         """
         if self.poll:
             try:
@@ -88,20 +85,20 @@ class ProcessCallbackI(omero.grid.ProcessCallback):
             return self.result
         return None
 
-    def processCancelled(self, success, current = None):
+    def processCancelled(self, success, current=None):
         self.result = ProcessCallbackI.CANCELLED
         self.event.set()
 
-    def processFinished(self, returncode, current = None):
+    def processFinished(self, returncode, current=None):
         self.result = ProcessCallbackI.FINISHED
         self.event.set()
 
-    def processKilled(self, success, current = None):
+    def processKilled(self, success, current=None):
         self.result = ProcessCallbackI.KILLED
         self.event.set()
 
     def close(self):
-         self.adapter.remove(self.id) # OK ADAPTER USAGE
+        self.adapter.remove(self.id)  # OK ADAPTER USAGE
 
 
 class DeleteCallbackI(object):
@@ -119,7 +116,7 @@ class DeleteCallbackI(object):
             errors = cb.block(500)
     """
 
-    def __init__(self, adapter_or_client, handle, poll = True):
+    def __init__(self, adapter_or_client, handle, poll=True):
         self.event = omero.util.concurrency.get_event(name="DeleteCallbackI")
         self.result = None
         self.poll = poll
@@ -128,9 +125,9 @@ class DeleteCallbackI(object):
         self.id = Ice.Identity(str(uuid.uuid4()), "DeleteHandleCallback")
         if not isinstance(self.adapter, Ice.ObjectAdapter):
             self.adapter = self.adapter.adapter
-        #self.prx = self.adapter.add(self, self.id) # OK ADAPTER USAGE
-        #self.prx = omero.grid.ProcessCallbackPrx.uncheckedCast(self.prx)
-        #process.registerCallback(self.prx)
+        # self.prx = self.adapter.add(self, self.id) # OK ADAPTER USAGE
+        # self.prx = omero.grid.ProcessCallbackPrx.uncheckedCast(self.prx)
+        # process.registerCallback(self.prx)
 
     def loop(self, loops, ms):
         """
@@ -153,9 +150,9 @@ class DeleteCallbackI(object):
 
         if errors is None:
             waited = (ms / 1000) * loops
-            raise omero.LockTimeout(None, None,
-                    "Delete unfinished after %s seconds" % waited,
-                    5000L, int(waited))
+            raise omero.LockTimeout(
+                None, None, "Delete unfinished after %s seconds" % waited,
+                5000L, int(waited))
         else:
             return self.handle.report()
 
@@ -171,29 +168,33 @@ class DeleteCallbackI(object):
                     try:
                         self.finished(self.handle.errors())
                     except Exception, e:
-                        DEL_LOG.warn("Error calling DeleteCallbackI.finished: %s" % e, exc_info=True)
-            except Ice.ObjectNotExistException, onee:
+                        DEL_LOG.warn(
+                            "Error calling DeleteCallbackI.finished: %s" % e,
+                            exc_info=True)
+            except Ice.ObjectNotExistException:
                 raise omero.ClientError("Handle is gone! %s" % self.handle)
             except:
-                DEL_LOG.warn("Error polling DeleteHandle:" + str(self.handle), exc_info=True)
-
+                DEL_LOG.warn(
+                    "Error polling DeleteHandle:" + str(self.handle),
+                    exc_info=True)
 
         self.event.wait(float(ms) / 1000)
         if self.event.isSet():
             return self.result
         return None
 
-
     def finished(self, errors):
         self.result = errors
         self.event.set()
 
     def close(self):
-        #self.adapter.remove(self.id) # OK ADAPTER USAGE
+        # self.adapter.remove(self.id)  # OK ADAPTER USAGE
         try:
-            self.handle.close() # ticket:2978
-        except Exception, e:
-            DEL_LOG.warn("Error calling DeleteHandlePrx.close: %s" % self.handle, exc_info=True)
+            self.handle.close()  # ticket:2978
+        except Exception:
+            DEL_LOG.warn(
+                "Error calling DeleteHandlePrx.close: %s" % self.handle,
+                exc_info=True)
 
 
 class CmdCallbackI(omero.cmd.CmdCallback):
@@ -228,10 +229,10 @@ class CmdCallbackI(omero.cmd.CmdCallback):
         self.state = (None, None)  # (Response, Status)
         self.handle = handle
         self.adapter, self.category = \
-                adapter_and_category(adapter_or_client, category)
+            adapter_and_category(adapter_or_client, category)
 
         self.id = Ice.Identity(str(uuid.uuid4()), self.category)
-        self.prx = self.adapter.add(self, self.id) # OK ADAPTER USAGE
+        self.prx = self.adapter.add(self, self.id)  # OK ADAPTER USAGE
         self.prx = omero.cmd.CmdCallbackPrx.uncheckedCast(self.prx)
         handle.addCallback(self.prx)
 
@@ -305,7 +306,6 @@ class CmdCallbackI(omero.cmd.CmdCallback):
 
         count = 0
         found = False
-        rsp = None
         while count < loops:
             count += 1
             found = self.block(ms)
@@ -316,9 +316,9 @@ class CmdCallbackI(omero.cmd.CmdCallback):
             return self.getResponse()
         else:
             waited = (ms / 1000.0) * loops
-            raise omero.LockTimeout(None, None,
-                    "Command unfinished after %s seconds" % waited,
-                    5000L, int(waited))
+            raise omero.LockTimeout(
+                None, None, "Command unfinished after %s seconds" % waited,
+                5000L, int(waited))
 
     def block(self, ms):
         """
@@ -345,7 +345,8 @@ class CmdCallbackI(omero.cmd.CmdCallback):
         rsp = self.handle.getResponse()
         if rsp is not None:
             s = self.handle.getStatus()
-            self.finished(rsp, s, None) # Only time that current should be null
+            # Only time that current should be null
+            self.finished(rsp, s, None)
 
     def step(self, complete, total, current=None):
         """
@@ -375,6 +376,6 @@ class CmdCallbackI(omero.cmd.CmdCallback):
         First removes self from the adapter so as to no longer receive
         notifications, and the calls close on the remote handle if requested.
         """
-        self.adapter.remove(self.id) # OK ADAPTER USAGE
+        self.adapter.remove(self.id)  # OK ADAPTER USAGE
         if closeHandle:
-            self.handle.close();
+            self.handle.close()
