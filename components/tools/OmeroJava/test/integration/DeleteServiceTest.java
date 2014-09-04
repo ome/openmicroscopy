@@ -277,8 +277,14 @@ public class DeleteServiceTest extends AbstractServerTest {
                 .simpleScreenData().asIObject()));
         objects.put(REF_INSTRUMENT, iUpdate.saveAndReturnObject(mmFactory
                 .createInstrument()));
-//        objects.put(REF_DETECTOR, iUpdate.saveAndReturnObject(mmFactory
-//                .createDetector()));
+        // Create another instrument to hold the detector to be deleted
+        Instrument instrument = (Instrument) iUpdate
+                .saveAndReturnObject(mmFactory.createInstrument());
+        Detector detector = mmFactory.createDetector();
+        detector.setInstrument((Instrument) instrument.proxy());
+        detector = (Detector) iUpdate.saveAndReturnObject(detector);
+        // add detector to the list
+        objects.put(REF_DETECTOR, detector);
 
         return objects;
     }
@@ -355,6 +361,42 @@ public class DeleteServiceTest extends AbstractServerTest {
         assertNull(ins);
     }
 
+    /**
+     * Test to delete an empty instrument.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteBasicDetector() throws Exception {
+        // Create an instrument to hold the detector to be deleted
+        Instrument instrument = (Instrument) iUpdate
+                .saveAndReturnObject(mmFactory.createInstrument());
+        Detector detector = mmFactory.createDetector();
+        assertNotNull(detector);
+        detector.setInstrument((Instrument) instrument.proxy());
+        detector = (Detector) iUpdate.saveAndReturnObject(detector);
+        assertNotNull(detector);
+
+        // find detector
+        long id = detector.getId().getValue();
+        ParametersI param = new ParametersI();
+        param.addId(id);
+        StringBuilder sb = new StringBuilder();
+        sb.append("select d from Detector d ");
+        sb.append("where d.id = :id");
+
+        detector = (Detector) iQuery.findByQuery(sb.toString(), param);
+        assertNotNull(detector);
+
+        // delete detector
+        delete(new Delete(REF_DETECTOR, id, null));
+
+        // fail to find detector
+        detector = (Detector) iQuery.findByQuery(sb.toString(), param);
+        assertNull(detector);
+}
+    
     /**
      * Test to delete a simple plate i.e. w/o wells or acquisition.
      *
