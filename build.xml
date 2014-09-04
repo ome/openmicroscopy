@@ -811,7 +811,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     Top-level helpers (shared helpers are in components/antlib/resources)
     =====================================================================
     -->
-    <target name="build-dist" depends="init,copy-licenses,copy-etc,copy-sql,copy-server,copy-client,update-version"
+    <target name="build-dist" depends="init,copy-licenses,copy-history,copy-etc,copy-sql,copy-server,copy-client,update-version"
         description="Copy all components to dist/; called at the end of build-* targets"/>
 
     <target name="copy-licenses" depends="init">
