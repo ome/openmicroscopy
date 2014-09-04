@@ -2877,38 +2877,7 @@ class _BlitzGateway (object):
         containerService = self.getContainerService()
         updateService = self.getUpdateService()
 
-        pixelsId = None
-
         import numpy
-        from omero.util.tiles import TileLoopIteration, RPSTileLoop
-
-        class PlaneIteration(TileLoopIteration):
-
-            def __init__ (self, plane):
-                self.plane = plane
-                self.sizeX = plane.shape[1]
-                self.sizeY = plane.shape[0]
-                self.channelsMinMax = []
- 
-            def run(self, data, z, c, t, x, y, tileWidth, tileHeight, tileCount):
-                cols = self.sizeX/tileWidth
-                rows = self.sizeY/tileHeight
-                x1 = (tileCount % cols) * tileWidth
-                x2 = x1 + tileWidth
-                y1 = (tileCount/rows) * tileHeight
-                y2 = y1 + tileHeight
-                tile = self.plane[y1:y2, x1:x2]
-
-                minValue = tile.min()
-                maxValue = tile.max()
-                if c+1 > len(self.channelsMinMax):
-                    self.channelsMinMax.append( [minValue, maxValue] )
-                else:
-                    self.channelsMinMax[c][0] = min(self.channelsMinMax[c][0], minValue)
-                    self.channelsMinMax[c][1] = max(self.channelsMinMax[c][1], maxValue)
-
-                tile2d = list(tile.flatten())
-                data.setTile(tile2d, z, c, t, x, y, tileWidth, tileHeight)
 
         def createImage(firstPlane, channelList):
             """ Create our new Image once we have the first plane in hand """
@@ -2954,55 +2923,37 @@ class _BlitzGateway (object):
             convertedPlane = byteSwappedPlane.tostring();
             rawPixelsStore.setPlane(convertedPlane, z, c, t, self.SERVICE_OPTS)
 
-            # loop = RPSTileLoop(self.c.sf, omero.model.PixelsI(pixelsId, False))
-            # loop.forEachTile(256, 256, PlaneIteration(plane))
-
         image = None
         dtype = None
         channelsMinMax = []
         exc = None
-
-
         try:
-            plane = zctPlanes.next()
-
-            image, dtype = createImage(plane, channelList)
-            pixelsId = image.getPrimaryPixels().getId().getValue()
-            tiledImage = plane.size > (3000 * 3000)
-
-            if tiledImage:
-                loop = RPSTileLoop(self.c.sf, omero.model.PixelsI(pixelsId, False))
-                planeIter = PlaneIteration(plane)
-                loop.forEachTile(256, 256, planeIter)
-                channelsMinMax = planeIter.channelsMinMax
-
-            else:
-                for theZ in range(sizeZ):
-                    for theC in range(sizeC):
-                        for theT in range(sizeT):
-                            if theZ == theC == theT == 0:
-                                rawPixelsStore.setPixelsId(pixelsId, True, self.SERVICE_OPTS)
-                            else:
-                                plane = zctPlanes.next()
-                            uploadPlane(plane, theZ, theC, theT, dtype)
-                            # init or update min and max for this channel
-                            minValue = plane.min()
-                            maxValue = plane.max()
-                            if len(channelsMinMax) < (theC +1):     # first plane of each channel
-                                channelsMinMax.append( [minValue, maxValue] )
-                            else:
-                                channelsMinMax[theC][0] = min(channelsMinMax[theC][0], minValue)
-                                channelsMinMax[theC][1] = max(channelsMinMax[theC][1], maxValue)
+            for theZ in range(sizeZ):
+                for theC in range(sizeC):
+                    for theT in range(sizeT):
+                        plane = zctPlanes.next()
+                        if image == None:   # use the first plane to create image.
+                            image, dtype = createImage(plane, channelList)
+                            pixelsId = image.getPrimaryPixels().getId().getValue()
+                            rawPixelsStore.setPixelsId(pixelsId, True, self.SERVICE_OPTS)
+                        uploadPlane(plane, theZ, theC, theT, dtype)
+                        # init or update min and max for this channel
+                        minValue = plane.min()
+                        maxValue = plane.max()
+                        if len(channelsMinMax) < (theC +1):     # first plane of each channel
+                            channelsMinMax.append( [minValue, maxValue] )
+                        else:
+                            channelsMinMax[theC][0] = min(channelsMinMax[theC][0], minValue)
+                            channelsMinMax[theC][1] = max(channelsMinMax[theC][1], maxValue)
         except Exception, e:
             logger.error("Failed to setPlane() on rawPixelsStore while creating Image", exc_info=True)
             exc = e
-        if tiledImage:
-            try:
-                rawPixelsStore.close(self.SERVICE_OPTS)
-            except Exception, e:
-                logger.error("Failed to close rawPixelsStore", exc_info=True)
-                if exc is None:
-                     exc = e
+        try:
+            rawPixelsStore.close(self.SERVICE_OPTS)
+        except Exception, e:
+            logger.error("Failed to close rawPixelsStore", exc_info=True)
+            if exc is None:
+                 exc = e
         if exc is not None:
            raise exc
 
