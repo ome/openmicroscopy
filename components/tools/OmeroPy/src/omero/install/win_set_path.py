@@ -16,13 +16,13 @@
 
 
 import sys
-from xml.dom import minidom
 from path import path
 import fileinput
 
 dummy = object()
 
-def win_set_path(new_name = dummy, old_name = r"c:\omero_dist", dir = path(".")):
+
+def win_set_path(new_name=dummy, old_name=r"c:\omero_dist", dir=path(".")):
     """
     Parses the Windows cfg and xml files and
     replaces the default "c:\omero_dist" with the
@@ -45,17 +45,17 @@ def win_set_path(new_name = dummy, old_name = r"c:\omero_dist", dir = path("."))
 
     print "Converting from %s to %s" % (old_name, new_name)
 
-    new_name2 = new_name.replace("\\","\\\\")
-    old_name2 = old_name.replace("\\","\\\\")
+    new_name2 = new_name.replace("\\", "\\\\")
+    old_name2 = old_name.replace("\\", "\\\\")
 
     count = 0
-    for line in fileinput.input([str(cfg),str(xml)], inplace=1):
+    for line in fileinput.input([str(cfg), str(xml)], inplace=1):
         if line.find(old_name) >= 0:
             count += 1
-            print line.replace(old_name,new_name),
+            print line.replace(old_name, new_name),
         elif line.find(old_name2) >= 0:
             count += 1
-            print line.replace(old_name2,new_name2),
+            print line.replace(old_name2, new_name2),
         else:
             print line,
 
@@ -71,10 +71,10 @@ if __name__ == "__main__":
             win_set_path()
             sys.exit(0)
         elif len(sys.argv) == 2:
-            win_set_path(new_name = sys.argv[1])
+            win_set_path(new_name=sys.argv[1])
             sys.exit(0)
         elif len(sys.argv) == 3:
-            win_set_path(old_name = sys.argv[1], new_name = sys.argv[2])
+            win_set_path(old_name=sys.argv[1], new_name=sys.argv[2])
             sys.exit(0)
     except Exception, e:
         print "Failed to set path: ", e
