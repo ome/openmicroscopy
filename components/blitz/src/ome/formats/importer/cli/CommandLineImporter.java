@@ -186,8 +186,8 @@ public class CommandLineImporter {
     }
 
     public int start() {
-
         boolean successful = true;
+
         if (getUsedFiles) {
             try {
                 candidates.print();
@@ -197,9 +197,7 @@ public class CommandLineImporter {
                 log.error("Error retrieving used files.", t);
                 return 1;
             }
-        }
-
-        else if (candidates.size() < 1) {
+        } else if (candidates.size() < 1) {
             if (handler.errorCount() > 0) {
                 System.err.println("No imports due to errors!");
                 report();
@@ -211,9 +209,7 @@ public class CommandLineImporter {
                     usage();
                 }
             }
-        }
-
-        else {
+        } else {
             sw.start();
             library.addObserver(new LoggingImportMonitor());
             // error handler has been configured in constructor from main args
@@ -233,7 +229,8 @@ public class CommandLineImporter {
                 transfer.afterTransfer(handler.errorCount(), paths);
 
             } catch (CleanupFailure e) {
-                log.error("Failed to cleanup {} files", e.getFailedFiles().size());
+                log.error("Failed to cleanup {} files", e.getFailedFiles()
+                        .size());
                 return 3;
             } finally {
                 sw.stop();
@@ -241,8 +238,7 @@ public class CommandLineImporter {
             }
         }
 
-        return successful? 0 : 2;
-
+        return successful ? 0 : 2;
     }
 
     void report() {
