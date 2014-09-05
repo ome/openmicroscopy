@@ -35,7 +35,6 @@
     <link rel="stylesheet" type="text/css" href="{% static "3rdparty/farbtastic/farbtastic.css" %}" media="all" />
     <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.colorbtn.css" %}" />
     <link rel="stylesheet" type="text/css" href="{% static "3rdparty/JQuerySpinBtn/JQuerySpinBtn.css" %}" />
-    <link rel="stylesheet" type="text/css" href="{% static "3rdparty/jquery-ui-1.8.19/jquery-ui-1.8.19.custom.css" %}" media="all" />
     <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/omero_image.css" %}" media="all" />
     <link rel="stylesheet" type="text/css" href="{% static "3rdparty/panojs/panojs.css" %}" media="all" />
 <!--[if lte IE 9]>
@@ -63,7 +62,9 @@
 	<script type="text/javascript" src="{% static "webgateway/js/ome.viewport.js" %}"></script>
   <script type="text/javascript" src="{% static "webgateway/js/omero_image.js" %}"></script>
 
-    <script type="text/javascript" src="{% static "3rdparty/jquery-ui-1.8.19/ui/jquery-ui.js" %}"></script>
+  <!-- jquery-ui -->
+  {% include "webgateway/base/includes/jquery-ui.html" %}
+
     <script type="text/javascript" src="{% static "webgateway/js/ome.smartdialog.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/JQuerySpinBtn/JQuerySpinBtn.js" %}"></script>
     <script type="text/javascript" src="{% static "webgateway/js/ome.colorbtn.js" %}"></script>
