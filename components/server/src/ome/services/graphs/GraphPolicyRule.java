@@ -181,6 +181,11 @@ public class GraphPolicyRule {
 
         public boolean isMatch(Map<String, Details> namedTerms, MutableBoolean isCheckAllPermissions, Details details) {
             final Class<? extends IObject> subjectClass = details.subject.getClass();
+            final boolean previousIsCheckAllPermissions = isCheckAllPermissions.booleanValue();
+            if (previousIsCheckAllPermissions && !details.isCheckPermissions) {
+                /* note that this match causes a permissions override to be applied to changes */
+                isCheckAllPermissions.setValue(false);
+            }
             if ((requiredClass == null || requiredClass.isAssignableFrom(subjectClass)) &&
                 (prohibitedClass == null || !prohibitedClass.isAssignableFrom(subjectClass)) &&
                 permittedActions.contains(details.action) &&
@@ -190,6 +195,7 @@ public class GraphPolicyRule {
                 if (termName == null) {
                     return true;
                 } else {
+                    /* check the named term against the dictionary of such terms */
                     final Details oldDetails = namedTerms.get(termName);
                     if (oldDetails == null) {
                         namedTerms.put(termName, details);
@@ -199,6 +205,7 @@ public class GraphPolicyRule {
                     }
                 }
             }
+            isCheckAllPermissions.setValue(previousIsCheckAllPermissions);
             return false;
         }
     }
@@ -661,7 +668,7 @@ public class GraphPolicyRule {
     }
 
     /**
-     * If there is only a single relationship match, the policy rule may apply multiple times to the root object,
+     * If there is only a single match, the policy rule may apply multiple times to the root object,
      * through applying to multiple properties or to collection properties.
      * @param linkedFrom details of the objects linking to the root object, by property
      * @param rootObject details of the root objects
@@ -728,7 +735,7 @@ public class GraphPolicyRule {
     }
 
     /**
-     * If there are multiple relationship matches, the policy rule may apply only once to the root object.
+     * If there are multiple matches, the policy rule may apply only once to the root object.
      * Terms named in any of the matches may be used in any of the changes.
      * @param linkedFrom details of the objects linking to the root object, by property
      * @param rootObject details of the root objects
@@ -742,57 +749,88 @@ public class GraphPolicyRule {
             Details rootObject, Map<String, Set<Details>> linkedTo, Set<String> notNullable,
             ParsedPolicyRule policyRule, Set<Details> changedObjects) throws GraphException {
         final SortedMap<String, Details> namedTerms = new TreeMap<String, Details>();
+        final Set<Details> allTerms = new HashSet<Details>();
         final MutableBoolean isCheckAllPermissions = new MutableBoolean(true);
         final Set<TermMatch> unmatchedTerms = new HashSet<TermMatch>(policyRule.termMatchers);
         final Set<RelationshipMatch> unmatchedRelationships = new HashSet<RelationshipMatch>(policyRule.relationshipMatchers);
-        for (final TermMatch matcher : unmatchedTerms) {
-            if (matcher.isMatch(namedTerms, isCheckAllPermissions, rootObject)) {
-                unmatchedTerms.remove(matcher);
+        if (!unmatchedTerms.isEmpty()) {
+            /* note all terms to which to apply term matchers */
+            allTerms.add(rootObject);
+            for (final Entry<String, Set<Details>> dataPerProperty : linkedFrom.entrySet()) {
+                allTerms.addAll(dataPerProperty.getValue());
+            }
+            for (final Entry<String, Set<Details>> dataPerProperty : linkedTo.entrySet()) {
+                allTerms.addAll(dataPerProperty.getValue());
             }
         }
-        /* consider the root object as the linked object */
-        for (final Entry<String, Set<Details>> dataPerProperty : linkedFrom.entrySet()) {
-            final String classProperty = dataPerProperty.getKey();
-            final boolean isNotNullable = notNullable.contains(dataPerProperty.getKey());
-            for (final Details linkerObject : dataPerProperty.getValue()) {
-                for (final TermMatch matcher : unmatchedTerms) {
-                    if (matcher.isMatch(namedTerms, isCheckAllPermissions, linkerObject)) {
-                        unmatchedTerms.remove(matcher);
-                    }
-                }
-                final Iterator<RelationshipMatch> unmatchedIterator = unmatchedRelationships.iterator();
-                while (unmatchedIterator.hasNext()) {
-                    final RelationshipMatch matcher = unmatchedIterator.next();
-                    if (matcher.isMatch(namedTerms, isCheckAllPermissions,
-                            linkerObject, rootObject, classProperty, isNotNullable)) {
-                        unmatchedIterator.remove();
-                    }
-                }
-            }
-        }
-        /* consider the root object as the linker object */
-        for (final Entry<String, Set<Details>> dataPerProperty : linkedTo.entrySet()) {
-            final String classProperty = dataPerProperty.getKey();
-            final boolean isNotNullable = notNullable.contains(dataPerProperty.getKey());
-            for (final Details linkedObject : dataPerProperty.getValue()) {
-                for (final TermMatch matcher : unmatchedTerms) {
-                    if (matcher.isMatch(namedTerms, isCheckAllPermissions, linkedObject)) {
-                        unmatchedTerms.remove(matcher);
-                    }
-                }
-                final Iterator<RelationshipMatch> unmatchedIterator = unmatchedRelationships.iterator();
-                while (unmatchedIterator.hasNext()) {
-                    final RelationshipMatch matcher = unmatchedIterator.next();
-                    if (matcher.isMatch(namedTerms, isCheckAllPermissions,
-                            rootObject, linkedObject, classProperty, isNotNullable)) {
-                        unmatchedIterator.remove();
+        /* try all the matchers against all the terms */
+        do {
+            final int namedTermCount = namedTerms.size();
+            Iterator<TermMatch> unmatchedTermIterator;
+            Iterator<RelationshipMatch> unmatchedRelationshipIterator;
+            /* apply the term matchers */
+            unmatchedTermIterator = unmatchedTerms.iterator();
+            while (unmatchedTermIterator.hasNext()) {
+                final TermMatch matcher = unmatchedTermIterator.next();
+                for (final Details object : allTerms) {
+                    if (matcher.isMatch(namedTerms, isCheckAllPermissions, object)) {
+                        unmatchedTermIterator.remove();
                     }
                 }
             }
-        }
-        if (unmatchedTerms.isEmpty() && unmatchedRelationships.isEmpty()) {
-            recordChanges(policyRule, changedObjects, namedTerms, isCheckAllPermissions.booleanValue());
-        }
+            /* consider the root object as the linked object */
+            for (final Entry<String, Set<Details>> dataPerProperty : linkedFrom.entrySet()) {
+                final String classProperty = dataPerProperty.getKey();
+                final boolean isNotNullable = notNullable.contains(dataPerProperty.getKey());
+                for (final Details linkerObject : dataPerProperty.getValue()) {
+                    unmatchedTermIterator = unmatchedTerms.iterator();
+                    while (unmatchedTermIterator.hasNext()) {
+                        final TermMatch matcher = unmatchedTermIterator.next();
+                        if (matcher.isMatch(namedTerms, isCheckAllPermissions, linkerObject)) {
+                            unmatchedTermIterator.remove();
+                        }
+                    }
+                    unmatchedRelationshipIterator = unmatchedRelationships.iterator();
+                    while (unmatchedRelationshipIterator.hasNext()) {
+                        final RelationshipMatch matcher = unmatchedRelationshipIterator.next();
+                        if (matcher.isMatch(namedTerms, isCheckAllPermissions,
+                                linkerObject, rootObject, classProperty, isNotNullable)) {
+                            unmatchedRelationshipIterator.remove();
+                        }
+                    }
+                }
+            }
+            /* consider the root object as the linker object */
+            for (final Entry<String, Set<Details>> dataPerProperty : linkedTo.entrySet()) {
+                final String classProperty = dataPerProperty.getKey();
+                final boolean isNotNullable = notNullable.contains(dataPerProperty.getKey());
+                for (final Details linkedObject : dataPerProperty.getValue()) {
+                    unmatchedTermIterator = unmatchedTerms.iterator();
+                    while (unmatchedTermIterator.hasNext()) {
+                        final TermMatch matcher = unmatchedTermIterator.next();
+                        if (matcher.isMatch(namedTerms, isCheckAllPermissions, linkedObject)) {
+                            unmatchedTermIterator.remove();
+                        }
+                    }
+                    unmatchedRelationshipIterator = unmatchedRelationships.iterator();
+                    while (unmatchedRelationshipIterator.hasNext()) {
+                        final RelationshipMatch matcher = unmatchedRelationshipIterator.next();
+                        if (matcher.isMatch(namedTerms, isCheckAllPermissions,
+                                rootObject, linkedObject, classProperty, isNotNullable)) {
+                            unmatchedRelationshipIterator.remove();
+                        }
+                    }
+                }
+            }
+            if (unmatchedTerms.isEmpty() && unmatchedRelationships.isEmpty()) {
+                /* success, all matched */
+                recordChanges(policyRule, changedObjects, namedTerms, isCheckAllPermissions.booleanValue());
+                return;
+            } else if (namedTerms.size() == namedTermCount) {
+                /* failure, all matchers will fail on retry */
+                return;
+            }
+        } while (true);
     }
 
     /**
