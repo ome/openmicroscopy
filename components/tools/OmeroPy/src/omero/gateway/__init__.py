@@ -2883,6 +2883,44 @@ class _BlitzGateway (object):
         return containerService.getImages("Image", [imageId], None, self.SERVICE_OPTS)[0], convertToType
 
 
+    def createImageFromTileSeq (self, tileGen, imageName, sizeX, sizeY, sizeZ, sizeC, sizeT,
+                dType, tileWidth, tileHeight, description=None, dataset=None, sourceImageId=None, channelList=None):
+        """
+        TODO: docs! Including getTileSequence() example.
+        """
+        import numpy
+
+        pixelsService = self.getPixelsService()
+
+        def createImage():
+            return self.createImage(sizeX, sizeY, sizeZ, sizeC, sizeT, channelList, dType, imageName, sourceImageId, description)
+
+        from omero.util.tiles import RPSTileLoop, TileLoopIteration
+
+        # Create image and init rawPixelsStore etc.
+        image, convertToType = createImage()
+        pid = image.getPrimaryPixels().getId().val
+        loop = RPSTileLoop(self.c.sf, omero.model.PixelsI(pid, False))
+
+        class Iteration(TileLoopIteration):
+
+            def run(self, data, z, c, t, x, y, tileWidth, tileHeight, tileCount):
+                tile2d = tileGen.next()
+                if convertToType is not None:
+                    p = numpy.zeros(tile2d.shape, dtype=convertToType)
+                    p += tile2d
+                    tile2d = p
+                data.setTile(tile2d, z, c, t, x, y, tileWidth, tileHeight)
+
+        loop.forEachTile(tileWidth, tileHeight, Iteration())
+
+        # TODO get min/max intensities for channels during iteration.
+        for theC in range(sizeC):
+            pixelsService.setChannelGlobalMinMax(pid, theC, float(0), float(255), self.SERVICE_OPTS)
+
+        return ImageWrapper(self, image)
+
+
     def createImageFromNumpySeq (self, zctPlanes, imageName, sizeZ=1, sizeC=1, sizeT=1, description=None, dataset=None, sourceImageId=None, channelList=None):
         """
         Creates a new multi-dimensional image from the sequence of 2D numpy arrays in zctPlanes.
