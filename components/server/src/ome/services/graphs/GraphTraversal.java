@@ -828,10 +828,11 @@ public class GraphTraversal {
                     throw new GraphException("policy cannot change action to " + change.action);
                 }
             } else if ((change.orphan == Orphan.IS_LAST || change.orphan == Orphan.IS_NOT_LAST) &&
-                    planning.findIfLast.remove(instance)) {
+                    !planning.foundIfLast.containsKey(instance)) {
                 /* relevant orphan status now determined so object must be processed */
+                planning.findIfLast.remove(instance);
                 planning.foundIfLast.put(instance, change.orphan == Orphan.IS_LAST);
-                planning.toProcess.add(object);
+                planning.toProcess.add(instance);
             } else if (change.action == Action.EXCLUDE && change.orphan == Orphan.RELEVANT &&
                     planning.findIfLast.add(instance) && !planning.cached.contains(instance)) {
                 /* orphan status is relevant; if just now noted as such then ensure the object is or will be cached */
