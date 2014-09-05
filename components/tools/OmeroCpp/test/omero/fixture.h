@@ -31,9 +31,17 @@
 #include <string>
 #include <vector>
 
+#ifndef OMERO_TEST
+#   ifdef OMERO_TEST_EXPORTS
+#       define OMERO_TEST ICE_DECLSPEC_EXPORT
+#   else
+#       define OMERO_TEST ICE_DECLSPEC_IMPORT
+#   endif
+#endif
+
 omero::model::ImagePtr new_ImageI();
 
-struct Fixture
+struct OMERO_TEST Fixture
 {
     protected:
         std::vector<omero::client*> clients;
