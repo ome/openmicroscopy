@@ -51,4 +51,6 @@ if(BUILD_TESTS)
                         ${TEST_LIBS})
 
   add_test(ome-xml/unit unit)
+
+  set_property(TARGET unit PROPERTY FOLDER "Tests")
 endif(BUILD_TESTS)

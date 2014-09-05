@@ -58,4 +58,6 @@ if(BUILD_TESTS)
                         ${TEST_LIBS})
 
   add_test(ome-xml/integration integration)
+
+  set_property(TARGET integration PROPERTY FOLDER "Tests")
 endif(BUILD_TESTS)

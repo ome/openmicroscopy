@@ -371,6 +371,8 @@ if(MSVC)
                         DEFINE_SYMBOL "OMERO_CLIENT_EXPORTS")
 endif(MSVC)
 
+set_property(TARGET omero-ice omero-client PROPERTY FOLDER "Libraries")
+
 if(debug-ice-generation)
   message(STATUS "omero-client (headers): ${OMERO_COMMON_HEADERS} ${OMERO_MODEL_HEADERS} ${OMERO_API_HEADERS} ${OMERO_CLIENT_HEADERS}")
   message(STATUS "omero-client (sources): ${OMERO_COMMON_SOURCES} ${OMERO_MODEL_SOURCES} ${OMERO_API_SOURCES} ${OMERO_CLIENT_SOURCES}")
@@ -381,6 +383,8 @@ add_custom_target(gensrc
                           ${OMERO_MODEL_HEADERS} ${OMERO_MODEL_SOURCES}
                           ${OMERO_API_HEADERS} ${OMERO_API_SOURCES}
                           ${OMERO_CLIENT_HEADERS} ${OMERO_CLIENT_SOURCES})
+
+set_property(TARGET gensrc PROPERTY FOLDER "Ice code generation")
 
 install(TARGETS omero-ice omero-client
         LIBRARY DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}
