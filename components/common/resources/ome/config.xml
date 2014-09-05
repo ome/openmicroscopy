@@ -5,7 +5,7 @@
 # 
 # $Id$
 # 
-# Copyright 2008, 2009 Glencoe Software, Inc. All rights reserved.
+# Copyright 2008, 2009, 2014 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -123,7 +123,7 @@
         <property name="aliases" value="hibernate.dialect"/>
         <property name="visibility" value="hidden"/>
     </bean>
-    <bean class="ome.system.Preference" id="omero.resetpassword.config">
+    <bean class="ome.system.Preference" id="omero.mail.config">
         <property name="visibility" value="all"/>
     </bean>
     <!--  PIXELDATA PROPERTIES -->

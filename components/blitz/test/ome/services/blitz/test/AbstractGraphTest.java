@@ -1,5 +1,5 @@
 /*
- *   Copyright 2011 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2011-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -16,6 +16,10 @@ import org.testng.annotations.BeforeClass;
 import ome.io.nio.PixelsService;
 import ome.io.nio.ThumbnailService;
 import ome.security.ACLVoter;
+import ome.security.SecuritySystem;
+import ome.security.auth.PasswordProvider;
+import ome.security.auth.PasswordUtil;
+import ome.services.util.MailUtil;
 import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
 import omero.RType;
@@ -57,7 +61,11 @@ public class AbstractGraphTest extends AbstractServantTest {
                 user.ctx.getBean(ACLVoter.class),
                 user.ctx.getBean(Roles.class),
                 user.ctx.getBean("/OMERO/Pixels", PixelsService.class),
-                user.ctx.getBean("/OMERO/Thumbs", ThumbnailService.class)
+                user.ctx.getBean("/OMERO/Thumbs", ThumbnailService.class),
+                user.ctx.getBean(MailUtil.class),
+                user.ctx.getBean(PasswordUtil.class),
+                user.ctx.getBean(SecuritySystem.class),
+                user.ctx.getBean(PasswordProvider.class)
                 );
         rofr.setApplicationContext(ctx);
         rofr.setIceCommunicator(ic);

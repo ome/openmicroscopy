@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.server.itests;
@@ -87,10 +87,10 @@ public class ConfigTest extends AbstractManagedContextTest {
         
         loginNewUser();
         assertEquals("false", iConfig
-                .getConfigValue("omero.resetpassword.config"));
+                .getConfigValue("omero.mail.config"));
         
         try {
-            iConfig.getConfigValue("omero.resetpassword.password");
+            iConfig.getConfigValue("omero.mail.password");
             fail("secvio!");
         } catch (SecurityViolation sv) {
             // regular user should not be able to acquire sensitive info
@@ -98,7 +98,7 @@ public class ConfigTest extends AbstractManagedContextTest {
         
         // But this should be ok
         loginRoot();
-        iConfig.getConfigValue("omero.resetpassword.password");
+        iConfig.getConfigValue("omero.mail.password");
 
     }
     
