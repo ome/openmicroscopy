@@ -40,6 +40,7 @@ from Glacier2 import PermissionDeniedException
 from omero.util import get_user
 from omero.util.sessions import SessionsStore
 from omero.cli import BaseControl, CLI
+from omero_ext.argparse import SUPPRESS
 
 HELP = """Control and create user sessions
 
@@ -174,8 +175,7 @@ class SessionsControl(BaseControl):
         self._configure_dir(login)
 
     def _configure_dir(self, parser):
-        parser.add_argument("--session-dir", help="Use a different sessions"
-                            " directory (Default: $HOME/omero/sessions)",
+        parser.add_argument("--session-dir", help=SUPPRESS,
                             default=os.environ.get('OMERO_SESSION_DIR', None))
 
     def help(self, args):
