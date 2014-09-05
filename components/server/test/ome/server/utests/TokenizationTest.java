@@ -137,14 +137,13 @@ public class TokenizationTest extends MockObjectTestCase {
         TokenStream ts = sa.tokenStream("field", new StringReader(a));
         List<Token> tokens = new ArrayList<Token>();
         try {
-            while (true) {
-                Token t = new Token();
-                t = ts.next(t);
-                if (t == null) {
-                    break;
-                }
+            ts.reset();
+            do {
+                Token t = ts.getAttribute(Token.class);
                 tokens.add(t);
-            }
+            } while (ts.incrementToken());
+            ts.end();
+            ts.close();
         } catch (IOException io) {
             // ok
         }
