@@ -712,7 +712,8 @@ PIPELINE_CSS = {
 PIPELINE_JS = {
     'webgateway_viewer': {
         'source_filenames': (
-            '3rdparty/jquery-1.7.2.js',
+            '3rdparty/jquery-1.11.1.js',
+            '3rdparty/jquery-migrate-1.2.1.js',
             'webgateway/js/ome.popup.js',
             '3rdparty/aop.js',
             '3rdparty/panojs/utils.js',
