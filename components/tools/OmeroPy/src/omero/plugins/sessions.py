@@ -100,7 +100,7 @@ Options for logging in:
 Other commands:
 
     $ bin/omero sessions list
-    $ bin/omero sessions list --session-dir=/tmp
+    $ OMERO_SESSION_DIR=/tmp bin/omero sessions list
     $ bin/omero sessions logout
     $ bin/omero sessions clear
 """
