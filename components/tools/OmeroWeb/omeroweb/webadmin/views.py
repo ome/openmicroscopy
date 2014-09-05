@@ -145,6 +145,7 @@ def otherGroupsInitialList(groups, excluded_names=("user","guest"), excluded_ids
             flag = True
         if not flag:
             formGroups.append(gr)
+    formGroups.sort(key=lambda x: x.getName().lower())
     return formGroups
 
 def ownedGroupsInitial(conn, excluded_names=("user","guest", "system"), excluded_ids=list()):
@@ -158,6 +159,7 @@ def ownedGroupsInitial(conn, excluded_names=("user","guest", "system"), excluded
             flag = True
         if not flag:
             ownedGroups.append(gr)
+    ownedGroups.sort(key=lambda x: x.getName().lower())
     return ownedGroups
 
 # myphoto helpers
