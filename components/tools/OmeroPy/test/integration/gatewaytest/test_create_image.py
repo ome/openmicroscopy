@@ -19,8 +19,52 @@
 #
 
 from numpy import fromfunction, int8
+from omero.util.tiles import TileLoop
 
 class TestCreateImage (object):
+
+
+    def createTileImageAndCheck(self, conn, sizeX=4096, sizeY=4096, sizeZ=1, sizeC=1, sizeT=1,
+                tileWidth=256, tileHeight=256):
+
+        def f(x, y):
+            """
+            create some fake pixel data tile (2D numpy array)
+            """
+            return (x * y)/(1 + x + y) * (x + y + 1)
+
+        def tileGen(tileSeq):
+            tile_max = 255
+            dtype = int8
+            for t in tileSeq:
+                tileWidth = t['w']
+                tileHeight = t['h']
+                # perform some manipulation on each plane
+                plane = fromfunction(f, (tileWidth, tileHeight), dtype=dtype)
+                # plane = plane.astype(int)
+                plane[plane > tile_max] = tile_max
+                plane[plane < 0] = 0
+                yield plane
+
+        ts = TileLoop().getTileSequence(sizeX, sizeY, sizeZ, sizeC, sizeT, tileWidth, tileHeight)
+
+        imageName = "gatewaytest.test_create_tiled_image"
+        dType = 'int8'
+        img = conn.createImageFromTileSeq (tileGen(ts), imageName, sizeX, sizeY, sizeZ, sizeC, sizeT,
+                dType, tileWidth, tileHeight)
+
+        assert img is not None
+        assert img.getSizeX() == sizeX
+        assert img.getSizeY() == sizeY
+        assert img.getSizeZ() == sizeZ
+        assert img.getSizeC() == sizeC
+        assert img.getSizeT() == sizeT
+
+    def testCreateTiledImages(self, gatewaywrapper):
+
+        gatewaywrapper.loginAsAuthor()
+        conn = gatewaywrapper.gateway
+        self.createTileImageAndCheck(conn)
 
     def createImageAndCheck(self, conn, sizeX=125, sizeY=125, sizeZ=1, sizeC=1, sizeT=1):
 
