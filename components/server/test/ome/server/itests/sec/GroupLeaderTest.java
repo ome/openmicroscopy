@@ -6,7 +6,6 @@
  */
 package ome.server.itests.sec;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
@@ -75,7 +74,7 @@ public class GroupLeaderTest extends AbstractManagedContextTest {
         final Experimenter exp = e;
         List<Long> groupIds = iQuery.execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
-                    throws HibernateException, SQLException {
+                    throws HibernateException {
                 Query q = session
                         .createQuery(groupByOwner);
                 q.setParameter("id", exp.getId());

@@ -26,7 +26,7 @@ import omeis.providers.re.RenderingEngine;
 import org.aopalliance.intercept.MethodInvocation;
 import org.hibernate.FlushMode;
 import org.hibernate.SessionFactory;
-import org.hibernate.classic.Session;
+import org.hibernate.Session;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 import org.jmock.builder.ArgumentsMatchBuilder;

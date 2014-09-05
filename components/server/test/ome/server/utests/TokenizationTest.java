@@ -34,6 +34,8 @@ import org.jmock.MockObjectTestCase;
 import org.springframework.expression.spel.ast.Indexer;
 import org.testng.annotations.Test;
 
+import static org.apache.lucene.util.Version.LUCENE_30;
+
 @Test(timeOut = 1000) // Lucene initialization takes longer than default 200ms.
 public class TokenizationTest extends MockObjectTestCase {
 
@@ -98,7 +100,7 @@ public class TokenizationTest extends MockObjectTestCase {
             queryToResults.put("\"GFP H2B\"", 2);
             queryToResults.put("\"H2B GFP\"", 0);
 
-            QueryParser parser = new QueryParser("contents", analyzer);
+            QueryParser parser = new QueryParser(LUCENE_30, "contents", analyzer);
             for (String queryStr : queryToResults.keySet()) {
                 Query query = parser.parse(queryStr);
                 System.out.println("Query: " + query.toString("contents"));

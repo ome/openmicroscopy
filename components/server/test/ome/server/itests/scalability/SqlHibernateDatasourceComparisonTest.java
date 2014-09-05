@@ -19,18 +19,18 @@ import javax.sql.DataSource;
 
 import junit.framework.TestCase;
 import ome.api.IQuery;
+import ome.security.basic.FilterDefinitionFactoryBean;
 import ome.server.itests.ManagedContextFixture;
+import ome.services.sessions.LocalSessionFactoryBean;
 import ome.testing.Report;
 
 import org.apache.log4j.Category;
 import org.apache.log4j.Level;
 import org.hibernate.SessionFactory;
-import org.hibernate.classic.Session;
-import org.hibernate.engine.FilterDefinition;
+import org.hibernate.Session;
+import org.hibernate.engine.spi.FilterDefinition;
 import org.hibernate.stat.Statistics;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.orm.hibernate3.FilterDefinitionFactoryBean;
-import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;

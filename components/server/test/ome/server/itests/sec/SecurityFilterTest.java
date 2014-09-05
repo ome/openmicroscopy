@@ -7,7 +7,6 @@
 package ome.server.itests.sec;
 
 import java.lang.reflect.Field;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.Map;
@@ -316,8 +315,7 @@ class ByNameQuery extends Query {
     }
 
     @Override
-    protected void buildQuery(Session session) throws HibernateException,
-            SQLException {
+    protected void buildQuery(Session session) throws HibernateException {
         Criteria c = session.createCriteria(obj.getClass());
         c.add(Restrictions.eq("name", value("name")));
         setCriteria(c);
