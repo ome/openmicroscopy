@@ -24,6 +24,7 @@ import ConfigParser
 import omero
 import omero.clients
 from omero.util.decorators import timeit
+from omero.util.tiles import RPSTileLoop, TileLoopIteration, TileLoop
 from omero.cmd import DoAll
 from omero.api import Save
 from omero.gateway.utils import ServiceOptsDict, GatewayConfig
@@ -2895,8 +2896,6 @@ class _BlitzGateway (object):
         def createImage():
             return self.createImage(sizeX, sizeY, sizeZ, sizeC, sizeT, channelList, dType, imageName, sourceImageId, description)
 
-        from omero.util.tiles import RPSTileLoop, TileLoopIteration
-
         # Create image and init rawPixelsStore etc.
         image, convertToType = createImage()
         pid = image.getPrimaryPixels().getId().val
@@ -2919,6 +2918,24 @@ class _BlitzGateway (object):
             pixelsService.setChannelGlobalMinMax(pid, theC, float(0), float(255), self.SERVICE_OPTS)
 
         return ImageWrapper(self, image)
+
+
+    def getTileSequence(self, sizeX, sizeY, sizeZ, sizeC, sizeT, tileWidth, tileHeight):
+        """
+        Provides a list of tile coodinates as dict: {'z': z, 'c': c, 't': t, 'x': x, 'y': y, 'w': w, 'h': h}
+        for use in providing a tile generator to createImageFromTileSeq().
+
+        :param sizeX:           SizeX of the new image
+        :param sizeY:           SizeY of the new image
+        :param sizeZ:           SizeZ of the new image
+        :param sizeC:           SizeC of the new image
+        :param sizeT:           SizeT of the new image
+        :param tileWidth:       Width of desired tiles
+        :param tileHeight:      Height of desired tiles
+        :return:                List of dicts with keys z, c, t, x, y, w, h
+        :rtype:                 List
+        """
+        return TileLoop().getTileSequence(sizeX, sizeY, sizeZ, sizeC, sizeT, tileWidth, tileHeight)
 
 
     def createImageFromNumpySeq (self, zctPlanes, imageName, sizeZ=1, sizeC=1, sizeT=1, description=None, dataset=None, sourceImageId=None, channelList=None):
