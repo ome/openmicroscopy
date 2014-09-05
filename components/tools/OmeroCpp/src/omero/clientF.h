@@ -11,11 +11,11 @@
 #include <Ice/Handle.h>
 #include <Ice/Object.h>
 
-#ifndef OMERO_API
-#   ifdef OMERO_API_EXPORTS
-#       define OMERO_API ICE_DECLSPEC_EXPORT
+#ifndef OMERO_CLIENT
+#   ifdef OMERO_CLIENT_EXPORTS
+#       define OMERO_CLIENT ICE_DECLSPEC_EXPORT
 #   else
-#       define OMERO_API ICE_DECLSPEC_IMPORT
+#       define OMERO_CLIENT ICE_DECLSPEC_IMPORT
 #   endif
 #endif
 
@@ -25,7 +25,7 @@ namespace omero {
 }
 
 namespace IceInternal {
-  OMERO_API ::Ice::Object* upCast(::omero::CallbackI*);
+  OMERO_CLIENT ::Ice::Object* upCast(::omero::CallbackI*);
 }
 
 namespace omero {

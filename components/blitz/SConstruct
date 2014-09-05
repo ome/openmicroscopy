@@ -33,7 +33,7 @@ env["DEPMAP"] = {
 
 
 #
-# Call slice2java, slice2cpp, and slice2py
+# Call slice2java and slice2py
 #
 
 actions = []

@@ -603,8 +603,6 @@
                     <arg value="-Q"/>
                     <arg value="-j"/>
                     <arg value="${env.J}"/>
-                    <arg value="--arch=${env.ARCH}"/>
-                    <arg value="--release=${env.RELEASE}"/>
                     <args/>
                 </exec>
             </sequential>
