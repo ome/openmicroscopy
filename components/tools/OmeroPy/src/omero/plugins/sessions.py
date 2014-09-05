@@ -25,7 +25,7 @@
    defined here will be added to the Cli class for later use.
 """
 
-
+import os
 import sys
 import Ice
 import IceImport
@@ -111,7 +111,8 @@ class SessionsControl(BaseControl):
 
     def store(self, args):
         try:
-            dirpath = getattr(args, "session_dir", None)
+            dirpath = getattr(args, "session_dir",
+                              os.environ.get('OMERO_SESSION_DIR', None))
             return self.FACTORY(dirpath)
         except OSError, ose:
             filename = getattr(ose, "filename", dirpath)
@@ -174,7 +175,8 @@ class SessionsControl(BaseControl):
 
     def _configure_dir(self, parser):
         parser.add_argument("--session-dir", help="Use a different sessions"
-                            " directory (Default: $HOME/omero/sessions)")
+                            " directory (Default: $HOME/omero/sessions)",
+                            default=os.environ.get('OMERO_SESSION_DIR', None))
 
     def help(self, args):
         self.ctx.err(LONGHELP % {"prog": args.prog})
