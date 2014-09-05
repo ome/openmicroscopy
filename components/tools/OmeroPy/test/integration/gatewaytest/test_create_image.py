@@ -19,7 +19,6 @@
 #
 
 from numpy import fromfunction, int8
-from omero.util.tiles import TileLoop
 
 class TestCreateImage (object):
 
@@ -46,7 +45,7 @@ class TestCreateImage (object):
                 plane[plane < 0] = 0
                 yield plane
 
-        ts = TileLoop().getTileSequence(sizeX, sizeY, sizeZ, sizeC, sizeT, tileWidth, tileHeight)
+        ts = conn.getTileSequence(sizeX, sizeY, sizeZ, sizeC, sizeT, tileWidth, tileHeight)
 
         imageName = "gatewaytest.test_create_tiled_image"
         dType = 'int8'
