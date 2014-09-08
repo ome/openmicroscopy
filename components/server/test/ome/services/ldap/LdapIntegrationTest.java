@@ -215,6 +215,45 @@ public class LdapIntegrationTest extends LdapTest {
             }
 
             @Override
+            public Experimenter findExperimenter(final String username) {
+                return (Experimenter) executor.execute(p,
+                        new Executor.SimpleWork(this, "findExperimenter") {
+                            @Transactional(readOnly = true)
+                            public Object doWork(org.hibernate.Session session,
+                                    ServiceFactory sf) {
+                                return sf.getAdminService().lookupExperimenter(
+                                        username);
+                            }
+                        });
+            }
+
+            @Override
+            public void setDN(final String experimenterName, final String dn) {
+                executor.execute(p, new Executor.SimpleWork(this, "setDN") {
+                    @Transactional(readOnly = false)
+                    public Object doWork(org.hibernate.Session session,
+                            ServiceFactory sf) {
+                        Experimenter exp = sf.getAdminService()
+                                .lookupExperimenter(experimenterName);
+                        ldap.setDN(exp.getId(), dn);
+                        return null;
+                    }
+                });
+            }
+
+            @Override
+            public Map<String, Experimenter> discover() {
+                return (Map<String, Experimenter>) executor.execute(p,
+                        new Executor.SimpleWork(this, "discover") {
+                            @Transactional(readOnly = true)
+                            public Object doWork(org.hibernate.Session session,
+                                    ServiceFactory sf) {
+                                return sf.getLdapService().discover();
+                            }
+                        });
+            }
+
+            @Override
             public Object execute(Work work) {
                 return executor.execute(p, work);
             }
