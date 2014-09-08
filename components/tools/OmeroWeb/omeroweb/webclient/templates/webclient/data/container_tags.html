@@ -38,18 +38,6 @@
                 setTimeout(OME.truncateNames, 30);
             });
 
-                $("#left_panel_tabs").tabs({
-                    select: function(event, ui) {
-                        var url = $.data(ui.tab, 'load.tabs');
-                        if( url ) {
-                            location.href = url;
-                            return false;
-                        }
-                        return true;
-                    }
-                }).tabs("select", 1);
-
-                
                 var buttonsShowHide = function(selected) { 
                     var toolbar_config = new Object();
                     
@@ -446,11 +434,11 @@
 
 
 
-<div id="left_panel_tabs" class="absolute_fill">
-    <ul id="left_panel_tab_list">
-        <li id="explore_tab"><a href="{% url 'load_template' 'userdata' %}">{% trans "Explore" %}</a></li>
-        <li id="tags_tab"><a href="#Tags">{% trans "Tags" %}</a></li>
-        <li id="public_tab"><a href="{% url 'load_template' 'public' %}">{% trans "Public" %}</a></li>
+<div id="left_panel_tabs" class="absolute_fill ui-tabs">
+    <ul id="left_panel_tab_list" class="ui-tabs-nav">
+        <li id="explore_tab" class="ui-state-default"><a href="{% url 'load_template' 'userdata' %}" class="ui-tabs-anchor" title="Explore">{% trans "Explore" %}</a></li>
+        <li id="tags_tab" class="ui-state-default ui-tabs-active"><a class="ui-tabs-anchor">{% trans "Tags" %}</a></li>
+        <li id="public_tab" class="ui-state-default"><a href="{% url 'load_template' 'public' %}" class="ui-tabs-anchor">{% trans "Public" %}</a></li>
     </ul>
     
     

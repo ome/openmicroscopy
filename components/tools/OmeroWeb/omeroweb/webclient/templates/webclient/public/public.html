@@ -31,19 +31,7 @@
     <script type="text/javascript">
         $(function() 
             {
-                $("#left_panel_tabs").tabs({
-                    select: function(event, ui) {
-                        var url = $.data(ui.tab, 'load.tabs');
-                        if( url ) {
-                            location.href = url;
-                            return false;
-                        }
-                        return true;
-                    }
-                }).tabs("select", 2);
-
-
-                var buttonsShowHide = function(selected) { 
+                var buttonsShowHide = function(selected) {
                     var toolbar_config = new Object();
                     if(selected.length > 0) {
                         if((typeof selected.attr("rel") === 'undefined') ||
@@ -324,13 +312,11 @@
 	
 </div>
 
-<div id="left_panel_tabs" class="absolute_fill">
-    
-    <ul id="left_panel_tab_list">
-        <li><a href="{% url 'load_template' 'userdata' %}">{% trans "Explore" %}</a></li>
-        <li><a href="{% url 'load_template' 'usertags' %}">{% trans "Tags" %}</a></li>
-		<!-- <li><a href="{% url 'load_template' 'usertags' %}">{% trans "History" %}</a></li> -->
-        <li><a href="#Public" title="Public">{% trans "Public" %}</a></li>
+<div id="left_panel_tabs" class="absolute_fill ui-tabs">
+    <ul id="left_panel_tab_list" class="ui-tabs-nav">
+        <li id="explore_tab" class="ui-state-default"><a href="{% url 'load_template' 'userdata' %}" class="ui-tabs-anchor" title="Explore">{% trans "Explore" %}</a></li>
+        <li id="tags_tab" class="ui-state-default"><a href="{% url 'load_template' 'usertags' %}" class="ui-tabs-anchor">{% trans "Tags" %}</a></li>
+        <li id="public_tab" class="ui-state-default ui-tabs-active"><a class="ui-tabs-anchor">{% trans "Public" %}</a></li>
     </ul>
 	
 	
