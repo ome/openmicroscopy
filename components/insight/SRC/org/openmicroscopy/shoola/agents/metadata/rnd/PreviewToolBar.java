@@ -123,10 +123,10 @@ class PreviewToolBar
     /** Indicates the selected plane. */
     void setSelectedPlane()
     {
-    	String s = "Z="+(model.getDefaultZ()+1)+"/"+model.getMaxZ();
-    	s += " T="+(model.getRealSelectedT()+1)+"/"+model.getRealT();
+    	String s = "Z:"+(model.getDefaultZ()+1)+"/"+model.getMaxZ();
+    	s += " T:"+(model.getRealSelectedT()+1)+"/"+model.getRealT();
     	if (model.isLifetimeImage()) {
-			s += " "+EditorUtil.SMALL_T_VARIABLE+"="+(model.getSelectedBin()+1);
+			s += " "+EditorUtil.SMALL_T_VARIABLE+":"+(model.getSelectedBin()+1);
 			s += "/"+(model.getMaxLifetimeBin());
 		}
     	selectedPlane.setText(s);
