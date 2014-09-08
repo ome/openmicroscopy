@@ -209,7 +209,7 @@ class GraphicsPane
         maxLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
         minLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
         
-        greyScale = new JCheckBox("Greyscale");
+        greyScale = new JCheckBox("Grayscale");
         greyScale.setSelected(model.isGreyScale());
         greyScale.addActionListener(new ActionListener() {
             @Override
