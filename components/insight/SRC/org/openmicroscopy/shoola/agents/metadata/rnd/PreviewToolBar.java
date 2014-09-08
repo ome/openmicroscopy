@@ -24,27 +24,18 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 
 //Java imports
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
-import javax.swing.Box;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
-import javax.swing.JToolBar;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.metadata.actions.ManageRndSettingsAction;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
-import org.openmicroscopy.shoola.agents.metadata.ROICountLoader;
-import pojos.ExperimenterData;
 
 /** 
  * Displays the various controls.
@@ -56,7 +47,7 @@ import pojos.ExperimenterData;
  * @version 3.0
  * @since 3.0-Beta4
  */
-public class PreviewToolBar
+class PreviewToolBar
 	extends JPanel
 {
 
@@ -86,9 +77,6 @@ public class PreviewToolBar
     /** Preview option for render settings */
     private JToggleButton       preview;
     
-    /** Label showing the number of ROIs */
-    private JLabel roiLabel;
-    
     /** Initializes the component. */
     private void initComponents()
     {
@@ -103,9 +91,6 @@ public class PreviewToolBar
          preview.setEnabled(!model.isBigImage());
          preview.setToolTipText(PREVIEW_DESCRIPTION);
          preview.setFont(newFont);
-         
-         roiLabel = new JLabel(ROI_LABEL_TEXT+"...");
-         roiLabel.setFont(newFont);
     }
 
     /** Builds and lays out the UI. */
@@ -118,7 +103,6 @@ public class PreviewToolBar
         JPanel p = UIUtilities.buildComponentPanelRight(selectedPlane);
         p.setBackground(UIUtilities.BACKGROUND_COLOR);
         add(p);
-        add(roiLabel); 
         add(preview);
     }
 
@@ -134,16 +118,6 @@ public class PreviewToolBar
     	this.model = model;
     	initComponents();
     	buildGUI();
-    	loadROICount();
-    }
-
-    /** 
-     * Starts an asyc. call to load the number of ROIs
-     */
-    void loadROICount() {
-        ExperimenterData exp = MetadataViewerAgent.getUserDetails();
-        ROICountLoader l = new ROICountLoader(new SecurityContext(exp.getGroupId()), this, model.getRefImage().getId(), exp.getId());
-        l.load();
     }
     
     /** Indicates the selected plane. */
@@ -165,13 +139,5 @@ public class PreviewToolBar
      * @return See above.
      */
     boolean isLiveUpdate() { return preview.isSelected(); }
-    
-    /** 
-     * Updates the label showing the number of ROIs
-     */
-    public void updateROICount(int n) {
-        roiLabel.setText(ROI_LABEL_TEXT+""+n);
-        revalidate();
-    }
     
 }

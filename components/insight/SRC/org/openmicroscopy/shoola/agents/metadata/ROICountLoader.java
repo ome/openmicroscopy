@@ -29,7 +29,6 @@ import java.util.Collection;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.metadata.rnd.PreviewToolBar;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
@@ -37,6 +36,7 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.ImageDataView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.agents.metadata.editor.PropertiesUI;
 
 /** 
  * An async. loader which updates the {@link PreviewToolBar} with
@@ -57,8 +57,8 @@ public class ROICountLoader
     /** The security context.*/
     private final SecurityContext ctx;
     
-    /** Reference to the toolbar showing the number of ROIs */
-    private PreviewToolBar toolbar;
+    /** Reference to the {@link PropertiesUI} showing the number of ROIs */
+    private PropertiesUI propUI;
     
     /** The id of the image the ROIs are related to. */
     private long            imageID;
@@ -76,7 +76,7 @@ public class ROICountLoader
      * @param imageID The image id to load the ROIs for
      * @param userID The user id
      */
-    public ROICountLoader(SecurityContext ctx, PreviewToolBar toolbar, long imageID,
+    public ROICountLoader(SecurityContext ctx, PropertiesUI propUI, long imageID,
             long userID)
     {
     	if (ctx == null)
@@ -84,7 +84,7 @@ public class ROICountLoader
     	this.ctx = ctx;
     	this.imageID = imageID;
         this.userID = userID;
-    	this.toolbar = toolbar;
+    	this.propUI = propUI;
     	registry = MetadataViewerAgent.getRegistry();
     	imView = (ImageDataView) 
     	registry.getDataServicesView(ImageDataView.class);
@@ -146,7 +146,7 @@ public class ROICountLoader
             }
         }
         
-        toolbar.updateROICount(n);
+        propUI.updateROICount(n);
     }
     
     
