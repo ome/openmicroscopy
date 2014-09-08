@@ -12,7 +12,6 @@
 from test.integration.clitest.cli import CLITest
 from omero.plugins.script import ScriptControl
 from omero.util.temp_files import create_path
-import pytest
 
 scriptText = """
 import omero, omero.scripts as s
@@ -25,10 +24,6 @@ client.setOutput("b", rstring("c"))
 client.closeSession()
 """
 
-subcommands = [
-    "demo", "list", "cat", "edit", "params", "launch", "disable", "enable",
-    "jobs", "serve", "upload", "replace", "delete", "run"]
-
 
 class TestScript(CLITest):
 
@@ -36,17 +31,6 @@ class TestScript(CLITest):
         super(TestScript, self).setup_method(method)
         self.cli.register("script", ScriptControl, "TEST")
         self.args += ["script"]
-
-    # Help subcommands
-    # ========================================================================
-    def testHelp(self):
-        self.args += ["-h"]
-        self.cli.invoke(self.args, strict=True)
-
-    @pytest.mark.parametrize("subcommand", subcommands)
-    def testSubcommandHelp(self, subcommand):
-        self.args += [subcommand, "-h"]
-        self.cli.invoke(self.args, strict=True)
 
     def testList(self):
         self.args += ["list"]

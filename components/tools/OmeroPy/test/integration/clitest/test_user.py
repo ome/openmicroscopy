@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -24,7 +24,6 @@ from test.integration.clitest.cli import CLITest, RootCLITest
 import getpass
 import pytest
 
-subcommands = ['add', 'list', 'password', 'email', 'joingroup', 'leavegroup']
 user_pairs = [('--id', 'id'), ('--name', 'omeName')]
 group_pairs = [(None, 'id'), (None, 'name'), ('--group-id', 'id'),
                ('--group-name', 'name')]
@@ -43,17 +42,6 @@ class TestUser(CLITest):
         super(TestUser, self).setup_method(method)
         self.cli.register("user", UserControl, "TEST")
         self.args += ["user"]
-
-    # Help subcommands
-    # ========================================================================
-    def testHelp(self):
-        self.args += ["-h"]
-        self.cli.invoke(self.args, strict=True)
-
-    @pytest.mark.parametrize("subcommand", subcommands)
-    def testSubcommandHelp(self, subcommand):
-        self.args += [subcommand, "-h"]
-        self.cli.invoke(self.args, strict=True)
 
     # List subcommand
     # ========================================================================

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -59,14 +59,6 @@ class TestDownload(CLITest):
         user = self.new_user()
         self.add_groups(user, [group1, group2], owner=True)
         return user, group1, group2
-
-    @pytest.mark.parametrize(
-        'bad_input',
-        ['-1', 'OriginalFile:-1', 'FileAnnotation:-1', 'Image:-1'])
-    def testInvalidInput(self, bad_input):
-        self.args += [bad_input, '-']
-        with pytest.raises(NonZeroReturnCode):
-            self.cli.invoke(self.args, strict=True)
 
     # OriginalFile tests
     # ========================================================================
