@@ -348,6 +348,8 @@ class PrefsControl(BaseControl):
             pp.print_keys()
         elif args.rst:
             pp.print_rst()
+            from omero.install.web_parser import WebSettings
+            WebSettings().print_rst()
         else:
             pp.print_defaults()
 
