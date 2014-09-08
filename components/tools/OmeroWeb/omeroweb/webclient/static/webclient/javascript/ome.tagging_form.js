@@ -116,7 +116,18 @@ var tagging_form = function(
             }
         }
         div_all_tags.append(html);
-        $(".tag_selection div").on('click', tag_click).tooltip();
+        // TODO This tooltip application is used until the extra data has loaded
+        // at which point the tooltips are updated and this handler is replaced?
+        $(".tag_selection div").on('click', tag_click).tooltip({
+            track: false,
+            show: false,
+            hide: false,
+            showBody: " - ",
+            items: '[data-content]',
+            content: function() {
+                return $(this).data('content');
+            }
+        });
     };
 
     var update_selected_labels = function() {
@@ -153,10 +164,15 @@ var tagging_form = function(
                 link_owner = 'you and ' + link_owner;
             }
         }
-        this.setAttribute("title", create_tag_title(
-            tag.d, owners[tag.o], parent_id ? parent_id.t : null,
-            link_owner));
-        $this.tooltip();
+        var title = create_tag_title(tag.d, owners[tag.o], parent_id ? parent_id.t : null,
+            link_owner);
+        $this.tooltip({
+            track: false,
+            show: false,
+            hide: false,
+            showBody: " - ",
+            content: title
+        });
     };
 
     var update_html_list = function(list) {
@@ -388,9 +404,8 @@ var tagging_form = function(
             html += " data-description='" + encode_html(description) + "'";
         }
         var title = create_tag_title(description, owner, tagset);
-        if (title) {
-            html += " title='" + title.replace(/'/g, "&#39;") + "'";
-        }
+        // Add content even if it is empty and handle case for no tooltip in the tooltip code
+        html += " data-content='" + title.replace(/'/g, "&#39;") + "'";
         html += ">" + encode_html(text) + "</div>";
         return html;
     };
@@ -630,7 +645,16 @@ var tagging_form = function(
             var div = $(create_tag_html(
                 text, description, my_name, new_tag_counter,
                 tagset ? tagset.attr('data-id') : null));
-            div.addClass('ui-selected').on('click', tag_click).tooltip();
+            div.addClass('ui-selected').on('click', tag_click).tooltip({
+                track: true,
+                show: false,
+                hide: false,
+                showBody: " - ",
+                items: '[data-content]',
+                content: function() {
+                    return $(this).data('content');
+                }
+            });
             $("div.ui-selected", div_selected_tags).removeClass('ui-selected');
             div_selected_tags.append(div);
             tag_input.val('').focus();
@@ -706,9 +730,11 @@ var tagging_form = function(
     $("select[name=filter_mode],select[name=filter_owner_mode]").change(
         update_filter);
 
-    $("#id_tag_info_button").on('click', function(event) {
-        event.preventDefault();
-    }).tooltip();
+    // TODO This does not correspond to any element as the id is never
+    // applied to anything
+    // $("#id_tag_info_button").on('click', function(event) {
+    //     event.preventDefault();
+    // }).tooltip();
 
     //load_tags();
     loader();

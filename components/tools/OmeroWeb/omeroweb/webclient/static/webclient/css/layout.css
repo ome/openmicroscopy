@@ -2245,7 +2245,7 @@ div.plane_info table div {
 
 /** tooltip **/
 
-#tooltip {
+.ui-tooltip {
 position: absolute;
 background: #000;
 color:#bbb;
@@ -2270,12 +2270,16 @@ padding: 5px;
 width: 250px;
 }
 
-    #tooltip b {
-        font-weight: bold;
-        color:white;
-    }
+.ui-tooltip p {
+    font-size:1.0em;
+}
 
-#tooltip h3, #tooltip div { margin: 0; }
+.ui-tooltip b {
+    font-weight: bold;
+    color:white;
+}
+
+.ui-tooltip h3, .ui-tooltip div { margin: 0; }
 
 
 
@@ -2453,7 +2457,9 @@ div.tag_selection div.owner-tagged span.alltags-take {
     color: #5d8499;
     font-weight: normal;
 }
-#id_tag_info_button {
+
+/* TODO This does not correspond to any element as the id is never applied to anything */
+/*#id_tag_info_button {
     float: right;
     border-radius: 3px;
     width: 30px;
@@ -2461,7 +2467,7 @@ div.tag_selection div.owner-tagged span.alltags-take {
     background: hsl(210,8%,80%);
     border: solid 1px hsl(210,8%,70%);
     margin: 3px 5px 0 0;
-}
+}*/
 
 /* #Progress Bar
 ================================================== */

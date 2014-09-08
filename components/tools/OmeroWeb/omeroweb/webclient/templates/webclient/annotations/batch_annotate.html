@@ -171,12 +171,14 @@
                             $("#"+$(this).attr("id")).remove();     // if this File already exists, remove it
                             $("#fileanns_container").prepend( this ).show();
                         });
-                        $fileanns.tooltip({ 
-                            bodyHandler: function() {
-                                    return $("span.tooltip_html", $(this)).html(); 
-                                },
-                            track: true, delay: 0, showURL: false, fixPNG: true, 
-                            showBody: " - ", top: 10, left: -100 
+                        $fileanns.tooltip({
+                            items: '.file_ann_wrapper',
+                            content: function() {
+                                return $("span.tooltip_html", $(this)).html();
+                            },
+                            track: true,
+                            show: false,
+                            hide: false
                         });
                         show_batch_msg("File Annotation(s) added to Objects");
                     },
@@ -213,17 +215,14 @@
                     return false;
                 });
 
-                $(".tooltip_title").tooltip({ 
-                    bodyHandler: function() { 
-                            return $("span.tooltip_html", $(this)).html(); 
-                        },
-                    track: true, 
-                    delay: 0, 
-                    showURL: false, 
-                    fixPNG: true, 
-                    showBody: " - ", 
-                    top: 10, 
-                    left: -100 
+                $(".tooltip_title").tooltip({
+                    items: '.tooltip_title',
+                    content: function() {
+                        return $("span.tooltip_html", $(this)).html();
+                    },
+                    track: true,
+                    show: false,
+                    hide: false
                 });
                 $(".tooltip").tooltip_init();
 

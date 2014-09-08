@@ -37,7 +37,6 @@
 
 {% block script %}
     {{ block.super }}
-    <script type="text/javascript" src="{% static "3rdparty/jquery.tooltip/jquery.tooltip.pack.js" %}"></script>
     <script src="{% static 'webclient/javascript/jquery.infieldlabel.js' %}" type="text/javascript"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.quicksearch.js" %}"></script>
@@ -130,16 +129,15 @@
                         $(this).hide();
                     }
                 })
-                
-                $(".searching_info, #daterange").tooltip({ 
-                    track: true, 
-                    delay: 0, 
-                    showURL: false, 
-                    opacity: 1, 
-                    fixPNG: true, 
-                    showBody: " - ", 
-                    top: -15, 
-                    left: 5 
+
+                $(".searching_info, #daterange").tooltip({
+                    track: true,
+                    show: false,
+                    hide: false,
+                    items: '[data-content]',
+                    content: function() {
+                        return $(this).data('content');
+                    }
                 });
 
                 $("#searching_form").ajaxForm({
@@ -231,7 +229,7 @@
                         <a id="showSearchHints" href="#" style="text-decoration:underline">
                             Show search hints
 
-                            <span class="searching_info" title="? Single character wildcard<br>* Multiple character wildcard<br>'AND' Results will contain both terms. E.g: GFP AND H2B">
+                            <span class="searching_info" data-content="? Single character wildcard<br>* Multiple character wildcard<br>'AND' Results will contain both terms. E.g: GFP AND H2B">
                                 <img src="{% static "webgateway/img/help16.png" %}" />
                             </span>
                         </a>
@@ -273,7 +271,7 @@
 
                         <label style="white-space:nowrap;">
                             Restrict by Field:
-                            <span class="searching_info" title="Restrict search to specified fields.<br>If none chosen, we search across all fields">
+                            <span class="searching_info" data-content="Restrict search to specified fields.<br>If none chosen, we search across all fields">
                                 <img src="{% static "webgateway/img/help16.png" %}" />
                             </span>
                         </label>
@@ -282,7 +280,7 @@
                             <li><input type="checkbox" name="field" value="name" />{% trans "Name" %}</li>
                             <li><input type="checkbox" name="field" value="description" />{% trans "Description" %}</li>
                             <li style="white-space:nowrap;">
-                                <input type="checkbox" name="field" value="annotation" />{% trans "Annotations" %}<span class="searching_info" title="Includes file attachments, tags, comments etc">
+                                <input type="checkbox" name="field" value="annotation" />{% trans "Annotations" %}<span class="searching_info" data-content="Includes file attachments, tags, comments etc">
                                    <img src="{% static "webgateway/img/help16.png" %}" />
                                 </span>
                             </li>
@@ -344,10 +342,10 @@
                             <option value="true" title="Date Acquired, for Images only">Acquisition date</option>
                         </select>
 
-                        <span class="searching_info" title="Search by date imported / created or acquired.<br>
+                        <span class="searching_info" data-content="Search by date imported / created or acquired.<br>
                                 Acquisition dates are for Images only.">
                                 <img src="{% static "webgateway/img/help16.png" %}" />
-                            </span>
+                        </span>
 
                         <br/>
                         <span style="position: relative">
@@ -365,7 +363,7 @@
                                 <img src="{% static "webclient/image/icon_basic_delete.png" %}" />
                             </span>
                         </span>
-                        <span id="daterange" title="The 'to' date will be today's date if left blank.">
+                        <span id="daterange" data-content="The 'to' date will be today's date if left blank.">
                                 <img src="{% static "webgateway/img/help16.png" %}" />
                         </span>
 

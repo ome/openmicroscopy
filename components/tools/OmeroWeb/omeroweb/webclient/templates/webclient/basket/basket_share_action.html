@@ -37,15 +37,10 @@
     <script>
       $(document).ready(function(){
           $('#id_expiration').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd', minDate: 0});
-          $("#markup_c, #enable, #expire").tooltip({ 
-              track: true, 
-              delay: 0, 
-              showURL: false, 
-              opacity: 1, 
-              fixPNG: true, 
-              showBody: " - ", 
-              top: -15, 
-              left: 5 
+          $("#markup_c, #enable, #expire").tooltip({
+              track: true,
+              show: false,
+              hide: false
           });
       });
     </script>
