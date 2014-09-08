@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Point;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
@@ -205,13 +206,28 @@ class RendererControl
      */
     void showColorPicker(int channel)
     {
+        showColorPicker(channel, null);
+    }
+    
+    /**
+     * Brings up the color picker with the color associated to the passed
+     * channel.
+     * 
+     * @param channel The index of the selected channel.
+     * @param location The location where to show the dialog
+     */
+    void showColorPicker(int channel, Point location)
+    {
 		colorPickerIndex = channel;
 		Color c = view.getChannelColor(channel);
 		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
 		ColourPicker dialog = new ColourPicker(f, c);
 		dialog.setPreviewVisible(true);
 		dialog.addPropertyChangeListener(this);
-		UIUtilities.centerAndShow(dialog);
+		if (location == null)
+		    UIUtilities.centerAndShow(dialog);
+		else
+		    UIUtilities.showOnScreen(dialog, location);
     }
     
     /** 

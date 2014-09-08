@@ -30,10 +30,12 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Point;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 //Third-party libraries
@@ -299,7 +301,11 @@ class ChannelSlider
 		}
 		
 		if (evt.getSource() == colorPicker && name.equals(JLabelButton.SELECTED_PROPERTY)) {
-		    controller.showColorPicker(channel.getIndex());
+		    Point p = colorPicker.getLocationOnScreen();
+		    // as the icon is on the far right, move the dialog a bit
+		    // to left (and bottom so that the icon is still visible)
+		    p.translate(-300, +10);
+		    controller.showColorPicker(channel.getIndex(), p);
 		}
 	}
 
