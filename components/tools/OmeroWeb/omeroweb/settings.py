@@ -312,9 +312,9 @@ CUSTOM_SETTINGS_MAPPINGS = {
 del CUSTOM_HOST
 
 
-def process_custom_settings(module):
+def process_custom_settings(module, settings='CUSTOM_SETTINGS_MAPPINGS'):
     logging.info('Processing custom settings for module %s' % module.__name__)
-    for key, values in getattr(module, 'CUSTOM_SETTINGS_MAPPINGS', {}).items():
+    for key, values in getattr(module, settings, {}).items():
         # Django may import settings.py more than once, see:
         # http://blog.dscpl.com.au/2010/03/improved-wsgi-script-for-use-with.html
         # In that case, the custom settings have already been processed.
@@ -337,7 +337,7 @@ def process_custom_settings(module):
         except LeaveUnset:
             pass
 
-process_custom_settings(sys.modules[__name__])
+process_custom_settings(sys.modules[__name__], 'CUSTOM_SETTINGS_MAPPINGS')
 
 
 if not DEBUG:  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
