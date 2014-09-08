@@ -2885,13 +2885,16 @@ class _BlitzGateway (object):
 
 
     def createImageFromTileSeq (self, tileGen, imageName, sizeX, sizeY, sizeZ, sizeC, sizeT,
-                dType, tileWidth, tileHeight, description=None, dataset=None, sourceImageId=None, channelList=None):
+                tileWidth, tileHeight, description=None, dataset=None, sourceImageId=None, channelList=None):
         """
         TODO: docs! Including getTileSequence() example.
         """
         import numpy
 
         pixelsService = self.getPixelsService()
+
+        firstTile = tileGen.next()
+        dType = firstTile.dtype.name
 
         def createImage():
             return self.createImage(sizeX, sizeY, sizeZ, sizeC, sizeT, channelList, dType, imageName, sourceImageId, description)
@@ -2901,21 +2904,34 @@ class _BlitzGateway (object):
         pid = image.getPrimaryPixels().getId().val
         loop = RPSTileLoop(self.c.sf, omero.model.PixelsI(pid, False))
 
+        channelsMinMax = {}
+
         class Iteration(TileLoopIteration):
 
             def run(self, data, z, c, t, x, y, tileWidth, tileHeight, tileCount):
-                tile2d = tileGen.next()
+                if tileCount == 0:
+                    tile2d = firstTile
+                else:
+                    tile2d = tileGen.next()
                 if convertToType is not None:
                     p = numpy.zeros(tile2d.shape, dtype=convertToType)
                     p += tile2d
                     tile2d = p
+                minValue = tile2d.min()
+                maxValue = tile2d.max()
+                if c not in channelsMinMax.keys():
+                    channelsMinMax[c] = [minValue, maxValue]
+                else:
+                    channelsMinMax[c][0] = min(channelsMinMax[c][0], minValue)
+                    channelsMinMax[c][1] = max(channelsMinMax[c][1], maxValue)
                 data.setTile(tile2d, z, c, t, x, y, tileWidth, tileHeight)
 
         loop.forEachTile(tileWidth, tileHeight, Iteration())
 
-        # TODO get min/max intensities for channels during iteration.
+        # Set min/max intensities for channels
         for theC in range(sizeC):
-            pixelsService.setChannelGlobalMinMax(pid, theC, float(0), float(255), self.SERVICE_OPTS)
+            pixMin, pixMax = channelsMinMax[theC]
+            pixelsService.setChannelGlobalMinMax(pid, theC, float(pixMin), float(pixMax), self.SERVICE_OPTS)
 
         return ImageWrapper(self, image)
 
