@@ -19,38 +19,35 @@
 #
 
 from numpy import fromfunction, int8
+import pytest
 
 class TestCreateImage (object):
 
+    @pytest.fixture(autouse=True)
+    def setUp(self, author_testimg):
+        self.image = author_testimg
+        assert self.image is not None, 'No test image found on database'
 
-    def createTileImageAndCheck(self, conn, sizeX=4096, sizeY=4096, sizeZ=1, sizeC=1, sizeT=1,
-                tileWidth=256, tileHeight=256):
 
-        def f(x, y):
-            """
-            create some fake pixel data tile (2D numpy array)
-            """
-            return (x * y)/(1 + x + y) * (x + y + 1)
+    def createTileImageAndCheck(self, conn, sizeX=4096, sizeY=4096,
+            sizeZ=1, sizeC=1, sizeT=1, tileWidth=256, tileHeight=256):
+        """
+        Create a large tiled image by stitching a region of a small image.
+        """
 
-        def tileGen(tileSeq):
-            tile_max = 255
-            dtype = int8
-            for t in tileSeq:
-                tileWidth = t['w']
-                tileHeight = t['h']
-                # perform some manipulation on each plane
-                plane = fromfunction(f, (tileWidth, tileHeight), dtype=dtype)
-                # plane = plane.astype(int)
-                plane[plane > tile_max] = tile_max
-                plane[plane < 0] = 0
-                yield plane
+        def planeFromImageGen(tileSeq):
+            tlist = [(0,t['c'],0, (0,0,t['w'],t['h'])) for t in tileSeq]
+            p = self.image.getPrimaryPixels()
+            planes = p.getTiles(tlist)
+            for tile in planes:
+                yield tile
 
-        ts = conn.getTileSequence(sizeX, sizeY, sizeZ, sizeC, sizeT, tileWidth, tileHeight)
+        ts = conn.getTileSequence(sizeX, sizeY, sizeZ, sizeC, sizeT,
+            tileWidth, tileHeight)
 
         imageName = "gatewaytest.test_create_tiled_image"
-        dType = 'int8'
-        img = conn.createImageFromTileSeq (tileGen(ts), imageName, sizeX, sizeY, sizeZ, sizeC, sizeT,
-                dType, tileWidth, tileHeight)
+        img = conn.createImageFromTileSeq (planeFromImageGen(ts), imageName,
+            sizeX, sizeY, sizeZ, sizeC, sizeT, tileWidth, tileHeight)
 
         assert img is not None
         assert img.getSizeX() == sizeX
@@ -63,9 +60,13 @@ class TestCreateImage (object):
 
         gatewaywrapper.loginAsAuthor()
         conn = gatewaywrapper.gateway
-        self.createTileImageAndCheck(conn)
+        self.createTileImageAndCheck(conn, sizeC=2)
+        # truncated tiles right and bottom
+        self.createTileImageAndCheck(conn, sizeX=4000, sizeY=3500)
 
-    def createImageAndCheck(self, conn, sizeX=125, sizeY=125, sizeZ=1, sizeC=1, sizeT=1):
+
+    def createImageAndCheck(self, conn, sizeX=125, sizeY=125,
+        sizeZ=1, sizeC=1, sizeT=1):
 
         def f(x, y):
             """
@@ -86,7 +87,8 @@ class TestCreateImage (object):
 
         imageName = "gatewaytest.test_create_image"
         planeCount = sizeC * sizeZ * sizeT
-        img = conn.createImageFromNumpySeq (planeGen(planeCount), imageName, sizeZ=sizeZ, sizeC=sizeC, sizeT=sizeT)
+        img = conn.createImageFromNumpySeq (planeGen(planeCount), imageName,
+            sizeZ=sizeZ, sizeC=sizeC, sizeT=sizeT)
 
         assert img is not None
         assert img.getSizeX() == sizeX
