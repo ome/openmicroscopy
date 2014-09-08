@@ -179,7 +179,6 @@ public class DiskUsageI extends DiskUsage implements IRequest {
         builder.add("Fileset");
         builder.add("Image");
         builder.add("OriginalFile");
-        builder.add("Pixels");
         builder.add("PlaneInfo");
         builder.add("PlateAcquisition");
         builder.add("Plate");
@@ -188,7 +187,6 @@ public class DiskUsageI extends DiskUsage implements IRequest {
         builder.add("Roi");
         builder.add("Screen");
         builder.add("Well");
-        builder.add("WellSample");
 
         ANNOTATABLE_OBJECTS = builder.build();
     }
