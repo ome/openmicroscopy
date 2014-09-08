@@ -184,7 +184,7 @@ class RendererControl
         
         a = new ManageRndSettingsAction(model, 
                 ManageRndSettingsAction.PASTE);
-        a.setEnabled(MetadataViewerFactory.hasRndSettingsCopied(model.getRefImage().getId()));
+        a.setEnabled(false);
         actionsMap.put(PASTE, a);
         
     }
@@ -446,6 +446,9 @@ class RendererControl
             boolean settingsModified = model.isModified();
             actionsMap.get(SAVE).setEnabled(settingsModified && model.canAnnotate());
         }
+        
+        boolean pasteEnabled = MetadataViewerFactory.hasRndSettingsCopied(model.getRefImage().getId());
+        actionsMap.get(PASTE).setEnabled(pasteEnabled);
     }
 
 }

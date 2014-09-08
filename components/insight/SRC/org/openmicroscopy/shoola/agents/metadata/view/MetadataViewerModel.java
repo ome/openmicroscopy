@@ -1157,12 +1157,14 @@ class MetadataViewerModel
     }
 
     /**
-     * Returns if there are copied rendering settings which could 
-     * be pasted.
+     * Returns if there are copied rendering settings which could be pasted.
+     * 
      * @return See above
      */
     public boolean hasRndSettingsCopied() {
-        return copiedRndSettings!=null || copyRenderingSettingsFrom!=null;
+        return (copiedRndSettings != null && !component.getRenderer()
+                .isSameSettings(copiedRndSettings, false))
+                || copyRenderingSettingsFrom != null;
     }
     
 }

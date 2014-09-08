@@ -680,6 +680,7 @@ class RendererComponent
 		if (rndControl == null) return;
 		loadingAttempt = 0;
 		model.setRenderingControl(rndControl);
+		controller.updatePasteAction();
 		//TODO: changes state.
 	}
 
@@ -914,6 +915,7 @@ class RendererComponent
 						Boolean.valueOf(false), Boolean.valueOf(true));
 				firePropertyChange(COLOR_MODEL_PROPERTY, Boolean.valueOf(false), 
 	   		 			Boolean.valueOf(true));
+				controller.updatePasteAction();
 			}
 		} catch (Throwable e) {
 			handleException(e);
@@ -1328,4 +1330,12 @@ class RendererComponent
 	 * @see Renderer#getModuloT()
 	 */
 	public ModuloInfo getModuloT() { return model.getModuloT(); }
+	
+	/**
+         * Implemented as specified by the {@link Renderer} interface.
+         * @see Renderer#updatePasteAction()
+         */
+	public void updatePasteAction() {
+	    controller.updatePasteAction();
+	}
 }

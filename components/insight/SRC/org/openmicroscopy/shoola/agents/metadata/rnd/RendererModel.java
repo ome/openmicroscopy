@@ -1293,7 +1293,7 @@ class RendererModel
 	 */
 	void makeHistorySnapshot() {
 	        if (rndControl != null ) {
-	            if (history.getCurrent()==null || !rndControl.isSameSettings(history.getCurrent(), true))
+	            if (history.getCurrent()==null || !rndControl.isSameSettings(history.getCurrent(), false))
 	                history.add(rndControl.getRndSettingsCopy());
 	            else 
 	                history.resetPrevAction();
@@ -1414,7 +1414,7 @@ class RendererModel
         */
 	boolean isModified() {
 	    if(rndControl!=null) {
-	        return !rndControl.isSameSettings(rndDef, true);
+	        return !rndControl.isSameSettings(rndDef, false);
 	    }
 	    return false;
 	}

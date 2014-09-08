@@ -796,4 +796,10 @@ public interface Renderer
      * @return See above.
      */
     boolean isModified();
+    
+    /**
+     * Enables/Disables the paste action
+     */
+    void updatePasteAction();
+    
 }
