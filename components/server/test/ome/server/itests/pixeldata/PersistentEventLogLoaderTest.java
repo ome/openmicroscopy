@@ -145,6 +145,76 @@ public class PersistentEventLogLoaderTest extends AbstractManagedContextTest {
         });
     }
 
+    /**
+     * Extended scenario described in 
+     * https://www.openmicroscopy.org/community/viewtopic.php?f=4&t=7593&p=14636#p14638
+     * after it was noticed that some events were being skipped.
+     */
+    public void testMoreMultipleEventLogs() throws Throwable {
+        final Experimenter u1 = loginNewUser();
+        final EventContext ec1 = iAdmin.getEventContext();
+        loginNewUserInOtherUsersGroup(u1);
+        final EventContext ec2 = iAdmin.getEventContext();
+        loginNewUserInOtherUsersGroup(u1);
+        final EventContext ec3 = iAdmin.getEventContext();
+
+        loginRoot();
+        final Event e1 = event(ec1);
+        final Event e2 = event(ec2);
+        final Event e3 = event(ec3);
+
+        final EventLog el1a = eventlog(e1);
+        final EventLog el1b = eventlog(e1);
+        final EventLog el1c = eventlog(e1);
+        final EventLog el1d = eventlog(e1);
+        final EventLog el1e = eventlog(e1);
+        final EventLog el1f = eventlog(e1);
+        final EventLog el1g = eventlog(e1);
+        final EventLog el1h = eventlog(e1);
+        final EventLog el1i = eventlog(e1);
+        final EventLog el1j = eventlog(e1);
+        final EventLog el2a = eventlog(e2);
+        final EventLog el3a = eventlog(e3);
+
+        call("MultipleEventLogs", new Callable<Long>() {
+            public Long call() throws Exception {
+
+                ll.setCurrentId(el1a.getId() - 1);
+                assertNext(el1a);
+                assertNext(el2a);
+                assertNext(el3a);
+                assertNext(el1b);
+                assertNext(el2a); // Duplicate
+                assertNext(el3a); // Duplicate
+                assertNext(el1c);
+                assertNext(el2a); // Duplicate
+                assertNext(el3a); // Duplicate
+                assertNext(el1d);
+                assertNext(el2a); // Duplicate
+                assertNext(el3a); // Duplicate
+                assertNext(el1e);
+                assertNext(el2a); // Duplicate
+                assertNext(el3a); // Duplicate
+                assertNext(el1f);
+                assertNext(el2a); // Duplicate
+                assertNext(el3a); // Duplicate
+                assertNext(el1g);
+                assertNext(el2a); // Duplicate
+                assertNext(el3a); // Duplicate
+                assertNext(el1h);
+                assertNext(el2a); // Duplicate
+                assertNext(el3a); // Duplicate
+                assertNext(el1i);
+                assertNext(el2a); // Duplicate
+                assertNext(el3a); // Duplicate
+                assertNext(el1j);
+                assertNext(el2a); // Duplicate
+                assertNext(el3a); // Duplicate
+                return null;
+            }
+        });
+    }
+    
     //
     // Helpers
     //
