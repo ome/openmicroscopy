@@ -87,8 +87,9 @@ def locked(func):
 
 class TimeIt (object):
     """
-    Decorator to measure the execution time of a function. Assumes that a C{logger} global var
-    is available and is the logger instance from C{logging.getLogger()}.
+    Decorator to measure the execution time of a function. Assumes that a
+    logger global var
+    is available and is the logger instance from :meth:`logging.getLogger`.
 
     @param level: the level to use for logging
     @param name: the name to use when logging, function name is used if None
@@ -98,7 +99,7 @@ class TimeIt (object):
     def __init__ (self, level=logging.DEBUG, name=None):
         self._level = level
         self._name = name
- 
+
     def __call__ (self, func):
         def wrapped (*args, **kwargs):
             name = self._name or func.func_name
@@ -111,7 +112,7 @@ class TimeIt (object):
 
 def timeit (func):
     """
-    Shortcut version of the L{TimeIt} decorator class.
+    Shortcut version of the :class:`TimeIt` decorator class.
     Logs at logging.DEBUG level.
     """
     def wrapped (*args, **kwargs):

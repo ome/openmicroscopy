@@ -865,7 +865,26 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None, **kwa
     if c_type == "well":
         manager.image = manager.well.getImage(index)
 
+    rdefs = manager.image.getAllRenderingDefs()
+    # format into rdef strings, E.g. {c: '1|3118:35825$FF0000,2|2086:18975$FFFF00', m: 'c'}
+    rdefQueries = []
+    for r in rdefs:
+        chs = []
+        for i, c in enumerate(r['c']):
+            act = "-"
+            if c['active']:
+                act = ""
+            chs.append('%s%s|%d:%d$%s' % (act, i+1, c['start'], c['end'], c['color']))
+        rdefQueries.append({
+            'id': r['id'],
+            'owner': r['owner'],
+            'c': ",".join(chs),
+            'm': r['model'] == 'greyscale' and 'g' or 'c'
+            })
+
     context = {'manager':manager, 'share_id':share_id}
+    context['rdefsJson'] = json.dumps(rdefQueries)
+    context['rdefs'] = rdefs
     context['template'] = "webclient/annotations/metadata_preview.html"
     return context
 
@@ -1110,8 +1129,12 @@ def batch_annotate(request, conn=None, **kwargs):
     batchAnns = manager.loadBatchAnnotations(objs)
     figScripts = manager.listFigureScripts(objs)
     filesetInfo = None
+    iids = []
+    if 'well' in objs and len(objs['well']) > 0:
+        iids = [w.getWellSample(index).image().getId() for w in objs['well']]
     if 'image' in objs and len(objs['image']) > 0:
         iids = [i.getId() for i in objs['image']]
+    if len(iids) > 0:
         filesetInfo = conn.getFilesetFilesInfo(iids)
         archivedInfo = conn.getArchivedFilesInfo(iids)
         filesetInfo['count'] += archivedInfo['count']
@@ -1904,6 +1927,8 @@ def download_placeholder(request):
     download_url = download_url + "?" + query
     if format is not None:
         download_url = download_url + "&format=%s" % format
+    if request.REQUEST.get('index'):
+        download_url = download_url + "&index=%s" % request.REQUEST.get('index')
 
     context = {
             'template': "webclient/annotations/download_placeholder.html",

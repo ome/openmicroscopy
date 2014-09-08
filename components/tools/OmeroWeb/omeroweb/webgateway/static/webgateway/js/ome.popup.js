@@ -23,6 +23,12 @@ if (typeof OME === "undefined") {
     OME = {};
 }
 
+// Use userAgent to detect mobile devices
+// from http://stackoverflow.com/questions/3514784/what-is-the-best-way-to-detect-a-handheld-device-in-jquery
+OME.isMobileDevice = function() {
+    return (/Android|webOS|iPhone|iPad|iPod|BlackBerry|PlayBook|IEMobile|Opera Mini|Mobile Safari|Silk/i).test(navigator.userAgent)
+};
+
 Number.prototype.filesizeformat = function () {
     /*
     Formats the value like a 'human-readable' file size (i.e. 13 KB, 4.1 MB,
@@ -226,6 +232,30 @@ OME.get_tree_selection = function() {
         ids_list.push(key+"="+selected_ids[key]);
     }
     return ids_list.join("&");
+};
+
+
+// we need to know parent for Channels or Rdefs 'apply to all'
+OME.getParentId = function() {
+    if (typeof $.jstree === "undefined") {
+        return;
+    }
+    var datatree = $.jstree._focused();
+    if (!datatree) return;
+    var sel = datatree.data.ui.selected,
+        result;
+    var p = /^(plate-[0-9]+)$/;
+    if (p.test(sel.attr('id'))) {
+        return sel.attr('id');
+    }
+    var parent = sel.parent().parent(),
+        parent_id = parent.attr('id');
+    if (p.test(parent_id)) {
+        return parent_id;
+    }
+    if (/^dataset-([0-9]+)$/.test(parent_id)) {
+        return parent_id;
+    }
 };
 
 

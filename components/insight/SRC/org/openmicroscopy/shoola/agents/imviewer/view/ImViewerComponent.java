@@ -1379,7 +1379,7 @@ class ImViewerComponent
 			splitImage = model.getSplitComponentImage();
 			if (splitImage != null)
 				img = Factory.magnifyImage(splitImage, 
-						model.getZoomFactor(), 0);
+						model.getZoomFactor(), 0, model.isInterpolation());
 			if (includeROI && layers != null) {
 				img = createImageWithROI(img);
 			}
@@ -3528,4 +3528,22 @@ class ImViewerComponent
 		return "Image's Settings: "+EditorUtil.truncate(model.getImageName());
 	}
 
+    /**
+     * Implemented as specified by the {@link ImViewer} interface.
+     * 
+     * @see ImViewer#isInterpolation()
+     */
+    public boolean isInterpolation() {
+        return model.isInterpolation();
+    }
+
+    /**
+     * Implemented as specified by the {@link ImViewer} interface.
+     * 
+     * @see ImViewer#setInterpolation(boolean)
+     */
+    public void setInterpolation(boolean interpolation) {
+        model.setInterpolation(interpolation);
+        refresh();
+    }
 }

@@ -43,19 +43,34 @@ if (POLICY CMP0042)
   cmake_policy(SET CMP0042 NEW)
 endif(POLICY CMP0042)
 
+project(openmicroscopy)
+
+include(components/tools/OmeroCpp/cmake/Version.cmake)
+
 if("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
   message(FATAL_ERROR "In-tree builds are not supported; please run cmake from a separate build directory.")
 endif("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
 
 enable_language(CXX)
 
+list(APPEND CMAKE_MODULE_PATH
+     "${PROJECT_SOURCE_DIR}/components/bioformats/cpp/cmake"
+     "${PROJECT_SOURCE_DIR}/components/tools/OmeroCpp/cmake")
+
 include(CheckIncludeFileCXX)
 include(CheckCXXCompilerFlag)
 include(CheckCXXSourceCompiles)
 
-include(components/bioformats/cpp/cmake/GNUInstallDirs.cmake)
-include(components/bioformats/cpp/cmake/CompilerChecks.cmake)
-include(components/bioformats/cpp/cmake/GTest.cmake)
+include(GNUInstallDirs)
+include(CompilerChecks)
+include(GTest)
+
+# For compatibility with scons and java build
+if($ENV{SLICEPATH})
+  set(ICE_SLICE_DIR "$ENV{SLICEPATH}")
+endif($ENV{SLICEPATH})
+# Find Ice programs, includes, slice definitions and libraries
+find_package(Ice 3.4.0 REQUIRED COMPONENTS Ice IceUtil Glacier2)
 
 find_package(Threads REQUIRED)
 
@@ -68,6 +83,22 @@ endif(GTEST_FOUND)
 option(test "Enable unit tests (requires gtest)" ${BUILD_TESTS})
 set(BUILD_TESTS ${test})
 
+# Set Ice environment based upon the FindIce results (for build.py).
+get_filename_component(ICE_BINARY_DIR "${Ice_SLICE2CPP_EXECUTABLE}" PATH)
+file(TO_NATIVE_PATH "${ICE_BINARY_DIR}" NATIVE_ICE_BINARY_DIR)
+if(WIN32)
+  set(ENV{PATH} "${NATIVE_ICE_BINARY_DIR};$ENV{PATH}")
+else(WIN32)
+  set(ENV{PATH} "${NATIVE_ICE_BINARY_DIR}:$ENV{PATH}")
+endif(WIN32)
+if(Ice_HOME)
+  file(TO_NATIVE_PATH "${Ice_HOME}" NATIVE_ICE_HOME)
+  set(ENV{ICE_HOME} "${NATIVE_ICE_HOME}")
+endif(Ice_HOME)
+if(Ice_SLICE_DIRS)
+  file(TO_NATIVE_PATH "${Ice_SLICE_DIRS}" NATIVE_ICE_SLICE_DIR)
+  set(ENV{SLICEPATH} "${NATIVE_ICE_SLICE_DIR}")
+endif(Ice_SLICE_DIRS)
 
 # Run build.py to generate C++ and Ice sources.
 if(NOT EXISTS ${PROJECT_SOURCE_DIR}/components/blitz/generated/omero/model/Image.ice)
@@ -95,3 +126,11 @@ endif(NOT EXISTS ${PROJECT_SOURCE_DIR}/components/blitz/generated/omero/model/Im
 
 add_subdirectory(components/tools/OmeroCpp)
 add_subdirectory(examples)
+
+set(LIBRARY_PREFIX OME)
+configure_file(${PROJECT_SOURCE_DIR}/components/bioformats/cpp/cmake/TemplateShellConfig.cmake.in
+               ${PROJECT_BINARY_DIR}/config)
+if(WIN32)
+configure_file(${PROJECT_SOURCE_DIR}/components/bioformats/cpp/cmake/TemplateCmdConfig.cmake.in
+               ${PROJECT_BINARY_DIR}/config.bat)
+endif()

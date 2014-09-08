@@ -4,7 +4,7 @@
 """
    Integration test for any ticket upto #1000
 
-   Copyright 2008-2013 Glencoe Software, Inc. All rights reserved.
+   Copyright 2008-2014 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -12,8 +12,7 @@
 import test.integration.library as lib
 import pytest
 import omero
-from omero_sys_ParametersI import ParametersI
-from omero.rtypes import *
+from omero.rtypes import rint, rlong, rstring
 
 from test.integration.helpers import createTestImage
 
@@ -25,37 +24,31 @@ params.theFilter.offset = rint(1)
 
 
 class TestTicket1000(lib.ITest):
-        
+
     def test711(self):
         exp = omero.model.ExperimenterI()
         exp.omeName = rstring("root")
         list = self.client.sf.getQueryService().findAllByExample(exp, None)
-        assert 1 ==  len(list)
+        assert 1 == len(list)
 
     def test843(self):
         with pytest.raises(omero.ValidationException):
-            self.client.sf.getQueryService().get("Experimenter",-1)
-
-    # This test is overridden by the next but would fail anyway due to null params
-    def test880(self):
-        success = "select i from Image i join i.annotationLinks links join links.child ann where size(i.datasetLinks) > 0 and ann.id = :id"
-        failing = "select i from Image i join i.annotationLinks links join links.child ann where ann.id = :id and size(i.datasetLinks) > 0"
-        prms = omero.sys.Parameters()
-        prms.map = {} # ParamMap
-        self.client.sf.getQueryService().findAllByQuery(failing, None)
-        self.client.sf.getQueryService().findAllByQuery("""select i from Image i where i.name ilike '%h%' """, prms);
+            self.client.sf.getQueryService().get("Experimenter", -1)
 
     def test880(self):
         try:
             createTestImage(self.client.sf)
-            i = self.client.sf.getQueryService().findAll("Image", params.theFilter)[0]
-            assert i != None
-            assert i.id != None
-            assert i.details != None
-        except omero.ValidationException, ve:
-            print " test880 - createTestImage has failed. This fixture method needs to be fixed."
-        except IndexError, ie:
-            print " test880 - findAll has failed so assertions can't be checked. Is this a fail? "
+            i = self.client.sf.getQueryService().findAll(
+                "Image", params.theFilter)[0]
+            assert i is not None
+            assert i.id is not None
+            assert i.details is not None
+        except omero.ValidationException:
+            print " test880 - createTestImage has failed. "\
+                  "This fixture method needs to be fixed."
+        except IndexError:
+            print " test880 - findAll has failed so assertions "\
+                  "can't be checked. Is this a fail? "
 
     def test883WithoutClose(self):
         s = self.client.sf.createSearchService()
@@ -63,7 +56,7 @@ class TestTicket1000(lib.ITest):
         s.byHqlQuery("select i from Image i", params)
         if s.hasNext():
             s.results()
-        #s.close()
+        # s.close()
 
     def test883WithClose(self):
         s = self.client.sf.createSearchService()
@@ -76,7 +69,8 @@ class TestTicket1000(lib.ITest):
     def test883Upload(self):
         search = self.client.getSession().createSearchService()
         search.onlyType("OriginalFile")
-        search.byHqlQuery("select o from OriginalFile o where o.name = 'stderr'", params)
+        search.byHqlQuery(
+            "select o from OriginalFile o where o.name = 'stderr'", params)
         if search.hasNext():
             ofile = search.next()
             tmpfile = self.tmpfile()
@@ -86,22 +80,24 @@ class TestTicket1000(lib.ITest):
 
         search.close()
 
-
-    success = "select i from Image i join i.annotationLinks links join links.child ann where size(i.datasetLinks) > 0 and ann.id = :id"
-    failing = "select i from Image i join i.annotationLinks links join links.child ann where ann.id = :id and size(i.datasetLinks) > 0"
+    success = "select i from Image i join i.annotationLinks links join "\
+              "links.child ann where size(i.datasetLinks) > 0 and ann.id = :id"
+    failing = "select i from Image i join i.annotationLinks links join "\
+              "links.child ann where ann.id = :id and size(i.datasetLinks) > 0"
 
     # Both of these queries cause exceptions. Should the first succeed?
     def test985(self):
         prms = omero.sys.Parameters()
-        prms.map = {} # ParamMap
+        prms.map = {}  # ParamMap
         prms.map["id"] = rlong(53)
-        try: 
-            self.client.sf.getQueryService().findAllByQuery(TestTicket1000.success, prms)
-        except omero.ValidationException, ve:
+        try:
+            self.client.sf.getQueryService().findAllByQuery(
+                TestTicket1000.success, prms)
+        except omero.ValidationException:
             print " test985 - query has failed. Should this query pass? "
-            
+
         with pytest.raises(omero.ValidationException):
-            self.client.sf.getQueryService().findAllByQuery(TestTicket1000.failing, prms)
+            self.client.sf.getQueryService().findAllByQuery(
+                TestTicket1000.failing, prms)
 
-    ## removed def test989(self):
-
+    # removed def test989(self):

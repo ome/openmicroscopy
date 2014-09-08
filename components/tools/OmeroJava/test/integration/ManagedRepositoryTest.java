@@ -47,10 +47,15 @@ import ome.services.blitz.repo.path.FilePathRestrictionInstance;
 import ome.services.blitz.repo.path.FilePathRestrictions;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.repo.path.MakePathComponentSafe;
+import ome.services.blitz.util.ChecksumAlgorithmMapper;
+import ome.util.checksum.ChecksumProvider;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumProviderFactoryImpl;
+import ome.util.checksum.ChecksumType;
 import omero.LockTimeout;
+import omero.RType;
 import omero.ServerError;
+import omero.api.RawFileStorePrx;
 import omero.cmd.CmdCallbackI;
 import omero.cmd.HandlePrx;
 import omero.grid.ImportLocation;
@@ -60,12 +65,19 @@ import omero.grid.ManagedRepositoryPrx;
 import omero.grid.ManagedRepositoryPrxHelper;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
+import omero.model.ChecksumAlgorithm;
 import omero.model.OriginalFile;
+import omero.sys.EventContext;
+import omero.sys.Parameters;
 import omero.util.TempFileManager;
 
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 /**
  * Collections of tests for the <code>ManagedRepository</code> service.
@@ -691,5 +703,246 @@ public class ManagedRepositoryTest extends AbstractServerTest {
     private static void assertEndsWith(String usedFile, String destPath) {
         assertTrue("\nExpected: " + destPath + "\nActual: " + usedFile,
                 usedFile.endsWith(destPath));
+    }
+
+    /* the contents of the sample file used in file hash tests */
+    private static final byte[] SAMPLE_FILE_CONTENTS = new byte[] {1, 2, 3, 4, 5};
+
+    /* the source of hashers used in test methods */
+    private static final ChecksumProviderFactory CHECKSUM_PROVIDER_FACTORY = new ChecksumProviderFactoryImpl();
+
+    /**
+     * Get the original file that has the given ID.
+     * @param fileId the ID of the file to retrieve, must exist
+     * @return the corresponding original file with the hasher property joined
+     * @throws ServerError unexpected
+     */
+    private OriginalFile getFile(long fileId) throws ServerError {
+        final String query = "FROM OriginalFile o LEFT OUTER JOIN FETCH o.hasher WHERE o.id = :id";
+        final Parameters params = new Parameters();
+        params.map = ImmutableMap.<String, omero.RType>of("id", omero.rtypes.rlong(fileId));
+
+        final RType queryResult = iQuery.projection(query, params).get(0).get(0);
+        return (OriginalFile) ((omero.RObject) queryResult).getValue();
+    }
+
+    /**
+     * Upload the sample file to the repository.
+     * @return the new original file's ID
+     * @throws ServerError unexpected
+     */
+    private long uploadSampleFile() throws ServerError {
+        final EventContext ctx = iAdmin.getEventContext();
+        final StringBuffer path = new StringBuffer();
+        path.append(ctx.userName);
+        path.append('_');
+        path.append(ctx.userId);
+        path.append(FsFile.separatorChar);
+        path.append("test-");
+        path.append(getClass());
+        path.append(FsFile.separatorChar);
+        path.append(System.currentTimeMillis());
+
+        repo.makeDir(path.toString(), true);
+
+        path.append(FsFile.separatorChar);
+        path.append(System.nanoTime());
+
+        final RawFileStorePrx rfs = repo.file(path.toString(), "rw");
+        rfs.write(SAMPLE_FILE_CONTENTS, 0, SAMPLE_FILE_CONTENTS.length);
+        final long fileId = rfs.save().getId().getValue();
+        rfs.close();
+
+        /* clear any checksum set by the repository */
+        final OriginalFile file = getFile(fileId);
+        file.setHasher(null);
+        file.setHash(null);
+        iUpdate.saveObject(file);
+
+        return fileId;
+    }
+
+    /**
+     * Corrupt the existing checksum of the given file.
+     * @param fileId the original file's ID
+     * @throws ServerError unexpected
+     */
+    private void corruptChecksum(long fileId) throws ServerError {
+        final OriginalFile file = getFile(fileId);
+        file.setHash(omero.rtypes.rstring("corrupted hash"));
+        iUpdate.saveObject(file);
+    }
+
+    /**
+     * Assert that the checksum of the given file is as expected.
+     * @param fileId the ID of the original file to check
+     * @param expectedHasher the expected hasher of the file, may be {@code null}
+     * @param expectedHash the expected hash of the file, may be {@code null}
+     * @throws ServerError unexpected
+     */
+    private void assertFileChecksum(long fileId, String expectedHasher, String expectedHash) throws ServerError {
+        final OriginalFile file = getFile(fileId);
+        final String actualHasher = file.getHasher() == null ? null : file.getHasher().getValue().getValue();
+        final String actualHash = file.getHash() == null ? null : file.getHash().getValue();
+ 
+        Assert.assertEquals(actualHasher, expectedHasher, "expected correct hasher");
+        Assert.assertEquals(actualHash, expectedHash, "expected correct hash");
+    }
+
+    /**
+     * Test that a checksum can be added to an already uploaded file.
+     * @throws ServerError unexpected
+     */
+    @Test
+    public void testNewChecksumFromNone() throws ServerError {
+        /* find the file's expected hash */
+        final ChecksumAlgorithm murmur128Algorithm = ChecksumAlgorithmMapper.getChecksumAlgorithm("Murmur3-128");
+        final ChecksumType murmur128Type = ChecksumAlgorithmMapper.getChecksumType(murmur128Algorithm);
+        final ChecksumProvider murmur128 = CHECKSUM_PROVIDER_FACTORY.getProvider(murmur128Type);
+        murmur128.putBytes(SAMPLE_FILE_CONTENTS);
+        final String murmur128Hash = murmur128.checksumAsString();
+
+        /* upload the file */
+        final long fileId = uploadSampleFile();
+
+        /* check that the file does not have a checksum */
+        assertFileChecksum(fileId, null, null);
+
+        /* set the file to now have a checksum */
+        final List<Long> changedIds = repo.setChecksumAlgorithm(murmur128Algorithm, ImmutableList.of(fileId));
+
+        /* check that the file's checksum is reported to have been set */
+        Assert.assertEquals(changedIds.size(), 1, "expected to change one file's hash");
+        Assert.assertEquals((long) changedIds.get(0), fileId, "expected to change hash of specified file");
+
+        /* check that the file has been set with the new checksum */
+        assertFileChecksum(fileId, murmur128Algorithm.getValue().getValue(), murmur128Hash);
+    }
+
+    /**
+     * Test that the checksum of a file can be changed.
+     * @throws ServerError unexpected
+     */
+    @Test
+    public void testNewChecksumFromDifferent() throws ServerError {
+        /* find the file's expected hash before */
+        final ChecksumAlgorithm md5Algorithm = ChecksumAlgorithmMapper.getChecksumAlgorithm("MD5-128");
+        final ChecksumType md5Type = ChecksumAlgorithmMapper.getChecksumType(md5Algorithm);
+        final ChecksumProvider md5 = CHECKSUM_PROVIDER_FACTORY.getProvider(md5Type);
+        md5.putBytes(SAMPLE_FILE_CONTENTS);
+        final String md5Hash = md5.checksumAsString();
+
+        /* find the file's expected hash after */
+        final ChecksumAlgorithm murmur128Algorithm = ChecksumAlgorithmMapper.getChecksumAlgorithm("Murmur3-128");
+        final ChecksumType murmur128Type = ChecksumAlgorithmMapper.getChecksumType(murmur128Algorithm);
+        final ChecksumProvider murmur128 = CHECKSUM_PROVIDER_FACTORY.getProvider(murmur128Type);
+        murmur128.putBytes(SAMPLE_FILE_CONTENTS);
+        final String murmur128Hash = murmur128.checksumAsString();
+
+        /* upload the file and set its checksum */
+        final long fileId = uploadSampleFile();
+        repo.setChecksumAlgorithm(md5Algorithm, ImmutableList.of(fileId));
+
+        /* check that the file has been set with the old checksum */
+        assertFileChecksum(fileId, md5Algorithm.getValue().getValue(), md5Hash);
+
+        /* set the file to its new checksum */
+        final List<Long> changedIds = repo.setChecksumAlgorithm(murmur128Algorithm, ImmutableList.of(fileId));
+
+        /* check that the file's checksum is reported to have been set */
+        Assert.assertEquals(changedIds.size(), 1, "expected to change one file's hash");
+        Assert.assertEquals((long) changedIds.get(0), fileId, "expected to change hash of specified file");
+
+        /* check that the file has been set with the new checksum */
+        assertFileChecksum(fileId, murmur128Algorithm.getValue().getValue(), murmur128Hash);
+    }
+
+    /**
+     * Test that nothing happens when the checksum of a file is set to what it already is.
+     * @throws ServerError unexpected
+     */
+    @Test
+    public void testNewChecksumFromSame() throws ServerError {
+        /* find the file's expected hash */
+        final ChecksumAlgorithm md5Algorithm = ChecksumAlgorithmMapper.getChecksumAlgorithm("MD5-128");
+        final ChecksumType md5Type = ChecksumAlgorithmMapper.getChecksumType(md5Algorithm);
+        final ChecksumProvider md5 = CHECKSUM_PROVIDER_FACTORY.getProvider(md5Type);
+        md5.putBytes(SAMPLE_FILE_CONTENTS);
+        final String md5Hash = md5.checksumAsString();
+
+        /* upload the file and set its checksum */
+        final long fileId = uploadSampleFile();
+        repo.setChecksumAlgorithm(md5Algorithm, ImmutableList.of(fileId));
+
+        /* check that the file has been set with the checksum */
+        assertFileChecksum(fileId, md5Algorithm.getValue().getValue(), md5Hash);
+
+        /* set the file to the same checksum */
+        final List<Long> changedIds = repo.setChecksumAlgorithm(md5Algorithm, ImmutableList.of(fileId));
+
+        /* check that the file's checksum is not reported to have been set */
+        Assert.assertTrue(changedIds.isEmpty(), "expected to change no file's hash");
+
+        /* check that the file retains its checksum */
+        assertFileChecksum(fileId, md5Algorithm.getValue().getValue(), md5Hash);
+    }
+
+    /**
+     * Test that the checksum of a file is not changed, and an error is thrown, if the file was corrupted.
+     * @throws ServerError because the file's old checksum is wrong
+     */
+    @Test(expectedExceptions = ServerError.class)
+    public void testNewChecksumAborts() throws ServerError {
+        /* find the file's expected hash before */
+        final ChecksumAlgorithm md5Algorithm = ChecksumAlgorithmMapper.getChecksumAlgorithm("MD5-128");
+        final ChecksumType md5Type = ChecksumAlgorithmMapper.getChecksumType(md5Algorithm);
+        final ChecksumProvider md5 = CHECKSUM_PROVIDER_FACTORY.getProvider(md5Type);
+        md5.putBytes(SAMPLE_FILE_CONTENTS);
+        final String md5Hash = md5.checksumAsString();
+
+        /* find the file's new hasher */
+        final ChecksumAlgorithm murmur128Algorithm = ChecksumAlgorithmMapper.getChecksumAlgorithm("Murmur3-128");
+
+        /* upload the file and set its checksum */
+        final long fileId = uploadSampleFile();
+        repo.setChecksumAlgorithm(md5Algorithm, ImmutableList.of(fileId));
+
+        /* check that the file has been set with the old checksum */
+        assertFileChecksum(fileId, md5Algorithm.getValue().getValue(), md5Hash);
+
+        /* corrupt the file's old checksum */
+        corruptChecksum(fileId);
+
+        /* attempt to set the file to its new checksum */
+        repo.setChecksumAlgorithm(murmur128Algorithm, ImmutableList.of(fileId));
+    }
+
+    /**
+     * Test that bad file checksums are correctly reported.
+     * @throws ServerError unexpected
+     */
+    public void testVerifyChecksums() throws ServerError {
+        /* upload the files */
+        final long fileId1 = uploadSampleFile();
+        final long fileId2 = uploadSampleFile();
+        final long fileId3 = uploadSampleFile();
+        final long fileId4 = uploadSampleFile();
+        final List<Long> fileIds = ImmutableList.of(fileId1, fileId2, fileId3, fileId4);
+
+        /* set the files' checksum */
+        final ChecksumAlgorithm shaAlgorithm = ChecksumAlgorithmMapper.getChecksumAlgorithm("SHA1-160");
+        final List<Long> changedIds = repo.setChecksumAlgorithm(shaAlgorithm, fileIds);
+        Assert.assertEquals(changedIds.size(), fileIds.size(), "expected to have changed the files' checksum");
+
+        /* corrupt some files' checksums */
+        final List<Long> corruptedFileIds = ImmutableList.of(fileId2, fileId3);
+        for (final long corruptedFileId : corruptedFileIds) {
+            corruptChecksum(corruptedFileId);
+        }
+
+        /* check that only the expected files have a bad checksum */
+        final List<Long> failedVerificationIds = repo.verifyChecksums(fileIds);
+        Assert.assertEqualsNoOrder(failedVerificationIds.toArray(), corruptedFileIds.toArray(),
+                "expected the exactly corrupted files to fail checksum verification");
     }
 }

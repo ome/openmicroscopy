@@ -230,6 +230,8 @@ class RendererComponent
         this.model = model;
         controller = new RendererControl();
         view = new RendererUI();
+        
+        this.model.getRndDefHistory().addPropertyChangeListener(controller);
     }
     
     /** 
@@ -323,6 +325,7 @@ class RendererComponent
 	public void setBitResolution(int v)
 	{
         try {
+                makeHistorySnapshot();
         	model.setBitResolution(v);
         	//if (model.isGeneralIndex()) model.saveRndSettings();
             firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.valueOf(false), 
@@ -341,6 +344,7 @@ class RendererComponent
 		int selectedIndex = index;
 		boolean render = true;
 		try {
+		        makeHistorySnapshot();
 			if (model.isGeneralIndex()) {
 				if (GREY_SCALE_MODEL.equals(model.getColorModel())) {
 					if (model.isChannelActive(index)) return;
@@ -378,9 +382,10 @@ class RendererComponent
 			}
 			model.setSelectedChannel(selectedIndex);
 			view.setSelectedChannel();
-        	if (render)
+        	if (render) 
         		firePropertyChange(RENDER_PLANE_PROPERTY,
         				Boolean.valueOf(false), Boolean.valueOf(true));
+        	
         	firePropertyChange(SELECTED_CHANNEL_PROPERTY, -1,
         			selectedIndex);
 		} catch (Exception ex) {
@@ -508,6 +513,7 @@ class RendererComponent
 		}
 		if (color == null) return;
 		try {
+		        makeHistorySnapshot();
 			model.setChannelColor(index, color);
 			view.setChannelColor(index);
 			firePropertyChange(CHANNEL_COLOR_PROPERTY, -1, index);
@@ -518,6 +524,7 @@ class RendererComponent
 				firePropertyChange(RENDER_PLANE_PROPERTY, 
 						Boolean.valueOf(false), Boolean.valueOf(true));
 			}
+			
 		} catch (Exception e) {
 			handleException(e);
 		}
@@ -831,6 +838,7 @@ class RendererComponent
 	public void resetSettings()
 	{
 		try {
+		        model.makeHistorySnapshot();
 			model.resetDefaults();
 			view.resetDefaultRndSettings();
 			firePropertyChange(RENDER_PLANE_PROPERTY, 
@@ -841,7 +849,48 @@ class RendererComponent
 			handleException(e);
 		}
 	}
-
+	
+        /**
+         * Implemented as specified by the {@link Renderer} interface.
+         * 
+         * @see Renderer#historyBack()
+         */
+        public void historyBack() {
+            try {
+                model.historyBack();
+                refresh();
+                firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.valueOf(false), 
+                        Boolean.valueOf(true));
+            } catch (Throwable e) {
+                handleException(e);
+            }
+        }
+	
+        /**
+         * Implemented as specified by the {@link Renderer} interface.
+         * 
+         * @see Renderer#historyForward()
+         */
+        public void historyForward() {
+            try {
+                model.historyForward();
+                refresh();
+                firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.valueOf(false), 
+                        Boolean.valueOf(true));
+            } catch (Throwable e) {
+                handleException(e);
+            }
+        }
+        
+        /**
+         * Implemented as specified by the {@link Renderer} interface.
+         * 
+         * @see Renderer#makeHistorySnapshot()
+         */
+        public void makeHistorySnapshot() {
+            model.makeHistorySnapshot();
+        }
+	
 	/** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#resetSettings(RndProxyDef, boolean)
@@ -869,7 +918,9 @@ class RendererComponent
 	public RndProxyDef saveCurrentSettings()
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		return model.saveCurrentSettings();
+	        RndProxyDef def = model.saveCurrentSettings();
+	        controller.enableActions();
+		return def;
 	}
 
 	/** 
@@ -902,6 +953,7 @@ class RendererComponent
 	public void setChannelWindow(int index, double start, double end)
 	{
 		try {
+		        makeHistorySnapshot();
 			double s = model.getWindowStart(index);
 			double e = model.getWindowEnd(index);
 			if (start == s && end == e) return;
@@ -939,6 +991,14 @@ class RendererComponent
 		}
 	}
 
+       /** 
+        * Implemented as specified by the {@link Renderer} interface.
+        * @see Renderer#isModified()
+        */
+	public boolean isModified() {
+	    return model.isModified();
+	}
+	
 	/** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#validatePixels(PixelsData)
@@ -986,6 +1046,7 @@ class RendererComponent
 	public void setRangeAllChannels(boolean absolute)
 	{
 		try {
+		        makeHistorySnapshot();
 			double min, max;
 			for (int i = 0; i < model.getMaxC(); i++) {
 				if (absolute) {

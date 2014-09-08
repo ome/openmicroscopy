@@ -64,7 +64,7 @@ class LoginForm(NonASCIIForm):
 
 class ForgottonPasswordForm(NonASCIIForm):
     
-    server = ServerModelChoiceField(Server, empty_label=u"---------")
+    server = ServerModelChoiceField(Server, empty_label=None)
     username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':28, 'autocomplete': 'off'}))
     email = forms.EmailField(widget=forms.TextInput(attrs={'size':28, 'autocomplete': 'off'}))
 

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -24,7 +24,6 @@ from omero.cli import NonZeroReturnCode
 from test.integration.clitest.cli import CLITest, RootCLITest
 import pytest
 
-subcommands = ['add', 'perms', 'list', 'copyusers', 'adduser', 'removeuser']
 group_pairs = [('--id', 'id'), ('--name', 'name')]
 user_pairs = [(None, 'id'), (None, 'omeName'), ('--user-id', 'id'),
               ('--user-name', 'omeName')]
@@ -38,17 +37,6 @@ class TestGroup(CLITest):
         super(TestGroup, self).setup_method(method)
         self.cli.register("group", GroupControl, "TEST")
         self.args += ["group"]
-
-    # Help subcommands
-    # ========================================================================
-    def testHelp(self):
-        self.args += ["-h"]
-        self.cli.invoke(self.args, strict=True)
-
-    @pytest.mark.parametrize("subcommand", subcommands)
-    def testSubcommandHelp(self, subcommand):
-        self.args += [subcommand, "-h"]
-        self.cli.invoke(self.args, strict=True)
 
     # List subcommand
     # ========================================================================

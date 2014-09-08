@@ -122,10 +122,6 @@
   width: 0px;
 }
 
-.postit tr > td:first-child {
-  text-align: right;
-}
-
 .postit .ui-resizable {
   position: initial;
 }

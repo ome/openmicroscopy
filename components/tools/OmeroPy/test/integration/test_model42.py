@@ -4,13 +4,15 @@
 """
    Integration test focused on the model changes in 4.2
 
-   Copyright 2010-2013 Glencoe Software, Inc. All rights reserved.
+   Copyright 2010-2014 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
 
 import test.integration.library as lib
-from omero.rtypes import *
+import omero
+
+from omero.rtypes import rstring
 
 
 class TestModel42(lib.ITest):
@@ -82,4 +84,3 @@ class TestTicket2290(lib.ITest):
         rect = omero.model.RectI()
         roi.addShape(rect)
         roi = self.update.saveAndReturnObject(roi)
-

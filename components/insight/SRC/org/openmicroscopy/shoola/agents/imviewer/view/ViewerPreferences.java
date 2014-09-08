@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.view.ViewerPreferences 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -90,6 +90,9 @@ public class ViewerPreferences
 	
 	/** The fields to set. */
 	private Map<String, Boolean> 	fields;
+	
+	/** Flag indicating if interpolation is used */
+	private boolean interpolation = true;
 	
 	/** Creates a new instance. */
 	public ViewerPreferences()
@@ -259,5 +262,23 @@ public class ViewerPreferences
 		if (value == null) return false;
 		return value.booleanValue();
 	}
+
+        /**
+         * Returns if interpolation is enabled or not
+         * 
+         * @return
+         */
+        boolean isInterpolation() {
+            return interpolation;
+        }
+    
+        /**
+         * En-/Disables interpolation
+         * 
+         * @param interpolation
+         */
+        void setInterpolation(boolean interpolation) {
+            this.interpolation = interpolation;
+        }
 	
 }

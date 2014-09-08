@@ -20,32 +20,34 @@ finally:
     del __save__
 
 sys = __import__("sys")
-import traceback, threading, logging
-import IceImport, Ice
-import omero_ext.uuid as uuid # see ticket:3774
+import threading
+import logging
+import IceImport
+import Ice
+import omero_ext.uuid as uuid  # see ticket:3774
 
 IceImport.load("Glacier2_Router_ice")
 import Glacier2
 
+
 class BaseClient(object):
     """
-    Central client-side blitz entry point, and should be in sync with OmeroJava's omero.client
-    and OmeroCpp's omero::client.
+    Central client-side blitz entry point, and should be in sync with
+    OmeroJava's omero.client and OmeroCpp's omero::client.
 
     Typical usage includes::
 
-        client = omero.client()                          # Uses --Ice.Config argument or ICE_CONFIG variable
-        client = omero.client(host = host)               # Defines "omero.host"
-        client = omero.client(host = host, port = port)  # Defines "omero.host" and "omero.port"
+        # Uses --Ice.Config argument or ICE_CONFIG variable
+        client = omero.client()
+        # Defines "omero.host"
+        client = omero.client(host = host)
+        # Defines "omero.host" and "omero.port"
+        client = omero.client(host = host, port = port)
 
-    For more information, see:
-
-        - U{http://trac.openmicroscopy.org.uk/ome/wiki/ClientDesign}
 
     """
 
-    def __init__(self, args = None, id = None, \
-                     host = None, port = None, pmap = None):
+    def __init__(self, args=None, id=None, host=None, port=None, pmap=None):
         """
         Constructor which takes one sys.argv-style list, one initialization
         data, one host string, one port integer, and one properties map, in
@@ -55,24 +57,28 @@ class BaseClient(object):
         ::
             c1 = omero.client(None, None, "host", myPort)   # Correct
             c2 = omero.client(host = "host", port = myPort) # Correct
-            c3 = omero.client("host", myPort)               # Works with warning
+            # Works with warning
+            c3 = omero.client("host", myPort)
 
         Both "Ice" and "omero" prefixed properties will be parsed.
 
         Defines the state variables::
-            __previous : InitializationData from any previous communicator, if any
-                       Used to re-initialization the client post-closeSession()
+            __previous : InitializationData from any previous communicator, if
+                         any. Used to re-initialization the client
+                         post-closeSession()
 
-            __ic       : communicator. Nullness => init() needed on createSession()
+            __ic       : communicator. Nullness => init() needed on
+                         createSession()
 
             __sf       : current session. Nullness => createSession() needed.
 
-            __resources: if non-null, hs access to this client instance and will
-                       periodically call sf.keepAlive(None) in order to keep any
-                       session alive. This can be enabled either via the omero.keep_alive
-                       configuration property, or by calling the enableKeepAlive() method.
-                       Once enabled, the period cannot be adjusted during a single
-                       session.
+            __resources: if non-null, hs access to this client instance and
+                         will periodically call sf.keepAlive(None) in order to
+                         keep any session alive. This can be enabled either
+                         via the omero.keep_alive configuration property, or
+                         by calling the enableKeepAlive() method.
+                         Once enabled, the period cannot be adjusted during a
+                         single session.
 
         Modifying these variables outside of the accessors can lead to
         undefined behavior.
@@ -81,8 +87,8 @@ class BaseClient(object):
         """
 
         # Setting all protected values to prevent AttributeError
-        self.__agent = "OMERO.py" #: See setAgent
-        self.__ip = None #: See setIP
+        self.__agent = "OMERO.py"  #: See setAgent
+        self.__ip = None  #: See setIP
         self.__insecure = False
         self.__previous = None
         self.__ic = None
@@ -95,7 +101,7 @@ class BaseClient(object):
 
         # Logging
         self.__logger = logging.getLogger("omero.client")
-        logging.basicConfig() # Does nothing if already configured
+        logging.basicConfig()  # Does nothing if already configured
 
         # Reassigning based on argument type
 
@@ -114,21 +120,21 @@ class BaseClient(object):
                 args[idx] = arg
 
         # Equiv to multiple constructors. #######################
-        if id == None:
+        if id is None:
             id = Ice.InitializationData()
 
-        if id.properties == None:
+        if id.properties is None:
             id.properties = Ice.createProperties(args)
 
         id.properties.parseCommandLineOptions("omero", args)
         if host:
             id.properties.setProperty("omero.host", str(host))
         if not port:
-            port = id.properties.getPropertyWithDefault("omero.port",\
-                str(omero.constants.GLACIER2PORT))
+            port = id.properties.getPropertyWithDefault(
+                "omero.port", str(omero.constants.GLACIER2PORT))
         id.properties.setProperty("omero.port", str(port))
         if pmap:
-            for k,v in pmap.items():
+            for k, v in pmap.items():
                 id.properties.setProperty(str(k), str(v))
 
         self._initData(id)
@@ -161,7 +167,9 @@ class BaseClient(object):
                     if not found:
                         found = original[j]
                     else:
-                        raise omero.ClientError("Found two arguments of same type: " + str(types[i]))
+                        raise omero.ClientError(
+                            "Found two arguments of same type: " +
+                            str(types[i]))
             if found:
                 repaired[i] = found
         return repaired
@@ -184,45 +192,51 @@ class BaseClient(object):
         id.properties.setProperty("Ice.RetryIntervals", "-1")
         id.properties.setProperty("Ice.Default.EndpointSelection", "Ordered")
         id.properties.setProperty("Ice.Default.PreferSecure", "1")
-        id.properties.setProperty("Ice.Plugin.IceSSL" , "IceSSL:createIceSSL")
-        id.properties.setProperty("IceSSL.Ciphers" , "ADH")
-        id.properties.setProperty("IceSSL.VerifyPeer" , "0")
+        id.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL:createIceSSL")
+        id.properties.setProperty("IceSSL.Ciphers", "ADH")
+        id.properties.setProperty("IceSSL.VerifyPeer", "0")
 
         # Setting block size
         blockSize = id.properties.getProperty("omero.block_size")
         if not blockSize or len(blockSize) == 0:
-            id.properties.setProperty("omero.block_size", str(omero.constants.DEFAULTBLOCKSIZE))
+            id.properties.setProperty(
+                "omero.block_size", str(omero.constants.DEFAULTBLOCKSIZE))
 
         # Set the default encoding if this is Ice 3.5 or later
         # and none is set.
         if Ice.intVersion() >= 30500:
             if not id.properties.getProperty("Ice.Default.EncodingVersion"):
-                id.properties.setProperty("Ice.Default.EncodingVersion", "1.0")
+                id.properties.setProperty(
+                    "Ice.Default.EncodingVersion", "1.0")
 
         # Setting MessageSizeMax
         messageSize = id.properties.getProperty("Ice.MessageSizeMax")
         if not messageSize or len(messageSize) == 0:
-            id.properties.setProperty("Ice.MessageSizeMax", str(omero.constants.MESSAGESIZEMAX))
+            id.properties.setProperty(
+                "Ice.MessageSizeMax", str(omero.constants.MESSAGESIZEMAX))
 
         # Setting ConnectTimeout
-        self.parseAndSetInt(id, "Ice.Override.ConnectTimeout",\
-                           omero.constants.CONNECTTIMEOUT)
+        self.parseAndSetInt(id, "Ice.Override.ConnectTimeout",
+                            omero.constants.CONNECTTIMEOUT)
 
         # Set large thread pool max values for all communicators
         for x in ("Client", "Server"):
-            sizemax = id.properties.getProperty("Ice.ThreadPool.%s.SizeMax" % x)
+            sizemax = id.properties.getProperty(
+                "Ice.ThreadPool.%s.SizeMax" % x)
             if not sizemax or len(sizemax) == 0:
-                id.properties.setProperty("Ice.ThreadPool.%s.SizeMax" % x, "50")
+                id.properties.setProperty(
+                    "Ice.ThreadPool.%s.SizeMax" % x, "50")
 
         # Port, setting to default if not present
-        port = self.parseAndSetInt(id, "omero.port",\
-                                  omero.constants.GLACIER2PORT)
+        port = self.parseAndSetInt(id, "omero.port",
+                                   omero.constants.GLACIER2PORT)
 
         # Default Router, set a default and then replace
         router = id.properties.getProperty("Ice.Default.Router")
         if not router or len(router) == 0:
             router = str(omero.constants.DEFAULTROUTER)
-        host = id.properties.getPropertyWithDefault("omero.host", """<"omero.host" not set>""")
+        host = id.properties.getPropertyWithDefault(
+            "omero.host", """<"omero.host" not set>""")
         router = router.replace("@omero.port@", str(port))
         router = router.replace("@omero.host@", str(host))
         id.properties.setProperty("Ice.Default.Router", router)
@@ -262,7 +276,8 @@ class BaseClient(object):
             self.__uuid = str(uuid.uuid4())
             ctx = self.__ic.getImplicitContext()
             if not ctx:
-                raise omero.ClientError("Ice.ImplicitContext not set to Shared")
+                raise omero.ClientError(
+                    "Ice.ImplicitContext not set to Shared")
             ctx.put(omero.constants.CLIENTUUID, self.__uuid)
 
             # ticket:2951 - sending user group
@@ -276,21 +291,21 @@ class BaseClient(object):
     def setAgent(self, agent):
         """
         Sets the omero.model.Session#getUserAgent() string for
-        this client. Every session creation will be passed this argument. Finding
-        open sessions with the same agent can be done via
+        this client. Every session creation will be passed this argument.
+        Finding open sessions with the same agent can be done via
         omero.api.ISessionPrx#getMyOpenAgentSessions(String).
         """
         self.__agent = agent
-    
+
     def setIP(self, ip):
         """
         Sets the omero.model.Session#getUserIP() string for
-        this client. Every session creation will be passed this argument. Finding
-        open sesssions with the same IP can be done via
+        this client. Every session creation will be passed this argument.
+        Finding open sessions with the same IP can be done via
         omero.api.ISessionPrx#getMyOpenIPSessions(ip).
         """
         self.__ip = ip
-    
+
     def isSecure(self):
         """
         Specifies whether or not this client was created via a call to
@@ -301,22 +316,26 @@ class BaseClient(object):
 
     def createClient(self, secure):
         """
-        Creates a possibly insecure omero.client instance and calls joinSession
-        using the current getSessionId value. If secure is False, then first the
-        "omero.router.insecure" configuration property is retrieved from the server
-        and used as the value of "Ice.Default.Router" for the new client. Any exception
-        thrown during creation is passed on to the caller.
+        Creates a possibly insecure omero.client instance and calls
+        joinSession using the current getSessionId value. If secure is False,
+        then first the "omero.router.insecure" configuration property is
+        retrieved from the server and used as the value of
+        "Ice.Default.Router" for the new client. Any exception thrown during
+        creation is passed on to the caller.
 
-        Note: detachOnDestroy has NOT been called on the session in the returned client.
+        Note: detachOnDestroy has NOT been called on the session in the
+        returned client.
         Clients are responsible for doing this immediately if such desired.
         """
         props = self.getPropertyMap()
         if not secure:
-            insecure = self.getSession().getConfigService().getConfigValue("omero.router.insecure")
+            insecure = self.getSession().getConfigService().getConfigValue(
+                "omero.router.insecure")
             if insecure is not None and insecure != "":
                 props["Ice.Default.Router"] = insecure
             else:
-                self.__logger.warn("Could not retrieve \"omero.router.insecure\"")
+                self.__logger.warn(
+                    "Could not retrieve \"omero.router.insecure\"")
 
         nClient = omero.client(props)
         nClient.__insecure = not secure
@@ -333,11 +352,14 @@ class BaseClient(object):
         try:
             self.closeSession()
         except Exception, e:
-            # It is perfectly normal for the session to have been closed before garbage collection
-            # though for some reason I can't match this exception with the Glacier2.SessionNotExistException
-            # class. Using str matching instead.
+            # It is perfectly normal for the session to have been closed
+            # before garbage collection
+            # though for some reason I can't match this exception with the
+            # Glacier2.SessionNotExistException class.
+            # Using str matching instead.
             if 'Glacier2.SessionNotExistException' not in str(e.__class__):
-                self.__logger.warning("..Ignoring error in client.__del__:" + str(e.__class__))
+                self.__logger.warning(
+                    "..Ignoring error in client.__del__:" + str(e.__class__))
 
     def getCommunicator(self):
         """
@@ -347,7 +369,9 @@ class BaseClient(object):
         self.__lock.acquire()
         try:
             if not self.__ic:
-                raise omero.ClientError("No Ice.Communicator active; call createSession() or create a new client instance")
+                raise omero.ClientError(
+                    "No Ice.Communicator active; call createSession() "
+                    "or create a new client instance")
             return self.__ic
         finally:
             self.__lock.release()
@@ -360,15 +384,17 @@ class BaseClient(object):
         self.__lock.acquire()
         try:
             if not self.__oa:
-                raise omero.ClientError("No Ice.ObjectAdapter active; call createSession() or create a new client instance")
+                raise omero.ClientError(
+                    "No Ice.ObjectAdapter active; call createSession() "
+                    "or create a new client instance")
             return self.__oa
         finally:
             self.__lock.release()
 
     def getSession(self, blocking=True):
         """
-        Returns the current active session or throws an exception if none has been
-        created since the last closeSession()
+        Returns the current active session or throws an exception if none has
+        been created since the last closeSession()
 
         If blocking is False, then self.__lock is not acquired and the value
         of self.__sf is simply returned. Clients must properly handle the
@@ -436,7 +462,7 @@ class BaseClient(object):
         """
         return self.getProperties().getProperty(key)
 
-    def getPropertyMap(self, properties = None):
+    def getPropertyMap(self, properties=None):
         """
         Returns all properties which are prefixed with "omero." or "Ice."
         """
@@ -444,8 +470,8 @@ class BaseClient(object):
             properties = self.getProperties()
 
         rv = dict()
-        for prefix in ["omero","Ice"]:
-            for k,v in properties.getPropertiesForPrefix(prefix).items():
+        for prefix in ["omero", "Ice"]:
+            for k, v in properties.getPropertiesForPrefix(prefix).items():
                 rv[k] = v
         return rv
 
@@ -481,11 +507,14 @@ class BaseClient(object):
             # Checking state
 
             if self.__sf:
-                raise omero.ClientError("Session already active. Create a new omero.client or closeSession()")
+                raise omero.ClientError(
+                    "Session already active. "
+                    "Create a new omero.client or closeSession()")
 
             if not self.__ic:
                 if not self.__previous:
-                    raise omero.ClientError("No previous data to recreate communicator.")
+                    raise omero.ClientError(
+                        "No previous data to recreate communicator.")
                 self._initData(self.__previous)
                 self.__previous = None
 
@@ -493,7 +522,7 @@ class BaseClient(object):
 
             if not username:
                 username = self.getProperty("omero.user")
-            elif isinstance(username,omero.RString):
+            elif isinstance(username, omero.RString):
                 username = username.val
 
             if not username or len(username) == 0:
@@ -501,7 +530,7 @@ class BaseClient(object):
 
             if not password:
                 password = self.getProperty("omero.pass")
-            elif isinstance(password,omero.RString):
+            elif isinstance(password, omero.RString):
                 password = password.val
 
             if not password:
@@ -513,8 +542,8 @@ class BaseClient(object):
             while retries < 3:
                 reason = None
                 if retries > 0:
-                    self.__logger.warning(\
-                    "%s - createSession retry: %s"% (reason, retries) )
+                    self.__logger.warning(
+                        "%s - createSession retry: %s" % (reason, retries))
                 try:
                     ctx = self.getContext()
                     ctx[omero.constants.AGENT] = self.__agent
@@ -524,8 +553,8 @@ class BaseClient(object):
                     prx = rtr.createSession(username, password, ctx)
 
                     # Create the adapter
-                    self.__oa = self.__ic.createObjectAdapterWithRouter( \
-                            "omero.ClientCallback", rtr)
+                    self.__oa = self.__ic.createObjectAdapterWithRouter(
+                        "omero.ClientCallback", rtr)
                     self.__oa.activate()
 
                     id = Ice.Identity()
@@ -535,11 +564,10 @@ class BaseClient(object):
                     self.__cb = BaseClient.CallbackI(self.__ic, self.__oa, id)
                     self.__oa.add(self.__cb, id)
 
-
                     break
                 except omero.WrappedCreateSessionException, wrapped:
                     if not wrapped.concurrency:
-                        raise wrapped # We only retry concurrency issues.
+                        raise wrapped  # We only retry concurrency issues.
                     reason = "%s:%s" % (wrapped.type, wrapped.reason)
                     retries = retries + 1
                 except Ice.ConnectTimeoutException, cte:
@@ -552,7 +580,8 @@ class BaseClient(object):
             # Check type
             self.__sf = omero.api.ServiceFactoryPrx.uncheckedCast(prx)
             if not self.__sf:
-                raise omero.ClientError("Obtained object proxy is not a ServiceFactory")
+                raise omero.ClientError(
+                    "Obtained object proxy is not a ServiceFactory")
 
             # Configure keep alive
             self.startKeepAlive()
@@ -562,14 +591,16 @@ class BaseClient(object):
             try:
 
                 raw = self.__oa.createProxy(self.__cb.id)
-                self.__sf.setCallback(omero.api.ClientCallbackPrx.uncheckedCast(raw))
-                #self.__sf.subscribe("/public/HeartBeat", raw)
+                self.__sf.setCallback(
+                    omero.api.ClientCallbackPrx.uncheckedCast(raw))
+                # self.__sf.subscribe("/public/HeartBeat", raw)
             except:
                 self.__del__()
                 raise
 
             # Set the session uuid in the implicit context
-            self.getImplicitContext().put(omero.constants.SESSIONUUID, self.getSessionId())
+            self.getImplicitContext().put(
+                omero.constants.SESSIONUUID, self.getSessionId())
 
             return self.__sf
         finally:
@@ -620,7 +651,8 @@ class BaseClient(object):
             props = ic.getProperties()
             seconds = -1
             try:
-                seconds = props.getPropertyWithDefault("omero.keep_alive", "-1")
+                seconds = props.getPropertyWithDefault(
+                    "omero.keep_alive", "-1")
                 seconds = int(seconds)
             except ValueError:
                 pass
@@ -632,19 +664,24 @@ class BaseClient(object):
             # If seconds is more than 0, a new one should be started.
             if seconds > 0:
                 self.__resources = omero.util.Resources(seconds)
+
                 class Entry:
                     def __init__(self, c):
                         self.c = c
-                    def cleanup(self): pass
+
+                    def cleanup(self):
+                        pass
+
                     def check(self):
                         sf = self.c._BaseClient__sf
                         ic = self.c._BaseClient__ic
-                        if sf != None:
+                        if sf is not None:
                             try:
                                 sf.keepAlive(None)
-                            except Exception, e:
-                                if ic != None:
-                                    ic.getLogger().warning("Proxy keep alive failed.")
+                            except Exception:
+                                if ic is not None:
+                                    ic.getLogger().warning(
+                                        "Proxy keep alive failed.")
                                 return False
                         return True
                 self.__resources.add(Entry(self))
@@ -666,13 +703,11 @@ class BaseClient(object):
     def getManagedRepository(self):
         repoMap = self.getSession().sharedResources().repositories()
         prx = None
-        found = False
         for prx in repoMap.proxies:
             if not prx:
                 continue
             prx = omero.grid.ManagedRepositoryPrx.checkedCast(prx)
             if prx:
-                found = True
                 break
         return prx
 
@@ -714,15 +749,16 @@ class BaseClient(object):
             file.close()
         return digest.hexdigest()
 
-    def upload(self, filename, name = None, path = None,
-               type = None, ofile = None, block_size = 1024):
+    def upload(self, filename, name=None, path=None, type=None, ofile=None,
+               block_size=1024):
         """
         Utility method to upload a file to the server.
         """
         if not self.__sf:
             raise omero.ClientError("No session. Use createSession first.")
 
-        import os, types
+        import os
+        import types
         if not filename or not isinstance(filename, types.StringType):
             raise omero.ClientError("Non-null filename must be provided")
 
@@ -753,7 +789,8 @@ class BaseClient(object):
                     ofile.name = omero.rtypes.rstring(str(abspath.basename()))
 
             if not ofile.path:
-                ofile.path = omero.rtypes.rstring(str(abspath.dirname())+os.path.sep)
+                ofile.path = omero.rtypes.rstring(
+                    str(abspath.dirname())+os.path.sep)
 
             if not ofile.mimetype:
                 if type:
@@ -770,7 +807,7 @@ class BaseClient(object):
             prx = self.__sf.createRawFileStore()
             try:
                 prx.setFileId(ofile.id.val)
-                prx.truncate(size) # ticket:2337
+                prx.truncate(size)  # ticket:2337
                 self.write_stream(file, prx, block_size)
             finally:
                 prx.close()
@@ -788,7 +825,8 @@ class BaseClient(object):
             prx.write(block, offset, len(block))
             offset += len(block)
 
-    def download(self, ofile, filename = None, block_size = 1024*1024, filehandle = None):
+    def download(self, ofile, filename=None, block_size=1024*1024,
+                 filehandle=None):
         if not self.__sf:
             raise omero.ClientError("No session. Use createSession first.")
 
@@ -799,8 +837,8 @@ class BaseClient(object):
         try:
             if not ofile or not ofile.id:
                 raise omero.ClientError("No file to download")
-            ofile = self.__sf.getQueryService().get("OriginalFile", ofile.id.val,
-                                                    ctx)
+            ofile = self.__sf.getQueryService().get(
+                "OriginalFile", ofile.id.val, ctx)
 
             if block_size > ofile.size.val:
                 block_size = ofile.size.val
@@ -812,11 +850,13 @@ class BaseClient(object):
 
             if filehandle is None:
                 if filename is None:
-                    raise omero.ClientError("no filename or filehandle specified")
+                    raise omero.ClientError(
+                        "no filename or filehandle specified")
                 filehandle = open(filename, 'wb')
             else:
                 if filename:
-                    raise omero.ClientError("filename and filehandle specified.")
+                    raise omero.ClientError(
+                        "filename and filehandle specified.")
 
             try:
                 while (offset+block_size) < size:
@@ -883,13 +923,15 @@ class BaseClient(object):
                 if prx is not None:
                     rv.append(prx)
             except:
-                self.__logger.warn("Error looking up proxy: %s" % srv, exc_info=1)
+                self.__logger.warn(
+                    "Error looking up proxy: %s" % srv, exc_info=1)
         return rv
 
     def closeSession(self):
         """
-        Closes the Router connection created by createSession(). Due to a bug in Ice,
-        only one connection is allowed per communicator, so we also destroy the communicator.
+        Closes the Router connection created by createSession(). Due to a bug
+        in Ice, only one connection is allowed per communicator, so we also
+        destroy the communicator.
         """
 
         self.__lock.acquire()
@@ -898,7 +940,7 @@ class BaseClient(object):
             try:
                 self.stopKeepAlive()
             except Exception, e:
-                oldIc.getLogger().warning(
+                self.__logger.warning(
                     "While cleaning up resources: " + str(e))
 
             self.__sf = None
@@ -917,7 +959,8 @@ class BaseClient(object):
                 try:
                     oldOa.deactivate()
                 except Exception, e:
-                    self.__logger.warning("While deactivating adapter: " + str(e.message))
+                    self.__logger.warning(
+                        "While deactivating adapter: " + str(e.message))
 
             self.__previous = Ice.InitializationData()
             self.__previous.properties = oldIc.getProperties().clone()
@@ -941,11 +984,10 @@ class BaseClient(object):
                 # * Ice.DNSException
             finally:
                 oldIc.destroy()
-                del oldIc._impl # WORKAROUND ticket:2007
+                del oldIc._impl  # WORKAROUND ticket:2007
 
         finally:
             self.__lock.release()
-
 
     def killSession(self):
         """
@@ -960,7 +1002,9 @@ class BaseClient(object):
         try:
             svc = self.sf.getSessionService()
         except:
-            self.__logger.warning("Cannot get session service for killSession. Using closeSession")
+            self.__logger.warning(
+                "Cannot get session service for killSession. "
+                "Using closeSession")
             self.closeSession()
             return -1
 
@@ -973,7 +1017,9 @@ class BaseClient(object):
         except omero.RemovedSessionException:
             pass
         except:
-            self.__logger.warning("Unknown exception while closing all references", exc_info = True)
+            self.__logger.warning(
+                "Unknown exception while closing all references",
+                exc_info=True)
 
         # Now the server-side session is dead, call closeSession()
         self.closeSession()
@@ -987,15 +1033,14 @@ class BaseClient(object):
         session = self.getSession()
         if not session:
             raise omero.ClientError("No session active")
-        a = session.getAdminService()
         u = self.getSessionId()
         s = session.getSessionService()
         m = getattr(s, method)
         rv = apply(m, (u,)+args)
         if callable(_unwrap):
-            rv = _unwrap(rv) # Passed in function
+            rv = _unwrap(rv)  # Passed in function
         elif _unwrap:
-            rv = omero.rtypes.unwrap(rv) # Default method
+            rv = omero.rtypes.unwrap(rv)  # Default method
         return rv
 
     def getInput(self, key, unwrap=False):
@@ -1010,28 +1055,31 @@ class BaseClient(object):
         """
         return self._env(unwrap, "getOutput", key)
 
-
     def setInput(self, key, value):
         """
-        Sets an item in the "input" shared (session) memory under the given name.
+        Sets an item in the "input" shared (session) memory under the given
+        name.
         """
         self._env(False, "setInput", key, value)
 
     def setOutput(self, key, value):
         """
-        Sets an item in the "output" shared (session) memory under the given name.
+        Sets an item in the "output" shared (session) memory under the given
+        name.
         """
         self._env(False, "setOutput", key, value)
 
     def getInputKeys(self):
         """
-        Returns a list of keys for all items in the "input" shared (session) memory
+        Returns a list of keys for all items in the "input" shared (session)
+        memory
         """
         return self._env(False, "getInputKeys")
 
     def getOutputKeys(self):
         """
-        Returns a list of keys for all items in the "output" shared (session) memory
+        Returns a list of keys for all items in the "output" shared (session)
+        memory
         """
         return self._env(False, "getOutputKeys")
 
@@ -1061,8 +1109,8 @@ class BaseClient(object):
 
     def __getattr__(self, name):
         """
-        Compatibility layer, which allows calls to getCommunicator() and getSession()
-        to be called via self.ic and self.sf
+        Compatibility layer, which allows calls to getCommunicator() and
+        getSession() to be called via self.ic and self.sf
         """
         if name == "ic":
             return self.getCommunicator()
@@ -1098,6 +1146,7 @@ class BaseClient(object):
         #
         def _noop(self):
             pass
+
         def _closeSession(self):
             try:
                 self.oa.deactivate()
@@ -1111,6 +1160,7 @@ class BaseClient(object):
             self.onHeartbeat = self._noop
             self.onShutdownIn = self._noop
             self.onSessionClosed = self._noop
+
         def execute(self, myCallable, action):
             try:
                 myCallable()
@@ -1121,9 +1171,11 @@ class BaseClient(object):
                 except:
                     print "Error performing %s" % action
 
-        def requestHeartbeat(self, current = None):
+        def requestHeartbeat(self, current=None):
             self.execute(self.onHeartbeat, "heartbeat")
-        def shutdownIn(self, milliseconds, current = None):
+
+        def shutdownIn(self, milliseconds, current=None):
             self.execute(self.onShutdownIn, "shutdown")
-        def sessionClosed(self, current = None):
+
+        def sessionClosed(self, current=None):
             self.execute(self.onSessionClosed, "sessionClosed")

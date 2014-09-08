@@ -53,7 +53,7 @@ __import_style__ = None
 
 def client_wrapper(*args, **kwargs):
     """
-    Returns an instance of L{omero.gateway.BlitzGateway} created with all
+    Returns an instance of :class:`omero.gateway.BlitzGateway` created with all
     arguments passed to this method
 
     @return:    See above

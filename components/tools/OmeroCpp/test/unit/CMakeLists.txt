@@ -44,8 +44,11 @@ if(BUILD_TESTS)
                  perms.cpp
                  rtypes.cpp)
 
-  target_link_libraries(unit omero-client)
-  target_link_libraries(unit omero-test ${TEST_LIBS})
+  target_link_libraries(unit
+                        omero-ice
+                        omero-client
+                        omero-test
+                        ${TEST_LIBS})
 
   add_test(ome-xml/unit unit)
 endif(BUILD_TESTS)

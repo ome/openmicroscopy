@@ -26,6 +26,8 @@ namespace omero {
         // =========================================================================
 
         const omero::RBoolPtr rbool(bool val) {
+            static const omero::RBoolPtr rtrue = new RBoolI(true);
+            static const omero::RBoolPtr rfalse = new RBoolI(false);
             if (val) {
                 return rtrue;
             } else {
@@ -42,6 +44,7 @@ namespace omero {
         }
 
         const omero::RIntPtr rint(Ice::Int val) {
+            static const omero::RIntPtr rint0 = new RIntI(0);
             if (val == 0) {
                 return rint0;
             }
@@ -49,6 +52,7 @@ namespace omero {
         }
 
         const omero::RLongPtr rlong(Ice::Long val) {
+            static const omero::RLongPtr rlong0 = new RLongI(0);
             if (val == 0) {
                 return rlong0;
             }
@@ -63,6 +67,7 @@ namespace omero {
         // =========================================================================
 
         const omero::RInternalPtr rinternal(const omero::InternalPtr& val) {
+            static const omero::RInternalPtr rnullinternal = new RInternalI(omero::InternalPtr());
             if (! val) {
                 return rnullinternal;
             }
@@ -70,6 +75,7 @@ namespace omero {
         }
 
         const omero::RObjectPtr robject(const omero::model::IObjectPtr& val) {
+            static const omero::RObjectPtr rnullobject = new RObjectI(omero::model::IObjectPtr());
             if (! val) {
                 return rnullobject;
             }
@@ -77,6 +83,7 @@ namespace omero {
         }
 
         const omero::RClassPtr rclass(const std::string& val) {
+            static const omero::RClassPtr remptyclass = new RClassI("");
             if (val.empty()) {
                 return remptyclass;
             }
@@ -84,6 +91,7 @@ namespace omero {
         }
 
         const omero::RStringPtr rstring(const std::string& val) {
+            static const omero::RStringPtr remptystr = new RStringI("");
             if (val.empty()) {
                 return remptystr;
             }
@@ -170,9 +178,9 @@ namespace omero {
 
         RBoolI::~RBoolI() { }
 
-        bool RBoolI::getValue(const Ice::Current& current) { return this->val; }
+        bool RBoolI::getValue(const Ice::Current& /* current */) { return this->val; }
 
-        Ice::Int RBoolI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
+        Ice::Int RBoolI::compare(const omero::RTypePtr& rhs, const Ice::Current& /* current */) {
         return compareRTypes<RBoolPtr, bool>(this, rhs);
         }
 
@@ -196,9 +204,9 @@ namespace omero {
 
         RDoubleI::~RDoubleI() {}
 
-        Ice::Double RDoubleI::getValue(const Ice::Current& current) { return this->val; }
+        Ice::Double RDoubleI::getValue(const Ice::Current& /* current */) { return this->val; }
 
-        Ice::Int RDoubleI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
+        Ice::Int RDoubleI::compare(const omero::RTypePtr& rhs, const Ice::Current& /* current */) {
         return compareRTypes<RDoublePtr, Ice::Double>(this, rhs);
         }
 
@@ -222,9 +230,9 @@ namespace omero {
             this->val = val;
         }
 
-        Ice::Float RFloatI::getValue(const Ice::Current& current) { return this->val; }
+        Ice::Float RFloatI::getValue(const Ice::Current& /* current */) { return this->val; }
 
-        Ice::Int RFloatI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
+        Ice::Int RFloatI::compare(const omero::RTypePtr& rhs, const Ice::Current& /* current */) {
             return compareRTypes<RFloatPtr, Ice::Float>(this, rhs);
         }
 
@@ -248,9 +256,9 @@ namespace omero {
 
         RIntI::~RIntI() {}
 
-        Ice::Int RIntI::getValue(const Ice::Current& current) { return this->val; }
+        Ice::Int RIntI::getValue(const Ice::Current& /* current */) { return this->val; }
 
-        Ice::Int RIntI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
+        Ice::Int RIntI::compare(const omero::RTypePtr& rhs, const Ice::Current& /* current */) {
             return compareRTypes<RIntPtr, Ice::Int>(this, rhs);
         }
 
@@ -274,9 +282,9 @@ namespace omero {
 
         RLongI::~RLongI() {}
 
-        Ice::Long RLongI::getValue(const Ice::Current& current) { return this->val; }
+        Ice::Long RLongI::getValue(const Ice::Current& /* current */) { return this->val; }
 
-        Ice::Int RLongI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
+        Ice::Int RLongI::compare(const omero::RTypePtr& rhs, const Ice::Current& /* current */) {
             return compareRTypes<RLongPtr, Ice::Long>(this, rhs);
         }
 
@@ -300,9 +308,9 @@ namespace omero {
 
         RTimeI::~RTimeI() {}
 
-        Ice::Long RTimeI::getValue(const Ice::Current& current) { return this->val; }
+        Ice::Long RTimeI::getValue(const Ice::Current& /* current */) { return this->val; }
 
-        Ice::Int RTimeI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
+        Ice::Int RTimeI::compare(const omero::RTypePtr& rhs, const Ice::Current& /* current */) {
             return compareRTypes<RTimePtr, Ice::Long>(this, rhs);
         }
 
@@ -329,9 +337,9 @@ namespace omero {
 
         RInternalI::~RInternalI() {}
 
-        omero::InternalPtr RInternalI::getValue(const Ice::Current& current) { return this->val; }
+        omero::InternalPtr RInternalI::getValue(const Ice::Current& /* current */) { return this->val; }
 
-        Ice::Int RInternalI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
+        Ice::Int RInternalI::compare(const omero::RTypePtr& /* rhs */, const Ice::Current& /* current */) {
             throw omero::ClientError(__FILE__,__LINE__,"Not implemented");
         }
 
@@ -343,9 +351,9 @@ namespace omero {
 
         RObjectI::~RObjectI() {}
 
-        omero::model::IObjectPtr RObjectI::getValue(const Ice::Current& current) { return this->val; }
+        omero::model::IObjectPtr RObjectI::getValue(const Ice::Current& /* current */) { return this->val; }
 
-        Ice::Int RObjectI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
+        Ice::Int RObjectI::compare(const omero::RTypePtr& /* rhs */, const Ice::Current& /* current */) {
             throw omero::ClientError(__FILE__,__LINE__,"Not implemented");
         }
 
@@ -357,9 +365,9 @@ namespace omero {
 
         RStringI::~RStringI() {}
 
-        std::string RStringI::getValue(const Ice::Current& current) { return this->val; }
+        std::string RStringI::getValue(const Ice::Current& /* current */) { return this->val; }
 
-        Ice::Int RStringI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
+        Ice::Int RStringI::compare(const omero::RTypePtr& rhs, const Ice::Current& /* current */) {
             return compareRTypes<RStringPtr, std::string>(this, rhs);
         }
 
@@ -383,9 +391,9 @@ namespace omero {
 
         RClassI::~RClassI() {}
 
-        std::string RClassI::getValue(const Ice::Current& current) { return this->val; }
+        std::string RClassI::getValue(const Ice::Current& /* current */) { return this->val; }
 
-        Ice::Int RClassI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
+        Ice::Int RClassI::compare(const omero::RTypePtr& /* rhs */, const Ice::Current& /* current */) {
             throw omero::ClientError(__FILE__,__LINE__,"Not implemented");
         }
 
@@ -418,9 +426,9 @@ namespace omero {
 
         RArrayI::~RArrayI() {}
 
-        RTypeSeq RArrayI::getValue(const Ice::Current& current) { return this->val; }
+        RTypeSeq RArrayI::getValue(const Ice::Current& /* current */) { return this->val; }
 
-        Ice::Int RArrayI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
+        Ice::Int RArrayI::compare(const omero::RTypePtr& rhs, const Ice::Current& /* current */) {
             return compareRTypes<RArrayPtr, RTypeSeq>(this, rhs);
         }
 
@@ -438,19 +446,19 @@ namespace omero {
 
 
         // Collection methods
-        omero::RTypePtr RArrayI::get(Ice::Int idx, const Ice::Current& current) {
+        omero::RTypePtr RArrayI::get(Ice::Int idx, const Ice::Current& /* current */) {
             return this->val[idx];
         }
 
-        Ice::Int RArrayI::size(const Ice::Current& current) {
+        Ice::Int RArrayI::size(const Ice::Current& /* current */) {
             return this->val.size();
         }
 
-        void RArrayI::add(const omero::RTypePtr& val, const Ice::Current& current) {
+        void RArrayI::add(const omero::RTypePtr& val, const Ice::Current& /* current */) {
             this->val.push_back(val);
         }
 
-        void RArrayI::addAll(const omero::RTypeSeq& values, const Ice::Current& current) {
+        void RArrayI::addAll(const omero::RTypeSeq& values, const Ice::Current& /* current */) {
             omero::RTypeSeq::const_iterator itr;
             for (itr = values.begin(); itr != values.end(); itr++) {
                 this->val.push_back(*itr);
@@ -470,9 +478,9 @@ namespace omero {
 
         RListI::~RListI() {}
 
-        RTypeSeq RListI::getValue(const Ice::Current& current) { return this->val; }
+        RTypeSeq RListI::getValue(const Ice::Current& /* current */) { return this->val; }
 
-        Ice::Int RListI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
+        Ice::Int RListI::compare(const omero::RTypePtr& rhs, const Ice::Current& /* current */) {
         return compareRTypes<RListPtr, RTypeSeq>(this, rhs);
         }
 
@@ -489,19 +497,19 @@ namespace omero {
         }
 
         // Collection methods
-        omero::RTypePtr RListI::get(Ice::Int idx, const Ice::Current& current) {
+        omero::RTypePtr RListI::get(Ice::Int idx, const Ice::Current& /* current */) {
             return this->val[idx];
         }
 
-        Ice::Int RListI::size(const Ice::Current& current) {
+        Ice::Int RListI::size(const Ice::Current& /* current */) {
             return this->val.size();
         }
 
-        void RListI::add(const omero::RTypePtr& val, const Ice::Current& current) {
+        void RListI::add(const omero::RTypePtr& val, const Ice::Current& /* current */) {
             this->val.push_back(val);
         }
 
-        void RListI::addAll(const omero::RTypeSeq& values, const Ice::Current& current) {
+        void RListI::addAll(const omero::RTypeSeq& values, const Ice::Current& /* current */) {
             omero::RTypeSeq::const_iterator itr;
             for (itr = values.begin(); itr != values.end(); itr++) {
                 this->val.push_back(*itr);
@@ -521,9 +529,9 @@ namespace omero {
 
         RSetI::~RSetI() {}
 
-        RTypeSeq RSetI::getValue(const Ice::Current& current) { return this->val; }
+        RTypeSeq RSetI::getValue(const Ice::Current& /* current */) { return this->val; }
 
-        Ice::Int RSetI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
+        Ice::Int RSetI::compare(const omero::RTypePtr& rhs, const Ice::Current& /* current */) {
             return compareRTypes<RSetPtr, RTypeSeq>(this, rhs);
         }
 
@@ -540,19 +548,19 @@ namespace omero {
         }
 
         // Collection methods
-        omero::RTypePtr RSetI::get(Ice::Int idx, const Ice::Current& current) {
+        omero::RTypePtr RSetI::get(Ice::Int idx, const Ice::Current& /* current */) {
             return this->val[idx];
         }
 
-        Ice::Int RSetI::size(const Ice::Current& current) {
+        Ice::Int RSetI::size(const Ice::Current& /* current */) {
             return this->val.size();
         }
 
-        void RSetI::add(const omero::RTypePtr& val, const Ice::Current& current) {
+        void RSetI::add(const omero::RTypePtr& val, const Ice::Current& /* current */) {
             this->val.push_back(val);
         }
 
-        void RSetI::addAll(const omero::RTypeSeq& values, const Ice::Current& current) {
+        void RSetI::addAll(const omero::RTypeSeq& values, const Ice::Current& /* current */) {
             omero::RTypeSeq::const_iterator itr;
             for (itr = values.begin(); itr != values.end(); itr++) {
                 this->val.push_back(*itr);
@@ -572,22 +580,22 @@ namespace omero {
 
         RMapI::~RMapI() {}
 
-        RTypeDict RMapI::getValue(const Ice::Current& current) { return this->val; }
+        RTypeDict RMapI::getValue(const Ice::Current& /* current */) { return this->val; }
 
-        Ice::Int RMapI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
+        Ice::Int RMapI::compare(const omero::RTypePtr& rhs, const Ice::Current& /* current */) {
             return compareRTypes<RMapPtr, RTypeDict>(this, rhs);
         }
 
         // Collection methods
-        omero::RTypePtr RMapI::get(const std::string& key, const Ice::Current& current) {
+        omero::RTypePtr RMapI::get(const std::string& key, const Ice::Current& /* current */) {
             return this->val[key];
         }
 
-        void RMapI::put(const std::string& key, const omero::RTypePtr& value, const Ice::Current& current) {
+        void RMapI::put(const std::string& key, const omero::RTypePtr& value, const Ice::Current& /* current */) {
             this->val[key] = value;
         }
 
-        Ice::Int RMapI::size(const Ice::Current& current) {
+        Ice::Int RMapI::size(const Ice::Current& /* current */) {
             return this->val.size();
         }
 
@@ -609,7 +617,7 @@ namespace omero {
             RBoolIFactory() {
                 this->id = RBoolI::ice_staticId();
             }
-            Ice::ObjectPtr create(const std::string& id) {
+            Ice::ObjectPtr create(const std::string& /* id */) {
                 return new RBoolI(false);
             }
         };
@@ -621,7 +629,7 @@ namespace omero {
             RDoubleIFactory() {
                 this->id = RDoubleI::ice_staticId();
             }
-            Ice::ObjectPtr create(const std::string& id) {
+            Ice::ObjectPtr create(const std::string& /* id */) {
                 return new RDoubleI(0.0);
             }
         };
@@ -633,7 +641,7 @@ namespace omero {
             RFloatIFactory() {
                 this->id = RFloatI::ice_staticId();
             }
-            Ice::ObjectPtr create(const std::string& id) {
+            Ice::ObjectPtr create(const std::string& /* id */) {
                 return new RFloatI(0.0);
             }
         };
@@ -645,7 +653,7 @@ namespace omero {
             RLongIFactory() {
                 this->id = RLongI::ice_staticId();
             }
-            Ice::ObjectPtr create(const std::string& id) {
+            Ice::ObjectPtr create(const std::string& /* id */) {
                 return new RLongI(0);
             }
         };
@@ -657,7 +665,7 @@ namespace omero {
             RIntIFactory() {
                 this->id = RIntI::ice_staticId();
             }
-            Ice::ObjectPtr create(const std::string& id) {
+            Ice::ObjectPtr create(const std::string& /* id */) {
                 return new RIntI(0);
             }
         };
@@ -669,7 +677,7 @@ namespace omero {
             RTimeIFactory() {
                 this->id = RTimeI::ice_staticId();
             }
-            Ice::ObjectPtr create(const std::string& id) {
+            Ice::ObjectPtr create(const std::string& /* id */) {
                 return new RTimeI(0);
             }
         };
@@ -681,7 +689,7 @@ namespace omero {
             RStringIFactory() {
                 this->id = RStringI::ice_staticId();
             }
-            Ice::ObjectPtr create(const std::string& id) {
+            Ice::ObjectPtr create(const std::string& /* id */) {
                 return new RStringI("");
             }
         };
@@ -693,7 +701,7 @@ namespace omero {
             RClassIFactory() {
                 this->id = RClassI::ice_staticId();
             }
-            Ice::ObjectPtr create(const std::string& id) {
+            Ice::ObjectPtr create(const std::string& /* id */) {
                 return new RClassI("");
             }
         };
@@ -705,7 +713,7 @@ namespace omero {
             RInternalIFactory() {
                 this->id = RInternalI::ice_staticId();
             }
-            Ice::ObjectPtr create(const std::string& id) {
+            Ice::ObjectPtr create(const std::string& /* id */) {
                 return new RInternalI(omero::InternalPtr());
             }
         };
@@ -717,7 +725,7 @@ namespace omero {
             RObjectIFactory() {
                 this->id = RObjectI::ice_staticId();
             }
-            Ice::ObjectPtr create(const std::string& id) {
+            Ice::ObjectPtr create(const std::string& /* id */) {
                 return new RObjectI(omero::model::IObjectPtr());
             }
         };
@@ -729,7 +737,7 @@ namespace omero {
             RArrayIFactory() {
                 this->id = RArrayI::ice_staticId();
             }
-            Ice::ObjectPtr create(const std::string& id) {
+            Ice::ObjectPtr create(const std::string& /* id */) {
                 return new RArrayI();
             }
         };
@@ -741,7 +749,7 @@ namespace omero {
             RListIFactory() {
                 this->id = RListI::ice_staticId();
             }
-            Ice::ObjectPtr create(const std::string& id) {
+            Ice::ObjectPtr create(const std::string& /* id */) {
                 return new RListI();
             }
         };
@@ -753,7 +761,7 @@ namespace omero {
             RSetIFactory() {
                 this->id = RSetI::ice_staticId();
             }
-            Ice::ObjectPtr create(const std::string& id) {
+            Ice::ObjectPtr create(const std::string& /* id */) {
                 return new RSetI();
             }
         };
@@ -765,7 +773,7 @@ namespace omero {
             RMapIFactory() {
                 this->id = RMapI::ice_staticId();
             }
-            Ice::ObjectPtr create(const std::string& id) {
+            Ice::ObjectPtr create(const std::string& /* id */) {
                 return new RMapI();
             }
         };

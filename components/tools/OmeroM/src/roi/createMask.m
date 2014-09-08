@@ -44,4 +44,13 @@ mask.setX(rdouble(x));
 mask.setY(rdouble(y));
 mask.setWidth(rdouble(size(m, 2)));
 mask.setHeight(rdouble(size(m, 1)));
-mask.setBytes(m(:));
+
+% Convert to array of bits
+binary_vector = double(reshape(m', [], 1));
+if mod(length(binary_vector), 8) ~= 0,
+    binary_vector(end + 1 : end + 8 - mod(length(binary_vector), 8)) = 0;
+end
+byte_vector = reshape(binary_vector, 8, [])' * (2.^(7:-1:0))';
+x_bytes = uint8(byte_vector);
+
+mask.setBytes(x_bytes(:));

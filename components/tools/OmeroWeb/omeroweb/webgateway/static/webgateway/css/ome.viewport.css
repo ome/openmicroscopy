@@ -77,7 +77,7 @@ div.weblitz-viewport-tiles img {
 
 .vslider { 
   position: absolute;
-  width: 10px;
+  width: 13px;
   height: 100%;
   display: block;
   top: 0px;
@@ -86,7 +86,7 @@ div.weblitz-viewport-tiles img {
 
 .hslider { 
   position: relative;
-  height: 10px;
+  height: 13px;
   /*bottom: -3px;*/
   display: block;
   font-size: 0.1em;
@@ -105,11 +105,6 @@ div.weblitz-viewport-tiles img {
   top: -1px;
 }
 
-.vslider .slider-line {
-  width: 8px;
-  _width: 100%;
-}
-
 .draggable {
   cursor: -moz-grab;
   cursor: pointer, auto;
@@ -122,4 +117,23 @@ div.weblitz-viewport-tiles img {
 
 .pick-pos {
   cursor: crosshair;
+}
+
+.wb_zoomIn, .wb_zoom11, .wb_zoomOut {
+  position: absolute;
+  z-index: 30;
+  left: 10px;
+  width: 20px;
+}
+
+.rd-wblitz-ch {
+  width: 39px;
+  height: 19px;
+  margin-right: 5px;
+  padding: 1px 2px;
+  white-space: nowrap;
+}
+
+.fontWhite {
+  color: white;
 }

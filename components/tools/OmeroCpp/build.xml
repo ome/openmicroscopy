@@ -14,7 +14,7 @@
     <import file="../common.xml"/>
 
     <property name="cmake.builddir"   value="cppbuild"/>
-    <property name="cmake.installdir" value="${toplevel}/target/OMERO.cpp-${omero.version}-${os.name}-${os.version}-${os.arch}"/>
+    <property name="cmake.installdir" value="${toplevel}/target/OMERO.cpp-${omero.version}-${platform}"/>
 
     <target name="tools-init">
     </target>

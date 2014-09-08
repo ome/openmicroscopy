@@ -29,10 +29,11 @@ logger = logging.getLogger(__name__)
 
 class GatewayConfig(object):
     """
-    Global Gateway configuration
-    - IMG_RDEFNS:  a namespace for annotations linked on images holding the default rendering
+    Global Gateway configuration:
+
+    - :attr:`IMG_RDEFNS`:  a namespace for annotations linked on images holding the default rendering
                    settings object id.
-    - IMG_ROPTSNS: a namespace for annotations linked on images holding default rendering options
+    - :attr:`IMG_ROPTSNS`: a namespace for annotations linked on images holding default rendering options
                    that don't get saved in the rendering settings.
     """
     def __init__ (self):

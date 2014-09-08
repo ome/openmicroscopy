@@ -21,15 +21,71 @@
 -->
 {% endcomment %}
 
-    <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" media="screen"/>
 
-    <link rel="stylesheet" type="text/css" href="{% static "3rdparty/panojs/panojs.css" %}" media="all" />
+    <style>
+      /*from omero_image.css*/
+      .ui-slider-handle.ui-state-default {
+        background: #FEE7D6 none repeat scroll 0 0;
+        border: solid #A9A916 1px;
+        transition-duration: 0;
+      }
+      .rangeslider {
+        border: solid #333333 1px;
+      }
+      button.pressed {
+        border-style: inset;
+      }
+      .postit{
+        font-size: 0.9em;
+      }
+      .postit h1 {
+        font-size: 2.0em;
+      }
+      .postit, .postit h1 {
+        background-color: #eee;
+      }
+      .rangewidget input {
+        width: 3.1em;
+      }
+      .rangeslider {
+        background: none repeat scroll 0 0 white;
+        margin: 0.2em 1em;
+      }
 
-    <link rel="stylesheet" href="{% static "webgateway/css/ome.gs_slider.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "webgateway/css/ome.viewport.css" %}" type="text/css" media="screen"/>
+      /* custom */
+      #wblitz-channels-box button {
+        width: 25px;
+        height: 25px;
+        float: left;
+        position: relative;
+        left: -5px;
+        text-indent: -1000px; /** hide text **/
+        margin: 2px 0;
+      }
+      img.rdef {
+        max-width: 64px;
+        max-height: 64px;
+        position: relative;
+        top: 2px;
+        margin-bottom: 3px;
+      }
+      .thin-margin {
+        margin: 3px 0;
+      }
+      #rdef-active-area td {
+        padding: 0 0 4px 0;
+      }
+    </style>
 
 
     <script type="text/javascript">
+
+        var PLATE_LINKS_URL_999 = '{% url 'webgateway_object_table_query' 'Screen.plateLinks.child.wells' 999 %}';
+        var PLATE_WELLS_URL_999 = '{% url 'webgateway_object_table_query' 'Plate.wells' 999 %}';
+
+        // not needed, but prevents error message
+        var rdChanSelHelper = function() {};
+
         $(document).ready(function() {
 
             // Fix size according to right panel size... NB: this behaviour is also in right_plugin.preview.js
@@ -38,26 +94,188 @@
             vpHeight = Math.max(300, vpHeight);
             $("#viewport").css({'width': vpWidth + 'px', 'height': vpHeight + 'px'});
 
+
             if (typeof OME === "undefined") {OME = {}}
 
+            // init viewport
             {% if share_id %}
             OME.preview_viewport = $.WeblitzViewport($("#viewport"), "{% url 'webindex' %}{{ share_id }}", {'mediaroot': '{{ STATIC_URL }}' } );
-            OME.preview_viewport.load({{ manager.image.id }}, null, location.search);
             {% else %}
             OME.preview_viewport = $.WeblitzViewport($("#viewport"), "{% url 'webindex' %}", {'mediaroot': '{{ STATIC_URL }}' } );
+            {% endif %}
+
+            OME.preview_viewport.bind('imageLoad', _refresh_cb);
+            OME.preview_viewport.bind('channelChange', channelChange);
+            OME.preview_viewport.bind('imageChange', function(){
+              syncChannelsActive(OME.preview_viewport);
+            });
+            /* Bind image changes */
+            OME.preview_viewport.bind('imageChange', function(){
+              imageChange(OME.preview_viewport);
+            });
+
+            // Load image
+            {% if share_id %}
+            OME.preview_viewport.load({{ manager.image.id }}, null, location.search);
+            {% else %}
             OME.preview_viewport.load({{ manager.image.id }});
             {% endif %}
 
-            var copy_paste_rdef_url = "{% url 'webgateway.views.copy_image_rdef_json' %}";
-            $(".btn.copy_rdef").click(function() {
-                $.getJSON(copy_paste_rdef_url + "?fromid={{ manager.image.id }}");
+            // copy and paste refs is in browser via query string,
+            // but we also save to session in case of page reload etc
+            $("input.copy_rdef").click(function() {
+                copyRdefs(OME.preview_viewport);
+            });
+            $("input.paste_rdef").click(function() {
+                pasteRdefs(OME.preview_viewport);
             });
 
-            $(".btn.paste_rdef").click(function() {
-                $.getJSON(copy_paste_rdef_url + "?toids={{ manager.image.id }}", function(data){
-                    // update thumbnails
-                    OME.refreshThumbnails({{ manager.image.id }});
+            // handle 'Color' checkbox
+            $('#rd-wblitz-rmodel').click(function(e){
+              setModel(OME.preview_viewport, $(this).get(0).checked?'g':'c');
+            });
+
+            // Save settings
+            $("#rdef-setdef-btn").click(function(){
+              setImageDefaults(OME.preview_viewport, this, function() {
+                OME.refreshThumbnails({'imageId':{{ manager.image.id }}, 'ignorePreview': true});
+                updateMyRdef(OME.preview_viewport.getQuery());
+              });
+            });
+
+            // Reset defaults without saving
+            $("#rdef-reset-btn").click(function(){
+              resetImageDefaults(OME.preview_viewport);
+            });
+
+            $("#rdef-minmax-btn").click(function(){
+              OME.preview_viewport.setChannelMinMax();
+              syncRDCW(OME.preview_viewport);
+              OME.preview_viewport.save_channels();
+              updateUndoRedo(OME.preview_viewport);
+            });
+
+            $("#rdef-fullrange-btn").click(function(){
+              OME.preview_viewport.setChannelFullRange();
+              syncRDCW(OME.preview_viewport);
+              OME.preview_viewport.save_channels();
+              updateUndoRedo(OME.preview_viewport);
+            });
+
+            // Undo/redo buttons
+            $("#rdef-undo-btn").click(function(){
+              OME.preview_viewport.undo_channels();
+              syncRDCW(OME.preview_viewport);
+            });
+            $("#rdef-redo-btn").click(function(){
+              OME.preview_viewport.redo_channels();
+              syncRDCW(OME.preview_viewport);
+            });
+
+            var rdefs = {{ rdefsJson|safe }};
+            // All button events are delegated, so will also apply to new buttons
+            $( "#rdef-buttons" )
+            .on( "click", "button", function() {
+              var rdid = $(this).attr('data-rdid'),     // might not know this (if button created by js)
+                ownerid = $(this).attr('data-ownerid');
+              for (var r = 0; r < rdefs.length; r++) {
+                if (rdefs[r].id+"" === rdid || rdefs[r].owner.id+"" === ownerid) {
+                  OME.preview_viewport.setQuery(rdefs[r]);
+                  OME.preview_viewport.doload();
+                  syncRDCW(OME.preview_viewport);
+                  OME.preview_viewport.save_channels();
+                  updateUndoRedo(OME.preview_viewport);
+                  break;
+                }
+              }
+            });
+
+            // when user saves, update their rdef button
+            var updateMyRdef = function(queryString) {
+              var settings = queryString.split("&"),
+                defs = {},
+                kv;
+              for (var s = 0; s < settings.length; s++) {
+                kv = settings[s].split("=");
+                defs[kv[0]] = kv[1];
+              }
+
+              var src = "{% url 'render_thumbnail' manager.image.id %}?_=" + Math.random();
+              // if we already have a button, update thumb
+              var $btn = $("button.rdef[data-ownerid='{{ ome.user.id }}']");
+              if ($btn.length > 0) {
+                // we don't know rdefid but default thumb will be 'ours'
+                $('img.rdef', $btn)
+                    .attr('src', src)
+                    .removeAttr('data-rdid');   // no-longer valid
+                // update 'our' rdef
+                for (var r = 0; r < rdefs.length; r++) {
+                  if (rdefs[r].owner.id+"" === "{{ ome.user.id }}") {
+                    rdefs[r].c = defs.c;
+                    rdefs[r].model = defs.model;
+                    break;
+                  }
+                }
+              } else {
+                // No rdef button exists - need to create one and add to rdefs list
+                var $lastBtn = $("button.rdef").last(),
+                  $newBtn = $lastBtn.clone()
+                    .removeAttr('data-rdid')      // don't know new rdef id
+                    .attr('data-ownerid','{{ ome.user.id }}')
+                    .appendTo($lastBtn.parent());
+                  $newBtn.children('img').attr('src', src);
+                  $newBtn.children('span').text("{{ ome.user.getFullName }}");
+
+                  rdefs.push({
+                    'owner': {'id':{{ ome.user.id }}},
+                    'c': defs.c,
+                    'm': defs.m
+                  })
+              }
+            };
+            // when we load page, force refresh of rdef thumbs (in case they are cached)
+            $("img.rdef").each(function(){
+              var $thumb = $(this),
+                src = $thumb.attr('src');
+                $thumb.attr('src', src + '&_=' + Math.random());
+            });
+
+
+            {% if manager.image.canAnnotate %}
+            var pid = OME.getParentId();    // E.g. dataset-123 OR plate-456
+            if (pid) {
+              $("#rdef-save-all")
+                .attr('title', "Apply and Save settings to all images in " + pid)
+                .removeAttr("disabled")
+                .click(function(){
+                  var $span = $('span', this),
+                    spanTxt = $span.text();
+                  $span.text("Saving...");
+                  var typeId = pid.split("-");
+                  var rdefQry = OME.preview_viewport.getQuery();
+                  // need to paste current settings to all images...
+                  var url = "{% url 'webgateway.views.copy_image_rdef_json' %}";
+                  url += "?toids=" + typeId[1] + "&to_type=" + typeId[0];
+                  url += "&" + rdefQry + "&imageId=" + OME.preview_viewport.loadedImg.id;   // Need imageId for 'apply to all'
+                  $.getJSON(url, function() {
+                    $span.text(spanTxt);
+                    OME.refreshThumbnails({'ignorePreview': true});
+                    updateMyRdef(OME.preview_viewport.getQuery());
+                  });
                 });
+            }
+            {% endif %}
+
+            $("#preview_open_viewer").click(function(){
+
+              var url = "{% if share_id %}{% url 'web_image_viewer' share_id manager.image.id %}{% else %}{% url 'web_image_viewer' manager.image.id %}{% endif %}";
+
+              var vpQuery = OME.preview_viewport.getQuery();
+              // remove &zm=50
+              vpQuery = vpQuery.replace("&zm=" + OME.preview_viewport.getZoom(), "");
+
+              OME.openPopup(url + "?" + vpQuery);
+              return false;
             });
 
         });
@@ -69,27 +287,96 @@
 	
 <!-- open-image link -->
 
-			<button class="btn silver btn_text" href="#" onclick="return OME.openPopup('{% if share_id %}{% url 'web_image_viewer' share_id manager.image.id %}{% else %}{% url 'web_image_viewer' manager.image.id %}{% endif %}')" alt="View" title="Open full viewer">
+			<button id="preview_open_viewer" class="btn silver btn_text" href="#" alt="View" title="Open full viewer">
 				<span>
                 {% trans "Launch full viewer" %} 
 				</span>
 			</button>
 
+    <div style="clear:both; margin-bottom: 3px"></div>
 
+      <div class="miniview" id="viewport">
+      </div>
 
-    <div class="miniview" id="viewport">
+    <div style="clear:both; height:20px"></div>
+
+    <div style="text-align: left">
+      Z: <span id="wblitz-z-curr">?</span>/<span id="wblitz-z-count">?</span> &nbsp
+      T: <span id="wblitz-t-curr">1</span>/<span id="wblitz-t-count">1</span>
     </div>
 
-    <div style="clear:both"></div>
-    <hr>
 
-    Rendering Settings:
-    <button class="btn silver btn_text copy_rdef" title="Copy Rendering Settings">
-        <span>Copy</span>
-    </button>
+    <ul class="toolbar" style="border-right-width: 0; margin-top: 5px; margin-bottom: 8px">
+      <li>
+        <button id="rdef-setdef-btn" class="editor" disabled='true'
+            {% if manager.image.canAnnotate %}
+              title="Saves the current settings."
+            {% else %}
+            title="You don't have permission to save settings."
+            {% endif %}
+            >
+          <img src="{% static 'webclient/image/icon_save.png' %}" style="position:relative; top:2px" />
+          <span>
+            Save
+          </span>
+        </button>
 
-    <button class="btn silver btn_text paste_rdef" title="Paste Rendering Settings">
-        <span>Paste</span>
-    </button>
+        <button id="rdef-save-all" disabled="true" title="Cannot apply settings to other images">
+          <img src="{% static 'webclient/image/icon_save.png' %}" style="position:relative; top:2px" />
+          <span>
+            Save to All
+          </span>
+        </button>
+      </li>
+
+
+      <!-- class='button-disabled' -->
+      <li><input id="rdef-undo-btn" class="button" type="image" src="{% static "webclient/image/icon_undo16.png" %}" title="Undo the last changes to settings" /> </li>
+      <li><input id="rdef-redo-btn" class="button" type="image" src="{% static "webclient/image/icon_redo16.png" %}" title="Redo the last changes to settings" /> </li>
+      
+      <li class="seperator"></li>
+
+      <!-- class='button-disabled' -->
+      <li><input class="copy_rdef button" type="image" src="{% static "webclient/image/icon_toolbar_copy.png" %}" title="Copy Rendering Settings" /> </li>
+      <li><input class="paste_rdef button" type="image" src="{% static "webclient/image/icon_toolbar_paste.png" %}" title="Paste Rendering Settings" /> </li>
+    </ul>
+
+    <div id="rdef-postit">
+      <div id="rdef-active-area">
+        <input id="rd-wblitz-rmodel" type="checkbox" />
+        <label for="rd-wblitz-rmodel">Grayscale</label>
+        <table cellspacing="0" style="font-size:0.9em">
+          <tr>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <ul>
+      <li>
+        <button id="rdef-minmax-btn" title="Each slider will be set to cover the min/max pixel intensities for that channel">
+          Min/Max
+        </button>
+        <button id="rdef-fullrange-btn" title="Each slider will be set to cover the full range of pixel intensities for the image">
+          Full Range
+        </button>
+        <button id="rdef-reset-btn" title="Applies the original imported settings for this image">
+          Imported
+        </button>
+      </li>
+
+      <hr class="thin-margin"/>
+
+      <h3 style="margin-bottom:2px; margin-top:4px">Select User Settings:</h3>
+
+      <li id='rdef-buttons'>
+        {% for rdef in rdefs %}
+          <button class='rdef' data-ownerid="{{ rdef.owner.id }}" data-rdid="{{ rdef.id }}">
+            <img class='rdef' src="{% url 'render_thumbnail' manager.image.id %}?rdefId={{ rdef.id }}"/><br>
+            <span>{{ rdef.owner.firstName }} {{ rdef.owner.lastName }}</span>
+          </button>
+        {% endfor %}
+      </li>
+    </ul>
 
 </div>
