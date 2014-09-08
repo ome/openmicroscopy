@@ -18,7 +18,6 @@ import ome.parameters.Parameters;
 import ome.services.eventlogs.EventLogLoader;
 import ome.services.util.Executor.SimpleWork;
 import ome.system.ServiceFactory;
-import ome.util.ShallowCopy;
 import ome.util.SqlAction;
 
 import org.slf4j.Logger;
@@ -37,7 +36,7 @@ public class PixelDataHandler extends SimpleWork {
 
     private final static Logger log = LoggerFactory.getLogger(PixelDataHandler.class);
 
-    final protected PersistentEventLogLoader loader;
+    final protected EventLogLoader loader;
 
     final protected PixelsService pixelsService;
 
@@ -52,7 +51,7 @@ public class PixelDataHandler extends SimpleWork {
         ;
     }
 
-    public PixelDataHandler(PersistentEventLogLoader ll, PixelsService pixelsService) {
+    public PixelDataHandler(EventLogLoader ll, PixelsService pixelsService) {
         super("PixelDataHandler", "process");
         this.loader = ll;
         this.pixelsService = pixelsService;

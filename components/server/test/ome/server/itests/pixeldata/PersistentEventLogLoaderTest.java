@@ -19,7 +19,8 @@ import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.server.itests.AbstractManagedContextTest;
-import ome.services.pixeldata.PersistentEventLogLoader;
+import ome.services.eventlogs.EventLogQueue;
+import ome.services.eventlogs.PersistentEventLogLoader;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
 import ome.system.EventContext;
@@ -37,13 +38,18 @@ public class PersistentEventLogLoaderTest extends AbstractManagedContextTest {
     Executor ex;
     SessionManager sm;
     PersistentEventLogLoader ll;
+    PersistentEventLogLoader pel;
+    EventLogQueue elq;
 
     @BeforeMethod
     public void setup() {
         ex = (Executor) this.applicationContext.getBean("executor");
         sm = (SessionManager) this.applicationContext.getBean("sessionManager");
-        ll = (PersistentEventLogLoader) this.applicationContext
+        pel = (PersistentEventLogLoader) this.applicationContext
                 .getBean("pixelDataEventLogLoader");
+        elq = (EventLogQueue) this.applicationContext
+                .getBean("pixelDataEventLogQueue");
+        ll = elq;
     }
 
     protected <T> T call(String msg, final Callable<T> call) throws Throwable {
@@ -102,12 +108,11 @@ public class PersistentEventLogLoaderTest extends AbstractManagedContextTest {
         call("MultipleUsers", new Callable<Long>() {
             public Long call() throws Exception {
                 ll.setCurrentId(el1.getId() - 1);
+                assertTrue(ll.hasNext());
                 assertEquals(el1.getId() - 1,
                         ll.getCurrentId());
-                EventLog t1 = ll.next();
-                assertEquals(el1.getId(), t1.getId());
-                EventLog t2 = ll.next();
-                assertEquals(el2.getId(), t2.getId());
+                assertNext(el1);
+                assertNext(el2);
                 return null;
             }
         });
@@ -132,14 +137,11 @@ public class PersistentEventLogLoaderTest extends AbstractManagedContextTest {
             public Long call() throws Exception {
 
                 ll.setCurrentId(el1a.getId() - 1);
+                assertTrue(ll.hasNext());
                 assertNext(el1a);
                 assertNext(el2a);
-                // All users used up
-                assertNext(el2a); // Duplicate
-                assertNext(el1b);
-                // All users used up
                 assertNext(el2b);
-                assertNext(el1b); // Duplicate
+                assertNext(el1b);
                 return null;
             }
         });
@@ -180,36 +182,19 @@ public class PersistentEventLogLoaderTest extends AbstractManagedContextTest {
             public Long call() throws Exception {
 
                 ll.setCurrentId(el1a.getId() - 1);
+                assertTrue(ll.hasNext());
                 assertNext(el1a);
+                assertNext(el1b);
+                assertNext(el1c);
+                assertNext(el1d);
+                assertNext(el1e);
+                assertNext(el1f);
+                assertNext(el1g);
+                assertNext(el1h);
+                assertNext(el1i);
+                assertNext(el1j);
                 assertNext(el2a);
                 assertNext(el3a);
-                assertNext(el1b);
-                assertNext(el2a); // Duplicate
-                assertNext(el3a); // Duplicate
-                assertNext(el1c);
-                assertNext(el2a); // Duplicate
-                assertNext(el3a); // Duplicate
-                assertNext(el1d);
-                assertNext(el2a); // Duplicate
-                assertNext(el3a); // Duplicate
-                assertNext(el1e);
-                assertNext(el2a); // Duplicate
-                assertNext(el3a); // Duplicate
-                assertNext(el1f);
-                assertNext(el2a); // Duplicate
-                assertNext(el3a); // Duplicate
-                assertNext(el1g);
-                assertNext(el2a); // Duplicate
-                assertNext(el3a); // Duplicate
-                assertNext(el1h);
-                assertNext(el2a); // Duplicate
-                assertNext(el3a); // Duplicate
-                assertNext(el1i);
-                assertNext(el2a); // Duplicate
-                assertNext(el3a); // Duplicate
-                assertNext(el1j);
-                assertNext(el2a); // Duplicate
-                assertNext(el3a); // Duplicate
                 return null;
             }
         });
