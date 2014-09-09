@@ -72,7 +72,7 @@ class TestCreateImage (object):
             """
             create some fake pixel data tile (2D numpy array)
             """
-            return (x * y)/(x + y) * (x + y)
+            return (x * y)/(1+abs((x + y) * (x + y)))
 
         def planeGen(count):
             tile_max = 255
@@ -106,12 +106,11 @@ class TestCreateImage (object):
         self.createImageAndCheck(conn, sizeZ=10)
         self.createImageAndCheck(conn, sizeC=3)
         self.createImageAndCheck(conn, sizeT=10)
-        self.createImageAndCheck(conn, sizeT=10)
+        self.createImageAndCheck(conn, sizeT=2, sizeZ=3)
 
     def testCreateBigImages(self, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()
         conn = gatewaywrapper.gateway
 
-        # self.createImageAndCheck(conn)
         self.createImageAndCheck(conn, sizeX=4096, sizeY=4096)
 
