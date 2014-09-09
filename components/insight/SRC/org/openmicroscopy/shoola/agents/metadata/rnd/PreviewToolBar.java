@@ -25,7 +25,11 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 //Java imports
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -97,12 +101,9 @@ class PreviewToolBar
     private void buildGUI()
     {
     	setBackground(UIUtilities.BACKGROUND_COLOR);
-    	GridLayout layout = new GridLayout(0,3);
-    	layout.setHgap(10);
-        setLayout(layout);
-        JPanel p = UIUtilities.buildComponentPanelRight(selectedPlane);
-        p.setBackground(UIUtilities.BACKGROUND_COLOR);
-        add(p);
+        setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+        add(selectedPlane);
+        add(Box.createHorizontalGlue());
         add(preview);
     }
 

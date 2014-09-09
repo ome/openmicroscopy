@@ -265,6 +265,7 @@ class GraphicsPane
         content.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.WEST;
+        c.fill = GridBagConstraints.HORIZONTAL;
         c.insets = new Insets(0, 2, 2, 0);
         c.gridy = 0;
         c.gridx = 0;
@@ -272,7 +273,6 @@ class GraphicsPane
             content.add(previewToolBar, c);
             c.gridy++;
             c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-            c.fill = GridBagConstraints.HORIZONTAL;
             content.add(new JSeparator(), c);
             c.gridy++;
         }

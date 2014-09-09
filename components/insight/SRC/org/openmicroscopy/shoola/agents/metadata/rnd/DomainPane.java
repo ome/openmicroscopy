@@ -460,22 +460,34 @@ public class DomainPane
     {
     	JPanel p = new JPanel();
     	p.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	p.setLayout(new BorderLayout());
-    	if (model.isGeneralIndex()) {
-    		p.add(buildViewerPane(), BorderLayout.WEST);
-    		p.add(graphicsPane, BorderLayout.SOUTH);
-    		JPanel content = new JPanel();
-    		content.setLayout(new BorderLayout());
-    		content.setBackground(UIUtilities.BACKGROUND_COLOR);
-    		content.add(p, BorderLayout.CENTER);
-    		return content;
-    	} 
-    	p.add(graphicsPane, BorderLayout.CENTER);
-    	taskPane.add(buildControlsPane());
-    	p.add(taskPane, BorderLayout.SOUTH);
+    	p.setLayout(new GridBagLayout());
+    	
+    	GridBagConstraints c = new GridBagConstraints();
+    	c.gridx = 0;
+    	c.gridy = 0;
+    	
+        if (model.isGeneralIndex()) {
+            c.anchor = GridBagConstraints.WEST;
+            p.add(openButton, c);
+            c.gridy++;
+            
+            c.anchor = GridBagConstraints.CENTER;
+            p.add(buildViewerPane(), c);
+            c.gridy++;
+
+            p.add(graphicsPane,c);
+            c.gridy++;
+        } else {
+            p.add(graphicsPane,c);
+            c.gridy++;
+            taskPane.add(buildControlsPane());
+            p.add(taskPane, c);
+            c.gridy++;
+        }
+    	
     	JPanel content = UIUtilities.buildComponentPanel(p);
     	content.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	return p;
+    	return content;
     }
     
     /** 
@@ -494,10 +506,6 @@ public class DomainPane
 		c.insets = new Insets(0, 2, 2, 0);
 		c.gridy = 0;
 		c.gridx = 0;
-		c.gridwidth = GridBagConstraints.REMAINDER;
-		p.add(openButton, c);
-		c.gridwidth = 1;
-		c.gridy++;
 		p.add(zSlider, c);
 		c.gridx++;
 		p.add(canvas, c);
@@ -622,7 +630,7 @@ public class DomainPane
     {
     	setBackground(UIUtilities.BACKGROUND_COLOR);
     	setLayout(new BorderLayout());
-    	add(buildChannelGraphicsPanel(), BorderLayout.NORTH);
+    	add(buildChannelGraphicsPanel(), BorderLayout.CENTER);
     }
     
     /**
