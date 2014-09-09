@@ -2988,6 +2988,7 @@ class _BlitzGateway (object):
         :return: The new OMERO image: omero.model.ImageI
         """
         pixelsService = self.getPixelsService()
+        configService = self.getConfigService()
         rawPixelsStore = self.c.sf.createRawPixelsStore()    # Make sure we don't get an existing rpStore
         updateService = self.getUpdateService()
 
@@ -3007,49 +3008,97 @@ class _BlitzGateway (object):
             convertedPlane = byteSwappedPlane.tostring();
             rawPixelsStore.setPlane(convertedPlane, z, c, t, self.SERVICE_OPTS)
 
-        image = None
-        dtype = None
-        channelsMinMax = []
+        firstPlane = zctPlanes.next()
+        sizeY, sizeX = firstPlane.shape
+        image, dtype = createImage(firstPlane)
+        pixelsId = image.getPrimaryPixels().getId().getValue()
+
+        channelsMinMax = {}
         exc = None
-        try:
-            for theZ in range(sizeZ):
-                for theC in range(sizeC):
-                    for theT in range(sizeT):
-                        plane = zctPlanes.next()
-                        if image == None:   # use the first plane to create image.
-                            sizeY, sizeX = plane.shape
-                            image, dtype = createImage(plane)
-                            pixelsId = image.getPrimaryPixels().getId().getValue()
-                            rawPixelsStore.setPixelsId(pixelsId, True, self.SERVICE_OPTS)
-                        uploadPlane(plane, theZ, theC, theT, dtype)
-                        # init or update min and max for this channel
-                        minValue = plane.min()
-                        maxValue = plane.max()
-                        if len(channelsMinMax) < (theC +1):     # first plane of each channel
-                            channelsMinMax.append( [minValue, maxValue] )
+
+        # If we are above the Big Image threshold, need to upload tiles...
+        max_plane_width = int(configService.getConfigValue("omero.pixeldata.max_plane_width"))
+        max_plane_height = int(configService.getConfigValue("omero.pixeldata.max_plane_height"))
+        if (sizeY * sizeX) > (max_plane_width * max_plane_height):
+
+            # the order of planes in zctPlanes may not match what's requested by TileLoopIteration
+            # So we only support ONE dimension being > 1 (Z or C or T)
+            if (sizeZ == 1 and sizeC == 1) or (sizeT == 1 and sizeC == 1) or (sizeZ == 1 and sizeT == 1):
+
+                loop = RPSTileLoop(self.c.sf, omero.model.PixelsI(pixelsId, False))
+                class Iteration(TileLoopIteration):
+                    def __init__(self):
+                        self.planeCount = 0
+
+                    def run(self, data, z, c, t, x, y, tileWidth, tileHeight, tileCount):
+                        # get plane if needed
+                        if z * c * t == 0:
+                            plane = firstPlane
+                        elif z * c * t > self.planeCount:
+                            plane = zctPlanes.next()
+                            self.planeCount = z * c * t
+                        # crop plane to tile
+                        tile2d = plane[y: y + tileHeight, x: x + tileWidth]
+                        if dtype is not None:
+                            p = numpy.zeros(tile2d.shape, dtype=dtype)
+                            p += tile2d
+                            tile2d = p
+                        minValue = tile2d.min()
+                        maxValue = tile2d.max()
+                        if c not in channelsMinMax.keys():
+                            channelsMinMax[c] = [minValue, maxValue]
                         else:
-                            channelsMinMax[theC][0] = min(channelsMinMax[theC][0], minValue)
-                            channelsMinMax[theC][1] = max(channelsMinMax[theC][1], maxValue)
-        except Exception, e:
-            logger.error("Failed to setPlane() on rawPixelsStore while creating Image", exc_info=True)
-            exc = e
-        try:
-            rawPixelsStore.close(self.SERVICE_OPTS)
-        except Exception, e:
-            logger.error("Failed to close rawPixelsStore", exc_info=True)
-            if exc is None:
-                 exc = e
-        if exc is not None:
-           raise exc
+                            channelsMinMax[c][0] = min(channelsMinMax[c][0], minValue)
+                            channelsMinMax[c][1] = max(channelsMinMax[c][1], maxValue)
+                        tile2d = list(tile2d.flatten())
+                        data.setTile(tile2d, z, c, t, x, y, tileWidth, tileHeight)
 
-        try:    # simply completing the generator - to avoid a GeneratorExit error.
-            zctPlanes.next()
-        except StopIteration:
-            pass
+                tileW = tileH = 256
+                loop.forEachTile(tileW, tileH, Iteration())
+            else:
+                raise Exception("Can't create BIG tiled image with createImageFromNumpySeq() with multiple dimension counts > 1")
 
-        for theC, mm in enumerate(channelsMinMax):
-            pixelsService.setChannelGlobalMinMax(pixelsId, theC, float(mm[0]), float(mm[1]), self.SERVICE_OPTS)
-            #resetRenderingSettings(renderingEngine, pixelsId, theC, mm[0], mm[1])
+        # Upload pixel data for non-tiled images
+        else:
+            rawPixelsStore.setPixelsId(pixelsId, True, self.SERVICE_OPTS)
+
+            try:
+                for theZ in range(sizeZ):
+                    for theC in range(sizeC):
+                        for theT in range(sizeT):
+                            if theZ == 0 and theT == 0 and theC == 0:
+                                plane = firstPlane
+                            else:
+                                plane = zctPlanes.next()
+                            uploadPlane(plane, theZ, theC, theT, dtype)
+                            # init or update min and max for this channel
+                            minValue = plane.min()
+                            maxValue = plane.max()
+                            if theC not in channelsMinMax.keys():
+                                channelsMinMax[theC] = [minValue, maxValue]
+                            else:
+                                channelsMinMax[theC][0] = min(channelsMinMax[theC][0], minValue)
+                                channelsMinMax[theC][1] = max(channelsMinMax[theC][1], maxValue)
+            except Exception, e:
+                logger.error("Failed to setPlane() on rawPixelsStore while creating Image", exc_info=True)
+                exc = e
+            try:
+                rawPixelsStore.close(self.SERVICE_OPTS)
+            except Exception, e:
+                logger.error("Failed to close rawPixelsStore", exc_info=True)
+                if exc is None:
+                     exc = e
+            if exc is not None:
+                raise exc
+            try:    # simply completing the generator - to avoid a GeneratorExit error.
+                zctPlanes.next()
+            except StopIteration:
+                pass
+
+        # Set min/max intensities for channels
+        for theC in range(sizeC):
+            pixMin, pixMax = channelsMinMax[theC]
+            pixelsService.setChannelGlobalMinMax(pixelsId, theC, float(pixMin), float(pixMax), self.SERVICE_OPTS)
 
         # put the image in dataset, if specified.
         if dataset:
