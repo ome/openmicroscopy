@@ -311,7 +311,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
                 "Port to use for the SMTP server."],
     "omero.web.email_subject_prefix":
                 ["EMAIL_SUBJECT_PREFIX",
-                "[OMERO.web] ", str,
+                "[OMERO.web]", str,
                 "Subject-line prefix for email messages"],
     "omero.web.email_use_tls":
                 ["EMAIL_USE_TLS",
