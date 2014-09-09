@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
@@ -175,13 +176,20 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
     }
 
     /**
+     * Loads event logs from the {@link PixelDataHandler} processing them
+     * all then in a background thread via a {@link ExecutorCompletionService}.
+     *
+     * {@link #numThreads} variable is also used there, so the value returned
+     * <em>should</em> match. In case it isn't, we additionally use an
+     * {@link ArrayBlockingQueue} to hold the results.
      */
     @Override
     public void doRun() {
         if (performProcessing) {
 
             final ExecutorCompletionService<Object> ecs =
-                new ExecutorCompletionService<Object>(executor.getService());
+                new ExecutorCompletionService<Object>(executor.getService(),
+                        new ArrayBlockingQueue<Future<Object>>(numThreads));
 
             @SuppressWarnings("unchecked")
             List<EventLog> eventLogs = (List<EventLog>)
