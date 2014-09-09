@@ -380,7 +380,8 @@ OME.feedback_dialog = function(error, feedbackUrl) {
  * In this case we simply refresh (will redirect to login page)
 **/
 OME.setupAjaxError = function(feedbackUrl){
-    $("body").ajaxError(function(e, req, settings, exception) {
+
+    $(document).ajaxError(function(e, req, settings, exception) {
         if (req.status == 404) {
             var msg = "Url: " + settings.url + "<br/>" + req.responseText;
             OME.confirm_dialog(msg, null, "404 Error", ["OK"], 360, 200);
