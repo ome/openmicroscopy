@@ -8,7 +8,6 @@
 package ome.services.pixeldata;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -222,6 +221,12 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
         }
     }
 
+    /**
+     * {@link Executor.Work} implementation for the second phase of PixelData
+     * processing. Once the {@link EventLog} instances are available, each
+     * should be passed to a new {@link HandleEventLog} instance and then
+     * processed in a background thread.
+     */
     private static class HandleEventLog extends Executor.SimpleWork {
 
         private final PixelDataHandler handler;
@@ -272,6 +277,10 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
         ((PixelDataHandler) this.work).loader.setStop(true);
     }
 
+    /**
+     * Called in the main server (Blitz-0) in order to create a PIXELDATA
+     * {@link EventLog} which will get processed by PixelData-0.
+     */
     public void onApplicationEvent(final MissingPyramidMessage mpm) {
 
         log.info("Received: " + mpm);

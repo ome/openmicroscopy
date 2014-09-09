@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import ome.api.IQuery;
-import ome.api.IUpdate;
 import ome.conditions.LockTimeout;
 import ome.io.nio.PixelsService;
 import ome.model.core.Channel;
@@ -75,7 +74,10 @@ public class PixelDataHandler extends SimpleWork {
     }
 
     /**
-     * Loads a single event log.and returns.
+     * Loads {@link #rep} {@link EventLog} instances and returns them.
+     * This is the first phase used by the {@link PixelDataThread}. A later
+     * phase will invoke {@link #handleEventLog(EventLog, Session, ServiceFactory)}
+     * with the returned instance.
      */
     @Transactional(readOnly = false)
     public Object doWork(Session session, ServiceFactory sf) {
@@ -86,7 +88,7 @@ public class PixelDataHandler extends SimpleWork {
             } catch (NoSuchElementException nsee) {
                 if (!loader.hasNext()) {
                     break;
-                }
+                };
             }
         }
 
@@ -171,7 +173,6 @@ public class PixelDataHandler extends SimpleWork {
     protected Pixels getPixels(Long id, ServiceFactory sf)
     {
         final IQuery iQuery = sf.getQueryService();
-        final IUpdate iUpdate = sf.getUpdateService();
         final Pixels pixels = iQuery.findByQuery(
                 "select p from Pixels as p " +
                 "left outer join fetch p.channels ch " + // For statsinfo
