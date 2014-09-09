@@ -7,11 +7,16 @@
 
 package ome.services.pixeldata;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+
 import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.io.nio.PixelsService;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
+import ome.model.meta.Event;
 import ome.model.meta.EventLog;
 import ome.model.stats.StatsInfo;
 import ome.parameters.Parameters;
@@ -20,9 +25,9 @@ import ome.services.util.Executor.SimpleWork;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
 
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -69,20 +74,38 @@ public class PixelDataHandler extends SimpleWork {
     }
 
     /**
+     * Loads a single event log.and returns.
+     */
+    @Transactional(readOnly = false)
+    public Object doWork(Session session, ServiceFactory sf) {
+        List<EventLog> logs = new ArrayList<EventLog>();
+        while (logs.size() < this.reps) {
+            try {
+                logs.add(loader.next());
+            } catch (NoSuchElementException nsee) {
+                if (!loader.hasNext()) {
+                    break;
+                }
+            }
+        }
+
+        // Preload
+        for (EventLog el : logs) {
+            EventLog live = (EventLog) session.get(EventLog.class, el.getId());
+            Event evt = live.getEvent();
+            el.setEvent(evt);
+        }
+
+        return logs;
+    }
+
+    /**
      * Handles only single elements from the {@link PersistentEventLogLoader}
      * in order to keep transactions short and safe.
      *
      * @see ticket:5814
      */
-    @Transactional(readOnly = false)
-    public Object doWork(Session session, ServiceFactory sf) {
-
-        EventLog eventLog = loadNext();
-        if (eventLog == null)
-        {
-            return null;
-        }
-
+    public void handleEventLog(EventLog eventLog, Session session, ServiceFactory sf) {
         final long start = System.currentTimeMillis();
         final boolean handled = process(eventLog.getEntityId(), sf, session);
         final String msg = String.format("EventLog:%s(entityId=%s) [%s ms.]",
@@ -94,22 +117,6 @@ public class PixelDataHandler extends SimpleWork {
         } else {
             log.debug("SKIPPED "+ msg);
         }
-
-        return null;
-    }
-
-    /**
-     * Synchronized loading since the event log loader infrastructure assumes
-     * a single threaded environment.
-     */
-    private synchronized EventLog loadNext()
-    {
-        if (!loader.hasNext()) {
-            log.debug("No objects indexed");
-            return null;
-        }
-
-        return loader.next();
     }
 
     /**

@@ -32,7 +32,8 @@
   <bean id="pixelDataHandler" class="ome.services.pixeldata.PixelDataHandler">
     <constructor-arg ref="pixelDataEventLogQueue"/>
     <constructor-arg ref="/OMERO/Pixels"/>
-    <property name="repetitions" value="${omero.search.repetitions}"/>
+    <!--  Re-using repetitions for number of threads -->
+    <property name="repetitions" value="${omero.pixeldata.threads}"/>
   </bean>
 
   <bean id="pixelDataEventLogQueue" class="ome.services.eventlogs.EventLogQueue">
