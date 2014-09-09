@@ -107,7 +107,7 @@ public class ManageRndSettingsAction
         private static final String NAME_REDO = "Redo";
 	
 	/** The description of the action if {@link #RESET}. */
-	private static final String NAME_RESET = "Original";
+	private static final String NAME_RESET = "Imported";
 	
 	/** The name of the action if {@link #COPY} */
 	private static final String NAME_COPY = "Copy";
