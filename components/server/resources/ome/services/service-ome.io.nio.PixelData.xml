@@ -30,11 +30,13 @@
   </bean>
 
   <bean id="pixelDataHandler" class="ome.services.pixeldata.PixelDataHandler">
-    <constructor-arg ref="pixelDataEventLogQueue"/>
+    <constructor-arg ref="pixelDataEventLogLoader"/>
     <constructor-arg ref="/OMERO/Pixels"/>
     <!--  Re-using repetitions for number of threads -->
     <property name="repetitions" value="${omero.pixeldata.threads}"/>
   </bean>
+
+  <alias name="${omero.pixeldata.event_log_loader}" alias="pixelDataEventLogLoader"/>
 
   <bean id="pixelDataEventLogQueue" class="ome.services.eventlogs.EventLogQueue">
     <constructor-arg index="0" ref="metrics"/>
@@ -49,7 +51,7 @@
     <property name="excludes" value=""/>
   </bean>
 
-  <bean id="pixelDataEventLogLoader" class="ome.services.pixeldata.PersistentEventLogLoader">
+  <bean id="pixelDataPersistentEventLogLoader" class="ome.services.pixeldata.PersistentEventLogLoader">
     <constructor-arg index="0"><null/></constructor-arg><!-- Legacy has repo == null -->
     <constructor-arg index="1" value="${omero.pixeldata.threads}"/>
     <property name="queryService" ref="internal-ome.api.LocalQuery"/>
