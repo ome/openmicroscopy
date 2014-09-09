@@ -757,6 +757,7 @@ public class DomainPane
         resetGamma(model.getCurveCoefficient());
         setZSection(model.getDefaultZ());
         setTimepoint(model.getDefaultT());
+        setGreyScale(model.isGreyScale());
     }
     
     /**
@@ -918,6 +919,14 @@ public class DomainPane
     	if (zSlider != null) updateSlider(zSlider, z);
     }
 
+    /**
+     * Update the UI components when the color model has changed
+     * @param b Pass <code>true</code> if color model is greyscale
+     */
+    void setGreyScale(boolean b) {
+        graphicsPane.updateGreyScale(b);
+    }
+    
 	/**
 	 * Returns <code>true</code> if the passed object is one of the
 	 * channel buttons, <code>false</code> otherwise.

@@ -695,6 +695,14 @@ class GraphicsPane
             highlight(def);
         }
     }
+    
+    /**
+     * Checks/Unchecks the greyscale checkbox when the color model has changed
+     * @param b Pass <code>true</code> if color model is greyscale
+     */
+    void updateGreyScale(boolean b) {
+        greyScale.setSelected(b);
+    }
 
     /**
      * Comparator which sorts the ViewedByItems by its
