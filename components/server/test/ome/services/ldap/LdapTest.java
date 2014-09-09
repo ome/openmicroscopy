@@ -210,7 +210,12 @@ public class LdapTest extends MockObjectTestCase {
             }
 
             assertNotNull(dn);
-            assertEquals(user, ldap.findExperimenter(user).getOmeName());
+            if (fixture.config.isIgnoreCase()) {
+                assertTrue(user.equalsIgnoreCase(ldap.findExperimenter(user)
+                        .getOmeName()));
+            } else {
+                assertEquals(user, ldap.findExperimenter(user).getOmeName());
+            }
             fixture.createUserWithGroup(this, dn, users.get(user).get(0));
             assertNotNull(fixture.createUser(user, "password", true));
             fixture.login(user, users.get(user).get(0), "password");
