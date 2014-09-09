@@ -13,6 +13,7 @@ import java.util.NoSuchElementException;
 
 import ome.api.IQuery;
 import ome.api.IUpdate;
+import ome.conditions.LockTimeout;
 import ome.io.nio.PixelsService;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
@@ -156,6 +157,9 @@ public class PixelDataHandler extends SimpleWork {
                 log.info(String.format("Added StatsInfo:%s for %s - C:%s Max:%s Min:%s",
                         siId, ch, c, si.getGlobalMax(), si.getGlobalMin()));
             }
+        } catch (LockTimeout lt) {
+            log.warn("Pixels:" + id + " -- " + lt.getMessage());
+            return false;
         } catch (Exception t) {
             log.error("Failed to handle pixels " + id, t);
             return false;
