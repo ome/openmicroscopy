@@ -41,6 +41,8 @@ if(BUILD_TESTS)
 
   add_library(testmain STATIC ${test_main_sources})
 
+  set_property(TARGET testmain PROPERTY FOLDER "Libraries")
+
   set(TEST_LIBS testmain ${GTEST_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
   function(headers_test component path)

@@ -45,6 +45,8 @@ endif(POLICY CMP0042)
 
 project(openmicroscopy)
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 include(components/tools/OmeroCpp/cmake/Version.cmake)
 
 if("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")

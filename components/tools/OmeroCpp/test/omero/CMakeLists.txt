@@ -46,4 +46,6 @@ if(BUILD_TESTS)
                           LINK_FLAGS "/INCREMENTAL:NO"
                           DEFINE_SYMBOL "OMERO_TEST_EXPORTS")
   endif(MSVC)
+
+  set_property(TARGET omero-test PROPERTY FOLDER "Libraries")
 endif(BUILD_TESTS)
