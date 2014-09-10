@@ -51,7 +51,7 @@
             {% include 'webadmin/includes/drivespaceStats.js' %}
 
             var loadGroups = function() {
-                $("#filterBy").hide();
+                $("#filterBy").text("Click chart to see usage for a single Group");
                 $(".usageBy").removeClass('selected');
                 $("#load_groups").addClass('selected');
                 $(".totalUsage").text('Total');
@@ -63,7 +63,7 @@
             }
 
             var loadUsers = function() {
-                $("#filterBy").hide();
+                $("#filterBy").text("Click chart to see usage for a single User");
                 $(".usageBy").removeClass('selected');
                 $("#load_users").addClass('selected');
                 $(".totalUsage").text('Total');
@@ -123,12 +123,20 @@
     <div class="one_column_header">
         <div id="drivespace_settings" class="settings_content">
             <h1>
-                Show disk usage by:
-                <a class="usageBy" href="#" id="load_users">Users</a> |
-                <a class="usageBy" href="#" id="load_groups">Groups</a> |
+                <div class="hlabel">Show disk usage by:</div>
+                <div class="tag">
+                    <a class="usageBy tag_inner" href="#" id="load_users">Users</a>
+                </div>
+                <div class="tag">
+                    <a class="usageBy tag_inner" href="#" id="load_groups">Groups</a>
+                </div>
 
-                <span class="usageBy selected" id="filterBy"></span>
+                <span class="hlabel usageBy selected" id="filterBy" style="top:4px; padding: 3px">
+                    Click on chart segment to see usage by individual user/group
+                </span>
             </h1>
+            <div style="clear:both"></div>
+            <hr>
             {% include 'webadmin/includes/drivespaceStats.html' %}
         </div>
     </div>

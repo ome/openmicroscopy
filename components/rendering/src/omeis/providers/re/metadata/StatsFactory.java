@@ -262,11 +262,11 @@ public class StatsFactory {
     		minmax[0] = 0;
     		minmax[1] = 65535;
     	} else if (PlaneFactory.INT32.equals(typeAsString)) {
-    		minmax[0] = -32768;
-			minmax[1] = 32767;
+    		minmax[0] = -Math.pow(2, 32)/2;
+			minmax[1] = Math.pow(2, 32)/2-1;
     	} else if (PlaneFactory.UINT32.equals(typeAsString)) {
     		minmax[0] = 0;
-			minmax[1] = 65535;
+			minmax[1] = Math.pow(2, 32)-1;
     	} else if (PlaneFactory.FLOAT_TYPE.equals(typeAsString) ||
     			PlaneFactory.DOUBLE_TYPE.equals(typeAsString)) {
     		//b/c we don't know if it is signed or not
@@ -292,71 +292,16 @@ public class StatsFactory {
         log.debug("Computing location stats for Pixels:" + metadata.getId());
         Channel channel = metadata.getChannel(index);
         final StatsInfo stats = channel.getStatsInfo();
-        /*
-        if (stats == null)
-        {
-        	throw new ResourceError("Pixels set is missing statistics for " +
-        			"channel '" + index + "'. This suggests an image import " +
-        			"error or failed image import.");
-        }
-        */
-        double gMin = 0;
-        double gMax = 1;
+        inputStart = 0;
+        inputEnd = 1;
         if (stats == null) {
         	double[] values = initPixelsRange(metadata.getPixelsType());
-        	gMin = values[0];
-        	gMax = values[1];
+        	inputStart = values[0];
+        	inputEnd = values[1];
         } else {
-        	gMin = stats.getGlobalMin().doubleValue();
-            gMax = stats.getGlobalMax().doubleValue();
+            inputStart = stats.getGlobalMin().doubleValue();
+            inputEnd = stats.getGlobalMax().doubleValue();
         }
-        
-        Dimension tileSize = pixelsData.getTileSize();
-        double range = gMax-gMin;
-        int resolutionLevels = pixelsData.getResolutionLevels();
-        if (range <= RANGE_RGB || resolutionLevels > 1) {
-            // A number of resolution levels greater than one tends to
-            // signify a big image.  We *really* do not want to be
-            // iterating through potentially GBs of data on every big image
-            // whenever a calculation of the location statistics is requested.
-            //
-            // Furthermore, as this computation is exclusively used to
-            // prime "pretty good image" rendering settings calculating
-            // them is pointless when the range does not exceed that
-            // available in the device space.
-            inputEnd = gMax;
-            inputStart = gMin;
-            return;
-        }
-        sizeBin = range / NB_BIN;
-        epsilon = sizeBin / EPSILON;
-        if (locationStats == null) {
-            locationStats = new double[NB_BIN];
-        }
-        //value will be reset when calculating data.
-        inputStart = gMax;
-        inputEnd = gMin;
-        final double globalMin = gMin;
-        Utils.forEachTile(new TileLoopIteration() {
-            public void run(int z, int c, int t, int x, int y, int tileWidth,
-                    int tileHeight, int tileCount)
-            {
-                if (z == 1 || c == 1 || t == 1)
-                {
-                    // We're not going through the entire pixel buffer
-                    return;
-                }
-                RegionDef regionDef = new RegionDef();
-                regionDef.setX(x);
-                regionDef.setY(y);
-                regionDef.setWidth(tileWidth);
-                regionDef.setHeight(tileHeight);
-                pd.setRegion(regionDef);
-                Plane2D plane2D = PlaneFactory.createPlane(pd, index, metadata,
-                        pixelsData);
-                computeBins(plane2D, globalMin, tileHeight, tileWidth);
-            }
-        }, pixelsData, (int) tileSize.getWidth(), (int) tileSize.getHeight());
     }
 
     /**

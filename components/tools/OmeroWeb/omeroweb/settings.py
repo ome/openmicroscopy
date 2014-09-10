@@ -214,6 +214,7 @@ def leave_none_unset_int(s):
 
 CUSTOM_HOST = CUSTOM_SETTINGS.get("Ice.Default.Host", "localhost")
 CUSTOM_SETTINGS_MAPPINGS = {
+    "omero.qa.feedback" : ["FEEDBACK_URL", "http://qa.openmicroscopy.org.uk", str],
     "omero.web.login_logo": ["LOGIN_LOGO", None, leave_none_unset],
     "omero.web.apps": ["ADDITIONAL_APPS", '[]', json.loads],
     "omero.web.public.enabled": ["PUBLIC_ENABLED", "false", parse_boolean],
@@ -231,6 +232,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.application_server.port": ["APPLICATION_SERVER_PORT", "4080", str],
     "omero.web.application_server.max_requests": ["APPLICATION_SERVER_MAX_REQUESTS", 400, int],
     "omero.web.ping_interval": ["PING_INTERVAL", 60000, int],
+    "omero.web.page_size": ["PAGE", 200, int],      # pagination of images in datasets and 'orphaned'
     "omero.web.force_script_name": ["FORCE_SCRIPT_NAME", None, leave_none_unset],
     "omero.web.static_url": ["STATIC_URL", "/static/", str],
     "omero.web.staticfile_dirs": ["STATICFILES_DIRS", '[]', json.loads],
@@ -585,9 +587,11 @@ PIPELINE_JS = {
     }
 }
 
-# FEEDBACK_URL: Used in feedback.sendfeedback.SendFeedback class in order to submit 
-# error or comment messages to https://qa.openmicroscopy.org.
-FEEDBACK_URL = "http://qa.openmicroscopy.org.uk"
+# FEEDBACK - DO NOT MODIFY!
+# FEEDBACK_URL: Is now configurable for testing purpuse only. Used in
+# feedback.sendfeedback.SendFeedback class in order to submit errors or
+# comment messages to http://qa.openmicroscopy.org.uk.
+# FEEDBACK_APP: 6 = OMERO.web
 FEEDBACK_APP = 6
 
 # IGNORABLE_404_STARTS: 
@@ -619,11 +623,6 @@ DEFAULT_USER = os.path.join(os.path.dirname(__file__), 'webgateway', 'static', '
 # SEND_BROKEN_LINK_EMAILS=True.
 MANAGERS = ADMINS  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
 
-# PAGE: Used in varous locations where large number of data is retrieved from the server.
-try:
-    PAGE  # noqa
-except:
-    PAGE = 200
 
 EMAIL_TEMPLATES = {
     'create_share': {

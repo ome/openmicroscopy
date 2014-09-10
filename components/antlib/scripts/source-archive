@@ -24,14 +24,17 @@ import zipfile
 # polluting the release with version control files.
 
 if __name__ == "__main__":
-    if len(sys.argv) != 6:
-        raise Exception('Usage: %s releasename shortversion fullversion versionfile targetdir')
+    if len(sys.argv) != 9:
+        raise Exception('Usage: %s releasename shortversion fullversion vcs-revision vcs-date versionfile cppversionfile targetdir')
 
     release = sys.argv[1]
     shortversion = sys.argv[2]
     version = sys.argv[3]
-    versionfile = sys.argv[4]
-    target = os.path.abspath(sys.argv[5])
+    vcs_revision = sys.argv[4]
+    vcs_date = sys.argv[5]
+    versionfile = sys.argv[6]
+    cppversionfile = sys.argv[7]
+    target = os.path.abspath(sys.argv[8])
     release = "%s-%s" % (release,version)
 
     if not os.path.isdir('.git'):
@@ -93,8 +96,19 @@ if __name__ == "__main__":
 <project name="gitversion" basedir=".">
         <property name="omero.shortversion" value="%s"/>
         <property name="omero.plainversion" value="%s"/>
+        <property name="omero.vcs.revision" value="%s"/>
+        <property name="omero.vcs.date" value="%s"/>
+
         <!-- Properties for detecting where these properties were read from -->
         <property name="omero.shortversion.source" value="embedded"/>
         <property name="omero.plainversion.source" value="embedded"/>
+        <property name="omero.vcs.revision.source" value="embedded"/>
+        <property name="omero.vcs.date.source" value="embedded"/>
 </project>
-""" % (shortversion, version))
+""" % (shortversion, version, vcs_revision, vcs_date))
+    basezip.writestr("%s/%s" % (release, cppversionfile),
+"""set(OME_VERSION "%s")
+set(OME_VERSION_SHORT "%s")
+set(OME_VCS_REVISION "%s")
+set(OME_VCS_DATE "%s")
+""" % (version, shortversion, vcs_revision, vcs_date))

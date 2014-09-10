@@ -38,3 +38,5 @@ add_executable(chgrp
                chgrp.cpp)
 
 target_link_libraries(chgrp omero-client)
+
+set_property(TARGET chgrp PROPERTY FOLDER "Utilities")

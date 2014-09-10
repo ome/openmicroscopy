@@ -36,5 +36,16 @@
 
 if(BUILD_TESTS)
   add_library(omero-test SHARED fixture.cpp fixture.h)
-  target_link_libraries(omero-test omero-client ${TEST_LIBS})
+  target_link_libraries(omero-test
+                        omero-ice
+                        omero-client
+                        ${TEST_LIBS})
+
+  if(MSVC)
+    set_target_properties(omero-test PROPERTIES
+                          LINK_FLAGS "/INCREMENTAL:NO"
+                          DEFINE_SYMBOL "OMERO_TEST_EXPORTS")
+  endif(MSVC)
+
+  set_property(TARGET omero-test PROPERTY FOLDER "Libraries")
 endif(BUILD_TESTS)

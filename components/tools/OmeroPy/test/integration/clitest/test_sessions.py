@@ -22,9 +22,6 @@
 from test.integration.clitest.cli import CLITest
 import pytest
 
-subcommands = ['help', 'login', 'logout', 'group',
-               'list', 'keepalive', 'clear', 'file']
-
 
 class TestSessions(CLITest):
 
@@ -45,17 +42,6 @@ class TestSessions(CLITest):
         return 'session %s (%s). Idle timeout: 10.0 min. ' \
             'Current group: %s\n' % (ec.sessionUuid, self.conn_string,
                                      ec.groupName)
-
-    # Help subcommands
-    # ========================================================================
-    def testHelp(self):
-        self.args += ["-h"]
-        self.cli.invoke(self.args, strict=True)
-
-    @pytest.mark.parametrize("subcommand", subcommands)
-    def testSubcommandHelp(self, subcommand):
-        self.args += [subcommand, "-h"]
-        self.cli.invoke(self.args, strict=True)
 
     # Login subcommand
     # ========================================================================

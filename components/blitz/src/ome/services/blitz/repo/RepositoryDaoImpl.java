@@ -1,6 +1,7 @@
 package ome.services.blitz.repo;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +16,8 @@ import org.hibernate.Session;
 import org.springframework.aop.framework.Advised;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.collect.Iterables;
+
 import Ice.Current;
 
 import ome.api.IQuery;
@@ -23,6 +26,7 @@ import ome.api.RawFileStore;
 import ome.api.local.LocalAdmin;
 import ome.conditions.InternalException;
 import ome.io.nio.FileBuffer;
+import ome.model.IObject;
 import ome.model.fs.FilesetJobLink;
 import ome.model.meta.Experimenter;
 import ome.parameters.Parameters;
@@ -384,6 +388,22 @@ public class RepositoryDaoImpl implements RepositoryDao {
                         }
                     }
                 });
+    }
+
+    public List<Long> filterFilesByRepository(final String repo, List<Long> ids, Ice.Current current) {
+        final List<Long> inRepo = new ArrayList<Long>();
+        for (final List<Long> idBatch : Iterables.partition(ids, 256)) {
+            inRepo.addAll((Collection<Long>) executor
+                    .execute(current.ctx, currentUser(current),
+                            new Executor.SimpleWork(this, "filterFilesByRepository") {
+                        @Override
+                        @Transactional(readOnly = true)
+                        public List<Long> doWork(Session session, ServiceFactory sf) {
+                            return getSqlAction().filterFileIdsByRepo(repo, idBatch);
+                        }
+                    }));
+        }
+        return inRepo;
     }
 
     public OriginalFile getOriginalFile(final long repoId,
@@ -983,4 +1003,64 @@ public class RepositoryDaoImpl implements RepositoryDao {
         return context;
     }
 
+    @Override
+    public ome.model.enums.ChecksumAlgorithm getChecksumAlgorithm(final String name, Ice.Current current) {
+        return (ome.model.enums.ChecksumAlgorithm) executor.execute(current.ctx, currentUser(current),
+                new Executor.Work<ome.model.enums.ChecksumAlgorithm>() {
+
+            @Override
+            public String description() {
+                return "get a checksum algorithm by name " + name;
+            }
+
+            @Override
+            @Transactional(readOnly = true)
+            public ome.model.enums.ChecksumAlgorithm doWork(Session session, ServiceFactory sf) {
+                final String query = "FROM ChecksumAlgorithm WHERE value = :name";
+                final Parameters params = new Parameters().addString("name", name);
+                final List<Object[]> results = sf.getQueryService().projection(query, params);
+                return (ome.model.enums.ChecksumAlgorithm) results.get(0)[0];
+            }
+        });
+    }
+
+    @Override
+    public ome.model.core.OriginalFile getOriginalFileWithHasher(final long id, Ice.Current current) {
+        return (ome.model.core.OriginalFile) executor.execute(current.ctx, currentUser(current),
+                new Executor.Work<ome.model.core.OriginalFile>() {
+
+            @Override
+            public String description() {
+                return "get an original file #" + id + ", with hasher joined";
+            }
+
+            @Override
+            @Transactional(readOnly = true)
+            public ome.model.core.OriginalFile doWork(Session session, ServiceFactory sf) {
+                final String query = "FROM OriginalFile o LEFT OUTER JOIN FETCH o.hasher WHERE o.id = :id";
+                final Parameters params = new Parameters().addId(id);
+                final List<Object[]> results = sf.getQueryService().projection(query, params);
+                return (ome.model.core.OriginalFile) results.get(0)[0];
+            }
+        });
+    }
+
+    @Override
+    public void saveObject(final IObject object, Ice.Current current) {
+        executor.execute(current.ctx, currentUser(current),
+                new Executor.Work<Object>() {
+
+            @Override
+            public String description() {
+                return "save the model object " + object;
+            }
+
+            @Override
+            @Transactional(readOnly = false)
+            public Object doWork(Session session, ServiceFactory sf) {
+                sf.getUpdateService().saveObject(object);
+                return null;
+            }
+        });
+    }
 }

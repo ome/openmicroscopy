@@ -36,7 +36,8 @@
 
 include_directories("${PROJECT_SOURCE_DIR}/components/blitz/generated"
                     "${PROJECT_SOURCE_DIR}/components/tools/OmeroCpp/src"
-                    "${PROJECT_BINARY_DIR}/components/tools/OmeroCpp/gen")
+                    "${PROJECT_BINARY_DIR}/components/tools/OmeroCpp/gen"
+                    "${Ice_INCLUDE_DIRS}")
 
 set(omero_exampledir "${CMAKE_INSTALL_FULL_LIBEXECDIR}/omero/examples")
 

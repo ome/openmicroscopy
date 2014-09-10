@@ -774,6 +774,13 @@
   License File: apache-v2.0.txt gpl.txt
 
 
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/hammer/hammer.min.js
+  Project:      Hammer.js
+  Web Site:     http://hammerjs.github.io/
+  License:      MIT license.
+  License File: jquery.txt
+
+
   //
   // Used but not distributed
   //

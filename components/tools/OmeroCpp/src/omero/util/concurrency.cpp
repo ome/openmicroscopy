@@ -12,26 +12,26 @@ namespace omero {
         namespace concurrency {
 
             Event::Event() : flag(false) {
-            };
+            }
 
             Event::~Event() {
                 // cond and mutex will be reaped.
-            };
+            }
 
             bool Event::isSet() {
                 return flag;
-            };
+            }
 
             void Event::set() {
                 IceUtil::RecMutex::Lock sync(mutex);
                 flag = true;
                 cond.broadcast();
-            };
+            }
 
             void Event::clear() {
                 IceUtil::RecMutex::Lock sync(mutex);
                 flag = false;
-            };
+            }
 
             bool Event::wait(const IceUtil::Time& timeout) {
                 IceUtil::RecMutex::Lock sync(mutex);
@@ -39,8 +39,8 @@ namespace omero {
                     return cond.timedWait(sync, timeout);
                 }
                 return true;
-            };
-        };
-    };
-};
+            }
+        }
+    }
+}
 

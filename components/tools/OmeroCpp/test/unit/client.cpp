@@ -16,7 +16,8 @@ using namespace std;
 TEST(ClientTest, UnconfiguredClient )
 {
   int argc = 1;
-  char* argv[] = {(char*)"--omero.host=localhost", 0};
+  std::string host("--omero.host=localhost");
+  char* argv[] = {&host[0], 0};
   omero::client_ptr c = new omero::client(argc, argv);
 }
 
@@ -55,7 +56,8 @@ TEST(ClientTest, BlockSize1MB)
 {
 
   int argc = 1;
-  char* argv[] = {(char*)"--omero.block_size=1000000", 0};
+  std::string blocksize("--omero.block_size=1000000");
+  char* argv[] = {&blocksize[0], 0};
   omero::client_ptr c = new omero::client(argc, argv);
   ASSERT_EQ(1000000, c->getDefaultBlockSize());
 }

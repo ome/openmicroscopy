@@ -42,17 +42,22 @@ include_directories(src gen)
 include_directories("${PROJECT_SOURCE_DIR}/components/blitz/generated"
                     "${CMAKE_CURRENT_SOURCE_DIR}/src"
                     "${CMAKE_CURRENT_BINARY_DIR}/${GEN_DIR}"
-                    "${ICE_INCLUDE_DIR}")
+                    "${Ice_INCLUDE_DIRS}")
 
 option(debug-ice-generation "Dump results of generated Ice source globbing" OFF)
 
 # Find all static Ice slice definitions.
-file(GLOB_RECURSE ICE_API_STATIC_SOURCES RELATIVE        "${PROJECT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/components/blitz/resources/omero/api/*.ice")
-file(GLOB_RECURSE ICE_MODEL_STATIC_SOURCES RELATIVE      "${PROJECT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/components/blitz/resources/omero/model*.ice")
-file(GLOB_RECURSE ICE_COMMON_STATIC_SOURCES RELATIVE     "${PROJECT_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}/components/blitz/resources/*.ice")
+file(GLOB_RECURSE ICE_API_STATIC_SOURCES RELATIVE    "${PROJECT_SOURCE_DIR}"
+     "${PROJECT_SOURCE_DIR}/components/blitz/resources/omero/api/*.ice")
+file(GLOB_RECURSE ICE_MODEL_STATIC_SOURCES RELATIVE  "${PROJECT_SOURCE_DIR}"
+     "${PROJECT_SOURCE_DIR}/components/blitz/resources/omero/model/*.ice")
+file(GLOB_RECURSE ICE_COMMON_STATIC_SOURCES RELATIVE "${PROJECT_SOURCE_DIR}"
+     "${PROJECT_SOURCE_DIR}/components/blitz/resources/*.ice")
 
-# Move from common to api:
+# Move from common to api and model:
 list(APPEND ICE_API_STATIC_SOURCES components/blitz/resources/omero/API.ice)
+list(APPEND ICE_API_STATIC_SOURCES components/blitz/resources/omero/ServicesF.ice)
+list(APPEND ICE_MODEL_STATIC_SOURCES components/blitz/resources/omero/ModelF.ice)
 
 # Remove api and model files from the common files.
 if(ICE_API_STATIC_SOURCES)
@@ -148,11 +153,11 @@ if(OMERO_CLIENT_GENERATED_SOURCES)
 endif(OMERO_CLIENT_GENERATED_SOURCES)
 
 list(APPEND SLICEOPTS "-I${PROJECT_SOURCE_DIR}/components/blitz/generated" "-I${PROJECT_SOURCE_DIR}/components/blitz/resources")
-if(ICE_SLICE_DIR)
-  list(APPEND SLICEOPTS "-I${ICE_SLICE_DIR}")
-endif(ICE_SLICE_DIR)
+foreach(slicedir ${Ice_SLICE_DIRS})
+  list(APPEND SLICEOPTS "-I${slicedir}")
+endforeach(slicedir)
 if(WIN32)
-  list(APPEND SLICEOPTS --dll-export OMERO_API)
+  list(APPEND SLICEOPTS --dll-export OMERO_ICE)
 endif(WIN32)
 
 set(omero_includedir "${CMAKE_INSTALL_FULL_INCLUDEDIR}/omero")
@@ -180,7 +185,7 @@ function(icegen in outsrc outhdr)
         OUTPUT ${GEN_DIR}/${ICECPP} ${GEN_DIR}/${ICEHPP}
         WORKING_DIRECTORY gen
         COMMAND ${CMAKE_COMMAND} -E make_directory "${ICE_PATH}"
-        COMMAND "${SLICE2CPP_EXECUTABLE}" ${SLICEOPTS} ${incdir} "--output-dir=${ICE_PATH}" "${PROJECT_SOURCE_DIR}/${icesrc}"
+        COMMAND "${Ice_SLICE2CPP_EXECUTABLE}" ${SLICEOPTS} ${incdir} "--output-dir=${ICE_PATH}" "${PROJECT_SOURCE_DIR}/${icesrc}"
         DEPENDS "${PROJECT_SOURCE_DIR}/${icesrc}")
       install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${GEN_DIR}/${ICEHPP}
               DESTINATION "${CMAKE_INSTALL_FULL_INCLUDEDIR}/${ICE_PATH}")
@@ -238,6 +243,36 @@ abspath_sources(OMERO_API_GENERATED_SOURCES OMERO_API_GENERATED_SOURCES_ABS)
 abspath_sources(OMERO_MODEL_GENERATED_SOURCES OMERO_MODEL_GENERATED_SOURCES_ABS)
 abspath_sources(OMERO_COMMON_GENERATED_SOURCES OMERO_COMMON_GENERATED_SOURCES_ABS)
 
+set(OMERO_ICE_HEADERS
+    ${OMERO_COMMON_STATIC_ICE_HEADERS}
+    ${OMERO_COMMON_GENERATED_ICE_HEADERS}
+    ${OMERO_MODEL_STATIC_ICE_HEADERS}
+    ${OMERO_MODEL_GENERATED_ICE_HEADERS}
+    ${OMERO_API_STATIC_ICE_HEADERS}
+    ${OMERO_API_GENERATED_ICE_HEADERS}
+    ${OMERO_CLIENT_STATIC_ICE_HEADERS}
+    ${OMERO_CLIENT_GENERATED_ICE_HEADERS})
+set(OMERO_ICE_SOURCES
+    ${OMERO_COMMON_STATIC_ICE_SOURCES}
+    ${OMERO_COMMON_GENERATED_ICE_SOURCES}
+    ${OMERO_MODEL_STATIC_ICE_SOURCES}
+    ${OMERO_MODEL_GENERATED_ICE_SOURCES}
+    ${OMERO_API_STATIC_ICE_SOURCES}
+    ${OMERO_API_GENERATED_ICE_SOURCES}
+    ${OMERO_CLIENT_STATIC_ICE_SOURCES}
+    ${OMERO_CLIENT_GENERATED_ICE_SOURCES})
+
+add_library(omero-ice SHARED
+            ${OMERO_ICE_HEADERS} ${OMERO_ICE_SOURCES})
+target_link_libraries(omero-ice ${Ice_LIBRARIES})
+set_target_properties(omero-ice PROPERTIES
+                      VERSION ${OME_VERSION_SHORT})
+
+if(MSVC)
+  set_target_properties(omero-ice PROPERTIES
+                        LINK_FLAGS "/INCREMENTAL:NO"
+                        DEFINE_SYMBOL "OMERO_ICE_EXPORTS")
+endif(MSVC)
 
 set(OMERO_COMMON_STATIC_HEADERS
     src/omero/ClientErrors.h
@@ -257,14 +292,10 @@ set(OMERO_COMMON_STATIC_SOURCES
 set(OMERO_COMMON_HEADERS
     ${OMERO_COMMON_STATIC_HEADERS}
     ${OMERO_COMMON_STATIC_SYS_HEADERS}
-    ${OMERO_COMMON_GENERATED_HEADERS_ABS}
-    ${OMERO_COMMON_STATIC_ICE_HEADERS}
-    ${OMERO_COMMON_GENERATED_ICE_HEADERS})
+    ${OMERO_COMMON_GENERATED_HEADERS_ABS})
 set(OMERO_COMMON_SOURCES
     ${OMERO_COMMON_STATIC_SOURCES}
-    ${OMERO_COMMON_GENERATED_SOURCES_ABS}
-    ${OMERO_COMMON_STATIC_ICE_SOURCES}
-    ${OMERO_COMMON_GENERATED_ICE_SOURCES})
+    ${OMERO_COMMON_GENERATED_SOURCES_ABS})
 
 
 set(OMERO_MODEL_STATIC_MODEL_HEADERS
@@ -278,14 +309,10 @@ set(OMERO_MODEL_STATIC_SOURCES
 
 set(OMERO_MODEL_HEADERS
     ${OMERO_MODEL_STATIC_MODEL_HEADERS}
-    ${OMERO_MODEL_GENERATED_HEADERS_ABS}
-    ${OMERO_MODEL_STATIC_ICE_HEADERS}
-    ${OMERO_MODEL_GENERATED_ICE_HEADERS})
+    ${OMERO_MODEL_GENERATED_HEADERS_ABS})
 set(OMERO_MODEL_SOURCES
     ${OMERO_MODEL_STATIC_SOURCES}
-    ${OMERO_MODEL_GENERATED_SOURCES_ABS}
-    ${OMERO_MODEL_STATIC_ICE_SOURCES}
-    ${OMERO_MODEL_GENERATED_ICE_SOURCES})
+    ${OMERO_MODEL_GENERATED_SOURCES_ABS})
 
 
 set(OMERO_API_STATIC_HEADERS)
@@ -293,14 +320,10 @@ set(OMERO_API_STATIC_SOURCES)
 
 set(OMERO_API_HEADERS
     ${OMERO_API_STATIC_HEADERS}
-    ${OMERO_API_GENERATED_HEADERS_ABS}
-    ${OMERO_API_STATIC_ICE_HEADERS}
-    ${OMERO_API_GENERATED_ICE_HEADERS})
+    ${OMERO_API_GENERATED_HEADERS_ABS})
 set(OMERO_API_SOURCES
     ${OMERO_API_STATIC_SOURCES}
-    ${OMERO_API_GENERATED_SOURCES_ABS}
-    ${OMERO_API_STATIC_ICE_SOURCES}
-    ${OMERO_API_GENERATED_ICE_SOURCES})
+    ${OMERO_API_GENERATED_SOURCES_ABS})
 
 
 set(OMERO_CLIENT_STATIC_HEADERS
@@ -328,30 +351,27 @@ set(OMERO_CLIENT_STATIC_SOURCES
 set(OMERO_CLIENT_HEADERS
     ${OMERO_CLIENT_STATIC_HEADERS}
     ${OMERO_CLIENT_STATIC_UTIL_HEADERS}
-    ${OMERO_CLIENT_GENERATED_HEADERS_ABS}
-    ${OMERO_CLIENT_STATIC_ICE_HEADERS}
-    ${OMERO_CLIENT_GENERATED_ICE_HEADERS})
+    ${OMERO_CLIENT_GENERATED_HEADERS_ABS})
 set(OMERO_CLIENT_SOURCES
     ${OMERO_CLIENT_STATIC_SOURCES}
-    ${OMERO_CLIENT_GENERATED_SOURCES_ABS}
-    ${OMERO_CLIENT_STATIC_ICE_SOURCES}
-    ${OMERO_CLIENT_GENERATED_ICE_SOURCES})
+    ${OMERO_CLIENT_GENERATED_SOURCES_ABS})
 
 add_library(omero-client SHARED
             ${OMERO_COMMON_HEADERS} ${OMERO_COMMON_SOURCES}
             ${OMERO_MODEL_HEADERS} ${OMERO_MODEL_SOURCES}
             ${OMERO_API_HEADERS} ${OMERO_API_SOURCES}
             ${OMERO_CLIENT_HEADERS} ${OMERO_CLIENT_SOURCES})
-target_link_libraries(omero-client
-                      "${ICE_LIBRARY}"
-                      "${ICEUTIL_LIBRARY}"
-                      "${GLACIER2_LIBRARY}")
+target_link_libraries(omero-client omero-ice ${Ice_LIBRARIES})
+set_target_properties(omero-client PROPERTIES
+                      VERSION ${OME_VERSION_SHORT})
 
 if(MSVC)
   set_target_properties(omero-client PROPERTIES
                         LINK_FLAGS "/INCREMENTAL:NO"
-                        DEFINE_SYMBOL "OMERO_API_EXPORTS")
+                        DEFINE_SYMBOL "OMERO_CLIENT_EXPORTS")
 endif(MSVC)
+
+set_property(TARGET omero-ice omero-client PROPERTY FOLDER "Libraries")
 
 if(debug-ice-generation)
   message(STATUS "omero-client (headers): ${OMERO_COMMON_HEADERS} ${OMERO_MODEL_HEADERS} ${OMERO_API_HEADERS} ${OMERO_CLIENT_HEADERS}")
@@ -364,7 +384,9 @@ add_custom_target(gensrc
                           ${OMERO_API_HEADERS} ${OMERO_API_SOURCES}
                           ${OMERO_CLIENT_HEADERS} ${OMERO_CLIENT_SOURCES})
 
-install(TARGETS omero-client
+set_property(TARGET gensrc PROPERTY FOLDER "Ice code generation")
+
+install(TARGETS omero-ice omero-client
         LIBRARY DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}
         RUNTIME DESTINATION ${CMAKE_INSTALL_FULL_BINDIR})
@@ -378,6 +400,22 @@ install(FILES ${OMERO_COMMON_STATIC_SYS_HEADERS}
         DESTINATION ${omero_includedir}/sys)
 install(FILES ${OMERO_CLIENT_STATIC_UTIL_HEADERS}
         DESTINATION ${omero_includedir}/util)
+
+set(LIBRARY_PREFIX OMERO_ICE)
+set(LIBRARY_NAME omero-ice)
+set(LIBRARY_HEADER omero/RTypes.h)
+configure_file(${PROJECT_SOURCE_DIR}/components/bioformats/cpp/cmake/TemplateConfig.cmake.in
+               ${CMAKE_CURRENT_BINARY_DIR}/omero-ice-config.cmake)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/omero-ice-config.cmake
+        DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/cmake)
+
+set(LIBRARY_PREFIX OMERO_CLIENT)
+set(LIBRARY_NAME omero-client)
+set(LIBRARY_HEADER omero/client.h)
+configure_file(${PROJECT_SOURCE_DIR}/components/bioformats/cpp/cmake/TemplateConfig.cmake.in
+               ${CMAKE_CURRENT_BINARY_DIR}/omero-client-config.cmake)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/omero-client-config.cmake
+        DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/cmake)
 
 add_subdirectory(test)
 add_subdirectory(utils)

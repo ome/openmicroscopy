@@ -216,7 +216,7 @@ onCtrlC(int sig)
     if (call) {
         call->ctrlc(sig);
     }
-};
+}
 
 int main(int argc, char** argv) {
     //

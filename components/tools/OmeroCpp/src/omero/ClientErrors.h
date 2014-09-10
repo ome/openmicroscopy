@@ -14,11 +14,11 @@
 #include <iostream>
 #include <exception>
 
-#ifndef OMERO_API
-#   ifdef OMERO_API_EXPORTS
-#       define OMERO_API ICE_DECLSPEC_EXPORT
+#ifndef OMERO_CLIENT
+#   ifdef OMERO_CLIENT_EXPORTS
+#       define OMERO_CLIENT ICE_DECLSPEC_EXPORT
 #   else
-#       define OMERO_API ICE_DECLSPEC_IMPORT
+#       define OMERO_CLIENT ICE_DECLSPEC_IMPORT
 #   endif
 #endif
 
@@ -28,7 +28,7 @@
  */
 namespace omero {
 
-  class OMERO_API ClientError : public std::exception
+  class OMERO_CLIENT ClientError : public std::exception
   {
   protected:
     int _line;
@@ -48,7 +48,7 @@ namespace omero {
    * method which is expecting valid state is called. (The id
    * of an unloaded object will always be sent by the server.)
    */
-  class OMERO_API UnloadedEntityException : public ClientError
+  class OMERO_CLIENT UnloadedEntityException : public ClientError
   {
   public:
     UnloadedEntityException(const char*, int, const char* message);
@@ -58,7 +58,7 @@ namespace omero {
    * Thrown if a collection is unloaded (see collectionNameLoaded fields)
    * and any method which is expecting a valid collection is called.
    */
-  class OMERO_API UnloadedCollectionException : public ClientError
+  class OMERO_CLIENT UnloadedCollectionException : public ClientError
   {
   public:
     UnloadedCollectionException(const char*, int, const char* message);

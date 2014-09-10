@@ -41,6 +41,7 @@ import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.Screen;
 
+import org.apache.commons.lang.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +57,9 @@ public class CommandLineImporter {
 
     /** Logger for this class. */
     private static Logger log = LoggerFactory.getLogger(CommandLineImporter.class);
+
+    /** StopWatch instance **/
+    private final StopWatch sw = new StopWatch();
 
     /** Name that will be used for usage() */
     private static final String APP_NAME = "importer-cli";
@@ -182,20 +186,17 @@ public class CommandLineImporter {
     }
 
     public int start() {
-
         boolean successful = true;
+
         if (getUsedFiles) {
             try {
                 candidates.print();
-                report();
                 return 0;
             } catch (Throwable t) {
                 log.error("Error retrieving used files.", t);
                 return 1;
             }
-        }
-
-        else if (candidates.size() < 1) {
+        } else if (candidates.size() < 1) {
             if (handler.errorCount() > 0) {
                 System.err.println("No imports due to errors!");
                 report();
@@ -207,14 +208,12 @@ public class CommandLineImporter {
                     usage();
                 }
             }
-        }
-
-        else {
+        } else {
+            sw.start();
             library.addObserver(new LoggingImportMonitor());
             // error handler has been configured in constructor from main args
             library.addObserver(this.handler);
             successful = library.importCandidates(config, candidates);
-            report();
             try {
                 List<String> paths = new ArrayList<String>();
                 for (ImportContainer ic : candidates.getContainers()) {
@@ -229,13 +228,16 @@ public class CommandLineImporter {
                 transfer.afterTransfer(handler.errorCount(), paths);
 
             } catch (CleanupFailure e) {
-                log.error("Failed to cleanup {} files", e.getFailedFiles().size());
+                log.error("Failed to cleanup {} files", e.getFailedFiles()
+                        .size());
                 return 3;
+            } finally {
+                sw.stop();
+                report();
             }
         }
 
-        return successful? 0 : 2;
-
+        return successful ? 0 : 2;
     }
 
     void report() {
@@ -243,8 +245,10 @@ public class CommandLineImporter {
         boolean files = config.sendFiles.get();
         boolean logs = config.sendLogFile.get();
         if (report) {
-           handler.update(null, new ImportEvent.DEBUG_SEND(files, logs));
+            handler.update(null, new ImportEvent.DEBUG_SEND(files, logs));
         }
+        library.notifyObservers(new ImportEvent.IMPORT_SUMMARY(sw.getTime(),
+                handler.errorCount()));
     }
 
     /**
@@ -332,6 +336,7 @@ public class CommandLineImporter {
             + "    --transfer=ARG          \tFile transfer method\n\n"
             + "        General options:    \t\n"
             + "          upload          \t# Default\n"
+            + "          upload_rm       \t# Caution! File upload followed by source deletion.\n"
             + "          some.class.Name \t# Use a class on the CLASSPATH.\n\n"
             + "        Server-side options:\t\n"
             + "          ln              \t# Use hard-link.\n"
@@ -559,6 +564,7 @@ public class CommandLineImporter {
                 advUsage();
                 break;
             }
+
             // ADVANCED START -------------------------------------------------
             case 14: {
                 String arg = g.getOptarg();
