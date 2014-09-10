@@ -241,121 +241,141 @@ INTERNAL_SETTINGS_MAPPING = {
 CUSTOM_SETTINGS_MAPPINGS = {
     # Deployment configuration
     "omero.web.debug":
-                ["DEBUG",
-                "false", parse_boolean,
-                "A boolean that turns on/off debug mode."],
+        ["DEBUG",
+        "false", parse_boolean,
+        "A boolean that turns on/off debug mode."],
     "omero.web.application_server":
-                ["APPLICATION_SERVER",
-                DEFAULT_SERVER_TYPE, check_server_type,
-                "OMERO.web is configured to use FastCGI TCP by default. If you are using a non-standard web server configuration you may wish to change this before generating your web server configuration. Available options \"fastcgi\" / \"fastcgi-tcp\""],
+        ["APPLICATION_SERVER",
+        DEFAULT_SERVER_TYPE, check_server_type,
+        "OMERO.web is configured to use FastCGI TCP by default. If you are " \
+        "using a non-standard web server configuration you may wish to " \
+        "change this before generating your web server configuration. " \
+        "Available options \"fastcgi\" / \"fastcgi-tcp\""],
     "omero.web.application_server.host":
-                ["APPLICATION_SERVER_HOST",
-                "0.0.0.0", str,
-                "Upstream application host"],
+        ["APPLICATION_SERVER_HOST",
+        "0.0.0.0", str,
+        "Upstream application host"],
     "omero.web.application_server.port":
-                ["APPLICATION_SERVER_PORT",
-                "4080", str,
-                "Upstream application port"],
+        ["APPLICATION_SERVER_PORT",
+        "4080", str,
+        "Upstream application port"],
     "omero.web.application_server.max_requests":
-                ["APPLICATION_SERVER_MAX_REQUESTS",
-                400, int,
-                "???"],
+        ["APPLICATION_SERVER_MAX_REQUESTS",
+        400, int,
+        None],
     "omero.web.force_script_name":
-                ["FORCE_SCRIPT_NAME",
-                None, leave_none_unset,
-                "Used as the value of the SCRIPT_NAME environment variable in any HTTP request."],
+        ["FORCE_SCRIPT_NAME",
+        None, leave_none_unset,
+        "Used as the value of the SCRIPT_NAME environment variable in any HTTP request."],
     "omero.web.static_url":
-                ["STATIC_URL",
-                "/static/", str,
-                "URL to use when referring to static files. Example: '/static/' or 'http://static.example.com/'. Used as the base path for asset definitions (the Media class) and the staticfiles app. It must end in a slash if set to a non-empty value."],
+        ["STATIC_URL",
+        "/static/", str,
+        "URL to use when referring to static files. Example: '/static/' or " \
+        "'http://static.example.com/'. Used as the base path for asset " \
+        "definitions (the Media class) and the staticfiles app. It must end " \
+        "in a slash if set to a non-empty value."],
     "omero.web.session_engine":
-                ["SESSION_ENGINE",
-                DEFAULT_SESSION_ENGINE, check_session_engine,
-                "Controls where Django stores session data. See `Configuring the session engine for more details <https://docs.djangoproject.com/en/1.6/ref/settings/#session-engine>`_."],
+        ["SESSION_ENGINE",
+        DEFAULT_SESSION_ENGINE, check_session_engine,
+        "Controls where Django stores session data. See `Configuring the " \
+        "session engine for more details " \
+        " <https://docs.djangoproject.com/en/1.6/ref/settings/#session-engine>`_."],
     "omero.web.session_expire_at_browser_close":
-                ["SESSION_EXPIRE_AT_BROWSER_CLOSE",
-                "true", parse_boolean,
-                "A boolean that determines whether to expire the session when the user closes their browser. See `Django Browser-length sessions vs. persistent sessions documentation <https://docs.djangoproject.com/en/1.6/topics/http/sessions/#browser-length-vs-persistent-sessions>`_ for more details."],
+        ["SESSION_EXPIRE_AT_BROWSER_CLOSE",
+        "true", parse_boolean,
+        "A boolean that determines whether to expire the session when the " \
+        "user closes their browser. See `Django Browser-length sessions vs. " \
+        "persistent sessions documentation " \
+        " <https://docs.djangoproject.com/en/1.6/topics/http/sessions/#browser-length-vs-persistent-sessions>`_ for more details."],
     
     "omero.web.caches":
-                ["CACHES",
-                '{"default": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"}}', json.loads,
-                "OMERO.web offers alternative session backends to automatically delete stale data using the cache session store backend, see `Django cached session documentation <https://docs.djangoproject.com/en/1.6/topics/http/sessions/#using-cached-sessions>`_ for more details."],
+        ["CACHES",
+        '{"default": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"}}', json.loads,
+        "OMERO.web offers alternative session backends to automatically delete " \
+        "stale data using the cache session store backend, see `Django cached " \
+        "session documentation <https://docs.djangoproject.com/en/1.6/topics/http/sessions/#using-cached-sessions>`_ " \
+        "for more details."],
     "omero.web.session_cookie_age":
-                ["SESSION_COOKIE_AGE",
-                86400, int,
-                "The age of session cookies, in seconds."],
+        ["SESSION_COOKIE_AGE",
+        86400, int,
+        "The age of session cookies, in seconds."],
     "omero.web.admins":
-                ["ADMINS",
-                '[]', json.loads,
-                "A tuple that lists people who get code error notifications. When :property:`omero.web.debug`=False and a view raises an exception, Django will email these people with the full exception information. Each member of the tuple should be a tuple of (Full name, email address)."],
+        ["ADMINS",
+        '[]', json.loads,
+        "A tuple that lists people who get code error notifications. When " \
+        ":property:`omero.web.debug` False and a view raises an exception, " \
+        "Django will email these people with the full exception information. " \
+        "Each member of the tuple should be a tuple of (Full name, email address)."],
     "omero.web.server_email":
-                ["SERVER_EMAIL",
-                None, identity,
-                "The email address that error messages come from, such as those sent to :property:`omero.web.admins`.  Requires EMAIL properties below."],
+        ["SERVER_EMAIL",
+        None, identity,
+        "The email address that error messages come from, such as those sent to " \
+        ":property:`omero.web.admins`.  Requires EMAIL properties below."],
     "omero.web.email_host":
-                ["EMAIL_HOST",
-                None, identity,
-                "The SMTP server host to use for sending email."],
+        ["EMAIL_HOST",
+        None, identity,
+        "The SMTP server host to use for sending email."],
     "omero.web.email_host_password":
-                ["EMAIL_HOST_PASSWORD",
-                None, identity,
-                "Password to use for the SMTP server."],
+        ["EMAIL_HOST_PASSWORD",
+        None, identity,
+        "Password to use for the SMTP server."],
     "omero.web.email_host_user":
-                ["EMAIL_HOST_USER",
-                None, identity,
-                "Username to use for the SMTP server."],
+        ["EMAIL_HOST_USER",
+        None, identity,
+        "Username to use for the SMTP server."],
     "omero.web.email_port":
-                ["EMAIL_PORT",
-                None, identity,
-                "Port to use for the SMTP server."],
+        ["EMAIL_PORT",
+        None, identity,
+        "Port to use for the SMTP server."],
     "omero.web.email_subject_prefix":
-                ["EMAIL_SUBJECT_PREFIX",
-                "[OMERO.web]", str,
-                "Subject-line prefix for email messages"],
+        ["EMAIL_SUBJECT_PREFIX",
+        "[OMERO.web]", str,
+        "Subject-line prefix for email messages"],
     "omero.web.email_use_tls":
-                ["EMAIL_USE_TLS",
-                "false", parse_boolean,
-                "Whether to use a TLS (secure) connection when talking to the SMTP server."],
+        ["EMAIL_USE_TLS",
+        "false", parse_boolean,
+        "Whether to use a TLS (secure) connection when talking to the SMTP server."],
     "omero.web.logdir":
-                ["LOGDIR",
-                LOGDIR, str,
-                "A path to the custom log directory."],
+        ["LOGDIR",
+        LOGDIR, str,
+        "A path to the custom log directory."],
 
     # Public user
     "omero.web.public.enabled":
-               ["PUBLIC_ENABLED",
-                "false", parse_boolean,
-                "Enable and disable the OMERO.web public user functionality."],
+        ["PUBLIC_ENABLED",
+        "false", parse_boolean,
+        "Enable and disable the OMERO.web public user functionality."],
     "omero.web.public.url_filter":
-                ["PUBLIC_URL_FILTER",
-                r'^/(?!webadmin)', re.compile,
-                "Set a URL filter for which the OMERO.web public user is allowed to navigate. The idea is that you can create the public pages yourself (see OMERO.web framework since we do not provide public pages."],
+        ["PUBLIC_URL_FILTER",
+        r'^/(?!webadmin)', re.compile,
+        "Set a URL filter for which the OMERO.web public user is allowed to " \
+        "navigate. The idea is that you can create the public pages yourself " \
+        "(see OMERO.web framework since we do not provide public pages."],
     "omero.web.public.server_id":
-                ["PUBLIC_SERVER_ID",
-                1, int,
-                "Server to authenticate against."],
+        ["PUBLIC_SERVER_ID",
+        1, int,
+        "Server to authenticate against."],
     "omero.web.public.user":
-                ["PUBLIC_USER",
-                None, leave_none_unset,
-                "Username to use during authentication."],
+        ["PUBLIC_USER",
+        None, leave_none_unset,
+        "Username to use during authentication."],
     "omero.web.public.password":
-                ["PUBLIC_PASSWORD",
-                None, leave_none_unset,
-                "Password to use during authentication."],
+        ["PUBLIC_PASSWORD",
+        None, leave_none_unset,
+        "Password to use during authentication."],
     "omero.web.public.cache.enabled": ["PUBLIC_CACHE_ENABLED", "false", parse_boolean, None],
     "omero.web.public.cache.key": ["PUBLIC_CACHE_KEY", "omero.web.public.cache.key", str, None],
     "omero.web.public.cache.timeout": ["PUBLIC_CACHE_TIMEOUT", 60 * 60 * 24, int, None],
 
     # Application configuration
     "omero.web.server_list": 
-                ["SERVER_LIST",
-                '[["%s", 4064, "omero"]]' % CUSTOM_HOST, json.loads,
-                "A list of servers the Web client can connect to."],
+        ["SERVER_LIST",
+        '[["%s", 4064, "omero"]]' % CUSTOM_HOST, json.loads,
+        "A list of servers the Web client can connect to."],
     "omero.web.ping_interval":
-                ["PING_INTERVAL",
-                60000, int,
-                "description"],
+        ["PING_INTERVAL",
+        60000, int,
+        "description"],
     "omero.web.webgateway_cache": ["WEBGATEWAY_CACHE", None, leave_none_unset, None],
 
     # VIEWER
@@ -369,71 +389,96 @@ CUSTOM_SETTINGS_MAPPINGS = {
     # concatenation and compression, built-in JavaScript template support, and optional 
     # data-URI image and font embedding.
     "omero.web.pipeline_js_compressor":
-                ["PIPELINE_JS_COMPRESSOR",
-                None, identity,
-                "Compressor class to be applied to JavaScript files. If empty or None, JavaScript files won't be compressed."],
+        ["PIPELINE_JS_COMPRESSOR",
+        None, identity,
+        "Compressor class to be applied to JavaScript files. If empty or " \
+        "None, JavaScript files won't be compressed."],
     "omero.web.pipeline_css_compressor":
-                ["PIPELINE_CSS_COMPRESSOR",
-                None, identity,
-                "Compressor class to be applied to CSS files. If empty or None, CSS files won't be compressed."],
+        ["PIPELINE_CSS_COMPRESSOR",
+        None, identity,
+        "Compressor class to be applied to CSS files. If empty or None, CSS "\
+        "files won't be compressed."],
     "omero.web.pipeline_staticfile_storage":
-                ["STATICFILES_STORAGE",
-                "pipeline.storage.PipelineStorage", str,
-                "The file storage engine to use when collecting static files with the collectstatic management command. See `the documentation <http://django-pipeline.readthedocs.org/en/latest/storages.html>`_ for more details."],
+        ["STATICFILES_STORAGE",
+        "pipeline.storage.PipelineStorage", str,
+        "The file storage engine to use when collecting static files with the " \
+        "collectstatic management command. See `the documentation " \
+        "<http://django-pipeline.readthedocs.org/en/latest/storages.html>`_ for more details."],
     
     # Customisation
     "omero.web.login_logo":
-                ["LOGIN_LOGO",
-                None, leave_none_unset,
-                "Customize webclient login page with your own logo. Logo images should ideally be 150 pixels high or less and will appear above the OMERO logo. You will need to host the image somewhere else and link to it with \"http://www.openmicroscopy.org/site/logo.jpg\" "],
+        ["LOGIN_LOGO",
+        None, leave_none_unset,
+        "Customize webclient login page with your own logo. Logo images " \
+        "should ideally be 150 pixels high or less and will appear above " \
+        "the OMERO logo. You will need to host the image somewhere else " \
+        "and link to it with \"http://www.openmicroscopy.org/site/logo.jpg\" "],
     "omero.web.login_view":
-                ["LOGIN_VIEW",
-                "weblogin", str,
-                None],
+        ["LOGIN_VIEW",
+        "weblogin", str,
+        None],
     "omero.web.staticfile_dirs":
-                ["STATICFILES_DIRS",
-                '[]', json.loads,
-                "Defines the additional locations the staticfiles app will traverse if the FileSystemFinder finder is enabled, e.g. if you use the collectstatic or findstatic management command or use the static file serving view."],
-    "omero.web.template_dirs": ["TEMPLATE_DIRS", '[]', json.loads, "ist of locations of the template source files, in search order. Note that these paths should use Unix-style forward slashes, even on Windows."],
+        ["STATICFILES_DIRS",
+        '[]', json.loads,
+        "Defines the additional locations the staticfiles app will traverse " \
+        "if the FileSystemFinder finder is enabled, e.g. if you use the " \
+        "collectstatic or findstatic management command or use the static " \
+        "file serving view."],
+    "omero.web.template_dirs":
+        ["TEMPLATE_DIRS",
+        '[]', json.loads,
+        "List of locations of the template source files, in search order. " \
+        "Note that these paths should use Unix-style forward slashes, even on Windows."],
     "omero.web.index_template":
-                ["INDEX_TEMPLATE",
-                None, identity,
-                None],
-                "omero.web.login_redirect":
-                ["LOGIN_REDIRECT",
-                '{}', json.loads,
-                "Redirect to the givin location after loging in. It only support arguments for `Django reverse function <https://docs.djangoproject.com/en/1.6/ref/urlresolvers/#django.core.urlresolvers.reverse>`_. For example: {\"redirect\": [\"webindex\"], \"viewname\": \"load_template\", \"args\":[\"userdata\"], \"query_string\": \"experimenter=-1\"}"],
+        ["INDEX_TEMPLATE",
+        None, identity,
+        "Define template used as an index page http://your_host/omero/. " \
+        "If None user is automaticaly redirected to the login page." \
+        "For example use 'webstart/start.html'. "],
+    "omero.web.login_redirect":
+        ["LOGIN_REDIRECT",
+        '{}', json.loads,
+        "Redirect to the givin location after loging in. It only support " \
+        "arguments for `Django reverse function <https://docs.djangoproject.com/en/1.6/ref/urlresolvers/#django.core.urlresolvers.reverse>`_. " \
+        "For example: {\"redirect\": [\"webindex\"], \"viewname\": \"load_template\", \"args\":[\"userdata\"], \"query_string\": \"experimenter=-1\"}"],
     "omero.web.apps": ["ADDITIONAL_APPS", '[]', json.loads, None],
     "omero.web.databases": ["DATABASES", '{}', json.loads, None],
     "omero.web.page_size":
-                ["PAGE",
-                200, int,
-                "Number of images displayed within a dataset or 'orphaned' container to prevent from loading them all at once."],
+        ["PAGE",
+        200, int,
+        "Number of images displayed within a dataset or 'orphaned' container " \
+        "to prevent from loading them all at once."],
     "omero.web.ui.top_links":
-                ["TOP_LINKS", '['\
-                                '["Data", "webindex", {"title": "Browse Data via Projects, Tags etc"}],'\
-                                '["History", "history", {"title": "History"}]'\
-                                ']', json.loads,
-                "Add links to the top header: links are ['Link Text', 'link'], where the url is reverse('link') OR simply 'link' (for external urls). E.g. '[[\"Webtest\", \"webtest_index\"]]'"],
+        ["TOP_LINKS", '['\
+                        '["Data", "webindex", {"title": "Browse Data via Projects, Tags etc"}],'\
+                        '["History", "history", {"title": "History"}]'\
+                        ']', json.loads,
+        "Add links to the top header: links are ['Link Text', 'link'], where " \
+        "the url is reverse('link') OR simply 'link' (for external urls). " \
+        "E.g. '[[\"Webtest\", \"webtest_index\"]]'"],
     "omero.web.ui.menu.dropdown":
-                ["UI_MENU_DROPDOWN",
-                '{"LEADERS": "Owners", "COLLEAGUES": "Members", "ALL": "All members"}', json.loads,
-                "Shows/hides users in dropdown menu."],
+        ["UI_MENU_DROPDOWN",
+        '{"LEADERS": "Owners", "COLLEAGUES": "Members", "ALL": "All members"}', json.loads,
+        "Shows/hides users in dropdown menu."],
     "omero.web.ui.right_plugins":
-                ["RIGHT_PLUGINS",'['\
-                                '["Acquisition", "webclient/data/includes/right_plugin.acquisition.js.html", "metadata_tab"],'\
-                                #'["ROIs", "webtest/webclient_plugins/right_plugin.rois.js.html", "image_roi_tab"],'\
-                                '["Preview", "webclient/data/includes/right_plugin.preview.js.html", "preview_tab"]]', json.loads,
-                "Add plugins to the right-hand panel. Plugins are ['Label', 'include.js', 'div_id']. The javascript loads data into $('#div_id')."],
+        ["RIGHT_PLUGINS",'['\
+                        '["Acquisition", "webclient/data/includes/right_plugin.acquisition.js.html", "metadata_tab"],'\
+                        #'["ROIs", "webtest/webclient_plugins/right_plugin.rois.js.html", "image_roi_tab"],'\
+                        '["Preview", "webclient/data/includes/right_plugin.preview.js.html", "preview_tab"]]', json.loads,
+        "Add plugins to the right-hand panel. " \
+        "Plugins are ['Label', 'include.js', 'div_id']. " \
+        "The javascript loads data into $('#div_id')."],
     "omero.web.ui.center_plugins":
-                ["CENTER_PLUGINS",'['\
-                                    #'["Split View", "webclient/data/includes/center_plugin.splitview.js.html", "split_view_panel"],'\
-                                    ']' , json.loads,
-                "Add plugins to the center panels. Plugins are ['Channel overlay', 'webtest/webclient_plugins/center_plugin.overlay.js.html', 'channel_overlay_panel']. The javascript loads data into $('#div_id')."],
+        ["CENTER_PLUGINS",'['\
+                            #'["Split View", "webclient/data/includes/center_plugin.splitview.js.html", "split_view_panel"],'\
+                            ']' , json.loads,
+        "Add plugins to the center panels. Plugins are " \
+        "['Channel overlay', 'webtest/webclient_plugins/center_plugin.overlay.js.html', 'channel_overlay_panel']. " \
+        "The javascript loads data into $('#div_id')."],
     "omero.web.viewer.initial_zoom_level":
-                ["VIEWER_INITIAL_ZOOM_LEVEL",
-                None, leave_none_unset_int,
-                "Configuration options for the viewer. -1: zoom in fully, 0: zoom out fully, unset: zoom to fit window"],
+        ["VIEWER_INITIAL_ZOOM_LEVEL",
+        None, leave_none_unset_int,
+        "Configuration options for the viewer. -1: zoom in fully, 0: zoom out fully, unset: zoom to fit window"],
     "omero.web.scripts_to_ignore": ["SCRIPTS_TO_IGNORE", '["/omero/figure_scripts/Movie_Figure.py", '\
             '"/omero/figure_scripts/Split_View_Figure.py", "/omero/figure_scripts/Thumbnail_Figure.py", '\
             '"/omero/figure_scripts/ROI_Split_Figure.py", "/omero/export_scripts/Make_Movie.py",'\
