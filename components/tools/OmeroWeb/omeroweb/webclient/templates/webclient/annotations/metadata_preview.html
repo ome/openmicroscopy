@@ -125,10 +125,29 @@
             // but we also save to session in case of page reload etc
             $("button.copy_rdef").click(function() {
                 copyRdefs(OME.preview_viewport);
+                $("button.paste_rdef").removeClass('button-disabled')
+                  .removeAttr('disabled');
             });
             $("button.paste_rdef").click(function() {
                 pasteRdefs(OME.preview_viewport);
             });
+            // check session via /getImgRDef/ to see if we have anything to paste
+            $.getJSON(OME.preview_viewport.viewport_server + "/getImgRDef/",
+              function(data){
+                  if (data.rdef) {
+                    var channels = data.rdef.c.split(","); // c=1|3336:38283$FF0000,2|1649:17015$00FF00
+                    if (channels.length != OME.preview_viewport.getChannels().length ||
+                      data.rdef.pixel_range != OME.preview_viewport.loadedImg.pixel_range.join(":")) {
+                        // images are not compatible
+                        $("button.paste_rdef")
+                          .attr('title', 'Copied settings are not compatible with this image');
+                        return;
+                      }
+                      $("button.paste_rdef").removeClass('button-disabled')
+                        .removeAttr('disabled');
+                  }
+              }
+            );
 
             // handle 'Color' checkbox
             $('#rd-wblitz-rmodel').click(function(e){
@@ -347,7 +366,8 @@
         <img src="{% static "webclient/image/icon_toolbar_copy.png" %}"/><br>
         Copy
       </button></li>
-      <li><button class="paste_rdef button toolbar-btn" title="Paste Rendering Settings">
+      <li><button class="paste_rdef button toolbar-btn button-disabled"
+        disabled='disabled' title="Paste Rendering Settings">
         <img src="{% static "webclient/image/icon_toolbar_paste.png" %}"/><br>
         Paste
       </button></li>

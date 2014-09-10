@@ -1679,11 +1679,12 @@ def get_image_rdef_json (request, conn=None, **kwargs):
     returns it as json
     """
     rdef = request.session.get('rdef')
+    image = None
     if (rdef is None):
         fromid = request.session.get('fromid', None)
-        print 'fromid', fromid
-        # We only have an Image to copy rdefs from
-        image = conn.getObject("Image", fromid)
+        if fromid is not None:
+            # We only have an Image to copy rdefs from
+            image = conn.getObject("Image", fromid)
         if image is not None:
             rv = imageMarshal(image, None)
             # return rv
