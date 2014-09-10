@@ -128,7 +128,7 @@ public abstract class AbstractFileTransfer implements FileTransfer {
                 try {
                     rawFileStore.close();
                 } catch (Exception e) {
-                    log.error("error in closing raw file store", e);
+                    log.debug("error in closing raw file store", e);
                 }
             }
         } finally {
