@@ -78,55 +78,6 @@ public class SessionCacheTest extends TestCase {
         }
     }
 
-    public void testSimpleListener() {
-        long before, after;
-        called[0] = false;
-        StaleCacheListener doesSomething = new StaleCacheListener() {
-            public void prepareReload() {
-                // noop
-            }
-
-            public SessionContext reload(SessionContext context) {
-                called[0] = true;
-                return context;
-            }
-        };
-        StaleCacheListener doesNothing = new StaleCacheListener() {
-            public void prepareReload() {
-                // noop
-            }
-
-            public SessionContext reload(SessionContext context) {
-                called[0] = true;
-                throw new RuntimeException();
-            }
-        };
-
-        cache.setStaleCacheListener(doesSomething);
-        before = cache.getLastUpdated();
-        cache.updateEvent(new UserGroupUpdateEvent(this));
-        cache.doUpdate();
-        cache.getIds();
-        after = cache.getLastUpdated();
-        assertTrue(called[0]);
-        assertTrue(after > before);
-
-        cache.setStaleCacheListener(doesNothing);
-
-        before = cache.getLastUpdated();
-        try {
-            cache.updateEvent(new UserGroupUpdateEvent(this));
-            cache.doUpdate();
-            fail("This should fail");
-        } catch (InternalException e) {
-            // ok
-        }
-
-        after = cache.getLastUpdated();
-        assertTrue(called[0]);
-        assertEquals(0, after); // Time gets reset to force constant retrying.
-    }
-
     List<Long> ids = Arrays.asList(1L);
     List<String> roles = Arrays.asList("");
 
@@ -169,19 +120,6 @@ public class SessionCacheTest extends TestCase {
         assertTrue(cache.getIds().size() == (size + 1));
     }
 
-    public void testNoSuccessfulListenersThrowsExceptionOnUpdate() {
-        initCache();
-        try {
-            cache.setStaleCacheListener(null);
-            cache.updateEvent(new UserGroupUpdateEvent(this));
-            cache.doUpdate();
-            fail("Should throw internal exception");
-        } catch (InternalException ie) {
-            // ok
-        }
-
-    }
-
     // Now the cache still needs an update
     final boolean done[] = new boolean[] { false, false };
 
@@ -209,23 +147,6 @@ public class SessionCacheTest extends TestCase {
             }
             done[i] = true;
         }
-    }
-
-    public void testThreadWillRemainedBlockOrThrowException() throws Exception {
-        initCache();
-        Session s = sess();
-        cache.putSession(s.getUuid(), sc(s));
-        cache.setStaleCacheListener(new ThrowsStaleCacheListener());
-        cache.updateEvent(new UserGroupUpdateEvent(this));
-        
-        TryUpdate t1 = new TryUpdate(0, s.getUuid());
-        t1.start();
-        t1.barrier.await();
-        t1.join();
-        assertNotNull(t1.ex);
-        assertTrue(t1.ex.toString(), t1.ex instanceof DatabaseBusyException);
-        assertTrue(done[0]);
-
     }
 
     public void testOneThreadSuccessfulThenOtherReturns() throws Exception {
@@ -380,69 +301,13 @@ public class SessionCacheTest extends TestCase {
         assertTrue(listener.called);
     }
 
-    @Test
-    public void testTwoSessionsRemovedAtTheSameTimeOnlyCallsOnce() {
-
-        // Setup
-        Session s = sess();
-        cache.putSession("uuid", sc(s));
-
-        // Threads
-        final CyclicBarrier barrier = new CyclicBarrier(3);
-        class Listener implements ApplicationListener {
-            boolean failed = false;
-
-            public void onApplicationEvent(ApplicationEvent arg0) {
-                if (arg0 instanceof DestroySessionMessage) {
-                    try {
-                        barrier.await();
-                    } catch (BrokenBarrierException bbe) {
-                        // This should mean that the timeout has been reached
-                    } catch (Exception e) {
-                        // Any other exception will say "failed"
-                        failed = true;
-                    }
-                }
-            }
-        }
-        ;
-        Listener listener = new Listener();
-        mc().addApplicationListener(listener);
-        class Work extends Thread {
-            @Override
-            public void run() {
-                cache.removeSession("uuid");
-            }
-        }
-
-        // Run
-        new Work().start();
-        new Work().start();
-        boolean timeout = false;
-        try {
-            barrier.await(2, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            fail("Interrupted. Not likely!");
-        } catch (BrokenBarrierException e) {
-            fail("Already broken. How did this happen?");
-        } catch (TimeoutException e) {
-            timeout = true; // This is what we want.
-            // Means that the second work thread didn't make it in
-        }
-
-        // Check
-        assertTrue(timeout);
-        assertFalse(listener.failed);
-
-    }
-
-    @Test
+    @Test(timeOut=10000)
     public void testGetSessionDoesUpdateTheTimestamp() throws Exception {
         final Session s = sess();
-        s.setTimeToIdle(5 * 1000L);
+        s.setTimeToIdle(5 * 100L);
         cache.putSession(s.getUuid(), sc(s));
         for (int i = 0; i < 10; i++) {
-            Thread.sleep(1 * 1000L);
+            Thread.sleep(1 * 100L);
             try {
                 cache.getSessionContext(s.getUuid());
             } catch (RemovedSessionException rse) {
@@ -494,7 +359,13 @@ public class SessionCacheTest extends TestCase {
         }
     }
 
-    @Test
+    /**
+     * Note: the listener logic was removed from the cache. The new semantics
+     * of when things should be cleaned up needs to be removed along with the
+     * methodIn() methodOut() test.
+     * @throws Exception
+     */
+    @Test(groups = "broken")
     public void testExpiredSessionRemainsInCacheTilCleanup() throws Exception {
         initCache();
         cache.setStaleCacheListener(new NoOpStaleCacheListener());
