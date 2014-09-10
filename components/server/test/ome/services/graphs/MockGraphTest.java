@@ -28,6 +28,7 @@ import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.ImageAnnotationLink;
 import ome.model.annotations.ListAnnotation;
 import ome.model.annotations.LongAnnotation;
+import ome.model.annotations.MapAnnotation;
 import ome.model.annotations.NumericAnnotation;
 import ome.model.annotations.ProjectAnnotationLink;
 import ome.model.annotations.RoiAnnotationLink;
@@ -139,6 +140,7 @@ public class MockGraphTest extends MockObjectTestCase {
                                 ListAnnotation.class,
                                 TextAnnotation.class,
                                 CommentAnnotation.class,
+                                MapAnnotation.class,
                                 ome.model.annotations.TagAnnotation.class,
                                 XmlAnnotation.class,
                                 TypeAnnotation.class,
