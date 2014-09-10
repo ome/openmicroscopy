@@ -5,6 +5,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 import omero.RLong;
 import omero.RString;
@@ -13,6 +14,7 @@ import omero.api.IAdminPrx;
 import omero.api.IContainerPrx;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Experimenter;
+import omero.model.ExperimenterI;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.FileAnnotation;
@@ -52,19 +54,22 @@ import edu.emory.mathcs.backport.java.util.Arrays;
 
 public class PermissionsTestAll extends AbstractServerTest {
 
+	// Users created in the database(list obtained from Petr's manually created
+	// database, trying to duplicate the setup)
+	String uuid = UUID.randomUUID().toString();
+	String[] users = { "member-all-1" + uuid, "member-all-2" + uuid, "member-all-3" + uuid,
+			"member-all-4"+ uuid, "member-all-5" + uuid, "member-all-6" + uuid, "member-all-7" + uuid,
+			"owner" + uuid, "admin" + uuid, "member-one-ra"+ uuid, "member-one-p" + uuid, "member-one-ro" + uuid,
+			"member-one-rw" + uuid};
+
 	// Permission table lists the types of groups that would be created (two
 	// copies of each)
 	String[] perm_table = { "rwra--", "rw----", "rwr---", "rwrw--" };
-	String[] perm_type = { "Read-Annotate-", "Private-", "Read-Only-",
-			"Read-Write-" };
+	String[] perm_type = { "Read-Annotate-" + uuid + "-", "Private-" + uuid + "-", "Read-Only-" + uuid + "-",
+			"Read-Write-" + uuid + "-"};
 	String password = "ome";
 
-	// Users created in the database(list obtained from Petr's manually created
-	// database, trying to duplicate the setup)
-	String[] users = { "member-all-1", "member-all-2", "member-all-3",
-			"member-all-4", "member-all-5", "member-all-6", "member-all-7",
-			"owner", "admin", "member-one-ra", "member-one-p", "member-one-ro",
-			"member-one-rw" };
+
 
 	/**
 	 * Creates the permissions corresponding to the specified level.
@@ -92,6 +97,7 @@ public class PermissionsTestAll extends AbstractServerTest {
 		omero.client client = newRootOmeroClient();
 		client.enableKeepAlive(60);
 		factory = client.getSession();
+		IAdminPrx svc = factory.getAdminService();
 
 		List<ExperimenterGroup> groups1 = new ArrayList<ExperimenterGroup>();
 		List<ExperimenterGroup> groups2 = new ArrayList<ExperimenterGroup>();
@@ -106,7 +112,6 @@ public class PermissionsTestAll extends AbstractServerTest {
 				final Permissions perms = new PermissionsI(perm_table[j]);
 				group.getDetails().setPermissions(perms);
 
-				IAdminPrx svc = factory.getAdminService();
 				group = new ExperimenterGroupI(svc.createGroup(group), false);
 				groups1.add(group);
 
@@ -117,7 +122,7 @@ public class PermissionsTestAll extends AbstractServerTest {
 		}
 
 		RString omeroPassword = omero.rtypes.rstring("ome");
-		String Admin = "admin";
+		String Admin = users[8];
 		int cntr = 0;
 		// Create Users and add them to the respective groups
 		ExperimenterGroup default_group;
@@ -155,6 +160,16 @@ public class PermissionsTestAll extends AbstractServerTest {
 			}
 			factory.getAdminService().createExperimenterWithPassword(
 					experimenter, omeroPassword, default_group, target_groups);
+
+			//Make user : owner + uuid , owner of all the groups
+			if (omeroUsername.equalsIgnoreCase(users[7])){
+				Experimenter user1 = svc.lookupExperimenter(
+						users[i]);
+				for (int l=0; l<target_groups.size() ; l++){
+					svc.setGroupOwner(new ExperimenterGroupI(target_groups.get(l).getId(), false), new ExperimenterI(user1.getId(), false));
+				}
+			}
+
 		}
 		client.closeSession();
 	}
@@ -309,7 +324,7 @@ public class PermissionsTestAll extends AbstractServerTest {
 
 					if (groupid == group.getId().getValue()
 							&& (perm_table1.contains(permsAsString) || ownerid == expid
-									.getValue())) {
+							.getValue())) {
 						List<IObject> links = new ArrayList<IObject>();
 						// Create Links for Tags
 						ImageAnnotationLink link = new ImageAnnotationLinkI();
@@ -453,7 +468,7 @@ public class PermissionsTestAll extends AbstractServerTest {
 			long targetgroup = param.getChgrp().grp;
 			long imageid = param.getChgrp().id;
 			Long userid = session1.getAdminService().getEventContext().userId;
-			
+
 
 			ExperimenterGroup group2 =  session1.getAdminService().getGroup(sourcegroup);
 			PermissionData perms = new PermissionData(group2.getDetails().getPermissions());
@@ -465,6 +480,7 @@ public class PermissionsTestAll extends AbstractServerTest {
 
 			Assert.fail("Failure : User id: " + userid + " (" + username + ")" +  " tried moving image " + imageid + " from " + sourcegroup + "(" + permsAsString + ")" + " to " + targetgroup + "(" + permsAsString1 + ")");
 		}
+		client.closeSession();
 	}
 
 	Fileset fetchFileset(Long imageid, IContainerPrx proxy,
