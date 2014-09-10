@@ -515,7 +515,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
 
     }
 
-    @Test(groups = "ticket:2804")
+    @Test(groups = {"ticket:2804", "broken"})
     public void testSessionShouldNotBeReapedDuringMethodExceution()
             throws Exception {
 
