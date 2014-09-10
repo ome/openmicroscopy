@@ -26,9 +26,6 @@ package omeis.providers.re.quantum;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ome.model.display.QuantumDef;
 import ome.model.enums.PixelsType;
 
@@ -47,9 +44,6 @@ import ome.model.enums.PixelsType;
  * @since OME5.1
  */
 public class Quantization_32_bit extends QuantumStrategy {
-
-    /** The logger for this particular class */
-    private static Logger log = LoggerFactory.getLogger(Quantization_32_bit.class);
 
     /** The lowest pixel intensity value. */
     private int min;
