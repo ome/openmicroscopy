@@ -288,11 +288,11 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.admins":
                 ["ADMINS",
                 '[]', json.loads,
-                "A tuple that lists people who get code error notifications. When DEBUG=False and a view raises an exception, Django will email these people with the full exception information. Each member of the tuple should be a tuple of (Full name, email address)."],
+                "A tuple that lists people who get code error notifications. When :property:`omero.web.debug`=False and a view raises an exception, Django will email these people with the full exception information. Each member of the tuple should be a tuple of (Full name, email address)."],
     "omero.web.server_email":
                 ["SERVER_EMAIL",
                 None, identity,
-                "The email address that error messages come from, such as those sent to :setting:`ADMINS`.  Requires EMAIL properties below."],
+                "The email address that error messages come from, such as those sent to :property:`omero.web.admins`.  Requires EMAIL properties below."],
     "omero.web.email_host":
                 ["EMAIL_HOST",
                 None, identity,
