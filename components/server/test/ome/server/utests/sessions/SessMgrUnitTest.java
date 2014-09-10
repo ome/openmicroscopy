@@ -540,64 +540,6 @@ public class SessMgrUnitTest extends MockObjectTestCase {
 
     }
 
-    @Test
-    public void testCreationSessionShouldBeAllowedWithoutBlocking()
-            throws Exception {
-
-        // Threads
-        final CyclicBarrier barrier = new CyclicBarrier(3);
-
-        cache.setStaleCacheListener(new StaleCacheListener() {
-
-            public void prepareReload() {
-                try {
-                    barrier.await(10, TimeUnit.SECONDS);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-            public SessionContext reload(SessionContext context) {
-                return null;
-            }
-        });
-
-        class Update extends Thread {
-            @Override
-            public void run() {
-                try {
-                    // Here we force an update
-                    cache.updateEvent(new UserGroupUpdateEvent(this));
-                    cache.doUpdate();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-
-        class Create extends Thread {
-            @Override
-            public void run() {
-                try {
-                    testCreateNewSession();
-                    barrier.await(2, TimeUnit.SECONDS);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-
-        // Run
-        new Update().start();
-
-        // Now we know that update is blocking
-        new Create().start();
-        barrier.await(10, TimeUnit.SECONDS);
-
-        assertFalse(barrier.isBroken());
-
-    }
-
     @Test(groups = "ticket:2804")
     public void testSessionShouldNotBeReapedDuringMethodExceution()
             throws Exception {
