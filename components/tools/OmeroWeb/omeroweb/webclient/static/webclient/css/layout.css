@@ -296,7 +296,20 @@
           
 		
 		
+	/* Right panel Toolbar with named buttons */
 
+	.toolbar-btn {
+		border: solid transparent 0;
+		background:transparent;
+		padding: 0 2px;
+		margin-top: 0px;
+		color: gray;
+	}
+
+	button.button-disabled {
+        opacity:0.4;
+        cursor:default;
+    }
 
 
     /* Left Panel - Toolbar */

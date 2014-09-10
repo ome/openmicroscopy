@@ -123,10 +123,10 @@
 
             // copy and paste refs is in browser via query string,
             // but we also save to session in case of page reload etc
-            $("input.copy_rdef").click(function() {
+            $("button.copy_rdef").click(function() {
                 copyRdefs(OME.preview_viewport);
             });
-            $("input.paste_rdef").click(function() {
+            $("button.paste_rdef").click(function() {
                 pasteRdefs(OME.preview_viewport);
             });
 
@@ -306,7 +306,7 @@
     </div>
 
 
-    <ul class="toolbar" style="border-right-width: 0; margin-top: 5px; margin-bottom: 8px">
+    <ul class="toolbar" style="border-right-width: 0; margin-top: 5px; margin-bottom: 8px; padding-bottom: 2px">
       <li>
         <button id="rdef-setdef-btn" class="editor" disabled='true'
             {% if manager.image.canAnnotate %}
@@ -331,14 +331,26 @@
 
 
       <!-- class='button-disabled' -->
-      <li><input id="rdef-undo-btn" class="button" type="image" src="{% static "webclient/image/icon_undo16.png" %}" title="Undo the last changes to settings" /> </li>
-      <li><input id="rdef-redo-btn" class="button" type="image" src="{% static "webclient/image/icon_redo16.png" %}" title="Redo the last changes to settings" /> </li>
+      <li><button id="rdef-undo-btn" class="toolbar-btn button-disabled" title="Undo the last changes to settings">
+        <img src="{% static "webclient/image/icon_undo16.png" %}" /><br>
+        Undo
+      </button> </li>
+      <li><button id="rdef-redo-btn" class="toolbar-btn button-disabled" title="Redo the last changes to settings">
+        <img src="{% static "webclient/image/icon_redo16.png" %}" /><br>
+        Redo
+      </button></li>
       
       <li class="seperator"></li>
 
       <!-- class='button-disabled' -->
-      <li><input class="copy_rdef button" type="image" src="{% static "webclient/image/icon_toolbar_copy.png" %}" title="Copy Rendering Settings" /> </li>
-      <li><input class="paste_rdef button" type="image" src="{% static "webclient/image/icon_toolbar_paste.png" %}" title="Paste Rendering Settings" /> </li>
+      <li><button class="copy_rdef button toolbar-btn" title="Copy Rendering Settings">
+        <img src="{% static "webclient/image/icon_toolbar_copy.png" %}"/><br>
+        Copy
+      </button></li>
+      <li><button class="paste_rdef button toolbar-btn" title="Paste Rendering Settings">
+        <img src="{% static "webclient/image/icon_toolbar_paste.png" %}"/><br>
+        Paste
+      </button></li>
     </ul>
 
     <div id="rdef-postit">
