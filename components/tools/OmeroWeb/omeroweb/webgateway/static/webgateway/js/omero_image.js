@@ -460,8 +460,10 @@
                 btnClass += " fontWhite";
             }
 
-            var lbl = channels[i].label.slice(0, 4);
-            lbl = lbl + (channels[i].label.length > 4 ? ".." : "");
+            var lbl = channels[i].label;
+            if (lbl.length > 7) {
+                lbl = lbl.slice(0, 5) + "...";
+            }
             tmp.after(template
                 .replace(/\$class/g, btnClass)
                 .replace(/\$col/g, rgbToHex(channels[i].color))
