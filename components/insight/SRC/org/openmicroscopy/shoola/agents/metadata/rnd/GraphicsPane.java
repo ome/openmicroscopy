@@ -241,14 +241,21 @@ class GraphicsPane
     private void buildGUI()
     {
         setBackground(UIUtilities.BACKGROUND_COLOR);
-        double size[][] = {{TableLayout.FILL},  // Columns
-                {TableLayout.PREFERRED, 5, TableLayout.FILL}}; // Rows
-        setLayout(new TableLayout(size));
+        setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = 0;
+        c.anchor = GridBagConstraints.NORTHWEST;
+        c.weightx = 1;
+        c.weighty = 1;
+        c.fill = GridBagConstraints.BOTH;
         if (model.isGeneralIndex()) {
-            add(buildGeneralPane(), "0, 0");
+            add(buildGeneralPane(), c);
         } else {
-            add(buildPane(), "0, 0");
-            add(buildGeneralPane(), "0, 2");
+            add(buildPane(), c);
+            c.gridx++;
+            
+            add(buildGeneralPane(), c);
         }
     }
 
@@ -261,59 +268,52 @@ class GraphicsPane
     {
         JPanel content = new JPanel();
         content.setBackground(UIUtilities.BACKGROUND_COLOR);
-        content.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        content.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
         content.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
-        c.anchor = GridBagConstraints.WEST;
+        c.anchor = GridBagConstraints.NORTHWEST;
         c.fill = GridBagConstraints.HORIZONTAL;
-        c.insets = new Insets(0, 2, 2, 0);
         c.gridy = 0;
         c.gridx = 0;
+        c.weightx = 1;
+        c.weighty = 0;
         if (model.isGeneralIndex()) {
             content.add(previewToolBar, c);
             c.gridy++;
-            c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
             content.add(new JSeparator(), c);
             c.gridy++;
         }
         content.add(controlsBar, c);
-        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-        c.fill = GridBagConstraints.NONE;//reset to default
-        c.weightx = 0.0;  
-
         c.gridy++;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        content.add(new JSeparator(), c);
-        c.fill = GridBagConstraints.NONE;
         
+        content.add(new JSeparator(), c);
         c.gridy++;
+        
         content.add(greyScale, c);
+        c.gridy++;
         
         Iterator<ChannelSlider> i = sliders.iterator();
         while (i.hasNext())  {
-            c.gridy++;
             content.add(i.next(), c);
+            c.gridy++;
         }
         
-        c.gridy++;
         content.add(controlsBar2, c);
-        
         c.gridy++;
-        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+        
+        
         c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 1.0;
-        c.weighty = 1.0;
         content.add(new JSeparator(), c);
-        
         c.gridy++;
+      
         content.add(new JLabel(VIEWEDBY_TITLE), c);
-        
         c.gridy++;
+      
         c.fill = GridBagConstraints.BOTH;
+        c.weighty = 1;
         content.add(viewedBy, c);
-        JPanel p = UIUtilities.buildComponentPanel(content);
-        p.setBackground(content.getBackground());
-        return p;
+        
+        return content;
     }
 
     /** 

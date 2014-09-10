@@ -230,7 +230,7 @@ public class TextualTwoKnobsSlider
 		int maxValue = Math.max(Math.abs(min), Math.abs(max));
 		if (min < 0 || max < 0) minus = "-";
 		int length = (minus+((double) maxValue/roundingFactor)).length(); 
-		length = length/2;
+		//length = length/2;
 		double minR = ((double) absMin)/roundingFactor;
 		double maxR = ((double) absMax)/roundingFactor;
 		
@@ -531,24 +531,42 @@ public class TextualTwoKnobsSlider
 				add(slider);
 				break;
 			case LAYOUT_SLIDER_FIELDS_X_AXIS:
-				//setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-				double tableSize[][] =
-		          {{0.18, 0.64, 0.18},
-		           {TableLayout.PREFERRED, TableLayout.PREFERRED,
-		        	  TableLayout.PREFERRED}};
-				setLayout(new TableLayout(tableSize));
-				add(startField,"0, 0, 0, 1");
-				add(slider,"1, 0, 1, 1");
-				add(endField,"2 , 0, 2, 1");
-				break;
+			    setLayout(new GridBagLayout());
+
+                            // have to set minimum size to preferred size, otherwise
+                            // textfields will collapse in GridBayLayout;
+                            // see: http://bugs.java.com/bugdatabase/view_bug.do?bug_id=4247013
+                            startField.setMinimumSize(startField.getPreferredSize());
+                            endField.setMinimumSize(endField.getPreferredSize());
+
+                            GridBagConstraints c = new GridBagConstraints();
+                            c.gridx = 0;
+                            c.gridy = 0;
+                            c.weightx = 0;
+                            c.weighty = 0;
+                            c.anchor = GridBagConstraints.WEST;
+                            c.fill = GridBagConstraints.NONE;
+
+                            add(startField, c);
+                            c.gridx++;
+
+                            c.weightx = 1;
+                            c.fill = GridBagConstraints.HORIZONTAL;
+                            add(slider, c);
+                            c.gridx++;
+
+                            c.weightx = 0;
+                            c.fill = GridBagConstraints.NONE;
+                            add(endField, c);
+                            break;
 			case LAYOUT_SLIDER_FIELDS_LABELS_X_AXIS:
-				setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-				add(sliderLabel);
-				add(startField);
-				add(slider);
-				add(endField);
-				add(endLabel);
-				break;
+			    setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+                            add(sliderLabel);
+                            add(startField);
+                            add(slider);
+                            add(endField);
+                            add(endLabel);
+                            break;
 			case LAYOUT_SLIDER_AND_LABEL:
 				JPanel content = new JPanel();
 				content.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
@@ -632,7 +650,7 @@ public class TextualTwoKnobsSlider
 		int maxValue = Math.max(Math.abs(min), Math.abs(max));
 		if (min < 0 || max < 0) minus = "-";
 		int length = (minus+((double) maxValue/roundingFactor)).length(); 
-		length = length/2+6;
+		//length = length/2+6;
 		if (roundingFactor > 1) {
 			startField.setNumberType(Double.class);
 			endField.setNumberType(Double.class);

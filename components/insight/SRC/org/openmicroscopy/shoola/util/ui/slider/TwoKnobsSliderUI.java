@@ -512,8 +512,8 @@ class TwoKnobsSliderUI
 			if (model.isPaintEndLabels())
 				trackRect.setBounds(x, EXTRA, size.width-2*x, h);
 			else
-				trackRect.setBounds(w/2, EXTRA, size.width-2*w, h);
-				//trackRect.setBounds(w/2, EXTRA, size.width-w, h);
+				//trackRect.setBounds(w/2, EXTRA, size.width-2*w, h);
+				trackRect.setBounds(w/2, EXTRA, size.width-w, h);
 
 			if (model.isPaintCurrentValues()) {
 				int v = fontMetrics.stringWidth(model.render(

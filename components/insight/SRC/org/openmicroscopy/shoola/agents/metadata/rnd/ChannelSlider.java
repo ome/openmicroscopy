@@ -24,18 +24,16 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 
 //Java imports
-import info.clearthought.layout.TableLayout;
-
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Point;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 //Third-party libraries
@@ -87,7 +85,7 @@ class ChannelSlider
 	private ChannelData 			channel;
 	
 	/** Selection slider. */
-	private TextualTwoKnobsSlider 	slider;
+	private TextualTwoKnobsSlider     slider;
 
 	/** Turn on/off the channel, when used in the viewer. */
 	private ChannelButton			channelSelection;
@@ -153,22 +151,30 @@ class ChannelSlider
 	}
 	
 	/** Builds and lays out the UI. */
-	private void buildGUI()
-	{
-		int w = 230;
-                JPanel p = new JPanel();
-                p.setBackground(UIUtilities.BACKGROUND_COLOR);
-                p.setBorder(null);
-                double size[][] = { { w }, // Columns
-                        { TableLayout.PREFERRED } }; // Rows
-                p.setLayout(new TableLayout(size));
-                p.add(slider, "0, 0");
-                setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
-                add(channelSelection);
-                add(p);
-                add(colorPicker);
+        private void buildGUI()
+        {       
                 setBackground(UIUtilities.BACKGROUND_COLOR);
-	}
+                
+                setLayout(new GridBagLayout());
+                GridBagConstraints c = new GridBagConstraints();
+                c.gridx = 0;
+                c.gridy = 0;
+                c.weightx = 0;
+                c.fill = GridBagConstraints.NONE;
+                
+                add(channelSelection, c);
+                c.gridx++;
+                
+                c.weightx = 1;
+                c.fill = GridBagConstraints.HORIZONTAL;
+                add(slider, c);
+                c.gridx++;
+                
+                c.weightx = 0;
+                c.fill = GridBagConstraints.NONE;
+                add(colorPicker, c);
+                
+        }
 	
 	/**
 	 * Creates a new instance.

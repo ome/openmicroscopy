@@ -465,19 +465,29 @@ public class DomainPane
     	GridBagConstraints c = new GridBagConstraints();
     	c.gridx = 0;
     	c.gridy = 0;
+    	c.weightx = 0;
+    	c.weighty = 0;
     	
         if (model.isGeneralIndex()) {
-            c.anchor = GridBagConstraints.WEST;
+            c.anchor = GridBagConstraints.NORTHWEST;
+            c.fill = GridBagConstraints.NONE;
             p.add(openButton, c);
             c.gridy++;
             
+            c.fill = GridBagConstraints.HORIZONTAL;
+            c.weightx = 1;
             c.anchor = GridBagConstraints.CENTER;
             p.add(buildViewerPane(), c);
             c.gridy++;
 
+            c.fill = GridBagConstraints.BOTH;
+            c.weightx = 1;
+            c.weighty = 1;
             p.add(graphicsPane,c);
             c.gridy++;
         } else {
+            c.weighty = 0;
+            c.fill = GridBagConstraints.HORIZONTAL;
             p.add(graphicsPane,c);
             c.gridy++;
             taskPane.add(buildControlsPane());
@@ -485,9 +495,9 @@ public class DomainPane
             c.gridy++;
         }
     	
-    	JPanel content = UIUtilities.buildComponentPanel(p);
-    	content.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	return content;
+        p.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+        p.setBackground(UIUtilities.BACKGROUND_COLOR);
+        return p;
     }
     
     /** 
@@ -629,8 +639,16 @@ public class DomainPane
     private void buildGUI()
     {
     	setBackground(UIUtilities.BACKGROUND_COLOR);
-    	setLayout(new BorderLayout());
-    	add(buildChannelGraphicsPanel(), BorderLayout.CENTER);
+    	
+    	setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = 0;
+        c.weightx = 1;
+        c.weighty = 1;
+        c.fill = GridBagConstraints.BOTH;
+        add(buildChannelGraphicsPanel(), c);
+        
     }
     
     /**

@@ -117,11 +117,11 @@ public class TwoKnobsSlider
 
 	/** The preferred dimension of a vertical slider. */
 	protected static final Dimension    PREFERRED_VERTICAL = new Dimension(21, 
-			200);
+			80);
 
 	/** The preferred dimension of a horizontal slider. */
 	protected static final Dimension    PREFERRED_HORIZONTAL =
-		new Dimension(200, 21);
+		new Dimension(80, 21);
 
 	/** The insets. */
 	protected Insets            insetCache = null;
