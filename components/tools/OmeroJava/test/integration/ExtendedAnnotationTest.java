@@ -79,7 +79,7 @@ public class ExtendedAnnotationTest extends AbstractServerTest {
         assertNotNull(detector);
 
         // updating
-        detector.setManufacturer(omero.rtypes.rstring("OME Inc"));
+        detector.setManufacturer(omero.rtypes.rstring("OME-Sample Inc"));
         detector = (Detector) iUpdate.saveAndReturnObject(detector);
         assertNotNull(detector);
 
@@ -108,7 +108,7 @@ public class ExtendedAnnotationTest extends AbstractServerTest {
         annotation = (CommentAnnotation) newDal.getChild();
 
         // comparison
-        assertEquals("OME Inc", detector.getManufacturer().getValue());
+        assertEquals("OME-Sample Inc", detector.getManufacturer().getValue());
         assertEquals("commentOnDetector", annotation.getTextValue().getValue());
     }
 
@@ -132,7 +132,7 @@ public class ExtendedAnnotationTest extends AbstractServerTest {
         assertNotNull(detector);
 
         // updating
-        detector.setManufacturer(omero.rtypes.rstring("OME Inc"));
+        detector.setManufacturer(omero.rtypes.rstring("OME-Sample Inc"));
         detector = (Detector) iUpdate.saveAndReturnObject(detector);
         assertNotNull(detector);
 
@@ -172,7 +172,7 @@ public class ExtendedAnnotationTest extends AbstractServerTest {
         assertNotNull(annotation.getTextValue());
 
         // comparison
-        assertEquals("OME Inc", detector.getManufacturer().getValue());
+        assertEquals("OME-Sample Inc", detector.getManufacturer().getValue());
         assertEquals("commentOnDetector", annotation.getTextValue().getValue());
     }
 
@@ -196,7 +196,7 @@ public class ExtendedAnnotationTest extends AbstractServerTest {
         assertNotNull(detector);
         
         // updating
-        detector.setManufacturer(omero.rtypes.rstring("OME Inc"));
+        detector.setManufacturer(omero.rtypes.rstring("OME-Sample Inc"));
         detector = (Detector) iUpdate.saveAndReturnObject(detector);
         assertNotNull(detector);
         
@@ -232,7 +232,7 @@ public class ExtendedAnnotationTest extends AbstractServerTest {
 
 
         // comparison
-        assertEquals("OME Inc", detector.getManufacturer().getValue());
+        assertEquals("OME-Sample Inc", detector.getManufacturer().getValue());
 
         Iterator<IObject> i = l.iterator();
         IObject o;

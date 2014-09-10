@@ -1483,7 +1483,7 @@ public class OMEROMetadataStore
      */
     private void handleReference(Image target, MicrobeamManipulation reference)
     {
-// PROBLEM
+        // TODO: add code to handle this linking if needed
     }
 
     /**
