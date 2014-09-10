@@ -29,6 +29,7 @@ import datetime
 import traceback
 import logging
 import json
+import random
 
 from django import template
 
@@ -44,6 +45,12 @@ def jsonify(obj):
 @register.filter
 def hash(value, key):
     return value[key]
+
+@register.filter
+def random_if_none(value):
+    if value is None:
+        value = str(random.random())[2:]
+    return value
 
 @register.filter
 def ago(value):
