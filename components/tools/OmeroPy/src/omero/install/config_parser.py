@@ -74,8 +74,6 @@ HEADER = \
 %(header)s
 %(hline)s
 
-.. glossary::
-
 %(properties)s"""
 
 BLACK_LIST = ("##", "versions", "omero.upgrades")
@@ -263,6 +261,9 @@ class PropertyParser(object):
         for k, v in sorted(headers.items()):
             print "%s (%s)" % (k, len(v))
 
+    def underline(self, size):
+        return '~' * size
+
     def print_rst(self):
         space4 = " " * 4
         space6 = " " * 6
@@ -271,16 +272,19 @@ class PropertyParser(object):
         for header in sorted(headers):
             properties = ""
             for p in headers[header]:
-                properties += "%s%s\n" % (space4, p.key)
+                properties += ".. property:: %s\n" % (p.key)
+                properties += "\n"
+                properties += "%s\n" % p.key
+                properties += "%s\n" % self.underline(len(p.key))
                 for line in p.txt.split("\n"):
                     if line:
-                        properties += "%s%s\n" % (space6, line)
+                        properties += "%s\n" % (line)
                     else:
                         properties += "\n"
                 v = p.val
                 if not p.val:
                     v = "[empty]"
-                properties += "%sDefault: `%s`\n\n" % (space6, v)
+                properties += "Default: `%s`\n\n" % (v)
 
             hline = "-" * len(header)
             m = {"header": header,

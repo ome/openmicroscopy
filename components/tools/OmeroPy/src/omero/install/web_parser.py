@@ -34,12 +34,12 @@ class WebSettings(object):
 
     def print_rst(self):
         def underline(size):
-            return '-' * size
+            return '~' * size
 
+        print ".. _web_configuration:"
         print ""
-        print "OMERO.web properties"
-        print "===================="
-        print ""
+        print "OMERO.web"
+        print "---------"
         print ""
 
         from django.conf import settings
@@ -51,17 +51,15 @@ class WebSettings(object):
 
             if description is None:
                 continue
-            print ".. setting:: %s " % (global_name)
             print ""
-            print global_name
-            print underline(len(global_name))
+            print ".. property:: %s " % (key)
             print ""
-            print "``bin/omero config set %s``" % key
-            print ""
-            print "Default: ``%s`` " % (default_value)
+            print key
+            print underline(len(key))
             print ""
             print "Description: %s" % description
             print ""
+            print "Default: ``%s`` " % (default_value)
             print ""
 
 if __name__ == "__main__":
