@@ -270,8 +270,8 @@ public class StatsFactory {
     	} else if (PlaneFactory.FLOAT_TYPE.equals(typeAsString) ||
     			PlaneFactory.DOUBLE_TYPE.equals(typeAsString)) {
     		//b/c we don't know if it is signed or not
-    		minmax[0] = 0;
-			minmax[1] = 32767;
+    		minmax[0] = -Double.MAX_VALUE;
+			minmax[1] = Double.MAX_VALUE;
     	}
     	return minmax;
     }
