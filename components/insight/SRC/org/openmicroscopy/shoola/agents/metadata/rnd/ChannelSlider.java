@@ -102,7 +102,7 @@ class ChannelSlider
 		double min = channel.getGlobalMin()*f;
 		double max = channel.getGlobalMax()*f;
         
-		boolean intMode = useIntMode();
+		boolean intMode = model.isIntegerPixelData();
 		
 		if (intMode) {
 		        int absMin = (int) (model.getLowestValue(index)*f);
@@ -340,29 +340,5 @@ class ChannelSlider
 		    controller.showColorPicker(channel.getIndex(), p);
 		}
 	}
-
-	/**
-         * Determines if the values shall be treated as integers
-         * or floating point numbers;
-         * If the decimal fraction of one number in the channel data exceeds
-         * {@link #INT_MODE_THRESHOLD} it's assumed that all numbers are
-         * floating point numbers.
-         * @return <code>true</code> if values are integers
-         */
-        private boolean useIntMode() {
-            for(ChannelData channel : model.getChannelData()) {
-                double window = model.getWindowStart(channel.getIndex());
-                int tmp = (int) window;
-                double remains = window - (double)tmp;
-                if(remains > INT_MODE_THRESHOLD) 
-                    return false;
-                
-                window = model.getWindowEnd(channel.getIndex());
-                tmp = (int) window;
-                remains = window - (double)tmp;
-                if(remains > INT_MODE_THRESHOLD) 
-                    return false;
-            }
-            return true;
-        }
+	
 }

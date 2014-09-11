@@ -35,17 +35,22 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
+
 import org.apache.commons.collections.CollectionUtils;
+
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
+
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlShutDown;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -56,6 +61,7 @@ import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloParser;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.ChannelData;
 import pojos.ImageData;
 import pojos.PixelsData;
@@ -1743,4 +1749,21 @@ class RendererModel
 	    else
 	        component.setColorModel(Renderer.RGB_MODEL, true);
 	}
+	
+	/**
+	 * Checks if the image pixel type is integer
+	 * @return See above
+	 */
+	boolean isIntegerPixelData() {
+	    String t = image.getDefaultPixels().getPixelType();
+	        if (t.equals(OmeroImageService.INT_8)
+	                || t.equals(OmeroImageService.UINT_8)
+	                || t.equals(OmeroImageService.INT_16)
+	                || t.equals(OmeroImageService.UINT_16)
+	                || t.equals(OmeroImageService.INT_32)
+	                || t.equals(OmeroImageService.UINT_32))
+	            return true;
+	        else
+	            return false;
+	};
 }
