@@ -3027,16 +3027,19 @@ class _BlitzGateway (object):
 
                 loop = RPSTileLoop(self.c.sf, omero.model.PixelsI(pixelsId, False))
                 class Iteration(TileLoopIteration):
-                    def __init__(self):
-                        self.planeCount = 0
+                    def __init__(self, currentPlane):
+                        self.planeCount = 1
+                        self.currentPlane = currentPlane
 
                     def run(self, data, z, c, t, x, y, tileWidth, tileHeight, tileCount):
                         # get plane if needed
-                        if z * c * t == 0:
-                            plane = firstPlane
-                        elif z * c * t > self.planeCount:
-                            plane = zctPlanes.next()
-                            self.planeCount = z * c * t
+                        print 'Tile loop: z', z, 'c', c, 't', t, self.planeCount
+                        if z == 0 and c == 0 and t == 0:
+                            pass
+                        elif (z + 1) * (c + 1) * (t + 1) > self.planeCount:
+                            self.currentPlane = zctPlanes.next()
+                            self.planeCount = (z + 1) * (c + 1) * (t + 1)
+                        plane = self.currentPlane
                         # crop plane to tile
                         tile2d = plane[y: y + tileHeight, x: x + tileWidth]
                         if dtype is not None:
@@ -3054,7 +3057,7 @@ class _BlitzGateway (object):
                         data.setTile(tile2d, z, c, t, x, y, tileWidth, tileHeight)
 
                 tileW = tileH = 256
-                loop.forEachTile(tileW, tileH, Iteration())
+                loop.forEachTile(tileW, tileH, Iteration(firstPlane))
             else:
                 raise Exception("Can't create BIG tiled image with createImageFromNumpySeq() with multiple dimension counts > 1")
 
