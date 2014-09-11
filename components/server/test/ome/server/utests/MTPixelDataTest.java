@@ -44,7 +44,7 @@ import org.testng.annotations.Test;
  * Tests the effects of running multiple pixel data threads
  * at the same time.
  */
-@Test(groups = { "pixeldata" })
+@Test(groups = { "pixeldata" }, timeOut=10000)
 public class MTPixelDataTest extends MockObjectTestCase {
 
     String uuid;
@@ -113,9 +113,9 @@ public class MTPixelDataTest extends MockObjectTestCase {
                 Pixels pix = new Pixels(id, true);
                 pix.setSizeX(20);
                 pix.setSizeY(20);
-                pix.setSizeZ(5);
+                pix.setSizeZ(2);
                 pix.setSizeC(1);
-                pix.setSizeT(6);
+                pix.setSizeT(2);
                 pix.setDimensionOrder(new DimensionOrder("XYZCT"));
                 pix.setPixelsType(new PixelsType("int8"));
                 pix.addChannel(new Channel());
@@ -143,7 +143,7 @@ public class MTPixelDataTest extends MockObjectTestCase {
     }
 
     String tiny(String dir) throws Exception {
-        File fake = new File(new File(dir), "test&sizeX=20&sizeY=20&sizeZ=5&sizeC=1&sizeT=6&.fake");
+        File fake = new File(new File(dir), "test&sizeX=20&sizeY=20&sizeZ=2&sizeC=1&sizeT=2&.fake");
         return fake.getAbsolutePath();
     }
 
