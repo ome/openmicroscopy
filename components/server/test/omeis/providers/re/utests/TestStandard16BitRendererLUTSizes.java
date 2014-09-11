@@ -44,10 +44,10 @@ public class TestStandard16BitRendererLUTSizes extends BaseRenderingTest
 		assertEquals(0.0, data.getPixelValue(1));
 		assertEquals(0.0, data.getPixelValue(2));
 		assertEquals(0.0, data.getPixelValue(3));
-		assertEquals(65535.0, data.getPixelValue(4));
-		assertEquals(65535.0, data.getPixelValue(5));
-		assertEquals(65535.0, data.getPixelValue(6));
-		assertEquals(65535.0, data.getPixelValue(7));
+		assertEquals(Math.pow(2, 16)-1, data.getPixelValue(4));
+		assertEquals(Math.pow(2, 16)-1, data.getPixelValue(5));
+		assertEquals(Math.pow(2, 16)-1, data.getPixelValue(6));
+		assertEquals(Math.pow(2, 16)-1, data.getPixelValue(7));
 		try
 		{
 			assertEquals(0.0, data.getPixelValue(8));
