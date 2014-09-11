@@ -194,31 +194,10 @@ public abstract class QuantumStrategy {
      */
     private void initPixelsRange(boolean withRange)
     {
-        double range;
-        String typeAsString = type.getValue();
-        if (PlaneFactory.FLOAT_TYPE.equals(typeAsString) ||
-                PlaneFactory.DOUBLE_TYPE.equals(typeAsString)) {
-            if (withRange) {
-                range = globalMax - globalMin;
-                if (range < 0x10000 && globalMin > -1) { 
-                    pixelsTypeMin = 0;
-                    pixelsTypeMax = 65535;
-                }
-                if (range < 0x10000 && globalMin < 0) { 
-                    pixelsTypeMin = -32768;
-                    pixelsTypeMax = 32767;
-                }
-            } else {
-                //b/c we don't know if it is signed or not
-                pixelsTypeMin = 0;
-                pixelsTypeMax = 32767;
-            }
-        } else {
-            StatsFactory sf = new StatsFactory();
-            double[] values = sf.initPixelsRange(type);
-            pixelsTypeMin = values[0];
-            pixelsTypeMax = values[1];
-        }
+        StatsFactory sf = new StatsFactory();
+        double[] values = sf.initPixelsRange(type);
+        pixelsTypeMin = values[0];
+        pixelsTypeMax = values[1];
     }
 
     /**
