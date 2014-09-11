@@ -350,19 +350,15 @@ OME.initToolbarDropdowns = function() {
 OME.refreshThumbnails = function(imageId) {
     var rdm = Math.random(),
         thumbs_selector = "#dataIcons img",
+        search_selector = ".search_thumb",
         spw_selector = "#spw img";
-    // handle Dataset thumbs
+    // handle Dataset thumbs, search rusults and SPW thumbs
     if (typeof imageId != "undefined") {
-        thumbs_selector += "#"+imageId;
+        thumbs_selector = "#image_icon-" + imageId + " img";
+        search_selector = "#image-" + imageId + " img.search_thumb";
         spw_selector += "#image-"+imageId;
     }
-    $(thumbs_selector).each(function(){
-        var $this = $(this),
-            base_src = $this.attr('src').split('?')[0];
-        $this.attr('src', base_src + "?_="+rdm);
-    });
-    // handle SPW thumbs
-    $(spw_selector).each(function(){
+    $(thumbs_selector + ", " + spw_selector + ", " + search_selector).each(function(){
         var $this = $(this),
             base_src = $this.attr('src').split('?')[0];
         $this.attr('src', base_src + "?_="+rdm);
