@@ -13,7 +13,7 @@ import omeis.providers.re.quantum.QuantumFactory;
 
 import org.testng.annotations.Test;
 
-public class TestStandard32BitRendererLUTSizesShouldFail extends BaseRenderingTest
+public class TestStandard32BitRendererLUTSizesFullRange extends BaseRenderingTest
 {
 
     @Override
