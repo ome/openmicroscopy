@@ -10,8 +10,6 @@ package omeis.providers.re.quantum;
 // Java imports
 
 // Third-party libraries
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 // Application-internal dependencies
 import ome.model.display.QuantumDef;
@@ -37,9 +35,6 @@ import ome.model.enums.PixelsType;
  * @since OME2.2
  */
 public class Quantization_8_16_bit extends QuantumStrategy {
-
-    /** The logger for this particular class */
-    private static Logger log = LoggerFactory.getLogger(Quantization_8_16_bit.class);
 
     /** The look-up table. */
     private byte[] LUT;
