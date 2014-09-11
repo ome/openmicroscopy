@@ -40,7 +40,7 @@ public class FileParser implements ApplicationContextAware {
 
     protected OmeroContext context;
 
-    protected long maxFileSize;
+    protected long maxFileSize = 10000L; // default test is 8.8KB
 
     public void setApplicationContext(ApplicationContext arg0)
             throws BeansException {
