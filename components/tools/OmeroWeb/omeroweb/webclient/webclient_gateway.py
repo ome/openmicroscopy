@@ -1480,7 +1480,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         sh = self.getShareService()
         for e in sh.getContents(long(share_id)):
             try:
-                obj = omero.gateway.BlitzObjectWrapper(self, e)
+                obj = omero.gateway.ImageWrapper(self, e)
             except:
                 obj = omero.gateway.BlitzObjectWrapper(self,None)
                 obj._obj = e
