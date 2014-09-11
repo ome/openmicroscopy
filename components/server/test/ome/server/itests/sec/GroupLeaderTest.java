@@ -26,6 +26,11 @@ public class GroupLeaderTest extends AbstractManagedContextTest {
     // ~ IAdmin.createUser
     // =========================================================================
 
+    private final String groupByOwner =
+            "select g from ExperimenterGroup g " +
+            "join g.groupExperimenterMap m " +
+            "join m.child as e where e.id = :id and m.owner = true";
+
     @Test
     public void testGroupWithOwnerThroughIUpdate() throws Exception {
 
@@ -45,8 +50,7 @@ public class GroupLeaderTest extends AbstractManagedContextTest {
         iAdmin.setGroupOwner(g, e);
 
         List<ExperimenterGroup> groups = iQuery
-                .findAllByQuery(
-                        "select g from ExperimenterGroup g where g.details.owner.id = :id",
+                .findAllByQuery(groupByOwner,
                         new Parameters().addId(e.getId()));
 
         assertNotNull(groups);
@@ -73,8 +77,7 @@ public class GroupLeaderTest extends AbstractManagedContextTest {
         iAdmin.setGroupOwner(g, e);
 
         List<ExperimenterGroup> groups = iQuery
-                .findAllByQuery(
-                        "select g from ExperimenterGroup g where g.details.owner.id = :id",
+                .findAllByQuery(groupByOwner,
                         new Parameters().addId(e.getId()));
 
         assertNotNull(groups);
@@ -85,7 +88,7 @@ public class GroupLeaderTest extends AbstractManagedContextTest {
             public Object doInHibernate(Session session)
                     throws HibernateException, SQLException {
                 Query q = session
-                        .createQuery("select g.id from ExperimenterGroup g where g.details.owner.id = :id");
+                        .createQuery(groupByOwner);
                 q.setParameter("id", exp.getId());
                 return q.list();
             }
