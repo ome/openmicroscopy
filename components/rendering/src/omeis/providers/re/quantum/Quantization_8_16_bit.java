@@ -300,21 +300,21 @@ public class Quantization_8_16_bit extends QuantumStrategy {
     public int quantize(double value) throws QuantizationException {
         int x = (int) value;
         if (x < lutMin) {
-        	double r = getOriginalGlobalMax()-getOriginalGlobalMin();
-        	if (r != 0) {
-        		double f = (lutMax-lutMin)/r;
-        		x = (int) (f*(x-lutMin));
-        		if (x < lutMin) x = lutMin;
-        	} else x = lutMin;
- 
+            double r = getOriginalGlobalMax()-getOriginalGlobalMin();
+            if (r != 0) {
+                double f = (lutMax-lutMin)/r;
+                x = (int) (f*(x-lutMin));
+                if (x < lutMin) x = lutMin;
+            } else x = lutMin;
+
         }
         if (x > lutMax) {
-        	double r = getOriginalGlobalMax()-getOriginalGlobalMin();
-        	if (r != 0) {
-        		double f = (lutMax-lutMin)/r;
-        		x = (int) (f*(x-lutMin));
-        		if (x > lutMax) x = lutMax;
-        	} else x = lutMax;
+            double r = getOriginalGlobalMax()-getOriginalGlobalMin();
+            if (r != 0) {
+                double f = (lutMax-lutMin)/r;
+                x = (int) (f*(x-lutMin));
+                if (x > lutMax) x = lutMax;
+            } else x = lutMax;
         }
         int i = LUT[x - lutMin];
         return i & 0xFF;
