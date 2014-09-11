@@ -145,6 +145,8 @@ public class MockGraphTest extends MockObjectTestCase {
                                 XmlAnnotation.class,
                                 TypeAnnotation.class,
                                 FileAnnotation.class))));
+        emMock.expects(atLeastOnce()).method("getHibernateClass").will(
+                returnValue(IObject.class));
         specXml = new OmeroContext(
                 new String[] { "classpath:ome/services/spec.xml" }, sac);
     }
@@ -166,7 +168,7 @@ public class MockGraphTest extends MockObjectTestCase {
     }
 
     protected GraphStep step(String type, Class<? extends IObject> k, long id) {
-        return step(type, k, id, new long[0]);
+        return step(type, k, id, null);
     }
 
     protected GraphStep step(String type, Class<? extends IObject> k, long id, long[] ids) {
