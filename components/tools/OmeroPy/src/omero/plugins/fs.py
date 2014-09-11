@@ -700,16 +700,16 @@ Examples:
 
         client = self.ctx.conn(args)
         req = DiskUsage()
-        req.objects = self._parse_obj(args.obj)
+        req.objects = self._usage_obj(args.obj)
         cb = None
         try:
             rsp, status, cb = self.response(client, req, wait=args.wait)
-            self._print_report(req, rsp, status, args)
+            self._usage_report(req, rsp, status, args)
         finally:
             if cb is not None:
                 cb.close(True)  # Close handle
 
-    def _parse_obj(self, obj):
+    def _usage_obj(self, obj):
         """
         Take the positional arguments and marshal them into
         a dictionary for the command argument.
@@ -739,7 +739,7 @@ Examples:
         else:
             raise ValueError("Unrecognized units: ", units)
 
-    def _print_report(self, req, rsp, status, args):
+    def _usage_report(self, req, rsp, status, args):
         """
         Output the total bytes used or the error,
         optionally provide more details.
@@ -762,9 +762,9 @@ Examples:
                     % (rsp.totalBytesUsed, rsp.totalFileCount))
 
         if args.report and not args.size_only:
-            self._print_detailed_report(req, rsp, status, args)
+            self._detailed_usage_report(req, rsp, status, args)
 
-    def _print_detailed_report(self, req, rsp, status, args):
+    def _detailed_usage_report(self, req, rsp, status, args):
         """
         Print a breakdown of disk usage in table form.
         """
