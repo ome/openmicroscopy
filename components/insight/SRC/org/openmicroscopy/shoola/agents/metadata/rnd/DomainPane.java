@@ -463,14 +463,14 @@ public class DomainPane
     	p.setLayout(new GridBagLayout());
     	
     	GridBagConstraints c = new GridBagConstraints();
+    	c.anchor = GridBagConstraints.NORTHWEST;
+    	c.fill = GridBagConstraints.NONE;
     	c.gridx = 0;
     	c.gridy = 0;
     	c.weightx = 0;
     	c.weighty = 0;
-    	
+    	  	
         if (model.isGeneralIndex()) {
-            c.anchor = GridBagConstraints.NORTHWEST;
-            c.fill = GridBagConstraints.NONE;
             p.add(openButton, c);
             c.gridy++;
             
@@ -484,15 +484,15 @@ public class DomainPane
             c.weightx = 1;
             c.weighty = 1;
             p.add(graphicsPane,c);
-            c.gridy++;
         } else {
-            c.weighty = 0;
-            c.fill = GridBagConstraints.HORIZONTAL;
+            c.weightx = 1;
+            c.weighty = 1;
+            c.fill = GridBagConstraints.BOTH;
             p.add(graphicsPane,c);
             c.gridy++;
+            c.fill = GridBagConstraints.HORIZONTAL;
             taskPane.add(buildControlsPane());
             p.add(taskPane, c);
-            c.gridy++;
         }
     	
         p.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));

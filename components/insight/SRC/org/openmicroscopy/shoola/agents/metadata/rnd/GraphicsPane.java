@@ -252,9 +252,11 @@ class GraphicsPane
         if (model.isGeneralIndex()) {
             add(buildGeneralPane(), c);
         } else {
+            c.weightx = 0;
             add(buildPane(), c);
-            c.gridx++;
             
+            c.weightx = 1;
+            c.gridx++;
             add(buildGeneralPane(), c);
         }
     }
@@ -298,10 +300,11 @@ class GraphicsPane
             c.gridy++;
         }
         
+        c.insets = new Insets(3, 0, 3, 0);
         content.add(controlsBar2, c);
         c.gridy++;
         
-        
+        c.insets = new Insets(0, 0, 0, 0);
         c.fill = GridBagConstraints.HORIZONTAL;
         content.add(new JSeparator(), c);
         c.gridy++;
