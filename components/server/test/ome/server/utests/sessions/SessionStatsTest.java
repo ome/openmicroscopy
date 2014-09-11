@@ -132,7 +132,7 @@ public class SessionStatsTest extends MockObjectTestCase {
     
     private boolean[] readCalled() {
         final boolean called[] = new boolean[]{false};
-        mc.addApplicationListener(new ApplicationListener(){
+        mc.addApplicationListener(new ApplicationListener<ApplicationEvent>(){
             public void onApplicationEvent(ApplicationEvent arg0) {
                 if (arg0 instanceof ObjectsReadStatsMessage) {
                     called[0] = true;
