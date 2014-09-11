@@ -41,12 +41,14 @@ public class TestStandard16BitRendererLUTSizes extends BaseRenderingTest
 	@Test
 	public void testPixelValues() throws Exception
 	{
+	    QuantumStrategy qs = quantumFactory.getStrategy(
+                settings.getQuantization(), pixels.getPixelsType());
         int n = data.size();
         for (int i = 0; i < n/2; i++) {
             assertEquals(0.0, data.getPixelValue(i));
         }
         for (int i = 0; i < n/2; i++) {
-            assertEquals(Math.pow(2, 16)-1, data.getPixelValue(i+n/2));
+            assertEquals(qs.getPixelsTypeMax(), data.getPixelValue(i+n/2));
         }
 
         try
