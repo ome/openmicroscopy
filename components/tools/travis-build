@@ -17,11 +17,11 @@ clean()
 build_java()
 {
     TEST="-p" ./build.py build-default test-compile
-    ./build.py -java test -Dtest.with.fail=true
-    ./build.py -f components/model/build.xml test -Dtest.with.fail=true
-    ./build.py -f components/common/build.xml test -Dtest.with.fail=true
-    ./build.py -f components/rendering/build.xml test -Dtest.with.fail=true
-    ./build.py -f components/server/build.xml test -Dtest.with.fail=true
+    ./build.py -java test -Dtest.with.fail=true -Dtestng.useDefaultListeners=true
+    ./build.py -f components/model/build.xml test -Dtest.with.fail=true -Dtestng.useDefaultListeners=true
+    ./build.py -f components/common/build.xml test -Dtest.with.fail=true -Dtestng.useDefaultListeners=true
+    ./build.py -f components/rendering/build.xml test -Dtest.with.fail=true -Dtestng.useDefaultListeners=true
+    ./build.py -f components/server/build.xml test -Dtest.with.fail=true -Dtestng.useDefaultListeners=true
     # Failing: dsl, romio, blitz
 }
 
