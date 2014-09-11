@@ -57,8 +57,8 @@ public class TestStandardSigned32BitRenderer extends BaseRenderingTest
     protected byte[] getPlane()
     {
         return new byte[] {
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                (byte) 128, 0x00, 0x00, 0x00, (byte) 128, 0x00, 0x00, 0x00,
+                (byte) 128, 0x00, 0x00, 0x00, (byte) 128, 0x00, 0x00, 0x00,
                 (byte) 127, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
                 (byte) 127, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
                 (byte) 127, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
@@ -78,11 +78,13 @@ public class TestStandardSigned32BitRenderer extends BaseRenderingTest
     public void testPixelValues() throws Exception
     {
         int n = data.size();
+        QuantumStrategy qs = quantumFactory.getStrategy(
+                settings.getQuantization(), pixels.getPixelsType());
         for (int i = 0; i < n/2; i++) {
-            assertEquals(0.0, data.getPixelValue(i));
+            assertEquals(qs.getPixelsTypeMin(), data.getPixelValue(i));
         }
         for (int i = 0; i < n/2; i++) {
-            assertEquals(Math.pow(2, 32)/2-1, data.getPixelValue(i+n/2));
+            assertEquals(qs.getPixelsTypeMax(), data.getPixelValue(i+n/2));
         }
 
         try
