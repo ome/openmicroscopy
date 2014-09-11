@@ -216,7 +216,7 @@ public class GraphSpecUnitTest extends MockGraphTest {
      * will count for {@link LongAnnotation} and {@link DoubleAnnotation}.
      *
      */
-    @Test
+    @Test(groups = "broken") // FIXME
     public void testOptions() throws Exception {
 
         BaseGraphSpec spec;
@@ -318,7 +318,7 @@ public class GraphSpecUnitTest extends MockGraphTest {
      * rollback previously graphd objects. A stack of maps is kept which
      * get either committed or graphd based on exception handling.
      */
-    @Test(groups = "ticket:3032")
+    @Test(groups = {"ticket:3032", "broken"}) // FIXME
     public void testGraphStateTransactionalIdCounting() throws Exception {
 
         String savepoint = null;
