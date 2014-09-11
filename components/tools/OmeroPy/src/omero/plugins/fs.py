@@ -699,6 +699,29 @@ Examples:
                 return pair
 
     def usage(self, args):
+        """Shows the disk usage for various objects.
+
+This command shows the total disk usage of various objects including:
+ExperimenterGroup, Experimenter, Project, Dataset, Screen, Plate, Well,
+WellSample, Image, Pixels, Annotation, Job, Fileset, OriginalFile.
+The total size returned will comprise the disk usage by all related files. Thus
+an image's size would typically include the files uploaded to a fileset,
+import log (Job), thumbnails, and, possibly, associated pixels or original
+files. These details can be displayed using the --report option.
+
+Examples:
+
+    bin/omero fs usage             # total usage for current user
+    bin/omero fs usage --report    # more detailed usage for current user
+    bin/omero fs usage --groups    # total usage for current user's groups
+    # total usage for five images with minimal output
+    bin/omero fs usage Image:1,2,3,4,5 --size_only
+    # total usage for two projects and one dataset Megabytes
+    bin/omero fs usage Project:1,2 Dataset:5 --units M
+    # in this last case if the dataset was within one of the projects
+    # then the size returned would be identical to:
+    bin/omero fs usage Project:1,2 --units M
+        """
         from omero.cmd import DiskUsage
 
         client = self.ctx.conn(args)
