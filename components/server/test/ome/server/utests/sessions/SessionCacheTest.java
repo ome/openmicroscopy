@@ -331,12 +331,12 @@ public class SessionCacheTest extends TestCase {
         called[0] = false;
         final Session s1 = sess(); // One to keep alive
         final Session s2 = sess(); // One to let die
-        s1.setTimeToIdle(5 * 1000L);
-        s2.setTimeToIdle(5 * 1000L);
+        s1.setTimeToIdle(5 * 100L);
+        s2.setTimeToIdle(5 * 100L);
         cache.putSession(s1.getUuid(), sc(s1));
         cache.putSession(s2.getUuid(), sc(s2));
         for (int i = 0; i < 10; i++) {
-            Thread.sleep(1 * 1000L);
+            Thread.sleep(1 * 100L);
             try {
                 cache.getSessionContext(s1.getUuid());
             } catch (RemovedSessionException rse) {
