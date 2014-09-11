@@ -46,7 +46,8 @@ public class TestStandardSigned16BitRenderer extends BaseRenderingTest
     protected byte[] getPlane()
     {
         return new byte[] {
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                (byte) 128, 0x00, (byte) 128, 0x00, (byte) 128, 0x00,
+                (byte) 128, 0x00,
                 (byte) 127, (byte) 0xFF, (byte) 127, (byte) 0xFF,
                 (byte) 127, (byte) 0xFF, (byte) 127, (byte) 0xFF,
         };
@@ -63,12 +64,14 @@ public class TestStandardSigned16BitRenderer extends BaseRenderingTest
     @Test
     public void testPixelValues() throws Exception
     {
+        QuantumStrategy qs = quantumFactory.getStrategy(
+                settings.getQuantization(), pixels.getPixelsType());
         int n = data.size();
         for (int i = 0; i < n/2; i++) {
-            assertEquals(0.0, data.getPixelValue(i));
+            assertEquals(qs.getPixelsTypeMin(), data.getPixelValue(i));
         }
         for (int i = 0; i < n/2; i++) {
-            assertEquals(Math.pow(2, 16)/2-1, data.getPixelValue(i+n/2));
+            assertEquals(qs.getPixelsTypeMax(), data.getPixelValue(i+n/2));
         }
 
         try
