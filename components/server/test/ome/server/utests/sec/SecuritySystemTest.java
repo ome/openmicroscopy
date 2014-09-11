@@ -109,49 +109,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         }
         ;
 
-        try {
-            aclVoter.allowCreation(user);
-            fail("Should throw ApiUsage");
-        } catch (ApiUsageException api) {
-        }
-        ;
-        try {
-            aclVoter.allowUpdate(user, Details.create());
-            fail("Should throw ApiUsage");
-        } catch (ApiUsageException api) {
-        }
-        ;
-        try {
-            aclVoter.allowDelete(user, Details.create());
-            fail("Should throw ApiUsage");
-        } catch (ApiUsageException api) {
-        }
-        ;
-        // throw no matter what
-        try {
-            aclVoter.throwLoadViolation(user);
-            fail("Should throw SecViol");
-        } catch (SecurityViolation sv) {
-        }
-        ;
-        try {
-            aclVoter.throwCreationViolation(user);
-            fail("Should throw SecViol");
-        } catch (SecurityViolation sv) {
-        }
-        ;
-        try {
-            aclVoter.throwUpdateViolation(user);
-            fail("Should throw SecViol");
-        } catch (SecurityViolation sv) {
-        }
-        ;
-        try {
-            aclVoter.throwDeleteViolation(user);
-            fail("Should throw SecViol");
-        } catch (SecurityViolation sv) {
-        }
-        ;
+        // aclVoter doesn't participate in isReady()
 
     }
 
@@ -491,7 +449,8 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         assertTrue(aclVoter.allowUpdate(i, i.getDetails()));
 
         // now lower permissions
-        i.getDetails().setPermissions(Permissions.READ_ONLY);
+        prepareMocksWithUserDetails(false, Permissions.READ_ONLY);
+        sec.loadEventContext(false);
         assertFalse(aclVoter.allowUpdate(i, i.getDetails()));
 
     }
@@ -531,7 +490,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         sec.invalidateEventContext();
 
         // PERMISSIONS BASED
-        prepareMocksWithUserDetails(false);
+        prepareMocksWithUserDetails(false, Permissions.WORLD_WRITEABLE);
         sec.loadEventContext(false);
 
         // different owner but all permissions
@@ -542,7 +501,8 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         assertTrue(aclVoter.allowDelete(i, i.getDetails()));
 
         // now lower permissions
-        i.getDetails().setPermissions(Permissions.READ_ONLY);
+        prepareMocksWithUserDetails(false, Permissions.READ_ONLY);
+        sec.loadEventContext(false);
         assertFalse(aclVoter.allowDelete(i, i.getDetails()));
 
         sec.invalidateEventContext();
@@ -553,21 +513,19 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
      */
     public void testAllowLoad() {
 
-        prepareMocksWithUserDetails(false);
+        prepareMocksWithUserDetails(false, Permissions.PUBLIC);
+        sec.loadEventContext(false);
 
         Details d = Details.create();
         d.setOwner(new Experimenter(2L, false));
-        d.setGroup(new ExperimenterGroup(2L, false));
+        d.setGroup(new ExperimenterGroup(2L, false)); // in same group
         d.setPermissions(new Permissions());
 
+        assertTrue(aclVoter.allowLoad(null, Image.class, d, 1L));
+
+        prepareMocksWithUserDetails(false, Permissions.PRIVATE);
         sec.loadEventContext(false);
-        assertTrue(aclVoter.allowLoad(null, Image.class, d, 1L));
-        d.setPermissions(new Permissions().revoke(WORLD, READ));
         assertFalse(aclVoter.allowLoad(null, Image.class, d, 1L));
-        // now in my group where i'm PI
-        d.setPermissions(new Permissions().revoke(GROUP, READ));
-        d.setGroup(group);
-        assertTrue(aclVoter.allowLoad(null, Image.class, d, 1L));
 
         sec.invalidateEventContext();
 
@@ -623,7 +581,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 
         // setting permissions
         i.getDetails().setOwner(new Experimenter(1L, false));
-        i.getDetails().setGroup(new ExperimenterGroup(1L, false));
+        i.getDetails().setGroup(new ExperimenterGroup(2L, false));
         i.getDetails().setCreationEvent(new Event(1L, false));
         i.getDetails().setPermissions(p);
         Details test = sec.checkManagedDetails(i, oldDetails);

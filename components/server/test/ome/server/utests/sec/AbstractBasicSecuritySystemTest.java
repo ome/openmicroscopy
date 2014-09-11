@@ -101,19 +101,23 @@ public abstract class AbstractBasicSecuritySystemTest extends
                 cd, th, new NullSessionStats());
         SecurityFilter filter = new OneGroupSecurityFilter();
         sec = new BasicSecuritySystem(oi, st, cd, mgr, new Roles(), sf,
-                new TokenHolder(), filter);
+                th, filter);
         aclVoter = new BasicACLVoter(cd, st, th, filter);
     }
 
     protected void prepareMocksWithUserDetails(boolean readOnly) {
+        prepareMocksWithUserDetails(readOnly, Permissions.WORLD_WRITEABLE);
+    }
+
+    protected void prepareMocksWithUserDetails(boolean readOnly, Permissions perms) {
         // login
         p = new Principal("test", "test", "test");
         sec.login(p);
 
         // context
         user = new Experimenter(1L, true);
-        group = new ExperimenterGroup(1L, true);
-        group.getDetails().setPermissions(Permissions.WORLD_WRITEABLE);
+        group = new ExperimenterGroup(2L, true); // first non-"user" group
+        group.getDetails().setPermissions(perms);
         type = new EventType(1L, true);
         type.setValue("test");
         event = new Event(1L, true);
@@ -169,7 +173,9 @@ public abstract class AbstractBasicSecuritySystemTest extends
         group = new ExperimenterGroup(0L, true);
         group.getDetails().setPermissions(Permissions.WORLD_WRITEABLE);
         type = new EventType(0L, true);
+        type.setValue("test");
         event = new Event(0L, true);
+        event.setType(type);
 
         user.linkExperimenterGroup(group);
         leaderOfGroups = Collections.singletonList(0L);
