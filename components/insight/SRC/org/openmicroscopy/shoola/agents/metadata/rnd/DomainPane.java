@@ -490,6 +490,7 @@ public class DomainPane
             c.fill = GridBagConstraints.BOTH;
             p.add(graphicsPane,c);
             c.gridy++;
+            c.weighty = 0;
             c.fill = GridBagConstraints.HORIZONTAL;
             taskPane.add(buildControlsPane());
             p.add(taskPane, c);
