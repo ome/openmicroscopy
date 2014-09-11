@@ -7,9 +7,6 @@
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
-import os
-import sys
-import time
 import atexit
 import logging
 import threading
@@ -17,7 +14,7 @@ import omero.util
 import logging.handlers
 
 
-def get_event(name = "Unknown"):
+def get_event(name="Unknown"):
     """
     Returns a threading.Event instance which is registered to be
     "set" (Event.set()) on system exit.
@@ -28,6 +25,7 @@ def get_event(name = "Unknown"):
 
 
 class AtExitEvent(threading._Event):
+
     """
     threading.Event extension which provides an additional method
     setAtExit() which sets "atexit" to true.
@@ -37,7 +35,7 @@ class AtExitEvent(threading._Event):
     messages.
     """
 
-    def __init__(self, verbose = None, name = "Unknown"):
+    def __init__(self, verbose=None, name="Unknown"):
         super(AtExitEvent, self).__init__(verbose)
         self.__name = name
         self.__atexit = False
@@ -54,6 +52,7 @@ class AtExitEvent(threading._Event):
 
 
 class Timer(threading._Timer):
+
     """Based on threading._Thread but allows for resetting the Timer.
 
     t = Timer(30.0, f, args=[], kwargs={})
@@ -81,8 +80,8 @@ class Timer(threading._Timer):
 
     def reset(self):
         self.log.debug("Reset called")
-        self._reset.set() # Set first, so that the loop will continue
-        self.finished.set() # Forces waiting thread to fall through
+        self._reset.set()  # Set first, so that the loop will continue
+        self.finished.set()  # Forces waiting thread to fall through
 
     def run(self):
         while True:
