@@ -510,7 +510,7 @@
                   offset = t.offset();
                   offset.left += t.width();
                 } else {
-                  offset = {'top':'200px', 'right': '300px'};
+                  offset = {'top':'300px', 'left': window.innerWidth-250+'px'};
                 }
                 $('#cbpicker-box').css(offset);
                 $('.picker-selected').html('&nbsp;');
