@@ -9,7 +9,7 @@
 #ifndef CLASS_DETAILS
 #define CLASS_DETAILS
 
-#include <omero/model/IObject.ice>
+#include <omero/ModelF.ice>
 #include <omero/System.ice>
 #include <Ice/Current.ice>
 
