@@ -36,16 +36,9 @@ public class GroupLeaderTest extends AbstractManagedContextTest {
 
         loginRoot();
 
-        String gid = uuid();
-        ExperimenterGroup g = new ExperimenterGroup();
-        g.setName(gid);
-        g = new ExperimenterGroup(iAdmin.createGroup(g), false);
+        ExperimenterGroup g = createGroup();
 
-        Experimenter e = new Experimenter();
-        e.setOmeName(UUID.randomUUID().toString());
-        e.setFirstName("group leader");
-        e.setLastName("GroupLeaderTest");
-        e = iAdmin.getExperimenter(iAdmin.createUser(e, gid));
+        Experimenter e = createUser(g);
 
         iAdmin.setGroupOwner(g, e);
 
@@ -63,16 +56,9 @@ public class GroupLeaderTest extends AbstractManagedContextTest {
 
         loginRoot();
 
-        String gid = uuid();
-        ExperimenterGroup g = new ExperimenterGroup();
-        g.setName(gid);
-        g = new ExperimenterGroup(iAdmin.createGroup(g), false);
+        ExperimenterGroup g = createGroup();
 
-        Experimenter e = new Experimenter();
-        e.setOmeName(UUID.randomUUID().toString());
-        e.setFirstName("group leader");
-        e.setLastName("GroupLeaderTest");
-        e = iAdmin.getExperimenter(iAdmin.createUser(e, gid));
+        Experimenter e = createUser(g);
 
         iAdmin.setGroupOwner(g, e);
 
@@ -99,4 +85,23 @@ public class GroupLeaderTest extends AbstractManagedContextTest {
 
     }
 
+    // ~ Helpers
+    // =========================================================================
+
+    protected Experimenter createUser(ExperimenterGroup g) {
+        Experimenter e = new Experimenter();
+        e.setOmeName(UUID.randomUUID().toString());
+        e.setFirstName("group leader");
+        e.setLastName("GroupLeaderTest");
+        e = iAdmin.getExperimenter(iAdmin.createUser(e, g.getName()));
+        return e;
+    }
+
+    protected ExperimenterGroup createGroup() {
+        String gid = uuid();
+        ExperimenterGroup g = new ExperimenterGroup();
+        g.setName(gid);
+        return iAdmin.getGroup(iAdmin.createGroup(g));
+    }
+ 
 }
