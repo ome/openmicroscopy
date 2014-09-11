@@ -8,6 +8,7 @@ package omeis.providers.re.utests;
 
 import ome.model.enums.PixelsType;
 import omeis.providers.re.quantum.Quantization_32_bit;
+import omeis.providers.re.quantum.Quantization_8_16_bit;
 import omeis.providers.re.quantum.QuantumFactory;
 
 import org.testng.annotations.Test;
@@ -70,10 +71,10 @@ public class TestStandard32BitRendererLUTSizesShouldFail extends BaseRenderingTe
 		assertEquals(0.0, data.getPixelValue(1));
 		assertEquals(0.0, data.getPixelValue(2));
 		assertEquals(0.0, data.getPixelValue(3));
-		assertEquals(65535.0, data.getPixelValue(4));
-		assertEquals(65535.0, data.getPixelValue(5));
-		assertEquals(65535.0, data.getPixelValue(6));
-		assertEquals(65535.0, data.getPixelValue(7));
+		assertEquals(Math.pow(2, 32)-1, data.getPixelValue(4));
+		assertEquals(Math.pow(2, 32)-1, data.getPixelValue(5));
+		assertEquals(Math.pow(2, 32)-1, data.getPixelValue(6));
+		assertEquals(Math.pow(2, 32)-1, data.getPixelValue(7));
 		try
 		{
 			assertEquals(0.0, data.getPixelValue(8));
