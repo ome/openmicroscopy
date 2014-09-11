@@ -64,7 +64,7 @@ public class TestStandard16BitRendererLUTSizes extends BaseRenderingTest
 		{
 			StopWatch stopWatch = 
 				new LoggingStopWatch("testRendererAsPackedInt");
-			int[] renderedPlane = renderer.renderAsPackedInt(def, pixelBuffer);
+			renderer.renderAsPackedInt(def, pixelBuffer);
 			stopWatch.stop();
 		}
 	}
