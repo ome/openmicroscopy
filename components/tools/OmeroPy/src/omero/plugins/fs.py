@@ -292,6 +292,9 @@ class FsControl(CmdControl):
             "--units", choices="KMGTP",
             help="Units to use for disk usage")
         usage.add_argument(
+            "--groups",  action="store_true",
+            help="Print size for all current user's groups")
+        usage.add_argument(
             "obj", nargs="*",
             help="Objects to be queried in the form '<Class>:<Id>[,<Id> ...]'")
 
@@ -701,8 +704,17 @@ Examples:
         client = self.ctx.conn(args)
         req = DiskUsage()
         if not args.obj:
-            uid = client.sf.getAdminService().getEventContext().userId
-            args.obj.append("Experimenter:%d" % uid)
+            admin = client.sf.getAdminService()
+            uid = admin.getEventContext().userId
+            if not args.groups:
+                args.obj.append("Experimenter:%d" % uid)
+            else:
+                exp = admin.getExperimenter(uid)
+                groups = exp.linkedExperimenterGroupList()
+                gids = [x.id.val for x in groups]
+                args.obj.append(
+                    "ExperimenterGroup:%s" % ",".join(map(str, gids)))
+
         req.objects = self._usage_obj(args.obj)
         cb = None
         try:
