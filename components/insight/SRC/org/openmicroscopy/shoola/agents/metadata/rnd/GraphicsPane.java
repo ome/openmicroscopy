@@ -367,14 +367,14 @@ class GraphicsPane
     /** Sets the pixels intensity interval. */
     void setInputInterval()
     {
-        int f, s, e;
+        double f, s, e;
         Iterator<ChannelSlider> i = sliders.iterator();
         ChannelSlider slider;
         while (i.hasNext()) {
             slider = i.next();
-            f = model.getRoundFactor(slider.getIndex());
-            s = (int) (model.getWindowStart(slider.getIndex())*f);
-            e = (int) (model.getWindowEnd(slider.getIndex())*f);
+            f = (double)model.getRoundFactor(slider.getIndex());
+            s = model.getWindowStart(slider.getIndex())*f;
+            e = model.getWindowEnd(slider.getIndex())*f;
             slider.setInterval(s, e);
         }
     }
@@ -467,7 +467,7 @@ class GraphicsPane
      */
     int getPartialMinimum()
     { 
-        return domainSlider.getSlider().getPartialMinimum();
+        return (int)domainSlider.getSlider().getPartialMinimum();
     }
 
     /**
@@ -477,7 +477,7 @@ class GraphicsPane
      */
     int getPartialMaximum()
     { 
-        return domainSlider.getSlider().getPartialMaximum();
+        return (int)domainSlider.getSlider().getPartialMaximum();
     }
 
     /** 
@@ -629,8 +629,8 @@ class GraphicsPane
                             domainSlider.getEndValue());
                     onCurveChange();
                 } else if (source.equals(codomainSlider)) {
-                    int s = codomainSlider.getStartValue();
-                    int e = codomainSlider.getEndValue();
+                    int s = codomainSlider.getStartValueAsInt();
+                    int e = codomainSlider.getEndValueAsInt();
                     controller.setCodomainInterval(s, e);
                     onCurveChange();
                 }
@@ -642,7 +642,7 @@ class GraphicsPane
                     paintVertical = true;
                     onCurveChange();
                 } else if (source.equals(codomainSlider)) {
-                    horizontalLine = codomainSlider.getEndValue();
+                    horizontalLine = codomainSlider.getEndValueAsInt();
                     paintHorizontal = true;
                     paintVertical = false;
                     onCurveChange();
@@ -656,7 +656,7 @@ class GraphicsPane
                     paintVertical = true;
                     onCurveChange();
                 } else if (source.equals(codomainSlider)) {
-                    horizontalLine = codomainSlider.getStartValue();
+                    horizontalLine = codomainSlider.getStartValueAsInt();
                     verticalLine = -1;
                     paintHorizontal = true;
                     paintVertical = false;
@@ -673,8 +673,8 @@ class GraphicsPane
                             domainSlider.getEndValue());
                     onCurveChange();
                 } else if (source.equals(codomainSlider)) {
-                    int s = codomainSlider.getStartValue();
-                    int e = codomainSlider.getEndValue();
+                    int s = codomainSlider.getStartValueAsInt();
+                    int e = codomainSlider.getEndValueAsInt();
                     controller.setCodomainInterval(s, e);
                     onCurveChange();
                 }
@@ -683,8 +683,8 @@ class GraphicsPane
                     controller.setInputInterval(domainSlider.getStartValue(),
                             domainSlider.getEndValue());
                 } else if (source.equals(codomainSlider)) {
-                    int s = codomainSlider.getStartValue();
-                    int e = codomainSlider.getEndValue();
+                    int s = codomainSlider.getStartValueAsInt();
+                    int e = codomainSlider.getEndValueAsInt();
                     controller.setCodomainInterval(s, e);
                     onCurveChange();
                 }

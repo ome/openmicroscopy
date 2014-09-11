@@ -1589,14 +1589,14 @@ class ControlPane
      *
      * @return See above.
      */
-    int getProjectionStartZ() { return projectionRange.getStartValue()-1; }
+    int getProjectionStartZ() { return projectionRange.getStartValueAsInt()-1; }
 
     /**
      * Returns the lower bound of the z-section to project.
      *
      * @return See above.
      */
-    int getProjectionEndZ() { return projectionRange.getEndValue()-1; }
+    int getProjectionEndZ() { return projectionRange.getEndValueAsInt()-1; }
 
     /**
      * Updates UI components when a zooming factor for the grid

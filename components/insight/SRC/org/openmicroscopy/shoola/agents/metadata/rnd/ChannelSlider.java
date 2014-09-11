@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 //Java imports
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -69,8 +68,8 @@ class ChannelSlider
 	/** The default color. */
 	static final Color		GRADIENT_COLOR = Color.BLACK;
 	
-	/** The default size of the button. */
-	private static final Dimension	DEFAULT_SIZE = new Dimension(20, 20);
+	/** Threshold when to use integer mode (instead of floating point)*/
+	private static final double INT_MODE_THRESHOLD = 0.00001;
 	
 	/** Reference to the model. */
 	private RendererModel 			model;
@@ -98,30 +97,57 @@ class ChannelSlider
 	{
 		final int index = channel.getIndex();
 		int f = model.getRoundFactor(index);
-    	int s = (int) (model.getWindowStart(index)*f);
-        int e = (int) (model.getWindowEnd(index)*f);
-        int min = (int) (channel.getGlobalMin()*f);
-        int max = (int) (channel.getGlobalMax()*f);
-        slider = new TextualTwoKnobsSlider();
-        slider.layoutComponents(
-        		TextualTwoKnobsSlider.LAYOUT_SLIDER_FIELDS_X_AXIS);
-        slider.setBackground(UIUtilities.BACKGROUND_COLOR);
+		double s = model.getWindowStart(index)*f;
+		double e = model.getWindowEnd(index)*f;
+		double min = channel.getGlobalMin()*f;
+		double max = channel.getGlobalMax()*f;
+        
+		boolean intMode = useIntMode();
+		
+		if (intMode) {
+		        int absMin = (int) (model.getLowestValue(index)*f);
+		        int absMax = (int) (model.getHighestValue(index)*f);
+		        if (!channel.hasStats()) {
+		                min = absMin;
+		                max = absMax;
+		        }
+		        double range = (max-min)*GraphicsPane.RATIO;
+		        int lowestBound = (int) (min-range);
+		        lowestBound = absMin;
+		        int highestBound = (int) (max+range);
+		        highestBound = absMax;
 
-        int absMin = (int) (model.getLowestValue(index)*f);
-        int absMax = (int) (model.getHighestValue(index)*f);
-        if (!channel.hasStats()) {
-        	min = absMin;
-        	max = absMax;
-        }
-        double range = (max-min)*GraphicsPane.RATIO;
-        int lowestBound = (int) (min-range);
-        //if (lowestBound < absMin) lowestBound = absMin;
-        lowestBound = absMin;
-        int highestBound = (int) (max+range);
-        //if (highestBound > absMax) highestBound = absMax;
-        highestBound = absMax;
-        slider.setValues(max, min, highestBound, lowestBound,
-        		max, min, s, e, f);
+		        slider = new TextualTwoKnobsSlider(0, 100);
+		        
+		        slider.layoutComponents(
+                                TextualTwoKnobsSlider.LAYOUT_SLIDER_FIELDS_X_AXIS);
+                        slider.setBackground(UIUtilities.BACKGROUND_COLOR);
+                        
+                        slider.setValues((int)max, (int)min, (int)highestBound, (int)lowestBound,
+                                (int)max, (int)min, (int)s, (int)e, f);
+		}
+		else {
+		    double absMin = model.getLowestValue(index)*f;
+		    double absMax = model.getHighestValue(index)*f;
+                    if (!channel.hasStats()) {
+                            min = absMin;
+                            max = absMax;
+                    }
+                    double range = (max-min)*GraphicsPane.RATIO;
+                    double lowestBound = min-range;
+                    lowestBound = absMin;
+                    double highestBound = max+range;
+                    highestBound = absMax;
+
+                    slider = new TextualTwoKnobsSlider(0d, 100d);
+                    
+                    slider.layoutComponents(
+                            TextualTwoKnobsSlider.LAYOUT_SLIDER_FIELDS_X_AXIS);
+                    slider.setBackground(UIUtilities.BACKGROUND_COLOR);
+                    
+                    slider.setValues(max, min, highestBound, lowestBound,
+                            max, min, s, e, f);
+		}
         
         slider.getSlider().setPaintLabels(false);
         slider.getSlider().setPaintEndLabels(false);
@@ -231,7 +257,7 @@ class ChannelSlider
 	 * @param s The lowest bound of the interval.
 	 * @param e The upper bound of the interval.
 	 */
-	void setInterval(int s, int e)
+	void setInterval(double s, double e)
 	{
 		slider.setInterval(s, e);
 	}
@@ -315,4 +341,28 @@ class ChannelSlider
 		}
 	}
 
+	/**
+         * Determines if the values shall be treated as integers
+         * or floating point numbers;
+         * If the decimal fraction of one number in the channel data exceeds
+         * {@link #INT_MODE_THRESHOLD} it's assumed that all numbers are
+         * floating point numbers.
+         * @return <code>true</code> if values are integers
+         */
+        private boolean useIntMode() {
+            for(ChannelData channel : model.getChannelData()) {
+                double window = model.getWindowStart(channel.getIndex());
+                int tmp = (int) window;
+                double remains = window - (double)tmp;
+                if(remains > INT_MODE_THRESHOLD) 
+                    return false;
+                
+                window = model.getWindowEnd(channel.getIndex());
+                tmp = (int) window;
+                remains = window - (double)tmp;
+                if(remains > INT_MODE_THRESHOLD) 
+                    return false;
+            }
+            return true;
+        }
 }

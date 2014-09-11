@@ -159,12 +159,12 @@ class TwoKnobsSliderUI
 	{
 		g.setColor(shadowColor);
 		g.translate(0, tickRect.y);
-		int value = model.getMinimum();
+		double value = model.getMinimum();
 		int xPos = 0;
-		int minor = model.getMinorTickSpacing();
-		int major = model.getMajorTickSpacing();
-		int max = model.getMaximum();
-		int min = model.getMinimum();
+		double minor = model.getMinorTickSpacing();
+		double major = model.getMajorTickSpacing();
+		double max = model.getMaximum();
+		double min = model.getMinimum();
 		if (model.getOrientation() == TwoKnobsSlider.HORIZONTAL) {
 			if (minor > 0) {
 				while (value <= max) {
@@ -618,10 +618,10 @@ class TwoKnobsSliderUI
 	 * @param value The value to map.
 	 * @return See above.
 	 */
-	int xPositionForValue(int value)
+	int xPositionForValue(double value)
 	{
-		int min = model.getPartialMinimum();
-		int max = model.getPartialMaximum();
+	        double min = model.getPartialMinimum();
+	        double max = model.getPartialMaximum();
 		int trackLength = trackRect.width;
 		double valueRange = (double) max-(double) min;
 		double pixelsPerValue = trackLength/valueRange;
@@ -641,10 +641,10 @@ class TwoKnobsSliderUI
 	 * @param value The value to map.
 	 * @return See above.
 	 */
-	int yPositionForValue(int value)
+	int yPositionForValue(double value)
 	{
-		int min = model.getPartialMinimum();
-		int max = model.getPartialMaximum();
+	        double min = model.getPartialMinimum();
+	        double max = model.getPartialMaximum();
 		int trackLength = trackRect.height; 
 		double valueRange = (double) max-(double) min;
 		double pixelsPerValue = trackLength/valueRange;
@@ -665,11 +665,11 @@ class TwoKnobsSliderUI
 	 *              <code>false</code> to start from the end.
 	 * @return See above.
 	 */
-	int xValueForPosition(int xPosition, boolean start)
+	double xValueForPosition(int xPosition, boolean start)
 	{
-		int value;
-		int minValue = model.getPartialMinimum();
-		int maxValue = model.getPartialMaximum();
+	        double value;
+	        double minValue = model.getPartialMinimum();
+	        double maxValue = model.getPartialMaximum();
 		int trackLength = trackRect.width;
 		int trackLeft = trackRect.x; 
 		int trackRight = trackRect.x+trackRect.width-1;
@@ -697,11 +697,11 @@ class TwoKnobsSliderUI
 	 *              <code>false</code> to start from the end.
 	 * @return See above.
 	 */
-	int yValueForPosition(int yPosition, boolean start)
+	double yValueForPosition(int yPosition, boolean start)
 	{
-		int value;
-		int minValue = model.getPartialMinimum();
-		int maxValue = model.getPartialMaximum();
+	        double value;
+	        double minValue = model.getPartialMinimum();
+	        double maxValue = model.getPartialMaximum();
 		int trackLength = trackRect.height;
 		int trackTop = trackRect.y;
 		int trackBottom = trackRect.y+trackRect.height-1;

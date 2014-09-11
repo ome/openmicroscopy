@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -219,8 +219,8 @@ public class TwoKnobsSlider
 	private void handleMouseEvent(MouseEvent me)
 	{
 		if (!model.isEnabled()) return;
-		int oldStart = getStartValue();
-		int oldEnd = getEndValue();
+		double oldStart = getStartValue();
+		double oldEnd = getEndValue();
 		if (model.getOrientation() == TwoKnobsSlider.HORIZONTAL) {
 			handleMouseEventForHorizSlider((int) me.getPoint().getX());
 			switch (knobControl) {
@@ -396,7 +396,7 @@ public class TwoKnobsSlider
 	 * @param start The start value.
 	 * @param end   The end value.
 	 */
-	public TwoKnobsSlider(int min, int max, int start, int end)
+	public TwoKnobsSlider(double min, double max, double start, double end)
 	{
 		this(min, max, min, max, start, end);
 	}
@@ -412,8 +412,8 @@ public class TwoKnobsSlider
 	 * @param start 		The start value.
 	 * @param end   		The end value.
 	 */
-	public TwoKnobsSlider(int absoluteMin, int absoluteMax, 
-			int min, int max, int start, int end)
+	public TwoKnobsSlider(double absoluteMin, double absoluteMax, 
+	        double min, double max, double start, double end)
 	{
 		model = new TwoKnobsSliderModel(absoluteMax, absoluteMin, max, min, 
 				start, end);
@@ -453,7 +453,17 @@ public class TwoKnobsSlider
 	 * 
 	 * @return See above.
 	 */
-	public int getStartValue() { return model.getStartValue(); }
+	public double getStartValue() { return model.getStartValue(); }
+	
+	/**
+	 * Rounds and returns the start value as int
+	 * (e. g. 2.49 will be rounded to 2, whereas 2.51 will
+	 *  be rounded to 3)
+	 * @return See above.
+	 */
+	public int getStartValueAsInt() {
+	    return (int)(model.getStartValue()+0.5);
+	}
 
 	/**
 	 * Returns the value of the end knob i.e. value between
@@ -461,20 +471,30 @@ public class TwoKnobsSlider
 	 * 
 	 * @return See above.
 	 */
-	public int getEndValue() { return model.getEndValue(); }
+	public double getEndValue() { return model.getEndValue(); }
 
+	/**
+         * Rounds and returns the end value as int
+         * (e. g. 2.49 will be rounded to 2, whereas 2.51 will
+         *  be rounded to 3)
+         * @return See above.
+         */
+	public int getEndValueAsInt() {
+            return (int)(model.getEndValue()+0.5);
+        }
+	
 	/**
 	 * Sets the start value. The value must be greater than the minimum and
 	 * lower than the end value.
 	 * 
 	 * @param v The value to set.
 	 */
-	public void setStartValue(int v)
+	public void setStartValue(double v)
 	{
-		int old = model.getStartValue();
+	    double old = model.getStartValue();
 		model.setStartValue(v);
-		firePropertyChange(START_VALUE_PROPERTY, Integer.valueOf(old), 
-				Integer.valueOf(v));
+		firePropertyChange(START_VALUE_PROPERTY, Double.valueOf(old), 
+		        Double.valueOf(v));
 		repaint();
 	}
 	
@@ -484,12 +504,12 @@ public class TwoKnobsSlider
 	 * 
 	 * @param v The value to set.
 	 */
-	public void setEndValue(int v)
+	public void setEndValue(double v)
 	{
-		int old = model.getStartValue();
+	    double old = model.getStartValue();
 		model.setEndValue(v);
-		firePropertyChange(END_VALUE_PROPERTY, Integer.valueOf(old), 
-				Integer.valueOf(v));
+		firePropertyChange(END_VALUE_PROPERTY, Double.valueOf(old), 
+		        Double.valueOf(v));
 		repaint();
 		/*
 		int max = model.getAbsoluteMaximum();
@@ -512,8 +532,8 @@ public class TwoKnobsSlider
 	 * @param start     	The value of the start knob.
 	 * @param end       	The value of the end knob.
 	 */
-	public void setValues(int absoluteMax, int absoluteMin, 
-			int max, int min, int start, int end)
+	public void setValues(double absoluteMax, double absoluteMin, 
+	        double max, double min, double start, double end)
 	{
 		model.checkValues(absoluteMax, absoluteMin, max, min, start, end);
 		firePropertyChange(SET_VALUES_PROPERTY, Boolean.valueOf(false), 
@@ -527,18 +547,18 @@ public class TwoKnobsSlider
 	 * @param start	The value of the start knob.
 	 * @param end	The value of the end knob.
 	 */
-	public void setInterval(int start, int end)
+	public void setInterval(double start, double end)
 	{
 		if (start > end) return;
-		int max = model.getAbsoluteMaximum();
+		double max = model.getAbsoluteMaximum();
 		if (end > max) return;
-		int oldEnd = model.getEndValue();
-		int oldStart = model.getStartValue();
+		double oldEnd = model.getEndValue();
+		double oldStart = model.getStartValue();
 		model.setInterval(start, end);
-		firePropertyChange(START_VALUE_PROPERTY, Integer.valueOf(oldStart), 
-				Integer.valueOf(start));
-		firePropertyChange(END_VALUE_PROPERTY, Integer.valueOf(oldEnd), 
-				Integer.valueOf(end));
+		firePropertyChange(START_VALUE_PROPERTY, Double.valueOf(oldStart), 
+		        Double.valueOf(start));
+		firePropertyChange(END_VALUE_PROPERTY, Double.valueOf(oldEnd), 
+		        Double.valueOf(end));
 		repaint();
 	}
 	
@@ -636,7 +656,7 @@ public class TwoKnobsSlider
 	public void setPaintMinorTicks(boolean b)
 	{
 		if (b) {
-			int m = model.getMinorTickSpacing();
+			double m = model.getMinorTickSpacing();
 			if (m == 0) m = 1;
 			model.setMinorTickSpacing(m);
 		} model.setMinorTickSpacing(0);
@@ -659,7 +679,7 @@ public class TwoKnobsSlider
 	 * 
 	 * @return See above.
 	 */
-	public int getPartialMinimum()
+	public double getPartialMinimum()
 	{
 		return model.getPartialMinimum();
 	}
@@ -670,7 +690,7 @@ public class TwoKnobsSlider
 	 * 
 	 * @return See above.
 	 */
-	public int getPartialMaximum()
+	public double getPartialMaximum()
 	{
 		return model.getPartialMaximum();
 	}
