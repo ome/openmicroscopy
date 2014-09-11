@@ -312,6 +312,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                         ServiceFactory sf) {
                     Principal p = checkPrincipalNameAndDefaultGroup(sf,
                             principal);
+                    oldsession.setDefaultEventType(p.getEventType());
                     long userId = executeLookupUser(sf, p);
                     Session s = executeUpdate(sf, oldsession, userId);
                     return executeSessionContextLookup(sf, p, s);

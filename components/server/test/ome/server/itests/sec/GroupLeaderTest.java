@@ -20,6 +20,7 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
+import ome.system.Principal;
 
 public class GroupLeaderTest extends AbstractManagedContextTest {
 
@@ -82,6 +83,22 @@ public class GroupLeaderTest extends AbstractManagedContextTest {
 
         assertNotNull(groupIds);
         assertTrue(groupIds.size() > 0);
+
+    }
+
+    // ~ ISession.createUserSession
+    // =========================================================================
+
+    public void testGroupLeaderCanSudo() throws Exception {
+        loginRoot();
+        ExperimenterGroup g = createGroup();
+        Experimenter leader = createUser(g);
+        Experimenter member = createUser(g);
+        iAdmin.setGroupOwner(g, leader);
+        loginUser(leader.getOmeName(), g.getName());
+
+        Principal p = new Principal(member.getOmeName());
+        ome.model.meta.Session s = iSession.createSessionWithTimeouts(p, 10000, 0);
 
     }
 
