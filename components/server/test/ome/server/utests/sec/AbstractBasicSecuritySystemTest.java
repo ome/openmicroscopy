@@ -9,11 +9,7 @@ package ome.server.utests.sec;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import org.jmock.Mock;
-import org.jmock.MockObjectTestCase;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
+import java.util.NoSuchElementException;
 
 import ome.api.ITypes;
 import ome.api.local.LocalAdmin;
@@ -42,8 +38,17 @@ import ome.system.Roles;
 import ome.testing.MockServiceFactory;
 import ome.tools.hibernate.ExtendedMetadata;
 
+import org.jmock.Mock;
+import org.jmock.MockObjectTestCase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+
 public abstract class AbstractBasicSecuritySystemTest extends
         MockObjectTestCase {
+
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     MockServiceFactory sf;
 
@@ -223,7 +228,11 @@ public abstract class AbstractBasicSecuritySystemTest extends
     @AfterMethod
     protected void tearDown() throws Exception {
         super.verify();
-        sec.invalidateEventContext();
+        try {
+            sec.invalidateEventContext();
+        } catch (NoSuchElementException nsee) {
+            log.warn("Never managed to login?!?");
+        }
         super.tearDown();
     }
 
