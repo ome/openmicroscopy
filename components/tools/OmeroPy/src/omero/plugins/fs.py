@@ -292,7 +292,7 @@ class FsControl(CmdControl):
             "--units", choices="KMGTP",
             help="Units to use for disk usage")
         usage.add_argument(
-            "obj", nargs="+",
+            "obj", nargs="*",
             help="Objects to be queried in the form '<Class>:<Id>[,<Id> ...]'")
 
         for x in (images, sets):
@@ -700,6 +700,9 @@ Examples:
 
         client = self.ctx.conn(args)
         req = DiskUsage()
+        if not args.obj:
+            uid = client.sf.getAdminService().getEventContext().userId
+            args.obj.append("Experimenter:%d" % uid)
         req.objects = self._usage_obj(args.obj)
         cb = None
         try:
