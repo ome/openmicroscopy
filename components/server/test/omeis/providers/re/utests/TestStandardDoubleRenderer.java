@@ -38,7 +38,7 @@ public class TestStandardDoubleRenderer extends BaseRenderingTest
     protected QuantumFactory createQuantumFactory()
     {
         TestQuantumFactory qf = new TestQuantumFactory();
-        qf.setStratgey(new Quantization_float(settings.getQuantization(),
+        qf.setStrategy(new Quantization_float(settings.getQuantization(),
                 pixels.getPixelsType()));
         return qf;
     }
