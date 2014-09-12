@@ -67,6 +67,12 @@ public class TestStandardSigned32BitRenderer extends BaseRenderingTest
     }
 
     @Override
+    protected int getBytesPerPixel()
+    {
+        return 4;
+    }
+
+    @Override
     protected PixelsType getPixelsType()
     {
         PixelsType pixelsType = new PixelsType();
