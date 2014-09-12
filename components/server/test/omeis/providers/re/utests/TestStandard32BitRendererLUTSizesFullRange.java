@@ -7,11 +7,14 @@
 package omeis.providers.re.utests;
 
 import ome.model.enums.PixelsType;
+import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.quantum.Quantization_32_bit;
 import omeis.providers.re.quantum.Quantization_8_16_bit;
 import omeis.providers.re.quantum.QuantumFactory;
 import omeis.providers.re.quantum.QuantumStrategy;
 
+import org.perf4j.LoggingStopWatch;
+import org.perf4j.StopWatch;
 import org.testng.annotations.Test;
 
 public class TestStandard32BitRendererLUTSizesFullRange extends BaseRenderingTest
@@ -92,5 +95,18 @@ public class TestStandard32BitRendererLUTSizesFullRange extends BaseRenderingTes
                 settings.getQuantization(), pixels.getPixelsType());
         assertEquals(0.0, qs.getPixelsTypeMin());
         assertEquals(Math.pow(2, 32)-1, qs.getPixelsTypeMax());
+    }
+
+    @Test(timeOut=30000)
+    public void testRenderAsPackedInt() throws Exception
+    {
+        PlaneDef def = new PlaneDef(PlaneDef.XY, 0);
+        for (int i = 0; i < RUN_COUNT; i++)
+        {
+            StopWatch stopWatch =
+                new LoggingStopWatch("testRendererAsPackedInt");
+            renderer.renderAsPackedInt(def, pixelBuffer);
+            stopWatch.stop();
+        }
     }
 }
