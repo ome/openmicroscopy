@@ -36,7 +36,7 @@ public class TestStandardSigned32BitRenderer extends BaseRenderingTest
     protected QuantumFactory createQuantumFactory()
     {
         TestQuantumFactory qf = new TestQuantumFactory();
-        qf.setStratgey(new Quantization_32_bit(settings.getQuantization(),
+        qf.setStrategy(new Quantization_32_bit(settings.getQuantization(),
                 pixels.getPixelsType()));
         return qf;
     }
