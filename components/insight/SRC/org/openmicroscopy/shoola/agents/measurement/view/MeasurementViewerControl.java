@@ -598,6 +598,10 @@ class MeasurementViewerControl
 	 */
 	public void selectionChanged(FigureSelectionEvent evt)
 	{	
+	        // ignore events if viewer is 'closed'
+	        if (!view.isVisible()) 
+	            return;
+	        
 		Collection<Figure> figures = evt.getView().getSelectedFigures();
 		if (figures == null) return;
 		final List<ROIShape> shapeList = new ArrayList<ROIShape>();
