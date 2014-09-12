@@ -24,10 +24,11 @@ import ome.conditions.AuthenticationException;
 import ome.conditions.RootException;
 import ome.conditions.SecurityViolation;
 import ome.conditions.SessionException;
-import ome.model.internal.Permissions;
 import ome.model.meta.Session;
+import ome.security.SecuritySystem;
 import ome.security.basic.CurrentDetails;
 import ome.services.util.Executor;
+import ome.system.EventContext;
 import ome.system.Principal;
 
 import org.slf4j.Logger;
@@ -106,13 +107,20 @@ public class SessionBean implements ISession {
     public Session createSessionWithTimeouts(@NotNull final Principal principal,
             final long timeToLiveMilliseconds, final long timeToIdleMilliseconds) {
 
+        final EventContext context = currentContext();
+        final List<Long> groupsLed = context.isCurrentUserAdmin() ? null :
+            context.getLeaderOfGroupsList();
+
         try {
             Future<Session> future = ex.submit(new Callable<Session>(){
                 public Session call() throws Exception {
-                    Session session = mgr.createWithAgent(principal, "createSession", null);
-                    session.setTimeToIdle(timeToIdleMilliseconds);
-                    session.setTimeToLive(timeToLiveMilliseconds);
-                    return mgr.update(session, true);
+                    SessionManager.CreationRequest req = new SessionManager.CreationRequest();
+                    req.principal = principal;
+                    req.agent = "createSession";
+                    req.groupsLed = groupsLed;
+                    req.timeToIdle = timeToIdleMilliseconds;
+                    req.timeToLive = timeToLiveMilliseconds;
+                    return mgr.createFromRequest(req);
                 }});
             return ex.get(future);
         } catch (Exception e) {
@@ -240,10 +248,13 @@ public class SessionBean implements ISession {
     // =========================================================================
 
     String currentUser() {
-        String user = cd.getLast().getName();
-        return mgr.getEventContext(new Principal(user)).getCurrentUserName();
+        return currentContext().getCurrentUserName();
     }
-    
+
+    EventContext currentContext() {
+        String user = cd.getLast().getName();
+        return mgr.getEventContext(new Principal(user));
+    }
 
     private Principal principal(String defaultGroup, final String user) {
         Principal p;
@@ -254,7 +265,7 @@ public class SessionBean implements ISession {
         }
         return p;
     }
-    
+
     RuntimeException creationExceptionHandler(Exception e) {
         log.info("Handling session exception: ", e);
         if (e instanceof SessionException) {

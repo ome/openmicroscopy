@@ -201,8 +201,15 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
     // =========================================================================
 
     protected void define(Session s, String uuid, String message, long started,
-            long idle, long live, String eventType, String agent, String ip) {
+            CreationRequest req) {
+        Long idle = req.timeToIdle == null ? defaultTimeToIdle : req.timeToIdle;
+        Long live = req.timeToLive == null ? defaultTimeToLive : req.timeToLive;
+        define(s, uuid, message, started, idle, live,
+                req.principal.getEventType(), req.agent, req.ip);
+    }
 
+    protected void define(Session s, String uuid, String message, long started,
+            long idle, long live, String eventType, String agent, String ip) {
         s.getDetails().setPermissions(Permissions.PRIVATE);
         s.setUuid(uuid);
         s.setMessage(message);
@@ -217,42 +224,56 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
     // ~ Session management
     // =========================================================================
 
-    /*
-     * Is given trustable values by the {@link SessionBean}
-     */
-    public Session createWithAgent(final Principal _principal, final String credentials, String agent, String ip) {
+    public Session createFromRequest(CreationRequest request) {
 
         // If credentials exist as session, then return that
-        try {
-            SessionContext context = cache
-                    .getSessionContext(credentials);
-            if (context != null) {
-                context.count().increment();
-                return context.getSession(); // EARLY EXIT!
+        if (request.credentials != null) {
+            try {
+                SessionContext context = cache
+                        .getSessionContext(request.credentials);
+                if (context != null) {
+                    context.count().increment();
+                    return context.getSession(); // EARLY EXIT!
+                }
+            } catch (SessionException se) {
+                // oh well.
             }
-        } catch (SessionException se) {
-            // oh well.
-        }
 
-        // Though trusted values, if we receive a null principal, not ok;
-        boolean ok = _principal == null ? false : executeCheckPassword(
-                _principal, credentials);
+            // Though trusted values, if we receive a null principal, not ok;
+            boolean ok = request.principal == null ? false : executeCheckPassword(
+                request.principal, request.credentials);
 
-        if (!ok) {
-            log.warn("Failed to authenticate: " + _principal);
-            throw new AuthenticationException("Authentication exception.");
+            if (!ok) {
+                log.warn("Failed to authenticate: " + request.principal);
+                throw new AuthenticationException("Authentication exception.");
+            }
         }
 
         // authentication checked. Now delegating to the admin method (no pass)
-        return createWithAgent(_principal, agent, ip);
+        Session session = new Session();
+        define(session, UUID.randomUUID().toString(), "Initial message.",
+                System.currentTimeMillis(), request);
+        return createSession(request.principal, session);
+    }
+
+    /*k
+     * Is given trustable values by the {@link SessionBean}
+     */
+    public Session createWithAgent(final Principal _principal, final String credentials, String agent, String ip) {
+        final CreationRequest req = new CreationRequest();
+        req.principal = _principal;
+        req.credentials = credentials;
+        req.agent = agent;
+        req.ip = ip;
+        return createFromRequest(req);
     }
 
     public Session createWithAgent(Principal principal, String agent, String ip) {
-        Session session = new Session();
-        define(session, UUID.randomUUID().toString(), "Initial message.",
-                System.currentTimeMillis(), defaultTimeToIdle,
-                defaultTimeToLive, principal.getEventType(), agent, ip);
-        return createSession(principal, session);
+        final CreationRequest req = new CreationRequest();
+        req.principal = principal;
+        req.agent = agent;
+        req.ip = ip;
+        return createFromRequest(req);
     }
 
     public Share createShare(Principal principal, boolean enabled,
