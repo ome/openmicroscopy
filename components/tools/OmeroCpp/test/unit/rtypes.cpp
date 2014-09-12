@@ -121,7 +121,7 @@ TEST(RTypesTest, RSet) {
     assertRValues<RSetPtr>(s1, s2);
 }
 
-TEST(RTypesTest, RMap) {
+TEST(RTypesTest, DISABLED_RMap) {
     RMapPtr m1 = rmap();
     m1->put("a", rint(1));
 
