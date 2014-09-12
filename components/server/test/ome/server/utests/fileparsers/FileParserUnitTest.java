@@ -39,7 +39,7 @@ public class FileParserUnitTest extends TestCase {
             BufferedReader buffered = new BufferedReader(reader);
             sb.append(buffered.readLine());
         }
-        assertTrue(sb.toString(), "ABC123".equals(sb.toString()));
+        assertEquals("ABC123", sb.toString());
         for (RegisterServiceCleanupMessage cleanup : list) {
             cleanup.close();
         }

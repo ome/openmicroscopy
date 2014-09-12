@@ -1,12 +1,9 @@
 /*
- * ome.server.utests.ContainerConstraintsTest
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.server.utests;
 
-// Java imports
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -19,8 +16,8 @@ import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.parameters.Parameters;
 import ome.security.basic.CurrentDetails;
-import ome.security.basic.PrincipalHolder;
 import ome.server.itests.LoginInterceptor;
+import ome.services.sessions.state.SessionCache;
 import ome.services.util.ServiceHandler;
 import ome.system.Principal;
 
@@ -47,11 +44,12 @@ public class PojosConstraintsTest extends MockObjectTestCase {
         super.setUp();
         impl = new PojosImpl();
         ProxyFactory pf = new ProxyFactory(impl);
-        CurrentDetails holder = new CurrentDetails();
+        SessionCache cache = new TestSessionCache(this);
+        CurrentDetails holder = new CurrentDetails(cache);
         LoginInterceptor login = new LoginInterceptor(holder);
-        ServiceHandler serviceHandler = new ServiceHandler(new CurrentDetails());
-        pf.addAdvice(serviceHandler);
+        ServiceHandler serviceHandler = new ServiceHandler(holder);
         pf.addAdvice(login);
+        pf.addAdvice(serviceHandler);
         login.p = new Principal("user","user","Test");
         manager = (IContainer) pf.getProxy();
     }
@@ -60,33 +58,6 @@ public class PojosConstraintsTest extends MockObjectTestCase {
     @AfterMethod
     protected void tearDown() throws Exception {
         manager = null;
-    }
-
-    @Test
-    public void testFindAnnotations() throws Exception {
-    	/*
-        T t = new T(ApiUsageException.class) {
-            @Override
-            public void doTest(Object[] arg) {
-                manager.findAnnotations((Class) arg[0], (Set) arg[1],
-                        (Set) arg[2], (Map) arg[3]);
-            }
-        };
-
-        // param1: not null or wrong type
-        t.blowup(true, null, new HashSet(), new HashSet(), null);
-        t.blowup(true, Project.class, null, new HashSet(), null);
-        t.blowup(false, Image.class, new HashSet(), new HashSet(),
-                null); // FIXME should check for empty sets.
-        t.blowup(false, Dataset.class, new HashSet(), new HashSet(),
-                null);
-
-        // param2: not null
-        t.blowup(true, Dataset.class, null, new HashSet(), null);
-
-        // eek
-        t.blowup(false, Dataset.class, new HashSet(), new HashSet(), null);
-*/
     }
 
     @Test
