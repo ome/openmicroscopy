@@ -329,34 +329,31 @@
 
     <ul class="toolbar preview-toolbar">
       <li>
-        <button id="rdef-setdef-btn" class="editor" disabled='true'
+        <button id="rdef-setdef-btn" class="toolbar-btn" disabled='true'
             {% if manager.image.canAnnotate %}
               title="Saves the current settings."
             {% else %}
             title="You don't have permission to save settings."
             {% endif %}
             >
-          <img src="{% static 'webclient/image/icon_save.png' %}" style="position:relative; top:2px" />
-          <span>
+          <img src="{% static 'webclient/image/icon_save.png' %}" style="position:relative; top:2px" /><br>
             Save
-          </span>
         </button>
 
-        <button id="rdef-save-all" disabled="true" title="Cannot apply settings to other images">
-          <img src="{% static 'webclient/image/icon_save.png' %}" style="position:relative; top:2px" />
-          <span>
+        <button id="rdef-save-all" class="toolbar-btn" disabled="true"
+            title="Cannot apply settings to other images">
+          <img src="{% static 'webclient/image/icon_save.png' %}" style="position:relative; top:2px" /><br>
             Save to All
-          </span>
         </button>
       </li>
 
 
       <!-- class='button-disabled' -->
-      <li><button id="rdef-undo-btn" class="toolbar-btn button-disabled" title="Undo the last changes to settings">
+      <li><button id="rdef-undo-btn" class="toolbar-btn" title="Undo the last changes to settings">
         <img src="{% static "webclient/image/icon_undo16.png" %}" /><br>
         Undo
       </button> </li>
-      <li><button id="rdef-redo-btn" class="toolbar-btn button-disabled" title="Redo the last changes to settings">
+      <li><button id="rdef-redo-btn" class="toolbar-btn" title="Redo the last changes to settings">
         <img src="{% static "webclient/image/icon_redo16.png" %}" /><br>
         Redo
       </button></li>
