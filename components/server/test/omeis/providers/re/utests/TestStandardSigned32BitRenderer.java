@@ -110,7 +110,7 @@ public class TestStandardSigned32BitRenderer extends BaseRenderingTest
         assertEquals(Math.pow(2, 32)/2-1, qs.getPixelsTypeMax());
     }
 
-    @Test
+    @Test(timeOut=30000)
     public void testRenderAsPackedInt() throws Exception
     {
         PlaneDef def = new PlaneDef(PlaneDef.XY, 0);

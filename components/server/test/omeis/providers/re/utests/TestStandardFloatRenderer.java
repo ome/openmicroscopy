@@ -118,7 +118,7 @@ public class TestStandardFloatRenderer extends BaseRenderingTest
         assertTrue(Float.MAX_VALUE == qs.getPixelsTypeMax());
     }
 
-    @Test
+    @Test(timeOut=30000)
     public void testRenderAsPackedInt() throws Exception
     {
         PlaneDef def = new PlaneDef(PlaneDef.XY, 0);
