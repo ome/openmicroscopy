@@ -16,6 +16,7 @@ import org.hibernate.Session;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.testng.annotations.Test;
 
+import ome.conditions.SecurityViolation;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
@@ -89,17 +90,39 @@ public class GroupLeaderTest extends AbstractManagedContextTest {
     // ~ ISession.createUserSession
     // =========================================================================
 
-    public void testGroupLeaderCanSudo() throws Exception {
+    public void testGroupLeaderCanSudoInOwnGroup() throws Exception {
         loginRoot();
-        ExperimenterGroup g = createGroup();
-        Experimenter leader = createUser(g);
-        Experimenter member = createUser(g);
-        iAdmin.setGroupOwner(g, leader);
-        loginUser(leader.getOmeName(), g.getName());
+        ExperimenterGroup ownGroup = createGroup();
+        Experimenter leader = createUser(ownGroup);
+        Experimenter member = createUser(ownGroup);
+        iAdmin.setGroupOwner(ownGroup, leader);
+        loginUser(leader.getOmeName(), ownGroup.getName());
 
         Principal p = new Principal(member.getOmeName());
-        ome.model.meta.Session s = iSession.createSessionWithTimeouts(p, 10000, 0);
+        iSession.createSessionWithTimeouts(p, 10000, 0);
+    }
 
+    @Test(expectedExceptions = SecurityViolation.class)
+    public void testGroupLeaderCannotSudoInOtherGroup() throws Exception {
+        loginRoot();
+        ExperimenterGroup ownGroup = createGroup();
+        ExperimenterGroup otherGroup = createGroup();
+        Experimenter leader = createUser(ownGroup);
+        Experimenter member = createUser(otherGroup);
+        iAdmin.setGroupOwner(ownGroup, leader);
+        loginUser(leader.getOmeName(), ownGroup.getName());
+
+        Principal p = new Principal(member.getOmeName());
+        iSession.createSessionWithTimeouts(p, 10000, 0);
+    }
+
+    public void testButRootCanSudoInOtherGroup() throws Exception {
+        loginRoot();
+        ExperimenterGroup otherGroup = createGroup();
+        Experimenter member = createUser(otherGroup);
+
+        Principal p = new Principal(member.getOmeName());
+        iSession.createSessionWithTimeouts(p, 10000, 0);
     }
 
     // ~ Helpers
