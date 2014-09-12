@@ -10,6 +10,7 @@ import ome.model.enums.PixelsType;
 import omeis.providers.re.quantum.Quantization_32_bit;
 import omeis.providers.re.quantum.Quantization_8_16_bit;
 import omeis.providers.re.quantum.QuantumFactory;
+import omeis.providers.re.quantum.QuantumStrategy;
 
 import org.testng.annotations.Test;
 
@@ -67,19 +68,29 @@ public class TestStandard32BitRendererLUTSizesFullRange extends BaseRenderingTes
 	@Test
 	public void testPixelValues() throws Exception
 	{
-		assertEquals(0.0, data.getPixelValue(0));
-		assertEquals(0.0, data.getPixelValue(1));
-		assertEquals(0.0, data.getPixelValue(2));
-		assertEquals(0.0, data.getPixelValue(3));
-		assertEquals(Math.pow(2, 32)-1, data.getPixelValue(4));
-		assertEquals(Math.pow(2, 32)-1, data.getPixelValue(5));
-		assertEquals(Math.pow(2, 32)-1, data.getPixelValue(6));
-		assertEquals(Math.pow(2, 32)-1, data.getPixelValue(7));
+        QuantumStrategy qs = quantumFactory.getStrategy(
+                settings.getQuantization(), pixels.getPixelsType());
+        int n = data.size();
+        for (int i = 0; i < n/2; i++) {
+            assertEquals(0.0, data.getPixelValue(i));
+        }
+        for (int i = 0; i < n/2; i++) {
+            assertEquals(qs.getPixelsTypeMax(), data.getPixelValue(i+n/2));
+        }
 		try
 		{
-			assertEquals(0.0, data.getPixelValue(8));
+			assertEquals(0.0, data.getPixelValue(n));
 			fail("Should have thrown an IndexOutOfBoundsException.");
 		}
 		catch (IndexOutOfBoundsException e) { }
 	}
+
+    @Test
+    public void testPixelValuesRange() throws Exception
+    {
+        QuantumStrategy qs = quantumFactory.getStrategy(
+                settings.getQuantization(), pixels.getPixelsType());
+        assertEquals(0.0, qs.getPixelsTypeMin());
+        assertEquals(Math.pow(2, 32)-1, qs.getPixelsTypeMax());
+    }
 }
