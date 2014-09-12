@@ -131,23 +131,25 @@
             $("button.paste_rdef").click(function() {
                 pasteRdefs(OME.preview_viewport);
             });
-            // check session via /getImgRDef/ to see if we have anything to paste
-            $.getJSON(OME.preview_viewport.viewport_server + "/getImgRDef/",
-              function(data){
-                  if (data.rdef) {
-                    var channels = data.rdef.c.split(","); // c=1|3336:38283$FF0000,2|1649:17015$00FF00
-                    if (channels.length != OME.preview_viewport.getChannels().length ||
-                      data.rdef.pixel_range != OME.preview_viewport.loadedImg.pixel_range.join(":")) {
-                        // images are not compatible
-                        $("button.paste_rdef")
-                          .attr('title', 'Copied settings are not compatible with this image');
-                        return;
-                      }
-                      $("button.paste_rdef").removeClass('button-disabled')
-                        .removeAttr('disabled');
-                  }
-              }
-            );
+            // once image loads, check session via /getImgRDef/ to see if we can paste
+            OME.preview_viewport.bind('imageLoad', function() {
+              $.getJSON(OME.preview_viewport.viewport_server + "/getImgRDef/",
+                function(data){
+                    if (data.rdef) {
+                      var channels = data.rdef.c.split(","); // c=1|3336:38283$FF0000,2|1649:17015$00FF00
+                      if (channels.length != OME.preview_viewport.getChannels().length ||
+                        data.rdef.pixel_range != OME.preview_viewport.loadedImg.pixel_range.join(":")) {
+                          // images are not compatible
+                          $("button.paste_rdef")
+                            .attr('title', 'Copied settings are not compatible with this image');
+                          return;
+                        }
+                        $("button.paste_rdef").removeClass('button-disabled')
+                          .removeAttr('disabled');
+                    }
+                }
+              );
+            });
 
             // handle 'Color' checkbox
             $('#rd-wblitz-rmodel').click(function(e){
