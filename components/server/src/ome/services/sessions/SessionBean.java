@@ -97,13 +97,13 @@ public class SessionBean implements ISession {
 
     }
 
-    @RolesAllowed("system")
+    @RolesAllowed("user" /* group owner */)
     public Session createSessionWithTimeout(@NotNull final Principal principal,
             final long milliseconds) {
         return createSessionWithTimeouts(principal, milliseconds, 0L);
     }
 
-    @RolesAllowed("system")
+    @RolesAllowed("user" /*group owner*/)
     public Session createSessionWithTimeouts(@NotNull final Principal principal,
             final long timeToLiveMilliseconds, final long timeToIdleMilliseconds) {
 
@@ -270,6 +270,8 @@ public class SessionBean implements ISession {
         log.info("Handling session exception: ", e);
         if (e instanceof SessionException) {
             return (SessionException) e;
+        } else if (e instanceof SecurityViolation) {
+            return (SecurityViolation) e;
         } else if (e instanceof RootException) {
             // This may should be more specific or need to use an event-based
             // conversion routine like in blitz, to allow exceptions like

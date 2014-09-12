@@ -30,6 +30,7 @@ import ome.conditions.RemovedSessionException;
 import ome.conditions.SecurityViolation;
 import ome.conditions.SessionException;
 import ome.conditions.SessionTimeoutException;
+import ome.model.annotations.CommentAnnotation;
 import ome.model.enums.EventType;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
@@ -86,6 +87,8 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class SessionManagerImpl implements SessionManager, SessionCache.StaleCacheListener,
         ApplicationContextAware, ApplicationListener {
+
+    public final static String GROUP_SUDO_NS = "openmicroscopy.org/security/group-sudo";
 
     private final static Logger log = LoggerFactory.getLogger(SessionManagerImpl.class);
 
@@ -204,6 +207,14 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
             CreationRequest req) {
         Long idle = req.timeToIdle == null ? defaultTimeToIdle : req.timeToIdle;
         Long live = req.timeToLive == null ? defaultTimeToLive : req.timeToLive;
+        CommentAnnotation ca = new CommentAnnotation();
+        ca.setNs(GROUP_SUDO_NS);
+        s.linkAnnotation(ca);
+        if (req.groupsLed != null) {
+            ca.setTextValue(req.groupsLed.toString());
+        } else {
+            ca.setTextValue("root");
+        }
         define(s, uuid, message, started, idle, live,
                 req.principal.getEventType(), req.agent, req.ip);
     }
@@ -253,7 +264,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         Session session = new Session();
         define(session, UUID.randomUUID().toString(), "Initial message.",
                 System.currentTimeMillis(), request);
-        return createSession(request.principal, session);
+        return createSession(request, session);
     }
 
     /*k
@@ -287,12 +298,17 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         share.setActive(enabled);
         share.setData(new byte[] {});
         share.setItemCount(0L);
-        return (Share) createSession(principal, share);
+        CreationRequest req = new CreationRequest();
+        req.principal = principal;
+        return (Share) createSession(req, share);
     }
 
     @SuppressWarnings("unchecked")
-    private Session createSession(final Principal principal,
+    private Session createSession(final CreationRequest req,
             final Session oldsession) {
+
+        final Principal principal = req.principal;
+
         // If username exists as session, then return that
         try {
             SessionContext context = cache.getSessionContext(principal.getName());
@@ -315,8 +331,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                 @Transactional(readOnly = true)
                 public Object doWork(org.hibernate.Session __s,
                         ServiceFactory sf) {
-                    Principal p = checkPrincipalNameAndDefaultGroup(sf,
-                            principal);
+                    Principal p = checkPrincipalNameAndDefaultGroup(sf, req);
                     executeLookupUser(sf, p);
                     // Not performed! Session s = executeUpdate(sf, oldsession,
                     // userId);
@@ -331,8 +346,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                 @Transactional(readOnly = false)
                 public Object doWork(org.hibernate.Session __s,
                         ServiceFactory sf) {
-                    Principal p = checkPrincipalNameAndDefaultGroup(sf,
-                            principal);
+                    Principal p = checkPrincipalNameAndDefaultGroup(sf, req);
                     oldsession.setDefaultEventType(p.getEventType());
                     long userId = executeLookupUser(sf, p);
                     Session s = executeUpdate(sf, oldsession, userId);
@@ -423,7 +437,9 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
 
                 Principal principal = new Principal(ctx.getCurrentUserName(),
                         defaultGroup, ctx.getCurrentEventType());
-                principal = checkPrincipalNameAndDefaultGroup(sf, principal);
+                CreationRequest req = new CreationRequest();
+                req.principal = principal;
+                principal = checkPrincipalNameAndDefaultGroup(sf, req);
 
                 // Unconditionally settable; these are open to the user for
                 // change
@@ -768,9 +784,11 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
      * Checks the validity of the given {@link Principal}, and in the case of an
      * error attempts to correct the problem by returning a new Principal.
      */
-    private Principal checkPrincipalNameAndDefaultGroup(ServiceFactory sf,
-            Principal p) {
+    private Principal checkPrincipalNameAndDefaultGroup(
+            final ServiceFactory sf,
+            final CreationRequest req) {
 
+        final Principal p = req.principal;
         if (p == null || p.getName() == null) {
             throw new ApiUsageException("Null principal name.");
         }
@@ -796,6 +814,13 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                         + p.getName());
             }
             group = g.getName();
+        }
+
+        // Now we have a valid, non-"user" group, we can attempt to check
+        // if the current context (e.g. group-sudo) is permitted to create
+        // such a session.
+        if (req.groupsLed != null) {
+            throw new SecurityViolation("Group sudo is not permitted.");
         }
 
         // Also checking event type. Throws if missing (and at least a NPE)
