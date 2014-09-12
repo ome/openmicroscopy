@@ -268,11 +268,13 @@ public class StatsFactory {
     	} else if (PlaneFactory.UINT32.equals(typeAsString)) {
     		minmax[0] = 0;
 			minmax[1] = Math.pow(2, 32)-1;
-    	} else if (PlaneFactory.FLOAT_TYPE.equals(typeAsString) ||
-    			PlaneFactory.DOUBLE_TYPE.equals(typeAsString)) {
+    	} else if (PlaneFactory.DOUBLE_TYPE.equals(typeAsString)) {
     		//b/c we don't know if it is signed or not
     		minmax[0] = -Double.MAX_VALUE;
 			minmax[1] = Double.MAX_VALUE;
+    	} else if (PlaneFactory.FLOAT_TYPE.equals(typeAsString)) {
+    	    minmax[0] = -Float.MAX_VALUE;
+            minmax[1] = Float.MAX_VALUE;
     	}
     	return minmax;
     }
