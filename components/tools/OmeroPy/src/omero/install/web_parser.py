@@ -57,7 +57,7 @@ class WebSettings(object):
             print key
             print underline(len(key))
             print ""
-            print "Description: %s" % description
+            print description
             print ""
             print "Default: ``%s`` " % (default_value)
             print ""

@@ -60,12 +60,47 @@ version.
 
 The :source:`etc/omero.properties` file of your distribution defines all the
 default configuration properties used by the server. Changes made to the file
-are *not* recognized by the server. Instead, the :omerocmd:`config` command is
-used to change those properties that you would like to customize.
+are *not* recognized by the server. Instead, configuration options can be set
+using the :omerocmd:`config set` command:
+
+::
+
+    $ bin/omero config set <parameter> <value>
+
+When supplying a value with spaces or multiple elements, use **single
+quotes**. The quotes will not be saved as part of the value (see below).
+
+To remove a configuration option (to return to default values where
+mentioned), simply omit the value:
+
+::
+
+    $ bin/omero config set <parameter>
+
+These options will be stored in a file: ``etc/grid/config.xml`` which
+you can read for reference. **DO NOT** edit this file directly.
+
+You can also review all your settings by using:
+
+::
+
+    $ bin/omero config get
+
+which should return values without quotation marks.
+
+A final useful option of :omerocmd:`config edit` is:
+
+::
+
+    $ bin/omero config edit
+
+which will allow for editing the configuration in a system-default text
+editor.
 
 Examples of doing this are on the main :doc:`Unix <unix/server-installation>`
 and :doc:`Windows <windows/server-installation>` pages, as well as the
 :doc:`LDAP installation <server-ldap>` page.
+
 """
 
 HEADER = \
