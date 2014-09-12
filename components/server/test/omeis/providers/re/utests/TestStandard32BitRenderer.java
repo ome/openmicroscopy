@@ -61,8 +61,8 @@ public class TestStandard32BitRenderer extends BaseRenderingTest
 			System.err.println(data.getPixelValue(i));
 		}
 	}
-	
-	@Test
+
+	@Test(timeOut=30000)
 	public void testRenderAsPackedInt() throws Exception
 	{
 		PlaneDef def = new PlaneDef(PlaneDef.XY, 0);

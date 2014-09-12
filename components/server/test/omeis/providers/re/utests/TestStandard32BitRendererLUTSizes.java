@@ -86,6 +86,7 @@ public class TestStandard32BitRendererLUTSizes extends BaseRenderingTest
 	}
 	
 	@Test
+	@Test(timeOut=30000)
 	public void testRenderAsPackedInt() throws Exception
 	{
 		PlaneDef def = new PlaneDef(PlaneDef.XY, 0);

@@ -24,7 +24,7 @@ public class TestOnTheFly16BitRenderer extends BaseRenderingTest
 		return qf;
 	}
 
-	@Test(timeOut=10000)
+	@Test(timeOut=30000)
 	public void testRenderAsPackedInt() throws Exception
 	{
 		PlaneDef def = new PlaneDef(PlaneDef.XY, 0);

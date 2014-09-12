@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
 
 public class TestStandard16BitRenderer extends BaseRenderingTest
 {
-	@Test
+	@Test(timeOut=30000)
 	public void testRenderAsPackedInt() throws Exception
 	{
 		PlaneDef def = new PlaneDef(PlaneDef.XY, 0);

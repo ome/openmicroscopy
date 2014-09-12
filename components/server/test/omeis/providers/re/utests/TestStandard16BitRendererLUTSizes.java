@@ -55,8 +55,8 @@ public class TestStandard16BitRendererLUTSizes extends BaseRenderingTest
 		}
 		catch (IndexOutOfBoundsException e) { }
 	}
-	
-	@Test
+
+	@Test(timeOut=30000)
 	public void testRenderAsPackedInt() throws Exception
 	{
 		PlaneDef def = new PlaneDef(PlaneDef.XY, 0);
