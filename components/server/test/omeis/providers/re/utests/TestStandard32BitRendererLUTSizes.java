@@ -32,13 +32,13 @@ public class TestStandard32BitRendererLUTSizes extends BaseRenderingTest
 	{
 		return 2;
 	}
-	
+
 	@Override
 	protected int getSizeY()
 	{
 		return 2;
 	}
-	
+
 	@Override
 	protected byte[] getPlane()
 	{
@@ -51,13 +51,13 @@ public class TestStandard32BitRendererLUTSizes extends BaseRenderingTest
 				(byte) 0x00, (byte) 0x00, (byte) 0xFF, (byte) 0xFF,
 				};
 	}
-	
+
 	@Override
 	protected int getBytesPerPixel()
 	{
 		return 4;
 	}
-	
+
 	@Override
 	protected PixelsType getPixelsType()
 	{
@@ -65,7 +65,7 @@ public class TestStandard32BitRendererLUTSizes extends BaseRenderingTest
 		pixelsType.setValue("uint32");
 		return pixelsType;
 	}
-	
+
 	@Test
 	public void testPixelValues() throws Exception
 	{
@@ -84,15 +84,14 @@ public class TestStandard32BitRendererLUTSizes extends BaseRenderingTest
 		}
 		catch (IndexOutOfBoundsException e) { }
 	}
-	
-	@Test
+
 	@Test(timeOut=30000)
 	public void testRenderAsPackedInt() throws Exception
 	{
 		PlaneDef def = new PlaneDef(PlaneDef.XY, 0);
 		for (int i = 0; i < RUN_COUNT; i++)
 		{
-			StopWatch stopWatch = 
+			StopWatch stopWatch =
 				new LoggingStopWatch("testRendererAsPackedInt");
 			renderer.renderAsPackedInt(def, pixelBuffer);
 			stopWatch.stop();
