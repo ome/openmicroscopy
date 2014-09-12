@@ -114,7 +114,6 @@ public class TestStandardFloatRenderer extends BaseRenderingTest
     {
         QuantumStrategy qs = quantumFactory.getStrategy(
                 settings.getQuantization(), pixels.getPixelsType());
-        System.err.println(-Float.MAX_VALUE);
         assertTrue(-Float.MAX_VALUE == qs.getPixelsTypeMin());
         assertTrue(Float.MAX_VALUE == qs.getPixelsTypeMax());
     }
