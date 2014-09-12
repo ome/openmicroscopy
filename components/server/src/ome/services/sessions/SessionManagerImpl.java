@@ -21,8 +21,6 @@ import java.util.concurrent.Future;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import ome.api.local.LocalAdmin;
-import ome.api.local.LocalQuery;
-import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
 import ome.conditions.AuthenticationException;
 import ome.conditions.InternalException;
@@ -86,7 +84,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @since 3.0-Beta3
  */
 public class SessionManagerImpl implements SessionManager, SessionCache.StaleCacheListener,
-        ApplicationContextAware, ApplicationListener {
+        ApplicationContextAware, ApplicationListener<ApplicationEvent> {
 
     public final static String GROUP_SUDO_NS = "openmicroscopy.org/security/group-sudo";
 
@@ -403,7 +401,8 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         // =====================================================
         // This needs to get smarter
 
-        List list = (List) executor.execute(asroot, new Executor.SimpleWork(
+        @SuppressWarnings("unchecked")
+        List<Object> list = (List<Object>) executor.execute(asroot, new Executor.SimpleWork(
                 this, "load_for_update") {
             @Transactional(readOnly = false)
             public Object doWork(org.hibernate.Session __s, ServiceFactory sf) {
@@ -665,6 +664,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         if (elt == null) {
             return rv;
         }
+        @SuppressWarnings("unchecked")
         Map<String, Object> cv = (Map<String, Object>) elt.getObjectValue();
         if (cv == null) {
             return rv;
@@ -691,6 +691,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
             return null;
         }
 
+        @SuppressWarnings("unchecked")
         Map<String, Object> map = (Map<String, Object>) elt.getObjectValue();
         if (map == null) {
             return null;
@@ -699,6 +700,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void setEnvironmentVariable(String session, String key,
             Object object, String env) {
         Ehcache cache = inMemoryCache(session);
@@ -934,7 +936,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
      * Will be called in a synchronized block by {@link SessionCache} in order
      * to allow for an update.
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"rawtypes" })
     public SessionContext reload(final SessionContext ctx) {
         final Principal p = new Principal(ctx.getCurrentUserName(), ctx
                 .getCurrentGroupName(), ctx.getCurrentEventType());
@@ -975,7 +977,6 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         return executeCheckPassword(new Principal(name), credentials);
     }
 
-    @SuppressWarnings("unchecked")
     private Session executeUpdate(ServiceFactory sf, Session session,
             long userId) {
         Node node = sf.getQueryService().findByQuery(
@@ -1090,9 +1091,6 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                         } catch (EmptyResultDataAccessException erdae) {
                             // Using default node
                         }
-
-                        // Have to copy values over due to unloaded
-                        final Session s2 = copy(s);
 
                         // SQL defined in data.vm for creating original session
                         // (id,permissions,timetoidle,timetolive,started,closed,defaulteventtype,uuid,owner,node)
@@ -1264,7 +1262,6 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
      * To prevent having the transaction rolled back, this method returns null
      * rather than throw an exception.
      */
-    @SuppressWarnings("unchecked")
     private ExperimenterGroup _getDefaultGroup(ServiceFactory sf, String name) {
         LocalAdmin admin = (LocalAdmin) sf.getAdminService();
         try {
@@ -1296,7 +1293,6 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
      * exception is thrown, return nulls since throwing an exception within the
      * Work will set our transaction to rollback only.
      */
-    @SuppressWarnings("unchecked")
     private List<Object> executeSessionContextLookup(ServiceFactory sf,
             Principal principal, Session session) {
         try {
