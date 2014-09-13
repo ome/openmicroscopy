@@ -43,6 +43,9 @@ isposint = @(x) isnumeric(x) & x >= 0 & abs(round(x)) == x;
 if nargin > 4
     % Initialize raw pixels store
     [store, pixels] = getRawPixelsStore(varargin{1}, varargin{2});
+    z = varargin{3};
+    c = varargin{4};
+    t = varargin{5};
     sizeZ = pixels.getSizeZ().getValue();
     sizeC = pixels.getSizeC().getValue();
     sizeT = pixels.getSizeT().getValue();
