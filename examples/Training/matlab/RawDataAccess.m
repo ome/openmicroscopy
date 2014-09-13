@@ -49,8 +49,11 @@ try
     fprintf(1, 'Size C: %g\n', sizeC);
     fprintf(1, 'Size T: %g\n', sizeT);
     
-    % Retrieve planes
-    disp('Reading planes');
+    %% Retrieve planes
+    % The following loop initializes a raw pixels store, reads the pixels
+    % data and closes the store for each method call
+    disp('Reading planes with raw pixels store re-initialization');
+    tic
     for z = 0:sizeZ-1,
         for t = 0:sizeT-1,
             for c = 0:sizeC-1,
@@ -59,6 +62,24 @@ try
             end
         end
     end
+    toc
+    
+    % The following loop initializes a raw pixels store which is re-used in
+    % each method call. The store must be closed manually at the end of the
+    % loop.
+    disp('Reading planes with raw pixels store recycling');
+    tic
+    store = getRawPixelsStore(session, image);
+    for z = 0:sizeZ-1,
+        for t = 0:sizeT-1,
+            for c = 0:sizeC-1,
+                fprintf(1, '  Plane Z: %g, C: %g, T: %g\n', z, c, t);
+                plane = getPlane(store, z, c, t);
+            end
+        end
+    end
+    store.close();
+    toc
     
     % Retrieve tiles
     disp('Reading tiles');
