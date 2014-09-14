@@ -44,7 +44,7 @@ import org.testng.annotations.Test;
  * Tests the effects of running multiple pixel data threads
  * at the same time.
  */
-@Test(groups = { "pixeldata" }, timeOut=10000)
+@Test(groups = { "pixeldata", "broken" }, timeOut=10000)
 public class MTPixelDataTest extends MockObjectTestCase {
 
     String uuid;
