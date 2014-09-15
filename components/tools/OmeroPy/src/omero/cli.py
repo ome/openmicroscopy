@@ -24,7 +24,6 @@ See LICENSE for details.
 sys = __import__("sys")
 cmd = __import__("cmd")
 
-import string
 import re
 import os
 import subprocess
@@ -881,7 +880,7 @@ class CLI(cmd.Cmd, Context):
         class LS(BaseControl):
             def __call__(self, args):
                 for p in sorted(path(os.getcwd()).listdir(
-                    unreadable_as_empty=True)):
+                        unreadable_as_empty=True)):
                     self.ctx.out(str(p.basename()))
 
         class CD(BaseControl):
