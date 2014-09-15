@@ -410,6 +410,9 @@ public class EditorUtil
     /** Identifies the unset fields. */
     public static final String NOT_SET = "NotSet";
 
+    /** Identifies the ROI count field. */
+    public static final String ROI_COUNT = "ROI Count";
+    
     /** The text for the external identifier. */
     public static final String EXTERNAL_IDENTIFIER = "External Identifier";
 

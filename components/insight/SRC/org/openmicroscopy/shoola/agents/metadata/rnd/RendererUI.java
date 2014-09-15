@@ -93,7 +93,7 @@ class RendererUI
         setBackground(UIUtilities.BACKGROUND_COLOR);
         DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
         setLayout(new BorderLayout());
-        add(pane, BorderLayout.NORTH);
+        add(pane, BorderLayout.CENTER);
     }
 
     /**

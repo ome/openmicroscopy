@@ -37,11 +37,10 @@ import java.util.Map;
 
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
+import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
-
-import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlShutDown;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
@@ -1294,7 +1293,7 @@ class RendererModel
 	 */
 	void makeHistorySnapshot() {
 	        if (rndControl != null ) {
-	            if (history.getCurrent()==null || !rndControl.isSameSettings(history.getCurrent(), true))
+	            if (history.getCurrent()==null || !rndControl.isSameSettings(history.getCurrent(), false))
 	                history.add(rndControl.getRndSettingsCopy());
 	            else 
 	                history.resetPrevAction();
@@ -1415,7 +1414,7 @@ class RendererModel
         */
 	boolean isModified() {
 	    if(rndControl!=null) {
-	        return !rndControl.isSameSettings(rndDef, true);
+	        return !rndControl.isSameSettings(rndDef, false);
 	    }
 	    return false;
 	}
@@ -1732,4 +1731,16 @@ class RendererModel
             }
         }
     }
+	
+	/**
+         * Set the color mode to greyscale or RGB
+         *
+         * @param b <code>true</code> for switching to greyscale, RGB otherwise 
+         */
+	void setGreyscale(boolean b) {
+	    if(b)
+	        component.setColorModel(Renderer.GREY_SCALE_MODEL, true);
+	    else
+	        component.setColorModel(Renderer.RGB_MODEL, true);
+	}
 }
