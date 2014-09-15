@@ -147,8 +147,17 @@ public abstract class GraphPolicy {
     }
 
     /**
+     * A stateful graph policy must override this method to provide a clone that has fresh state.
+     * @return an instance ready to begin a new graph traversal
+     */
+    public GraphPolicy getCleanInstance() {
+        return this;
+    }
+
+    /**
      * Any model object about which policy may be asked is first passed to {@link #noteDetails(IObject, String, long)} before
      * {@link #review(Map, Details, Map, Set)}. The same object may be passed multiple times.
+     * Subclasses overriding this method probably ought also override {@link #getCleanInstance()}.
      * @param object a model object about which policy may be asked;
      *               it is a Hibernate proxy object loaded without any extra joins on retrieval
      * @param realClass the real class name of the object
