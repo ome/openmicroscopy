@@ -7,19 +7,20 @@ function plane = getPlane(varargin)
 %   plane = getPlane(session, imageID, z, c, t) returns the plane from
 %   input image identifier at the input z, c, t coordinates.
 %
-%   plane = getPlane(store, z, c, t) returns the plane from a fully
-%   initialized pixels store at the input z, c, t coordinates.
+%   plane = getPlane(store, pixels, z, c, t) returns the plane from an
+%   initialized pixels store and pixels object at the input z, c, t
+%   coordinates.
 %
 %   Examples:
 %
 %      images = getPlane(session, image, z, c, t);
 %      images = getPlane(session, imageID, z, c, t);
-%      images = getPlane(store, z, c, t);
+%      images = getPlane(pixels, store, z, c, t);
 %
 %
 % See also: GETRAWPIXELSSTORE, GETSTACK, GETTILE
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -36,40 +37,33 @@ function plane = getPlane(varargin)
 % with this program; if not, write to the Free Software Foundation, Inc.,
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+% Check number of arguments and retrieve store and pixels
+narginchk(5, 5);
+if ~isa(varargin{1}, 'omero.model.PixelsI')
+    % Initialize raw pixels store
+    [store, pixels] = getRawPixelsStore(varargin{1}, varargin{2});
+else
+    pixels = varargin{1};
+    store = varargin{2};
+    store.setPixelsId(pixels.getId().getValue(), false);
+end
+
 % Input check for z, c, t coordinates
 ip = inputParser;
 isposint = @(x) isnumeric(x) & x >= 0 & abs(round(x)) == x;
-
-if nargin > 4
-    % Initialize raw pixels store
-    [store, pixels] = getRawPixelsStore(varargin{1}, varargin{2});
-    z = varargin{3};
-    c = varargin{4};
-    t = varargin{5};
-    sizeZ = pixels.getSizeZ().getValue();
-    sizeC = pixels.getSizeC().getValue();
-    sizeT = pixels.getSizeT().getValue();
-    ip.addRequired('z', @(x) isposint(x) && x < sizeZ);
-    ip.addRequired('c', @(x) isposint(x) && x < sizeC);
-    ip.addRequired('t', @(x) isposint(x) && x < sizeT);
-else
-    store = varargin{1};
-    z = varargin{2};
-    c = varargin{3};
-    t = varargin{4};
-    ip.addRequired('z', isposint);
-    ip.addRequired('c', isposint);
-    ip.addRequired('t', isposint);
-end
-
-% Check z, c, t coordinates
-ip.parse(z, c, t);
+sizeZ = pixels.getSizeZ().getValue();
+sizeC = pixels.getSizeC().getValue();
+sizeT = pixels.getSizeT().getValue();
+ip.addRequired('z', @(x) isposint(x) && x < sizeZ);
+ip.addRequired('c', @(x) isposint(x) && x < sizeC);
+ip.addRequired('t', @(x) isposint(x) && x < sizeT);
+ip.parse(varargin{3:end});
 
 % Read plane
-plane = store.getPlane(z, c, t);
+plane = store.getPlane(ip.Results.z, ip.Results.c, ip.Results.t);
 plane = toMatrix(plane, pixels)';
 
-if nargin > 4
-    % Close the store if initialized by the funtion
+if ~isa(varargin{1}, 'omero.model.PixelsI')
+    % Close the store if initialized from a session and image input
     store.close();
 end
