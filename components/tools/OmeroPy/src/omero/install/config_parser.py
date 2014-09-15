@@ -301,7 +301,7 @@ class PropertyParser(object):
             print "%s (%s)" % (k, len(v))
 
     def underline(self, size):
-        return '~' * size
+        return '^' * size
 
     def print_rst(self):
         space4 = " " * 4
