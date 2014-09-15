@@ -290,14 +290,12 @@ class TestImport(CLITest):
         levels = self.parse_debug_levels(o)
         assert set(levels) <= set(debug_levels[debug_levels.index(level):])
 
-    def testSummaryArgument(self, tmpdir, capfd):
-        """Test import summary argument"""
+    def testImportSummary(self, tmpdir, capfd):
+        """Test import summary output"""
         fakefile = tmpdir.join("test.fake")
         fakefile.write('')
 
         self.args += [str(fakefile)]
-        self.args += ['--summary']
-        # Invoke CLI import command and retrieve stdout/stderr
         self.cli.invoke(self.args, strict=True)
         o, e = capfd.readouterr()
         summary = self.parse_summary(e)
@@ -305,15 +303,13 @@ class TestImport(CLITest):
         assert len(summary) == 5
 
     @pytest.mark.parametrize("plate", [1, 2, 3])
-    def testSummaryArgumentWithScreen(self, tmpdir, capfd, plate):
+    def testImportSummaryWithScreen(self, tmpdir, capfd, plate):
         """Test import summary argument with a screen"""
         fakefile = tmpdir.join("SPW&plates=%d&plateRows=1&plateCols=1&"
                                "fields=1&plateAcqs=1.fake" % plate)
         fakefile.write('')
 
         self.args += [str(fakefile)]
-        self.args += ['--summary']
-        # Invoke CLI import command and retrieve stdout/stderr
         self.cli.invoke(self.args, strict=True)
         o, e = capfd.readouterr()
         summary = self.parse_summary(e)

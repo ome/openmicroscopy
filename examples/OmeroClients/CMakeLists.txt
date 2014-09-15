@@ -82,6 +82,24 @@ target_link_libraries(unloaded omero-client)
 add_executable(updates updates.cpp)
 target_link_libraries(updates omero-client)
 
+set_property(TARGET clientpointer
+                    collectionmethods
+                    configuration
+                    constants
+                    constructors
+                    details
+                    enumerations
+                    iterators
+                    primitives
+                    queries
+                    rcollection
+                    smartpointers
+                    staticfields
+                    sudo
+                    unloaded
+                    updates
+             PROPERTY FOLDER "Examples")
+
 install(TARGETS clientpointer
                 collectionmethods
                 configuration

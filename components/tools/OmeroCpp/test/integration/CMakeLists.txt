@@ -35,24 +35,18 @@
 # #L%
 
 if(BUILD_TESTS)
-  add_executable(integration
-                 ClientUsageTest.cpp
-                 admin.cpp
-                 annotations.cpp
-                 api.cpp
-                 beta3.cpp
-                 chgrp.cpp
-                 cmdcallbacktest.cpp
-                 counts.cpp
-                 delete.cpp
-                 guest.cpp
-                 permissions.cpp
-                 rendering_settings_test.cpp
-                 search.cpp
-                 sessions.cpp)
 
-  target_link_libraries(integration omero-client)
-  target_link_libraries(integration omero-test ${TEST_LIBS})
+  file(GLOB integration_sources RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.cpp" "*.h")
+
+  add_executable(integration ${integration_sources})
+
+  target_link_libraries(integration
+                        omero-ice
+                        omero-client
+                        omero-test
+                        ${TEST_LIBS})
 
   add_test(ome-xml/integration integration)
+
+  set_property(TARGET integration PROPERTY FOLDER "Tests")
 endif(BUILD_TESTS)

@@ -265,7 +265,8 @@
         $(function() 
             {
                 var copy_paste_rdef_url = "{% url 'webgateway.views.copy_image_rdef_json' %}",
-                    apply_owners_rdef_url = "{% url 'webgateway.views.apply_owners_rdef_json' %}";
+                    apply_owners_rdef_url = "{% url 'reset_owners_rdef_json' %}",
+                    reset_rdef_json = "{% url 'reset_rdef_json' %}";
 
                 // We truncate images when the left panel resizes...
                 $("#left_panel").on('resize', OME.truncateNames);
@@ -283,12 +284,14 @@
                     }
                 }
                 // Paste settings from 'session' to selected Images
-                var pasteRenderingSettings = function(selected, owner) {
+                var pasteRenderingSettings = function(selected, owner, reset) {
                     var ids = [],
                         rdef_url = copy_paste_rdef_url,
                         rel = selected.attr('rel').replace('-locked','');
                     if (owner) {
                         rdef_url = apply_owners_rdef_url;
+                    } else if (reset) {
+                        rdef_url = reset_rdef_json;
                     }
                     selected.each(function(){
                         ids.push(this.id.split('-')[1]);
@@ -297,15 +300,36 @@
                     if (rel === 'dataset' || rel === 'plate' || rel === 'acquisition') {
                         rdef_url += '&to_type='+ rel;
                     }
-                    $.getJSON(rdef_url, function(data){
-                        // update thumbnails
-                        OME.refreshThumbnails();
-                    });
+
+                    var confirmMsg = "This will save new rendering settings to " +
+                        selected.length + " " + rel +
+                        (selected.length > 1 ? "s" : "") + ".<br> This cannot be undone.";
+
+                    var rdef_confirm_dialog = OME.confirm_dialog(
+                        confirmMsg,
+                        function() {
+                            var clicked_button_text = rdef_confirm_dialog.data("clicked_button");
+                            if (clicked_button_text === "OK") {
+                                $.getJSON(rdef_url, function(data){
+                                    // update thumbnails
+                                    OME.refreshThumbnails();
+                                });
+                            }
+                        },
+                        "Change Rendering Settings?",
+                        ["OK", "Cancel"],
+                        350,
+                        175
+                    );
                 }
 
                 var applyOwnerRenderingSettings = function(selected) {
                     pasteRenderingSettings(selected, true);
-                }
+                };
+
+                var resetRenderingSettings = function(selected) {
+                    pasteRenderingSettings(selected, false, true);
+                };
 
                 $("#left_panel_tabs").tabs({
                     select: function(event, ui) {
@@ -869,17 +893,24 @@
                                         "action": copyRenderingSettings
                                     },
                                     "paste_rdef": {
-                                        "label" : "Paste",
+                                        "label" : "Paste and Save",
                                         "icon"  : '{% static "webclient/image/icon_basic_paste_16.png" %}',
                                         "action": function() {
                                             pasteRenderingSettings(this.get_selected());
                                         }
                                     },
                                     "owner_rdef": {
-                                        "label" : "Set Owner's",
+                                        "label" : "Set Owner's and Save",
                                         "icon"  : '{% static "webclient/image/icon_basic_paste_16.png" %}',
                                         "action": function() {
                                             applyOwnerRenderingSettings(this.get_selected());
+                                        }
+                                    },
+                                    "reset_rdef": {
+                                        "label" : "Set Imported and Save",
+                                        "icon"  : '{% static "webclient/image/icon_basic_paste_16.png" %}',
+                                        "action": function() {
+                                            resetRenderingSettings(this.get_selected());
                                         }
                                     }
                                 }
@@ -1000,6 +1031,8 @@
                             config["renderingsettings"]["_disabled"] = true;
                             config["renderingsettings"]["submenu"]["copy_rdef"]["_disabled"] = true;
                             config["renderingsettings"]["submenu"]["paste_rdef"]["_disabled"] = true;
+                            config["renderingsettings"]["submenu"]["owner_rdef"]["_disabled"] = true;
+                            config["renderingsettings"]["submenu"]["reset_rdef"]["_disabled"] = true;
                             if(obj.attr("id").indexOf("image")>=0) {
                                 // ...if it's an image, we can copy settings
                                 config["renderingsettings"]["_disabled"] = false;
@@ -1010,6 +1043,8 @@
                                 if(obj.hasClass('canAnnotate')) {
                                     config["renderingsettings"]["_disabled"] = false;
                                     config["renderingsettings"]["submenu"]["paste_rdef"]["_disabled"] = false;
+                                    config["renderingsettings"]["submenu"]["owner_rdef"]["_disabled"] = false;
+                                    config["renderingsettings"]["submenu"]["reset_rdef"]["_disabled"] = false;
                                 }
                             }
                             

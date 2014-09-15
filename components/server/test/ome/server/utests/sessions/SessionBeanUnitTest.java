@@ -68,14 +68,14 @@ public class SessionBeanUnitTest extends MockObjectTestCase {
     @Test(expectedExceptions = SessionException.class)
     public void testCreateWithNullSessionFailsWithSessionException()
             throws Exception {
-        smMock.expects(once()).method("create").will(
+        smMock.expects(once()).method("createWithAgent").will(
                 throwException(new AuthenticationException("")));
         bean.createSession(principal, "password");
     }
 
     @Test
     public void testCreateSessionPasses() throws Exception {
-        smMock.expects(once()).method("create").will(returnValue(session));
+        smMock.expects(once()).method("createWithAgent").will(returnValue(session));
         assertEquals(session, bean.createSession(principal, "password"));
     }
 

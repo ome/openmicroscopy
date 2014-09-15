@@ -16,14 +16,9 @@
     </encoder>
   </appender>
   <logger name="velocity" level="error"/>
-  <logger name="org" level="info"/>
-  <logger name="ome.adapters" level="error"/>
-  <logger name="ome" level="info"/>
-  <logger name="ome.formats" level="info"/>
+  <logger name="org" level="error"/>
+  <logger name="ome" level="error"/>
   <logger name="loci" level="error"/>
-  <logger name="ome.system" level="warn"/>
-  <!-- Very verbose during testing -->
-  <logger name="ome.services.db.SelfCorrectingDataSource" level="error"/>
   <root level="warn">
     <appender-ref ref="stderr"/>
   </root>

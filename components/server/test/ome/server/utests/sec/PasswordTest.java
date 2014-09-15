@@ -7,13 +7,17 @@
 package ome.server.utests.sec;
 
 import java.io.File;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import ome.api.ILdap;
 import ome.conditions.ApiUsageException;
 import ome.logic.LdapImpl;
+import ome.model.meta.Experimenter;
 import ome.security.auth.ConfigurablePasswordProvider;
 import ome.security.auth.FilePasswordProvider;
 import ome.security.auth.JdbcPasswordProvider;
+import ome.security.auth.LdapConfig;
 import ome.security.auth.LdapPasswordProvider;
 import ome.security.auth.PasswordChangeException;
 import ome.security.auth.PasswordProvider;
@@ -21,7 +25,6 @@ import ome.security.auth.PasswordProviders;
 import ome.security.auth.PasswordUtil;
 import ome.security.auth.PasswordUtility;
 import ome.util.SqlAction;
-import ome.util.checksum.ChecksumProviderFactory;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
@@ -59,6 +62,12 @@ public class PasswordTest extends MockObjectTestCase {
 
     LdapImpl ldap;
 
+    AtomicBoolean validPassword = new AtomicBoolean();
+
+    AtomicReference<String> currentDn = new AtomicReference<String>();
+
+    AtomicReference<Experimenter> createdUser = new AtomicReference<Experimenter>();
+
     protected void initJdbc() {
         mockSql = mock(SqlAction.class);
         sql = (SqlAction) mockSql.proxy();
@@ -68,7 +77,22 @@ public class PasswordTest extends MockObjectTestCase {
         initJdbc();
         mockLdap = mock(ILdap.class);
         // ldap = (ILdap) mockLdap.proxy();
-        ldap = null; // FIXME
+        ldap = new LdapImpl(null, null, null,
+                new LdapConfig(setting, "", "", "", "", "", false, ""), null, sql) {
+            @Override
+            public String findDN(String username) {
+                return currentDn.get();
+            }
+            @Override
+            public boolean validatePassword(String dn, String password) {
+                return validPassword.get();
+            }
+            @Override
+            public Experimenter createUser(String username,
+                    String password, boolean checkPassword) {
+                return createdUser.get();
+            }
+        };
         mockLdap.expects(atLeastOnce()).method("getSetting").will(
                 returnValue(setting));
     }
@@ -97,7 +121,7 @@ public class PasswordTest extends MockObjectTestCase {
     // FILE
 
     public void testFileDefaults() throws Exception {
-        provider = new FilePasswordProvider(null, file);
+        provider = new FilePasswordProvider(new PasswordUtil(sql), file);
         assertTrue(provider.hasPassword("test"));
         assertTrue(provider.checkPassword("test", "test", false));
         assertFalse(provider.checkPassword("unknown", "anything", false));
@@ -128,11 +152,11 @@ public class PasswordTest extends MockObjectTestCase {
         provider.hasPassword("unknown");
         
         String encoded = ((PasswordUtility) provider).encodePassword("test");
-        queryForObjectReturns(encoded);
+        getPasswordHash(encoded);
         userIdReturns1();
         assertTrue(provider.checkPassword("test", "test", false));
 
-        queryForObjectReturns(encoded);
+        getPasswordHash(encoded);
         userIdReturns1();
         assertFalse(provider.checkPassword("test", "GARBAGE", false));
     }
@@ -154,7 +178,7 @@ public class PasswordTest extends MockObjectTestCase {
     public void testJdbcChangesPassword() throws Exception {
         initJdbc();
         userIdReturns1();
-        mockSql.expects(once()).method("update").will(returnValue(1));
+        mockSql.expects(once()).method("setUserPassword").will(returnValue(true));
         provider = new JdbcPasswordProvider(new PasswordUtil(sql));
         provider.changePassword("a", "b");
     }
@@ -174,24 +198,29 @@ public class PasswordTest extends MockObjectTestCase {
         provider = new LdapPasswordProvider(new PasswordUtil(sql), ldap);
 
         String encoded = ((PasswordUtility) provider).encodePassword("test");
-        queryForObjectReturns(encoded);
+        getPasswordHash(encoded);
+        getDn("dn");
         userIdReturns1();
         validateLdapPassword(true);
         assertTrue(provider.checkPassword("test", "test", false));
 
-        queryForObjectReturns(encoded);
+        getPasswordHash(encoded);
         userIdReturns1();
         validateLdapPassword(false);
+        getDn("dn");
         assertFalse(provider.checkPassword("test", "GARBAGE", false));
         
         userIdReturnsNull();
         assertFalse(provider.hasPassword("unknown"));
         
         userIdReturns1();
-        queryForObjectReturns(null);
+        getPasswordHash(null);
+        validateLdapPassword(false);
+        getDn(null);
         assertFalse(provider.hasPassword("no-dn"));
         
-        queryForObjectReturns("dn");
+        getPasswordHash("dn");
+        getDn("dn");
         userIdReturns1();
         assertTrue(provider.hasPassword("dn"));
     }
@@ -431,31 +460,38 @@ public class PasswordTest extends MockObjectTestCase {
     // ~ Helpers
     // =========================================================================
 
-    private void queryForObjectReturns(Object o) {
-        mockSql.expects(once()).method("queryForObject").will(returnValue(o));
+    private void getPasswordHash(String value) {
+        mockSql.expects(once()).method("getPasswordHash").will(returnValue(value));
+    }
+
+    private void getDn(String value) {
+        mockSql.expects(once()).method("dnForUser").will(returnValue(value));
+        currentDn.set(value);
     }
 
     private void userIdReturnsNull() {
-        queryForObjectReturns(null);
+        mockSql.expects(once()).method("getUserId").will(returnValue(null));
     }
 
     private void userIdReturns1() {
-        queryForObjectReturns(new Long(1));
+        mockSql.expects(once()).method("getUserId").will(returnValue(new Long(1)));
     }
 
     private void ldapCreatesUser(boolean andReturns) {
+        Experimenter e = andReturns ? new Experimenter() : null;
+        createdUser.set(e);
         mockLdap.expects(once()).method("createUser").will(
                 returnValue(andReturns));
     }
 
     private void ldapCreatesUserAndThrows() {
+        createdUser.set(null);
         mockLdap.expects(once()).method("createUser").will(
                 throwException(new ApiUsageException("")));
     }
 
     private void validateLdapPassword(boolean v) {
-        mockLdap.expects(once()).method("validatePassword")
-                .will(returnValue(v));
+        validPassword.set(v);
     }
 
     private void assertChangeThrows() {

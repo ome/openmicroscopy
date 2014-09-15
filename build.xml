@@ -222,6 +222,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <iterate buildpathref="tools.buildpath" target="dist"/>
         <!-- Parts of build-dist -->
         <antcall target="copy-licenses" inheritRefs="true" inheritAll="true"/>
+        <antcall target="copy-history" inheritRefs="true" inheritAll="true"/>
         <antcall target="copy-etc" inheritRefs="true" inheritAll="true"/>
         <antcall target="copy-sql" inheritRefs="true" inheritAll="true"/>
         <antcall target="copy-server" inheritRefs="true" inheritAll="true"/>
@@ -655,7 +656,8 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                 windowtitle="OMERO (OME Remote Objects) Server"
                 overview="target/docs/overview.html"
                 stylesheetfile="docs/javadocsstyle.css"
-                useexternalfile="true">
+                useexternalfile="true"
+                additionalparam="${javadoc.doclint}">
 
                 <classpath>
                     <fileset dir="lib">
@@ -780,7 +782,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     Top-level helpers (shared helpers are in components/antlib/resources)
     =====================================================================
     -->
-    <target name="build-dist" depends="init,copy-licenses,copy-etc,copy-sql,copy-server,copy-client,update-version"
+    <target name="build-dist" depends="init,copy-licenses,copy-history,copy-etc,copy-sql,copy-server,copy-client,update-version"
         description="Copy all components to dist/; called at the end of build-* targets"/>
 
     <target name="copy-licenses" depends="init">
@@ -788,6 +790,10 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <copy todir="${dist.dir}">
                 <fileset dir="${omero.home}/lib/" includes="licenses/**"/>
             </copy>
+    </target>
+
+    <target name="copy-history" depends="init">
+            <copy file="${omero.home}/history.txt" todir="${dist.dir}/"/>
     </target>
 
     <target name="copy-etc" depends="init">

@@ -55,8 +55,8 @@ public class TestStandard16BitRendererLUTSizes extends BaseRenderingTest
 		}
 		catch (IndexOutOfBoundsException e) { }
 	}
-	
-	@Test
+
+	@Test(timeOut=30000)
 	public void testRenderAsPackedInt() throws Exception
 	{
 		PlaneDef def = new PlaneDef(PlaneDef.XY, 0);
@@ -64,7 +64,7 @@ public class TestStandard16BitRendererLUTSizes extends BaseRenderingTest
 		{
 			StopWatch stopWatch = 
 				new LoggingStopWatch("testRendererAsPackedInt");
-			int[] renderedPlane = renderer.renderAsPackedInt(def, pixelBuffer);
+			renderer.renderAsPackedInt(def, pixelBuffer);
 			stopWatch.stop();
 		}
 	}

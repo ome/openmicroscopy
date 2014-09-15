@@ -251,12 +251,10 @@ Returns 'true' if worked OK.
     - iid:  Image ID.
 """
 
-reset_image_rdef_json = (r'^resetImgRDef/(?P<iid>[^/]+)/$', 'webgateway.views.reset_image_rdef_json')
+get_image_rdef_json = (r'^getImgRDef/$', 'webgateway.views.get_image_rdef_json')
 """
-Removes user's rendering settings on an image, reverting to settings created on import. 
-See L{views.reset_image_rdef_json}. 
-    - webgateway/resetImgRDef/<iid>/ params are:
-    - iid:  Image ID.
+Gets rendering definition from the 'session' if saved.
+Returns json dict of 'c', 'm', 'z', 't'.
 """
 
 list_compatible_imgs_json = (r'^compatImgRDef/(?P<iid>[^/]+)/$', 'webgateway.views.list_compatible_imgs_json')
@@ -274,9 +272,16 @@ Copy the rendering settings from one image to a list of images, specified in req
 by 'fromid' and list of 'toids'. See L{views.copy_image_rdef_json}
 """
 
-apply_owners_rdef_json = (r'^applyOwnersRDef/$', 'webgateway.views.apply_owners_rdef_json')
+reset_rdef_json = url(r'^resetRDef/$', 'webgateway.views.reset_rdef_json', name="reset_rdef_json")
+"""
+Reset the images within specified objects to their rendering settings at import time"
+Objects defined in request by E.g. totype=dataset&toids=1&toids=2
+"""
+
+reset_owners_rdef_json = url(r'^applyOwnersRDef/$', 'webgateway.views.reset_rdef_json', {'toOwners': True}, name="reset_owners_rdef_json")
 """
 Apply the owner's rendering settings to the specified objects.
+Objects defined in request by E.g. totype=dataset&toids=1&toids=2
 """
 
 webgateway_su = url(r'^su/(?P<user>[^/]+)/$', 'webgateway.views.su', name="webgateway_su")
@@ -327,10 +332,11 @@ urlpatterns = patterns('',
     full_viewer,
     # rendering def methods
     save_image_rdef_json,
-    reset_image_rdef_json,
+    get_image_rdef_json,
     list_compatible_imgs_json,
     copy_image_rdef_json,
-    apply_owners_rdef_json,
+    reset_rdef_json,
+    reset_owners_rdef_json,
     download_as,
     # download archived_files
     archived_files,

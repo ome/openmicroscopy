@@ -36,7 +36,7 @@ import os
 from Glacier2 import PermissionDeniedException
 from getopt import getopt, GetoptError
 from omero.util import get_user
-from stat import *
+from stat import getpass, ST_SIZE
 
 # The directories underneath an OMERO data directory to search for "dangling"
 # files and reconcile with the database. Directory name key and corresponding
@@ -46,6 +46,7 @@ SEARCH_DIRECTORIES = {
     'Files': 'OriginalFile',
     'Thumbnails': 'Thumbnail'
 }
+
 
 def usage(error):
     """
@@ -67,10 +68,12 @@ Examples:
   %s --dry-run -u root /OMERO
 
 Report bugs to OME Users <ome-users@lists.openmicroscopy.org.uk>""" % \
-    (error, cmd, cmd)
+        (error, cmd, cmd)
     sys.exit(2)
 
+
 class Cleanser(object):
+
     """
     Keeps file cleansing state and performs OMERO database reconciliation of
     files within an OMERO binary repository.
@@ -133,8 +136,10 @@ class Cleanser(object):
                     id_part = file_name.split("_")[0]
                     if file_name.endswith(self.PYRAMID_FILE):
                         object_id = omero.rtypes.rlong(long(id_part))
-                    elif file_name.endswith(self.PYRAMID_LOCK) or file_name.endswith(self.PYRAMID_TEMP):
-                        object_id = omero.rtypes.rlong(long(id_part.lstrip('.')))
+                    elif (file_name.endswith(self.PYRAMID_LOCK)
+                            or file_name.endswith(self.PYRAMID_TEMP)):
+                        object_id = omero.rtypes.rlong(
+                            long(id_part.lstrip('.')))
                     else:
                         object_id = omero.rtypes.rlong(-1)
                 except ValueError:
@@ -145,7 +150,7 @@ class Cleanser(object):
         parameters.map = {'ids': omero.rtypes.rlist(object_ids)}
         rows = self.query_service.projection(
             "select o.id from %s as o where o.id in (:ids)" % self.object_type,
-            parameters, {"omero.group":"-1"})
+            parameters, {"omero.group": "-1"})
         existing_ids = [cols[0].val for cols in rows]
 
         for i, object_id in enumerate(object_ids):
@@ -188,8 +193,8 @@ def initial_check(config_service):
     # Compare server versions. See ticket #3123
     #
     if config_service is None:
-        print ("No config service provided! "
-               "Waiting 10 seconds to allow cancellation")
+        print("No config service provided! "
+              "Waiting 10 seconds to allow cancellation")
         from threading import Event
         Event().wait(10)
 
@@ -237,7 +242,7 @@ def fixpyramids(data_dir, query_service, dry_run=False, config_service=None):
                 delete_pyramid = True
                 for lockfile in os.listdir(pixels_dir):
                     if lockfile.startswith("." + f) and \
-                    (lockfile.endswith(".tmp") or
+                        (lockfile.endswith(".tmp") or
                             lockfile.endswith(".pyr_lock")):
                         delete_pyramid = False
                         break
@@ -294,7 +299,6 @@ def main():
         print "%s: Permission denied" % sys.argv[0]
         print "Sorry."
         sys.exit(1)
-
 
     query_service = session.getQueryService()
     config_service = session.getConfigService()

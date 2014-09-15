@@ -10,11 +10,14 @@ package ome.services.pixeldata;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import ome.conditions.InternalException;
 import ome.io.messages.MissingPyramidMessage;
@@ -35,9 +38,9 @@ import ome.system.metrics.Metrics;
 import ome.system.metrics.NullMetrics;
 import ome.system.metrics.Timer;
 
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.hibernate.Session;
 import org.springframework.context.ApplicationListener;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -172,52 +175,87 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
     }
 
     /**
+     * Loads event logs from the {@link PixelDataHandler} processing them
+     * all then in a background thread via a {@link ExecutorCompletionService}.
+     *
+     * {@link #numThreads} variable is also used there, so the value returned
+     * <em>should</em> match. In case it isn't, we additionally use an
+     * {@link ArrayBlockingQueue} to hold the results.
      */
     @Override
     public void doRun() {
         if (performProcessing) {
 
-            // Single-threaded simplification
-            if (numThreads == 1) {
-                go();
-                return;
-            }
-
             final ExecutorCompletionService<Object> ecs =
-                new ExecutorCompletionService<Object>(executor.getService());
+                new ExecutorCompletionService<Object>(executor.getService(),
+                        new ArrayBlockingQueue<Future<Object>>(numThreads));
 
-            for (int i = 0; i < numThreads; i++) {
+            @SuppressWarnings("unchecked")
+            List<EventLog> eventLogs = (List<EventLog>)
+                    executor.execute(getPrincipal(), work);
+
+            for (final EventLog log : eventLogs) {
                 ecs.submit(new Callable<Object>(){
                     @Override
                     public Object call()
                         throws Exception
                     {
-                        return go();
+                        return go(log);
                     }
                 });
             }
 
-            try {
-                for (int i = 0; i < numThreads; i++) {
-                    Future<Object> future = ecs.take();
-                    try {
-                        future.get();
-                    } catch (ExecutionException ee) {
-                        onExecutionException(ee);
+            int count = eventLogs.size();
+            while (count > 0) {
+                try {
+                    Future<Object> future = ecs.poll(500, TimeUnit.MILLISECONDS);
+                    if (future != null && future.get() != null) {
+                        count--;
                     }
+                } catch (ExecutionException ee) {
+                    onExecutionException(ee);
+                } catch (InterruptedException ie) {
+                    log.debug("Interrupted; looping", ie);
                 }
-            } catch (InterruptedException ie) {
-                log.error("Interrupted exception during multiple thread handling." +
-				        "Other threads may not have been successfully completed.",
-                        ie); // slf4j migration: fatal() to error()
             }
         }
     }
 
-    private Object go() {
+    /**
+     * {@link Executor.Work} implementation for the second phase of PixelData
+     * processing. Once the {@link EventLog} instances are available, each
+     * should be passed to a new {@link HandleEventLog} instance and then
+     * processed in a background thread.
+     */
+    private static class HandleEventLog extends Executor.SimpleWork {
+
+        private final PixelDataHandler handler;
+
+        private final EventLog log;
+
+        HandleEventLog(EventLog log, PixelDataHandler handler,
+                Object self, String description, Object...args) {
+            super(self, description, args);
+            this.handler = handler;
+            this.log = log;
+        }
+
+        @Transactional(readOnly=false)
+        @Override
+        public Object doWork(Session session, ServiceFactory sf) {
+            this.handler.handleEventLog(log, session, sf);
+            return null;
+        }
+
+    }
+
+    private Object go(EventLog log) {
         final Timer.Context timer = batchTimer.time();
         try {
-             return executor.execute(getPrincipal(), work);
+             executor.execute(getPrincipal(),
+                     new HandleEventLog(log, (PixelDataHandler) work,
+                             this, "handleEventLog"));
+             return log;
         } finally {
             timer.stop();
         }
@@ -239,6 +277,10 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
         ((PixelDataHandler) this.work).loader.setStop(true);
     }
 
+    /**
+     * Called in the main server (Blitz-0) in order to create a PIXELDATA
+     * {@link EventLog} which will get processed by PixelData-0.
+     */
     public void onApplicationEvent(final MissingPyramidMessage mpm) {
 
         log.info("Received: " + mpm);

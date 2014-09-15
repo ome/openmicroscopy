@@ -169,40 +169,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             return False
     
     ##############################################
-    ##   Forgotten password                     ##
-    
-    def isForgottenPasswordSet(self):
-        """
-        Retrieves a configuration value "omero.resetpassword.config" for
-        Forgotten password form from the backend store.
-        
-        @return:    Boolean
-        """
-        
-        conf = self.getConfigService()
-        try:
-            return bool(conf.getConfigValue("omero.resetpassword.config").title())
-        except:
-            logger.error(traceback.format_exc())
-            return False
-    
-    def reportForgottenPassword(self, username, email):
-        """
-        Allows to reset the password (temporary password is sent). The
-        given email must match the email for the user listed under the name
-        argument.
-        
-        @param username:    omename
-        @type username:     String
-        @param email:       email address
-        @type email:        String
-        
-        """
-        
-        admin_serv = self.getAdminService()
-        admin_serv.reportForgottenPassword(username, email)
-    
-    ##############################################
     ##   IAdmin                                 ##
     
     def isAnythingCreated(self):

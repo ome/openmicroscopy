@@ -1,7 +1,7 @@
     /*
  *   $Id$
  *
- *   Copyright 2006-2013 University of Dundee. All rights reserved.
+ *   Copyright 2006-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -1146,7 +1146,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                             + "to user:"
                             + e.getOmeName()
                             + ". Please turn on the debug "
-                            + "mode in omero.properties by the: omero.resetpassword.mail.debug=true");
+                            + "mode in omero.properties by the: omero.mail.debug=true");
         }
         return true;
     }

@@ -11,17 +11,18 @@
 
 #include <omero/Scripts.h>
 #include <omero/RTypes.h>
+#include <omero/model/RTypes.h>
 #include <Ice/Ice.h>
 #include <IceUtil/Config.h>
 #include <Ice/Handle.h>
 #include <string>
 #include <map>
 
-#ifndef OMERO_API
-#   ifdef OMERO_API_EXPORTS
-#       define OMERO_API ICE_DECLSPEC_EXPORT
+#ifndef OMERO_CLIENT
+#   ifdef OMERO_CLIENT_EXPORTS
+#       define OMERO_CLIENT ICE_DECLSPEC_EXPORT
 #   else
-#       define OMERO_API ICE_DECLSPEC_IMPORT
+#       define OMERO_CLIENT ICE_DECLSPEC_IMPORT
 #   endif
 #endif
 
@@ -42,7 +43,7 @@ namespace omero {
 }
 
 namespace IceInternal {
-  OMERO_API ::Ice::LocalObject* upCast(::omero::rtypes::ObjectFactory*);
+  OMERO_CLIENT ::Ice::LocalObject* upCast(::omero::rtypes::ObjectFactory*);
 }
 
 namespace omero {
@@ -52,33 +53,33 @@ namespace omero {
         // Static factory methods (primitives)
         // =========================================================================
 
-        OMERO_API const omero::RBoolPtr rbool(bool val);
-        OMERO_API const omero::RDoublePtr rdouble(Ice::Double val);
-        OMERO_API const omero::RFloatPtr rfloat(Ice::Float val);
-        OMERO_API const omero::RIntPtr rint(Ice::Int val);
-        OMERO_API const omero::RLongPtr rlong(Ice::Long val);
-        OMERO_API const omero::RTimePtr rtime(Ice::Long val);
+        OMERO_CLIENT const omero::RBoolPtr rbool(bool val);
+        OMERO_CLIENT const omero::RDoublePtr rdouble(Ice::Double val);
+        OMERO_CLIENT const omero::RFloatPtr rfloat(Ice::Float val);
+        OMERO_CLIENT const omero::RIntPtr rint(Ice::Int val);
+        OMERO_CLIENT const omero::RLongPtr rlong(Ice::Long val);
+        OMERO_CLIENT const omero::RTimePtr rtime(Ice::Long val);
 
         // Static factory methods (objects)
         // =========================================================================
 
-        OMERO_API const omero::RInternalPtr rinternal(const omero::InternalPtr& val);
-        OMERO_API const omero::RObjectPtr robject(const omero::model::IObjectPtr& val);
-        OMERO_API const omero::RClassPtr rclass(const std::string& val);
-        OMERO_API const omero::RStringPtr rstring(const std::string& val);
+        OMERO_CLIENT const omero::RInternalPtr rinternal(const omero::InternalPtr& val);
+        OMERO_CLIENT const omero::RObjectPtr robject(const omero::model::IObjectPtr& val);
+        OMERO_CLIENT const omero::RClassPtr rclass(const std::string& val);
+        OMERO_CLIENT const omero::RStringPtr rstring(const std::string& val);
 
         // Static factory methods (collections)
         // =========================================================================
 
-        OMERO_API const omero::RArrayPtr rarray();
-        OMERO_API const omero::RListPtr rlist();
-        OMERO_API const omero::RSetPtr rset();
-        OMERO_API const omero::RMapPtr rmap();
+        OMERO_CLIENT const omero::RArrayPtr rarray();
+        OMERO_CLIENT const omero::RListPtr rlist();
+        OMERO_CLIENT const omero::RSetPtr rset();
+        OMERO_CLIENT const omero::RMapPtr rmap();
 
         // Implementations (primitives)
         // =========================================================================
 
-        class OMERO_API RBoolI : virtual public omero::RBool {
+        class OMERO_CLIENT RBoolI : virtual public omero::RBool {
         protected:
             virtual ~RBoolI(); // protected as outlined in Ice Docs
         public:
@@ -86,14 +87,17 @@ namespace omero {
             virtual bool getValue(const Ice::Current& current = Ice::Current());
             virtual Ice::Int compare(const RTypePtr& rhs, const Ice::Current& current = Ice::Current());
         };
+        OMERO_CLIENT
         bool operator<(const RBoolPtr& lhs,
                        const RBoolPtr& rhs);
+        OMERO_CLIENT
         bool operator>(const RBoolPtr& lhs,
                        const RBoolPtr& rhs);
+        OMERO_CLIENT
         bool operator==(const RBoolPtr& lhs,
                         const RBoolPtr& rhs);
 
-        class OMERO_API RDoubleI : virtual public omero::RDouble {
+        class OMERO_CLIENT RDoubleI : virtual public omero::RDouble {
         protected:
             virtual ~RDoubleI(); // as above
         public:
@@ -101,14 +105,17 @@ namespace omero {
             virtual Ice::Double getValue(const Ice::Current& current = Ice::Current());
             virtual Ice::Int compare(const RTypePtr& rhs, const Ice::Current& current = Ice::Current());
         };
+        OMERO_CLIENT
         bool operator<(const RDoublePtr& lhs,
                        const RDoublePtr& rhs);
+        OMERO_CLIENT
         bool operator>(const RDoublePtr& lhs,
                        const RDoublePtr& rhs);
+        OMERO_CLIENT
         bool operator==(const RDoublePtr& lhs,
                         const RDoublePtr& rhs);
 
-        class OMERO_API RFloatI : virtual public omero::RFloat {
+        class OMERO_CLIENT RFloatI : virtual public omero::RFloat {
         protected:
             virtual ~RFloatI(); // as above
         public:
@@ -116,14 +123,17 @@ namespace omero {
             virtual Ice::Float getValue(const Ice::Current& current = Ice::Current());
             virtual Ice::Int compare(const RTypePtr& rhs, const Ice::Current& current = Ice::Current());
         };
+        OMERO_CLIENT
         bool operator<(const RFloatPtr& lhs,
                        const RFloatPtr& rhs);
+        OMERO_CLIENT
         bool operator>(const RFloatPtr& lhs,
                        const RFloatPtr& rhs);
+        OMERO_CLIENT
         bool operator==(const RFloatPtr& lhs,
                         const RFloatPtr& rhs);
 
-        class OMERO_API RIntI : virtual public omero::RInt {
+        class OMERO_CLIENT RIntI : virtual public omero::RInt {
         protected:
             virtual ~RIntI(); // as above
         public:
@@ -131,14 +141,17 @@ namespace omero {
             virtual Ice::Int getValue(const Ice::Current& current = Ice::Current());
             virtual Ice::Int compare(const RTypePtr& rhs, const Ice::Current& current = Ice::Current());
         };
+        OMERO_CLIENT
         bool operator<(const RIntPtr& lhs,
                        const RIntPtr& rhs);
+        OMERO_CLIENT
         bool operator>(const RIntPtr& lhs,
                        const RIntPtr& rhs);
+        OMERO_CLIENT
         bool operator==(const RIntPtr& lhs,
                         const RIntPtr& rhs);
 
-        class OMERO_API RLongI : virtual public omero::RLong {
+        class OMERO_CLIENT RLongI : virtual public omero::RLong {
         protected:
             virtual ~RLongI(); // as above
         public:
@@ -146,14 +159,17 @@ namespace omero {
             virtual Ice::Long getValue(const Ice::Current& current = Ice::Current());
             virtual Ice::Int compare(const RTypePtr& rhs, const Ice::Current& current = Ice::Current());
         };
+        OMERO_CLIENT
         bool operator<(const RLongPtr& lhs,
                        const RLongPtr& rhs);
+        OMERO_CLIENT
         bool operator>(const RLongPtr& lhs,
                        const RLongPtr& rhs);
+        OMERO_CLIENT
         bool operator==(const RLongPtr& lhs,
                         const RLongPtr& rhs);
 
-        class OMERO_API RTimeI : virtual public omero::RTime {
+        class OMERO_CLIENT RTimeI : virtual public omero::RTime {
         protected:
             virtual ~RTimeI(); // as above
         public:
@@ -161,17 +177,20 @@ namespace omero {
             virtual Ice::Long getValue(const Ice::Current& current = Ice::Current());
             virtual Ice::Int compare(const RTypePtr& rhs, const Ice::Current& current = Ice::Current());
         };
+        OMERO_CLIENT
         bool operator<(const RTimePtr& lhs,
                        const RTimePtr& rhs);
+        OMERO_CLIENT
         bool operator>(const RTimePtr& lhs,
                        const RTimePtr& rhs);
+        OMERO_CLIENT
         bool operator==(const RTimePtr& lhs,
                         const RTimePtr& rhs);
 
         // Implementations (objects)
         // =========================================================================
 
-        class OMERO_API RInternalI : virtual public omero::RInternal {
+        class OMERO_CLIENT RInternalI : virtual public omero::RInternal {
         protected:
             virtual ~RInternalI(); // as above
         public:
@@ -180,7 +199,7 @@ namespace omero {
             virtual Ice::Int compare(const RTypePtr& rhs, const Ice::Current& current = Ice::Current());
         };
 
-        class OMERO_API RObjectI : virtual public omero::RObject {
+        class OMERO_CLIENT RObjectI : virtual public omero::RObject {
         protected:
             virtual ~RObjectI(); // as above
         public:
@@ -189,7 +208,7 @@ namespace omero {
             virtual Ice::Int compare(const RTypePtr& rhs, const Ice::Current& current = Ice::Current());
         };
 
-        class OMERO_API RStringI : virtual public omero::RString {
+        class OMERO_CLIENT RStringI : virtual public omero::RString {
         protected:
             virtual ~RStringI(); // as above
         public:
@@ -197,14 +216,17 @@ namespace omero {
             virtual std::string getValue(const Ice::Current& current = Ice::Current());
             virtual Ice::Int compare(const RTypePtr& rhs, const Ice::Current& current = Ice::Current());
         };
+        OMERO_CLIENT
         bool operator<(const RStringPtr& lhs,
                        const RStringPtr& rhs);
+        OMERO_CLIENT
         bool operator>(const RStringPtr& lhs,
                        const RStringPtr& rhs);
+        OMERO_CLIENT
         bool operator==(const RStringPtr& lhs,
                         const RStringPtr& rhs);
 
-        class OMERO_API RClassI : virtual public omero::RClass {
+        class OMERO_CLIENT RClassI : virtual public omero::RClass {
         protected:
             virtual ~RClassI(); // as above
         public:
@@ -216,17 +238,20 @@ namespace omero {
         // Implementations (collections)
         // =========================================================================
 
+        OMERO_CLIENT
         bool operator<(const RTypeSeq& lhs,
                        const RTypeSeq& rhs);
+        OMERO_CLIENT
         bool operator>(const RTypeSeq& lhs,
                        const RTypeSeq& rhs);
+        OMERO_CLIENT
         bool operator==(const RTypeSeq& lhs,
                         const RTypeSeq& rhs);
 
         /**
          * Guaranteed to never contain an empty list.
          */
-        class OMERO_API RArrayI : virtual public omero::RArray {
+        class OMERO_CLIENT RArrayI : virtual public omero::RArray {
         protected:
             virtual ~RArrayI(); // as above
         public:
@@ -240,17 +265,20 @@ namespace omero {
             virtual void add(const omero::RTypePtr& val, const Ice::Current& current = Ice::Current());
             virtual void addAll(const omero::RTypeSeq& values, const Ice::Current& current = Ice::Current());
         };
+        OMERO_CLIENT
         bool operator<(const RArrayPtr& lhs,
                        const RArrayPtr& rhs);
+        OMERO_CLIENT
         bool operator>(const RArrayPtr& lhs,
                        const RArrayPtr& rhs);
+        OMERO_CLIENT
         bool operator==(const RArrayPtr& lhs,
                         const RArrayPtr& rhs);
 
         /**
          * Guaranteed to never contain an empty list.
          */
-        class OMERO_API RListI : virtual public omero::RList {
+        class OMERO_CLIENT RListI : virtual public omero::RList {
         protected:
             virtual ~RListI(); // as above
         public:
@@ -264,17 +292,20 @@ namespace omero {
             virtual void add(const omero::RTypePtr& val, const Ice::Current& current = Ice::Current());
             virtual void addAll(const omero::RTypeSeq& values, const Ice::Current& current = Ice::Current());
         };
+        OMERO_CLIENT
         bool operator<(const RListPtr& lhs,
                        const RListPtr& rhs);
+        OMERO_CLIENT
         bool operator>(const RListPtr& lhs,
                        const RListPtr& rhs);
+        OMERO_CLIENT
         bool operator==(const RListPtr& lhs,
                         const RListPtr& rhs);
 
         /**
          * Guaranteed to never contain an empty list.
          */
-        class OMERO_API RSetI : virtual public omero::RSet {
+        class OMERO_CLIENT RSetI : virtual public omero::RSet {
         protected:
             virtual ~RSetI(); // as above
         public:
@@ -288,14 +319,17 @@ namespace omero {
             virtual void add(const omero::RTypePtr& val, const Ice::Current& current = Ice::Current());
             virtual void addAll(const omero::RTypeSeq& values, const Ice::Current& current = Ice::Current());
         };
+        OMERO_CLIENT
         bool operator<(const RSetPtr& lhs,
                        const RSetPtr& rhs);
+        OMERO_CLIENT
         bool operator>(const RSetPtr& lhs,
                        const RSetPtr& rhs);
+        OMERO_CLIENT
         bool operator==(const RSetPtr& lhs,
                         const RSetPtr& rhs);
 
-        class OMERO_API RMapI : virtual public omero::RMap {
+        class OMERO_CLIENT RMapI : virtual public omero::RMap {
         protected:
             virtual ~RMapI(); // as above
         public:
@@ -328,7 +362,7 @@ namespace omero {
         // Object factories
         // =========================================================================
 
-        OMERO_API void registerObjectFactory(const Ice::CommunicatorPtr ic);
+        OMERO_CLIENT void registerObjectFactory(const Ice::CommunicatorPtr ic);
 
     }
 

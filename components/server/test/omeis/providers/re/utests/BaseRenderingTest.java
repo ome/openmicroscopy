@@ -49,7 +49,7 @@ public class BaseRenderingTest extends TestCase
 	
 	protected QuantumFactory quantumFactory;
 	
-	public static final int RUN_COUNT = 25;
+	public static final int RUN_COUNT = 10;
 	
 	// Configurables
 	

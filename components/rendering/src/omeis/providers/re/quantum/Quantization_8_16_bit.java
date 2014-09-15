@@ -114,7 +114,7 @@ public class Quantization_8_16_bit extends QuantumStrategy {
         	// cause the server to throw a java.lang.OutOfMemory exception.
         	// *** Ticket #1353 -- Chris Allan <callan@blackcat.ca> ***
         	throw new IllegalArgumentException(String.format(
-        			"Lookup table of size %d greater than supported size %d",
+        			"Lookup table of size %d greater than supported size %f",
         			range, MAX_SIZE_LUT));
         }
         LUT = new byte[lutMax-lutMin+1];

@@ -9,7 +9,8 @@
 #ifndef CLASS_PERMISSIONS
 #define CLASS_PERMISSIONS
 
-#include <omero/model/IObject.ice>
+#include <omero/RTypes.ice>
+#include <omero/ModelF.ice>
 #include <omero/Collections.ice>
 
 module omero {

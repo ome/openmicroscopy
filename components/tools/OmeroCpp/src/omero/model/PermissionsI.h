@@ -17,11 +17,11 @@
 #include <string>
 #include <vector>
 
-#ifndef OMERO_API
-#   ifdef OMERO_API_EXPORTS
-#       define OMERO_API ICE_DECLSPEC_EXPORT
+#ifndef OMERO_CLIENT
+#   ifdef OMERO_CLIENT_EXPORTS
+#       define OMERO_CLIENT ICE_DECLSPEC_EXPORT
 #   else
-#       define OMERO_API ICE_DECLSPEC_IMPORT
+#       define OMERO_CLIENT ICE_DECLSPEC_IMPORT
 #   endif
 #endif
 
@@ -32,7 +32,7 @@ namespace omero {
 }
 
 namespace IceInternal {
-  OMERO_API ::Ice::Object* upCast(::omero::model::PermissionsI*);
+  OMERO_CLIENT ::Ice::Object* upCast(::omero::model::PermissionsI*);
 }
 
 namespace omero {
@@ -51,7 +51,7 @@ namespace omero {
 
   typedef IceInternal::Handle<PermissionsI> PermissionsIPtr;
 
-class OMERO_API PermissionsI : virtual public Permissions {
+class OMERO_CLIENT PermissionsI : virtual public Permissions {
 
 protected:
     virtual ~PermissionsI(); // protected as outlined in Ice docs.

@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2008-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -14,6 +14,7 @@ import ome.api.ILdap;
 import ome.services.blitz.util.BlitzExecutor;
 import omero.ServerError;
 import omero.api.AMD_ILdap_createUser;
+import omero.api.AMD_ILdap_discover;
 import omero.api.AMD_ILdap_findDN;
 import omero.api.AMD_ILdap_findExperimenter;
 import omero.api.AMD_ILdap_getSetting;
@@ -107,5 +108,10 @@ public class LdapI extends AbstractAmdServant implements _ILdapOperations {
     public void createUser_async(AMD_ILdap_createUser __cb,
             String username, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, username);
+    }
+
+    public void discover_async(AMD_ILdap_discover __cb, Current __current)
+            throws ServerError {
+        callInvokerOnRawArgs(__cb, __current);
     }
 }

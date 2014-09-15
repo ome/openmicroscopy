@@ -4,9 +4,9 @@ objectClass: top
 ou: People
 
 dn: uid=testuid,ou=People,dc=nonCn,dc=eg
-cn: test1
+cn: nonCn
 givenName: Testy
 sn: Tester
-uid: testuid
+uid: nonCn
 objectClass: person
 userPassword: password

@@ -867,7 +867,26 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None, **kwa
     if c_type == "well":
         manager.image = manager.well.getImage(index)
 
+    rdefs = manager.image.getAllRenderingDefs()
+    # format into rdef strings, E.g. {c: '1|3118:35825$FF0000,2|2086:18975$FFFF00', m: 'c'}
+    rdefQueries = []
+    for r in rdefs:
+        chs = []
+        for i, c in enumerate(r['c']):
+            act = "-"
+            if c['active']:
+                act = ""
+            chs.append('%s%s|%d:%d$%s' % (act, i+1, c['start'], c['end'], c['color']))
+        rdefQueries.append({
+            'id': r['id'],
+            'owner': r['owner'],
+            'c': ",".join(chs),
+            'm': r['model'] == 'greyscale' and 'g' or 'c'
+            })
+
     context = {'manager':manager, 'share_id':share_id}
+    context['rdefsJson'] = json.dumps(rdefQueries)
+    context['rdefs'] = rdefs
     context['template'] = "webclient/annotations/metadata_preview.html"
     return context
 
@@ -1112,8 +1131,12 @@ def batch_annotate(request, conn=None, **kwargs):
     batchAnns = manager.loadBatchAnnotations(objs)
     figScripts = manager.listFigureScripts(objs)
     filesetInfo = None
+    iids = []
+    if 'well' in objs and len(objs['well']) > 0:
+        iids = [w.getWellSample(index).image().getId() for w in objs['well']]
     if 'image' in objs and len(objs['image']) > 0:
         iids = [i.getId() for i in objs['image']]
+    if len(iids) > 0:
         filesetInfo = conn.getFilesetFilesInfo(iids)
         archivedInfo = conn.getArchivedFilesInfo(iids)
         filesetInfo['count'] += archivedInfo['count']
@@ -1135,9 +1158,11 @@ def batch_annotate(request, conn=None, **kwargs):
 
     context = {'form_comment':form_comment, 'obj_string':obj_string, 'link_string': link_string,
             'obj_labels': obj_labels, 'batchAnns': batchAnns, 'batch_ann':True, 'index': index,
-            'figScripts':figScripts, 'filesetInfo': filesetInfo, 'annotationBlocked': annotationBlocked}
+            'figScripts':figScripts, 'filesetInfo': filesetInfo, 'annotationBlocked': annotationBlocked,
+            'differentGroups':False}
     if len(groupIds) > 1:
         context['annotationBlocked'] = "Can't add annotations because objects are in different groups"
+        context['differentGroups'] = True       # E.g. don't run scripts etc
     context['template'] = "webclient/annotations/batch_annotate.html"
     context['webclient_path'] = request.build_absolute_uri(reverse('webindex'))
     return context
@@ -1906,6 +1931,8 @@ def download_placeholder(request):
     download_url = download_url + "?" + query
     if format is not None:
         download_url = download_url + "&format=%s" % format
+    if request.REQUEST.get('index'):
+        download_url = download_url + "&index=%s" % request.REQUEST.get('index')
 
     context = {
             'template': "webclient/annotations/download_placeholder.html",
@@ -2578,7 +2605,7 @@ def script_ui(request, scriptId, conn=None, **kwargs):
     return {'template':'webclient/scripts/script_ui.html', 'paramData': paramData, 'scriptId': scriptId}
 
 
-@login_required(setGroupContext=True)       # group ctx used for getting Tags etc.
+@login_required()
 @render_response()
 def figure_script(request, scriptName, conn=None, **kwargs):
     """
@@ -2598,6 +2625,10 @@ def figure_script(request, scriptName, conn=None, **kwargs):
         filteredIds = [iid for iid in ints if iid in validObjs.keys()]
         if len(filteredIds) == 0:
             raise Http404("No %ss found with IDs %s" % (dtype, ids))
+        else:
+            # Now we can specify group context - All should be same group
+            gid = validObjs.values()[0].getDetails().group.id.val
+            conn.SERVICE_OPTS.setOmeroGroup(gid)
         return filteredIds, validObjs
 
     context = {}
@@ -2864,12 +2895,25 @@ def script_run(request, scriptId, conn=None, **kwargs):
                     logger.debug("Invalid entry for '%s' : %s" % (key, value))
                     continue
 
+    # If we have objects specified via 'IDs' and 'DataType', try to pick correct group
+    if 'IDs' in inputMap.keys() and 'Data_Type' in inputMap.keys():
+        gid = conn.SERVICE_OPTS.getOmeroGroup()
+        conn.SERVICE_OPTS.setOmeroGroup('-1')
+        try:
+            firstObj = conn.getObject(inputMap['Data_Type'].val, unwrap(inputMap['IDs'])[0])
+            newGid = firstObj.getDetails().group.id.val
+            conn.SERVICE_OPTS.setOmeroGroup(newGid)
+        except Exception, x:
+            logger.debug(traceback.format_exc())
+            # if inputMap values not as expected or firstObj is None
+            conn.SERVICE_OPTS.setOmeroGroup(gid)
+
     logger.debug("Running script %s with params %s" % (scriptName, inputMap))
     rsp = run_script(request, conn, sId, inputMap, scriptName)
     return HttpJsonResponse(rsp)
 
 
-@login_required(setGroupContext=True)
+@login_required()
 def ome_tiff_script(request, imageId, conn=None, **kwargs):
     """
     Uses the scripting service (Batch Image Export script) to generate OME-TIFF for an
@@ -2882,6 +2926,10 @@ def ome_tiff_script(request, imageId, conn=None, **kwargs):
     scriptService = conn.getScriptService()
     sId = scriptService.getScriptID("/omero/export_scripts/Batch_Image_Export.py")
 
+    image = conn.getObject("Image", imageId)
+    if image is not None:
+        gid = image.getDetails().group.id.val
+        conn.SERVICE_OPTS.setOmeroGroup(gid)
     imageIds = [long(imageId)]
     inputMap = {'Data_Type': wrap('Image'), 'IDs': wrap(imageIds)}
     inputMap['Format'] = wrap('OME-TIFF')

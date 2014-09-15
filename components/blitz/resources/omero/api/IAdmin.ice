@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2010-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  *
  */
@@ -97,6 +97,7 @@ module omero {
                 idempotent void changeUserPassword(string omeName, omero::RString newPassword) throws ServerError;
                 idempotent void synchronizeLoginCache() throws ServerError;
                 void changeExpiredCredentials(string name, string oldCred, string newCred) throws ServerError;
+                ["deprecated:reportForgottenPassword() is deprecated. use omero::cmd::ResetPasswordRequest() instead."]
                 void reportForgottenPassword(string name, string email) throws ServerError;
 
                 // Security Context

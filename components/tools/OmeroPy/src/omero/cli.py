@@ -16,7 +16,7 @@ arguments, sys.argv, and finally from standard-in using the
 cmd.Cmd.cmdloop method.
 
 Josh Moore, josh at glencoesoftware.com
-Copyright (c) 2007, Glencoe Software, Inc.
+Copyright (c) 2007-2014, Glencoe Software, Inc.
 See LICENSE for details.
 
 """
@@ -151,6 +151,7 @@ class Parser(ArgumentParser):
         self._positionals.title = "Positional Arguments"
         self._optionals.title = "Optional Arguments"
         self._optionals.description = "In addition to any higher level options"
+        self._sort_args = True
 
     def sub(self):
         return self.add_subparsers(title = "Subcommands", description = OMEROSUBS, metavar = OMEROSUBM)
@@ -201,11 +202,16 @@ class Parser(ArgumentParser):
             help="Quiet mode. Causes most warning and diagnostic messages to "
             "be suppressed.")
 
+    def set_args_unsorted(self):
+        self._sort_args = False
+
     def _check_value(self, action, value):
         # converted value must be one of the choices (if specified)
         if action.choices is not None and value not in action.choices:
             msg = 'invalid choice: %r\n\nchoose from:\n' % value
-            choices = sorted(action.choices)
+            choices = list(action.choices)
+            if self._sort_args:
+                choices = sorted(choices)
             msg += self._format_list(choices)
             raise ArgumentError(action, msg)
 
@@ -713,7 +719,8 @@ class BaseControl(object):
         if p.exists() and p.isdir():
             if not f.endswith(os.sep):
                 return [p.basename()+os.sep]
-            return [ str(x)[len(f):] for x in p.listdir() ]
+            return [str(x)[len(f):] for x in p.listdir(
+                unreadable_as_empty=True)]
         else:
             results = [ str(x.basename()) for x in dir.glob(f+"*")  ]
             if len(results) == 1:
@@ -837,7 +844,8 @@ class CLI(cmd.Cmd, Context):
                     self.ctx.out(os.getcwd())
         class LS(BaseControl):
             def __call__(self, args):
-                for p in sorted(path(os.getcwd()).listdir()):
+                for p in sorted(path(os.getcwd()).listdir(
+                    unreadable_as_empty=True)):
                     self.ctx.out(str(p.basename()))
         class CD(BaseControl):
             def _complete(self, text, line, begidx, endidx):

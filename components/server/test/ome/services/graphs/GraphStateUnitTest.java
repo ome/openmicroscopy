@@ -28,7 +28,6 @@ import ome.util.SqlAction;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.engine.LoadQueryInfluencers;
 import org.jmock.Mock;
 import org.jmock.core.Invocation;
 import org.jmock.core.Stub;
@@ -43,7 +42,7 @@ import org.testng.annotations.Test;
  *
  * @see ticket:3628
  */
-@Test
+@Test(groups = "broken")
 public class GraphStateUnitTest extends MockGraphTest {
 
     private Mock sessionMock;

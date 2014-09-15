@@ -81,6 +81,7 @@ DECLARATION BLOCK:
 
 [$ice] \#include <omero/model/IObject.ice>
 [$ice] \#include <omero/RTypes.ice>
+[$ice] \#include <omero/model/RTypes.ice>
 [$ice] \#include <omero/System.ice>
 [$ice] \#include <omero/Collections.ice>
 #if( $type.superclass )
@@ -88,6 +89,7 @@ DECLARATION BLOCK:
 [$ice] \#include <omero/model/${parent}.ice>
 #end
 [$hdr] \#include <omero/RTypes.h>
+[$hdr] \#include <omero/model/RTypes.h>
 [$hdr] \#include <omero/ClientErrors.h>
 [$hdr] \#include <omero/model/IObject.h>
 [$hdr] \#include <omero/model/DetailsI.h>
@@ -100,15 +102,15 @@ DECLARATION BLOCK:
 [$hdr] #   include <IceUtil/Handle.h>
 [$hdr] #endif
 
-[$hdr] #ifndef OMERO_API
-[$hdr] #   ifdef OMERO_API_EXPORTS
-[$hdr] #       define OMERO_API ICE_DECLSPEC_EXPORT
+[$hdr] #ifndef OMERO_CLIENT
+[$hdr] #   ifdef OMERO_CLIENT_EXPORTS
+[$hdr] #       define OMERO_CLIENT ICE_DECLSPEC_EXPORT
 [$hdr] #   else
-[$hdr] #       define OMERO_API ICE_DECLSPEC_IMPORT
+[$hdr] #       define OMERO_CLIENT ICE_DECLSPEC_IMPORT
 [$hdr] #   endif
 [$hdr] #endif
-[$cpp] #ifndef OMERO_API_EXPORTS
-[$cpp] #   define OMERO_API_EXPORTS
+[$cpp] #ifndef OMERO_CLIENT_EXPORTS
+[$cpp] #   define OMERO_CLIENT_EXPORTS
 [$cpp] #endif
 
 [$ice] module omero {
@@ -206,12 +208,12 @@ Note how the whitespace for the python definitions is important.
 [$pyc]       )  # end _field_info
 [$hdr] namespace omero {
 [$hdr]   namespace model {
-[$hdr]     class OMERO_API ${PojoI};
+[$hdr]     class OMERO_CLIENT ${PojoI};
 [$hdr]   }
 [$hdr] }
 [$hdr] \#if ICE_INT_VERSION / 100 >= 304
 [$hdr] namespace IceInternal {
-[$hdr]   OMERO_API ::Ice::Object* upCast(::omero::model::${PojoI}*);
+[$hdr]   OMERO_CLIENT ::Ice::Object* upCast(::omero::model::${PojoI}*);
 [$hdr] }
 [$hdr] #endif
 [$hdr] namespace omero {
@@ -221,7 +223,7 @@ Note how the whitespace for the python definitions is important.
 [$hdr] \#else
 [$hdr]   typedef IceUtil::Handle<${PojoI}> ${PojoI}Ptr;
 [$hdr] #endif
-[$hdr]     class OMERO_API ${PojoI} : virtual public ${Pojo} {
+[$hdr]     class OMERO_CLIENT ${PojoI} : virtual public ${Pojo} {
 
 [$cpp] \#include <omero/model/${Pojo}I.h>
 [$cpp] \#include <omero/RTypesI.h>

@@ -37,6 +37,8 @@
 add_executable(region Main.cpp)
 target_link_libraries(region omero-client)
 
+set_property(TARGET region PROPERTY FOLDER "Examples")
+
 install(TARGETS region
         RUNTIME
         DESTINATION "${omero_exampledir}"

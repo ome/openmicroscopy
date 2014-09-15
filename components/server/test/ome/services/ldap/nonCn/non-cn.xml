@@ -23,7 +23,7 @@
     </bean>
 
     <util:map id="good">
-      <entry key="testuid">
+      <entry key="nonCn">
         <util:list><value>ldap</value></util:list>
       </entry>
     </util:map>

@@ -13,8 +13,6 @@ import sys
 import atexit
 import logging
 import tempfile
-import threading
-import traceback
 import portalocker
 
 from path import path
@@ -31,7 +29,9 @@ if "DEBUG" in os.environ:
 #  - plugin for counting sizes, etc.
 #  - decorator
 
+
 class TempFileManager(object):
+
     """
     Creates temporary files and folders and makes a best effort
     to remove them on exit (or sooner). Typically only a single
@@ -39,17 +39,18 @@ class TempFileManager(object):
     module below)
     """
 
-    def __init__(self, prefix = "omero"):
+    def __init__(self, prefix="omero"):
         """
         Initializes a TempFileManager instance with a userDir containing
         the given prefix value, or "omero" by default. Also registers
         an atexit callback to call self.cleanup() on exit.
         """
         self.logger = logging.getLogger("omero.util.TempFileManager")
-        self.is_win32 = ( sys.platform == "win32" )
+        self.is_win32 = (sys.platform == "win32")
         self.prefix = prefix
 
-        self.userdir = self.tmpdir() / ("%s_%s" % (self.prefix, self.username()))
+        self.userdir = self.tmpdir() / ("%s_%s" %
+                                        (self.prefix, self.username()))
         """
         User-accessible directory of the form $TMPDIR/omero_$USERNAME.
         If the given directory is not writable, an attempt is made
@@ -62,7 +63,8 @@ class TempFileManager(object):
                 if self.create(t) or self.access(t):
                     self.userdir = t
                     break
-            raise Exception("Failed to create temporary directory: %s" % self.userdir)
+            raise Exception(
+                "Failed to create temporary directory: %s" % self.userdir)
         self.dir = self.userdir / self.pid()
         """
         Directory under which all temporary files and folders will be created.
@@ -85,7 +87,8 @@ class TempFileManager(object):
             cleaning up this directory.
             """
             try:
-                portalocker.lock(self.lock, portalocker.LOCK_EX|portalocker.LOCK_NB)
+                portalocker.lock(
+                    self.lock, portalocker.LOCK_EX | portalocker.LOCK_NB)
                 atexit.register(self.cleanup)
             except:
                 lock = self.lock
@@ -98,7 +101,7 @@ class TempFileManager(object):
                 if not self.lock:
                     self.cleanup()
             except:
-                self.logger.warn("Error on cleanup after error", exc_info = True)
+                self.logger.warn("Error on cleanup after error", exc_info=True)
 
     def cleanup(self):
         """
@@ -108,9 +111,9 @@ class TempFileManager(object):
         """
         try:
             if self.lock:
-                self.lock.close() # Allow others access
+                self.lock.close()  # Allow others access
         except:
-            self.logger.error("Failed to release lock", exc_info = True)
+            self.logger.error("Failed to release lock", exc_info=True)
         self.clean_tempdir()
 
     def tmpdir(self):
@@ -133,7 +136,7 @@ class TempFileManager(object):
         try:
             homeprop = get_user_dir()
         except:
-            pass # ticket:3194, ticket:5583
+            pass  # ticket:3194, ticket:5583
         tempprop = tempfile.gettempdir()
         targets = [omerotemp, homeprop, tempprop]
 
@@ -154,18 +157,22 @@ class TempFileManager(object):
                 # 2805
                 omero_dir = path(target) / "omero"
                 if omero_dir.exists() and not omero_dir.isdir():
-                    self.logger.debug(""""omero" is not a directory: %s""" % omero_dir)
+                    self.logger.debug(
+                        """"omero" is not a directory: %s""" % omero_dir)
                     continue
                 tmp_dir = omero_dir / "tmp"
                 if tmp_dir.exists() and not tmp_dir.isdir():
-                    self.logger.debug(""""tmp" is not a directory: %s""" % tmp_dir)
+                    self.logger.debug(
+                        """"tmp" is not a directory: %s""" % tmp_dir)
                     continue
 
                 try:
 
-                    name = self.mkstemp(prefix=".lock_test", suffix=".tmp", dir=target)
+                    name = self.mkstemp(
+                        prefix=".lock_test", suffix=".tmp", dir=target)
                     locktest = open(name, "a+")
-                    portalocker.lock(locktest, portalocker.LOCK_EX|portalocker.LOCK_NB)
+                    portalocker.lock(
+                        locktest, portalocker.LOCK_EX | portalocker.LOCK_NB)
                     locktest.close()
                     locktest = None
                     choice = target
@@ -175,14 +182,15 @@ class TempFileManager(object):
                         try:
                             locktest.close()
                         except:
-                            self.logger.warn("Failed to close locktest: %s", name, exc_info = True)
+                            self.logger.warn(
+                                "Failed to close locktest: %s",
+                                name, exc_info=True)
 
                     if name is not None:
                         try:
                             os.remove(name)
                         except:
                             self.logger.debug("Failed os.remove(%s)", name)
-
 
             except Exception, e:
                 if "Operation not permitted" in str(e) or \
@@ -193,7 +201,8 @@ class TempFileManager(object):
                     # here.
                     self.logger.debug("%s does not support locking.", target)
                 else:
-                    self.logger.warn("Invalid tmp dir: %s" % target, exc_info = True)
+                    self.logger.warn("Invalid tmp dir: %s" %
+                                     target, exc_info=True)
 
         if choice is None:
             raise Exception("Could not find lockable tmp dir")
@@ -221,8 +230,8 @@ class TempFileManager(object):
 
     def create(self, dir):
         """
-        If the given directory doesn't exist, creates it (with mode 0700) and returns True.
-        Otherwise False.
+        If the given directory doesn't exist, creates it (with mode 0700)
+        and returns True. Otherwise False.
         """
         dir = path(dir)
         if not dir.exists():
@@ -237,13 +246,14 @@ class TempFileManager(object):
         """
         return self.dir
 
-    def mkstemp(self, prefix, suffix, dir, text = False):
+    def mkstemp(self, prefix, suffix, dir, text=False):
         """
         Similar to tempfile.mkstemp name but immediately closes
         the file descriptor returned and passes back just the name.
         This prevents various Windows issues.
         """
-        fd, name = tempfile.mkstemp(prefix = prefix, suffix = suffix, dir = dir, text = text)
+        fd, name = tempfile.mkstemp(
+            prefix=prefix, suffix=suffix, dir=dir, text=text)
         self.logger.debug("Added file %s", name)
         try:
             os.close(fd)
@@ -251,14 +261,14 @@ class TempFileManager(object):
             self.logger.warn("Failed to close fd %s" % fd)
         return name
 
-    def create_path(self, prefix, suffix, folder = False, text = False, mode = "r+"):
+    def create_path(self, prefix, suffix, folder=False, text=False, mode="r+"):
         """
         Uses tempfile.mkdtemp and tempfile.mkstemp to create temporary
         folders and files, respectively, under self.dir
         """
 
         if folder:
-            name = tempfile.mkdtemp(prefix = prefix, suffix = suffix, dir = self.dir)
+            name = tempfile.mkdtemp(prefix=prefix, suffix=suffix, dir=self.dir)
             self.logger.debug("Added folder %s", name)
         else:
             name = self.mkstemp(prefix, suffix, self.dir, text)
@@ -278,7 +288,7 @@ class TempFileManager(object):
         if p.exists():
             if p.isdir():
                 try:
-                    p.rmtree(onerror = self.on_rmtree)
+                    p.rmtree(onerror=self.on_rmtree)
                     self.logger.debug("Removed folder %s", name)
                 except:
                     self.logger.error("Failed to remove folder %s", name)
@@ -296,7 +306,7 @@ class TempFileManager(object):
         dir = self.gettempdir()
         if dir.exists():
             self.logger.debug("Removing tree: %s", dir)
-            dir.rmtree(onerror = self.on_rmtree)
+            dir.rmtree(onerror=self.on_rmtree)
 
     def clean_userdir(self):
         """
@@ -311,11 +321,13 @@ class TempFileManager(object):
                 self.logger.debug("Skipping self: %s", dir)
                 continue
             lock = dir / ".lock"
-            if lock.exists(): #1962, on Windows this fails if lock is missing
-                f = open(str(lock),"r")
+            if lock.exists():  # 1962, on Windows this fails if lock is missing
+                f = open(str(lock), "r")
                 try:
-                    portalocker.lock(f, portalocker.LOCK_EX|portalocker.LOCK_NB)
-                    f.close() # Must close for Windows, otherwise "...other process"
+                    portalocker.lock(
+                        f, portalocker.LOCK_EX | portalocker.LOCK_NB)
+                    # Must close for Windows, otherwise "...other process"
+                    f.close()
                 except:
                     print "Locked: %s" % dir
                     continue
@@ -323,7 +335,8 @@ class TempFileManager(object):
             print "Deleted: %s" % dir
 
     def on_rmtree(self, func, name, exc):
-        self.logger.error("rmtree error: %s('%s') => %s", func.__name__, name, exc[1])
+        self.logger.error(
+            "rmtree error: %s('%s') => %s", func.__name__, name, exc[1])
 
 manager = TempFileManager()
 """
@@ -332,11 +345,13 @@ registered with the atexit module for cleaning up all created files on exit.
 Other instances can be created for specialized purposes.
 """
 
-def create_path(prefix = "omero", suffix = ".tmp", folder = False):
+
+def create_path(prefix="omero", suffix=".tmp", folder=False):
     """
     Uses the global TempFileManager to create a temporary file.
     """
-    return manager.create_path(prefix, suffix, folder = folder)
+    return manager.create_path(prefix, suffix, folder=folder)
+
 
 def remove_path(file):
     """
@@ -344,6 +359,7 @@ def remove_path(file):
     if it still exists.
     """
     return manager.remove_path(file)
+
 
 def gettempdir():
     """
