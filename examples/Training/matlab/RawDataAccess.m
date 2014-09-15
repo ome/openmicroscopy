@@ -69,12 +69,12 @@ try
     % loop.
     disp('Reading planes with raw pixels store recycling');
     tic
-    store = getRawPixelsStore(session, image);
+    [store, pixels] = getRawPixelsStore(session, image);
     for z = 0:sizeZ-1,
         for t = 0:sizeT-1,
             for c = 0:sizeC-1,
                 fprintf(1, '  Plane Z: %g, C: %g, T: %g\n', z, c, t);
-                plane = getPlane(store, z, c, t);
+                plane = getPlane(pixels, store, z, c, t);
             end
         end
     end
