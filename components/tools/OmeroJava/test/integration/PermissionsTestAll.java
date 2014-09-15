@@ -61,12 +61,12 @@ public class PermissionsTestAll extends AbstractServerTest {
     // database, trying to duplicate the setup)
     String uuid = UUID.randomUUID().toString();
 
-    String[] users = { "member-all-1" + uuid, "member-all-2" + uuid,
-            "member-all-3" + uuid, "member-all-4" + uuid,
-            "member-all-5" + uuid, "member-all-6" + uuid,
-            "member-all-7" + uuid, "owner" + uuid, "admin" + uuid,
-            "member-one-ra" + uuid, "member-one-p" + uuid,
-            "member-one-ro" + uuid, "member-one-rw" + uuid };
+    String[] users = { "notOwner-notAdmin-1" + uuid, "notOwner-notAdmin2" + uuid,
+            "notOwner-notAdmin-3" + uuid, "notOwner-notAdmin-4" + uuid,
+            "notOwner-notAdmin-5" + uuid, "notOwner-notAdmin-6" + uuid,
+            "notOwner-notAdmin-7" + uuid, "owner" + uuid, "admin" + uuid,
+            "notOwner-notAdmin-ra" + uuid, "notOwner-notAdmin-p" + uuid,
+            "notOwner-notAdmin-ro" + uuid, "notOwner-notAdmin-rw" + uuid };
 
     // Permission table lists the types of groups that would be created (two
     // copies of each)
@@ -396,10 +396,10 @@ public class PermissionsTestAll extends AbstractServerTest {
                         .lookupExperimenter(users[j]);
                 List<Long> gids = session.getAdminService()
                         .getMemberOfGroupIds(user1);
-                for (int k = 0; k < gids.size(); k++) // gids.size()
+                for (int k = 0; k < gids.size(); k++) // source group iterations
                 {
 
-                    for (int l = 0; l < gids.size(); l++) { // gids.size()
+                    for (int l = 0; l < gids.size(); l++) { // target group iterations
 
                         ExperimenterGroupI group = new ExperimenterGroupI(
                                 gids.get(k), false);
