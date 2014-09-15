@@ -10,26 +10,26 @@
 """
 
 import logging
-import os
 import time
-import unittest
 
-LOGFORMAT =  """%(asctime)s %(levelname)-5s [%(name)40s] (%(threadName)-10s) %(message)s"""
-logging.basicConfig(level=0,format=LOGFORMAT)
+LOGFORMAT = "%(asctime)s %(levelname)-5s [%(name)40s] " \
+            "(%(threadName)-10s) %(message)s"
+logging.basicConfig(level=0, format=LOGFORMAT)
 
-from path import path
 from omero.util import make_logname
-from omero_ext.functional import wraps
 
 import fsDropBoxMonitorClient as fsDBMC
 
+
 def nullcb(*args):
     pass
+
 
 def listcb(l):
     def cb(*args):
         l.append(args)
     return cb
+
 
 def clearcb(log, state, key):
     def cb(*args):
@@ -38,87 +38,88 @@ def clearcb(log, state, key):
         state.clear(args[0])
     return cb
 
-class TestState(unittest.TestCase):
 
-    def setUp(self):
+class TestState(object):
+
+    def setup_method(self, method):
         self.s = fsDBMC.MonitorState()
         self.log = logging.getLogger(make_logname(self))
 
-    def tearDown(self):
+    def teardown_method(self, method):
         self.s.stop()
 
     def testEmpty(self):
         self.s.update({}, 0, nullcb)
 
     def testSimple(self):
-        self.s.update({'file1':['file1','file2']}, 0, nullcb)
+        self.s.update({'file1': ['file1', 'file2']}, 0, nullcb)
 
     def testTimerCalled(self):
         l = []
-        self.s.update({'file1':['file1','file2']}, 0, listcb(l))
+        self.s.update({'file1': ['file1', 'file2']}, 0, listcb(l))
         time.sleep(0.25)
-        self.assertEquals(1, len(l))
+        assert 1 == len(l)
 
     def testMultipleInsert(self):
         l = []
         m = {
-            'file1':['file1','file2'],
-            'file2':['file1','file2'],
-            'file3':['file1','file2','file3']
-            }
-        self.s.update({'file1':['file1','file2']}, 0, listcb(l))
+            'file1': ['file1', 'file2'],
+            'file2': ['file1', 'file2'],
+            'file3': ['file1', 'file2', 'file3']
+        }
+        self.s.update(m, 0, listcb(l))
         time.sleep(0.25)
-        self.assertEquals(1, len(l))
+        assert 1 == len(l)
 
     def testAddThenReAdd(self):
         l = []
-        self.s.update({'file1':['file1','file2']}, 0.1, listcb(l))
-        self.s.update({'file1':['file1','file2']}, 0.1, listcb(l))
+        self.s.update({'file1': ['file1', 'file2']}, 0.1, listcb(l))
+        self.s.update({'file1': ['file1', 'file2']}, 0.1, listcb(l))
         time.sleep(0.25)
-        self.assertEquals(1, len(l))
+        assert 1 == len(l)
 
     def testAddThenModify(self):
         l = []
-        self.s.update({'file1':['file1','file2']}, 0.1, listcb(l))
-        self.s.update({'file1':['file1','file3']}, 0.0, listcb(l))
+        self.s.update({'file1': ['file1', 'file2']}, 0.1, listcb(l))
+        self.s.update({'file1': ['file1', 'file3']}, 0.0, listcb(l))
         time.sleep(0.25)
-        self.assertEquals(1, len(l))
+        assert 1 == len(l)
 
-    def testEntryMoved(self):
+    def testEntryMoved1(self):
         l = []
-        self.s.update({'file1':['file1'        ]}, 0.1, listcb(l))
-        self.assertEquals(1, self.s.keys())
-        self.s.update({'file2':['file1','file2']}, 0.1, listcb(l))
-        self.assertEquals(2, self.s.keys())
+        self.s.update({'file1': ['file1']}, 0.1, listcb(l))
+        assert 1 == self.s.keys()
+        self.s.update({'file2': ['file1', 'file2']}, 0.1, listcb(l))
+        assert 2 == self.s.keys()
         time.sleep(0.25)
-        self.assertEquals(1, len(l))
+        assert 1 == len(l)
 
-    def testEntryMoved(self):
-        self.s.update({'file1':['file1'        ]}, 0.1, clearcb(self.log, self.s, 'file1'))
-        self.assertEquals(1, len(self.s.keys()))
-        self.assertEquals(1, self.s.count())
-        self.s.update({'file2':['file1','file2']}, 0.1, clearcb(self.log, self.s, 'file2'))
-        self.assertEquals(2, len(self.s.keys()))
-        self.assertEquals(1, self.s.count())
+    def testEntryMoved2(self):
+        self.s.update(
+            {'file1': ['file1']}, 0.1, clearcb(self.log, self.s, 'file1'))
+        assert 1 == len(self.s.keys())
+        assert 1 == self.s.count()
+        self.s.update(
+            {'file2': ['file1', 'file2']}, 0.1,
+            clearcb(self.log, self.s, 'file2'))
+        assert 2 == len(self.s.keys())
+        assert 1 == self.s.count()
         time.sleep(0.25)
-        self.assertEquals(0, len(self.s.keys()))
-        self.assertEquals(0, self.s.count())
+        assert 0 == len(self.s.keys())
+        assert 0 == self.s.count()
 
     def testEntryOutOfSyncSubsume(self):
-        self.s.update({'file1':['file1'        ]}, 0.1, nullcb)
-        self.assertEquals(1, len(self.s.keys()))
-        self.s.update({'file2':['file2'        ]}, 0.1, nullcb)
-        self.assertEquals(2, len(self.s.keys()))
-        self.s.update({'file2':['file1','file2']}, 0.1, nullcb)
-        self.assertEquals(2, len(self.s.keys()))
+        self.s.update({'file1': ['file1']}, 0.1, nullcb)
+        assert 1 == len(self.s.keys())
+        self.s.update({'file2': ['file2']}, 0.1, nullcb)
+        assert 2 == len(self.s.keys())
+        self.s.update({'file2': ['file1', 'file2']}, 0.1, nullcb)
+        assert 2 == len(self.s.keys())
 
     def testEntryOutOfSyncSteal(self):
-        self.s.update({'file1':['file1','file3']}, 0.1, nullcb)
-        self.assertEquals(2, len(self.s.keys()))
-        self.s.update({'file2':['file2'        ]}, 0.1, nullcb)
-        self.assertEquals(3, len(self.s.keys()))
-        self.s.update({'file2':['file2','file3']}, 0.1, nullcb)
-        self.assertEquals(3, len(self.s.keys()))
-
-if __name__ == "__main__":
-    unittest.main()
+        self.s.update({'file1': ['file1', 'file3']}, 0.1, nullcb)
+        assert 2 == len(self.s.keys())
+        self.s.update({'file2': ['file2']}, 0.1, nullcb)
+        assert 3 == len(self.s.keys())
+        self.s.update({'file2': ['file2', 'file3']}, 0.1, nullcb)
+        assert 3 == len(self.s.keys())
