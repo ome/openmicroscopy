@@ -126,6 +126,7 @@
   <bean id="roleProvider" class="ome.security.auth.SimpleRoleProvider">
     <constructor-arg ref="securitySystem"/>
     <constructor-arg ref="omeroSessionFactory"/>
+    <constructor-arg value="${omero.security.ignore_case}"/>
   </bean>
 
   <bean id="passwordUtil" class="ome.security.auth.PasswordUtil">

@@ -49,9 +49,17 @@ public class SimpleRoleProvider implements RoleProvider {
 
     final protected SessionFactory sf;
 
+    final private boolean ignoreCaseLookup;
+
     public SimpleRoleProvider(SecuritySystem sec, SessionFactory sf) {
+        this(sec, sf, false);
+    }
+
+    public SimpleRoleProvider(SecuritySystem sec, SessionFactory sf,
+            boolean ignoreCaseLookup) {
         this.sec = sec;
         this.sf = sf;
+        this.ignoreCaseLookup = ignoreCaseLookup;
     }
 
     public String nameById(long id) {
@@ -101,6 +109,9 @@ public class SimpleRoleProvider implements RoleProvider {
         SecureAction action = new SecureMerge(session);
 
         Experimenter e = copyUser(experimenter);
+        if (ignoreCaseLookup) {
+            e.setOmeName(e.getOmeName().toLowerCase());
+        }
         e.getDetails().copy(sec.newTransientDetails(e));
         e = sec.doAction(action, e);
         session.flush();
