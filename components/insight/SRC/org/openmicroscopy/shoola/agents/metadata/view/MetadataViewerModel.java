@@ -1136,7 +1136,8 @@ class MetadataViewerModel
      * @param copyRenderingSettingsFrom
      */
     public void setCopyRenderingSettingsFrom(ImageData copyRenderingSettingsFrom) {
-        if (copyRenderingSettingsFrom != null && copyRenderingSettingsFrom.getId() != getImage().getId()) {
+        if (copyRenderingSettingsFrom != null &&
+                copyRenderingSettingsFrom.getId() != getImage().getId()) {
             this.copyRenderingSettingsFrom = copyRenderingSettingsFrom;
         }
     }
@@ -1160,10 +1161,12 @@ class MetadataViewerModel
      * @return See above
      */
     public boolean hasRndSettingsCopied() {
-        return (copiedRndSettings != null && !component.getRenderer()
-                .isSameSettings(copiedRndSettings, false))
-                || (copyRenderingSettingsFrom != null && copyRenderingSettingsFrom
-                        .getId() != getImage().getId());
+        Renderer rnd = component.getRenderer();
+        ImageData img = getImage();
+        return (copiedRndSettings != null && rnd != null &&
+                !rnd.isSameSettings(copiedRndSettings, false))
+                || (copyRenderingSettingsFrom != null && img != null &&
+                copyRenderingSettingsFrom.getId() != img.getId());
     }
     
 }
