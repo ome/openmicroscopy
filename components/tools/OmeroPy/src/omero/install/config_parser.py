@@ -101,6 +101,10 @@ Examples of doing this are on the main :doc:`Unix <unix/server-installation>`
 and :doc:`Windows <windows/server-installation>` pages, as well as the
 :doc:`LDAP installation <server-ldap>` page.
 
+.. contents::
+  :depth: 1
+  :local:
+
 """
 
 HEADER = \
