@@ -58,7 +58,7 @@ from scipy import optimize as opz
 from scipy import ndimage as ndi
 from scipy import cluster as clt
 
-import mpfit as mpf
+import omero_ext.mpfit as mpf
 
 # OMERO Imports 
 import omero.clients

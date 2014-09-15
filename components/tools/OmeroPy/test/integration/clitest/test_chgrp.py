@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -64,10 +64,6 @@ class TestChgrp(CLITest):
         exp = admin.lookupExperimenter(admin.getEventContext().userName)
         group = self.new_group([exp], perms)
         return group
-
-    def testHelp(self):
-        self.args += ["-h"]
-        self.cli.invoke(self.args, strict=True)
 
     @pytest.mark.parametrize("object_type", object_types)
     @pytest.mark.parametrize("target_group_perms", permissions)
@@ -194,10 +190,6 @@ class TestChgrpRoot(RootCLITest):
         super(TestChgrpRoot, self).setup_method(method)
         self.cli.register("chgrp", ChgrpControl, "TEST")
         self.args += ["chgrp"]
-
-    def testHelp(self):
-        self.args += ["-h"]
-        self.cli.invoke(self.args, strict=True)
 
     def testNonMember(self):
         new_image = self.new_image()

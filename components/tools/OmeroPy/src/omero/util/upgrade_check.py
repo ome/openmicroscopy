@@ -13,7 +13,9 @@ import urllib2
 import urllib
 import socket
 
+
 class UpgradeCheck(object):
+
     """
     Port of Java UpgradeCheck:
     http://trac.openmicroscopy.org.uk/ome/browser/trunk/components/common/src/ome/system/UpgradeCheck.java
@@ -32,7 +34,8 @@ class UpgradeCheck(object):
     >>> uc.isExceptionThrown()
     False
     >>>
-    >>> uc = UpgradeCheck("doctest", url = "http://some-completely-unknown-host.abcd/")
+    >>> uc = UpgradeCheck("doctest",
+    ...     url = "http://some-completely-unknown-host.abcd/")
     >>> uc.run()
     >>> uc.isUpgradeNeeded()
     False
@@ -42,20 +45,23 @@ class UpgradeCheck(object):
 
     #
     # Default timeout is 3 seconds.
-    #  * http://docs.python.org/2/library/socket.html#socket.setdefaulttimeout
+    # * http://docs.python.org/2/library/socket.html#socket.setdefaulttimeout
     #
     DEFAULT_TIMEOUT = 3.0
 
-    def __init__(self, agent, url = "http://upgrade.openmicroscopy.org.uk/", version = omero_version, timeout = DEFAULT_TIMEOUT):
+    def __init__(self, agent, url="http://upgrade.openmicroscopy.org.uk/",
+                 version=omero_version, timeout=DEFAULT_TIMEOUT):
         """
         ::
-            agent   := Name of the agent which is accessing the registry. This will
-                       be appended to "OMERO." in order to adhere to the registry
-                       API.
+            agent   := Name of the agent which is accessing the registry.
+                       This will be appended to "OMERO." in order to adhere
+                       to the registry API.
             url     := Connection information for the upgrade check.
-                       None or empty string disables check. Defaults to upgrade.openmicroscopy.org.uk
+                       None or empty string disables check.
+                       Defaults to upgrade.openmicroscopy.org.uk
             version := Version to check against the returned value.
-                       Defaults to current version as specified in omero_version.py.
+                       Defaults to current version as specified
+                       in omero_version.py.
             timeout := How long to wait for the HTTP GET in seconds (float).
                        The default timeout is 3 seconds.
         """
@@ -71,14 +77,13 @@ class UpgradeCheck(object):
         self.exc = None
 
     def isUpgradeNeeded(self):
-        return self.upgradeUrl != None
+        return self.upgradeUrl is not None
 
     def getUpgradeUrl(self):
         return self.upgradeUrl
 
     def isExceptionThrown(self):
-        return self.exc != None
-
+        return self.exc is not None
 
     def getExceptionThrown(self):
         return self.exc
@@ -97,8 +102,9 @@ class UpgradeCheck(object):
         """
 
         # If None or empty, the upgrade check is disabled.
-        if self.url == None or len(self.url) == 0:
-            return; # EARLY EXIT!
+        if self.url is None or len(self.url) == 0:
+            return
+            # EARLY EXIT!
 
         try:
             params = {}
@@ -124,7 +130,7 @@ class UpgradeCheck(object):
                 socket.setdefaulttimeout(old_timeout)
 
         except Exception, e:
-            self.log.error(str(e), exc_info = 0)
+            self.log.error(str(e), exc_info=0)
             self._set(None, e)
             return
 

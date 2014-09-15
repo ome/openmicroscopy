@@ -15,7 +15,6 @@ see ticket:800
 see ticket:2213 - Replacing Java Preferences API
 """
 
-import re
 import os
 import path
 import time
@@ -27,7 +26,8 @@ sys = __import__("sys")
 
 import xml.dom.minidom
 
-from xml.etree.ElementTree import XML, Element, SubElement, Comment, ElementTree, tostring
+from xml.etree.ElementTree import XML, Element, SubElement, Comment
+from xml.etree.ElementTree import tostring
 
 
 class Environment(object):
@@ -36,7 +36,7 @@ class Environment(object):
     that the active configuration can come from.
     """
 
-    def __init__(self, user_specified = None):
+    def __init__(self, user_specified=None):
         self.fallback = "default"
         self.user_specified = user_specified
         self.from_os_environ = os.environ.get("OMERO_CONFIG", None)
@@ -85,21 +85,26 @@ class ConfigXml(object):
     DEFAULT = "omero.config.profile"
     IGNORE = (KEY, DEFAULT)
 
-    def __init__(self, filename, env_config=None, exclusive=True, read_only=False):
-        self.logger = logging.getLogger(self.__class__.__name__)    #: Logs to the class name
-        self.XML = None                                             #: Parsed XML Element
-        self.filename = filename                                    #: Path to the file to be read and written
-        self.env_config = Environment(env_config)                   #: Environment override
-        self.exclusive = exclusive                                  #: Whether or not an exclusive lock should be acquired
-        self.read_only = read_only                                  #: Further, if saving should even be allowed.
+    def __init__(self, filename, env_config=None, exclusive=True,
+                 read_only=False):
+        # Logs to the class name
+        self.logger = logging.getLogger(self.__class__.__name__)
+        self.XML = None  # Parsed XML Element
+        self.filename = filename  # Path to the file to be read and written
+        self.env_config = Environment(env_config)  # Environment override
+        # Whether or not an exclusive lock should be acquired
+        self.exclusive = exclusive
+        # Further, if saving should even be allowed.
+        self.read_only = read_only
         self.save_on_close = True
         self.open_source()
 
         if self.exclusive:  # must be "a+"
             try:
-                portalocker.lock(self.lock, portalocker.LOCK_NB|portalocker.LOCK_EX)
-            except portalocker.LockException, le:
-                self.lock = None # Prevent deleting of the file
+                portalocker.lock(
+                    self.lock, portalocker.LOCK_NB | portalocker.LOCK_EX)
+            except portalocker.LockException:
+                self.lock = None  # Prevent deleting of the file
                 self.close()
                 raise
 
@@ -120,10 +125,13 @@ class ConfigXml(object):
             default = self.default()
             self.XML = Element("icegrid")
             properties = SubElement(self.XML, "properties", id=self.INTERNAL)
-            _ = SubElement(properties, "property", name=self.DEFAULT, value=default)
-            _ = SubElement(properties, "property", name=self.KEY, value=self.VERSION)
+            SubElement(properties, "property", name=self.DEFAULT,
+                       value=default)
+            SubElement(properties, "property", name=self.KEY,
+                       value=self.VERSION)
             properties = SubElement(self.XML, "properties", id=default)
-            _ = SubElement(properties, "property", name=self.KEY, value=self.VERSION)
+            SubElement(properties, "property", name=self.KEY,
+                       value=self.VERSION)
 
     def open_source(self):
         self.source = None
@@ -131,8 +139,8 @@ class ConfigXml(object):
             try:
                 # Try to open the file for modification
                 # If this fails, then the file is readonly
-                self.source = open(self.filename, "a+")                 #: Open file handle
-                self.lock = self._open_lock()                           #: Open file handle for lock
+                self.source = open(self.filename, "a+")  # Open file handle
+                self.lock = self._open_lock()  # Open file handle for lock
             except IOError:
                 self.logger.debug("open('%s', 'a+') failed" % self.filename)
 
@@ -142,13 +150,15 @@ class ConfigXml(object):
                 # once it's read-only
                 val = self.env_config.is_non_default()
                 if val is not None:
-                    raise Exception("Non-default OMERO_CONFIG on read-only: %s" % val)
+                    raise Exception(
+                        "Non-default OMERO_CONFIG on read-only: %s" % val)
 
         if self.source is None:
             self.lock = None
             self.exclusive = False
             self.save_on_close = False
-            self.source = open(self.filename, "r")                       #: Open file handle read-only
+            # Open file handle read-only
+            self.source = open(self.filename, "r")
 
     def _open_lock(self):
         return open("%s.lock" % self.filename, "a+")
@@ -160,11 +170,13 @@ class ConfigXml(object):
             try:
                 os.remove("%s.lock" % self.filename)
             except:
-                # On windows a WindowsError 32 can happen (file opened by another process), ignoring
-                self.logger.error("Failed to removed lock file, ignoring", exc_info=True)
+                # On windows a WindowsError 32 can happen (file opened by
+                # another process), ignoring
+                self.logger.error("Failed to removed lock file, ignoring",
+                                  exc_info=True)
                 pass
 
-    def version(self, id = None):
+    def version(self, id=None):
         if id is None:
             id = self.default()
         properties = self.properties(id)
@@ -197,14 +209,16 @@ class ConfigXml(object):
                         val = orig.replace("${omero.dollar}", "")
                         val = val.replace("${", "@{")
                         x.set("value", val)
-                        self.logger.info("Upgraded 4.2.0 property:  %s => %s", orig, val)
+                        self.logger.info("Upgraded 4.2.0 property:  %s => %s",
+                                         orig, val)
         else:
-            raise Exception("Version mismatch: %s has %s" % (props.get("id"), version))
+            raise Exception("Version mismatch: %s has %s" %
+                            (props.get("id"), version))
 
     def internal(self):
         return self.properties(self.INTERNAL)
 
-    def properties(self, id = None, filter_internal = False):
+    def properties(self, id=None, filter_internal=False):
 
         if self.XML is None:
             return None
@@ -223,7 +237,7 @@ class ConfigXml(object):
             if "id" in p.attrib and p.attrib["id"] == id:
                 return p
 
-    def remove(self, id = None):
+    def remove(self, id=None):
         if id is None:
             id = self.default()
         properties = self.properties(id)
@@ -231,7 +245,7 @@ class ConfigXml(object):
             raise KeyError("No such configuration: %s" % id)
         self.XML.remove(properties)
 
-    def default(self, value = None):
+    def default(self, value=None):
         if value:
             self.env_config.set_by_user(value)
 
@@ -250,11 +264,12 @@ class ConfigXml(object):
         intra-element whitespace) and overwrites the file on disk.
         """
         icegrid = Element("icegrid")
-        comment = Comment("\n".join(["\n",
-        "\tThis file was generated at %s by the OmeroConfig system.",
-        "\tDo not edit directly but see bin/omero config for details.",
-        "\tThis file may be included into your IceGrid application.",
-        "\n"]) % time.ctime())
+        comment = Comment("\n".join([
+            "\n",
+            "\tThis file was generated at %s by the OmeroConfig system.",
+            "\tDo not edit directly but see bin/omero config for details.",
+            "\tThis file may be included into your IceGrid application.",
+            "\n"]) % time.ctime())
         icegrid.append(comment)
         # First step is to add a new self.INTERNAL block to it
         # which has self.DEFAULT set to the current default,
@@ -272,7 +287,8 @@ class ConfigXml(object):
         else:
             # Doesn't exist, create it
             properties = SubElement(icegrid, "properties", id=default)
-            SubElement(properties, "property", name=self.KEY, value=self.VERSION)
+            SubElement(properties, "property", name=self.KEY,
+                       value=self.VERSION)
 
         # Now we simply reproduce all the other blocks
         prop_list = self.properties(None, True)
@@ -331,7 +347,7 @@ class ConfigXml(object):
                 rv[p.attrib["name"]] = p.attrib.get("value", "")
         return rv
 
-    def dict_to_text(self, parsed = None):
+    def dict_to_text(self, parsed=None):
 
         if parsed is None:
             return
@@ -343,12 +359,14 @@ class ConfigXml(object):
 
     def element_to_xml(self, elem):
         string = tostring(elem, 'utf-8')
-        return xml.dom.minidom.parseString(string).toprettyxml("  ", "\n", None)
+        return xml.dom.minidom.parseString(string).toprettyxml("  ", "\n",
+                                                               None)
 
     def clear_text(self, p):
         """
-        To prevent the accumulation of text outside of elements (including whitespace)
-        we walk the given element and remove tail from it and it's children.
+        To prevent the accumulation of text outside of elements (including
+        whitespace) we walk the given element and remove tail from it and it's
+        children.
         """
         p.tail = ""
         p.text = ""
@@ -371,15 +389,15 @@ class ConfigXml(object):
         default = self.default()
         props = self.properties(default)
 
-        if props == None:
-            props = SubElement(self.XML, "properties", {"id":default})
+        if props is None:
+            props = SubElement(self.XML, "properties", {"id": default})
             SubElement(props, "property", name=self.KEY, value=self.VERSION)
 
         for x in props.findall("./property"):
             if x.attrib["name"] == key:
                 x.attrib["value"] = value
                 return
-        SubElement(props, "property", {"name":key, "value":value})
+        SubElement(props, "property", {"name": key, "value": value})
 
     def __delitem__(self, key):
         default = self.default()
@@ -390,4 +408,3 @@ class ConfigXml(object):
                 to_remove.append(p)
         for x in to_remove:
             props.remove(x)
-

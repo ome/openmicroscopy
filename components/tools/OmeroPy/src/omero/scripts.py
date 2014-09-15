@@ -7,11 +7,12 @@
            - Long        --
            - String      --
            - Bool        --
-           - List 
+           - List
            - Map
-           - Set 
+           - Set
        - Functions:
-           - client      -- Produces an omero.client object with given input/output constraints.
+           - client      -- Produces an omero.client object with given
+                            input/output constraints.
 
    Copyright 2008 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
@@ -19,7 +20,6 @@
 """
 
 import os
-import Ice
 import logging
 
 import omero
@@ -27,7 +27,9 @@ import omero.callbacks
 import omero.util.concurrency
 import omero.util.temp_files
 
-from omero.rtypes import *
+from omero.rtypes import rint, rfloat, rstring, rinternal, rbool, rmap
+from omero.rtypes import robject, rlist, rset, rtype, rlong, rdouble
+from omero.rtypes import wrap, unwrap
 
 
 TYPE_LOG = logging.getLogger("omero.scripts.Type")
@@ -36,7 +38,8 @@ PROC_LOG = logging.getLogger("omero.scripts.ProcessCallback")
 
 class Type(omero.grid.Param):
     """
-    omero.grid.Param subclass which provides convenience methods for input/output specification.
+    omero.grid.Param subclass which provides convenience methods for
+    input/output specification.
     Further subclasses are responsible for creating proper prototypes.
 
     kwargs
@@ -47,7 +50,8 @@ class Type(omero.grid.Param):
     PROTOTYPE_MAX = None
     PROTOTYPE_VALUES = None
 
-    def __init__(self, name, optional = True, out = False, description = None, default = None, **kwargs):
+    def __init__(self, name, optional=True, out=False, description=None,
+                 default=None, **kwargs):
 
         # Non-Param attributes
         omero.grid.Param.__init__(self)
@@ -76,7 +80,8 @@ class Type(omero.grid.Param):
 
         # Someone specifically set the prototype, then
         # we assume that useDefault should be True
-        if default is not None: # For whatever reason, inheritance isn't working.
+        # For whatever reason, inheritance isn't working.
+        if default is not None:
             newfunc = _FUN
             newdefault = default
             if isinstance(self, List):
@@ -135,7 +140,6 @@ class Type(omero.grid.Param):
             if test not in values:
                 raise ValueError("%s is not in %s" % (test, values))
 
-
     def out(self):
         self._in = False
         self._out = True
@@ -153,12 +157,13 @@ class Type(omero.grid.Param):
     def name(self):
         return self._name
 
-    def __get(self, val, func = True):
+    def __get(self, val, func=True):
         if val is not None:
             if func:
                 return val.im_func
             else:
                 return val
+
 
 class Object(Type):
     """
@@ -257,17 +262,20 @@ class __Coll(Type):
 
     def ofType(self, obj):
         if callable(obj):
-            obj = obj() # Ctors, etc.
+            obj = obj()  # Ctors, etc.
 
         # If someone used default=, then "ofType()" is not necessary
         # and so we check for their correspondence.
         if self.useDefault and self.prototype.val:
             if not isinstance(obj, self.prototype.val[0].__class__):
-                raise ValueError("ofType values doesn't match default value: %s <> %s" % (unwrap(obj), unwrap(self.prototype.val[0])))
+                raise ValueError(
+                    "ofType values doesn't match default value: %s <> %s"
+                    % (unwrap(obj), unwrap(self.prototype.val[0])))
         else:
             self.prototype.val.append(wrap(obj))
 
         return self
+
 
 class Set(__Coll):
     """
@@ -317,10 +325,11 @@ def client(*args, **kwargs):
         client = omero.scripts.client("name","description", \
             omero.scripts.Long("name"),...)
 
-    where the returned client is created via the empty constructor to omero.client
-    using only --Ice.Config or ICE_CONFIG, and the function arguments are taken
-    as metdata about the current script. With this information, all script
-    consumers should be able to determine the required types for execution.
+    where the returned client is created via the empty constructor to
+    omero.client using only --Ice.Config or ICE_CONFIG, and the function
+    arguments are taken as metdata about the current script. With this
+    information, all script consumers should be able to determine the required
+    types for execution.
 
     Possible types are all subclasses of omero.scripts.Type
 
@@ -352,7 +361,7 @@ def client(*args, **kwargs):
         if isinstance(args[0], str):
             kwargs["description"] = args.pop(0)
 
-    if not kwargs.has_key("client"):
+    if "client" not in kwargs:
         kwargs["client"] = omero.client()
     c = kwargs["client"]
     c.setAgent("OMERO.scripts")
@@ -383,10 +392,11 @@ def client(*args, **kwargs):
         else:
             raise ValueError("Not Type: %s" % type(p))
 
-    handleParse(c) # May throw
+    handleParse(c)  # May throw
 
     c.createSession().detachOnDestroy()
     return c
+
 
 def handleParse(c):
     """
@@ -395,11 +405,12 @@ def handleParse(c):
     then the parameters will also be sent to the server.
     """
     parse = c.getProperty("omero.scripts.parse")
-    if len(parse) > 0: # TODO Add to omero/Constants.ice
+    if len(parse) > 0:  # TODO Add to omero/Constants.ice
         if parse != "only":
             c.createSession().detachOnDestroy()
             c.setOutput("omero.scripts.parse", rinternal(c.params))
         raise ParseExit(c.params)
+
 
 def parse_text(scriptText):
     """
@@ -415,13 +426,14 @@ def parse_text(scriptText):
         old = os.environ.get("ICE_CONFIG")
         try:
             os.environ["ICE_CONFIG"] = cfg.abspath()
-            exec(scriptText, {"__name__":"__main__"})
+            exec(scriptText, {"__name__": "__main__"})
             raise Exception("Did not throw ParseExit: %s" % scriptText)
         finally:
             if old:
                 os.environ["ICE_CONFIG"] = old
     except ParseExit, exit:
         return exit.params
+
 
 def parse_file(filename):
     """
@@ -456,7 +468,8 @@ def parse_inputs(inputs_strings, params):
         inputs.update(rv)
 
     missing = MissingInputs()
-    for key in sorted(params.inputs, key=lambda name: params.inputs.get(name).grouping):
+    for key in sorted(
+            params.inputs, key=lambda name: params.inputs.get(name).grouping):
         param = params.inputs.get(key)
         a = inputs.get(key, None)
         if not a:
@@ -490,9 +503,10 @@ def parse_input(input_string, params):
             val = rbool(False)
         else:
             val = rbool(True)
-    elif isinstance(param.prototype,\
-        (omero.RLong, omero.RString, omero.RInt, \
-            omero.RTime, omero.RDouble, omero.RFloat)):
+    elif isinstance(
+        param.prototype,
+        (omero.RLong, omero.RString, omero.RInt,
+         omero.RTime, omero.RDouble, omero.RFloat)):
         val = param.prototype.__class__(val)
     elif isinstance(param.prototype, omero.RList):
         items = val.split(",")
@@ -512,12 +526,14 @@ def parse_input(input_string, params):
                 kls = "%sI" % kls
             kls = getattr(omero.model, kls)
         except:
-            raise ValueError("Format for objects: Class:id or ClassI:id. Not:%s" % val)
+            raise ValueError(
+                "Format for objects: Class:id or ClassI:id. Not:%s" % val)
         val = omero.rtypes.robject(kls(_id, False))
     else:
-        raise ValueError("No converter for: %s (type=%s)" % (key, param.prototype.__class__))
+        raise ValueError("No converter for: %s (type=%s)"
+                         % (key, param.prototype.__class__))
 
-    return {key:val}
+    return {key: val}
 
 
 def group_params(params):
@@ -576,15 +592,18 @@ def group_params(params):
                     if len(v) == 1 and "" in v:
                         g[k] = v[""]
                     else:
-                        new_tuples.extend([(v, k2, v2) for k2, v2 in v.items()])
+                        new_tuples.extend([(v, k2, v2)
+                                           for k2, v2 in v.items()])
             tuples = new_tuples
 
     return groupings
+
 
 def error_msg(category, key, format_string, *args):
     c = "%s" % (category.upper())
     s = """%s for "%s": %s\n""" % (c, key, format_string)
     return s % args
+
 
 def compare_proto(key, proto, input, cache=None):
 
@@ -592,7 +611,7 @@ def compare_proto(key, proto, input, cache=None):
         cache = {}
 
     if id(proto) in cache and id(input) in cache:
-        return "" # Prevent StackOverflow
+        return ""  # Prevent StackOverflow
     else:
         cache[id(proto)] = True
         cache[id(input)] = True
@@ -613,6 +632,7 @@ def compare_proto(key, proto, input, cache=None):
             errors += compare_proto(key, proto.val[0], x, cache)
     return errors
 
+
 def expand(input):
     if input is None:
         items = []
@@ -623,6 +643,7 @@ def expand(input):
     else:
         items = [input]
     return items
+
 
 def check_boundaries(key, min, max, input):
     errors = ""
@@ -636,10 +657,13 @@ def check_boundaries(key, min, max, input):
     # Check
     for x in items:
         if min is not None and min > x:
-            errors += error_msg("Out of bounds", key, "%s is below min %s", x, min)
+            errors += error_msg("Out of bounds", key, "%s is below min %s", x,
+                                min)
         if max is not None and max < x:
-            errors += error_msg("Out of bounds", key, "%s is above max %s", x, max)
+            errors += error_msg("Out of bounds", key, "%s is above max %s", x,
+                                max)
     return errors
+
 
 def check_values(key, values, input):
     errors = ""
@@ -659,7 +683,8 @@ def check_values(key, values, input):
 
     return errors
 
-def validate_inputs(params, inputs, svc = None, session = None):
+
+def validate_inputs(params, inputs, svc=None, session=None):
     """
     Method used by processor.py to check the input values
     provided by the user launching the script. If a non-empty
@@ -675,8 +700,8 @@ def validate_inputs(params, inputs, svc = None, session = None):
         if key not in inputs:
             if param.optional:
                 if param.useDefault and svc is not None:
-                    ignore = set_input(svc, session, key, param.prototype)
-            else: # Not optional
+                    set_input(svc, session, key, param.prototype)
+            else:  # Not optional
                 if param.useDefault:
                     errors += set_input(svc, session, key, param.prototype)
                 else:
@@ -688,19 +713,22 @@ def validate_inputs(params, inputs, svc = None, session = None):
             errors += check_values(key, param.values, input)
     return errors
 
+
 def set_input(svc, session, key, value):
     try:
         svc.setInput(session, key, value)
         return ""
     except Exception, e:
-        return error_msg("Failed to set intput", key, "%s=%s. Error: %s", key, value, e)
+        return error_msg("Failed to set intput", key, "%s=%s. Error: %s", key,
+                         value, e)
 
 #
 # Importing into omero.scripts namespace
 #
 ProcessCallbackI = omero.callbacks.ProcessCallbackI
 
-def wait(client, process, ms = 500):
+
+def wait(client, process, ms=500):
     """
     Wrapper around the use of ProcessCallbackI
     """

@@ -28,19 +28,18 @@ import pytest
 import test.integration.library as lib
 import omero
 from omero_model_PermissionsI import PermissionsI
-from omero_model_ImageI import ImageI
 from omero_model_DatasetI import DatasetI
 from omero_model_ProjectI import ProjectI
 from omero_model_TagAnnotationI import TagAnnotationI
 from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
-from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
-from omero_model_DatasetImageLinkI import DatasetImageLinkI
 from omero_model_ProjectDatasetLinkI import ProjectDatasetLinkI
 from omero_sys_ParametersI import ParametersI
-from omero.rtypes import *
+from omero.rtypes import rstring, unwrap
+
 
 class CallContextFixture(object):
+
     """
     Provides overwriteable methods for testing the call context
     workflow (See #3529). The primary purpose is to reduce
@@ -69,7 +68,7 @@ class CallContextFixture(object):
         self.img = self.sf.getUpdateService().saveAndReturnObject(self.img)
 
         self.group2 = self.test.new_group([self.user])
-        self.sf.getAdminService().getEventContext() # Refresh
+        self.sf.getAdminService().getEventContext()  # Refresh
         self.sf.setSecurityContext(self.group2)
 
         # At this point, the fixture shouldn't be able
@@ -117,7 +116,7 @@ class TestPermissions(lib.ITest):
         g = ExperimenterGroupI()
         g.name = rstring(uuid)
         g.details.permissions = PermissionsI("rwrwrw")
-        gid = self.root.sf.getAdminService().createGroup(g)
+        self.root.sf.getAdminService().createGroup(g)
 
         # As a regular user, login to that group
         rv = self.root.getPropertyMap()
@@ -126,7 +125,7 @@ class TestPermissions(lib.ITest):
         public_client.getImplicitContext().put("omero.group", uuid)
         sf = public_client.createSession(ec.userName, "foo")
         ec = sf.getAdminService().getEventContext()
-        assert uuid ==  ec.groupName
+        assert uuid == ec.groupName
 
         # But can the user write anything?
         tag = TagAnnotationI()
@@ -158,11 +157,9 @@ class TestPermissions(lib.ITest):
         # this is the test of creating private group and updating it
         # including changes in #1434
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
-        query = self.root.sf.getQueryService()
-        update = self.root.sf.getUpdateService()
         admin = self.root.sf.getAdminService()
 
-        #create group1
+        # create group1
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("group1_%s" % uuid)
         p = PermissionsI()
@@ -179,22 +176,20 @@ class TestPermissions(lib.ITest):
 
         # update name of group1
         gr1 = admin.getGroup(g1_id)
-        assert 'rw----' ==  str(gr1.details.permissions)
+        assert 'rw----' == str(gr1.details.permissions)
         new_name = "changed_name_group1_%s" % uuid
         gr1.name = rstring(new_name)
         admin.updateGroup(gr1)
         gr1_u = admin.getGroup(g1_id)
-        assert new_name ==  gr1_u.name.val
+        assert new_name == gr1_u.name.val
 
     def testCreatAndUpdatePublicGroupReadOnly(self):
         # this is the test of creating public group read-only and updating it
         # including changes in #1434
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
-        query = self.root.sf.getQueryService()
-        update = self.root.sf.getUpdateService()
         admin = self.root.sf.getAdminService()
 
-        #create group1
+        # create group1
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("group1_%s" % uuid)
         p = PermissionsI()
@@ -211,21 +206,19 @@ class TestPermissions(lib.ITest):
 
         # update name of group1
         gr1 = admin.getGroup(g1_id)
-        assert 'rwr---' ==  str(gr1.details.permissions)
+        assert 'rwr---' == str(gr1.details.permissions)
         new_name = "changed_name_group1_%s" % uuid
         gr1.name = rstring(new_name)
         admin.updateGroup(gr1)
         gr1_u = admin.getGroup(g1_id)
-        assert new_name ==  gr1_u.name.val
+        assert new_name == gr1_u.name.val
 
     def testCreatAndUpdatePublicGroupReadAnnotate(self):
         # this is the test of creating public group and updating it
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
-        query = self.root.sf.getQueryService()
-        update = self.root.sf.getUpdateService()
         admin = self.root.sf.getAdminService()
 
-        #create group1
+        # create group1
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("group1_%s" % uuid)
         p = PermissionsI()
@@ -242,22 +235,20 @@ class TestPermissions(lib.ITest):
 
         # update name of group1
         gr1 = admin.getGroup(g1_id)
-        assert 'rwra--' ==  str(gr1.details.permissions)
+        assert 'rwra--' == str(gr1.details.permissions)
         new_name = "changed_name_group1_%s" % uuid
         gr1.name = rstring(new_name)
         admin.updateGroup(gr1)
         gr1_u = admin.getGroup(g1_id)
-        assert new_name ==  gr1_u.name.val
+        assert new_name == gr1_u.name.val
 
     def testCreatAndUpdatePublicGroup(self):
         # this is the test of creating public group and updating it
         # including changes in #1434
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
-        query = self.root.sf.getQueryService()
-        update = self.root.sf.getUpdateService()
         admin = self.root.sf.getAdminService()
 
-        #create group1
+        # create group1
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("group1_%s" % uuid)
         p = PermissionsI()
@@ -273,22 +264,20 @@ class TestPermissions(lib.ITest):
 
         # update name of group1
         gr1 = admin.getGroup(g1_id)
-        assert 'rwrw--' ==  str(gr1.details.permissions)
+        assert 'rwrw--' == str(gr1.details.permissions)
         new_name = "changed_name_group1_%s" % uuid
         gr1.name = rstring(new_name)
         admin.updateGroup(gr1)
         gr1_u = admin.getGroup(g1_id)
-        assert new_name ==  gr1_u.name.val
+        assert new_name == gr1_u.name.val
 
     def testCreatGroupAndchangePermissions(self):
         # this is the test of updating group permissions
         # including changes in #1434
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
-        query = self.root.sf.getQueryService()
-        update = self.root.sf.getUpdateService()
         admin = self.root.sf.getAdminService()
 
-        #create group1
+        # create group1
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("group1_%s" % uuid)
         p = PermissionsI()
@@ -303,7 +292,7 @@ class TestPermissions(lib.ITest):
         new_gr1.details.permissions = p
         g1_id = admin.createGroup(new_gr1)
 
-        #increase permissions of group1 to rwr---
+        # increase permissions of group1 to rwr---
         gr1 = admin.getGroup(g1_id)
         p1 = PermissionsI()
         p1.setUserRead(True)
@@ -316,9 +305,9 @@ class TestPermissions(lib.ITest):
         p1.setWorldWrite(False)
         admin.changePermissions(gr1, p1)
         gr2 = admin.getGroup(g1_id)
-        assert 'rwr---' ==  str(gr2.details.permissions)
+        assert 'rwr---' == str(gr2.details.permissions)
 
-        #increase permissions of group1 to rwra--
+        # increase permissions of group1 to rwra--
         gr2 = admin.getGroup(g1_id)
         p2 = PermissionsI()
         p2.setUserRead(True)
@@ -331,9 +320,9 @@ class TestPermissions(lib.ITest):
         p2.setWorldWrite(False)
         admin.changePermissions(gr2, p2)
         gr3 = admin.getGroup(g1_id)
-        assert 'rwra--' ==  str(gr3.details.permissions)
+        assert 'rwra--' == str(gr3.details.permissions)
 
-        #increase permissions of group1 to rwrw--
+        # increase permissions of group1 to rwrw--
         gr3 = admin.getGroup(g1_id)
         p3 = PermissionsI()
         p3.setUserRead(True)
@@ -345,17 +334,15 @@ class TestPermissions(lib.ITest):
         p3.setWorldWrite(False)
         admin.changePermissions(gr3, p3)
         gr4 = admin.getGroup(g1_id)
-        assert 'rwrw--' ==  str(gr4.details.permissions)
+        assert 'rwrw--' == str(gr4.details.permissions)
 
     def testGroupOwners(self):
         # this is the test of creating private group and updating it
         # including changes in #1434
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
-        query = self.root.sf.getQueryService()
-        update = self.root.sf.getUpdateService()
         admin = self.root.sf.getAdminService()
 
-        #create group1
+        # create group1
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("group1_%s" % uuid)
         p = PermissionsI()
@@ -371,7 +358,7 @@ class TestPermissions(lib.ITest):
         g1_id = admin.createGroup(new_gr1)
         gr1 = admin.getGroup(g1_id)
 
-        #create user1
+        # create user1
         new_exp1 = ExperimenterI()
         new_exp1.omeName = rstring("user1_%s" % uuid)
         new_exp1.firstName = rstring("New")
@@ -385,10 +372,11 @@ class TestPermissions(lib.ITest):
         uuidGroup = ExperimenterGroupI(uuidGroupId, False)
         listOfGroups = list()
         listOfGroups.append(admin.lookupGroup("user"))
-        eid1 = admin.createExperimenterWithPassword(new_exp1, rstring("ome"), uuidGroup, listOfGroups)
+        eid1 = admin.createExperimenterWithPassword(
+            new_exp1, rstring("ome"), uuidGroup, listOfGroups)
         exp1 = admin.getExperimenter(eid1)
 
-        #set owner of the group (user is not a member of)
+        # set owner of the group (user is not a member of)
         admin.addGroupOwners(gr1, [exp1])
         # chech if is the leader
         leaderOfGroups = admin.getLeaderOfGroupIds(exp1)
@@ -398,7 +386,7 @@ class TestPermissions(lib.ITest):
         admin.removeGroupOwners(gr1, [exp1])
         # chech if no longer is the leader
         leaderOfGroups = admin.getLeaderOfGroupIds(exp1)
-        assert not gr1.id.val in leaderOfGroups
+        assert gr1.id.val not in leaderOfGroups
 
         """
         Controller method shows how it is used in practice
@@ -465,11 +453,11 @@ class TestPermissions(lib.ITest):
         # As root, try to load it
         root_query = self.root.sf.getQueryService()
         tag = get_tag(root_query, {})
-        assert None ==  tag
+        assert None == tag
 
         # Now try to load it again, with a context
         tag = get_tag(root_query, {"omero.group": "-1"})
-        assert tid ==  tag.id.val
+        assert tid == tag.id.val
 
         # If the user tries that, there will be an exception
         get_tag(query, {"omero.group": "-1"})
@@ -511,23 +499,27 @@ class TestPermissions(lib.ITest):
         # """ test omero.group can be set on the method call """
 
         class F(CallContextFixture):
-            def get_image(this, query):
-                return query.get("Image", this.img.id.val, {"omero.group":"-1"})
-        F(self).assertCallContext()
 
+            def get_image(this, query):
+                return query.get(
+                    "Image", this.img.id.val, {"omero.group": "-1"})
+        F(self).assertCallContext()
 
     def testOGSetImplicitContext(self):
         # """ test omero.group can be set on the implicit context """
 
         class F(CallContextFixture):
+
             def prepare(this):
-                return this.client.getImplicitContext().put("omero.group","-1")
+                return this.client.getImplicitContext().put(
+                    "omero.group", "-1")
         F(self).assertCallContext()
 
     def testOGSetProxyContext(self):
         # """ test omero.group can be set on a proxy """
 
         class F(CallContextFixture):
+
             def query_service(this):
                 service = this.sf.getQueryService()
                 ctx = this.client.ic.getImplicitContext().getContext()
@@ -543,8 +535,10 @@ class TestPermissions(lib.ITest):
         # """ test omero.group can be set on session """
 
         class F(CallContextFixture):
+
             def prepare(this):
-                return this.sf.setSecurityContext(ExperimenterGroupI(-1, False))
+                return this.sf.setSecurityContext(
+                    ExperimenterGroupI(-1, False))
 
         with pytest.raises(omero.ApiUsageException):
             F(self).assertCallContext()
@@ -553,6 +547,7 @@ class TestPermissions(lib.ITest):
         # """ test omero.group can be set as an argument """
 
         class F(CallContextFixture):
+
             def client_and_user(this):
                 user = this.test.new_user()
                 props = this.test.client.getPropertyMap()
@@ -563,7 +558,7 @@ class TestPermissions(lib.ITest):
                 client.setAgent("OMERO.py.new_client_test")
                 client.createSession()
                 admin = client.sf.getAdminService()
-                ec = admin.getEventContext().userId
+                userId = admin.getEventContext().userId
                 user = admin.getExperimenter(userId)
                 return client, user
 
@@ -590,7 +585,7 @@ class TestPermissions(lib.ITest):
 
         # Now try to save it in the -1 context
         update = client.sf.getUpdateService()
-        all_context = {"omero.group":"-1"}
+        all_context = {"omero.group": "-1"}
         update.saveAndReturnObject(tag, all_context)
 
     def testSaveWithNegOneNotExplicit(self):
@@ -604,7 +599,7 @@ class TestPermissions(lib.ITest):
 
         # Now try to save it in the -1 context
         update = client.sf.getUpdateService()
-        all_context = {"omero.group":"-1"}
+        all_context = {"omero.group": "-1"}
         # An internal exception is raised when
         # Hibernate tries to access the annotations
         # for the null group set on the obj.
@@ -615,7 +610,7 @@ class TestPermissions(lib.ITest):
 
     # See ticket 11374
     @pytest.mark.xfail(reason="ticket 11374")
-    def testSaveWithNegBadLink(self): # ticket:8194
+    def testSaveWithNegBadLink(self):  # ticket:8194
 
         # Get a user and services
         client, user = self.new_client_and_user()
@@ -624,7 +619,7 @@ class TestPermissions(lib.ITest):
         group2 = self.new_group(experimenters=[user])
         for x in (group1, group2):
             x.unload()
-        admin.getEventContext() # Refresh
+        admin.getEventContext()  # Refresh
 
         # Create a new object with a bad link
         image = self.new_image()
@@ -636,7 +631,7 @@ class TestPermissions(lib.ITest):
 
         # Now try to save it in the -1 context
         update = client.sf.getUpdateService()
-        all_context = {"omero.group":"-1"}
+        all_context = {"omero.group": "-1"}
         # Bad links should be detected and
         # a security violation raised.
         with pytest.raises(omero.GroupSecurityViolation):
@@ -654,7 +649,7 @@ class TestPermissions(lib.ITest):
         group2 = self.new_group(experimenters=[user])
         for x in (group1, group2):
             x.unload()
-        admin.getEventContext() # Refresh
+        admin.getEventContext()  # Refresh
 
         # Create a new object with a bad link
         image = self.new_image()
@@ -684,7 +679,7 @@ class TestPermissions(lib.ITest):
         groupY = self.new_group(perms="rw----")
         clientB, userB = self.new_client_and_user(group=groupY)
         self.add_experimenters(groupX, [userB])
-        clientB.sf.getAdminService().getEventContext() # Refresh
+        clientB.sf.getAdminService().getEventContext()  # Refresh
 
         # Create the object as user A
         tag = omero.model.TagAnnotationI()
@@ -696,15 +691,15 @@ class TestPermissions(lib.ITest):
         qb = clientB.sf.getQueryService()
         qr = self.root.sf.getQueryService()
 
-        negone = {"omero.group":"-1"}
-        specific = {"omero.group":gid}
+        negone = {"omero.group": "-1"}
+        specific = {"omero.group": gid}
 
         qa.get("TagAnnotation", tid)
         qa.get("TagAnnotation", tid, specific)
         qa.get("TagAnnotation", tid, negone)
-        qr.get("TagAnnotation", tid, specific) # Not currently in gid
+        qr.get("TagAnnotation", tid, specific)  # Not currently in gid
         qr.get("TagAnnotation", tid, negone)
-        qb.get("TagAnnotation", tid, specific) # Not currently in gid
+        qb.get("TagAnnotation", tid, specific)  # Not currently in gid
         qb.get("TagAnnotation", tid, negone)
 
     # Reading with an admin user
@@ -730,7 +725,6 @@ class TestPermissions(lib.ITest):
     def testOmeroUserAsAdmin(self):
         client, user = self.new_client_and_user(system=True)
         admin = client.sf.getAdminService()
-        query = client.sf.getQueryService()
         assert admin.getEventContext().isAdmin
 
         image, user, group = self.private_image_and_user()
@@ -739,7 +733,6 @@ class TestPermissions(lib.ITest):
     def testOmeroUserAsNonAdmin(self):
         client, user = self.new_client_and_user(system=False)
         admin = client.sf.getAdminService()
-        query = client.sf.getQueryService()
         assert not admin.getEventContext().isAdmin
 
         image, user, group = self.private_image_and_user()
@@ -747,8 +740,8 @@ class TestPermissions(lib.ITest):
             self.assertAsUser(client, image, user, group)
 
     def assertAsUser(self, client, image, user, group):
-        callcontext = {"omero.user":str(user.id.val),
-                "omero.group":str(group.id.val)}
+        callcontext = {"omero.user": str(user.id.val),
+                       "omero.group": str(group.id.val)}
         query = client.sf.getQueryService()
         query.get("Image", image.id.val, callcontext)
 
@@ -781,10 +774,10 @@ class TestPermissions(lib.ITest):
         c = omero.model.CommentAnnotationI()
         c = self.update.saveAndReturnObject(c)
         d = c.getDetails()
-        assert  d.getClient() is not None
-        assert  d.getSession() is not None
-        assert  d.getCallContext() is not None
-        assert  d.getEventContext() is not None
+        assert d.getClient() is not None
+        assert d.getSession() is not None
+        assert d.getCallContext() is not None
+        assert d.getEventContext() is not None
 
     # raw pixels bean
     # ==================================================
@@ -823,7 +816,7 @@ class TestPermissions(lib.ITest):
         store.setFileId(script.id.val, ctx)
 
         data = store.read(0, long(script.size.val))
-        assert script.size.val ==  len(data)
+        assert script.size.val == len(data)
         try:
             store.close()
         except:
@@ -834,7 +827,7 @@ class TestPermissions(lib.ITest):
 
     def testUseOfRawFileBeanScriptReadCorrectGroup(self):
         self.assertValidScript(lambda v: {'omero.group':
-                str(v.details.group.id.val)})
+                                          str(v.details.group.id.val)})
 
     @pytest.mark.xfail(reason="See ticket #11539")
     def testUseOfRawFileBeanScriptReadCorrectGroupAndUser(self):
@@ -849,6 +842,7 @@ class TestPermissions(lib.ITest):
 
 
 class ProjectionFixture(object):
+
     """
     Used to test the return values from:
         'select x.permissions from Object x'

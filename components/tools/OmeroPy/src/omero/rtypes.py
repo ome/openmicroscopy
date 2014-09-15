@@ -21,10 +21,13 @@ This module is meant to be kept in sync with the abstract Java class
 omero.rtypes as well as the omero/rtypes.{h,cpp} files.
 """
 
-import omero, Ice
+import omero
+import Ice
 import IceImport
 IceImport.load("omero_RTypes_ice")
 IceImport.load("omero_Scripts_ice")
+IceImport.load("omero_model_RTypes_ice")
+
 
 def rtype(val):
     """
@@ -39,11 +42,11 @@ def rtype(val):
     All float-like values will produce an omero.RFloat subclass. Similar
     problems may arise with rlong and rint
     """
-    if val == None:
+    if val is None:
         return None
     elif isinstance(val, omero.RType):
         return val
-    elif isinstance(val,bool):
+    elif isinstance(val, bool):
         return rbool(val)
     elif isinstance(val, int):
         return rint(val)
@@ -64,7 +67,9 @@ def rtype(val):
     elif isinstance(val, dict):
         return rmap(val)
     else:
-        raise omero.ClientError("Cannot handle conversion from: %s" % type(val))
+        raise omero.ClientError("Cannot handle conversion from: %s"
+                                % type(val))
+
 
 def wrap(val, cache=None):
     """
@@ -98,6 +103,7 @@ def wrap(val, cache=None):
         rv = rtype(val)
 
     return rv
+
 
 def unwrap(val, cache=None):
     """
@@ -142,7 +148,7 @@ def unwrap(val, cache=None):
             cache[id(val)] = rv
             for k, v in val.val.items():
                 rv[unwrap(k, cache)] = unwrap(v, cache)
-    elif isinstance(val, omero.RType): # Non-recursive
+    elif isinstance(val, omero.RType):  # Non-recursive
         rv = val.val
         cache[id(val)] = rv
     else:
@@ -154,36 +160,40 @@ def unwrap(val, cache=None):
 # Static factory methods (primitives)
 # =========================================================================
 
+
 def rbool(val):
     """
     Returns the argument itself if None or an instance of RBool.
     Otherwise, checks the value for"trueness" and returns either
     rtrue or rfalse.
     """
-    if val == None or isinstance(val, omero.RBool):
+    if val is None or isinstance(val, omero.RBool):
         return val
     elif val:
         return rtrue
     else:
         return rfalse
 
+
 def rdouble(val):
     """
     Returns the argument itself if None or an instance of RDouble.
     Otherwise, assigns a coerced float to the value of a new RDouble.
     """
-    if val == None or isinstance(val, omero.RDouble):
+    if val is None or isinstance(val, omero.RDouble):
         return val
     return RDoubleI(val)
+
 
 def rfloat(val):
     """
     Returns the argument itself if None or an instance of RFloat.
     Otherwise, assigns a coerced float to the value of a new RFloat.
     """
-    if val == None or isinstance(val, omero.RFloat):
+    if val is None or isinstance(val, omero.RFloat):
         return val
     return RFloatI(val)
+
 
 def rint(val):
     """
@@ -191,11 +201,12 @@ def rint(val):
     If the argument is 0, rint0 is returned.
     Otherwise, assigns a coerced int to the value of a new RInt
     """
-    if val == None or isinstance(val, omero.RInt):
+    if val is None or isinstance(val, omero.RInt):
         return val
     elif val == 0:
         return rint0
     return RIntI(val)
+
 
 def rlong(val):
     """
@@ -203,23 +214,25 @@ def rlong(val):
     If the argument is 0, rlong 0 is returned.
     Otherwise, assigns a coerced int to the value of a new RLong
     """
-    if val == None or isinstance(val, omero.RLong):
+    if val is None or isinstance(val, omero.RLong):
         return val
     elif val == 0:
         return rlong0
     return RLongI(val)
+
 
 def rtime(val):
     """
     Returns the argument itself if None or an instance of RTime.
     Otherwise, assigns a coerced long to the value of a new RTime
     """
-    if val == None or isinstance(val, omero.RTime):
+    if val is None or isinstance(val, omero.RTime):
         return val
     return RTimeI(val)
 
 # Static factory methods (objects)
 # =========================================================================
+
 
 def rinternal(val):
     """
@@ -227,7 +240,7 @@ def rinternal(val):
     If an RInternal, returns the argument itself.
     Otherwise creates a new RInternal.
     """
-    if val == None:
+    if val is None:
         return rnullinternal
     elif isinstance(val, omero.RInternal):
         return val
@@ -236,13 +249,14 @@ def rinternal(val):
     else:
         raise ValueError("Not Internal type: %s" % type(val))
 
+
 def robject(val):
     """
     If argument is None, returns rnullobject.
     If an RObject, returns the argument itself.
     Otherwise creates a new RObject
     """
-    if val == None:
+    if val is None:
         return rnullobject
     elif isinstance(val, omero.RObject):
         return val
@@ -251,13 +265,14 @@ def robject(val):
     else:
         raise ValueError("Not IObject type: %s" % type(val))
 
+
 def rclass(val):
     """
     If argument is None or "", returns emptyclass.
     If an RClass, returns the argument itself.
     Otherwise creates a new RClass
     """
-    if val == None:
+    if val is None:
         return remptyclass
     elif isinstance(val, omero.RClass):
         return val
@@ -268,13 +283,14 @@ def rclass(val):
             return RClassI(val)
     raise ValueError("Not string type: %s" % type(val))
 
+
 def rstring(val):
     """
     If argument is None or "", returns emptystring.
     If an RString, returns the argument itself.
     Otherwise creates a new RString
     """
-    if val == None:
+    if val is None:
         return remptystr
     elif isinstance(val, omero.RString):
         return val
@@ -288,34 +304,39 @@ def rstring(val):
 # Static factory methods (collections)
 # =========================================================================
 
-def rarray(val = None, *args):
+
+def rarray(val=None, *args):
     return RArrayI(val, *args)
 
-def rlist(val = None, *args):
+
+def rlist(val=None, *args):
     return RListI(val, *args)
 
-def rset(val = None, *args):
+
+def rset(val=None, *args):
     return RSetI(val, *args)
 
-def rmap(val = None, **kwargs):
+
+def rmap(val=None, **kwargs):
     return RMapI(val, **kwargs)
 
 # Implementations (primitives)
 # =========================================================================
+
 
 class RBoolI(omero.RBool):
 
     def __init__(self, value):
         omero.RBool.__init__(self, value)
 
-    def getValue(self, current = None):
+    def getValue(self, current=None):
         return self._val
 
-    def compare(self, rhs, current = None):
+    def compare(self, rhs, current=None):
         raise NotImplementedError("compare")
 
     def __eq__(self, obj):
-        if obj == None:
+        if obj is None:
             return False
         elif obj is self:
             return True
@@ -340,7 +361,7 @@ class RBoolI(omero.RBool):
 
     def __setattr__(self, attr, value):
         if attr == "val":
-            if self.__dict__.has_key("_val"):
+            if "_val" in self.__dict__:
                 raise omero.ClientError("Cannot write to val")
             else:
                 self.__dict__["_val"] = value
@@ -352,29 +373,29 @@ class RBoolI(omero.RBool):
         Provides additional initialization once all data loaded
         Required due to __getattr__ implementation.
         """
-        pass # Currently unused
-
+        pass  # Currently unused
 
     def ice_preMarshal(self):
         """
         Provides additional validation before data is sent
         Required due to __getattr__ implementation.
         """
-        pass # Currently unused
+        pass  # Currently unused
+
 
 class RDoubleI(omero.RDouble):
 
     def __init__(self, value):
         omero.RDouble.__init__(self, float(value))
 
-    def getValue(self, current = None):
+    def getValue(self, current=None):
         return self._val
 
-    def compare(self, rhs, current = None):
+    def compare(self, rhs, current=None):
         raise NotImplementedError("compare")
 
     def __eq__(self, obj):
-        if obj == None:
+        if obj is None:
             return False
         elif obj is self:
             return True
@@ -396,7 +417,7 @@ class RDoubleI(omero.RDouble):
 
     def __setattr__(self, attr, value):
         if attr == "val":
-            if self.__dict__.has_key("_val"):
+            if "_val" in self.__dict__:
                 raise omero.ClientError("Cannot write to val")
             else:
                 self.__dict__["_val"] = value
@@ -408,28 +429,29 @@ class RDoubleI(omero.RDouble):
         Provides additional initialization once all data loaded
         Required due to __getattr__ implementation.
         """
-        pass # Currently unused
+        pass  # Currently unused
 
     def ice_preMarshal(self):
         """
         Provides additional validation before data is sent
         Required due to __getattr__ implementation.
         """
-        pass # Currently unused
+        pass  # Currently unused
+
 
 class RFloatI(omero.RFloat):
 
     def __init__(self, value):
         omero.RFloat.__init__(self, float(value))
 
-    def getValue(self, current = None):
+    def getValue(self, current=None):
         return self._val
 
-    def compare(self, rhs, current = None):
+    def compare(self, rhs, current=None):
         raise NotImplementedError("compare")
 
     def __eq__(self, obj):
-        if obj == None:
+        if obj is None:
             return False
         elif obj is self:
             return True
@@ -451,7 +473,7 @@ class RFloatI(omero.RFloat):
 
     def __setattr__(self, attr, value):
         if attr == "val":
-            if self.__dict__.has_key("_val"):
+            if "_val" in self.__dict__:
                 raise omero.ClientError("Cannot write to val")
             else:
                 self.__dict__["_val"] = value
@@ -463,28 +485,29 @@ class RFloatI(omero.RFloat):
         Provides additional initialization once all data loaded
         Required due to __getattr__ implementation.
         """
-        pass # Currently unused
+        pass  # Currently unused
 
     def ice_preMarshal(self):
         """
         Provides additional validation before data is sent
         Required due to __getattr__ implementation.
         """
-        pass # Currently unused
+        pass  # Currently unused
+
 
 class RIntI(omero.RInt):
 
     def __init__(self, value):
         omero.RInt.__init__(self, int(value))
 
-    def getValue(self, current = None):
+    def getValue(self, current=None):
         return self._val
 
-    def compare(self, rhs, current = None):
+    def compare(self, rhs, current=None):
         raise NotImplementedError("compare")
 
     def __eq__(self, obj):
-        if obj == None:
+        if obj is None:
             return False
         elif obj is self:
             return True
@@ -506,7 +529,7 @@ class RIntI(omero.RInt):
 
     def __setattr__(self, attr, value):
         if attr == "val":
-            if self.__dict__.has_key("_val"):
+            if "_val" in self.__dict__:
                 raise omero.ClientError("Cannot write to val")
             else:
                 self.__dict__["_val"] = value
@@ -518,28 +541,29 @@ class RIntI(omero.RInt):
         Provides additional initialization once all data loaded
         Required due to __getattr__ implementation.
         """
-        pass # Currently unused
+        pass  # Currently unused
 
     def ice_preMarshal(self):
         """
         Provides additional validation before data is sent
         Required due to __getattr__ implementation.
         """
-        pass # Currently unused
+        pass  # Currently unused
+
 
 class RLongI(omero.RLong):
 
     def __init__(self, value):
         omero.RLong.__init__(self, long(value))
 
-    def getValue(self, current = None):
+    def getValue(self, current=None):
         return self._val
 
-    def compare(self, rhs, current = None):
+    def compare(self, rhs, current=None):
         raise NotImplementedError("compare")
 
     def __eq__(self, obj):
-        if obj == None:
+        if obj is None:
             return False
         elif obj is self:
             return True
@@ -561,7 +585,7 @@ class RLongI(omero.RLong):
 
     def __setattr__(self, attr, value):
         if attr == "val":
-            if self.__dict__.has_key("_val"):
+            if "_val" in self.__dict__:
                 raise omero.ClientError("Cannot write to val")
             else:
                 self.__dict__["_val"] = value
@@ -573,28 +597,29 @@ class RLongI(omero.RLong):
         Provides additional initialization once all data loaded
         Required due to __getattr__ implementation.
         """
-        pass # Currently unused
+        pass  # Currently unused
 
     def ice_preMarshal(self):
         """
         Provides additional validation before data is sent
         Required due to __getattr__ implementation.
         """
-        pass # Currently unused
+        pass  # Currently unused
+
 
 class RTimeI(omero.RTime):
 
     def __init__(self, value):
         omero.RTime.__init__(self, long(value))
 
-    def getValue(self, current = None):
+    def getValue(self, current=None):
         return self._val
 
-    def compare(self, rhs, current = None):
+    def compare(self, rhs, current=None):
         raise NotImplementedError("compare")
 
     def __eq__(self, obj):
-        if obj == None:
+        if obj is None:
             return False
         elif obj is self:
             return True
@@ -616,7 +641,7 @@ class RTimeI(omero.RTime):
 
     def __setattr__(self, attr, value):
         if attr == "val":
-            if self.__dict__.has_key("_val"):
+            if "_val" in self.__dict__:
                 raise omero.ClientError("Cannot write to val")
             else:
                 self.__dict__["_val"] = value
@@ -628,31 +653,32 @@ class RTimeI(omero.RTime):
         Provides additional initialization once all data loaded
         Required due to __getattr__ implementation.
         """
-        pass # Currently unused
+        pass  # Currently unused
 
     def ice_preMarshal(self):
         """
         Provides additional validation before data is sent
         Required due to __getattr__ implementation.
         """
-        pass # Currently unused
+        pass  # Currently unused
 
 # Implementations (objects)
 # =========================================================================
+
 
 class RInternalI(omero.RInternal):
 
     def __init__(self, value):
         omero.RInternal.__init__(self, value)
 
-    def getValue(self, current = None):
+    def getValue(self, current=None):
         return self._val
 
-    def compare(self, rhs, current = None):
+    def compare(self, rhs, current=None):
         raise NotImplementedError("compare")
 
     def __eq__(self, obj):
-        if obj == None:
+        if obj is None:
             return False
         elif obj is self:
             return True
@@ -674,7 +700,7 @@ class RInternalI(omero.RInternal):
 
     def __setattr__(self, attr, value):
         if attr == "val":
-            if self.__dict__.has_key("_val"):
+            if "_val" in self.__dict__:
                 raise omero.ClientError("Cannot write to val")
             else:
                 self.__dict__["_val"] = value
@@ -686,28 +712,29 @@ class RInternalI(omero.RInternal):
         Provides additional initialization once all data loaded
         Required due to __getattr__ implementation.
         """
-        pass # Currently unused
+        pass  # Currently unused
 
     def ice_preMarshal(self):
         """
         Provides additional validation before data is sent
         Required due to __getattr__ implementation.
         """
-        pass # Currently unused
+        pass  # Currently unused
+
 
 class RObjectI(omero.RObject):
 
     def __init__(self, value):
         omero.RObject.__init__(self, value)
 
-    def getValue(self, current = None):
+    def getValue(self, current=None):
         return self._val
 
-    def compare(self, rhs, current = None):
+    def compare(self, rhs, current=None):
         raise NotImplementedError("compare")
 
     def __eq__(self, obj):
-        if obj == None:
+        if obj is None:
             return False
         elif obj is self:
             return True
@@ -729,7 +756,7 @@ class RObjectI(omero.RObject):
 
     def __setattr__(self, attr, value):
         if attr == "val":
-            if self.__dict__.has_key("_val"):
+            if "_val" in self.__dict__:
                 raise omero.ClientError("Cannot write to val")
             else:
                 self.__dict__["_val"] = value
@@ -741,28 +768,29 @@ class RObjectI(omero.RObject):
         Provides additional initialization once all data loaded
         Required due to __getattr__ implementation.
         """
-        pass # Currently unused
+        pass  # Currently unused
 
     def ice_preMarshal(self):
         """
         Provides additional validation before data is sent
         Required due to __getattr__ implementation.
         """
-        pass # Currently unused
+        pass  # Currently unused
+
 
 class RStringI(omero.RString):
 
     def __init__(self, value):
         omero.RString.__init__(self, value)
 
-    def getValue(self, current = None):
+    def getValue(self, current=None):
         return self._val
 
-    def compare(self, rhs, current = None):
+    def compare(self, rhs, current=None):
         raise NotImplementedError("compare")
 
     def __eq__(self, obj):
-        if obj == None:
+        if obj is None:
             return False
         elif obj is self:
             return True
@@ -784,7 +812,7 @@ class RStringI(omero.RString):
 
     def __setattr__(self, attr, value):
         if attr == "val":
-            if self.__dict__.has_key("_val"):
+            if "_val" in self.__dict__:
                 raise omero.ClientError("Cannot write to val")
             else:
                 self.__dict__["_val"] = value
@@ -796,28 +824,29 @@ class RStringI(omero.RString):
         Provides additional initialization once all data loaded
         Required due to __getattr__ implementation.
         """
-        pass # Currently unused
+        pass  # Currently unused
 
     def ice_preMarshal(self):
         """
         Provides additional validation before data is sent
         Required due to __getattr__ implementation.
         """
-        pass # Currently unused
+        pass  # Currently unused
+
 
 class RClassI(omero.RClass):
 
     def __init__(self, value):
         omero.RClass.__init__(self, value)
 
-    def getValue(self, current = None):
+    def getValue(self, current=None):
         return self._val
 
-    def compare(self, rhs, current = None):
+    def compare(self, rhs, current=None):
         raise NotImplementedError("compare")
 
     def __eq__(self, obj):
-        if obj == None:
+        if obj is None:
             return False
         elif obj is self:
             return True
@@ -839,7 +868,7 @@ class RClassI(omero.RClass):
 
     def __setattr__(self, attr, value):
         if attr == "val":
-            if self.__dict__.has_key("_val"):
+            if "_val" in self.__dict__:
                 raise omero.ClientError("Cannot write to val")
             else:
                 self.__dict__["_val"] = value
@@ -851,25 +880,26 @@ class RClassI(omero.RClass):
         Provides additional initialization once all data loaded
         Required due to __getattr__ implementation.
         """
-        pass # Currently unused
+        pass  # Currently unused
 
     def ice_preMarshal(self):
         """
         Provides additional validation before data is sent
         Required due to __getattr__ implementation.
         """
-        pass # Currently unused
+        pass  # Currently unused
 
 # Implementations (collections)
 # =========================================================================
+
 
 class RArrayI(omero.RArray):
     """
     Guaranteed to never contain an empty list.
     """
 
-    def __init__(self, arg = None, *args):
-        if arg == None:
+    def __init__(self, arg=None, *args):
+        if arg is None:
             self._val = []
         elif not hasattr(arg, "__iter__"):
             self._val = [arg]
@@ -880,26 +910,26 @@ class RArrayI(omero.RArray):
             if not isinstance(v, omero.RType):
                 raise ValueError("Item of wrong type: %s" % type(v))
 
-    def compare(self, rhs, current = None):
+    def compare(self, rhs, current=None):
         raise NotImplementedError("compare")
 
-    def getValue(self, current = None):
+    def getValue(self, current=None):
         return self._val
 
-    def get(self, index, current = None):
+    def get(self, index, current=None):
         return self._val[index]
 
-    def size(self, current = None):
+    def size(self, current=None):
         return len(self._val)
 
-    def add(self, value, current = None):
+    def add(self, value, current=None):
         self._val.append(value)
 
-    def addAll(self, values, current = None):
+    def addAll(self, values, current=None):
         self.val.append(values)
 
     def __eq__(self, obj):
-        if obj == None:
+        if obj is None:
             return False
         elif self is obj:
             return True
@@ -914,7 +944,7 @@ class RArrayI(omero.RArray):
         """
         Not allowed. Hashing a list is not supported.
         """
-        return hash(self._val) # Throws an exception
+        return hash(self._val)  # Throws an exception
 
     def __getattr__(self, attr):
         if attr == "val":
@@ -924,7 +954,7 @@ class RArrayI(omero.RArray):
 
     def __setattr__(self, attr, value):
         if attr == "val":
-            if self.__dict__.has_key("_val"):
+            if "_val" in self.__dict__:
                 raise omero.ClientError("Cannot write to val")
             else:
                 self.__dict__["_val"] = value
@@ -936,22 +966,23 @@ class RArrayI(omero.RArray):
         Provides additional initialization once all data loaded
         Required due to __getattr__ implementation.
         """
-        pass # Currently unused
+        pass  # Currently unused
 
     def ice_preMarshal(self):
         """
         Provides additional validation before data is sent
         Required due to __getattr__ implementation.
         """
-        pass # Currently unused
+        pass  # Currently unused
+
 
 class RListI(omero.RList):
     """
     Guaranteed to never contain an empty list.
     """
 
-    def __init__(self, arg = None, *args):
-        if arg == None:
+    def __init__(self, arg=None, *args):
+        if arg is None:
             self._val = []
         elif not hasattr(arg, "__iter__"):
             self._val = [arg]
@@ -962,27 +993,26 @@ class RListI(omero.RList):
             if not isinstance(v, omero.RType):
                 raise ValueError("Item of wrong type: %s" % type(v))
 
-
-    def compare(self, rhs, current = None):
+    def compare(self, rhs, current=None):
         raise NotImplementedError("compare")
 
-    def getValue(self, current = None):
+    def getValue(self, current=None):
         return self._val
 
-    def get(self, index, current = None):
+    def get(self, index, current=None):
         return self._val[index]
 
-    def size(self, current = None):
+    def size(self, current=None):
         return len(self._val)
 
-    def add(self, value, current = None):
+    def add(self, value, current=None):
         self._val.append(value)
 
-    def addAll(self, values, current = None):
+    def addAll(self, values, current=None):
         self.val.append(values)
 
     def __eq__(self, obj):
-        if obj == None:
+        if obj is None:
             return False
         elif self is obj:
             return True
@@ -997,7 +1027,7 @@ class RListI(omero.RList):
         """
         Not allowed. Hashing a list is not supported.
         """
-        return hash(self._val) # Throws an exception
+        return hash(self._val)  # Throws an exception
 
     def __getattr__(self, attr):
         if attr == "val":
@@ -1007,7 +1037,7 @@ class RListI(omero.RList):
 
     def __setattr__(self, attr, value):
         if attr == "val":
-            if self.__dict__.has_key("_val"):
+            if "_val" in self.__dict__:
                 raise omero.ClientError("Cannot write to val")
             else:
                 self.__dict__["_val"] = value
@@ -1019,22 +1049,23 @@ class RListI(omero.RList):
         Provides additional initialization once all data loaded
         Required due to __getattr__ implementation.
         """
-        pass # Currently unused
+        pass  # Currently unused
 
     def ice_preMarshal(self):
         """
         Provides additional validation before data is sent
         Required due to __getattr__ implementation.
         """
-        pass # Currently unused
+        pass  # Currently unused
+
 
 class RSetI(omero.RSet):
     """
     Guaranteed to never contain an empty list.
     """
 
-    def __init__(self, arg = None, *args):
-        if arg == None:
+    def __init__(self, arg=None, *args):
+        if arg is None:
             self._val = []
         elif not hasattr(arg, "__iter__"):
             self._val = [arg]
@@ -1045,27 +1076,26 @@ class RSetI(omero.RSet):
             if not isinstance(v, omero.RType):
                 raise ValueError("Item of wrong type: %s" % type(v))
 
-
-    def compare(self, rhs, current = None):
+    def compare(self, rhs, current=None):
         raise NotImplementedError("compare")
 
-    def getValue(self, current = None):
+    def getValue(self, current=None):
         return self._val
 
-    def get(self, index, current = None):
+    def get(self, index, current=None):
         return self._val[index]
 
-    def size(self, current = None):
+    def size(self, current=None):
         return len(self._val)
 
-    def add(self, value, current = None):
+    def add(self, value, current=None):
         self._val.append(value)
 
-    def addAll(self, values, current = None):
+    def addAll(self, values, current=None):
         self.val.append(values)
 
     def __eq__(self, obj):
-        if obj == None:
+        if obj is None:
             return False
         elif self is obj:
             return True
@@ -1080,7 +1110,7 @@ class RSetI(omero.RSet):
         """
         Not allowed. Hashing a list is not supported.
         """
-        return hash(self._val) # Throws an exception
+        return hash(self._val)  # Throws an exception
 
     def __getattr__(self, attr):
         if attr == "val":
@@ -1090,7 +1120,7 @@ class RSetI(omero.RSet):
 
     def __setattr__(self, attr, value):
         if attr == "val":
-            if self.__dict__.has_key("_val"):
+            if "_val" in self.__dict__:
                 raise omero.ClientError("Cannot write to val")
             else:
                 self.__dict__["_val"] = value
@@ -1102,22 +1132,23 @@ class RSetI(omero.RSet):
         Provides additional initialization once all data loaded
         Required due to __getattr__ implementation.
         """
-        pass # Currently unused
+        pass  # Currently unused
 
     def ice_preMarshal(self):
         """
         Provides additional validation before data is sent
         Required due to __getattr__ implementation.
         """
-        pass # Currently unused
+        pass  # Currently unused
+
 
 class RMapI(omero.RMap):
 
-    def __init__(self, arg = None, **kwargs):
-        if arg == None:
+    def __init__(self, arg=None, **kwargs):
+        if arg is None:
             self._val = {}
         else:
-            self._val = dict(arg) # May throw an exception
+            self._val = dict(arg)  # May throw an exception
         self._val.update(kwargs)
         self._validate()
 
@@ -1128,23 +1159,23 @@ class RMapI(omero.RMap):
             if v is not None and not isinstance(v, omero.RType):
                 raise ValueError("Value of wrong type: %s" % type(v))
 
-    def compare(self, rhs, current = None):
+    def compare(self, rhs, current=None):
         raise NotImplementedError("compare")
 
-    def getValue(self, current = None):
+    def getValue(self, current=None):
         return self._val
 
-    def get(self, key, current = None):
+    def get(self, key, current=None):
         return self._val[key]
 
-    def put(self, key, value, current = None):
+    def put(self, key, value, current=None):
         self._val[key] = value
 
-    def size(self, current = None):
+    def size(self, current=None):
         return len(self._val)
 
     def __eq__(self, obj):
-        if obj == None:
+        if obj is None:
             return False
         elif self is obj:
             return True
@@ -1159,7 +1190,7 @@ class RMapI(omero.RMap):
         """
         Not allowed. Hashing a list is not supported.
         """
-        return hash(self._val) # Throws an exception
+        return hash(self._val)  # Throws an exception
 
     def __getattr__(self, attr):
         if attr == "val":
@@ -1169,7 +1200,7 @@ class RMapI(omero.RMap):
 
     def __setattr__(self, attr, value):
         if attr == "val":
-            if self.__dict__.has_key("_val"):
+            if "_val" in self.__dict__:
                 raise omero.ClientError("Cannot write to val")
             else:
                 self.__dict__["_val"] = value
@@ -1181,19 +1212,20 @@ class RMapI(omero.RMap):
         Provides additional initialization once all data loaded
         Required due to __getattr__ implementation.
         """
-        pass # Currently unused
+        pass  # Currently unused
 
     def ice_preMarshal(self):
         """
         Provides additional validation before data is sent
         Required due to __getattr__ implementation.
         """
-        pass # Currently unused
+        pass  # Currently unused
 
 # Helpers
 # ========================================================================
 
 # Conversion classes are for omero.model <--> ome.model only (no python)
+
 
 class ObjectFactory(Ice.ObjectFactory):
 

@@ -130,7 +130,7 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase {
         super.verify();
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testStatefulInvocationGetsNewSession() throws Throwable {
         newStatefulReadInvocation();
         opensSession();
@@ -142,7 +142,7 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase {
         super.verify();
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testSecondStatefulInvocationsReusesSession() throws Throwable {
         newStatefulReadInvocation();
         opensSession();
@@ -200,7 +200,7 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase {
         }
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testStatefulInvocationWithSessionThenClosed() throws Throwable {
         newStatefulDestroyInvocation();
         opensSession();

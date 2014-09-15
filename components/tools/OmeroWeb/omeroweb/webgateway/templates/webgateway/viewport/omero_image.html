@@ -91,6 +91,9 @@
     <script type="text/javascript" src="{% static "3rdparty/panojs/control_roi.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.mousewheel.js" %}"></script>
 
+    <!-- hammer.js for tablet gestures -->
+    <script type="text/javascript" src="{% static "3rdparty/hammer/hammer.min.js" %}"></script>
+    
 {% endblock %}
 
 
@@ -877,6 +880,14 @@
                 {% endifnotequal %}
           </div>
 {% endblock roi_buttons %}
+          <div class="odd row">
+             <button class="btn prev_next_image prev" title="Previous Image" disabled="disabled">
+                <span>< Prev</span>
+            </button>
+            <button class="btn prev_next_image next" title="Next Image" disabled="disabled">
+                <span>Next ></span>
+            </button>
+          </div>
           {% block current_image_tools %}{% endblock %}
         </div>
 
@@ -1135,6 +1146,75 @@
     });
 
 
+    // Check the Parent window for Previous / Next images...
+    var $currentImg = window.opener.$("#image_icon-{{ image.id }}"),
+        prevImgId, nextImgId;
+    if ($currentImg.length === 1) {
+      // Main thumbnails window
+      var prevImgId = $currentImg.prevAll(":visible").first().find("img").attr('id');
+      var nextImgId = $currentImg.nextAll(":visible").first().find("img").attr('id');
+    } else if ($currentImg.length === 0) {
+      // if not found, try "Search" results page layout
+      $currentImg = window.opener.$("#image-{{ image.id }}");
+      prevImgId = prevImgId || $currentImg.prevAll(":visible").first().attr('id');  // E.g: image-123
+      if (prevImgId) {
+        prevImgId = prevImgId.split('image-')[1];     // will be undefined if E.g: 'dataset-123'
+      }
+      nextImgId = nextImgId || $currentImg.nextAll(":visible").first().attr('id');
+      if (nextImgId) {
+        nextImgId = nextImgId.split('image-')[1];
+      }
+    }
+
+    // Enable Prev / Next buttons if available (disabled by default)
+    if (prevImgId) {
+      $(".btn.prev_next_image.prev").removeAttr('disabled');
+    }
+    if (nextImgId) {
+      $(".btn.prev_next_image.next").removeAttr('disabled');
+    }
+
+    // Handle Prev / Next button clicks or keys
+    function nextPrevImage(direction) {
+      var id;
+      if( direction == -1 ) {
+        id = prevImgId;
+      } else {
+        id = nextImgId
+      }
+      if( id ) {
+        window.location.href = "{{ viewport_server }}/img_detail/" + id
+      }
+    }
+
+    // Prev / Next keys
+    $(document).keydown(function(e) {
+
+        // ignore keystrokes on other inputs, sliders etc.
+        if ($(e.target).prop("tagName") !== "BODY") return;
+
+        switch(e.which) {
+            case 37: // left
+                 nextPrevImage(-1);
+            break;
+
+            case 39: // right
+                nextPrevImage(1);
+            break;
+
+            default: return;
+        }
+        e.preventDefault();
+    });
+
+    $(".btn.prev_next_image").click(function(){
+        if ( $(this).hasClass('prev') ){
+            nextPrevImage(-1);
+        } else {
+            nextPrevImage(1);
+        }
+    });
+    
     // we can bind events to viewportimg for roi_display-plugin to trigger (plugin not created yet)
     viewport.viewportimg.bind("shape_click", handle_shape_selection);
     viewport.viewportimg.bind("rois_loaded", handle_rois_loaded);
@@ -1161,6 +1241,5 @@
 {% endblock content_script %}
   /* ]]> */
 </script>
-
 
 {% endblock %}

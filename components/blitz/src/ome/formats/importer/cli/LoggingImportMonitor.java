@@ -38,7 +38,7 @@ public class LoggingImportMonitor implements IObserver
 
             // send the import results to stdout
             // to enable external tools integration
-            outputGreppableResults(ev);
+            importSummary.outputGreppableResults(ev);
             importSummary.update(ev);
         } else if (event instanceof IMPORT_SUMMARY) {
             IMPORT_SUMMARY ev = (IMPORT_SUMMARY) event;
@@ -66,41 +66,10 @@ public class LoggingImportMonitor implements IObserver
     }
 
     /**
-     * Displays a list of successfully imported Pixels IDs on standard output.
-     *
-     * Note that this behaviour is intended for other command line tools
-     * to pipe/grep the import results, and should be kept as is.
-     *
-     * @param ev the end of import event.
-     */
-    private void outputGreppableResults(IMPORT_DONE ev) {
-        System.err.println("Imported pixels:");
-        for (Pixels p : ev.pixels) {
-            System.out.println(p.getId().getValue());
-        }
-
-        System.err.println("Other imported objects:");
-        System.err.print("Fileset:");
-        System.err.println(ev.fileset.getId().getValue());
-        for (IObject object : ev.objects) {
-            if (object != null && object.getId() != null) {
-                // Not printing to stdout since the contract at the moment
-                // is that only pixel IDs hit stdout.
-                String kls = object.getClass().getSimpleName();
-                if (kls.endsWith("I")) {
-                    kls = kls.substring(0,kls.length()-1);
-                }
-                System.err.print(kls);
-                System.err.print(":");
-                System.err.println(object.getId().getValue());
-            }
-        }
-    }
-
-    /**
      * Placeholder used for printing a final import summary.
      */
-    private class ImportSummary {
+    private class ImportSummary
+    {
         private final static String PLATE_CLASS = "PlateI";
 
         private int createdFilesets;
@@ -115,6 +84,7 @@ public class LoggingImportMonitor implements IObserver
         /**
          * Updates the state of the object using information held by given even
          * type.
+         *
          * @param event An import event.
          */
         public void update(IMPORT_DONE event) {
@@ -130,6 +100,7 @@ public class LoggingImportMonitor implements IObserver
         /**
          * Updates the state of the object using information held by given event
          * type.
+         *
          * @param event An import event.
          */
         public void update(FILE_UPLOAD_COMPLETE event) {
@@ -138,6 +109,7 @@ public class LoggingImportMonitor implements IObserver
 
         /**
          * Sets the import error count to the given number.
+         *
          * @param errors Count.
          */
         public void setErrors(int errors) {
@@ -146,6 +118,7 @@ public class LoggingImportMonitor implements IObserver
 
         /**
          * Sets the time taken by import to given value.
+         *
          * @param time The time in milliseconds.
          */
         public void setTime(long time) {
@@ -177,12 +150,46 @@ public class LoggingImportMonitor implements IObserver
         /**
          * Returns a string with a digit and singular/plural form of the
          * provided entity name (e.g. "3 apples", "1 car").
+         *
          * @param name The name of the entity used in the output.
          * @param count The number of entity elements.
          * @return See above.
          */
         private String entityCountToString(String name, int count) {
             return String.format("%d %s%s", count, name, count != 1 ? "s" : "");
+        }
+
+        /**
+         * Displays a list of successfully imported Pixels IDs on standard
+         * output.
+         *
+         * Note that this behavior is intended for other command line tools to
+         * pipe/grep the import results, and should be kept as is.
+         *
+         * @param ev the end of import event.
+         */
+        void outputGreppableResults(IMPORT_DONE ev) {
+            System.err.println("Imported pixels:");
+            for (Pixels p : ev.pixels) {
+                System.out.println(p.getId().getValue());
+            }
+
+            System.err.println("Other imported objects:");
+            System.err.print("Fileset:");
+            System.err.println(ev.fileset.getId().getValue());
+            for (IObject object : ev.objects) {
+                if (object != null && object.getId() != null) {
+                    // Not printing to stdout since the contract at the moment
+                    // is that only pixel IDs hit stdout.
+                    String kls = object.getClass().getSimpleName();
+                    if (kls.endsWith("I")) {
+                        kls = kls.substring(0,kls.length()-1);
+                    }
+                    System.err.print(kls);
+                    System.err.print(":");
+                    System.err.println(object.getId().getValue());
+                }
+            }
         }
     }
 }

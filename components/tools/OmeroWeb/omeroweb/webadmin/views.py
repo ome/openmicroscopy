@@ -42,6 +42,7 @@ import omeroweb.webclient.views
 
 from time import time
 
+from omero_version import build_year
 from omero_version import omero_version
 
 from django.conf import settings
@@ -145,6 +146,7 @@ def otherGroupsInitialList(groups, excluded_names=("user","guest"), excluded_ids
             flag = True
         if not flag:
             formGroups.append(gr)
+    formGroups.sort(key=lambda x: x.getName().lower())
     return formGroups
 
 def ownedGroupsInitial(conn, excluded_names=("user","guest", "system"), excluded_ids=list()):
@@ -158,6 +160,7 @@ def ownedGroupsInitial(conn, excluded_names=("user","guest", "system"), excluded
             flag = True
         if not flag:
             ownedGroups.append(gr)
+    ownedGroups.sort(key=lambda x: x.getName().lower())
     return ownedGroups
 
 # myphoto helpers
@@ -323,35 +326,39 @@ def forgotten_password(request, **kwargs):
     error = None
     blitz = None
 
-    def getGuestConnection(host, port):
-        server_id = request.session['connector'].server_id
+    def getGuestConnection(server_id):
         return Connector(server_id, True).create_guest_connection('OMERO.web')
 
     if request.method == 'POST':
         form = ForgottonPasswordForm(data=request.REQUEST.copy())
         if form.is_valid():
-            blitz = Server.get(pk=request.REQUEST.get('server'))
+            server_id = request.REQUEST.get('server')
             try:
-                conn = getGuestConnection(blitz.host, blitz.port)
-                if not conn.isForgottenPasswordSet():
-                    error = "This server cannot reset password. Please contact your administrator."
-                    conn = None
+                conn = getGuestConnection(server_id)
             except Exception:
                 logger.error(traceback.format_exc())
                 error = "Internal server error, please contact administrator."
         
             if conn is not None:
                 try:
-                    conn.reportForgottenPassword(smart_str(request.REQUEST.get('username')), smart_str(request.REQUEST.get('email')))
+                    req = omero.cmd.ResetPasswordRequest(smart_str(request.REQUEST.get('username')), smart_str(request.REQUEST.get('email')))
+                    handle = conn.c.sf.submit(req)
+                    try:
+                        conn._waitOnCmd(handle)
+                    finally:
+                        handle.close()
                     error = "Password was reset. Check your mailbox."
                     form = None
-                except Exception:
-                    logger.error(traceback.format_exc())
-                    error = "Internal server error, please contact administrator."
+                except omero.CmdError, exp:
+                    logger.error(exp.err)
+                    try:
+                        error = exp.err.parameters[exp.err.parameters.keys()[0]]
+                    except:
+                        error = exp
     else:
         form = ForgottonPasswordForm()
     
-    context = {'error':error, 'form':form}    
+    context = {'error':error, 'form':form, 'build_year':build_year, 'omero_version':omero_version}    
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)

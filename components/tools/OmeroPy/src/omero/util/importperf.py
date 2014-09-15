@@ -19,15 +19,16 @@ Performs various performance metrics and reports on OMERO.importer log files.
 
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
 
 import re
-import os
 import sys
 
 import mx.DateTime as DateTime
 from mx.DateTime import DateTimeDelta
 from getopt import getopt, GetoptError
+
 
 def usage(error):
     """Prints usage so that we don't have to. :)"""
@@ -48,11 +49,15 @@ Report bugs to ome-devel@lists.openmicroscopy.org.uk""" % \
         (error, cmd, cmd, cmd)
     sys.exit(2)
 
+
 class ParsingError(Exception):
+
     """Raised whenever there is an error parsing a log file."""
     pass
 
+
 class Import(object):
+
     """Stores context about a given import."""
 
     def __init__(self, start, name):
@@ -69,7 +74,9 @@ class Import(object):
         self.thumbnailing_start = None
         self.series = []
 
+
 class Series(object):
+
     """Stores context about a given series."""
 
     def __init__(self, start):
@@ -77,13 +84,17 @@ class Series(object):
         self.end = None
         self.planes = []
 
+
 class Plane(object):
+
     """Stores context about a given plane."""
 
     def __init__(self, abs_date_time):
         self.abs_date_time = abs_date_time
 
+
 class ImporterLog(object):
+
     """
     Parses and stores context from an OMERO.importer log file. It also has
     the capability of producing various reports.
@@ -91,9 +102,9 @@ class ImporterLog(object):
 
     # Regular expression for matching log4j log lines
     log_regex = re.compile(
-            '^(?P<date_time>\S+\s+\S+)\s+(?P<ms_elapsed>\d+)\s+' \
-            '(?P<thread>\[.*?\])\s+(?P<level>\S+)\s+(?P<class>\S+)\s+-\s+' \
-            '(?P<message>.*)$')
+        '^(?P<date_time>\S+\s+\S+)\s+(?P<ms_elapsed>\d+)\s+'
+        '(?P<thread>\[.*?\])\s+(?P<level>\S+)\s+(?P<class>\S+)\s+-\s+'
+        '(?P<message>.*)$')
 
     # Regular expression for matching possible OMERO.importer status messages
     status_regex = re.compile('^[A-Z_]*')
@@ -107,7 +118,7 @@ class ImporterLog(object):
         self.parse()
         self.last_import = None
         self.last_series = None
-    
+
     def parse(self):
         """Parses the specified log file."""
         line_no = 1
@@ -171,26 +182,26 @@ class ImporterLog(object):
         for import_n, i in enumerate(self.imports):
             elapsed = self.elapsed(i.start, i.end)
             print "Import(%s) %d start: %s end: %s elapsed: %s" % \
-                    (i.name, import_n, i.start, i.end, elapsed)
+                (i.name, import_n, i.start, i.end, elapsed)
             elapsed = self.elapsed(i.setid_start, i.setid_end)
             print "setId() start: %s end: %s elapsed: %s" % \
-                    (i.setid_start, i.setid_end, elapsed)
+                (i.setid_start, i.setid_end, elapsed)
             elapsed = self.elapsed(i.post_process_start, i.post_process_end)
             print "Post process start: %s end: %s elapsed: %s" % \
-                    (i.post_process_start, i.post_process_end, elapsed)
+                (i.post_process_start, i.post_process_end, elapsed)
             elapsed = self.elapsed(i.save_to_db_start, i.save_to_db_end)
             print "Save to DB start: %s end: %s elapsed: %s" % \
-                    (i.save_to_db_start, i.save_to_db_end, elapsed)
+                (i.save_to_db_start, i.save_to_db_end, elapsed)
             if len(i.series) > 0:
                 elapsed = self.elapsed(i.series[0].start, i.series[-1].end)
                 print "Image I/O start: %s end: %s elapsed: %s" % \
-                        (i.series[0].start, i.series[-1].end, elapsed)
+                    (i.series[0].start, i.series[-1].end, elapsed)
                 elapsed = self.elapsed(i.overlays_start, i.thumbnailing_start)
                 print "Overlays start: %s end: %s elapsed: %s" % \
-                        (i.overlays_start, i.thumbnailing_start, elapsed)
+                    (i.overlays_start, i.thumbnailing_start, elapsed)
                 elapsed = self.elapsed(i.thumbnailing_start, i.end)
                 print "Thumbnailing start: %s end: %s elapsed: %s" % \
-                        (i.thumbnailing_start, i.end, elapsed)
+                    (i.thumbnailing_start, i.end, elapsed)
 
     def series_report_csv(self):
         """
@@ -230,4 +241,3 @@ if __name__ == "__main__":
 
     if do_default_report:
         log.report()
-

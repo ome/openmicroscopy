@@ -172,15 +172,15 @@ public class ConfigUnitTest extends MockObjectTestCase {
     }
 
     private void notInDatabase() {
-        sqlMock.expects(once()).method("queryForObject").will(returnValue(null));
+        sqlMock.expects(once()).method("configValue").will(returnValue(null));
     }
     
     private void inDatabase(String value) {
-        sqlMock.expects(once()).method("queryForObject").will(returnValue(value));
+        sqlMock.expects(once()).method("configValue").will(returnValue(value));
     }
     
     private void updateDb(int count) {
-        sqlMock.expects(once()).method("update").will(returnValue(count));
+        sqlMock.expects(once()).method("updateConfiguration").will(returnValue(count));
     }
     
     private void match(Pattern pattern, String goal, String text) {

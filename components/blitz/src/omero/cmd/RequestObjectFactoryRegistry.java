@@ -1,5 +1,5 @@
 /*
- *   Copyright 2011 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2011-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  *
  */
@@ -14,18 +14,21 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import ome.io.nio.AbstractFileSystemService;
 import ome.io.nio.PixelsService;
+import ome.io.nio.ThumbnailService;
 import ome.security.ACLVoter;
 import ome.security.ChmodStrategy;
+import ome.security.SecuritySystem;
+import ome.security.auth.PasswordProvider;
+import ome.security.auth.PasswordUtil;
 import ome.services.chgrp.ChgrpStepFactory;
 import ome.services.chown.ChownStepFactory;
-import ome.services.delete.DeleteStepFactory;
 import ome.services.delete.Deletion;
+import ome.services.util.MailUtil;
 import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
-
+import omero.cmd.admin.ResetPasswordRequestI;
 import omero.cmd.basic.DoAllI;
 import omero.cmd.basic.ListRequestsI;
 import omero.cmd.basic.TimingI;
@@ -35,7 +38,9 @@ import omero.cmd.graphs.ChgrpI;
 import omero.cmd.graphs.ChmodI;
 import omero.cmd.graphs.ChownI;
 import omero.cmd.graphs.DeleteI;
+import omero.cmd.graphs.DiskUsageI;
 import omero.cmd.graphs.GraphSpecListI;
+import omero.cmd.mail.SendEmailRequestI;
 
 /**
  * SPI type picked up from the Spring configuration and given a chance to
@@ -55,18 +60,37 @@ public class RequestObjectFactoryRegistry extends
 
     private final PixelsService pixelsService;
 
+    private final ThumbnailService thumbnailService;
+
+    private final MailUtil mailUtil;
+
+    private final PasswordUtil passwordUtil;
+    
+    private final SecuritySystem sec;
+    
+    private final PasswordProvider passwordProvider;
+    
     private/* final */OmeroContext ctx;
 
     public RequestObjectFactoryRegistry(ExtendedMetadata em,
             ACLVoter voter,
             Roles roles,
-            PixelsService pixelsService) {
+            PixelsService pixelsService,
+            ThumbnailService thumbnailService,
+            MailUtil mailUtil,
+            PasswordUtil passwordUtil,
+            SecuritySystem sec,
+            PasswordProvider passwordProvider) {
 
         this.em = em;
         this.voter = voter;
         this.roles = roles;
         this.pixelsService = pixelsService;
-
+        this.thumbnailService = thumbnailService;
+        this.mailUtil = mailUtil;
+        this.passwordUtil = passwordUtil;
+        this.sec = sec;
+        this.passwordProvider = passwordProvider;
     }
 
     public void setApplicationContext(ApplicationContext ctx)
@@ -161,6 +185,27 @@ public class RequestObjectFactoryRegistry extends
                     @Override
                     public Ice.Object create(String name) {
                         return new ManageImageBinariesI(pixelsService, voter);
+                    }
+                });
+        factories.put(DiskUsageI.ice_staticId(),
+                new ObjectFactory(DiskUsageI.ice_staticId()) {
+                    @Override
+                    public Ice.Object create(String name) {
+                        return new DiskUsageI(pixelsService, thumbnailService);
+                    }
+                });
+        factories.put(SendEmailRequestI.ice_staticId(),
+                new ObjectFactory(SendEmailRequestI.ice_staticId()) {
+                    @Override
+                    public Ice.Object create(String name) {
+                    	return new SendEmailRequestI(mailUtil);
+                    }
+                });
+        factories.put(ResetPasswordRequestI.ice_staticId(),
+                new ObjectFactory(ResetPasswordRequestI.ice_staticId()) {
+                    @Override
+                    public Ice.Object create(String name) {
+                    	return new ResetPasswordRequestI(mailUtil, passwordUtil, sec, passwordProvider);
                     }
                 });
         return factories;

@@ -70,6 +70,7 @@ public class SelfCorrectingDatabaseUnitTest extends MockObjectTestCase {
         assertTrue(backOff3 == backOff4);
     }
 
+    @Test(timeOut = 30000)
     public void testRetries() throws Exception {
         self = new SelfCorrectingDataSource(ds, 30000L, 5, 3000); // 5 retries
         long backOff1 = assertFailsAndReturnBackOff();

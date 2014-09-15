@@ -43,6 +43,8 @@ target_link_libraries(options omero-client)
 add_executable(subclass Subclass.cpp)
 target_link_libraries(subclass omero-client)
 
+set_property(TARGET callback options subclass PROPERTY FOLDER "Examples")
+
 install(TARGETS callback options subclass
         RUNTIME
         DESTINATION "${omero_exampledir}"

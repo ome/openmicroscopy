@@ -82,7 +82,7 @@ public class MethodSecurityTest extends MockObjectTestCase {
     @Test(groups = "ticket:645")
     public void testCheckMethodAllowsExecution() throws Exception {
 
-        Method ec = AdminImpl.class.getMethod("getEventContext");
+        Method ec = AdminImpl.class.getMethod("lookupGroups");
         Principal p = new Principal("foo", "bar", "baz");
 
         List<String> roles = Arrays.asList("user", "demo");
@@ -100,7 +100,7 @@ public class MethodSecurityTest extends MockObjectTestCase {
     @Test(groups = "ticket:645")
     public void testCheckMethodAllowsExecutionEvenOnProxy() throws Exception {
 
-        Method ec = AdminImpl.class.getMethod("getEventContext");
+        Method ec = AdminImpl.class.getMethod("lookupGroups");
         Principal p = new Principal("foo", "bar", "baz");
 
         List<String> roles = Arrays.asList("user", "demo");

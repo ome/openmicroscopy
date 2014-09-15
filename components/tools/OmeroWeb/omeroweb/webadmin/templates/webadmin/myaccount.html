@@ -192,6 +192,29 @@
                 }
             });
 
+            $(".usageByGroup").click(function() {
+              $(".usageBy").removeClass('selected');
+              $(this).addClass('selected');
+              var gid = $(this).attr("data-groupid");
+              var url = "{% url 'waindex' %}" + "drivespace_json/group/" + gid +"/";
+              // $("#filterBy").text("Group: " + i.label).show().addClass('selected');
+              plotJson(url, {
+                  success: function(){
+                      $(".totalUsage").text('Group');
+                  }
+              });
+            });
+            $("#myUsage").click(function() {
+              $(".usageBy").removeClass('selected');
+              $(this).addClass('selected');
+              var url = "{% url 'waloaddrivespace_user' experimenter.id %}";
+              plotJson(url, {
+                  success: function(){
+                      $(".totalUsage").text('My');
+                  }
+              });
+            });
+
         });
         
     </script>
@@ -341,7 +364,27 @@
     {% endif %}
     
     
-    <div id="drivespace_settings" class="settings_content">
+    <div id="drivespace_settings" class="settings_content" style="position:relative">
+
+        {% if ownedGroups %}
+            <h1>
+                <div class='hlabel'>Personal Usage:</div>
+                <div class="tag">
+                  <a id="myUsage" class="usageBy tag_inner selected" href="#">{{ ome.user.getFullName }}</a>
+                </div>
+            </h1>
+            <div style="clear:both"></div>
+            <h1>
+              <div class='hlabel'>Group Usage (where owned):</div>
+              {% for group in ownedGroups %}
+                <div class="tag">
+                  <a class="usageByGroup tag_inner usageBy" href="#" data-groupid="{{ group.id }}">{{ group.name }}</a>
+                </div>
+              {% endfor %}
+            </h1>
+            <div style="clear:both"></div>
+            <hr>
+        {% endif %}
 
         {% include 'webadmin/includes/drivespaceStats.html' %}
     </div>

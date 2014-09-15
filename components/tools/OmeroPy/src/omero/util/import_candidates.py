@@ -9,35 +9,39 @@
 
 """
 
-import sys, os
 import omero
 
 from omero.util.temp_files import create_path, remove_path
 from omero.cli import CLI
+
 
 def _to_list(path):
     """
     Guarantees that a list of strings will be returned.
     Handles unicode caused by "%s" % path.path.
     """
-    if isinstance(path,str) or isinstance(path,unicode):
+    if isinstance(path, str) or isinstance(path, unicode):
         path = [str(path)]
         return path
     else:
         path = [str(x) for x in path]
         return path
 
+
 def as_stdout(path, readers=""):
-        path = _to_list(path)
-        readers = str(readers)
-        cli = CLI()
-        cli.loadplugins()
-        if readers:
-            cli.invoke(["import", "-l", readers, "-f"]+path)
-        else:
-            cli.invoke(["import", "-f"]+path)
-        if cli.rv != 0:
-            raise omero.InternalException(None, None, "'import -f' exited with a rc=%s. See console for more information" % cli.rv)
+    path = _to_list(path)
+    readers = str(readers)
+    cli = CLI()
+    cli.loadplugins()
+    if readers:
+        cli.invoke(["import", "-l", readers, "-f"] + path)
+    else:
+        cli.invoke(["import", "-f"] + path)
+    if cli.rv != 0:
+        raise omero.InternalException(
+            None, None, "'import -f' exited with a rc=%s. "
+            "See console for more information" % cli.rv)
+
 
 def as_dictionary(path, readers=""):
     """
@@ -61,7 +65,7 @@ def as_dictionary(path, readers=""):
     path.insert(0, "---file=%s" % t)
     try:
         as_stdout(path, readers=readers)
-        f = open(str(t),"r")
+        f = open(str(t), "r")
         output = f.readlines()
         f.close()
     finally:

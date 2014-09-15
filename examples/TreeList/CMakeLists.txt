@@ -37,6 +37,8 @@
 add_executable(treelist Main.cpp AllProjects.h PrintProjects.h Usage.h)
 target_link_libraries(treelist omero-client)
 
+set_property(TARGET treelist PROPERTY FOLDER "Examples")
+
 install(TARGETS treelist
         RUNTIME
         DESTINATION "${omero_exampledir}"

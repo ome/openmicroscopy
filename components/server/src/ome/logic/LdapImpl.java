@@ -63,6 +63,9 @@ import org.springframework.ldap.filter.EqualsFilter;
 import org.springframework.ldap.filter.Filter;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 /**
  * Provides methods for administering user accounts, passwords, as well as
  * methods which require special privileges.
@@ -553,6 +556,33 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
         }
 
         return s;
+    }
+
+    @RolesAllowed("system")
+    public Map<String, Experimenter> discover() {
+        Roles r = getSecuritySystem().getSecurityRoles();
+        Map<String, Experimenter> experimenterDNMap = Maps.newHashMap();
+
+        List<Experimenter> localExperimenters = iQuery.findAllByQuery(
+                "select distinct e from Experimenter e "
+                        + "where id not in (:ids)",
+                new Parameters().addIds(Lists.newArrayList(r.getRootId(),
+                        r.getGuestId())));
+
+        for (Experimenter e : localExperimenters) {
+            try {
+                findExperimenter(e.getOmeName());
+            } catch (ApiUsageException aue) {
+                // This user doesn't have an LDAP account
+                continue;
+            }
+            String localDN = lookupLdapAuthExperimenter(e.getId());
+            String ldapDN = findDN(e.getOmeName());
+            if (!ldapDN.equals(localDN)) {
+                experimenterDNMap.put(ldapDN, e);
+            }
+        }
+        return experimenterDNMap;
     }
 
     // Helpers

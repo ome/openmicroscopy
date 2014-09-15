@@ -96,7 +96,11 @@
                                                         $("#"+objId+" div.image img").attr('title', new_name);  // tooltip
                                                         // And in jsTree
                                                         var node = $.jstree._focused().get_selected();
-                                                        // set data and truncate if needed
+                                                        if (new_name.length > 30) {
+                                                            new_name = '...' + new_name.substring(new_name.length-30, new_name.length);
+                                                        }
+                                                        $("#dataTree").jstree('set_text', $.jstree._focused().get_selected(), new_name);
+                                                        // For images, set data and truncate if needed
                                                         node.children('a').attr('data-name', new_name);
                                                         OME.truncateNames();
                                                     } else {

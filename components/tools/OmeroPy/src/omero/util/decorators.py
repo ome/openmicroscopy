@@ -8,7 +8,6 @@
 
 import time
 import logging
-import threading
 import traceback
 
 import omero
@@ -16,6 +15,7 @@ import omero
 from omero_ext.functional import wraps
 
 perf_log = logging.getLogger("omero.perf")
+
 
 def perf(func):
     """ Decorator for (optionally) printing performance statistics """
@@ -43,7 +43,8 @@ def perf(func):
             diff = stop - start
             startMillis = int(start * 1000)
             timeMillis = int(diff * 1000)
-            perf_log.debug("start[%d] time[%d] tag[%s]", startMillis, timeMillis, tag)
+            perf_log.debug(
+                "start[%d] time[%d] tag[%s]", startMillis, timeMillis, tag)
     handler = wraps(func)(handler)
     return handler
 
@@ -51,9 +52,15 @@ def perf(func):
 __FORMAT = "%-.120s"
 __RESULT = " Rslt: " + __FORMAT
 __EXCEPT = " Excp: " + __FORMAT
+
+
 def remoted(func):
-    """ Decorator for catching any uncaught exception and converting it to an InternalException """
+    """
+    Decorator for catching any uncaught exception
+    and converting it to an InternalException
+    """
     log = logging.getLogger("omero.remote")
+
     def exc_handler(*args, **kwargs):
         try:
             self = args[0]
@@ -66,11 +73,13 @@ def remoted(func):
             if isinstance(e, omero.ServerError):
                 raise
             else:
-                log.warn("%s raised a non-ServerError (%s): %s", func, type(e), e)
+                log.warn(
+                    "%s raised a non-ServerError (%s): %s", func, type(e), e)
                 msg = traceback.format_exc()
                 raise omero.InternalException(msg, None, "Internal exception")
     exc_handler = wraps(func)(exc_handler)
     return exc_handler
+
 
 def locked(func):
     """ Decorator for using the self._lock argument of the calling instance """
@@ -86,6 +95,7 @@ def locked(func):
 
 
 class TimeIt (object):
+
     """
     Decorator to measure the execution time of a function. Assumes that a
     logger global var
@@ -96,40 +106,46 @@ class TimeIt (object):
     """
     logger = logging.getLogger('omero.timeit')
 
-    def __init__ (self, level=logging.DEBUG, name=None):
+    def __init__(self, level=logging.DEBUG, name=None):
         self._level = level
         self._name = name
 
-    def __call__ (self, func):
-        def wrapped (*args, **kwargs):
+    def __call__(self, func):
+        def wrapped(*args, **kwargs):
             name = self._name or func.func_name
             self.logger.log(self._level, "timing %s" % (name))
             now = time.time()
             rv = func(*args, **kwargs)
-            self.logger.log(self._level, "timed %s: %f" % (name, time.time()-now))
+            self.logger.log(self._level, "timed %s: %f" %
+                            (name, time.time() - now))
             return rv
         return wrapped
 
-def timeit (func):
+
+def timeit(func):
     """
     Shortcut version of the :class:`TimeIt` decorator class.
     Logs at logging.DEBUG level.
     """
-    def wrapped (*args, **kwargs):
-        TimeIt.logger.log(self._level, "timing %s" % (func.func_name))
+    def wrapped(*args, **kwargs):
+        TimeIt.logger.log(logging.DEBUG, "timing %s" % (func.func_name))
         now = time.time()
         rv = func(*args, **kwargs)
-        TimeIt.logger.log(self._level, "timed %s: %f" % (func.func_name, time.time()-now))
+        TimeIt.logger.log(logging.DEBUG, "timed %s: %f" %
+                          (func.func_name, time.time() - now))
         return rv
     return TimeIt()(func)
 
-def setsessiongroup (func):
+
+def setsessiongroup(func):
     """
-    For BlitzObjectWrapper class derivate functions, sets the session group to match
-    the object group.
+    For BlitzObjectWrapper class derivate functions,
+    sets the session group to match the object group.
     """
-    def wrapped (self, *args, **kwargs):
-        rev = self._conn.setGroupForSession(self.getDetails().getGroup().getId())
+
+    def wrapped(self, *args, **kwargs):
+        rev = self._conn.setGroupForSession(
+            self.getDetails().getGroup().getId())
         try:
             return func(self, *args, **kwargs)
         finally:

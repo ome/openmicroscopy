@@ -13,11 +13,11 @@
 #include <IceUtil/RecMutex.h>
 #include <IceUtil/Time.h>
 
-#ifndef OMERO_API
-#   ifdef OMERO_API_EXPORTS
-#       define OMERO_API ICE_DECLSPEC_EXPORT
+#ifndef OMERO_CLIENT
+#   ifdef OMERO_CLIENT_EXPORTS
+#       define OMERO_CLIENT ICE_DECLSPEC_EXPORT
 #   else
-#       define OMERO_API ICE_DECLSPEC_IMPORT
+#       define OMERO_CLIENT ICE_DECLSPEC_IMPORT
 #   endif
 #endif
 
@@ -28,7 +28,7 @@ namespace omero {
             /**
             * Port of Python's threading.Event to C++
             */
-            class OMERO_API Event : private IceUtil::Monitor<IceUtil::RecMutex> {
+            class OMERO_CLIENT Event : private IceUtil::Monitor<IceUtil::RecMutex> {
             private:
                 bool flag;
                 IceUtil::RecMutex mutex;

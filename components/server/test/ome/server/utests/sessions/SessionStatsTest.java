@@ -6,12 +6,13 @@
  */
 package ome.server.utests.sessions;
 
+import java.util.NoSuchElementException;
+
 import ome.security.basic.CurrentDetails;
 import ome.server.utests.TestSessionCache;
 import ome.services.messages.GlobalMulticaster;
 import ome.services.messages.stats.ObjectsReadStatsMessage;
 import ome.services.sessions.SessionManager;
-import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.stats.CounterFactory;
 import ome.services.sessions.stats.CurrentSessionStats;
 import ome.services.sessions.stats.MethodCounter;
@@ -26,8 +27,10 @@ import ome.system.Principal;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 import org.jmock.core.stub.DefaultResultStub;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -50,9 +53,8 @@ public class SessionStatsTest extends MockObjectTestCase {
         mc = (GlobalMulticaster) ctx.getBean("applicationEventMulticaster");
         cache = new TestSessionCache(this);
         cd = new CurrentDetails(cache);
-        cd.login(new Principal("u","g","e"));
     }
-    
+
     @Test
     public void testStatsReadObjectsResets( ) {
         boolean called[] = readCalled();
@@ -80,6 +82,7 @@ public class SessionStatsTest extends MockObjectTestCase {
     
     @Test
     public void testCurrentStats( ) {
+        cd.login(new Principal("u","g","e"));
         boolean[] called = readCalled();
         ObjectsReadCounter read = read(1);
         SessionStats internal = new SimpleSessionStats(read, null, null);
@@ -106,7 +109,11 @@ public class SessionStatsTest extends MockObjectTestCase {
         PerSessionStats stats = new PerSessionStats(cd);
         cache.setSessionStats(internal);
         // Need to re-login after changing the stats.
-        cd.logout();
+        try {
+            cd.logout();
+        } catch (NoSuchElementException nsee) {
+            LoggerFactory.getLogger(this.getClass()).warn("Something logged out?!");
+        }
         cd.login(new Principal("u","g","e"));
 
         stats.loadedObjects(1);
@@ -125,7 +132,7 @@ public class SessionStatsTest extends MockObjectTestCase {
     
     private boolean[] readCalled() {
         final boolean called[] = new boolean[]{false};
-        mc.addApplicationListener(new ApplicationListener(){
+        mc.addApplicationListener(new ApplicationListener<ApplicationEvent>(){
             public void onApplicationEvent(ApplicationEvent arg0) {
                 if (arg0 instanceof ObjectsReadStatsMessage) {
                     called[0] = true;

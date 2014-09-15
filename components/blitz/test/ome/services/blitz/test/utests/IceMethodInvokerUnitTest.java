@@ -604,29 +604,6 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
 
     }
 
-    @Test
-    public void testAdminUnlockCanHandleVarargs() throws Exception {
-
-        IAdmin a;
-        init(IAdmin.class, "unlock");
-
-        method().will(returnValue(null));
-        Object rv = invoke(new Object[] { null });
-        assertTrue("is null", rv == null);
-
-        method().will(returnValue(new boolean[] {}));
-        rv = invoke(Collections.EMPTY_LIST);
-        boolean[] l = (boolean[]) rv;
-        assertTrue("is empty", l.length == 0);
-
-        method().will(returnValue(new boolean[] { true, false }));
-        rv = invoke(Arrays.asList(new omero.model.ImageI(),
-                new omero.model.ImageI()));
-        l = (boolean[]) rv;
-        assertTrue("is 2", l.length == 2);
-
-    }
-
     @Test(groups = "ticket:1775")
     public void testPermissionsMapToNull() throws Exception {
         ExperimenterGroupI in = new ExperimenterGroupI();
@@ -781,10 +758,10 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         assertTrue(1 == ((byte[]) rv)[0]);
 
         init(RawPixelsStore.class, "getTimepointSize");
-        method().will(returnValue(Integer.valueOf(1)));
+        method().will(returnValue(Long.valueOf(1)));
 
         rv = invoke();
-        assertTrue(1 == (Integer) rv);
+        assertTrue(1 == (Long) rv);
 
     }
 

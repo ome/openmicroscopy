@@ -649,9 +649,9 @@
 
 
   Artifacts:    components/tools/OmeroPy/src/path.py
-  Project:      Improved Python path library
-  Web Site:     http://www.jorendorff.com/articles/python/path
-  License:      public domain
+  Project:      A module wrapper for os.path
+  Web Site:     https://github.com/jaraco/path.py
+  License:      MIT
   License File: path.txt
 
 
@@ -772,6 +772,13 @@
   Web Site:     http://css3pie.com
   License:      Dual-licensed for use under the Apache License Version 2.0 or the General Public License (GPL) Version 2.
   License File: apache-v2.0.txt gpl.txt
+
+
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/hammer/hammer.min.js
+  Project:      Hammer.js
+  Web Site:     http://hammerjs.github.io/
+  License:      MIT license.
+  License File: jquery.txt
 
 
   //

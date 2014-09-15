@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.browser.Browser
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -434,5 +434,18 @@ public interface Browser
 
 	/** Discards the browser.*/
 	void discard();
+	
+	/**
+         * Returns if interpolation is enabled or not
+         * @return
+         */
+        public boolean isInterpolation();
+    
+       /**
+        * En-/Disables interpolation
+        * 
+        * @param interpolation
+        */
+        public void setInterpolation(boolean interpolation);
 
 }
