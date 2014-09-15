@@ -7,8 +7,8 @@ function plane = getPlane(varargin)
 %   plane = getPlane(session, imageID, z, c, t) returns the plane from
 %   input image identifier at the input z, c, t coordinates.
 %
-%   plane = getPlane(store, pixels, z, c, t) returns the plane from an
-%   initialized pixels store and pixels object at the input z, c, t
+%   plane = getPlane(pixels, store, z, c, t) returns the plane from a
+%   pixels object and an initialized pixels store at the input z, c, t
 %   coordinates.
 %
 %   Examples:
