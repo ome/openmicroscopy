@@ -39,7 +39,7 @@
 #   endif
 #endif
 
-omero::model::ImagePtr new_ImageI();
+OMERO_TEST omero::model::ImagePtr new_ImageI();
 
 struct OMERO_TEST Fixture
 {

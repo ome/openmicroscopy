@@ -9,11 +9,7 @@ package ome.server.utests.sec;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import org.jmock.Mock;
-import org.jmock.MockObjectTestCase;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
+import java.util.NoSuchElementException;
 
 import ome.api.ITypes;
 import ome.api.local.LocalAdmin;
@@ -42,8 +38,17 @@ import ome.system.Roles;
 import ome.testing.MockServiceFactory;
 import ome.tools.hibernate.ExtendedMetadata;
 
+import org.jmock.Mock;
+import org.jmock.MockObjectTestCase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+
 public abstract class AbstractBasicSecuritySystemTest extends
         MockObjectTestCase {
+
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     MockServiceFactory sf;
 
@@ -96,19 +101,23 @@ public abstract class AbstractBasicSecuritySystemTest extends
                 cd, th, new NullSessionStats());
         SecurityFilter filter = new OneGroupSecurityFilter();
         sec = new BasicSecuritySystem(oi, st, cd, mgr, new Roles(), sf,
-                new TokenHolder(), filter);
+                th, filter);
         aclVoter = new BasicACLVoter(cd, st, th, filter);
     }
 
     protected void prepareMocksWithUserDetails(boolean readOnly) {
+        prepareMocksWithUserDetails(readOnly, Permissions.WORLD_WRITEABLE);
+    }
+
+    protected void prepareMocksWithUserDetails(boolean readOnly, Permissions perms) {
         // login
         p = new Principal("test", "test", "test");
         sec.login(p);
 
         // context
         user = new Experimenter(1L, true);
-        group = new ExperimenterGroup(1L, true);
-        group.getDetails().setPermissions(Permissions.WORLD_WRITEABLE);
+        group = new ExperimenterGroup(2L, true); // first non-"user" group
+        group.getDetails().setPermissions(perms);
         type = new EventType(1L, true);
         type.setValue("test");
         event = new Event(1L, true);
@@ -164,7 +173,9 @@ public abstract class AbstractBasicSecuritySystemTest extends
         group = new ExperimenterGroup(0L, true);
         group.getDetails().setPermissions(Permissions.WORLD_WRITEABLE);
         type = new EventType(0L, true);
+        type.setValue("test");
         event = new Event(0L, true);
+        event.setType(type);
 
         user.linkExperimenterGroup(group);
         leaderOfGroups = Collections.singletonList(0L);
@@ -223,7 +234,11 @@ public abstract class AbstractBasicSecuritySystemTest extends
     @AfterMethod
     protected void tearDown() throws Exception {
         super.verify();
-        sec.invalidateEventContext();
+        try {
+            sec.invalidateEventContext();
+        } catch (NoSuchElementException nsee) {
+            log.warn("Never managed to login?!?");
+        }
         super.tearDown();
     }
 

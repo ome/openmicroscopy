@@ -26,6 +26,7 @@ import Ice
 import IceImport
 IceImport.load("omero_RTypes_ice")
 IceImport.load("omero_Scripts_ice")
+IceImport.load("omero_model_RTypes_ice")
 
 
 def rtype(val):

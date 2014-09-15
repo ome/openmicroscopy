@@ -19,12 +19,12 @@ public class TestOnTheFly16BitRenderer extends BaseRenderingTest
 	protected QuantumFactory createQuantumFactory()
 	{
 		TestQuantumFactory qf = new TestQuantumFactory();
-		qf.setStratgey(new OnTheFlyStrategy(settings.getQuantization(),
+		qf.setStrategy(new OnTheFlyStrategy(settings.getQuantization(),
 				                            pixels.getPixelsType()));
 		return qf;
 	}
 
-	@Test
+	@Test(timeOut=30000)
 	public void testRenderAsPackedInt() throws Exception
 	{
 		PlaneDef def = new PlaneDef(PlaneDef.XY, 0);
@@ -32,7 +32,7 @@ public class TestOnTheFly16BitRenderer extends BaseRenderingTest
 		{
 			StopWatch stopWatch = 
 				new LoggingStopWatch("testRenderAsPackedIntOnThFly");
-			int[] renderedPlane = renderer.renderAsPackedInt(def, pixelBuffer);
+			renderer.renderAsPackedInt(def, pixelBuffer);
 			stopWatch.stop();
 		}
 	}

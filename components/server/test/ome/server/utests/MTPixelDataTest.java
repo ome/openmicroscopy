@@ -44,7 +44,7 @@ import org.testng.annotations.Test;
  * Tests the effects of running multiple pixel data threads
  * at the same time.
  */
-@Test(groups = { "pixeldata" })
+@Test(groups = { "pixeldata", "broken" }, timeOut=10000)
 public class MTPixelDataTest extends MockObjectTestCase {
 
     String uuid;
@@ -65,6 +65,7 @@ public class MTPixelDataTest extends MockObjectTestCase {
 
         final AtomicInteger pixelsId = new AtomicInteger();
         final int numThreads = 4;
+        final String path = dir(uuid);
 
         // MT items
         ExecutorService threads = Executors.newFixedThreadPool(numThreads);
@@ -75,12 +76,11 @@ public class MTPixelDataTest extends MockObjectTestCase {
         Mock fprMock = mock(FilePathResolver.class);
         FilePathResolver resolver = (FilePathResolver) fprMock.proxy();
         fprMock.expects(atLeastOnce()).method("getOriginalFilePath")
-            .will(returnValue(tiny()));
+            .will(returnValue(tiny(path)));
         fprMock.expects(atLeastOnce()).method("getPixelsParams")
             .will(returnValue(new HashMap<String, String>()));
 
         // nio settings
-        String path = dir(uuid);
         TileSizes tileSizes = new ConfiguredTileSizes(5, 5, 10, 10);
         PixelsService service = new PixelsService(path, resolver, backOff, tileSizes);
 
@@ -113,11 +113,11 @@ public class MTPixelDataTest extends MockObjectTestCase {
                 Pixels pix = new Pixels(id, true);
                 pix.setSizeX(20);
                 pix.setSizeY(20);
-                pix.setSizeZ(5);
+                pix.setSizeZ(2);
                 pix.setSizeC(1);
-                pix.setSizeT(6);
+                pix.setSizeT(2);
                 pix.setDimensionOrder(new DimensionOrder("XYZCT"));
-                pix.setPixelsType(new PixelsType("int16"));
+                pix.setPixelsType(new PixelsType("int8"));
                 pix.addChannel(new Channel());
                 return pix;
             }
@@ -142,9 +142,9 @@ public class MTPixelDataTest extends MockObjectTestCase {
         thread.doRun();
     }
 
-    String tiny() throws Exception {
-        File f = ResourceUtils.getFile("classpath:tinyTest.d3d.dv");
-        return f.getAbsolutePath();
+    String tiny(String dir) throws Exception {
+        File fake = new File(new File(dir), "test&sizeX=20&sizeY=20&sizeZ=2&sizeC=1&sizeT=2&.fake");
+        return fake.getAbsolutePath();
     }
 
     String dir(String uuid) {
