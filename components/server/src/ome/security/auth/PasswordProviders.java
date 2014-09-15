@@ -1,7 +1,5 @@
 /*
- *   $Id$
- *
- *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2009-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -20,14 +18,23 @@ public class PasswordProviders implements PasswordProvider {
 
     final private PasswordProvider[] providers;
 
+    final private boolean ignoreCaseLookup;
+
     public PasswordProviders(PasswordProvider... providers) {
+        this(false, providers);
+    }
+
+    public PasswordProviders(boolean ignoreCaseLookup,
+            PasswordProvider... providers) {
         Assert.notNull(providers);
         int l = providers.length;
         this.providers = new PasswordProvider[l];
         System.arraycopy(providers, 0, this.providers, 0, l);
+        this.ignoreCaseLookup = ignoreCaseLookup;
     }
 
     public boolean hasPassword(String user) {
+        user = ignoreCaseLookup ? user.toLowerCase() : user;
         for (PasswordProvider provider : providers) {
             boolean hasPassword = provider.hasPassword(user);
             if (hasPassword) {
@@ -38,6 +45,7 @@ public class PasswordProviders implements PasswordProvider {
     }
 
     public Boolean checkPassword(String user, String password, boolean readOnly) {
+        user = ignoreCaseLookup ? user.toLowerCase() : user;
         for (PasswordProvider provider : providers) {
             Boolean rv = provider.checkPassword(user, password, readOnly);
             if (rv != null) {
@@ -49,7 +57,7 @@ public class PasswordProviders implements PasswordProvider {
 
     public void changePassword(String user, String password)
             throws PasswordChangeException {
-
+        user = ignoreCaseLookup ? user.toLowerCase() : user;
         for (PasswordProvider provider : providers) {
             boolean hasPassword = provider.hasPassword(user);
             if (hasPassword) {
@@ -72,5 +80,4 @@ public class PasswordProviders implements PasswordProvider {
         }
         throw new PasswordChangeException("No provider found:" + user);
     }
-
 }

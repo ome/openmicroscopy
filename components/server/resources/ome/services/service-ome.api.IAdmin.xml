@@ -114,7 +114,8 @@
   </bean>
 
   <bean id="chainedPasswordProvider" class="ome.security.auth.PasswordProviders">
-    <constructor-arg>
+    <constructor-arg index="0" value="${omero.security.ignore_case}"/>
+    <constructor-arg index="1">
       <list>
         <ref bean="ldapPasswordProvider"/>
         <ref bean="jdbcPasswordProvider"/>
