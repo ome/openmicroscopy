@@ -30,6 +30,7 @@ import ome.formats.importer.transfers.AbstractFileTransfer;
 import ome.formats.importer.transfers.CleanupFailure;
 import ome.formats.importer.transfers.FileTransfer;
 import ome.formats.importer.transfers.UploadFileTransfer;
+import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceInterfacePrx;
 import omero.cmd.HandlePrx;
@@ -42,6 +43,7 @@ import omero.model.Dataset;
 import omero.model.Fileset;
 import omero.model.Screen;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +60,9 @@ public class CommandLineImporter {
 
     /** Marker used to indicate that no new file paths are imported. **/
     private final static String[] REIMPORT = new String[] {};
+    
+    /** The class used to identify the fileset target.*/
+    private static final String FILESET_CLASS = "omero.model.Fileset";
 
     /** Logger for this class. */
     private static Logger log = LoggerFactory.getLogger(CommandLineImporter.class);
@@ -188,9 +193,33 @@ public class CommandLineImporter {
         }
     }
 
+    
     public int start() {
         boolean successful = true;
-
+        
+        if (FILESET_CLASS.equals(config.targetClass.get())) {
+                library.addObserver(new LoggingImportMonitor());
+            // error handler has been configured in constructor from main args
+            library.addObserver(this.handler);
+            try {
+                library.reimportFileset(config);
+            } catch (Throwable t) {
+                String message = "Error on import";
+                if (t instanceof ServerError) {
+                    final ServerError se = (ServerError) t;
+                    if (StringUtils.isNotBlank(se.message)) {
+                        message += ": " + se.message;
+                    }
+                }
+                log.error(message, t);
+                if (!config.contOnError.get()) {
+                    log.info("Exiting on error");
+                } else {
+                    log.info("Continuing after error");
+                }
+            }
+        }
+        
         if (getUsedFiles) {
             try {
                 candidates.print();

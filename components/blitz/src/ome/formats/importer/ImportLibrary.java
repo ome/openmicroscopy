@@ -19,6 +19,8 @@
 
 package ome.formats.importer;
 
+import static omero.rtypes.rlong;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,6 +40,7 @@ import ome.formats.importer.transfers.UploadFileTransfer;
 import ome.formats.importer.util.ErrorHandler;
 import ome.formats.importer.util.ProportionalTimeEstimatorImpl;
 import ome.formats.importer.util.TimeEstimator;
+import ome.services.blitz.gateway.services.util.ServiceUtilities;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.FilePathRestrictionInstance;
 import ome.services.blitz.repo.path.FilePathRestrictions;
@@ -69,16 +72,19 @@ import omero.model.ChecksumAlgorithm;
 import omero.model.Dataset;
 import omero.model.Fileset;
 import omero.model.FilesetI;
+import omero.model.FilesetEntry;
 import omero.model.IObject;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.Screen;
+import omero.sys.Parameters;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 
 import Ice.Current;
@@ -154,6 +160,20 @@ public class ImportLibrary implements IObservable
         }
         availableChecksumAlgorithms = builder.build();
     }
+    
+    /*
+     * This class is used in the server-side creation of import containers. The
+     * suggestImportPaths method sanitizes the paths in due course. From the
+     * server side, we cannot imitate ImportLibrary.createImport in applying
+     * client-side specifics to clean up the path.
+     */
+    private static final ClientFilePathTransformer nopClientTransformer = new ClientFilePathTransformer(
+            new Function<String, String>() {
+                @Override
+                public String apply(String from) {
+                    return from;
+                }
+            });
 
     /**
      * The default implementation of {@link FileTransfer} performs a
@@ -497,6 +517,107 @@ public class ImportLibrary implements IObservable
                     checksums, failingChecksums, null));
         }
 
+        // At this point the import is running, check handle for number of
+        // steps.
+        ImportCallback cb = null;
+        try {
+            cb = createCallback(proc, handle, container);
+
+            if (minutesToWait == 0) {
+                log.info("Disconnecting from import process...");
+                cb.close(false);
+                cb = null;
+                handle = null;
+                return Collections.emptyList(); // EARLY EXIT
+            }
+
+            if (minutesToWait < 0) {
+                while (true) {
+                    if (cb.block(5000)) {
+                        break;
+                    }
+                }
+            } else {
+                cb.loop(minutesToWait * 30, 2000);
+            }
+
+            final ImportResponse rsp = cb.getImportResponse();
+            if (rsp == null) {
+                throw new Exception("Import failure");
+            }
+            return rsp.pixels;
+        } finally {
+            if (cb != null) {
+                cb.close(true); // Allow cb to close handle
+            } else if (handle != null) {
+                handle.close();
+            }
+        }
+    }
+    
+    public List<Pixels> reimportFileset(ImportConfig config)
+            throws FormatException, IOException, Throwable {
+
+        HandlePrx handle;
+
+        checkManagedRepo();
+
+        String query = "select distinct(fse) from FilesetEntry as fse "
+                + "left outer join fetch fse.fileset as fs "
+                + "left outer join fetch fse.originalFile as f "
+                + "left outer join fetch fs.images as image where fs.id = :fid";
+
+        Parameters params = new Parameters();
+        params.map = new HashMap<String, omero.RType>();
+        params.map.put("fid", rlong(config.targetId.get()));
+        final FilesetEntry fse = (FilesetEntry) store.getIQuery().findByQuery(
+                query, params);
+
+        final Fileset fs = fse.getFileset();
+
+        List<String> paths = new ArrayList<String>();
+        paths.add(fse.getOriginalFile().getPath().getValue());
+
+        final ImportContainer container = new ImportContainer(null /* file */,
+                null /* target */, null /* userPixels */,
+                "Unknown" /* reader */,
+                paths.toArray(new String[paths.size()]), false /* spw */);
+
+        final ImportSettings settings = new ImportSettings();
+
+        try {
+            container.fillData(new ImportConfig(), settings, fs,
+                    nopClientTransformer);
+            settings.checksumAlgorithm = ChecksumAlgorithmMapper
+                    .getChecksumAlgorithm(fse.getOriginalFile().getHasher()
+                            .getValue().getValue());
+        } catch (IOException e) {
+            // impossible
+            ServiceUtilities.handleException(e,
+                    "IO exception from operation without IO");
+        }
+
+        ImportProcessPrx proc = repo.importFileset(fs, settings);
+
+        List<String> hashs = new ArrayList<String>();
+        hashs.add(fse.getOriginalFile().getHash().getValue());
+
+        Map<Integer, String> failingChecksums = new HashMap<Integer, String>();
+
+        try {
+            handle = proc.verifyUpload(hashs);
+        } catch (ChecksumValidationException cve) {
+            failingChecksums = cve.failingChecksums;
+            throw cve;
+        } finally {
+
+            try {
+                proc.close();
+            } catch (Exception e) {
+                log.warn("Exception while closing proc", e);
+            }
+
+        }
         // At this point the import is running, check handle for number of
         // steps.
         ImportCallback cb = null;
