@@ -84,7 +84,7 @@ class CallbackEvent(AbstractEvent):
         Calls the delegate.
         """
         m = self.delegate
-        m(self.client)
+        m()
 
 
 class InfoEvent(AbstractEvent):
