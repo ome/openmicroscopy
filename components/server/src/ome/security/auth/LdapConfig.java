@@ -1,7 +1,5 @@
 /*
- *   $Id$
- *
- *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2010-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -46,6 +44,8 @@ public class LdapConfig {
 
     private final boolean syncOnLogin;
 
+    private final boolean ignoreCase;
+
 
     /**
      * Sets {@link #syncOnLogin} to false and {@link #base} to null.
@@ -53,7 +53,7 @@ public class LdapConfig {
     public LdapConfig(boolean enabled, String newUserGroup, String userFilter,
         String groupFilter, String userMapping, String groupMapping) {
         this(enabled, newUserGroup, userFilter, groupFilter, userMapping,
-            groupMapping, false, null);
+            groupMapping, false, false, null);
     }
 
     /**
@@ -62,7 +62,19 @@ public class LdapConfig {
     public LdapConfig(boolean enabled, String newUserGroup, String userFilter,
         String groupFilter, String userMapping, String groupMapping, boolean syncOnLogin) {
         this(enabled, newUserGroup, userFilter, groupFilter, userMapping,
-            groupMapping, syncOnLogin, null);
+            groupMapping, syncOnLogin, false, null);
+    }
+
+    /**
+     * Sets {@link #ignoreCase} to false.
+     */
+    public LdapConfig(boolean enabled,
+            String newUserGroup,
+            String userFilter, String groupFilter,
+            String userMapping, String groupMapping,
+            boolean syncOnLogin, String base) {
+        this(enabled, newUserGroup, userFilter, groupFilter, userMapping,
+                groupMapping, syncOnLogin, false, base);
     }
 
     /**
@@ -73,7 +85,7 @@ public class LdapConfig {
             String newUserGroup,
             String userFilter, String groupFilter,
             String userMapping, String groupMapping,
-            boolean syncOnLogin, String base) {
+            boolean syncOnLogin, boolean ignoreCase, String base) {
         this.enabled = enabled;
         this.newUserGroup = newUserGroup;
         this.userFilter = new HardcodedFilter(userFilter);
@@ -81,6 +93,7 @@ public class LdapConfig {
         this.userMapping = parse(userMapping);
         this.groupMapping = parse(groupMapping);
         this.syncOnLogin = syncOnLogin;
+        this.ignoreCase = ignoreCase;
         this.base = base;
     }
 
@@ -130,6 +143,10 @@ public class LdapConfig {
 
     public boolean isSyncOnLogin() {
         return syncOnLogin;
+    }
+
+    public boolean isIgnoreCase() {
+        return ignoreCase;
     }
 
     public String getNewUserGroup() {

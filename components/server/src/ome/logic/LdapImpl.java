@@ -187,8 +187,14 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
 
         if (p.size() == 1 && p.get(0) != null) {
             Experimenter e = p.get(0);
-            if (e.getOmeName().equals(username)) {
-                return p.get(0);
+            if (config.isIgnoreCase()) {
+                if (e.getOmeName().equalsIgnoreCase(username)) {
+                    return p.get(0);
+                }
+            } else {
+                if (e.getOmeName().equals(username)) {
+                    return p.get(0);
+                }
             }
         }
         throw new ApiUsageException(
