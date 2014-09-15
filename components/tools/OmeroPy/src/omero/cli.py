@@ -719,7 +719,8 @@ class BaseControl(object):
         if p.exists() and p.isdir():
             if not f.endswith(os.sep):
                 return [p.basename()+os.sep]
-            return [ str(x)[len(f):] for x in p.listdir() ]
+            return [str(x)[len(f):] for x in p.listdir(
+                unreadable_as_empty=True)]
         else:
             results = [ str(x.basename()) for x in dir.glob(f+"*")  ]
             if len(results) == 1:
@@ -843,7 +844,8 @@ class CLI(cmd.Cmd, Context):
                     self.ctx.out(os.getcwd())
         class LS(BaseControl):
             def __call__(self, args):
-                for p in sorted(path(os.getcwd()).listdir()):
+                for p in sorted(path(os.getcwd()).listdir(
+                    unreadable_as_empty=True)):
                     self.ctx.out(str(p.basename()))
         class CD(BaseControl):
             def _complete(self, text, line, begidx, endidx):
