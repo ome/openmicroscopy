@@ -461,12 +461,13 @@
                 ptype = viewport.loadedImg.meta.pixelsType,
                 step = 1;
             if (ptype == "float") {
-                // step = (max - min) / 100;
+                var STEPS = 100;
+                step = (max - min) / STEPS;
             }
-            // console.log( min, start, end, max, ptype, step);
 
             $('#wblitz-ch'+i+'-cwslider').slider({
                 range: true,
+                step: step,
                 min: min,
                 max: max,
                 values: [ start, end ],
