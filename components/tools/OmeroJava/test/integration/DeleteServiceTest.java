@@ -174,6 +174,9 @@ public class DeleteServiceTest extends AbstractServerTest {
     /** Identifies the instrument as root. */
     public static final String REF_INSTRUMENT = "/Instrument";
 
+    /** Identifies the light source as root. */
+    public static final String REF_LIGHTSOURCE = "/LightSource";
+
     /** Identifies the ROI as root. */
     public static final String REF_ROI = "/Roi";
 
@@ -305,25 +308,25 @@ public class DeleteServiceTest extends AbstractServerTest {
         lightFilament.setInstrument((Instrument) instrument.proxy());
         lightFilament = (Filament) iUpdate.saveAndReturnObject(lightFilament);
         // add light to the list
-        objects.put(REF_FILAMENT, lightFilament);
+        objects.put(REF_LIGHTSOURCE, lightFilament);
 
         Arc lightArc = mmFactory.createArc();
         lightArc.setInstrument((Instrument) instrument.proxy());
         lightArc = (Arc) iUpdate.saveAndReturnObject(lightArc);
         // add light to the list
-        objects.put(REF_ARC, lightArc);
+        objects.put(REF_LIGHTSOURCE, lightArc);
 
         LightEmittingDiode lightLed = mmFactory.createLightEmittingDiode();
         lightLed.setInstrument((Instrument) instrument.proxy());
         lightLed = (LightEmittingDiode) iUpdate.saveAndReturnObject(lightLed);
         // add light to the list
-        objects.put(REF_LED, lightLed);
+        objects.put(REF_LIGHTSOURCE, lightLed);
 
         Laser lightLaser = mmFactory.createLaser();
         lightLaser.setInstrument((Instrument) instrument.proxy());
         lightLaser = (Laser) iUpdate.saveAndReturnObject(lightLaser);
         // add light to the list
-        objects.put(REF_LASER, lightLaser);
+        objects.put(REF_LIGHTSOURCE, lightLaser);
 
         return objects;
     }
