@@ -1,23 +1,28 @@
-function tile = getTile(session, image, z, c, t, x, y, w, h)
+function tile = getTile(varargin)
 % GETTILE Retrieve tile from an image on the OMERO server
 %
 %   tile = getTile(session, image, z, c, t, x, y, w, h) returns the tile
 %   from input image at the input z, c, t coordinates located at (x, y) and
-%   of dimensions [w, h]
+%   of dimensions [w, h].
 %
 %   tile = getTile(session, imageID, z, c, t, x, y, w, h) returns the tile
 %   from input image identifier at the input z, c, t coordinates located at
-%   (x, y) and of dimensions [w, h]
+%   (x, y) and of dimensions [w, h].
+%
+%   tile = getTile(pixels, store, z, c, t, x, y, w, h) returns the tile
+%   from a pixels object and an initialized pixels store at the input z, c,
+%   t coordinates located at (x, y) and of dimensions [w, h].
 %
 %
 %   Examples:
 %
 %      tile = getTile(session, image, z, c, t, x, y, w, h);
-%      tile = getTile(session, imageID, z, c, t, x, y, w, h)
+%      tile = getTile(session, imageID, z, c, t, x, y, w, h);
+%      tile = getTile(pixels, store, z, c, t, x, y, w, h);
 %
 % See also: GETRAWPIXELSSTORE, GETPLANE, GETSTACK
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -34,8 +39,18 @@ function tile = getTile(session, image, z, c, t, x, y, w, h)
 % with this program; if not, write to the Free Software Foundation, Inc.,
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+% Check number of arguments and retrieve store and pixels
+narginchk(10, 10);
+if ~isa(varargin{1}, 'omero.model.PixelsI')
+    % Initialize raw pixels store
+    [store, pixels] = getRawPixelsStore(varargin{1}, varargin{2});
+else
+    pixels = varargin{1};
+    store = varargin{2};
+    store.setPixelsId(pixels.getId().getValue(), false);
+end
+
 % Initialize raw pixels store
-[store, pixels] = getRawPixelsStore(session, image);
 sizeX = pixels.getSizeX().getValue();
 sizeY = pixels.getSizeY().getValue();
 sizeZ = pixels.getSizeZ().getValue();
@@ -52,11 +67,15 @@ ip.addRequired('x', @(t) isposint(t) && t < sizeX);
 ip.addRequired('y', @(t) isposint(t) && t < sizeY);
 ip.addRequired('w', @(t) isposint(t) && (x + t) <= sizeX);
 ip.addRequired('h', @(t) isposint(t) && (y + t) <= sizeY);
-ip.parse(z, c, t, x, y, w, h);
+ip.parse(varargin{3:end});
 
 % Read tile
-tile = store.getTile(z, c, t, x, y, w, h);
+tile = store.getTile(ip.Results.z, ip.Results.c, ip.Results.t,...
+    ip.Results.x, ip.Results.y, ip.Results.w, ip.Results.h);
 tile = toMatrix(tile, pixels, [w h])';
 
-% Close the store
-store.close();
+
+if ~isa(varargin{1}, 'omero.model.PixelsI')
+    % Close the store if initialized from a session and image input
+    store.close();
+end
