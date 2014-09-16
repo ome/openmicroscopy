@@ -205,13 +205,11 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
             CreationRequest req) {
         Long idle = req.timeToIdle == null ? defaultTimeToIdle : req.timeToIdle;
         Long live = req.timeToLive == null ? defaultTimeToLive : req.timeToLive;
-        CommentAnnotation ca = new CommentAnnotation();
-        ca.setNs(GROUP_SUDO_NS);
-        s.linkAnnotation(ca);
         if (req.groupsLed != null) {
+            CommentAnnotation ca = new CommentAnnotation();
+            ca.setNs(GROUP_SUDO_NS);
             ca.setTextValue(req.groupsLed.toString());
-        } else {
-            ca.setTextValue("root");
+            s.linkAnnotation(ca);
         }
         define(s, uuid, message, started, idle, live,
                 req.principal.getEventType(), req.agent, req.ip);
