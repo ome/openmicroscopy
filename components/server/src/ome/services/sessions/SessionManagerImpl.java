@@ -806,7 +806,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         }
 
         // ticket:404 -- preventing users from logging into "user" group
-        else if (roles.getUserGroupName().equals(group)) {
+        if (roles.getUserGroupName().equals(group)) {
             // Throws an exception if no properly defined default group
             ExperimenterGroup g = _getDefaultGroup(sf, p.getName());
             if (g == null) {
