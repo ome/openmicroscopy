@@ -1378,6 +1378,112 @@ public class AbstractServerTest extends AbstractTest {
                 link.setParent((PlateAcquisition) parent2);
                 links.add(link);
             }
+        } else if (parent1 instanceof Detector) {
+            DetectorAnnotationLink link = new DetectorAnnotationLinkI();
+            link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+            link.setParent((Detector) parent1);
+            links.add(link);
+            link = new DetectorAnnotationLinkI();
+            link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+            link.setParent((Detector) parent1);
+            links.add(link);
+            link = new DetectorAnnotationLinkI();
+            link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+            link.setParent((Detector) parent1);
+            links.add(link);
+            if (parent2 != null) {
+                link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+                link.setParent((Detector) parent2);
+                links.add(link);
+                link = new DetectorAnnotationLinkI();
+                link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+                link.setParent((Detector) parent2);
+                links.add(link);
+                link = new DetectorAnnotationLinkI();
+                link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+                link.setParent((Detector) parent2);
+                links.add(link);
+            }
+        } else if (parent1 instanceof Detector) {
+            DetectorAnnotationLink link = new DetectorAnnotationLinkI();
+            link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+            link.setParent((Detector) parent1);
+            links.add(link);
+            link = new DetectorAnnotationLinkI();
+            link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+            link.setParent((Detector) parent1);
+            links.add(link);
+            link = new DetectorAnnotationLinkI();
+            link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+            link.setParent((Detector) parent1);
+            links.add(link);
+            if (parent2 != null) {
+                link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+                link.setParent((Detector) parent2);
+                links.add(link);
+                link = new DetectorAnnotationLinkI();
+                link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+                link.setParent((Detector) parent2);
+                links.add(link);
+                link = new DetectorAnnotationLinkI();
+                link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+                link.setParent((Detector) parent2);
+                links.add(link);
+            }
+        } else if (parent1 instanceof LightSource) {
+            LightSourceAnnotationLink link = new LightSourceAnnotationLinkI();
+            link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+            link.setParent((LightSource) parent1);
+            links.add(link);
+            link = new LightSourceAnnotationLinkI();
+            link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+            link.setParent((LightSource) parent1);
+            links.add(link);
+            link = new LightSourceAnnotationLinkI();
+            link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+            link.setParent((LightSource) parent1);
+            links.add(link);
+            if (parent2 != null) {
+                link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+                link.setParent((LightSource) parent2);
+                links.add(link);
+                link = new LightSourceAnnotationLinkI();
+                link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+                link.setParent((LightSource) parent2);
+                links.add(link);
+                link = new LightSourceAnnotationLinkI();
+                link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+                link.setParent((LightSource) parent2);
+                links.add(link);
+            }
+        } else if (parent1 instanceof Instrument) {
+            InstrumentAnnotationLink link = new InstrumentAnnotationLinkI();
+            link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+            link.setParent((Instrument) parent1);
+            links.add(link);
+            link = new InstrumentAnnotationLinkI();
+            link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+            link.setParent((Instrument) parent1);
+            links.add(link);
+            link = new InstrumentAnnotationLinkI();
+            link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+            link.setParent((Instrument) parent1);
+            links.add(link);
+            if (parent2 != null) {
+                link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+                link.setParent((Instrument) parent2);
+                links.add(link);
+                link = new InstrumentAnnotationLinkI();
+                link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+                link.setParent((Instrument) parent2);
+                links.add(link);
+                link = new InstrumentAnnotationLinkI();
+                link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+                link.setParent((Instrument) parent2);
+                links.add(link);
+            }
+        } else {
+            throw new UnsupportedOperationException("Unknown parent type: " + parent1);
         }
         if (links.size() > 0)
             iUpdate.saveAndReturnArray(links);
