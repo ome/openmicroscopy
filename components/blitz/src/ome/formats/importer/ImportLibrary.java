@@ -600,13 +600,14 @@ public class ImportLibrary implements IObservable
             hashs.add(fse.getOriginalFile().getHash().getValue());
         }
 
+        final ImportSettings settings = new ImportSettings();
+        settings.reimportFileset = fs.sizeOfImages() > 0;
+
         final ImportContainer container = new ImportContainer(null /* file */,
                 null /* target */, null /* userPixels */,
                 "Unknown" /* reader */,
                 paths.toArray(new String[paths.size()]), false /* spw */);
-
-        final ImportSettings settings = new ImportSettings();
-        settings.reimportFileset = fs.sizeOfImages() > 0;
+        container.setReimportFileset(settings.reimportFileset);
 
         try {
             ChecksumAlgorithm hasher = fs.copyUsedFiles().get(0).getOriginalFile()
