@@ -388,6 +388,8 @@ class SessionsControl(BaseControl):
                 except Ice.DNSException:
                     self.ctx.die(555, "Ice.DNSException: bad host name: '%s'"
                                  % server)
+                except omero.SecurityViolation, sv:
+                    self.ctx.die(557, "SecurityViolation: %s" % sv.message)
                 except Exception, e:
                     exc = traceback.format_exc()
                     self.ctx.dbg(exc)
