@@ -434,10 +434,24 @@
                 show_change($('#wblitz-ch'+i+'-cw-end').get(0), channels[i].window.end, 'changed');
             };
         };
+        var slide_start_cb = function() {
+            // Note starting values, so we can tell which handle/value changed
+            // This is for floating point data where ui.values may not be what we set
+            return function(event, ui) {
+                $(this).data('channel_start', ui.values[0])
+                    .data('channel_end', ui.values[1]);
+            };
+        };
         var slide_cb = function() {
             return function(event, ui) {
-                $('#wblitz-ch'+$(event.target).data('channel-idx')+'-cw-start').val(ui.values[0]).change();
-                $('#wblitz-ch'+$(event.target).data('channel-idx')+'-cw-end').val(ui.values[1]).change();
+                // Only update the value that changed
+                var s = $(this).data('channel_start');
+                var e = $(this).data('channel_end');
+                if (ui.values[0] !== s) {
+                    $('#wblitz-ch'+$(event.target).data('channel-idx')+'-cw-start').val(ui.values[0]).change();
+                } else if (ui.values[1] !== e) {
+                    $('#wblitz-ch'+$(event.target).data('channel-idx')+'-cw-end').val(ui.values[1]).change();
+                }
             };
         };
         var stop_cb = function() {
@@ -471,6 +485,7 @@
                 min: min,
                 max: max,
                 values: [ start, end ],
+                start: slide_start_cb(),
                 slide: slide_cb(),
                 stop: stop_cb(),
                 }).data('channel-idx', i);
