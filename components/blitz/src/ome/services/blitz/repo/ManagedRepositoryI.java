@@ -41,7 +41,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import loci.formats.FormatReader;
-
 import ome.api.IAdmin;
 import ome.api.IUpdate;
 import ome.conditions.ApiUsageException;
@@ -90,6 +89,7 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -245,11 +245,49 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         // at this point, the template path should not yet exist on the filesystem
-        final List<FsFile> sortedPaths = Ordering.usingToString().immutableSortedCopy(paths);
-        final FsFile relPath = createTemplatePath(sortedPaths, __current);
-        fs.setTemplatePrefix(rstring(relPath.toString() + FsFile.separatorChar));
+        final List<FsFile> sortedPaths = Ordering.usingToString()
+                .immutableSortedCopy(paths);
+        FsFile relPath = null;
+        Class<? extends FormatReader> readerClass = null;
 
-        final Class<? extends FormatReader> readerClass = getReaderClass(fs, __current);
+        if (settings.reimportFileset) {
+            relPath = new FsFile(fs.getTemplatePrefix().getValue());
+
+            for (final FilesetJobLink joblink : fs.copyJobLinks()) {
+                Job job = joblink.getChild();
+                if (joblink.getChild() instanceof UploadJob) {
+                    final Map<String, RString> versionInfo = ((UploadJob) job)
+                            .getVersionInfo(__current);
+                    if (versionInfo == null
+                            || !versionInfo
+                                    .containsKey(ImportConfig.VersionInfo.BIO_FORMATS_READER.key)) {
+                        continue;
+                    }
+                    final String readerName = versionInfo.get(
+                            ImportConfig.VersionInfo.BIO_FORMATS_READER.key)
+                            .getValue();
+                    Class<?> potentialReaderClass;
+                    try {
+                        potentialReaderClass = Class.forName(readerName);
+                    } catch (NullPointerException npe) {
+                        log.debug("No info provided for reader class");
+                        continue;
+                    } catch (Exception e) {
+                        log.warn("Error getting reader class", e);
+                        continue;
+                    }
+                    if (FormatReader.class
+                            .isAssignableFrom(potentialReaderClass)) {
+                        readerClass = (Class<? extends FormatReader>) potentialReaderClass;
+                    }
+                }
+            }
+        } else {
+            relPath = createTemplatePath(sortedPaths, __current);
+            fs.setTemplatePrefix(rstring(relPath.toString()
+                    + FsFile.separatorChar));
+            readerClass = getReaderClass(fs, __current);
+        }
 
         // The next part of the string which is chosen by the user:
         // /home/bob/myStuff
@@ -285,6 +323,59 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         return importFileset(fs, settings, __current);
+    }
+
+    /**
+     * Return a template based directory path. The path will be created
+     * by calling {@link #makeDir(String, boolean, Ice.Current)}.
+     */
+    public ImportProcessPrx reimportFileset(Fileset fs, ImportSettings settings,
+            Ice.Current __current) throws omero.ServerError {
+
+        ImportLocation location = internalImport(fs, settings, __current);
+
+        // In stead of createImportProcess
+        final ImportConfig config = new ImportConfig();
+        final Map<String, RString> serverVersionInfo = new HashMap<String, RString>();
+        config.fillVersionInfo(serverVersionInfo);
+
+        UploadJob uploadJob = null;
+        MetadataImportJob metadataJob = null;
+        for (FilesetJobLink jobLink : fs.copyJobLinks()) {
+            if (jobLink.getChild() instanceof UploadJob) {
+                uploadJob = (UploadJob) jobLink.getChild();
+            }
+            if (jobLink.getChild() instanceof MetadataImportJob) {
+                metadataJob = (MetadataImportJob) jobLink.getChild();
+                metadataJob.setVersionInfo(serverVersionInfo);
+            }
+        }
+
+        if (uploadJob == null) {
+            throw new omero.ValidationException(null, null,
+                    "Found null-UploadJob on creation");
+        }
+        if (!(uploadJob instanceof UploadJob)) {
+            throw new omero.ValidationException(null, null,
+                    "Found non-UploadJob on creation: "+
+                    uploadJob.getClass().getName());
+        }
+
+        final int size = fs.sizeOfUsedFiles();
+        final List<CheckedPath> checked = new ArrayList<CheckedPath>();
+        for (int i = 0; i < size; i++) {
+            final String path = location.sharedPath + FsFile.separatorChar + location.usedFiles.get(i);
+            checked.add(checkPath(path, settings.checksumAlgorithm, __current));
+        }
+
+        // Since the fileset saved validly, we create a session for the user
+        // and return the process.
+        final Fileset managedFs = fs;
+        final ManagedImportProcessI proc = new ManagedImportProcessI(this,
+                managedFs, location, settings, __current);
+        processes.addProcess(proc);
+        return proc.getProxy();
+
     }
 
     public List<ImportProcessPrx> listImports(Ice.Current __current) throws omero.ServerError {
@@ -1319,9 +1410,32 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * @param checksumAlgorithm the checksum algorithm to use in verifying the integrity of uploaded files
      * @return {@link ImportLocation} instance
      */
-    protected ImportLocation suggestImportPaths(FsFile relPath, FsFile basePath, List<FsFile> paths,
-            Class<? extends FormatReader> reader, ChecksumAlgorithm checksumAlgorithm, Ice.Current __current)
-                    throws omero.ServerError {
+    protected ImportLocation suggestImportPaths(FsFile relPath,
+            FsFile basePath, List<FsFile> paths,
+            Class<? extends FormatReader> reader,
+            ChecksumAlgorithm checksumAlgorithm, Ice.Current __current)
+            throws omero.ServerError {
+        return suggestImportPaths(relPath, basePath, paths, reader,
+                checksumAlgorithm, true, __current);
+    }
+
+    /**
+     * Take a relative path that the user would like to see in his or her
+     * upload area, and provide an import location instance whose paths
+     * correspond to existing directories corresponding to the sanitized
+     * file paths.
+     * @param relPath Path parsed from the template
+     * @param basePath Common base of all the listed paths ("/my/path")
+     * @param reader BioFormats reader for data, may be null
+     * @param checksumAlgorithm the checksum algorithm to use in verifying the integrity of uploaded files
+     * @param createDirs flag allowing to reimport fileset without creating any directories
+     * @return {@link ImportLocation} instance
+     */
+    protected ImportLocation suggestImportPaths(FsFile relPath,
+            FsFile basePath, List<FsFile> paths,
+            Class<? extends FormatReader> reader,
+            ChecksumAlgorithm checksumAlgorithm, boolean createDirs,
+            Ice.Current __current) throws omero.ServerError {
         final Paths trimmedPaths = trimPaths(basePath, paths, reader);
         basePath = trimmedPaths.basePath;
         paths = trimmedPaths.fullPaths;
@@ -1340,7 +1454,13 @@ public class ManagedRepositoryI extends PublicRepositoryI
         data.logFile = checkPath(relPath.toString()+".log", checksumAlgorithm, __current);
 
         // try actually making directories
-        final FsFile newBase = FsFile.concatenate(relPath, basePath);
+
+        FsFile newBase = null;
+        if (createDirs) {
+            newBase = relPath;
+        } else {
+            newBase = FsFile.concatenate(relPath, basePath);
+        }
         data.sharedPath = newBase.toString();
         data.usedFiles = new ArrayList<String>(paths.size());
         data.checkedPaths = new ArrayList<CheckedPath>(paths.size());
@@ -1352,6 +1472,15 @@ public class ManagedRepositoryI extends PublicRepositoryI
                     this.checksumProviderFactory, checksumAlgorithm));
         }
 
+        if (createDirs)
+            createDirs(data, checksumAlgorithm, __current);
+
+        return data;
+    }
+
+    private void createDirs(ManagedImportLocationI data,
+            ChecksumAlgorithm checksumAlgorithm, Ice.Current __current)
+            throws omero.ServerError {
         // Assuming we reach here, then we need to make
         // sure that the directory exists since the call
         // to saveFileset() requires the parent dirs to
@@ -1366,8 +1495,6 @@ public class ManagedRepositoryI extends PublicRepositoryI
             }
         }
         repositoryDao.makeDirs(this, dirs, true, __current);
-
-        return data;
     }
 
     /**

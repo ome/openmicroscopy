@@ -290,6 +290,9 @@ module omero {
               **/
              omero::model::ChecksumAlgorithm checksumAlgorithm;
 
+
+             bool reimportFileset;
+
              /**
               * If set, the [ImportProcess*] and the [Handle*] associated with
               * the import will be closed as soon as complete. This will prevent
@@ -454,6 +457,15 @@ module omero {
              * handle instance can and must be closed.
              **/
             ImportProcess* importFileset(omero::model::Fileset fs, ImportSettings settings) throws ServerError;
+
+			/**
+             * Returns an [ImportProcess] which can be used to reimport fileset.
+             * On [ImportProcess::verifyUpload], an [omero::cmd::Handle] will be
+             * returned which can be watched for knowing when the server-side import
+             * is complete.
+             **/
+            ImportProcess* reimportFileset(omero::model::Fileset fs, ImportSettings settings) throws ServerError;
+
 
             /**
              * For clients without access to Bio-Formats, the simplified

@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +33,6 @@ import loci.formats.MissingLibraryException;
 import loci.formats.UnknownFormatException;
 import loci.formats.UnsupportedCompressionException;
 import loci.formats.in.MIASReader;
-
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.OverlayMetadataStore;
 import ome.formats.importer.ImportConfig;
@@ -42,7 +42,6 @@ import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.util.ErrorHandler;
 import ome.io.nio.TileSizes;
 import ome.services.blitz.fire.Registry;
-
 import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
 import omero.cmd.ERR;
@@ -68,11 +67,9 @@ import omero.model.ScriptJob;
 import omero.model.ThumbnailGenerationJob;
 
 import org.apache.commons.codec.binary.Hex;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-
 
 import ch.qos.logback.classic.ClassicConstants;
 
@@ -132,6 +129,8 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
     private List<Annotation> annotationList = null;
 
     private boolean doThumbnails = true;
+
+    private boolean reimportFileset = false;
 
     private String fileName = null;
 
@@ -214,7 +213,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             annotationList = settings.userSpecifiedAnnotationList;
             doThumbnails = settings.doThumbnails == null ? true :
                 settings.doThumbnails.getValue();
-
+            reimportFileset = settings.reimportFileset;
             detectAutoClose();
 
             fileName = file.getFullFsPath();
@@ -379,6 +378,11 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
                         "job-type", j.ice_id());
             }
 
+            // workaround to skip unnecessary steps when reimporting
+            if (reimportFileset && Arrays.asList(1,2,3).contains(step))  {
+                return null;
+            }
+
             if (step == 0) {
                 return importMetadata((MetadataImportJob) j);
             } else if (step == 1) {
@@ -515,7 +519,8 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         imageList = (List) objects.get(Image.class.getSimpleName());
         plateList = (List) objects.get(Plate.class.getSimpleName());
         //TODO: below line has to be moved to store.saveToDB()
-        store.attachCompanionFilesToImage(activity.getParent(), imageList);
+        if(!reimportFileset)
+            store.attachCompanionFilesToImage(activity.getParent(), imageList);
         notifyObservers(new ImportEvent.END_SAVE_TO_DB(
                 0, null, userSpecifiedTarget, null, 0, null));
 

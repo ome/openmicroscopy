@@ -20,6 +20,7 @@
 package ome.formats.importer;
 
 import static omero.rtypes.rlong;
+import static omero.rtypes.rbool;
 
 import java.io.File;
 import java.io.IOException;
@@ -73,10 +74,12 @@ import omero.model.Dataset;
 import omero.model.Fileset;
 import omero.model.FilesetI;
 import omero.model.FilesetEntry;
+import omero.model.FilesetJobLink;
 import omero.model.IObject;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.Screen;
+import omero.model.UploadJob;
 import omero.sys.Parameters;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -562,21 +565,40 @@ public class ImportLibrary implements IObservable
 
         checkManagedRepo();
 
-        String query = "select distinct(fse) from FilesetEntry as fse "
-                + "left outer join fetch fse.fileset as fs "
+        String query = "select fs from Fileset as fs "
+                + "left outer join fetch fs.images as im "
+                + "left outer join fetch fs.usedFiles as fse "
                 + "left outer join fetch fse.originalFile as f "
-                + "left outer join fetch fs.images as image where fs.id = :fid";
+                + "left outer join fetch f.hasher "
+                + "left outer join fetch fs.jobLinks fjl "
+                + "left outer join fetch fjl.child j "
+                + "where fs.id = :fid "
+                + "order by im.id asc";
 
         Parameters params = new Parameters();
         params.map = new HashMap<String, omero.RType>();
         params.map.put("fid", rlong(config.targetId.get()));
-        final FilesetEntry fse = (FilesetEntry) store.getIQuery().findByQuery(
-                query, params);
+        Fileset fs = (Fileset) store.getIQuery().findByQuery(query, params);
 
-        final Fileset fs = fse.getFileset();
+        // work around to load fileset jobs
+        for (FilesetJobLink fjl : fs.copyJobLinks()) {
+            if (fjl.getChild() instanceof UploadJob) {
+                String query2 = "select job from UploadJob as job join job.versionInfo "
+                        + "where job.id = :jid";
+                Parameters params2 = new Parameters();
+                params2.map = new HashMap<String, omero.RType>();
+                params2.map.put("jid", fjl.getChild().getId());
+                fjl.setChild((UploadJob) store.getIQuery().findByQuery(query2,
+                        params2));
+            }
+        }
 
         List<String> paths = new ArrayList<String>();
-        paths.add(fse.getOriginalFile().getPath().getValue());
+        List<String> hashs = new ArrayList<String>();
+        for (FilesetEntry fse : fs.copyUsedFiles()) {
+            paths.add(fse.getOriginalFile().getPath().getValue());
+            hashs.add(fse.getOriginalFile().getHash().getValue());
+        }
 
         final ImportContainer container = new ImportContainer(null /* file */,
                 null /* target */, null /* userPixels */,
@@ -584,23 +606,21 @@ public class ImportLibrary implements IObservable
                 paths.toArray(new String[paths.size()]), false /* spw */);
 
         final ImportSettings settings = new ImportSettings();
+        settings.reimportFileset = fs.sizeOfImages() > 0;
 
         try {
-            container.fillData(new ImportConfig(), settings, fs,
-                    nopClientTransformer);
+            ChecksumAlgorithm hasher = fs.copyUsedFiles().get(0).getOriginalFile()
+                    .getHasher();
+            container.fillDataReimportOrClone(config, settings, fs, nopClientTransformer);
             settings.checksumAlgorithm = ChecksumAlgorithmMapper
-                    .getChecksumAlgorithm(fse.getOriginalFile().getHasher()
-                            .getValue().getValue());
+                    .getChecksumAlgorithm(hasher.getValue().getValue());
         } catch (IOException e) {
             // impossible
             ServiceUtilities.handleException(e,
                     "IO exception from operation without IO");
         }
 
-        ImportProcessPrx proc = repo.importFileset(fs, settings);
-
-        List<String> hashs = new ArrayList<String>();
-        hashs.add(fse.getOriginalFile().getHash().getValue());
+        ImportProcessPrx proc = repo.reimportFileset(fs, settings);
 
         Map<Integer, String> failingChecksums = new HashMap<Integer, String>();
 
@@ -622,6 +642,7 @@ public class ImportLibrary implements IObservable
         // steps.
         ImportCallback cb = null;
         try {
+
             cb = createCallback(proc, handle, container);
 
             if (minutesToWait == 0) {

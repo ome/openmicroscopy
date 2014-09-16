@@ -56,6 +56,7 @@ import ome.model.screen.Well;
 import ome.model.screen.WellSample;
 import ome.model.screen.PlateAcquisition;
 import ome.model.stats.StatsInfo;
+import ome.parameters.Parameters;
 import ome.system.ServiceFactory;
 import ome.conditions.ApiUsageException;
 import ome.util.LSID;
@@ -1908,6 +1909,82 @@ public class OMEROMetadataStore
     	return a.equals(b);
     }
     
+    private void reimportMetadata(Fileset fs)
+    {
+        int i = 0;
+        for(Iterator<Image> iter = fs.iterateImages(); iter.hasNext();) {
+            Long eximgId = iter.next().getId();
+
+            Image img = imageList.get(i);
+            img.setId(eximgId);
+
+            // unloading dataset links to keep it in the same hierarchy
+            img.putAt(Image.DATASETLINKS,null);
+            //unloading annotation links to avoid original file insertion
+            img.putAt(Image.ANNOTATIONLINKS,null);
+
+            String imageQuery = "select i from Image as i "
+                    + "left outer join i.pixels as p "
+                    + "left outer join p.channels as c "
+                    + "left outer join c.logicalChannel as lc "
+                    + "where i.id = :id ";
+
+            Image eximg = sf.getQueryService().findByQuery(imageQuery, new Parameters().addId(eximgId));
+
+            int j = 0;
+            for(Iterator<Pixels> iterPixel = imageList.get(i).iteratePixels(); iterPixel.hasNext();) {
+                Pixels pix = iterPixel.next();
+                Pixels expix = eximg.getPixels(j);
+                pix.setId(expix.getId());
+
+                // as PlainInfo is a set where we cannot guarantee the order.
+                // Existing list from the database
+                // pix.removePlaneInfoSet(pix.unmodifiablePlaneInfo());
+                pix.putAt(Pixels.PLANEINFO,null);
+
+                int k=0;
+                for(Iterator<Channel> iterChannel = pix.iterateChannels(); iterChannel.hasNext();) {
+                    Channel ch = iterChannel.next();
+                    Channel exch = expix.getChannel(k);
+                    ch.setId(exch.getId());
+
+                    if (exch.getLogicalChannel() != null) {
+                        ch.getLogicalChannel().setId(exch.getLogicalChannel().getId());
+
+                        if (exch.getLogicalChannel().getLightSourceSettings() != null) {
+                            ch.getLogicalChannel().getLightSourceSettings().setId(exch.getLogicalChannel().getLightSourceSettings().getId());
+                        }
+
+                        if (exch.getLogicalChannel().getDetectorSettings() != null) {
+                            ch.getLogicalChannel().getDetectorSettings().setId(exch.getLogicalChannel().getDetectorSettings().getId());
+
+                            if (exch.getLogicalChannel().getDetectorSettings().getDetector() != null) {
+                                ch.getLogicalChannel().getDetectorSettings().getDetector().setId(exch.getLogicalChannel().getDetectorSettings().getDetector().getId());
+                            }
+                        }
+                    }
+
+                    k++;
+                }
+
+                j++;
+            }
+
+            if (eximg.getInstrument() != null) {
+                imageList.get(i).getInstrument().setId(eximg.getInstrument().getId());
+            }
+
+            if (eximg.getObjectiveSettings() != null) {
+                imageList.get(i).getObjectiveSettings().setId(eximg.getObjectiveSettings().getId());
+                if (eximg.getObjectiveSettings().getObjective() != null) {
+                    imageList.get(i).getObjectiveSettings().getObjective().setId(eximg.getObjectiveSettings().getObjective().getId());
+                }
+            }
+
+            i++;
+        }
+    }
+
     /**
      * Checks the entire object graph for sections that may be collapsed if
      * the data is derived from a Plate. Collapsible points:
@@ -2116,7 +2193,11 @@ public class OMEROMetadataStore
     	// be collapsed.
     	checkAndCollapseGraph();
     	linkFileset(link);
-    	
+
+        if (((Fileset) link.getParent()).sizeOfImages() > 0) {
+            reimportMetadata((Fileset) link.getParent());
+        }
+        
     	// Save the entire Image rooted graph using the "insert only"
     	// saveAndReturnIds(). DISABLED until we can find out what is causing
     	// the extreme memory usage on the graph reload.
@@ -2137,7 +2218,7 @@ public class OMEROMetadataStore
     		toReturn.add(pixels);
     	}
     	//s2.stop();
-   		return toReturn;
+        return toReturn;
     }
     
     /**

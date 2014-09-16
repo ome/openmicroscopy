@@ -46,6 +46,7 @@ import omero.model.CommentAnnotationI;
 import omero.model.Fileset;
 import omero.model.FilesetEntry;
 import omero.model.FilesetEntryI;
+import omero.model.FilesetJobLink;
 import omero.model.IObject;
 import omero.model.UploadJob;
 import omero.model.UploadJobI;
@@ -61,6 +62,7 @@ public class ImportContainer
     private String userSpecifiedName;
     private String userSpecifiedDescription;
     private boolean doThumbnails = true;
+    private boolean reimportFileset = false;
     private List<Annotation> customAnnotationList;
     private IObject target;
     private String checksumAlgorithm;
@@ -107,6 +109,30 @@ public class ImportContainer
     public void setDoThumbnails(boolean v)
     {
         doThumbnails = v;
+    }
+
+    /**
+     * Retrieves whether or not we are performing thumbnail creation upon
+     * import completion.
+     * return <code>true</code> if we are to perform thumbnail creation and
+     * <code>false</code> otherwise.
+     * @since OMERO Beta 4.3.0.
+     */
+    public boolean getReimportFileset()
+    {
+        return reimportFileset;
+    }
+
+    /**
+     * Sets whether or not we are performing thumbnail creation upon import
+     * completion.
+     * @param v <code>true</code> if we are to perform thumbnail creation and
+     * <code>false</code> otherwise.
+     * @since OMERO Beta 4.3.0.
+     */
+    public void setReimportFileset(boolean v)
+    {
+        reimportFileset = v;
     }
 
     /**
@@ -273,6 +299,47 @@ public class ImportContainer
 
     public void setChecksumAlgorithm(String ca) {
         this.checksumAlgorithm = ca;
+    }
+
+    public void fillDataReimportOrClone(ImportConfig config, ImportSettings settings, Fileset fs,
+            ClientFilePathTransformer sanitizer) throws IOException {
+
+        if (config == null) {
+            config = new ImportConfig(); // Lazily load
+        }
+
+        // TODO: These should possible be a separate option like
+        // ImportUserSettings rather than misusing ImportContainer.
+        settings.reimportFileset = getReimportFileset();
+        settings.doThumbnails = rbool(getDoThumbnails());
+        settings.userSpecifiedTarget = getTarget();
+        settings.userSpecifiedName = getUserSpecifiedName() == null ? null
+                : rstring(getUserSpecifiedName());
+        settings.userSpecifiedDescription = getUserSpecifiedDescription() == null ? null
+                : rstring(getUserSpecifiedDescription());
+        settings.userSpecifiedAnnotationList = getCustomAnnotationList();
+
+        if (getUserPixels() != null) {
+            Double[] source = getUserPixels();
+            double[] target = new double[source.length];
+            for (int i = 0; i < source.length; i++) {
+                if (source[i] == null) {
+                    target = null;
+                    break;
+                }
+                target[i] = source[i];
+            }
+            settings.userSpecifiedPixels = target; // May be null.
+        }
+
+        // Fill BF info
+        for (FilesetJobLink fjl: fs.copyJobLinks()) {
+                if (fjl.getChild() instanceof UploadJob) {
+                        UploadJob job = (UploadJob) fjl.getChild();
+                        config.fillVersionInfo(job.getVersionInfo());
+                }
+        }
+
     }
 
     public void fillData(ImportSettings settings, Fileset fs,
