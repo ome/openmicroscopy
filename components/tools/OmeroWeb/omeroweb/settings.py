@@ -445,7 +445,6 @@ CUSTOM_SETTINGS_MAPPINGS = {
         ["ADDITIONAL_APPS",
         '[]',json.loads,
         "Add additional Django applications. For example, see :doc:`/developers/Web/CreateApp`"],
-    "omero.web.databases": ["DATABASES", '{}', json.loads, None],
     "omero.web.page_size":
         ["PAGE",
         200, int,

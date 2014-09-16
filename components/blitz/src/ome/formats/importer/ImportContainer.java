@@ -319,6 +319,9 @@ public class ImportContainer
                 : rstring(getUserSpecifiedDescription());
         settings.userSpecifiedAnnotationList = getCustomAnnotationList();
 
+        this.setFile(new File(getUsedFiles()[0]));
+        this.updateUsedFilesTotalSize();
+
         if (getUserPixels() != null) {
             Double[] source = getUserPixels();
             double[] target = new double[source.length];
