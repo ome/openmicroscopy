@@ -53,6 +53,15 @@ TOP = \
 Configuration properties glossary
 =================================
 
+.. contents::
+  :depth: 1
+  :local:
+
+.. _introduction_configuration
+
+Introduction
+------------
+
 The primary form of configuration is via the use of key/value properties,
 stored in :file:`etc/grid/config.xml` and read on server startup. Backing up
 and copying these properties is as easy as copying this file to a new server
@@ -100,10 +109,6 @@ editor.
 Examples of doing this are on the main :doc:`Unix <unix/server-installation>`
 and :doc:`Windows <windows/server-installation>` pages, as well as the
 :doc:`LDAP installation <server-ldap>` page.
-
-.. contents::
-  :depth: 1
-  :local:
 
 """
 
