@@ -1546,7 +1546,7 @@ public class AbstractServerTest extends AbstractTest {
             link.setChild(b);
             link.setParent((Instrument) parent);
             links.add(link);
-        } else if ( (parent instanceof Filament) || (parent instanceof Arc) || (parent instanceof LightEmittingDiode) || (parent instanceof Laser) ) {
+        } else if (parent instanceof LightSource) {
             LightSourceAnnotationLink link = new LightSourceAnnotationLinkI();
             link.setChild(c);
             link.setParent((LightSource) parent);

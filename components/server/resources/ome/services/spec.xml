@@ -483,4 +483,9 @@
     <bean parent="graphSpec" name="/ShapeAnnotationLink"> <constructor-arg> <list> <value>/ShapeAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="graphSpec" name="/WellAnnotationLink"> <constructor-arg> <list> <value>/WellAnnotationLink</value> </list> </constructor-arg> </bean>
 
+    <bean parent="graphSpec" name="/Arc"> <constructor-arg> <list> <value>/Arc</value> </list> </constructor-arg> </bean>
+    <bean parent="graphSpec" name="/Filament"> <constructor-arg> <list> <value>/Filament</value> </list> </constructor-arg> </bean>
+    <bean parent="graphSpec" name="/Laser"> <constructor-arg> <list> <value>/Laser</value> </list> </constructor-arg> </bean>
+    <bean parent="graphSpec" name="/LightEmittingDiode"> <constructor-arg> <list> <value>/LightEmittingDiode</value> </list> </constructor-arg> </bean>
+
 </beans>

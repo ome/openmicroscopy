@@ -290,8 +290,8 @@ public class DeleteServiceTest extends AbstractServerTest {
                 .simplePlateData().asIObject()));
         objects.put(REF_SCREEN, iUpdate.saveAndReturnObject(mmFactory
                 .simpleScreenData().asIObject()));
-        objects.put(REF_INSTRUMENT, iUpdate.saveAndReturnObject(mmFactory
-                .createInstrument()));
+ //       objects.put(REF_INSTRUMENT, iUpdate.saveAndReturnObject(mmFactory
+ //               .createInstrument()));
         // Create another instrument to hold the detector to be deleted
         Instrument instrument = (Instrument) iUpdate
                 .saveAndReturnObject(mmFactory.createInstrument());
@@ -299,7 +299,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         detector.setInstrument((Instrument) instrument.proxy());
         detector = (Detector) iUpdate.saveAndReturnObject(detector);
         // add detector to the list
-        objects.put(REF_DETECTOR, detector);
+//        objects.put(REF_DETECTOR, detector);
 
         Filament lightFilament = mmFactory.createFilament();
         lightFilament.setInstrument((Instrument) instrument.proxy());
@@ -351,13 +351,13 @@ public class DeleteServiceTest extends AbstractServerTest {
         } else if (Instrument.class.isAssignableFrom(k)) {
             return "select i from Instrument as i where i.id = :id";
         } else if (Filament.class.isAssignableFrom(k)) {
-            return "select light from Filament as light where light.id = :id";
+            return "select l from LightSource as l where l.id = :id";
         } else if (Arc.class.isAssignableFrom(k)) {
-            return "select light from Arc as light where light.id = :id";
+            return "select l from LightSource as l where l.id = :id";
         } else if (LightEmittingDiode.class.isAssignableFrom(k)) {
-            return "select light from LightEmittingDiode as light where light.id = :id";
+            return "select l from LightSource as l where l.id = :id";
         } else if (Laser.class.isAssignableFrom(k)) {
-            return "select light from Laser as light where light.id = :id";
+            return "select l from LightSource as l where l.id = :id";
         }
         throw new UnsupportedOperationException("Unknown type: " + k);
     }
