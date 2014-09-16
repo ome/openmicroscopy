@@ -327,7 +327,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                 @Transactional(readOnly = true)
                 public Object doWork(org.hibernate.Session __s,
                         ServiceFactory sf) {
-                    Principal p = checkPrincipalNameAndDefaultGroup(sf, req);
+                    Principal p = validateSessionInputs(sf, req);
                     executeLookupUser(sf, p);
                     // Not performed! Session s = executeUpdate(sf, oldsession,
                     // userId);
@@ -342,7 +342,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                 @Transactional(readOnly = false)
                 public Object doWork(org.hibernate.Session __s,
                         ServiceFactory sf) {
-                    Principal p = checkPrincipalNameAndDefaultGroup(sf, req);
+                    Principal p = validateSessionInputs(sf, req);
                     oldsession.setDefaultEventType(p.getEventType());
                     long userId = executeLookupUser(sf, p);
                     Session s = executeUpdate(sf, oldsession, userId);
@@ -436,7 +436,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                         defaultGroup, ctx.getCurrentEventType());
                 CreationRequest req = new CreationRequest();
                 req.principal = principal;
-                principal = checkPrincipalNameAndDefaultGroup(sf, req);
+                principal = validateSessionInputs(sf, req);
 
                 // Unconditionally settable; these are open to the user for
                 // change
@@ -784,7 +784,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
      * Checks the validity of the given {@link Principal}, and in the case of an
      * error attempts to correct the problem by returning a new Principal.
      */
-    private Principal checkPrincipalNameAndDefaultGroup(
+    private Principal validateSessionInputs(
             final ServiceFactory sf,
             final CreationRequest req) {
 
