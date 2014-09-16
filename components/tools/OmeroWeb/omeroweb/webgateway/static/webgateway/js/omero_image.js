@@ -453,6 +453,28 @@
             };
         };
 
+        var init_ch_slider = function(i, channels) {
+            var min = Math.min(channels[i].window.min, channels[i].window.start),  // range may extend outside min/max pixel
+                max = Math.max(channels[i].window.max, channels[i].window.end),
+                start = channels[i].window.start,
+                end = channels[i].window.end,
+                ptype = viewport.loadedImg.meta.pixelsType,
+                step = 1;
+            if (ptype == "float") {
+                // step = (max - min) / 100;
+            }
+            // console.log( min, start, end, max, ptype, step);
+
+            $('#wblitz-ch'+i+'-cwslider').slider({
+                range: true,
+                min: min,
+                max: max,
+                values: [ start, end ],
+                slide: slide_cb(),
+                stop: stop_cb(),
+                }).data('channel-idx', i);
+        };
+
         for (i=channels.length-1; i>=0; i--) {
 
             var btnClass = channels[i].active?'pressed':'';
@@ -478,14 +500,7 @@
                 template: '<td width="10%"><span class="min" title="min: $min">$start</span></td><td><div class="rangeslider" id="wblitz-ch'+i+'-cwslider"></div></td> <td width="10%"><span class="max" title="max: $max">$end</span></td>',
                 lblStart: '',
                 lblEnd: ''});
-            $('#wblitz-ch'+i+'-cwslider').slider({
-                range: true,
-                min: Math.min(channels[i].window.min, channels[i].window.start+1),  // range may extend outside min/max pixel
-                max: Math.max(channels[i].window.max, channels[i].window.end-1),
-                values: [ channels[i].window.start+1, channels[i].window.end-1 ],
-                slide: slide_cb(),
-                stop: stop_cb(),
-                }).data('channel-idx', i);
+            init_ch_slider(i, channels);
             $('#wblitz-ch'+i+'-cw-start').val(channels[i].window.start).unbind('change').bind('change', start_cb(i));
             $('#wblitz-ch'+i+'-cw-start').keyup(keyup_cb());
             $('#wblitz-ch'+i+'-cw-end').val(channels[i].window.end).unbind('change').bind('change', end_cb(i));
