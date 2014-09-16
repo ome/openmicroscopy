@@ -388,7 +388,7 @@ public class PermissionsTestAll extends AbstractServerTest {
 
             for (int j = 0; j < users.length; j++) // users.length
             {
-                omero.client client = new omero.client("localhost");
+                omero.client client = new omero.client();
                 ServiceFactoryPrx session = client.createSession(users[j],
                         password);
 
@@ -461,7 +461,7 @@ public class PermissionsTestAll extends AbstractServerTest {
         Long sourcegroup = param.getsrcID();
 
         // create session and switch context to source group
-        omero.client client = new omero.client("localhost");
+        omero.client client = new omero.client();
         ServiceFactoryPrx session1 = client.createSession(username, passwd);
 
         ExperimenterGroupI group = new ExperimenterGroupI(sourcegroup, false);
