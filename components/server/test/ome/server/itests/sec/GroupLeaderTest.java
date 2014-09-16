@@ -10,18 +10,19 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
-import org.hibernate.HibernateException;
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.testng.annotations.Test;
-
 import ome.conditions.SecurityViolation;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
+import ome.system.EventContext;
 import ome.system.Principal;
+
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.testng.annotations.Test;
 
 public class GroupLeaderTest extends AbstractManagedContextTest {
 
@@ -123,6 +124,30 @@ public class GroupLeaderTest extends AbstractManagedContextTest {
 
         Principal p = new Principal(member.getOmeName());
         iSession.createSessionWithTimeouts(p, 10000, 0);
+    }
+
+    /**
+     * leader creates a session for memebr in ownGroup, but then tries to
+     * call setSecurityContext for anotherGroup which should fail.
+     */
+    @Test(expectedExceptions = SecurityViolation.class)
+    public void testGroupLeaderCantChgrpWithSudo() throws Exception {
+        loginRoot();
+        ExperimenterGroup ownGroup = createGroup();
+        ExperimenterGroup anotherGroup = createGroup();
+        Experimenter leader = createUser(ownGroup);
+        Experimenter member = createUser(ownGroup);
+        iAdmin.setGroupOwner(ownGroup, leader);
+        iAdmin.addGroups(member, anotherGroup);
+        loginUser(leader.getOmeName(), ownGroup.getName());
+
+        Principal p = new Principal(member.getOmeName());
+        ome.model.meta.Session s = iSession.createSessionWithTimeouts(p, 10000, 0);
+        p = login(s.getUuid(), "user", "Test");
+        EventContext ec = iAdmin.getEventContext();
+        assertEquals(member.getOmeName(), ec.getCurrentUserName());
+        assertEquals(ownGroup.getId(), ec.getCurrentGroupId());
+        sessionManager.setSecurityContext(p, anotherGroup);
     }
 
     // ~ Helpers

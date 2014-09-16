@@ -28,7 +28,9 @@ import ome.conditions.RemovedSessionException;
 import ome.conditions.SecurityViolation;
 import ome.conditions.SessionException;
 import ome.conditions.SessionTimeoutException;
+import ome.model.annotations.Annotation;
 import ome.model.annotations.CommentAnnotation;
+import ome.model.annotations.TextAnnotation;
 import ome.model.enums.EventType;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
@@ -208,7 +210,14 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         if (req.groupsLed != null) {
             CommentAnnotation ca = new CommentAnnotation();
             ca.setNs(GROUP_SUDO_NS);
-            ca.setTextValue(req.groupsLed.toString());
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < req.groupsLed.size(); i++) {
+                if (i > 0) {
+                    sb.append(",");
+                }
+                sb.append(req.groupsLed.get(i));
+            }
+            ca.setTextValue(sb.toString());
             s.linkAnnotation(ca);
         }
         define(s, uuid, message, started, idle, live,
@@ -799,7 +808,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         }
 
         // Null or bad event type values as well as umasks are handled
-        // within the SessionManager and EventHandler. It is necessary
+        // within the SessionManager and EventHandler.
         String group = p.getGroup();
         if (StringUtils.isEmpty(group)) {
             group = "user";
@@ -1147,6 +1156,22 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         }
 
         final SessionContext sc = cache.getSessionContext(principal.getName());
+
+        TextAnnotation ta = null;
+        for (Annotation a : sc.getSession().linkedAnnotationList()) {
+            if (a instanceof TextAnnotation) {
+                if (roles.isRootUser(a.getDetails().getOwner())) {
+                    if (GROUP_SUDO_NS.equals(a.getNs())) {
+                        ta = (TextAnnotation) a;
+                    }
+                }
+            }
+            if (ta != null) {
+                String[] groupIds = ta.getTextValue().split(",");
+                throw new SecurityViolation("Group-sudo session cannot change context!");
+            }
+        }
+
         final long activeMethods = sc.stats().methodCount();
 
         if (activeMethods != 0) {
