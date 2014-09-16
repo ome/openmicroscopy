@@ -1881,11 +1881,13 @@ def archived_files(request, iid=None, conn=None, **kwargs):
         rsp = ConnCleaningHttpResponse(orig_file.getFileInChunks())
         rsp.conn = conn
         rsp['Content-Length'] = orig_file.getSize()
-        rsp['Content-Disposition'] = 'attachment; filename=%s' % (orig_file.getName().replace(" ","_"))
+        fname = orig_file.getName().replace(" ","_").replace(",", ".")      # ',' in name causes duplicate headers
+        rsp['Content-Disposition'] = 'attachment; filename=%s' % (fname)
     else:
         import tempfile
         temp = tempfile.NamedTemporaryFile(suffix='.archive')
         zipName = request.REQUEST.get('zipname', image.getName())
+        zipName = zipName.replace(" ","_").replace(",", ".")        # ',' in name causes duplicate headers
         if not zipName.endswith('.zip'):
             zipName = "%s.zip" % zipName
         try:
