@@ -1,3 +1,23 @@
+/*
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2014 University of Dundee. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ */
 package integration;
 
 import static org.testng.AssertJUnit.assertNotNull;
@@ -55,6 +75,13 @@ import pojos.GroupData;
 import pojos.PermissionData;
 import edu.emory.mathcs.backport.java.util.Arrays;
 
+/**
+ * 
+ *
+ * @author Balaji Ramalingam &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:b.ramalingam@dundee.ac.uk">b.ramalingam@dundee.ac.uk</a>
+ * @since 5.1
+ */
 public class PermissionsTestAll extends AbstractServerTest {
 
     // Users created in the database(list obtained from Petr's manually created
