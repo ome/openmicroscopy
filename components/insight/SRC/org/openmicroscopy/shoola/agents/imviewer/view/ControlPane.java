@@ -929,7 +929,6 @@ class ControlPane
     {
         List<ChannelButton> channelButtons = new ArrayList<ChannelButton>();
         List<ChannelData> data = model.getChannelData();
-        boolean gs = model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL);
         ChannelButton button;
         ChannelData d;
         Dimension dim;
@@ -941,7 +940,6 @@ class ControlPane
             k = d.getIndex();
             button = new ChannelButton(""+d.getChannelLabeling(),
                     model.getChannelColor(k), k, model.isChannelActive(k));
-            if (gs) button.setGrayedOut(gs);
             channelButtons.add(button);
             dim = button.getPreferredSize();
             if (dim.width > dimMax.width) 
@@ -1143,7 +1141,6 @@ class ControlPane
             button = i.next();
             button.setSelected(
                     model.isChannelActive(button.getChannelIndex()));
-            button.setGrayedOut(gs);
         }
         i = channelButtonsGrid.iterator();
         while (i.hasNext()) {
@@ -1151,14 +1148,12 @@ class ControlPane
             if (!gs) 
                 button.setSelected(
                         model.isChannelActive(button.getChannelIndex()));
-            button.setGrayedOut(gs);
         }
         i = channelButtonsProjection.iterator();
         while (i.hasNext()) {
             button = i.next();
             button.setSelected(
                     model.isChannelActive(button.getChannelIndex()));
-            button.setGrayedOut(gs);
         }
         colorModelButton.setIcon(getColorModelIcon(model.getColorModel()));
         colorModelButton.setToolTipText(getColorModelDescription(
@@ -1289,7 +1284,6 @@ class ControlPane
             index = button.getChannelIndex();
             button.setSelected(model.isChannelActive(index));
             button.setColor(model.getChannelColor(index));
-            button.setGrayedOut(gs);
         }
         i = channelButtonsGrid.iterator();
         while (i.hasNext()) {
@@ -1297,7 +1291,6 @@ class ControlPane
             index = button.getChannelIndex();
             button.setSelected(model.isChannelActive(index));
             button.setColor(model.getChannelColor(index));
-            button.setGrayedOut(gs);
         }
         i = channelButtonsProjection.iterator();
         while (i.hasNext()) {
@@ -1305,7 +1298,6 @@ class ControlPane
             index = button.getChannelIndex();
             button.setSelected(model.isChannelActive(index));
             button.setColor(model.getChannelColor(index));
-            button.setGrayedOut(gs);
         }
         Icon icon = getColorModelIcon(model.getColorModel());
         String tip = getColorModelDescription(model.getColorModel());

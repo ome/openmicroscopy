@@ -265,7 +265,7 @@ public class ImViewerFactory
 		ImViewerComponent comp;
 		while (v.hasNext()) {
 			comp = (ImViewerComponent) v.next();
-			if (comp.getModel().getImageID() != image.getId()) 
+			if (image != null && comp.getModel().getImageID() != image.getId()) 
 				comp.copyRndSettings();
 		}
 	}

@@ -58,7 +58,6 @@ class PreviewCanvas
 	PreviewCanvas()
 	{
 		setDoubleBuffered(true);
-		setToolTipText("Double-click to launch the Viewer.");
 	}
 	
 	/**

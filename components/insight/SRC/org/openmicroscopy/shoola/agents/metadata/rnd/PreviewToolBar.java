@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.PreviewToolBar 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -24,18 +24,20 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 
 //Java imports
-import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import javax.swing.Box;
-import javax.swing.JButton;
+import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JToolBar;
+import javax.swing.JToggleButton;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.metadata.actions.ManageRndSettingsAction;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -56,6 +58,17 @@ class PreviewToolBar
     /** Space between buttons. */
     static final int SPACE = 3;
 
+    /** Text of the preview check box. */
+    private static final String     PREVIEW = "Live Update";
+    
+    /** The description of the preview check box. */
+    private static final String     PREVIEW_DESCRIPTION = "Update the " +
+                    "rendering settings immediately. Not available for large " +
+                    "images";
+    
+    /** Text of the ROI count label */
+    private static final String ROI_LABEL_TEXT = "ROI Count: ";
+    
     /** Reference to the control. */
     private RendererControl control;
 
@@ -65,36 +78,33 @@ class PreviewToolBar
     /** Label indicating the selected plane. */
     private JLabel selectedPlane;
 
+    /** Preview option for render settings */
+    private JToggleButton       preview;
+    
     /** Initializes the component. */
     private void initComponents()
     {
     	 selectedPlane = new JLabel();
          Font font = selectedPlane.getFont();
-         selectedPlane.setFont(font.deriveFont(font.getStyle(),
-         		font.getSize()-2));
+         Font newFont = font.deriveFont(font.getStyle(),
+                 font.getSize()-2);
+         selectedPlane.setFont(newFont);
          setSelectedPlane();
+         
+         preview = new JCheckBox(PREVIEW);
+         preview.setEnabled(!model.isBigImage());
+         preview.setToolTipText(PREVIEW_DESCRIPTION);
+         preview.setFont(newFont);
     }
 
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
     	setBackground(UIUtilities.BACKGROUND_COLOR);
-    	JToolBar bar = new JToolBar();
-    	bar.setBackground(UIUtilities.BACKGROUND_COLOR);
-        bar.setBorder(null);
-        bar.setRollover(true);
-        bar.setFloatable(false);
-        JButton b = new JButton(control.getAction(RendererControl.SAVE));
-        UIUtilities.unifiedButtonLookAndFeel(b);
-        b.setText(ManageRndSettingsAction.NAME_SAVE);
-        b.setBackground(UIUtilities.BACKGROUND_COLOR);
-        bar.add(b);
-        setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        add(bar);
-        add(Box.createHorizontalStrut(5));
-        JPanel p = UIUtilities.buildComponentPanelRight(selectedPlane);
-        p.setBackground(UIUtilities.BACKGROUND_COLOR);
-        add(p);
+        setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+        add(selectedPlane);
+        add(Box.createHorizontalGlue());
+        add(preview);
     }
 
     /**
@@ -110,17 +120,25 @@ class PreviewToolBar
     	initComponents();
     	buildGUI();
     }
-
+    
     /** Indicates the selected plane. */
     void setSelectedPlane()
     {
-    	String s = "Z="+(model.getDefaultZ()+1)+"/"+model.getMaxZ();
-    	s += " T="+(model.getRealSelectedT()+1)+"/"+model.getRealT();
+    	String s = "Z:"+(model.getDefaultZ()+1)+"/"+model.getMaxZ();
+    	s += " T:"+(model.getRealSelectedT()+1)+"/"+model.getRealT();
     	if (model.isLifetimeImage()) {
-			s += " "+EditorUtil.SMALL_T_VARIABLE+"="+(model.getSelectedBin()+1);
+			s += " "+EditorUtil.SMALL_T_VARIABLE+":"+(model.getSelectedBin()+1);
 			s += "/"+(model.getMaxLifetimeBin());
 		}
     	selectedPlane.setText(s);
     }
 
+    /**
+     * Returns <code>true</code> if the live update is selected, 
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isLiveUpdate() { return preview.isSelected(); }
+    
 }

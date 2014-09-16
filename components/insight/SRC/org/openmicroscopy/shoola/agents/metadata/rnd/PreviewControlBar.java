@@ -39,6 +39,7 @@ import javax.swing.JToolBar;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.agents.metadata.actions.ManageRndSettingsAction;
 
 /** 
  * Displays the controls
@@ -60,31 +61,11 @@ class PreviewControlBar
 	/** Space between buttons. */
 	static final int SPACE = 3;
 	
-	/** Text of the preview check box. */
-	private static final String	PREVIEW = "Live Update";
-	
-	/** The description of the preview check box. */
-	private static final String	PREVIEW_DESCRIPTION = "Update the " +
-			"rendering settings immediately. Not available for large " +
-			"images";
-	
 	/** Reference to the control. */
     private RendererControl control;
     
     /** Reference to the model. */
     private RendererModel model;
-    
-    /** Preview option for render settings */
-    private JToggleButton	preview;
-    
-    /** Initializes the components. */
-    private void initComponents()
-    {
-    	preview = new JCheckBox(PREVIEW);
-        preview.setEnabled(!model.isBigImage());
-        preview.setToolTipText(PREVIEW_DESCRIPTION);
-        formatButton(preview);
-    }
     
     /**
      * Formats the specified button.
@@ -112,39 +93,41 @@ class PreviewControlBar
         bar.setBorder(null);
         bar.setRollover(true);
         bar.setFloatable(false);
-        JButton b = new JButton(control.getAction(RendererControl.RND_MIN_MAX));
-        preview.setFont(b.getFont());
         
-        formatButton(b);
-        bar.add(b);
-        b = new JButton(control.getAction(RendererControl.RND_ABSOLUTE_MIN_MAX));
-        preview.setFont(b.getFont());
-        
-        formatButton(b);
-        bar.add(b);
-
-        bar.add(Box.createHorizontalStrut(SPACE));
-        b = new JButton(control.getAction(RendererControl.RND_RESET));
+        JButton b = new JButton(control.getAction(RendererControl.SAVE));
+        b.setText(ManageRndSettingsAction.NAME_SAVE);
         formatButton(b);
         bar.add(b);
         
-        bar.add(Box.createHorizontalStrut(SPACE));
+        if (model.isGeneralIndex()) {
+            bar.add(Box.createHorizontalStrut(SPACE));
+            b = new JButton(control.getAction(RendererControl.APPLY_TO_ALL));
+            formatButton(b);
+            bar.add(b);
+            bar.add(new JSeparator(JSeparator.VERTICAL));
+        }
+        
+        
         b = new JButton(control.getAction(RendererControl.RND_UNDO));
         formatButton(b);
         bar.add(b);
-        
         bar.add(Box.createHorizontalStrut(SPACE));
+        
         b = new JButton(control.getAction(RendererControl.RND_REDO));
         formatButton(b);
         bar.add(b);
         
+        bar.add(new JSeparator(JSeparator.VERTICAL));
+        
+        b = new JButton(control.getAction(RendererControl.COPY));
+        formatButton(b);
+        bar.add(b);
         bar.add(Box.createHorizontalStrut(SPACE));
-        if (model.isGeneralIndex()) {
-        	bar.add(Box.createHorizontalStrut(SPACE));
-            b = new JButton(control.getAction(RendererControl.APPLY_TO_ALL));
-            formatButton(b);
-            bar.add(b);
-        }
+        
+        b = new JButton(control.getAction(RendererControl.PASTE));
+        formatButton(b);
+        bar.add(b);
+        
         return bar;
     }
     
@@ -153,8 +136,6 @@ class PreviewControlBar
     {
         setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
         setBackground(UIUtilities.BACKGROUND_COLOR);
-        add(preview);
-        add(new JSeparator(JSeparator.VERTICAL));
         add(buildToolBar());
     }
     
@@ -168,16 +149,7 @@ class PreviewControlBar
     {
     	this.control = control;
     	this.model = model;
-    	initComponents();
     	buildGUI();
     }
     
-    /**
-     * Returns <code>true</code> if the live update is selected, 
-     * <code>false</code> otherwise.
-     * 
-     * @return See above.
-     */
-    boolean isLiveUpdate() { return preview.isSelected(); }
-
 }

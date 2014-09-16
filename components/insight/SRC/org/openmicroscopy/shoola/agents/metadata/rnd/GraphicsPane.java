@@ -30,6 +30,8 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -39,6 +41,7 @@ import java.util.Iterator;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -84,7 +87,7 @@ class GraphicsPane
     static final double RATIO = 0.2;
     
     /** The title of the viewedby taskpane */
-    static final String VIEWEDBY_TITLE = "Saved by";
+    static final String VIEWEDBY_TITLE = "User Settings:";
 
     /** Slider to select a sub-interval of [0, 255]. */
     private TwoKnobsSlider codomainSlider;
@@ -119,14 +122,20 @@ class GraphicsPane
     /** The equation of the vertical line. */
     private int verticalLine = -1;
 
+    /** Checkbox for switching between greyscale and rgb mode */
+    private JCheckBox greyScale;
+    
     /** Hosts the sliders controlling the pixels intensity values. */
     private List<ChannelSlider> sliders;
 
     /** The component displaying the controls. */
     private PreviewControlBar controlsBar;
+    
+    /** The lower control pane */
+    private PreviewControlBar2 controlsBar2;
 
     /** The Tasks pane, only visible if already viewed by others. */
-    private JXTaskPane viewedBy;
+    private JPanel viewedBy;
 
     /** The preview tool bar. */
     private PreviewToolBar previewToolBar;
@@ -170,13 +179,13 @@ class GraphicsPane
     /** Initializes the components. */
     private void initComponents()
     {
-        IconManager icons = IconManager.getInstance();
-        viewedBy = new JXTaskPane();
+        viewedBy = new JPanel();
         Font font = viewedBy.getFont();
         viewedBy.setFont(font.deriveFont(font.getSize2D()-2));
-        viewedBy.setTitle(VIEWEDBY_TITLE);
-        viewedBy.setIcon(icons.getIcon(IconManager.RND_OWNER));
+        viewedBy.setBackground(UIUtilities.BACKGROUND_COLOR);
+        viewedBy.setLayout(new FlowLayout(FlowLayout.LEFT));
         controlsBar = new PreviewControlBar(controller, model);
+        controlsBar2 = new PreviewControlBar2(controller);
         uiDelegate = new GraphicsPaneUI(this, model);
         codomainSlider = new TwoKnobsSlider(RendererModel.CD_START,
                 RendererModel.CD_END, model.getCodomainStart(),
@@ -199,6 +208,16 @@ class GraphicsPane
         minLabel = new JLabel(formatValue(model.getGlobalMin()));
         maxLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
         minLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
+        
+        greyScale = new JCheckBox("Grayscale");
+        greyScale.setSelected(model.isGreyScale());
+        greyScale.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                model.setGreyscale(greyScale.isSelected());
+            }
+        });
+        
         sliders = new ArrayList<ChannelSlider>();
         if (model.getModuloT() != null || !model.isLifetimeImage()) {
             List<ChannelData> channels = model.getChannelData();
@@ -246,6 +265,7 @@ class GraphicsPane
         content.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.WEST;
+        c.fill = GridBagConstraints.HORIZONTAL;
         c.insets = new Insets(0, 2, 2, 0);
         c.gridy = 0;
         c.gridx = 0;
@@ -253,7 +273,6 @@ class GraphicsPane
             content.add(previewToolBar, c);
             c.gridy++;
             c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-            c.fill = GridBagConstraints.HORIZONTAL;
             content.add(new JSeparator(), c);
             c.gridy++;
         }
@@ -262,16 +281,35 @@ class GraphicsPane
         c.fill = GridBagConstraints.NONE;//reset to default
         c.weightx = 0.0;  
 
+        c.gridy++;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        content.add(new JSeparator(), c);
+        c.fill = GridBagConstraints.NONE;
+        
+        c.gridy++;
+        content.add(greyScale, c);
+        
         Iterator<ChannelSlider> i = sliders.iterator();
         while (i.hasNext())  {
             c.gridy++;
             content.add(i.next(), c);
         }
+        
+        c.gridy++;
+        content.add(controlsBar2, c);
+        
         c.gridy++;
         c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-        c.fill = GridBagConstraints.BOTH;
+        c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1.0;
         c.weighty = 1.0;
+        content.add(new JSeparator(), c);
+        
+        c.gridy++;
+        content.add(new JLabel(VIEWEDBY_TITLE), c);
+        
+        c.gridy++;
+        c.fill = GridBagConstraints.BOTH;
         content.add(viewedBy, c);
         JPanel p = UIUtilities.buildComponentPanel(content);
         p.setBackground(content.getBackground());
@@ -388,7 +426,7 @@ class GraphicsPane
      * 
      * @return See above.
      */
-    boolean isLiveUpdate() { return controlsBar.isLiveUpdate(); }
+    boolean isLiveUpdate() { return previewToolBar!=null ? previewToolBar.isLiveUpdate() : false; }
 
     /**
      * Returns <code>true</code> if a vertical line has
@@ -536,6 +574,7 @@ class GraphicsPane
         JPanel content = UIUtilities.buildComponentPanel(p);
         content.setBackground(UIUtilities.BACKGROUND_COLOR);
         viewedBy.add(content);
+        viewedBy.revalidate();
     }
 
     /**
@@ -581,7 +620,7 @@ class GraphicsPane
     {
         String name = evt.getPropertyName();
         Object source = evt.getSource();
-        if (!controlsBar.isLiveUpdate()) {
+        if (!previewToolBar.isLiveUpdate()) {
             if (TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name)) {
                 paintHorizontal = false;
                 paintVertical = false;
@@ -655,6 +694,14 @@ class GraphicsPane
             RndProxyDef def = (RndProxyDef)evt.getNewValue();
             highlight(def);
         }
+    }
+    
+    /**
+     * Checks/Unchecks the greyscale checkbox when the color model has changed
+     * @param b Pass <code>true</code> if color model is greyscale
+     */
+    void updateGreyScale(boolean b) {
+        greyScale.setSelected(b);
     }
 
     /**

@@ -157,6 +157,9 @@ public class DomainPane
 
     /** The tipString of the {@link #lifetimeSlider}. */
     private static final String LIFETIME_SLIDER_TIPSTRING = "t";
+    
+    /** Text of the launch in full viewer button */
+    private static final String OPEN_BUTTON_TEXT = "Launch full viewer";
 
     /** Box to select the family used in the mapping process. */
     private JComboBox familyBox;
@@ -166,9 +169,6 @@ public class DomainPane
      * in the mapping process. 
      */
     private List<ChannelButton> channelList;
-
-    /** A panel containing the channel buttons. */
-    private JPanel channelButtonPanel;
 
     /** Slider to select a curve in the family. */
     private OneKnobSlider gammaSlider;
@@ -194,9 +194,6 @@ public class DomainPane
     /** The component hosting the various options. */
     private JXTaskPane taskPane;
 
-    /** Button to modify the color model. */
-    private JButton colorModel;
-
     /** Select the lifetime bin. */
     private OneKnobSlider lifetimeSlider;
 
@@ -211,6 +208,9 @@ public class DomainPane
 
     /** The box hosting the channels. */
     private JComboBox channelsBox;
+    
+    /** Button for opening the full image viewer */
+    private JButton openButton;
 
     /**
      * Attaches listener to the passed slider and sets the default values.
@@ -368,11 +368,6 @@ public class DomainPane
         histogramButton = new JButton(
                 controller.getAction(RendererControl.HISTOGRAM));
         
-        colorModel = new JButton(
-        		controller.getAction(RendererControl.COLOR_MODEL));
-        colorModel.setBackground(UIUtilities.BACKGROUND_COLOR);
-        UIUtilities.unifiedButtonLookAndFeel(colorModel);
-        colorModel.setVisible(false);
         channelList = new ArrayList<ChannelButton>();
         
         if (model.isGeneralIndex()) {
@@ -387,22 +382,6 @@ public class DomainPane
         	initSlider(zSlider, maxZ, model.getDefaultZ(), 
         			Z_SLIDER_DESCRIPTION, Z_SLIDER_TIPSTRING);
         	canvas = new PreviewCanvas();
-        	canvas.addMouseListener(new MouseAdapter() {
-
-        		/**
-        		 * Posts an event to open the viewer when double-clicking 
-        		 * on the canvas.
-        		 */
-        		public void mouseReleased(MouseEvent e)
-        		{
-        			if (e.getClickCount() == 2) {
-        				ActionEvent event = new ActionEvent(
-        						e.getSource(), e.getID(), "");
-        				controller.getAction(
-        						RendererControl.VIEW).actionPerformed(event);
-        			}
-        		}
-        	});
         }
         if (model.hasModuloT()) {
             lifetimeSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL,
@@ -412,7 +391,6 @@ public class DomainPane
             initSlider(lifetimeSlider, maxBin, model.getSelectedBin(),
                     LITEIME_SLIDER_DESCRIPTION, LIFETIME_SLIDER_TIPSTRING);
             lifetimeSlider.setPaintTicks(false);
-            channelButtonPanel = createChannelButtons();
         } else {
             if (model.isLifetimeImage()) {
                 lifetimeSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL,
@@ -422,9 +400,7 @@ public class DomainPane
                 initSlider(lifetimeSlider, maxBin, model.getSelectedBin(),
                         LITEIME_SLIDER_DESCRIPTION, LIFETIME_SLIDER_TIPSTRING);
                 lifetimeSlider.setPaintTicks(false);
-                channelButtonPanel = new JPanel();
-                channelButtonPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
-            } else channelButtonPanel = createChannelButtons();
+            }
         }
         graphicsPane.setSelectedPlane();
         channelsBox = new JComboBox();
@@ -432,6 +408,11 @@ public class DomainPane
         channelsBox.setRenderer(new ColorListRenderer());
         channelsBox.setActionCommand(""+CHANNEL);
         channelsBox.setVisible(model.getMaxC() > 1);
+        
+        openButton = new JButton(controller.getAction(RendererControl.VIEW));
+        openButton.setIcon(null);
+        openButton.setText(OPEN_BUTTON_TEXT);
+        openButton.setToolTipText(null);
     }
     
     /** Populates the channels. */
@@ -471,78 +452,6 @@ public class DomainPane
     }
     
     /**
-     * Creates the channel buttons on the left hand side of the histogram.
-     * 
-     * @return panel containing the buttons.
-     */
-    private JPanel createChannelButtons()
-    {
-        JPanel p = new JPanel();
-        p.setBackground(UIUtilities.BACKGROUND_COLOR);
-        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        List<ChannelData> data = model.getChannelData();
-        boolean gs = model.isGreyScale();
-        ChannelData d;
-        //ChannelToggleButton item;
-        ChannelButton item;
-        p.add(Box.createRigidArea(VBOX));
-        Dimension dMax = ChannelButton.DEFAULT_MIN_SIZE;
-        Dimension dim;
-        Iterator<ChannelData> i = data.iterator();
-        int j;
-        List<Integer> active = model.getActiveChannels();
-        while (i.hasNext()) {
-			d = i.next();
-			j = d.getIndex();
-			item = new ChannelButton(""+d.getChannelLabeling(), 
-					model.getChannelColor(j), j);
-			dim = item.getPreferredSize();
-			if (dim.width > dMax.width) 
-				dMax = new Dimension(dim.width, dMax.height);
-			item.setBackground(UIUtilities.BACKGROUND_COLOR);
-			channelList.add(item);
-			item.setSelected(active.contains(j));
-			item.setGrayedOut(gs);
-			item.addPropertyChangeListener(controller);
-			p.add(item);
-			p.add(Box.createRigidArea(VBOX));
-		}
- 
-        Iterator<ChannelButton> index = channelList.iterator();
-        while (index.hasNext()) 
-			index.next().setPreferredSize(dMax);
-
-        JPanel controls = new JPanel();
-        controls.setLayout(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();
-		c.fill = GridBagConstraints.VERTICAL;
-		c.anchor = GridBagConstraints.WEST;
-		c.insets = new Insets(0, 2, 2, 0);
-		c.gridy = 0;
-		c.gridx = 0;
-        controls.setBackground(UIUtilities.BACKGROUND_COLOR);
-        if (model.isGeneralIndex()) {
-        	colorModel.setVisible(true);
-        	JToolBar bar = new JToolBar(JToolBar.VERTICAL);
-        	bar.setBackground(colorModel.getBackground());
-        	bar.setFloatable(false);
-        	bar.setRollover(true);
-        	bar.setBorder(null);
-        	bar.add(colorModel);
-        	c.anchor = GridBagConstraints.CENTER;
-        	controls.add(bar, c);
-        	c.gridy = c.gridy+2;
-        	c.anchor = GridBagConstraints.WEST;
-        }
-        if (channelList.size() > Renderer.MAX_CHANNELS) 
-        	controls.add(new JScrollPane(p), c);
-        else controls.add(p, c);
-        JPanel content = UIUtilities.buildComponentPanel(controls);
-        content.setBackground(UIUtilities.BACKGROUND_COLOR);
-        return content;  
-    }
-    
-    /**
      * Creates a panel showing the channel buttons and histogram.
      *  
      * @return See above.
@@ -551,22 +460,34 @@ public class DomainPane
     {
     	JPanel p = new JPanel();
     	p.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	p.setLayout(new BorderLayout());
-    	if (model.isGeneralIndex()) {
-    		p.add(buildViewerPane(), BorderLayout.WEST);
-    		p.add(graphicsPane, BorderLayout.SOUTH);
-    		JPanel content = new JPanel();
-    		content.setLayout(new BorderLayout());
-    		content.setBackground(UIUtilities.BACKGROUND_COLOR);
-    		content.add(p, BorderLayout.CENTER);
-    		return content;
-    	} 
-    	p.add(graphicsPane, BorderLayout.CENTER);
-    	taskPane.add(buildControlsPane());
-    	p.add(taskPane, BorderLayout.SOUTH);
+    	p.setLayout(new GridBagLayout());
+    	
+    	GridBagConstraints c = new GridBagConstraints();
+    	c.gridx = 0;
+    	c.gridy = 0;
+    	
+        if (model.isGeneralIndex()) {
+            c.anchor = GridBagConstraints.WEST;
+            p.add(openButton, c);
+            c.gridy++;
+            
+            c.anchor = GridBagConstraints.CENTER;
+            p.add(buildViewerPane(), c);
+            c.gridy++;
+
+            p.add(graphicsPane,c);
+            c.gridy++;
+        } else {
+            p.add(graphicsPane,c);
+            c.gridy++;
+            taskPane.add(buildControlsPane());
+            p.add(taskPane, c);
+            c.gridy++;
+        }
+    	
     	JPanel content = UIUtilities.buildComponentPanel(p);
     	content.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	return p;
+    	return content;
     }
     
     /** 
@@ -585,10 +506,6 @@ public class DomainPane
 		c.insets = new Insets(0, 2, 2, 0);
 		c.gridy = 0;
 		c.gridx = 0;
-		if (channelButtonPanel != null) {
-			p.add(channelButtonPanel, c);
-			c.gridx++;
-		}
 		p.add(zSlider, c);
 		c.gridx++;
 		p.add(canvas, c);
@@ -713,7 +630,7 @@ public class DomainPane
     {
     	setBackground(UIUtilities.BACKGROUND_COLOR);
     	setLayout(new BorderLayout());
-    	add(buildChannelGraphicsPanel(), BorderLayout.NORTH);
+    	add(buildChannelGraphicsPanel(), BorderLayout.CENTER);
     }
     
     /**
@@ -848,6 +765,7 @@ public class DomainPane
         resetGamma(model.getCurveCoefficient());
         setZSection(model.getDefaultZ());
         setTimepoint(model.getDefaultT());
+        setGreyScale(model.isGreyScale());
     }
     
     /**
@@ -909,14 +827,12 @@ public class DomainPane
         if (active == null) return;
         int index;
         int c = model.getSelectedChannel();
-        boolean gs = model.isGreyScale();
         while (i.hasNext()) {
 			btn = i.next();
 			index = btn.getChannelIndex();
 			btn.setSelected(active.contains(index));
 			if (index == c && !model.isGeneralIndex()) 
 				btn.setBorder(SELECTION_BORDER);
-			btn.setGrayedOut(gs);
 			btn.setColor(model.getChannelColor(index));
 		}
     }
@@ -947,12 +863,10 @@ public class DomainPane
     {
     	Iterator<ChannelButton> i = channelList.iterator();
     	ChannelButton btn;
-    	boolean gs = model.isGreyScale();
     	while (i.hasNext()) {
 			btn = i.next();
 			if (index == btn.getChannelIndex()) {
 				 btn.setColor(model.getChannelColor(index));
-				 if (gs) btn.setGrayedOut(gs);
 			}
 		}
     	graphicsPane.setChannelColor(index);
@@ -963,14 +877,12 @@ public class DomainPane
     void setColorModelChanged() 
     {
         ChannelButton btn;
-        boolean gs = model.isGreyScale();
         int index;
         int selected = model.getSelectedChannel();
         for (int i = 0 ; i < channelList.size() ; i++) {
             btn = channelList.get(i);
             index = btn.getChannelIndex();
             btn.setColor(model.getChannelColor(index));
-            btn.setGrayedOut(gs);
             btn.setSelected(model.isChannelActive(index));
             if (index == selected && !model.isGeneralIndex()) 
             	btn.setBorder(SELECTION_BORDER);
@@ -1015,6 +927,14 @@ public class DomainPane
     	if (zSlider != null) updateSlider(zSlider, z);
     }
 
+    /**
+     * Update the UI components when the color model has changed
+     * @param b Pass <code>true</code> if color model is greyscale
+     */
+    void setGreyScale(boolean b) {
+        graphicsPane.updateGreyScale(b);
+    }
+    
 	/**
 	 * Returns <code>true</code> if the passed object is one of the
 	 * channel buttons, <code>false</code> otherwise.

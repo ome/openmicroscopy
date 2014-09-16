@@ -711,6 +711,7 @@ class EditorComponent
 		}
 		// load other users' rendering settings
 		model.getRenderer().retrieveRelatedSettings();
+		model.getRenderer().updatePasteAction();
 	}
 
 	/** 
