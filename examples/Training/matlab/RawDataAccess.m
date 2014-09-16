@@ -49,7 +49,7 @@ try
     fprintf(1, 'Size C: %g\n', sizeC);
     fprintf(1, 'Size T: %g\n', sizeT);
     
-    %% Retrieve planes
+    %% Planes
     % The following loop initializes a raw pixels store, reads the pixels
     % data and closes the store for each method call
     disp('Reading planes with raw pixels store re-initialization');
@@ -81,12 +81,15 @@ try
     store.close();
     toc
     
-    % Retrieve tiles
-    disp('Reading tiles');
+    %% Tiles
+    % The following loop initializes a raw pixels store, reads the pixels
+    % data and closes the store for each method call
+    disp('Reading tiles with raw pixels store re-initialization');
     x = 0;
     y = 0;
     width = sizeX/2;
     height = sizeY/2;
+    tic
     for z = 0:sizeZ-1,
         for t = 0:sizeT-1,
             for c = 0:sizeC-1,
@@ -95,23 +98,58 @@ try
             end
         end
     end
+    toc
     
-    % Retrieve stacks
-    disp('Reading stacks');
+    % The following loop initializes a raw pixels store which is re-used in
+    % each method call. The store must be closed manually at the end of the
+    % loop.
+    disp('Reading tiles with raw pixels store recycling');
+    tic
+    [store, pixels] = getRawPixelsStore(session, image);
+    for z = 0:sizeZ-1,
+        for t = 0:sizeT-1,
+            for c = 0:sizeC-1,
+                fprintf(1, '  Plane Z: %g, C: %g, T: %g\n', z, c, t);
+                plane = getTile(pixels, store, z, c, t, x, y, width, height);
+            end
+        end
+    end
+    store.close();
+    toc
+
+    %% Stacks
+    % The following loop initializes a raw pixels store, reads the pixels
+    % data and closes the store for each method call
+    disp('Reading stacks with raw pixels store re-initialization');
+    tic
     for t = 0:sizeT-1,
         for c = 0:sizeC-1,
             fprintf(1, '  Stack C: %g, T: %g\n', c, t);
             stack = getStack(session, image, c, t);
         end
     end
+    toc
     
+    % The following loop initializes a raw pixels store which is re-used in
+    % each method call. The store must be closed manually at the end of the
+    % loop.
+    disp('Reading stacks with raw pixels store recycling');
+    tic
+    [store, pixels] = getRawPixelsStore(session, image);
+    for t = 0:sizeT-1,
+        for c = 0:sizeC-1,
+            fprintf(1, '  Stack C: %g, T: %g\n', c, t);
+            stack = getStack(pixels, store, c, t);
+        end
+    end
+    store.close();
+    toc
     
-    % Retrieve a given hypercube.
+    %% Hypercube
     disp('Reading hypercube');
-    %Create the store to load the stack. No access via the gateway
-    store = session.createRawPixelsStore();
-    %Indicate the pixels set you are working on
-    store.setPixelsId(pixels.getId().getValue(), false);
+
+    %Create the store to load the stack
+    [store, pixels] = getRawPixelsStore(session, image);
     
     % offset values in each dimension XYZCT
     offset = toJavaList(zeros(1,5), 'java.lang.Integer');
