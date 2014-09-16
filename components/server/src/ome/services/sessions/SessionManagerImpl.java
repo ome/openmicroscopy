@@ -820,7 +820,12 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         // if the current context (e.g. group-sudo) is permitted to create
         // such a session.
         if (req.groupsLed != null) {
-            throw new SecurityViolation("Group sudo is not permitted.");
+            long gid = sf.getAdminService().lookupGroup(group).getId();
+            if (!req.groupsLed.contains(gid)) {
+                throw new SecurityViolation(String.format(
+                        "Group sudo is not permitted for group %s (gid=%s)",
+                        group, gid));
+            }
         }
 
         // Also checking event type. Throws if missing (and at least a NPE)
