@@ -1679,11 +1679,12 @@ def get_image_rdef_json (request, conn=None, **kwargs):
     returns it as json
     """
     rdef = request.session.get('rdef')
+    image = None
     if (rdef is None):
         fromid = request.session.get('fromid', None)
-        print 'fromid', fromid
-        # We only have an Image to copy rdefs from
-        image = conn.getObject("Image", fromid)
+        if fromid is not None:
+            # We only have an Image to copy rdefs from
+            image = conn.getObject("Image", fromid)
         if image is not None:
             rv = imageMarshal(image, None)
             # return rv
@@ -1881,11 +1882,13 @@ def archived_files(request, iid=None, conn=None, **kwargs):
         rsp = ConnCleaningHttpResponse(orig_file.getFileInChunks())
         rsp.conn = conn
         rsp['Content-Length'] = orig_file.getSize()
-        rsp['Content-Disposition'] = 'attachment; filename=%s' % (orig_file.getName().replace(" ","_"))
+        fname = orig_file.getName().replace(" ","_").replace(",", ".")      # ',' in name causes duplicate headers
+        rsp['Content-Disposition'] = 'attachment; filename=%s' % (fname)
     else:
         import tempfile
         temp = tempfile.NamedTemporaryFile(suffix='.archive')
         zipName = request.REQUEST.get('zipname', image.getName())
+        zipName = zipName.replace(" ","_").replace(",", ".")        # ',' in name causes duplicate headers
         if not zipName.endswith('.zip'):
             zipName = "%s.zip" % zipName
         try:

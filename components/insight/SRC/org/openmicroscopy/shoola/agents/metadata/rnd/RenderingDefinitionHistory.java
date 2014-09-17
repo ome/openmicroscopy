@@ -76,8 +76,6 @@ public class RenderingDefinitionHistory {
         history.clear();
         pointer = -1;
         previousAction = 0;
-
-//        System.out.println("reset - "+this);
         
         this.pcs.firePropertyChange(CAN_UNDO, oldU, canUndo());
         this.pcs.firePropertyChange(CAN_REDO, oldR, canRedo());
@@ -116,8 +114,6 @@ public class RenderingDefinitionHistory {
 
         history.add(def);
         pointer = history.size() - 1;
-
-        System.out.println("add - "+this);
         
         this.pcs.firePropertyChange(CAN_UNDO, oldU, canUndo());
         this.pcs.firePropertyChange(CAN_REDO, oldR, canRedo());
@@ -149,8 +145,6 @@ public class RenderingDefinitionHistory {
         this.pcs.firePropertyChange(CAN_REDO, oldR, canRedo());
         
         previousAction = PREV_ACTION_FORWARD;
-        
-//        System.out.println("forward - "+this);
         
         return getCurrent();
     }
@@ -189,8 +183,6 @@ public class RenderingDefinitionHistory {
         
         previousAction = PREV_ACTION_BACKWARD;
         
-//        System.out.println("backward_add - "+this);
-        
         return current;
     }
 
@@ -214,8 +206,6 @@ public class RenderingDefinitionHistory {
         this.pcs.firePropertyChange(CAN_REDO, oldR, canRedo());
         
         previousAction = PREV_ACTION_BACKWARD;
-        
-//        System.out.println("backward - "+this);
         
         return def;
     }

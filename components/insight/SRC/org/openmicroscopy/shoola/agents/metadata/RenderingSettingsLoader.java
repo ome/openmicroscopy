@@ -37,10 +37,12 @@ import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import pojos.DataObject;
+import pojos.ExperimenterData;
 
 /** 
  * Loads all rendering settings associated to an image.
@@ -56,12 +58,21 @@ public class RenderingSettingsLoader
     extends MetadataLoader
 {
 
+    /** Task Id for loading the viewedby items */
+    public static final int TASK_VIEWEDBY = 0;
+    
+    /** Task Id for loading copied rendering settings */
+    public static final int TASK_COPY_PASTE = 1;
+    
     /** The ID of the pixels set. */
     private long pixelsID;
 
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
 
+    /** The task this loader should execute */
+    private int task = -1;
+    
     /**
      * Creates a new instance.
      * 
@@ -70,11 +81,13 @@ public class RenderingSettingsLoader
      * @param ctx The security context.
      * @param pixelsID The identifier of the pixels set.
      * @param loaderID The identifier of the loader.
+     * @param task The task this loader is intended for
      */
     public RenderingSettingsLoader(MetadataViewer viewer, SecurityContext ctx,
-            long pixelsID, int loaderID)
+            long pixelsID, int loaderID, int task)
     {
         super(viewer, ctx, loaderID);
+        this.task = task;
         this.pixelsID = pixelsID;
     }
 
@@ -99,22 +112,47 @@ public class RenderingSettingsLoader
      */
     public void handleResult(Object result) 
     {
-        if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
-        //Create a new map to avoid major changes for now
         Map<DataObject, Collection<RndProxyDef>> map =
                 (Map<DataObject, Collection<RndProxyDef>>) result;
-        Map<DataObject, RndProxyDef> m =
-                new HashMap<DataObject, RndProxyDef>(map.size());
-        Entry<DataObject, Collection<RndProxyDef>> entry;
-        Iterator<Entry<DataObject, Collection<RndProxyDef>>> i =
-                map.entrySet().iterator();
-        while (i.hasNext()) {
-            entry = i.next();
-            Collection<RndProxyDef> def = entry.getValue();
-            if (CollectionUtils.isNotEmpty(def))
-                m.put(entry.getKey(), def.iterator().next());
+        
+        if(task==TASK_VIEWEDBY) {
+            if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
+            //Create a new map to avoid major changes for now
+            Map<DataObject, RndProxyDef> m =
+                    new HashMap<DataObject, RndProxyDef>(map.size());
+            Entry<DataObject, Collection<RndProxyDef>> entry;
+            Iterator<Entry<DataObject, Collection<RndProxyDef>>> i =
+                    map.entrySet().iterator();
+            while (i.hasNext()) {
+                entry = i.next();
+                Collection<RndProxyDef> def = entry.getValue();
+                if (CollectionUtils.isNotEmpty(def))
+                    m.put(entry.getKey(), def.iterator().next());
+            }
+            viewer.setViewedBy(m);
         }
-        viewer.setViewedBy(m);
+        else {
+            if (viewer.getRenderer() == null)
+                return;
+
+            ExperimenterData user = (ExperimenterData) MetadataViewerAgent
+                    .getRegistry().lookup(LookupNames.CURRENT_USER_DETAILS);
+            
+            Iterator<Entry<DataObject, Collection<RndProxyDef>>> i = map
+                    .entrySet().iterator();
+            while (i.hasNext()) {
+                Entry<DataObject, Collection<RndProxyDef>> entry = i.next();
+                if (entry.getKey() instanceof ExperimenterData) {
+                    ExperimenterData exp = (ExperimenterData) entry.getKey();
+                    if (exp.getId() == user.getId()) {
+                        Collection<RndProxyDef> def = entry.getValue();
+                        viewer.getRenderer().resetSettings(
+                                def.iterator().next(), true);
+                        break;
+                    }
+                }
+            }
+        }
     }
 
 }

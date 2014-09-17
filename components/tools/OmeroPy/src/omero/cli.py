@@ -24,9 +24,16 @@ See LICENSE for details.
 sys = __import__("sys")
 cmd = __import__("cmd")
 
-import string, re, os, subprocess, socket, traceback, glob, platform, time
+import re
+import os
+import subprocess
+import socket
+import traceback
+import glob
+import platform
+import time
 import shlex
-from threading import Thread, Lock
+from threading import Lock
 from path import path
 
 from omero_ext.argparse import ArgumentError
@@ -35,14 +42,10 @@ from omero_ext.argparse import FileType
 from omero_ext.argparse import Namespace
 
 # Help text
-from omero_ext.argparse import ArgumentDefaultsHelpFormatter
-from omero_ext.argparse import RawDescriptionHelpFormatter
 from omero_ext.argparse import RawTextHelpFormatter
 from omero_ext.argparse import SUPPRESS
 
-from omero.util import get_user
 from omero.util.concurrency import get_event
-from omero.util.sessions import SessionsStore
 
 import omero
 
@@ -52,12 +55,12 @@ import omero
 
 try:
     from omero_version import omero_version
-    VERSION=omero_version
+    VERSION = omero_version
 except ImportError:
-    VERSION="Unknown" # Usually during testing
+    VERSION = "Unknown"  # Usually during testing
 
 DEBUG = 0
-if os.environ.has_key("DEBUG"):
+if "DEBUG" in os.environ:
     try:
         DEBUG = int(os.environ["DEBUG"])
     except ValueError:
@@ -109,12 +112,14 @@ class NonZeroReturnCode(Exception):
 
 class HelpFormatter(RawTextHelpFormatter):
     """
-    argparse.HelpFormatter subclass which cleans up our usage, preventing very long
-    lines in subcommands.
+    argparse.HelpFormatter subclass which cleans up our usage, preventing very
+    long lines in subcommands.
     """
 
-    def __init__(self, prog, indent_increment=2, max_help_position=40, width=None):
-        RawTextHelpFormatter.__init__(self, prog, indent_increment, max_help_position, width)
+    def __init__(self, prog, indent_increment=2, max_help_position=40,
+                 width=None):
+        RawTextHelpFormatter.__init__(
+            self, prog, indent_increment, max_help_position, width)
         self._action_max_length = 20
 
     def _split_lines(self, text, width):
@@ -123,9 +128,10 @@ class HelpFormatter(RawTextHelpFormatter):
     class _Section(RawTextHelpFormatter._Section):
 
         def __init__(self, formatter, parent, heading=None):
-            #if heading:
+            # if heading:
             #    heading = "\n%s\n%s" % ("=" * 40, heading)
-            RawTextHelpFormatter._Section.__init__(self, formatter, parent, heading)
+            RawTextHelpFormatter._Section.__init__(
+                self, formatter, parent, heading)
 
 
 class WriteOnceNamespace(Namespace):
@@ -134,7 +140,8 @@ class WriteOnceNamespace(Namespace):
     """
     def __setattr__(self, name, value):
         if hasattr(self, name):
-            raise Exception("%s already has field %s" % (self.__class__.__name__, name))
+            raise Exception("%s already has field %s"
+                            % (self.__class__.__name__, name))
         else:
             return Namespace.__setattr__(self, name, value)
 
@@ -154,52 +161,51 @@ class Parser(ArgumentParser):
         self._sort_args = True
 
     def sub(self):
-        return self.add_subparsers(title = "Subcommands", description = OMEROSUBS, metavar = OMEROSUBM)
+        return self.add_subparsers(
+            title="Subcommands", description=OMEROSUBS, metavar=OMEROSUBM)
 
     def add(self, sub, func, help=None, **kwargs):
         if help is None:
             help = func.__doc__
-        parser = sub.add_parser(func.im_func.__name__, help=help, description=help)
+        parser = sub.add_parser(
+            func.im_func.__name__, help=help, description=help)
         parser.set_defaults(func=func, **kwargs)
         return parser
 
     def add_limit_arguments(self):
         self.add_argument(
-            "--limit", help="maximum number of return values (default=25)", type=int,
-            default=25)
+            "--limit", help="maximum number of return values (default=25)",
+            type=int, default=25)
         self.add_argument(
-            "--offset", help="number of entries to skip (default=0)", type=int, default=0)
+            "--offset", help="number of entries to skip (default=0)",
+            type=int, default=0)
 
     def add_style_argument(self):
-        from omero.util.text import find_style
         from omero.util.text import list_styles
         self.add_argument(
-            "--style", help=
-            "use alternative output style (default=sql)",
+            "--style", help="use alternative output style (default=sql)",
             choices=list_styles())
 
     def add_login_arguments(self):
-        group = self.add_argument_group('Login arguments',
-            """Optional session arguments
+        group = self.add_argument_group(
+            'Login arguments', """Optional session arguments
 
 Environment variables:
     OMERO_SESSION_DIR - Set the sessions directory (Default: $HOME/omero/sessions)""")
-        group.add_argument("-C", "--create", action = "store_true",
-            help = "Create a new session regardless of existing ones")
-        group.add_argument("-s", "--server",
-            help = "OMERO server hostname")
-        group.add_argument("-p", "--port",
-            help = "OMERO server port")
-        group.add_argument("-g", "--group",
-            help = "OMERO server default group")
-        group.add_argument("-u", "--user",
-            help = "OMERO username")
-        group.add_argument("-w", "--password",
-            help = "OMERO password")
-        group.add_argument("-k", "--key",
-            help = "OMERO session key (UUID of an active session)")
-        group.add_argument("--sudo", metavar="ADMINUSER",
-            help = "Create session as this admin. Changes meaning of password!")
+        group.add_argument(
+            "-C", "--create", action="store_true",
+            help="Create a new session regardless of existing ones")
+        group.add_argument("-s", "--server", help="OMERO server hostname")
+        group.add_argument("-p", "--port", help="OMERO server port")
+        group.add_argument("-g", "--group", help="OMERO server default group")
+        group.add_argument("-u", "--user", help="OMERO username")
+        group.add_argument("-w", "--password", help="OMERO password")
+        group.add_argument(
+            "-k", "--key",
+            help="OMERO session key (UUID of an active session)")
+        group.add_argument(
+            "--sudo", metavar="ADMINUSER",
+            help="Create session as this admin. Changes meaning of password!")
         group.add_argument(
             "-q", "--quiet", action="store_true",
             help="Quiet mode. Causes most warning and diagnostic messages to "
@@ -242,9 +248,8 @@ class ProxyStringType(object):
     def __init__(self, default=None):
         self.default = default
 
-    def __call__(self, string):
-        return omero.proxy_to_instance(
-            string, default=self.default)
+    def __call__(self, s):
+        return omero.proxy_to_instance(s, default=self.default)
 
 
 class NewFileType(FileType):
@@ -252,10 +257,10 @@ class NewFileType(FileType):
     Extension of the argparse.FileType to prevent
     overwrite existing files.
     """
-    def __call__(self, string):
-        if string != "-" and os.path.exists(string):
-            raise ValueError("File exists: %s" % string)
-        return FileType.__call__(self, string)
+    def __call__(self, s):
+        if s != "-" and os.path.exists(s):
+            raise ValueError("File exists: %s" % s)
+        return FileType.__call__(self, s)
 
 
 class ExistingFile(FileType):
@@ -263,13 +268,13 @@ class ExistingFile(FileType):
     Extension of the argparse.FileType that requires
     an existing file.
     """
-    def __call__(self, string):
-        if not string == "-" and not os.path.exists(string):
-            raise ValueError("File does not exist: %s" % string)
-        if not string == "-":
-            return FileType.__call__(self, string)
+    def __call__(self, s):
+        if s != "-" and not os.path.exists(s):
+            raise ValueError("File does not exist: %s" % s)
+        if s != "-":
+            return FileType.__call__(self, s)
         else:
-            return string
+            return s
 
 
 class DirectoryType(FileType):
@@ -277,12 +282,12 @@ class DirectoryType(FileType):
     Extension of the argparse.FileType to only allow
     existing directories.
     """
-    def __call__(self, string):
-        p = path(string)
+    def __call__(self, s):
+        p = path(s)
         if not p.exists():
-            raise ValueError("Directory does not exist: %s" % string)
+            raise ValueError("Directory does not exist: %s" % s)
         elif not p.isdir():
-            raise ValueError("Path is not a directory: %s" % string)
+            raise ValueError("Path is not a directory: %s" % s)
         return str(p.abspath())
 
 
@@ -294,7 +299,8 @@ class ExceptionHandler(object):
     """
     def is_constraint_violation(self, ve):
         if isinstance(ve, omero.ValidationException):
-            if "org.hibernate.exception.ConstraintViolationException: could not insert" in str(ve):
+            if "org.hibernate.exception.ConstraintViolationException: " \
+                    "could not insert" in str(ve):
                 return True
 
     def handle_failed_request(self, rfe):
@@ -317,7 +323,7 @@ class Context:
 
     """
 
-    def __init__(self, controls = None, params = None, prog = sys.argv[0]):
+    def __init__(self, controls=None, params=None, prog=sys.argv[0]):
         self.controls = controls
         if self.controls is None:
             self.controls = {}
@@ -327,14 +333,16 @@ class Context:
         self.event = get_event(name="CLI")
         self.dir = OMERODIR
         self.isquiet = False
-        self.isdebug = DEBUG # This usage will go away and default will be False
-        self.topics = {"debug":"""
+        # This usage will go away and default will be False
+        self.isdebug = DEBUG
+        self.topics = {"debug": """
 
         debug options for developers:
 
         The value to the debug argument is a comma-separated list of commands:
 
-         * 'debug' prints at the "debug" level. Similar to setting DEBUG=1 in the environment.
+         * 'debug' prints at the "debug" level. Similar to setting DEBUG=1 in
+           the environment.
          * 'trace' runs the command with tracing enabled.
          * 'profile' runs the command with profiling enabled.
 
@@ -342,13 +350,18 @@ class Context:
 
         Example:
 
-            bin/omero --debug=debug,trace admin start # Debugs at level 1 and prints tracing
-            bin/omero -d1 admin start                 # Debugs at level 1
-            bin/omero -dp admin start                 # Prints profiling
-            bin/omero -dt,p admin start               # Fails!; can't print tracing and profiling together
-            bin/omero -d0 admin start                 # Disables debugging
+            # Debugs at level 1 and prints tracing
+            bin/omero --debug=debug,trace admin start
+            # Debugs at level 1
+            bin/omero -d1 admin start
+            # Prints profiling
+            bin/omero -dp admin start
+            # Fails!; can't print tracing and profiling together
+            bin/omero -dt,p admin start
+            # Disables debugging
+            bin/omero -d0 admin start
         """}
-        self.parser = Parser(prog = prog, description = OMERODOC)
+        self.parser = Parser(prog=prog, description=OMERODOC)
         self.subparsers = self.parser_init(self.parser)
 
     def post_process(self):
@@ -357,30 +370,39 @@ class Context:
         """
         sessions = self.controls["sessions"]
 
-        login = self.subparsers.add_parser("login", help="Shortcut for 'sessions login'",
-                                           description=sessions.login.__doc__)
-        login.set_defaults(func=lambda args:sessions.login(args))
+        login = self.subparsers.add_parser(
+            "login", help="Shortcut for 'sessions login'",
+            description=sessions.login.__doc__)
+        login.set_defaults(func=lambda args: sessions.login(args))
         sessions._configure_login(login)
 
-        logout = self.subparsers.add_parser("logout", help="Shortcut for 'sessions logout'")
-        logout.set_defaults(func=lambda args:sessions.logout(args))
+        logout = self.subparsers.add_parser(
+            "logout", help="Shortcut for 'sessions logout'")
+        logout.set_defaults(func=lambda args: sessions.logout(args))
         sessions._configure_dir(logout)
 
     def parser_init(self, parser):
-        parser.add_argument("-v", "--version", action="version", version="%%(prog)s %s" % VERSION)
-        parser.add_argument("-d", "--debug", help="Use 'help debug' for more information", default = SUPPRESS)
-        parser.add_argument("--path", help="Add file or directory to plugin list. Supports globs.", action = "append")
+        parser.add_argument(
+            "-v", "--version", action="version",
+            version="%%(prog)s %s" % VERSION)
+        parser.add_argument(
+            "-d", "--debug",
+            help="Use 'help debug' for more information", default=SUPPRESS)
+        parser.add_argument(
+            "--path",  action="append",
+            help="Add file or directory to plugin list. Supports globs.")
         parser.add_login_arguments()
-        subparsers = parser.add_subparsers(title="Subcommands", description=OMEROSUBS, metavar=OMEROSUBM)
+        subparsers = parser.add_subparsers(
+            title="Subcommands", description=OMEROSUBS, metavar=OMEROSUBM)
         return subparsers
 
-    def get(self, key, defvalue = None):
+    def get(self, key, defvalue=None):
         return self.params.get(key, defvalue)
 
-    def set(self, key, value = True):
+    def set(self, key, value=True):
         self.params[key] = value
 
-    def safePrint(self, text, stream, newline = True):
+    def safePrint(self, text, stream, newline=True):
         """
         Prints text to a given string, capturing any exceptions.
         """
@@ -405,7 +427,7 @@ class Context:
         testing when PYTHONPATH is not properly set.
         """
         path = list(sys.path)
-        for i in range(0,len(path)-1):
+        for i in range(0, len(path) - 1):
             if path[i] == '':
                 path[i] = os.getcwd()
         pythonpath = ":".join(path)
@@ -421,14 +443,14 @@ class Context:
         if not dir.exists():
             dir.mkdir()
         elif not dir.isdir():
-            raise Exception("%s is not a directory"%dir)
+            raise Exception("%s is not a directory" % dir)
         dir.chmod(0700)
         return dir
 
-    def pub(self, args, strict = False):
+    def pub(self, args, strict=False):
         self.safePrint(str(args), sys.stdout)
 
-    def input(self, prompt, hidden = False, required = False):
+    def input(self, prompt, hidden=False, required=False):
         """
         Reads from standard in. If hidden == True, then
         uses getpass
@@ -447,19 +469,19 @@ class Context:
         except KeyboardInterrupt:
             self.die(1, "Cancelled")
 
-    def out(self, text, newline = True):
+    def out(self, text, newline=True):
         """
         Expects a single string as argument.
         """
         self.safePrint(text, sys.stdout, newline)
 
-    def err(self, text, newline = True):
+    def err(self, text, newline=True):
         """
         Expects a single string as argument.
         """
         self.safePrint(text, sys.stderr, newline)
 
-    def dbg(self, text, newline = True, level = 1):
+    def dbg(self, text, newline=True, level=1):
         """
         Passes text to err() if self.isdebug is set
         """
@@ -467,7 +489,7 @@ class Context:
             self.err(text, newline)
 
     def die(self, rc, args):
-        raise Exception((rc,args))
+        raise Exception((rc, args))
 
     def exit(self, args):
         self.out(args)
@@ -528,11 +550,11 @@ class BaseControl(object):
     #
     # Mostly reusable code
     #
-    def __init__(self, ctx = None, dir = OMERODIR):
-        self.dir = path(dir) # Guaranteed to be a path
+    def __init__(self, ctx=None, dir=OMERODIR):
+        self.dir = path(dir)  # Guaranteed to be a path
         self.ctx = ctx
         if self.ctx is None:
-            self.ctx = Context() # Prevents unncessary stop_event creation
+            self.ctx = Context()  # Prevents unncessary stop_event creation
 
     def _isWindows(self):
         p_s = platform.system()
@@ -553,7 +575,7 @@ class BaseControl(object):
                 self.hostname = self.hostname.split(".")[0]
         return self.hostname
 
-    def _node(self, omero_node = None):
+    def _node(self, omero_node=None):
         """
         Return the name of this node, using either the environment
         vairable OMERO_NODE or _host(). Some subclasses may
@@ -563,10 +585,10 @@ class BaseControl(object):
         If the optional argument is not None, then the OMERO_NODE
         environment variable will be set.
         """
-        if omero_node != None:
+        if omero_node is not None:
                 os.environ["OMERO_NODE"] = omero_node
 
-        if os.environ.has_key("OMERO_NODE"):
+        if "OMERO_NODE" in os.environ:
             return os.environ["OMERO_NODE"]
         else:
             return self._host()
@@ -599,12 +621,11 @@ class BaseControl(object):
         Initialize the directory into which the current node will log.
         """
         props = self._properties()
-        nodedata = self._nodedata()
+        self._nodedata()
         logdata = self.dir / path(props["Ice.StdOut"]).dirname()
         if not logdata.exists():
             self.ctx.out("Initializing %s" % logdata)
             logdata.makedirs()
-
 
     def _nodedata(self):
         """
@@ -646,7 +667,7 @@ class BaseControl(object):
         cfgs = self.dir / "etc"
         internal = cfgs / "internal.cfg"
         owncfg = cfgs / self._node() + ".cfg"
-        results = [internal,owncfg]
+        results = [internal, owncfg]
         # Look for <platform>.cfg
         p_s = platform.system()
         p_c = cfgs / p_s + ".cfg"
@@ -685,19 +706,22 @@ class BaseControl(object):
             for cfg in self._cfglist():
                 try:
                     self._props.load(str(cfg))
-                except Exception, exc:
-                    self.ctx.die(3, "Could not find file: "+cfg + "\nDid you specify the proper node?")
+                except Exception:
+                    self.ctx.die(3, "Could not find file: " + cfg +
+                                 "\nDid you specify the proper node?")
         return self._props.getPropertiesForPrefix(prefix)
 
-    def _ask_for_password(self, reason = "", root_pass = None, strict = True):
+    def _ask_for_password(self, reason="", root_pass=None, strict=True):
         while not root_pass or len(root_pass) < 1:
-            root_pass = self.ctx.input("Please enter password%s: "%reason, hidden = True)
+            root_pass = self.ctx.input("Please enter password%s: "
+                                       % reason, hidden=True)
             if not strict:
                 return root_pass
-            if root_pass == None or root_pass == "":
+            if root_pass is None or root_pass == "":
                 self.ctx.err("Password cannot be empty")
                 continue
-            confirm = self.ctx.input("Please re-enter password%s: "%reason, hidden = True)
+            confirm = self.ctx.input("Please re-enter password%s: "
+                                     % reason, hidden=True)
             if root_pass != confirm:
                 root_pass = None
                 self.ctx.err("Passwords don't match")
@@ -710,7 +734,7 @@ class BaseControl(object):
     # Methods likely to be implemented by subclasses
     #
 
-    def _complete_file(self, f, dir = None):
+    def _complete_file(self, f, dir=None):
         """
         f: path part
         """
@@ -722,14 +746,15 @@ class BaseControl(object):
         if p.exists() and p.isdir():
             if not f.endswith(os.sep):
                 return [p.basename()+os.sep]
-            return [ str(x)[len(f):] for x in p.listdir() ]
+            return [str(x)[len(f):] for x in p.listdir(
+                unreadable_as_empty=True)]
         else:
-            results = [ str(x.basename()) for x in dir.glob(f+"*")  ]
+            results = [str(x.basename()) for x in dir.glob(f+"*")]
             if len(results) == 1:
                 # Relative to cwd
                 maybe_dir = path(results[0])
                 if maybe_dir.exists() and maybe_dir.isdir():
-                    return [ results[0] + os.sep ]
+                    return [results[0] + os.sep]
             return results
 
     def _complete(self, text, line, begidx, endidx):
@@ -746,14 +771,16 @@ class BaseControl(object):
             actions = getattr(parser, "_actions")
             if actions:
                 if len(items) > 1:
-                    subparsers = [x for x in actions if x.__class__.__name__ == "_SubParsersAction"]
+                    subparsers = [
+                        x for x in actions
+                        if x.__class__.__name__ == "_SubParsersAction"]
                     if subparsers:
-                        subparsers = subparsers[0] # Guaranteed one
+                        subparsers = subparsers[0]  # Guaranteed one
                         choice = subparsers.choices.get(items[-1])
                         if choice and choice._actions:
                             actions = choice._actions
                 if len(items) > 2:
-                    actions = [] # TBD
+                    actions = []  # TBD
 
             for action in actions:
                 if action.__class__.__name__ == "_HelpAction":
@@ -761,11 +788,15 @@ class BaseControl(object):
                 elif action.__class__.__name__ == "_SubParsersAction":
                     result.extend(action.choices)
 
-            return ["%s " % x for x in result if (not text or x.startswith(text)) and line.find(" %s " % x) < 0]
+            return ["%s " % x for x in result
+                    if (not text or x.startswith(text)) and
+                    line.find(" %s " % x) < 0]
 
         # Fallback
-        completions = [method for method in dir(self) if callable(getattr(self, method)) ]
-        return [ str(method + " ") for method in completions if method.startswith(text) and not method.startswith("_") ]
+        completions = [method for method in dir(self)
+                       if callable(getattr(self, method))]
+        return [str(method + " ") for method in completions
+                if method.startswith(text) and not method.startswith("_")]
 
     def error_admin_only(self, msg="SecurityViolation: Admins only!",
                          code=111, fatal=True):
@@ -790,12 +821,14 @@ class CLI(cmd.Cmd, Context):
         def __init__(self):
             self.lock = Lock()
             self.done = False
+
         def get(self):
             self.lock.acquire()
             try:
                 return self.done
             finally:
                 self.lock.release()
+
         def set(self):
             self.lock.acquire()
             try:
@@ -803,27 +836,28 @@ class CLI(cmd.Cmd, Context):
             finally:
                 self.lock.release()
 
-    def __init__(self, prog = sys.argv[0]):
+    def __init__(self, prog=sys.argv[0]):
         """
         Also sets the "_client" field for this instance to None. Each cli
         maintains a single active client. The "session" plugin is responsible
         for the loading of the client object.
         """
         cmd.Cmd.__init__(self)
-        Context.__init__(self, prog = prog)
+        Context.__init__(self, prog=prog)
         self.prompt = 'omero> '
         self.interrupt_loop = False
-        self.rv = 0                         #: Return value to be returned
-        self._stack = []                    #: List of commands being processed
-        self._client = None                 #: Single client for all activities
-        self._plugin_paths = [OMEROCLI / "plugins"] #: Paths to be loaded; initially official plugins
+        self.rv = 0          #: Return value to be returned
+        self._stack = []     #: List of commands being processed
+        self._client = None  #: Single client for all activities
+        #: Paths to be loaded; initially official plugins
+        self._plugin_paths = [OMEROCLI / "plugins"]
         self._pluginsLoaded = CLI.PluginsLoaded()
 
     def assertRC(self):
         if self.rv != 0:
             raise NonZeroReturnCode(self.rv, "assert failed")
 
-    def invoke(self, line, strict = False, previous_args = None):
+    def invoke(self, line, strict=False, previous_args=None):
         """
         Copied from cmd.py
         """
@@ -837,18 +871,23 @@ class CLI(cmd.Cmd, Context):
             if len(self._stack) == 0:
                 self.close()
             else:
-                self.dbg("Delaying close for stack: %s" % len(self._stack), level = 2)
+                self.dbg("Delaying close for stack: %s"
+                         % len(self._stack), level=2)
 
     def invokeloop(self):
         # First we add a few special commands to the loop
         class PWD(BaseControl):
             def __call__(self, args):
                     self.ctx.out(os.getcwd())
+
         class LS(BaseControl):
             def __call__(self, args):
-                for p in sorted(path(os.getcwd()).listdir()):
+                for p in sorted(path(os.getcwd()).listdir(
+                        unreadable_as_empty=True)):
                     self.ctx.out(str(p.basename()))
+
         class CD(BaseControl):
+
             def _complete(self, text, line, begidx, endidx):
                 RE = re.compile("\s*cd\s*")
                 m = RE.match(line)
@@ -856,11 +895,14 @@ class CLI(cmd.Cmd, Context):
                     replaced = RE.sub('', line)
                     return self._complete_file(replaced, path(os.getcwd()))
                 return []
+
             def _configure(self, parser):
                 parser.set_defaults(func=self.__call__)
-                parser.add_argument("dir", help = "Target directory")
+                parser.add_argument("dir", help="Target directory")
+
             def __call__(self, args):
                 os.chdir(args.dir)
+
         self.register("pwd", PWD, "Print the current directory")
         self.register("ls", LS, "Print files in the current directory")
         self.register("dir", LS, "Alias for 'ls'")
@@ -875,7 +917,7 @@ class CLI(cmd.Cmd, Context):
                 try:
                     # Calls the same thing as invoke
                     self.cmdloop(self.selfintro)
-                except KeyboardInterrupt, ki:
+                except KeyboardInterrupt:
                     self.selfintro = ""
                     self.out("Use quit to exit")
         finally:
@@ -885,7 +927,7 @@ class CLI(cmd.Cmd, Context):
         # We've done the intro once now. Don't repeat yourself.
         self.selfintro = ""
 
-    def onecmd(self, line, previous_args = None):
+    def onecmd(self, line, previous_args=None):
         """
         Single command logic. Overrides the cmd.Cmd logic
         by calling execute. Also handles various exception
@@ -903,7 +945,7 @@ class CLI(cmd.Cmd, Context):
             finally:
                 self._stack.pop(0)
                 self.dbg("Stack-: %s" % len(self._stack), level=2)
-        except SystemExit, exc: # Thrown by argparse
+        except SystemExit, exc:  # Thrown by argparse
             self.dbg("SystemExit raised\n%s" % traceback.format_exc())
             self.rv = exc.code
             return False
@@ -912,7 +954,7 @@ class CLI(cmd.Cmd, Context):
         # Omitting for the moment with the new
         # argparse refactoring
         #
-        #except AttributeError, ae:
+        # except AttributeError, ae:
         #    self.err("Possible error in plugin:")
         #    self.err(str(ae))
         #    if self.isdebug:
@@ -920,7 +962,7 @@ class CLI(cmd.Cmd, Context):
         except NonZeroReturnCode, nzrc:
             self.dbg(traceback.format_exc())
             self.rv = nzrc.rv
-        return False # Continue
+        return False  # Continue
 
     def postcmd(self, stop, line):
         """
@@ -941,7 +983,7 @@ class CLI(cmd.Cmd, Context):
 
         if isinstance(line, (str, unicode)):
             if COMMENT.match(line):
-                return # EARLY EXIT!
+                return  # EARLY EXIT!
             args = shlex.split(line)
         elif isinstance(line, (tuple, list)):
             args = list(line)
@@ -982,7 +1024,8 @@ class CLI(cmd.Cmd, Context):
             if len(debug_opts) == 0:
                 args.func(args)
             elif len(debug_opts) > 1:
-                self.die(9, "Conflicting debug options: %s" % ", ".join(debug_opts))
+                self.die(9, "Conflicting debug options: %s"
+                         % ", ".join(debug_opts))
             elif "t" in debug_opts or "trace" in debug_opts:
                 import trace
                 tracer = trace.Trace()
@@ -991,7 +1034,7 @@ class CLI(cmd.Cmd, Context):
                 import hotshot
                 from hotshot import stats
                 prof = hotshot.Profile("hotshot_edi_stats")
-                rv = prof.runcall( lambda: args.func(args) )
+                prof.runcall(lambda: args.func(args))
                 prof.close()
                 s = stats.load("hotshot_edi_stats")
                 s.sort_stats("time").print_stats()
@@ -1005,11 +1048,11 @@ class CLI(cmd.Cmd, Context):
 
     def completenames(self, text, line, begidx, endidx):
         names = self.controls.keys()
-        return [ str(n + " ") for n in names if n.startswith(line) ]
+        return [str(n + " ") for n in names if n.startswith(line)]
 
     ##########################################
     ##
-    ## Context interface
+    # Context interface
     ##
     def exit(self, args, newline=True):
         self.out(args, newline)
@@ -1053,21 +1096,23 @@ class CLI(cmd.Cmd, Context):
             cwd = str(cwd)
         return cwd
 
-    def call(self, args, strict = True, cwd = None):
+    def call(self, args, strict=True, cwd=None):
         """
         Calls the string in a subprocess and dies if the return value is not 0
         """
         self.dbg("Executing: %s" % args)
-        rv = subprocess.call(args, env = self._env(), cwd = self._cwd(cwd))
+        rv = subprocess.call(args, env=self._env(), cwd=self._cwd(cwd))
         if strict and not rv == 0:
             raise NonZeroReturnCode(rv, "%s => %d" % (" ".join(args), rv))
         return rv
 
-    def popen(self, args, cwd = None, stdout = subprocess.PIPE, stderr = subprocess.PIPE, **kwargs):
+    def popen(self, args, cwd=None, stdout=subprocess.PIPE,
+              stderr=subprocess.PIPE, **kwargs):
         self.dbg("Returning popen: %s" % args)
         env = self._env()
         env.update(kwargs)
-        return subprocess.Popen(args, env = env, cwd = self._cwd(cwd), stdout = stdout, stderr = stderr)
+        return subprocess.Popen(args, env=env, cwd=self._cwd(cwd),
+                                stdout=stdout, stderr=stderr)
 
     def readDefaults(self):
         try:
@@ -1084,13 +1129,15 @@ class CLI(cmd.Cmd, Context):
 
     def parsePropertyFile(self, data, output):
         for line in output.splitlines():
-            if line.startswith("Listening for transport dt_socket at address"):
-                self.dbg("Ignoring stdout 'Listening for transport' from DEBUG=1")
+            if line.startswith(
+                    "Listening for transport dt_socket at address"):
+                self.dbg(
+                    "Ignoring stdout 'Listening for transport' from DEBUG=1")
                 continue
-            parts = line.split("=",1)
+            parts = line.split("=", 1)
             if len(parts) == 2:
-                data.properties.setProperty(parts[0],parts[1])
-                self.dbg("Set property: %s=%s" % (parts[0],parts[1]) )
+                data.properties.setProperty(parts[0], parts[1])
+                self.dbg("Set property: %s=%s" % (parts[0], parts[1]))
             else:
                 self.dbg("Bad property:"+str(parts))
         return data
@@ -1100,7 +1147,8 @@ class CLI(cmd.Cmd, Context):
         Uses "omero prefs" to create an Ice.InitializationData().
         """
 
-        if properties is None: properties = {}
+        if properties is None:
+            properties = {}
 
         from omero.plugins.prefs import getprefs
         try:
@@ -1113,12 +1161,12 @@ class CLI(cmd.Cmd, Context):
         import Ice
         data = Ice.InitializationData()
         data.properties = Ice.createProperties()
-        for k,v in properties.items():
-            data.properties.setProperty(k,v)
+        for k, v in properties.items():
+            data.properties.setProperty(k, v)
         self.parsePropertyFile(data, output)
         return data
 
-    def conn(self, args = None):
+    def conn(self, args=None):
         """
         Returns any active _client object. If one is present but
         not alive, it will be removed.
@@ -1126,7 +1174,8 @@ class CLI(cmd.Cmd, Context):
         If no client is found and arguments are available,
         will use the current settings to connect.
 
-        If required attributes are missing, will delegate to the login command.
+        If required attributes are missing, will delegate to the login
+        command.
 
         FIXME: Currently differing setting sessions on the same CLI instance
         will misuse a client.
@@ -1150,7 +1199,7 @@ class CLI(cmd.Cmd, Context):
                 self.die(111, "No sessions control! Cannot login")
             self.controls["sessions"].login(args)
 
-        return self._client # Possibly added by "login"
+        return self._client  # Possibly added by "login"
 
     def close(self):
         client = self._client
@@ -1159,7 +1208,7 @@ class CLI(cmd.Cmd, Context):
             client.__del__()
 
     ##
-    ## Plugin registry
+    # Plugin registry
     ##
 
     def register(self, name, Control, help, epilog=None):
@@ -1184,7 +1233,7 @@ class CLI(cmd.Cmd, Context):
                 Control = control[0]
                 help = control[1]
                 epilog = control[2]
-                control = Control(ctx = self, dir = self.dir)
+                control = Control(ctx=self, dir=self.dir)
                 self.controls[name] = control
                 setattr(self, "complete_%s" % name, control._complete)
                 parser = self.subparsers.add_parser(name, help=help)
@@ -1198,7 +1247,7 @@ class CLI(cmd.Cmd, Context):
 
     def waitForPlugins(self):
         if True:
-            return # Disabling. See comment in argv
+            return  # Disabling. See comment in argv
         self.dbg("Starting waitForPlugins")
         while not self._pluginsLoaded.get():
             self.dbg("Waiting for plugins...")
@@ -1222,22 +1271,23 @@ class CLI(cmd.Cmd, Context):
     def loadpath(self, pathobj):
         if pathobj.isdir():
             for plugin in pathobj.walkfiles("*.py"):
-                if -1 == plugin.find("#"): # Omit emacs files
+                if -1 == plugin.find("#"):  # Omit emacs files
                     self.loadpath(path(plugin))
         else:
             if self.isdebug:
                 print "Loading %s" % pathobj
             try:
                 loc = {"register": self.register_only}
-                execfile( str(pathobj), loc )
+                execfile(str(pathobj), loc)
             except KeyboardInterrupt:
                 raise
             except:
                 self.err("Error loading: %s" % pathobj)
                 traceback.print_exc()
 
-    ## End Cli
+    # End Cli
     ###########################################################
+
 
 def argv(args=sys.argv):
     """
@@ -1266,12 +1316,16 @@ def argv(args=sys.argv):
                 parts.append(arg)
             args = parts
 
-        # Now load other plugins. After debugging is turned on, but before tracing.
-        cli = CLI(prog = original_executable.split("-")[0])
+        # Now load other plugins. After debugging is turned on, but before
+        # tracing.
+        cli = CLI(prog=original_executable.split("-")[0])
 
-        parser = Parser(add_help = False)
-        #parser.add_argument("-d", "--debug", help="Use 'help debug' for more information", default = SUPPRESS)
-        parser.add_argument("--path", help="Add file or directory to plugin list. Supports globs.", action = "append")
+        parser = Parser(add_help=False)
+        # parser.add_argument("-d", "--debug", help="Use 'help debug' for more
+        # information", default = SUPPRESS)
+        parser.add_argument(
+            "--path", action="append",
+            help="Add file or directory to plugin list. Supports globs.")
         ns, args = parser.parse_known_args(args)
         if getattr(ns, "path"):
             for p in ns.path:
@@ -1295,6 +1349,7 @@ def argv(args=sys.argv):
 #
 # Specific argument types
 
+
 class ExperimenterGroupArg(object):
 
     def __init__(self, arg):
@@ -1302,13 +1357,13 @@ class ExperimenterGroupArg(object):
         self.grp = None
         try:
             self.grp = long(arg)
-        except ValueError, ve:
+        except ValueError:
             if ":" in arg:
                 parts = arg.split(":", 1)
                 if parts[0] == "Group" or "ExperimenterGroup":
                     try:
                         self.grp = long(parts[1])
-                    except ValueError, ve:
+                    except ValueError:
                         pass
 
     def lookup(self, client):
@@ -1317,9 +1372,10 @@ class ExperimenterGroupArg(object):
             a = client.sf.getAdminService()
             try:
                 self.grp = a.lookupGroup(self.orig).id.val
-            except omero.ApiUsageException, aue:
+            except omero.ApiUsageException:
                 pass
         return self.grp
+
 
 class GraphArg(object):
 
@@ -1335,10 +1391,10 @@ class GraphArg(object):
 
             import omero
             import omero.cmd
-            return omero.cmd.DoAll([self.cmd_type(\
-                    type=type,\
-                    id=id,\
-                    options={})])
+            return omero.cmd.DoAll([
+                self.cmd_type(type=type,
+                              id=id,
+                              options={})])
         except:
             raise ValueError("Bad object: %s", arg)
 
@@ -1349,6 +1405,7 @@ class GraphArg(object):
 #
 # Specific superclasses for various controls
 
+
 class CmdControl(BaseControl):
 
     def cmd_type(self):
@@ -1356,11 +1413,12 @@ class CmdControl(BaseControl):
 
     def _configure(self, parser):
         parser.set_defaults(func=self.main_method)
-        parser.add_argument("--wait", type=long, help="Number of seconds to"+\
-                " wait for the processing to complete (Indefinite < 0; No wait=0).", default=-1)
+        parser.add_argument(
+            "--wait", type=long,
+            help="Number of seconds to wait for the processing to complete "
+            "(Indefinite < 0; No wait=0).", default=-1)
 
     def main_method(self, args):
-        import omero
         client = self.ctx.conn(args)
         req = self.cmd_type()
         self._process_request(req, args, client)
@@ -1371,11 +1429,11 @@ class CmdControl(BaseControl):
         """
         cb = None
         try:
-            rsp, status, cb = self.response(client, req, wait = args.wait)
+            rsp, status, cb = self.response(client, req, wait=args.wait)
             self.print_report(req, rsp, status, args.report)
         finally:
             if cb is not None:
-                cb.close(True) # Close handle
+                cb.close(True)  # Close handle
 
     def get_error(self, rsp):
         if not isinstance(rsp, omero.cmd.ERR):
@@ -1397,8 +1455,7 @@ class CmdControl(BaseControl):
         return sb
 
     def print_report(self, req, rsp, status, detailed):
-        import omero
-        self.ctx.out(self.print_request_description(req), newline = False)
+        self.ctx.out(self.print_request_description(req), newline=False)
         err = self.get_error(rsp)
         if err:
             self.ctx.err(err)
@@ -1429,7 +1486,7 @@ class CmdControl(BaseControl):
             parts.append("")
         opts[parts[0].strip()] = parts[1].strip()
 
-    def response(self, client, req, loops = 8, ms = 500, wait = None):
+    def response(self, client, req, loops=8, ms=500, wait=None):
         import omero.callbacks
         handle = client.sf.submit(req)
         cb = omero.callbacks.CmdCallbackI(client, handle)
@@ -1442,7 +1499,7 @@ class CmdControl(BaseControl):
             ms = wait * 1000
             ms = ms / loops
             self.ctx.out("Waiting %s loops of %s ms" % (ms, loops))
-            rsp = cb.loop(loops, ms)
+            cb.loop(loops, ms)
         else:
             try:
                 # Wait for finish
@@ -1461,6 +1518,7 @@ class CmdControl(BaseControl):
 
         return cb.getResponse(), cb.getStatus(), cb
 
+
 class GraphControl(CmdControl):
 
     def cmd_type(self):
@@ -1468,17 +1526,31 @@ class GraphControl(CmdControl):
 
     def _configure(self, parser):
         parser.set_defaults(func=self.main_method)
-        parser.add_argument("--wait", type=long, help="Number of seconds to"+\
-                " wait for the processing to complete (Indefinite < 0; No wait=0).", default=-1)
-        parser.add_argument("--edit", action="store_true", help="""Configure options in a text editor""")
-        parser.add_argument("--opt", action="append", help="""Modifies the given option (e.g. /Image:KEEP). Applied *after* 'edit' """)
-        parser.add_argument("--list", action="store_true", help="""Print a list of all available graph specs""")
-        parser.add_argument("--list-details", action="store_true",
-                help="""Print a list of all available graph specs along with detailed info""")
-        parser.add_argument("--report", action="store_true", help="""Print more detailed report of each action""")
+        parser.add_argument(
+            "--wait", type=long,
+            help="Number of seconds to wait for the processing to complete "
+            "(Indefinite < 0; No wait=0).", default=-1)
+        parser.add_argument(
+            "--edit", action="store_true",
+            help="Configure options in a text editor")
+        parser.add_argument(
+            "--opt", action="append",
+            help="Modifies the given option (e.g. /Image:KEEP). Applied "
+            "*after* 'edit' ")
+        parser.add_argument(
+            "--list", action="store_true",
+            help="Print a list of all available graph specs")
+        parser.add_argument(
+            "--list-details", action="store_true",
+            help="Print a list of all available graph specs along with "
+            "detailed info")
+        parser.add_argument(
+            "--report", action="store_true",
+            help="Print more detailed report of each action")
         self._pre_objects(parser)
-        parser.add_argument("obj", nargs="*", type=GraphArg(self.cmd_type()), \
-                help="""Objects to be processedd in the form "<Class>:<Id>""")
+        parser.add_argument(
+            "obj", nargs="*", type=GraphArg(self.cmd_type()),
+            help="""Objects to be processedd in the form "<Class>:<Id>""")
 
     def _pre_objects(self, parser):
         """
@@ -1504,9 +1576,9 @@ class GraphControl(CmdControl):
                 self.ctx.die(446, "LockTimeout: %s" % lt.message)
         finally:
             if cb is not None:
-                cb.close(True) # Close handle
+                cb.close(True)  # Close handle
 
-        ### Could be put in positive_response helper
+        # Could be put in positive_response helper
         err = self.get_error(speclist)
         if err:
             self.ctx.die(367, err)
@@ -1523,10 +1595,10 @@ class GraphControl(CmdControl):
                 self.ctx.out("=== %s ===" % key)
                 for k, v in spec.options.items():
                     self.ctx.out("%s" % (k,))
-            return # Early exit.
+            return  # Early exit.
         elif args.list:
             self.ctx.out("\n".join(keys))
-            return # Early exit.
+            return  # Early exit.
 
         for req_or_doall in args.obj:
             doall = self.as_doall(req_or_doall)
@@ -1542,7 +1614,7 @@ class GraphControl(CmdControl):
     def edit_options(self, req, specmap):
 
         from omero.util import edit_path
-        from omero.util.temp_files import create_path, remove_path
+        from omero.util.temp_files import create_path
 
         start_text = """# Edit options for your operation below.\n"""
         start_text += ("# === %s ===\n" % req.type)
@@ -1560,9 +1632,10 @@ class GraphControl(CmdControl):
                 self.line_to_opts(line, rv)
             return rv
         except RuntimeError, re:
-            self.ctx.die(954, "%s: Failed to edit %s" % (getattr(re, "pid", "Unknown"), temp_file))
+            self.ctx.die(954, "%s: Failed to edit %s"
+                         % (getattr(re, "pid", "Unknown"), temp_file))
 
-    def append_options(self, key, specmap, indent = 0):
+    def append_options(self, key, specmap, indent=0):
         spec = specmap.pop(key)
         start_text = ""
         for optkey in sorted(spec.options):
@@ -1578,92 +1651,104 @@ class GraphControl(CmdControl):
             cmd_type = self.cmd_type().ice_staticId()[2:].replace("::", ".")
             return "%s %s %s... " % (cmd_type, req.type, req.id)
 
+
 class UserGroupControl(BaseControl):
 
-    def error_no_input_group(self, msg="No input group is specified", code = 501, fatal = True):
+    def error_no_input_group(self, msg="No input group is specified",
+                             code=501, fatal=True):
         if fatal:
             self.ctx.die(code, msg)
         else:
             self.ctx.err(msg)
 
-    def error_invalid_groupid(self, group_id, msg="Not a valid group ID: %s", code = 502, fatal = True):
+    def error_invalid_groupid(self, group_id, msg="Not a valid group ID: %s",
+                              code=502, fatal=True):
         if fatal:
             self.ctx.die(code, msg % group_id)
         else:
             self.ctx.err(msg % group_id)
 
-    def error_invalid_group(self, group, msg="Unknown group: %s", code = 503, fatal = True):
+    def error_invalid_group(self, group, msg="Unknown group: %s", code=503,
+                            fatal=True):
         if fatal:
             self.ctx.die(code, msg % group)
         else:
             self.ctx.err(msg % group)
 
-    def error_no_group_found(self, msg="No group found", code = 504, fatal = True):
+    def error_no_group_found(self, msg="No group found", code=504,
+                             fatal=True):
         if fatal:
             self.ctx.die(code, msg)
         else:
             self.ctx.err(msg)
 
-    def error_ambiguous_group(self, id_or_name, msg="Ambiguous group identifier: %s", code = 505, fatal = True):
+    def error_ambiguous_group(self, id_or_name,
+                              msg="Ambiguous group identifier: %s", code=505,
+                              fatal=True):
         if fatal:
             self.ctx.die(code, msg % id_or_name)
         else:
             self.ctx.err(msg % id_or_name)
 
-    def error_no_input_user(self, msg="No input user is specified", code = 511, fatal = True):
+    def error_no_input_user(self, msg="No input user is specified", code=511,
+                            fatal=True):
         if fatal:
             self.ctx.die(code, msg)
         else:
             self.ctx.err(msg)
 
-    def error_invalid_userid(self, user_id, msg="Not a valid user ID: %s", code = 512, fatal = True):
+    def error_invalid_userid(self, user_id, msg="Not a valid user ID: %s",
+                             code=512, fatal=True):
         if fatal:
             self.ctx.die(code, msg % user_id)
         else:
             self.ctx.err(msg % user_id)
 
-    def error_invalid_user(self, user, msg="Unknown user: %s", code = 513, fatal = True):
+    def error_invalid_user(self, user, msg="Unknown user: %s", code=513,
+                           fatal=True):
         if fatal:
             self.ctx.die(code, msg % user)
         else:
             self.ctx.err(msg % user)
 
-    def error_no_user_found(self, msg="No user found", code = 514, fatal = True):
+    def error_no_user_found(self, msg="No user found", code=514, fatal=True):
         if fatal:
             self.ctx.die(code, msg)
         else:
             self.ctx.err(msg)
 
-    def error_ambiguous_user(self, id_or_name, msg="Ambiguous user identifier: %s", code = 515, fatal = True):
+    def error_ambiguous_user(self, id_or_name,
+                             msg="Ambiguous user identifier: %s", code=515,
+                             fatal=True):
         if fatal:
             self.ctx.die(code, msg % id_or_name)
         else:
             self.ctx.err(msg % id_or_name)
 
-    def find_group_by_id(self, admin, group_id, fatal = False):
+    def find_group_by_id(self, admin, group_id, fatal=False):
         import omero
         try:
             gid = long(group_id)
             g = admin.getGroup(gid)
         except ValueError:
-            self.error_invalid_groupid(group_id, fatal = fatal)
+            self.error_invalid_groupid(group_id, fatal=fatal)
             return None, None
         except omero.ApiUsageException:
-            self.error_invalid_group(gid, fatal = fatal)
+            self.error_invalid_group(gid, fatal=fatal)
             return None, None
         return gid, g
 
-    def find_group_by_name(self, admin, group_name, fatal = False):
+    def find_group_by_name(self, admin, group_name, fatal=False):
         import omero
         try:
             g = admin.lookupGroup(group_name)
             gid = g.id.val
         except omero.ApiUsageException:
-            self.error_invalid_group(group_name, fatal = fatal)
+            self.error_invalid_group(group_name, fatal=fatal)
             return None, None
         return gid, g
 
-    def find_group(self, admin, id_or_name, fatal = False):
+    def find_group(self, admin, id_or_name, fatal=False):
         import omero
 
         # Find by group by name
@@ -1680,45 +1765,45 @@ class UserGroupControl(BaseControl):
 
         # Test found groups
         if g1 and g2:
-            if not g1.id.val == g2.id.val:
-                self.error_ambiguous_group(id_or_name, fatal = fatal)
+            if g1.id.val != g2.id.val:
+                self.error_ambiguous_group(id_or_name, fatal=fatal)
                 return None, None
             else:
-                 g = g1
+                g = g1
         elif g1:
             g = g1
         elif g2:
             g = g2
         else:
-            self.error_invalid_group(id_or_name, fatal = fatal)
+            self.error_invalid_group(id_or_name, fatal=fatal)
             return None, None
 
         return g.id.val, g
 
-    def find_user_by_id(self, admin, user_id, fatal = False):
+    def find_user_by_id(self, admin, user_id, fatal=False):
         import omero
         try:
             uid = long(user_id)
             u = admin.getExperimenter(uid)
         except ValueError:
-            self.error_invalid_userid(user_id, fatal = fatal)
+            self.error_invalid_userid(user_id, fatal=fatal)
             return None, None
         except omero.ApiUsageException:
-            self.error_invalid_user(uid, fatal = fatal)
+            self.error_invalid_user(uid, fatal=fatal)
             return None, None
         return uid, u
 
-    def find_user_by_name(self, admin, user_name, fatal = False):
+    def find_user_by_name(self, admin, user_name, fatal=False):
         import omero
         try:
             u = admin.lookupExperimenter(user_name)
             uid = u.id.val
         except omero.ApiUsageException:
-            self.error_invalid_user(user_name, fatal = fatal)
+            self.error_invalid_user(user_name, fatal=fatal)
             return None, None
         return uid, u
 
-    def find_user(self, admin, id_or_name, fatal =  False):
+    def find_user(self, admin, id_or_name, fatal=False):
         import omero
 
         # Find user by name
@@ -1735,17 +1820,17 @@ class UserGroupControl(BaseControl):
 
         # Test found users
         if u1 and u2:
-            if not u1.id.val == u2.id.val:
-                self.error_ambiguous_user(id_or_name, fatal = fatal)
+            if u1.id.val != u2.id.val:
+                self.error_ambiguous_user(id_or_name, fatal=fatal)
                 return None, None
             else:
-                 u = u1
+                u = u1
         elif u1:
             u = u1
         elif u2:
             u = u2
         else:
-            self.error_invalid_user(id_or_name, fatal = fatal)
+            self.error_invalid_user(id_or_name, fatal=fatal)
             return None, None
 
         return u.id.val, u
@@ -1765,26 +1850,29 @@ class UserGroupControl(BaseControl):
     def addownersbyid(self, admin, group, users):
         import omero
         for user in list(users):
-            admin.addGroupOwners(group, [omero.model.ExperimenterI(user, False)])
-            self.ctx.out("Added %s to the owner list of group %s" % (user, group.id.val))
+            admin.addGroupOwners(group,
+                                 [omero.model.ExperimenterI(user, False)])
+            self.ctx.out("Added %s to the owner list of group %s"
+                         % (user, group.id.val))
 
     def removeownersbyid(self, admin, group, users):
         import omero
         for user in list(users):
-            admin.removeGroupOwners(group, [omero.model.ExperimenterI(user, False)])
-            self.ctx.out("Removed %s from the owner list of group %s" % (user, group.id.val))
+            admin.removeGroupOwners(group,
+                                    [omero.model.ExperimenterI(user, False)])
+            self.ctx.out("Removed %s from the owner list of group %s"
+                         % (user, group.id.val))
 
     def getuserids(self, group):
-        import omero
-        ids = [x.child.id.val for x in  group.copyGroupExperimenterMap()]
+        ids = [x.child.id.val for x in group.copyGroupExperimenterMap()]
         return ids
 
     def getmemberids(self, group):
-        import omero
-        ids = [x.child.id.val for x in  group.copyGroupExperimenterMap() if not x.owner.val]
+        ids = [x.child.id.val for x in group.copyGroupExperimenterMap()
+               if not x.owner.val]
         return ids
 
     def getownerids(self, group):
-        import omero
-        ids = [x.child.id.val for x in  group.copyGroupExperimenterMap() if x.owner.val]
+        ids = [x.child.id.val for x in group.copyGroupExperimenterMap()
+               if x.owner.val]
         return ids

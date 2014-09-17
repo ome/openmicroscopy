@@ -1646,11 +1646,17 @@ class RenderingControlProxy
      */
 	public RndProxyDef getRndSettingsCopy() { return rndDef.copy(); }
 	
+	public void resetSettings(RndProxyDef rndDef)
+                throws RenderingServiceException, DSOutOfServiceException
+        {
+	    resetSettings(rndDef, false);
+        }
+	
 	/** 
      * Implemented as specified by {@link RenderingControl}.
-     * @see RenderingControl#resetSettings(RndProxyDef)
+     * @see RenderingControl#resetSettings(RndProxyDef, boolean)
      */
-	public void resetSettings(RndProxyDef rndDef)
+	public void resetSettings(RndProxyDef rndDef, boolean includeZT)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (rndDef == null)
@@ -1659,8 +1665,10 @@ class RenderingControlProxy
 		if (rndDef.getNumberOfChannels() != getPixelsDimensionsC())
 			throw new IllegalArgumentException("Rendering settings not " +
 					"compatible.");
-		setDefaultT(rndDef.getDefaultT());
-		setDefaultZ(rndDef.getDefaultZ());
+		if (includeZT) {
+		    setDefaultT(rndDef.getDefaultT());
+		    setDefaultZ(rndDef.getDefaultZ());
+		}
 		setModel(rndDef.getColorModel());
 		setCodomainInterval(rndDef.getCdStart(), rndDef.getCdEnd());
 		setQuantumStrategy(rndDef.getBitResolution());
@@ -1966,6 +1974,7 @@ class RenderingControlProxy
 		if (def.getCdEnd() != getCodomainEnd()) return false;
 		if (def.getCdStart() != getCodomainStart()) return false;
 		if (!def.getColorModel().equals(getModel())) return false;
+		if (def.getNumberOfChannels() != getPixelsDimensionsC()) return false;
 		ChannelBindingsProxy channel;
 		int[] rgba;
 		Color color;

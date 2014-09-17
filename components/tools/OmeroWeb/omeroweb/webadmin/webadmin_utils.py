@@ -28,7 +28,7 @@ def upgradeCheck():
         check = UpgradeCheck("web", url=settings.UPGRADES_URL)
         check.run()
         if check.isUpgradeNeeded():
-            logger.error("Upgrade is available. Please visit http://trac.openmicroscopy.org.uk/ome/wiki/MilestoneDownloads.\n")
+            logger.error("Upgrade is available. Please visit http://downloads.openmicroscopy.org/latest/omero/.\n")
         else:
             logger.debug("Up to date.\n")
     except Exception, x:
