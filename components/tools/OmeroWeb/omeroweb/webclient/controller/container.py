@@ -213,6 +213,28 @@ class BaseContainer(BaseController):
         return figureScripts
 
 
+    def getImportedFilesInfo(self, iids=None):
+        """
+        Prepare a summary of imported original files for download
+        """
+        if self.image:
+            return self.image.getImportedFilesInfo()
+
+        if iids is None:
+            if self.dataset is not None:
+                iids = [i.id for i in self.dataset.listChildren()]
+            elif self.project is not None:
+                iids = []
+                for d in self.project.listChildren():
+                    iids.extend([i.id for i in d.listChildren()])
+        if len(iids) > 0:
+            filesetInfo = self.conn.getFilesetFilesInfo(iids)
+            archivedInfo = self.conn.getArchivedFilesInfo(iids)
+            filesetInfo['count'] += archivedInfo['count']
+            filesetInfo['size'] += archivedInfo['size']
+            return filesetInfo
+
+
     def openAstexViewerCompatible(self):
         """
         Is the image suitable to be viewed with the Volume viewer 'Open Astex Viewer' applet?

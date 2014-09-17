@@ -1681,7 +1681,6 @@ def get_image_rdef_json (request, conn=None, **kwargs):
     rdef = request.session.get('rdef')
     if (rdef is None):
         fromid = request.session.get('fromid', None)
-        print 'fromid', fromid
         # We only have an Image to copy rdefs from
         image = conn.getObject("Image", fromid)
         if image is not None:
@@ -1746,14 +1745,35 @@ def download_as(request, iid=None, conn=None, **kwargs):
 
     imgIds = []
     wellIds = []
+    datasetIds = []
+    projectIds = []
     if iid is None:
         imgIds = request.REQUEST.getlist('image')
         if len(imgIds) == 0:
             wellIds = request.REQUEST.getlist('well')
             if len(wellIds) == 0:
-                return HttpResponseServerError("No images or wells specified in request. Use ?image=123 or ?well=123")
+                datasetIds = request.REQUEST.getlist('dataset')
+                if len(datasetIds) == 0:
+                    projectIds = request.REQUEST.getlist('project')
+                    if len(projectIds) == 0:
+                        return HttpResponseServerError("No images or wells specified in request. Use ?image=123 or ?well=123")
     else:
         imgIds = [iid]
+
+    if wellIds:
+        try:
+            index = int(request.REQUEST.get("index", 0))
+        except ValueError:
+            index = 0
+        for w in conn.getObjects("Well", wellIds):
+            imgIds.append(w.getWellSample(index).image().getId())
+    elif datasetIds:
+        for d in conn.getObjects("Dataset", datasetIds):
+            imgIds.extend([i.id for i in d.listChildren()])
+    elif projectIds:
+        for p in conn.getObjects("Project", projectIds):
+            for d in p.listChildren():
+                imgIds.extend([i.id for i in d.listChildren()])
 
     images = []
     if imgIds:
@@ -1784,7 +1804,7 @@ def download_as(request, iid=None, conn=None, **kwargs):
 
         def makeImageName(originalName, extension, folder_name):
             name = os.path.basename(originalName)
-            imgName = "%s.%s" % (name, extension)
+            imgName = "%s.%s" % (name, str(extension))
             imgName = os.path.join(folder_name, imgName)
             # check we don't overwrite existing file
             i = 1
@@ -1842,35 +1862,41 @@ def archived_files(request, iid=None, conn=None, **kwargs):
     """
     imgIds = []
     wellIds = []
+    datasetIds = []
+    projectIds = []
     if iid is None:
         imgIds = request.REQUEST.getlist('image')
         if len(imgIds) == 0:
             wellIds = request.REQUEST.getlist('well')
             if len(wellIds) == 0:
-                return HttpResponseServerError("No images or wells specified in request. Use ?image=123 or ?well=123")
+                datasetIds = request.REQUEST.getlist('dataset')
+                if len(datasetIds) == 0:
+                    projectIds = request.REQUEST.getlist('project')
+                    if len(projectIds) == 0:
+                        return HttpResponseServerError("No images or wells specified in request. Use ?image=123 or ?well=123")
     else:
         imgIds = [iid]
 
-    images = []
-    if imgIds:
-        images = list(conn.getObjects("Image", imgIds))
-    elif wellIds:
+    if wellIds:
         try:
             index = int(request.REQUEST.get("index", 0))
         except ValueError:
             index = 0
         for w in conn.getObjects("Well", wellIds):
-            images.append(w.getWellSample(index).image())
-    if len(images) == 0:
-        logger.debug("Cannot download archived file becuase Images not found.")
-        return HttpResponseServerError("Cannot download archived file becuase Images not found (ids: %s)." % (imgIds))
+            imgIds.append(w.getWellSample(index).image().getId())
+    elif datasetIds:
+        for d in conn.getObjects("Dataset", datasetIds):
+            imgIds.extend([i.id for i in d.listChildren()])
+    elif projectIds:
+        for p in conn.getObjects("Project", projectIds):
+            for d in p.listChildren():
+                imgIds.extend([i.id for i in d.listChildren()])
 
-    # make list of all files, removing duplicates
-    fileMap = {}
-    for image in images:
-        for f in image.getImportedImageFiles():
-            fileMap[f.getId()] = f
-    files = fileMap.values()
+    fileIds = conn.getFilesetFilesInfo(imgIds)['fileIds']
+    fileIds.extend(conn.getArchivedFilesInfo(imgIds)['fileIds'])
+
+    fileIds = list(set(fileIds))    # remove duplicates
+    files = list(conn.getObjects("OriginalFile", fileIds))
 
     if len(files) == 0:
         logger.debug("Tried downloading archived files from image with no files archived.")
@@ -1886,7 +1912,7 @@ def archived_files(request, iid=None, conn=None, **kwargs):
     else:
         import tempfile
         temp = tempfile.NamedTemporaryFile(suffix='.archive')
-        zipName = request.REQUEST.get('zipname', image.getName())
+        zipName = str(request.REQUEST.get('zipname', 'originalFiles'))
         zipName = zipName.replace(" ","_").replace(",", ".")        # ',' in name causes duplicate headers
         if not zipName.endswith('.zip'):
             zipName = "%s.zip" % zipName
@@ -1895,11 +1921,12 @@ def archived_files(request, iid=None, conn=None, **kwargs):
             logger.debug("download dir: %s" % temp_zip_dir)
             try:
                 for a in files:
+                    fname = a.name.encode('utf-8')
                     # Need to be sure that the zip name does not match any file within it
                     # since OS X will unzip as a single file instead of a directory
-                    if zipName == "%s.zip" % a.name:
-                        zipName = "%s_folder.zip" % a.name
-                    temp_f = os.path.join(temp_zip_dir, a.name)
+                    if zipName == "%s.zip" % fname:
+                        zipName = "%s_folder.zip" % fname
+                    temp_f = os.path.join(temp_zip_dir, fname)
                     f = open(str(temp_f),"wb")
                     try:
                         for chunk in a.getFileInChunks():
@@ -1951,7 +1978,7 @@ def original_file_paths(request, iid, conn=None, **kwargs):
     if len(files) == 0:
         return HttpResponseServerError("This image has no Original Files.")
 
-    fileNames = [ f.getPath() + f.getName() for f in files]
+    fileNames = [ "%s%s" % (_safestr(f.getPath()), _safestr(f.name)) for f in files]
     return fileNames
 
 

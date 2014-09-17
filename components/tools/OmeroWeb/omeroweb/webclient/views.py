@@ -818,6 +818,8 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
 
     form_comment = None
     figScripts = None
+    filesetInfo = None
+    obj_string = None
     if c_type in ("share", "discussion"):
         template = "webclient/annotations/annotations_share.html"
         manager = BaseShare(conn, c_id)
@@ -832,16 +834,18 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
         if share_id is None:
             template = "webclient/annotations/metadata_general.html"
             manager.annotationList()
+            filesetInfo = manager.getImportedFilesInfo()
             figScripts = manager.listFigureScripts()
             form_comment = CommentAnnotationForm(initial=initial)
+            obj_string = "%s=%s" % (manager.obj_type, manager.obj_id())
         else:
             template = "webclient/annotations/annotations_share.html"
 
     if c_type in ("tag", "tagset"):
         context = {'manager':manager, 'insight_ns': omero.rtypes.rstring(omero.constants.metadata.NSINSIGHTTAGSET).val}
     else:
-        context = {'manager':manager, 'form_comment':form_comment, 'index':index,
-            'share_id':share_id}
+        context = {'manager':manager, 'form_comment':form_comment, 'index':index, 'filesetInfo':filesetInfo,
+            'share_id':share_id, 'obj_string': obj_string}
             
     context['figScripts'] = figScripts
     context['template'] = template
@@ -1134,6 +1138,13 @@ def batch_annotate(request, conn=None, **kwargs):
         iids = [w.getWellSample(index).image().getId() for w in objs['well']]
     if 'image' in objs and len(objs['image']) > 0:
         iids = [i.getId() for i in objs['image']]
+    elif 'dataset' in objs and len(objs['dataset']) > 0:
+        for d in objs['dataset']:
+            iids.extend([i.id for i in d.listChildren()])
+    elif 'project' in objs and len(objs['project']) > 0:
+        for p in objs['project']:
+            for d in p.listChildren():
+                iids.extend([i.id for i in d.listChildren()])
     if len(iids) > 0:
         filesetInfo = conn.getFilesetFilesInfo(iids)
         archivedInfo = conn.getArchivedFilesInfo(iids)
@@ -1916,16 +1927,20 @@ def download_placeholder(request):
 
     format = request.REQUEST.get('format', None)
     if format is not None:
+        # E.g. 'jpg' or 'png'
         download_url = reverse('download_as')
         zipName = 'SaveAs_%s' % format
     else:
         download_url = reverse('archived_files')
         zipName = 'OriginalFileDownload'
-    targetIds = request.REQUEST.get('ids')      # E.g. image-1|image-2
     defaultName = request.REQUEST.get('name', zipName) # default zip name
     defaultName = os.path.basename(defaultName)         # remove path
 
-    query = "&".join([i.replace("-", "=") for i in targetIds.split("|")])
+    ids = []
+    for oType in ("image", "dataset", "project", "well", "screen"):
+        ids.extend(["%s=%s" % (oType, i) for i in request.REQUEST.getlist(oType)])
+
+    query = "&".join(ids)
     download_url = download_url + "?" + query
     if format is not None:
         download_url = download_url + "&format=%s" % format

@@ -45,33 +45,14 @@
     <!-- This is used for 'batch annotate' panel with 'filesetCount'... -->
     <!-- ... and for single images -->
 
-    {% if image or filesetInfo %}
+    {% if filesetInfo %}
     <!-- download options -->
     <div class="toolbar_dropdown">
         <button class="btn silver btn_download" title="Download Image as...">
             <span></span>
         </button>
         <ul class="dropdown">
-            <!-- Here we handle a single image (in metadata general) - see below for multiple images (batch annotate) -->
-            {% if image.getImportedFilesInfo.count %}
-              {% with filesetInfo=image.getImportedFilesInfo %}
-            <li>
-                <!-- if we have a single orig file, download directly. Otherwise popup a 
-                  'preparing zip' download placeholder -->
-                <a id="download-origfile" 
-                  {% ifequal filesetInfo.count 1 %}
-                    href="{% url 'archived_files' image.id %}"
-                  {% else %}
-                    href="#"
-                    onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids=image-{{ image.id }}&fileCount={{ fileCount }}&name={{ image.name }}');"
-                  {% endifequal %}
-                title="Download {{ filesetInfo.count }} original imported file{{ filesetInfo.count|pluralize:'s as zip'}} ({{ filesetInfo.size|filesizeformat }})"
-                >
-                Download...</a>
-            </li>
-              {% endwith %}
-            <!-- Here we handle multiple images (batch annotate panel) -->
-            {% elif filesetInfo %}
+            {% if filesetInfo %}
             <li {% if not filesetInfo.count %}class='disabled'{% endif %}>
               <a id="download-origfile"
                 {% ifequal filesetInfo.count 0 %}
@@ -81,7 +62,7 @@
                     href="{% url 'archived_files' %}?{{ obj_string }}"
                   {% else %}
                     href="#"
-                    onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&fileCount={{ filesetInfo.count }}&index={{ index }}');"
+                    onClick="return OME.openPopup('{% url 'download_placeholder' %}?{{ obj_string }}&fileCount={{ filesetInfo.count }}&index={{ index }}');"
                   {% endifequal %}
                 {% endifequal %}
                 title="Download {{ filesetInfo.count }} original imported file{{ filesetInfo.count|pluralize:'s as zip'}} ({{ filesetInfo.size|filesizeformat }})"
@@ -89,6 +70,7 @@
                 Download...</a>
             </li>
             {% endif %}
+
             {% if image %}
             <li>
                 <a id="create-ometiff" href="{% url 'ome_tiff_script' image.id %}" 
@@ -99,7 +81,6 @@
                 <a id="create-ometiff" href="#" class="disabled"
                 title="Create OME-TIFF File for Download">Export as OME-TIFF...</a>
             </li>
-            <li>{{ manager.}}
             {% endif %}
 
             {% if image %}
@@ -122,17 +103,17 @@
               {% if filesetInfo %}
               <li>
                 <a href="#"
-                  onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&format=jpeg&index={{ index }}');"
+                  onClick="return OME.openPopup('{% url 'download_placeholder' %}?{{ obj_string }}&format=jpeg&index={{ index }}');"
                   title="Download as JPEGs (zip)">Save As JPEG</a>
               </li>
               <li>
                 <a href="#"
-                  onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&format=png&index={{ index }}');"
+                  onClick="return OME.openPopup('{% url 'download_placeholder' %}?{{ obj_string }}&format=png&index={{ index }}');"
                   title="Download as PNGs (zip)">Save As PNG</a>
               </li>
               <li>
                 <a href="#"
-                  onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&format=tif&index={{ index }}');"
+                  onClick="return OME.openPopup('{% url 'download_placeholder' %}?{{ obj_string }}&format=tif&index={{ index }}');"
                   title="Download as TIFFs (zip)">Save As TIFF</a>
               </li>
               {% endif %}
