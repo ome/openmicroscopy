@@ -329,7 +329,7 @@ class UserControl(UserGroupControl):
                              % (login, id))
             else:
                 if pasw is None:
-                    self._ask_for_password(" for your new user (%s)"
+                    pasw = self._ask_for_password(" for your new user (%s)"
                                            % login, strict=True)
                 id = admin.createExperimenterWithPassword(e, rstring(pasw),
                                                           group, groups)
