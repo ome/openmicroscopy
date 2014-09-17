@@ -970,6 +970,11 @@
             }
         }
       );
+
+      // disable 'Full Range' button if pixelsType is 'float'
+      if (viewport.loadedImg.meta.pixelsType === "float") {
+        $("#rdef-fullrange-btn").attr("disabled", "disabled");
+      }
     });
 
     // 'Color' checkbox to left of image
