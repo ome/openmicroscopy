@@ -174,6 +174,9 @@ public class DeleteServiceTest extends AbstractServerTest {
     /** Identifies the instrument as root. */
     public static final String REF_INSTRUMENT = "/Instrument";
 
+    /** Identifies the light source as root. */
+    public static final String REF_LIGHTSOURCE = "/LightSource";
+
     /** Identifies the ROI as root. */
     public static final String REF_ROI = "/Roi";
 
@@ -299,7 +302,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         detector.setInstrument((Instrument) instrument.proxy());
         detector = (Detector) iUpdate.saveAndReturnObject(detector);
         // add detector to the list
-//        objects.put(REF_DETECTOR, detector);
+        objects.put(REF_DETECTOR, detector);
 
         Filament lightFilament = mmFactory.createFilament();
         lightFilament.setInstrument((Instrument) instrument.proxy());
@@ -326,6 +329,20 @@ public class DeleteServiceTest extends AbstractServerTest {
         objects.put(REF_LASER, lightLaser);
 
         return objects;
+    }
+
+    /**
+     * Converts the key.
+     *
+     * @param value The value to convert.
+     * @return
+     */
+    private String convert(String value)
+    {
+        if (REF_FILAMENT.equals(value) || REF_ARC.equals(value) ||
+                REF_LED.equals(value) || REF_LASER.equals(value))
+            return REF_LIGHTSOURCE;
+        return value;
     }
 
     /**
@@ -1301,7 +1318,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         String sql;
         List<IObject> l;
         for (Map.Entry<String, IObject> entry : objects.entrySet()) {
-            type = entry.getKey();
+            type = convert(entry.getKey());
             obj = entry.getValue();
             id = obj.getId().getValue();
             annotationIds = createNonSharableAnnotation(obj, null);
@@ -1340,7 +1357,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         for (int j = 0; j < values.length; j++) {
             Map<String, IObject> objects = createIObjects();
             for (Map.Entry<String, IObject> entry : objects.entrySet()) {
-                type = entry.getKey();
+                type = convert(entry.getKey());
                 obj = entry.getValue();
                 id = obj.getId().getValue();
                 annotationIds = createSharableAnnotation(obj, null);
@@ -2307,113 +2324,6 @@ public class DeleteServiceTest extends AbstractServerTest {
 
     /**
      * Test to delete an object with annotations with namespace. All annotations
-     * matching the given namespace should be deleted, but all others not.
-     *
-     * Example usage: delete everything except for the movies.
-     *
-     * @throws Exception
-     *             Thrown if an error occurred.
-     */
-    @Test(groups = { "broken", "ticket:2837" })
-    public void testDeleteObjectWithAnnotationWithNS() throws Exception {
-        Map<String, IObject> objects = createIObjects();
-        IObject obj = null;
-        Long id = null;
-        String type = null;
-        List<Long> annotationIds;
-        List<Long> annotationIdsNS;
-        ParametersI param;
-        String sql;
-        List<IObject> l;
-        Map<String, String> options;
-        for (Map.Entry<String, IObject> entry : objects.entrySet()) {
-            type = entry.getKey();
-            obj = entry.getValue();
-            id = obj.getId().getValue();
-            annotationIds = createNonSharableAnnotation(obj, null);
-            annotationIdsNS = createNonSharableAnnotation(obj, NAMESPACE);
-
-            options = new HashMap<String, String>();
-            options.put(REF_ANN, KEEP + SEPARATOR + INCLUDE + NAMESPACE);
-            delete(new Delete(type, id, options));
-
-            param = new ParametersI();
-            param.addId(obj.getId().getValue());
-            sql = createBasicContainerQuery(obj.getClass());
-            assertNull(iQuery.findByQuery(sql, param));
-            param = new ParametersI();
-            param.addIds(annotationIds);
-            assertTrue(annotationIds.size() > 0);
-            sql = "select i from Annotation as i where i.id in (:ids)";
-            l = iQuery.findAllByQuery(sql, param);
-            assertEquals(obj + "-->" + l.toString(), 0, l.size());
-            param = new ParametersI();
-            param.addIds(annotationIdsNS);
-            assertTrue(annotationIdsNS.size() > 0);
-            sql = "select i from Annotation as i where i.id in (:ids)";
-            l = iQuery.findAllByQuery(sql, param);
-            assertEquals(obj + "-->" + l.toString(), annotationIdsNS.size(),
-                    l.size());
-        }
-    }
-
-    /**
-     * Test to delete an object with annotations with namespace. All annotations
-     * matching the given namespace should be deleted, but all others not.
-     *
-     * Example usage: delete everything except for the movies.
-     *
-     * @throws Exception
-     *             Thrown if an error occurred.
-     */
-    @Test(groups = { "broken", "ticket:2837" })
-    public void testDeleteObjectWithAnnotationWithNSMultipleNS()
-            throws Exception {
-        Map<String, IObject> objects = createIObjects();
-        IObject obj = null;
-        Long id = null;
-        String type = null;
-        List<Long> annotationIds;
-        List<Long> annotationIdsNS = new ArrayList<Long>();
-        ParametersI param;
-        String sql;
-        List<IObject> l;
-        Map<String, String> options;
-        for (Map.Entry<String, IObject> entry : objects.entrySet()) {
-            type = entry.getKey();
-            obj = entry.getValue();
-            id = obj.getId().getValue();
-            annotationIds = createNonSharableAnnotation(obj, null);
-            annotationIdsNS.addAll(createNonSharableAnnotation(obj, NAMESPACE));
-            annotationIdsNS
-                    .addAll(createNonSharableAnnotation(obj, NAMESPACE_2));
-            options = new HashMap<String, String>();
-            options.put(REF_ANN, KEEP + SEPARATOR + INCLUDE + NAMESPACE
-                    + NS_SEPARATOR + NAMESPACE_2);
-            delete(new Delete(type, id, options));
-
-            param = new ParametersI();
-            param.addId(obj.getId().getValue());
-            sql = createBasicContainerQuery(obj.getClass());
-            assertNull(iQuery.findByQuery(sql, param));
-            param = new ParametersI();
-            param.addIds(annotationIds);
-            assertTrue(annotationIds.size() > 0);
-            sql = "select i from Annotation as i where i.id in (:ids)";
-            l = iQuery.findAllByQuery(sql, param);
-            assertEquals(obj + "-->" + l.toString(), 0, l.size());
-            param = new ParametersI();
-            param.addIds(annotationIdsNS);
-            assertTrue(annotationIdsNS.size() > 0);
-            sql = "select i from Annotation as i where i.id in (:ids)";
-            l = iQuery.findAllByQuery(sql, param);
-            assertEquals(obj + "-->" + l.toString(), annotationIdsNS.size(),
-                    l.size());
-        }
-    }
-
-    /**
-     * Test to delete an object with annotations with namespace. All annotations
      * which do not have the given namespace should be deleted; others should be
      * kept.
      *
@@ -2435,7 +2345,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         List<IObject> l;
         Map<String, String> options;
         for (Map.Entry<String, IObject> entry : objects.entrySet()) {
-            type = entry.getKey();
+            type = convert(entry.getKey());
             obj = entry.getValue();
             id = obj.getId().getValue();
             annotationIds = createNonSharableAnnotation(obj, null);
@@ -2487,7 +2397,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         List<IObject> l;
         Map<String, String> options;
         for (Map.Entry<String, IObject> entry : objects.entrySet()) {
-            type = entry.getKey();
+            type = convert(entry.getKey());
             obj = entry.getValue();
             id = obj.getId().getValue();
             annotationIds = createNonSharableAnnotation(obj, null);

@@ -146,12 +146,10 @@
         </description>
         <constructor-arg>
           <list>
-            <value>/Arc</value>
+             <value>/Arc</value>
             <value>/Filament</value>
             <value>/Laser</value>
             <value>/LightEmittingDiode</value>
-            <value>/LightSource/LightSourceAnnotationLink;FORCE</value>
-            <value>/Annotation;SOFT;/LightSource/LightSourceAnnotationLink</value>
             <value>/LightSource</value>
           </list>
         </constructor-arg>
@@ -483,9 +481,40 @@
     <bean parent="graphSpec" name="/ShapeAnnotationLink"> <constructor-arg> <list> <value>/ShapeAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="graphSpec" name="/WellAnnotationLink"> <constructor-arg> <list> <value>/WellAnnotationLink</value> </list> </constructor-arg> </bean>
 
-    <bean parent="graphSpec" name="/Arc"> <constructor-arg> <list> <value>/Arc</value> </list> </constructor-arg> </bean>
-    <bean parent="graphSpec" name="/Filament"> <constructor-arg> <list> <value>/Filament</value> </list> </constructor-arg> </bean>
-    <bean parent="graphSpec" name="/Laser"> <constructor-arg> <list> <value>/Laser</value> </list> </constructor-arg> </bean>
-    <bean parent="graphSpec" name="/LightEmittingDiode"> <constructor-arg> <list> <value>/LightEmittingDiode</value> </list> </constructor-arg> </bean>
-
+    <bean parent="graphSpec" name="/Arc">
+        <constructor-arg>
+            <list>
+                <value>/Arc/LightSourceAnnotationLink;FORCE</value>
+                <value>/Annotation;SOFT;/Arc/LightSourceAnnotationLink</value>
+                <value>/Arc</value>
+            </list>
+        </constructor-arg>
+    </bean>
+    <bean parent="graphSpec" name="/Filament">
+        <constructor-arg>
+            <list>
+                <value>/Filament/LightSourceAnnotationLink;FORCE</value>
+                <value>/Annotation;SOFT;/Filament/LightSourceAnnotationLink</value>
+                <value>/Filament</value>
+            </list>
+        </constructor-arg>
+    </bean>
+    <bean parent="graphSpec" name="/Laser">
+        <constructor-arg>
+            <list>
+                <value>/Laser/LightSourceAnnotationLink;FORCE</value>
+                <value>/Annotation;SOFT;/Laser/LightSourceAnnotationLink</value>
+                <value>/Laser</value>
+            </list>
+        </constructor-arg>
+    </bean>
+    <bean parent="graphSpec" name="/LightEmittingDiode">
+        <constructor-arg>
+            <list>
+                <value>/LightEmittingDiode/LightSourceAnnotationLink;FORCE</value>
+                <value>/Annotation;SOFT;/LightEmittingDiode/LightSourceAnnotationLink</value>
+                <value>/LightEmittingDiode</value>
+            </list>
+        </constructor-arg>
+    </bean>
 </beans>
