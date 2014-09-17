@@ -37,6 +37,7 @@
     <constructor-arg ref="passwordUtil"/>
     <constructor-arg ref="chmodStrategy"/>
     <constructor-arg ref="checksumProviderFactory"/>
+    <constructor-arg value="${omero.security.ignore_case}"/>
   </bean>
 
   <bean id="loginAttemptListener" class="ome.security.auth.LoginAttemptListener" lazy-init="false">
