@@ -21,6 +21,7 @@
 
 from omero.plugins.user import UserControl
 from test.integration.clitest.cli import CLITest, RootCLITest
+from Glacier2 import PermissionDeniedException
 import getpass
 import pytest
 
@@ -34,7 +35,7 @@ middlename_prefixes = [None, '-m', '--middlename']
 email_prefixes = [None, '-e', '--email']
 institution_prefixes = [None, '-i', '--institution']
 admin_prefixes = [None, '-a', '--admin']
-password_prefixes = [None, '--no-password', '-P', '--userpassword']
+password_prefixes = [None, '-P', '--userpassword']
 
 
 class TestUser(CLITest):
@@ -149,6 +150,10 @@ class TestUser(CLITest):
 
         # Check session creation using new password
         self.new_client(user=login, password=password)
+
+        # Check session creation fails with a random password
+        with pytest.raises(PermissionDeniedException):
+            self.new_client(user=login, password=self.uuid)
 
 
 class TestUserRoot(RootCLITest):
@@ -335,6 +340,32 @@ class TestUserRoot(RootCLITest):
 
         # Check session creation using password
         self.new_client(user=login, password=password)
+        # Check session creation fails with a random password
+        with pytest.raises(PermissionDeniedException):
+            self.new_client(user=login, password=self.uuid)
+
+    def testAddNoPassword(self):
+        group = self.new_group()
+        login = self.uuid()
+        firstname = self.uuid()
+        lastname = self.uuid()
+
+        self.args += ["add", login, firstname, lastname]
+        self.args += ["%s" % group.id.val]
+        self.args += ["--no-password"]
+
+        self.cli.invoke(self.args, strict=True)
+
+        # Check user has been added to the list of member/owners
+        user = self.sf.getAdminService().lookupExperimenter(login)
+        assert user.omeName.val == login
+        assert user.firstName.val == firstname
+        assert user.lastName.val == lastname
+        assert user.id.val in self.getuserids(group.id.val)
+
+        # Check session creation with a random password
+        self.new_client(user=login, password=self.uuid)
+
 
     # Password subcommand
     # ========================================================================
@@ -360,3 +391,7 @@ class TestUserRoot(RootCLITest):
 
         # Check session creation using new password
         self.new_client(user=login, password=password)
+
+        # Check session creation fails with a random password
+        with pytest.raises(PermissionDeniedException):
+            self.new_client(user=login, password=self.uuid)
