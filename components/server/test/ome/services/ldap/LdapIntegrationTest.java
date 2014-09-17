@@ -17,6 +17,7 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.Session;
 import ome.security.auth.LdapConfig;
 import ome.security.auth.LdapPasswordProvider;
+import ome.security.auth.PasswordProviders;
 import ome.security.auth.PasswordUtil;
 import ome.security.auth.RoleProvider;
 import ome.services.sessions.SessionManager;
@@ -283,9 +284,11 @@ public class LdapIntegrationTest extends LdapTest {
         fixture.ldap.setQueryService((LocalQuery) isf.getQueryService());
         fixture.ldap.setUpdateService((LocalUpdate) isf.getUpdateService());
 
-        fixture.provider = new LdapPasswordProvider(new PasswordUtil(sql),
-                fixture.ldap);
-        fixture.provider.setApplicationContext(mCtx);
+        LdapPasswordProvider ldapPasswordProvider = new LdapPasswordProvider(
+                new PasswordUtil(sql), fixture.ldap);
+        ldapPasswordProvider.setApplicationContext(mCtx);
+        fixture.provider = new PasswordProviders(fixture.config.isIgnoreCase(),
+                ldapPasswordProvider);
         return fixture;
     }
 

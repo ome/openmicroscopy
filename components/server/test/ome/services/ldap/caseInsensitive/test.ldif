@@ -1,15 +1,15 @@
-dn: ou=site,dc=caseInsensitive,dc=eg
+dn: ou=site,dc=ci,dc=eg
 objectclass: organizationalUnit
 objectClass: top
 ou: site
 
-dn: ou=People,ou=site,dc=caseInsensitive,dc=eg
+dn: ou=People,ou=site,dc=ci,dc=eg
 objectclass: organizationalUnit
 objectClass: top
 ou: People
 
-dn: cn=caseInsensitive,ou=People,ou=site,dc=caseInsensitive,dc=eg
-cn: caseInsensitive
+dn: cn=caseinsensitive,ou=People,ou=site,dc=ci,dc=eg
+cn: caseinsensitive
 givenName: Testy
 sn: Tester
 objectClass: person

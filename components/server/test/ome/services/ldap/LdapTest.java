@@ -21,6 +21,8 @@ import ome.logic.LdapImpl;
 import ome.model.meta.Experimenter;
 import ome.security.auth.LdapConfig;
 import ome.security.auth.LdapPasswordProvider;
+import ome.security.auth.PasswordProvider;
+import ome.security.auth.PasswordProviders;
 import ome.security.auth.PasswordUtil;
 import ome.security.auth.RoleProvider;
 import ome.services.util.Executor;
@@ -64,7 +66,7 @@ public class LdapTest extends MockObjectTestCase {
         LocalQuery query;
         LdapImpl ldap;
         LdapConfig config;
-        LdapPasswordProvider provider;
+        PasswordProvider provider;
         public LdapTemplate template;
         public OmeroContext applicationContext;
 
@@ -188,8 +190,9 @@ public class LdapTest extends MockObjectTestCase {
                 fixture.config, provider, sql);
         fixture.ldap.setQueryService(fixture.query);
 
-        fixture.provider = new LdapPasswordProvider(new PasswordUtil(sql),
-                fixture.ldap);
+        fixture.provider = new PasswordProviders(fixture.config.isIgnoreCase(),
+                new LdapPasswordProvider(new PasswordUtil(sql), fixture.ldap));
+
         return fixture;
     }
 

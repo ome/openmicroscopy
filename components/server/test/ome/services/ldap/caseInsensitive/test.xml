@@ -26,6 +26,9 @@
     </bean>
 
     <util:map id="good">
+      <entry key="cAseInsenSitive">
+        <util:list><value>People</value></util:list>
+      </entry>
       <entry key="caseinsensitive">
         <util:list><value>People</value></util:list>
       </entry>
