@@ -473,7 +473,11 @@ jQuery.fn.viewportImage = function(options) {
     });
     $(".wb_zoomOut").click(function() {
       var zm = _this.getZoom();
-      _this.setZoom(zm - 20);
+      if (zm > 21) {
+        _this.setZoom(zm - 20);
+      } else if (zm > 11) {
+        _this.setZoom(zm - 10);
+      }
     });
     $(".wb_zoom11").click(function() {
       _this.setZoom(100);
