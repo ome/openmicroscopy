@@ -341,7 +341,7 @@ public class DeleteServiceTest extends AbstractServerTest {
     {
         if (REF_FILAMENT.equals(value) || REF_ARC.equals(value) ||
                 REF_LED.equals(value) || REF_LASER.equals(value))
-            return "/LightSource";
+            return REF_LIGHTSOURCE;
         return value;
     }
 
