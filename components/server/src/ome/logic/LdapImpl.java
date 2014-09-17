@@ -423,6 +423,9 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
      */
     public Experimenter createUser(String username, String password,
             boolean checkPassword) {
+        if (config.isIgnoreCase()) {
+            username = username.toLowerCase();
+        }
         if (iQuery.findByString(Experimenter.class, "omeName", username) != null) {
             throw new ValidationException("User already exists: " + username);
         }
