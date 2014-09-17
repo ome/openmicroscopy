@@ -9,21 +9,19 @@
 
 """
 
-import unittest, logging, threading, time
-logging.basicConfig(level=logging.WARN)
+import pytest
+import logging
 
-import omero
-
-import omero.all
-import omero.grid.monitors as monitors
-from fsDropBoxMonitorClient import *
-from drivers import *
+from drivers import MockMonitor, Replay, with_driver
 
 from path import path
 
-class TestReplay(unittest.TestCase):
+logging.basicConfig(level=logging.WARN)
 
-    def tearDown(self):
+
+class TestReplay(object):
+
+    def teardown_method(self, method):
         MockMonitor.static_stop()
 
     @with_driver
@@ -34,23 +32,23 @@ class TestReplay(unittest.TestCase):
         """
         source = path(".") / "test" / "records" / "outofsync.txt"
         l = len(self.dir)
+
         class MyReplay(Replay):
+
             def fileset(self, timestamp, data):
-               f = Replay.fileset(self, timestamp, data)
-               print "="*80
-               for k,v in f.items():
+                f = Replay.fileset(self, timestamp, data)
+                print "=" * 80
+                for k, v in f.items():
                     print k[l:]
                     for i in v:
-                        print "\t",i[l:]
-               return f
+                        print "\t", i[l:]
+                return f
         MyReplay(self.dir, source, None).run()
         self.driver.run()
 
+    @pytest.mark.xfail(reason="ticket 12566")
     @with_driver
     def testOutOfSync(self):
         source = path(".") / "test" / "records" / "outofsync.txt"
         Replay(self.dir, source, self.driver).run()
         self.driver.run()
-
-if __name__ == '__main__':
-    unittest.main()

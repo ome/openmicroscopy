@@ -28,10 +28,12 @@ build_python()
 {
     flake8 -v components/tools/OmeroPy/src
     flake8 -v components/tools/OmeroPy/test
+    flake8 -v components/tools/OmeroFS/test
     flake8 -v components/tools/OmeroWeb/omeroweb
     flake8 -v components/tools/OmeroWeb/test
     ./build.py build-default
     ./build.py -py test -Dtest.with.fail=true
+    ./build.py -fs test -Dtest.with.fail=true
     ./build.py -web test -Dtest.with.fail=true
     # make sure all OmeroWeb Python modules can be imported
     # (this will find invalid imports that flake8 does not check for)

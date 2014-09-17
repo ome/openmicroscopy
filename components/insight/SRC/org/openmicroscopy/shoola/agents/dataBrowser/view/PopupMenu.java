@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.view.PopupMenu 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -85,9 +85,6 @@ class PopupMenu
 
     /** Button to copy the rendering settings. */
     private JMenuItem copyRndSettings;
-
-    /** Button to set the min/max for each channel. */
-    private JMenuItem setMinMaxSettings;
 
     /** Button to set the original rendering settings. */
     private JMenuItem setOwnerRndSettings;
@@ -188,9 +185,6 @@ class PopupMenu
                 controller.getAction(DataBrowserControl.RESET_RND_SETTINGS));
         copyRndSettings = new JMenuItem(
                 controller.getAction(DataBrowserControl.COPY_RND_SETTINGS));
-        setMinMaxSettings = new JMenuItem(
-                controller.getAction(
-                        DataBrowserControl.SET_MIN_MAX_SETTINGS));
         setOwnerRndSettings = new JMenuItem(
                 controller.getAction(
                         DataBrowserControl.SET_OWNER_RND_SETTINGS));
@@ -228,7 +222,6 @@ class PopupMenu
         menu.add(copyRndSettings);
         menu.add(pasteRndSettings);
         menu.add(resetRndSettings);
-        menu.add(setMinMaxSettings);
         menu.add(setOwnerRndSettings);
         return menu;
     }

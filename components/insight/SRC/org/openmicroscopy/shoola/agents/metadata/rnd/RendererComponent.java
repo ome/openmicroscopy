@@ -680,9 +680,18 @@ class RendererComponent
 		if (rndControl == null) return;
 		loadingAttempt = 0;
 		model.setRenderingControl(rndControl);
+		controller.updatePasteAction();
 		//TODO: changes state.
 	}
 
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#onSettingsCopied()
+     */
+	public void onSettingsCopied() {
+	    controller.updatePasteAction();
+	}
+	
     /** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#getDefaultT()
@@ -898,6 +907,7 @@ class RendererComponent
 	public void resetSettings(RndProxyDef settings, boolean update)
 	{
 		try {
+		        model.makeHistorySnapshot();
 			model.resetSettings(settings);
 			if (update) {
 				view.resetDefaultRndSettings();
@@ -905,6 +915,7 @@ class RendererComponent
 						Boolean.valueOf(false), Boolean.valueOf(true));
 				firePropertyChange(COLOR_MODEL_PROPERTY, Boolean.valueOf(false), 
 	   		 			Boolean.valueOf(true));
+				controller.updatePasteAction();
 			}
 		} catch (Throwable e) {
 			handleException(e);
@@ -919,7 +930,6 @@ class RendererComponent
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 	        RndProxyDef def = model.saveCurrentSettings();
-	        controller.enableActions();
 		return def;
 	}
 
@@ -1320,4 +1330,12 @@ class RendererComponent
 	 * @see Renderer#getModuloT()
 	 */
 	public ModuloInfo getModuloT() { return model.getModuloT(); }
+	
+	/**
+         * Implemented as specified by the {@link Renderer} interface.
+         * @see Renderer#updatePasteAction()
+         */
+	public void updatePasteAction() {
+	    controller.updatePasteAction();
+	}
 }
