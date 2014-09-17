@@ -62,12 +62,12 @@
                     href="{% url 'archived_files' %}?{{ obj_string }}"
                   {% else %}
                     href="#"
-                    onClick="return OME.openPopup('{% url 'download_placeholder' %}?{{ obj_string }}&fileCount={{ filesetInfo.count }}&index={{ index }}');"
+                    onClick="return OME.openPopup('{% url 'download_placeholder' %}?{{ obj_string }}&fileCount={{ filesetInfo.count }}&index={{ index }}&size={{ filesetInfo.size|filesizeformat }}');"
                   {% endifequal %}
                 {% endifequal %}
-                title="Download {{ filesetInfo.count }} original imported file{{ filesetInfo.count|pluralize:'s as zip'}} ({{ filesetInfo.size|filesizeformat }})"
+                title="Download {{ filesetInfo.count }} original imported file{{ filesetInfo.count|pluralize:'s'}} ({{ filesetInfo.size|filesizeformat }}) {{ filesetInfo.count|pluralize:'as zip'}}"
                 >
-                Download...</a>
+                Download... ({{ filesetInfo.size|filesizeformat }})</a>
             </li>
             {% endif %}
 

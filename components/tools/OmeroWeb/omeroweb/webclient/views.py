@@ -1935,6 +1935,8 @@ def download_placeholder(request):
         zipName = 'OriginalFileDownload'
     defaultName = request.REQUEST.get('name', zipName) # default zip name
     defaultName = os.path.basename(defaultName)         # remove path
+    fileSize = request.REQUEST.get('size', None)
+    fileCount = request.REQUEST.get('fileCount', None)
 
     ids = []
     for oType in ("image", "dataset", "project", "well", "screen"):
@@ -1950,7 +1952,9 @@ def download_placeholder(request):
     context = {
             'template': "webclient/annotations/download_placeholder.html",
             'url': download_url,
-            'defaultName': defaultName
+            'defaultName': defaultName,
+            'fileSize': fileSize,
+            'fileCount': fileCount
             }
     return context
 

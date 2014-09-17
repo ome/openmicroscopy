@@ -41,9 +41,10 @@ Download files
 {% block body %}
 
 <div class="center">
-<h1 style="font-size: 20px;">Download Files</h1>
+<h1 style="font-size: 20px;">Download {{ fileCount }} Files {% if fileSize %}({{ fileSize }}){% endif %}</h1>
 
 <form id="downloadForm">
+    <h1>{{ fileCount }} files will be combined and zipped for download.</h1>
     <h1>Please choose a name for the downloaded zip file:</h1>
     <span>Zip file name: </span>
     <input id="zipName" value="{{ defaultName }}.zip"/><br/>
@@ -54,6 +55,7 @@ Download files
     </div>
 </form>
 
+<h1 class="downloading">Creating zip...</h1>
 <h1 class="downloading">Download will be available in a moment...</h1>
 <h1 class="downloading">Please <a href="#" onClick="window.close()">close this window</a> once the download is complete.</h1>
 </div>
