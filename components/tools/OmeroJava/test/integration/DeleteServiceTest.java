@@ -302,33 +302,47 @@ public class DeleteServiceTest extends AbstractServerTest {
         detector.setInstrument((Instrument) instrument.proxy());
         detector = (Detector) iUpdate.saveAndReturnObject(detector);
         // add detector to the list
-//        objects.put(REF_DETECTOR, detector);
+        objects.put(REF_DETECTOR, detector);
 
         Filament lightFilament = mmFactory.createFilament();
         lightFilament.setInstrument((Instrument) instrument.proxy());
         lightFilament = (Filament) iUpdate.saveAndReturnObject(lightFilament);
         // add light to the list
-        objects.put(REF_LIGHTSOURCE, lightFilament);
+        objects.put(REF_FILAMENT, lightFilament);
 
         Arc lightArc = mmFactory.createArc();
         lightArc.setInstrument((Instrument) instrument.proxy());
         lightArc = (Arc) iUpdate.saveAndReturnObject(lightArc);
         // add light to the list
-        objects.put(REF_LIGHTSOURCE, lightArc);
+        objects.put(REF_ARC, lightArc);
 
         LightEmittingDiode lightLed = mmFactory.createLightEmittingDiode();
         lightLed.setInstrument((Instrument) instrument.proxy());
         lightLed = (LightEmittingDiode) iUpdate.saveAndReturnObject(lightLed);
         // add light to the list
-        objects.put(REF_LIGHTSOURCE, lightLed);
+        objects.put(REF_LED, lightLed);
 
         Laser lightLaser = mmFactory.createLaser();
         lightLaser.setInstrument((Instrument) instrument.proxy());
         lightLaser = (Laser) iUpdate.saveAndReturnObject(lightLaser);
         // add light to the list
-        objects.put(REF_LIGHTSOURCE, lightLaser);
+        objects.put(REF_LASER, lightLaser);
 
         return objects;
+    }
+
+    /**
+     * Converts the key.
+     *
+     * @param value The value to convert.
+     * @return
+     */
+    private String convert(String value)
+    {
+        if (REF_FILAMENT.equals(value) || REF_ARC.equals(value) ||
+                REF_LED.equals(value) || REF_LASER.equals(value))
+            return "/LightSource";
+        return value;
     }
 
     /**
@@ -1304,7 +1318,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         String sql;
         List<IObject> l;
         for (Map.Entry<String, IObject> entry : objects.entrySet()) {
-            type = entry.getKey();
+            type = convert(entry.getKey());
             obj = entry.getValue();
             id = obj.getId().getValue();
             annotationIds = createNonSharableAnnotation(obj, null);
@@ -1343,7 +1357,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         for (int j = 0; j < values.length; j++) {
             Map<String, IObject> objects = createIObjects();
             for (Map.Entry<String, IObject> entry : objects.entrySet()) {
-                type = entry.getKey();
+                type = convert(entry.getKey());
                 obj = entry.getValue();
                 id = obj.getId().getValue();
                 annotationIds = createSharableAnnotation(obj, null);
@@ -2438,7 +2452,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         List<IObject> l;
         Map<String, String> options;
         for (Map.Entry<String, IObject> entry : objects.entrySet()) {
-            type = entry.getKey();
+            type = convert(entry.getKey());
             obj = entry.getValue();
             id = obj.getId().getValue();
             annotationIds = createNonSharableAnnotation(obj, null);
@@ -2490,7 +2504,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         List<IObject> l;
         Map<String, String> options;
         for (Map.Entry<String, IObject> entry : objects.entrySet()) {
-            type = entry.getKey();
+            type = convert(entry.getKey());
             obj = entry.getValue();
             id = obj.getId().getValue();
             annotationIds = createNonSharableAnnotation(obj, null);
