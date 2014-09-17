@@ -57,7 +57,7 @@ Configuration properties glossary
   :depth: 1
   :local:
 
-.. _introduction_configuration
+.. _introduction_configuration:
 
 Introduction
 ------------
