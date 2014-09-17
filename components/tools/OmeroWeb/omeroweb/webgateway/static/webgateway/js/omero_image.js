@@ -246,18 +246,14 @@
     window.updateUndoRedo = function(viewport) {
         // update disabled status of undo/redo buttons
         if (viewport.has_channels_undo()) {
-            $('#rdef-undo-btn').removeClass('button-disabled')
-                .removeAttr('disabled');
+            $('#rdef-undo-btn').removeAttr('disabled');
         } else {
-            $('#rdef-undo-btn').addClass('button-disabled')
-                .attr('disabled', 'disabled');
+            $('#rdef-undo-btn').attr('disabled', 'disabled');
         }
         if (viewport.has_channels_redo()) {
-            $('#rdef-redo-btn').removeClass('button-disabled')
-                .removeAttr('disabled');
+            $('#rdef-redo-btn').removeAttr('disabled');
         } else {
-            $('#rdef-redo-btn').addClass('button-disabled')
-                .attr('disabled', 'disabled');
+            $('#rdef-redo-btn').attr('disabled', 'disabled');
         }
         var canSaveRdef = viewport.loadedImg.perms.canAnnotate;
         if (viewport.getSaved() || !canSaveRdef) {
@@ -460,8 +456,10 @@
                 btnClass += " fontWhite";
             }
 
-            var lbl = channels[i].label.slice(0, 4);
-            lbl = lbl + (channels[i].label.length > 4 ? ".." : "");
+            var lbl = channels[i].label;
+            if (lbl.length > 7) {
+                lbl = lbl.slice(0, 5) + "...";
+            }
             tmp.after(template
                 .replace(/\$class/g, btnClass)
                 .replace(/\$col/g, rgbToHex(channels[i].color))
@@ -508,7 +506,7 @@
                   offset = t.offset();
                   offset.left += t.width();
                 } else {
-                  offset = {'top':'200px', 'right': '300px'};
+                  offset = {'top':'300px', 'left': window.innerWidth-250+'px'};
                 }
                 $('#cbpicker-box').css(offset);
                 $('.picker-selected').html('&nbsp;');
