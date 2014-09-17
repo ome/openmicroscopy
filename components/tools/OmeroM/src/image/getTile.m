@@ -40,7 +40,7 @@ function tile = getTile(varargin)
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 % Check number of arguments and retrieve store and pixels
-narginchk(10, 10);
+narginchk(9, 9);
 if ~isa(varargin{1}, 'omero.model.PixelsI')
     % Initialize raw pixels store
     [store, pixels] = getRawPixelsStore(varargin{1}, varargin{2});
