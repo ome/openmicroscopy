@@ -471,12 +471,14 @@ public class PasswordTest extends MockObjectTestCase {
 
     public void testIsPasswordRequiredWithoutStrictSetting() {
         PasswordUtil util = new PasswordUtil(sql, false);
+        assertFalse(util.isPasswordRequired(null));
         assertFalse(util.isPasswordRequired(456l));
         assertFalse(util.isPasswordRequired(GUEST_ID));
     }
 
     public void testIsPasswordRequiredWithStrictSetting() {
         PasswordUtil util = new PasswordUtil(sql, true);
+        assertTrue(util.isPasswordRequired(null));
         assertTrue(util.isPasswordRequired(456l));
         assertFalse(util.isPasswordRequired(GUEST_ID));
     }
