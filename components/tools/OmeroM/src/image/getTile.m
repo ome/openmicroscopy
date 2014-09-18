@@ -63,16 +63,17 @@ isposint = @(x) isnumeric(x) & x >= 0 & abs(round(x)) == x;
 ip.addRequired('z', @(x) isposint(x) && x < sizeZ);
 ip.addRequired('c', @(x) isposint(x) && x < sizeC);
 ip.addRequired('t', @(x) isposint(x) && x < sizeT);
+ip.parse(varargin{3:5});
 ip.addRequired('x', @(t) isposint(t) && t < sizeX);
 ip.addRequired('y', @(t) isposint(t) && t < sizeY);
-ip.addRequired('w', @(t) isposint(t) && (x + t) <= sizeX);
-ip.addRequired('h', @(t) isposint(t) && (y + t) <= sizeY);
+ip.addRequired('w', @(t) isposint(t) && (ip.Results.x + t) <= sizeX);
+ip.addRequired('h', @(t) isposint(t) && (ip.Results.y + t) <= sizeY);
 ip.parse(varargin{3:end});
 
 % Read tile
 tile = store.getTile(ip.Results.z, ip.Results.c, ip.Results.t,...
     ip.Results.x, ip.Results.y, ip.Results.w, ip.Results.h);
-tile = toMatrix(tile, pixels, [w h])';
+tile = toMatrix(tile, pixels, [ip.Results.w ip.Results.h])';
 
 if ~isa(varargin{1}, 'omero.model.PixelsI')
     % Close the store if initialized from a session and image input
