@@ -91,6 +91,8 @@ import omero.model.LightSourceAnnotationLinkI;
 import omero.model.LongAnnotation;
 import omero.model.LongAnnotationI;
 import omero.model.OriginalFile;
+import omero.model.OriginalFileAnnotationLink;
+import omero.model.OriginalFileAnnotationLinkI;
 import omero.model.Permissions;
 import omero.model.PermissionsI;
 import omero.model.Pixels;
@@ -1480,6 +1482,32 @@ public class AbstractServerTest extends AbstractTest {
                 link = new InstrumentAnnotationLinkI();
                 link.setChild(new FileAnnotationI(f.getId().getValue(), false));
                 link.setParent((Instrument) parent2);
+                links.add(link);
+            }
+        } else if (parent1 instanceof OriginalFile) {
+            OriginalFileAnnotationLink link = new OriginalFileAnnotationLinkI();
+            link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+            link.setParent((OriginalFile) parent1);
+            links.add(link);
+            link = new OriginalFileAnnotationLinkI();
+            link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+            link.setParent((OriginalFile) parent1);
+            links.add(link);
+            link = new OriginalFileAnnotationLinkI();
+            link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+            link.setParent((OriginalFile) parent1);
+            links.add(link);
+            if (parent2 != null) {
+                link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+                link.setParent((OriginalFile) parent2);
+                links.add(link);
+                link = new OriginalFileAnnotationLinkI();
+                link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+                link.setParent((OriginalFile) parent2);
+                links.add(link);
+                link = new OriginalFileAnnotationLinkI();
+                link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+                link.setParent((OriginalFile) parent2);
                 links.add(link);
             }
         } else {
