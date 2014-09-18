@@ -432,7 +432,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.index_template":
         ["INDEX_TEMPLATE",
         None, identity,
-        "Define template used as an index page http://your_host/omero/. " \
+        "Define template used as an index page ``http://your_host/omero/``." \
         "If None user is automaticaly redirected to the login page." \
         "For example use 'webstart/start.html'. "],
     "omero.web.login_redirect":
