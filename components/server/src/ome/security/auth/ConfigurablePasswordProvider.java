@@ -65,6 +65,12 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
 
     protected final PasswordUtil util;
 
+    /**
+     * Possibly null {@link PasswordUtil} instance which will be used as a
+     * fallback for password checks if the {@link #util} instance fails.
+     */
+    protected /*final*/ PasswordUtil legacyUtil;
+
     protected OmeroContext ctx;
 
     /**
@@ -95,6 +101,10 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
     public void setApplicationContext(ApplicationContext ctx)
             throws BeansException {
         this.ctx = (OmeroContext) ctx;
+    }
+
+    public void setLegacyUtil(PasswordUtil legacy) {
+        this.legacyUtil = legacy;
     }
 
     protected Boolean loginAttempt(String user, Boolean success) {
@@ -178,20 +188,31 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
      * {@link Boolean.FALSE}. If the trusted password is empty (only
      * whitespace), return {@link Boolean.TRUE}. Otherwise return the results of
      * {@link String#equals(Object)}.
+     *
+     * If {@link #legacyUtil} is non-null, and {@link #util} return
      */
     public Boolean comparePasswords(Long userId, String trusted, String provided) {
-        if (trusted == null) {
-            return Boolean.FALSE;
-        } else if ("".equals(trusted.trim())) {
-            if (util.isPasswordRequired(userId)) {
-                return Boolean.FALSE;
-            } else {
-                return Boolean.TRUE;
+        if(comparePasswords(userId, trusted, provided, util)) {
+            return true;
+        } else if (legacyUtil != null) {
+            if (comparePasswords(userId, trusted, provided, legacyUtil)) {
+                log.error("Matched LEGACY password for Experimenter:{}!", userId);
+                return true;
             }
+        }
+        return false;
+    }
+
+    protected boolean comparePasswords(Long userId, String trusted,
+            String provided, PasswordUtil util) {
+        if (trusted == null) {
+            return false;
+        } else if ("".equals(trusted.trim())) {
+            return !util.isPasswordRequired(userId);
         } else {
             if (userId != null && salt) {
                 if (trusted.equals(encodeSaltedPassword(userId, provided))) {
-                    return Boolean.TRUE;
+                    return true;
                 }
             }
             return trusted.equals(encodePassword(provided)); // ok unsalted.

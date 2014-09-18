@@ -65,10 +65,10 @@ public class PasswordUtil {
     }
 
     /**
-     * The default encoding, LATIN-1, is for backwards compatibility only.
-     * It is <em>highly</em> suggested to use an UTF-8 encoding instead.
+     * The default encoding for converting plain text passwords to byte arrays
+     * (UTF-8)
      */
-    public final static String DEFAULT_ENCODING = "ISO-8859-1";
+    public final static String DEFAULT_ENCODING = "UTF-8";
 
     private final static Logger log = LoggerFactory.getLogger(PasswordUtil.class);
 
@@ -200,12 +200,14 @@ public class PasswordUtil {
     public String passwordDigest(String clearText) {
         return saltedPasswordDigest(null, clearText);
     }
+
     /**
      * Creates an MD5 hash of the given clear text and base64 encodes it.
      * If the provided userId argument is not null, then it will be used
      * as a salt value for the password.
      */
     public String saltedPasswordDigest(Long userId, String clearText) {
+
         if (clearText == null) {
             throw new ApiUsageException("Value for digesting may not be null");
         }
