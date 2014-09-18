@@ -77,12 +77,14 @@
     <constructor-arg index="0" ref="passwordUtil"/>
     <constructor-arg index="1" value="true"/>
     <constructor-arg index="2" value="false"/>
+    <property name="legacyUtil" ref="latin1PasswordUtil"/>
   </bean>
 
   <bean id="jdbcPasswordProvider" class="ome.security.auth.JdbcPasswordProvider">
     <constructor-arg ref="passwordUtil"/>
     <constructor-arg index="1" value="true"/>
     <constructor-arg index="2" value="true"/>
+    <property name="legacyUtil" ref="latin1PasswordUtil"/>
   </bean>
 
   <bean id="jdbcHashedPasswordProvider" class="ome.security.auth.JdbcHashedPasswordProvider">
@@ -125,14 +127,14 @@
     <constructor-arg ref="omeroSessionFactory"/>
   </bean>
 
-  <bean id="utf8PasswordUtil" class="ome.security.auth.PasswordUtil">
+  <bean id="passwordUtil" class="ome.security.auth.PasswordUtil">
     <constructor-arg ref="simpleSqlAction"/>
     <constructor-arg ref="roles"/>
     <constructor-arg value="${omero.security.password_required}"/>
     <constructor-arg value="UTF-8"/>
   </bean>
 
-  <bean id="latinPasswordUtil" class="ome.security.auth.PasswordUtil">
+  <bean id="latin1PasswordUtil" class="ome.security.auth.PasswordUtil">
     <constructor-arg ref="simpleSqlAction"/>
     <constructor-arg ref="roles"/>
     <constructor-arg value="${omero.security.password_required}"/>
