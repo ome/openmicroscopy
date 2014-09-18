@@ -189,9 +189,10 @@ public class PasswordUtil {
 
     public String prepareSaltedPassword(Long userId, String newPassword) {
         // This allows setting passwords to "null" - locked account.
-        return newPassword == null ? null
-        // This allows empty passwords to be considered "open-access"
-                : newPassword.trim().length() == 0 ? newPassword
+        // Also checks if empty passwords are to be considered "open-access"
+        return newPassword == null
+                || (newPassword.isEmpty() && isPasswordRequired(userId)) ? null
+                : newPassword.isEmpty() ? newPassword
                 // Regular MD5 digest.
                         : saltedPasswordDigest(userId, newPassword);
     }
