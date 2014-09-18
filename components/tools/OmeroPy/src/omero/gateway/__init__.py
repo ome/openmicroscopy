@@ -5840,7 +5840,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
         :rtype:     int
         """
 
-        return int(self._re.getChannelWindowStart(self._idx, self._conn.SERVICE_OPTS))
+        return self._re.getChannelWindowStart(self._idx, self._conn.SERVICE_OPTS)
 
     def setWindowStart (self, val):
         self.setWindow(val, self.getWindowEnd())
@@ -5853,7 +5853,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
         :rtype:     int
         """
 
-        return int(self._re.getChannelWindowEnd(self._idx, self._conn.SERVICE_OPTS))
+        return self._re.getChannelWindowEnd(self._idx, self._conn.SERVICE_OPTS)
 
     def setWindowEnd (self, val):
         self.setWindow(self.getWindowStart(), val)
