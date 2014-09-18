@@ -23,11 +23,14 @@
 
 package omeis.providers.re.quantum;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import ome.model.display.QuantumDef;
 import ome.model.enums.PixelsType;
+
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 /**
  * Quantization process. In charge of building a look-up table for each active
@@ -45,6 +48,9 @@ import ome.model.enums.PixelsType;
  */
 public class Quantization_float extends QuantumStrategy {
 
+    /** The maximum size of the cache.*/
+    private static final long MAX_SIZE = 1000;
+    
     /** The lowest pixel intensity value. */
     private int min;
 
@@ -79,7 +85,7 @@ public class Quantization_float extends QuantumStrategy {
     private int cdStart, cdEnd;
 
     /** The mapped values.*/
-    private Map<Double, Integer> values;
+    private LoadingCache<Double, Integer> values;
 
     /**
      * Initializes the coefficient of the normalize mapping operation.
@@ -156,7 +162,7 @@ public class Quantization_float extends QuantumStrategy {
     /** The input window size changed, re-map the values. */
     @Override
     protected void onWindowChange() {
-        values.clear();
+        values.invalidateAll();
     }
 
     /**
@@ -169,16 +175,26 @@ public class Quantization_float extends QuantumStrategy {
      */
     public Quantization_float(QuantumDef qd, PixelsType type) {
         super(qd, type);
-        values = new HashMap<Double, Integer>();
+        values = CacheBuilder.newBuilder()
+                .maximumSize(MAX_SIZE)
+                .build(new CacheLoader<Double, Integer>() {
+                    public Integer load(Double key) throws Exception {
+                        return _quantize(key);
+                    }
+                });
     }
 
     /**
-     * Implemented as specified in {@link QuantumStrategy}.
+     * Maps the value.
      *
-     * @see QuantumStrategy#quantize(double)
+     * @param value The value to handle.
+     * @return The mapped value.
+     * @throws QuantizationException Thrown if an error occurred during
+     *                               the mapping.
      */
-    @Override
-    public int quantize(double value) throws QuantizationException {
+    private int _quantize(double value)
+                throws QuantizationException
+    {
         double dStart = getWindowStart(), dEnd = getWindowEnd();
         if (value < dStart) {
             return ((byte) cdStart) & 0xFF;
@@ -210,6 +226,19 @@ public class Quantization_float extends QuantumStrategy {
         v = Math.round(a1 * v + cdStart);
         int x = ((byte) v) & 0xFF;
         return x;
+    }
+    /**
+     * Implemented as specified in {@link QuantumStrategy}.
+     *
+     * @see QuantumStrategy#quantize(double)
+     */
+    @Override
+    public int quantize(double value) throws QuantizationException {
+        try {
+            return values.get(value);
+        } catch (ExecutionException e) {
+            throw new QuantizationException(e);
+        }
     }
 
 }
