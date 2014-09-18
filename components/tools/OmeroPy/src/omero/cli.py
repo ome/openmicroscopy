@@ -188,11 +188,12 @@ class Parser(ArgumentParser):
 
     def add_login_arguments(self):
         group = self.add_argument_group(
-            'Login arguments', """Optional session arguments
-
-Environment variables:
+            'Login arguments', """Environment variables:
     OMERO_SESSION_DIR - Set the sessions directory \
-(Default: $HOME/omero/sessions)""")
+(Default: $HOME/omero/sessions)
+
+Optional session arguments:
+""")
         group.add_argument(
             "-C", "--create", action="store_true",
             help="Create a new session regardless of existing ones")
