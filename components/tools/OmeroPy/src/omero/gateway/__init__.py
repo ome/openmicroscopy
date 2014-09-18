@@ -1672,8 +1672,10 @@ class _BlitzGateway (object):
                         #self.c = omero.client(*args)
                     except Glacier2.SessionNotExistException: #pragma: no cover
                         pass
-                setprop = self.c.ic.getProperties().setProperty
-                map(lambda x: setprop(x[0],str(x[1])), self._ic_props.items())
+                for key, value in self._ic_props.items():
+                    if isinstance(value, unicode):
+                        value = value.encode('utf_8')
+                    self.c.ic.getProperties().setProperty(key, value)
                 if self._anonymous:
                     self.c.ic.getImplicitContext().put(omero.constants.EVENT, 'Internal')
                 if self.group is not None:
