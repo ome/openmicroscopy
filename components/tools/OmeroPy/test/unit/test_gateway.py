@@ -40,14 +40,15 @@ class TestBlitzGatewayUnicode(object):
     def test_unicode_username(self):
         with pytest.raises(Ice.ConnectionRefusedException):
             gateway = BlitzGateway(
-                username=u'ążźćółę', passwd='secret', host='localhost', port=65535
+                username=u'ążźćółę', passwd='secret',
+                host='localhost', port=65535
             )
             gateway.connect()
-
 
     def test_unicode_password(self):
         with pytest.raises(Ice.ConnectionRefusedException):
             gateway = BlitzGateway(
-                username='user', passwd=u'ążźćółę', host='localhost', port=65535
+                username='user', passwd=u'ążźćółę',
+                host='localhost', port=65535
             )
             gateway.connect()
