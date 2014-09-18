@@ -270,8 +270,8 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.static_url":
         ["STATIC_URL",
         "/static/", str,
-        "URL to use when referring to static files. Example: '/static/' or " \
-        "'http://static.example.com/'. Used as the base path for asset " \
+        "URL to use when referring to static files. Example: ``'/static/'`` or " \
+        "``'http://static.example.com/'``. Used as the base path for asset " \
         "definitions (the Media class) and the staticfiles app. It must end " \
         "in a slash if set to a non-empty value."],
     "omero.web.session_engine":
@@ -412,7 +412,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
         "Customize webclient login page with your own logo. Logo images " \
         "should ideally be 150 pixels high or less and will appear above " \
         "the OMERO logo. You will need to host the image somewhere else " \
-        "and link to it with \"http://www.openmicroscopy.org/site/logo.jpg\" "],
+        "and link to it with ``\"http://www.openmicroscopy.org/site/logo.jpg\"``."],
     "omero.web.login_view":
         ["LOGIN_VIEW",
         "weblogin", str,
@@ -440,7 +440,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
         '{}', json.loads,
         "Redirect to the givin location after loging in. It only support " \
         "arguments for `Django reverse function <https://docs.djangoproject.com/en/1.6/ref/urlresolvers/#django.core.urlresolvers.reverse>`_. " \
-        "For example: {\"redirect\": [\"webindex\"], \"viewname\": \"load_template\", \"args\":[\"userdata\"], \"query_string\": \"experimenter=-1\"}"],
+        "For example: ``'{\"redirect\": [\"webindex\"], \"viewname\": \"load_template\", \"args\":[\"userdata\"], \"query_string\": \"experimenter=-1\"}'``"],
     "omero.web.apps":
         ["ADDITIONAL_APPS",
         '[]',json.loads,
@@ -456,7 +456,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
                         '["Data", "webindex", {"title": "Browse Data via Projects, Tags etc"}],'\
                         '["History", "history", {"title": "History"}]'\
                         ']', json.loads,
-        "Add links to the top header: links are ['Link Text', 'link', options], where " \
+        "Add links to the top header: links are ``['Link Text', 'link', options]``, where " \
         "the url is reverse('link') OR simply 'link' (for external urls). " \
         "E.g. ``'[[\"Webtest\", \"webtest_index\"], [\"Homepage\", \"http://...\", {\"title\": \"Homepage\", \"target\": \"new\"} ]]'``"],
     "omero.web.ui.menu.dropdown":
@@ -469,15 +469,15 @@ CUSTOM_SETTINGS_MAPPINGS = {
                         #'["ROIs", "webtest/webclient_plugins/right_plugin.rois.js.html", "image_roi_tab"],'\
                         '["Preview", "webclient/data/includes/right_plugin.preview.js.html", "preview_tab"]]', json.loads,
         "Add plugins to the right-hand panel. " \
-        "Plugins are ['Label', 'include.js', 'div_id']. " \
-        "The javascript loads data into $('#div_id')."],
+        "Plugins are ``['Label', 'include.js', 'div_id']``. " \
+        "The javascript loads data into ``$('#div_id')``."],
     "omero.web.ui.center_plugins":
         ["CENTER_PLUGINS",'['\
                             #'["Split View", "webclient/data/includes/center_plugin.splitview.js.html", "split_view_panel"],'\
                             ']' , json.loads,
         "Add plugins to the center panels. Plugins are " \
-        "['Channel overlay', 'webtest/webclient_plugins/center_plugin.overlay.js.html', 'channel_overlay_panel']. " \
-        "The javascript loads data into $('#div_id')."],
+        "``['Channel overlay', 'webtest/webclient_plugins/center_plugin.overlay.js.html', 'channel_overlay_panel']``. " \
+        "The javascript loads data into ``$('#div_id')``."],
     "omero.web.viewer.initial_zoom_level":
         ["VIEWER_INITIAL_ZOOM_LEVEL",
         None, leave_none_unset_int,
