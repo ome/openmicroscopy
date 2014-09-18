@@ -456,9 +456,9 @@ CUSTOM_SETTINGS_MAPPINGS = {
                         '["Data", "webindex", {"title": "Browse Data via Projects, Tags etc"}],'\
                         '["History", "history", {"title": "History"}]'\
                         ']', json.loads,
-        "Add links to the top header: links are ['Link Text', 'link'], where " \
+        "Add links to the top header: links are ['Link Text', 'link', options], where " \
         "the url is reverse('link') OR simply 'link' (for external urls). " \
-        "E.g. '[[\"Webtest\", \"webtest_index\"]]'"],
+        "E.g. ``'[[\"Webtest\", \"webtest_index\"], [\"Homepage\", \"http://...\", {\"title\": \"Homepage\", \"target\": \"new\"} ]]'``"],
     "omero.web.ui.menu.dropdown":
         ["UI_MENU_DROPDOWN",
         '{"LEADERS": "Owners", "COLLEAGUES": "Members", "ALL": "All members"}', json.loads,
