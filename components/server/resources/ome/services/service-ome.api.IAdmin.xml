@@ -127,6 +127,8 @@
 
   <bean id="passwordUtil" class="ome.security.auth.PasswordUtil">
     <constructor-arg ref="simpleSqlAction"/>
+    <constructor-arg ref="roles"/>
+    <constructor-arg value="${omero.security.password_required}"/>
   </bean>
 
   <bean name="managed-ome.api.IAdmin" parent="managedService">

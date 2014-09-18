@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2013 Glencoe Software, Inc. All rights reserved.
+ * Copyright (C) 2009-2014 Glencoe Software, Inc. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -183,7 +183,11 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
         if (trusted == null) {
             return Boolean.FALSE;
         } else if ("".equals(trusted.trim())) {
-            return Boolean.TRUE;
+            if (util.isPasswordRequired(userId)) {
+                return Boolean.FALSE;
+            } else {
+                return Boolean.TRUE;
+            }
         } else {
             if (userId != null && salt) {
                 if (trusted.equals(encodeSaltedPassword(userId, provided))) {
