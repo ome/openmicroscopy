@@ -255,7 +255,11 @@ public class PasswordUtil {
      * @return boolean <code>true</code> or <code>false</code>
      */
     public boolean isPasswordRequired(Long id) {
-        return roles.getGuestId() != id && passwordRequired;
+        if (id == null) {
+            return passwordRequired;
+        } else {
+            return !id.equals(roles.getGuestId()) && passwordRequired;
+        }
     }
 
 }
