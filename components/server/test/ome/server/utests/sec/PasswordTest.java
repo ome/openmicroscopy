@@ -30,6 +30,7 @@ import ome.security.auth.PasswordProvider;
 import ome.security.auth.PasswordProviders;
 import ome.security.auth.PasswordUtil;
 import ome.security.auth.PasswordUtility;
+import ome.system.Roles;
 import ome.util.SqlAction;
 
 import org.jmock.Mock;
@@ -39,6 +40,8 @@ import org.testng.annotations.Test;
 
 @Test
 public class PasswordTest extends MockObjectTestCase {
+
+    private final static Long GUEST_ID = new Roles().getGuestId();
 
     static File file = null;
     static {
@@ -500,6 +503,17 @@ public class PasswordTest extends MockObjectTestCase {
         assertFalse(goodHash.equals(badHash));
     }
 
+    public void testIsPasswordRequiredWithoutStrictSetting() {
+        PasswordUtil util = new PasswordUtil(sql, false);
+        assertFalse(util.isPasswordRequired(456l));
+        assertFalse(util.isPasswordRequired(GUEST_ID));
+    }
+
+    public void testIsPasswordRequiredWithStrictSetting() {
+        PasswordUtil util = new PasswordUtil(sql, true);
+        assertTrue(util.isPasswordRequired(456l));
+        assertFalse(util.isPasswordRequired(GUEST_ID));
+    }
 
     // ~ Helpers
     // =========================================================================
