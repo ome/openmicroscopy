@@ -2,9 +2,9 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# 
+#
 # $Id$
-# 
+#
 # Copyright 2006-2014 University of Dundee. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
@@ -125,10 +125,18 @@
     <constructor-arg ref="omeroSessionFactory"/>
   </bean>
 
-  <bean id="passwordUtil" class="ome.security.auth.PasswordUtil">
+  <bean id="utf8PasswordUtil" class="ome.security.auth.PasswordUtil">
     <constructor-arg ref="simpleSqlAction"/>
     <constructor-arg ref="roles"/>
     <constructor-arg value="${omero.security.password_required}"/>
+    <constructor-arg value="UTF-8"/>
+  </bean>
+
+  <bean id="latinPasswordUtil" class="ome.security.auth.PasswordUtil">
+    <constructor-arg ref="simpleSqlAction"/>
+    <constructor-arg ref="roles"/>
+    <constructor-arg value="${omero.security.password_required}"/>
+    <constructor-arg value="ISO-8859-1"/>
   </bean>
 
   <bean name="managed-ome.api.IAdmin" parent="managedService">
@@ -140,5 +148,5 @@
     </property>
     <property name="target" ref="internal-ome.api.IAdmin"/>
   </bean>
-  
+
 </beans>

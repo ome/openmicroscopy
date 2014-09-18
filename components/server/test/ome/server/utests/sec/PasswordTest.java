@@ -10,6 +10,12 @@ import java.io.File;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+
 import ome.api.ILdap;
 import ome.conditions.ApiUsageException;
 import ome.logic.LdapImpl;
@@ -147,10 +153,10 @@ public class PasswordTest extends MockObjectTestCase {
 
         userIdReturns1();
         provider.hasPassword("test");
-        
+
         userIdReturnsNull();
         provider.hasPassword("unknown");
-        
+
         String encoded = ((PasswordUtility) provider).encodePassword("test");
         getPasswordHash(encoded);
         userIdReturns1();
@@ -209,16 +215,16 @@ public class PasswordTest extends MockObjectTestCase {
         validateLdapPassword(false);
         getDn("dn");
         assertFalse(provider.checkPassword("test", "GARBAGE", false));
-        
+
         userIdReturnsNull();
         assertFalse(provider.hasPassword("unknown"));
-        
+
         userIdReturns1();
         getPasswordHash(null);
         validateLdapPassword(false);
         getDn(null);
         assertFalse(provider.hasPassword("no-dn"));
-        
+
         getPasswordHash("dn");
         getDn("dn");
         userIdReturns1();
@@ -314,7 +320,7 @@ public class PasswordTest extends MockObjectTestCase {
             hasPasswordCalled = true;
             return check == null ? false : check.booleanValue();
         }
-        
+
         public Boolean checkPassword(String user, String password, boolean readOnly) {
             checkPasswordCalled = true;
             return check;
@@ -325,7 +331,7 @@ public class PasswordTest extends MockObjectTestCase {
                 fail();
             }
         }
-        
+
 
         void assertChangePasswordNotCalled() {
             if (changePasswordCalled) {
@@ -344,13 +350,13 @@ public class PasswordTest extends MockObjectTestCase {
                 fail();
             }
         }
-        
+
         void assertHasPasswordCalled() {
             if (!hasPasswordCalled) {
                 fail();
             }
         }
-        
+
         void assertHasPasswordNotCalled() {
             if (hasPasswordCalled) {
                 fail();
@@ -387,7 +393,7 @@ public class PasswordTest extends MockObjectTestCase {
         s1.assertCheckPasswordCalled();
         s2.assertCheckPasswordCalled();
     }
-    
+
     public void testChainedKnownDoesntPropagate() throws Exception {
         Stub s1 = new Stub(true, false);
         Stub s2 = new Stub(true, false);
@@ -396,7 +402,7 @@ public class PasswordTest extends MockObjectTestCase {
         s1.assertCheckPasswordCalled();
         s2.assertCheckPasswordNotCalled();
     }
-    
+
     public void testChainedUnknownDoesntPropagate() throws Exception {
         Stub s1 = new Stub(false, false);
         Stub s2 = new Stub(false, false);
@@ -405,7 +411,7 @@ public class PasswordTest extends MockObjectTestCase {
         s1.assertCheckPasswordCalled();
         s2.assertCheckPasswordNotCalled();
     }
-    
+
     public void testChainedFirstChangePassword() throws Exception {
         Stub s1 = new Stub(true, false);
         Stub s2 = new Stub(true, false);
@@ -427,7 +433,7 @@ public class PasswordTest extends MockObjectTestCase {
         s2.assertHasPasswordCalled();
         s2.assertChangePasswordCalled();
     }
-    
+
     public void testChainedNoneChangePassword() throws Exception {
         Stub s1 = new Stub(false, false);
         Stub s2 = new Stub(false, false);
@@ -447,7 +453,7 @@ public class PasswordTest extends MockObjectTestCase {
         s1.assertHasPasswordCalled();
         s2.assertHasPasswordNotCalled();
     }
-    
+
     public void testChainedSecondWontChangePassword() throws Exception {
         Stub s1 = new Stub(false, true);
         Stub s2 = new Stub(true, true);
@@ -468,6 +474,35 @@ public class PasswordTest extends MockObjectTestCase {
         mockSql.expects(once()).method("dnForUser").will(returnValue(value));
         currentDn.set(value);
     }
+
+    final static String good = "ążćę";
+    final static String bad = "????";
+    final static String badHash = "6U8L+rjJh6dDe6ThaXwcwA==";
+    final static String goodHash = "iIoEyIOGsGsDhWZMYNBTKQ==";
+
+    public void testLatin1Encoding() {
+        Charset latin1 = StandardCharsets.ISO_8859_1;
+        byte[] badBytes = bad.getBytes(latin1);
+        byte[] goodBytes = good.getBytes(latin1);
+        assertTrue(Arrays.equals(badBytes, goodBytes));
+        assertEquals(bad, new String(good.getBytes(latin1)));
+        PasswordUtil util = new PasswordUtil(sql, latin1);
+        assertEquals(badHash, util.passwordDigest(bad));
+        assertEquals(badHash, util.passwordDigest(good));
+    }
+
+    public void testUtf8Encoding() {
+        Charset utf8 = StandardCharsets.UTF_8;
+        assertEquals(good, new String(good.getBytes(utf8)));
+        PasswordUtil util = new PasswordUtil(sql, utf8);
+        assertEquals(badHash, util.passwordDigest(bad));
+        assertEquals(goodHash, util.passwordDigest(good));
+        assertFalse(goodHash.equals(badHash));
+    }
+
+
+    // ~ Helpers
+    // =========================================================================
 
     private void userIdReturnsNull() {
         mockSql.expects(once()).method("getUserId").will(returnValue(null));

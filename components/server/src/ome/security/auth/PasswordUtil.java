@@ -18,8 +18,8 @@
 
 package ome.security.auth;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Random;
 
@@ -62,6 +62,12 @@ public class PasswordUtil {
        }
     }
 
+    /**
+     * The default encoding, LATIN-1, is for backwards compatibility only.
+     * It is <em>highly</em> suggested to use an UTF-8 encoding instead.
+     */
+    public final static String DEFAULT_ENCODING = "ISO-8859-1";
+
     private final static Logger log = LoggerFactory.getLogger(PasswordUtil.class);
 
     private final SqlAction sql;
@@ -69,6 +75,8 @@ public class PasswordUtil {
     private final Roles roles;
 
     private final boolean passwordRequired;
+
+    private final Charset encoding;
 
     public PasswordUtil(SqlAction sql) {
         this(sql, new Roles(), true);
@@ -79,9 +87,14 @@ public class PasswordUtil {
     }
 
     public PasswordUtil(SqlAction sql, Roles roles, boolean passwordRequired) {
+        this(sql, roles, passwordRequired, Charset.forName(DEFAULT_ENCODING));
+    }
+
+    public PasswordUtil(SqlAction sql, Roles roles, boolean passwordRequired, Charset encoding) {
         this.sql = sql;
         this.roles = roles;
         this.passwordRequired = passwordRequired;
+        this.encoding = encoding;
     }
 
     /**
@@ -180,8 +193,7 @@ public class PasswordUtil {
      * Creates an MD5 hash of the given clear text and base64 encodes it.
      *
      * @DEV.TODO This should almost certainly be configurable as to encoding,
-     *           algorithm, character encoding, and possibly even the
-     *           implementation in general.
+     *           algorithm, and possibly even the implementation in general.
      */
     public String passwordDigest(String clearText) {
         return saltedPasswordDigest(null, clearText);
@@ -196,13 +208,7 @@ public class PasswordUtil {
             throw new ApiUsageException("Value for digesting may not be null");
         }
 
-        byte[] bytes = null;
-        try {
-            bytes = clearText.getBytes("ISO-8859-1"); // FIXME
-        } catch (UnsupportedEncodingException uee) {
-            log.warn("Unsupported charset ISO-8859-1. Using default");
-            bytes = clearText.getBytes();
-        }
+        byte[] bytes = clearText.getBytes(encoding);
 
         // If salting is activated, prepend the salt.
         if (userId != null) {
