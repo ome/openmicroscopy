@@ -151,7 +151,7 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
      * {@link #comparePasswords(String, String)}
      */
     public String encodePassword(String newPassword) {
-        return util.preparePassword(newPassword);
+        return encodePassword(null, newPassword, false, util);
     }
 
     /**
@@ -160,6 +160,11 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
      * with the given userId if it's provided.
      */
     public String encodeSaltedPassword(Long userId, String newPassword) {
+        return encodePassword(userId, newPassword, salt, util);
+    }
+
+    protected String encodePassword(Long userId, String newPassword,
+            boolean salt, PasswordUtil util) {
         if (salt) {
             return util.prepareSaltedPassword(userId, newPassword);
         } else {
@@ -210,12 +215,13 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
         } else if ("".equals(trusted.trim())) {
             return !util.isPasswordRequired(userId);
         } else {
-            if (userId != null && salt) {
-                if (trusted.equals(encodeSaltedPassword(userId, provided))) {
-                    return true;
-                }
+            boolean salt = (userId != null && this.salt);
+            String encoded = encodePassword(userId, provided, salt, util);
+            if (trusted.equals(encoded)) {
+                return true;
             }
-            return trusted.equals(encodePassword(provided)); // ok unsalted.
+            encoded = encodePassword(userId, provided, false, util);
+            return trusted.equals(encoded); // ok unsalted.
         }
     }
 
