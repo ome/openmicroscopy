@@ -546,7 +546,8 @@ create index eventlog_entitytype on eventlog(entitytype);
 create index eventlog_entityid on eventlog(entityid);
 create index eventlog_action on eventlog(action);
 
-create table password ( experimenter_id bigint primary key REFERENCES experimenter (id), hash char(24), dn text );
+create table password ( experimenter_id bigint primary key REFERENCES experimenter (id), hash VARCHAR(255), dn text,
+    changed TIMESTAMP WITHOUT TIME ZONE);
 insert into password values (0,'@ROOTPASS@');
 insert into password values (1,'');
 -- root can now login with omero.rootpass property value
