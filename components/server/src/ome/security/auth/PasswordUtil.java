@@ -191,8 +191,8 @@ public class PasswordUtil {
         // This allows setting passwords to "null" - locked account.
         // Also checks if empty passwords are to be considered "open-access"
         return newPassword == null
-                || (newPassword.isEmpty() && isPasswordRequired(userId)) ? null
-                : newPassword.isEmpty() ? newPassword
+                || (newPassword.trim().isEmpty() && isPasswordRequired(userId)) ? null
+                : newPassword.trim().isEmpty() ? newPassword
                 // Regular MD5 digest.
                         : saltedPasswordDigest(userId, newPassword);
     }
