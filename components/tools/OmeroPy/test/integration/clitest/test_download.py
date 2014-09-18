@@ -97,7 +97,7 @@ class TestDownload(CLITest):
     @pytest.mark.parametrize('prefix', ['', 'OriginalFile:'])
     def testOriginalFileMultipleGroups(self, prefix, capsys):
         user, group1, group2 = self.setup_user_and_two_groups()
-        client = self.new_client(user=user, password="ome")
+        client = self.new_client(user=user)
         ofile = self.create_original_file("test")
         self.set_context(client, group2.id.val)
         self.args += ['%s%s' % (prefix, str(ofile.id.val)), '-']
@@ -139,7 +139,7 @@ class TestDownload(CLITest):
 
     def testFileAnnotationMultipleGroups(self, capsys):
         user, group1, group2 = self.setup_user_and_two_groups()
-        client = self.new_client(user=user, password="ome")
+        client = self.new_client(user=user)
         ofile = self.create_original_file("test")
         fa = omero.model.FileAnnotationI()
         fa.setFile(ofile)
@@ -197,7 +197,7 @@ class TestDownload(CLITest):
 
     def testImageMultipleGroups(self, tmpdir):
         user, group1, group2 = self.setup_user_and_two_groups()
-        client = self.new_client(user=user, password="ome")
+        client = self.new_client(user=user)
         filename = self.OmeroPy / ".." / ".." / ".." / \
             "components" / "common" / "test" / "tinyTest.d3d.dv"
         with open(filename) as f:

@@ -140,7 +140,7 @@ class TestUser(CLITest):
         i1 = 'Please enter password for your user (%s): ' % login
         i2 = 'Please enter password to be set: '
         i3 = 'Please re-enter password to be set: '
-        getpass.getpass(i1).AndReturn('')
+        getpass.getpass(i1).AndReturn(login)
         getpass.getpass(i2).AndReturn(password)
         getpass.getpass(i3).AndReturn(password)
         self.mox.ReplayAll()
@@ -365,7 +365,6 @@ class TestUserRoot(RootCLITest):
 
         # Check session creation with a random password
         self.new_client(user=login, password=self.uuid)
-
 
     # Password subcommand
     # ========================================================================
