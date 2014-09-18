@@ -88,11 +88,16 @@ public class PasswordUtil {
         this(sql, new Roles(), passwordRequired);
     }
 
+    public PasswordUtil(SqlAction sql, Charset encoding) {
+        this(sql, new Roles(), true, encoding);
+    }
+
     public PasswordUtil(SqlAction sql, Roles roles, boolean passwordRequired) {
         this(sql, roles, passwordRequired, Charset.forName(DEFAULT_ENCODING));
     }
 
-    public PasswordUtil(SqlAction sql, Roles roles, boolean passwordRequired, Charset encoding) {
+    public PasswordUtil(SqlAction sql, Roles roles, boolean passwordRequired,
+            Charset encoding) {
         this.sql = sql;
         this.roles = roles;
         this.passwordRequired = passwordRequired;
