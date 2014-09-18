@@ -441,7 +441,10 @@ CUSTOM_SETTINGS_MAPPINGS = {
         "Redirect to the givin location after loging in. It only support " \
         "arguments for `Django reverse function <https://docs.djangoproject.com/en/1.6/ref/urlresolvers/#django.core.urlresolvers.reverse>`_. " \
         "For example: {\"redirect\": [\"webindex\"], \"viewname\": \"load_template\", \"args\":[\"userdata\"], \"query_string\": \"experimenter=-1\"}"],
-    "omero.web.apps": ["ADDITIONAL_APPS", '[]', json.loads, None],
+    "omero.web.apps":
+        ["ADDITIONAL_APPS",
+        '[]',json.loads,
+        "Add additional Django applications. For example, see :doc:`/developers/Web/CreateApp`"],
     "omero.web.databases": ["DATABASES", '{}', json.loads, None],
     "omero.web.page_size":
         ["PAGE",
