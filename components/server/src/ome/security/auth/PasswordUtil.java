@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2013 Glencoe Software, Inc. All rights reserved.
+ * Copyright (C) 2006-2014 Glencoe Software, Inc. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ import java.util.Random;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.security.SecuritySystem;
+import ome.system.Roles;
 import ome.util.SqlAction;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumProviderFactoryImpl;
@@ -65,8 +66,22 @@ public class PasswordUtil {
 
     private final SqlAction sql;
 
+    private final Roles roles;
+
+    private final boolean passwordRequired;
+
     public PasswordUtil(SqlAction sql) {
+        this(sql, new Roles(), true);
+    }
+
+    public PasswordUtil(SqlAction sql, boolean passwordRequired) {
+        this(sql, new Roles(), passwordRequired);
+    }
+
+    public PasswordUtil(SqlAction sql, Roles roles, boolean passwordRequired) {
         this.sql = sql;
+        this.roles = roles;
+        this.passwordRequired = passwordRequired;
     }
 
     /**
@@ -214,4 +229,18 @@ public class PasswordUtil {
         }
         return hashedText;
     }
+
+    /**
+     * Returns a boolean based on the supplied user ID and system property
+     * setting. If password requirement is switched off or the user is
+     * a guest user, then this returns <code>false</code>. In all other cases
+     * this returns <code>true</code>.
+     *
+     * @param id The user ID.
+     * @return boolean <code>true</code> or <code>false</code>
+     */
+    public boolean isPasswordRequired(Long id) {
+        return roles.getGuestId() != id && passwordRequired;
+    }
+
 }
