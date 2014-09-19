@@ -42,6 +42,8 @@ public class PasswordTest extends MockObjectTestCase {
 
     private final static Long GUEST_ID = new Roles().getGuestId();
 
+    private final static Long NON_GUEST_ID = new Roles().getGuestId() + 1;
+
     static File file = null;
     static {
         try {
@@ -86,10 +88,14 @@ public class PasswordTest extends MockObjectTestCase {
     }
 
     protected void initJdbc(Charset ch) {
+        initJdbc(ch, true);
+    }
+
+    protected void initJdbc(Charset ch, boolean requirePassword) {
         mockSql = mock(SqlAction.class);
         sql = (SqlAction) mockSql.proxy();
-        utf8Util = new PasswordUtil(sql, utf8);
-        latin1Util = new PasswordUtil(sql, latin1);
+        utf8Util = new PasswordUtil(sql, requirePassword, utf8);
+        latin1Util = new PasswordUtil(sql, requirePassword, latin1);
         if (utf8 == ch) {
             initProvider(utf8Util);
         } else {
@@ -582,6 +588,50 @@ public class PasswordTest extends MockObjectTestCase {
         assertFalse(util.isPasswordRequired(GUEST_ID));
     }
 
+    public void testNonstrictProviderAcceptsEmptyGuest() throws Exception {
+        initJdbc(utf8, false);
+        userIdReturns(GUEST_ID);
+        setHashCalledWith(eq(GUEST_ID), eq(""));
+        provider.changePassword("test", "");
+
+        userIdReturns(GUEST_ID);
+        getPasswordHash("");
+        assertTrue(provider.checkPassword("test", "", true));
+    }
+
+    public void testNonstrictProviderAcceptsEmptyUser() throws Exception {
+        initJdbc(utf8, false);
+        userIdReturns(NON_GUEST_ID);
+        setHashCalledWith(eq(NON_GUEST_ID), eq(""));
+        getPasswordHash("");
+        provider.changePassword("test", "");
+
+        userIdReturns(NON_GUEST_ID);
+        assertTrue(provider.checkPassword("test", "", true));
+    }
+
+    public void testStrictProviderAcceptsEmptyGuestLocks() throws Exception {
+        initJdbc(utf8, true);
+        userIdReturns(GUEST_ID);
+        setHashCalledWith(eq(GUEST_ID), eq(null));
+        provider.changePassword("test", "");
+
+        userIdReturns(GUEST_ID);
+        getPasswordHash(null);
+        assertFalse(provider.checkPassword("test", "", true));
+    }
+
+    public void testStrictProviderAcceptsEmptyUserLocks() throws Exception {
+        initJdbc(utf8, true);
+        userIdReturns(NON_GUEST_ID);
+        setHashCalledWith(eq(NON_GUEST_ID), eq(null));
+        provider.changePassword("test", "");
+
+        userIdReturns(NON_GUEST_ID);
+        getPasswordHash(null);
+        assertFalse(provider.checkPassword("test", "", true));
+    }
+
     // ~ Helpers
     // =========================================================================
 
@@ -604,7 +654,11 @@ public class PasswordTest extends MockObjectTestCase {
     }
 
     private void userIdReturns1() {
-        mockSql.expects(once()).method("getUserId").will(returnValue(new Long(1)));
+        userIdReturns(1L);
+    }
+
+    private void userIdReturns(Long id) {
+        mockSql.expects(once()).method("getUserId").will(returnValue(id));
     }
 
     private void ldapCreatesUser(boolean andReturns) {
