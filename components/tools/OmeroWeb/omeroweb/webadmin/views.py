@@ -41,7 +41,6 @@ import omeroweb.webclient.views
 
 from time import time
 
-from omero_version import build_year
 from omero_version import omero_version
 
 from django.conf import settings
@@ -335,7 +334,7 @@ def forgotten_password(request, **kwargs):
     else:
         form = ForgottonPasswordForm()
     
-    context = {'error':error, 'form':form, 'build_year':build_year, 'omero_version':omero_version}
+    context = {'error':error, 'form':form, 'omero_version':omero_version}
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)
