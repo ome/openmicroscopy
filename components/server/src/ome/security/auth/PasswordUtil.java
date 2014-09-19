@@ -89,7 +89,11 @@ public class PasswordUtil {
     }
 
     public PasswordUtil(SqlAction sql, Charset encoding) {
-        this(sql, new Roles(), true, encoding);
+        this(sql, true, encoding);
+    }
+
+    public PasswordUtil(SqlAction sql, boolean passwordRequired, Charset encoding) {
+        this(sql, new Roles(), passwordRequired, encoding);
     }
 
     public PasswordUtil(SqlAction sql, Roles roles, boolean passwordRequired) {
