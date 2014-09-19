@@ -8,7 +8,6 @@ package ome.server.utests.sec;
 
 import java.io.File;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -63,7 +62,7 @@ public class PasswordTest extends MockObjectTestCase {
         }
     }
 
-    Charset latin1 = StandardCharsets.ISO_8859_1, utf8 = StandardCharsets.UTF_8;
+    Charset latin1 = Charset.forName("ISO-8859-1"), utf8 = Charset.forName("UTF-8");
 
     PasswordProvider provider;
 
