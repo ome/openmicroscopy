@@ -126,8 +126,11 @@ public class PermissionsTestAll extends AbstractServerTest {
         return "rw----"; // private group;
     }
 
+    /**
+     * Sets up the groups.
+     * @throws Exception Thrown if an error occurred.
+     */
     void setGroupUp() throws Exception {
-        // super.setUp();
         omero.client client = newRootOmeroClient();
         client.enableKeepAlive(60);
         factory = client.getSession();
@@ -210,15 +213,16 @@ public class PermissionsTestAll extends AbstractServerTest {
         client.closeSession();
     }
 
+    /**
+     * Creates 11 images for each user.
+     * @throws Exception Thrown if an error occurred during creation.
+     */
     void testImagesSetup() throws Exception {
 
-        // setGroupUp();
         // Iterate through all the users
         for (int i = 0; i < users.length; i++) {
 
             omero.client client = new omero.client();
-            client.closeSession();
-
             ServiceFactoryPrx session = client.createSession(users[i], password);
             client.enableKeepAlive(60);
 
@@ -236,7 +240,7 @@ public class PermissionsTestAll extends AbstractServerTest {
                 iUpdate = session.getUpdateService();
                 mmFactory = new ModelMockFactory(session.getPixelsService());
 
-                // Create 3 new Image Objects(with pixels) and attach it to the
+                // Create new Image Objects(with pixels) and attach it to the
                 // session
                 for (int k = 0; k <= 10; k++) {
                     Image img = (Image) iUpdate.saveAndReturnObject(mmFactory
@@ -250,7 +254,11 @@ public class PermissionsTestAll extends AbstractServerTest {
         }
     }
 
-    // Fetches imageids from all the users and stores them to an ArrayList
+    /**
+     * Retrieves all the images of a given user.
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
     List<Long[]> getAllImages() throws Exception {
 
         List<Long[]> idlist = new ArrayList<Long[]>();
@@ -298,7 +306,10 @@ public class PermissionsTestAll extends AbstractServerTest {
 
     }
 
-    // Iterate through all the users and try to annotate the images
+    /**
+     * Annotates all the images created.
+     * @throws Exception Thrown if an error occurred.
+     */
     void annotateAllImages() throws Exception {
 
         // testImagesSetup();
@@ -407,6 +418,10 @@ public class PermissionsTestAll extends AbstractServerTest {
 
     }
 
+    /**
+     * Generates data for each user.
+     * @return
+     */
     @DataProvider(name = "createData")
     public Object[][] createData() {
         List<TestParam> map = new ArrayList<TestParam>();
@@ -481,6 +496,11 @@ public class PermissionsTestAll extends AbstractServerTest {
 
     }
 
+    /**
+     * Tests the move of data.
+     * @param param Hold information about the data to move.
+     * @throws Exception Thrown if an error occurred.
+     */
     @Test(dataProvider = "createData")
     public void test(TestParam param) throws Exception {
         String username = param.getUser();
@@ -504,22 +524,11 @@ public class PermissionsTestAll extends AbstractServerTest {
         CmdCallbackI cb = new CmdCallbackI(client, handle1);
         cb.loop(10 * all.requests.size(), timeout_move);
         Response response = cb.getResponse();
+        Long userid = session1.getAdminService().getEventContext().userId;
+        long targetgroup = param.getChgrp().grp;
+        long imageid = param.getChgrp().id;
+        
         if (response == null) {
-            System.out.print("Failure");
-            System.out.printf("%n");
-        }
-        if (response instanceof DoAllRsp) {
-
-            List<Response> responses = ((DoAllRsp) response).responses;
-            if (responses.size() == 1) {
-                Response r = responses.get(0);
-                Assert.assertTrue(r instanceof OK, "move OK");
-            }
-        } else if (response instanceof ERR) {
-            long targetgroup = param.getChgrp().grp;
-            long imageid = param.getChgrp().id;
-            Long userid = session1.getAdminService().getEventContext().userId;
-
             ExperimenterGroup group2 = session1.getAdminService().getGroup(
                     sourcegroup);
             PermissionData perms = new PermissionData(group2.getDetails()
@@ -531,7 +540,30 @@ public class PermissionsTestAll extends AbstractServerTest {
             PermissionData perms1 = new PermissionData(group1.getDetails()
                     .getPermissions());
             String permsAsString1 = getPermissions(perms1.getPermissionsLevel());
+            Assert.fail("Failure : User id: " + userid + " (" + username + ")"
+                    + " tried moving image " + imageid + " from " + sourcegroup
+                    + "(" + permsAsString + ")" + " to " + targetgroup + "("
+                    + permsAsString1 + ")");
+        }
+        if (response instanceof DoAllRsp) {
 
+            List<Response> responses = ((DoAllRsp) response).responses;
+            if (responses.size() == 1) {
+                Response r = responses.get(0);
+                Assert.assertTrue(r instanceof OK, "move OK");
+            }
+        } else if (response instanceof ERR) {
+            ExperimenterGroup group2 = session1.getAdminService().getGroup(
+                    sourcegroup);
+            PermissionData perms = new PermissionData(group2.getDetails()
+                    .getPermissions());
+            String permsAsString = getPermissions(perms.getPermissionsLevel());
+
+            ExperimenterGroup group1 = session1.getAdminService().getGroup(
+                    targetgroup);
+            PermissionData perms1 = new PermissionData(group1.getDetails()
+                    .getPermissions());
+            String permsAsString1 = getPermissions(perms1.getPermissionsLevel());
             Assert.fail("Failure : User id: " + userid + " (" + username + ")"
                     + " tried moving image " + imageid + " from " + sourcegroup
                     + "(" + permsAsString + ")" + " to " + targetgroup + "("
@@ -560,16 +592,32 @@ public class PermissionsTestAll extends AbstractServerTest {
         return fileset;
     }
 
+    /**
+     * Inner class hosting information about object to move.
+     *
+     */
     class TestParam {
 
+        /** Hold information about the object to move.*/
         private Chgrp chgrp;
 
+        /** The user to log as.*/
         private String user;
 
+        /** The user's password.*/
         private String password;
 
+        /** The identifier of the group to move the data from.*/
         private Long srcID;
 
+        /**
+         * Creates a new instance.
+         *
+         * @param chgrp Hold information about the object to move.
+         * @param user The user to log as.
+         * @param password The user's password.
+         * @param srcID The identifier of the group to move the data from.
+         */
         TestParam(Chgrp chgrp, String user, String password, Long srcID) {
             this.chgrp = chgrp;
             this.user = user;
@@ -577,18 +625,38 @@ public class PermissionsTestAll extends AbstractServerTest {
             this.srcID = srcID;
         }
 
+        /**
+         * Returns the information object to move.
+         *
+         * @return See above.
+         */
         Chgrp getChgrp() {
             return chgrp;
         }
 
+        /**
+         * Returns the user to log as.
+         *
+         * @return See above.
+         */
         String getUser() {
             return user;
         }
 
+        /**
+         * Returns the user's password.
+         *
+         * @return See above.
+         */
         String getPass() {
             return password;
         }
 
+        /**
+         * Returns the identifier of the group to move the data from.
+         *
+         * @return See above.
+         */
         Long getsrcID() {
             return srcID;
         }
