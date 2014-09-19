@@ -41,6 +41,7 @@ import omeroweb.webclient.views
 
 from time import time
 
+from omero_version import build_year
 from omero_version import omero_version
 
 from django.conf import settings
@@ -303,13 +304,16 @@ def forgotten_password(request, **kwargs):
     conn = None
     error = None
     blitz = None
-    
+
+    def getGuestConnection(server_id):
+        return Connector(server_id, True).create_guest_connection('OMERO.web')
+
     if request.method == 'POST':
         form = ForgottonPasswordForm(data=request.REQUEST.copy())
         if form.is_valid():
-            blitz = Server.get(pk=request.REQUEST.get('server'))
+            server_id = request.REQUEST.get('server')
             try:
-                conn = getGuestConnection(blitz.host, blitz.port)
+                conn = getGuestConnection(server_id)
                 if not conn.isForgottenPasswordSet():
                     error = "This server cannot reset password. Please contact your administrator."
                     conn = None
@@ -322,13 +326,16 @@ def forgotten_password(request, **kwargs):
                     conn.reportForgottenPassword(smart_str(request.REQUEST.get('username')), smart_str(request.REQUEST.get('email')))
                     error = "Password was reseted. Check you mailbox."
                     form = None
-                except Exception, x:
+                except omero.SecurityViolation, sv:
+                    logger.error(traceback.format_exc())
+                    error = sv.message
+                except Exception:
                     logger.error(traceback.format_exc())
                     error = "Internal server error, please contact administrator."
     else:
         form = ForgottonPasswordForm()
     
-    context = {'error':error, 'form':form}    
+    context = {'error':error, 'form':form, 'build_year':build_year, 'omero_version':omero_version}
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)
