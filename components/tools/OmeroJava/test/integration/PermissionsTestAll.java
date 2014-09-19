@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 
 import omero.RLong;
@@ -543,7 +545,7 @@ public class PermissionsTestAll extends AbstractServerTest {
             Assert.fail("Failure : User id: " + userid + " (" + username + ")"
                     + " tried moving image " + imageid + " from " + sourcegroup
                     + "(" + permsAsString + ")" + " to " + targetgroup + "("
-                    + permsAsString1 + ")");
+                    + permsAsString1 + ") no response returned");
         }
         if (response instanceof DoAllRsp) {
 
@@ -564,10 +566,19 @@ public class PermissionsTestAll extends AbstractServerTest {
             PermissionData perms1 = new PermissionData(group1.getDetails()
                     .getPermissions());
             String permsAsString1 = getPermissions(perms1.getPermissionsLevel());
+            ERR err = (ERR) response;
+            Map<String, String> map = err.parameters;
+            Entry<String, String> e;
+            Iterator<Entry<String, String>> i = map.entrySet().iterator();
+            StringBuffer buf = new StringBuffer();
+            while (i.hasNext()) {
+                e = i.next();
+                buf.append(e.getKey()+" -> "+e.getValue());
+            }
             Assert.fail("Failure : User id: " + userid + " (" + username + ")"
                     + " tried moving image " + imageid + " from " + sourcegroup
                     + "(" + permsAsString + ")" + " to " + targetgroup + "("
-                    + permsAsString1 + ")");
+                    + permsAsString1 + ") "+buf.toString());
         }
         client.closeSession();
     }
