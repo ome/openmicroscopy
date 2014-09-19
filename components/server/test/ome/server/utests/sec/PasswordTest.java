@@ -92,14 +92,18 @@ public class PasswordTest extends MockObjectTestCase {
     }
 
     protected void initJdbc(Charset ch, boolean requirePassword) {
+        initJdbc(ch, requirePassword, true);
+    }
+
+    protected void initJdbc(Charset ch, boolean requirePassword, boolean salt) {
         mockSql = mock(SqlAction.class);
         sql = (SqlAction) mockSql.proxy();
         utf8Util = new PasswordUtil(sql, requirePassword, utf8);
         latin1Util = new PasswordUtil(sql, requirePassword, latin1);
         if (utf8 == ch) {
-            initProvider(utf8Util);
+            initProvider(utf8Util, salt);
         } else {
-            initProvider(latin1Util);
+            initProvider(latin1Util, salt);
         }
     }
 
@@ -628,6 +632,18 @@ public class PasswordTest extends MockObjectTestCase {
         assertTrue(provider.checkPassword("test", "", true));
     }
 
+    public void testStrictProviderAcceptsEmptyGuestNoSaltStillNoLock() throws Exception {
+        // Now without salting turned on, see if we can still have
+        // the "require_password" setting adhered to.
+        initJdbc(utf8, true, false);
+        userIdReturns(GUEST_ID);
+        setHashCalledWith(eq(GUEST_ID), eq(""));
+        provider.changePassword("test", "");
+
+        userIdReturns(GUEST_ID);
+        getPasswordHash("");
+        assertTrue(provider.checkPassword("test", "", true));
+    }
     public void testStrictProviderAcceptsEmptyUserLocks() throws Exception {
         initJdbc(utf8, true);
         userIdReturns(NON_GUEST_ID);
