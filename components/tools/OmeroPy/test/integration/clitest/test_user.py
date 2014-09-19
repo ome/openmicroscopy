@@ -130,10 +130,14 @@ class TestUser(CLITest):
 
     # Password subcommand
     # ========================================================================
-    def testPassword(self):
+    @pytest.mark.parametrize("is_unicode", [True, False])
+    def testPassword(self, is_unicode):
         self.args += ["password"]
-        password = self.uuid()
         login = self.sf.getAdminService().getEventContext().userName
+        if is_unicode:
+            password = "ążćę"
+        else:
+            password = self.uuid()
 
         self.setup_mock()
         self.mox.StubOutWithMock(getpass, 'getpass')
@@ -154,6 +158,15 @@ class TestUser(CLITest):
         # Check session creation fails with a random password
         with pytest.raises(PermissionDeniedException):
             self.new_client(user=login, password=self.uuid)
+
+        if is_unicode:
+            # Check session creation fails with a combination of unicode
+            # characters
+            with pytest.raises(PermissionDeniedException):
+                self.new_client(user=login, password="żąćę")
+            # Check session creation fails with question marks
+            with pytest.raises(PermissionDeniedException):
+                self.new_client(user=login, password="????")
 
 
 class TestUserRoot(RootCLITest):
@@ -302,23 +315,22 @@ class TestUserRoot(RootCLITest):
         assert user.id.val in self.getuserids(group.id.val)
 
     @pytest.mark.parametrize("password_prefix", password_prefixes)
-    def testAddPassword(self, password_prefix):
+    @pytest.mark.parametrize("is_unicode", [True, False])
+    def testAddPassword(self, password_prefix, is_unicode):
         group = self.new_group()
         login = self.uuid()
         firstname = self.uuid()
         lastname = self.uuid()
+        if is_unicode:
+            password = "ążćę"
+        else:
+            password = self.uuid()
 
         self.args += ["add", login, firstname, lastname]
         self.args += ["%s" % group.id.val]
         if password_prefix:
-            self.args += [password_prefix]
-            if password_prefix != '--no-password':
-                password = self.uuid()
-                self.args += ["%s" % password]
-            else:
-                password = None
+            self.args += [password_prefix, "%s" % password]
         else:
-            password = self.uuid()
             self.setup_mock()
             self.mox.StubOutWithMock(getpass, 'getpass')
             i1 = 'Please enter password for your new user (%s): ' % login
@@ -368,19 +380,22 @@ class TestUserRoot(RootCLITest):
 
     # Password subcommand
     # ========================================================================
-    def testPassword(self):
+    @pytest.mark.parametrize("is_unicode", [True, False])
+    def testPassword(self, is_unicode):
         user = self.new_user()
         login = user.omeName.val
         self.args += ["password", "%s" % login]
-        root_password = self.root.getProperty("omero.rootpass")
-        password = self.uuid()
+        if is_unicode:
+            password = "ążćę"
+        else:
+            password = self.uuid()
 
         self.setup_mock()
         self.mox.StubOutWithMock(getpass, 'getpass')
         i1 = 'Please enter password for your user (root): '
         i2 = 'Please enter password to be set: '
         i3 = 'Please re-enter password to be set: '
-        getpass.getpass(i1).AndReturn(root_password)
+        getpass.getpass(i1).AndReturn(self.root.getProperty("omero.rootpass"))
         getpass.getpass(i2).AndReturn(password)
         getpass.getpass(i3).AndReturn(password)
         self.mox.ReplayAll()
@@ -394,3 +409,12 @@ class TestUserRoot(RootCLITest):
         # Check session creation fails with a random password
         with pytest.raises(PermissionDeniedException):
             self.new_client(user=login, password=self.uuid)
+
+        if is_unicode:
+            # Check session creation fails with a combination of unicode
+            # characters
+            with pytest.raises(PermissionDeniedException):
+                self.new_client(user=login, password="żąćę")
+            # Check session creation fails with question marks
+            with pytest.raises(PermissionDeniedException):
+                self.new_client(user=login, password="????")
