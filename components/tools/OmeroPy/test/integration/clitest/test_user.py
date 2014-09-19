@@ -19,6 +19,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+from omero.cli import NonZeroReturnCode
 from omero.plugins.user import UserControl
 from test.integration.clitest.cli import CLITest, RootCLITest
 from Glacier2 import PermissionDeniedException
@@ -262,7 +263,7 @@ class TestUserRoot(RootCLITest):
             self.args += [institution_prefix, institution]
         if admin_prefix:
             self.args += [admin_prefix]
-        self.args += ['--no-password']
+        self.args += ['-P', login]
         self.cli.invoke(self.args, strict=True)
 
         # Check user has been added to the list of member/owners
@@ -292,7 +293,7 @@ class TestUserRoot(RootCLITest):
         if group_prefix:
             self.args += [group_prefix]
         self.args += ["%s" % getattr(group, group_attr).val]
-        self.args += ['--no-password']
+        self.args += ['-P', login]
         self.cli.invoke(self.args, strict=True)
 
         # Check user has been added to the list of member/owners
@@ -354,17 +355,10 @@ class TestUserRoot(RootCLITest):
         self.args += ["%s" % group.id.val]
         self.args += ["--no-password"]
 
-        self.cli.invoke(self.args, strict=True)
-
-        # Check user has been added to the list of member/owners
-        user = self.sf.getAdminService().lookupExperimenter(login)
-        assert user.omeName.val == login
-        assert user.firstName.val == firstname
-        assert user.lastName.val == lastname
-        assert user.id.val in self.getuserids(group.id.val)
-
-        # Check session creation with a random password
-        self.new_client(user=login, password=self.uuid)
+        # Assumes the server has the default configuration, i.e.
+        # password_required=true
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
 
     # Password subcommand
     # ========================================================================
