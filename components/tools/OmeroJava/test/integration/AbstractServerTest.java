@@ -532,8 +532,12 @@ public class AbstractServerTest extends AbstractTest {
         e.setOmeName(omero.rtypes.rstring(uuid));
         e.setFirstName(omero.rtypes.rstring("integration"));
         e.setLastName(omero.rtypes.rstring("tester"));
+        List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
+        ExperimenterGroup userGroup = svc.lookupGroup(USER_GROUP);
+        groups.add(group);
+        groups.add(userGroup);
         long id = rootAdmin.createExperimenterWithPassword(e,
-                omero.rtypes.rstring(uuid), group, Collections.EMPTY_LIST);
+                omero.rtypes.rstring(uuid), group, groups);
         e = rootAdmin.getExperimenter(id);
         rootAdmin.addGroups(e, Arrays.asList(group));
         if (owner) {
