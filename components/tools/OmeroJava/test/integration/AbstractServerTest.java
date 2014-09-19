@@ -533,7 +533,7 @@ public class AbstractServerTest extends AbstractTest {
         e.setFirstName(omero.rtypes.rstring("integration"));
         e.setLastName(omero.rtypes.rstring("tester"));
         List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
-        ExperimenterGroup userGroup = svc.lookupGroup(USER_GROUP);
+        ExperimenterGroup userGroup = rootAdmin.lookupGroup(USER_GROUP);
         groups.add(group);
         groups.add(userGroup);
         long id = rootAdmin.createExperimenterWithPassword(e,
