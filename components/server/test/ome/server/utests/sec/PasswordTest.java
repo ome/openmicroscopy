@@ -104,7 +104,11 @@ public class PasswordTest extends MockObjectTestCase {
     }
 
     protected void initProvider(PasswordUtil util) {
-        provider = new JdbcPasswordProvider(util);
+        initProvider(util, true);;
+    }
+
+    protected void initProvider(PasswordUtil util, boolean salt) {
+        provider = new JdbcPasswordProvider(util, false, salt);
         ((JdbcPasswordProvider) provider).setApplicationContext(
                 new OmeroContext(new String[]{}));
     }
@@ -494,7 +498,9 @@ public class PasswordTest extends MockObjectTestCase {
     final static String good = "ążćę";
     final static String bad = "????";
     final static String badHash = "6U8L+rjJh6dDe6ThaXwcwA==";
+    final static String badHashSalt1 = "AfSXrwNujnMYx1CagyujVA==";
     final static String goodHash = "iIoEyIOGsGsDhWZMYNBTKQ==";
+    final static String goodHashSalt1 = "RBH/4oA/c43qLXeotWM/XA==";
 
     public void testLatin1Encoding() {
         final PasswordUtil latin1Util = new PasswordUtil(sql, latin1);
@@ -519,7 +525,7 @@ public class PasswordTest extends MockObjectTestCase {
 
         // Setting the password with latin1 uses the bad hash
         userIdReturns1();
-        setHashCalledWith(eq(1L), eq(badHash));
+        setHashCalledWith(eq(1L), eq(badHashSalt1));
         provider.changePassword("test", good);
 
         // Checking the password whether good or bad passes
@@ -557,17 +563,17 @@ public class PasswordTest extends MockObjectTestCase {
 
         // Setting the password with utf8 uses the good hash
         userIdReturns1();
-        setHashCalledWith(eq(1L), eq(goodHash));
+        setHashCalledWith(eq(1L), eq(goodHashSalt1));
         provider.changePassword("test", good);
 
         // Only checking the password with good passes.
         // 1) Good: yes
         userIdReturns1();
-        getPasswordHash(goodHash);
+        getPasswordHash(goodHashSalt1);
         assertTrue(provider.checkPassword("test", good, true));
         // 2) Bad: NO!
         userIdReturns1();
-        getPasswordHash(goodHash);
+        getPasswordHash(goodHashSalt1);
         assertFalse(provider.checkPassword("test", bad, true));
     }
 
@@ -610,15 +616,15 @@ public class PasswordTest extends MockObjectTestCase {
         assertTrue(provider.checkPassword("test", "", true));
     }
 
-    public void testStrictProviderAcceptsEmptyGuestLocks() throws Exception {
+    public void testStrictProviderAcceptsEmptyGuestNoLock() throws Exception {
         initJdbc(utf8, true);
         userIdReturns(GUEST_ID);
-        setHashCalledWith(eq(GUEST_ID), eq(null));
+        setHashCalledWith(eq(GUEST_ID), eq(""));
         provider.changePassword("test", "");
 
         userIdReturns(GUEST_ID);
-        getPasswordHash(null);
-        assertFalse(provider.checkPassword("test", "", true));
+        getPasswordHash("");
+        assertTrue(provider.checkPassword("test", "", true));
     }
 
     public void testStrictProviderAcceptsEmptyUserLocks() throws Exception {
