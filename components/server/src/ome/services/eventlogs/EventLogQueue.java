@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import ome.model.IObject;
 import ome.model.containers.Dataset;
@@ -316,7 +317,7 @@ public class EventLogQueue extends PersistentEventLogLoader {
                 regularCount.dec();
                 which = "regular";
             } else {
-                throw new IllegalStateException("None available");
+                throw new NoSuchElementException();
             }
             entries(entry.objType).entries.remove(entry.objId);
             log.debug("Returning {}. Remaining: priority={}, regular={}",

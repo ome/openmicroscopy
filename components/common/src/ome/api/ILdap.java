@@ -8,6 +8,7 @@
 package ome.api;
 
 import java.util.List;
+import java.util.Map;
 
 import ome.annotations.NotNull;
 import ome.model.meta.Experimenter;
@@ -163,4 +164,13 @@ public interface ILdap extends ServiceInterface {
      * @return created Experimenter or null
      */
     Experimenter createUser(@NotNull String username);
+
+    /**
+     * Discovers DNs for {@link ome.model.meta.Experimenter}s who are present in
+     * the remote LDAP server but their DN in the OMERO DB is missing or no
+     * longer matches.
+     *
+     * @return list of DN-to-Experimenter maps.
+     */
+     Map<String, Experimenter> discover();
 }

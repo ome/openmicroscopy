@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -46,11 +46,13 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.ImageData;
 
 /** 
  * Defines the interface provided by the viewer component. 
@@ -679,4 +681,31 @@ public interface MetadataViewer
 	 */
 	ExperimenterData getCurrentUser();
 
+	/**
+         * Sets a reference to an image which settings can be applied (copied) to 
+         * the renderer.
+         * See also {@link #applyCopiedRndSettings()}
+         */
+	void setRndSettingsToCopy(ImageData img);
+	
+	/**
+         * Sets 'pending' rendering settings (not yet stored with an image) which
+         * can be applied (copied) to the renderer.
+         * See also {@link #applyCopiedRndSettings()}
+         */
+	void setRndSettingsToCopy(RndProxyDef def);
+	
+	/**
+         * Applies the settings of a previous set image to
+         * the renderer (does not save them).
+         * See also {@link #setRndSettingsToCopy(ImageData)}
+         */
+	void applyCopiedRndSettings();
+	
+        /**
+         * Returns if there are copied rendering settings which could be pasted.
+         * 
+         * @return
+         */
+        boolean hasRndSettingsCopied();
 }

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -33,6 +33,7 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import pojos.DataObject;
 import pojos.ImageData;
 import pojos.WellSampleData;
@@ -251,5 +252,67 @@ public class MetadataViewerFactory
 		if (comp.getState() == MetadataViewer.DISCARDED && viewers.size() > 0) 
 			viewers.remove(comp);
 	}
+	
+	/**
+         * Sets a reference to an image which settings can be applied (copied) to 
+         * the renderer.
+         * See also {@link #applyCopiedRndSettings()}
+         */
+	public static void setRndSettingsToCopy(ImageData img) {
+	    for(MetadataViewer viewer : singleton.viewers) {
+	        viewer.setRndSettingsToCopy(img);
+	    }
+	}
+	
+	/**
+         * Sets 'pending' rendering settings (not yet stored with an image) which
+         * can be applied (copied) to the renderer.
+         * See also {@link #applyCopiedRndSettings()}
+         */
+	public static void setRndSettingsToCopy(RndProxyDef def) {
+            for(MetadataViewer viewer : singleton.viewers) {
+                viewer.setRndSettingsToCopy(def);
+            }
+        }
+	
+	/**
+         * Applies the settings of a previous set image to
+         * the renderer (does not save them).
+         * See also {@link #setRndSettingsToCopy(ImageData)}
+         */
+	public static void applyCopiedRndSettings(long imageId) {
+	    for(MetadataViewer viewer : singleton.viewers) {
+	        Object obj = viewer.getRefObject();
+	        if(obj instanceof ImageData) {
+	            ImageData img = (ImageData) obj;
+	            if(img.getId()==imageId) {
+	                viewer.applyCopiedRndSettings();
+	            }
+	        }
+               
+            }
+	}
+	
+	/**
+         * Checks if there have been rendering settings copied
+         * which could be pasted to the image with the given imageId.
+         *
+         * @param imageId  The image to check for copied rendering
+         *                 settings
+         *
+         * @return See above
+         */
+	public static boolean hasRndSettingsCopied(long imageId) {
+	    for(MetadataViewer viewer : singleton.viewers) {
+	        Object obj = viewer.getRefObject();
+                if(obj instanceof ImageData) {
+                    ImageData img = (ImageData) obj;
+                    if(img.getId()==imageId) {
+                        return viewer.hasRndSettingsCopied();
+                    }
+                }
+	    }
+	    return false;
+        }
 	
 }

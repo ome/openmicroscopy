@@ -45,6 +45,8 @@ endif(POLICY CMP0042)
 
 project(openmicroscopy)
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 include(components/tools/OmeroCpp/cmake/Version.cmake)
 
 if("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
@@ -73,15 +75,6 @@ endif($ENV{SLICEPATH})
 find_package(Ice 3.4.0 REQUIRED COMPONENTS Ice IceUtil Glacier2)
 
 find_package(Threads REQUIRED)
-
-# Unit tests
-find_package(GTest)
-set(BUILD_TESTS OFF)
-if(GTEST_FOUND)
-  set(BUILD_TESTS ON)
-endif(GTEST_FOUND)
-option(test "Enable unit tests (requires gtest)" ${BUILD_TESTS})
-set(BUILD_TESTS ${test})
 
 # Set Ice environment based upon the FindIce results (for build.py).
 get_filename_component(ICE_BINARY_DIR "${Ice_SLICE2CPP_EXECUTABLE}" PATH)

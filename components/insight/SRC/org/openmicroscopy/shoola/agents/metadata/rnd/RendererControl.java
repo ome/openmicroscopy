@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Point;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
@@ -47,6 +48,7 @@ import org.openmicroscopy.shoola.agents.metadata.actions.PlaneSlicingAction;
 import org.openmicroscopy.shoola.agents.metadata.actions.ReverseIntensityAction;
 import org.openmicroscopy.shoola.agents.metadata.actions.RndAction;
 import org.openmicroscopy.shoola.agents.metadata.actions.ViewAction;
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
@@ -123,6 +125,12 @@ class RendererControl
     /** Identifies the action to redo the changes. */
     static final Integer    RND_REDO = Integer.valueOf(17);
     
+    /** Identifies the action to copy the rendering settings. */
+    static final Integer COPY = Integer.valueOf(18);
+    
+    /** Identifies the action to paste the rendering settings. */
+    static final Integer PASTE = Integer.valueOf(19);
+    
     /**
      * Reference to the {@link Renderer} component, which, in this context,
      * is regarded as the Model.
@@ -159,7 +167,7 @@ class RendererControl
         		ManageRndSettingsAction.ABSOLUTE_MIN_MAX));
         actionsMap.put(SAVE, new ManageRndSettingsAction(model, 
         		ManageRndSettingsAction.SAVE));
-        
+
         ManageRndSettingsAction a = new ManageRndSettingsAction(model, 
                 ManageRndSettingsAction.UNDO);
         a.setEnabled(false);
@@ -169,6 +177,16 @@ class RendererControl
                 ManageRndSettingsAction.REDO);
         a.setEnabled(false);
         actionsMap.put(RND_REDO, a);
+        
+        a = new ManageRndSettingsAction(model, 
+                ManageRndSettingsAction.COPY);
+        actionsMap.put(COPY, a);
+        
+        a = new ManageRndSettingsAction(model, 
+                ManageRndSettingsAction.PASTE);
+        a.setEnabled(false);
+        actionsMap.put(PASTE, a);
+        
     }
     
     /** 
@@ -186,7 +204,19 @@ class RendererControl
      * 
      * @param channel The index of the selected channel.
      */
-    private void showColorPicker(int channel)
+    void showColorPicker(int channel)
+    {
+        showColorPicker(channel, null);
+    }
+    
+    /**
+     * Brings up the color picker with the color associated to the passed
+     * channel.
+     * 
+     * @param channel The index of the selected channel.
+     * @param location The location where to show the dialog
+     */
+    void showColorPicker(int channel, Point location)
     {
 		colorPickerIndex = channel;
 		Color c = view.getChannelColor(channel);
@@ -194,7 +224,10 @@ class RendererControl
 		ColourPicker dialog = new ColourPicker(f, c);
 		dialog.setPreviewVisible(true);
 		dialog.addPropertyChangeListener(this);
-		UIUtilities.centerAndShow(dialog);
+		if (location == null)
+		    UIUtilities.centerAndShow(dialog);
+		else
+		    UIUtilities.showOnScreen(dialog, location);
     }
     
     /** 
@@ -337,6 +370,15 @@ class RendererControl
 	}
     
     /**
+     * Enables/Disables the paste action depending on if 
+     * there are rendering settings which can be pasted
+     */
+	void updatePasteAction() {
+	    boolean enabled = MetadataViewerFactory.hasRndSettingsCopied(model.getRefImage().getId());
+	    actionsMap.get(PASTE).setEnabled(enabled);
+	}
+	
+    /**
      * Reacts to property change events.
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
      */
@@ -353,8 +395,6 @@ class RendererControl
             boolean value = (Boolean)evt.getNewValue();
             actionsMap.get(RND_UNDO).setEnabled(value);
         }
-        
-        enableActions();
         
         /*
         } else if (name.equals(
@@ -398,14 +438,17 @@ class RendererControl
 		} else if (Renderer.T_SELECTED_PROPERTY.equals(name)) {
 			view.setTimepoint(((Integer) evt.getNewValue()).intValue());
 		}   
+        
+        if(Renderer.SAVE_SETTINGS_PROPERTY.equals(name)) {
+            actionsMap.get(SAVE).setEnabled(false);
+        } 
+        else {
+            boolean settingsModified = model.isModified();
+            actionsMap.get(SAVE).setEnabled(settingsModified && model.canAnnotate());
+        }
+        
+        boolean pasteEnabled = MetadataViewerFactory.hasRndSettingsCopied(model.getRefImage().getId());
+        actionsMap.get(PASTE).setEnabled(pasteEnabled);
     }
 
-    /**
-     * Enables/Disables actions depending on if the current
-     * settings have been modified
-     */
-    public void enableActions() {
-        boolean settingsModified = model.isModified();
-        actionsMap.get(SAVE).setEnabled(settingsModified);
-    }
 }

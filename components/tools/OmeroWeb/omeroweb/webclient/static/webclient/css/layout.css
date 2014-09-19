@@ -293,10 +293,6 @@
 	                }
             
             
-          
-		
-		
-
 
 
     /* Left Panel - Toolbar */
@@ -673,8 +669,8 @@
             overflow:hidden;
             float:left;
             width:90%;
-			color:#666;
-			display:inline-block;
+            color:#666;
+            word-wrap: break-word;
         }
             
         .description img {

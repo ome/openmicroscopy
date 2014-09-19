@@ -11,6 +11,7 @@
 
 #include <omero/Scripts.h>
 #include <omero/RTypes.h>
+#include <omero/model/RTypes.h>
 #include <Ice/Ice.h>
 #include <IceUtil/Config.h>
 #include <Ice/Handle.h>
@@ -86,10 +87,13 @@ namespace omero {
             virtual bool getValue(const Ice::Current& current = Ice::Current());
             virtual Ice::Int compare(const RTypePtr& rhs, const Ice::Current& current = Ice::Current());
         };
+        OMERO_CLIENT
         bool operator<(const RBoolPtr& lhs,
                        const RBoolPtr& rhs);
+        OMERO_CLIENT
         bool operator>(const RBoolPtr& lhs,
                        const RBoolPtr& rhs);
+        OMERO_CLIENT
         bool operator==(const RBoolPtr& lhs,
                         const RBoolPtr& rhs);
 
@@ -101,10 +105,13 @@ namespace omero {
             virtual Ice::Double getValue(const Ice::Current& current = Ice::Current());
             virtual Ice::Int compare(const RTypePtr& rhs, const Ice::Current& current = Ice::Current());
         };
+        OMERO_CLIENT
         bool operator<(const RDoublePtr& lhs,
                        const RDoublePtr& rhs);
+        OMERO_CLIENT
         bool operator>(const RDoublePtr& lhs,
                        const RDoublePtr& rhs);
+        OMERO_CLIENT
         bool operator==(const RDoublePtr& lhs,
                         const RDoublePtr& rhs);
 
@@ -116,10 +123,13 @@ namespace omero {
             virtual Ice::Float getValue(const Ice::Current& current = Ice::Current());
             virtual Ice::Int compare(const RTypePtr& rhs, const Ice::Current& current = Ice::Current());
         };
+        OMERO_CLIENT
         bool operator<(const RFloatPtr& lhs,
                        const RFloatPtr& rhs);
+        OMERO_CLIENT
         bool operator>(const RFloatPtr& lhs,
                        const RFloatPtr& rhs);
+        OMERO_CLIENT
         bool operator==(const RFloatPtr& lhs,
                         const RFloatPtr& rhs);
 
@@ -131,10 +141,13 @@ namespace omero {
             virtual Ice::Int getValue(const Ice::Current& current = Ice::Current());
             virtual Ice::Int compare(const RTypePtr& rhs, const Ice::Current& current = Ice::Current());
         };
+        OMERO_CLIENT
         bool operator<(const RIntPtr& lhs,
                        const RIntPtr& rhs);
+        OMERO_CLIENT
         bool operator>(const RIntPtr& lhs,
                        const RIntPtr& rhs);
+        OMERO_CLIENT
         bool operator==(const RIntPtr& lhs,
                         const RIntPtr& rhs);
 
@@ -146,10 +159,13 @@ namespace omero {
             virtual Ice::Long getValue(const Ice::Current& current = Ice::Current());
             virtual Ice::Int compare(const RTypePtr& rhs, const Ice::Current& current = Ice::Current());
         };
+        OMERO_CLIENT
         bool operator<(const RLongPtr& lhs,
                        const RLongPtr& rhs);
+        OMERO_CLIENT
         bool operator>(const RLongPtr& lhs,
                        const RLongPtr& rhs);
+        OMERO_CLIENT
         bool operator==(const RLongPtr& lhs,
                         const RLongPtr& rhs);
 
@@ -161,10 +177,13 @@ namespace omero {
             virtual Ice::Long getValue(const Ice::Current& current = Ice::Current());
             virtual Ice::Int compare(const RTypePtr& rhs, const Ice::Current& current = Ice::Current());
         };
+        OMERO_CLIENT
         bool operator<(const RTimePtr& lhs,
                        const RTimePtr& rhs);
+        OMERO_CLIENT
         bool operator>(const RTimePtr& lhs,
                        const RTimePtr& rhs);
+        OMERO_CLIENT
         bool operator==(const RTimePtr& lhs,
                         const RTimePtr& rhs);
 
@@ -197,10 +216,13 @@ namespace omero {
             virtual std::string getValue(const Ice::Current& current = Ice::Current());
             virtual Ice::Int compare(const RTypePtr& rhs, const Ice::Current& current = Ice::Current());
         };
+        OMERO_CLIENT
         bool operator<(const RStringPtr& lhs,
                        const RStringPtr& rhs);
+        OMERO_CLIENT
         bool operator>(const RStringPtr& lhs,
                        const RStringPtr& rhs);
+        OMERO_CLIENT
         bool operator==(const RStringPtr& lhs,
                         const RStringPtr& rhs);
 
@@ -216,10 +238,13 @@ namespace omero {
         // Implementations (collections)
         // =========================================================================
 
+        OMERO_CLIENT
         bool operator<(const RTypeSeq& lhs,
                        const RTypeSeq& rhs);
+        OMERO_CLIENT
         bool operator>(const RTypeSeq& lhs,
                        const RTypeSeq& rhs);
+        OMERO_CLIENT
         bool operator==(const RTypeSeq& lhs,
                         const RTypeSeq& rhs);
 
@@ -240,10 +265,13 @@ namespace omero {
             virtual void add(const omero::RTypePtr& val, const Ice::Current& current = Ice::Current());
             virtual void addAll(const omero::RTypeSeq& values, const Ice::Current& current = Ice::Current());
         };
+        OMERO_CLIENT
         bool operator<(const RArrayPtr& lhs,
                        const RArrayPtr& rhs);
+        OMERO_CLIENT
         bool operator>(const RArrayPtr& lhs,
                        const RArrayPtr& rhs);
+        OMERO_CLIENT
         bool operator==(const RArrayPtr& lhs,
                         const RArrayPtr& rhs);
 
@@ -264,10 +292,13 @@ namespace omero {
             virtual void add(const omero::RTypePtr& val, const Ice::Current& current = Ice::Current());
             virtual void addAll(const omero::RTypeSeq& values, const Ice::Current& current = Ice::Current());
         };
+        OMERO_CLIENT
         bool operator<(const RListPtr& lhs,
                        const RListPtr& rhs);
+        OMERO_CLIENT
         bool operator>(const RListPtr& lhs,
                        const RListPtr& rhs);
+        OMERO_CLIENT
         bool operator==(const RListPtr& lhs,
                         const RListPtr& rhs);
 
@@ -288,10 +319,13 @@ namespace omero {
             virtual void add(const omero::RTypePtr& val, const Ice::Current& current = Ice::Current());
             virtual void addAll(const omero::RTypeSeq& values, const Ice::Current& current = Ice::Current());
         };
+        OMERO_CLIENT
         bool operator<(const RSetPtr& lhs,
                        const RSetPtr& rhs);
+        OMERO_CLIENT
         bool operator>(const RSetPtr& lhs,
                        const RSetPtr& rhs);
+        OMERO_CLIENT
         bool operator==(const RSetPtr& lhs,
                         const RSetPtr& rhs);
 

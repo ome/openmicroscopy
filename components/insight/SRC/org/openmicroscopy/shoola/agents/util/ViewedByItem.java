@@ -102,7 +102,7 @@ public class ViewedByItem extends JLabel {
         setVerticalTextPosition(AbstractButton.BOTTOM);
         setHorizontalTextPosition(AbstractButton.CENTER);
         setIconTextGap(0);
-        setText(experimenter.getLastName());
+        setText(experimenter.getFirstName()+" "+experimenter.getLastName());
 
         if(isOwnerRndDef) {
             setForeground(Color.BLUE);

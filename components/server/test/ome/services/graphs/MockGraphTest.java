@@ -28,6 +28,7 @@ import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.ImageAnnotationLink;
 import ome.model.annotations.ListAnnotation;
 import ome.model.annotations.LongAnnotation;
+import ome.model.annotations.MapAnnotation;
 import ome.model.annotations.NumericAnnotation;
 import ome.model.annotations.ProjectAnnotationLink;
 import ome.model.annotations.RoiAnnotationLink;
@@ -138,10 +139,13 @@ public class MockGraphTest extends MockObjectTestCase {
                                 ListAnnotation.class,
                                 TextAnnotation.class,
                                 CommentAnnotation.class,
+                                MapAnnotation.class,
                                 ome.model.annotations.TagAnnotation.class,
                                 XmlAnnotation.class,
                                 TypeAnnotation.class,
                                 FileAnnotation.class))));
+        emMock.expects(atLeastOnce()).method("getHibernateClass").will(
+                returnValue(IObject.class));
         specXml = new OmeroContext(
                 new String[] { "classpath:ome/services/spec.xml" }, sac);
     }
@@ -163,7 +167,7 @@ public class MockGraphTest extends MockObjectTestCase {
     }
 
     protected GraphStep step(String type, Class<? extends IObject> k, long id) {
-        return step(type, k, id, new long[0]);
+        return step(type, k, id, null);
     }
 
     protected GraphStep step(String type, Class<? extends IObject> k, long id, long[] ids) {

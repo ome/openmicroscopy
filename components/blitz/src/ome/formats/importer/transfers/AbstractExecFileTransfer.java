@@ -45,26 +45,13 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
 
     private static final String SEPARATOR = System.getProperty("line.separator");
 
-    private static final boolean ACTIVE_CLOSE;
-
-    private RawFileStorePrx rawFileStore;
-
-    static {
-        String ac = System.getProperty("omero.import.active_close", "true");
-        ACTIVE_CLOSE = Boolean.parseBoolean(ac);
-    }
-
-    public static void main(String[] args) {
-        System.out.println(ACTIVE_CLOSE);
-    }
-
     /**
      * "Transfer" files by soft-linking them into place. This method is likely
      * re-usable for other general "linking" strategies by overriding
      * {@link #createProcessBuilder(File, File)} and the other protected methods here.
      */
     public String transfer(TransferState state) throws IOException, ServerError {
-        rawFileStore = start(state);
+        RawFileStorePrx rawFileStore = start(state);
         try {
             final OriginalFile root = state.getRootFile();
             final OriginalFile ofile = state.getOriginalFile();
@@ -73,7 +60,7 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
             final long length = state.getLength();
             final ChecksumProvider cp = state.getChecksumProvider();
             state.uploadStarted();
-            checkLocation(location);
+            checkLocation(location, rawFileStore);
             exec(file, location);
             cp.putFile(file.getAbsolutePath());
             state.stop(length);
@@ -109,10 +96,11 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
      * place.
      *
      * @param location
+     * @param rawFileStore
      * @throws ServerError
      * @throws IOException
      */
-    protected void checkLocation(File location)
+    protected void checkLocation(File location, RawFileStorePrx rawFileStore)
             throws ServerError, IOException {
 
         final String uuid = UUID.randomUUID().toString();
@@ -127,10 +115,7 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
         try {
             rawFileStore.write(uuid.getBytes(), 0, uuid.getBytes().length);
         } finally {
-            if (ACTIVE_CLOSE) {
-                rawFileStore.close();
-                rawFileStore = null;
-            }
+            rawFileStore.close();
         }
         try {
             if (!location.exists()) {

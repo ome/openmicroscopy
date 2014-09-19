@@ -35,14 +35,10 @@
 # #L%
 
 if(BUILD_TESTS)
-  add_executable(unit
-                 client.cpp
-                 concurrency.cpp
-                 model.cpp
-                 operators.cpp
-                 parameters.cpp
-                 perms.cpp
-                 rtypes.cpp)
+
+  file(GLOB unit_sources RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.cpp" "*.h")
+
+  add_executable(unit ${unit_sources})
 
   target_link_libraries(unit
                         omero-ice
@@ -51,4 +47,6 @@ if(BUILD_TESTS)
                         ${TEST_LIBS})
 
   add_test(ome-xml/unit unit)
+
+  set_property(TARGET unit PROPERTY FOLDER "Tests")
 endif(BUILD_TESTS)

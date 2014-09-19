@@ -10,6 +10,7 @@
 #define omero_model_IObject
 
 #include <omero/RTypes.ice>
+#include <omero/ModelF.ice>
 
 module omero {
   module model {

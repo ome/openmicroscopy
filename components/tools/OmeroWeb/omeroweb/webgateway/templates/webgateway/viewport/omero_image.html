@@ -714,55 +714,69 @@
 
     <div id="rdef-postit" class="postit" style="width: 480px">
       <h1> Rendering Details </h1>
-        <div id="rdef-active-area">
+      <div id="rdef-active-area">
 
-      <ul class="buttonbar" style="border-right-width: 0; margin-top: 5px; margin-bottom: 8px">
-      <li>
-        <button id="rdef-setdef-btn" class="editor" disabled='true'
-            {% if manager.image.canAnnotate %}
-              title="Saves the current settings."
-            {% else %}
-            title="You don't have permission to save settings."
-            {% endif %}
-            >
-          <img src="{% static 'webclient/image/icon_save.png' %}" style="position:relative; top:2px" />
-          <span>
-            Save
-          </span>
+        <ul class="buttonbar preview-toolbar" style="border-right-width: 0; margin-top: 5px;">
+          <li>
+            <button id="rdef-setdef-btn" class="toolbar-btn" disabled='true'
+                {% if manager.image.canAnnotate %}
+                  title="Saves the current settings."
+                {% else %}
+                title="You don't have permission to save settings."
+                {% endif %}
+                >
+              <img src="{% static 'webclient/image/icon_save.png' %}" style="position:relative; top:2px" /><br>
+                Save
+            </button>
+
+          </li>
+
+          <li><button id="rdef-undo-btn" class="toolbar-btn" title="Undo the last changes to settings"
+              onclick="return undoRDCW();">
+            <img src="{% static "webclient/image/icon_undo16.png" %}" /><br>
+            Undo
+          </button> </li>
+          <li><button id="rdef-redo-btn" class="toolbar-btn" title="Redo the last changes to settings"
+              onclick="return redoRDCW();">
+            <img src="{% static "webclient/image/icon_redo16.png" %}" /><br>
+            Redo
+          </button></li>
+
+          <li class="seperator"></li>
+
+          <li><button class="copy_rdef button toolbar-btn" title="Copy Rendering Settings">
+            <img src="{% static "webclient/image/icon_toolbar_copy.png" %}"/><br>
+            Copy
+          </button></li>
+          <li><button class="paste_rdef button toolbar-btn"
+             title="Paste Rendering Settings" disabled="disabled">
+            <img src="{% static "webclient/image/icon_toolbar_paste.png" %}"/><br>
+            Paste
+          </button></li>
+        </ul>
+
+        <div style="clear:both; border-bottom: solid #ddd 1px; margin: 5px 0;"></div>
+
+        <div style="margin-bottom:5px">
+          <a id="rdef-postit-help" href="#" onclick="return showChannelWindowHelp();"><img src="{% static "webgateway/img/question.png" %}" alt="Show help on channel window ranges" /></a>
+          <input id="rd-wblitz-rmodel" type="checkbox" onchange="return handleModelCheckbox();"/>
+          <label for="rd-wblitz-rmodel">Greyscale</label>
+          <table cellspacing="0">
+            <tr>
+            </tr>
+          </table>
+        </div>
+
+
+        <button id="rdef-minmax-btn" title="Each slider will be set to cover the min/max pixel intensities for that channel">
+          Min/Max
         </button>
-      </li>
-
-
-      <!-- class='button-disabled' -->
-      <li>
-        <input id="rdef-undo-btn" class="button" type="image"
-        src="{% static "webclient/image/icon_undo16.png" %}" title="Undo the last changes to settings"
-        onclick="return undoRDCW();"/>
-      </li>
-      <li><input id="rdef-redo-btn" class="button" type="image"
-        src="{% static "webclient/image/icon_redo16.png" %}" title="Redo the last changes to settings"
-        onclick="return redoRDCW();"/> </li>
-
-      <li class="seperator"></li>
-
-      <!-- class='button-disabled' -->
-      <li><input class="copy_rdef button" type="image" src="{% static "webclient/image/icon_toolbar_copy.png" %}"
-        title="Copy Rendering Settings" /> </li>
-      <li><input class="paste_rdef button" type="image" src="{% static "webclient/image/icon_toolbar_paste.png" %}"
-        title="Paste Rendering Settings" /> </li>
-    </ul>
-
-    <div style="clear:both"></div>
-
-      <div>
-        <a id="rdef-postit-help" href="#" onclick="return showChannelWindowHelp();"><img src="{% static "webgateway/img/question.png" %}" alt="Show help on channel window ranges" /></a>
-        <input id="rd-wblitz-rmodel" type="checkbox" onchange="return handleModelCheckbox();"/>
-        <label for="rd-wblitz-rmodel">Greyscale</label>
-        <table cellspacing="0">
-          <tr>
-          </tr>
-        </table>
-      </div>
+        <button id="rdef-fullrange-btn" title="Each slider will be set to cover the full range of pixel intensities for the image">
+          Full Range
+        </button>
+        <button id="rdef-reset-btn" title="Applies the original imported settings for this image">
+          Imported
+        </button>
       </div>
 
     </div>
@@ -950,6 +964,25 @@
     /* Bind line plot position pick */
     viewport.bind('linePlotPos', linePlotPos);
 
+    // once image loads, check session via /getImgRDef/ to see if we can paste
+    viewport.bind('imageLoad', function() {
+      $.getJSON(viewport.viewport_server + "/getImgRDef/",
+        function(data){
+            if (data.rdef) {
+              var channels = data.rdef.c.split(","); // c=1|3336:38283$FF0000,2|1649:17015$00FF00
+              if (channels.length != viewport.getChannels().length ||
+                data.rdef.pixel_range != viewport.loadedImg.pixel_range.join(":")) {
+                  // images are not compatible
+                  $("button.paste_rdef")
+                    .attr('title', 'Copied settings are not compatible with this image');
+                  return;
+                }
+                $("button.paste_rdef").removeAttr('disabled');
+            }
+        }
+      );
+    });
+
     // 'Color' checkbox to left of image
     $("#wblitz-rmodel").click(function(){
       setModel(viewport, $(this).get(0).checked?'g':'c');
@@ -1060,6 +1093,26 @@
     $(".paste_rdef").click(function() {
         pasteRdefs(viewport);
     });
+
+    // Reset defaults without saving
+    $("#rdef-reset-btn").click(function(){
+      resetImageDefaults(viewport);
+    });
+
+    $("#rdef-minmax-btn").click(function(){
+      viewport.setChannelMinMax();
+      syncRDCW(viewport);
+      viewport.save_channels();
+      updateUndoRedo(viewport);
+    });
+
+    $("#rdef-fullrange-btn").click(function(){
+      viewport.setChannelFullRange();
+      syncRDCW(viewport);
+      viewport.save_channels();
+      updateUndoRedo(viewport);
+    });
+
 
     var toggle_th = function($roiThead) {
         $roiThead.next().toggle(0, function(){

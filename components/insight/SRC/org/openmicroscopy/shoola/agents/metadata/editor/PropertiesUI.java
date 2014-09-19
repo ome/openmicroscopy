@@ -78,11 +78,13 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEvent;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.ROICountLoader;
 import org.openmicroscopy.shoola.agents.metadata.actions.ViewAction;
 import org.openmicroscopy.shoola.agents.metadata.util.FilesetInfoDialog;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.env.config.IconFactory;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.ui.ClickableTooltip;
@@ -94,6 +96,7 @@ import org.openmicroscopy.shoola.util.ui.omeeditpane.WikiDataObject;
 import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.FileData;
 import pojos.ImageData;
@@ -119,7 +122,7 @@ import pojos.WellSampleData;
  * @version 3.0
  * @since OME3.0
  */
-class PropertiesUI
+public class PropertiesUI
 	extends AnnotationUI
 	implements ActionListener, DocumentListener, FocusListener, 
 	PropertyChangeListener
@@ -249,6 +252,9 @@ class PropertiesUI
 	
 	/** Components hosting the channels' details.*/
 	private JComponent channelsPane;
+	
+	/** The label showing the ROI count */
+	private JLabel roiCountLabel;
 
 	/** Builds and lays out the components displaying the channel information.*/
 	private void buildChannelsPane()
@@ -816,7 +822,19 @@ class PropertiesUI
         	content.add(editChannel, c);
         	c.gridx++;
         	content.add(channelsPane, c);
+        	c.gridy++;
     	}
+    	
+    	label = new JLabel("...");
+    	label = UIUtilities.setTextFont(EditorUtil.ROI_COUNT, Font.BOLD, size);
+        c.gridx = 0;
+        content.add(label, c);
+        c.gridx = c.gridx+2;
+        roiCountLabel = UIUtilities.createComponent(null);
+        roiCountLabel.setText("...");
+        content.add(roiCountLabel, c);
+        loadROICount(image);
+        
     	JPanel p = UIUtilities.buildComponentPanel(content);
     	p.setBackground(UIUtilities.BACKGROUND_COLOR);
         return p;
@@ -1649,5 +1667,22 @@ class PropertiesUI
             FilesetInfoDialog d = new FilesetInfoDialog();
             d.setData(model.getFileset(), model.isInplaceImport());
             d.open(location);
+        }
+        
+        /** 
+         * Starts an asyc. call to load the number of ROIs
+         */
+        void loadROICount(ImageData image) {
+            ExperimenterData exp = MetadataViewerAgent.getUserDetails();
+            ROICountLoader l = new ROICountLoader(new SecurityContext(exp.getGroupId()), this, image.getId(), exp.getId());
+            l.load();
+        }
+        
+        /**
+         * Updates label showing the ROI count
+         * @param n Number of ROIs of the current image
+         */
+        public void updateROICount(int n) {
+            roiCountLabel.setText(""+n);
         }
 }

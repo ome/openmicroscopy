@@ -36,7 +36,7 @@ class SQLStyle(Style):
         return ' %%%s%ds ' % (align, width)
 
     def line(self, table):
-        return "+".join(["-" * (x.width+2) for x in table.columns])
+        return "+".join(["-" * (x.width + 2) for x in table.columns])
 
     def status(self, table):
         s = "(%s %s%%s)" % (
@@ -125,6 +125,7 @@ def list_styles():
 
 
 class TableBuilder(object):
+
     """
     OMERO-addition to make working with Tables easier
     """
@@ -265,11 +266,11 @@ def filesizeformat(bytes):
 
     filesize_number_format = lambda value: round(value, 1)
 
-    KB = 1<<10
-    MB = 1<<20
-    GB = 1<<30
-    TB = 1<<40
-    PB = 1<<50
+    KB = 1 << 10
+    MB = 1 << 20
+    GB = 1 << 30
+    TB = 1 << 40
+    PB = 1 << 50
 
     if bytes < KB:
         value = "%(size)d B" % {'size': bytes}

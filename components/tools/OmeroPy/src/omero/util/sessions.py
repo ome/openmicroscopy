@@ -47,6 +47,7 @@ import logging
 
 
 class SessionsStore(object):
+
     """
     The store is a file-based repository of user sessions.
     By default, stores use $HOME/omero/sessions as their
@@ -55,11 +56,11 @@ class SessionsStore(object):
     Use add() to add items to the repository
     """
 
-    def __init__(self, dir = None):
+    def __init__(self, dir=None):
         """
         """
         self.logger = logging.getLogger(make_logname(self))
-        if dir == None:
+        if dir is None:
             dir = get_user_dir()
         self.dir = path(dir) / "omero" / "sessions"
         if not self.dir.exists():
@@ -97,7 +98,7 @@ class SessionsStore(object):
             props["omero.sudo"] = sudo
 
         lines = []
-        for k,v in props.items():
+        for k, v in props.items():
             lines.append("%s=%s" % (k, v))
 
         dhn = self.dir / host / name
@@ -106,7 +107,7 @@ class SessionsStore(object):
 
         (dhn / id).write_lines(lines)
 
-    def conflicts(self, host, name, id, new_props, ignore_nulls = False):
+    def conflicts(self, host, name, id, new_props, ignore_nulls=False):
         """
         Compares if the passed properties are compatible with
         with those for the host, name, id tuple
@@ -172,14 +173,17 @@ class SessionsStore(object):
             return []
         return [x.basename() for x in self.non_dot(d)]
 
-    def set_current(self, host, name = None, uuid = None):
+    def set_current(self, host, name=None, uuid=None):
         """
         Sets the current session, user, and host files
         These are used as defaults by other methods.
         """
-        if host is not None: self.host_file().write_text(host)
-        if name is not None: self.user_file(host).write_text(name)
-        if uuid is not None: self.sess_file(host, name).write_text(uuid)
+        if host is not None:
+            self.host_file().write_text(host)
+        if name is not None:
+            self.user_file(host).write_text(name)
+        if uuid is not None:
+            self.sess_file(host, name).write_text(uuid)
 
     def get_current(self):
         host = None
@@ -226,13 +230,15 @@ class SessionsStore(object):
         if not s.exists():
             return None
         else:
-            n = [x.basename() for x in s.dirs() if (x/uuid).exists()]
+            n = [x.basename() for x in s.dirs() if (x / uuid).exists()]
             if not n:
                 return None
             elif len(n) == 1:
                 return n[0]
             else:
-                raise Exception("Multiple names found for uuid=%s: %s" % (uuid, ", ".join(n)))
+                raise Exception(
+                    "Multiple names found for uuid=%s: %s"
+                    % (uuid, ", ".join(n)))
 
     def contents(self):
         """
@@ -245,7 +251,7 @@ class SessionsStore(object):
         for Dhost in Dhosts:
             host = str(Dhost.basename())
             if host not in rv:
-                 rv[host] = {}
+                rv[host] = {}
             Dnames = Dhost.dirs()
             for Dname in Dnames:
                 name = str(Dname.basename())
@@ -281,19 +287,19 @@ class SessionsStore(object):
                             if sess is None or str(s.basename()) == sess:
                                 func(h, n, s)
 
-
     #
     # Server-requiring methods
     #
 
-    def attach(self, server, name, sess, set_current = True):
+    def attach(self, server, name, sess, set_current=True):
         """
         Simple helper. Delegates to create() using the session
         as both the username and the password. This reproduces
         the logic of client.joinSession()
         """
         props = self.get(server, name, sess)
-        return self.create(sess, sess, props, new = False, set_current = set_current)
+        return self.create(sess, sess, props, new=False,
+                           set_current=set_current)
 
     def create(self, name, pasw, props, new=True, set_current=True, sudo=None):
         """
@@ -312,7 +318,8 @@ class SessionsStore(object):
             principal.name = name
             principal.group = props.get("omero.group", None)
             principal.eventType = "User"
-            sess = sf.getSessionService().createSessionWithTimeouts(principal, 0, 0)
+            sess = sf.getSessionService().createSessionWithTimeouts(
+                principal, 0, 0)
             client.closeSession()
             sf = client.joinSession(sess.getUuid().getValue())
         else:
@@ -331,13 +338,14 @@ class SessionsStore(object):
 
         return client, uuid, timeToIdle, timeToLive
 
-    def clear(self, host = None, name = None, sess = None):
+    def clear(self, host=None, name=None, sess=None):
         """
         Walks through all sessions and calls killSession.
         Regardless of exceptions, it will remove the session files
         from the store.
         """
         removed = []
+
         def f(h, n, s):
             hS = str(h.basename())
             nS = str(n.basename())
@@ -353,7 +361,7 @@ class SessionsStore(object):
         return removed
 
     ##
-    ## Helpers. Do not modify or rely on mutable state.
+    # Helpers. Do not modify or rely on mutable state.
     ##
 
     def host_file(self):
@@ -375,8 +383,12 @@ class SessionsStore(object):
         return d / "._LASTSESS_"
 
     def non_dot(self, d):
-        """ Only returns the files (not directories) contained in d that don't start with a dot """
-        return [f for f in d.files("*") if not str(f.basename()).startswith(".")]
+        """
+        Only returns the files (not directories)
+        contained in d that don't start with a dot
+        """
+        return [f for f in d.files("*")
+                if not str(f.basename()).startswith(".")]
 
     def props(self, f):
         """
@@ -388,7 +400,7 @@ class SessionsStore(object):
         for line in lines:
             if not line:
                 continue
-            parts = line.split("=",1)
+            parts = line.split("=", 1)
             if len(parts) == 1:
                 parts.append("")
             props[parts[0]] = parts[1]

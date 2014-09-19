@@ -27,7 +27,7 @@ public class TestQuantumFactory extends QuantumFactory {
     	super(null);
     }
     
-    public void setStratgey(QuantumStrategy strategy)
+    public void setStrategy(QuantumStrategy strategy)
     {
     	this.strategy = strategy;
     }

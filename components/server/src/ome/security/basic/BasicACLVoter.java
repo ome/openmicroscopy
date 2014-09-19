@@ -283,6 +283,10 @@ public class BasicACLVoter implements ACLVoter {
 
         int rv = 0;
 
+        if (iObject == null) {
+            throw new IllegalArgumentException("null object");
+        }
+
         final boolean sysType = sysTypes.isSystemType(iObject.getClass()) ||
             sysTypes.isInSystemGroup(iObject.getDetails());
         final boolean sysTypeOrUsrGroup = sysType ||

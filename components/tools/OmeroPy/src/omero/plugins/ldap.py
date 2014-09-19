@@ -26,8 +26,8 @@ Examples:
   bin/omero ldap getdn beth || echo "No DN"
   bin/omero ldap setdn jack uid=me,ou=example,o=com
   bin/omero ldap setdn jack ""                  # Disables LDAP login.
-  bin/omero ldap discover --commands            # Requires "ldap" module
-  bin/omero ldap create jack                    # User jack must exist in LDAP
+  bin/omero ldap discover --commands
+  bin/omero ldap create bob                     # User bob must exist in LDAP
 
 """
 
@@ -71,10 +71,6 @@ user never had a password, one will need to be set!""")
         discover.add_argument(
             "--commands", action="store_true", default=False,
             help="Print setdn commands on standard out")
-        discover.add_argument(
-            "--urls", help="Override OMERO omero.ldap.urls setting")
-        discover.add_argument(
-            "--base", help="Override OMERO omero.ldap.base setting")
 
         create = parser.add(
             sub, self.create,
@@ -85,13 +81,6 @@ user never had a password, one will need to be set!""")
 
         for x in (active, list, getdn, setdn, discover, create):
             x.add_login_arguments()
-
-    def __import_ldap__(self):
-        try:
-            import ldap
-        except:
-            self.ctx.die(155, """Python "ldap"  module is not installed""")
-        return ldap
 
     def active(self, args):
         c = self.ctx.conn(args)
@@ -170,124 +159,27 @@ user never had a password, one will need to be set!""")
             self.error_admin_only(fatal=True)
 
     def discover(self, args):
+        c = self.ctx.conn(args)
+        ildap = c.sf.getLdapService()
+        experimenters = {}
 
         import omero
-        ldap = self.__import_ldap__()
+        try:
+            experimenters = ildap.discover()
+        except omero.SecurityViolation:
+            self.ctx.die(131, "SecurityViolation: Admins only!")
 
-        c = self.ctx.conn(args)
-        iconfig = c.sf.getConfigService()
-        iadmin = c.sf.getAdminService()
-        iquery = c.sf.getQueryService()
-
-        LDAP_PROPERTIES = """
-        omero.ldap.urls
-        omero.ldap.username
-        omero.ldap.password
-        omero.ldap.base
-        omero.ldap.user_filter
-        omero.ldap.user_mapping
-        omero.ldap.group_filter
-        omero.ldap.group_mapping
-        omero.ldap.new_user_group
-        """.split()
-
-        cfg = dict()
-        for key in LDAP_PROPERTIES:
-            cfg[key.split(".")[-1]] = iconfig.getConfigValue(key)
-
-        urls = args.urls and args.urls or cfg["urls"]
-        basedn = args.base and args.base or cfg["base"]
-
-        for url in urls.split(","):
-
-            self.ctx.err("Connecting to %s..." % url)
-
-            ld = ldap.initialize(url)
-            ld.simple_bind_s(cfg['username'], cfg['password'])
-
-            user_filter = cfg["user_filter"]
-            user_mapping = cfg["user_mapping"]
-            user_mapping = user_mapping.split(",")
-            omeName_mapping = None
-            for um in user_mapping:
-                parts = um.split("=")
-                if parts[0] == "omeName":
-                    omeName_mapping = parts[1]
-
-            from ldap.controls import SimplePagedResultsControl
-
-            cookie = ''
-            # This is the limit for Active Directory, 1000. However
-            # the LDAP connection has a sizeLimit that overrides
-            # this value if the page_size exceeds it so it is safe
-            # to enter pretty much anything here when using paged results.
-            page_size = 1000
-
-            results = []
-            first = True
-            page_control = SimplePagedResultsControl(False, page_size, cookie)
-
-            while first or page_control.cookie:
-                first = False
-                try:
-                    msgid = ld.search_ext(
-                        basedn, ldap.SCOPE_SUBTREE,
-                        user_filter, serverctrls=[page_control]
-                    )
-                except:
-                    self.ctx.die(1, "Failed to execute LDAP search")
-
-                result_type, results, msgid, serverctrls = ld.result3(msgid)
-                if serverctrls:
-                    page_control.cookie = serverctrls[0].cookie
-
-                user_names = set()
-                user_dns = {}
-                for dn, entry in results:
-                    omeName = entry[omeName_mapping]
-                    if isinstance(omeName, (list, tuple)):
-                        if len(omeName) == 1:
-                            omeName = omeName[0]
-                            user_names.add(omeName)
-                            user_dns[omeName] = dn
-                        else:
-                            self.ctx.err("Failed to unwrap omeName: %s" %
-                                         omeName)
-                            continue
-
-                if not user_names:
-                    continue  # Early exit!
-
-                from omero.rtypes import rlist
-                from omero.rtypes import rstring
-                from omero.rtypes import unwrap
-                params = omero.sys.ParametersI()
-                params.add("names", rlist([rstring(x) for x in user_names]))
-                id_names = unwrap(iquery.projection(
-                    "select id, omeName from Experimenter "
-                    "where omeName in (:names)", params))
-
-                for eid, omeName in id_names:
-                    try:
-                        olddn = iadmin.lookupLdapAuthExperimenter(eid)
-                        dn = user_dns[omeName]
-                    except omero.ApiUsageException:
-                        continue  # Unknown user
-
-                    if olddn:
-                        if olddn.lower() != dn.lower():
-                            self.ctx.err("Found different DN for %s: %s"
-                                         % (omeName, olddn))
-                        else:
-                            self.ctx.dbg("DN already set for %s: %s"
-                                         % (omeName, olddn))
-                    else:
-                        if args.commands:
-                            self.ctx.out("%s ldap setdn %s %s"
-                                         % (sys.argv[0], omeName, dn))
-                        else:
-                            self.ctx.out("Experimenter:%s\tomeName=%s\t%s"
-                                         % (eid, omeName, dn))
+        if len(experimenters) > 0:
+            self.ctx.out("Found mismatching DNs for the following users:")
+            for dn, exp in experimenters.iteritems():
+                if args.commands:
+                    self.ctx.out("%s ldap setdn %s %s"
+                                 % (sys.argv[0], exp.getOmeName().getValue(),
+                                    dn))
+                else:
+                    self.ctx.out("Experimenter:%s\tomeName=%s\t%s"
+                                 % (exp.getId().getValue(),
+                                    exp.getOmeName().getValue(), dn))
 
     def create(self, args):
         c = self.ctx.conn(args)

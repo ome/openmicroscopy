@@ -19,7 +19,8 @@ import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.server.itests.AbstractManagedContextTest;
-import ome.services.pixeldata.PersistentEventLogLoader;
+import ome.services.eventlogs.EventLogQueue;
+import ome.services.eventlogs.PersistentEventLogLoader;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
 import ome.system.EventContext;
@@ -37,13 +38,18 @@ public class PersistentEventLogLoaderTest extends AbstractManagedContextTest {
     Executor ex;
     SessionManager sm;
     PersistentEventLogLoader ll;
+    PersistentEventLogLoader pel;
+    EventLogQueue elq;
 
     @BeforeMethod
     public void setup() {
         ex = (Executor) this.applicationContext.getBean("executor");
         sm = (SessionManager) this.applicationContext.getBean("sessionManager");
-        ll = (PersistentEventLogLoader) this.applicationContext
+        pel = (PersistentEventLogLoader) this.applicationContext
                 .getBean("pixelDataEventLogLoader");
+        elq = (EventLogQueue) this.applicationContext
+                .getBean("pixelDataEventLogQueue");
+        ll = elq;
     }
 
     protected <T> T call(String msg, final Callable<T> call) throws Throwable {
@@ -102,12 +108,11 @@ public class PersistentEventLogLoaderTest extends AbstractManagedContextTest {
         call("MultipleUsers", new Callable<Long>() {
             public Long call() throws Exception {
                 ll.setCurrentId(el1.getId() - 1);
+                assertTrue(ll.hasNext());
                 assertEquals(el1.getId() - 1,
                         ll.getCurrentId());
-                EventLog t1 = ll.next();
-                assertEquals(el1.getId(), t1.getId());
-                EventLog t2 = ll.next();
-                assertEquals(el2.getId(), t2.getId());
+                assertNext(el1);
+                assertNext(el2);
                 return null;
             }
         });
@@ -132,19 +137,69 @@ public class PersistentEventLogLoaderTest extends AbstractManagedContextTest {
             public Long call() throws Exception {
 
                 ll.setCurrentId(el1a.getId() - 1);
+                assertTrue(ll.hasNext());
                 assertNext(el1a);
                 assertNext(el2a);
-                // All users used up
-                assertNext(el2a); // Duplicate
-                assertNext(el1b);
-                // All users used up
                 assertNext(el2b);
-                assertNext(el1b); // Duplicate
+                assertNext(el1b);
                 return null;
             }
         });
     }
 
+    /**
+     * Extended scenario described in 
+     * https://www.openmicroscopy.org/community/viewtopic.php?f=4&t=7593&p=14636#p14638
+     * after it was noticed that some events were being skipped.
+     */
+    public void testMoreMultipleEventLogs() throws Throwable {
+        final Experimenter u1 = loginNewUser();
+        final EventContext ec1 = iAdmin.getEventContext();
+        loginNewUserInOtherUsersGroup(u1);
+        final EventContext ec2 = iAdmin.getEventContext();
+        loginNewUserInOtherUsersGroup(u1);
+        final EventContext ec3 = iAdmin.getEventContext();
+
+        loginRoot();
+        final Event e1 = event(ec1);
+        final Event e2 = event(ec2);
+        final Event e3 = event(ec3);
+
+        final EventLog el1a = eventlog(e1);
+        final EventLog el1b = eventlog(e1);
+        final EventLog el1c = eventlog(e1);
+        final EventLog el1d = eventlog(e1);
+        final EventLog el1e = eventlog(e1);
+        final EventLog el1f = eventlog(e1);
+        final EventLog el1g = eventlog(e1);
+        final EventLog el1h = eventlog(e1);
+        final EventLog el1i = eventlog(e1);
+        final EventLog el1j = eventlog(e1);
+        final EventLog el2a = eventlog(e2);
+        final EventLog el3a = eventlog(e3);
+
+        call("MultipleEventLogs", new Callable<Long>() {
+            public Long call() throws Exception {
+
+                ll.setCurrentId(el1a.getId() - 1);
+                assertTrue(ll.hasNext());
+                assertNext(el1a);
+                assertNext(el1b);
+                assertNext(el1c);
+                assertNext(el1d);
+                assertNext(el1e);
+                assertNext(el1f);
+                assertNext(el1g);
+                assertNext(el1h);
+                assertNext(el1i);
+                assertNext(el1j);
+                assertNext(el2a);
+                assertNext(el3a);
+                return null;
+            }
+        });
+    }
+    
     //
     // Helpers
     //

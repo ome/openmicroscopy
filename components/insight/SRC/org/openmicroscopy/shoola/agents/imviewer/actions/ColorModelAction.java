@@ -93,7 +93,7 @@ public class ColorModelAction
     /** Defines the static fields. */
     static {
         names = new String[MAX+1];
-        names[GREY_SCALE_MODEL] = "Greyscale";
+        names[GREY_SCALE_MODEL] = "Grayscale";
         names[RGB_MODEL] = "Color";
         names[HSB_MODEL] = "HSB/HSV"; 
     }
