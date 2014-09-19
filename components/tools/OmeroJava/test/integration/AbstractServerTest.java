@@ -532,12 +532,7 @@ public class AbstractServerTest extends AbstractTest {
         e.setOmeName(omero.rtypes.rstring(uuid));
         e.setFirstName(omero.rtypes.rstring("integration"));
         e.setLastName(omero.rtypes.rstring("tester"));
-        List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
-        ExperimenterGroup userGroup = rootAdmin.lookupGroup(USER_GROUP);
-        groups.add(group);
-        groups.add(userGroup);
-        long id = rootAdmin.createExperimenterWithPassword(e,
-                omero.rtypes.rstring(uuid), group, groups);
+        long id = newUserInGroupWithPassword(e, group, uuid);
         e = rootAdmin.getExperimenter(id);
         rootAdmin.addGroups(e, Arrays.asList(group));
         if (owner) {
@@ -546,6 +541,26 @@ public class AbstractServerTest extends AbstractTest {
         omero.client client = newOmeroClient();
         client.createSession(uuid, uuid);
         return init(client);
+    }
+
+    /**
+     * Creates the specified user in the specified group. Also adds the user
+     * to the default user group. Requires a password.
+     *
+     * @param experimenter The pre-populated Experimenter object.
+     * @param group The target group.
+     * @param password The user password.
+     * @return long The created user ID.
+     */
+    protected long newUserInGroupWithPassword(Experimenter experimenter,
+            ExperimenterGroup group, String password) throws Exception {
+        IAdminPrx rootAdmin = root.getSession().getAdminService();
+        ExperimenterGroup userGroup = rootAdmin.lookupGroup(USER_GROUP);
+        List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
+
+        groups.add(group);
+        return rootAdmin.createExperimenterWithPassword(experimenter,
+                omero.rtypes.rstring(password), userGroup, groups);
     }
 
     /**
