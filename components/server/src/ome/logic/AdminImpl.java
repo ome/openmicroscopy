@@ -1084,7 +1084,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @PermitAll
     @Transactional(readOnly = false)
     public void reportForgottenPassword(final String name, final String email)
-            throws AuthenticationException {
+            throws SecurityViolation {
 
         if (name == null) {
             throw new IllegalArgumentException("Unexpected null username.");
@@ -1097,15 +1097,15 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                 Experimenter e = iQuery.findByString(Experimenter.class,
                         "omeName", name);
                 if (e == null) {
-                    throw new AuthenticationException("Unknown user.");
+                    throw new SecurityViolation("Unknown user.");
                 } else if (e.getEmail() == null) {
-                    throw new AuthenticationException(
+                    throw new SecurityViolation(
                             "User has no email address.");
                 } else if (!e.getEmail().equals(email)) {
-                    throw new AuthenticationException(
+                    throw new SecurityViolation(
                             "Email address does not match.");
                 } else if (isDnById(e.getId())) {
-                    throw new AuthenticationException(
+                    throw new SecurityViolation(
                             "User is authenticated by LDAP server you cannot reset this password.");
                 } else {
                     String passwd = passwordUtil.generateRandomPasswd();
