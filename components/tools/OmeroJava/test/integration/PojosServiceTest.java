@@ -694,12 +694,10 @@ public class PojosServiceTest extends AbstractServerTest {
 
         List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
         // method tested elsewhere
-        ExperimenterGroup userGroup = svc.lookupGroup(USER_GROUP);
         groups.add(eg1);
         groups.add(eg2);
-        groups.add(userGroup);
-
-        svc.createExperimenter(e, eg1, groups);
+        long uid = newUserInGroupWithPassword(e, groups, uuid1);
+        svc.setDefaultGroup(svc.getExperimenter(uid), eg1);
 
         omero.client client = new omero.client();
         ServiceFactoryPrx f = client.createSession(uuid1, uuid1);
