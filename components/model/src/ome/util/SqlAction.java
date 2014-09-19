@@ -427,7 +427,19 @@ public interface SqlAction {
 
     String getPasswordHash(Long experimenterID);
 
+    /**
+     * Get the user's ID
+     * @param userName the user's name
+     * @return their ID, or {@code null} if they cannot be found
+     */
     Long getUserId(String userName);
+
+    /**
+     * Get the user's name
+     * @param userId the user's ID
+     * @return their name, or {@code null} if they cannot be found
+     */
+    String getUsername(long userId);
 
     Map<String, Long> getGroupIds(Collection<String> names);
 
@@ -881,6 +893,18 @@ public interface SqlAction {
                 id = null; // This means there's not one.
             }
             return id;
+        }
+
+        @Override
+        public String getUsername(long userId) {
+            String name;
+            try {
+                name = _jdbc().queryForObject(_lookup("user_name"), //$NON-NLS-1$
+                        String.class, userId);
+            } catch (EmptyResultDataAccessException e) {
+                name = null; // This means there's not one.
+            }
+            return name;
         }
 
         public List<String> getUserGroups(String userName) {
