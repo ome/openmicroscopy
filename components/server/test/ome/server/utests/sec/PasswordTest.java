@@ -659,6 +659,8 @@ public class PasswordTest extends MockObjectTestCase {
     // =========================================================================
 
     private void setHashCalledWith(Constraint... constraints) {
+        mockSql.expects(once()).method("clearPermissionsBit")
+            .will(returnValue(true));
         mockSql.expects(once()).method("setUserPassword")
             .with(constraints).will(returnValue(true));
     }
