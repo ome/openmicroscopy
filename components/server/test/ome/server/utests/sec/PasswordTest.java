@@ -7,9 +7,6 @@
 package ome.server.utests.sec;
 
 import java.io.File;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
-
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -30,12 +27,15 @@ import ome.security.auth.PasswordProvider;
 import ome.security.auth.PasswordProviders;
 import ome.security.auth.PasswordUtil;
 import ome.security.auth.PasswordUtility;
+import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.util.SqlAction;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
+import org.jmock.core.Constraint;
 import org.springframework.util.ResourceUtils;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 @Test
@@ -63,7 +63,11 @@ public class PasswordTest extends MockObjectTestCase {
         }
     }
 
+    Charset latin1 = StandardCharsets.ISO_8859_1, utf8 = StandardCharsets.UTF_8;
+
     PasswordProvider provider;
+
+    PasswordUtil utf8Util, latin1Util;
 
     Mock mockSql, mockLdap;
 
@@ -77,9 +81,27 @@ public class PasswordTest extends MockObjectTestCase {
 
     AtomicReference<Experimenter> createdUser = new AtomicReference<Experimenter>();
 
+    @BeforeMethod
     protected void initJdbc() {
+        initJdbc(utf8);
+    }
+
+    protected void initJdbc(Charset ch) {
         mockSql = mock(SqlAction.class);
         sql = (SqlAction) mockSql.proxy();
+        utf8Util = new PasswordUtil(sql, utf8);
+        latin1Util = new PasswordUtil(sql, latin1);
+        if (utf8 == ch) {
+            initProvider(utf8Util);
+        } else {
+            initProvider(latin1Util);
+        }
+    }
+
+    protected void initProvider(PasswordUtil util) {
+        provider = new JdbcPasswordProvider(util);
+        ((JdbcPasswordProvider) provider).setApplicationContext(
+                new OmeroContext(new String[]{}));
     }
 
     protected void initLdap(boolean setting) {
@@ -152,7 +174,6 @@ public class PasswordTest extends MockObjectTestCase {
 
     public void tesJdbcDefaults() throws Exception {
         initJdbc();
-        provider = new JdbcPasswordProvider(new PasswordUtil(sql));
 
         userIdReturns1();
         provider.hasPassword("test");
@@ -173,7 +194,6 @@ public class PasswordTest extends MockObjectTestCase {
     public void tesJdbcIgnoreUnknownReturnsFalse() throws Exception {
         initJdbc();
         userIdReturnsNull();
-        provider = new JdbcPasswordProvider(new PasswordUtil(sql));
         assertFalse(provider.checkPassword("unknown", "anything", false));
     }
 
@@ -187,8 +207,7 @@ public class PasswordTest extends MockObjectTestCase {
     public void testJdbcChangesPassword() throws Exception {
         initJdbc();
         userIdReturns1();
-        mockSql.expects(once()).method("setUserPassword").will(returnValue(true));
-        provider = new JdbcPasswordProvider(new PasswordUtil(sql));
+        setHashCalledWith(eq(1l), ANYTHING);
         provider.changePassword("a", "b");
     }
 
@@ -196,7 +215,6 @@ public class PasswordTest extends MockObjectTestCase {
     public void testJdbcThrowsOnBadUsername() throws Exception {
         initJdbc();
         userIdReturnsNull();
-        provider = new JdbcPasswordProvider(new PasswordUtil(sql));
         provider.changePassword("a", "b");
     }
 
@@ -466,17 +484,8 @@ public class PasswordTest extends MockObjectTestCase {
         s2.assertHasPasswordCalled();
     }
 
-    // ~ Helpers
+    // ~ password encoding
     // =========================================================================
-
-    private void getPasswordHash(String value) {
-        mockSql.expects(once()).method("getPasswordHash").will(returnValue(value));
-    }
-
-    private void getDn(String value) {
-        mockSql.expects(once()).method("dnForUser").will(returnValue(value));
-        currentDn.set(value);
-    }
 
     final static String good = "ążćę";
     final static String bad = "????";
@@ -484,22 +493,20 @@ public class PasswordTest extends MockObjectTestCase {
     final static String goodHash = "iIoEyIOGsGsDhWZMYNBTKQ==";
 
     public void testLatin1Encoding() {
-        Charset latin1 = StandardCharsets.ISO_8859_1;
+        final PasswordUtil latin1Util = new PasswordUtil(sql, latin1);
         byte[] badBytes = bad.getBytes(latin1);
         byte[] goodBytes = good.getBytes(latin1);
         assertTrue(Arrays.equals(badBytes, goodBytes));
         assertEquals(bad, new String(good.getBytes(latin1)));
-        PasswordUtil util = new PasswordUtil(sql, latin1);
-        assertEquals(badHash, util.passwordDigest(bad));
-        assertEquals(badHash, util.passwordDigest(good));
+        assertEquals(badHash, latin1Util.passwordDigest(bad));
+        assertEquals(badHash, latin1Util.passwordDigest(good));
     }
 
     public void testUtf8Encoding() {
-        Charset utf8 = StandardCharsets.UTF_8;
+        final PasswordUtil utf8Util = new PasswordUtil(sql, utf8);
         assertEquals(good, new String(good.getBytes(utf8)));
-        PasswordUtil util = new PasswordUtil(sql, utf8);
-        assertEquals(badHash, util.passwordDigest(bad));
-        assertEquals(goodHash, util.passwordDigest(good));
+        assertEquals(badHash, utf8Util.passwordDigest(bad));
+        assertEquals(goodHash, utf8Util.passwordDigest(good));
         assertFalse(goodHash.equals(badHash));
     }
 
@@ -519,6 +526,20 @@ public class PasswordTest extends MockObjectTestCase {
 
     // ~ Helpers
     // =========================================================================
+
+    private void setHashCalledWith(Constraint... constraints) {
+        mockSql.expects(once()).method("setUserPassword")
+            .with(constraints).will(returnValue(true));
+    }
+
+    private void getPasswordHash(String value) {
+        mockSql.expects(once()).method("getPasswordHash").will(returnValue(value));
+    }
+
+    private void getDn(String value) {
+        mockSql.expects(once()).method("dnForUser").will(returnValue(value));
+        currentDn.set(value);
+    }
 
     private void userIdReturnsNull() {
         mockSql.expects(once()).method("getUserId").will(returnValue(null));
