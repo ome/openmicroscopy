@@ -1330,6 +1330,24 @@ def annotate_file(request, conn=None, **kwargs):
     context['template'] = template
     return context
 
+
+@login_required()
+@render_response()
+def annotate_rating(request, conn=None, **kwargs):
+    """
+    Handle adding Rating to one or more objects
+    """
+    index = getIntOrDefault(request, 'index', 0)
+    rating = getIntOrDefault(request, 'rating', 0)
+    oids = getObjects(request, conn)
+    # selected = getIds(request)
+
+    for otype, objs in oids.items():
+        for o in objs:
+            o.setRating(rating)
+    return HttpResponse("OK")
+
+
 @login_required()
 @render_response()
 def annotate_comment(request, conn=None, **kwargs):

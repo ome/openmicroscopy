@@ -2029,6 +2029,30 @@ class OmeroWebObjectWrapper (object):
         if self.canChgrp(): flags.append("canChgrp")
         return " ".join(flags)
 
+    def setRating(self, rating):
+        """
+        Add a rating (long) annotation to the object, or update an existing rating.
+        """
+        rating_ns = omero.constants.metadata.NSINSIGHTRATING
+        parent_type = self.OMERO_CLASS
+        params = omero.sys.ParametersI()
+        params.addLong('ownerId', self._conn.getUserId())
+
+        ratingAnns = list(self._conn.getAnnotationLinks(parent_type, parent_ids=[self.id], ns=rating_ns, params=params))
+        ratingAnn = ratingAnns and ratingAnns[0].getChild() or None
+
+        if ratingAnn is not None:
+            ratingAnn.setLongValue( rlong(rating) )
+            ratingAnn.save()
+        else:
+            ratingAnn = omero.model.LongAnnotationI()
+            ratingAnn.setLongValue( rlong(rating) )
+            ratingAnn.setNs( rstring(rating_ns) )
+            ratingAnn = self._conn.getUpdateService().saveAndReturnObject(ratingAnn)
+            self.linkAnnotation(AnnotationWrapper(self._conn, ratingAnn))
+
+
+
 
 class ExperimenterWrapper (OmeroWebObjectWrapper, omero.gateway.ExperimenterWrapper): 
     """
