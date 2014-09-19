@@ -493,9 +493,10 @@ public class AdminServiceTest extends AbstractServerTest {
         g.getDetails().setPermissions(new PermissionsI("rw----"));
 
         // create group.
-        svc.createGroup(g);
+        g = svc.getGroup(svc.createGroup(g));
 
         long id = newUserInGroupWithPassword(e, g, uuid);
+        svc.setDefaultGroup(svc.getExperimenter(id), g);
         IQueryPrx query = root.getSession().getQueryService();
         ParametersI p = new ParametersI();
         p.addId(id);
@@ -543,9 +544,10 @@ public class AdminServiceTest extends AbstractServerTest {
         g.getDetails().setPermissions(new PermissionsI("rw----"));
 
         // create group.
-        svc.createGroup(g);
+        g = svc.getGroup(svc.createGroup(g));
 
         long id = newUserInGroupWithPassword(e, g, uuid);
+        svc.setDefaultGroup(svc.getExperimenter(id), g);
         IQueryPrx query = root.getSession().getQueryService();
         ParametersI p = new ParametersI();
         p.addId(id);
@@ -786,9 +788,10 @@ public class AdminServiceTest extends AbstractServerTest {
         g.getDetails().setPermissions(new PermissionsI("rw----"));
 
         // create group.
-        svc.createGroup(g);
+        g = svc.getGroup(svc.createGroup(g));
         // create the user.
-        newUserInGroupWithPassword(e, g, uuid);
+        long uid = newUserInGroupWithPassword(e, g, uuid);
+        svc.setDefaultGroup(svc.getExperimenter(uid), g);
         omero.client client = new omero.client(root.getPropertyMap());
         try {
             client.createSession(uuid, uuid);
@@ -1506,41 +1509,36 @@ public class AdminServiceTest extends AbstractServerTest {
      */
     @Test
     public void testOwnerAddExistingExperimenterToGroup() throws Exception {
+        IAdminPrx svc = root.getSession().getAdminService();
+
         // First create a new user.
         String uuid = UUID.randomUUID().toString();
         Experimenter e = createExperimenterI(uuid, "user", "user");
-        IAdminPrx svc = root.getSession().getAdminService();
-
-        // already tested
         ExperimenterGroup g = new ExperimenterGroupI();
         g.setName(omero.rtypes.rstring(uuid));
         g.getDetails().setPermissions(new PermissionsI("rw----"));
-
-        // create group.
-        long groupId = svc.createGroup(g);
-        g = svc.lookupGroup(uuid);
-        // create the user.
-        long expId = newUserInGroupWithPassword(e, g, uuid);
+        long gId = svc.createGroup(g);
+        g = svc.getGroup(gId);
+        newUserInGroupWithPassword(e, g, uuid);
         Experimenter owner = svc.lookupExperimenter(uuid);
-        // set the user as the group owner.
         svc.setGroupOwner(g, owner);
+        svc.setDefaultGroup(owner, g);
 
         // create another group and user
-        String uuidGroup = UUID.randomUUID().toString();
-        ExperimenterGroup g2 = new ExperimenterGroupI();
-        g2.setName(omero.rtypes.rstring(uuidGroup));
-        g2.getDetails().setPermissions(new PermissionsI("rw----"));
-        svc.createGroup(g2);
-
         String uuid2 = UUID.randomUUID().toString();
         e = createExperimenterI(uuid2, "user", "user");
-        expId = newUserInGroupWithPassword(e, g2, uuid2);
+        ExperimenterGroup g2 = new ExperimenterGroupI();
+        g2.setName(omero.rtypes.rstring(uuid2));
+        g2.getDetails().setPermissions(new PermissionsI("rw----"));
+        long g2Id = svc.createGroup(g2);
+        g2 = svc.getGroup(g2Id);
+        newUserInGroupWithPassword(e, g2, uuid2);
         e = svc.lookupExperimenter(uuid2);
-        // owner logs in.
+
         omero.client client = newOmeroClient();
         client.createSession(uuid, uuid);
         init(client);
-        // iAdmin.
+
         List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
         groups.add(g);
         iAdmin.addGroups(e, groups);
@@ -1573,18 +1571,19 @@ public class AdminServiceTest extends AbstractServerTest {
 
         // create group.
         long groupId = svc.createGroup(g);
-        g = svc.lookupGroup(uuid);
+        g = svc.getGroup(groupId);
         // create the user.
         long expId = newUserInGroupWithPassword(e, g, uuid);
         Experimenter owner = svc.lookupExperimenter(uuid);
         // set the user as the group owner.
         svc.setGroupOwner(g, owner);
+        svc.setDefaultGroup(owner, g);
 
         // create another group and user
         String uuid3 = UUID.randomUUID().toString();
         e = createExperimenterI(uuid3, "user", "user");
         //expId = svc.createUser(e, uuid);
-        expId = newUserInGroupWithPassword(e, g2, uuid3);
+        expId = newUserInGroupWithPassword(e, g, uuid3);
         e = svc.lookupExperimenter(uuid3);
         g2 = svc.getGroup(svc.createGroup(g2));
         svc.addGroups(e, Collections.singletonList(g2));
