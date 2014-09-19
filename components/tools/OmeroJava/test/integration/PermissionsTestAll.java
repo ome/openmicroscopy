@@ -102,7 +102,8 @@ public class PermissionsTestAll extends AbstractServerTest {
             "Private-" + uuid + "-", "Read-Only-" + uuid + "-",
             "Read-Write-" + uuid + "-" };
 
-    String password = "ome";
+    /** The password used for user.*/
+    private String password = "ome";
 
     /**
      * Creates the permissions corresponding to the specified level.
@@ -154,7 +155,7 @@ public class PermissionsTestAll extends AbstractServerTest {
             }
         }
 
-        RString omeroPassword = omero.rtypes.rstring("ome");
+        RString omeroPassword = omero.rtypes.rstring(password);
         String Admin = users[8];
         int cntr = 0;
         // Create Users and add them to the respective groups
@@ -218,7 +219,7 @@ public class PermissionsTestAll extends AbstractServerTest {
             omero.client client = new omero.client();
             client.closeSession();
 
-            ServiceFactoryPrx session = client.createSession(users[i], "ome");
+            ServiceFactoryPrx session = client.createSession(users[i], password);
             client.enableKeepAlive(60);
 
             Experimenter user1 = session.getAdminService().lookupExperimenter(
