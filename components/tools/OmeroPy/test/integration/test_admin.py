@@ -102,6 +102,7 @@ class TestAdmin(lib.ITest):
         whenFoo = query.projection(hql, getOnlyOne)[0][0].val
         assert whenFoo > whenOme
 
+    @pytest.mark.xfail(reason="Empty password disabled by config")
     def testChangePasswordWhenUnset(self):
         """
         Shows that it's possible to use the

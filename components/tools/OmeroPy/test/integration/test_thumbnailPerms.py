@@ -61,7 +61,8 @@ class TestThumbnailPerms(lib.ITest):
 
         ## login as user1 (into their default group)
         # create image in private group
-        client_share1 = self.new_client(user=user1, password="ome")
+        client_share1 = self.new_client(
+            user=user1, password=user1.omeName.val)
         privateImageId = createTestImage(client_share1.sf)
 
         # if we don't get thumbnail, test fails when another user does
@@ -93,7 +94,8 @@ class TestThumbnailPerms(lib.ITest):
 
         # now check that the 'owner' of each group can see all 3 thumbnails.
         ## login as owner (into private group)
-        owner_client = self.new_client(user=newOwner, password="ome")
+        owner_client = self.new_client(
+            user=newOwner, password=newOwner.omeName.val)
 
         group_ctx = {"omero.group": str(privateGroup)}
         self.getThumbnail(owner_client.sf, privateImageId, *group_ctx)
@@ -124,7 +126,7 @@ class TestThumbnailPerms(lib.ITest):
 
         # now check that the 'user2' of each group can see all thumbnails except private.
         ## login as user2 (into private group)
-        user2_client = self.new_client(user=user2, password="ome")
+        user2_client = self.new_client(user=user2, password=user2.omeName.val)
 
         # check that we can't get thumbnails for any images in private group
         assert self.getThumbnail(user2_client.sf, privateImageId) is None
@@ -425,7 +427,7 @@ class TestThumbnailPerms(lib.ITest):
             # If the other users try to save with
             # that prx though, they'll create a new rdef
             b_prx.load()
-            b_prx.resetDefaultsNoSave()        
+            b_prx.resetDefaultsNoSave()
             c_rdef = b_prx.getRenderingDefId()
             b_prx.close()
             assert c_rdef == b_rdef
@@ -465,7 +467,7 @@ class TestThumbnailPerms(lib.ITest):
             group = self.new_group(perms="rwrw--")
             owner = self.new_client(group=group)
             other = self.new_client(group=group)
-                
+
         # creation generates a first rendering image
         image = self.createTestImage(session=owner.sf)
         pixels = image.getPrimaryPixels().getId().getValue()
@@ -536,7 +538,7 @@ class TestThumbnailPerms(lib.ITest):
             group = self.new_group(perms="rwrw--")
             owner = self.new_client(group=group)
             other = self.new_client(group=group)
-                
+
         # creation generates a first rendering image
         image = self.createTestImage(session=owner.sf)
         pixels = image.getPrimaryPixels().getId().getValue()
@@ -556,7 +558,7 @@ class TestThumbnailPerms(lib.ITest):
             "select t from Thumbnail t join t.pixels p where t.details.owner.id = :oid and p.id = :pid", p)
         assert 1 == len(thumbs)
         v_thumb = thumbs[0].getVersion().getValue()
-        
+
         def assert_rdef(sf=None, prx=None):
             if prx is None:
                 prx = sf.createRenderingEngine()
