@@ -169,6 +169,7 @@ public class PasswordUtil {
         if (! sql.setUserPassword(id, prepared)) {
             throw new InternalException("0 results for password insert.");
         }
+        sql.clearPermissionsBit("experimenter", id, 16);
     }
 
     public String getUserPasswordHash(Long id) {
