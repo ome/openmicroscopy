@@ -450,6 +450,18 @@ class BaseContainer(BaseController):
         self.fileannSize = len(self.file_annotations)
         self.tgannSize = len(self.tag_annotations)
 
+
+    def getMyRating(self):
+        """
+        Returns a rating annotation added by current user or None if none exists.
+        NB: This should be called after annotationList() has loaded annotations.
+        """
+        userId = self.conn.getUserId()
+        for r in self.rating_annotations:
+            if r.getDetails().getOwner().id == userId:
+                return r
+
+
     def canUseOthersAnns(self):
         """
         Test to see whether other user's Tags, Files etc should be provided for annotating.

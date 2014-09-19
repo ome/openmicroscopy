@@ -547,6 +547,11 @@
         border-top: solid 1px hsl(210,10%,90%);
     }
     
+    /* Rating */
+
+    .myRating {
+		cursor: pointer;
+    }
         
         
     /* Tables */
