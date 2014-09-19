@@ -164,9 +164,7 @@ public class PasswordUtil {
     public void changeUserPasswordById(Long id, String password, METHOD meth) {
         String prepared = password;
         if (meth.hash){
-            prepared = meth.salt ?
-                prepareSaltedPassword(id, password) :
-                    preparePassword(password);
+            prepared = preparePassword(id, password, meth.salt);
         }
         if (! sql.setUserPassword(id, prepared)) {
             throw new InternalException("0 results for password insert.");
@@ -187,17 +185,21 @@ public class PasswordUtil {
     }
 
     public String preparePassword(String newPassword) {
-        return prepareSaltedPassword(null, newPassword);
+        return preparePassword(null, newPassword, false);
     }
 
     public String prepareSaltedPassword(Long userId, String newPassword) {
+        return preparePassword(userId, newPassword, true);
+    }
+
+    protected String preparePassword(Long userId, String newPassword, boolean salt) {
         // This allows setting passwords to "null" - locked account.
         // Also checks if empty passwords are to be considered "open-access"
         return newPassword == null
                 || (newPassword.trim().isEmpty() && isPasswordRequired(userId)) ? null
                 : newPassword.trim().isEmpty() ? newPassword
                 // Regular MD5 digest.
-                        : saltedPasswordDigest(userId, newPassword);
+                        : passwordDigest(userId, newPassword, salt);
     }
 
     /**
@@ -207,7 +209,7 @@ public class PasswordUtil {
      *           algorithm, and possibly even the implementation in general.
      */
     public String passwordDigest(String clearText) {
-        return saltedPasswordDigest(null, clearText);
+        return passwordDigest(null, clearText, false);
     }
 
     /**
@@ -216,6 +218,10 @@ public class PasswordUtil {
      * as a salt value for the password.
      */
     public String saltedPasswordDigest(Long userId, String clearText) {
+        return passwordDigest(userId, clearText, true);
+    }
+
+    protected String passwordDigest(Long userId, String clearText, boolean salt) {
 
         if (clearText == null) {
             throw new ApiUsageException("Value for digesting may not be null");
@@ -224,7 +230,7 @@ public class PasswordUtil {
         byte[] bytes = clearText.getBytes(encoding);
 
         // If salting is activated, prepend the salt.
-        if (userId != null) {
+        if (userId != null && salt) {
             byte[] saltedBytes = ByteBuffer.allocate(8).putLong(userId).array();
             byte[] newValue = new byte[saltedBytes.length+bytes.length];
             System.arraycopy(saltedBytes, 0, newValue, 0, saltedBytes.length);
