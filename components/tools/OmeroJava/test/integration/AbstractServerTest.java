@@ -112,6 +112,8 @@ import omero.sys.ParametersI;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 
+import com.google.common.collect.Lists;
+
 import spec.AbstractTest;
 
 /**
@@ -544,6 +546,23 @@ public class AbstractServerTest extends AbstractTest {
     }
 
     /**
+     * Creates the specified user in the specified groups. Also adds the user
+     * to the default user group. Requires a password.
+     *
+     * @param experimenter The pre-populated Experimenter object.
+     * @param groups The target groups.
+     * @param password The user password.
+     * @return long The created user ID.
+     */
+    protected long newUserInGroupWithPassword(Experimenter experimenter,
+            List<ExperimenterGroup> groups, String password) throws Exception {
+        IAdminPrx rootAdmin = root.getSession().getAdminService();
+        ExperimenterGroup userGroup = rootAdmin.lookupGroup(USER_GROUP);
+        return rootAdmin.createExperimenterWithPassword(experimenter,
+                omero.rtypes.rstring(password), userGroup, groups);
+    }
+
+    /**
      * Creates the specified user in the specified group. Also adds the user
      * to the default user group. Requires a password.
      *
@@ -554,13 +573,8 @@ public class AbstractServerTest extends AbstractTest {
      */
     protected long newUserInGroupWithPassword(Experimenter experimenter,
             ExperimenterGroup group, String password) throws Exception {
-        IAdminPrx rootAdmin = root.getSession().getAdminService();
-        ExperimenterGroup userGroup = rootAdmin.lookupGroup(USER_GROUP);
-        List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
-
-        groups.add(group);
-        return rootAdmin.createExperimenterWithPassword(experimenter,
-                omero.rtypes.rstring(password), userGroup, groups);
+        return newUserInGroupWithPassword(experimenter,
+                Lists.newArrayList(group), password);
     }
 
     /**
