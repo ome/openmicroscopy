@@ -510,6 +510,66 @@ public class PasswordTest extends MockObjectTestCase {
         assertFalse(goodHash.equals(badHash));
     }
 
+    public void testJdbcLatin1PasswordOldUtil() throws Exception {
+        initJdbc(latin1);
+
+        // Setting the password with latin1 uses the bad hash
+        userIdReturns1();
+        setHashCalledWith(eq(1L), eq(badHash));
+        provider.changePassword("test", good);
+
+        // Checking the password whether good or bad passes
+        // 1) Good: Yes
+        userIdReturns1();
+        getPasswordHash(badHash);
+        assertTrue(provider.checkPassword("test", good, true));
+        // 1) Bad: Yes?! This was the bug.
+        userIdReturns1();
+        getPasswordHash(badHash);
+        assertTrue(provider.checkPassword("test", bad, true));
+    }
+
+    public void testJdbcLatin1PasswordNewUtil() throws Exception {
+        initJdbc(utf8);
+        // For this to work, the old util must be set.
+        ((JdbcPasswordProvider) provider).setLegacyUtil(latin1Util);
+
+        // Here we don't worry about testing the setting of the password
+        // since a latin1 util was used for the setting.
+
+        // Checking the password whether good or bad passes
+        // 1) Good: Yes
+        userIdReturns1();
+        getPasswordHash(badHash);
+        assertTrue(provider.checkPassword("test", good, true));
+        // 1) Bad: Yes, but ERROR printed to the logs.
+        userIdReturns1();
+        getPasswordHash(badHash);
+        assertTrue(provider.checkPassword("test", bad, true));
+    }
+
+    public void testJdbcUtf8PasswordNewUtil() throws Exception {
+        initJdbc(utf8);
+
+        // Setting the password with utf8 uses the good hash
+        userIdReturns1();
+        setHashCalledWith(eq(1L), eq(goodHash));
+        provider.changePassword("test", good);
+
+        // Only checking the password with good passes.
+        // 1) Good: yes
+        userIdReturns1();
+        getPasswordHash(goodHash);
+        assertTrue(provider.checkPassword("test", good, true));
+        // 2) Bad: NO!
+        userIdReturns1();
+        getPasswordHash(goodHash);
+        assertFalse(provider.checkPassword("test", bad, true));
+    }
+
+    // ~ empty passwords
+    // =========================================================================
+
     public void testIsPasswordRequiredWithoutStrictSetting() {
         PasswordUtil util = new PasswordUtil(sql, false);
         assertFalse(util.isPasswordRequired(null));
