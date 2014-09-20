@@ -303,8 +303,8 @@ class UserControl(UserGroupControl):
         # empty passwords
         configService = c.getSession().getConfigService()
         password_required = configService.getConfigValue(
-            "omero.security.password_required")
-        if args.no_password and password_required:
+            "omero.security.password_required").lower()
+        if args.no_password and password_required != 'false':
             self.ctx.die(502, "Server does not allow user creation with empty"
                          " passwords")
 
