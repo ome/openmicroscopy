@@ -594,8 +594,6 @@ public class AbstractServerTest extends AbstractTest {
     /**
      * Logs in the user.
      *
-     * @param ownerEc
-     *            The context of the user.
      * @param g
      *            The group to log into.
      * @throws Exception
@@ -604,7 +602,7 @@ public class AbstractServerTest extends AbstractTest {
     protected EventContext loginUser(ExperimenterGroup g) throws Exception {
         EventContext ec = iAdmin.getEventContext();
         omero.client client = newOmeroClient();
-        client.createSession(ec.userName, "dummy");
+        client.createSession(ec.userName, ec.userName);
         client.getSession().setSecurityContext(
                 new ExperimenterGroupI(g.getId(), false));
         return init(client);
@@ -620,7 +618,7 @@ public class AbstractServerTest extends AbstractTest {
      */
     protected void loginUser(EventContext ownerEc) throws Exception {
         omero.client client = newOmeroClient();
-        client.createSession(ownerEc.userName, "dummy");
+        client.createSession(ownerEc.userName, ownerEc.userName);
         init(client);
     }
 
