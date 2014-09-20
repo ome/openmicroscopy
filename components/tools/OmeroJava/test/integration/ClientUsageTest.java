@@ -51,8 +51,9 @@ public class ClientUsageTest extends AbstractServerTest {
         ExperimenterGroup g = new ExperimenterGroupI();
         g.setName(omero.rtypes.rstring(uuid));
         g.getDetails().setPermissions(new PermissionsI("rw----"));
-        svc.createGroup(g);
-        svc.createUser(e, uuid);
+        g = svc.getGroup(svc.createGroup(g));
+        long uid = newUserInGroupWithPassword(e, g, uuid);
+        svc.setDefaultGroup(svc.getExperimenter(uid), g);
         client = new omero.client();
         client.createSession(uuid, uuid);
         client.closeSession();
@@ -74,8 +75,9 @@ public class ClientUsageTest extends AbstractServerTest {
         ExperimenterGroup g = new ExperimenterGroupI();
         g.setName(omero.rtypes.rstring(uuid));
         g.getDetails().setPermissions(new PermissionsI("rw----"));
-        svc.createGroup(g);
-        svc.createUser(e, uuid);
+        g = svc.getGroup(svc.createGroup(g));
+        long uid = newUserInGroupWithPassword(e, g, uuid);
+        svc.setDefaultGroup(svc.getExperimenter(uid), g);
         client = new omero.client();
         client.createSession(uuid, uuid);
 
@@ -104,8 +106,9 @@ public class ClientUsageTest extends AbstractServerTest {
         ExperimenterGroup g = new ExperimenterGroupI();
         g.setName(omero.rtypes.rstring(uuid));
         g.getDetails().setPermissions(new PermissionsI("rw----"));
-        svc.createGroup(g);
-        svc.createUser(e, uuid);
+        g = svc.getGroup(svc.createGroup(g));
+        long uid = newUserInGroupWithPassword(e, g, uuid);
+        svc.setDefaultGroup(svc.getExperimenter(uid), g);
         client secure = new omero.client();
         ServiceFactoryPrx factory = secure.createSession(uuid, uuid);
         assertTrue(secure.isSecure());
