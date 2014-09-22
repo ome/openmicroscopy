@@ -122,7 +122,6 @@ var tagging_form = function(
             track: false,
             show: false,
             hide: false,
-            showBody: " - ",
             items: '[data-content]',
             content: function() {
                 return $(this).data('content');
@@ -170,7 +169,6 @@ var tagging_form = function(
             track: false,
             show: false,
             hide: false,
-            showBody: " - ",
             content: title
         });
     };
@@ -649,7 +647,6 @@ var tagging_form = function(
                 track: true,
                 show: false,
                 hide: false,
-                showBody: " - ",
                 items: '[data-content]',
                 content: function() {
                     return $(this).data('content');
