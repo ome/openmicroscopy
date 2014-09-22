@@ -151,27 +151,28 @@ class GraphicsPane
      */
     private String formatValue(double value)
     {
-        if (model.getRoundFactor() == 1) return ""+(int) value;
-        return UIUtilities.formatToDecimal(value);
+        if (model.isIntegerPixelData())
+            return ""+(int) value;
+        else
+            return UIUtilities.formatToDecimal(value);
     }
 
     /** Initializes the domain slider. */
     private void initDomainSlider()
     {
-        int f = model.getRoundFactor();
-        int s = (int) (model.getWindowStart()*f);
-        int e = (int) (model.getWindowEnd()*f);
-        int absMin = (int) (model.getLowestValue()*f);
-        int absMax = (int) (model.getHighestValue()*f);
-        int min = (int) (model.getGlobalMin()*f);
-        int max = (int) (model.getGlobalMax()*f);
+        int s = (int) model.getWindowStart();
+        int e = (int) model.getWindowEnd();
+        int absMin = (int) model.getLowestValue();
+        int absMax = (int) model.getHighestValue();
+        int min = (int) model.getGlobalMin();
+        int max = (int) model.getGlobalMax();
         double range = (max-min)*RATIO;
         int lowestBound = (int) (min-range);
         if (lowestBound < absMin) lowestBound = absMin;
         int highestBound = (int) (max+range);
         if (highestBound > absMax) highestBound = absMax;
         domainSlider.setValues(max, min, highestBound, lowestBound,
-                max, min, s, e, f);
+                max, min, s, e);
         if (model.getMaxC() > Renderer.MAX_CHANNELS)
             domainSlider.setInterval(min, max);
     }
@@ -370,14 +371,13 @@ class GraphicsPane
     /** Sets the pixels intensity interval. */
     void setInputInterval()
     {
-        double f, s, e;
+        double s, e;
         Iterator<ChannelSlider> i = sliders.iterator();
         ChannelSlider slider;
         while (i.hasNext()) {
             slider = i.next();
-            f = (double)model.getRoundFactor(slider.getIndex());
-            s = model.getWindowStart(slider.getIndex())*f;
-            e = model.getWindowEnd(slider.getIndex())*f;
+            s = model.getWindowStart(slider.getIndex());
+            e = model.getWindowEnd(slider.getIndex());
             slider.setInterval(s, e);
         }
     }
@@ -639,8 +639,7 @@ class GraphicsPane
                 }
             } else if (TwoKnobsSlider.LEFT_MOVED_PROPERTY.equals(name)){
                 if (source.equals(domainSlider)) {
-                    verticalLine = (int) (domainSlider.getStartValue()
-                                    *domainSlider.getRoundingFactor());
+                    verticalLine = (int) (domainSlider.getStartValue());
                     paintHorizontal = false;
                     paintVertical = true;
                     onCurveChange();
@@ -652,8 +651,7 @@ class GraphicsPane
                 }
             } else if (TwoKnobsSlider.RIGHT_MOVED_PROPERTY.equals(name)) {
                 if (source.equals(domainSlider)) {
-                    verticalLine = (int) (domainSlider.getEndValue()
-                            *domainSlider.getRoundingFactor());
+                    verticalLine = (int) (domainSlider.getEndValue());
                     horizontalLine = -1;
                     paintHorizontal = false;
                     paintVertical = true;

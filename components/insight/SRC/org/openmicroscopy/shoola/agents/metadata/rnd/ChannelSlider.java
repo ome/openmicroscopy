@@ -96,17 +96,16 @@ class ChannelSlider
 	private void initComponents()
 	{
 		final int index = channel.getIndex();
-		int f = model.getRoundFactor(index);
-		double s = model.getWindowStart(index)*f;
-		double e = model.getWindowEnd(index)*f;
-		double min = channel.getGlobalMin()*f;
-		double max = channel.getGlobalMax()*f;
+		double s = model.getWindowStart(index);
+		double e = model.getWindowEnd(index);
+		double min = channel.getGlobalMin();
+		double max = channel.getGlobalMax();
         
 		boolean intMode = model.isIntegerPixelData();
 		
 		if (intMode) {
-		        int absMin = (int) (model.getLowestValue(index)*f);
-		        int absMax = (int) (model.getHighestValue(index)*f);
+		        int absMin = (int) (model.getLowestValue(index));
+		        int absMax = (int) (model.getHighestValue(index));
 		        if (!channel.hasStats()) {
 		                min = absMin;
 		                max = absMax;
@@ -124,11 +123,11 @@ class ChannelSlider
                         slider.setBackground(UIUtilities.BACKGROUND_COLOR);
                         
                         slider.setValues((int)max, (int)min, (int)highestBound, (int)lowestBound,
-                                (int)max, (int)min, (int)s, (int)e, f);
+                                (int)max, (int)min, (int)s, (int)e);
 		}
 		else {
-		    double absMin = model.getLowestValue(index)*f;
-		    double absMax = model.getHighestValue(index)*f;
+		    double absMin = model.getLowestValue(index);
+		    double absMax = model.getHighestValue(index);
                     if (!channel.hasStats()) {
                             min = absMin;
                             max = absMax;
@@ -146,7 +145,7 @@ class ChannelSlider
                     slider.setBackground(UIUtilities.BACKGROUND_COLOR);
                     
                     slider.setValues(max, min, highestBound, lowestBound,
-                            max, min, s, e, f);
+                            max, min, s, e);
 		}
         
         slider.getSlider().setPaintLabels(false);
@@ -271,14 +270,13 @@ class ChannelSlider
 	void setInputRange(boolean absolute)
 	{
 		int index = channel.getIndex();
-		int f = model.getRoundFactor(index);
-    	int s = (int) (model.getWindowStart(index)*f);
-        int e = (int) (model.getWindowEnd(index)*f);
-        int min = (int) (channel.getGlobalMin()*f);
-        int max = (int) (channel.getGlobalMax()*f);
+    	int s = (int) model.getWindowStart(index);
+        int e = (int) model.getWindowEnd(index);
+        int min = (int) channel.getGlobalMin();
+        int max = (int) channel.getGlobalMax();
        
-        int absMin = (int) (model.getLowestValue(index)*f);
-        int absMax = (int) (model.getHighestValue(index)*f);
+        int absMin = (int) model.getLowestValue(index);
+        int absMax = (int) model.getHighestValue(index);
         if (absolute)
         	slider.getSlider().setValues(absMax, absMin, absMax, absMin, s, e);
         else 

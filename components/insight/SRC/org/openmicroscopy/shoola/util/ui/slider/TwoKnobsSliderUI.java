@@ -681,8 +681,8 @@ class TwoKnobsSliderUI
 			if (start) distanceFromTrackLeft = xPosition-trackLeft;
 			double valueRange = (double) maxValue-(double) minValue;
 			double valuePerPixel = Math.ceil(valueRange/trackLength*1000)/1000;
-			int valueFromTrackLeft = 
-			  (int) Math.ceil(distanceFromTrackLeft*valuePerPixel);
+			double valueFromTrackLeft = 
+			  Math.ceil(distanceFromTrackLeft*valuePerPixel*1000)/1000;
 			if (start) value = minValue+valueFromTrackLeft;
 			else value = maxValue-valueFromTrackLeft;
 		}
@@ -713,8 +713,8 @@ class TwoKnobsSliderUI
 			if (start) distanceFromTrackTop = yPosition-trackTop;
 			double valueRange = (double) maxValue-(double) minValue;
 			double valuePerPixel = Math.ceil(valueRange/trackLength*1000)/1000;
-			int valueFromTrackTop = 
-				(int) Math.ceil(distanceFromTrackTop*valuePerPixel);
+			double valueFromTrackTop = 
+				Math.ceil(distanceFromTrackTop*valuePerPixel*1000)/1000;
 			//value = maxValue-valueFromTrackTop;
 			if (!start) value = minValue+valueFromTrackTop;
 			else value = maxValue-valueFromTrackTop;

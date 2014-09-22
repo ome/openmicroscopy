@@ -671,32 +671,6 @@ class RendererModel
 	}
 
 	/**
-	 * Returns the rounding factor used for the input value.
-	 *
-	 * @return See above.
-	 */
-	int getRoundFactor()
-	{
-		return getRoundFactor(selectedChannelIndex);
-	}
-	
-	/**
-	 * Returns the rounding factor used for the input value.
-	 *
-	 * @param channel The channel to handle.
-	 * @return See above.
-	 */
-	int getRoundFactor(int channel)
-	{
-		double min = getGlobalMin(channel);
-		double max = getGlobalMax(channel);
-		double rmin = UIUtilities.roundTwoDecimals(min);
-		double rmax = UIUtilities.roundTwoDecimals(max);
-		if (rmin == min && rmax == max) return 1;
-		return 100;
-	}
-
-	/**
 	 * Returns the global maximum of the currently selected channel
 	 * or of all channels if the number of channels is greater
 	 * {@link Renderer#MAX_CHANNELS}.
