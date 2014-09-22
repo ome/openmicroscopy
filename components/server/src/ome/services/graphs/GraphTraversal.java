@@ -424,7 +424,7 @@ public class GraphTraversal {
         this.systemTypes = systemTypes;
         this.model = graphPathBean;
         this.planning = new Planning();
-        this.policy = policy;
+        this.policy = policy.getCleanInstance();
         this.processor = log.isDebugEnabled() ? debugWrap(processor) : processor;
     }
 

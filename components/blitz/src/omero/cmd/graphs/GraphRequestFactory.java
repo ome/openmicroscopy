@@ -78,7 +78,7 @@ public class GraphRequestFactory {
         try {
             final Constructor<X> constructor =
                     requestClass.getConstructor(ACLVoter.class, SystemTypes.class, GraphPathBean.class, GraphPolicy.class);
-            return constructor.newInstance(aclVoter, systemTypes, graphPathBean, graphPolicy.getCleanInstance());
+            return constructor.newInstance(aclVoter, systemTypes, graphPathBean, graphPolicy);
         } catch (Exception e) {
             /* TODO: easier to do a ReflectiveOperationException multi-catch in Java SE 7 */
             throw new IllegalArgumentException("cannot instantiate " + requestClass, e);
