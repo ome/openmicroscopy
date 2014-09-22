@@ -43,7 +43,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -234,8 +233,6 @@ public class TextualTwoKnobsSlider
 	 * @param max    The maximum value.
 	 * @param start  The start value.
 	 * @param end    The end value.
-	 * @param roundingFactor The factor by which the values are multiplied by
-	 * 						 or divided by.
 	 */
 	private void initComponents(double absMin, double absMax, double min, double max, 
 	        double start, double end)
@@ -455,21 +452,21 @@ public class TextualTwoKnobsSlider
         {
                 this(min, max, min, max);
         }
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param min   The minimum value.
-	 * @param max   The maximum value.
-	 * @param start The start value.
-	 * @param end   The end value.
-	 */
-	public TextualTwoKnobsSlider(int min, int max, int start, int end)
-	{
-		this(min, max, min, max, start, end, 1);
-	}
-	
-	/**
+        
+        /**
+         * Creates a new instance.
+         * 
+         * @param min   The minimum value.
+         * @param max   The maximum value.
+         * @param start The start value.
+         * @param end   The end value.
+         */
+        public TextualTwoKnobsSlider(int min, int max, int start, int end)
+        {
+                this(min, max, min, max, start, end);
+        }
+        
+        /**
          * Creates a new instance.
          * 
          * @param min   The minimum value.
@@ -479,11 +476,11 @@ public class TextualTwoKnobsSlider
          */
         public TextualTwoKnobsSlider(double min, double max, double start, double end)
         {
-                this(min, max, min, max, start, end, 1);
+                this(min, max, min, max, start, end);
         }
         
 	/**
-	 * Creates a new instance.
+	 * Creates a new instance. (integer mode)
 	 * 
 	 * @param absMin The absolute minimum value of the slider.
 	 * @param absMax The absolute maximum value of the slider.
@@ -491,11 +488,9 @@ public class TextualTwoKnobsSlider
 	 * @param max    The maximum value.
 	 * @param start  The start value.
 	 * @param end    The end value.
-	 * @param roundingFactor The factor by which the values are multiplied by
-	 * 						 or divided by.
 	 */
 	public TextualTwoKnobsSlider(int absMin, int absMax, int min, int max, 
-			int start, int end, int roundingFactor)
+			int start, int end)
 	{
 	        intMode = true;
 		initComponents(absMin, absMax, min, max, start, end);
@@ -503,7 +498,7 @@ public class TextualTwoKnobsSlider
 	}
 	
 	/**
-         * Creates a new instance.
+         * Creates a new instance. (floating point mode)
          * 
          * @param absMin The absolute minimum value of the slider.
          * @param absMax The absolute maximum value of the slider.
@@ -511,11 +506,9 @@ public class TextualTwoKnobsSlider
          * @param max    The maximum value.
          * @param start  The start value.
          * @param end    The end value.
-         * @param roundingFactor The factor by which the values are multiplied by
-         *                                               or divided by.
          */
         public TextualTwoKnobsSlider(double absMin, double absMax, double min, double max, 
-                double start, double end, int roundingFactor)
+                double start, double end)
         {
                 intMode = false;
                 initComponents(absMin, absMax, min, max, start, end);

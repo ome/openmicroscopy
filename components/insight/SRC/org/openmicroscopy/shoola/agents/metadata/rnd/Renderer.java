@@ -31,17 +31,13 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
-
 import javax.swing.JComponent;
-
 
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
 
-
 //Application-internal dependencies
 import omero.romio.PlaneDef;
-
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -50,7 +46,6 @@ import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
-
 import pojos.ChannelData;
 import pojos.ImageData;
 import pojos.PixelsData;

@@ -68,9 +68,6 @@ class ChannelSlider
 	/** The default color. */
 	static final Color		GRADIENT_COLOR = Color.BLACK;
 	
-	/** Threshold when to use integer mode (instead of floating point)*/
-	private static final double INT_MODE_THRESHOLD = 0.00001;
-	
 	/** Reference to the model. */
 	private RendererModel 			model;
 	

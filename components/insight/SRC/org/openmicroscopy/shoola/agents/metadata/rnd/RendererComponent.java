@@ -39,10 +39,8 @@ import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
-
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
-
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
@@ -67,7 +65,6 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-
 import pojos.ChannelData;
 import pojos.ImageData;
 import pojos.PixelsData;
