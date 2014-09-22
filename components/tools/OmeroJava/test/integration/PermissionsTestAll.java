@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
-import omero.RLong;
 import omero.RString;
 import omero.RType;
 import omero.api.IAdminPrx;
@@ -424,73 +423,68 @@ public class PermissionsTestAll extends AbstractServerTest {
      * @return
      */
     @DataProvider(name = "createData")
-    public Object[][] createData() {
+    public Object[][] createData() throws Exception {
         List<TestParam> map = new ArrayList<TestParam>();
         Object[][] values = null;
-        try {
+        for (int j = 0; j < users.length; j++) // users.length
+        {
+            omero.client client = new omero.client();
+            ServiceFactoryPrx session = client.createSession(users[j],
+                    password);
 
-            for (int j = 0; j < users.length; j++) // users.length
+            Experimenter user1 = session.getAdminService()
+                    .lookupExperimenter(users[j]);
+            List<Long> gids = session.getAdminService()
+                    .getMemberOfGroupIds(user1);
+            for (int k = 0; k < gids.size(); k++) // source group iterations
             {
-                omero.client client = new omero.client();
-                ServiceFactoryPrx session = client.createSession(users[j],
-                        password);
 
-                Experimenter user1 = session.getAdminService()
-                        .lookupExperimenter(users[j]);
-                List<Long> gids = session.getAdminService()
-                        .getMemberOfGroupIds(user1);
-                for (int k = 0; k < gids.size(); k++) // source group iterations
-                {
+                for (int l = 0; l < gids.size(); l++) { // target group iterations
 
-                    for (int l = 0; l < gids.size(); l++) { // target group iterations
+                    ExperimenterGroupI group = new ExperimenterGroupI(
+                            gids.get(k), false);
+                    session.setSecurityContext(group);
+                    Long userid = session.getAdminService()
+                            .getEventContext().userId;
 
-                        ExperimenterGroupI group = new ExperimenterGroupI(
-                                gids.get(k), false);
-                        session.setSecurityContext(group);
-                        Long userid = session.getAdminService()
-                                .getEventContext().userId;
+                    Long targetgroup = gids.get(l);
+                    Chgrp chgrp = new Chgrp();
 
-                        Long targetgroup = gids.get(l);
-                        Chgrp chgrp = new Chgrp();
+                    ParametersI params = new omero.sys.ParametersI();
+                    params.exp(omero.rtypes.rlong(userid));
 
-                        ParametersI params = new omero.sys.ParametersI();
-                        params.exp(omero.rtypes.rlong(userid));
+                    IContainerPrx proxy = session.getContainerService();
+                    List<Image> imageList1 = proxy.getUserImages(params);
+                    if (imageList1.size() == 0) {
 
-                        IContainerPrx proxy = session.getContainerService();
-                        List<Image> imageList1 = proxy.getUserImages(params);
-                        if (imageList1.size() == 0) {
-
-                            iUpdate = session.getUpdateService();
-                            mmFactory = new ModelMockFactory(
-                                    session.getPixelsService());
-                            Image img = (Image) iUpdate
-                                    .saveAndReturnObject(mmFactory
-                                            .simpleImage());
-                            assertNotNull(img);
-                            imageList1 = proxy.getUserImages(params);
-                        }
-
-                        Image img = imageList1.get(0);
-                        long imageid = img.getId().getValue();
-
-                        chgrp.id = imageid;
-                        chgrp.type = "/Image";
-                        chgrp.grp = targetgroup;
-                        map.add(new TestParam(chgrp, users[j], password, gids
-                                .get(k)));
+                        iUpdate = session.getUpdateService();
+                        mmFactory = new ModelMockFactory(
+                                session.getPixelsService());
+                        Image img = (Image) iUpdate
+                                .saveAndReturnObject(mmFactory
+                                        .simpleImage());
+                        assertNotNull(img);
+                        imageList1 = proxy.getUserImages(params);
                     }
 
+                    Image img = imageList1.get(0);
+                    long imageid = img.getId().getValue();
+
+                    chgrp.id = imageid;
+                    chgrp.type = "/Image";
+                    chgrp.grp = targetgroup;
+                    map.add(new TestParam(chgrp, users[j], password, gids
+                            .get(k)));
                 }
-                int index = 0;
-                Iterator<TestParam> k = map.iterator();
-                values = new Object[map.size()][1];
-                while (k.hasNext()) {
-                    values[index][0] = k.next();
-                    index++;
-                }
+
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+            int index = 0;
+            Iterator<TestParam> k = map.iterator();
+            values = new Object[map.size()][1];
+            while (k.hasNext()) {
+                values[index][0] = k.next();
+                index++;
+            }
         }
 
         return values;
