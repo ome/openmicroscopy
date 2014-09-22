@@ -29,7 +29,11 @@
           $("#markup_c, #enable, #expire").tooltip({
               track: true,
               show: false,
-              hide: false
+              hide: false,
+              items: '[data-content]',
+              content: function() {
+                  return $(this).data('content');
+              }
           });
       });
     </script>
