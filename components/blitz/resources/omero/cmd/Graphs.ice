@@ -138,9 +138,14 @@ module omero {
 
         };
 
-        class Chgrp2 extends Request {
-            long groupId;
+        class Request2 extends Request {
             omero::api::IObjectList targetObjects;
+            omero::api::StringSet includeNs;
+            omero::api::StringSet excludeNs;
+        };
+
+        class Chgrp2 extends Request2 {
+            long groupId;
         };
 
         class Chgrp2Response extends OK {
@@ -148,8 +153,7 @@ module omero {
             omero::api::IObjectList deletedObjects;
         };
 
-        class Delete2 extends Request {
-            omero::api::IObjectList targetObjects;
+        class Delete2 extends Request2 {
         };
 
         class Delete2Response extends OK {
