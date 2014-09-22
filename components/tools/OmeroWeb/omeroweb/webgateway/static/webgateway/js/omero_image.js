@@ -304,7 +304,7 @@
 
         var q = viewport.getQuality();
         if (q) {
-            var qr = $('#wblitz-quality > [value="+q.toFixed(1)+"]');
+            var qr = $('#wblitz-quality > option[value="' + q.toFixed(1) + '"]');
             if (qr.length) {
                 qr.attr('selected','selected');
             }
