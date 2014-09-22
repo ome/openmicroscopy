@@ -101,7 +101,7 @@
 
             $('#script_form').ajaxForm({
                 beforeSubmit: function() {
-                    $("#submit").attr("disabled", "disabled");
+                    $("#submit").prop("disabled", true);
                 },
                 success: function(data) {
                     window.opener.OME.showActivities();

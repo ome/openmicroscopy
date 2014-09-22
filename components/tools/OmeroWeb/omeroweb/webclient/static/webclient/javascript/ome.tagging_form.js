@@ -209,7 +209,7 @@ var tagging_form = function(
         };
 
         $(":button:contains('Reset'),:button:contains('Save')",
-            $("#add_tags_form").parent()).attr("disabled", "disabled").addClass(
+            $("#add_tags_form").parent()).prop("disabled", true).addClass(
             'ui-state-disabled');
 
         progressbar_label.text("Initializing");
@@ -365,7 +365,7 @@ var tagging_form = function(
         if (loaded) {
             $(":button:contains('Reset'),:button:contains('Save')",
               $("#add_tags_form").parent()
-              ).removeAttr("disabled").removeClass('ui-state-disabled');
+              ).prop("disabled", false).removeClass('ui-state-disabled');
         }
     };
 
@@ -671,7 +671,7 @@ var tagging_form = function(
     };
 
     var add_new_tag_on_enter_key = function(event) {
-        if (event.which === 13 && !$("#id_add_new_tag").attr('disabled')) {
+        if (event.which === 13 && !$("#id_add_new_tag").prop('disabled')) {
             add_new_tag(event);
         }
     };
@@ -713,9 +713,9 @@ var tagging_form = function(
     var update_add_new_button_state = function() {
         if (loaded && tag_input.val() !== '' &&
             tag_input.val() !== tag_input.attr('placeholder')) {
-            $("#id_add_new_tag").removeAttr('disabled');
+            $("#id_add_new_tag").prop('disabled', false);
         } else {
-            $("#id_add_new_tag").attr('disabled','disabled');
+            $("#id_add_new_tag").prop('disabled', true);
         }
     };
 

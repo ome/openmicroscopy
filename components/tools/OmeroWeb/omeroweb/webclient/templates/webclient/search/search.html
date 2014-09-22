@@ -57,8 +57,8 @@
                 var $ownedBy = $("select[name='ownedBy']");
 
                 var selectUsersFromGroup = function(groupId) {
-                    $ownedBy.attr("disabled", "disabled").hide();
-                    $("#searchByGroupMember-" + groupId).removeAttr('disabled').show();
+                    $ownedBy.prop("disabled", true).hide();
+                    $("#searchByGroupMember-" + groupId).prop('disabled', false).show();
                 }
 
                 // Choose group, then pick a user from that group

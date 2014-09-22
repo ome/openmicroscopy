@@ -53,9 +53,9 @@
                     if (selected.length > 1) toolbar_config['annotation'] = true;
                     for (var sIndex in toolbar_config) { 
                         if (toolbar_config[sIndex]){
-                            $('input#'+sIndex+'Button').removeClass('button-disabled').removeAttr('disabled');
+                            $('input#'+sIndex+'Button').removeClass('button-disabled').prop('disabled', false);
                         } else {
-                            $('input#'+sIndex+'Button').addClass('button-disabled').attr('disabled', true);
+                            $('input#'+sIndex+'Button').addClass('button-disabled').prop('disabled', true);
                         }
                     }
                 }

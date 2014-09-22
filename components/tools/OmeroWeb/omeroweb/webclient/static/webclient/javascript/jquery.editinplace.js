@@ -81,7 +81,7 @@
                                         $.each(errors,function(fieldname,errmsg) {
                                             $("#form-"+field_id + " input#id_" + fieldname).parent().find("p.error").html( errmsg ); //I want the error above the <p> holding the field
                                         });
-                                        $('#save-'+field_id).removeAttr("disabled");  // re-enable for re-submit
+                                        $('#save-'+field_id).prop("disabled", false);  // re-enable for re-submit
                                     } else {
                                         $("#form-"+field_id).find('input').each( function( ) {
                                             if ($(this).attr('name')!=null && $(this).attr('name')!=""){
@@ -133,7 +133,7 @@
                                 }
                             },
                             beforeSubmit: function () { 
-                                $('#save-'+field_id).attr("disabled","disabled"); //Disable the submit button - can't click twice
+                                $('#save-'+field_id).prop("disabled", true); //Disable the submit button - can't click twice
                                 $("#form-"+field_id).find("ul").each(function () {
                                     $(this).remove();
                                 }); // this.each

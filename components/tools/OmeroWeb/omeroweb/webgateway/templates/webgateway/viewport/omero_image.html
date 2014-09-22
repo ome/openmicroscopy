@@ -231,16 +231,16 @@
 //    if (p) {
 //      var pr = $('#wblitz-proj > [value='+p+']');
 //      if (pr.length) {
-//        pr.attr('selected','selected');
+//        pr.prop('selected',true);
 //      }
       if (p != 'normal') {
         editLinePlot(false);
       }
       // disable line-plot for max projection, split-view etc
-      $('#wblitz-lp-enable').attr('disabled', p != 'normal');
-      //$('#wblitz-channels-box button').attr('disabled', p == 'split');
+      $('#wblitz-lp-enable').prop('disabled', p != 'normal');
+      //$('#wblitz-channels-box button').prop('disabled', p == 'split');
       var disable_intmax = (viewport.loadedImg.rdefs.invertAxis || viewport.getSizes().z < 2);
-      $('[name="wblitz-proj"][value=intmax]').attr('disabled', disable_intmax);
+      $('[name="wblitz-proj"][value=intmax]').prop('disabled', disable_intmax);
     }
 
     //nosync || syncRDCW(viewport);
@@ -258,8 +258,8 @@
       btns.removeClass('forcegrey');
     }
     // update both checkboxes to keep in sync.
-    $('#wblitz-rmodel').attr('checked', viewport.isGreyModel());
-    $('#rd-wblitz-rmodel').attr('checked', viewport.isGreyModel());
+    $('#wblitz-rmodel').prop('checked', viewport.isGreyModel());
+    $('#rd-wblitz-rmodel').prop('checked', viewport.isGreyModel());
     //syncRDCW(viewport);
   };
 
@@ -273,14 +273,14 @@
       }
       var lp = viewport.getLinePlot();
       $('#wblitz-lp-axis').html(lp.isHorizontal() ? 'Y': 'X');
-      $('#wblitz-lp-enable').attr('checked', 'checked');
+      $('#wblitz-lp-enable').prop('checked', 'checked');
       $('#wblitz-lp-editpos').val(lp.position).show();
       $('#wblitz-lp-wrap').show();
       $('#wblitz-lp-btn').html('apply');
       $('#wblitz-lp-axis-select').selectOptions(lp.isHorizontal() ? 'h': 'v');
     } else {
       viewport.stopPickPos();
-      $('#wblitz-lp-enable').attr('checked', null);
+      $('#wblitz-lp-enable').prop('checked', false);
       $('#wblitz-lp-wrap').hide();
       $('#wblitz-lp-cur').html('');
     }
@@ -1223,10 +1223,10 @@
 
     // Enable Prev / Next buttons if available (disabled by default)
     if (prevImgId) {
-      $(".btn.prev_next_image.prev").removeAttr('disabled');
+      $(".btn.prev_next_image.prev").prop('disabled', false);
     }
     if (nextImgId) {
-      $(".btn.prev_next_image.next").removeAttr('disabled');
+      $(".btn.prev_next_image.next").prop('disabled', false);
     }
 
     // Handle Prev / Next button clicks or keys
