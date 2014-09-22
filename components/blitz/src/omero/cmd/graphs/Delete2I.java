@@ -87,8 +87,11 @@ public class Delete2I extends Delete2 implements IRequest {
 
         final EventContext eventContext = helper.getEventContext();
 
-        graphTraversal =
-                new GraphTraversal(eventContext, aclVoter, systemTypes, graphPathBean, graphPolicy, new InternalProcessor());
+        final GraphPolicy graphPolicyWithOptions =
+                AnnotationNamespacePolicy.getAnnotationNamespacePolicy(graphPolicy, includeNs, excludeNs);
+
+        graphTraversal = new GraphTraversal(eventContext, aclVoter, systemTypes, graphPathBean, graphPolicyWithOptions,
+                new InternalProcessor());
     }
 
     @Override

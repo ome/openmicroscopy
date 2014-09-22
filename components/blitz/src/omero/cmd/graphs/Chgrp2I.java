@@ -88,15 +88,15 @@ public class Chgrp2I extends Chgrp2 implements IRequest {
 
         /* check that the user is a member of the destination group */
         final EventContext eventContext = helper.getEventContext();
-        if (!eventContext.isCurrentUserAdmin()) {
-            final Collection<Long> groups = eventContext.getMemberOfGroupsList();
-            if (!groups.contains(groupId)) {
-                throw helper.cancel(new ERR(), new IllegalArgumentException(), "not a member of the chgrp destination group");
-            }
+        if (!(eventContext.isCurrentUserAdmin() || eventContext.getMemberOfGroupsList().contains(groupId))) {
+            throw helper.cancel(new ERR(), new IllegalArgumentException(), "not a member of the chgrp destination group");
         }
 
-        graphTraversal =
-                new GraphTraversal(eventContext, aclVoter, systemTypes, graphPathBean, graphPolicy, new InternalProcessor());
+        final GraphPolicy graphPolicyWithOptions =
+                AnnotationNamespacePolicy.getAnnotationNamespacePolicy(graphPolicy, includeNs, excludeNs);
+
+        graphTraversal = new GraphTraversal(eventContext, aclVoter, systemTypes, graphPathBean, graphPolicyWithOptions,
+                new InternalProcessor());
     }
 
     @Override
