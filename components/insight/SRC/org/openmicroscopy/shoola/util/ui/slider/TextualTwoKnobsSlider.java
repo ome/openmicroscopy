@@ -788,7 +788,9 @@ public class TextualTwoKnobsSlider
                 int textFieldLength = (int)(formatValue(maxValue).length()*TEXTFIELD_LENGTH_CORRECTION);
                 
                 startField.setNumberType(Double.class);
+                startField.setNegativeAccepted(true);
                 endField.setNumberType(Double.class);
+                endField.setNegativeAccepted(true);
                 
                 startField.setColumns(textFieldLength);
                 endField.setColumns(textFieldLength);
