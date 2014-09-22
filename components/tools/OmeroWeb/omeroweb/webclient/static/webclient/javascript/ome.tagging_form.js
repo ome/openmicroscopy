@@ -730,13 +730,6 @@ var tagging_form = function(
     $("select[name=filter_mode],select[name=filter_owner_mode]").change(
         update_filter);
 
-    // TODO This does not correspond to any element as the id is never
-    // applied to anything
-    // $("#id_tag_info_button").on('click', function(event) {
-    //     event.preventDefault();
-    // }).tooltip();
-
-    //load_tags();
     loader();
 
     // placeholder fixes - should probably be in a more generic place
