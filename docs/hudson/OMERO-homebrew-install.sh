@@ -101,7 +101,7 @@ else
 fi
 VERBOSE=1 bin/brew test omero
 
-# Install PostgreSL
+# Install PostgreSQL
 bin/brew install postgres
 
 # Install OMERO Python dependencies
