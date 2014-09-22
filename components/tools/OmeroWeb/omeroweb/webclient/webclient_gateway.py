@@ -2031,6 +2031,7 @@ class OmeroWebObjectWrapper (object):
     def setRating(self, rating):
         """
         Add a rating (long) annotation to the object, or update an existing rating.
+        If rating is zero, we remove any existing rating annotation.
         """
         rating_ns = omero.constants.metadata.NSINSIGHTRATING
         parent_type = self.OMERO_CLASS
@@ -2038,12 +2039,19 @@ class OmeroWebObjectWrapper (object):
         params.addLong('ownerId', self._conn.getUserId())
 
         ratingAnns = list(self._conn.getAnnotationLinks(parent_type, parent_ids=[self.id], ns=rating_ns, params=params))
-        ratingAnn = ratingAnns and ratingAnns[0].getChild() or None
+        ratingLink = ratingAnns and ratingAnns[0] or None
 
-        if ratingAnn is not None:
-            ratingAnn.setLongValue( rlong(rating) )
-            ratingAnn.save()
-        else:
+        if ratingLink is not None:
+            ratingAnn = ratingLink.getChild()
+            print ratingAnn, ratingAnn.getId(), ratingAnn.getLongValue()
+            if rating > 0:
+                ratingAnn.setLongValue( rlong(rating) )
+                ratingAnn.save()
+            else:
+                # self._conn.deleteObjects("Annotation", [ratingAnn.getId()])
+                self._conn.deleteObjectDirect(ratingLink._obj)
+                self._conn.deleteObjectDirect(ratingAnn._obj)
+        elif rating > 0:
             ratingAnn = omero.model.LongAnnotationI()
             ratingAnn.setLongValue( rlong(rating) )
             ratingAnn.setNs( rstring(rating_ns) )

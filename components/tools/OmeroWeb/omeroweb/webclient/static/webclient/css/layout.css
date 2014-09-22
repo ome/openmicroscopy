@@ -549,8 +549,14 @@
     
     /* Rating */
 
-    .myRating {
-		cursor: pointer;
+    .lnfiles:empty {
+        display: none;
+    }
+    .myRating img{
+        cursor: pointer;
+    }
+    .addRating .removeRating, .addRating .ratingOwner {
+        display: none;
     }
         
         
