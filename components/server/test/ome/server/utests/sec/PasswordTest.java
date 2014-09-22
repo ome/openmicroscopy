@@ -7,6 +7,7 @@
 package ome.server.utests.sec;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -532,9 +533,9 @@ public class PasswordTest extends MockObjectTestCase {
         assertEquals(badHash, latin1Util.passwordDigest(good));
     }
 
-    public void testUtf8Encoding() {
+    public void testUtf8Encoding() throws UnsupportedEncodingException{
         final PasswordUtil utf8Util = new PasswordUtil(sql, utf8);
-        assertEquals(good, new String(good.getBytes(utf8)));
+        assertEquals(good, new String(good.getBytes(utf8), "UTF-8"));
         assertEquals(badHash, utf8Util.passwordDigest(bad));
         assertEquals(goodHash, utf8Util.passwordDigest(good));
         assertFalse(goodHash.equals(badHash));
