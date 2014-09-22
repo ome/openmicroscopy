@@ -476,23 +476,45 @@
 
             {% endif %}
 
-                $(".myRating").click(function(event){
+                $("#rating_annotations").on("click", ".myRating img", function(event){
                     var $rating = $(this);
                     var r = (event.offsetX/ $rating.width()) * 5;
                     r = parseInt(Math.ceil(r));
+                    setRating(r, $rating);
+                });
+                $(".addRating img").click(function(event){
+                    var $rating = $(this),
+                        $ratingli = $rating.parent().parent();
+                    var r = (event.offsetX/ $rating.width()) * 5;
+                    r = parseInt(Math.ceil(r));
 
+                    var $newR = $ratingli.clone().appendTo("#rating_annotations");
+                    $newR.removeClass('addRating').addClass('myRating');
+                    $ratingli.hide();
+
+                    setRating(r, $newR.find('img'));
+                });
+                $("#rating_annotations").on("click", ".removeRating", function(event){
+                    var $ratingli = $(this).parent();
+                    setRating(0);
+                    $ratingli.remove();
+                    $(".addRating").show();
+                });
+
+                var setRating = function(rating, $rating) {
                     // update rating
-                    var rating_src = "{% static 'webclient/image/rating0.png' %}".replace("0.png", r+".png");
-                    $rating.attr('src', rating_src);
+                    if ($rating) {
+                        var rating_src = "{% static 'webclient/image/rating0.png' %}".replace("0.png", rating+".png");
+                        $rating.attr('src', rating_src);
+                    }
 
                     // update rating annotation
                     var rating_url = "{% url 'annotate_rating' %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}"
-                    rating_url += "&rating=" + r;
+                    rating_url += "&rating=" + rating;
                     $.post(rating_url, function(data) {
                         // Assume OK;
                     });
-                });
-
+                }
             });
             
     </script>
@@ -787,40 +809,35 @@
       
                 <h2>{% trans "Rating" %}</h2>
                 <div style="clear:both"></div>
-                <div class="lnfiles">
-                    <ul>
-                    {% for rating in manager.rating_annotations %}
-                      <li>
-                        <a><img {% ifequal rating.getDetails.getOwner.id ome.user_id %}class="myRating"{% endifequal %}
-                        {% ifequal rating.getValue 0 %} src="{% static "webclient/image/rating0.png" %}"{% endifequal %}
-                        {% ifequal rating.getValue 1 %} src="{% static "webclient/image/rating1.png" %}"{% endifequal %}
-                        {% ifequal rating.getValue 2 %} src="{% static "webclient/image/rating2.png" %}"{% endifequal %}
-                        {% ifequal rating.getValue 3 %} src="{% static "webclient/image/rating3.png" %}"{% endifequal %}
-                        {% ifequal rating.getValue 4 %} src="{% static "webclient/image/rating4.png" %}"{% endifequal %}
-                        {% ifequal rating.getValue 5 %} src="{% static "webclient/image/rating5.png" %}"{% endifequal %}
-                        />
+
+                <!-- stars for adding a rating (only show if we have none) -->
+                <ul>
+                <li class="addRating" {% if manager.getMyRating %}style="display:none"{% endif %} >
+                    <a><img src="{% static "webclient/image/rating0.png" %}">
+                        <span class="ratingOwner">{{ ome.user.getNameWithInitial }}</span>
+                    </a>
+                    <a href="#" class="removeRating">X</a>
+                </li>
+                </ul>
+
+                <!-- NB: ul has to be :empty (no whitespace) if no li for css :empty {display:none} -->
+                <ul id="rating_annotations" class="lnfiles">{% for rating in manager.rating_annotations %}<li
+                        {% ifequal rating.getDetails.getOwner.id ome.user_id %}class="myRating"{% endifequal %} >
+                            <a><img
+                            {% ifequal rating.getValue 0 %} src="{% static "webclient/image/rating0.png" %}"{% endifequal %}
+                            {% ifequal rating.getValue 1 %} src="{% static "webclient/image/rating1.png" %}"{% endifequal %}
+                            {% ifequal rating.getValue 2 %} src="{% static "webclient/image/rating2.png" %}"{% endifequal %}
+                            {% ifequal rating.getValue 3 %} src="{% static "webclient/image/rating3.png" %}"{% endifequal %}
+                            {% ifequal rating.getValue 4 %} src="{% static "webclient/image/rating4.png" %}"{% endifequal %}
+                            {% ifequal rating.getValue 5 %} src="{% static "webclient/image/rating5.png" %}"{% endifequal %}
+                            />
                        
-                            <span>{{ rating.getDetails.getOwner.getNameWithInitial }}</span>
+                            <span class="ratingOwner">{{ rating.getDetails.getOwner.getNameWithInitial }}</span>
                             </a>
                             {% ifequal rating.getDetails.getOwner.id ome.user_id %}
                             <a href="#" class="removeRating">X</a>
                             {% endifequal %}
-                        </li>
-                        
-                    {% endfor %}
-
-                    {% if not manager.getMyRating %}
-                        <li>
-                            <a><img class="myRating" src="{% static "webclient/image/rating0.png" %}">
-                                <span>{{ ome.user.getNameWithInitial }}</span>
-                            </a>
-                            <a href="#" class="removeRating">X</a>
-                        </li>
-                    {% endif %}
-
-                    </ul>
-                </div>
-             
+                        </li>{% endfor %}</ul>
              </div>
             
             
