@@ -477,13 +477,19 @@
             {% endif %}
 
                 $(".myRating").click(function(event){
-                    var r = (event.offsetX/ $(this).width()) * 5;
+                    var $rating = $(this);
+                    var r = (event.offsetX/ $rating.width()) * 5;
                     r = parseInt(Math.ceil(r));
 
+                    // update rating
+                    var rating_src = "{% static 'webclient/image/rating0.png' %}".replace("0.png", r+".png");
+                    $rating.attr('src', rating_src);
+
+                    // update rating annotation
                     var rating_url = "{% url 'annotate_rating' %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}"
                     rating_url += "&rating=" + r;
                     $.post(rating_url, function(data) {
-                        // update UI
+                        // Assume OK;
                     });
                 });
 
