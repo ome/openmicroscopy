@@ -5,7 +5,7 @@
 
 -- Output is of the form:
 --
---  id  |   case   |   omename    |   firstname   |  lastname   |              email
+--  id  | inactive |   omename    |   firstname   |  lastname   |              email
 -- -----+----------+--------------+---------------+-------------+----------------------------------
 --   10 |          | a            | A             | Q           | aq@example.com
 --   11 | inactive | a            | A             | V           | av@example.com
@@ -18,7 +18,7 @@
 --
 
 select e.id,
-       case when g.id is null then 'inactive' else '' end as active,
+       case when g.id is null then 'inactive' else '' end as inactive,
        omename, firstname, lastname, email
   from password, experimenter e
   left outer join groupexperimentermap g on (

@@ -10,7 +10,7 @@ BEGIN;
 -- be able to login.
 
 select e.id,
-       case when g.id is null then 'inactive' else '' end as active,
+       case when g.id is null then 'inactive' else '' end as inactive,
        omename, firstname, lastname, email
   from password, experimenter e
   left outer join groupexperimentermap g on (
