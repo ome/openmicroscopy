@@ -299,6 +299,11 @@ class UserControl(UserGroupControl):
         e.email = rstring(email)
         e.institution = rstring(inst)
 
+        # Fail-fast if a non-admin runs this command
+        isAdmin = self.ctx._event_context.isAdmin
+        if not isAdmin:
+            self.error_admin_only(fatal=True)
+
         # Fail-fast if no-password is passed and the server does not accept
         # empty passwords
         configService = c.getSession().getConfigService()
