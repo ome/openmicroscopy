@@ -326,7 +326,7 @@ public class PermissionsTestAll extends AbstractServerTest {
             IAdminPrx svc = session.getAdminService();
             Experimenter exp = svc.lookupExperimenter(users[j]);
             List<Long> usergroups = svc.getMemberOfGroupIds(exp);
-            RLong expid = exp.getId();
+            Long expid = exp.getId().getValue();
 
             for (int k = 0; k < usergroups.size(); k++) {
                 ExperimenterGroup group = svc.getGroup(usergroups.get(k));
@@ -372,8 +372,7 @@ public class PermissionsTestAll extends AbstractServerTest {
                     Long ownerid = searchterm[1];
 
                     if (groupid == group.getId().getValue()
-                            && (perm_table1.contains(permsAsString) || ownerid == expid
-                                    .getValue())) {
+                            && (perm_table1.contains(permsAsString) || ownerid == expid)) {
                         List<IObject> links = new ArrayList<IObject>();
                         // Create Links for Tags
                         ImageAnnotationLink link = new ImageAnnotationLinkI();
