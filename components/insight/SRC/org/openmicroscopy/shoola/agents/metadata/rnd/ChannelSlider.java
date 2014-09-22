@@ -270,13 +270,14 @@ class ChannelSlider
 	void setInputRange(boolean absolute)
 	{
 		int index = channel.getIndex();
-    	int s = (int) model.getWindowStart(index);
-        int e = (int) model.getWindowEnd(index);
-        int min = (int) channel.getGlobalMin();
-        int max = (int) channel.getGlobalMax();
+    	double s = model.getWindowStart(index);
+    	double e = model.getWindowEnd(index);
+    	double min = channel.getGlobalMin();
+    	double max = channel.getGlobalMax();
        
-        int absMin = (int) model.getLowestValue(index);
-        int absMax = (int) model.getHighestValue(index);
+    	double absMin = model.getLowestValue(index);
+    	double absMax = model.getHighestValue(index);
+    	
         if (absolute)
         	slider.getSlider().setValues(absMax, absMin, absMax, absMin, s, e);
         else 

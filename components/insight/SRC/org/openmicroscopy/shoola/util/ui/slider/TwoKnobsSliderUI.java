@@ -624,11 +624,11 @@ class TwoKnobsSliderUI
 	        double max = model.getPartialMaximum();
 		int trackLength = trackRect.width;
 		double valueRange = (double) max-(double) min;
-		double pixelsPerValue = trackLength/valueRange;
+		double pixelsPerValue = (double)trackLength/valueRange;
 		int trackLeft = trackRect.x;
 		int trackRight = trackRect.x+trackRect.width-1;
 		int xPosition = trackLeft;
-		xPosition += Math.round(pixelsPerValue*((double) value-min));
+		xPosition += Math.round(pixelsPerValue*(value-min));
 		xPosition = Math.max(trackLeft, xPosition);
 		xPosition = Math.min(trackRight, xPosition);
 		return xPosition;
@@ -647,7 +647,7 @@ class TwoKnobsSliderUI
 	        double max = model.getPartialMaximum();
 		int trackLength = trackRect.height; 
 		double valueRange = (double) max-(double) min;
-		double pixelsPerValue = trackLength/valueRange;
+		double pixelsPerValue = (double)trackLength/valueRange;
 		int trackTop = trackRect.y;
 		int trackBottom = trackRect.y+trackRect.height-1;
 		int yPosition= trackTop;
