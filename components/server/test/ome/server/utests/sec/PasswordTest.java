@@ -108,12 +108,16 @@ public class PasswordTest extends MockObjectTestCase {
     }
 
     protected void initProvider(PasswordUtil util) {
-        initProvider(util, true);;
+        initProvider(util, true);
     }
 
     protected void initProvider(PasswordUtil util, boolean salt) {
         provider = new JdbcPasswordProvider(util, false, salt);
-        ((JdbcPasswordProvider) provider).setApplicationContext(
+        setApplicationContext();
+    }
+
+    protected void setApplicationContext() {
+        ((ConfigurablePasswordProvider) provider).setApplicationContext(
                 new OmeroContext(new String[]{}));
     }
 
@@ -166,6 +170,7 @@ public class PasswordTest extends MockObjectTestCase {
 
     public void testFileDefaults() throws Exception {
         provider = new FilePasswordProvider(new PasswordUtil(sql), file);
+        setApplicationContext();
         assertTrue(provider.hasPassword("test"));
         assertTrue(provider.checkPassword("test", "test", false));
         assertFalse(provider.checkPassword("unknown", "anything", false));
@@ -173,6 +178,7 @@ public class PasswordTest extends MockObjectTestCase {
 
     public void testFilesDontIgnoreUnknownReturnsNull() throws Exception {
         provider = new FilePasswordProvider(null, file, true);
+        setApplicationContext();
         assertFalse(provider.hasPassword("unknown"));
         assertNull(provider.checkPassword("unknown", "anything", false));
     }
@@ -180,12 +186,13 @@ public class PasswordTest extends MockObjectTestCase {
     @Test(expectedExceptions = PasswordChangeException.class)
     public void testFilesThrowsOnChange() throws Exception {
         provider = new FilePasswordProvider(null, file, true);
+        setApplicationContext();
         provider.changePassword("test", "something new");
     }
 
     // JDBC
 
-    public void tesJdbcDefaults() throws Exception {
+    public void testJdbcDefaults() throws Exception {
         initJdbc();
 
         userIdReturns1();
@@ -214,6 +221,7 @@ public class PasswordTest extends MockObjectTestCase {
         initJdbc();
         userIdReturnsNull();
         provider = new JdbcPasswordProvider(new PasswordUtil(sql), true);
+        setApplicationContext();
         assertNull(provider.checkPassword("unknown", "anything", false));
     }
 
@@ -236,6 +244,7 @@ public class PasswordTest extends MockObjectTestCase {
     public void tesLdapDefaults() throws Exception {
         initLdap(true);
         provider = new LdapPasswordProvider(new PasswordUtil(sql), ldap);
+        setApplicationContext();
 
         String encoded = ((PasswordUtility) provider).encodePassword("test");
         getPasswordHash(encoded);
@@ -270,6 +279,7 @@ public class PasswordTest extends MockObjectTestCase {
         userIdReturnsNull();
         ldapCreatesUser(false);
         provider = new LdapPasswordProvider(new PasswordUtil(sql), ldap, true);
+        setApplicationContext();
         assertNull(provider.checkPassword("unknown", "anything", false));
     }
 
@@ -279,6 +289,7 @@ public class PasswordTest extends MockObjectTestCase {
         userIdReturnsNull();
         ldapCreatesUser(true);
         provider = new LdapPasswordProvider(new PasswordUtil(sql), ldap, true);
+        setApplicationContext();
         assertTrue(provider.checkPassword("unknown", "anything", false));
     }
 
@@ -287,6 +298,7 @@ public class PasswordTest extends MockObjectTestCase {
         userIdReturnsNull();
         ldapCreatesUserAndThrows();
         provider = new LdapPasswordProvider(new PasswordUtil(sql), ldap, true);
+        setApplicationContext();
         assertNull(provider.checkPassword("unknown", "anything", false));
     }
 
@@ -296,6 +308,7 @@ public class PasswordTest extends MockObjectTestCase {
         userIdReturnsNull();
         ldapCreatesUser(false);
         provider = new LdapPasswordProvider(new PasswordUtil(sql), ldap, false);
+        setApplicationContext();
         assertFalse(provider.checkPassword("unknown", "anything", false));
     }
 
@@ -305,6 +318,7 @@ public class PasswordTest extends MockObjectTestCase {
         userIdReturnsNull();
         ldapCreatesUser(true);
         provider = new LdapPasswordProvider(new PasswordUtil(sql), ldap, false);
+        setApplicationContext();
         assertTrue(provider.checkPassword("unknown", "anything", false));
     }
 
@@ -313,6 +327,7 @@ public class PasswordTest extends MockObjectTestCase {
         userIdReturnsNull();
         ldapCreatesUserAndThrows();
         provider = new LdapPasswordProvider(new PasswordUtil(sql), ldap, false);
+        setApplicationContext();
         assertFalse(provider.checkPassword("unknown", "anything", false));
     }
 
@@ -320,6 +335,7 @@ public class PasswordTest extends MockObjectTestCase {
     public void testLdapChangesPasswordThrows() throws Exception {
         initLdap(true);
         provider = new LdapPasswordProvider(new PasswordUtil(sql), ldap);
+        setApplicationContext();
         provider.changePassword("a", "b");
     }
 
