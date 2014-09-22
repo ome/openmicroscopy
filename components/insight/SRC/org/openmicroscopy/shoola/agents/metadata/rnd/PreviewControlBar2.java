@@ -81,11 +81,14 @@ class PreviewControlBar2 extends JPanel {
         bar.add(b);
         bar.add(Box.createHorizontalStrut(SPACE));
 
-        b = new JButton(control.getAction(RendererControl.RND_ABSOLUTE_MIN_MAX));
-        formatButton(b);
-        bar.add(b);
-        bar.add(Box.createHorizontalStrut(SPACE));
-
+        if (control.isIntegerPixelData()) {
+            b = new JButton(
+                    control.getAction(RendererControl.RND_ABSOLUTE_MIN_MAX));
+            formatButton(b);
+            bar.add(b);
+            bar.add(Box.createHorizontalStrut(SPACE));
+        }
+       
         b = new JButton(control.getAction(RendererControl.RND_RESET));
         formatButton(b);
         bar.add(b);

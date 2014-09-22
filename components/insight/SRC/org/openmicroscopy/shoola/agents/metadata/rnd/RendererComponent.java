@@ -39,8 +39,10 @@ import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
+
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
+
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
@@ -52,6 +54,7 @@ import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -64,6 +67,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+
 import pojos.ChannelData;
 import pojos.ImageData;
 import pojos.PixelsData;
@@ -977,6 +981,16 @@ class RendererComponent
 			handleException(e);
 		}
 	}
+	
+    /**
+     * Implemented as specified by the {@link Renderer} interface.
+     * 
+     * @see Renderer#isIntegerPixelData()
+     */
+    public boolean isIntegerPixelData() {
+        return model.isIntegerPixelData();
+    };
+        
 	
 	/** 
      * Implemented as specified by the {@link Renderer} interface.
