@@ -201,7 +201,7 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
             return true;
         } else if (legacyUtil != null) {
             if (comparePasswords(userId, trusted, provided, legacyUtil)) {
-                log.error("Matched LEGACY password for Experimenter:{}!", userId);
+                log.error(String.format("Matched LEGACY password for Experimenter:%s!", userId));
                 return true;
             }
         }

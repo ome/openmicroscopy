@@ -70,8 +70,6 @@ public class PasswordUtil {
      */
     public final static String DEFAULT_ENCODING = "UTF-8";
 
-    private final static Logger log = LoggerFactory.getLogger(PasswordUtil.class);
-
     private final SqlAction sql;
 
     private final Roles roles;

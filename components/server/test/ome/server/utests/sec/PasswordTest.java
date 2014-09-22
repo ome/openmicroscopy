@@ -131,7 +131,7 @@ public class PasswordTest extends MockObjectTestCase {
             public boolean validatePassword(String dn, String password) {
                 return validPassword.get();
             }
-            @Override
+            /* broken @Override*/
             public Experimenter createUser(String username,
                     String password, boolean checkPassword) {
                 return createdUser.get();
