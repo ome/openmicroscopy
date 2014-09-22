@@ -2036,10 +2036,11 @@ class OmeroWebObjectWrapper (object):
         """
         rating_ns = omero.constants.metadata.NSINSIGHTRATING
         parent_type = self.OMERO_CLASS
-        params = omero.sys.ParametersI()
-        params.addLong('ownerId', self._conn.getUserId())
+        userid = self._conn.getUserId()
 
-        ratingAnns = list(self._conn.getAnnotationLinks(parent_type, parent_ids=[self.id], ns=rating_ns, params=params))
+        ratingAnns = list(self._conn.getAnnotationLinks(parent_type, parent_ids=[self.id], ns=rating_ns))
+        # filter for links I own
+        ratingAnns = [r for r in ratingAnns if r.getDetails().owner.id.val == userid]
         ratingLink = ratingAnns and ratingAnns[0] or None
 
         if ratingLink is not None:
@@ -2056,7 +2057,8 @@ class OmeroWebObjectWrapper (object):
             ratingAnn = omero.model.LongAnnotationI()
             ratingAnn.setLongValue( rlong(rating) )
             ratingAnn.setNs( rstring(rating_ns) )
-            ratingAnn = self._conn.getUpdateService().saveAndReturnObject(ratingAnn)
+            self._conn.SERVICE_OPTS.setOmeroGroup(self.getDetails().group.id.val)
+            ratingAnn = self._conn.getUpdateService().saveAndReturnObject(ratingAnn, self._conn.SERVICE_OPTS)
             self.linkAnnotation(AnnotationWrapper(self._conn, ratingAnn))
 
 
