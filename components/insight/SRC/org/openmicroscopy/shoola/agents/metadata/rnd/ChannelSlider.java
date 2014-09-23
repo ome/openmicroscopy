@@ -129,13 +129,13 @@ class ChannelSlider
                             min = absMin;
                             max = absMax;
                     }
-                    double range = (max-min)*GraphicsPane.RATIO;
-                    double lowestBound = min-range;
-                    lowestBound = absMin;
-                    double highestBound = max+range;
-                    highestBound = absMax;
+                    
+                    // for floating point channels there is no reasonable
+                    // lower and upper bound
+                    double lowestBound = -Double.MAX_VALUE;
+                    double highestBound = Double.MAX_VALUE;
 
-                    slider = new TextualTwoKnobsSlider(0d, 100d);
+                    slider = new TextualTwoKnobsSlider(lowestBound, highestBound);
                     
                     slider.layoutComponents(
                             TextualTwoKnobsSlider.LAYOUT_SLIDER_FIELDS_X_AXIS);
