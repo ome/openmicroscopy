@@ -139,7 +139,7 @@ module omero {
         };
 
         class Request2 extends Request {
-            omero::api::IObjectList targetObjects;
+            omero::api::IdListMap targetObjects;
             omero::api::StringSet includeNs;
             omero::api::StringSet excludeNs;
         };
@@ -149,15 +149,15 @@ module omero {
         };
 
         class Chgrp2Response extends OK {
-            omero::api::IObjectList includedObjects;
-            omero::api::IObjectList deletedObjects;
+            omero::api::IdListMap includedObjects;
+            omero::api::IdListMap deletedObjects;
         };
 
         class Delete2 extends Request2 {
         };
 
         class Delete2Response extends OK {
-            omero::api::IObjectList deletedObjects;
+            omero::api::IdListMap deletedObjects;
         };
     };
 };
