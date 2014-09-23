@@ -1724,15 +1724,12 @@ class RendererModel
 	 * @return See above
 	 */
 	boolean isIntegerPixelData() {
-	    String t = image.getDefaultPixels().getPixelType();
-	        if (t.equals(OmeroImageService.INT_8)
-	                || t.equals(OmeroImageService.UINT_8)
-	                || t.equals(OmeroImageService.INT_16)
-	                || t.equals(OmeroImageService.UINT_16)
-	                || t.equals(OmeroImageService.INT_32)
-	                || t.equals(OmeroImageService.UINT_32))
-	            return true;
-	        else
-	            return false;
-	};
+        String t = image.getDefaultPixels().getPixelType();
+        return t.equals(OmeroImageService.INT_8)
+                || t.equals(OmeroImageService.UINT_8)
+                || t.equals(OmeroImageService.INT_16)
+                || t.equals(OmeroImageService.UINT_16)
+                || t.equals(OmeroImageService.INT_32)
+                || t.equals(OmeroImageService.UINT_32);
+	}
 }
