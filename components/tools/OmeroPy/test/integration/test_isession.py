@@ -72,7 +72,8 @@ class TestISession(lib.ITest):
 
         client = omero.client()  # ok rather than new_client since has __del__
         try:
-            sf = client.createSession(test_user.omeName.val, "ome")
+            sf = client.createSession(test_user.omeName.val,
+                                      test_user.omeName.val)
             a = sf.getAdminService()
             suuid = a.getEventContext().sessionUuid
             sf.detachOnDestroy()
@@ -113,7 +114,7 @@ class TestISession(lib.ITest):
         try:
             c1 = omero.client()  # ok rather than new_client since has __del__
             user = self.new_user()
-            s1 = c1.createSession(user.omeName.val, "ome")
+            s1 = c1.createSession(user.omeName.val, user.omeName.val)
             s1.detachOnDestroy()
             uuid = s1.ice_getIdentity().name
 
@@ -151,7 +152,7 @@ class TestISession(lib.ITest):
             c.ic.getImplicitContext().put(
                 omero.constants.CLIENTUUID, "SimpleDestruction")
             user = self.new_user()
-            s = c.createSession(user.omeName.val, "ome")
+            s = c.createSession(user.omeName.val, user.omeName.val)
             s.closeOnDestroy()
             c.closeSession()
         finally:

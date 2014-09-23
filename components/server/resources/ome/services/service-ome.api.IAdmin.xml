@@ -2,10 +2,10 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# 
+#
 # $Id$
-# 
-# Copyright 2006 University of Dundee. All rights reserved.
+#
+# Copyright 2006-2014 University of Dundee. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -77,12 +77,14 @@
     <constructor-arg index="0" ref="passwordUtil"/>
     <constructor-arg index="1" value="true"/>
     <constructor-arg index="2" value="false"/>
+    <property name="legacyUtil" ref="latin1PasswordUtil"/>
   </bean>
 
   <bean id="jdbcPasswordProvider" class="ome.security.auth.JdbcPasswordProvider">
     <constructor-arg ref="passwordUtil"/>
     <constructor-arg index="1" value="true"/>
     <constructor-arg index="2" value="true"/>
+    <property name="legacyUtil" ref="latin1PasswordUtil"/>
   </bean>
 
   <bean id="jdbcHashedPasswordProvider" class="ome.security.auth.JdbcHashedPasswordProvider">
@@ -127,6 +129,16 @@
 
   <bean id="passwordUtil" class="ome.security.auth.PasswordUtil">
     <constructor-arg ref="simpleSqlAction"/>
+    <constructor-arg ref="roles"/>
+    <constructor-arg value="${omero.security.password_required}"/>
+    <constructor-arg value="UTF-8"/>
+  </bean>
+
+  <bean id="latin1PasswordUtil" class="ome.security.auth.PasswordUtil">
+    <constructor-arg ref="simpleSqlAction"/>
+    <constructor-arg ref="roles"/>
+    <constructor-arg value="${omero.security.password_required}"/>
+    <constructor-arg value="ISO-8859-1"/>
   </bean>
 
   <bean name="managed-ome.api.IAdmin" parent="managedService">
@@ -160,9 +172,9 @@
     <property name="host" value="${omero.resetpassword.host}" />
     <property name="port" value="${omero.resetpassword.port}" />
     <property name="protocol" value="${omero.resetpassword.mail.transport.protocol}" />
-    <property name="session" ref="mailSession" />    
+    <property name="session" ref="mailSession" />
   </bean>
-  
+
 	<!-- setup an authenticated session -->
 	<bean id="mailSession" class="javax.mail.Session" factory-method="getInstance">
 		<constructor-arg>
@@ -172,13 +184,13 @@
 				<prop key="mail.smtp.starttls.enable">${omero.resetpassword.mail.smtp.starttls.enable}</prop>
 				<prop key="mail.smtp.socketFactory.port">${omero.resetpassword.mail.smtp.socketFactory.port}</prop>
 				<prop key="mail.smtp.socketFactory.class">${omero.resetpassword.mail.smtp.socketFactory.class}</prop>
-				<prop key="mail.smtp.socketFactory.fallback">${omero.resetpassword.mail.smtp.socketFactory.fallback}</prop>	
-				<prop key="mail.smtp.timeout">${omero.resetpassword.mail.smtp.timeout}</prop>			
+				<prop key="mail.smtp.socketFactory.fallback">${omero.resetpassword.mail.smtp.socketFactory.fallback}</prop>
+				<prop key="mail.smtp.timeout">${omero.resetpassword.mail.smtp.timeout}</prop>
 			</props>
 		</constructor-arg>
 		<constructor-arg ref="smtpAuthenticator" />
 	</bean>
-  
+
   <!-- Authenticator implementation -->
     <bean id="smtpAuthenticator" class="ome.security.SmtpAuthenticator">
 		<constructor-arg value="${omero.resetpassword.username}" />
@@ -189,5 +201,5 @@
   <bean id="templateMessage" class="org.springframework.mail.SimpleMailMessage">
     <property name="from" value="${omero.resetpassword.from}" />
   </bean>
-  
+
 </beans>

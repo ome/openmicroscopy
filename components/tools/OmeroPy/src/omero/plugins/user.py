@@ -313,8 +313,23 @@ class UserControl(UserGroupControl):
         e.middleName = rstring(middle)
         e.email = rstring(email)
         e.institution = rstring(inst)
-        admin = c.getSession().getAdminService()
 
+        # Fail-fast if a non-admin runs this command
+        isAdmin = self.ctx._event_context.isAdmin
+        if not isAdmin:
+            self.error_admin_only(fatal=True)
+
+        # Fail-fast if no-password is passed and the server does not accept
+        # empty passwords
+        configService = c.getSession().getConfigService()
+        password_required = configService.getConfigValue(
+            "omero.security.password_required").lower()
+        if args.no_password and password_required != 'false':
+            self.ctx.die(502, "Server does not allow user creation with empty"
+                         " passwords")
+
+        # Check user existence
+        admin = c.getSession().getAdminService()
         try:
             usr = admin.lookupExperimenter(login)
             if usr:
@@ -344,8 +359,8 @@ class UserControl(UserGroupControl):
                              % (login, id))
             else:
                 if pasw is None:
-                    self._ask_for_password(" for your new user (%s)"
-                                           % login, strict=True)
+                    pasw = self._ask_for_password(" for your new user (%s)"
+                                                  % login, strict=True)
                 id = admin.createExperimenterWithPassword(e, rstring(pasw),
                                                           group, groups)
                 self.ctx.out("Added user %s (id=%s) with password"

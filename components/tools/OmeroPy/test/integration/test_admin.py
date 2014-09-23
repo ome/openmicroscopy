@@ -64,7 +64,19 @@ class TestAdmin(lib.ITest):
         admin = client.sf.getAdminService()
         admin.changePassword(rstring("ome"))
 
-        # Now login without a passowrd
+        query = client.sf.getQueryService()
+        getOnlyOne = omero.sys.ParametersI()
+        getOnlyOne.limit = 1
+
+        myId = admin.getEventContext().userId
+        hql = ("SELECT event.time FROM EventLog "
+               "WHERE event.experimenter.id = %s "
+               "AND action = 'PASSWORD' ORDER BY id DESC") % myId
+
+        # time of first password change
+        whenOme = query.projection(hql, getOnlyOne)[0][0].val
+
+        # Now login without a password
         client2 = client.createClient(True)
         try:
             admin = client2.sf.getAdminService()
@@ -86,6 +98,11 @@ class TestAdmin(lib.ITest):
             finally:
                 client3.closeSession()
 
+        # time of last password change
+        whenFoo = query.projection(hql, getOnlyOne)[0][0].val
+        assert whenFoo > whenOme
+
+    @pytest.mark.xfail(reason="Empty password disabled by config")
     def testChangePasswordWhenUnset(self):
         """
         Shows that it's possible to use the

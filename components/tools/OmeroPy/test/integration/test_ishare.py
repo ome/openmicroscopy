@@ -66,8 +66,8 @@ class TestIShare(lib.ITest):
         assert len(share.getAllUsers(share_id)) == 2
 
         # check access by a member to see the content
-        client_guest_read_only = self.new_client(user=test_user,
-                                                 password="ome")
+        client_guest_read_only = self.new_client(
+            user=test_user, password=test_user.omeName.val)
         try:
 
             # get dataset - not allowed
@@ -85,7 +85,8 @@ class TestIShare(lib.ITest):
             client_guest_read_only.__del__()
 
         # check access by a member to add comments
-        client_guest = self.new_client(user=test_user, password="ome")
+        client_guest = self.new_client(
+            user=test_user, password=test_user.omeName.val)
         try:
             share_guest = client_guest.sf.getShareService()
             share_guest.addComment(share_id, "comment for share %i" % share_id)

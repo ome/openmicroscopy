@@ -124,7 +124,7 @@ class TestPermissions(lib.ITest):
         ec = self.client.sf.getAdminService().getEventContext()
         public_client = omero.client(rv)
         public_client.getImplicitContext().put("omero.group", uuid)
-        sf = public_client.createSession(ec.userName, "foo")
+        sf = public_client.createSession(ec.userName, ec.userName)
         ec = sf.getAdminService().getEventContext()
         assert uuid ==  ec.groupName
 
@@ -557,7 +557,7 @@ class TestPermissions(lib.ITest):
                 user = this.test.new_user()
                 props = this.test.client.getPropertyMap()
                 props["omero.user"] = user.omeName.val
-                props["omero.pass"] = "xxx"
+                props["omero.pass"] = user.omeName.val
                 client = omero.client(props, ["--omero.group=-1"])
                 self._ITest__clients.add(client)
                 client.setAgent("OMERO.py.new_client_test")
