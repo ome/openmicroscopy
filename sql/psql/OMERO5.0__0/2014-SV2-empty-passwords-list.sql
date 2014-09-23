@@ -1,3 +1,8 @@
+--
+-- See:
+-- https://www.openmicroscopy.org/secvuln/2014-sv2-empty-passwords
+--
+--
 -- List all the users who have an empty password.
 --
 -- For each of the active users, logging in with

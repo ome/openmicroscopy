@@ -1,5 +1,9 @@
 BEGIN;
 
+--
+-- See:
+-- https://www.openmicroscopy.org/secvuln/2014-sv2-empty-passwords
+--
 -- Fix all the users who have an empty password.
 --
 -- First, the same query as in list-empty-passwords.sql
@@ -8,6 +12,7 @@ BEGIN;
 -- Then, each of the listed users will have their
 -- password set to null so that they will no longer
 -- be able to login.
+--
 
 select e.id,
        case when g.id is null then 'inactive' else '' end as inactive,
