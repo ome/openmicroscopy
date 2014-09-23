@@ -2045,7 +2045,6 @@ class OmeroWebObjectWrapper (object):
 
         if ratingLink is not None:
             ratingAnn = ratingLink.getChild()
-            print ratingAnn, ratingAnn.getId(), ratingAnn.getLongValue()
             if rating > 0:
                 ratingAnn.setLongValue( rlong(rating) )
                 ratingAnn.save()

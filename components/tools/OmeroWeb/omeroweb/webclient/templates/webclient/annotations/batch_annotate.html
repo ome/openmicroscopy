@@ -254,6 +254,51 @@
                     OME.filterAnnotationsAddedBy();
                 });
 
+                // Rating
+                // NB: similar functionality on metadata_general.html
+                $("#rating_annotations").on("click", ".myRating img", function(event){
+                    var $rating = $(this),
+                        clickX = event.pageX - $rating.offset().left;
+                    var r = (clickX/ $rating.width()) * 5;
+                    r = parseInt(Math.ceil(r));
+                    setRating(r, $rating);
+                });
+                $(".addRating img").click(function(event){
+                    var $rating = $(this),
+                        $ratingli = $rating.parent().parent(),
+                        clickX = event.pageX - $rating.offset().left;
+                    var r = (clickX/ $rating.width()) * 5;
+                    r = parseInt(Math.ceil(r));
+                    var $newR = $ratingli.clone().prependTo("#rating_annotations");
+                    $newR.removeClass('addRating').addClass('myRating');
+                    $ratingli.hide();
+
+                    setRating(r, $newR.find('img'));
+                });
+                $("#rating_annotations").on("click", ".removeRating", function(event){
+                    event.preventDefault();
+                    var $ratingli = $(this).parent();
+                    setRating(0);
+                    $ratingli.remove();
+                    $(".addRating").show();
+                });
+
+                var setRating = function(rating, $rating) {
+                    // update rating
+                    if ($rating) {
+                        var rating_src = "{% static 'webclient/image/rating0.png' %}".replace("0.png", rating+".png");
+                        $rating.attr('src', rating_src);
+                    }
+                    $(".ratingCount").text("{{ obj_labels|length }}");
+
+                    // update rating annotation
+                    var rating_url = "{% url 'annotate_rating' %}?{{ obj_string }}&index={{ index }}"
+                    rating_url += "&rating=" + rating;
+                    $.post(rating_url, function(data) {
+                        // Assume OK;
+                    });
+                }
+
                 OME.initToolbarDropdowns();
             });
             
@@ -319,6 +364,62 @@
     {% if annotationBlocked %}
         <h3 class="postit_msg">{{ annotationBlocked }}</h3>
     {% endif %}
+
+
+    <!-- RATING -->
+
+    <div class="annotations_section">
+
+        <h2>{% trans "Rating" %}</h2>
+
+        <ul style="clear:both">
+            <li {% if not annotationBlocked %}class="addRating"{% endif %}
+                    {% if userRatingAvg %}style="display:none"{% endif %} >
+                <a><img src="{% static "webclient/image/rating0.png" %}">
+                    <span class="ratingOwner">My ratings
+                        (average of <span class="ratingCount">{{ batchAnns.UserRatings|length }}</span>)
+                    </span>
+                </a>
+                {% if not annotationBlocked %}
+                <a href="#" class="removeRating" title="Delete ratings">X</a>
+                {% endif %}
+            </li>
+        </ul>
+
+        <ul id="rating_annotations" class="lnfiles">{% if userRatingAvg %}<li
+            {% if not annotationBlocked %}class="myRating"{% endif %}>
+                <a><img
+                    {% ifequal userRatingAvg 0 %} src="{% static "webclient/image/rating0.png" %}"{% endifequal %}
+                    {% ifequal userRatingAvg 1 %} src="{% static "webclient/image/rating1.png" %}"{% endifequal %}
+                    {% ifequal userRatingAvg 2 %} src="{% static "webclient/image/rating2.png" %}"{% endifequal %}
+                    {% ifequal userRatingAvg 3 %} src="{% static "webclient/image/rating3.png" %}"{% endifequal %}
+                    {% ifequal userRatingAvg 4 %} src="{% static "webclient/image/rating4.png" %}"{% endifequal %}
+                    {% ifequal userRatingAvg 5 %} src="{% static "webclient/image/rating5.png" %}"{% endifequal %}
+                    />
+                <span class="ratingOwner">My ratings
+                    (average of <span class="ratingCount">{{ batchAnns.UserRatings|length }}</span>)
+                </span>
+                </a>
+                {% if not annotationBlocked %}
+                <a href="#" class="removeRating" title="Delete ratings">X</a>
+                {% endif %}
+            </li>{% endif %}{% if otherRatingAvg %}
+            <li>
+                <a><img
+                    {% ifequal otherRatingAvg 0 %} src="{% static "webclient/image/rating0.png" %}"{% endifequal %}
+                    {% ifequal otherRatingAvg 1 %} src="{% static "webclient/image/rating1.png" %}"{% endifequal %}
+                    {% ifequal otherRatingAvg 2 %} src="{% static "webclient/image/rating2.png" %}"{% endifequal %}
+                    {% ifequal otherRatingAvg 3 %} src="{% static "webclient/image/rating3.png" %}"{% endifequal %}
+                    {% ifequal otherRatingAvg 4 %} src="{% static "webclient/image/rating4.png" %}"{% endifequal %}
+                    {% ifequal otherRatingAvg 5 %} src="{% static "webclient/image/rating5.png" %}"{% endifequal %}
+                    />
+                <span class="ratingOwner">Other users (average of {{ batchAnns.OtherRatings|length }})
+                </span>
+                </a>
+            </li>
+        {% endif %}</ul>
+    </div>
+
 
     <!-- TAGS -->               
     <div class="annotations_section">
