@@ -20,13 +20,15 @@
 package omero.cmd.graphs;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.SetMultimap;
 
-import ome.model.IObject;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.ACLVoter;
 import ome.security.SystemTypes;
@@ -42,7 +44,6 @@ import omero.cmd.ERR;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
 import omero.cmd.Response;
-import omero.util.IceMapper;
 
 /**
  * An experimental Chgrp for exercising the {@link ome.services.graphs.GraphPathBean} from clients.
@@ -53,7 +54,6 @@ public class Chgrp2I extends Chgrp2 implements IRequest {
 
     private static final ImmutableMap<String, String> ALL_GROUPS_CONTEXT = ImmutableMap.of(Login.OMERO_GROUP, "-1");
 
-    private final IceMapper iceMapper = new IceMapper();
     private final ACLVoter aclVoter;
     private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
@@ -61,6 +61,10 @@ public class Chgrp2I extends Chgrp2 implements IRequest {
  
     private Helper helper;
     private GraphTraversal graphTraversal;
+
+    int targetObjectCount = 0;
+    int deletedObjectCount = 0;
+    int movedObjectCount = 0;
 
     /**
      * Construct a new <q>chgrp</q> request; called from {@link GraphRequestFactory#getRequest(Class)}.
@@ -105,7 +109,19 @@ public class Chgrp2I extends Chgrp2 implements IRequest {
         try {
             switch (step) {
             case 0:
-                return graphTraversal.planOperation(helper.getSession(), iceMapper.reverse(targetObjects));
+                /* if targetObjects were an IObjectList then this would need IceMapper.reverse */
+                final SetMultimap<String, Long> targetMultimap = HashMultimap.create();
+                for (final Entry<String, long[]> oneClassToTarget : targetObjects.entrySet()) {
+                    String className = oneClassToTarget.getKey();
+                    if (className.lastIndexOf('.') < 0) {
+                        className = graphPathBean.getClassForSimpleName(className).getName();
+                    }
+                    for (final long id : oneClassToTarget.getValue()) {
+                        targetMultimap.put(className, id);
+                        targetObjectCount++;
+                    }
+                }
+                return graphTraversal.planOperation(helper.getSession(), targetMultimap);
             case 1:
                 graphTraversal.unlinkTargets();
                 return null;
@@ -128,13 +144,37 @@ public class Chgrp2I extends Chgrp2 implements IRequest {
     public void buildResponse(int step, Object object) {
         helper.assertResponse(step);
         if (step == 0) {
-            final Entry<Collection<IObject>, Collection<IObject>> result = (Entry<Collection<IObject>, Collection<IObject>>) object;
-            final ImmutableList<omero.model.IObject> movedObjects = ImmutableList.copyOf(iceMapper.map(result.getKey()));
-            final ImmutableList<omero.model.IObject> deletedObjects = ImmutableList.copyOf(iceMapper.map(result.getValue()));
+            /* if the results object were in terms of IObjectList then this would need IceMapper.map */
+            final Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> result =
+                    (Entry<SetMultimap<String, Long>, SetMultimap<String, Long>>) object;
+            final Map<String, long[]> movedObjects = new HashMap<String, long[]>();
+            final Map<String, long[]> deletedObjects = new HashMap<String, long[]>();
+            for (final Entry<String, Collection<Long>> oneMovedClass : result.getKey().asMap().entrySet()) {
+                final String className = oneMovedClass.getKey();
+                final Collection<Long> ids = oneMovedClass.getValue();
+                final long[] idArray = new long[ids.size()];
+                int index = 0;
+                for (final long id : ids) {
+                    idArray[index++] = id;
+                    movedObjectCount++;
+                }
+                movedObjects.put(className, idArray);
+            }
+            for (final Entry<String, Collection<Long>> oneDeletedClass : result.getValue().asMap().entrySet()) {
+                final String className = oneDeletedClass.getKey();
+                final Collection<Long> ids = oneDeletedClass.getValue();
+                final long[] idArray = new long[ids.size()];
+                int index = 0;
+                for (final long id : ids) {
+                    idArray[index++] = id;
+                    deletedObjectCount++;
+                }
+                deletedObjects.put(className, idArray);
+            }
             final Chgrp2Response response = new Chgrp2Response(movedObjects, deletedObjects);
             helper.setResponseIfNull(response);
-            helper.info("in chgrp to " + groupId + " of " + targetObjects.size() +
-                    ", moved " + response.includedObjects.size() + " and deleted " + response.deletedObjects.size() + " in total");
+            helper.info("in chgrp to " + groupId + " of " + targetObjectCount +
+                    ", moved " + movedObjectCount + " and deleted " + deletedObjectCount + " in total");
         }
     }
 

@@ -20,13 +20,17 @@
 package omero.cmd.graphs;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.SetMultimap;
+import com.google.common.collect.Sets;
 
-import ome.model.IObject;
 import ome.security.ACLVoter;
 import ome.security.SystemTypes;
 import ome.services.graphs.GraphPathBean;
@@ -41,7 +45,6 @@ import omero.cmd.ERR;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
 import omero.cmd.Response;
-import omero.util.IceMapper;
 
 /**
  * An experimental Delete for exercising the {@link ome.services.graphs.GraphPathBean} from clients.
@@ -52,7 +55,6 @@ public class Delete2I extends Delete2 implements IRequest {
 
     private static final ImmutableMap<String, String> ALL_GROUPS_CONTEXT = ImmutableMap.of(Login.OMERO_GROUP, "-1");
 
-    private final IceMapper iceMapper = new IceMapper();
     private final ACLVoter aclVoter;
     private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
@@ -60,6 +62,9 @@ public class Delete2I extends Delete2 implements IRequest {
 
     private Helper helper;
     private GraphTraversal graphTraversal;
+
+    int targetObjectCount = 0;
+    int deletedObjectCount = 0;
 
     /**
      * Construct a new <q>delete</q> request; called from {@link GraphRequestFactory#getRequest(Class)}.
@@ -100,7 +105,19 @@ public class Delete2I extends Delete2 implements IRequest {
         try {
             switch (step) {
             case 0:
-                return graphTraversal.planOperation(helper.getSession(), iceMapper.reverse(targetObjects));
+                /* if targetObjects were an IObjectList then this would need IceMapper.reverse */
+                final SetMultimap<String, Long> targetMultimap = HashMultimap.create();
+                for (final Entry<String, long[]> oneClassToTarget : targetObjects.entrySet()) {
+                    String className = oneClassToTarget.getKey();
+                    if (className.lastIndexOf('.') < 0) {
+                        className = graphPathBean.getClassForSimpleName(className).getName();
+                    }
+                    for (final long id : oneClassToTarget.getValue()) {
+                        targetMultimap.put(className, id);
+                        targetObjectCount++;
+                    }
+                }
+                return graphTraversal.planOperation(helper.getSession(), targetMultimap);
             case 1:
                 graphTraversal.unlinkTargets();
                 return null;
@@ -123,13 +140,25 @@ public class Delete2I extends Delete2 implements IRequest {
     public void buildResponse(int step, Object object) {
         helper.assertResponse(step);
         if (step == 0) {
-            final Entry<Collection<IObject>, Collection<IObject>> result = (Entry<Collection<IObject>, Collection<IObject>>) object;
-            final ImmutableList.Builder<omero.model.IObject> deletedObjectsBuilder = ImmutableList.builder();
-            deletedObjectsBuilder.addAll(iceMapper.map(result.getKey()));
-            deletedObjectsBuilder.addAll(iceMapper.map(result.getValue()));
-            final Delete2Response response = new Delete2Response(deletedObjectsBuilder.build());
+            /* if the results object were in terms of IObjectList then this would need IceMapper.map */
+            final Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> result =
+                    (Entry<SetMultimap<String, Long>, SetMultimap<String, Long>>) object;
+            final SetMultimap<String, Long> resultMoved = result.getKey();
+            final SetMultimap<String, Long> resultDeleted = result.getValue();
+            final Map<String, long[]> deletedObjects = new HashMap<String, long[]>();
+            for (final String className : Sets.union(resultMoved.keySet(), resultDeleted.keySet())) {
+                final Set<Long> ids = Sets.union(resultMoved.get(className), resultDeleted.get(className));
+                final long[] idArray = new long[ids.size()];
+                int index = 0;
+                for (final long id : ids) {
+                    idArray[index++] = id;
+                    deletedObjectCount++;
+                }
+                deletedObjects.put(className, idArray);
+            }
+            final Delete2Response response = new Delete2Response(deletedObjects);
             helper.setResponseIfNull(response);
-            helper.info("in delete of " + targetObjects.size() + ", deleted " + response.deletedObjects.size() + " in total");
+            helper.info("in delete of " + targetObjectCount + ", deleted " + deletedObjectCount + " in total");
         }
     }
 
