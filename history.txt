@@ -1,6 +1,18 @@
 OMERO version history
 =====================
 
+5.0.5 / 4.4.12 (September 2014)
+-------------------------------
+
+This is a critical security fix for two vulnerabilities:
+
+-  :secvuln:`2014-sv1-unicode-passwords`
+-  :secvuln:`2014-sv2-empty-passwords`
+
+It is highly suggested that you upgrade your server and
+follow the steps outlined on the security vulnerability
+pages.
+
 5.0.4 (September 2014)
 ----------------------
 
