@@ -431,6 +431,31 @@ public class GraphTraversal {
     /**
      * Traverse model object graph to determine steps for the proposed operation.
      * @param session the Hibernate session to use for HQL queries
+     * @param objects the model objects to process
+     * @return the model objects included in the operation, and the deleted objects
+     * @throws GraphException if the model objects were not as expected
+     */
+    public Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> planOperation(Session session,
+            SetMultimap<String, Long> objects) throws GraphException {
+        /* note the object instances for processing as included objects */
+        planning.included.addAll(objectsToCIs(session, objects));
+        /* actually do the planning of the operation */
+        planOperation(session);
+        /* report which objects are to be included in the operation or deleted so that it can proceed */
+        final SetMultimap<String, Long> included = HashMultimap.create();
+        for (final CI includedObject : planning.included) {
+            included.put(includedObject.className, includedObject.id);
+        }
+        final SetMultimap<String, Long> deleted = HashMultimap.create();
+        for (final CI deletedObject : planning.deleted) {
+            deleted.put(deletedObject.className, deletedObject.id);
+        }
+        return Maps.immutableEntry(included, deleted);
+    }
+
+    /**
+     * Traverse model object graph to determine steps for the proposed operation.
+     * @param session the Hibernate session to use for HQL queries
      * @param objectInstances the model objects to process, may be unloaded with ID only
      * @return the model objects included in the operation, and the deleted objects, may be unloaded with ID only
      * @throws GraphException if the model objects were not as expected
@@ -449,6 +474,28 @@ public class GraphTraversal {
             }
         }
         planning.included.addAll(objectsToCIs(session, objectsToQuery));
+        /* actually do the planning of the operation */
+        planOperation(session);
+        /* report which objects are to be included in the operation or deleted so that it can proceed */
+        final Collection<IObject> included = new ArrayList<IObject>(planning.included.size());
+        for (final CI includedObject : planning.included) {
+            included.add(includedObject.toIObject());
+        }
+        final Collection<IObject> deleted = new ArrayList<IObject>(planning.deleted.size());
+        for (final CI deletedObject : planning.deleted) {
+            deleted.add(deletedObject.toIObject());
+        }
+        return Maps.immutableEntry(included, deleted);
+    }
+
+    /**
+     * Traverse model object graph to determine steps for the proposed operation.
+     * Assumes that the internal {@code planning} field is set up and mutates it accordingly.
+     * @param session the Hibernate session to use for HQL queries
+     * @throws GraphException if the model objects were not as expected
+     */
+    private void planOperation(Session session) throws GraphException {
+        /* process all the included objects */
         planning.toProcess.addAll(planning.included);
         /* track state to guarantee progress in reprocessing objects whose orphan status is relevant */
         Set<CI> optimisticReprocess = null;
@@ -502,17 +549,7 @@ public class GraphTraversal {
             }
             planning.toProcess.addAll(planning.findIfLast);
             planning.findIfLast.clear();
-        };
-        /* report which objects are to be included in the operation or deleted so that it can proceed */
-        final Collection<IObject> included = new ArrayList<IObject>(planning.included.size());
-        for (final CI includedObject : planning.included) {
-            included.add(includedObject.toIObject());
         }
-        final Collection<IObject> deleted = new ArrayList<IObject>(planning.deleted.size());
-        for (final CI deletedObject : planning.deleted) {
-            deleted.add(deletedObject.toIObject());
-        }
-        return Maps.immutableEntry(included, deleted);
     }
 
     /**
