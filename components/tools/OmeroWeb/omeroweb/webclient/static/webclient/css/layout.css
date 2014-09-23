@@ -552,7 +552,7 @@
     .lnfiles:empty {
         display: none;
     }
-    .myRating img{
+    .myRating img, .addRating img{
         cursor: pointer;
     }
     .addRating .removeRating, .addRating .ratingOwner {
