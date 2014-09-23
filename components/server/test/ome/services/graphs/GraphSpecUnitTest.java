@@ -151,41 +151,40 @@ public class GraphSpecUnitTest extends MockGraphTest {
 
         Iterator<GraphSpec> it = image.walk();
         List<GraphSpec> expected = new ArrayList<GraphSpec>();
-        expected.add(specs.get("/Annotation")); // Roi's annotation
-        expected.add(specs.get("/Roi"));
-        expected.add(specs.get("/Annotation"));
-        expected.add(specs.get("/FileAnnotation+special"));
-        expected.add(specs.get("/Annotation"));
-        expected.add(specs.get("/OriginalFile"));
-        expected.add(specs.get("/Annotation"));
-        expected.add(specs.get("/Image/Pixels/RenderingDef"));
-        expected.add(specs.get("/Annotation"));
-        expected.add(specs.get("/Annotation"));
-        expected.add(specs.get("/Arc"));
-        expected.add(specs.get("/Annotation"));
-        expected.add(specs.get("/Filament"));
-        expected.add(specs.get("/Annotation"));
-        expected.add(specs.get("/Laser"));
-        expected.add(specs.get("/Annotation"));
-        expected.add(specs.get("/LightEmittingDiode"));
-        expected.add(specs.get("/LightSource"));
-        expected.add(specs.get("/Image/Pixels/Channel"));
-        expected.add(specs.get("/Annotation"));
-        expected.add(specs.get("/Experiment"));
-        expected.add(specs.get("/Annotation"));
-        expected.add(specs.get("/Arc"));
-        expected.add(specs.get("/Annotation"));
-        expected.add(specs.get("/Filament"));
-        expected.add(specs.get("/Annotation"));
-        expected.add(specs.get("/Laser"));
-        expected.add(specs.get("/Annotation"));
-        expected.add(specs.get("/LightEmittingDiode"));
-        expected.add(specs.get("/LightSource"));
-        expected.add(specs.get("/Annotation"));
-        expected.add(specs.get("/Instrument"));
-        expected.add(specs.get("/Image+Only"));
+        expected.add(specs.get("/Annotation"));                // Parent is /Image/Roi/RoiAnnotationLink/
+        expected.add(specs.get("/Roi"));                       // Parent is /Image
+        expected.add(specs.get("/Annotation"));                // Parent is /Image/Pixels/PixelsOriginalFileMap/OriginalFile
+        expected.add(specs.get("/FileAnnotation+special"));    // Parent is /Image/Pixels/PixelsOriginalFileMap/OriginalFile
+        expected.add(specs.get("/Annotation"));                // Parent is /Image/Pixels/PixelsOriginalFileMap/OriginalFile/OriginalFileAnnotationLink
+        expected.add(specs.get("/OriginalFile"));              // Parent is /Image/Pixels/PixelsOriginalFileMap
+        expected.add(specs.get("/Annotation"));                // Parent is /Image/Pixels/PlaneInfo/PlaneInfoAnnotationLink
+        expected.add(specs.get("/Image/Pixels/RenderingDef")); // Parent is 
+        expected.add(specs.get("/Annotation"));                // Parent is /Image/Pixels/Channel/ChannelAnnotationLink
+        expected.add(specs.get("/Annotation"));                // Parent is /Image/Pixels/Channel/LogicalChannel/LightSettings/Arc/LightSourceAnnotationLink
+        expected.add(specs.get("/Arc"));                       // Parent is /Image/Pixels/Channel/LogicalChannel/LightSettings (contained as LightSource)
+        expected.add(specs.get("/Annotation"));                // Parent is /Image/Pixels/Channel/LogicalChannel/LightSettings/Filament/LightSourceAnnotationLink
+        expected.add(specs.get("/Filament"));                  // Parent is /Image/Pixels/Channel/LogicalChannel/LightSettings (contained as LightSource)
+        expected.add(specs.get("/Annotation"));                // Parent is /Image/Pixels/Channel/LogicalChannel/LightSettings/Laser/LightSourceAnnotationLink
+        expected.add(specs.get("/Laser"));                     // Parent is /Image/Pixels/Channel/LogicalChannel/LightSettings (contained as LightSource)
+        expected.add(specs.get("/Annotation"));                // Parent is /Image/Pixels/Channel/LogicalChannel/LightSettings/LightEmittingDiode/LightSourceAnnotationLink
+        expected.add(specs.get("/LightEmittingDiode"));        // Parent is /Image/Pixels/Channel/LogicalChannel/LightSettings (contained as LightSource)
+        expected.add(specs.get("/LightSource"));               // Parent is /Image/Pixels/Channel/LogicalChannel/LightSettings
+        expected.add(specs.get("/Image/Pixels/Channel"));      // Parent is 
+        expected.add(specs.get("/Annotation"));                // Parent is /Image/ImageAnnotationLink
+        expected.add(specs.get("/Experiment"));                // Parent is /Image
+        expected.add(specs.get("/Annotation"));                // Parent is /Image/Instrument/Arc/LightSourceAnnotationLink
+        expected.add(specs.get("/Arc"));                       // Parent is /Image/Instrument (contained as LightSource)
+        expected.add(specs.get("/Annotation"));                // Parent is /Image/Instrument/Filament/LightSourceAnnotationLink
+        expected.add(specs.get("/Filament"));                  // Parent is /Image/Instrument (contained as LightSource)
+        expected.add(specs.get("/Annotation"));                // Parent is /Image/Instrument/Laser/LightSourceAnnotationLink
+        expected.add(specs.get("/Laser"));                     // Parent is /Image/Instrument (contained as LightSource)
+        expected.add(specs.get("/Annotation"));                // Parent is /Image/Instrument/LightEmittingDiode/LightSourceAnnotationLink
+        expected.add(specs.get("/LightEmittingDiode"));        // Parent is /Image/Instrument (contained as LightSource)
+        expected.add(specs.get("/LightSource"));               // Parent is /Image/Instrument
+        expected.add(specs.get("/Annotation"));                // Parent is /Image/Instrument/InstrumentAnnotationLink
+        expected.add(specs.get("/Instrument"));                // Parent is /Image
+        expected.add(specs.get("/Image+Only"));                // 
         expected.add(image);
-
         while (it.hasNext()) {
             GraphSpec found = it.next();
             assertTrue(found.toString() + " not expected", expected.size() > 0);
