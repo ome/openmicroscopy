@@ -6,8 +6,8 @@ OMERO version history
 
 This is a critical security fix for two vulnerabilities:
 
--  :secvuln:`2014-sv1-unicode-passwords`
--  :secvuln:`2014-sv2-empty-passwords`
+-  :secvuln:`2014-SV1-unicode-passwords`
+-  :secvuln:`2014-SV2-empty-passwords`
 
 It is highly suggested that you upgrade your server and
 follow the steps outlined on the security vulnerability
@@ -174,7 +174,7 @@ This is a bug-fix release addressing a number of issues across all components.
 
 This is a critical security fix for:
 
--  :secvuln:`2012-sv1-ldap-authentication`
+-  :secvuln:`2012-SV1-ldap-authentication`
 
 Anyone using OMERO 4.4.2 or earlier with LDAP
 authentication should immediately upgrade to 4.4.3.
