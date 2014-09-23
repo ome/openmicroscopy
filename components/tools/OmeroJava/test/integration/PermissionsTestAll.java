@@ -106,6 +106,9 @@ public class PermissionsTestAll extends AbstractServerTest {
     /** The password used for user.*/
     private String password = "ome";
 
+    /** The security roles for that server.*/
+    private Roles securityRoles;
+
     /**
      * Creates the permissions corresponding to the specified level.
      *
@@ -128,6 +131,17 @@ public class PermissionsTestAll extends AbstractServerTest {
     }
 
     /**
+     * Implemented as specified by {@link AdminService}.
+     */
+    public boolean isSecuritySystemGroup(long groupID)
+    {
+        if (securityRoles == null) return false;
+        return (securityRoles.guestGroupId == groupID ||
+                securityRoles.systemGroupId == groupID ||
+                securityRoles.userGroupId == groupID);
+    }
+
+    /**
      * Sets up the groups.
      * @throws Exception Thrown if an error occurred.
      */
@@ -137,6 +151,7 @@ public class PermissionsTestAll extends AbstractServerTest {
         factory = client.getSession();
         IAdminPrx svc = factory.getAdminService();
 
+        securityRoles = svc.getSecurityRoles();
         List<ExperimenterGroup> groups1 = new ArrayList<ExperimenterGroup>();
         List<ExperimenterGroup> groups2 = new ArrayList<ExperimenterGroup>();
 
@@ -206,7 +221,7 @@ public class PermissionsTestAll extends AbstractServerTest {
                     svc.setGroupOwner(
                             new ExperimenterGroupI(
                                     target_groups.get(l).getId(), false),
-                            new ExperimenterI(user1.getId(), false));
+                                    new ExperimenterI(user1.getId(), false));
                 }
             }
 
@@ -227,28 +242,29 @@ public class PermissionsTestAll extends AbstractServerTest {
             ServiceFactoryPrx session = client.createSession(users[i], password);
             client.enableKeepAlive(60);
 
-            Experimenter user1 = session.getAdminService().lookupExperimenter(
-                    users[i]);
-            List<Long> gids = session.getAdminService().getMemberOfGroupIds(
-                    user1);
+            IAdminPrx prx = session.getAdminService();
+            Experimenter user1 = prx.lookupExperimenter(users[i]);
+            List<Long> gids = prx.getMemberOfGroupIds(user1);
 
             // Switch group context for the user (Iterate through all the
             // groups, the user is part of)
             for (int j = 0; j < gids.size(); j++) {
-                ExperimenterGroupI group = new ExperimenterGroupI(gids.get(j),
-                        false);
-                session.setSecurityContext(group);
-                iUpdate = session.getUpdateService();
-                mmFactory = new ModelMockFactory(session.getPixelsService());
+                long gid = gids.get(j);
+                if (!isSecuritySystemGroup(gid)) {
+                    ExperimenterGroupI group = new ExperimenterGroupI(gid,
+                            false);
+                    session.setSecurityContext(group);
+                    iUpdate = session.getUpdateService();
+                    mmFactory = new ModelMockFactory(session.getPixelsService());
 
-                // Create new Image Objects(with pixels) and attach it to the
-                // session
-                for (int k = 0; k <= 10; k++) {
-                    Image img = (Image) iUpdate.saveAndReturnObject(mmFactory
-                            .simpleImage());
-                    assertNotNull(img);
+                    // Create new Image Objects(with pixels) and attach it to the
+                    // session
+                    for (int k = 0; k <= gids.size(); k++) {
+                        Image img = (Image) iUpdate.saveAndReturnObject(mmFactory
+                                .simpleImage());
+                        assertNotNull(img);
+                    }
                 }
-
             }
             client.closeSession();
 
@@ -328,76 +344,78 @@ public class PermissionsTestAll extends AbstractServerTest {
             Long expid = exp.getId().getValue();
 
             for (int k = 0; k < usergroups.size(); k++) {
-                ExperimenterGroup group = svc.getGroup(usergroups.get(k));
-                session.setSecurityContext(new ExperimenterGroupI(group.getId()
-                        .getValue(), false));
+                if (!isSecuritySystemGroup(usergroups.get(k))) {
+                    ExperimenterGroup group = svc.getGroup(usergroups.get(k));
+                    session.setSecurityContext(new ExperimenterGroupI(group.getId()
+                            .getValue(), false));
 
-                PermissionData perms = new PermissionData(group.getDetails()
-                        .getPermissions());
-                String permsAsString = getPermissions(perms
-                        .getPermissionsLevel());
-                final String[] subgroups = { perm_table[0], perm_table[3] };
-                final List<?> perm_table1 = Arrays.asList(subgroups);
+                    PermissionData perms = new PermissionData(group.getDetails()
+                            .getPermissions());
+                    String permsAsString = getPermissions(perms
+                            .getPermissionsLevel());
+                    final String[] subgroups = { perm_table[0], perm_table[3] };
+                    final List<?> perm_table1 = Arrays.asList(subgroups);
 
-                iUpdate = session.getUpdateService();
-                mmFactory = new ModelMockFactory(session.getPixelsService());
+                    iUpdate = session.getUpdateService();
+                    mmFactory = new ModelMockFactory(session.getPixelsService());
 
-                // Create Tags
-                List<Long> ids = new ArrayList<Long>();
-                TagAnnotation c = new TagAnnotationI();
-                c.setTextValue(omero.rtypes.rstring(tag));
-                c = (TagAnnotation) iUpdate.saveAndReturnObject(c);
-                ids.add(c.getId().getValue());
+                    // Create Tags
+                    List<Long> ids = new ArrayList<Long>();
+                    TagAnnotation c = new TagAnnotationI();
+                    c.setTextValue(omero.rtypes.rstring(tag));
+                    c = (TagAnnotation) iUpdate.saveAndReturnObject(c);
+                    ids.add(c.getId().getValue());
 
-                // Create Comments
-                TermAnnotation t = new TermAnnotationI();
-                t.setTermValue(omero.rtypes.rstring(comment));
-                t = (TermAnnotation) iUpdate.saveAndReturnObject(t);
-                ids.add(t.getId().getValue());
+                    // Create Comments
+                    TermAnnotation t = new TermAnnotationI();
+                    t.setTermValue(omero.rtypes.rstring(comment));
+                    t = (TermAnnotation) iUpdate.saveAndReturnObject(t);
+                    ids.add(t.getId().getValue());
 
-                // Create File for FileAnnotation
-                OriginalFile of = (OriginalFile) iUpdate
-                        .saveAndReturnObject(mmFactory.createOriginalFile());
-                assertNotNull(of);
-                FileAnnotation f = new FileAnnotationI();
-                f.setFile(of);
-                f = (FileAnnotation) iUpdate.saveAndReturnObject(f);
-                ids.add(f.getId().getValue());
+                    // Create File for FileAnnotation
+                    OriginalFile of = (OriginalFile) iUpdate
+                            .saveAndReturnObject(mmFactory.createOriginalFile());
+                    assertNotNull(of);
+                    FileAnnotation f = new FileAnnotationI();
+                    f.setFile(of);
+                    f = (FileAnnotation) iUpdate.saveAndReturnObject(f);
+                    ids.add(f.getId().getValue());
 
-                for (int i = 0; i < idlist.size(); i++) {
-                    Long[] searchterm = idlist.get(i);
-                    Long groupid = searchterm[2];
-                    Long imageid = searchterm[0];
-                    Long ownerid = searchterm[1];
+                    for (int i = 0; i < idlist.size(); i++) {
+                        Long[] searchterm = idlist.get(i);
+                        Long groupid = searchterm[2];
+                        Long imageid = searchterm[0];
+                        Long ownerid = searchterm[1];
 
-                    if (groupid == group.getId().getValue()
-                            && (perm_table1.contains(permsAsString) || ownerid == expid)) {
-                        List<IObject> links = new ArrayList<IObject>();
-                        // Create Links for Tags
-                        ImageAnnotationLink link = new ImageAnnotationLinkI();
-                        link.setChild(new TagAnnotationI(c.getId().getValue(),
-                                false));
-                        link.setParent(new ImageI(imageid, false));
-                        links.add(link);
+                        if (groupid == group.getId().getValue()
+                                && (perm_table1.contains(permsAsString) || ownerid == expid)) {
+                            List<IObject> links = new ArrayList<IObject>();
+                            // Create Links for Tags
+                            ImageAnnotationLink link = new ImageAnnotationLinkI();
+                            link.setChild(new TagAnnotationI(c.getId().getValue(),
+                                    false));
+                            link.setParent(new ImageI(imageid, false));
+                            links.add(link);
 
-                        // Create Links for Comments
-                        link = new ImageAnnotationLinkI();
-                        link.setChild(new TermAnnotationI(t.getId().getValue(),
-                                false));
-                        link.setParent(new ImageI(imageid, false));
-                        links.add(link);
+                            // Create Links for Comments
+                            link = new ImageAnnotationLinkI();
+                            link.setChild(new TermAnnotationI(t.getId().getValue(),
+                                    false));
+                            link.setParent(new ImageI(imageid, false));
+                            links.add(link);
 
-                        // Create Links for Files
-                        link = new ImageAnnotationLinkI();
-                        link.setChild(new FileAnnotationI(f.getId().getValue(),
-                                false));
-                        link.setParent(new ImageI(imageid, false));
-                        links.add(link);
-                        iUpdate.saveAndReturnArray(links);
+                            // Create Links for Files
+                            link = new ImageAnnotationLinkI();
+                            link.setChild(new FileAnnotationI(f.getId().getValue(),
+                                    false));
+                            link.setParent(new ImageI(imageid, false));
+                            links.add(link);
+                            iUpdate.saveAndReturnArray(links);
+                        }
+
                     }
 
                 }
-
             }
             client.closeSession();
         }
@@ -436,47 +454,51 @@ public class PermissionsTestAll extends AbstractServerTest {
                     .lookupExperimenter(users[j]);
             List<Long> gids = session.getAdminService()
                     .getMemberOfGroupIds(user1);
-            for (int k = 0; k < gids.size(); k++) // source group iterations
+            int n = gids.size();
+            for (int k = 0; k < n; k++) // source group iterations
             {
 
-                for (int l = 0; l < gids.size(); l++) { // target group iterations
+                Long userid = session.getAdminService()
+                        .getEventContext().userId;
+                ParametersI params = new omero.sys.ParametersI();
+                params.exp(omero.rtypes.rlong(userid));
 
-                    ExperimenterGroupI group = new ExperimenterGroupI(
-                            gids.get(k), false);
+                IContainerPrx proxy = session.getContainerService();
+                List<Image> imageList1 = proxy.getUserImages(params);
+
+                long sourcegroup = gids.get(k);
+                if (!isSecuritySystemGroup(sourcegroup)) {
+
+                    ExperimenterGroupI group = new ExperimenterGroupI(sourcegroup, false);
                     session.setSecurityContext(group);
-                    Long userid = session.getAdminService()
-                            .getEventContext().userId;
 
-                    Long targetgroup = gids.get(l);
-                    Chgrp chgrp = new Chgrp();
+                    Image img = null;
+                    for (int l = 0; l < n; l++) { // target group iterations
 
-                    ParametersI params = new omero.sys.ParametersI();
-                    params.exp(omero.rtypes.rlong(userid));
+                        Long targetgroup = gids.get(l);
+                        Chgrp chgrp = new Chgrp();
 
-                    IContainerPrx proxy = session.getContainerService();
-                    List<Image> imageList1 = proxy.getUserImages(params);
-                    if (imageList1.size() == 0) {
+                        if (!isSecuritySystemGroup(targetgroup)) {
+                            if (imageList1.size() == 0 || l >imageList1.size()) {
+                                iUpdate = session.getUpdateService();
+                                mmFactory = new ModelMockFactory(
+                                        session.getPixelsService());
+                                img = (Image) iUpdate
+                                        .saveAndReturnObject(mmFactory
+                                                .simpleImage());
+                                assertNotNull(img);
+                            }else{
+                                img = imageList1.get(l);
+                            }
+                            long imageid = img.getId().getValue();
 
-                        iUpdate = session.getUpdateService();
-                        mmFactory = new ModelMockFactory(
-                                session.getPixelsService());
-                        Image img = (Image) iUpdate
-                                .saveAndReturnObject(mmFactory
-                                        .simpleImage());
-                        assertNotNull(img);
-                        imageList1 = proxy.getUserImages(params);
+                            chgrp.id = imageid;
+                            chgrp.type = "/Image";
+                            chgrp.grp = targetgroup;
+                            map.add(new TestParam(chgrp, users[j], password, sourcegroup));
+                        }
                     }
-
-                    Image img = imageList1.get(0);
-                    long imageid = img.getId().getValue();
-
-                    chgrp.id = imageid;
-                    chgrp.type = "/Image";
-                    chgrp.grp = targetgroup;
-                    map.add(new TestParam(chgrp, users[j], password, gids
-                            .get(k)));
                 }
-
             }
             int index = 0;
             Iterator<TestParam> k = map.iterator();
@@ -522,7 +544,7 @@ public class PermissionsTestAll extends AbstractServerTest {
         Long userid = session1.getAdminService().getEventContext().userId;
         long targetgroup = param.getChgrp().grp;
         long imageid = param.getChgrp().id;
-        
+
         if (response == null) {
             ExperimenterGroup group2 = session1.getAdminService().getGroup(
                     sourcegroup);
