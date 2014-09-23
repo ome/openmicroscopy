@@ -1,6 +1,6 @@
 --
 -- See:
--- http://www.openmicroscopy.org/info/vulnerabilities/2014-sv2-empty-passwords
+-- http://www.openmicroscopy.org/info/vulnerabilities/2014-SV2-empty-passwords
 --
 --
 -- List all the users who have an empty password.
