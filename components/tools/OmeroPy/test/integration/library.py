@@ -61,7 +61,6 @@ class ITest(object):
         rootpass = p.getProperty("omero.rootpass")
 
         name = None
-        pasw = None
         if rootpass:
             self.root = omero.client() # ok because adds self
             self.__clients.add(self.root)
@@ -69,14 +68,13 @@ class ITest(object):
             self.root.createSession("root", rootpass)
             newuser = self.new_user()
             name = newuser.omeName.val
-            pasw = "1"
         else:
             self.root = None
 
         self.client = omero.client() # ok because adds self
         self.__clients.add(self.client)
         self.client.setAgent("OMERO.py.test")
-        self.sf = self.client.createSession(name, pasw)
+        self.sf = self.client.createSession(name, name)
 
         self.update = self.sf.getUpdateService()
         self.query = self.sf.getQueryService()
@@ -322,7 +320,10 @@ class ITest(object):
         e.omeName = rstring(name)
         e.firstName = rstring(name)
         e.lastName = rstring(name)
-        uid = adminService.createUser(e, group)
+        listOfGroups = list()
+        listOfGroups.append(adminService.lookupGroup('user'))
+        uid = adminService.createExperimenterWithPassword(
+            e, rstring(name), g, listOfGroups)
         e = adminService.lookupExperimenter(name)
         if admin:
             adminService.setGroupOwner(g, e)

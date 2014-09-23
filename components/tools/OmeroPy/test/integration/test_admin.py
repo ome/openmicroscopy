@@ -55,9 +55,19 @@ class TestAdmin(lib.ITest):
         admin = client.sf.getAdminService()
         admin.changePassword(rstring("ome"))
 
-        uuid = client.getSessionId()
+        query = client.sf.getQueryService()
+        getOnlyOne = omero.sys.ParametersI()
+        getOnlyOne.limit = 1
 
-        # Now login without a passowrd
+        myId = admin.getEventContext().userId
+        hql = ("SELECT event.time FROM EventLog "
+               "WHERE event.experimenter.id = %s "
+               "AND action = 'PASSWORD' ORDER BY id DESC") % myId
+
+        # time of first password change
+        whenOme = query.projection(hql, getOnlyOne)[0][0].val
+
+        # Now login without a password
         client2 = client.createClient(True)
         try:
             admin = client2.sf.getAdminService()
@@ -77,6 +87,10 @@ class TestAdmin(lib.ITest):
                     admin.changePasswordWithOldPassword(rstring("foo"), rstring("foo"))
             finally:
                 client3.closeSession()
+
+        # time of last password change
+        whenFoo = query.projection(hql, getOnlyOne)[0][0].val
+        assert whenFoo > whenOme
 
     def testChangePasswordWhenUnset(self):
         """
