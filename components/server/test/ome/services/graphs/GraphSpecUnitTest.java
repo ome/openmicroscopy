@@ -153,22 +153,39 @@ public class GraphSpecUnitTest extends MockGraphTest {
         List<GraphSpec> expected = new ArrayList<GraphSpec>();
         expected.add(specs.get("/Annotation")); // Roi's annotation
         expected.add(specs.get("/Roi"));
-        expected.add(specs.get("/Annotation")); // file's annotation
+        expected.add(specs.get("/Annotation"));
         expected.add(specs.get("/FileAnnotation+special"));
         expected.add(specs.get("/Annotation"));
         expected.add(specs.get("/OriginalFile"));
         expected.add(specs.get("/Annotation"));
         expected.add(specs.get("/Image/Pixels/RenderingDef"));
         expected.add(specs.get("/Annotation"));
+        expected.add(specs.get("/Annotation"));
+        expected.add(specs.get("/Arc"));
+        expected.add(specs.get("/Annotation"));
+        expected.add(specs.get("/Filament"));
+        expected.add(specs.get("/Annotation"));
+        expected.add(specs.get("/Laser"));
+        expected.add(specs.get("/Annotation"));
+        expected.add(specs.get("/LightEmittingDiode"));
         expected.add(specs.get("/LightSource"));
         expected.add(specs.get("/Image/Pixels/Channel"));
         expected.add(specs.get("/Annotation"));
-        expected.add(specs.get("/Annotation"));
         expected.add(specs.get("/Experiment"));
+        expected.add(specs.get("/Annotation"));
+        expected.add(specs.get("/Arc"));
+        expected.add(specs.get("/Annotation"));
+        expected.add(specs.get("/Filament"));
+        expected.add(specs.get("/Annotation"));
+        expected.add(specs.get("/Laser"));
+        expected.add(specs.get("/Annotation"));
+        expected.add(specs.get("/LightEmittingDiode"));
         expected.add(specs.get("/LightSource"));
+        expected.add(specs.get("/Annotation"));
         expected.add(specs.get("/Instrument"));
         expected.add(specs.get("/Image+Only"));
         expected.add(image);
+
         while (it.hasNext()) {
             GraphSpec found = it.next();
             assertTrue(found.toString() + " not expected", expected.size() > 0);
