@@ -40,6 +40,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -53,11 +54,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
 
 //Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
@@ -73,6 +76,7 @@ import org.openmicroscopy.shoola.util.ui.ColorListRenderer;
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
+
 import pojos.ChannelData;
 
 /** 
@@ -456,35 +460,27 @@ public class DomainPane
      *  
      * @return See above.
      */
-    private JPanel buildChannelGraphicsPanel()
+    private JComponent buildChannelGraphicsPanel()
     {
-    	JPanel p = new JPanel();
-    	p.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	p.setLayout(new GridBagLayout());
-    	
-    	GridBagConstraints c = new GridBagConstraints();
-    	c.anchor = GridBagConstraints.NORTHWEST;
-    	c.fill = GridBagConstraints.NONE;
-    	c.gridx = 0;
-    	c.gridy = 0;
-    	c.weightx = 0;
-    	c.weighty = 0;
-    	  	
-        if (model.isGeneralIndex()) {
-            p.add(openButton, c);
-            c.gridy++;
-            
-            c.fill = GridBagConstraints.HORIZONTAL;
-            c.weightx = 1;
-            c.anchor = GridBagConstraints.CENTER;
-            p.add(buildViewerPane(), c);
-            c.gridy++;
+        JComponent result;
 
-            c.fill = GridBagConstraints.BOTH;
-            c.weightx = 1;
-            c.weighty = 1;
-            p.add(graphicsPane,c);
+        if (model.isGeneralIndex()) {
+            JPanel viewerPane = buildViewerPane();
+            JSplitPane p = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+            p.setTopComponent(viewerPane);
+            p.setBottomComponent(graphicsPane);
+            viewerPane.setMinimumSize(model.getPreviewDimension());
+            result = p;
         } else {
+            JPanel p = new JPanel();
+            p.setLayout(new GridBagLayout());
+            
+            GridBagConstraints c = new GridBagConstraints();
+            c.anchor = GridBagConstraints.NORTHWEST;
+            c.fill = GridBagConstraints.NONE;
+            c.gridx = 0;
+            c.gridy = 0;
+            
             c.weightx = 1;
             c.weighty = 1;
             c.fill = GridBagConstraints.BOTH;
@@ -494,11 +490,12 @@ public class DomainPane
             c.fill = GridBagConstraints.HORIZONTAL;
             taskPane.add(buildControlsPane());
             p.add(taskPane, c);
+            result = p;
         }
     	
-        p.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
-        p.setBackground(UIUtilities.BACKGROUND_COLOR);
-        return p;
+        result.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+        result.setBackground(UIUtilities.BACKGROUND_COLOR);
+        return result;
     }
     
     /** 
@@ -508,25 +505,48 @@ public class DomainPane
      */
     private JPanel buildViewerPane()
     {
-    	JPanel p = new JPanel();
-    	p.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	p.setLayout(new GridBagLayout());
-    	GridBagConstraints c = new GridBagConstraints();
-		c.fill = GridBagConstraints.VERTICAL;
-		c.anchor = GridBagConstraints.WEST;
-		c.insets = new Insets(0, 2, 2, 0);
-		c.gridy = 0;
-		c.gridx = 0;
-		p.add(zSlider, c);
-		c.gridx++;
-		p.add(canvas, c);
-		c.gridy++;
-		if (tSlider.isVisible()) p.add(tSlider, c);
-		if (lifetimeSlider != null) {
-		    c.gridy++;
-		    p.add(lifetimeSlider, c);
-		}
-    	return p;
+        JPanel p = new JPanel();
+        p.setBackground(UIUtilities.BACKGROUND_COLOR);
+        p.setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        
+        c.fill = GridBagConstraints.NONE;
+        c.anchor = GridBagConstraints.NORTHWEST;
+        c.insets = new Insets(0, 2, 2, 0);
+        c.gridy = 0;
+        c.gridx = 0;
+        
+        c.weightx = 1;
+        c.weighty = 0;
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        p.add(openButton, c);
+        c.gridy++;
+
+        c.fill = GridBagConstraints.VERTICAL;
+        c.gridwidth = 1;
+        c.weightx = 0;
+        c.weighty = 1;
+        p.add(zSlider, c);
+        c.gridx++;
+
+        c.fill = GridBagConstraints.BOTH;
+        c.weightx = 1;
+        c.weighty = 1;
+        p.add(canvas, c);
+        c.gridy++;
+
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        c.weightx = 1;
+        c.weighty = 0;
+        if (tSlider.isVisible()) {
+            p.add(tSlider, c);
+            c.gridy++;
+        }
+        if (lifetimeSlider != null) {
+            p.add(lifetimeSlider, c);
+        }
+        return p;
     }
     
     /**
@@ -975,11 +995,6 @@ public class DomainPane
 	{
 		if (canvas == null) return;
 		BufferedImage img = model.renderImage();
-		if (img == null) return;
-		Dimension d = model.getPreviewDimension();
-		img = Factory.scaleBufferedImage(img, d.width, d.height);
-		canvas.setPreferredSize(d);
-		canvas.setSize(d);
 		canvas.setImage(img);
 	}
 	

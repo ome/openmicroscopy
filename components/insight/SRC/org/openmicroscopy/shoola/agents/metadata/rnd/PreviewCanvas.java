@@ -24,15 +24,20 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 
 //Java imports
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+
 import javax.swing.JPanel;
 
 //Third-party libraries
 
+
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
 
 /** 
  * Component displaying the preview image. 
@@ -77,11 +82,24 @@ class PreviewCanvas
      */
     public void paintComponent(Graphics g)
     {
-    	 if (image == null) return;
-         Graphics2D g2D = (Graphics2D) g;
-         ImagePaintingFactory.setGraphicRenderingSettings(g2D);
-         g2D.drawImage(image, null, 0, 0); 
-         g2D.dispose();
+        if (image == null)
+            return;
+
+        Dimension d = getSize();
+        double xFactor = (double)d.width/(double)image.getWidth();
+        double yFactor = (double)d.height/(double)image.getHeight();
+        double factor = xFactor < yFactor ? xFactor : yFactor;
+        int w = (int)(image.getWidth()*factor);
+        int h = (int)(image.getHeight()*factor);
+        BufferedImage scaledImage = Factory.scaleBufferedImage(image, w, h);
+
+        int x = (d.width - scaledImage.getWidth()) / 2;
+        int y = (d.height - scaledImage.getHeight()) / 2;
+
+        Graphics2D g2D = (Graphics2D) g;
+        ImagePaintingFactory.setGraphicRenderingSettings(g2D);
+        g2D.drawImage(scaledImage, null, x, y);
+        g2D.dispose();
     }
     
 }
