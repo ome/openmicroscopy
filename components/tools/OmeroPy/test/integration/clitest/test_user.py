@@ -19,8 +19,10 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+from omero.cli import NonZeroReturnCode
 from omero.plugins.user import UserControl
 from test.integration.clitest.cli import CLITest, RootCLITest
+from Glacier2 import PermissionDeniedException
 import getpass
 import pytest
 
@@ -34,7 +36,7 @@ middlename_prefixes = [None, '-m', '--middlename']
 email_prefixes = [None, '-e', '--email']
 institution_prefixes = [None, '-i', '--institution']
 admin_prefixes = [None, '-a', '--admin']
-password_prefixes = [None, '--no-password', '-P', '--userpassword']
+password_prefixes = [None, '-P', '--userpassword']
 
 
 class TestUser(CLITest):
@@ -129,17 +131,21 @@ class TestUser(CLITest):
 
     # Password subcommand
     # ========================================================================
-    def testPassword(self):
+    @pytest.mark.parametrize("is_unicode", [True, False])
+    def testPassword(self, is_unicode):
         self.args += ["password"]
-        password = self.uuid()
         login = self.sf.getAdminService().getEventContext().userName
+        if is_unicode:
+            password = "ążćę"
+        else:
+            password = self.uuid()
 
         self.setup_mock()
         self.mox.StubOutWithMock(getpass, 'getpass')
         i1 = 'Please enter password for your user (%s): ' % login
         i2 = 'Please enter password to be set: '
         i3 = 'Please re-enter password to be set: '
-        getpass.getpass(i1).AndReturn('')
+        getpass.getpass(i1).AndReturn(login)
         getpass.getpass(i2).AndReturn(password)
         getpass.getpass(i3).AndReturn(password)
         self.mox.ReplayAll()
@@ -149,6 +155,19 @@ class TestUser(CLITest):
 
         # Check session creation using new password
         self.new_client(user=login, password=password)
+
+        # Check session creation fails with a random password
+        with pytest.raises(PermissionDeniedException):
+            self.new_client(user=login, password=self.uuid)
+
+        if is_unicode:
+            # Check session creation fails with a combination of unicode
+            # characters
+            with pytest.raises(PermissionDeniedException):
+                self.new_client(user=login, password="żąćę")
+            # Check session creation fails with question marks
+            with pytest.raises(PermissionDeniedException):
+                self.new_client(user=login, password="????")
 
 
 class TestUserRoot(RootCLITest):
@@ -256,7 +275,7 @@ class TestUserRoot(RootCLITest):
             self.args += [institution_prefix, institution]
         if admin_prefix:
             self.args += [admin_prefix]
-        self.args += ['--no-password']
+        self.args += ['-P', login]
         self.cli.invoke(self.args, strict=True)
 
         # Check user has been added to the list of member/owners
@@ -286,7 +305,7 @@ class TestUserRoot(RootCLITest):
         if group_prefix:
             self.args += [group_prefix]
         self.args += ["%s" % getattr(group, group_attr).val]
-        self.args += ['--no-password']
+        self.args += ['-P', login]
         self.cli.invoke(self.args, strict=True)
 
         # Check user has been added to the list of member/owners
@@ -297,23 +316,22 @@ class TestUserRoot(RootCLITest):
         assert user.id.val in self.getuserids(group.id.val)
 
     @pytest.mark.parametrize("password_prefix", password_prefixes)
-    def testAddPassword(self, password_prefix):
+    @pytest.mark.parametrize("is_unicode", [True, False])
+    def testAddPassword(self, password_prefix, is_unicode):
         group = self.new_group()
         login = self.uuid()
         firstname = self.uuid()
         lastname = self.uuid()
+        if is_unicode:
+            password = "ążćę"
+        else:
+            password = self.uuid()
 
         self.args += ["add", login, firstname, lastname]
         self.args += ["%s" % group.id.val]
         if password_prefix:
-            self.args += [password_prefix]
-            if password_prefix != '--no-password':
-                password = self.uuid()
-                self.args += ["%s" % password]
-            else:
-                password = None
+            self.args += [password_prefix, "%s" % password]
         else:
-            password = self.uuid()
             self.setup_mock()
             self.mox.StubOutWithMock(getpass, 'getpass')
             i1 = 'Please enter password for your new user (%s): ' % login
@@ -335,22 +353,43 @@ class TestUserRoot(RootCLITest):
 
         # Check session creation using password
         self.new_client(user=login, password=password)
+        # Check session creation fails with a random password
+        with pytest.raises(PermissionDeniedException):
+            self.new_client(user=login, password=self.uuid)
+
+    def testAddNoPassword(self):
+        group = self.new_group()
+        login = self.uuid()
+        firstname = self.uuid()
+        lastname = self.uuid()
+
+        self.args += ["add", login, firstname, lastname]
+        self.args += ["%s" % group.id.val]
+        self.args += ["--no-password"]
+
+        # Assumes the server has the default configuration, i.e.
+        # password_required=true
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
 
     # Password subcommand
     # ========================================================================
-    def testPassword(self):
+    @pytest.mark.parametrize("is_unicode", [True, False])
+    def testPassword(self, is_unicode):
         user = self.new_user()
         login = user.omeName.val
         self.args += ["password", "%s" % login]
-        root_password = self.root.getProperty("omero.rootpass")
-        password = self.uuid()
+        if is_unicode:
+            password = "ążćę"
+        else:
+            password = self.uuid()
 
         self.setup_mock()
         self.mox.StubOutWithMock(getpass, 'getpass')
         i1 = 'Please enter password for your user (root): '
         i2 = 'Please enter password to be set: '
         i3 = 'Please re-enter password to be set: '
-        getpass.getpass(i1).AndReturn(root_password)
+        getpass.getpass(i1).AndReturn(self.root.getProperty("omero.rootpass"))
         getpass.getpass(i2).AndReturn(password)
         getpass.getpass(i3).AndReturn(password)
         self.mox.ReplayAll()
@@ -360,3 +399,16 @@ class TestUserRoot(RootCLITest):
 
         # Check session creation using new password
         self.new_client(user=login, password=password)
+
+        # Check session creation fails with a random password
+        with pytest.raises(PermissionDeniedException):
+            self.new_client(user=login, password=self.uuid)
+
+        if is_unicode:
+            # Check session creation fails with a combination of unicode
+            # characters
+            with pytest.raises(PermissionDeniedException):
+                self.new_client(user=login, password="żąćę")
+            # Check session creation fails with question marks
+            with pytest.raises(PermissionDeniedException):
+                self.new_client(user=login, password="????")

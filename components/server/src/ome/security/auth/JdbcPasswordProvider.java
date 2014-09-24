@@ -18,6 +18,10 @@
 
 package ome.security.auth;
 
+import java.util.Collections;
+
+import ome.model.meta.Experimenter;
+import ome.services.messages.EventLogMessage;
 
 /**
  * Central {@link PasswordProvider} which uses the "password" table in the
@@ -74,12 +78,24 @@ public class JdbcPasswordProvider extends ConfigurablePasswordProvider {
     @Override
     public void changePassword(String user, String password)
             throws PasswordChangeException {
-        Long id = util.userId(user);
+        changePassword(user, password, salt ? PasswordUtil.METHOD.ALL : PasswordUtil.METHOD.LEGACY);
+    }
+
+    /**
+     * Actually perform the password change in the database and log the event against the user.
+     * @param user the name of the user whose password is to be changed
+     * @param password the password to prepare for storing in the table
+     * @param method how the given password is to be stored
+     * @throws PasswordChangeException if the operation failed
+     */
+    protected void changePassword(String user, String password, PasswordUtil.METHOD method) throws PasswordChangeException {
+        final Long id = util.userId(user);
         if (id == null) {
             throw new PasswordChangeException("Couldn't find id: " + user);
         }
-        util.changeUserPasswordById(id, password,
-                salt ? PasswordUtil.METHOD.ALL : PasswordUtil.METHOD.LEGACY);
+        util.changeUserPasswordById(id, password, method);
+        final EventLogMessage event =
+                new EventLogMessage(this, "PASSWORD", Experimenter.class, Collections.singletonList(id));
+        ctx.publishEvent(event);
     }
-
 }
