@@ -91,7 +91,7 @@ class TestThumbnailPerms(lib.ITest):
         assert self.getThumbnail(client_share1.sf, readOnlyImageId) is None
 
         # now check that the 'owner' of each group can see all 3 thumbnails.
-        ## login as owner (into private group)
+        # login as owner (into private group)
         owner_client = self.new_client(
             user=newOwner, password=newOwner.omeName.val)
 
