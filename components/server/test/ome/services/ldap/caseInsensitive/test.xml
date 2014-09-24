@@ -10,7 +10,7 @@
           http://www.springframework.org/schema/util
           http://www.springframework.org/schema/util/spring-util-2.0.xsd">
 
-    <security:ldap-server root="ou=People,ou=site,dc=caseInsensitive,dc=eg"
+    <security:ldap-server root="ou=People,ou=site,dc=ci,dc=eg"
         ldif="classpath:ome/services/ldap/caseInsensitive/*.ldif"/>
 
     <bean id="config" class="ome.security.auth.LdapConfig">
@@ -27,9 +27,6 @@
 
     <util:map id="good">
       <entry key="cAseInsenSitive">
-        <util:list><value>People</value></util:list>
-      </entry>
-      <entry key="caseinsensitive">
         <util:list><value>People</value></util:list>
       </entry>
     </util:map>
