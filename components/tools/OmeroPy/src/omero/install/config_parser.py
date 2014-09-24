@@ -106,6 +106,10 @@ A final useful option of :omerocmd:`config edit` is:
 which will allow for editing the configuration in a system-default text
 editor.
 
+.. note::
+    Please use the **escape sequence** ``\\"`` for nesting double quotes (e.g.
+    ``"[\\"foo\\", \\"bar\\"]"``) or wrap with ``'`` (e.g. ``'["foo", "bar"]'``).
+
 Examples of doing this are on the main :doc:`Unix <unix/server-installation>`
 and :doc:`Windows <windows/server-installation>` pages, as well as the
 :doc:`LDAP installation <server-ldap>` page.
