@@ -196,11 +196,6 @@ public class Quantization_float extends QuantumStrategy {
                 throws QuantizationException
     {
         double dStart = getWindowStart(), dEnd = getWindowEnd();
-        if (value < dStart) {
-            return ((byte) cdStart) & 0xFF;
-        } else if (value > dEnd) {
-            return ((byte) cdEnd) & 0xFF;
-        }
         double k = getCurveCoefficient();
         double a1 = (qDef.getCdEnd().intValue() - qDef.getCdStart().intValue())
                 / qDef.getBitResolution().doubleValue();
