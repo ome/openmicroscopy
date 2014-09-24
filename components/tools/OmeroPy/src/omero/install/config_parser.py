@@ -53,6 +53,15 @@ TOP = \
 Configuration properties glossary
 =================================
 
+.. contents::
+  :depth: 1
+  :local:
+
+.. _introduction_configuration:
+
+Introduction
+------------
+
 The primary form of configuration is via the use of key/value properties,
 stored in :file:`etc/grid/config.xml` and read on server startup. Backing up
 and copying these properties is as easy as copying this file to a new server
@@ -297,7 +306,7 @@ class PropertyParser(object):
             print "%s (%s)" % (k, len(v))
 
     def underline(self, size):
-        return '~' * size
+        return '^' * size
 
     def print_rst(self):
         space4 = " " * 4
