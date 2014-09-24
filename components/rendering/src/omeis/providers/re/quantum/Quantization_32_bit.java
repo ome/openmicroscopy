@@ -24,6 +24,7 @@
 package omeis.providers.re.quantum;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -213,6 +214,7 @@ public class Quantization_32_bit extends QuantumStrategy {
         super(qd, type);
         values = CacheBuilder.newBuilder()
                 .maximumSize(MAX-MIN+1)
+                .expireAfterWrite(10, TimeUnit.MINUTES)
                 .build(new CacheLoader<Double, Integer>() {
                     public Integer load(Double key) throws Exception {
                         return _quantize(key);
