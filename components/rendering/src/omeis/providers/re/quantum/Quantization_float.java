@@ -175,7 +175,7 @@ public class Quantization_float extends QuantumStrategy {
     public Quantization_float(QuantumDef qd, PixelsType type) {
         super(qd, type);
         values = CacheBuilder.newBuilder()
-                .maximumSize(MAX_SIZE)
+                .maximumSize(MAX-MIN+1)
                 .build(new CacheLoader<Double, Integer>() {
                     public Integer load(Double key) throws Exception {
                         return _quantize(key);
