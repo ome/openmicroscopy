@@ -25,12 +25,14 @@ package omeis.providers.re.quantum;
 
 import java.util.concurrent.ExecutionException;
 
+
 import ome.model.display.QuantumDef;
 import ome.model.enums.PixelsType;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.collect.Range;
 
 /**
  * Quantization process. In charge of building a look-up table for each active
@@ -48,9 +50,6 @@ import com.google.common.cache.LoadingCache;
  */
 public class Quantization_float extends QuantumStrategy {
 
-    /** The maximum size of the cache.*/
-    private static final long MAX_SIZE = 1000;
-    
     /** The lowest pixel intensity value. */
     private int min;
 
@@ -224,9 +223,9 @@ public class Quantization_float extends QuantumStrategy {
         v = aNormalized * (valueMapper.transform(v, k) - ysNormalized);
         v = Math.round(v);
         v = Math.round(a1 * v + cdStart);
-        int x = ((byte) v) & 0xFF;
-        return x;
+        return ((byte) v) & 0xFF;
     }
+
     /**
      * Implemented as specified in {@link QuantumStrategy}.
      *
@@ -235,7 +234,9 @@ public class Quantization_float extends QuantumStrategy {
     @Override
     public int quantize(double value) throws QuantizationException {
         try {
-            return values.get(value);
+            Range<Double> r = getRange(value);
+            double v = (r.upperEndpoint()+r.lowerEndpoint())/2;
+            return values.get(v);
         } catch (ExecutionException e) {
             throw new QuantizationException(e);
         }

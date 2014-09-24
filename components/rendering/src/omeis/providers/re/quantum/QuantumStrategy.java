@@ -12,6 +12,8 @@ package omeis.providers.re.quantum;
 // Third-party libraries
 
 // Application-internal dependencies
+import com.google.common.collect.Range;
+
 import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
 import ome.model.enums.PixelsType;
@@ -57,6 +59,9 @@ public abstract class QuantumStrategy {
 
     /** The maximum size for a lookup table. */
     static final double MAX_SIZE_LUT = 0x10000;
+    
+    /** The maximum size of the cache.*/
+    static final long MAX_SIZE = 1000;
     
     /** The minimum value for the pixels type. */
     private double pixelsTypeMin;
@@ -224,6 +229,30 @@ public abstract class QuantumStrategy {
         initPixelsRange(false);
     }
 
+    /**
+     * Returns the range the values belongs to.
+     *
+     * @param value The value to handle
+     * @return See above.
+     */
+    protected Range<Double> getRange(double value)
+    {
+        //no range so we need to create it
+        double min = getWindowStart();
+        double max = getWindowEnd();
+        double step = Math.abs(max-min)/(MAX-MIN+1);
+        double end = min+step;
+        if (value == min) {
+            return Range.closedOpen(min, end);
+        }
+        while (min+step < value) {
+            min += step;
+            end += step;
+        }
+        if (end == max) return Range.closed(min, end);
+        return Range.closedOpen(min, end);
+    }
+    
     /**
      * Sets the maximum range of the input window.
      * 
