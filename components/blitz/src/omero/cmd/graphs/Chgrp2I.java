@@ -54,6 +54,8 @@ public class Chgrp2I extends Chgrp2 implements IRequest {
 
     private static final ImmutableMap<String, String> ALL_GROUPS_CONTEXT = ImmutableMap.of(Login.OMERO_GROUP, "-1");
 
+    private static final Collection<GraphPolicy.Ability> REQUIRED_ABILITIES = ImmutableSet.of(GraphPolicy.Ability.OWN);
+
     private final ACLVoter aclVoter;
     private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
@@ -96,11 +98,16 @@ public class Chgrp2I extends Chgrp2 implements IRequest {
             throw helper.cancel(new ERR(), new IllegalArgumentException(), "not a member of the chgrp destination group");
         }
 
-        final GraphPolicy graphPolicyWithOptions =
-                AnnotationNamespacePolicy.getAnnotationNamespacePolicy(graphPolicy, includeNs, excludeNs);
+        GraphPolicy graphPolicyWithOptions = graphPolicy;
+
+        graphPolicyWithOptions = AnnotationNamespacePolicy.getAnnotationNamespacePolicy(graphPolicyWithOptions,
+                includeNs, excludeNs);
+
+        graphPolicyWithOptions = OrphanOverridePolicy.getOrphanOverridePolicy(graphPolicyWithOptions, graphPathBean,
+                includeChild, excludeChild);
 
         graphTraversal = new GraphTraversal(eventContext, aclVoter, systemTypes, graphPathBean, graphPolicyWithOptions,
-                new InternalProcessor());
+                dryRun ? new NullGraphTraversalProcessor(REQUIRED_ABILITIES) : new InternalProcessor());
     }
 
     @Override
@@ -190,8 +197,6 @@ public class Chgrp2I extends Chgrp2 implements IRequest {
      */
     private final class InternalProcessor extends BaseGraphTraversalProcessor {
 
-        private final Collection<GraphPolicy.Ability> requiredAbilities = ImmutableSet.of(GraphPolicy.Ability.OWN);
-
         public InternalProcessor() {
             super(helper.getSession());
         }
@@ -205,7 +210,7 @@ public class Chgrp2I extends Chgrp2 implements IRequest {
 
         @Override
         public Collection<GraphPolicy.Ability> getRequiredPermissions() {
-            return requiredAbilities;
+            return REQUIRED_ABILITIES;
         }
     }
 }
