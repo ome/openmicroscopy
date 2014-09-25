@@ -21,7 +21,6 @@ package omero.cmd.graphs;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,7 +28,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 
@@ -59,11 +57,14 @@ public class AnnotationNamespacePolicy {
      */
     public static GraphPolicy getAnnotationNamespacePolicy(final GraphPolicy graphPolicyToAdjust,
             Collection<String> includeNamespaces, Collection<String> excludeNamespaces) {
+
         /* construct the predicate corresponding to the namespace restriction */
+
         final Predicate<String> isTargetNamespace;
 
         if (CollectionUtils.isEmpty(includeNamespaces)) {
             if (CollectionUtils.isEmpty(excludeNamespaces)) {
+                /* there is no adjustment to make */
                 return graphPolicyToAdjust;
             } else {
                 final ImmutableSet<String> exclusions = ImmutableSet.copyOf(excludeNamespaces);
@@ -89,11 +90,11 @@ public class AnnotationNamespacePolicy {
         }
 
         /* wrap the traversal policy so that the namespace restriction is effected */
+
         return new GraphPolicy() {
             @Override
             public GraphPolicy getCleanInstance() {
-                return new GraphPolicy() {
-                    private final GraphPolicy graphPolicy = graphPolicyToAdjust.getCleanInstance();
+                return new BaseGraphPolicyAdjuster(graphPolicyToAdjust) {
                     private final Set<Long> targetAnnotations = new HashSet<Long>();
 
                     @Override
@@ -101,37 +102,22 @@ public class AnnotationNamespacePolicy {
                         if (object instanceof Annotation && isTargetNamespace.apply(((Annotation) object).getNs())) {
                             targetAnnotations.add(id);
                         }
-                        graphPolicy.noteDetails(object, realClass, id);
+                        super.noteDetails(object, realClass, id);
                     }
 
                     @Override
-                    public Set<Details> review(Map<String, Set<Details>> linkedFrom, Details rootObject,
-                            Map<String, Set<Details>> linkedTo, Set<String> notNullable) throws GraphException {
-                        final Set<Details> terms = new HashSet<Details>();
-                        terms.add(rootObject);
-                        for (final Map.Entry<String, Set<Details>> dataPerProperty : linkedFrom.entrySet()) {
-                            terms.addAll(dataPerProperty.getValue());
-                        }
-                        for (final Map.Entry<String, Set<Details>> dataPerProperty : linkedTo.entrySet()) {
-                            terms.addAll(dataPerProperty.getValue());
-                        }
-                        final Iterator<Details> termIterator = terms.iterator();
-                        while (termIterator.hasNext()) {
-                            final GraphPolicy.Details object = termIterator.next();
-                            if (object.action == GraphPolicy.Action.EXCLUDE && object.orphan != GraphPolicy.Orphan.IS_NOT_LAST &&
-                                    object.subject instanceof Annotation && !targetAnnotations.contains(object.subject.getId())) {
-                                /* the annotation does not satisfy the predicate so it may not be deemed an orphan */
-                                object.orphan = GraphPolicy.Orphan.IS_NOT_LAST;
-                            } else {
-                                /* not adjusting this term, so do not include in returned list of changes */
-                                termIterator.remove();
+                    protected boolean isAdjustedBeforeReview(Details object) {
+                        if (object.action == GraphPolicy.Action.EXCLUDE && object.orphan != GraphPolicy.Orphan.IS_NOT_LAST &&
+                                object.subject instanceof Annotation && !targetAnnotations.contains(object.subject.getId())) {
+                            /* the annotation does not satisfy the predicate so it may not be deemed an orphan */
+                            object.orphan = GraphPolicy.Orphan.IS_NOT_LAST;
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("not in target namespace, so making " + object);
                             }
+                            return true;
+                        } else {
+                            return false;
                         }
-                        if (!terms.isEmpty() && LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("not in target namespace, so making " + Joiner.on(", ").join(terms));
-                        }
-                        terms.addAll(graphPolicy.review(linkedFrom, rootObject, linkedTo, notNullable));
-                        return terms;
                     }
                 };
             }
