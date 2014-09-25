@@ -40,7 +40,6 @@ import ome.model.annotations.PlateAnnotationLink;
 import ome.model.annotations.ProjectAnnotationLink;
 import ome.model.annotations.ScreenAnnotationLink;
 import ome.model.annotations.TagAnnotation;
-import ome.model.annotations.WellSampleAnnotationLink;
 import ome.model.acquisition.Arc;
 import ome.model.acquisition.Filament;
 import ome.model.acquisition.Instrument;
@@ -176,8 +175,6 @@ public class MetadataImpl
 			sb.append("select l from PlateAcquisitionAnnotationLink as l ");
 		else if (Well.class.getName().equals(rootType.getName()))
 			sb.append("select l from WellAnnotationLink as l ");
-		else if (Pixels.class.getName().equals(rootType.getName()))
-				sb.append("select l from PixelsAnnotationLink as l ");
 		else if (Fileset.class.getName().equals(rootType.getName()))
 		        sb.append("select l from FilesetAnnotationLink as l ");
 
@@ -983,26 +980,6 @@ public class MetadataImpl
 			PlateAnnotationLink link;
 			while (i.hasNext()) {
 				link = (PlateAnnotationLink) i.next();
-				o = link.getChild();
-				if (!ids.contains(o.getId())) {
-					result.add(o);
-					ids.add(o.getId());
-				}
-			}
-		}
-		sb = new StringBuffer();
-		sb.append("select link from WellSampleAnnotationLink as link ");
-		sb.append("left outer join fetch link.child child ");
-		sb.append("left outer join fetch child.details.owner as co ");
-		sb.append("left outer join fetch link.details.owner as lo ");
-		sb.append("where co.id != :userID and lo.id = :userID " +
-				"and child member of "+type);
-		l = iQuery.findAllByQuery(sb.toString(), param);
-		if (l != null && l.size() > 0) {
-			i = l.iterator();
-			WellSampleAnnotationLink link;
-			while (i.hasNext()) {
-				link = (WellSampleAnnotationLink) i.next();
 				o = link.getChild();
 				if (!ids.contains(o.getId())) {
 					result.add(o);
