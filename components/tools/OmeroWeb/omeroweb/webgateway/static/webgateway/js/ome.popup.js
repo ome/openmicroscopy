@@ -29,46 +29,54 @@ OME.isMobileDevice = function() {
     return (/Android|webOS|iPhone|iPad|iPod|BlackBerry|PlayBook|IEMobile|Opera Mini|Mobile Safari|Silk/i).test(navigator.userAgent)
 };
 
-Number.prototype.filesizeformat = function () {
+function isInt(n){
+    return typeof n== "number" && isFinite(n) && n%1===0;
+}
+
+Number.prototype.filesizeformat = function (round) {
     /*
     Formats the value like a 'human-readable' file size (i.e. 13 KB, 4.1 MB,
     102 bytes, etc).*/
+    
+    if (round === undefined && !isInt(round)) round = 2;
     
     var bytes = this;
     if (bytes < 1024) {
         return bytes + ' B';
     } else if (bytes < (1024*1024)) {
-        return (bytes / 1024).toFixed(2) + ' KB';
+        return (bytes / 1024).toFixed(round) + ' KB';
     } else if (bytes < (1024*1024*1024)) {
-        return (bytes / (1024*1024)).toFixed(2) + ' MB';
+        return (bytes / (1024*1024)).toFixed(round) + ' MB';
     } else if (bytes < (1024*1024*1024*1024)) {
-        return (bytes / (1024*1024*1024)).toFixed(2) + ' GB';
+        return (bytes / (1024*1024*1024)).toFixed(round) + ' GB';
     } else if (bytes < (1024*1024*1024*1024*1024)) {
-        return (bytes / (1024*1024*1024*1024)).toFixed(2) + ' TB';
+        return (bytes / (1024*1024*1024*1024)).toFixed(round) + ' TB';
     } else {
-        return (bytes / (1024*1024*1024*1024*1024)).toFixed(2) + ' PB';
+        return (bytes / (1024*1024*1024*1024*1024)).toFixed(round) + ' PB';
     }
     
 }
 
-Number.prototype.lengthformat = function () {
+Number.prototype.lengthformat = function (round) {
+    if (round === undefined && !isInt(round)) round = 2;
+    
     var length = this;
     if (length < 0.001) {
-        return (length * 1000 * 1000).toFixed(2) + ' pm';
+        return (length * 1000 * 1000).toFixed(round) + ' pm';
     } else if (length < 0.1) {
-        return (length * 1000 * 10).toFixed(2) + ' &#8491;';
+        return (length * 1000 * 10).toFixed(round) + ' &#8491;';
     } else if (length < 1) {
-        return (length * 1000).toFixed(2) + ' nm';
+        return (length * 1000).toFixed(round) + ' nm';
     } else if (length < 1000) {
-        return length.toFixed(2) + ' &#181m';
+        return length.toFixed(round) + ' &#181m';
     } else if (length < 1000 * 100) {
-        return (length / 1000).toFixed(2) + ' mm';
+        return (length / 1000).toFixed(round) + ' mm';
     } else if (length < 1000 * 100 * 10) {
-        return (length / 1000 / 100).toFixed(2) + ' cm';
+        return (length / 1000 / 100).toFixed(round) + ' cm';
     } else if (length < 1000 * 100 * 10 * 100) {
-        return (length / 1000 / 100 / 10).toFixed(2) + ' m';
+        return (length / 1000 / 100 / 10).toFixed(round) + ' m';
     } else {
-        return (length / 1000 / 100 / 10 / 1000).toFixed(2) + ' km';
+        return (length / 1000 / 100 / 10 / 1000).toFixed(round) + ' km';
     }
 }
 
@@ -795,7 +803,7 @@ if (false) {                    // set to 'true' to run. NB: Need to uncomment '
         exceptions.push("sanitizeHexColor", "toRGB", "rgbToHex", "parseQuery", "downloadLandingDialog"); // from ome.gs_utils.js
         // All these from PanoJS
         exceptions.push("PanoJS", "PanoControls", "BisqueISLevel", "BisqueISPyramid", "formatInt");
-        exceptions.push("ImgcnvPyramid", "ImgcnvLevel", "InfoControl", "Metadata", "OsdControl", "ROIControl");
+        exceptions.push("ImgcnvPyramid", "ImgcnvLevel", "InfoControl", "Metadata", "OsdControl", "ROIControl", "ScaleBarControl");
         exceptions.push("Tile", "ZoomifyLevel", "ZoomifyPyramid", "SvgControl", "ThumbnailControl", "trim");
         i = exceptions.length;
         while (--i) {
