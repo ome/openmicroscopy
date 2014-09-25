@@ -142,6 +142,9 @@ module omero {
             omero::api::IdListMap targetObjects;
             omero::api::StringSet includeNs;
             omero::api::StringSet excludeNs;
+            omero::api::StringSet includeChild;
+            omero::api::StringSet excludeChild;
+            bool dryRun;
         };
 
         class Chgrp2 extends Request2 {
