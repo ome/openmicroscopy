@@ -32,11 +32,12 @@ import omero.clients
 import omero
 import sys
 import os
+import getpass
 
 from Glacier2 import PermissionDeniedException
 from getopt import getopt, GetoptError
 from omero.util import get_user
-from stat import getpass, ST_SIZE
+from stat import ST_SIZE
 
 # The directories underneath an OMERO data directory to search for "dangling"
 # files and reconcile with the database. Directory name key and corresponding
