@@ -1520,11 +1520,28 @@ CREATE TRIGGER uploadjob_versionInfo_map_entry_delete_trigger
 -- done #12317
 --
 
--- First, we install a unique constraint so that it is only possible
--- to go from versionA/patchA to versionB/patchB once.
--- message is included so that in-patch adjustments may still be noted in the table.
+-- First, we install a trigger to ensure users may go
+-- from versionA/patchA to versionB/patchB once only.
 --
-alter table dbpatch add constraint unique_dbpatch unique (currentVersion, currentPatch, previousVersion, previousPatch, message);
+CREATE FUNCTION dbpatch_versions_trigger_function() RETURNS TRIGGER AS $$
+BEGIN
+    IF (NEW.currentversion <> NEW.previousversion OR NEW.currentpatch <> NEW.previouspatch) AND
+       (SELECT COUNT(*) FROM dbpatch WHERE id <> NEW.id AND
+        (currentversion <> previousversion OR currentpatch <> previouspatch) AND
+        ((currentversion = NEW.currentversion AND currentpatch = NEW.currentpatch) OR
+         (previousversion = NEW.previousversion AND previouspatch = NEW.previouspatch))) > 0 THEN
+        RAISE 'upgrades cannot be repeated';
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER dbpatch_versions_trigger
+    BEFORE INSERT OR UPDATE ON dbpatch
+    FOR EACH ROW
+    EXECUTE PROCEDURE dbpatch_versions_trigger_function();
+
 
 --
 -- Since this is a table that we will be using in DB-specific ways, we're also going
@@ -1539,7 +1556,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.1DEV',  9,    'OMERO5.1DEV',   0,             'Initializing');
+             values ('OMERO5.1DEV',  10,    'OMERO5.1DEV',   0,             'Initializing');
 
 --
 -- Temporarily make event columns nullable; restored below.
@@ -2380,7 +2397,8 @@ create index eventlog_entitytype on eventlog(entitytype);
 create index eventlog_entityid on eventlog(entityid);
 create index eventlog_action on eventlog(action);
 
-create table password ( experimenter_id bigint primary key REFERENCES experimenter (id), hash char(24), dn text );
+create table password ( experimenter_id bigint primary key REFERENCES experimenter (id), hash VARCHAR(255), dn text,
+    changed TIMESTAMP WITHOUT TIME ZONE);
 insert into password values (0,'@ROOTPASS@');
 insert into password values (1,'');
 -- root can now login with omero.rootpass property value
@@ -2534,7 +2552,7 @@ after delete on originalfile
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
   where currentVersion = 'OMERO5.1DEV' and
-        currentPatch = 9 and
+        currentPatch = 10 and
         previousVersion = 'OMERO5.1DEV' and
         previousPatch = 0;
 
