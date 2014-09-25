@@ -687,11 +687,11 @@ public class GraphPolicyRule {
             /* apply the term matchers */
             final Set<Details> allTerms = new HashSet<Details>();
             allTerms.add(rootObject);
-            for (final Entry<String, Set<Details>> dataPerProperty : linkedFrom.entrySet()) {
-                allTerms.addAll(dataPerProperty.getValue());
+            for (final Set<Details> terms : linkedFrom.values()) {
+                allTerms.addAll(terms);
             }
-            for (final Entry<String, Set<Details>> dataPerProperty : linkedTo.entrySet()) {
-                allTerms.addAll(dataPerProperty.getValue());
+            for (final Set<Details> terms : linkedTo.values()) {
+                allTerms.addAll(terms);
             }
             for (final TermMatch matcher : policyRule.termMatchers) {
                 for (final Details object : allTerms) {
@@ -756,11 +756,11 @@ public class GraphPolicyRule {
         if (!unmatchedTerms.isEmpty()) {
             /* note all terms to which to apply term matchers */
             allTerms.add(rootObject);
-            for (final Entry<String, Set<Details>> dataPerProperty : linkedFrom.entrySet()) {
-                allTerms.addAll(dataPerProperty.getValue());
+            for (final Set<Details> terms : linkedFrom.values()) {
+                allTerms.addAll(terms);
             }
-            for (final Entry<String, Set<Details>> dataPerProperty : linkedTo.entrySet()) {
-                allTerms.addAll(dataPerProperty.getValue());
+            for (final Set<Details> terms : linkedTo.values()) {
+                allTerms.addAll(terms);
             }
         }
         /* try all the matchers against all the terms */
