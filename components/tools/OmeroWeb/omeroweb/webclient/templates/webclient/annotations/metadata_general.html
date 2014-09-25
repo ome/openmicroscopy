@@ -1,10 +1,7 @@
-
-
+<html>
 {% load i18n %}
 {% load common_filters %}
 {% load common_tags %}
-
-
 {% comment %}
 <!--
   Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
@@ -65,30 +62,17 @@
                 var preview_load = false;
                 var hierarchy_load = false;
 
-                
-                $("{% for t in manager.tag_annotations %}#tagdesc{{ t.id }}, {% endfor %}#tag").tooltip({ 
-                    track: true, 
-                    delay: 0, 
-                    showURL: false, 
-                    opacity: 1, 
-                    fixPNG: true, 
-                    showBody: " - ", 
-                    top: -15, 
-                    left: 5 
-                }); 
-                
                 $("#custom_annotations td span").hide() // hide the tool tip source elements
-                $("#custom_annotations td").tooltip({ 
-                    bodyHandler: function() { 
-                            return $("span.tooltip_html", $(this)).html(); 
-                        },
-                    track: true, 
-                    delay: 0, 
-                    showURL: false, 
-                    fixPNG: true, 
-                    showBody: " - ", 
-                    top: 10, 
-                    left: -100 
+                // This does not use tooltip_init because of the relative positions of the
+                // tooltip_html elements being different
+                $("#custom_annotations td").tooltip({
+                    items: '#custom_annotations td',
+                    content: function() {
+                        return $("span.tooltip_html", $(this)).html();
+                    },
+                    track: true,
+                    show: false,
+                    hide: false
                 });
                 $(".tooltip").parent().children("span").hide(); // hide tool tip source
                 $(".tooltip").tooltip_init();
@@ -1056,6 +1040,4 @@
                 </table>
         </div>
         {% endif %}
-    
-    
-
+</html>

@@ -26,9 +26,9 @@
         // the first 'plugin' is actually the second option (first is thumbnails)
         var $plugin_option = $('#center_panel_chooser select option:nth-child('+ (index+1) +')');
         if (enabled) {
-            $plugin_option.attr('disabled', false);
+            $plugin_option.prop('disabled', false);
         } else {
-            $plugin_option.attr('disabled', 'disabled');
+            $plugin_option.prop('disabled', true);
         }
     }
 

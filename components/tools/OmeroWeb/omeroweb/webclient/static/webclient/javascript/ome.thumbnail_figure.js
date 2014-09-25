@@ -19,7 +19,7 @@
 $(document).ready(function() {
 
     // Clear selection (only needed on page 'refresh')
-    $("#tagChooser option").removeAttr('selected');
+    $("#tagChooser option").prop('selected', false);
 
 
     // Show / Hide un-tagged images after sorting or checkbox click

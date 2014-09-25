@@ -422,16 +422,13 @@ OME.truncateNames = (function(){
 
 jQuery.fn.tooltip_init = function() {
     $(this).tooltip({
-        bodyHandler: function() {
-                return $(this).parent().children("span.tooltip_html").html();
-            },
+        items: '.tooltip',
+        content: function() {
+            return $(this).parent().children("span.tooltip_html").html();
+        },
         track: true,
-        delay: 0,
-        showURL: false,
-        fixPNG: true,
-        showBody: " - ",
-        top: 10,
-        left: -100
+        show: false,
+        hide: false
     });
   return this;
 };

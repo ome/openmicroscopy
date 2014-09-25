@@ -151,7 +151,14 @@
 	
 	.ui-tabs {
 		padding:0;
-	}	
+	}
+
+    /* Move down the layout of the tab to give the impression of continuous background
+     * between tab and the panel itself.
+     */
+    .ui-tabs .ui-tabs-nav li {
+        top: 1px !important ;
+    }
 	
 	
 		#left_panel_tab_list > li, {
@@ -277,7 +284,7 @@
 	                background-color:rgba(255,255,255,.2);
 	    		}
             
-	            #left_panel_tab_list .ui-tabs-selected, #annotation_tabs_list  .ui-tabs-selected{
+	            #left_panel_tab_list .ui-tabs-active, #annotation_tabs_list  .ui-tabs-active{
 	                position:relative;
 					transition:none;
 					padding:0;
@@ -285,12 +292,12 @@
 					background-color:#F0F2F5;
 				}
             
-	    			#left_panel_tab_list .ui-tabs-selected a, #annotation_tabs_list .ui-tabs-selected a{
-						position:relative;
-						color:hsl(210,10%,30%);
-						top:1px;
-						background-color:#F0F2F5;
-	                }
+				#left_panel_tab_list .ui-tabs-active a, #annotation_tabs_list .ui-tabs-active a{
+					position:relative;
+					color:hsl(210,10%,30%);
+					top:1px;
+					background-color:#F0F2F5;
+                }
             
             
 
@@ -1757,7 +1764,7 @@
 			border-right:solid 1px rgba(0,0,0,.2);
 		}	
 		
-		#webadmin_main_tabs .ui-tabs-selected {
+		#webadmin_main_tabs .ui-tabs-active {
 			background:hsl(215,10%,80%); /* Old browsers */
 			background-image:-moz-linear-gradient(top, hsl(210,10%,95%) 0%, hsl(210,5%,98%) 100%); /* FF3.6+ */
 			background-image:-webkit-gradient(linear, left top, left bottom, color-stop(0%,hsl(210,10%,95%)), color-stop(100%,hsl(210,5%,98%))); /* Chrome,Safari4+ */
@@ -1872,11 +1879,11 @@
         }
         
         
-        #settings_tabs .ui-tabs-selected {
+        #settings_tabs .ui-tabs-active {
             background-color:#F6F7F8;
         }
         
-        #settings_tabs .ui-tabs-selected a {
+        #settings_tabs .ui-tabs-active a {
             color:hsl(212, 9%, 30%);
             background-color:rgba(255,255,255,.3);
         }
@@ -2245,7 +2252,7 @@ div.plane_info table div {
 
 /** tooltip **/
 
-#tooltip {
+.ui-tooltip {
 position: absolute;
 background: #000;
 color:#bbb;
@@ -2270,12 +2277,16 @@ padding: 5px;
 width: 250px;
 }
 
-    #tooltip b {
-        font-weight: bold;
-        color:white;
-    }
+.ui-tooltip p {
+    font-size:1.0em;
+}
 
-#tooltip h3, #tooltip div { margin: 0; }
+.ui-tooltip b {
+    font-weight: bold;
+    color:white;
+}
+
+.ui-tooltip h3, .ui-tooltip div { margin: 0; }
 
 
 
@@ -2453,7 +2464,9 @@ div.tag_selection div.owner-tagged span.alltags-take {
     color: #5d8499;
     font-weight: normal;
 }
-#id_tag_info_button {
+
+/* TODO This does not correspond to any element as the id is never applied to anything */
+/*#id_tag_info_button {
     float: right;
     border-radius: 3px;
     width: 30px;
@@ -2461,7 +2474,7 @@ div.tag_selection div.owner-tagged span.alltags-take {
     background: hsl(210,8%,80%);
     border: solid 1px hsl(210,8%,70%);
     margin: 3px 5px 0 0;
-}
+}*/
 
 /* #Progress Bar
 ================================================== */

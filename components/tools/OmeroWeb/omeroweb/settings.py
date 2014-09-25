@@ -704,7 +704,7 @@ PIPELINE_CSS = {
             '3rdparty/farbtastic/farbtastic.css',
             'webgateway/css/ome.colorbtn.css',
             '3rdparty/JQuerySpinBtn/JQuerySpinBtn.css',
-            '3rdparty/jquery-ui-1.8.19/jquery-ui-1.8.19.custom.css',
+            '3rdparty/jquery-ui-1.10.4/themes/base/jquery-ui.all.css',
             'webgateway/css/omero_image.css',
             '3rdparty/panojs/panojs.css',
         ),
@@ -715,7 +715,8 @@ PIPELINE_CSS = {
 PIPELINE_JS = {
     'webgateway_viewer': {
         'source_filenames': (
-            '3rdparty/jquery-1.7.2.js',
+            '3rdparty/jquery-1.11.1.js',
+            '3rdparty/jquery-migrate-1.2.1.js',
             'webgateway/js/ome.popup.js',
             '3rdparty/aop.js',
             '3rdparty/panojs/utils.js',
@@ -732,7 +733,7 @@ PIPELINE_JS = {
             'webgateway/js/ome.viewportImage.js',
             'webgateway/js/ome.gs_slider.js',
             'webgateway/js/ome.viewport.js',
-            '3rdparty/jquery-ui-1.8.19/jquery-ui.min.js',
+            '3rdparty/jquery-ui-1.10.4/js/jquery-ui.1.10.4.js',
             'webgateway/js/ome.smartdialog.js',
             '3rdparty/JQuerySpinBtn/JQuerySpinBtn.js',
             'webgateway/js/ome.colorbtn.js',
