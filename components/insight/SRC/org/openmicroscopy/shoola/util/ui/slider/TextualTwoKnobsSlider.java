@@ -286,7 +286,7 @@ public class TextualTwoKnobsSlider
         }
         removeSliderListeners();
         double old = slider.getStartValue();
-        slider.setStartValue((int) val);
+        slider.setStartValue(val);
         firePropertyChange(TwoKnobsSlider.KNOB_RELEASED_PROPERTY, old, val);
         attachSliderListeners();
 	}
@@ -312,7 +312,7 @@ public class TextualTwoKnobsSlider
         }
         removeSliderListeners();
         double old = slider.getEndValue();
-        slider.setEndValue((int) val);
+        slider.setEndValue(val);
         firePropertyChange(TwoKnobsSlider.KNOB_RELEASED_PROPERTY, old, val);
         attachSliderListeners();
 	}
