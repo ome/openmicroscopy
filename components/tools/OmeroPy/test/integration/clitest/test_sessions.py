@@ -102,7 +102,7 @@ class TestSessions(CLITest):
         user = self.new_user(group=group)
         self.set_login_args(user)
         self.args += ["--sudo", admin]
-        self.args += ["-w", admin.omeName.val]
+        self.args += ["-w", admin]
         self.cli.invoke(self.args, strict=True)
         ec = self.cli.controls["sessions"].ctx._event_context
         assert ec.userName == user.omeName.val
