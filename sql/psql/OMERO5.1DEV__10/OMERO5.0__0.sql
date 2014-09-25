@@ -1292,6 +1292,67 @@ CREATE OR REPLACE FUNCTION annotation_update_event_trigger() RETURNS "trigger"
     END;'
 LANGUAGE plpgsql;
 
+-- #970 adjust constraint for dbpatch versions/patches
+
+ALTER TABLE dbpatch DROP CONSTRAINT unique_dbpatch;
+
+CREATE FUNCTION dbpatch_versions_trigger_function() RETURNS TRIGGER AS $$
+BEGIN
+    IF (NEW.currentversion <> NEW.previousversion OR NEW.currentpatch <> NEW.previouspatch) AND
+       (SELECT COUNT(*) FROM dbpatch WHERE id <> NEW.id AND
+        (currentversion <> previousversion OR currentpatch <> previouspatch) AND
+        ((currentversion = NEW.currentversion AND currentpatch = NEW.currentpatch) OR
+         (previousversion = NEW.previousversion AND previouspatch = NEW.previouspatch))) > 0 THEN
+        RAISE 'upgrades cannot be repeated';
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER dbpatch_versions_trigger
+    BEFORE INSERT OR UPDATE ON dbpatch
+    FOR EACH ROW
+    EXECUTE PROCEDURE dbpatch_versions_trigger_function();
+
+-- expand password hash and note password change dates
+
+ALTER TABLE password ALTER COLUMN hash TYPE VARCHAR(255);
+ALTER TABLE password ADD COLUMN changed TIMESTAMP WITHOUT TIME ZONE;
+
+-- fill in password change dates from event log
+
+CREATE FUNCTION update_changed_from_event_log() RETURNS void AS $$
+
+DECLARE
+    exp_id BIGINT;
+    time_changed TIMESTAMP WITHOUT TIME ZONE;
+
+BEGIN
+    FOR exp_id IN
+        SELECT DISTINCT ev.experimenter 
+            FROM event ev, eventlog log, experimenter ex
+            WHERE log.action = 'PASSWORD' AND ex.omename <> 'root'
+            AND ev.id = log.event AND ev.experimenter = ex.id LOOP
+
+        SELECT ev.time
+            INTO STRICT time_changed
+            FROM event ev, eventlog log
+            WHERE log.action = 'PASSWORD' AND ev.experimenter = exp_id
+            AND ev.id = log.event
+            ORDER BY log.id DESC LIMIT 1;
+       
+        UPDATE password SET changed = time_changed
+            WHERE experimenter_id = exp_id;
+    END LOOP;
+
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT update_changed_from_event_log();
+
+DROP FUNCTION update_changed_from_event_log();
+
 --
 -- FINISHED
 --
