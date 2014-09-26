@@ -10,10 +10,10 @@
 """
 
 import os
-import portalocker
 import pytest
 from omero.config import ConfigXml, xml
 from omero.util.temp_files import create_path
+from omero_ext import portalocker
 
 from xml.etree.ElementTree import XML, Element, SubElement, tostring
 

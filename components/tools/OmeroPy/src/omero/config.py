@@ -19,7 +19,6 @@ import os
 import path
 import time
 import logging
-import portalocker
 
 # To avoid conflict with omero.sys
 sys = __import__("sys")
@@ -28,6 +27,7 @@ import xml.dom.minidom
 
 from xml.etree.ElementTree import XML, Element, SubElement, Comment
 from xml.etree.ElementTree import tostring
+from omero_ext import portalocker
 
 
 class Environment(object):
