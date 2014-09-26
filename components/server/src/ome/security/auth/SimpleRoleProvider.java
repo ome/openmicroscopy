@@ -214,6 +214,10 @@ public class SimpleRoleProvider implements RoleProvider {
         session.flush();
     }
 
+    public boolean isIgnoreCaseLookup() {
+        return ignoreCaseLookup;
+    }
+
     // ~ Helpers
     // =========================================================================
 
