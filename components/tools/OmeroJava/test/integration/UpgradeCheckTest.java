@@ -36,7 +36,7 @@ public class UpgradeCheckTest {
 
     @Test
     public void testNoResponse() throws Exception {
-	    check = new UpgradeCheck(url, "test", "IntegrationTest");
+	    check = new UpgradeCheck(url, "test", "test");
 	    check.run();
 	    assertTrue(check.isUpgradeNeeded());
 	    assertFalse(check.isExceptionThrown());
