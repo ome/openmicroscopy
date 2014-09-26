@@ -104,6 +104,9 @@ VERBOSE=1 bin/brew test omero
 # Install PostgreSQL
 bin/brew install postgres
 
+# Hack to workaround Pytables 3.1.1/Cython 0.2.1 incompatibility
+bin/pip install Cython==0.20
+
 # Install OMERO Python dependencies
 bash bin/omero_python_deps
 
