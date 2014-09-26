@@ -15,8 +15,6 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
 import ome.model.IObject;
 import ome.model.internal.Permissions;
-import ome.model.internal.Permissions.Right;
-import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
@@ -33,10 +31,10 @@ import org.hibernate.Session;
 
 /**
  * Implements {@link RoleProvider}.
- * 
+ *
  * Note: All implementations were originally copied from AdminImpl for
  * ticket:1226.
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 4.0
  */
@@ -116,7 +114,7 @@ public class SimpleRoleProvider implements RoleProvider {
         e = sec.doAction(action, e);
         session.flush();
 
-        GroupExperimenterMap link = linkGroupAndUser(defaultGroup, e, false);
+        linkGroupAndUser(defaultGroup, e, false);
         if (null != otherGroups) {
             for (ExperimenterGroup group : otherGroups) {
                 linkGroupAndUser(group, e, false);
@@ -243,8 +241,8 @@ public class SimpleRoleProvider implements RoleProvider {
         link.getDetails().copy(sec.newTransientDetails(link));
 
         Session session = sf.getSession();
-        sec.doAction(new SecureMerge(session), userById(e.getId(), session),
-                link);
+        sec.<IObject> doAction(new SecureMerge(session),
+                userById(e.getId(), session), link);
         session.flush();
         return link;
     }
