@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2014 University of Dundee All Rights Reserved.
-# Use is subject to license terms supplied in LICENSE.txt
+# Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+# All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
