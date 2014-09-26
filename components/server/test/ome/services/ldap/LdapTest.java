@@ -190,7 +190,7 @@ public class LdapTest extends MockObjectTestCase {
                 fixture.config, provider, sql);
         fixture.ldap.setQueryService(fixture.query);
 
-        fixture.provider = new PasswordProviders(fixture.config.isIgnoreCase(),
+        fixture.provider = new PasswordProviders(provider.isIgnoreCaseLookup(),
                 new LdapPasswordProvider(new PasswordUtil(sql), fixture.ldap));
 
         return fixture;
@@ -213,12 +213,7 @@ public class LdapTest extends MockObjectTestCase {
             }
 
             assertNotNull(dn);
-            if (fixture.config.isIgnoreCase()) {
-                assertTrue(user.equalsIgnoreCase(ldap.findExperimenter(user)
-                        .getOmeName()));
-            } else {
-                assertEquals(user, ldap.findExperimenter(user).getOmeName());
-            }
+            assertEquals(user, ldap.findExperimenter(user).getOmeName());
             fixture.createUserWithGroup(this, dn, users.get(user).get(0));
             assertNotNull(fixture.createUser(user, "password", true));
             fixture.login(user, users.get(user).get(0), "password");
@@ -270,12 +265,7 @@ public class LdapTest extends MockObjectTestCase {
             }
 
             assertNotNull(dn);
-            if (fixture.config.isIgnoreCase()) {
-                assertTrue(user.equalsIgnoreCase(ldap.findExperimenter(user)
-                        .getOmeName()));
-            } else {
-                assertEquals(user, ldap.findExperimenter(user).getOmeName());
-            }
+            assertEquals(user, ldap.findExperimenter(user).getOmeName());
             fixture.createUserWithGroup(this, dn, users.get(user).get(0));
             assertNotNull(fixture.createUser(user));
             try {

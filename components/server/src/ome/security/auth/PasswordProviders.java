@@ -5,6 +5,8 @@
 
 package ome.security.auth;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.springframework.util.Assert;
 
 /**
@@ -18,13 +20,13 @@ public class PasswordProviders implements PasswordProvider {
 
     final private PasswordProvider[] providers;
 
-    final private boolean ignoreCaseLookup;
+    private AtomicBoolean ignoreCaseLookup;
 
     public PasswordProviders(PasswordProvider... providers) {
-        this(false, providers);
+        this(new AtomicBoolean(false), providers);
     }
 
-    public PasswordProviders(boolean ignoreCaseLookup,
+    public PasswordProviders(AtomicBoolean ignoreCaseLookup,
             PasswordProvider... providers) {
         Assert.notNull(providers);
         int l = providers.length;
@@ -34,7 +36,7 @@ public class PasswordProviders implements PasswordProvider {
     }
 
     public boolean hasPassword(String user) {
-        user = ignoreCaseLookup ? user.toLowerCase() : user;
+        user = ignoreCaseLookup.get() ? user.toLowerCase() : user;
         for (PasswordProvider provider : providers) {
             boolean hasPassword = provider.hasPassword(user);
             if (hasPassword) {
@@ -45,7 +47,7 @@ public class PasswordProviders implements PasswordProvider {
     }
 
     public Boolean checkPassword(String user, String password, boolean readOnly) {
-        user = ignoreCaseLookup ? user.toLowerCase() : user;
+        user = ignoreCaseLookup.get() ? user.toLowerCase() : user;
         for (PasswordProvider provider : providers) {
             Boolean rv = provider.checkPassword(user, password, readOnly);
             if (rv != null) {
@@ -57,7 +59,7 @@ public class PasswordProviders implements PasswordProvider {
 
     public void changePassword(String user, String password)
             throws PasswordChangeException {
-        user = ignoreCaseLookup ? user.toLowerCase() : user;
+        user = ignoreCaseLookup.get() ? user.toLowerCase() : user;
         for (PasswordProvider provider : providers) {
             boolean hasPassword = provider.hasPassword(user);
             if (hasPassword) {

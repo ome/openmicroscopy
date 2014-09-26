@@ -21,8 +21,7 @@
       <constructor-arg index="4" value="omeName=cn,firstName=givenName,lastName=sn"/>
       <constructor-arg index="5" value="name=cn"/>
       <constructor-arg index="6" value="false"/>
-      <constructor-arg index="7" value="true"/>
-      <constructor-arg index="8" value=""/>
+      <constructor-arg index="7" value=""/>
     </bean>
 
     <util:map id="good">

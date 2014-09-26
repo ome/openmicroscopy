@@ -8,6 +8,7 @@ package ome.services.ldap;
 import java.io.File;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
@@ -263,6 +264,7 @@ public class LdapIntegrationTest extends LdapTest {
         fixture.ctx = new FileSystemXmlApplicationContext("file:"
                 + ctxFile.getAbsolutePath());
         fixture.config = (LdapConfig) fixture.ctx.getBean("config");
+        mCtx.getBean("atomicIgnoreCase", AtomicBoolean.class).set(true);
 
         Map<String, LdapContextSource> sources = fixture.ctx
                 .getBeansOfType(LdapContextSource.class);
@@ -287,7 +289,7 @@ public class LdapIntegrationTest extends LdapTest {
         LdapPasswordProvider ldapPasswordProvider = new LdapPasswordProvider(
                 new PasswordUtil(sql), fixture.ldap);
         ldapPasswordProvider.setApplicationContext(mCtx);
-        fixture.provider = new PasswordProviders(fixture.config.isIgnoreCase(),
+        fixture.provider = new PasswordProviders(provider().isIgnoreCaseLookup(),
                 ldapPasswordProvider);
         return fixture;
     }

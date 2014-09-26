@@ -10,6 +10,7 @@ package ome.security.auth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
@@ -24,10 +25,10 @@ import ome.tools.hibernate.HibernateUtils;
 import ome.tools.hibernate.SecureMerge;
 import ome.tools.hibernate.SessionFactory;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implements {@link RoleProvider}.
@@ -47,14 +48,14 @@ public class SimpleRoleProvider implements RoleProvider {
 
     final protected SessionFactory sf;
 
-    final private boolean ignoreCaseLookup;
+    private AtomicBoolean ignoreCaseLookup;
 
     public SimpleRoleProvider(SecuritySystem sec, SessionFactory sf) {
-        this(sec, sf, false);
+        this(sec, sf, new AtomicBoolean(false));
     }
 
     public SimpleRoleProvider(SecuritySystem sec, SessionFactory sf,
-            boolean ignoreCaseLookup) {
+            AtomicBoolean ignoreCaseLookup) {
         this.sec = sec;
         this.sf = sf;
         this.ignoreCaseLookup = ignoreCaseLookup;
@@ -107,7 +108,7 @@ public class SimpleRoleProvider implements RoleProvider {
         SecureAction action = new SecureMerge(session);
 
         Experimenter e = copyUser(experimenter);
-        if (ignoreCaseLookup) {
+        if (isIgnoreCaseLookup()) {
             e.setOmeName(e.getOmeName().toLowerCase());
         }
         e.getDetails().copy(sec.newTransientDetails(e));
@@ -215,7 +216,7 @@ public class SimpleRoleProvider implements RoleProvider {
     }
 
     public boolean isIgnoreCaseLookup() {
-        return ignoreCaseLookup;
+        return ignoreCaseLookup.get();
     }
 
     // ~ Helpers

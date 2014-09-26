@@ -129,27 +129,16 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
     protected OmeroContext context;
 
-    private final boolean ignoreCaseLookup;
-
     public void setApplicationContext(ApplicationContext ctx)
             throws BeansException {
         this.context = (OmeroContext) ctx;
     }
 
-    public AdminImpl(SqlAction sql, SessionFactory osf, MailSender mailSender,
-            SimpleMailMessage templateMessage, ACLVoter aclVoter,
-            PasswordProvider passwordProvider, RoleProvider roleProvider,
-            LdapImpl ldapUtil, PasswordUtil passwordUtil, ChmodStrategy chmod,
-            ChecksumProviderFactory cpf) {
-        this(sql, osf, mailSender, templateMessage, aclVoter, passwordProvider,
-                roleProvider, ldapUtil, passwordUtil, chmod, cpf, false);
-    }
-
-    public AdminImpl(SqlAction sql, SessionFactory osf, MailSender mailSender,
-            SimpleMailMessage templateMessage, ACLVoter aclVoter,
-            PasswordProvider passwordProvider, RoleProvider roleProvider,
-            LdapImpl ldapUtil, PasswordUtil passwordUtil, ChmodStrategy chmod,
-            ChecksumProviderFactory cpf, boolean ignoreCaseLookup) {
+    public AdminImpl(SqlAction sql, SessionFactory osf,
+            MailSender mailSender, SimpleMailMessage templateMessage,
+            ACLVoter aclVoter, PasswordProvider passwordProvider,
+            RoleProvider roleProvider, LdapImpl ldapUtil, PasswordUtil passwordUtil,
+            ChmodStrategy chmod, ChecksumProviderFactory cpf) {
         this.sql = sql;
         this.osf = osf;
         this.mailSender = mailSender;
@@ -161,7 +150,6 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         this.passwordUtil = passwordUtil;
         this.chmod = chmod;
         this.cpf = cpf;
-        this.ignoreCaseLookup = ignoreCaseLookup;
     }
 
     public Class<? extends ServiceInterface> getServiceInterface() {
@@ -188,7 +176,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         }
 
         Experimenter e = iQuery.findByString(Experimenter.class, "omeName",
-                ignoreCaseLookup ? omeName.toLowerCase() : omeName);
+                roleProvider.isIgnoreCaseLookup() ? omeName.toLowerCase()
+                        : omeName);
 
         if (e == null) {
             throw new ApiUsageException("No such experimenter: " + omeName);
@@ -320,7 +309,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @RolesAllowed("user")
     public Experimenter lookupExperimenter(final String omeName) {
         Experimenter e = iQuery.execute(new UserQ(new Parameters().addString(
-                "name", ignoreCaseLookup ? omeName.toLowerCase() : omeName)));
+                "name",
+                roleProvider.isIgnoreCaseLookup() ? omeName.toLowerCase()
+                        : omeName)));
 
         if (e == null) {
             throw new ApiUsageException("No such experimenter: " + omeName);
