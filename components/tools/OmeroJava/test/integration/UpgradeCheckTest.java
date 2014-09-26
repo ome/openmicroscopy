@@ -20,13 +20,14 @@
  */
 package integration;
 
-import junit.framework.TestCase;
 import ome.system.OmeroContext;
 import ome.system.UpgradeCheck;
 
 import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
-public class UpgradeCheckTest extends TestCase {
+public class UpgradeCheckTest {
 
     OmeroContext ctx = new OmeroContext(new String[]{"classpath:ome/config.xml"});
     String url = ctx.getProperty("omero.upgrades.url");
@@ -35,7 +36,7 @@ public class UpgradeCheckTest extends TestCase {
 
     @Test
     public void testNoResponse() throws Exception {
-	    check = new UpgradeCheck(url, "test", "test");
+	    check = new UpgradeCheck(url, "test", "IntegrationTest");
 	    check.run();
 	    assertTrue(check.isUpgradeNeeded());
 	    assertFalse(check.isExceptionThrown());
