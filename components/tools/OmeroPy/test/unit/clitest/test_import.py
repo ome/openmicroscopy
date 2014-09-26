@@ -87,18 +87,14 @@ class TestImport(object):
                 assert args.server == "localhost"
                 assert args.port == "4064"
                 assert args.key == "b0742975-03a1-4f6d-b0ac-639943f1a147"
-                assert args.errs == "/Users/cblackburn/omero/tmp/\
-omero_cblackburn/6915/dropboxuUGl5rerr"
-                assert args.file == "/Users/cblackburn/omero/tmp/\
-omero_cblackburn/6915/dropboxaDCjQlout"
+                assert args.errs == "/tmp/dropbox.err"
+                assert args.file == "/tmp/dropbox.out"
 
         self.cli.register("mock-import", MockImportControl, "HELP")
         self.args = ['-s', 'localhost', '-p', '4064', '-k',
                      'b0742975-03a1-4f6d-b0ac-639943f1a147']
-        self.args += ['mock-import', '---errs=/Users/cblackburn/omero/tmp/\
-omero_cblackburn/6915/dropboxuUGl5rerr']
-        self.args += ['---file=/Users/cblackburn/omero/tmp/\
-omero_cblackburn/6915/dropboxaDCjQlout']
+        self.args += ['mock-import', '---errs=/tmp/dropbox.err']
+        self.args += ['---file=/tmp/dropbox.out']
         self.args += ['--', '/OMERO/DropBox/root/tinyTest.d3d.dv']
 
         self.cli.invoke(self.args)
