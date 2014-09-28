@@ -270,8 +270,8 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.static_url":
         ["STATIC_URL",
         "/static/", str,
-        "URL to use when referring to static files. Example: '/static/' or " \
-        "'http://static.example.com/'. Used as the base path for asset " \
+        "URL to use when referring to static files. Example: ``'/static/'`` or " \
+        "``'http://static.example.com/'``. Used as the base path for asset " \
         "definitions (the Media class) and the staticfiles app. It must end " \
         "in a slash if set to a non-empty value."],
     "omero.web.session_engine":
@@ -412,7 +412,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
         "Customize webclient login page with your own logo. Logo images " \
         "should ideally be 150 pixels high or less and will appear above " \
         "the OMERO logo. You will need to host the image somewhere else " \
-        "and link to it with \"http://www.openmicroscopy.org/site/logo.jpg\" "],
+        "and link to it with ``\"http://www.openmicroscopy.org/site/logo.jpg\"``."],
     "omero.web.login_view":
         ["LOGIN_VIEW",
         "weblogin", str,
@@ -432,7 +432,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.index_template":
         ["INDEX_TEMPLATE",
         None, identity,
-        "Define template used as an index page http://your_host/omero/. " \
+        "Define template used as an index page ``http://your_host/omero/``." \
         "If None user is automaticaly redirected to the login page." \
         "For example use 'webstart/start.html'. "],
     "omero.web.login_redirect":
@@ -440,8 +440,11 @@ CUSTOM_SETTINGS_MAPPINGS = {
         '{}', json.loads,
         "Redirect to the givin location after loging in. It only support " \
         "arguments for `Django reverse function <https://docs.djangoproject.com/en/1.6/ref/urlresolvers/#django.core.urlresolvers.reverse>`_. " \
-        "For example: {\"redirect\": [\"webindex\"], \"viewname\": \"load_template\", \"args\":[\"userdata\"], \"query_string\": \"experimenter=-1\"}"],
-    "omero.web.apps": ["ADDITIONAL_APPS", '[]', json.loads, None],
+        "For example: ``'{\"redirect\": [\"webindex\"], \"viewname\": \"load_template\", \"args\":[\"userdata\"], \"query_string\": \"experimenter=-1\"}'``"],
+    "omero.web.apps":
+        ["ADDITIONAL_APPS",
+        '[]',json.loads,
+        "Add additional Django applications. For example, see :doc:`/developers/Web/CreateApp`"],
     "omero.web.databases": ["DATABASES", '{}', json.loads, None],
     "omero.web.page_size":
         ["PAGE",
@@ -453,9 +456,9 @@ CUSTOM_SETTINGS_MAPPINGS = {
                         '["Data", "webindex", {"title": "Browse Data via Projects, Tags etc"}],'\
                         '["History", "history", {"title": "History"}]'\
                         ']', json.loads,
-        "Add links to the top header: links are ['Link Text', 'link'], where " \
+        "Add links to the top header: links are ``['Link Text', 'link', options]``, where " \
         "the url is reverse('link') OR simply 'link' (for external urls). " \
-        "E.g. '[[\"Webtest\", \"webtest_index\"]]'"],
+        "E.g. ``'[[\"Webtest\", \"webtest_index\"], [\"Homepage\", \"http://...\", {\"title\": \"Homepage\", \"target\": \"new\"} ]]'``"],
     "omero.web.ui.menu.dropdown":
         ["UI_MENU_DROPDOWN",
         '{"LEADERS": "Owners", "COLLEAGUES": "Members", "ALL": "All members"}', json.loads,
@@ -466,15 +469,15 @@ CUSTOM_SETTINGS_MAPPINGS = {
                         #'["ROIs", "webtest/webclient_plugins/right_plugin.rois.js.html", "image_roi_tab"],'\
                         '["Preview", "webclient/data/includes/right_plugin.preview.js.html", "preview_tab"]]', json.loads,
         "Add plugins to the right-hand panel. " \
-        "Plugins are ['Label', 'include.js', 'div_id']. " \
-        "The javascript loads data into $('#div_id')."],
+        "Plugins are ``['Label', 'include.js', 'div_id']``. " \
+        "The javascript loads data into ``$('#div_id')``."],
     "omero.web.ui.center_plugins":
         ["CENTER_PLUGINS",'['\
                             #'["Split View", "webclient/data/includes/center_plugin.splitview.js.html", "split_view_panel"],'\
                             ']' , json.loads,
         "Add plugins to the center panels. Plugins are " \
-        "['Channel overlay', 'webtest/webclient_plugins/center_plugin.overlay.js.html', 'channel_overlay_panel']. " \
-        "The javascript loads data into $('#div_id')."],
+        "``['Channel overlay', 'webtest/webclient_plugins/center_plugin.overlay.js.html', 'channel_overlay_panel']``. " \
+        "The javascript loads data into ``$('#div_id')``."],
     "omero.web.viewer.initial_zoom_level":
         ["VIEWER_INITIAL_ZOOM_LEVEL",
         None, leave_none_unset_int,
@@ -701,7 +704,7 @@ PIPELINE_CSS = {
             '3rdparty/farbtastic/farbtastic.css',
             'webgateway/css/ome.colorbtn.css',
             '3rdparty/JQuerySpinBtn/JQuerySpinBtn.css',
-            '3rdparty/jquery-ui-1.8.19/jquery-ui-1.8.19.custom.css',
+            '3rdparty/jquery-ui-1.10.4/themes/base/jquery-ui.all.css',
             'webgateway/css/omero_image.css',
             '3rdparty/panojs/panojs.css',
         ),
@@ -712,7 +715,8 @@ PIPELINE_CSS = {
 PIPELINE_JS = {
     'webgateway_viewer': {
         'source_filenames': (
-            '3rdparty/jquery-1.7.2.js',
+            '3rdparty/jquery-1.11.1.js',
+            '3rdparty/jquery-migrate-1.2.1.js',
             'webgateway/js/ome.popup.js',
             '3rdparty/aop.js',
             '3rdparty/panojs/utils.js',
@@ -729,7 +733,7 @@ PIPELINE_JS = {
             'webgateway/js/ome.viewportImage.js',
             'webgateway/js/ome.gs_slider.js',
             'webgateway/js/ome.viewport.js',
-            '3rdparty/jquery-ui-1.8.19/jquery-ui.min.js',
+            '3rdparty/jquery-ui-1.10.4/js/jquery-ui.1.10.4.js',
             'webgateway/js/ome.smartdialog.js',
             '3rdparty/JQuerySpinBtn/JQuerySpinBtn.js',
             'webgateway/js/ome.colorbtn.js',

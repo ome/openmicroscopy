@@ -51,13 +51,13 @@ logger = logging.getLogger(__name__)
 # TODO: change to reverse
 help_button = "%swebgateway/img/help16.png" % settings.STATIC_URL
 
-help_wiki = '<span id="markup" title="Markups - <small>If you\'d like to include URL please type:<br/><b>http://www.openmicroscopy.org.uk/</b></small>"><img src="%s" /></span>' % help_button
+help_wiki = '<span id="markup" data-content="Markups - <small>If you\'d like to include URL please type:<br/><b>http://www.openmicroscopy.org.uk/</b></small>"><img src="%s" /></span>' % help_button
 
-help_wiki_c = '<span id="markup_c" title="Markups - <small>If you\'d like to include URL please type:<br/><b>http://www.openmicroscopy.org.uk/</b></small>"><img src="%s" /></span>' % help_button
+help_wiki_c = '<span id="markup_c" data-content="Markups - <small>If you\'d like to include URL please type:<br/><b>http://www.openmicroscopy.org.uk/</b></small>"><img src="%s" /></span>' % help_button
 
-help_enable = '<span id="enable" title="Enable/Disable - <small>This option allows the owner to keep the access control of the share.</small>"><img src="%s" /></span>' % help_button
+help_enable = '<span id="enable" data-content="Enable/Disable - <small>This option allows the owner to keep the access control of the share.</small>"><img src="%s" /></span>' % help_button
 
-help_expire = '<span id="expire" title="Expire date - <small>This date defines when share will stop being available. Date format: YY-MM-DD.</small>"><img src="%s" /></span>' % help_button
+help_expire = '<span id="expire" data-content="Expire date - <small>This date defines when share will stop being available. Date format: YY-MM-DD.</small>"><img src="%s" /></span>' % help_button
 
 #################################################################
 # Non-model Form

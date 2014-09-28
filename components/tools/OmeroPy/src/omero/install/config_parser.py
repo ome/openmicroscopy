@@ -53,6 +53,15 @@ TOP = \
 Configuration properties glossary
 =================================
 
+.. contents::
+  :depth: 1
+  :local:
+
+.. _introduction_configuration:
+
+Introduction
+------------
+
 The primary form of configuration is via the use of key/value properties,
 stored in :file:`etc/grid/config.xml` and read on server startup. Backing up
 and copying these properties is as easy as copying this file to a new server
@@ -96,6 +105,10 @@ A final useful option of :omerocmd:`config edit` is:
 
 which will allow for editing the configuration in a system-default text
 editor.
+
+.. note::
+    Please use the **escape sequence** ``\\"`` for nesting double quotes (e.g.
+    ``"[\\"foo\\", \\"bar\\"]"``) or wrap with ``'`` (e.g. ``'["foo", "bar"]'``).
 
 Examples of doing this are on the main :doc:`Unix <unix/server-installation>`
 and :doc:`Windows <windows/server-installation>` pages, as well as the
@@ -297,7 +310,7 @@ class PropertyParser(object):
             print "%s (%s)" % (k, len(v))
 
     def underline(self, size):
-        return '~' * size
+        return '^' * size
 
     def print_rst(self):
         space4 = " " * 4

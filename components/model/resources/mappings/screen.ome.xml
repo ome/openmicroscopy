@@ -75,7 +75,7 @@
 		</properties>
 	</type>
 <!-- A WellSample is effectively a WellImageLink -->
-	<type id="ome.model.screen.WellSample" annotated="true">
+	<type id="ome.model.screen.WellSample">
 		<properties>
 			<optional name="posX" type="double"/>
 			<optional name="posY" type="double"/>

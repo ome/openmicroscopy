@@ -145,7 +145,7 @@
         gs_modalJson(viewport.viewport_server + '/saveImgRDef/'+viewport.loadedImg.id+'/?'+viewport.getQuery(true),
             {},
             function(success, rv) {
-                $(obj).html(old).attr('disabled', false);
+                $(obj).html(old).prop('disabled', false);
                 if (!(success && rv)) {
                     alert('Setting image defaults failed.');
                 }
@@ -207,7 +207,7 @@
         $('#wblitz-t-count').html(viewport.getTCount());
         $('#wblitz-z-count').html(viewport.getZCount());
 
-        if (viewport.hasLinePlot() || $('#wblitz-lp-enable').attr('checked')) {
+        if (viewport.hasLinePlot() || $('#wblitz-lp-enable').prop('checked')) {
             viewport.refreshPlot();
         }
     };
@@ -239,27 +239,27 @@
         hidePicker();
 
         updateUndoRedo(viewport);
-        $('#rd-wblitz-rmodel').attr('checked', viewport.isGreyModel());
+        $('#rd-wblitz-rmodel').prop('checked', viewport.isGreyModel());
         syncChannelsActive(viewport);
     };
 
     window.updateUndoRedo = function(viewport) {
         // update disabled status of undo/redo buttons
         if (viewport.has_channels_undo()) {
-            $('#rdef-undo-btn').removeAttr('disabled');
+            $('#rdef-undo-btn').prop('disabled', false);
         } else {
-            $('#rdef-undo-btn').attr('disabled', 'disabled');
+            $('#rdef-undo-btn').prop('disabled', true);
         }
         if (viewport.has_channels_redo()) {
-            $('#rdef-redo-btn').removeAttr('disabled');
+            $('#rdef-redo-btn').prop('disabled', false);
         } else {
-            $('#rdef-redo-btn').attr('disabled', 'disabled');
+            $('#rdef-redo-btn').prop('disabled', true);
         }
         var canSaveRdef = viewport.loadedImg.perms.canAnnotate;
         if (viewport.getSaved() || !canSaveRdef) {
-            $("#rdef-setdef-btn").attr('disabled', 'disabled');
+            $("#rdef-setdef-btn").prop('disabled', true);
         } else {
-            $("#rdef-setdef-btn").removeAttr('disabled');
+            $("#rdef-setdef-btn").prop('disabled', false);
         }
     };
 
@@ -299,14 +299,14 @@
     window._refresh_cb = function (ev, viewport) {
         /* Sync inputs with initial values */
 
-        $('#wblitz-rmodel').attr('checked', viewport.isGreyModel());
-        $('#wblitz-invaxis').attr('checked', viewport.loadedImg.rdefs.invertAxis);
+        $('#wblitz-rmodel').prop('checked', viewport.isGreyModel());
+        $('#wblitz-invaxis').prop('checked', viewport.loadedImg.rdefs.invertAxis);
 
         var q = viewport.getQuality();
         if (q) {
-            var qr = $('#wblitz-quality > [value="+q.toFixed(1)+"]');
+            var qr = $('#wblitz-quality > option[value="' + q.toFixed(1) + '"]');
             if (qr.length) {
-                qr.attr('selected','selected');
+                qr.prop('selected',true);
             }
         }
 
@@ -334,7 +334,7 @@
 
         // disable 'split' view for single channel images.
         if (channels.length < 2) {
-            $("input[value='split']").attr('disabled', 'disabled');
+            $("#wblitz input[value='split']").prop('disabled', true);
         }
 
         /* Image details */

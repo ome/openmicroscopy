@@ -25,7 +25,7 @@
    defined here will be added to the Cli class for later use.
 """
 
-
+import os
 import sys
 import Ice
 import IceImport
@@ -40,6 +40,7 @@ from Glacier2 import PermissionDeniedException
 from omero.util import get_user
 from omero.util.sessions import SessionsStore
 from omero.cli import BaseControl, CLI
+from omero_ext.argparse import SUPPRESS
 
 HELP = """Control and create user sessions
 
@@ -99,7 +100,7 @@ Options for logging in:
 Other commands:
 
     $ bin/omero sessions list
-    $ bin/omero sessions list --session-dir=/tmp
+    $ OMERO_SESSION_DIR=/tmp bin/omero sessions list
     $ bin/omero sessions logout
     $ bin/omero sessions clear
 """
@@ -111,7 +112,8 @@ class SessionsControl(BaseControl):
 
     def store(self, args):
         try:
-            dirpath = getattr(args, "session_dir", None)
+            dirpath = getattr(args, "session_dir",
+                              os.environ.get('OMERO_SESSION_DIR', None))
             return self.FACTORY(dirpath)
         except OSError, ose:
             filename = getattr(ose, "filename", dirpath)
@@ -173,8 +175,8 @@ class SessionsControl(BaseControl):
         self._configure_dir(login)
 
     def _configure_dir(self, parser):
-        parser.add_argument("--session-dir", help="Use a different sessions"
-                            " directory (Default: $HOME/omero/sessions)")
+        parser.add_argument("--session-dir", help=SUPPRESS,
+                            default=os.environ.get('OMERO_SESSION_DIR', None))
 
     def help(self, args):
         self.ctx.err(LONGHELP % {"prog": args.prog})

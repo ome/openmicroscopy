@@ -22,22 +22,18 @@
 
 
 
-    <script type="text/javascript" src="{% static "3rdparty/jquery.tooltip/jquery.tooltip.pack.js" %}"></script>
-    
-    <script type="text/javascript" src="{% static "3rdparty/jquery-ui-1.8.19/ui/jquery.ui.datepicker.js" %}"></script>
 
     <script>
       $(document).ready(function(){
           $('#id_expiration').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd', minDate: 0});
-          $("#markup_c, #enable, #expire").tooltip({ 
-              track: true, 
-              delay: 0, 
-              showURL: false, 
-              opacity: 1, 
-              fixPNG: true, 
-              showBody: " - ", 
-              top: -15, 
-              left: 5 
+          $("#markup_c, #enable, #expire").tooltip({
+              track: true,
+              show: false,
+              hide: false,
+              items: '[data-content]',
+              content: function() {
+                  return $(this).data('content');
+              }
           });
       });
     </script>

@@ -32,7 +32,6 @@
 
 {% block script %}
     {{ block.super }}
-    <script type="text/javascript" src="{% static "3rdparty/jquery-ui-1.8.19/external/jquery.cookie.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.hotkeys.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.jstree/jquery.jstree.js" %}"></script>   
 
@@ -120,7 +119,7 @@
             $.removeData(del_form, "clicked_button");
             $("#delete_contents_form").show();
             del_form.unbind("dialogclose");
-            del_form.find("input[type='checkbox']").attr('checked', false);
+            del_form.find("input[type='checkbox']").prop('checked', false);
 
             // set up form - process all the objects for data-types and children
             var ajax_data = new Array();
@@ -146,8 +145,8 @@
             // callback when delete dialog is closed
             del_form.bind("dialogclose", function(event, ui) {
                 if (del_form.data("clicked_button") == "Yes") {
-                    var delete_anns = $("#delete_anns").attr('checked');
-                    var delete_content = true;      // $("#delete_content").attr('checked');
+                    var delete_anns = $("#delete_anns").prop('checked');
+                    var delete_content = true;      // $("#delete_content").prop('checked');
                     if (delete_content) ajax_data[ajax_data.length] = 'child=on';
                     if (delete_anns) ajax_data[ajax_data.length] = 'anns=on';
                     var url = '{% url 'manage_action_containers' "deletemany" %}'
@@ -331,17 +330,6 @@
                     pasteRenderingSettings(selected, false, true);
                 };
 
-                $("#left_panel_tabs").tabs({
-                    select: function(event, ui) {
-                        var url = $.data(ui.tab, 'load.tabs');
-                        if( url ) {
-                            location.href = url;
-                            return false;
-                        }
-                        return true;
-                    }
-                });
-
                 // Handle creation of new Project, Dataset or Screen...
                 $("#new-container-form").dialog({
                     autoOpen: false,
@@ -487,16 +475,16 @@
                 $("#chgrp-form .group_option").click(function(){
                     $("#chgrp-form .group_option").removeClass('selected');
                     $(this).addClass('selected');
-                    $("input[type='radio']", $(this)).attr('checked', true);
+                    $("input[type='radio']", $(this)).prop('checked', true);
                 });
                 $("#chgrp-form .group_option :first").click();  // select first option
 
 
                 var enableToolbarButton = function(name, enabled) {
                     if (enabled) {
-                        $('input#'+name+'Button').removeClass('button-disabled').removeAttr('disabled');
+                        $('input#'+name+'Button').removeClass('button-disabled').prop('disabled', false);
                     } else {
-                        $('input#'+name+'Button').addClass('button-disabled').attr('disabled', true);
+                        $('input#'+name+'Button').addClass('button-disabled').prop('disabled', true);
                     }
                 };
 
@@ -899,18 +887,18 @@
                                             pasteRenderingSettings(this.get_selected());
                                         }
                                     },
-                                    "owner_rdef": {
-                                        "label" : "Set Owner's and Save",
-                                        "icon"  : '{% static "webclient/image/icon_basic_paste_16.png" %}',
-                                        "action": function() {
-                                            applyOwnerRenderingSettings(this.get_selected());
-                                        }
-                                    },
                                     "reset_rdef": {
                                         "label" : "Set Imported and Save",
                                         "icon"  : '{% static "webclient/image/icon_basic_paste_16.png" %}',
                                         "action": function() {
                                             resetRenderingSettings(this.get_selected());
+                                        }
+                                    },
+                                    "owner_rdef": {
+                                        "label" : "Set Owner's and Save",
+                                        "icon"  : '{% static "webclient/image/icon_basic_paste_16.png" %}',
+                                        "action": function() {
+                                            applyOwnerRenderingSettings(this.get_selected());
                                         }
                                     }
                                 }
@@ -1224,19 +1212,16 @@
 
 {% block left %}
 
-	
-
-
-    <div id="left_panel_tabs" class="absolute_fill">
+    <div id="left_panel_tabs" class="absolute_fill ui-tabs">
 	
 		
-        <ul id="left_panel_tab_list">
+        <ul id="left_panel_tab_list" class="ui-tabs-nav">
 			
 			<!-- Remember to update this in public/public.html as well. We should change this, but for the meantime, you need to manually update the menu there too -->
 			
-	        <li id="explore_tab"><a href="#Projects" title="Explore">{% trans "Explore" %}</a></li>
-	        <li id="tags_tab"><a href="{% url 'load_template' 'usertags' %}">{% trans "Tags" %}</a></li>
-	        <li id="public_tab"><a href="{% url 'load_template' 'public' %}">{% trans "Public" %}</a></li>
+	        <li id="explore_tab" class="ui-state-default ui-tabs-active"><a class="ui-tabs-anchor" title="Explore">{% trans "Explore" %}</a></li>
+	        <li id="tags_tab" class="ui-state-default"><a href="{% url 'load_template' 'usertags' %}" class="ui-tabs-anchor">{% trans "Tags" %}</a></li>
+	        <li id="public_tab" class="ui-state-default"><a href="{% url 'load_template' 'public' %}" class="ui-tabs-anchor">{% trans "Public" %}</a></li>
        
 	    </ul>
 		

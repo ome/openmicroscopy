@@ -1,4 +1,4 @@
-function plane = getPlane(session, image, z, c, t)
+function plane = getPlane(varargin)
 % GETPLANE Retrieve plane from an image on the OMERO server
 %
 %   plane = getPlane(session, image, z, c, t) returns the plane from input
@@ -7,15 +7,20 @@ function plane = getPlane(session, image, z, c, t)
 %   plane = getPlane(session, imageID, z, c, t) returns the plane from
 %   input image identifier at the input z, c, t coordinates.
 %
+%   plane = getPlane(pixels, store, z, c, t) returns the plane from a
+%   pixels object and an initialized pixels store at the input z, c, t
+%   coordinates.
+%
 %   Examples:
 %
 %      images = getPlane(session, image, z, c, t);
 %      images = getPlane(session, imageID, z, c, t);
+%      images = getPlane(pixels, store, z, c, t);
 %
 %
 % See also: GETRAWPIXELSSTORE, GETSTACK, GETTILE
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -32,23 +37,33 @@ function plane = getPlane(session, image, z, c, t)
 % with this program; if not, write to the Free Software Foundation, Inc.,
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-% Initialize raw pixels store
-[store, pixels] = getRawPixelsStore(session, image);
+% Check number of arguments and retrieve store and pixels
+narginchk(5, 5);
+if ~isa(varargin{1}, 'omero.model.PixelsI')
+    % Initialize raw pixels store
+    [store, pixels] = getRawPixelsStore(varargin{1}, varargin{2});
+else
+    pixels = varargin{1};
+    store = varargin{2};
+    store.setPixelsId(pixels.getId().getValue(), false);
+end
+
+% Input check for z, c, t coordinates
+ip = inputParser;
+isposint = @(x) isnumeric(x) & x >= 0 & abs(round(x)) == x;
 sizeZ = pixels.getSizeZ().getValue();
 sizeC = pixels.getSizeC().getValue();
 sizeT = pixels.getSizeT().getValue();
-
-% Input check
-ip = inputParser;
-isposint = @(x) isnumeric(x) & x >= 0 & abs(round(x)) == x;
 ip.addRequired('z', @(x) isposint(x) && x < sizeZ);
 ip.addRequired('c', @(x) isposint(x) && x < sizeC);
 ip.addRequired('t', @(x) isposint(x) && x < sizeT);
-ip.parse(z, c, t);
+ip.parse(varargin{3:end});
 
 % Read plane
-plane = store.getPlane(z, c, t);
+plane = store.getPlane(ip.Results.z, ip.Results.c, ip.Results.t);
 plane = toMatrix(plane, pixels)';
 
-% Close the store
-store.close();
+if ~isa(varargin{1}, 'omero.model.PixelsI')
+    % Close the store if initialized from a session and image input
+    store.close();
+end

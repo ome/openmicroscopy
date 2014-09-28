@@ -27,9 +27,9 @@ $(document).ready(function() {
     $("#enableScalebar").click(function(){
         var enabled = $(this).is(":checked");
         if (enabled) {
-            $("input[name=Scalebar]").removeAttr("disabled").focus();
+            $("input[name=Scalebar]").prop("disabled", false).focus();
         } else {
-            $("input[name=Scalebar]").attr("disabled", "disabled");
+            $("input[name=Scalebar]").prop("disabled", true);
         }
     });
 
@@ -207,17 +207,17 @@ $(document).ready(function() {
         if($(this).attr('value') === "z_projection"){
             $zRangeSlider.slider( "enable" );
             $zProjectionControls.show();
-            $zStart.removeAttr("disabled");
-            $zEnd.removeAttr("disabled");
-            $algorithm.removeAttr("disabled");
-            $stepping.removeAttr("disabled");
+            $zStart.prop("disabled", false);
+            $zEnd.prop("disabled", false);
+            $algorithm.prop("disabled", false);
+            $stepping.prop("disabled", false);
         } else {
             $zProjectionControls.hide();
             $zRangeSlider.slider( "disable" );
-            $zStart.attr("disabled", "disabled");
-            $zEnd.attr("disabled", "disabled");
-            $algorithm.attr("disabled", "disabled");
-            $stepping.attr("disabled", "disabled");
+            $zStart.prop("disabled", true);
+            $zEnd.prop("disabled", true);
+            $algorithm.prop("disabled", true);
+            $stepping.prop("disabled", true);
         }
     });
     // Don't allow users to type values here

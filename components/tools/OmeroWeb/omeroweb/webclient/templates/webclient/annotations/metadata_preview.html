@@ -270,7 +270,7 @@
             if (pid) {
               $("#rdef-save-all")
                 .attr('title', "Apply and Save settings to all images in " + pid)
-                .removeAttr("disabled")
+                .prop("disabled", false)
                 .click(function(){
                   var $span = $('span', this),
                     spanTxt = $span.text();
