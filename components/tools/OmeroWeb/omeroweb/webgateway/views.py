@@ -1681,7 +1681,6 @@ def get_image_rdef_json (request, conn=None, **kwargs):
     rdef = request.session.get('rdef')
     if (rdef is None):
         fromid = request.session.get('fromid', None)
-        print 'fromid', fromid
         # We only have an Image to copy rdefs from
         image = conn.getObject("Image", fromid)
         if image is not None:
@@ -1870,6 +1869,7 @@ def archived_files(request, iid=None, conn=None, **kwargs):
     for image in images:
         for f in image.getImportedImageFiles():
             fileMap[f.getId()] = f
+        templatePrefix = image.getFileset().getTemplatePrefix()
     files = fileMap.values()
 
     if len(files) == 0:
@@ -1885,40 +1885,62 @@ def archived_files(request, iid=None, conn=None, **kwargs):
         rsp['Content-Disposition'] = 'attachment; filename=%s' % (fname)
     else:
 
-        paths = [f.getPath() for f in files]
-        commonPath = os.path.commonprefix(paths)
-
         import tempfile
         temp = tempfile.NamedTemporaryFile(suffix='.archive')
         zipName = request.REQUEST.get('zipname', image.getName())
         zipName = zipName.replace(" ","_").replace(",", ".")        # ',' in name causes duplicate headers
         if not zipName.endswith('.zip'):
             zipName = "%s.zip" % zipName
+
+        def getTargetPath(fsFile, templatePrefix, temp_zip_dir):
+            relPath = os.path.relpath(fsFile.getPath(), templatePrefix)
+            return os.path.join(temp_zip_dir, relPath, fsFile.getName())
+
+        fsIds = set()
+        fIds = set()
         try:
             temp_zip_dir = tempfile.mkdtemp()
             logger.debug("download dir: %s" % temp_zip_dir)
             try:
-                for a in files:
-                    relPath = os.path.relpath(a.getPath(), commonPath)
-                    temp_d = os.path.join(temp_zip_dir, relPath)
-                    temp_d = os.path.normpath(temp_d)
-                    # create dir if needed
-                    if not os.path.exists(temp_d):
-                        os.makedirs(temp_d)
-                    temp_f = os.path.join(temp_zip_dir, relPath, a.name)
-                    temp_f = os.path.normpath(temp_f)
+                for image in images:
+                    templatePrefix = ""
+                    new_dir = ""            # if needed to avoid file name clashes
+                    fs = image.getFileset()
+                    if fs is not None:
+                        # Make sure we've not processed this fileset before.
+                        if fs.id in fsIds:
+                            continue
+                        fsIds.add(fs.id)
+                        templatePrefix = fs.getTemplatePrefix()
+                    files = list(image.getImportedImageFiles())
 
-                    # Need to be sure that the zip name does not match any file within it
-                    # since OS X will unzip as a single file instead of a directory
-                    if zipName == "%s.zip" % a.name:
-                        zipName = "%s_folder.zip" % a.name
+                    # check if ANY of the files will overwrite exising file
+                    for f in files:
+                        if os.path.exists(getTargetPath(f, templatePrefix, temp_zip_dir)):
+                            new_dir = str(image.getId())
+                            break
 
-                    f = open(str(temp_f),"wb")
-                    try:
-                        for chunk in a.getFileInChunks():
-                            f.write(chunk)
-                    finally:
-                        f.close()
+                    for a in files:
+                        # check for duplicate files for OMERO 4.4 images (no fileset)
+                        if a.id in fIds:
+                            continue
+                        fIds.add(a.id)
+                        temp_f = getTargetPath(a, templatePrefix, os.path.join(temp_zip_dir, new_dir))
+                        temp_d = os.path.dirname(temp_f)
+                        if not os.path.exists(temp_d):
+                            os.makedirs(temp_d)
+
+                        # Need to be sure that the zip name does not match any file within it
+                        # since OS X will unzip as a single file instead of a directory
+                        if zipName == "%s.zip" % a.name:
+                            zipName = "%s_folder.zip" % a.name
+
+                        f = open(str(temp_f),"wb")
+                        try:
+                            for chunk in a.getFileInChunks():
+                                f.write(chunk)
+                        finally:
+                            f.close()
 
                 # create zip
                 zip_file = zipfile.ZipFile(temp, 'w', zipfile.ZIP_DEFLATED)
