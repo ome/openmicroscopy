@@ -33,22 +33,30 @@
     <script type="text/javascript">
 
         function changeField(field) {
+            var datatree = $.jstree.reference('#dataTree');
             var $container = $("#content_details");
-            var rel = $container.attr('rel').split("-");
-            var $parent = $("#dataTree #"+ rel[0]+'-'+rel[1]);
-            // let the parent node keep track of current index
-            $parent.data("well_index", field);
-            // If a well is selected, add this data to the parent node too
-            // (handled in center_plugin.thumbs.js.html)
-            var $selWell = $('td.ui-selected:first');
-            if ($selWell.length > 0) {
-                $parent.data("well_id", $selWell.attr('id').replace('well-', ''));
+
+            var containerType = $container.data('type');
+            var containerId = $container.data('id');
+            var containerPath = $container.data('path');
+            containerPath = JSON.parse(containerPath);
+            var containerNode = datatree.find_omepath(containerPath);
+
+            if (!containerNode) {
+                console.log('WARNING: Had to guess container');
+                containerNode = OME.getTreeBestGuess(containerType, containerId);
             }
-            // this will cause center and right panels to update
-            $parent.children("a:eq(0)").click();
+
+            // Set the field for that node in the tree and reload the tree section
+            datatree.set_field(containerNode, field);
+
+            // Reselect the same node to trigger update
+            datatree.deselect_all(true);
+            datatree.select_node(containerNode);
+
             return false;
         }
-        
+
         var primaryIndex = -1;
         var handleClickSelection = function(event, target) {
             

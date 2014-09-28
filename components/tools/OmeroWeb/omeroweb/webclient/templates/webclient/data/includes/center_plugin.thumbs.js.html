@@ -27,175 +27,324 @@
 **/
 
 $(document).ready(function() {
-    
 
-    // on change of selection in tree, update center panel
-    var update_thumbnails_panel = function(event, force_update) {
+    // Revamp of thumbnail update
 
-        // this may have been called before datatree was initialised...
-        var datatree = $.jstree._focused();
-        if (!datatree) return;
+    /*
 
-        // we use the tree to access selected objects, since we can traverse to check parents etc...
-        var selected = datatree.data.ui.selected;
+    When should the panel update
 
-        // See if the tree was asked to have a Well shown...
-        var showWell = false;
-        var initiallySelect = datatree.get_settings().ui.initially_select;
-        for (var i = 0; i < initiallySelect.length; i++) {
-            if (initiallySelect[i].substr(0, 5) === "well-") {
-                showWell = initiallySelect[i];
-            }
+    1) The image selection has changed (update)
+    2) The container selection has changed (refresh)
+    3) Something has been deleted or moved out (remove)
+    4) Something has been added (refresh)
+
+    Problems
+
+    An image is moved to another dataset while selected.
+    This causes the view to shift to the new view
+    There will also be a remove attempt (this must do nothing)
+
+    */
+
+    // Load the thumbnails (Will wait until there are no new requests
+    // for 200ms)
+    var loadThumbnailsPanelTimeout = false;
+    var loadThumbnailsPanel = function(node, newPage, newField) {
+        // Reset timeout if within 200ms of the last request
+        if (loadThumbnailsPanelTimeout) {
+            window.clearTimeout(loadThumbnailsPanelTimeout);
         }
-        // ...OR, a well was set on changeField() in plate.html
-        if (selected.data('well_id')) {
-            showWell = "well-" + selected.data('well_id');
+
+        loadThumbnailsPanelTimeout = window.setTimeout(function() {
+            // Clear the timeout
+            loadThumbnailsPanelTimeout = false;
+
+            // Update the central panel
+            var inst = $.jstree.reference('#dataTree');
+            var url = "{% url 'webindex' %}";
+            node = inst.get_node(node);
+            var nodeType = node.type;
+            var nodeId = node.data.obj.id;
+
+            switch(nodeType) {
+                case 'dataset':
+                    url += 'load_data/' + nodeType + '/' + nodeId + '/?view=icon' + "&page="+newPage;
+                    break;
+                case 'orphaned':
+                    url += 'load_data/' + nodeType + '/?view=icon' + "&page="+newPage;
+                    break;
+                case 'plate':
+                    // Only load plates if it does not have child acquisitions
+                    if (!inst.is_parent(node)) {
+                        url += 'load_data/' + nodeType + '/' + nodeId;
+                    }
+                    break;
+                case 'acquisition':
+                    url += 'load_data/' + nodeType + '/' + nodeId + '/?index=' + newField;
+                    break;
+                case 'tag':
+                    url += 'load_tags/?view=icon&o_type=tag&o_id=' + nodeId;
+                    break;
+                case 'share':
+                    url += 'load_public/' + nodeId + '/?view=icon'
+                    break;
+                default:
+                    url = undefined;
+            }
+
+            if (url != undefined) {
+                // Loading screen
+                $("div#content_details").html('<p class="loading_center">Loading... please wait. <img src ="{% static "webgateway/img/spinner_big.gif" %}"/></p>');
+
+                // Load html from url
+                $("div#content_details").load(url);
+                setThumbnailsPanel(nodeType, nodeId, inst.get_omepath(node), newPage, newField);
+
+            // Or if it's not a container that can be loaded, sometimes display a message
+            } else {
+                // If there are no children of a project node, display a message
+                if (nodeType === 'project' && !inst.is_parent(node)) {
+                    var msg = "<p class='center_message' title='Create Datasets using toolbar or right-click menu'>No Datasets in Project</a>";
+                    $("div#content_details").html(msg);
+
+                // If there are no children of a screen node, display a message
+                } else if (nodeType === 'screen' && !inst.is_parent(node)) {
+                    msg = "<p class='center_message' title='Import Plates using OMERO.insight'>No Plates in Screen</a>";
+                    $("div#content_details").html(msg);
+                }
+
+                // And ensure the content is empty
+                clearThumbnailsPanel();
+            }
+        }, 200);
+
+    };
+
+    var clearThumbnailsPanel = function() {
+        var $contentDetails = $("div#content_details");
+        $contentDetails.empty();
+        $contentDetails.removeData('type');
+        $contentDetails.removeData('id');
+        $contentDetails.removeData('path');
+        $("div#page").removeData('page');
+        $contentDetails.removeData('field');
+    };
+
+    var setThumbnailsPanel = function(type, id, path, page, field) {
+        var $contentDetails = $("div#content_details");
+        $contentDetails.data('type', type);
+        $contentDetails.data('id', id);
+        $contentDetails.data('path', JSON.stringify(path));
+        $("div#page").data('page', page);
+        $contentDetails.data('field', field);
+    };
+
+    var removeThumbnail = function(node) {
+        $("#image_icon-" + node.data.obj.id).remove();
+    };
+
+    update_thumbnails_panel = function(event, data) {
+        var inst = $.jstree.reference('#dataTree');
+
+        // Get the container that is currently rendered
+        // If any of these are not defined then nothing was selected
+        var $contentDetails = $("div#content_details");
+
+        // Get details about the currently displayed container
+        var currentType = $contentDetails.data('type');
+        var currentId = $contentDetails.data('id');
+        var currentPath = $contentDetails.data('path')
+        var currentNode = false;
+        var currentPage = $("div#page").data('page');
+        var currentField = $contentDetails.data('field');
+
+        if (currentPage === undefined) {
+            currentPage = 1;
         }
 
-        // if nothing selected, simply update selection
-        var sel_objs = $("body").data("selected_objects.ome");
-        if (sel_objs.length == 0) {
-            if (force_update === true) {
-                $("div#content_details").empty();
-                $("div#content_details").removeAttr('rel');
-            }
+        if (currentField === undefined) {
+            currentField = 0;
+        }
+
+        // Retrieve current container node
+        if (currentType != undefined &&
+            currentId != undefined &&
+            currentPath != undefined) {
+
+            currentPath = JSON.parse(currentPath);
+            currentNode = inst.find_omepath(currentPath);
+        }
+
+        // Get the current selection
+        var selected = inst.get_selected(true);
+
+        // If there are no selections then just clear the centre panel
+        if (selected.length === 0) {
+            clearThumbnailsPanel();
             return;
         }
 
-        // If 'well' selected, do nothing here.
-        if (sel_objs[0].id.split("-")[0] === 'well') {
-            return
+        // If there are selections then determine if the currently
+        // rendered container is one of them.
+        var containerNode = false;
+        if (currentNode) {
+            $.each(selected, function(index, node) {
+                // If an image is selected then the container will be its parent
+                if (node.type === 'image') {
+                    node = inst.get_node(inst.get_parent(node));
+                }
+                if (node === currentNode) {
+                    containerNode = node;
+                    // Break out of each
+                    return false;
+                }
+
+            });
         }
 
-        if (selected.length > 1) {
-            // if any non-images are selected, clear the centre panel
-            if (selected.filter('li:not([id|=image])').length > 0) {
-                $("div#content_details").empty();
-                $("div#content_details").removeAttr('rel');
+        // If there is a containerNode, also get the page/field information
+        var containerPage = 1;
+        var containerField = 0;
+        if (containerNode) {
+            // Get the page if there is one
+            if ('get_page' in inst) {
+                var newPage = inst.get_page(containerNode);
+                if (newPage !== false) {
+                    containerPage = newPage;
+                }
+            }
+            // Get the field if there is one
+            if ('get_field' in inst) {
+                var newField = inst.get_field(containerNode);
+                if (newField !== false) {
+                    containerField = newField;
+                }
+            }
+
+        }
+
+        if (event.type === 'changed' || 'center_plugin_changed.ome') {
+            // If the containerNode is the current container then this is
+            // a selection change within the container or a pagination/field
+            // change
+            if (containerNode) {
+
+                // This is a page change
+                if (containerPage !== currentPage) {
+                    loadThumbnailsPanel(containerNode, containerPage, undefined);
+
+                // Fields are only applicable for acquisitions
+                } else if (containerNode.type === 'acquisition' &&
+                           containerField !== currentField) {
+                    loadThumbnailsPanel(containerNode, undefined, containerField);
+                }
+
+                // Return as this was either a page/field change or image
+                // selection only
                 return;
             }
-        }
-        // handle single object (or multi-image) selection...
-        var oid = selected.attr('id');                              // E.g. 'dataset-501'
-        var orel = selected.attr('rel');     // E.g. 'dataset'
-        var page = selected.data("page") || null;                   // Check for pagination
-        var well_index = selected.data("well_index") || 0;       // and well index
 
-        // Check what we've currently loaded: E.g. 'dataset-501'
-        var crel = $("div#content_details").attr('rel');
-        var cpage = $("div#page").attr('rel') || null;
-        var current_well_index = $("#well_index").text() || 0;
+            // There was no current node or it was not selected
+            // Load the first of the selected nodes
+            containerNode = selected[0];
 
-        if (!oid) return;
-        
-        var update = {'url': null, 'rel': null, 'empty':false };
-        var prefix = "{% url 'webindex' %}";
-        
-        // Show nothing for Experimenter, Project or Screen...
-        if ($.inArray(orel, ["experimenter", "project", "screen"])>-1) {
-            update['empty'] = true;
-        } else if (oid.indexOf("orphaned")>=0) {
-            update['rel'] = oid;
-            update['url'] = prefix+'load_data/'+orel+'/?view=icon';
-        } else if(orel == "plate") {
-            if (datatree.is_leaf(selected)) {   // Load Plate if it's a 'leaf' (No PlateAcquisition)...
-                update['rel'] = oid;
-                update['url'] = prefix+'load_data/'+orel+'/'+oid.split("-")[1]+'/?index='+well_index;
-                if (showWell) {
-                    update['url'] += "&show="+showWell;
-                    showWell = false;
-                }
-            } else {
-                update['empty'] = true;
+            // If an image is selected then the container will be its parent
+            if (selected[0].type === 'image') {
+                containerNode = inst.get_node(inst.get_parent(selected[0]));
             }
-        } else if (orel == "acquisition"){
-            update['rel'] = oid;
-            update['url'] = prefix+'load_data/'+orel+'/'+oid.split("-")[1]+'/?index='+well_index;
-            if (showWell) {
-                update['url'] += "&show="+showWell;
-                showWell = false;
-            }
-        } else if (orel == "dataset") {
-            update['rel'] = oid;
-            update['url'] = prefix+'load_data/'+orel+'/'+oid.split("-")[1]+'/?view=icon';
-        } else if (orel == "share") {
-            update['rel'] = oid;
-            update['url'] = prefix+'load_public/'+oid.split("-")[1]+'/?view=icon';
-        } else if (orel == "tag") {     // when this script is used in tags page (see comments above)
-            update['rel'] = oid;
-            update['url'] = prefix+'load_tags/?view=icon&o_type=tag&o_id='+oid.split("-")[1];
-        } else if (orel == "well") {
-            
-        } else if (orel=="image") {
-            var pr = selected.parent().parent();
-            if (page == null) {
-                page = pr.data("page") || null;
-            }
-            if (pr.length>0 && pr.attr('id')!==crel) {
-                if(pr.attr('rel')==="share" && pr.attr('id')!==crel) {
-                    update['rel'] = pr.attr('id');
-                    update['url'] = prefix+'load_public/'+pr.attr('id').split("-")[1]+'/?view=icon';
-                } else if (pr.attr('rel')=="tag") {
-                    update['rel'] = pr.attr('id');
-                    update['url'] = prefix+'load_tags/'+pr.attr('rel')+'/'+pr.attr("id").split("-")[1]+'/?view=icon';
-                } else if (pr.attr('rel')!=="orphaned") {
-                    update['rel'] = pr.attr('id');
-                    update['url'] = prefix+'load_data/'+pr.attr('rel')+'/'+pr.attr("id").split("-")[1]+'/?view=icon';
-                } else {
-                    update['rel'] = pr.attr("id");
-                    update['url'] = prefix+'load_data/'+pr.attr('rel')+'/?view=icon';
-                }
-            }
-        } else {
-            update['empty'] = true;
-        }
 
-        // clear well selection if 'plate' or 'acquisition' selected
-        if (orel == "plate" || orel === 'acquisition') {
-            $("td.ui-selected").removeClass("ui-selected");
-        }
-
-        var $content_details = $("#content_details");
-
-        var page_change = ((page != null) && (page!=cpage));
-        var need_refresh = ((oid!==crel) || page_change || (current_well_index != well_index));
-        if (force_update === true) {
-            need_refresh = true;
-        }
-        // if nothing to show - clear panel
-        if (update.empty) {
-            $("div#content_details").empty();
-            $("div#content_details").removeAttr('rel');
-            if (orel == 'project' || orel == 'screen') {
-                var cCount = datatree._get_children(selected).length;
-                if (cCount == 0) {
-                    // show helpful message
-                    var msg = "<p class='center_message' title='Create Datasets using toolbar or right-click menu'>No Datasets in Project</a>";
-                    if (orel == 'screen') {
-                        msg = "<p class='center_message' title='Import Plates using OMERO.insight'>No Plates in Screen</a>";
-                    }
-                    $("div#content_details").html(msg);
-                }
+            // While the new selection may not be the same path as the old one
+            // if it is an equivalent node, we can save a reload and simply update
+            // the recorded path
+            if (currentNode && inst.omecompare(containerNode, currentNode)) {
+                $contentDetails.data('path', JSON.stringify(inst.get_omepath(containerNode)));
+                return;
             }
-        }
-        // only load data if panel is visible, otherwise clear panel
-        else if (update.rel!==null && update.url!==null && need_refresh){
-            if (page) update['url'] += "&page="+page;
-            if ($content_details.is(":visible")) {
-                $("div#content_details").html('<p class="loading_center">Loading... please wait. <img src ="{% static "webgateway/img/spinner_big.gif" %}"/></p>');
-                $("div#content_details").attr('rel', update.rel);
-                $("div#content_details").load(update.url);
-            } else {
-                $("div#content_details").empty();
-                $("div#content_details").removeAttr('rel');
+
+            //TODO Would it not make sense to update the selection
+            // from here? (syncThumbSelection)
+
+            loadThumbnailsPanel(containerNode, currentPage, currentField);
+            return;
+
+        } else if (event.type === 'move_node') {
+            // The only relevant update is if a node has been added or removed
+            // from the currently displayed container, however, if this was a
+            // move of a selected image, the containerNode will be wrong as it
+            // points to the old location of the node
+
+            var node = inst.get_node(data.node);
+            var parent = inst.get_node(data.parent);
+            var old_parent = inst.get_node(data.old_parent);
+
+            // So, first update the displayed container data if necessary
+            if (node.type === 'image' && inst.is_selected(node)) {
+                // Update the contentDetails with the new parent
+                setThumbnailsPanel(parent.type, parent.data.obj.id, inst.get_omepath(parent),
+                                   containerPage, containerField);
+                // And make the containerNode this parent straight away
+                containerNode = parent;
+
+            // It is also possible that the moved node was the displayed container itself,
+            // but not an image
+            } else if (inst.is_selected(node)) {
+                // Update the contentDetails with this node
+                setThumbnailsPanel(node.type, node.data.obj.id, inst.get_omepath(node));
+                // And make the containerNode this node straight away
+                containerNode = node;
+            }
+
+            // Is the moved node in the displayed container?
+            if (containerNode === parent && containerNode === old_parent) {
+                // Do nothing as it was reordered only
+            } else if (containerNode === parent) {
+                // Reload thumbnails
+                loadThumbnailsPanel(containerNode, containerPage, containerField,
+                                    containerPage, containerField);
+            } else if (containerNode === old_parent && node.type === 'image') {
+                removeThumbnail(node);
+            }
+
+        } else if (event.type === 'copy_node') {
+            // The only relevant update is if a node has been added to
+            // the currently displayed container
+
+            var node = inst.get_node(data.node);
+            var parent = inst.get_node(data.parent);
+
+            if (containerNode === parent) {
+                // Reload thumbnails
+                loadThumbnailsPanel(containerNode, containerPage, containerField,
+                                    containerPage, containerField);
+            }
+
+        } else if (event.type === 'delete_node') {
+            // In the case of delete, the data.node passed in must be a node
+            // already as it can't be 'got' because it may be gone already
+            var node = data.node;
+            var old_parent = inst.get_node(data.old_parent);
+
+            if (containerNode === old_parent && node.type === 'image') {
+                removeThumbnail(node);
+
+            // If the current container was deleted
+            } else if (containerNode == node) {
+                //Load the parent (These containers don't have pages or fields)
+                loadThumbnailsPanel(old_parent, undefined, undefined)
+            }
+
+        } else if (event.type ==='create_node') {
+            var node = inst.get_node(data.node);
+            var parent = inst.get_node(data.parent);
+
+            if (containerNode === parent && node.type === 'image') {
+                loadThumbnailsPanel(parent, containerPage, containerField);
             }
         }
     };
-    
-    // on change of selection (in tree) OR switching pluginupdate center panel
-    $("body").bind("selection_change.ome", update_thumbnails_panel);
-    
-    $('#center_panel_chooser').bind('center_plugin_changed.ome', update_thumbnails_panel);
+
+    $('#center_panel_chooser').on('center_plugin_changed.ome', update_thumbnails_panel);
 
 });
 

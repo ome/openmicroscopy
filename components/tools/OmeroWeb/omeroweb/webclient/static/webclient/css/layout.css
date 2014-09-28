@@ -303,6 +303,16 @@
 					background-color:#F0F2F5;
                 }
 
+
+    /* Left Panel Tree */
+
+    #tree_details {
+        top:59px;
+        padding:0;
+        padding-top:6px;
+    }
+
+
     .hiddenField {
         display: none;
     }

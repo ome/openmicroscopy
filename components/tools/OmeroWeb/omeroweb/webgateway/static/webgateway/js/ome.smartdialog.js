@@ -3,7 +3,7 @@
  *
  * Todo: better documentation and example usage.
  *
- * Depends on jquery, jquery.dimensions.js
+ * Depends on jquery
  *
  * Author: C. Neves <carlos@glencoesoftware.com>
  *

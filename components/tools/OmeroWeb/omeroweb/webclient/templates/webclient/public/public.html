@@ -22,12 +22,19 @@
 -->
 {% endcomment %}
 
+{% block link %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "webgateway/css/ome.jstree_theme.css" %}" type="text/css" />
+{% endblock %}
+
 {% block script %}
     {{ block.super }}
-    <script type="text/javascript" src="{% static "3rdparty/jquery.hotkeys-0.8.js" %}"></script>
-    <script type="text/javascript" src="{% static "3rdparty/jquery.jstree-1.0-rc3/jquery.jstree.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.jstree/jstree.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.locate_plugin.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.conditionalselect_plugin.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.ometools_plugin.js" %}"></script>
 
-    <!-- set-up left-panel tabs, jsTree, toolbar etc -->
+    <!-- set-up jsTree, toolbar etc -->
     <script type="text/javascript">
 
         $(document).ready(function() 
@@ -80,7 +87,7 @@
                             }
                         }
                     }
-                    
+
                     if (selected.length > 1) toolbar_config['annotation'] = true;
                     for (var sIndex in toolbar_config) { 
                         if (toolbar_config[sIndex]){
@@ -90,48 +97,153 @@
                         }
                     }
                 }
-                
-                $("#dataTree").jstree({
-                        // the list of plugins to include
-                        "plugins" : [ "themes", "html_data", "ui", "crrm", "dnd", "types", "hotkeys", "contextmenu" ],
-                        // Plugin configuration
 
-                        // I usually configure the plugin that handles the data first - in this case JSON as it is most common
-                        "html_data" : { 
-                            // I chose an ajax enabled tree - again - as this is most common, and maybe a bit more complex
-                            // All the options are the same as jQuery's except for `data` which CAN (not should) be a function
-                            "ajax" : {
-                                // the URL to fetch the data
-                                "url" : function(n) {
-                                    return n.attr ? ("{% url 'load_public' %}"+n.attr("id").split("-")[1]+"/") : "{% url 'load_public' %}";
-                                    },
-                                // this function is executed in the instance's scope (this refers to the tree instance)
-                                // the parameter is the node being loaded (may be -1, 0, or undefined when loading the root nodes)
-                                "data" : function (n) {
-                                    return { 
-                                        "view" : "tree"
-                                    };
-                                }
+                    // Select jstree and then cascade handle events and setup the tree.
+                    var jstree = $("#dataTree")
+                    .on('changed.jstree', function (e, data) {
+                        var inst = data.instance;
+
+                        // buttonsShowHide(inst.get_selected(true), inst);
+                        OME.tree_selection_changed(data, e);
+                    })
+                    .on("dblclick.jstree", ".jstree-anchor", function (e) {
+                        e.preventDefault();
+                        var datatree = $.jstree.reference($('#dataTree'));
+                        var node = datatree.get_node(this);
+                        if (node) {
+                            if (node.type === 'image') {
+                                //Open the image viewer for this image
+                                OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('0', node.data.obj.id ));
                             }
-                        },
-                        // Using types - most of the time this is an overkill
-                        // Still meny people use them - here is how
-                        "types" : {
-                            // I want only `drive` nodes to be root nodes 
-                            // This will prevent moving or creating any other type as a root node
-                            "max_depth" : -1,
-                            "max_children" : -1,
-                            "valid_children" : [ "experimenter" ],
-                            "types" : {
-                                "experimenter" : {
-                                    "valid_children" : [ "share", "discussion" ],
-                                    "icon" : {
-                                        "image" : '{% static "webclient/image/icon_user.png" %}'
-                                    },
-                                    "create_node" : false,
-                                    "start_drag" : false,
-                                    "move_node" : false,
-                                    "remove" : false
+                        }
+                    })
+                    // TODO Possibly there is a path which can lead here so this will be needed
+                    // .on('loaded.jstree', function(e, data) {
+                    //     /**
+                    //     * Fired when the tree is loaded and ready for action
+                    //     */
+
+                    //     // If it isn't present
+                    //     if (window.location.search.length == 0) {
+                    //         return false;
+                    //     }
+
+                    //     // Introspect the URL to get the show parameter
+                    //     var param = getURLParameter('show');
+
+                    //     if (param) {
+                    //         var inst = data.instance;
+
+                    //         // Gather data for request
+                    //         var paramSplit = param.split('-');
+
+                    //         var payload = {};
+                    //         payload[paramSplit[0]] = paramSplit[1];
+
+                    //         // AJAX Query to get the path of the item we wish to 'show'
+                    //         $.ajax({
+                    //             url: '{% url 'api_paths_to_object' %}',
+                    //             data : payload,
+                    //             dataType: "json",
+                    //             type: "GET",
+                    //             success: function(json) {
+                    //                 data = json.paths;
+                    //                 // Use the open_node callback mechanism to facilitate loading the tree to the
+                    //                 // point indicated by the path, starting from the top, 'experimenter'.
+                    //                 var path = data[0];
+                    //                 console.log(path);
+                    //                 var lastIndex = path.length - 1;
+
+                    //                 var traverse = function(index, parentNode) {
+                    //                     // Get this path component
+                    //                     var comp = path[index];
+                    //                     // Get the node for this path component
+                    //                     var node = inst.locate_node(comp.type + '-' + comp.id, parentNode)[0];
+
+                    //                     // If at any point the node doesn't exist, simply give up as the path has
+                    //                     // become invalid
+                    //                     if (node === false) {
+                    //                         return;
+                    //                     }
+
+                    //                     // If this is not the final path component, open it and
+                    //                     // traverse in the callback
+                    //                      if (index < lastIndex) {
+                    //                         inst.open_node(node, function() {
+                    //                             traverse(index += 1, node);
+                    //                         })
+
+                    //                     // Otherwise select it
+                    //                      } else {
+                    //                         // TODO Centre view on this selection
+                    //                         inst.select_node(node);
+                    //                      }
+                    //                 };
+
+                    //                 // Start traversing at the start of the path with no parent node
+                    //                 traverse(0, undefined);
+                    //             },
+                    //             error: function(json) {
+                    //                 console.log('failure');
+                    //             }
+                    //         });
+                    //     }
+
+                    //     // Update the URL to remove the parameters as they serve to preload data this one
+                    //     // time only
+                    //     // TODO Test on an old browser
+                    //     history.pushState({}, '', window.location.pathname);
+                    // })
+
+                    // Setup jstree
+                    .jstree({
+                        'plugins': ['types', 'sort', 'locate', 'ometools', 'conditionalselect'],
+                        // The jstree core
+                        'core' : {
+                            'themes': {
+                                'dots': false,
+                                'variant': 'ome'
+                            },
+                            'data' : {
+                                // Configure URL for request
+                                'url' : function(node) {
+                                    //TODO
+                                    // Get the type of the node being expanded
+                                    // Figure out what type of children it should have
+                                    // Request the list of children from that url, adding any relevant filters
+                                    if (node.type === 'experimenter') {
+                                        return '{% url 'api_shares' %}'
+                                    } else if (node.type === 'share') {
+                                        return '{% url 'api_images' %}'
+                                    } else if (node.id === '#') {
+                                        return '{% url 'api_experimenter' active_user.id %}'
+                                    }
+                                },
+                                // Gather data for request
+                                'data' : function(node) {
+
+                                    var payload = {};
+
+                                    // Get the data for this query, special case for experimenter as this
+                                    // data is being passed as 'experimenter_id' below and the tag interface
+                                    // is expecting either a tagset_id or nothing as the 'id'
+                                    if (node.hasOwnProperty('data') && node.type != 'experimenter') {
+                                        if (node.data.hasOwnProperty('obj')) {
+                                            // Listing images for a share needs to be special cased, because 'id'
+                                            // in 'api_list' is dataset. 'share_id' needs to be provided
+                                            if (node.type === 'share') {
+                                                payload['share_id'] = node.data.obj.id;
+                                            } else {
+                                                payload['id'] = node.data.obj.id;
+                                            }
+                                        }
+                                    }
+
+                                    if (node.hasOwnProperty('data') && node.type === 'experimenter') {
+                                        payload['member_id'] = node.data.obj.id
+                                    }
+
+                                    return payload;
                                 },
                                 "share" : {
                                     "valid_children" : [ "image" ],
@@ -257,20 +369,19 @@
                 });
                 
             });
-        
     </script>
 
     <!-- handle toolbar clicks -->
     <script type="text/javascript">
-    $(function () { 
+    $(function () {
         $(".toolbar input").click(function () {
             switch(this.id) {
                 case "removecontentButton":
                     var confirm_remove = OME.confirm_dialog('Remove Image?',
                         function() {
                             if(confirm_remove.data("clicked_button") == "OK") {
-                                var jstree = $.jstree._focused();
-                                $("#dataTree").jstree('remove', jstree.get_selected(), jstree._get_parent(jstree.get_selected()));
+                                var inst = $.jstree.reference('#dataTree');
+                                inst.delete_node(inst.get_selected);
                             }
                         }
                     );
@@ -312,17 +423,17 @@
     <div id="Public">
         <div class="toolbar">
             <ul id="buttons">
-				
+
                 <li>
-					<input id="removecontentButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_cut.png" %}" alt="Remove content" title="Remove content" /> 
-				</li>
-				
-				<li class=seperator></li>
-				
+                    <input id="removecontentButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_cut.png" %}" alt="Remove content" title="Remove content" /> 
+                </li>
+
+                <li class=seperator></li>
+
                 <li>
-				<input id="refreshButton" class="button" type="image" src="{% static "webclient/image/icon_toolbar_refresh.png" %}" alt="Refresh" title="Refresh"> 
-				</li>
-                
+                <input id="refreshButton" class="button" type="image" src="{% static "webclient/image/icon_toolbar_refresh.png" %}" alt="Refresh" title="Refresh"> 
+                </li>
+
             </ul>
         </div>
 
@@ -335,3 +446,26 @@
 
 
 
+<div id="content_details"> </div>
+
+{% endblock %}
+
+
+{% block right %}
+<div>
+    <div id="annotation_tabs" class="absolute_fill">
+        <ul id="annotation_tabs_list">
+            <li><a href="#metadata_general">{% trans "General" %}</a></li>
+            <!-- include right tabs, as configured in settings.py under "omero.web.ui.right_tabs" -->
+            {% for rt in ome.right_plugins %}
+                <li><a href="#{{ rt.plugin_id }}">{{ rt.label }}</a></li>
+            {% endfor %}
+        </ul>
+        <div id="metadata_general" class="right_tab_content" ></div>
+        <!-- include right tab bodies, as configured in settings.py under "omero.web.ui.right_tabs" -->
+        {% for rt in ome.right_plugins %}
+            <div id="{{ rt.plugin_id }}" class="right_tab_content"></div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

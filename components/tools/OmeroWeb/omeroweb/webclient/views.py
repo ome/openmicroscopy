@@ -26,6 +26,7 @@ import copy
 import os
 import datetime
 import Ice
+from Ice import Exception as IceException
 import logging
 import traceback
 import json
@@ -45,7 +46,7 @@ from omero.gateway.utils import toBoolean
 from django.conf import settings
 from django.template import loader as template_loader
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.http import HttpResponseServerError
+from django.http import HttpResponseServerError, HttpResponseBadRequest
 from django.template import RequestContext as Context
 from django.utils.http import urlencode
 from django.core.urlresolvers import reverse
@@ -82,11 +83,18 @@ from omeroweb.feedback.views import handlerInternalError
 from omeroweb.http import HttpJsonResponse
 from omeroweb.webclient.decorators import login_required
 from omeroweb.webclient.decorators import render_response
-from omeroweb.webclient.show import Show, IncorrectMenuError
+from omeroweb.webclient.show import Show, IncorrectMenuError, paths_to_object
 from omeroweb.connector import Connector
 from omeroweb.decorators import ConnCleaningHttpResponse, parse_url
 from omeroweb.decorators import get_client_ip
 from omeroweb.webgateway.util import getIntOrDefault
+
+from omero.model import ProjectI, DatasetI, ImageI, \
+    ScreenI, PlateI, \
+    ProjectDatasetLinkI, DatasetImageLinkI, \
+    ScreenPlateLinkI
+from omero import ValidationException, ApiUsageException, ServerError, CmdError
+from omero.rtypes import rlong, rlist
 
 import tree
 
@@ -95,8 +103,54 @@ logger = logging.getLogger(__name__)
 logger.info("INIT '%s'" % os.getpid())
 
 
+def get_long_or_default(request, name, default):
+    """
+    Retrieves a parameter from the request. If the parameter is not present
+    the default is returned
+
+    This does not catch exceptions as it makes sense to throw exceptions if
+    the arguments provided do not pass basic type validation
+    """
+    val = None
+    val_raw = request.REQUEST.get(name, default)
+    if val_raw is not None:
+        val = long(val_raw)
+    return val
+
+
+def get_longs(request, name):
+    """
+    Retrieves parameters from the request. If the parameters are not present
+    an empty list is returned
+
+    This does not catch exceptions as it makes sense to throw exceptions if
+    the arguments provided do not pass basic type validation
+    """
+    vals = []
+    vals_raw = request.REQUEST.getlist(name)
+    for val_raw in vals_raw:
+        vals.append(long(val_raw))
+    return vals
+
+
+def get_bool_or_default(request, name, default):
+    """
+    Retrieves a parameter from the request. If the parameter is not present
+    the default is returned
+
+    This does not catch exceptions as it makes sense to throw exceptions if
+    the arguments provided do not pass basic type validation
+    """
+    val = default
+    val_raw = request.REQUEST.get(name)
+    if val_raw is not None:
+        if val_raw.lower() == 'true' or int(val_raw) == 1:
+            val = True
+    return val
+
 ##############################################################################
 # views controll
+
 
 def login(request):
     """
@@ -496,6 +550,602 @@ def group_user_content(request, url=None, conn=None, **kwargs):
 
 
 @login_required(setGroupContext=True)
+def api_group_list(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = get_long_or_default(request, 'page', 1)
+        limit = get_long_or_default(request, 'limit', settings.PAGE)
+        member_id = get_long_or_default(request, 'member', -1)
+    except ValueError as e:
+        return HttpResponseBadRequest('Invalid parameter value')
+
+    try:
+        # Get the groups
+        groups = tree.marshal_groups(conn=conn,
+                                     member_id=member_id,
+                                     page=page,
+                                     limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return HttpJsonResponse({'groups': groups})
+
+
+@login_required(setGroupContext=True)
+def api_experimenter_list(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = get_long_or_default(request, 'page', 1)
+        limit = get_long_or_default(request, 'limit', settings.PAGE)
+        group_id = get_long_or_default(request, 'group_id', -1)
+    except ValueError:
+        return HttpResponseBadRequest('Invalid parameter value')
+
+    # If no group (or cross-group) is specified, use current
+    # TODO Remove this and check webclient handles it ok
+    if group_id is None:
+        group_id = request.session.get('active_group') or \
+            conn.getEventContext().groupId
+
+    try:
+        # Get the experimenters
+        experimenters = tree.marshal_experimenters(conn=conn,
+                                                   group_id=group_id,
+                                                   page=page,
+                                                   limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return HttpJsonResponse({'experimenters': experimenters})
+
+
+@login_required(setGroupContext=True)
+def api_experimenter_detail(request, experimenter_id, conn=None, **kwargs):
+    # Validate parameter
+    try:
+        experimenter_id = long(experimenter_id)
+    except ValueError:
+        return HttpResponseBadRequest('Invalid experimenter id')
+
+    try:
+        # Get the experimenter
+        experimenter = tree.marshal_experimenter(
+            conn=conn, experimenter_id=experimenter_id)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return HttpJsonResponse({'experimenter': experimenter})
+
+
+@login_required(setGroupContext=True)
+def api_container_list(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = get_long_or_default(request, 'page', 1)
+        limit = get_long_or_default(request, 'limit', settings.PAGE)
+        group_id = get_long_or_default(request, 'group_id', -1)
+        experimenter_id = get_long_or_default(request, 'id', -1)
+    except ValueError:
+        return HttpResponseBadRequest('Invalid parameter value')
+
+    # TODO While this interface does support paging, it does so in a
+    # very odd way. The results per page is enforced per query so this
+    # will actually get the limit for projects, datasets (without
+    # parents), screens and plates (without parents). This is fine for
+    # the first page, but the second page may not be what is expected.
+
+    try:
+        # Get the projects
+        projects = tree.marshal_projects(conn=conn,
+                                         group_id=group_id,
+                                         experimenter_id=experimenter_id,
+                                         page=page,
+                                         limit=limit)
+
+        # Get the orphaned datasets (without project parents)
+        datasets = tree.marshal_datasets(conn=conn,
+                                         orphaned=True,
+                                         group_id=group_id,
+                                         experimenter_id=experimenter_id,
+                                         page=page,
+                                         limit=limit)
+
+        # Get the screens for the current user
+        screens = tree.marshal_screens(conn=conn,
+                                       group_id=group_id,
+                                       experimenter_id=experimenter_id,
+                                       page=page,
+                                       limit=limit)
+
+        # Get the orphaned plates (without project parents)
+        plates = tree.marshal_plates(conn=conn,
+                                     orphaned=True,
+                                     group_id=group_id,
+                                     experimenter_id=experimenter_id,
+                                     page=page,
+                                     limit=limit)
+
+        # Get the orphaned images container
+        orphaned = tree.marshal_orphaned(conn=conn,
+                                         group_id=group_id,
+                                         experimenter_id=experimenter_id,
+                                         page=page,
+                                         limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return HttpJsonResponse({'projects': projects,
+                             'datasets': datasets,
+                             'screens': screens,
+                             'plates': plates,
+                             'orphaned': orphaned})
+
+
+@login_required(setGroupContext=True)
+def api_dataset_list(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = get_long_or_default(request, 'page', 1)
+        limit = get_long_or_default(request, 'limit', settings.PAGE)
+        group_id = get_long_or_default(request, 'group_id', -1)
+        project_id = get_long_or_default(request, 'id', None)
+    except ValueError:
+        return HttpResponseBadRequest('Invalid parameter value')
+
+    try:
+        # Get the datasets
+        datasets = tree.marshal_datasets(conn=conn,
+                                         project_id=project_id,
+                                         group_id=group_id,
+                                         page=page,
+                                         limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return HttpJsonResponse({'datasets': datasets})
+
+
+@login_required(setGroupContext=True)
+def api_image_list(request, conn=None, **kwargs):
+    ''' Get a list of images
+        Specifiying dataset_id will return only images in that dataset
+        Specifying experimenter_id will return orpahned images for that
+        user
+        The orphaned images will include images which belong to the user
+        but are not in any dataset belonging to the user
+        Currently specifying both, experimenter_id will be ignored
+
+    '''
+    # Get parameters
+    try:
+        page = get_long_or_default(request, 'page', 1)
+        limit = get_long_or_default(request, 'limit', settings.PAGE)
+        group_id = get_long_or_default(request, 'group_id', -1)
+        dataset_id = get_long_or_default(request, 'id', None)
+        orphaned = get_bool_or_default(request, 'orphaned', False)
+        share_id = get_long_or_default(request, 'share_id', None)
+        experimenter_id = get_long_or_default(request, 'experimenter_id',
+                                              -1)
+    except ValueError:
+        return HttpResponseBadRequest('Invalid parameter value')
+
+    try:
+        # Get the images
+        images = tree.marshal_images(conn=conn,
+                                     orphaned=orphaned,
+                                     experimenter_id=experimenter_id,
+                                     dataset_id=dataset_id,
+                                     share_id=share_id,
+                                     group_id=group_id,
+                                     page=page,
+                                     limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return HttpJsonResponse({'images': images})
+
+
+@login_required(setGroupContext=True)
+def api_plate_list(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = get_long_or_default(request, 'page', 1)
+        limit = get_long_or_default(request, 'limit', settings.PAGE)
+        group_id = get_long_or_default(request, 'group_id', -1)
+        screen_id = get_long_or_default(request, 'id', None)
+    except ValueError:
+        return HttpResponseBadRequest('Invalid parameter value')
+
+    try:
+        # Get the plates
+        plates = tree.marshal_plates(conn=conn,
+                                     screen_id=screen_id,
+                                     group_id=group_id,
+                                     page=page,
+                                     limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return HttpJsonResponse({'plates': plates})
+
+
+@login_required(setGroupContext=True)
+def api_plate_acquisition_list(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = get_long_or_default(request, 'page', 1)
+        limit = get_long_or_default(request, 'limit', settings.PAGE)
+        plate_id = get_long_or_default(request, 'id', None)
+    except ValueError:
+        return HttpResponseBadRequest('Invalid parameter value')
+
+    # Orphaned PlateAcquisitions are not possible so querying without a
+    # plate is an error
+    if plate_id is None:
+        return HttpResponseBadRequest('id (plate) must be specified')
+
+    try:
+        # Get the plate acquisitions
+        plate_acquisitions = tree.marshal_plate_acquisitions(
+            conn=conn, plate_id=plate_id, page=page, limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return HttpJsonResponse({'acquisitions': plate_acquisitions})
+
+
+def get_object_link(conn, parent_type, parent_id, child_type, child_id):
+    # TODO Group context?
+    link_type = None
+    if parent_type == 'experimenter':
+        if child_type == 'dataset' or child_type == 'plate':
+            # This will be a requested link if a dataset or plate is
+            # moved from the de facto orphaned datasets/plates, it isn't
+            # an error, but no link actually needs removing
+            # TODO Unless it is moved to a different user.
+            return None
+    elif parent_type == 'project':
+        if child_type == 'dataset':
+            link_type = 'ProjectDataset'
+    elif parent_type == 'dataset':
+        if child_type == 'image':
+            link_type = 'DatasetImage'
+    elif parent_type == 'screen':
+        if child_type == 'plate':
+            link_type = 'ScreenPlate'
+
+    if not link_type:
+        # TODO Should throw exception as the caller uses a None return
+        # type to indicate that the type of the
+        return
+
+    params = omero.sys.ParametersI()
+    params.add('pid', rlong(parent_id))
+    params.add('cid', rlong(child_id))
+
+    qs = conn.getQueryService()
+    q = """
+        from %sLink olink
+        where olink.parent.id = :pid
+        and olink.child.id = :cid
+        """ % link_type
+    res = qs.findAllByQuery(q, params, conn.SERVICE_OPTS)
+
+    if len(res) > 0:
+        return res[0]
+    else:
+        return None
+
+
+#TODO Think carefully about the request json for this interface
+# Maybe it should jsut be 1-M?
+# Maybe it should take a list of pairs of things to link?
+# Maybe it should be PUT for move?
+@login_required(setGroupContext=True)
+def api_link_list(request, conn=None, **kwargs):
+    # TODO Is it possible and valid for 2 users to create the same link?
+    # If so we'll have to take the user id into account
+    # filter_user_id = request.session.get('user_id')
+
+    def get_link(parent_type, parent_id, child_type, child_id):
+        # TODO Handle more types of link
+        if parent_type == 'experimenter':
+            if child_type == 'dataset' or child_type == 'plate':
+                # This is actually not a link that needs creating, this
+                # dataset/plate is an orphan
+                return 'orphan'
+        if parent_type == 'project':
+            project = ProjectI(long(parent_id), False)
+            if child_type == 'dataset':
+                dataset = DatasetI(long(child_id), False)
+                l = ProjectDatasetLinkI()
+                l.setParent(project)
+                l.setChild(dataset)
+                return l
+        elif parent_type == 'dataset':
+            dataset = DatasetI(long(parent_id), False)
+            if child_type == 'image':
+                image = ImageI(long(child_id), False)
+                l = DatasetImageLinkI()
+                l.setParent(dataset)
+                l.setChild(image)
+                return l
+        elif parent_type == 'screen':
+            screen = ScreenI(long(parent_id), False)
+            if child_type == 'plate':
+                plate = PlateI(long(child_id), False)
+                l = ScreenPlateLinkI()
+                l.setParent(screen)
+                l.setChild(plate)
+                return l
+        return None
+
+    response = {}
+
+    # Handle link creation
+    if request.method == 'POST':
+        json_data = json.loads(request.body)
+        print('linking %s-%s with %s-%s' % (json_data['parent_type'],
+                                            json_data['parent_id'],
+                                            json_data['child_type'],
+                                            json_data['child_id']))
+        try:
+            link = get_link(json_data['parent_type'],
+                            json_data['parent_id'],
+                            json_data['child_type'],
+                            json_data['child_id'])
+
+            if link:
+                if link != 'orphan':
+                    conn.saveObject(link)
+                response['success'] = True
+
+        # I assume that the failed creation of the link due to
+        # a ValidationException is due to the prexisting status
+        # of the link. This could be confirmed by parsing the
+        # message of the exception. That is why success is marked to
+        # be true
+        # At worst this may wrongly report that a link already existed
+        # when in-fact, one of the object in the link did not exist
+        # TODO Parse message
+        except ValidationException as e:
+            print 'ValidationException, silent for now'
+            response['success'] = True
+        except Exception as e:
+            print e
+
+    elif request.method == 'DELETE':
+        json_data = json.loads(request.body)
+        print('unlinking %s-%s with %s-%s' % (json_data['parent_type'],
+                                              json_data['parent_id'],
+                                              json_data['child_type'],
+                                              json_data['child_id']))
+        try:
+        # TODO It isn't possible to delete an object without having its
+        # ID so need to query that first.
+            link = get_object_link(conn,
+                                   json_data['parent_type'],
+                                   long(json_data['parent_id']),
+                                   json_data['child_type'],
+                                   long(json_data['child_id']))
+            print('link')
+            print(link)
+            # If the link exists delete it
+            if link is not None:
+                if link != 'orphan':
+                    conn.deleteObjectDirect(link)
+                    print('Should have deleted')
+            # If it was deleted then that is a success. Equally if it
+            # didn't exist the end result is correct, so mark it as a
+            # success
+            response['success'] = True
+
+        except ValidationException as e:
+            print 'ValidationException, silent for now'
+            response['success'] = False
+        except Exception as e:
+            print e
+
+    return HttpJsonResponse(response)
+
+
+@login_required(setGroupContext=True)
+def api_paths_to_object(request, conn=None, **kwargs):
+    """
+    This finds the paths to objects in the hierarchy. It returns only
+    the path, not the object hierarchy itself.
+
+    An example usage is for the 'show' functionality
+    Example to go to the image with id 1 somewhere in the tree.
+    http://localhost:8000/webclient/?show=image-1
+
+    This method can tell the webclient exactly what needs to be
+    dynamically loaded to display this in the jstree.
+    """
+
+    try:
+        experimenter_id = get_long_or_default(request, 'experimenter', None)
+        project_id = get_long_or_default(request, 'project', None)
+        dataset_id = get_long_or_default(request, 'dataset', None)
+        image_id = get_long_or_default(request, 'image', None)
+        screen_id = get_long_or_default(request, 'screen', None)
+        plate_id = get_long_or_default(request, 'plate', None)
+        acquisition_id = get_long_or_default(request, 'run', None)
+        # acquisition will override 'run' if both are specified as they are
+        # the same thing
+        acquisition_id = get_long_or_default(request, 'acquisition',
+                                             acquisition_id)
+        well_id = request.REQUEST.get('well', None)
+        group_id = get_long_or_default(request, 'group_id', None)
+    except ValueError:
+        return HttpResponseBadRequest('Invalid parameter value')
+
+    paths = paths_to_object(conn, experimenter_id, project_id, dataset_id,
+                            image_id, screen_id, plate_id, acquisition_id,
+                            well_id, group_id)
+    return HttpJsonResponse({'paths': paths})
+
+
+@login_required(setGroupContext=True)
+def api_tags_and_tagged_list(request, conn=None, **kwargs):
+    if request.method == 'GET':
+        return api_tags_and_tagged_list_GET(request, conn, **kwargs)
+    elif request.method == 'DELETE':
+        return api_tags_and_tagged_list_DELETE(request, conn, **kwargs)
+
+
+def api_tags_and_tagged_list_GET(request, conn=None, **kwargs):
+    ''' Get a list of tags
+        Specifiying tag_id will return any sub-tags, sub-tagsets and
+        objects tagged with that id
+        If no tagset_id is specifed it will return tags which have no
+        parent
+    '''
+    # TODO This interface seems a little widely scoped?
+    # Get parameters
+    try:
+        page = get_long_or_default(request, 'page', 1)
+        limit = get_long_or_default(request, 'limit', settings.PAGE)
+        group_id = get_long_or_default(request, 'group_id', -1)
+        tag_id = get_long_or_default(request, 'id', None)
+        experimenter_id = get_long_or_default(request, 'experimenter_id', -1)
+    except ValueError:
+        return HttpResponseBadRequest('Invalid parameter value')
+
+    try:
+        # Get the tags
+        if tag_id is not None:
+            tagged = tree.marshal_tagged(conn=conn,
+                                         experimenter_id=experimenter_id,
+                                         tag_id=tag_id,
+                                         group_id=group_id,
+                                         page=page,
+                                         limit=limit)
+        else:
+            tagged = {}
+
+        tagged['tags'] = tree.marshal_tags(conn=conn,
+                                           experimenter_id=experimenter_id,
+                                           tag_id=tag_id,
+                                           group_id=group_id,
+                                           page=page,
+                                           limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return HttpJsonResponse(tagged)
+
+
+def api_tags_and_tagged_list_DELETE(request, conn=None, **kwargs):
+    ''' Delete the listed tags by ids
+
+    '''
+    # Get parameters
+    try:
+        tag_ids = get_longs(request, 'id')
+    except ValueError:
+        return HttpResponseBadRequest('Invalid parameter value')
+
+    dcs = list()
+
+    handle = None
+    try:
+        for tag_id in tag_ids:
+            dcs.append(omero.cmd.Delete('/Annotation', tag_id))
+        doall = omero.cmd.DoAll()
+        doall.requests = dcs
+        handle = conn.c.sf.submit(doall, conn.SERVICE_OPTS)
+
+        try:
+            conn._waitOnCmd(handle)
+        finally:
+            handle.close()
+
+    except CmdError as e:
+        return HttpResponseBadRequest(e.message)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return HttpJsonResponse('')
+
+
+@login_required(setGroupContext=True)
+def api_share_list(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = get_long_or_default(request, 'page', 1)
+        limit = get_long_or_default(request, 'limit', settings.PAGE)
+        member_id = get_long_or_default(request, 'member_id', -1)
+        owner_id = get_long_or_default(request, 'owner_id', -1)
+    except ValueError:
+        return HttpResponseBadRequest('Invalid parameter value')
+
+    # TODO Like with api_container_list, this is a combination of
+    # results which will each be able to return up to the limit in page
+    # size
+
+    try:
+    # Get the shares
+        shares = tree.marshal_shares(conn=conn,
+                                     member_id=member_id,
+                                     owner_id=owner_id,
+                                     page=page,
+                                     limit=limit)
+        # Get the discussions
+        discussions = tree.marshal_discussions(conn=conn,
+                                               member_id=member_id,
+                                               owner_id=owner_id,
+                                               page=page,
+                                               limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return HttpJsonResponse({'shares': shares, 'discussions': discussions})
+
+
+@login_required(setGroupContext=True)
 @render_response()
 def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None,
               o3_type=None, o3_id=None, conn=None, **kwargs):
@@ -508,6 +1158,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None,
 
     # get page
     page = getIntOrDefault(request, 'page', 1)
+    # limit = get_long_or_default(request, 'limit', settings.PAGE)
 
     # get view
     view = str(request.REQUEST.get('view', None))
@@ -614,13 +1265,21 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None,
             else:
                 filter_user_id = conn.getEventContext().userId
             # Projects
-            context['projects'] = tree.marshal_projects(conn, filter_user_id)
+            context['projects'] = tree.marshal_projects(
+                conn=conn,
+                experimenter_id=filter_user_id)
             # Datasets
-            context['datasets'] = tree.marshal_datasets(conn, filter_user_id)
+            context['datasets'] = tree.marshal_datasets(
+                conn=conn,
+                experimenter_id=filter_user_id)
             # Screens
-            context['screens'] = tree.marshal_screens(conn, filter_user_id)
+            context['screens'] = tree.marshal_screens(
+                conn=conn,
+                experimenter_id=filter_user_id)
             # Plates
-            context['plates'] = tree.marshal_plates(conn, filter_user_id)
+            context['plates'] = tree.marshal_plates(
+                conn=conn,
+                experimenter_id=filter_user_id)
             # Images (orphaned)
             context['orphans'] = conn.countOrphans("Image", filter_user_id)
             template = "webclient/data/containers_tree.html"
@@ -2439,6 +3098,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
     elif action == 'delete':
         # Handles delete of a file attached to object.
         child = toBoolean(request.REQUEST.get('child'))
+        print('WHAT IS CHILD', child)
         anns = toBoolean(request.REQUEST.get('anns'))
         try:
             handle = manager.deleteItem(child, anns)
@@ -3596,6 +4256,205 @@ def fileset_check(request, action, conn=None, **kwargs):
     return context
 
 
+def getAllObjects(conn, project_ids, dataset_ids, image_ids, screen_ids,
+                  plate_ids, experimenter_id):
+    """
+    Given a list of containers and images, calculate all the descendants
+    and necessary siblings (for any filesets)
+    """
+    #TODO Handle None inputs, maybe add defaults
+    params = omero.sys.ParametersI()
+    qs = conn.getQueryService()
+
+    project_ids = set(project_ids)
+    dataset_ids = set(dataset_ids)
+    image_ids = set(image_ids)
+    fileset_ids = set([])
+    plate_ids = set(plate_ids)
+    screen_ids = set(screen_ids)
+
+    print('Initial List')
+    print('Projects', project_ids)
+    print('Datasets', dataset_ids)
+    print('Screens', screen_ids)
+    print('Plates', plate_ids)
+    print('Images', image_ids)
+
+    # Get any datasets for projects
+    if project_ids:
+        params.map = {}
+        params.map['pids'] = rlist([rlong(x) for x in list(project_ids)])
+        q = '''
+            select pdlink.child.id
+            from ProjectDatasetLink pdlink
+            where pdlink.parent.id in (:pids)
+            '''
+        for e in qs.projection(q, params, conn.SERVICE_OPTS):
+            dataset_ids.add(e[0].val)
+
+    # Get any plates for screens
+    if screen_ids:
+        params.map = {}
+        params.map['sids'] = rlist([rlong(x) for x in screen_ids])
+        q = '''
+            select splink.child.id
+            from ScreenPlateLink splink
+            where splink.parent.id in (:sids)
+            '''
+        for e in qs.projection(q, params, conn.SERVICE_OPTS):
+            plate_ids.add(e[0].val)
+
+    # Get any images for datasets
+    if dataset_ids:
+        params.map = {}
+        params.map['dids'] = rlist([rlong(x) for x in dataset_ids])
+        q = '''
+            select dilink.child.id,
+                   dilink.child.fileset.id
+            from DatasetImageLink dilink
+            where dilink.parent.id in (:dids)
+            '''
+        for e in qs.projection(q, params, conn.SERVICE_OPTS):
+            image_ids.add(e[0].val)
+            fileset_ids.add(e[1].val)
+
+    # Get any images for plates
+    # TODO Seemed no need to add the filesets for plates as it isn't possible to
+    # link it from outside of its plate. This may be true for the client, but it
+    # certainly isn't true for the model so maybe allow this to also get
+    # filesets
+    if plate_ids:
+        params.map = {}
+        params.map['plids'] = rlist([rlong(x) for x in plate_ids])
+        q = '''
+            select ws.image.id
+            from WellSample ws
+            join ws.plateAcquisition pa
+            where pa.plate.id in (:plids)
+            '''
+        for e in qs.projection(q, params, conn.SERVICE_OPTS):
+            image_ids.add(e[0].val)
+
+    # Get any extra images due to filesets
+    if fileset_ids:
+        params.map = {}
+        params.map['fsids'] = rlist([rlong(x) for x in fileset_ids])
+        q = '''
+            select image.id
+            from Image image
+            left outer join image.datasetLinks dilink
+            where image.fileset.id in (select fs.id
+                                       from Image im
+                                       join im.fileset fs
+                                       where fs.id in (:fsids)
+                                       group by fs.id
+                                       having count(im.id)>1)
+            '''
+        for e in qs.projection(q, params, conn.SERVICE_OPTS):
+            image_ids.add(e[0].val)
+
+    # Get any additional datasets that may need updating as their children have
+    # been snatched.
+    # TODO Need to differentiate which orphaned directories need refreshing
+    extra_dataset_ids = set([])
+    extra_orphaned = False
+    if image_ids:
+        params.map = {
+            'iids': rlist([rlong(x) for x in image_ids]),
+        }
+
+        exclude_datasets = ''
+        if dataset_ids:
+            params.map['dids'] = rlist([rlong(x) for x in dataset_ids])
+            # Make sure to allow parentless results as well as those
+            # that do not match a dataset being removed
+            exclude_datasets = '''
+                               and (
+                                    dilink.parent.id not in (:dids)
+                                    or dilink.parent.id = null
+                                   )
+                               '''
+
+        q = '''
+            select distinct dilink.parent.id
+            from Image image
+            left outer join image.datasetLinks dilink
+            where image.id in (:iids)
+            %s
+            and (select count(dilink2.child.id)
+                 from DatasetImageLink dilink2
+                 where dilink2.parent.id = dilink.parent.id
+                 and dilink2.child.id not in (:iids)) = 0
+            ''' % exclude_datasets
+
+        for e in qs.projection(q, params, conn.SERVICE_OPTS):
+            if e:
+                extra_dataset_ids.add(e[0].val)
+            else:
+                extra_orphaned = True
+
+    # Get any additional projects that may need updating as their children have
+    # been snatched.  There is no need to check for orphans because if a dataset
+    # is being removed from somewhere else, it can not exist as an orphan.
+    extra_project_ids = set([])
+    if dataset_ids:
+        params.map = {
+            'dids': rlist([rlong(x) for x in dataset_ids])
+        }
+
+        exclude_projects = ''
+        if project_ids:
+            params.map['pids'] = rlist([rlong(x) for x in project_ids])
+            exclude_projects = 'and pdlink.parent.id not in (:pids)'
+
+        q = '''
+            select distinct pdlink.parent.id
+            from ProjectDatasetLink pdlink
+            where pdlink.child.id in (:dids)
+            %s
+            and (select count(pdlink2.child.id)
+                 from ProjectDatasetLink pdlink2
+                 where pdlink2.parent.id = pdlink.parent.id
+                 and pdlink2.child.id not in (:dids)) = 0
+            ''' % exclude_projects
+
+        for e in qs.projection(q, params, conn.SERVICE_OPTS):
+            extra_project_ids.add(e[0].val)
+
+    # We now have the complete list of objects that will change group
+    # We also have an additional list of datasets/projects that may have had
+    # snatched children and thus may need updating in the client if the
+    # dataset/project has gone from N to 0 children
+    print('Complete List')
+    print('Projects', project_ids)
+    print('Datasets', dataset_ids)
+    print('Screens', screen_ids)
+    print('Plates', plate_ids)
+    print('Images', image_ids)
+    print('Extra Datasets', extra_dataset_ids)
+    print('Extra Projects', extra_project_ids)
+
+    result = {
+        # These objects are completely removed
+        'remove': {
+            'project': list(project_ids),
+            'dataset': list(dataset_ids),
+            'screen': list(screen_ids),
+            'plate': list(plate_ids),
+            'image': list(image_ids)
+        },
+        # These objects now have no children
+        'childless': {
+            'project': list(extra_project_ids),
+            'dataset': list(extra_dataset_ids),
+            'orphaned': extra_orphaned
+        }
+    }
+    print ('---------------------------')
+    print result
+    return result
+
+
 @login_required()
 def chgrp(request, conn=None, **kwargs):
     """
@@ -3603,7 +4462,8 @@ def chgrp(request, conn=None, **kwargs):
     Handles submission of chgrp form: all data in POST.
     Adds the callback handle to the request.session['callback']['jobId']
     """
-
+    print('chgrp request mode', request.method)
+    # Get the target group_id
     group_id = request.REQUEST.get('group_id', None)
     if group_id is None:
         raise AttributeError("chgrp: No group_id specified")
@@ -3637,13 +4497,16 @@ def chgrp(request, conn=None, **kwargs):
                         None)
     dtypes = ["Project", "Dataset", "Image", "Screen", "Plate"]
     for dtype in dtypes:
+        # Get all requested objects of this type
         oids = request.REQUEST.get(dtype, None)
         if oids is not None:
             obj_ids = [int(oid) for oid in oids.split(",")]
-            # if 'filesets' are specified, make sure we move ALL Fileset
-            # Images
+            # TODO Doesn't the filesets only apply to images?
+            # if 'filesets' are specified, make sure we move ALL Fileset Images
             fsIds = request.REQUEST.getlist('fileset')
             if len(fsIds) > 0:
+                # If a dataset is being moved and there is a split fileset
+                # then those images need to go somewhere in the new
                 if dtype == 'Dataset':
                     conn.regroupFilesets(dsIds=obj_ids, fsIds=fsIds)
                 else:
@@ -3665,7 +4528,38 @@ def chgrp(request, conn=None, **kwargs):
                 'status': 'in progress'}
             request.session.modified = True
 
-    return HttpResponse("OK")
+    # Update contains a list of images/containers that need to be
+    # updated.
+
+    project_ids = request.POST.get('Project', [])
+    dataset_ids = request.POST.get('Dataset', [])
+    image_ids = request.POST.get('Image', [])
+    screen_ids = request.POST.get('Screen', [])
+    plate_ids = request.POST.get('Plate', [])
+
+    if project_ids:
+        project_ids = [long(x) for x in project_ids.split(',')]
+    if dataset_ids:
+        dataset_ids = [long(x) for x in dataset_ids.split(',')]
+    if image_ids:
+        image_ids = [long(x) for x in image_ids.split(',')]
+    if screen_ids:
+        screen_ids = [long(x) for x in screen_ids.split(',')]
+    if plate_ids:
+        plate_ids = [long(x) for x in plate_ids.split(',')]
+
+    # TODO Change this user_id to be an experimenter_id in the request as it
+    # is possible that a user is chgrping data from another user so it is
+    # that users orphaned that will need updating. Or maybe all orphaned
+    # directories could potentially need updating?
+
+    # Create a list of objects that have been changed by this operation. This
+    # can be used by the client to visually update.
+    update = getAllObjects(conn, project_ids, dataset_ids, image_ids, screen_ids,
+                           plate_ids, request.session.get('user_id'))
+
+    # return HttpResponse("OK")
+    return HttpJsonResponse({'update': update})
 
 
 @login_required(setGroupContext=True)

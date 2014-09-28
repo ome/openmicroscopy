@@ -307,11 +307,11 @@ OME.get_tree_selection = function() {
     if (typeof $.jstree === "undefined") {
         return "";
     }
-    var datatree = $.jstree._focused();
+    var datatree = $.jstree.reference('#dataTree');
 
-    var selected = datatree.data.ui.selected;
-    if (selected.size() == 1) {
-        var klass = selected.attr('rel');
+    var selected = datatree.get_selected(true);
+    if (selected.length == 1) {
+        var klass = selected[0].type;
         if (klass == 'plate' || klass == 'acquisition') {
             var plateSelected = $('#spw .ui-selected img');
             if (plateSelected.size() > 0) {
@@ -319,17 +319,20 @@ OME.get_tree_selection = function() {
             }
         }
     }
+
     var selected_ids = {};
-    selected.each(function() {
-        var dtype = this.id.split("-")[0];
+
+    $.each(selected, function(index, node) {
+        var dtype = node.type;
         var data_type = dtype.charAt(0).toUpperCase() + dtype.slice(1); // capitalise
-        var data_id = this.id.split("-")[1];
+        var data_id = node.data.obj.id;
         if (data_type in selected_ids) {
             selected_ids[data_type] += ","+data_id;
         } else {
             selected_ids[data_type] = data_id;
         }
     });
+
     var ids_list = [];
     for (var key in selected_ids){
         ids_list.push(key+"="+selected_ids[key]);
@@ -343,21 +346,23 @@ OME.getParentId = function() {
     if (typeof $.jstree === "undefined") {
         return;
     }
-    var datatree = $.jstree._focused();
-    if (!datatree) return;
-    var sel = datatree.data.ui.selected,
-        result;
-    var p = /^(plate-[0-9]+)$/;
-    if (p.test(sel.attr('id'))) {
-        return sel.attr('id');
-    }
-    var parent = sel.parent().parent(),
-        parent_id = parent.attr('id');
-    if (p.test(parent_id)) {
-        return parent_id;
-    }
-    if (/^dataset-([0-9]+)$/.test(parent_id)) {
-        return parent_id;
+    var datatree = $.jstree.reference('#dataTree');
+
+    var selected = datatree.get_selected(true);
+    if (selected.length == 1) {
+        var node = selected[0];
+
+        if (node.type === 'acquisition') {
+            var parentNode = datatree.get_node(datatree.get_parent(node));
+            return parentNode.type + '-' + parentNode.data.obj.id;
+        } else if (node.type === 'plate') {
+            return node.type + '-' + node.data.obj.id;
+        } else if  (node.type === 'image') {
+            var parentNode = datatree.get_node(datatree.get_parent(node));
+            if (parentNode.type === 'dataset') {
+                return parentNode.type + '-' + parentNode.data.obj.id;
+            }
+        }
     }
 };
 
@@ -485,6 +490,7 @@ OME.feedback_dialog = function(error, feedbackUrl) {
 OME.setupAjaxError = function(feedbackUrl){
 
     $(document).ajaxError(function(e, req, settings, exception) {
+
         if (req.status == 404) {
             var msg = "Url: " + settings.url + "<br/>" + req.responseText;
             OME.confirm_dialog(msg, null, "404 Error", ["OK"], 360, 200);
@@ -493,6 +499,12 @@ OME.setupAjaxError = function(feedbackUrl){
             window.location.reload();
         } else if (req.status == 500) {
             // Our 500 handler returns only the stack-trace if request.is_json()
+            var error = req.responseText;
+            OME.feedback_dialog(error, feedbackUrl);
+        } else if (req.status == 400) {
+            // 400 Bad Request. Usually indicates some invalid parameter, e.g. an invalid group id
+            // Usually indicates a problem with the webclient rather than the server as the webclient
+            // requested something invalid
             var error = req.responseText;
             OME.feedback_dialog(error, feedbackUrl);
         }

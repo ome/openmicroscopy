@@ -297,4 +297,53 @@ urlpatterns = patterns(
     # ping OMERO server to keep session alive
     url(r'^keepalive_ping/$', views.keepalive_ping, name="keepalive_ping"),
 
+    # Load data, but with JSON.
+    # TODO The id/id/id structure of load_data is a mystery to me at present
+
+    # url(r'^api/$', None, name='api'),
+    url(r'^api/groups/$', views.api_group_list,
+        name='api_groups'),
+
+    url(r'^api/experimenters/$', views.api_experimenter_list,
+        name='api_experimenters'),
+    url(r'^api/experimenters/(?P<experimenter_id>[0-9]+)/$',
+        views.api_experimenter_detail, name='api_experimenter'),
+
+    # Generic container list. This is necessary as an experimenter may have
+    # datasets/etc which do not belong to any project
+    url(r'^api/containers/$', views.api_container_list, name='api_containers'),
+
+    # url(r'^api/projects/$', views.api_project_list, name='api_projects'),
+    # url(r'^api/projects/(?P<pk>[0-9]+)/$', views.api_project_detail),
+
+    url(r'^api/datasets/$', views.api_dataset_list, name='api_datasets'),
+    # url(r'^api/datasets/(?P<pk>[0-9]+)/$', views.api_dataset_detail),
+
+    url(r'^api/images/$', views.api_image_list, name='api_images'),
+    # url(r'^api/images/(?P<pk>[0-9]+)/$', views.api_image_detail),
+
+    url(r'^api/plates/$', views.api_plate_list, name='api_plates'),
+    # url(r'^api/plates/(?P<pk>[0-9]+)/$', views.api_plate_detail),
+
+    url(r'^api/plate_acquisitions/$', views.api_plate_acquisition_list,
+        name='api_plate_acquisitions'),
+    # url(r'^api/plate_acquisitions/(?P<pk>[0-9]+)/$',
+    #     views.api_plate_acquisitions_detail),
+
+    url(r'^api/links/$', views.api_link_list, name='api_links'),
+    # url(r'^api/links/(?P<pk>[0-9]+)/$', views.api_link_detail),
+
+    # url(r'^api/tags/$', views.api_tag_list, name='api_tags'),
+    # url(r'^api/tags/(?P<pk>[0-9]+)/$', views.api_tag_detail),
+
+    # Retrieve paths to an object
+    url(r'^api/paths_to_object/$', views.api_paths_to_object,
+        name='api_paths_to_object'),
+
+    url(r'^api/tags/$', views.api_tags_and_tagged_list,
+        name='api_tags_and_tagged'),
+
+    url(r'^api/shares/$', views.api_share_list, name='api_shares'),
+
+
 )
