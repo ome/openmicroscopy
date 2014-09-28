@@ -149,10 +149,17 @@
                     $("#edit_share_div").load(edit_share_url, function(){
                         $('#edit_share_form').ajaxForm({
                             success: function(data) {
-                                $("#edit_share_div").dialog( "close" );      // hide in case it was submitted via 'Enter'
+                                // If this is still a dialog, destroy it
+                                var esd = $("#edit_share_div");
+                                if (esd.hasOwnProperty('dialog')) {
+                                    esd.dialog( "destroy" );      // hide in case it was submitted via 'Enter'
+                                }
+
                                 // update the UI  - only available if the owner is editing share
                                 {% if manager.share.id %}
                                 OME.share_selection_changed("share-{{ manager.share.id }}");
+                                //TODO Fix for discussions (existing bug)
+                                // OME.share_selection_changed("discussion-{{ manager.share.id }}");
                                 {% endif %}
                             }
                         });

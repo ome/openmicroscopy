@@ -259,3 +259,5 @@ class TestTree(object):
 
         marshaled = marshal_plate(mock_conn, row)
         assert marshaled == expected
+
+    # Add a lot of tests

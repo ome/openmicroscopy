@@ -23,7 +23,7 @@
 <div class="clear"> </div>
 
 {% if manager.paging %}
-<div class="paging" id="page" rel="{{ manager.paging.page }}"> 
+<div class="paging" id="page" data-page="{{ manager.paging.page }}"> 
     {% if manager.paging.prev %}
         <input onclick="OME.doPagination('{{ template_view }}',{{ manager.paging.prev }});" class="button_pagination" type="button" value="Previous" alt="Previous"/>
     {% endif %} {% trans "Page" %}:

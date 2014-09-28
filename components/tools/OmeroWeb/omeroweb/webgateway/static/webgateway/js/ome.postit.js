@@ -5,7 +5,7 @@
  *
  * Todo: better documentation and example usage.
  *
- * Depends on jquery, jquery.dimensions.js, jquery-ui, aop, jquery-plugin-smartdialog.js
+ * Depends on jquery, jquery-ui, aop, jquery-plugin-smartdialog.js
  *
  * Author: C. Neves <carlos@glencoesoftware.com>
  *
