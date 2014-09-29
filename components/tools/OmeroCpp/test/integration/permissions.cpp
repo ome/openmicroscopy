@@ -104,7 +104,7 @@ TEST( PermissionsTest, testAdjustPermissions ) {
     ExperimenterGroupPtr group = f.newGroup("rwr---");
     ExperimenterPtr user1 = f.newUser(group);
     ExperimenterPtr user2 = f.newUser(group);
-    f.login(user1);
+    f.login(user1, user1->getOmeName()->getValue());
     IQueryPrx query = f.client->getSession()->getQueryService();
     IUpdatePrx update = f.client->getSession()->getUpdateService();
 

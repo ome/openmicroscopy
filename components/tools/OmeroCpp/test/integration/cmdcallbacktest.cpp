@@ -115,7 +115,7 @@ public:
 
     TestCBPtr run(const RequestPtr& req, int addCbDelay = 0) {
         ExperimenterPtr user = newUser();
-        login(user->getOmeName()->getValue());
+        login(user->getOmeName()->getValue(), user->getOmeName()->getValue());
         HandlePrx handle = client->getSession()->submit(req);
         
         if (addCbDelay > 0) {
