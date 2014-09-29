@@ -191,6 +191,9 @@ public class QuantumFactory {
         if (PlaneFactory.INT32.equals(typeAsString) ||
                 PlaneFactory.UINT32.equals(typeAsString))
             return new Quantization_32_bit(qd, type);
+        else if (PlaneFactory.FLOAT_TYPE.equals(typeAsString) ||
+                PlaneFactory.DOUBLE_TYPE.equals(typeAsString))
+            return new Quantization_float(qd, type);
         return new Quantization_8_16_bit(qd, type);
     }
 

@@ -26,13 +26,13 @@ package omeis.providers.re.quantum;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import ome.model.display.QuantumDef;
+import ome.model.enums.PixelsType;
+
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Range;
-
-import ome.model.display.QuantumDef;
-import ome.model.enums.PixelsType;
 
 /**
  * Quantization process. In charge of building a look-up table for each active
@@ -48,7 +48,7 @@ import ome.model.enums.PixelsType;
  *          <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since OME5.1
  */
-public class Quantization_32_bit extends QuantumStrategy {
+public class Quantization_float extends QuantumStrategy {
 
     /** The lowest pixel intensity value. */
     private int min;
@@ -165,6 +165,26 @@ public class Quantization_32_bit extends QuantumStrategy {
     }
 
     /**
+     * Creates a new strategy.
+     *
+     * @param qd
+     *            Quantum definition object, contained mapping data.
+     * @param type
+     *            The pixel type;
+     */
+    public Quantization_float(QuantumDef qd, PixelsType type) {
+        super(qd, type);
+        values = CacheBuilder.newBuilder()
+                .maximumSize(MAX-MIN+1)
+                .expireAfterWrite(10, TimeUnit.MINUTES)
+                .build(new CacheLoader<Double, Integer>() {
+                    public Integer load(Double key) throws Exception {
+                        return _quantize(key);
+                    }
+                });
+    }
+
+    /**
      * Maps the value.
      *
      * @param value The value to handle.
@@ -200,26 +220,6 @@ public class Quantization_32_bit extends QuantumStrategy {
         v = Math.round(v);
         v = Math.round(a1 * v + cdStart);
         return ((byte) v) & 0xFF;
-    }
-
-    /**
-     * Creates a new strategy.
-     *
-     * @param qd
-     *            Quantum definition object, contained mapping data.
-     * @param type
-     *            The pixel type;
-     */
-    public Quantization_32_bit(QuantumDef qd, PixelsType type) {
-        super(qd, type);
-        values = CacheBuilder.newBuilder()
-                .maximumSize(MAX-MIN+1)
-                .expireAfterWrite(10, TimeUnit.MINUTES)
-                .build(new CacheLoader<Double, Integer>() {
-                    public Integer load(Double key) throws Exception {
-                        return _quantize(key);
-                    }
-                });
     }
 
     /**
