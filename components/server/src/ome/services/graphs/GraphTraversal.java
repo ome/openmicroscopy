@@ -404,6 +404,7 @@ public class GraphTraversal {
     private final ACLVoter aclVoter;
     private final SystemTypes systemTypes;
     private final GraphPathBean model;
+    private final SetMultimap<String, String> unnullable;
     private final Planning planning;
     private final GraphPolicy policy;
     private final Processor processor;
@@ -414,15 +415,17 @@ public class GraphTraversal {
      * @param aclVoter ACL voter for permissions checking
      * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean
+     * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      * @param policy how to determine which related objects to include in the operation
      * @param processor how to operate on the resulting target object graph
      */
     public GraphTraversal(EventContext eventContext, ACLVoter aclVoter, SystemTypes systemTypes, GraphPathBean graphPathBean,
-            GraphPolicy policy, Processor processor) {
+            SetMultimap<String, String> unnullable, GraphPolicy policy, Processor processor) {
         this.eventContext = eventContext;
         this.aclVoter = aclVoter;
         this.systemTypes = systemTypes;
         this.model = graphPathBean;
+        this.unnullable = unnullable;
         this.planning = new Planning();
         this.policy = policy.getCleanInstance();
         this.processor = log.isDebugEnabled() ? debugWrap(processor) : processor;
@@ -432,14 +435,17 @@ public class GraphTraversal {
      * Traverse model object graph to determine steps for the proposed operation.
      * @param session the Hibernate session to use for HQL queries
      * @param objects the model objects to process
+     * @param if the given model objects are to be included (instead of just deleted)
      * @return the model objects included in the operation, and the deleted objects
      * @throws GraphException if the model objects were not as expected
      */
     public Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> planOperation(Session session,
-            SetMultimap<String, Long> objects) throws GraphException {
-        /* note the object instances for processing as included objects */
-        planning.included.addAll(objectsToCIs(session, objects));
+            SetMultimap<String, Long> objects, boolean include) throws GraphException {
+        final Set<CI> targetSet = include ? planning.included : planning.deleted;
+        /* note the object instances for processing */
+        targetSet.addAll(objectsToCIs(session, objects));
         /* actually do the planning of the operation */
+        planning.toProcess.addAll(targetSet);
         planOperation(session);
         /* report which objects are to be included in the operation or deleted so that it can proceed */
         final SetMultimap<String, Long> included = HashMultimap.create();
@@ -457,24 +463,27 @@ public class GraphTraversal {
      * Traverse model object graph to determine steps for the proposed operation.
      * @param session the Hibernate session to use for HQL queries
      * @param objectInstances the model objects to process, may be unloaded with ID only
+     * @param if the given model objects are to be included (instead of just deleted)
      * @return the model objects included in the operation, and the deleted objects, may be unloaded with ID only
      * @throws GraphException if the model objects were not as expected
      */
     public Entry<Collection<IObject>, Collection<IObject>> planOperation(Session session,
-            Collection<? extends IObject> objectInstances) throws GraphException {
-        /* note the object instances for processing as included objects */
+            Collection<? extends IObject> objectInstances, boolean include) throws GraphException {
+        final Set<CI> targetSet = include ? planning.included : planning.deleted;
+        /* note the object instances for processing */
         final SetMultimap<String, Long> objectsToQuery = HashMultimap.create();
         for (final IObject instance : objectInstances) {
             if (instance instanceof HibernateProxy) {
                 final CI object = new CI(instance);
                 noteDetails(instance, object);
-                planning.included.add(object);
+                targetSet.add(object);
             } else {
                 objectsToQuery.put(instance.getClass().getName(), instance.getId());
             }
         }
-        planning.included.addAll(objectsToCIs(session, objectsToQuery));
+        targetSet.addAll(objectsToCIs(session, objectsToQuery));
         /* actually do the planning of the operation */
+        planning.toProcess.addAll(targetSet);
         planOperation(session);
         /* report which objects are to be included in the operation or deleted so that it can proceed */
         final Collection<IObject> included = new ArrayList<IObject>(planning.included.size());
@@ -495,60 +504,84 @@ public class GraphTraversal {
      * @throws GraphException if the model objects were not as expected
      */
     private void planOperation(Session session) throws GraphException {
-        /* process all the included objects */
-        planning.toProcess.addAll(planning.included);
         /* track state to guarantee progress in reprocessing objects whose orphan status is relevant */
         Set<CI> optimisticReprocess = null;
-        /* process any pending objects */
-        while (!(planning.toProcess.isEmpty() && planning.findIfLast.isEmpty())) {
-            /* first process any cached objects that do not await orphan status determination */
-            final Set<CI> toProcess = new HashSet<CI>(planning.toProcess);
-            toProcess.retainAll(planning.cached);
-            toProcess.removeAll(planning.findIfLast);
-            if (!toProcess.isEmpty()) {
-                if (optimisticReprocess != null && !Sets.difference(planning.toProcess, optimisticReprocess).isEmpty()) {
-                    /* processing something beyond optimistic suggestion, so circumstances have changed */
-                    optimisticReprocess = null;
-                }
-                for (final CI nextObject : toProcess) {
-                    reviewObject(nextObject);
-                }
-                continue;
-            }
-            /* if none of the above exist, then fill the cache */
-            final Set<CI> toCache = new HashSet<CI>(planning.toProcess);
-            toCache.removeAll(planning.cached);
-            if (!toCache.isEmpty()) {
-                optimisticReprocess = null;
-                cache(session, toCache);
-                continue;
-            }
-            /* try processing the findIfLast in case of any changes */
-            if (!planning.toProcess.isEmpty()) {
-                final Set<CI> previousToProcess = new HashSet<CI>(planning.toProcess);
-                final Set<CI> previousFindIfLast = new HashSet<CI>(planning.findIfLast);
-                for (final CI nextObject : previousToProcess) {
-                    reviewObject(nextObject);
-                }
-                /* This condition is tricky. We do want to reprocess objects that are suggested for such, while
-                 * avoiding an infinite loop that comes of such processing not resolving any orphan status. */
-                if (!Sets.symmetricDifference(previousFindIfLast, planning.findIfLast).isEmpty() ||
-                    (optimisticReprocess == null || !Sets.symmetricDifference(planning.toProcess, optimisticReprocess).isEmpty()) &&
-                     !Sets.symmetricDifference(previousToProcess, planning.toProcess).isEmpty()) {
-                    optimisticReprocess = new HashSet<CI>(planning.toProcess);
+        /* set of not-last objects after latest review */
+        Set<CI> isNotLast = null;
+        while (true) {
+            /* process any pending objects */
+            while (!(planning.toProcess.isEmpty() && planning.findIfLast.isEmpty())) {
+                /* first process any cached objects that do not await orphan status determination */
+                final Set<CI> toProcess = new HashSet<CI>(planning.toProcess);
+                toProcess.retainAll(planning.cached);
+                toProcess.removeAll(planning.findIfLast);
+                if (!toProcess.isEmpty()) {
+                    if (optimisticReprocess != null && !Sets.difference(planning.toProcess, optimisticReprocess).isEmpty()) {
+                        /* processing something beyond optimistic suggestion, so circumstances have changed */
+                        optimisticReprocess = null;
+                    }
+                    for (final CI nextObject : toProcess) {
+                        reviewObject(nextObject);
+                    }
                     continue;
                 }
+                /* if none of the above exist, then fill the cache */
+                final Set<CI> toCache = new HashSet<CI>(planning.toProcess);
+                toCache.removeAll(planning.cached);
+                if (!toCache.isEmpty()) {
+                    optimisticReprocess = null;
+                    cache(session, toCache);
+                    continue;
+                }
+                /* try processing the findIfLast in case of any changes */
+                if (!planning.toProcess.isEmpty()) {
+                    final Set<CI> previousToProcess = new HashSet<CI>(planning.toProcess);
+                    final Set<CI> previousFindIfLast = new HashSet<CI>(planning.findIfLast);
+                    for (final CI nextObject : previousToProcess) {
+                        reviewObject(nextObject);
+                    }
+                    /* This condition is tricky. We do want to reprocess objects that are suggested for such, while
+                     * avoiding an infinite loop that comes of such processing not resolving any orphan status. */
+                    if (!Sets.symmetricDifference(previousFindIfLast, planning.findIfLast).isEmpty() ||
+                            (optimisticReprocess == null ||
+                             !Sets.symmetricDifference(planning.toProcess, optimisticReprocess).isEmpty()) &&
+                            !Sets.symmetricDifference(previousToProcess, planning.toProcess).isEmpty()) {
+                        optimisticReprocess = new HashSet<CI>(planning.toProcess);
+                        continue;
+                    }   
+                }
+                /* if no other processing or caching is needed, then deem outstanding objects orphans */
+                optimisticReprocess = null;
+                for (final CI orphan : planning.findIfLast) {
+                    planning.foundIfLast.put(orphan, true);
+                    if (log.isDebugEnabled()) {
+                        log.debug("marked " + orphan + " as " + Orphan.IS_LAST);
+                    }
+                }
+                planning.toProcess.addAll(planning.findIfLast);
+                planning.findIfLast.clear();
             }
-            /* if no other processing or caching is needed, then deem outstanding objects orphans */
-            optimisticReprocess = null;
-            for (final CI orphan : planning.findIfLast) {
-                planning.foundIfLast.put(orphan, true);
-                if (log.isDebugEnabled()) {
-                    log.debug("marked " + orphan + " as " + Orphan.IS_LAST);
+            /* determine which objects are now not last */
+            final Set<CI> latestIsNotLast = new HashSet<CI>();
+            for (final Entry<CI, Boolean> objectAndIsLast : planning.foundIfLast.entrySet()) {
+                if (!objectAndIsLast.getValue()) {
+                    latestIsNotLast.add(objectAndIsLast.getKey());
                 }
             }
-            planning.toProcess.addAll(planning.findIfLast);
-            planning.findIfLast.clear();
+            if (latestIsNotLast.isEmpty() || (isNotLast != null && Sets.difference(isNotLast, latestIsNotLast).isEmpty())) {
+                /* no fewer not-last objects than before */
+                break;
+            }
+            /* before completing processing, verify not-last status of objects */
+            isNotLast = latestIsNotLast;
+            planning.toProcess.addAll(isNotLast);
+            planning.findIfLast.addAll(isNotLast);
+            for (final CI object : isNotLast) {
+                planning.foundIfLast.remove(object);
+                if (log.isDebugEnabled()) {
+                    log.debug("marked " + object + " as " + Orphan.RELEVANT + " to verify " + Orphan.IS_NOT_LAST + " status");
+                }
+            }
         }
     }
 
@@ -1152,6 +1185,10 @@ public class GraphTraversal {
         /* unlink included/deleted by nulling properties */
         for (final Entry<CP, Collection<Long>> nullCurr : toNullByCP.asMap().entrySet()) {
             final CP linker = nullCurr.getKey();
+            if (unnullable.get(linker.className).contains(linker.propertyName) ||
+                    model.getPropertyKind(linker.className, linker.propertyName) == PropertyKind.REQUIRED) {
+                throw new GraphException("cannot null " + linker);
+            }
             final Collection<Long> allIds = nullCurr.getValue();
             assertMayBeUpdated(linker.className, allIds);
             for (final List<Long> ids : Iterables.partition(allIds, BATCH_SIZE)) {

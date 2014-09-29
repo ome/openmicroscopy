@@ -61,6 +61,7 @@ public class Delete2I extends Delete2 implements IRequest {
     private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
     private final GraphPolicy graphPolicy;
+    private final SetMultimap<String, String> unnullable;
 
     private Helper helper;
     private GraphTraversal graphTraversal;
@@ -74,12 +75,15 @@ public class Delete2I extends Delete2 implements IRequest {
      * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean to use
      * @param graphPolicy the graph policy to apply for delete
+     * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      */
-    public Delete2I(ACLVoter aclVoter, SystemTypes systemTypes, GraphPathBean graphPathBean, GraphPolicy graphPolicy) {
+    public Delete2I(ACLVoter aclVoter, SystemTypes systemTypes, GraphPathBean graphPathBean, GraphPolicy graphPolicy,
+            SetMultimap<String, String> unnullable) {
         this.aclVoter = aclVoter;
         this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
         this.graphPolicy = graphPolicy;
+        this.unnullable = unnullable;
     }
 
     @Override
@@ -102,7 +106,7 @@ public class Delete2I extends Delete2 implements IRequest {
         graphPolicyWithOptions = OrphanOverridePolicy.getOrphanOverridePolicy(graphPolicyWithOptions, graphPathBean,
                 includeChild, excludeChild);
 
-        graphTraversal = new GraphTraversal(eventContext, aclVoter, systemTypes, graphPathBean, graphPolicyWithOptions,
+        graphTraversal = new GraphTraversal(eventContext, aclVoter, systemTypes, graphPathBean, unnullable, graphPolicyWithOptions,
                 dryRun ? new NullGraphTraversalProcessor(REQUIRED_ABILITIES) : new InternalProcessor());
     }
 
@@ -124,7 +128,7 @@ public class Delete2I extends Delete2 implements IRequest {
                         targetObjectCount++;
                     }
                 }
-                return graphTraversal.planOperation(helper.getSession(), targetMultimap);
+                return graphTraversal.planOperation(helper.getSession(), targetMultimap, false);
             case 1:
                 graphTraversal.unlinkTargets();
                 return null;

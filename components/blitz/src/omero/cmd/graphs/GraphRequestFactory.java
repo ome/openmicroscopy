@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSetMultimap;
+import com.google.common.collect.SetMultimap;
 
 import ome.security.ACLVoter;
 import ome.security.SystemTypes;
@@ -42,7 +44,8 @@ public class GraphRequestFactory {
     private final ACLVoter aclVoter;
     private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
-    private final Map<Class<? extends Request>, GraphPolicy> graphPolicies;
+    private final ImmutableMap<Class<? extends Request>, GraphPolicy> graphPolicies;
+    private final ImmutableSetMultimap<String, String> unnullable;
 
     /**
      * Construct a new graph request factory.
@@ -50,19 +53,30 @@ public class GraphRequestFactory {
      * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean
      * @param allRules rules for all request classes that use the graph path bean
+     * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      * @throws GraphException if the graph path rules could not be parsed
      */
     public GraphRequestFactory(ACLVoter aclVoter, SystemTypes systemTypes, GraphPathBean graphPathBean,
-            Map<Class<? extends Request>, List<GraphPolicyRule>> allRules) throws GraphException {
+            Map<Class<? extends Request>, List<GraphPolicyRule>> allRules, List<String> unnullable) throws GraphException {
         this.aclVoter = aclVoter;
         this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
 
-        final ImmutableMap.Builder<Class<? extends Request>, GraphPolicy> builder = ImmutableMap.builder();
+        final ImmutableMap.Builder<Class<? extends Request>, GraphPolicy> graphPoliciesBuilder = ImmutableMap.builder();
         for (final Map.Entry<Class<? extends Request>, List<GraphPolicyRule>> rules : allRules.entrySet()) {
-            builder.put(rules.getKey(), GraphPolicyRule.parseRules(graphPathBean, rules.getValue()));
+            graphPoliciesBuilder.put(rules.getKey(), GraphPolicyRule.parseRules(graphPathBean, rules.getValue()));
         }
-        this.graphPolicies = builder.build();
+        this.graphPolicies = graphPoliciesBuilder.build();
+
+        final ImmutableSetMultimap.Builder<String, String> unnullableBuilder = ImmutableSetMultimap.builder();
+        for (final String classProperty : unnullable) {
+            final int period = classProperty.indexOf('.');
+            final String classNameSimple = classProperty.substring(0, period);
+            final String property = classProperty.substring(period + 1);
+            final String classNameFull = graphPathBean.getClassForSimpleName(classNameSimple).getName();
+            unnullableBuilder.put(classNameFull, property);
+        }
+        this.unnullable = unnullableBuilder.build();
     }
 
     /**
@@ -76,9 +90,9 @@ public class GraphRequestFactory {
             throw new IllegalArgumentException("no graph traversal policy rules defined for request class " + requestClass);
         }
         try {
-            final Constructor<X> constructor =
-                    requestClass.getConstructor(ACLVoter.class, SystemTypes.class, GraphPathBean.class, GraphPolicy.class);
-            return constructor.newInstance(aclVoter, systemTypes, graphPathBean, graphPolicy);
+            final Constructor<X> constructor = requestClass.getConstructor(ACLVoter.class, SystemTypes.class, GraphPathBean.class,
+                    GraphPolicy.class, SetMultimap.class);
+            return constructor.newInstance(aclVoter, systemTypes, graphPathBean, graphPolicy, unnullable);
         } catch (Exception e) {
             /* TODO: easier to do a ReflectiveOperationException multi-catch in Java SE 7 */
             throw new IllegalArgumentException("cannot instantiate " + requestClass, e);
