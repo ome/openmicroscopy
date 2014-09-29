@@ -324,7 +324,8 @@
     {% if image.getPixelSizeX %}
     if (!viewport.viewportimg.get(0).show_scalebar) {
     // if the ROI plugin has not been initialised (method not available...) init and load ROIs...
-        var options = {'pixelSizeX': viewport.getPixelSizes().x};
+        var options = {'pixSizeX': viewport.getPixelSizes().x,
+                       'imageWidth': viewport.getSizes().width};
         if (viewport.loadedImg.tiles) {
             options['tiles'] = true;
             options['scalebar_name'] = 'scalebar_big';
@@ -332,7 +333,7 @@
         viewport.viewportimg.scalebar_display(options);
     }
     
-    viewport.viewportimg.get(0).setScalebarZoom(viewport.getPixelSizes().x, viewport.getZoom(), viewport.getSizes().width);
+    viewport.viewportimg.get(0).setScalebarZoom(viewport.getZoom()/100 );
     viewport.viewportimg.get(0).show_scalebar();
     {% endif %}
   }
@@ -1122,7 +1123,7 @@
             viewport.viewportimg.get(0).setRoiZoom(percent);
         }
         if (viewport.viewportimg.get(0).setScalebarZoom) {
-            viewport.viewportimg.get(0).setScalebarZoom(viewport.getPixelSizes().x, percent, viewport.getSizes().width);
+            viewport.viewportimg.get(0).setScalebarZoom(percent/100);
         }
     });
 

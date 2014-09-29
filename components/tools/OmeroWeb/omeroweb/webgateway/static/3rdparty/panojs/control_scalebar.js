@@ -40,7 +40,7 @@ ScaleBarControl.prototype.viewerZoomed = function(e) {
   var vp = $.WeblitzViewport($(this.dom_element).closest('.weblitz-viewport-top').parent());
 
   if (vp.viewportimg.get(0).setScalebarZoom) {
-    vp.viewportimg.get(0).setScalebarZoom(vp.getPixelSizes().x, this.scale*100, vp.getSizes().width);;
+    vp.viewportimg.get(0).setScalebarZoom(this.scale);
   }
 }
 
