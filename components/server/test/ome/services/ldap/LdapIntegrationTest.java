@@ -33,6 +33,7 @@ import ome.tools.spring.InternalServiceFactory;
 import ome.util.SqlAction;
 
 import org.springframework.aop.target.HotSwappableTargetSource;
+import org.springframework.beans.BeansException;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.LdapContextSource;
@@ -264,7 +265,6 @@ public class LdapIntegrationTest extends LdapTest {
         fixture.ctx = new FileSystemXmlApplicationContext("file:"
                 + ctxFile.getAbsolutePath());
         fixture.config = (LdapConfig) fixture.ctx.getBean("config");
-        mCtx.getBean("atomicIgnoreCase", AtomicBoolean.class).set(true);
 
         Map<String, LdapContextSource> sources = fixture.ctx
                 .getBeansOfType(LdapContextSource.class);
@@ -278,6 +278,14 @@ public class LdapIntegrationTest extends LdapTest {
         fixture.applicationContext = this.mCtx;
         fixture.template = (LdapTemplate) mCtx.getBean("ldapTemplate");
         fixture.template.setContextSource(source);
+        try {
+            fixture.ignoreCaseLookup = fixture.ctx.getBean("testIgnoreCase",
+                    Boolean.class);
+            fixture.applicationContext.getBean("atomicIgnoreCase",
+                    AtomicBoolean.class).set(fixture.ignoreCaseLookup);
+        } catch (BeansException be) {
+            // skip this fixture
+        }
 
         InternalServiceFactory isf = new InternalServiceFactory(mCtx);
         SqlAction sql = (SqlAction) mCtx.getBean("simpleSqlAction");
