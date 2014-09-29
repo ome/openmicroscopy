@@ -67,7 +67,7 @@ public class LdapTest extends MockObjectTestCase {
         LocalQuery query;
         LdapImpl ldap;
         LdapConfig config;
-        PasswordProvider provider;
+        LdapPasswordProvider provider;
         public LdapTemplate template;
         public OmeroContext applicationContext;
         boolean ignoreCaseLookup;
@@ -197,8 +197,8 @@ public class LdapTest extends MockObjectTestCase {
                 fixture.config, provider, sql);
         fixture.ldap.setQueryService(fixture.query);
 
-        fixture.provider = new PasswordProviders(provider.isIgnoreCaseLookup(),
-                new LdapPasswordProvider(new PasswordUtil(sql), fixture.ldap));
+        fixture.provider = new LdapPasswordProvider(new PasswordUtil(sql),
+                fixture.ldap);
 
         return fixture;
     }

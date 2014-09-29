@@ -294,11 +294,9 @@ public class LdapIntegrationTest extends LdapTest {
         fixture.ldap.setQueryService((LocalQuery) isf.getQueryService());
         fixture.ldap.setUpdateService((LocalUpdate) isf.getUpdateService());
 
-        LdapPasswordProvider ldapPasswordProvider = new LdapPasswordProvider(
-                new PasswordUtil(sql), fixture.ldap);
-        ldapPasswordProvider.setApplicationContext(mCtx);
-        fixture.provider = new PasswordProviders(provider().isIgnoreCaseLookup(),
-                ldapPasswordProvider);
+        fixture.provider = new LdapPasswordProvider(new PasswordUtil(sql),
+                fixture.ldap);
+        fixture.provider.setApplicationContext(mCtx);
         return fixture;
     }
 
