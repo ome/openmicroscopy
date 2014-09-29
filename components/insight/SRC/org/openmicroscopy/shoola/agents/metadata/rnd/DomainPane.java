@@ -42,7 +42,6 @@ import java.util.Iterator;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -51,10 +50,8 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
-import javax.swing.JToolBar;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -133,9 +130,6 @@ public class DomainPane
 
     /** Identifies the <code>Channels</code> selection. */
     private static final int CHANNEL = 1;
-
-    /** Dimension of the box between the channel buttons. */
-    private static final Dimension VBOX = new Dimension(1, 10);
 
     /** Title of the advanced options. */
     private static final String ADVANCED_OPTIONS = "Advanced"; 
