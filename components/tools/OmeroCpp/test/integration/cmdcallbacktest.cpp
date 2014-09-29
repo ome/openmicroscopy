@@ -44,9 +44,7 @@ private:
     // Preventing copy-construction and assigning by value.
     TestCB& operator=(const TestCB& rv);
     TestCB(TestCB&);
-    IceUtil::RecMutex mutex;
 public:
-    omero::util::concurrency::Event event;
     int steps;
     int finished;
 
