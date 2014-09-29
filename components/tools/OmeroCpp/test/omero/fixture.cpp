@@ -104,10 +104,11 @@ omero::model::ExperimenterPtr Fixture::newUser(const omero::model::ExperimenterG
     e->setOmeName( name );
     e->setFirstName( name );
     e->setLastName( name );
-    omero::model::ExperimenterGroupListPtr groups;
+    std::vector<ExperimenterGroupPtr> groups;
     omero::model::ExperimenterGroupPtr userGroup = admin->lookupGroup("user");
-    groups.add(userGroup);
-    return admin->createExperimenterWithPassword(e, name, groupName->getValue(), groups);
+    groups.push_back(userGroup);
+    long id = admin->createExperimenterWithPassword(e, name, g, groups);
+    return admin->getExperimenter(id);
 }
 
 omero::model::ExperimenterGroupPtr Fixture::newGroup(const std::string& perms) {
