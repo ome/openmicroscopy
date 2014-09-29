@@ -705,9 +705,11 @@ public class MetadataServiceTest extends AbstractServerTest {
         ExperimenterGroup g = new ExperimenterGroupI();
         g.setName(omero.rtypes.rstring(uuid));
         g.getDetails().setPermissions(new PermissionsI("rwrw--"));
-        svc.createGroup(g);
-        long id1 = svc.createUser(e1, uuid);
-        long id2 = svc.createUser(e2, uuid);
+        g = svc.getGroup(svc.createGroup(g));
+        long id1 = newUserInGroupWithPassword(e1, g, uuid);
+        long id2 = newUserInGroupWithPassword(e2, g, uuid2);
+        svc.setDefaultGroup(svc.getExperimenter(id1), g);
+        svc.setDefaultGroup(svc.getExperimenter(id2), g);
         client = new omero.client();
         ServiceFactoryPrx f = client.createSession(uuid2, uuid2);
         // Create a tag annotation as another user.

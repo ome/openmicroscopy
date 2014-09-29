@@ -15,6 +15,7 @@ import static org.testng.AssertJUnit.fail;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -123,6 +124,8 @@ import omero.sys.ParametersI;
 
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+
+import com.google.common.collect.Lists;
 
 import spec.AbstractTest;
 
@@ -544,7 +547,7 @@ public class AbstractServerTest extends AbstractTest {
         e.setOmeName(omero.rtypes.rstring(uuid));
         e.setFirstName(omero.rtypes.rstring("integration"));
         e.setLastName(omero.rtypes.rstring("tester"));
-        long id = rootAdmin.createUser(e, group.getName().getValue());
+        long id = newUserInGroupWithPassword(e, group, uuid);
         e = rootAdmin.getExperimenter(id);
         rootAdmin.addGroups(e, Arrays.asList(group));
         if (owner) {
@@ -553,6 +556,38 @@ public class AbstractServerTest extends AbstractTest {
         omero.client client = newOmeroClient();
         client.createSession(uuid, uuid);
         return init(client);
+    }
+
+    /**
+     * Creates the specified user in the specified groups. Also adds the user
+     * to the default user group. Requires a password.
+     *
+     * @param experimenter The pre-populated Experimenter object.
+     * @param groups The target groups.
+     * @param password The user password.
+     * @return long The created user ID.
+     */
+    protected long newUserInGroupWithPassword(Experimenter experimenter,
+            List<ExperimenterGroup> groups, String password) throws Exception {
+        IAdminPrx rootAdmin = root.getSession().getAdminService();
+        ExperimenterGroup userGroup = rootAdmin.lookupGroup(USER_GROUP);
+        return rootAdmin.createExperimenterWithPassword(experimenter,
+                omero.rtypes.rstring(password), userGroup, groups);
+    }
+
+    /**
+     * Creates the specified user in the specified group. Also adds the user
+     * to the default user group. Requires a password.
+     *
+     * @param experimenter The pre-populated Experimenter object.
+     * @param group The target group.
+     * @param password The user password.
+     * @return long The created user ID.
+     */
+    protected long newUserInGroupWithPassword(Experimenter experimenter,
+            ExperimenterGroup group, String password) throws Exception {
+        return newUserInGroupWithPassword(experimenter,
+                Lists.newArrayList(group), password);
     }
 
     /**
@@ -572,8 +607,6 @@ public class AbstractServerTest extends AbstractTest {
     /**
      * Logs in the user.
      *
-     * @param ownerEc
-     *            The context of the user.
      * @param g
      *            The group to log into.
      * @throws Exception
@@ -582,7 +615,7 @@ public class AbstractServerTest extends AbstractTest {
     protected EventContext loginUser(ExperimenterGroup g) throws Exception {
         EventContext ec = iAdmin.getEventContext();
         omero.client client = newOmeroClient();
-        client.createSession(ec.userName, "dummy");
+        client.createSession(ec.userName, ec.userName);
         client.getSession().setSecurityContext(
                 new ExperimenterGroupI(g.getId(), false));
         return init(client);
@@ -598,7 +631,7 @@ public class AbstractServerTest extends AbstractTest {
      */
     protected void loginUser(EventContext ownerEc) throws Exception {
         omero.client client = newOmeroClient();
-        client.createSession(ownerEc.userName, "dummy");
+        client.createSession(ownerEc.userName, ownerEc.userName);
         init(client);
     }
 
@@ -674,7 +707,7 @@ public class AbstractServerTest extends AbstractTest {
      */
     protected EventContext init(EventContext ec) throws Exception {
         omero.client c = newOmeroClient();
-        factoryEncrypted = c.createSession(ec.userName, null);
+        factoryEncrypted = c.createSession(ec.userName, ec.userName);
         return init(c);
     }
 

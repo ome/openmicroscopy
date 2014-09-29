@@ -245,7 +245,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
      */
     @AfterMethod
     public void close() throws Exception {
-        if (client == null) {
+        if (client != null) {
             client.__del__();
             client = null;
         }
