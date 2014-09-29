@@ -33,12 +33,14 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
@@ -58,8 +60,11 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+
+
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
+
 import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
@@ -74,6 +79,9 @@ import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
+
+import com.google.common.math.DoubleMath;
+
 import pojos.ChannelData;
 
 /**
@@ -938,7 +946,7 @@ class ControlPane
         while (i.hasNext()) {
             d = i.next();
             k = d.getIndex();
-            button = new ChannelButton(""+d.getChannelLabeling(),
+            button = new ChannelButton(d.getChannelLabeling(),
                     model.getChannelColor(k), k, model.isChannelActive(k));
             channelButtons.add(button);
             dim = button.getPreferredSize();

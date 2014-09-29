@@ -35,7 +35,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 //Third-party libraries
@@ -70,10 +69,7 @@ class ChannelSlider
 
 	/** The default color. */
 	static final Color		GRADIENT_COLOR = Color.BLACK;
-	
-	/** The default size of the button. */
-	private static final Dimension	DEFAULT_SIZE = new Dimension(20, 20);
-	
+
 	/** Reference to the model. */
 	private RendererModel 			model;
 	
@@ -140,14 +136,16 @@ class ChannelSlider
         list.add("max: "+max);
         slider.getSlider().setToolTipText(UIUtilities.formatToolTipText(list));
         
-    	channelSelection = new ChannelButton(""+channel.getChannelLabeling(), c, index);
+    	channelSelection = new ChannelButton(channel.getChannelLabeling(), c,
+    	        index);
     	channelSelection.setPreferredSize(ChannelButton.DEFAULT_MAX_SIZE);
     	channelSelection.setSelected(model.isChannelActive(index));
     	channelSelection.setRightClickSupported(false);
     	channelSelection.addPropertyChangeListener(controller);
         
     	
-    	colorPicker = new JLabelButton(IconManager.getInstance().getIcon(IconManager.COLOR_PICKER), true);
+    	colorPicker = new JLabelButton(IconManager.getInstance().getIcon(
+    	        IconManager.COLOR_PICKER), true);
     	colorPicker.addPropertyChangeListener(this);
     	
 	}
