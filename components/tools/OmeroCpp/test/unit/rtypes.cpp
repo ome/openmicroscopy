@@ -101,7 +101,7 @@ TEST(RTypesTest, RArray) {
     assertRValues<RArrayPtr>(a1, a2);
 }
 
-TEST(RTypesTest, RList) {
+TEST(RTypesTest, DISABLED_RList) {
     RListPtr l1 = rlist();
     l1->add(rint(1));
 
