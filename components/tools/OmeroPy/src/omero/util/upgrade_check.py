@@ -17,30 +17,7 @@ import socket
 class UpgradeCheck(object):
 
     """
-    Port of Java UpgradeCheck:
-    http://trac.openmicroscopy.org.uk/ome/browser/trunk/components/common/src/ome/system/UpgradeCheck.java
-
-    >>> from omero.util.upgrade_check import UpgradeCheck
-    >>> uc = UpgradeCheck("doctest")
-    >>> uc.run()
-    >>> uc.isUpgradeNeeded()
-    False
-    >>> uc.isExceptionThrown()
-    False
-    >>> uc = UpgradeCheck("doctest", version = "0.0.0")
-    >>> uc.run()
-    >>> uc.isUpgradeNeeded()
-    True
-    >>> uc.isExceptionThrown()
-    False
-    >>>
-    >>> uc = UpgradeCheck("doctest",
-    ...     url = "http://some-completely-unknown-host.abcd/")
-    >>> uc.run()
-    >>> uc.isUpgradeNeeded()
-    False
-    >>> uc.isExceptionThrown()
-    True
+    Port of Java UpgradeCheck
     """
 
     #
@@ -140,8 +117,3 @@ class UpgradeCheck(object):
         else:
             self.log.warn("UPGRADE AVAILABLE:" + result)
             self._set(result, None)
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    import doctest
-    doctest.testmod()
