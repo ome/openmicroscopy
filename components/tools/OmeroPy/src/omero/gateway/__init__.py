@@ -1236,7 +1236,8 @@ class _BlitzGateway (object):
         :type useragent:    String
         """
 
-        if extra_config is None: extra_config = []
+        if extra_config is None:
+            extra_config = []
         super(_BlitzGateway, self).__init__()
         self.CONFIG = GatewayConfig()
         self.c = client_obj
@@ -2442,7 +2443,7 @@ class _BlitzGateway (object):
                 else:
                     colleagues.append(ExperimenterWrapper(self, d.child))
         else:
-            if  self.isLeader():
+            if self.isLeader():
                 leaders = [self.getUser()]
             else:
                 colleagues = [self.getUser()]
