@@ -17,7 +17,29 @@ import socket
 class UpgradeCheck(object):
 
     """
-    Port of Java UpgradeCheck
+    Port of Java UpgradeCheck:
+
+    >>> from omero.util.upgrade_check import UpgradeCheck
+    >>> uc = UpgradeCheck("doctest")
+    >>> uc.run()
+    >>> uc.isUpgradeNeeded()
+    False
+    >>> uc.isExceptionThrown()
+    False
+    >>> uc = UpgradeCheck("doctest", version = "0.0.0")
+    >>> uc.run()
+    >>> uc.isUpgradeNeeded()
+    True
+    >>> uc.isExceptionThrown()
+    False
+    >>>
+    >>> uc = UpgradeCheck("doctest",
+    ...     url = "http://some-completely-unknown-host.abcd/")
+    >>> uc.run()
+    >>> uc.isUpgradeNeeded()
+    False
+    >>> uc.isExceptionThrown()
+    True
     """
 
     #
