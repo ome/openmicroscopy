@@ -99,7 +99,7 @@ def fileread(fin, fsize, bufsize):
     rv = ''
     while p < fsize:
         s = min(bufsize, fsize-p)
-        rv += fin.read(p,s)
+        rv += fin.read(p, s)
         p += s
     fin.close()
     return rv
@@ -121,7 +121,7 @@ def fileread_gen(fin, fsize, bufsize):
     p = 0
     while p < fsize:
         s = min(bufsize, fsize-p)
-        yield fin.read(p,s)
+        yield fin.read(p, s)
         p += s
     fin.close()
 
@@ -240,7 +240,7 @@ class BlitzObjectWrapper (object):
             raise NotImplementedError
         pwc = self.PARENT_WRAPPER_CLASS
         if not isinstance(pwc, ListType):
-            pwc = [pwc,]
+            pwc = [pwc, ]
         for i in range(len(pwc)):
             if isinstance(pwc[i], StringTypes):
                 # resolve class
@@ -2225,9 +2225,9 @@ class _BlitzGateway (object):
 
         """
 
-        links = {'Dataset':('ProjectDatasetLink', DatasetWrapper),
-                'Image':('DatasetImageLink', ImageWrapper),
-                'Plate':('ScreenPlateLink', PlateWrapper)}
+        links = {'Dataset': ('ProjectDatasetLink', DatasetWrapper),
+                'Image': ('DatasetImageLink', ImageWrapper),
+                'Plate': ('ScreenPlateLink', PlateWrapper)}
 
         if params is None:
             params = omero.sys.ParametersI()
@@ -2310,7 +2310,7 @@ class _BlitzGateway (object):
         p.map = {}
         p.map["ids"] = rlist([rlong(a) for a in self.getEventContext().leaderOfGroups])
         sql = "select e from ExperimenterGroup as e where e.id in (:ids)"
-        for e in q.findAllByQuery(sql, p,self.SERVICE_OPTS):
+        for e in q.findAllByQuery(sql, p, self.SERVICE_OPTS):
             yield ExperimenterGroupWrapper(self, e)
 
     def getGroupsMemberOf(self):
@@ -2326,7 +2326,7 @@ class _BlitzGateway (object):
         p.map = {}
         p.map["ids"] = rlist([rlong(a) for a in self.getEventContext().memberOfGroups])
         sql = "select e from ExperimenterGroup as e where e.id in (:ids)"
-        for e in q.findAllByQuery(sql, p,self.SERVICE_OPTS):
+        for e in q.findAllByQuery(sql, p, self.SERVICE_OPTS):
             if e.name.val == "user":
                 pass
             else:
@@ -2382,8 +2382,8 @@ class _BlitzGateway (object):
         params = omero.sys.Parameters()
         params.map = {'start': rstring('%s%%' % start.lower())}
         q = self.getQueryService()
-        rv = q.findAllByQuery("from Experimenter e where lower(e.omeName) like :start", params,self.SERVICE_OPTS)
-        rv.sort(lambda x,y: cmp(x.omeName.val,y.omeName.val))
+        rv = q.findAllByQuery("from Experimenter e where lower(e.omeName) like :start", params, self.SERVICE_OPTS)
+        rv.sort(lambda x, y: cmp(x.omeName.val, y.omeName.val))
         for e in rv:
             yield ExperimenterWrapper(self, e)
 
@@ -2466,7 +2466,7 @@ class _BlitzGateway (object):
         sql = "select e from Experimenter as e where " \
                 "exists ( select gem from GroupExperimenterMap as gem where gem.child = e.id " \
                 "and gem.parent.id in (:gids)) order by e.omeName"
-        for e in q.findAllByQuery(sql, p,self.SERVICE_OPTS):
+        for e in q.findAllByQuery(sql, p, self.SERVICE_OPTS):
             if e.id.val != self.getUserId():
                 yield ExperimenterWrapper(self, e)
 
@@ -2674,7 +2674,7 @@ class _BlitzGateway (object):
 
         # finding by attributes
         if attributes != None:
-            for k,v in attributes.items():
+            for k, v in attributes.items():
                 clauses.append('obj.%s=:%s' % (k, k) )
                 params.map[k] = omero_type(v)
 
@@ -2767,7 +2767,7 @@ class _BlitzGateway (object):
         if len(clauses) > 0:
             query += " where %s" % (" and ".join(clauses))
 
-        result = q.findAllByQuery(query, params,self.SERVICE_OPTS)
+        result = q.findAllByQuery(query, params, self.SERVICE_OPTS)
         for r in result:
             yield AnnotationLinkWrapper(self, r)
 
@@ -2818,7 +2818,7 @@ class _BlitzGateway (object):
             p.map["oids"] = omero.rtypes.wrap(parent_ids)
             query = "select link.child.id, count(link.id) from %sAnnotationLink link where link.parent.id in (:oids)%s group by link.child.id" % (parent_type, filterlink)
             # count annLinks and check if count == number of parents (all parents linked to annotation)
-            usedAnnIds = [e[0].getValue() for e in q.projection(query,p,self.SERVICE_OPTS) if e[1].getValue() == len(parent_ids)]
+            usedAnnIds = [e[0].getValue() for e in q.projection(query, p, self.SERVICE_OPTS) if e[1].getValue() == len(parent_ids)]
             if len(usedAnnIds) > 0:
                 p.map["usedAnnIds"] = omero.rtypes.wrap(usedAnnIds)
                 wheres.append("an.id not in (:usedAnnIds)")
@@ -2835,7 +2835,7 @@ class _BlitzGateway (object):
         if len(wheres) > 0:
             sql += "where " + " and ".join(wheres)
 
-        for e in q.findAllByQuery(sql,p,self.SERVICE_OPTS):
+        for e in q.findAllByQuery(sql, p, self.SERVICE_OPTS):
             yield AnnotationWrapper._wrap(self, e)
 
     def createImageFromNumpySeq(self, zctPlanes, imageName, sizeZ=1, sizeC=1, sizeT=1, description=None, dataset=None, sourceImageId=None, channelList=None):
@@ -2890,15 +2890,15 @@ class _BlitzGateway (object):
                 # need to ensure that the plane dtype matches the pixels type of our new image
                 img = self.getObject("Image", iId.getValue())
                 newPtype = img.getPrimaryPixels().getPixelsType().getValue()
-                omeroToNumpy = {'int8':'int8', 'uint8':'uint8', 'int16':'int16', 'uint16':'uint16', 'int32':'int32', 'uint32':'uint32', 'float':'float32', 'double':'double'}
+                omeroToNumpy = {'int8': 'int8', 'uint8': 'uint8', 'int16': 'int16', 'uint16': 'uint16', 'int32': 'int32', 'uint32': 'uint32', 'float': 'float32', 'double': 'double'}
                 if omeroToNumpy[newPtype] != firstPlane.dtype.name:
                     convertToType = getattr(numpy, omeroToNumpy[newPtype])
                 img._obj.setName(rstring(imageName))
                 updateService.saveObject(img._obj, self.SERVICE_OPTS)
             else:
                 # need to map numpy pixel types to omero - don't handle: bool_, character, int_, int64, object_
-                pTypes = {'int8':'int8', 'int16':'int16', 'uint16':'uint16', 'int32':'int32', 'float_':'float', 'float8':'float',
-                            'float16':'float', 'float32':'float', 'float64':'double', 'complex_':'complex', 'complex64':'complex'}
+                pTypes = {'int8': 'int8', 'int16': 'int16', 'uint16': 'uint16', 'int32': 'int32', 'float_': 'float', 'float8': 'float',
+                            'float16': 'float', 'float32': 'float', 'float64': 'double', 'complex_': 'complex', 'complex64': 'complex'}
                 dType = firstPlane.dtype.name
                 if dType not in pTypes:  # try to look up any not named above
                     pType = dType
@@ -3065,7 +3065,7 @@ class _BlitzGateway (object):
 
         toSave = list(toSave)
         self.getUpdateService().saveCollection(toSave, ctx)
-        return {'imageCount':len(imageIds), 'updateCount':updateCount}
+        return {'imageCount': len(imageIds), 'updateCount': updateCount}
 
 
     def createOriginalFileFromFileObj(self, fo, path, name, fileSize, mimetype=None, ns=None):
@@ -3112,7 +3112,7 @@ class _BlitzGateway (object):
         try:
             rawFileStore.setFileId(originalFile.getId().getValue(), self.SERVICE_OPTS)
             buf = 10000
-            for pos in range(0,long(fileSize),buf):
+            for pos in range(0, long(fileSize), buf):
                 block = None
                 if fileSize-pos < buf:
                     blockSize = fileSize-pos
@@ -3202,7 +3202,7 @@ class _BlitzGateway (object):
         p = omero.sys.Parameters()
         p.map = {}
         p.map["oids"] = rlist([rlong(o) for o in set(annids)])
-        for e in q.findAllByQuery(sql,p,self.SERVICE_OPTS):
+        for e in q.findAllByQuery(sql, p, self.SERVICE_OPTS):
             yield wrapper(self, e)
 
 
@@ -3420,13 +3420,13 @@ class _BlitzGateway (object):
             op["/TermAnnotation"] = "KEEP"
             op["/FileAnnotation"] = "KEEP"
 
-        childTypes = {'/Project':['/Dataset', '/Image'],
-                '/Dataset':['/Image'],
-                '/Image':[],
-                '/Screen':['/Plate'],
-                '/Plate':['/Image'],
-                '/Well':[],
-                '/Annotation':[] }
+        childTypes = {'/Project': ['/Dataset', '/Image'],
+                '/Dataset': ['/Image'],
+                '/Image': [],
+                '/Screen': ['/Plate'],
+                '/Plate': ['/Image'],
+                '/Well': [],
+                '/Annotation': [] }
 
         if not deleteChildren:
             try:
@@ -3677,7 +3677,7 @@ def splitHTMLColor(color):
     """
     try:
         out = []
-        if len(color) in (3,4):
+        if len(color) in (3, 4):
             c = color
             color = ''
             for e in c:
@@ -4146,9 +4146,9 @@ class _OriginalFileWrapper (BlitzObjectWrapper):
         store.setFileId(self._obj.id.val, self._conn.SERVICE_OPTS)
         size = self._obj.size.val
         if size <= buf:
-            yield store.read(0,long(size))
+            yield store.read(0, long(size))
         else:
-            for pos in range(0,long(size),buf):
+            for pos in range(0, long(size), buf):
                 data = None
                 if size-pos < buf:
                     data = store.read(pos, size-pos)
@@ -4949,9 +4949,9 @@ class _PlateWrapper (BlitzObjectWrapper):
         :rtype:     dict of {'rows': rSize, 'columns':cSize}
         """
         if self._gridSize is None:
-            r,c = 0,0
+            r, c = 0, 0
             for child in self._listChildren():
-                r,c = max(child.row.val, r), max(child.column.val, c)
+                r, c = max(child.row.val, r), max(child.column.val, c)
             self._gridSize = {'rows': r+1, 'columns': c+1}
         return self._gridSize
 
@@ -5097,7 +5097,7 @@ class _WellWrapper (BlitzObjectWrapper):
     def simpleMarshal(self, xtra=None, parents=False):
         rv = self.getImage().simpleMarshal(xtra=xtra)
         plate = self.getParent()
-        rv['wellPos'] = "%s%s" % (plate.getRowLabels()[self.row],plate.getColumnLabels()[self.column])
+        rv['wellPos'] = "%s%s" % (plate.getRowLabels()[self.row], plate.getColumnLabels()[self.column])
         rv['plateId'] = plate.getId()
         rv['wellId'] = self.getId()
         return rv
@@ -5318,7 +5318,7 @@ class ColorHolder (object):
             self._color[colorname.lower()] = 255
 
     @classmethod
-    def fromRGBA(klass,r,g,b,a):
+    def fromRGBA(klass, r, g, b, a):
         """
         Class method for creating a ColorHolder from r,g,b,a values
 
@@ -5496,7 +5496,7 @@ class _LogicalChannelWrapper (BlitzObjectWrapper):
             ctx = self._conn.SERVICE_OPTS.copy()
             if ctx.getOmeroGroup() is None:
                 ctx.setOmeroGroup(-1)
-            self._obj = self._conn.getMetadataService().loadChannelAcquisitionData([self._obj.id.val],ctx)[0]
+            self._obj = self._conn.getMetadataService().loadChannelAcquisitionData([self._obj.id.val], ctx)[0]
 
     def getLightPath(self):
         """
@@ -5600,8 +5600,8 @@ class _PixelsWrapper (BlitzObjectWrapper):
 
         zctTileList = []
         for zct in zctList:
-            z,c,t = zct
-            zctTileList.append((z,c,t, None))
+            z, c, t = zct
+            zctTileList.append((z, c, t, None))
         return self.getTiles(zctTileList)
 
     def getPlane(self, theZ=0, theC=0, theT=0):
@@ -5625,14 +5625,14 @@ class _PixelsWrapper (BlitzObjectWrapper):
         import numpy
         from struct import unpack
 
-        pixelTypes = {"int8":['b',numpy.int8],
-                "uint8":['B',numpy.uint8],
-                "int16":['h',numpy.int16],
-                "uint16":['H',numpy.uint16],
-                "int32":['i',numpy.int32],
-                "uint32":['I',numpy.uint32],
-                "float":['f',numpy.float32],
-                "double":['d', numpy.float64]}
+        pixelTypes = {"int8": ['b', numpy.int8],
+                "uint8": ['B', numpy.uint8],
+                "int16": ['h', numpy.int16],
+                "uint16": ['H', numpy.uint16],
+                "int32": ['i', numpy.int32],
+                "uint32": ['I', numpy.uint32],
+                "float": ['f', numpy.float32],
+                "double": ['d', numpy.float64]}
 
         rawPixelsStore = self._prepareRawPixelsStore()
         sizeX = self.sizeX
@@ -5642,7 +5642,7 @@ class _PixelsWrapper (BlitzObjectWrapper):
         exc = None
         try:
             for zctTile in zctTileList:
-                z,c,t,tile = zctTile
+                z, c, t, tile = zctTile
                 if tile is None:
                     rawPlane = rawPixelsStore.getPlane(z, c, t)
                     planeY = sizeY
@@ -5874,8 +5874,8 @@ class _ChannelWrapper (BlitzObjectWrapper):
         if si is None:
             logger.error("getStatsInfo() is null. See #9695")
             try:
-                minVals = {'int8':-128, 'uint8':0, 'int16':-32768, 'uint16':0, 'int32':-32768,
-                    'uint32':0, 'float':-32768, 'double':-32768}
+                minVals = {'int8': -128, 'uint8': 0, 'int16': -32768, 'uint16': 0, 'int32': -32768,
+                    'uint32': 0, 'float': -32768, 'double': -32768}
                 pixtype = self._obj.getPixels().getPixelsType().getValue().getValue()
                 return minVals[pixtype]
             except:     # Just in case we don't support pixType above
@@ -5893,8 +5893,8 @@ class _ChannelWrapper (BlitzObjectWrapper):
         if si is None:
             logger.error("getStatsInfo() is null. See #9695")
             try:
-                maxVals = {'int8':127, 'uint8':255, 'int16':32767, 'uint16':65535, 'int32':32767,
-                    'uint32':65535, 'float':32767, 'double':32767}
+                maxVals = {'int8': 127, 'uint8': 255, 'int16': 32767, 'uint16': 65535, 'int32': 32767,
+                    'uint32': 65535, 'float': 32767, 'double': 32767}
                 pixtype = self._obj.getPixels().getPixelsType().getValue().getValue()
                 return maxVals[pixtype]
             except:     # Just in case we don't support pixType above
@@ -6183,7 +6183,7 @@ class _ImageWrapper (BlitzObjectWrapper):
 
         rv = super(_ImageWrapper, self).simpleMarshal(xtra=xtra, parents=parents)
         rv.update({'author': self.getAuthor(),
-                   'date': time.mktime(self.getDate().timetuple()),})
+                   'date': time.mktime(self.getDate().timetuple()), })
         if xtra:
             if 'thumbUrlPrefix' in xtra:
                 if callable(xtra['thumbUrlPrefix']):
@@ -6245,7 +6245,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
 
         q = self._conn.getQueryService()
-        e = q.findByQuery("select e from Experimenter e where e.id = %i" % self._obj.details.owner.id.val,None, self._conn.SERVICE_OPTS)
+        e = q.findByQuery("select e from Experimenter e where e.id = %i" % self._obj.details.owner.id.val, None, self._conn.SERVICE_OPTS)
         self._author = e.firstName.val + " " + e.lastName.val
         return self._author
 
@@ -6288,7 +6288,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             where i.id = %i
             """ % self._obj.id.val
             query = self._conn.getQueryService()
-            prj = query.findAllByQuery(q,None, self._conn.SERVICE_OPTS)
+            prj = query.findAllByQuery(q, None, self._conn.SERVICE_OPTS)
             if prj and len(prj) == 1:
                 return ProjectWrapper(self._conn, prj[0])
         except:  # pragma: no cover
@@ -6437,8 +6437,8 @@ class _ImageWrapper (BlitzObjectWrapper):
                 l.append((k, unwrap(v)))  # was RType!
 
         if sort:
-            global_metadata.sort(key=lambda x:x[0].lower())
-            series_metadata.sort(key=lambda x:x[0].lower())
+            global_metadata.sort(key=lambda x: x[0].lower())
+            series_metadata.sort(key=lambda x: x[0].lower())
         return (None, (global_metadata), (series_metadata))
 
     @assert_re()
@@ -6459,7 +6459,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             t = z = 0
         else:
             z, t = pos
-        img = self.renderImage(z,t)
+        img = self.renderImage(z, t)
         if len(size) == 1:
             w = self.getSizeX()
             h = self.getSizeY()
@@ -6470,13 +6470,13 @@ class _ImageWrapper (BlitzObjectWrapper):
             else:
                 w = w * size[0] / h
                 h = size[0]
-        img = img.resize((w,h), Image.NEAREST)
+        img = img.resize((w, h), Image.NEAREST)
         rv = StringIO()
         img.save(rv, 'jpeg', quality=70)
         return rv.getvalue()
 
     #@setsessiongroup
-    def getThumbnail(self, size=(64,64), z=None, t=None, direct=True, rdefId=None):
+    def getThumbnail(self, size=(64, 64), z=None, t=None, direct=True, rdefId=None):
         """
         Returns a string holding a rendered JPEG of the thumbnail.
 
@@ -6503,7 +6503,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             if isinstance(size, IntType):
                 size = (size,)
             if z is not None and t is not None:
-                pos = z,t
+                pos = z, t
             else:
                 pos = None
                 # The following was commented out in the context of
@@ -6596,14 +6596,14 @@ class _ImageWrapper (BlitzObjectWrapper):
         :rtype:     List of :class:`ChannelWrapper`
         """
         if self._re is not None:
-            return [ChannelWrapper(self._conn, c, idx=n, re=self._re, img=self) for n,c in enumerate(self._re.getPixels(self._conn.SERVICE_OPTS).iterateChannels())]
+            return [ChannelWrapper(self._conn, c, idx=n, re=self._re, img=self) for n, c in enumerate(self._re.getPixels(self._conn.SERVICE_OPTS).iterateChannels())]
         else:       # E.g. ConcurrencyException (no rendering engine): load channels by hand, use pixels to order channels
             pid = self.getPixelsId()
             params = omero.sys.Parameters()
             params.map = {"pid": rlong(pid)}
             query = "select p from Pixels p join fetch p.channels as c join fetch c.logicalChannel as lc where p.id=:pid"
             pixels = self._conn.getQueryService().findByQuery(query, params, self._conn.SERVICE_OPTS)
-            return [ChannelWrapper(self._conn, c, idx=n, re=self._re, img=self) for n,c in enumerate(pixels.iterateChannels())]
+            return [ChannelWrapper(self._conn, c, idx=n, re=self._re, img=self) for n, c in enumerate(pixels.iterateChannels())]
 
     @assert_re()
     def getZoomLevelScaling(self):
@@ -6799,7 +6799,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         :return: rv         List of lists (one per channel)
         """
 
-        return self.getPixelLine(z,t,y,'h',channels,range)
+        return self.getPixelLine(z, t, y, 'h', channels, range)
 
     def getCol(self, z, t, x, channels=None, range=None):
         """
@@ -6813,7 +6813,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         :return: rv         List of lists (one per channel)
         """
 
-        return self.getPixelLine(z,t,x,'v',channels,range)
+        return self.getPixelLine(z, t, x, 'v', channels, range)
 
     @assert_re()
     def getRenderingModels(self):
@@ -6882,7 +6882,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             d = {}
             owner = rdef.getDetails().owner
             d['id'] = rdef.getId().val
-            d['owner'] = {'id':owner.id.val,
+            d['owner'] = {'id': owner.id.val,
                         'firstName': owner.getFirstName().val,
                         'lastName': owner.getLastName().val}
             d['z'] = rdef.getDefaultZ().val
@@ -6988,7 +6988,7 @@ class _ImageWrapper (BlitzObjectWrapper):
                     self._obj.clearPixels()
                     self._obj.pixelsLoaded = False
                     self._re = None
-                    return self.renderJpeg(z,t,None)
+                    return self.renderJpeg(z, t, None)
             rv = self._re.renderCompressed(self._pd, self._conn.SERVICE_OPTS)
             return rv
         except omero.InternalException:  # pragma: no cover
@@ -7029,7 +7029,7 @@ class _ImageWrapper (BlitzObjectWrapper):
                     self._obj.clearPixels()
                     self._obj.pixelsLoaded = False
                     self._re = None
-                    return self.renderJpeg(z,t,None)
+                    return self.renderJpeg(z, t, None)
             projection = self.PROJECTIONS.get(self._pr, -1)
             if not isinstance(projection, omero.constants.projection.ProjectionType):
                 rv = self._re.renderCompressed(self._pd, self._conn.SERVICE_OPTS)
@@ -7169,7 +7169,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             args.append('Watermark=OriginalFile:%d' % origFile.getId())
             todel.append(origFile.getId())
 
-        w,h = self.getSizeX(), self.getSizeY()
+        w, h = self.getSizeX(), self.getSizeY()
         if 'minsize' in opts:
             args.append('Min_Width=%d' % opts['minsize'][0])
             w = max(w, opts['minsize'][0])
@@ -7177,16 +7177,16 @@ class _ImageWrapper (BlitzObjectWrapper):
             h = max(h, opts['minsize'][1])
             args.append('Canvas_Colour=%s' % opts['minsize'][2])
 
-        scalebars = (1,1,2,2,5,5,5,5,10,10,10,10)
+        scalebars = (1, 1, 2, 2, 5, 5, 5, 5, 10, 10, 10, 10)
         scalebar = scalebars[max(min(int(w / 256)-1, len(scalebars)), 1) - 1]
         args.append('Scalebar=%d' % scalebar)
-        fsizes = (8,8,12,18,24,32,32,40,48,56,56,64)
+        fsizes = (8, 8, 12, 18, 24, 32, 32, 40, 48, 56, 56, 64)
         fsize = fsizes[max(min(int(w / 256)-1, len(fsizes)), 1) - 1]
         font = ImageFont.load('%s/pilfonts/B%0.2d.pil' % (THISPATH, fsize) )
         slides = opts.get('slides', [])
         for slidepos in range(min(2, len(slides))):
             t = slides[slidepos]
-            slide = Image.new("RGBA", (w,h))
+            slide = Image.new("RGBA", (w, h))
             for i, line in enumerate(t[1:4]):
                 line = line.decode('utf8').encode('iso8859-1')
                 wwline = self._wordwrap(w, line, font)
@@ -7199,7 +7199,7 @@ class _ImageWrapper (BlitzObjectWrapper):
                         y = h / 2 - ((len(wwline)-j)*tsize[1]) + (len(wwline)*tsize[1])/2
                     else:
                         y = h - (len(wwline) - j)*tsize[1] - 10
-                    draw.text((w/2-tsize[0]/2,y), line, font=font)
+                    draw.text((w/2-tsize[0]/2, y), line, font=font)
             fp = StringIO()
             slide.save(fp, "JPEG")
             fileSize = len(fp.getvalue())
@@ -7266,7 +7266,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         :rtype:         PIL Image.
         """
 
-        rv = self.renderJpeg(z,t,compression)
+        rv = self.renderJpeg(z, t, compression)
         if rv is not None:
             i = StringIO(rv)
             rv = Image.open(i)
@@ -7284,7 +7284,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         :return: value
         """
 
-        img = self.renderSplitChannelImage(z,t,compression, border)
+        img = self.renderSplitChannelImage(z, t, compression, border)
         rv = StringIO()
         img.save(rv, 'jpeg', quality=int(compression*100))
         return rv.getvalue()
@@ -7308,11 +7308,11 @@ class _ImageWrapper (BlitzObjectWrapper):
             x = y+1
         else:
             x = y
-        rv = {'g':{'width': self.getSizeX()*x + border*(x+1),
+        rv = {'g': {'width': self.getSizeX()*x + border*(x+1),
               'height': self.getSizeY()*y+border*(y+1),
               'border': border,
               'gridx': x,
-              'gridy': y,}
+              'gridy': y, }
               }
         # Color, one extra image with all channels overlayed
         c += 1
@@ -7326,7 +7326,7 @@ class _ImageWrapper (BlitzObjectWrapper):
               'height': self.getSizeY()*y+border*(y+1),
               'border': border,
               'gridx': x,
-              'gridy': y,}
+              'gridy': y, }
         return rv
 
     def _renderSplit_channelLabel(self, channel):
@@ -7347,7 +7347,7 @@ class _ImageWrapper (BlitzObjectWrapper):
 
         dims = self.splitChannelDims(border=border)[self.isGreyscaleRenderingModel() and 'g' or 'c']
         canvas = Image.new('RGBA', (dims['width'], dims['height']), '#fff')
-        cmap = [ch.isActive() and i+1 or 0 for i,ch in enumerate(self.getChannels())]
+        cmap = [ch.isActive() and i+1 or 0 for i, ch in enumerate(self.getChannels())]
         c = self.getSizeC()
         pxc = 0
         px = dims['border']
@@ -7380,10 +7380,10 @@ class _ImageWrapper (BlitzObjectWrapper):
         for i in range(c):
             if cmap[i]:
                 self.setActiveChannels((i+1,))
-                img = self.renderImage(z,t, compression)
+                img = self.renderImage(z, t, compression)
                 if fsize > 0:
                     draw = ImageDraw.ImageDraw(img)
-                    draw.text((2,2), "%s" % (self._renderSplit_channelLabel(self.getChannels()[i])), font=font, fill="#fff")
+                    draw.text((2, 2), "%s" % (self._renderSplit_channelLabel(self.getChannels()[i])), font=font, fill="#fff")
                 canvas.paste(img, (px, py))
             pxc += 1
             if pxc < dims['gridx']:
@@ -7395,14 +7395,14 @@ class _ImageWrapper (BlitzObjectWrapper):
         # Render merged panel with all current channels in color
         self.setActiveChannels(cmap)
         self.setColorRenderingModel()
-        img = self.renderImage(z,t, compression)
+        img = self.renderImage(z, t, compression)
         if fsize > 0:
             draw = ImageDraw.ImageDraw(img)
-            draw.text((2,2), "merged", font=font, fill="#fff")
+            draw.text((2, 2), "merged", font=font, fill="#fff")
         canvas.paste(img, (px, py))
         return canvas
 
-    LP_PALLETE = [0,0,0,0,0,0,255,255,255]
+    LP_PALLETE = [0, 0, 0, 0, 0, 0, 255, 255, 255]
     LP_TRANSPARENT = 0  # Some color
     LP_BGCOLOR = 1  # Black
     LP_FGCOLOR = 2  # white
@@ -7449,10 +7449,10 @@ class _ImageWrapper (BlitzObjectWrapper):
         draw = ImageDraw.ImageDraw(im)
         # On your marks, get set... go!
         draw.rectangle([0, 0, width-1, base], fill=self.LP_TRANSPARENT, outline=self.LP_TRANSPARENT)
-        draw.line(((0,y),(width, y)), fill=self.LP_FGCOLOR, width=linewidth)
+        draw.line(((0, y), (width, y)), fill=self.LP_FGCOLOR, width=linewidth)
 
         # Grab row data
-        rows = self.getRow(z,t,y)
+        rows = self.getRow(z, t, y)
 
         for r in range(len(rows)):
             chrow = rows[r]
@@ -7487,10 +7487,10 @@ class _ImageWrapper (BlitzObjectWrapper):
         draw = ImageDraw.ImageDraw(im)
         # On your marks, get set... go!
         draw.rectangle([0, 0, width-1, height-1], fill=self.LP_TRANSPARENT, outline=self.LP_TRANSPARENT)
-        draw.line(((x,0),(x, height)), fill=self.LP_FGCOLOR, width=linewidth)
+        draw.line(((x, 0), (x, height)), fill=self.LP_FGCOLOR, width=linewidth)
 
         # Grab col data
-        cols = self.getCol(z,t,x)
+        cols = self.getCol(z, t, x)
 
         for r in range(len(cols)):
             chcol = cols[r]
@@ -7825,7 +7825,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         params = omero.sys.Parameters()
         params.map = {"pid": rlong(pid)}
         query = "select link from PixelsOriginalFileMap link join fetch link.parent as p where link.child.id=:pid"
-        links = self._conn.getQueryService().findAllByQuery(query, params,self._conn.SERVICE_OPTS)
+        links = self._conn.getQueryService().findAllByQuery(query, params, self._conn.SERVICE_OPTS)
         for l in links:
             yield OriginalFileWrapper(self._conn, l.parent)
 
@@ -7853,11 +7853,11 @@ class _ImageWrapper (BlitzObjectWrapper):
         def isValidType(shape):
             if not shapeType:
                 return True
-            elif isinstance(shapeType,list):
+            elif isinstance(shapeType, list):
                 for t in shapeType:
-                    if isinstance(shape,getattr(omero.model,t)):
+                    if isinstance(shape, getattr(omero.model, t)):
                         return True
-            elif isinstance(shape,getattr(omero.model,shapeType)):
+            elif isinstance(shape, getattr(omero.model, shapeType)):
                 return True
             return False
 
@@ -8229,7 +8229,7 @@ class _LightSettingsWrapper (BlitzObjectWrapper):
                     "left outer join fetch l.pump as pump " \
                     "left outer join fetch pump.type as pt " \
                     "where l.id = :id"
-            self._obj.lightSource = self._conn.getQueryService().findByQuery(query, params,self._conn.SERVICE_OPTS)
+            self._obj.lightSource = self._conn.getQueryService().findByQuery(query, params, self._conn.SERVICE_OPTS)
         return LightSourceWrapper(self._conn, self._obj.lightSource)
 
 LightSettingsWrapper = _LightSettingsWrapper
@@ -8491,26 +8491,26 @@ def refreshWrappers():
     """
     this needs to be called by modules that extend the base wrappers
     """
-    KNOWN_WRAPPERS.update({"project":ProjectWrapper,
-                  "dataset":DatasetWrapper,
-                  "image":ImageWrapper,
-                  "screen":ScreenWrapper,
-                  "plate":PlateWrapper,
+    KNOWN_WRAPPERS.update({"project": ProjectWrapper,
+                  "dataset": DatasetWrapper,
+                  "image": ImageWrapper,
+                  "screen": ScreenWrapper,
+                  "plate": PlateWrapper,
                   "plateacquisition": PlateAcquisitionWrapper,
                   "acquisition": PlateAcquisitionWrapper,
-                  "well":WellWrapper,
-                  "experimenter":ExperimenterWrapper,
-                  "experimentergroup":ExperimenterGroupWrapper,
-                  "originalfile":OriginalFileWrapper,
-                  "fileset":FilesetWrapper,
-                  "commentannotation":CommentAnnotationWrapper,
-                  "tagannotation":TagAnnotationWrapper,
-                  "longannotation":LongAnnotationWrapper,
-                  "booleanannotation":BooleanAnnotationWrapper,
-                  "fileannotation":FileAnnotationWrapper,
-                  "doubleannotation":DoubleAnnotationWrapper,
-                  "termannotation":TermAnnotationWrapper,
-                  "timestampannotation":TimestampAnnotationWrapper,
-                  "annotation":AnnotationWrapper._wrap})    # allows for getObjects("Annotation", ids)
+                  "well": WellWrapper,
+                  "experimenter": ExperimenterWrapper,
+                  "experimentergroup": ExperimenterGroupWrapper,
+                  "originalfile": OriginalFileWrapper,
+                  "fileset": FilesetWrapper,
+                  "commentannotation": CommentAnnotationWrapper,
+                  "tagannotation": TagAnnotationWrapper,
+                  "longannotation": LongAnnotationWrapper,
+                  "booleanannotation": BooleanAnnotationWrapper,
+                  "fileannotation": FileAnnotationWrapper,
+                  "doubleannotation": DoubleAnnotationWrapper,
+                  "termannotation": TermAnnotationWrapper,
+                  "timestampannotation": TimestampAnnotationWrapper,
+                  "annotation": AnnotationWrapper._wrap})    # allows for getObjects("Annotation", ids)
 
 refreshWrappers()
