@@ -29,7 +29,7 @@ omero::model::ImagePtr new_ImageI()
 
 Fixture::Fixture()
 {
-    login();
+    client = new omero::client();
     std::string rootpass = client->getProperty("omero.rootpass");
     logout();
     login("root", rootpass);
