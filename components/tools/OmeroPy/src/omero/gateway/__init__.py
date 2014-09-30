@@ -5781,6 +5781,10 @@ class _ChannelWrapper (BlitzObjectWrapper):
         rv = lc.name
         if rv is None or len(rv.strip())==0:
             rv = lc.emissionWave
+            if rv is not None:
+                # Don't show as double if it's really an int
+                if int(rv) == rv:
+                    rv = int(rv)
         if rv is None or len(unicode(rv).strip())==0:
             rv = self._idx
         return unicode(rv)
