@@ -1913,7 +1913,7 @@ def zip_archived_files(images, temp, zipName):
         zipName = "%s.zip" % zipName
 
     def getTargetPath(fsFile, templatePrefix):
-        if fsFile.getPath() == templatePrefix:
+        if fsFile.getPath() == templatePrefix or templatePrefix == "":
             return fsFile.getName()
         relPath = os.path.relpath(fsFile.getPath(), templatePrefix)
         return os.path.join(relPath, fsFile.getName())
