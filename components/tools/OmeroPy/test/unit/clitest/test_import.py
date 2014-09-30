@@ -11,7 +11,7 @@
 
 import pytest
 from path import path
-from omero.cli import CLI
+from omero.cli import CLI, NonZeroReturnCode
 # Workaround for a poorly named module
 plugin = __import__('omero.plugins.import', globals(), locals(),
                     ['ImportControl'], -1)
@@ -26,6 +26,8 @@ class TestImport(object):
         self.cli = CLI()
         self.cli.register("import", ImportControl, "TEST")
         self.args = ["import"]
+
+    def add_client_dir(self):
         dist_dir = path(__file__) / ".." / ".." / ".." / ".." / ".." / ".." /\
             ".." / "dist"  # FIXME: should not be hard-coded
         dist_dir = dist_dir.abspath()
@@ -109,6 +111,17 @@ omero_cblackburn/6915/dropboxaDCjQlout']
         self.args += [help_argument]
         self.cli.invoke(self.args)
 
+    def testImportNoClientDirFails(self, tmpdir,):
+        """Test fake screen import"""
+
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+
+        self.args += [str(fakefile)]
+
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
+
     @pytest.mark.parametrize("data", (("1", False), ("3", True)))
     def testImportDepth(self, tmpdir, capfd, data):
         """Test import using depth argument"""
@@ -120,6 +133,7 @@ omero_cblackburn/6915/dropboxaDCjQlout']
         fakefile = dir2 / "test.fake"
         fakefile.write('')
 
+        self.add_client_dir()
         self.args += ["-f", "--debug=ERROR"]
         self.args += [str(dir1)]
 
@@ -137,6 +151,7 @@ omero_cblackburn/6915/dropboxaDCjQlout']
         fakefile = tmpdir.join("test.fake")
         fakefile.write('')
 
+        self.add_client_dir()
         self.args += ["-f", "--debug=ERROR"]
         self.args += [str(fakefile)]
 
@@ -157,6 +172,7 @@ omero_cblackburn/6915/dropboxaDCjQlout']
         fieldfiles = self.mkfakescreen(
             screen_dir, with_ds_store=with_ds_store)
 
+        self.add_client_dir()
         self.args += ["-f", "--debug=ERROR"]
         self.args += [str(fieldfiles[0])]
 
@@ -174,6 +190,7 @@ omero_cblackburn/6915/dropboxaDCjQlout']
 
         patternfile, tiffiles = self.mkfakepattern(tmpdir)
 
+        self.add_client_dir()
         self.args += ["-f", "--debug=ERROR"]
         self.args += [str(patternfile)]
 
