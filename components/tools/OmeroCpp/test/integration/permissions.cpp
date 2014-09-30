@@ -112,7 +112,7 @@ TEST( PermissionsTest, testAdjustPermissions ) {
     c = CommentAnnotationPtr::dynamicCast( update->saveAndReturnObject(c) );
 
     assertPerms("creator can ann/edit", f.client, c, true, true);
-    f.login(user2);
+    f.login(user2, user2->getOmeName()->getValue());
     assertPerms("group member can't ann/edit", f.client, c, false, false);
 
     // Search all groups for the annotation
