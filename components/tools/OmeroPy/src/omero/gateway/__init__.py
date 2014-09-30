@@ -561,7 +561,7 @@ class BlitzObjectWrapper (object):
                     params.map["val"] = omero_type(val)
                     query += " and a.textValue=:val"
         query += " order by c.child.name"
-        for child in ( x.child for x in self._conn.getQueryService().findAllByQuery(query, params, self._conn.SERVICE_OPTS)):
+        for child in (x.child for x in self._conn.getQueryService().findAllByQuery(query, params, self._conn.SERVICE_OPTS)):
             yield child
 
     def listChildren(self, ns=None, val=None, params=None):
@@ -2236,7 +2236,7 @@ class _BlitzGateway (object):
         query, params, wrapper = self.buildQuery(obj_type, params=params)
         query += "where" not in query and " where " or " and "
         query += " not exists (select obl from %s as obl where " \
-                 "obl.child=obj.id) " % ( links[obj_type][0])
+                 "obl.child=obj.id) " % (links[obj_type][0])
 
         if obj_type == 'Image':
             query += " and not exists ( select ws from WellSample as ws "\
@@ -2933,7 +2933,7 @@ class _BlitzGateway (object):
                         minValue = plane.min()
                         maxValue = plane.max()
                         if len(channelsMinMax) < (theC + 1):     # first plane of each channel
-                            channelsMinMax.append( [minValue, maxValue])
+                            channelsMinMax.append([minValue, maxValue])
                         else:
                             channelsMinMax[theC][0] = min(channelsMinMax[theC][0], minValue)
                             channelsMinMax[theC][1] = max(channelsMinMax[theC][1], maxValue)
@@ -3028,7 +3028,7 @@ class _BlitzGateway (object):
 
         queryService = self.getQueryService()
         params = omero.sys.Parameters()
-        params.map = {'ids': omero.rtypes.wrap( imageIds)}
+        params.map = {'ids': omero.rtypes.wrap(imageIds)}
 
         # load Pixels, Channels, Logical Channels and Images
         query = "select p from Pixels p left outer join fetch p.channels as c join fetch c.logicalChannel as lc join fetch p.image as i where i.id in (:ids)"
@@ -5625,7 +5625,7 @@ class _PixelsWrapper (BlitzObjectWrapper):
         If a range of planes are required, :meth:`getPlanes` is approximately
         30% faster.
         """
-        planeList = list( self.getPlanes([(theZ, theC, theT)]))
+        planeList = list(self.getPlanes([(theZ, theC, theT)]))
         return planeList[0]
 
     def getTiles(self, zctTileList):
@@ -5690,7 +5690,7 @@ class _PixelsWrapper (BlitzObjectWrapper):
         If a range of tile are required, :meth:`getTiles` is approximately 30%
         faster.
         """
-        tileList = list( self.getTiles([(theZ, theC, theT, tile)]))
+        tileList = list(self.getTiles([(theZ, theC, theT, tile)]))
         return tileList[0]
 
 PixelsWrapper = _PixelsWrapper
@@ -6409,13 +6409,13 @@ class _ImageWrapper (BlitzObjectWrapper):
                 try:
                     tb.resetDefaults(ctx)      # E.g. May throw Missing Pyramid Exception
                 except omero.ConcurrencyException, ce:
-                    logger.info( "ConcurrencyException: resetDefaults() failed in _prepareTB with backOff: %s" % ce.backOff)
+                    logger.info("ConcurrencyException: resetDefaults() failed in _prepareTB with backOff: %s" % ce.backOff)
                     return tb
                 tb.setPixelsId(pid, ctx)
                 try:
                     rdefId = tb.getRenderingDefId(ctx)
                 except omero.ApiUsageException:         # E.g. No rendering def (because of missing pyramid!)
-                    logger.info( "ApiUsageException: getRenderingDefId() failed in _prepareTB")
+                    logger.info("ApiUsageException: getRenderingDefId() failed in _prepareTB")
                     return tb
                 self._onResetDefaults(rdefId)
         return tb
@@ -6763,7 +6763,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
 
         if not self._loadPixels():
-            logger.debug( "No pixels!")
+            logger.debug("No pixels!")
             return None
         axis = axis.lower()[:1]
         if channels is None:
