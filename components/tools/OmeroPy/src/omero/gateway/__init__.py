@@ -207,7 +207,7 @@ class BlitzObjectWrapper (object):
         Used for building queries in generic methods such as getObjects("Project")
         """
         return "select obj from %s obj join fetch obj.details.owner as owner join fetch obj.details.group "\
-                "join fetch obj.details.creationEvent" % self.OMERO_CLASS
+            "join fetch obj.details.creationEvent" % self.OMERO_CLASS
 
     def _getChildWrapper(self):
         """
@@ -650,15 +650,15 @@ class BlitzObjectWrapper (object):
                 break
         if link_class is None:
             raise AttributeError(
-                    "This object has no parent objects with a link class!")
+                "This object has no parent objects with a link class!")
         query_serv = self._conn.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
         p.map["child"] = rlong(self.id)
         sql = "select pchl from %s as pchl " \
-                "left outer join fetch pchl.parent as parent " \
-                "left outer join fetch pchl.child as child " \
-                "where child.id=:child" % link_class
+            "left outer join fetch pchl.parent as parent " \
+            "left outer join fetch pchl.child as child " \
+            "where child.id=:child" % link_class
         if isinstance(pids, list) and len(pids) > 0:
             p.map["parent"] = rlist([rlong(pa) for pa in pids])
             sql += " and parent.id in (:parent)"
@@ -698,8 +698,8 @@ class BlitzObjectWrapper (object):
         ctx.setOmeroGroup(self.details.group.id.val)
         if not self._obj.isAnnotationLinksLoaded():
             query = "select l from %sAnnotationLink as l join fetch l.details.owner join fetch l.details.creationEvent "\
-            "join fetch l.child as a join fetch a.details.owner join fetch a.details.creationEvent "\
-            "where l.parent.id=%i" % (self.OMERO_CLASS, self._oid)
+                "join fetch l.child as a join fetch a.details.owner join fetch a.details.creationEvent "\
+                "where l.parent.id=%i" % (self.OMERO_CLASS, self._oid)
             links = self._conn.getQueryService().findAllByQuery(query, None, ctx)
             self._obj._annotationLinksLoaded = True
             self._obj._annotationLinksSeq = links
@@ -2461,8 +2461,8 @@ class _BlitzGateway (object):
         p.map = {}
         p.map["gids"] = rlist([rlong(a) for a in set(self.getEventContext().leaderOfGroups)])
         sql = "select e from Experimenter as e where " \
-                "exists ( select gem from GroupExperimenterMap as gem where gem.child = e.id " \
-                "and gem.parent.id in (:gids)) order by e.omeName"
+            "exists ( select gem from GroupExperimenterMap as gem where gem.child = e.id " \
+            "and gem.parent.id in (:gids)) order by e.omeName"
         for e in q.findAllByQuery(sql, p, self.SERVICE_OPTS):
             if e.id.val != self.getUserId():
                 yield ExperimenterWrapper(self, e)
@@ -2890,7 +2890,7 @@ class _BlitzGateway (object):
             else:
                 # need to map numpy pixel types to omero - don't handle: bool_, character, int_, int64, object_
                 pTypes = {'int8': 'int8', 'int16': 'int16', 'uint16': 'uint16', 'int32': 'int32', 'float_': 'float', 'float8': 'float',
-                            'float16': 'float', 'float32': 'float', 'float64': 'double', 'complex_': 'complex', 'complex64': 'complex'}
+                          'float16': 'float', 'float32': 'float', 'float64': 'double', 'complex_': 'complex', 'complex64': 'complex'}
                 dType = firstPlane.dtype.name
                 if dType not in pTypes:  # try to look up any not named above
                     pType = dType
@@ -3903,7 +3903,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
         Used for building queries in generic methods such as getObjects("Annotation")
         """
         return "select obj from Annotation obj join fetch obj.details.owner as owner join fetch obj.details.group "\
-                "join fetch obj.details.creationEvent"
+            "join fetch obj.details.creationEvent"
 
     @classmethod
     def _register(klass, regklass):
@@ -3996,8 +3996,8 @@ class AnnotationWrapper (BlitzObjectWrapper):
         p.map = {}
         p.map["aid"] = rlong(self.id)
         sql = "select oal from %sAnnotationLink as oal left outer join fetch oal.child as ch " \
-                "left outer join fetch oal.parent as pa " \
-                "where ch.id=:aid " % (ptype)
+            "left outer join fetch oal.parent as pa " \
+            "where ch.id=:aid " % (ptype)
         if pids is not None:
             p.map["pids"] = rlist([rlong(ob) for ob in pids])
             sql += " and pa.id in (:pids)"
@@ -4043,7 +4043,7 @@ class FileAnnotationWrapper (AnnotationWrapper):
         Used for building queries in generic methods such as getObjects("FileAnnotation")
         """
         return "select obj from FileAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group "\
-                "join fetch obj.details.creationEvent join fetch obj.file"
+            "join fetch obj.details.creationEvent join fetch obj.file"
 
     def getValue(self):
         """ Not implemented """
@@ -4168,7 +4168,7 @@ class TimestampAnnotationWrapper (AnnotationWrapper):
         Used for building queries in generic methods such as getObjects("TimestampAnnotation")
         """
         return "select obj from TimestampAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group "\
-                "join fetch obj.details.creationEvent"
+            "join fetch obj.details.creationEvent"
 
     def getValue(self):
         """
@@ -4212,7 +4212,7 @@ class BooleanAnnotationWrapper (AnnotationWrapper):
         Used for building queries in generic methods such as getObjects("BooleanAnnotation")
         """
         return "select obj from BooleanAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group "\
-                "join fetch obj.details.creationEvent"
+            "join fetch obj.details.creationEvent"
 
     def getValue(self):
         """
@@ -4288,7 +4288,7 @@ class TagAnnotationWrapper (AnnotationWrapper):
         Used for building queries in generic methods such as getObjects("TagAnnotation")
         """
         return "select obj from TagAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group "\
-                "join fetch obj.details.creationEvent"
+            "join fetch obj.details.creationEvent"
 
     def getValue(self):
         """
@@ -4364,7 +4364,7 @@ class LongAnnotationWrapper (AnnotationWrapper):
         Used for building queries in generic methods such as getObjects("LongAnnotation")
         """
         return "select obj from LongAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group "\
-                "join fetch obj.details.creationEvent"
+            "join fetch obj.details.creationEvent"
 
     def getValue(self):
         """
@@ -4402,7 +4402,7 @@ class DoubleAnnotationWrapper (AnnotationWrapper):
         Used for building queries in generic methods such as getObjects("DoubleAnnotation")
         """
         return "select obj from DoubleAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group "\
-                "join fetch obj.details.creationEvent"
+            "join fetch obj.details.creationEvent"
 
     def getValue(self):
         """
@@ -4441,7 +4441,7 @@ class TermAnnotationWrapper (AnnotationWrapper):
         Used for building queries in generic methods such as getObjects("TermAnnotation")
         """
         return "select obj from TermAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group "\
-                "join fetch obj.details.creationEvent"
+            "join fetch obj.details.creationEvent"
 
     def getValue(self):
         """
@@ -5025,10 +5025,10 @@ class _PlateWrapper (BlitzObjectWrapper):
         Returns a query string for constructing custom queries, loading the screen for each plate.
         """
         query = "select obj from Plate as obj " \
-              "join fetch obj.details.owner as owner join fetch obj.details.group "\
-              "join fetch obj.details.creationEvent "\
-              "left outer join fetch obj.screenLinks spl " \
-              "left outer join fetch spl.parent sc"
+            "join fetch obj.details.owner as owner join fetch obj.details.group "\
+            "join fetch obj.details.creationEvent "\
+            "left outer join fetch obj.screenLinks spl " \
+            "left outer join fetch spl.parent sc"
         return query
 
 PlateWrapper = _PlateWrapper
@@ -5709,9 +5709,9 @@ class _FilesetWrapper (BlitzObjectWrapper):
         Used for building queries in generic methods such as getObjects("Fileset")
         """
         return "select obj from Fileset obj "\
-                "left outer join fetch obj.images as image "\
-                "left outer join fetch obj.usedFiles as usedFile " \
-                "join fetch usedFile.originalFile"
+            "left outer join fetch obj.images as image "\
+            "left outer join fetch obj.usedFiles as usedFile " \
+            "join fetch usedFile.originalFile"
 
     def copyImages(self):
         """ Returns a list of :class:`ImageWrapper` linked to this Fileset """
@@ -6906,14 +6906,14 @@ class _ImageWrapper (BlitzObjectWrapper):
             for w in waves:
                 color = ColorHolder.fromRGBA(w.getRed().val, w.getGreen().val, w.getBlue().val, 255)
                 d['c'].append({
-                        'active': w.getActive().val,
-                        'start': w.getInputStart().val,
-                        'end': w.getInputEnd().val,
-                        'color': color.getHtml(),
-                        'rgb': {'red': w.getRed().val,
-                                'green': w.getGreen().val,
-                                'blue': w.getBlue().val}
-                        })
+                    'active': w.getActive().val,
+                    'start': w.getInputStart().val,
+                    'end': w.getInputEnd().val,
+                    'color': color.getHtml(),
+                    'rgb': {'red': w.getRed().val,
+                            'green': w.getGreen().val,
+                            'blue': w.getBlue().val}
+                    })
             rv.append(d)
         return rv
 
@@ -7888,7 +7888,7 @@ class _ImageWrapper (BlitzObjectWrapper):
                 query += ' and roi.details.owner.id = :ownerId'
                 params.addLong('ownerId', self._conn.getUserId())
             count = self._conn.getQueryService().projection(
-                    query, params, self._conn.SERVICE_OPTS)
+                query, params, self._conn.SERVICE_OPTS)
             # Projection returns a two dimensional array of RType wrapped
             # return values so we want the value of row one, column one.
             return count[0][0].getValue()
