@@ -2912,7 +2912,7 @@ class _BlitzGateway (object):
                 p += plane
                 plane = p
             byteSwappedPlane = plane.byteswap()
-            convertedPlane = byteSwappedPlane.tostring();
+            convertedPlane = byteSwappedPlane.tostring()
             rawPixelsStore.setPlane(convertedPlane, z, c, t, self.SERVICE_OPTS)
 
         image = None
@@ -3113,7 +3113,7 @@ class _BlitzGateway (object):
                 rawFileStore.write(block, pos, blockSize, self.SERVICE_OPTS)
             originalFile = rawFileStore.save(self.SERVICE_OPTS)
         finally:
-            rawFileStore.close();
+            rawFileStore.close()
         return OriginalFileWrapper(self, originalFile)
 
     def createOriginalFileFromLocalFile(self, localPath, origFilePathAndName=None, mimetype=None, ns=None):
@@ -3586,7 +3586,7 @@ class _BlitzGateway (object):
                     results = timeit(searchProcessing)()
                     if p == page:
                         rv.extend(map(lambda x: t(self, x), results))
-                        break;
+                        break
                     p += 1
 
         finally:
@@ -3730,7 +3730,7 @@ class ProxyObjectWrapper (object):
         :return:    True if connection OK
         :rtype:     Boolean
         """
-        logger.debug("proxy_connect: a");
+        logger.debug("proxy_connect: a")
         if forcejoin:
             sUuid = self._conn._sessionUuid
         else:
@@ -3739,11 +3739,11 @@ class ProxyObjectWrapper (object):
             logger.debug('connect failed')
             logger.debug('/n'.join(traceback.format_stack()))
             return False
-        logger.debug("proxy_connect: b");
+        logger.debug("proxy_connect: b")
         self._resyncConn(self._conn)
-        logger.debug("proxy_connect: c");
+        logger.debug("proxy_connect: c")
         self._obj = self._create_func()
-        logger.debug("proxy_connect: d");
+        logger.debug("proxy_connect: d")
         return True
 
     def taint(self):
@@ -4113,7 +4113,7 @@ class FileAnnotationWrapper (AnnotationWrapper):
         :rtype:     Generator
         """
 
-        return self.getFile().getFileInChunks();
+        return self.getFile().getFileInChunks()
 
 AnnotationWrapper._register(FileAnnotationWrapper)
 
@@ -7004,7 +7004,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             rv = self._re.renderCompressed(self._pd, self._conn.SERVICE_OPTS)
             return rv
         except omero.InternalException:  # pragma: no cover
-            logger.debug('On renderJpegRegion');
+            logger.debug('On renderJpegRegion')
             logger.debug(traceback.format_exc())
             return None
         except Ice.MemoryLimitException:  # pragma: no cover
@@ -7053,7 +7053,7 @@ class _ImageWrapper (BlitzObjectWrapper):
                 rv = self._re.renderProjectedCompressed(projection, self._pd.t, 1, prStart, prEnd, self._conn.SERVICE_OPTS)
             return rv
         except omero.InternalException:  # pragma: no cover
-            logger.debug('On renderJpeg');
+            logger.debug('On renderJpeg')
             logger.debug(traceback.format_exc())
             return None
         except Ice.MemoryLimitException:  # pragma: no cover
