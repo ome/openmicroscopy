@@ -2226,8 +2226,8 @@ class _BlitzGateway (object):
         """
 
         links = {'Dataset': ('ProjectDatasetLink', DatasetWrapper),
-                'Image': ('DatasetImageLink', ImageWrapper),
-                'Plate': ('ScreenPlateLink', PlateWrapper)}
+                 'Image': ('DatasetImageLink', ImageWrapper),
+                 'Plate': ('ScreenPlateLink', PlateWrapper)}
 
         if params is None:
             params = omero.sys.ParametersI()
@@ -2812,7 +2812,7 @@ class _BlitzGateway (object):
             # We can use a single query to exclude links to a single parent
             p.map["oid"] = rlong(parent_ids[0])
             wheres.append("not exists ( select link from %sAnnotationLink as link "\
-                    "where link.child=an.id and link.parent.id=:oid%s)" % (parent_type, filterlink))
+                          "where link.child=an.id and link.parent.id=:oid%s)" % (parent_type, filterlink))
         else:
             # for multiple parents, we first need to find annotations linked to ALL of them, then exclude those from query
             p.map["oids"] = omero.rtypes.wrap(parent_ids)
@@ -3421,12 +3421,12 @@ class _BlitzGateway (object):
             op["/FileAnnotation"] = "KEEP"
 
         childTypes = {'/Project': ['/Dataset', '/Image'],
-                '/Dataset': ['/Image'],
-                '/Image': [],
-                '/Screen': ['/Plate'],
-                '/Plate': ['/Image'],
-                '/Well': [],
-                '/Annotation': [] }
+                      '/Dataset': ['/Image'],
+                      '/Image': [],
+                      '/Screen': ['/Plate'],
+                      '/Plate': ['/Image'],
+                      '/Well': [],
+                      '/Annotation': [] }
 
         if not deleteChildren:
             try:
@@ -3437,7 +3437,7 @@ class _BlitzGateway (object):
 
         dcs = list()
         logger.debug('Deleting %s [%s]. Options: %s' % \
-                (graph_spec, str(obj_ids), op))
+                     (graph_spec, str(obj_ids), op))
         for oid in obj_ids:
             dcs.append(omero.cmd.Delete(
                 graph_spec, long(oid), op))
@@ -3489,8 +3489,8 @@ class _BlitzGateway (object):
 
         # (link, child, parent)
         parentLinkClasses = {"/Image": (omero.model.DatasetImageLinkI, omero.model.ImageI, omero.model.DatasetI),
-                        "/Dataset": (omero.model.ProjectDatasetLinkI, omero.model.DatasetI, omero.model.ProjectI),
-                        "/Plate": (omero.model.ScreenPlateLinkI, omero.model.PlateI, omero.model.ScreenI)}
+                             "/Dataset": (omero.model.ProjectDatasetLinkI, omero.model.DatasetI, omero.model.ProjectI),
+                             "/Plate": (omero.model.ScreenPlateLinkI, omero.model.PlateI, omero.model.ScreenI)}
         da = DoAll()
         requests = []
         saves = []
@@ -5626,13 +5626,13 @@ class _PixelsWrapper (BlitzObjectWrapper):
         from struct import unpack
 
         pixelTypes = {"int8": ['b', numpy.int8],
-                "uint8": ['B', numpy.uint8],
-                "int16": ['h', numpy.int16],
-                "uint16": ['H', numpy.uint16],
-                "int32": ['i', numpy.int32],
-                "uint32": ['I', numpy.uint32],
-                "float": ['f', numpy.float32],
-                "double": ['d', numpy.float64]}
+                      "uint8": ['B', numpy.uint8],
+                      "int16": ['h', numpy.int16],
+                      "uint16": ['H', numpy.uint16],
+                      "int32": ['i', numpy.int32],
+                      "uint32": ['I', numpy.uint32],
+                      "float": ['f', numpy.float32],
+                      "double": ['d', numpy.float64]}
 
         rawPixelsStore = self._prepareRawPixelsStore()
         sizeX = self.sizeX
@@ -5875,7 +5875,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
             logger.error("getStatsInfo() is null. See #9695")
             try:
                 minVals = {'int8': -128, 'uint8': 0, 'int16': -32768, 'uint16': 0, 'int32': -32768,
-                    'uint32': 0, 'float': -32768, 'double': -32768}
+                           'uint32': 0, 'float': -32768, 'double': -32768}
                 pixtype = self._obj.getPixels().getPixelsType().getValue().getValue()
                 return minVals[pixtype]
             except:     # Just in case we don't support pixType above
@@ -5894,7 +5894,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
             logger.error("getStatsInfo() is null. See #9695")
             try:
                 maxVals = {'int8': 127, 'uint8': 255, 'int16': 32767, 'uint16': 65535, 'int32': 32767,
-                    'uint32': 65535, 'float': 32767, 'double': 32767}
+                           'uint32': 65535, 'float': 32767, 'double': 32767}
                 pixtype = self._obj.getPixels().getPixelsType().getValue().getValue()
                 return maxVals[pixtype]
             except:     # Just in case we don't support pixType above
@@ -6194,7 +6194,7 @@ class _ImageWrapper (BlitzObjectWrapper):
                 # Since we need to calculate sizes, store them too in the marshaled value
                 maxplanesize = self._conn.getMaxPlaneSize()
                 rv['size'] = {'width': self.getSizeX(),
-                             'height': self.getSizeY(),
+                              'height': self.getSizeY(),
                               }
                 if rv['size']['height'] and rv['size']['width']:
                     rv['tiled'] = (rv['size']['height'] * rv['size']['width']) > (maxplanesize[0] * maxplanesize[1])
@@ -6883,8 +6883,8 @@ class _ImageWrapper (BlitzObjectWrapper):
             owner = rdef.getDetails().owner
             d['id'] = rdef.getId().val
             d['owner'] = {'id': owner.id.val,
-                        'firstName': owner.getFirstName().val,
-                        'lastName': owner.getLastName().val}
+                          'firstName': owner.getFirstName().val,
+                          'lastName': owner.getLastName().val}
             d['z'] = rdef.getDefaultZ().val
             d['t'] = rdef.getDefaultT().val
             d['model'] = rdef.getModel().getValue().val        # greyscale / rgb
@@ -6898,8 +6898,8 @@ class _ImageWrapper (BlitzObjectWrapper):
                         'end': w.getInputEnd().val,
                         'color': color.getHtml(),
                         'rgb': {'red': w.getRed().val,
-                            'green': w.getGreen().val,
-                            'blue': w.getBlue().val}
+                                'green': w.getGreen().val,
+                                'blue': w.getBlue().val}
                         })
             rv.append(d)
         return rv
@@ -7157,10 +7157,10 @@ class _ImageWrapper (BlitzObjectWrapper):
         # Lets prepare the channel settings
         channels = self.getChannels()
         args.append('ChannelsExtended=%s' % (','.join(["%d|%s:%s$%s" % (x._idx+1,
-                                                                Decimal(str(x.getWindowStart())),
-                                                                Decimal(str(x.getWindowEnd())),
-                                                                x.getColor().getHtml())
-                                     for x in channels if x.isActive()])))
+                                                                        Decimal(str(x.getWindowStart())),
+                                                                        Decimal(str(x.getWindowEnd())),
+                                                                        x.getColor().getHtml())
+                                                       for x in channels if x.isActive()])))
 
         watermark = opts.get('watermark', None)
         logger.debug('watermark: %s' % watermark)
@@ -7309,10 +7309,10 @@ class _ImageWrapper (BlitzObjectWrapper):
         else:
             x = y
         rv = {'g': {'width': self.getSizeX()*x + border*(x+1),
-              'height': self.getSizeY()*y+border*(y+1),
-              'border': border,
-              'gridx': x,
-              'gridy': y, }
+                    'height': self.getSizeY()*y+border*(y+1),
+                    'border': border,
+                    'gridx': x,
+                    'gridy': y, }
               }
         # Color, one extra image with all channels overlayed
         c += 1
@@ -7323,10 +7323,10 @@ class _ImageWrapper (BlitzObjectWrapper):
         else:
             x = y
         rv['c'] = {'width': self.getSizeX()*x + border*(x+1),
-              'height': self.getSizeY()*y+border*(y+1),
-              'border': border,
-              'gridx': x,
-              'gridy': y, }
+                   'height': self.getSizeY()*y+border*(y+1),
+                   'border': border,
+                   'gridx': x,
+                   'gridy': y, }
         return rv
 
     def _renderSplit_channelLabel(self, channel):
@@ -8492,25 +8492,25 @@ def refreshWrappers():
     this needs to be called by modules that extend the base wrappers
     """
     KNOWN_WRAPPERS.update({"project": ProjectWrapper,
-                  "dataset": DatasetWrapper,
-                  "image": ImageWrapper,
-                  "screen": ScreenWrapper,
-                  "plate": PlateWrapper,
-                  "plateacquisition": PlateAcquisitionWrapper,
-                  "acquisition": PlateAcquisitionWrapper,
-                  "well": WellWrapper,
-                  "experimenter": ExperimenterWrapper,
-                  "experimentergroup": ExperimenterGroupWrapper,
-                  "originalfile": OriginalFileWrapper,
-                  "fileset": FilesetWrapper,
-                  "commentannotation": CommentAnnotationWrapper,
-                  "tagannotation": TagAnnotationWrapper,
-                  "longannotation": LongAnnotationWrapper,
-                  "booleanannotation": BooleanAnnotationWrapper,
-                  "fileannotation": FileAnnotationWrapper,
-                  "doubleannotation": DoubleAnnotationWrapper,
-                  "termannotation": TermAnnotationWrapper,
-                  "timestampannotation": TimestampAnnotationWrapper,
-                  "annotation": AnnotationWrapper._wrap})    # allows for getObjects("Annotation", ids)
+                           "dataset": DatasetWrapper,
+                           "image": ImageWrapper,
+                           "screen": ScreenWrapper,
+                           "plate": PlateWrapper,
+                           "plateacquisition": PlateAcquisitionWrapper,
+                           "acquisition": PlateAcquisitionWrapper,
+                           "well": WellWrapper,
+                           "experimenter": ExperimenterWrapper,
+                           "experimentergroup": ExperimenterGroupWrapper,
+                           "originalfile": OriginalFileWrapper,
+                           "fileset": FilesetWrapper,
+                           "commentannotation": CommentAnnotationWrapper,
+                           "tagannotation": TagAnnotationWrapper,
+                           "longannotation": LongAnnotationWrapper,
+                           "booleanannotation": BooleanAnnotationWrapper,
+                           "fileannotation": FileAnnotationWrapper,
+                           "doubleannotation": DoubleAnnotationWrapper,
+                           "termannotation": TermAnnotationWrapper,
+                           "timestampannotation": TimestampAnnotationWrapper,
+                           "annotation": AnnotationWrapper._wrap})    # allows for getObjects("Annotation", ids)
 
 refreshWrappers()
