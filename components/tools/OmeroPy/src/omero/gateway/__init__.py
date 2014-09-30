@@ -561,7 +561,7 @@ class BlitzObjectWrapper (object):
                     params.map["val"] = omero_type(val)
                     query +=" and a.textValue=:val"
         query += " order by c.child.name"
-        for child in ( x.child for x in self._conn.getQueryService().findAllByQuery(query, params, self._conn.SERVICE_OPTS) ):
+        for child in ( x.child for x in self._conn.getQueryService().findAllByQuery(query, params, self._conn.SERVICE_OPTS)):
             yield child
 
     def listChildren(self, ns=None, val=None, params=None):
@@ -2668,7 +2668,7 @@ class _BlitzGateway (object):
         # finding by attributes
         if attributes != None:
             for k, v in attributes.items():
-                clauses.append('obj.%s=:%s' % (k, k) )
+                clauses.append('obj.%s=:%s' % (k, k))
                 params.map[k] = omero_type(v)
 
         if clauses:
@@ -2931,7 +2931,7 @@ class _BlitzGateway (object):
                         minValue = plane.min()
                         maxValue = plane.max()
                         if len(channelsMinMax) < (theC +1):     # first plane of each channel
-                            channelsMinMax.append( [minValue, maxValue] )
+                            channelsMinMax.append( [minValue, maxValue])
                         else:
                             channelsMinMax[theC][0] = min(channelsMinMax[theC][0], minValue)
                             channelsMinMax[theC][1] = max(channelsMinMax[theC][1], maxValue)
@@ -3026,7 +3026,7 @@ class _BlitzGateway (object):
 
         queryService = self.getQueryService()
         params = omero.sys.Parameters()
-        params.map = {'ids': omero.rtypes.wrap( imageIds )}
+        params.map = {'ids': omero.rtypes.wrap( imageIds)}
 
         # load Pixels, Channels, Logical Channels and Images
         query = "select p from Pixels p left outer join fetch p.channels as c join fetch c.logicalChannel as lc join fetch p.image as i where i.id in (:ids)"
@@ -3413,7 +3413,7 @@ class _BlitzGateway (object):
                       '/Screen': ['/Plate'],
                       '/Plate': ['/Image'],
                       '/Well': [],
-                      '/Annotation': [] }
+                      '/Annotation': []}
 
         if not deleteChildren:
             try:
@@ -5621,7 +5621,7 @@ class _PixelsWrapper (BlitzObjectWrapper):
         If a range of planes are required, :meth:`getPlanes` is approximately
         30% faster.
         """
-        planeList = list( self.getPlanes([(theZ, theC, theT)]) )
+        planeList = list( self.getPlanes([(theZ, theC, theT)]))
         return planeList[0]
 
     def getTiles(self, zctTileList):
@@ -5686,7 +5686,7 @@ class _PixelsWrapper (BlitzObjectWrapper):
         If a range of tile are required, :meth:`getTiles` is approximately 30%
         faster.
         """
-        tileList = list( self.getTiles([(theZ, theC, theT, tile)]) )
+        tileList = list( self.getTiles([(theZ, theC, theT, tile)]))
         return tileList[0]
 
 PixelsWrapper = _PixelsWrapper
@@ -7188,7 +7188,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         args.append('Scalebar=%d' % scalebar)
         fsizes = (8, 8, 12, 18, 24, 32, 32, 40, 48, 56, 56, 64)
         fsize = fsizes[max(min(int(w / 256)-1, len(fsizes)), 1) - 1]
-        font = ImageFont.load('%s/pilfonts/B%0.2d.pil' % (THISPATH, fsize) )
+        font = ImageFont.load('%s/pilfonts/B%0.2d.pil' % (THISPATH, fsize))
         slides = opts.get('slides', [])
         for slidepos in range(min(2, len(slides))):
             t = slides[slidepos]
@@ -7380,7 +7380,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         else:  # pragma: no cover
             fsize = 0
         if fsize > 0:
-            font = ImageFont.load('%s/pilfonts/B%0.2d.pil' % (THISPATH, fsize) )
+            font = ImageFont.load('%s/pilfonts/B%0.2d.pil' % (THISPATH, fsize))
 
         for i in range(c):
             if cmap[i]:
