@@ -35,6 +35,7 @@ except:
     from md5 import md5
 
 from cStringIO import StringIO
+import tempfile
 
 from omero import ApiUsageException
 from omero.util.decorators import timeit, TimeIt
@@ -953,7 +954,6 @@ def render_movie (request, iid, axis, pos, conn=None, **kwargs):
         logger.debug('rendering movie for img %s with axis %s, pos %i and opts %s' % (iid, axis, pos, opts))
         #fpath, rpath = webgateway_tempfile.newdir()
         if fpath is None:
-            import tempfile
             fo, fn = tempfile.mkstemp()
         else:
             fn = fpath #os.path.join(fpath, img.getName())
@@ -1778,7 +1778,6 @@ def download_as(request, iid=None, conn=None, **kwargs):
         rsp['Content-Length'] = len(jpeg_data)
         rsp['Content-Disposition'] = 'attachment; filename=%s.jpg' % (images[0].getName().replace(" ","_"))
     else:
-        import tempfile
         temp = tempfile.NamedTemporaryFile(suffix='.download_as')
 
         def makeImageName(originalName, extension, folder_name):
@@ -1869,7 +1868,6 @@ def archived_files(request, iid=None, conn=None, **kwargs):
     for image in images:
         for f in image.getImportedImageFiles():
             fileMap[f.getId()] = f
-        templatePrefix = image.getFileset().getTemplatePrefix()
     files = fileMap.values()
 
     if len(files) == 0:
@@ -1885,77 +1883,11 @@ def archived_files(request, iid=None, conn=None, **kwargs):
         rsp['Content-Disposition'] = 'attachment; filename=%s' % (fname)
     else:
 
-        import tempfile
         temp = tempfile.NamedTemporaryFile(suffix='.archive')
         zipName = request.REQUEST.get('zipname', image.getName())
-        zipName = zipName.replace(" ","_").replace(",", ".")        # ',' in name causes duplicate headers
-        if not zipName.endswith('.zip'):
-            zipName = "%s.zip" % zipName
 
-        def getTargetPath(fsFile, templatePrefix, temp_zip_dir):
-            relPath = os.path.relpath(fsFile.getPath(), templatePrefix)
-            return os.path.join(temp_zip_dir, relPath, fsFile.getName())
-
-        fsIds = set()
-        fIds = set()
         try:
-            temp_zip_dir = tempfile.mkdtemp()
-            logger.debug("download dir: %s" % temp_zip_dir)
-            try:
-                for image in images:
-                    templatePrefix = ""
-                    new_dir = ""            # if needed to avoid file name clashes
-                    fs = image.getFileset()
-                    if fs is not None:
-                        # Make sure we've not processed this fileset before.
-                        if fs.id in fsIds:
-                            continue
-                        fsIds.add(fs.id)
-                        templatePrefix = fs.getTemplatePrefix()
-                    files = list(image.getImportedImageFiles())
-
-                    # check if ANY of the files will overwrite exising file
-                    for f in files:
-                        if os.path.exists(getTargetPath(f, templatePrefix, temp_zip_dir)):
-                            new_dir = str(image.getId())
-                            break
-
-                    for a in files:
-                        # check for duplicate files for OMERO 4.4 images (no fileset)
-                        if a.id in fIds:
-                            continue
-                        fIds.add(a.id)
-                        temp_f = getTargetPath(a, templatePrefix, os.path.join(temp_zip_dir, new_dir))
-                        temp_d = os.path.dirname(temp_f)
-                        if not os.path.exists(temp_d):
-                            os.makedirs(temp_d)
-
-                        # Need to be sure that the zip name does not match any file within it
-                        # since OS X will unzip as a single file instead of a directory
-                        if zipName == "%s.zip" % a.name:
-                            zipName = "%s_folder.zip" % a.name
-
-                        f = open(str(temp_f),"wb")
-                        try:
-                            for chunk in a.getFileInChunks():
-                                f.write(chunk)
-                        finally:
-                            f.close()
-
-                # create zip
-                zip_file = zipfile.ZipFile(temp, 'w', zipfile.ZIP_DEFLATED)
-                try:
-                    for root, dirs, files in os.walk(temp_zip_dir):
-                        archive_root = os.path.relpath(root, temp_zip_dir)
-                        for f in files:
-                            fullpath = os.path.join(root, f)
-                            archive_name = os.path.join(archive_root, f)
-                            zip_file.write(fullpath, archive_name)
-                finally:
-                    zip_file.close()
-                    # delete temp dir
-            finally:
-                shutil.rmtree(temp_zip_dir, ignore_errors=True)
+            zipName = zip_archived_files(images, temp, zipName)
 
             # return the zip or single file
             archivedFile_data = FileWrapper(temp)
@@ -1972,6 +1904,89 @@ def archived_files(request, iid=None, conn=None, **kwargs):
 
     rsp['Content-Type'] = 'application/force-download'
     return rsp
+
+
+def zip_archived_files(images, temp, zipName):
+
+    zipName = zipName.replace(" ","_").replace(",", ".")        # ',' in name causes duplicate headers
+    if not zipName.endswith('.zip'):
+        zipName = "%s.zip" % zipName
+
+    def getTargetPath(fsFile, templatePrefix):
+        if fsFile.getPath() == templatePrefix:
+            return fsFile.getName()
+        relPath = os.path.relpath(fsFile.getPath(), templatePrefix)
+        return os.path.join(relPath, fsFile.getName())
+
+    def split_path(p):
+        a,b = os.path.split(p)
+        return (split_path(a) if len(a) and len(b) else []) + [b]
+
+    fsIds = set()
+    fIds = set()
+
+    temp_zip_dir = tempfile.mkdtemp()
+    logger.debug("download dir: %s" % temp_zip_dir)
+    try:
+        for image in images:
+            templatePrefix = ""
+            new_dir = ""            # if needed to avoid file name clashes
+            fs = image.getFileset()
+            if fs is not None:
+                # Make sure we've not processed this fileset before.
+                if fs.id in fsIds:
+                    continue
+                fsIds.add(fs.id)
+                templatePrefix = fs.getTemplatePrefix()
+            files = list(image.getImportedImageFiles())
+
+            # check if ANY of the files will overwrite exising file
+            for f in files:
+                target_path = getTargetPath(f, templatePrefix)
+                base_file = os.path.join(temp_zip_dir, split_path(target_path)[0])
+                if os.path.exists(base_file):
+                    new_dir = str(image.getId())
+                    break
+
+            for a in files:
+                # check for duplicate files for OMERO 4.4 images (no fileset)
+                if a.id in fIds:
+                    continue
+                fIds.add(a.id)
+                temp_f = getTargetPath(a, templatePrefix)
+                temp_f = os.path.join(temp_zip_dir, new_dir, temp_f)
+                temp_d = os.path.dirname(temp_f)
+                if not os.path.exists(temp_d):
+                    os.makedirs(temp_d)
+
+                # Need to be sure that the zip name does not match any file within it
+                # since OS X will unzip as a single file instead of a directory
+                if zipName == "%s.zip" % a.name:
+                    zipName = "%s_folder.zip" % a.name
+
+                f = open(str(temp_f),"wb")
+                try:
+                    for chunk in a.getFileInChunks():
+                        f.write(chunk)
+                finally:
+                    f.close()
+
+        # create zip
+        zip_file = zipfile.ZipFile(temp, 'w', zipfile.ZIP_DEFLATED)
+        try:
+            for root, dirs, files in os.walk(temp_zip_dir):
+                archive_root = os.path.relpath(root, temp_zip_dir)
+                for f in files:
+                    fullpath = os.path.join(root, f)
+                    archive_name = os.path.join(archive_root, f)
+                    zip_file.write(fullpath, archive_name)
+        finally:
+            zip_file.close()
+            # delete temp dir
+    finally:
+        shutil.rmtree(temp_zip_dir, ignore_errors=True)
+
+    return zipName
 
 
 @login_required()
