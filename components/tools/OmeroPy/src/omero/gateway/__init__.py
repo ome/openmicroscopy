@@ -1015,6 +1015,7 @@ class BlitzObjectWrapper (object):
                     v = getattr(self, tattr)
                     if v is not None:
                         v = v._value
+
                     def wrap():
                         return v
                     return wrap
@@ -1181,6 +1182,7 @@ class BlitzObjectWrapper (object):
 
 class NoProxies (object):
     """ A dummy placeholder to indicate that proxies haven't been created """
+
     def __getitem__(self, k):
         raise Ice.ConnectionLostException
 
@@ -3575,6 +3577,7 @@ class _BlitzGateway (object):
 
                 timeit(actualSearch)()
                 # get results
+
                 def searchProcessing():
                     return search.results(ctx)
                 p = 0
@@ -3772,6 +3775,7 @@ class ProxyObjectWrapper (object):
 
         self._conn = conn
         self._sf = conn.c.sf
+
         def cf():
             if self._func_str is None:
                 return self._cast_to(self._sf.getByName(self._service_name))
@@ -5941,6 +5945,7 @@ class assert_re (object):
         Tries to prepare rendering engine, then calls function and return the
         result.
         """
+
         def wrapped(self, *args, **kwargs):
             try:
                 if not self._prepareRenderingEngine() \
@@ -7411,6 +7416,7 @@ class _ImageWrapper (BlitzObjectWrapper):
     LP_TRANSPARENT = 0  # Some color
     LP_BGCOLOR = 1  # Black
     LP_FGCOLOR = 2  # white
+
     def prepareLinePlotCanvas(self):
         """
         Common part of horizontal and vertical line plot rendering.
@@ -8313,6 +8319,7 @@ class _ArcWrapper (_FilamentWrapper):
     """
     omero_model_ArcI class wrapper extends FilamentWrapper.
     """
+
     def __bstrap__(self):
         super(_ArcWrapper, self).__bstrap__()
         self.OMERO_CLASS = 'Arc'
@@ -8325,6 +8332,7 @@ class _LaserWrapper (_LightSourceWrapper):
     """
     omero_model_LaserI class wrapper extends LightSourceWrapper.
     """
+
     def __bstrap__(self):
         super(_LaserWrapper, self).__bstrap__()
         self.OMERO_CLASS = 'Laser'
@@ -8361,6 +8369,7 @@ class _LightEmittingDiodeWrapper (_LightSourceWrapper):
     """
     omero_model_LightEmittingDiodeI class wrapper extends LightSourceWrapper.
     """
+
     def __bstrap__(self):
         super(_LightEmittingDiodeWrapper, self).__bstrap__()
         self.OMERO_CLASS = 'LightEmittingDiode'
