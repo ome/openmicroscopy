@@ -27,18 +27,23 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class GatewayConfig(object):
+
     """
     Global Gateway configuration:
 
-    - :attr:`IMG_RDEFNS`:  a namespace for annotations linked on images holding the default rendering
-                   settings object id.
-    - :attr:`IMG_ROPTSNS`: a namespace for annotations linked on images holding default rendering options
-                   that don't get saved in the rendering settings.
+    - :attr:`IMG_RDEFNS`:  a namespace for annotations linked on images holding
+                           the default rendering settings object id.
+    - :attr:`IMG_ROPTSNS`: a namespace for annotations linked on images holding
+                           default rendering options that don't get saved in
+                           the rendering settings.
     """
-    def __init__ (self):
+
+    def __init__(self):
         self.IMG_RDEFNS = None
         self.IMG_ROPTSNS = None
+
 
 class ServiceOptsDict(dict):
 
@@ -57,9 +62,13 @@ class ServiceOptsDict(dict):
                 if self._testItem(item):
                     self[key] = str(item)
                 else:
-                    logger.debug("None or non- string, unicode or numeric type values are ignored, (%r, %r)" % (key,item))
+                    logger.debug(
+                        "None or non- string, unicode or numeric type"
+                        "values are ignored, (%r, %r)" % (key, item))
         else:
-            raise AttributeError("%s argument (%r:%s) must be a dictionary" % (self.__class__.__name__, data, type(data)))
+            raise AttributeError(
+                "%s argument (%r:%s) must be a dictionary"
+                % (self.__class__.__name__, data, type(data)))
 
     def __repr__(self):
         return "<%s: %s>" % (self.__class__.__name__,
@@ -71,17 +80,25 @@ class ServiceOptsDict(dict):
             super(ServiceOptsDict, self).__setitem__(key, str(item))
             logger.debug("Setting %r to %r" % (key, item))
         else:
-            raise AttributeError("%s argument (%r:%s) must be a string, unicode or numeric type" % (self.__class__.__name__, item, type(item)))
+            raise AttributeError(
+                "%s argument (%r:%s) must be a string, unicode or numeric type"
+                % (self.__class__.__name__, item, type(item)))
 
     def __getitem__(self, key):
-        """Return the value for key if key is in the dictionary. Raises a KeyError if key is not in the map."""
+        """
+        Return the value for key if key is in the dictionary.
+        Raises a KeyError if key is not in the map.
+        """
         try:
             return super(ServiceOptsDict, self).__getitem__(key)
         except KeyError:
             raise KeyError("Key %r not found in %r" % (key, self))
 
     def __delitem__(self, key):
-        """Remove dict[key] from dict. Raises a KeyError if key is not in the map."""
+        """
+        Remove dict[key] from dict.
+        Raises a KeyError if key is not in the map.
+        """
         super(ServiceOptsDict, self).__delitem__(key)
         logger.debug("Deleting %r" % (key))
 
@@ -94,7 +111,11 @@ class ServiceOptsDict(dict):
         super(ServiceOptsDict, self).clear()
 
     def get(self, key, default=None):
-        """Return the value for key if key is in the dictionary, else default. If default is not given, it defaults to None, so that this method never raises a KeyError."""
+        """
+        Return the value for key if key is in the dictionary, else default.
+        If default is not given, it defaults to None, so that this method
+        never raises a KeyError.
+        """
         try:
             return self.__getitem__(key)
         except KeyError:
@@ -102,14 +123,14 @@ class ServiceOptsDict(dict):
 
     def set(self, key, value):
         """Set key to value as string."""
-        return self.__setitem__(key,value)
+        return self.__setitem__(key, value)
 
     def getOmeroGroup(self):
         return self.get('omero.group')
 
     def setOmeroGroup(self, value=None):
         if value is not None:
-            self.set('omero.group',value)
+            self.set('omero.group', value)
         else:
             try:
                 del self['omero.group']
@@ -121,7 +142,7 @@ class ServiceOptsDict(dict):
 
     def setOmeroUser(self, value=None):
         if value is not None:
-            self.set('omero.user',value)
+            self.set('omero.user', value)
         else:
             try:
                 del self['omero.user']
@@ -133,18 +154,18 @@ class ServiceOptsDict(dict):
 
     def setOmeroShare(self, value=None):
         if value is not None:
-            self.set('omero.share',value)
+            self.set('omero.share', value)
         else:
             try:
                 del self['omero.share']
-            except KeyError: #pragma: no cover
+            except KeyError:  # pragma: no cover
                 logger.debug("Key 'omero.share' not found in %r" % self)
 
     def _testItem(self, item):
         if item is not None and not isinstance(item, bool) and \
-                    (isinstance(item, basestring) or \
-                    isinstance(item, int) or \
-                    isinstance(item, long) or \
-                    isinstance(item, float)):
+            (isinstance(item, basestring) or
+             isinstance(item, int) or
+             isinstance(item, long) or
+             isinstance(item, float)):
             return True
         return False
