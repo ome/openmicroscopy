@@ -2803,7 +2803,7 @@ class _BlitzGateway (object):
         if len(parent_ids) == 1:
             # We can use a single query to exclude links to a single parent
             p.map["oid"] = rlong(parent_ids[0])
-            wheres.append("not exists ( select link from %sAnnotationLink as link "\
+            wheres.append("not exists ( select link from %sAnnotationLink as link "
                           "where link.child=an.id and link.parent.id=:oid%s)" % (parent_type, filterlink))
         else:
             # for multiple parents, we first need to find annotations linked to ALL of them, then exclude those from query
@@ -3425,7 +3425,7 @@ class _BlitzGateway (object):
                 pass
 
         dcs = list()
-        logger.debug('Deleting %s [%s]. Options: %s' % \
+        logger.debug('Deleting %s [%s]. Options: %s' %
                      (graph_spec, str(obj_ids), op))
         for oid in obj_ids:
             dcs.append(omero.cmd.Delete(
@@ -5132,7 +5132,7 @@ class _WellWrapper (BlitzObjectWrapper):
         left outer join spl.parent s
         where spl.parent.id=s.id and spl.child.id=p.id and w.plate.id=p.id
         and w.id=:id"""
-        return [omero.gateway.ScreenWrapper(self._conn, x) for x in \
+        return [omero.gateway.ScreenWrapper(self._conn, x) for x in
                 self._conn.getQueryService().findAllByQuery(query, params, self._conn.SERVICE_OPTS)]
 
     def isWellSample(self):
@@ -5950,11 +5950,11 @@ class assert_re (object):
             try:
                 if not self._prepareRenderingEngine() \
                    and ctx.onPrepareFailureReturnNone:
-                    logger.debug('Preparation of rendering engine failed, ' \
+                    logger.debug('Preparation of rendering engine failed, '
                                  'returning None for %r!' % f)
                     return None
             except ctx.ignoreExceptions:
-                logger.debug('Ignoring exception thrown during preparation ' \
+                logger.debug('Ignoring exception thrown during preparation '
                              'of rendering engine for %r!' % f, exc_info=True)
                 pass
             return f(self, *args, **kwargs)
@@ -6444,7 +6444,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         global_metadata = list()
         series_metadata = list()
 
-        for l, m in ((global_metadata, rsp.globalMetadata), \
+        for l, m in ((global_metadata, rsp.globalMetadata),
                      (series_metadata, rsp.seriesMetadata)):
 
             for k, v in m.items():
