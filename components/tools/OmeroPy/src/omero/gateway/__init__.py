@@ -320,7 +320,6 @@ class BlitzObjectWrapper (object):
             return omero.gateway.DetailsWrapper(self._conn, self._obj.getDetails())
         return None
 
-
     def getDate(self):
         """
         Returns the object's acquisitionDate, or creation date (details.creationEvent.time)
@@ -338,7 +337,6 @@ class BlitzObjectWrapper (object):
             pass
 
         return self.creationEventDate()
-
 
     def save(self):
         """
@@ -723,7 +721,6 @@ class BlitzObjectWrapper (object):
             rv = filter(lambda x: x.getChild().getNs() and x.getChild().getNs().val == ns, rv)
         return rv
 
-
     def unlinkAnnotations(self, ns):
         """
         Uses updateService to unlink annotations, with specified ns
@@ -809,7 +806,6 @@ class BlitzObjectWrapper (object):
         """
 
         return self._conn.listOrphanedAnnotations(self.OMERO_CLASS, [self.getId()], eid, ns, anntype, addedByMe)
-
 
     def _linkObject(self, obj, lnkobjtype):
         """
@@ -902,7 +898,6 @@ class BlitzObjectWrapper (object):
             ann = self._linkAnnotation(ann)
         self.unloadAnnotationLinks()
         return ann
-
 
     def simpleMarshal(self, xtra=None, parents=False):
         """
@@ -1052,7 +1047,6 @@ class BlitzObjectWrapper (object):
             return rv
         raise AttributeError("'%s' object has no attribute '%s'" % (self._obj.__class__.__name__, attr))
 
-
     # some methods are accessors in _obj and return and omero:: type. The obvious ones we wrap to return a python type
 
     def getId(self):
@@ -1125,7 +1119,6 @@ class BlitzObjectWrapper (object):
         """
         return self.getDetails().getOwner().omeName
 
-
     def creationEventDate(self):
         """
         Gets event time in timestamp format (yyyy-mm-dd hh:mm:ss.fffffff) when object was created.
@@ -1146,7 +1139,6 @@ class BlitzObjectWrapper (object):
             self._creationDate = self._conn.getQueryService().get("Event", self._obj.details.creationEvent.id.val, self._conn.SERVICE_OPTS).time.val
         return datetime.fromtimestamp(self._creationDate/1000)
 
-
     def updateEventDate(self):
         """
         Gets event time in timestamp format (yyyy-mm-dd hh:mm:ss.fffffff) when object was updated.
@@ -1163,7 +1155,6 @@ class BlitzObjectWrapper (object):
         except:
             t = self._conn.getQueryService().get("Event", self._obj.details.updateEvent.id.val, self._conn.SERVICE_OPTS).time.val
         return datetime.fromtimestamp(t/1000)
-
 
     # setters are also provided
 
@@ -2337,7 +2328,6 @@ class _BlitzGateway (object):
             else:
                 yield ExperimenterGroupWrapper(self, e)
 
-
     def createGroup(self, name, owner_Ids=None, member_Ids=None, perms=None, description=None):
         """
         Creates a new ExperimenterGroup. Must have Admin permissions to call this.
@@ -2546,7 +2536,6 @@ class _BlitzGateway (object):
         filesetFileInfo = {'count': fsCount, 'size': fsSize}
         return filesetFileInfo
 
-
     ############################
     # Timeline service getters #
 
@@ -2584,7 +2573,6 @@ class _BlitzGateway (object):
                 tto = time.time() * 1000
             for e in tm.getByPeriod(['Image'], rtime(long(tfrom)), rtime(long(tto)), p, False)['Image']:
                 yield ImageWrapper(self, e)
-
 
     ###########################
     # Specific Object Getters #
@@ -2688,7 +2676,6 @@ class _BlitzGateway (object):
 
         return (query, params, wrapper)
 
-
     def listFileAnnotations(self, eid=None, toInclude=[], toExclude=[]):
         """
         Lists FileAnnotations created by users, filtering by namespaces if specified.
@@ -2717,7 +2704,6 @@ class _BlitzGateway (object):
 
         for a in anns:
             yield(FileAnnotationWrapper(self, a))
-
 
     def getAnnotationLinks(self, parent_type, parent_ids=None, ann_ids=None, ns=None, params=None):
         """
@@ -2775,7 +2761,6 @@ class _BlitzGateway (object):
         result = q.findAllByQuery(query, params, self.SERVICE_OPTS)
         for r in result:
             yield AnnotationLinkWrapper(self, r)
-
 
     def listOrphanedAnnotations(self, parent_type, parent_ids, eid=None, ns=None, anntype=None, addedByMe=True):
         """
@@ -2980,7 +2965,6 @@ class _BlitzGateway (object):
 
         return ImageWrapper(self, image)
 
-
     def applySettingsToSet(self, fromid, to_type, toids):
         """
         Applies the rendering settings from one image to others.
@@ -3071,7 +3055,6 @@ class _BlitzGateway (object):
         toSave = list(toSave)
         self.getUpdateService().saveCollection(toSave, ctx)
         return {'imageCount': len(imageIds), 'updateCount': updateCount}
-
 
     def createOriginalFileFromFileObj(self, fo, path, name, fileSize, mimetype=None, ns=None):
         """
@@ -3209,7 +3192,6 @@ class _BlitzGateway (object):
         p.map["oids"] = rlist([rlong(o) for o in set(annids)])
         for e in q.findAllByQuery(sql, p, self.SERVICE_OPTS):
             yield wrapper(self, e)
-
 
     ################
     # Enumerations #
@@ -3473,7 +3455,6 @@ class _BlitzGateway (object):
         prx = self.c.sf.submit(chmod)
         return prx
 
-
     def chgrpObjects(self, graph_spec, obj_ids, group_id, container_id=None):
         """
         Change the Group for a specified objects using queue.
@@ -3520,7 +3501,6 @@ class _BlitzGateway (object):
         ctx.setOmeroGroup(group_id)         # NB: For Save to work, we need to be in target group
         prx = self.c.sf.submit(da, ctx)
         return prx
-
 
     ###################
     # Searching stuff #
@@ -4298,7 +4278,6 @@ class TagAnnotationWrapper (AnnotationWrapper):
             if l.parent.ns.val == omero.constants.metadata.NSINSIGHTTAGSET:
                 rv.append(omero.gateway.TagAnnotationWrapper(self._conn, l.parent, l))
         return rv
-
 
     def _getQueryString(self):
         """
@@ -5152,7 +5131,6 @@ class _WellWrapper (BlitzObjectWrapper):
         return [omero.gateway.ScreenWrapper(self._conn, x) for x in \
                 self._conn.getQueryService().findAllByQuery(query, params, self._conn.SERVICE_OPTS)]
 
-
     def isWellSample(self):
         """
         Return True if well samples exist (loaded)
@@ -5817,7 +5795,6 @@ class _ChannelWrapper (BlitzObjectWrapper):
             rv = self._idx
         return unicode(rv)
 
-
     def getName(self):
         """
         Returns the logical channel name or None
@@ -5830,7 +5807,6 @@ class _ChannelWrapper (BlitzObjectWrapper):
         rv = lc.name
         if rv is not None:
             return unicode(rv)
-
 
     def getEmissionWave(self):
         """
@@ -6091,7 +6067,6 @@ class _ImageWrapper (BlitzObjectWrapper):
         if not self._obj.pixelsLoaded:
             self.__loadedHotSwap__()
         return self._obj.sizeOfPixels() > 0
-
 
     def _getRDef(self):
         """
@@ -6820,7 +6795,6 @@ class _ImageWrapper (BlitzObjectWrapper):
             rv.append(plot)
         return rv
 
-
     def getRow(self, z, t, y, channels=None, range=None):
         """
         Grab a horizontal line from the image pixel data, for the specified channels (or active ones)
@@ -6938,7 +6912,6 @@ class _ImageWrapper (BlitzObjectWrapper):
             rv.append(d)
         return rv
 
-
     @assert_re()
     def renderBirdsEyeView(self, size):
         """
@@ -7035,7 +7008,6 @@ class _ImageWrapper (BlitzObjectWrapper):
             self._obj.pixelsLoaded = False
             self._re = None
             raise
-
 
     @assert_re()
     def renderJpeg(self, z=None, t=None, compression=0.9):
@@ -7410,7 +7382,6 @@ class _ImageWrapper (BlitzObjectWrapper):
         if fsize > 0:
             font = ImageFont.load('%s/pilfonts/B%0.2d.pil' % (THISPATH, fsize) )
 
-
         for i in range(c):
             if cmap[i]:
                 self.setActiveChannels((i+1,))
@@ -7459,7 +7430,6 @@ class _ImageWrapper (BlitzObjectWrapper):
         im = Image.new('P', (width, height))
         im.putpalette(pal)
         return im, width, height
-
 
     @assert_re()
     def renderRowLinePlotGif(self, z, t, y, linewidth=1):
@@ -8523,7 +8493,6 @@ class _InstrumentWrapper (BlitzObjectWrapper):
         """
 
         return [LightSourceWrapper(self._conn, x) for x in self._lightSourceSeq]
-
 
     def simpleMarshal(self):
         if self._obj:
