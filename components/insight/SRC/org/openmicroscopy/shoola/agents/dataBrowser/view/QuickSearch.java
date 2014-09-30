@@ -53,20 +53,16 @@ import javax.swing.event.DocumentListener;
 
 
 
-
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
 
-
-
-
-
 import org.apache.commons.collections.CollectionUtils;
+
+import org.apache.commons.lang.StringUtils;
 //Application-internal dependencies
 import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.search.SearchContext;
 import org.openmicroscopy.shoola.util.ui.search.SearchContextMenu;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
 import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
@@ -783,25 +779,9 @@ public class QuickSearch
 		searchArea.getDocument().removeDocumentListener(this);
 		searchArea.setText("");
 		searchArea.getDocument().addDocumentListener(this);
-		//layoutManager.setColumn(3, 0);
 		searchPanel.validate();
 		searchPanel.repaint();
 		cleanBar.setVisible(false);
-		/*
-		switch (selectedNode.getIndex()) {
-			case RATED_ONE_OR_BETTER:
-			case RATED_TWO_OR_BETTER:
-			case RATED_THREE_OR_BETTER:
-			case RATED_FOUR_OR_BETTER:
-			case UNRATED:
-			case UNTAGGED:
-			case UNCOMMENTED:
-			case TAGGED:
-			case COMMENTED:
-				setSearchContext(SHOW_ALL);
-		}
-		firePropertyChange(QUICK_SEARCH_PROPERTY, null, showAll);
-		*/
 	}
 	
 	/** 
@@ -843,9 +823,8 @@ public class QuickSearch
      */
 	public void removeUpdate(DocumentEvent e)
 	{
-		//if (e.getDocument().getLength() == 0) clear();
-		String text = searchArea.getText();
-		if (text == null || text.trim().length() == 0)
+	    String text = searchArea.getText();
+		if (StringUtils.isBlank(text))
 			cleanBar.setVisible(false);
 		else handleTextInsert();
 	}
