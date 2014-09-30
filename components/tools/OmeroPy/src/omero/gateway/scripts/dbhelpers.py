@@ -319,7 +319,7 @@ class DatasetEntry (ObjectEntry):
         else:
             project = forceproj
         for d in project.listChildren():
-            if d.getName() == self.name and ((self.description is None and d.getDescription() == '') or (self.description is not None and omero.gateway.omero_type(d.getDescription()) == omero.gateway.omero_type(self.description))):
+            if d.getName() == self.name and self.description_check(d):
                 d.__loadedHotSwap__()
                 return d
         return None
@@ -334,7 +334,7 @@ class DatasetEntry (ObjectEntry):
             project = self.project
             client = project._conn
         d = self.get(client, project)
-        if d is not None and ((self.description is None and d.getDescription() == '') or (self.description is not None and omero.gateway.omero_type(d.getDescription()) == omero.gateway.omero_type(self.description))):
+        if d is not None and self.description_check(d):
             return d
         d = omero.model.DatasetI(loaded=True)
         d.setName(omero.gateway.omero_type(self.name))
@@ -346,6 +346,15 @@ class DatasetEntry (ObjectEntry):
         if self.callback:
             self.callback(rv)
         return rv
+
+    def description_check(self, d):
+        desc_match = (
+            omero.gateway.omero_type(d.getDescription()) ==
+            omero.gateway.omero_type(self.description))
+        desc_check = (
+            (self.description is None and d.getDescription() == '')
+            or (self.description is not None and desc_match))
+        return desc_check
 
 
 class ImageEntry (ObjectEntry):
