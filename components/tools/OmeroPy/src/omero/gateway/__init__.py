@@ -47,7 +47,10 @@ try:
     from PIL import Image, ImageDraw, ImageFont     # see ticket:2597
 except:  # pragma: nocover
     try:
-        import Image, ImageDraw, ImageFont          # see ticket:2597
+        # see ticket:2597
+        import Image
+        import ImageDraw
+        import ImageFont
     except:
         logger.error(
             'No Pillow installed, line plots and split channel will fail!')
