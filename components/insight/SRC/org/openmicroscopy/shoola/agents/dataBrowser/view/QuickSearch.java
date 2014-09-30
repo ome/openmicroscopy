@@ -52,15 +52,21 @@ import javax.swing.event.DocumentListener;
 
 
 
+
+
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
 
 
 
+
+
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.search.SearchContext;
 import org.openmicroscopy.shoola.util.ui.search.SearchContextMenu;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
 import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
@@ -240,7 +246,12 @@ public class QuickSearch
 		clearButton.setActionCommand(""+CLEAR);
 		
 		searchArea = new JTextField(15);
-		searchArea.setText(SHOW_ALL_DESCRIPTION+defaultText);
+		if (selectedNode != null && selectedNode.getIndex() != SHOW_ALL) {
+		    searchArea.setText("");
+		    setSearchEnabled(true);
+		} else {
+		    searchArea.setText(SHOW_ALL_DESCRIPTION+defaultText);
+		}
         UIUtilities.setTextAreaDefault(searchArea);
         searchArea.setBorder(null);
         searchArea.getDocument().addDocumentListener(this);
@@ -314,9 +325,16 @@ public class QuickSearch
 			}
 		
 		});
-		selectedNode = nodes.get(0);
+		Iterator<SearchObject> j = nodes.iterator();
+		while (j.hasNext()) {
+		    SearchObject o = j.next();
+            if (o.getIndex() == FULL_TEXT) {
+                selectedNode = o;
+                break;
+            }
+        }
+		if (selectedNode == null) selectedNode = nodes.get(0);
 		searchButton = new JButton(selectedNode.getIcon());
-		//searchButton.setEnabled(false);
 		UIUtilities.setTextAreaDefault(searchButton);
 		searchButton.setBorder(null);
 		initComponents();
@@ -481,7 +499,7 @@ public class QuickSearch
 						List<SearchObject> ratedNodes)
 	{
 		this.label = label;
-		if (nodes == null || nodes.size() == 0)
+		if (CollectionUtils.isEmpty(nodes))
 			initComponents(null);
 		else initSearchComponents(nodes, ratedNodes);
 		buildGUI(label);
@@ -494,7 +512,6 @@ public class QuickSearch
 		List<String> l = SearchUtil.splitTerms(searchArea.getText(), 
 				SearchUtil.COMMA_SEPARATOR);
 		if (selectedNode == null) return;
-		//if (selectedNode == null) selectedNode = showAll;
 		selectedNode.setResult(l);
 		firePropertyChange(QUICK_SEARCH_PROPERTY, null, selectedNode);
 	}
