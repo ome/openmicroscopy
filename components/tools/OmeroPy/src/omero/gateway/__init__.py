@@ -559,7 +559,7 @@ class BlitzObjectWrapper (object):
             if val is not None:
                 if isinstance(val, StringTypes):
                     params.map["val"] = omero_type(val)
-                    query +=" and a.textValue=:val"
+                    query += " and a.textValue=:val"
         query += " order by c.child.name"
         for child in ( x.child for x in self._conn.getQueryService().findAllByQuery(query, params, self._conn.SERVICE_OPTS)):
             yield child
@@ -661,7 +661,7 @@ class BlitzObjectWrapper (object):
                 "where child.id=:child" % link_class
         if isinstance(pids, list) and len(pids) > 0:
             p.map["parent"] = rlist([rlong(pa) for pa in pids])
-            sql+=" and parent.id in (:parent)"
+            sql += " and parent.id in (:parent)"
         for pchl in query_serv.findAllByQuery(sql, p, self._conn.SERVICE_OPTS):
             yield BlitzObjectWrapper(self, pchl)
 
@@ -685,7 +685,7 @@ class BlitzObjectWrapper (object):
                 left outer join fetch pchl.parent as parent where parent.id=:parent" % self.LINK_CLASS
         if isinstance(chids, list) and len(chids) > 0:
             p.map["children"] = rlist([rlong(ch) for ch in chids])
-            sql+=" and child.id in (:children)"
+            sql += " and child.id in (:children)"
         for pchl in query_serv.findAllByQuery(sql, p, self._conn.SERVICE_OPTS):
             yield BlitzObjectWrapper(self, pchl)
 
@@ -1239,7 +1239,7 @@ class _BlitzGateway (object):
         self.CONFIG = GatewayConfig()
         self.c = client_obj
         if not type(extra_config) in (type(()), type([])):
-            extra_config=[extra_config]
+            extra_config = [extra_config]
         self.extra_config = extra_config
         self.ice_config = [self.ICE_CONFIG]
         self.ice_config.extend(extra_config)
@@ -1687,7 +1687,7 @@ class _BlitzGateway (object):
                         self.group = None
                         self._closeSession()
                         self._sessionUuid = None
-                        self._connected=True
+                        self._connected = True
                         return self.connect()
                     else:  # pragma: no cover
                         logger.debug("BlitzGateway.connect().createSession(): " + traceback.format_exc())
@@ -1700,7 +1700,7 @@ class _BlitzGateway (object):
                                 # User don't have access to group
                                 logger.debug("## User not in '%s' group" % self.group)
                                 self.group = None
-                                self._connected=True
+                                self._connected = True
                                 return self.connect()
                             else:
                                 raise
@@ -2342,7 +2342,7 @@ class _BlitzGateway (object):
 
         group = omero.model.ExperimenterGroupI()
         group.name = rstring(str(name))
-        group.description = (description!="" and description is not None) and rstring(str(description)) or None
+        group.description = (description != "" and description is not None) and rstring(str(description)) or None
         if perms is not None:
             group.details.permissions = omero.model.PermissionsI(perms)
 
@@ -2591,7 +2591,7 @@ class _BlitzGateway (object):
         :param attributes:  Map of key-value pairs to filter results by. Key must be attribute of obj_type. E.g. 'name', 'ns'
         :return:
         """
-        oids = (oid!=None) and [oid] or None
+        oids = (oid != None) and [oid] or None
         query, params, wrapper = self.buildQuery(obj_type, oids, params, attributes)
         result = self.getQueryService().findByQuery(query, params, self.SERVICE_OPTS)
         if result is not None:
@@ -2930,7 +2930,7 @@ class _BlitzGateway (object):
                         # init or update min and max for this channel
                         minValue = plane.min()
                         maxValue = plane.max()
-                        if len(channelsMinMax) < (theC +1):     # first plane of each channel
+                        if len(channelsMinMax) < (theC + 1):     # first plane of each channel
                             channelsMinMax.append( [minValue, maxValue])
                         else:
                             channelsMinMax[theC][0] = min(channelsMinMax[theC][0], minValue)
@@ -2979,7 +2979,7 @@ class _BlitzGateway (object):
         fromimg = self.getObject("Image", fromid)
         frompid = fromimg.getPixelsId()
         if to_type is None:
-            to_type="Image"
+            to_type = "Image"
         if to_type.lower() == "acquisition":
             plateIds = []
             for pa in self.getObjects("PlateAcquisition", toids):
@@ -3996,7 +3996,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
                 "where ch.id=:aid " % (ptype)
         if pids is not None:
             p.map["pids"] = rlist([rlong(ob) for ob in pids])
-            sql+=" and pa.id in (:pids)"
+            sql += " and pa.id in (:pids)"
 
         for al in self._conn.getQueryService().findAllByQuery(sql, p, self._conn.SERVICE_OPTS):
             yield AnnotationLinkWrapper(self._conn, al)
@@ -4977,7 +4977,7 @@ class _PlateWrapper (BlitzObjectWrapper):
         """
         Returns a list of labels for the columns on this plate. E.g. [1, 2, 3...] or ['A', 'B', 'C'...] etc
         """
-        if self.columnNamingConvention and self.columnNamingConvention.lower()=='letter':
+        if self.columnNamingConvention and self.columnNamingConvention.lower() == 'letter':
             # this should simply be precalculated!
             return [_letterGridLabel(x) for x in range(self.getGridSize()['columns'])]
         else:
@@ -4987,7 +4987,7 @@ class _PlateWrapper (BlitzObjectWrapper):
         """
         Returns a list of labels for the rows on this plate. E.g. [1, 2, 3...] or ['A', 'B', 'C'...] etc
         """
-        if self.rowNamingConvention and self.rowNamingConvention.lower()=='number':
+        if self.rowNamingConvention and self.rowNamingConvention.lower() == 'number':
             return range(1, self.getGridSize()['rows']+1)
         else:
             # this should simply be precalculated!
@@ -5662,7 +5662,7 @@ class _PixelsWrapper (BlitzObjectWrapper):
                     rawPlane = rawPixelsStore.getTile(z, c, t, x, y, width, height)
                     planeY = height
                     planeX = width
-                convertType ='>%d%s' % ((planeY*planeX), pixelTypes[pixelType][0])  #+str(sizeX*sizeY)+pythonTypes[pixelType]
+                convertType = '>%d%s' % ((planeY*planeX), pixelTypes[pixelType][0])  #+str(sizeX*sizeY)+pythonTypes[pixelType]
                 convertedPlane = unpack(convertType, rawPlane)
                 remappedPlane = numpy.array(convertedPlane, numpyType)
                 remappedPlane.resize(planeY, planeX)
@@ -5789,9 +5789,9 @@ class _ChannelWrapper (BlitzObjectWrapper):
 
         lc = self.getLogicalChannel()
         rv = lc.name
-        if rv is None or len(rv.strip())==0:
+        if rv is None or len(rv.strip()) == 0:
             rv = lc.emissionWave
-        if rv is None or len(unicode(rv).strip())==0:
+        if rv is None or len(unicode(rv).strip()) == 0:
             rv = self._idx
         return unicode(rv)
 
@@ -7073,7 +7073,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         e = self._conn.createExporter()
         e.addImage(self.getId())
         size = e.generateTiff(self._conn.SERVICE_OPTS)
-        if bufsize==0:
+        if bufsize == 0:
             # Read it all in one go
             return fileread(e, size, 65536)
         else:
