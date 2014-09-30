@@ -430,10 +430,24 @@
                 show_change($('#wblitz-ch'+i+'-cw-end').get(0), channels[i].window.end, 'changed');
             };
         };
+        var slide_start_cb = function() {
+            // Note starting values, so we can tell which handle/value changed
+            // This is for floating point data where ui.values may not be what we set
+            return function(event, ui) {
+                $(this).data('channel_start', ui.values[0])
+                    .data('channel_end', ui.values[1]);
+            };
+        };
         var slide_cb = function() {
             return function(event, ui) {
-                $('#wblitz-ch'+$(event.target).data('channel-idx')+'-cw-start').val(ui.values[0]).change();
-                $('#wblitz-ch'+$(event.target).data('channel-idx')+'-cw-end').val(ui.values[1]).change();
+                // Only update the value that changed
+                var s = $(this).data('channel_start');
+                var e = $(this).data('channel_end');
+                if (ui.values[0] !== s) {
+                    $('#wblitz-ch'+$(event.target).data('channel-idx')+'-cw-start').val(ui.values[0]).change();
+                } else if (ui.values[1] !== e) {
+                    $('#wblitz-ch'+$(event.target).data('channel-idx')+'-cw-end').val(ui.values[1]).change();
+                }
             };
         };
         var stop_cb = function() {
@@ -447,6 +461,30 @@
                     applyRDCW(viewport);
                 }
             };
+        };
+
+        var init_ch_slider = function(i, channels) {
+            var min = Math.min(channels[i].window.min, channels[i].window.start),  // range may extend outside min/max pixel
+                max = Math.max(channels[i].window.max, channels[i].window.end),
+                start = channels[i].window.start,
+                end = channels[i].window.end,
+                ptype = viewport.loadedImg.meta.pixelsType,
+                step = 1;
+            if (ptype == "float") {
+                var STEPS = 100;
+                step = (max - min) / STEPS;
+            }
+
+            $('#wblitz-ch'+i+'-cwslider').slider({
+                range: true,
+                step: step,
+                min: min,
+                max: max,
+                values: [ start, end ],
+                start: slide_start_cb(),
+                slide: slide_cb(),
+                stop: stop_cb(),
+                }).data('channel-idx', i);
         };
 
         for (i=channels.length-1; i>=0; i--) {
@@ -476,14 +514,7 @@
                 template: '<td width="10%"><span class="min" title="min: $min">$start</span></td><td><div class="rangeslider" id="wblitz-ch'+i+'-cwslider"></div></td> <td width="10%"><span class="max" title="max: $max">$end</span></td>',
                 lblStart: '',
                 lblEnd: ''});
-            $('#wblitz-ch'+i+'-cwslider').slider({
-                range: true,
-                min: Math.min(channels[i].window.min, channels[i].window.start+1),  // range may extend outside min/max pixel
-                max: Math.max(channels[i].window.max, channels[i].window.end-1),
-                values: [ channels[i].window.start+1, channels[i].window.end-1 ],
-                slide: slide_cb(),
-                stop: stop_cb(),
-                }).data('channel-idx', i);
+            init_ch_slider(i, channels);
             $('#wblitz-ch'+i+'-cw-start').val(channels[i].window.start).unbind('change').bind('change', start_cb(i));
             $('#wblitz-ch'+i+'-cw-start').keyup(keyup_cb());
             $('#wblitz-ch'+i+'-cw-end').val(channels[i].window.end).unbind('change').bind('change', end_cb(i));
