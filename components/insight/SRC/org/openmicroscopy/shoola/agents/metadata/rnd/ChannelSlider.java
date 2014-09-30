@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.ChannelSlider 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -30,17 +30,20 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Point;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
-
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
+import org.openmicroscopy.shoola.util.ui.IconManager;
+import org.openmicroscopy.shoola.util.ui.JLabelButton;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
@@ -89,10 +92,13 @@ class ChannelSlider
 	/** Turn on/off the channel, when used in the viewer. */
 	private ChannelButton			channelSelection;
 	
+	/** Button for opening the color picker */
+	private JLabelButton colorPicker;
+	
 	/** Initializes the component composing the display. */
 	private void initComponents()
 	{
-		int index = channel.getIndex();
+		final int index = channel.getIndex();
 		int f = model.getRoundFactor(index);
     	int s = (int) (model.getWindowStart(index)*f);
         int e = (int) (model.getWindowEnd(index)*f);
@@ -134,36 +140,34 @@ class ChannelSlider
         list.add("max: "+max);
         slider.getSlider().setToolTipText(UIUtilities.formatToolTipText(list));
         
-        if (!model.isGeneralIndex()) {
-        	channelSelection = new ChannelButton("", c, index);
-        	channelSelection.setPreferredSize(DEFAULT_SIZE);
-        	channelSelection.setSelected(model.isChannelActive(index));
-        	channelSelection.addPropertyChangeListener(controller);
-        }
+    	channelSelection = new ChannelButton(""+channel.getChannelLabeling(), c, index);
+    	channelSelection.setPreferredSize(ChannelButton.DEFAULT_MAX_SIZE);
+    	channelSelection.setSelected(model.isChannelActive(index));
+    	channelSelection.setRightClickSupported(false);
+    	channelSelection.addPropertyChangeListener(controller);
+        
+    	
+    	colorPicker = new JLabelButton(IconManager.getInstance().getIcon(IconManager.COLOR_PICKER), true);
+    	colorPicker.addPropertyChangeListener(this);
+    	
 	}
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		int w = 320;
-		if (model.isGeneralIndex()) {
-			double size[][] = {{w},{TableLayout.PREFERRED}}; // Rows
-			setLayout(new TableLayout(size));
-			add(slider, "0, 0");
-		} else {
-			JPanel p = new JPanel();
-			p.setBorder(null);
-			double size[][] = {{w},  // Columns
-	    	{TableLayout.PREFERRED}}; // Rows
-			p.setLayout(new TableLayout(size));
-			p.add(slider, "0, 0");
-			Dimension d = slider.getPreferredSize();
-			channelSelection.setPreferredSize(new Dimension(d.height, d.height));
-			setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-			add(channelSelection);
-			add(p);
-			setBackground(p.getBackground());
-		}
+		int w = 230;
+                JPanel p = new JPanel();
+                p.setBackground(UIUtilities.BACKGROUND_COLOR);
+                p.setBorder(null);
+                double size[][] = { { w }, // Columns
+                        { TableLayout.PREFERRED } }; // Rows
+                p.setLayout(new TableLayout(size));
+                p.add(slider, "0, 0");
+                setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
+                add(channelSelection);
+                add(p);
+                add(colorPicker);
+                setBackground(UIUtilities.BACKGROUND_COLOR);
 	}
 	
 	/**
@@ -272,8 +276,6 @@ class ChannelSlider
     	if (channelSelection == null) return;
     	channelSelection.setSelected(model.isChannelActive(getIndex()));
     	channelSelection.setColor(model.getChannelColor(getIndex()));
-    	channelSelection.setGrayedOut(
-				 Renderer.GREY_SCALE_MODEL.equals(model.getColorModel()));
     }
     
 	/**
@@ -296,6 +298,14 @@ class ChannelSlider
 				controller.setInputInterval(slider.getStartValue(),
 						slider.getEndValue(), channel.getIndex());
 			} 
+		}
+		
+		if (evt.getSource() == colorPicker && name.equals(JLabelButton.SELECTED_PROPERTY)) {
+		    Point p = colorPicker.getLocationOnScreen();
+		    // as the icon is on the far right, move the dialog a bit
+		    // to left (and bottom so that the icon is still visible)
+		    p.translate(-300, +10);
+		    controller.showColorPicker(channel.getIndex(), p);
 		}
 	}
 

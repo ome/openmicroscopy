@@ -138,19 +138,19 @@ $(document).ready(function() {
         });
         
         $(".cSelect[name='red']").each(function() {
-            if ($(this).attr('checked')) {
+            if ($(this).prop('checked')) {
                 var i=$(this).attr('value');
                 query += '&red='+i;
             };
         });
         $(".cSelect[name='green']").each(function() {
-            if ($(this).attr('checked')) {
+            if ($(this).prop('checked')) {
                 var i=$(this).attr('value');
                 query += '&green='+i;
             };
         });
         $(".cSelect[name='blue']").each(function() {
-            if ($(this).attr('checked')) {
+            if ($(this).prop('checked')) {
                 var i=$(this).attr('value');
                 query += '&blue='+i;
             };

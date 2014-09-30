@@ -20,8 +20,6 @@
 
 package ome.security.auth;
 
-
-
 /**
  * Central {@link PasswordProvider} which uses the "password" table in the
  * central OMERO database. When setting a password, stores password as-is
@@ -43,11 +41,6 @@ public class JdbcHashedPasswordProvider extends JdbcPasswordProvider {
     @Override
     public void changePassword(String user, String md5password)
             throws PasswordChangeException {
-        Long id = util.userId(user);
-        if (id == null) {
-            throw new PasswordChangeException("Couldn't find id: " + user);
-        }
-        util.changeUserPasswordById(id, md5password,
-                PasswordUtil.METHOD.CLEAR);
+        changePassword(user, md5password, PasswordUtil.METHOD.CLEAR);
     }
 }

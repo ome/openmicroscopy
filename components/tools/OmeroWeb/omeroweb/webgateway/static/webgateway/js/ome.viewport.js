@@ -1067,7 +1067,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
           t = t[1].split('$');
           var window = t[0].split(':');
           if (window.length == 2) {
-            this.setChannelWindow(idx, parseInt(window[0], 10), parseInt(window[1], 10), true);
+            this.setChannelWindow(idx, parseFloat(window[0], 10), parseFloat(window[1], 10), true);
           }
         }
         if (t.length > 1) {

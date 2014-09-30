@@ -104,9 +104,6 @@ import omero.model.TermAnnotationI;
 import omero.model.Well;
 import omero.model.WellAnnotationLink;
 import omero.model.WellAnnotationLinkI;
-import omero.model.WellSample;
-import omero.model.WellSampleAnnotationLink;
-import omero.model.WellSampleAnnotationLinkI;
 import omero.model.XmlAnnotation;
 import omero.model.XmlAnnotationI;
 import pojos.AnnotationData;
@@ -172,8 +169,6 @@ public class ModelMapper
     		return ((PlateAnnotationLink) link).getChild();
     	if (link instanceof ScreenAnnotationLink)
     		return ((ScreenAnnotationLink) link).getChild();
-    	if (link instanceof WellSampleAnnotationLink)
-    		return ((WellSampleAnnotationLink) link).getChild();
     	if (link instanceof WellAnnotationLink)
     		return ((WellAnnotationLink) link).getChild();
     	if (link instanceof PlateAcquisitionAnnotationLink)
@@ -202,8 +197,6 @@ public class ModelMapper
     		return ((PlateAnnotationLink) link).getParent();
     	if (link instanceof ScreenAnnotationLink)
     		return ((ScreenAnnotationLink) link).getParent();
-    	if (link instanceof WellSampleAnnotationLink)
-    		return ((WellSampleAnnotationLink) link).getParent();
     	if (link instanceof WellAnnotationLink)
     		return ((WellAnnotationLink) link).getParent();
     	if (link instanceof PlateAcquisitionAnnotationLink)
@@ -586,11 +579,6 @@ public class ModelMapper
     		l.setParent((Well) annotatedObject.proxy());
     		l.setChild(annotation);
     		return l;
-    	} else if (annotatedObject instanceof WellSample) {
-    		WellSampleAnnotationLink l = new WellSampleAnnotationLinkI();
-    		l.setParent((WellSample) annotatedObject.proxy());
-    		l.setChild(annotation);
-    		return l;
     	} else if (annotatedObject instanceof OriginalFile) {
     		OriginalFileAnnotationLink l = new OriginalFileAnnotationLinkI();
     		l.setParent((OriginalFile) annotatedObject.proxy());
@@ -622,8 +610,6 @@ public class ModelMapper
     		return ((ScreenAnnotationLink) annotation).getParent();
     	else if (annotation instanceof WellAnnotationLink)
     		return ((WellAnnotationLink) annotation).getParent();
-    	else if (annotation instanceof WellSampleAnnotationLink)
-    		return ((WellSampleAnnotationLink) annotation).getParent();
     	else if (annotation instanceof PlateAcquisitionAnnotationLink)
     		return ((PlateAcquisitionAnnotationLink) annotation).getParent();
     	return null;
@@ -649,8 +635,6 @@ public class ModelMapper
     		return ((ScreenAnnotationLink) link).getChild();
     	else if (link instanceof WellAnnotationLink)
     		return ((WellAnnotationLink) link).getChild();
-    	else if (link instanceof WellSampleAnnotationLink)
-    		return ((WellSampleAnnotationLink) link).getChild();
     	return null;
     }
     

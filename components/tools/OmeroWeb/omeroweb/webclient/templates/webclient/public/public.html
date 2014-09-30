@@ -24,7 +24,6 @@
 
 {% block script %}
     {{ block.super }}
-    <script type="text/javascript" src="{% static "3rdparty/jquery-ui-1.8.19/external/jquery.cookie.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.hotkeys.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.jstree/jquery.jstree.js" %}"></script>
 
@@ -32,19 +31,7 @@
     <script type="text/javascript">
         $(function() 
             {
-                $("#left_panel_tabs").tabs({
-                    select: function(event, ui) {
-                        var url = $.data(ui.tab, 'load.tabs');
-                        if( url ) {
-                            location.href = url;
-                            return false;
-                        }
-                        return true;
-                    }
-                }).tabs("select", 2);
-
-
-                var buttonsShowHide = function(selected) { 
+                var buttonsShowHide = function(selected) {
                     var toolbar_config = new Object();
                     if(selected.length > 0) {
                         if((typeof selected.attr("rel") === 'undefined') ||
@@ -66,9 +53,9 @@
                     if (selected.length > 1) toolbar_config['annotation'] = true;
                     for (var sIndex in toolbar_config) { 
                         if (toolbar_config[sIndex]){
-                            $('input#'+sIndex+'Button').removeClass('button-disabled').removeAttr('disabled');
+                            $('input#'+sIndex+'Button').removeClass('button-disabled').prop('disabled', false);
                         } else {
-                            $('input#'+sIndex+'Button').addClass('button-disabled').attr('disabled', true);
+                            $('input#'+sIndex+'Button').addClass('button-disabled').prop('disabled', true);
                         }
                     }
                 }
@@ -319,19 +306,14 @@
 
         });
     </script>
-	
-	
-	{% include "webclient/base/includes/group_user_dropdown.html" %}
-	
+
 </div>
 
-<div id="left_panel_tabs" class="absolute_fill">
-    
-    <ul id="left_panel_tab_list">
-        <li><a href="{% url 'load_template' 'userdata' %}">{% trans "Explore" %}</a></li>
-        <li><a href="{% url 'load_template' 'usertags' %}">{% trans "Tags" %}</a></li>
-		<!-- <li><a href="{% url 'load_template' 'usertags' %}">{% trans "History" %}</a></li> -->
-        <li><a href="#Public" title="Public">{% trans "Public" %}</a></li>
+<div id="left_panel_tabs" class="absolute_fill ui-tabs">
+    <ul id="left_panel_tab_list" class="ui-tabs-nav">
+        <li id="explore_tab" class="ui-state-default"><a href="{% url 'load_template' 'userdata' %}" class="ui-tabs-anchor" title="Explore">{% trans "Explore" %}</a></li>
+        <li id="tags_tab" class="ui-state-default"><a href="{% url 'load_template' 'usertags' %}" class="ui-tabs-anchor">{% trans "Tags" %}</a></li>
+        <li id="public_tab" class="ui-state-default ui-tabs-active"><a class="ui-tabs-anchor">{% trans "Public" %}</a></li>
     </ul>
 	
 	

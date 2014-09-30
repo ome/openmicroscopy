@@ -172,9 +172,9 @@
 
                 var $new_selected = $("table#dataTable tbody tr.ui-selected td input");
                 if ($new_selected.length > 0) {
-                    $("input.toggleEnabled").attr("disabled", null);
+                    $("input.toggleEnabled").prop("disabled", false);
                 } else {
-                    $("input.toggleEnabled").attr("disabled", "true");
+                    $("input.toggleEnabled").prop("disabled", true);
                 }
             });
             
@@ -184,9 +184,9 @@
                 stop: function(event){
                     var l = $('tr.ui-selected', this).length;
                     if (l > 0) {
-                        $("input.toggleEnabled").attr("disabled", null);
+                        $("input.toggleEnabled").prop("disabled", false);
                     } else {
-                        $("input.toggleEnabled").attr("disabled", "true");
+                        $("input.toggleEnabled").prop("disabled", true);
                     }
                     OME.table_selection_changed($("tr.ui-selected", this));
                 }

@@ -865,7 +865,15 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None, **kwa
     if c_type == "well":
         manager.image = manager.well.getImage(index)
 
-    rdefs = manager.image.getAllRenderingDefs()
+    allRdefs = manager.image.getAllRenderingDefs()
+    rdefs = {}
+    # remove duplicates per user
+    for r in allRdefs:
+        ownerId = r['owner']['id']
+        # if duplicate rdefs for user, pick one with highest ID
+        if ownerId not in rdefs or rdefs[ownerId]['id'] < r['id']:
+            rdefs[ownerId] = r
+    rdefs = rdefs.values()
     # format into rdef strings, E.g. {c: '1|3118:35825$FF0000,2|2086:18975$FFFF00', m: 'c'}
     rdefQueries = []
     for r in rdefs:

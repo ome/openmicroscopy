@@ -161,10 +161,10 @@
         // If a chgrp fails due to filesets, we provide a 'move all' button:
         $("#activities_content").on("click", ".chgrp_move_all", function(event){
             var $this = $(this);
-            if ($this.attr('disabled')){
+            if ($this.prop('disabled')){
                 return false;
             }
-            $this.attr('disabled', 'disabled');
+            $this.prop('disabled', true);
             $.get($this.attr('url'), function(){
                 OME.refreshActivities();
             });

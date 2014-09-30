@@ -208,8 +208,8 @@ jQuery.fn.viewportImage = function(options) {
       /* Image and wrapping div */
       var pos = dragdiv.offset();
       var rel = wrapdiv.offset();
-      pos.left -= rel.left + parseInt(jQuery.curCSS(wrapdiv[0], "borderLeftWidth", true), 10);
-      pos.top -= rel.top + parseInt(jQuery.curCSS(wrapdiv[0], "borderTopWidth", true), 10);
+      pos.left -= rel.left + parseInt($.css(wrapdiv[0], "borderLeftWidth", true), 10);
+      pos.top -= rel.top + parseInt($.css(wrapdiv[0], "borderTopWidth", true), 10);
       var left = pos.left + deltax;
       var top = pos.top + deltay;
       var self = this;
@@ -473,7 +473,11 @@ jQuery.fn.viewportImage = function(options) {
     });
     $(".wb_zoomOut").click(function() {
       var zm = _this.getZoom();
-      _this.setZoom(zm - 20);
+      if (zm > 21) {
+        _this.setZoom(zm - 20);
+      } else if (zm > 11) {
+        _this.setZoom(zm - 10);
+      }
     });
     $(".wb_zoom11").click(function() {
       _this.setZoom(100);

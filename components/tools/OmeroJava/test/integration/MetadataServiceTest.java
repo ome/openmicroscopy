@@ -79,8 +79,6 @@ import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.PermissionsI;
 import omero.model.Pixels;
-import omero.model.PixelsAnnotationLink;
-import omero.model.PixelsAnnotationLinkI;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionAnnotationLink;
@@ -707,9 +705,11 @@ public class MetadataServiceTest extends AbstractServerTest {
         ExperimenterGroup g = new ExperimenterGroupI();
         g.setName(omero.rtypes.rstring(uuid));
         g.getDetails().setPermissions(new PermissionsI("rwrw--"));
-        svc.createGroup(g);
-        long id1 = svc.createUser(e1, uuid);
-        long id2 = svc.createUser(e2, uuid);
+        g = svc.getGroup(svc.createGroup(g));
+        long id1 = newUserInGroupWithPassword(e1, g, uuid);
+        long id2 = newUserInGroupWithPassword(e2, g, uuid2);
+        svc.setDefaultGroup(svc.getExperimenter(id1), g);
+        svc.setDefaultGroup(svc.getExperimenter(id2), g);
         client = new omero.client();
         ServiceFactoryPrx f = client.createSession(uuid2, uuid2);
         // Create a tag annotation as another user.
@@ -1817,67 +1817,6 @@ public class MetadataServiceTest extends AbstractServerTest {
 
         assertEquals(map.size(), 1);
         result = map.get(img1.getId().getValue());
-        assertEquals(result.size(), 1);
-        assertEquals(result.get(0).getId().getValue(), data2.getId().getValue());
-    }
-
-    /**
-     * Tests the retrieval of a specified long annotation linked to pixels.
-     *
-     * @throws Exception
-     *             Thrown if an error occurred.
-     */
-    @Test
-    public void testLoadSpecifiedAnnotationLinkedToPixels() throws Exception {
-        Image img1 = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .createImage());
-        Image img2 = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .createImage());
-        Pixels px1 = img1.getPrimaryPixels();
-        Pixels px2 = img2.getPrimaryPixels();
-
-        LongAnnotation data1 = new LongAnnotationI();
-        data1.setLongValue(omero.rtypes.rlong(1L));
-        data1 = (LongAnnotation) iUpdate.saveAndReturnObject(data1);
-        PixelsAnnotationLink l = new PixelsAnnotationLinkI();
-        l.setParent((Pixels) px1.proxy());
-        l.setChild((Annotation) data1.proxy());
-        iUpdate.saveAndReturnObject(l);
-
-        LongAnnotation data2 = new LongAnnotationI();
-        data2.setLongValue(omero.rtypes.rlong(1L));
-        data2 = (LongAnnotation) iUpdate.saveAndReturnObject(data2);
-        l = new PixelsAnnotationLinkI();
-        l.setParent((Pixels) px2.proxy());
-        l.setChild((Annotation) data2.proxy());
-        iUpdate.saveAndReturnObject(l);
-
-        // Add a comment annotation
-        CommentAnnotation comment = new CommentAnnotationI();
-        comment.setTextValue(omero.rtypes.rstring("comment"));
-        comment = (CommentAnnotation) iUpdate.saveAndReturnObject(comment);
-        l = new PixelsAnnotationLinkI();
-        l.setParent((Pixels) px2.proxy());
-        l.setChild((Annotation) comment.proxy());
-        iUpdate.saveAndReturnObject(l);
-
-        Parameters param = new Parameters();
-        List<String> include = new ArrayList<String>();
-        List<String> exclude = new ArrayList<String>();
-
-        Map<Long, List<Annotation>> map = iMetadata
-                .loadSpecifiedAnnotationsLinkedTo(LongAnnotation.class
-                        .getName(), include, exclude, Pixels.class.getName(),
-                        Arrays.asList(px1.getId().getValue(), px2.getId()
-                                .getValue()), param);
-
-        assertNotNull(map);
-
-        assertEquals(map.size(), 2);
-        List<Annotation> result = map.get(px1.getId().getValue());
-        assertEquals(result.size(), 1);
-        assertEquals(result.get(0).getId().getValue(), data1.getId().getValue());
-        result = map.get(px2.getId().getValue());
         assertEquals(result.size(), 1);
         assertEquals(result.get(0).getId().getValue(), data2.getId().getValue());
     }

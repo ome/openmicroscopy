@@ -35,7 +35,6 @@
     <link rel="stylesheet" type="text/css" href="{% static "3rdparty/farbtastic/farbtastic.css" %}" media="all" />
     <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.colorbtn.css" %}" />
     <link rel="stylesheet" type="text/css" href="{% static "3rdparty/JQuerySpinBtn/JQuerySpinBtn.css" %}" />
-    <link rel="stylesheet" type="text/css" href="{% static "3rdparty/jquery-ui-1.8.19/jquery-ui-1.8.19.custom.css" %}" media="all" />
     <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/omero_image.css" %}" media="all" />
     <link rel="stylesheet" type="text/css" href="{% static "3rdparty/panojs/panojs.css" %}" media="all" />
 <!--[if lte IE 9]>
@@ -50,7 +49,8 @@
     <script type="text/javascript" src="{{ src }}"></script>
     {% endfor %}
 
-    <script type="text/javascript" src="{% static "3rdparty/jquery-1.7.2.js" %}"></script>
+    <!-- jquery -->
+    {% include "webgateway/base/includes/script_src_jquery.html" %}
 
     <script type="text/javascript" src="{% static "webgateway/js/ome.popup.js" %}"></script>
 
@@ -62,7 +62,9 @@
 	<script type="text/javascript" src="{% static "webgateway/js/ome.viewport.js" %}"></script>
   <script type="text/javascript" src="{% static "webgateway/js/omero_image.js" %}"></script>
 
-    <script type="text/javascript" src="{% static "3rdparty/jquery-ui-1.8.19/ui/jquery-ui.js" %}"></script>
+  <!-- jquery-ui -->
+  {% include "webgateway/base/includes/jquery-ui.html" %}
+
     <script type="text/javascript" src="{% static "webgateway/js/ome.smartdialog.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/JQuerySpinBtn/JQuerySpinBtn.js" %}"></script>
     <script type="text/javascript" src="{% static "webgateway/js/ome.colorbtn.js" %}"></script>
@@ -229,16 +231,16 @@
 //    if (p) {
 //      var pr = $('#wblitz-proj > [value='+p+']');
 //      if (pr.length) {
-//        pr.attr('selected','selected');
+//        pr.prop('selected',true);
 //      }
       if (p != 'normal') {
         editLinePlot(false);
       }
       // disable line-plot for max projection, split-view etc
-      $('#wblitz-lp-enable').attr('disabled', p != 'normal');
-      //$('#wblitz-channels-box button').attr('disabled', p == 'split');
+      $('#wblitz-lp-enable').prop('disabled', p != 'normal');
+      //$('#wblitz-channels-box button').prop('disabled', p == 'split');
       var disable_intmax = (viewport.loadedImg.rdefs.invertAxis || viewport.getSizes().z < 2);
-      $('[name="wblitz-proj"][value=intmax]').attr('disabled', disable_intmax);
+      $('[name="wblitz-proj"][value=intmax]').prop('disabled', disable_intmax);
     }
 
     //nosync || syncRDCW(viewport);
@@ -256,8 +258,8 @@
       btns.removeClass('forcegrey');
     }
     // update both checkboxes to keep in sync.
-    $('#wblitz-rmodel').attr('checked', viewport.isGreyModel());
-    $('#rd-wblitz-rmodel').attr('checked', viewport.isGreyModel());
+    $('#wblitz-rmodel').prop('checked', viewport.isGreyModel());
+    $('#rd-wblitz-rmodel').prop('checked', viewport.isGreyModel());
     //syncRDCW(viewport);
   };
 
@@ -271,14 +273,14 @@
       }
       var lp = viewport.getLinePlot();
       $('#wblitz-lp-axis').html(lp.isHorizontal() ? 'Y': 'X');
-      $('#wblitz-lp-enable').attr('checked', 'checked');
+      $('#wblitz-lp-enable').prop('checked', 'checked');
       $('#wblitz-lp-editpos').val(lp.position).show();
       $('#wblitz-lp-wrap').show();
       $('#wblitz-lp-btn').html('apply');
       $('#wblitz-lp-axis-select').selectOptions(lp.isHorizontal() ? 'h': 'v');
     } else {
       viewport.stopPickPos();
-      $('#wblitz-lp-enable').attr('checked', null);
+      $('#wblitz-lp-enable').prop('checked', false);
       $('#wblitz-lp-wrap').hide();
       $('#wblitz-lp-cur').html('');
     }
@@ -714,55 +716,69 @@
 
     <div id="rdef-postit" class="postit" style="width: 480px">
       <h1> Rendering Details </h1>
-        <div id="rdef-active-area">
+      <div id="rdef-active-area">
 
-      <ul class="buttonbar" style="border-right-width: 0; margin-top: 5px; margin-bottom: 8px">
-      <li>
-        <button id="rdef-setdef-btn" class="editor" disabled='true'
-            {% if manager.image.canAnnotate %}
-              title="Saves the current settings."
-            {% else %}
-            title="You don't have permission to save settings."
-            {% endif %}
-            >
-          <img src="{% static 'webclient/image/icon_save.png' %}" style="position:relative; top:2px" />
-          <span>
-            Save
-          </span>
+        <ul class="buttonbar preview-toolbar" style="border-right-width: 0; margin-top: 5px;">
+          <li>
+            <button id="rdef-setdef-btn" class="toolbar-btn" disabled='true'
+                {% if manager.image.canAnnotate %}
+                  title="Saves the current settings."
+                {% else %}
+                title="You don't have permission to save settings."
+                {% endif %}
+                >
+              <img src="{% static 'webclient/image/icon_save.png' %}" style="position:relative; top:2px" /><br>
+                Save
+            </button>
+
+          </li>
+
+          <li><button id="rdef-undo-btn" class="toolbar-btn" title="Undo the last changes to settings"
+              onclick="return undoRDCW();">
+            <img src="{% static "webclient/image/icon_undo16.png" %}" /><br>
+            Undo
+          </button> </li>
+          <li><button id="rdef-redo-btn" class="toolbar-btn" title="Redo the last changes to settings"
+              onclick="return redoRDCW();">
+            <img src="{% static "webclient/image/icon_redo16.png" %}" /><br>
+            Redo
+          </button></li>
+
+          <li class="seperator"></li>
+
+          <li><button class="copy_rdef button toolbar-btn" title="Copy Rendering Settings">
+            <img src="{% static "webclient/image/icon_toolbar_copy.png" %}"/><br>
+            Copy
+          </button></li>
+          <li><button class="paste_rdef button toolbar-btn"
+             title="Paste Rendering Settings" disabled="disabled">
+            <img src="{% static "webclient/image/icon_toolbar_paste.png" %}"/><br>
+            Paste
+          </button></li>
+        </ul>
+
+        <div style="clear:both; border-bottom: solid #ddd 1px; margin: 5px 0;"></div>
+
+        <div style="margin-bottom:5px">
+          <a id="rdef-postit-help" href="#" onclick="return showChannelWindowHelp();"><img src="{% static "webgateway/img/question.png" %}" alt="Show help on channel window ranges" /></a>
+          <input id="rd-wblitz-rmodel" type="checkbox" onchange="return handleModelCheckbox();"/>
+          <label for="rd-wblitz-rmodel">Greyscale</label>
+          <table cellspacing="0">
+            <tr>
+            </tr>
+          </table>
+        </div>
+
+
+        <button id="rdef-minmax-btn" title="Each slider will be set to cover the min/max pixel intensities for that channel">
+          Min/Max
         </button>
-      </li>
-
-
-      <!-- class='button-disabled' -->
-      <li>
-        <input id="rdef-undo-btn" class="button" type="image"
-        src="{% static "webclient/image/icon_undo16.png" %}" title="Undo the last changes to settings"
-        onclick="return undoRDCW();"/>
-      </li>
-      <li><input id="rdef-redo-btn" class="button" type="image"
-        src="{% static "webclient/image/icon_redo16.png" %}" title="Redo the last changes to settings"
-        onclick="return redoRDCW();"/> </li>
-
-      <li class="seperator"></li>
-
-      <!-- class='button-disabled' -->
-      <li><input class="copy_rdef button" type="image" src="{% static "webclient/image/icon_toolbar_copy.png" %}"
-        title="Copy Rendering Settings" /> </li>
-      <li><input class="paste_rdef button" type="image" src="{% static "webclient/image/icon_toolbar_paste.png" %}"
-        title="Paste Rendering Settings" /> </li>
-    </ul>
-
-    <div style="clear:both"></div>
-
-      <div>
-        <a id="rdef-postit-help" href="#" onclick="return showChannelWindowHelp();"><img src="{% static "webgateway/img/question.png" %}" alt="Show help on channel window ranges" /></a>
-        <input id="rd-wblitz-rmodel" type="checkbox" onchange="return handleModelCheckbox();"/>
-        <label for="rd-wblitz-rmodel">Greyscale</label>
-        <table cellspacing="0">
-          <tr>
-          </tr>
-        </table>
-      </div>
+        <button id="rdef-fullrange-btn" title="Each slider will be set to cover the full range of pixel intensities for the image">
+          Full Range
+        </button>
+        <button id="rdef-reset-btn" title="Applies the original imported settings for this image">
+          Imported
+        </button>
       </div>
 
     </div>
@@ -950,6 +966,30 @@
     /* Bind line plot position pick */
     viewport.bind('linePlotPos', linePlotPos);
 
+    // once image loads, check session via /getImgRDef/ to see if we can paste
+    viewport.bind('imageLoad', function() {
+      $.getJSON(viewport.viewport_server + "/getImgRDef/",
+        function(data){
+            if (data.rdef) {
+              var channels = data.rdef.c.split(","); // c=1|3336:38283$FF0000,2|1649:17015$00FF00
+              if (channels.length != viewport.getChannels().length ||
+                data.rdef.pixel_range != viewport.loadedImg.pixel_range.join(":")) {
+                  // images are not compatible
+                  $("button.paste_rdef")
+                    .attr('title', 'Copied settings are not compatible with this image');
+                  return;
+                }
+                $("button.paste_rdef").removeAttr('disabled');
+            }
+        }
+      );
+
+      // disable 'Full Range' button if pixelsType is 'float'
+      if (viewport.loadedImg.meta.pixelsType === "float") {
+        $("#rdef-fullrange-btn").attr("disabled", "disabled");
+      }
+    });
+
     // 'Color' checkbox to left of image
     $("#wblitz-rmodel").click(function(){
       setModel(viewport, $(this).get(0).checked?'g':'c');
@@ -1061,6 +1101,26 @@
         pasteRdefs(viewport);
     });
 
+    // Reset defaults without saving
+    $("#rdef-reset-btn").click(function(){
+      resetImageDefaults(viewport);
+    });
+
+    $("#rdef-minmax-btn").click(function(){
+      viewport.setChannelMinMax();
+      syncRDCW(viewport);
+      viewport.save_channels();
+      updateUndoRedo(viewport);
+    });
+
+    $("#rdef-fullrange-btn").click(function(){
+      viewport.setChannelFullRange();
+      syncRDCW(viewport);
+      viewport.save_channels();
+      updateUndoRedo(viewport);
+    });
+
+
     var toggle_th = function($roiThead) {
         $roiThead.next().toggle(0, function(){
             var vis = $roiThead.next().is(':visible');
@@ -1147,31 +1207,40 @@
 
 
     // Check the Parent window for Previous / Next images...
-    var $currentImg = window.opener.$("#image_icon-{{ image.id }}"),
-        prevImgId, nextImgId;
-    if ($currentImg.length === 1) {
-      // Main thumbnails window
-      var prevImgId = $currentImg.prevAll(":visible").first().find("img").attr('id');
-      var nextImgId = $currentImg.nextAll(":visible").first().find("img").attr('id');
-    } else if ($currentImg.length === 0) {
-      // if not found, try "Search" results page layout
-      $currentImg = window.opener.$("#image-{{ image.id }}");
-      prevImgId = prevImgId || $currentImg.prevAll(":visible").first().attr('id');  // E.g: image-123
+    if (window.opener && window.opener.$) {
+      var $currentImg = window.opener && window.opener.$("#image_icon-{{ image.id }}"),
+          prevImgId, nextImgId;
+      if ($currentImg.length === 1) {
+        // Main thumbnails window
+        var prevImgId = $currentImg.prevAll(":visible").first().find("img").attr('id');
+        var nextImgId = $currentImg.nextAll(":visible").first().find("img").attr('id');
+      } else if ($currentImg.length === 0) {
+        // if not found, try "Search" results page layout
+        $currentImg = window.opener.$("#image-{{ image.id }}");
+        prevImgId = prevImgId || $currentImg.prevAll(":visible").first().attr('id');  // E.g: image-123
+        if (prevImgId) {
+          prevImgId = prevImgId.split('image-')[1];     // will be undefined if E.g: 'dataset-123'
+        }
+        nextImgId = nextImgId || $currentImg.nextAll(":visible").first().attr('id');
+        if (nextImgId) {
+          nextImgId = nextImgId.split('image-')[1];
+        }
+      }
+
+      // Enable Prev / Next buttons if available (disabled by default)
       if (prevImgId) {
-        prevImgId = prevImgId.split('image-')[1];     // will be undefined if E.g: 'dataset-123'
+        $(".btn.prev_next_image.prev").removeAttr('disabled');
       }
-      nextImgId = nextImgId || $currentImg.nextAll(":visible").first().attr('id');
       if (nextImgId) {
-        nextImgId = nextImgId.split('image-')[1];
+        $(".btn.prev_next_image.next").removeAttr('disabled');
       }
-    }
 
     // Enable Prev / Next buttons if available (disabled by default)
     if (prevImgId) {
-      $(".btn.prev_next_image.prev").removeAttr('disabled');
+      $(".btn.prev_next_image.prev").prop('disabled', false);
     }
     if (nextImgId) {
-      $(".btn.prev_next_image.next").removeAttr('disabled');
+      $(".btn.prev_next_image.next").prop('disabled', false);
     }
 
     // Handle Prev / Next button clicks or keys
@@ -1187,33 +1256,34 @@
       }
     }
 
-    // Prev / Next keys
-    $(document).keydown(function(e) {
+      // Prev / Next keys
+      $(document).keydown(function(e) {
 
-        // ignore keystrokes on other inputs, sliders etc.
-        if ($(e.target).prop("tagName") !== "BODY") return;
+          // ignore keystrokes on other inputs, sliders etc.
+          if ($(e.target).prop("tagName") !== "BODY") return;
 
-        switch(e.which) {
-            case 37: // left
-                 nextPrevImage(-1);
-            break;
+          switch(e.which) {
+              case 37: // left
+                   nextPrevImage(-1);
+              break;
 
-            case 39: // right
-                nextPrevImage(1);
-            break;
+              case 39: // right
+                  nextPrevImage(1);
+              break;
 
-            default: return;
-        }
-        e.preventDefault();
-    });
+              default: return;
+          }
+          e.preventDefault();
+      });
 
-    $(".btn.prev_next_image").click(function(){
-        if ( $(this).hasClass('prev') ){
-            nextPrevImage(-1);
-        } else {
-            nextPrevImage(1);
-        }
-    });
+      $(".btn.prev_next_image").click(function(){
+          if ( $(this).hasClass('prev') ){
+              nextPrevImage(-1);
+          } else {
+              nextPrevImage(1);
+          }
+      });
+    }
     
     // we can bind events to viewportimg for roi_display-plugin to trigger (plugin not created yet)
     viewport.viewportimg.bind("shape_click", handle_shape_selection);

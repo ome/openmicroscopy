@@ -295,12 +295,13 @@ public class HierarchyDeleteTest extends AbstractServerTest {
 
         final String userName = UUID.randomUUID().toString();
         final Experimenter experimenter = createExperimenterI(userName, "a", "user");
-        rootAdminSvc.createUser(experimenter, normalGroupName);
+        long eid = newUserInGroupWithPassword(experimenter, normalGroup, userName);
+        rootAdminSvc.setDefaultGroup(rootAdminSvc.getExperimenter(eid), normalGroup);
 
         /* Create a session for the new user and obtain its query and update services. */
 
         final omero.client client = newOmeroClient();
-        final ServiceFactoryPrx services = client.createSession(userName, normalGroupName);
+        final ServiceFactoryPrx services = client.createSession(userName, userName);
         final IQueryPrx  iQuery  = services.getQueryService();
         final IUpdatePrx iUpdate = services.getUpdateService();
 

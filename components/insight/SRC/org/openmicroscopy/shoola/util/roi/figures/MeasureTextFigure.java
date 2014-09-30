@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -24,12 +24,14 @@ package org.openmicroscopy.shoola.util.roi.figures;
 
 
 //Java imports
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
+
 
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
@@ -366,7 +368,16 @@ public class MeasureTextFigure
 		this.setObjectDirty(true);
 	}
 
-	/**
+	
+        @Override
+        protected void drawText(Graphics2D g) {
+            if (getText() != null) {
+                g.setColor(MeasurementAttributes.STROKE_COLOR.get(this));
+                super.drawText(g);
+            }
+        }
+
+    /**
 	 * Implemented as specified by the {@link ROIFigure} interface
 	 * @see ROIFigure#getFigureListeners()
 	 */

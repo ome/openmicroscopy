@@ -48,7 +48,7 @@
 			<!-- Note: the objective link used ID in model-->
 		</properties>
 	</type>
-	<type id="ome.model.core.Pixels" annotated="true">
+	<type id="ome.model.core.Pixels">
 		<properties>
 			<!-- Acquisition Context 1 -->
 			<manyone name="image" type="ome.model.core.Image" ordered="true"/>
@@ -270,7 +270,7 @@
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			Acquisition Context 3
 	   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-	<abstract id="ome.model.acquisition.LightSource" manufactured="true">
+	<abstract id="ome.model.acquisition.LightSource" manufactured="true" annotated="true">
 		<properties>
 			<optional name="manufacturer" type="string"/>
 			<optional name="model" type="string"/>
@@ -318,7 +318,7 @@
 			Acquisition Context 4
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 -->
-	<type id="ome.model.acquisition.Detector" manufactured="true">
+	<type id="ome.model.acquisition.Detector" manufactured="true" annotated="true">
 		<properties>
 			<optional name="manufacturer" type="string"/>
 			<optional name="model" type="string"/>
@@ -343,7 +343,7 @@
 			<required name="type" type="ome.model.enums.MicroscopeType"/>
 		</properties>
 	</type>
-	<type id="ome.model.acquisition.Objective" manufactured="true">
+	<type id="ome.model.acquisition.Objective" manufactured="true" annotated="true">
 		<properties>
 			<optional name="manufacturer" type="string"/>
 			<optional name="model" type="string"/>
@@ -359,7 +359,7 @@
 			<manyone name="instrument" type="ome.model.acquisition.Instrument"/>
 		</properties>
 	</type>
-	<type id="ome.model.acquisition.Instrument">
+	<type id="ome.model.acquisition.Instrument" annotated="true">
 		<properties>
 			<optional name="microscope" type="ome.model.acquisition.Microscope"/>
 			<zeromany name="detector" type="ome.model.acquisition.Detector" inverse="instrument"/>
@@ -376,7 +376,7 @@
 			Acquisition Context 5
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 -->
-	<type id="ome.model.acquisition.Filter">
+	<type id="ome.model.acquisition.Filter" annotated="true">
 		<properties>
 			<optional name="manufacturer" type="string"/>
 			<optional name="model" type="string"/>
@@ -402,7 +402,7 @@
 			<child name="emissionFilterLink" type="ome.model.acquisition.FilterSetEmissionFilterLink" target="ome.model.acquisition.Filter"/>
 		</properties>
 	</type>
-	<type id="ome.model.acquisition.Dichroic">
+	<type id="ome.model.acquisition.Dichroic" annotated="true">
 		<properties>
 			<optional name="manufacturer" type="string"/>
 			<optional name="model" type="string"/>
@@ -420,7 +420,7 @@
 			<optional name="transmittance" type="PercentFraction"/>
 		</properties>
 	</type>
-	<type id="ome.model.acquisition.LightPath">
+	<type id="ome.model.acquisition.LightPath" annotated="true">
 		<properties>
 			<child name="excitationFilterLink" type="ome.model.acquisition.LightPathExcitationFilterLink" target="ome.model.acquisition.Filter" ordered="true"/>
 			<optional name="dichroic" type="ome.model.acquisition.Dichroic"/>

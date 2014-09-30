@@ -213,120 +213,282 @@ def leave_none_unset_int(s):
         return int(s)
 
 CUSTOM_HOST = CUSTOM_SETTINGS.get("Ice.Default.Host", "localhost")
-CUSTOM_SETTINGS_MAPPINGS = {
-    "omero.qa.feedback" : ["FEEDBACK_URL", "http://qa.openmicroscopy.org.uk", str],
-    "omero.web.login_logo": ["LOGIN_LOGO", None, leave_none_unset],
-    "omero.web.apps": ["ADDITIONAL_APPS", '[]', json.loads],
-    "omero.web.public.enabled": ["PUBLIC_ENABLED", "false", parse_boolean],
-    "omero.web.public.url_filter": ["PUBLIC_URL_FILTER", r'^/(?!webadmin)', re.compile],
-    "omero.web.public.server_id": ["PUBLIC_SERVER_ID", 1, int],
-    "omero.web.public.user": ["PUBLIC_USER", None, leave_none_unset],
-    "omero.web.public.password": ["PUBLIC_PASSWORD", None, leave_none_unset],
-    "omero.web.public.cache.enabled": ["PUBLIC_CACHE_ENABLED", "false", parse_boolean],
-    "omero.web.public.cache.key": ["PUBLIC_CACHE_KEY", "omero.web.public.cache.key", str],
-    "omero.web.public.cache.timeout": ["PUBLIC_CACHE_TIMEOUT", 60 * 60 * 24, int],
-    "omero.web.databases": ["DATABASES", '{}', json.loads],
-    "omero.web.admins": ["ADMINS", '[]', json.loads],
-    "omero.web.application_server": ["APPLICATION_SERVER", DEFAULT_SERVER_TYPE, check_server_type],
-    "omero.web.application_server.host": ["APPLICATION_SERVER_HOST", "0.0.0.0", str],
-    "omero.web.application_server.port": ["APPLICATION_SERVER_PORT", "4080", str],
-    "omero.web.application_server.max_requests": ["APPLICATION_SERVER_MAX_REQUESTS", 400, int],
-    "omero.web.ping_interval": ["PING_INTERVAL", 60000, int],
-    "omero.web.page_size": ["PAGE", 200, int],      # pagination of images in datasets and 'orphaned'
-    "omero.web.force_script_name": ["FORCE_SCRIPT_NAME", None, leave_none_unset],
-    "omero.web.static_url": ["STATIC_URL", "/static/", str],
-    "omero.web.staticfile_dirs": ["STATICFILES_DIRS", '[]', json.loads],
-    "omero.web.caches": ["CACHES", '{"default": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"}}', json.loads],
-    "omero.web.webgateway_cache": ["WEBGATEWAY_CACHE", None, leave_none_unset],
-    "omero.web.session_engine": ["SESSION_ENGINE", DEFAULT_SESSION_ENGINE, check_session_engine],
-    "omero.web.session_expire_at_browser_close": ["SESSION_EXPIRE_AT_BROWSER_CLOSE", "true", parse_boolean],
-    "omero.web.session_cookie_age": ["SESSION_COOKIE_AGE", 86400, int],
-    "omero.web.debug": ["DEBUG", "false", parse_boolean],
-    "omero.upgrades.url": ["UPGRADES_URL", "http://upgrade.openmicroscopy.org.uk/", str],
-    "omero.web.email_host": ["EMAIL_HOST", None, identity],
-    "omero.web.email_host_password": ["EMAIL_HOST_PASSWORD", None, identity],
-    "omero.web.email_host_user": ["EMAIL_HOST_USER", None, identity],
-    "omero.web.email_port": ["EMAIL_PORT", None, identity],
-    "omero.web.email_subject_prefix": ["EMAIL_SUBJECT_PREFIX", "[OMERO.web] ", str],
-    "omero.web.email_use_tls": ["EMAIL_USE_TLS", "false", parse_boolean],
-    "omero.web.logdir": ["LOGDIR", LOGDIR, str],
-    "omero.web.login_view": ["LOGIN_VIEW", "weblogin", str],
-    #"omero.web.login_redirect": ["LOGIN_REDIRECT",'{"redirect": ["webindex"], "viewname": "load_template", "args":["userdata"], "query_string": "experimenter=-1"}', json.loads],
-    "omero.web.login_redirect": ["LOGIN_REDIRECT",'{}', json.loads],
-    "omero.web.send_broken_link_emails": ["SEND_BROKEN_LINK_EMAILS", "true", parse_boolean],
-    "omero.web.server_email": ["SERVER_EMAIL", None, identity],
-    "omero.web.server_list": ["SERVER_LIST", '[["%s", 4064, "omero"]]' % CUSTOM_HOST, json.loads],
-    # Configuration options for the viewer. -1: zoom in fully, 0: zoom out fully, unset: zoom to fit window
-    "omero.web.viewer.initial_zoom_level": ["VIEWER_INITIAL_ZOOM_LEVEL", None, leave_none_unset_int],
-    # the following parameters configure when to show/hide the 'Volume viewer' icon in the Image metadata panel
-    "omero.web.open_astex_max_side": ["OPEN_ASTEX_MAX_SIDE", 400, int],
-    "omero.web.open_astex_min_side": ["OPEN_ASTEX_MIN_SIDE", 20, int],
-    "omero.web.open_astex_max_voxels": ["OPEN_ASTEX_MAX_VOXELS", 27000000, int],  # 300 x 300 x 300
-    "omero.web.scripts_to_ignore": ["SCRIPTS_TO_IGNORE", '["/omero/figure_scripts/Movie_Figure.py", '\
-            '"/omero/figure_scripts/Split_View_Figure.py", "/omero/figure_scripts/Thumbnail_Figure.py", '\
-            '"/omero/figure_scripts/ROI_Split_Figure.py", "/omero/export_scripts/Make_Movie.py",'\
-            '"/omero/setup_scripts/FLIM_initialise.py", "/omero/import_scripts/Populate_ROI.py"]', parse_paths],
+# DO NOT EDIT!
+INTERNAL_SETTINGS_MAPPING = {
+    "omero.qa.feedback" : ["FEEDBACK_URL", "http://qa.openmicroscopy.org.uk", str, None],
+    "omero.upgrades.url": ["UPGRADES_URL", "http://upgrade.openmicroscopy.org.uk/", str, None],
     
-    # Add links to the top header: links are ['Link Text', 'link'], where the url is reverse("link") OR simply 'link' (for external urls)
-    "omero.web.ui.top_links": ["TOP_LINKS", '['\
-            '["Data", "webindex", {"title": "Browse Data via Projects, Tags etc"}],'\
-            '["History", "history", {"title": "History"}]'\
-            ']', json.loads],  # E.g. '[["Webtest", "webtest_index"]]'
-    
-    # Shows/hides users in dropdown menu; default: '{"LEADERS": "Owners", "COLLEAGUES": "Members", "ALL": "All members"}'
-    "omero.web.ui.menu.dropdown": ["UI_MENU_DROPDOWN",'{"LEADERS": "Owners", "COLLEAGUES": "Members", "ALL": "All members"}', json.loads],
-    
-    
-    # Add plugins to the right-hand & center panels: plugins are ['Label', 'include.js', 'div_id']. The javascript loads data into $('#div_id').
-    "omero.web.ui.right_plugins": ["RIGHT_PLUGINS", '[["Acquisition", "webclient/data/includes/right_plugin.acquisition.js.html", "metadata_tab"],'\
-            #'["ROIs", "webtest/webclient_plugins/right_plugin.rois.js.html", "image_roi_tab"],'\
-            '["Preview", "webclient/data/includes/right_plugin.preview.js.html", "preview_tab"]]', json.loads],
-            
-    # E.g. Center plugin: ["Channel overlay", "webtest/webclient_plugins/center_plugin.overlay.js.html", "channel_overlay_panel"]
-    "omero.web.ui.center_plugins": ["CENTER_PLUGINS", '['\
-            #'["Split View", "webclient/data/includes/center_plugin.splitview.js.html", "split_view_panel"],'\
-            ']'
-            , json.loads],
-
-    # sharing no longer use this variable. replaced by request.build_absolute_uri
-    # after testing this line should be removed.
-    # "omero.web.application_host": ["APPLICATION_HOST", None, remove_slash], 
-
-    # TEMPLATES
-    # TEMPLATE_DIRS: List of locations of the template source files, in search order. Note that these 
-    # paths should use Unix-style forward slashes, even on Windows.
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates". Always use 
-    # forward slashes, even on Windows. Don't forget to use absolute paths, not relative paths.
-    # TEMPLATE_DIRS = ()
-    "omero.web.template_dirs": ["TEMPLATE_DIRS", '[]', json.loads],
-    "omero.web.index_template": ["INDEX_TEMPLATE", None, identity],
+    # Allowed hosts: https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
+    "omero.web.allowed_hosts": ["ALLOWED_HOSTS", '["*"]', json.loads, None],
     
     # WEBSTART
-    "omero.web.webstart_template": ["WEBSTART_TEMPLATE", None, identity],
-    "omero.web.webstart_jar": ["WEBSTART_JAR", "omero.insight.jar", str],
-    "omero.web.webstart_icon": ["WEBSTART_ICON", "webstart/img/icon-omero-insight.png", str],
-    "omero.web.webstart_heap": ["WEBSTART_HEAP", "1024m", str],
-    "omero.web.webstart_host": ["WEBSTART_HOST", CUSTOM_HOST, str],
-    "omero.web.webstart_port": ["WEBSTART_PORT", "4064", str],
-    "omero.web.webstart_class": ["WEBSTART_CLASS", "org.openmicroscopy.shoola.Main", str],
-    "omero.web.webstart_title": ["WEBSTART_TITLE", "OMERO.insight", str],
-    "omero.web.webstart_vendor": ["WEBSTART_VENDOR", "The Open Microscopy Environment", str],
-    "omero.web.webstart_homepage": ["WEBSTART_HOMEPAGE", "http://www.openmicroscopy.org", str],
-    "omero.web.nanoxml_jar": ["NANOXML_JAR", "nanoxml.jar", str],
-
-    # Allowed hosts: https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-    "omero.web.allowed_hosts": ["ALLOWED_HOSTS", '["*"]', json.loads],
+    "omero.web.webstart_template": ["WEBSTART_TEMPLATE", None, identity, None],
+    "omero.web.webstart_jar": ["WEBSTART_JAR", "omero.insight.jar", str, None],
+    "omero.web.webstart_icon": ["WEBSTART_ICON", "webstart/img/icon-omero-insight.png", str, None],
+    "omero.web.webstart_heap": ["WEBSTART_HEAP", "1024m", str, None],
+    "omero.web.webstart_host": ["WEBSTART_HOST", CUSTOM_HOST, str, None],
+    "omero.web.webstart_port": ["WEBSTART_PORT", "4064", str, None],
+    "omero.web.webstart_class": ["WEBSTART_CLASS", "org.openmicroscopy.shoola.Main", str, None],
+    "omero.web.webstart_title": ["WEBSTART_TITLE", "OMERO.insight", str, None],
+    "omero.web.webstart_vendor": ["WEBSTART_VENDOR", "The Open Microscopy Environment", str, None],
+    "omero.web.webstart_homepage": ["WEBSTART_HOMEPAGE", "http://www.openmicroscopy.org", str, None],
+    "omero.web.nanoxml_jar": ["NANOXML_JAR", "nanoxml.jar", str, None],
     
+    # Deprecated
+    "omero.web.send_broken_link_emails": ["SEND_BROKEN_LINK_EMAILS", "true", parse_boolean, None],
+}
+
+CUSTOM_SETTINGS_MAPPINGS = {
+    # Deployment configuration
+    "omero.web.debug":
+        ["DEBUG",
+        "false", parse_boolean,
+        "A boolean that turns on/off debug mode."],
+    "omero.web.application_server":
+        ["APPLICATION_SERVER",
+        DEFAULT_SERVER_TYPE, check_server_type,
+        "OMERO.web is configured to use FastCGI TCP by default. If you are " \
+        "using a non-standard web server configuration you may wish to " \
+        "change this before generating your web server configuration. " \
+        "Available options \"fastcgi\" / \"fastcgi-tcp\""],
+    "omero.web.application_server.host":
+        ["APPLICATION_SERVER_HOST",
+        "0.0.0.0", str,
+        "Upstream application host"],
+    "omero.web.application_server.port":
+        ["APPLICATION_SERVER_PORT",
+        "4080", str,
+        "Upstream application port"],
+    "omero.web.application_server.max_requests":
+        ["APPLICATION_SERVER_MAX_REQUESTS",
+        400, int,
+        None],
+    "omero.web.force_script_name":
+        ["FORCE_SCRIPT_NAME",
+        None, leave_none_unset,
+        "Used as the value of the SCRIPT_NAME environment variable in any HTTP request."],
+    "omero.web.static_url":
+        ["STATIC_URL",
+        "/static/", str,
+        "URL to use when referring to static files. Example: ``'/static/'`` or " \
+        "``'http://static.example.com/'``. Used as the base path for asset " \
+        "definitions (the Media class) and the staticfiles app. It must end " \
+        "in a slash if set to a non-empty value."],
+    "omero.web.session_engine":
+        ["SESSION_ENGINE",
+        DEFAULT_SESSION_ENGINE, check_session_engine,
+        "Controls where Django stores session data. See `Configuring the " \
+        "session engine for more details " \
+        " <https://docs.djangoproject.com/en/1.6/ref/settings/#session-engine>`_."],
+    "omero.web.session_expire_at_browser_close":
+        ["SESSION_EXPIRE_AT_BROWSER_CLOSE",
+        "true", parse_boolean,
+        "A boolean that determines whether to expire the session when the " \
+        "user closes their browser. See `Django Browser-length sessions vs. " \
+        "persistent sessions documentation " \
+        " <https://docs.djangoproject.com/en/1.6/topics/http/sessions/#browser-length-vs-persistent-sessions>`_ for more details."],
+    
+    "omero.web.caches":
+        ["CACHES",
+        '{"default": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"}}', json.loads,
+        "OMERO.web offers alternative session backends to automatically delete " \
+        "stale data using the cache session store backend, see `Django cached " \
+        "session documentation <https://docs.djangoproject.com/en/1.6/topics/http/sessions/#using-cached-sessions>`_ " \
+        "for more details."],
+    "omero.web.session_cookie_age":
+        ["SESSION_COOKIE_AGE",
+        86400, int,
+        "The age of session cookies, in seconds."],
+    "omero.web.admins":
+        ["ADMINS",
+        '[]', json.loads,
+        "A tuple that lists people who get code error notifications. When " \
+        ":property:`omero.web.debug` False and a view raises an exception, " \
+        "Django will email these people with the full exception information. " \
+        "Each member of the tuple should be a tuple of (Full name, email address)."],
+    "omero.web.server_email":
+        ["SERVER_EMAIL",
+        None, identity,
+        "The email address that error messages come from, such as those sent to " \
+        ":property:`omero.web.admins`.  Requires EMAIL properties below."],
+    "omero.web.email_host":
+        ["EMAIL_HOST",
+        None, identity,
+        "The SMTP server host to use for sending email."],
+    "omero.web.email_host_password":
+        ["EMAIL_HOST_PASSWORD",
+        None, identity,
+        "Password to use for the SMTP server."],
+    "omero.web.email_host_user":
+        ["EMAIL_HOST_USER",
+        None, identity,
+        "Username to use for the SMTP server."],
+    "omero.web.email_port":
+        ["EMAIL_PORT",
+        None, identity,
+        "Port to use for the SMTP server."],
+    "omero.web.email_subject_prefix":
+        ["EMAIL_SUBJECT_PREFIX",
+        "[OMERO.web]", str,
+        "Subject-line prefix for email messages"],
+    "omero.web.email_use_tls":
+        ["EMAIL_USE_TLS",
+        "false", parse_boolean,
+        "Whether to use a TLS (secure) connection when talking to the SMTP server."],
+    "omero.web.logdir":
+        ["LOGDIR",
+        LOGDIR, str,
+        "A path to the custom log directory."],
+
+    # Public user
+    "omero.web.public.enabled":
+        ["PUBLIC_ENABLED",
+        "false", parse_boolean,
+        "Enable and disable the OMERO.web public user functionality."],
+    "omero.web.public.url_filter":
+        ["PUBLIC_URL_FILTER",
+        r'^/(?!webadmin)', re.compile,
+        "Set a URL filter for which the OMERO.web public user is allowed to " \
+        "navigate. The idea is that you can create the public pages yourself " \
+        "(see OMERO.web framework since we do not provide public pages."],
+    "omero.web.public.server_id":
+        ["PUBLIC_SERVER_ID",
+        1, int,
+        "Server to authenticate against."],
+    "omero.web.public.user":
+        ["PUBLIC_USER",
+        None, leave_none_unset,
+        "Username to use during authentication."],
+    "omero.web.public.password":
+        ["PUBLIC_PASSWORD",
+        None, leave_none_unset,
+        "Password to use during authentication."],
+    "omero.web.public.cache.enabled": ["PUBLIC_CACHE_ENABLED", "false", parse_boolean, None],
+    "omero.web.public.cache.key": ["PUBLIC_CACHE_KEY", "omero.web.public.cache.key", str, None],
+    "omero.web.public.cache.timeout": ["PUBLIC_CACHE_TIMEOUT", 60 * 60 * 24, int, None],
+
+    # Application configuration
+    "omero.web.server_list": 
+        ["SERVER_LIST",
+        '[["%s", 4064, "omero"]]' % CUSTOM_HOST, json.loads,
+        "A list of servers the Web client can connect to."],
+    "omero.web.ping_interval":
+        ["PING_INTERVAL",
+        60000, int,
+        "description"],
+    "omero.web.webgateway_cache": ["WEBGATEWAY_CACHE", None, leave_none_unset, None],
+
+    # VIEWER
+    # the following parameters configure when to show/hide the 'Volume viewer' icon in the Image metadata panel
+    "omero.web.open_astex_max_side": ["OPEN_ASTEX_MAX_SIDE", 400, int, None],
+    "omero.web.open_astex_min_side": ["OPEN_ASTEX_MIN_SIDE", 20, int, None],
+    "omero.web.open_astex_max_voxels": ["OPEN_ASTEX_MAX_VOXELS", 27000000, int, None],  # 300 x 300 x 300
+
     # PIPELINE 1.3.20
     # Pipeline is an asset packaging library for Django, providing both CSS and JavaScript 
     # concatenation and compression, built-in JavaScript template support, and optional 
     # data-URI image and font embedding.
-    "omero.web.pipeline_js_compressor": ["PIPELINE_JS_COMPRESSOR", None, identity],
-    "omero.web.pipeline_css_compressor": ["PIPELINE_CSS_COMPRESSOR", None, identity],
-    # STATICFILES_STORAGE see http://django-pipeline.readthedocs.org/en/latest/storages.html
-    "omero.web.pipeline_staticfile_storage": ["STATICFILES_STORAGE", "pipeline.storage.PipelineStorage", str],
+    "omero.web.pipeline_js_compressor":
+        ["PIPELINE_JS_COMPRESSOR",
+        None, identity,
+        "Compressor class to be applied to JavaScript files. If empty or " \
+        "None, JavaScript files won't be compressed."],
+    "omero.web.pipeline_css_compressor":
+        ["PIPELINE_CSS_COMPRESSOR",
+        None, identity,
+        "Compressor class to be applied to CSS files. If empty or None, CSS "\
+        "files won't be compressed."],
+    "omero.web.pipeline_staticfile_storage":
+        ["STATICFILES_STORAGE",
+        "pipeline.storage.PipelineStorage", str,
+        "The file storage engine to use when collecting static files with the " \
+        "collectstatic management command. See `the documentation " \
+        "<http://django-pipeline.readthedocs.org/en/latest/storages.html>`_ for more details."],
+    
+    # Customisation
+    "omero.web.login_logo":
+        ["LOGIN_LOGO",
+        None, leave_none_unset,
+        "Customize webclient login page with your own logo. Logo images " \
+        "should ideally be 150 pixels high or less and will appear above " \
+        "the OMERO logo. You will need to host the image somewhere else " \
+        "and link to it with ``\"http://www.openmicroscopy.org/site/logo.jpg\"``."],
+    "omero.web.login_view":
+        ["LOGIN_VIEW",
+        "weblogin", str,
+        None],
+    "omero.web.staticfile_dirs":
+        ["STATICFILES_DIRS",
+        '[]', json.loads,
+        "Defines the additional locations the staticfiles app will traverse " \
+        "if the FileSystemFinder finder is enabled, e.g. if you use the " \
+        "collectstatic or findstatic management command or use the static " \
+        "file serving view."],
+    "omero.web.template_dirs":
+        ["TEMPLATE_DIRS",
+        '[]', json.loads,
+        "List of locations of the template source files, in search order. " \
+        "Note that these paths should use Unix-style forward slashes, even on Windows."],
+    "omero.web.index_template":
+        ["INDEX_TEMPLATE",
+        None, identity,
+        "Define template used as an index page ``http://your_host/omero/``." \
+        "If None user is automaticaly redirected to the login page." \
+        "For example use 'webstart/start.html'. "],
+    "omero.web.login_redirect":
+        ["LOGIN_REDIRECT",
+        '{}', json.loads,
+        "Redirect to the givin location after loging in. It only support " \
+        "arguments for `Django reverse function <https://docs.djangoproject.com/en/1.6/ref/urlresolvers/#django.core.urlresolvers.reverse>`_. " \
+        "For example: ``'{\"redirect\": [\"webindex\"], \"viewname\": \"load_template\", \"args\":[\"userdata\"], \"query_string\": \"experimenter=-1\"}'``"],
+    "omero.web.apps":
+        ["ADDITIONAL_APPS",
+        '[]',json.loads,
+        "Add additional Django applications. For example, see :doc:`/developers/Web/CreateApp`"],
+    "omero.web.databases": ["DATABASES", '{}', json.loads, None],
+    "omero.web.page_size":
+        ["PAGE",
+        200, int,
+        "Number of images displayed within a dataset or 'orphaned' container " \
+        "to prevent from loading them all at once."],
+    "omero.web.ui.top_links":
+        ["TOP_LINKS", '['\
+                        '["Data", "webindex", {"title": "Browse Data via Projects, Tags etc"}],'\
+                        '["History", "history", {"title": "History"}]'\
+                        ']', json.loads,
+        "Add links to the top header: links are ``['Link Text', 'link', options]``, where " \
+        "the url is reverse('link') OR simply 'link' (for external urls). " \
+        "E.g. ``'[[\"Webtest\", \"webtest_index\"], [\"Homepage\", \"http://...\", {\"title\": \"Homepage\", \"target\": \"new\"} ]]'``"],
+    "omero.web.ui.menu.dropdown":
+        ["UI_MENU_DROPDOWN",
+        '{"LEADERS": "Owners", "COLLEAGUES": "Members", "ALL": "All members"}', json.loads,
+        "Shows/hides users in dropdown menu."],
+    "omero.web.ui.right_plugins":
+        ["RIGHT_PLUGINS",'['\
+                        '["Acquisition", "webclient/data/includes/right_plugin.acquisition.js.html", "metadata_tab"],'\
+                        #'["ROIs", "webtest/webclient_plugins/right_plugin.rois.js.html", "image_roi_tab"],'\
+                        '["Preview", "webclient/data/includes/right_plugin.preview.js.html", "preview_tab"]]', json.loads,
+        "Add plugins to the right-hand panel. " \
+        "Plugins are ``['Label', 'include.js', 'div_id']``. " \
+        "The javascript loads data into ``$('#div_id')``."],
+    "omero.web.ui.center_plugins":
+        ["CENTER_PLUGINS",'['\
+                            #'["Split View", "webclient/data/includes/center_plugin.splitview.js.html", "split_view_panel"],'\
+                            ']' , json.loads,
+        "Add plugins to the center panels. Plugins are " \
+        "``['Channel overlay', 'webtest/webclient_plugins/center_plugin.overlay.js.html', 'channel_overlay_panel']``. " \
+        "The javascript loads data into ``$('#div_id')``."],
+    "omero.web.viewer.initial_zoom_level":
+        ["VIEWER_INITIAL_ZOOM_LEVEL",
+        None, leave_none_unset_int,
+        "Configuration options for the viewer. -1: zoom in fully, 0: zoom out fully, unset: zoom to fit window"],
+    "omero.web.scripts_to_ignore": ["SCRIPTS_TO_IGNORE", '["/omero/figure_scripts/Movie_Figure.py", '\
+            '"/omero/figure_scripts/Split_View_Figure.py", "/omero/figure_scripts/Thumbnail_Figure.py", '\
+            '"/omero/figure_scripts/ROI_Split_Figure.py", "/omero/export_scripts/Make_Movie.py",'\
+            '"/omero/setup_scripts/FLIM_initialise.py", "/omero/import_scripts/Populate_ROI.py"]', parse_paths, None],
 
 }
+
 del CUSTOM_HOST
 
 # DEVELOPMENT_SETTINGS_MAPPINGS - WARNING: For each setting developer MUST open
@@ -335,9 +497,9 @@ del CUSTOM_HOST
 DEVELOPMENT_SETTINGS_MAPPINGS = {
     
     # Rename Orphans in data manager; default: '{"NAME":"Orphaned images", "DESCRIPTION":"This is a virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container."}'
-    "omero.web.ui.tree.orphaned": ["UI_TREE_ORPHANED",'{"NAME":"Orphaned images", "DESCRIPTION":"This is a virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container."}', json.loads],
-    "omero.web.webstart_admins_only": ["WEBSTART_ADMINS_ONLY", "false", parse_boolean],
-    "omero.web.webadmin.enable_email": ["WEBADMIN_ENABLE_EMAIL", "false", parse_boolean],
+    "omero.web.ui.tree.orphaned": ["UI_TREE_ORPHANED",'{"NAME":"Orphaned images", "DESCRIPTION":"This is a virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container."}', json.loads, None],
+    "omero.web.webstart_admins_only": ["WEBSTART_ADMINS_ONLY", "false", parse_boolean, None],
+    "omero.web.webadmin.enable_email": ["WEBADMIN_ENABLE_EMAIL", "false", parse_boolean, None],
 }
 
 def process_custom_settings(module, settings='CUSTOM_SETTINGS_MAPPINGS'):
@@ -346,10 +508,10 @@ def process_custom_settings(module, settings='CUSTOM_SETTINGS_MAPPINGS'):
         # Django may import settings.py more than once, see:
         # http://blog.dscpl.com.au/2010/03/improved-wsgi-script-for-use-with.html
         # In that case, the custom settings have already been processed.
-        if len(values) == 4:
+        if len(values) == 5:
             continue
 
-        global_name, default_value, mapping = values
+        global_name, default_value, mapping, description = values
 
         try:
             global_value = CUSTOM_SETTINGS[key]
@@ -365,9 +527,9 @@ def process_custom_settings(module, settings='CUSTOM_SETTINGS_MAPPINGS'):
         except LeaveUnset:
             pass
 
+process_custom_settings(sys.modules[__name__], 'INTERNAL_SETTINGS_MAPPING')
 process_custom_settings(sys.modules[__name__], 'CUSTOM_SETTINGS_MAPPINGS')
 process_custom_settings(sys.modules[__name__], 'DEVELOPMENT_SETTINGS_MAPPINGS')
-
 
 if not DEBUG:  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
     LOGGING['loggers']['django.request']['level'] = 'INFO'
@@ -388,7 +550,7 @@ def report_settings(module):
     custom_settings_mappings = getattr(module, 'CUSTOM_SETTINGS_MAPPINGS', {})
     for key in sorted(custom_settings_mappings):
         values = custom_settings_mappings[key]
-        global_name, default_value, mapping, using_default = values
+        global_name, default_value, mapping, description, using_default = values
         source = using_default and "default" or key
         global_value = getattr(module, global_name, None)
         if global_name.isupper():
@@ -542,7 +704,7 @@ PIPELINE_CSS = {
             '3rdparty/farbtastic/farbtastic.css',
             'webgateway/css/ome.colorbtn.css',
             '3rdparty/JQuerySpinBtn/JQuerySpinBtn.css',
-            '3rdparty/jquery-ui-1.8.19/jquery-ui-1.8.19.custom.css',
+            '3rdparty/jquery-ui-1.10.4/themes/base/jquery-ui.all.css',
             'webgateway/css/omero_image.css',
             '3rdparty/panojs/panojs.css',
         ),
@@ -553,7 +715,8 @@ PIPELINE_CSS = {
 PIPELINE_JS = {
     'webgateway_viewer': {
         'source_filenames': (
-            '3rdparty/jquery-1.7.2.js',
+            '3rdparty/jquery-1.11.1.js',
+            '3rdparty/jquery-migrate-1.2.1.js',
             'webgateway/js/ome.popup.js',
             '3rdparty/aop.js',
             '3rdparty/panojs/utils.js',
@@ -570,7 +733,7 @@ PIPELINE_JS = {
             'webgateway/js/ome.viewportImage.js',
             'webgateway/js/ome.gs_slider.js',
             'webgateway/js/ome.viewport.js',
-            '3rdparty/jquery-ui-1.8.19/jquery-ui.min.js',
+            '3rdparty/jquery-ui-1.10.4/js/jquery-ui.1.10.4.js',
             'webgateway/js/ome.smartdialog.js',
             '3rdparty/JQuerySpinBtn/JQuerySpinBtn.js',
             'webgateway/js/ome.colorbtn.js',

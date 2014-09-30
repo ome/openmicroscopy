@@ -58,7 +58,8 @@ class TestThumbnailPerms(lib.ITest):
 
         # login as user1 (into their default group)
         # create image in private group
-        client_share1 = self.new_client(user=user1, password="ome")
+        client_share1 = self.new_client(
+            user=user1, password=user1.omeName.val)
         privateImageId = createTestImage(client_share1.sf)
 
         # if we don't get thumbnail, test fails when another user does
@@ -91,7 +92,8 @@ class TestThumbnailPerms(lib.ITest):
 
         # now check that the 'owner' of each group can see all 3 thumbnails.
         # login as owner (into private group)
-        owner_client = self.new_client(user=newOwner, password="ome")
+        owner_client = self.new_client(
+            user=newOwner, password=newOwner.omeName.val)
 
         group_ctx = {"omero.group": str(privateGroup)}
         self.getThumbnail(owner_client.sf, privateImageId, *group_ctx)
@@ -124,7 +126,7 @@ class TestThumbnailPerms(lib.ITest):
 
         # now check that the 'user2' of each group can see all thumbnails
         # except private. login as user2 (into private group)
-        user2_client = self.new_client(user=user2, password="ome")
+        user2_client = self.new_client(user=user2, password=user2.omeName.val)
 
         # check that we can't get thumbnails for any images in private group
         assert self.getThumbnail(user2_client.sf, privateImageId) is None

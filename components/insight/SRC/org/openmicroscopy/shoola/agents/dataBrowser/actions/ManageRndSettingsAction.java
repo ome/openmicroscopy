@@ -85,14 +85,14 @@ public class ManageRndSettingsAction
             "Copy the rendering settings.";
 
     /** The default name of the action if the index is {@link #PASTE}. */
-    private static final String NAME_PASTE = "Paste";
+    private static final String NAME_PASTE = "Paste and Save";
 
     /** The description of the action if the index is {@link #PASTE}. */
     private static final String DESCRIPTION_PASTE =
-            "Paste the rendering settings.";
+            "Paste and Save the rendering settings.";
 
     /** The default name of the action if the index is {@link #RESET}. */
-    private static final String NAME_RESET = "Reset and Save";
+    private static final String NAME_RESET = "Set Imported and Save";
 
     /** The description of the action if the index is {@link #RESET}. */
     private static final String DESCRIPTION_RESET =
@@ -106,13 +106,13 @@ public class ManageRndSettingsAction
             "Set the Pixels Intensity interval to min/max for all channels.";
 
     /** The name of the action if the index is {@link #SET_OWNER}. */
-    private static final String NAME_SET_OWNER = "Set Owner's";
+    private static final String NAME_SET_OWNER = "Set Owner's and Save";
 
     /** 
      * The description of the action if the index is {@link #SET_OWNER}.
      */
     private static final String DESCRIPTION_SET_OWNER =
-            "Set the Owner's rendering settings.";
+            "Reset to the Owner's rendering settings and save.";
 
     /** Helper reference to the icons manager. */
     private IconManager icons;

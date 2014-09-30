@@ -100,6 +100,7 @@ def imageMarshal (image, key=None):
                      'wellId': well and well.id.val or '',
                      'imageTimestamp': time.mktime(image.getDate().timetuple()),
                      'imageId': image.id,
+                     'pixelsType': image.getPixelsType(),
             },
             'perms': {'canAnnotate': image.canAnnotate(),
                 'canEdit': image.canEdit(),

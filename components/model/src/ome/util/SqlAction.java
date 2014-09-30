@@ -542,6 +542,26 @@ public interface SqlAction {
      */
     void addMessageWithinDbPatchEnd(String version, int patch, String message);
 
+    /**
+     * Sets the given permissions bit to {@code 1}. Note: Actually sets the bit to {@code 1} in the value stored in the database,
+     * does not adopt the inverse convention associated with permissions flags.
+     * @param table the table in which to find the row
+     * @param id the value of the table's {@code id} column that identifies the row to update
+     * @param bit the bit number to set to {@code 1}, counting from {@code 0} as the least significant bit
+     * @return if the row was found in the table, regardless of the given bit's previous value
+     */
+    boolean setPermissionsBit(String table, long id, int bit);
+
+    /**
+     * Sets the given permissions bit to {@code 0}. Note: Actually sets the bit to {@code 0} in the value stored in the database,
+     * does not adopt the inverse convention associated with permissions flags.
+     * @param table the table in which to find the row
+     * @param id the value of the table's {@code id} column that identifies the row to update
+     * @param bit the bit number to set to {@code 0}, counting from {@code 0} as the least significant bit
+     * @return if the row was found in the table, regardless of the given bit's previous value
+     */
+    boolean clearPermissionsBit(String table, long id, int bit);
+
     //
     // End PgArrayHelper
     //
@@ -640,6 +660,20 @@ public interface SqlAction {
             String sql = _lookup("update_permissions_for_table");
             sql = String.format(sql, table);
             return _jdbc().update(sql, internal, id);
+        }
+
+        @Override
+        public boolean setPermissionsBit(String table, long id, int bit) {
+            String sql = _lookup("set_permissions_bit");
+            sql = String.format(sql, table);
+            return _jdbc().update(sql, bit, id) > 0;
+        }
+
+        @Override
+        public boolean clearPermissionsBit(String table, long id, int bit) {
+            String sql = _lookup("clear_permissions_bit");
+            sql = String.format(sql, table);
+            return _jdbc().update(sql, bit, id) > 0;
         }
 
         //

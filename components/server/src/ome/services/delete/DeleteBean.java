@@ -334,14 +334,6 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
                     sb.append(" Image(s); ");
 
                     // Samples
-                    q = session.createQuery("delete WellSampleAnnotationLink "
-                            + "where parent.id in (select id from WellSample "
-                            + "where image.id in (:ids) )");
-                    q.setParameterList("ids", imageIdsForPlate);
-                    count = q.executeUpdate();
-                    sb.append(count);
-                    sb.append(" WellSampleAnnotationLink(s); ");
-
                     q = session.createQuery("delete WellSample "
                             + "where image.id in (:ids)");
                     q.setParameterList("ids", imageIdsForPlate);

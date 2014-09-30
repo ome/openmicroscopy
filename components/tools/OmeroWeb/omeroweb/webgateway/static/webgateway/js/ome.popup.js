@@ -380,7 +380,8 @@ OME.feedback_dialog = function(error, feedbackUrl) {
  * In this case we simply refresh (will redirect to login page)
 **/
 OME.setupAjaxError = function(feedbackUrl){
-    $("body").ajaxError(function(e, req, settings, exception) {
+
+    $(document).ajaxError(function(e, req, settings, exception) {
         if (req.status == 404) {
             var msg = "Url: " + settings.url + "<br/>" + req.responseText;
             OME.confirm_dialog(msg, null, "404 Error", ["OK"], 360, 200);
@@ -460,8 +461,8 @@ OME.login_dialog = function(login_url, callback) {
         // Process each jQuery object in array
         this.each(function(i) {
             // 'this' is the element we're working with
-            var $this = $(this),
-                plugin_tab_index = $this.index()-1;
+            var $this = $(this);
+            var plugin_tab_index = $this.index()-1;
 
             // store settings
             // 'load_plugin_content' was called 'load_tab_content' (4.4.9 and earlier). Support both...
@@ -488,8 +489,9 @@ OME.login_dialog = function(login_url, callback) {
             };
 
             // update tabs when tree selection changes or tabs switch
-            $("#annotation_tabs").bind( "tabsshow", function(tab_ui, tab){
-                if (tab.index == plugin_tab_index) {
+            $("#annotation_tabs").on( "tabsactivate", function(event, ui){
+                // we get a "tabsactivate" event, but need to check if 'this' tab was chosen...
+                if (ui.newTab.index() == plugin_tab_index) {
                     $this.show();   // sometimes this doesn't get shown until too late
                     update_tab_content();
                 }

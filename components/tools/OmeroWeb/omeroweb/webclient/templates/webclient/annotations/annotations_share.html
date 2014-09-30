@@ -68,21 +68,18 @@
                         textArea.val('');
                     },
                 });
-                
+
                 $(".tooltip").parent().children("span").hide(); // hide tool tip source
                 $(".tooltip").tooltip({
-                    bodyHandler: function() {
-                            return $(this).parent().children("span").html();
-                        },
+                    items: '.tooltip',
+                    content: function() {
+                        return $(this).parent().children("span").html();
+                    },
                     track: true,
-                    delay: 0,
-                    showURL: false,
-                    fixPNG: true,
-                    showBody: " - ",
-                    top: 10,
-                    left: -100
+                    show: false,
+                    hide: false
                 });
-                
+
                 $(".removeComment").click(function(event) {
                     removeItem(event, "ann_comment_wrapper");
                 });
@@ -160,15 +157,10 @@
                             }
                         });
                         $('#id_expiration').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd', minDate: 0});
-                        $("#markup_c, #enable, #expire").tooltip({ 
-                              track: true, 
-                              delay: 0, 
-                              showURL: false, 
-                              opacity: 1, 
-                              fixPNG: true, 
-                              showBody: " - ", 
-                              top: -15, 
-                              left: 5 
+                        $("#markup_c, #enable, #expire").tooltip({
+                              track: true,
+                              show: false,
+                              hide: false
                           });
                     });
                     return false;

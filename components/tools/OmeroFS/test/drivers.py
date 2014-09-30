@@ -11,31 +11,32 @@
 """
 
 import logging
-import os
 import threading
 import time
-import unittest
 
 import omero.all
 import omero.grid.monitors as monitors
-import omero_ext.uuid as uuid # see ticket:3774
-import IceGrid
+import omero_ext.uuid as uuid  # see ticket:3774
 
 from path import path
 from omero.util import ServerContext
 from omero_ext.mox import Mox
 from omero_ext.functional import wraps
 from omero.util.temp_files import create_path
-from fsDropBoxMonitorClient import *
+from fsDropBoxMonitorClient import MonitorClientI
 
-LOGFORMAT =  """%(asctime)s %(levelname)-5s [%(name)40s] (%(threadName)-10s) %(message)s"""
-logging.basicConfig(level=0,format=LOGFORMAT)
+LOGFORMAT = "%(asctime)s %(levelname)-5s [%(name)40s]" \
+            "(%(threadName)-10s) %(message)s"
+logging.basicConfig(level=0, format=LOGFORMAT)
+
 
 class AbstractEvent(object):
+
     """
     Event which is configured in a Driver instance
     to be executed at a specified time.
     """
+
     def __init__(self, waitMillis):
         """
         wait is the time that should elapse after the
@@ -52,7 +53,8 @@ class AbstractEvent(object):
         Sets the client which will receive the event on run.
         """
         if self.client:
-            log.error("Reusing event: old=%s new=%s" % (self.client, client))
+            self.log.error("Reusing event: old=%s new=%s"
+                           % (self.client, client))
         self.client = client
 
     def run(self):
@@ -60,17 +62,19 @@ class AbstractEvent(object):
         By default, nothing.
         """
         self.log.info("Sleeping %s" % self.waitMillis)
-        time.sleep(self.waitMillis/1000)
+        time.sleep(self.waitMillis / 1000)
         if not self.client:
             self.log.error("No client")
         self.doRun()
 
 
 class CallbackEvent(AbstractEvent):
+
     """
     Not really an Event, but allows some action
     to be executed in the driver thread.
     """
+
     def __init__(self, waitMillis, delegate):
         AbstractEvent.__init__(self, waitMillis)
         self.delegate = delegate
@@ -80,12 +84,15 @@ class CallbackEvent(AbstractEvent):
         Calls the delegate.
         """
         m = self.delegate
-        m(self.client)
+        m()
+
 
 class InfoEvent(AbstractEvent):
+
     """
     Event with an info to pass to the client
     """
+
     def __init__(self, waitMillis, info):
         AbstractEvent.__init__(self, waitMillis)
         self.info = info
@@ -94,24 +101,28 @@ class InfoEvent(AbstractEvent):
         """
         Runs run on the delegate
         """
-        self.client.fsEventHappened("", [self.info], None) # Ice.Current
+        self.client.fsEventHappened("", [self.info], None)  # Ice.Current
 
 
 class DirInfoEvent(InfoEvent):
+
     """
     Adds a test-specific "dir" attribute to EventInfo
     instance. Used by the Simulator and perhaps other
     test monitor clients
     """
+
     def __init__(self, waitMillis, info):
         InfoEvent.__init__(self, waitMillis, info)
         self.info.dir = True
 
 
 class Driver(threading.Thread):
+
     """
     Class which generates fsEvents at a pre-defined time.
     """
+
     def __init__(self, client):
         assert client.fsEventHappened
         threading.Thread.__init__(self)
@@ -138,7 +149,7 @@ class Driver(threading.Thread):
                 self.log.exception("Error in Driver.run()")
 
 
-def with_driver(func, errors = 0):
+def with_driver(func, errors=0):
     """ Decorator for running a test with a Driver """
     def handler(*args, **kwargs):
         self = args[0]
@@ -148,7 +159,7 @@ def with_driver(func, errors = 0):
         try:
             self.driver = Driver(self.client)
             rv = func(*args, **kwargs)
-            self.assertEquals(errors, len(self.driver.errors))
+            assert errors == len(self.driver.errors)
             for i in range(errors):
                 self.driver.errors.pop()
             return rv
@@ -158,10 +169,12 @@ def with_driver(func, errors = 0):
 
 
 class Replay(object):
+
     """
     Utility to read EVENT_RECORD logs and make the proper
     calls on the given target.
     """
+
     def __init__(self, dir, source, target):
         """
         Uses the dir as the location where files should *appear*
@@ -172,16 +185,15 @@ class Replay(object):
         self.dir_in = None
         self.batch = None
         self.bsize = None
-        self.timestamp= None
+        self.timestamp = None
         self.filesets = None
         self.source = source
         self.target = target
 
     def run(self):
         for line in self.source.lines():
-            if 0<=line.find("EVENT_RECORD"):
+            if 0 <= line.find("EVENT_RECORD"):
                 parts = line.split("::")
-                cookie = parts[1]
                 timestamp = float(parts[2])
                 category = parts[3]
                 data = parts[4].strip()
@@ -203,15 +215,16 @@ class Replay(object):
 
     def batchStart(self, timestamp, data):
         if self.batch:
-            assert len(self.batch) == ( self.bsize * 2 ) # Double due to callbacks
+            # Double due to callbacks
+            assert len(self.batch) == (self.bsize * 2)
             self.process()
         self.batch = []
         self.bsize = int(data)
 
     def fileset(self, timestamp, data):
-        filesets = eval(data, {"__builtins__":None}, {})
+        filesets = eval(data, {"__builtins__": None}, {})
         self.filesets = dict()
-        for k,iv in filesets.items():
+        for k, iv in filesets.items():
             k = self.rewrite(k)
             ov = []
             for i in iv:
@@ -245,19 +258,23 @@ class Replay(object):
         data = self.dir_out + data
         return data
 
+
 class Simulator(monitors.MonitorClient):
+
     """
     Adapter object which takes mocked Events from
     a Driver (for example, can be any event source)
     and creates files to simulate that those events
     really happened.
     """
+
     def __init__(self, dir):
         self.dir = path(dir)
         self.log = logging.getLogger("Simulator")
 
-    def fsEventHappened(self, monitorid, eventList, current = None):
-        # enum EventType { Create, Modify, Delete, MoveIn, MoveOut, All, System };
+    def fsEventHappened(self, monitorid, eventList, current=None):
+        # enum EventType { Create, Modify, Delete, MoveIn, MoveOut, All, System
+        # };
         for event in eventList:
             fileid = event.fileId
             file = path(fileid)
@@ -271,8 +288,8 @@ class Simulator(monitors.MonitorClient):
                     file.makedirs()
                 else:
                     #
-                    # For the moment, we assum directory events are being filtered
-                    # and therefore we will do the creation anyway.
+                    # For the moment, we assume directory events are being
+                    # filtered and therefore we will do the creation anyway.
                     #
                     if not file.parent.exists():
                         file.parent.makedirs()
@@ -287,7 +304,9 @@ class Simulator(monitors.MonitorClient):
                         raise Exception("%s is not a directory" % file)
                     self.log.info("Creating file in dir %s", file)
                     new_file = file / str(uuid.uuid4())
-                    new_file.write_lines(["Writing new file to modify this directory on event: %s" % event])
+                    new_file.write_lines(
+                        ["Writing new file to modify this"
+                         "directory on event: %s" % event])
                 else:
                     self.log.info("Modifying file %s", file)
                     file.write_lines(["Modified by event: %s" % event])
@@ -307,42 +326,55 @@ class Simulator(monitors.MonitorClient):
             elif monitors.EventType.MoveOut == event.type:
                 raise Exception("TO BE REMOVED")
             elif monitors.EventType.System == event.type:
-                pass # file id here is simply an informational string
+                pass  # file id here is simply an informational string
             else:
                 self.fail("UNKNOWN EVENT TYPE: %s" % event.eventType)
 
+
 class mock_communicator(object):
+
     def findObjectFactory(self, *args):
         return None
+
     def addObjectFactory(self, *args):
         pass
 
+
 class MockServerContext(ServerContext):
+
     def __init__(self, ic, get_root):
         self.mox = Mox()
         self.communicator = ic
         self.getSession = get_root
         self.stop_event = threading.Event()
+
     def newSession(self, *args):
         sess = self.mox.CreateMock(omero.api.ServiceFactoryPrx.__class__)
         return sess
 
+
 class MockMonitor(MonitorClientI):
+
     """
     Mock Monitor Client which can also delegate to other clients.
     """
     INSTANCES = []
+
     def static_stop():
         for i in MockMonitor.INSTANCES:
             i.stop()
     static_stop = staticmethod(static_stop)
 
-    def __init__(self, dir=None, pre = None, post = None):
-        if pre is None: pre = []
-        if post is None: post = []
+    def __init__(self, dir=None, pre=None, post=None):
+        if pre is None:
+            pre = []
+        if post is None:
+            post = []
         self.root = None
         ic = mock_communicator()
-        MonitorClientI.__init__(self, dir, ic, getUsedFiles = self.used_files, ctx = MockServerContext(ic, self.get_root), worker_wait = 0.1)
+        MonitorClientI.__init__(
+            self, dir, ic, getUsedFiles=self.used_files,
+            ctx=MockServerContext(ic, self.get_root), worker_wait=0.1)
         self.log = logging.getLogger("MockMonitor")
         self.events = []
         self.files = {}
@@ -363,7 +395,7 @@ class MockMonitor(MonitorClientI):
     def get_root(self, *args, **kwargs):
         return self.fake_meth("getRoot", self.root, *args, **kwargs)
 
-    def fsEventHappened(self, monitorid, eventList, current = None):
+    def fsEventHappened(self, monitorid, eventList, current=None):
         """
         Dispatches the event first to pre, then to the true implementation
         and finally to the post monitor clients. This allows for Simulator
@@ -376,7 +408,8 @@ class MockMonitor(MonitorClientI):
         for client in self.post:
             client.fsEventHappened(monitorid, eventList, current)
 
-def with_errors(func, count = 1):
+
+def with_errors(func, count=1):
     """ Decorator for catching any ERROR logging messages """
     def exc_handler(*args, **kwargs):
         handler = DetectError()
@@ -389,9 +422,12 @@ def with_errors(func, count = 1):
     exc_handler = wraps(func)(exc_handler)
     return exc_handler
 
+
 class DetectError(logging.Handler):
+
     def __init__(self):
         logging.Handler.__init__(self)
         self.errors = []
+
     def handle(self, record):
         self.errors.append(record)

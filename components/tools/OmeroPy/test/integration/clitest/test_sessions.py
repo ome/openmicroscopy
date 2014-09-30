@@ -30,10 +30,9 @@ class TestSessions(CLITest):
         self.args += ["sessions"]
 
     def set_login_args(self, user):
-        passwd = self.root.getProperty("omero.rootpass")
         host = self.root.getProperty("omero.host")
         port = self.root.getProperty("omero.port")
-        self.args = ["sessions", "login", "-w", passwd]
+        self.args = ["sessions", "login"]
         self.conn_string = "%s@%s:%s" % (user.omeName.val, host, port)
         self.args += [self.conn_string]
 
@@ -49,6 +48,7 @@ class TestSessions(CLITest):
     def testLoginStderr(self, capsys, quiet):
         user = self.new_user()
         self.set_login_args(user)
+        self.args += ["-w", user.omeName.val]
         if quiet:
             self.args += ["-q"]
         self.cli.invoke(self.args, strict=True)
@@ -88,6 +88,7 @@ class TestSessions(CLITest):
     def testLoginAsRoot(self):
         user = self.new_user()
         self.set_login_args(user)
+        self.args += ["-w", self.root.getProperty("omero.rootpass")]
         self.args += ["--sudo", "root"]
         self.cli.invoke(self.args, strict=True)
         ec = self.cli.controls["sessions"].ctx._event_context
@@ -101,6 +102,7 @@ class TestSessions(CLITest):
         user = self.new_user(group=group)
         self.set_login_args(user)
         self.args += ["--sudo", admin]
+        self.args += ["-w", admin]
         self.cli.invoke(self.args, strict=True)
         ec = self.cli.controls["sessions"].ctx._event_context
         assert ec.userName == user.omeName.val
@@ -115,6 +117,9 @@ class TestSessions(CLITest):
         self.set_login_args(user)
         if with_sudo:
             self.args += ["--sudo", "root"]
+            self.args += ["-w", self.root.getProperty("omero.rootpass")]
+        else:
+            self.args += ["-w", user.omeName.val]
         if with_group:
             self.args += ["-g", group2.name.val]
         self.cli.invoke(self.args, strict=True)
@@ -133,6 +138,7 @@ class TestSessions(CLITest):
         group2 = self.new_group([user])
 
         self.set_login_args(user)
+        self.args += ["-w", user.omeName.val]
         self.cli.invoke(self.args, strict=True)
         ec = self.cli.controls["sessions"].ctx._event_context
         assert ec.groupName == group1.name.val
