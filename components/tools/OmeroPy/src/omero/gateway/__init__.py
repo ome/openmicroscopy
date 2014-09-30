@@ -611,7 +611,7 @@ class BlitzObjectWrapper (object):
             if withlinks:
                 parentnodes.extend([(pwc(self._conn, pwck.LINK_PARENT(x), self._cache), BlitzObjectWrapper(self._conn, x)) for x in self._conn.getQueryService().findAllByQuery("from %s as c where c.%s.id=%i" % (pwck.LINK_CLASS, pwck.LINK_CHILD, self._oid), param, self._conn.SERVICE_OPTS)])
             else:
-                t =  self._conn.getQueryService().findAllByQuery("from %s as c where c.%s.id=%i" % (pwck.LINK_CLASS, pwck.LINK_CHILD, self._oid), param, self._conn.SERVICE_OPTS)
+                t = self._conn.getQueryService().findAllByQuery("from %s as c where c.%s.id=%i" % (pwck.LINK_CLASS, pwck.LINK_CHILD, self._oid), param, self._conn.SERVICE_OPTS)
                 parentnodes.extend([pwc(self._conn, pwck.LINK_PARENT(x), self._cache) for x in t])
         return parentnodes
 
@@ -1343,8 +1343,8 @@ class _BlitzGateway (object):
         """
         return self.__class__(self._ic_props[omero.constants.USERNAME],
                               self._ic_props[omero.constants.PASSWORD],
-                              host = self.host,
-                              port = self.port,
+                              host=self.host,
+                              port=self.port,
                               extra_config=self.extra_config,
                               clone=True,
                               secure=self.secure,
@@ -2443,9 +2443,9 @@ class _BlitzGateway (object):
                     colleagues.append(ExperimenterWrapper(self, d.child))
         else:
             if  self.isLeader():
-                leaders =  [self.getUser()]
+                leaders = [self.getUser()]
             else:
-                colleagues =  [self.getUser()]
+                colleagues = [self.getUser()]
         return {"leaders": leaders, "colleagues": colleagues}
 
     def listStaffs(self):
@@ -3244,7 +3244,7 @@ class _BlitzGateway (object):
         """
 
         query_serv = self.getQueryService()
-        obj =  query_serv.find(klass, long(eid), self.SERVICE_OPTS)
+        obj = query_serv.find(klass, long(eid), self.SERVICE_OPTS)
         if obj is not None:
             return EnumerationWrapper(self, obj)
         else:
@@ -4834,11 +4834,11 @@ ScreenWrapper = _ScreenWrapper
 
 def _letterGridLabel(i):
     """  Convert number to letter label. E.g. 0 -> 'A' and 100 -> 'CW'  """
-    r = chr(ord('A') + i%26)
+    r = chr(ord('A') + i % 26)
     i = i/26
     while i > 0:
         i -= 1
-        r = chr(ord('A') + i%26) + r
+        r = chr(ord('A') + i % 26) + r
         i = i/26
     return r
 
