@@ -114,7 +114,8 @@ class CBFixture : virtual public Fixture {
 public:
 
     TestCBPtr run(const RequestPtr& req, int addCbDelay = 0) {
-        ExperimenterPtr user = newUser();
+        ExperimenterGroupPtr group = newGroup("rwr---");
+        ExperimenterPtr user = newUser(group);
         login(user->getOmeName()->getValue(), user->getOmeName()->getValue());
         HandlePrx handle = client->getSession()->submit(req);
         
