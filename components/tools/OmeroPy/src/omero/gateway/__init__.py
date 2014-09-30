@@ -54,6 +54,7 @@ from math import sqrt
 
 from omero.rtypes import rstring, rint, rlong, rbool, rtime, rlist, rdouble, unwrap
 
+
 def omero_type(val):
     """
     Converts rtypes from static factory methods:
@@ -79,6 +80,7 @@ def omero_type(val):
         return rlong(val)
     else:
         return val
+
 
 def fileread(fin, fsize, bufsize):
     """
@@ -124,6 +126,7 @@ def fileread_gen(fin, fsize, bufsize):
         yield fin.read(p, s)
         p += s
     fin.close()
+
 
 class BlitzObjectWrapper (object):
     """
@@ -1184,6 +1187,7 @@ class BlitzObjectWrapper (object):
 
 ## BASIC ##
 
+
 class NoProxies (object):
     """ A dummy placeholder to indicate that proxies haven't been created """
     def __getitem__(self, k):
@@ -1191,6 +1195,7 @@ class NoProxies (object):
 
     def values(self):
         return ()
+
 
 class _BlitzGateway (object):
     """
@@ -3882,6 +3887,7 @@ class ProxyObjectWrapper (object):
         #self._conn.updateTimeout()
         return rv
 
+
 class AnnotationWrapper (BlitzObjectWrapper):
     """
     omero_model_AnnotationI class wrapper extends BlitzObjectWrapper.
@@ -4015,6 +4021,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
         for al in self._conn.getQueryService().findAllByQuery(sql, p, self._conn.SERVICE_OPTS):
             yield AnnotationLinkWrapper(self._conn, al)
 
+
 class _AnnotationLinkWrapper (BlitzObjectWrapper):
     """
     omero_model_AnnotationLinkI class wrapper extends omero.gateway.BlitzObjectWrapper.
@@ -4036,6 +4043,7 @@ class _AnnotationLinkWrapper (BlitzObjectWrapper):
 AnnotationLinkWrapper = _AnnotationLinkWrapper
 
 from omero_model_FileAnnotationI import FileAnnotationI
+
 
 class FileAnnotationWrapper (AnnotationWrapper):
     """
@@ -4163,6 +4171,7 @@ OriginalFileWrapper = _OriginalFileWrapper
 
 from omero_model_TimestampAnnotationI import TimestampAnnotationI
 
+
 class TimestampAnnotationWrapper (AnnotationWrapper):
     """
     omero_model_TimestampAnnotatio class wrapper extends AnnotationWrapper.
@@ -4206,6 +4215,7 @@ AnnotationWrapper._register(TimestampAnnotationWrapper)
 
 from omero_model_BooleanAnnotationI import BooleanAnnotationI
 
+
 class BooleanAnnotationWrapper (AnnotationWrapper):
     """
     omero_model_BooleanAnnotationI class wrapper extends AnnotationWrapper.
@@ -4242,6 +4252,7 @@ class BooleanAnnotationWrapper (AnnotationWrapper):
 AnnotationWrapper._register(BooleanAnnotationWrapper)
 
 from omero_model_TagAnnotationI import TagAnnotationI
+
 
 class TagAnnotationWrapper (AnnotationWrapper):
     """
@@ -4320,6 +4331,7 @@ AnnotationWrapper._register(TagAnnotationWrapper)
 
 from omero_model_CommentAnnotationI import CommentAnnotationI
 
+
 class CommentAnnotationWrapper (AnnotationWrapper):
     """
     omero_model_CommentAnnotationI class wrapper extends AnnotationWrapper.
@@ -4356,6 +4368,7 @@ class CommentAnnotationWrapper (AnnotationWrapper):
 AnnotationWrapper._register(CommentAnnotationWrapper)
 
 from omero_model_LongAnnotationI import LongAnnotationI
+
 
 class LongAnnotationWrapper (AnnotationWrapper):
     """
@@ -4394,6 +4407,7 @@ AnnotationWrapper._register(LongAnnotationWrapper)
 
 from omero_model_DoubleAnnotationI import DoubleAnnotationI
 
+
 class DoubleAnnotationWrapper (AnnotationWrapper):
     """
     omero_model_DoubleAnnotationI class wrapper extends AnnotationWrapper.
@@ -4429,6 +4443,7 @@ class DoubleAnnotationWrapper (AnnotationWrapper):
 AnnotationWrapper._register(DoubleAnnotationWrapper)
 
 from omero_model_TermAnnotationI import TermAnnotationI
+
 
 class TermAnnotationWrapper (AnnotationWrapper):
     """
@@ -4469,6 +4484,7 @@ AnnotationWrapper._register(TermAnnotationWrapper)
 
 from omero_model_XmlAnnotationI import XmlAnnotationI
 
+
 class XmlAnnotationWrapper (CommentAnnotationWrapper):
     """
     omero_model_XmlAnnotationI class wrapper extends CommentAnnotationWrapper.
@@ -4476,6 +4492,7 @@ class XmlAnnotationWrapper (CommentAnnotationWrapper):
     OMERO_TYPE = XmlAnnotationI
 
 AnnotationWrapper._register(XmlAnnotationWrapper)
+
 
 class _EnumerationWrapper (BlitzObjectWrapper):
 
@@ -4490,6 +4507,7 @@ class _EnumerationWrapper (BlitzObjectWrapper):
         return self._obj.__class__
 
 EnumerationWrapper = _EnumerationWrapper
+
 
 class _ExperimenterWrapper (BlitzObjectWrapper):
     """
@@ -4721,6 +4739,7 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
 
 ExperimenterWrapper = _ExperimenterWrapper
 
+
 class _ExperimenterGroupWrapper (BlitzObjectWrapper):
     """
     omero_model_ExperimenterGroupI class wrapper extends BlitzObjectWrapper.
@@ -4742,6 +4761,7 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
 
 
 ExperimenterGroupWrapper = _ExperimenterGroupWrapper
+
 
 class DetailsWrapper (BlitzObjectWrapper):
     """
@@ -4777,6 +4797,7 @@ class DetailsWrapper (BlitzObjectWrapper):
             self._group = group and ExperimenterGroupWrapper(self._conn, self._obj.getGroup()) or None
         return self._group
 
+
 class _DatasetWrapper (BlitzObjectWrapper):
     """
     omero_model_DatasetI class wrapper extends BlitzObjectWrapper.
@@ -4799,6 +4820,7 @@ class _DatasetWrapper (BlitzObjectWrapper):
 
 DatasetWrapper = _DatasetWrapper
 
+
 class _ProjectWrapper (BlitzObjectWrapper):
     """
     omero_model_ProjectI class wrapper extends BlitzObjectWrapper.
@@ -4811,6 +4833,7 @@ class _ProjectWrapper (BlitzObjectWrapper):
         self.PARENT_WRAPPER_CLASS = None
 
 ProjectWrapper = _ProjectWrapper
+
 
 class _ScreenWrapper (BlitzObjectWrapper):
     """
@@ -4825,6 +4848,7 @@ class _ScreenWrapper (BlitzObjectWrapper):
 
 ScreenWrapper = _ScreenWrapper
 
+
 def _letterGridLabel(i):
     """  Convert number to letter label. E.g. 0 -> 'A' and 100 -> 'CW'  """
     r = chr(ord('A') + i%26)
@@ -4834,6 +4858,7 @@ def _letterGridLabel(i):
         r = chr(ord('A') + i%26) + r
         i = i/26
     return r
+
 
 class _PlateWrapper (BlitzObjectWrapper):
     """
@@ -5025,6 +5050,7 @@ class _PlateWrapper (BlitzObjectWrapper):
 
 PlateWrapper = _PlateWrapper
 
+
 class _PlateAcquisitionWrapper (BlitzObjectWrapper):
 
     def __bstrap__(self):
@@ -5051,6 +5077,7 @@ class _PlateAcquisitionWrapper (BlitzObjectWrapper):
         return [rv]
 
 PlateAcquisitionWrapper = _PlateAcquisitionWrapper
+
 
 class _WellWrapper (BlitzObjectWrapper):
     """
@@ -5223,6 +5250,7 @@ class _WellWrapper (BlitzObjectWrapper):
 
 WellWrapper = _WellWrapper
 
+
 class _WellSampleWrapper (BlitzObjectWrapper):
     """
     omero_model_WellSampleI class wrapper extends BlitzObjectWrapper.
@@ -5297,6 +5325,7 @@ WellSampleWrapper = _WellSampleWrapper
 #        self.PARENT_WRAPPER_CLASS = None
 
 ## IMAGE ##
+
 
 class ColorHolder (object):
     """
@@ -5466,6 +5495,7 @@ class ColorHolder (object):
         b = self.getBlue() << 0
         return r+g+b+a
 
+
 class _LogicalChannelWrapper (BlitzObjectWrapper):
     """
     omero_model_LogicalChannelI class wrapper extends BlitzObjectWrapper.
@@ -5509,6 +5539,7 @@ class _LogicalChannelWrapper (BlitzObjectWrapper):
 
 LogicalChannelWrapper = _LogicalChannelWrapper
 
+
 class _LightPathWrapper (BlitzObjectWrapper):
     """
     base Light Source class wrapper, extends BlitzObjectWrapper.
@@ -5530,6 +5561,7 @@ class _LightPathWrapper (BlitzObjectWrapper):
         return [FilterWrapper(self._conn, link.child) for link in self.copyEmissionFilterLink()]
 
 LightPathWrapper = _LightPathWrapper
+
 
 class _PixelsWrapper (BlitzObjectWrapper):
     """
@@ -5903,6 +5935,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
 
 ChannelWrapper = _ChannelWrapper
 
+
 class assert_re (object):
     """
     Function decorator to make sure that rendering engine is prepared before
@@ -5945,6 +5978,7 @@ class assert_re (object):
                 pass
             return f(self, *args, **kwargs)
         return wrapped
+
 
 def assert_pixels(func):
     """
@@ -7895,6 +7929,7 @@ ImageWrapper = _ImageWrapper
 
 ## INSTRUMENT AND ACQUISITION ##
 
+
 class _ImageStageLabelWrapper (BlitzObjectWrapper):
     """
     omero_model_StageLabelI class wrapper extends BlitzObjectWrapper.
@@ -7903,6 +7938,7 @@ class _ImageStageLabelWrapper (BlitzObjectWrapper):
 
 ImageStageLabelWrapper = _ImageStageLabelWrapper
 
+
 class _ImagingEnvironmentWrapper(BlitzObjectWrapper):
     """
     omero_model_ImagingEnvironment class wrapper extends BlitzObjectWrapper.
@@ -7910,6 +7946,7 @@ class _ImagingEnvironmentWrapper(BlitzObjectWrapper):
     pass
 
 ImagingEnvironmentWrapper = _ImagingEnvironmentWrapper
+
 
 class _ImagingEnviromentWrapper (BlitzObjectWrapper):
     """
@@ -7926,6 +7963,7 @@ class _ImagingEnviromentWrapper (BlitzObjectWrapper):
 
 ImagingEnviromentWrapper = _ImagingEnviromentWrapper
 
+
 class _TransmittanceRangeWrapper (BlitzObjectWrapper):
     """
     omero_model_TransmittanceRangeI class wrapper extends BlitzObjectWrapper.
@@ -7941,6 +7979,7 @@ class _TransmittanceRangeWrapper (BlitzObjectWrapper):
         self.OMERO_CLASS = 'TransmittanceRange'
 
 TransmittanceRangeWrapper = _TransmittanceRangeWrapper
+
 
 class _DetectorSettingsWrapper (BlitzObjectWrapper):
     """
@@ -7959,6 +7998,7 @@ class _DetectorSettingsWrapper (BlitzObjectWrapper):
 
 DetectorSettingsWrapper = _DetectorSettingsWrapper
 
+
 class _BinningWrapper (BlitzObjectWrapper):
     """
     omero_model_BinningI class wrapper extends BlitzObjectWrapper.
@@ -7968,6 +8008,7 @@ class _BinningWrapper (BlitzObjectWrapper):
         self.OMERO_CLASS = 'Binning'
 
 BinningWrapper = _BinningWrapper
+
 
 class _DetectorWrapper (BlitzObjectWrapper):
     """
@@ -8003,6 +8044,7 @@ class _DetectorWrapper (BlitzObjectWrapper):
             return rv
 
 DetectorWrapper = _DetectorWrapper
+
 
 class _ObjectiveWrapper (BlitzObjectWrapper):
     """
@@ -8069,6 +8111,7 @@ class _ObjectiveWrapper (BlitzObjectWrapper):
             return rv
 
 ObjectiveWrapper = _ObjectiveWrapper
+
 
 class _ObjectiveSettingsWrapper (BlitzObjectWrapper):
     """
@@ -8148,6 +8191,7 @@ class _FilterWrapper (BlitzObjectWrapper):
 
 FilterWrapper = _FilterWrapper
 
+
 class _DichroicWrapper (BlitzObjectWrapper):
     """
     omero_model_DichroicI class wrapper extends BlitzObjectWrapper.
@@ -8161,6 +8205,7 @@ class _DichroicWrapper (BlitzObjectWrapper):
         self.OMERO_CLASS = 'Dichroic'
 
 DichroicWrapper = _DichroicWrapper
+
 
 class _FilterSetWrapper (BlitzObjectWrapper):
     """
@@ -8185,6 +8230,7 @@ class _FilterSetWrapper (BlitzObjectWrapper):
 
 FilterSetWrapper = _FilterSetWrapper
 
+
 class _OTFWrapper (BlitzObjectWrapper):
     """
     omero_model_OTFI class wrapper extends BlitzObjectWrapper.
@@ -8202,6 +8248,7 @@ class _OTFWrapper (BlitzObjectWrapper):
         self.OMERO_CLASS = 'OTF'
 
 OTFWrapper = _OTFWrapper
+
 
 class _LightSettingsWrapper (BlitzObjectWrapper):
     """
@@ -8234,6 +8281,7 @@ class _LightSettingsWrapper (BlitzObjectWrapper):
 
 LightSettingsWrapper = _LightSettingsWrapper
 
+
 class _LightSourceWrapper (BlitzObjectWrapper):
     """
     base Light Source class wrapper, extends BlitzObjectWrapper.
@@ -8262,6 +8310,8 @@ class _LightSourceWrapper (BlitzObjectWrapper):
 
 # map of light source gateway classes to omero model objects. E.g. omero.model.Arc : 'ArcWrapper'
 _LightSourceClasses = {}
+
+
 def LightSourceWrapper(conn, obj, **kwargs):
     """
     Creates wrapper instances for omero.model light source objects
@@ -8275,6 +8325,7 @@ def LightSourceWrapper(conn, obj, **kwargs):
             return getattr(omero.gateway, v)(conn, obj, **kwargs)
     return None
 
+
 class _FilamentWrapper (_LightSourceWrapper):
     """
     omero_model_FilamentI class wrapper extends LightSourceWrapper.
@@ -8287,6 +8338,7 @@ class _FilamentWrapper (_LightSourceWrapper):
 FilamentWrapper = _FilamentWrapper
 _LightSourceClasses[omero.model.FilamentI] = 'FilamentWrapper'
 
+
 class _ArcWrapper (_FilamentWrapper):
     """
     omero_model_ArcI class wrapper extends FilamentWrapper.
@@ -8297,6 +8349,7 @@ class _ArcWrapper (_FilamentWrapper):
 
 ArcWrapper = _ArcWrapper
 _LightSourceClasses[omero.model.ArcI] = 'ArcWrapper'
+
 
 class _LaserWrapper (_LightSourceWrapper):
     """
@@ -8333,6 +8386,7 @@ class _LaserWrapper (_LightSourceWrapper):
 LaserWrapper = _LaserWrapper
 _LightSourceClasses[omero.model.LaserI] = 'LaserWrapper'
 
+
 class _LightEmittingDiodeWrapper (_LightSourceWrapper):
     """
     omero_model_LightEmittingDiodeI class wrapper extends LightSourceWrapper.
@@ -8343,6 +8397,7 @@ class _LightEmittingDiodeWrapper (_LightSourceWrapper):
 
 LightEmittingDiodeWrapper = _LightEmittingDiodeWrapper
 _LightSourceClasses[omero.model.LightEmittingDiodeI] = 'LightEmittingDiodeWrapper'
+
 
 class _MicroscopeWrapper (BlitzObjectWrapper):
     """
@@ -8373,6 +8428,7 @@ class _MicroscopeWrapper (BlitzObjectWrapper):
             return rv
 
 MicroscopeWrapper = _MicroscopeWrapper
+
 
 class _InstrumentWrapper (BlitzObjectWrapper):
     """
@@ -8486,6 +8542,7 @@ class _InstrumentWrapper (BlitzObjectWrapper):
 InstrumentWrapper = _InstrumentWrapper
 
 KNOWN_WRAPPERS = {}
+
 
 def refreshWrappers():
     """
