@@ -45,7 +45,7 @@ logger = logging.getLogger(__name__)
 
 try:
     from PIL import Image, ImageDraw, ImageFont     # see ticket:2597
-except: #pragma: nocover
+except:  # pragma: nocover
     try:
         import Image, ImageDraw, ImageFont          # see ticket:2597
     except:
@@ -218,13 +218,13 @@ class BlitzObjectWrapper (object):
         :return:    The child wrapper class. E.g. omero.gateway.DatasetWrapper.__class__
         :rtype:     class
         """
-        if self.CHILD_WRAPPER_CLASS is None: #pragma: no cover
+        if self.CHILD_WRAPPER_CLASS is None:  # pragma: no cover
             raise NotImplementedError('%s has no child wrapper defined' % self.__class__)
         if type(self.CHILD_WRAPPER_CLASS) is type(''):
             # resolve class
             if hasattr(omero.gateway, self.CHILD_WRAPPER_CLASS):
                 self.__class__.CHILD_WRAPPER_CLASS = self.CHILD_WRAPPER_CLASS = getattr(omero.gateway, self.CHILD_WRAPPER_CLASS)
-            else: #pragma: no cover
+            else:  # pragma: no cover
                 raise NotImplementedError
         return self.CHILD_WRAPPER_CLASS
 
@@ -236,7 +236,7 @@ class BlitzObjectWrapper (object):
         :return:    List of parent wrapper classes. E.g. omero.gateway.DatasetWrapper.__class__
         :rtype:     class
         """
-        if self.PARENT_WRAPPER_CLASS is None: #pragma: no cover
+        if self.PARENT_WRAPPER_CLASS is None:  # pragma: no cover
             raise NotImplementedError
         pwc = self.PARENT_WRAPPER_CLASS
         if not isinstance(pwc, ListType):
@@ -245,7 +245,7 @@ class BlitzObjectWrapper (object):
             if isinstance(pwc[i], StringTypes):
                 # resolve class
                 g = globals()
-                if not pwc[i] in g: #pragma: no cover
+                if not pwc[i] in g:  # pragma: no cover
                     raise NotImplementedError
                 pwc[i] = g[pwc[i]]
 
@@ -504,7 +504,7 @@ class BlitzObjectWrapper (object):
         Web client will only allow this for the data Owner.
         Admin CAN move other user's data, but we don't support this in Web yet.
         """
-        return self.isOwned() # or self._conn.isAdmin() #8974
+        return self.isOwned()  # or self._conn.isAdmin() #8974
 
     def countChildren (self):
         """
@@ -603,7 +603,7 @@ class BlitzObjectWrapper (object):
         if self.PARENT_WRAPPER_CLASS is None:
             return ()
         parentw = self._getParentWrappers()
-        param = omero.sys.Parameters() # TODO: What can I use this for?
+        param = omero.sys.Parameters()  # TODO: What can I use this for?
         parentnodes = []
         for pwc in parentw:
             pwck = pwc()
@@ -690,7 +690,7 @@ class BlitzObjectWrapper (object):
 
     def _loadAnnotationLinks (self):
         """ Loads the annotation links for the object (if not already loaded) and saves them to the object """
-        if not hasattr(self._obj, 'isAnnotationLinksLoaded'): #pragma: no cover
+        if not hasattr(self._obj, 'isAnnotationLinksLoaded'):  # pragma: no cover
             raise NotImplementedError
         # Need to set group context. If '-1' then canDelete() etc on annotations will be False
         ctx = self._conn.SERVICE_OPTS.copy()
@@ -731,7 +731,7 @@ class BlitzObjectWrapper (object):
         dcs = []
         for al in self._getAnnotationLinks(ns=ns):
             dcs.append(omero.cmd.Delete(
-                "/%s" % al.ice_id().split("::")[-1], # This could be refactored
+                "/%s" % al.ice_id().split("::")[-1],  # This could be refactored
                 al.id.val, None))
 
         # Using omero.cmd.Delete rather than deleteObjects since we need
@@ -979,7 +979,7 @@ class BlitzObjectWrapper (object):
                         v = getattr(omero.gateway, wrapper)(self._conn, v).simpleMarshal()
 
                 rv[rk] = v
-        if xtra: # TODO check if this can be moved to a more specific place
+        if xtra:  # TODO check if this can be moved to a more specific place
             if 'childCount' in xtra:
                 rv['child_count'] = self.countChildren()
         if parents:
@@ -1276,7 +1276,7 @@ class _BlitzGateway (object):
             self._createProxies()
             self.SERVICE_OPTS = self.createServiceOptsDict()
         if try_super:
-            self.group = 'system' #self.c.ic.getProperties().getProperty('omero.gateway.admin_group')
+            self.group = 'system'  # self.c.ic.getProperties().getProperty('omero.gateway.admin_group')
         else:
             self.group = group and group or None
 
@@ -1410,37 +1410,37 @@ class _BlitzGateway (object):
         """
 
         try:
-            if self.c.sf is None: #pragma: no cover
+            if self.c.sf is None:  # pragma: no cover
                 logger.debug('... c.sf is None, reconnecting')
                 return self.connect()
             return self.c.sf.keepAlive(self._proxies['admin']._getObj())
-        except Ice.ObjectNotExistException: #pragma: no cover
+        except Ice.ObjectNotExistException:  # pragma: no cover
             # The connection is there, but it has been reset, because the proxy no longer exists...
             logger.debug(traceback.format_exc())
             logger.debug("... reset, not reconnecting")
             return False
-        except Ice.ConnectionLostException: #pragma: no cover
+        except Ice.ConnectionLostException:  # pragma: no cover
             # The connection was lost. This shouldn't happen, as we keep pinging it, but does so...
             logger.debug(traceback.format_exc())
             logger.debug("... lost, reconnecting")
             #return self.connect()
             return False
-        except Ice.ConnectionRefusedException: #pragma: no cover
+        except Ice.ConnectionRefusedException:  # pragma: no cover
             # The connection was refused. We lost contact with glacier2router...
             logger.debug(traceback.format_exc())
             logger.debug("... refused, not reconnecting")
             return False
-        except omero.SessionTimeoutException: #pragma: no cover
+        except omero.SessionTimeoutException:  # pragma: no cover
            # The connection is there, but it has been reset, because the proxy no longer exists...
            logger.debug(traceback.format_exc())
            logger.debug("... reset, not reconnecting")
            return False
-        except omero.RemovedSessionException: #pragma: no cover
+        except omero.RemovedSessionException:  # pragma: no cover
             # Session died on us
             logger.debug(traceback.format_exc())
             logger.debug("... session has left the building, not reconnecting")
             return False
-        except Ice.UnknownException, x: #pragma: no cover
+        except Ice.UnknownException, x:  # pragma: no cover
             # Probably a wrapped RemovedSession
             logger.debug(traceback.format_exc())
             logger.debug('Ice.UnknownException: %s' % str(x))
@@ -1452,7 +1452,7 @@ class _BlitzGateway (object):
             logger.debug("... error not reconnecting")
             return False
 
-    def seppuku (self, softclose=False): #pragma: no cover
+    def seppuku (self, softclose=False):  # pragma: no cover
         """
         Terminates connection with killSession(). If softclose is False, the session is really
         terminate disregarding its connection refcount.
@@ -1526,7 +1526,7 @@ class _BlitzGateway (object):
         self._user = None
         self._ctx = None
 
-        if self._session_cb: #pragma: no cover
+        if self._session_cb:  # pragma: no cover
             if self._was_join:
                 self._session_cb.join(self)
             else:
@@ -1543,7 +1543,7 @@ class _BlitzGateway (object):
         if hasattr(self.c, 'createClient') and (secure ^ self.c.isSecure()):
             oldC = self.c
             self.c = oldC.createClient(secure=secure)
-            oldC.__del__() # only needs to be called if previous doesn't throw
+            oldC.__del__()  # only needs to be called if previous doesn't throw
             self._createProxies()
             self.secure = secure
 
@@ -1584,9 +1584,9 @@ class _BlitzGateway (object):
                 try:
                     self.c.getSession()
                 except omero.ClientError:
-                    return # No session available
+                    return  # No session available
                 self.c.killSession()
-        except Glacier2.SessionNotExistException: #pragma: no cover
+        except Glacier2.SessionNotExistException:  # pragma: no cover
             pass
         except:
             logger.warn(traceback.format_exc())
@@ -1606,7 +1606,7 @@ class _BlitzGateway (object):
 
         if self.host is not None:
             if self.port is not None:
-                self.c = omero.client(host=str(self.host), port=int(self.port), args=['--Ice.Config='+','.join(self.ice_config)])#, pmap=['--Ice.Config='+','.join(self.ice_config)])
+                self.c = omero.client(host=str(self.host), port=int(self.port), args=['--Ice.Config='+','.join(self.ice_config)])  # , pmap=['--Ice.Config='+','.join(self.ice_config)])
             else:
                 self.c = omero.client(host=str(self.host), args=['--Ice.Config='+','.join(self.ice_config)])
         else:
@@ -1632,7 +1632,7 @@ class _BlitzGateway (object):
         """
 
         logger.debug("Connect attempt, sUuid=%s, group=%s, self.sUuid=%s" % (str(sUuid), str(self.group), self._sessionUuid))
-        if not self.c: #pragma: no cover
+        if not self.c:  # pragma: no cover
             self._connected = False
             logger.debug("Ooops. no self._c")
             return False
@@ -1651,15 +1651,15 @@ class _BlitzGateway (object):
                     self.SERVICE_OPTS = self.createServiceOptsDict()
                     logger.debug('Joined Session OK with Uuid: %s' % (self._sessionUuid,))
                     self._was_join = True
-                except Ice.SyscallException: #pragma: no cover
+                except Ice.SyscallException:  # pragma: no cover
                     raise
-                except Exception, x: #pragma: no cover
+                except Exception, x:  # pragma: no cover
                     logger.debug("Error: " + str(x))
                     self._sessionUuid = None
                     if sUuid:
                         return False
             if self._sessionUuid is None:
-                if sUuid: #pragma: no cover
+                if sUuid:  # pragma: no cover
                     logger.debug("Uncaptured sUuid failure!")
                 if self._connected:
                     self._connected = False
@@ -1670,7 +1670,7 @@ class _BlitzGateway (object):
                         self._closeSession()
                         self._resetOmeroClient()
                         #self.c = omero.client(*args)
-                    except Glacier2.SessionNotExistException: #pragma: no cover
+                    except Glacier2.SessionNotExistException:  # pragma: no cover
                         pass
                 for key, value in self._ic_props.items():
                     if isinstance(value, unicode):
@@ -1693,7 +1693,7 @@ class _BlitzGateway (object):
                         self._sessionUuid = None
                         self._connected=True
                         return self.connect()
-                    else: #pragma: no cover
+                    else:  # pragma: no cover
                         logger.debug("BlitzGateway.connect().createSession(): " + traceback.format_exc())
                         logger.info('first create session threw SecurityViolation, retry (but only once)')
                         #time.sleep(10)
@@ -1708,7 +1708,7 @@ class _BlitzGateway (object):
                                 return self.connect()
                             else:
                                 raise
-                except Ice.SyscallException: #pragma: no cover
+                except Ice.SyscallException:  # pragma: no cover
                     raise
                 except:
                     logger.info("Failed to create session.")
@@ -1720,21 +1720,21 @@ class _BlitzGateway (object):
             self._createProxies()
             self._connected = True
             logger.info('created connection (uuid=%s)' % str(self._sessionUuid))
-        except Ice.SyscallException: #pragma: no cover
+        except Ice.SyscallException:  # pragma: no cover
             logger.debug('This one is a SyscallException', exc_info=True)
             raise
-        except Ice.LocalException, x: #pragma: no cover
+        except Ice.LocalException, x:  # pragma: no cover
             logger.debug("connect(): " + traceback.format_exc())
             self._last_error = x
             return False
-        except Exception, x: #pragma: no cover
+        except Exception, x:  # pragma: no cover
             logger.debug("connect(): " + traceback.format_exc())
             self._last_error = x
             return False
         logger.debug(".. connected!")
         return True
 
-    def getLastError (self): #pragma: no cover
+    def getLastError (self):  # pragma: no cover
         """
         Returns error if thrown by _BlitzGateway.connect connect.
 
@@ -2733,7 +2733,7 @@ class _BlitzGateway (object):
             raise AttributeError(err_msg)
         wrapper = KNOWN_WRAPPERS.get(parent_type.lower(), None)
         class_string = wrapper().OMERO_CLASS
-        if class_string is None and "annotation" in parent_type.lower(): # E.g. AnnotationWrappers have no OMERO_CLASS
+        if class_string is None and "annotation" in parent_type.lower():  # E.g. AnnotationWrappers have no OMERO_CLASS
             class_string = "Annotation"
 
         query = "select annLink from %sAnnotationLink as annLink join fetch annLink.details.owner as owner " \
@@ -2900,11 +2900,11 @@ class _BlitzGateway (object):
                 pTypes = {'int8':'int8', 'int16':'int16', 'uint16':'uint16', 'int32':'int32', 'float_':'float', 'float8':'float',
                             'float16':'float', 'float32':'float', 'float64':'double', 'complex_':'complex', 'complex64':'complex'}
                 dType = firstPlane.dtype.name
-                if dType not in pTypes: # try to look up any not named above
+                if dType not in pTypes:  # try to look up any not named above
                     pType = dType
                 else:
                     pType = pTypes[dType]
-                pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
+                pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None)  # omero::model::PixelsType
                 if pixelsType is None:
                     raise Exception("Cannot create an image in omero from numpy array with dtype: %s" % dType)
                 channelList = range(sizeC)
@@ -3606,7 +3606,7 @@ class _BlitzGateway (object):
         return rv
 
 
-class OmeroGatewaySafeCallWrapper(object): #pragma: no cover
+class OmeroGatewaySafeCallWrapper(object):  # pragma: no cover
     """
     Function or method wrapper that handles certain types of server side
     exceptions and debugging of errors.
@@ -3731,7 +3731,7 @@ class ProxyObjectWrapper (object):
 
         return ProxyObjectWrapper(self._conn, self._func_str, self._cast_to, self._service_name)
 
-    def _connect (self, forcejoin=False): #pragma: no cover
+    def _connect (self, forcejoin=False):  # pragma: no cover
         """
         Returns True if connected. If connection OK, wrapped service is also created.
 
@@ -3820,7 +3820,7 @@ class ProxyObjectWrapper (object):
             self._ping()
         return self._obj
 
-    def _ping (self): #pragma: no cover
+    def _ping (self):  # pragma: no cover
         """
         For some reason, it seems that keepAlive doesn't, so every so often I need to recreate the objects.
         Calls serviceFactory.keepAlive(service). If this returns false, attempt to create service.
@@ -3948,7 +3948,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
             if link is not None:
                 kwargs['link'] = BlitzObjectWrapper(conn, link)
             return klass.registry[obj.__class__](conn, obj, **kwargs)
-        else: #pragma: no cover
+        else:  # pragma: no cover
             return None
 
     @classmethod
@@ -3990,11 +3990,11 @@ class AnnotationWrapper (BlitzObjectWrapper):
 
         self._obj.ns = omero_type(val)
 
-    def getValue (self): #pragma: no cover
+    def getValue (self):  # pragma: no cover
         """ Needs to be implemented by subclasses """
         raise NotImplementedError
 
-    def setValue (self, val): #pragma: no cover
+    def setValue (self, val):  # pragma: no cover
         """ Needs to be implemented by subclasses """
         raise NotImplementedError
 
@@ -5978,7 +5978,7 @@ class _ImageWrapper (BlitzObjectWrapper):
     _filesetFileCount = None
     _importedFilesInfo = None
 
-    _pr = None # projection
+    _pr = None  # projection
     _prStart = None
     _prEnd = None
 
@@ -6268,7 +6268,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             ds = query.findAllByQuery(q, None, self._conn.SERVICE_OPTS)
             if ds and len(ds) == 1:
                 return DatasetWrapper(self._conn, ds[0])
-        except: #pragma: no cover
+        except:  # pragma: no cover
             logger.debug('on getDataset')
             logger.debug(traceback.format_exc())
             return None
@@ -6291,7 +6291,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             prj = query.findAllByQuery(q,None, self._conn.SERVICE_OPTS)
             if prj and len(prj) == 1:
                 return ProjectWrapper(self._conn, prj[0])
-        except: #pragma: no cover
+        except:  # pragma: no cover
             logger.debug('on getProject')
             logger.debug(traceback.format_exc())
             return None
@@ -6434,7 +6434,7 @@ class _ImageWrapper (BlitzObjectWrapper):
                      (series_metadata, rsp.seriesMetadata)):
 
             for k, v in m.items():
-                l.append((k, unwrap(v))) # was RType!
+                l.append((k, unwrap(v)))  # was RType!
 
         if sort:
             global_metadata.sort(key=lambda x:x[0].lower())
@@ -6549,7 +6549,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             self._thumbInProgress = tb.isInProgress()
             tb.close()      # close every time to prevent stale state
             return rv
-        except Exception: #pragma: no cover
+        except Exception:  # pragma: no cover
             logger.error(traceback.format_exc())
             if tb is not None:
                 tb.close()
@@ -6726,10 +6726,10 @@ class _ImageWrapper (BlitzObjectWrapper):
         self._invertedAxis = inverted
 
     LINE_PLOT_DTYPES = {
-        (4, True, True): 'f', # signed float
-        (2, False, False): 'H', # unsigned short
+        (4, True, True): 'f',  # signed float
+        (2, False, False): 'H',  # unsigned short
         (2, False, True): 'h',  # signed short
-        (1, False, False): 'B', # unsigned char
+        (1, False, False): 'B',  # unsigned char
         (1, False, True): 'b',  # signed char
         }
 
@@ -6769,7 +6769,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             if key is None:
                 logger.error("Unknown data type: " + str((bw, rp.isFloat(), rp.isSigned())))
             plot = array.array(key, axis == 'h' and rp.getRow(pos, z, c, t) or rp.getCol(pos, z, c, t))
-            plot.byteswap() # TODO: Assuming ours is a little endian system
+            plot.byteswap()  # TODO: Assuming ours is a little endian system
             # now move data into the windowMin..windowMax range
             offset = -chw[c][0]
             if offset != 0:
@@ -6984,18 +6984,18 @@ class _ImageWrapper (BlitzObjectWrapper):
             if compression is not None:
                 try:
                     self._re.setCompressionLevel(float(compression))
-                except omero.SecurityViolation: #pragma: no cover
+                except omero.SecurityViolation:  # pragma: no cover
                     self._obj.clearPixels()
                     self._obj.pixelsLoaded = False
                     self._re = None
                     return self.renderJpeg(z,t,None)
             rv = self._re.renderCompressed(self._pd, self._conn.SERVICE_OPTS)
             return rv
-        except omero.InternalException: #pragma: no cover
+        except omero.InternalException:  # pragma: no cover
             logger.debug('On renderJpegRegion');
             logger.debug(traceback.format_exc())
             return None
-        except Ice.MemoryLimitException: #pragma: no cover
+        except Ice.MemoryLimitException:  # pragma: no cover
             # Make sure renderCompressed isn't called again on this re, as it hangs
             self._obj.clearPixels()
             self._obj.pixelsLoaded = False
@@ -7025,7 +7025,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             if compression is not None:
                 try:
                     self._re.setCompressionLevel(float(compression))
-                except omero.SecurityViolation: #pragma: no cover
+                except omero.SecurityViolation:  # pragma: no cover
                     self._obj.clearPixels()
                     self._obj.pixelsLoaded = False
                     self._re = None
@@ -7041,11 +7041,11 @@ class _ImageWrapper (BlitzObjectWrapper):
                     prEnd = self._prEnd
                 rv = self._re.renderProjectedCompressed(projection, self._pd.t, 1, prStart, prEnd, self._conn.SERVICE_OPTS)
             return rv
-        except omero.InternalException: #pragma: no cover
+        except omero.InternalException:  # pragma: no cover
             logger.debug('On renderJpeg');
             logger.debug(traceback.format_exc())
             return None
-        except Ice.MemoryLimitException: #pragma: no cover
+        except Ice.MemoryLimitException:  # pragma: no cover
             # Make sure renderCompressed isn't called again on this re, as it hangs
             self._obj.clearPixels()
             self._obj.pixelsLoaded = False
@@ -7361,17 +7361,17 @@ class _ImageWrapper (BlitzObjectWrapper):
                 fsize = 64
         elif w >= 512:
             fsize = 24
-        elif w >= 384: #pragma: no cover
+        elif w >= 384:  # pragma: no cover
             fsize = 18
-        elif w >= 298: #pragma: no cover
+        elif w >= 298:  # pragma: no cover
             fsize = 14
-        elif w >= 256: #pragma: no cover
+        elif w >= 256:  # pragma: no cover
             fsize = 12
-        elif w >= 213: #pragma: no cover
+        elif w >= 213:  # pragma: no cover
             fsize = 10
-        elif w >= 96: #pragma: no cover
+        elif w >= 96:  # pragma: no cover
             fsize = 8
-        else: #pragma: no cover
+        else:  # pragma: no cover
             fsize = 0
         if fsize > 0:
             font = ImageFont.load('%s/pilfonts/B%0.2d.pil' % (THISPATH, fsize) )
@@ -7403,9 +7403,9 @@ class _ImageWrapper (BlitzObjectWrapper):
         return canvas
 
     LP_PALLETE = [0,0,0,0,0,0,255,255,255]
-    LP_TRANSPARENT = 0 # Some color
-    LP_BGCOLOR = 1 # Black
-    LP_FGCOLOR = 2 # white
+    LP_TRANSPARENT = 0  # Some color
+    LP_BGCOLOR = 1  # Black
+    LP_FGCOLOR = 2  # white
     def prepareLinePlotCanvas (self):
         """
         Common part of horizontal and vertical line plot rendering.
