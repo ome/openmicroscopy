@@ -160,7 +160,7 @@ class ChannelSlider
         list.add("max: "+max);
         slider.getSlider().setToolTipText(UIUtilities.formatToolTipText(list));
         
-    	channelSelection = new ChannelButton(""+channel.getChannelLabeling(), c, index);
+    	channelSelection = new ChannelButton(channel.getChannelLabeling(), c, index);
     	channelSelection.setPreferredSize(ChannelButton.DEFAULT_MAX_SIZE);
     	channelSelection.setSelected(model.isChannelActive(index));
     	channelSelection.setRightClickSupported(false);

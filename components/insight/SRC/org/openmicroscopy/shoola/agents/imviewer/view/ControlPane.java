@@ -938,7 +938,7 @@ class ControlPane
         while (i.hasNext()) {
             d = i.next();
             k = d.getIndex();
-            button = new ChannelButton(""+d.getChannelLabeling(),
+            button = new ChannelButton(d.getChannelLabeling(),
                     model.getChannelColor(k), k, model.isChannelActive(k));
             channelButtons.add(button);
             dim = button.getPreferredSize();
