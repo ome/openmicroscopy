@@ -1247,26 +1247,6 @@ class MetadataViewerComponent
 	 * @see #toString()
 	 */
 	public String toString() { return model.getInstanceToSave(); }
-
-	/**
-         * Implemented as specified by the {@link MetadataViewer} interface.
-         * @see MetadataViewer#setRndSettingsToCopy(ImageData)
-         */
-	public void setRndSettingsToCopy(ImageData img) {
-	    model.setCopyRenderingSettingsFrom(img);
-	    if (getRenderer() != null)
-                getRenderer().onSettingsCopied();
-	}
-	
-	/**
-         * Implemented as specified by the {@link MetadataViewer} interface.
-         * @see MetadataViewer#setRndSettingsToCopy(RndProxyDef)
-         */
-	public void setRndSettingsToCopy(RndProxyDef def) {
-            model.setRndSettingsToCopy(def);
-            if(getRenderer()!=null)
-                getRenderer().onSettingsCopied();
-        }
 	
 	/**
          * Implemented as specified by the {@link MetadataViewer} interface.

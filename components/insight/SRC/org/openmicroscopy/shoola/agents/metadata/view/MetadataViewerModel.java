@@ -162,12 +162,6 @@ class MetadataViewerModel
 	/** The active loaders.*/
 	private Map<Integer, MetadataLoader> loaders;
 	
-	/** Reference to an image from which the rnd settings can be copied */
-	private ImageData copyRenderingSettingsFrom;
-
-	/** 'Pending' rendering settings not yet stored with an image */
-	private RndProxyDef copiedRndSettings;
-	
     /**
      * Creates a new context if <code>null</code>.
      *
@@ -971,6 +965,12 @@ class MetadataViewerModel
 	 */
 	void fireLoadRndSettings() {
 	    
+	    if(!hasRndSettingsCopied())
+	        return;
+	    
+	    ImageData copyRenderingSettingsFrom = MetadataViewerFactory.getCopyRenderingSettingsFrom();
+	    RndProxyDef copiedRndSettings = MetadataViewerFactory.getCopiedRndSettings();
+	        
 	    if (copiedRndSettings != null) {
 	        component.getRenderer().resetSettings(copiedRndSettings, true);
 	        return;
@@ -1128,33 +1128,7 @@ class MetadataViewerModel
 
     /** Loads the rendering engine.*/
     void loadRnd() { editor.loadRnd(); }
-
-    /** 
-     * Set the image from which the rendering settings can be copied.
-     * They can be applied be calling {@link #fireLoadRndSettings()}
-     *
-     * @param copyRenderingSettingsFrom
-     */
-    public void setCopyRenderingSettingsFrom(ImageData copyRenderingSettingsFrom) {
-        if (copyRenderingSettingsFrom != null &&
-                copyRenderingSettingsFrom.getId() != getImage().getId()) {
-            this.copyRenderingSettingsFrom = copyRenderingSettingsFrom;
-        }
-    }
-
-    /**
-     * Sets 'pending' rendering settings which have not yet
-     * been saved with an other image.
-     * They can be applied be calling {@link #fireLoadRndSettings()}
-     *
-     * @param copiedRndSettings
-     */
-    public void setRndSettingsToCopy(RndProxyDef copiedRndSettings) {
-        if (copiedRndSettings != null) {
-            this.copiedRndSettings = copiedRndSettings;
-        }
-    }
-
+    
     /**
      * Returns if there are copied rendering settings which could be pasted.
      * 
@@ -1163,6 +1137,10 @@ class MetadataViewerModel
     public boolean hasRndSettingsCopied() {
         Renderer rnd = component.getRenderer();
         ImageData img = getImage();
+        
+        ImageData copyRenderingSettingsFrom = MetadataViewerFactory.getCopyRenderingSettingsFrom();
+        RndProxyDef copiedRndSettings = MetadataViewerFactory.getCopiedRndSettings();
+        
         return (copiedRndSettings != null && rnd != null &&
                 !rnd.isSameSettings(copiedRndSettings, false))
                 || (copyRenderingSettingsFrom != null && img != null &&
