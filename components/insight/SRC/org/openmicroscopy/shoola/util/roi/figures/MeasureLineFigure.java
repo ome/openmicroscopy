@@ -140,10 +140,31 @@ public class MeasureLineFigure
 		if (units.isInMicrons())
 		{
 			Point2D.Double pt = getPoint(i);
-			double tx = UIUtilities.transformSize(
-					pt.getX()*units.getMicronsPixelX()).getValue();
-			double ty = UIUtilities.transformSize(
-					pt.getY()*units.getMicronsPixelY()).getValue();
+			
+                        double f = 1;
+            
+                        if (refUnits.equals(UnitsObject.NANOMETER)) {
+                            f = 1000;
+                        }
+                        if (refUnits.equals(UnitsObject.ANGSTROM)) {
+                            f = 10000;
+                        }
+                        if (refUnits.equals(UnitsObject.PICOMETER)) {
+                            f = 1000000;
+                        }
+                        if (refUnits.equals(UnitsObject.MILLIMETER)) {
+                            f = 1 / 1000;
+                        }
+                        if (refUnits.equals(UnitsObject.CENTIMETER)) {
+                            f = 1 / 10000;
+                        }
+                        if (refUnits.equals(UnitsObject.METER)) {
+                            f = 1 / 1000000;
+                        }
+			
+			double tx = pt.getX()*units.getMicronsPixelX()*f;
+                        double ty = pt.getY()*units.getMicronsPixelY()*f;
+			 
 			return new Point2D.Double(tx, ty);
 		}
 		return getPoint(i);
