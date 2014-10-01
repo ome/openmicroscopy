@@ -272,13 +272,13 @@ class BlitzObjectWrapper (object):
                     raise NotImplementedError
                 pwc[i] = g[pwc[i]]
 
-        #if type(self.PARENT_WRAPPER_CLASS) is type(''):
-        #    # resolve class
-        #    g = globals()
-        #    if not g.has_key(self.PARENT_WRAPPER_CLASS): #pragma: no cover
-        #        raise NotImplementedError
-        #    self.__class__.PARENT_WRAPPER_CLASS = self.PARENT_WRAPPER_CLASS = g[self.PARENT_WRAPPER_CLASS]
-        #return self.PARENT_WRAPPER_CLASS
+        # if type(self.PARENT_WRAPPER_CLASS) is type(''):
+        #     # resolve class
+        #     g = globals()
+        #     if not g.has_key(self.PARENT_WRAPPER_CLASS): #pragma: no cover
+        #         raise NotImplementedError
+        #     self.__class__.PARENT_WRAPPER_CLASS = self.PARENT_WRAPPER_CLASS = g[self.PARENT_WRAPPER_CLASS]
+        # return self.PARENT_WRAPPER_CLASS
         if pwc != self.PARENT_WRAPPER_CLASS or pwc != self.__class__.PARENT_WRAPPER_CLASS:
             self.__class__.PARENT_WRAPPER_CLASS = self.PARENT_WRAPPER_CLASS = pwc
         return self.PARENT_WRAPPER_CLASS
@@ -403,13 +403,13 @@ class BlitzObjectWrapper (object):
             else:
                 newConn = self._conn.suConn(
                     details.getOwner().omeName, details.getGroup().name)
-                #p = omero.sys.Principal()
-                #p.name = details.getOwner().omeName
-                #p.group = details.getGroup().name
-                #p.eventType = "User"
-                #newConnId = self._conn.getSessionService().createSessionWithTimeout(p, 60000)
-                #newConn = self._conn.clone()
-                #newConn.connect(sUuid=newConnId.getUuid().val)
+                # p = omero.sys.Principal()
+                # p.name = details.getOwner().omeName
+                # p.group = details.getGroup().name
+                # p.eventType = "User"
+                # newConnId = self._conn.getSessionService().createSessionWithTimeout(p, 60000)
+                # newConn = self._conn.clone()
+                # newConn.connect(sUuid=newConnId.getUuid().val)
             clone = self.__class__(newConn, self._obj)
             clone.save()
             self._obj = clone._obj
@@ -556,7 +556,7 @@ class BlitzObjectWrapper (object):
 
         childw = self._getChildWrapper()
         klass = "%sLinks" % childw().OMERO_CLASS.lower()
-        #self._cached_countChildren = len(self._conn.getQueryService().findAllByQuery("from %s as c where c.parent.id=%i" % (self.LINK_CLASS, self._oid), None))
+        # self._cached_countChildren = len(self._conn.getQueryService().findAllByQuery("from %s as c where c.parent.id=%i" % (self.LINK_CLASS, self._oid), None))
         self._cached_countChildren = self._conn.getContainerService().getCollectionCount(
             self.OMERO_CLASS, klass, [self._oid], None, self._conn.SERVICE_OPTS)[self._oid]
         return self._cached_countChildren
@@ -933,18 +933,18 @@ class BlitzObjectWrapper (object):
                 if ad.getOwner() and d.getOwner().omeName == ad.getOwner().omeName and d.getGroup().name == ad.getGroup().name:
                     newConn = ann._conn
                 else:
-                    #p = omero.sys.Principal()
-                    #p.name = d.getOwner().omeName
+                    # p = omero.sys.Principal()
+                    # p.name = d.getOwner().omeName
                     group = None
                     if d.getGroup():
                         group = d.getGroup().name
                     # TODO: Do you know that the object owner is same as ann
                     # owner??
                     newConn = self._conn.suConn(d.getOwner().omeName, group)
-                    #p.eventType = "User"
-                    #newConnId = self._conn.getSessionService().createSessionWithTimeout(p, 60000)
-                    #newConn = self._conn.clone()
-                    #newConn.connect(sUuid=newConnId.getUuid().val)
+                    # p.eventType = "User"
+                    # newConnId = self._conn.getSessionService().createSessionWithTimeout(p, 60000)
+                    # newConn = self._conn.clone()
+                    # newConn.connect(sUuid=newConnId.getUuid().val)
                 clone = self.__class__(newConn, self._obj)
                 ann = clone._linkAnnotation(ann)
                 if newConn != self._conn:
@@ -1050,10 +1050,10 @@ class BlitzObjectWrapper (object):
                 lambda x: x.simpleMarshal(), self.getAncestry())
         return rv
 
-    #def __str__ (self):
-    #    if hasattr(self._obj, 'value'):
-    #        return str(self.value)
-    #    return str(self._obj)
+    # def __str__ (self):
+    #     if hasattr(self._obj, 'value'):
+    #         return str(self.value)
+    #     return str(self._obj)
 
     def __getattr__(self, attr):
         """
@@ -1262,7 +1262,7 @@ class BlitzObjectWrapper (object):
         """
         self._obj.setDescription(omero_type(value))
 
-## BASIC ##
+# BASIC #
 
 
 class NoProxies (object):
@@ -1446,7 +1446,7 @@ class _BlitzGateway (object):
                               anonymous=self._anonymous,
                               useragent=self.useragent,
                               userip=self.userip)
-                              #self.server, self.port, clone=True)
+                              # self.server, self.port, clone=True)
 
     def setIdentity(self, username, passwd, _internal=False):
         """
@@ -1522,7 +1522,7 @@ class _BlitzGateway (object):
             # pinging it, but does so...
             logger.debug(traceback.format_exc())
             logger.debug("... lost, reconnecting")
-            #return self.connect()
+            # return self.connect()
             return False
         except Ice.ConnectionRefusedException:  # pragma: no cover
             # The connection was refused. We lost contact with
@@ -1804,11 +1804,11 @@ class _BlitzGateway (object):
                     try:
                         logger.debug(
                             "Closing previous connection...creating new client")
-                        #args = self.c._ic_args
-                        #logger.debug(str(args))
+                        # args = self.c._ic_args
+                        # logger.debug(str(args))
                         self._closeSession()
                         self._resetOmeroClient()
-                        #self.c = omero.client(*args)
+                        # self.c = omero.client(*args)
                     except Glacier2.SessionNotExistException:  # pragma: no cover
                         pass
                 for key, value in self._ic_props.items():
@@ -1839,7 +1839,7 @@ class _BlitzGateway (object):
                             "BlitzGateway.connect().createSession(): " + traceback.format_exc())
                         logger.info(
                             'first create session threw SecurityViolation, retry (but only once)')
-                        #time.sleep(10)
+                        # time.sleep(10)
                         try:
                             self._createSession()
                         except omero.SecurityViolation:
@@ -1858,7 +1858,7 @@ class _BlitzGateway (object):
                     logger.info("Failed to create session.")
                     logger.debug(
                         "BlitzGateway.connect().createSession(): " + traceback.format_exc())
-                    #time.sleep(10)
+                    # time.sleep(10)
                     self._createSession()
 
             self._last_error = None
@@ -1898,8 +1898,8 @@ class _BlitzGateway (object):
 
         return self._connected
 
-    ######################
-    ## Connection Stuff ##
+    ########################
+    # # Connection Stuff # #
 
     def getEventContext(self):
         """
@@ -2106,8 +2106,8 @@ class _BlitzGateway (object):
             self.setGroupForSession(self._lastGroupId)
             self._lastGroupId = None
 
-    ##############
-    ## Services ##
+    ############
+    # Services #
 
     def getAdminService(self):
         """
@@ -2340,9 +2340,9 @@ class _BlitzGateway (object):
 
         params = omero.sys.Parameters()
         params.theFilter = omero.sys.Filter()
-        #if only_owned:
-        #    params.theFilter.ownerId = rlong(self._userid)
-        #elif
+        # if only_owned:
+        #     params.theFilter.ownerId = rlong(self._userid)
+        # elif
         if eid is not None:
             params.theFilter.ownerId = rlong(eid)
 
@@ -2358,9 +2358,9 @@ class _BlitzGateway (object):
 
         params = omero.sys.Parameters()
         params.theFilter = omero.sys.Filter()
-        #if only_owned:
-        #    params.theFilter.ownerId = rlong(self._userid)
-        #elif
+        # if only_owned:
+        #     params.theFilter.ownerId = rlong(self._userid)
+        # elif
         if eid is not None:
             params.theFilter.ownerId = rlong(eid)
 
@@ -2411,7 +2411,7 @@ class _BlitzGateway (object):
         for r in result:
             yield wrapper(self, r)
     #################################################
-    ## IAdmin
+    # IAdmin
 
     # GROUPS
 
@@ -3194,7 +3194,7 @@ class _BlitzGateway (object):
         for theC, mm in enumerate(channelsMinMax):
             pixelsService.setChannelGlobalMinMax(
                 pixelsId, theC, float(mm[0]), float(mm[1]), self.SERVICE_OPTS)
-            #resetRenderingSettings(renderingEngine, pixelsId, theC, mm[0], mm[1])
+            # resetRenderingSettings(renderingEngine, pixelsId, theC, mm[0], mm[1])
 
         # put the image in dataset, if specified.
         if dataset:
@@ -4079,7 +4079,7 @@ class ProxyObjectWrapper (object):
             except Ice.ConnectionLostException:
                 logger.debug('... lost, reconnecting (_getObj)')
                 self._connect()
-                #self._obj = self._create_func()
+                # self._obj = self._create_func()
         else:
             self._ping()
         return self._obj
@@ -4148,7 +4148,7 @@ class ProxyObjectWrapper (object):
         rv = getattr(obj, attr)
         if callable(rv):
             rv = SafeCallWrapper(self, attr, rv)
-        #self._conn.updateTimeout()
+        # self._conn.updateTimeout()
         return rv
 
 
@@ -5585,7 +5585,7 @@ class _WellSampleWrapper (BlitzObjectWrapper):
             where ws.id=%d""" % self.getId(), None, self._conn.SERVICE_OPTS)
         if not len(rv):
             rv = [None]
-        #rv = self._conn.getObject('Plate', self.plate.id.val)
+        # rv = self._conn.getObject('Plate', self.plate.id.val)
         pwc = self._getParentWrappers()
         if withlinks:
             return [(pwc[0](self._conn, x), None) for x in rv]
@@ -5623,19 +5623,19 @@ class _WellSampleWrapper (BlitzObjectWrapper):
 
 WellSampleWrapper = _WellSampleWrapper
 
-#class CategoryWrapper (BlitzObjectWrapper):
-#    def __bstrap__ (self):
-#        self.LINK_CLASS = "CategoryImageLink"
-#        self.CHILD_WRAPPER_CLASS = ImageWrapper
-#        self.PARENT_WRAPPER_CLASS= 'CategoryGroupWrapper'
+# class CategoryWrapper (BlitzObjectWrapper):
+#     def __bstrap__ (self):
+#         self.LINK_CLASS = "CategoryImageLink"
+#         self.CHILD_WRAPPER_CLASS = ImageWrapper
+#         self.PARENT_WRAPPER_CLASS= 'CategoryGroupWrapper'
 #
-#class CategoryGroupWrapper (BlitzObjectWrapper):
-#    def __bstrap__ (self):
-#        self.LINK_CLASS = "CategoryGroupCategoryLink"
-#        self.CHILD_WRAPPER_CLASS = CategoryWrapper
-#        self.PARENT_WRAPPER_CLASS = None
+# class CategoryGroupWrapper (BlitzObjectWrapper):
+#     def __bstrap__ (self):
+#         self.LINK_CLASS = "CategoryGroupCategoryLink"
+#         self.CHILD_WRAPPER_CLASS = CategoryWrapper
+#         self.PARENT_WRAPPER_CLASS = None
 
-## IMAGE ##
+# IMAGE #
 
 
 class ColorHolder (object):
@@ -6003,7 +6003,7 @@ class _PixelsWrapper (BlitzObjectWrapper):
                         z, c, t, x, y, width, height)
                     planeY = height
                     planeX = width
-                #+str(sizeX*sizeY)+pythonTypes[pixelType]
+                # +str(sizeX*sizeY)+pythonTypes[pixelType]
                 convertType = '>%d%s' % (
                     (planeY*planeX), pixelTypes[pixelType][0])
                 convertedPlane = unpack(convertType, rawPlane)
@@ -6477,8 +6477,8 @@ class _ImageWrapper (BlitzObjectWrapper):
         ctx = self._conn.SERVICE_OPTS.copy()
 
         ctx.setOmeroGroup(self.details.group.id.val)
-        #if self._conn.canBeAdmin():
-        #    ctx.setOmeroUser(self.details.owner.id.val)
+        # if self._conn.canBeAdmin():
+        #     ctx.setOmeroUser(self.details.owner.id.val)
         re.lookupPixels(pid, ctx)
         if rdid is None:
             rdid = self._getRDef()
@@ -6740,7 +6740,7 @@ class _ImageWrapper (BlitzObjectWrapper):
 
         return self._obj.getPrimaryPixels().getId().val
 
-    #@setsessiongroup
+    # @setsessiongroup
     def _prepareTB(self, _r=False, rdefId=None):
         """
         Prepares Thumbnail Store for the image.
@@ -6867,7 +6867,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         img.save(rv, 'jpeg', quality=70)
         return rv.getvalue()
 
-    #@setsessiongroup
+    # @setsessiongroup
     def getThumbnail(self, size=(64, 64), z=None, t=None, direct=True, rdefId=None):
         """
         Returns a string holding a rendered JPEG of the thumbnail.
@@ -6909,15 +6909,15 @@ class _ImageWrapper (BlitzObjectWrapper):
                 # which prevent OMERO.web from executing the thumbnail methods
                 # below and consequently showing "in-progress" thumbnails.
                 # Tue 24 May 2011 10:42:47 BST -- cxallan
-                #re = self._prepareRE()
-                #if re:
-                #    if z is None:
-                #        z = re.getDefaultZ()
-                #    if t is None:
-                #        t = re.getDefaultT()
-                #    pos = z,t
-                #else:
-                #    pos = None
+                # re = self._prepareRE()
+                # if re:
+                #     if z is None:
+                #         z = re.getDefaultZ()
+                #     if t is None:
+                #         t = re.getDefaultT()
+                #     pos = z,t
+                # else:
+                #     pos = None
             if self.getProjection() != 'normal':
                 return self._getProjectedThumbnail(size, pos)
             if len(size) == 1:
@@ -8347,7 +8347,7 @@ class _ImageWrapper (BlitzObjectWrapper):
 
 ImageWrapper = _ImageWrapper
 
-## INSTRUMENT AND ACQUISITION ##
+# INSTRUMENT AND ACQUISITION #
 
 
 class _ImageStageLabelWrapper (BlitzObjectWrapper):
@@ -8676,7 +8676,7 @@ class _LightSettingsWrapper (BlitzObjectWrapper):
     """
     _attrs = ('attenuation',
               'wavelength',
-              #'lightSource|LightSourceWrapper',
+              # 'lightSource|LightSourceWrapper',
               'microbeamManipulation',
               'version')
 
