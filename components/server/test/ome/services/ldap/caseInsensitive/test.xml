@@ -24,9 +24,9 @@
       <constructor-arg index="7" value=""/>
     </bean>
 
-  <bean id="testIgnoreCase" class="java.lang.Boolean">
-    <constructor-arg value="true"/>
-  </bean>
+    <bean id="testIgnoreCase" class="java.lang.Boolean">
+      <constructor-arg value="true"/>
+    </bean>
 
     <util:map id="good">
       <entry key="cAseInsenSitive">
