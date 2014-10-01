@@ -8,7 +8,13 @@
 # and wait on a signal from the OMERO.grid to shut them
 # down again.
 
-import Ice, os, signal, subprocess, sys, time
+import Ice
+import os
+import signal
+import subprocess
+import sys
+import time
+
 
 def call(arr):
     # The following work around is due to the relative paths
@@ -18,16 +24,19 @@ def call(arr):
     for i in range(0, len(pth)):
         pth[i] = os.path.abspath(pth[i])
     env["PYTHONPATH"] = os.path.pathsep.join(pth)
-    return subprocess.Popen(arr, env = env)
+    return subprocess.Popen(arr, env=env)
+
 
 class Ex(Exception):
     pass
+
 
 class ShellServer(Ice.Application):
 
     def __init__(self, name):
         self.name = name
         self.restarts = 0
+
         def handler(signal, frame):
             if not hasattr(self, "proc"):
                 self.log.error("No process to send %s" % signal)
@@ -42,7 +51,9 @@ class ShellServer(Ice.Application):
         return "%sAdapter" % self.name
 
     def start(self):
-        self.proc = call([sys.executable, "bin/omero", "server", self.name.lower()]) # Lowercasing should be done in cli.py
+        # Lowercasing should be done in cli.py
+        self.proc = call(
+            [sys.executable, "bin/omero", "server", self.name.lower()])
 
     def stop(self):
         if not hasattr(self, "proc"):
@@ -52,8 +63,9 @@ class ShellServer(Ice.Application):
             del self.proc
             if not proc.poll():
                 os.kill(proc.pid, signal.SIGTERM)
-                self.log.warning("Sent %s SIGTERM. Sleeping..." % str(proc.pid))
-                for i in range(1,30):
+                self.log.warning(
+                    "Sent %s SIGTERM. Sleeping..." % str(proc.pid))
+                for i in range(1, 30):
                     time.sleep(1)
                     self.log.warning("tick")
                     if proc.poll():
@@ -64,7 +76,7 @@ class ShellServer(Ice.Application):
                 self.log.error("\nKilling %s..." % str(proc.pid))
         sys.exit(0)
 
-    def run(self,args):
+    def run(self, args):
         """
         Starts the defined process and watches for it to exit.
         If it exits before stop() is called, it will be restarted.
@@ -90,5 +102,5 @@ if __name__ == "__main__":
     if len(sys.argv) == 0:
         raise Ex("Requires argument to pass to bin/omero server")
     name = sys.argv[1]
-    app=ShellServer(name)
+    app = ShellServer(name)
     sys.exit(app.main(sys.argv))

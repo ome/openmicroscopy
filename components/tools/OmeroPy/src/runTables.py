@@ -8,7 +8,6 @@
 
 if __name__ == "__main__":
 
-
     import sys
     import Ice
     import omero
@@ -27,7 +26,8 @@ if __name__ == "__main__":
 
         def get_version(self, target):
             self.target = target
-            return "%s, hdf=%s" % (target.__version__, self.optional("hdf5", 1))
+            ver = "%s, hdf=%s" % (target.__version__, self.optional("hdf5", 1))
+            return ver
 
         def optional(self, key, idx):
             try:
@@ -39,8 +39,8 @@ if __name__ == "__main__":
             except:
                 return "error"
 
-
-    app = omero.util.Server(omero.tables.TablesI, "TablesAdapter", Ice.Identity("Tables", ""),
+    app = omero.util.Server(
+        omero.tables.TablesI, "TablesAdapter", Ice.Identity("Tables", ""),
         dependencies=(Dependency("numpy"), TablesDependency()))
 
     sys.exit(app.main(sys.argv))
