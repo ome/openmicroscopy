@@ -108,7 +108,8 @@ editor.
 
 .. note::
     Please use the **escape sequence** ``\\"`` for nesting double quotes (e.g.
-    ``"[\\"foo\\", \\"bar\\"]"``) or wrap with ``'`` (e.g. ``'["foo", "bar"]'``).
+    ``"[\\"foo\\", \\"bar\\"]"``) or wrap with ``'`` (e.g. ``'["foo",
+     "bar"]'``).
 
 Examples of doing this are on the main :doc:`Unix <unix/server-installation>`
 and :doc:`Windows <windows/server-installation>` pages, as well as the
@@ -313,8 +314,6 @@ class PropertyParser(object):
         return '^' * size
 
     def print_rst(self):
-        space4 = " " * 4
-        space6 = " " * 6
         print TOP
         headers = self.headers()
         for header in sorted(headers):
