@@ -241,7 +241,7 @@ class BlitzObjectWrapper (object):
         if self.CHILD_WRAPPER_CLASS is None:  # pragma: no cover
             raise NotImplementedError(
                 '%s has no child wrapper defined' % self.__class__)
-        if type(self.CHILD_WRAPPER_CLASS) is type(''):
+        if isinstance(self.CHILD_WRAPPER_CLASS, str):
             # resolve class
             if hasattr(omero.gateway, self.CHILD_WRAPPER_CLASS):
                 self.__class__.CHILD_WRAPPER_CLASS = self.CHILD_WRAPPER_CLASS = getattr(
@@ -2776,7 +2776,7 @@ class _BlitzGateway (object):
                             E.g. 'name', 'ns'
         :return:
         """
-        oids = (oid != None) and [oid] or None
+        oids = (oid is not None) and [oid] or None
         query, params, wrapper = self.buildQuery(
             obj_type, oids, params, attributes)
         result = self.getQueryService().findByQuery(
@@ -2857,7 +2857,7 @@ class _BlitzGateway (object):
 
         clauses = []
         # getting object by ids
-        if ids != None:
+        if ids is not None:
             clauses.append("obj.id in (:ids)")
             params.map["ids"] = rlist([rlong(a) for a in ids])
 
@@ -2867,7 +2867,7 @@ class _BlitzGateway (object):
             params.map["eid"] = params.theFilter.ownerId
 
         # finding by attributes
-        if attributes != None:
+        if attributes is not None:
             for k, v in attributes.items():
                 clauses.append('obj.%s=:%s' % (k, k))
                 params.map[k] = omero_type(v)
@@ -3154,7 +3154,7 @@ class _BlitzGateway (object):
                     for theT in range(sizeT):
                         plane = zctPlanes.next()
                         # use the first plane to create image.
-                        if image == None:
+                        if image is None:
                             image, dtype = createImage(plane, channelList)
                             pixelsId = image.getPrimaryPixels(
                                 ).getId().getValue()
@@ -4276,7 +4276,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
 
     def getParentLinks(self, ptype, pids=None):
         ptype = ptype.title().replace("Plateacquisition", "PlateAcquisition")
-        if not ptype in ('Project', 'Dataset', 'Image', 'Screen', 'Plate', 'Well', 'PlateAcquisition'):
+        if ptype not in ('Project', 'Dataset', 'Image', 'Screen', 'Plate', 'Well', 'PlateAcquisition'):
             raise AttributeError(
                 "getParentLinks(): ptype '%s' not supported" % ptype)
         p = omero.sys.Parameters()
@@ -4910,7 +4910,7 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         if section is None:
             section = 'DEFAULT'
         prefs = self.getRawPreferences()
-        if not section in prefs.sections():
+        if section not in prefs.sections():
             prefs.add_section(section)
         prefs.set(section, key, value)
         self.setRawPreferences(prefs)
@@ -5222,7 +5222,7 @@ class _PlateWrapper (BlitzObjectWrapper):
         fields = None
         try:
             res = [r for r in unwrap(
-                q.projection(sql, p, self._conn.SERVICE_OPTS))[0] if r != None]
+                q.projection(sql, p, self._conn.SERVICE_OPTS))[0] if r is not None]
             if len(res) == 2:
                 fields = tuple(res)
         except:
@@ -5923,13 +5923,13 @@ class _PixelsWrapper (BlitzObjectWrapper):
         params.map = {}
         params.map["pid"] = rlong(self._obj.id)
         query = "select info from PlaneInfo as info where pixels.id=:pid"
-        if theC != None:
+        if theC is not None:
             params.map["theC"] = rint(theC)
             query += " and info.theC=:theC"
-        if theT != None:
+        if theT is not None:
             params.map["theT"] = rint(theT)
             query += " and info.theT=:theT"
-        if theZ != None:
+        if theZ is not None:
             params.map["theZ"] = rint(theZ)
             query += " and info.theZ=:theZ"
         query += " order by info.deltaT"
@@ -7663,7 +7663,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         finally:
             cb.close()
 
-        if not 'File_Annotation' in rv:
+        if 'File_Annotation' not in rv:
             logger.error('Error in createMovie:')
             if 'stderr' in rv:
                 x = StringIO()
@@ -8208,7 +8208,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         pixels.
         Used by :meth:`countImportedImageFiles` which also handles FS files.
         """
-        if self._archivedFileCount == None:
+        if self._archivedFileCount is None:
             info = self._conn.getArchivedFilesInfo([self.getId()])
             self._archivedFileCount = info['count']
         return self._archivedFileCount
@@ -8219,7 +8219,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         this image
         """
 
-        if self._filesetFileCount == None:
+        if self._filesetFileCount is None:
             info = self._conn.getFilesetFilesInfo([self.getId()])
             self._filesetFileCount = info['count']
         return self._filesetFileCount
@@ -8231,7 +8231,7 @@ class _ImageWrapper (BlitzObjectWrapper):
 
         :return:        A dict of 'count' and sum 'size' of the files.
         """
-        if self._importedFilesInfo == None:
+        if self._importedFilesInfo is None:
             self._importedFilesInfo = self._conn.getArchivedFilesInfo(
                 [self.getId()])
             if (self._importedFilesInfo['count'] == 0):
