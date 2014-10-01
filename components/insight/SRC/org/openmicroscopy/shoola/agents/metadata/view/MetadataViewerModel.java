@@ -972,7 +972,7 @@ class MetadataViewerModel
 	    RndProxyDef copiedRndSettings = MetadataViewerFactory.getCopiedRndSettings();
 	        
 	    if (copiedRndSettings != null) {
-	        component.getRenderer().resetSettings(copiedRndSettings, true);
+	        applyRenderingSettings(copiedRndSettings);
 	        return;
 	    }
 	    

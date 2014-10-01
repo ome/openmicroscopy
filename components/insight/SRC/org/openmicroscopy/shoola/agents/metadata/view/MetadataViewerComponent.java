@@ -235,6 +235,14 @@ class MetadataViewerComponent
 		} 
 	}
 
+        /** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#applyRenderingSettings(RndProxyDef)
+	 */
+	public void applyRenderingSettings(RndProxyDef rndDef) {
+	    model.applyRenderingSettings(rndDef);
+	}
+	
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#discard()

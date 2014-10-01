@@ -226,6 +226,13 @@ public interface MetadataViewer
 	 */
 	public void activate(Map channelData);
 
+        /**
+	 * Applies the specified rendering settings.
+	 * 
+	 * @param rndDef The rendering settings to apply.
+	 */
+	public void applyRenderingSettings(RndProxyDef rndDef);
+	
 	/**
 	 * Transitions the viewer to the {@link #DISCARDED} state.
 	 * Any ongoing data loading is canceled.
