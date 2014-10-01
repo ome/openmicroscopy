@@ -228,6 +228,8 @@ public class CommandLineImporter {
                 log.error("Error retrieving used files.", t);
                 return 1;
             }
+        } else if (FILESET_CLASS.equals(config.targetClass.get())) {
+            System.err.println("Reimport succesful.");
         } else if (candidates.size() < 1) {
             if (handler.errorCount() > 0) {
                 System.err.println("No imports due to errors!");
