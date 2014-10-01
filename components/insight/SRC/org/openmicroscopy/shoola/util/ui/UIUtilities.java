@@ -2503,7 +2503,7 @@ public class UIUtilities
 	{
 		double v = value.doubleValue();
 		String units = UnitsObject.MICRONS;
-		if (v > 0.0 && v < 0.01) {
+		if (v > 0.0 && v < 1.0) {
 			units = UnitsObject.NANOMETER;
 			v *= 1000;
 			if (v < 1) {
