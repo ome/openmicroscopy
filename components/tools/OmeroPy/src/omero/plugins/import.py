@@ -178,10 +178,15 @@ class ImportControl(BaseControl):
         etc_dir = self.ctx.dir / "etc"
         xml_file = etc_dir / "logback-cli.xml"
         logback = "-Dlogback.configurationFile=%s" % xml_file
+
         try:
             classpath = [file.abspath() for file in client_dir.files("*.jar")]
-        except OSError:
-            self.ctx.die(102, "No JAR file found under %s" % client_dir)
+        except OSError as e:
+            self.ctx.die(102, "Cannot get JAR files from '%s' (%s)"
+                         % (client_dir, e.strerror))
+        if not classpath:
+            self.ctx.die(103, "No JAR files found under '%s'" % client_dir)
+
         xargs = [logback, "-Xmx1024M", "-cp", os.pathsep.join(classpath)]
 
         # Here we permit passing ---file=some_output_file in order to
