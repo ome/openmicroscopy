@@ -110,7 +110,7 @@
         <bean parent="graphPolicyRule" p:matches="RD:RenderingDef[E]{r}/!o.pixels = Pixels/o" p:changes="RD:{o}/n"/>
         <bean parent="graphPolicyRule" p:matches="T:Thumbnail[E]{r}/!o.pixels = Pixels/o" p:changes="T:{o}/n"/>
         <bean parent="graphPolicyRule" p:matches="X:!Job[E]{r}/!o" p:changes="X:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [E], L.child = C:[E]{r}" p:changes="C:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [E]/o, L.child = C:[E]{r}" p:changes="C:{a}"/>
         <bean parent="graphPolicyRule" p:matches="!ILink[E]{ia} = X:[E]{r}" p:changes="X:{a}"/>
         <bean parent="graphPolicyRule" p:matches="X:[E]{r} == [E]{a}" p:changes="X:{a}"/>
         <bean parent="graphPolicyRule" p:matches="C:Channel[E]{r}.pixels = Pixels[E]" p:changes="C:{a}"/>
@@ -140,7 +140,7 @@
         <bean parent="graphPolicyRule" p:matches="RD:RenderingDef[E]{r}/!d.pixels = Pixels/d" p:changes="RD:{o}/n"/>
         <bean parent="graphPolicyRule" p:matches="T:Thumbnail[E]{r}/!d.pixels = Pixels/d" p:changes="T:{o}/n"/>
         <bean parent="graphPolicyRule" p:matches="X:!Job[E]{r}/!d" p:changes="X:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [E], L.child = C:[E]{r}" p:changes="C:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [E]/d, L.child = C:[E]{r}" p:changes="C:{a}"/>
         <bean parent="graphPolicyRule" p:matches="!ILink[E]{ia} = X:[E]{r}" p:changes="X:{a}"/>
         <bean parent="graphPolicyRule" p:matches="X:[E]{r} == [E]{a}" p:changes="X:{a}"/>
         <bean parent="graphPolicyRule" p:matches="C:Channel[E]{r}.pixels = Pixels[E]" p:changes="C:{a}"/>
