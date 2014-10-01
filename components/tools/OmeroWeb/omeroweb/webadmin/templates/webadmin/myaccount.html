@@ -179,8 +179,8 @@
 
             var drivespace_loaded = false;
             $( "#admin" ).tabs({
-                select: function(event, ui) {
-                    if ( $(ui.tab).attr('title') == "Drivespace" ){
+                activate: function(event, ui) {
+                    if ( $(ui.newTab).find('a').attr('title') == "Drivespace" ){
                         
                         if (!drivespace_loaded) {
                             drivespace_loaded = true;
