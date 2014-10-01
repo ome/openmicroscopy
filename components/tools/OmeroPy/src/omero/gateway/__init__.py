@@ -1446,7 +1446,7 @@ class _BlitzGateway (object):
                               anonymous=self._anonymous,
                               useragent=self.useragent,
                               userip=self.userip)
-                              # self.server, self.port, clone=True)
+        # self.server, self.port, clone=True)
 
     def setIdentity(self, username, passwd, _internal=False):
         """
@@ -1531,11 +1531,11 @@ class _BlitzGateway (object):
             logger.debug("... refused, not reconnecting")
             return False
         except omero.SessionTimeoutException:  # pragma: no cover
-           # The connection is there, but it has been reset, because the proxy
-           # no longer exists...
-           logger.debug(traceback.format_exc())
-           logger.debug("... reset, not reconnecting")
-           return False
+            # The connection is there, but it has been reset, because the proxy
+            # no longer exists...
+            logger.debug(traceback.format_exc())
+            logger.debug("... reset, not reconnecting")
+            return False
         except omero.RemovedSessionException:  # pragma: no cover
             # Session died on us
             logger.debug(traceback.format_exc())
@@ -3181,9 +3181,9 @@ class _BlitzGateway (object):
         except Exception, e:
             logger.error("Failed to close rawPixelsStore", exc_info=True)
             if exc is None:
-                 exc = e
+                exc = e
         if exc is not None:
-           raise exc
+            raise exc
 
         # simply completing the generator - to avoid a GeneratorExit error.
         try:
@@ -6019,9 +6019,9 @@ class _PixelsWrapper (BlitzObjectWrapper):
         except Exception, e:
             logger.error("Failed to close rawPixelsStore", exc_info=True)
             if exc is None:
-                 exc = e
+                exc = e
         if exc is not None:
-           raise exc
+            raise exc
 
     def getTile(self, theZ=0, theC=0, theT=0, tile=None):
         """
@@ -6775,7 +6775,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         if rdefId is None:
             if not has_rendering_settings:
                 if self._conn.canBeAdmin():
-                   ctx.setOmeroUser(self.details.owner.id.val)
+                    ctx.setOmeroUser(self.details.owner.id.val)
                 try:
                     # E.g. May throw Missing Pyramid Exception
                     tb.resetDefaults(ctx)
@@ -7628,7 +7628,7 @@ class _ImageWrapper (BlitzObjectWrapper):
                     elif i == 1:
                         y = h / 2 - \
                             ((len(wwline)-j)*tsize[1]) + \
-                             (len(wwline)*tsize[1])/2
+                            (len(wwline)*tsize[1])/2
                     else:
                         y = h - (len(wwline) - j)*tsize[1] - 10
                     draw.text((w/2-tsize[0]/2, y), line, font=font)
