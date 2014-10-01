@@ -111,12 +111,15 @@ omero_cblackburn/6915/dropboxaDCjQlout']
         self.args += [help_argument]
         self.cli.invoke(self.args)
 
-    def testImportNoClientDirFails(self, tmpdir,):
+    @pytest.mark.parametrize('clientdir_exists', [True, False])
+    def testImportNoClientDirFails(self, tmpdir, clientdir_exists):
         """Test fake screen import"""
 
         fakefile = tmpdir.join("test.fake")
         fakefile.write('')
 
+        if clientdir_exists:
+            self.args += ["--clientdir", str(tmpdir)]
         self.args += [str(fakefile)]
 
         with pytest.raises(NonZeroReturnCode):
