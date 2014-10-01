@@ -52,6 +52,12 @@ public:
         CmdCallbackI(client, handle), steps(0), finished(0) {}
     ~TestCB(){}
 
+    // Expose protected event member.
+    omero::util::concurrency::Event&
+    getEvent() {
+      return event;
+    }
+
     virtual void step(int complete, int total, const Ice::Current& current = Ice::Current()) {
 	IceUtil::RecMutex::Lock lock(mutex);
         steps++;
@@ -159,7 +165,7 @@ public:
 TEST(CmdCallbackTest, testTimingFinishesOnLatch) {
     CBFixture f;
     TestCBPtr cb = f.timing(25, 4 * 10); // Runs 1 second
-    cb->event.wait(IceUtil::Time::milliSeconds(1500));
+    cb->getEvent().wait(IceUtil::Time::milliSeconds(1500));
     cb->assertFinished();
 }
 
@@ -180,7 +186,7 @@ TEST(CmdCallbackTest, testTimingFinishesOnLoop) {
 TEST(CmdCallbackTest, testDoNothingFinishesOnLatch) {
     CBFixture f;
     TestCBPtr cb = f.doAllOfNothing();
-    cb->event.wait(IceUtil::Time::milliSeconds(5000));
+    cb->getEvent().wait(IceUtil::Time::milliSeconds(5000));
     cb->assertCancelled();
 }
 
@@ -202,6 +208,6 @@ TEST(CmdCallbackTest, testDoAllTimingFinishesOnLoop) {
 TEST(CmdCallbackTest, testAddAfterFinish) {
     CBFixture f;
     TestCBPtr cb = f.timing(25, 4 * 10, 1200); // Runs 1 second
-    cb->event.wait(IceUtil::Time::milliSeconds(1500));
+    cb->getEvent().wait(IceUtil::Time::milliSeconds(1500));
     cb->assertFinished(false);
 }
