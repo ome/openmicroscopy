@@ -21,6 +21,7 @@
 from numpy import fromfunction, int8
 import pytest
 
+
 class TestCreateImage (object):
 
     @pytest.fixture(autouse=True)
@@ -28,26 +29,27 @@ class TestCreateImage (object):
         self.image = author_testimg
         assert self.image is not None, 'No test image found on database'
 
-
     def createTileImageAndCheck(self, conn, sizeX=4096, sizeY=4096,
-            sizeZ=1, sizeC=1, sizeT=1, tileWidth=256, tileHeight=256):
+                                sizeZ=1, sizeC=1, sizeT=1,
+                                tileWidth=256, tileHeight=256):
         """
         Create a large tiled image by stitching a region of a small image.
         """
 
         def planeFromImageGen(tileSeq):
-            tlist = [(0,t['c'],0, (0,0,t['w'],t['h'])) for t in tileSeq]
+            tlist = [(0, t['c'], 0, (0, 0, t['w'], t['h'])) for t in tileSeq]
             p = self.image.getPrimaryPixels()
             planes = p.getTiles(tlist)
             for tile in planes:
                 yield tile
 
         ts = conn.getTileSequence(sizeX, sizeY, sizeZ, sizeC, sizeT,
-            tileWidth, tileHeight)
+                                  tileWidth, tileHeight)
 
         imageName = "gatewaytest.test_create_tiled_image"
-        img = conn.createImageFromTileSeq (planeFromImageGen(ts), imageName,
-            sizeX, sizeY, sizeZ, sizeC, sizeT, tileWidth, tileHeight)
+        img = conn.createImageFromTileSeq(planeFromImageGen(ts), imageName,
+                                          sizeX, sizeY, sizeZ, sizeC, sizeT,
+                                          tileWidth, tileHeight)
 
         assert img is not None
         assert img.getSizeX() == sizeX
@@ -64,9 +66,8 @@ class TestCreateImage (object):
         # truncated tiles right and bottom
         self.createTileImageAndCheck(conn, sizeX=4000, sizeY=3500)
 
-
     def createImageAndCheck(self, conn, sizeX=125, sizeY=125,
-        sizeZ=1, sizeC=1, sizeT=1):
+                            sizeZ=1, sizeC=1, sizeT=1):
 
         def f(x, y):
             """
@@ -87,7 +88,8 @@ class TestCreateImage (object):
 
         imageName = "gatewaytest.test_create_image"
         planeCount = sizeC * sizeZ * sizeT
-        img = conn.createImageFromNumpySeq (planeGen(planeCount), imageName,
+        img = conn.createImageFromNumpySeq(
+            planeGen(planeCount), imageName,
             sizeZ=sizeZ, sizeC=sizeC, sizeT=sizeT)
 
         assert img is not None
@@ -96,7 +98,6 @@ class TestCreateImage (object):
         assert img.getSizeZ() == sizeZ
         assert img.getSizeC() == sizeC
         assert img.getSizeT() == sizeT
-
 
     def testCreateImages(self, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()
@@ -113,4 +114,3 @@ class TestCreateImage (object):
         conn = gatewaywrapper.gateway
 
         self.createImageAndCheck(conn, sizeX=4096, sizeY=4096)
-

@@ -62,7 +62,7 @@ class TileLoop(object):
         raise NotImplementedError()
 
     def getTileSequence(self, sizeX, sizeY, sizeZ, sizeC, sizeT,
-                    tileWidth, tileHeight):
+                        tileWidth, tileHeight):
 
         """
         Provides a list of tile coordinates as used by forEachTile()
@@ -82,7 +82,6 @@ class TileLoop(object):
         <code>y + tileHeight > sizeY</code>.
         :returns: List of dicts with keys: z, c, t, x, y, w, h.
         """
-
 
         tiles = []
         for t in range(0, sizeT):
@@ -109,9 +108,8 @@ class TileLoop(object):
                                 h = sizeY - y
 
                             tiles.append({'z': z, 'c': c, 't': t,
-                                              'x': x, 'y': y, 'w': w, 'h': h,})
+                                          'x': x, 'y': y, 'w': w, 'h': h})
         return tiles
-
 
     def forEachTile(self, sizeX, sizeY, sizeZ, sizeC, sizeT,
                     tileWidth, tileHeight, iteration):
@@ -139,10 +137,10 @@ class TileLoop(object):
         try:
             tileCount = 0
             for t in self.getTileSequence(sizeX, sizeY, sizeZ, sizeC, sizeT,
-                    tileWidth, tileHeight):
+                                          tileWidth, tileHeight):
 
                 iteration.run(data, t['z'], t['c'], t['t'],
-                        t['x'], t['y'], t['w'], t['h'], tileCount)
+                              t['x'], t['y'], t['w'], t['h'], tileCount)
                 tileCount += 1
 
             return tileCount
