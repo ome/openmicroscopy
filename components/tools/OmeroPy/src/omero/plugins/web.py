@@ -240,8 +240,9 @@ class WebControl(BaseControl):
                         self.ctx.dir
                 d["FASTCGI_EXTERNAL"] = fastcgi_external
                 try:
-                    d["REWRITERULE"] = "RewriteEngine on\nRewriteRule ^/?$" \
-                    " %s/ [R]\n" % settings.FORCE_SCRIPT_NAME.rstrip("/")
+                    d["REWRITERULE"] = \
+                        "RewriteEngine on\nRewriteRule ^/?$%s/ [R]\n"\
+                        % settings.FORCE_SCRIPT_NAME.rstrip("/")
                 except:
                     d["REWRITERULE"] = ""
                 d["NOW"] = str(datetime.now())
