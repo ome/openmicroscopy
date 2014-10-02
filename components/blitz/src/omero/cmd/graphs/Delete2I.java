@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -51,7 +52,7 @@ import omero.cmd.Response;
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.1.0
  */
-public class Delete2I extends Delete2 implements IRequest {
+public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Delete2> {
 
     private static final ImmutableMap<String, String> ALL_GROUPS_CONTEXT = ImmutableMap.of(Login.OMERO_GROUP, "-1");
 
@@ -60,7 +61,7 @@ public class Delete2I extends Delete2 implements IRequest {
     private final ACLVoter aclVoter;
     private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
-    private final GraphPolicy graphPolicy;
+    private GraphPolicy graphPolicy;  /* not final because of adjustGraphPolicy */
     private final SetMultimap<String, String> unnullable;
 
     private Helper helper;
@@ -169,13 +170,34 @@ public class Delete2I extends Delete2 implements IRequest {
             }
             final Delete2Response response = new Delete2Response(deletedObjects);
             helper.setResponseIfNull(response);
-            helper.info("in delete of " + targetObjectCount + ", deleted " + deletedObjectCount + " in total");
+            helper.info("in " + (dryRun ? "mock " : "") + "delete of " + targetObjectCount +
+                    ", deleted " + deletedObjectCount + " in total");
         }
     }
 
     @Override
     public Response getResponse() {
         return helper.getResponse();
+    }
+
+    @Override
+    public void copyFieldsTo(Delete2 request) {
+        request.dryRun = dryRun;
+        request.targetObjects = targetObjects;
+        request.includeNs = includeNs;
+        request.excludeNs = excludeNs;
+        request.includeChild = includeChild;
+        request.excludeChild = excludeChild;
+    }
+
+    @Override
+    public void adjustGraphPolicy(Function<GraphPolicy, GraphPolicy> adjuster) {
+        this.graphPolicy = adjuster.apply(this.graphPolicy);
+    }
+
+    @Override
+    public Map<String, long[]> getStartFrom(Response response) {
+        return ((Delete2Response) response).deletedObjects;
     }
 
     /**

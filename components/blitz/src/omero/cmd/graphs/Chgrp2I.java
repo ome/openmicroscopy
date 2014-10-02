@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -50,7 +51,7 @@ import omero.cmd.Response;
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.1.0
  */
-public class Chgrp2I extends Chgrp2 implements IRequest {
+public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2> {
 
     private static final ImmutableMap<String, String> ALL_GROUPS_CONTEXT = ImmutableMap.of(Login.OMERO_GROUP, "-1");
 
@@ -59,7 +60,7 @@ public class Chgrp2I extends Chgrp2 implements IRequest {
     private final ACLVoter aclVoter;
     private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
-    private final GraphPolicy graphPolicy;
+    private GraphPolicy graphPolicy;  /* not final because of adjustGraphPolicy */
     private final SetMultimap<String, String> unnullable;
  
     private Helper helper;
@@ -184,7 +185,7 @@ public class Chgrp2I extends Chgrp2 implements IRequest {
             }
             final Chgrp2Response response = new Chgrp2Response(movedObjects, deletedObjects);
             helper.setResponseIfNull(response);
-            helper.info("in chgrp to " + groupId + " of " + targetObjectCount +
+            helper.info("in " + (dryRun ? "mock " : "") + "chgrp to " + groupId + " of " + targetObjectCount +
                     ", moved " + movedObjectCount + " and deleted " + deletedObjectCount + " in total");
         }
     }
@@ -192,6 +193,27 @@ public class Chgrp2I extends Chgrp2 implements IRequest {
     @Override
     public Response getResponse() {
         return helper.getResponse();
+    }
+
+    @Override
+    public void copyFieldsTo(Chgrp2 request) {
+        request.dryRun = dryRun;
+        request.targetObjects = targetObjects;
+        request.includeNs = includeNs;
+        request.excludeNs = excludeNs;
+        request.includeChild = includeChild;
+        request.excludeChild = excludeChild;
+        request.groupId = groupId;
+    }
+
+    @Override
+    public void adjustGraphPolicy(Function<GraphPolicy, GraphPolicy> adjuster) {
+        this.graphPolicy = adjuster.apply(this.graphPolicy);
+    }
+
+    @Override
+    public Map<String, long[]> getStartFrom(Response response) {
+        return ((Chgrp2Response) response).includedObjects;
     }
 
     /**
