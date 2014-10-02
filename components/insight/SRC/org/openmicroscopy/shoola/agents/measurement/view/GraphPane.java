@@ -53,7 +53,6 @@ import javax.swing.event.ChangeListener;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
-import org.openmicroscopy.shoola.agents.measurement.util.actions.SaveAction;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper.StatsType;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -104,6 +103,9 @@ public class GraphPane
 	
 	/** Reference to the model. */
 	private MeasurementViewerModel model;
+	
+	/** Reference to the controller. */
+	private MeasurementViewerControl controller;
 
 	/** The map of <ROIShape, ROIStats> .*/
 	private Map ROIStats;
@@ -152,9 +154,6 @@ public class GraphPane
 
 	/** Button to save the graph as JPEG or PNG.*/
 	private JButton export;
-
-	/** Action for saving the chart */
-	private SaveAction saveAction;
 	
 	/**
 	 * Implemented as specified by the I/F {@link TabPaneInterface}
@@ -267,9 +266,7 @@ public class GraphPane
 	/** Initializes the component composing the display. */
 	private void initComponents()
 	{
-	        saveAction = new SaveAction(this, "Export...", "Export the graph as JPEG or PNG.");
-	        
-	        export = new JButton(saveAction);
+	        export = new JButton(controller.getAction(MeasurementViewerControl.EXPORT_GRAPH));
 
 		zSlider = new OneKnobSlider();
 		zSlider.setOrientation(JSlider.VERTICAL);
@@ -324,7 +321,7 @@ public class GraphPane
 		histogramChart = drawHistogram("Histogram", new ArrayList<String>(),
 				new ArrayList<double[]>(), new ArrayList<Color>(), 1001);
 		mainPanel.setLayout(new BorderLayout());
-		mainPanel.add(histogramChart.getChart(Collections.singletonList((AbstractAction)saveAction)), BorderLayout.CENTER);
+		mainPanel.add(histogramChart.getChart(Collections.singletonList((AbstractAction)controller.getAction(MeasurementViewerControl.EXPORT_GRAPH))), BorderLayout.CENTER);
 	}
 	
 	/**
@@ -446,14 +443,14 @@ public class GraphPane
 		if (lineProfileChart == null && histogramChart !=null)
 		{
 			mainPanel.setLayout(new BorderLayout());
-			mainPanel.add(histogramChart.getChart(Collections.singletonList((AbstractAction)saveAction)), BorderLayout.CENTER);
+			mainPanel.add(histogramChart.getChart(Collections.singletonList((AbstractAction)controller.getAction(MeasurementViewerControl.EXPORT_GRAPH))), BorderLayout.CENTER);
 		}
 		
 		if (lineProfileChart != null && histogramChart !=null)
 		{
 			mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-			mainPanel.add(lineProfileChart.getChart(Collections.singletonList((AbstractAction)saveAction)));
-			mainPanel.add(histogramChart.getChart(Collections.singletonList((AbstractAction)saveAction)));
+			mainPanel.add(lineProfileChart.getChart(Collections.singletonList((AbstractAction)controller.getAction(MeasurementViewerControl.EXPORT_GRAPH))));
+			mainPanel.add(histogramChart.getChart(Collections.singletonList((AbstractAction)controller.getAction(MeasurementViewerControl.EXPORT_GRAPH))));
 		}
 		mainPanel.validate();
 		mainPanel.repaint();
@@ -519,6 +516,7 @@ public class GraphPane
 			throw new IllegalArgumentException("No model.");
 		this.model = model;
 		this.view = view;
+		this.controller = controller;
 		initComponents();
 		buildGUI();
 	}
