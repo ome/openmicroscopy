@@ -113,7 +113,7 @@
         <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [E]/o, L.child = C:[E]{r}" p:changes="C:{a}"/>
         <bean parent="graphPolicyRule" p:matches="!ILink[E]{ia} = X:[E]{r}" p:changes="X:{a}"/>
         <bean parent="graphPolicyRule" p:matches="X:[E]{r} == [E]{a}" p:changes="X:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="C:Channel[E]{r}.pixels = Pixels[E]" p:changes="C:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="C:Channel[E]{r}.pixels = Pixels[E]{i}" p:changes="C:{a}"/>
         <bean parent="graphPolicyRule" p:matches="L:ILink[E].parent = [I], L.child = [E]{a}" p:changes="L:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:ILink[E].parent = [E], L.child = [I]" p:changes="L:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:ILink[E]{a}.parent = [I]" p:changes="L:[D]/n"/>
@@ -143,7 +143,7 @@
         <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [E]/d, L.child = C:[E]{r}" p:changes="C:{a}"/>
         <bean parent="graphPolicyRule" p:matches="!ILink[E]{ia} = X:[E]{r}" p:changes="X:{a}"/>
         <bean parent="graphPolicyRule" p:matches="X:[E]{r} == [E]{a}" p:changes="X:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="C:Channel[E]{r}.pixels = Pixels[E]" p:changes="C:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="C:Channel[E]{r}.pixels = Pixels[E]{i}" p:changes="C:{a}"/>
     </util:list>
 
 </beans>
