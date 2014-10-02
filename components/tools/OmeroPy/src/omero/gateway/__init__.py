@@ -277,7 +277,8 @@ class BlitzObjectWrapper (object):
         #     g = globals()
         #     if not g.has_key(self.PARENT_WRAPPER_CLASS): #pragma: no cover
         #         raise NotImplementedError
-        #     self.__class__.PARENT_WRAPPER_CLASS = self.PARENT_WRAPPER_CLASS = g[self.PARENT_WRAPPER_CLASS]
+        #     self.__class__.PARENT_WRAPPER_CLASS \
+        #         = self.PARENT_WRAPPER_CLASS = g[self.PARENT_WRAPPER_CLASS]
         # return self.PARENT_WRAPPER_CLASS
         if pwc != self.PARENT_WRAPPER_CLASS or pwc != self.__class__.PARENT_WRAPPER_CLASS:
             self.__class__.PARENT_WRAPPER_CLASS = self.PARENT_WRAPPER_CLASS = pwc
@@ -407,7 +408,8 @@ class BlitzObjectWrapper (object):
                 # p.name = details.getOwner().omeName
                 # p.group = details.getGroup().name
                 # p.eventType = "User"
-                # newConnId = self._conn.getSessionService().createSessionWithTimeout(p, 60000)
+                # newConnId = self._conn.getSessionService(
+                #     ).createSessionWithTimeout(p, 60000)
                 # newConn = self._conn.clone()
                 # newConn.connect(sUuid=newConnId.getUuid().val)
             clone = self.__class__(newConn, self._obj)
@@ -556,7 +558,10 @@ class BlitzObjectWrapper (object):
 
         childw = self._getChildWrapper()
         klass = "%sLinks" % childw().OMERO_CLASS.lower()
-        # self._cached_countChildren = len(self._conn.getQueryService().findAllByQuery("from %s as c where c.parent.id=%i" % (self.LINK_CLASS, self._oid), None))
+        # self._cached_countChildren = len(
+        #     self._conn.getQueryService().findAllByQuery(
+        #         "from %s as c where c.parent.id=%i"
+        #         % (self.LINK_CLASS, self._oid), None))
         self._cached_countChildren = self._conn.getContainerService().getCollectionCount(
             self.OMERO_CLASS, klass, [self._oid], None, self._conn.SERVICE_OPTS)[self._oid]
         return self._cached_countChildren
@@ -743,7 +748,8 @@ class BlitzObjectWrapper (object):
         Loads the annotation links for the object (if not already loaded) and
         saves them to the object
         """
-        if not hasattr(self._obj, 'isAnnotationLinksLoaded'):  # pragma: no cover
+        # pragma: no cover
+        if not hasattr(self._obj, 'isAnnotationLinksLoaded'):
             raise NotImplementedError
         # Need to set group context. If '-1' then canDelete() etc on
         # annotations will be False
@@ -942,7 +948,8 @@ class BlitzObjectWrapper (object):
                     # owner??
                     newConn = self._conn.suConn(d.getOwner().omeName, group)
                     # p.eventType = "User"
-                    # newConnId = self._conn.getSessionService().createSessionWithTimeout(p, 60000)
+                    # newConnId = self._conn.getSessionService(
+                    #     ).createSessionWithTimeout(p, 60000)
                     # newConn = self._conn.clone()
                     # newConn.connect(sUuid=newConnId.getUuid().val)
                 clone = self.__class__(newConn, self._obj)
@@ -992,8 +999,10 @@ class BlitzObjectWrapper (object):
             #   '()key' -> _obj.getKey()
             #   '()#key' -> _obj.getKey().value.val
             # suffix to the above we can have:
-            #   'key;title' - will use 'title' as the variable name, instead of 'key'
-            #   'key|wrapper' ->  omero.gateway.wrapper(_obj[key]).simpleMarshal()
+            #   'key;title' - will use 'title' as the variable name,
+            #                 instead of 'key'
+            #   'key|wrapper' ->  omero.gateway.wrapper(
+            #                         _obj[key]).simpleMarshal()
             #   'key|' ->  key.simpleMarshal() (useful with ()key )
             for k in self._attrs:
                 if ';' in k:
@@ -1809,7 +1818,8 @@ class _BlitzGateway (object):
                         self._closeSession()
                         self._resetOmeroClient()
                         # self.c = omero.client(*args)
-                    except Glacier2.SessionNotExistException:  # pragma: no cover
+                    # pragma: no cover
+                    except Glacier2.SessionNotExistException:
                         pass
                 for key, value in self._ic_props.items():
                     if isinstance(value, unicode):
@@ -2092,7 +2102,8 @@ class _BlitzGateway (object):
 #            # Already correct
 #            return
 #        a = self.getAdminService()
-#        if not group.name in [x.name.val for x in a.containedGroups(self._userid)]:
+#        if (group.name not in
+#                [x.name.val for x in a.containedGroups(self._userid)]):
 #            # User not in this group
 #            return
 #        self._lastGroup = self._session.getDetails().getGroup()
@@ -3122,8 +3133,9 @@ class _BlitzGateway (object):
                     pType = dType
                 else:
                     pType = pTypes[dType]
+                # omero::model::PixelsType
                 pixelsType = queryService.findByQuery(
-                    "from PixelsType as p where p.value='%s'" % pType, None)  # omero::model::PixelsType
+                    "from PixelsType as p where p.value='%s'" % pType, None)
                 if pixelsType is None:
                     raise Exception(
                         "Cannot create an image in omero from numpy array with dtype: %s" % dType)
@@ -3194,7 +3206,8 @@ class _BlitzGateway (object):
         for theC, mm in enumerate(channelsMinMax):
             pixelsService.setChannelGlobalMinMax(
                 pixelsId, theC, float(mm[0]), float(mm[1]), self.SERVICE_OPTS)
-            # resetRenderingSettings(renderingEngine, pixelsId, theC, mm[0], mm[1])
+            # resetRenderingSettings(
+            #     renderingEngine, pixelsId, theC, mm[0], mm[1])
 
         # put the image in dataset, if specified.
         if dataset:
@@ -4156,8 +4169,9 @@ class AnnotationWrapper (BlitzObjectWrapper):
     """
     omero_model_AnnotationI class wrapper extends BlitzObjectWrapper.
     """
-    registry = {
-        }       # class dict for type:wrapper E.g. DoubleAnnotationI : DoubleAnnotationWrapper
+    # class dict for type:wrapper
+    # E.g. DoubleAnnotationI : DoubleAnnotationWrapper
+    registry = {}
     OMERO_TYPE = None
 
     def __init__(self, *args, **kwargs):
@@ -5545,7 +5559,9 @@ class _WellWrapper (BlitzObjectWrapper):
 #
 #        if getattr(self, 'isWellSamplesLoaded')():
 #            childnodes = getattr(self, 'copyWellSamples')()
-#            logger.debug('listChildren for %s %d: already loaded, %d samples' % (self.OMERO_CLASS, self.getId(), len(childnodes)))
+#            logger.debug(
+#                'listChildren for %s %d: already loaded, %d samples'
+#                % (self.OMERO_CLASS, self.getId(), len(childnodes)))
 #            for ch in childnodes:
 #                yield WellSampleWrapper(self._conn, ch)
 #
@@ -7346,8 +7362,8 @@ class _ImageWrapper (BlitzObjectWrapper):
         # Since the JPEG 2000 algorithm is iterative and rounds pixel counts
         # at each resolution level we're doing the resulting tile size
         # calculations in a loop. Also, since the image is physically tiled
-        # the resulting size is a multiple of the tile size and not the iterative
-        # quotient of a 2**(resolutionLevels - 1).
+        # the resulting size is a multiple of the tile size and not the
+        # iterative quotient of a 2**(resolutionLevels - 1).
         for i in range(1, re.getResolutionLevels()):
             tile_width = round(tile_width / 2.0)
             tile_height = round(tile_height / 2.0)
@@ -8996,6 +9012,7 @@ def refreshWrappers():
                            "doubleannotation": DoubleAnnotationWrapper,
                            "termannotation": TermAnnotationWrapper,
                            "timestampannotation": TimestampAnnotationWrapper,
-                           "annotation": AnnotationWrapper._wrap})    # allows for getObjects("Annotation", ids)
+                           # allows for getObjects("Annotation", ids)
+                           "annotation": AnnotationWrapper._wrap})
 
 refreshWrappers()
