@@ -45,9 +45,11 @@ import org.apache.commons.lang.StringUtils;
 //Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
 
+
 //Application-internal dependencies
 import omero.RDouble;
 import omero.model.PlaneInfo;
+
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
@@ -61,6 +63,8 @@ import org.openmicroscopy.shoola.util.ui.OMEComboBox;
 import org.openmicroscopy.shoola.util.ui.OMEComboBoxUI;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.UnitsObject;
+
+import com.google.common.math.DoubleMath;
 
 import pojos.AnnotationData;
 import pojos.ChannelAcquisitionData;
@@ -1224,9 +1228,14 @@ public class EditorUtil
         } else {
             if (wave <= 100) {
                 notSet.add(EMISSION);
-                details.put(EMISSION, new Float(0));
+                details.put(EMISSION, new Double(0));
             } else {
-                details.put(EMISSION, new Float(wave));
+                //First check if the wave is a not a int
+                if (DoubleMath.isMathematicalInteger(wave)) {
+                    details.put(EMISSION, new Integer(wave.intValue()));
+                } else {
+                    details.put(EMISSION, wave);
+                }
             }
         }
 
@@ -1236,9 +1245,14 @@ public class EditorUtil
         } else {
             if (wave <= 100) {
                 notSet.add(EXCITATION);
-                details.put(EXCITATION, new Float(0));
+                details.put(EXCITATION, new Double(0));
             } else {
-                details.put(EXCITATION, new Float(wave));
+              //First check if the wave is a not a int
+                if (DoubleMath.isMathematicalInteger(wave)) {
+                    details.put(EMISSION, new Integer(wave.intValue()));
+                } else {
+                    details.put(EMISSION, wave);
+                }
             }
         }
 
