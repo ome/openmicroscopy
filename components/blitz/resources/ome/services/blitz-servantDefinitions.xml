@@ -368,6 +368,7 @@
           <value>Image.instrument</value>
         </list>
       </constructor-arg>
+      <constructor-arg value="${omero.graphs.wrap}"/>
   </bean>
 
   <bean class="ome.services.blitz.impl.commands.RequestObjectFactoryRegistry"

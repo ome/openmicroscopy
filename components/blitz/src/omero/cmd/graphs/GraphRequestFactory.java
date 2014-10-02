@@ -23,6 +23,9 @@ import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.SetMultimap;
@@ -42,11 +45,14 @@ import omero.cmd.SkipHead;
  * @since 5.1.0
  */
 public class GraphRequestFactory {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GraphRequestFactory.class);
+
     private final ACLVoter aclVoter;
     private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
     private final ImmutableMap<Class<? extends Request>, GraphPolicy> graphPolicies;
     private final ImmutableSetMultimap<String, String> unnullable;
+    private final boolean isGraphsWrap;
 
     /**
      * Construct a new graph request factory.
@@ -55,10 +61,12 @@ public class GraphRequestFactory {
      * @param graphPathBean the graph path bean
      * @param allRules rules for all request classes that use the graph path bean
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
+     * @param isGraphsWrap if {@link omero.cmd.Request2} requests should substitute for the requests that they replace
      * @throws GraphException if the graph path rules could not be parsed
      */
     public GraphRequestFactory(ACLVoter aclVoter, SystemTypes systemTypes, GraphPathBean graphPathBean,
-            Map<Class<? extends Request>, List<GraphPolicyRule>> allRules, List<String> unnullable) throws GraphException {
+            Map<Class<? extends Request>, List<GraphPolicyRule>> allRules, List<String> unnullable, boolean isGraphsWrap)
+                    throws GraphException {
         this.aclVoter = aclVoter;
         this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
@@ -78,6 +86,18 @@ public class GraphRequestFactory {
             unnullableBuilder.put(classNameFull, property);
         }
         this.unnullable = unnullableBuilder.build();
+
+        if (isGraphsWrap) {
+            LOGGER.warn("substituting Chgrp, Delete requests with Chgrp2, Delete2 requests");
+        }
+        this.isGraphsWrap = isGraphsWrap;
+    }
+
+    /**
+     * @return if {@link omero.cmd.Request2} requests should substitute for the requests that they replace
+     */
+    public boolean isGraphsWrap() {
+        return isGraphsWrap;
     }
 
     /**
