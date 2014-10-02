@@ -1450,8 +1450,9 @@ class _BlitzGateway (object):
         """
         if self._maxPlaneSize is None:
             c = self.getConfigService()
-            self._maxPlaneSize = (int(c.getConfigValue('omero.pixeldata.max_plane_width')),
-                                  int(c.getConfigValue('omero.pixeldata.max_plane_height')))
+            self._maxPlaneSize = (
+                int(c.getConfigValue('omero.pixeldata.max_plane_width')),
+                int(c.getConfigValue('omero.pixeldata.max_plane_height')))
         return self._maxPlaneSize
 
     def isAnonymous(self):
@@ -3177,8 +3178,10 @@ class _BlitzGateway (object):
                 # of our new image
                 img = self.getObject("Image", iId.getValue())
                 newPtype = img.getPrimaryPixels().getPixelsType().getValue()
-                omeroToNumpy = {'int8': 'int8', 'uint8': 'uint8', 'int16': 'int16', 'uint16': 'uint16',
-                                'int32': 'int32', 'uint32': 'uint32', 'float': 'float32', 'double': 'double'}
+                omeroToNumpy = {'int8': 'int8', 'uint8': 'uint8',
+                                'int16': 'int16', 'uint16': 'uint16',
+                                'int32': 'int32', 'uint32': 'uint32',
+                                'float': 'float32', 'double': 'double'}
                 if omeroToNumpy[newPtype] != firstPlane.dtype.name:
                     convertToType = getattr(numpy, omeroToNumpy[newPtype])
                 img._obj.setName(rstring(imageName))
@@ -3186,8 +3189,11 @@ class _BlitzGateway (object):
             else:
                 # need to map numpy pixel types to omero - don't handle: bool_,
                 # character, int_, int64, object_
-                pTypes = {'int8': 'int8', 'int16': 'int16', 'uint16': 'uint16', 'int32': 'int32', 'float_': 'float', 'float8': 'float',
-                          'float16': 'float', 'float32': 'float', 'float64': 'double', 'complex_': 'complex', 'complex64': 'complex'}
+                pTypes = {'int8': 'int8', 'int16': 'int16', 'uint16': 'uint16',
+                          'int32': 'int32', 'float_': 'float',
+                          'float8': 'float', 'float16': 'float',
+                          'float32': 'float', 'float64': 'double',
+                          'complex_': 'complex', 'complex64': 'complex'}
                 dType = firstPlane.dtype.name
                 if dType not in pTypes:  # try to look up any not named above
                     pType = dType
@@ -3820,9 +3826,16 @@ class _BlitzGateway (object):
             logger.debug('chgrp Received object type, using "%s"' % graph_spec)
 
         # (link, child, parent)
-        parentLinkClasses = {"/Image": (omero.model.DatasetImageLinkI, omero.model.ImageI, omero.model.DatasetI),
-                             "/Dataset": (omero.model.ProjectDatasetLinkI, omero.model.DatasetI, omero.model.ProjectI),
-                             "/Plate": (omero.model.ScreenPlateLinkI, omero.model.PlateI, omero.model.ScreenI)}
+        parentLinkClasses = {
+            "/Image": (omero.model.DatasetImageLinkI,
+                       omero.model.ImageI,
+                       omero.model.DatasetI),
+            "/Dataset": (omero.model.ProjectDatasetLinkI,
+                         omero.model.DatasetI,
+                         omero.model.ProjectI),
+            "/Plate": (omero.model.ScreenPlateLinkI,
+                       omero.model.PlateI,
+                       omero.model.ScreenI)}
         da = DoAll()
         requests = []
         saves = []
@@ -3877,7 +3890,9 @@ class _BlitzGateway (object):
             types = (ProjectWrapper, DatasetWrapper, ImageWrapper)
         else:
             def getWrapper(obj_type):
-                if obj_type.lower() not in ["project", "dataset", "image", "screen", "plate", "well"]:
+                objs = ["project", "dataset", "image",
+                        "screen", "plate", "well"]
+                if obj_type.lower() not in objs:
                     raise AttributeError(
                         "%s not recognised. Can only search for 'Project',"
                         "'Dataset', 'Image', 'Screen', 'Plate', 'Well'"
@@ -4369,7 +4384,9 @@ class AnnotationWrapper (BlitzObjectWrapper):
 
     def getParentLinks(self, ptype, pids=None):
         ptype = ptype.title().replace("Plateacquisition", "PlateAcquisition")
-        if ptype not in ('Project', 'Dataset', 'Image', 'Screen', 'Plate', 'Well', 'PlateAcquisition'):
+        objs = ('Project', 'Dataset', 'Image', 'Screen',
+                'Plate', 'Well', 'PlateAcquisition')
+        if ptype not in objs:
             raise AttributeError(
                 "getParentLinks(): ptype '%s' not supported" % ptype)
         p = omero.sys.Parameters()
@@ -6344,8 +6361,9 @@ class _ChannelWrapper (BlitzObjectWrapper):
         if si is None:
             logger.error("getStatsInfo() is null. See #9695")
             try:
-                minVals = {'int8': -128, 'uint8': 0, 'int16': -32768, 'uint16': 0, 'int32': -32768,
-                           'uint32': 0, 'float': -32768, 'double': -32768}
+                minVals = {'int8': -128, 'uint8': 0, 'int16': -32768,
+                           'uint16': 0, 'int32': -32768, 'uint32': 0,
+                           'float': -32768, 'double': -32768}
                 pixtype = self._obj.getPixels(
                     ).getPixelsType().getValue().getValue()
                 return minVals[pixtype]
@@ -6364,8 +6382,9 @@ class _ChannelWrapper (BlitzObjectWrapper):
         if si is None:
             logger.error("getStatsInfo() is null. See #9695")
             try:
-                maxVals = {'int8': 127, 'uint8': 255, 'int16': 32767, 'uint16': 65535, 'int32': 32767,
-                           'uint32': 65535, 'float': 32767, 'double': 32767}
+                maxVals = {'int8': 127, 'uint8': 255, 'int16': 32767,
+                           'uint16': 65535, 'int32': 32767, 'uint32': 65535,
+                           'float': 32767, 'double': 32767}
                 pixtype = self._obj.getPixels(
                     ).getPixelsType().getValue().getValue()
                 return maxVals[pixtype]
