@@ -162,6 +162,11 @@ module omero {
         class Delete2Response extends OK {
             omero::api::IdListMap deletedObjects;
         };
+
+        class SkipHead extends Request2 {
+            omero::api::StringSet startFrom;
+            Request2 request;
+        };
     };
 };
 
