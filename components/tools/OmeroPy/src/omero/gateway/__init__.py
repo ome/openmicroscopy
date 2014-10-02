@@ -859,7 +859,8 @@ class BlitzObjectWrapper (object):
         for ann in self._getAnnotationLinks(ns):
             yield AnnotationWrapper._wrap(self._conn, ann.child, link=ann)
 
-    def listOrphanedAnnotations(self, eid=None, ns=None, anntype=None, addedByMe=True):
+    def listOrphanedAnnotations(self, eid=None, ns=None, anntype=None,
+                                addedByMe=True):
         """
         Retrieve all Annotations not linked to the given Project, Dataset,
         Image, Screen, Plate, Well ID controlled by the security system.
@@ -1315,7 +1316,10 @@ class _BlitzGateway (object):
 # def __init__ (self, username, passwd, server, port, client_obj=None,
 # group=None, clone=False):
 
-    def __init__(self, username=None, passwd=None, client_obj=None, group=None, clone=False, try_super=False, host=None, port=None, extra_config=None, secure=False, anonymous=True, useragent=None, userip=None):
+    def __init__(self, username=None, passwd=None, client_obj=None, group=None,
+                 clone=False, try_super=False, host=None, port=None,
+                 extra_config=None, secure=False, anonymous=True,
+                 useragent=None, userip=None):
         """
         Create the connection wrapper.
         Does not attempt to connect at this stage
@@ -2530,7 +2534,8 @@ class _BlitzGateway (object):
             else:
                 yield ExperimenterGroupWrapper(self, e)
 
-    def createGroup(self, name, owner_Ids=None, member_Ids=None, perms=None, description=None):
+    def createGroup(self, name, owner_Ids=None, member_Ids=None, perms=None,
+                    description=None):
         """
         Creates a new ExperimenterGroup.
         Must have Admin permissions to call this.
@@ -2757,7 +2762,8 @@ class _BlitzGateway (object):
     ############################
     # Timeline service getters #
 
-    def timelineListImages(self, tfrom=None, tto=None, limit=10, only_owned=True):
+    def timelineListImages(self, tfrom=None, tto=None, limit=10,
+                           only_owned=True):
         """
         List images based on their creation times.
         If both tfrom and tto are None, grab the most recent batch.
@@ -2820,7 +2826,8 @@ class _BlitzGateway (object):
         if result is not None:
             return wrapper(self, result)
 
-    def getObjects(self, obj_type, ids=None, params=None, attributes=None, respect_order=False):
+    def getObjects(self, obj_type, ids=None, params=None, attributes=None,
+                   respect_order=False):
         """
         Retrieve Objects by type E.g. "Image"
         Returns generator of appropriate :class:`BlitzObjectWrapper` type.
@@ -2949,7 +2956,8 @@ class _BlitzGateway (object):
         for a in anns:
             yield(FileAnnotationWrapper(self, a))
 
-    def getAnnotationLinks(self, parent_type, parent_ids=None, ann_ids=None, ns=None, params=None):
+    def getAnnotationLinks(self, parent_type, parent_ids=None, ann_ids=None,
+                           ns=None, params=None):
         """
         Retrieve Annotation Links by parent_type E.g. "Image". Not Ordered.
         Returns generator of :class:`AnnotationLinkWrapper`
@@ -3009,7 +3017,8 @@ class _BlitzGateway (object):
         for r in result:
             yield AnnotationLinkWrapper(self, r)
 
-    def listOrphanedAnnotations(self, parent_type, parent_ids, eid=None, ns=None, anntype=None, addedByMe=True):
+    def listOrphanedAnnotations(self, parent_type, parent_ids, eid=None,
+                                ns=None, anntype=None, addedByMe=True):
         """
         Retrieve all Annotations not linked to the given parents: Projects,
         Datasets, Images, Screens, Plates OR Wells etc.
@@ -3083,7 +3092,9 @@ class _BlitzGateway (object):
         for e in q.findAllByQuery(sql, p, self.SERVICE_OPTS):
             yield AnnotationWrapper._wrap(self, e)
 
-    def createImageFromNumpySeq(self, zctPlanes, imageName, sizeZ=1, sizeC=1, sizeT=1, description=None, dataset=None, sourceImageId=None, channelList=None):
+    def createImageFromNumpySeq(self, zctPlanes, imageName, sizeZ=1, sizeC=1,
+                                sizeT=1, description=None, dataset=None,
+                                sourceImageId=None, channelList=None):
         """
         Creates a new multi-dimensional image from the sequence of 2D numpy
         arrays in zctPlanes. zctPlanes should be a generator of numpy 2D
@@ -3353,7 +3364,8 @@ class _BlitzGateway (object):
         self.getUpdateService().saveCollection(toSave, ctx)
         return {'imageCount': len(imageIds), 'updateCount': updateCount}
 
-    def createOriginalFileFromFileObj(self, fo, path, name, fileSize, mimetype=None, ns=None):
+    def createOriginalFileFromFileObj(self, fo, path, name, fileSize,
+                                      mimetype=None, ns=None):
         """
         Creates a :class:`OriginalFileWrapper` from a local file.
         File is uploaded to create an omero.model.OriginalFileI.
@@ -3414,7 +3426,9 @@ class _BlitzGateway (object):
             rawFileStore.close()
         return OriginalFileWrapper(self, originalFile)
 
-    def createOriginalFileFromLocalFile(self, localPath, origFilePathAndName=None, mimetype=None, ns=None):
+    def createOriginalFileFromLocalFile(self, localPath,
+                                        origFilePathAndName=None,
+                                        mimetype=None, ns=None):
         """
         Creates a :class:`OriginalFileWrapper` from a local file.
         File is uploaded to create an omero.model.OriginalFileI.
@@ -3441,7 +3455,8 @@ class _BlitzGateway (object):
         finally:
             fileHandle.close()
 
-    def createFileAnnfromLocalFile(self, localPath, origFilePathAndName=None, mimetype=None, ns=None, desc=None):
+    def createFileAnnfromLocalFile(self, localPath, origFilePathAndName=None,
+                                   mimetype=None, ns=None, desc=None):
         """
         Class method to create a :class:`FileAnnotationWrapper` from a local
         file. File is uploaded to create an omero.model.OriginalFileI
@@ -3821,7 +3836,8 @@ class _BlitzGateway (object):
     ###################
     # Searching stuff #
 
-    def searchObjects(self, obj_types, text, created=None, fields=(), batchSize=1000, page=0, searchGroup=None, ownedBy=None,
+    def searchObjects(self, obj_types, text, created=None, fields=(),
+                      batchSize=1000, page=0, searchGroup=None, ownedBy=None,
                       useAcquisitionDate=False):
         """
         Search objects of type "Project", "Dataset", "Image", "Screen", "Plate"
@@ -6937,7 +6953,8 @@ class _ImageWrapper (BlitzObjectWrapper):
         return rv.getvalue()
 
     # @setsessiongroup
-    def getThumbnail(self, size=(64, 64), z=None, t=None, direct=True, rdefId=None):
+    def getThumbnail(self, size=(64, 64), z=None, t=None, direct=True,
+                     rdefId=None):
         """
         Returns a string holding a rendered JPEG of the thumbnail.
 
@@ -7445,7 +7462,8 @@ class _ImageWrapper (BlitzObjectWrapper):
         return f.read()
 
     @assert_re()
-    def renderJpegRegion(self, z, t, x, y, width, height, level=None, compression=0.9):
+    def renderJpegRegion(self, z, t, x, y, width, height, level=None,
+                         compression=0.9):
         """
         Return the data from rendering a region of an image plane.
         NB. Projection not supported by the API currently.
