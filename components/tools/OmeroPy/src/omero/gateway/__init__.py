@@ -178,7 +178,8 @@ class BlitzObjectWrapper (object):
             self._oid = obj.id.val
             if not self._obj.loaded:
                 self._obj = self._conn.getQueryService().get(
-                    self._obj.__class__.__name__, self._oid, self._conn.SERVICE_OPTS)
+                    self._obj.__class__.__name__, self._oid,
+                    self._conn.SERVICE_OPTS)
         self.__prepare__(**kwargs)
 
     def __eq__(self, a):
@@ -309,15 +310,18 @@ class BlitzObjectWrapper (object):
         # p._obj.__class__ == p._obj.__class__
         # ImageWrapper(omero.model.DatasetI())
         if p.OMERO_CLASS == newParent.OMERO_CLASS:
-            link = self._conn.getQueryService().findAllByQuery("select l from %s as l where l.parent.id=%i and l.child.id=%i" %
-                                                               (p.LINK_CLASS, p.id, self.id), None, self._conn.SERVICE_OPTS)
+            link = self._conn.getQueryService().findAllByQuery(
+                "select l from %s as l where l.parent.id=%i and l.child.id=%i"
+                % (p.LINK_CLASS, p.id, self.id), None, self._conn.SERVICE_OPTS)
             if len(link):
                 link[0].parent = newParent._obj
                 self._conn.getUpdateService().saveObject(
                     link[0], self._conn.SERVICE_OPTS)
                 return True
-            logger.debug("## query didn't return objects: 'select l from %s as l where l.parent.id=%i and l.child.id=%i'" % (
-                p.LINK_CLASS, p.id, self.id))
+            logger.debug(
+                "## query didn't return objects: 'select l from %s as l "
+                "where l.parent.id=%i and l.child.id=%i'"
+                % (p.LINK_CLASS, p.id, self.id))
         else:
             logger.debug("## %s != %s ('%s' - '%s')" %
                          (type(p), type(newParent), str(p), str(newParent)))
@@ -347,7 +351,8 @@ class BlitzObjectWrapper (object):
         :rtype:     :class:`DetailsWrapper`
         """
         if self._obj.loaded:
-            return omero.gateway.DetailsWrapper(self._conn, self._obj.getDetails())
+            return omero.gateway.DetailsWrapper(self._conn,
+                                                self._obj.getDetails())
         return None
 
     def getDate(self):
@@ -867,7 +872,8 @@ class BlitzObjectWrapper (object):
         :rtype:             :class:`AnnotationWrapper` generator
         """
 
-        return self._conn.listOrphanedAnnotations(self.OMERO_CLASS, [self.getId()], eid, ns, anntype, addedByMe)
+        return self._conn.listOrphanedAnnotations(
+            self.OMERO_CLASS, [self.getId()], eid, ns, anntype, addedByMe)
 
     def _linkObject(self, obj, lnkobjtype):
         """
@@ -884,7 +890,9 @@ class BlitzObjectWrapper (object):
         if not obj.getId():
             # Not yet in db, save it
             obj = obj.__class__(
-                self._conn, self._conn.getUpdateService().saveAndReturnObject(obj._obj, ctx))
+                self._conn,
+                self._conn.getUpdateService().saveAndReturnObject(
+                    obj._obj, ctx))
         lnk = getattr(omero.model, lnkobjtype)()
         lnk.setParent(self._obj.__class__(self._obj.id, False))
         lnk.setChild(obj._obj.__class__(obj._obj.id, False))
@@ -1104,7 +1112,9 @@ class BlitzObjectWrapper (object):
                     # E.g. method returns a
                     # LightSourceWrapper(omero.model.lightSource)
                     def wrap():
-                        return getattr(omero.gateway, a[len(tattr)+1:])(self._conn, getattr(self, tattr))
+                        return getattr(
+                            omero.gateway,
+                            a[len(tattr)+1:])(self._conn, getattr(self, tattr))
                     return wrap
 
         # handle lookup of 'get' methods when we don't have '_attrs' on the
@@ -1132,7 +1142,8 @@ class BlitzObjectWrapper (object):
                 return isinstance(rv.val, StringType) and rv.val.decode('utf8') or rv.val
             return rv
         raise AttributeError(
-            "'%s' object has no attribute '%s'" % (self._obj.__class__.__name__, attr))
+            "'%s' object has no attribute '%s'"
+            % (self._obj.__class__.__name__, attr))
 
     # some methods are accessors in _obj and return and omero:: type. The
     # obvious ones we wrap to return a python type
@@ -1225,10 +1236,12 @@ class BlitzObjectWrapper (object):
                 self._creationDate = self._obj.details.creationEvent._time.val
             else:
                 self._creationDate = self._conn.getQueryService().get(
-                    "Event", self._obj.details.creationEvent.id.val, self._conn.SERVICE_OPTS).time.val
+                    "Event", self._obj.details.creationEvent.id.val,
+                    self._conn.SERVICE_OPTS).time.val
         except:
             self._creationDate = self._conn.getQueryService().get(
-                "Event", self._obj.details.creationEvent.id.val, self._conn.SERVICE_OPTS).time.val
+                "Event", self._obj.details.creationEvent.id.val,
+                self._conn.SERVICE_OPTS).time.val
         return datetime.fromtimestamp(self._creationDate/1000)
 
     def updateEventDate(self):
@@ -1245,10 +1258,12 @@ class BlitzObjectWrapper (object):
                 t = self._obj.details.updateEvent.time.val
             else:
                 t = self._conn.getQueryService().get(
-                    "Event", self._obj.details.updateEvent.id.val, self._conn.SERVICE_OPTS).time.val
+                    "Event", self._obj.details.updateEvent.id.val,
+                    self._conn.SERVICE_OPTS).time.val
         except:
             t = self._conn.getQueryService().get(
-                "Event", self._obj.details.updateEvent.id.val, self._conn.SERVICE_OPTS).time.val
+                "Event", self._obj.details.updateEvent.id.val,
+                self._conn.SERVICE_OPTS).time.val
         return datetime.fromtimestamp(t/1000)
 
     # setters are also provided
@@ -1745,11 +1760,14 @@ class _BlitzGateway (object):
 
         if self.host is not None:
             if self.port is not None:
-                self.c = omero.client(host=str(self.host), port=int(self.port), args=[
-                                      '--Ice.Config='+','.join(self.ice_config)])  # , pmap=['--Ice.Config='+','.join(self.ice_config)])
+                self.c = omero.client(
+                    host=str(self.host), port=int(self.port),
+                    args=['--Ice.Config='+','.join(self.ice_config)])
+                # , pmap=['--Ice.Config='+','.join(self.ice_config)])
             else:
                 self.c = omero.client(
-                    host=str(self.host), args=['--Ice.Config='+','.join(self.ice_config)])
+                    host=str(self.host),
+                    args=['--Ice.Config='+','.join(self.ice_config)])
         else:
             self.c = omero.client(
                 args=['--Ice.Config='+','.join(self.ice_config)])
@@ -1796,7 +1814,8 @@ class _BlitzGateway (object):
                     s.detachOnDestroy()
                     self.SERVICE_OPTS = self.createServiceOptsDict()
                     logger.debug(
-                        'Joined Session OK with Uuid: %s' % (self._sessionUuid,))
+                        'Joined Session OK with Uuid: %s'
+                        % (self._sessionUuid,))
                     self._was_join = True
                 except Ice.SyscallException:  # pragma: no cover
                     raise
@@ -1812,7 +1831,8 @@ class _BlitzGateway (object):
                     self._connected = False
                     try:
                         logger.debug(
-                            "Closing previous connection...creating new client")
+                            "Closing previous connection..."
+                            "creating new client")
                         # args = self.c._ic_args
                         # logger.debug(str(args))
                         self._closeSession()
@@ -1846,9 +1866,11 @@ class _BlitzGateway (object):
                         return self.connect()
                     else:  # pragma: no cover
                         logger.debug(
-                            "BlitzGateway.connect().createSession(): " + traceback.format_exc())
+                            "BlitzGateway.connect().createSession(): "
+                            + traceback.format_exc())
                         logger.info(
-                            'first create session threw SecurityViolation, retry (but only once)')
+                            "first create session threw SecurityViolation, "
+                            "retry (but only once)")
                         # time.sleep(10)
                         try:
                             self._createSession()
@@ -1867,7 +1889,8 @@ class _BlitzGateway (object):
                 except:
                     logger.info("Failed to create session.")
                     logger.debug(
-                        "BlitzGateway.connect().createSession(): " + traceback.format_exc())
+                        "BlitzGateway.connect().createSession(): "
+                        + traceback.format_exc())
                     # time.sleep(10)
                     self._createSession()
 
@@ -1967,7 +1990,8 @@ class _BlitzGateway (object):
         :return:     Generator of :class:`BlitzObjectWrapper` subclasses
         """
         sysGroup = self.getObject(
-            "ExperimenterGroup", self.getAdminService().getSecurityRoles().systemGroupId)
+            "ExperimenterGroup",
+            self.getAdminService().getSecurityRoles().systemGroupId)
         for gem in sysGroup.copyGroupExperimenterMap():
             yield ExperimenterWrapper(self, gem.child)
 
@@ -2566,7 +2590,8 @@ class _BlitzGateway (object):
         params.map = {'start': rstring('%s%%' % start.lower())}
         q = self.getQueryService()
         rv = q.findAllByQuery(
-            "from Experimenter e where lower(e.omeName) like :start", params, self.SERVICE_OPTS)
+            "from Experimenter e where lower(e.omeName) like :start",
+            params, self.SERVICE_OPTS)
         rv.sort(lambda x, y: cmp(x.omeName.val, y.omeName.val))
         for e in rv:
             yield ExperimenterWrapper(self, e)
@@ -2852,10 +2877,12 @@ class _BlitzGateway (object):
             wrapper = KNOWN_WRAPPERS.get(obj_type.lower(), None)
             if wrapper is None:
                 raise KeyError(
-                    "obj_type of %s not supported by getOjbects(). E.g. use 'Image' etc" % obj_type)
+                    "obj_type of %s not supported by getOjbects(). "
+                    "E.g. use 'Image' etc" % obj_type)
         else:
             raise AttributeError(
-                "getObjects uses a string to define obj_type, E.g. 'Image' not %r" % obj_type)
+                "getObjects uses a string to define obj_type, E.g. "
+                "'Image' not %r" % obj_type)
 
         if params is None:
             params = omero.sys.Parameters()
@@ -3023,8 +3050,10 @@ class _BlitzGateway (object):
         if len(parent_ids) == 1:
             # We can use a single query to exclude links to a single parent
             p.map["oid"] = rlong(parent_ids[0])
-            wheres.append("not exists ( select link from %sAnnotationLink as link "
-                          "where link.child=an.id and link.parent.id=:oid%s)" % (parent_type, filterlink))
+            wheres.append(
+                "not exists ( select link from %sAnnotationLink as link "
+                "where link.child=an.id and link.parent.id=:oid%s)"
+                % (parent_type, filterlink))
         else:
             # for multiple parents, we first need to find annotations linked to
             # ALL of them, then exclude those from query
@@ -3111,8 +3140,9 @@ class _BlitzGateway (object):
             if sourceImageId is not None:
                 if channelList is None:
                     channelList = range(sizeC)
-                iId = pixelsService.copyAndResizeImage(sourceImageId, rint(sizeX), rint(
-                    sizeY), rint(sizeZ), rint(sizeT), channelList, None, False, self.SERVICE_OPTS)
+                iId = pixelsService.copyAndResizeImage(
+                    sourceImageId, rint(sizeX), rint(sizeY), rint(sizeZ),
+                    rint(sizeT), channelList, None, False, self.SERVICE_OPTS)
                 # need to ensure that the plane dtype matches the pixels type
                 # of our new image
                 img = self.getObject("Image", iId.getValue())
@@ -3138,13 +3168,16 @@ class _BlitzGateway (object):
                     "from PixelsType as p where p.value='%s'" % pType, None)
                 if pixelsType is None:
                     raise Exception(
-                        "Cannot create an image in omero from numpy array with dtype: %s" % dType)
+                        "Cannot create an image in omero from numpy array "
+                        "with dtype: %s" % dType)
                 channelList = range(sizeC)
                 iId = pixelsService.createImage(
-                    sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, imageName, description, self.SERVICE_OPTS)
+                    sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType,
+                    imageName, description, self.SERVICE_OPTS)
 
             imageId = iId.getValue()
-            return containerService.getImages("Image", [imageId], None, self.SERVICE_OPTS)[0], convertToType
+            return (containerService.getImages(
+                "Image", [imageId], None, self.SERVICE_OPTS)[0], convertToType)
 
         def uploadPlane(plane, z, c, t, convertToType):
             # if we're given a numpy dtype, need to convert plane to that dtype
@@ -3186,7 +3219,8 @@ class _BlitzGateway (object):
                                 channelsMinMax[theC][1], maxValue)
         except Exception, e:
             logger.error(
-                "Failed to setPlane() on rawPixelsStore while creating Image", exc_info=True)
+                "Failed to setPlane() on rawPixelsStore while creating Image",
+                exc_info=True)
             exc = e
         try:
             rawPixelsStore.close(self.SERVICE_OPTS)
@@ -3281,7 +3315,8 @@ class _BlitzGateway (object):
                         imageIds.append(ws.image.id.val)
         else:
             raise AttributeError(
-                "setChannelNames() supports data_types 'Image', 'Dataset', 'Plate' only, not '%s'" % data_type)
+                "setChannelNames() supports data_types 'Image', 'Dataset', "
+                "'Plate' only, not '%s'" % data_type)
 
         queryService = self.getQueryService()
         params = omero.sys.Parameters()
@@ -3401,7 +3436,8 @@ class _BlitzGateway (object):
         fileSize = os.path.getsize(localPath)
         fileHandle = open(localPath, 'rb')
         try:
-            return self.createOriginalFileFromFileObj(fileHandle, path, name, fileSize, mimetype, ns)
+            return self.createOriginalFileFromFileObj(
+                fileHandle, path, name, fileSize, mimetype, ns)
         finally:
             fileHandle.close()
 
@@ -3808,7 +3844,9 @@ class _BlitzGateway (object):
             def getWrapper(obj_type):
                 if obj_type.lower() not in ["project", "dataset", "image", "screen", "plate", "well"]:
                     raise AttributeError(
-                        "%s not recognised. Can only search for 'Project', 'Dataset', 'Image', 'Screen', 'Plate', 'Well'" % obj_type)
+                        "%s not recognised. Can only search for 'Project',"
+                        "'Dataset', 'Image', 'Screen', 'Plate', 'Well'"
+                        % obj_type)
                 return KNOWN_WRAPPERS.get(obj_type.lower(), None)
             types = [getWrapper(o) for o in obj_types]
         search = self.createSearchService()
@@ -4002,7 +4040,8 @@ class ProxyObjectWrapper (object):
         :rtype:     :class:`ProxyObjectWrapper`
         """
 
-        return ProxyObjectWrapper(self._conn, self._func_str, self._cast_to, self._service_name)
+        return ProxyObjectWrapper(
+            self._conn, self._func_str, self._cast_to, self._service_name)
 
     def _connect(self, forcejoin=False):  # pragma: no cover
         """
@@ -4593,7 +4632,8 @@ class TagAnnotationWrapper (AnnotationWrapper):
         for l in links:
             if l.parent.ns.val == omero.constants.metadata.NSINSIGHTTAGSET:
                 rv.append(
-                    omero.gateway.TagAnnotationWrapper(self._conn, l.parent, l))
+                    omero.gateway.TagAnnotationWrapper(
+                        self._conn, l.parent, l))
         return rv
 
     def _getQueryString(self):
@@ -5128,7 +5168,9 @@ class _DatasetWrapper (BlitzObjectWrapper):
         super(_DatasetWrapper, self).__loadedHotSwap__()
         if not self._obj.isImageLinksLoaded():
             links = self._conn.getQueryService().findAllByQuery(
-                "select l from DatasetImageLink as l join fetch l.child as a where l.parent.id=%i" % (self._oid), None, self._conn.SERVICE_OPTS)
+                "select l from DatasetImageLink as l join fetch l.child as a "
+                "where l.parent.id=%i"
+                % (self._oid), None, self._conn.SERVICE_OPTS)
             self._obj._imageLinksLoaded = True
             self._obj._imageLinksSeq = links
 
@@ -5449,7 +5491,8 @@ class _WellWrapper (BlitzObjectWrapper):
         rv = self.getImage().simpleMarshal(xtra=xtra)
         plate = self.getParent()
         rv['wellPos'] = "%s%s" % (
-            plate.getRowLabels()[self.row], plate.getColumnLabels()[self.column])
+            plate.getRowLabels()[self.row],
+            plate.getColumnLabels()[self.column])
         rv['plateId'] = plate.getId()
         rv['wellId'] = self.getId()
         return rv
@@ -5475,7 +5518,8 @@ class _WellWrapper (BlitzObjectWrapper):
         where spl.parent.id=s.id and spl.child.id=p.id and w.plate.id=p.id
         and w.id=:id"""
         return [omero.gateway.ScreenWrapper(self._conn, x) for x in
-                self._conn.getQueryService().findAllByQuery(query, params, self._conn.SERVICE_OPTS)]
+                self._conn.getQueryService().findAllByQuery(
+                    query, params, self._conn.SERVICE_OPTS)]
 
     def isWellSample(self):
         """
@@ -5487,8 +5531,9 @@ class _WellWrapper (BlitzObjectWrapper):
 
         if self.isWellSamplesLoaded():
             childnodes = self.copyWellSamples()
-            logger.debug('listChildren for %s %d: already loaded, %d samples' % (
-                self.OMERO_CLASS, self.getId(), len(childnodes)))
+            logger.debug(
+                'listChildren for %s %d: already loaded, %d samples'
+                % (self.OMERO_CLASS, self.getId(), len(childnodes)))
             if len(childnodes) > 0:
                 return True
         return False
@@ -6028,7 +6073,8 @@ class _PixelsWrapper (BlitzObjectWrapper):
                 yield remappedPlane
         except Exception, e:
             logger.error(
-                "Failed to getPlane() or getTile() from rawPixelsStore", exc_info=True)
+                "Failed to getPlane() or getTile() from rawPixelsStore",
+                exc_info=True)
             exc = e
         try:
             rawPixelsStore.close()
@@ -6206,7 +6252,8 @@ class _ChannelWrapper (BlitzObjectWrapper):
 
         if self._re is None:
             return None
-        return ColorHolder.fromRGBA(*self._re.getRGBA(self._idx, self._conn.SERVICE_OPTS))
+        return ColorHolder.fromRGBA(
+            *self._re.getRGBA(self._idx, self._conn.SERVICE_OPTS))
 
     def getWindowStart(self):
         """
@@ -6216,7 +6263,8 @@ class _ChannelWrapper (BlitzObjectWrapper):
         :rtype:     int
         """
 
-        return int(self._re.getChannelWindowStart(self._idx, self._conn.SERVICE_OPTS))
+        return int(self._re.getChannelWindowStart(
+            self._idx, self._conn.SERVICE_OPTS))
 
     def setWindowStart(self, val):
         self.setWindow(val, self.getWindowEnd())
@@ -6229,7 +6277,8 @@ class _ChannelWrapper (BlitzObjectWrapper):
         :rtype:     int
         """
 
-        return int(self._re.getChannelWindowEnd(self._idx, self._conn.SERVICE_OPTS))
+        return int(self._re.getChannelWindowEnd(
+            self._idx, self._conn.SERVICE_OPTS))
 
     def setWindowEnd(self, val):
         self.setWindow(self.getWindowStart(), val)
@@ -6638,8 +6687,9 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
 
         q = self._conn.getQueryService()
-        e = q.findByQuery("select e from Experimenter e where e.id = %i" %
-                          self._obj.details.owner.id.val, None, self._conn.SERVICE_OPTS)
+        e = q.findByQuery(
+            "select e from Experimenter e where e.id = %i"
+            % self._obj.details.owner.id.val, None, self._conn.SERVICE_OPTS)
         self._author = e.firstName.val + " " + e.lastName.val
         return self._author
 
@@ -6786,7 +6836,8 @@ class _ImageWrapper (BlitzObjectWrapper):
             except omero.ValidationException:
                 # The annotation exists, but not the rendering def?
                 logger.error(
-                    'IMG %d, defrdef == %d but object does not exist?' % (self.getId(), rdefId))
+                    'IMG %d, defrdef == %d but object does not exist?'
+                    % (self.getId(), rdefId))
                 rdefId = None
         if rdefId is None:
             if not has_rendering_settings:
@@ -6797,7 +6848,8 @@ class _ImageWrapper (BlitzObjectWrapper):
                     tb.resetDefaults(ctx)
                 except omero.ConcurrencyException, ce:
                     logger.info(
-                        "ConcurrencyException: resetDefaults() failed in _prepareTB with backOff: %s" % ce.backOff)
+                        "ConcurrencyException: resetDefaults() failed "
+                        "in _prepareTB with backOff: %s" % ce.backOff)
                     return tb
                 tb.setPixelsId(pid, ctx)
                 try:
@@ -6805,7 +6857,8 @@ class _ImageWrapper (BlitzObjectWrapper):
                 # E.g. No rendering def (because of missing pyramid!)
                 except omero.ApiUsageException:
                     logger.info(
-                        "ApiUsageException: getRenderingDefId() failed in _prepareTB")
+                        "ApiUsageException: getRenderingDefId() failed "
+                        "in _prepareTB")
                     return tb
                 self._onResetDefaults(rdefId)
         return tb
@@ -7069,7 +7122,8 @@ class _ImageWrapper (BlitzObjectWrapper):
             if (c+1) in channels:
                 if windows is not None and windows[idx][0] is not None and windows[idx][1] is not None:
                     self._re.setChannelWindow(
-                        c, float(windows[idx][0]), float(windows[idx][1]), self._conn.SERVICE_OPTS)
+                        c, float(windows[idx][0]), float(windows[idx][1]),
+                        self._conn.SERVICE_OPTS)
                 if colors is not None and colors[idx]:
                     rgba = splitHTMLColor(colors[idx])
                     if rgba:
@@ -7181,7 +7235,8 @@ class _ImageWrapper (BlitzObjectWrapper):
         axis = axis.lower()[:1]
         if channels is None:
             channels = map(
-                lambda x: x._idx, filter(lambda x: x.isActive(), self.getChannels()))
+                lambda x: x._idx, filter(
+                    lambda x: x.isActive(), self.getChannels()))
         if range is None:
             range = axis == 'h' and self.getSizeY() or self.getSizeX()
         if not isinstance(channels, (TupleType, ListType)):
@@ -7198,7 +7253,8 @@ class _ImageWrapper (BlitzObjectWrapper):
                 (bw, rp.isFloat(), rp.isSigned()), None)
             if key is None:
                 logger.error(
-                    "Unknown data type: " + str((bw, rp.isFloat(), rp.isSigned())))
+                    "Unknown data type: "
+                    + str((bw, rp.isFloat(), rp.isSigned())))
             plot = array.array(
                 key, axis == 'h' and rp.getRow(pos, z, c, t) or rp.getCol(pos, z, c, t))
             plot.byteswap()  # TODO: Assuming ours is a little endian system
@@ -7478,7 +7534,8 @@ class _ImageWrapper (BlitzObjectWrapper):
                 if self._prEnd is not None:
                     prEnd = self._prEnd
                 rv = self._re.renderProjectedCompressed(
-                    projection, self._pd.t, 1, prStart, prEnd, self._conn.SERVICE_OPTS)
+                    projection, self._pd.t, 1, prStart, prEnd,
+                    self._conn.SERVICE_OPTS)
             return rv
         except omero.InternalException:  # pragma: no cover
             logger.debug('On renderJpeg')
@@ -7833,8 +7890,11 @@ class _ImageWrapper (BlitzObjectWrapper):
                 img = self.renderImage(z, t, compression)
                 if fsize > 0:
                     draw = ImageDraw.ImageDraw(img)
-                    draw.text((2, 2), "%s" % (
-                        self._renderSplit_channelLabel(self.getChannels()[i])), font=font, fill="#fff")
+                    draw.text(
+                        (2, 2),
+                        "%s" % (self._renderSplit_channelLabel(
+                            self.getChannels()[i])),
+                        font=font, fill="#fff")
                 canvas.paste(img, (px, py))
             pxc += 1
             if pxc < dims['gridx']:
@@ -7900,7 +7960,8 @@ class _ImageWrapper (BlitzObjectWrapper):
         draw = ImageDraw.ImageDraw(im)
         # On your marks, get set... go!
         draw.rectangle(
-            [0, 0, width-1, base], fill=self.LP_TRANSPARENT, outline=self.LP_TRANSPARENT)
+            [0, 0, width-1, base], fill=self.LP_TRANSPARENT,
+            outline=self.LP_TRANSPARENT)
         draw.line(((0, y), (width, y)), fill=self.LP_FGCOLOR, width=linewidth)
 
         # Grab row data
@@ -7912,7 +7973,8 @@ class _ImageWrapper (BlitzObjectWrapper):
             last_point = base-chrow[0]
             for i in range(len(chrow)):
                 draw.line(
-                    ((i, last_point), (i, base-chrow[i])), fill=color, width=linewidth)
+                    ((i, last_point), (i, base-chrow[i])), fill=color,
+                    width=linewidth)
                 last_point = base-chrow[i]
         del draw
         out = StringIO()
@@ -7952,7 +8014,8 @@ class _ImageWrapper (BlitzObjectWrapper):
             last_point = chcol[0]
             for i in range(len(chcol)):
                 draw.line(
-                    ((last_point, i), (chcol[i], i)), fill=color, width=linewidth)
+                    ((last_point, i), (chcol[i], i)), fill=color,
+                    width=linewidth)
                 last_point = chcol[i]
         del draw
         out = StringIO()
