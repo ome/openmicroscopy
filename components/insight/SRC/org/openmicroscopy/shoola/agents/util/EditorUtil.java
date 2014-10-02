@@ -1230,7 +1230,7 @@ public class EditorUtil
                 notSet.add(EMISSION);
                 details.put(EMISSION, new Double(0));
             } else {
-                //First check if the wave is a not a int
+                //First check if the wave is a int
                 if (DoubleMath.isMathematicalInteger(wave)) {
                     details.put(EMISSION, new Integer(wave.intValue()));
                 } else {
@@ -1247,7 +1247,7 @@ public class EditorUtil
                 notSet.add(EXCITATION);
                 details.put(EXCITATION, new Double(0));
             } else {
-              //First check if the wave is a not a int
+              //First check if the wave is a int
                 if (DoubleMath.isMathematicalInteger(wave)) {
                     details.put(EMISSION, new Integer(wave.intValue()));
                 } else {
