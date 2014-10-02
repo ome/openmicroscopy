@@ -580,6 +580,12 @@ public interface Renderer
     void setChannelWindow(int index, double start, double end);
 
     /**
+     * Checks if the image pixel type is integer
+     * @return See above
+     */
+    boolean isIntegerPixelData();
+    
+    /**
      * Renders the specified plane.
      * 
      * @param pDef The plane to render.

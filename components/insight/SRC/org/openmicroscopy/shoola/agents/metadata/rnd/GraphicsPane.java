@@ -151,27 +151,28 @@ class GraphicsPane
      */
     private String formatValue(double value)
     {
-        if (model.getRoundFactor() == 1) return ""+(int) value;
-        return UIUtilities.formatToDecimal(value);
+        if (model.isIntegerPixelData())
+            return ""+(int) value;
+        else
+            return UIUtilities.formatToDecimal(value);
     }
 
     /** Initializes the domain slider. */
     private void initDomainSlider()
     {
-        int f = model.getRoundFactor();
-        int s = (int) (model.getWindowStart()*f);
-        int e = (int) (model.getWindowEnd()*f);
-        int absMin = (int) (model.getLowestValue()*f);
-        int absMax = (int) (model.getHighestValue()*f);
-        int min = (int) (model.getGlobalMin()*f);
-        int max = (int) (model.getGlobalMax()*f);
+        int s = (int) model.getWindowStart();
+        int e = (int) model.getWindowEnd();
+        int absMin = (int) model.getLowestValue();
+        int absMax = (int) model.getHighestValue();
+        int min = (int) model.getGlobalMin();
+        int max = (int) model.getGlobalMax();
         double range = (max-min)*RATIO;
         int lowestBound = (int) (min-range);
         if (lowestBound < absMin) lowestBound = absMin;
         int highestBound = (int) (max+range);
         if (highestBound > absMax) highestBound = absMax;
         domainSlider.setValues(max, min, highestBound, lowestBound,
-                max, min, s, e, f);
+                max, min, s, e);
         if (model.getMaxC() > Renderer.MAX_CHANNELS)
             domainSlider.setInterval(min, max);
     }
@@ -241,14 +242,23 @@ class GraphicsPane
     private void buildGUI()
     {
         setBackground(UIUtilities.BACKGROUND_COLOR);
-        double size[][] = {{TableLayout.FILL},  // Columns
-                {TableLayout.PREFERRED, 5, TableLayout.FILL}}; // Rows
-        setLayout(new TableLayout(size));
+        setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = 0;
+        c.anchor = GridBagConstraints.NORTHWEST;
+        c.weightx = 1;
+        c.weighty = 1;
+        c.fill = GridBagConstraints.BOTH;
         if (model.isGeneralIndex()) {
-            add(buildGeneralPane(), "0, 0");
+            add(buildGeneralPane(), c);
         } else {
-            add(buildPane(), "0, 0");
-            add(buildGeneralPane(), "0, 2");
+            c.weightx = 0;
+            add(buildPane(), c);
+            
+            c.weightx = 1;
+            c.gridx++;
+            add(buildGeneralPane(), c);
         }
     }
 
@@ -261,59 +271,53 @@ class GraphicsPane
     {
         JPanel content = new JPanel();
         content.setBackground(UIUtilities.BACKGROUND_COLOR);
-        content.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        content.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
         content.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
-        c.anchor = GridBagConstraints.WEST;
+        c.anchor = GridBagConstraints.NORTHWEST;
         c.fill = GridBagConstraints.HORIZONTAL;
-        c.insets = new Insets(0, 2, 2, 0);
         c.gridy = 0;
         c.gridx = 0;
+        c.weightx = 1;
+        c.weighty = 0;
         if (model.isGeneralIndex()) {
             content.add(previewToolBar, c);
             c.gridy++;
-            c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
             content.add(new JSeparator(), c);
             c.gridy++;
         }
         content.add(controlsBar, c);
-        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-        c.fill = GridBagConstraints.NONE;//reset to default
-        c.weightx = 0.0;  
-
         c.gridy++;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        content.add(new JSeparator(), c);
-        c.fill = GridBagConstraints.NONE;
         
+        content.add(new JSeparator(), c);
         c.gridy++;
+        
         content.add(greyScale, c);
+        c.gridy++;
         
         Iterator<ChannelSlider> i = sliders.iterator();
         while (i.hasNext())  {
-            c.gridy++;
             content.add(i.next(), c);
+            c.gridy++;
         }
         
-        c.gridy++;
+        c.insets = new Insets(3, 0, 3, 0);
         content.add(controlsBar2, c);
-        
         c.gridy++;
-        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+        
+        c.insets = new Insets(0, 0, 0, 0);
         c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 1.0;
-        c.weighty = 1.0;
         content.add(new JSeparator(), c);
-        
         c.gridy++;
+      
         content.add(new JLabel(VIEWEDBY_TITLE), c);
-        
         c.gridy++;
+      
         c.fill = GridBagConstraints.BOTH;
+        c.weighty = 1;
         content.add(viewedBy, c);
-        JPanel p = UIUtilities.buildComponentPanel(content);
-        p.setBackground(content.getBackground());
-        return p;
+        
+        return content;
     }
 
     /** 
@@ -367,14 +371,13 @@ class GraphicsPane
     /** Sets the pixels intensity interval. */
     void setInputInterval()
     {
-        int f, s, e;
+        double s, e;
         Iterator<ChannelSlider> i = sliders.iterator();
         ChannelSlider slider;
         while (i.hasNext()) {
             slider = i.next();
-            f = model.getRoundFactor(slider.getIndex());
-            s = (int) (model.getWindowStart(slider.getIndex())*f);
-            e = (int) (model.getWindowEnd(slider.getIndex())*f);
+            s = model.getWindowStart(slider.getIndex());
+            e = model.getWindowEnd(slider.getIndex());
             slider.setInterval(s, e);
         }
     }
@@ -467,7 +470,7 @@ class GraphicsPane
      */
     int getPartialMinimum()
     { 
-        return domainSlider.getSlider().getPartialMinimum();
+        return (int)domainSlider.getSlider().getPartialMinimum();
     }
 
     /**
@@ -477,7 +480,7 @@ class GraphicsPane
      */
     int getPartialMaximum()
     { 
-        return domainSlider.getSlider().getPartialMaximum();
+        return (int)domainSlider.getSlider().getPartialMaximum();
     }
 
     /** 
@@ -629,34 +632,32 @@ class GraphicsPane
                             domainSlider.getEndValue());
                     onCurveChange();
                 } else if (source.equals(codomainSlider)) {
-                    int s = codomainSlider.getStartValue();
-                    int e = codomainSlider.getEndValue();
+                    int s = codomainSlider.getStartValueAsInt();
+                    int e = codomainSlider.getEndValueAsInt();
                     controller.setCodomainInterval(s, e);
                     onCurveChange();
                 }
             } else if (TwoKnobsSlider.LEFT_MOVED_PROPERTY.equals(name)){
                 if (source.equals(domainSlider)) {
-                    verticalLine = (int) (domainSlider.getStartValue()
-                                    *domainSlider.getRoundingFactor());
+                    verticalLine = (int) (domainSlider.getStartValue());
                     paintHorizontal = false;
                     paintVertical = true;
                     onCurveChange();
                 } else if (source.equals(codomainSlider)) {
-                    horizontalLine = codomainSlider.getEndValue();
+                    horizontalLine = codomainSlider.getEndValueAsInt();
                     paintHorizontal = true;
                     paintVertical = false;
                     onCurveChange();
                 }
             } else if (TwoKnobsSlider.RIGHT_MOVED_PROPERTY.equals(name)) {
                 if (source.equals(domainSlider)) {
-                    verticalLine = (int) (domainSlider.getEndValue()
-                            *domainSlider.getRoundingFactor());
+                    verticalLine = (int) (domainSlider.getEndValue());
                     horizontalLine = -1;
                     paintHorizontal = false;
                     paintVertical = true;
                     onCurveChange();
                 } else if (source.equals(codomainSlider)) {
-                    horizontalLine = codomainSlider.getStartValue();
+                    horizontalLine = codomainSlider.getStartValueAsInt();
                     verticalLine = -1;
                     paintHorizontal = true;
                     paintVertical = false;
@@ -673,8 +674,8 @@ class GraphicsPane
                             domainSlider.getEndValue());
                     onCurveChange();
                 } else if (source.equals(codomainSlider)) {
-                    int s = codomainSlider.getStartValue();
-                    int e = codomainSlider.getEndValue();
+                    int s = codomainSlider.getStartValueAsInt();
+                    int e = codomainSlider.getEndValueAsInt();
                     controller.setCodomainInterval(s, e);
                     onCurveChange();
                 }
@@ -683,8 +684,8 @@ class GraphicsPane
                     controller.setInputInterval(domainSlider.getStartValue(),
                             domainSlider.getEndValue());
                 } else if (source.equals(codomainSlider)) {
-                    int s = codomainSlider.getStartValue();
-                    int e = codomainSlider.getEndValue();
+                    int s = codomainSlider.getStartValueAsInt();
+                    int e = codomainSlider.getEndValueAsInt();
                     controller.setCodomainInterval(s, e);
                     onCurveChange();
                 }

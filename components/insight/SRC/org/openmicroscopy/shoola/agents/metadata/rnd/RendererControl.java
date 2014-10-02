@@ -301,6 +301,14 @@ class RendererControl
     	model.setChannelWindow(channel, s, e);
     }
     
+    /**
+     * Checks if the image pixel type is integer
+     * @return See above
+     */
+    boolean isIntegerPixelData() {
+        return model.isIntegerPixelData();
+    };
+    
     /** 
      * Sets the sub-interval of the device space. 
      * 
