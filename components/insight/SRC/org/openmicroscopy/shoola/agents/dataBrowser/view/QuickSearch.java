@@ -155,7 +155,7 @@ public class QuickSearch
 	private static final int 	CLEAR = 0;
 	
 	/** The selected node. */
-	private SearchObject		selectedNode;
+	protected SearchObject		selectedNode;
 	
 	/** Area where to enter the tags to search. */
 	private JTextField			searchArea;

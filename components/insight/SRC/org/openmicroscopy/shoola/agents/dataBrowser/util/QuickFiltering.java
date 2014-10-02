@@ -144,7 +144,8 @@ public class QuickFiltering
 	{
 		setSingleSelection(true);
 		setDefaultSearchContext(text);
-		setSearchEnabled(false);
+		setSearchEnabled(selectedNode != null
+		        && selectedNode.getIndex() != SHOW_ALL);
 		addPropertyChangeListener(this);
 	}
 	
