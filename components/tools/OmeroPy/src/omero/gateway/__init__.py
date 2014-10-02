@@ -5813,7 +5813,10 @@ class _ChannelWrapper (BlitzObjectWrapper):
         """
 
         lc = self.getLogicalChannel()
-        return lc.emissionWave
+        wave = lc.emissionWave
+        if int(wave) == wave:
+            wave = int(wave)
+        return wave
 
     def getExcitationWave (self):
         """
@@ -5824,7 +5827,10 @@ class _ChannelWrapper (BlitzObjectWrapper):
         """
 
         lc = self.getLogicalChannel()
-        return lc.excitationWave
+        wave = lc.excitationWave
+        if int(wave) == wave:
+            wave = int(wave)
+        return wave
 
     def getColor (self):
         """
