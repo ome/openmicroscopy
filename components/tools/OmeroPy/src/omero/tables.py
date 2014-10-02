@@ -66,7 +66,7 @@ def stamped(func, update=False):
         finally:
             if update:
                 self._stamp = time.time()
-    # checked_and_update_stamp = wraps(func)(check_and_update_stamp)
+    check_and_update_stamp = wraps(func)(check_and_update_stamp)
     return locked(check_and_update_stamp)
 
 
