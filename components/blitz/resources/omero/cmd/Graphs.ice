@@ -138,33 +138,96 @@ module omero {
 
         };
 
+        /**
+         * Base class for new requests for operating upon the model object graph.
+         **/
         class Request2 extends Request {
+            /**
+             * The model objects upon which to operate. Related model objects may also be targeted.
+             **/
             omero::api::IdListMap targetObjects;
+
+            /**
+             * Namespaces of annotations that must be regarded as being orphans.
+             **/
             omero::api::StringSet includeNs;
+
+            /**
+             * Namespaces of annotations that must not be regarded as being orphans.
+             **/
             omero::api::StringSet excludeNs;
+
+            /**
+             * Classes of model object that must be regarded as being orphans.
+             **/
             omero::api::StringSet includeChild;
+
+            /**
+             * Classes of model object that must not be regarded as being orphans.
+             **/
             omero::api::StringSet excludeChild;
+
+            /**
+             * If this request should skip the phases in which model objects are operated upon.
+             * The response is still as if the operation actually occurred.
+             **/
             bool dryRun;
         };
 
+        /**
+         * Move model objects into a different experimenter group.
+         **/
         class Chgrp2 extends Request2 {
+            /**
+             * The ID of the experimenter group into which to move the model objects.
+             **/
             long groupId;
         };
 
+        /**
+         * Result of moving model objects into a different experimenter group.
+         **/
         class Chgrp2Response extends OK {
+            /**
+             * The model objects that were moved.
+             **/
             omero::api::IdListMap includedObjects;
+
+            /**
+             * The model objects that were deleted.
+             **/
             omero::api::IdListMap deletedObjects;
         };
 
+        /**
+         * Delete model objects.
+         **/
         class Delete2 extends Request2 {
         };
 
+        /**
+         * Result of deleting model objects.
+         **/
         class Delete2Response extends OK {
+            /**
+             * The model objects that were deleted.
+             **/
             omero::api::IdListMap deletedObjects;
         };
 
+        /**
+         * Perform a request skipping the top-most model objects in the graph.
+         * (The result is as from the given request.)
+         **/
         class SkipHead extends Request2 {
+            /**
+             * Classes of model objects from which to actually start the operation.
+             **/
             omero::api::StringSet startFrom;
+
+            /**
+             * The operation to perform on the targeted model objects.
+             **/
             Request2 request;
         };
     };
