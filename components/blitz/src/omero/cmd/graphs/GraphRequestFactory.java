@@ -34,6 +34,7 @@ import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphPolicyRule;
 import omero.cmd.Request;
+import omero.cmd.SkipHead;
 
 /**
  * Create request objects that are executed using the {@link ome.services.graphs.GraphPathBean}.
@@ -85,14 +86,19 @@ public class GraphRequestFactory {
      * @return a new instance of that class
      */
     public <X extends Request> X getRequest(Class<X> requestClass) {
-        final GraphPolicy graphPolicy = graphPolicies.get(requestClass);
-        if (graphPolicy == null) {
-            throw new IllegalArgumentException("no graph traversal policy rules defined for request class " + requestClass);
-        }
         try {
-            final Constructor<X> constructor = requestClass.getConstructor(ACLVoter.class, SystemTypes.class, GraphPathBean.class,
-                    GraphPolicy.class, SetMultimap.class);
-            return constructor.newInstance(aclVoter, systemTypes, graphPathBean, graphPolicy, unnullable);
+            if (SkipHead.class.isAssignableFrom(requestClass)) {
+                final Constructor<X> constructor = requestClass.getConstructor(GraphPathBean.class, GraphRequestFactory.class);
+                return constructor.newInstance(graphPathBean, this);
+            } else {
+                final GraphPolicy graphPolicy = graphPolicies.get(requestClass);
+                if (graphPolicy == null) {
+                    throw new IllegalArgumentException("no graph traversal policy rules defined for request class " + requestClass);
+                }
+                final Constructor<X> constructor = requestClass.getConstructor(ACLVoter.class, SystemTypes.class,
+                        GraphPathBean.class, GraphPolicy.class, SetMultimap.class);
+                return constructor.newInstance(aclVoter, systemTypes, graphPathBean, graphPolicy, unnullable);
+            }
         } catch (Exception e) {
             /* TODO: easier to do a ReflectiveOperationException multi-catch in Java SE 7 */
             throw new IllegalArgumentException("cannot instantiate " + requestClass, e);
