@@ -37,7 +37,7 @@ public class ExportGraphAction extends MeasurementViewerAction {
     /**
      * Creates a new instance
      * 
-     * @param graphPane Reference to the GraphPane
+     * @param model Reference to the MeasurementViewer
      */
     public ExportGraphAction(MeasurementViewer model) {
         this(model, "Export...", "Export the graph as JPEG or PNG.");
@@ -45,7 +45,7 @@ public class ExportGraphAction extends MeasurementViewerAction {
 
     /**
      * Creates a new instance with a custom name/description
-     * @param graphPane  Reference to the GraphPane
+     * @param model Reference to the MeasurementViewer
      * @param name Name
      * @param desc Description
      */
