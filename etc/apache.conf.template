@@ -52,8 +52,7 @@ with SSL!!"
 #
 #</VirtualHost>
 
-RewriteEngine on
-RewriteRule ^/?$ /omero/ [R]
+%(REWRITERULE)s
 
 ###
 ### Stanza for OMERO.web created %(NOW)s
