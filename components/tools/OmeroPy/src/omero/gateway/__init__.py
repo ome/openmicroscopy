@@ -224,8 +224,9 @@ class BlitzObjectWrapper (object):
         Used for building queries in generic methods
         such as getObjects("Project")
         """
-        return "select obj from %s obj join fetch obj.details.owner as owner join fetch obj.details.group "\
-            "join fetch obj.details.creationEvent" % self.OMERO_CLASS
+        return ("select obj from %s obj join fetch obj.details.owner "
+                "as owner join fetch obj.details.group "
+                "join fetch obj.details.creationEvent" % self.OMERO_CLASS)
 
     def _getChildWrapper(self):
         """
@@ -762,8 +763,10 @@ class BlitzObjectWrapper (object):
         p = omero.sys.Parameters()
         p.map = {}
         p.map["parent"] = rlong(self.id)
-        sql = "select pchl from %s as pchl left outer join fetch pchl.child as child \
-                left outer join fetch pchl.parent as parent where parent.id=:parent" % self.LINK_CLASS
+        sql = ("select pchl from %s as pchl left outer join "
+               "fetch pchl.child as child left outer join "
+               "fetch pchl.parent as parent where parent.id=:parent"
+               % self.LINK_CLASS)
         if isinstance(chids, list) and len(chids) > 0:
             p.map["children"] = rlist([rlong(ch) for ch in chids])
             sql += " and child.id in (:children)"
@@ -783,9 +786,12 @@ class BlitzObjectWrapper (object):
         ctx = self._conn.SERVICE_OPTS.copy()
         ctx.setOmeroGroup(self.details.group.id.val)
         if not self._obj.isAnnotationLinksLoaded():
-            query = "select l from %sAnnotationLink as l join fetch l.details.owner join fetch l.details.creationEvent "\
-                "join fetch l.child as a join fetch a.details.owner join fetch a.details.creationEvent "\
-                "where l.parent.id=%i" % (self.OMERO_CLASS, self._oid)
+            query = ("select l from %sAnnotationLink as l join "
+                     "fetch l.details.owner join "
+                     "fetch l.details.creationEvent "
+                     "join fetch l.child as a join fetch a.details.owner "
+                     "join fetch a.details.creationEvent where l.parent.id=%i"
+                     % (self.OMERO_CLASS, self._oid))
             links = self._conn.getQueryService().findAllByQuery(
                 query, None, ctx)
             self._obj._annotationLinksLoaded = True
@@ -2717,9 +2723,10 @@ class _BlitzGateway (object):
         p.map = {}
         p.map["gids"] = rlist(
             [rlong(a) for a in set(self.getEventContext().leaderOfGroups)])
-        sql = "select e from Experimenter as e where " \
-            "exists ( select gem from GroupExperimenterMap as gem where gem.child = e.id " \
-            "and gem.parent.id in (:gids)) order by e.omeName"
+        sql = ("select e from Experimenter as e where exists "
+               "( select gem from GroupExperimenterMap as gem "
+               "where gem.child = e.id and gem.parent.id in (:gids)) "
+               "order by e.omeName")
         for e in q.findAllByQuery(sql, p, self.SERVICE_OPTS):
             if e.id.val != self.getUserId():
                 yield ExperimenterWrapper(self, e)
@@ -3013,8 +3020,8 @@ class _BlitzGateway (object):
 
         if parent_type.lower() not in KNOWN_WRAPPERS:
             wrapper_types = ", ".join(KNOWN_WRAPPERS.keys())
-            err_msg = "getAnnotationLinks() does not support type: '%s'. Must be one of: %s" % (
-                parent_type, wrapper_types)
+            err_msg = ("getAnnotationLinks() does not support type: '%s'. "
+                       "Must be one of: %s" % (parent_type, wrapper_types))
             raise AttributeError(err_msg)
         wrapper = KNOWN_WRAPPERS.get(parent_type.lower(), None)
         class_string = wrapper().OMERO_CLASS
@@ -3022,10 +3029,13 @@ class _BlitzGateway (object):
         if class_string is None and "annotation" in parent_type.lower():
             class_string = "Annotation"
 
-        query = "select annLink from %sAnnotationLink as annLink join fetch annLink.details.owner as owner " \
-                "join fetch annLink.details.creationEvent " \
-                "join fetch annLink.child as ann join fetch ann.details.owner join fetch ann.details.creationEvent "\
-                "join fetch annLink.parent as parent" % class_string
+        query = ("select annLink from %sAnnotationLink as annLink "
+                 "join fetch annLink.details.owner as owner "
+                 "join fetch annLink.details.creationEvent "
+                 "join fetch annLink.child as ann "
+                 "join fetch ann.details.owner "
+                 "join fetch ann.details.creationEvent "
+                 "join fetch annLink.parent as parent" % class_string)
 
         q = self.getQueryService()
         if params is None:
@@ -3108,8 +3118,10 @@ class _BlitzGateway (object):
             # for multiple parents, we first need to find annotations linked to
             # ALL of them, then exclude those from query
             p.map["oids"] = omero.rtypes.wrap(parent_ids)
-            query = "select link.child.id, count(link.id) from %sAnnotationLink link where link.parent.id in (:oids)%s group by link.child.id" % (
-                parent_type, filterlink)
+            query = ("select link.child.id, count(link.id) "
+                     "from %sAnnotationLink link where link.parent.id in "
+                     "(:oids)%s group by link.child.id"
+                     % (parent_type, filterlink))
             # count annLinks and check if count == number of parents (all
             # parents linked to annotation)
             usedAnnIds = [e[0].getValue() for e in
@@ -3381,7 +3393,10 @@ class _BlitzGateway (object):
         params.map = {'ids': omero.rtypes.wrap(imageIds)}
 
         # load Pixels, Channels, Logical Channels and Images
-        query = "select p from Pixels p left outer join fetch p.channels as c join fetch c.logicalChannel as lc join fetch p.image as i where i.id in (:ids)"
+        query = ("select p from Pixels p left outer "
+                 "join fetch p.channels as c "
+                 "join fetch c.logicalChannel as lc "
+                 "join fetch p.image as i where i.id in (:ids)")
         pix = queryService.findAllByQuery(query, params, self.SERVICE_OPTS)
 
         maxIdx = max(nameDict.keys())
@@ -4314,8 +4329,10 @@ class AnnotationWrapper (BlitzObjectWrapper):
         Used for building queries in generic methods such as
         getObjects("Annotation")
         """
-        return "select obj from Annotation obj join fetch obj.details.owner as owner join fetch obj.details.group "\
-            "join fetch obj.details.creationEvent"
+        return ("select obj from Annotation obj "
+                "join fetch obj.details.owner as owner "
+                "join fetch obj.details.group "
+                "join fetch obj.details.creationEvent")
 
     @classmethod
     def _register(klass, regklass):
@@ -4414,9 +4431,10 @@ class AnnotationWrapper (BlitzObjectWrapper):
         p = omero.sys.Parameters()
         p.map = {}
         p.map["aid"] = rlong(self.id)
-        sql = "select oal from %sAnnotationLink as oal left outer join fetch oal.child as ch " \
-            "left outer join fetch oal.parent as pa " \
-            "where ch.id=:aid " % (ptype)
+        sql = ("select oal from %sAnnotationLink as oal "
+               "left outer join fetch oal.child as ch "
+               "left outer join fetch oal.parent as pa "
+               "where ch.id=:aid " % (ptype))
         if pids is not None:
             p.map["pids"] = rlist([rlong(ob) for ob in pids])
             sql += " and pa.id in (:pids)"
@@ -4466,8 +4484,10 @@ class FileAnnotationWrapper (AnnotationWrapper):
         Used for building queries in generic methods such as
         getObjects("FileAnnotation")
         """
-        return "select obj from FileAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group "\
-            "join fetch obj.details.creationEvent join fetch obj.file"
+        return ("select obj from FileAnnotation obj "
+                "join fetch obj.details.owner as owner "
+                "join fetch obj.details.group "
+                "join fetch obj.details.creationEvent join fetch obj.file")
 
     def getValue(self):
         """ Not implemented """
@@ -4596,8 +4616,10 @@ class TimestampAnnotationWrapper (AnnotationWrapper):
         Used for building queries in generic methods such as
         getObjects("TimestampAnnotation")
         """
-        return "select obj from TimestampAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group "\
-            "join fetch obj.details.creationEvent"
+        return ("select obj from TimestampAnnotation obj "
+                "join fetch obj.details.owner as owner "
+                "join fetch obj.details.group "
+                "join fetch obj.details.creationEvent")
 
     def getValue(self):
         """
@@ -4643,8 +4665,10 @@ class BooleanAnnotationWrapper (AnnotationWrapper):
         Used for building queries in generic methods such as
         getObjects("BooleanAnnotation")
         """
-        return "select obj from BooleanAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group "\
-            "join fetch obj.details.creationEvent"
+        return ("select obj from BooleanAnnotation obj "
+                "join fetch obj.details.owner as owner "
+                "join fetch obj.details.group "
+                "join fetch obj.details.creationEvent")
 
     def getValue(self):
         """
@@ -4683,8 +4707,9 @@ class TagAnnotationWrapper (AnnotationWrapper):
             params = omero.sys.Parameters()
             params.map = {}
             params.map['tid'] = self._obj.id
-            sql = "select tg from TagAnnotation tg "\
-                "where exists ( select aal from AnnotationAnnotationLink as aal where aal.child=tg.id and aal.parent.id=:tid) "
+            sql = ("select tg from TagAnnotation tg where exists "
+                   "( select aal from AnnotationAnnotationLink as aal where "
+                   "aal.child=tg.id and aal.parent.id=:tid) ")
 
             res = self._conn.getQueryService().findAllByQuery(
                 sql, params, self._conn.SERVICE_OPTS)
@@ -4697,8 +4722,9 @@ class TagAnnotationWrapper (AnnotationWrapper):
             params.map = {}
             params.map["tid"] = rlong(self._obj.id)
 
-            sql = "select tg from TagAnnotation tg "\
-                "where exists ( select aal from AnnotationAnnotationLink as aal where aal.child.id=tg.id and aal.parent.id=:tid) "
+            sql = ("select tg from TagAnnotation tg where exists "
+                   "( select aal from AnnotationAnnotationLink as aal where "
+                   "aal.child.id=tg.id and aal.parent.id=:tid) ")
 
             q = self._conn.getQueryService()
             for ann in q.findAllByQuery(sql, params, self._conn.SERVICE_OPTS):
@@ -4725,8 +4751,10 @@ class TagAnnotationWrapper (AnnotationWrapper):
         Used for building queries in generic methods such as
         getObjects("TagAnnotation")
         """
-        return "select obj from TagAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group "\
-            "join fetch obj.details.creationEvent"
+        return ("select obj from TagAnnotation obj "
+                "join fetch obj.details.owner as owner "
+                "join fetch obj.details.group "
+                "join fetch obj.details.creationEvent")
 
     def getValue(self):
         """
@@ -4765,8 +4793,10 @@ class CommentAnnotationWrapper (AnnotationWrapper):
         Used for building queries in generic methods such as
         getObjects("CommentAnnotation")
         """
-        return "select obj from CommentAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group "\
-            "join fetch obj.details.creationEvent"
+        return ("select obj from CommentAnnotation obj "
+                "join fetch obj.details.owner as owner "
+                "join fetch obj.details.group "
+                "join fetch obj.details.creationEvent")
 
     def getValue(self):
         """
@@ -4803,8 +4833,10 @@ class LongAnnotationWrapper (AnnotationWrapper):
         Used for building queries in generic methods such as
         getObjects("LongAnnotation")
         """
-        return "select obj from LongAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group "\
-            "join fetch obj.details.creationEvent"
+        return ("select obj from LongAnnotation obj "
+                "join fetch obj.details.owner as owner "
+                "join fetch obj.details.group "
+                "join fetch obj.details.creationEvent")
 
     def getValue(self):
         """
@@ -4842,8 +4874,10 @@ class DoubleAnnotationWrapper (AnnotationWrapper):
         Used for building queries in generic methods such as
         getObjects("DoubleAnnotation")
         """
-        return "select obj from DoubleAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group "\
-            "join fetch obj.details.creationEvent"
+        return ("select obj from DoubleAnnotation obj "
+                "join fetch obj.details.owner as owner "
+                "join fetch obj.details.group "
+                "join fetch obj.details.creationEvent")
 
     def getValue(self):
         """
@@ -4882,8 +4916,10 @@ class TermAnnotationWrapper (AnnotationWrapper):
         Used for building queries in generic methods such as
         getObjects("TermAnnotation")
         """
-        return "select obj from TermAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group "\
-            "join fetch obj.details.creationEvent"
+        return ("select obj from TermAnnotation obj "
+                "join fetch obj.details.owner as owner "
+                "join fetch obj.details.group "
+                "join fetch obj.details.creationEvent")
 
     def getValue(self):
         """
@@ -4963,8 +4999,9 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         """
         Returns string for building queries, loading Experimenters only.
         """
-        return "select distinct obj from Experimenter as obj left outer join fetch obj.groupExperimenterMap " \
-            "as map left outer join fetch map.parent g"
+        return ("select distinct obj from Experimenter as obj "
+                "left outer join fetch obj.groupExperimenterMap as map "
+                "left outer join fetch map.parent g")
 
     def getRawPreferences(self):
         """
@@ -5191,8 +5228,9 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
         Returns string for building queries, loading Experimenters for each
         group.
         """
-        query = "select distinct obj from ExperimenterGroup as obj left outer join fetch obj.groupExperimenterMap " \
-            "as map left outer join fetch map.child e"
+        query = ("select distinct obj from ExperimenterGroup as obj "
+                 "left outer join fetch obj.groupExperimenterMap as map "
+                 "left outer join fetch map.child e")
         return query
 
 
@@ -5328,7 +5366,8 @@ class _PlateWrapper (BlitzObjectWrapper):
         p = omero.sys.Parameters()
         p.map = {}
         p.map["pid"] = self._obj.id
-        sql = "select pa from PlateAcquisition as pa join fetch pa.plate as p where p.id=:pid"
+        sql = ("select pa from PlateAcquisition as pa "
+               "join fetch pa.plate as p where p.id=:pid")
         self._obj._plateAcquisitionsSeq = self._conn.getQueryService(
             ).findAllByQuery(sql, p, self._conn.SERVICE_OPTS)
         self._obj._plateAcquisitionsLoaded = True
@@ -5386,13 +5425,14 @@ class _PlateWrapper (BlitzObjectWrapper):
             params = omero.sys.Parameters()
             params.map = {}
             params.map["oid"] = omero_type(self.getId())
-            query = "select well from Well as well "\
-                    "join fetch well.details.creationEvent "\
-                    "join fetch well.details.owner join fetch well.details.group " \
-                    "left outer join fetch well.plate as pt "\
-                    "left outer join fetch well.wellSamples as ws " \
-                    "left outer join fetch ws.image as img "\
-                    "where well.plate.id = :oid"
+            query = ("select well from Well as well "
+                     "join fetch well.details.creationEvent "
+                     "join fetch well.details.owner "
+                     "join fetch well.details.group "
+                     "left outer join fetch well.plate as pt "
+                     "left outer join fetch well.wellSamples as ws "
+                     "left outer join fetch ws.image as img "
+                     "where well.plate.id = :oid")
 
             self._childcache = {}
             for well in q.findAllByQuery(
@@ -5498,11 +5538,12 @@ class _PlateWrapper (BlitzObjectWrapper):
         Returns a query string for constructing custom queries,
         loading the screen for each plate.
         """
-        query = "select obj from Plate as obj " \
-            "join fetch obj.details.owner as owner join fetch obj.details.group "\
-            "join fetch obj.details.creationEvent "\
-            "left outer join fetch obj.screenLinks spl " \
-            "left outer join fetch spl.parent sc"
+        query = ("select obj from Plate as obj "
+                 "join fetch obj.details.owner as owner "
+                 "join fetch obj.details.group "
+                 "join fetch obj.details.creationEvent "
+                 "left outer join fetch obj.screenLinks spl "
+                 "left outer join fetch spl.parent sc")
         return query
 
 PlateWrapper = _PlateWrapper
@@ -5563,12 +5604,13 @@ class _WellWrapper (BlitzObjectWrapper):
         self._childcache = None
 
     def __loadedHotSwap__(self):
-        query = "select well from Well as well "\
-                "join fetch well.details.creationEvent "\
-                "join fetch well.details.owner join fetch well.details.group " \
-                "left outer join fetch well.wellSamples as ws " \
-                "left outer join fetch ws.image as img "\
-                "where well.id = %d" % self.getId()
+        query = ("select well from Well as well "
+                 "join fetch well.details.creationEvent "
+                 "join fetch well.details.owner "
+                 "join fetch well.details.group "
+                 "left outer join fetch well.wellSamples as ws "
+                 "left outer join fetch ws.image as img "
+                 "where well.id = %d" % self.getId())
 
         self._obj = self._conn.getQueryService().findByQuery(
             query, None, self._conn.SERVICE_OPTS)
@@ -5735,9 +5777,11 @@ class _WellSampleWrapper (BlitzObjectWrapper):
         Because wellsamples are direct children of wells, with no links in
         between, a special listParents is needed
         """
-        rv = self._conn.getQueryService().findAllByQuery("""select w from Well w
-            left outer join fetch w.wellSamples as ws
-            where ws.id=%d""" % self.getId(), None, self._conn.SERVICE_OPTS)
+        rv = self._conn.getQueryService().findAllByQuery(
+            ("select w from Well w "
+             "left outer join fetch w.wellSamples as ws"
+             "where ws.id=%d" % self.getId()),
+            None, self._conn.SERVICE_OPTS)
         if not len(rv):
             rv = [None]
         # rv = self._conn.getObject('Plate', self.plate.id.val)
@@ -6829,10 +6873,10 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
 
         try:
-            q = """
-            select p from Image i join i.datasetLinks dl join dl.parent ds join ds.projectLinks pl join pl.parent p
-            where i.id = %i
-            """ % self._obj.id.val
+            q = ("select p from Image i join i.datasetLinks dl "
+                 "join dl.parent ds join ds.projectLinks pl "
+                 "join pl.parent p where i.id = %i"
+                 % self._obj.id.val)
             query = self._conn.getQueryService()
             prj = query.findAllByQuery(q, None, self._conn.SERVICE_OPTS)
             if prj and len(prj) == 1:
@@ -6854,13 +6898,14 @@ class _ImageWrapper (BlitzObjectWrapper):
         params = omero.sys.Parameters()
         params.map = {}
         params.map["oid"] = omero.rtypes.rlong(self.getId())
-        query = "select well from Well as well "\
-                "join fetch well.details.creationEvent "\
-                "join fetch well.details.owner join fetch well.details.group " \
-                "join fetch well.plate as pt "\
-                "left outer join fetch well.wellSamples as ws " \
-                "left outer join fetch ws.image as img "\
-                "where ws.image.id = :oid"
+        query = ("select well from Well as well "
+                 "join fetch well.details.creationEvent "
+                 "join fetch well.details.owner "
+                 "join fetch well.details.group "
+                 "join fetch well.plate as pt "
+                 "left outer join fetch well.wellSamples as ws "
+                 "left outer join fetch ws.image as img "
+                 "where ws.image.id = :oid")
         q = self._conn.getQueryService()
         for well in q.findAllByQuery(query, params):
             return PlateWrapper(self._conn, well.plate)
@@ -7173,7 +7218,8 @@ class _ImageWrapper (BlitzObjectWrapper):
             pid = self.getPixelsId()
             params = omero.sys.Parameters()
             params.map = {"pid": rlong(pid)}
-            query = "select p from Pixels p join fetch p.channels as c join fetch c.logicalChannel as lc where p.id=:pid"
+            query = ("select p from Pixels p join fetch p.channels as c "
+                     "join fetch c.logicalChannel as lc where p.id=:pid")
             pixels = self._conn.getQueryService().findByQuery(
                 query, params, self._conn.SERVICE_OPTS)
             return [ChannelWrapper(self._conn, c, idx=n, re=self._re, img=self)
@@ -8470,7 +8516,8 @@ class _ImageWrapper (BlitzObjectWrapper):
         pid = self.getPixelsId()
         params = omero.sys.Parameters()
         params.map = {"pid": rlong(pid)}
-        query = "select link from PixelsOriginalFileMap link join fetch link.parent as p where link.child.id=:pid"
+        query = ("select link from PixelsOriginalFileMap link "
+                 "join fetch link.parent as p where link.child.id=:pid")
         links = self._conn.getQueryService().findAllByQuery(
             query, params, self._conn.SERVICE_OPTS)
         for l in links:
@@ -8884,12 +8931,12 @@ class _LightSettingsWrapper (BlitzObjectWrapper):
             lid = self._obj.lightSource.id.val
             params = omero.sys.Parameters()
             params.map = {"id": rlong(lid)}
-            query = "select l from Laser as l left outer join fetch l.type " \
-                    "left outer join fetch l.laserMedium " \
-                    "left outer join fetch l.pulse as pulse " \
-                    "left outer join fetch l.pump as pump " \
-                    "left outer join fetch pump.type as pt " \
-                    "where l.id = :id"
+            query = ("select l from Laser as l left outer join fetch l.type "
+                     "left outer join fetch l.laserMedium "
+                     "left outer join fetch l.pulse as pulse "
+                     "left outer join fetch l.pump as pump "
+                     "left outer join fetch pump.type as pt "
+                     "where l.id = :id")
             self._obj.lightSource = self._conn.getQueryService().findByQuery(
                 query, params, self._conn.SERVICE_OPTS)
         return LightSourceWrapper(self._conn, self._obj.lightSource)
