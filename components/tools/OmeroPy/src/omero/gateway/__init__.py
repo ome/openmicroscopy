@@ -245,7 +245,7 @@ class BlitzObjectWrapper (object):
         if self.CHILD_WRAPPER_CLASS is None:  # pragma: no cover
             raise NotImplementedError(
                 '%s has no child wrapper defined' % self.__class__)
-        if isinstance(self.CHILD_WRAPPER_CLASS, str):
+        if isinstance(self.CHILD_WRAPPER_CLASS, StringTypes):
             # resolve class
             if hasattr(omero.gateway, self.CHILD_WRAPPER_CLASS):
                 self.__class__.CHILD_WRAPPER_CLASS \
