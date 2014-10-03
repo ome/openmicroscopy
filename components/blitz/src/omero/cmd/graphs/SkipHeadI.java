@@ -36,7 +36,7 @@ import omero.cmd.HandleI.Cancel;
 import omero.cmd.ERR;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
-import omero.cmd.Request2;
+import omero.cmd.GraphModify2;
 import omero.cmd.Response;
 import omero.cmd.SkipHead;
 import omero.cmd.Status;
@@ -58,8 +58,8 @@ public class SkipHeadI extends SkipHead implements IRequest {
     private final List<Object> graphRequestSkipObjects = new ArrayList<Object>();
     private final List<Object> graphRequestPerformObjects = new ArrayList<Object>();
 
-    private Request2 graphRequestSkip;
-    private Request2 graphRequestPerform;
+    private GraphModify2 graphRequestSkip;
+    private GraphModify2 graphRequestPerform;
 
     private Helper helper;
 
@@ -88,8 +88,8 @@ public class SkipHeadI extends SkipHead implements IRequest {
                     "cannot use " + SkipHead.class.getSimpleName() + " on " + request.getClass().getSimpleName()));
         } else {
             /* create the two wrapped requests */
-            final Class<? extends Request2> requestClass = request.getClass();
-            final WrappableRequest<Request2> wrappedRequest = (WrappableRequest<Request2>) request;
+            final Class<? extends GraphModify2> requestClass = request.getClass();
+            final WrappableRequest<GraphModify2> wrappedRequest = (WrappableRequest<GraphModify2>) request;
             graphRequestSkip = graphRequestFactory.getRequest(requestClass);
             graphRequestPerform = graphRequestFactory.getRequest(requestClass);
             wrappedRequest.copyFieldsTo(graphRequestPerform);
@@ -200,7 +200,7 @@ public class SkipHeadI extends SkipHead implements IRequest {
      * Copy the fields of this request to that of the given request.
      * @param request the target of the field copy
      */
-    public void copyFieldsTo(Request2 request) {
+    public void copyFieldsTo(GraphModify2 request) {
         request.dryRun = dryRun;
         request.targetObjects = targetObjects;
         request.includeNs = includeNs;

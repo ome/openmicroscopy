@@ -61,7 +61,7 @@ public class GraphRequestFactory {
      * @param graphPathBean the graph path bean
      * @param allRules rules for all request classes that use the graph path bean
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
-     * @param isGraphsWrap if {@link omero.cmd.Request2} requests should substitute for the requests that they replace
+     * @param isGraphsWrap if {@link omero.cmd.GraphModify2} requests should substitute for the requests that they replace
      * @throws GraphException if the graph path rules could not be parsed
      */
     public GraphRequestFactory(ACLVoter aclVoter, SystemTypes systemTypes, GraphPathBean graphPathBean,
@@ -94,7 +94,7 @@ public class GraphRequestFactory {
     }
 
     /**
-     * @return if {@link omero.cmd.Request2} requests should substitute for the requests that they replace
+     * @return if {@link omero.cmd.GraphModify2} requests should substitute for the requests that they replace
      */
     public boolean isGraphsWrap() {
         return isGraphsWrap;

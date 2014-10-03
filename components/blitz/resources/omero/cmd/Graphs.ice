@@ -141,7 +141,7 @@ module omero {
         /**
          * Base class for new requests for operating upon the model object graph.
          **/
-        class Request2 extends Request {
+        class GraphModify2 extends Request {
             /**
              * The model objects upon which to operate. Related model objects may also be targeted.
              **/
@@ -177,7 +177,7 @@ module omero {
         /**
          * Move model objects into a different experimenter group.
          **/
-        class Chgrp2 extends Request2 {
+        class Chgrp2 extends GraphModify2 {
             /**
              * The ID of the experimenter group into which to move the model objects.
              **/
@@ -202,7 +202,7 @@ module omero {
         /**
          * Delete model objects.
          **/
-        class Delete2 extends Request2 {
+        class Delete2 extends GraphModify2 {
         };
 
         /**
@@ -219,7 +219,7 @@ module omero {
          * Perform a request skipping the top-most model objects in the graph.
          * (The result is as from the given request.)
          **/
-        class SkipHead extends Request2 {
+        class SkipHead extends GraphModify2 {
             /**
              * Classes of model objects from which to actually start the operation.
              **/
@@ -228,7 +228,7 @@ module omero {
             /**
              * The operation to perform on the targeted model objects.
              **/
-            Request2 request;
+            GraphModify2 request;
         };
     };
 };
