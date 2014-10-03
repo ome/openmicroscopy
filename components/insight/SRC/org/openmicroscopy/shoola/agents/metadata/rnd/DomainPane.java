@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 
 //Java imports
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -37,13 +36,13 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -52,15 +51,12 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
-import javax.swing.JToolBar;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
 
 //Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
@@ -71,12 +67,10 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.ColorListRenderer;
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
-
 import pojos.ChannelData;
 
 /** 
@@ -98,6 +92,11 @@ public class DomainPane
     implements ActionListener, ChangeListener, MouseWheelListener
 {
 
+    /** Holds the last used location of the divider between
+     *  preview and channel panel
+     */
+    static int PREFERRED_DIVIDER_LOCATION = -1;
+    
     /** 
      * For slider control only. The minimum value for the curve coefficient.
      * The real value is divided by 10.
@@ -469,10 +468,21 @@ public class DomainPane
             // add grey borders, because the split pane divider is hardly visible on Mac
             viewerPane.setBorder(BorderFactory.createLineBorder(UIUtilities.LIGHT_GREY, 1));
             graphicsPane.setBorder(BorderFactory.createLineBorder(UIUtilities.LIGHT_GREY, 1));
-            JSplitPane p = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+            final JSplitPane p = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
             p.setTopComponent(viewerPane);
             p.setBottomComponent(graphicsPane);
             viewerPane.setMinimumSize(model.getPreviewDimension());
+            // restore the last used divider location
+            if (PREFERRED_DIVIDER_LOCATION > 0) {
+                p.setDividerLocation(PREFERRED_DIVIDER_LOCATION);
+            }
+            p.addPropertyChangeListener(JSplitPane.DIVIDER_LOCATION_PROPERTY,
+                    new PropertyChangeListener() {
+                        @Override
+                        public void propertyChange(PropertyChangeEvent pce) {
+                            PREFERRED_DIVIDER_LOCATION = p.getDividerLocation();
+                        }
+                    });
             result = p;
         } else {
             JPanel p = new JPanel();
