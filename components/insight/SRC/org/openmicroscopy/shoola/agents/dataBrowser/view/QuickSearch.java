@@ -28,6 +28,8 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -53,11 +55,11 @@ import javax.swing.event.DocumentListener;
 
 
 
+
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
 
 import org.apache.commons.collections.CollectionUtils;
-
 import org.apache.commons.lang.StringUtils;
 //Application-internal dependencies
 import org.jdesktop.swingx.JXBusyLabel;
@@ -151,6 +153,9 @@ public class QuickSearch
 	/** Text displayed when the show all buttons is selected. */
 	private static final String	SHOW_ALL_DESCRIPTION = "filter "; 
 	
+	/** Text displayed when filter by name/tags/comments.*/
+    private static final String FILTER_BY = "filter by "; 
+
 	/** Removes the text from the text field. */
 	private static final int 	CLEAR = 0;
 	
@@ -243,7 +248,10 @@ public class QuickSearch
 		
 		searchArea = new JTextField(15);
 		if (selectedNode != null && selectedNode.getIndex() != SHOW_ALL) {
-		    searchArea.setText("");
+		    int index = selectedNode.getIndex();
+		    if (index == FULL_TEXT || index == TAGS || index == COMMENTS) {
+		        searchArea.setText(FILTER_BY+selectedNode.getDescription());
+		    } else searchArea.setText(FILTER_BY+selectedNode.getDescription());
 		    setSearchEnabled(true);
 		} else {
 		    searchArea.setText(SHOW_ALL_DESCRIPTION+defaultText);
@@ -270,6 +278,37 @@ public class QuickSearch
 						firePropertyChange(VK_DOWN_SEARCH_PROPERTY, 
 								Boolean.valueOf(false), Boolean.valueOf(true));
 				}
+            }
+        });
+        searchArea.addFocusListener(new FocusListener() {
+            
+            @Override
+            public void focusLost(FocusEvent e) {
+                String txt = searchArea.getText();
+                if (StringUtils.isBlank(txt)) {
+                    switch (selectedNode.getIndex()) {
+                        case TAGS:
+                        case COMMENTS:
+                        case FULL_TEXT:
+                            searchArea.setText(
+                                    FILTER_BY+selectedNode.getDescription());
+                    }
+                }
+            }
+            
+            @Override
+            public void focusGained(FocusEvent e) {
+                
+                switch (selectedNode.getIndex()) {
+                    case TAGS:
+                    case COMMENTS:
+                    case FULL_TEXT:
+                        String v = FILTER_BY+selectedNode.getDescription();
+                        String txt = searchArea.getText();
+                        if (v.contains(txt)){
+                            searchArea.setText("");
+                        }
+                }
             }
         });
 	}
@@ -394,8 +433,9 @@ public class QuickSearch
 		setSearchEnabled(false);
                 cleanBar.setVisible(false);
                 
-		if(selectedNode!=null) {
-        		switch (selectedNode.getIndex()) {
+		if (selectedNode != null) {
+		        int index = selectedNode.getIndex();
+        		switch (index) {
         			case RATED_ONE_OR_BETTER:
         			case RATED_TWO_OR_BETTER:
         			case RATED_THREE_OR_BETTER:
@@ -416,12 +456,7 @@ public class QuickSearch
         			case TAGS:
         			case COMMENTS:
         			case FULL_TEXT:
-        				if (oldNode != null) {
-        					int oldIndex = oldNode.getIndex();
-        					if (oldIndex != TAGS && oldIndex != COMMENTS &&
-        							oldIndex != FULL_TEXT) text = "";
-        				}
-        				setFocusOnArea();
+        			    text = FILTER_BY+selectedNode.getDescription();
         				setSearchEnabled(true);
         		}
 		}
@@ -608,7 +643,7 @@ public class QuickSearch
 	
 	/** Sets the focus on the {@link #searchArea}. */
 	public void setFocusOnArea()
-	{ 
+	{
 		searchArea.requestFocusInWindow();
 		String v = getSearchValue();
 		int l = v.length();
@@ -649,7 +684,6 @@ public class QuickSearch
 	 */
 	public void setSearchEnabled(boolean enabled)
 	{
-		//searchArea.setEnabled(enabled);
 		searchArea.setEditable(enabled);
 	}
 	
@@ -662,8 +696,8 @@ public class QuickSearch
 	 */
 	public void setSearchValue(List<String> text, boolean removeLast)
 	{
-		if (text == null || text.size() == 0) return;
-    	List<String> l = SearchUtil.splitTerms(getSearchValue(), 
+		if (CollectionUtils.isEmpty(text)) return;
+    	List<String> l = SearchUtil.splitTerms(getSearchValue(),
 				SearchUtil.COMMA_SEPARATOR);
     	Iterator<String> i = text.iterator();
     	String value;
@@ -676,14 +710,14 @@ public class QuickSearch
     		value = i.next();
 			if (value != null) {
 				value = value.trim();
-				if (!l.contains(value)) 
+				if (!l.contains(value))
 					values.add(value);
 				else {
 					term.append(value);
 					if (index < n) {
 						term.append(SearchUtil.COMMA_SEPARATOR);
 						term.append(SearchUtil.SPACE_SEPARATOR);
-					}	
+					}
 					index++;
 				}
 			}
@@ -702,7 +736,6 @@ public class QuickSearch
     	searchArea.getDocument().removeDocumentListener(this);
     	searchArea.setText(term.toString());
     	searchArea.getDocument().addDocumentListener(this);
-    	//setSearchValue(term, removeLast);
 	}
 	
 	/**
@@ -754,7 +787,6 @@ public class QuickSearch
 		if (busy) {
 			cleanBar.add(status);
 			cleanBar.setVisible(true);
-			setFocusOnArea();
 		} else {
 			cleanBar.add(clearButton);
 			boolean visible = false;
@@ -764,12 +796,10 @@ public class QuickSearch
 					case COMMENTS:
 					case FULL_TEXT:
 						String text = searchArea.getText();
-						if (text != null && text.trim().length() == 0)
-							visible = true;
+						visible = StringUtils.isBlank(text);
 				}
 			}
 			cleanBar.setVisible(visible);
-			setFocusOnArea();
 		}
 	}
 	
@@ -810,9 +840,17 @@ public class QuickSearch
 		} catch (Exception ex) {
 			//ignore
 		}
-		
 		handleTextInsert();
-		cleanBar.setVisible(true);
+		boolean b = true;
+		switch (selectedNode.getIndex()) {
+            case TAGS:
+            case COMMENTS:
+            case FULL_TEXT:
+                String v = searchArea.getText();
+                String txt = FILTER_BY+selectedNode.getDescription();
+                b = !txt.equals(v);
+        }
+		cleanBar.setVisible(b);
 		searchPanel.validate();
 		searchPanel.repaint();
 	}
