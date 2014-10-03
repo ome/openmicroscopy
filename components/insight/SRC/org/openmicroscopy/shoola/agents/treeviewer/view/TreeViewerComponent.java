@@ -65,6 +65,7 @@ import org.openmicroscopy.shoola.agents.events.treeviewer.DisplayModeEvent;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
+import org.openmicroscopy.shoola.agents.metadata.view.RndSettingsPasted;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.ImageChecker.ImageCheckerType;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
@@ -2686,9 +2687,12 @@ class TreeViewerComponent
 		Collection success = (Collection) map.get(Boolean.valueOf(true));
 		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
 		bus.post(new RndSettingsCopied(success, -1));
-
-		MetadataViewer mv = model.getMetadataViewer();
-		if (mv != null) mv.onSettingsApplied();
+		
+		// notify the metadata viewer agent:
+                for (Object obj : success) {
+                    bus.post(new RndSettingsPasted((Long) obj));
+                }
+		
 		model.setState(READY);
 		fireStateChange();
 	}

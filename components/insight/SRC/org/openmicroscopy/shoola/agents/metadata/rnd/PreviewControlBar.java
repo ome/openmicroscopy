@@ -94,12 +94,14 @@ class PreviewControlBar
         bar.setRollover(true);
         bar.setFloatable(false);
         
-        JButton b = new JButton(control.getAction(RendererControl.SAVE));
-        b.setText(ManageRndSettingsAction.NAME_SAVE);
-        formatButton(b);
-        bar.add(b);
+        JButton b;
         
         if (model.isGeneralIndex()) {
+            b = new JButton(control.getAction(RendererControl.SAVE));
+            b.setText(ManageRndSettingsAction.NAME_SAVE);
+            formatButton(b);
+            bar.add(b);
+            
             bar.add(Box.createHorizontalStrut(SPACE));
             b = new JButton(control.getAction(RendererControl.APPLY_TO_ALL));
             formatButton(b);
@@ -116,17 +118,19 @@ class PreviewControlBar
         b = new JButton(control.getAction(RendererControl.RND_REDO));
         formatButton(b);
         bar.add(b);
-        
-        bar.add(new JSeparator(JSeparator.VERTICAL));
-        
-        b = new JButton(control.getAction(RendererControl.COPY));
-        formatButton(b);
-        bar.add(b);
-        bar.add(Box.createHorizontalStrut(SPACE));
-        
-        b = new JButton(control.getAction(RendererControl.PASTE));
-        formatButton(b);
-        bar.add(b);
+
+        if (model.isGeneralIndex()) {
+            bar.add(new JSeparator(JSeparator.VERTICAL));
+    
+            b = new JButton(control.getAction(RendererControl.COPY));
+            formatButton(b);
+            bar.add(b);
+            bar.add(Box.createHorizontalStrut(SPACE));
+            
+            b = new JButton(control.getAction(RendererControl.PASTE));
+            formatButton(b);
+            bar.add(b);
+        }
         
         return bar;
     }

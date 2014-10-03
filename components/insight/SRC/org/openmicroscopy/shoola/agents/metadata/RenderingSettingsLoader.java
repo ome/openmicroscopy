@@ -131,7 +131,7 @@ public class RenderingSettingsLoader
             }
             viewer.setViewedBy(m);
         }
-        else {
+        else if (task==TASK_COPY_PASTE) {
             if (viewer.getRenderer() == null)
                 return;
 
@@ -146,8 +146,7 @@ public class RenderingSettingsLoader
                     ExperimenterData exp = (ExperimenterData) entry.getKey();
                     if (exp.getId() == user.getId()) {
                         Collection<RndProxyDef> def = entry.getValue();
-                        viewer.getRenderer().resetSettings(
-                                def.iterator().next(), true);
+                        viewer.applyRenderingSettings(def.iterator().next());
                         break;
                     }
                 }

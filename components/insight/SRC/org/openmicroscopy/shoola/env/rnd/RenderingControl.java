@@ -804,21 +804,6 @@ public interface RenderingControl
 	 */
 	public TextureData renderAsTexture(PlaneDef pDef)
 		throws RenderingServiceException, DSOutOfServiceException;
-
-	/**
-	 * Returns the list of settings previously saved.
-	 * 
-	 * @return See above.
-	 */
-	public List<RndProxyDef> getPreviousRenderingSettings();
-	
-	/**
-	 * Returns a map whose keys are the name of the settings and the values
-	 * the corresponding rendering settings.
-	 * 
-	 * @return See above.
-	 */
-	public Map<String, List<RndProxyDef>> getRenderingSettings();
 	
 	/**
 	 * Returns the possible resolution levels. This method should only be used
