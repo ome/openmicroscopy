@@ -154,7 +154,7 @@ public class QuickSearch
 	private static final String	SHOW_ALL_DESCRIPTION = "filter "; 
 	
 	/** Text displayed when filter by name/tags/comments.*/
-    private static final String FILTER_BY = "filter by "; 
+    public static final String FILTER_BY = "filter by "; 
 
 	/** Removes the text from the text field. */
 	private static final int 	CLEAR = 0;
@@ -256,7 +256,7 @@ public class QuickSearch
                 setSearchEnabled(true);
                 break;
             default:
-                searchArea.setText(selectedNode.getDescription());;
+                searchArea.setText(selectedNode.getDescription());
             }
 		} else {
 		    searchArea.setText(SHOW_ALL_DESCRIPTION+defaultText);
@@ -545,9 +545,19 @@ public class QuickSearch
 	/** Selects the node. */
 	protected void onNodeSelection()
 	{
-		List<String> l = SearchUtil.splitTerms(searchArea.getText(), 
+	    
+		List<String> l = SearchUtil.splitTerms(searchArea.getText(),
 				SearchUtil.COMMA_SEPARATOR);
 		if (selectedNode == null) return;
+		String s = searchArea.getText();
+		switch (selectedNode.getIndex()) {
+            case FULL_TEXT:
+            case TAGS:
+            case COMMENTS:
+                String v = FILTER_BY+selectedNode.getDescription();
+                if (v.equals(s))
+                    l = null;
+        }
 		selectedNode.setResult(l);
 		firePropertyChange(QUICK_SEARCH_PROPERTY, null, selectedNode);
 	}
