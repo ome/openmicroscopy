@@ -248,11 +248,16 @@ public class QuickSearch
 		
 		searchArea = new JTextField(15);
 		if (selectedNode != null && selectedNode.getIndex() != SHOW_ALL) {
-		    int index = selectedNode.getIndex();
-		    if (index == FULL_TEXT || index == TAGS || index == COMMENTS) {
-		        searchArea.setText(FILTER_BY+selectedNode.getDescription());
-		    } else searchArea.setText(FILTER_BY+selectedNode.getDescription());
-		    setSearchEnabled(true);
+		    switch (selectedNode.getIndex()) {
+            case FULL_TEXT:
+            case TAGS:
+            case COMMENTS:
+                searchArea.setText(FILTER_BY+selectedNode.getDescription());
+                setSearchEnabled(true);
+                break;
+            default:
+                searchArea.setText(selectedNode.getDescription());;
+            }
 		} else {
 		    searchArea.setText(SHOW_ALL_DESCRIPTION+defaultText);
 		}
