@@ -525,7 +525,7 @@ public class DomainPane
         
         c.fill = GridBagConstraints.NONE;
         c.anchor = GridBagConstraints.NORTHWEST;
-        c.insets = new Insets(0, 2, 2, 0);
+        c.insets = new Insets(2, 2, 2, 2);
         c.gridy = 0;
         c.gridx = 0;
         
@@ -545,11 +545,13 @@ public class DomainPane
         c.fill = GridBagConstraints.BOTH;
         c.weightx = 1;
         c.weighty = 1;
+        c.insets = new Insets(5, 5, 5, 5);
         p.add(canvas, c);
         c.gridy++;
 
         c.fill = GridBagConstraints.HORIZONTAL;
         c.gridwidth = GridBagConstraints.REMAINDER;
+        c.insets = new Insets(2, 2, 2, 2);
         c.weightx = 1;
         c.weighty = 0;
         if (tSlider.isVisible()) {
