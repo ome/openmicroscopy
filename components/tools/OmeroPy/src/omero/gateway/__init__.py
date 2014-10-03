@@ -575,8 +575,10 @@ class BlitzObjectWrapper (object):
         #     self._conn.getQueryService().findAllByQuery(
         #         "from %s as c where c.parent.id=%i"
         #         % (self.LINK_CLASS, self._oid), None))
-        self._cached_countChildren = self._conn.getContainerService().getCollectionCount(
-            self.OMERO_CLASS, klass, [self._oid], None, self._conn.SERVICE_OPTS)[self._oid]
+        self._cached_countChildren = self._conn.getContainerService(
+            ).getCollectionCount(
+                self.OMERO_CLASS, klass, [self._oid], None,
+                self._conn.SERVICE_OPTS)[self._oid]
         return self._cached_countChildren
 
     def countChildren_cached(self):
@@ -620,7 +622,8 @@ class BlitzObjectWrapper (object):
                     params.map["val"] = omero_type(val)
                     query += " and a.textValue=:val"
         query += " order by c.child.name"
-        for child in (x.child for x in self._conn.getQueryService().findAllByQuery(query, params, self._conn.SERVICE_OPTS)):
+        for child in (x.child for x in self._conn.getQueryService(
+                ).findAllByQuery(query, params, self._conn.SERVICE_OPTS)):
             yield child
 
     def listChildren(self, ns=None, val=None, params=None):
@@ -673,13 +676,24 @@ class BlitzObjectWrapper (object):
         for pwc in parentw:
             pwck = pwc()
             if withlinks:
-                parentnodes.extend([(pwc(self._conn, pwck.LINK_PARENT(x), self._cache), BlitzObjectWrapper(self._conn, x)) for x in self._conn.getQueryService(
-                    ).findAllByQuery("from %s as c where c.%s.id=%i" % (pwck.LINK_CLASS, pwck.LINK_CHILD, self._oid), param, self._conn.SERVICE_OPTS)])
-            else:
-                t = self._conn.getQueryService().findAllByQuery("from %s as c where c.%s.id=%i" %
-                                                                (pwck.LINK_CLASS, pwck.LINK_CHILD, self._oid), param, self._conn.SERVICE_OPTS)
                 parentnodes.extend(
-                    [pwc(self._conn, pwck.LINK_PARENT(x), self._cache) for x in t])
+                    [(pwc(self._conn, pwck.LINK_PARENT(x), self._cache),
+                        BlitzObjectWrapper(self._conn, x))
+                        for x in self._conn.getQueryService(
+                            ).findAllByQuery(
+                                "from %s as c where c.%s.id=%i"
+                                % (pwck.LINK_CLASS, pwck.LINK_CHILD,
+                                   self._oid),
+                                param, self._conn.SERVICE_OPTS)])
+            else:
+                t = self._conn.getQueryService().findAllByQuery(
+                    "from %s as c where c.%s.id=%i"
+                    % (pwck.LINK_CLASS, pwck.LINK_CHILD,
+                       self._oid),
+                    param, self._conn.SERVICE_OPTS)
+                parentnodes.extend(
+                    [pwc(self._conn, pwck.LINK_PARENT(x), self._cache)
+                        for x in t])
         return parentnodes
 
     def getAncestry(self):
@@ -792,7 +806,8 @@ class BlitzObjectWrapper (object):
         rv = self.copyAnnotationLinks()
         if ns is not None:
             rv = filter(
-                lambda x: x.getChild().getNs() and x.getChild().getNs().val == ns, rv)
+                lambda x: x.getChild().getNs()
+                and x.getChild().getNs().val == ns, rv)
         return rv
 
     def unlinkAnnotations(self, ns):
@@ -2582,13 +2597,15 @@ class _BlitzGateway (object):
 
         if owner_Ids is not None:
             group_owners = [
-                owner._obj for owner in self.getObjects("Experimenter", owner_Ids)]
+                owner._obj for owner in self.getObjects(
+                    "Experimenter", owner_Ids)]
             admin_serv.addGroupOwners(
                 omero.model.ExperimenterGroupI(gr_id, False), group_owners)
 
         if member_Ids is not None:
             group_members = [
-                member._obj for member in self.getObjects("Experimenter", member_Ids)]
+                member._obj for member in self.getObjects(
+                    "Experimenter", member_Ids)]
             for user in group_members:
                 admin_serv.addGroups(
                     user, [omero.model.ExperimenterGroupI(gr_id, False)])
@@ -2814,7 +2831,9 @@ class _BlitzGateway (object):
                 tfrom = 0
             if tto is None:
                 tto = time.time() * 1000
-            for e in tm.getByPeriod(['Image'], rtime(long(tfrom)), rtime(long(tto)), p, False)['Image']:
+            for e in tm.getByPeriod(
+                    ['Image'], rtime(long(tfrom)),
+                    rtime(long(tto)), p, False)['Image']:
                 yield ImageWrapper(self, e)
 
     ###########################
@@ -2928,7 +2947,8 @@ class _BlitzGateway (object):
         # support filtering by owner (not for some object types)
         if (params.theFilter
                 and params.theFilter.ownerId
-                and obj_type.lower() not in ["experimentergroup", "experimenter"]):
+                and obj_type.lower()
+                not in ["experimentergroup", "experimenter"]):
             clauses.append("owner.id = (:eid)")
             params.map["eid"] = params.theFilter.ownerId
 
@@ -3054,7 +3074,8 @@ class _BlitzGateway (object):
         """
 
         if anntype is not None:
-            if anntype.title() not in ('Text', 'Tag', 'File', 'Long', 'Boolean'):
+            if (anntype.title()
+                    not in ('Text', 'Tag', 'File', 'Long', 'Boolean')):
                 raise AttributeError(
                     'Use annotation type: Text, Tag, File, Long, Boolean')
             sql = "select an from %sAnnotation as an " % anntype.title()
@@ -3091,8 +3112,9 @@ class _BlitzGateway (object):
                 parent_type, filterlink)
             # count annLinks and check if count == number of parents (all
             # parents linked to annotation)
-            usedAnnIds = [e[0].getValue() for e in q.projection(
-                query, p, self.SERVICE_OPTS) if e[1].getValue() == len(parent_ids)]
+            usedAnnIds = [e[0].getValue() for e in
+                          q.projection(query, p, self.SERVICE_OPTS)
+                          if e[1].getValue() == len(parent_ids)]
             if len(usedAnnIds) > 0:
                 p.map["usedAnnIds"] = omero.rtypes.wrap(usedAnnIds)
                 wheres.append("an.id not in (:usedAnnIds)")
@@ -4399,7 +4421,8 @@ class AnnotationWrapper (BlitzObjectWrapper):
             p.map["pids"] = rlist([rlong(ob) for ob in pids])
             sql += " and pa.id in (:pids)"
 
-        for al in self._conn.getQueryService().findAllByQuery(sql, p, self._conn.SERVICE_OPTS):
+        for al in self._conn.getQueryService().findAllByQuery(
+                sql, p, self._conn.SERVICE_OPTS):
             yield AnnotationLinkWrapper(self._conn, al)
 
 
@@ -4925,12 +4948,15 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
     def simpleMarshal(self, xtra=None, parents=False):
         rv = super(_ExperimenterWrapper, self).simpleMarshal(
             xtra=xtra, parents=parents)
-        rv.update({'firstName': self.firstName,
-                   'middleName': self.middleName,
-                   'lastName': self.lastName,
-                   'email': self.email,
-                   'isAdmin': len(filter(lambda x: x.name.val == 'system', self._conn.getAdminService().containedGroups(self.getId()))) == 1,
-                   })
+        isAdmin = (len(filter(
+            lambda x: x.name.val == 'system',
+            self._conn.getAdminService().containedGroups(self.getId()))) == 1)
+        rv.update(
+            {'firstName': self.firstName,
+             'middleName': self.middleName,
+             'lastName': self.lastName,
+             'email': self.email,
+             'isAdmin': isAdmin, })
         return rv
 
     def _getQueryString(self):
@@ -5303,8 +5329,8 @@ class _PlateWrapper (BlitzObjectWrapper):
         p.map = {}
         p.map["pid"] = self._obj.id
         sql = "select pa from PlateAcquisition as pa join fetch pa.plate as p where p.id=:pid"
-        self._obj._plateAcquisitionsSeq = self._conn.getQueryService().findAllByQuery(
-            sql, p, self._conn.SERVICE_OPTS)
+        self._obj._plateAcquisitionsSeq = self._conn.getQueryService(
+            ).findAllByQuery(sql, p, self._conn.SERVICE_OPTS)
         self._obj._plateAcquisitionsLoaded = True
 
     def countPlateAcquisitions(self):
@@ -5339,7 +5365,8 @@ class _PlateWrapper (BlitzObjectWrapper):
         fields = None
         try:
             res = [r for r in unwrap(
-                q.projection(sql, p, self._conn.SERVICE_OPTS))[0] if r is not None]
+                q.projection(
+                    sql, p, self._conn.SERVICE_OPTS))[0] if r is not None]
             if len(res) == 2:
                 fields = tuple(res)
         except:
@@ -5368,7 +5395,8 @@ class _PlateWrapper (BlitzObjectWrapper):
                     "where well.plate.id = :oid"
 
             self._childcache = {}
-            for well in q.findAllByQuery(query, params, self._conn.SERVICE_OPTS):
+            for well in q.findAllByQuery(
+                    query, params, self._conn.SERVICE_OPTS):
                 self._childcache[(well.row.val, well.column.val)] = well
         return self._childcache.values()
 
@@ -5424,7 +5452,8 @@ class _PlateWrapper (BlitzObjectWrapper):
         if (self.columnNamingConvention
                 and self.columnNamingConvention.lower() == 'letter'):
             # this should simply be precalculated!
-            return [_letterGridLabel(x) for x in range(self.getGridSize()['columns'])]
+            return [_letterGridLabel(x)
+                    for x in range(self.getGridSize()['columns'])]
         else:
             return range(1, self.getGridSize()['columns']+1)
 
@@ -5438,7 +5467,8 @@ class _PlateWrapper (BlitzObjectWrapper):
             return range(1, self.getGridSize()['rows']+1)
         else:
             # this should simply be precalculated!
-            return [_letterGridLabel(x) for x in range(self.getGridSize()['rows'])]
+            return [_letterGridLabel(x)
+                    for x in range(self.getGridSize()['rows'])]
 
 #        if self._childcache is None:
 #            q = self._conn.getQueryService()
@@ -5487,8 +5517,9 @@ class _PlateAcquisitionWrapper (BlitzObjectWrapper):
         name = super(_PlateAcquisitionWrapper, self).getName()
         if name is None:
             if self.startTime is not None and self.endTime is not None:
-                name = "%s - %s" % (datetime.fromtimestamp(self.startTime/1000),
-                                    datetime.fromtimestamp(self.endTime/1000))
+                name = "%s - %s" % (
+                    datetime.fromtimestamp(self.startTime/1000),
+                    datetime.fromtimestamp(self.endTime/1000))
             else:
                 name = "Run %i" % self.id
         return name
@@ -5963,8 +5994,8 @@ class _LogicalChannelWrapper (BlitzObjectWrapper):
             ctx = self._conn.SERVICE_OPTS.copy()
             if ctx.getOmeroGroup() is None:
                 ctx.setOmeroGroup(-1)
-            self._obj = self._conn.getMetadataService().loadChannelAcquisitionData(
-                [self._obj.id.val], ctx)[0]
+            self._obj = self._conn.getMetadataService(
+                ).loadChannelAcquisitionData([self._obj.id.val], ctx)[0]
 
     def getLightPath(self):
         """
@@ -5992,11 +6023,14 @@ class _LightPathWrapper (BlitzObjectWrapper):
     def getExcitationFilters(self):
         """ Returns list of excitation :class:`FilterWrapper`. Ordered
         collections can contain nulls"""
-        return [FilterWrapper(self._conn, link.child) for link in self.copyExcitationFilterLink() if link is not None]
+        return [FilterWrapper(self._conn, link.child)
+                for link in self.copyExcitationFilterLink()
+                if link is not None]
 
     def getEmissionFilters(self):
         """ Returns list of emission :class:`FilterWrapper` """
-        return [FilterWrapper(self._conn, link.child) for link in self.copyEmissionFilterLink()]
+        return [FilterWrapper(self._conn, link.child)
+                for link in self.copyEmissionFilterLink()]
 
 LightPathWrapper = _LightPathWrapper
 
@@ -6188,7 +6222,8 @@ class _FilesetWrapper (BlitzObjectWrapper):
         Returns a list of :class:`OriginalFileWrapper` linked to this Fileset
         via Fileset Entries
         """
-        return [OriginalFileWrapper(self._conn, f.originalFile) for f in self._obj.copyUsedFiles()]
+        return [OriginalFileWrapper(self._conn, f.originalFile)
+                for f in self._obj.copyUsedFiles()]
 
 FilesetWrapper = _FilesetWrapper
 
@@ -7128,7 +7163,10 @@ class _ImageWrapper (BlitzObjectWrapper):
         :rtype:     List of :class:`ChannelWrapper`
         """
         if self._re is not None:
-            return [ChannelWrapper(self._conn, c, idx=n, re=self._re, img=self) for n, c in enumerate(self._re.getPixels(self._conn.SERVICE_OPTS).iterateChannels())]
+            return [ChannelWrapper(self._conn, c, idx=n, re=self._re, img=self)
+                    for n, c in enumerate(
+                        self._re.getPixels(
+                            self._conn.SERVICE_OPTS).iterateChannels())]
         # E.g. ConcurrencyException (no rendering engine): load channels by
         # hand, use pixels to order channels
         else:
@@ -7138,7 +7176,8 @@ class _ImageWrapper (BlitzObjectWrapper):
             query = "select p from Pixels p join fetch p.channels as c join fetch c.logicalChannel as lc where p.id=:pid"
             pixels = self._conn.getQueryService().findByQuery(
                 query, params, self._conn.SERVICE_OPTS)
-            return [ChannelWrapper(self._conn, c, idx=n, re=self._re, img=self) for n, c in enumerate(pixels.iterateChannels())]
+            return [ChannelWrapper(self._conn, c, idx=n, re=self._re, img=self)
+                    for n, c in enumerate(pixels.iterateChannels())]
 
     @assert_re()
     def getZoomLevelScaling(self):
@@ -7383,7 +7422,8 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
 
         if not len(self._rm):
-            for m in [BlitzObjectWrapper(self._conn, m) for m in self._re.getAvailableModels()]:
+            for m in [BlitzObjectWrapper(self._conn, m)
+                      for m in self._re.getAvailableModels()]:
                 self._rm[m.value.lower()] = m
         return self._rm.values()
 
@@ -7729,13 +7769,15 @@ class _ImageWrapper (BlitzObjectWrapper):
 
         # Lets prepare the channel settings
         channels = self.getChannels()
-        args.append('ChannelsExtended=%s' % (','.join(["%d|%s:%s$%s" % (x._idx+1,
-                                                                        Decimal(
-                                                                            str(x.getWindowStart())),
-                                                                        Decimal(
-                                                                            str(x.getWindowEnd())),
-                                                                        x.getColor().getHtml())
-                                                       for x in channels if x.isActive()])))
+        args.append(
+            'ChannelsExtended=%s'
+            % (','.join(
+                ["%d|%s:%s$%s"
+                 % (x._idx+1,
+                    Decimal(str(x.getWindowStart())),
+                    Decimal(str(x.getWindowEnd())),
+                    x.getColor().getHtml())
+                    for x in channels if x.isActive()])))
 
         watermark = opts.get('watermark', None)
         logger.debug('watermark: %s' % watermark)
@@ -7927,7 +7969,8 @@ class _ImageWrapper (BlitzObjectWrapper):
             border=border)[self.isGreyscaleRenderingModel() and 'g' or 'c']
         canvas = Image.new('RGBA', (dims['width'], dims['height']), '#fff')
         cmap = [
-            ch.isActive() and i+1 or 0 for i, ch in enumerate(self.getChannels())]
+            ch.isActive() and i+1 or 0
+            for i, ch in enumerate(self.getChannels())]
         c = self.getSizeC()
         pxc = 0
         px = dims['border']
@@ -9099,7 +9142,8 @@ class _InstrumentWrapper (BlitzObjectWrapper):
         :rtype:     :class:`LightSourceWrapper` list
         """
 
-        return [LightSourceWrapper(self._conn, x) for x in self._lightSourceSeq]
+        return [LightSourceWrapper(self._conn, x)
+                for x in self._lightSourceSeq]
 
     def simpleMarshal(self):
         if self._obj:
