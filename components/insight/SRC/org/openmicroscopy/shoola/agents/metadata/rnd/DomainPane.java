@@ -466,6 +466,9 @@ public class DomainPane
 
         if (model.isGeneralIndex()) {
             JPanel viewerPane = buildViewerPane();
+            // add grey borders, because the split pane divider is hardly visible on Mac
+            viewerPane.setBorder(BorderFactory.createLineBorder(UIUtilities.LIGHT_GREY, 1));
+            graphicsPane.setBorder(BorderFactory.createLineBorder(UIUtilities.LIGHT_GREY, 1));
             JSplitPane p = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
             p.setTopComponent(viewerPane);
             p.setBottomComponent(graphicsPane);
