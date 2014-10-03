@@ -5814,7 +5814,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
 
         lc = self.getLogicalChannel()
         wave = lc.emissionWave
-        if int(wave) == wave:
+        if wave is not None and int(wave) == wave:
             wave = int(wave)
         return wave
 
@@ -5828,7 +5828,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
 
         lc = self.getLogicalChannel()
         wave = lc.excitationWave
-        if int(wave) == wave:
+        if wave is not None and int(wave) == wave:
             wave = int(wave)
         return wave
 
