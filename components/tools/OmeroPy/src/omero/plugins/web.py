@@ -241,7 +241,7 @@ class WebControl(BaseControl):
                 d["FASTCGI_EXTERNAL"] = fastcgi_external
                 try:
                     d["REWRITERULE"] = \
-                        "RewriteEngine on\nRewriteRule ^/?$%s/ [R]\n"\
+                        "RewriteEngine on\nRewriteRule ^/?$ %s/ [R]\n"\
                         % settings.FORCE_SCRIPT_NAME.rstrip("/")
                 except:
                     d["REWRITERULE"] = ""
