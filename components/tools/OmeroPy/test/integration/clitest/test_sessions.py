@@ -20,7 +20,10 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from test.integration.clitest.cli import CLITest
+from omero.cli import NonZeroReturnCode
 import pytest
+
+permissions = ["rw----", "rwr---", "rwra--", "rwrw--"]
 
 
 class TestSessions(CLITest):
@@ -41,6 +44,19 @@ class TestSessions(CLITest):
         return 'session %s (%s). Idle timeout: 10.0 min. ' \
             'Current group: %s\n' % (ec.sessionUuid, self.conn_string,
                                      ec.groupName)
+
+    def check_sudoer(self, target_user, sudoer, group=None):
+        self.set_login_args(target_user)
+        self.args += ["--sudo", sudoer.omeName.val]
+        self.args += ["-w", sudoer.omeName.val]
+        if group:
+            self.args += ["-g", group.name.val]
+        self.cli.invoke(self.args, strict=True)
+        ec = self.cli.controls["sessions"].ctx._event_context
+        assert ec.userName == target_user.omeName.val
+        if group:
+            assert ec.groupName == group.name.val
+        self.cli.invoke(["sessions", "logout"], strict=True)
 
     # Login subcommand
     # ========================================================================
@@ -85,32 +101,32 @@ class TestSessions(CLITest):
         else:
             assert e == 'Joined ' + self.get_connection_string()
 
-    def testLoginAsRoot(self):
-        user = self.new_user()
-        self.set_login_args(user)
-        self.args += ["-w", self.root.getProperty("omero.rootpass")]
-        self.args += ["--sudo", "root"]
-        self.cli.invoke(self.args, strict=True)
-        ec = self.cli.get_event_context()
-        assert ec.userName == user.omeName.val
+    @pytest.mark.parametrize("perms", permissions)
+    def testLoginAs(self, perms):
+        """Test the login --sudo functionality"""
 
-    def testLoginAs(self):
+        group1 = self.new_group(perms=perms)
+        group2 = self.new_group(perms=perms)
+        admin = self.root.sf.getAdminService()
+        user = self.new_user(group1, owner=False)  # Member of two groups
+        admin.addGroups(user, [group2])
+        member = self.new_user(group1, owner=False)  # Member of first gourp
+        owner = self.new_user(group1, owner=True)  # Owner of first group
+        admin = self.new_user(system=True)  # System administrator
 
-        group1 = self.new_group()
-        group2 = self.new_group([user])
-        user = self.new_user(group=group1)
+        # Administrator are in the list of sudoers
+        self.check_sudoer(user, admin)
+        self.check_sudoer(user, admin, group1)
+        self.check_sudoer(user, admin, group2)
 
+        # Group owner is in the list of sudoers
+        self.check_sudoer(user, owner)
+        self.check_sudoer(user, admin, group1)
+        self.check_sudoer(user, admin, group2)
 
-        group = self.new_group()
-        grp_admin = self.new_user(group=group, owner=True)
-        admin = grp_admin.omeName.val
-        user = self.new_user(group=group)
-        self.set_login_args(user)
-        self.args += ["--sudo", admin]
-        self.args += ["-w", admin]
-        self.cli.invoke(self.args, strict=True)
-        ec = self.cli.get_event_context()
-        assert ec.userName == user.omeName.val
+        # Other group members are not sudoers
+        with pytest.raises(NonZeroReturnCode):
+            self.check_sudoer(user, member)
 
     @pytest.mark.parametrize('with_sudo', [True, False])
     @pytest.mark.parametrize('with_group', [True, False])
