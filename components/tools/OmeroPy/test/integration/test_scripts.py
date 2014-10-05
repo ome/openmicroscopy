@@ -447,8 +447,8 @@ client.closeSession()
 
         # Make two users in a new group. Only one is an owner of the group
         grp = self.new_group()
-        clientU, userU = self.new_client_and_user(group=grp, admin=False)
-        clientA, userA = self.new_client_and_user(group=grp, admin=True)
+        clientU, userU = self.new_client_and_user(group=grp, owner=False)
+        clientA, userA = self.new_client_and_user(group=grp, owner=True)
 
         # Make both users admins
         admin = self.root.sf.getAdminService()

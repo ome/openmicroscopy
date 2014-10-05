@@ -94,9 +94,15 @@ class TestSessions(CLITest):
         ec = self.cli.get_event_context()
         assert ec.userName == user.omeName.val
 
-    def testLoginAsGroupAdmin(self):
+    def testLoginAs(self):
+
+        group1 = self.new_group()
+        group2 = self.new_group([user])
+        user = self.new_user(group=group1)
+
+
         group = self.new_group()
-        grp_admin = self.new_user(group=group, admin=True)
+        grp_admin = self.new_user(group=group, owner=True)
         admin = grp_admin.omeName.val
         user = self.new_user(group=group)
         self.set_login_args(user)

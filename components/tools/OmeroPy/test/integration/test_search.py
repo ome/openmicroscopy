@@ -168,7 +168,7 @@ class TestSearch(lib.ITest):
             p = x.ljust(6, "-")
             g = self.new_group(perms=p)
             u = self.new_client(group=g)
-            a = self.new_client(group=g, admin=True)
+            a = self.new_client(group=g, owner=True)
 
             uuid = self.uuid().replace("-", "")
 
