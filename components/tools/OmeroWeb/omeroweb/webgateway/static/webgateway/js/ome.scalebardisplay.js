@@ -13,8 +13,7 @@ $.fn.scalebar_display = function(options) {
         var $viewportimg = $(this);
 
         if (!tiles) {
-            // add our ROI canvas as a sibling to the image plane. Parent is the 'draggable' div
-            var $dragdiv = $viewportimg.parent();
+            var $dragdiv = $viewportimg.parent().parent();
             var $scalebar = $('<div id="weblitz-viewport-'+scalebar_name+'" class="weblitz-viewport-'+scalebar_name+'">').appendTo($dragdiv);
         } else {
             var $scalebar = $('#'+scalebar_name);
