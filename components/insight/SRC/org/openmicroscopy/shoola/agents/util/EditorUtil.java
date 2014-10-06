@@ -1249,9 +1249,9 @@ public class EditorUtil
             } else {
               //First check if the wave is a int
                 if (DoubleMath.isMathematicalInteger(wave)) {
-                    details.put(EMISSION, new Integer(wave.intValue()));
+                    details.put(EXCITATION, new Integer(wave.intValue()));
                 } else {
-                    details.put(EMISSION, wave);
+                    details.put(EXCITATION, wave);
                 }
             }
         }
