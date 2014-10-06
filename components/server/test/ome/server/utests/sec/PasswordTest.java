@@ -569,7 +569,11 @@ public class PasswordTest extends MockObjectTestCase {
 
         // Checking the password whether good or bad passes
         // 1) Good: Yes
-        userIdReturns1();
+        // Requires rather more calls due to automatic upgrade/change of legacy password.
+        mockSql.expects(atLeastOnce()).method("getUserId").will(returnValue(1L));
+        mockSql.expects(once()).method("getUsername").will(returnValue("guest"));
+        mockSql.expects(once()).method("setUserPassword").will(returnValue(true));
+        mockSql.expects(once()).method("clearPermissionsBit").will(returnValue(true));
         getPasswordHash(badHash);
         assertTrue(provider.checkPassword("test", good, true));
         // 1) Bad: Yes, but ERROR printed to the logs.

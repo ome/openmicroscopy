@@ -202,6 +202,15 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
         } else if (legacyUtil != null) {
             if (comparePasswords(userId, trusted, provided, legacyUtil)) {
                 log.error("Matched LEGACY password for Experimenter:{}!", userId);
+                final String username = util.userName(userId);
+                if (username != null) {
+                    try {
+                        changePassword(username, provided);
+                        log.info("Upgraded password for Experimenter:{}", userId);
+                    } catch (PasswordChangeException e) {
+                        /* this password provider cannot change the password */
+                    }
+                }
                 return true;
             }
         }
