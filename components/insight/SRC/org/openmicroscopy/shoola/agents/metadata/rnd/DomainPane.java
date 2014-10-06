@@ -41,6 +41,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.DefaultComboBoxModel;
@@ -51,12 +52,14 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
 
 //Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
@@ -71,6 +74,7 @@ import org.openmicroscopy.shoola.util.ui.ColorListRenderer;
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
+
 import pojos.ChannelData;
 
 /** 
@@ -194,9 +198,6 @@ public class DomainPane
     /** The UI component hosting the interval selections. */
     private GraphicsPane graphicsPane;
 
-    /** The component hosting the various options. */
-    private JXTaskPane taskPane;
-
     /** Select the lifetime bin. */
     private OneKnobSlider lifetimeSlider;
 
@@ -295,7 +296,6 @@ public class DomainPane
     /** Initializes the components composing the display. */
     private void initComponents()
     {
-    	taskPane = EditorUtil.createTaskPane(ADVANCED_OPTIONS);
         graphicsPane = new GraphicsPane(model, controller);
         familyBox = new JComboBox(model.getFamilies().toArray());
         familyBox.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -487,7 +487,7 @@ public class DomainPane
         } else {
             JPanel p = new JPanel();
             p.setLayout(new GridBagLayout());
-            
+            p.setBackground(UIUtilities.BACKGROUND_COLOR);
             GridBagConstraints c = new GridBagConstraints();
             c.anchor = GridBagConstraints.NORTHWEST;
             c.fill = GridBagConstraints.NONE;
@@ -500,10 +500,10 @@ public class DomainPane
             p.add(graphicsPane,c);
             c.gridy++;
             c.weighty = 0;
+            c.insets = new Insets(10, 0, 0, 0);
             c.fill = GridBagConstraints.HORIZONTAL;
-            taskPane.add(buildControlsPane());
-            p.add(taskPane, c);
-            result = p;
+            p.add(buildControlsPane(), c);
+            result = new JScrollPane(p);
         }
     	
         result.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
@@ -632,6 +632,7 @@ public class DomainPane
     private JPanel buildControlsPane()
     {
         JPanel p = new JPanel();
+        p.setBorder(BorderFactory.createTitledBorder(ADVANCED_OPTIONS));
         p.setBackground(UIUtilities.BACKGROUND_COLOR);
         p.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
