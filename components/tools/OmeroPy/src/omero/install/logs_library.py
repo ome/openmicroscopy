@@ -25,8 +25,8 @@ from time import mktime, strptime
 import fileinput
 import logging
 import sys
-import os
 import re
+
 
 def parse_time(value):
     """
@@ -41,10 +41,13 @@ def parse_time(value):
     t += millis
     return t
 
+
 class log_line(object):
     """
-    2009-04-09 15:11:58,029 INFO  [        ome.services.util.ServiceHandler] (l.Server-6)  Meth:    interface ome.api.IQuery.findByQuery
-    01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+    2009-04-09 15:11:58,029 INFO  [        ome.services.util.ServiceHandler] \
+(l.Server-6)  Meth:    interface ome.api.IQuery.findByQuery
+    012345678901234567890123456789012345678901234567890123456789012345678901\
+23456789012345678901234567890123456789012345678901234567890123456789
     """
     def __init__(self, line):
         self.line = line
@@ -65,11 +68,14 @@ class log_line(object):
                 return True
         return False
 
+
 class log_watcher(object):
 
-    def __init__(self, files, entries, exits, storeonce = None, storeall = None):
-        if storeonce is None: storeonce = []
-        if storeall is None: storeall = []
+    def __init__(self, files, entries, exits, storeonce=None, storeall=None):
+        if storeonce is None:
+            storeonce = []
+        if storeall is None:
+            storeall = []
         self.files = files
         self.entries = entries
         self.exits = exits
@@ -103,7 +109,7 @@ class log_watcher(object):
                 elif ll.contains_any(self.exits):
                     try:
                         value = self.m[ll.thread]
-                        del self.m[ll.thread] # Free memory
+                        del self.m[ll.thread]  # Free memory
 
                         value.start = parse_time(value.date)
                         value.stop = parse_time(ll.date)
@@ -114,52 +120,60 @@ class log_watcher(object):
         finally:
             fileinput.close()
 
+
 class allthreads_watcher(log_watcher):
     def __init__(self, files):
-        log_watcher.__init__(self, files, ["Meth:","Executor.doWork"],["Rslt:","Excp:"])
+        log_watcher.__init__(self, files, ["Meth:", "Executor.doWork"],
+                             ["Rslt:", "Excp:"])
+
 
 class saveAndReturnObject_watcher(log_watcher):
     def __init__(self, files):
-        log_watcher.__init__(self, files, ["saveAndReturnObject"],["Rslt:","Excp:"],storeonce=["Args:"],storeall=["Adding log"])
+        log_watcher.__init__(self, files, ["saveAndReturnObject"],
+                             ["Rslt:", "Excp:"], storeonce=["Args:"],
+                             storeall=["Adding log"])
+
 
 # http://matplotlib.sourceforge.net/examples/api/line_with_text.html
 class MyLine(lines.Line2D):
 
-   def __init__(self, *args, **kwargs):
-      # we'll update the position when the line data is set
-      self.text = mtext.Text(0, 0, '')
-      lines.Line2D.__init__(self, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        # we'll update the position when the line data is set
+        self.text = mtext.Text(0, 0, '')
+        lines.Line2D.__init__(self, *args, **kwargs)
 
-      # we can't access the label attr until *after* the line is
-      # inited
-      self.text.set_text(self.get_label())
+        # we can't access the label attr until *after* the line is
+        # inited
+        self.text.set_text(self.get_label())
 
-   def set_figure(self, figure):
-      self.text.set_figure(figure)
-      lines.Line2D.set_figure(self, figure)
+    def set_figure(self, figure):
+        self.text.set_figure(figure)
+        lines.Line2D.set_figure(self, figure)
 
-   def set_axes(self, axes):
-      self.text.set_axes(axes)
-      lines.Line2D.set_axes(self, axes)
+    def set_axes(self, axes):
+        self.text.set_axes(axes)
+        lines.Line2D.set_axes(self, axes)
 
-   def set_transform(self, transform):
-      # 2 pixel offset
-      texttrans = transform + mtransforms.Affine2D().translate(2, 2)
-      self.text.set_transform(texttrans)
-      lines.Line2D.set_transform(self, transform)
+    def set_transform(self, transform):
+        # 2 pixel offset
+        texttrans = transform + mtransforms.Affine2D().translate(2, 2)
+        self.text.set_transform(texttrans)
+        lines.Line2D.set_transform(self, transform)
 
-   def set_data(self, x, y):
-      if len(x):
-         self.text.set_position((x[-1], y[-1]))
+    def set_data(self, x, y):
+        if len(x):
+            self.text.set_position((x[-1], y[-1]))
 
-      lines.Line2D.set_data(self, x, y)
+        lines.Line2D.set_data(self, x, y)
 
-   def draw(self, renderer):
-      # draw my label at the end of the line with 2 pixel offset
-      lines.Line2D.draw(self, renderer)
-      self.text.draw(renderer)
+    def draw(self, renderer):
+        # draw my label at the end of the line with 2 pixel offset
+        lines.Line2D.draw(self, renderer)
+        self.text.draw(renderer)
 
-def plot_threads(watcher, all_colors = ("blue","red","yellow","green","pink","purple")):
+
+def plot_threads(watcher, all_colors=("blue", "red", "yellow", "green",
+                                      "pink", "purple")):
     digit = re.compile(".*(\d+).*")
 
     fig = plt.figure()
@@ -181,26 +195,29 @@ def plot_threads(watcher, all_colors = ("blue","red","yellow","green","pink","pu
             except:
                 print "Error parsing thread:", ll.thread
                 raise
-        y = np.array([int(t),int(t)])
+        y = np.array([int(t), int(t)])
         x = np.array([ll.start-first, ll.stop-first])
-        c = colors.get(t,all_colors[0])
+        c = colors.get(t, all_colors[0])
         i = all_colors.index(c)
-        colors[t] = all_colors[ (i+1) % len(all_colors) ]
+        colors[t] = all_colors[(i+1) % len(all_colors)]
 
         if True:
-            line = MyLine(x, y, c=c, lw=2, alpha=0.5)#, mfc='red')#, ms=12, label=str(len(ll.logs)))
-            #line.text.set_text('line label')
+            line = MyLine(x, y, c=c, lw=2, alpha=0.5)
+            # , mfc='red')#, ms=12, label=str(len(ll.logs)))
+            # line.text.set_text('line label')
             line.text.set_color('red')
-            #line.text.set_fontsize(16)
+            # line.text.set_fontsize(16)
             ax.add_line(line)
         else:
             # http://matplotlib.sourceforge.net/examples/pylab_examples/broken_barh.html
-            ax.broken_barh([ (110, 30), (150, 10) ] , (10, 9), facecolors='blue')
+            ax.broken_barh([(110, 30), (150, 10)], (10, 9), facecolors='blue')
 
-    ax.set_ylim(-2,25)
+    ax.set_ylim(-2, 25)
     ax.set_xlim(0, (last-first))
     plt.show()
 
 if __name__ == "__main__":
     for g in allthreads_watcher(sys.argv).gen():
-        print "Date:%s\nElapsed:%s\nLevel:%s\nThread:%s\nMethod:%s\nStatus:%s\n\n" % (g.date, g.took, g.level, g.thread, g.message, g.status)
+        print "Date:%s\nElapsed:%s\nLevel:%s\nThread:%s\nMethod:%s\n" \
+            "Status:%s\n\n" % (g.date, g.took, g.level, g.thread, g.message,
+                               g.status)
