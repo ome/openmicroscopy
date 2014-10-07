@@ -27,7 +27,7 @@ import static org.apache.lucene.util.Version.LUCENE_30;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public class FullTextAnalyzer extends Analyzer {
+public final class FullTextAnalyzer extends Analyzer {
 
     private final static Logger log = LoggerFactory.getLogger(FullTextAnalyzer.class);
 
