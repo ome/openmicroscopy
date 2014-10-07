@@ -32,7 +32,6 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 
-
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
