@@ -37,7 +37,7 @@ import tempfile
 import re
 import json
 
-from portalocker import LockException
+from omero_ext import portalocker
 
 logger = logging.getLogger(__name__)
 
@@ -140,7 +140,7 @@ while True:
             CUSTOM_SETTINGS = CONFIG_XML.as_map()
             CONFIG_XML.close()
         break
-    except LockException:
+    except portalocker.LockException:
         #logger.error("Exception while loading configuration retrying...", exc_info=True)
         exctype, value = sys.exc_info()[:2]
         count -= 1
