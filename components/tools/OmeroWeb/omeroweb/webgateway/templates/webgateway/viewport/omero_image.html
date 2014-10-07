@@ -984,8 +984,8 @@
         }
       );
 
-      // disable 'Full Range' button if pixelsType is 'float'
-      if (viewport.loadedImg.meta.pixelsType === "float") {
+      // disable 'Full Range' button if pixelsType is 'float' or 'double'
+      if ($.inArray(OME.preview_viewport.loadedImg.meta.pixelsType, ["float", "double"]) > -1) {
         $("#rdef-fullrange-btn").attr("disabled", "disabled");
       }
     });
