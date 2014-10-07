@@ -4276,6 +4276,9 @@ class EditorModel
 	 */
 	void updateChannels(List<ChannelData> channels)
 	{
+	    if (channelAcquisitionDataMap != null) {
+	        channelAcquisitionDataMap.clear();
+	    }
 		List l = sorter.sort(channels); 
 		emissionsWavelengths = new LinkedHashMap();
 		Iterator i = l.iterator();
