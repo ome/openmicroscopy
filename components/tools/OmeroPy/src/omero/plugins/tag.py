@@ -473,7 +473,8 @@ JSON File Format:
         client = self.ctx.conn(args)
         session = client.getSession()
         update_service = session.getUpdateService()
-        update_service.saveArray([tag])
+        tag = update_service.saveAndReturnObject(tag)
+        self.ctx.out("TagAnnotation:%s" % tag.id.val)
 
     def createset(self, args):
         """
@@ -502,7 +503,8 @@ JSON File Format:
         session = client.getSession()
         update_service = session.getUpdateService()
         try:
-            update_service.saveArray(links)
+            links = update_service.saveAndReturnArray(links)
+            self.ctx.out("TagAnnotation:%s" % links[0].parent.id.val)
         except omero.ValidationException as e:
             self.ctx.err(e.message)
             self.ctx.err("Check that tag '%s' exists." % t)
@@ -544,7 +546,9 @@ JSON File Format:
         client = self.ctx.conn(args)
         session = client.getSession()
         update_service = session.getUpdateService()
-        update_service.saveArray(to_add)
+        to_add = update_service.saveAndReturnArray(to_add)
+        for link in to_add:
+            self.ctx.out("TagAnnotation:%s" % link[0].parent.id.val)
 
     def link(self, args):
         """
