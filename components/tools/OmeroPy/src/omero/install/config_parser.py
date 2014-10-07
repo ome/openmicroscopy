@@ -124,7 +124,7 @@ HEADER = \
 
 %(properties)s"""
 
-BLACK_LIST = ("##", "versions", "omero.upgrades")
+BLACK_LIST = ("##", "versions", "omero.upgrades", "omero.security.ignore_case")
 
 STOP = "### END"
 
