@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Set;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
@@ -192,18 +193,27 @@ class EditorUI
      */
 	private void populateTabbedPane(boolean init)
 	{
-		tabPane.addTab("General", null, generalPane, "General Information.");
-		tabPane.addTab("Acquisition", null, acquisitionPane, 
-			"Acquisition Metadata.");
+		addTab("General", generalPane, "General Information.");
+		addTab("Acquisition", acquisitionPane, "Acquisition Metadata.");
 		if (init) {
 			if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC) {
-				tabPane.addTab(RENDERER_NAME_SPECIFIC, null, dummyPanel, 
+				addTab(RENDERER_NAME_SPECIFIC, dummyPanel, 
 						RENDERER_DESCRIPTION_SPECIFIC);
 			} else {
-				tabPane.addTab(RENDERER_NAME, null, dummyPanel, 
+				addTab(RENDERER_NAME, dummyPanel, 
 						RENDERER_DESCRIPTION);
 			}
 		}	
+	}
+	
+	/**
+	 * Adds a component to the tabPane wrapped inside a JScrollPane
+	 * @param title The title of the tab
+	 * @param comp The component
+	 * @param desc The description of (i. e. tooltip for) the tap
+	 */
+	private void addTab(String title, Component comp, String desc) {
+	    tabPane.addTab(title, null, new JScrollPane(comp), desc);
 	}
 	
 	/** Initializes the UI components. */
@@ -846,11 +856,11 @@ class EditorUI
 		tabPane.removeAll();
 		populateTabbedPane(false);
 		if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC) {
-			tabPane.addTab(RENDERER_NAME_SPECIFIC, null, 
+			addTab(RENDERER_NAME_SPECIFIC, 
 					model.getRenderer().getUI(), 
 					RENDERER_DESCRIPTION_SPECIFIC);
 		} else {
-			tabPane.addTab(RENDERER_NAME, null, 
+			addTab(RENDERER_NAME, 
 					model.getRenderer().getUI(), 
 					RENDERER_DESCRIPTION);
 		}
