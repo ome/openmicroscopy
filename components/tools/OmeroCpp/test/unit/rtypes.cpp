@@ -91,7 +91,7 @@ TEST(RTypesTest, RString) {
     assertRValues<RStringPtr>(s1, s2);
 }
 
-TEST(RTypesTest, RArray) {
+TEST(RTypesTest, DISABLED_RArray) {
     RArrayPtr a1 = rarray();
     a1->add(rint(1));
 
@@ -111,7 +111,7 @@ TEST(RTypesTest, DISABLED_RList) {
     assertRValues<RListPtr>(l1, l2);
 }
 
-TEST(RTypesTest, RSet) {
+TEST(RTypesTest, DISABLED_RSet) {
     RSetPtr s1 = rset();
     s1->add(rint(1));
 
