@@ -75,6 +75,16 @@
       #rdef-active-area td {
         padding: 0 0 4px 0;
       }
+      button.rdef {
+        border: solid transparent 1px;
+        background: transparent;
+      }
+      button.clicked {
+        border-color: blue;
+      }
+      .rdef .owner {
+        color: blue;
+      }
     </style>
 
 
@@ -200,8 +210,11 @@
             // All button events are delegated, so will also apply to new buttons
             $( "#rdef-buttons" )
             .on( "click", "button", function() {
-              var rdid = $(this).attr('data-rdid'),     // might not know this (if button created by js)
-                ownerid = $(this).attr('data-ownerid');
+              var $this = $(this),
+                rdid = $this.attr('data-rdid'),     // might not know this (if button created by js)
+                ownerid = $this.attr('data-ownerid');
+              $( "#rdef-buttons button" ).removeClass('clicked');
+              $this.addClass('clicked');
               for (var r = 0; r < rdefs.length; r++) {
                 if (rdefs[r].id+"" === rdid || rdefs[r].owner.id+"" === ownerid) {
                   OME.preview_viewport.setQuery(rdefs[r]);
@@ -223,11 +236,13 @@
                 kv = settings[s].split("=");
                 defs[kv[0]] = kv[1];
               }
+              $( "#rdef-buttons button" ).removeClass('clicked');
 
               var src = "{% url 'render_thumbnail' manager.image.id %}?_=" + Math.random();
               // if we already have a button, update thumb
               var $btn = $("button.rdef[data-ownerid='{{ ome.user.id }}']");
               if ($btn.length > 0) {
+                $btn.addClass('clicked');
                 // we don't know rdefid but default thumb will be 'ours'
                 $('img.rdef', $btn)
                     .attr('src', src)
@@ -248,7 +263,9 @@
                     .attr('data-ownerid','{{ ome.user.id }}')
                     .appendTo($lastBtn.parent());
                   $newBtn.children('img').attr('src', src);
-                  $newBtn.children('span').text("{{ ome.user.getFullName }}");
+                  $newBtn.children('span').text("{{ ome.user.getFullName }}")
+                      .removeClass('owner');
+                  $newBtn.addClass('clicked');
 
                   rdefs.push({
                     'owner': {'id':{{ ome.user.id }}},
@@ -405,9 +422,12 @@
 
       <li id='rdef-buttons'>
         {% for rdef in rdefs %}
-          <button class='rdef' data-ownerid="{{ rdef.owner.id }}" data-rdid="{{ rdef.id }}">
+          <button class='rdef {% if rdef.current %}clicked{% endif %}'
+            data-ownerid="{{ rdef.owner.id }}" data-rdid="{{ rdef.id }}">
             <img class='rdef' src="{% url 'render_thumbnail' manager.image.id %}?rdefId={{ rdef.id }}"/><br>
-            <span>{{ rdef.owner.firstName }} {{ rdef.owner.lastName }}</span>
+            <span {% ifequal manager.image.getDetails.owner.id.val rdef.owner.id %}class="owner"{% endifequal %}>
+              {{ rdef.owner.firstName }} {{ rdef.owner.lastName }}
+            </span>
           </button>
         {% endfor %}
       </li>
