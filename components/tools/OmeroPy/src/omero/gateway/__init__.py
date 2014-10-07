@@ -6865,6 +6865,17 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
         return self.getRenderingModel().value.lower() == 'greyscale'
 
+    @assert_re()
+    def getRenderingDefId(self):
+        """
+        Returns the ID of the current rendering def on the image.
+        Loads and initialises the rendering engine if needed
+
+        :return:    current rendering def ID
+        :rtype:     Long
+        """
+        return self._re.getRenderingDefId()
+
     def getAllRenderingDefs (self, eid=-1):
         """
         Returns a dict of the rendering settings that exist for this Image
