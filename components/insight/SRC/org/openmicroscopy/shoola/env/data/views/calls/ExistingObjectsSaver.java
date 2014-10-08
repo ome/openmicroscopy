@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.calls.ExistingObjectsSaver
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Java imports
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -122,7 +124,8 @@ public class ExistingObjectsSaver
                 	entry = (Entry) i.next();
                 	p = entry.getKey();
                 	if (p instanceof GroupData) {
-                		as.copyExperimenters(ctx, (GroupData) p, (Collection)
+                	        GroupData group = (GroupData) p;
+                		as.copyExperimenters(ctx, group, (Collection)
                                 entry.getValue());
                 	} else {
                 		if (p instanceof DataObject) {
@@ -132,6 +135,7 @@ public class ExistingObjectsSaver
                 	}
                     
                 }
+                as.refreshGroups(ctx);
                 result = toPaste;
             }
         };
@@ -156,7 +160,8 @@ public class ExistingObjectsSaver
             	if (admin) {
             		AdminService as = context.getAdminService();
             		as.cutAndPasteExperimenters(ctx, toPaste, toRemove);
-                    result = toPaste;
+            		as.refreshGroups(ctx);
+                        result = toPaste; 
             	} else {
             		OmeroDataService os = context.getDataService();
                     os.cutAndPaste(ctx, toPaste, toRemove);

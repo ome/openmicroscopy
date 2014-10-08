@@ -433,6 +433,32 @@ class AdminServiceImpl
             }
             return group;
         }
+        
+        /**
+         * Implemented as specified by {@link AdminService}.
+         * @see AdminService#refreshGroups(SecurityContext)
+         */
+        public void refreshGroups(SecurityContext ctx)
+                throws DSOutOfServiceException, DSAccessException {
+            ExperimenterData exp = (ExperimenterData) context.lookup(LookupNames.CURRENT_USER_DETAILS);
+            List<GroupData> tmp = loadGroupsForExperimenter(ctx, exp.getId());
+            List<GroupData> groups = new ArrayList<GroupData>();
+            for(GroupData group : tmp) {
+                group = gateway.loadGroups(ctx, group.getGroupId()).get(0);
+                groups.add(group);
+            }
+            context.bind(LookupNames.USER_GROUP_DETAILS, groups);
+            List agents = (List) context.lookup(LookupNames.AGENTS);
+            Iterator i = agents.iterator();
+            AgentInfo agentInfo;
+            while (i.hasNext()) {
+                agentInfo = (AgentInfo) i.next();
+                if (agentInfo.isActive()) {
+                    agentInfo.getRegistry().bind(LookupNames.USER_GROUP_DETAILS,
+                            groups);
+                }
+            }
+        }
 	
 	/**
 	 * Implemented as specified by {@link AdminService}.
