@@ -865,6 +865,15 @@ public class OMEROMetadataStoreClient
     // RTYPES
     //
 
+    public omero.model.Time toTime(Double value)
+    {
+        if (value == null) return null;
+        omero.model.Time t = new omero.model.TimeI();
+        t.setValue(value);
+        t.setUnit("ms"); // FIXME
+        return t;
+    }
+
   /**
      * Transforms a Java type into the corresponding OMERO RType.
      *
@@ -5783,7 +5792,7 @@ public class OMEROMetadataStoreClient
             int planeIndex)
     {
         PlaneInfo o = getPlane(imageIndex, planeIndex);
-        o.setExposureTime(toRType(exposureTime));
+        o.setExposureTime(toTime(exposureTime));
     }
 
     /* (non-Javadoc)

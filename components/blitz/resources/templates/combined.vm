@@ -601,6 +601,8 @@ and protect later FOREACH blocks with "if (name == 'id' || name == 'details') sk
 [$jav]     		       copy.${property.name}Seq.add( item == null ? null : (${property.shortType}) item.proxy() );
 [$jav]                 }
 [$jav]             }
+#elseif($property.type.startsWith("ome.model.units"))
+[$jav]             copy.${property.name} = ${property.name} == null ? null : (${property.shortType}) ${property.name}.copy();
 #elseif($property.type.startsWith("ome") || $property.type.startsWith("IObject"))
 [$jav]             copy.${property.name} = ${property.name} == null ? null : (${property.shortType}) ${property.name}.proxy();
 #else

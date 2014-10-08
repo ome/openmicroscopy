@@ -364,6 +364,11 @@ public class OmeroMetadata extends DummyMetadata {
         return v == null? null : v.getValue();
     }
 
+    private Double fromRType(omero.model.Time v)
+    {
+        return v == null? null : v.getValue();
+    }
+
     private Integer fromRType(RInt v)
     {
         return v == null? null : v.getValue();

@@ -2127,10 +2127,10 @@ public class EditorUtil
                 notSet.remove(DELTA_T);
                 details.put(DELTA_T, roundValue(o.getValue()));
             }
-            o = plane.getExposureTime();
-            if (o != null) {
+            omero.model.Time t = plane.getExposureTime();
+            if (t != null) {
                 notSet.remove(EXPOSURE_TIME);
-                details.put(EXPOSURE_TIME, roundValue(o.getValue()));
+                details.put(EXPOSURE_TIME, roundValue(t.getValue()));
             }
             o = plane.getPositionX();
             if (o != null) {

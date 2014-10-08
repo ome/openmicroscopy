@@ -128,7 +128,7 @@
 			<!-- Note: positionY is stored in StagePosition in model-->
 			<optional name="positionZ" type="double"/>
 			<!-- Note: positionZ is stored in StagePosition in model-->
-			<optional name="exposureTime" type="double"/>
+			<optional name="exposureTime" type="ome.model.units.Time"/>
 			<!-- Note: exposureTime is stored in PlaneTiming in model-->
 			<!-- TODO: see mac notes -->
 		</properties>
