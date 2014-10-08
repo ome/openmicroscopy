@@ -34,6 +34,8 @@ import java.util.List;
 
 //Third-party libraries
 
+
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.QuickSearch;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
@@ -43,6 +45,7 @@ import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.util.ui.HistoryDialog;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
 import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
+
 import pojos.DataObject;
 import pojos.TagAnnotationData;
 
@@ -86,7 +89,7 @@ public class QuickFiltering
 	private void handleTagInsert()
 	{
 		if (tags == null) {
-    		firePropertyChange(TAG_LOADING_PROPERTY, Boolean.valueOf(false), 
+    		firePropertyChange(TAG_LOADING_PROPERTY, Boolean.valueOf(false),
     				Boolean.valueOf(true));
     		return;
     	}
@@ -95,7 +98,7 @@ public class QuickFiltering
 		if (tagsDialog == null) return;
 		String name = getSearchValue();
 		
-		List<String> l = SearchUtil.splitTerms(name, 
+		List<String> l = SearchUtil.splitTerms(name,
 				SearchUtil.COMMA_SEPARATOR);
 		if (l.size() > 0) {
 			if (tagsDialog.setSelectedTextValue(l.get(l.size()-1).trim())) {
@@ -113,7 +116,7 @@ public class QuickFiltering
     	if (tagsDialog != null) return;
     	Rectangle r = getSelectionArea().getBounds();
 		Object[] data = null;
-		if (tags != null && tags.size() > 0) {
+		if (CollectionUtils.isNotEmpty(tags)) {
 
 			data = new Object[tags.size()];
 			Iterator j = tags.iterator();
@@ -144,7 +147,8 @@ public class QuickFiltering
 	{
 		setSingleSelection(true);
 		setDefaultSearchContext(text);
-		setSearchEnabled(false);
+		setSearchEnabled(selectedNode != null
+		        && selectedNode.getIndex() != SHOW_ALL);
 		addPropertyChangeListener(this);
 	}
 	
@@ -153,7 +157,7 @@ public class QuickFiltering
 	 * 
 	 * @param tags The value to set.
 	 */
-	public void setTags(Collection tags) 
+	public void setTags(Collection tags)
 	{
 		if (tags == null) return;
 		this.tags = tags;
@@ -174,8 +178,8 @@ public class QuickFiltering
 	public void setSelectedTags(Collection tags)
 	{
 		clear();
-		if (tags == null || tags.size() == 0) {
-			firePropertyChange(DISPLAY_ALL_NODES_PROPERTY, 
+		if (CollectionUtils.isEmpty(tags)) {
+			firePropertyChange(DISPLAY_ALL_NODES_PROPERTY,
 					Boolean.valueOf(false), Boolean.valueOf(true));
 			
 			return;
@@ -188,12 +192,12 @@ public class QuickFiltering
 			list.add(tag.getTagValue());
 		}
 		setSearchValue(list, false);
-		FilterContext context = new FilterContext(); 
-		List<String> l = SearchUtil.splitTerms(getSearchValue(),  
-				SearchUtil.COMMA_SEPARATOR); 
-		if (l != null && l.size() > 0) { 
-			context.addAnnotationType(TagAnnotationData.class, l); 
-			firePropertyChange(FILTER_TAGS_PROPERTY, null, context); 
+		FilterContext context = new FilterContext();
+		List<String> l = SearchUtil.splitTerms(getSearchValue(),
+				SearchUtil.COMMA_SEPARATOR);
+		if (CollectionUtils.isNotEmpty(l)) {
+			context.addAnnotationType(TagAnnotationData.class, l);
+			firePropertyChange(FILTER_TAGS_PROPERTY, null, context);
 		} 
 	}
 	
@@ -230,12 +234,12 @@ public class QuickFiltering
 						String v = ((TagAnnotationData) ho).getTagValue();
 						setSearchValue(v, true);
 						FilterContext context = new FilterContext();
-						List<String> l = SearchUtil.splitTerms(getSearchValue(), 
+						List<String> l = SearchUtil.splitTerms(getSearchValue(),
 								SearchUtil.COMMA_SEPARATOR);
-						if (l != null && l.size() > 0) {
-							context.addAnnotationType(TagAnnotationData.class, 
+						if (CollectionUtils.isNotEmpty(l)) {
+							context.addAnnotationType(TagAnnotationData.class,
 									l);
-							firePropertyChange(FILTER_TAGS_PROPERTY, null, 
+							firePropertyChange(FILTER_TAGS_PROPERTY, null,
 									context);
 						}
 					}
@@ -258,19 +262,19 @@ public class QuickFiltering
 	{
 		super.propertyChange(evt);
 		String name = evt.getPropertyName();
-		if (HistoryDialog.SELECTION_PROPERTY.equals(name)) { 
-			Object item = evt.getNewValue(); 
-			if (!(item instanceof TagItem)) return; 
-			DataObject ho = ((TagItem) item).getDataObject(); 
-			if (ho instanceof TagAnnotationData) { 
-				String v = ((TagAnnotationData) ho).getTagValue(); 
-				setSearchValue(v, true); 
-				FilterContext context = new FilterContext(); 
-				List<String> l = SearchUtil.splitTerms(getSearchValue(),  
-						SearchUtil.COMMA_SEPARATOR); 
-				if (l != null && l.size() > 0) { 
-					context.addAnnotationType(TagAnnotationData.class, l); 
-					firePropertyChange(FILTER_TAGS_PROPERTY, null, context); 
+		if (HistoryDialog.SELECTION_PROPERTY.equals(name)) {
+			Object item = evt.getNewValue();
+			if (!(item instanceof TagItem)) return;
+			DataObject ho = ((TagItem) item).getDataObject();
+			if (ho instanceof TagAnnotationData) {
+				String v = ((TagAnnotationData) ho).getTagValue();
+				setSearchValue(v, true);
+				FilterContext context = new FilterContext();
+				List<String> l = SearchUtil.splitTerms(getSearchValue(),
+						SearchUtil.COMMA_SEPARATOR);
+				if (CollectionUtils.isNotEmpty(l)) { 
+					context.addAnnotationType(TagAnnotationData.class, l);
+					firePropertyChange(FILTER_TAGS_PROPERTY, null, context);
 				} 
 			} 
 		} else if (VK_UP_SEARCH_PROPERTY.equals(name)) {
@@ -281,24 +285,8 @@ public class QuickFiltering
 				tagsDialog.setSelectedIndex(true);
 		} else if (QUICK_SEARCH_PROPERTY.equals(name)) {
 			if (tagsDialog != null && tagsDialog.isVisible()) {
-				/*
-				Object item = tagsDialog.getSelectedTextValue();
-				if (!(item instanceof TagItem)) return;
-				DataObject ho = ((TagItem) item).getDataObject();
-				if (ho instanceof TagAnnotationData) {
-					String v = ((TagAnnotationData) ho).getTagValue();
-					setSearchValue(v, false);
-					FilterContext context = new FilterContext();
-					List<String> l = SearchUtil.splitTerms(getSearchValue(), 
-							SearchUtil.COMMA_SEPARATOR);
-					if (l != null && l.size() > 0) {
-						context.addAnnotationType(TagAnnotationData.class, l);
-						firePropertyChange(FILTER_TAGS_PROPERTY, null, context);
-					}
-				}
-				*/
 			} else
-				firePropertyChange(FILTER_DATA_PROPERTY, evt.getOldValue(), 
+				firePropertyChange(FILTER_DATA_PROPERTY, evt.getOldValue(),
 						          evt.getNewValue());
 		}
 	}
