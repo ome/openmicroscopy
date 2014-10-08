@@ -234,8 +234,8 @@ class EditorUI
 		defaultPane = new JPanel();
 		defaultPane.setBackground(UIUtilities.BACKGROUND_COLOR);
 		component = defaultPane;
-		userTabbedPane = userUI;
-		groupTabbedPane = groupUI;
+		userTabbedPane = new JScrollPane(userUI);
+		groupTabbedPane = new JScrollPane(groupUI);
 	}
 	
 	/** Builds and lays out the components. */
