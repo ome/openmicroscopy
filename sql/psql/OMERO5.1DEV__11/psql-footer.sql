@@ -543,6 +543,7 @@
   CREATE INDEX i_planeinfo_owner ON planeinfo(owner_id);
   CREATE INDEX i_planeinfo_group ON planeinfo(group_id);
   CREATE INDEX i_PlaneInfo_pixels ON planeinfo(pixels);
+  CREATE INDEX i_PlaneInfo_exposureTime ON planeinfo(exposureTime);
   CREATE INDEX i_planeinfoannotationlink_owner ON planeinfoannotationlink(owner_id);
   CREATE INDEX i_planeinfoannotationlink_group ON planeinfoannotationlink(group_id);
   CREATE INDEX i_PlaneInfoAnnotationLink_parent ON planeinfoannotationlink(parent);
@@ -1556,7 +1557,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.1DEV',  10,    'OMERO5.1DEV',   0,             'Initializing');
+             values ('OMERO5.1DEV',  11,    'OMERO5.1DEV',   0,             'Initializing');
 
 --
 -- Temporarily make event columns nullable; restored below.
@@ -2552,7 +2553,7 @@ after delete on originalfile
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
   where currentVersion = 'OMERO5.1DEV' and
-        currentPatch = 10 and
+        currentPatch = 11 and
         previousVersion = 'OMERO5.1DEV' and
         previousPatch = 0;
 

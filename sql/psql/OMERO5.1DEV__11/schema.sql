@@ -1669,6 +1669,7 @@
         id int8 not null,
         deltaT float8,
         permissions int8 not null,
+        exposureTimeUnit varchar(255),
         exposureTime float8,
         positionX float8,
         positionY float8,
