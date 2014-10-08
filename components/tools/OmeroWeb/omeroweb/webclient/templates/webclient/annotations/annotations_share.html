@@ -197,7 +197,13 @@
             <h2 class="data_heading_id">Image ID: <strong>{{ manager.image.id }}</strong></h2>    
             <!-- open-image link -->
 			
-			<button class="btn silver btn_text" href="#" onclick="return OME.openPopup('{% if share_id %}{% url 'web_image_viewer' share_id manager.image.id %}{% else %}{% url 'web_image_viewer' manager.image.id %}{% endif %}')" alt="View" title="Open full viewer">
+			<button class="btn silver btn_text" href="#"
+                {% if share_owned %}
+                    onclick="return OME.openPopup('{% url 'web_image_viewer' manager.image.id %}')"
+                {% else %}
+                    onclick="return OME.openPopup('{% url 'web_image_viewer' share_id manager.image.id %}')"
+                {% endif %}
+                alt="View" title="Open full viewer">
 				<span>
                 {% trans "Launch full viewer" %} 
 				</span>

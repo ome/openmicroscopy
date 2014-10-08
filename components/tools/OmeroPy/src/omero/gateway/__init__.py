@@ -2210,7 +2210,7 @@ class _BlitzGateway (object):
 
         return self.getObjects("Screen", params=params)
 
-    def listOrphans (self, obj_type, eid=None, params=None):
+    def listOrphans (self, obj_type, eid=None, params=None, loadPixels=False):
         """
         List orphaned Datasets, Images, Plates controlled by the security system,
         Optionally filter by experimenter 'eid'
@@ -2229,13 +2229,24 @@ class _BlitzGateway (object):
                 'Image':('DatasetImageLink', ImageWrapper),
                 'Plate':('ScreenPlateLink', PlateWrapper)}
 
+        if obj_type not in links.keys():
+            raise AttributeError("obj_type must be in %s" % str(links.keys()));
+
         if params is None:
             params = omero.sys.ParametersI()
 
+        wrapper = KNOWN_WRAPPERS.get(obj_type.lower(), None)
+        query = wrapper()._getQueryString()
+
+        if loadPixels and obj_type == 'Image':
+            # left outer join so we don't exclude images that have no thumbnails
+            query += " join fetch obj.pixels as pix left outer join fetch pix.thumbnails"
+
         if eid is not None:
             params.exp(eid)
+            query += " where owner.id = (:eid)"
+            params.map["eid"] = params.theFilter.ownerId
 
-        query, params, wrapper = self.buildQuery(obj_type, params=params)
         query += "where" not in query and " where " or " and "
         query += " not exists (select obl from %s as obl where " \
                  "obl.child=obj.id) " % ( links[obj_type][0])
@@ -6586,6 +6597,30 @@ class _ImageWrapper (BlitzObjectWrapper):
         Loads pixels and returns object in a :class:`PixelsWrapper`
         """
         return PixelsWrapper(self._conn, self._obj.getPrimaryPixels())
+
+    @assert_pixels
+    def getThumbVersion(self):
+        """
+        Return the version of (latest) thumbnail owned by current user,
+        or None if no thumbnail exists
+
+        :return:        Long or None
+        """
+        eid = self._conn.getUserId()
+        if self._obj.getPrimaryPixels()._thumbnailsLoaded:
+            tvs = [t.version.val for t in self._obj.getPrimaryPixels().copyThumbnails() \
+                        if t.getDetails().owner.id.val == eid]
+        else:
+            pid = self.getPixelsId()
+            params = omero.sys.ParametersI()
+            params.addLong('pid', pid)
+            params.addLong('ownerId', eid)
+            query = "select t.version from Thumbnail t where t.pixels.id = :pid and t.details.owner.id = :ownerId"
+            tbs = self._conn.getQueryService().projection(query, params, self._conn.SERVICE_OPTS)
+            tvs = [t[0].val for t in tbs]
+        if len(tvs) > 0:
+            return max(tvs)
+        return None
 
     @assert_re(ignoreExceptions=(omero.ConcurrencyException))
     def getChannels (self):

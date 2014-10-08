@@ -480,7 +480,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if page is not None:
             p.page(((int(page)-1)*settings.PAGE), settings.PAGE)
         if load_pixels:
-            pixels = "join fetch im.pixels "
+            pixels = "join fetch im.pixels as pix left outer join fetch pix.thumbnails "
         else:
             pixels = ""
         sql = "select im from Image im "\
@@ -1446,7 +1446,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         sh = self.getShareService()
         for e in sh.getContents(long(share_id)):
             try:
-                obj = omero.gateway.BlitzObjectWrapper(self, e)
+                obj = omero.gateway.ImageWrapper(self, e)
             except:
                 obj = omero.gateway.BlitzObjectWrapper(self,None)
                 obj._obj = e
