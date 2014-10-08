@@ -180,7 +180,6 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
     public void init(Helper helper) {
         this.helper = helper;
-        helper.setSteps(5);
 
         final ImportConfig config = new ImportConfig();
         final String sessionUuid = helper.getEventContext().getCurrentSessionUuid();
@@ -249,6 +248,11 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         } catch (Throwable t) {
             throw helper.cancel(new ERR(), t, "error-on-init");
         } finally {
+            if (reimportFileset)
+                helper.setSteps(2);
+            else {
+                helper.setSteps(5);
+            }
             MDC.clear();
         }
     }
@@ -378,26 +382,33 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
                         "job-type", j.ice_id());
             }
 
-            // workaround to skip unnecessary steps when reimporting
-            if (reimportFileset && Arrays.asList(1,2,3).contains(step))  {
-                return null;
-            }
-
-            if (step == 0) {
-                return importMetadata((MetadataImportJob) j);
-            } else if (step == 1) {
-                return pixelData(null);//(ThumbnailGenerationJob) j);
-            } else if (step == 2) {
-                return generateThumbnails(null);//(PixelDataJob) j); Nulls image
-            } else if (step == 3) {
-                // TODO: indexing and scripting here as well.
-                store.launchProcessing();
-                return null;
-            } else if (step == 4) {
-                return objects;
+            // This code should be improved to make sure we do not hardcode usecases.
+            if (reimportFileset) {
+                if (step == 0) {
+                    return importMetadata((MetadataImportJob) j);
+                } else if (step == 1) {
+                    return objects;
+                } else {
+                    throw helper.cancel(new ERR(), null, "bad-step",
+                            "step", ""+step);
+                }
             } else {
-                throw helper.cancel(new ERR(), null, "bad-step",
-                        "step", ""+step);
+                if (step == 0) {
+                    return importMetadata((MetadataImportJob) j);
+                } else if (step == 1) {
+                    return pixelData(null);//(ThumbnailGenerationJob) j);
+                } else if (step == 2) {
+                    return generateThumbnails(null);//(PixelDataJob) j); Nulls image
+                } else if (step == 3) {
+                    // TODO: indexing and scripting here as well.
+                    store.launchProcessing();
+                    return null;
+                } else if (step == 4) {
+                    return objects;
+                } else {
+                    throw helper.cancel(new ERR(), null, "bad-step",
+                            "step", ""+step);
+                }
             }
         } catch (MissingLibraryException mle) {
             notifyObservers(new ErrorHandler.MISSING_LIBRARY(
@@ -450,7 +461,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void buildResponse(int step, Object object) {
         helper.assertResponse(step);
-        if (step == 4) {
+        if ((reimportFileset && step == 1) || step == 4) {
             ImportResponse rsp = new ImportResponse();
             Map<String, List<IObject>> rv = (Map<String, List<IObject>>) object;
             rsp.pixels = (List) rv.get(Pixels.class.getSimpleName());
