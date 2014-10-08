@@ -18,7 +18,6 @@ class UpgradeCheck(object):
 
     """
     Port of Java UpgradeCheck:
-    http://trac.openmicroscopy.org.uk/ome/browser/trunk/components/common/src/ome/system/UpgradeCheck.java
 
     >>> from omero.util.upgrade_check import UpgradeCheck
     >>> uc = UpgradeCheck("doctest")
@@ -140,8 +139,3 @@ class UpgradeCheck(object):
         else:
             self.log.warn("UPGRADE AVAILABLE:" + result)
             self._set(result, None)
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    import doctest
-    doctest.testmod()

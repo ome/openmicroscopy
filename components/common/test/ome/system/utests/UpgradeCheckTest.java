@@ -41,15 +41,6 @@ public class UpgradeCheckTest extends TestCase {
     }
 
     @Test
-    public void testNoResponse() throws Exception {
-        check = new UpgradeCheck(url, "test", "test");
-        check.run();
-        assertTrue(check.isUpgradeNeeded());
-        assertFalse(check.isExceptionThrown());
-
-    }
-
-    @Test
     public void testSlowResponse() throws Exception {
         check = new UpgradeCheck("http://127.0.0.1:8000", version, "test");
         check.run();
