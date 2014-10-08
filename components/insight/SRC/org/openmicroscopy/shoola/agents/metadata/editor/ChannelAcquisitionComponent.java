@@ -588,14 +588,14 @@ class ChannelAcquisitionComponent
 							channel.setPockelCell((Integer) value);
 					} else if (EditorUtil.EMISSION.equals(key)) {
 						number = UIUtilities.extractNumber((String) value, 
-								Integer.class);
+						        Double.class);
 						if (number != null)
-							channel.setEmissionWavelength((Integer) number);
+							channel.setEmissionWavelength((Double) number);
 					} else if (EditorUtil.EXCITATION.equals(key)) {
 						number = UIUtilities.extractNumber((String) value, 
-								Integer.class);
+								Double.class);
 						if (number != null)
-							channel.setExcitationWavelength((Integer) number);
+							channel.setExcitationWavelength((Double) number);
 					} else if (EditorUtil.ILLUMINATION.equals(key)) {
 						enumObject = (EnumerationObject) value;
 						if (enumObject.getObject() instanceof Illumination)
