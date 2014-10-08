@@ -43,11 +43,18 @@ $.fn.scalebar_display = function(options) {
             } else {
                 var num = Math.floor(width * pixSizeX * zoom);
             }
+
             var factor = Math.pow(10, Math.floor(Math.log(num) / Math.LN10));
             var unit = factor * Math.ceil(num/factor);
+            var scalebar_width = unit/pixSizeX;
 
-            $scalebar.width(unit/pixSizeX);
-            $scalebar.html((unit/zoom).lengthformat(0));
+            if (factor > 0 && scalebar_width > 49 ) {
+                $scalebar.width();
+                $scalebar.html((unit/zoom).lengthformat(0));
+            } else {
+                $scalebar.width(200);
+                $scalebar.html("Error: zoom in to see the value");
+            }
 
         }
 
