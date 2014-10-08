@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.graphutils.ChartObject 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -30,16 +30,21 @@ import java.awt.Color;
 import java.awt.Image;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import javax.swing.JSeparator;
+import javax.swing.AbstractAction;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
 //Third-party libraries
-
-//Application-internal dependencies
+import org.apache.commons.collections.CollectionUtils;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
+
+//Application-internal dependencies
 
 /** 
  * Top class uses to display chart.
@@ -203,9 +208,11 @@ public abstract class ChartObject
 	 * @param image The background image of the plot.
 	 * @param removeLegend Pass <code>true</code> to remove the legend,
 	 * 					   <code>false</code>.
+         * @param actions Additional actions which will be added to the chart's popup menu
+         *
 	 * @return See above.
 	 */
-	public JPanel getChart(Image image, boolean removeLegend)
+	public JPanel getChart(Image image, boolean removeLegend, List<AbstractAction> actions)
 	{
 		backgroundImage = image;
 		createChart();
@@ -213,7 +220,18 @@ public abstract class ChartObject
 		JPanel graphPanel = new JPanel();
 		if (chart == null) return graphPanel;
 		graphPanel.setLayout(new BorderLayout());
-		graphPanel.add(new ChartPanel(chart), BorderLayout.CENTER);
+		
+		// create ChartPanel which does not include "Save as..." menu, as it
+		// only allows JPEG; instead provide "Save as" functionality as custom action
+		ChartPanel p = new ChartPanel(chart, true, false, true, true, true);
+		if (!CollectionUtils.isEmpty(actions))
+		    p.getPopupMenu().add(new JSeparator());
+                for (AbstractAction action : actions) {
+                    JMenuItem exportMenu = new JMenuItem(action);
+                    p.getPopupMenu().add(exportMenu);
+                }
+                
+		graphPanel.add(p, BorderLayout.CENTER);
 		return graphPanel;
 	}
 	
@@ -222,19 +240,30 @@ public abstract class ChartObject
 	 * 
 	 * @param removeLegend Pass <code>true</code> to remove the legend,
 	 * 					   <code>false</code>.
+         * @param actions Additional actions which will be added to the chart's popup menu
+         *
 	 * @return See above.
 	 */
-	public JPanel getChart(boolean removeLegend)
+	public JPanel getChart(boolean removeLegend, List<AbstractAction> actions)
 	{ 
-		return getChart(null, removeLegend);
+		return getChart(null, removeLegend, actions);
 	}
 	
 	/**
+         * Builds the graph and returns the UI component hosting it.
+         * 
+         * @return See above.
+         */
+        public JPanel getChart() { return getChart(null, false, Collections.<AbstractAction> emptyList()); }
+        
+	/**
 	 * Builds the graph and returns the UI component hosting it.
-	 * 
+         *
+	 * @param actions Additional actions which will be added to the chart's popup menu
+         *
 	 * @return See above.
 	 */
-	public JPanel getChart() { return getChart(null, false); }
+	public JPanel getChart(List<AbstractAction> actions) { return getChart(null, false, actions); }
 	
 	/** Creates the chart. */
 	abstract void createChart();
