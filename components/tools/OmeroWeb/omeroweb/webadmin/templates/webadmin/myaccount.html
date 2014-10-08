@@ -240,7 +240,7 @@
     <div id="personal_settings" class="settings_content">
 
 
-       <form class="standard_form settings_form" action="{% url 'wamyaccount' "save" %}" method="POST">
+       <form class="standard_form settings_form" action="{% url 'wamyaccount' "save" %}" method="POST">{% csrf_token %}
 
            <p>{% trans "Fields marked in red are mandatory." %}</p>
            <br/>
@@ -296,7 +296,7 @@
            <!-- hidden dialog for password change -->
            <div id="password_change_dialog" title="Change Password">
 
-               <form id="change_password_form" action="{% url 'wamanagechangepasswordid' ome.eventContext.userId %}" method="POST">
+               <form id="change_password_form" action="{% url 'wamanagechangepasswordid' ome.eventContext.userId %}" method="POST">{% csrf_token %}
 
                    <table>
                        <tbody>
@@ -326,7 +326,7 @@
         <h1>Groups I Own</h1>
         
         <div class="one_column_header">
-            <form class="search filtersearch" id="filtersearch" action="#">
+            <form class="search filtersearch" id="filtersearch" action="#">{% csrf_token %}
                 <input type="text" id="id_search" value="">
                 <input type="submit" value="Go" />
                 <span class="loading">
