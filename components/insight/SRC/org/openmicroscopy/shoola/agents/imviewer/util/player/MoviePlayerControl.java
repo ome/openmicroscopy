@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerControl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -303,21 +303,21 @@ class MoviePlayerControl
         int e = -1;
         if (TwoKnobsSlider.LEFT_MOVED_PROPERTY.equals(name)) {
         	if (source.equals(view.zSlider)) {
-        		s = view.zSlider.getStartValue();
+        		s = view.zSlider.getStartValueAsInt();
         		model.setStartZ(s);
         		view.setStartZ(s);
         	} else if (source.equals(view.tSlider)) {
-        		s = view.tSlider.getStartValue();
+        		s = view.tSlider.getStartValueAsInt();
         		model.setStartT(s);
         		view.setStartT(s);
         	}
         } else if (TwoKnobsSlider.RIGHT_MOVED_PROPERTY.equals(name)) {
             if (source.equals(view.zSlider)) {
-                e = view.zSlider.getEndValue();
+                e = view.zSlider.getEndValueAsInt();
                 model.setEndZ(e);
                 view.setEndZ(e);
             } else if (source.equals(view.tSlider)) {
-                e = view.tSlider.getEndValue();
+                e = view.tSlider.getEndValueAsInt();
                 model.setEndT(e);
                 view.setEndT(e);
             }

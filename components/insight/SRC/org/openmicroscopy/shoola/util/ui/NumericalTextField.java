@@ -209,7 +209,12 @@ public class NumericalTextField
             }
         });
         numberType = type;
-        accepted = NUMERIC;
+        
+        if (Integer.class.equals(type) || Long.class.equals(type))
+            accepted = NUMERIC;
+        else
+            accepted = FLOAT;
+        
         setNegativeAccepted(min < 0);
     }
 

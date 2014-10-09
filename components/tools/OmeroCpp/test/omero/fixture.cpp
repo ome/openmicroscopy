@@ -29,7 +29,7 @@ omero::model::ImagePtr new_ImageI()
 
 Fixture::Fixture()
 {
-    login();
+    client = new omero::client();
     std::string rootpass = client->getProperty("omero.rootpass");
     logout();
     login("root", rootpass);
@@ -104,7 +104,10 @@ omero::model::ExperimenterPtr Fixture::newUser(const omero::model::ExperimenterG
     e->setOmeName( name );
     e->setFirstName( name );
     e->setLastName( name );
-    long id = admin->createUser(e, groupName->getValue());
+    std::vector<ExperimenterGroupPtr> groups;
+    omero::model::ExperimenterGroupPtr userGroup = admin->lookupGroup("user");
+    groups.push_back(userGroup);
+    long id = admin->createExperimenterWithPassword(e, name, g, groups);
     return admin->getExperimenter(id);
 }
 

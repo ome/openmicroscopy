@@ -133,7 +133,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             throws BeansException {
         this.context = (OmeroContext) ctx;
     }
-    
+
     public AdminImpl(SqlAction sql, SessionFactory osf,
             MailSender mailSender, SimpleMailMessage templateMessage,
             ACLVoter aclVoter, PasswordProvider passwordProvider,
@@ -176,7 +176,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         }
 
         Experimenter e = iQuery.findByString(Experimenter.class, "omeName",
-                omeName);
+                roleProvider.isIgnoreCaseLookup() ? omeName.toLowerCase()
+                        : omeName);
 
         if (e == null) {
             throw new ApiUsageException("No such experimenter: " + omeName);
@@ -308,7 +309,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @RolesAllowed("user")
     public Experimenter lookupExperimenter(final String omeName) {
         Experimenter e = iQuery.execute(new UserQ(new Parameters().addString(
-                "name", omeName)));
+                "name",
+                roleProvider.isIgnoreCaseLookup() ? omeName.toLowerCase()
+                        : omeName)));
 
         if (e == null) {
             throw new ApiUsageException("No such experimenter: " + omeName);

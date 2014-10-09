@@ -21,8 +21,8 @@ TEST(SessionsTest, RootCanCreateSessionForUser )
   omero::api::ServiceFactoryPrx sf = f.root->getSession();
   omero::api::ISessionPrx sess = sf->getSessionService();
 
-
-  omero::model::ExperimenterPtr e = f.newUser();
+  omero::model::ExperimenterGroupPtr group = f.newGroup("rwr---");
+  omero::model::ExperimenterPtr e = f.newUser(group);
 
   omero::sys::PrincipalPtr p = new omero::sys::Principal();
   p->name = e->getOmeName()->getValue();

@@ -314,8 +314,8 @@ public class MetadataViewerAgent
      * @param evt
      */
     private void handleCopyRndSettings(CopyRndSettings evt) {
-        MetadataViewerFactory.setRndSettingsToCopy(evt.getImage());
-        MetadataViewerFactory.setRndSettingsToCopy(evt.getRndDef());
+        MetadataViewerFactory.setCopyRenderingSettingsFrom(evt.getImage());
+        MetadataViewerFactory.setCopiedRndSettings(evt.getRndDef());
     }
     
     /**

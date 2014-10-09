@@ -27,6 +27,8 @@ Test of various things under omero.util
 import pytest
 
 from omero.util.text import CSVStyle, PlainStyle, TableBuilder
+from omero.util.upgrade_check import UpgradeCheck
+from omero_version import omero_version
 
 
 class MockTable(object):
@@ -103,3 +105,41 @@ class TestTableBuilder(object):
         for row in mock_table.data:
             tb.row(*row)
         assert str(tb) == mock_table.get_sql_table()
+
+
+class TestUpgradeCheck(object):
+
+    def testNoActionOnNull(self):
+        uc = UpgradeCheck("test", url=None)
+        uc.run()
+        assert uc.isUpgradeNeeded() is False
+        assert uc.isExceptionThrown() is True
+
+    def testNoActionOnEmpty(self):
+        uc = UpgradeCheck("test", url="")
+        uc.run()
+        assert uc.isUpgradeNeeded() is False
+        assert uc.isExceptionThrown() is False
+
+    @pytest.mark.parametrize('port', [8000, 9998])
+    def testSlowResponse(self, port):
+        uc = UpgradeCheck("test", url="http://127.0.0.1:%s" % port)
+        uc.run()
+        assert uc.isUpgradeNeeded() is False
+        assert uc.isExceptionThrown() is True
+
+    @pytest.mark.parametrize('prefix', ['', 'XYZ'])
+    def testBadIp(self, prefix):
+        uc = UpgradeCheck("test", url="200.200.200.200",
+                          version="%s%s" % (prefix, omero_version))
+        uc.run()
+        assert uc.isUpgradeNeeded() is False
+        assert uc.isExceptionThrown() is True
+
+    @pytest.mark.parametrize(
+        'url', ("http://foo", "file://dev/null", "abcp", "abc://bar"))
+    def testBadUrl(self, url):
+        uc = UpgradeCheck("test", url=url, version="XYZ" + omero_version)
+        uc.run()
+        assert uc.isUpgradeNeeded() is False
+        assert uc.isExceptionThrown() is True

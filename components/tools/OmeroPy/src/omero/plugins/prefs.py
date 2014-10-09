@@ -14,7 +14,6 @@
 """
 
 import sys
-import portalocker
 
 from path import path
 from omero.cli import CLI
@@ -24,6 +23,8 @@ from omero.cli import NonZeroReturnCode
 from omero.config import ConfigXml
 from omero.util import edit_path, get_user_dir
 from omero.util.decorators import wraps
+from omero_ext import portalocker
+
 import omero.java
 
 HELP = """Commands for server configuration

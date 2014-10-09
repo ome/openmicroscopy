@@ -189,6 +189,55 @@ class TestIShare(lib.ITest):
         for e in res:
             assert e.id.val == img.id.val
 
+    @pytest.mark.xfail(reason="See ticket #12562")
+    def testCanAnntotate(self):
+
+        # Users in Private and Read-annotate groups
+        private_g = self.new_group(perms="rw----")
+        readann_g = self.new_group(perms="rwra--")
+
+        # User 1 is only in private group
+        client1, user1 = self.new_client_and_user(group=private_g)
+
+        # User2 is in read-ann group (default) AND private group
+        user2 = self.new_user(group=readann_g)
+        self.add_groups(user2, [private_g])
+        client2 = self.new_client(user=user2, password="ome")
+
+        # User 1 creates image in Private group...
+        update1 = client1.sf.getUpdateService()
+        share1 = client1.sf.getShareService()
+        img = ImageI()
+        img.setName(rstring('ishare_testCanAnntotate'))
+        img = update1.saveAndReturnObject(img)
+        assert not img.details.permissions.isGroupRead()
+        assert not img.details.permissions.isGroupAnnotate()
+        img.unload()
+
+        # ...Adds it to share
+        description = "my description"
+        timeout = None
+        objects = [img]
+        experimenters = [user2]
+        guests = []
+        enabled = True
+        sid = share1.createShare(description, timeout, objects,
+                                 experimenters, guests, enabled)
+
+        # User 2 logs in, gets image from share
+        query2 = client2.sf.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {"ids": rlist([rlong(img.id.val)])}
+        sql = "select im from Image im where im.id in (:ids) order by im.name"
+        res = query2.findAllByQuery(sql, p, {'omero.share': str(sid)})
+        assert 1 == len(res)
+
+        # User should not be able to annotate private image.
+        for e in res:
+            canAnn = e.getDetails().getPermissions().canAnnotate()
+            assert not canAnn
+            assert e.id.val == img.id.val
+
     def test1157(self):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         share = self.root.sf.getShareService()

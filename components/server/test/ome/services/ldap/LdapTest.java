@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.naming.NamingException;
 
@@ -21,6 +22,8 @@ import ome.logic.LdapImpl;
 import ome.model.meta.Experimenter;
 import ome.security.auth.LdapConfig;
 import ome.security.auth.LdapPasswordProvider;
+import ome.security.auth.PasswordProvider;
+import ome.security.auth.PasswordProviders;
 import ome.security.auth.PasswordUtil;
 import ome.security.auth.RoleProvider;
 import ome.services.util.Executor;
@@ -67,6 +70,7 @@ public class LdapTest extends MockObjectTestCase {
         LdapPasswordProvider provider;
         public LdapTemplate template;
         public OmeroContext applicationContext;
+        boolean ignoreCaseLookup;
 
         public void createUserWithGroup(LdapTest t, final String dn,
                 String group) {
@@ -107,6 +111,11 @@ public class LdapTest extends MockObjectTestCase {
         }
 
         void close() {
+            if (ignoreCaseLookup) {
+                applicationContext.getBean("atomicIgnoreCase",
+                        AtomicBoolean.class).set(false);
+                ignoreCaseLookup = false;
+            }
             ctx.close();
         }
     }
@@ -190,6 +199,7 @@ public class LdapTest extends MockObjectTestCase {
 
         fixture.provider = new LdapPasswordProvider(new PasswordUtil(sql),
                 fixture.ldap);
+
         return fixture;
     }
 
@@ -210,10 +220,12 @@ public class LdapTest extends MockObjectTestCase {
             }
 
             assertNotNull(dn);
-            assertEquals(user, ldap.findExperimenter(user).getOmeName());
+            assertEquals(fixture.ignoreCaseLookup ? user.toLowerCase() : user,
+                    ldap.findExperimenter(user).getOmeName());
             fixture.createUserWithGroup(this, dn, users.get(user).get(0));
             assertNotNull(fixture.createUser(user, "password", true));
-            fixture.login(user, users.get(user).get(0), "password");
+            fixture.login(fixture.ignoreCaseLookup ? user.toLowerCase() : user,
+                    users.get(user).get(0), "password");
         }
     }
 
@@ -262,7 +274,8 @@ public class LdapTest extends MockObjectTestCase {
             }
 
             assertNotNull(dn);
-            assertEquals(user, ldap.findExperimenter(user).getOmeName());
+            assertEquals(fixture.ignoreCaseLookup ? user.toLowerCase() : user,
+                    ldap.findExperimenter(user).getOmeName());
             fixture.createUserWithGroup(this, dn, users.get(user).get(0));
             assertNotNull(fixture.createUser(user));
             try {

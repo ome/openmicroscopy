@@ -9,7 +9,7 @@
 import os
 import time
 import signal
-import killableprocess as subprocess
+from omero_ext import killableprocess as subprocess
 
 from path import path
 

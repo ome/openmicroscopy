@@ -52,6 +52,7 @@ import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -977,6 +978,16 @@ class RendererComponent
 			handleException(e);
 		}
 	}
+	
+    /**
+     * Implemented as specified by the {@link Renderer} interface.
+     * 
+     * @see Renderer#isIntegerPixelData()
+     */
+    public boolean isIntegerPixelData() {
+        return model.isIntegerPixelData();
+    };
+        
 	
 	/** 
      * Implemented as specified by the {@link Renderer} interface.
