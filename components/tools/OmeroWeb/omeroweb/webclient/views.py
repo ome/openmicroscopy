@@ -47,6 +47,7 @@ from django.utils.http import urlencode
 from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_str
 from django.core.servers.basehttp import FileWrapper
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 from webclient_utils import _formatReport, _purgeCallback
 from forms import GlobalSearchForm, ShareForm, BasketShareForm, \
@@ -1143,6 +1144,7 @@ def getIds(request):
     return selected
 
 
+@ensure_csrf_cookie
 @login_required()
 @render_response()
 def batch_annotate(request, conn=None, **kwargs):
@@ -1199,6 +1201,7 @@ def batch_annotate(request, conn=None, **kwargs):
     return context
 
 
+@ensure_csrf_cookie
 @login_required()
 @render_response()
 def annotate_file(request, conn=None, **kwargs):
@@ -1337,6 +1340,7 @@ def annotate_comment(request, conn=None, **kwargs):
         return HttpResponse(str(form_multi.errors))      # TODO: handle invalid form error
 
 
+@ensure_csrf_cookie
 @login_required()
 @render_response()
 def annotate_tags(request, conn=None, **kwargs):
