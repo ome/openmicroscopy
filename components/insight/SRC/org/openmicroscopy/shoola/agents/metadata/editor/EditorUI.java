@@ -40,13 +40,11 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
-
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
@@ -63,7 +61,6 @@ import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
@@ -196,18 +193,27 @@ class EditorUI
      */
 	private void populateTabbedPane(boolean init)
 	{
-		tabPane.addTab("General", null, generalPane, "General Information.");
-		tabPane.addTab("Acquisition", null, new JScrollPane(acquisitionPane), 
-			"Acquisition Metadata.");
+		addTab("General", generalPane, "General Information.");
+		addTab("Acquisition", acquisitionPane, "Acquisition Metadata.");
 		if (init) {
 			if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC) {
-				tabPane.addTab(RENDERER_NAME_SPECIFIC, null, dummyPanel, 
+				addTab(RENDERER_NAME_SPECIFIC, dummyPanel, 
 						RENDERER_DESCRIPTION_SPECIFIC);
 			} else {
-				tabPane.addTab(RENDERER_NAME, null, dummyPanel, 
+				addTab(RENDERER_NAME, dummyPanel, 
 						RENDERER_DESCRIPTION);
 			}
 		}	
+	}
+	
+	/**
+	 * Adds a component to the tabPane wrapped inside a JScrollPane
+	 * @param title The title of the tab
+	 * @param comp The component
+	 * @param desc The description of (i. e. tooltip for) the tap
+	 */
+	private void addTab(String title, Component comp, String desc) {
+	    tabPane.addTab(title, null, new JScrollPane(comp), desc);
 	}
 	
 	/** Initializes the UI components. */
@@ -850,12 +856,12 @@ class EditorUI
 		tabPane.removeAll();
 		populateTabbedPane(false);
 		if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC) {
-			tabPane.addTab(RENDERER_NAME_SPECIFIC, null, 
-					new JScrollPane(model.getRenderer().getUI()), 
+			addTab(RENDERER_NAME_SPECIFIC, 
+					model.getRenderer().getUI(), 
 					RENDERER_DESCRIPTION_SPECIFIC);
 		} else {
-			tabPane.addTab(RENDERER_NAME, null, 
-					new JScrollPane(model.getRenderer().getUI()), 
+			addTab(RENDERER_NAME, 
+					model.getRenderer().getUI(), 
 					RENDERER_DESCRIPTION);
 		}
 		
@@ -937,7 +943,7 @@ class EditorUI
 	{ 
 		if (cleanup) tabPane.setComponentAt(RND_INDEX, dummyPanel);
 		else tabPane.setComponentAt(RND_INDEX, 
-				new JScrollPane(model.getRenderer().getUI()));
+				model.getRenderer().getUI());
 	}
 
 	/**

@@ -171,6 +171,9 @@ class TreeViewerComponent
  	implements TreeViewer
 {
   
+        /** Warning message shown when the rendering settings are to be reset */
+        private static final String RENDERINGSETTINGS_WARNING = "This will save new rendering settings and cannot be undone.";
+    
 	/** The Model sub-component. */
 	private TreeViewerModel     model;
 
@@ -2708,8 +2711,13 @@ class TreeViewerComponent
 			un.notifyInfo("Reset settings", "Please select at one element.");
 			return;
 		}
-		model.fireResetRenderingSettings(ids, klass);
-		fireStateChange();
+		
+		MessageBox box = new MessageBox(getUI(), "Reset rendering settings",
+	                RENDERINGSETTINGS_WARNING);
+	        if (box.centerMsgBox() == MessageBox.YES_OPTION) {
+	            model.fireResetRenderingSettings(ids, klass);
+	            fireStateChange();
+	        }
 	}
 
 	/**
@@ -3033,8 +3041,13 @@ class TreeViewerComponent
 					"one element.");
 			return;
 		}
-		model.fireSetOwnerRenderingSettings(ids, klass);
-		fireStateChange();
+		
+		MessageBox box = new MessageBox(getUI(), "Reset rendering settings",
+	                RENDERINGSETTINGS_WARNING);
+	        if (box.centerMsgBox() == MessageBox.YES_OPTION) {
+	            model.fireSetOwnerRenderingSettings(ids, klass);
+	            fireStateChange();
+	        }
 	}
 
 	/**

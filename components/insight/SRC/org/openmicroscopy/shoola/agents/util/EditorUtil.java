@@ -548,9 +548,9 @@ public class EditorUtil
         PIXELS_TYPE_DESCRIPTION.put(OmeroImageService.UINT_32,
                 "Unsigned 32-bit (4 byte)");
         PIXELS_TYPE_DESCRIPTION.put(OmeroImageService.FLOAT,
-                "Floating precision");
+                "Float");
         PIXELS_TYPE_DESCRIPTION.put(OmeroImageService.DOUBLE,
-                "Double precision");
+                "Double");
         PIXELS_TYPE = new LinkedHashMap<String, String>();
         Entry<String, String> entry;
         Iterator<Entry<String, String>>
