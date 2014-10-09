@@ -400,6 +400,7 @@ public class GraphTraversal {
         Collection<Ability> getRequiredPermissions();
     }
 
+    private final Session session;
     private final EventContext eventContext;
     private final ACLVoter aclVoter;
     private final SystemTypes systemTypes;
@@ -411,6 +412,7 @@ public class GraphTraversal {
 
     /**
      * Construct a new instance of a graph traversal manager.
+     * @param session the Hibernate session
      * @param eventContext the current event context
      * @param aclVoter ACL voter for permissions checking
      * @param systemTypes for identifying the system types
@@ -419,8 +421,9 @@ public class GraphTraversal {
      * @param policy how to determine which related objects to include in the operation
      * @param processor how to operate on the resulting target object graph
      */
-    public GraphTraversal(EventContext eventContext, ACLVoter aclVoter, SystemTypes systemTypes, GraphPathBean graphPathBean,
-            SetMultimap<String, String> unnullable, GraphPolicy policy, Processor processor) {
+    public GraphTraversal(Session session, EventContext eventContext, ACLVoter aclVoter, SystemTypes systemTypes,
+            GraphPathBean graphPathBean, SetMultimap<String, String> unnullable, GraphPolicy policy, Processor processor) {
+        this.session = session;
         this.eventContext = eventContext;
         this.aclVoter = aclVoter;
         this.systemTypes = systemTypes;
@@ -594,6 +597,9 @@ public class GraphTraversal {
         final ome.model.internal.Details objectDetails = objectInstance.getDetails();
 
         if (!eventContext.isCurrentUserAdmin()) {
+            /* allowLoad ensures that BasicEventContext.groupPermissionsMap is populated */
+            aclVoter.allowLoad(session, objectInstance.getClass(), objectDetails, object.id);
+
             if (aclVoter.allowUpdate(objectInstance, objectDetails)) {
                 planning.mayUpdate.add(object);
             }

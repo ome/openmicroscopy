@@ -88,8 +88,8 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
     }
 
     @Override
-    public ImmutableMap<String, String> getCallContext() {
-       return ALL_GROUPS_CONTEXT;
+    public Map<String, String> getCallContext() {
+        return new HashMap<String, String>(ALL_GROUPS_CONTEXT);
     }
 
     @Override
@@ -111,8 +111,8 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
         graphPolicyWithOptions = OrphanOverridePolicy.getOrphanOverridePolicy(graphPolicyWithOptions, graphPathBean,
                 includeChild, excludeChild);
 
-        graphTraversal = new GraphTraversal(eventContext, aclVoter, systemTypes, graphPathBean, unnullable, graphPolicyWithOptions,
-                dryRun ? new NullGraphTraversalProcessor(REQUIRED_ABILITIES) : new InternalProcessor());
+        graphTraversal = new GraphTraversal(helper.getSession(), eventContext, aclVoter, systemTypes, graphPathBean, unnullable,
+                graphPolicyWithOptions, dryRun ? new NullGraphTraversalProcessor(REQUIRED_ABILITIES) : new InternalProcessor());
     }
 
     @Override
