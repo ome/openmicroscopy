@@ -187,8 +187,14 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
 
         if (p.size() == 1 && p.get(0) != null) {
             Experimenter e = p.get(0);
-            if (e.getOmeName().equals(username)) {
-                return p.get(0);
+            if (provider.isIgnoreCaseLookup()) {
+                if (e.getOmeName().equalsIgnoreCase(username)) {
+                    return p.get(0);
+                }
+            } else {
+                if (e.getOmeName().equals(username)) {
+                    return p.get(0);
+                }
             }
         }
         throw new ApiUsageException(
@@ -417,6 +423,9 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
      */
     public Experimenter createUser(String username, String password,
             boolean checkPassword) {
+        if (provider.isIgnoreCaseLookup()) {
+            username = username.toLowerCase();
+        }
         if (iQuery.findByString(Experimenter.class, "omeName", username) != null) {
             throw new ValidationException("User already exists: " + username);
         }

@@ -8,6 +8,7 @@ package ome.services.ldap;
 import java.io.File;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
@@ -17,6 +18,7 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.Session;
 import ome.security.auth.LdapConfig;
 import ome.security.auth.LdapPasswordProvider;
+import ome.security.auth.PasswordProviders;
 import ome.security.auth.PasswordUtil;
 import ome.security.auth.RoleProvider;
 import ome.services.sessions.SessionManager;
@@ -31,6 +33,7 @@ import ome.tools.spring.InternalServiceFactory;
 import ome.util.SqlAction;
 
 import org.springframework.aop.target.HotSwappableTargetSource;
+import org.springframework.beans.BeansException;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.LdapContextSource;
@@ -275,6 +278,14 @@ public class LdapIntegrationTest extends LdapTest {
         fixture.applicationContext = this.mCtx;
         fixture.template = (LdapTemplate) mCtx.getBean("ldapTemplate");
         fixture.template.setContextSource(source);
+        try {
+            fixture.ignoreCaseLookup = fixture.ctx.getBean("testIgnoreCase",
+                    Boolean.class);
+            fixture.applicationContext.getBean("atomicIgnoreCase",
+                    AtomicBoolean.class).set(fixture.ignoreCaseLookup);
+        } catch (BeansException be) {
+            // skip this fixture
+        }
 
         InternalServiceFactory isf = new InternalServiceFactory(mCtx);
         SqlAction sql = (SqlAction) mCtx.getBean("simpleSqlAction");

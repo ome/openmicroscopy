@@ -40,4 +40,6 @@ public interface RoleProvider {
 
     void removeGroups(final Experimenter user,
             final ExperimenterGroup... groups);
+
+    boolean isIgnoreCaseLookup();
 }
