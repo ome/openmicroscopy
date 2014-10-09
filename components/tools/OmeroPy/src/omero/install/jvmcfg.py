@@ -255,13 +255,8 @@ class Strategy(object):
         hd = self.settings.heap_dump
         if hd == "off":
             return ""
-        elif hd in ("on", "cwd"):
+        elif hd in ("on", "cwd", "tmp"):
             return "-XX:+HeapDumpOnOutOfMemoryError"
-        elif hd in ("tmp",):
-            import tempfile
-            tmp = tempfile.gettempdir()
-            return ("-XX:+HeapDumpOnOutOfMemoryError "
-                    "-XX:HeapDumpPath=%s") % tmp
 
     def get_perm_gen(self):
         pg = self.settings.perm_gen
@@ -271,7 +266,12 @@ class Strategy(object):
             return "-XX:MaxPermSize=%s" % pg
 
     def get_append(self):
-        return split(self.settings.append)
+        values = []
+        if self.settings.heap_dump == "tmp":
+            import tempfile
+            tmp = tempfile.gettempdir()
+            values.append("-XX:HeapDumpPath=%s" % tmp)
+        return values + split(self.settings.append)
 
     def get_memory_settings(self):
         values = [
