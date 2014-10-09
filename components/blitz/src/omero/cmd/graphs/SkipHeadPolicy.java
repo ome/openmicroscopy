@@ -31,9 +31,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.SetMultimap;
 
 import ome.model.IObject;
 import ome.services.graphs.GraphException;
@@ -106,6 +104,9 @@ public class SkipHeadPolicy {
                     Map<String, Set<Details>> linkedTo, Set<String> notNullable) throws GraphException {
                 if (rootObject.action == GraphPolicy.Action.INCLUDE && isStartFrom.apply(rootObject.subject)) {
                     /* skip the review, start from this object in a later request */
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("deferring review of " + rootObject);
+                    }
                     return Collections.emptySet();
                 } else {
                     /* do the review */
