@@ -207,7 +207,7 @@
 
                 // Choose to add tags...
                 if ($("#add_tags_form").length === 0) {
-                    $("<form id='add_tags_form' title='Tags Selection' action='{% url 'annotate_tags' %}' method='post'>{% csrf_token %}</form>")
+                    $("<form id='add_tags_form' title='Tags Selection' action='{% url 'annotate_tags' %}' method='post'></form>")
                         .hide().appendTo('body');
                 }
                 $("#launch_tags_form").click(function(event) {
@@ -252,7 +252,7 @@
 
                 // set-up the attachment selection form to use AJAX. (requires jquery.form.js plugin)
                 if ($("#choose_attachments_form").length === 0) {
-                    $("<form id='choose_attachments_form' title='Choose Attachments' action='{% url 'annotate_file' %}' method='post'>{% csrf_token %}</form>")
+                    $("<form id='choose_attachments_form' title='Choose Attachments' action='{% url 'annotate_file' %}' method='post'></form>")
                         .hide().appendTo('body');
                 }
                 $('#choose_attachments_form').ajaxForm({
