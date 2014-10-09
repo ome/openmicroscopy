@@ -296,11 +296,11 @@
 </div>
 
 <!-- hidden form for creating share - shown in dialog & loaded by AJAX -->
-<form id="create_share_form" action="{% url 'basket_action' 'createshare' %}" method="post" title="Create Share" class="standard_form">
+<form id="create_share_form" action="{% url 'basket_action' 'createshare' %}" method="post" title="Create Share" class="standard_form">{% csrf_token %}
 </form>
 
 <!-- hidden form for creating discussion - shown in dialog & loaded by AJAX -->
-<form id="create_discussion_form" action="{% url 'basket_action' "createdisc" %}" method="post" title="Create Discussion" class="standard_form">
+<form id="create_discussion_form" action="{% url 'basket_action' "createdisc" %}" method="post" title="Create Discussion" class="standard_form">{% csrf_token %}
 </form>
     
 {% endblock %}
