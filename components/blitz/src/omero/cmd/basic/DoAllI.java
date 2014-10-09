@@ -263,8 +263,11 @@ public class DoAllI extends DoAll implements IRequest {
             allgroups.put("omero.group", "-1");
             ctx.publishMessage(new ContextMessage.Push(this, allgroups));
             try {
-                // Process within -1 block.
-                new Preprocessor(this.requests, this.helper);
+                final String isWrapGraphRequests = ctx.getProperty("omero.graphs.wrap");
+                if (!Boolean.parseBoolean(isWrapGraphRequests)) {
+                    // Process within -1 block.
+                    new Preprocessor(this.requests, this.helper);
+                }
             } finally {
                 ctx.publishMessage(new ContextMessage.Pop(this, allgroups));
             }
