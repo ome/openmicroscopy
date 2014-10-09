@@ -6425,7 +6425,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
         Returns the rendering settings window-start of this channel
 
         :return:    Window start
-        :rtype:     int
+        :rtype:     double
         """
 
         return self._re.getChannelWindowStart(
@@ -6439,7 +6439,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
         Returns the rendering settings window-end of this channel
 
         :return:    Window end
-        :rtype:     int
+        :rtype:     double
         """
 
         return self._re.getChannelWindowEnd(
