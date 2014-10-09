@@ -2444,7 +2444,7 @@ class _BlitzGateway (object):
 
         return self.getObjects("Screen", params=params)
 
-    def listOrphans (self, obj_type, eid=None, params=None, loadPixels=False):
+    def listOrphans(self, obj_type, eid=None, params=None, loadPixels=False):
         """
         List orphaned Datasets, Images, Plates controlled by the security
         system, Optionally filter by experimenter 'eid'
@@ -2467,7 +2467,7 @@ class _BlitzGateway (object):
                  'Plate': ('ScreenPlateLink', PlateWrapper)}
 
         if obj_type not in links.keys():
-            raise AttributeError("obj_type must be in %s" % str(links.keys()));
+            raise AttributeError("obj_type must be in %s" % str(links.keys()))
 
         if params is None:
             params = omero.sys.ParametersI()
@@ -2479,7 +2479,7 @@ class _BlitzGateway (object):
             # left outer join so we don't exclude
             # images that have no thumbnails
             query += (" join fetch obj.pixels as pix "
-                "left outer join fetch pix.thumbnails")
+                      "left outer join fetch pix.thumbnails")
 
         if eid is not None:
             params.exp(eid)
@@ -7232,15 +7232,19 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
         eid = self._conn.getUserId()
         if self._obj.getPrimaryPixels()._thumbnailsLoaded:
-            tvs = [t.version.val for t in self._obj.getPrimaryPixels().copyThumbnails() \
-                        if t.getDetails().owner.id.val == eid]
+            tvs = [t.version.val
+                   for t in self._obj.getPrimaryPixels().copyThumbnails()
+                   if t.getDetails().owner.id.val == eid]
         else:
             pid = self.getPixelsId()
             params = omero.sys.ParametersI()
             params.addLong('pid', pid)
             params.addLong('ownerId', eid)
-            query = "select t.version from Thumbnail t where t.pixels.id = :pid and t.details.owner.id = :ownerId"
-            tbs = self._conn.getQueryService().projection(query, params, self._conn.SERVICE_OPTS)
+            query = ("select t.version from Thumbnail t "
+                     "where t.pixels.id = :pid "
+                     "and t.details.owner.id = :ownerId")
+            tbs = self._conn.getQueryService().projection(
+                query, params, self._conn.SERVICE_OPTS)
             tvs = [t[0].val for t in tbs]
         if len(tvs) > 0:
             return max(tvs)
