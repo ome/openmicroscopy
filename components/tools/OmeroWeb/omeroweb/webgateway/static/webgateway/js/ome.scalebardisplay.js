@@ -32,30 +32,32 @@ $.fn.scalebar_display = function(options) {
         }
 
         this.setScalebarZoom = function(zoom) {
-            var width = 200;
-            // scalebar shouldn't be bigger then 1/5 of the viewport
-            if (imageWidth>0 && imageWidth < 5*width) {
-                width = Math.floor(imageWidth/5)
+            // scalebar shouldn't be bigger then 1/5 of the regular viewport
+            if (tiles) {
+                var width = 100;
+            } else {
+                var width = 0;
+                var viewport_width = $scalebar.parent().width();
+                if (viewport_width > imageWidth*zoom) {
+                    var width = Math.ceil(imageWidth/5);
+                } else {
+                    var width = Math.ceil(viewport_width/50);
+                }
             }
             //find the nearest value round to power of 10
-            if (tiles) {
-                var num = Math.floor(width * pixSizeX);
-            } else {
-                var num = Math.floor(width * pixSizeX * zoom);
-            }
-
+            var num = Math.floor(width * pixSizeX);
             var factor = Math.pow(10, Math.floor(Math.log(num) / Math.LN10));
             var unit = factor * Math.ceil(num/factor);
-            var scalebar_width = unit/pixSizeX;
 
-            if (factor > 0 && scalebar_width > 49 ) {
-                $scalebar.width();
+            if (tiles) {
+                var scalebar_width = Math.round(unit/pixSizeX);
+                $scalebar.width(scalebar_width);
                 $scalebar.html((unit/zoom).lengthformat(0));
             } else {
-                $scalebar.width(200);
-                $scalebar.html("Error: zoom in to see the value");
+                var scalebar_width = Math.round(unit/pixSizeX*zoom);
+                $scalebar.width(scalebar_width);
+                $scalebar.html(unit.lengthformat(0));
             }
-
         }
 
     });
