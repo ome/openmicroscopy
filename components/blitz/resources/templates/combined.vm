@@ -122,7 +122,31 @@ DECLARATION BLOCK:
 [$ice]     module enums {
 #foreach($prop in $type.properties)
 #if($prop.class.name == "ome.dsl.EntryField")
-[$ice]         const string ${Pojo}${prop.name.replaceAll("[^a-zA-Z0-9]","")} = "${prop.name}";
+### HACK: the enum
+### bf/components/xsd-fu/xsd-fu: def enum_value_name()
+#set($enumSymbol = ${prop.name.replaceAll("[^a-zA-Z0-9]","")})
+#if($Pojo.startsWith("Units"))
+#set($enumSymbol1 = ${enumSymbol.substring(1)})
+#if($prop.name.startsWith("M"))
+#set($enumSymbol = "mega${enumSymbol1}")
+#elseif($prop.name.startsWith("G"))
+#set($enumSymbol = "giga${enumSymbol1}")
+#elseif($prop.name.startsWith("P"))
+#set($enumSymbol = "peta${enumSymbol1}")
+#elseif($prop.name.startsWith("E"))
+#set($enumSymbol = "exa${enumSymbol1}")
+#elseif($prop.name.startsWith("Z"))
+#set($enumSymbol = "zetta${enumSymbol1}")
+#elseif($prop.name.startsWith("Y"))
+#set($enumSymbol = "yotta${enumSymbol1}")
+#elseif($prop.name.startsWith("T") && !$prop.name.startsWith("o"))
+#set($enumSymbol = "tera${enumSymbol1}")
+#elseif($prop.name.startsWith("µ"))
+#set($enumSymbol = "micro${enumSymbol1}")
+#end
+#end
+#set($enumName = "${Pojo}${enumSymbol}")
+[$ice]         const string ${enumName} = "${prop.name}";
 #end
 #end
 [$ice]     };

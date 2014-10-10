@@ -53,6 +53,19 @@ class DetailsObjectFactory(Ice.ObjectFactory):
     def destroy(self):
         pass
 
+class TimeObjectFactory(Ice.ObjectFactory):
+
+    from omero_model_TimeI import TimeI
+
+    def __init__(self, client = None):
+        self.client = client
+
+    def create(self, type):
+        return self.TimeI(self.client)
+
+    def destroy(self):
+        pass
+
 def conditionalAdd(name, ic, of):
     if not ic.findObjectFactory(name):
         ic.addObjectFactory(of, name)
@@ -60,6 +73,7 @@ def conditionalAdd(name, ic, of):
 def registerObjectFactory(ic, client = None):
     conditionalAdd("::omero::model::Permissions", ic, PermissionsObjectFactory())
     conditionalAdd("::omero::model::Details", ic, DetailsObjectFactory(client))
+    conditionalAdd("::omero::model::Time", ic, TimeObjectFactory(client))
 #foreach($type in $types)
 #if(!$type.abstract)
     conditionalAdd("::omero::model::${type.shortname}", ic,  ${type.shortname}ObjectFactory())

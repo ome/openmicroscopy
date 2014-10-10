@@ -20,6 +20,8 @@
 #ifndef CLASS_TIME
 #define CLASS_TIME
 
+#include <omero/model/UnitsTime.ice>
+
 module omero {
 
     module model {
@@ -33,7 +35,7 @@ module omero {
        **/
       double value;
 
-      string unit;
+      UnitsTime unit;
 
       /**
        **/
@@ -45,11 +47,11 @@ module omero {
 
       /**
        **/
-      string getUnit();
+      UnitsTime getUnit();
 
       /**
        **/
-      void setUnit(string unit);
+      void setUnit(UnitsTime unit);
 
       Time copy();
 

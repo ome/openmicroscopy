@@ -23,14 +23,22 @@ import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
+import ome.model.enums.UnitsTime;
+import ome.util.Filter;
+import ome.util.Filterable;
+
 /**
  * class storing both a time duration (double) and a unit for that duration
  * (e.g. ns, ms, s, etc.)
  */
 @Embeddable
-public class Time implements Serializable {
+public class Time implements Serializable, Filterable {
 
     private static final long serialVersionUID = 1L;
+
+    public final static String VALUE = "ome.model.units.Time_value";
+
+    public final static String UNIT = "ome.model.units.Time_unit";
 
     // ~ Constructors
     // =========================================================================
@@ -48,10 +56,10 @@ public class Time implements Serializable {
     private double value;
 
     /**
-     * string representation of the units which should be considering when
+     * representation of the units which should be considering when
      * producing a representation of the {@link #time} field.
      */
-    private String unit;
+    private UnitsTime unit;
 
     // ~ Property accessors : used primarily by Hibernate
     // =========================================================================
@@ -61,9 +69,32 @@ public class Time implements Serializable {
         return this.value;
     }
 
-    @Column(name = "unit", nullable = false)
-    public String getUnit() {
+    /**
+     * Many-to-one field ome.model.units.Time.unit (ome.model.enums.UnitsTime)
+     */
+     @javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY,cascade = {javax.persistence.CascadeType.MERGE, javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.REFRESH},
+             targetEntity = ome.model.enums.UnitsTime.class)
+     @org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.LOCK, org.hibernate.annotations.CascadeType.MERGE, org.hibernate.annotations.CascadeType.PERSIST, org.hibernate.annotations.CascadeType.REPLICATE, org.hibernate.annotations.CascadeType.REFRESH, org.hibernate.annotations.CascadeType.SAVE_UPDATE, org.hibernate.annotations.CascadeType.EVICT})
+     @javax.persistence.JoinColumn(name="unit", nullable=false,
+         unique=false, insertable=true, updatable=true)
+     @org.hibernate.annotations.ForeignKey(name="FKtime_unit_unitstime")
+    public UnitsTime getUnit() {
         return this.unit;
+    }
+
+    public void setValue(double value) {
+        this.value = value;
+    }
+
+    public void setUnit(UnitsTime unit) {
+        this.unit = unit;
+    }
+
+    @Override
+    public boolean acceptFilter(Filter filter) {
+        this.unit = (UnitsTime) filter.filter(UNIT, unit);
+        this.value = (Double) filter.filter(VALUE,  value);
+        return true;
     }
 
 }

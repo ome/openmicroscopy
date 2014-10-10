@@ -868,9 +868,11 @@ public class OMEROMetadataStoreClient
     public omero.model.Time toTime(Double value)
     {
         if (value == null) return null;
+        omero.model.UnitsTime ut = new omero.model.UnitsTimeI();
+        ut.setValue(rstring("ms")); // FIXME
         omero.model.Time t = new omero.model.TimeI();
         t.setValue(value);
-        t.setUnit("ms"); // FIXME
+        t.setUnit(ut);
         return t;
     }
 

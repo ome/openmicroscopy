@@ -1669,7 +1669,6 @@
         id int8 not null,
         deltaT float8,
         permissions int8 not null,
-        exposureTimeUnit varchar(255),
         exposureTime float8,
         positionX float8,
         positionY float8,
@@ -1683,6 +1682,7 @@
         group_id int8 not null,
         owner_id int8 not null,
         update_id int8 not null,
+        exposureTimeUnit int8,
         pixels int8 not null,
         primary key (id)
     );;
@@ -2198,6 +2198,15 @@
         group_id int8 not null,
         owner_id int8 not null,
         update_id int8 not null,
+        primary key (id)
+    );;
+
+    create table unitstime (
+        id int8 not null,
+        permissions int8 not null,
+        measurementSystem varchar(255) not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
         primary key (id)
     );;
 
@@ -4762,6 +4771,11 @@
         references externalinfo  ;;
 
     alter table planeinfo 
+        add constraint FKtime_unit_unitstime 
+        foreign key (exposureTimeUnit) 
+        references unitstime  ;;
+
+    alter table planeinfo 
         add constraint FKplaneinfo_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
@@ -5620,6 +5634,11 @@
         add constraint FKtransmittancerange_owner_id_experimenter 
         foreign key (owner_id) 
         references experimenter  ;;
+
+    alter table unitstime 
+        add constraint FKunitstime_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
     alter table uploadjob 
         add constraint FKuploadjob_job_id_job 

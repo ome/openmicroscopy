@@ -974,7 +974,9 @@ implements java.io.Serializable, IObject
 #if($prop.type.equals("ome.model.units.Time"))
      @javax.persistence.AttributeOverrides( {
             @javax.persistence.AttributeOverride(name="value", column = @javax.persistence.Column(name="${prop.name}") ),
-            @javax.persistence.AttributeOverride(name="unit", column = @javax.persistence.Column(name="${prop.name}Unit") )
+    } )
+     @javax.persistence.AssociationOverrides( {
+            @javax.persistence.AssociationOverride(name="unit", joinColumns = @javax.persistence.JoinColumn(name="exposureTimeUnit") )
     } )
 #end
     public ${prop.fieldType} get${prop.nameCapped}() {

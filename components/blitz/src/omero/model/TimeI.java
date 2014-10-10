@@ -19,26 +19,36 @@
 
 package omero.model;
 
+import ome.model.ModelBased;
+import ome.util.Filterable;
+import ome.util.ModelMapper;
+import ome.util.ReverseModelMapper;
+
 /**
  * Blitz wrapper around the {@link ome.model.util.Time} class.
  *
  * @author Josh Moore, josh at glencoesoftware.com
  */
-public class TimeI extends Time {
+public class TimeI extends Time implements ModelBased {
 
     private static final long serialVersionUID = 1L;
 
-    public final static Ice.ObjectFactory Factory = new Ice.ObjectFactory() {
+    public static final Ice.ObjectFactory makeFactory(final omero.client client) {
 
-        public Ice.Object create(String arg0) {
-            return new TimeI();
-        }
+        return new Ice.ObjectFactory() {
 
-        public void destroy() {
-            // no-op
-        }
+            public Ice.Object create(String arg0) {
+                return new TimeI();
+            }
 
+            public void destroy() {
+                // no-op
+            }
+
+        };
     };
+
+    public final static Ice.ObjectFactory Factory = makeFactory(null);
 
     public double getValue(Ice.Current current) {
         return this.value;
@@ -48,11 +58,11 @@ public class TimeI extends Time {
         this.value = time;
     }
 
-    public String getUnit(Ice.Current current) {
+    public UnitsTime getUnit(Ice.Current current) {
         return this.unit;
     }
 
-    public void setUnit(String unit, Ice.Current current) {
+    public void setUnit(UnitsTime unit, Ice.Current current) {
         this.unit = unit;
     }
 
@@ -61,6 +71,27 @@ public class TimeI extends Time {
         copy.setValue(getValue());
         copy.setUnit(getUnit());
         return copy;
+    }
+
+    @Override
+    public void copyObject(Filterable model, ModelMapper mapper) {
+        if (model instanceof ome.model.units.Time) { 
+            ome.model.units.Time t = (ome.model.units.Time) model;
+            this.value = t.getValue();
+            this.unit = (omero.model.UnitsTime) mapper.findTarget(t.getUnit());
+        } else {
+            throw new IllegalArgumentException(
+              "Time cannot copy from " +
+              (model==null ? "null" : model.getClass().getName()));
+        }
+    }
+
+    @Override
+    public Filterable fillObject(ReverseModelMapper mapper) {
+        ome.model.units.Time t = new ome.model.units.Time();
+        t.setValue(getValue());
+        t.setUnit((ome.model.enums.UnitsTime) mapper.reverse( (ome.model.ModelBased) getUnit()));
+        return t;
     }
 
 }

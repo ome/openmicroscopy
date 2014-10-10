@@ -871,6 +871,7 @@ CREATE SEQUENCE seq_stagelabel; INSERT INTO _lock_ids (name, id) SELECT 'seq_sta
 CREATE SEQUENCE seq_statsinfo; INSERT INTO _lock_ids (name, id) SELECT 'seq_statsinfo', nextval('_lock_seq');
 CREATE SEQUENCE seq_thumbnail; INSERT INTO _lock_ids (name, id) SELECT 'seq_thumbnail', nextval('_lock_seq');
 CREATE SEQUENCE seq_transmittancerange; INSERT INTO _lock_ids (name, id) SELECT 'seq_transmittancerange', nextval('_lock_seq');
+CREATE SEQUENCE seq_unitstime; INSERT INTO _lock_ids (name, id) SELECT 'seq_unitstime', nextval('_lock_seq');
 CREATE SEQUENCE seq_well; INSERT INTO _lock_ids (name, id) SELECT 'seq_well', nextval('_lock_seq');
 CREATE SEQUENCE seq_wellannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_wellannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_wellreagentlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_wellreagentlink', nextval('_lock_seq');
@@ -1617,6 +1618,12 @@ alter table event alter column type set not null;
 alter table event alter column experimentergroup set not null;
 
 
+
+-- temporarily disable the not null constraints
+alter table pixelstype alter column bitsize drop not null;
+alter table unitstime alter column measurementsystem drop not null;
+
+
 insert into acquisitionmode (id,permissions,value)
     select ome_nextval('seq_acquisitionmode'),-52,'WideField';
 insert into acquisitionmode (id,permissions,value)
@@ -2329,6 +2336,54 @@ insert into renderingmodel (id,permissions,value)
     select ome_nextval('seq_renderingmodel'),-52,'rgb';
 insert into renderingmodel (id,permissions,value)
     select ome_nextval('seq_renderingmodel'),-52,'greyscale';
+insert into unitstime (id,permissions,value)
+    select ome_nextval('seq_unitstime'),-52,'Ys';
+insert into unitstime (id,permissions,value)
+    select ome_nextval('seq_unitstime'),-52,'Zs';
+insert into unitstime (id,permissions,value)
+    select ome_nextval('seq_unitstime'),-52,'Es';
+insert into unitstime (id,permissions,value)
+    select ome_nextval('seq_unitstime'),-52,'Ps';
+insert into unitstime (id,permissions,value)
+    select ome_nextval('seq_unitstime'),-52,'Ts';
+insert into unitstime (id,permissions,value)
+    select ome_nextval('seq_unitstime'),-52,'Gs';
+insert into unitstime (id,permissions,value)
+    select ome_nextval('seq_unitstime'),-52,'Ms';
+insert into unitstime (id,permissions,value)
+    select ome_nextval('seq_unitstime'),-52,'ks';
+insert into unitstime (id,permissions,value)
+    select ome_nextval('seq_unitstime'),-52,'hs';
+insert into unitstime (id,permissions,value)
+    select ome_nextval('seq_unitstime'),-52,'das';
+insert into unitstime (id,permissions,value)
+    select ome_nextval('seq_unitstime'),-52,'s';
+insert into unitstime (id,permissions,value)
+    select ome_nextval('seq_unitstime'),-52,'ds';
+insert into unitstime (id,permissions,value)
+    select ome_nextval('seq_unitstime'),-52,'cs';
+insert into unitstime (id,permissions,value)
+    select ome_nextval('seq_unitstime'),-52,'ms';
+insert into unitstime (id,permissions,value)
+    select ome_nextval('seq_unitstime'),-52,'µs';
+insert into unitstime (id,permissions,value)
+    select ome_nextval('seq_unitstime'),-52,'ns';
+insert into unitstime (id,permissions,value)
+    select ome_nextval('seq_unitstime'),-52,'ps';
+insert into unitstime (id,permissions,value)
+    select ome_nextval('seq_unitstime'),-52,'fs';
+insert into unitstime (id,permissions,value)
+    select ome_nextval('seq_unitstime'),-52,'as';
+insert into unitstime (id,permissions,value)
+    select ome_nextval('seq_unitstime'),-52,'zs';
+insert into unitstime (id,permissions,value)
+    select ome_nextval('seq_unitstime'),-52,'ys';
+insert into unitstime (id,permissions,value)
+    select ome_nextval('seq_unitstime'),-52,'min';
+insert into unitstime (id,permissions,value)
+    select ome_nextval('seq_unitstime'),-52,'h';
+insert into unitstime (id,permissions,value)
+    select ome_nextval('seq_unitstime'),-52,'d';
 
 -- Adding bit depth to pixelstype (#2724)
 update pixelstype set bitsize = 1 where value = 'bit';
@@ -2342,7 +2397,12 @@ update pixelstype set bitsize = 32 where value = 'float';
 update pixelstype set bitsize = 64 where value = 'double';
 update pixelstype set bitsize = 64 where value = 'complex';
 update pixelstype set bitsize = 128 where value = 'double-complex';
+
+update unitstime set measurementsystem = 'SI.SECOND';
+
+-- reactivate not null constraints
 alter table pixelstype alter column bitsize set not null;
+alter table unitstime alter column measurementsystem set not null;
 
 --
 -- Cryptographic functions for specifying UUID
