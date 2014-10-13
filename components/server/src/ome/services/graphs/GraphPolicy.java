@@ -156,7 +156,7 @@ public abstract class GraphPolicy {
 
     /**
      * Any model object about which policy may be asked is first passed to {@link #noteDetails(IObject, String, long)} before
-     * {@link #review(Map, Details, Map, Set)}. The same object may be passed multiple times.
+     * {@link #review(Map, Details, Map, Set)}. Each object is passed only once.
      * Subclasses overriding this method probably ought also override {@link #getCleanInstance()}.
      * @param object a model object about which policy may be asked;
      *               it is a Hibernate proxy object loaded without any extra joins on retrieval
