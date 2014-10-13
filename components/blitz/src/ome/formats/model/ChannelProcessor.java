@@ -54,6 +54,8 @@ import omero.model.TransmittanceRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.math.DoubleMath;
+
 /**
  * Processes the pixels sets of an IObjectContainerStore and ensures
  * that LogicalChannel containers are present in the container cache, and
@@ -86,6 +88,22 @@ public class ChannelProcessor implements ModelProcessor
 
 	/** Bio-Formats reader implementation we're currently working with. */
 	private IFormatReader reader;
+
+	/**
+	 * Returns the name from the wavelength.
+	 *
+	 * @param value The value to handle.
+	 * @return See above.
+	 */
+	private String getNameFromWavelength(Double value)
+	{
+	    if (value == null) return null;
+	    //Check that the value is an int
+        if (DoubleMath.isMathematicalInteger(value)) {
+            return ""+value.intValue();
+        }
+        return value.toString();
+	}
 
 	/**
      * Populates the default color for the channel if one does not already
@@ -129,7 +147,7 @@ public class ChannelProcessor implements ModelProcessor
 	    return;
 		}
 
-	Integer red = getValue(channel.getRed());
+	    Integer red = getValue(channel.getRed());
         Integer green = getValue(channel.getGreen());
         Integer blue = getValue(channel.getBlue());
         Integer alpha = getValue(channel.getAlpha());
@@ -149,8 +167,9 @@ public class ChannelProcessor implements ModelProcessor
 	if (valueWavelength != null) {
 		setChannelColor(channel, channelIndex,
 				ColorsFactory.determineColor(valueWavelength));
-		if (lc.getName() == null)
-			lc.setName(rstring(valueWavelength.toString()));
+		if (lc.getName() == null) {
+		    lc.setName(rstring(getNameFromWavelength(valueWavelength)));
+		}
 		return;
 	}
 
@@ -192,7 +211,7 @@ public class ChannelProcessor implements ModelProcessor
 			setChannelColor(channel, channelIndex,
 					ColorsFactory.determineColor(valueWavelength));
 			if (lc.getName() == null) {
-				lc.setName(rstring(valueWavelength.toString()));
+			    lc.setName(rstring(getNameFromWavelength(valueWavelength)));
 			}
 			return;
 		}
@@ -203,8 +222,9 @@ public class ChannelProcessor implements ModelProcessor
 	if (valueWavelength != null) {
 		setChannelColor(channel, channelIndex,
 				ColorsFactory.determineColor(valueWavelength));
-		if (lc.getName() == null)
-			lc.setName(rstring(valueWavelength.toString()));
+		if (lc.getName() == null) {
+		    lc.setName(rstring(getNameFromWavelength(valueWavelength)));
+		}
 		return;
 	}
 	f = getValidFilter(channelData.getLightPathExcitationFilters(), false);
@@ -366,7 +386,7 @@ public class ChannelProcessor implements ModelProcessor
 	RString name;
 	if (value != null)
 	{
-		return rstring(value.toString());
+		return rstring(getNameFromWavelength(value));
 	}
 	Iterator<Filter> i;
 	List<Filter> filters = channelData.getLightPathEmissionFilters();
@@ -375,7 +395,7 @@ public class ChannelProcessor implements ModelProcessor
 		while (i.hasNext()) {
 			name = getNameFromFilter(i.next());
 			if (name != null) return name;
-			}
+		}
 	}
 
 	name = getNameFromFilter(channelData.getFilterSetEmissionFilter());
@@ -394,14 +414,14 @@ public class ChannelProcessor implements ModelProcessor
 			value = getValue(laser.getWavelength());
 			if (value != null)
 			{
-				return rstring(value.toString());
+			    return rstring(getNameFromWavelength(value));
 			}
 		}
 	}
 	value = getValue(lc.getExcitationWave());
 	if (value != null)
 	{
-		return rstring(value.toString());
+	    return rstring(getNameFromWavelength(value));
 	}
 	filters = channelData.getLightPathExcitationFilters();
 	if (filters != null) {
@@ -411,8 +431,7 @@ public class ChannelProcessor implements ModelProcessor
 			if (name != null) return name;
 			}
 	}
-	name = getNameFromFilter(channelData.getFilterSetExcitationFilter());
-	return name;
+	return getNameFromFilter(channelData.getFilterSetExcitationFilter());
     }
 
     /**

@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 import java.awt.FlowLayout;
 
 import javax.swing.AbstractButton;
+import javax.swing.Action;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -81,13 +82,12 @@ class PreviewControlBar2 extends JPanel {
         bar.add(b);
         bar.add(Box.createHorizontalStrut(SPACE));
 
-        if (control.isIntegerPixelData()) {
-            b = new JButton(
-                    control.getAction(RendererControl.RND_ABSOLUTE_MIN_MAX));
-            formatButton(b);
-            bar.add(b);
-            bar.add(Box.createHorizontalStrut(SPACE));
-        }
+        Action fullRangeAction = control.getAction(RendererControl.RND_ABSOLUTE_MIN_MAX);
+        fullRangeAction.setEnabled(control.isIntegerPixelData());
+        b = new JButton(fullRangeAction);
+        formatButton(b);
+        bar.add(b);
+        bar.add(Box.createHorizontalStrut(SPACE));
        
         b = new JButton(control.getAction(RendererControl.RND_RESET));
         formatButton(b);

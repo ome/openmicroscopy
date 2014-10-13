@@ -15,10 +15,7 @@
     <artifact name="insight" type="javadoc" ext="jar" m:classifier="javadoc"/>
     <artifact name="insight" type="zip" conf="release"/>
     <artifact name="insight-win" type="zip" conf="release"/>
-    <artifact name="insight-win-openGL" type="zip" conf="release"/>
-    <artifact name="insight-win64-openGL" type="zip" conf="release"/>
     <artifact name="insight-mac" type="zip" conf="release"/>
-    <artifact name="insight-mac-openGL" type="zip" conf="release"/>
     <artifact name="editor-mac" type="zip" conf="release"/>
     <artifact name="editor-win" type="zip" conf="release"/>
     <artifact name="insight-ij" type="zip" conf="release"/>

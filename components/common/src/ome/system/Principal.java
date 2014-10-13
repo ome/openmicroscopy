@@ -1,7 +1,5 @@
 /*
- * ome.system.Principal
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -36,6 +34,8 @@ public class Principal implements java.security.Principal, Serializable {
 
     protected String type;
 
+    private final PreferenceContext preferences = new PreferenceContext();
+
     /**
      * Creates a Principal with null group and event type. These must be taken
      * from the session.
@@ -47,6 +47,10 @@ public class Principal implements java.security.Principal, Serializable {
     }
 
     public Principal(String name, String group, String eventType) {
+        if (Boolean.parseBoolean(preferences
+                .getProperty("omero.security.ignore_case"))) {
+            name = name.toLowerCase();
+        }
         this.name = name;
         this.group = group;
         this.type = eventType;

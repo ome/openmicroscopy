@@ -529,6 +529,7 @@ class TestGetObject (object):
         assert image._re.getDefaultZ() == testImage._re.getDefaultZ()
         assert image._re.getDefaultT() == testImage._re.getDefaultT()
         assert image.getOwnerOmeName == testImage.getOwnerOmeName
+        assert image.getThumbVersion() is not None
 
     def testGetProject(self, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()
@@ -569,15 +570,19 @@ class TestGetObject (object):
         assert len(findImages) == 5, "Did not find orphaned images"
 
         for p in findImages:
+            assert not p._obj.pixelsLoaded
             assert p.getName() in imageList, \
                 "All images should have queried name"
 
         params = omero.sys.ParametersI()
         params.page(1, 3)
         findImagesInPage = list(gatewaywrapper.gateway.listOrphans(
-            "Image", eid=eid, params=params))
+            "Image", eid=eid, params=params, loadPixels=True))
         assert len(findImagesInPage) == 3, \
             "Did not find orphaned images in page"
+
+        for p in findImagesInPage:
+            assert p._obj.pixelsLoaded
 
         for p in findImages:
             client = p._conn

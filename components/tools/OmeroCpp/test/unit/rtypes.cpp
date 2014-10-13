@@ -91,7 +91,7 @@ TEST(RTypesTest, RString) {
     assertRValues<RStringPtr>(s1, s2);
 }
 
-TEST(RTypesTest, RArray) {
+TEST(RTypesTest, DISABLED_RArray) {
     RArrayPtr a1 = rarray();
     a1->add(rint(1));
 
@@ -101,7 +101,7 @@ TEST(RTypesTest, RArray) {
     assertRValues<RArrayPtr>(a1, a2);
 }
 
-TEST(RTypesTest, RList) {
+TEST(RTypesTest, DISABLED_RList) {
     RListPtr l1 = rlist();
     l1->add(rint(1));
 
@@ -111,7 +111,7 @@ TEST(RTypesTest, RList) {
     assertRValues<RListPtr>(l1, l2);
 }
 
-TEST(RTypesTest, RSet) {
+TEST(RTypesTest, DISABLED_RSet) {
     RSetPtr s1 = rset();
     s1->add(rint(1));
 
@@ -121,7 +121,7 @@ TEST(RTypesTest, RSet) {
     assertRValues<RSetPtr>(s1, s2);
 }
 
-TEST(RTypesTest, RMap) {
+TEST(RTypesTest, DISABLED_RMap) {
     RMapPtr m1 = rmap();
     m1->put("a", rint(1));
 

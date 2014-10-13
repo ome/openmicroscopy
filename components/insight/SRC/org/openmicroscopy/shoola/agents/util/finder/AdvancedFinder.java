@@ -425,7 +425,6 @@ public class AdvancedFinder
 		initialize(l);
 		addPropertyChangeListener(SEARCH_PROPERTY, this);
 		addPropertyChangeListener(CANCEL_SEARCH_PROPERTY, this);
-		addPropertyChangeListener(OWNER_PROPERTY, this);
 		users = new HashMap<Long, ExperimenterData>();
 	}
 
@@ -616,8 +615,6 @@ public class AdvancedFinder
 			handleSearchContext(ctx);
 		} else if (CANCEL_SEARCH_PROPERTY.equals(name)) {
 			cancel();
-		} else if (OWNER_PROPERTY.equals(name)) {
-			showUserSelection();
 		} else if (UserManagerDialog.USER_SWITCH_PROPERTY.equals(name)) {
 			Map m = (Map) evt.getNewValue();
 			if (m == null) return;

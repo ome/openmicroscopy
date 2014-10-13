@@ -818,6 +818,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
 
     form_comment = None
     figScripts = None
+    share_owned = False
     if c_type in ("share", "discussion"):
         template = "webclient/annotations/annotations_share.html"
         manager = BaseShare(conn, c_id)
@@ -835,13 +836,14 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
             figScripts = manager.listFigureScripts()
             form_comment = CommentAnnotationForm(initial=initial)
         else:
+            share_owned = BaseShare(conn, share_id).share.isOwned()
             template = "webclient/annotations/annotations_share.html"
 
     if c_type in ("tag", "tagset"):
         context = {'manager':manager, 'insight_ns': omero.rtypes.rstring(omero.constants.metadata.NSINSIGHTTAGSET).val}
     else:
         context = {'manager':manager, 'form_comment':form_comment, 'index':index,
-            'share_id':share_id}
+            'share_id':share_id, 'share_owned': share_owned}
             
     context['figScripts'] = figScripts
     context['template'] = template
@@ -967,6 +969,7 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
             if logicalChannel is not None:
                 channel = dict()
                 channel['form'] = MetadataChannelForm(initial={'logicalChannel': logicalChannel,
+                                        'excitationWave': ch.getExcitationWave(), 'emissionWave': ch.getEmissionWave(),
                                         'illuminations': list(conn.getEnumerationEntries("IlluminationI")),
                                         'contrastMethods': list(conn.getEnumerationEntries("ContrastMethodI")),
                                         'modes': list(conn.getEnumerationEntries("AcquisitionModeI"))})

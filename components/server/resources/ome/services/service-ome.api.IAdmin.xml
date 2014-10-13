@@ -114,6 +114,7 @@
   </bean>
 
   <bean id="chainedPasswordProvider" class="ome.security.auth.PasswordProviders">
+    <constructor-arg ref="atomicIgnoreCase"/>
     <constructor-arg>
       <list>
         <ref bean="ldapPasswordProvider"/>
@@ -122,9 +123,15 @@
     </constructor-arg>
   </bean>
 
+  <bean id="atomicIgnoreCase"
+    class="java.util.concurrent.atomic.AtomicBoolean">
+    <constructor-arg value="${omero.security.ignore_case}"/>
+  </bean>
+
   <bean id="roleProvider" class="ome.security.auth.SimpleRoleProvider">
     <constructor-arg ref="securitySystem"/>
     <constructor-arg ref="omeroSessionFactory"/>
+    <constructor-arg ref="atomicIgnoreCase"/>
   </bean>
 
   <bean id="passwordUtil" class="ome.security.auth.PasswordUtil">

@@ -34,9 +34,6 @@ import java.util.List;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JViewport;
-
 import org.apache.commons.collections.CollectionUtils;
 //Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
@@ -189,21 +186,14 @@ class GeneralPaneUI
 		annotationTaskPane.add(p);
 	}
 	
-	/** The Component hosting the container.*/
-	private JScrollPane pane;
-	
 	/** Builds and lays out the components. */
 	private void buildGUI()
 	{
 		setLayout(new BorderLayout(0, 0));
 		container.add(propertiesTaskPane);
 		container.add(annotationTaskPane);
-		pane = new JScrollPane();
-		JViewport viewport = pane.getViewport();
-		viewport.add(container);
-		viewport.setBackground(UIUtilities.BACKGROUND_COLOR);
 		add(toolbar, BorderLayout.NORTH);
-    	add(pane, BorderLayout.CENTER);
+    	        add(container, BorderLayout.CENTER);
 	}
 	
 	/** 
