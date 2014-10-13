@@ -104,6 +104,7 @@
         <bean parent="graphPolicyRule" p:matches="Plate[I].plateAcquisitions = PA:PlateAcquisition[ED]" p:changes="PA:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Plate[I].wells = W:Well[ED]" p:changes="W:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Well[I].wellSamples = WS:WellSample[ED]" p:changes="WS:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="FA:FileAnnotation[E].file = OriginalFile[I]" p:changes="FA:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Roi[I].shapes = S:Shape[ED]" p:changes="S:[I]"/>
         <bean parent="graphPolicyRule" p:matches="R:Roi[E]/!o.image = [I]" p:changes="R:[I]/n"/>
         <bean parent="graphPolicyRule" p:matches="Instrument[I].filter = F:Filter[ED]" p:changes="F:[I]"/>
@@ -136,6 +137,7 @@
         <bean parent="graphPolicyRule" p:matches="X:!ILink[E]/!d == [D]" p:changes="X:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="F:Fileset[E].images = Image[D]" p:changes="F:[D]"/>
         <bean parent="graphPolicyRule" p:matches="Fileset[D] = I:Image[E].fileset" p:changes="I:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="FA:FileAnnotation[E].file = OriginalFile[D]" p:changes="FA:[D]"/>
         <bean parent="graphPolicyRule" p:matches="R:Roi[E]/!d.image = [D]" p:changes="R:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="RD:RenderingDef[E]{r}/!d.pixels = Pixels/d" p:changes="RD:{o}/n"/>
         <bean parent="graphPolicyRule" p:matches="T:Thumbnail[E]{r}/!d.pixels = Pixels/d" p:changes="T:{o}/n"/>
@@ -143,6 +145,7 @@
         <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [E]/d, L.child = C:[E]{r}" p:changes="C:{a}"/>
         <bean parent="graphPolicyRule" p:matches="!ILink[E]{ia} = X:[E]{r}" p:changes="X:{a}"/>
         <bean parent="graphPolicyRule" p:matches="X:[E]{r} == [E]{a}" p:changes="X:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink[E]{a}.parent = [D]" p:changes="L:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="C:Channel[E]{r}.pixels = Pixels[E]{i}" p:changes="C:{a}"/>
     </util:list>
 
