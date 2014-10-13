@@ -45,10 +45,16 @@ $.fn.scalebar_display = function(options) {
                 }
             }
             //find the nearest value round to power of 10
-            var num = Math.floor(width * pixSizeX);
-            var factor = Math.pow(10, Math.floor(Math.log(num) / Math.LN10));
-            var unit = factor * Math.ceil(num/factor);
-
+            // workaround for units smaller then micrometer
+            if (pixSizeX < 1) {
+                var num = Math.floor(width * pixSizeX * Math.pow(10,12));
+                var factor = Math.pow(10, Math.floor(Math.log(num) / Math.LN10));
+                var unit = factor * Math.ceil(num/factor) / Math.pow(10,12);
+            } else {
+                var num = Math.floor(width * pixSizeX);
+                var factor = Math.pow(10, Math.floor(Math.log(num) / Math.LN10));
+                var unit = factor * Math.ceil(num/factor);
+            }
             if (tiles) {
                 var scalebar_width = Math.round(unit/pixSizeX);
                 $scalebar.width(scalebar_width);
