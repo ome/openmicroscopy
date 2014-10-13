@@ -612,7 +612,7 @@ public class ImportLibrary implements IObservable
         try {
             ChecksumAlgorithm hasher = fs.copyUsedFiles().get(0).getOriginalFile()
                     .getHasher();
-            container.fillDataReimportOrClone(config, settings, fs, nopClientTransformer);
+            container.fillData(config, settings, fs, nopClientTransformer);
             settings.checksumAlgorithm = ChecksumAlgorithmMapper
                     .getChecksumAlgorithm(hasher.getValue().getValue());
         } catch (IOException e) {

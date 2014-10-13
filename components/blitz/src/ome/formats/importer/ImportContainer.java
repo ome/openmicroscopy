@@ -299,50 +299,6 @@ public class ImportContainer
         this.checksumAlgorithm = ca;
     }
 
-    public void fillDataReimportOrClone(ImportConfig config, ImportSettings settings, Fileset fs,
-            ClientFilePathTransformer sanitizer) throws IOException {
-
-        if (config == null) {
-            config = new ImportConfig(); // Lazily load
-        }
-
-        // TODO: These should possible be a separate option like
-        // ImportUserSettings rather than misusing ImportContainer.
-        settings.reimportFileset = getReimportFileset();
-        settings.doThumbnails = rbool(getDoThumbnails());
-        settings.userSpecifiedTarget = getTarget();
-        settings.userSpecifiedName = getUserSpecifiedName() == null ? null
-                : rstring(getUserSpecifiedName());
-        settings.userSpecifiedDescription = getUserSpecifiedDescription() == null ? null
-                : rstring(getUserSpecifiedDescription());
-        settings.userSpecifiedAnnotationList = getCustomAnnotationList();
-
-        this.setFile(new File(getUsedFiles()[0]));
-        this.updateUsedFilesTotalSize();
-
-        if (getUserPixels() != null) {
-            Double[] source = getUserPixels();
-            double[] target = new double[source.length];
-            for (int i = 0; i < source.length; i++) {
-                if (source[i] == null) {
-                    target = null;
-                    break;
-                }
-                target[i] = source[i];
-            }
-            settings.userSpecifiedPixels = target; // May be null.
-        }
-
-        // Fill BF info
-        for (FilesetJobLink fjl: fs.copyJobLinks()) {
-                if (fjl.getChild() instanceof UploadJob) {
-                        UploadJob job = (UploadJob) fjl.getChild();
-                        config.fillVersionInfo(job.getVersionInfo());
-                }
-        }
-
-    }
-
     public void fillData(ImportSettings settings, Fileset fs,
             ClientFilePathTransformer sanitizer) throws IOException {
         fillData(config, settings, fs, sanitizer, null);
@@ -367,6 +323,7 @@ public class ImportContainer
 
         // TODO: These should possible be a separate option like
         // ImportUserSettings rather than misusing ImportContainer.
+        settings.reimportFileset = getReimportFileset();
         settings.doThumbnails = rbool(getDoThumbnails());
         settings.userSpecifiedTarget = getTarget();
         settings.userSpecifiedName = getUserSpecifiedName() == null ? null
@@ -396,31 +353,45 @@ public class ImportContainer
             settings.userSpecifiedPixels = target; // May be null.
         }
 
-        // Fill used paths
-        for (String usedFile : getUsedFiles()) {
-            final FilesetEntry entry = new FilesetEntryI();
-            final FsFile fsPath = sanitizer.getFsFileFromClientFile(new File(usedFile), Integer.MAX_VALUE);
-            entry.setClientPath(rstring(fsPath.toString()));
-            fs.addFilesetEntry(entry);
-        }
+        if (settings.reimportFileset) {
+            // Fill used paths
+            this.setFile(new File(getUsedFiles()[0]));
+            this.updateUsedFilesTotalSize();
 
-        // Record any special file transfer
-        if (transfer != null &&
-                !transfer.getClass().equals(UploadFileTransfer.class)) {
-            String type = transfer.getClass().getName();
-            CommentAnnotation transferAnnotation = new CommentAnnotationI();
-            transferAnnotation.setNs(omero.rtypes.rstring(NSFILETRANSFER.value));
-            transferAnnotation.setTextValue(omero.rtypes.rstring(type));
-            fs.linkAnnotation(transferAnnotation);
-        }
+            // Fill BF info
+            for (FilesetJobLink fjl: fs.copyJobLinks()) {
+                    if (fjl.getChild() instanceof UploadJob) {
+                            UploadJob job = (UploadJob) fjl.getChild();
+                            config.fillVersionInfo(job.getVersionInfo());
+                    }
+            }
+        } else {
+            // Fill used paths
+            for (String usedFile : getUsedFiles()) {
+                final FilesetEntry entry = new FilesetEntryI();
+                final FsFile fsPath = sanitizer.getFsFileFromClientFile(new File(usedFile), Integer.MAX_VALUE);
+                entry.setClientPath(rstring(fsPath.toString()));
+                fs.addFilesetEntry(entry);
+            }
 
-        // Fill BF info
-        final Map<String, RString> clientVersionInfo = new HashMap<String, RString>();
-        clientVersionInfo.put(ImportConfig.VersionInfo.BIO_FORMATS_READER.key, rstring(reader));
-        config.fillVersionInfo(clientVersionInfo);
-        UploadJob upload = new UploadJobI();
-        upload.setVersionInfo(clientVersionInfo);
-        fs.linkJob(upload);
+            // Record any special file transfer
+            if (transfer != null &&
+                    !transfer.getClass().equals(UploadFileTransfer.class)) {
+                String type = transfer.getClass().getName();
+                CommentAnnotation transferAnnotation = new CommentAnnotationI();
+                transferAnnotation.setNs(omero.rtypes.rstring(NSFILETRANSFER.value));
+                transferAnnotation.setTextValue(omero.rtypes.rstring(type));
+                fs.linkAnnotation(transferAnnotation);
+            }
+
+            // Fill BF info
+            final Map<String, RString> clientVersionInfo = new HashMap<String, RString>();
+            clientVersionInfo.put(ImportConfig.VersionInfo.BIO_FORMATS_READER.key, rstring(reader));
+            config.fillVersionInfo(clientVersionInfo);
+            UploadJob upload = new UploadJobI();
+            upload.setVersionInfo(clientVersionInfo);
+            fs.linkJob(upload);
+        }
 
     }
 
