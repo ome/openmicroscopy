@@ -75,9 +75,7 @@ def zip_archived_files(images, temp, zipName):
             # check if ANY of the files will overwrite exising file
             for f in files:
                 target_path = getTargetPath(f, templatePrefix)
-                print "target_path"
                 base_file = os.path.join(temp_zip_dir, split_path(target_path)[0])
-                print "base_file"
                 if os.path.exists(base_file):
                     new_dir = str(image.getId())
                     break
@@ -87,13 +85,9 @@ def zip_archived_files(images, temp, zipName):
                 if a.id in fIds:
                     continue
                 fIds.add(a.id)
-                print 'a.id', a.id, a.path, a.name
                 temp_f = getTargetPath(a, templatePrefix)
-                print 'temp_f', temp_f
                 temp_f = os.path.join(temp_zip_dir, new_dir, temp_f)
-                print 'temp_f', temp_f
                 temp_d = os.path.dirname(temp_f)
-                print 'temp_d', temp_d
                 if not os.path.exists(temp_d):
                     os.makedirs(temp_d)
 
