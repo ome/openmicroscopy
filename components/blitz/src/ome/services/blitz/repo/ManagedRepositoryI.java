@@ -49,7 +49,6 @@ import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
 import ome.model.core.OriginalFile;
 import ome.model.meta.Experimenter;
-import ome.services.blitz.gateway.services.util.ServiceUtilities;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.FilePathRestrictionInstance;
 import ome.services.blitz.repo.path.FsFile;
@@ -280,8 +279,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
             container.fillData(new ImportConfig(), settings, fs, nopClientTransformer);
             settings.checksumAlgorithm = this.checksumAlgorithms.get(0);
         } catch (IOException e) {
-            // impossible
-            ServiceUtilities.handleException(e, "IO exception from operation without IO");
+            throw new IceMapper().handleServerError(e, null); // FIXME
         }
 
         return importFileset(fs, settings, __current);

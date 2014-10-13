@@ -17,7 +17,6 @@ using namespace IceUtil;
 using namespace omero;
 using namespace omero::grid;
 using namespace omero::rtypes;
-using namespace omero::api::_cpp_delete;
 
 ::Ice::Object* IceInternal::upCast(::omero::callbacks::ProcessCallbackI* p) { return p; }
 ::Ice::Object* IceInternal::upCast(::omero::callbacks::CmdCallbackI* p) { return p; }
@@ -93,67 +92,6 @@ namespace omero {
         }
 
         //
-        // DeleteCallback
-        //
-
-        DeleteCallbackI::DeleteCallbackI(
-            const Ice::ObjectAdapterPtr& adapter, const OME_API_DEL::DeleteHandlePrx handle, bool poll) :
-            adapter(adapter),
-            poll(poll),
-            handle(handle) {
-        }
-
-        void DeleteCallbackI::close() {
-            if (handle)
-                handle->close();
-        }
-
-        DeleteReports DeleteCallbackI::loop(int loops, long ms) {
-            int count = 0;
-            RIntPtr errors;
-            while (!errors && count < loops) {
-                errors = block(ms);
-                count++;
-            }
-
-            if (!errors) {
-                int waited = (ms/1000) * loops;
-                stringstream ss;
-                ss << "Delete unfinished after " << waited << "seconds.";
-                throw LockTimeout("", "", ss.str(), 5000L, waited);
-            } else {
-                return handle->report();
-            }
-        }
-
-        RIntPtr DeleteCallbackI::block(long ms) {
-            if (poll) {
-                try {
-                    if (handle->finished()) {
-                            try {
-                                finished(handle->errors());
-                            } catch (const Ice::Exception& ex) {
-                                cerr << "Error calling DeleteCallbackI.finished: " << ex << endl;
-                            }
-                    }
-                } catch (const Ice::ObjectNotExistException& onee) {
-                    throw omero::ClientError(__FILE__, __LINE__, "Handle is gone!");
-                } catch (const Ice::Exception& ex) {
-                    cerr << "Error polling DeleteHandle:" << ex << endl;
-                }
-            }
-
-            event.wait(Time::milliSeconds(ms));
-            return result; // Possibly empty
-
-        }
-
-        void DeleteCallbackI::finished(int errors) {
-            result = rint(errors);
-            event.set();
-        }
-
-        //
         // CmdCallback
         //
 
@@ -184,7 +122,7 @@ namespace omero {
             pollThread = new PollThread(this);
             pollThread->start();
         }
-        
+
         void CmdCallbackI::close() {
             if (adapter) {
                 adapter->remove(id); // OK ADAPTER USAGE
@@ -263,13 +201,13 @@ namespace omero {
 
         void CmdCallbackI::poll() {
             IceUtil::RecMutex::Lock lock(mutex);
-            
+
             omero::cmd::ResponsePtr rsp = handle->getResponse();
             if (rsp) {
                 omero::cmd::StatusPtr s = handle->getStatus();
                 finished(rsp, s, Ice::Current()); // Only time that current should be null.
             }
-            
+
             pollThread = NULL;
         }
 
