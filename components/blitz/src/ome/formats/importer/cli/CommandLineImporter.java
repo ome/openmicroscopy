@@ -62,7 +62,7 @@ public class CommandLineImporter {
     private final static String[] REIMPORT = new String[] {};
     
     /** The class used to identify the fileset target.*/
-    private static final String FILESET_CLASS = "omero.model.Fileset";
+    private static final String FILESET_CLASS = omero.model.Fileset.class.getName();
 
     /** Logger for this class. */
     private static Logger log = LoggerFactory.getLogger(CommandLineImporter.class);
