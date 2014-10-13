@@ -164,23 +164,15 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
             for (final Entry<String, Collection<Long>> oneMovedClass : result.getKey().asMap().entrySet()) {
                 final String className = oneMovedClass.getKey();
                 final Collection<Long> ids = oneMovedClass.getValue();
-                final long[] idArray = new long[ids.size()];
-                int index = 0;
-                for (final long id : ids) {
-                    idArray[index++] = id;
-                    movedObjectCount++;
-                }
+                final long[] idArray = GraphUtil.idsToArray(ids);
+                movedObjectCount += idArray.length;
                 movedObjects.put(className, idArray);
             }
             for (final Entry<String, Collection<Long>> oneDeletedClass : result.getValue().asMap().entrySet()) {
                 final String className = oneDeletedClass.getKey();
                 final Collection<Long> ids = oneDeletedClass.getValue();
-                final long[] idArray = new long[ids.size()];
-                int index = 0;
-                for (final long id : ids) {
-                    idArray[index++] = id;
-                    deletedObjectCount++;
-                }
+                final long[] idArray = GraphUtil.idsToArray(ids);
+                deletedObjectCount += idArray.length;
                 deletedObjects.put(className, idArray);
             }
             final Chgrp2Response response = new Chgrp2Response(movedObjects, deletedObjects);
@@ -197,12 +189,7 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
 
     @Override
     public void copyFieldsTo(Chgrp2 request) {
-        request.dryRun = dryRun;
-        request.targetObjects = targetObjects;
-        request.includeNs = includeNs;
-        request.excludeNs = excludeNs;
-        request.includeChild = includeChild;
-        request.excludeChild = excludeChild;
+        GraphUtil.copyFields(this, request);
         request.groupId = groupId;
     }
 

@@ -75,8 +75,8 @@ public class SkipHeadI extends SkipHead implements IRequest {
     }
 
     @Override
-    public ImmutableMap<String, String> getCallContext() {
-       return ALL_GROUPS_CONTEXT;
+    public Map<String, String> getCallContext() {
+        return new HashMap<String, String>(ALL_GROUPS_CONTEXT);
     }
 
     @Override
@@ -95,7 +95,7 @@ public class SkipHeadI extends SkipHead implements IRequest {
             wrappedRequest.copyFieldsTo(graphRequestPerform);
             wrappedRequest.copyFieldsTo(graphRequestSkip);
             /* the skip-head half takes on the top-level options and does not modify any model objects */
-            copyFieldsTo(graphRequestSkip);
+            GraphUtil.copyFields(this, graphRequestSkip);
             graphRequestSkip.dryRun = true;
             if (dryRun) {
                 graphRequestPerform.dryRun = true;
@@ -194,18 +194,5 @@ public class SkipHeadI extends SkipHead implements IRequest {
     @Override
     public Response getResponse() {
         return helper.getResponse();
-    }
-
-    /**
-     * Copy the fields of this request to that of the given request.
-     * @param request the target of the field copy
-     */
-    public void copyFieldsTo(GraphModify2 request) {
-        request.dryRun = dryRun;
-        request.targetObjects = targetObjects;
-        request.includeNs = includeNs;
-        request.excludeNs = excludeNs;
-        request.includeChild = includeChild;
-        request.excludeChild = excludeChild;
     }
 }

@@ -160,12 +160,8 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
             final Map<String, long[]> deletedObjects = new HashMap<String, long[]>();
             for (final String className : Sets.union(resultMoved.keySet(), resultDeleted.keySet())) {
                 final Set<Long> ids = Sets.union(resultMoved.get(className), resultDeleted.get(className));
-                final long[] idArray = new long[ids.size()];
-                int index = 0;
-                for (final long id : ids) {
-                    idArray[index++] = id;
-                    deletedObjectCount++;
-                }
+                final long[] idArray = GraphUtil.idsToArray(ids);
+                deletedObjectCount += idArray.length;
                 deletedObjects.put(className, idArray);
             }
             final Delete2Response response = new Delete2Response(deletedObjects);
@@ -182,12 +178,7 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
 
     @Override
     public void copyFieldsTo(Delete2 request) {
-        request.dryRun = dryRun;
-        request.targetObjects = targetObjects;
-        request.includeNs = includeNs;
-        request.excludeNs = excludeNs;
-        request.includeChild = includeChild;
-        request.excludeChild = excludeChild;
+        GraphUtil.copyFields(this, request);
     }
 
     @Override
