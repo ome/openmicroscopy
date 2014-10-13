@@ -318,9 +318,9 @@ class PropertyParser(object):
         headers = self.headers()
         for header in sorted(headers):
             properties = ""
-            # Filter properties marked as experimental
+            # Filter properties marked as DEVELOPMENT
             props = [p for p in headers[header]
-                     if not p.txt.startswith('EXPERIMENTAL')]
+                     if not p.txt.startswith('DEVELOPMENT')]
             for p in props:
                 properties += ".. property:: %s\n" % (p.key)
                 properties += "\n"

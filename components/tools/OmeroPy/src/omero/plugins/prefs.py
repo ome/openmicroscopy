@@ -164,7 +164,8 @@ class PrefsControl(BaseControl):
 
         parse = parser.add(
             sub, self.parse,
-            "Parse the etc/omero.properties file for readability")
+            "Parse the configuration properties from the etc/omero.properties"
+            " file for readability.")
         parse.add_argument(
             "-f", "--file", type=ExistingFile('r'),
             help="Alternative location for a Java properties file")
@@ -174,7 +175,7 @@ class PrefsControl(BaseControl):
             help="Show key/value configuration defaults")
         parse_group.add_argument(
             "--rst", action="store_true",
-            help="Generate reStructuredText from omero.properties)")
+            help="Generate reStructuredText from omero.properties")
         parse_group.add_argument(
             "--keys", action="store_true",
             help="Print just the keys from omero.properties")
