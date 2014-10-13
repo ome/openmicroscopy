@@ -290,7 +290,9 @@ module omero {
               **/
              omero::model::ChecksumAlgorithm checksumAlgorithm;
 
-
+             /**
+              * Reimport flag
+              **/
              bool reimportFileset;
 
              /**
