@@ -112,11 +112,10 @@ public class ImportContainer
     }
 
     /**
-     * Retrieves whether or not we are performing thumbnail creation upon
-     * import completion.
-     * return <code>true</code> if we are to perform thumbnail creation and
+     * Retrieves whether or not we are performing metadata reimport.
+     * return <code>true</code> if we are to perform metadata reimport and
      * <code>false</code> otherwise.
-     * @since OMERO Beta 4.3.0.
+     * @since OMERO Beta 5.1.0.
      */
     public boolean getReimportFileset()
     {
@@ -124,11 +123,10 @@ public class ImportContainer
     }
 
     /**
-     * Sets whether or not we are performing thumbnail creation upon import
-     * completion.
-     * @param v <code>true</code> if we are to perform thumbnail creation and
+     * Sets whether or not we are performing metadata reimport.
+     * @param v <code>true</code> if we are to perform metadata reimport and
      * <code>false</code> otherwise.
-     * @since OMERO Beta 4.3.0.
+     * @since OMERO Beta 5.1.0.
      */
     public void setReimportFileset(boolean v)
     {
