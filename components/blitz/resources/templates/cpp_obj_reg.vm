@@ -32,30 +32,30 @@ namespace omero {
 #set( $ObjFac = "${type.shortname}ObjectFactory" )
     class ${ObjFac} : virtual public Ice::ObjectFactory {
     public:
-	${ObjFac}() : Ice::ObjectFactory() { }
+    ${ObjFac}() : Ice::ObjectFactory() { }
 
-	~${ObjFac}() {}
+    ~${ObjFac}() {}
 
-	Ice::ObjectPtr create(const std::string& type) {
-	    return new omero::model::${type.shortname}I();
+    Ice::ObjectPtr create(const std::string& type) {
+        return new omero::model::${type.shortname}I();
         }
 
-	void destroy() {}
+    void destroy() {}
     };
 #end
 #end
 
     class PermissionsObjectFactory : virtual public Ice::ObjectFactory {
     public:
-	PermissionsObjectFactory() : Ice::ObjectFactory() { }
+    PermissionsObjectFactory() : Ice::ObjectFactory() { }
 
-	~PermissionsObjectFactory() {}
+    ~PermissionsObjectFactory() {}
 
-	Ice::ObjectPtr create(const std::string& type) {
-	    return new omero::model::PermissionsI();
-	}
+    Ice::ObjectPtr create(const std::string& type) {
+        return new omero::model::PermissionsI();
+    }
 
-	void destroy() {}
+    void destroy() {}
 
     };
 
