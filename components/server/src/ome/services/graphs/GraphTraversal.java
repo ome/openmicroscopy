@@ -350,6 +350,7 @@ public class GraphTraversal {
         final SetMultimap<CI, CI> afters = HashMultimap.create();
         final Map<CI, Set<CI>> blockedBy = new HashMap<CI, Set<CI>>();
         /* permissions, unused for system users */
+        final Set<CI> detailsNoted = new HashSet<CI>();
         final Set<CI> mayUpdate = new HashSet<CI>();
         final Set<CI> mayDelete = new HashSet<CI>();
         final Set<CI> owns = new HashSet<CI>();
@@ -596,10 +597,15 @@ public class GraphTraversal {
     private void noteDetails(IObject objectInstance, CI object) {
         final ome.model.internal.Details objectDetails = objectInstance.getDetails();
 
-        if (!eventContext.isCurrentUserAdmin()) {
+        if (planning.detailsNoted.isEmpty()) {
             /* allowLoad ensures that BasicEventContext.groupPermissionsMap is populated */
             aclVoter.allowLoad(session, objectInstance.getClass(), objectDetails, object.id);
+        }
+        if (!planning.detailsNoted.add(object)) {
+            return;
+        }
 
+        if (!eventContext.isCurrentUserAdmin()) {
             if (aclVoter.allowUpdate(objectInstance, objectDetails)) {
                 planning.mayUpdate.add(object);
             }
