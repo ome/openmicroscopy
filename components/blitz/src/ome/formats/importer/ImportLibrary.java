@@ -731,7 +731,7 @@ public class ImportLibrary implements IObservable
 
         @Override
         public void step(int step, int total, Ice.Current current) {
-            // This code should be improved to make sure we do not hardcode usecases.
+            // TODO: This code should be improved to make sure we do not hardcode usecases.
             if (this.container.getReimportFileset()) {
              // Reimport will only update metadata
                 if (step == 1) {
