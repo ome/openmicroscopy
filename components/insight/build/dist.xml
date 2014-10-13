@@ -125,8 +125,6 @@
     <zip destfile="${dist.dir}/${main-dist-prefix}-win.zip">
       <zipfileset file="${base.licensefile}" fullpath="${main-dist-prefix}/LICENSE"/>
     </zip>
-      <zipfileset file="${base.licensefile}" fullpath="${main-dist-prefix}/LICENSE"/>
-    </zip>
     <zip destfile="${dist.dir}/${distImporter.bundle.name}-${dist.bundle.version}-win.zip">
       <zipfileset file="${base.licensefile}" fullpath="${main-dist-prefix}/LICENSE"/>
     </zip>
