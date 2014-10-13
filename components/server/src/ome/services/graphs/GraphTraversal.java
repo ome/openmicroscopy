@@ -1127,6 +1127,19 @@ public class GraphTraversal {
     }
 
     /**
+     * Ensure that subsequent Hibernate queries' view of updated objects reflect the changes made in this session.
+     * @param className the name of the updated objects' class
+     * @param ids the IDs of the updated objects
+     */
+    private void refreshHibernateCache(String className, Collection<Long> ids) {
+        session.flush();
+        final String query = "FROM " + className + " WHERE id IN (:ids)";
+        for (final IObject object : (List<IObject>) session.createQuery(query).setParameterList("ids", ids).list()) {
+            session.refresh(object);
+        }
+    }
+
+    /**
      * Remove links between the targeted model objects and the remainder of the model object graph.
      * @throws GraphException if the user does not have permission to unlink the targets
      */
@@ -1205,6 +1218,7 @@ public class GraphTraversal {
             assertMayBeUpdated(linker.className, allIds);
             for (final List<Long> ids : Iterables.partition(allIds, BATCH_SIZE)) {
                 processor.nullProperties(linker.className, linker.propertyName, ids);
+                refreshHibernateCache(linker.className, ids);
             }
         }
         /* unlink included/deleted by removing from collections */
@@ -1215,6 +1229,11 @@ public class GraphTraversal {
             for (final List<Entry<Long, Collection<Entry<String, Long>>>> idMap :
                 Iterables.partition(removeCurr.getValue().asMap().entrySet(), BATCH_SIZE)) {
                 processor.filterProperties(linker.className, linker.propertyName, idMap);
+                final Collection<Long> ids = new HashSet<Long>();
+                for (final Entry<Long, Collection<Entry<String, Long>>> idMapEntry : idMap) {
+                    ids.add(idMapEntry.getKey());
+                }
+                refreshHibernateCache(linker.className, ids);
             }
         }
     }
@@ -1272,6 +1291,7 @@ public class GraphTraversal {
                     assertMayBeProcessed(className, allIds);
                     for (final List<Long> ids : Iterables.partition(allIds, BATCH_SIZE)) {
                         processor.processInstances(className, ids);
+                        refreshHibernateCache(className, ids);
                     }
                 }
             }
