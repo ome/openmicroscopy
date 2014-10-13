@@ -621,7 +621,7 @@ public class ImportLibrary implements IObservable
                     "IO exception from operation without IO");
         }
 
-        ImportProcessPrx proc = repo.reimportFileset(fs, settings);
+        ImportProcessPrx proc = repo.importFileset(fs, settings);
 
         Map<Integer, String> failingChecksums = new HashMap<Integer, String>();
 

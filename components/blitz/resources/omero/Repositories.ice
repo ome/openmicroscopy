@@ -459,15 +459,6 @@ module omero {
             ImportProcess* importFileset(omero::model::Fileset fs, ImportSettings settings) throws ServerError;
 
             /**
-             * Returns an [ImportProcess] which can be used to reimport fileset.
-             * On [ImportProcess::verifyUpload], an [omero::cmd::Handle] will be
-             * returned which can be watched for knowing when the server-side import
-             * is complete.
-             **/
-            ImportProcess* reimportFileset(omero::model::Fileset fs, ImportSettings settings) throws ServerError;
-
-
-            /**
              * For clients without access to Bio-Formats, the simplified
              * [importPaths] method allows passing solely the absolute
              * path of the files to be uploaded (no directories) and all

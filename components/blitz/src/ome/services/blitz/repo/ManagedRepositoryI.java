@@ -221,6 +221,9 @@ public class ManagedRepositoryI extends PublicRepositoryI
             Ice.Current __current) throws omero.ServerError {
 
         ImportLocation location = internalImport(fs, settings, __current);
+        if (settings.reimportFileset) {
+            return createRemportProcess(fs, location, settings, __current);
+        }
         return createImportProcess(fs, location, settings, __current);
 
     }
@@ -247,47 +250,17 @@ public class ManagedRepositoryI extends PublicRepositoryI
         // at this point, the template path should not yet exist on the filesystem
         final List<FsFile> sortedPaths = Ordering.usingToString()
                 .immutableSortedCopy(paths);
-        FsFile relPath = null;
-        Class<? extends FormatReader> readerClass = null;
-
+        final FsFile relPath;
+        
         if (settings.reimportFileset) {
             relPath = new FsFile(fs.getTemplatePrefix().getValue());
-
-            for (final FilesetJobLink joblink : fs.copyJobLinks()) {
-                Job job = joblink.getChild();
-                if (joblink.getChild() instanceof UploadJob) {
-                    final Map<String, RString> versionInfo = ((UploadJob) job)
-                            .getVersionInfo(__current);
-                    if (versionInfo == null
-                            || !versionInfo
-                                    .containsKey(ImportConfig.VersionInfo.BIO_FORMATS_READER.key)) {
-                        continue;
-                    }
-                    final String readerName = versionInfo.get(
-                            ImportConfig.VersionInfo.BIO_FORMATS_READER.key)
-                            .getValue();
-                    Class<?> potentialReaderClass;
-                    try {
-                        potentialReaderClass = Class.forName(readerName);
-                    } catch (NullPointerException npe) {
-                        log.debug("No info provided for reader class");
-                        continue;
-                    } catch (Exception e) {
-                        log.warn("Error getting reader class", e);
-                        continue;
-                    }
-                    if (FormatReader.class
-                            .isAssignableFrom(potentialReaderClass)) {
-                        readerClass = (Class<? extends FormatReader>) potentialReaderClass;
-                    }
-                }
-            }
         } else {
             relPath = createTemplatePath(sortedPaths, __current);
             fs.setTemplatePrefix(rstring(relPath.toString()
                     + FsFile.separatorChar));
-            readerClass = getReaderClass(fs, __current);
         }
+
+        final Class<? extends FormatReader> readerClass = getReaderClass(fs, __current);
 
         // The next part of the string which is chosen by the user:
         // /home/bob/myStuff
@@ -323,59 +296,6 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         return importFileset(fs, settings, __current);
-    }
-
-    /**
-     * Return a template based directory path. The path will be created
-     * by calling {@link #makeDir(String, boolean, Ice.Current)}.
-     */
-    public ImportProcessPrx reimportFileset(Fileset fs, ImportSettings settings,
-            Ice.Current __current) throws omero.ServerError {
-
-        ImportLocation location = internalImport(fs, settings, __current);
-
-        // In stead of createImportProcess
-        final ImportConfig config = new ImportConfig();
-        final Map<String, RString> serverVersionInfo = new HashMap<String, RString>();
-        config.fillVersionInfo(serverVersionInfo);
-
-        UploadJob uploadJob = null;
-        MetadataImportJob metadataJob = null;
-        for (FilesetJobLink jobLink : fs.copyJobLinks()) {
-            if (jobLink.getChild() instanceof UploadJob) {
-                uploadJob = (UploadJob) jobLink.getChild();
-            }
-            if (jobLink.getChild() instanceof MetadataImportJob) {
-                metadataJob = (MetadataImportJob) jobLink.getChild();
-                metadataJob.setVersionInfo(serverVersionInfo);
-            }
-        }
-
-        if (uploadJob == null) {
-            throw new omero.ValidationException(null, null,
-                    "Found null-UploadJob on creation");
-        }
-        if (!(uploadJob instanceof UploadJob)) {
-            throw new omero.ValidationException(null, null,
-                    "Found non-UploadJob on creation: "+
-                    uploadJob.getClass().getName());
-        }
-
-        final int size = fs.sizeOfUsedFiles();
-        final List<CheckedPath> checked = new ArrayList<CheckedPath>();
-        for (int i = 0; i < size; i++) {
-            final String path = location.sharedPath + FsFile.separatorChar + location.usedFiles.get(i);
-            checked.add(checkPath(path, settings.checksumAlgorithm, __current));
-        }
-
-        // Since the fileset saved validly, we create a session for the user
-        // and return the process.
-        final Fileset managedFs = fs;
-        final ManagedImportProcessI proc = new ManagedImportProcessI(this,
-                managedFs, location, settings, __current);
-        processes.addProcess(proc);
-        return proc.getProxy();
-
     }
 
     public List<ImportProcessPrx> listImports(Ice.Current __current) throws omero.ServerError {
@@ -567,6 +487,52 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         return createUploadProcess(fs, location, settings, __current, false);
+    }
+    
+    /**
+     * Creating the process will register itself in an appropriate
+     * container (i.e. a SessionI or similar) for the current
+     * user and therefore this instance no longer needs to worry
+     * about the maintenance of the object.
+     */
+    protected ImportProcessPrx createRemportProcess(Fileset fs,
+            ImportLocation location, ImportSettings settings, Current __current)
+                throws ServerError {
+        final ImportConfig config = new ImportConfig();
+        final Map<String, RString> serverVersionInfo = new HashMap<String, RString>();
+        config.fillVersionInfo(serverVersionInfo);
+
+        UploadJob uploadJob = null;
+        MetadataImportJob metadataJob = null;
+        for (FilesetJobLink jobLink : fs.copyJobLinks()) {
+            if (jobLink.getChild() instanceof UploadJob) {
+                uploadJob = (UploadJob) jobLink.getChild();
+            }
+            if (jobLink.getChild() instanceof MetadataImportJob) {
+                metadataJob = (MetadataImportJob) jobLink.getChild();
+                metadataJob.setVersionInfo(serverVersionInfo);
+            }
+        }
+
+        if (uploadJob == null) {
+            throw new omero.ValidationException(null, null,
+                    "Found null-UploadJob on creation");
+        }
+
+        final int size = fs.sizeOfUsedFiles();
+        final List<CheckedPath> checked = new ArrayList<CheckedPath>(size);
+        for (int i = 0; i < size; i++) {
+            final String path = location.sharedPath + FsFile.separatorChar + location.usedFiles.get(i);
+            checked.add(checkPath(path, settings.checksumAlgorithm, __current));
+        }
+
+        // Since the fileset saved validly, we create a session for the user
+        // and return the process.
+        final Fileset managedFs = fs;
+        final ManagedImportProcessI proc = new ManagedImportProcessI(this,
+                managedFs, location, settings, __current);
+        processes.addProcess(proc);
+        return proc.getProxy();
     }
 
     /**
