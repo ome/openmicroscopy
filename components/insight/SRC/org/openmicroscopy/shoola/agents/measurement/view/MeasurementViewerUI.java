@@ -480,9 +480,9 @@ class MeasurementViewerUI
 					roiManager.getComponentIcon(), roiManager);
 		tabs.addTab(roiInspector.getComponentName(),
 			roiInspector.getComponentIcon(), roiInspector);
+		tabs.addTab(roiResults.getComponentName(),
+                roiResults.getComponentIcon(), roiResults);
 		if (!model.isBigImage()) {
-			tabs.addTab(roiResults.getComponentName(),
-				roiResults.getComponentIcon(), roiResults);
 			tabs.addTab(graphPane.getComponentName(),
 				graphPane.getComponentIcon(), graphPane);
 			tabs.addTab(intensityView.getComponentName(),
