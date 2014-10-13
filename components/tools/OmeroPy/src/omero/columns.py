@@ -17,12 +17,14 @@ type hierarchy which know how to convert themselves
 to PyTables types.
 """
 
-import omero, Ice, IceImport
+import omero
+import Ice
+import IceImport
 IceImport.load("omero_Tables_ice")
 
 try:
     import numpy
-    tables = __import__("tables") # Pytables
+    tables = __import__("tables")  # Pytables
     has_pytables = True
 except ImportError:
     has_pytables = False
@@ -43,6 +45,7 @@ def columns2definition(cols):
         definition[column.name] = instance
         # Descriptions are handled separately
     return definition
+
 
 class AbstractColumn(object):
     """
@@ -134,90 +137,100 @@ class AbstractColumn(object):
         will need to override this method.
         """
         self.values = rows[self.name]
-        # WORKAROUND: http://www.zeroc.com/forums/bug-reports/4165-icepy-can-not-handle-buffers-longs-i64.html#post20468
+        # WORKAROUND:
+        # http://www.zeroc.com/forums/bug-reports/4165-icepy-can-not-handle-buffers-longs-i64.html#post20468
         # see ticket:1951 and #2160
-        ## d = self.recarrtypes[0][1]
-        ## Disabled until Ice 3.4
-        ## if isinstance(d, str):
-        ##     d = numpy.dtype(d)
-        ## if d.kind == "S" or (d.kind == "i" and d.itemsize == "8"):
+        # d = self.recarrtypes[0][1]
+        # Disabled until Ice 3.4
+        # if isinstance(d, str):
+        #     d = numpy.dtype(d)
+        # if d.kind == "S" or (d.kind == "i" and d.itemsize == "8"):
         self.values = self.values.tolist()
+
 
 class FileColumnI(AbstractColumn, omero.grid.FileColumn):
 
-    def __init__(self, name = "Unknown", *args):
+    def __init__(self, name="Unknown", *args):
         omero.grid.FileColumn.__init__(self, name, *args)
         AbstractColumn.__init__(self)
 
     def descriptor(self, pos):
         return tables.Int64Col(pos=pos)
 
+
 class ImageColumnI(AbstractColumn, omero.grid.ImageColumn):
 
-    def __init__(self, name = "Unknown", *args):
+    def __init__(self, name="Unknown", *args):
         omero.grid.ImageColumn.__init__(self, name, *args)
         AbstractColumn.__init__(self)
 
     def descriptor(self, pos):
         return tables.Int64Col(pos=pos)
 
+
 class WellColumnI(AbstractColumn, omero.grid.WellColumn):
 
-    def __init__(self, name = "Unknown", *args):
+    def __init__(self, name="Unknown", *args):
         omero.grid.WellColumn.__init__(self, name, *args)
         AbstractColumn.__init__(self)
 
     def descriptor(self, pos):
         return tables.Int64Col(pos=pos)
 
+
 class PlateColumnI(AbstractColumn, omero.grid.PlateColumn):
 
-    def __init__(self, name = "Unknown", *args):
+    def __init__(self, name="Unknown", *args):
         omero.grid.PlateColumn.__init__(self, name, *args)
         AbstractColumn.__init__(self)
 
     def descriptor(self, pos):
         return tables.Int64Col(pos=pos)
 
+
 class RoiColumnI(AbstractColumn, omero.grid.RoiColumn):
 
-    def __init__(self, name = "Unknown", *args):
+    def __init__(self, name="Unknown", *args):
         omero.grid.RoiColumn.__init__(self, name, *args)
         AbstractColumn.__init__(self)
 
     def descriptor(self, pos):
         return tables.Int64Col(pos=pos)
 
+
 class BoolColumnI(AbstractColumn, omero.grid.BoolColumn):
 
-    def __init__(self, name = "Unknown", *args):
+    def __init__(self, name="Unknown", *args):
         omero.grid.BoolColumn.__init__(self, name, *args)
         AbstractColumn.__init__(self)
 
     def descriptor(self, pos):
         return tables.BoolCol(pos=pos)
 
+
 class DoubleColumnI(AbstractColumn, omero.grid.DoubleColumn):
 
-    def __init__(self, name = "Unknown", *args):
+    def __init__(self, name="Unknown", *args):
         omero.grid.DoubleColumn.__init__(self, name, *args)
         AbstractColumn.__init__(self)
 
     def descriptor(self, pos):
         return tables.Float64Col(pos=pos)
 
+
 class LongColumnI(AbstractColumn, omero.grid.LongColumn):
 
-    def __init__(self, name = "Unknown", *args):
+    def __init__(self, name="Unknown", *args):
         omero.grid.LongColumn.__init__(self, name, *args)
         AbstractColumn.__init__(self)
 
     def descriptor(self, pos):
         return tables.Int64Col(pos=pos)
 
+
 class StringColumnI(AbstractColumn, omero.grid.StringColumn):
 
-    def __init__(self, name = "Unknown", *args):
+    def __init__(self, name="Unknown", *args):
         omero.grid.StringColumn.__init__(self, name, *args)
         AbstractColumn.__init__(self)
 
@@ -251,8 +264,10 @@ class StringColumnI(AbstractColumn, omero.grid.StringColumn):
             return tables.StringCol(pos=pos, itemsize=1)
         if self.size < 1:
             raise omero.ApiUsageException(
-                None, None, "String size must be > 0 (Column: %s)" % self.name)
+                None, None, "String size must be > 0 (Column: %s)"
+                % self.name)
         return tables.StringCol(pos=pos, itemsize=self.size)
+
 
 class AbstractArrayColumn(AbstractColumn):
     """
@@ -266,13 +281,13 @@ class AbstractArrayColumn(AbstractColumn):
         AbstractColumn.settable(self, tbl)
 
         # Pytables 2.1 has the array size in Column.dtype.shape
-        #shape = getattr(tbl.cols, self.name).dtype.shape
-        #self.size = shape[0]
+        # shape = getattr(tbl.cols, self.name).dtype.shape
+        # self.size = shape[0]
 
         # Pytables 2.2 and later replaced this with Column.shape
-        #shape = getattr(tbl.cols, self.name).shape
-        #assert(len(shape) == 2)
-        #self.size = shape[1]
+        # shape = getattr(tbl.cols, self.name).shape
+        # assert(len(shape) == 2)
+        # self.size = shape[1]
 
         # http://www.pytables.org/trac-bck/ticket/231
         # http://www.pytables.org/trac-bck/ticket/232
@@ -281,7 +296,6 @@ class AbstractArrayColumn(AbstractColumn):
         # Taken from http://www.pytables.org/trac-bck/changeset/4176
         column = getattr(tbl.cols, self.name)
         self.size = column.descr._v_dtypes[column.name].shape[0]
-
 
     def arrays(self):
         """
@@ -305,9 +319,10 @@ class AbstractArrayColumn(AbstractColumn):
         """
         return [(self.name, self._types[0], self.size)]
 
+
 class FloatArrayColumnI(AbstractArrayColumn, omero.grid.FloatArrayColumn):
 
-    def __init__(self, name = "Unknown", *args):
+    def __init__(self, name="Unknown", *args):
         omero.grid.FloatArrayColumn.__init__(self, name, *args)
         AbstractArrayColumn.__init__(self)
 
@@ -317,12 +332,14 @@ class FloatArrayColumnI(AbstractArrayColumn, omero.grid.FloatArrayColumn):
             return tables.Float32Col(pos=pos)
         if self.size < 1:
             raise omero.ApiUsageException(
-                None, None, "Array length must be > 0 (Column: %s)" % self.name)
+                None, None, "Array length must be > 0 (Column: %s)"
+                % self.name)
         return tables.Float32Col(pos=pos, shape=self.size)
+
 
 class DoubleArrayColumnI(AbstractArrayColumn, omero.grid.DoubleArrayColumn):
 
-    def __init__(self, name = "Unknown", *args):
+    def __init__(self, name="Unknown", *args):
         omero.grid.DoubleArrayColumn.__init__(self, name, *args)
         AbstractArrayColumn.__init__(self)
 
@@ -332,12 +349,14 @@ class DoubleArrayColumnI(AbstractArrayColumn, omero.grid.DoubleArrayColumn):
             return tables.Float64Col(pos=pos)
         if self.size < 1:
             raise omero.ApiUsageException(
-                None, None, "Array length must be > 0 (Column: %s)" % self.name)
+                None, None, "Array length must be > 0 (Column: %s)"
+                % self.name)
         return tables.Float64Col(pos=pos, shape=self.size)
+
 
 class LongArrayColumnI(AbstractArrayColumn, omero.grid.LongArrayColumn):
 
-    def __init__(self, name = "Unknown", *args):
+    def __init__(self, name="Unknown", *args):
         omero.grid.LongArrayColumn.__init__(self, name, *args)
         AbstractArrayColumn.__init__(self)
 
@@ -347,12 +366,14 @@ class LongArrayColumnI(AbstractArrayColumn, omero.grid.LongArrayColumn):
             return tables.Int64Col(pos=pos)
         if self.size < 1:
             raise omero.ApiUsageException(
-                None, None, "Array length must be > 0 (Column: %s)" % self.name)
+                None, None, "Array length must be > 0 (Column: %s)"
+                % self.name)
         return tables.Int64Col(pos=pos, shape=self.size)
+
 
 class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
 
-    def __init__(self, name = "Unknown", *args):
+    def __init__(self, name="Unknown", *args):
         omero.grid.MaskColumn.__init__(self, name, *args)
         AbstractColumn.__init__(self)
 
@@ -418,17 +439,18 @@ class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
             self.h = None
         else:
             dts = self.dtypes()
-            self.imageId = numpy.zeroes(size, dtype = dts[0])
-            self.theZ    = numpy.zeroes(size, dtype = dts[1])
-            self.theT    = numpy.zeroes(size, dtype = dts[2])
-            self.x       = numpy.zeroes(size, dtype = dts[3])
-            self.y       = numpy.zeroes(size, dtype = dts[4])
-            self.w       = numpy.zeroes(size, dtype = dts[5])
-            self.h       = numpy.zeroes(size, dtype = dts[6])
+            self.imageId = numpy.zeroes(size, dtype=dts[0])
+            self.theZ = numpy.zeroes(size, dtype=dts[1])
+            self.theT = numpy.zeroes(size, dtype=dts[2])
+            self.x = numpy.zeroes(size, dtype=dts[3])
+            self.y = numpy.zeroes(size, dtype=dts[4])
+            self.w = numpy.zeroes(size, dtype=dts[5])
+            self.h = numpy.zeroes(size, dtype=dts[6])
 
     def readCoordinates(self, tbl, rowNumbers):
         self.__sanitycheck()
-        AbstractColumn.readCoordinates(self, tbl, rowNumbers) # calls fromrows
+        # calls fromrows
+        AbstractColumn.readCoordinates(self, tbl, rowNumbers)
         masks = self._getmasks(tbl)
         if rowNumbers is None or len(rowNumbers) == 0:
             rowNumbers = range(masks.nrows)
@@ -436,7 +458,7 @@ class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
 
     def read(self, tbl, start, stop):
         self.__sanitycheck()
-        AbstractColumn.read(self, tbl, start, stop) # calls fromrows
+        AbstractColumn.read(self, tbl, start, stop)  # calls fromrows
         masks = self._getmasks(tbl)
         rowNumbers = range(start, stop)
         self.getbytes(masks, rowNumbers)
@@ -448,10 +470,11 @@ class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
 
     def fromrows(self, all_rows):
         rows = all_rows[self.name]
-        # WORKAROUND: http://www.zeroc.com/forums/bug-reports/4165-icepy-can-not-handle-buffers-longs-i64.html#post20468
+        # WORKAROUND:
+        # http://www.zeroc.com/forums/bug-reports/4165-icepy-can-not-handle-buffers-longs-i64.html#post20468
         self.imageId = rows["i"].tolist()
-        self.theZ = rows["z"].tolist() # ticket:1665
-        self.theT = rows["t"].tolist() # ticket:1665
+        self.theZ = rows["z"].tolist()  # ticket:1665
+        self.theT = rows["t"].tolist()  # ticket:1665
         self.x = rows["x"]
         self.y = rows["y"]
         self.w = rows["w"]
@@ -465,14 +488,16 @@ class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
                 # This occurs primarily in testing.
                 masks.append(numpy.array(x, dtype=tables.UInt8Atom()))
             else:
-                masks.append(numpy.fromstring(x, count=len(x), dtype=tables.UInt8Atom()))
+                masks.append(numpy.fromstring(x, count=len(x),
+                                              dtype=tables.UInt8Atom()))
 
     def _getmasks(self, tbl):
         n = tbl._v_name
         f = tbl._v_file
         p = tbl._v_parent
         # http://doc.zeroc.com/display/Ice/Basic+Types
-        # Ice::Byte can be -128 to 127 OR 0 to 255, but using UInt8 for the moment
+        # Ice::Byte can be -128 to 127 OR 0 to 255, but using UInt8 for the
+        # moment
         try:
             masks = getattr(p, "%s_masks" % n)
         except tables.NoSuchNodeError:
@@ -482,8 +507,8 @@ class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
 # Helpers
 # ========================================================================
 
-# Conversion classes are for omero.model <--> ome.model only (no python)
 
+# Conversion classes are for omero.model <--> ome.model only (no python)
 class ObjectFactory(Ice.ObjectFactory):
 
     def __init__(self, cls, f):
@@ -513,8 +538,11 @@ ObjectFactories = {
     DoubleColumnI: ObjectFactory(DoubleColumnI, lambda: DoubleColumnI()),
     LongColumnI: ObjectFactory(LongColumnI, lambda: LongColumnI()),
     StringColumnI: ObjectFactory(StringColumnI, lambda: StringColumnI()),
-    FloatArrayColumnI: ObjectFactory(FloatArrayColumnI, lambda: FloatArrayColumnI()),
-    DoubleArrayColumnI: ObjectFactory(DoubleArrayColumnI, lambda: DoubleArrayColumnI()),
-    LongArrayColumnI: ObjectFactory(LongArrayColumnI, lambda: LongArrayColumnI()),
+    FloatArrayColumnI: ObjectFactory(
+        FloatArrayColumnI, lambda: FloatArrayColumnI()),
+    DoubleArrayColumnI: ObjectFactory(
+        DoubleArrayColumnI, lambda: DoubleArrayColumnI()),
+    LongArrayColumnI: ObjectFactory(
+        LongArrayColumnI, lambda: LongArrayColumnI()),
     MaskColumnI: ObjectFactory(MaskColumnI, lambda: MaskColumnI())
     }

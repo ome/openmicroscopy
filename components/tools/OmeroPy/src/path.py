@@ -109,6 +109,7 @@ except ImportError:
 ##############################################################
 # Support for surrogateescape
 
+
 def surrogate_escape(error):
     """
     Simulate the Python 3 surrogateescape handler, but for Python 2 only.
@@ -1415,7 +1416,7 @@ class path(unicode):
     # http://www.zopatista.com/python/2013/11/26/inplace-file-rewriting/
     @contextlib.contextmanager
     def in_place(self, mode='r', buffering=-1, encoding=None, errors=None,
-            newline=None, backup_extension=None):
+                 newline=None, backup_extension=None):
         """
         A context in which a file may be re-written in-place with new content.
 
@@ -1452,12 +1453,14 @@ class path(unicode):
         except os.error:
             pass
         os.rename(self, backup_fn)
-        readable = io.open(backup_fn, mode, buffering=buffering,
+        readable = io.open(
+            backup_fn, mode, buffering=buffering,
             encoding=encoding, errors=errors, newline=newline)
         try:
             perm = os.fstat(readable.fileno()).st_mode
         except OSError:
-            writable = open(self, 'w' + mode.replace('r', ''),
+            writable = open(
+                self, 'w' + mode.replace('r', ''),
                 buffering=buffering, encoding=encoding, errors=errors,
                 newline=newline)
         else:
@@ -1465,7 +1468,8 @@ class path(unicode):
             if hasattr(os, 'O_BINARY'):
                 os_mode |= os.O_BINARY
             fd = os.open(self, os_mode, perm)
-            writable = io.open(fd, "w" + mode.replace('r', ''),
+            writable = io.open(
+                fd, "w" + mode.replace('r', ''),
                 buffering=buffering, encoding=encoding, errors=errors,
                 newline=newline)
             try:
