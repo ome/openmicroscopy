@@ -24,7 +24,6 @@ import ome.security.auth.PasswordUtil;
 import ome.services.chgrp.ChgrpStepFactory;
 import ome.services.chown.ChownStepFactory;
 import ome.services.delete.Deletion;
-import ome.services.graphs.GraphException;
 import ome.services.util.MailUtil;
 import ome.system.OmeroContext;
 import ome.system.Roles;
@@ -37,10 +36,12 @@ import omero.cmd.fs.ManageImageBinariesI;
 import omero.cmd.fs.OriginalMetadataRequestI;
 import omero.cmd.graphs.ChgrpI;
 import omero.cmd.graphs.Chgrp2I;
+import omero.cmd.graphs.ChgrpFacadeI;
 import omero.cmd.graphs.ChmodI;
 import omero.cmd.graphs.ChownI;
 import omero.cmd.graphs.DeleteI;
 import omero.cmd.graphs.Delete2I;
+import omero.cmd.graphs.DeleteFacadeI;
 import omero.cmd.graphs.DiskUsageI;
 import omero.cmd.graphs.GraphRequestFactory;
 import omero.cmd.graphs.GraphSpecListI;
@@ -145,11 +146,15 @@ public class RequestObjectFactoryRegistry extends
                 new ObjectFactory(ChgrpI.ice_staticId()) {
                     @Override
                     public Ice.Object create(String name) {
-                        ClassPathXmlApplicationContext specs = new ClassPathXmlApplicationContext(
-                                new String[] { "classpath:ome/services/spec.xml" },
-                                ctx);
-                        ChgrpStepFactory factory = new ChgrpStepFactory(ctx, em, roles);
-                        return new ChgrpI(ic, factory, specs);
+                        if (graphRequestFactory.isGraphsWrap()) {
+                            return new ChgrpFacadeI(graphRequestFactory);
+                        } else {
+                            final ClassPathXmlApplicationContext specs = new ClassPathXmlApplicationContext(
+                                    new String[] { "classpath:ome/services/spec.xml" },
+                                    ctx);
+                            final ChgrpStepFactory factory = new ChgrpStepFactory(ctx, em, roles);
+                            return new ChgrpI(ic, factory, specs);
+                        }
                     }
 
                 });
@@ -186,8 +191,12 @@ public class RequestObjectFactoryRegistry extends
                 new ObjectFactory(DeleteI.ice_staticId()) {
                     @Override
                     public Ice.Object create(String name) {
-                        Deletion d = ctx.getBean(Deletion.class.getName(), Deletion.class);
-                        return new DeleteI(ic, d);
+                        if (graphRequestFactory.isGraphsWrap()) {
+                            return new DeleteFacadeI(graphRequestFactory);
+                        } else {
+                            final Deletion d = ctx.getBean(Deletion.class.getName(), Deletion.class);
+                            return new DeleteI(ic, d);
+                        }
                     }
                 });
         factories.put(Delete2I.ice_staticId(),
