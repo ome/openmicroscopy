@@ -28,6 +28,8 @@ import omero.cmd.GraphModify;
 import omero.cmd.GraphModify2;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 /**
  * Static utility methods for model graph operations.
@@ -115,5 +117,21 @@ class GraphUtil {
                 }
             }
         }
+    }
+
+    /**
+     * Make a copy of a multimap with the full class names in the keys replaced by the simple class names.
+     * @param entriesByFullName a multimap
+     * @return a new multimap with the same contents, except for the package name having been trimmed off each key
+     */
+    static <X> SetMultimap<String, X> trimPackageNames(SetMultimap<String, X> entriesByFullName) {
+        final SetMultimap<String, X> entriesBySimpleName = HashMultimap.create();
+        for (final Map.Entry<String, Collection<X>> entriesForOneClass : entriesByFullName.asMap().entrySet()) {
+            final String fullClassName = entriesForOneClass.getKey();
+            final String simpleClassName = fullClassName.substring(fullClassName.lastIndexOf('.') + 1);
+            final Collection<X> values = entriesForOneClass.getValue();
+            entriesBySimpleName.putAll(simpleClassName, values);
+        }
+        return entriesBySimpleName;
     }
 }
