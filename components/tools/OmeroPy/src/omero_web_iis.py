@@ -32,6 +32,8 @@ STATICS = os.path.realpath(STATICS)
 sys.path.append(str(CWD))
 sys.path.append(str(os.path.join(CWD, 'omeroweb')))
 
+from omeroweb import settings
+
 os.environ['DJANGO_SETTINGS_MODULE'] = 'omeroweb.settings'
 import django.core.handlers.wsgi
 import threading
@@ -82,6 +84,12 @@ def permit_iis(filename):
 
 if __name__ == '__main__':
 
+    static_prefix = settings.STATIC_URL.rstrip("/")
+    try:
+        web_prefix = settings.FORCE_SCRIPT_NAME.rstrip("/")
+    except:
+        web_prefix = "/omero"
+
     permit_iis(CONFIG)
     permit_iis(LOGS)
 
@@ -96,12 +104,12 @@ if __name__ == '__main__':
     sm = [
         ScriptMapParams(Extension="*", Flags=0)
     ]
-    vd1 = VirtualDirParameters(Name="/omero",
+    vd1 = VirtualDirParameters(Name=web_prefix,
                                Description="ISAPI-WSGI OMERO.web",
                                ScriptMaps=sm,
                                ScriptMapUpdate="replace"
                                )
-    vd2 = VirtualDirParameters(Name="/static",
+    vd2 = VirtualDirParameters(Name=static_prefix,
                                Description="OMERO.web static files",
                                Path=STATICS,
                                AccessRead=True,
