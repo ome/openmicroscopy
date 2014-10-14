@@ -360,10 +360,10 @@ public class ImportContainer
 
             // Fill BF info
             for (FilesetJobLink fjl: fs.copyJobLinks()) {
-                    if (fjl.getChild() instanceof UploadJob) {
-                            UploadJob job = (UploadJob) fjl.getChild();
-                            config.fillVersionInfo(job.getVersionInfo());
-                    }
+                if (fjl.getChild() instanceof UploadJob) {
+                    UploadJob job = (UploadJob) fjl.getChild();
+                    config.fillVersionInfo(job.getVersionInfo());
+                }
             }
         } else {
             // Fill used paths
