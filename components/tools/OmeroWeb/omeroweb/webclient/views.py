@@ -869,9 +869,11 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None, **kwa
 
     allRdefs = manager.image.getAllRenderingDefs()
     rdefs = {}
+    rdefId = manager.image.getRenderingDefId()
     # remove duplicates per user
     for r in allRdefs:
         ownerId = r['owner']['id']
+        r['current'] = r['id'] == rdefId
         # if duplicate rdefs for user, pick one with highest ID
         if ownerId not in rdefs or rdefs[ownerId]['id'] < r['id']:
             rdefs[ownerId] = r
