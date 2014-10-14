@@ -11,6 +11,7 @@ $.fn.scalebar_display = function(options) {
         var pixSizeX =  (options.pixSizeX ? options.pixSizeX : 0);
         var imageWidth =  (options.imageWidth ? options.imageWidth : 0);
         var $viewportimg = $(this);
+        var scalebar_displayed = false;   // flag to toggle visability.
 
         if (!tiles) {
             var $dragdiv = $viewportimg.parent().parent();
@@ -19,13 +20,13 @@ $.fn.scalebar_display = function(options) {
             var $scalebar = $('#'+scalebar_name);
         }
         
-        // loads the ROIs if needed and displays them
+        // loads the Scalebar if needed and displays them
         this.show_scalebar = function(theZ, theT) {
             scalebar_displayed = true;
             $scalebar.show()
         }
 
-        // hides the ROIs from display
+        // hides the Scalebar from display
         this.hide_scalebar = function() {
             scalebar_displayed = false;
             $scalebar.hide()
@@ -44,7 +45,7 @@ $.fn.scalebar_display = function(options) {
                     var width = Math.ceil(viewport_width/50);
                 }
             }
-            //find the nearest value round to power of 10
+            // find the nearest value round to power of 10
             // workaround for units smaller then micrometer
             if (pixSizeX < 1) {
                 var num = Math.floor(width * pixSizeX * Math.pow(10,12));

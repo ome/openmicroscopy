@@ -323,7 +323,7 @@
   var show_scalebar = function () {
     {% if image.getPixelSizeX %}
     if (!viewport.viewportimg.get(0).show_scalebar) {
-    // if the ROI plugin has not been initialised (method not available...) init and load ROIs...
+    // if the Scalebar plugin has not been initialised (method not available...) init and load Scalebar...
         var options = {'pixSizeX': viewport.getPixelSizes().x,
                        'imageWidth': viewport.getSizes().width};
         if (viewport.loadedImg.tiles) {
