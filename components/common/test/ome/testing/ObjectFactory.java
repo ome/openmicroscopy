@@ -137,7 +137,7 @@ public class ObjectFactory {
 
                 Time deltaT = new Time();
                 deltaT.setValue(0.0);
-                deltaT.setUnit(new UnitsTime(ome.xml.model.Plane.getExposureTimeUnitXsdDefault()));
+                deltaT.setUnit(new UnitsTime("s"));
                 pl[w].setDeltaT(deltaT);
                 p.addPlaneInfo(pl[w]);
 
