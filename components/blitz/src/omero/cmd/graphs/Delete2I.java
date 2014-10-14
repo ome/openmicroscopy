@@ -155,11 +155,11 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
             /* if the results object were in terms of IObjectList then this would need IceMapper.map */
             final Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> result =
                     (Entry<SetMultimap<String, Long>, SetMultimap<String, Long>>) object;
-            final SetMultimap<String, Long> resultMoved = result.getKey();
+            final SetMultimap<String, Long> resultProcessed = result.getKey();
             final SetMultimap<String, Long> resultDeleted = result.getValue();
             final Map<String, long[]> deletedObjects = new HashMap<String, long[]>();
-            for (final String className : Sets.union(resultMoved.keySet(), resultDeleted.keySet())) {
-                final Set<Long> ids = Sets.union(resultMoved.get(className), resultDeleted.get(className));
+            for (final String className : Sets.union(resultProcessed.keySet(), resultDeleted.keySet())) {
+                final Set<Long> ids = Sets.union(resultProcessed.get(className), resultDeleted.get(className));
                 final long[] idArray = GraphUtil.idsToArray(ids);
                 deletedObjectCount += idArray.length;
                 deletedObjects.put(className, idArray);
