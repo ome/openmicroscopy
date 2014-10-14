@@ -269,7 +269,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         // If any two files clash in that chosen basePath directory, then
         // we want to suggest a similar alternative.
         return suggestImportPaths(relPath, basePath, paths, readerClass,
-                settings.checksumAlgorithm, __current);
+                settings.checksumAlgorithm, !settings.reimportFileset, __current);
 
     }
 
@@ -1420,12 +1420,11 @@ public class ManagedRepositoryI extends PublicRepositoryI
         data.logFile = checkPath(relPath.toString()+".log", checksumAlgorithm, __current);
 
         // try actually making directories
-
-        FsFile newBase = null;
+        final FsFile newBase;
         if (createDirs) {
-            newBase = relPath;
-        } else {
             newBase = FsFile.concatenate(relPath, basePath);
+        } else {
+            newBase = relPath;
         }
         data.sharedPath = newBase.toString();
         data.usedFiles = new ArrayList<String>(paths.size());
@@ -1438,29 +1437,25 @@ public class ManagedRepositoryI extends PublicRepositoryI
                     this.checksumProviderFactory, checksumAlgorithm));
         }
 
-        if (createDirs)
-            createDirs(data, checksumAlgorithm, __current);
+        if (createDirs) {
+            // Assuming we reach here, then we need to make
+            // sure that the directory exists since the call
+            // to saveFileset() requires the parent dirs to
+            // exist.
+            List<CheckedPath> dirs = new ArrayList<CheckedPath>();
+            Set<String> seen = new HashSet<String>();
+            dirs.add(checkPath(data.sharedPath, checksumAlgorithm, __current));
+            for (CheckedPath checked : data.checkedPaths) {
+                if (!seen.contains(checked.getRelativePath())) {
+                    dirs.add(checked.parent());
+                    seen.add(checked.getRelativePath());
+                }
+            }
+            repositoryDao.makeDirs(this, dirs, true, __current);
+
+        }
 
         return data;
-    }
-
-    private void createDirs(ManagedImportLocationI data,
-            ChecksumAlgorithm checksumAlgorithm, Ice.Current __current)
-            throws omero.ServerError {
-        // Assuming we reach here, then we need to make
-        // sure that the directory exists since the call
-        // to saveFileset() requires the parent dirs to
-        // exist.
-        List<CheckedPath> dirs = new ArrayList<CheckedPath>();
-        Set<String> seen = new HashSet<String>();
-        dirs.add(checkPath(data.sharedPath, checksumAlgorithm, __current));
-        for (CheckedPath checked : data.checkedPaths) {
-            if (!seen.contains(checked.getRelativePath())) {
-                dirs.add(checked.parent());
-                seen.add(checked.getRelativePath());
-            }
-        }
-        repositoryDao.makeDirs(this, dirs, true, __current);
     }
 
     /**
