@@ -123,6 +123,8 @@ public class DiskUsageI extends DiskUsage implements IRequest {
                 "SELECT id FROM Channel WHERE pixels.id IN (:ids)"));
         builder.put("Pixels", Maps.immutableEntry("PlaneInfo",
                 "SELECT id FROM PlaneInfo WHERE pixels.id IN (:ids)"));
+        builder.put("Channel", Maps.immutableEntry("LogicalChannel",
+                "SELECT logicalChannel.id FROM Channel WHERE id IN (:ids)"));
         builder.put("Image", Maps.immutableEntry("Fileset",
                 "SELECT fileset.id FROM Image WHERE id IN (:ids)"));
         builder.put("Fileset", Maps.immutableEntry("Job",
@@ -139,8 +141,26 @@ public class DiskUsageI extends DiskUsage implements IRequest {
                 "SELECT file.id FROM FileAnnotation WHERE id IN (:ids)"));
         builder.put("Image", Maps.immutableEntry("Roi",
                 "SELECT id FROM Roi WHERE image.id IN (:ids)"));
+        builder.put("Roi", Maps.immutableEntry("Shape",
+                "SELECT id FROM Shape WHERE roi.id IN (:ids)"));
         builder.put("Roi", Maps.immutableEntry("OriginalFile",
                 "SELECT source.id FROM Roi WHERE id IN (:ids)"));
+        builder.put("Image", Maps.immutableEntry("Instrument",
+                "SELECT instrument.id FROM Image WHERE id IN (:ids)"));
+        builder.put("Instrument", Maps.immutableEntry("Detector",
+                "SELECT id FROM Detector WHERE instrument.id IN (:ids)"));
+        builder.put("Instrument", Maps.immutableEntry("Dichroic",
+                "SELECT id FROM Dichroic WHERE instrument.id IN (:ids)"));
+        builder.put("Instrument", Maps.immutableEntry("Filter",
+                "SELECT id FROM Filter WHERE instrument.id IN (:ids)"));
+        builder.put("Instrument", Maps.immutableEntry("LightSource",
+                "SELECT id FROM LightSource WHERE instrument.id IN (:ids)"));
+        builder.put("Instrument", Maps.immutableEntry("Objective",
+                "SELECT id FROM Objective WHERE instrument.id IN (:ids)"));
+        builder.put("Dichroic", Maps.immutableEntry("LightPath",
+                "SELECT id FROM LightPath WHERE dichroic.id IN (:ids)"));
+        builder.put("LogicalChannel", Maps.immutableEntry("LightPath",
+                "SELECT lightPath.id FROM LogicalChannel WHERE id IN (:ids)"));
 
         TRAVERSAL_QUERIES = builder.build();
     }
@@ -151,8 +171,16 @@ public class DiskUsageI extends DiskUsage implements IRequest {
         builder.add("Annotation");
         builder.add("Channel");
         builder.add("Dataset");
+        builder.add("Detector");
+        builder.add("Dichroic");
         builder.add("Fileset");
+        builder.add("Filter");
         builder.add("Image");
+        builder.add("LogicalChannel");
+        builder.add("Instrument");
+        builder.add("LightPath");
+        builder.add("LightSource");
+        builder.add("Objective");
         builder.add("OriginalFile");
         builder.add("Pixels");
         builder.add("PlaneInfo");
@@ -162,6 +190,7 @@ public class DiskUsageI extends DiskUsage implements IRequest {
         builder.add("Reagent");
         builder.add("Roi");
         builder.add("Screen");
+        builder.add("Shape");
         builder.add("Well");
         builder.add("WellSample");
 
@@ -174,10 +203,17 @@ public class DiskUsageI extends DiskUsage implements IRequest {
         builder.add("Annotation");
         builder.add("Channel");
         builder.add("Dataset");
+        builder.add("Detector");
+        builder.add("Dichroic");
         builder.add("Experimenter");
         builder.add("ExperimenterGroup");
         builder.add("Fileset");
+        builder.add("Filter");
         builder.add("Image");
+        builder.add("Instrument");
+        builder.add("LightPath");
+        builder.add("LightSource");
+        builder.add("Objective");
         builder.add("OriginalFile");
         builder.add("PlaneInfo");
         builder.add("PlateAcquisition");
@@ -186,6 +222,7 @@ public class DiskUsageI extends DiskUsage implements IRequest {
         builder.add("Reagent");
         builder.add("Roi");
         builder.add("Screen");
+        builder.add("Shape");
         builder.add("Well");
 
         ANNOTATABLE_OBJECTS = builder.build();
