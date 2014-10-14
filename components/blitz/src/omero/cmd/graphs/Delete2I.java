@@ -34,6 +34,7 @@ import com.google.common.collect.Sets;
 
 import ome.security.ACLVoter;
 import ome.security.SystemTypes;
+import ome.services.delete.Deletion;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphTraversal;
@@ -61,6 +62,7 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
     private final ACLVoter aclVoter;
     private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
+    private final Deletion deletionInstance;
     private GraphPolicy graphPolicy;  /* not final because of adjustGraphPolicy */
     private final SetMultimap<String, String> unnullable;
 
@@ -75,14 +77,16 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
      * @param aclVoter ACL voter for permissions checking
      * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean to use
+     * @param deletionInstance a deletion instance for deleting files
      * @param graphPolicy the graph policy to apply for delete
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      */
-    public Delete2I(ACLVoter aclVoter, SystemTypes systemTypes, GraphPathBean graphPathBean, GraphPolicy graphPolicy,
-            SetMultimap<String, String> unnullable) {
+    public Delete2I(ACLVoter aclVoter, SystemTypes systemTypes, GraphPathBean graphPathBean, Deletion deletionInstance,
+            GraphPolicy graphPolicy, SetMultimap<String, String> unnullable) {
         this.aclVoter = aclVoter;
         this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
+        this.deletionInstance = deletionInstance;
         this.graphPolicy = graphPolicy;
         this.unnullable = unnullable;
     }
@@ -157,6 +161,13 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
                     (Entry<SetMultimap<String, Long>, SetMultimap<String, Long>>) object;
             final SetMultimap<String, Long> resultProcessed = result.getKey();
             final SetMultimap<String, Long> resultDeleted = result.getValue();
+            if (!dryRun) {
+                try {
+                    deletionInstance.deleteFiles(GraphUtil.trimPackageNames(resultDeleted));
+                } catch (Exception e) {
+                    helper.cancel(new ERR(), e, "file deletion error");
+                }
+            }
             final Map<String, long[]> deletedObjects = new HashMap<String, long[]>();
             for (final String className : Sets.union(resultProcessed.keySet(), resultDeleted.keySet())) {
                 final Set<Long> ids = Sets.union(resultProcessed.get(className), resultDeleted.get(className));

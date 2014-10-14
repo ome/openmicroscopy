@@ -33,6 +33,7 @@ import com.google.common.collect.SetMultimap;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.ACLVoter;
 import ome.security.SystemTypes;
+import ome.services.delete.Deletion;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphTraversal;
@@ -60,6 +61,7 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
     private final ACLVoter aclVoter;
     private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
+    private final Deletion deletionInstance;
     private GraphPolicy graphPolicy;  /* not final because of adjustGraphPolicy */
     private final SetMultimap<String, String> unnullable;
  
@@ -75,14 +77,16 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
      * @param aclVoter ACL voter for permissions checking
      * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean to use
+     * @param deletionInstance a deletion instance for deleting files
      * @param graphPolicy the graph policy to apply for chgrp
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      */
-    public Chgrp2I(ACLVoter aclVoter, SystemTypes systemTypes, GraphPathBean graphPathBean, GraphPolicy graphPolicy,
-            SetMultimap<String, String> unnullable) {
+    public Chgrp2I(ACLVoter aclVoter, SystemTypes systemTypes, GraphPathBean graphPathBean, Deletion deletionInstance,
+            GraphPolicy graphPolicy, SetMultimap<String, String> unnullable) {
         this.aclVoter = aclVoter;
         this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
+        this.deletionInstance = deletionInstance;
         this.graphPolicy = graphPolicy;
         this.unnullable = unnullable;
     }
@@ -159,6 +163,13 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
             /* if the results object were in terms of IObjectList then this would need IceMapper.map */
             final Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> result =
                     (Entry<SetMultimap<String, Long>, SetMultimap<String, Long>>) object;
+            if (!dryRun) {
+                try {
+                    deletionInstance.deleteFiles(GraphUtil.trimPackageNames(result.getValue()));
+                } catch (Exception e) {
+                    helper.cancel(new ERR(), e, "file deletion error");
+                }
+            }
             final Map<String, long[]> movedObjects = new HashMap<String, long[]>();
             final Map<String, long[]> deletedObjects = new HashMap<String, long[]>();
             for (final Entry<String, Collection<Long>> oneMovedClass : result.getKey().asMap().entrySet()) {

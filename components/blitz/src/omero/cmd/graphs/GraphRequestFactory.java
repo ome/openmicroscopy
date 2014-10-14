@@ -32,6 +32,7 @@ import com.google.common.collect.SetMultimap;
 
 import ome.security.ACLVoter;
 import ome.security.SystemTypes;
+import ome.services.delete.Deletion;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
@@ -50,6 +51,7 @@ public class GraphRequestFactory {
     private final ACLVoter aclVoter;
     private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
+    private final Deletion deletionInstance;
     private final ImmutableMap<Class<? extends Request>, GraphPolicy> graphPolicies;
     private final ImmutableSetMultimap<String, String> unnullable;
     private final boolean isGraphsWrap;
@@ -59,17 +61,19 @@ public class GraphRequestFactory {
      * @param aclVoter ACL voter for permissions checking
      * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean
+     * @param deletionInstance a deletion instance for deleting files
      * @param allRules rules for all request classes that use the graph path bean
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      * @param isGraphsWrap if {@link omero.cmd.GraphModify2} requests should substitute for the requests that they replace
      * @throws GraphException if the graph path rules could not be parsed
      */
-    public GraphRequestFactory(ACLVoter aclVoter, SystemTypes systemTypes, GraphPathBean graphPathBean,
+    public GraphRequestFactory(ACLVoter aclVoter, SystemTypes systemTypes, GraphPathBean graphPathBean, Deletion deletionInstance,
             Map<Class<? extends Request>, List<GraphPolicyRule>> allRules, List<String> unnullable, boolean isGraphsWrap)
                     throws GraphException {
         this.aclVoter = aclVoter;
         this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
+        this.deletionInstance = deletionInstance;
 
         final ImmutableMap.Builder<Class<? extends Request>, GraphPolicy> graphPoliciesBuilder = ImmutableMap.builder();
         for (final Map.Entry<Class<? extends Request>, List<GraphPolicyRule>> rules : allRules.entrySet()) {
@@ -116,8 +120,8 @@ public class GraphRequestFactory {
                     throw new IllegalArgumentException("no graph traversal policy rules defined for request class " + requestClass);
                 }
                 final Constructor<X> constructor = requestClass.getConstructor(ACLVoter.class, SystemTypes.class,
-                        GraphPathBean.class, GraphPolicy.class, SetMultimap.class);
-                return constructor.newInstance(aclVoter, systemTypes, graphPathBean, graphPolicy, unnullable);
+                        GraphPathBean.class, Deletion.class, GraphPolicy.class, SetMultimap.class);
+                return constructor.newInstance(aclVoter, systemTypes, graphPathBean, deletionInstance, graphPolicy, unnullable);
             }
         } catch (Exception e) {
             /* TODO: easier to do a ReflectiveOperationException multi-catch in Java SE 7 */

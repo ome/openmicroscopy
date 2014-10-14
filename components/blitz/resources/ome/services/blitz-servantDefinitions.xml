@@ -357,6 +357,7 @@
       <constructor-arg ref="aclVoter"/>
       <constructor-arg ref="systemTypes"/>
       <constructor-arg ref="graphPathBean"/>
+      <constructor-arg ref="ome.services.delete.Deletion"/>
       <constructor-arg>
         <map>
           <entry key="omero.cmd.graphs.Chgrp2I" value-ref="chgrpRules"/>
