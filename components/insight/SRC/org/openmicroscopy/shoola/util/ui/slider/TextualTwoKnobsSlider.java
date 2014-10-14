@@ -285,9 +285,8 @@ public class TextualTwoKnobsSlider
         	val = slider.getPartialMinimum();
         }
         removeSliderListeners();
-        double old = slider.getStartValue();
         slider.setStartValue(val);
-        firePropertyChange(TwoKnobsSlider.KNOB_RELEASED_PROPERTY, old, val);
+        firePropertyChange(TwoKnobsSlider.KNOB_RELEASED_PROPERTY, null, val);
         attachSliderListeners();
 	}
 	
@@ -311,9 +310,8 @@ public class TextualTwoKnobsSlider
         	val = slider.getPartialMaximum();
         }
         removeSliderListeners();
-        double old = slider.getEndValue();
         slider.setEndValue(val);
-        firePropertyChange(TwoKnobsSlider.KNOB_RELEASED_PROPERTY, old, val);
+        firePropertyChange(TwoKnobsSlider.KNOB_RELEASED_PROPERTY, null, val);
         attachSliderListeners();
 	}
 	
@@ -682,7 +680,6 @@ public class TextualTwoKnobsSlider
 	 * @param min       		The minimum value.
 	 * @param start     		The value of the start knob.
 	 * @param end       		The value of the end knob.
-         * @param roundingFactor        The rounding factor.
 	 */
 	public void setValues(int absoluteMaxSlider, int absoluteMinSlider, 
 			int absoluteMaxText, int absoluteMinText, 
@@ -739,7 +736,6 @@ public class TextualTwoKnobsSlider
          * @param min                   The minimum value.
          * @param start                 The value of the start knob.
          * @param end                   The value of the end knob.
-         * @param roundingFactor        The rounding factor.
          */
         public void setValues(double absoluteMaxSlider, double absoluteMinSlider, 
                 double absoluteMaxText, double absoluteMinText, 
