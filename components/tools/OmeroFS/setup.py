@@ -32,6 +32,7 @@ OMERO.fs server for watching directories"
       author_email="",
       url="http://trac.openmicroscopy.org.uk/ome/wiki/OmeroFs",
       download_url="http://trac.openmicroscopy.org.uk/ome/wiki/OmeroFs",
+      package_dir={"": "target"},
       packages=[''],
       cmdclass = {'test': PyTest},
 )
