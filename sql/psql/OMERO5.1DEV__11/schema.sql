@@ -1636,6 +1636,7 @@
         image int8 not null,
         pixelsType int8 not null,
         relatedTo int8,
+        timeIncrementUnit int8,
         image_index int4 not null,
         primary key (id),
         unique (image, image_index)
@@ -1677,6 +1678,7 @@
         theT nonnegative_int not null,
         theZ nonnegative_int not null,
         version int4,
+        deltaTUnit int8,
         creation_id int8 not null,
         external_id int8 unique,
         group_id int8 not null,
@@ -4701,6 +4703,11 @@
         references externalinfo  ;;
 
     alter table pixels 
+        add constraint FKC51E7EAD881A95FA 
+        foreign key (timeIncrementUnit) 
+        references unitstime  ;;
+
+    alter table pixels 
         add constraint FKpixels_dimensionOrder_dimensionorder 
         foreign key (dimensionOrder) 
         references dimensionorder  ;;
@@ -4771,7 +4778,7 @@
         references externalinfo  ;;
 
     alter table planeinfo 
-        add constraint FKtime_unit_unitstime 
+        add constraint FK7DA1B10AE3A7A20C 
         foreign key (exposureTimeUnit) 
         references unitstime  ;;
 
@@ -4789,6 +4796,11 @@
         add constraint FKplaneinfo_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo  ;;
+
+    alter table planeinfo 
+        add constraint FK7DA1B10AA0467574 
+        foreign key (deltaTUnit) 
+        references unitstime  ;;
 
     alter table planeinfo 
         add constraint FKplaneinfo_pixels_pixels 

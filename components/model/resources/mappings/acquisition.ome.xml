@@ -69,7 +69,7 @@
 			<optional name="physicalSizeZ" type="PositiveFloat"/>
 			<optional name="waveStart" type="int"/>
 			<optional name="waveIncrement" type="int"/>
-			<optional name="timeIncrement" type="double"/>
+			<optional name="timeIncrement" type="ome.model.units.Time"/>
 			<optional name="methodology" type="string"/>
 			<!-- Note: planeInfo is called Plane in model and is zeromany -->
 			<onemany name="planeInfo" type="ome.model.core.PlaneInfo" inverse="pixels"/>
@@ -120,7 +120,7 @@
 			<required name="theZ" type="NonNegativeInteger"/>
 			<required name="theC" type="NonNegativeInteger"/>
 			<required name="theT" type="NonNegativeInteger"/>
-			<optional name="deltaT" type="double"/>
+			<optional name="deltaT" type="ome.model.units.Time"/>
 			<!-- Note: deltaT is stored in PlaneTiming in model-->
 			<optional name="positionX" type="double"/>
 			<!-- Note: positionX is stored in StagePosition in model-->

@@ -536,6 +536,7 @@
   CREATE INDEX i_Pixels_relatedTo ON pixels(relatedTo);
   CREATE INDEX i_Pixels_pixelsType ON pixels(pixelsType);
   CREATE INDEX i_Pixels_dimensionOrder ON pixels(dimensionOrder);
+  CREATE INDEX i_Pixels_timeIncrement ON pixels(timeIncrement);
   CREATE INDEX i_pixelsoriginalfilemap_owner ON pixelsoriginalfilemap(owner_id);
   CREATE INDEX i_pixelsoriginalfilemap_group ON pixelsoriginalfilemap(group_id);
   CREATE INDEX i_PixelsOriginalFileMap_parent ON pixelsoriginalfilemap(parent);
@@ -543,6 +544,7 @@
   CREATE INDEX i_planeinfo_owner ON planeinfo(owner_id);
   CREATE INDEX i_planeinfo_group ON planeinfo(group_id);
   CREATE INDEX i_PlaneInfo_pixels ON planeinfo(pixels);
+  CREATE INDEX i_PlaneInfo_deltaT ON planeinfo(deltaT);
   CREATE INDEX i_PlaneInfo_exposureTime ON planeinfo(exposureTime);
   CREATE INDEX i_planeinfoannotationlink_owner ON planeinfoannotationlink(owner_id);
   CREATE INDEX i_planeinfoannotationlink_group ON planeinfoannotationlink(group_id);

@@ -2122,17 +2122,18 @@ public class EditorUtil
         notSet.add(POSITION_Z);
         details.put(NOT_SET, notSet);
         if (plane != null) {
-            RDouble o = plane.getDeltaT();
-            if (o != null)  {
+            omero.model.Time t = plane.getDeltaT();
+            if (t != null)  {
                 notSet.remove(DELTA_T);
-                details.put(DELTA_T, roundValue(o.getValue()));
+                details.put(DELTA_T, roundValue(t.getValue()));
             }
-            omero.model.Time t = plane.getExposureTime();
+            t = plane.getExposureTime();
             if (t != null) {
                 notSet.remove(EXPOSURE_TIME);
                 details.put(EXPOSURE_TIME, roundValue(t.getValue()));
             }
-            o = plane.getPositionX();
+
+            omero.RDouble o = plane.getPositionX();
             if (o != null) {
                 notSet.remove(POSITION_X);
                 details.put(POSITION_X, roundValue(o.getValue()));

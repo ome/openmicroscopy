@@ -6,8 +6,6 @@
  */
 package ome.testing;
 
-import java.sql.Timestamp;
-
 import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
@@ -22,11 +20,12 @@ import ome.model.display.Thumbnail;
 import ome.model.enums.AcquisitionMode;
 import ome.model.enums.DimensionOrder;
 import ome.model.enums.Family;
-import ome.model.enums.Format;
 import ome.model.enums.PhotometricInterpretation;
 import ome.model.enums.PixelsType;
 import ome.model.enums.RenderingModel;
+import ome.model.enums.UnitsTime;
 import ome.model.stats.StatsInfo;
+import ome.model.units.Time;
 
 /**
  * these method serve as a both client and test data store. An object that has
@@ -135,7 +134,11 @@ public class ObjectFactory {
                 pl[w].setTheC(new Integer(w));
                 pl[w].setTheZ(new Integer(0));
                 pl[w].setTheT(new Integer(0));
-                pl[w].setDeltaT(new Double(0.0));
+
+                Time deltaT = new Time();
+                deltaT.setValue(0.0);
+                deltaT.setUnit(new UnitsTime(ome.xml.model.Plane.getExposureTimeUnitXsdDefault()));
+                pl[w].setDeltaT(deltaT);
                 p.addPlaneInfo(pl[w]);
 
             }

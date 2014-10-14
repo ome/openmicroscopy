@@ -47,6 +47,7 @@ import ome.conditions.ApiUsageException;
 import ome.services.db.DatabaseIdentity;
 import ome.tools.hibernate.ProxyCleanupFilter;
 import ome.tools.hibernate.QueryBuilder;
+import ome.units.quantity.Time;
 import ome.xml.meta.MetadataRoot;
 import ome.xml.model.enums.AcquisitionMode;
 import ome.xml.model.enums.ContrastMethod;
@@ -364,9 +365,10 @@ public class OmeroMetadata extends DummyMetadata {
         return v == null? null : v.getValue();
     }
 
-    private Double fromRType(omero.model.Time v)
+    private Time fromRType(omero.model.Time v)
     {
-        return v == null? null : v.getValue();
+        if (v == null) return null;
+        return loci.ome.io.OmeroReader.convertTime(v);
     }
 
     private Integer fromRType(RInt v)
@@ -576,7 +578,7 @@ public class OmeroMetadata extends DummyMetadata {
     }
 
     @Override
-    public Double getPixelsTimeIncrement(int imageIndex)
+    public Time getPixelsTimeIncrement(int imageIndex)
     {
         Image o = _getImage(imageIndex);
         return o != null? fromRType(
@@ -824,14 +826,14 @@ public class OmeroMetadata extends DummyMetadata {
     }
 
     @Override
-    public Double getPlaneDeltaT(int imageIndex, int planeIndex)
+    public Time getPlaneDeltaT(int imageIndex, int planeIndex)
     {
         PlaneInfo o = getPlane(imageIndex, planeIndex);
         return o != null? fromRType(o.getDeltaT()) : null;
     }
 
     @Override
-    public Double getPlaneExposureTime(int imageIndex, int planeIndex)
+    public Time getPlaneExposureTime(int imageIndex, int planeIndex)
     {
         PlaneInfo o = getPlane(imageIndex, planeIndex);
         return o != null? fromRType(o.getExposureTime()) : null;
