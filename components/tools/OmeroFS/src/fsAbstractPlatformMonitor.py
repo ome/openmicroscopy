@@ -9,21 +9,24 @@
 """
 import threading
 
+
 class AbstractPlatformMonitor(threading.Thread):
+
     """
         A Thread to monitor a path.
-        
+
         :group Constructor: __init__
         :group Other methods: run, stop
 
     """
 
-    def __init__(self, eventTypes, pathMode, pathString, whitelist, blacklist, ignoreSysFiles, ignoreDirEvents, proxy):
+    def __init__(self, eventTypes, pathMode, pathString, whitelist, blacklist,
+                 ignoreSysFiles, ignoreDirEvents, proxy):
         """
             Set-up Monitor thread.
         """
         threading.Thread.__init__(self)
-        
+
         self.eTypes = []
         for eT in eventTypes:
             self.eTypes.append(str(eT))
@@ -35,43 +38,40 @@ class AbstractPlatformMonitor(threading.Thread):
         self.ignoreSysFiles = ignoreSysFiles
         self.ignoreDirEvents = ignoreDirEvents
         self.proxy = proxy
-                
+
     def run(self):
         """
             Start monitoring.
-            
+
             :return: No explicit return value.
         """
         # pass
-        
-    def stop(self):        
+
+    def stop(self):
         """
-            Stop monitoring 
-            
+            Stop monitoring
+
             :return: No explicit return value.
         """
         # pass
-        
+
     def propagateEvents(self, eventList):
         """
             Propagate events to proxy.
-        
+
             :Parameters:
-                    
+
                 eventPath : List
                     events.
-                    
+
             :return: No explicit return value.
-            
+
         """
         if len(eventList) > 0:
-            try:          
+            try:
                 self.log.info('Event notification : %s', str(eventList))
                 self.proxy.callback(eventList)
             except:
                 self.log.exception("Notification failed : ")
         else:
-            self.log.info('No notifications propagated')    
-
-
-            
+            self.log.info('No notifications propagated')
