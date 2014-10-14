@@ -29,7 +29,12 @@ import ome.util.Filterable;
 
 /**
  * class storing both a time duration (double) and a unit for that duration
- * (e.g. ns, ms, s, etc.)
+ * (e.g. ns, ms, s, etc.) encapsulated in a {@link UnitsTime} instance. As
+ * also described in the remoting definition (.ice) for Time, this is an
+ * embedded class meaning that the columns here do not appear in their own
+ * table but exist directly on the containing object. Like Details and
+ * Permissions, instances do not contain long identifiers and cannot be
+ * persisted on their own.
  */
 @Embeddable
 public class Time implements Serializable, Filterable {
@@ -64,13 +69,21 @@ public class Time implements Serializable, Filterable {
     // ~ Property accessors : used primarily by Hibernate
     // =========================================================================
 
+    /**
+     * value of this unit-field. It will be persisted to a column with the same
+     * name as the containing field. For example, planeInfo.getExposureTime()
+     * which is of type {@link Time} will be stored in a column "planeinfo.exposuretime".
+     **/
     @Column(name = "value", nullable = false)
     public double getValue() {
         return this.value;
     }
 
     /**
-     * Many-to-one field ome.model.units.Time.unit (ome.model.enums.UnitsTime)
+     * Many-to-one field ome.model.units.Time.unit (ome.model.enums.UnitsTime).
+     * These values are stored in a column suffixed by "Unit". Whereas {@link #value}
+     * for exposureTime will be stored as "planeinfo.exposuretime", the unit enum
+     * will be stored as "planeinfo.exposuretimeunit".
      */
      @javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY,cascade = {javax.persistence.CascadeType.MERGE, javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.REFRESH},
              targetEntity = ome.model.enums.UnitsTime.class)

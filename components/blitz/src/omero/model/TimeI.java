@@ -26,6 +26,9 @@ import ome.util.ReverseModelMapper;
 
 /**
  * Blitz wrapper around the {@link ome.model.util.Time} class.
+ * Like {@link Details} and {@link Permissions}, this object
+ * is embedded into other objects and does not have a full life
+ * cycle of its own.
  *
  * @author Josh Moore, josh at glencoesoftware.com
  */
@@ -75,7 +78,7 @@ public class TimeI extends Time implements ModelBased {
 
     @Override
     public void copyObject(Filterable model, ModelMapper mapper) {
-        if (model instanceof ome.model.units.Time) { 
+        if (model instanceof ome.model.units.Time) {
             ome.model.units.Time t = (ome.model.units.Time) model;
             this.value = t.getValue();
             this.unit = (omero.model.UnitsTime) mapper.findTarget(t.getUnit());

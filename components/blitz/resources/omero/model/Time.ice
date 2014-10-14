@@ -27,30 +27,35 @@ module omero {
     module model {
 
       /**
+       * Unit of time which is used through the model. This is not
+       * an [omero::model::IObject] implementation and as such does
+       * not have an ID value. Instead, the entire object is embedded
+       * into the containing class, so that the value and unit rows
+       * can be found on the table itself (e.g. planeInfo.exposureTime
+       * and planeInfo.exposureTimeUnit).
        **/
     ["protected"] class Time
     {
 
-      /**
-       **/
       double value;
 
       UnitsTime unit;
 
       /**
+       * Actual value for this unit-based field. The interpretation of
+       * the value is only possible along with the [omero::model::UnitsTime]
+       * enum.
        **/
       double getValue();
 
-      /**
-       **/
       void setValue(double time);
 
       /**
+       * [omero::model::UnitsTime] instance which is an [omero::model::IObject]
+       * meaning that its ID is sufficient for identying equality.
        **/
       UnitsTime getUnit();
 
-      /**
-       **/
       void setUnit(UnitsTime unit);
 
       Time copy();
