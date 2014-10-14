@@ -43,6 +43,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.SetMultimap;
 
 import ome.api.IQuery;
+import ome.io.bioformats.BfPyramidPixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.io.nio.ThumbnailService;
 import ome.parameters.Parameters;
@@ -407,6 +408,8 @@ public class DiskUsageI extends DiskUsage implements IRequest {
                     final String pixelsPath = pixelsService.getPixelsPath(id);
                     usage.bumpTotals().add(className, getFileSize(pixelsPath));
                     usage.bumpTotals().add(className, getFileSize(pixelsPath + PixelsService.PYRAMID_SUFFIX));
+                    usage.bumpTotals().add(className, getFileSize(pixelsPath + PixelsService.PYRAMID_SUFFIX +
+                            BfPyramidPixelBuffer.PYR_LOCK_EXT));
                 }
             } else if ("Thumbnail".equals(className)) {
                 /* Thumbnails may have /OMERO/Thumbnails/<id> files */
