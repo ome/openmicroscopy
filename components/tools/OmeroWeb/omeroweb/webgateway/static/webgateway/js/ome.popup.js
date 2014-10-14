@@ -38,7 +38,7 @@ Number.prototype.filesizeformat = function (round) {
     Formats the value like a 'human-readable' file size (i.e. 13 KB, 4.1 MB,
     102 bytes, etc).*/
     
-    if (round === undefined && !isInt(round)) round = 2;
+    if (round === undefined || !isInt(round)) round = 2;
     
     var bytes = this;
     if (bytes < 1024) {
@@ -58,7 +58,7 @@ Number.prototype.filesizeformat = function (round) {
 }
 
 Number.prototype.lengthformat = function (round) {
-    if (round === undefined && !isInt(round)) round = 2;
+    if (round === undefined || !isInt(round)) round = 2;
     
     var length = this;
     if (length < 0.001) {
