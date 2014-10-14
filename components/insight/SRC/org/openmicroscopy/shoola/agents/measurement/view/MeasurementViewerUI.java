@@ -88,7 +88,6 @@ import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
-import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureMaskFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
@@ -227,13 +226,7 @@ class MeasurementViewerUI
     
     /** The map holding the work-flow objects. */
     private Map<String, String> workflowsUIMap;
-    
-    /** 
-     * Flag indicating that the measurement was shown before adding 
-     * a new figure.
-     */
-    private Boolean measurementShown;
-    
+
     /**
      * Scrolls to the passed figure.
      * 
@@ -1034,16 +1027,7 @@ class MeasurementViewerUI
     		if (!isDuplicate) {
 	    		MeasurementAttributes.SHOWTEXT.set(figure,
 	    					roiInspector.isShowText());
-	    		if (figure instanceof MeasureLineFigure) {
-	    			measurementShown = roiInspector.isShowMeasurement();
-	    			MeasurementAttributes.SHOWMEASUREMENT.set(figure, true);
-	    		} else {
-	    			boolean b = roiInspector.isShowMeasurement();
-	    			if (measurementShown != null)
-	    				b = measurementShown.booleanValue();
-	    			MeasurementAttributes.SHOWMEASUREMENT.set(figure, b);
-	    			measurementShown = null;
-	    		}
+                MeasurementAttributes.SHOWMEASUREMENT.set(figure, true);
     		}
     		getDrawingView().unsetDuplicate();
     	} catch (Exception e) {
@@ -1508,12 +1492,12 @@ class MeasurementViewerUI
 	{
 		Collection<Figure> figures = model.getSelectedFigures();
 		if (figures != null) {
+		    boolean show = roiInspector.isShowMeasurement();
 			Iterator<Figure> i = figures.iterator();
 			Figure f;
 			while (i.hasNext()) {
 				f = i.next();
-				if (measurementShown != null && measurementShown.booleanValue())
-					MeasurementAttributes.SHOWMEASUREMENT.set(f, true);
+				MeasurementAttributes.SHOWMEASUREMENT.set(f, show);
 			}
 		}
 		
