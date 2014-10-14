@@ -22,6 +22,11 @@ build_java()
     ./build.py -f components/rendering/build.xml test -Dtest.with.fail=true -Dtestng.useDefaultListeners=true
     ./build.py -f components/server/build.xml test -Dtest.with.fail=true -Dtestng.useDefaultListeners=true
     # Failing: dsl, romio, blitz
+
+    # make sure that the current db script has no code-generated
+    # foreign key names in it
+    dist/bin/omero db script "" "" ome -f- | grep -niE "fk[a-z]*[0-9]+[a-z0-9]{5}" && exit 2
+
 }
 
 build_python()

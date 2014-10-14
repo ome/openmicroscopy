@@ -203,7 +203,7 @@ CREATE TABLE annotation_mapValue (
     mapValue VARCHAR(255) NOT NULL,
     mapValue_key VARCHAR(255),
     PRIMARY KEY (annotation_id, mapValue_key),
-    CONSTRAINT FKF96E60858062A40 
+    CONSTRAINT FKannotation_mapvalue_map
         FOREIGN KEY (annotation_id) 
         REFERENCES annotation
 );
@@ -213,7 +213,7 @@ CREATE TABLE experimentergroup_config (
     config VARCHAR(255) NOT NULL,
     config_key VARCHAR(255),
     PRIMARY KEY (experimentergroup_id, config_key),
-    CONSTRAINT FKDC631B6CF5F0705D 
+    CONSTRAINT FKexperimentergroup_config_map
         FOREIGN KEY (experimentergroup_id) 
         REFERENCES experimentergroup
 );
@@ -230,7 +230,7 @@ CREATE TABLE genericexcitationsource_map (
     "map" VARCHAR(255) NOT NULL,
     map_key VARCHAR(255),
     PRIMARY KEY (genericexcitationsource_id, map_key),
-    CONSTRAINT FK7B28ABA9C1805FCD 
+    CONSTRAINT FKgenericexcitationsource_map_map
         FOREIGN KEY (genericexcitationsource_id) 
         REFERENCES genericexcitationsource
 );
@@ -240,7 +240,7 @@ CREATE TABLE imagingenvironment_map (
     "map" VARCHAR(255) NOT NULL,
     map_key VARCHAR(255),
     PRIMARY KEY (imagingenvironment_id, map_key),
-    CONSTRAINT FK7C8DCED8CDF68A87 
+    CONSTRAINT FKimagingenvironment_map_map
         FOREIGN KEY (imagingenvironment_id) 
         REFERENCES imagingenvironment
 );
@@ -252,7 +252,7 @@ CREATE TABLE metadataimportjob_versioninfo (
     versioninfo VARCHAR(255) NOT NULL,
     versioninfo_key VARCHAR(255),
     PRIMARY KEY (metadataimportjob_id, versioninfo_key),
-    CONSTRAINT FK947FE61023506BCE 
+    CONSTRAINT FKmetadataimportjob_versioninfo_map
         FOREIGN KEY (metadataimportjob_id) 
         REFERENCES metadataimportjob
 );
@@ -262,7 +262,7 @@ CREATE TABLE uploadjob_versioninfo (
     versioninfo VARCHAR(255) NOT NULL,
     versioninfo_key VARCHAR(255),
     PRIMARY KEY (uploadjob_id, versioninfo_key),
-    CONSTRAINT FK3B5720031800070E 
+    CONSTRAINT FKuploadjob_versioninfo_map
         FOREIGN KEY (uploadjob_id) 
         REFERENCES uploadjob
 );
@@ -1381,13 +1381,13 @@ ALTER TABLE unitstime
 	ADD CONSTRAINT unitstime_pkey PRIMARY KEY (id);
 
 ALTER TABLE pixels
-	ADD CONSTRAINT fkc51e7ead881a95fa FOREIGN KEY (timeincrementunit) REFERENCES unitstime(id);
+	ADD CONSTRAINT fkpixels_timeincrementunit_unitstime FOREIGN KEY (timeincrementunit) REFERENCES unitstime(id);
 
 ALTER TABLE planeinfo
-	ADD CONSTRAINT fk7da1b10aa0467574 FOREIGN KEY (deltatunit) REFERENCES unitstime(id);
+	ADD CONSTRAINT fkplaneinfo_deltaunit_unitstime FOREIGN KEY (deltatunit) REFERENCES unitstime(id);
 
 ALTER TABLE planeinfo
-	ADD CONSTRAINT fk7da1b10ae3a7a20c FOREIGN KEY (exposuretimeunit) REFERENCES unitstime(id);
+	ADD CONSTRAINT fkplaneinfo_exposuretimeunit_unitstime FOREIGN KEY (exposuretimeunit) REFERENCES unitstime(id);
 
 ALTER TABLE unitstime
 	ADD CONSTRAINT unitstime_external_id_key UNIQUE (external_id);

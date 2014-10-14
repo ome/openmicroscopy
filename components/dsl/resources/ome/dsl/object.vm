@@ -406,6 +406,7 @@ implements java.io.Serializable, IObject
     @javax.persistence.Column(name="${prop.name}", nullable=false)
     @javax.persistence.CollectionTable(name="${type.tableName()}_${prop.name}",
         joinColumns = @javax.persistence.JoinColumn(name="${type.tableName()}_id"))
+    @org.hibernate.annotations.ForeignKey(name="FK${type.tableName()}_${prop.name}_map")
     public java.util.Map<String, String> get${prop.nameCapped}() {
         return this.${prop.name};
     }

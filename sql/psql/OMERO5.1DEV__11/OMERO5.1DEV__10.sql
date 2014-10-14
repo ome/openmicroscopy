@@ -76,13 +76,13 @@ ALTER TABLE unitstime
 	ADD CONSTRAINT unitstime_pkey PRIMARY KEY (id);
 
 ALTER TABLE pixels
-	ADD CONSTRAINT fkc51e7ead881a95fa FOREIGN KEY (timeincrementunit) REFERENCES unitstime(id);
+	ADD CONSTRAINT fkpixels_timeincrementunit_unitstime FOREIGN KEY (timeincrementunit) REFERENCES unitstime(id);
 
 ALTER TABLE planeinfo
-	ADD CONSTRAINT fk7da1b10aa0467574 FOREIGN KEY (deltatunit) REFERENCES unitstime(id);
+	ADD CONSTRAINT fkplaneinfo_deltaunit_unitstime FOREIGN KEY (deltatunit) REFERENCES unitstime(id);
 
 ALTER TABLE planeinfo
-	ADD CONSTRAINT fk7da1b10ae3a7a20c FOREIGN KEY (exposuretimeunit) REFERENCES unitstime(id);
+	ADD CONSTRAINT fkplaneinfo_exposuretimeunit_unitstime FOREIGN KEY (exposuretimeunit) REFERENCES unitstime(id);
 
 ALTER TABLE unitstime
 	ADD CONSTRAINT unitstime_external_id_key UNIQUE (external_id);
