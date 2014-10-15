@@ -235,6 +235,10 @@ public class OmeroMetadata extends DummyMetadata {
                 qb.join("p.dimensionOrder",   "do",       false, true);
                 qb.join("p.channels",         "c",        false, true);
                 qb.join("p.planeInfo",        "pinfo",    true, true);
+                qb.join("pinfo.deltaT",       "deltaT",   true, true);
+                qb.join("deltaT.unit",        "deltaTU",  true, true);
+                qb.join("pinfo.exposureTime", "expTime",  true, true);
+                qb.join("expTime.unit",       "expTimeU", true, true);
                 qb.join("c.logicalChannel",   "l",        false, true);
                 qb.join("l.mode",             "a_mode",   true, true);
                 qb.join("l.illumination",     "i_type",   true, true);
