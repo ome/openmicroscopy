@@ -91,7 +91,9 @@ def django_client(request, client):
 
     def finalizer():
         logout_url = reverse('weblogout')
-        django_client.post(logout_url)
+        data = {'csrfmiddlewaretoken': csrf_token}
+        response = django_client.post(logout_url, data=data)
+        assert response.status_code == 302
     request.addfinalizer(finalizer)
     return django_client
 
