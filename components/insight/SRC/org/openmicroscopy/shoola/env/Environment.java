@@ -113,7 +113,10 @@ public class Environment
 	{
 		Integer v = (Integer) container.getRegistry().lookup(
 				LookupNames.ENTRY_POINT);
-		if (v != null) return v.intValue() != LookupNames.EDITOR_ENTRY;
+		if (v != null) {
+		    return v.intValue() == LookupNames.INSIGHT_ENTRY ||
+		            v.intValue() == LookupNames.IMPORTER_ENTRY;
+		}
 		return Boolean.valueOf(true);
 	}
 	

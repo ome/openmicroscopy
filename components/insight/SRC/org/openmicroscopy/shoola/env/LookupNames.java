@@ -82,12 +82,6 @@ public class LookupNames
 
     /** 
      * Field indicating the value associated to the
-     * <code>Editor</code> as an entry point.
-     */
-    public static final int EDITOR_ENTRY = 1;
-
-    /** 
-     * Field indicating the value associated to the
      * <code>Importer</code> as an entry point.
      */
     public static final int IMPORTER_ENTRY = 2;
@@ -112,9 +106,6 @@ public class LookupNames
 
     /** Field to access the <code>master</code> agent. */
     public static final String MASTER_IMPORTER = "OMERO.importer";
-
-    /** Field to access the <code>master</code> agent. */
-    public static final String MASTER_EDITOR = "OMERO.editor";
 
     /** Field to access the <code>Version</code> information. */
     public static final String VERSION = "Version";	

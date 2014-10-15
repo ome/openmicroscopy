@@ -100,10 +100,7 @@ public final class AgentsInit
 					value == LookupNames.IMPORTER_ENTRY) {
 					containerRegistry.bind(LookupNames.MASTER,
 							LookupNames.MASTER_IMPORTER);
-				} else if (info.getNumber() == value  && 
-						value == LookupNames.EDITOR_ENTRY)
-					containerRegistry.bind(LookupNames.MASTER,
-						LookupNames.MASTER_EDITOR);
+				}
 			}
 			reg.bind(LookupNames.DATA_DISPLAY,
 					containerRegistry.lookup(LookupNames.DATA_DISPLAY));
@@ -171,7 +168,6 @@ public final class AgentsInit
 		int value = LookupNames.INSIGHT_ENTRY;
 		if (v != null) {
 			switch (v.intValue()) {
-				case LookupNames.EDITOR_ENTRY:
 				case LookupNames.IMPORTER_ENTRY:
 				case LookupNames.INSIGHT_ENTRY:
 					value = v.intValue();

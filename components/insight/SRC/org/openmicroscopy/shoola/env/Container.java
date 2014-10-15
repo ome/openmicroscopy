@@ -322,7 +322,6 @@ public final class Container
 		int value = LookupNames.INSIGHT_ENTRY;
 		if (v != null) {
 			switch (v.intValue()) {
-				case LookupNames.EDITOR_ENTRY:
 				case LookupNames.IMPORTER_ENTRY:
 				case LookupNames.INSIGHT_ENTRY:
 					value = v.intValue();

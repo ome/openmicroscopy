@@ -132,14 +132,10 @@ class UserNotifierManager
 		Registry reg = container.getRegistry();
 		String master = (String) reg.lookup(LookupNames.MASTER);
 		if (comment) {
-			if (LookupNames.MASTER_EDITOR.equals(master))
-				return "editor_comments";
 			if (LookupNames.MASTER_IMPORTER.equals(master))
 				return "importer_comments";
 			return "insight_comments";
 		}
-		if (LookupNames.MASTER_EDITOR.equals(master))
-			return "editor_bugs";
 		if (LookupNames.MASTER_IMPORTER.equals(master))
 			return "importer_bugs";
 		return "insight_bugs";

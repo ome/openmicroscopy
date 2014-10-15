@@ -57,7 +57,6 @@ import org.apache.commons.lang.StringUtils;
 
 //Application-internal dependencies
 import omero.model.OriginalFile;
-import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
@@ -804,7 +803,7 @@ class DocComponent
 		if (data instanceof FileAnnotationData) {
 			name = ((FileAnnotationData) data).getFileName();
 		}
-		JFrame f = EditorAgent.getRegistry().getTaskBar().getFrame();
+		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
 		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
 				"Download", "Select where to download the file.", null, true, true);
 		if (StringUtils.isNotBlank(name)) 
@@ -994,7 +993,7 @@ class DocComponent
 			}
 			if (folder == null)
 				folder = UIUtilities.getDefaultFolder();
-			UserNotifier un = EditorAgent.getRegistry().getUserNotifier();
+			UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
 			
 			IconManager icons = IconManager.getInstance();
 			
