@@ -90,10 +90,13 @@ class GraphUtil {
 
     /**
      * Approximately translate {@link GraphModify} options in setting the parameters of a {@link GraphModify2} request.
-     * @param options {@link GraphModify} options
+     * @param options {@link GraphModify} options, may be {@code null}
      * @param request the request whose options should be updated
      */
     static void translateOptions(Map<String, String> options, GraphModify2 request) {
+        if (options == null) {
+            return;
+        }
         for (final Map.Entry<String, String> option : options.entrySet()) {
             /* find type to which options apply */
             String optionType = option.getKey();
