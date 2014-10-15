@@ -92,9 +92,6 @@ class PopupMenu
     /** Button to tag the element. */
     private JMenuItem tagElement;
 
-    /** Button to launch the editor with a new experiment. */
-    private JMenuItem newExperimentElement;
-
     /** Button to open a document with an external application. */
     private JMenu openWithMenu;
 
@@ -167,9 +164,6 @@ class PopupMenu
         activatedUser.setAction(a);
         tagElement = new JMenuItem(controller.getAction(
                 DataBrowserControl.TAG));
-        newExperimentElement = new JMenuItem(controller.getAction(
-                DataBrowserControl.NEW_EXPERIMENT));
-
         view = new JMenuItem(controller.getAction(DataBrowserControl.VIEW));
         copyElement = new JMenuItem(
                 controller.getAction(DataBrowserControl.COPY_OBJECT));
@@ -265,7 +259,6 @@ class PopupMenu
             if (m != null) add(m);
             add(new JSeparator(JSeparator.HORIZONTAL));
             add(tagElement);
-            add(newExperimentElement);
             add(new JSeparator(JSeparator.HORIZONTAL));
             add(buildRenderingSettingsMenu());
         }
