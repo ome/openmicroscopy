@@ -380,6 +380,8 @@ class SessionsControl(BaseControl):
                     else:
                         self.ctx.err(pde.reason)
                         pasw = None
+                except omero.RemovedSessionException, rse:
+                    self.ctx.die(525, "User account error: %s." % rse.message)
                 except Ice.ConnectionRefusedException:
                     if port:
                         self.ctx.die(554, "Ice.ConnectionRefusedException:"
