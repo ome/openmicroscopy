@@ -45,6 +45,7 @@ include_directories("${PROJECT_SOURCE_DIR}/components/blitz/generated"
                     "${Ice_INCLUDE_DIRS}")
 
 option(debug-ice-generation "Dump results of generated Ice source globbing" OFF)
+option(fatal-warnings "Make all warnings fatal" OFF)
 
 # Find all static Ice slice definitions.
 file(GLOB_RECURSE ICE_API_STATIC_SOURCES RELATIVE    "${PROJECT_SOURCE_DIR}"
@@ -421,3 +422,11 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/omero-client-config.cmake
 
 add_subdirectory(test)
 add_subdirectory(utils)
+if(fatal-warnings)
+  add_definitions("-Werror")
+endif(fatal-warnings)
+
+set_source_files_properties(
+    ${OMERO_ICE_SOURCES}
+    PROPERTIES
+    COMPILE_FLAGS "-Werror -Wno-switch-default -Wno-redundant-decls -Wno-overloaded-virtual -Wno-old-style-cast -Wno-deprecated-declarations")
