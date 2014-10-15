@@ -2075,14 +2075,6 @@ class OmeroMetadataServiceImpl
 		if (file == null) 
 			throw new IllegalArgumentException("No file to save.");
 		String ns = null;
-		switch (index) {
-			case EDITOR_PROTOCOL:
-				ns = FileAnnotationData.EDITOR_PROTOCOL_NS;
-				break;
-			case EDITOR_EXPERIMENT:
-				ns = FileAnnotationData.EDITOR_EXPERIMENT_NS;
-				break;
-		}
 		if (fileAnnotation == null) return null;
 		ctx = gateway.checkContext(ctx, fileAnnotation);
 		//Upload the file back to the server
@@ -2154,12 +2146,6 @@ class OmeroMetadataServiceImpl
 		List<String> include = new ArrayList<String>();
 		List<String> exclude = new ArrayList<String>();
 		switch (fileType) {
-			case EDITOR_PROTOCOL:
-				include.add(FileAnnotationData.EDITOR_PROTOCOL_NS);
-				break;
-			case EDITOR_EXPERIMENT:
-				include.add(FileAnnotationData.EDITOR_EXPERIMENT_NS);
-				break;
 			case MOVIE:
 				include.add(FileAnnotationData.MOVIE_NS);
 				break;
@@ -2168,8 +2154,6 @@ class OmeroMetadataServiceImpl
 						TagAnnotationData.class, userID);
 			case OTHER:
 			default:
-				exclude.add(FileAnnotationData.EDITOR_PROTOCOL_NS);
-				exclude.add(FileAnnotationData.EDITOR_EXPERIMENT_NS);
 				exclude.add(FileAnnotationData.MOVIE_NS);
 				exclude.add(FileAnnotationData.COMPANION_FILE_NS);
 				exclude.add(FileAnnotationData.MEASUREMENT_NS);
@@ -2195,12 +2179,6 @@ class OmeroMetadataServiceImpl
 		ParametersI po = new ParametersI();
 		if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
 		switch (fileType) {
-			case EDITOR_PROTOCOL:
-				include.add(FileAnnotationData.EDITOR_PROTOCOL_NS);
-				break;
-			case EDITOR_EXPERIMENT:
-				include.add(FileAnnotationData.EDITOR_EXPERIMENT_NS);
-				break;
 			case MOVIE:
 				include.add(FileAnnotationData.MOVIE_NS);
 				break;
@@ -2210,8 +2188,6 @@ class OmeroMetadataServiceImpl
 			case OTHER:
 			default:
 				exclude.add(FileAnnotationData.MOVIE_NS);
-				exclude.add(FileAnnotationData.EDITOR_PROTOCOL_NS);
-				exclude.add(FileAnnotationData.EDITOR_EXPERIMENT_NS);
 				exclude.add(FileAnnotationData.COMPANION_FILE_NS);
 				exclude.add(FileAnnotationData.MEASUREMENT_NS);
 				exclude.add(FileAnnotationData.FLIM_NS);

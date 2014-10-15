@@ -1032,20 +1032,6 @@ public class PropertiesUI
         		add(Box.createVerticalStrut(5));
             	add(layoutWellContent((WellData) parent));
         	}
-        } else if (refObject instanceof FileAnnotationData) {
-        	FileAnnotationData fa = (FileAnnotationData) refObject;
-        	String ns = fa.getNameSpace();
-        	if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(ns) ||
-        			FileAnnotationData.EDITOR_PROTOCOL_NS.equals(ns)) {
-        		String description = fa.getDescription();
-        		if (description != null && description.length() > 0) {
-        			PreviewPanel panel = new PreviewPanel(description,
-        					fa.getId());
-        			panel.addPropertyChangeListener(controller);
-        			add(Box.createVerticalStrut(5));
-        	    	add(panel);
-        		}
-        	}
         } else if (refObject instanceof PlateData) {
         	add(Box.createVerticalStrut(5));
         	add(layoutPlateContent((PlateData) refObject));

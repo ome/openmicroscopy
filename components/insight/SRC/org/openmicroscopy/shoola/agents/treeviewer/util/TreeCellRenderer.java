@@ -45,7 +45,6 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.dnd.DnDTree;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.DataObject;
@@ -395,9 +394,6 @@ public class TreeCellRenderer
 	
     /** Flag to indicate if the number of children is visible. */
     private boolean             numberChildrenVisible;
-
-    /** Filter to identify protocol file. */
-    private EditorFileFilter 	filter;
     
     /** Flag indicating if the node to render is the target node.*/
     private boolean isTargetNode;
@@ -584,21 +580,11 @@ public class TreeCellRenderer
         		icon =FILE_EXCEL_ICON;
         	else if (FileAnnotationData.XML.equals(format) ||
         			FileAnnotationData.RTF.equals(format)) {
-        		if (filter.accept(data.getFileName())) {
-        			if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(
-        					data.getNameSpace())) {
-        				icon = FILE_PROTOCOL_ICON;
-        			} else icon = FILE_EDITOR_ICON;
-        		} else icon = FILE_XML_ICON;
+        		icon = FILE_XML_ICON;
         	} else if (data.isMovieFile()) {
         		icon = MOVIE_ICON;
         	} else {
-        		if (filter.accept(data.getFileName())) {
-        			if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(
-        					data.getNameSpace())) {
-        				icon = FILE_PROTOCOL_ICON;
-        			} else icon = FILE_EDITOR_ICON;
-        		} else icon = FILE_TEXT_ICON; 
+        		icon = FILE_TEXT_ICON; 
         	}
         } else if (usrObject instanceof MultiImageData) {
         	MultiImageData mi = (MultiImageData) usrObject;
@@ -676,7 +662,6 @@ public class TreeCellRenderer
     	this.userId = userId;
         numberChildrenVisible = b;
         selected = false;
-        filter = new EditorFileFilter();
         draggedColor = new Color(backgroundSelectionColor.getRed(),
 				backgroundSelectionColor.getGreen(),
 				backgroundSelectionColor.getBlue(), 100);

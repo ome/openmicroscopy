@@ -470,23 +470,6 @@ class DocComponent
 		
 		if (data instanceof FileAnnotationData) {
 			String ns = ((FileAnnotationData) data).getNameSpace();
-			if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(ns) ||
-				FileAnnotationData.EDITOR_PROTOCOL_NS.equals(ns)) {
-				FileAnnotationData fa = (FileAnnotationData) data;
-				preview = new PreviewPanel(fa.getDescription(), fa.getId());
-				buf.append("<b>");
-				if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(ns))
-					buf.append("Experiment Description: ");
-				else buf.append("Protocol Description: ");
-				buf.append("</b>");
-				List<String> values = preview.getFormattedDesciption();
-				Iterator<String> i = values.iterator();
-				while (i.hasNext()) {
-					buf.append(i.next());
-					buf.append("<br>");
-				}
-				buf.append("<b>");
-			} 
 			if (annotation.getId() > 0) {
 				buf.append("<b>");
 				buf.append("Annotation ID: ");

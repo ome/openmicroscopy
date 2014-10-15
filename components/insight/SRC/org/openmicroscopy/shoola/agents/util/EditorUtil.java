@@ -55,7 +55,6 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.util.filter.file.CppFilter;
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
-import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.JavaFilter;
 import org.openmicroscopy.shoola.util.filter.file.MatlabFilter;
 import org.openmicroscopy.shoola.util.filter.file.PythonFilter;
@@ -573,9 +572,6 @@ public class EditorUtil
         COLORS_BAR.put(Color.BLUE, "Blue");
         COLORS_BAR.put(Color.WHITE, "White");
     }
-
-    /** The filter to determine if a file is an editor file or not. */
-    private static final EditorFileFilter editorFilter = new EditorFileFilter();
 
     /**
      * Transforms the size and returns the value and units.
@@ -2242,18 +2238,6 @@ public class EditorUtil
     public static JXTaskPane createTaskPane(String title)
     {
         return UIUtilities.createTaskPane(title, UIUtilities.BACKGROUND_COLOR);
-    }
-
-    /**
-     * Returns <code>true</code> if the passed name is the name of an
-     * editor file, <code>false</code> otherwise.
-     *
-     * @param fileName The name of the file.
-     * @return See above.
-     */
-    public static boolean isEditorFile(String fileName)
-    {
-        return editorFilter.accept(fileName);
     }
 
     /**

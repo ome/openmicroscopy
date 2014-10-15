@@ -90,7 +90,6 @@ import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.RefWindow;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.filter.file.HTMLFilter;
 import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
@@ -310,7 +309,6 @@ class EditorControl
 		filters.add(new ExcelFilter());
 		filters.add(new WordFilter());
 		filters.add(new PowerPointFilter());
-		filters.add(new EditorFileFilter());
 		filters.add(new XMLFilter());
 		filters.add(new TIFFFilter());
 		filters.add(new TEXTFilter());

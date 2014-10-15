@@ -713,12 +713,6 @@ class EditorModel
         else if (refObject instanceof PlateAcquisitionData)
         	return"Plate Run";
         else if (refObject instanceof FileAnnotationData) {
-        	FileAnnotationData fa = (FileAnnotationData) refObject;
-        	String ns = fa.getNameSpace();
-        	if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(ns))
-        		return "Experiment";
-        	else if (FileAnnotationData.EDITOR_PROTOCOL_NS.equals(ns))
-        		return "Protocol";
         	return "File";
         } else if (refObject instanceof WellSampleData) return "Field";
         else if (refObject instanceof TagAnnotationData) {

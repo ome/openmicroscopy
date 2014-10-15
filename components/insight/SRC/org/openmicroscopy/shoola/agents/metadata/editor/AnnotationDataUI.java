@@ -70,7 +70,6 @@ import javax.swing.JToolBar;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.SeparatorOneLineBorder;
@@ -1045,21 +1044,7 @@ class AnnotationDataUI
 		removeDocsButton.setEnabled(b);
 		removeOtherAnnotationsButton.setEnabled(b);
 	}
-	
-	/**
-	 * Returns <code>true</code> if the passed value corresponds to
-	 * a name space for <code>Editor</code>.
-	 * 
-	 * @param value The value to handle.
-	 * @return See above.
-	 */
-	boolean isEditorFile(String value)
-	{
-		if (EditorUtil.isEditorFile(value)) return true;
-		return (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(value) ||
-				FileAnnotationData.EDITOR_PROTOCOL_NS.equals(value));
-	}
-	
+
 	/**
 	 * Attaches the passed file. Returns <code>true</code> if the file
 	 * does not already exist, <code>false</code> otherwise.
