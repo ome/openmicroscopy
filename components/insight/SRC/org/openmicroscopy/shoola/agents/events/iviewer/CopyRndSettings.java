@@ -71,10 +71,12 @@ public class CopyRndSettings
          * Used for copying 'pending' rendering settings, i. e.
          * which have not yet been saved with an image.
          * 
+         * @param image The image the rendering settings belong to.
          * @param rndDef The copied rendering settings 
          */
-        public CopyRndSettings(RndProxyDef rndDef)
+        public CopyRndSettings(ImageData image, RndProxyDef rndDef)
         {
+                this.image = image;
                 this.rndDef = rndDef;
         }
 

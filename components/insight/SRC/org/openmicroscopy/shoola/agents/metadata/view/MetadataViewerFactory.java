@@ -313,8 +313,9 @@ public class MetadataViewerFactory
          * the renderer.
          * See also {@link #applyCopiedRndSettings()}
          */
-        public static void setCopyRenderingSettingsFrom(ImageData copyRenderingSettingsFrom) {
+        public static void setCopyRenderingSettingsFrom(ImageData copyRenderingSettingsFrom, RndProxyDef copiedRndSettings) {
             MetadataViewerFactory.copyRenderingSettingsFrom = copyRenderingSettingsFrom;
+            MetadataViewerFactory.copiedRndSettings = copiedRndSettings;
         }
     
         /**
@@ -324,15 +325,5 @@ public class MetadataViewerFactory
         public static RndProxyDef getCopiedRndSettings() {
             return MetadataViewerFactory.copiedRndSettings;
         }
-    
-        /**
-         * Sets 'pending' rendering settings (not yet stored with an image) which
-         * can be applied (copied) to the renderer.
-         * See also {@link #applyCopiedRndSettings()}
-         */
-        public static void setCopiedRndSettings(RndProxyDef copiedRndSettings) {
-            MetadataViewerFactory.copiedRndSettings = copiedRndSettings;
-        }
-	
 	
 }

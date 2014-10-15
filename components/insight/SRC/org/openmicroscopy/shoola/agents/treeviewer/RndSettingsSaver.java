@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.RndSettingsSaver 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -35,6 +35,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.PlateAcquisitionData;
@@ -95,8 +96,14 @@ public class RndSettingsSaver
 	private CallHandle  	handle;
 
 	/** One of the constants defined by this class. */
-    private int				index;
-   
+    	private int				index;
+    
+   	/** 'Pending' rendering settings to paste */
+   	 private RndProxyDef defToPaste;
+    
+   	 /** Image to which the rendering settings belong */
+   	 private ImageData refImage;
+    
     /**
      * Controls if the passed index is supported.
      * 
@@ -213,6 +220,36 @@ public class RndSettingsSaver
 		this.ids = ids;
 		ref = null;
 	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param viewer The TreeViewer this data loader is for.
+	 *               Mustn't be <code>null</code>.
+	 * @param ctx The security context.
+	 * @param ref The time reference object.
+	 * @param pixelsID The id of the pixels of reference.
+         * @param defToPaste 'Pending' rendering settings to paste
+         * @param refImage  Image to which the rendering settings belong
+	 */
+	public RndSettingsSaver(TreeViewer viewer, 
+                SecurityContext ctx, Class rootType, List<Long> ids, long pixelsID, RndProxyDef defToPaste, ImageData refImage)
+{
+        super(viewer, ctx);
+        checkRootType(rootType);
+        this.index = PASTE;
+        if (ids == null || ids.size() == 0)
+                throw new IllegalArgumentException("No nodes specified.");
+        if (pixelsID < 0)
+                throw new IllegalArgumentException("Pixels ID not valid.");
+        this.rootType = rootType;
+        this.pixelsID = pixelsID;
+        this.ids = ids;
+        this.defToPaste = defToPaste;
+        this.refImage = refImage;
+        ref = null;
+}
+	
 
 	/**
 	 * Creates a new instance.
@@ -250,9 +287,14 @@ public class RndSettingsSaver
 	{
 		switch (index) {
 			case PASTE:
-				if (ref == null)
+				if (ref == null) {
+				    if(defToPaste==null)
 					handle = dhView.pasteRndSettings(ctx, pixelsID, rootType,
 							ids, this);
+				    else
+				        handle = dhView.pasteRndSettings(ctx, pixelsID, rootType,
+                                                ids, defToPaste, refImage, this);
+				}
 				else 
 					handle = dhView.pasteRndSettings(ctx, pixelsID, ref, this);
 				break;

@@ -120,6 +120,7 @@ import org.openmicroscopy.shoola.env.data.model.TransferableObject;
 import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -939,11 +940,12 @@ class TreeViewerComponent
 	 * Sets the image to copy the rendering settings from.
 	 * 
 	 * @param image The image to copy the rendering settings from.
+	 * @param rndProxyDef Copied 'pending' rendering settings (can be null)
 	 */
-	void setRndSettings(ImageData image)
+	void setRndSettings(ImageData image, RndProxyDef rndProxyDef)
 	{
 		if (model.getState() == DISCARDED) return;
-		model.setRndSettings(image);
+		model.setRndSettings(image, rndProxyDef);
 	}
 
 	/**
@@ -3962,7 +3964,7 @@ class TreeViewerComponent
 	 */
 	public void onGroupSwitched(boolean success)
 	{
-		model.setRndSettings(null);
+		model.setRndSettings(null, null);
 		model.setNodesToCopy(null, -1);
 		//remove thumbnails browser
 		view.removeAllFromWorkingPane();
@@ -3981,7 +3983,7 @@ class TreeViewerComponent
 	 */
 	void onReconnected()
 	{
-		model.setRndSettings(null);
+	        model.setRndSettings(null, null);
 		model.setNodesToCopy(null, -1);
 		//remove thumbnails browser
 		view.removeAllFromWorkingPane();
@@ -4776,7 +4778,7 @@ class TreeViewerComponent
 		if (model.getState() != READY || model.getDisplayMode() == index)
 			return;
 		//First check if groups already displayed
-		model.setRndSettings(null);
+		model.setRndSettings(null, null);
 		model.setNodesToCopy(null, -1);
 		//remove thumbnails browser
 		view.removeAllFromWorkingPane();
