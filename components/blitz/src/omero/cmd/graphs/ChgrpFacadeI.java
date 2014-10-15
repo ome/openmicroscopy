@@ -25,9 +25,9 @@ import java.util.Map;
 import com.google.common.collect.ImmutableMap;
 
 import omero.cmd.Chgrp;
-import omero.cmd.ChgrpRsp;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
+import omero.cmd.OK;
 import omero.cmd.Request;
 import omero.cmd.Response;
 import omero.cmd.Status;
@@ -111,6 +111,6 @@ public class ChgrpFacadeI extends Chgrp implements IRequest {
     @Override
     public Response getResponse() {
         chgrpRequest.getResponse();
-        return new ChgrpRsp();
+        return new OK();
     }
 }
