@@ -398,7 +398,7 @@ public class GraphTraversal {
         /**
          * @return the permissions required for processing instances with {@link #processInstances(String, Collection)}
          */
-        Collection<Ability> getRequiredPermissions();
+        Set<Ability> getRequiredPermissions();
     }
 
     private final Session session;
@@ -1023,7 +1023,7 @@ public class GraphTraversal {
             }
 
             @Override
-            public Collection<Ability> getRequiredPermissions() {
+            public Set<Ability> getRequiredPermissions() {
                 return processor.getRequiredPermissions();
             }
         };

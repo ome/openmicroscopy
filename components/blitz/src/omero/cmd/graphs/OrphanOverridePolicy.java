@@ -20,6 +20,8 @@
 package omero.cmd.graphs;
 
 import java.util.Collection;
+import java.util.Set;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +29,8 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
+
 import ome.model.IObject;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
@@ -47,10 +51,12 @@ public class OrphanOverridePolicy {
      * @param graphPathBean the graph path bean, for converting class names to the actual classes
      * @param includeChild the types of orphaned children that must always be included, ignored if empty or {@code null}
      * @param excludeChild the types of orphaned children that must never be included, ignored if empty or {@code null}
+     * @param requiredPermissions the permissions required for processing instances with
+     * {@link ome.services.graphs.GraphTraversal.Processor#processInstances(String, Collection)}
      * @return the adjusted graph policy
      */
     public static GraphPolicy getOrphanOverridePolicy(final GraphPolicy graphPolicyToAdjust, final GraphPathBean graphPathBean,
-            Collection<String> includeChild, Collection<String> excludeChild) {
+            Collection<String> includeChild, Collection<String> excludeChild, final Set<GraphPolicy.Ability> requiredPermissions) {
         if (CollectionUtils.isEmpty(includeChild) && CollectionUtils.isEmpty(excludeChild)) {
             /* there is no adjustment to make */
             return graphPolicyToAdjust;
@@ -112,7 +118,8 @@ public class OrphanOverridePolicy {
                         object.orphan != GraphPolicy.Orphan.IS_LAST && object.orphan != GraphPolicy.Orphan.IS_NOT_LAST) {
                     /* the model object is [E]{ir} */
                     final Boolean isIncludeVerdict = isInclude.apply(object);
-                    if (isIncludeVerdict == Boolean.TRUE) {
+                    if (isIncludeVerdict == Boolean.TRUE && (requiredPermissions == null ||
+                            Sets.difference(requiredPermissions, object.permissions).isEmpty())) {
                         object.orphan = GraphPolicy.Orphan.IS_LAST;
                         if (LOGGER.isDebugEnabled()) {
                             LOGGER.debug("including all children of its type, so making " + object);

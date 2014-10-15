@@ -21,6 +21,7 @@ package omero.cmd.graphs;
 
 import java.util.Collection;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import ome.services.graphs.GraphPolicy.Ability;
 import ome.services.graphs.GraphPolicy;
@@ -33,9 +34,9 @@ import ome.services.graphs.GraphTraversal;
  */
 public class NullGraphTraversalProcessor implements GraphTraversal.Processor {
 
-    private final Collection<GraphPolicy.Ability> requiredAbilities;
+    private final Set<GraphPolicy.Ability> requiredAbilities;
 
-    public NullGraphTraversalProcessor(Collection<Ability> requiredAbilities) {
+    public NullGraphTraversalProcessor(Set<Ability> requiredAbilities) {
         this.requiredAbilities = requiredAbilities;
     }
 
@@ -53,7 +54,7 @@ public class NullGraphTraversalProcessor implements GraphTraversal.Processor {
     public void processInstances(String className, Collection<Long> ids) { }
 
     @Override
-    public Collection<Ability> getRequiredPermissions() {
+    public Set<Ability> getRequiredPermissions() {
         return requiredAbilities;
     }
 }

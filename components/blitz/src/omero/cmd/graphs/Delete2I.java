@@ -57,7 +57,7 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
 
     private static final ImmutableMap<String, String> ALL_GROUPS_CONTEXT = ImmutableMap.of(Login.OMERO_GROUP, "-1");
 
-    private static final Collection<GraphPolicy.Ability> REQUIRED_ABILITIES = ImmutableSet.of(GraphPolicy.Ability.DELETE);
+    private static final Set<GraphPolicy.Ability> REQUIRED_ABILITIES = ImmutableSet.of(GraphPolicy.Ability.DELETE);
 
     private final ACLVoter aclVoter;
     private final SystemTypes systemTypes;
@@ -109,7 +109,7 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
                 includeNs, excludeNs);
 
         graphPolicyWithOptions = OrphanOverridePolicy.getOrphanOverridePolicy(graphPolicyWithOptions, graphPathBean,
-                includeChild, excludeChild);
+                includeChild, excludeChild, REQUIRED_ABILITIES);
 
         graphTraversal = new GraphTraversal(helper.getSession(), eventContext, aclVoter, systemTypes, graphPathBean, unnullable,
                 graphPolicyWithOptions, dryRun ? new NullGraphTraversalProcessor(REQUIRED_ABILITIES) : new InternalProcessor());
@@ -219,7 +219,7 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
         }
 
         @Override
-        public Collection<GraphPolicy.Ability> getRequiredPermissions() {
+        public Set<GraphPolicy.Ability> getRequiredPermissions() {
             return REQUIRED_ABILITIES;
         }
     }
