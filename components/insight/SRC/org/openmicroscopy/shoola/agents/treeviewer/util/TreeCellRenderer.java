@@ -244,20 +244,8 @@ public class TreeCellRenderer
 	/** Reference to the <code>XML File</code> icon. */
 	private static final Icon FILE_XML_ICON;
 	
-	/** Reference to the <code>Editor File</code> icon. */
-	private static final Icon FILE_EDITOR_ICON;
-	
-	/** Reference to the <code>Protocol File</code> icon. */
-	private static final Icon FILE_PROTOCOL_ICON;
-	
 	/** Reference to the <code>Registered File</code> icon. */
 	private static final Icon FILE_REGISTERED_ICON;
-	
-	/** Reference to the <code>Protocol</code> icon. */
-	private static final Icon EDITOR_PROTOCOL_ICON;
-	
-	/** Reference to the <code>Experiment</code> icon. */
-	private static final Icon EDITOR_EXPERIMENT_ICON;
 	
 	/** Reference to the <code>Movie</code> icon. */
 	private static final Icon MOVIE_ICON;
@@ -379,12 +367,8 @@ public class TreeCellRenderer
 		FILE_WORD_ICON = icons.getIcon(IconManager.FILE_WORD);
 		FILE_EXCEL_ICON = icons.getIcon(IconManager.FILE_EXCEL);
 		FILE_XML_ICON = icons.getIcon(IconManager.FILE_XML);
-		FILE_PROTOCOL_ICON = icons.getIcon(IconManager.FILE_PROTOCOL_EXPERIMENT);
-		FILE_EDITOR_ICON = icons.getIcon(IconManager.FILE_EDITOR);
 		FILE_REGISTERED_ICON = icons.getIcon(IconManager.FILE_REGISTERED);
 		MOVIE_ICON = icons.getIcon(IconManager.MOVIE);
-		EDITOR_PROTOCOL_ICON = icons.getIcon(IconManager.EDITOR_PROTOCOL);
-		EDITOR_EXPERIMENT_ICON = icons.getIcon(IconManager.EDITOR_EXPERIMENT);
 		MOVIE_FOLDER_ICON = icons.getIcon(IconManager.MOVIE_FOLDER);
 		DATE_ICON = icons.getIcon(IconManager.DATE);
 	}
