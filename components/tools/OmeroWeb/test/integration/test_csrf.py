@@ -88,6 +88,11 @@ def django_client(request, client):
     }
     response = django_client.post(login_url, data)
     assert response.status_code == 302
+
+    def finalizer():
+        logout_url = reverse('weblogout')
+        django_client.post(logout_url)
+    request.addfinalizer(finalizer)
     return django_client
 
 
