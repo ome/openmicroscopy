@@ -143,7 +143,10 @@ class ToolBar
 	
 	/** Size of the horizontal box. */
     private static final Dimension 		HGLUE = new Dimension(5, 5);
-    
+
+    /** The max plane size.*/
+    private static final int MAX_SIZE = 512;
+
     /** The properties figure for a line connection object. */
 	private FigureProperties 			lineConnectionProperties;
 	
@@ -214,9 +217,11 @@ class ToolBar
 		button.addMouseListener(this);
     }
 
-    /** The max plane size.*/
-    private static final int MAX_SIZE = 512;
-
+    /**
+     * Determines the font size according to the image size.
+     *
+     * @return See above.
+     */
     private double getDefaultFontSize()
     {
         int sizeX = model.getSizeX();
@@ -229,6 +234,7 @@ class ToolBar
         double ry = f*(sizeY/MAX_SIZE);
         return Math.floor(Math.max(ry, rx));
     }
+
     /** Initializes the component composing the display. */
 	private void initComponents()
 	{
@@ -242,8 +248,6 @@ class ToolBar
 		font = font.deriveFont((float) value);
 		p.put(MeasurementAttributes.FONT_SIZE, value);
 		p.put(MeasurementAttributes.FONT_FACE, font);
-		Map<AttributeKey, Object> pl = new HashMap<AttributeKey, Object>();
-		pl.put(MeasurementAttributes.FONT_SIZE, value);
 		ellipseTool = new DrawingObjectCreationTool(
 		        new MeasureEllipseFigure(false, true, true, true, true), p);
 		rectTool = new DrawingObjectCreationTool(
@@ -251,7 +255,7 @@ class ToolBar
 		textTool = new DrawingObjectCreationTool(
 				new MeasureTextFigure(false, true), p);
 		lineTool = new DrawingObjectCreationTool(
-				new MeasureLineFigure(false, true, true, true, true), pl);
+				new MeasureLineFigure(false, true, true, true, true), p);
 		Map<AttributeKey, Object> m = lineConnectionProperties.getProperties();
 		m.put(MeasurementAttributes.FONT_SIZE, value);
 		connectionTool = new DrawingConnectionTool(
@@ -259,9 +263,9 @@ class ToolBar
 		pointTool = new DrawingPointCreationTool(
 				new MeasurePointFigure(false, true, true, true, true));
 	    polygonTool = new DrawingBezierTool(
-	    		new MeasureBezierFigure(true, false, true, true, true, true), pl);
+	    		new MeasureBezierFigure(true, false, true, true, true, true), p);
 	    polylineTool = new DrawingBezierTool(
-	    		new MeasureBezierFigure(false, false, true, true, true, true), pl);
+	    		new MeasureBezierFigure(false, false, true, true, true, true), p);
 	    
 	    Component component;
 	    
