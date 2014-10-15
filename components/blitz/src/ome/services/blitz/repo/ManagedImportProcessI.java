@@ -306,11 +306,15 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
                     "A checksum mismatch has occurred.",
                     failingChecksums);
         }
+        
         // i==0 is the upload job which is implicit.
-        FilesetJobLink link = fs.getFilesetJobLink(0);
-        repo.repositoryDao.updateJob(link.getChild(),
+        FilesetJobLink link = null;
+        if (!settings.reimportFileset) {
+            link = fs.getFilesetJobLink(0);
+            repo.repositoryDao.updateJob(link.getChild(),
                 "Finished", "Finished", this.current);
-
+        }
+        
         // Now move on to the metadata import.
         link = fs.getFilesetJobLink(1);
         CheckedPath checkedPath = ((ManagedImportLocationI) location).getLogFile();

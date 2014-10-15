@@ -222,7 +222,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
         ImportLocation location = internalImport(fs, settings, __current);
         if (settings.reimportFileset) {
-            return createRemportProcess(fs, location, settings, __current);
+            return createReimportProcess(fs, location, settings, __current);
         }
         return createImportProcess(fs, location, settings, __current);
 
@@ -471,15 +471,6 @@ public class ManagedRepositoryI extends PublicRepositoryI
         metadata.setVersionInfo(serverVersionInfo);
         fs.linkJob(metadata);
 
-        fs.linkJob(new PixelDataJobI());
-
-        if (settings.doThumbnails != null && settings.doThumbnails.getValue()) {
-            ThumbnailGenerationJob thumbnail = new ThumbnailGenerationJobI();
-            fs.linkJob(thumbnail);
-        }
-
-        fs.linkJob(new IndexingJobI());
-
         if (location instanceof ManagedImportLocationI) {
             OriginalFile of = ((ManagedImportLocationI) location).getLogFile().asOriginalFile(IMPORT_LOG_MIMETYPE);
             of = persistLogFile(of, __current);
@@ -495,29 +486,16 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * user and therefore this instance no longer needs to worry
      * about the maintenance of the object.
      */
-    protected ImportProcessPrx createRemportProcess(Fileset fs,
+    protected ImportProcessPrx createReimportProcess(Fileset fs,
             ImportLocation location, ImportSettings settings, Current __current)
                 throws ServerError {
         final ImportConfig config = new ImportConfig();
         final Map<String, RString> serverVersionInfo = new HashMap<String, RString>();
         config.fillVersionInfo(serverVersionInfo);
 
-        UploadJob uploadJob = null;
-        MetadataImportJob metadataJob = null;
-        for (FilesetJobLink jobLink : fs.copyJobLinks()) {
-            if (jobLink.getChild() instanceof UploadJob) {
-                uploadJob = (UploadJob) jobLink.getChild();
-            }
-            if (jobLink.getChild() instanceof MetadataImportJob) {
-                metadataJob = (MetadataImportJob) jobLink.getChild();
-                metadataJob.setVersionInfo(serverVersionInfo);
-            }
-        }
-
-        if (uploadJob == null) {
-            throw new omero.ValidationException(null, null,
-                    "Found null-UploadJob on creation");
-        }
+        MetadataImportJob metadata = new MetadataImportJobI();
+        metadata.setVersionInfo(serverVersionInfo);
+        fs.linkJob(metadata);
 
         final int size = fs.sizeOfUsedFiles();
         final List<CheckedPath> checked = new ArrayList<CheckedPath>(size);
