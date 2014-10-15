@@ -64,7 +64,7 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
     private final Deletion deletionInstance;
     private GraphPolicy graphPolicy;  /* not final because of adjustGraphPolicy */
     private final SetMultimap<String, String> unnullable;
- 
+
     private Helper helper;
     private GraphTraversal graphTraversal;
 
