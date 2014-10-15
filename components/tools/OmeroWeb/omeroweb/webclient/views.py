@@ -48,6 +48,8 @@ from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_str
 from django.core.servers.basehttp import FileWrapper
 
+from django.views.decorators.http import require_http_methods, require_GET, require_POST
+
 from webclient_utils import _formatReport, _purgeCallback
 from forms import GlobalSearchForm, ShareForm, BasketShareForm, \
                     ContainerForm, ContainerNameForm, ContainerDescriptionForm, \
@@ -1485,7 +1487,7 @@ def annotate_tags(request, conn=None, **kwargs):
     context['template'] = template
     return context
 
-
+@require_POST
 @login_required()
 @render_response()
 def edit_channel_names(request, imageId, conn=None, **kwargs):
