@@ -35,6 +35,7 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
+
 //Third-party libraries
 import org.jhotdraw.draw.AbstractTool;
 import org.jhotdraw.draw.AttributeKey;
@@ -47,6 +48,7 @@ import org.jhotdraw.geom.BezierPath;
 import org.jhotdraw.geom.Geom;
 import org.jhotdraw.util.ResourceBundleUtil;
 
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.BezierTextFigure;
 
@@ -141,7 +143,10 @@ public class BezierTool
                     getView().getConstrainer().constrainPoint(
                     getView().viewToDrawing(anchor)
                     )));
+          //work around since the font size is reset when the figure is added.
+            Object s = createdFigure.getAttribute(MeasurementAttributes.FONT_SIZE);
             getDrawing().add(createdFigure);
+            createdFigure.setAttribute(MeasurementAttributes.FONT_SIZE, s);
             
             nodeCountBeforeDrag = createdFigure.getNodeCount();
         } else {

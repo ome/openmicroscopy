@@ -38,6 +38,7 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
+
 //Third-party libraries
 import org.jhotdraw.draw.AbstractTool;
 import org.jhotdraw.draw.AttributeKey;
@@ -46,6 +47,7 @@ import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.DrawingEditor;
 import org.jhotdraw.draw.Figure;
 import org.jhotdraw.util.ResourceBundleUtil;
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 
 //Application-internal dependencies
 
@@ -250,7 +252,10 @@ public class DrawingObjectCreationTool
         anchor.x = evt.getX();
         anchor.y = evt.getY();
         createdFigure.setBounds(p, p);
+        //work around since the font size is reset when the figure is added.
+        Object s = createdFigure.getAttribute(MeasurementAttributes.FONT_SIZE);
         getDrawing().add(createdFigure);
+        createdFigure.setAttribute(MeasurementAttributes.FONT_SIZE, s);
     }
     
     /**
