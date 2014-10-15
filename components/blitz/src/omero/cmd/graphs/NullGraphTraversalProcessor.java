@@ -36,6 +36,10 @@ public class NullGraphTraversalProcessor implements GraphTraversal.Processor {
 
     private final Set<GraphPolicy.Ability> requiredAbilities;
 
+    /**
+     * Construct a {@link GraphTraversal.Processor} that does nothing whatsoever.
+     * @param requiredAbilities the {@link Ability} set to be returned by {@link #getRequiredPermissions()}
+     */
     public NullGraphTraversalProcessor(Set<Ability> requiredAbilities) {
         this.requiredAbilities = requiredAbilities;
     }
