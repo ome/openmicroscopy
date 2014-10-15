@@ -79,12 +79,6 @@ import pojos.FileAnnotationData;
 public interface OmeroMetadataService
 {
 
-	/** Identifies that the file is of type protocol. */
-	public static final int EDITOR_PROTOCOL = 0;
-	
-	/** Identifies that the file is of type experiment. */
-	public static final int EDITOR_EXPERIMENT = 1;
-	
 	/** Identifies that the file is of type movie. */
 	public static final int MOVIE = 2;
 	

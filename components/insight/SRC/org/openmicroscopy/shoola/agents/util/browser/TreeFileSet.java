@@ -48,12 +48,6 @@ public class TreeFileSet
 	extends TreeImageSet
 {
 
-	/** Indicates that the node should host editor file for protocol. */
-	public static final int PROTOCOL = 0;
-	
-	/** Indicates that the node should host editor file for experiments. */
-	public static final int EXPERIMENT = 1;
-	
 	/** Indicates that the node should host movie files. */
 	public static final int MOVIE = 2;
 	
@@ -78,9 +72,6 @@ public class TreeFileSet
 	private static String getTypeName(int type)
 	{
 		switch (type) {
-			case PROTOCOL: 
-				return "Protocols";
-			case EXPERIMENT: return "Experiments";
 			case MOVIE: return "Movies";
 			case ORPHANED_IMAGES: return "Orphaned Images";
 			case TAG:
@@ -103,8 +94,6 @@ public class TreeFileSet
 	{
 		super(getTypeName(type));
 		switch (type) {
-			case PROTOCOL: 
-			case EXPERIMENT: 
 			case MOVIE:
 			case TAG:
 			case ORPHANED_IMAGES:

@@ -610,12 +610,6 @@ public class TreeCellRenderer
         else if (node instanceof TreeFileSet) {
         	TreeFileSet n = (TreeFileSet) node;
         	switch (n.getType()) {
-				case TreeFileSet.EXPERIMENT:
-					icon = EDITOR_PROTOCOL_ICON;
-					break;
-				case TreeFileSet.PROTOCOL:
-					icon = EDITOR_EXPERIMENT_ICON;
-					break;
 				case TreeFileSet.MOVIE:
 					icon = MOVIE_FOLDER_ICON;
 					break;

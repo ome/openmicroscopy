@@ -74,14 +74,6 @@ public interface MetadataHandlerView
 	public static final int METADATA_FROM_IMAGE =
 			FilesLoader.METADATA_FROM_IMAGE;
 	
-	/** Identifies that the file is of type protocol. */
-	public static final int EDITOR_PROTOCOL =
-			OmeroMetadataService.EDITOR_PROTOCOL;
-	
-	/** Identifies that the file is of type experiment. */
-	public static final int EDITOR_EXPERIMENT =
-		OmeroMetadataService.EDITOR_EXPERIMENT;
-	
 	/** Identifies that the file is of type movie. */
 	public static final int MOVIE = OmeroMetadataService.MOVIE;
 	

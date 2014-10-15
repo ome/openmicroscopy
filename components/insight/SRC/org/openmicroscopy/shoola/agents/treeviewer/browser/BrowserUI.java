@@ -132,8 +132,7 @@ class BrowserUI
     private static final String     EMPTY_MSG = "Empty";
     
     /** The <code>Attachments</code> smart folder. */
-    private static final int[] VALUES = {TreeFileSet.PROTOCOL, 
-    	TreeFileSet.EXPERIMENT, TreeFileSet.MOVIE, TreeFileSet.OTHER};
+    private static final int[] VALUES = {TreeFileSet.MOVIE, TreeFileSet.OTHER};
     
     /** The tree hosting the display. */
     private DnDTree           treeDisplay;
