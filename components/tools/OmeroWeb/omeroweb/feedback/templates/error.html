@@ -16,15 +16,13 @@
 {% endblock %}
 
 {% block body %}
+
 <div class="error"><h1>
-    {% trans "Go back to" %}: <a href="{% url 'waindex' %}" target="_top">{% trans "Webadmin" %}</a>, <a href="{% url 'webindex' %}" target="_top">{% trans "Webclient" %}</a> {% trans "or" %}  <a href="{% url 'weblogout' %}" target="_top">{% trans "Logout" %}</a>
+    {% trans "Go back to" %}: <a href="{% url 'waindex' %}" target="_top">{% trans "Webadmin" %}</a> {% trans "or" %} <a href="{% url 'webindex' %}" target="_top">{% trans "Webclient" %}</a> 
 </h1>
 
 {% block content %}
     <div class="error"><h1>{{ error }}</h1></div>
 {% endblock %}
 
-</div>
-
-</div>
 {% endblock %}
