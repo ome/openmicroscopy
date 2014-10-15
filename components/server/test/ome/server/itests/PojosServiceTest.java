@@ -59,7 +59,7 @@ public class PojosServiceTest extends AbstractManagedContextTest {
     @Test
     public void test_unannotated_Event_version() throws Exception {
         ILink link = createLinkedCommentAnnotation();
-        iContainer.deleteDataObject(link, null);
+        iUpdate.deleteObject(link);
 
     }
 
