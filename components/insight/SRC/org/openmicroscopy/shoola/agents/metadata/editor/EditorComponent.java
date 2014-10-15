@@ -716,7 +716,7 @@ class EditorComponent
 
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#loadRenderingControl()
+	 * @see Editor#loadRenderingControl(int)
 	 */
 	public void loadRenderingControl(int index)
 	{
@@ -737,6 +737,17 @@ class EditorComponent
 				value = index;
 		}
 		setStatus(model.fireRenderingControlLoading(pixels.getId(), value));
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#loadRenderingControl()
+	 */
+	public void loadRenderingControl() {
+	    ImageData image = model.getImage();
+            if (image == null || image.getId() < 0) return;
+            PixelsData pixels = image.getDefaultPixels();
+	    model.loadRenderingControl(pixels.getId());
 	}
 	
 	/** 

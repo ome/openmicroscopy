@@ -257,10 +257,12 @@ public class ImViewerFactory
 	 * Copies the rendering settings.
 	 * 
 	 * @param image	The image to copy the rendering settings from.
+         * @param refRndDef 'Pending' rendering settings to copy (can be null)
 	 */
-	public static void copyRndSettings(ImageData image)
+	public static void copyRndSettings(ImageData image, RndProxyDef refRndDef)
 	{
 		singleton.refImage = image;
+		singleton.refRndDef = refRndDef;
 		Iterator<ImViewer> v = singleton.viewers.iterator();
 		ImViewerComponent comp;
 		while (v.hasNext()) {
@@ -458,6 +460,9 @@ public class ImViewerFactory
 	/** The image data to copy the rendering settings from. */
 	private ImageData						refImage;
 
+        /** 'Pending' rendering settings to copy */
+	private RndProxyDef                                             refRndDef;
+	
 	/** The user preferences for the viewer. */
 	private ViewerPreferences				pref;
 	

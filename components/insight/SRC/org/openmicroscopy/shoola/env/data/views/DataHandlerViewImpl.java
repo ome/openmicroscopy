@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.DataHandlerViewImpl 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -40,7 +40,9 @@ import org.openmicroscopy.shoola.env.data.views.calls.ObjectFinder;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.SwitchUserGroupLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import pojos.ExperimenterData;
+import pojos.ImageData;
 
 /** 
  * Implementation of the {@link DataHandlerView} implementation.
@@ -70,19 +72,32 @@ public class DataHandlerViewImpl
 		BatchCallTree cmd = new ImagesLoader(ctx, startTime, endTime, userID);
 		return cmd.exec(observer);
 	}
-
+	
 	/**
 	 * Implemented as specified by the view interface.
 	 * @see DataHandlerView#pasteRndSettings(SecurityContext, long, Class, List, 
 	 * 										AgentEventListener)
 	 */
-	public CallHandle pasteRndSettings(SecurityContext ctx, long pixelsID,
-			Class rootNodeType, List<Long> ids, AgentEventListener observer)
-	{
-		BatchCallTree cmd = new RenderingSettingsSaver(ctx, pixelsID,
-				rootNodeType, ids);
-		return cmd.exec(observer);
-	}
+        public CallHandle pasteRndSettings(SecurityContext ctx, long pixelsID,
+                Class rootNodeType, List<Long> ids, AgentEventListener observer) {
+            BatchCallTree cmd = new RenderingSettingsSaver(ctx, pixelsID,
+                    rootNodeType, ids);
+            return cmd.exec(observer);
+        }
+	 
+	 /**
+	 * Implemented as specified by the view interface.
+	 * @see DataHandlerView#pasteRndSettings(SecurityContext, long, Class, List, RndProxyDef, ImageData
+	 * 										AgentEventListener)
+	 */
+        public CallHandle pasteRndSettings(SecurityContext ctx, long pixelsID,
+                        Class rootNodeType, List<Long> ids, RndProxyDef def, ImageData refImage, AgentEventListener observer)
+        {
+                BatchCallTree cmd = new RenderingSettingsSaver(ctx, pixelsID,
+                                rootNodeType, ids, def, refImage);
+                return cmd.exec(observer);
+        }
+        
 
 	/**
 	 * Implemented as specified by the view interface.

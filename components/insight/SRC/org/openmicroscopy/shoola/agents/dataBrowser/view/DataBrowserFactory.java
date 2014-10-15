@@ -43,6 +43,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -289,11 +290,13 @@ public class DataBrowserFactory
 	/**
 	 * Sets the image to copy the settings from.
 	 * 
-	 * @param rndSettingsToCopy The value to set.
+	 * @param rndSettingsToCopy The reference image to copy the rendering settings from
+         * @param rndDefToCopy 'Pending' rendering settings to copy (can be null)
 	 */
-	public static final void setRndSettingsToCopy(ImageData rndSettingsToCopy)
+	public static final void setRndSettingsToCopy(ImageData rndSettingsToCopy, RndProxyDef rndDefToCopy)
 	{
 		singleton.rndSettingsToCopy = rndSettingsToCopy; 
+		singleton.rndDefToCopy = rndDefToCopy; 
 		Iterator<Entry<Object, DataBrowser>> 
 		v = singleton.browsers.entrySet().iterator();
 		DataBrowserComponent comp;
@@ -401,7 +404,7 @@ public class DataBrowserFactory
 	 */
 	static boolean hasRndSettingsToCopy()
 	{
-		return singleton.rndSettingsToCopy != null;
+		return singleton.rndSettingsToCopy != null || singleton.rndDefToCopy != null;
 	}
     
 	/**
@@ -414,7 +417,9 @@ public class DataBrowserFactory
 	static boolean areSettingsCompatible(long groupID)
 	{
 		if (!hasRndSettingsToCopy()) return false;
-		return singleton.rndSettingsToCopy.getGroupId() == groupID;
+		RndProxyDef def = singleton.rndDefToCopy;
+		ImageData img = singleton.rndSettingsToCopy;
+		return singleton.rndDefToCopy != null || singleton.rndSettingsToCopy.getGroupId() == groupID;
 	}
 	
 	/**
@@ -452,6 +457,8 @@ public class DataBrowserFactory
 	
 	/** Flag indicating if some rendering settings have been copied. */
 	private ImageData rndSettingsToCopy;
+	
+	private RndProxyDef rndDefToCopy;
 	
 	/** The type identifying the object to copy. */
 	private Class						dataToCopy;

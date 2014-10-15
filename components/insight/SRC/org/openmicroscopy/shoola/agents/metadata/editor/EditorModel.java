@@ -81,12 +81,17 @@ import org.openmicroscopy.shoola.agents.metadata.rnd.RendererFactory;
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.AdminService;
+import org.openmicroscopy.shoola.env.data.DSAccessException;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.data.FSAccessException;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.AnnotationLinkData;
@@ -99,6 +104,7 @@ import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
+import org.openmicroscopy.shoola.env.data.views.ImageDataView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -3475,6 +3481,28 @@ class EditorModel
 		loader.load();
 		return true;
 	}
+	
+	/**
+         * Reloads the {@link RenderingControl} for the given pixelsID
+         * (Note: This is a blocking method, for asynchronous call use 
+         *   {@link fireRenderingControlLoading(long, int)} instead
+         * @param pixelsID The id of the pixels set.
+         */
+        void loadRenderingControl(long pixelsID) {
+            OmeroImageService rds = MetadataViewerAgent.getRegistry()
+                    .getImageService();
+            try {
+                RenderingControl ctrl = rds.loadRenderingControl(
+                        new SecurityContext(((DataObject)refObject).getGroupId()), pixelsID);
+                setRenderingControl(ctrl);
+            } catch (Throwable e) {
+                LogMessage msg = new LogMessage();
+                msg.print("Could not reload RenderingControl for pixelsId="+pixelsID);
+                msg.print(e);
+                MetadataViewerAgent.getRegistry().getLogger().warn(this, msg);
+            }
+    
+        }
 	
 	/**
 	 * Sets the rendering control.

@@ -1028,6 +1028,15 @@ class MetadataViewerComponent
 					model.getRefObject());
 		}
 	}
+	
+	/**
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#reloadRenderingControl()
+	 */
+	public void reloadRenderingControl()
+	{
+	    model.getEditor().loadRenderingControl();
+	}
 
 	/**
 	 * Implemented as specified by the {@link MetadataViewer} interface.

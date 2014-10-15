@@ -560,6 +560,11 @@ public interface MetadataViewer
 	 */
 	public void reloadRenderingControl(boolean value);
 	
+	/**
+	 * Reloads the renderer (synchronous)
+         */
+	void reloadRenderingControl();
+	
 	/** 
 	 * Indicates that the color of the passed channel has changed.
 	 * 
