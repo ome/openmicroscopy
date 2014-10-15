@@ -2526,7 +2526,42 @@ public class UIUtilities
 		}
 		return new UnitsObject(units, v);
 	}
-	
+
+    /**
+     * Transforms the size and returns the value and units.
+     * 
+     * @param value The value to transform.
+     * @param refUnits The units of reference.
+     * @return See above.
+     */
+    public static double transformSize(Double value, String refUnits)
+    {
+        double v = value.doubleValue();
+        String units = UnitsObject.MICRONS;
+        if (v > 0.0 && v < 0.01) {
+            units = UnitsObject.NANOMETER;
+            if (units.equals(refUnits)) v *= 1000;
+            if (v < 1) {
+                units = UnitsObject.ANGSTROM;
+                if (units.equals(refUnits)) v *= 10;
+            }
+            return v;
+        }
+        if (v > 1000) {
+            units = UnitsObject.MILLIMETER;
+            if (units.equals(refUnits)) v /= 1000;
+        }
+        if (v > 1000) {
+            units = UnitsObject.CENTIMETER;
+            if (units.equals(refUnits)) v /= 1000;
+        }
+        if (v > 1000) {
+            units = UnitsObject.METER;
+            if (units.equals(refUnits)) v /= 1000;
+        }
+        return v;
+    }
+    
 	/**
      * Formats the passed value in seconds.
      * 

@@ -241,7 +241,7 @@ public class MeasureRectangleFigure
     {
     	if (units.isInMicrons()) {
     		return UIUtilities.transformSize(
-					getX()*units.getMicronsPixelX()).getValue();
+					getX()*units.getMicronsPixelX(), refUnits);
     	}
     	return getX();
     }
@@ -255,7 +255,7 @@ public class MeasureRectangleFigure
     {
     	if (units.isInMicrons()) {
     		return UIUtilities.transformSize(
-					getY()*units.getMicronsPixelY()).getValue();
+					getY()*units.getMicronsPixelY(), refUnits);
     	}
     	return getY();
     }
@@ -270,7 +270,7 @@ public class MeasureRectangleFigure
     {
     	if (units.isInMicrons()) {
     		return UIUtilities.transformSize(
-					getWidth()*units.getMicronsPixelX()).getValue();
+					getWidth()*units.getMicronsPixelX(), refUnits);
     	}
     	return getWidth();
     }
@@ -284,7 +284,7 @@ public class MeasureRectangleFigure
     {
     	if (units.isInMicrons()) {
     		return UIUtilities.transformSize(
-					getHeight()*units.getMicronsPixelY()).getValue();
+					getHeight()*units.getMicronsPixelY(), refUnits);
     	}
     	return getHeight();
     }
@@ -485,9 +485,9 @@ public class MeasureRectangleFigure
 	{
      	if (units.isInMicrons()) {
      		double tx = UIUtilities.transformSize(
-     				rectangle.getCenterX()*units.getMicronsPixelX()).getValue();
+     				rectangle.getCenterX()*units.getMicronsPixelX(), refUnits);
      		double ty = UIUtilities.transformSize(
-     				rectangle.getCenterY()*units.getMicronsPixelY()).getValue();
+     				rectangle.getCenterY()*units.getMicronsPixelY(), refUnits);
      		return new Point2D.Double(tx, ty);
      	}
     	return new Point2D.Double(rectangle.getCenterX(), 
