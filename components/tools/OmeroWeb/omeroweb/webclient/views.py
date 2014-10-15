@@ -277,6 +277,7 @@ def switch_active_group(request, active_group=None):
         request.session['imageInBasket'] = set()        # empty basket
         request.session['basket_counter'] = 0
 
+@require_POST
 @login_required(login_redirect='webindex')
 def logout(request, conn=None, **kwargs):
     """ Logout of the session and redirects to the homepage (will redirect to login first) """
