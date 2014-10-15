@@ -121,12 +121,16 @@ class TestCsrf(object):
         that this request results in an HTTP 405 (method not allowed) status
         code.
         """
-        query_string = urlencode([
-            ('channel0', 'foobar')
-        ])
-        request_url = '%s?%s' % (
-            reverse('edit_channel_names', args=[image_with_channels.id.val]),
-            query_string
+        data = {'channel0': 'foobar'}
+        query_string = urlencode(data.items())
+        request_url = reverse(
+            'edit_channel_names', args=[image_with_channels.id.val]
         )
-        response = django_client.get(request_url)
+
+        response = django_client.get('%s?%s' % (request_url, query_string))
         assert response.status_code == 405
+
+        csrf_token = django_client.cookies['csrftoken'].value
+        data['csrfmiddlewaretoken'] = csrf_token
+        response = django_client.post(request_url, data=data)
+        assert response.status_code == 200
