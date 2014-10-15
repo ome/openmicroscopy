@@ -32,7 +32,9 @@ Test Channel Rename
 Test Basket Share
     [Documentation]     Tests adding image to basket, creating a share and editing share
 
-    Go To                                       ${WELCOME URL}
+    # Go To                                       ${WELCOME URL}
+    Select And Expand Project
+    Select And Expand Dataset
     ${imageId}=                                 Select And Expand Image
     Click Element                               basketButton
     Go To                                       ${WELCOME URL}basket/
@@ -74,6 +76,10 @@ Test Discussion
     Wait Until Page Contains Element            id_message
     Input Text                                  id_message      Edited Discussion Message
     Submit Form                                 edit_share_form
+    # Bug - right panel does not refresh on it's own. Need to click the discussion in tree again
+    Go To                                       ${WELCOME URL}public/
+    Wait Until Page Contains Element            xpath=//div[@id='dataTree']//li[@rel='discussion']/a    60
+    Click Element                               xpath=//div[@id='dataTree']//li[@rel='discussion']/a
     Wait Until Page Contains                    Edited Discussion Message       60
 
 
@@ -81,6 +87,7 @@ Test Annotate
     [Documentation]     Test Annotation of a Project that we create
 
     Go To                                       ${WELCOME URL}
+    Wait Until Page Contains Element            id=experimenter-0
     Select Experimenter
     ${pid}=                                     Create Project
 
@@ -102,7 +109,6 @@ Test Annotate
 Test Batch Annotate
     [Documentation]     Test Batch Annotation of 2 Projects that we create
 
-    Go To                                       ${WELCOME URL}
     Select Experimenter
     ${projectId}=                               Create Project
     ${pId}=                                     Create Project
