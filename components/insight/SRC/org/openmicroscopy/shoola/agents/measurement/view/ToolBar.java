@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -35,6 +36,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -46,6 +48,7 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
@@ -210,7 +213,22 @@ class ToolBar
     	button.setAction(new DrawingAction(measurementcomponent, button));	
 		button.addMouseListener(this);
     }
-    
+
+    /** The max plane size.*/
+    private static final int MAX_SIZE = 512;
+
+    private double getDefaultFontSize()
+    {
+        int sizeX = model.getSizeX();
+        int sizeY = model.getSizeY();
+        double f = ShapeSettingsData.DEFAULT_FONT_SIZE;
+        if (sizeX <= MAX_SIZE && sizeY <= MAX_SIZE){
+            return f;
+        }
+        double rx = f*(sizeX/MAX_SIZE);
+        double ry = f*(sizeY/MAX_SIZE);
+        return Math.floor(Math.max(ry, rx));
+    }
     /** Initializes the component composing the display. */
 	private void initComponents()
 	{
@@ -218,23 +236,32 @@ class ToolBar
 		
 		lineConnectionProperties = new FigureProperties(
 				defaultConnectionAttributes);
-		ellipseTool = new DrawingObjectCreationTool(new MeasureEllipseFigure(
-				false, true, true, true, true));
-		rectTool = new DrawingObjectCreationTool(new MeasureRectangleFigure(
-				false, true, true, true, true));
+		Map<AttributeKey, Object> p = new HashMap<AttributeKey, Object>();
+		double value = getDefaultFontSize();
+		Font font = ROIFigure.DEFAULT_FONT;
+		font = font.deriveFont((float) value);
+		p.put(MeasurementAttributes.FONT_SIZE, value);
+		p.put(MeasurementAttributes.FONT_FACE, font);
+		Map<AttributeKey, Object> pl = new HashMap<AttributeKey, Object>();
+		pl.put(MeasurementAttributes.FONT_SIZE, value);
+		ellipseTool = new DrawingObjectCreationTool(
+		        new MeasureEllipseFigure(false, true, true, true, true), p);
+		rectTool = new DrawingObjectCreationTool(
+		        new MeasureRectangleFigure(false, true, true, true, true), p);
 		textTool = new DrawingObjectCreationTool(
-				new MeasureTextFigure(false, true));
+				new MeasureTextFigure(false, true), p);
 		lineTool = new DrawingObjectCreationTool(
-				new MeasureLineFigure(false, true, true, true, true));
+				new MeasureLineFigure(false, true, true, true, true), pl);
+		Map<AttributeKey, Object> m = lineConnectionProperties.getProperties();
+		m.put(MeasurementAttributes.FONT_SIZE, value);
 		connectionTool = new DrawingConnectionTool(
-						new MeasureLineConnectionFigure(), 
-						lineConnectionProperties.getProperties());
+						new MeasureLineConnectionFigure(), m);
 		pointTool = new DrawingPointCreationTool(
 				new MeasurePointFigure(false, true, true, true, true));
 	    polygonTool = new DrawingBezierTool(
-	    		new MeasureBezierFigure(true, false, true, true, true, true));
+	    		new MeasureBezierFigure(true, false, true, true, true, true), pl);
 	    polylineTool = new DrawingBezierTool(
-	    		new MeasureBezierFigure(false, false, true, true, true, true));
+	    		new MeasureBezierFigure(false, false, true, true, true, true), pl);
 	    
 	    Component component;
 	    
