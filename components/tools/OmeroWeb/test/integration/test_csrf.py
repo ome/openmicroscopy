@@ -121,6 +121,10 @@ class TestCsrf(object):
         response = django_client.post(login_url, data)
         assert response.status_code == 403
 
+        logout_url = reverse('weblogout')
+        response = django_client.post(logout_url)
+        assert response.status_code == 403
+
     def test_edit_channel_names(
             self, client, django_client, image_with_channels):
         """
