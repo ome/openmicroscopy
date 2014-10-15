@@ -440,7 +440,7 @@ class SessionsControl(BaseControl):
         # detachOnDestroy called by omero.util.sessions
         client.enableKeepAlive(300)
         ec = sf.getAdminService().getEventContext()
-        self.ctx._event_context = ec
+        self.ctx.set_event_context(ec)
         self.ctx._client = client
 
         host = client.getProperty("omero.host")
@@ -483,7 +483,7 @@ class SessionsControl(BaseControl):
             group_name = args.target
             group_id = admin.lookupGroup(group_name).id.val
 
-        ec = self.ctx._event_context  # 5711
+        ec = self.ctx.get_event_context()  # 5711
         old_id = ec.groupId
         old_name = ec.groupName
         if old_id == group_id and not self.ctx.isquiet:
@@ -492,7 +492,7 @@ class SessionsControl(BaseControl):
         else:
             sf.setSecurityContext(omero.model.ExperimenterGroupI(group_id,
                                                                  False))
-            self.ctx._event_context = sf.getAdminService().getEventContext()
+            self.ctx.set_event_context(sf.getAdminService().getEventContext())
             self.ctx.out("Group '%s' (id=%s) switched to '%s' (id=%s)"
                          % (old_name, old_id, group_name, group_id))
 

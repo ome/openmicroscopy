@@ -1287,6 +1287,12 @@ class CLI(cmd.Cmd, Context):
                 self.err("Error loading: %s" % pathobj)
                 traceback.print_exc()
 
+    def get_event_context(self):
+        return getattr(self, '_event_context', None)
+
+    def set_event_context(self, ec):
+        setattr(self, '_event_context', ec)
+
     # End Cli
     ###########################################################
 

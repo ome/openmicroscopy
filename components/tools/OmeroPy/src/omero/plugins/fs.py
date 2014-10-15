@@ -428,8 +428,8 @@ moved.
 """
         fid = args.fileset.id.val
         client = self.ctx.conn(args)
-        uid = self.ctx._event_context.userId
-        isAdmin = self.ctx._event_context.isAdmin
+        uid = self.ctx.get_event_context().userId
+        isAdmin = self.ctx.get_event_context().isAdmin
         query = client.sf.getQueryService()
 
         if not isAdmin:
