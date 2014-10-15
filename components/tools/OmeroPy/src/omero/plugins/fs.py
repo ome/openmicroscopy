@@ -484,7 +484,7 @@ moved.
                 raw.args = [from_path, to_path]
                 self.ctx.err("Moving %s to %s" % (from_path, to_path))
                 try:
-                    self.ctx._client.submit(raw)
+                    self.ctx.get_client().submit(raw)
                 except CmdError, ce:
                     self.ctx.die(114, ce.err)
         else:

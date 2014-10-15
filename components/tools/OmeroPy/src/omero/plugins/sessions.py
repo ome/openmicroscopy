@@ -441,7 +441,7 @@ class SessionsControl(BaseControl):
         client.enableKeepAlive(300)
         ec = sf.getAdminService().getEventContext()
         self.ctx.set_event_context(ec)
-        self.ctx._client = client
+        self.ctx.set_client(client)
 
         host = client.getProperty("omero.host")
         port = client.getProperty("omero.port")
@@ -608,18 +608,18 @@ class SessionsControl(BaseControl):
         if properties is None:
             properties = {}
 
-        if self._client:
-            return self._client
+        if self.get_client():
+            return self.get_client()
 
         import omero
         try:
             data = self.initData(properties)
-            self._client = omero.client(sys.argv, id=data)
-            self._client.setAgent("OMERO.cli")
-            self._client.createSession()
-            return self._client
+            self.set_client(omero.client(sys.argv, id=data))
+            self.get_client().setAgent("OMERO.cli")
+            self.get_client().createSession()
+            return self.get_client()
         except Exception:
-            self._client = None
+            self.set_client(None)
             raise
 
     #

@@ -1182,18 +1182,18 @@ class CLI(cmd.Cmd, Context):
         FIXME: Currently differing setting sessions on the same CLI instance
         will misuse a client.
         """
-        if self._client:
+        if self.get_client():
             self.dbg("Found client")
             try:
-                self._client.getSession().keepAlive(None)
+                self.get_client().getSession().keepAlive(None)
                 self.dbg("Using client")
-                return self._client
+                return self.get_client()
             except KeyboardInterrupt:
                 raise
             except Exception, e:
                 self.dbg("Removing client: %s" % e)
-                self._client.closeSession()
-                self._client = None
+                self.get_client().closeSession()
+                self.set_client(None)
 
         if args is not None:
             if "sessions" not in self.controls:
@@ -1201,10 +1201,10 @@ class CLI(cmd.Cmd, Context):
                 self.die(111, "No sessions control! Cannot login")
             self.controls["sessions"].login(args)
 
-        return self._client  # Possibly added by "login"
+        return self.get_client()  # Possibly added by "login"
 
     def close(self):
-        client = self._client
+        client = self.get_client()
         if client:
             self.dbg("Closing client: %s" % client)
             client.__del__()
@@ -1292,6 +1292,12 @@ class CLI(cmd.Cmd, Context):
 
     def set_event_context(self, ec):
         setattr(self, '_event_context', ec)
+
+    def get_client(self):
+        return getattr(self, '_client', None)
+
+    def set_client(self, client):
+        setattr(self, '_client', client)
 
     # End Cli
     ###########################################################
