@@ -190,7 +190,7 @@ public class MeasurePointFigure
     {
         if (units.isInMicrons()) {
             return UIUtilities.transformSize(
-                    getX()*units.getMicronsPixelX()).getValue();
+                    getX()*units.getMicronsPixelX(), refUnits);
         }
         return getX();
     }
@@ -204,9 +204,9 @@ public class MeasurePointFigure
     {
         if (units.isInMicrons()){
             double tx = UIUtilities.transformSize(
-                    getCentre().getX()*units.getMicronsPixelX()).getValue();
+                    getCentre().getX()*units.getMicronsPixelX(), refUnits);
             double ty = UIUtilities.transformSize(
-                    getCentre().getY()*units.getMicronsPixelY()).getValue();
+                    getCentre().getY()*units.getMicronsPixelY(), refUnits);
             return new Point2D.Double(tx, ty);
         }
         return getCentre();
@@ -221,7 +221,7 @@ public class MeasurePointFigure
     {
         if (units.isInMicrons()) {
             return UIUtilities.transformSize(
-                    getY()*units.getMicronsPixelY()).getValue();
+                    getY()*units.getMicronsPixelY(), refUnits);
         }
         return getY();
     }
@@ -235,7 +235,7 @@ public class MeasurePointFigure
     {
         if (units.isInMicrons()) {
             return UIUtilities.transformSize(
-                    getWidth()*units.getMicronsPixelX()).getValue();
+                    getWidth()*units.getMicronsPixelX(), refUnits);
         }
         return getWidth();
     }
@@ -249,7 +249,7 @@ public class MeasurePointFigure
     {
         if (units.isInMicrons()) {
             return UIUtilities.transformSize(
-                    getHeight()*units.getMicronsPixelY()).getValue();
+                    getHeight()*units.getMicronsPixelY(), refUnits);
         }
         return getHeight();
     }

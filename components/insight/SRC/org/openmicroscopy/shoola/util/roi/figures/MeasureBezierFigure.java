@@ -482,9 +482,9 @@ public class MeasureBezierFigure
 		Point2D.Double pt = getNode(i).getControlPoint(0); 
 		if (units.isInMicrons()) {
 			double tx = UIUtilities.transformSize(
-					pt.getX()*units.getMicronsPixelX()).getValue();
+					pt.getX()*units.getMicronsPixelX(), refUnits);
 			double ty = UIUtilities.transformSize(
-					pt.getY()*units.getMicronsPixelY()).getValue();
+					pt.getY()*units.getMicronsPixelY(), refUnits);
 			return new Point2D.Double(tx, ty);
 		}
 		return pt;
@@ -526,9 +526,9 @@ public class MeasureBezierFigure
 		{
 			Point2D.Double pt1 =  path.getCenter();
 			double tx = UIUtilities.transformSize(
-					pt1.getX()*units.getMicronsPixelX()).getValue();
+					pt1.getX()*units.getMicronsPixelX(), refUnits);
 			double ty = UIUtilities.transformSize(
-					pt1.getY()*units.getMicronsPixelY()).getValue();
+					pt1.getY()*units.getMicronsPixelY(), refUnits);
 			pt1.setLocation(tx, ty);
 			return pt1;
 		}

@@ -141,9 +141,9 @@ public class MeasureLineFigure
 		{
 			Point2D.Double pt = getPoint(i);
 			double tx = UIUtilities.transformSize(
-					pt.getX()*units.getMicronsPixelX()).getValue();
+					pt.getX()*units.getMicronsPixelX(), refUnits);
 			double ty = UIUtilities.transformSize(
-					pt.getY()*units.getMicronsPixelY()).getValue();
+					pt.getY()*units.getMicronsPixelY(), refUnits);
 			return new Point2D.Double(tx, ty);
 		}
 		return getPoint(i);
