@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.0__0 to OMERO5.1DEV__10.
+--- OMERO5 development release upgrade from OMERO5.0__0 to OMERO5.1DEV__11.
 ---
 
 BEGIN;
@@ -1467,10 +1467,10 @@ update planeinfo set exposuretimeunit = (select id from unitstime where value = 
 
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
     WHERE currentVersion  = 'OMERO5.1DEV' AND
-          currentPatch    = 10            AND
+          currentPatch    = 11            AND
           previousVersion = 'OMERO5.0'    AND
           previousPatch   = 0;
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.1DEV__10'||CHR(10)||CHR(10)||CHR(10) AS Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.1DEV__11'||CHR(10)||CHR(10)||CHR(10) AS Status;
 
 COMMIT;
