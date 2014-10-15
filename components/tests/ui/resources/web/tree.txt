@@ -56,7 +56,8 @@ Select And Expand Image
     [Return]                                   ${firstNodeId}
 
 Create Project
-    Create Container    project
+    ${pid}=     Create Container    project
+    [Return]    ${pid}
 
 Create Dataset
     Create Container    dataset
@@ -82,6 +83,7 @@ Create Container
     Set Selenium Speed                  ${DELAY}
     ${newId}    Get Text                css=h2.data_heading_id>strong
     Wait Until Page Contains Element    css=#${dType}-${newId}>a.jstree-clicked
+    [Return]                            ${newId}
 
 Key Down
     [Arguments]    ${keyCode}    ${cssSelector}=body
