@@ -141,7 +141,7 @@ DECLARATION BLOCK:
 #set($enumSymbol = "yotta${enumSymbol1}")
 #elseif($prop.name.startsWith("T") && !$prop.name.startsWith("o"))
 #set($enumSymbol = "tera${enumSymbol1}")
-#elseif($prop.name.startsWith("µ"))
+#elseif($prop.name.codePointAt(0) > 128) ## Workaround: startsWith("µ") fails on non-UTF-8 locales
 #set($enumSymbol = "micro${enumSymbol1}")
 #end
 #end
