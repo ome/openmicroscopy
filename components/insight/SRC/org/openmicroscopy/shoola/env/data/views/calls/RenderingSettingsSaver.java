@@ -29,10 +29,12 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
@@ -168,19 +170,36 @@ public class RenderingSettingsSaver
             return new BatchCall("Modify the rendering settings: ") {
                 public void doCall() throws Exception {
                     
+                    long userId = MetadataViewerAgent.getUserDetails().getId();
+                    
+                    OmeroImageService rds = context.getImageService();
+                               
+                    // load (the user's) original settings for the reference image             
+                    RndProxyDef original = null;
+                    Map<DataObject, Collection<RndProxyDef>> tmp = rds.getRenderingSettings(ctx, refImage.getDefaultPixels().getId(), userId);
+                    for(Entry<DataObject, Collection<RndProxyDef>> e : tmp.entrySet()) {
+                        if(e.getKey() instanceof ExperimenterData) {
+                            ExperimenterData exp = (ExperimenterData)e.getKey();
+                            if(exp.getId()==userId) {
+                                original = e.getValue().iterator().next();
+                                break;
+                            }
+                        }
+                    }
+                    
                     // reload the Renderer for the reference image
                     MetadataViewer viewer = MetadataViewerFactory
                             .getViewer(refImage);
                     viewer.reloadRenderingControl();
                     
+                    Renderer rnd = null;
                     if (viewer != null) {
-                        Renderer rnd = viewer.getRenderer();
+                        rnd = viewer.getRenderer();
                         
                         if (rnd != null) {
                             try {
-                                // apply the pending rendering settings again
+                                // apply the pending rendering settings
                                 rnd.resetSettings(def, true);
-                                // and save the rendering settings
                                 rnd.saveCurrentSettings();
                             } catch (Throwable e) {
                                 throw new DataSourceException("Could not save pending rendering settings for image id "+refImage.getId());
@@ -189,15 +208,16 @@ public class RenderingSettingsSaver
                         }
                     }
                     
-                    OmeroImageService rds = context.getImageService();
+                    // do the actual paste
                     Map map = rds.pasteRenderingSettings(ctx, refImage.getDefaultPixels().getId(), rootType,
                             ids);
-                    // as we also saved the refImage's rendering settings, add it's
-                    // id to the success list, too
-                    Collection col = (Collection) map.get(Boolean.TRUE);
-                    col.add(refImage.getId());
                     result = map;
     
+                    if (rnd != null && original != null) {
+                        // reset the reference image to it's previous settings
+                        rnd.resetSettings(original, true);
+                        rnd.saveCurrentSettings();
+                    }
                 }
             };
         }
