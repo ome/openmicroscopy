@@ -91,9 +91,28 @@ public class TimeI extends Time implements ModelBased {
 
     @Override
     public Filterable fillObject(ReverseModelMapper mapper) {
+        // This is a workaround for errors of the form:
+        //
+        //   org.hibernate.PropertyAccessException:
+        //   IllegalArgumentException occurred calling getter of ome.model.screen.Well.wellSamples
+        //
+        // when importing plates with multiple images. Likely this
+        // is caused by Hibernate trying through multiple paths
+        // to resolve the UnitsTime object and continually
+        // failing to do so.
+        ome.model.enums.UnitsTime ut = new ome.model.enums.UnitsTime();
+        if (getUnit().getId() != null) {
+            ut.setId(getUnit().getId().getValue());
+            ut.unload();
+        } else {
+            if (getUnit().getValue() != null) {
+                ut.setValue(getUnit().getValue().getValue());
+            }
+        }
+
         ome.model.units.Time t = new ome.model.units.Time();
         t.setValue(getValue());
-        t.setUnit((ome.model.enums.UnitsTime) mapper.reverse( (ome.model.ModelBased) getUnit()));
+        t.setUnit(ut);
         return t;
     }
 
