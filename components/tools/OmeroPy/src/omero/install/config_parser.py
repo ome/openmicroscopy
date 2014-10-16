@@ -125,7 +125,7 @@ HEADER = \
 
 %(properties)s"""
 
-BLACK_LIST = ("##", "versions", "omero.upgrades", "omero.security.ignore_case")
+BLACK_LIST = ("##", "versions", "omero.upgrades")
 
 STOP = "### END"
 
@@ -318,7 +318,10 @@ class PropertyParser(object):
         headers = self.headers()
         for header in sorted(headers):
             properties = ""
-            for p in headers[header]:
+            # Filter properties marked as DEVELOPMENT
+            props = [p for p in headers[header]
+                     if not p.txt.startswith('DEVELOPMENT')]
+            for p in props:
                 properties += ".. property:: %s\n" % (p.key)
                 properties += "\n"
                 properties += "%s\n" % p.key
