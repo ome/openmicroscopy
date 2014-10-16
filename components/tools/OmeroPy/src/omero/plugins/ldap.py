@@ -159,27 +159,8 @@ user never had a password, one will need to be set!""")
             self.error_admin_only(fatal=True)
 
     def discover(self, args):
-        c = self.ctx.conn(args)
-        ildap = c.sf.getLdapService()
-        experimenters = {}
-
-        import omero
-        try:
-            experimenters = ildap.discover()
-        except omero.SecurityViolation:
-            self.ctx.die(131, "SecurityViolation: Admins only!")
-
-        if len(experimenters) > 0:
-            self.ctx.out("Found mismatching DNs for the following users:")
-            for dn, exp in experimenters.iteritems():
-                if args.commands:
-                    self.ctx.out("%s ldap setdn %s %s"
-                                 % (sys.argv[0], exp.getOmeName().getValue(),
-                                    dn))
-                else:
-                    self.ctx.out("Experimenter:%s\tomeName=%s\t%s"
-                                 % (exp.getId().getValue(),
-                                    exp.getOmeName().getValue(), dn))
+        self.ctx.out("DNs aren't stored in the DB anymore. No mismatches "
+                     + "possible.")
 
     def create(self, args):
         c = self.ctx.conn(args)
