@@ -154,7 +154,6 @@ public class RenderingSettingsSaver
 	/**
 	 * Creates a {@link BatchCall} to paste the rendering settings.
 	 * 
-	 * @param pixelsID		The id of the pixels set of reference.
 	 * @param rootType		The type of nodes. Can either be 
 	 * 						<code>ImageData</code>, <code>DatasetData</code>, 
 	 * 						<code>ProjectData</code>, <code>ScreenData</code>,
@@ -164,7 +163,7 @@ public class RenderingSettingsSaver
          * @param refImage      The image the rendering settings belong to
 	 * @return The {@link BatchCall}.
 	 */
-        private BatchCall makeBatchCall(final long pixelsID, final Class rootType,
+        private BatchCall makeBatchCall(final Class rootType,
                 final List<Long> ids, final RndProxyDef def, final ImageData refImage) {
             return new BatchCall("Modify the rendering settings: ") {
                 public void doCall() throws Exception {
@@ -191,7 +190,7 @@ public class RenderingSettingsSaver
                     }
                     
                     OmeroImageService rds = context.getImageService();
-                    Map map = rds.pasteRenderingSettings(ctx, pixelsID, rootType,
+                    Map map = rds.pasteRenderingSettings(ctx, refImage.getDefaultPixels().getId(), rootType,
                             ids);
                     // as we also saved the refImage's rendering settings, add it's
                     // id to the success list, too
@@ -347,15 +346,15 @@ public class RenderingSettingsSaver
          * @param def The 'pending' rendering settings
          * @param refImage The image the rendering settings belong to
 	 */
-        public RenderingSettingsSaver(SecurityContext ctx, long pixelsID,
-                Class rootNodeType, List<Long> ids, RndProxyDef def, final ImageData refImage) {
+        public RenderingSettingsSaver(SecurityContext ctx, Class rootNodeType, 
+                List<Long> ids, RndProxyDef def, final ImageData refImage) {
             checkRootType(rootNodeType);
             if (ids == null || ids.size() == 0)
                 throw new IllegalArgumentException("No nodes specified.");
-            if (pixelsID < 0)
-                throw new IllegalArgumentException("Pixels ID not valid.");
+            if (refImage == null)
+                throw new IllegalArgumentException("No reference image provided.");
             this.ctx = ctx;
-            loadCall = makeBatchCall(pixelsID, rootNodeType, ids, def, refImage);
+            loadCall = makeBatchCall(rootNodeType, ids, def, refImage);
         }
 	
 	/**

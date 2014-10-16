@@ -305,7 +305,7 @@ public class MetadataViewerAgent
     /**
      * Handles a {@link CopyRndSettings} event, i. e. passes the image
      * reference on to the {@link MetadataViewer}s.
-     * @param evt
+     * @param evt The event
      */
     private void handleCopyRndSettings(CopyRndSettings evt) {
         MetadataViewerFactory.setCopyRenderingSettingsFrom(evt.getImage(), evt.getRndDef());
