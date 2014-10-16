@@ -8,89 +8,96 @@
 
 """
 import logging
+import time
 from Foundation import NSAutoreleasePool, NSMutableArray, NSString
 import FSEvents
 
-import threading
-import sys, traceback
-import socket
 
-# Third party path package. It provides much of the 
+# Third party path package. It provides much of the
 # functionality of os.path but without the complexity.
 # Imported as pathModule to avoid potential clashes.
 import path as pathModule
 
-import omero.all
+__import__("omero.all")
 import omero.grid.monitors as monitors
-import omero_ext.uuid as uuid # see ticket:3774
+import omero_ext.uuid as uuid  # see ticket:3774
 
 from fsAbstractPlatformMonitor import AbstractPlatformMonitor
 import fsDirectory
 
+
 class UnsupportedPathMode(Exception):
     pass
+
 
 class UnsupportedEventType(Exception):
     pass
 
+
 class PlatformMonitor(AbstractPlatformMonitor):
+
     """
         A Thread to monitor a path.
-        
+
         :group Constructor: __init__
         :group Other methods: run, stop
 
     """
-    def __init__(self, eventTypes, pathMode, pathString, whitelist, blacklist, ignoreSysFiles, ignoreDirEvents, proxy):
+
+    def __init__(self, eventTypes, pathMode, pathString, whitelist, blacklist,
+                 ignoreSysFiles, ignoreDirEvents, proxy):
         """
             Set-up Monitor thread.
-            
+
             After initialising the superclass and some instance variables
             try to create an FSEventStream. Throw an exeption if this fails.
-            
+
             :Parameters:
-                eventTypes : 
-                    A list of the event types to be monitored.          
-                    
-                pathMode : 
-                    The mode of directory monitoring: flat, recursive or following.
+                eventTypes :
+                    A list of the event types to be monitored.
+
+                pathMode :
+                    The mode of directory monitoring:
+                    flat, recursive or following.
 
                 pathString : string
                     A string representing a path to be monitored.
-                  
+
                 whitelist : list<string>
                     A list of files and extensions of interest.
-                    
+
                 blacklist : list<string>
                     A list of subdirectories to be excluded.
 
                 ignoreSysFiles :
                     If true platform dependent sys files should be ignored.
-                    
+
                 monitorId :
                     Unique id for the monitor included in callbacks.
-                    
+
                 proxy :
                     A proxy to be informed of events
-                    
+
         """
-        AbstractPlatformMonitor.__init__(self, eventTypes, pathMode, pathString, whitelist, blacklist, ignoreSysFiles, ignoreDirEvents, proxy)
-        self.log = logging.getLogger("fsserver."+__name__)
-        
+        AbstractPlatformMonitor.__init__(
+            self, eventTypes, pathMode, pathString, whitelist, blacklist,
+            ignoreSysFiles, ignoreDirEvents, proxy)
+        self.log = logging.getLogger("fsserver." + __name__)
+
         #: an FSEvents.FSEventStream StreamRef object reference.
         self.streamRef = None
         #: FSEvents.CFRunLoop object reference.
         self.runLoopRef = None
         self.clientInfo = str(uuid.uuid1())
         #
-        # Without using the mutable array, ie using the Python list directly, 
+        # Without using the mutable array, ie using the Python list directly,
         # the code works but throws up a couple of horrible warnings:
-        # "Oject of class OC_PythonArray autoreleased with no pool in place 
+        # "Oject of class OC_PythonArray autoreleased with no pool in place
         #     - just leaking"
-        # With the array there are still warnings about the strings whether 
+        # With the array there are still warnings about the strings whether
         # Python native strings are used or NSStrings.
         #
-        # All of these warnings are eliminated by using a pool for the lifetime 
+        # All of these warnings are eliminated by using a pool for the lifetime
         # of the NSMutableArray.
         #
         pool = NSAutoreleasePool.alloc().init()
@@ -98,73 +105,70 @@ class PlatformMonitor(AbstractPlatformMonitor):
         ms = NSString.stringWithString_(self.pathsToMonitor)
         pathsToMonitor.insertObject_atIndex_(ms, 0)
 
-        self.directory = fsDirectory.Directory(pathString=self.pathsToMonitor, 
-                                            whitelist=self.whitelist,
-                                            pathMode=self.pathMode)
+        self.directory = fsDirectory.Directory(
+            pathString=self.pathsToMonitor, whitelist=self.whitelist,
+            pathMode=self.pathMode)
 
-        self.streamRef = FSEvents.FSEventStreamCreate(FSEvents.kCFAllocatorDefault,
-                                self.callback,
-                                self.clientInfo,
-                                pathsToMonitor,
-                                FSEvents.kFSEventStreamEventIdSinceNow,
-                                1,
-                                FSEvents.kFSEventStreamCreateFlagWatchRoot)
- 
+        self.streamRef = FSEvents.FSEventStreamCreate(
+            FSEvents.kCFAllocatorDefault, self.callback, self.clientInfo,
+            pathsToMonitor, FSEvents.kFSEventStreamEventIdSinceNow, 1,
+            FSEvents.kFSEventStreamCreateFlagWatchRoot)
+
         #
         # Release the pool now that the NSMutableArray has been used.
         #
         del pool
-             
-        if self.streamRef == None:
+
+        if self.streamRef is None:
             raise Exception('Failed to create FSEvent Stream')
-            
+
         self.log.info('Monitor set-up on %s', str(self.pathsToMonitor))
         self.log.info('Monitoring %s events', str(self.eTypes))
 
     def run(self):
         """
             Start monitoring an FSEventStream.
-   
-            This method, overridden from Thread, is run by 
+
+            This method, overridden from Thread, is run by
             calling the inherited method start(). The method attempts
             to schedule an FSEventStream and then run its CFRunLoop.
             The method then blocks until stop() is called.
-            
+
             :return: No explicit return value.
-            
+
         """
-        FSEvents.FSEventStreamScheduleWithRunLoop(self.streamRef, 
-                        FSEvents.CFRunLoopGetCurrent(), 
-                        FSEvents.kCFRunLoopDefaultMode)
- 
+        FSEvents.FSEventStreamScheduleWithRunLoop(
+            self.streamRef, FSEvents.CFRunLoopGetCurrent(),
+            FSEvents.kCFRunLoopDefaultMode)
+
         self.runLoopRef = FSEvents.CFRunLoopGetCurrent()
- 
+
         if not FSEvents.FSEventStreamStart(self.streamRef):
             raise Exception('Failed to start the FSEventStream')
 
         # Blocks
         FSEvents.CFRunLoopRun()
 
-    def stop(self):        
+    def stop(self):
         """
             Stop monitoring an FSEventStream.
-   
+
             This method attempts to stop the CFRunLoop. It then
             stops, invalidates and releases the FSEventStream.
-            
-            There should be a more robust approach in here that 
+
+            There should be a more robust approach in here that
             still kils the thread even if the first call fails.
-            
+
             :return: No explicit return value.
-            
+
         """
         FSEvents.CFRunLoopStop(self.runLoopRef)
         FSEvents.FSEventStreamStop(self.streamRef)
         FSEvents.FSEventStreamInvalidate(self.streamRef)
         FSEvents.FSEventStreamRelease(self.streamRef)
 
-    def callback(self, streamRef, clientInfo, numEvents, 
-                    eventPaths, eventMasks, eventIDs):
+    def callback(self, streamRef, clientInfo, numEvents,
+                 eventPaths, eventMasks, eventIDs):
         """
             Callback required by FSEvents.FSEventStream.
 
@@ -195,32 +199,33 @@ class PlatformMonitor(AbstractPlatformMonitor):
         # Use the returned client info to access the proxy and
         # the directory snapshot.
         if self.clientInfo == clientInfo:
-                    
+
             dir = self.directory
 
             # For each event get a list of new, deleted and changed files.
             # Then process those lists to create a list of new non-zero files
             # to be forwarded to the client (proxy).
             for i in range(0, numEvents):
-            
+
                 new, old, chg = dir.getChangedFiles(eventPaths[i])
 
                 self.log.info("Full event set : %s", str(eventPaths))
                 self.log.info("New files      : %s", str(new))
                 self.log.info("Changed files  : %s", str(chg))
                 self.log.info("Old files      : %s", str(old))
-                     
+
                 # Prune out new directories, those are not of interest.
                 if self.ignoreDirEvents:
-                    if len(new) > 0: 
+                    if len(new) > 0:
                         new = dir.pruneDirectories(new)
-                    if len(chg) > 0: 
+                    if len(chg) > 0:
                         chg = dir.pruneDirectories(chg)
-                    # old cannot be pruned as the dirs are no longer in the tree.
-                    
+                    # old cannot be pruned as the dirs are no longer in the
+                    # tree.
+
                 # Prune out 'system files if necessary.
                 if self.ignoreSysFiles:
-                    
+
                     if len(new) > 0:
                         for fileName in new:
                             try:
@@ -229,7 +234,8 @@ class PlatformMonitor(AbstractPlatformMonitor):
                             except:
                                 pass
                             try:
-                                if pathModule.path(fileName).basename().index('.') == 0:
+                                if pathModule.path(
+                                        fileName).basename().index('.') == 0:
                                     new.remove(fileName)
                             except:
                                 pass
@@ -242,7 +248,8 @@ class PlatformMonitor(AbstractPlatformMonitor):
                             except:
                                 pass
                             try:
-                                if pathModule.path(fileName).basename().index('.') == 0:
+                                if pathModule.path(
+                                        fileName).basename().index('.') == 0:
                                     chg.remove(fileName)
                             except:
                                 pass
@@ -255,11 +262,12 @@ class PlatformMonitor(AbstractPlatformMonitor):
                             except:
                                 pass
                             try:
-                                if pathModule.path(fileName).basename().index('.') == 0:
+                                if pathModule.path(
+                                        fileName).basename().index('.') == 0:
                                     old.remove(fileName)
                             except:
                                 pass
-                    
+
                 # If there any new files then tell the client.
                 eventList = []
 
@@ -267,46 +275,50 @@ class PlatformMonitor(AbstractPlatformMonitor):
                     if len(new) > 0:
                         for fileName in new:
                             eventType = monitors.EventType.Create
-                            eventList.append((fileName,eventType))
-                        
+                            eventList.append((fileName, eventType))
+
                 if "Modification" in self.eTypes:
                     if len(chg) > 0:
                         for fileName in chg:
                             eventType = monitors.EventType.Modify
-                            eventList.append((fileName,eventType))
-                        
+                            eventList.append((fileName, eventType))
+
                 if "Deletion" in self.eTypes:
                     if len(old) > 0:
                         for fileName in old:
                             eventType = monitors.EventType.Delete
-                            eventList.append((fileName,eventType))
-                
+                            eventList.append((fileName, eventType))
+
                 self.propagateEvents(eventList)
 
         else:
-            self.log.info("Notification not for this monitor : %s != %s", self.clientInfo, clientInfo)
+            self.log.info(
+                "Notification not for this monitor : %s != %s",
+                self.clientInfo, clientInfo)
 
 
 if __name__ == "__main__":
     class Proxy(object):
         def callback(self, eventList):
             for event in eventList:
-                #pass
-                log.info("EVENT_RECORD::%s::%s::%s" % (time.time(), event[1], event[0]))
-    
-    import logging
-    from logging import handlers
+                # pass
+                log.info("EVENT_RECORD::%s::%s::%s" %
+                         (time.time(), event[1], event[0]))
+
     log = logging.getLogger("fstestserver")
     file_handler = logging.FileHandler("/TEST/logs/fstestserver.out")
-    file_handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s: %(name)s - %(message)s"))
+    file_handler.setFormatter(
+        logging.Formatter("%(asctime)s %(levelname)s: %(name)s - %(message)s"))
     log.addHandler(file_handler)
     log.setLevel(logging.INFO)
-    log = logging.getLogger("fstestserver."+__name__)
+    log = logging.getLogger("fstestserver." + __name__)
 
     p = Proxy()
-    m = PlatformMonitor([monitors.WatchEventType.Creation,monitors.WatchEventType.Modification], monitors.PathMode.Follow, "\OMERODEV\DropBox", [], [], True, True, p)
+    m = PlatformMonitor(
+        [monitors.WatchEventType.Creation,
+         monitors.WatchEventType.Modification],
+        monitors.PathMode.Follow, "\OMERODEV\DropBox", [], [], True, True, p)
     try:
         m.start()
     except:
         m.stop()
-    
