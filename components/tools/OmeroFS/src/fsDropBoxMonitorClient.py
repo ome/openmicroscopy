@@ -10,9 +10,6 @@
 
 import shlex
 import logging
-import string
-import os
-import platform
 import threading
 import Queue
 import time
@@ -23,11 +20,9 @@ import omero.cli
 import omero.rtypes
 
 import Ice
-import IceGrid
 import IceImport
-import Glacier2
 
-from omero.util import make_logname, ServerContext, Resources
+from omero.util import ServerContext, Resources
 from omero.util.decorators import remoted, locked, perf
 from omero.util.import_candidates import as_dictionary
 from omero.util.concurrency import Timer, get_event
@@ -36,23 +31,28 @@ from omero.util.temp_files import create_path, remove_path
 IceImport.load("omero_FS_ice")
 monitors = Ice.openModule('omero.grid.monitors')
 
+
 class MonitorState(object):
+
     """
     Concurrent state which is tracked by a MonitorClientI
     instance.
     """
 
     class Entry(object):
+
         def __init__(self, seq, timer):
             self.seq = seq
             self.timer = timer
+
         def __repr__(self):
             return self.__str__()
+
         def __str__(self):
-            return "<Entry:%s>"%id(self)
+            return "<Entry:%s>" % id(self)
 
     def __init__(self, event):
-        self.log = logging.getLogger("fsclient."+__name__)
+        self.log = logging.getLogger("fsclient." + __name__)
         self._lock = threading.RLock()
         self.__entries = {}
         self.__timers = 0
@@ -124,17 +124,18 @@ class MonitorState(object):
     @locked
     def update(self, data, wait, callback):
         """
-        Central MonitorState method which takes a fileSet dictionary as returned
-        from omero.utils.import_candidates.as_dictionary and updates the internal state
+        Central MonitorState method which takes a fileSet dictionary as
+        returned from omero.utils.import_candidates.as_dictionary and updates
+        the internal state
         """
         for key, seq in data.items():
             key = self.checkKey(key)
-            assert key in seq # Guarantees length > 1
+            assert key in seq  # Guarantees length > 1
             # Key ignored after this point.
 
             entry = self.find(seq)
 
-            if entry: # UPDATE
+            if entry:  # UPDATE
                 msg = "Revised"
                 entry.seq = seq
                 entry.timer.reset()
@@ -146,7 +147,7 @@ class MonitorState(object):
                 entry.timer.args = [seq[0]]
                 self.sync(entry)
 
-            else: # INSERT
+            else:  # INSERT
                 msg = "New"
                 timer = self.addTimer(wait, callback, [key])
                 entry = MonitorState.Entry(seq, timer)
@@ -154,7 +155,9 @@ class MonitorState(object):
                 # Last activity
                 timer.start()
 
-            self.log.info("%s entry %s contains %d file(s). Files=%s Timers=%s", msg, key, len(seq), len(self.__entries), self.__timers)
+            self.log.info(
+                "%s entry %s contains %d file(s). Files=%s Timers=%s",
+                msg, key, len(seq), len(self.__entries), self.__timers)
 
     def find(self, seq):
         """
@@ -178,14 +181,16 @@ class MonitorState(object):
             try:
                 entry2 = self.__entries[key]
                 if entry2 != entry:
-                    self.log.info("Key %s moved entries:%s=>%s", key, entry2, entry)
+                    self.log.info(
+                        "Key %s moved entries:%s=>%s", key, entry2, entry)
                     self.__entries[key] = entry
-                    count=0
+                    count = 0
                     for v in self.__entries.values():
                         if v == entry2:
-                            count+=1
+                            count += 1
                     if count:
-                        self.log.warn("%s remaining key(s) point to %s", count, entry2)
+                        self.log.warn(
+                            "%s remaining key(s) point to %s", count, entry2)
                     else:
                         self.log.info("Stopping %s", entry2)
                         self.removeTimer(entry2.timer)
@@ -195,7 +200,7 @@ class MonitorState(object):
 
     @perf
     @locked
-    def clear(self, key, entry = None):
+    def clear(self, key, entry=None):
         """
         Used to remove all references to a given Entry. In key contained in
         Entry.seq can be passed. If entry is passed in, then this is
@@ -227,20 +232,22 @@ class MonitorState(object):
         """
         self.log.info("Stop called")
         try:
-            for k,s in self.__entries.items():
-                self.clear(k,s)
+            for k, s in self.__entries.items():
+                self.clear(k, s)
         finally:
             del self.__entries
 
 
 class MonitorWorker(threading.Thread):
+
     """
     Worker thread which will consume items from the MonitorClientI.queue
     and add them to the MonitorState
     """
+
     def __init__(self, wait, batch, event, queue, callback):
         threading.Thread.__init__(self)
-        self.log = logging.getLogger("fsclient."+__name__)
+        self.log = logging.getLogger("fsclient." + __name__)
         # numbers
         self.wait = wait
         self.batch = batch
@@ -276,7 +283,7 @@ class MonitorWorker(threading.Thread):
         ids = set()  # Unique entries
         start = time.time()
         while (len(ids) < self.batch) \
-                and (time.time() < (start+self.wait)) \
+                and (time.time() < (start + self.wait)) \
                 and not self.event.isSet():
 
             try:
@@ -286,7 +293,7 @@ class MonitorWorker(threading.Thread):
                         count += 1
                         ids.add(entry.fileId)
                         if len(ids) >= self.batch:
-                            break;
+                            break
             except Queue.Empty:
                 pass
 
@@ -297,11 +304,12 @@ class MonitorWorker(threading.Thread):
             self.log.debug("No events found")
         else:
             if self.event.isSet():
-                self.log.warn("Skipping processing of %s events (%s ids). %s remaining"\
+                self.log.warn(
+                    "Skipping processing of %s events (%s ids). %s remaining"
                     % (count, len(ids), self.queue.qsize()))
             else:
-                self.log.info("Processing %s events (%s ids). %s remaining"\
-                    % (count, len(ids), self.queue.qsize()))
+                self.log.info("Processing %s events (%s ids). %s remaining"
+                              % (count, len(ids), self.queue.qsize()))
                 try:
                     self.callback(ids)
                 except:
@@ -309,6 +317,7 @@ class MonitorWorker(threading.Thread):
 
 
 class MonitorClientI(monitors.MonitorClient):
+
     """
         Implementation of the MonitorClient.
 
@@ -317,13 +326,13 @@ class MonitorClientI(monitors.MonitorClient):
 
     """
 
-    def __init__(self, dir, communicator, getUsedFiles = as_dictionary, ctx = None,\
-                       worker_wait = 60, worker_count = 1, worker_batch = 10):
+    def __init__(self, dir, communicator, getUsedFiles=as_dictionary, ctx=None,
+                 worker_wait=60, worker_count=1, worker_batch=10):
         """
             Intialise the instance variables.
 
         """
-        self.log = logging.getLogger("fsclient."+__name__)
+        self.log = logging.getLogger("fsclient." + __name__)
         self.communicator = communicator
 
         self.master = None
@@ -352,20 +361,25 @@ class MonitorClientI(monitors.MonitorClient):
         self.event = get_event()
         self.queue = Queue.Queue(0)
         self.state = MonitorState(self.event)
-        self.resources = Resources(stop_event = self.event)
+        self.resources = Resources(stop_event=self.event)
         if ctx:
             # Primarily used for testing
             self.ctx = ctx
         else:
-            self.ctx = ServerContext(server_id = "DropBox", communicator = communicator, stop_event = self.event)
+            self.ctx = ServerContext(
+                server_id="DropBox", communicator=communicator,
+                stop_event=self.event)
         self.resources.add(self.ctx)
 
-        self.workers = [MonitorWorker(worker_wait, worker_batch, self.event, self.queue, self.callback) for x in range(worker_count)]
+        self.workers = [
+            MonitorWorker(
+                worker_wait, worker_batch, self.event,
+                self.queue, self.callback)
+            for x in range(worker_count)]
         for worker in self.workers:
             worker.start()
 
         self.eventRecord("Directory", self.dropBoxDir)
-
 
     @perf
     def stop(self):
@@ -373,7 +387,7 @@ class MonitorClientI(monitors.MonitorClient):
         Shutdown this servant
         """
 
-        self.event.set() # Marks everything as stopping
+        self.event.set()  # Marks everything as stopping
 
         # Shutdown all workers first, otherwise
         # there will be contention on the state
@@ -388,7 +402,8 @@ class MonitorClientI(monitors.MonitorClient):
             state = self.state
             self.state = None
             self.log.info("Stopping state...")
-            if state: state.stop()
+            if state:
+                state.stop()
         except:
             self.log.exception("Error stopping state")
 
@@ -396,7 +411,8 @@ class MonitorClientI(monitors.MonitorClient):
             resources = self.resources
             self.resources = None
             self.log.info("Cleaning up resources state...")
-            if resources: resources.cleanup()
+            if resources:
+                resources.cleanup()
         except:
             self.log.exception("Error cleaning resources")
 
@@ -416,9 +432,10 @@ class MonitorClientI(monitors.MonitorClient):
             If new files appear on the watch, the list is sent as an argument.
             The id should match for the events to be relevant.
 
-            At the moment each file type is treated as a special case. The number of
-            special cases is likely to explode and so a different approach is needed.
-            That will be easier with more knowledge of the different multi-file formats.
+            At the moment each file type is treated as a special case. The
+            number of special cases is likely to explode and so a different
+            approach is needed. That will be easier with more knowledge of the
+            different multi-file formats.
 
             :Parameters:
                 id : string
@@ -427,7 +444,8 @@ class MonitorClientI(monitors.MonitorClient):
 
                 eventList : list<string>
                     A list of events, in the current implementation this is
-                    a list of strings representing the full path names of new files.
+                    a list of strings representing the full path names of new
+                    files.
 
                 current
                     An ICE context, this parameter is required to be present
@@ -436,11 +454,13 @@ class MonitorClientI(monitors.MonitorClient):
             :return: No explicit return value
 
         """
-        # ############## ! Set import to dummy mode for testing purposes.
+        # ! Set import to dummy mode for testing purposes.
         # self.importFile = self.dummyImportFile
-        # ############## ! If the above line is not commented out nothing will import.
+        # ! If the above line is not commented out nothing will import.
         if self.id != monitorid:
-            self.warnAndThrow(omero.ApiUsageException(), "Unknown fs server id: %s", monitorid)
+            self.warnAndThrow(
+                omero.ApiUsageException(),
+                "Unknown fs server id: %s", monitorid)
 
         self.eventRecord("Batch", len(eventList))
 
@@ -456,10 +476,12 @@ class MonitorClientI(monitors.MonitorClient):
             exName = self.getExperimenterFromPath(fileId)
             if exName and self.userExists(exName):
                 # Creation or modification handled by state/timeout system
-                if str(fileInfo.type) == "Create" or str(fileInfo.type) == "Modify":
+                if (str(fileInfo.type) == "Create"
+                        or str(fileInfo.type) == "Modify"):
                     self.queue.put(fileInfo)
                 else:
-                    self.log.info("Event not Create or Modify, presently ignored.")
+                    self.log.info(
+                        "Event not Create or Modify, presently ignored.")
 
     #
     # Called by worker threads.
@@ -476,7 +498,8 @@ class MonitorClientI(monitors.MonitorClient):
             fileSets = None
 
         if fileSets:
-            self.state.update(fileSets, self.dirImportWait, self.importFileWrapper)
+            self.state.update(
+                fileSets, self.dirImportWait, self.importFileWrapper)
 
     #
     # Called from state callback (timer)
@@ -513,7 +536,7 @@ class MonitorClientI(monitors.MonitorClient):
             if len(fileParts) >= 2:
                 exName = fileParts[0]
             # For .../DropBox/u/user structure
-            #if len(fileParts) >= 3:
+            # if len(fileParts) >= 3:
             #    exName = fileParts[1]
         if not exName:
             self.log.error("File added outside user directories: %s" % fileId)
@@ -525,7 +548,7 @@ class MonitorClientI(monitors.MonitorClient):
         """
 
         if not self.ctx.hasSession():
-             self.ctx.newSession()
+            self.ctx.newSession()
 
         sf = None
         try:
@@ -538,13 +561,14 @@ class MonitorClientI(monitors.MonitorClient):
             return None
 
         p = omero.sys.Principal()
-        p.name  = exName 
+        p.name = exName
         p.group = "user"
         p.eventType = "User"
 
         try:
-            exp = sf.getAdminService().lookupExperimenter(exName)
-            sess = sf.getSessionService().createSessionWithTimeouts(p, self.timeToLive, self.timeToIdle)
+            sf.getAdminService().lookupExperimenter(exName)
+            sess = sf.getSessionService().createSessionWithTimeouts(
+                p, self.timeToLive, self.timeToIdle)
             return sess.uuid.val
         except omero.ApiUsageException:
             self.log.info("User unknown: %s", exName)
@@ -556,11 +580,11 @@ class MonitorClientI(monitors.MonitorClient):
     def userExists(self, exName):
         """
             Tests if the given user exists.
-            
+
         """
 
         if not self.ctx.hasSession():
-             self.ctx.newSession()
+            self.ctx.newSession()
 
         sf = None
         try:
@@ -573,7 +597,7 @@ class MonitorClientI(monitors.MonitorClient):
             return False
 
         try:
-            exp = sf.getAdminService().lookupExperimenter(exName)
+            sf.getAdminService().lookupExperimenter(exName)
             return True
         except omero.ApiUsageException:
             self.log.info("User unknown: %s", exName)
@@ -581,7 +605,6 @@ class MonitorClientI(monitors.MonitorClient):
         except:
             self.log.exception("Unknown exception during loginUser")
             return False
-            
 
     @perf
     def importFile(self, fileName, exName):
@@ -593,7 +616,7 @@ class MonitorClientI(monitors.MonitorClient):
         """
 
         try:
-            self.state.appropriateWait(self.throttleImport) # See ticket:5739
+            self.state.appropriateWait(self.throttleImport)  # See ticket:5739
 
             key = self.loginUser(exName)
             if not key:
@@ -609,7 +632,9 @@ class MonitorClientI(monitors.MonitorClient):
             cli = omero.cli.CLI()
             cli.loadplugins()
             cmd = ["-s", self.host, "-p", str(self.port), "-k", key, "import"]
-            cmd.extend([str("---errs=%s"%t), str("---file=%s"%to), "--", "--agent=dropbox"])
+            cmd.extend(
+                [str("---errs=%s" % t),
+                    str("---file=%s" % to), "--", "--agent=dropbox"])
             cmd.extend(shlex.split(self.importArgs))
             cmd.append(fileName)
             logging.debug("cli.invoke(%s)" % cmd)
@@ -617,9 +642,10 @@ class MonitorClientI(monitors.MonitorClient):
             retCode = cli.rv
 
             if retCode == 0:
-                self.log.info("Import of %s completed (session=%s)", fileName, key)
+                self.log.info(
+                    "Import of %s completed (session=%s)", fileName, key)
                 if to.exists():
-                    f = open(str(to),"r")
+                    f = open(str(to), "r")
                     lines = f.readlines()
                     f.close()
                     if len(lines) > 0:
@@ -631,10 +657,13 @@ class MonitorClientI(monitors.MonitorClient):
                     self.log.error("%s not found !" % to)
 
             else:
-                self.log.error("Import of %s failed=%s (session=%s)", fileName, str(retCode), key)
-                self.log.error("***** start of output from importer-cli to stderr *****")
+                self.log.error(
+                    "Import of %s failed=%s (session=%s)",
+                    fileName, str(retCode), key)
+                self.log.error(
+                    "***** start of output from importer-cli to stderr *****")
                 if t.exists():
-                    f = open(str(t),"r")
+                    f = open(str(t), "r")
                     lines = f.readlines()
                     f.close()
                     for line in lines:
@@ -657,8 +686,8 @@ class MonitorClientI(monitors.MonitorClient):
             Log a potential import for test purposes
 
         """
-        self.log.info("***DUMMY IMPORT***  Would have tried to import: %s ", fileName)
-
+        self.log.info(
+            "***DUMMY IMPORT***  Would have tried to import: %s ", fileName)
 
     def setMaster(self, master):
         """
@@ -686,7 +715,6 @@ class MonitorClientI(monitors.MonitorClient):
         """
         self.serverProxy = serverProxy
 
-
     def setSelfProxy(self, selfProxy):
         """
             Setter for serverProxy
@@ -699,7 +727,6 @@ class MonitorClientI(monitors.MonitorClient):
 
         """
         self.selfProxy = selfProxy
-
 
     def setId(self, id):
         """
@@ -760,33 +787,31 @@ class MonitorClientI(monitors.MonitorClient):
     def setHostAndPort(self, host, port):
         """
             Set the host and port from the communicator properties.
-            
+
         """
         self.host = host
         self.port = port
-            
+
     def setReaders(self, readers):
         """
             Set the readers file from the communicator properties.
-            
+
         """
         self.readers = readers
 
     def setImportArgs(self, importArgs):
         """
             Set the importArgs from the communicator properties.
-            
+
         """
         self.importArgs = importArgs
-
-            
-
 
     #
     # Various trivial helpers
     #
     def eventRecord(self, category, value):
-        self.log.info("EVENT_RECORD::%s::%s::%s::%s" % ("Cookie", time.time(), category, value))
+        self.log.info("EVENT_RECORD::%s::%s::%s::%s" %
+                      ("Cookie", time.time(), category, value))
 
     def warnAndThrow(self, exc, message, *arguments):
         self.log.warn(message, *arguments)
@@ -798,27 +823,31 @@ class MonitorClientI(monitors.MonitorClient):
         exc.message = (message % arguments)
         raise exc
 
+
 class SingleUserMonitorClient(MonitorClientI):
+
     """
-        Subclass of MonitorClient providing for a single user to import outside 
+        Subclass of MonitorClient providing for a single user to import outside
         of the DropBox structure.
-        
+
     """
-    def __init__(self, user, dir, communicator, getUsedFiles = as_dictionary, ctx = None,\
-                       worker_wait = 60, worker_count = 1, worker_batch = 10):
+
+    def __init__(self, user, dir, communicator, getUsedFiles=as_dictionary,
+                 ctx=None, worker_wait=60, worker_count=1, worker_batch=10):
         """
             Initialise via the superclass
-            
+
         """
-        MonitorClientI.__init__(self, dir, communicator, getUsedFiles=getUsedFiles, ctx = None,\
-                       worker_wait=worker_wait, worker_count=worker_count, worker_batch=worker_batch)
-        
+        MonitorClientI.__init__(
+            self, dir, communicator, getUsedFiles=getUsedFiles, ctx=None,
+            worker_wait=worker_wait, worker_count=worker_count,
+            worker_batch=worker_batch)
+
         self.user = user
         ret = self.loginUser(self.user)
         if not ret:
             raise Exception("No such user " + self.user)
-            
-            
+
     def getExperimenterFromPath(self, fileId=""):
         """
             Extract experimenter name from path. If the experimenter
@@ -826,36 +855,40 @@ class SingleUserMonitorClient(MonitorClientI):
             case no import should take place.
         """
         return self.user
-        
+
+
 class TestMonitorClient(SingleUserMonitorClient):
+
     """
-        Subclass of SingleUserMonitorClient providing for a test import outside 
+        Subclass of SingleUserMonitorClient providing for a test import outside
         of the DropBox structure to be made by copying a given file.
-        
-        
+
+
     """
-    def __init__(self, user, dir, communicator, getUsedFiles = as_dictionary, ctx = None,\
-                       worker_wait = 60, worker_count = 1, worker_batch = 10):
+
+    def __init__(self, user, dir, communicator, getUsedFiles=as_dictionary,
+                 ctx=None, worker_wait=60, worker_count=1, worker_batch=10):
         """
             Initialise via the superclass
-            
+
         """
-        SingleUserMonitorClient.__init__(self, user, dir, communicator, getUsedFiles=getUsedFiles, ctx = None,\
-                       worker_wait=worker_wait, worker_count=worker_count, worker_batch=worker_batch)
+        SingleUserMonitorClient.__init__(
+            self, user, dir, communicator, getUsedFiles=getUsedFiles, ctx=None,
+            worker_wait=worker_wait, worker_count=worker_count,
+            worker_batch=worker_batch)
 
-
-            
     #
     # Called from state callback (timer)
     #
     def importFileWrapper(self, fileId):
         """
-            Import a file and then notify the DropBox that the file has been imported
-            successfully or not.
-            
+            Import a file and then notify the DropBox that the file has been
+            imported successfully or not.
+
         """
         self.state.clear(fileId)
         exName = self.getExperimenterFromPath(fileId)
         imageId = self.importFile(fileId, exName)
-        self.log.info("Test file imported or not: %s for test user %s", fileId, exName)
+        self.log.info(
+            "Test file imported or not: %s for test user %s", fileId, exName)
         self.master.notifyTestFile(imageId, fileId)
