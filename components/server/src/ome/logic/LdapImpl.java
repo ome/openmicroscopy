@@ -54,7 +54,6 @@ import org.slf4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.LdapOperations;
@@ -235,8 +234,11 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
     @RolesAllowed("system")
     @Transactional(readOnly = false)
     public void setDN(@NotNull
-    Long experimenterID, String dn) {
-        sql.setUserDn(experimenterID, dn);
+    Long experimenterID, boolean enabled) {
+        Experimenter experimenter = iQuery.get(Experimenter.class,
+                experimenterID);
+        experimenter.setLdap(enabled);
+        iUpdate.saveObject(experimenter);
     }
 
     @RolesAllowed("system")
@@ -460,7 +462,6 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
             grpOther[count] = new ExperimenterGroup(roles.getUserGroupId(),
                     false);
             long uid = provider.createExperimenter(exp, grp1, grpOther);
-            setDN(uid, dn.toString());
             return iQuery.get(Experimenter.class, uid);
         } else {
             return null;

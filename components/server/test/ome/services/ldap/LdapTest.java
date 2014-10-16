@@ -95,9 +95,6 @@ public class LdapTest extends MockObjectTestCase {
             return ldap.findExperimenter(username);
         }
 
-        public void setDN(String experimenterName, String dn) {
-        }
-
         public Map<String, Experimenter> discover() {
             return ldap.discover();
         }
@@ -159,9 +156,6 @@ public class LdapTest extends MockObjectTestCase {
             assertPasses(fixture, good);
             assertFails(fixture, bad);
             assertCreateUserFromLdap(fixture, good);
-            if (!good.isEmpty()) {
-                assertDiscoverDNAfterModification(fixture, good);
-            }
         } finally {
             fixture.close();
         }
@@ -285,34 +279,6 @@ public class LdapTest extends MockObjectTestCase {
                 continue;
             }
             fail("This user shouldn't have been created!");
-        }
-    }
-
-    protected void assertDiscoverDNAfterModification(Fixture fixture,
-            Map<String, List<String>> users) {
-        LdapImpl ldap = fixture.ldap;
-        BiMap<String, Experimenter> originalDNs = HashBiMap.create();
-        for (String user : users.keySet()) {
-            Experimenter experimenter = fixture.findExperimenter(user);
-            assertNotNull(experimenter);
-            String initialDN = null;
-            try {
-                initialDN = ldap.findDN(user);
-            } catch (ApiUsageException aue) {
-                throw aue;
-            }
-            originalDNs.put(initialDN, experimenter);
-            ldap.setDN(experimenter.getId(), UUID.randomUUID().toString());
-        }
-        BiMap<String, Experimenter> discoveredDNs = HashBiMap.create(fixture
-                .discover());
-        // Due to the weirndess of ApacheDS, we might not always discover LDAP
-        // users, even if they exist
-        if (!discoveredDNs.isEmpty()) {
-            for (String key : originalDNs.keySet()) {
-                assertEquals(originalDNs.get(key).getId(),
-                        discoveredDNs.get(key).getId());
-            }
         }
     }
 

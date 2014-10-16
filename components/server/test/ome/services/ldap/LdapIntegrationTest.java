@@ -18,7 +18,6 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.Session;
 import ome.security.auth.LdapConfig;
 import ome.security.auth.LdapPasswordProvider;
-import ome.security.auth.PasswordProviders;
 import ome.security.auth.PasswordUtil;
 import ome.security.auth.RoleProvider;
 import ome.services.sessions.SessionManager;
@@ -228,20 +227,6 @@ public class LdapIntegrationTest extends LdapTest {
                                         username);
                             }
                         });
-            }
-
-            @Override
-            public void setDN(final String experimenterName, final String dn) {
-                executor.execute(p, new Executor.SimpleWork(this, "setDN") {
-                    @Transactional(readOnly = false)
-                    public Object doWork(org.hibernate.Session session,
-                            ServiceFactory sf) {
-                        Experimenter exp = sf.getAdminService()
-                                .lookupExperimenter(experimenterName);
-                        ldap.setDN(exp.getId(), dn);
-                        return null;
-                    }
-                });
             }
 
             @Override

@@ -137,18 +137,18 @@ public interface ILdap extends ServiceInterface {
     String username);
 
     /**
-     * Searches all {@link ome.model.meta.Experimenter} in LDAP for objectClass =
-     * person
+     * Enables or disables LDAP login for the specified
+     * {@link ome.model.meta.Experimenter} ID.
      *
-     * @param omeName
-     *            Name of the Experimenter
+     * @param experimenterID
+     *            ID of the Experimenter.
+     * @param enabled
+     *            true if enabled, false otherwise.
      * @return an Experimenter. Never null.
-     * @throws ome.conditions.ApiUsageException
-     *             if omeName does not exist.
      */
     void setDN(@NotNull
     Long experimenterID, @NotNull
-    String dn);
+    boolean enabled);
 
     /**
      * Gets config value from properties.

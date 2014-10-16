@@ -94,8 +94,8 @@ public class LdapI extends AbstractAmdServant implements _ILdapOperations {
     }
 
     public void setDN_async(AMD_ILdap_setDN __cb, omero.RLong experimenterID,
-            String dn, Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, experimenterID, dn);
+            boolean enabled, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, experimenterID, enabled);
 
     }
 
