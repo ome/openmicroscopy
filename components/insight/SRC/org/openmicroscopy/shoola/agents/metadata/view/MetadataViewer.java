@@ -552,8 +552,8 @@ public interface MetadataViewer
 	public void manageScript(ScriptObject script, int index);
 	
 	/**
-	 * Reloads the renderer if the passed value is <code>true</code>,
-	 * discards the components if <code>false</code>.
+	 * Reloads the renderer (asynchronous) if the passed value is
+         * <code>true</code>, discards the components if <code>false</code>.
 	 * 
 	 * @param value Pass <code>true</code> to reload, 
 	 * 				<code>false</code> to discard.

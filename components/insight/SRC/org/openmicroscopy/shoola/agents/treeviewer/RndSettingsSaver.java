@@ -76,7 +76,7 @@ public class RndSettingsSaver
 	public static final int SET_OWNER = 3;
 	
 	/** The id of the pixels set of reference. */
-	private long 			pixelsID;
+	private long 			pixelsID = -1;
 
 	/** 
 	 * One of the following supported types:
@@ -233,23 +233,22 @@ public class RndSettingsSaver
          * @param refImage  Image to which the rendering settings belong
 	 */
 	public RndSettingsSaver(TreeViewer viewer, 
-                SecurityContext ctx, Class rootType, List<Long> ids, long pixelsID, RndProxyDef defToPaste, ImageData refImage)
-{
-        super(viewer, ctx);
-        checkRootType(rootType);
-        this.index = PASTE;
-        if (ids == null || ids.size() == 0)
-                throw new IllegalArgumentException("No nodes specified.");
-        if (pixelsID < 0)
-                throw new IllegalArgumentException("Pixels ID not valid.");
-        this.rootType = rootType;
-        this.pixelsID = pixelsID;
-        this.ids = ids;
-        this.defToPaste = defToPaste;
-        this.refImage = refImage;
-        ref = null;
-}
-	
+                SecurityContext ctx, Class rootType, List<Long> ids, RndProxyDef defToPaste, ImageData refImage)
+        {
+                super(viewer, ctx);
+                checkRootType(rootType);
+                this.index = PASTE;
+                if (ids == null || ids.size() == 0)
+                        throw new IllegalArgumentException("No nodes specified.");
+                if (refImage == null)
+                        throw new IllegalArgumentException("No reference image provided.");
+                this.rootType = rootType;
+                this.ids = ids;
+                this.defToPaste = defToPaste;
+                this.refImage = refImage;
+                ref = null;
+        }
+        	
 
 	/**
 	 * Creates a new instance.
@@ -292,7 +291,7 @@ public class RndSettingsSaver
 					handle = dhView.pasteRndSettings(ctx, pixelsID, rootType,
 							ids, this);
 				    else
-				        handle = dhView.pasteRndSettings(ctx, pixelsID, rootType,
+				        handle = dhView.pasteRndSettings(ctx, rootType,
                                                 ids, defToPaste, refImage, this);
 				}
 				else 

@@ -312,6 +312,8 @@ public class MetadataViewerFactory
          * Sets a reference to an image which settings can be applied (copied) to 
          * the renderer.
          * See also {@link #applyCopiedRndSettings()}
+         * @param copyRenderingSettingsFrom The image to copy the rendering settings from
+         * @param copiedRndSettings 'Pending' rendering settings
          */
         public static void setCopyRenderingSettingsFrom(ImageData copyRenderingSettingsFrom, RndProxyDef copiedRndSettings) {
             MetadataViewerFactory.copyRenderingSettingsFrom = copyRenderingSettingsFrom;

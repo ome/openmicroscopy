@@ -108,7 +108,7 @@ public interface DataHandlerView
          * @param refImage The image the rendering settings belong to
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle pasteRndSettings(SecurityContext ctx, long pixelsID,
+	public CallHandle pasteRndSettings(SecurityContext ctx,
                 Class rootNodeType, List<Long> ids, RndProxyDef def, ImageData refImage, AgentEventListener observer);
 
 	/**

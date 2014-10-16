@@ -455,9 +455,10 @@ public class DataBrowserFactory
 	/** The {@link DataBrowser} displaying the result of a search. */
 	private DataBrowser					searchBrowser;
 	
-	/** Flag indicating if some rendering settings have been copied. */
+	/** The image to copy the rendering settings from. */
 	private ImageData rndSettingsToCopy;
 	
+	/** The copied 'pending' rendering settings */
 	private RndProxyDef rndDefToCopy;
 	
 	/** The type identifying the object to copy. */

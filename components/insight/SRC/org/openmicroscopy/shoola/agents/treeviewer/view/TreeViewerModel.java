@@ -691,8 +691,7 @@ class TreeViewerModel
                 if (ctx == null) {
                         ctx = new SecurityContext(refImage.getGroupId());
                 }
-                currentLoader = new RndSettingsSaver(component, ctx, klass, toKeep, 
-                                                                refImage.getDefaultPixels().getId(), refRndSettings, refImage);
+                currentLoader = new RndSettingsSaver(component, ctx, klass, toKeep, refRndSettings, refImage);
                 currentLoader.load();
 	}
 
