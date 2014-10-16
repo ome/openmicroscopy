@@ -1828,9 +1828,15 @@ class ImViewerModel
 	/** Posts a {@link CopyRndSettings} event. */
 	void copyRenderingSettings()
 	{
-		CopyRndSettings evt = new CopyRndSettings(getImage());
-		EventBus bus = ImViewerAgent.getRegistry().getEventBus();
-		bus.post(evt);
+            RndProxyDef rndDef = null;
+            Renderer rnd = metadataViewer.getRenderer();
+            if (rnd != null && rnd.isModified()) {
+                rndDef = rnd.getRndSettingsCopy();
+            }
+            
+            CopyRndSettings evt = new CopyRndSettings(getImage(), rndDef);
+            EventBus bus = ImViewerAgent.getRegistry().getEventBus();
+            bus.post(evt);
 	}
 
 	/**

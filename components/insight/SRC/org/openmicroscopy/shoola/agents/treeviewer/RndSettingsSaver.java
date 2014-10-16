@@ -74,9 +74,6 @@ public class RndSettingsSaver
 	
 	/** Indicates to set the rendering settings used by the owner. */
 	public static final int SET_OWNER = 3;
-	
-	/** The id of the pixels set of reference. */
-	private long 			pixelsID = -1;
 
 	/** 
 	 * One of the following supported types:
@@ -101,7 +98,10 @@ public class RndSettingsSaver
    	/** 'Pending' rendering settings to paste */
    	 private RndProxyDef defToPaste;
     
-   	 /** Image to which the rendering settings belong */
+        /**
+         * Image to which the rendering settings belong, respectively to copy the
+         * renderings settings from
+         */
    	 private ImageData refImage;
     
     /**
@@ -191,39 +191,6 @@ public class RndSettingsSaver
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param viewer	The TreeViewer this data loader is for.
-	 *               	Mustn't be <code>null</code>.
-	 * @param ctx The security context.
-	 * @param rootType	The type of nodes. Supported type 
-	 * 					<code>ImageData</code>, <code>DatasetData</code>, 
-	 * 					<code>ProjectData</code>, <code>PlateData</code> 
-	 * 					or <code>ScreenData</code>.
-	 * @param ids		Collection of nodes identifiers. If the rootType equals 
-	 * 					<code>DatasetData</code>, 
-	 * 					<code>ProjectData</code>, <code>PlateData</code> 
-	 * 					or <code>ScreenData</code>, the settings will be applied
-	 * 					to the images contained in the specified containers.
-	 * @param pixelsID	The id of the pixels of reference.
-	 */
-	public RndSettingsSaver(TreeViewer viewer, 
-			SecurityContext ctx, Class rootType, List<Long> ids, long pixelsID)
-	{
-		super(viewer, ctx);
-		checkRootType(rootType);
-		this.index = PASTE;
-		if (ids == null || ids.size() == 0)
-			throw new IllegalArgumentException("No nodes specified.");
-		if (pixelsID < 0)
-			throw new IllegalArgumentException("Pixels ID not valid.");
-		this.rootType = rootType;
-		this.pixelsID = pixelsID;
-		this.ids = ids;
-		ref = null;
-	}
-	
-	/**
-	 * Creates a new instance.
-	 * 
 	 * @param viewer The TreeViewer this data loader is for.
 	 *               Mustn't be <code>null</code>.
 	 * @param ctx The security context.
@@ -260,15 +227,15 @@ public class RndSettingsSaver
 	 * @param pixelsID The id of the pixels of reference.
 	 */
 	public RndSettingsSaver(TreeViewer viewer, SecurityContext ctx,
-			TimeRefObject ref, long pixelsID)
+			TimeRefObject ref, ImageData refImage)
 	{
 		super(viewer, ctx);
 		this.index = PASTE;
-		if (pixelsID < 0)
+		if (refImage == null)
 			throw new IllegalArgumentException("Pixels ID not valid.");
 		if (ref == null)
 			throw new IllegalArgumentException("Period not valid.");
-		this.pixelsID = pixelsID;
+		this.refImage = refImage;
 		this.ref = ref;
 	}
 	
@@ -288,14 +255,14 @@ public class RndSettingsSaver
 			case PASTE:
 				if (ref == null) {
 				    if(defToPaste==null)
-					handle = dhView.pasteRndSettings(ctx, pixelsID, rootType,
+					handle = dhView.pasteRndSettings(ctx, refImage.getDefaultPixels().getId(), rootType,
 							ids, this);
 				    else
 				        handle = dhView.pasteRndSettings(ctx, rootType,
                                                 ids, defToPaste, refImage, this);
 				}
 				else 
-					handle = dhView.pasteRndSettings(ctx, pixelsID, ref, this);
+					handle = dhView.pasteRndSettings(ctx, refImage.getDefaultPixels().getId(), ref, this);
 				break;
 			case RESET:
 				if (ref == null)

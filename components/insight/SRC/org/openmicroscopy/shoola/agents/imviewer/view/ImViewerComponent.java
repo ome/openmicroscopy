@@ -2244,9 +2244,8 @@ class ImViewerComponent
 				return;
 		}
 		try {
-			model.saveRndSettings(false);
 			model.copyRenderingSettings();
-			saveBeforeCopy = true;
+			saveBeforeCopy = false;
 		} catch (Exception e) {
 			saveBeforeCopy = false;
 			failureToSave = true;
