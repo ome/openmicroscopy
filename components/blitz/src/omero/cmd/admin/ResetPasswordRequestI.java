@@ -108,15 +108,6 @@ public class ResetPasswordRequestI extends ResetPasswordRequest implements
         return helper.getResponse();
     }
 
-    private boolean isDnById(long id) {
-        String dn = passwordUtil.getDnById(id);
-        if (dn != null) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     private boolean resetPassword() {
 
         Experimenter e = null;
@@ -135,7 +126,7 @@ public class ResetPasswordRequestI extends ResetPasswordRequest implements
             throw helper.cancel(new ERR(), null, "not-match",
                     "ApiUsageException",
                     String.format("Email address does not match."));
-        else if (isDnById(e.getId()))
+        else if (passwordUtil.getDnById(e.getId()))
             throw helper.cancel(new ERR(), null, "ldap-user",
                     "ApiUsageException", String
                             .format("User is authenticated by LDAP server. "
