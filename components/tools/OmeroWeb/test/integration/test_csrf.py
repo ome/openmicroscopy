@@ -24,8 +24,11 @@ working correctly.
 
 import omero
 import omero.clients
+from omero.rtypes import rstring
 import pytest
 import test.integration.library as lib
+
+import json
 
 from urllib import urlencode
 
@@ -69,6 +72,16 @@ def image_with_channels(request, itest, client):
     image = pixels.getImage()
     return client.getSession().getUpdateService().saveAndReturnObject(image)
 
+
+@pytest.fixture(scope='function')
+def new_tag(request, itest, client):
+    """
+    Returns a new Tag objects
+    """
+    tag = omero.model.TagAnnotationI()
+    tag.textValue = rstring(itest.uuid())
+    tag.ns = rstring("pytest")
+    return client.getSession().getUpdateService().saveAndReturnObject(tag)
 
 @pytest.fixture(scope='function')
 def django_client(request, client):
@@ -125,6 +138,140 @@ class TestCsrf(object):
         response = django_client.post(logout_url)
         assert response.status_code == 403
 
+    def test_add_comment(
+            self, client, django_client, image_with_channels):
+        """
+        CSRF protection does not check `GET` requests so we need to be sure
+        that this request results in an HTTP 405 (method not allowed) status
+        code.
+        """
+        request_url = reverse('annotate_comment')
+        data = {
+            'comment': 'foobar',
+            'image': image_with_channels.id.val
+        }
+        self.csrf_post_reponse(django_client, request_url, data)
+
+    def test_add_and_rename_container(
+            self, client, django_client):
+        """
+        CSRF protection does not check `GET` requests so we need to be sure
+        that this request results in an HTTP 405 (method not allowed) status
+        code.
+        """
+        # Add project
+        request_url = reverse("manage_action_containers", args=["addnewcontainer"])
+        data = {
+            'folder_type': 'project',
+            'name': 'foobar'
+        }
+        response = self.csrf_post_reponse(django_client, request_url, data)
+        pid = json.loads(response.content).get("id")
+
+        # Add dataset to the project
+        request_url = reverse("manage_action_containers", args=["addnewcontainer", "project", pid])
+        data = {
+            'folder_type': 'dataset',
+            'name': 'foobar'
+        }
+        self.csrf_post_reponse(django_client, request_url, data)
+
+        # Rename project
+        request_url = reverse("manage_action_containers", args=["savename", "project", pid])
+        data = {
+            'name': 'anotherfoobar'
+        }
+        self.csrf_post_reponse(django_client, request_url, data)
+
+        # Change project description
+        request_url = reverse("manage_action_containers", args=["savedescription", "project", pid])
+        data = {
+            'description': 'anotherfoobar'
+        }
+        self.csrf_post_reponse(django_client, request_url, data)
+
+    def test_add_and_remove_tag(
+            self, client, django_client, image_with_channels, new_tag):
+        """
+        CSRF protection does not check `GET` requests so we need to be sure
+        that this request results in an HTTP 405 (method not allowed) status
+        code.
+        """
+        # Add tag
+        request_url = reverse('annotate_tags')
+        data = {
+            'image': image_with_channels.id.val,
+            'filter_mode': 'any',
+            'filter_owner_mode': 'all',
+            'index': 0,
+            'newtags-0-description': '',
+            'newtags-0-tag': 'foobar',
+            'newtags-0-tagset': '',
+            'newtags-INITIAL_FORMS': 0,
+            'newtags-MAX_NUM_FORMS': 1000,
+            'newtags-TOTAL_FORMS': 1,
+            'tags': new_tag.id.val
+        }
+        self.csrf_post_reponse(django_client, request_url, data)
+
+        # Remove tag
+        request_url = reverse("manage_action_containers", args=["remove", "tag", new_tag.id.val])
+        data = {
+            'index': 0,
+            'parent': "image-%i" % image_with_channels.id.val
+        }
+        self.csrf_post_reponse(django_client, request_url, data)
+
+        # Delete tag
+        request_url = reverse("manage_action_containers", args=["delete", "tag", new_tag.id.val])
+        self.csrf_post_reponse(django_client, request_url, data={})
+
+    def test_paste_move_remove_image(
+            self, client, django_client, image_with_channels):
+        """
+        CSRF protection does not check `GET` requests so we need to be sure
+        that this request results in an HTTP 405 (method not allowed) status
+        code.
+        """
+        # Add dataset
+        request_url = reverse("manage_action_containers", args=["addnewcontainer"])
+        data = {
+            'folder_type': 'dataset',
+            'name': 'foobar'
+        }
+        response = self.csrf_post_reponse(django_client, request_url, data)
+        did = json.loads(response.content).get("id")
+
+        # Copy image
+        request_url = reverse("manage_action_containers", args=["paste", "image", image_with_channels.id.val])
+        data = {
+            'destination': "dataset-%i" % did
+        }
+        self.csrf_post_reponse(django_client, request_url, data)
+
+        # Move image
+        request_url = reverse("manage_action_containers", args=["move", "image", image_with_channels.id.val])
+        data = {
+            'destination': 'orphaned-0',
+            'parent': 'dataset-%i' % did
+        }
+        self.csrf_post_reponse(django_client, request_url, data)
+
+        # Remove image
+        request_url = reverse("manage_action_containers", args=["remove", "image", image_with_channels.id.val])
+        data = {
+            'parent': 'dataset-%i' % did
+        }
+        self.csrf_post_reponse(django_client, request_url, data)
+
+        # Delete image
+        request_url = reverse("manage_action_containers", args=["deletemany"])
+        data = {
+            'child': 'on',
+            'dataset': did
+        }
+        self.csrf_post_reponse(django_client, request_url, data)
+
     def test_edit_channel_names(
             self, client, django_client, image_with_channels):
         """
@@ -137,7 +284,21 @@ class TestCsrf(object):
         request_url = reverse(
             'edit_channel_names', args=[image_with_channels.id.val]
         )
+        self.csrf_get_reponse(django_client, request_url, query_string, data)
 
+
+    # Helpers
+    def csrf_post_reponse(self, django_client, request_url, data):
+        response = django_client.post(request_url, data=data)
+        assert response.status_code == 403
+
+        csrf_token = django_client.cookies['csrftoken'].value
+        data['csrfmiddlewaretoken'] = csrf_token
+        response = django_client.post(request_url, data=data)
+        assert response.status_code == 200
+        return response
+
+    def csrf_get_reponse(self, django_client, request_url, query_string, data):
         response = django_client.get('%s?%s' % (request_url, query_string))
         assert response.status_code == 405
 
@@ -145,3 +306,4 @@ class TestCsrf(object):
         data['csrfmiddlewaretoken'] = csrf_token
         response = django_client.post(request_url, data=data)
         assert response.status_code == 200
+        return response
