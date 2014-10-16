@@ -564,9 +564,11 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
         List<Map<String, Object>> rv = Lists
                 .newArrayListWithExpectedSize(ldapExperimenters.size());
         for (Long id : ldapExperimenters) {
-            Map<String, Object> map = Maps.newHashMap();
-            map.put(lookupLdapAuthExperimenter(id), id);
-            rv.add(map);
+            Map<String, Object> values = Maps.newHashMap();
+            // This will break whenever the mapping in AdminI changes
+            values.put("dn", lookupLdapAuthExperimenter(id));
+            values.put("experimenter_id", id);
+            rv.add(values);
         }
         return rv;
     }
