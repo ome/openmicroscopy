@@ -58,6 +58,7 @@ Environment variables:
 Configuration properties:
  omero.windows.user
  omero.windows.pass
+ omero.windows.servicename
 
 """ + "\n" + "="*50 + "\n"
 
@@ -389,6 +390,12 @@ present, the user will enter a console""")
     # Windows utility methods
     #
     if has_win32:
+        def _get_service_name(unused, config):
+            try:
+                return config.as_map()["omero.windows.servicename"]
+            except KeyError:
+                return 'OMERO'
+
         def _query_service(unused, svc_name):
             hscm = win32service.OpenSCManager(
                 None, None, win32service.SC_MANAGER_ALL_ACCESS)
@@ -651,7 +658,8 @@ present, the user will enter a console""")
             else:
                 user = args.user
                 pasw = args.password
-                svc_name = "OMERO.%s" % args.node
+                svc_name = "%s.%s" % (
+                    self._get_service_name(config), args.node)
                 self._start_service(config, descript, svc_name, pasw, user)
         else:
             if foreground:
@@ -815,7 +823,7 @@ present, the user will enter a console""")
             self.ctx.err("Server not running")
             return True
         elif self._isWindows():
-            svc_name = "OMERO.%s" % args.node
+            svc_name = "%s.%s" % (self._get_service_name(config), args.node)
             output = self._query_service(svc_name)
             if 0 <= output.find("DOESNOTEXIST"):
                 self.ctx.die(203, "%s does not exist. Use 'start' first."
