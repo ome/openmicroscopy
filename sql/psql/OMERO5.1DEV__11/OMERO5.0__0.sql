@@ -44,7 +44,7 @@ DROP FUNCTION omero_assert_db_version(varchar, int);
 
 
 INSERT INTO dbpatch (currentVersion, currentPatch,   previousVersion,     previousPatch)
-             VALUES ('OMERO5.1DEV',    10,              'OMERO5.0',       0);
+             VALUES ('OMERO5.1DEV',  11,             'OMERO5.0',          0);
 
 --
 -- Actual upgrade
