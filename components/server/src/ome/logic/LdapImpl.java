@@ -62,6 +62,7 @@ import org.springframework.ldap.filter.EqualsFilter;
 import org.springframework.ldap.filter.Filter;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -552,20 +553,41 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
         }
     }
 
+    /**
+     * Queries the LDAP server and returns the DN for all OMERO users that have
+     * the <code>ldap</code> flag enabled.
+     *
+     * @return a list of DN to user ID maps.
+     */
     public List<Map<String, Object>> lookupLdapAuthExperimenters() {
-        return sql.dnExperimenterMaps();
+        List<Long> ldapExperimenters = sql.getLdapExperimenters();
+        List<Map<String, Object>> rv = Lists
+                .newArrayListWithExpectedSize(ldapExperimenters.size());
+        for (Long id : ldapExperimenters) {
+            Map<String, Object> map = Maps.newHashMap();
+            map.put(lookupLdapAuthExperimenter(id), id);
+            rv.add(map);
+        }
+        return rv;
     }
 
+    /**
+     * Queries the LDAP server and returns the DN for the specified OMERO user
+     * ID. The LDAP server is queried and the DN returned only for IDs that have
+     * the <code>ldap</code> flag enabled.
+     *
+     * @param id
+     *            The user ID.
+     * @return The DN as a String. Null if user isn't from LDAP.
+     */
     public String lookupLdapAuthExperimenter(Long id) {
-        String s = null;
-
-        try {
-            s = sql.dnForUser(id);
-        } catch (EmptyResultDataAccessException e) {
-            s = null;
+        // First, check that the supplied user ID is an LDAP user
+        String dn = null;
+        Experimenter experimenter = iQuery.get(Experimenter.class, id);
+        if (experimenter.getLdap()) {
+            dn = findDN(experimenter.getOmeName());
         }
-
-        return s;
+        return dn;
     }
 
     @RolesAllowed("system")
