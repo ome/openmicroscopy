@@ -1744,8 +1744,7 @@ class ImViewerModel
 	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
-		originalDef = settings;
-		rnd.resetSettings(settings, false);
+		rnd.resetSettings(settings, true);
 	}
 
 	/**
@@ -1783,12 +1782,15 @@ class ImViewerModel
 	 */
 	void fireLoadRndSettingsToPaste()
 	{
-		long id = ImViewerFactory.getRefImage().getDefaultPixels().getId();
-		if (id < 0) return;
+            state = ImViewer.PASTING;
+	    if(ImViewerFactory.getRefSettings()==null) {
 		RenderingSettingsLoader loader = new RenderingSettingsLoader(component,
-				ctx, id, true);
+				ctx, ImViewerFactory.getRefImage().getDefaultPixels().getId(), true);
 		loader.load();
-		state = ImViewer.PASTING;
+	    }
+	    else {
+	        component.setSettingsToPaste(ImViewerFactory.getRefSettings());
+	    }
 	}
 
 	/** Resets the default settings. */

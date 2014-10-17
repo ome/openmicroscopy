@@ -367,12 +367,22 @@ public class ImViewerFactory
 			comp.setDisplayMode(displayMode);
 		}
 	}
+	
 	/** 
-	 * Returns the id of the pixels set to copy the rendering settings.
+	 * Returns the image to copy the rendering settings from.
 	 * 
 	 * @return See above.
 	 */
 	static ImageData getRefImage() { return singleton.refImage; }
+	
+	/** 
+	 * Returns the copied 'pending' rendering settings.
+	 * 
+	 * @return See above.
+	 */
+	static RndProxyDef getRefSettings() {
+	    return singleton.refRndDef;
+	}
 	
 	/**
 	 * Returns the user preferences.

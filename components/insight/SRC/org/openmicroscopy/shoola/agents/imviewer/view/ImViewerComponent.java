@@ -2829,7 +2829,6 @@ class ImViewerComponent
 					"invoked in the PASTING state.");
 		try {
 			model.resetMappingSettings(rndProxyDef);
-			saveRndSettings(false);
 			view.resetDefaults();
 			renderXYPlane();
 		} catch (Exception e) {
