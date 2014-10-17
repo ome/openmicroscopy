@@ -42,14 +42,14 @@ class TestModel51(lib.ITest):
         exposure = plane_info.getExposureTime()
         unit = exposure.getUnit()
         assert "SI.SECOND" == unwrap(unit.getMeasurementSystem())
-        assert "ms" == unwrap(unit.getValue())
+        assert "s" == unwrap(unit.getValue())
 
-        seconds = self.query.findByQuery((
+        micros = self.query.findByQuery((
             "select ut from UnitsTime ut "
-            "where ut.value = 's'"), None)
+            "where ut.value = 'ms'"), None)
 
-        exposure.setUnit(seconds)
+        exposure.setUnit(micros)
         plane_info = self.update.saveAndReturnObject(plane_info)
         exposure = plane_info.getExposureTime()
         unit = exposure.getUnit()
-        assert "s" == unwrap(unit.getValue())
+        assert "ms" == unwrap(unit.getValue())
