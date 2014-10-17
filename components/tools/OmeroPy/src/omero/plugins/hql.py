@@ -207,7 +207,9 @@ To quit, enter 'q' or just enter.
             values.pop("_details")
         multi_valued = sorted([k for k in values
                                if isinstance(values[k], list)])
-        false_valued = sorted([k for k in values if not values[k]])
+        false_valued = sorted([k for k in values
+                               if not values[k] and values[k] is not 0])
+
         for x in multi_valued + false_valued:
             if x in values:
                 values.pop(x)
