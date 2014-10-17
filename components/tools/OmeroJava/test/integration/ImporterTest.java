@@ -1189,7 +1189,7 @@ public class ImporterTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = {"broken", "ticket12601"})
     public void testImportScreenWithTwoPlates() throws Exception {
         File f = File.createTempFile("testImportScreenWithTwoPlates", "."
                 + OME_FORMAT);
@@ -1325,7 +1325,7 @@ public class ImporterTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = {"broken", "ticket12601"})
     public void testImportPlateMultiplePlateAcquisitions() throws Exception {
         File f = File.createTempFile(
                 "testImportPlateMultiplePlateAcquisitions", "." + OME_FORMAT);
