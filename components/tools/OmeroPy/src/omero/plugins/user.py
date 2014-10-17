@@ -191,7 +191,7 @@ class UserControl(UserGroupControl):
         import omero
         from omero.rtypes import rstring
         client = self.ctx.conn(args)
-        own_name = self.ctx._event_context.userName
+        own_name = self.ctx.get_event_context().userName
         admin = client.sf.getAdminService()
 
         # tickets 3202, 5841
@@ -315,7 +315,7 @@ class UserControl(UserGroupControl):
         e.institution = rstring(inst)
 
         # Fail-fast if a non-admin runs this command
-        isAdmin = self.ctx._event_context.isAdmin
+        isAdmin = self.ctx.get_event_context().isAdmin
         if not isAdmin:
             self.error_admin_only(fatal=True)
 
@@ -383,7 +383,7 @@ class UserControl(UserGroupControl):
             user = getattr(args, "name", None)
             return self.find_user_by_name(a, user, fatal=True)
         else:
-            user = self.ctx._event_context.userName
+            user = self.ctx.get_event_context().userName
             return self.find_user_by_name(a, user, fatal=True)
 
     def list_groups(self, a, args):

@@ -40,7 +40,7 @@ from omero_ext.mox import Mox
 class MockCLI(CLI):
 
     def conn(self, *args, **kwargs):
-        return self._client
+        return self.get_client()
 
     def close(self, *args, **kwargs):
         pass
@@ -62,7 +62,7 @@ class TxBase(object):
         self.update = self.mox.CreateMock(IUpdatePrx)
         self.client.sf = self.sf
         self.cli = MockCLI()
-        self.cli._client = self.client
+        self.cli.set_client(self.client)
         self.cli.set("tx.state", TxState(self.cli))
 
     def teardown_method(self, method):

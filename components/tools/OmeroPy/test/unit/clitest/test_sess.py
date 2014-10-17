@@ -268,7 +268,7 @@ class TestSessions(object):
         cli.STORE.add("testhost", "testuser", "testsessid", {})
         cli.creates_client(new=False)
         cli.invoke("-s testhost -u testuser s login".split())
-        assert cli._client is not None
+        assert cli.get_client() is not None
 
     def testReuseFromDifferentGroupDoesntWork(self):
         cli = MyCLI()
@@ -339,7 +339,7 @@ class TestSessions(object):
         cli.requests_pass()
         cli.invoke("-p 4444 s login")
         cli.assertReqSize(self, 0)  # All were requested
-        cli._client = None  # Forcing new instance
+        cli.set_client(None)  # Forcing new instance
         cli.creates_client(port="4444", new=False)
         cli.invoke("s login")  # Should work. No conflict
         del cli
@@ -358,14 +358,14 @@ class TestSessions(object):
         cli.requests_pass()
         cli.invoke("-s testuser@testhost s login")
         cli.assertReqSize(self, 0)  # All were requested
-        cli._client = None  # Forcing new instance
+        cli.set_client(None)  # Forcing new instance
 
         key_login = "-s testuser@testhost -k %s s login" % MOCKKEY
 
         # Now try with session when it's still available
         cli.creates_client(sess=MOCKKEY, new=False)
         cli.invoke(key_login)
-        cli._client = None  # Forcing new instance
+        cli.set_client(None)  # Forcing new instance
 
         # Don't do creates_client, so the session key
         # is now bad.
@@ -376,7 +376,7 @@ class TestSessions(object):
             assert False, "This must throw 'Bad session key'"
         except NonZeroReturnCode:
             pass
-        cli._client = None  # Forcing new instance
+        cli.set_client(None)  # Forcing new instance
 
         del cli
 
@@ -394,7 +394,7 @@ class TestSessions(object):
         # Try with session when it's still available
         cli.creates_client(sess=MOCKKEY, new=True)
         cli.invoke(key_login)
-        cli._client = None  # Forcing new instance
+        cli.set_client(None)  # Forcing new instance
 
     def assert5975(self, key, cli):
         host, name, uuid = cli.STORE.get_current()
