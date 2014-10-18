@@ -249,8 +249,6 @@ public class MetadataViewerAgent
     private void handleUserGroupSwitched(UserGroupSwitched evt)
     {
     	if (evt == null) return;
-    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
-    	if (!env.isServerAvailable()) return;
     	MetadataViewerFactory.onGroupSwitched(evt.isSuccessful());
     }
     
@@ -261,8 +259,6 @@ public class MetadataViewerAgent
      */
     private void handleReconnectedEvent(ReconnectedEvent evt)
     {
-    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
-    	if (!env.isServerAvailable()) return;
     	MetadataViewerFactory.onGroupSwitched(true);
     }
     
@@ -273,8 +269,6 @@ public class MetadataViewerAgent
      */
     private void handleChannelSavedEvent(ChannelSavedEvent evt)
     {
-    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
-    	if (!env.isServerAvailable()) return;
     	List<ChannelData> channels = evt.getChannels();
     	Iterator<Long> i = evt.getImageIds().iterator();
     	MetadataViewer viewer;
@@ -336,8 +330,6 @@ public class MetadataViewerAgent
     private void handleDisplayModeEvent(DisplayModeEvent evt)
     {
     	displayMode = evt.getDisplayMode();
-    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
-    	if (!env.isServerAvailable()) return;
     	MetadataViewerFactory.setDiplayMode(displayMode);
     }
     

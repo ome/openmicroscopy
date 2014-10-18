@@ -231,8 +231,6 @@ public class MeasurementAgent
      */
     private void handleReconnectedEvent(ReconnectedEvent evt)
     {
-    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
-    	if (!env.isServerAvailable()) return;
     	MeasurementViewerFactory.onGroupSwitched(true);
     }
     
@@ -243,8 +241,6 @@ public class MeasurementAgent
      */
     private void handleChannelSavedEvent(ChannelSavedEvent evt)
     {
-    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
-    	if (!env.isServerAvailable()) return;
     	List<ChannelData> channels = evt.getChannels();
     	Iterator<Long> i = evt.getImageIds().iterator();
     	SecurityContext ctx = evt.getSecurityContext();

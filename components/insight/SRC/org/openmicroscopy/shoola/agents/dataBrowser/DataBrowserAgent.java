@@ -262,8 +262,6 @@ public class DataBrowserAgent
     private void handleUserGroupSwitched(UserGroupSwitched evt)
     {
     	if (evt == null) return;
-    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
-    	if (!env.isServerAvailable()) return;
     	DataBrowserFactory.onGroupSwitched(evt.isSuccessful());
     }
     
@@ -275,8 +273,6 @@ public class DataBrowserAgent
     private void handleReconnectedEvent(ReconnectedEvent evt)
     {
     	if (evt == null) return;
-    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
-    	if (!env.isServerAvailable()) return;
     	DataBrowserFactory.onGroupSwitched(true);
     }
     
@@ -287,8 +283,6 @@ public class DataBrowserAgent
      */
     private void handleAnnotatedEvent(AnnotatedEvent evt)
     {
-    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
-    	if (!env.isServerAvailable()) return;
     	DataBrowserFactory.onAnnotated(evt.getData(), evt.getCount());
     }
     
@@ -300,8 +294,6 @@ public class DataBrowserAgent
     private void handleDisplayModeEvent(DisplayModeEvent evt)
     {
     	displayMode = evt.getDisplayMode();
-    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
-    	if (!env.isServerAvailable()) return;
     	DataBrowserFactory.setDisplayMode(displayMode);
     }
     
