@@ -72,7 +72,6 @@ import javax.swing.text.Document;
 
 import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.JXTaskPane;
-import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEvent;
@@ -82,8 +81,6 @@ import org.openmicroscopy.shoola.agents.metadata.ROICountLoader;
 import org.openmicroscopy.shoola.agents.metadata.actions.ViewAction;
 import org.openmicroscopy.shoola.agents.metadata.util.FilesetInfoDialog;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
-import org.openmicroscopy.shoola.env.config.IconFactory;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
@@ -97,7 +94,6 @@ import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
 import pojos.FileData;
 import pojos.ImageData;
 import pojos.MultiImageData;
@@ -1595,10 +1591,6 @@ public class PropertiesUI
 						event.setPlugin(MetadataViewerAgent.runAsPlugin());
 						bus.post(event);
 					}
-					break;
-				case WikiDataObject.PROTOCOL:
-					bus.post(new EditFileEvent(model.getSecurityContext(), id));
-					break;
 			}
 		} else if (OMEWikiComponent.WIKI_DATA_OBJECT_ONE_CLICK_PROPERTY.equals(
 				name)) {
@@ -1616,10 +1608,6 @@ public class PropertiesUI
 				case WikiDataObject.PROJECT:
 					bus.post(new DataObjectSelectionEvent(
 							ProjectData.class, id));
-					break;
-				case WikiDataObject.PROTOCOL:
-					bus.post(new DataObjectSelectionEvent(
-							FileData.class, id));
 			}
 		} else if (ChannelEditUI.CANCEL_PROPERTY.equals(name)) {
 			cancelChannelsEdit();

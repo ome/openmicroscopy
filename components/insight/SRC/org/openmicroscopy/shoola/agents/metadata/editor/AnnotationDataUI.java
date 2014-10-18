@@ -316,12 +316,6 @@ class AnnotationDataUI
 		item.addActionListener(controller);
 		item.setActionCommand(""+EditorControl.ADD_UPLOADED_DOCS);
 		docSelectionMenu.add(item);
-		item = new JMenuItem("New Experiment...");
-		item.setEnabled(controller.isSingleMode());
-		item.setToolTipText("Create a new experiment.");
-		item.addActionListener(controller);
-		item.setActionCommand(""+EditorControl.CREATE_NEW_EXPERIMENT);
-		docSelectionMenu.add(item);
 		return docSelectionMenu;
 	}
 	

@@ -136,13 +136,6 @@ public interface DataBrowser
 
 	/** Bound property indicating to reset the password of the selected user.*/
 	public static final String RESET_PASSWORD_PROPERTY = "resetUserPassword";
-
-	/** 
-	 * Bound property indicating to launch the editor to create a new 
-	 * experiment. 
-	 */
-	public static final String		CREATE_NEW_EXPERIMENT_PROPERTY = 
-		"createNewExperiment";
 	
 	/** Bound property indicating to tag selected objects. */
 	public static final String		TAG_WIZARD_PROPERTY = "tagWizard";
@@ -699,9 +692,6 @@ public interface DataBrowser
 	 */
 	public void showTagWizard();
 
-	/** Posts an event to launch the editor to create a new experiment. */
-	public void createNewExperiment();
-	
 	/**
 	 * Sets the selected cell. This method can only be invoked if
 	 * the model is <code>WellsModel</code>.

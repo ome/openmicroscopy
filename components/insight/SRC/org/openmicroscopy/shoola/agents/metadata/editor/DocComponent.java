@@ -57,7 +57,6 @@ import org.apache.commons.lang.StringUtils;
 
 //Application-internal dependencies
 import omero.model.OriginalFile;
-import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.DataObjectListCellRenderer;
@@ -266,16 +265,7 @@ class DocComponent
 		}
 		return count > 0;
 	}
-	
-	/** Opens the file. */
-	private void openFile()
-	{
-		if (!(data instanceof FileAnnotationData)) return;
-		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-		bus.post(new EditFileEvent(model.getSecurityContext(),
-				(FileAnnotationData) data));
-	}
-	
+
 	/** 
 	 * Brings up the menu. 
 	 * 
@@ -515,21 +505,7 @@ class DocComponent
 		buf.append("</body></html>");
 		return buf.toString();
 	}
-	
-	/** 
-	 * Posts an event on the eventBus, with the attachment file's ID, name etc.
-	 */
-	private void postFileClicked()
-	{
-		if (data == null) return;
-		if (data instanceof FileAnnotationData) {
-			FileAnnotationData f = (FileAnnotationData) data;
-			Registry reg = MetadataViewerAgent.getRegistry();
-			reg.getEventBus().post(new EditFileEvent(model.getSecurityContext(),
-					f));
-		}
-	}
-	
+
 	/** Initializes the various buttons. */
 	private void initButtons()
 	{
@@ -714,9 +690,9 @@ class DocComponent
 			 */
 			public void mouseReleased(MouseEvent e)
 			{
-				if (e.getClickCount() == 1) {
-					if (e.isPopupTrigger()) showMenu(label, e.getPoint());
-				} else if (e.getClickCount() == 2) postFileClicked();
+				if (e.getClickCount() == 1 && e.isPopupTrigger()) {
+					showMenu(label, e.getPoint());
+				}
 			}
 			
 			/** 
@@ -925,10 +901,6 @@ class DocComponent
 				break;
 			case DOWNLOAD:
 				download();
-				break;
-			case OPEN:
-				openFile();
-				break;
 		}
 	}
 

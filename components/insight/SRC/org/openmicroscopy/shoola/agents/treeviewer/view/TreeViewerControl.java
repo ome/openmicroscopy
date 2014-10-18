@@ -1291,8 +1291,6 @@ class TreeViewerControl
 			view.createTitle();
 		} else if (DataBrowser.TAG_WIZARD_PROPERTY.equals(name)) {
 			model.showTagWizard();
-		} else if (DataBrowser.CREATE_NEW_EXPERIMENT_PROPERTY.equals(name)) {
-			model.openEditorFile(TreeViewer.NEW_WITH_SELECTION);
 		} else if (DataBrowser.FIELD_SELECTED_PROPERTY.equals(name)) {
 			model.setSelectedField(pce.getNewValue());
 		} else if (MetadataViewer.RENDER_THUMBNAIL_PROPERTY.equals(name)) {
