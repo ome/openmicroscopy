@@ -2074,7 +2074,6 @@ class OmeroMetadataServiceImpl
 	{
 		if (file == null) 
 			throw new IllegalArgumentException("No file to save.");
-		String ns = null;
 		if (fileAnnotation == null) return null;
 		ctx = gateway.checkContext(ctx, fileAnnotation);
 		//Upload the file back to the server
@@ -2089,8 +2088,6 @@ class OmeroMetadataServiceImpl
 			fa = new FileAnnotationI();
 			fa.setFile(of);
 			if (desc != null) fa.setDescription(omero.rtypes.rstring(desc));
-			if (ns != null)
-				fa.setNs(omero.rtypes.rstring(ns));
 			IObject object = gateway.createObject(ctx, fa);
 			id = object.getId().getValue();
 		} else {
@@ -2098,8 +2095,6 @@ class OmeroMetadataServiceImpl
 				gateway.findIObject(ctx, FileAnnotation.class.getName(), id);
 			fa.setFile(of);
 			if (desc != null) fa.setDescription(omero.rtypes.rstring(desc));
-			if (ns != null)
-				fa.setNs(omero.rtypes.rstring(ns));
 			gateway.updateObject(ctx, fa, new Parameters());
 		}
 		fa = (FileAnnotation) 
