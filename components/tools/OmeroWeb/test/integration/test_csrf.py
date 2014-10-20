@@ -163,21 +163,6 @@ class TestCsrf(object):
         logout_url = reverse('weblogout')
         _post_reponse(django_client, logout_url, {})
 
-    def test_add_comment(
-            self, django_client, image_with_channels):
-        """
-        CSRF protection does not check `GET` requests so we need to be sure
-        that this request results in an HTTP 405 (method not allowed) status
-        code.
-        """
-        request_url = reverse('annotate_comment')
-        data = {
-            'comment': 'foobar',
-            'image': image_with_channels.id.val
-        }
-        _post_reponse(django_client, request_url, data)
-        _csrf_post_reponse(django_client, request_url, data)
-
     def test_add_and_rename_container(self, django_client):
         """
         CSRF protection does not check `GET` requests so we need to be sure
@@ -219,7 +204,25 @@ class TestCsrf(object):
         _post_reponse(django_client, request_url, data)
         _csrf_post_reponse(django_client, request_url, data)
 
-    def test_add_and_remove_tag(
+    def test_add_and_remove_comment(
+            self, django_client, image_with_channels):
+        """
+        CSRF protection does not check `GET` requests so we need to be sure
+        that this request results in an HTTP 405 (method not allowed) status
+        code.
+        """
+        request_url = reverse('annotate_comment')
+        data = {
+            'comment': 'foobar',
+            'image': image_with_channels.id.val
+        }
+        _post_reponse(django_client, request_url, data)
+        _csrf_post_reponse(django_client, request_url, data)
+
+        # Remove comment, see remove tag,
+        # http://trout.openmicroscopy.org/merge/webclient/action/remove/[comment|tag|file]/ID/
+
+    def test_add_edit_and_remove_tag(
             self, django_client, image_with_channels, new_tag):
         """
         CSRF protection does not check `GET` requests so we need to be sure
@@ -244,6 +247,10 @@ class TestCsrf(object):
         _post_reponse(django_client, request_url, data)
         _csrf_post_reponse(django_client, request_url, data)
 
+        # Edit tag, see save container name and description
+        # http://trout.openmicroscopy.org/merge/webclient/action/savename/tag/ID/
+        # http://trout.openmicroscopy.org/merge/webclient/action/savedescription/tag/ID/
+
         # Remove tag
         request_url = reverse("manage_action_containers", args=["remove", "tag", new_tag.id.val])
         data = {
@@ -258,7 +265,7 @@ class TestCsrf(object):
         _post_reponse(django_client, request_url, {})
         _csrf_post_reponse(django_client, request_url, {})
 
-    def test_paste_move_remove_image(
+    def test_paste_move_remove_deletamany_image(
             self, django_client, image_with_channels):
         """
         CSRF protection does not check `GET` requests so we need to be sure
