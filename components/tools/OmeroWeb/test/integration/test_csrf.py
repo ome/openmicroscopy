@@ -265,6 +265,34 @@ class TestCsrf(object):
         _post_reponse(django_client, request_url, {})
         _csrf_post_reponse(django_client, request_url, {})
 
+    def test_attach_file(self, django_client, image_with_channels):
+        """
+        CSRF protection does not check `GET` requests so we need to be sure
+        that this request results in an HTTP 405 (method not allowed) status
+        code.
+        """
+        import tempfile
+        try:
+            temp = tempfile.NamedTemporaryFile(suffix='.csrf')
+            temp.write("Testing csrf token")
+            temp.flush()
+
+            request_url = reverse('annotate_file')
+            data = {
+                'image': image_with_channels.id.val,
+                'index': 0,
+                'annotation_file': temp
+            }
+            _post_reponse(django_client, request_url, data)
+            _csrf_post_reponse(django_client, request_url, data)
+        finally:
+            temp.close()
+
+        # link existing annotation is handled by the same request.
+
+        # Remove file, see remove tag,
+        # http://trout.openmicroscopy.org/merge/webclient/action/remove/[comment|tag|file]/ID/
+
     def test_paste_move_remove_deletamany_image(
             self, django_client, image_with_channels):
         """
