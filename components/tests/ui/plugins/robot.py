@@ -52,7 +52,6 @@ class RobotControl(BaseControl):
             "HOST": p.getPropertyWithDefault("omero.host", "localhost"),
             "USER": p.getPropertyWithDefault("omero.user", "root"),
             "PASS": p.getPropertyWithDefault("omero.pass", "omero"),
-            "WEBPORT": '80',
             "ENCODED_WEBPREFIX": 'test',
             "ROOTPASS": p.getPropertyWithDefault("omero.rootpass", "omero"),
         }
@@ -64,6 +63,10 @@ class RobotControl(BaseControl):
         d["WEBPREFIX"] = static_prefix
         d["QWEBPREFIX"] = urllib.quote(static_prefix, '')
         d["QSEP"] = urllib.quote('/', '')
+        if settings.APPLICATION_SERVER in settings.FASTCGI_TYPES:
+            d["WEBPORT"] = '80'
+        else:
+            d["WEBPORT"] = '8080'
 
         # Read robot.template file and substitute keywords
         c = file(self.ctx.dir / "etc" / "robot.template").read()
