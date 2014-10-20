@@ -1,6 +1,6 @@
 *** Settings ***
 
-Resource       ../../config.txt
+Resource       ../../../resources/config.txt
 Resource       ../../../resources/insight/login.txt
 Suite Setup    First Login                           user=${USERNAME}  pass=${PASSWORD}  host=${OMERO HOST}  port=${OMERO PORT}
 Test Setup     Log In As                             user=${USERNAME}  pass=${PASSWORD}
