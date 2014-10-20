@@ -8,6 +8,42 @@ Resource          ../../resources/web/tree.txt
 
 *** Test Cases ***
 
+Test Script Run
+    [Documentation]     Tests form based on base_custom_dialog.html and script_ui.html
+
+    User "${USERNAME}" logs in with password "${PASSWORD}"
+    Maximize Browser Window
+    # Clear any activities from earlier tests etc.
+    Click Element                               id=launch_activities
+    Click Element                               id=clear_activities
+    Select And Expand Project
+    Select And Expand Dataset
+    Select And Expand Image
+    Wait Until Page Contains Element            css=button.btn_figscripts
+    ${imageId}=                                 Get Text            css=.data_heading_id strong
+
+    # First Test 'custom' script forms
+    # Tricky to handle popup window. Just go to script dialog URL instead
+    Go To                                       ${WELCOME URL}figure_script/Thumbnail/?Image=${imageId}
+    Wait Until Page Contains Element            id=script_form
+    Submit Form                                 id=script_form
+    Go To                                       ${WELCOME URL}
+    Click Element                               id=launch_activities
+    Wait Until Page Contains                    Thumbnail Figure
+
+    # Now Test 'Batch Image Export' (script UI on-the-fly)
+    Click Element                               id=scriptButton
+    Wait Until Page Contains Element            xpath=//a[contains(text(),'export_scripts')]
+    Click Link                                  export_scripts
+    ${script_url}=                              Get Element Attribute       xpath=//a[contains(text(),'Batch Image Export...')]@href
+    Go To                                       ${script_url}?Image=${imageId}
+    Wait Until Page Contains Element            id=script_form
+    Submit Form                                 id=script_form
+    Go To                                       ${WELCOME URL}
+    Click Element                               id=launch_activities
+    Wait Until Page Contains                    Batch Image Export
+
+
 Test Channel Rename
     [Documentation]     Select User, Project, Dataset, Image and checks
     ...                 whether the toolbar/right-click menu options for
