@@ -801,6 +801,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                 <fileset dir="${omero.home}/etc">
                     <exclude name="local.properties"/>
                 </fileset>
+                <fileset dir="${omero.home}/components/tests/ui/" includes="robot.template"/>
             </copy>
 
             <replace dir="${dist.dir}/etc" token="@ICE_LIB_VERSION@" value="${versions.ice_lib}"/>
