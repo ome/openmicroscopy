@@ -250,9 +250,11 @@ public class TextualTwoKnobsSlider
                 
 		startField = new NumericalTextField(absMin, absMax, type, NumericalTextField.VALIDATION_MODE_CORRECT);
 		startField.setColumns(textFieldLength);
+		startField.setShowWarning(true);
 		
 		endField = new NumericalTextField(absMin, absMax, type, NumericalTextField.VALIDATION_MODE_CORRECT);
 		endField.setColumns(textFieldLength);
+		endField.setShowWarning(true);
 		
 		endField.setText(formatValue(end));
 		startField.setText(formatValue(start));

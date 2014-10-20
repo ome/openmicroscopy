@@ -93,6 +93,10 @@ public class NumericalTextField
     /** The accepted characters. */
     private String accepted;
 
+    /** Flag indicating if a warning should be shown if the 
+     *  valid value range is exceeded */
+    private boolean showWarning = false;
+    
     /**
      * Checks if the value is correct.
      *
@@ -150,7 +154,18 @@ public class NumericalTextField
                 if (val > max)
                     result = "" + max;
             }
-        } catch(NumberFormatException nfe) {}
+        } catch(NumberFormatException nfe) {
+            String msg = "The value you entered is not a valid number";
+            PopupHint hint = new PopupHint(this, msg, 8000);
+            hint.show();
+            return "";
+        }
+        
+        if(!result.equals(str) && showWarning) {
+            String msg = "<html>The value you entered is outside of the allowed range,<br>therefore it is reset to the minimal/maximal allowed value.</hmtl>";
+            PopupHint hint = new PopupHint(this, msg, 8000);
+            hint.show();
+        }
         return result;
     }
 
@@ -375,6 +390,15 @@ public class NumericalTextField
         else if (Long.class.equals(numberType))
             return Long.parseLong(str);
         return null;
+    }
+
+    /**
+     * If set to <code>true</code> a warning hint will be shown
+     * in the case a value outside the given min/max range is entered
+     * @param showWarning See above
+     */
+    public void setShowWarning(boolean showWarning) {
+        this.showWarning = showWarning;
     }
 
     /**
