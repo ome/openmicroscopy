@@ -12,8 +12,7 @@ ${PASSWORD}             %(PASS)s
 ${FULL NAME}            %(USER)s %(USER)s
 
 # Web config
-${WEB HOST}             %(HOST)s
-${WEB PORT}             %(WEBPORT)s
+${WEB HOST}             %(WEBHOST)s
 ${WEB PREFIX}           %(WEBPREFIX)s
 ${SERVER_ID}            1
 
