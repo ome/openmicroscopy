@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.FigureListener;
@@ -293,9 +294,12 @@ public class MeasurePointFigure
             String pointCentre = 
                     "("+formatter.format(getMeasurementCentre().getX())
                     + ","+formatter.format(getMeasurementCentre().getY())+")";
-            double sz = ((Double) this.getAttribute(
-                    MeasurementAttributes.FONT_SIZE));
-            g.setFont(new Font(FONT_FAMILY, FONT_STYLE, (int) sz));
+            Double sz = (Double) getAttribute(MeasurementAttributes.FONT_SIZE);
+            Font font = (Font) getAttribute(MeasurementAttributes.FONT_FACE);
+            if (font != null) g.setFont(font.deriveFont(sz.floatValue()));
+            else {
+                g.setFont(new Font(FONT_FAMILY, FONT_STYLE, sz.intValue()));
+            }
             bounds = g.getFontMetrics().getStringBounds(pointCentre, g);
             bounds = new Rectangle2D.Double(
                     this.getBounds().getCenterX()-bounds.getWidth()/2,

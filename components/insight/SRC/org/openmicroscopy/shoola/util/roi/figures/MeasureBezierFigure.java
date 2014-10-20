@@ -41,6 +41,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.FigureListener;
@@ -321,14 +322,17 @@ public class MeasureBezierFigure
 		if (MeasurementAttributes.SHOWMEASUREMENT.get(this) || 
 				MeasurementAttributes.SHOWID.get(this))
 		{
+		    Double sz = (Double) getAttribute(MeasurementAttributes.FONT_SIZE);
+            Font font = (Font) getAttribute(MeasurementAttributes.FONT_FACE);
+            if (font != null) g.setFont(font.deriveFont(sz.floatValue()));
+            else {
+                g.setFont(new Font(FONT_FAMILY, FONT_STYLE, sz.intValue()));
+            }
 			if (isClosed())
 			{
 				NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
 				String polygonArea = formatter.format(getArea());
 				polygonArea = addAreaUnits(polygonArea);
-				double sz = ((Double) this.getAttribute(
-							MeasurementAttributes.FONT_SIZE));
-				g.setFont(new Font(FONT_FAMILY, FONT_STYLE, (int) sz));
 				bounds = g.getFontMetrics().getStringBounds(polygonArea, g);
 				bounds = new Rectangle2D.Double(
 						this.getBounds().getCenterX()-bounds.getWidth()/2,
@@ -354,9 +358,6 @@ public class MeasureBezierFigure
 				NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
 				String polygonLength = formatter.format(getLength());
 				polygonLength = addLineUnits(polygonLength);
-				double sz = (Double) 
-						getAttribute(MeasurementAttributes.FONT_SIZE);
-				g.setFont(new Font(FONT_FAMILY, FONT_STYLE, (int) sz));
 				bounds = g.getFontMetrics().getStringBounds(polygonLength, g);
 				
 				if (super.getNodeCount() > 1)

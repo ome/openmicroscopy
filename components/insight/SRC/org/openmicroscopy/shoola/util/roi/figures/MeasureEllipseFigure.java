@@ -35,6 +35,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.AttributeKeys;
@@ -325,9 +326,12 @@ public class MeasureEllipseFigure
 			NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
 			String ellipseArea = formatter.format(getArea());
 			ellipseArea = addUnits(ellipseArea);
-			double sz = ((Double) this.getAttribute(
-					MeasurementAttributes.FONT_SIZE));
-			g.setFont(new Font(FONT_FAMILY, FONT_STYLE, (int) sz));
+			Double sz = (Double) getAttribute(MeasurementAttributes.FONT_SIZE);
+            Font font = (Font) getAttribute(MeasurementAttributes.FONT_FACE);
+            if (font != null) g.setFont(font.deriveFont(sz.floatValue()));
+            else {
+                g.setFont(new Font(FONT_FAMILY, FONT_STYLE, sz.intValue()));
+            }
 			Rectangle2D stringBoundsbounds = 
 				g.getFontMetrics().getStringBounds(ellipseArea, g);
 			measurementBounds =

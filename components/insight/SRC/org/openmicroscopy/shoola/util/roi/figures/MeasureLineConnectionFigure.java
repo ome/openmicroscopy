@@ -36,6 +36,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.FigureListener;
@@ -173,6 +174,12 @@ public class MeasureLineConnectionFigure
 		if (MeasurementAttributes.SHOWMEASUREMENT.get(this) || 
 				MeasurementAttributes.SHOWID.get(this))
 		{
+		    Double sz = (Double) getAttribute(MeasurementAttributes.FONT_SIZE);
+            Font font = (Font) getAttribute(MeasurementAttributes.FONT_FACE);
+            if (font != null) g.setFont(font.deriveFont(sz.floatValue()));
+            else {
+                g.setFont(new Font(FONT_FAMILY, FONT_STYLE, sz.intValue()));
+            }
 		    g.setColor(MeasurementAttributes.STROKE_COLOR.get(this));
 			if (getPointCount() == 2)
 			{
@@ -183,9 +190,6 @@ public class MeasureLineConnectionFigure
 				angleArray.add(angle);
 				String lineAngle = formatter.format(angle);
 				lineAngle = addDegrees(lineAngle);
-				double sz = ( Double) getAttribute(
-						MeasurementAttributes.FONT_SIZE);
-				g.setFont(new Font(FONT_FAMILY, FONT_STYLE, (int) sz));
 				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineAngle,
 						g);
 				Point2D.Double lengthPoint = getLengthPosition(0, 1);
@@ -203,9 +207,6 @@ public class MeasureLineConnectionFigure
 				angleArray.add(angle);
 				String lineAngle = formatter.format(angle);
 				lineAngle = addDegrees(lineAngle);
-				double sz = (Double) getAttribute(
-						MeasurementAttributes.FONT_SIZE);
-				g.setFont(new Font(FONT_FAMILY, FONT_STYLE, (int)sz));
 				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineAngle,
 						g);
 				Rectangle2D bounds = new Rectangle2D.Double(getPoint(x).x, 
@@ -220,9 +221,6 @@ public class MeasureLineConnectionFigure
 				lengthArray.add(length);
 				String lineLength = formatter.format(length);
 				lineLength = addUnits(lineLength);
-				double sz = ((Double)
-						getAttribute(MeasurementAttributes.FONT_SIZE));
-				g.setFont(new Font(FONT_FAMILY, FONT_STYLE, (int) sz));
 				Rectangle2D rect = g.getFontMetrics().getStringBounds(
 						lineLength, g);
 				Rectangle2D bounds = new Rectangle2D.Double(getPoint(x).x-15, 
