@@ -74,6 +74,19 @@ then start your server and run
 If you need more images, run the last command again. The images will be
 imported in the dataset created the first time.
 
+To run the Robot Framework tests, you will need a valid configuration file
+under ``components/tests/ui/resources/config.txt``. To generate this
+configuration file from a running server, you can use the CLI robot plugin,
+e.g. for a  local server:
+
+```
+dist/bin/omero --path components/tests/ui/plugins robot config > components/tests/ui/resources/config.txt
+```
+
+Note this command will create the Robot configuration file using the
+configuration properties of the server as well as the Ice configuration file
+read from the `ICE_CONFIG` environment variable.
+
 All components
 --------------
 
@@ -174,28 +187,6 @@ or
 http://www.openmicroscopy.org/site/support/omero5/sysadmins/windows/install-web.html
 
 for more information.
-
-If you need to specify the port used for OMERO.web e.g. if you are running the
-lightweight development server, you will need to modify a few values in
-`components/tests/ui/testcases/config.txt`
-
-Replace
-
-```
-${LOGIN URL}              http://${WEB HOST}/webclient/login/
-${WELCOME URL}            http://${WEB HOST}/webclient/
-${WEBADMIN WELCOME URL}   http://${WEB HOST}/webadmin/
-```
-
-by 
-
-```
-${LOGIN URL}              http://${WEB HOST}:${WEB PORT}/webclient/login/
-${WELCOME URL}            http://${WEB HOST}:${WEB PORT}/webclient/
-${WEBADMIN WELCOME URL}   http://${WEB HOST}:${WEB PORT}/webadmin/
-```
-
-and modify the value of `${WEB PORT}` if required.
 
 To run all the web tests on both Firefox and Chrome, use
 
