@@ -145,7 +145,7 @@ class ToolBar
     private static final Dimension 		HGLUE = new Dimension(5, 5);
 
     /** The max plane size.*/
-    private static final int MAX_SIZE = 512;
+    private static final int MAX_SIZE = 1024;
 
     /** The properties figure for a line connection object. */
 	private FigureProperties 			lineConnectionProperties;
