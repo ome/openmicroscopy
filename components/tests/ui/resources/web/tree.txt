@@ -56,7 +56,8 @@ Select And Expand Image
     [Return]                                   ${firstNodeId}
 
 Create Project
-    ${pid}=     Create Container    project
+    [Arguments]     ${newName}=testCreateContainerRobot
+    ${pid}=     Create Container    project    ${newName}
     [Return]    ${pid}
 
 Create Dataset
@@ -73,10 +74,10 @@ Create Button Should Be Disabled
 # Keywords Below are not available for Insight
 
 Create Container
-    [Arguments]                 ${dType}
+    [Arguments]                 ${dType}    ${newName}=testCreateContainerRobot
     Click Button                add${dType}Button
     Element Should Be Visible   new-container-form
-    Input Text                  name    testCreateContainerRobot
+    Input Text                  name    ${newName}
     Click Button                OK
     Set Selenium Speed          1
     Wait Until Page Contains Element    css=h2.data_heading_id
