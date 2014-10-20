@@ -36,6 +36,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.FigureListener;
@@ -331,10 +332,12 @@ public class MeasureRectangleFigure
 			NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
 			String rectangleArea = formatter.format(getArea());
 			rectangleArea = addUnits(rectangleArea);
-			//double sz = (Double) getAttribute(MeasurementAttributes.FONT_SIZE);
-			Font font = (Font) getAttribute(MeasurementAttributes.FONT_FACE);
-			if (font != null) 
-				g.setFont(font);
+			Double sz = (Double) getAttribute(MeasurementAttributes.FONT_SIZE);
+            Font font = (Font) getAttribute(MeasurementAttributes.FONT_FACE);
+            if (font != null) g.setFont(font.deriveFont(sz.floatValue()));
+            else {
+                g.setFont(new Font(FONT_FAMILY, FONT_STYLE, sz.intValue()));
+            }
 			bounds = g.getFontMetrics().getStringBounds(rectangleArea, g);
 			bounds = new Rectangle2D.Double(
 						getBounds().getCenterX()-bounds.getWidth()/2,
