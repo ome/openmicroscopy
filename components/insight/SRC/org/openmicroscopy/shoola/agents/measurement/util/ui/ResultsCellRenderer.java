@@ -43,14 +43,16 @@ import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
+
+
 //Third-party libraries
-
-
-
 import org.apache.commons.lang.StringUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
+import org.openmicroscopy.shoola.agents.measurement.view.MeasurementTableModel;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
+import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
@@ -113,8 +115,6 @@ public class ResultsCellRenderer
 		MASK = icons.getIcon(IconManager.MASK);
 	}
 
-	/** Indicates if we display the units in microns or not.*/
-	private boolean inMicrons = false;
 
 	/**
 	 * Adds the appropriate shape icon to the label.
@@ -209,19 +209,7 @@ public class ResultsCellRenderer
 		list.setModel(model);
 		return list;
 	}
-	
-    /**
-     * Creates a new instance. Sets the opacity of the label to 
-     * <code>true</code>.
-     *
-     * @param inMicrons Pass <code>true</code> to display units in microns,
-     *                  <code>false</code> otherwise.
-     */
-    public ResultsCellRenderer(boolean inMicrons)
-    {
-        setOpaque(true);
-        this.inMicrons = inMicrons;
-    }
+
     
 	/**
 	 * Creates a new instance. Sets the opacity of the label to 
@@ -229,7 +217,7 @@ public class ResultsCellRenderer
 	 */
 	public ResultsCellRenderer()
 	{
-		this(false);
+	    setOpaque(true);
 	}
 	
 	/**
@@ -242,18 +230,28 @@ public class ResultsCellRenderer
 		Component thisComponent = new JLabel();
 		JLabel label = new JLabel();
 		label.setOpaque(true);
+		
 		if (value instanceof Number)
 		{
+		    MeasurementTableModel tm = (MeasurementTableModel) table.getModel();
+	        KeyDescription key = tm.getColumnNames().get(column);
+	        String k = key.getKey();
+	        MeasurementUnits units = tm.getUnitsType();
 		    Number n = (Number) value;
 		    String s;
-		    if (inMicrons) {
+		    if (units.isInMicrons()) {
 		        UnitsObject object;
 	            StringBuffer buffer = new StringBuffer();
 	            object = UIUtilities.transformSize(n.doubleValue());
 	            s = twoDecimalPlaces(object.getValue());
 	            if (StringUtils.isNotBlank(s)) {
 	                buffer.append(s);
-	                buffer.append(object.getUnits());
+	                if (!AnnotationKeys.ANGLE.getKey().equals(k)) {
+	                    buffer.append(object.getUnits());
+	                }
+	                if (AnnotationKeys.AREA.getKey().equals(k)) {
+	                    buffer.append(UIUtilities.SQUARED_SYMBOL);
+	                }
 	                label.setText(buffer.toString());
 	            }
 		    } else {
