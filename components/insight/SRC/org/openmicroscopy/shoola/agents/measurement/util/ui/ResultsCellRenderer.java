@@ -46,6 +46,8 @@ import javax.swing.table.TableCellRenderer;
 //Third-party libraries
 
 
+
+import org.apache.commons.lang.StringUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
@@ -247,9 +249,12 @@ public class ResultsCellRenderer
 		        UnitsObject object;
 	            StringBuffer buffer = new StringBuffer();
 	            object = UIUtilities.transformSize(n.doubleValue());
-	            buffer.append(twoDecimalPlaces(object.getValue()));
-	            buffer.append(object.getUnits());
-	            label.setText(buffer.toString());
+	            String s = twoDecimalPlaces(object.getValue());
+	            if (StringUtils.isNotBlank(s)) {
+	                buffer.append(s);
+	                buffer.append(object.getUnits());
+	                label.setText(buffer.toString());
+	            }
 		    } else {
 		        label.setText(UIUtilities.twoDecimalPlaces(n.doubleValue()));
 		    }
