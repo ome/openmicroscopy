@@ -389,6 +389,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     myColleagues = {}
     if menu == "search":
         for g in groups:
+            g.groupSummary()
             for c in g.leaders + g.colleagues:
                 myColleagues[c.id] = c
         myColleagues = myColleagues.values()
@@ -410,6 +411,10 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
 @login_required()
 @render_response()
 def group_user_content(request, url=None, conn=None, **kwargs):
+    """
+    Loads html content of the Groups/Users drop-down menu on main webclient pages.
+    Url should be supplied in request, as target for redirect after switching group.
+    """
 
     myGroups = list(conn.getGroupsMemberOf())
     myGroups.sort(key=lambda x: x.getName().lower())
