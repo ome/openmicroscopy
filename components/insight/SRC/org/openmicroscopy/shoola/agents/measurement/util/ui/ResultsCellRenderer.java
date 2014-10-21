@@ -245,18 +245,22 @@ public class ResultsCellRenderer
 		if (value instanceof Number)
 		{
 		    Number n = (Number) value;
+		    String s;
 		    if (inMicrons) {
 		        UnitsObject object;
 	            StringBuffer buffer = new StringBuffer();
 	            object = UIUtilities.transformSize(n.doubleValue());
-	            String s = twoDecimalPlaces(object.getValue());
+	            s = twoDecimalPlaces(object.getValue());
 	            if (StringUtils.isNotBlank(s)) {
 	                buffer.append(s);
 	                buffer.append(object.getUnits());
 	                label.setText(buffer.toString());
 	            }
 		    } else {
-		        label.setText(UIUtilities.twoDecimalPlaces(n.doubleValue()));
+		        s = UIUtilities.twoDecimalPlaces(n.doubleValue());
+                if (StringUtils.isNotBlank(s)) {
+                    label.setText(s);
+                }
 		    }
     		thisComponent = label;
 		} else if (value instanceof FigureType || value instanceof String) {
