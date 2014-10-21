@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 
 
+
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.FigureListener;
@@ -226,7 +227,32 @@ public class MeasureBezierFigure
 		}
 		total += map.size();
 	}
-	
+
+	/**
+	 * Formats the area.
+	 * 
+	 * @param value The value to format.
+	 * @param lineUnits Pass <code>true</code> to use the line units,
+	 *                  <code>false</code> otherwise.
+	 * @return See above.
+	 */
+	private String formatValue(double value, boolean lineUnits)
+	{
+	    NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
+	    if (units.isInMicrons()){ 
+	        UnitsObject v = UIUtilities.transformSize(value);
+	        StringBuffer buffer = new StringBuffer();
+	        buffer.append(formatter.format(v.getValue()));
+	        buffer.append(v.getUnits());
+	        if (!lineUnits) {
+	            buffer.append(UIUtilities.SQUARED_SYMBOL);
+	        }
+	        return buffer.toString();
+	    }
+	    if (lineUnits) return addLineUnits(formatter.format(value));
+	    return addAreaUnits(formatter.format(value));
+	}
+
 	/** Creates an instance of the Bezier figure. */
 	public MeasureBezierFigure()
 	{
@@ -330,9 +356,7 @@ public class MeasureBezierFigure
             }
 			if (isClosed())
 			{
-				NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
-				String polygonArea = formatter.format(getArea());
-				polygonArea = addAreaUnits(polygonArea);
+				String polygonArea = formatValue(getArea(), false);
 				bounds = g.getFontMetrics().getStringBounds(polygonArea, g);
 				bounds = new Rectangle2D.Double(
 						this.getBounds().getCenterX()-bounds.getWidth()/2,
@@ -355,9 +379,7 @@ public class MeasureBezierFigure
 			}
 			else
 			{
-				NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
-				String polygonLength = formatter.format(getLength());
-				polygonLength = addLineUnits(polygonLength);
+				String polygonLength = formatValue(getLength(), true);
 				bounds = g.getFontMetrics().getStringBounds(polygonLength, g);
 				
 				if (super.getNodeCount() > 1)
