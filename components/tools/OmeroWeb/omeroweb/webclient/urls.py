@@ -50,6 +50,9 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^login/$', views.login, name="weblogin" ),
     url( r'^logout/$', views.logout, name="weblogout" ),
     url( r'^active_group/$', views.change_active_group, name="change_active_group" ),
+
+    # The content of group/users drop-down menu
+    url( r'^group_user_content/$', views.group_user_content, name="group_user_content"),
     
     # load basket
     url( r'^basket/empty/$', views.empty_basket, name="empty_basket"),

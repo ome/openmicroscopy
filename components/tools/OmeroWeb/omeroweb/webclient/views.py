@@ -381,15 +381,9 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
 
     myGroups = list(conn.getGroupsMemberOf())
     myGroups.sort(key=lambda x: x.getName().lower())
-    if conn.isAdmin():  # Admin can see all groups
-        groups = [g for g in conn.getObjects("ExperimenterGroup") if g.getName() not in ("user", "guest")]
-        groups.sort(key=lambda x: x.getName().lower())
-    else:
-        groups = myGroups
-    new_container_form = ContainerForm()
+    groups = myGroups
 
-    for g in groups:
-        g.groupSummary()    # load leaders / members
+    new_container_form = ContainerForm()
 
     # colleagues required for search.html page only.
     myColleagues = {}
@@ -410,6 +404,27 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     context['current_url'] = url
     context['template'] = template
 
+    return context
+
+
+@login_required()
+@render_response()
+def group_user_content(request, url=None, conn=None, **kwargs):
+
+    myGroups = list(conn.getGroupsMemberOf())
+    myGroups.sort(key=lambda x: x.getName().lower())
+    if conn.isAdmin():  # Admin can see all groups
+        groups = [g for g in conn.getObjects("ExperimenterGroup") if g.getName() not in ("user", "guest")]
+        groups.sort(key=lambda x: x.getName().lower())
+    else:
+        groups = myGroups
+
+    for g in groups:
+        g.groupSummary()    # load leaders / members
+
+    context = {'template': 'webclient/base/includes/group_user_content.html',
+               'current_url':url,
+               'groups':groups, 'myGroups':myGroups}
     return context
 
 
