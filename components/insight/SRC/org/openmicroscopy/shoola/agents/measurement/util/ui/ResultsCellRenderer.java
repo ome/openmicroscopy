@@ -45,10 +45,12 @@ import javax.swing.table.TableCellRenderer;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 
 /** 
@@ -108,7 +110,10 @@ public class ResultsCellRenderer
 		TEXT = icons.getIcon(IconManager.TEXT_16);
 		MASK = icons.getIcon(IconManager.MASK);
 	}
-	
+
+	/** Indicates if we display the units in microns or not.*/
+	private boolean inMicrons = false;
+
 	/**
 	 * Adds the appropriate shape icon to the label.
 	 * 
@@ -203,13 +208,26 @@ public class ResultsCellRenderer
 		return list;
 	}
 	
+    /**
+     * Creates a new instance. Sets the opacity of the label to 
+     * <code>true</code>.
+     *
+     * @param inMicrons Pass <code>true</code> to display units in microns,
+     *                  <code>false</code> otherwise.
+     */
+    public ResultsCellRenderer(boolean inMicrons)
+    {
+        setOpaque(true);
+        this.inMicrons = inMicrons;
+    }
+    
 	/**
 	 * Creates a new instance. Sets the opacity of the label to 
 	 * <code>true</code>.
 	 */
 	public ResultsCellRenderer()
 	{
-		setOpaque(true);
+		this(false);
 	}
 	
 	/**
@@ -222,15 +240,19 @@ public class ResultsCellRenderer
 		Component thisComponent = new JLabel();
 		JLabel label = new JLabel();
 		label.setOpaque(true);
-		if (value instanceof Integer || value instanceof Long ||
-				value instanceof Double ||
-				value instanceof Float)
+		if (value instanceof Number)
 		{
-			if (value instanceof Double)
-				label.setText(twoDecimalPlaces((Double) value));
-			else if (value instanceof Float)
-				label.setText(twoDecimalPlaces((Float) value));
-			else label.setText(value+"");
+		    Number n = (Number) value;
+		    if (inMicrons) {
+		        UnitsObject object;
+	            StringBuffer buffer = new StringBuffer();
+	            object = UIUtilities.transformSize(n.doubleValue());
+	            buffer.append(twoDecimalPlaces(object.getValue()));
+	            buffer.append(object.getUnits());
+	            label.setText(buffer.toString());
+		    } else {
+		        label.setText(UIUtilities.twoDecimalPlaces(n.doubleValue()));
+		    }
     		thisComponent = label;
 		} else if (value instanceof FigureType || value instanceof String) {
 			thisComponent = makeShapeIcon(label, ""+value);
