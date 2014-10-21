@@ -4,7 +4,7 @@ Documentation     Tests creation of Projects and Datasets
 ...
 ...               This test requires P/D/I in hierarchy.
 
-Resource          ../config.txt
+Resource          ../../resources/config.txt
 Resource          ../../resources/web/login.txt
 Resource          ../../resources/web/tree.txt
 Resource          ../../resources/web/thumbs.txt
