@@ -1967,18 +1967,18 @@ def load_public(request, share_id=None, conn=None, **kwargs):
 
     if share_id is not None:
         if view == 'tree':
-            template = "webclient/public/share_subtree.html"
+            template = "webclient/data/container_subtree.html"
         elif view == 'icon':
-            template = "webclient/public/share_content_icon.html"
+            template = "webclient/data/containers_icon.html"
         controller = BaseShare(conn, share_id)
         controller.loadShareContent()
 
     else:
-        template = "webclient/public/share_tree.html"
+        template = "webclient/data/containers_tree.html"
         controller = BaseShare(conn)
         controller.getShares()
 
-    context = {'share':controller}
+    context = {'share':controller, 'manager': controller}
     context['isLeader'] = conn.isLeader()
     context['template'] = template
     return context
