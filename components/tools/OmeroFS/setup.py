@@ -35,5 +35,6 @@ OMERO.fs server for watching directories"
       package_dir={"": "target"},
       packages=[''],
       cmdclass = {'test': PyTest},
+      tests_require=['pytest'],
 )
 
