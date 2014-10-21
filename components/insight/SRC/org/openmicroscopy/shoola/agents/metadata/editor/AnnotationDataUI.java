@@ -123,9 +123,9 @@ class AnnotationDataUI
 	
 	static {
 		NAMES = new String[3];
-		NAMES[SHOW_ALL] = "All";
-		NAMES[ADDED_BY_ME] = "Added by Me";
-		NAMES[ADDED_BY_OTHERS] = "Added by Others";
+		NAMES[SHOW_ALL] = "Show all";
+		NAMES[ADDED_BY_ME] = "Show added by me";
+		NAMES[ADDED_BY_OTHERS] = "Show added by others";
 	}
 	
 	/** Component used to rate the object. */
@@ -519,16 +519,7 @@ class AnnotationDataUI
 				createBar(filterButton, null), 0, 0);
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		content.add(p);
-		//rating
-		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.add(UIUtilities.setTextFont("rate", Font.BOLD, size));
-		p.add(createBar(unrateButton, null));
-		p.add(Box.createHorizontalStrut(2));
-		p.add(rating);
-		p.add(Box.createHorizontalStrut(2));
-		p.add(otherRating);
-		content.add(p);
+		
 		
 		JPanel panel = new JPanel(new GridBagLayout());
 		panel.setBorder(null);
@@ -538,47 +529,58 @@ class AnnotationDataUI
 		c.anchor = GridBagConstraints.WEST;
 		c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
 		c.fill = GridBagConstraints.NONE;      //reset to default
-		c.insets = new Insets(0, 2, 2, 0);
+		c.insets = new Insets(0, 0, 2, 0);
 		c.gridy = 0;
 		c.gridx = 0;
 		
+		//rating
+                p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+                p.setBackground(UIUtilities.BACKGROUND_COLOR);
+                p.add(UIUtilities.setTextFont("Rating:", Font.BOLD, size));
+                p.add(createBar(unrateButton, null));
+                panel.add(p, c);
+                c.gridy++;
+                
 		//tags
 		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.add(UIUtilities.setTextFont("tag", Font.BOLD, size));
+		p.add(UIUtilities.setTextFont("Tags:", Font.BOLD, size));
 		p.add(createBar(addTagsButton, removeTagsButton));
 		panel.add(p, c);
+		c.gridy++;
 		
 		//attachment
 		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.add(UIUtilities.setTextFont("attachment", Font.BOLD, size));
+		p.add(UIUtilities.setTextFont("Attachments:", Font.BOLD, size));
 		p.add(createBar(addDocsButton, removeDocsButton));
-		c.gridy += 3;
 		panel.add(p, c);
+		c.gridy++;
 		
 		//other
 		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.add(UIUtilities.setTextFont("others", Font.BOLD, size));
+		p.add(UIUtilities.setTextFont("Others:", Font.BOLD, size));
 		p.add(createBar(null, removeOtherAnnotationsButton));
-		c.gridy += 3;
 		panel.add(p, c);
 		
 		c.gridy = 0;
 		c.gridx++;
-		//c.ipady = 2;
-		c.gridheight = 2;
-		panel.add(tagsPane, c);
-		c.gridy += 3;
-		panel.add(docRef, c);
-		c.gridy += 3;
-		panel.add(otherPane, c);
-
 		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.add(panel);
-		content.add(p);
+		p.add(Box.createHorizontalStrut(2));
+                p.add(rating);
+                p.add(Box.createHorizontalStrut(2));
+                p.add(otherRating);
+		panel.add(p, c);
+                c.gridy++;
+		panel.add(tagsPane, c);
+		c.gridy++;
+		panel.add(docRef, c);
+		c.gridy++;
+		panel.add(otherPane, c);
+
+		content.add(panel);
 		
 		
 		//analysis results

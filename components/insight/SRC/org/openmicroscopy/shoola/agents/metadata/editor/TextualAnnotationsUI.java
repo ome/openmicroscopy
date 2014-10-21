@@ -36,9 +36,11 @@ import java.awt.event.FocusListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -48,10 +50,12 @@ import javax.swing.event.DocumentListener;
 //Third-party libraries
 //import info.clearthought.layout.TableLayout; 
 
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.SeparatorOneLineBorder;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
+
 import pojos.AnnotationData;
 import pojos.TextualAnnotationData;
 
@@ -78,7 +82,7 @@ class TextualAnnotationsUI
 	private static final int	MAX_LENGTH_TEXT = 200;
 	
 	/** The default description. */
-    private static final String	DEFAULT_TEXT_COMMENT = "Comments";
+    private static final String	DEFAULT_TEXT_COMMENT = "Add comments";
     
 	/** The title associated to this component. */
 	private static final String TITLE = "Comments ";
@@ -133,6 +137,8 @@ class TextualAnnotationsUI
 	
 	/** The collection of annotations to remove.*/
 	private List annotationToRemove;
+	
+	private JScrollPane pane;
 	
 	/**
 	 * Builds and lays out the component hosting all previous annotations.
@@ -249,6 +255,25 @@ class TextualAnnotationsUI
 		//commentArea.setBackground(UIUtilities.BACKGROUND_COLOR);
 		commentArea.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
 		commentArea.setComponentBorder(EDIT_BORDER);
+		commentArea.addFocusListener(new FocusListener() {
+                    
+                    @Override
+                    public void focusLost(FocusEvent arg0) {
+                        pane.getViewport().setPreferredSize(null);
+                        revalidate();
+                        pane.revalidate();
+                        ((JComponent)getParent()).revalidate();
+                    }
+                    
+                    @Override
+                    public void focusGained(FocusEvent arg0) {
+                        Dimension d = pane.getPreferredSize();
+                        pane.getViewport().setPreferredSize(new Dimension(d.width, 60));
+                        revalidate();
+                        pane.revalidate();
+                        ((JComponent)getParent()).revalidate();
+                    }
+                });
 		
 		previousComments = new JScrollPane();
 		previousComments.setBorder(null);
@@ -276,9 +301,10 @@ class TextualAnnotationsUI
 	{
 		removeAll();
     	if (!model.isAnnotationLoaded()) return;
-		JScrollPane pane = new JScrollPane(commentArea);
-		Dimension d = pane.getPreferredSize();
-		pane.getViewport().setPreferredSize(new Dimension(d.width, 60));
+		pane = new JScrollPane(commentArea);
+		//Dimension d = pane.getPreferredSize();
+		//pane.getViewport().setPreferredSize(new Dimension(d.width, 60));
+		pane.getViewport().setPreferredSize(null);
     	pane.setBorder(null);
     	JLabel l = new JLabel();
     	
@@ -606,6 +632,7 @@ class TextualAnnotationsUI
 	 * in our case.
 	 * @see FocusListener#focusGained(FocusEvent)
 	 */
-	public void focusGained(FocusEvent e) {}
+	public void focusGained(FocusEvent e) {
+	}
 	
 }

@@ -128,7 +128,7 @@ public class PropertiesUI
 	static final String			TITLE = "Properties";
 	
 	/** The default description. */
-    private static final String	DEFAULT_DESCRIPTION_TEXT = "Description";
+    private static final String	DEFAULT_DESCRIPTION_TEXT = "Add Description";
     
     /** The text for the id. */
     private static final String ID_TEXT = "ID: ";
@@ -339,6 +339,7 @@ public class PropertiesUI
         
        	ownerLabel = new JLabel();
        	ownerLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
+       	ownerLabel.setFont(f.deriveFont(Font.BOLD));
     	namePane = createTextPane();
     	namePane.setEditable(false);
     	editableName = false;
@@ -349,6 +350,7 @@ public class PropertiesUI
     	newFont = f.deriveFont(f.getStyle(), f.getSize()-2);
     	
     	descriptionWiki = new OMEWikiComponent(false);
+    	descriptionWiki.setDefaultText(DEFAULT_DESCRIPTION_TEXT);
     	descriptionWiki.installObjectFormatters();
     	descriptionWiki.setFont(newFont);
     	descriptionWiki.setEnabled(false);
@@ -370,9 +372,7 @@ public class PropertiesUI
     	f = wellLabel.getFont();
     	wellLabel.setFont(f.deriveFont(Font.BOLD));
     	wellLabel.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
-    	
-    	f = ownerLabel.getFont();
-    	ownerLabel.setFont(f.deriveFont(Font.BOLD, f.getSize()-2));
+
     	channelsArea = UIUtilities.createComponent(null);
     	
     	channelsPane = channelsArea;
@@ -684,8 +684,8 @@ public class PropertiesUI
     	if (value.length() == 0) return null;
     	component.setText(value);
     	if (units == null) units = UnitsObject.MICRONS;
-    	label += units;
-    	return label;
+    	label += "("+units+")";
+    	return label+":";
     }
 
 	/**
@@ -704,7 +704,7 @@ public class PropertiesUI
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.anchor = GridBagConstraints.WEST;
-		c.insets = new Insets(0, 2, 2, 0);
+		c.insets = new Insets(0, 2, 2, 2);
 		c.gridy = 0;
 		c.gridx = 0;
     	JLabel l = new JLabel();
@@ -717,34 +717,34 @@ public class PropertiesUI
     	box.setBackground(UIUtilities.BACKGROUND);
     	box.setSelected(model.isArchived());
     	content.add(label, c);
-    	c.gridx = c.gridx+2;
+    	c.gridx++;
     	content.add(box, c);
     	c.gridy++;
     	c.gridx = 0;
-    	label = UIUtilities.setTextFont(EditorUtil.ACQUISITION_DATE,
+    	label = UIUtilities.setTextFont(EditorUtil.ACQUISITION_DATE+":",
     			Font.BOLD, size);
     	JLabel value = UIUtilities.createComponent(null);
     	String v = model.formatDate(image);
     	value.setText(v);
     	content.add(label, c);
-    	c.gridx = c.gridx+2;
+    	c.gridx++;
     	content.add(value, c);
     	c.gridy++;
     	c.gridx = 0;
     	try { //just to be on the save side
-    		label = UIUtilities.setTextFont(EditorUtil.IMPORTED_DATE,
+    		label = UIUtilities.setTextFont(EditorUtil.IMPORTED_DATE+":",
         			Font.BOLD, size);
         	value = UIUtilities.createComponent(null);
         	v =  UIUtilities.formatShortDateTime(image.getInserted());
         	value.setText(v);
         	content.add(label, c);
-        	c.gridx = c.gridx+2;
+        	c.gridx++;
         	content.add(value, c);
         	c.gridy++; 
 		} catch (Exception e) {
 			
 		}
-    	label = UIUtilities.setTextFont(EditorUtil.XY_DIMENSION, Font.BOLD,
+    	label = UIUtilities.setTextFont(EditorUtil.XY_DIMENSION+":", Font.BOLD,
     			size);
     	value = UIUtilities.createComponent(null);
     	v = (String) details.get(EditorUtil.SIZE_X);
@@ -753,15 +753,15 @@ public class PropertiesUI
     	value.setText(v);
     	c.gridx = 0;
     	content.add(label, c);
-    	c.gridx = c.gridx+2;
+    	c.gridx++;
     	content.add(value, c);
     	c.gridy++;
-    	label = UIUtilities.setTextFont(EditorUtil.PIXEL_TYPE, Font.BOLD, size);
+    	label = UIUtilities.setTextFont(EditorUtil.PIXEL_TYPE+":", Font.BOLD, size);
     	value = UIUtilities.createComponent(null);
     	value.setText((String) details.get(EditorUtil.PIXEL_TYPE));
     	c.gridx = 0;
     	content.add(label, c);
-    	c.gridx = c.gridx+2;
+    	c.gridx++;
     	content.add(value, c);
     	
     	value = UIUtilities.createComponent(null);
@@ -771,14 +771,14 @@ public class PropertiesUI
         	label = UIUtilities.setTextFont(s, Font.BOLD, size);
         	c.gridx = 0;
         	content.add(label, c);
-        	c.gridx = c.gridx+2;
+        	c.gridx++;
         	content.add(value, c);
     	}
     	//parse modulo T.
     	Map<Integer, ModuloInfo> modulo = model.getModulo();
     	ModuloInfo moduloT = modulo.get(ModuloInfo.T);
     	c.gridy++;
-    	label = UIUtilities.setTextFont(EditorUtil.Z_T_FIELDS, Font.BOLD,
+    	label = UIUtilities.setTextFont(EditorUtil.Z_T_FIELDS+":", Font.BOLD,
     			size);
     	value = UIUtilities.createComponent(null);
     	v = (String) details.get(EditorUtil.SECTIONS);
@@ -793,7 +793,7 @@ public class PropertiesUI
     	value.setText(v);
     	c.gridx = 0;
     	content.add(label, c);
-    	c.gridx = c.gridx+2;
+    	c.gridx++;
     	content.add(value, c);
     	c.gridy++;
     	if (moduloT != null) {
@@ -803,29 +803,29 @@ public class PropertiesUI
             value.setText(""+moduloT.getSize());
             c.gridx = 0;
             content.add(label, c);
-            c.gridx = c.gridx+2;
+            c.gridx++;
             content.add(value, c);
             c.gridy++;
     	}
     	if (!model.isNumerousChannel() && model.getRefObjectID() > 0) {
-    		label = UIUtilities.setTextFont(EditorUtil.CHANNELS,
+    		label = UIUtilities.setTextFont(EditorUtil.CHANNELS+":",
     				Font.BOLD, size);
     		c.gridx = 0;
     		c.anchor = GridBagConstraints.NORTHEAST;
         	content.add(label, c);
         	c.anchor = GridBagConstraints.CENTER;
         	c.gridx++;
-        	content.add(editChannel, c);
-        	c.gridx++;
         	content.add(channelsPane, c);
+        	c.gridx++;
+        	content.add(editChannel, c);
         	c.gridy++;
     	}
     	
     	label = new JLabel("...");
-    	label = UIUtilities.setTextFont(EditorUtil.ROI_COUNT, Font.BOLD, size);
+    	label = UIUtilities.setTextFont(EditorUtil.ROI_COUNT+":", Font.BOLD, size);
         c.gridx = 0;
         content.add(label, c);
-        c.gridx = c.gridx+2;
+        c.gridx++;
         roiCountLabel = UIUtilities.createComponent(null);
         roiCountLabel.setText("...");
         content.add(roiCountLabel, c);
@@ -855,77 +855,37 @@ public class PropertiesUI
      * 
      * @param button    The component to lay out.
      * @param component	The component to lay out.
+     * @param sizeRow   The size of the row.
      * @return See above.
      */
     private JPanel layoutEditablefield(Component button, JComponent component)
     {
-    	return layoutEditablefield(button, component, -1);
-    }
-    
-    /**
-     * Lays out the components using a <code>FlowLayout</code>.
-     * 
-     * @param button    The component to lay out.
-     * @param component	The component to lay out.
-     * @param sizeRow   The size of the row.
-     * @return See above.
-     */
-    private JPanel layoutEditablefield(Component button, JComponent component,
-    		int sizeRow)
-    {
-    	JPanel p = new JPanel();
-    	p.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	p.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.anchor = GridBagConstraints.WEST;
-		c.insets = new Insets(0, 2, 2, 0);
-		c.gridy = 0;
-		c.gridx = 0;
-		if (button != null) {
-    		JToolBar bar = new JToolBar();
-        	bar.setBorder(null);
-        	bar.setFloatable(false);
-        	bar.setBackground(UIUtilities.BACKGROUND_COLOR);
-        	bar.add(button);
-        	p.add(bar, c);
-        	c.gridx++;
-    	}
-		if (sizeRow > 0) {
-			c.ipady = sizeRow;
-			c.gridheight = 2;
-		}
-		p.add(component, c);
-    	JPanel content = UIUtilities.buildComponentPanel(p, 0, 0);
-    	content.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	return content;
-    }
-    
-    /**
-     * Creates or recycles the menu.
-     * 
-     * @param invoker The component invoking the menu.
-     * @param loc The location of the mouse clicked.
-     */
-    private void showViewMenu(JComponent invoker, Point loc)
-    {
-    	if (viewMenu == null) {
-    		viewMenu = new JPopupMenu();
-    		IconManager icons = IconManager.getInstance();
-        	JMenuItem button = new JMenuItem(icons.getIcon(IconManager.VIEW));
-        	button.setText(ViewAction.NAME);
-        	button.setToolTipText(ViewAction.DESCRIPTION);
-        	button.setActionCommand(""+EditorControl.VIEW_IMAGE);
-        	button.addActionListener(controller);
-        	viewMenu.add(button);
-        	button = new JMenuItem(icons.getIcon(IconManager.VIEWER_IJ));
-        	button.setText(ViewAction.NAME_IJ);
-        	button.setToolTipText(ViewAction.DESCRIPTION_IJ);
-        	button.setActionCommand(""+EditorControl.VIEW_IMAGE_IN_IJ);
-        	button.addActionListener(controller);
-        	viewMenu.add(button);
-    	}
-    	viewMenu.show(invoker, loc.x, loc.y);
+        JPanel p = new JPanel();
+        p.setBackground(UIUtilities.BACKGROUND_COLOR);
+        p.setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.WEST;
+        c.insets = new Insets(0, 2, 0, 0);
+        c.gridy = 0;
+        c.gridx = 0;
+        c.weightx = 1;
+        
+        p.add(component, c);
+        c.gridx++;
+        
+        if (button != null) {
+            JToolBar bar = new JToolBar();
+            bar.setBorder(null);
+            bar.setFloatable(false);
+            bar.setBackground(UIUtilities.BACKGROUND_COLOR);
+            bar.add(button);
+            c.fill = GridBagConstraints.NONE;
+            c.weightx = 0;
+            p.add(bar, c);
+        }
+       
+        return p;
     }
     
     /**
@@ -941,6 +901,10 @@ public class PropertiesUI
         p.setBackground(UIUtilities.BACKGROUND_COLOR);
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 
+        namePanel = layoutEditablefield(editName, namePane);
+        p.add(namePanel);
+        p.add(Box.createVerticalStrut(2));
+        
         JPanel idPanel = new JPanel();
         idPanel.setLayout(new BoxLayout(idPanel, BoxLayout.X_AXIS));
         idPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -950,10 +914,13 @@ public class PropertiesUI
         idPanel.add(Box.createHorizontalGlue());
         idPanel.add(inplaceIcon);
         p.add(idPanel);
+        p.add(Box.createVerticalStrut(2));
         
         l = UIUtilities.buildComponentPanel(ownerLabel, 0, 0);
         l.setBackground(UIUtilities.BACKGROUND_COLOR);
         p.add(l);
+        p.add(Box.createVerticalStrut(2));
+        
         int w = editName.getIcon().getIconWidth()+4;
         l = UIUtilities.buildComponentPanel(gpLabel, 0, 0);
         l.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -964,10 +931,6 @@ public class PropertiesUI
         l = UIUtilities.buildComponentPanel(wellLabel, 0, 0);
         l.setBackground(UIUtilities.BACKGROUND_COLOR);
         p.add(layoutEditablefield(Box.createHorizontalStrut(w), l));
-
-         namePanel = layoutEditablefield(editName, namePane);
-         p.add(namePanel);
-         p.add(Box.createVerticalStrut(5));
          
          if (refObject instanceof ImageData ||
             refObject instanceof DatasetData ||
@@ -982,25 +945,36 @@ public class PropertiesUI
         	descriptionScrollPane.setHorizontalScrollBarPolicy(
         			ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         	descriptionScrollPane.setBorder(AnnotationUI.EDIT_BORDER);
-        	Dimension viewportSize = new Dimension(WIDTH, HEIGHT); 
-        	descriptionScrollPane.getViewport().setPreferredSize(viewportSize);
         	
         	double[][] design = new double[][]
         			{
-        				{TableLayout.PREFERRED, TableLayout.FILL},
+        				{TableLayout.FILL, TableLayout.PREFERRED},
         				{TableLayout.PREFERRED}
         			};
         	
         	TableLayout table = new TableLayout(design);
         	descriptionPanel = new JPanel(table);
         	descriptionPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
-        	descriptionPanel.add(descriptionButtonEdit, "0, 0, c, t");
-        	descriptionPanel.add(descriptionScrollPane, "1, 0");
-        	
+        	descriptionPanel.add(descriptionScrollPane, "0, 0");
+        	descriptionPanel.add(descriptionButtonEdit, "1, 0, c, t");
+        	expandDescriptionField(!descriptionWiki.getText().equals(DEFAULT_DESCRIPTION_TEXT));
         	p.add(descriptionPanel);
             p.add(Box.createVerticalStrut(5));
          }
          return p;
+    }
+    
+    private void expandDescriptionField(boolean expand) {
+        if (descriptionScrollPane == null)
+            return;
+
+        if (expand) {
+            Dimension viewportSize = new Dimension(WIDTH, HEIGHT);
+            descriptionScrollPane.getViewport().setPreferredSize(viewportSize);
+        } else {
+            descriptionScrollPane.getViewport().setPreferredSize(null);
+        }
+        revalidate();
     }
     
     /**
@@ -1216,6 +1190,7 @@ public class PropertiesUI
         if (StringUtils.isEmpty(originalDescription))
             originalDescription = DEFAULT_DESCRIPTION_TEXT;
         descriptionWiki.setText(originalDescription);
+        expandDescriptionField(!originalDescription.equals(DEFAULT_DESCRIPTION_TEXT));
         //wrap();
         descriptionWiki.setCaretPosition(0);
         descriptionWiki.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -1253,6 +1228,7 @@ public class PropertiesUI
 		if (originalDescription == null || originalDescription.length() == 0)
 			originalDescription = DEFAULT_DESCRIPTION_TEXT;
 		descriptionWiki.setText(originalDescription);
+		expandDescriptionField(!originalDescription.equals(DEFAULT_DESCRIPTION_TEXT));
         boolean b = model.canEdit();
         descriptionButtonEdit.setEnabled(b);
         if (b) {
@@ -1461,6 +1437,7 @@ public class PropertiesUI
 	    if (StringUtils.isEmpty(originalDescription))
 	        originalDescription = DEFAULT_DESCRIPTION_TEXT;
 	    descriptionWiki.setText(originalDescription);
+	    expandDescriptionField(!originalDescription.equals(DEFAULT_DESCRIPTION_TEXT));
 	    namePane.getDocument().addDocumentListener(this);
 	    descriptionWiki.addDocumentListener(this);
 	    channelEditPane = null;
@@ -1525,6 +1502,7 @@ public class PropertiesUI
 	        editField(namePanel, namePane, editName, !editableName);
 	        break;
 	    case EDIT_DESC:
+	        expandDescriptionField(true);
 	        editField(descriptionPanel, descriptionWiki,
 	                descriptionButtonEdit, !descriptionWiki.isEnabled());
 	        break;

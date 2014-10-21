@@ -334,25 +334,10 @@ class GeneralPaneUI
 			init = true;
 		}	
 		clearData(oldObject);
-		textualAnnotationsUI.clearDisplay();
 		propertiesUI.clearDisplay();
 		annotationUI.clearDisplay();
-    	textualAnnotationsUI.clearDisplay();
-    	//propertiesUI.buildUI();
-    	Object uo = model.getRefObject();
-    	
-    	int annotation = 0;
-    	if (!(uo instanceof AnnotationData)) { //hide everything
-    		annotation = 1;
-    	}
-		container.remove(annotationTaskPane);
-		//container.remove(protocolTaskPane);
-		if (annotation > 0) 
-			container.add(annotationTaskPane);
-		/*
-		if (protocolTaskPane.getComponentCount() > 0)
-			container.add(protocolTaskPane);
-		*/
+    	        textualAnnotationsUI.clearDisplay();
+
 		revalidate();
 		repaint();
 	}
