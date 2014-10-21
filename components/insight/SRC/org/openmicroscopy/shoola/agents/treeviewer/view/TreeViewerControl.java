@@ -75,7 +75,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateObjectWithChild
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateTopContainerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.DisplayModeAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.DownloadAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.EditorAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ExitApplicationAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.FinderAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.FullScreenViewerAction;
@@ -286,9 +285,6 @@ class TreeViewerControl
 	/** Identifies the <code>Create project</code> in the File menu. */
 	static final Integer    NEW_OBJECT = Integer.valueOf(42);
 	
-	/** Identifies the <code>Launch Editor</code> in the menu. */
-	static final Integer    EDITOR_NO_SELECTION = Integer.valueOf(43);
-	
 	/** Identifies the <code>Files Explorer</code> action in the View menu. */
 	static final Integer	FILES_EXPLORER = Integer.valueOf(44);
 	
@@ -300,12 +296,6 @@ class TreeViewerControl
 	
 	/** Identifies the <code>Add or remove tag</code> in the menu. */
 	static final Integer    TAGGING = Integer.valueOf(47);
-	
-	/** Identifies the <code>Launch Editor</code> in the menu. */
-	static final Integer    EDITOR_WITH_SELECTION = Integer.valueOf(48);
-	
-	/** Identifies the <code>Launch Editor</code> in the menu. */
-	static final Integer    EDITOR_NEW_WITH_SELECTION = Integer.valueOf(49);
 	
 	/** Identifies the <code>Show/hide inspector</code> in the menu. */
 	static final Integer    INSPECTOR = Integer.valueOf(50);
@@ -546,18 +536,12 @@ class TreeViewerControl
 		actionsMap.put(VIEW, new ViewImageAction(model));
 		actionsMap.put(NEW_OBJECT, new NewObjectAction(model, 
 								NewObjectAction.NEW_CONTAINERS));
-		actionsMap.put(EDITOR_NO_SELECTION, new EditorAction(model,
-				EditorAction.NO_SELECTION));
-		actionsMap.put(EDITOR_WITH_SELECTION, new EditorAction(model,
-				EditorAction.WITH_SELECTION));
 		actionsMap.put(CREATE_TOP_TAG_SET,  
 				new CreateTopContainerAction(model, 
 						CreateTopContainerAction.TAG_SET));
 		actionsMap.put(NEW_TAG_OBJECT, new NewObjectAction(model,
 				NewObjectAction.NEW_TAGS));
 		actionsMap.put(TAGGING, new TaggingAction(model));
-		actionsMap.put(EDITOR_NEW_WITH_SELECTION, new EditorAction(model,
-				EditorAction.NEW_WITH_SELECTION));
 		actionsMap.put(INSPECTOR, new InspectorVisibilityAction(model));
 		actionsMap.put(IMPORT, new ImportAction(model, false));
 		actionsMap.put(DOWNLOAD, new DownloadAction(model));
@@ -1307,8 +1291,6 @@ class TreeViewerControl
 			view.createTitle();
 		} else if (DataBrowser.TAG_WIZARD_PROPERTY.equals(name)) {
 			model.showTagWizard();
-		} else if (DataBrowser.CREATE_NEW_EXPERIMENT_PROPERTY.equals(name)) {
-			model.openEditorFile(TreeViewer.NEW_WITH_SELECTION);
 		} else if (DataBrowser.FIELD_SELECTED_PROPERTY.equals(name)) {
 			model.setSelectedField(pce.getNewValue());
 		} else if (MetadataViewer.RENDER_THUMBNAIL_PROPERTY.equals(name)) {

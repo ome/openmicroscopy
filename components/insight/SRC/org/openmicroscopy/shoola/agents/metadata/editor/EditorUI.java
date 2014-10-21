@@ -51,8 +51,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
@@ -60,13 +58,11 @@ import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
-import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.DataObject;
-import pojos.DatasetData;
 import pojos.DoubleAnnotationData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
@@ -74,9 +70,6 @@ import pojos.FilesetData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.LongAnnotationData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
 import pojos.TextualAnnotationData;
@@ -814,28 +807,6 @@ class EditorUI
 	 * @return See above.
 	 */
 	boolean isSingleMode() { return model.isSingleMode(); }
-	
-	/** Posts an event to create a new experiment. */
-	void createNewExperiment()
-	{
-		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-		String name = model.getObjectPath();
-		Object object = model.getRefObject();
-		if ((object instanceof ProjectData) || 
-				(object instanceof DatasetData) ||
-				(object instanceof ImageData) || 
-				(object instanceof ScreenData) ||
-				(object instanceof PlateData)) {
-			if (name != null && name.trim().length() > 0) {
-				name += ShowEditorEvent.EXPERIMENT_EXTENSION;
-				ShowEditorEvent event = new ShowEditorEvent(
-						model.getSecurityContext(),
-						(DataObject) object, name,
-						ShowEditorEvent.EXPERIMENT);
-				bus.post(event);
-			}
-		}
-	}
 
 	/**
 	 * Brings up the dialog to create a movie.

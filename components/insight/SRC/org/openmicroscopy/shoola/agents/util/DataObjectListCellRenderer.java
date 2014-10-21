@@ -37,7 +37,6 @@ import javax.swing.JList;
 
 import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -172,9 +171,6 @@ public class DataObjectListCellRenderer
     /** The user currently logged in. */
     private ExperimenterData currentUser;
 
-    /** Filter to identify protocol file. */
-    private EditorFileFilter filter;
-
     /** The collection of immutable  nodes. */
     private Collection immutable;
 
@@ -246,7 +242,6 @@ public class DataObjectListCellRenderer
     {
         this.model = model;
         this.currentUser = currentUser;
-        filter = new EditorFileFilter();
      }
 
     /**
@@ -338,12 +333,7 @@ public class DataObjectListCellRenderer
                 icon = FILE_EXCEL_ICON;
             else if (FileAnnotationData.XML.equals(format) ||
                     FileAnnotationData.RTF.equals(format)) {
-                if (filter.accept(fad.getFileName())) {
-                    if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(
-                            fad.getNameSpace()))
-                        icon = EDITOR_EXPERIMENT_ICON;
-                    else icon = FILE_EDITOR_ICON;
-                } else icon = FILE_XML_ICON;
+                icon = FILE_XML_ICON;
             } else icon = FILE_ICON;
             setIcon(icon);
         } else if (value instanceof TermAnnotationData) {

@@ -1502,16 +1502,6 @@ class DataBrowserComponent
 
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.
-	 * @see DataBrowser#createNewExperiment()
-	 */
-	public void createNewExperiment()
-	{
-		firePropertyChange(CREATE_NEW_EXPERIMENT_PROPERTY, Boolean.FALSE, 
-				Boolean.TRUE);
-	}
-
-	/**
-	 * Implemented as specified by the {@link DataBrowser} interface.
 	 * @see DataBrowser#loadExistingDatasets()
 	 */
 	public void loadExistingDatasets()

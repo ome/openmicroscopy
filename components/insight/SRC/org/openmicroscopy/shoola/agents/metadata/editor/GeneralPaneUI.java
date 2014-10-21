@@ -32,10 +32,10 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.BoxLayout;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
-import org.apache.commons.collections.CollectionUtils;
+
 //Third-party libraries
+import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.VerticalLayout;
@@ -82,9 +82,6 @@ class GeneralPaneUI
 	/** The default text. */
 	private static final String			DETAILS = "'s details";
 	
-	/** The protocols title. */
-	private static final String			PROTOCOL = "Protocols and Experiments";
-	
 	/** Reference to the controller. */
 	private EditorControl				controller;
 	
@@ -114,9 +111,6 @@ class GeneralPaneUI
 	
 	/** Collection of annotations UI components. */
 	private List<AnnotationUI>			components;
-
-	/** The component hosting the various protocols. */
-	private JXTaskPane					protocolTaskPane;
 	
 	/** Collection of preview panels. */
 	private List<PreviewPanel>			previews;
@@ -157,8 +151,6 @@ class GeneralPaneUI
 			browserTaskPane.addPropertyChangeListener(controller);
 		}
 		
-		protocolTaskPane = EditorUtil.createTaskPane(PROTOCOL);
-		
 		propertiesUI = new PropertiesUI(model, controller);
 		textualAnnotationsUI = new TextualAnnotationsUI(model, controller);
 		annotationUI = new AnnotationDataUI(view, model, controller);
@@ -195,54 +187,7 @@ class GeneralPaneUI
 		add(toolbar, BorderLayout.NORTH);
     	        add(container, BorderLayout.CENTER);
 	}
-	
-	/** 
-	 * Lays out the protocols files. Returns the components hosting the 
-	 * files.
-	 * 
-	 * @return See above.
-	 */
-	private JXTaskPaneContainer buildProtocolTaskPanes()
-	{
-		Collection list = model.getAttachments();
-		if (list.size() == 0) return null;
-		JXTaskPaneContainer paneContainer = new JXTaskPaneContainer();
-		VerticalLayout vl = (VerticalLayout) paneContainer.getLayout();
-		vl.setGap(0);
-		paneContainer.setBackground(UIUtilities.BACKGROUND_COLOR);
 
-		Iterator i = list.iterator();
-		FileAnnotationData fa;
-		JXTaskPane pane;
-		PreviewPanel preview;
-		String description;
-		String ns;
-		int index = 0;
-		previews.clear();
-		boolean b;
-		while (i.hasNext()) {
-			fa = (FileAnnotationData) i.next();
-			ns = fa.getNameSpace();
-			b = annotationUI.isEditorFile(fa.getFileName());
-			if (!b) b = annotationUI.isEditorFile(ns);
-			if (fa.getId() > 0 && b) {
-				description = fa.getDescription();
-				if (description != null) {
-					preview = new PreviewPanel(description, fa.getId());
-					previews.add(preview);
-					preview.addPropertyChangeListener(controller);
-					pane = EditorUtil.createTaskPane(fa.getFileName());
-					pane.addPropertyChangeListener(controller);
-					pane.add(preview);
-					paneContainer.add(pane);
-					index++;
-				}
-			}
-		}
-		if (index == 0) return null;
-		return paneContainer;
-	}
-	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -323,15 +268,6 @@ class GeneralPaneUI
 		}
 		browserTaskPane.setTitle(s);
 		container.remove(browserTaskPane);
-		if (protocolTaskPane != null) {
-			container.remove(protocolTaskPane);
-			protocolTaskPane.removeAll();
-		}
-		JComponent n = buildProtocolTaskPanes();
-		if (n != null) {
-			protocolTaskPane.add(n);
-			container.add(protocolTaskPane);
-		}
 		container.remove(propertiesTaskPane);
 		if (!multi) {
 			container.add(propertiesTaskPane, 0); //first index

@@ -104,20 +104,6 @@ public class Environment
 	}
 
 	/**
-	 * Returns <code>true</code> if the application is connected to a server,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean isServerAvailable()
-	{
-		Integer v = (Integer) container.getRegistry().lookup(
-				LookupNames.ENTRY_POINT);
-		if (v != null) return v.intValue() != LookupNames.EDITOR_ENTRY;
-		return Boolean.valueOf(true);
-	}
-	
-	/**
 	 * Returns the value of the plug-in or <code>-1</code>.
 	 * 
 	 * @return See above.

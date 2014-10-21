@@ -132,8 +132,7 @@ class BrowserUI
     private static final String     EMPTY_MSG = "Empty";
     
     /** The <code>Attachments</code> smart folder. */
-    private static final int[] VALUES = {TreeFileSet.PROTOCOL, 
-    	TreeFileSet.EXPERIMENT, TreeFileSet.MOVIE, TreeFileSet.OTHER};
+    private static final int[] VALUES = {TreeFileSet.MOVIE, TreeFileSet.OTHER};
     
     /** The tree hosting the display. */
     private DnDTree           treeDisplay;
@@ -407,8 +406,6 @@ class BrowserUI
                 Object o = d.getUserObject();
                 if (o instanceof ImageData) {
                 	model.browse(d);
-                } else if (o instanceof FileAnnotationData) {
-                	model.openFile(d);
                 } else if (o instanceof PlateData) {
                 	if (!d.hasChildrenDisplay() || 
                 			d.getChildrenDisplay().size() == 1) 

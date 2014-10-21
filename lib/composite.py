@@ -43,8 +43,6 @@ TARGET_PREFIX = 'OMERO.clients-%s' % VERSION
 
 INSIGHT = 'OMERO.insight'
 
-EDITOR = 'OMERO.editor'
-
 IMPORTER = 'OMERO.importer'
 
 IGNORE = []
@@ -119,7 +117,6 @@ def compress(target, base):
 # Create the composite Windows client build
 #
 target_artifacts = list()
-target_artifacts += find(EDITOR + "*win.zip")
 target_artifacts += find(INSIGHT + "*win.zip")
 target_artifacts += find(IMPORTER + "*win.zip")
 target = '%s.win' % TARGET_PREFIX
@@ -135,7 +132,6 @@ compress('%s.zip' % target, target)
 # Create the composite Mac OS X client build
 #
 target_artifacts = list()
-target_artifacts += find(EDITOR + "*mac.zip")
 target_artifacts += find(INSIGHT + "*mac.zip")
 target_artifacts += find(IMPORTER + "*mac.zip")
 target = '%s.mac' % TARGET_PREFIX
@@ -149,7 +145,6 @@ compress('%s.zip' % target, target)
 # Create the composite Linux client build
 #
 target_artifacts = list()
-target_artifacts += find(EDITOR + "*linux.zip")
 target_artifacts += find(INSIGHT + "*linux.zip")
 target_artifacts += find(IMPORTER + "*linux.zip")
 target = '%s.linux' % TARGET_PREFIX

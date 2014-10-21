@@ -54,7 +54,6 @@ import javax.swing.SwingUtilities;
 import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.data.model.DownloadAndZipParam;
@@ -156,7 +155,7 @@ public class AnalysisResultsItem
 		if (data instanceof FileAnnotationData) {
 			name = ((FileAnnotationData) data).getFileName();
 		}
-		JFrame f = EditorAgent.getRegistry().getTaskBar().getFrame();
+		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
 		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
 				"Download", "Select where to download the files.", null, true);
 		if (name != null && name.trim().length() > 0) 
@@ -435,7 +434,7 @@ public class AnalysisResultsItem
 			File folder = files[0];
 			if (folder == null)
 				folder = UIUtilities.getDefaultFolder();
-			UserNotifier un = EditorAgent.getRegistry().getUserNotifier();
+			UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
 			
 			if (attachments == null || attachments.size() == 0) return;
 			IconManager icons = IconManager.getInstance();

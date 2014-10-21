@@ -378,8 +378,6 @@ public class ImViewerAgent
      */
     private void handleReconnectedEvent(ReconnectedEvent evt)
     {
-        Environment env = (Environment) registry.lookup(LookupNames.ENV);
-        if (!env.isServerAvailable()) return;
         ImViewerFactory.onGroupSwitched(true);
     }
 
@@ -510,8 +508,6 @@ public class ImViewerAgent
      */
     private void handleChannelSavedEvent(ChannelSavedEvent evt)
     {
-        Environment env = (Environment) registry.lookup(LookupNames.ENV);
-        if (!env.isServerAvailable()) return;
         List<ChannelData> channels = evt.getChannels();
         Iterator<Long> i = evt.getImageIds().iterator();
         SecurityContext ctx = evt.getSecurityContext();
@@ -532,8 +528,6 @@ public class ImViewerAgent
     private void handleDisplayModeEvent(DisplayModeEvent evt)
     {
         displayMode = evt.getDisplayMode();
-        Environment env = (Environment) registry.lookup(LookupNames.ENV);
-        if (!env.isServerAvailable()) return;
         ImViewerFactory.setDisplayMode(displayMode);
     }
 

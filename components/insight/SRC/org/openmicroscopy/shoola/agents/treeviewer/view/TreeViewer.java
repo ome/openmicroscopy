@@ -47,7 +47,6 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.ImageCheckerResult;
-import org.openmicroscopy.shoola.env.data.model.MIFResultObject;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
@@ -111,15 +110,6 @@ public interface TreeViewer
 	
 	/** Indicates to run the application as an <code>Knime</code> plugin.*/
 	public static final int		KNIME = LookupNames.KNIME;
-	
-	/** Indicates to open the editor without selection. */
-	public static final int		NO_SELECTION = 0;
-	
-	/** Indicates to open the editor with a selected file. */
-	public static final int		WITH_SELECTION = 1;
-	
-	/** Indicates to launch a new editor with a data object to link to. */
-	public static final int		NEW_WITH_SELECTION = 2;
 	
 	/** 
 	 * Indicates that the {@link TreeViewer} displayed the various explorers.
@@ -870,14 +860,6 @@ public interface TreeViewer
 	 * <code>Copy/Paste</code>. 
 	 */
 	public void onNodesMoved();
-
-	/** 
-	 * Opens the editor without file if no file selected.
-	 * or opens the currently selected file.
-	 * 
-	 * @param index   One of the constants for the editor.
-	 */
-	public void openEditorFile(int index);
 
 	/** Displays the tag wizard. */
 	public void showTagWizard();

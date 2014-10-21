@@ -16,8 +16,6 @@
     <artifact name="insight" type="zip" conf="release"/>
     <artifact name="insight-win" type="zip" conf="release"/>
     <artifact name="insight-mac" type="zip" conf="release"/>
-    <artifact name="editor-mac" type="zip" conf="release"/>
-    <artifact name="editor-win" type="zip" conf="release"/>
     <artifact name="insight-ij" type="zip" conf="release"/>
     <artifact name="importer-mac" type="zip" conf="release"/>
     <artifact name="importer-win" type="zip" conf="release"/>
