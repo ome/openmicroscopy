@@ -51,7 +51,11 @@
             
             // double-click handler on image - launches image viewer
             $("#dataIcons li").dblclick(function(event) {
-                OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('0', $(this).attr('id').split("-")[1] ));
+                {% if share and not share.share.isOwned %}
+                    OME.openPopup("{% url 'web_image_viewer' share.share.id 0 %}".replace('0', $(this).attr('id').split("-")[1] ));
+                {% else %}
+                    OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('0', $(this).attr('id').split("-")[1] ));
+                {% endif %}
             });
             
             // single click handler on image (container). Selection then update toolbar & metadata pane
@@ -379,7 +383,11 @@
         {% for c in manager.containers.images %}
             <li class='row' id="image_icon-{{ c.id }}" data-fileset="{{ c.fileset.id.val }}">
                 <div class="image">
-                    <img id="{{ c.id }}" src="{% url 'render_thumbnail_resize' 96 c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
+                    {% if share and not share.share.isOwned %}
+                        <img id="{{ c.id }}" src="{% url 'render_thumbnail' c.id share.share.id %}" alt="image" title="{{ c.name }}, owned by {{ c.getOwner.getNameWithInitial }}"/>
+                    {% else %}
+                        <img id="{{ c.id }}" src="{% url 'render_thumbnail_resize' 96 c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
+                    {% endif %}
                 </div>
                 <!-- NB: '#image_icon-123 div.desc' etc is used to update name when changed in right panel via "editinplace" -->
                 <div class="desc" valign="middle">
