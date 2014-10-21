@@ -114,7 +114,27 @@ public class MeasureRectangleFigure
 	
 	/** Flag indicating if the user can move or resize the shape.*/
 	private boolean interactable;
-	
+
+	/**
+	 * Formats the area.
+	 * 
+	 * @param value The value to format.
+	 * @return See above.
+	 */
+	private String formatValue(double value)
+	{
+	    NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
+        if (units.isInMicrons()){ 
+            UnitsObject v = UIUtilities.transformSize(value);
+            StringBuffer buffer = new StringBuffer();
+            buffer.append(formatter.format(v.getValue()));
+            buffer.append(v.getUnits());
+            buffer.append(UIUtilities.SQUARED_SYMBOL);
+            return buffer.toString();
+        }
+        return addUnits(formatter.format(value));
+	}
+
     /** Creates a new instance. */
     public MeasureRectangleFigure() 
     {
@@ -329,9 +349,7 @@ public class MeasureRectangleFigure
 		if (MeasurementAttributes.SHOWMEASUREMENT.get(this) || 
 				MeasurementAttributes.SHOWID.get(this))
 		{
-			NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
-			String rectangleArea = formatter.format(getArea());
-			rectangleArea = addUnits(rectangleArea);
+			String rectangleArea = formatValue(getArea());
 			Double sz = (Double) getAttribute(MeasurementAttributes.FONT_SIZE);
             Font font = (Font) getAttribute(MeasurementAttributes.FONT_FACE);
             if (font != null) g.setFont(font.deriveFont(sz.floatValue()));
