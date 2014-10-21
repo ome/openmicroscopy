@@ -604,7 +604,8 @@ class MeasurementResults
 		 */
 		public TableCellRenderer getCellRenderer(int row, int column) 
 		{
-	        return new ResultsCellRenderer();
+		    MeasurementTableModel tm = (MeasurementTableModel) getModel();
+	        return new ResultsCellRenderer(tm.isInMicrons());
 	    }
 	}
 	
@@ -638,7 +639,15 @@ class MeasurementResults
 			this.values = new ArrayList<MeasurementObject>();
 			this.unitsType = units;
 		}
-		
+
+		/**
+		 * Returns <code>true</code> if in microns, <code>false</code>
+		 * otherwise.
+		 *
+		 * @return See above.
+		 */
+		boolean isInMicrons() { return unitsType.isInMicrons(); }
+
 		/** 
 		 * Adds a new row to the model.
 		 * 
