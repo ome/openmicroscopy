@@ -1250,10 +1250,12 @@ def annotate_comment(request, conn=None, **kwargs):
             'shares':oids['share']}
 
     # Use the first object we find to set context (assume all objects are in same group!)
-    for obs in oids.values():
-        if len(obs) > 0:
-            conn.SERVICE_OPTS.setOmeroGroup(obs[0].getDetails().group.id.val)
-            break
+    # this does not aplly to share
+    if len(oids['share']) < 1:
+        for obs in oids.values():
+            if len(obs) > 0:
+                conn.SERVICE_OPTS.setOmeroGroup(obs[0].getDetails().group.id.val)
+                break
 
     # Handle form submission...
     form_multi = CommentAnnotationForm(initial=initial, data=request.REQUEST.copy())
