@@ -560,6 +560,8 @@ public interface MetadataViewer
 	 */
 	public void reloadRenderingControl(boolean value);
 	
+	public void resetRenderingControl();
+	 
 	/**
 	 * Reloads the renderer (synchronous)
          */

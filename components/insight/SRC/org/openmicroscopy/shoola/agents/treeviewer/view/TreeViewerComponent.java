@@ -2690,12 +2690,6 @@ class TreeViewerComponent
 		Collection success = (Collection) map.get(Boolean.valueOf(true));
 		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
 		bus.post(new RndSettingsCopied(success, -1));
-		
-		// notify the metadata viewer agent:
-                for (Object obj : success) {
-                    bus.post(new RndSettingsPasted((Long) obj));
-                }
-		
 		model.setState(READY);
 		fireStateChange();
 	}

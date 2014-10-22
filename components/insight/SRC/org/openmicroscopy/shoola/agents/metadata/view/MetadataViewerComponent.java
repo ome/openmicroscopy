@@ -1030,6 +1030,16 @@ class MetadataViewerComponent
 	}
 	
 	/**
+         * Implemented as specified by the {@link MetadataViewer} interface.
+         * @see MetadataViewer#resetRenderingControl()
+         */
+        public void resetRenderingControl()
+        {
+              model.getEditor().loadRenderingControl(
+                                        RenderingControlLoader.RESET);
+        }
+        
+	/**
 	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#reloadRenderingControl()
 	 */

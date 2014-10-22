@@ -297,7 +297,7 @@ public class MetadataViewerAgent
             viewer = MetadataViewerFactory.getViewerFromId(
                     ImageData.class.getName(), i.next());
             if (viewer != null) {
-                viewer.loadViewedBy();
+                viewer.resetRenderingControl();
             }
         }
     }

@@ -686,6 +686,7 @@ class EditorComponent
 			setSelectedTab(GENERAL_TAB);
 			return;
 		}
+		
 		//is the rendering control for the correct pixels set
 		FigureDialog d = controller.getFigureDialog();
 		PixelsData data = model.getPixels();
@@ -698,8 +699,10 @@ class EditorComponent
 			return;
 		}
 		model.setRenderingControl(rndControl);
-		if (loaded) view.onSettingsApplied(false);
-		if (d == null) view.setRenderer();
+		if (loaded) 
+		    view.onSettingsApplied(false);
+		if (d == null) 
+		    view.setRenderer();
 		if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC)
 			loadChannelData();
 		model.getRenderer().addPropertyChangeListener(controller);
@@ -709,6 +712,7 @@ class EditorComponent
 			if (d.getDialogType() == FigureDialog.ROI_MOVIE)
 				model.firePlaneInfoLoading(EditorModel.DEFAULT_CHANNEL, 0);
 		}
+		model.getRenderer().refresh();
 		// load other users' rendering settings
 		model.getRenderer().retrieveRelatedSettings();
 		model.getRenderer().updatePasteAction();
@@ -736,6 +740,7 @@ class EditorComponent
 			default:
 				value = index;
 		}
+		System.out.println("loadRenderingControl imageId="+image.getId()+" pixelsId="+pixels.getId());
 		setStatus(model.fireRenderingControlLoading(pixels.getId(), value));
 	}
 	
