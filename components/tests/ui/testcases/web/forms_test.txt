@@ -135,8 +135,14 @@ Test Annotate
     Input Text                                  id_tag     testSeleniumTag${pid}
     Click Element                               id_add_new_tag
     Click Element                               xpath=//button/span[contains(text(),'Save')]
+    Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), testSeleniumTag${pid})]  10
 
-    # Files - TODO: test scripts first, to generate file
+    # Files
+    Click Element                               choose_file_anns
+    Wait Until Page Contains Element            id_files
+    Click Element                               xpath=//select[@id='id_files']/option    # just pick first file
+    Submit Form                                 choose_attachments_form
+    Wait Until Page Contains Element            xpath=//li[@class='file_ann_wrapper']   # check for any file annotation
 
 
 Test Batch Annotate
@@ -159,8 +165,14 @@ Test Batch Annotate
     Input Text                                  id_tag     testSeleniumTag${pid}
     Click Element                               id_add_new_tag
     Click Element                               xpath=//button/span[contains(text(),'Save')]
+    Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), testSeleniumTag${pid})]  10
 
-    # Files - TODO: test scripts first, to generate file
+    # Files
+    Click Element                               choose_file_anns
+    Wait Until Page Contains Element            id_files
+    Click Element                               xpath=//select[@id='id_files']/option    # just pick first file
+    Submit Form                                 choose_attachments_form
+    Wait Until Page Contains Element            xpath=//li[@class='file_ann_wrapper']   # check for any file annotation
 
 
 Test Search
