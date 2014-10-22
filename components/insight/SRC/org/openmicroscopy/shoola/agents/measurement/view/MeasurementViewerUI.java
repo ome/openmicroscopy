@@ -1570,7 +1570,13 @@ class MeasurementViewerUI
 		intensityView.onAnalysed(analyse);
 		toolBar.onAnalysed(analyse);
 	}
-	
+
+	/** Updates view when the zoom factor is modified.*/
+	void onMagnificationChanged()
+	{
+	    roiInspector.onMagnificationChanged();
+	}
+
     /** 
      * Overridden to the set the location of the {@link MeasurementViewer}.
      * @see TopWindow#setOnScreen() 

@@ -137,7 +137,8 @@ class ObjectInspector
 	private void initComponents()
 	{
 		//create the table
-		fieldTable = new FigureTable(new FigureTableModel(attributeFields, COLUMN_NAMES));
+		fieldTable = new FigureTable(new FigureTableModel(attributeFields,
+		        COLUMN_NAMES, model.getDrawingView()));
 		fieldTable.getTableHeader().setReorderingAllowed(false);
 		fieldTable.setRowHeight(26);
 		fieldTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -419,6 +420,16 @@ class ObjectInspector
 		fieldTable.repaint();
 	}
 	
+	/** Updates the display when the magnification factor changes.*/
+	void onMagnificationChanged()
+	{
+	    FigureTableModel tm = (FigureTableModel) fieldTable.getModel();
+	    ROIFigure figure = tm.getFigure();
+	    if (figure != null) {
+	        tm.setData(figure);
+	    }
+	}
+
 	/**
 	 * Removes the ROI figure.
 	 * 
