@@ -82,3 +82,14 @@ Test Cut Paste Dataset
     Click Element                           refreshButton
     Wait Until Page Contains Element        xpath=//li[@id='project-${p1id}']//li[@id='dataset-${did}']
 
+
+Test Cut Paste Image
+    [Documentation]     Cut an existing Image to /remove/ it to Orphaned and Paste it back
+
+    Select Experimenter
+    ${iid}=                                 Select And Expand Image
+    Click Element                           id=cutButton
+    # Dataset should be selected, paste back
+    ${did}=                                 Get Element Attribute   css=//li[a/@class='jstree-clicked']@id
+    Click Element                           id=pasteButton
+
