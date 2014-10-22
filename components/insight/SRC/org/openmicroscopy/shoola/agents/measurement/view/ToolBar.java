@@ -178,7 +178,7 @@ class ToolBar
     private DrawingObjectCreationTool	textTool;
 
     /** The point creation tool. */
-    private DrawingPointCreationTool	pointTool;
+    private DrawingObjectCreationTool	pointTool;
     
     /** The polygon creation tool. */
     private DrawingBezierTool 			polygonTool;
@@ -260,8 +260,8 @@ class ToolBar
 		m.put(MeasurementAttributes.FONT_SIZE, value);
 		connectionTool = new DrawingConnectionTool(
 						new MeasureLineConnectionFigure(), m);
-		pointTool = new DrawingPointCreationTool(
-				new MeasurePointFigure(false, true, true, true, true));
+		pointTool = new DrawingObjectCreationTool(
+				new MeasurePointFigure(false, true, true, true, true), p);
 	    polygonTool = new DrawingBezierTool(
 	    		new MeasureBezierFigure(true, false, true, true, true, true), p);
 	    polylineTool = new DrawingBezierTool(
