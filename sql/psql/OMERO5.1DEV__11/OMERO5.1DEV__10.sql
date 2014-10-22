@@ -153,7 +153,7 @@ insert into unitstime (id,permissions,value,measurementsystem)
     select ome_nextval('seq_unitstime'),-52,'d','SI.SECOND';
 
 update pixels set timeincrementunit = (select id from unitstime where value = 's');
-update planeinfo set deltat = (select id from unitstime where value = 's');
+update planeinfo set deltatunit = (select id from unitstime where value = 's');
 update planeinfo set exposuretimeunit = (select id from unitstime where value = 's');
 
 --
