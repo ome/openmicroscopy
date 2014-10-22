@@ -25,3 +25,23 @@ Test Delete Project
     Page Should Not Contain Element         id=project-${pid}
 
 
+Test Edit Project
+
+    Select Experimenter
+    ${pid}=                                 Create project      robot test edit
+    Wait Until Page Contains Element        projectname-${pid}
+    # Edit Name
+    Click Element                           css=#projectname-${pid} button.btn_edit
+    Wait Until Page Contains Element        form-projectname-${pid}
+    # id 'id_name' is not unique!
+    Input Text                              xpath=//form[@id='form-projectname-${pid}']//input[@id='id_name']  editedName
+    Submit Form                             form-projectname-${pid}
+    Wait Until Page Contains Element        xpath=//span[@id='projectname-${pid}-name'][contains(text(), 'editedName')]
+
+    # Edit Description
+    Click Element                           css=#projectdescription-${pid} button.btn_edit
+    Wait Until Page Contains Element        form-projectdescription-${pid}
+    Input Text                              xpath=//form[@id='form-projectdescription-${pid}']//textarea[@id='id_description']  newDesc
+    Submit Form                             form-projectdescription-${pid}
+    Wait Until Page Contains Element        xpath=//span[@id='projectdescription-${pid}-description'][contains(text(), 'newDesc')]
+
