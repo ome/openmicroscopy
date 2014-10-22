@@ -1,0 +1,27 @@
+*** Settings ***
+Documentation     Tests submission of forms.
+
+Resource          ../config.txt
+Resource          ../../resources/web/login.txt
+Resource          ../../resources/web/tree.txt
+
+Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
+# Suite Teardown      Close all browsers
+
+*** Test Cases ***
+
+Test Delete Project
+    [Documentation]     Tests form based on base_custom_dialog.html and script_ui.html
+
+    Select Experimenter
+    ${pid}=                                 Create project      robot test delete
+    Click Element                           refreshButton
+    Wait Until Page Contains Element        id=project-${pid}
+    Click Element                           id=deleteButton
+    Wait Until Page Contains Element        id=delete-dialog-form
+    Click Element                           xpath=//button/span[contains(text(),'Yes')]
+    # On POST success, Experimenter should be selected and project removed from tree
+    Wait Until Page Contains Element        xpath=//li[@rel='experimenter']/a[contains(@class, 'jstree-clicked')]
+    Page Should Not Contain Element         id=project-${pid}
+
+
