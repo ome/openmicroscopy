@@ -12,7 +12,7 @@ import os
 
 for tools in glob.glob("../../../lib/repository/setuptools*.egg"):
     if tools.find(".".join(map(str, sys.version_info[0:2]))) > 0:
-       sys.path.insert(0, tools)
+       sys.path.insert(0, os.path.abspath(tools))
 
 sys.path.append("..")
 from test_setup import PyTest
