@@ -61,7 +61,8 @@ Create Project
     [Return]    ${pid}
 
 Create Dataset
-    Create Container    dataset
+    ${did}=     Create Container    dataset
+    [Return]    ${did}
 
 Create Button Should Be Enabled
     [Arguments]                 ${oType}
