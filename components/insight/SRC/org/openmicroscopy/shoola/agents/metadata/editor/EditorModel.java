@@ -3477,7 +3477,7 @@ class EditorModel
 		if (isRendererLoaded() && index == RenderingControlLoader.LOAD) 
 			return false;
 		RenderingControlLoader loader = new RenderingControlLoader(component, 
-				parent.getSecurityContext(), pixelsID, index);
+		        new SecurityContext(((DataObject)refObject).getGroupId()), pixelsID, index);
 		loader.load();
 		return true;
 	}
