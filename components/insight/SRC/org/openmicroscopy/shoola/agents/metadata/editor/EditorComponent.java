@@ -740,7 +740,6 @@ class EditorComponent
 			default:
 				value = index;
 		}
-		System.out.println("loadRenderingControl imageId="+image.getId()+" pixelsId="+pixels.getId());
 		setStatus(model.fireRenderingControlLoading(pixels.getId(), value));
 	}
 	
