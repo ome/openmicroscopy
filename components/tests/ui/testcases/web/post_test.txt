@@ -1,17 +1,17 @@
 *** Settings ***
-Documentation     Tests submission of forms.
+Documentation     Tests ajax 'POST' updates.
 
 Resource          ../config.txt
 Resource          ../../resources/web/login.txt
 Resource          ../../resources/web/tree.txt
 
 Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
-# Suite Teardown      Close all browsers
+Suite Teardown      Close all browsers
 
 *** Test Cases ***
 
 Test Delete Project
-    [Documentation]     Tests form based on base_custom_dialog.html and script_ui.html
+    [Documentation]     Create and Delete a Project
 
     Select Experimenter
     ${pid}=                                 Create project      robot test delete
@@ -26,6 +26,7 @@ Test Delete Project
 
 
 Test Edit Project
+    [Documentation]     Create a Project and edit its name and description
 
     Select Experimenter
     ${pid}=                                 Create project      robot test edit
@@ -44,4 +45,40 @@ Test Edit Project
     Input Text                              xpath=//form[@id='form-projectdescription-${pid}']//textarea[@id='id_description']  newDesc
     Submit Form                             form-projectdescription-${pid}
     Wait Until Page Contains Element        xpath=//span[@id='projectdescription-${pid}-description'][contains(text(), 'newDesc')]
+
+
+Test Copy Paste Dataset
+    [Documentation]     Create 2 Projects and a Dataset. Copy and Paste the Dataset.
+
+    Select Experimenter
+    ${p1id}=                                Create project      robot test paste1
+    ${p2id}=                                Create project      robot test paste2
+    ${did}=                                 Create Dataset
+    Click Element                           refreshButton
+    Wait Until Page Contains Element        id=dataset-${did}
+    Click Element                           id=copyButton
+    Click Element                           xpath=//li[@id='project-${p1id}']/a
+    Click Element                           id=pasteButton
+    Click Element                           refreshButton
+    # Check for expected Project / Dataset hierarchy
+    Wait Until Page Contains Element        xpath=//li[@id='project-${p1id}']//li[@id='dataset-${did}']
+
+
+Test Cut Paste Dataset
+    [Documentation]     Create 2 Projects and a Dataset. Cut and Paste the Dataset.
+
+    Select Experimenter
+    ${p1id}=                                Create project      robot test paste1
+    ${p2id}=                                Create project      robot test paste2
+    ${did}=                                 Create Dataset
+    Click Element                           refreshButton
+    Wait Until Page Contains Element        id=dataset-${did}
+    Click Element                           id=cutButton
+    # POST a /move/ action - wait for Orphaned Dataset
+    Wait Until Page Contains Element        xpath=//li[@rel='experimenter']/ul/li[@id='dataset-${did}']
+    # Another /move/ to different Project
+    Click Element                           xpath=//li[@id='project-${p1id}']/a
+    Click Element                           id=pasteButton
+    Click Element                           refreshButton
+    Wait Until Page Contains Element        xpath=//li[@id='project-${p1id}']//li[@id='dataset-${did}']
 
