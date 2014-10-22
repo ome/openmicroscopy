@@ -5,13 +5,14 @@ Resource          ../config.txt
 Resource          ../../resources/web/login.txt
 Resource          ../../resources/web/tree.txt
 
+Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
+Suite Teardown      Close all browsers
+
 *** Test Cases ***
 
 Test Script Run
     [Documentation]     Tests form based on base_custom_dialog.html and script_ui.html
 
-    User "${USERNAME}" logs in with password "${PASSWORD}"
-    Maximize Browser Window
     # Clear any activities from earlier tests etc.
     Click Element                               id=launch_activities
     Click Element                               id=clear_activities
@@ -176,5 +177,3 @@ Test Search
     Submit Form                             searching_form
     Wait Until Page Contains                Loading data...
     Wait Until Page Contains Element        dataTable
-
-    [Teardown]    Close Browser
