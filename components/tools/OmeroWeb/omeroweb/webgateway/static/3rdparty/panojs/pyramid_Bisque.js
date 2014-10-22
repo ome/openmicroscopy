@@ -51,8 +51,13 @@ function BisqueISPyramid( width, height, xtilesize, ytilesize, levels ) {
     while (level_id < levels) {
         var level = new BisqueISLevel( level_width, level_height, xtilesize, ytilesize, level_id );
         this._pyramid.push( level );
-        level_width  = Math.floor( level_width / (levels-1) );
-        level_height = Math.floor( level_height / (levels-1) );
+        if (levels > 1 ) {
+            level_width  = Math.floor( level_width / (levels-1) );
+            level_height = Math.floor( level_height / (levels-1) );
+        } else {
+            level_width  = Math.floor( level_width );
+            level_height = Math.floor( level_height );
+        }
         level_id++;
     }
     this._pyramid.reverse();
