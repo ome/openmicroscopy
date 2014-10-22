@@ -553,6 +553,16 @@ class ImViewerModel
 				MetadataViewer.RND_SPECIFIC);
 		metadataViewer.setRootObject(image, metadataViewer.getUserID(),
 				getSecurityContext());
+		
+		// there might already exist another MetadataViewer with modified
+		// rendering settings; if so copy it's original settings
+                MetadataViewer otherViewer = MetadataViewerFactory.getViewerFromId(
+                        ImageData.class.getName(), image.getId());
+                if (otherViewer != null) {
+                    Renderer otherRenderer = otherViewer.getRenderer();
+                    if (otherRenderer != null)
+                        originalDef = otherRenderer.getInitialRndSettings();
+                }
 	}
 	
 	/**
@@ -1041,6 +1051,7 @@ class ImViewerModel
 		state = ImViewer.READY;
 		Renderer rnd = metadataViewer.getRenderer();
 		
+		
 		if (rnd != null && isBigImage()) {
 			resolutions = rnd.getResolutionDescriptions();
 			setSelectedResolutionLevel(getDefaultResolutionLevel());
@@ -1053,7 +1064,7 @@ class ImViewerModel
 			if (alternativeSettings != null && rnd != null)
 				rnd.resetSettings(alternativeSettings, false);
 			alternativeSettings = null;
-			if (rnd != null) originalDef = rnd.getRndSettingsCopy();
+			if (rnd != null && originalDef == null) originalDef = rnd.getRndSettingsCopy();
 		} catch (Exception e) {}
 	}
 	
