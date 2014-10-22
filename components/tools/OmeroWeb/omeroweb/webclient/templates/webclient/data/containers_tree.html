@@ -112,11 +112,9 @@
             {% if not share %}
             <li id='orphaned-0' rel="orphaned" {% if orphans %}class="jstree-closed"{% endif %}><a href="#">{% setting UI_TREE_ORPHANED.NAME %}</a></li>
             {% endif %}
-        </ul>
 
 
         {% if share.shSize %}
-        <ul>
             {% for s in share.shares %}
             {% if s.isEmpty %}
             <li id='discussion-{{ s.id }}' rel="discussion{% if not s.canEdit %}-locked{% endif %}"><a href="#">{{ s.id }}</a></li>
@@ -132,9 +130,10 @@
                 {% endif %}
             {% endif %}
             {% endfor %}
-        </ul>
         {% endif %}
-        
+
+        </ul>
+
     </li>
 </ul>
 

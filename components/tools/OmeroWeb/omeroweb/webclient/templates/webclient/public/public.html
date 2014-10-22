@@ -43,6 +43,10 @@
             },500);
         });
 
+    </script>
+
+    <script type="text/javascript">
+
         $(function() 
             {
                 var buttonsShowHide = function(selected) {
@@ -112,6 +116,16 @@
                                         "image" : '{% static "webclient/image/icon_user.png" %}'
                                     },
                                     "create_node" : false,
+                                    "start_drag" : false,
+                                    "move_node" : false,
+                                    "remove" : false
+                                },
+                                "experimenter-locked" : {
+                                    "valid_children" : [ "share", "share-locked", "discussion", "discussion-locked" ],
+                                    "icon" : {
+                                        "image" : '{% static "webclient/image/icon_user.png" %}'
+                                    },
+                                       "create_node" : false,
                                     "start_drag" : false,
                                     "move_node" : false,
                                     "remove" : false
