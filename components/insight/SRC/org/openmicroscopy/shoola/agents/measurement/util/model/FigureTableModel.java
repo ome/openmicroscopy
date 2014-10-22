@@ -26,7 +26,9 @@ package org.openmicroscopy.shoola.agents.measurement.util.model;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.swing.table.AbstractTableModel;
+
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
@@ -38,6 +40,7 @@ import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
+import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
 
 /** 
  * The model associated to the table displaying the figures.
@@ -74,20 +77,27 @@ public class FigureTableModel
 	/** Collection of fields. */
 	private List<AttributeField>	fieldList;
 	
+	/** Reference to the canvas.*/
+	private DrawingCanvasView canvas;
+
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param fieldList The collection of fields. Mustn't be <code>null</code>.
-	 * @param columnNames The collection of column's names. 
-	 * 	Mustn't be <code>null</code>.
+	 * @param columnNames The collection of column's names.
+	 *                    Mustn't be <code>null</code>.
+	 * @param canvas Reference to the drawing canvas. Mustn't be <code>null</code>.
 	 */
 	public FigureTableModel(List<AttributeField> fieldList,
-			List<String> columnNames)
+			List<String> columnNames, DrawingCanvasView canvas)
 	{
 		if (fieldList == null) 
 			throw new IllegalArgumentException("No fields specified.");
 		if (columnNames == null) 
 			throw new IllegalArgumentException("No column's names specified.");
+		if (canvas == null) 
+            throw new IllegalArgumentException("No canvas.");
+		this.canvas = canvas;
 		this.fieldList = fieldList;
 		this.columnNames = columnNames;
 		keys = new ArrayList<AttributeKey>();
@@ -125,15 +135,18 @@ public class FigureTableModel
 				key = (AttributeKey) i.next();
 				if (key.equals(fieldName.getKey()))
 				{
+				    Object value = figure.getAttribute(key);
 					if (MeasurementAttributes.TEXT.equals(key) ||
 							MeasurementAttributes.WIDTH.equals(key) ||
 							MeasurementAttributes.HEIGHT.equals(key)) {
 						if (figure.isReadOnly())
 							fieldName.setEditable(false);
 						else fieldName.setEditable(figure.canEdit());
+					} else if (MeasurementAttributes.FONT_SIZE.equals(key)) {
+					    value = ((Double) value)*canvas.getScaleFactor();
 					}
 					keys.add(key);
-					values.add(figure.getAttribute(key));
+					values.add(value);
 					found = true;
 					break;
 				}
