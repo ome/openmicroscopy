@@ -423,6 +423,27 @@ class TestCsrf(object):
         _csrf_post_reponse(django_client, request_url, data)
 
     # ADMIN
+    def test_myaccount(self, itest, client, django_client):
+        """
+        CSRF protection does not check `GET` requests so we need to be sure
+        that this request results in an HTTP 405 (method not allowed) status
+        code.
+        """
+
+        user_id = client.getSession().getAdminService().getEventContext().userId
+        user = client.getSession().getAdminService().getExperimenter(user_id)
+
+        request_url = reverse('wamyaccount', args=["save"])
+        data = {
+            "omename": user.omeName.val,
+            "first_name": user.omeName.val,
+            "last_name": user.lastName.val,
+            "institution": "foo bar",
+            "default_group": user.copyGroupExperimenterMap()[0].parent.id.val
+        }
+        _post_reponse(django_client, request_url, data)
+        _csrf_post_reponse(django_client, request_url, data, status_code=302)
+
     def test_create_group(self, itest, django_root_client):
         uuid = itest.uuid()
         request_url = reverse('wamanagegroupid', args=["create"])
