@@ -36,6 +36,14 @@ from django.test import Client
 from django.core.urlresolvers import reverse
 
 
+try:
+    from PIL import Image , ImageDraw# see ticket:2597
+except ImportError:
+    import Image, ImageDraw # see ticket:2597
+
+from random import randint as rint
+import tempfile
+
 @pytest.fixture(scope='function')
 def itest(request):
     """
@@ -271,11 +279,13 @@ class TestCsrf(object):
         that this request results in an HTTP 405 (method not allowed) status
         code.
         """
-        import tempfile
+
+        # Due to EOF both posts must be test separately
+        # Bad post
         try:
             temp = tempfile.NamedTemporaryFile(suffix='.csrf')
-            temp.write("Testing csrf token")
-            temp.flush()
+            temp.write("Testing without csrf token")
+            temp.seek(0)
 
             request_url = reverse('annotate_file')
             data = {
@@ -284,6 +294,21 @@ class TestCsrf(object):
                 'annotation_file': temp
             }
             _post_reponse(django_client, request_url, data)
+        finally:
+            temp.close()
+
+        # Good post
+        try:
+            temp = tempfile.NamedTemporaryFile(suffix='.csrf')
+            temp.write("Testing csrf token")
+            temp.seek(0)
+
+            request_url = reverse('annotate_file')
+            data = {
+                'image': image_with_channels.id.val,
+                'index': 0,
+                'annotation_file': temp
+            }
             _csrf_post_reponse(django_client, request_url, data)
         finally:
             temp.close()
@@ -440,6 +465,72 @@ class TestCsrf(object):
             "last_name": user.lastName.val,
             "institution": "foo bar",
             "default_group": user.copyGroupExperimenterMap()[0].parent.id.val
+        }
+        _post_reponse(django_client, request_url, data)
+        _csrf_post_reponse(django_client, request_url, data, status_code=302)
+
+    def test_avatar(self, itest, client, django_client):
+        """
+        CSRF protection does not check `GET` requests so we need to be sure
+        that this request results in an HTTP 405 (method not allowed) status
+        code.
+        """
+
+        user_id = client.getSession().getAdminService().getEventContext().userId
+        user = client.getSession().getAdminService().getExperimenter(user_id)
+
+        # Due to EOF both posts must be test separately
+        # Bad post
+        try:
+            temp = tempfile.NamedTemporaryFile(suffix='.png')
+
+            img = Image.new("RGB", (200,200), "#FFFFFF")
+            draw = ImageDraw.Draw(img)
+
+            r,g,b = rint(0,255), rint(0,255), rint(0,255)
+            for i in range(200):
+                draw.line((i,0,i,200), fill=(int(r),int(g),int(b)))
+            img.save(temp, "PNG")
+            temp.seek(0)
+
+            request_url = reverse('wamanageavatar', args=[user_id, "upload"])
+            data = {
+                'filename': 'avatar.png',
+                "photo": temp
+            }
+            _post_reponse(django_client, request_url, data)
+        finally:
+            temp.close()
+
+        # Good post
+        try:
+            temp = tempfile.NamedTemporaryFile(suffix='.png')
+
+            img = Image.new("RGB", (200,200), "#FFFFFF")
+            draw = ImageDraw.Draw(img)
+
+            r,g,b = rint(0,255), rint(0,255), rint(0,255)
+            for i in range(200):
+                draw.line((i,0,i,200), fill=(int(r),int(g),int(b)))
+            img.save(temp, "PNG")
+            temp.seek(0)
+
+            request_url = reverse('wamanageavatar', args=[user_id, "upload"])
+            data = {
+                'filename': 'avatar.png',
+                "photo": temp
+            }
+            _csrf_post_reponse(django_client, request_url, data, status_code=302)
+        finally:
+            temp.close()
+
+        # Crop avatar
+        request_url = reverse('wamanageavatar', args=[user_id, "crop"])
+        data = {
+            'x1':50,
+            'x2':150,
+            'y1':50,
+            'y2':150
         }
         _post_reponse(django_client, request_url, data)
         _csrf_post_reponse(django_client, request_url, data, status_code=302)
