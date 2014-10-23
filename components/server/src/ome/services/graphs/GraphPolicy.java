@@ -26,7 +26,7 @@ import java.util.Set;
 import ome.model.IObject;
  
 /**
- * A policy guides how to traverse the graph. This class' methods are expected to be fast.
+ * A policy guides how to traverse the graph. This class' methods are expected to be fast and are not required to be thread-safe.
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.1.0
  */
