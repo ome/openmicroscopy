@@ -21,11 +21,14 @@ package omero.cmd.graphs;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import ome.services.graphs.GraphOpts.Op;
 import omero.cmd.GraphModify;
 import omero.cmd.GraphModify2;
+import omero.cmd.graphOptions.ChildOption;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.HashMultimap;
@@ -80,24 +83,33 @@ class GraphUtil {
      * @param requestTo the target of the field copy
      */
     static void copyFields(GraphModify2 requestFrom, GraphModify2 requestTo) {
-        requestTo.dryRun = requestFrom.dryRun;
         requestTo.targetObjects = requestFrom.targetObjects == null ? null : new HashMap<String, long[]>(requestFrom.targetObjects);
-        requestTo.includeNs = requestTo.includeNs == null ? null : new ArrayList<String>(requestFrom.includeNs);
-        requestTo.excludeNs = requestTo.excludeNs == null ? null : new ArrayList<String>(requestFrom.excludeNs);
-        requestTo.includeChild = requestTo.includeChild == null ? null : new ArrayList<String>(requestFrom.includeChild);
-        requestTo.excludeChild = requestTo.excludeChild == null ? null : new ArrayList<String>(requestFrom.excludeChild);
+        if (requestFrom.childOptions == null) {
+            requestTo.childOptions = null;
+        } else {
+            requestTo.childOptions = new ChildOption[requestFrom.childOptions.length];
+            for (int index = 0; index < requestFrom.childOptions.length; index++) {
+                requestTo.childOptions[index] = new ChildOptionI((ChildOptionI) requestFrom.childOptions[index]);
+            }
+        }
+        requestTo.dryRun = requestFrom.dryRun;
     }
 
     /**
      * Approximately translate {@link GraphModify} options in setting the parameters of a {@link GraphModify2} request.
+     * @param graphRequestFactory a means of instantiating new child options
      * @param options {@link GraphModify} options, may be {@code null}
      * @param request the request whose options should be updated
      */
-    static void translateOptions(Map<String, String> options, GraphModify2 request) {
+    static void translateOptions(GraphRequestFactory graphRequestFactory, Map<String, String> options,
+            GraphModify2 request) {
         if (options == null) {
             return;
         }
+        request.childOptions = new ChildOption[options.size()];
+        int index = 0;
         for (final Map.Entry<String, String> option : options.entrySet()) {
+            request.childOptions[index] = graphRequestFactory.createChildOption();
             /* find type to which options apply */
             String optionType = option.getKey();
             if (optionType.charAt(0) == '/') {
@@ -105,20 +117,20 @@ class GraphUtil {
             }
             for (final String optionValue : GraphUtil.splitList(';', option.getValue())) {
                 /* approximately translate each option */
-                if ("KEEP".equals(optionValue)) {
-                    if (request.excludeChild == null) {
-                        request.excludeChild = new ArrayList<String>();
-                    }
-                    request.excludeChild.add(optionType);
+                if (Op.KEEP.toString().equals(optionValue)) {
+                    request.childOptions[index].excludeType = Collections.singletonList(optionType);
+                } else if (Op.HARD.toString().equals(optionValue)) {
+                    request.childOptions[index].includeType = Collections.singletonList(optionType);
                 } else if (optionValue.startsWith("excludes=")) {
-                    if (request.excludeNs == null) {
-                        request.excludeNs = new ArrayList<String>();
+                    if (request.childOptions[index].excludeNs == null) {
+                        request.childOptions[index].excludeNs = new ArrayList<String>();
                     }
-                    for (final String nameSpace : GraphUtil.splitList(',', optionValue)) {
-                        request.excludeNs.add(nameSpace);
+                    for (final String namespace : GraphUtil.splitList(',', optionValue.substring(9))) {
+                        request.childOptions[index].excludeNs.add(namespace);
                     }
                 }
             }
+            index++;
         }
     }
 
