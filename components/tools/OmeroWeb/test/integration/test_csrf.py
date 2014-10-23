@@ -24,7 +24,7 @@ working correctly.
 
 import omero
 import omero.clients
-from omero.rtypes import rstring
+from omero.rtypes import rstring, rtime
 import pytest
 import test.integration.library as lib
 
@@ -340,6 +340,69 @@ class TestCsrf(object):
         data = {
             'child': 'on',
             'dataset': did
+        }
+        _post_reponse(django_client, request_url, data)
+        _csrf_post_reponse(django_client, request_url, data)
+
+    def test_basket_actions(self, itest, client, django_client, image_with_channels):
+        """
+        CSRF protection does not check `GET` requests so we need to be sure
+        that this request results in an HTTP 405 (method not allowed) status
+        code.
+        """
+
+        user_to_share = itest.new_user()
+
+        # Create discussion
+        request_url = reverse("basket_action", args=["createdisc"])
+        data = {
+            'enable':'on',
+            'members': user_to_share.id.val,
+            'message':'foobar'
+        }
+        _post_reponse(django_client, request_url, data)
+        _csrf_post_reponse(django_client, request_url, data)
+
+        # Create share
+        request_url = reverse("basket_action", args=["createshare"])
+        data = {
+            'enable':'on',
+            'image': image_with_channels.id.val,
+            'members': user_to_share.id.val,
+            'message':'foobar'
+        }
+
+        # edit share
+        # create images
+        images = [
+            itest.createTestImage(session=client.getSession()),
+            itest.createTestImage(session=client.getSession())]
+
+        # put images into the basket
+        session = django_client.session
+        session['imageInBasket'] = [i.id.val for i in images]
+        session.save()
+
+        _post_reponse(django_client, request_url, data)
+        _csrf_post_reponse(django_client, request_url, data)
+
+        sid = client.getSession().getShareService().createShare("foobar", rtime(None), images, [user_to_share], [], True)
+
+        request_url = reverse("manage_action_containers", args=["save", "share", sid])
+
+        data = {
+            'enable':'on',
+            'image': [i.id.val for i in images],
+            'members': user_to_share.id.val,
+            'message':'another foobar'
+        }
+        _post_reponse(django_client, request_url, data)
+        _csrf_post_reponse(django_client, request_url, data)
+
+        # remove image from share
+        request_url = reverse("manage_action_containers", args=["removefromshare", "share", sid])
+        data = {
+            'source':images[1].id.val,
         }
         _post_reponse(django_client, request_url, data)
         _csrf_post_reponse(django_client, request_url, data)
