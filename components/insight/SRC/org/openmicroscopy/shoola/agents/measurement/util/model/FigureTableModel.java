@@ -40,7 +40,6 @@ import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
-import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
 
 /** 
  * The model associated to the table displaying the figures.
@@ -76,9 +75,6 @@ public class FigureTableModel
 	
 	/** Collection of fields. */
 	private List<AttributeField>	fieldList;
-	
-	/** Reference to the canvas.*/
-	private DrawingCanvasView canvas;
 
 	/**
 	 * Creates a new instance.
@@ -89,15 +85,12 @@ public class FigureTableModel
 	 * @param canvas Reference to the drawing canvas. Mustn't be <code>null</code>.
 	 */
 	public FigureTableModel(List<AttributeField> fieldList,
-			List<String> columnNames, DrawingCanvasView canvas)
+			List<String> columnNames)
 	{
 		if (fieldList == null) 
 			throw new IllegalArgumentException("No fields specified.");
 		if (columnNames == null) 
 			throw new IllegalArgumentException("No column's names specified.");
-		if (canvas == null) 
-            throw new IllegalArgumentException("No canvas.");
-		this.canvas = canvas;
 		this.fieldList = fieldList;
 		this.columnNames = columnNames;
 		keys = new ArrayList<AttributeKey>();
@@ -142,8 +135,6 @@ public class FigureTableModel
 						if (figure.isReadOnly())
 							fieldName.setEditable(false);
 						else fieldName.setEditable(figure.canEdit());
-					} else if (MeasurementAttributes.FONT_SIZE.equals(key)) {
-					    value = ((Double) value)*canvas.getScaleFactor();
 					}
 					keys.add(key);
 					values.add(value);

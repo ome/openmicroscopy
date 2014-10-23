@@ -32,7 +32,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.swing.BoxLayout;
 import javax.swing.Icon;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
@@ -82,6 +84,9 @@ class ObjectInspector
 	/** The name of the panel. */
 	private static final String			NAME = "Inspector";
 	
+	/** Text indicating the scaling factor.*/
+	private static final String MAGNIFICATION = "The scaling Factor";
+	
 	/** The table hosting the various fields. */
 	private FigureTable					fieldTable;
 
@@ -90,6 +95,9 @@ class ObjectInspector
 	
 	/** Reference to the model. */
 	private MeasurementViewerModel		model;
+
+	/** Magnification factor label*/
+	private JLabel infoLabel;
 
 	static {
 		COLUMN_NAMES = new ArrayList<String>(2);
@@ -136,6 +144,7 @@ class ObjectInspector
 	/** Initializes the component composing the display. */
 	private void initComponents()
 	{
+	    infoLabel = new JLabel(MAGNIFICATION+" is 1");
 		//create the table
 		fieldTable = new FigureTable(new FigureTableModel(attributeFields,
 		        COLUMN_NAMES, model.getDrawingView()));
@@ -279,6 +288,13 @@ class ObjectInspector
 	private void buildGUI()
 	{
 		setLayout(new BorderLayout());
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		JLabel l = new JLabel();
+		l.setText("Information below (e.g. font size) are for a scaling factor of 1.");
+		p.add(l);
+		p.add(infoLabel);
+		add(p, BorderLayout.NORTH);
 		add(new JScrollPane(fieldTable), BorderLayout.CENTER);
 	}
 	
@@ -423,11 +439,8 @@ class ObjectInspector
 	/** Updates the display when the magnification factor changes.*/
 	void onMagnificationChanged()
 	{
-	    FigureTableModel tm = (FigureTableModel) fieldTable.getModel();
-	    ROIFigure figure = tm.getFigure();
-	    if (figure != null) {
-	        tm.setData(figure);
-	    }
+	    infoLabel.setText(MAGNIFICATION+" is "+
+	model.getDrawingView().getScaleFactor());
 	}
 
 	/**
