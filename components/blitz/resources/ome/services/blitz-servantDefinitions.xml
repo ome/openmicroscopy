@@ -366,8 +366,17 @@
       </constructor-arg>
       <constructor-arg>
         <list>
+          <value>Image.fileset</value>
           <value>Image.instrument</value>
         </list>
+      </constructor-arg>
+      <constructor-arg>
+        <set>
+          <!-- omero::constants::namespaces::NSCOMPANIONFILE -->
+          <value>openmicroscopy.org/omero/import/companionFile</value>
+          <!-- omero::constants::namespaces::NSMEASUREMENT -->
+          <value>openmicroscopy.org/omero/measurement</value>
+        </set>
       </constructor-arg>
       <constructor-arg value="${omero.graphs.wrap}"/>
   </bean>
