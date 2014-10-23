@@ -28,9 +28,7 @@ import omero.cmd.Chgrp;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
 import omero.cmd.OK;
-import omero.cmd.Request;
 import omero.cmd.Response;
-import omero.cmd.Status;
 import omero.cmd.HandleI.Cancel;
 
 /**
@@ -41,11 +39,8 @@ import omero.cmd.HandleI.Cancel;
 public class ChgrpFacadeI extends Chgrp implements IRequest {
 
     private final GraphRequestFactory graphRequestFactory;
-    private final Status chgrpRequestStatus = new Status();
 
     private IRequest chgrpRequest;
-
-    private Helper helper;
 
     /**
      * Construct a new <q>chgrp</q> request; called from {@link GraphRequestFactory#getRequest(Class)}.
@@ -73,7 +68,7 @@ public class ChgrpFacadeI extends Chgrp implements IRequest {
         /* set target object and group then review options */
         actualChgrp.targetObjects = ImmutableMap.of(targetType, new long[] {id});
         actualChgrp.groupId = grp;
-        GraphUtil.translateOptions(options, actualChgrp);
+        GraphUtil.translateOptions(graphRequestFactory, options, actualChgrp);
         /* check for root-anchored subgraph */
         final int lastSlash = type.lastIndexOf('/');
         if (lastSlash > 0) {
@@ -86,14 +81,11 @@ public class ChgrpFacadeI extends Chgrp implements IRequest {
         }
 
         /* now the chgrp request is configured, complete initialization */
-        chgrpRequest.init(helper.subhelper((Request) chgrpRequest, chgrpRequestStatus));
-        this.helper = helper;
-        helper.setSteps(chgrpRequestStatus.steps);
+        chgrpRequest.init(helper);
     }
 
     @Override
     public Object step(int step) throws Cancel {
-        helper.assertStep(step);
         return chgrpRequest.step(step);
     }
 
@@ -104,7 +96,6 @@ public class ChgrpFacadeI extends Chgrp implements IRequest {
 
     @Override
     public void buildResponse(int step, Object object) {
-        helper.assertResponse(step);
         chgrpRequest.buildResponse(step, object);
     }
 

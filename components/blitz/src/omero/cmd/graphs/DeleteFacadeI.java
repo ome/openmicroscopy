@@ -31,9 +31,7 @@ import omero.cmd.DeleteRsp;
 import omero.cmd.GraphModify2;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
-import omero.cmd.Request;
 import omero.cmd.Response;
-import omero.cmd.Status;
 import omero.cmd.HandleI.Cancel;
 
 /**
@@ -44,11 +42,10 @@ import omero.cmd.HandleI.Cancel;
 public class DeleteFacadeI extends Delete implements IRequest {
 
     private final GraphRequestFactory graphRequestFactory;
-    private final Status deleteRequestStatus = new Status();
 
     private IRequest deleteRequest;
 
-    private Helper helper;
+    private int steps;
 
     /**
      * Construct a new <q>delete</q> request; called from {@link GraphRequestFactory#getRequest(Class)}.
@@ -75,7 +72,7 @@ public class DeleteFacadeI extends Delete implements IRequest {
         final Delete2I actualDelete = (Delete2I) deleteRequest;
         /* set target object then review options */
         actualDelete.targetObjects = ImmutableMap.of(targetType, new long[] {id});
-        GraphUtil.translateOptions(options, actualDelete);
+        GraphUtil.translateOptions(graphRequestFactory, options, actualDelete);
         /* check for root-anchored subgraph */
         final int lastSlash = type.lastIndexOf('/');
         if (lastSlash > 0) {
@@ -88,14 +85,12 @@ public class DeleteFacadeI extends Delete implements IRequest {
         }
 
         /* now the delete request is configured, complete initialization */
-        deleteRequest.init(helper.subhelper((Request) deleteRequest, deleteRequestStatus));
-        this.helper = helper;
-        helper.setSteps(deleteRequestStatus.steps);
+        deleteRequest.init(helper);
+        steps = helper.getStatus().steps;
     }
 
     @Override
     public Object step(int step) throws Cancel {
-        helper.assertStep(step);
         return deleteRequest.step(step);
     }
 
@@ -106,7 +101,6 @@ public class DeleteFacadeI extends Delete implements IRequest {
 
     @Override
     public void buildResponse(int step, Object object) {
-        helper.assertResponse(step);
         deleteRequest.buildResponse(step, object);
     }
 
@@ -116,7 +110,7 @@ public class DeleteFacadeI extends Delete implements IRequest {
         final DeleteRsp facadeResponse = new DeleteRsp();
 
         facadeResponse.warning = "";
-        facadeResponse.steps = deleteRequestStatus.steps;
+        facadeResponse.steps = steps;
         facadeResponse.undeletedFiles = new HashMap<String, long[]>();
 
         if (actualResponse == null) {
