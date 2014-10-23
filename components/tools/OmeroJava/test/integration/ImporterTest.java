@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- *   Copyright 2006-2010 University of Dundee. All rights reserved.
+ *   Copyright 2006-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package integration;
@@ -1057,7 +1057,7 @@ public class ImporterTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(groups = "broken")
+    @Test
     public void testImportPlate() throws Exception {
         File f = File.createTempFile("testImportPlate", "." + OME_FORMAT);
         files.add(f);
@@ -1067,12 +1067,13 @@ public class ImporterTest extends AbstractServerTest {
         writer.writeFile(f, ome, true);
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, ome.getPlate(0).getName());
         } catch (Throwable e) {
             throw new Exception("cannot import the plate", e);
         }
         Pixels p = pixels.get(0);
         WellSample ws = getWellSample(p);
+        assertNotNull(ws);
         validateWellSample(ws, ome.getPlate(0).getWell(0).getWellSample(0));
         Well well = ws.getWell();
         assertNotNull(well);
@@ -1089,7 +1090,7 @@ public class ImporterTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(groups = "broken")
+    @Test
     public void testImportScreenWithOnePlate() throws Exception {
         File f = File.createTempFile("testImportScreenWithOnePlate", "."
                 + OME_FORMAT);
@@ -1106,7 +1107,7 @@ public class ImporterTest extends AbstractServerTest {
         writer.writeFile(f, ome, true);
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, ome.getPlate(0).getName());
         } catch (Throwable e) {
             throw new Exception("cannot import the plate", e);
         }

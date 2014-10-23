@@ -212,11 +212,6 @@ public class AnnotationDeleteTest extends AbstractServerTest {
         disconnect();
     }
 
-    @Test(groups = { "broken", "ticket:2997" })
-    public void testOtherUsersRatingsIsNotDeletedIfReused() throws Exception {
-        fail("NYI");
-    }
-
     //
     // Tests for the less common annotated types
     //

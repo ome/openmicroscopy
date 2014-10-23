@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2014 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -33,7 +33,6 @@ import integration.DeleteServiceTest;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.AssertionFailedError;
 import omero.api.Save;
 import omero.cmd.Chgrp;
 import omero.cmd.DoAll;
@@ -57,9 +56,6 @@ import org.testng.annotations.Test;
 import static org.testng.AssertJUnit.*;
 
 public class HierarchyMoveDatasetTest extends AbstractServerTest {
-
-    /** temporary boolean flag to disable all but one test **/
-    static final boolean runAllTests = true;
 
     /** Indicates to move but not to link. */
     static final int LINK_NONE = 0;
@@ -245,7 +241,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(enabled = runAllTests, groups = "broken")
+    @Test(groups = "broken")
     public void testMoveDatasetWithSharedImage() throws Exception {
         String perms = "rw----";
         EventContext ctx = newUserAndGroup(perms);
@@ -330,7 +326,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(enabled = runAllTests)
+    @Test
     public void testMoveDatasetToProjectRWRtoRWR() throws Exception {
         moveDataDatasetToProject("rwr---", "rwr---", LINK_EXISTING, MEMBER);
     }
@@ -343,7 +339,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(enabled = runAllTests)
+    @Test
     public void testMoveDatasetToProjectRWRtoRW() throws Exception {
         moveDataDatasetToProject("rwr---", "rw----", LINK_EXISTING, MEMBER);
     }
@@ -356,7 +352,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(enabled = runAllTests)
+    @Test
     public void testMoveDatasetToProjectRWRAtoRW() throws Exception {
         moveDataDatasetToProject("rwra--", "rw----", LINK_EXISTING, MEMBER);
     }
@@ -369,7 +365,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(enabled = runAllTests)
+    @Test
     public void testMoveDatasetToProjectRWRAtoRWRA() throws Exception {
         moveDataDatasetToProject("rwra--", "rwra--", LINK_EXISTING, MEMBER);
     }
@@ -382,7 +378,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(enabled = runAllTests)
+    @Test
     public void testMoveDatasetToProjectRWtoRWR() throws Exception {
         moveDataDatasetToProject("rw----", "rwr---", LINK_EXISTING, MEMBER);
     }
@@ -395,7 +391,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(enabled = runAllTests)
+    @Test
     public void testMoveDatasetToProjectRWtoRWRA() throws Exception {
         moveDataDatasetToProject("rw----", "rwra--", LINK_EXISTING, MEMBER);
     }
@@ -408,7 +404,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(enabled = runAllTests)
+    @Test
     public void testMoveDatasetToProjectRWRtoRWRA() throws Exception {
         moveDataDatasetToProject("rwr---", "rwra--", LINK_EXISTING, MEMBER);
     }
@@ -421,7 +417,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(enabled = runAllTests)
+    @Test
     public void testMoveDatasetToNewProjectRWtoRW() throws Exception {
         moveDataDatasetToProject("rw----", "rw----", LINK_NEW, MEMBER);
     }
@@ -434,7 +430,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(enabled = runAllTests)
+    @Test
     public void testMoveDatasetToNewProjectRWRtoRWR() throws Exception {
         moveDataDatasetToProject("rwr---", "rwr---", LINK_NEW, MEMBER);
     }
@@ -447,7 +443,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(enabled = runAllTests)
+    @Test
     public void testMoveDatasetToNewProjectRWRtoRW() throws Exception {
         moveDataDatasetToProject("rwr---", "rw----", LINK_NEW, MEMBER);
     }
@@ -460,7 +456,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(enabled = runAllTests)
+    @Test
     public void testMoveDatasetToNewProjectRWRAtoRW() throws Exception {
         moveDataDatasetToProject("rwra--", "rw----", LINK_NEW, MEMBER);
     }
@@ -473,7 +469,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(enabled = runAllTests)
+    @Test
     public void testMoveDatasetToNewProjectRWRAtoRWRA() throws Exception {
         moveDataDatasetToProject("rwra--", "rwra--", LINK_NEW, MEMBER);
     }
@@ -486,7 +482,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(enabled = runAllTests)
+    @Test
     public void testMoveDatasetToNewProjectRWtoRWR() throws Exception {
         moveDataDatasetToProject("rw----", "rwr---", LINK_NEW, MEMBER);
     }
@@ -499,7 +495,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(enabled = runAllTests)
+    @Test
     public void testMoveDatasetToNewProjectRWtoRWRA() throws Exception {
         moveDataDatasetToProject("rw----", "rwra--", LINK_NEW, MEMBER);
     }
@@ -512,7 +508,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(enabled = runAllTests)
+    @Test
     public void testMoveDatasetToNewProjectRWRtoRWRA() throws Exception {
         moveDataDatasetToProject("rwr---", "rwra--", LINK_NEW, MEMBER);
     }
@@ -525,13 +521,13 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(enabled = runAllTests, groups = "broken")
+    @Test
     public void testMoveDatasetToProjectRWtoRWByAdmin() throws Exception {
         try {
             moveDataDatasetToProject("rw----", "rw----", LINK_EXISTING, ADMIN);
             fail("A security Violation should have been thrown."
                     + "Admin not allowed to create a link in private group.");
-        } catch (AssertionFailedError e) {
+        } catch (AssertionError e) {
             if (!e.getMessage().contains("Found ERR")) {
                 throw e;
             }
@@ -547,13 +543,13 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(enabled = runAllTests, groups = "broken")
+    @Test
     public void testMoveDatasetToNewProjectRWtoRWByAdmin() throws Exception {
         try {
             moveDataDatasetToProject("rw----", "rw----", LINK_NEW, ADMIN);
             fail("A security Violation should have been thrown."
                     + "Admin not allowed to create a link in private group.");
-        } catch (AssertionFailedError e) {
+        } catch (AssertionError e) {
             if (!e.getMessage().contains("Found ERR")) {
                 throw e;
             }
@@ -569,7 +565,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(enabled = runAllTests)
+    @Test
     public void testMoveDatasetRWtoRWByAdmin() throws Exception {
         moveDataDatasetToProject("rw----", "rw----", LINK_NONE, ADMIN);
     }
@@ -582,13 +578,13 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(enabled = runAllTests, groups = "broken")
+    @Test
     public void testMoveDatasetToProjectRWRtoRWByAdmin() throws Exception {
         try {
             moveDataDatasetToProject("rwr---", "rw----", LINK_EXISTING, ADMIN);
             fail("A security Violation should have been thrown."
                     + "Admin not allowed to create a link in private group.");
-        } catch (AssertionFailedError e) {
+        } catch (AssertionError e) {
             if (!e.getMessage().contains("Found ERR")) {
                 throw e;
             }
@@ -604,13 +600,13 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(enabled = runAllTests, groups = "broken")
+    @Test
     public void testMoveDatasetToNewProjectRWRtoRWByAdmin() throws Exception {
         try {
             moveDataDatasetToProject("rwr---", "rw----", LINK_NEW, ADMIN);
             fail("A security Violation should have been thrown."
                     + "Admin not allowed to create a link in private group.");
-        } catch (AssertionFailedError e) {
+        } catch (AssertionError e) {
             if (!e.getMessage().contains("Found ERR")) {
                 throw e;
             }
@@ -626,7 +622,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(enabled = runAllTests)
+    @Test
     public void testMoveDatasetRWRtoRWByAdmin() throws Exception {
         moveDataDatasetToProject("rwr---", "rw----", LINK_NONE, ADMIN);
     }
@@ -639,13 +635,13 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(enabled = runAllTests, groups = "broken")
+    @Test
     public void testMoveDatasetToProjectRWRAtoRWByAdmin() throws Exception {
         try {
             moveDataDatasetToProject("rwra--", "rw----", LINK_EXISTING, ADMIN);
             fail("A security Violation should have been thrown."
                     + "Admin not allowed to create a link in private group.");
-        } catch (AssertionFailedError e) {
+        } catch (AssertionError e) {
             if (!e.getMessage().contains("Found ERR")) {
                 throw e;
             }
@@ -661,13 +657,13 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(enabled = runAllTests, groups = "broken")
+    @Test
     public void testMoveDatasetToNewProjectRWRAtoRWByAdmin() throws Exception {
         try {
             moveDataDatasetToProject("rwr---", "rw----", LINK_NEW, ADMIN);
             fail("A security Violation should have been thrown."
                     + "Admin not allowed to create a link in private group.");
-        } catch (AssertionFailedError e) {
+        } catch (AssertionError e) {
             if (!e.getMessage().contains("Found ERR")) {
                 throw e;
             }
@@ -683,7 +679,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(enabled = runAllTests)
+    @Test
     public void testMoveDatasetRWRAtoRWByAdmin() throws Exception {
         moveDataDatasetToProject("rwra--", "rwr---", LINK_NONE, ADMIN);
     }
@@ -696,7 +692,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(enabled = runAllTests)
+    @Test
     public void testMoveDatasetRWtoRWRByAdmin() throws Exception {
         moveDataDatasetToProject("rwra--", "rwr---", LINK_NONE, ADMIN);
     }
@@ -709,7 +705,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(enabled = runAllTests)
+    @Test
     public void testMoveDatasetRWtoRWRAByAdmin() throws Exception {
         moveDataDatasetToProject("rw----", "rwra--", LINK_NONE, ADMIN);
     }
@@ -722,7 +718,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(enabled = runAllTests)
+    @Test
     public void testMoveDatasetRWRtoRWRAByAdmin() throws Exception {
         moveDataDatasetToProject("rwr---", "rwra--", LINK_NONE, ADMIN);
     }
@@ -735,7 +731,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(enabled = runAllTests)
+    @Test
     public void testMoveDatasetRWRAtoRWRByAdmin() throws Exception {
         moveDataDatasetToProject("rwra--", "rwr---", LINK_NONE, ADMIN);
     }

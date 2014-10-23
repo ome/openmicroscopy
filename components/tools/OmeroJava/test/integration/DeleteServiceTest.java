@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import junit.framework.AssertionFailedError;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.specification.XMLMockObjects;
 import ome.specification.XMLWriter;
@@ -3286,7 +3285,7 @@ public class DeleteServiceTest extends AbstractServerTest {
      * After a discussion Sept. 2010, this is expected to fail. An Image in a
      * Well can only be deleted via the Well or the Plate.
      */
-    @Test(groups = {"ticket:2768", "broken"})
+    @Test(groups = {"ticket:2768"})
     public void testDeleteImageThatsInAWell() throws Exception {
 
         Plate p = (Plate) iUpdate.saveAndReturnObject(mmFactory.createPlate(1,
@@ -3303,7 +3302,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         try {
             delete(dc);
             fail("Should not be allowed.");
-        } catch (AssertionFailedError afe) {
+        } catch (AssertionError afe) {
             // Ok.
         }
 
@@ -3562,7 +3561,7 @@ public class DeleteServiceTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(groups = {"ticket:2917", "broken"})
+    @Test(groups = {"ticket:2917"})
     public void testTxIntegrity() throws Exception {
         List<IObject> images = new ArrayList<IObject>();
         images.add(mmFactory.createImage());
@@ -3581,7 +3580,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         try {
             delete(new Delete(REF_IMAGE, image0.getId().getValue(), null));
             fail("Should throw on constraint violation");
-        } catch (AssertionFailedError e) {
+        } catch (AssertionError e) {
             // ok. constraint violation was thrown, there for the delete()
             // method failed, so now we can test that the tx was actually
             // rolled back.
