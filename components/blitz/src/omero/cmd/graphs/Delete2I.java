@@ -103,13 +103,18 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
 
         final EventContext eventContext = helper.getEventContext();
 
+        final ChildOptionI[] childOptions = ChildOptionI.castChildOptions(this.childOptions);
+
+        if (childOptions != null) {
+            for (final ChildOptionI childOption : childOptions) {
+                childOption.init();
+            }
+        }
+
         GraphPolicy graphPolicyWithOptions = graphPolicy;
 
-        graphPolicyWithOptions = AnnotationNamespacePolicy.getAnnotationNamespacePolicy(graphPolicyWithOptions,
-                includeNs, excludeNs);
-
-        graphPolicyWithOptions = OrphanOverridePolicy.getOrphanOverridePolicy(graphPolicyWithOptions, graphPathBean,
-                includeChild, excludeChild, REQUIRED_ABILITIES);
+        graphPolicyWithOptions = ChildOptionsPolicy.getChildOptionsPolicy(graphPolicyWithOptions, graphPathBean, childOptions,
+                REQUIRED_ABILITIES);
 
         graphTraversal = new GraphTraversal(helper.getSession(), eventContext, aclVoter, systemTypes, graphPathBean, unnullable,
                 graphPolicyWithOptions, dryRun ? new NullGraphTraversalProcessor(REQUIRED_ABILITIES) : new InternalProcessor());

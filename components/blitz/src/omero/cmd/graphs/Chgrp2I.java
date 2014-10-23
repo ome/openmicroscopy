@@ -108,13 +108,18 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
             throw helper.cancel(new ERR(), new IllegalArgumentException(), "not a member of the chgrp destination group");
         }
 
+        final ChildOptionI[] childOptions = ChildOptionI.castChildOptions(this.childOptions);
+
+        if (childOptions != null) {
+            for (final ChildOptionI childOption : childOptions) {
+                childOption.init();
+            }
+        }
+
         GraphPolicy graphPolicyWithOptions = graphPolicy;
 
-        graphPolicyWithOptions = AnnotationNamespacePolicy.getAnnotationNamespacePolicy(graphPolicyWithOptions,
-                includeNs, excludeNs);
-
-        graphPolicyWithOptions = OrphanOverridePolicy.getOrphanOverridePolicy(graphPolicyWithOptions, graphPathBean,
-                includeChild, excludeChild, REQUIRED_ABILITIES);
+        graphPolicyWithOptions = ChildOptionsPolicy.getChildOptionsPolicy(graphPolicyWithOptions, graphPathBean, childOptions,
+                REQUIRED_ABILITIES);
 
         graphTraversal = new GraphTraversal(helper.getSession(), eventContext, aclVoter, systemTypes, graphPathBean, unnullable,
                 graphPolicyWithOptions, dryRun ? new NullGraphTraversalProcessor(REQUIRED_ABILITIES) : new InternalProcessor());
