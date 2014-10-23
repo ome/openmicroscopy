@@ -97,9 +97,9 @@ Create Group
     Input Text              last_name       ${user_name}
     Input Text              institution     ${user_name}
     
-    Click Element           xpath=//ul[@class='chzn-choices']
-    Page Should Contain Element             xpath=//ul[@class='chzn-results']
-    Click Element           xpath=//ul[@class='chzn-results']/li[contains(text(),'${group_name}')]
+    Click Element           xpath=//ul[@class='chosen-choices']
+    Page Should Contain Element             xpath=//ul[@class='chosen-results']
+    Click Element           xpath=//ul[@class='chosen-results']/li[contains(text(),'${group_name}')]
     
     Click Button    Save
 
