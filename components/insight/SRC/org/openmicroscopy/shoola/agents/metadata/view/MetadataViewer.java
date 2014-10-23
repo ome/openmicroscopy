@@ -277,6 +277,12 @@ public interface MetadataViewer
 	public JComponent getEditorUI();
 	
 	/**
+	 * Checks if the renderer has already been initialized
+	 * @return See above.
+	 */
+	public boolean isRendererLoaded();
+	
+	/**
 	 * Returns the component hosted by the view.
 	 * 
 	 * @return See above.
