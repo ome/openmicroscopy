@@ -52,7 +52,7 @@
             // double-click handler on image - launches image viewer
             $("#dataIcons li").dblclick(function(event) {
                 {% if share and not share.share.isOwned %}
-                    OME.openPopup("{% url 'web_image_viewer' share.share.id 0 %}".replace('0', $(this).attr('id').split("-")[1] ));
+                    OME.openPopup("{% url 'web_image_viewer' share.share.id 0 %}".replace('/0/', "/"+$(this).attr('id').split("-")[1]+"/" ));
                 {% else %}
                     OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('0', $(this).attr('id').split("-")[1] ));
                 {% endif %}
