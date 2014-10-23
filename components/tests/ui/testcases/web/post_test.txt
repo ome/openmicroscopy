@@ -90,6 +90,28 @@ Test Cut Paste Image
     ${iid}=                                 Select And Expand Image
     Click Element                           id=cutButton
     # Dataset should be selected, paste back
-    ${did}=                                 Get Element Attribute   css=//li[a/@class='jstree-clicked']@id
+    Wait Until Page Contains Element        xpath=//li[@rel='dataset']/a[@class='jstree-clicked']
+    ${did}=                                 Get Element Attribute   xpath=//li[a/@class='jstree-clicked']@id
     Click Element                           id=pasteButton
+    Wait Until Page Contains Element        xpath=//li[@id='${did}']//li[@id='${iid}']
+
+
+Test Chgrp
+    [Documentation]     Tests chgrp of a Project to any other group
+
+    # Clear any activities from earlier tests etc.
+    Click Element                           id=launch_activities
+    Click Element                           id=clear_activities
+    Select Experimenter
+    ${pid}=                                 Create project      robot test chgrp
+    Click Element                           refreshButton
+    Wait Until Page Contains Element        id=project-${pid}
+    Open Context Menu                       xpath=//li[@id='project-${pid}']/a
+    Mouse Over                              xpath=//div[@id='vakata-contextmenu']//a[@rel='chgrp']
+    # Click Element                           css=#vakata-contextmenu li[4] li   # first visible submenu item
+    Click Element                           xpath=//div[@id='vakata-contextmenu']//li[4]//li/a
+    Wait Until Page Contains Element        id=chgrp-form
+    Submit Form                             id=chgrp-form
+    Click Element                           id=launch_activities
+    Wait Until Page Contains                Project moved to Group              60
 
