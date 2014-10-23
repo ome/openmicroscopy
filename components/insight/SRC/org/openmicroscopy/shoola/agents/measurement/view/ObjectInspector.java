@@ -144,10 +144,11 @@ class ObjectInspector
 	/** Initializes the component composing the display. */
 	private void initComponents()
 	{
-	    infoLabel = new JLabel(MAGNIFICATION+" is 1");
+	    infoLabel = new JLabel(MAGNIFICATION+" is "+
+	model.getDrawingView().getScaleFactor());
 		//create the table
 		fieldTable = new FigureTable(new FigureTableModel(attributeFields,
-		        COLUMN_NAMES, model.getDrawingView()));
+		        COLUMN_NAMES));
 		fieldTable.getTableHeader().setReorderingAllowed(false);
 		fieldTable.setRowHeight(26);
 		fieldTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
