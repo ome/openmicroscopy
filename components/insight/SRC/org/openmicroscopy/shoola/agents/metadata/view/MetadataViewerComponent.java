@@ -340,6 +340,14 @@ class MetadataViewerComponent
 	}
 	
 	/** 
+         * Implemented as specified by the {@link MetadataViewer} interface.
+         * @see MetadataViewer#isRendererLoaded()
+         */
+	public boolean isRendererLoaded() {
+	    return model.getEditor().getRenderer() != null;
+	}
+	
+	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#getUI()
 	 */
