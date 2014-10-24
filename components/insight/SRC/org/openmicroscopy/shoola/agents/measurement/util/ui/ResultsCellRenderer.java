@@ -255,7 +255,11 @@ public class ResultsCellRenderer
 	                    buffer.append(object.getUnits());
 	                }
 	                if (AnnotationKeys.AREA.getKey().equals(k)) {
-	                    buffer.append(UIUtilities.SQUARED_SYMBOL);
+	                    buffer = new StringBuffer();
+	                    object = UIUtilities.transformSquareSize(n.doubleValue());
+	                    s = twoDecimalPlaces(object.getValue());
+	                    buffer.append(s);
+	                    buffer.append(object.getUnits());
 	                }
 	                label.setText(buffer.toString());
 	            }
