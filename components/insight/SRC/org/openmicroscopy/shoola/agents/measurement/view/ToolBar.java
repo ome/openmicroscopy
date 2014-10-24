@@ -224,15 +224,31 @@ class ToolBar
      */
     private double getDefaultFontSize()
     {
-        int sizeX = model.getSizeX();
-        int sizeY = model.getSizeY();
-        double f = ShapeSettingsData.DEFAULT_FONT_SIZE;
-        if (sizeX <= MAX_SIZE && sizeY <= MAX_SIZE){
-            return f;
+        Dimension d = model.getDrawingView().getSize();
+        int sizeX = d.width;
+        double r1 = 1;
+        if (sizeX == 0) {
+            sizeX = model.getSizeX();
         }
-        double rx = f*(sizeX/MAX_SIZE);
-        double ry = f*(sizeY/MAX_SIZE);
-        return Math.floor(Math.max(ry, rx));
+        r1 = model.getSizeX()/sizeX;
+        int sizeY = d.height;
+        if (sizeY == 0) {
+            sizeY = model.getSizeY();
+        }
+        double r2 = 1;
+        r2 = model.getSizeX()/sizeX;
+        double f = ShapeSettingsData.DEFAULT_FONT_SIZE;
+        double sx = model.getSizeX();
+        double sy = model.getSizeY();
+        if (sx > MAX_SIZE || sy  > MAX_SIZE){
+            f = 2*f;
+        }
+        double rx = f*r1;
+        double ry = f*r2;
+        f = Math.floor(Math.max(ry, rx));
+        if (f < ShapeSettingsData.DEFAULT_FONT_SIZE)
+            return ShapeSettingsData.DEFAULT_FONT_SIZE;
+        return f;
     }
 
     /** Initializes the component composing the display. */
@@ -556,7 +572,30 @@ class ToolBar
 	{
 		assistantButton.setEnabled(!analyse);
 	}
-	
+
+	/** Modifies the creation tools when changing the magnification.*/
+	void onMagnificationChanged()
+	{
+	    if (!model.isBigImage()) return;
+	    Map<AttributeKey, Object> p = new HashMap<AttributeKey, Object>();
+        double value = getDefaultFontSize();
+        Font font = ROIFigure.DEFAULT_FONT;
+        font = font.deriveFont((float) value);
+        p.put(MeasurementAttributes.FONT_SIZE, value);
+        p.put(MeasurementAttributes.FONT_FACE, font);
+        rectTool.setAttributes(p);
+        ellipseTool.setAttributes(p);
+        pointTool.setAttributes(p);
+        lineTool.setAttributes(p);
+        textTool.setAttributes(p);
+        polygonTool.setAttributes(p);
+        polylineTool.setAttributes(p);
+        Map<AttributeKey, Object> m = lineConnectionProperties.getProperties();
+        m.put(MeasurementAttributes.FONT_SIZE, value);
+        connectionTool = new DrawingConnectionTool(
+                        new MeasureLineConnectionFigure(), m);
+	}
+
 	/**
 	 * Sets the selected flag of the source of the event to 
 	 * <code>true</code> when a right click event occurs.

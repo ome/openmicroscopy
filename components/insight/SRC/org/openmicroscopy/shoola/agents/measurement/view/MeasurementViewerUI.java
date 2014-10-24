@@ -1574,7 +1574,7 @@ class MeasurementViewerUI
 	/** Updates view when the zoom factor is modified.*/
 	void onMagnificationChanged()
 	{
-	    roiInspector.onMagnificationChanged();
+	    toolBar.onMagnificationChanged();
 	}
 
     /** 
