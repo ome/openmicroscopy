@@ -202,6 +202,17 @@ public class DrawingObjectCreationTool
         }
         this.presentationName = name;
     }
+
+    /**
+     * Sets the attributes.
+     *
+     * @param attributes The CreationTool applies these attributes to the
+     * prototype after having applied the default attributes from the DrawingEditor.
+     */
+    public void setAttributes(Map<AttributeKey, Object> attributes)
+    {
+        prototypeAttributes = attributes;
+    }
     
     /**
      * Returns the prototype.
