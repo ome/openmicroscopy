@@ -289,13 +289,6 @@ class ObjectInspector
 	private void buildGUI()
 	{
 		setLayout(new BorderLayout());
-		JPanel p = new JPanel();
-		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		JLabel l = new JLabel();
-		l.setText("Information below (e.g. font size) are for a scaling factor of 1.");
-		p.add(l);
-		p.add(infoLabel);
-		add(p, BorderLayout.NORTH);
 		add(new JScrollPane(fieldTable), BorderLayout.CENTER);
 	}
 	
