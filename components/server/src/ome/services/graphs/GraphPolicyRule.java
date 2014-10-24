@@ -63,6 +63,7 @@ public class GraphPolicyRule {
 
     private List<String> matches = Collections.emptyList();
     private List<String> changes = Collections.emptyList();
+    private String errorMessage = null;
 
     /**
      * @param matches the match conditions for this policy rule, comma-separated
@@ -78,9 +79,25 @@ public class GraphPolicyRule {
         this.changes = ImmutableList.copyOf(changes.split(",\\s*"));
     }
 
+    /**
+     * @param message the error message triggered by this policy rule
+     */
+    public void setError(String message) {
+        errorMessage = message;
+    }
+
     @Override
     public String toString() {
-        return Joiner.on(", ").join(matches) + " to " + Joiner.on(", ").join(changes);
+        final String trigger = Joiner.on(", ").join(matches);
+        final String consequence;
+
+        if (errorMessage == null) {
+            consequence = "to " + Joiner.on(", ").join(changes);
+        } else {
+            consequence = "is error: " + errorMessage;
+        }
+
+        return trigger + ' ' + consequence;
     }
 
     /**
@@ -332,6 +349,7 @@ public class GraphPolicyRule {
         final List<TermMatch> termMatchers;
         final List<RelationshipMatch> relationshipMatchers;
         final List<Change> changes;
+        final String errorMessage;
 
         /**
          * Construct a policy rule.
@@ -347,6 +365,24 @@ public class GraphPolicyRule {
             this.termMatchers = termMatchers;
             this.relationshipMatchers = relationshipMatchers;
             this.changes = changes;
+            this.errorMessage = null;
+        }
+
+        /**
+         * Construct a policy rule.
+         * @param asString a String representation of this rule,
+         * recognizably corresponding to its original text-based configuration.
+         * @param termMatchers the term matchers that must apply if the changes are to be applied
+         * @param relationshipMatchers the relationship matchers that must apply if the changes are to be applied
+         * @param changes the effects of this rule, guarded by the matchers
+         */
+        ParsedPolicyRule(String asString, List<TermMatch> termMatchers, List<RelationshipMatch> relationshipMatchers,
+                String errorMessage) {
+            this.asString = asString;
+            this.termMatchers = termMatchers;
+            this.relationshipMatchers = relationshipMatchers;
+            this.changes = Collections.emptyList();
+            this.errorMessage = errorMessage;
         }
     }
 
@@ -632,7 +668,6 @@ public class GraphPolicyRule {
         for (final GraphPolicyRule policyRule : rules) {
             final List<TermMatch> termMatches = new ArrayList<TermMatch>();
             final List<RelationshipMatch> relationshipMatches = new ArrayList<RelationshipMatch>();
-            final List<Change> changes = new ArrayList<Change>();
             for (final String match : policyRule.matches) {
                 final String[] words = match.trim().split("\\s+");
                 if (words.length == 1) {
@@ -643,10 +678,16 @@ public class GraphPolicyRule {
                     throw new GraphException("failed to parse match " + match);
                 }
             }
-            for (final String change : policyRule.changes) {
-                changes.add(parseChange(change.trim()));
+            if (policyRule.errorMessage == null) {
+                final List<Change> changes = new ArrayList<Change>();
+                for (final String change : policyRule.changes) {
+                    changes.add(parseChange(change.trim()));
+                }
+                policyRules.add(new ParsedPolicyRule(policyRule.toString(), termMatches, relationshipMatches, changes));
+            } else {
+                policyRules.add(new ParsedPolicyRule(policyRule.toString(), termMatches, relationshipMatches,
+                        policyRule.errorMessage));
             }
-            policyRules.add(new ParsedPolicyRule(policyRule.toString(), termMatches, relationshipMatches, changes));
         }
         /* construct the graph policy */
         return new GraphPolicy() {
@@ -839,7 +880,8 @@ public class GraphPolicyRule {
      * @param changedObjects the objects affected by the policy rules (to be updated by this method)
      * @param namedTerms the name dictionary of matched terms
      * @param isCheckAllPermissions if permissions are to be checked for all of the matched objects
-     * @throws GraphException if a term to change is one not named among the policy rule's matchers
+     * @throws GraphException if a term to change is one not named among the policy rule's matchers,
+     * or if the policy rule's consequence is itself an error condition
      */
     private static void recordChanges(ParsedPolicyRule policyRule, Set<Details> changedObjects,
             Map<String, Details> namedTerms, boolean isCheckAllPermissions) throws GraphException {
@@ -859,6 +901,23 @@ public class GraphPolicyRule {
         } else {
             /* not logging rule matches */
             logMessage = null;
+        }
+        if (policyRule.errorMessage != null) {
+            /* throw the error that is this rule's consequence */
+            String message = policyRule.errorMessage;
+            for (final Entry<String, Details> namedTerm : namedTerms.entrySet()) {
+                /* expand each named term to its actual match */
+                final String termName = namedTerm.getKey();
+                final IObject termMatch = namedTerm.getValue().subject;
+                message = message.replace("{" + termName + "}",
+                        termMatch.getClass().getSimpleName() + '[' + termMatch.getId() + ']');
+            }
+            if (logMessage != null) {
+                /* log error rule match */
+                logMessage.append("error thrown");
+                LOGGER.debug(logMessage.toString());
+            }
+            throw new GraphException(message);
         }
         /* note the new changes to the terms */
         final Map<Change, Details> changedTerms = new HashMap<Change, Details>();
