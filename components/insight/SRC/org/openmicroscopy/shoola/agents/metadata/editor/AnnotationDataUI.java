@@ -66,6 +66,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 
 //Third-party libraries
+import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
@@ -142,9 +143,6 @@ class AnnotationDataUI
 	
 	/** The initial value of the rating. */
 	private int 							initialValue;
-
-	/** The index of the tag row. */
-	private int								tagRow;
 
 	/** The UI component hosting the various annotations. */
 	private JPanel							content;
@@ -558,11 +556,13 @@ class AnnotationDataUI
 		c.gridy++;
 		
 		//other
-		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.add(UIUtilities.setTextFont("Others:", Font.BOLD, size));
-		p.add(createBar(null, removeOtherAnnotationsButton));
-		panel.add(p, c);
+		if (!CollectionUtils.isEmpty(model.getAllOtherAnnotations())) {
+                    p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+                    p.setBackground(UIUtilities.BACKGROUND_COLOR);
+                    p.add(UIUtilities.setTextFont("Others:", Font.BOLD, size));
+                    p.add(createBar(null, removeOtherAnnotationsButton));
+                    panel.add(p, c);
+		}
 		
 		c.gridy = 0;
 		c.gridx++;
@@ -578,7 +578,8 @@ class AnnotationDataUI
 		c.gridy++;
 		panel.add(docRef, c);
 		c.gridy++;
-		panel.add(otherPane, c);
+		if (!CollectionUtils.isEmpty(model.getAllOtherAnnotations())) 
+		    panel.add(otherPane, c);
 
 		content.add(panel);
 		
@@ -853,7 +854,8 @@ class AnnotationDataUI
 		otherPane.removeAll();
 		otherList.clear();
 		DocComponent doc;
-		if (list != null && list.size() > 0) {
+		
+		if(!CollectionUtils.isEmpty(list)) {
 			Iterator i = list.iterator();
 			int width = 0;
 			JPanel p = initRow();
