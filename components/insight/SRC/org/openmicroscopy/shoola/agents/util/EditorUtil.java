@@ -240,7 +240,7 @@ public class EditorUtil
     public static final String ACQUISITION_DATE = "Acquisition Date";
 
     /** Identifies the <code>Imported date</code> field. */
-    public static final String IMPORTED_DATE = "Imported Date";
+    public static final String IMPORTED_DATE = "Import Date";
 
     /** Identifies the <code>Archived</code> field. */
     public static final String ARCHIVED = "Archived";
