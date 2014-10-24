@@ -239,14 +239,16 @@ public class MeasureBezierFigure
 	private String formatValue(double value, boolean lineUnits)
 	{
 	    NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
-	    if (units.isInMicrons()){ 
-	        UnitsObject v = UIUtilities.transformSize(value);
+	    if (units.isInMicrons()){
+	        UnitsObject v;
+	        if (lineUnits) {
+	            v = UIUtilities.transformSize(value);
+	        } else {
+	            v = UIUtilities.transformSquareSize(value);
+	        }
 	        StringBuffer buffer = new StringBuffer();
 	        buffer.append(formatter.format(v.getValue()));
 	        buffer.append(v.getUnits());
-	        if (!lineUnits) {
-	            buffer.append(UIUtilities.SQUARED_SYMBOL);
-	        }
 	        return buffer.toString();
 	    }
 	    if (lineUnits) return addLineUnits(formatter.format(value));

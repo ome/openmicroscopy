@@ -125,11 +125,10 @@ public class MeasureRectangleFigure
 	{
 	    NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
         if (units.isInMicrons()){ 
-            UnitsObject v = UIUtilities.transformSize(value);
+            UnitsObject v = UIUtilities.transformSquareSize(value);
             StringBuffer buffer = new StringBuffer();
             buffer.append(formatter.format(v.getValue()));
             buffer.append(v.getUnits());
-            buffer.append(UIUtilities.SQUARED_SYMBOL);
             return buffer.toString();
         }
         return addUnits(formatter.format(value));

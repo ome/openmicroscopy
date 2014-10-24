@@ -2492,7 +2492,43 @@ public class UIUtilities
     	button.setIcon((Icon) a.getValue(Action.SMALL_ICON));
     	return button;
     }
-    
+
+    /**
+     * Transforms the size and returns the value and units.
+     * 
+     * @param value The value to transform.
+     * @return See above.
+     */
+    public static UnitsObject transformSquareSize(Double value)
+    {
+        double v = value.doubleValue();
+        double pow = Math.pow(10, 6);
+        String units = UnitsObject.MICRONS+UIUtilities.SQUARED_SYMBOL;
+        if (v > 0.0 && v < 0.0001) {
+            units = UnitsObject.NANOMETER;
+            v *= pow;
+            if (v < 100) {
+                units = UnitsObject.ANGSTROM;
+                v *= 100;
+            }
+            return new UnitsObject(units, v);
+        }
+        
+        if (v > pow) {
+            units = UnitsObject.MILLIMETER+UIUtilities.SQUARED_SYMBOL;
+            v /= pow;
+        }
+        if (v > pow) {
+            units = UnitsObject.CENTIMETER+UIUtilities.SQUARED_SYMBOL;
+            v /= pow;
+        }
+        if (v > pow) {
+            units = UnitsObject.METER+UIUtilities.SQUARED_SYMBOL;
+            v /= pow;
+        }
+        return new UnitsObject(units, v);
+    }
+
     /**
 	 * Transforms the size and returns the value and units.
 	 * 
