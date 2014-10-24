@@ -710,18 +710,7 @@ public class PropertiesUI
     	JLabel l = new JLabel();
     	Font font = l.getFont();
     	int size = font.getSize()-2;
-    	JLabel label = UIUtilities.setTextFont(EditorUtil.ARCHIVED,
-    			Font.BOLD, size);
-    	JCheckBox box = new JCheckBox();
-    	box.setEnabled(false);
-    	box.setBackground(UIUtilities.BACKGROUND);
-    	box.setSelected(model.isArchived());
-    	content.add(label, c);
-    	c.gridx++;
-    	content.add(box, c);
-    	c.gridy++;
-    	c.gridx = 0;
-    	label = UIUtilities.setTextFont(EditorUtil.ACQUISITION_DATE+":",
+    	JLabel label = UIUtilities.setTextFont(EditorUtil.ACQUISITION_DATE+":",
     			Font.BOLD, size);
     	JLabel value = UIUtilities.createComponent(null);
     	String v = model.formatDate(image);
