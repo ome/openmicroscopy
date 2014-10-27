@@ -126,6 +126,19 @@ Test Rdef Copy Paste Save
     Click Link                              Preview
     Wait Until Page Contains Element        id=viewport-img
     Click Element                           xpath=//button[contains(@class, "copy_rdef")]
+    # Test success of paste in right-click menu by thumbnail refresh
+    ${thumbSrc}=                            Execute Javascript  return $("#image_icon-${imageId} img").attr('src')
+    Open Context Menu                       xpath=//li[@id='image-${imageId}']/a
+    Mouse Over                              xpath=//div[@id='vakata-contextmenu']//a[@rel='renderingsettings']
+    Click Element                           xpath=//div[@id='vakata-contextmenu']//li[6]//li[2]/a   # Paste
+    Wait For Condition                      return ($("#image_icon-${imageId} img").attr('src') != '${thumbSrc}')
+    # Test Set Owner's in same way
+    ${thumbSrc}=                            Execute Javascript  return $("#image_icon-${imageId} img").attr('src')
+    Open Context Menu                       xpath=//li[@id='image-${imageId}']/a
+    Mouse Over                              xpath=//div[@id='vakata-contextmenu']//a[@rel='renderingsettings']
+    Click Element                           xpath=//div[@id='vakata-contextmenu']//li[6]//li[3]/a   # Set Owner's
+    Wait For Condition                      return ($("#image_icon-${imageId} img").attr('src') != '${thumbSrc}')
+
     Go To                                   ${WELCOME URL}img_detail/${imageId}
     # Toggle the color, then paste settings and check it has reverted
     Wait Until Page Contains Element        id=wblitz-ch0
