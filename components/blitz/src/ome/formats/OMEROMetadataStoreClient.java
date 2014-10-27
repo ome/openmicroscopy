@@ -68,6 +68,7 @@ import ome.formats.model.ShapeProcessor;
 import ome.formats.model.TargetProcessor;
 import ome.formats.model.WellProcessor;
 import ome.services.blitz.repo.ManagedImportRequestI;
+import ome.units.quantity.Time;
 import ome.util.LSID;
 import ome.xml.meta.MetadataRoot;
 import ome.xml.model.AffineTransform;
@@ -865,6 +866,18 @@ public class OMEROMetadataStoreClient
     // RTYPES
     //
 
+    public omero.model.Time toTime(Time value)
+    {
+        if (value == null) return null;
+        omero.model.UnitsTime ut = new omero.model.UnitsTimeI();
+        ut.setValue(rstring(value.unit().getSymbol()));
+
+        omero.model.Time t = new omero.model.TimeI();
+        t.setValue(value.value().doubleValue());
+        t.setUnit(ut);
+        return t;
+    }
+
   /**
      * Transforms a Java type into the corresponding OMERO RType.
      *
@@ -876,6 +889,20 @@ public class OMEROMetadataStoreClient
     {
         return value == null? null : rint(value);
     }
+
+    private omero.model.Time toRType(Time timeIncrement) {
+        if (timeIncrement == null) return null;
+
+        omero.model.UnitsTime ut = new omero.model.UnitsTimeI();
+        ut.setValue(rstring(timeIncrement.unit().getSymbol()));
+
+        omero.model.Time t = new omero.model.TimeI();
+        t.setValue(timeIncrement.value().doubleValue());
+        t.setUnit(ut);
+
+        return t;
+    }
+
 
     /**
      * Transforms a Java type into the corresponding OMERO RType.
@@ -5725,7 +5752,7 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setPixelsTimeIncrement(java.lang.Double, int)
      */
     @Override
-    public void setPixelsTimeIncrement(Double timeIncrement, int imageIndex)
+    public void setPixelsTimeIncrement(Time timeIncrement, int imageIndex)
     {
         Pixels o = getPixels(imageIndex);
         o.setTimeIncrement(toRType(timeIncrement));
@@ -5769,21 +5796,21 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setPlaneDeltaT(java.lang.Double, int, int)
      */
     @Override
-    public void setPlaneDeltaT(Double deltaT, int imageIndex, int planeIndex)
+    public void setPlaneDeltaT(Time deltaT, int imageIndex, int planeIndex)
     {
         PlaneInfo o = getPlane(imageIndex, planeIndex);
-        o.setDeltaT(toRType(deltaT));
+        o.setDeltaT(toTime(deltaT));
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPlaneExposureTime(java.lang.Double, int, int)
      */
     @Override
-    public void setPlaneExposureTime(Double exposureTime, int imageIndex,
+    public void setPlaneExposureTime(Time exposureTime, int imageIndex,
             int planeIndex)
     {
         PlaneInfo o = getPlane(imageIndex, planeIndex);
-        o.setExposureTime(toRType(exposureTime));
+        o.setExposureTime(toTime(exposureTime));
     }
 
     /* (non-Javadoc)

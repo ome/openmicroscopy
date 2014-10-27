@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.0__0 to OMERO5.1DEV__10.
+--- OMERO5 development release upgrade from OMERO5.0__0 to OMERO5.1DEV__11.
 ---
 
 BEGIN;
@@ -44,7 +44,7 @@ DROP FUNCTION omero_assert_db_version(varchar, int);
 
 
 INSERT INTO dbpatch (currentVersion, currentPatch,   previousVersion,     previousPatch)
-             VALUES ('OMERO5.1DEV',    10,              'OMERO5.0',       0);
+             VALUES ('OMERO5.1DEV',  11,             'OMERO5.0',          0);
 
 --
 -- Actual upgrade
@@ -203,7 +203,7 @@ CREATE TABLE annotation_mapValue (
     mapValue VARCHAR(255) NOT NULL,
     mapValue_key VARCHAR(255),
     PRIMARY KEY (annotation_id, mapValue_key),
-    CONSTRAINT FKF96E60858062A40 
+    CONSTRAINT FKannotation_mapvalue_map
         FOREIGN KEY (annotation_id) 
         REFERENCES annotation
 );
@@ -213,7 +213,7 @@ CREATE TABLE experimentergroup_config (
     config VARCHAR(255) NOT NULL,
     config_key VARCHAR(255),
     PRIMARY KEY (experimentergroup_id, config_key),
-    CONSTRAINT FKDC631B6CF5F0705D 
+    CONSTRAINT FKexperimentergroup_config_map
         FOREIGN KEY (experimentergroup_id) 
         REFERENCES experimentergroup
 );
@@ -230,7 +230,7 @@ CREATE TABLE genericexcitationsource_map (
     "map" VARCHAR(255) NOT NULL,
     map_key VARCHAR(255),
     PRIMARY KEY (genericexcitationsource_id, map_key),
-    CONSTRAINT FK7B28ABA9C1805FCD 
+    CONSTRAINT FKgenericexcitationsource_map_map
         FOREIGN KEY (genericexcitationsource_id) 
         REFERENCES genericexcitationsource
 );
@@ -240,7 +240,7 @@ CREATE TABLE imagingenvironment_map (
     "map" VARCHAR(255) NOT NULL,
     map_key VARCHAR(255),
     PRIMARY KEY (imagingenvironment_id, map_key),
-    CONSTRAINT FK7C8DCED8CDF68A87 
+    CONSTRAINT FKimagingenvironment_map_map
         FOREIGN KEY (imagingenvironment_id) 
         REFERENCES imagingenvironment
 );
@@ -252,7 +252,7 @@ CREATE TABLE metadataimportjob_versioninfo (
     versioninfo VARCHAR(255) NOT NULL,
     versioninfo_key VARCHAR(255),
     PRIMARY KEY (metadataimportjob_id, versioninfo_key),
-    CONSTRAINT FK947FE61023506BCE 
+    CONSTRAINT FKmetadataimportjob_versioninfo_map
         FOREIGN KEY (metadataimportjob_id) 
         REFERENCES metadataimportjob
 );
@@ -262,7 +262,7 @@ CREATE TABLE uploadjob_versioninfo (
     versioninfo VARCHAR(255) NOT NULL,
     versioninfo_key VARCHAR(255),
     PRIMARY KEY (uploadjob_id, versioninfo_key),
-    CONSTRAINT FK3B5720031800070E 
+    CONSTRAINT FKuploadjob_versioninfo_map
         FOREIGN KEY (uploadjob_id) 
         REFERENCES uploadjob
 );
@@ -1353,16 +1353,124 @@ SELECT update_changed_from_event_log();
 
 DROP FUNCTION update_changed_from_event_log();
 
+-- 5.1DEV__11: time units
+
+CREATE SEQUENCE seq_unitstime
+	START WITH 1
+	INCREMENT BY 1
+	NO MAXVALUE
+	NO MINVALUE
+	CACHE 1;
+
+CREATE TABLE unitstime (
+	id bigint NOT NULL,
+	permissions bigint NOT NULL,
+	measurementsystem character varying(255) NOT NULL,
+	"value" character varying(255) NOT NULL,
+	external_id bigint
+);
+
+ALTER TABLE pixels
+	ADD COLUMN timeincrementunit bigint;
+
+ALTER TABLE planeinfo
+	ADD COLUMN deltatunit bigint,
+	ADD COLUMN exposuretimeunit bigint;
+
+ALTER TABLE unitstime
+	ADD CONSTRAINT unitstime_pkey PRIMARY KEY (id);
+
+ALTER TABLE pixels
+	ADD CONSTRAINT fkpixels_timeincrementunit_unitstime FOREIGN KEY (timeincrementunit) REFERENCES unitstime(id);
+
+ALTER TABLE planeinfo
+	ADD CONSTRAINT fkplaneinfo_deltaunit_unitstime FOREIGN KEY (deltatunit) REFERENCES unitstime(id);
+
+ALTER TABLE planeinfo
+	ADD CONSTRAINT fkplaneinfo_exposuretimeunit_unitstime FOREIGN KEY (exposuretimeunit) REFERENCES unitstime(id);
+
+ALTER TABLE unitstime
+	ADD CONSTRAINT unitstime_external_id_key UNIQUE (external_id);
+
+ALTER TABLE unitstime
+	ADD CONSTRAINT unitstime_value_key UNIQUE (value);
+
+ALTER TABLE unitstime
+	ADD CONSTRAINT fkunitstime_external_id_externalinfo FOREIGN KEY (external_id) REFERENCES externalinfo(id);
+
+CREATE INDEX i_pixels_timeincrement ON pixels USING btree (timeincrement);
+
+CREATE INDEX i_planeinfo_deltat ON planeinfo USING btree (deltat);
+
+CREATE INDEX i_planeinfo_exposuretime ON planeinfo USING btree (exposuretime);
+
+--
+-- Manual adjustments, mostly from psql-footer.sql
+--
+
+insert into unitstime (id,permissions,value,measurementsystem)
+    select ome_nextval('seq_unitstime'),-52,'Ys','SI.SECOND';
+insert into unitstime (id,permissions,value,measurementsystem)
+    select ome_nextval('seq_unitstime'),-52,'Zs','SI.SECOND';
+insert into unitstime (id,permissions,value,measurementsystem)
+    select ome_nextval('seq_unitstime'),-52,'Es','SI.SECOND';
+insert into unitstime (id,permissions,value,measurementsystem)
+    select ome_nextval('seq_unitstime'),-52,'Ps','SI.SECOND';
+insert into unitstime (id,permissions,value,measurementsystem)
+    select ome_nextval('seq_unitstime'),-52,'Ts','SI.SECOND';
+insert into unitstime (id,permissions,value,measurementsystem)
+    select ome_nextval('seq_unitstime'),-52,'Gs','SI.SECOND';
+insert into unitstime (id,permissions,value,measurementsystem)
+    select ome_nextval('seq_unitstime'),-52,'Ms','SI.SECOND';
+insert into unitstime (id,permissions,value,measurementsystem)
+    select ome_nextval('seq_unitstime'),-52,'ks','SI.SECOND';
+insert into unitstime (id,permissions,value,measurementsystem)
+    select ome_nextval('seq_unitstime'),-52,'hs','SI.SECOND';
+insert into unitstime (id,permissions,value,measurementsystem)
+    select ome_nextval('seq_unitstime'),-52,'das','SI.SECOND';
+insert into unitstime (id,permissions,value,measurementsystem)
+    select ome_nextval('seq_unitstime'),-52,'s','SI.SECOND';
+insert into unitstime (id,permissions,value,measurementsystem)
+    select ome_nextval('seq_unitstime'),-52,'ds','SI.SECOND';
+insert into unitstime (id,permissions,value,measurementsystem)
+    select ome_nextval('seq_unitstime'),-52,'cs','SI.SECOND';
+insert into unitstime (id,permissions,value,measurementsystem)
+    select ome_nextval('seq_unitstime'),-52,'ms','SI.SECOND';
+insert into unitstime (id,permissions,value,measurementsystem)
+    select ome_nextval('seq_unitstime'),-52,'µs','SI.SECOND';
+insert into unitstime (id,permissions,value,measurementsystem)
+    select ome_nextval('seq_unitstime'),-52,'ns','SI.SECOND';
+insert into unitstime (id,permissions,value,measurementsystem)
+    select ome_nextval('seq_unitstime'),-52,'ps','SI.SECOND';
+insert into unitstime (id,permissions,value,measurementsystem)
+    select ome_nextval('seq_unitstime'),-52,'fs','SI.SECOND';
+insert into unitstime (id,permissions,value,measurementsystem)
+    select ome_nextval('seq_unitstime'),-52,'as','SI.SECOND';
+insert into unitstime (id,permissions,value,measurementsystem)
+    select ome_nextval('seq_unitstime'),-52,'zs','SI.SECOND';
+insert into unitstime (id,permissions,value,measurementsystem)
+    select ome_nextval('seq_unitstime'),-52,'ys','SI.SECOND';
+insert into unitstime (id,permissions,value,measurementsystem)
+    select ome_nextval('seq_unitstime'),-52,'min','SI.SECOND';
+insert into unitstime (id,permissions,value,measurementsystem)
+    select ome_nextval('seq_unitstime'),-52,'h','SI.SECOND';
+insert into unitstime (id,permissions,value,measurementsystem)
+    select ome_nextval('seq_unitstime'),-52,'d','SI.SECOND';
+
+update pixels set timeincrementunit = (select id from unitstime where value = 's') where timeincrement is not null;
+update planeinfo set deltatunit = (select id from unitstime where value = 's')  where deltat is not null;
+update planeinfo set exposuretimeunit = (select id from unitstime where value = 's') where exposuretime is not null;
+
 --
 -- FINISHED
 --
 
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
     WHERE currentVersion  = 'OMERO5.1DEV' AND
-          currentPatch    = 10            AND
+          currentPatch    = 11            AND
           previousVersion = 'OMERO5.0'    AND
           previousPatch   = 0;
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.1DEV__10'||CHR(10)||CHR(10)||CHR(10) AS Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.1DEV__11'||CHR(10)||CHR(10)||CHR(10) AS Status;
 
 COMMIT;

@@ -2,6 +2,8 @@ package ome.formats.utests;
 
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.model.BlitzInstanceProvider;
+import ome.units.UNITS;
+import ome.units.quantity.Time;
 import ome.util.LSID;
 import ome.xml.model.primitives.NonNegativeInteger;
 import omero.api.ServiceFactoryPrx;
@@ -10,6 +12,7 @@ import junit.framework.TestCase;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
 
 public class PlaneInfoProcessorTest extends TestCase
 {
@@ -22,6 +25,7 @@ public class PlaneInfoProcessorTest extends TestCase
     @BeforeMethod
     protected void setUp() throws Exception
     {
+        Time onesec = new Time(1, UNITS.S);
         ServiceFactoryPrx sf = new TestServiceFactory().proxy();
         store = new OMEROMetadataStoreClient();
         store.initialize(sf);
@@ -37,7 +41,7 @@ public class PlaneInfoProcessorTest extends TestCase
         store.setPlaneTheC(new NonNegativeInteger(2), IMAGE_INDEX, PLANE_INFO_INDEX + 2);
         store.setPlaneTheZ(new NonNegativeInteger(2), IMAGE_INDEX, PLANE_INFO_INDEX + 2);
         store.setPlaneTheT(new NonNegativeInteger(2), IMAGE_INDEX, PLANE_INFO_INDEX + 2);
-        store.setPlaneDeltaT(1.0, IMAGE_INDEX, PLANE_INFO_INDEX +2);
+        store.setPlaneDeltaT(onesec, IMAGE_INDEX, PLANE_INFO_INDEX +2);
     }
 
     @Test

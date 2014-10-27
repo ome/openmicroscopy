@@ -73,7 +73,7 @@
             <attribute name="todir"/>
             <element name="filesetAndMapper" implicit="true"/>
             <sequential>
-            <copy todir="@{todir}">
+            <copy todir="@{todir}" encoding="utf-8" outputencoding="utf-8">
                 <filesetAndMapper/>
                 <filterchain>
                     <linecontainsregexp>

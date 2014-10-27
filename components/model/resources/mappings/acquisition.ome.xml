@@ -69,7 +69,7 @@
 			<optional name="physicalSizeZ" type="PositiveFloat"/>
 			<optional name="waveStart" type="int"/>
 			<optional name="waveIncrement" type="int"/>
-			<optional name="timeIncrement" type="double"/>
+			<optional name="timeIncrement" type="ome.model.units.Time"/>
 			<optional name="methodology" type="string"/>
 			<!-- Note: planeInfo is called Plane in model and is zeromany -->
 			<onemany name="planeInfo" type="ome.model.core.PlaneInfo" inverse="pixels"/>
@@ -120,7 +120,7 @@
 			<required name="theZ" type="NonNegativeInteger"/>
 			<required name="theC" type="NonNegativeInteger"/>
 			<required name="theT" type="NonNegativeInteger"/>
-			<optional name="deltaT" type="double"/>
+			<optional name="deltaT" type="ome.model.units.Time"/>
 			<!-- Note: deltaT is stored in PlaneTiming in model-->
 			<optional name="positionX" type="double"/>
 			<!-- Note: positionX is stored in StagePosition in model-->
@@ -128,7 +128,7 @@
 			<!-- Note: positionY is stored in StagePosition in model-->
 			<optional name="positionZ" type="double"/>
 			<!-- Note: positionZ is stored in StagePosition in model-->
-			<optional name="exposureTime" type="double"/>
+			<optional name="exposureTime" type="ome.model.units.Time"/>
 			<!-- Note: exposureTime is stored in PlaneTiming in model-->
 			<!-- TODO: see mac notes -->
 		</properties>
@@ -694,10 +694,37 @@
 		<entry name="double-complex"/>
 		<optional name="bitSize" type="int"/>
 	</enum>
-<!-- 
+	<enum id="ome.model.enums.UnitsTime">
+		<entry name="Ys"/>
+		<entry name="Zs"/>
+		<entry name="Es"/>
+		<entry name="Ps"/>
+		<entry name="Ts"/>
+		<entry name="Gs"/>
+		<entry name="Ms"/>
+		<entry name="ks"/>
+		<entry name="hs"/>
+		<entry name="das"/>
+		<entry name="s"/>
+		<entry name="ds"/>
+		<entry name="cs"/>
+		<entry name="ms"/>
+		<entry name="µs"/>
+		<entry name="ns"/>
+		<entry name="ps"/>
+		<entry name="fs"/>
+		<entry name="as"/>
+		<entry name="zs"/>
+		<entry name="ys"/>
+		<entry name="min"/>
+		<entry name="h"/>
+		<entry name="d"/>
+		<required name="measurementSystem" type="string"/>
+	</enum>
+<!--
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Acquisition Context 2 Enumerations 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+	Acquisition Context 2 Enumerations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
 <!-- AcquisitionContext Entity -->
 	<enum id="ome.model.enums.PhotometricInterpretation">
