@@ -1,0 +1,32 @@
+*** Variables ***
+
+# OMERO config
+${OMERO HOST}           %(HOST)s
+${OMERO PORT}           %(PORT)s
+
+${ROOT USERNAME}        root
+${ROOT PASSWORD}        %(ROOTPASS)s
+
+${USERNAME}             %(USER)s
+${PASSWORD}             %(PASS)s
+${FULL NAME}            %(USER)s %(USER)s
+
+# Web config
+${WEB HOST}             %(WEBHOST)s
+${WEB PREFIX}           %(WEBPREFIX)s
+${SERVER_ID}            1
+
+${BROWSER}              Firefox
+${DELAY}                0
+
+${LOGIN URL}            http://${WEB HOST}${WEB PREFIX}/webclient/login/
+${WELCOME URL}          http://${WEB HOST}${WEB PREFIX}/webclient/
+
+${WEBADMIN WELCOME URL}     http://${WEB HOST}${WEB PREFIX}/webadmin/
+${WEBADMIN LOGIN URL}       ${LOGIN URL}?url=%(QWEBPREFIX)s%(QSEP)swebadmin%(QSEP)s
+${WEBCLIENT LOGIN URL}      ${LOGIN URL}?url=%(QWEBPREFIX)s%(QSEP)swebclient%(QSEP)s
+
+${USERS URL}            ${WEBADMIN WELCOME URL}experimenters/
+${GROUPS URL}           ${WEBADMIN WELCOME URL}groups/
+
+${COMMAND}       		bin/omero

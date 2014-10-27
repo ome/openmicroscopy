@@ -5,7 +5,7 @@ Library   org.openmicroscopy.shoola.keywords.IconCheckLibrary
 Library   org.openmicroscopy.shoola.keywords.JTreeLibrary
 Library   org.openmicroscopy.shoola.keywords.StaticFieldLibrary
 Library   org.openmicroscopy.shoola.keywords.ThumbnailCheckLibrary
-Resource  ../../config.txt
+Resource  ../../../resources/config.txt
 Resource  ../../../resources/insight/login.txt
 Resource  ../../../resources/insight/state.txt
 Resource  ../../../resources/insight/thumbnail.txt
