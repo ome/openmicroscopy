@@ -242,11 +242,7 @@ public class OMEROWrapper extends MinMaxCalculator {
             }
             Pixels p = pixels.get(series);
             Channel c = p.getChannel(p.getSizeC().getValue() - 1);
-            if (c.getStatsInfo() == null) {
-                minMaxSet = false;
-            } else {
-                minMaxSet = true;
-            }
+            minMaxSet =  c.getStatsInfo() != null;
         }
         return minMaxSet;
     }
@@ -257,7 +253,7 @@ public class OMEROWrapper extends MinMaxCalculator {
     @Override
     protected void updateMinMax(int no, byte[] buf, int len)
         throws FormatException, IOException {
-        if (isMinMaxSet() == false)
+        if (!isMinMaxSet())
             super.updateMinMax(no, buf, len);
     }
 
