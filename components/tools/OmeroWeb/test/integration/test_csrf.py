@@ -459,12 +459,11 @@ class TestCsrf(object):
         that this request results in an HTTP 405 (method not allowed) status
         code.
         """
-        data = {'channel0': 'foobar'}
-        query_string = urlencode(data.items())
+        query_string = data = {'channel0': 'foobar'}
         request_url = reverse(
             'edit_channel_names', args=[image_with_channels.id.val]
         )
-        _csrf_get_reponse(django_client, request_url, query_string, data, status_code=405)
+        _csrf_get_reponse(django_client, request_url, query_string, status_code=405)
         _csrf_post_reponse(django_client, request_url, data)
 
     def test_rendering_settings(self, itest, django_client):
@@ -481,7 +480,7 @@ class TestCsrf(object):
             'fromid': img.id.val
         }
 
-        _get_reponse(django_client, request_url, query_string, {}, status_code=200)
+        _get_reponse(django_client, request_url, query_string, status_code=200)
 
         request_url = reverse('webgateway.views.copy_image_rdef_json')
         data = {
@@ -497,8 +496,6 @@ class TestCsrf(object):
             'full': 'true'
         }
 
-        _get_reponse(django_client, request_url, query_string, {})
-        _csrf_get_reponse(django_client, request_url, query_string, {}, status_code=405)
         _post_reponse(django_client, request_url, data)
         _csrf_post_reponse(django_client, request_url, data)
 
@@ -508,8 +505,6 @@ class TestCsrf(object):
             'full': 'true'
         }
 
-        _get_reponse(django_client, request_url, query_string, {})
-        _csrf_get_reponse(django_client, request_url, query_string, {}, status_code=405)
         _post_reponse(django_client, request_url, data)
         _csrf_post_reponse(django_client, request_url, data)
 
@@ -677,12 +672,13 @@ def _csrf_post_reponse(django_client, request_url, data, status_code=200):
     data['csrfmiddlewaretoken'] = csrf_token
     return _post_reponse(django_client, request_url, data, status_code)
 
-def _get_reponse(django_client, request_url, query_string, data, status_code=405):
+def _get_reponse(django_client, request_url, query_string, status_code=405):
+    query_string = urlencode(query_string.items())
     response = django_client.get('%s?%s' % (request_url, query_string))
     assert response.status_code == status_code
     return response
 
-def _csrf_get_reponse(django_client, request_url, query_string, data, status_code=200):
+def _csrf_get_reponse(django_client, request_url, query_string, status_code=200):
     csrf_token = django_client.cookies['csrftoken'].value
-    data['csrfmiddlewaretoken'] = csrf_token
-    return _get_reponse(django_client, request_url, query_string, data, status_code)
+    query_string['csrfmiddlewaretoken'] = csrf_token
+    return _get_reponse(django_client, request_url, query_string, status_code)
