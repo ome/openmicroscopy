@@ -212,6 +212,26 @@ class TestCsrf(object):
         _post_reponse(django_client, request_url, data)
         _csrf_post_reponse(django_client, request_url, data)
 
+    def test_move_data(self, itest, client, django_root_client, image_with_channels):
+        """
+        CSRF protection does not check `GET` requests so we need to be sure
+        that this request results in an HTTP 405 (method not allowed) status
+        code.
+        """
+
+        user_id = client.getSession().getAdminService().getEventContext().userId
+        user = client.getSession().getAdminService().getExperimenter(user_id)
+        group_id = itest.new_group(experimenters=[user]).id.val
+
+        request_url = reverse('chgrp')
+        data = {
+            'image': image_with_channels.id.val,
+            'group_id': group_id
+        }
+
+        _post_reponse(django_root_client, request_url, data)
+        _csrf_post_reponse(django_root_client, request_url, data)
+
     def test_add_and_remove_comment(
             self, django_client, image_with_channels):
         """
