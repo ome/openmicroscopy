@@ -104,24 +104,6 @@
         </copy>
     </target>
 
-    <!-- Populates the db. This target will be removed when the set-up is in place. -->
-    <target name="setup-db">
-        <!-- extract images to import -->
-         <mkdir dir="${target.images}" />
-        <unjar src="${basedir}/../../../target/test-repository/common-test-${omero.version}.jar" dest="${target.images}">
-            <patternset>
-                <include name="*.dv"/>
-                <include name="*.bmp"/>
-                <include name="*.jpg"/>
-                <include name="*.png"/>
-            </patternset>
-        </unjar>
-        <exec executable="python" failonerror="${test.with.fail}">
-            <env key="PYTHONPATH" path="${basedir}/library/python:${env.PYTHONPATH}"/>    
-            <arg value="setup.py"/>
-            <arg value="${target.images}"/>
-        </exec>
-    </target>
     <!--  run the web, insight and CLI tests -->
     <target name="test-all" unless="env.NOPYTHON">
         <antcall target="ui-test-insight" inheritRefs="true" inheritAll="true"/>
