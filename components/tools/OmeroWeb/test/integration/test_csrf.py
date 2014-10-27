@@ -467,6 +467,49 @@ class TestCsrf(object):
         _csrf_get_reponse(django_client, request_url, query_string, data, status_code=405)
         _csrf_post_reponse(django_client, request_url, data)
 
+    def test_rendering_settings(self, itest, django_client):
+        """
+        CSRF protection does not check `GET` requests so we need to be sure
+        that this request results in an HTTP 405 (method not allowed) status
+        code.
+        """
+
+        img = itest.createTestImage()
+
+        request_url = reverse('webgateway.views.copy_image_rdef_json')
+        query_string = {
+            'fromid': img.id.val
+        }
+
+        _get_reponse(django_client, request_url, query_string, {}, status_code=200)
+
+        request_url = reverse('webgateway.views.copy_image_rdef_json')
+        data = {
+            'toid': img.id.val
+        }
+
+        _post_reponse(django_client, request_url, data)
+        _csrf_post_reponse(django_client, request_url, data)
+
+        # Reset through webclient
+        request_url = reverse('web_reset_image_rdef_json', args=[img.id.val])
+        data = {
+            'full': 'true'
+        }
+
+        _post_reponse(django_client, request_url, data)
+        rsp = _csrf_post_reponse(django_client, request_url, data)
+
+        # Reset through webgateway
+        request_url = reverse('webgateway.views.reset_image_rdef_json', args=[img.id.val])
+        data = {
+            'full': 'true'
+        }
+
+        _post_reponse(django_client, request_url, data)
+        rsp = _csrf_post_reponse(django_client, request_url, data)
+
+
     # ADMIN
     def test_myaccount(self, itest, client, django_client):
         """
