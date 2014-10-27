@@ -1025,7 +1025,16 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
                 color = ch.getColor()
                 channel['color'] = color is not None and color.getHtml() or None
                 planeInfo = manager.image and manager.image.getPrimaryPixels().copyPlaneInfo(theC=theC, theZ=0)
-                channel['plane_info'] = list(planeInfo)
+                plane_info = []
+                for pi in planeInfo:
+                    plane_info.append({
+                        'theT':pi.theT,
+                        'deltaT':pi.getDeltaT().getValue(),
+                        'exposureTime': pi.exposureTime.getValue(),
+                        'deltaTUnit': pi.getDeltaT().getUnit().getValue().getValue(),
+                        'exposureTimeUnit': pi.getExposureTime().getUnit().getValue().getValue()})
+                channel['plane_info'] = plane_info
+
                 form_channels.append(channel)
 
         try:
