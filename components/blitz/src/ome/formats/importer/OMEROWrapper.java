@@ -219,11 +219,7 @@ public class OMEROWrapper extends MinMaxCalculator {
      * @return true if reader being used is LeicaReader
      */
     public boolean isLeicaReader() {
-        if (iReader.getReader() instanceof LeicaReader) {
-            return true;
-        } else {
-            return false;
-        }
+        return iReader.getReader() instanceof LeicaReader;
     }
 
     /**
