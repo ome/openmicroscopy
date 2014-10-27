@@ -127,7 +127,7 @@ assertAtLeastResults(int count, SearchPrx& search)
   assertResults(count, search, false);
 }
 
-TEST(SearchTest, RootSearch )
+TEST(SearchTest, DISABLED_RootSearch)
 {
     try {
         SearchFixture f;
@@ -149,7 +149,7 @@ TEST(SearchTest, RootSearch )
     }
 }
 
-TEST(SearchTest, IQuerySearch )
+TEST(SearchTest, DISABLED_IQuerySearch)
 {
     SearchFixture f;
     f.login();
@@ -170,7 +170,7 @@ TEST(SearchTest, IQuerySearch )
 }
 
 
-TEST(SearchTest, Filtering )
+TEST(SearchTest, DISABLED_Filtering)
 {
     try {
         SearchFixture f;
@@ -238,7 +238,7 @@ TEST(SearchTest, Filtering )
 // This section tests each query method with various combinations of
 // restrictions
 
-TEST( SearchTest, testByGroupForTags ) {
+TEST( SearchTest, DISABLED_testByGroupForTags) {
     try {
     // Set up user and group
     SearchFixture f;
@@ -327,7 +327,7 @@ TEST( SearchTest, testByGroupForTags ) {
     }
 }
 
-TEST(SearchTest, testByTagForGroup ) {
+TEST(SearchTest, DISABLED_testByTagForGroup) {
     try {
     // Set up user and group
     SearchFixture f;
@@ -417,7 +417,7 @@ TEST(SearchTest, testByTagForGroup ) {
     }
 }
 
-TEST(SearchTest, testSimpleFullTextSearch ) {
+TEST(SearchTest, DISABLED_testSimpleFullTextSearch) {
 
     try {
     SearchFixture f;
@@ -470,7 +470,7 @@ namespace
     }
 }
 
-TEST(SearchTest, testSomeMustNone ) {
+TEST(SearchTest, DISABLED_testSomeMustNone) {
     SearchFixture f;
     f.login();
 
@@ -598,7 +598,7 @@ TEST(SearchTest, testSomeMustNone ) {
 }
 
 
-TEST(SearchTest, testAnnotatedWith ) {
+TEST(SearchTest, DISABLED_testAnnotatedWith) {
     try {
     SearchFixture f;
     f.login();
@@ -658,7 +658,7 @@ TEST(SearchTest, testAnnotatedWith ) {
     }
 }
 
-TEST(SearchTest, testAnnotatedWithMultiple ) {
+TEST(SearchTest, DISABLED_testAnnotatedWithMultiple) {
     try {
     ImagePtr i1 = new_ImageI();
     i1->setName( rstring("i1") );
@@ -715,7 +715,7 @@ TEST(SearchTest, testAnnotatedWithMultiple ) {
 // The tests in the following sections should include all the by* methods
 // each testing a specific restriction
 
-TEST(SearchTest, testOnlyIds ) {
+TEST(SearchTest, DISABLED_testOnlyIds) {
 
     // ignored by
     // byTagForGroups, byGroupForTags
@@ -789,7 +789,7 @@ TEST(SearchTest, testOnlyIds ) {
     //assertResults(2, search);
 }
 
-TEST(SearchTest, testOnlyOwnedByOwner ) {
+TEST(SearchTest, DISABLED_testOnlyOwnedByOwner) {
 
     SearchFixture f;
 
@@ -901,7 +901,7 @@ TEST(SearchTest, testOnlyOwnedByOwner ) {
     assertResults(0, search);
 }
 
-TEST(SearchTest, testOnlyOwnedByGroup ) {
+TEST(SearchTest, DISABLED_testOnlyOwnedByGroup) {
 
     SearchFixture f;
     ExperimenterPtr e = f.newUser();
@@ -1041,7 +1041,7 @@ namespace
     }
 }
 
-TEST(SearchTest, testOnlyCreateBetween ) {
+TEST(SearchTest, DISABLED_testOnlyCreateBetween) {
     SearchFixture f;
     f.login();
 
@@ -1153,7 +1153,7 @@ TEST(SearchTest, testOnlyCreateBetween ) {
     assertResults(1, search);
 }
 
-TEST(SearchTest, testOnlyModifiedBetween ) {
+TEST(SearchTest, DISABLED_testOnlyModifiedBetween) {
 
     // Ignored by
     // byTagForGroups, byGroupForTags (tags are immutable) results always 1
@@ -1269,7 +1269,7 @@ TEST(SearchTest, testOnlyModifiedBetween ) {
     assertResults(1, search);
 }
 
-TEST(SearchTest, testOnlyAnnotatedBetween ) {
+TEST(SearchTest, DISABLED_testOnlyAnnotatedBetween) {
 
     SearchFixture f;
     f.login();
@@ -1382,7 +1382,7 @@ TEST(SearchTest, testOnlyAnnotatedBetween ) {
     assertResults(1, search);
 }
 
-TEST(SearchTest, testOnlyAnnotatedBy ) {
+TEST(SearchTest, DISABLED_testOnlyAnnotatedBy) {
 
     SearchFixture f;
     f.login();
@@ -1455,7 +1455,7 @@ TEST(SearchTest, testOnlyAnnotatedBy ) {
     assertResults(1, search);
 }
 
-TEST(SearchTest, testOnlyAnnotatedWith ) {
+TEST(SearchTest, DISABLED_testOnlyAnnotatedWith) {
 
     // ignored by byAnnotatedWith
     // ignored by byTagForGroups, byGroupForTags
@@ -1569,7 +1569,7 @@ TEST(SearchTest, DISABLED_testOnlyAnnotatedWithMultiple ) {
 // other
 // =========================================================================
 
-TEST(SearchTest, testMergedBatches ) {
+TEST(SearchTest, DISABLED_testMergedBatches) {
 
     SearchFixture f;
     f.login();
@@ -1737,7 +1737,7 @@ TEST(SearchTest, testOrderBy) {
     assertImageResults(images, search, false);
 }
 
-TEST(SearchTest, testFetchAnnotations ) {
+TEST(SearchTest, DISABLED_testFetchAnnotations) {
     try {
     SearchFixture f;
     f.login();
@@ -1846,7 +1846,7 @@ TEST(SearchTest, testFetchAnnotations ) {
     }
 }
 
-TEST(SearchTest, testCommentAnnotationDoesntTryToLoadUpdateEvent ) {
+TEST(SearchTest, DISABLED_testCommentAnnotationDoesntTryToLoadUpdateEvent) {
     SearchFixture f;
     f.login();
 
@@ -1867,7 +1867,7 @@ TEST(SearchTest, testCommentAnnotationDoesntTryToLoadUpdateEvent ) {
 
 // Test failing due to OMERO server bug
 // https://trac.openmicroscopy.org.uk/ome/ticket/10408
-TEST(SearchTest, DISABLED_testExperimenterDoesntTryToLoadOwner ) {
+TEST(SearchTest, DISABLED_testExperimenterDoesntTryToLoadOwner) {
     SearchFixture f;
     SearchPrx search = f.search();
     search->onlyType("Experimenter");
@@ -1877,7 +1877,7 @@ TEST(SearchTest, DISABLED_testExperimenterDoesntTryToLoadOwner ) {
 
 // Test failing due to OMERO server bug
 // https://trac.openmicroscopy.org.uk/ome/ticket/10408
-TEST(SearchTest, DISABLED_testLookingForExperimenterWithOwner ) {
+TEST(SearchTest, DISABLED_testLookingForExperimenterWithOwner) {
     SearchFixture f;
     SearchPrx search = f.search();
     search->onlyType("Experimenter");

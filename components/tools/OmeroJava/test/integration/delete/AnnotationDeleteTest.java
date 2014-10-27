@@ -52,12 +52,6 @@ public class AnnotationDeleteTest extends AbstractServerTest {
     /** Reference to the <code>Rating</code> name space. */
     public final static RString RATING = rstring(omero.constants.metadata.NSINSIGHTRATING.value);
 
-    /** Reference to the <code>Experiment</code> name space. */
-    public final static RString EXPERIMENT = rstring(omero.constants.metadata.NSEDITOREXPERIMENT.value);
-
-    /** Reference to the <code>Protocol</code> name space. */
-    public final static RString PROTOCOL = rstring(omero.constants.metadata.NSEDITORPROTOCOL.value);
-
     /**
      * Tests that the object, an annotation, and the link are all deleted.
      *
@@ -113,7 +107,6 @@ public class AnnotationDeleteTest extends AbstractServerTest {
     public void testForceCannotBeSetByUser() throws Exception {
         EventContext owner = newUserAndGroup("rwrw--");
         FileAnnotation fa = new FileAnnotationI();
-        fa.setNs(EXPERIMENT);
         fa.setFile(mmFactory.createOriginalFile());
         fa = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
         OriginalFile file = fa.getFile();
@@ -139,7 +132,6 @@ public class AnnotationDeleteTest extends AbstractServerTest {
     public void testForceCanBeSetByAdmin() throws Exception {
         EventContext owner = newUserAndGroup("rwrw--");
         FileAnnotation fa = new FileAnnotationI();
-        fa.setNs(EXPERIMENT);
         fa.setFile(mmFactory.createOriginalFile());
         fa = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
         OriginalFile file = fa.getFile();
@@ -167,8 +159,7 @@ public class AnnotationDeleteTest extends AbstractServerTest {
 
         newUserAndGroup("rw----");
         List<RString> ns = new ArrayList<RString>();
-        ns.add(EXPERIMENT);
-        ns.add(PROTOCOL);
+        ns.add(omero.rtypes.rstring("Test"));
         FileAnnotation fa;
         OriginalFile file;
         Iterator<RString> i = ns.iterator();
@@ -219,11 +210,6 @@ public class AnnotationDeleteTest extends AbstractServerTest {
         assertDoesNotExist(link);
         assertDoesNotExist(rating);
         disconnect();
-    }
-
-    @Test(groups = { "broken", "ticket:2997" })
-    public void testOtherUsersRatingsIsNotDeletedIfReused() throws Exception {
-        fail("NYI");
     }
 
     //

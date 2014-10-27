@@ -39,7 +39,6 @@ import javax.swing.JTree;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.AdminLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ContainerCounterLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
@@ -712,19 +711,6 @@ class BrowserModel
 				parent.browse(node, null, true);
 		} else if (object instanceof PlateAcquisitionData)
 			parent.browse(node, null, true);
-	}
-	
-	/**
-	 * Opens the file hosted by the passed node.
-	 * 
-	 * @param node The node to handle.
-	 */
-	void openFile(TreeImageDisplay node)
-	{
-		if (node == null) return;
-		FileAnnotationData data = (FileAnnotationData) node.getUserObject();
-		EditFileEvent evt = new EditFileEvent(getSecurityContext(node), data);
-		TreeViewerAgent.getRegistry().getEventBus().post(evt);
 	}
 
 	/**

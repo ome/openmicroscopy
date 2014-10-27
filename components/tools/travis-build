@@ -37,6 +37,7 @@ build_python()
 {
     flake8 -v components/tools/OmeroPy/src
     flake8 -v components/tools/OmeroPy/test
+    flake8 -v components/tools/OmeroFS/src
     flake8 -v components/tools/OmeroFS/test
     flake8 -v components/tools/OmeroWeb/omeroweb
     flake8 -v components/tools/OmeroWeb/test

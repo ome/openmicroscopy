@@ -45,7 +45,6 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.dnd.DnDTree;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.DataObject;
@@ -245,20 +244,8 @@ public class TreeCellRenderer
 	/** Reference to the <code>XML File</code> icon. */
 	private static final Icon FILE_XML_ICON;
 	
-	/** Reference to the <code>Editor File</code> icon. */
-	private static final Icon FILE_EDITOR_ICON;
-	
-	/** Reference to the <code>Protocol File</code> icon. */
-	private static final Icon FILE_PROTOCOL_ICON;
-	
 	/** Reference to the <code>Registered File</code> icon. */
 	private static final Icon FILE_REGISTERED_ICON;
-	
-	/** Reference to the <code>Protocol</code> icon. */
-	private static final Icon EDITOR_PROTOCOL_ICON;
-	
-	/** Reference to the <code>Experiment</code> icon. */
-	private static final Icon EDITOR_EXPERIMENT_ICON;
 	
 	/** Reference to the <code>Movie</code> icon. */
 	private static final Icon MOVIE_ICON;
@@ -380,12 +367,8 @@ public class TreeCellRenderer
 		FILE_WORD_ICON = icons.getIcon(IconManager.FILE_WORD);
 		FILE_EXCEL_ICON = icons.getIcon(IconManager.FILE_EXCEL);
 		FILE_XML_ICON = icons.getIcon(IconManager.FILE_XML);
-		FILE_PROTOCOL_ICON = icons.getIcon(IconManager.FILE_PROTOCOL_EXPERIMENT);
-		FILE_EDITOR_ICON = icons.getIcon(IconManager.FILE_EDITOR);
 		FILE_REGISTERED_ICON = icons.getIcon(IconManager.FILE_REGISTERED);
 		MOVIE_ICON = icons.getIcon(IconManager.MOVIE);
-		EDITOR_PROTOCOL_ICON = icons.getIcon(IconManager.EDITOR_PROTOCOL);
-		EDITOR_EXPERIMENT_ICON = icons.getIcon(IconManager.EDITOR_EXPERIMENT);
 		MOVIE_FOLDER_ICON = icons.getIcon(IconManager.MOVIE_FOLDER);
 		DATE_ICON = icons.getIcon(IconManager.DATE);
 	}
@@ -395,9 +378,6 @@ public class TreeCellRenderer
 	
     /** Flag to indicate if the number of children is visible. */
     private boolean             numberChildrenVisible;
-
-    /** Filter to identify protocol file. */
-    private EditorFileFilter 	filter;
     
     /** Flag indicating if the node to render is the target node.*/
     private boolean isTargetNode;
@@ -584,21 +564,11 @@ public class TreeCellRenderer
         		icon =FILE_EXCEL_ICON;
         	else if (FileAnnotationData.XML.equals(format) ||
         			FileAnnotationData.RTF.equals(format)) {
-        		if (filter.accept(data.getFileName())) {
-        			if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(
-        					data.getNameSpace())) {
-        				icon = FILE_PROTOCOL_ICON;
-        			} else icon = FILE_EDITOR_ICON;
-        		} else icon = FILE_XML_ICON;
+        		icon = FILE_XML_ICON;
         	} else if (data.isMovieFile()) {
         		icon = MOVIE_ICON;
         	} else {
-        		if (filter.accept(data.getFileName())) {
-        			if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(
-        					data.getNameSpace())) {
-        				icon = FILE_PROTOCOL_ICON;
-        			} else icon = FILE_EDITOR_ICON;
-        		} else icon = FILE_TEXT_ICON; 
+        		icon = FILE_TEXT_ICON; 
         	}
         } else if (usrObject instanceof MultiImageData) {
         	MultiImageData mi = (MultiImageData) usrObject;
@@ -624,12 +594,6 @@ public class TreeCellRenderer
         else if (node instanceof TreeFileSet) {
         	TreeFileSet n = (TreeFileSet) node;
         	switch (n.getType()) {
-				case TreeFileSet.EXPERIMENT:
-					icon = EDITOR_PROTOCOL_ICON;
-					break;
-				case TreeFileSet.PROTOCOL:
-					icon = EDITOR_EXPERIMENT_ICON;
-					break;
 				case TreeFileSet.MOVIE:
 					icon = MOVIE_FOLDER_ICON;
 					break;
@@ -676,7 +640,6 @@ public class TreeCellRenderer
     	this.userId = userId;
         numberChildrenVisible = b;
         selected = false;
-        filter = new EditorFileFilter();
         draggedColor = new Color(backgroundSelectionColor.getRed(),
 				backgroundSelectionColor.getGreen(),
 				backgroundSelectionColor.getBlue(), 100);

@@ -13,10 +13,10 @@ import sys
 import atexit
 import logging
 import tempfile
-import portalocker
 
 from path import path
 from omero.util import get_user_dir, get_user
+from omero_ext import portalocker
 
 # Activating logging at a static level
 if "DEBUG" in os.environ:

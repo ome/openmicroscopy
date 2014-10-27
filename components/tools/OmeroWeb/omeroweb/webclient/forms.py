@@ -297,7 +297,7 @@ class MetadataChannelForm(forms.Form):
         # excitationWave
         try:
             if kwargs['initial']['logicalChannel'] is not None:
-                self.fields['excitationWave'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'name\', this.value);'}), initial=kwargs['initial']['logicalChannel'].excitationWave, label="Excitation", required=False)
+                self.fields['excitationWave'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'name\', this.value);'}), initial=kwargs['initial']['excitationWave'], label="Excitation", required=False)
             else:
                 self.fields['excitationWave'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'name\', this.value);'}), label="Excitation", required=False)
             self.fields['excitationWave'].widget.attrs['disabled'] = True 
@@ -310,7 +310,7 @@ class MetadataChannelForm(forms.Form):
         # emissionWave
         try:
             if kwargs['initial']['logicalChannel'] is not None:
-                self.fields['emissionWave'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'name\', this.value);'}), initial=kwargs['initial']['logicalChannel'].emissionWave, label="Emission", required=False)
+                self.fields['emissionWave'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'name\', this.value);'}), initial=kwargs['initial']['emissionWave'], label="Emission", required=False)
             else:
                 self.fields['emissionWave'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'name\', this.value);'}), label="Emission", required=False)
             self.fields['emissionWave'].widget.attrs['disabled'] = True 

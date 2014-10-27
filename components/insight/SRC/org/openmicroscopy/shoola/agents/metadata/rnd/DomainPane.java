@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 
 //Java imports
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -37,12 +36,13 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -53,8 +53,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.JSplitPane;
 import javax.swing.JTextField;
-import javax.swing.JToolBar;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -68,7 +68,6 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.ColorListRenderer;
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -94,6 +93,11 @@ public class DomainPane
     implements ActionListener, ChangeListener, MouseWheelListener
 {
 
+    /** Holds the last used location of the divider between
+     *  preview and channel panel
+     */
+    static int PREFERRED_DIVIDER_LOCATION = -1;
+    
     /** 
      * For slider control only. The minimum value for the curve coefficient.
      * The real value is divided by 10.
@@ -190,9 +194,6 @@ public class DomainPane
 
     /** The UI component hosting the interval selections. */
     private GraphicsPane graphicsPane;
-
-    /** The component hosting the various options. */
-    private JXTaskPane taskPane;
 
     /** Select the lifetime bin. */
     private OneKnobSlider lifetimeSlider;
@@ -292,7 +293,6 @@ public class DomainPane
     /** Initializes the components composing the display. */
     private void initComponents()
     {
-    	taskPane = EditorUtil.createTaskPane(ADVANCED_OPTIONS);
         graphicsPane = new GraphicsPane(model, controller);
         familyBox = new JComboBox(model.getFamilies().toArray());
         familyBox.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -456,49 +456,56 @@ public class DomainPane
      *  
      * @return See above.
      */
-    private JPanel buildChannelGraphicsPanel()
+    private JComponent buildChannelGraphicsPanel()
     {
-    	JPanel p = new JPanel();
-    	p.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	p.setLayout(new GridBagLayout());
-    	
-    	GridBagConstraints c = new GridBagConstraints();
-    	c.anchor = GridBagConstraints.NORTHWEST;
-    	c.fill = GridBagConstraints.NONE;
-    	c.gridx = 0;
-    	c.gridy = 0;
-    	c.weightx = 0;
-    	c.weighty = 0;
-    	  	
-        if (model.isGeneralIndex()) {
-            p.add(openButton, c);
-            c.gridy++;
-            
-            c.fill = GridBagConstraints.HORIZONTAL;
-            c.weightx = 1;
-            c.anchor = GridBagConstraints.CENTER;
-            p.add(buildViewerPane(), c);
-            c.gridy++;
+        JComponent result;
 
-            c.fill = GridBagConstraints.BOTH;
-            c.weightx = 1;
-            c.weighty = 1;
-            p.add(graphicsPane,c);
+        if (model.isGeneralIndex()) {
+            JPanel viewerPane = buildViewerPane();
+            // add grey borders, because the split pane divider is hardly visible on Mac
+            viewerPane.setBorder(BorderFactory.createLineBorder(UIUtilities.LIGHT_GREY, 1));
+            graphicsPane.setBorder(BorderFactory.createLineBorder(UIUtilities.LIGHT_GREY, 1));
+            final JSplitPane p = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+            p.setTopComponent(viewerPane);
+            p.setBottomComponent(graphicsPane);
+            viewerPane.setMinimumSize(model.getPreviewDimension());
+            // restore the last used divider location
+            if (PREFERRED_DIVIDER_LOCATION > 0) {
+                p.setDividerLocation(PREFERRED_DIVIDER_LOCATION);
+            }
+            p.addPropertyChangeListener(JSplitPane.DIVIDER_LOCATION_PROPERTY,
+                    new PropertyChangeListener() {
+                        @Override
+                        public void propertyChange(PropertyChangeEvent pce) {
+                            PREFERRED_DIVIDER_LOCATION = p.getDividerLocation();
+                        }
+                    });
+            result = p;
         } else {
+            JPanel p = new JPanel();
+            p.setLayout(new GridBagLayout());
+            p.setBackground(UIUtilities.BACKGROUND_COLOR);
+            GridBagConstraints c = new GridBagConstraints();
+            c.anchor = GridBagConstraints.NORTHWEST;
+            c.fill = GridBagConstraints.NONE;
+            c.gridx = 0;
+            c.gridy = 0;
+            
             c.weightx = 1;
             c.weighty = 1;
             c.fill = GridBagConstraints.BOTH;
             p.add(graphicsPane,c);
             c.gridy++;
             c.weighty = 0;
+            c.insets = new Insets(10, 0, 0, 0);
             c.fill = GridBagConstraints.HORIZONTAL;
-            taskPane.add(buildControlsPane());
-            p.add(taskPane, c);
+            p.add(buildControlsPane(), c);
+            result = new JScrollPane(p);
         }
     	
-        p.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
-        p.setBackground(UIUtilities.BACKGROUND_COLOR);
-        return p;
+        result.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+        result.setBackground(UIUtilities.BACKGROUND_COLOR);
+        return result;
     }
     
     /** 
@@ -508,25 +515,50 @@ public class DomainPane
      */
     private JPanel buildViewerPane()
     {
-    	JPanel p = new JPanel();
-    	p.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	p.setLayout(new GridBagLayout());
-    	GridBagConstraints c = new GridBagConstraints();
-		c.fill = GridBagConstraints.VERTICAL;
-		c.anchor = GridBagConstraints.WEST;
-		c.insets = new Insets(0, 2, 2, 0);
-		c.gridy = 0;
-		c.gridx = 0;
-		p.add(zSlider, c);
-		c.gridx++;
-		p.add(canvas, c);
-		c.gridy++;
-		if (tSlider.isVisible()) p.add(tSlider, c);
-		if (lifetimeSlider != null) {
-		    c.gridy++;
-		    p.add(lifetimeSlider, c);
-		}
-    	return p;
+        JPanel p = new JPanel();
+        p.setBackground(UIUtilities.BACKGROUND_COLOR);
+        p.setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        
+        c.fill = GridBagConstraints.NONE;
+        c.anchor = GridBagConstraints.NORTHWEST;
+        c.insets = new Insets(2, 2, 2, 2);
+        c.gridy = 0;
+        c.gridx = 0;
+        
+        c.weightx = 1;
+        c.weighty = 0;
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        p.add(openButton, c);
+        c.gridy++;
+
+        c.fill = GridBagConstraints.VERTICAL;
+        c.gridwidth = 1;
+        c.weightx = 0;
+        c.weighty = 1;
+        p.add(zSlider, c);
+        c.gridx++;
+
+        c.fill = GridBagConstraints.BOTH;
+        c.weightx = 1;
+        c.weighty = 1;
+        c.insets = new Insets(5, 5, 5, 5);
+        p.add(canvas, c);
+        c.gridy++;
+
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        c.insets = new Insets(2, 2, 2, 2);
+        c.weightx = 1;
+        c.weighty = 0;
+        if (tSlider.isVisible()) {
+            p.add(tSlider, c);
+            c.gridy++;
+        }
+        if (lifetimeSlider != null) {
+            p.add(lifetimeSlider, c);
+        }
+        return p;
     }
     
     /**
@@ -597,6 +629,7 @@ public class DomainPane
     private JPanel buildControlsPane()
     {
         JPanel p = new JPanel();
+        p.setBorder(BorderFactory.createTitledBorder(ADVANCED_OPTIONS));
         p.setBackground(UIUtilities.BACKGROUND_COLOR);
         p.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
@@ -975,11 +1008,6 @@ public class DomainPane
 	{
 		if (canvas == null) return;
 		BufferedImage img = model.renderImage();
-		if (img == null) return;
-		Dimension d = model.getPreviewDimension();
-		img = Factory.scaleBufferedImage(img, d.width, d.height);
-		canvas.setPreferredSize(d);
-		canvas.setSize(d);
 		canvas.setImage(img);
 	}
 	

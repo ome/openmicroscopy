@@ -381,20 +381,15 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
 
     myGroups = list(conn.getGroupsMemberOf())
     myGroups.sort(key=lambda x: x.getName().lower())
-    if conn.isAdmin():  # Admin can see all groups
-        groups = [g for g in conn.getObjects("ExperimenterGroup") if g.getName() not in ("user", "guest")]
-        groups.sort(key=lambda x: x.getName().lower())
-    else:
-        groups = myGroups
-    new_container_form = ContainerForm()
+    groups = myGroups
 
-    for g in groups:
-        g.groupSummary()    # load leaders / members
+    new_container_form = ContainerForm()
 
     # colleagues required for search.html page only.
     myColleagues = {}
     if menu == "search":
         for g in groups:
+            g.groupSummary()
             for c in g.leaders + g.colleagues:
                 myColleagues[c.id] = c
         myColleagues = myColleagues.values()
@@ -410,6 +405,31 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     context['current_url'] = url
     context['template'] = template
 
+    return context
+
+
+@login_required()
+@render_response()
+def group_user_content(request, url=None, conn=None, **kwargs):
+    """
+    Loads html content of the Groups/Users drop-down menu on main webclient pages.
+    Url should be supplied in request, as target for redirect after switching group.
+    """
+
+    myGroups = list(conn.getGroupsMemberOf())
+    myGroups.sort(key=lambda x: x.getName().lower())
+    if conn.isAdmin():  # Admin can see all groups
+        groups = [g for g in conn.getObjects("ExperimenterGroup") if g.getName() not in ("user", "guest")]
+        groups.sort(key=lambda x: x.getName().lower())
+    else:
+        groups = myGroups
+
+    for g in groups:
+        g.groupSummary()    # load leaders / members
+
+    context = {'template': 'webclient/base/includes/group_user_content.html',
+               'current_url':url,
+               'groups':groups, 'myGroups':myGroups}
     return context
 
 
@@ -818,6 +838,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
 
     form_comment = None
     figScripts = None
+    share_owned = False
     if c_type in ("share", "discussion"):
         template = "webclient/annotations/annotations_share.html"
         manager = BaseShare(conn, c_id)
@@ -835,13 +856,14 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
             figScripts = manager.listFigureScripts()
             form_comment = CommentAnnotationForm(initial=initial)
         else:
+            share_owned = BaseShare(conn, share_id).share.isOwned()
             template = "webclient/annotations/annotations_share.html"
 
     if c_type in ("tag", "tagset"):
         context = {'manager':manager, 'insight_ns': omero.rtypes.rstring(omero.constants.metadata.NSINSIGHTTAGSET).val}
     else:
         context = {'manager':manager, 'form_comment':form_comment, 'index':index,
-            'share_id':share_id}
+            'share_id':share_id, 'share_owned': share_owned}
             
     context['figScripts'] = figScripts
     context['template'] = template
@@ -867,9 +889,11 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None, **kwa
 
     allRdefs = manager.image.getAllRenderingDefs()
     rdefs = {}
+    rdefId = manager.image.getRenderingDefId()
     # remove duplicates per user
     for r in allRdefs:
         ownerId = r['owner']['id']
+        r['current'] = r['id'] == rdefId
         # if duplicate rdefs for user, pick one with highest ID
         if ownerId not in rdefs or rdefs[ownerId]['id'] < r['id']:
             rdefs[ownerId] = r
@@ -965,6 +989,7 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
             if logicalChannel is not None:
                 channel = dict()
                 channel['form'] = MetadataChannelForm(initial={'logicalChannel': logicalChannel,
+                                        'excitationWave': ch.getExcitationWave(), 'emissionWave': ch.getEmissionWave(),
                                         'illuminations': list(conn.getEnumerationEntries("IlluminationI")),
                                         'contrastMethods': list(conn.getEnumerationEntries("ContrastMethodI")),
                                         'modes': list(conn.getEnumerationEntries("AcquisitionModeI"))})

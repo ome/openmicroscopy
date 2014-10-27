@@ -643,8 +643,7 @@ class TreeViewerWin
     void initializeDisplay()
     {
     	if (rightComponent == null) {
-			rightComponent = new JScrollPane(
-					model.getMetadataViewer().getEditorUI());
+			rightComponent = model.getMetadataViewer().getEditorUI();
     	}
     	if (metadataVisible) {
     		Component[] components = rightPane.getComponents();
@@ -1075,8 +1074,7 @@ class TreeViewerWin
 	void setMetadataVisibility()
 	{
 		if (rightComponent == null) {
-			rightComponent = new JScrollPane(
-					model.getMetadataViewer().getEditorUI());
+			rightComponent = model.getMetadataViewer().getEditorUI();
     	}
 		if (metadataVisible) {
 			Component[] components = rightPane.getComponents();
@@ -1110,7 +1108,7 @@ class TreeViewerWin
 	{
 		MetadataViewer v = model.resetMetadataViewer();
 		if (rightComponent != null) rightPane.remove(rightComponent);
-		rightComponent = new JScrollPane(v.getEditorUI());
+		rightComponent = v.getEditorUI();
 		if (metadataVisible) {
 			rightPane.add(rightComponent);
 			if (dividerRightLocation > 0) 

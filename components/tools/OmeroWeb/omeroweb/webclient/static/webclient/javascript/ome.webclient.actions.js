@@ -351,19 +351,15 @@ OME.refreshThumbnails = function(options) {
     options = options || {};
     var rdm = Math.random(),
         thumbs_selector = "#dataIcons img",
+        search_selector = ".search_thumb",
         spw_selector = "#spw img";
-    // handle Dataset thumbs
+    // handle Dataset thumbs, search rusults and SPW thumbs
     if (options.imageId) {
-        thumbs_selector += "#"+options.imageId;
-        spw_selector += "#image-"+options.imageId;
+        thumbs_selector = "#image_icon-" + options.imageId + " img";
+        search_selector = "#image-" + options.imageId + " img.search_thumb";
+        spw_selector += "#image-" + options.imageId;
     }
-    $(thumbs_selector).each(function(){
-        var $this = $(this),
-            base_src = $this.attr('src').split('?')[0];
-        $this.attr('src', base_src + "?_="+rdm);
-    });
-    // handle SPW thumbs
-    $(spw_selector).each(function(){
+    $(thumbs_selector + ", " + spw_selector + ", " + search_selector).each(function(){
         var $this = $(this),
             base_src = $this.attr('src').split('?')[0];
         $this.attr('src', base_src + "?_="+rdm);

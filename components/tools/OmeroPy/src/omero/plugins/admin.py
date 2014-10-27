@@ -19,7 +19,6 @@ import sys
 import stat
 import platform
 import datetime
-import portalocker
 
 from path import path
 
@@ -34,6 +33,7 @@ from omero.cli import VERSION
 
 from omero.plugins.prefs import with_config
 
+from omero_ext import portalocker
 from omero_ext.which import whichall
 from omero_version import ice_compatibility
 

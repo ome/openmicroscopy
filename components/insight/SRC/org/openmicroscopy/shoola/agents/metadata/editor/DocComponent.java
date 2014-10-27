@@ -57,8 +57,6 @@ import org.apache.commons.lang.StringUtils;
 
 //Application-internal dependencies
 import omero.model.OriginalFile;
-import org.openmicroscopy.shoola.agents.editor.EditorAgent;
-import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.DataObjectListCellRenderer;
@@ -267,16 +265,7 @@ class DocComponent
 		}
 		return count > 0;
 	}
-	
-	/** Opens the file. */
-	private void openFile()
-	{
-		if (!(data instanceof FileAnnotationData)) return;
-		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-		bus.post(new EditFileEvent(model.getSecurityContext(),
-				(FileAnnotationData) data));
-	}
-	
+
 	/** 
 	 * Brings up the menu. 
 	 * 
@@ -471,23 +460,6 @@ class DocComponent
 		
 		if (data instanceof FileAnnotationData) {
 			String ns = ((FileAnnotationData) data).getNameSpace();
-			if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(ns) ||
-				FileAnnotationData.EDITOR_PROTOCOL_NS.equals(ns)) {
-				FileAnnotationData fa = (FileAnnotationData) data;
-				preview = new PreviewPanel(fa.getDescription(), fa.getId());
-				buf.append("<b>");
-				if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(ns))
-					buf.append("Experiment Description: ");
-				else buf.append("Protocol Description: ");
-				buf.append("</b>");
-				List<String> values = preview.getFormattedDesciption();
-				Iterator<String> i = values.iterator();
-				while (i.hasNext()) {
-					buf.append(i.next());
-					buf.append("<br>");
-				}
-				buf.append("<b>");
-			} 
 			if (annotation.getId() > 0) {
 				buf.append("<b>");
 				buf.append("Annotation ID: ");
@@ -533,21 +505,7 @@ class DocComponent
 		buf.append("</body></html>");
 		return buf.toString();
 	}
-	
-	/** 
-	 * Posts an event on the eventBus, with the attachment file's ID, name etc.
-	 */
-	private void postFileClicked()
-	{
-		if (data == null) return;
-		if (data instanceof FileAnnotationData) {
-			FileAnnotationData f = (FileAnnotationData) data;
-			Registry reg = MetadataViewerAgent.getRegistry();
-			reg.getEventBus().post(new EditFileEvent(model.getSecurityContext(),
-					f));
-		}
-	}
-	
+
 	/** Initializes the various buttons. */
 	private void initButtons()
 	{
@@ -732,9 +690,9 @@ class DocComponent
 			 */
 			public void mouseReleased(MouseEvent e)
 			{
-				if (e.getClickCount() == 1) {
-					if (e.isPopupTrigger()) showMenu(label, e.getPoint());
-				} else if (e.getClickCount() == 2) postFileClicked();
+				if (e.getClickCount() == 1 && e.isPopupTrigger()) {
+					showMenu(label, e.getPoint());
+				}
 			}
 			
 			/** 
@@ -804,7 +762,7 @@ class DocComponent
 		if (data instanceof FileAnnotationData) {
 			name = ((FileAnnotationData) data).getFileName();
 		}
-		JFrame f = EditorAgent.getRegistry().getTaskBar().getFrame();
+		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
 		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
 				"Download", "Select where to download the file.", null, true, true);
 		if (StringUtils.isNotBlank(name)) 
@@ -943,10 +901,6 @@ class DocComponent
 				break;
 			case DOWNLOAD:
 				download();
-				break;
-			case OPEN:
-				openFile();
-				break;
 		}
 	}
 
@@ -994,7 +948,7 @@ class DocComponent
 			}
 			if (folder == null)
 				folder = UIUtilities.getDefaultFolder();
-			UserNotifier un = EditorAgent.getRegistry().getUserNotifier();
+			UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
 			
 			IconManager icons = IconManager.getInstance();
 			

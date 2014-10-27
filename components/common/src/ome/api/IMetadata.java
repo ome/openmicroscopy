@@ -52,21 +52,7 @@ public interface IMetadata
      */
     public static final String NS_IMPORTER_ARCHIVED = 
     	"openmicroscopy.org/omero/importer/archived";
-    
-    /** 
-     * The name space used to indicate that the <code>FileAnnotation</code> 
-     * is a protocol.
-     */
-    public static final String EDITOR_PROTOCOL_NS = 
-    	"openmicroscopy.org/omero/editor/protocol";
-    
-    /** 
-     * The name space used to indicate that the <code>FileAnnotation</code> 
-     * is an experiment.
-     */
-    public static final String EDITOR_EXPERIMENT_NS = 
-    	"openmicroscopy.org/omero/editor/experiment";
-    
+
     /** 
      * The name space used to indicate that the <code>FileAnnotation</code> 
      * is an <code>MPEG</code> file.

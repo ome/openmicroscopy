@@ -45,10 +45,8 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
@@ -59,7 +57,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
@@ -90,7 +87,6 @@ import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.RefWindow;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.filter.file.HTMLFilter;
 import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
@@ -158,9 +154,6 @@ class EditorControl
 
 	/** Action ID to display the acquisition metadata. */
 	static final int	ACQUISITION_METADATA = 5;
-	
-	/** Action ID indicating to create a new experiment. */
-	static final int	CREATE_NEW_EXPERIMENT = 6;
 	
 	/** Action ID to create a movie. */
 	static final int	CREATE_MOVIE = 7;
@@ -310,7 +303,6 @@ class EditorControl
 		filters.add(new ExcelFilter());
 		filters.add(new WordFilter());
 		filters.add(new PowerPointFilter());
-		filters.add(new EditorFileFilter());
 		filters.add(new XMLFilter());
 		filters.add(new TIFFFilter());
 		filters.add(new TEXTFilter());
@@ -360,17 +352,6 @@ class EditorControl
 	{
 		//EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
 		//bus.post(new ViewImage(imageID, null));
-	}
-	
-	/**
-	 * Posts an event to view the protocol.
-	 * 
-	 * @param protocolID The id of the protocol to view.
-	 */
-	private void viewProtocol(long protocolID)
-	{
-		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-		bus.post(new EditFileEvent(model.getSecurityContext(), protocolID));
 	}
 	
 	/** Brings up the folder chooser. */
@@ -720,10 +701,6 @@ class EditorControl
 					id = object.getId();
 					if (id < 0) viewImage(object.getName());
 					else viewImage(id);
-					break;
-				case WikiDataObject.PROTOCOL:
-					viewProtocol(object.getId());
-					break;
 			}
 		}  else if (SelectionWizard.SELECTED_ITEMS_PROPERTY.equals(name)) {
 			Map m = (Map) evt.getNewValue();
@@ -738,9 +715,6 @@ class EditorControl
 				view.handleObjectsSelection(type, 
 						(Collection) entry.getValue());
 			}
-		} else if (PreviewPanel.OPEN_FILE_PROPERTY.equals(name)) {
-			Long id = (Long) evt.getNewValue();
-			if (id != null) viewProtocol(id.longValue());
 		} else if (MetadataViewer.SETTINGS_APPLIED_PROPERTY.equals(name)) {
 			model.loadRenderingControl(RenderingControlLoader.RELOAD);
 			view.onSettingsApplied(true);
@@ -857,9 +831,6 @@ class EditorControl
 				break;
 			case ADD_TAGS:
 				loadExistingTags();
-				break;
-			case CREATE_NEW_EXPERIMENT:
-				view.createNewExperiment();
 				break;
 			case CREATE_MOVIE:
 				view.makeMovie(-1, null);

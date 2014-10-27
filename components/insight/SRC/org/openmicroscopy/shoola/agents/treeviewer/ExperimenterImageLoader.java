@@ -72,12 +72,8 @@ public class ExperimenterImageLoader
     private int convertType(int type)
     {
     	switch (type) {
-	    	case TreeFileSet.EXPERIMENT:
-	    		return OmeroMetadataService.EDITOR_EXPERIMENT;
 	    	case TreeFileSet.TAG:
 	    		return OmeroMetadataService.TAG_NOT_OWNED;
-	    	case TreeFileSet.PROTOCOL:
-	    		return OmeroMetadataService.EDITOR_PROTOCOL;
 	    	case TreeFileSet.MOVIE:
 	    		return OmeroMetadataService.MOVIE;
 	    	case TreeFileSet.OTHER:

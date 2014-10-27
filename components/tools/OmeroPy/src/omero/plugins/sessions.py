@@ -380,6 +380,8 @@ class SessionsControl(BaseControl):
                     else:
                         self.ctx.err(pde.reason)
                         pasw = None
+                except omero.RemovedSessionException, rse:
+                    self.ctx.die(525, "User account error: %s." % rse.message)
                 except Ice.ConnectionRefusedException:
                     if port:
                         self.ctx.die(554, "Ice.ConnectionRefusedException:"
@@ -440,8 +442,8 @@ class SessionsControl(BaseControl):
         # detachOnDestroy called by omero.util.sessions
         client.enableKeepAlive(300)
         ec = sf.getAdminService().getEventContext()
-        self.ctx._event_context = ec
-        self.ctx._client = client
+        self.ctx.set_event_context(ec)
+        self.ctx.set_client(client)
 
         host = client.getProperty("omero.host")
         port = client.getProperty("omero.port")
@@ -483,7 +485,7 @@ class SessionsControl(BaseControl):
             group_name = args.target
             group_id = admin.lookupGroup(group_name).id.val
 
-        ec = self.ctx._event_context  # 5711
+        ec = self.ctx.get_event_context()  # 5711
         old_id = ec.groupId
         old_name = ec.groupName
         if old_id == group_id and not self.ctx.isquiet:
@@ -492,7 +494,7 @@ class SessionsControl(BaseControl):
         else:
             sf.setSecurityContext(omero.model.ExperimenterGroupI(group_id,
                                                                  False))
-            self.ctx._event_context = sf.getAdminService().getEventContext()
+            self.ctx.set_event_context(sf.getAdminService().getEventContext())
             self.ctx.out("Group '%s' (id=%s) switched to '%s' (id=%s)"
                          % (old_name, old_id, group_name, group_id))
 
@@ -608,18 +610,18 @@ class SessionsControl(BaseControl):
         if properties is None:
             properties = {}
 
-        if self._client:
-            return self._client
+        if self.get_client():
+            return self.get_client()
 
         import omero
         try:
             data = self.initData(properties)
-            self._client = omero.client(sys.argv, id=data)
-            self._client.setAgent("OMERO.cli")
-            self._client.createSession()
-            return self._client
+            self.set_client(omero.client(sys.argv, id=data))
+            self.get_client().setAgent("OMERO.cli")
+            self.get_client().createSession()
+            return self.get_client()
         except Exception:
-            self._client = None
+            self.set_client(None)
             raise
 
     #

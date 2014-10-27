@@ -68,20 +68,6 @@ public class FileAnnotationData extends AnnotationData {
 
     /** 
      * The name space used to indicate that the <code>FileAnnotation</code> 
-     * is a protocol.
-     */
-    public static final String EDITOR_PROTOCOL_NS = 
-    	omero.constants.metadata.NSEDITORPROTOCOL.value;
-    
-    /** 
-     * The name space used to indicate that the <code>FileAnnotation</code> 
-     * is an experiment.
-     */
-    public static final String EDITOR_EXPERIMENT_NS = 
-    	omero.constants.metadata.NSEDITOREXPERIMENT.value;
-    
-    /** 
-     * The name space used to indicate that the <code>FileAnnotation</code> 
      * is a movie.
      */
     public static final String MOVIE_NS = 

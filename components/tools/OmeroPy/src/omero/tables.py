@@ -12,7 +12,6 @@ import numpy
 import logging
 import threading
 import traceback
-import portalocker  # Third-party
 
 from path import path
 
@@ -25,6 +24,7 @@ import omero.callbacks
 from omero.columns import columns2definition
 from omero.rtypes import rfloat, rint, rlong, rstring, unwrap, wrap
 from omero.util.decorators import remoted, locked, perf
+from omero_ext import portalocker
 from omero_ext.functional import wraps
 
 

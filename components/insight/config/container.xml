@@ -49,7 +49,7 @@
     </structuredEntry>
 
     <!-- the value corresponding to the agent defined as the master
-    i.e. TreeViewerAgent = 0, EditorAgent = 1, ImporterAgent = 2
+    i.e. TreeViewerAgent = 0, ImporterAgent = 1
     The default value is 0.-->
     <entry name="/application/entryPoint" type="integer">0</entry>
 
@@ -231,15 +231,8 @@
         <config>dataBrowser.xml</config>
     </agent>
     <agent>
-        <name>Editor</name>
-        <number>1</number>
-        <active>true</active>
-        <class>org.openmicroscopy.shoola.agents.editor.EditorAgent</class>
-        <config>editor.xml</config>
-    </agent>
-    <agent>
         <name>Importer</name>
-        <number>2</number>
+        <number>1</number>
         <active>true</active>
         <class>org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent</class>
         <config>importer.xml</config>

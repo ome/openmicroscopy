@@ -37,7 +37,7 @@ class TestSessions(CLITest):
         self.args += [self.conn_string]
 
     def get_connection_string(self):
-        ec = self.cli.controls["sessions"].ctx._event_context
+        ec = self.cli.get_event_context()
         return 'session %s (%s). Idle timeout: 10.0 min. ' \
             'Current group: %s\n' % (ec.sessionUuid, self.conn_string,
                                      ec.groupName)
@@ -72,7 +72,7 @@ class TestSessions(CLITest):
 
         host = self.root.getProperty("omero.host")
         port = self.root.getProperty("omero.port")
-        ec = self.cli.controls["sessions"].ctx._event_context
+        ec = self.cli.get_event_context()
         join_args = ["sessions", "login", "-k", ec.sessionUuid,
                      "%s:%s" % (host, port)]
         if quiet:
@@ -91,7 +91,7 @@ class TestSessions(CLITest):
         self.args += ["-w", self.root.getProperty("omero.rootpass")]
         self.args += ["--sudo", "root"]
         self.cli.invoke(self.args, strict=True)
-        ec = self.cli.controls["sessions"].ctx._event_context
+        ec = self.cli.get_event_context()
         assert ec.userName == user.omeName.val
 
     @pytest.mark.xfail(reason="NYI")  # This must be implemented
@@ -104,7 +104,7 @@ class TestSessions(CLITest):
         self.args += ["--sudo", admin]
         self.args += ["-w", admin]
         self.cli.invoke(self.args, strict=True)
-        ec = self.cli.controls["sessions"].ctx._event_context
+        ec = self.cli.get_event_context()
         assert ec.userName == user.omeName.val
 
     @pytest.mark.parametrize('with_sudo', [True, False])
@@ -123,7 +123,7 @@ class TestSessions(CLITest):
         if with_group:
             self.args += ["-g", group2.name.val]
         self.cli.invoke(self.args, strict=True)
-        ec = self.cli.controls["sessions"].ctx._event_context
+        ec = self.cli.get_event_context()
         assert ec.userName == user.omeName.val
         if with_group:
             assert ec.groupName == group2.name.val
@@ -140,10 +140,10 @@ class TestSessions(CLITest):
         self.set_login_args(user)
         self.args += ["-w", user.omeName.val]
         self.cli.invoke(self.args, strict=True)
-        ec = self.cli.controls["sessions"].ctx._event_context
+        ec = self.cli.get_event_context()
         assert ec.groupName == group1.name.val
 
         self.args = ["sessions", "group", group2.name.val]
         self.cli.invoke(self.args, strict=True)
-        ec = self.cli.controls["sessions"].ctx._event_context
+        ec = self.cli.get_event_context()
         assert ec.groupName == group2.name.val

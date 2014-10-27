@@ -178,80 +178,77 @@ public class IconManager
     /** The <code>Tag</code> icon. */
     public static final int TAG = 40;
 
-    /** The <code>Editor</code> icon. */
-    public static final int EDITOR = 41;
-
     /** The 8x8 <code>Edit</code> icon. */
-    public static final int EDIT_8 = 42;
+    public static final int EDIT_8 = 41;
 
     /** The 48x48 <code>Dataset</code> icon. */
-    public static final int DATASET_48 = 43;
+    public static final int DATASET_48 = 42;
 
     /** The <code>Field View</code> icon. */
-    public static final int FIELDS_VIEW = 44;
+    public static final int FIELDS_VIEW = 43;
 
     /** The <code>Rendering Settings redo</code> icon. */
-    public static final int RND_REDO = 45;
+    public static final int RND_REDO = 44;
 
     /** The <code>Rendering Settings Min-Max</code> icon. */
-    public static final int RND_MIN_MAX = 46;
+    public static final int RND_MIN_MAX = 45;
 
     /** The <code>Rendering Settings Owner</code> icon. */
-    public static final int RND_OWNER = 47;
+    public static final int RND_OWNER = 46;
 
     /** The 48x48 <code>filter by tags</code> icon. */
-    public static final int TAG_FILTER_48 = 48;
+    public static final int TAG_FILTER_48 = 47;
 
     /** The <code>filter by tags</code> icon. */
-    public static final int TAG_FILTER = 49;
+    public static final int TAG_FILTER = 48;
 
     /** The <code>filter by Menu</code> icon. */
-    public static final int FILTER_BY_MENU = 50;
+    public static final int FILTER_BY_MENU = 49;
 
     /** The <code>Send comment</code> icon. */
-    public static final int SEND_COMMENT = 51;
+    public static final int SEND_COMMENT = 50;
 
     /** The <code>Personal</code> icon. */
-    public static final int PERSONAL = 52;
+    public static final int PERSONAL = 51;
 
     /** The <code>Private Group</code> icon. */
-    public static final int PRIVATE_GROUP = 53;
+    public static final int PRIVATE_GROUP = 52;
 
     /** The <code>Read Group</code> icon. */
-    public static final int READ_GROUP = 54;
+    public static final int READ_GROUP = 53;
 
     /** The <code>Read Link Group</code> icon. */
-    public static final int READ_LINK_GROUP = 55;
+    public static final int READ_LINK_GROUP = 54;
 
     /** The <code>Public Group</code> icon. */
-    public static final int PUBLIC_GROUP = 56;
+    public static final int PUBLIC_GROUP = 55;
 
     /** The <code>ImageJ Viewer</code> icon. */
-    public static final int VIEWER_IJ = 57;
+    public static final int VIEWER_IJ = 56;
 
     /** The <code>Read Link Group</code> icon. */
-    public static final int READ_WRITE_GROUP = 58;
+    public static final int READ_WRITE_GROUP = 57;
 
     /** The <code>KNIME Viewer</code> icon. */
-    public static final int VIEWER_KNIME = 59;
+    public static final int VIEWER_KNIME = 58;
 
     /** The 8x8 <code>Owner</code> icon. */
-    public static final int NOT_OWNER_8 = 60;
+    public static final int NOT_OWNER_8 = 50;
 
     /** The <code>Owner</code> icon. */
-    public static final int OWNER = 61;
+    public static final int OWNER = 60;
 
     /** The <code>Owner Not Active</code> icon. */
-    public static final int OWNER_NOT_ACTIVE = 62;
+    public static final int OWNER_NOT_ACTIVE = 61;
 
     /** The <code>Owner Not Active</code> icon. */
-    public static final int PASSWORD = 63;
+    public static final int PASSWORD = 62;
 
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing.
      */
-    private static final int MAX_ID = 63;
+    private static final int MAX_ID = 62;
 
     /** Paths of the icon files. */
     private static String[] relPaths = new String[MAX_ID+1];
@@ -298,7 +295,6 @@ public class IconManager
         relPaths[REPORT_48] = "nuvola_style48.png";
         relPaths[SAVE_AS_48] = "nuvola_filesaveas48.png";
         relPaths[TAG] = "nuvola_knotes16.png";
-        relPaths[EDITOR] = "omeroEditor16.png";
         relPaths[EDIT_8] = "nuvola_ksig8.png";
         relPaths[DATASET_48] = "nuvola_folder_image48.png";
         relPaths[FIELDS_VIEW] = "nuvola_view_multicolumn16.png";

@@ -29,7 +29,7 @@ TEST(ChgrpTest, testSimpleChgrp ) {
     ExperimenterPtr user = f.newUser(g1);
     f.addExperimenter(g2, user);
 
-    f.login(user->getOmeName()->getValue());
+    f.login(user->getOmeName()->getValue(), user->getOmeName()->getValue());
     ServiceFactoryPrx sf = f.client->getSession();
     IAdminPrx admin = sf->getAdminService();
     ASSERT_EQ(g1->getId()->getValue(), admin->getEventContext()->groupId);

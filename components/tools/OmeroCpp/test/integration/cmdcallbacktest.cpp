@@ -44,15 +44,19 @@ private:
     // Preventing copy-construction and assigning by value.
     TestCB& operator=(const TestCB& rv);
     TestCB(TestCB&);
-    IceUtil::RecMutex mutex;
 public:
-    omero::util::concurrency::Event event;
     int steps;
     int finished;
 
     TestCB(const omero::client_ptr client, const HandlePrx& handle) :
         CmdCallbackI(client, handle), steps(0), finished(0) {}
     ~TestCB(){}
+
+    // Expose protected event member.
+    omero::util::concurrency::Event&
+    getEvent() {
+      return event;
+    }
 
     virtual void step(int complete, int total, const Ice::Current& current = Ice::Current()) {
 	IceUtil::RecMutex::Lock lock(mutex);
@@ -114,8 +118,9 @@ class CBFixture : virtual public Fixture {
 public:
 
     TestCBPtr run(const RequestPtr& req, int addCbDelay = 0) {
-        ExperimenterPtr user = newUser();
-        login(user->getOmeName()->getValue());
+        ExperimenterGroupPtr group = newGroup("rwr---");
+        ExperimenterPtr user = newUser(group);
+        login(user->getOmeName()->getValue(), user->getOmeName()->getValue());
         HandlePrx handle = client->getSession()->submit(req);
         
         if (addCbDelay > 0) {
@@ -161,7 +166,7 @@ public:
 TEST(CmdCallbackTest, testTimingFinishesOnLatch) {
     CBFixture f;
     TestCBPtr cb = f.timing(25, 4 * 10); // Runs 1 second
-    cb->event.wait(IceUtil::Time::milliSeconds(1500));
+    cb->getEvent().wait(IceUtil::Time::milliSeconds(1500));
     cb->assertFinished();
 }
 
@@ -182,7 +187,7 @@ TEST(CmdCallbackTest, testTimingFinishesOnLoop) {
 TEST(CmdCallbackTest, testDoNothingFinishesOnLatch) {
     CBFixture f;
     TestCBPtr cb = f.doAllOfNothing();
-    cb->event.wait(IceUtil::Time::milliSeconds(5000));
+    cb->getEvent().wait(IceUtil::Time::milliSeconds(5000));
     cb->assertCancelled();
 }
 
@@ -204,6 +209,6 @@ TEST(CmdCallbackTest, testDoAllTimingFinishesOnLoop) {
 TEST(CmdCallbackTest, testAddAfterFinish) {
     CBFixture f;
     TestCBPtr cb = f.timing(25, 4 * 10, 1200); // Runs 1 second
-    cb->event.wait(IceUtil::Time::milliSeconds(1500));
+    cb->getEvent().wait(IceUtil::Time::milliSeconds(1500));
     cb->assertFinished(false);
 }

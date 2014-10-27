@@ -10,13 +10,12 @@ package ome.security.auth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
 import ome.model.IObject;
 import ome.model.internal.Permissions;
-import ome.model.internal.Permissions.Right;
-import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
@@ -26,17 +25,17 @@ import ome.tools.hibernate.HibernateUtils;
 import ome.tools.hibernate.SecureMerge;
 import ome.tools.hibernate.SessionFactory;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implements {@link RoleProvider}.
- * 
+ *
  * Note: All implementations were originally copied from AdminImpl for
  * ticket:1226.
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 4.0
  */
@@ -49,9 +48,17 @@ public class SimpleRoleProvider implements RoleProvider {
 
     final protected SessionFactory sf;
 
+    private AtomicBoolean ignoreCaseLookup;
+
     public SimpleRoleProvider(SecuritySystem sec, SessionFactory sf) {
+        this(sec, sf, new AtomicBoolean(false));
+    }
+
+    public SimpleRoleProvider(SecuritySystem sec, SessionFactory sf,
+            AtomicBoolean ignoreCaseLookup) {
         this.sec = sec;
         this.sf = sf;
+        this.ignoreCaseLookup = ignoreCaseLookup;
     }
 
     public String nameById(long id) {
@@ -101,11 +108,14 @@ public class SimpleRoleProvider implements RoleProvider {
         SecureAction action = new SecureMerge(session);
 
         Experimenter e = copyUser(experimenter);
+        if (isIgnoreCaseLookup()) {
+            e.setOmeName(e.getOmeName().toLowerCase());
+        }
         e.getDetails().copy(sec.newTransientDetails(e));
         e = sec.doAction(action, e);
         session.flush();
 
-        GroupExperimenterMap link = linkGroupAndUser(defaultGroup, e, false);
+        linkGroupAndUser(defaultGroup, e, false);
         if (null != otherGroups) {
             for (ExperimenterGroup group : otherGroups) {
                 linkGroupAndUser(group, e, false);
@@ -205,6 +215,10 @@ public class SimpleRoleProvider implements RoleProvider {
         session.flush();
     }
 
+    public boolean isIgnoreCaseLookup() {
+        return ignoreCaseLookup.get();
+    }
+
     // ~ Helpers
     // =========================================================================
 
@@ -232,8 +246,8 @@ public class SimpleRoleProvider implements RoleProvider {
         link.getDetails().copy(sec.newTransientDetails(link));
 
         Session session = sf.getSession();
-        sec.doAction(new SecureMerge(session), userById(e.getId(), session),
-                link);
+        sec.<IObject> doAction(new SecureMerge(session),
+                userById(e.getId(), session), link);
         session.flush();
         return link;
     }

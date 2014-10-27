@@ -508,10 +508,6 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <fileset dir="components/insight/target" includes="insight*.zip" excludes="*-ij*.zip"/>
             <mapper type="regexp" from="insight(.*).zip"  to="OMERO.insight-${omero.version}\1.zip"/>
         </copy>
-        <copy todir="target">
-            <fileset dir="components/insight/target" includes="editor*.zip"/>
-            <mapper type="regexp" from="editor(.*).zip"  to="OMERO.editor-${omero.version}\1.zip"/>
-        </copy>
 		<copy todir="target">
             <fileset dir="components/insight/target" includes="importer*.zip"/>
             <mapper type="regexp" from="importer(.*).zip"  to="OMERO.importer-${omero.version}\1.zip"/>
@@ -801,6 +797,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                 <fileset dir="${omero.home}/etc">
                     <exclude name="local.properties"/>
                 </fileset>
+                <fileset dir="${omero.home}/components/tests/ui/resources" includes="robot.template"/>
             </copy>
 
             <replace dir="${dist.dir}/etc" token="@ICE_LIB_VERSION@" value="${versions.ice_lib}"/>

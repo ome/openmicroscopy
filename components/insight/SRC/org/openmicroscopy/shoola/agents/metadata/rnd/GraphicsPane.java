@@ -24,7 +24,9 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 
 //Java imports
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -58,6 +60,7 @@ import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.WrapLayout;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
 import pojos.ChannelData;
@@ -184,7 +187,7 @@ class GraphicsPane
         Font font = viewedBy.getFont();
         viewedBy.setFont(font.deriveFont(font.getSize2D()-2));
         viewedBy.setBackground(UIUtilities.BACKGROUND_COLOR);
-        viewedBy.setLayout(new FlowLayout(FlowLayout.LEFT));
+        viewedBy.setLayout(new BorderLayout());
         controlsBar = new PreviewControlBar(controller, model);
         controlsBar2 = new PreviewControlBar2(controller);
         uiDelegate = new GraphicsPaneUI(this, model);
@@ -278,7 +281,7 @@ class GraphicsPane
         c.fill = GridBagConstraints.HORIZONTAL;
         c.gridy = 0;
         c.gridx = 0;
-        c.weightx = 1;
+        c.weightx = 0;
         c.weighty = 0;
         if (model.isGeneralIndex()) {
             content.add(previewToolBar, c);
@@ -307,6 +310,8 @@ class GraphicsPane
         
         c.insets = new Insets(0, 0, 0, 0);
         c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1;
+        c.weighty = 0;
         content.add(new JSeparator(), c);
         c.gridy++;
       
@@ -542,42 +547,25 @@ class GraphicsPane
         Collections.sort(this.viewedByItems, new ViewedByItemComparator());
         
         JPanel p = new JPanel();
-        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+        p.setLayout(new WrapLayout(WrapLayout.LEFT));
         p.setBackground(UIUtilities.BACKGROUND_COLOR);
         Iterator<ViewedByItem> i = viewedByItems.iterator();
-        JPanel row = null;
-        int index = 0;
         ViewedByItem item;
-        int maxPerRow = 2;
         while (i.hasNext()) {
             item = i.next();
             item.addPropertyChangeListener(this);
-            if (index == 0) {
-                row = new JPanel();
-                row.setBackground(UIUtilities.BACKGROUND_COLOR);
-                row.setLayout(new FlowLayout(FlowLayout.LEFT));
-                row.add(createViewedByPanel(item));
-                index++;
-            } else if (index == maxPerRow) {
-                row.add(createViewedByPanel(item));
-                p.add(row);
-                index = 0;
-            } else {
-                row.add(createViewedByPanel(item));
-                index++;
-            }
+            p.add(createViewedByPanel(item));       
         }
-        if (index > 0) p.add(row);
         
         if(activeRndDef!=null) {
             highlight(activeRndDef);
         }
         
+        p.setSize(viewedBy.getSize());
+        
         viewedBy.removeAll();
-        JPanel content = UIUtilities.buildComponentPanel(p);
-        content.setBackground(UIUtilities.BACKGROUND_COLOR);
-        viewedBy.add(content);
-        viewedBy.revalidate();
+        viewedBy.add(p, BorderLayout.CENTER);
+        viewedBy.validate();
     }
 
     /**

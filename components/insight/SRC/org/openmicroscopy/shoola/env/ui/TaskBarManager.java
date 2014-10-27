@@ -165,9 +165,6 @@ public class TaskBarManager
     				LookupNames.ENTRY_POINT);
     		if (v != null) {
     			switch (v.intValue()) {
-    			case LookupNames.EDITOR_ENTRY:
-    				splashScreen = IconManager.getEditorSplashScreen();
-    				break;
     			case LookupNames.IMPORTER_ENTRY:
     				splashScreen = IconManager.getImporterSplashScreen();
     				break;

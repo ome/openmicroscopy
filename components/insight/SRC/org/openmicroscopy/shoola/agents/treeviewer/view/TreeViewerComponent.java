@@ -52,8 +52,6 @@ import omero.model.OriginalFile;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserFactory;
 import org.openmicroscopy.shoola.agents.events.SaveData;
-import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
-import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.treeviewer.ActivitiesEvent;
@@ -171,6 +169,9 @@ class TreeViewerComponent
  	implements TreeViewer
 {
   
+        /** Warning message shown when the rendering settings are to be reset */
+        private static final String RENDERINGSETTINGS_WARNING = "This will save new rendering settings and cannot be undone.";
+    
 	/** The Model sub-component. */
 	private TreeViewerModel     model;
 
@@ -2708,8 +2709,13 @@ class TreeViewerComponent
 			un.notifyInfo("Reset settings", "Please select at one element.");
 			return;
 		}
-		model.fireResetRenderingSettings(ids, klass);
-		fireStateChange();
+		
+		MessageBox box = new MessageBox(getUI(), "Reset rendering settings",
+	                RENDERINGSETTINGS_WARNING);
+	        if (box.centerMsgBox() == MessageBox.YES_OPTION) {
+	            model.fireResetRenderingSettings(ids, klass);
+	            fireStateChange();
+	        }
 	}
 
 	/**
@@ -3033,8 +3039,13 @@ class TreeViewerComponent
 					"one element.");
 			return;
 		}
-		model.fireSetOwnerRenderingSettings(ids, klass);
-		fireStateChange();
+		
+		MessageBox box = new MessageBox(getUI(), "Reset rendering settings",
+	                RENDERINGSETTINGS_WARNING);
+	        if (box.centerMsgBox() == MessageBox.YES_OPTION) {
+	            model.fireSetOwnerRenderingSettings(ids, klass);
+	            fireStateChange();
+	        }
 	}
 
 	/**
@@ -3569,79 +3580,6 @@ class TreeViewerComponent
 		NotDeletedObjectDialog nd = new NotDeletedObjectDialog(view, deleted);
 		if (nd.centerAndShow() == NotDeletedObjectDialog.CLOSE)
 			onNodesMoved();
-	}
-
-	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#openEditorFile(int)
-	 */
-	public void openEditorFile(int index)
-	{
-		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-		Browser browser = model.getSelectedBrowser();
-		TreeImageDisplay d;
-		Object object;
-		switch (index) {
-			case WITH_SELECTION:
-				if (browser == null) return;
-				d  = browser.getLastSelectedDisplay();
-				if (d == null) return;
-				object = d.getUserObject();
-				if (object == null) return;
-				if (object instanceof FileAnnotationData) {
-					FileAnnotationData fa = 
-						(FileAnnotationData) d.getUserObject();
-					bus.post( new EditFileEvent(
-							browser.getSecurityContext(d), fa));
-				}
-				break;
-			case NO_SELECTION:
-				ExperimenterData exp = model.getUserDetails();
-				bus.post(new ShowEditorEvent(
-						new SecurityContext(exp.getDefaultGroup().getId())));
-				break;
-			case NEW_WITH_SELECTION:
-				if (browser == null) return;
-				d  = browser.getLastSelectedDisplay();
-				if (d == null) return;
-				object = d.getUserObject();
-				TreeImageDisplay parent = d.getParentDisplay();
-				Object po = null;
-				if (parent != null) po = parent.getUserObject();
-				if (object == null) return;
-				String name = null;
-				if (object instanceof ProjectData)
-					name = ((ProjectData) object).getName();
-				else if (object instanceof DatasetData) {
-					if (po != null && po instanceof ProjectData) {
-						name = ((ProjectData) po).getName();
-						name += "_";
-						name += ((DatasetData) object).getName();
-					} else {
-						name = ((DatasetData) object).getName();
-					}
-				} else if (object instanceof ImageData)
-					name = ((ImageData) object).getName();
-				else if (object instanceof ScreenData)
-					name = ((ScreenData) object).getName();
-				else if (object instanceof PlateData) {
-					if (po != null && po instanceof ScreenData) {
-						name = ((ScreenData) po).getName();
-						name += "_";
-						name += ((PlateData) object).getName();
-					} else {
-						name = ((PlateData) object).getName();
-					}
-				}
-				if (name != null) {
-					name += ShowEditorEvent.EXPERIMENT_EXTENSION;
-					ShowEditorEvent event = new ShowEditorEvent(
-							browser.getSecurityContext(d),
-							(DataObject) object, name, 
-							ShowEditorEvent.EXPERIMENT);
-					bus.post(event);
-				}
-		}
 	}
 
 	/**
