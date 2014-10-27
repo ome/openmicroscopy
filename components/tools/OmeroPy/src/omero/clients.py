@@ -337,7 +337,8 @@ class BaseClient(object):
                 if router is not None:
                     for endpoint in router.ice_getEndpoints():
                         host = endpoint.getInfo().host
-                    insecure = insecure.replace("@omero.host@", str(host))
+                    if host != "":
+                        insecure = insecure.replace("@omero.host@", str(host))
                 props["Ice.Default.Router"] = insecure
             else:
                 self.__logger.warn(
