@@ -14,7 +14,7 @@
 using namespace std;
 using namespace omero;
 using namespace omero::api;
-using namespace omero::api::_cpp_delete;
+using namespace omero::cmd;
 using namespace omero::callbacks;
 using namespace omero::model;
 using namespace omero::rtypes;
@@ -30,19 +30,18 @@ TEST(DeleteTest, testSimpleDelete ) {
 
     IQueryPrx iquery = sf->getQueryService();
     IUpdatePrx iupdate = sf->getUpdateService();
-    IDeletePrx idelete = sf->getDeleteService();
 
     ImagePtr image = new ImageI();
     image->setName( rstring("testSimpleDelete") );
     image = ImagePtr::dynamicCast( iupdate->saveAndReturnObject( image ) );
 
     DeletePtr deleteCmd = new Delete("/Image", image->getId()->getValue(), StringMap());
-    
+
     // Submit and wait for completion
     HandlePrx handle = sf->submit(deleteCmd);
     CmdCallbackIPtr cb = new CmdCallbackI(f.client, handle);
     ResponsePtr resp = cb->loop(10, 500);
-    
+
     ERRPtr err = ERRPtr::dynamicCast(resp);
     if (err) {
         FAIL() << "Failed to delete image: " << err->category << ", " << err->name << endl;

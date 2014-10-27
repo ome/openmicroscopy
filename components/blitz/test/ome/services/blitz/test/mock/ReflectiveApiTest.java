@@ -20,7 +20,6 @@ import java.util.Map;
 
 import ome.services.blitz.test.mock.MockFixture;
 import ome.system.Roles;
-import omero.api.GatewayPrx;
 import omero.api.IScriptPrx;
 import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceFactoryPrxHelper;
@@ -59,7 +58,7 @@ public class ReflectiveApiTest extends MockObjectTestCase {
             Object service = factoryMethod.invoke(sf);
 
             // Filtering the blitz-only services for now
-            if (service instanceof IScriptPrx || service instanceof GatewayPrx) {
+            if (service instanceof IScriptPrx) {
                 continue;
             }
 

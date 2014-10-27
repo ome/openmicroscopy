@@ -144,7 +144,6 @@ module omero {
 	    IAdmin*          getAdminService() throws ServerError;
 	    IConfig*         getConfigService() throws ServerError;
 	    IContainer*      getContainerService() throws ServerError;
-	    IDelete*         getDeleteService() throws ServerError;
 	    ILdap*           getLdapService() throws ServerError;
 	    IPixels*         getPixelsService() throws ServerError;
 	    IProjection*     getProjectionService() throws ServerError;
@@ -167,7 +166,6 @@ module omero {
 	     * see <a href="http://trac.openmicroscopy.org.uk/ome/wiki/Api/DeprecatedServices">Deprecated Services</a>
 	     * for more information and alternative usage.
 	     **/
-	    ["deprecated:createGateway() is deprecated"] Gateway*         createGateway() throws ServerError;
 	    Exporter*        createExporter() throws ServerError;
 	    JobHandle*       createJobHandle() throws ServerError;
 	    RawFileStore*    createRawFileStore() throws ServerError;
@@ -231,11 +229,6 @@ module omero {
 	     * mapping for ways to use the callback.
 	     **/
 	    void setCallback(ClientCallback* callback) throws ServerError;
-
-	    /**
-	     * Deprecated misnomer.
-	     **/
-	    ["deprecated:close() is deprecated. use closeOnDestroy() instead."] void close() throws ServerError;
 
 	    /**
 	     * Marks the session for closure rather than detachment, which will
