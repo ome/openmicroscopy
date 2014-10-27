@@ -31,6 +31,7 @@
 			<!-- Note: middleName is not used model -->
 			<required name="lastName" type="string"/>
 			<optional name="institution" type="string"/>
+			<optional name="ldap" type="boolean"/>
 			<component id="ome.model.internal.Email" required="false">
 				<optional name="email" type="string"/>
 			</component>

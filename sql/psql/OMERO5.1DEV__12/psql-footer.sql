@@ -1560,7 +1560,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.1DEV',  11,    'OMERO5.1DEV',   0,             'Initializing');
+             values ('OMERO5.1DEV',  12,    'OMERO5.1DEV',   0,             'Initializing');
 
 --
 -- Temporarily make event columns nullable; restored below.
@@ -1571,6 +1571,7 @@ alter table event alter column experimentergroup drop not null;
 --
 -- Here we will create the root account and the necessary groups
 --
+alter table experimenter alter ldap set default false;
 insert into experimenter (id,permissions,version,omename,firstname,lastname)
         values (0,0,0,'root','root','root');
 insert into experimenter (id,permissions,version,omename,firstname,lastname)
@@ -2460,7 +2461,7 @@ create index eventlog_entitytype on eventlog(entitytype);
 create index eventlog_entityid on eventlog(entityid);
 create index eventlog_action on eventlog(action);
 
-create table password ( experimenter_id bigint primary key REFERENCES experimenter (id), hash VARCHAR(255), dn text,
+create table password ( experimenter_id bigint primary key REFERENCES experimenter (id), hash VARCHAR(255),
     changed TIMESTAMP WITHOUT TIME ZONE);
 insert into password values (0,'@ROOTPASS@');
 insert into password values (1,'');
@@ -2615,7 +2616,7 @@ after delete on originalfile
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
   where currentVersion = 'OMERO5.1DEV' and
-        currentPatch = 11 and
+        currentPatch = 12 and
         previousVersion = 'OMERO5.1DEV' and
         previousPatch = 0;
 
