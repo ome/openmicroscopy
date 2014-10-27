@@ -1,0 +1,8 @@
+{% extends "base_error.html" %}
+{% load i18n %}
+
+{% block content %}
+    <div class="error"><h1>{% trans "Forbidden" %} <em>(403)</em></h1>
+    <p>{% trans "CSRF Error. You don't have permission to access this page on this server." %}</p></div>
+    
+{% endblock %}
