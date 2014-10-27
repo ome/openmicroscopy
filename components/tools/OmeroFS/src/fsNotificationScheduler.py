@@ -8,13 +8,16 @@
 
 """
 import logging
-import threading, Queue
+import threading
+import Queue
 import time
 
+
 class NotificationScheduler(threading.Thread):
+
     def __init__(self, proxy, monitorId, timeout=0.0, blockSize=0):
         threading.Thread.__init__(self)
-        self.log = logging.getLogger("fsclient."+__name__)
+        self.log = logging.getLogger("fsclient." + __name__)
         # infinite queue for first test
         self.queue = Queue.Queue(0)
         self.event = threading.Event()
@@ -25,7 +28,7 @@ class NotificationScheduler(threading.Thread):
 
     def schedule(self, eventList):
         self.queue.put_nowait(eventList)
-        
+
     def run(self):
         self.log.info('Notification Scheduler running')
         while not self.event.isSet():
@@ -38,11 +41,11 @@ class NotificationScheduler(threading.Thread):
                 for i in range(qnow):
                     notice += self.queue.get_nowait()
                 self.log.info('Notification queue %s items removed.', qnow)
-                self.log.info('Notification queue size = %s', self.queue.qsize())
+                self.log.info(
+                    'Notification queue size = %s', self.queue.qsize())
                 self.proxy.callback(self.monitorId, notice)
             time.sleep(0.1)
         self.log.info('Notification Scheduler stopped')
-           
+
     def stop(self):
         self.event.set()
-        

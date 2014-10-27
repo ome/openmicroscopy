@@ -9,47 +9,45 @@
 """
 import logging
 import threading
-import os, sys, traceback
-
-# Third party path package. It provides much of the 
-# functionality of os.path but without the complexity.
-# Imported as pathModule to avoid clashes.
-import path as pathModule
 
 # Now try to import the correct MonitorServer package
 import fsUtil
 try:
-    PlatformMonitor = __import__(fsUtil.monitorPackage())            
+    PlatformMonitor = __import__(fsUtil.monitorPackage())
 except:
     raise
 
-import omero.all
 import omero.grid.monitors as monitors
 
 
 class MonitorFactory(object):
+
     @staticmethod
-    def createMonitor(mType, eTypes, pMode, pathString, 
-                        whitelist, blacklist, timeout, blockSize,
-                        ignoreSysFiles, ignoreDirEvents, proxy, monitorId):
+    def createMonitor(mType, eTypes, pMode, pathString,
+                      whitelist, blacklist, timeout, blockSize,
+                      ignoreSysFiles, ignoreDirEvents, proxy, monitorId):
 
         if str(mType) == 'Persistent':
-            return PersistentMonitor(eTypes, pMode, pathString, whitelist, blacklist, timeout, blockSize, 
-                                        ignoreSysFiles, ignoreDirEvents, proxy, monitorId)
-                                        
+            return PersistentMonitor(
+                eTypes, pMode, pathString, whitelist, blacklist, timeout,
+                blockSize, ignoreSysFiles, ignoreDirEvents, proxy, monitorId)
+
         elif str(mType) == 'OneShot':
-            return OneShotMonitor(eTypes, pMode, pathString, whitelist, blacklist, timeout, 
-                                        ignoreSysFiles, ignoreDirEvents, proxy, monitorId)
-                                        
+            return OneShotMonitor(
+                eTypes, pMode, pathString, whitelist, blacklist, timeout,
+                ignoreSysFiles, ignoreDirEvents, proxy, monitorId)
+
         elif str(mType) == 'Inactivity':
-            return InactivityMonitor(eTypes, pMode, pathString, whitelist, blacklist, timeout, 
-                                        ignoreSysFiles, ignoreDirEvents, proxy, monitorId)
-                                        
+            return InactivityMonitor(
+                eTypes, pMode, pathString, whitelist, blacklist, timeout,
+                ignoreSysFiles, ignoreDirEvents, proxy, monitorId)
+
         else:
             raise Exception("Unknown monitor type: %s", str(mType))
-        
+
 
 class AbstractMonitor(object):
+
     """
         Abstract Monitor.
 
@@ -57,17 +55,19 @@ class AbstractMonitor(object):
         :group Other methods: run, stop, callback
 
     """
+
     def __init__(self, eventTypes, pathMode, pathString, whitelist, blacklist,
-                    ignoreSysFiles, ignoreDirEvents, proxy, monitorId):
+                 ignoreSysFiles, ignoreDirEvents, proxy, monitorId):
         """
             Initialise Monitor.
 
         """
-        self.log = logging.getLogger("fsclient."+__name__)
+        self.log = logging.getLogger("fsclient." + __name__)
         self.proxy = proxy
         self.monitorId = monitorId
-        self.pMonitor = PlatformMonitor.PlatformMonitor(eventTypes, pathMode, pathString, whitelist, blacklist, 
-                            ignoreSysFiles, ignoreDirEvents, self)
+        self.pMonitor = PlatformMonitor.PlatformMonitor(
+            eventTypes, pathMode, pathString, whitelist, blacklist,
+            ignoreSysFiles, ignoreDirEvents, self)
 
     def start(self):
         """
@@ -76,16 +76,18 @@ class AbstractMonitor(object):
             :return: No explicit return value.
 
         """
-        raise Exception('Abstract Method: must be implemented by the subclass.')
+        raise Exception(
+            'Abstract Method: must be implemented by the subclass.')
 
     def stop(self):
         """
-            Stop monitoring 
-            
+            Stop monitoring
+
             :return: No explicit return value.
-            
+
         """
-        raise Exception('Abstract Method: must be implemented by the subclass.')
+        raise Exception(
+            'Abstract Method: must be implemented by the subclass.')
 
     def callback(self, monitorId, eventPath):
         """
@@ -102,47 +104,53 @@ class AbstractMonitor(object):
             :return: No explicit return value.
 
         """
-        raise Exception('Abstract Method: must be implemented by the subclass.')
+        raise Exception(
+            'Abstract Method: must be implemented by the subclass.')
 
 
 from fsNotificationScheduler import NotificationScheduler
 
+
 class PersistentMonitor(AbstractMonitor):
+
     """
         A Thread to monitor a path.
-        
+
         :group Constructor: __init__
         :group Other methods: run, stop
 
     """
-    def __init__(self, eventTypes, pathMode, pathString, whitelist, blacklist, timeout, blockSize,
-                    ignoreSysFiles, ignoreDirEvents, proxy, monitorId):
- 
+
+    def __init__(self, eventTypes, pathMode, pathString, whitelist, blacklist,
+                 timeout, blockSize, ignoreSysFiles, ignoreDirEvents, proxy,
+                 monitorId):
         """
             Initialise Monitor.
-                                 
+
         """
-        AbstractMonitor.__init__(self, eventTypes, pathMode, pathString, whitelist, blacklist, 
-                            ignoreSysFiles, ignoreDirEvents, proxy, monitorId)
-        
-        self.notifier = NotificationScheduler(self.proxy, self.monitorId, timeout, blockSize)
+        AbstractMonitor.__init__(
+            self, eventTypes, pathMode, pathString, whitelist, blacklist,
+            ignoreSysFiles, ignoreDirEvents, proxy, monitorId)
+
+        self.notifier = NotificationScheduler(
+            self.proxy, self.monitorId, timeout, blockSize)
         self.notifier.start()
 
     def start(self):
         """
             Start monitoring.
-            
+
             :return: No explicit return value.
-            
+
         """
         self.pMonitor.start()
 
     def stop(self):
         """
-            Stop monitoring 
-            
+            Stop monitoring
+
             :return: No explicit return value.
-            
+
         """
         self.pMonitor.stop()
 
@@ -158,49 +166,55 @@ class PersistentMonitor(AbstractMonitor):
             :return: No explicit return value.
 
         """
-        self.notifier.schedule(eventList)        
+        self.notifier.schedule(eventList)
+
 
 class InactivityMonitor(AbstractMonitor):
+
     """
         A Thread to monitor a path.
-        
+
         :group Constructor: __init__
         :group Other methods: run, stop
 
     """
-    def __init__(self, eventTypes, pathMode, pathString, whitelist, blacklist, timeout, ignoreSysFiles, ignoreDirEvents, proxy, monitorId):
+
+    def __init__(self, eventTypes, pathMode, pathString, whitelist, blacklist,
+                 timeout, ignoreSysFiles, ignoreDirEvents, proxy, monitorId):
         """
             Initialise Monitor.
-                                 
+
         """
-        AbstractMonitor.__init__(self, eventTypes, pathMode, pathString, whitelist, blacklist, 
-                            ignoreSysFiles, ignoreDirEvents, proxy, monitorId)
+        AbstractMonitor.__init__(
+            self, eventTypes, pathMode, pathString, whitelist, blacklist,
+            ignoreSysFiles, ignoreDirEvents, proxy, monitorId)
         self.timer = threading.Timer(timeout, self.inactive)
         self.log.info('Inactivity monitor created. Timer: %s', str(self.timer))
 
     def inactive(self):
         """
-        
+
         """
         self.stop()
-        self.proxy.callback(self.monitorId, [("Inactive", monitors.EventType.System)])
-        
+        self.proxy.callback(
+            self.monitorId, [("Inactive", monitors.EventType.System)])
+
     def start(self):
         """
             Start monitoring.
-            
+
             :return: No explicit return value.
-            
+
         """
         self.timer.start()
         self.pMonitor.start()
 
     def stop(self):
         """
-            Stop monitoring 
-            
+            Stop monitoring
+
             :return: No explicit return value.
-            
+
         """
         try:
             self.timer.cancel()
@@ -229,48 +243,52 @@ class InactivityMonitor(AbstractMonitor):
 
 
 class OneShotMonitor(AbstractMonitor):
+
     """
         A Thread to monitor a path.
-        
+
         :group Constructor: __init__
         :group Other methods: run, stop
 
     """
-    def __init__(self, eventTypes, pathMode, pathString, whitelist, blacklist, timeout, ignoreSysFiles, ignoreDirEvents, proxy, monitorId):
+
+    def __init__(self, eventTypes, pathMode, pathString, whitelist, blacklist,
+                 timeout, ignoreSysFiles, ignoreDirEvents, proxy, monitorId):
         """
             Initialise Monitor.
-                                 
+
         """
-        AbstractMonitor.__init__(self, eventTypes, pathMode, pathString, whitelist, blacklist, 
-                            ignoreSysFiles, ignoreDirEvents, proxy, monitorId)
+        AbstractMonitor.__init__(
+            self, eventTypes, pathMode, pathString, whitelist, blacklist,
+            ignoreSysFiles, ignoreDirEvents, proxy, monitorId)
         self.timer = threading.Timer(timeout, self.inactive)
         self.log.info('OneShot monitor created. Timer: %s', str(self.timer))
 
     def inactive(self):
         """
-        
+
         """
         self.log.info('Timed out. Timer: %s', str(self.timer))
         self.stop()
         self.callback([("Timed out", monitors.EventType.System)])
         self.log.info('Stopped! Timer: %s', str(self.timer))
-        
+
     def start(self):
         """
             Start monitoring.
-            
+
             :return: No explicit return value.
-            
+
         """
         self.timer.start()
         self.pMonitor.start()
 
     def stop(self):
         """
-            Stop monitoring 
-            
+            Stop monitoring
+
             :return: No explicit return value.
-            
+
         """
         try:
             self.timer.cancel()
@@ -298,4 +316,3 @@ class OneShotMonitor(AbstractMonitor):
         self.stop()
         self.proxy.callback(self.monitorId, eventList)
         self.log.info('Stopped! Timer: %s', str(self.timer))
-
