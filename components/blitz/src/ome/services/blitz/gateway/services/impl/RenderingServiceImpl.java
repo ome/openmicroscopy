@@ -79,7 +79,7 @@ public class RenderingServiceImpl
 	{
 		renderingEngine.lookupPixels(pixelsId);
 		if(!renderingEngine.lookupRenderingDef(pixelsId))
-			renderingEngine.resetDefaults();
+			renderingEngine.resetDefaultSettings(true);
 		renderingEngine.lookupRenderingDef(pixelsId);
 		renderingEngine.load();
 	}
@@ -249,14 +249,7 @@ public class RenderingServiceImpl
 	public synchronized int[] renderAsPackedIntAsRGBA(long pixelsId, int z, int t)
 			throws ServerError 
 	{
-		PlaneDef def = new PlaneDef();
-		def.t = t;
-		def.z = z;
-		def.x = 0;
-		def.y = 0;
-		def.slice = 0;
-		setPixelsId(pixelsId);
-		return renderingEngine.renderAsPackedIntAsRGBA(def);
+		return null;
 	}
 
 	
