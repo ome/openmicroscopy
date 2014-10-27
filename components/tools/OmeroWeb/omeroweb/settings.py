@@ -498,6 +498,8 @@ for app in ADDITIONAL_APPS:  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
 logger.debug('INSTALLED_APPS=%s' % [INSTALLED_APPS])
 
 
+CSRF_FAILURE_VIEW = "omeroweb.feedback.views.csrf_failure"
+
 # FEEDBACK_URL: Used in feedback.sendfeedback.SendFeedback class in order to submit 
 # error or comment messages to https://qa.openmicroscopy.org.
 FEEDBACK_URL = "http://qa.openmicroscopy.org.uk"
