@@ -79,7 +79,7 @@ public class RenderingServiceImpl
 	{
 		renderingEngine.lookupPixels(pixelsId);
 		if(!renderingEngine.lookupRenderingDef(pixelsId))
-			renderingEngine.resetDefaultSettings(false);
+			renderingEngine.resetDefaultSettings(true);
 		renderingEngine.lookupRenderingDef(pixelsId);
 		renderingEngine.load();
 	}
