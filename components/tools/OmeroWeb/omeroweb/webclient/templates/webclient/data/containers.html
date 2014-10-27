@@ -297,7 +297,7 @@
                     if (rel === 'dataset' || rel === 'plate' || rel === 'acquisition') {
                         rdef_url += '&to_type='+ rel;
                     }
-                    $.getJSON(rdef_url, function(data){
+                    $.post(rdef_url, function(data){
                         // update thumbnails
                         OME.refreshThumbnails();
                     });

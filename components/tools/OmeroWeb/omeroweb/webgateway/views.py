@@ -24,6 +24,7 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.template import RequestContext as Context
 from django.core.servers.basehttp import FileWrapper
+from django.views.decorators.http import require_http_methods, require_GET, require_POST
 from omero.rtypes import rlong, unwrap
 from omero.constants.namespaces import NSBULKANNOTATIONS
 from omero_version import build_year
@@ -1647,6 +1648,8 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
             applyRenderingSettings(fromImage, originalSettings)
     return json_data
 
+
+@require_POST
 @login_required()
 @jsonp
 def reset_image_rdef_json (request, iid, conn=None, **kwargs):
