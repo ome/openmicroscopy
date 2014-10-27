@@ -493,21 +493,25 @@ class TestCsrf(object):
 
         # Reset through webclient
         request_url = reverse('web_reset_image_rdef_json', args=[img.id.val])
-        data = {
+        query_string = data = {
             'full': 'true'
         }
 
+        _get_reponse(django_client, request_url, query_string, {})
+        _csrf_get_reponse(django_client, request_url, query_string, {}, status_code=405)
         _post_reponse(django_client, request_url, data)
-        rsp = _csrf_post_reponse(django_client, request_url, data)
+        _csrf_post_reponse(django_client, request_url, data)
 
         # Reset through webgateway
         request_url = reverse('webgateway.views.reset_image_rdef_json', args=[img.id.val])
-        data = {
+        query_string = data = {
             'full': 'true'
         }
 
+        _get_reponse(django_client, request_url, query_string, {})
+        _csrf_get_reponse(django_client, request_url, query_string, {}, status_code=405)
         _post_reponse(django_client, request_url, data)
-        rsp = _csrf_post_reponse(django_client, request_url, data)
+        _csrf_post_reponse(django_client, request_url, data)
 
 
     # ADMIN
