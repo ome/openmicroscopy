@@ -6137,7 +6137,12 @@ class _PixelsWrapper (BlitzObjectWrapper):
         params = omero.sys.Parameters()
         params.map = {}
         params.map["pid"] = rlong(self._obj.id)
-        query = "select info from PlaneInfo as info where pixels.id=:pid"
+        query = "select info from PlaneInfo as info" \
+                " join fetch info.deltaT as dt" \
+                " join fetch dt.unit" \
+                " join fetch info.exposureTime as et" \
+                " join fetch et.unit" \
+                " where info.pixels.id=:pid"
         if theC is not None:
             params.map["theC"] = rint(theC)
             query += " and info.theC=:theC"
