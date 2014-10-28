@@ -32,12 +32,12 @@ from omero.model import ProjectI, DatasetI, ImageI, ScreenI, PlateI, \
     ProjectDatasetLinkI, DatasetImageLinkI
 from omero.rtypes import rstring, rtime
 from omeroweb.webclient.tree import marshal_experimenter, \
-    marshal_experimenters, marshal_groups, \
     marshal_projects, marshal_datasets, marshal_images, marshal_plates, \
     marshal_screens, marshal_plate_acquisitions, marshal_orphaned, \
     marshal_tags, marshal_tagged, marshal_shares, marshal_discussions
 
 from datetime import datetime
+
 
 def unwrap(x):
     """Handle case where there is no value because attribute is None"""
@@ -45,13 +45,16 @@ def unwrap(x):
         return x.val
     return None
 
+
 def cmp_id(x, y):
     """Identifier comparator."""
     return cmp(unwrap(x.id), unwrap(y.id))
 
+
 def cmp_name(x, y):
     """Name comparator."""
     return cmp(unwrap(x.name), unwrap(y.name))
+
 
 def lower_or_none(x):
     """ Lower the case or `None`"""
@@ -59,15 +62,18 @@ def lower_or_none(x):
         return x.lower()
     return None
 
+
 def cmp_name_insensitive(x, y):
     """Case-insensitive name comparator."""
     return cmp(lower_or_none(unwrap(x.name)),
                lower_or_none(unwrap(y.name)))
 
+
 def cmp_omename_insensitive(x, y):
     """Case-insensitive omeName comparator."""
     return cmp(lower_or_none(unwrap(x.omeName)),
                lower_or_none(unwrap(y.omeName)))
+
 
 def cmp_textValue_insensitive(x, y):
     """Case-insensitive textValue comparator."""
@@ -86,11 +92,13 @@ def get_connection(user, group_id=None):
         connection.SERVICE_OPTS.setOmeroGroup(group_id)
     return connection
 
+
 def get_update_service(user):
     """
     Get the update_service for the given user's client
     """
     return user[0].getSession().getUpdateService()
+
 
 def get_perms(user, obj):
     """
@@ -113,6 +121,7 @@ def get_perms(user, obj):
 
     return ' '.join(perms)
 
+
 def expected_experimenter(user):
     expected = {
         'id': user[1].id.val,
@@ -124,18 +133,19 @@ def expected_experimenter(user):
         expected['email'] = user[1].email.val
     return expected
 
+
 def expected_projects(user, projects):
     expected = []
     for project in projects:
-        expected.append(        {
+        expected.append({
             'id': project.id.val,
             'name': project.name.val,
-            'isOwned': project.details.owner.id.val == \
-                user[1].id.val,
+            'isOwned': project.details.owner.id.val == user[1].id.val,
             'childCount': len(project.linkedDatasetList()),
             'permsCss': get_perms(user[1], project)
         })
     return expected
+
 
 def expected_datasets(user, datasets):
     expected = []
@@ -143,12 +153,12 @@ def expected_datasets(user, datasets):
         expected.append({
             'id': dataset.id.val,
             'name': dataset.name.val,
-            'isOwned': dataset.details.owner.id.val == \
-                user[1].id.val,
+            'isOwned': dataset.details.owner.id.val == user[1].id.val,
             'childCount': len(dataset.linkedImageList()),
             'permsCss': get_perms(user[1], dataset)
         })
     return expected
+
 
 # TODO Is there a way to test load_pixels when these fake images don't
 # actually have any pixels?
@@ -158,8 +168,7 @@ def expected_images(user, images):
         i = {
             'id': image.id.val,
             'name': image.name.val,
-            'isOwned': image.details.owner.id.val == \
-                user[1].id.val,
+            'isOwned': image.details.owner.id.val == user[1].id.val,
             'permsCss': get_perms(user[1], image),
         }
         if image.fileset is not None:
@@ -167,31 +176,32 @@ def expected_images(user, images):
         expected.append(i)
     return expected
 
+
 def expected_screens(user, screens):
     expected = []
     for screen in screens:
-        expected.append(        {
+        expected.append({
             'id': screen.id.val,
             'name': screen.name.val,
-            'isOwned': screen.details.owner.id.val == \
-                user[1].id.val,
+            'isOwned': screen.details.owner.id.val == user[1].id.val,
             'childCount': len(screen.linkedPlateList()),
             'permsCss': get_perms(user[1], screen)
         })
     return expected
 
+
 def expected_plates(user, plates):
     expected = []
     for plate in plates:
-        expected.append(        {
+        expected.append({
             'id': plate.id.val,
             'name': plate.name.val,
-            'isOwned': plate.details.owner.id.val == \
-                user[1].id.val,
+            'isOwned': plate.details.owner.id.val == user[1].id.val,
             'childCount': len(plate.copyPlateAcquisitions()),
             'permsCss': get_perms(user[1], plate)
         })
     return expected
+
 
 def expected_plate_acquisitions(user, plate_acquisitions):
     expected = []
@@ -206,21 +216,21 @@ def expected_plate_acquisitions(user, plate_acquisitions):
         else:
             acq_name = 'Run %d' % acq.id.val
 
-
-        expected.append(        {
+        expected.append({
             'id': acq.id.val,
             'name': acq_name,
-            'isOwned': acq.details.owner.id.val == \
-                user[1].id.val,
+            'isOwned': acq.details.owner.id.val == user[1].id.val,
             'permsCss': get_perms(user[1], acq)
         })
     return expected
+
 
 def expected_orphaned(user, images):
     return {
         'id': user[1].id.val,
         'childCount': len(images)
     }
+
 
 def expected_tags(user, tags):
     expected = []
@@ -233,13 +243,12 @@ def expected_tags(user, tags):
             'id': tag.id.val,
             'value': tag.textValue.val,
             'description': description,
-            'isOwned': tag.details.owner.id.val == \
-                user[1].id.val,
+            'isOwned': tag.details.owner.id.val == user[1].id.val,
             'permsCss': get_perms(user[1], tag)
         }
 
-        if tag.ns is not None and tag.ns.val == \
-            'openmicroscopy.org/omero/insight/tagset':
+        if (tag.ns is not None and tag.ns.val ==
+                'openmicroscopy.org/omero/insight/tagset'):
             t['set'] = True
         else:
             t['set'] = False
@@ -247,6 +256,7 @@ def expected_tags(user, tags):
         t['childCount'] = len(tag.linkedAnnotationList())
         expected.append(t)
     return expected
+
 
 def expected_tagged(user, projects, datasets, images, screens, plates,
                     plate_acquisitions):
@@ -259,26 +269,27 @@ def expected_tagged(user, projects, datasets, images, screens, plates,
         'acquisitions': expected_plate_acquisitions(user, plate_acquisitions)
     }
 
+
 def expected_shares(user, shares):
     expected = []
     for share in shares:
         expected.append({
             'id': share.id.val,
-            'isOwned': share.owner.id.val == \
-                user[1].id.val,
+            'isOwned': share.owner.id.val == user[1].id.val,
             'childCount': share.getItemCount().val
         })
     return expected
+
 
 def expected_discussions(user, discussions):
     expected = []
     for discussion in discussions:
         expected.append({
             'id': discussion.id.val,
-            'isOwned': discussion.owner.id.val == \
-                user[1].id.val
+            'isOwned': discussion.owner.id.val == user[1].id.val
         })
     return expected
+
 
 @pytest.fixture(scope='function')
 def itest(request):
@@ -294,11 +305,13 @@ def itest(request):
     request.addfinalizer(finalizer)
     return o
 
+
 # Create a read-only group
 @pytest.fixture(scope='function')
 def groupA(request, itest):
     """Returns a new read-only group."""
     return itest.new_group(perms='rwr---')
+
 
 # Create a read-only group
 @pytest.fixture(scope='function')
@@ -306,11 +319,13 @@ def groupB(request, itest):
     """Returns a new read-only group."""
     return itest.new_group(perms='rwr---')
 
+
 # Create a read-write group
 @pytest.fixture(scope='function')
 def groupC(request, itest):
     """Returns a new read-only group."""
     return itest.new_group(perms='rwrw--')
+
 
 # Create users in the read-only group
 @pytest.fixture(scope='function')
@@ -320,37 +335,45 @@ def userA(request, itest, groupA, groupB):
     itest.add_groups(user[1], [groupB])
     return user
 
+
 @pytest.fixture(scope='function')
 def userB(request, itest, groupA):
     """Returns another new user in the read-only group."""
     return itest.new_client_and_user(group=groupA)
+
 
 @pytest.fixture(scope='function')
 def userC(request, itest, groupC):
     """Returns a new user in the read-write group."""
     return itest.new_client_and_user(group=groupC)
 
+
 @pytest.fixture(scope='function')
 def userD(request, itest, groupC):
     """Returns another new user in the read-write group."""
     return itest.new_client_and_user(group=groupC)
+
 
 # Some names
 @pytest.fixture(scope='module')
 def names1(request):
     return ('Apple', 'bat')
 
+
 @pytest.fixture(scope='module')
 def names2(request):
     return ('Axe',)
+
 
 @pytest.fixture(scope='module')
 def names3(request):
     return ('Bark', 'custard')
 
+
 @pytest.fixture(scope='module')
 def names4(request):
     return ('Butter',)
+
 
 ### Projects ###
 @pytest.fixture(scope='function')
@@ -370,6 +393,7 @@ def projects_userA_groupA(request, names1, userA,
     projects.sort(cmp_name_insensitive)
     return projects
 
+
 @pytest.fixture(scope='function')
 def projects_userB_groupA(request, names2, userB):
     """
@@ -385,6 +409,7 @@ def projects_userB_groupA(request, names2, userB):
         to_save)
     projects.sort(cmp_name_insensitive)
     return projects
+
 
 @pytest.fixture(scope='function')
 def projects_userA_groupB(request, names3, userA, groupB):
@@ -404,6 +429,7 @@ def projects_userA_groupB(request, names3, userA, groupB):
     projects.sort(cmp_name_insensitive)
     return projects
 
+
 @pytest.fixture(scope='function')
 def projects_groupA(request, projects_userA_groupA,
                     projects_userB_groupA):
@@ -414,6 +440,7 @@ def projects_groupA(request, projects_userA_groupA,
     projects.sort(cmp_name_insensitive)
     return projects
 
+
 @pytest.fixture(scope='function')
 def projects_groupB(request, projects_userA_groupB):
     """
@@ -422,6 +449,7 @@ def projects_groupB(request, projects_userA_groupB):
     projects = projects_userA_groupB
     # projects.sort(cmp_name_insensitive)
     return projects
+
 
 @pytest.fixture(scope='function')
 def projects_userA(request, projects_userA_groupA,
@@ -433,6 +461,7 @@ def projects_userA(request, projects_userA_groupA,
     projects.sort(cmp_name_insensitive)
     return projects
 
+
 @pytest.fixture(scope='function')
 def projects(request, projects_groupA,
              projects_groupB):
@@ -442,6 +471,7 @@ def projects(request, projects_groupA,
     projects = projects_groupA + projects_groupB
     projects.sort(cmp_name_insensitive)
     return projects
+
 
 ### Datasets ###
 @pytest.fixture(scope='function')
@@ -473,6 +503,7 @@ def datasets_userB_groupA(request, userB):
     datasets.sort(cmp_name_insensitive)
     return datasets
 
+
 @pytest.fixture(scope='function')
 def datasets_userA_groupB(request, userA, groupB):
     """
@@ -490,6 +521,7 @@ def datasets_userA_groupB(request, userA, groupB):
     datasets.sort(cmp_name_insensitive)
     return datasets
 
+
 @pytest.fixture(scope='function')
 def datasets_groupA(request, datasets_userA_groupA,
                     datasets_userB_groupA):
@@ -500,6 +532,7 @@ def datasets_groupA(request, datasets_userA_groupA,
     datasets.sort(cmp_name_insensitive)
     return datasets
 
+
 @pytest.fixture(scope='function')
 def datasets_groupB(request, datasets_userA_groupB):
     """
@@ -508,6 +541,7 @@ def datasets_groupB(request, datasets_userA_groupB):
     datasets = datasets_userA_groupB
     # datasets.sort(cmp_name_insensitive)
     return datasets
+
 
 @pytest.fixture(scope='function')
 def datasets_userA(request, datasets_userA_groupA,
@@ -519,6 +553,7 @@ def datasets_userA(request, datasets_userA_groupA,
     datasets.sort(cmp_name_insensitive)
     return datasets
 
+
 @pytest.fixture(scope='function')
 def datasets(request, datasets_groupA,
              datasets_groupB):
@@ -528,6 +563,7 @@ def datasets(request, datasets_groupA,
     datasets = datasets_groupA + datasets_groupB
     datasets.sort(cmp_name_insensitive)
     return datasets
+
 
 ### Images ###
 @pytest.fixture(scope='function')
@@ -544,6 +580,7 @@ def images_userA_groupA(request, itest, userA):
     images.sort(cmp_name_insensitive)
     return images
 
+
 @pytest.fixture(scope='function')
 def images_userB_groupA(request, itest, userB):
     """
@@ -558,6 +595,7 @@ def images_userB_groupA(request, itest, userB):
     images.sort(cmp_name_insensitive)
     return images
 
+
 @pytest.fixture(scope='function')
 def images_userA_groupB(request, itest, userA, groupB):
     """
@@ -570,9 +608,10 @@ def images_userA_groupB(request, itest, userA, groupB):
 
     conn = get_connection(userA, groupB.id.val)
     images = conn.getUpdateService().saveAndReturnArray(to_save,
-                                                          conn.SERVICE_OPTS)
+                                                        conn.SERVICE_OPTS)
     images.sort(cmp_name_insensitive)
     return images
+
 
 @pytest.fixture(scope='function')
 def images_groupA(request, images_userA_groupA,
@@ -584,6 +623,7 @@ def images_groupA(request, images_userA_groupA,
     images.sort(cmp_name_insensitive)
     return images
 
+
 @pytest.fixture(scope='function')
 def images_groupB(request, images_userA_groupB):
     """
@@ -592,6 +632,7 @@ def images_groupB(request, images_userA_groupB):
     images = images_userA_groupB
     # images.sort(cmp_name_insensitive)
     return images
+
 
 @pytest.fixture(scope='function')
 def images_userA(request, images_userA_groupA, images_userA_groupB):
@@ -602,6 +643,7 @@ def images_userA(request, images_userA_groupA, images_userA_groupB):
     images.sort(cmp_name_insensitive)
     return images
 
+
 @pytest.fixture(scope='function')
 def images(request, images_groupA, images_groupB):
     """
@@ -610,6 +652,7 @@ def images(request, images_groupA, images_groupB):
     images = images_groupA + images_groupB
     images.sort(cmp_name_insensitive)
     return images
+
 
 @pytest.fixture(scope='function')
 def project_hierarchy_userA_groupA(request, itest, userA):
@@ -661,6 +704,7 @@ def project_hierarchy_userA_groupA(request, itest, userA):
 
     return projects + datasets + images
 
+
 ### Shares ###
 @pytest.fixture(scope='function')
 def shares_userA_owned(request, userA, userB, images_userA_groupA):
@@ -681,6 +725,7 @@ def shares_userA_owned(request, userA, userB, images_userA_groupA):
     shares.sort(cmp_id)
     return shares
 
+
 @pytest.fixture(scope='function')
 def shares_userB_owned(request, userA, userB, images_userB_groupA):
     """
@@ -698,6 +743,7 @@ def shares_userB_owned(request, userA, userB, images_userB_groupA):
     shares.sort(cmp_id)
     return shares
 
+
 @pytest.fixture(scope='function')
 def shares(request, shares_userA_owned, shares_userB_owned):
     """
@@ -706,6 +752,7 @@ def shares(request, shares_userA_owned, shares_userB_owned):
     shares = shares_userA_owned + shares_userB_owned
     shares.sort(cmp_id)
     return shares
+
 
 ### Discussions ###
 @pytest.fixture(scope='function')
@@ -725,6 +772,7 @@ def discussions_userA_owned(request, userA, userB):
     discussions.sort(cmp_id)
     return discussions
 
+
 @pytest.fixture(scope='function')
 def discussions_userB_owned(request, userA, userB):
     """
@@ -742,6 +790,7 @@ def discussions_userB_owned(request, userA, userB):
     discussions.sort(cmp_id)
     return discussions
 
+
 @pytest.fixture(scope='function')
 def discussions(request, discussions_userA_owned, discussions_userB_owned):
     """
@@ -750,6 +799,7 @@ def discussions(request, discussions_userA_owned, discussions_userB_owned):
     discussions = discussions_userA_owned + discussions_userB_owned
     discussions.sort(cmp_id)
     return discussions
+
 
 ### Screens ###
 @pytest.fixture(scope='function')
@@ -767,6 +817,7 @@ def screens_userA_groupA(request, userA):
     screens.sort(cmp_name_insensitive)
     return screens
 
+
 @pytest.fixture(scope='function')
 def screens_userB_groupA(request, userB):
     """
@@ -782,6 +833,7 @@ def screens_userB_groupA(request, userB):
     screens.sort(cmp_name_insensitive)
     return screens
 
+
 @pytest.fixture(scope='function')
 def screens_userA_groupB(request, userA, groupB):
     """
@@ -795,9 +847,10 @@ def screens_userA_groupB(request, userA, groupB):
 
     conn = get_connection(userA, groupB.id.val)
     screens = conn.getUpdateService().saveAndReturnArray(to_save,
-                                                          conn.SERVICE_OPTS)
+                                                         conn.SERVICE_OPTS)
     screens.sort(cmp_name_insensitive)
     return screens
+
 
 @pytest.fixture(scope='function')
 def screens_groupA(request, screens_userA_groupA, screens_userB_groupA):
@@ -808,6 +861,7 @@ def screens_groupA(request, screens_userA_groupA, screens_userB_groupA):
     screens.sort(cmp_name_insensitive)
     return screens
 
+
 @pytest.fixture(scope='function')
 def screens_groupB(request, screens_userA_groupB):
     """
@@ -816,6 +870,7 @@ def screens_groupB(request, screens_userA_groupB):
     screens = screens_userA_groupB
     # screens.sort(cmp_name_insensitive)
     return screens
+
 
 @pytest.fixture(scope='function')
 def screens_userA(request, screens_userA_groupA, screens_userA_groupB):
@@ -826,6 +881,7 @@ def screens_userA(request, screens_userA_groupA, screens_userA_groupB):
     screens.sort(cmp_name_insensitive)
     return screens
 
+
 @pytest.fixture(scope='function')
 def screens(request, screens_groupA, screens_groupB):
     """
@@ -834,6 +890,7 @@ def screens(request, screens_groupA, screens_groupB):
     screens = screens_groupA + screens_groupB
     screens.sort(cmp_name_insensitive)
     return screens
+
 
 ### Plates ###
 @pytest.fixture(scope='function')
@@ -851,6 +908,7 @@ def plates_userA_groupA(request, userA):
     plates.sort(cmp_name_insensitive)
     return plates
 
+
 @pytest.fixture(scope='function')
 def plates_userB_groupA(request, userB):
     """
@@ -866,6 +924,7 @@ def plates_userB_groupA(request, userB):
     plates.sort(cmp_name_insensitive)
     return plates
 
+
 @pytest.fixture(scope='function')
 def plates_userA_groupB(request, userA, groupB):
     """
@@ -879,9 +938,10 @@ def plates_userA_groupB(request, userA, groupB):
 
     conn = get_connection(userA, groupB.id.val)
     plates = conn.getUpdateService().saveAndReturnArray(to_save,
-                                                          conn.SERVICE_OPTS)
+                                                        conn.SERVICE_OPTS)
     plates.sort(cmp_name_insensitive)
     return plates
+
 
 @pytest.fixture(scope='function')
 def plates_groupA(request, plates_userA_groupA, plates_userB_groupA):
@@ -892,6 +952,7 @@ def plates_groupA(request, plates_userA_groupA, plates_userB_groupA):
     plates.sort(cmp_name_insensitive)
     return plates
 
+
 @pytest.fixture(scope='function')
 def plates_groupB(request, plates_userA_groupB):
     """
@@ -901,6 +962,7 @@ def plates_groupB(request, plates_userA_groupB):
     # plates.sort(cmp_name_insensitive)
     return plates
 
+
 @pytest.fixture(scope='function')
 def plates_userA(request, plates_userA_groupA, plates_userA_groupB):
     """
@@ -909,6 +971,7 @@ def plates_userA(request, plates_userA_groupA, plates_userA_groupB):
     plates = plates_userA_groupA + plates_userA_groupB
     plates.sort(cmp_name_insensitive)
     return plates
+
 
 @pytest.fixture(scope='function')
 def plates(request, plates_groupA, plates_groupB):
@@ -975,6 +1038,7 @@ def screen_hierarchy_userA_groupA(request, userA):
 
     return screens + plates + acqs
 
+
 @pytest.fixture(scope='function')
 def screen_hierarchy_userB_groupA(request, userB):
     """
@@ -1010,6 +1074,7 @@ def screen_hierarchy_userB_groupA(request, userB):
 
     return screens + plates + acqs
 
+
 @pytest.fixture(scope='function')
 def screen_hierarchy_userA_groupB(request, userA, groupB):
     """
@@ -1038,7 +1103,7 @@ def screen_hierarchy_userA_groupB(request, userA, groupB):
     to_save = [screenD]
     conn = get_connection(userA, groupB.id.val)
     screens = conn.getUpdateService().saveAndReturnArray(to_save,
-                                                          conn.SERVICE_OPTS)
+                                                         conn.SERVICE_OPTS)
     screens.sort(cmp_name_insensitive)
 
     plates = screens[0].linkedPlateList()
@@ -1046,6 +1111,7 @@ def screen_hierarchy_userA_groupB(request, userA, groupB):
     acqs = plates[0].copyPlateAcquisitions()
 
     return screens + plates + acqs
+
 
 @pytest.fixture(scope='function')
 def tags_userA_groupA(request, userA, tagset_hierarchy_userA_groupA):
@@ -1062,6 +1128,7 @@ def tags_userA_groupA(request, userA, tagset_hierarchy_userA_groupA):
     tags.sort(cmp_id)
     return tags
 
+
 @pytest.fixture(scope='function')
 def tags_userB_groupA(request, userB):
     """
@@ -1077,6 +1144,7 @@ def tags_userB_groupA(request, userB):
     tags.sort(cmp_id)
     return tags
 
+
 @pytest.fixture(scope='function')
 def tags_userA_groupB(request, userA, groupB):
     """
@@ -1090,9 +1158,10 @@ def tags_userA_groupB(request, userA, groupB):
 
     conn = get_connection(userA, groupB.id.val)
     tags = conn.getUpdateService().saveAndReturnArray(to_save,
-                                                          conn.SERVICE_OPTS)
+                                                      conn.SERVICE_OPTS)
     tags.sort(cmp_id)
     return tags
+
 
 @pytest.fixture(scope='function')
 def tags_groupA(request, tags_userA_groupA, tags_userB_groupA):
@@ -1103,6 +1172,7 @@ def tags_groupA(request, tags_userA_groupA, tags_userB_groupA):
     tags.sort(cmp_id)
     return tags
 
+
 @pytest.fixture(scope='function')
 def tags_groupB(request, tags_userA_groupB):
     """
@@ -1112,6 +1182,7 @@ def tags_groupB(request, tags_userA_groupB):
     # tags.sort(cmp_name_insensitive)
     return tags
 
+
 @pytest.fixture(scope='function')
 def tags_userA(request, tags_userA_groupA, tags_userA_groupB):
     """
@@ -1120,6 +1191,7 @@ def tags_userA(request, tags_userA_groupA, tags_userA_groupB):
     tags = tags_userA_groupA + tags_userA_groupB
     tags.sort(cmp_id)
     return tags
+
 
 @pytest.fixture(scope='function')
 def tags(request, tags_groupA, tags_groupB):
@@ -1202,6 +1274,7 @@ def tagset_hierarchy_userA_groupA(request, userA,
     # links is: project, dataset, image, screen, plate, acquisition
     return tagsets + tags + [link.parent for link in links]
 
+
 @pytest.fixture(scope='function')
 def tagset_hierarchy_userB_groupA(request, userA,
                                   project_hierarchy_userA_groupA,
@@ -1273,6 +1346,7 @@ def tagset_hierarchy_userB_groupA(request, userA,
     # links is: project, dataset, image, screen, plate, acquisition
     return tagsets + tags + [link.parent for link in links]
 
+
 # Cross-linked project hierarchy
 @pytest.fixture(scope='function')
 def project_hierarchy_crosslink(request, itest, groupC, userC, userD):
@@ -1314,6 +1388,7 @@ def project_hierarchy_crosslink(request, itest, groupC, userC, userD):
     get_update_service(userD).saveObject(link)
 
     return [projectA, datasetA, imageA]
+
 
 class TestTree(object):
     """
@@ -1386,7 +1461,7 @@ class TestTree(object):
         assert marshaled == expected
 
     def test_marshal_projects_another_group(self, userA, groupB,
-                                           projects_userA_groupB):
+                                            projects_userA_groupB):
         """
         Test marshalling user's projects in another group
         """
@@ -1473,7 +1548,6 @@ class TestTree(object):
                                      experimenter_id=userA[1].id.val,
                                      group_id=groupB.id.val)
         assert marshaled == expected
-
 
     def test_marshal_datasets_all_groups(self, userA, datasets_userA):
         """
@@ -1666,7 +1740,7 @@ class TestTree(object):
         assert marshaled == expected
 
     def test_marshal_screens_another_user(self, userA, userB,
-                                         screens_userB_groupA):
+                                          screens_userB_groupA):
         """
         Test marshalling another user's orphaned screens in current group
         """
@@ -1820,7 +1894,7 @@ class TestTree(object):
         assert marshaled == expected
 
     def test_marshal_plate_acquisitions_another_user(
-        self, userA, screen_hierarchy_userB_groupA):
+            self, userA, screen_hierarchy_userB_groupA):
         """
         Test marshalling another user's plate acquisitions in current group
         for plateB
@@ -1834,7 +1908,7 @@ class TestTree(object):
         assert marshaled == expected
 
     def test_marshal_plate_acquisitions_another_group(
-        self, userA, groupB, screen_hierarchy_userA_groupB):
+            self, userA, groupB, screen_hierarchy_userA_groupB):
         """
         Test marshalling user's own orphaned plate acquisitions in another
         group for plateC
@@ -2020,9 +2094,9 @@ class TestTree(object):
         acqs = [tagset_hierarchy_userA_groupA[7]]
         expected = expected_tagged(userA, projects, datasets, images,
                                    screens, plates, acqs)
-        marshaled= marshal_tagged(conn=conn,
-                                  experimenter_id=userA[1].id.val,
-                                  tag_id=tag.id.val)
+        marshaled = marshal_tagged(conn=conn,
+                                   experimenter_id=userA[1].id.val,
+                                   tag_id=tag.id.val)
         assert marshaled == expected
 
     ### Share ###

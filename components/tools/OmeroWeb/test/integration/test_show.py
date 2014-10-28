@@ -18,8 +18,8 @@ from omero.gateway import BlitzGateway, ProjectWrapper, DatasetWrapper, \
     ImageWrapper, TagAnnotationWrapper, ScreenWrapper, PlateWrapper, \
     PlateAcquisitionWrapper
 from omero.model import ProjectI, DatasetI, TagAnnotationI, ScreenI, PlateI, \
-    WellI, WellSampleI, PlateAcquisitionI, ImageI
-from omero.rtypes import rstring, rint, rlong
+    WellI, WellSampleI, PlateAcquisitionI
+from omero.rtypes import rstring, rint
 from omeroweb.webclient.show import Show, IncorrectMenuError, paths_to_object
 from django.test.client import RequestFactory
 
@@ -123,6 +123,7 @@ def project_dataset_image(request, itest, update_service):
     project.linkDataset(dataset)
     return update_service.saveAndReturnObject(project)
 
+
 @pytest.fixture(scope='function')
 def project_dataset_image_multi_link(conn, request, itest, update_service):
 
@@ -220,6 +221,7 @@ def project_dataset_image_multi_link(conn, request, itest, update_service):
     #     print e[0].val, e[1].val
 
     return [project1, project2, dataset1, dataset2, dataset3, image1]
+
 
 @pytest.fixture(scope='function', params=[1, 2])
 def tag(request, itest, update_service):
@@ -333,6 +335,7 @@ def screen_plate_run_well(request, itest, update_service):
     screen.linkPlate(plate)
     return update_service.saveAndReturnObject(screen)
 
+
 @pytest.fixture(scope='function')
 def screen_plate_run_well_multi(request, itest, update_service):
     """
@@ -354,7 +357,7 @@ def screen_plate_run_well_multi(request, itest, update_service):
     screen = ScreenI()
     screen.name = rstring(itest.uuid())
 
-     # Create a link a plate
+    # Create a link a plate
     plate = PlateI()
     plate.name = rstring(itest.uuid())
     screen.linkPlate(plate)
@@ -365,7 +368,8 @@ def screen_plate_run_well_multi(request, itest, update_service):
     plate_acquisition1.plate = plate
     plate_acquisition2.plate = plate
 
-    # Create Well A10 (will have two WellSamples 'fields' in both runs) and link
+    # Create Well A10 (will have two WellSamples 'fields' in both runs)
+    # and link
     well_a = WellI()
     well_a.row = rint(0)
     well_a.column = rint(9)
@@ -377,8 +381,8 @@ def screen_plate_run_well_multi(request, itest, update_service):
     well_b.column = rint(10)
     plate.addWell(well_b)
 
-    # Create Well A12 (will have one WellSample 'field' in the first run only )
-    # and link
+    # Create Well A12 (will have one WellSample 'field' in the first run
+    # only ) and link
     well_c = WellI()
     well_c.row = rint(0)
     well_c.column = rint(11)
@@ -416,6 +420,7 @@ def screen_plate_run_well_multi(request, itest, update_service):
     well_c.addWellSample(ws_c1)
 
     return update_service.saveAndReturnObject(screen)
+
 
 @pytest.fixture(scope='function')
 def empty_request(request, request_factory, path):
@@ -1344,10 +1349,12 @@ class TestShow2(object):
             except ValueError:
                 assert False, 'Did not find in results: %s' % str(e)
 
-        assert len(paths) == 0, 'More results than expected found \n %s' % paths
+        assert len(paths) == 0, 'More results than expected found \n %s' \
+            % paths
 
     def test_image_multi_link_restrict_dataset(
-        self, conn, project_dataset_image_multi_link):
+            self, conn, project_dataset_image_multi_link):
+
         """
         Test image path with dataset restriciton in multi-link environment
         """
@@ -1366,7 +1373,7 @@ class TestShow2(object):
         assert paths == expected
 
     def test_image_multi_link_restrict_dataset_project(
-        self, conn, project_dataset_image_multi_link):
+            self, conn, project_dataset_image_multi_link):
         """
         Test image path with dataset and project restriction in multi-link
         environment
@@ -1386,7 +1393,7 @@ class TestShow2(object):
         assert paths == expected
 
     def test_image_multi_link_restrict_project(
-        self, conn, project_dataset_image_multi_link):
+            self, conn, project_dataset_image_multi_link):
         """
         Test image path with project restriction in multi-link enviroment
         """
@@ -1443,10 +1450,11 @@ class TestShow2(object):
             except ValueError:
                 assert False, 'Did not find in results: %s' % str(e)
 
-        assert len(paths) == 0, 'More results than expected found \n %s' % paths
+        assert len(paths) == 0, 'More results than expected found \n %s' \
+            % paths
 
     def test_dataset_multi_link_restrict_project(
-        self, conn, project_dataset_image_multi_link):
+            self, conn, project_dataset_image_multi_link):
         """
         Test dataset/image path with project restriction in multi-link
         environment
@@ -1463,8 +1471,7 @@ class TestShow2(object):
 
         assert paths == expected
 
-    def test_dataset_orphan(
-        self, conn, project_dataset_image_multi_link):
+    def test_dataset_orphan(self, conn, project_dataset_image_multi_link):
         """
         Test dataset path for orphan dataset
         """
@@ -1539,7 +1546,7 @@ class TestShow2(object):
         assert paths == expected
 
     def test_acquisition_restrict_screen(self, conn,
-                                               screen_plate_run_well):
+                                         screen_plate_run_well):
         """
         Test acquisition path with plate restriction
         """
@@ -1620,7 +1627,8 @@ class TestShow2(object):
             except ValueError:
                 assert False, 'Did not find in results: %s' % str(e)
 
-        assert len(paths) == 0, 'More results than expected found \n %s' % paths
+        assert len(paths) == 0, 'More results than expected found \n %s' \
+            % paths
 
     # TODO Perhaps screen_plate_run_well_multi should just replace
     # screen_plate_run_well as it is the same with some additional stuff?
@@ -1673,11 +1681,14 @@ class TestShow2(object):
             except ValueError:
                 assert False, 'Did not find in results: %s' % str(e)
 
-        assert len(paths) == 0, 'More results than expected found \n %s' % paths
+        assert len(paths) == 0, 'More results than expected found \n %s' \
+            % paths
 
-    def test_well_restrict_acquisition_multi(self, conn, screen_plate_run_well_multi):
+    def test_well_restrict_acquisition_multi(self, conn,
+                                             screen_plate_run_well_multi):
         """
-        Test well path with acquisition restriction in multi-link environment
+        Test well path with acquisition restriction in multi-link
+        environment
         """
 
         screen = screen_plate_run_well_multi
@@ -1689,7 +1700,7 @@ class TestShow2(object):
 
         ws_c1, = well_c.copyWellSamples()
         plate_acquisition1 = ws_a1.plateAcquisition
-        plate_acquisition2 = ws_a2.plateAcquisition
+        # plate_acquisition2 = ws_a2.plateAcquisition
 
         paths = paths_to_object(conn, None, None, None, None, None, None,
                                 plate_acquisition1.id.val, well_a.id.val)
@@ -1713,9 +1724,11 @@ class TestShow2(object):
             except ValueError:
                 assert False, 'Did not find in results: %s' % str(e)
 
-        assert len(paths) == 0, 'More results than expected found \n %s' % paths
+        assert len(paths) == 0, 'More results than expected found \n %s' \
+            % paths
 
-    def test_well_restrict_plate_multi(self, conn, screen_plate_run_well_multi):
+    def test_well_restrict_plate_multi(self, conn,
+                                       screen_plate_run_well_multi):
         """
         Test well path with plate restriction in multi-link environment
         """
@@ -1729,7 +1742,7 @@ class TestShow2(object):
 
         ws_c1, = well_c.copyWellSamples()
         plate_acquisition1 = ws_a1.plateAcquisition
-        plate_acquisition2 = ws_a2.plateAcquisition
+        # plate_acquisition2 = ws_a2.plateAcquisition
 
         paths = paths_to_object(conn, None, None, None, None, None,
                                 plate.id.val, None, well_a.id.val)
@@ -1762,9 +1775,11 @@ class TestShow2(object):
             except ValueError:
                 assert False, 'Did not find in results: %s' % str(e)
 
-        assert len(paths) == 0, 'More results than expected found \n %s' % paths
+        assert len(paths) == 0, 'More results than expected found \n %s' \
+            % paths
 
-    def test_well_restrict_screen_multi(self, conn, screen_plate_run_well_multi):
+    def test_well_restrict_screen_multi(self, conn,
+                                        screen_plate_run_well_multi):
         """
         Test well path with screen restriction in multi-link environment
         """
@@ -1811,7 +1826,8 @@ class TestShow2(object):
             except ValueError:
                 assert False, 'Did not find in results: %s' % str(e)
 
-        assert len(paths) == 0, 'More results than expected found \n %s' % paths
+        assert len(paths) == 0, 'More results than expected found \n %s' \
+            % paths
 
     def test_well_restrict_acquisition_plate_multi(
             self, conn, screen_plate_run_well_multi):
@@ -1829,7 +1845,7 @@ class TestShow2(object):
 
         ws_c1, = well_c.copyWellSamples()
         plate_acquisition1 = ws_a1.plateAcquisition
-        plate_acquisition2 = ws_a2.plateAcquisition
+        # plate_acquisition2 = ws_a2.plateAcquisition
 
         paths = paths_to_object(conn, None, None, None, None, None,
                                 plate.id.val, plate_acquisition1.id.val,
@@ -1853,7 +1869,8 @@ class TestShow2(object):
             except ValueError:
                 assert False, 'Did not find in results: %s' % str(e)
 
-        assert len(paths) == 0, 'More results than expected found \n %s' % paths
+        assert len(paths) == 0, 'More results than expected found \n %s' \
+            % paths
 
     def test_well_restrict_acquisition_screen_multi(
             self, conn, screen_plate_run_well_multi):
@@ -1895,7 +1912,8 @@ class TestShow2(object):
             except ValueError:
                 assert False, 'Did not find in results: %s' % str(e)
 
-        assert len(paths) == 0, 'More results than expected found \n %s' % paths
+        assert len(paths) == 0, 'More results than expected found \n %s' \
+            % paths
 
     def test_well_restrict_acquisition_plate_screen_multi(
             self, conn, screen_plate_run_well_multi):
@@ -1939,7 +1957,8 @@ class TestShow2(object):
             except ValueError:
                 assert False, 'Did not find in results: %s' % str(e)
 
-        assert len(paths) == 0, 'More results than expected found \n %s' % paths
+        assert len(paths) == 0, 'More results than expected found \n %s' \
+            % paths
 
     def test_well_restrict_plate_screen_multi(
             self, conn, screen_plate_run_well_multi):
@@ -1993,7 +2012,8 @@ class TestShow2(object):
             except ValueError:
                 assert False, 'Did not find in results: %s' % str(e)
 
-        assert len(paths) == 0, 'More results than expected found \n %s' % paths
+        assert len(paths) == 0, 'More results than expected found \n %s' \
+            % paths
 
     # def test_well_restrict_plate(self, conn, screen_plate_well):
     #     """
