@@ -234,7 +234,10 @@
 					</li>
 				
 					<li>
-						<input disabled="true" class="toggleEnabled button" type="image"  title="Create a 'Share' with the selected images" src="{% static "webclient/image/icon_toolbar_share2.png" %}" onclick="OME.makeShare('{% url 'basket_action' 'toshare' %}');">
+						<input id="create_share"
+                        disabled="true" class="toggleEnabled button" type="image"
+                        title="Create a 'Share' with the selected images" src="{% static "webclient/image/icon_toolbar_share2.png" %}"
+                        onclick="OME.makeShare('{% url 'basket_action' 'toshare' %}');">
 					</li>
 					
 					
