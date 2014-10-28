@@ -1314,7 +1314,14 @@ OMERO Diagnostics %s
         vers = Ice.stringVersion()
         _check("IcePy version", vers)
 
+        # See ticket #10051
         popen = self.ctx.popen(["icegridnode", "--version"])
+        env = self.ctx._env()
+        ice_config = env.get("ICE_CONFIG")
+        if ice_config is not None and not os.path.exists(ice_config):
+            popen = self.ctx.popen(["icegridnode", "--version"],
+                                   **{'ICE_CONFIG': ''})
+
         vers = popen.communicate()[1]
         _check("icegridnode version", vers)
 
