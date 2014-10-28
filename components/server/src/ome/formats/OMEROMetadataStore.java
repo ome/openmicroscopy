@@ -80,6 +80,8 @@ import org.perf4j.StopWatch;
  */
 public class OMEROMetadataStore
 {
+    private static String[] DOMAINS = {"jpeg", "png", "bmp", "gif"};
+    
     /** Logger for this class. */
     private static Logger log = LoggerFactory.getLogger(OMEROMetadataStore.class);
 
@@ -2139,7 +2141,25 @@ public class OMEROMetadataStore
     	//s2.stop();
    		return toReturn;
     }
-    
+
+    /**
+     * Checks if the format is a graphics format or not.
+     *
+     * @param value The value to check
+     * @return See above.
+     */
+    private boolean isRGB(String value)
+    {
+        if (value == null) return false;
+        value = value.toLowerCase();
+        for (int i = 0; i < DOMAINS.length; i++) {
+            if (DOMAINS[i].equals(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Synchronize the minimum and maximum intensity values with those
      * specified by the client and save them in the DB.
@@ -2157,14 +2177,21 @@ public class OMEROMetadataStore
     	{
     		channelGlobalMinMax = imageChannelGlobalMinMax[i];
     		pixels = pixelsList.get(i);
+    		String v = pixels.getImage().getFormat().getValue();
+    		boolean rgb = isRGB(v);
     		unloadedPixels = new Pixels(pixels.getId(), false);
     		for (int c = 0; c < channelGlobalMinMax.length; c++)
     		{
     			globalMinMax = channelGlobalMinMax[c];
     			channel = pixels.getChannel(c);
     			statsInfo = new StatsInfo();
-    			statsInfo.setGlobalMin(globalMinMax[0]);
-    			statsInfo.setGlobalMax(globalMinMax[1]);
+    			if (rgb) {
+    			    statsInfo.setGlobalMin(0.0);
+                    statsInfo.setGlobalMax(255.0);
+    			} else {
+    			    statsInfo.setGlobalMin(globalMinMax[0]);
+                    statsInfo.setGlobalMax(globalMinMax[1]);
+    			}
     			channel.setStatsInfo(statsInfo);
     			channel.setPixels(unloadedPixels);
     			channelList.add(channel);
