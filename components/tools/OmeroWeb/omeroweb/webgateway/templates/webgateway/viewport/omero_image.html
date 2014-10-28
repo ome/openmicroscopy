@@ -1344,7 +1344,7 @@
     });
 
     $(".btn.paste_rdef").click(function() {
-        $.getJSON(copy_paste_rdef_url + "?toids={{ image.id }}", function(data){
+        $.post(copy_paste_rdef_url, {"toids":{{ image.id }}}, function(data){
           // refresh UI
           viewport.load({{ image.id }});
           // update thumbnails
