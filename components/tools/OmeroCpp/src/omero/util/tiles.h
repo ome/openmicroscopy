@@ -116,6 +116,7 @@ namespace omero {
             omero::api::ServiceFactoryPrx session;
             omero::model::PixelsPtr pixels;
         public:
+            using TileLoop::forEachTile;
             RPSTileLoop(const omero::api::ServiceFactoryPrx& session, const omero::model::PixelsPtr& pixels);
             virtual ~RPSTileLoop();
             virtual omero::api::ServiceFactoryPrx getSession();
