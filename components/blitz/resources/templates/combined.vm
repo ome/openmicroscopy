@@ -375,7 +375,7 @@ since all collections are lists in ice.
 [$cpp]               ${property.name}Seq = ${seqName}();
 [$cpp]               ${property.name}Loaded = true;
 [$cpp]           } else {
-[$cpp]               ${property.name}Seq = (${seqName})0;
+[$cpp]               ${property.name}Seq = static_cast<${seqName}>(0);
 [$cpp]               ${property.name}Loaded = false;
 [$cpp]           }
 [$pyc]           if load:
@@ -867,7 +867,7 @@ Properties used throughout the accessor generation
 #set( $unloadedJava = "if (${property.name} == null) { this.${propLoaded} = false; } else { this.${propLoaded} = true; }" )
 #set( $cppType = "$seqName" )
 #set( $iceType = "$seqName" )
-#set( $unloadedCpp = "if (_${property.name} != ($cppType) 0) { ${propLoaded} = true; } else { ${propLoaded} = false; }" )
+#set( $unloadedCpp = "if (_${property.name} != static_cast<$cppType>(0)) { ${propLoaded} = true; } else { ${propLoaded} = false; }" )
 #set( $unloadedPython = "self.checkUnloadedProperty(_${property.name},'${propLoaded}')" )
 #set( $fieldName = "${property.name}Seq")
 #set( $getter = "this.${fieldName}" )
@@ -1088,7 +1088,7 @@ Unload
 #if( $property.class.name == "ome.dsl.MapField" )
 [$cpp]           ${fieldName} = $cppType();
 #else
-[$cpp]           ${fieldName} = ($cppType) 0;
+[$cpp]           ${fieldName} = static_cast<$cppType>(0);
 #end
 [$cpp]       }
 [$pyc]       def unload${PropertyName}(self, $PYC_CURRENT_COLL):
@@ -1412,7 +1412,7 @@ remove single
 [$cpp]               ${fieldName}.end(),
 [$cpp]               omero::ContainsPointer<${property.shortType}Ptr>(target));
 [$cpp]           ${fieldName}.erase(it,${fieldName}.end());
-[$cpp]           target->set$Inverse( (${PojoI}Ptr)0 );
+[$cpp]           target->set$Inverse(static_cast<${PojoI}Ptr>(0));
 [$cpp]       }
 
 removeAll multiple
@@ -1447,7 +1447,7 @@ removeAll multiple
 [$cpp]               omero::VectorContainsPointer<${property.shortType}Ptr>(targets));
 [$cpp]           ${cppType}::iterator beg(removed);
 [$cpp]           for(; beg != end; beg++) {
-[$cpp]               (*beg)->set$Inverse( (${PojoI}Ptr)0 );
+[$cpp]               (*beg)->set$Inverse(static_cast<${PojoI}Ptr>(0));
 [$cpp]           }
 [$cpp]           ${fieldName}.erase(removed,end);
 [$cpp]       }
@@ -1477,7 +1477,7 @@ clear
 [$cpp]           $cppType::iterator beg = ${fieldName}.begin();
 [$cpp]           $cppType::iterator end = ${fieldName}.end();
 [$cpp]           for(; beg != end; beg++) {
-[$cpp]               (*beg)->set$Inverse( (${PojoI}Ptr)0 );
+[$cpp]               (*beg)->set$Inverse(static_cast<${PojoI}Ptr>(0));
 [$cpp]           }
 [$cpp]           ${fieldName}.clear();
 [$cpp]       }
