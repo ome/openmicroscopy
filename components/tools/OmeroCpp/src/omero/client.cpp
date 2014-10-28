@@ -771,15 +771,15 @@ namespace omero {
         onShutdown = NoOpCallable();
     }
 
-    void CallbackI::requestHeartbeat(const Ice::Current& current) {
+    void CallbackI::requestHeartbeat(const Ice::Current&) {
         execute(onHeartbeat, "heartbeat");
     }
 
-    void CallbackI::sessionClosed(const Ice::Current& current) {
+    void CallbackI::sessionClosed(const Ice::Current&) {
         execute(onSessionClosed, "sessionClosed");
     }
 
-    void CallbackI::shutdownIn(Ice::Long milliseconds, const Ice::Current& current) {
+    void CallbackI::shutdownIn(Ice::Long /*milliseconds*/, const Ice::Current&) {
         execute(onShutdown, "shutdown");
     }
 

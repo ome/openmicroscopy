@@ -70,7 +70,7 @@ namespace omero {
 
         ~TimeObjectFactory() {}
 
-        Ice::ObjectPtr create(const std::string& type) {
+        Ice::ObjectPtr create(const std::string& /*type*/) {
             return new omero::model::TimeI();
         }
 

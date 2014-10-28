@@ -326,9 +326,15 @@ TOGGLE AND CREATE COLLECTIONS:
 =====================================================================================================
 
 [$jav]       protected void toggleCollectionsLoaded(boolean load) {
-[$hdr]       virtual void toggleCollectionsLoaded(bool load);
-[$cpp]    void ${PojoI}::toggleCollectionsLoaded(bool load) {
-[$pyc]       def _toggleCollectionsLoaded(self,load):
+#set($propertyClosureVar = "/*unused*/")
+#foreach( $property in $type.propertyClosure )
+#if(  $property.one2Many )
+#set($propertyClosureVar = "load")
+#end
+#end
+[$hdr]       virtual void toggleCollectionsLoaded(bool ${propertyClosureVar});
+[$cpp]    void ${PojoI}::toggleCollectionsLoaded(bool ${propertyClosureVar}) {
+[$pyc]       def _toggleCollectionsLoaded(self, load):
 #foreach( $property in $type.propertyClosure )
 #set(     $PropertyName = $property.nameCapped )
 #set(     $javaType = $property.type)
@@ -1779,8 +1785,13 @@ TODO: Should we check for nulls in other?
 [$pyc]               link.${other}.$ADD2METHOD( link, False )
 #end
 [$pyc]
+#if($bidir)
 [$hdr]       virtual void $ADD2METHOD(const ${property.shortType}Ptr& link, bool bothSides, $HDR_CURRENT);
 [$cpp]       void ${PojoI}::$ADD2METHOD(const ${property.shortType}Ptr& link, bool bothSides, $CPP_CURRENT_UNUSED) {
+#else
+[$hdr]       virtual void $ADD2METHOD(const ${property.shortType}Ptr& link, bool /*unused*/, $HDR_CURRENT);
+[$cpp]       void ${PojoI}::$ADD2METHOD(const ${property.shortType}Ptr& link, bool /*unused*/, $CPP_CURRENT_UNUSED) {
+#end
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           ${fieldName}.push_back( link );
