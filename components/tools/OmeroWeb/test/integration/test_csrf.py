@@ -490,7 +490,7 @@ class TestCsrf(object):
         _post_reponse(django_client, request_url, data)
         _csrf_post_reponse(django_client, request_url, data)
 
-    def test_reset_rendering_settings_post(self, itest, django_client):
+    def test_reset_rendering_settings(self, itest, django_client):
         """
         CSRF protection does not check `GET` requests so we need to be sure
         that this request results in an HTTP 405 (method not allowed) status
@@ -507,8 +507,10 @@ class TestCsrf(object):
 
         _post_reponse(django_client, request_url, data)
         _csrf_post_reponse(django_client, request_url, data)
+        _get_reponse(django_client, request_url, data)
+        _csrf_get_reponse(django_client, request_url, data, status_code=405)
 
-    def test_reset_rendering_settings_get(self, itest, django_client):
+    def test_copy_past_rendering_settings(self, itest, django_client):
         """
         CSRF protection does not check `GET` requests so we need to be sure
         that this request results in an HTTP 405 (method not allowed) status
@@ -517,15 +519,19 @@ class TestCsrf(object):
 
         img = itest.createTestImage()
 
-        # Reset through webclient as it is calling directly webgateway.reset_image_rdef_json
-        request_url = reverse('webgateway.views.reset_image_rdef_json', args=[img.id.val])
-        query_string = {
-            'full': 'true'
+        # put image id into session
+        session = django_client.session
+        session['fromid'] = img.id.val
+        session.save()
+
+        request_url = reverse('webgateway.views.copy_image_rdef_json')
+        data = {
+            'toids': img.id.val
         }
 
-        _get_reponse(django_client, request_url, query_string)
-        _csrf_get_reponse(django_client, request_url, query_string, status_code=405)
-
+        _csrf_get_reponse(django_client, request_url, data, status_code=405)
+        _post_reponse(django_client, request_url, data)
+        _csrf_post_reponse(django_client, request_url, data)
 
     # ADMIN
     def test_myaccount(self, itest, client, django_client):
