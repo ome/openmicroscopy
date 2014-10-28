@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
+
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -46,11 +47,11 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
 //Third-party libraries
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
@@ -59,7 +60,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationDescription;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationField;
 import org.openmicroscopy.shoola.agents.measurement.util.model.MeasurementObject;
-import org.openmicroscopy.shoola.agents.measurement.util.ui.AttributeUnits;
+import org.openmicroscopy.shoola.agents.measurement.util.ui.KeyDescription;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.ResultsCellRenderer;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.log.Logger;
@@ -73,7 +74,6 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
-import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
@@ -604,159 +604,8 @@ class MeasurementResults
 		 */
 		public TableCellRenderer getCellRenderer(int row, int column) 
 		{
-	        return new ResultsCellRenderer();
+		    return new ResultsCellRenderer();
 	    }
 	}
-	
-	/** Inner class used to display the results of measurement. */
-	class MeasurementTableModel 
-		extends AbstractTableModel
-	{
-	
-		private MeasurementUnits				unitsType;
-		
-		/** The collection of column's names. */
-		private List<KeyDescription>			columnNames;
-		
-		/** Collection of <code>Object</code>s hosted by this model. */
-		private List<MeasurementObject>	values;
-		
-		/**
-		 * Creates a new instance.
-		 * 
-		 * @param colNames	The collection of column's names.
-		 * 						Mustn't be <code>null</code>.
-		 * @param units The units of measurement.
-		 */
-		MeasurementTableModel(List<KeyDescription> colNames,
-				MeasurementUnits units)
-		{
-			if (colNames == null)
-				throw new IllegalArgumentException("No column's names " +
-													"specified.");
-			this.columnNames = colNames;
-			this.values = new ArrayList<MeasurementObject>();
-			this.unitsType = units;
-		}
-		
-		/** 
-		 * Adds a new row to the model.
-		 * 
-		 * @param row The value to add.
-		 */
-		void addRow(MeasurementObject row)
-		{
-			values.add(row);
-			fireTableStructureChanged();
-		}
-		
-		/** 
-		 * Get a row from the model.
-		 * 
-		 * @param index The row to return
-		 * 
-		 * @return MeasurementObject the row.
-		 */
-		MeasurementObject getRow(int index)
-		{
-			if (index < values.size())
-				return values.get(index);
-			return null;
-		}
-		
-		/**
-		 * Returns the value of the specified cell.
-		 * @see AbstractTableModel#getValueAt(int, int)
-		 */
-		public Object getValueAt(int row, int col) 
-	    {
-			if (row < 0 || row > values.size()) return null;
-			MeasurementObject rowData = values.get(row);
-			Object value = rowData.getElement(col);
-			if (value instanceof List) {
-				List<Object> l = (List<Object>) value;
-				
-				if (l.size() == 1) return l.get(0);
-				StringBuilder buffer = new StringBuilder();
-				Iterator<Object> i = l.iterator();
-				Object v;
-				double total = 0;
-				while (i.hasNext()) {
-					v = i.next();
-					if (v instanceof Number) {
-					    double d = ((Number) v).doubleValue();
-						total += d;
-						buffer.append(UIUtilities.formatToDecimal(d));
-						buffer.append(" ");
-					}
-				}
-				if (total > 0) {
-				    buffer.append("= "+UIUtilities.formatToDecimal(total));
-				}
-				return buffer.toString();
-			}
-	    	return rowData.getElement(col);
-		}
-	    
-		/**
-		 * Sets the specified value.
-		 * @see AbstractTableModel#setValueAt(Object, int, int)
-		 */
-	    public void setValueAt(Object value, int row, int col) 
-	    {
 
-	    }
-	    
-		/**
-		 * Overridden to return the name of the specified column.
-		 * @see AbstractTableModel#getColumnName(int)
-		 */
-		public String getColumnName(int col) 
-		{
-			String s = columnNames.get(col).getKey();
-			if (AttributeUnits.getUnits(s, unitsType).equals(""))
-				return columnNames.get(col).getDescription();
-			else
-				return columnNames.get(col).getDescription()+
-			" (" + AttributeUnits.getUnits(s, unitsType)+")"; }
-	    
-	    /**
-		 * Overridden to return the number of columns.
-		 * @see AbstractTableModel#getColumnCount()
-		 */
-		public int getColumnCount() { return columnNames.size();  }
-	
-		/**
-		 * Overridden to return the number of rows.
-		 * @see AbstractTableModel#getRowCount()
-		 */
-		public int getRowCount() { return values.size(); }
-		
-		/**
-		 * Overridden so that the cell is not editable.
-		 * @see AbstractTableModel#isCellEditable(int, int)
-		 */
-		public boolean isCellEditable(int row, int col) 
-		{ 
-			return false;
-		}
-		
-	}
-
-
-	class KeyDescription
-	{
-		String key;
-		String description;
-		
-		public KeyDescription(String key, String description)
-		{
-			this.key = key;
-			this.description = description;
-		}
-		
-		public String getKey() { return key;}
-		public String getDescription() {return description;}
-	}
-	
 }
