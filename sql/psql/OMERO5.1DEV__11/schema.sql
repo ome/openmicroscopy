@@ -1636,6 +1636,7 @@
         image int8 not null,
         pixelsType int8 not null,
         relatedTo int8,
+        timeIncrementUnit int8,
         image_index int4 not null,
         primary key (id),
         unique (image, image_index)
@@ -1677,11 +1678,13 @@
         theT nonnegative_int not null,
         theZ nonnegative_int not null,
         version int4,
+        deltaTUnit int8,
         creation_id int8 not null,
         external_id int8 unique,
         group_id int8 not null,
         owner_id int8 not null,
         update_id int8 not null,
+        exposureTimeUnit int8,
         pixels int8 not null,
         primary key (id)
     );;
@@ -2200,6 +2203,15 @@
         primary key (id)
     );;
 
+    create table unitstime (
+        id int8 not null,
+        permissions int8 not null,
+        measurementSystem varchar(255) not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
     create table uploadjob (
         job_id int8 not null,
         primary key (job_id)
@@ -2321,7 +2333,7 @@
         references experimenter  ;;
 
     alter table annotation_mapValue 
-        add constraint FKF96E60858062A40 
+        add constraint FKannotation_mapValue_map 
         foreign key (annotation_id) 
         references annotation  ;;
 
@@ -3166,7 +3178,7 @@
         references externalinfo  ;;
 
     alter table experimentergroup_config 
-        add constraint FKDC631B6CF5F0705D 
+        add constraint FKexperimentergroup_config_map 
         foreign key (experimentergroup_id) 
         references experimentergroup  ;;
 
@@ -3576,7 +3588,7 @@
         references lightsource  ;;
 
     alter table genericexcitationsource_map 
-        add constraint FK7B28ABA9C1805FCD 
+        add constraint FKgenericexcitationsource_map_map 
         foreign key (genericexcitationsource_id) 
         references genericexcitationsource  ;;
 
@@ -3721,7 +3733,7 @@
         references experimenter  ;;
 
     alter table imagingenvironment_map 
-        add constraint FK7C8DCED8CDF68A87 
+        add constraint FKimagingenvironment_map_map 
         foreign key (imagingenvironment_id) 
         references imagingenvironment  ;;
 
@@ -4261,7 +4273,7 @@
         references job  ;;
 
     alter table metadataimportjob_versionInfo 
-        add constraint FK947FE61023506BCE 
+        add constraint FKmetadataimportjob_versionInfo_map 
         foreign key (metadataimportjob_id) 
         references metadataimportjob  ;;
 
@@ -4691,6 +4703,11 @@
         references externalinfo  ;;
 
     alter table pixels 
+        add constraint FKpixels_timeincrementunit_unitstime
+        foreign key (timeIncrementUnit) 
+        references unitstime  ;;
+
+    alter table pixels 
         add constraint FKpixels_dimensionOrder_dimensionorder 
         foreign key (dimensionOrder) 
         references dimensionorder  ;;
@@ -4761,6 +4778,11 @@
         references externalinfo  ;;
 
     alter table planeinfo 
+        add constraint FKplaneinfo_exposureTimeUnit_unitstime
+        foreign key (exposureTimeUnit) 
+        references unitstime  ;;
+
+    alter table planeinfo 
         add constraint FKplaneinfo_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
@@ -4774,6 +4796,11 @@
         add constraint FKplaneinfo_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo  ;;
+
+    alter table planeinfo 
+        add constraint FKplaneinfo_deltaTUnit_unitstime
+        foreign key (deltaTUnit) 
+        references unitstime  ;;
 
     alter table planeinfo 
         add constraint FKplaneinfo_pixels_pixels 
@@ -5620,13 +5647,18 @@
         foreign key (owner_id) 
         references experimenter  ;;
 
+    alter table unitstime 
+        add constraint FKunitstime_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
     alter table uploadjob 
         add constraint FKuploadjob_job_id_job 
         foreign key (job_id) 
         references job  ;;
 
     alter table uploadjob_versionInfo 
-        add constraint FK3B5720031800070E 
+        add constraint FKuploadjob_versionInfo_map 
         foreign key (uploadjob_id) 
         references uploadjob  ;;
 

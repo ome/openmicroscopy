@@ -468,6 +468,12 @@ alter table event alter column experimentergroup set not null;
 ##  as name, next from (select ome_nextval('seq_event') as next) as nv;
 
 ## ENUMS
+
+-- temporarily disable the not null constraints
+alter table pixelstype alter column bitsize drop not null;
+alter table unitstime alter column measurementsystem drop not null;
+
+
 #foreach($enum in $types)
 #foreach($prop in $enum.properties)
 #set($table = ${enum.typeToColumn($enum.id)} )
@@ -490,7 +496,12 @@ update pixelstype set bitsize = 32 where value = 'float';
 update pixelstype set bitsize = 64 where value = 'double';
 update pixelstype set bitsize = 64 where value = 'complex';
 update pixelstype set bitsize = 128 where value = 'double-complex';
+
+update unitstime set measurementsystem = 'SI.SECOND';
+
+-- reactivate not null constraints
 alter table pixelstype alter column bitsize set not null;
+alter table unitstime alter column measurementsystem set not null;
 
 --
 -- Cryptographic functions for specifying UUID

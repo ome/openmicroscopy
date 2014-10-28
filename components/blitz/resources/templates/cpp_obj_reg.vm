@@ -18,6 +18,7 @@
 //
 
 \#include <omero/ObjectFactoryRegistrar.h>
+\#include <omero/model/TimeI.h>
 #foreach($type in $types)
 #if(!$type.abstract)
 \#include <omero/model/${type.shortname}I.h>
@@ -31,31 +32,49 @@ namespace omero {
 #if(!$type.abstract)
 #set( $ObjFac = "${type.shortname}ObjectFactory" )
     class ${ObjFac} : virtual public Ice::ObjectFactory {
-    public:
-	${ObjFac}() : Ice::ObjectFactory() { }
 
-	~${ObjFac}() {}
+        public:
+        ${ObjFac}() : Ice::ObjectFactory() { }
 
-	Ice::ObjectPtr create(const std::string& type) {
-	    return new omero::model::${type.shortname}I();
+        ~${ObjFac}() {}
+
+        Ice::ObjectPtr create(const std::string& /*type*/) {
+            return new omero::model::${type.shortname}I();
         }
 
-	void destroy() {}
+        void destroy() {}
+
     };
 #end
 #end
 
     class PermissionsObjectFactory : virtual public Ice::ObjectFactory {
-    public:
-	PermissionsObjectFactory() : Ice::ObjectFactory() { }
 
-	~PermissionsObjectFactory() {}
+        public:
+        PermissionsObjectFactory() : Ice::ObjectFactory() { }
 
-	Ice::ObjectPtr create(const std::string& type) {
-	    return new omero::model::PermissionsI();
-	}
+        ~PermissionsObjectFactory() {}
 
-	void destroy() {}
+        Ice::ObjectPtr create(const std::string& /*type*/) {
+            return new omero::model::PermissionsI();
+        }
+
+        void destroy() {}
+
+    };
+
+    class TimeObjectFactory : virtual public Ice::ObjectFactory {
+
+        public:
+        TimeObjectFactory() : Ice::ObjectFactory() { }
+
+        ~TimeObjectFactory() {}
+
+        Ice::ObjectPtr create(const std::string& type) {
+            return new omero::model::TimeI();
+        }
+
+        void destroy() {}
 
     };
 
@@ -69,6 +88,7 @@ namespace omero {
 
   void registerObjectFactory(const Ice::CommunicatorPtr ic) {
     conditionalAdd("::omero::model::Permissions", ic, new PermissionsObjectFactory());
+    conditionalAdd("::omero::model::Time", ic, new TimeObjectFactory());
 #foreach($type in $types)
 #if(!$type.abstract)
     conditionalAdd("::omero::model::${type.shortname}", ic,  new ${type.shortname}ObjectFactory());
