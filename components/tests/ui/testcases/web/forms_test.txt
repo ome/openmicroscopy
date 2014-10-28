@@ -1,7 +1,7 @@
 *** Settings ***
 Documentation     Tests submission of forms.
 
-Resource          ../config.txt
+Resource          ../../resources/config.txt
 Resource          ../../resources/web/login.txt
 Resource          ../../resources/web/tree.txt
 
