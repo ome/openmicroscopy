@@ -429,7 +429,7 @@ class TestThumbnailPerms(lib.ITest):
             # If the other users try to save with
             # that prx though, they'll create a new rdef
             b_prx.load()
-            b_prx.resetDefaults()
+            b_prx.resetDefaultSettings(save=True)
             c_rdef = b_prx.getRenderingDefId()
             b_prx.close()
             assert c_rdef != b_rdef
@@ -438,7 +438,7 @@ class TestThumbnailPerms(lib.ITest):
             # If the other users try to save with
             # that prx though, they'll create a new rdef
             b_prx.load()
-            b_prx.resetDefaultsNoSave()
+            b_prx.resetDefaultSettings(save=False)
             c_rdef = b_prx.getRenderingDefId()
             b_prx.close()
             assert c_rdef == b_rdef

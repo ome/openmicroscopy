@@ -6716,7 +6716,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             rdid = self._getRDef()
         if rdid is None:
             if not re.lookupRenderingDef(pid, ctx):
-                re.resetDefaults(ctx)
+                re.resetDefaultSettings(save=True, ctx)
                 re.lookupRenderingDef(pid, ctx)
             self._onResetDefaults(re.getRenderingDefId(ctx))
         else:
@@ -7013,7 +7013,7 @@ class _ImageWrapper (BlitzObjectWrapper):
                     ctx.setOmeroUser(self.details.owner.id.val)
                 try:
                     # E.g. May throw Missing Pyramid Exception
-                    tb.resetDefaults(ctx)
+                    tb.resetDefaultSettings(save=True, ctx)
                 except omero.ConcurrencyException, ce:
                     logger.info(
                         "ConcurrencyException: resetDefaults() failed "

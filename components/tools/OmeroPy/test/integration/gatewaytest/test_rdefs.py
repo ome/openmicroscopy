@@ -290,7 +290,7 @@ class TestRDefs (object):
 
     def testResetDefaults(self, gatewaywrapper):
         """
-        Test we can resetDefaults with or without saving.
+        Test we can resetDefaultSettingss with or without saving.
         """
         # Author saves Rdef (greyscale)
         gatewaywrapper.loginAsAuthor()
@@ -299,14 +299,14 @@ class TestRDefs (object):
         self.image.saveDefaults()
 
         # resetDefaults without saving - shouldn't be greyscale
-        self.image.resetDefaults(save=False)
+        self.image.resetDefaultSettings(save=False)
         assert not self.image.isGreyscaleRenderingModel()
 
         # retrieve the image again... Should still be greyscale
         self.image = gatewaywrapper.getTestImage()
         assert self.image.isGreyscaleRenderingModel()
         # Then reset and Save
-        self.image.resetDefaults(save=True)
+        self.image.resetDefaultSettings(save=True)
 
         # retrieve the image again... Should not be greyscale
         self.image = gatewaywrapper.getTestImage()
