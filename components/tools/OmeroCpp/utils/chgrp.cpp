@@ -166,7 +166,7 @@ public:
         req->options = options;
     }
 
-    void ctrlc(int sig) {
+    void ctrlc(int /*sig*/) {
         cout << "Attempting cancel..." << endl;
         wait = 0;
         if (handle->cancel()) {
