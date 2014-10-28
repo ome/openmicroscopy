@@ -52,7 +52,7 @@ module omero {
 
       /**
        * [omero::model::UnitsTime] instance which is an [omero::model::IObject]
-       * meaning that its ID is sufficient for identying equality.
+       * meaning that its ID is sufficient for identifying equality.
        **/
       UnitsTime getUnit();
 

@@ -7,7 +7,6 @@
 
 package pojos;
 
-//Java imports
 import static omero.rtypes.rlong;
 
 import java.sql.Timestamp;
