@@ -12,11 +12,9 @@
 ###
 
 # Eliminate overlap warnings with the default ssl vhost
-# Requires SNI (http://wiki.apache.org/httpd/NameBasedSSLVHostsWithSNI) \
-support
-# most later versions of mod_ssl and OSes will support it
-# if you see "You should not use name-based virtual hosts in conjunction \
-with SSL!!"
+# Requires SNI (http://wiki.apache.org/httpd/NameBasedSSLVHostsWithSNI)
+# support most later versions of mod_ssl and OSes will support it if you see
+# "You should not use name-based virtual hosts in conjunction with SSL!!"
 # or similar start apache with -D DISABLE_SNI and modify ssl.conf
 #<IfDefine !DISABLE_SNI>
 #  NameVirtualHost *:443
@@ -52,8 +50,7 @@ with SSL!!"
 #
 #</VirtualHost>
 
-RewriteEngine on
-RewriteRule ^/?$ /omero/ [R]
+%(REWRITERULE)s
 
 ###
 ### Stanza for OMERO.web created %(NOW)s
