@@ -210,6 +210,7 @@ class MetadataViewerControl
 			model.renderPlane();
 		} else if (Renderer.APPLY_TO_ALL_PROPERTY.equals(name)) {
 			model.applyToAll(); 
+			model.loadViewedBy();
 		} else if (Renderer.SELECTED_CHANNEL_PROPERTY.equals(name)) {
 			model.onChannelSelected((Integer) evt.getNewValue());
 		} else if (Renderer.CHANNEL_COLOR_PROPERTY.equals(name)) {
@@ -230,7 +231,7 @@ class MetadataViewerControl
 		} else if (Renderer.VIEWED_BY_PROPERTY.equals(name)) {
 		        model.loadViewedBy();
 		} else if (Renderer.SAVE_SETTINGS_PROPERTY.equals(name)) {
-			model.saveSettings() ;
+			model.saveSettings();
 		}
 	}
 	
