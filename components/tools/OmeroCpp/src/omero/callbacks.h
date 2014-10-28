@@ -11,17 +11,21 @@
 #define OMERO_CALLBACKS_H
 
 #include <string>
+
+#include <IceNoWarnPush.h>
 #include <Ice/Ice.h>
 #include <Ice/ObjectAdapter.h>
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Config.h>
 #include <IceUtil/Thread.h>
 #include <Ice/Handle.h>
-#include <omero/client.h>
-#include <omero/RTypesI.h>
-#include <omero/Scripts.h>
 #include <omero/api/IDelete.h>
 #include <omero/cmd/API.h>
+#include <omero/Scripts.h>
+#include <IceNoWarnPop.h>
+
+#include <omero/client.h>
+#include <omero/RTypesI.h>
 #include <omero/util/concurrency.h>
 
 #ifndef OMERO_CLIENT

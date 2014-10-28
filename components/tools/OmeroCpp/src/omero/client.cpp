@@ -19,13 +19,18 @@
 #include <iosfwd>
 #include <sstream>
 #include <stdexcept>
-#include <omero/client.h>
-#include <omero/RTypesI.h>
+
+#include <IceNoWarnPush.h>
 #include <omero/Constants.h>
 #include <omero/api/IAdmin.h>
 #include <omero/api/IConfig.h>
 #include <omero/api/ISession.h>
 #include <omero/model/IObject.h>
+#include <IceNoWarnPop.h>
+
+#include <omero/client.h>
+#include <omero/RTypesI.h>
+
 #include <omero/model/SessionI.h>
 #include <omero/util/uuid.h>
 #include <omero/ObjectFactory.h>

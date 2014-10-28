@@ -91,11 +91,11 @@ DECLARATION BLOCK:
 [$hdr] \#include <IceNoWarnPush.h>
 [$hdr] \#include <omero/RTypes.h>
 [$hdr] \#include <omero/model/RTypes.h>
-[$hdr] \#include <omero/ClientErrors.h>
 [$hdr] \#include <omero/model/IObject.h>
-[$hdr] \#include <omero/model/DetailsI.h>
 [$hdr] \#include <omero/model/${Pojo}.h>
 [$hdr] \#include <IceNoWarnPop.h>
+[$hdr] \#include <omero/ClientErrors.h>
+[$hdr] \#include <omero/model/DetailsI.h>
 [$hdr] \#include <omero/templates.h>
 [$hdr] \#include <IceUtil/Config.h>
 [$hdr] \#if ICE_INT_VERSION / 100 >= 304
