@@ -685,7 +685,7 @@ namespace omero {
     // ====================================================================
 
 
-    std::string client::sha1(const std::string& file) {
+    std::string client::sha1(const std::string&) {
         throw ClientError(__FILE__, __LINE__, "Not yet implemented");
     }
 
@@ -693,9 +693,9 @@ namespace omero {
     // --------------------------------------------------------------------
 
 
-    void client::upload(const std::string& file,
-                    const omero::model::OriginalFilePtr& ofile,
-                    int blockSize) {
+    void client::upload(const std::string&,
+                    const omero::model::OriginalFilePtr&,
+                    int /*blockSize*/) {
         throw ClientError(__FILE__, __LINE__, "Not yet implemented");
     }
 

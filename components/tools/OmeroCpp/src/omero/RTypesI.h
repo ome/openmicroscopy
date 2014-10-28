@@ -362,6 +362,8 @@ namespace omero {
             virtual void destroy() { } // No-op
         };
 
+        Ice::Int compareRTypes(const RTypeSeq& lhs, const omero::RTypeSeq& rhs);
+
         // Object factories
         // =========================================================================
 
