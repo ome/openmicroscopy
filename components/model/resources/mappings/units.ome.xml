@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<types>
+	<enum id="ome.model.enums.UnitsLength">
+		<entry name="Ym"/>
+		<entry name="Zm"/>
+		<entry name="Em"/>
+		<entry name="Pm"/>
+		<entry name="Tm"/>
+		<entry name="Gm"/>
+		<entry name="Mm"/>
+		<entry name="km"/>
+		<entry name="hm"/>
+		<entry name="dam"/>
+		<entry name="m"/>
+		<entry name="dm"/>
+		<entry name="cm"/>
+		<entry name="mm"/>
+		<entry name="µm"/>
+		<entry name="nm"/>
+		<entry name="pm"/>
+		<entry name="fm"/>
+		<entry name="am"/>
+		<entry name="zm"/>
+		<entry name="ym"/>
+		<entry name="angstrom"/> <!--"Å"-->
+		<entry name="thou"/>
+		<entry name="li"/>
+		<entry name="in"/>
+		<entry name="ft"/>
+		<entry name="yd"/>
+		<entry name="mi"/>
+		<entry name="ua"/>
+		<entry name="ly"/>
+		<entry name="pc"/>
+		<entry name="pt"/>
+		<entry name="pixel"/>
+		<entry name="reference frame"/>
+		<required name="measurementSystem" type="string"/>
+	</enum>
+	<enum id="ome.model.enums.UnitsTime">
+		<entry name="Ys"/>
+		<entry name="Zs"/>
+		<entry name="Es"/>
+		<entry name="Ps"/>
+		<entry name="Ts"/>
+		<entry name="Gs"/>
+		<entry name="Ms"/>
+		<entry name="ks"/>
+		<entry name="hs"/>
+		<entry name="das"/>
+		<entry name="s"/>
+		<entry name="ds"/>
+		<entry name="cs"/>
+		<entry name="ms"/>
+		<entry name="µs"/>
+		<entry name="ns"/>
+		<entry name="ps"/>
+		<entry name="fs"/>
+		<entry name="as"/>
+		<entry name="zs"/>
+		<entry name="ys"/>
+		<entry name="min"/>
+		<entry name="h"/>
+		<entry name="d"/>
+		<required name="measurementSystem" type="string"/>
+	</enum>
+</types>

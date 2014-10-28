@@ -23,6 +23,7 @@ import omero.util.ObjectFactoryRegistry;
 
 import omero.model.DetailsI;
 import omero.model.PermissionsI;
+import omero.model.LengthI;
 import omero.model.TimeI;
 
 import Ice.Communicator;
@@ -38,6 +39,7 @@ public class ModelObjectFactoryRegistry extends ObjectFactoryRegistry {
         // Non-conditional
         ic.addObjectFactory(DetailsI.makeFactory(client), DetailsI.ice_staticId());
         ic.addObjectFactory(PermissionsI.Factory, PermissionsI.ice_staticId());
+        ic.addObjectFactory(LengthI.makeFactory(client), LengthI.ice_staticId());
         ic.addObjectFactory(TimeI.makeFactory(client), TimeI.ice_staticId());
 
         // Conditional
@@ -50,6 +52,7 @@ public class ModelObjectFactoryRegistry extends ObjectFactoryRegistry {
         // Non-conditional
         ic.addObjectFactory(DetailsI.Factory, DetailsI.ice_staticId());
         ic.addObjectFactory(PermissionsI.Factory, PermissionsI.ice_staticId());
+        ic.addObjectFactory(LengthI.Factory, LengthI.ice_staticId());
         ic.addObjectFactory(TimeI.Factory, TimeI.ice_staticId());
 
         // Conditional

@@ -45,6 +45,8 @@ import omero.model.Pixels;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pojos.DataObject;
+
 /**
  * Processes the pixels sets of an IObjectContainerStore and ensures
  * that the physical pixel dimensions are updated if they were specified by
@@ -110,17 +112,17 @@ public class PixelsProcessor implements ModelProcessor
 		if (physicalPixelSizes[0] != null
 			&& pixels.getPhysicalSizeX() == null)
 		{
-			pixels.setPhysicalSizeX(rdouble(physicalPixelSizes[0]));
+			pixels.setPhysicalSizeX(DataObject.asLength(physicalPixelSizes[0]));
 		}
 		if (physicalPixelSizes[1] != null
 			&& pixels.getPhysicalSizeY() == null)
 		{
-			pixels.setPhysicalSizeY(rdouble(physicalPixelSizes[1]));
+			pixels.setPhysicalSizeY(DataObject.asLength(physicalPixelSizes[1]));
 		}
 		if (physicalPixelSizes[2] != null
 			&& pixels.getPhysicalSizeZ() == null)
 		{
-			pixels.setPhysicalSizeZ(rdouble(physicalPixelSizes[2]));
+			pixels.setPhysicalSizeZ(DataObject.asLength(physicalPixelSizes[2]));
 		}
             }
 

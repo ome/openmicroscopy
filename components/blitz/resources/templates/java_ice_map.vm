@@ -79,6 +79,9 @@ public class IceMap {
         _ome2omero.put(ome.model.roi.Label.class, omero.model.SmartTextI.class);
 
         // Units
+        _ome2omero.put(ome.model.units. Length.class, omero.model.LengthI.class);
+        _omero2ome.put(omero.model.Length.class, ome.model.units.Length.class);
+        _omero2ome.put(omero.model.LengthI.class, ome.model.units.Length.class);
         _ome2omero.put(ome.model.units. Time.class, omero.model.TimeI.class);
         _omero2ome.put(omero.model.Time.class, ome.model.units.Time.class);
         _omero2ome.put(omero.model.TimeI.class, ome.model.units.Time.class);

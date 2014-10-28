@@ -67,6 +67,7 @@ import omero.RLong;
 import omero.RString;
 import omero.RTime;
 import omero.model.Annotation;
+import omero.model.Length;
 import omero.model.XmlAnnotation;
 import omero.model.LongAnnotation;
 import omero.model.BooleanAnnotation;
@@ -419,6 +420,20 @@ public class OmeroMetadata extends DummyMetadata {
         {
             Double asDouble = fromRType(v);
             return asDouble != null? new PositiveFloat(asDouble) : null;
+        }
+        catch (IllegalArgumentException e)
+        {
+            log.warn("Using new PositiveFloat(1.0)!", e);
+            return new PositiveFloat(1.0);
+        }
+    }
+
+    private PositiveFloat toPositiveFloat(Length v)
+    {
+        try
+        {
+            if (v == null) return null;
+            return new PositiveFloat(v.getValue());
         }
         catch (IllegalArgumentException e)
         {

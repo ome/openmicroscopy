@@ -42,6 +42,7 @@ import loci.formats.FormatReader;
 import loci.formats.FormatTools;
 import loci.formats.MetadataTools;
 import loci.formats.meta.MetadataStore;
+import ome.units.UNITS;
 import ome.xml.model.enums.EnumerationException;
 import ome.xml.model.primitives.PositiveFloat;
 import ome.xml.model.primitives.Timestamp;
@@ -60,6 +61,7 @@ import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.Length;
 import omero.model.LogicalChannel;
 import omero.model.Pixels;
 import omero.model.Time;
@@ -347,15 +349,15 @@ public class OmeroReader extends FormatReader {
       m.imageCount = sizeZ * sizeC * sizeT;
       m.pixelType = FormatTools.pixelTypeFromString(pixelType);
 
-      RDouble x = pix.getPhysicalSizeX();
-      Double px = x == null ? null : x.getValue();
-      RDouble y = pix.getPhysicalSizeY();
-      Double py = y == null ? null : y.getValue();
-      RDouble z = pix.getPhysicalSizeZ();
-      Double pz = z == null ? null : z.getValue();
+      Length x = pix.getPhysicalSizeX();
+      Length y = pix.getPhysicalSizeY();
+      Length z = pix.getPhysicalSizeZ();
       Time t = pix.getTimeIncrement();
 
       ome.units.quantity.Time t2 = convertTime(t);
+      ome.units.quantity.Length px = convertLength(x);
+      ome.units.quantity.Length py = convertLength(y);
+      ome.units.quantity.Length pz = convertLength(z);
 
       RString imageName = img.getName();
       String name = imageName == null ? null : imageName.getValue();
@@ -382,14 +384,15 @@ public class OmeroReader extends FormatReader {
           0);
       }
 
-      if (px != null && px > 0) {
-        store.setPixelsPhysicalSizeX(new PositiveFloat(px), 0);
+      // FIXME: when Bio-Format types change, this will need to be updated.
+      if (px != null && px.value().doubleValue() > 0) {
+        store.setPixelsPhysicalSizeX(new PositiveFloat(px.value().doubleValue()), 0);
       }
-      if (py != null && py > 0) {
-        store.setPixelsPhysicalSizeY(new PositiveFloat(py), 0);
+      if (py != null && py.value().doubleValue() > 0) {
+        store.setPixelsPhysicalSizeY(new PositiveFloat(py.value().doubleValue()), 0);
       }
-      if (pz != null && pz > 0) {
-        store.setPixelsPhysicalSizeZ(new PositiveFloat(pz), 0);
+      if (pz != null && pz.value().doubleValue() > 0) {
+        store.setPixelsPhysicalSizeZ(new PositiveFloat(pz.value().doubleValue()), 0);
       }
       if (t2 != null) {
         store.setPixelsTimeIncrement(t2, 0);
@@ -449,9 +452,32 @@ public class OmeroReader extends FormatReader {
     } catch (EnumerationException e) {
       throw new RuntimeException("Bad time: " + t, e);
     }
-    ome.units.unit.Unit<ome.units.quantity.Time> units2 = 
+    ome.units.unit.Unit<ome.units.quantity.Time> units2 =
       ome.xml.model.enums.handlers.UnitsTimeEnumHandler.getBaseUnit(units);
     ome.units.quantity.Time t2 = new ome.units.quantity.Time(time, units2);
+    return t2;
+  }
+
+  public static ome.units.quantity.Length convertLength(Length t) {
+    if (t == null) {
+      return null;
+    }
+
+    Double length = t.getValue();
+    /*
+    ome.xml.model.enums.UnitsLength units;
+    try {
+      units = ome.xml.model.enums.UnitsLength.fromString(
+         (String) unwrap(t.getUnit().getValue()));
+    } catch (EnumerationException e) {
+      throw new RuntimeException("Bad length: " + t, e);
+    }
+    ome.units.unit.Unit<ome.units.quantity.Length> units2 =
+      ome.xml.model.enums.handlers.UnitsLengthEnumHandler.getBaseUnit(units);
+    ome.units.quantity.Length t2 = new ome.units.quantity.Length(length, units2);
+    */
+    // FIXME: need the handlers.
+    ome.units.quantity.Length t2 = new ome.units.quantity.Length(length, UNITS.MM);
     return t2;
   }
 

@@ -972,7 +972,7 @@ implements java.io.Serializable, IObject
     * Many-to-one unit-based field ${type.id}.${prop.name} (${prop.type})
     */
     @javax.persistence.Embedded
-#if($prop.type.equals("ome.model.units.Time"))
+#if($prop.type.startsWith("ome.model.units"))
      @javax.persistence.AttributeOverrides( {
             @javax.persistence.AttributeOverride(name="value", column = @javax.persistence.Column(name="${prop.name}") ),
     } )

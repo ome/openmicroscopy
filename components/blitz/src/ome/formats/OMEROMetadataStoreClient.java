@@ -68,6 +68,7 @@ import ome.formats.model.ShapeProcessor;
 import ome.formats.model.TargetProcessor;
 import ome.formats.model.WellProcessor;
 import ome.services.blitz.repo.ManagedImportRequestI;
+import ome.units.quantity.Length;
 import ome.units.quantity.Time;
 import ome.util.LSID;
 import ome.xml.meta.MetadataRoot;
@@ -876,6 +877,22 @@ public class OMEROMetadataStoreClient
         t.setValue(value.value().doubleValue());
         t.setUnit(ut);
         return t;
+    }
+
+    /**
+     * FIXME: once the Bio-Formats types are being passed, the input
+     * argument to this method will change to a `Length`
+     */
+    public omero.model.Length toLength(PositiveFloat value)
+    {
+        if (value == null || value.getValue() == null) return null;
+        omero.model.UnitsLength ul = new omero.model.UnitsLengthI();
+        ul.setValue(rstring("mm")); // FIXME
+
+        omero.model.Length l = new omero.model.LengthI();
+        l.setValue(value.getValue());
+        l.setUnit(ul);
+        return l;
     }
 
   /**
@@ -5665,7 +5682,7 @@ public class OMEROMetadataStoreClient
     public void setPixelsPhysicalSizeX(PositiveFloat physicalSizeX, int imageIndex)
     {
         Pixels o = getPixels(imageIndex);
-        o.setPhysicalSizeX(toRType(physicalSizeX));
+        o.setPhysicalSizeX(toLength(physicalSizeX));
     }
 
     /* (non-Javadoc)
@@ -5675,7 +5692,7 @@ public class OMEROMetadataStoreClient
     public void setPixelsPhysicalSizeY(PositiveFloat physicalSizeY, int imageIndex)
     {
         Pixels o = getPixels(imageIndex);
-        o.setPhysicalSizeY(toRType(physicalSizeY));
+        o.setPhysicalSizeY(toLength(physicalSizeY));
     }
 
     /* (non-Javadoc)
@@ -5685,7 +5702,7 @@ public class OMEROMetadataStoreClient
     public void setPixelsPhysicalSizeZ(PositiveFloat physicalSizeZ, int imageIndex)
     {
         Pixels o = getPixels(imageIndex);
-        o.setPhysicalSizeZ(toRType(physicalSizeZ));
+        o.setPhysicalSizeZ(toLength(physicalSizeZ));
     }
 
     /* (non-Javadoc)

@@ -230,7 +230,7 @@ public class PixelsData extends DataObject {
      */
     public void setPixelSizeX(double pixelSizeX) {
         setDirty(true);
-        asPixels().setPhysicalSizeX(rdouble(pixelSizeX));
+        asPixels().setPhysicalSizeX(asLength(pixelSizeX));
     }
 
     /**
@@ -251,7 +251,7 @@ public class PixelsData extends DataObject {
      */
     public void setPixelSizeY(double pixelSizeY) {
         setDirty(true);
-        asPixels().setPhysicalSizeY(rdouble(pixelSizeY));
+        asPixels().setPhysicalSizeY(asLength(pixelSizeY));
     }
 
     /**
@@ -272,7 +272,7 @@ public class PixelsData extends DataObject {
      */
     public void setPixelSizeZ(double pixelSizeZ) {
         setDirty(true);
-        asPixels().setPhysicalSizeZ(rdouble(pixelSizeZ));
+        asPixels().setPhysicalSizeZ(asLength(pixelSizeZ));
     }
 
     /**

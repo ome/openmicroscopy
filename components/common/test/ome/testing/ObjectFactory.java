@@ -23,8 +23,10 @@ import ome.model.enums.Family;
 import ome.model.enums.PhotometricInterpretation;
 import ome.model.enums.PixelsType;
 import ome.model.enums.RenderingModel;
+import ome.model.enums.UnitsLength;
 import ome.model.enums.UnitsTime;
 import ome.model.stats.StatsInfo;
+import ome.model.units.Length;
 import ome.model.units.Time;
 
 /**
@@ -147,20 +149,21 @@ public class ObjectFactory {
             i.addPixels(p);
 
         }
+
+        Length mm1 = new Length();
+        mm1.setValue(1.0);
+        mm1.setUnit(new UnitsLength("ms"));
         p.setSizeX(new Integer(1));
         p.setSizeY(new Integer(1));
         p.setSizeZ(new Integer(1));
         p.setSizeC(new Integer(1));
         p.setSizeT(new Integer(1));
-        p.setPhysicalSizeX(1.0);
-        p.setPhysicalSizeY(1.0);
-        p.setPhysicalSizeZ(1.0);
+        p.setPhysicalSizeX(mm1);
+        p.setPhysicalSizeY(mm1);
+        p.setPhysicalSizeZ(mm1);
         p.setSha1("09bc7b2dcc9a510f4ab3a40c47f7a4cb77954356"); // "pixels"
         p.setPixelsType(pt);
         p.setDimensionOrder(dO);
-        p.setPhysicalSizeX(new Double(1.0));
-        p.setPhysicalSizeY(new Double(1.0));
-        p.setPhysicalSizeZ(new Double(1.0));
         p.setImage(i);
 
         for (int w = 0; w < channelCount; w++) {

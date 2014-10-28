@@ -53,3 +53,6 @@ class TestModel51(lib.ITest):
         exposure = plane_info.getExposureTime()
         unit = exposure.getUnit()
         assert "ms" == unwrap(unit.getValue())
+
+    def testPhysicalSize(self):
+        raise Exception("FIXME")

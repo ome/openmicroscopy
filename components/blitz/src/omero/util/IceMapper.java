@@ -723,6 +723,31 @@ public class IceMapper extends ome.util.ModelMapper implements
         return filter;
     }
 
+    public omero.model.Length convert(ome.model.units.Length t) {
+        if (t == null) {
+            return null;
+        }
+        omero.model.LengthI copy = new omero.model.LengthI();
+        copy.setValue(t.getValue());
+        copy.setUnit((omero.model.UnitsLength) map(t.getUnit()));
+        return copy;
+    }
+
+     public ome.model.units.Length convert(omero.model.Length t) {
+        if (t == null) {
+            return null;
+        }
+        ome.model.units.Length copy = new ome.model.units.Length();
+        copy.setValue(t.getValue());
+        try {
+            copy.setUnit((ome.model.enums.UnitsLength) reverse(t.getUnit()));
+        } catch (ApiUsageException e) {
+            throw new IllegalArgumentException(
+                    "convert(omero.model.Length) failed", e);
+        }
+        return copy;
+     }
+
     public omero.model.Time convert(ome.model.units.Time t) {
         if (t == null) {
             return null;
