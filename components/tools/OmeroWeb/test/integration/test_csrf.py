@@ -466,7 +466,7 @@ class TestCsrf(object):
         _csrf_get_reponse(django_client, request_url, query_string, status_code=405)
         _csrf_post_reponse(django_client, request_url, data)
 
-    def test_rendering_settings(self, itest, django_client):
+    def test_rendering_settings_post(self, itest, django_client):
         """
         CSRF protection does not check `GET` requests so we need to be sure
         that this request results in an HTTP 405 (method not allowed) status
@@ -490,23 +490,41 @@ class TestCsrf(object):
         _post_reponse(django_client, request_url, data)
         _csrf_post_reponse(django_client, request_url, data)
 
-        # Reset through webclient
+    def test_reset_rendering_settings_post(self, itest, django_client):
+        """
+        CSRF protection does not check `GET` requests so we need to be sure
+        that this request results in an HTTP 405 (method not allowed) status
+        code.
+        """
+
+        img = itest.createTestImage()
+
+        # Reset through webclient as it is calling directly webgateway.reset_image_rdef_json
         request_url = reverse('web_reset_image_rdef_json', args=[img.id.val])
-        query_string = data = {
+        data = {
             'full': 'true'
         }
 
         _post_reponse(django_client, request_url, data)
         _csrf_post_reponse(django_client, request_url, data)
 
-        # Reset through webgateway
+    def test_reset_rendering_settings_get(self, itest, django_client):
+        """
+        CSRF protection does not check `GET` requests so we need to be sure
+        that this request results in an HTTP 405 (method not allowed) status
+        code.
+        """
+
+        img = itest.createTestImage()
+
+        # Reset through webclient as it is calling directly webgateway.reset_image_rdef_json
         request_url = reverse('webgateway.views.reset_image_rdef_json', args=[img.id.val])
-        query_string = data = {
+        query_string = {
             'full': 'true'
         }
 
-        _post_reponse(django_client, request_url, data)
-        _csrf_post_reponse(django_client, request_url, data)
+        _get_reponse(django_client, request_url, query_string)
+        _csrf_get_reponse(django_client, request_url, query_string, status_code=405)
 
 
     # ADMIN
