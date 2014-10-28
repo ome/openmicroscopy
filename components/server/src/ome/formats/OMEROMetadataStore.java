@@ -80,7 +80,7 @@ import org.perf4j.StopWatch;
  */
 public class OMEROMetadataStore
 {
-    private static String[] DOMAINS = {"jpeg", "png", "bmp", "gif"};
+    private static String[] DOMAINS = {"jpeg", "png", "bmp", "gif", "tiff"};
     
     /** Logger for this class. */
     private static Logger log = LoggerFactory.getLogger(OMEROMetadataStore.class);
@@ -2179,13 +2179,14 @@ public class OMEROMetadataStore
     		pixels = pixelsList.get(i);
     		String v = pixels.getImage().getFormat().getValue();
     		boolean rgb = isRGB(v);
+    		String type = pixels.getPixelsType().getValue();
     		unloadedPixels = new Pixels(pixels.getId(), false);
     		for (int c = 0; c < channelGlobalMinMax.length; c++)
     		{
     			globalMinMax = channelGlobalMinMax[c];
     			channel = pixels.getChannel(c);
     			statsInfo = new StatsInfo();
-    			if (rgb) {
+    			if (rgb && "unint8".equals(type)) {
     			    statsInfo.setGlobalMin(0.0);
                     statsInfo.setGlobalMax(255.0);
     			} else {
