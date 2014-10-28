@@ -24,8 +24,6 @@ package org.openmicroscopy.shoola.util.ui.slider;
 
 
 //Java imports
-import info.clearthought.layout.TableLayout;
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -127,9 +125,12 @@ public class TextualTwoKnobsSlider
 	private NumericalTextField 	endField;
 	
 	/** Factor by which to reduce the calculated text field length;
-	 *  apparently the calculated text field length is just too large */
-	private final static double TEXTFIELD_LENGTH_CORRECTION = 0.75;
-	
+         *  apparently the calculated text field length is just too large */
+        private final static double TEXTFIELD_LENGTH_CORRECTION = 0.75;
+        
+        /** Limit the textfield length (columns) to the given size */
+        private static final int MAX_TEXTFIELD_LENGTH = 10;
+        
 	/** The label displayed in front of the {@link #startField}. */
 	private JLabel				startLabel;
 	
@@ -245,16 +246,15 @@ public class TextualTwoKnobsSlider
 		
 		Class type = intMode ? Integer.class : Double.class;
 		
-		double maxValue = Math.max(Math.abs(min), Math.abs(max));
-                if(min<0)
-                    maxValue *= -1;
-                int textFieldLength = (int)(formatValue(maxValue).length()*TEXTFIELD_LENGTH_CORRECTION);
+                int textFieldLength = calculateRequiredTextfieldLength(absMin, absMax);
                 
-		startField = new NumericalTextField(absMin, absMax, type);
+		startField = new NumericalTextField(absMin, absMax, type, NumericalTextField.VALIDATION_MODE_CORRECT);
 		startField.setColumns(textFieldLength);
+		startField.setShowWarning(true);
 		
-		endField = new NumericalTextField(absMin, absMax, type);
+		endField = new NumericalTextField(absMin, absMax, type, NumericalTextField.VALIDATION_MODE_CORRECT);
 		endField.setColumns(textFieldLength);
+		endField.setShowWarning(true);
 		
 		endField.setText(formatValue(end));
 		startField.setText(formatValue(start));
@@ -264,58 +264,77 @@ public class TextualTwoKnobsSlider
 		this.end = end;
 	}
         
-	/** Sets the start value. */
-	private void setStartValue()
-	{
-		boolean valid = false;
-		double val = 0;
-		try {
-            val = Double.parseDouble(startField.getText());
-            //if (slider.getPartialMinimum() <= val && val < end) valid = true;
-            if (startField.getMinimum() <= val && val <= end) 
-            	valid = true;
-        } catch(NumberFormatException nfe) {}
-        if (!valid) {
-            startField.selectAll();
-            return;
+        /**
+         * Determines the length (columns) needed for the text fields
+         * 
+         * @param min
+         *            The minimum value which can be entered
+         * @param max
+         *            The maximum value which can be entered
+         * @return The required length for the text fields
+         */
+        private int calculateRequiredTextfieldLength(double min, double max) {
+            double maxValue = Math.max(Math.abs(min), Math.abs(max));
+            if (min < 0)
+                maxValue *= -1;
+            int result = formatValue(maxValue).length();
+            if (result > MAX_TEXTFIELD_LENGTH)
+                result = MAX_TEXTFIELD_LENGTH;
+            result = (int)(result * TEXTFIELD_LENGTH_CORRECTION);
+            return result;
         }
-        start = val;
-        //endField.setMinimum(start);
-        if (start < slider.getPartialMinimum()) {
-        	val = slider.getPartialMinimum();
-        }
-        removeSliderListeners();
-        double old = slider.getStartValue();
-        slider.setStartValue(val);
-        firePropertyChange(TwoKnobsSlider.KNOB_RELEASED_PROPERTY, old, val);
-        attachSliderListeners();
-	}
 	
-	/** Sets the end value. */
-	private void setEndValue()
-	{
-		boolean valid = false;
-		double val = 0;
-		try {
-            val = Double.parseDouble(endField.getText());
-            //if (start < val && val <= slider.getPartialMaximum()) valid = true;
-            if (start <= val && val <= endField.getMaximum()) 
-            	valid = true;
-        } catch(NumberFormatException nfe) {}
-        if (!valid) {
-            endField.selectAll();
-            return;
+        /** Sets the start value. */
+        private void setStartValue() {
+            boolean valid = false;
+            double val = 0;
+            try {
+                val = Double.parseDouble(startField.getText());
+                // if (slider.getPartialMinimum() <= val && val < end) valid = true;
+                if (startField.getMinimum() <= val && val <= end)
+                    valid = true;
+            } catch (NumberFormatException nfe) {
+            }
+            if (!valid) {
+                startField.selectAll();
+                return;
+            }
+            start = val;
+            // endField.setMinimum(start);
+            if (start < slider.getPartialMinimum()) {
+                val = slider.getPartialMinimum();
+            }
+            removeSliderListeners();
+            slider.setStartValue(val);
+            firePropertyChange(TwoKnobsSlider.KNOB_RELEASED_PROPERTY, null, val);
+            attachSliderListeners();
         }
-        end = val;
-        if (end > slider.getPartialMaximum()) {
-        	val = slider.getPartialMaximum();
+	
+        /** Sets the end value. */
+        private void setEndValue() {
+            boolean valid = false;
+            double val = 0;
+            try {
+                val = Double.parseDouble(endField.getText());
+                // if (start < val && val <= slider.getPartialMaximum()) valid =
+                // true;
+                if (start <= val && val <= endField.getMaximum())
+                    valid = true;
+            } catch (NumberFormatException nfe) {
+            }
+            if (!valid) {
+                endField.selectAll();
+                return;
+            }
+            end = val;
+            if (end > slider.getPartialMaximum()) {
+                val = slider.getPartialMaximum();
+            }
+            removeSliderListeners();
+            slider.setEndValue(val);
+            firePropertyChange(TwoKnobsSlider.KNOB_RELEASED_PROPERTY, null, val);
+            attachSliderListeners();
         }
-        removeSliderListeners();
-        double old = slider.getEndValue();
-        slider.setEndValue(val);
-        firePropertyChange(TwoKnobsSlider.KNOB_RELEASED_PROPERTY, old, val);
-        attachSliderListeners();
-	}
 	
 	/**
 	 * Synchronizes the slider and the {@link #startField} when the 
@@ -345,36 +364,6 @@ public class TextualTwoKnobsSlider
 		endField.setText(formatValue(value));
 		//startField.setMaximum(end);
 		installFieldListeners(endField, END);
-	}
-	
-	/**
-	 * Updates the field linked to the passed document.
-	 * 
-	 * @param doc The document to handle.
-	 */
-	private void updateTextValue(Document doc)
-	{
-		if (slider == null || endField == null || startField == null) return;
-		String value = (String) doc.getProperty(NAME_DOC);
-		int index = Integer.parseInt(value);
-		Number v;
-		Number ref;
-		switch (index) {
-			case START:
-				//setStartValue();
-				//v = (Number) startField.getValueAsNumber();
-				//ref = (Number) endField.getValueAsNumber();
-				//if (ref == null || v == null) return;
-				//if (ref > v) startField.setMaximum(slider.getPartialMaximum());
-				break;
-			case END:
-				//v = (Number) endField.getValueAsNumber();
-				//ref = (Number) startField.getValueAsNumber();
-				//if (ref == null || v == null) return;
-				//if (ref > v) endField.setMinimum(slider.getPartialMinimum());
-				//setEndValue();
-				break;
-		}
 	}
 	
 	/** 
@@ -682,7 +671,6 @@ public class TextualTwoKnobsSlider
 	 * @param min       		The minimum value.
 	 * @param start     		The value of the start knob.
 	 * @param end       		The value of the end knob.
-         * @param roundingFactor        The rounding factor.
 	 */
 	public void setValues(int absoluteMaxSlider, int absoluteMinSlider, 
 			int absoluteMaxText, int absoluteMinText, 
@@ -694,10 +682,7 @@ public class TextualTwoKnobsSlider
 		
 		intMode = true;
 		
-		double maxValue = Math.max(Math.abs(min), Math.abs(max));
-                if(min<0)
-                    maxValue *= -1;
-                int textFieldLength = (int)(formatValue(maxValue).length()*TEXTFIELD_LENGTH_CORRECTION);
+                int textFieldLength = calculateRequiredTextfieldLength(absoluteMinText, absoluteMaxText);
                 
 		startField.setNumberType(Integer.class);
 		endField.setNumberType(Integer.class);
@@ -739,7 +724,6 @@ public class TextualTwoKnobsSlider
          * @param min                   The minimum value.
          * @param start                 The value of the start knob.
          * @param end                   The value of the end knob.
-         * @param roundingFactor        The rounding factor.
          */
         public void setValues(double absoluteMaxSlider, double absoluteMinSlider, 
                 double absoluteMaxText, double absoluteMinText, 
@@ -751,10 +735,7 @@ public class TextualTwoKnobsSlider
                 
                 intMode = false;
                 
-                double maxValue = Math.max(Math.abs(min), Math.abs(max));
-                if(min<0)
-                    maxValue *= -1;
-                int textFieldLength = (int)(formatValue(maxValue).length()*TEXTFIELD_LENGTH_CORRECTION);
+                int textFieldLength = calculateRequiredTextfieldLength(absoluteMinText, absoluteMinText);
                 
                 startField.setNumberType(Double.class);
                 startField.setNegativeAccepted(true);
@@ -948,12 +929,10 @@ public class TextualTwoKnobsSlider
 	}
 
 	/**
-	 * Updates the field whose text is modified.
 	 * @see DocumentListener#removeUpdate(DocumentEvent)
 	 */
 	public void removeUpdate(DocumentEvent e)
 	{
-		updateTextValue(e.getDocument());
 	}
 
     /**

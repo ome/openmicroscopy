@@ -60,6 +60,12 @@ public class NumericalTextField
     /** Bounds property indicating that the text has been updated. */
     public static final String TEXT_UPDATED_PROPERTY = "textUpdated";
 
+    /** Block typing out-of-range values */
+    public static final int VALIDATION_MODE_BLOCK = 0;
+    
+    /** Correct out-of-range values to minimum or maximum */
+    public static final int VALIDATION_MODE_CORRECT = 1;
+    
     /** Accepted value if integer. */
     private static final String NUMERIC = "0123456789";
 
@@ -87,6 +93,10 @@ public class NumericalTextField
     /** The accepted characters. */
     private String accepted;
 
+    /** Flag indicating if a warning should be shown if the 
+     *  valid value range is exceeded */
+    private boolean showWarning = false;
+    
     /**
      * Checks if the value is correct.
      *
@@ -95,44 +105,68 @@ public class NumericalTextField
     private String checkValue()
     {
         String str = getText();
+        String result = str;
         try {
             if (Integer.class.equals(numberType)) {
-                int m = (int) getMinimum();
+                int min = (int) getMinimum();
+                int max = (int) getMaximum();
                 if (StringUtils.isBlank(str)) {
-                    return ""+m;
+                    result = "" + min;
                 }
                 int val = Integer.parseInt(str);
-                if (val < m) return ""+m;
+                if (val < min)
+                    result = "" + min;
+                if (val > max)
+                    result = "" + max;
             } else if (Double.class.equals(numberType)) {
                 Double min = getMinimum();
+                Double max = getMaximum();
                 if (StringUtils.isBlank(str)) {
                     return ""+min;
                 }
                 double val = Double.parseDouble(str);
-                if (val < min && !min.equals(Double.MIN_VALUE)) {
-                    return ""+min;
-                }
+                if (val < min) 
+                    result = "" + min;
+                if (val > max)
+                    result = "" + max;
+                
             } else if (Long.class.equals(numberType)) {
                 Long min = new Long((long) getMinimum());
+                Long max = new Long((long) getMaximum());
                 if (StringUtils.isBlank(str)) {
-                    return ""+min;
+                    result = ""+min;
                 }
                 long val = Long.parseLong(str);
-                if (val < min && !min.equals(Long.MIN_VALUE)) {
-                    return ""+min;
-                }
+                if (val < min)
+                    result = "" + min;
+                if (val > max)
+                    result = "" + max;
+                
             } else if (Float.class.equals(numberType)) {
                 Float min = new Float(getMinimum());
+                Float max = new Float(getMaximum());
                 if (StringUtils.isBlank(str)) {
-                    return ""+min;
+                    result = ""+min;
                 }
                 float val = Float.parseFloat(str);
-                if (val < min && !min.equals(Float.MIN_VALUE)) {
-                    return ""+min;
-                }
+                if (val < min)
+                    result = "" + min;
+                if (val > max)
+                    result = "" + max;
             }
-        } catch(NumberFormatException nfe) {}
-        return str;
+        } catch(NumberFormatException nfe) {
+            String msg = "The value you entered is not a valid number";
+            PopupHint hint = new PopupHint(this, msg, 8000);
+            hint.show();
+            return "";
+        }
+        
+        if(!result.equals(str) && showWarning) {
+            String msg = "<html>The value you entered is outside of the allowed range,<br>therefore it is reset to the minimal/maximal allowed value.</hmtl>";
+            PopupHint hint = new PopupHint(this, msg, 8000);
+            hint.show();
+        }
+        return result;
     }
 
     /**
@@ -184,7 +218,21 @@ public class NumericalTextField
      */
     public NumericalTextField(double min, double max, Class<?> type)
     {
-        document = new NumericalPlainDocument(min, max);
+        this(min, max, type, VALIDATION_MODE_CORRECT);
+    }
+    
+    /**
+     * Creates a new instance.
+     *
+     * @param min The minimum value of the text field.
+     * @param max The maximum value of the text field.
+     * @param type The number type.
+     * @param validationMode See {@link #VALIDATION_MODE_BLOCK},  {@link #VALIDATION_MODE_CORRECT}
+     */
+    public NumericalTextField(double min, double max, Class<?> type, int validationMode)
+    {
+        boolean blockInput = validationMode == VALIDATION_MODE_BLOCK;
+        document = new NumericalPlainDocument(min, max, blockInput);
         setHorizontalAlignment(JTextField.RIGHT);
         setDocument(document);
         originalText = null;
@@ -345,6 +393,15 @@ public class NumericalTextField
     }
 
     /**
+     * If set to <code>true</code> a warning hint will be shown
+     * in the case a value outside the given min/max range is entered
+     * @param showWarning See above
+     */
+    public void setShowWarning(boolean showWarning) {
+        this.showWarning = showWarning;
+    }
+
+    /**
      * Updates the <code>foreground</code> color depending on the text entered.
      * @see DocumentListener#insertUpdate(DocumentEvent)
      */
@@ -401,6 +458,9 @@ public class NumericalTextField
         /** The maximum value of the text field. */
         private double max;
 
+        /** Flag to indicate if out-of-range input is prohibited */
+        private boolean blockOutOfRangeInput;
+        
         /**
          * Returns <code>true</code> if the passed string is in the
          * [min, max] range if a range is specified, <code>false</code> 
@@ -415,17 +475,19 @@ public class NumericalTextField
                 if (Integer.class.equals(numberType)) {
                     int val = Integer.parseInt(str);
                     int mx = (int) max;
-                    return (val <= mx);
+                    int mi = (int) min;
+                    return (val >= mi && val <= mx);
                 } else if (Double.class.equals(numberType)) {
                     double val = Double.parseDouble(str);
-                    return (val <= max);
+                    return (val >= min && val <= max);
                 } else if (Long.class.equals(numberType)) {
                     long val = Long.parseLong(str);
                     long mx = (long) max;
-                    return (val <= mx);
+                    long mi = (long) min;
+                    return (val >= mi && val <= mx);
                 } else if (Float.class.equals(numberType)) {
                     float val = Float.parseFloat(str);
-                    return (val <= max);
+                    return (val >= min && val <= max);
                 }
             } catch(NumberFormatException nfe) {}
             return false;
@@ -433,14 +495,19 @@ public class NumericalTextField
 
         /**
          * Creates a new instance.
-         *
-         * @param min The minimum value.
-         * @param max The maximum value.
+         * 
+         * @param min
+         *            The minimum value.
+         * @param max
+         *            The maximum value.
+         * @param blockOutOfRangeInput
+         *            If set the user won't be able to type out-of-range values
          */
-        NumericalPlainDocument(double min, double max)
+        NumericalPlainDocument(double min, double max, boolean blockOutOfRangeInput)
         {
             this.min = min;
             this.max = max;
+            this.blockOutOfRangeInput = blockOutOfRangeInput;
         }
 
         /**
@@ -503,7 +570,7 @@ public class NumericalTextField
                 } else {
                     String s = this.getText(0, this.getLength());
                     s += str;
-                    if (isInRange(s))
+                    if (!blockOutOfRangeInput || isInRange(s))
                         super.insertString(offset, str, a);
                 }
             } catch (Exception e) {
