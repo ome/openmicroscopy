@@ -13,7 +13,7 @@ import time
 import test.integration.library as lib
 import pytest
 import omero
-from omero.rtypes import rstring, rtime, rlong, rint
+from omero.rtypes import rbool, rstring, rtime, rlong, rint
 from omero_model_ImageI import ImageI
 from omero_model_DatasetI import DatasetI
 from omero_model_ProjectI import ProjectI
@@ -358,6 +358,7 @@ class TestTickets2000(lib.ITest):
         new_exp.omeName = rstring("user_%s" % uuid)
         new_exp.firstName = rstring("New")
         new_exp.lastName = rstring("Test")
+        new_exp.ldap = rbool(False)
         new_exp.email = rstring("newtest@emaildomain.com")
 
         listOfGroups = list()

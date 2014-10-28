@@ -697,10 +697,12 @@ public class MetadataServiceTest extends AbstractServerTest {
         e1.setOmeName(omero.rtypes.rstring(uuid));
         e1.setFirstName(omero.rtypes.rstring("integration"));
         e1.setLastName(omero.rtypes.rstring("tester"));
+        e1.setLdap(omero.rtypes.rbool(false));
         Experimenter e2 = new ExperimenterI();
         e2.setOmeName(omero.rtypes.rstring(uuid2));
         e2.setFirstName(omero.rtypes.rstring("integration"));
         e2.setLastName(omero.rtypes.rstring("tester"));
+        e2.setLdap(omero.rtypes.rbool(false));
 
         ExperimenterGroup g = new ExperimenterGroupI();
         g.setName(omero.rtypes.rstring(uuid));

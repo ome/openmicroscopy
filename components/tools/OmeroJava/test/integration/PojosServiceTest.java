@@ -691,6 +691,7 @@ public class PojosServiceTest extends AbstractServerTest {
         e.setOmeName(omero.rtypes.rstring(uuid1));
         e.setFirstName(omero.rtypes.rstring("user"));
         e.setLastName(omero.rtypes.rstring("user"));
+        e.setLdap(omero.rtypes.rbool(false));
 
         List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
         // method tested elsewhere

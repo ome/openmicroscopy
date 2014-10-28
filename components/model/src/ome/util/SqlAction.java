@@ -449,7 +449,7 @@ public interface SqlAction {
      *            The experimenter ID.
      * @return true if the experimenter is an LDAP user; false otherwise.
      */
-    Boolean isLdapExperimenter(Long id);
+    boolean isLdapExperimenter(Long id);
 
     Map<String, Long> getGroupIds(Collection<String> names);
 
@@ -924,7 +924,7 @@ public interface SqlAction {
         }
 
         @Override
-        public Boolean isLdapExperimenter(Long id) {
+        public boolean isLdapExperimenter(Long id) {
             String query = _lookup("is_ldap_experimenter"); //$NON-NLS-1$
             Map<String, Object> params = new HashMap<String, Object>();
             params.put("id", id);

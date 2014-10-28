@@ -141,7 +141,7 @@ public class PasswordUtil {
         return buffer.toString();
     }
 
-    public Boolean getDnById(Long id) {
+    public boolean getDnById(Long id) {
         return sql.isLdapExperimenter(id);
     }
 

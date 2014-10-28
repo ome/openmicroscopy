@@ -54,7 +54,7 @@ INSERT INTO dbpatch (currentVersion, currentPatch,   previousVersion,     previo
 
 -- Add "ldap" column to "experimenter", default to false
 
-ALTER TABLE experimenter ADD COLUMN ldap bool default false;
+ALTER TABLE experimenter ADD COLUMN ldap BOOL NOT NULL DEFAULT false;
 
 -- Set "ldap" value based on "dn" from "password"
 
