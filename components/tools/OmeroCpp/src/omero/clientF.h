@@ -9,7 +9,9 @@
 
 #include <IceUtil/Config.h>
 #include <Ice/Handle.h>
+#include <IceNoWarnPush.h>
 #include <Ice/Object.h>
+#include <IceNoWarnPop.h>
 
 #ifndef OMERO_CLIENT
 #   ifdef OMERO_CLIENT_EXPORTS

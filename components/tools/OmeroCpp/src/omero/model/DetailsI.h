@@ -56,7 +56,7 @@ namespace omero {
 
 	protected:
 	    virtual ~DetailsI(); // protected as outlined in Ice docs.
-        
+
             // This must be stored as a raw pointer to prevent circular ref with client
             const omero::client* client;
             /*const*/ omero::api::ServiceFactoryPrx session;

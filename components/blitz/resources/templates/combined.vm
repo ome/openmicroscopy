@@ -88,12 +88,14 @@ DECLARATION BLOCK:
 #set( $parent = $type.superclass.replaceFirst(".*ome.model..+?[.]","") )
 [$ice] \#include <omero/model/${parent}.ice>
 #end
+[$hdr] \#include <IceNoWarnPush.h>
 [$hdr] \#include <omero/RTypes.h>
 [$hdr] \#include <omero/model/RTypes.h>
 [$hdr] \#include <omero/ClientErrors.h>
 [$hdr] \#include <omero/model/IObject.h>
 [$hdr] \#include <omero/model/DetailsI.h>
 [$hdr] \#include <omero/model/${Pojo}.h>
+[$hdr] \#include <IceNoWarnPop.h>
 [$hdr] \#include <omero/templates.h>
 [$hdr] \#include <IceUtil/Config.h>
 [$hdr] \#if ICE_INT_VERSION / 100 >= 304
@@ -160,11 +162,15 @@ DECLARATION BLOCK:
 [$cpp] \#include <omero/model/${property.shortType}I.h> // Impl. since instantiated
 #if($property.shortTarget)
 [$ice]     class ${property.shortTarget};
+[$cpp] \#include <IceNoWarnPush.h>
 [$cpp] \#include <omero/model/${property.shortTarget}.h>
+[$cpp] \#include <IceNoWarnPop.h>
 #end
 #else
 [$ice]     class ${property.shortType};
+[$cpp] \#include <IceNoWarnPush.h>
 [$cpp] \#include <omero/model/${property.shortType}.h>
+[$cpp] \#include <IceNoWarnPop.h>
 #end##link
 #end##ome
 #end##foreach

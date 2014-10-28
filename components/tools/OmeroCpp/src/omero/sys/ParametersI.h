@@ -9,7 +9,9 @@
 #ifndef OMERO_SYS_PARAMETERSI_H
 #define OMERO_SYS_PARAMETERSI_H
 
+#include <IceNoWarnPush.h>
 #include <omero/System.h>
+#include <IceNoWarnPop.h>
 #include <IceUtil/Config.h>
 #include <Ice/Handle.h>
 #include <Ice/Config.h>

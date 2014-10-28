@@ -8,7 +8,9 @@
 #ifndef OMERO_UTIL_CONCURRENCY_H
 #define OMERO_UTIL_CONCURRENCY_H
 
+#include <IceNoWarnPush.h>
 #include <IceUtil/Cond.h>
+#include <IceNoWarnPop.h>
 #include <IceUtil/Monitor.h>
 #include <IceUtil/RecMutex.h>
 #include <IceUtil/Time.h>

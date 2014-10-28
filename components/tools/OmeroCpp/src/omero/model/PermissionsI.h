@@ -9,7 +9,9 @@
 #ifndef PERMISSIONSI_H
 #define PERMISSIONSI_H
 
+#include <IceNoWarnPush.h>
 #include <omero/model/Permissions.h>
+#include <IceNoWarnPop.h>
 #include <Ice/Config.h>
 #include <IceUtil/Config.h>
 #include <Ice/Handle.h>

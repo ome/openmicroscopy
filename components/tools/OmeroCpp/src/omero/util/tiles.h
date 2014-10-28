@@ -8,11 +8,13 @@
 #ifndef OMERO_UTIL_TILES_H
 #define OMERO_UTIL_TILES_H
 
+#include <IceNoWarnPush.h>
 #include <Ice/Ice.h>
 #include <IceUtil/Handle.h>
 #include <omero/API.h>
 #include <omero/api/RawPixelsStore.h>
 #include <omero/model/Pixels.h>
+#include <IceNoWarnPop.h>
 
 #ifndef OMERO_CLIENT
 #   ifdef OMERO_CLIENT_EXPORTS
