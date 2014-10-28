@@ -25,10 +25,9 @@ import pytest
 import test.integration.library as lib
 
 from omero.gateway import BlitzGateway
-from omero.model import ProjectI, ScreenI
+from omero.model import ProjectI
 from omero.rtypes import rstring
-from omeroweb.webclient.tree import marshal_experimenters, \
-    marshal_projects
+from omeroweb.webclient.tree import marshal_projects
 
 
 def cmp_id(x, y):

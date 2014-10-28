@@ -673,7 +673,6 @@ def project_hierarchy_userA_groupA(request, itest, userA):
     datasetB.name = rstring('DatasetB')
     imageA = itest.new_image(name='ImageA')
     imageB = itest.new_image(name='ImageB')
-    imageC = itest.new_image(name='ImageC')
 
     # Link them together like so:
     # projectA

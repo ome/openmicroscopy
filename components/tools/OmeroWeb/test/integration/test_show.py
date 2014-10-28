@@ -1742,7 +1742,7 @@ class TestShow2(object):
 
         ws_c1, = well_c.copyWellSamples()
         plate_acquisition1 = ws_a1.plateAcquisition
-        # plate_acquisition2 = ws_a2.plateAcquisition
+        plate_acquisition2 = ws_a2.plateAcquisition
 
         paths = paths_to_object(conn, None, None, None, None, None,
                                 plate.id.val, None, well_a.id.val)
@@ -1888,7 +1888,7 @@ class TestShow2(object):
 
         ws_c1, = well_c.copyWellSamples()
         plate_acquisition1 = ws_a1.plateAcquisition
-        plate_acquisition2 = ws_a2.plateAcquisition
+        # plate_acquisition2 = ws_a2.plateAcquisition
 
         paths = paths_to_object(conn, None, None, None, None, screen.id.val,
                                 None, plate_acquisition1.id.val,
@@ -1931,7 +1931,7 @@ class TestShow2(object):
 
         ws_c1, = well_c.copyWellSamples()
         plate_acquisition1 = ws_a1.plateAcquisition
-        plate_acquisition2 = ws_a2.plateAcquisition
+        # plate_acquisition2 = ws_a2.plateAcquisition
 
         paths = paths_to_object(conn, None, None, None, None, screen.id.val,
                                 plate.id.val, plate_acquisition1.id.val,
