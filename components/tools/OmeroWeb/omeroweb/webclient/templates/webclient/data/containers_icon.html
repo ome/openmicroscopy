@@ -381,24 +381,30 @@
             <div class='sort-numeric'>{% trans "Size Z" %}</div>
         </li>
         {% for c in manager.containers.images %}
-            <li class='row' id="image_icon-{{ c.id }}" data-fileset="{{ c.fileset.id.val }}">
-                <div class="image">
-                    {% if share and not share.share.isOwned %}
-                        <img id="{{ c.id }}" src="{% url 'render_thumbnail' c.id share.share.id %}" alt="image" title="{{ c.name }}, owned by {{ c.getOwner.getNameWithInitial }}"/>
-                    {% else %}
-                        <img id="{{ c.id }}" src="{% url 'render_thumbnail_resize' 96 c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
-                    {% endif %}
-                </div>
-                <!-- NB: '#image_icon-123 div.desc' etc is used to update name when changed in right panel via "editinplace" -->
-                <div class="desc" valign="middle">
-                    {{ c.name|truncatebefor:"65" }}
-                    <span class="hidden_sort_text">{{ c.name }}</span>
-                </div>
-                <div class="date" valign="middle">{{ c.getDate|date:"d M Y" }} {{ c.getDate|time:"H:i:s" }}</div>
-                <div class="sizeX" valign="middle">{{ c.getSizeX }}</div>
-                <div class="sizeY" valign="middle">{{ c.getSizeY }}</div>
-                <div class="sizeZ" valign="middle">{{ c.getSizeZ }}</div>
-            </li>
+            {% if c.loaded %}
+                <li class='row' id="image_icon-{{ c.id }}" data-fileset="{{ c.fileset.id.val }}">
+                    <div class="image">
+                        {% if share and not share.share.isOwned %}
+                            <img id="{{ c.id }}" src="{% url 'render_thumbnail' c.id share.share.id %}" alt="image" title="{{ c.name }}, owned by {{ c.getOwner.getNameWithInitial }}"/>
+                        {% else %}
+                            <img id="{{ c.id }}" src="{% url 'render_thumbnail_resize' 96 c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
+                        {% endif %}
+                    </div>
+                    <!-- NB: '#image_icon-123 div.desc' etc is used to update name when changed in right panel via "editinplace" -->
+                    <div class="desc" valign="middle">
+                        {{ c.name|truncatebefor:"65" }}
+                        <span class="hidden_sort_text">{{ c.name }}</span>
+                    </div>
+                    <div class="date" valign="middle">{{ c.getDate|date:"d M Y" }} {{ c.getDate|time:"H:i:s" }}</div>
+                    <div class="sizeX" valign="middle">{{ c.getSizeX }}</div>
+                    <div class="sizeY" valign="middle">{{ c.getSizeY }}</div>
+                    <div class="sizeZ" valign="middle">{{ c.getSizeZ }}</div>
+                </li>
+            {% else %}
+                <li id="image_icon-{{ c.id }}" title="Object deleted">
+                    <img id="{{ c.id }}" src="{% url 'render_thumbnail' c.id share.share.id %}" alt="image" title="Object deleted" href="{% url 'web_image_viewer' share.share.id c.id %}"/>
+                </li>
+            {% endif%}
         {% endfor %}
     </ul>
     
