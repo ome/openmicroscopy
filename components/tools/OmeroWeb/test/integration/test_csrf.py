@@ -527,6 +527,21 @@ class TestCsrf(object):
         _post_reponse(django_root_client, request_url, data, status_code=403)
         _csrf_post_reponse(django_root_client, request_url, data)
 
+    def test_ome_tiff_script(self, itest, client, django_client):
+        """
+        CSRF protection does not check `GET` requests so we need to be sure
+        that this request results in an HTTP 405 (method not allowed) status
+        code.
+        """
+
+        img = itest.createTestImage(session=client.getSession())
+
+        request_url = reverse('ome_tiff_script', args=[img.id.val])
+        
+        _post_reponse(django_client, request_url, {})
+        _csrf_post_reponse(django_client, request_url, {})
+        _csrf_get_reponse(django_client, request_url, {}, status_code=405)
+
     def test_script(self, itest, client, django_client):
         """
         CSRF protection does not check `GET` requests so we need to be sure
