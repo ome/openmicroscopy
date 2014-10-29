@@ -35,6 +35,8 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+
+
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.AttributeKeys;
@@ -111,7 +113,26 @@ public class MeasureEllipseFigure
 	
 	/** The units of reference.*/
 	private String refUnits;
-	
+
+	   /**
+     * Formats the area.
+     * 
+     * @param value The value to format.
+     * @return See above.
+     */
+    private String formatValue(double value)
+    {
+        NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
+        if (units.isInMicrons()){ 
+            UnitsObject v = UIUtilities.transformSquareSize(value);
+            StringBuffer buffer = new StringBuffer();
+            buffer.append(formatter.format(v.getValue()));
+            buffer.append(v.getUnits());
+            return buffer.toString();
+        }
+        return addUnits(formatter.format(value));
+    }
+
 	/** Creates a new instance. */
 	public MeasureEllipseFigure()
 	{
@@ -203,7 +224,7 @@ public class MeasureEllipseFigure
 	{
 		if (units.isInMicrons()) 
 			return UIUtilities.transformSize(
-					getX()*units.getMicronsPixelX()).getValue();
+					getX()*units.getMicronsPixelX(), refUnits);
 		return getX();
 	}
 	
@@ -217,7 +238,7 @@ public class MeasureEllipseFigure
 	{
 		if (units.isInMicrons())
 			return UIUtilities.transformSize(
-					getY()*units.getMicronsPixelY()).getValue();
+					getY()*units.getMicronsPixelY(), refUnits);
 		return getY();
 	}
 	
@@ -231,7 +252,7 @@ public class MeasureEllipseFigure
 	{
 		if (units.isInMicrons())
 			return UIUtilities.transformSize(
-					getWidth()*units.getMicronsPixelX()).getValue();
+					getWidth()*units.getMicronsPixelX(), refUnits);
 		return getWidth();
 	}
 		
@@ -245,7 +266,7 @@ public class MeasureEllipseFigure
 	{
 		if (units.isInMicrons())
 			return UIUtilities.transformSize(
-					getHeight()*units.getMicronsPixelY()).getValue();
+					getHeight()*units.getMicronsPixelY(), refUnits);
 		return getHeight();
 	}
 		
@@ -259,9 +280,9 @@ public class MeasureEllipseFigure
 	{
 		if (units.isInMicrons()) {
 			double tx = UIUtilities.transformSize(
-					getCentre().getX()*units.getMicronsPixelX()).getValue();
+					getCentre().getX()*units.getMicronsPixelX(), refUnits);
 			double ty = UIUtilities.transformSize(
-					getCentre().getY()*units.getMicronsPixelY()).getValue();
+					getCentre().getY()*units.getMicronsPixelY(), refUnits);
 			return new Point2D.Double(tx, ty);
 		}
 		return getCentre();
@@ -322,12 +343,13 @@ public class MeasureEllipseFigure
 		if (MeasurementAttributes.SHOWMEASUREMENT.get(this) || 
 				MeasurementAttributes.SHOWID.get(this))
 		{
-			NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
-			String ellipseArea = formatter.format(getArea());
-			ellipseArea = addUnits(ellipseArea);
-			double sz = ((Double) this.getAttribute(
-					MeasurementAttributes.FONT_SIZE));
-			g.setFont(new Font(FONT_FAMILY, FONT_STYLE, (int) sz));
+			String ellipseArea = formatValue(getArea());
+			Double sz = (Double) getAttribute(MeasurementAttributes.FONT_SIZE);
+            Font font = (Font) getAttribute(MeasurementAttributes.FONT_FACE);
+            if (font != null) g.setFont(font.deriveFont(sz.floatValue()));
+            else {
+                g.setFont(new Font(FONT_FAMILY, FONT_STYLE, sz.intValue()));
+            }
 			Rectangle2D stringBoundsbounds = 
 				g.getFontMetrics().getStringBounds(ellipseArea, g);
 			measurementBounds =

@@ -25,13 +25,12 @@
 
 package loci.ome.io;
 
-import Glacier2.CannotCreateSessionException;
-import Glacier2.PermissionDeniedException;
+import static omero.rtypes.unwrap;
 
 import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.IOException;
 import java.util.Arrays;
+import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.List;
 
@@ -44,11 +43,10 @@ import loci.formats.FormatReader;
 import loci.formats.FormatTools;
 import loci.formats.MetadataTools;
 import loci.formats.meta.MetadataStore;
+import ome.xml.model.enums.EnumerationException;
 import ome.xml.model.primitives.PositiveFloat;
-import ome.xml.model.primitives.PositiveInteger;
 import ome.xml.model.primitives.Timestamp;
 import omero.RDouble;
-import omero.RInt;
 import omero.RString;
 import omero.RTime;
 import omero.ServerError;
@@ -60,12 +58,15 @@ import omero.model.Channel;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
-import omero.model.Image;
 import omero.model.IObject;
+import omero.model.Image;
 import omero.model.LogicalChannel;
 import omero.model.Pixels;
+import omero.model.Time;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
+import Glacier2.CannotCreateSessionException;
+import Glacier2.PermissionDeniedException;
 
 /**
  * Implementation of {@link loci.formats.IFormatReader}
@@ -352,8 +353,9 @@ public class OmeroReader extends FormatReader {
       Double py = y == null ? null : y.getValue();
       RDouble z = pix.getPhysicalSizeZ();
       Double pz = z == null ? null : z.getValue();
-      RDouble t = pix.getTimeIncrement();
-      Double time = t == null ? null : t.getValue();
+      Time t = pix.getTimeIncrement();
+
+      ome.units.quantity.Time t2 = convertTime(t);
 
       RString imageName = img.getName();
       String name = imageName == null ? null : imageName.getValue();
@@ -389,8 +391,8 @@ public class OmeroReader extends FormatReader {
       if (pz != null && pz > 0) {
         store.setPixelsPhysicalSizeZ(new PositiveFloat(pz), 0);
       }
-      if (time != null) {
-        store.setPixelsTimeIncrement(time, 0);
+      if (t2 != null) {
+        store.setPixelsTimeIncrement(t2, 0);
       }
 
       List<Channel> channels = pix.copyChannels();
@@ -432,6 +434,25 @@ public class OmeroReader extends FormatReader {
     catch (ServerError e) {
       throw new FormatException(e);
     }
+  }
+
+  public static ome.units.quantity.Time convertTime(Time t) {
+    if (t == null) {
+      return null;
+    }
+
+    Double time = t.getValue();
+    ome.xml.model.enums.UnitsTime units;
+    try {
+      units = ome.xml.model.enums.UnitsTime.fromString(
+         (String) unwrap(t.getUnit().getValue()));
+    } catch (EnumerationException e) {
+      throw new RuntimeException("Bad time: " + t, e);
+    }
+    ome.units.unit.Unit<ome.units.quantity.Time> units2 =
+      ome.xml.model.enums.handlers.UnitsTimeEnumHandler.getBaseUnit(units);
+    ome.units.quantity.Time t2 = new ome.units.quantity.Time(time, units2);
+    return t2;
   }
 
   /** A simple command line tool for downloading images from OMERO. */

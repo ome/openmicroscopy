@@ -107,7 +107,11 @@ import omero.model.StatsInfo;
 import omero.model.StatsInfoI;
 import omero.model.Thumbnail;
 import omero.model.ThumbnailI;
+import omero.model.Time;
+import omero.model.TimeI;
 import omero.model.TransmittanceRangeI;
+import omero.model.UnitsTime;
+import omero.model.UnitsTimeI;
 import omero.model.Well;
 import omero.model.WellI;
 import omero.model.WellSample;
@@ -782,7 +786,14 @@ public class ModelMockFactory {
         planeInfo.setTheZ(omero.rtypes.rint(z));
         planeInfo.setTheC(omero.rtypes.rint(c));
         planeInfo.setTheT(omero.rtypes.rint(t));
-        planeInfo.setDeltaT(omero.rtypes.rdouble(0.5));
+
+        UnitsTime seconds = new UnitsTimeI();
+        seconds.setValue(rstring("s"));
+
+        Time deltaT = new TimeI();
+        deltaT.setValue(0.5);
+        deltaT.setUnit(seconds);
+        planeInfo.setDeltaT(deltaT);
         return planeInfo;
     }
 

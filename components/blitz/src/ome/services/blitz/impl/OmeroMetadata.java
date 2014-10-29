@@ -47,6 +47,7 @@ import ome.conditions.ApiUsageException;
 import ome.services.db.DatabaseIdentity;
 import ome.tools.hibernate.ProxyCleanupFilter;
 import ome.tools.hibernate.QueryBuilder;
+import ome.units.quantity.Time;
 import ome.xml.meta.MetadataRoot;
 import ome.xml.model.enums.AcquisitionMode;
 import ome.xml.model.enums.ContrastMethod;
@@ -234,6 +235,10 @@ public class OmeroMetadata extends DummyMetadata {
                 qb.join("p.dimensionOrder",   "do",       false, true);
                 qb.join("p.channels",         "c",        false, true);
                 qb.join("p.planeInfo",        "pinfo",    true, true);
+                qb.join("pinfo.deltaT",       "deltaT",   true, true);
+                qb.join("deltaT.unit",        "deltaTU",  true, true);
+                qb.join("pinfo.exposureTime", "expTime",  true, true);
+                qb.join("expTime.unit",       "expTimeU", true, true);
                 qb.join("c.logicalChannel",   "l",        false, true);
                 qb.join("l.mode",             "a_mode",   true, true);
                 qb.join("l.illumination",     "i_type",   true, true);
@@ -362,6 +367,12 @@ public class OmeroMetadata extends DummyMetadata {
     private Double fromRType(RDouble v)
     {
         return v == null? null : v.getValue();
+    }
+
+    private Time fromRType(omero.model.Time v)
+    {
+        if (v == null) return null;
+        return loci.ome.io.OmeroReader.convertTime(v);
     }
 
     private Integer fromRType(RInt v)
@@ -571,7 +582,7 @@ public class OmeroMetadata extends DummyMetadata {
     }
 
     @Override
-    public Double getPixelsTimeIncrement(int imageIndex)
+    public Time getPixelsTimeIncrement(int imageIndex)
     {
         Image o = _getImage(imageIndex);
         return o != null? fromRType(
@@ -819,14 +830,14 @@ public class OmeroMetadata extends DummyMetadata {
     }
 
     @Override
-    public Double getPlaneDeltaT(int imageIndex, int planeIndex)
+    public Time getPlaneDeltaT(int imageIndex, int planeIndex)
     {
         PlaneInfo o = getPlane(imageIndex, planeIndex);
         return o != null? fromRType(o.getDeltaT()) : null;
     }
 
     @Override
-    public Double getPlaneExposureTime(int imageIndex, int planeIndex)
+    public Time getPlaneExposureTime(int imageIndex, int planeIndex)
     {
         PlaneInfo o = getPlane(imageIndex, planeIndex);
         return o != null? fromRType(o.getExposureTime()) : null;

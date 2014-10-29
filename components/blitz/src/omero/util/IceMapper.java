@@ -723,6 +723,31 @@ public class IceMapper extends ome.util.ModelMapper implements
         return filter;
     }
 
+    public omero.model.Time convert(ome.model.units.Time t) {
+        if (t == null) {
+            return null;
+        }
+        omero.model.TimeI copy = new omero.model.TimeI();
+        copy.setValue(t.getValue());
+        copy.setUnit((omero.model.UnitsTime) map(t.getUnit()));
+        return copy;
+    }
+
+     public ome.model.units.Time convert(omero.model.Time t) {
+        if (t == null) {
+            return null;
+        }
+        ome.model.units.Time copy = new ome.model.units.Time();
+        copy.setValue(t.getValue());
+        try {
+            copy.setUnit((ome.model.enums.UnitsTime) reverse(t.getUnit()));
+        } catch (ApiUsageException e) {
+            throw new IllegalArgumentException(
+                    "convert(omero.model.Time) failed", e);
+        }
+        return copy;
+     }
+
     /**
      * Convert a String&rarr;String map's values to {@link RString}s.
      * <code>null</code> values are dropped completely.

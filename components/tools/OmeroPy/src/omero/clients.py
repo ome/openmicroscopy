@@ -332,6 +332,13 @@ class BaseClient(object):
             insecure = self.getSession().getConfigService().getConfigValue(
                 "omero.router.insecure")
             if insecure is not None and insecure != "":
+                # insecure still has @omero.host@, so we need to substitute it
+                router = self.getRouter(self.getCommunicator())
+                if router is not None:
+                    for endpoint in router.ice_getEndpoints():
+                        host = endpoint.getInfo().host
+                    if host != "":
+                        insecure = insecure.replace("@omero.host@", str(host))
                 props["Ice.Default.Router"] = insecure
             else:
                 self.__logger.warn(
