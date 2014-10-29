@@ -423,14 +423,14 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/omero-client-config.cmake
 add_subdirectory(test)
 add_subdirectory(utils)
 
-# Disable a number of GCC warnings and leave the rest as failures
-# To guarantee that no others are being generated, use CXXFLAGS=-Werror
-#
-# Goal is to have the equivalent of:
-#
-if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
-  set(ICE_FLAGS "-Wno-switch-default -Wno-redundant-decls -Wno-overloaded-virtual -Wno-old-style-cast -Wno-deprecated-declarations")
-endif()
+foreach(flag -Wno-switch-default -Wno-redundant-decls -Wno-overloaded-virtual -Wno-old-style-cast -Wno-deprecated-declarations)
+  string(REPLACE "/" "_" flag_var "${flag}")
+  set(test_cxx_flag "CXX_FLAG${flag_var}")
+  CHECK_CXX_COMPILER_FLAG(${flag} "${test_cxx_flag}")
+  if (${test_cxx_flag})
+     set(ICE_FLAGS "${ICE_FLAGS} ${flag}")
+  endif (${test_cxx_flag})
+endforeach(flag ${test_flags})
 
 if(fatal-warnings)
   add_definitions("-Werror")
