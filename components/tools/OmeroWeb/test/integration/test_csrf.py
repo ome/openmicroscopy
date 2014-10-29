@@ -678,6 +678,20 @@ class TestCsrf(object):
         _post_reponse(django_root_client, request_url, data)
         _csrf_post_reponse(django_root_client, request_url, data)
 
+    def test_su(self, itest, django_root_client):
+        """
+        CSRF protection does not check `GET` requests so we need to be sure
+        that this request results in an HTTP 405 (method not allowed) status
+        code.
+        """
+
+        user = itest.new_user()
+
+        request_url = reverse('webgateway_su', args=[user.omeName.val])
+
+        _csrf_get_reponse(django_root_client, request_url, {})
+        _post_reponse(django_root_client, request_url, {})
+        _csrf_post_reponse(django_root_client, request_url, {})
 
 # Helpers
 def _post_reponse(django_client, request_url, data, status_code=403):
