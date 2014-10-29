@@ -277,25 +277,29 @@ def switch_active_group(request, active_group=None):
         request.session['imageInBasket'] = set()        # empty basket
         request.session['basket_counter'] = 0
 
-@require_POST
 @login_required(login_redirect='webindex')
 def logout(request, conn=None, **kwargs):
     """ Logout of the session and redirects to the homepage (will redirect to login first) """
 
-    if request.session.get('active_group') is not None:
+    if request.method == "POST":
+        if request.session.get('active_group') is not None:
+            try:
+                conn.setDefaultGroup(request.session.get('active_group'))
+            except:
+                logger.error('Exception during logout.', exc_info=True)
         try:
-            conn.setDefaultGroup(request.session.get('active_group'))
-        except:
-            logger.error('Exception during logout.', exc_info=True)
-    try:
-        try:
-            conn.seppuku()
-        except:
-            logger.error('Exception during logout.', exc_info=True)
-    finally:
-        request.session.flush()
-    return HttpResponseRedirect(reverse("webindex"))
-
+            try:
+                conn.seppuku()
+            except:
+                logger.error('Exception during logout.', exc_info=True)
+        finally:
+            request.session.flush()
+        return HttpResponseRedirect(reverse("webindex"))
+    else:
+        context = {'url':reverse('weblogout'), 'submit': "Do you want to log out?"}
+        t = template_loader.get_template('webgateway/base/includes/post_form.html')
+        c = Context(request, context)
+        return HttpResponse(t.render(c))
 
 ###########################################################################
 @login_required()
