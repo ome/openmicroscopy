@@ -509,6 +509,24 @@ class TestCsrf(object):
         _get_reponse(django_client, request_url, data)
         _csrf_get_reponse(django_client, request_url, data, status_code=405)
 
+    def test_apply_owners_rendering_settings(self, itest, client, django_root_client):
+        """
+        CSRF protection does not check `GET` requests so we need to be sure
+        that this request results in an HTTP 405 (method not allowed) status
+        code.
+        """
+
+        img = itest.createTestImage(session=client.getSession())
+
+        request_url = reverse('webgateway.views.apply_owners_rdef_json')
+        data = {
+            'toids': img.id.val,
+            'to_type': 'image'
+        }
+
+        _post_reponse(django_root_client, request_url, data, status_code=403)
+        _csrf_post_reponse(django_root_client, request_url, data)
+
     # ADMIN
     def test_myaccount(self, itest, client, django_client):
         """
