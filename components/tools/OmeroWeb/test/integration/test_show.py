@@ -877,7 +877,7 @@ class TestShow(object):
         assert show.initially_open_owner is None
         assert show._first_selected is None
 
-    def test_empty_path(self, empty_request):
+    def test_empty_path(self, conn, empty_request):
         show = Show(conn, empty_request['request'], None)
         self.assert_instantiation(show, empty_request, conn)
         first_selected = show.first_selected
@@ -1239,22 +1239,7 @@ class TestShow(object):
         assert show.initially_select == \
             screen_plate_run_illegal_run_request['initially_select']
 
-
-class TestShow2(object):
-    """
-    Tests to ensure that OMERO.web "show" infrastructure is working
-    correctly.
-
-    These tests make __extensive__ use of pytest fixtures.  In particular
-    the scoping semantics allowing re-use of instances populated by the
-    *request fixtures.  It is recommended that the pytest fixture
-    documentation be studied in detail before modifications or attempts to
-    fix failing tests are made:
-
-     * https://pytest.org/latest/fixture.html
-    """
-
-    def test_empty_path(self):
+    def test_empty_path(self, conn):
         """
         Test empty path
         """
