@@ -1371,20 +1371,20 @@ def project_hierarchy_crosslink(request, itest, groupC, userC, userD):
 
     # Link them together like so:
     # projectA
+    #   (UserC's Link)
     #   datasetA
+    #       (UserD's Link)
     #       imageA
 
     # Link the project with the dataset
-    link = ProjectDatasetLinkI()
-    link.setParent(ProjectI(projectA.getId(), False))
-    link.setChild(DatasetI(datasetA.getId(), False))
-    get_update_service(userC).saveObject(link)
+    projectA.linkDataset(datasetA)
+    projectA = get_update_service(userC).saveAndReturnObject(projectA)
+    datasetA = projectA.linkedDatasetList()[0]
 
     # Link the dataset with the image
-    link = DatasetImageLinkI()
-    link.setParent(DatasetI(datasetA.getId(), False))
-    link.setChild(ImageI(imageA.getId(), False))
-    get_update_service(userD).saveObject(link)
+    datasetA.linkImage(imageA)
+    datasetA = get_update_service(userD).saveAndReturnObject(datasetA)
+    imageA = datasetA.linkedImageList()[0]
 
     return [projectA, datasetA, imageA]
 
