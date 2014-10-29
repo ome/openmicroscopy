@@ -36,7 +36,7 @@
 
     <script type="text/javascript">
 
-        $(document).ready(function() 
+        $(document).ready(function()
         {
 
             // Disable the groups/users dropdown menu and scripts menu.
@@ -57,416 +57,457 @@
 
     <!-- set-up jsTree, toolbar etc -->
     <script type="text/javascript">
-        $(function()
-            {
 
-                // We truncate images when the left panel resizes...
-                $("#left_panel").on('resize', OME.truncateNames);
-                // and also when we load new data in the tree
-                $("#dataTree").on('load_node.jstree', function() {
-                    // wait for images to render, then truncate:
-                    setTimeout(OME.truncateNames, 30);
-                });
+        function enableToolbarButton(name, enabled) {
+            if (enabled) {
+                $('input#'+name+'Button').removeClass('button-disabled').prop('disabled', false);
+            } else {
+                $('input#'+name+'Button').addClass('button-disabled').prop('disabled', true);
+            }
+        };
 
-                var buttonsShowHide = function(selected) {
-                    var toolbar_config = new Object();
-                    if(selected.length > 0) {
-                        if((typeof selected.attr("rel") === 'undefined') ||
-                            !selected.parent().parent().hasClass("isOwned")) {
-                            toolbar_config = {"adddiscussion":false, 'removecontent':false};
+        function buttonsShowHide(selected, inst) {
+
+            // Disable all unless explicitly enabled below
+            var toolbar_config = {
+                'removecontent': false
+            };
+
+            if (selected.length > 0) {
+                // If the current selection(s) can be deleted
+                // TODO Admin will have delete permissions on user
+                // probably they should not be able to delete the
+                // user from there
+                // Can only remove images from share here
+                if (inst.get_node(selected[0]).type === 'image') {
+                    toolbar_config['removecontent'] = true;
+                }
+            }
+
+            for (var btnName in toolbar_config) {
+                enableToolbarButton(btnName, toolbar_config[btnName]);
+            }
+        };
+
+        function removeImage(selected, inst) {
+
+            // Disable the nodes
+            inst.disable_node(selected);
+
+            // This interface does not support multiple remove, so iterate
+            // over deleted images
+            $.each(selected, function(index, sel) {
+                var node = inst.get_node(sel);
+
+                // Get the parent share id
+                var shareId = inst.get_node(inst.get_parent(node)).data.obj.id;
+                // Get the image id
+                var imageId = node.data.obj.id;
+
+                // AJAX Query to remove the images from the share
+                $.ajax({
+                    url: '{% url 'manage_action_containers' "removefromshare" "share" %}' + shareId + '/',
+                    data : {'source': imageId},
+                    dataType: "json",
+                    type: "POST",
+                    success: function(r){
+                        if(eval(r.bad)) {
+                            inst.enable_node(node);
+                            alert(r.errs);
                         } else {
-                            if(selected.attr("id").indexOf("experimenter")>=0) {
-                                toolbar_config = {"adddiscussion":true, 'removecontent':false};
-                            } else if(selected.attr("id").indexOf("share")>=0) {
-                                toolbar_config = {"adddiscussion":false, 'removecontent':false};
-                            } else if(selected.attr("id").indexOf("discussion")>=0) {
-                               toolbar_config = {"adddiscussion":false, 'removecontent':false};
-                            } else if(selected.attr("id").indexOf("image")>=0) {
-                               toolbar_config = {"adddiscussion":false, 'removecontent':true};
-                            }
+                            inst.delete_node(node);
                         }
+                    },
+                    error: function(response) {
+                        inst.enable_node(node);
+                        console.log('Ajax error');
                     }
+                });
+            });
+        };
 
-                    if (selected.length > 1) toolbar_config['annotation'] = true;
-                    for (var sIndex in toolbar_config) { 
-                        if (toolbar_config[sIndex]){
-                            $('input#'+sIndex+'Button').removeClass('button-disabled').prop('disabled', false);
-                        } else {
-                            $('input#'+sIndex+'Button').addClass('button-disabled').prop('disabled', true);
-                        }
+        $(function() {
+            // Select jstree and then cascade handle events and setup the tree.
+            var jstree = $("#dataTree")
+            .on('changed.jstree', function (e, data) {
+                var inst = data.instance;
+                buttonsShowHide(inst.get_selected(true), inst);
+                OME.tree_selection_changed(data, e);
+            })
+            .on("click.jstree", ".jstree-anchor", function (e) {
+                e.preventDefault();
+                var datatree = $.jstree.reference($('#dataTree'));
+                // Expand on click (not select because of key navigation)
+                if (datatree.is_parent(this)) {
+                    datatree.open_node(this);
+                }
+            })
+            .on("dblclick.jstree", ".jstree-anchor", function (e) {
+                e.preventDefault();
+                var datatree = $.jstree.reference($('#dataTree'));
+                var node = datatree.get_node(this);
+                if (node) {
+                    if (node.type === 'image') {
+                        //Open the image viewer for this image
+                        OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('0', node.data.obj.id ));
                     }
                 }
+            })
+            // TODO Possibly there is a path which can lead here so this will be needed
+            // .on('loaded.jstree', function(e, data) {
+            //     /**
+            //     * Fired when the tree is loaded and ready for action
+            //     */
 
-                    // Select jstree and then cascade handle events and setup the tree.
-                    var jstree = $("#dataTree")
-                    .on('changed.jstree', function (e, data) {
-                        var inst = data.instance;
+            //     // If it isn't present
+            //     if (window.location.search.length == 0) {
+            //         return false;
+            //     }
 
-                        // buttonsShowHide(inst.get_selected(true), inst);
-                        OME.tree_selection_changed(data, e);
-                    })
-                    .on("dblclick.jstree", ".jstree-anchor", function (e) {
-                        e.preventDefault();
-                        var datatree = $.jstree.reference($('#dataTree'));
-                        var node = datatree.get_node(this);
-                        if (node) {
-                            if (node.type === 'image') {
-                                //Open the image viewer for this image
-                                OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('0', node.data.obj.id ));
+            //     // Introspect the URL to get the show parameter
+            //     var param = getURLParameter('show');
+
+            //     if (param) {
+            //         var inst = data.instance;
+
+            //         // Gather data for request
+            //         var paramSplit = param.split('-');
+
+            //         var payload = {};
+            //         payload[paramSplit[0]] = paramSplit[1];
+
+            //         // AJAX Query to get the path of the item we wish to 'show'
+            //         $.ajax({
+            //             url: '{% url 'api_paths_to_object' %}',
+            //             data : payload,
+            //             dataType: "json",
+            //             type: "GET",
+            //             success: function(json) {
+            //                 data = json.paths;
+            //                 // Use the open_node callback mechanism to facilitate loading the tree to the
+            //                 // point indicated by the path, starting from the top, 'experimenter'.
+            //                 var path = data[0];
+            //                 console.log(path);
+            //                 var lastIndex = path.length - 1;
+
+            //                 var traverse = function(index, parentNode) {
+            //                     // Get this path component
+            //                     var comp = path[index];
+            //                     // Get the node for this path component
+            //                     var node = inst.locate_node(comp.type + '-' + comp.id, parentNode)[0];
+
+            //                     // If at any point the node doesn't exist, simply give up as the path has
+            //                     // become invalid
+            //                     if (node === false) {
+            //                         return;
+            //                     }
+
+            //                     // If this is not the final path component, open it and
+            //                     // traverse in the callback
+            //                      if (index < lastIndex) {
+            //                         inst.open_node(node, function() {
+            //                             traverse(index += 1, node);
+            //                         })
+
+            //                     // Otherwise select it
+            //                      } else {
+            //                         // TODO Centre view on this selection
+            //                         inst.select_node(node);
+            //                      }
+            //                 };
+
+            //                 // Start traversing at the start of the path with no parent node
+            //                 traverse(0, undefined);
+            //             },
+            //             error: function(json) {
+            //                 console.log('failure');
+            //             }
+            //         });
+            //     }
+
+            //     // Update the URL to remove the parameters as they serve to preload data this one
+            //     // time only
+            //     // TODO Test on an old browser
+            //     history.pushState({}, '', window.location.pathname);
+            // })
+
+            // Setup jstree
+            .jstree({
+                'plugins': ['types', 'sort', 'locate', 'ometools', 'conditionalselect'],
+                // The jstree core
+                'core' : {
+                    'themes': {
+                        'dots': false,
+                        'variant': 'ome'
+                    },
+                    'data' : {
+                        // Configure URL for request
+                        'url' : function(node) {
+                            //TODO
+                            // Get the type of the node being expanded
+                            // Figure out what type of children it should have
+                            // Request the list of children from that url, adding any relevant filters
+                            if (node.type === 'experimenter') {
+                                return '{% url 'api_shares' %}'
+                            } else if (node.type === 'share') {
+                                return '{% url 'api_images' %}'
+                            } else if (node.id === '#') {
+                                return '{% url 'api_experimenter' active_user.id %}'
                             }
-                        }
-                    })
-                    // TODO Possibly there is a path which can lead here so this will be needed
-                    // .on('loaded.jstree', function(e, data) {
-                    //     /**
-                    //     * Fired when the tree is loaded and ready for action
-                    //     */
+                        },
+                        // Gather data for request
+                        'data' : function(node) {
 
-                    //     // If it isn't present
-                    //     if (window.location.search.length == 0) {
-                    //         return false;
-                    //     }
+                            var payload = {};
 
-                    //     // Introspect the URL to get the show parameter
-                    //     var param = getURLParameter('show');
-
-                    //     if (param) {
-                    //         var inst = data.instance;
-
-                    //         // Gather data for request
-                    //         var paramSplit = param.split('-');
-
-                    //         var payload = {};
-                    //         payload[paramSplit[0]] = paramSplit[1];
-
-                    //         // AJAX Query to get the path of the item we wish to 'show'
-                    //         $.ajax({
-                    //             url: '{% url 'api_paths_to_object' %}',
-                    //             data : payload,
-                    //             dataType: "json",
-                    //             type: "GET",
-                    //             success: function(json) {
-                    //                 data = json.paths;
-                    //                 // Use the open_node callback mechanism to facilitate loading the tree to the
-                    //                 // point indicated by the path, starting from the top, 'experimenter'.
-                    //                 var path = data[0];
-                    //                 console.log(path);
-                    //                 var lastIndex = path.length - 1;
-
-                    //                 var traverse = function(index, parentNode) {
-                    //                     // Get this path component
-                    //                     var comp = path[index];
-                    //                     // Get the node for this path component
-                    //                     var node = inst.locate_node(comp.type + '-' + comp.id, parentNode)[0];
-
-                    //                     // If at any point the node doesn't exist, simply give up as the path has
-                    //                     // become invalid
-                    //                     if (node === false) {
-                    //                         return;
-                    //                     }
-
-                    //                     // If this is not the final path component, open it and
-                    //                     // traverse in the callback
-                    //                      if (index < lastIndex) {
-                    //                         inst.open_node(node, function() {
-                    //                             traverse(index += 1, node);
-                    //                         })
-
-                    //                     // Otherwise select it
-                    //                      } else {
-                    //                         // TODO Centre view on this selection
-                    //                         inst.select_node(node);
-                    //                      }
-                    //                 };
-
-                    //                 // Start traversing at the start of the path with no parent node
-                    //                 traverse(0, undefined);
-                    //             },
-                    //             error: function(json) {
-                    //                 console.log('failure');
-                    //             }
-                    //         });
-                    //     }
-
-                    //     // Update the URL to remove the parameters as they serve to preload data this one
-                    //     // time only
-                    //     // TODO Test on an old browser
-                    //     history.pushState({}, '', window.location.pathname);
-                    // })
-
-                    // Setup jstree
-                    .jstree({
-                        'plugins': ['types', 'sort', 'locate', 'ometools', 'conditionalselect'],
-                        // The jstree core
-                        'core' : {
-                            'themes': {
-                                'dots': false,
-                                'variant': 'ome'
-                            },
-                            'data' : {
-                                // Configure URL for request
-                                'url' : function(node) {
-                                    //TODO
-                                    // Get the type of the node being expanded
-                                    // Figure out what type of children it should have
-                                    // Request the list of children from that url, adding any relevant filters
-                                    if (node.type === 'experimenter') {
-                                        return '{% url 'api_shares' %}'
-                                    } else if (node.type === 'share') {
-                                        return '{% url 'api_images' %}'
-                                    } else if (node.id === '#') {
-                                        return '{% url 'api_experimenter' active_user.id %}'
+                            // Get the data for this query, special case for experimenter as this
+                            // data is being passed as 'experimenter_id' below and the tag interface
+                            // is expecting either a tagset_id or nothing as the 'id'
+                            if (node.hasOwnProperty('data') && node.type != 'experimenter') {
+                                if (node.data.hasOwnProperty('obj')) {
+                                    // Listing images for a share needs to be special cased, because 'id'
+                                    // in 'api_list' is dataset. 'share_id' needs to be provided
+                                    if (node.type === 'share') {
+                                        payload['share_id'] = node.data.obj.id;
+                                    } else {
+                                        payload['id'] = node.data.obj.id;
                                     }
-                                },
-                                // Gather data for request
-                                'data' : function(node) {
+                                }
+                            }
 
-                                    var payload = {};
+                            if (node.hasOwnProperty('data') && node.type === 'experimenter') {
+                                payload['member_id'] = node.data.obj.id
+                            }
 
-                                    // Get the data for this query, special case for experimenter as this
-                                    // data is being passed as 'experimenter_id' below and the tag interface
-                                    // is expecting either a tagset_id or nothing as the 'id'
-                                    if (node.hasOwnProperty('data') && node.type != 'experimenter') {
-                                        if (node.data.hasOwnProperty('obj')) {
-                                            // Listing images for a share needs to be special cased, because 'id'
-                                            // in 'api_list' is dataset. 'share_id' needs to be provided
-                                            if (node.type === 'share') {
-                                                payload['share_id'] = node.data.obj.id;
-                                            } else {
-                                                payload['id'] = node.data.obj.id;
-                                            }
+                            return payload;
+                        },
+                        'cache': false,
+                        // Converter is required because the JSON format being returned is not
+                        // jstree specific.
+                        'converters' : {
+                            "text json": function (json) {
+                                var data = JSON.parse(json);
+                                var jstree_data = [];
+
+                                // Add experimenter to the jstree data structure
+                                if (data.hasOwnProperty('experimenter')) {
+                                    var value = data.experimenter;
+                                    var node = {
+                                        'data': {'id': value.id, 'obj': value},
+                                        'text': value.firstName + ' ' + value.lastName,
+                                        'children': true,
+                                        'type': 'experimenter',
+                                        'state': {
+                                        },
+                                        'li_attr': {
+                                            // 'class': 'experimenter',
+                                            'data-id': value.id
                                         }
-                                    }
+                                    };
 
-                                    if (node.hasOwnProperty('data') && node.type === 'experimenter') {
-                                        payload['member_id'] = node.data.obj.id
-                                    }
+                                    // Add 'state' opened for the current user by default
+                                    {% if active_user %}
+                                        if (value.id == {{ active_user.getId }}) {
+                                            node.state['opened'] = true;
+                                        }
+                                    {% endif %}
 
-                                    return payload;
-                                },
-                                'cache': false,
-                                // Converter is required because the JSON format being returned is not
-                                // jstree specific.
-                                'converters' : {
-                                    "text json": function (json) {
-                                        var data = JSON.parse(json);
-                                        var jstree_data = [];
+                                    jstree_data.push(node);
 
-                                        // Add experimenter to the jstree data structure
-                                        if (data.hasOwnProperty('experimenter')) {
-                                            var value = data.experimenter;
+                                }
+
+                                // Add images to the jstree data structure
+                                if (data.hasOwnProperty('shares')) {
+                                    $.each(data.shares, function(index, value) {
+                                        var node = {
+                                            'data': {'id': value.id, 'obj': value},
+                                            'text': value.id.toString(),
+                                            'children': value.childCount > 0 ? true : false,
+                                            'type': 'share',
+                                            'li_attr': {
+                                                // 'class': 'share',
+                                                'data-id': value.id
+                                            }
+                                        };
+                                        jstree_data.push(node);
+                                    });
+                                }
+
+                                // Add images to the jstree data structure
+                                if (data.hasOwnProperty('discussions')) {
+                                    $.each(data.discussions, function(index, value) {
+                                        var node = {
+                                            'data': {'id': value.id, 'obj': value},
+                                            'text': value.id.toString(),
+                                            'children': false,
+                                            'type': 'discussion',
+                                            'li_attr': {
+                                                // 'class': 'discussion',
+                                                'data-id': value.id
+                                            }
+                                        };
+                                        jstree_data.push(node);
+                                    });
+                                }
+
+                                // Add images to the jstree data structure
+                                if (data.hasOwnProperty('images')) {
+                                    $.each(data.images, function(index, value) {
+                                        if (value.hasOwnProperty('deleted')){
                                             var node = {
                                                 'data': {'id': value.id, 'obj': value},
-                                                'text': value.firstName + ' ' + value.lastName,
-                                                'children': true,
-                                                'type': 'experimenter',
-                                                'state': {
-                                                },
+                                                'text': 'Object Deleted',
+                                                'children': false,
+                                                'type': 'deleted',
                                                 'li_attr': {
-                                                    // 'class': 'experimenter',
                                                     'data-id': value.id
                                                 }
                                             };
-
-                                            // Add 'state' opened for the current user by default
-                                            {% if active_user %}
-                                                if (value.id == {{ active_user.getId }}) {
-                                                    node.state['opened'] = true;
+                                        } else {
+                                            var node = {
+                                                'data': {'id': value.id, 'obj': value},
+                                                'text': value.name,
+                                                'children': false,
+                                                'type': 'image',
+                                                'li_attr': {
+                                                    'data-id': value.id
                                                 }
-                                            {% endif %}
-
-                                            jstree_data.push(node);
-
+                                            };
                                         }
-
-                                        // Add images to the jstree data structure
-                                        if (data.hasOwnProperty('shares')) {
-                                            $.each(data.shares, function(index, value) {
-                                                var node = {
-                                                    'data': {'id': value.id, 'obj': value},
-                                                    'text': value.id.toString(),
-                                                    'children': value.childCount > 0 ? true : false,
-                                                    'type': 'share',
-                                                    'li_attr': {
-                                                        // 'class': 'share',
-                                                        'data-id': value.id
-                                                    }
-                                                };
-                                                jstree_data.push(node);
-                                            });
-                                        }
-
-                                        // Add images to the jstree data structure
-                                        if (data.hasOwnProperty('discussions')) {
-                                            $.each(data.discussions, function(index, value) {
-                                                var node = {
-                                                    'data': {'id': value.id, 'obj': value},
-                                                    'text': value.id.toString(),
-                                                    'children': false,
-                                                    'type': 'discussion',
-                                                    'li_attr': {
-                                                        // 'class': 'discussion',
-                                                        'data-id': value.id
-                                                    }
-                                                };
-                                                jstree_data.push(node);
-                                            });
-                                        }
-
-                                        // Add images to the jstree data structure
-                                        if (data.hasOwnProperty('images')) {
-                                            $.each(data.images, function(index, value) {
-                                                if (value.hasOwnProperty('deleted')){
-                                                    var node = {
-                                                        'data': {'id': value.id, 'obj': value},
-                                                        'text': 'Object Deleted',
-                                                        'children': false,
-                                                        'type': 'deleted',
-                                                        'li_attr': {
-                                                            // 'class': 'deleted',
-                                                            'data-id': value.id
-                                                        }
-                                                    };
-                                                } else {
-                                                    var node = {
-                                                        'data': {'id': value.id, 'obj': value},
-                                                        'text': value.name,
-                                                        'children': false,
-                                                        'type': 'image',
-                                                        'li_attr': {
-                                                            // 'class': 'image',
-                                                            'data-id': value.id
-                                                        }
-                                                    };
-                                                }
-                                                jstree_data.push(node);
-                                            });
-                                        }
-
-                                        return jstree_data;
-                                    }
-
+                                        jstree_data.push(node);
+                                    });
                                 }
-                            }
-                        },
-                        'types' : {
-                            '#' : {
-                                'valid_children': ['experimenter']
-                            },
-                            'default': {
-                                'draggable': false
-                            },
-                            'experimenter': {
-                                'icon' : '{% static "webclient/image/icon_user.png" %}',
-                                'valid_children': ['share', 'discussion']
-                            },
-                            'share': {
-                                'icon' : '{% static "webclient/image/left_sidebar_icon_public.png" %}',
-                                'valid_children': ['image']
-                            },
-                            'discussion': {
-                                'icon' : '{% static "webclient/image/wp_protocol16.png" %}'
-                            },
-                            'image': {
-                                'icon': '{% static "webclient/image/image16.png" %}',
-                            },
-                            'deleted': {
-                                'icon': false
+
+                                return jstree_data;
                             }
 
-                        },
-                        // TODO Performance of sort may not be realistic. The tree is mostly ordered correctly
-                        // already, only insertions need to be corrected manually.
-                        'sort': function(nodeId1, nodeId2) {
-                            var inst = this;
-                            var node1 = inst.get_node(nodeId1);
-                            var node2 = inst.get_node(nodeId2);
-                            // If the nodes are the same type then just compare lexicographically
-                            if (node1.type === node2.type && node1.text != undefined && node2.text != undefined) {
-                                // Unless they are experimenters and one of them is the current user.
-                                if(node1.type === 'experimenter') {
-                                    if (node1.data.obj.id === {{ ome.user_id }}) {
-                                        return -1;
-                                    } else if (node2.data.obj.id === {{ ome.user_id}}) {
-                                        return 1;
-                                    }
-                                }
-                                return node1.text.toLowerCase() <= node2.text.toLowerCase() ? -1 : 1;
-                            // Otherwise explicitly order the type that might be siblings
-                            } else {
+                        }
+                    },
+                    'check_callback': function(operation, node, node_parent, node_position, more) {
+                        var inst = $.jstree.reference(node);
+                        // Allow 'delete_node' on images only
+                        if (operation === 'delete_node' && inst.get_node(node).type === 'image') {
+                            return true;
+                        }
+                        return false
+                    }
+                },
+                'types' : {
+                    '#' : {
+                        'valid_children': ['experimenter']
+                    },
+                    'default': {
+                        'draggable': false
+                    },
+                    'experimenter': {
+                        'icon' : '{% static "webclient/image/icon_user.png" %}',
+                        'valid_children': ['share', 'discussion']
+                    },
+                    'share': {
+                        'icon' : '{% static "webclient/image/left_sidebar_icon_public.png" %}',
+                        'valid_children': ['image']
+                    },
+                    'discussion': {
+                        'icon' : '{% static "webclient/image/wp_protocol16.png" %}'
+                    },
+                    'image': {
+                        'icon': '{% static "webclient/image/image16.png" %}',
+                    },
+                    'deleted': {
+                        'icon': false
+                    }
 
-                                function getRanking(node) {
-                                    if (node.type === 'tagset') {
-                                        return 1;
-                                    } else if (node.type === 'tag') {
-                                        return 2;
-                                    }
-                                }
+                },
+                // TODO Performance of sort may not be realistic. The tree is mostly ordered correctly
+                // already, only insertions need to be corrected manually.
+                'sort': function(nodeId1, nodeId2) {
+                    var inst = this;
+                    var node1 = inst.get_node(nodeId1);
+                    var node2 = inst.get_node(nodeId2);
+                    // If the nodes are the same type then just compare lexicographically
+                    if (node1.type === node2.type && node1.text != undefined && node2.text != undefined) {
+                        // Unless they are experimenters and one of them is the current user.
+                        if(node1.type === 'experimenter') {
+                            if (node1.data.obj.id === {{ ome.user_id }}) {
+                                return -1;
+                            } else if (node2.data.obj.id === {{ ome.user_id}}) {
+                                return 1;
+                            }
+                        }
+                        return node1.text.toLowerCase() <= node2.text.toLowerCase() ? -1 : 1;
+                    // Otherwise explicitly order the type that might be siblings
+                    } else {
 
-                                var ranking1 = getRanking(node1);
-                                var ranking2 = getRanking(node2);
-                                return ranking1 <= ranking2 ? -1 : 1;
+                        function getRanking(node) {
+                            if (node.type === 'tagset') {
+                                return 1;
+                            } else if (node.type === 'tag') {
+                                return 2;
                             }
-                        },
-                        'locate' : {
-                            // Returns a key for this node
-                            'locate_function': function(node) {
-                                // In some cases, this function is called before the data attribute exists
-                                // These should be ignored, this will be called again later when it is
-                                // populated.
-                                if (!node.hasOwnProperty('data') ||
-                                    node.data === undefined ||
-                                    node.data === null) {
-                                    return false;
-                                }
-                                return node.type + '-' + node.data.obj.id;
-                            }
-                        },
-                        'conditionalselect' : {
-                            // Checks if a selection should be allowed
-                            'conditionalselect_function': function(node) {
-                                // Disable deleted object nodes
-                                if (node.type === 'deleted') {
-                                    return false;
-                                }
+                        }
 
-                                // Disable multi-type selection
-                                var inst = this;
-                                var selected = inst.get_selected(true);
-                                // As this function will previously have prevented cross-select, just
-                                // check the first selection instead.
-                                if (selected.length > 0 && selected[0].type !== node.type) {
-                                    return false;
-                                }
-                                return true;
-                            }
-                        },
-                    });
+                        var ranking1 = getRanking(node1);
+                        var ranking2 = getRanking(node2);
+                        return ranking1 <= ranking2 ? -1 : 1;
+                    }
+                },
+                'locate' : {
+                    // Returns a key for this node
+                    'locate_function': function(node) {
+                        // In some cases, this function is called before the data attribute exists
+                        // These should be ignored, this will be called again later when it is
+                        // populated.
+                        if (!node.hasOwnProperty('data') ||
+                            node.data === undefined ||
+                            node.data === null) {
+                            return false;
+                        }
+                        return node.type + '-' + node.data.obj.id;
+                    }
+                },
+                'conditionalselect' : {
+                    // Checks if a selection should be allowed
+                    'conditionalselect_function': function(node) {
+                        // Disable deleted object nodes
+                        if (node.type === 'deleted') {
+                            return false;
+                        }
+
+                        // Disable multi-type selection
+                        var inst = this;
+                        var selected = inst.get_selected(true);
+                        // As this function will previously have prevented cross-select, just
+                        // check the first selection instead.
+                        if (selected.length > 0 && selected[0].type !== node.type) {
+                            return false;
+                        }
+                        return true;
+                    }
+                },
             });
+        });
     </script>
 
     <!-- handle toolbar clicks -->
     <script type="text/javascript">
     $(function () {
-        $(".toolbar input").click(function () {
-            switch(this.id) {
-                case "removecontentButton":
-                    var confirm_remove = OME.confirm_dialog('Remove Image?',
-                        function() {
-                            if(confirm_remove.data("clicked_button") == "OK") {
-                                var inst = $.jstree.reference('#dataTree');
-                                inst.delete_node(inst.get_selected);
-                            }
-                        }
-                    );
-                    break;
-                case "refreshButton":
-                    $("#dataTree").jstree("refresh");
-                    break;
-                default:
-                    break;
-            }
+
+        $('#removecontentButton').click(function() {
+            var confirm_remove = OME.confirm_dialog('Remove Image?',
+                function() {
+                    if(confirm_remove.data("clicked_button") == "OK") {
+                        var inst = $.jstree.reference('#dataTree');
+                        removeImage(inst.get_selected(), inst);
+                    }
+                }
+            );
         });
+
+        $('#refreshButton').click(function() {
+            var inst = $.jstree.reference('#dataTree');
+            inst.refresh();
+        });
+
     });
     </script>
 
