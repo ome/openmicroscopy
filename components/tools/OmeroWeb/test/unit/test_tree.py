@@ -24,8 +24,8 @@ Simple unit tests for the "tree" module.
 import pytest
 
 from omero.rtypes import rlong, rstring, rtime
-from omeroweb.webclient.tree import marshal_plate_acquisition, \
-    marshal_dataset, marshal_plate, parse_permissions_css
+from omeroweb.webclient.tree import _marshal_plate_acquisition, \
+    _marshal_dataset, _marshal_plate, parse_permissions_css
 
 
 class MockConnection(object):
@@ -90,7 +90,7 @@ class TestTree(object):
             'permsCss': 'canEdit canAnnotate canLink canDelete canChgrp'
         }
 
-        marshaled = marshal_plate_acquisition(mock_conn, row)
+        marshaled = _marshal_plate_acquisition(mock_conn, row)
         assert marshaled == expected
 
     def test_marshal_plate_acquisition_name_no_start_no_end(
@@ -110,7 +110,7 @@ class TestTree(object):
             'permsCss': 'canEdit canAnnotate canLink canDelete canChgrp'
         }
 
-        marshaled = marshal_plate_acquisition(mock_conn, row)
+        marshaled = _marshal_plate_acquisition(mock_conn, row)
         assert marshaled == expected
 
     def test_marshal_plate_acquisition_no_name_start_end(
@@ -130,7 +130,7 @@ class TestTree(object):
             'permsCss': 'canEdit canAnnotate canLink canDelete canChgrp'
         }
 
-        marshaled = marshal_plate_acquisition(mock_conn, row)
+        marshaled = _marshal_plate_acquisition(mock_conn, row)
         assert marshaled == expected
 
     def test_marshal_plate_acquisition_not_owner(
@@ -150,7 +150,7 @@ class TestTree(object):
             'permsCss': 'canEdit canAnnotate canLink canDelete'
         }
 
-        marshaled = marshal_plate_acquisition(mock_conn, row)
+        marshaled = _marshal_plate_acquisition(mock_conn, row)
         assert marshaled == expected
 
     def test_parse_permissions_css(
@@ -202,7 +202,7 @@ class TestTree(object):
             'childCount': 1
         }
 
-        marshaled = marshal_dataset(mock_conn, row)
+        marshaled = _marshal_dataset(mock_conn, row)
         assert marshaled == expected
 
     def test_marshal_dataset_not_owner(self, mock_conn, owner_permissions):
@@ -221,7 +221,7 @@ class TestTree(object):
             'childCount': 1
         }
 
-        marshaled = marshal_dataset(mock_conn, row)
+        marshaled = _marshal_dataset(mock_conn, row)
         assert marshaled == expected
 
     def test_marshal_plate(self, mock_conn, owner_permissions):
@@ -230,16 +230,17 @@ class TestTree(object):
             rstring('name'),
             rlong(1L),
             owner_permissions,
+            2
         ]
         expected = {
             'id': 1L,
             'isOwned': True,
             'name': 'name',
             'permsCss': 'canEdit canAnnotate canLink canDelete canChgrp',
-            'plateAcquisitions': list()
+            'childCount': 2
         }
 
-        marshaled = marshal_plate(mock_conn, row)
+        marshaled = _marshal_plate(mock_conn, row)
         assert marshaled == expected
 
     def test_marshal_plate_not_owner(self, mock_conn, owner_permissions):
@@ -248,16 +249,19 @@ class TestTree(object):
             rstring('name'),
             rlong(2L),
             owner_permissions,
+            2
         ]
         expected = {
             'id': 1L,
             'isOwned': False,
             'name': 'name',
             'permsCss': 'canEdit canAnnotate canLink canDelete',
-            'plateAcquisitions': list()
+            'childCount': 2
         }
 
-        marshaled = marshal_plate(mock_conn, row)
+        marshaled = _marshal_plate(mock_conn, row)
+        print marshaled
+        print expected
         assert marshaled == expected
 
     # TODO Add a lot of tests
