@@ -1101,7 +1101,7 @@ class TestTree(object):
         marshaled = marshal_projects(conn)
         assert marshaled == expected
 
-    ###### All Projects as Owner ######
+    # All Projects as Owner
     def test_marshal_projects_all_private_owner(self, user_owner_private,
                                                 projects_all_private):
         """
@@ -1239,7 +1239,7 @@ class TestTree(object):
         marshaled = marshal_projects(conn)
         assert marshaled == expected
 
-    ###### All Projects as Admin ######
+    # All Projects as Admin #
     # This is commented out because it is difficult to test. The admin user
     # is not in the private/read-only/read-annoate groups and thus will
     # return nothing because there is no projects in its group
