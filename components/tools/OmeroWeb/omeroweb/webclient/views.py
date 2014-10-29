@@ -2430,7 +2430,6 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
     elif action == 'delete':
         # Handles delete of a file attached to object.
         child = toBoolean(request.REQUEST.get('child'))
-        print('WHAT IS CHILD', child)
         anns = toBoolean(request.REQUEST.get('anns'))
         try:
             handle = manager.deleteItem(child, anns)
@@ -3469,13 +3468,6 @@ def getAllObjects(conn, project_ids, dataset_ids, image_ids, screen_ids,
     plate_ids = set(plate_ids)
     screen_ids = set(screen_ids)
 
-    print('Initial List')
-    print('Projects', project_ids)
-    print('Datasets', dataset_ids)
-    print('Screens', screen_ids)
-    print('Plates', plate_ids)
-    print('Images', image_ids)
-
     # Get any datasets for projects
     if project_ids:
         params.map = {}
@@ -3622,14 +3614,6 @@ def getAllObjects(conn, project_ids, dataset_ids, image_ids, screen_ids,
     # We also have an additional list of datasets/projects that may have had
     # snatched children and thus may need updating in the client if the
     # dataset/project has gone from N to 0 children
-    print('Complete List')
-    print('Projects', project_ids)
-    print('Datasets', dataset_ids)
-    print('Screens', screen_ids)
-    print('Plates', plate_ids)
-    print('Images', image_ids)
-    print('Extra Datasets', extra_dataset_ids)
-    print('Extra Projects', extra_project_ids)
 
     result = {
         # These objects are completely removed
@@ -3647,8 +3631,6 @@ def getAllObjects(conn, project_ids, dataset_ids, image_ids, screen_ids,
             'orphaned': extra_orphaned
         }
     }
-    print ('---------------------------')
-    print result
     return result
 
 
