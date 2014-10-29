@@ -27,6 +27,7 @@ Test Script Run
     Go To                                       ${WELCOME URL}figure_script/Thumbnail/?Image=${imageId}
     Wait Until Page Contains Element            id=script_form
     Submit Form                                 id=script_form
+    Sleep                                       5                   # make sure script added to Activities
     Go To                                       ${WELCOME URL}
     Click Element                               id=launch_activities
     Wait Until Page Contains                    Thumbnail Figure
@@ -41,6 +42,7 @@ Test Script Run
     Go To                                       ${script_url}?Image=${imageId}
     Wait Until Page Contains Element            id=script_form
     Submit Form                                 id=script_form
+    Sleep                                       5                   # make sure script added to Activities
     Go To                                       ${WELCOME URL}
     Click Element                               id=launch_activities
     Wait Until Page Contains                    Batch Image Export
