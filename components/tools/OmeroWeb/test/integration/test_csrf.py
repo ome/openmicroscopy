@@ -527,6 +527,34 @@ class TestCsrf(object):
         _post_reponse(django_root_client, request_url, data, status_code=403)
         _csrf_post_reponse(django_root_client, request_url, data)
 
+    def test_script(self, itest, client, django_client):
+        """
+        CSRF protection does not check `GET` requests so we need to be sure
+        that this request results in an HTTP 405 (method not allowed) status
+        code.
+        """
+
+        img = itest.createTestImage(session=client.getSession())
+
+        script_path = "omero/export_scripts/Batch_Image_Export.py"
+        script = client.getSession().getScriptService().getScriptID(script_path)
+
+        request_url = reverse('script_run', args=[script])
+        data = {
+            "Data_Type": "Image",
+            "IDs": img.id.val,
+            "Choose_T_Section": "Default-T (last-viewed)",
+            "Choose_Z_Section": "Default-Z (last-viewed)",
+            "Export_Individual_Channels":"on",
+            "Export_Merged_Image": "on",
+            "Folder_Name": "Batch_Image_Export",
+            "Format": "JPEG",
+            "Zoom": "100%"
+        }
+        _post_reponse(django_client, request_url, data)
+        _csrf_post_reponse(django_client, request_url, data)
+
+
     # ADMIN
     def test_myaccount(self, itest, client, django_client):
         """
