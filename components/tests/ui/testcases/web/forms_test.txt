@@ -34,6 +34,8 @@ Test Script Run
     # Now Test 'Batch Image Export' (script UI on-the-fly)
     Click Element                               id=scriptButton
     Wait Until Page Contains Element            xpath=//a[contains(text(),'export_scripts')]
+    # If extra /omero/ script level, click() it. Will fail silently if not needed
+    Execute Javascript                          $("#scriptList>ul>li>a:contains('omero')").click()
     Click Link                                  export_scripts
     ${script_url}=                              Get Element Attribute       xpath=//a[contains(text(),'Batch Image Export...')]@href
     Go To                                       ${script_url}?Image=${imageId}
