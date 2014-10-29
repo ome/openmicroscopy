@@ -387,7 +387,7 @@ def names4(request):
     return ('Butter',)
 
 
-### Projects ###
+# Projects
 @pytest.fixture(scope='function')
 def projects_userA_groupA(request, names1, userA,
                           project_hierarchy_userA_groupA):
@@ -485,7 +485,7 @@ def projects(request, projects_groupA,
     return projects
 
 
-### Datasets ###
+# Datasets
 @pytest.fixture(scope='function')
 def datasets_userA_groupA(request, userA):
     """
@@ -577,6 +577,7 @@ def datasets(request, datasets_groupA,
     return datasets
 
 
+<<<<<<< HEAD
 # ### Images ###
 # @pytest.fixture(scope='function')
 # def images_userA_groupA(request, itest, userA):
@@ -623,6 +624,54 @@ def datasets(request, datasets_groupA,
 #                                                         conn.SERVICE_OPTS)
 #     images.sort(cmp_name_insensitive)
 #     return images
+=======
+# Images
+@pytest.fixture(scope='function')
+def images_userA_groupA(request, itest, userA):
+    """
+    Returns new OMERO Images for userA in groupA
+    """
+    to_save = []
+    for name in ['Neon', 'hydrogen', 'Helium', 'boron']:
+        image = itest.new_image(name=name)
+        to_save.append(image)
+
+    images = get_update_service(userA).saveAndReturnArray(to_save)
+    images.sort(cmp_name_insensitive)
+    return images
+
+
+@pytest.fixture(scope='function')
+def images_userB_groupA(request, itest, userB):
+    """
+    Returns new OMERO Images for userB in groupA
+    """
+    to_save = []
+    for name in ['Oxygen', 'nitrogen']:
+        image = itest.new_image(name=name)
+        to_save.append(image)
+
+    images = get_update_service(userB).saveAndReturnArray(to_save)
+    images.sort(cmp_name_insensitive)
+    return images
+
+
+@pytest.fixture(scope='function')
+def images_userA_groupB(request, itest, userA, groupB):
+    """
+    Returns new OMERO Images for userA in groupB
+    """
+    to_save = []
+    for name in ['Zinc', 'aluminium']:
+        image = itest.new_image(name=name)
+        to_save.append(image)
+
+    conn = get_connection(userA, groupB.id.val)
+    images = conn.getUpdateService().saveAndReturnArray(to_save,
+                                                        conn.SERVICE_OPTS)
+    images.sort(cmp_name_insensitive)
+    return images
+>>>>>>> 383d6b8... Further PEP8 changes
 
 
 @pytest.fixture(scope='function')
@@ -716,7 +765,7 @@ def images(request, images_groupA, images_groupB):
 #     return projects + datasets + images
 
 
-### Shares ###
+# Shares
 @pytest.fixture(scope='function')
 def shares_userA_owned(request, userA, userB, images_userA_groupA):
     """
@@ -765,7 +814,7 @@ def shares(request, shares_userA_owned, shares_userB_owned):
     return shares
 
 
-### Discussions ###
+# Discussions
 @pytest.fixture(scope='function')
 def discussions_userA_owned(request, userA, userB):
     """
@@ -812,7 +861,7 @@ def discussions(request, discussions_userA_owned, discussions_userB_owned):
     return discussions
 
 
-### Screens ###
+# Screens
 @pytest.fixture(scope='function')
 def screens_userA_groupA(request, userA):
     """
@@ -903,7 +952,7 @@ def screens(request, screens_groupA, screens_groupB):
     return screens
 
 
-### Plates ###
+# Plates
 @pytest.fixture(scope='function')
 def plates_userA_groupA(request, userA):
     """
@@ -1745,7 +1794,7 @@ class TestTree(lib.ITest):
                                      experimenter_id=-1)
         assert marshaled == expected
 
-    ### Datasets ###
+    # Datasets
     def test_marshal_datasets_no_results(self, userA):
         '''
         Test marshalling datasets where there are none
@@ -1847,7 +1896,7 @@ class TestTree(lib.ITest):
                                      project_id=project.id.val)
         assert marshaled == expected
 
-    ### Images ###
+    # Images
     def test_marshal_images_no_results(self, userA):
         '''
         Test marshalling images where there are none
@@ -1961,7 +2010,7 @@ class TestTree(lib.ITest):
 
         assert marshaled == expected
 
-    ### Screens ###
+    # Screens
     def test_marshal_screens_no_results(self, userA):
         '''
         Test marshalling screens where there are none
@@ -2033,7 +2082,7 @@ class TestTree(lib.ITest):
                                     group_id=-1)
         assert marshaled == expected
 
-    ### Plates ###
+    # Plates
     def test_marshal_plates_no_results(self, userA):
         '''
         Test marshalling plates where there are none
@@ -2106,7 +2155,7 @@ class TestTree(lib.ITest):
                                    group_id=-1)
         assert marshaled == expected
 
-    ### PlateAcquisitions ###
+    # PlateAcquisitions
     # There are no orphan PlateAcquisitions so all the tests are conducted
     # on data from hierarchies and there are fewer because querying cross-user
     # and cross-group have no real meaning here. Thus there is no need for
@@ -2161,7 +2210,7 @@ class TestTree(lib.ITest):
                                                plate_id=plate.id.val)
         assert marshaled == expected
 
-    ### Orphaned ###
+    # Orphaned
     def test_marshal_orphaned_no_results(self, userA):
         '''
         Test marshalling orphaned container for unknown user
@@ -2221,7 +2270,7 @@ class TestTree(lib.ITest):
                                      group_id=-1)
         assert marshaled == expected
 
-    ### Tags ###
+    # Tags
     def test_marshal_tags_no_results(self, userA):
         conn = get_connection(userA)
         marshaled = marshal_tags(conn=conn,
@@ -2305,7 +2354,7 @@ class TestTree(lib.ITest):
                                  tag_id=tagset.id.val)
         assert marshaled == expected
 
-    ### Tagged ###
+    # Tagged
     def test_marshal_tagged_no_results(self, userA):
         '''
         Test marshalling tagged where there are none
@@ -2339,7 +2388,7 @@ class TestTree(lib.ITest):
                                    tag_id=tag.id.val)
         assert marshaled == expected
 
-    ### Share ###
+    # Share
     def test_marshal_shares_user(self, userA, shares):
         """
         Test marshalling shares a user is a member of
@@ -2381,8 +2430,7 @@ class TestTree(lib.ITest):
                                    owner_id=userB[1].id.val)
         assert marshaled == expected
 
-    ### Discussion ###
-
+    # Discussion #
     def test_marshal_discussions_user(self, userA, discussions):
         """
         Test marshalling discussions a user is a member of
