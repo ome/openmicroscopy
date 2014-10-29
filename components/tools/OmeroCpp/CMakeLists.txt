@@ -420,9 +420,6 @@ configure_file(${PROJECT_SOURCE_DIR}/components/bioformats/cpp/cmake/TemplateCon
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/omero-client-config.cmake
         DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/cmake)
 
-add_subdirectory(test)
-add_subdirectory(utils)
-
 foreach(flag -Wno-switch-default -Wno-redundant-decls -Wno-overloaded-virtual -Wno-old-style-cast -Wno-deprecated-declarations)
   string(REPLACE "/" "_" flag_var "${flag}")
   set(test_cxx_flag "CXX_FLAG${flag_var}")
@@ -433,10 +430,14 @@ foreach(flag -Wno-switch-default -Wno-redundant-decls -Wno-overloaded-virtual -W
 endforeach(flag ${test_flags})
 
 if(fatal-warnings)
-  add_definitions("-Werror")
+  add_definitions("-Werror -Wno-deprecated-declarations")
 endif(fatal-warnings)
 
 set_source_files_properties(
     ${OMERO_ICE_SOURCES}
     PROPERTIES
     COMPILE_FLAGS "${ICE_FLAGS}")
+
+# Last so that variables are propagated
+add_subdirectory(test)
+add_subdirectory(utils)
