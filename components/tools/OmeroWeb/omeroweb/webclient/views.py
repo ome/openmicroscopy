@@ -867,7 +867,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
     else:
         context = {'manager':manager, 'form_comment':form_comment, 'index':index,
             'share_id':share_id, 'share_owned': share_owned}
-            
+
     context['figScripts'] = figScripts
     context['template'] = template
     context['webclient_path'] = request.build_absolute_uri(reverse('webindex'))
@@ -2949,6 +2949,7 @@ def script_run(request, scriptId, conn=None, **kwargs):
     return HttpJsonResponse(rsp)
 
 
+@require_POST
 @login_required()
 def ome_tiff_script(request, imageId, conn=None, **kwargs):
     """
@@ -2956,8 +2957,6 @@ def ome_tiff_script(request, imageId, conn=None, **kwargs):
     image and attach this as a file annotation to the image.
     Script will show up in the 'Activities' for users to monitor and download result etc.
     """
-    #if not request.method == 'POST':
-    #    return HttpResponse("Need to use POST")
 
     scriptService = conn.getScriptService()
     sId = scriptService.getScriptID("/omero/export_scripts/Batch_Image_Export.py")
