@@ -293,13 +293,20 @@
                     selected.each(function(){
                         ids.push(this.id.split('-')[1]);
                     });
-                    rdef_url += "?toids=" + ids.join("&toids=");
+                    data = {'toids': ids};
                     if (rel === 'dataset' || rel === 'plate' || rel === 'acquisition') {
-                        rdef_url += '&to_type='+ rel;
+                        data['to_type'] = rel;
                     }
-                    $.post(rdef_url, function(data){
-                        // update thumbnails
-                        OME.refreshThumbnails();
+                    $.ajax({
+                        type: "POST",
+                        dataType: 'text',
+                        traditional: true,
+                        url: rdef_url,
+                        data: data,
+                        success: function(data){
+                            // update thumbnails
+                            OME.refreshThumbnails();
+                        }
                     });
                 }
 
