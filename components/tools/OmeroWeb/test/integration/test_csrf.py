@@ -466,29 +466,28 @@ class TestCsrf(object):
         _csrf_get_reponse(django_client, request_url, query_string, status_code=405)
         _csrf_post_reponse(django_client, request_url, data)
 
-    def test_rendering_settings_post(self, itest, django_client):
+    def test_copy_past_rendering_settings(self, itest, client, django_client):
         """
         CSRF protection does not check `GET` requests so we need to be sure
         that this request results in an HTTP 405 (method not allowed) status
         code.
         """
 
-        img = itest.createTestImage()
+        img = itest.createTestImage(session=client.getSession())
 
-        request_url = reverse('webgateway.views.copy_image_rdef_json')
-        query_string = {
-            'fromid': img.id.val
-        }
-
-        _get_reponse(django_client, request_url, query_string, status_code=200)
+        # put image id into session
+        session = django_client.session
+        session['fromid'] = img.id.val
+        session.save()
 
         request_url = reverse('webgateway.views.copy_image_rdef_json')
         data = {
-            'toid': img.id.val
+            'toids': img.id.val
         }
 
         _post_reponse(django_client, request_url, data)
         _csrf_post_reponse(django_client, request_url, data)
+        _csrf_get_reponse(django_client, request_url, data, status_code=405)
 
     def test_reset_rendering_settings(self, itest, django_client):
         """
@@ -509,29 +508,6 @@ class TestCsrf(object):
         _csrf_post_reponse(django_client, request_url, data)
         _get_reponse(django_client, request_url, data)
         _csrf_get_reponse(django_client, request_url, data, status_code=405)
-
-    def test_copy_past_rendering_settings(self, itest, django_client):
-        """
-        CSRF protection does not check `GET` requests so we need to be sure
-        that this request results in an HTTP 405 (method not allowed) status
-        code.
-        """
-
-        img = itest.createTestImage()
-
-        # put image id into session
-        session = django_client.session
-        session['fromid'] = img.id.val
-        session.save()
-
-        request_url = reverse('webgateway.views.copy_image_rdef_json')
-        data = {
-            'toids': img.id.val
-        }
-
-        _csrf_get_reponse(django_client, request_url, data, status_code=405)
-        _post_reponse(django_client, request_url, data)
-        _csrf_post_reponse(django_client, request_url, data)
 
     # ADMIN
     def test_myaccount(self, itest, client, django_client):
