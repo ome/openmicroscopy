@@ -34,7 +34,6 @@
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.conditionalselect_plugin.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.ometools_plugin.js" %}"></script>
 
-    <!-- set-up jsTree, toolbar etc -->
     <script type="text/javascript">
 
         $(document).ready(function() 
@@ -56,9 +55,9 @@
 
     </script>
 
+    <!-- set-up jsTree, toolbar etc -->
     <script type="text/javascript">
-
-        $(function() 
+        $(function()
             {
 
                 // We truncate images when the left panel resizes...
@@ -245,126 +244,204 @@
 
                                     return payload;
                                 },
-                                "share" : {
-                                    "valid_children" : [ "image" ],
-                                    "icon" : {
-                                        "image" : '{% static "webclient/image/left_sidebar_icon_public.png" %}'
-                                    },
-                                    "select_node" : function(obj){
-                                        if (!obj.hasClass('isOwned')) {
-                                            return !obj.hasClass('isDisabled');
+                                'cache': false,
+                                // Converter is required because the JSON format being returned is not
+                                // jstree specific.
+                                'converters' : {
+                                    "text json": function (json) {
+                                        var data = JSON.parse(json);
+                                        var jstree_data = [];
+
+                                        // Add experimenter to the jstree data structure
+                                        if (data.hasOwnProperty('experimenter')) {
+                                            var value = data.experimenter;
+                                            var node = {
+                                                'data': {'id': value.id, 'obj': value},
+                                                'text': value.firstName + ' ' + value.lastName,
+                                                'children': true,
+                                                'type': 'experimenter',
+                                                'state': {
+                                                },
+                                                'li_attr': {
+                                                    // 'class': 'experimenter',
+                                                    'data-id': value.id
+                                                }
+                                            };
+
+                                            // Add 'state' opened for the current user by default
+                                            {% if active_user %}
+                                                if (value.id == {{ active_user.getId }}) {
+                                                    node.state['opened'] = true;
+                                                }
+                                            {% endif %}
+
+                                            jstree_data.push(node);
+
                                         }
-                                    },
-                                    "create_node" : false,
-                                    "start_drag" : false,
-                                    "move_node" : false,
-                                    "remove" : false
-                                },
-                                "discussion" : {
-                                    "valid_children" : "none",
-                                    "icon" : {
-                                        "image" : '{% static "webclient/image/wp_protocol16.png" %}'
-                                    },
-                                    "select_node" : function(obj){
-                                        if (!obj.hasClass('isOwned')) {
-                                            return !obj.hasClass('isDisabled');
+
+                                        // Add images to the jstree data structure
+                                        if (data.hasOwnProperty('shares')) {
+                                            $.each(data.shares, function(index, value) {
+                                                var node = {
+                                                    'data': {'id': value.id, 'obj': value},
+                                                    'text': value.id.toString(),
+                                                    'children': value.childCount > 0 ? true : false,
+                                                    'type': 'share',
+                                                    'li_attr': {
+                                                        // 'class': 'share',
+                                                        'data-id': value.id
+                                                    }
+                                                };
+                                                jstree_data.push(node);
+                                            });
                                         }
-                                    },
-                                    "create_node" : false,
-                                    "start_drag" : false,
-                                    "move_node" : false,
-                                    "remove" : false
-                                },
-                                "image" : {
-                                    "valid_children" : "none",
-                                    "icon" : {
-                                        "image" : '{% static "webclient/image/image16.png" %}'
-                                    },
-                                    "select_node" : function(obj){return !obj.hasClass('isDisabled')},
-                                    "create_node" : false,
-                                    "start_drag" : false,
-                                    "move_node" : false,
-                                    "remove" : function(obj){return obj.hasClass('isOwned');}
+
+                                        // Add images to the jstree data structure
+                                        if (data.hasOwnProperty('discussions')) {
+                                            $.each(data.discussions, function(index, value) {
+                                                var node = {
+                                                    'data': {'id': value.id, 'obj': value},
+                                                    'text': value.id.toString(),
+                                                    'children': false,
+                                                    'type': 'discussion',
+                                                    'li_attr': {
+                                                        // 'class': 'discussion',
+                                                        'data-id': value.id
+                                                    }
+                                                };
+                                                jstree_data.push(node);
+                                            });
+                                        }
+
+                                        // Add images to the jstree data structure
+                                        if (data.hasOwnProperty('images')) {
+                                            $.each(data.images, function(index, value) {
+                                                if (value.hasOwnProperty('deleted')){
+                                                    var node = {
+                                                        'data': {'id': value.id, 'obj': value},
+                                                        'text': 'Object Deleted',
+                                                        'children': false,
+                                                        'type': 'deleted',
+                                                        'li_attr': {
+                                                            // 'class': 'deleted',
+                                                            'data-id': value.id
+                                                        }
+                                                    };
+                                                } else {
+                                                    var node = {
+                                                        'data': {'id': value.id, 'obj': value},
+                                                        'text': value.name,
+                                                        'children': false,
+                                                        'type': 'image',
+                                                        'li_attr': {
+                                                            // 'class': 'image',
+                                                            'data-id': value.id
+                                                        }
+                                                    };
+                                                }
+                                                jstree_data.push(node);
+                                            });
+                                        }
+
+                                        return jstree_data;
+                                    }
+
                                 }
                             }
                         },
-                        // For UI & core - the nodes to initially select and open will be overwritten by the cookie plugin
-                        // the UI plugin - it handles selecting/deselecting/hovering nodes
-                        "ui" : {
-                            "select_limit" : 1,
-                            "select_multiple_modifier" : false,
-                            "select_range_modifier" : false,
-                            "initially_select" : [ {% if init.initially_select %}"{{ init.initially_select }}"{% else %}"experimenter-0"{% endif %}  ]
-                        },
-                        // the core plugin - not many options here
-                        "core" : { 
-                            // just open those two nodes up
-                            // as this is an AJAX enabled tree, both will be downloaded from the server
-                            "initially_open" : [ {% for p in init.initially_open %}"{{ p }}",{% endfor %} "experimenter-0" ]
-                        },
-                        "contextmenu" : {
-                            "select_node":true,
-                            "items" : function(obj){
-                                var config = {};        
-                                
-                                return config;
-                            }
-                        },
-                        
-                })
-                .delegate("a", "click.jstree", function (event) {
-                    var data = $.jstree._focused();
-                    if(!data.is_open()) {
-                        data.open_node(data.get_selected());
-                    }
-                })
-                .delegate("a", "dblclick", function(e) {
-                    var $this = $(this),
-                        obj_rel = $this.parent().attr('rel'),
-                        ob_id = $this.parent().attr('id'),
-                        share_id = $this.parent().attr('data-share'),
-                        popup_url = "{% url 'webindex' %}",
-                        iid;
-                    if (obj_rel=='image') {
-                        iid = ob_id.split("-")[1];
-                        // Share-id will only be there if share is not owned.
-                        if (share_id) {
-                            popup_url += share_id + "/img_detail/" + iid;
-                        } else {
-                            popup_url += "img_detail/" + iid;
-                        }
-                        OME.openPopup(popup_url);
-                    }
-                })
-                .bind("select_node.jstree deselect_node.jstree", function (e, data) {
-                    buttonsShowHide(data.rslt.obj);
-                    OME.tree_selection_changed(data);
-                })
-                .bind("remove.jstree", function (e, data) {
-                    var pr = $(data.args[1]);
-                    
-                    data.args[0].each(function (i) {
-                        url = '{% url 'manage_action_containers' "removefromshare" "share" %}'+pr.attr('id').split('-')[1]+'/'
-                        $.ajax({
-                            async : false,
-                            url: url,
-                            data : {'source':$(this).attr('id').split("-")[1]},
-                            dataType: "json",
-                            type: "POST",
-                            success: function(r){
-                                if(eval(r.bad)) {
-                                      $.jstree.rollback(data.rlbk);
-                                      alert(r.errs);
-                                  }
+                        'types' : {
+                            '#' : {
+                                'valid_children': ['experimenter']
                             },
-                            error: function(response) {
-                                $.jstree.rollback(data.rlbk);
+                            'default': {
+                                'draggable': false
+                            },
+                            'experimenter': {
+                                'icon' : '{% static "webclient/image/icon_user.png" %}',
+                                'valid_children': ['share', 'discussion']
+                            },
+                            'share': {
+                                'icon' : '{% static "webclient/image/left_sidebar_icon_public.png" %}',
+                                'valid_children': ['image']
+                            },
+                            'discussion': {
+                                'icon' : '{% static "webclient/image/wp_protocol16.png" %}'
+                            },
+                            'image': {
+                                'icon': '{% static "webclient/image/image16.png" %}',
+                            },
+                            'deleted': {
+                                'icon': false
                             }
-                        });
+
+                        },
+                        // TODO Performance of sort may not be realistic. The tree is mostly ordered correctly
+                        // already, only insertions need to be corrected manually.
+                        'sort': function(nodeId1, nodeId2) {
+                            var inst = this;
+                            var node1 = inst.get_node(nodeId1);
+                            var node2 = inst.get_node(nodeId2);
+                            // If the nodes are the same type then just compare lexicographically
+                            if (node1.type === node2.type && node1.text != undefined && node2.text != undefined) {
+                                // Unless they are experimenters and one of them is the current user.
+                                if(node1.type === 'experimenter') {
+                                    if (node1.data.obj.id === {{ ome.user_id }}) {
+                                        return -1;
+                                    } else if (node2.data.obj.id === {{ ome.user_id}}) {
+                                        return 1;
+                                    }
+                                }
+                                return node1.text.toLowerCase() <= node2.text.toLowerCase() ? -1 : 1;
+                            // Otherwise explicitly order the type that might be siblings
+                            } else {
+
+                                function getRanking(node) {
+                                    if (node.type === 'tagset') {
+                                        return 1;
+                                    } else if (node.type === 'tag') {
+                                        return 2;
+                                    }
+                                }
+
+                                var ranking1 = getRanking(node1);
+                                var ranking2 = getRanking(node2);
+                                return ranking1 <= ranking2 ? -1 : 1;
+                            }
+                        },
+                        'locate' : {
+                            // Returns a key for this node
+                            'locate_function': function(node) {
+                                // In some cases, this function is called before the data attribute exists
+                                // These should be ignored, this will be called again later when it is
+                                // populated.
+                                if (!node.hasOwnProperty('data') ||
+                                    node.data === undefined ||
+                                    node.data === null) {
+                                    return false;
+                                }
+                                return node.type + '-' + node.data.obj.id;
+                            }
+                        },
+                        'conditionalselect' : {
+                            // Checks if a selection should be allowed
+                            'conditionalselect_function': function(node) {
+                                // Disable deleted object nodes
+                                if (node.type === 'deleted') {
+                                    return false;
+                                }
+
+                                // Disable multi-type selection
+                                var inst = this;
+                                var selected = inst.get_selected(true);
+                                // As this function will previously have prevented cross-select, just
+                                // check the first selection instead.
+                                if (selected.length > 0 && selected[0].type !== node.type) {
+                                    return false;
+                                }
+                                return true;
+                            }
+                        },
                     });
-                    
-                });
-                
             });
     </script>
 
