@@ -375,7 +375,7 @@ since all collections are lists in ice.
 [$cpp]               ${property.name}Seq = ${seqName}();
 [$cpp]               ${property.name}Loaded = true;
 [$cpp]           } else {
-[$cpp]               ${property.name}Seq = static_cast<${seqName}>(0);
+[$cpp]               ${property.name}Seq.clear();
 [$cpp]               ${property.name}Loaded = false;
 [$cpp]           }
 [$pyc]           if load:
