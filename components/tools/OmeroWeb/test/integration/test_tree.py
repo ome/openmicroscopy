@@ -141,8 +141,6 @@ def expected_projects(user, projects):
         expected.append({
             'id': project.id.val,
             'name': project.name.val,
-            'isOwned': project.details.owner.id.val ==
-            user[1].id.val,
             'childCount': len(project.linkedDatasetList()),
             'permsCss': get_perms(user[1], project)
         })
@@ -156,8 +154,6 @@ def expected_datasets(user, datasets):
         expected.append({
             'id': dataset.id.val,
             'name': dataset.name.val,
-            'isOwned': dataset.details.owner.id.val ==
-            user[1].id.val,
             'childCount': len(dataset.linkedImageList()),
             'permsCss': get_perms(user[1], dataset)
         })
@@ -173,8 +169,6 @@ def expected_images(user, images):
         i = {
             'id': image.id.val,
             'name': image.name.val,
-            'isOwned': image.details.owner.id.val ==
-            user[1].id.val,
             'permsCss': get_perms(user[1], image),
         }
         if image.fileset is not None:
@@ -189,8 +183,6 @@ def expected_screens(user, screens):
         expected.append({
             'id': screen.id.val,
             'name': screen.name.val,
-            'isOwned': screen.details.owner.id.val ==
-            user[1].id.val,
             'childCount': len(screen.linkedPlateList()),
             'permsCss': get_perms(user[1], screen)
         })
@@ -203,8 +195,6 @@ def expected_plates(user, plates):
         expected.append({
             'id': plate.id.val,
             'name': plate.name.val,
-            'isOwned': plate.details.owner.id.val ==
-            user[1].id.val,
             'childCount': len(plate.copyPlateAcquisitions()),
             'permsCss': get_perms(user[1], plate)
         })
@@ -227,8 +217,6 @@ def expected_plate_acquisitions(user, plate_acquisitions):
         expected.append({
             'id': acq.id.val,
             'name': acq_name,
-            'isOwned': acq.details.owner.id.val ==
-            user[1].id.val,
             'permsCss': get_perms(user[1], acq)
         })
     return expected
@@ -252,8 +240,6 @@ def expected_tags(user, tags):
             'id': tag.id.val,
             'value': tag.textValue.val,
             'description': description,
-            'isOwned': tag.details.owner.id.val ==
-            user[1].id.val,
             'permsCss': get_perms(user[1], tag)
         }
 
@@ -285,8 +271,6 @@ def expected_shares(user, shares):
     for share in shares:
         expected.append({
             'id': share.id.val,
-            'isOwned': share.owner.id.val ==
-            user[1].id.val,
             'childCount': share.getItemCount().val
         })
     return expected
@@ -297,8 +281,6 @@ def expected_discussions(user, discussions):
     for discussion in discussions:
         expected.append({
             'id': discussion.id.val,
-            'isOwned': discussion.owner.id.val ==
-            user[1].id.val
         })
     return expected
 
@@ -577,7 +559,6 @@ def datasets(request, datasets_groupA,
     return datasets
 
 
-<<<<<<< HEAD
 # ### Images ###
 # @pytest.fixture(scope='function')
 # def images_userA_groupA(request, itest, userA):
@@ -624,54 +605,6 @@ def datasets(request, datasets_groupA,
 #                                                         conn.SERVICE_OPTS)
 #     images.sort(cmp_name_insensitive)
 #     return images
-=======
-# Images
-@pytest.fixture(scope='function')
-def images_userA_groupA(request, itest, userA):
-    """
-    Returns new OMERO Images for userA in groupA
-    """
-    to_save = []
-    for name in ['Neon', 'hydrogen', 'Helium', 'boron']:
-        image = itest.new_image(name=name)
-        to_save.append(image)
-
-    images = get_update_service(userA).saveAndReturnArray(to_save)
-    images.sort(cmp_name_insensitive)
-    return images
-
-
-@pytest.fixture(scope='function')
-def images_userB_groupA(request, itest, userB):
-    """
-    Returns new OMERO Images for userB in groupA
-    """
-    to_save = []
-    for name in ['Oxygen', 'nitrogen']:
-        image = itest.new_image(name=name)
-        to_save.append(image)
-
-    images = get_update_service(userB).saveAndReturnArray(to_save)
-    images.sort(cmp_name_insensitive)
-    return images
-
-
-@pytest.fixture(scope='function')
-def images_userA_groupB(request, itest, userA, groupB):
-    """
-    Returns new OMERO Images for userA in groupB
-    """
-    to_save = []
-    for name in ['Zinc', 'aluminium']:
-        image = itest.new_image(name=name)
-        to_save.append(image)
-
-    conn = get_connection(userA, groupB.id.val)
-    images = conn.getUpdateService().saveAndReturnArray(to_save,
-                                                        conn.SERVICE_OPTS)
-    images.sort(cmp_name_insensitive)
-    return images
->>>>>>> 383d6b8... Further PEP8 changes
 
 
 @pytest.fixture(scope='function')
@@ -1432,20 +1365,20 @@ def tagset_hierarchy_userB_groupA(request, userA,
 
 #     # Link them together like so:
 #     # projectA
+#     #   (UserC's Link)
 #     #   datasetA
+#     #       (UserD's Link)
 #     #       imageA
 
 #     # Link the project with the dataset
-#     link = ProjectDatasetLinkI()
-#     link.setParent(ProjectI(projectA.getId(), False))
-#     link.setChild(DatasetI(datasetA.getId(), False))
-#     get_update_service(userC).saveObject(link)
+#     projectA.linkDataset(datasetA)
+#     projectA = get_update_service(userC).saveAndReturnObject(projectA)
+#     datasetA = projectA.linkedDatasetList()[0]
 
 #     # Link the dataset with the image
-#     link = DatasetImageLinkI()
-#     link.setParent(DatasetI(datasetA.getId(), False))
-#     link.setChild(ImageI(imageA.getId(), False))
-#     get_update_service(userD).saveObject(link)
+#     datasetA.linkImage(imageA)
+#     datasetA = get_update_service(userD).saveAndReturnObject(datasetA)
+#     imageA = datasetA.linkedImageList()[0]
 
 #     return [projectA, datasetA, imageA]
 
@@ -1686,9 +1619,11 @@ class TestTree(lib.ITest):
         # In order that we have child objects loaded, add links like this...
         projectA.linkDataset(datasetA)
         projectA = get_update_service(userC).saveAndReturnObject(projectA)
+        # datasetA = projectA.linkedDatasetList()[0]
 
         datasetA.linkImage(imageA)
         datasetA = get_update_service(userD).saveAndReturnObject(datasetA)
+        imageA = datasetA.linkedImageList()[0]
 
         return [projectA, datasetA, imageA]
 
