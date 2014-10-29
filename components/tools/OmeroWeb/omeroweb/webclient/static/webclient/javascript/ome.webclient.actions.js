@@ -44,10 +44,12 @@ jQuery.fn.hide_if_empty = function() {
 };
 
 OME.addToBasket = function(selected, prefix) {
+    var datatree = $.jstree.reference('#dataTree');
     var productListQuery = new Array("action=add");
-    if (selected && selected.length > 0) {
-        selected.each(function(i) {
-            productListQuery[i+1]= $(this).attr('id').replace("-","=");
+    if (selected != null && selected.length > 0) {
+        $.each(selected, function(index, sel) {
+            var node = datatree.get_node(sel);
+            productListQuery.push(node.type + '=' + node.data.obj.id);
         });
     } else {
         OME.alert_dialog("Please select at least one element.");
@@ -117,7 +119,7 @@ OME.clear_selected = function(force_refresh) {
 
 // called when we change the index of a plate or acquisition
 OME.field_selection_changed = function(field) {
-
+    //TODO This is old style and wont work
     var datatree = $.jstree._focused();
     $("body")
         .data("selected_objects.ome", [{"id":datatree.data.ui.last_selected.attr("id"), "index":field}])
