@@ -129,7 +129,6 @@
             OME.preview_viewport.load({{ manager.image.id }}, null, location.search);
             {% else %}
             OME.preview_viewport.load({{ manager.image.id }});
-            {% endif %}
 
             // copy and paste refs is in browser via query string,
             // but we also save to session in case of page reload etc
@@ -307,6 +306,8 @@
             }
             {% endif %}
 
+            {% endif %}
+
             $("#preview_open_viewer").click(function(){
 
               var url = "{% if share_id %}{% url 'web_image_viewer' share_id manager.image.id %}{% else %}{% url 'web_image_viewer' manager.image.id %}{% endif %}";
@@ -321,6 +322,7 @@
 
         });
     </script>
+
 
 
 <!-- VIEWER "Preview"-->
@@ -339,13 +341,14 @@
       <div class="miniview" id="viewport">
       </div>
 
+
+    {% if not share_id %}
     <div style="clear:both; height:20px"></div>
 
     <div style="text-align: left">
       Z: <span id="wblitz-z-curr">?</span>/<span id="wblitz-z-count">?</span> &nbsp
       T: <span id="wblitz-t-curr">1</span>/<span id="wblitz-t-count">1</span>
     </div>
-
 
     <ul class="toolbar preview-toolbar">
       <li>
@@ -432,5 +435,6 @@
         {% endfor %}
       </li>
     </ul>
+    {% endif %}
 
 </div>
