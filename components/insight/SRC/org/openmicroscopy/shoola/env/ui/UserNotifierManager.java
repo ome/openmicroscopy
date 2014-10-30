@@ -347,7 +347,9 @@ class UserNotifierManager
 	 * Removes all activities
 	 */
 	void clearActivities() {
-	    this.activities.clear();
+	    if (activities != null)
+	        activities.clear();
+	    
 	    if (activityDialog != null) {
 	        activityDialog.setVisible(false);
 	        activityDialog = null;
