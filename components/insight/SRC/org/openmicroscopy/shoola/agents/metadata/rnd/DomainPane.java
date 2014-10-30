@@ -382,6 +382,7 @@ public class DomainPane
         	initSlider(zSlider, maxZ, model.getDefaultZ(), 
         			Z_SLIDER_DESCRIPTION, Z_SLIDER_TIPSTRING);
         	canvas = new PreviewCanvas();
+        	canvas.setBackground(UIUtilities.BACKGROUND_COLOR);
         }
         if (model.hasModuloT()) {
             lifetimeSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL,
