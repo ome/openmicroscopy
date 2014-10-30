@@ -429,6 +429,7 @@
   CREATE INDEX i_ImageAnnotationLink_child ON imageannotationlink(child);
   CREATE INDEX i_imagingenvironment_owner ON imagingenvironment(owner_id);
   CREATE INDEX i_imagingenvironment_group ON imagingenvironment(group_id);
+  CREATE INDEX i_ImagingEnvironment_temperature ON imagingenvironment(temperature);
   CREATE INDEX i_instrument_owner ON instrument(owner_id);
   CREATE INDEX i_instrument_group ON instrument(group_id);
   CREATE INDEX i_Instrument_microscope ON instrument(microscope);
@@ -899,6 +900,7 @@ CREATE SEQUENCE seq_statsinfo; INSERT INTO _lock_ids (name, id) SELECT 'seq_stat
 CREATE SEQUENCE seq_thumbnail; INSERT INTO _lock_ids (name, id) SELECT 'seq_thumbnail', nextval('_lock_seq');
 CREATE SEQUENCE seq_transmittancerange; INSERT INTO _lock_ids (name, id) SELECT 'seq_transmittancerange', nextval('_lock_seq');
 CREATE SEQUENCE seq_unitslength; INSERT INTO _lock_ids (name, id) SELECT 'seq_unitslength', nextval('_lock_seq');
+CREATE SEQUENCE seq_unitstemperature; INSERT INTO _lock_ids (name, id) SELECT 'seq_unitstemperature', nextval('_lock_seq');
 CREATE SEQUENCE seq_unitstime; INSERT INTO _lock_ids (name, id) SELECT 'seq_unitstime', nextval('_lock_seq');
 CREATE SEQUENCE seq_well; INSERT INTO _lock_ids (name, id) SELECT 'seq_well', nextval('_lock_seq');
 CREATE SEQUENCE seq_wellannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_wellannotationlink', nextval('_lock_seq');
@@ -1649,8 +1651,9 @@ alter table event alter column experimentergroup set not null;
 
 -- temporarily disable the not null constraints
 alter table pixelstype alter column bitsize drop not null;
-alter table unitstime alter column measurementsystem drop not null;
 alter table unitslength alter column measurementsystem drop not null;
+alter table unitstemperature alter column measurementsystem drop not null;
+alter table unitstime alter column measurementsystem drop not null;
 
 
 insert into acquisitionmode (id,permissions,value)
@@ -2433,6 +2436,14 @@ insert into unitslength (id,permissions,value)
     select ome_nextval('seq_unitslength'),-52,'pixel';
 insert into unitslength (id,permissions,value)
     select ome_nextval('seq_unitslength'),-52,'reference frame';
+insert into unitstemperature (id,permissions,value)
+    select ome_nextval('seq_unitstemperature'),-52,'K';
+insert into unitstemperature (id,permissions,value)
+    select ome_nextval('seq_unitstemperature'),-52,'°C';
+insert into unitstemperature (id,permissions,value)
+    select ome_nextval('seq_unitstemperature'),-52,'°R';
+insert into unitstemperature (id,permissions,value)
+    select ome_nextval('seq_unitstemperature'),-52,'°F';
 insert into unitstime (id,permissions,value)
     select ome_nextval('seq_unitstime'),-52,'Ys';
 insert into unitstime (id,permissions,value)
@@ -2495,8 +2506,6 @@ update pixelstype set bitsize = 64 where value = 'double';
 update pixelstype set bitsize = 64 where value = 'complex';
 update pixelstype set bitsize = 128 where value = 'double-complex';
 
-update unitstime set measurementsystem = 'SI.SECOND';
-
 update unitslength set measurementsystem = 'SI.METRE';
 update unitslength set measurementsystem = 'Imperial.INCH'
     where value in ('thou', 'li', 'in', 'ft', 'yd', 'mi', 'pt');
@@ -2505,10 +2514,15 @@ update unitslength set measurementsystem = 'Pixel'
 update unitslength set measurementsystem = 'ReferenceFrame'
     where value = 'reference frame';
 
+update unitstemperature set measurementsystem = 'SI.KELVIN';
+
+update unitstime set measurementsystem = 'SI.SECOND';
+
 -- reactivate not null constraints
 alter table pixelstype alter column bitsize set not null;
-alter table unitstime alter column measurementsystem set not null;
 alter table unitslength alter column measurementsystem set not null;
+alter table unitstemperature alter column measurementsystem set not null;
+alter table unitstime alter column measurementsystem set not null;
 
 --
 -- Cryptographic functions for specifying UUID

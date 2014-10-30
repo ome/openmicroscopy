@@ -19,6 +19,7 @@
 
 \#include <omero/ObjectFactoryRegistrar.h>
 \#include <omero/model/LengthI.h>
+\#include <omero/model/TemperatureI.h>
 \#include <omero/model/TimeI.h>
 #foreach($type in $types)
 #if(!$type.abstract)
@@ -79,6 +80,21 @@ namespace omero {
 
     };
 
+    class TemperatureObjectFactory : virtual public Ice::ObjectFactory {
+
+        public:
+        TemperatureObjectFactory() : Ice::ObjectFactory() { }
+
+        ~TemperatureObjectFactory() {}
+
+        Ice::ObjectPtr create(const std::string& /*type*/) {
+            return new omero::model::TemperatureI();
+        }
+
+        void destroy() {}
+
+    };
+
     class TimeObjectFactory : virtual public Ice::ObjectFactory {
 
         public:
@@ -105,6 +121,7 @@ namespace omero {
   void registerObjectFactory(const Ice::CommunicatorPtr ic) {
     conditionalAdd("::omero::model::Permissions", ic, new PermissionsObjectFactory());
     conditionalAdd("::omero::model::Length", ic, new LengthObjectFactory());
+    conditionalAdd("::omero::model::Temperature", ic, new TemperatureObjectFactory());
     conditionalAdd("::omero::model::Time", ic, new TimeObjectFactory());
 #foreach($type in $types)
 #if(!$type.abstract)

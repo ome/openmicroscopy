@@ -1059,6 +1059,7 @@
         group_id int8 not null,
         owner_id int8 not null,
         update_id int8 not null,
+        temperatureUnit int8,
         primary key (id)
     );;
 
@@ -2227,6 +2228,15 @@
     );;
 
     create table unitslength (
+        id int8 not null,
+        permissions int8 not null,
+        measurementSystem varchar(255) not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table unitstemperature (
         id int8 not null,
         permissions int8 not null,
         measurementSystem varchar(255) not null,
@@ -3755,6 +3765,11 @@
         add constraint FKimagingenvironment_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo  ;;
+
+    alter table imagingenvironment 
+        add constraint FKCB554FBBE4886D25 
+        foreign key (temperatureUnit) 
+        references unitstemperature  ;;
 
     alter table imagingenvironment 
         add constraint FKimagingenvironment_group_id_experimentergroup 
@@ -5798,6 +5813,11 @@
 
     alter table unitslength 
         add constraint FKunitslength_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table unitstemperature 
+        add constraint FKunitstemperature_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo  ;;
 

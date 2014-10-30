@@ -1565,6 +1565,22 @@ insert into unitslength (id,permissions,value)
     select ome_nextval('seq_unitslength'),-35,'reference frame' from unitslength where not exists(
         select 1 from unitslength where value = 'reference frame') limit 1;
 
+insert into unitstemperature (id,permissions,value)
+    select ome_nextval('seq_unitstemperature'),-35,'K' from unitstemperature where not exists(
+        select 1 from unitstemperature where value = 'K') limit 1;
+
+insert into unitstemperature (id,permissions,value)
+    select ome_nextval('seq_unitstemperature'),-35,'°C' from unitstemperature where not exists(
+        select 1 from unitstemperature where value = '°C') limit 1;
+
+insert into unitstemperature (id,permissions,value)
+    select ome_nextval('seq_unitstemperature'),-35,'°R' from unitstemperature where not exists(
+        select 1 from unitstemperature where value = '°R') limit 1;
+
+insert into unitstemperature (id,permissions,value)
+    select ome_nextval('seq_unitstemperature'),-35,'°F' from unitstemperature where not exists(
+        select 1 from unitstemperature where value = '°F') limit 1;
+
 insert into unitstime (id,permissions,value)
     select ome_nextval('seq_unitstime'),-35,'Ys' from unitstime where not exists(
         select 1 from unitstime where value = 'Ys') limit 1;

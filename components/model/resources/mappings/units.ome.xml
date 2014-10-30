@@ -54,6 +54,13 @@
 		<entry name="reference frame"/>
 		<required name="measurementSystem" type="string"/>
 	</enum>
+	<enum id="ome.model.enums.UnitsTemperature">
+		<entry name="K"/>
+		<entry name="°C"/>
+		<entry name="°R"/>
+		<entry name="°F"/>
+		<required name="measurementSystem" type="string"/>
+	</enum>
 	<enum id="ome.model.enums.UnitsTime">
 		<entry name="Ys"/>
 		<entry name="Zs"/>

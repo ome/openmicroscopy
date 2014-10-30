@@ -471,8 +471,9 @@ alter table event alter column experimentergroup set not null;
 
 -- temporarily disable the not null constraints
 alter table pixelstype alter column bitsize drop not null;
-alter table unitstime alter column measurementsystem drop not null;
 alter table unitslength alter column measurementsystem drop not null;
+alter table unitstemperature alter column measurementsystem drop not null;
+alter table unitstime alter column measurementsystem drop not null;
 
 
 #foreach($enum in $types)
@@ -498,8 +499,6 @@ update pixelstype set bitsize = 64 where value = 'double';
 update pixelstype set bitsize = 64 where value = 'complex';
 update pixelstype set bitsize = 128 where value = 'double-complex';
 
-update unitstime set measurementsystem = 'SI.SECOND';
-
 update unitslength set measurementsystem = 'SI.METRE';
 update unitslength set measurementsystem = 'Imperial.INCH'
     where value in ('thou', 'li', 'in', 'ft', 'yd', 'mi', 'pt');
@@ -508,10 +507,15 @@ update unitslength set measurementsystem = 'Pixel'
 update unitslength set measurementsystem = 'ReferenceFrame'
     where value = 'reference frame';
 
+update unitstemperature set measurementsystem = 'SI.KELVIN';
+
+update unitstime set measurementsystem = 'SI.SECOND';
+
 -- reactivate not null constraints
 alter table pixelstype alter column bitsize set not null;
-alter table unitstime alter column measurementsystem set not null;
 alter table unitslength alter column measurementsystem set not null;
+alter table unitstemperature alter column measurementsystem set not null;
+alter table unitstime alter column measurementsystem set not null;
 
 --
 -- Cryptographic functions for specifying UUID
