@@ -1239,17 +1239,12 @@ class TestShow(object):
         assert show.initially_select == \
             screen_plate_run_illegal_run_request['initially_select']
 
-    def test_empty_path(self, conn):
+    def test_empty_path_to_object(self, conn):
         """
         Test empty path
         """
-
         paths = paths_to_object(conn)
-
-        print paths
-
         expected = []
-
         assert paths == expected
 
     def test_project_dataset_image(self, conn, project_dataset_image):
