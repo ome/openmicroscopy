@@ -909,6 +909,11 @@ class UserProfile
             } else {
                 ldap = model.getLDAPDetails();
             }
+            if (StringUtils.isNotBlank(ldap)) {
+                loginArea.setEnabled(false);
+                loginArea.setEditable(false);
+                loginArea.getDocument().removeDocumentListener(this);
+            }
             add(buildPasswordPanel(ldap), c);
         }
         ExperimenterData exp = (ExperimenterData) model.getRefObject();
