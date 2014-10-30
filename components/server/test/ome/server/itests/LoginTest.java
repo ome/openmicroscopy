@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.server.itests;
@@ -108,6 +108,7 @@ public class LoginTest extends AbstractManagedContextTest {
         String gname = UUID.randomUUID().toString();
         ExperimenterGroup g = new ExperimenterGroup();
         g.setName(gname);
+        g.setLdap(false);
         iAdmin.createGroup(g);
 
         Experimenter e = loginNewUser();

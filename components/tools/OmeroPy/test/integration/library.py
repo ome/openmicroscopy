@@ -144,6 +144,7 @@ class ITest(object):
         gname = self.uuid()
         group = ExperimenterGroupI()
         group.name = rstring(gname)
+        group.ldap = rbool(False)
         if perms:
             group.details.permissions = PermissionsI(perms)
         gid = admin.createGroup(group)

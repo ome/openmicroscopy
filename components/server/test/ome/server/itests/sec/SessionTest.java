@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2007-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.server.itests.sec;
@@ -82,7 +82,7 @@ public class SessionTest extends AbstractManagedContextTest {
         IAdmin a = this.factory.getAdminService();
 
         Experimenter e = loginNewUser();
-        ExperimenterGroup g = new ExperimenterGroup(uuid());
+        ExperimenterGroup g = new ExperimenterGroup(uuid(), false);
         g = new ExperimenterGroup(a.createGroup(g), false);
         
         loginRoot();
@@ -106,9 +106,9 @@ public class SessionTest extends AbstractManagedContextTest {
         IAdmin a = this.factory.getAdminService();
 
         Experimenter e = loginNewUser();
-        ExperimenterGroup g1 = new ExperimenterGroup(uuid());
+        ExperimenterGroup g1 = new ExperimenterGroup(uuid(), false);
         g1 = new ExperimenterGroup(a.createGroup(g1), false);
-        ExperimenterGroup g2 = new ExperimenterGroup(uuid());
+        ExperimenterGroup g2 = new ExperimenterGroup(uuid(), false);
         g2 = new ExperimenterGroup(a.createGroup(g2), false);
         
         loginRoot();
