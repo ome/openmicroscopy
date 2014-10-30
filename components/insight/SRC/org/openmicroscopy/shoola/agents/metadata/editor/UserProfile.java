@@ -785,7 +785,7 @@ class UserProfile
         content.setBackground(UIUtilities.BACKGROUND_COLOR);
         Registry reg = MetadataViewerAgent.getRegistry();
         String ldap = (String) reg.lookup(LookupNames.USER_AUTHENTICATION);
-        if (ldap != null && ldap.length() > 0) {
+        if (StringUtils.isNotBlank(ldap)) {
             content.setBorder(
                     BorderFactory.createTitledBorder("LDAP Authentication"));
             content.setLayout(new FlowLayout(FlowLayout.LEFT));
