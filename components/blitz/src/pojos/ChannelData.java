@@ -22,17 +22,16 @@
  */
 package pojos;
 
+import static ome.xml.model.Channel.getEmissionWavelengthUnitXsdDefault;
+import static ome.xml.model.Channel.getExcitationWavelengthUnitXsdDefault;
+import static ome.xml.model.Channel.getPinholeSizeUnitXsdDefault;
+import static ome.formats.model.UnitsFactory.convertLength;
+import static ome.formats.model.UnitsFactory.makeLength;
 
-
-//Java imports
-
-//Third-party libraries
 import java.math.RoundingMode;
 import org.apache.commons.lang.StringUtils;
 import com.google.common.math.DoubleMath;
 
-
-//Application-internal dependencies
 import omero.RDouble;
 import omero.RInt;
 import omero.RString;
@@ -41,6 +40,7 @@ import omero.model.Channel;
 import omero.model.ChannelI;
 import omero.model.ContrastMethod;
 import omero.model.Illumination;
+import omero.model.Length;
 import omero.model.LogicalChannel;
 import omero.model.StatsInfo;
 
@@ -127,6 +127,7 @@ public class ChannelData
         if (StringUtils.isNotBlank(value)) return value;
         double v = getEmissionWavelength();
         if (v > 0) {
+            // FIXME: Do we always append the symbol here?
             if (DoubleMath.isMathematicalInteger(v)) {
                 return ""+ DoubleMath.roundToInt(v, RoundingMode.DOWN);
             }
@@ -167,12 +168,14 @@ public class ChannelData
      * 
      * @return See above
      */
+    @Deprecated
     public double getEmissionWavelength()
     { 
         LogicalChannel lc = asChannel().getLogicalChannel();
         if (lc == null) return index;
-        RDouble value  = lc.getEmissionWave();
-        if (value != null) return value.getValue();
+        Length value  = lc.getEmissionWave();
+        if (value != null) return convertLength(value,
+                getEmissionWavelengthUnitXsdDefault()).getValue();
         return -1;
     }
 
@@ -181,12 +184,14 @@ public class ChannelData
      * 
      * @return See above
      */
+    @Deprecated
     public double getExcitationWavelength()
     { 
         LogicalChannel lc = asChannel().getLogicalChannel();
         if (lc == null) return getEmissionWavelength();
-        RDouble value = lc.getExcitationWave();
-        if (value != null) return value.getValue();
+        Length value = lc.getExcitationWave();
+        if (value != null) return convertLength(value,
+                getExcitationWavelengthUnitXsdDefault()).getValue();
         return -1;
     }
 
@@ -195,12 +200,14 @@ public class ChannelData
      * 
      * @return See above
      */
+    @Deprecated
     public double getPinholeSize()
     { 
         LogicalChannel lc = asChannel().getLogicalChannel();
         if (lc == null) return -1;
-        RDouble value = lc.getPinHoleSize();
-        if (value != null) return value.getValue();
+        Length value = lc.getPinHoleSize();
+        if (value != null) return convertLength(value,
+                getPinholeSizeUnitXsdDefault()).getValue();
         return -1;
     }
 
@@ -328,16 +335,17 @@ public class ChannelData
     public boolean hasStats() { return asChannel().getStatsInfo() != null; }
 
     /**
-     * Sets the pinhole size. 
+     * Sets the pinhole size.
      *
      * @param value The value to set.
      */
+    @Deprecated
     public void setPinholeSize(double value)
     {
         if (value < 0) return;
         setDirty(true);
         asChannel().getLogicalChannel().setPinHoleSize(
-                omero.rtypes.rdouble(value));
+                makeLength(value, getPinholeSizeUnitXsdDefault()));
     }
 
     /**
@@ -369,12 +377,13 @@ public class ChannelData
      * 
      * @param value The value to set.
      */
+    @Deprecated
     public void setEmissionWavelength(double value)
     {
         if (value < 0) return;
         setDirty(true);
         asChannel().getLogicalChannel().setEmissionWave(
-                omero.rtypes.rdouble(value));
+                makeLength(value, getEmissionWavelengthUnitXsdDefault()));
     }
 
     /**
@@ -382,12 +391,13 @@ public class ChannelData
      *
      * @param value The value to set.
      */
+    @Deprecated
     public void setExcitationWavelength(double value)
     {
         if (value < 0) return;
         setDirty(true);
         asChannel().getLogicalChannel().setExcitationWave(
-                omero.rtypes.rdouble(value));
+                makeLength(value, getExcitationWavelengthUnitXsdDefault()));
     }
 
     /**

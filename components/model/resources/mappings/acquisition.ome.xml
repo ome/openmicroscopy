@@ -122,11 +122,11 @@
 			<required name="theT" type="NonNegativeInteger"/>
 			<optional name="deltaT" type="ome.model.units.Time"/>
 			<!-- Note: deltaT is stored in PlaneTiming in model-->
-			<optional name="positionX" type="double"/>
+			<optional name="positionX" type="ome.model.units.Length"/>
 			<!-- Note: positionX is stored in StagePosition in model-->
-			<optional name="positionY" type="double"/>
+			<optional name="positionY" type="ome.model.units.Length"/>
 			<!-- Note: positionY is stored in StagePosition in model-->
-			<optional name="positionZ" type="double"/>
+			<optional name="positionZ" type="ome.model.units.Length"/>
 			<!-- Note: positionZ is stored in StagePosition in model-->
 			<optional name="exposureTime" type="ome.model.units.Time"/>
 			<!-- Note: exposureTime is stored in PlaneTiming in model-->
@@ -157,11 +157,11 @@
 	</type>
 	<type id="ome.model.acquisition.StageLabel" named="true">
 		<properties>
-			<optional name="positionX" type="double"/>
+			<optional name="positionX" type="ome.model.units.Length"/>
 			<!-- Note: positionX is called X in model-->
-			<optional name="positionY" type="double"/>
+			<optional name="positionY" type="ome.model.units.Length"/>
 			<!-- Note: positionY is called Y in model-->
-			<optional name="positionZ" type="double"/>
+			<optional name="positionZ" type="ome.model.units.Length"/>
 			<!-- Note: positionZ is called Z in model-->
 		</properties>
 	</type>
@@ -194,13 +194,13 @@
 	<type id="ome.model.core.LogicalChannel">
 		<properties>
 			<optional name="name" type="string"/>
-			<optional name="pinHoleSize" type="double"/>
+			<optional name="pinHoleSize" type="ome.model.units.Length"/>
 			<optional name="illumination" type="ome.model.enums.Illumination"/>
 			<!-- Note: illumination is called IlluminationType in model-->
 			<optional name="contrastMethod" type="ome.model.enums.ContrastMethod"/>
-			<optional name="excitationWave" type="PositiveFloat"/>
+			<optional name="excitationWave" type="ome.model.units.Length"/>
 			<!-- Note: excitationWave is called exWave in model-->
-			<optional name="emissionWave" type="PositiveFloat"/>
+			<optional name="emissionWave" type="ome.model.units.Length"/>
 			<!-- Note: emissionWave is called emWave in model-->
 			<optional name="fluor" type="string"/>
 			<optional name="ndFilter" type="double"/>
@@ -261,7 +261,7 @@
 		<!-- Note: LightSettings are stored in LightSourceRef in model-->
 		<properties>
 			<optional name="attenuation" type="PercentFraction"/>
-			<optional name="wavelength" type="PositiveFloat"/>
+			<optional name="wavelength" type="ome.model.units.Length"/>
 			<required name="lightSource" type="ome.model.acquisition.LightSource"/>
 			<!-- Note: lightSource is ID in model-->
 			<manyzero name="microbeamManipulation" type="ome.model.experiment.MicrobeamManipulation"/>
@@ -298,7 +298,7 @@
 			<optional name="frequencyMultiplication" type="PositiveInteger"/>
 			<optional name="tuneable" type="boolean"/>
 			<optional name="pulse" type="ome.model.enums.Pulse"/>
-			<optional name="wavelength" type="PositiveFloat"/>
+			<optional name="wavelength" type="ome.model.units.Length"/>
 			<optional name="pockelCell" type="boolean"/>
 			<optional name="pump" type="ome.model.acquisition.LightSource"/>
 			<optional name="repetitionRate" type="double"/>
@@ -354,7 +354,7 @@
 			<optional name="lensNA" type="double"/>
 			<required name="immersion" type="ome.model.enums.Immersion"/>
 			<required name="correction" type="ome.model.enums.Correction"/>
-			<optional name="workingDistance" type="double"/>
+			<optional name="workingDistance" type="ome.model.units.Length"/>
 			<optional name="iris" type="boolean"/>
 			<manyone name="instrument" type="ome.model.acquisition.Instrument"/>
 		</properties>
@@ -413,10 +413,10 @@
 	</type>
 	<type id="ome.model.acquisition.TransmittanceRange">
 		<properties>
-			<optional name="cutIn" type="PositiveInteger"/>
-			<optional name="cutOut" type="PositiveInteger"/>
-			<optional name="cutInTolerance" type="NonNegativeInteger"/>
-			<optional name="cutOutTolerance" type="NonNegativeInteger"/>
+			<optional name="cutIn" type="ome.model.units.Length"/>
+			<optional name="cutOut" type="ome.model.units.Length"/>
+			<optional name="cutInTolerance" type="ome.model.units.Length"/>
+			<optional name="cutOutTolerance" type="ome.model.units.Length"/>
 			<optional name="transmittance" type="PercentFraction"/>
 		</properties>
 	</type>

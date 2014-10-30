@@ -27,6 +27,11 @@ import static omero.rtypes.rdouble;
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 
+import static ome.formats.model.UnitsFactory.makeLength;
+import static ome.xml.model.Pixels.getPhysicalSizeXUnitXsdDefault;
+import static ome.xml.model.Pixels.getPhysicalSizeYUnitXsdDefault;
+import static ome.xml.model.Pixels.getPhysicalSizeZUnitXsdDefault;
+
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -112,17 +117,20 @@ public class PixelsProcessor implements ModelProcessor
 		if (physicalPixelSizes[0] != null
 			&& pixels.getPhysicalSizeX() == null)
 		{
-			pixels.setPhysicalSizeX(DataObject.asLength(physicalPixelSizes[0]));
+			pixels.setPhysicalSizeX(makeLength(physicalPixelSizes[0],
+			        getPhysicalSizeXUnitXsdDefault()));
 		}
 		if (physicalPixelSizes[1] != null
 			&& pixels.getPhysicalSizeY() == null)
 		{
-			pixels.setPhysicalSizeY(DataObject.asLength(physicalPixelSizes[1]));
+			pixels.setPhysicalSizeY(makeLength(physicalPixelSizes[1],
+			        getPhysicalSizeYUnitXsdDefault()));
 		}
 		if (physicalPixelSizes[2] != null
 			&& pixels.getPhysicalSizeZ() == null)
 		{
-			pixels.setPhysicalSizeZ(DataObject.asLength(physicalPixelSizes[2]));
+			pixels.setPhysicalSizeZ(makeLength(physicalPixelSizes[2],
+			        getPhysicalSizeZUnitXsdDefault()));
 		}
             }
 

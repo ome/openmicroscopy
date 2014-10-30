@@ -8,6 +8,8 @@ package integration;
 
 import static omero.rtypes.rstring;
 
+import static ome.formats.model.UnitsFactory.makeLength;
+
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.lang.reflect.Method;
@@ -20,6 +22,7 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 
+import ome.xml.model.TransmittanceRange;
 import omero.api.IPixelsPrx;
 import omero.model.*;
 import pojos.DatasetData;
@@ -40,6 +43,16 @@ import pojos.ScreenData;
  * @since 3.0-Beta4
  */
 public class ModelMockFactory {
+
+    static final String EM_UNIT = ome.xml.model.Channel.getEmissionWavelengthUnitXsdDefault();
+
+    static final String CUT_UNIT = TransmittanceRange.getCutInUnitXsdDefault();
+
+    static final String OBJ_UNIT = ome.xml.model.Objective.getWorkingDistanceUnitXsdDefault();
+
+    static final String POS_UNIT = ome.xml.model.StageLabel.getXUnitXsdDefault();
+
+    static final String WAVE_UNIT = ome.xml.model.LightSourceSettings.getWavelengthUnitXsdDefault();
 
     /** The default width of an image. */
     static final int WIDTH = 100;
@@ -290,10 +303,10 @@ public class ModelMockFactory {
         filter.setType((FilterType) types.get(0));
 
         TransmittanceRangeI transmittance = new TransmittanceRangeI();
-        transmittance.setCutIn(omero.rtypes.rint(cutIn));
-        transmittance.setCutOut(omero.rtypes.rint(cutOut));
-        transmittance.setCutInTolerance(omero.rtypes.rint(1));
-        transmittance.setCutOutTolerance(omero.rtypes.rint(1));
+        transmittance.setCutIn(makeLength(cutIn, CUT_UNIT));
+        transmittance.setCutOut(makeLength(cutOut, CUT_UNIT));
+        transmittance.setCutInTolerance(makeLength(1, CUT_UNIT));
+        transmittance.setCutOutTolerance(makeLength(1, CUT_UNIT));
         filter.setTransmittanceRange(transmittance);
         return filter;
     }
@@ -356,7 +369,7 @@ public class ModelMockFactory {
         objective.setIris(omero.rtypes.rbool(true));
         objective.setLensNA(omero.rtypes.rdouble(0.5));
         objective.setNominalMagnification(omero.rtypes.rdouble(1));
-        objective.setWorkingDistance(omero.rtypes.rdouble(1));
+        objective.setWorkingDistance(makeLength(1, OBJ_UNIT));
         return objective;
     }
 
@@ -390,9 +403,9 @@ public class ModelMockFactory {
     public StageLabel createStageLabel() {
         StageLabel label = new StageLabelI();
         label.setName(omero.rtypes.rstring("label"));
-        label.setPositionX(omero.rtypes.rdouble(1));
-        label.setPositionY(omero.rtypes.rdouble(1));
-        label.setPositionZ(omero.rtypes.rdouble(1));
+        label.setPositionX(makeLength(1, POS_UNIT));
+        label.setPositionY(makeLength(1, POS_UNIT));
+        label.setPositionZ(makeLength(1, POS_UNIT));
         return label;
     }
 
@@ -458,7 +471,7 @@ public class ModelMockFactory {
         exp.setType((ExperimentType) types.get(0));
         mm.setExperiment(exp);
         // settings.setMicrobeamManipulation(mm);
-        settings.setWavelength(omero.rtypes.rdouble(500.1));
+        settings.setWavelength(makeLength(500.1, WAVE_UNIT));
         return settings;
     }
 
@@ -572,7 +585,7 @@ public class ModelMockFactory {
         laser.setFrequencyMultiplication(omero.rtypes.rint(1));
         laser.setPockelCell(omero.rtypes.rbool(false));
         laser.setTuneable(omero.rtypes.rbool(true));
-        laser.setWavelength(omero.rtypes.rdouble(500.1));
+        laser.setWavelength(makeLength(500.1, WAVE_UNIT));
         laser.setPower(omero.rtypes.rdouble(1));
         laser.setRepetitionRate(omero.rtypes.rdouble(1));
         return laser;
@@ -797,7 +810,7 @@ public class ModelMockFactory {
     public Channel createChannel(int w) throws Exception {
         Channel channel = new ChannelI();
         LogicalChannel lc = new LogicalChannelI();
-        lc.setEmissionWave(omero.rtypes.rdouble(200.1));
+        lc.setEmissionWave(makeLength(200.1, EM_UNIT));
         List<IObject> types = pixelsService
                 .getAllEnumerations(ContrastMethod.class.getName());
         ContrastMethod cm = (ContrastMethod) types.get(0);

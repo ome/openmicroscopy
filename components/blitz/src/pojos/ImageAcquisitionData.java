@@ -22,25 +22,18 @@
  */
 package pojos;
 
+import static ome.xml.model.StageLabel.getXUnitXsdDefault;
+import static ome.xml.model.StageLabel.getYUnitXsdDefault;
+import static ome.xml.model.StageLabel.getZUnitXsdDefault;
+import static ome.formats.model.UnitsFactory.makeLength;
 
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
-import omero.RBool;
 import omero.RDouble;
-import omero.RInt;
 import omero.RLong;
-import omero.RString;
-import omero.model.Correction;
 import omero.model.Image;
 import omero.model.ImagingEnvironment;
 import omero.model.ImagingEnvironmentI;
-import omero.model.Immersion;
+import omero.model.Length;
 import omero.model.Medium;
-import omero.model.Objective;
-import omero.model.ObjectiveI;
 import omero.model.ObjectiveSettings;
 import omero.model.ObjectiveSettingsI;
 import omero.model.StageLabel;
@@ -133,10 +126,11 @@ public class ImageAcquisitionData
 	 * 
 	 * @return See above.
 	 */
+	@Deprecated
 	public Object getPositionX()
 	{
 		if (label == null) return null;
-		RDouble value = label.getPositionX();
+		Length value = label.getPositionX();
 		if (value == null) return null;
 		return value.getValue();
 	}
@@ -146,10 +140,11 @@ public class ImageAcquisitionData
 	 * 
 	 * @return See above.
 	 */
+	@Deprecated
 	public Object getPositionY()
 	{
 		if (label == null) return null;
-		RDouble value = label.getPositionY();
+		Length value = label.getPositionY();
 		if (value == null) return null;
 		return value.getValue();
 	}
@@ -159,10 +154,11 @@ public class ImageAcquisitionData
 	 * 
 	 * @return See above.
 	 */
+	@Deprecated
 	public Object getPositionZ()
 	{
 		if (label == null) return null;
-		RDouble value = label.getPositionZ();
+		Length value = label.getPositionZ();
 		if (value == null) return null;
 		return value.getValue();
 	}
@@ -276,11 +272,12 @@ public class ImageAcquisitionData
 	 * 
 	 * @param value The value to set.
 	 */
+	@Deprecated
 	public void setPositionX(double value)
 	{
 		labelDirty = true;
 		if (label == null) label = new StageLabelI();
-		label.setPositionX(omero.rtypes.rdouble(value));
+		label.setPositionX(makeLength(value, getXUnitXsdDefault()));
 	}
 	
 	/**
@@ -292,7 +289,7 @@ public class ImageAcquisitionData
 	{
 		labelDirty = true;
 		if (label == null) label = new StageLabelI();
-		label.setPositionY(omero.rtypes.rdouble(value));
+		label.setPositionY(makeLength(value, getYUnitXsdDefault()));
 	}
 	
 	/**
@@ -304,7 +301,7 @@ public class ImageAcquisitionData
 	{
 		labelDirty = true;
 		if (label == null) label = new StageLabelI();
-		label.setPositionZ(omero.rtypes.rdouble(value));
+		label.setPositionZ(makeLength(value, getZUnitXsdDefault()));
 	}
 	
 	/**

@@ -22,9 +22,11 @@
  */
 package org.openmicroscopy.shoola.env.data;
 
+import static ome.xml.model.StageLabel.getXUnitXsdDefault;
+import static ome.xml.model.StageLabel.getYUnitXsdDefault;
+import static ome.xml.model.StageLabel.getZUnitXsdDefault;
+import static ome.formats.model.UnitsFactory.makeLength;
 
-
-//Java imports
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -326,14 +328,15 @@ class OmeroMetadataServiceImpl
 			}
 			label.setName(omero.rtypes.rstring(data.getLabelName()));
 			Object o = data.getPositionX();
+			Float f = (Float) o;
 			if (o != null)
-				label.setPositionX(omero.rtypes.rdouble((Float) o));
+				label.setPositionX(makeLength(f.doubleValue(), getXUnitXsdDefault()));
 			o = data.getPositionY();
 			if (o != null)
-				label.setPositionY(omero.rtypes.rdouble((Float) o));
+				label.setPositionY(makeLength(f.doubleValue(), getYUnitXsdDefault()));
 			o = data.getPositionZ();
 			if (o != null)
-				label.setPositionZ(omero.rtypes.rdouble((Float) o));
+				label.setPositionZ(makeLength(f.doubleValue(), getZUnitXsdDefault()));
 		}
 		//Environment
 		if (data.isImagingEnvironmentDirty()) {

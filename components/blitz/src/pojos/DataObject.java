@@ -351,20 +351,6 @@ public abstract class DataObject {
         return l == null ? 0.0d : l.getValue();
     }
 
-    /**
-     * FIXME: This will need to either take a unit as well, or be removed
-     * completed.
-     */
-    @Deprecated
-    public static Length asLength(double v) {
-        UnitsLength ul = new UnitsLengthI();
-        ul.setValue(omero.rtypes.rstring("mm"));
-        Length l = new LengthI();
-        l.setValue(v);
-        l.setUnit(ul);
-        return l;
-    }
-
     protected Timestamp timeOfEvent(Event event) {
         if (event == null || !event.isLoaded() || event.getTime() == null) {
             throw new IllegalStateException("Event does not contain timestamp.");

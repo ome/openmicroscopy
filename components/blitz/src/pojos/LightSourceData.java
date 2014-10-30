@@ -22,16 +22,8 @@
  */
 package pojos;
 
-
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.RBool;
 import omero.RDouble;
-import omero.RFloat;
 import omero.RInt;
 import omero.RString;
 import omero.model.Arc;
@@ -41,6 +33,7 @@ import omero.model.FilamentType;
 import omero.model.Laser;
 import omero.model.LaserMedium;
 import omero.model.LaserType;
+import omero.model.Length;
 import omero.model.LightEmittingDiode;
 import omero.model.LightSource;
 import omero.model.Pulse;
@@ -203,11 +196,12 @@ public class LightSourceData
 	 * 
 	 * @return See above.
 	 */
+	@Deprecated
 	public double getLaserWavelength()
 	{
 		if (!LASER.equals(getKind())) return -1;
 		Laser laser = (Laser) asIObject();
-		RDouble value = laser.getWavelength();
+		Length value = laser.getWavelength();
 		if (value == null) return -1;
 		return value.getValue();
 	}

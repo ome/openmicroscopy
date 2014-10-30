@@ -7,16 +7,14 @@
 
 package omeis.providers.re;
 
-// Java imports
+import static omeis.providers.re.UnitsFactory.makeLength;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.model.acquisition.Filter;
 import ome.model.acquisition.FilterSet;
 import ome.model.acquisition.Laser;
@@ -25,6 +23,8 @@ import ome.model.acquisition.LightSource;
 import ome.model.acquisition.TransmittanceRange;
 import ome.model.core.Channel;
 import ome.model.core.LogicalChannel;
+import ome.model.enums.UnitsLength;
+import ome.model.units.Length;
 
 /**
  * Utility class to determine the color usually associated to a specified
@@ -241,11 +241,11 @@ public class ColorsFactory {
     		}
     		return null;
     	}
-    	Double valueWavelength = lc.getEmissionWave();
+    	Length valueWavelength = lc.getEmissionWave();
     	//First we check the emission wavelength.
     	if (valueWavelength != null) return determineColor(valueWavelength);
 
-      Integer valueFilter = null;
+        Length valueFilter = null;
 
     	//First check the emission filter.
     	//First check if filter
@@ -314,7 +314,7 @@ public class ColorsFactory {
     			valueFilter = getValueFromFilter(j.next(), false);
     		}
     	}
-    	return determineColor(valueFilter != null ?  new Double(valueFilter) : null);
+    	return determineColor(valueFilter != null ?  valueFilter : null);
     }
  
     /**
@@ -323,12 +323,12 @@ public class ColorsFactory {
      * @param value The value to handle.
      * @return
      */
-    private static int[] determineColor(Double value)
+    private static int[] determineColor(Length value)
     {
     	if (value == null) return null;
-    	if (rangeBlue(value)) return newBlueColor();
-    	if (rangeGreen(value)) return newGreenColor();
-    	if (rangeRed(value)) return newRedColor();
+    	if (rangeBlue(value.getValue())) return newBlueColor();
+    	if (rangeGreen(value.getValue())) return newGreenColor();
+    	if (rangeRed(value.getValue())) return newRedColor();
     	return null;
     }
 
@@ -340,22 +340,24 @@ public class ColorsFactory {
      * 				   an emission filter, <code>false</code> otherwise.
      * @return See above.
      */
-    private static Integer getValueFromFilter(Filter filter, boolean emission)
+    private static Length getValueFromFilter(Filter filter, boolean emission)
     {
     	if (filter == null) return null;
     	TransmittanceRange transmittance = filter.getTransmittanceRange();
     	if (transmittance == null) return null;
-    	Integer cutIn = transmittance.getCutIn();
+    	Length cutIn = transmittance.getCutIn();
     	
     	if (emission) {
     		if (cutIn == null) return null;
-        	return cutIn+RANGE;
+        	return makeLength(cutIn.getValue()+RANGE, cutIn.getUnit());
     	}
-    	Integer cutOut = transmittance.getCutOut();
+    	Length cutOut = transmittance.getCutOut();
     	if (cutOut == null) return null;
-    	if (cutIn == null || cutIn == 0) cutIn = cutOut-2*RANGE;
-    	Integer v = (cutIn+cutOut)/2;
-    	if (v < 0) return 0;
+    	if (cutIn == null || cutIn.getValue() == 0)
+    	    cutIn = makeLength(cutOut.getValue()-2*RANGE, cutOut.getUnit());
+    	// FIXME: are these in the same unit?
+    	Length v = makeLength((cutIn.getValue()+cutOut.getValue()/2), cutOut.getUnit());
+    	if (v.getValue() < 0) return makeLength(0, cutOut.getUnit());
     	return v;
     }
     

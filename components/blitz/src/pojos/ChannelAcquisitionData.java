@@ -22,16 +22,10 @@
  */
 package pojos;
 
+import static ome.xml.model.LightSourceSettings.getWavelengthUnitXsdDefault;
+import static ome.formats.model.UnitsFactory.makeLength;
 
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.RDouble;
-import omero.RFloat;
-import omero.RInt;
 import omero.model.AcquisitionMode;
 import omero.model.Binning;
 import omero.model.ContrastMethod;
@@ -39,6 +33,7 @@ import omero.model.DetectorSettings;
 import omero.model.DetectorSettingsI;
 import omero.model.FilterSet;
 import omero.model.Illumination;
+import omero.model.Length;
 import omero.model.LightPath;
 import omero.model.LightSettings;
 import omero.model.LightSettingsI;
@@ -217,10 +212,11 @@ public class ChannelAcquisitionData
 	 * 
 	 * @return See above.
 	 */
+	@Deprecated
 	public Double getLightSettingsWavelength()
 	{
 		if (lightSettings == null) return null;
-		RDouble value = lightSettings.getWavelength();
+		Length value = lightSettings.getWavelength();
 		if (value == null) return null;
 		return value.getValue();
 	}
@@ -266,11 +262,12 @@ public class ChannelAcquisitionData
 	 * 
 	 * @param value The value to set.
 	 */
+	@Deprecated
 	public void setLightSettingsWavelength(double value)
 	{
 		lightSourceSettingsDirty = true;
 		if (lightSettings == null) lightSettings = new LightSettingsI();
-		lightSettings.setWavelength(omero.rtypes.rdouble(value));
+		lightSettings.setWavelength(makeLength(value, getWavelengthUnitXsdDefault()));
 	}
 	
 	

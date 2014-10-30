@@ -1,5 +1,9 @@
 package ome.formats.utests;
 
+import static ome.xml.model.Channel.getEmissionWavelengthUnitXsdDefault;
+import static ome.formats.model.UnitsFactory.convertLength;
+import static ome.formats.model.UnitsFactory.makeLength;
+
 import java.util.Map;
 
 import junit.framework.TestCase;
@@ -19,6 +23,8 @@ import org.testng.annotations.Test;
 
 public class ContainerCacheOrderTest extends TestCase
 {
+    private final static String EM_WAVE = getEmissionWavelengthUnitXsdDefault();
+
 	private OMEROWrapper wrapper;
 
 	private OMEROMetadataStoreClient store;
@@ -32,6 +38,10 @@ public class ContainerCacheOrderTest extends TestCase
 	private static final int CHANNEL_INDEX = 0;
 
 	private static final int OBJECTIVE_INDEX = 0;
+
+	private static ome.units.quantity.Length makeWave(double d) {
+	    return convertLength(makeLength(d, EM_WAVE));
+	}
 
 	@BeforeMethod
 	protected void setUp() throws Exception
@@ -54,7 +64,7 @@ public class ContainerCacheOrderTest extends TestCase
 
         // Populate at least one logical channel field.
         store.setChannelEmissionWavelength(
-            new PositiveFloat(100.1), IMAGE_INDEX, CHANNEL_INDEX);
+            makeWave(100.1), IMAGE_INDEX, CHANNEL_INDEX);
 
         // Populate at least one instrument field.
         store.setInstrumentID("Instrument:0", INSTRUMENT_INDEX);

@@ -7,6 +7,11 @@
 
 package ome.services.formats;
 
+import static ome.xml.model.Pixels.getPhysicalSizeXUnitXsdDefault;
+import static ome.xml.model.Pixels.getPhysicalSizeYUnitXsdDefault;
+import static ome.xml.model.Pixels.getPhysicalSizeZUnitXsdDefault;
+import static ome.formats.model.UnitsFactory.makeLengthXML;
+
 import java.io.IOException;
 import java.util.StringTokenizer;
 
@@ -22,7 +27,6 @@ import ome.api.RawPixelsStore;
 import omero.model.Image;
 import omero.model.Pixels;
 import omero.api.RawPixelsStorePrx;
-import ome.xml.model.primitives.PositiveFloat;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -155,9 +159,9 @@ public class OmeroReader extends FormatReader {
         store.setImageDescription(description, 0);
         MetadataTools.populatePixels(store, this);
 
-        store.setPixelsPhysicalSizeX(new PositiveFloat(px), 0);
-        store.setPixelsPhysicalSizeY(new PositiveFloat(py), 0);
-        store.setPixelsPhysicalSizeZ(new PositiveFloat(pz), 0);
+        store.setPixelsPhysicalSizeX(makeLengthXML(px, getPhysicalSizeXUnitXsdDefault()), 0);
+        store.setPixelsPhysicalSizeY(makeLengthXML(py, getPhysicalSizeYUnitXsdDefault()), 0);
+        store.setPixelsPhysicalSizeZ(makeLengthXML(pz, getPhysicalSizeZUnitXsdDefault()), 0);
     }
 
 }

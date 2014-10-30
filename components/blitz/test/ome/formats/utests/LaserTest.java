@@ -1,12 +1,16 @@
 package ome.formats.utests;
 
+import static ome.xml.model.LightSourceSettings.getWavelengthUnitXsdDefault;
+import static ome.formats.model.UnitsFactory.convertLength;
+import static ome.formats.model.UnitsFactory.makeLength;
+
 import java.util.LinkedHashMap;
 
 import ome.formats.Index;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.model.BlitzInstanceProvider;
+import ome.units.quantity.Length;
 import ome.xml.model.enums.*;
-import ome.xml.model.primitives.*;
 import omero.api.ServiceFactoryPrx;
 import omero.metadatastore.IObjectContainer;
 import omero.model.Laser;
@@ -17,11 +21,18 @@ import org.testng.annotations.Test;
 
 public class LaserTest extends TestCase
 {
+
+    private static final String WAVE_UNIT = getWavelengthUnitXsdDefault();
+
 	private OMEROMetadataStoreClient store;
 
 	private static final int LIGHTSOURCE_INDEX = 0;
 
 	private static final int INSTRUMENT_INDEX = 0;
+	
+	private static Length makeWave(double d) {
+	    return convertLength(makeLength(d, WAVE_UNIT));
+	}
 
 	@BeforeMethod
 	protected void setUp() throws Exception
@@ -39,7 +50,7 @@ public class LaserTest extends TestCase
 	{
 		int i = LIGHTSOURCE_INDEX + 10;
 		store.setLaserID("Laser:100", INSTRUMENT_INDEX, i);
-		store.setLaserWavelength(new PositiveFloat(100.1), INSTRUMENT_INDEX, i);
+		store.setLaserWavelength(makeWave(100.1), INSTRUMENT_INDEX, i);
 		store.setLaserType(LaserType.METALVAPOR, INSTRUMENT_INDEX, i);
 		store.setLaserLaserMedium(LaserMedium.EMINUS, INSTRUMENT_INDEX, i);
 		store.setLaserPockelCell(true, INSTRUMENT_INDEX, i);
