@@ -1806,14 +1806,14 @@ public class EditorUtil
         if (f == null) notSet.add(ATTENUATION);
         else v = f;
         details.put(ATTENUATION, v*PERCENT_FRACTION);
- 
-        Length wave = data.getLightSettingsWavelength();
+
+        Double wave = data.getLightSettingsWavelength();
         if (details.containsKey(WAVELENGTH)) {
             if (wave != null) { //override the value.
                 details.put(WAVELENGTH, wave);
             }
         } else {
-            Length vi = makeLength(0, getWavelengthUnitXsdDefault());
+            Double vi = 0.0;
             if (wave == null) notSet.add(WAVELENGTH);
             else vi = wave;
             details.put(WAVELENGTH, vi);
