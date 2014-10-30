@@ -341,13 +341,13 @@ public class ImporterTest extends AbstractServerTest {
     private void validateImagingEnvironment(ImagingEnvironment env,
             ome.xml.model.ImagingEnvironment xml) {
         assertEquals(env.getAirPressure().getValue(), xml.getAirPressure()
-                .doubleValue());
+                .value());
         assertEquals(env.getCo2percent().getValue(), xml.getCO2Percent()
                 .getValue().doubleValue());
         assertEquals(env.getHumidity().getValue(), xml.getHumidity().getValue()
                 .doubleValue());
         assertEquals(env.getTemperature().getValue(), xml.getTemperature()
-                .doubleValue());
+                .value());
     }
 
     /**

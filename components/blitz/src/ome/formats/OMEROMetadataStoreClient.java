@@ -32,6 +32,8 @@ import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 
 import static ome.formats.model.UnitsFactory.convertLength;
+import static ome.formats.model.UnitsFactory.convertPressure;
+import static ome.formats.model.UnitsFactory.convertTemperature;
 import static ome.formats.model.UnitsFactory.convertTime;
 
 import java.util.ArrayList;
@@ -72,6 +74,8 @@ import ome.formats.model.TargetProcessor;
 import ome.formats.model.WellProcessor;
 import ome.services.blitz.repo.ManagedImportRequestI;
 import ome.units.quantity.Length;
+import ome.units.quantity.Pressure;
+import ome.units.quantity.Temperature;
 import ome.units.quantity.Time;
 import ome.util.LSID;
 import ome.xml.meta.MetadataRoot;
@@ -4399,11 +4403,11 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setImagingEnvironmentAirPressure(java.lang.Double, int)
      */
     @Override
-    public void setImagingEnvironmentAirPressure(Double airPressure,
+    public void setImagingEnvironmentAirPressure(Pressure airPressure,
             int imageIndex)
     {
         ImagingEnvironment o = getImagingEnvironment(imageIndex);
-        o.setAirPressure(toRType(airPressure));
+        o.setAirPressure(convertPressure(airPressure));
     }
 
     /* (non-Javadoc)
@@ -4438,11 +4442,11 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setImagingEnvironmentTemperature(java.lang.Double, int)
      */
     @Override
-    public void setImagingEnvironmentTemperature(Double temperature,
+    public void setImagingEnvironmentTemperature(Temperature temperature,
             int imageIndex)
     {
         ImagingEnvironment o = getImagingEnvironment(imageIndex);
-        o.setTemperature(toRType(temperature));
+        o.setTemperature(convertTemperature(temperature));
     }
 
     //////// Instrument /////////

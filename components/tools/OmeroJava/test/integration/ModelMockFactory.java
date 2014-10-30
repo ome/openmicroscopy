@@ -9,6 +9,8 @@ package integration;
 import static omero.rtypes.rstring;
 
 import static ome.formats.model.UnitsFactory.makeLength;
+import static ome.formats.model.UnitsFactory.makePressure;
+import static ome.formats.model.UnitsFactory.makeTemperature;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -43,6 +45,10 @@ import pojos.ScreenData;
  * @since 3.0-Beta4
  */
 public class ModelMockFactory {
+
+    static final String AIR_UNIT = ome.xml.model.ImagingEnvironment.getAirPressureUnitXsdDefault();
+
+    static final String TEMP_UNIT = ome.xml.model.ImagingEnvironment.getTemperatureUnitXsdDefault();
 
     static final String EM_UNIT = ome.xml.model.Channel.getEmissionWavelengthUnitXsdDefault();
 
@@ -416,10 +422,10 @@ public class ModelMockFactory {
      */
     public ImagingEnvironment createImageEnvironment() {
         ImagingEnvironment env = new ImagingEnvironmentI();
-        env.setAirPressure(omero.rtypes.rdouble(1));
+        env.setAirPressure(makePressure(1, AIR_UNIT));
         env.setCo2percent(omero.rtypes.rdouble(0.5));
         env.setHumidity(omero.rtypes.rdouble(0.5));
-        env.setTemperature(omero.rtypes.rdouble(1));
+        env.setTemperature(makeTemperature(1, TEMP_UNIT));
         return env;
     }
 

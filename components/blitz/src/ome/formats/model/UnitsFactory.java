@@ -25,9 +25,17 @@ import ome.units.unit.Unit;
 import ome.xml.model.enums.EnumerationException;
 import omero.model.Length;
 import omero.model.LengthI;
+import omero.model.Pressure;
+import omero.model.PressureI;
+import omero.model.Temperature;
+import omero.model.TemperatureI;
 import omero.model.Time;
 import omero.model.UnitsLength;
 import omero.model.UnitsLengthI;
+import omero.model.UnitsPressure;
+import omero.model.UnitsPressureI;
+import omero.model.UnitsTemperature;
+import omero.model.UnitsTemperatureI;
 
 /**
  * Utility class to generate and convert unit objects.
@@ -127,6 +135,131 @@ public class UnitsFactory {
         throw new RuntimeException(String.format(
                 "%d %s cannot be converted to %s", value.getValue(), source));
     }
+
+    //
+    // PRESSURE
+    //
+
+    public static Pressure makePressure(double d, String unit) {
+        UnitsPressure ul = new UnitsPressureI();
+        ul.setValue(rstring(unit));
+        Pressure copy = new PressureI();
+        copy.setUnit(ul);
+        copy.setValue(d);
+        return copy;
+    }
+
+    public static ome.xml.model.enums.UnitsPressure makePressureUnitXML(String unit) {
+        try {
+            return ome.xml.model.enums.UnitsPressure
+                    .fromString((String) unit);
+        } catch (EnumerationException e) {
+            throw new RuntimeException("Bad pressure unit: " + unit, e);
+        }
+    }
+
+    public static ome.units.quantity.Pressure convertPressure(Pressure t) {
+
+        if (t == null) {
+            return null;
+        }
+
+        Double pressure = t.getValue();
+        String u = (String) unwrap(t.getUnit().getValue());
+        ome.xml.model.enums.UnitsPressure units = makePressureUnitXML(u);
+        ome.units.unit.Unit<ome.units.quantity.Pressure> units2 =
+                ome.xml.model.enums.handlers.UnitsPressureEnumHandler
+                        .getBaseUnit(units);
+
+        return new ome.units.quantity.Pressure(pressure, units2);
+    }
+
+    /**
+     * Convert a Bio-Formats {@link Pressure} to an OMERO Pressure. A null will be
+     * returned if the input is null.
+     */
+    public static Pressure convertPressure(ome.units.quantity.Pressure value) {
+        if (value == null)
+            return null;
+        omero.model.UnitsPressure ul = new omero.model.UnitsPressureI();
+        ul.setValue(rstring(value.unit().getSymbol()));
+
+        omero.model.Pressure l = new omero.model.PressureI();
+        l.setValue(value.value().doubleValue());
+        l.setUnit(ul);
+        return l;
+    }
+
+    //
+    // TEMPERATURE
+    //
+
+    public static Temperature makeTemperature(double d, String unit) {
+        UnitsTemperature ul = new UnitsTemperatureI();
+        ul.setValue(rstring(unit));
+        Temperature copy = new TemperatureI();
+        copy.setUnit(ul);
+        copy.setValue(d);
+        return copy;
+    }
+
+    public static ome.xml.model.enums.UnitsTemperature makeTemperatureUnitXML(String unit) {
+        try {
+            return ome.xml.model.enums.UnitsTemperature
+                    .fromString((String) unit);
+        } catch (EnumerationException e) {
+            throw new RuntimeException("Bad temperature unit: " + unit, e);
+        }
+    }
+
+    public static ome.units.quantity.Temperature convertTemperature(Temperature t) {
+
+        if (t == null) {
+            return null;
+        }
+
+        Double temperature = t.getValue();
+        String u = (String) unwrap(t.getUnit().getValue());
+        ome.xml.model.enums.UnitsTemperature units = makeTemperatureUnitXML(u);
+        ome.units.unit.Unit<ome.units.quantity.Temperature> units2 =
+                ome.xml.model.enums.handlers.UnitsTemperatureEnumHandler
+                        .getBaseUnit(units);
+
+        return new ome.units.quantity.Temperature(temperature, units2);
+    }
+
+    /**
+     * Convert a Bio-Formats {@link Temperature} to an OMERO Temperature. A null will be
+     * returned if the input is null.
+     */
+    public static Temperature convertTime(ome.units.quantity.Temperature value) {
+        if (value == null)
+            return null;
+        omero.model.UnitsTemperature ut = new omero.model.UnitsTemperatureI();
+        ut.setValue(rstring(value.unit().getSymbol()));
+
+        omero.model.Temperature t = new omero.model.TemperatureI();
+        t.setValue(value.value().doubleValue());
+        t.setUnit(ut);
+        return t;
+    }
+
+    /**
+     * Convert a Bio-Formats {@link Temperature} to an OMERO Temperature. A null will be
+     * returned if the input is null.
+     */
+    public static Temperature convertTemperature(ome.units.quantity.Temperature value) {
+        if (value == null)
+            return null;
+        omero.model.UnitsTemperature ul = new omero.model.UnitsTemperatureI();
+        ul.setValue(rstring(value.unit().getSymbol()));
+
+        omero.model.Temperature l = new omero.model.TemperatureI();
+        l.setValue(value.value().doubleValue());
+        l.setUnit(ul);
+        return l;
+    }
+
 
     //
     // TIME

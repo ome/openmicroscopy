@@ -22,10 +22,14 @@
  */
 package pojos;
 
+import static ome.xml.model.ImagingEnvironment.getAirPressureUnitXsdDefault;
+import static ome.xml.model.ImagingEnvironment.getTemperatureUnitXsdDefault;
 import static ome.xml.model.StageLabel.getXUnitXsdDefault;
 import static ome.xml.model.StageLabel.getYUnitXsdDefault;
 import static ome.xml.model.StageLabel.getZUnitXsdDefault;
 import static ome.formats.model.UnitsFactory.makeLength;
+import static ome.formats.model.UnitsFactory.makePressure;
+import static ome.formats.model.UnitsFactory.makeTemperature;
 
 import omero.RDouble;
 import omero.RLong;
@@ -36,8 +40,10 @@ import omero.model.Length;
 import omero.model.Medium;
 import omero.model.ObjectiveSettings;
 import omero.model.ObjectiveSettingsI;
+import omero.model.Pressure;
 import omero.model.StageLabel;
 import omero.model.StageLabelI;
+import omero.model.Temperature;
 
 /** 
  * Object hosting the acquisition metadata.
@@ -168,10 +174,11 @@ public class ImageAcquisitionData
 	 * 
 	 * @return See above.
 	 */
+	@Deprecated
 	public Object getTemperature()
 	{
 		if (environment == null) return null;
-		RDouble value = environment.getTemperature();
+		Temperature value = environment.getTemperature();
 		if (value == null) return null;
 		return value.getValue();
 	}
@@ -181,10 +188,11 @@ public class ImageAcquisitionData
 	 * 
 	 * @return See above.
 	 */
+	@Deprecated
 	public double getAirPressure()
 	{
 		if (environment == null) return -1;
-		RDouble value = environment.getAirPressure();
+		Pressure value = environment.getAirPressure();
 		if (value == null) return -1;
 		return value.getValue();
 	}
@@ -309,11 +317,13 @@ public class ImageAcquisitionData
 	 * 
 	 * @param temperature The value to set.
 	 */
+	@Deprecated
 	public void setTemperature(double temperature)
 	{
 		imagingEnvironmentDirty = true;
 		if (environment == null) environment = new ImagingEnvironmentI();
-		environment.setTemperature(omero.rtypes.rdouble(temperature));
+		environment.setTemperature(makeTemperature(temperature,
+		        getTemperatureUnitXsdDefault()));
 	}
 	
 	/**
@@ -321,11 +331,13 @@ public class ImageAcquisitionData
 	 * 
 	 * @param pressure The value to set.
 	 */
+	@Deprecated
 	public void setAirPressure(double pressure)
 	{
 		imagingEnvironmentDirty = true;
 		if (environment == null) environment = new ImagingEnvironmentI();
-		environment.setAirPressure(omero.rtypes.rdouble(pressure));
+		environment.setAirPressure(makePressure(pressure,
+		        getAirPressureUnitXsdDefault()));
 	}
 	
 	/**

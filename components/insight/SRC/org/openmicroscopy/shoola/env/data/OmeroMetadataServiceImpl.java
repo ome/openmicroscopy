@@ -22,10 +22,14 @@
  */
 package org.openmicroscopy.shoola.env.data;
 
+import static ome.xml.model.ImagingEnvironment.getAirPressureUnitXsdDefault;
+import static ome.xml.model.ImagingEnvironment.getTemperatureUnitXsdDefault;
 import static ome.xml.model.StageLabel.getXUnitXsdDefault;
 import static ome.xml.model.StageLabel.getYUnitXsdDefault;
 import static ome.xml.model.StageLabel.getZUnitXsdDefault;
 import static ome.formats.model.UnitsFactory.makeLength;
+import static ome.formats.model.UnitsFactory.makePressure;
+import static ome.formats.model.UnitsFactory.makeTemperature;
 
 import java.io.File;
 import java.sql.Timestamp;
@@ -350,13 +354,14 @@ class OmeroMetadataServiceImpl
 						ImagingEnvironment.class.getName(), id);
 				toUpdate.add(condition);
 			}
-			condition.setAirPressure(omero.rtypes.rdouble(
-					data.getAirPressure()));
+			condition.setAirPressure(makePressure(data.getAirPressure(),
+			        getAirPressureUnitXsdDefault()));
 			condition.setHumidity(omero.rtypes.rdouble(
 					data.getHumidity()));
 			Object o = data.getTemperature();
 			if (o != null)
-				condition.setTemperature(omero.rtypes.rdouble((Float) o));
+				condition.setTemperature(makeTemperature(((Float) o).doubleValue(),
+				        getTemperatureUnitXsdDefault()));
 			condition.setCo2percent(omero.rtypes.rdouble(
 					data.getCo2Percent()));
 		}
