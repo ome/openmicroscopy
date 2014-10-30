@@ -25,11 +25,10 @@ import pytest
 import test.integration.library as lib
 
 from omero.gateway import BlitzGateway
-from omero.model import ProjectI, DatasetI, ImageI, ScreenI, PlateI, \
+from omero.model import ProjectI, DatasetI, ScreenI, PlateI, \
     PlateAcquisitionI, TagAnnotationI, ProjectAnnotationLinkI, \
     DatasetAnnotationLinkI, ImageAnnotationLinkI, ScreenAnnotationLinkI, \
-    PlateAnnotationLinkI, PlateAcquisitionAnnotationLinkI, \
-    ProjectDatasetLinkI, DatasetImageLinkI
+    PlateAnnotationLinkI, PlateAcquisitionAnnotationLinkI
 from omero.rtypes import rstring, rtime
 from omeroweb.webclient.tree import marshal_experimenter, \
     marshal_projects, marshal_datasets, marshal_images, marshal_plates, \
