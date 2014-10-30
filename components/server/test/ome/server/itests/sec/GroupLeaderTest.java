@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.server.itests.sec;
@@ -34,12 +34,14 @@ public class GroupLeaderTest extends AbstractManagedContextTest {
         String gid = uuid();
         ExperimenterGroup g = new ExperimenterGroup();
         g.setName(gid);
+        g.setLdap(false);
         g = new ExperimenterGroup(iAdmin.createGroup(g), false);
 
         Experimenter e = new Experimenter();
         e.setOmeName(UUID.randomUUID().toString());
         e.setFirstName("group leader");
         e.setLastName("GroupLeaderTest");
+        e.setLdap(false);
         e = iAdmin.getExperimenter(iAdmin.createUser(e, gid));
 
         iAdmin.setGroupOwner(g, e);
@@ -62,12 +64,14 @@ public class GroupLeaderTest extends AbstractManagedContextTest {
         String gid = uuid();
         ExperimenterGroup g = new ExperimenterGroup();
         g.setName(gid);
+        g.setLdap(false);
         g = new ExperimenterGroup(iAdmin.createGroup(g), false);
 
         Experimenter e = new Experimenter();
         e.setOmeName(UUID.randomUUID().toString());
         e.setFirstName("group leader");
         e.setLastName("GroupLeaderTest");
+        e.setLdap(false);
         e = iAdmin.getExperimenter(iAdmin.createUser(e, gid));
 
         iAdmin.setGroupOwner(g, e);

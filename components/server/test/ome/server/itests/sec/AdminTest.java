@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.server.itests.sec;
@@ -121,6 +121,7 @@ public class AdminTest extends AbstractManagedContextTest {
         assertNotNull(e.getOmeName());
         assertNotNull(e.getFirstName());
         assertNotNull(e.getLastName());
+        assertFalse(e.getLdap());
         assertTrue(e.sizeOfGroupExperimenterMap() == 1);
     }
     
@@ -133,6 +134,7 @@ public class AdminTest extends AbstractManagedContextTest {
         assertNotNull(e.getOmeName());
         assertNotNull(e.getFirstName());
         assertNotNull(e.getLastName());
+        assertFalse(e.getLdap());
         assertTrue(e.sizeOfGroupExperimenterMap() == 1);
         
         Login ul = new Login(e.getOmeName(), "password");
@@ -183,6 +185,7 @@ public class AdminTest extends AbstractManagedContextTest {
     private ExperimenterGroup testGroup() {
         ExperimenterGroup g = new ExperimenterGroup();
         g.setName(uuid());
+        g.setLdap(false);
         return g;
     }
 
@@ -192,6 +195,7 @@ public class AdminTest extends AbstractManagedContextTest {
         e.setFirstName("foo");
         e.setLastName("bar");
         e.setOmeName(UUID.randomUUID().toString());
+        e.setLdap(false);
         return e;
     }
 
@@ -249,6 +253,8 @@ public class AdminTest extends AbstractManagedContextTest {
 
         g1.setName(uuid());
         g2.setName(uuid());
+        g1.setLdap(false);
+        g2.setLdap(false);
 
         g1.setId(iAdmin.createGroup(g1));
         g2.setId(iAdmin.createGroup(g2));
@@ -284,6 +290,7 @@ public class AdminTest extends AbstractManagedContextTest {
 
         ExperimenterGroup g1 = new ExperimenterGroup();
         g1.setName(uuid());
+        g1.setLdap(false);
         g1.setId(iAdmin.createGroup(g1));
 
         loginRoot();
@@ -318,6 +325,7 @@ public class AdminTest extends AbstractManagedContextTest {
         loginRoot();
         ExperimenterGroup g = new ExperimenterGroup();
         g.setName(UUID.randomUUID().toString());
+        g.setLdap(false);
         g = iAdmin.getGroup(iAdmin.createGroup(g));
         iAdmin.addGroups(e, g);
         loginUser(e.getOmeName());
@@ -351,6 +359,7 @@ public class AdminTest extends AbstractManagedContextTest {
         String gid = uuid();
         ExperimenterGroup g = new ExperimenterGroup();
         g.setName(gid);
+        g.setLdap(false);
         g = iAdmin.getGroup(iAdmin.createGroup(g));
 
         // create a new user for the test
@@ -358,6 +367,7 @@ public class AdminTest extends AbstractManagedContextTest {
         e.setFirstName("user admin setters");
         e.setLastName("test");
         e.setOmeName(UUID.randomUUID().toString());
+        e.setLdap(false);
         e = iAdmin.getExperimenter(iAdmin.createUser(e, gid));
 
         // check current default group
@@ -368,6 +378,7 @@ public class AdminTest extends AbstractManagedContextTest {
         String gid2 = uuid();
         ExperimenterGroup g2 = new ExperimenterGroup();
         g2.setName(gid2);
+        g2.setLdap(false);
         g2 = iAdmin.getGroup(iAdmin.createGroup(g2));
 
         // now change
@@ -391,6 +402,7 @@ public class AdminTest extends AbstractManagedContextTest {
         String gid2 = uuid();
         ExperimenterGroup g2 = new ExperimenterGroup();
         g2.setName(gid2);
+        g2.setLdap(false);
         g2 = iAdmin.getGroup(iAdmin.createGroup(g2));
 
         // now change
@@ -434,6 +446,7 @@ public class AdminTest extends AbstractManagedContextTest {
         e.setFirstName("user admin setters");
         e.setLastName("test");
         e.setOmeName(UUID.randomUUID().toString());
+        e.setLdap(false);
         e = iAdmin.getExperimenter(iAdmin.createUser(e, g.getName()));
 
         int size = e.sizeOfGroupExperimenterMap();
@@ -442,9 +455,11 @@ public class AdminTest extends AbstractManagedContextTest {
         // two new test groups
         ExperimenterGroup g1 = new ExperimenterGroup();
         g1.setName(UUID.randomUUID().toString());
+        g1.setLdap(false);
         g1 = iAdmin.getGroup(iAdmin.createGroup(g1));
         ExperimenterGroup g2 = new ExperimenterGroup();
         g2.setName(UUID.randomUUID().toString());
+        g2.setLdap(false);
         g2 = iAdmin.getGroup(iAdmin.createGroup(g2));
 
         iAdmin.addGroups(e, g1, g2);
@@ -472,14 +487,17 @@ public class AdminTest extends AbstractManagedContextTest {
         e.setFirstName("user admin setters");
         e.setLastName("test");
         e.setOmeName(UUID.randomUUID().toString());
+        e.setLdap(false);
         e = iAdmin.getExperimenter(iAdmin.createUser(e, g.getName()));
 
         // two new test groups
         ExperimenterGroup g1 = new ExperimenterGroup();
         g1.setName(UUID.randomUUID().toString());
+        g1.setLdap(false);
         g1 = iAdmin.getGroup(iAdmin.createGroup(g1));
         ExperimenterGroup g2 = new ExperimenterGroup();
         g2.setName(UUID.randomUUID().toString());
+        g2.setLdap(false);
         g2 = iAdmin.getGroup(iAdmin.createGroup(g2));
 
         // add them all together
@@ -511,6 +529,7 @@ public class AdminTest extends AbstractManagedContextTest {
         e.setFirstName("user admin setters");
         e.setLastName("test");
         e.setOmeName(UUID.randomUUID().toString());
+        e.setLdap(false);
         e = iAdmin.getExperimenter(iAdmin.createSystemUser(e));
 
         loginUser(e.getOmeName());
@@ -548,6 +567,7 @@ public class AdminTest extends AbstractManagedContextTest {
         // and a new group
         ExperimenterGroup g = new ExperimenterGroup();
         g.setName(UUID.randomUUID().toString());
+        g.setLdap(false);
         iAdmin.createGroup(g);
 
         // create a new user for the test
@@ -555,6 +575,7 @@ public class AdminTest extends AbstractManagedContextTest {
         e.setFirstName("user admin setters");
         e.setLastName("test");
         e.setOmeName(UUID.randomUUID().toString());
+        e.setLdap(false);
         iAdmin.createUser(e, g.getName());
 
         loginUser(e.getOmeName());
@@ -663,7 +684,7 @@ public class AdminTest extends AbstractManagedContextTest {
         Experimenter e = loginNewUser();
         
         loginRoot();
-        ExperimenterGroup g = new ExperimenterGroup(uuid());
+        ExperimenterGroup g = new ExperimenterGroup(uuid(), false);
         g = new ExperimenterGroup( iAdmin.createGroup(g), false);
         iAdmin.addGroups(e, g);
         

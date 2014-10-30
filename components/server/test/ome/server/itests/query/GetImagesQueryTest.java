@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.server.itests.query;
@@ -177,11 +177,13 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
         if (user == null) {
             group = new ExperimenterGroup();
             group.setName(uuid());
+            group.setLdap(false);
             long gid = iAdmin.createGroup(group);
             user = new Experimenter();
             user.setOmeName(uuid());
             user.setFirstName("Get");
             user.setLastName("Images");
+            user.setLdap(false);
             user = iAdmin.getExperimenter(iAdmin.createUser(user, group
                     .getName()));
         }

@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2008-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.services.blitz.test.mock;
@@ -36,6 +36,7 @@ public class RTypesObjectFactoryTest extends MockObjectTestCase {
         Experimenter e = new Experimenter();
         e.setId(1L);
         e.setOmeName("name");
+        e.setLdap(false);
         fixture.mock("mock-ome.api.IAdmin").expects(once()).method(
                 "getExperimenter").will(returnValue(e));
         sf.getAdminService().getExperimenter(0L);
