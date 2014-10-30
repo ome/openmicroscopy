@@ -43,6 +43,7 @@ import ome.model.core.LogicalChannel;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.core.PlaneInfo;
+import ome.model.enums.Format;
 import ome.model.experiment.Experiment;
 import ome.model.experiment.MicrobeamManipulation;
 import ome.model.fs.Fileset;
@@ -80,8 +81,9 @@ import org.perf4j.StopWatch;
  */
 public class OMEROMetadataStore
 {
+    /** List of graphics domains we are checking.*/
     private static String[] DOMAINS = {"jpeg", "png", "bmp", "gif", "tiff"};
-    
+
     /** Logger for this class. */
     private static Logger log = LoggerFactory.getLogger(OMEROMetadataStore.class);
 
@@ -2177,7 +2179,11 @@ public class OMEROMetadataStore
     	{
     		channelGlobalMinMax = imageChannelGlobalMinMax[i];
     		pixels = pixelsList.get(i);
-    		String v = pixels.getImage().getFormat().getValue();
+    		Format f = pixels.getImage().getFormat();
+    		String v = null;
+    		if (f != null) {
+    		    v = f.getValue();
+    		}
     		boolean rgb = isRGB(v);
     		String type = pixels.getPixelsType().getValue();
     		unloadedPixels = new Pixels(pixels.getId(), false);
