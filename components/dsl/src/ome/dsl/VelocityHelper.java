@@ -7,19 +7,14 @@
 
 package ome.dsl;
 
-// Java imports
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.io.Writer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
-
-// Application-internal dependencies
 
 /**
  * utility class to setup a VelocityEngine and VelocityContext (with macros).
@@ -27,8 +22,6 @@ import org.apache.velocity.runtime.RuntimeConstants;
  * Writer)
  */
 public class VelocityHelper {
-
-    private static Log log = LogFactory.getLog(VelocityHelper.class);
 
     private String macros;
 

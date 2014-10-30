@@ -150,6 +150,7 @@ omero.version=${omero.version}
                 <nomemoryjava
                     destdir="@{destdir}"
                     memoryMaximumSize="${javac.maxmem}"
+                    includeantruntime="false"
                 >
                     <compilerarg value="@${temp.file}"/>
                     <srcelements/>
