@@ -203,8 +203,6 @@ class UserProfile
                 passwordNew.requestFocus();
                 return;
             }
-            un = MetadataViewerAgent.getRegistry().getUserNotifier();
-            un.notifyInfo(PASSWORD_CHANGE_TITLE, "Password changed.");
             passwordNew.setText("");
             model.resetPassword(newPass);
             return;
