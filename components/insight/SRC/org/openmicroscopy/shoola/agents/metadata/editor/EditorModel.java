@@ -43,13 +43,16 @@ import java.util.Map.Entry;
 import javax.swing.Icon;
 import javax.swing.JFrame;
 
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
+
 //Application-internal dependencies
 import omero.model.OriginalFile;
 import omero.model.PlaneInfo;
+
 import org.openmicroscopy.shoola.agents.metadata.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.AnalysisResultsFileLoader;
 import org.openmicroscopy.shoola.agents.metadata.FileAnnotationChecker;
@@ -111,6 +114,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloParser;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
+
 import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.ChannelAcquisitionData;
@@ -4437,5 +4441,23 @@ class EditorModel
     	StructuredDataResults data = parent.getStructuredData();
 		if (data == null) return false;
     	return CollectionUtils.isNotEmpty(data.getTransferLinks());
+    }
+
+    /**
+     * Returns the LDAP info if any.
+     *
+     * @return See above.
+     */
+    String getLDAPDetails()
+    {
+        ExperimenterData exp = (ExperimenterData) getRefObject();
+        try {
+            return MetadataViewerAgent.getRegistry().getAdminService().lookupLdapAuthExperimenter(
+                    getSecurityContext(), exp.getId());
+        } catch (Exception e) {
+            MetadataViewerAgent.getRegistry().getLogger().debug(this,
+                    "Unable to check LDAP status: "+e.getMessage());
+        }
+        return null;
     }
 }

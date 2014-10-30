@@ -37,10 +37,11 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
-
 import org.apache.commons.lang.StringUtils;
+
 
 //Application-internal dependencies
 import omero.model.Experimenter;
@@ -875,5 +876,15 @@ class AdminServiceImpl
             return roles.guestId == userID;
         }
         throw new IllegalArgumentException("Key not valid.");
+    }
+
+    /**
+     * Implemented as specified by {@link AdminService}.
+     * @see AdminService#lookupLdapAuthExperimenter(SecurityContext, long)
+     */
+    public String lookupLdapAuthExperimenter(SecurityContext ctx, long userID)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        return gateway.lookupLdapAuthExperimenter(ctx, userID);
     }
 }
