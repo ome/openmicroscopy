@@ -159,7 +159,6 @@
 
             // TODO Probably should be called inside success of ajax success function, but do it here for now
             // until there is only one ajax call
-            // TODO Not sure it makes sense to call this at all as 'obj' is now potentially gone
             /**
              * triggered when nodes are added to the buffer for moving
              * @event

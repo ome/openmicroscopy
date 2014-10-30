@@ -231,7 +231,6 @@
                 if (containerNode) {
 
                     // Select the selected icons in the tree (supress jstree event)
-                    // TODO Restrict this jquery and others that are similarly far too general
                     $('.ui-selected').each(function(index, el) {
                         var $el = $(el);
                         var selectedNode = datatree.locate_node($el.data('type') + '-' + $el.data('id'), containerNode)[0];
@@ -241,11 +240,6 @@
                     buttonsShowHide(datatree.get_selected(true), datatree);
 
                 } else {
-                    // If there was no valid selection then the old code refreshed the
-                    // tree, but that should not really happen now unless the user
-                    // is manipulating their repository with multiple clients
-                    // TODO Potentially readd the refresh, refactor the above code to
-                    // find the node to select so that it can be used again, post-refresh.
                     console.log('jstree may need to be refreshed');
                 }
 
@@ -305,9 +299,6 @@
             }
 
             syncThumbSelection = function(data, event) {
-                //TODO When the containers_icon is initially loaded, this method is called with
-                // no arguments so there is no way to determine lastSelected. Figure this out.
-
                 // Use the selection itself to determine the last selected item
                 var lastSelectedType;
                 var lastSelectedId;
