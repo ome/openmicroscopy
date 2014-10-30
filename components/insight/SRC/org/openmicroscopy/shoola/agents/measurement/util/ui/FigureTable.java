@@ -125,15 +125,6 @@ public class FigureTable
 			JTextField f = (JTextField) editor.getComponent();
 			f.getDocument().addDocumentListener(this);
 			return editor;
-		} else if (v instanceof Double || v instanceof Integer || 
-					v instanceof Long) {
-			DefaultCellEditor editor =
-				new DefaultCellEditor((NumericalTextField) renderer.
-						getTableCellRendererComponent(this,
-								getValueAt(row, col), false, false, row, col));
-			JTextField f = (JTextField) editor.getComponent();
-			f.getDocument().addDocumentListener(this);
-			return editor;
 		} else if (v instanceof Boolean) {
 			return new DefaultCellEditor((JCheckBox) renderer.
 				getTableCellRendererComponent(this,

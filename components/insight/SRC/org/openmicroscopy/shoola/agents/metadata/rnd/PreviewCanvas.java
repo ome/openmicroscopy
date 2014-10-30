@@ -94,6 +94,13 @@ class PreviewCanvas
         int y = (d.height - scaledImage.getHeight()) / 2;
 
         Graphics2D g2D = (Graphics2D) g;
+        
+        // paint the background
+        g2D.setColor(getBackground());
+        g2D.fillRect(0, 0, getWidth(), getHeight());
+        g2D.setColor(getForeground());
+        
+        // paint the image
         ImagePaintingFactory.setGraphicRenderingSettings(g2D);
         g2D.drawImage(scaledImage, null, x, y);
         g2D.dispose();

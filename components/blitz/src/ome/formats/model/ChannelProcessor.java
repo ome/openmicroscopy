@@ -106,6 +106,35 @@ public class ChannelProcessor implements ModelProcessor
 	}
 
 	/**
+	 * Sets the default color if it is a single channel image.
+	 *
+	 * @param channelData Channel data to use to set the color.
+	 */
+	private void setSingleChannel(ChannelData channelData)
+	{
+	    int channelIndex = channelData.getChannelIndex();
+	    Channel channel = channelData.getChannel();
+	    Integer red = getValue(channel.getRed());
+        Integer green = getValue(channel.getGreen());
+        Integer blue = getValue(channel.getBlue());
+        Integer alpha = getValue(channel.getAlpha());
+        RString name;
+        //color already set by Bio-formats
+        if (red != null && green != null && blue != null && alpha != null) {
+            return;
+        }
+        int[] defaultColor = ColorsFactory.newGreyColor();
+        channel.setRed(
+                rint(defaultColor[ColorsFactory.RED_INDEX]));
+        channel.setGreen(
+                rint(defaultColor[ColorsFactory.GREEN_INDEX]));
+        channel.setBlue(
+                rint(defaultColor[ColorsFactory.BLUE_INDEX]));
+        channel.setAlpha(
+                rint(defaultColor[ColorsFactory.ALPHA_INDEX]));
+	}
+
+	/**
      * Populates the default color for the channel if one does not already
      * exist.
      *
@@ -119,6 +148,7 @@ public class ChannelProcessor implements ModelProcessor
 	int channelIndex = channelData.getChannelIndex();
 	Channel channel = channelData.getChannel();
 	LogicalChannel lc = channelData.getLogicalChannel();
+	int[] defaultColor;
 	if (isGraphicsDomain)
 		{
 	    log.debug("Setting color channel to RGB.");
@@ -147,33 +177,36 @@ public class ChannelProcessor implements ModelProcessor
 	    return;
 		}
 
-	    Integer red = getValue(channel.getRed());
+        Integer red = getValue(channel.getRed());
         Integer green = getValue(channel.getGreen());
         Integer blue = getValue(channel.getBlue());
         Integer alpha = getValue(channel.getAlpha());
         RString name;
         //color already set by Bio-formats
         if (red != null && green != null && blue != null && alpha != null) {
-		//Try to set the name.
-		log.debug("Already set in BF.");
-		if (lc.getName() == null) {
-			name = getChannelName(channelData);
-			if (name != null) lc.setName(name);
-		}
-		return;
-    }
-        //First we check the emission wavelength.
-	Length valueWavelength = lc.getEmissionWave();
-	if (valueWavelength != null) {
-		setChannelColor(channel, channelIndex,
-				ColorsFactory.determineColor(valueWavelength));
-		if (lc.getName() == null) {
-		    lc.setName(rstring(getNameFromWavelength(valueWavelength)));
-		}
-		return;
-	}
+            //Try to set the name.
+            log.debug("Already set in BF.");
+            if (lc.getName() == null) {
+                name = getChannelName(channelData);
+                if (name != null) lc.setName(name);
+            }
+            return;
+        }
 
-	Length valueFilter = null;
+        //not set by
+        //First we check the emission wavelength.
+
+        Length valueWavelength = lc.getEmissionWave();
+        if (valueWavelength != null) {
+            setChannelColor(channel, channelIndex,
+                ColorsFactory.determineColor(valueWavelength));
+            if (lc.getName() == null) {
+                lc.setName(rstring(getNameFromWavelength(valueWavelength)));
+            }
+            return;
+        }
+
+        Length valueFilter = null;
 
 	//First check the emission filter.
 	//First check if filter
@@ -472,22 +505,27 @@ public class ChannelProcessor implements ModelProcessor
 		//Think of strategy for images with high number of channels
 		//i.e. > 6
 		sizeC = pixels.getSizeC().getValue();
-		for (int c = 0; c < sizeC; c++)
-		{
-			channelData = ChannelData.fromObjectContainerStore(store, i, c);
-			//Color section
-			populateDefault(channelData, isGraphicsDomain);
+		if (sizeC == 1) {
+		    channelData = ChannelData.fromObjectContainerStore(store, i, 0);
+		    setSingleChannel(channelData);
+		} else {
+		    for (int c = 0; c < sizeC; c++)
+	        {
+	            channelData = ChannelData.fromObjectContainerStore(store, i, c);
+	            //Color section
+	            populateDefault(channelData, isGraphicsDomain);
 
-                //only retrieve if not graphics
-                if (!isGraphicsDomain) {
-			//Determine if the channel same emission wavelength.
-			v = ColorsFactory.hasEmissionData(channelData);
-			if (!v)
-			{
-				count++;
-			}
-                    m.put(channelData, v);
-                }
+	                //only retrieve if not graphics
+	                if (!isGraphicsDomain) {
+	            //Determine if the channel same emission wavelength.
+	            v = ColorsFactory.hasEmissionData(channelData);
+	            if (!v)
+	            {
+	                count++;
+	            }
+	                    m.put(channelData, v);
+	                }
+	        }
 		}
 
 		//Need to reset the color of transmitted light

@@ -107,11 +107,8 @@ class ChannelSlider
 		                min = absMin;
 		                max = absMax;
 		        }
-		        double range = (max-min)*GraphicsPane.RATIO;
-		        int lowestBound = (int) (min-range);
-		        lowestBound = absMin;
-		        int highestBound = (int) (max+range);
-		        highestBound = absMax;
+		        int lowestBound = absMin;
+		        int highestBound = absMax;
 
 		        slider = new TextualTwoKnobsSlider(0, 100);
 		        
@@ -130,10 +127,8 @@ class ChannelSlider
                             max = absMax;
                     }
                     
-                    // for floating point channels there is no reasonable
-                    // lower and upper bound
-                    double lowestBound = -Double.MAX_VALUE;
-                    double highestBound = Double.MAX_VALUE;
+                    double lowestBound = absMin;
+                    double highestBound = absMax;
 
                     slider = new TextualTwoKnobsSlider(lowestBound, highestBound);
                     

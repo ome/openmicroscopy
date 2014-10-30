@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.FigureListener;
@@ -190,7 +191,7 @@ public class MeasurePointFigure
     {
         if (units.isInMicrons()) {
             return UIUtilities.transformSize(
-                    getX()*units.getMicronsPixelX()).getValue();
+                    getX()*units.getMicronsPixelX(), refUnits);
         }
         return getX();
     }
@@ -204,9 +205,9 @@ public class MeasurePointFigure
     {
         if (units.isInMicrons()){
             double tx = UIUtilities.transformSize(
-                    getCentre().getX()*units.getMicronsPixelX()).getValue();
+                    getCentre().getX()*units.getMicronsPixelX(), refUnits);
             double ty = UIUtilities.transformSize(
-                    getCentre().getY()*units.getMicronsPixelY()).getValue();
+                    getCentre().getY()*units.getMicronsPixelY(), refUnits);
             return new Point2D.Double(tx, ty);
         }
         return getCentre();
@@ -221,7 +222,7 @@ public class MeasurePointFigure
     {
         if (units.isInMicrons()) {
             return UIUtilities.transformSize(
-                    getY()*units.getMicronsPixelY()).getValue();
+                    getY()*units.getMicronsPixelY(), refUnits);
         }
         return getY();
     }
@@ -235,7 +236,7 @@ public class MeasurePointFigure
     {
         if (units.isInMicrons()) {
             return UIUtilities.transformSize(
-                    getWidth()*units.getMicronsPixelX()).getValue();
+                    getWidth()*units.getMicronsPixelX(), refUnits);
         }
         return getWidth();
     }
@@ -249,7 +250,7 @@ public class MeasurePointFigure
     {
         if (units.isInMicrons()) {
             return UIUtilities.transformSize(
-                    getHeight()*units.getMicronsPixelY()).getValue();
+                    getHeight()*units.getMicronsPixelY(), refUnits);
         }
         return getHeight();
     }
@@ -293,9 +294,12 @@ public class MeasurePointFigure
             String pointCentre = 
                     "("+formatter.format(getMeasurementCentre().getX())
                     + ","+formatter.format(getMeasurementCentre().getY())+")";
-            double sz = ((Double) this.getAttribute(
-                    MeasurementAttributes.FONT_SIZE));
-            g.setFont(new Font(FONT_FAMILY, FONT_STYLE, (int) sz));
+            Double sz = (Double) getAttribute(MeasurementAttributes.FONT_SIZE);
+            Font font = (Font) getAttribute(MeasurementAttributes.FONT_FACE);
+            if (font != null) g.setFont(font.deriveFont(sz.floatValue()));
+            else {
+                g.setFont(new Font(FONT_FAMILY, FONT_STYLE, sz.intValue()));
+            }
             bounds = g.getFontMetrics().getStringBounds(pointCentre, g);
             bounds = new Rectangle2D.Double(
                     this.getBounds().getCenterX()-bounds.getWidth()/2,
