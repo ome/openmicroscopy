@@ -157,6 +157,20 @@ class TestUser(CLITest):
             with pytest.raises(PermissionDeniedException):
                 self.new_client(user=login, password="????")
 
+    def testAddAdminOnly(self, capsys):
+        group = self.new_group()
+        login = self.uuid()
+        firstname = self.uuid()
+        lastname = self.uuid()
+
+        self.args += ["add", login, firstname, lastname]
+        self.args += ["%s" % group.id.val]
+        self.args += ["--userpassword", "%s" % self.uuid()]
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
+        out, err = capsys.readouterr()
+        assert err.endswith("SecurityViolation: Admins only!\n")
+
 
 class TestUserRoot(RootCLITest):
 
