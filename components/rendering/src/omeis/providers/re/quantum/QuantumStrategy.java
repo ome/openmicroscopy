@@ -299,6 +299,17 @@ public abstract class QuantumStrategy {
         }
         if (start < pixelsTypeMin) start = pixelsTypeMin;
         if (end > pixelsTypeMax) end = pixelsTypeMax;
+        //Do not allow full pixel type range for float and double.
+        String typeAsString = type.getValue();
+        if (PlaneFactory.FLOAT_TYPE.equals(typeAsString) ||
+            PlaneFactory.DOUBLE_TYPE.equals(typeAsString)) {
+            if (start < globalMin) {
+                start = globalMin;
+            }
+            if (end > globalMax) {
+                end = globalMax;
+            }
+        }
         windowStart = start;
         windowEnd = end;
         onWindowChange();
