@@ -91,15 +91,6 @@ OME.clear_selected = function(force_refresh) {
         .trigger("selection_change.ome", [refresh]);
 };
 
-// called when we change the index of a plate or acquisition
-OME.field_selection_changed = function(field) {
-
-    var datatree = $.jstree._focused();
-    $("body")
-        .data("selected_objects.ome", [{"id":datatree.data.ui.last_selected.attr("id"), "index":field}])
-        .trigger("selection_change.ome", $(this).attr('id'));
-};
-
 // select all images from the specified fileset (if currently visible)
 OME.select_fileset_images = function(filesetId) {
     var datatree = $.jstree.reference('#dataTree');
@@ -577,7 +568,6 @@ OME.nodeHasPermission = function(node, permission, activeGroup) {
     }
 
     // Check if the node data has permissions data
-    //TODO Rename permsCss to perms and alter structure now it is no longer being used for CSS classes
     if (node.data.obj.hasOwnProperty('permsCss')) {
         var perms = node.data.obj.permsCss;
         // Determine if this node has this permission
@@ -649,13 +639,6 @@ OME.getTreeBestGuess = function(targetType, targetId) {
     // as there could be multiple) that has the currently selected parent
     var locatedNodes = datatree.locate_node(targetType + '-' + targetId);
 
-    // If there is nothing matching in the jstree, probably because a
-    // container node was loaded that had never been expanded.
-    // TODO Choose one of these and do it
-    // Alternative to deselecting
-    // 1) Expand by default on select in jstree
-    // 2) Expand the jstree container on icon select then update tree selection in
-    // the callback of completion
     if (!locatedNodes) {
         datatree.deselect_all();
         return;
@@ -730,9 +713,6 @@ OME.getTreeBestGuess = function(targetType, targetId) {
 OME.getTreeImageContainerBestGuess = function(imageId) {
 
     var datatree = $.jstree.reference('#dataTree');
-
-    // TODO Only images displayed here so hardcoding isn't that bad, but
-    // in future will need to be addressed if any other objects shown
     var selectType = 'image';
 
     // Find the matching child nodes from the tree
@@ -740,13 +720,6 @@ OME.getTreeImageContainerBestGuess = function(imageId) {
     // as there could be multiple) that has the currently selected parent
     var locatedNodes = datatree.locate_node(selectType + '-' + imageId);
 
-    // If there is nothing matching in the jstree, probably because a
-    // container node was loaded that had never been expanded.
-    // TODO Choose one of these and do it
-    // Alternative to deselecting
-    // 1) Expand by default on select in jstree
-    // 2) Expand the jstree container on icon select then update tree selection in
-    // the callback of completion
     if (!locatedNodes) {
         datatree.deselect_all();
         return;

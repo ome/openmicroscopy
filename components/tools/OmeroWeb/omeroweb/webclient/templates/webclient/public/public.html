@@ -74,10 +74,6 @@
             };
 
             if (selected.length > 0) {
-                // If the current selection(s) can be deleted
-                // TODO Admin will have delete permissions on user
-                // probably they should not be able to delete the
-                // user from there
                 // Can only remove images from share here
                 if (inst.get_node(selected[0]).type === 'image') {
                     toolbar_config['removecontent'] = true;
