@@ -54,6 +54,40 @@
 		<entry name="reference frame"/>
 		<required name="measurementSystem" type="string"/>
 	</enum>
+	<enum id="ome.model.enums.UnitsPressure">
+		<entry name="YPa"/>
+		<entry name="ZPa"/>
+		<entry name="EPa"/>
+		<entry name="PPa"/>
+		<entry name="TPa"/>
+		<entry name="GPa"/>
+		<entry name="MPa"/>
+		<entry name="kPa"/>
+		<entry name="hPa"/>
+		<entry name="daPa"/>
+		<entry name="Pa"/>
+		<entry name="dPa"/>
+		<entry name="cPa"/>
+		<entry name="mPa"/>
+		<entry name="µPa"/>
+		<entry name="nPa"/>
+		<entry name="pPa"/>
+		<entry name="fPa"/>
+		<entry name="aPa"/>
+		<entry name="zPa"/>
+		<entry name="yPa"/>
+		<entry name="Mbar"/>
+		<entry name="kbar"/>
+		<entry name="bar"/>
+		<entry name="dbar"/>
+		<entry name="mbar"/>
+		<entry name="atm"/>
+		<entry name="psi"/>
+		<entry name="Torr"/>
+		<entry name="mTorr"/>
+		<entry name="mm Hg"/>
+		<required name="measurementSystem" type="string"/>
+	</enum>
 	<enum id="ome.model.enums.UnitsTemperature">
 		<entry name="K"/>
 		<entry name="°C"/>

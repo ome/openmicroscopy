@@ -66,6 +66,19 @@ class LengthObjectFactory(Ice.ObjectFactory):
     def destroy(self):
         pass
 
+class PressureObjectFactory(Ice.ObjectFactory):
+
+    from omero_model_PressureI import PressureI
+
+    def __init__(self, client = None):
+        self.client = client
+
+    def create(self, type):
+        return self.PressureI(self.client)
+
+    def destroy(self):
+        pass
+
 class TemperatureObjectFactory(Ice.ObjectFactory):
 
     from omero_model_TemperatureI import TemperatureI
@@ -100,6 +113,7 @@ def registerObjectFactory(ic, client = None):
     conditionalAdd("::omero::model::Permissions", ic, PermissionsObjectFactory())
     conditionalAdd("::omero::model::Details", ic, DetailsObjectFactory(client))
     conditionalAdd("::omero::model::Length", ic, LengthObjectFactory(client))
+    conditionalAdd("::omero::model::Pressure", ic, PressureObjectFactory(client))
     conditionalAdd("::omero::model::Temperature", ic, TemperatureObjectFactory(client))
     conditionalAdd("::omero::model::Time", ic, TimeObjectFactory(client))
 #foreach($type in $types)

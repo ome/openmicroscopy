@@ -430,6 +430,7 @@
   CREATE INDEX i_imagingenvironment_owner ON imagingenvironment(owner_id);
   CREATE INDEX i_imagingenvironment_group ON imagingenvironment(group_id);
   CREATE INDEX i_ImagingEnvironment_temperature ON imagingenvironment(temperature);
+  CREATE INDEX i_ImagingEnvironment_airPressure ON imagingenvironment(airPressure);
   CREATE INDEX i_instrument_owner ON instrument(owner_id);
   CREATE INDEX i_instrument_group ON instrument(group_id);
   CREATE INDEX i_Instrument_microscope ON instrument(microscope);
@@ -900,6 +901,7 @@ CREATE SEQUENCE seq_statsinfo; INSERT INTO _lock_ids (name, id) SELECT 'seq_stat
 CREATE SEQUENCE seq_thumbnail; INSERT INTO _lock_ids (name, id) SELECT 'seq_thumbnail', nextval('_lock_seq');
 CREATE SEQUENCE seq_transmittancerange; INSERT INTO _lock_ids (name, id) SELECT 'seq_transmittancerange', nextval('_lock_seq');
 CREATE SEQUENCE seq_unitslength; INSERT INTO _lock_ids (name, id) SELECT 'seq_unitslength', nextval('_lock_seq');
+CREATE SEQUENCE seq_unitspressure; INSERT INTO _lock_ids (name, id) SELECT 'seq_unitspressure', nextval('_lock_seq');
 CREATE SEQUENCE seq_unitstemperature; INSERT INTO _lock_ids (name, id) SELECT 'seq_unitstemperature', nextval('_lock_seq');
 CREATE SEQUENCE seq_unitstime; INSERT INTO _lock_ids (name, id) SELECT 'seq_unitstime', nextval('_lock_seq');
 CREATE SEQUENCE seq_well; INSERT INTO _lock_ids (name, id) SELECT 'seq_well', nextval('_lock_seq');
@@ -1652,6 +1654,7 @@ alter table event alter column experimentergroup set not null;
 -- temporarily disable the not null constraints
 alter table pixelstype alter column bitsize drop not null;
 alter table unitslength alter column measurementsystem drop not null;
+alter table unitspressure alter column measurementsystem drop not null;
 alter table unitstemperature alter column measurementsystem drop not null;
 alter table unitstime alter column measurementsystem drop not null;
 
@@ -2436,6 +2439,68 @@ insert into unitslength (id,permissions,value)
     select ome_nextval('seq_unitslength'),-52,'pixel';
 insert into unitslength (id,permissions,value)
     select ome_nextval('seq_unitslength'),-52,'reference frame';
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-52,'YPa';
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-52,'ZPa';
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-52,'EPa';
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-52,'PPa';
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-52,'TPa';
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-52,'GPa';
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-52,'MPa';
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-52,'kPa';
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-52,'hPa';
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-52,'daPa';
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-52,'Pa';
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-52,'dPa';
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-52,'cPa';
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-52,'mPa';
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-52,'µPa';
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-52,'nPa';
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-52,'pPa';
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-52,'fPa';
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-52,'aPa';
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-52,'zPa';
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-52,'yPa';
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-52,'Mbar';
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-52,'kbar';
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-52,'bar';
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-52,'dbar';
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-52,'mbar';
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-52,'atm';
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-52,'psi';
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-52,'Torr';
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-52,'mTorr';
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-52,'mm Hg';
 insert into unitstemperature (id,permissions,value)
     select ome_nextval('seq_unitstemperature'),-52,'K';
 insert into unitstemperature (id,permissions,value)
@@ -2514,6 +2579,8 @@ update unitslength set measurementsystem = 'Pixel'
 update unitslength set measurementsystem = 'ReferenceFrame'
     where value = 'reference frame';
 
+update unitspressure set measurementsystem = 'SI.PASCAL';
+
 update unitstemperature set measurementsystem = 'SI.KELVIN';
 
 update unitstime set measurementsystem = 'SI.SECOND';
@@ -2521,6 +2588,7 @@ update unitstime set measurementsystem = 'SI.SECOND';
 -- reactivate not null constraints
 alter table pixelstype alter column bitsize set not null;
 alter table unitslength alter column measurementsystem set not null;
+alter table unitspressure alter column measurementsystem set not null;
 alter table unitstemperature alter column measurementsystem set not null;
 alter table unitstime alter column measurementsystem set not null;
 

@@ -24,6 +24,7 @@ import omero.util.ObjectFactoryRegistry;
 import omero.model.DetailsI;
 import omero.model.PermissionsI;
 import omero.model.LengthI;
+import omero.model.PressureI;
 import omero.model.TemperatureI;
 import omero.model.TimeI;
 
@@ -41,6 +42,7 @@ public class ModelObjectFactoryRegistry extends ObjectFactoryRegistry {
         ic.addObjectFactory(DetailsI.makeFactory(client), DetailsI.ice_staticId());
         ic.addObjectFactory(PermissionsI.Factory, PermissionsI.ice_staticId());
         ic.addObjectFactory(LengthI.makeFactory(client), LengthI.ice_staticId());
+        ic.addObjectFactory(PressureI.makeFactory(client), PressureI.ice_staticId());
         ic.addObjectFactory(TemperatureI.makeFactory(client), TemperatureI.ice_staticId());
         ic.addObjectFactory(TimeI.makeFactory(client), TimeI.ice_staticId());
 
@@ -55,6 +57,7 @@ public class ModelObjectFactoryRegistry extends ObjectFactoryRegistry {
         ic.addObjectFactory(DetailsI.Factory, DetailsI.ice_staticId());
         ic.addObjectFactory(PermissionsI.Factory, PermissionsI.ice_staticId());
         ic.addObjectFactory(LengthI.Factory, LengthI.ice_staticId());
+        ic.addObjectFactory(PressureI.Factory, PressureI.ice_staticId());
         ic.addObjectFactory(TemperatureI.Factory, TemperatureI.ice_staticId());
         ic.addObjectFactory(TimeI.Factory, TimeI.ice_staticId());
 

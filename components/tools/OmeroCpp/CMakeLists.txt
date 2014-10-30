@@ -303,6 +303,7 @@ set(OMERO_MODEL_STATIC_MODEL_HEADERS
     src/omero/model/ObjectFactory.h
     src/omero/model/PermissionsI.h
     src/omero/model/LengthI.h
+    src/omero/model/PressureI.h
     src/omero/model/TemperatureI.h
     src/omero/model/TimeI.h)
 
@@ -310,6 +311,7 @@ set(OMERO_MODEL_STATIC_SOURCES
     src/omero/model/DetailsI.cpp
     src/omero/model/PermissionsI.cpp
     src/omero/model/LengthI.cpp
+    src/omero/model/PressureI.cpp
     src/omero/model/TemperatureI.cpp
     src/omero/model/TimeI.cpp)
 

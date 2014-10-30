@@ -168,7 +168,7 @@
 	<type id="ome.model.acquisition.ImagingEnvironment">
 		<properties>
 			<optional name="temperature" type="ome.model.units.Temperature"/>
-			<optional name="airPressure" type="double"/>
+			<optional name="airPressure" type="ome.model.units.Pressure"/>
 			<optional name="humidity" type="PercentFraction"/>
 			<optional name="co2percent" type="PercentFraction"/>
 			<map name="map" type="string"/>

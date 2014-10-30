@@ -1054,6 +1054,7 @@
         humidity percent_fraction,
         temperature float8,
         version int4,
+        airPressureUnit int8,
         creation_id int8 not null,
         external_id int8 unique,
         group_id int8 not null,
@@ -2228,6 +2229,15 @@
     );;
 
     create table unitslength (
+        id int8 not null,
+        permissions int8 not null,
+        measurementSystem varchar(255) not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table unitspressure (
         id int8 not null,
         permissions int8 not null,
         measurementSystem varchar(255) not null,
@@ -3780,6 +3790,11 @@
         add constraint FKimagingenvironment_owner_id_experimenter 
         foreign key (owner_id) 
         references experimenter  ;;
+
+    alter table imagingenvironment 
+        add constraint FKCB554FBB2994F5BF 
+        foreign key (airPressureUnit) 
+        references unitspressure  ;;
 
     alter table imagingenvironment_map 
         add constraint FKimagingenvironment_map_map 
@@ -5813,6 +5828,11 @@
 
     alter table unitslength 
         add constraint FKunitslength_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table unitspressure 
+        add constraint FKunitspressure_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo  ;;
 

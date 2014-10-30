@@ -1565,6 +1565,130 @@ insert into unitslength (id,permissions,value)
     select ome_nextval('seq_unitslength'),-35,'reference frame' from unitslength where not exists(
         select 1 from unitslength where value = 'reference frame') limit 1;
 
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-35,'YPa' from unitspressure where not exists(
+        select 1 from unitspressure where value = 'YPa') limit 1;
+
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-35,'ZPa' from unitspressure where not exists(
+        select 1 from unitspressure where value = 'ZPa') limit 1;
+
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-35,'EPa' from unitspressure where not exists(
+        select 1 from unitspressure where value = 'EPa') limit 1;
+
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-35,'PPa' from unitspressure where not exists(
+        select 1 from unitspressure where value = 'PPa') limit 1;
+
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-35,'TPa' from unitspressure where not exists(
+        select 1 from unitspressure where value = 'TPa') limit 1;
+
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-35,'GPa' from unitspressure where not exists(
+        select 1 from unitspressure where value = 'GPa') limit 1;
+
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-35,'MPa' from unitspressure where not exists(
+        select 1 from unitspressure where value = 'MPa') limit 1;
+
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-35,'kPa' from unitspressure where not exists(
+        select 1 from unitspressure where value = 'kPa') limit 1;
+
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-35,'hPa' from unitspressure where not exists(
+        select 1 from unitspressure where value = 'hPa') limit 1;
+
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-35,'daPa' from unitspressure where not exists(
+        select 1 from unitspressure where value = 'daPa') limit 1;
+
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-35,'Pa' from unitspressure where not exists(
+        select 1 from unitspressure where value = 'Pa') limit 1;
+
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-35,'dPa' from unitspressure where not exists(
+        select 1 from unitspressure where value = 'dPa') limit 1;
+
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-35,'cPa' from unitspressure where not exists(
+        select 1 from unitspressure where value = 'cPa') limit 1;
+
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-35,'mPa' from unitspressure where not exists(
+        select 1 from unitspressure where value = 'mPa') limit 1;
+
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-35,'µPa' from unitspressure where not exists(
+        select 1 from unitspressure where value = 'µPa') limit 1;
+
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-35,'nPa' from unitspressure where not exists(
+        select 1 from unitspressure where value = 'nPa') limit 1;
+
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-35,'pPa' from unitspressure where not exists(
+        select 1 from unitspressure where value = 'pPa') limit 1;
+
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-35,'fPa' from unitspressure where not exists(
+        select 1 from unitspressure where value = 'fPa') limit 1;
+
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-35,'aPa' from unitspressure where not exists(
+        select 1 from unitspressure where value = 'aPa') limit 1;
+
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-35,'zPa' from unitspressure where not exists(
+        select 1 from unitspressure where value = 'zPa') limit 1;
+
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-35,'yPa' from unitspressure where not exists(
+        select 1 from unitspressure where value = 'yPa') limit 1;
+
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-35,'Mbar' from unitspressure where not exists(
+        select 1 from unitspressure where value = 'Mbar') limit 1;
+
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-35,'kbar' from unitspressure where not exists(
+        select 1 from unitspressure where value = 'kbar') limit 1;
+
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-35,'bar' from unitspressure where not exists(
+        select 1 from unitspressure where value = 'bar') limit 1;
+
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-35,'dbar' from unitspressure where not exists(
+        select 1 from unitspressure where value = 'dbar') limit 1;
+
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-35,'mbar' from unitspressure where not exists(
+        select 1 from unitspressure where value = 'mbar') limit 1;
+
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-35,'atm' from unitspressure where not exists(
+        select 1 from unitspressure where value = 'atm') limit 1;
+
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-35,'psi' from unitspressure where not exists(
+        select 1 from unitspressure where value = 'psi') limit 1;
+
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-35,'Torr' from unitspressure where not exists(
+        select 1 from unitspressure where value = 'Torr') limit 1;
+
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-35,'mTorr' from unitspressure where not exists(
+        select 1 from unitspressure where value = 'mTorr') limit 1;
+
+insert into unitspressure (id,permissions,value)
+    select ome_nextval('seq_unitspressure'),-35,'mm Hg' from unitspressure where not exists(
+        select 1 from unitspressure where value = 'mm Hg') limit 1;
+
 insert into unitstemperature (id,permissions,value)
     select ome_nextval('seq_unitstemperature'),-35,'K' from unitstemperature where not exists(
         select 1 from unitstemperature where value = 'K') limit 1;
