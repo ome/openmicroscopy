@@ -25,10 +25,12 @@
         <th>Owner:</th>
         <td id='owner_fullname'>{{ image.getOwner.getFullName }}</td>
     </tr>
+    {% if image.getAcquisitionDate %}
     <tr>
         <th>Acquisition Date:</th>
-        <td id='acqu_date'>{{ image.getDate|date:"Y-m-d H:i:s" }}</td> <!-- TODO: Insight is m/d/yy h:min AM/PM -->
+        <td id='acqu_date'>{{ image.getAcquisitionDate|date:"Y-m-d H:i:s" }}</td> <!-- TODO: Insight is m/d/yy h:min AM/PM -->
     </tr>
+    {% endif %}
     <tr>
         <th>Imported Date:</th>
         <td id='import_date'>{{ image.creationEventDate|date:"Y-m-d H:i:s" }}</td>
