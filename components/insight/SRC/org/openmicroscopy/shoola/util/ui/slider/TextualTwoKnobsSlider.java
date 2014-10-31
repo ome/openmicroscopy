@@ -124,13 +124,6 @@ public class TextualTwoKnobsSlider
 	/** The field hosting the end value. */
 	private NumericalTextField 	endField;
 	
-	/** Factor by which to reduce the calculated text field length;
-         *  apparently the calculated text field length is just too large */
-        private final static double TEXTFIELD_LENGTH_CORRECTION = 0.75;
-        
-        /** Limit the textfield length (columns) to the given size */
-        private static final int MAX_TEXTFIELD_LENGTH = 10;
-        
 	/** The label displayed in front of the {@link #startField}. */
 	private JLabel				startLabel;
 	
@@ -245,8 +238,11 @@ public class TextualTwoKnobsSlider
 		setSliderPaintingDefault(false);
 		
 		Class type = intMode ? Integer.class : Double.class;
-		
-                int textFieldLength = calculateRequiredTextfieldLength(absMin, absMax);
+
+		double maxValue = Math.max(Math.abs(min), Math.abs(max));
+                if(min<0)
+                    maxValue *= -1;
+                int textFieldLength = formatValue(maxValue).length();
                 
 		startField = new NumericalTextField(absMin, absMax, type, NumericalTextField.VALIDATION_MODE_CORRECT);
 		startField.setColumns(textFieldLength);
@@ -264,26 +260,6 @@ public class TextualTwoKnobsSlider
 		this.end = end;
 	}
         
-        /**
-         * Determines the length (columns) needed for the text fields
-         * 
-         * @param min
-         *            The minimum value which can be entered
-         * @param max
-         *            The maximum value which can be entered
-         * @return The required length for the text fields
-         */
-        private int calculateRequiredTextfieldLength(double min, double max) {
-            double maxValue = Math.max(Math.abs(min), Math.abs(max));
-            if (min < 0)
-                maxValue *= -1;
-            int result = formatValue(maxValue).length();
-            if (result > MAX_TEXTFIELD_LENGTH)
-                result = MAX_TEXTFIELD_LENGTH;
-            result = (int)(result * TEXTFIELD_LENGTH_CORRECTION);
-            return result;
-        }
-	
         /** Sets the start value. */
         private void setStartValue() {
             boolean valid = false;
@@ -681,8 +657,11 @@ public class TextualTwoKnobsSlider
 		removeListeners();
 		
 		intMode = true;
-		
-                int textFieldLength = calculateRequiredTextfieldLength(absoluteMinText, absoluteMaxText);
+
+		double maxValue = Math.max(Math.abs(min), Math.abs(max));
+                if(min<0)
+                    maxValue *= -1;
+                int textFieldLength = formatValue(maxValue).length();
                 
 		startField.setNumberType(Integer.class);
 		endField.setNumberType(Integer.class);
@@ -735,7 +714,10 @@ public class TextualTwoKnobsSlider
                 
                 intMode = false;
                 
-                int textFieldLength = calculateRequiredTextfieldLength(absoluteMinText, absoluteMinText);
+                double maxValue = Math.max(Math.abs(min), Math.abs(max));
+                if(min<0)
+                    maxValue *= -1;
+                int textFieldLength = formatValue(maxValue).length();
                 
                 startField.setNumberType(Double.class);
                 startField.setNegativeAccepted(true);
