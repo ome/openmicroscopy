@@ -852,6 +852,7 @@
             <hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
 
 
+            {% if manager.xml_annotations or manager.boolean_annotations or manager.double_annotations or manager.long_annotations or manager.term_annotations or manager.time_annotations %}
             <!-- CUSTOM ANNOTATIONS -->
             <div class="annotations_section">
                 <h2>{% trans "Others" %}:</h2>
@@ -928,10 +929,8 @@
                         {% endfor %}
                     </table>
             </div>
-                    
-                    
-                    
-            <hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
+            <hr/>
+            {% endif %}
 
             
             
