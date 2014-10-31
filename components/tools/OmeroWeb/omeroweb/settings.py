@@ -276,7 +276,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
             
     # E.g. Center plugin: ["Channel overlay", "webtest/webclient_plugins/center_plugin.overlay.js.html", "channel_overlay_panel"]
     "omero.web.ui.center_plugins": ["CENTER_PLUGINS", '['\
-            #'["Split View", "webclient/data/includes/center_plugin.splitview.js.html", "split_view_panel"],'\
+            #'["Split View", "webtest/webclient_plugins/center_plugin.splitview.js.html", "split_view_panel"],'\
             ']'
             , json.loads],
 
@@ -467,7 +467,6 @@ INSTALLED_APPS = (
     'omeroweb.webadmin',
     'omeroweb.webclient',
     'omeroweb.webgateway',
-    'omeroweb.webtest',
     'omeroweb.webredirect',
     'omeroweb.webstart',
     
