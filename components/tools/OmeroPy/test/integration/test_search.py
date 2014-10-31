@@ -13,6 +13,7 @@ import test.integration.library as lib
 import pytest
 import omero
 import os
+import time
 
 
 class TestSearch(lib.ITest):
@@ -35,29 +36,39 @@ class TestSearch(lib.ITest):
     def test3164Private(self):
         group = self.new_group(perms="rw----")
         owner = self.new_client(group)
-        self._3164(owner, owner)
+        self._3164_setup(owner)
+        failed = self._3164_search(owner)
+        self._3164_assert(failed)
 
     def test3164ReadOnlySelf(self):
         group = self.new_group(perms="rwr---")
         owner = self.new_client(group)
-        self._3164(owner, owner)
+        self._3164_setup(owner)
+        failed = self._3164_search(owner)
+        self._3164_assert(failed)
 
     def test3164ReadOnlyOther(self):
         group = self.new_group(perms="rwr---")
         owner = self.new_client(group)
         searcher = self.new_client(group)
-        self._3164(owner, searcher)
+        self._3164_setup(owner)
+        failed = self._3164_search(searcher)
+        self._3164_assert(failed)
 
     def test3164CollabSelf(self):
         group = self.new_group(perms="rwrw--")
         owner = self.new_client(group)
-        self._3164(owner, owner)
+        self._3164_setup(owner)
+        failed = self._3164_search(owner)
+        self._3164_assert(failed)
 
     def test3164CollabOther(self):
         group = self.new_group(perms="rwrw--")
         owner = self.new_client(group)
         searcher = self.new_client(group)
-        self._3164(owner, searcher)
+        self._3164_setup(owner)
+        failed = self._3164_search(searcher)
+        self._3164_assert(failed)
 
     def test3721Ordering(self):
         """
@@ -102,7 +113,7 @@ class TestSearch(lib.ITest):
     #
     # Helpers
     #
-    def _3164(self, owner, searcher):
+    def _3164_setup(self, owner):
 
         images = list()
         for i in range(0, 5):
@@ -126,7 +137,7 @@ class TestSearch(lib.ITest):
         res = owner.sf.getQueryService().findAllByQuery(sql, p)
         assert 5 == len(res)
 
-        # Searching
+    def _3164_search(self, searcher, runs=10, pause=1):
         texts = ("*earch", "*h", "search tif", "search",
                  "test", "tag", "t*", "search_test",
                  "s .tif", ".tif", "tif", "*tif")
@@ -140,16 +151,24 @@ class TestSearch(lib.ITest):
         search.addOrderByAsc("name")
         search.setAllowLeadingWildcard(True)
 
-        failed = {}
-        for text in texts:
-            search.byFullText(str(text))
-            if search.hasNext():
-                sz = len(search.results())
-            else:
-                sz = 0
-            if 5 != sz:
-                failed[text] = sz
+        for r in range(runs):
+            failed = {}
+            for text in texts:
+                search.byFullText(str(text))
+                if search.hasNext():
+                    sz = len(search.results())
+                else:
+                    sz = 0
+                if 5 != sz:
+                    failed[text] = sz
+            if not failed:
+                break
+            print "Failed run %i with %i fails" % (r + 1, len(failed))
+            time.sleep(pause)
 
+        return failed
+
+    def _3164_assert(self, failed):
         msg = ""
         for k in sorted(failed):
             msg += """\nFAILED: `%s` returned %s""" % (k, failed[k])
