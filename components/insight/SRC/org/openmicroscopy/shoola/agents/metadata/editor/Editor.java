@@ -323,6 +323,13 @@ public interface Editor
 	 */
 	public void loadRenderingControl(int index);
 
+	/** 
+	 * Reloads the rendering control for the first selected image. 
+	 * (Note: This is a blocking method, for asynchronous call use 
+         *   {@link loadRenderingControl(int)} instead)
+	 */
+	public void loadRenderingControl();
+	
 	/**
 	 * Sets the result back to the viewer.
 	 * 
