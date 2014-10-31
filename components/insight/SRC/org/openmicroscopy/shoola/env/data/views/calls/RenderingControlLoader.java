@@ -95,19 +95,25 @@ public class RenderingControlLoader
 					default:
 					case LOAD:
 						result = rds.loadRenderingControl(ctx, pixelsID);
+                                                if (result == null)
+                                                    throw new DSOutOfServiceException(
+                                                            "Cannot start the "
+                                                                    + "rendering engine for pixelsID "
+                                                                    + pixelsID);
 						break;
 					case RELOAD:
 						result = rds.reloadRenderingService(ctx, pixelsID);
+                                                if (result == null)
+                                                    throw new DSOutOfServiceException(
+                                                            "Cannot start the "
+                                                                    + "rendering engine for pixelsID "
+                                                                    + pixelsID);
 						break;
 					case RESET:
 						result = rds.resetRenderingService(ctx, pixelsID);
 						break;
 					case SHUTDOWN:
 						rds.shutDown(ctx, pixelsID);
-				}
-				if (result == null && index != SHUTDOWN) {
-					throw new DSOutOfServiceException("Cannot start the " +
-							"rendering engine for pixelsID "+pixelsID);
 				}
 			}
 		};
