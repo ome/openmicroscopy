@@ -57,8 +57,8 @@ public class PressureI extends Pressure implements ModelBased {
         return this.value;
     }
 
-    public void setValue(double time, Ice.Current current) {
-        this.value = time;
+    public void setValue(double pressure, Ice.Current current) {
+        this.value = pressure;
     }
 
     public UnitsPressure getUnit(Ice.Current current) {

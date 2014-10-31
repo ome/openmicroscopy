@@ -62,7 +62,7 @@ public class Length implements Serializable, Filterable {
 
     /**
      * representation of the units which should be considering when
-     * producing a representation of the {@link #time} field.
+     * producing a representation of the {@link #length} field.
      */
     private UnitsLength unit;
 

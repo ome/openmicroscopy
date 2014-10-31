@@ -31,8 +31,8 @@ module omero {
        * an [omero::model::IObject] implementation and as such does
        * not have an ID value. Instead, the entire object is embedded
        * into the containing class, so that the value and unit rows
-       * can be found on the table itself (e.g. pixels.physicalSizeX
-       * and pixels.physicalSizeXUnit).
+       * can be found on the table itself (e.g. imagingEnvironment.pressure
+       * and imagingEnvironment.pressureUnit).
        **/
     ["protected"] class Pressure
     {

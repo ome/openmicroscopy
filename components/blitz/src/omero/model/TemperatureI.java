@@ -57,8 +57,8 @@ public class TemperatureI extends Temperature implements ModelBased {
         return this.value;
     }
 
-    public void setValue(double time, Ice.Current current) {
-        this.value = time;
+    public void setValue(double temperature, Ice.Current current) {
+        this.value = temperature;
     }
 
     public UnitsTemperature getUnit(Ice.Current current) {

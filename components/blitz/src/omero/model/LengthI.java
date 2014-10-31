@@ -57,8 +57,8 @@ public class LengthI extends Length implements ModelBased {
         return this.value;
     }
 
-    public void setValue(double time, Ice.Current current) {
-        this.value = time;
+    public void setValue(double length, Ice.Current current) {
+        this.value = length;
     }
 
     public UnitsLength getUnit(Ice.Current current) {
