@@ -1,7 +1,9 @@
 package ome.formats.utests;
 
 import static ome.xml.model.LightSourceSettings.getWavelengthUnitXsdDefault;
+import static ome.formats.model.UnitsFactory.convertFrequency;
 import static ome.formats.model.UnitsFactory.convertLength;
+import static ome.formats.model.UnitsFactory.makeFrequency;
 import static ome.formats.model.UnitsFactory.makeLength;
 
 import java.util.LinkedHashMap;
@@ -9,6 +11,8 @@ import java.util.LinkedHashMap;
 import ome.formats.Index;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.model.BlitzInstanceProvider;
+import ome.units.UNITS;
+import ome.units.quantity.Frequency;
 import ome.units.quantity.Length;
 import ome.xml.model.enums.*;
 import omero.api.ServiceFactoryPrx;
@@ -34,6 +38,10 @@ public class LaserTest extends TestCase
 	    return convertLength(makeLength(d, WAVE_UNIT));
 	}
 
+	private static Frequency hz(double d) {
+	    return convertFrequency(makeFrequency(d, UNITS.HZ));
+	}
+
 	@BeforeMethod
 	protected void setUp() throws Exception
 	{
@@ -55,7 +63,7 @@ public class LaserTest extends TestCase
 		store.setLaserLaserMedium(LaserMedium.EMINUS, INSTRUMENT_INDEX, i);
 		store.setLaserPockelCell(true, INSTRUMENT_INDEX, i);
 		store.setLaserPulse(Pulse.REPETITIVE, INSTRUMENT_INDEX, i);
-		store.setLaserRepetitionRate(2.0, INSTRUMENT_INDEX, i);
+		store.setLaserRepetitionRate(hz(2.0), INSTRUMENT_INDEX, i);
 		store.setLaserTuneable(true, INSTRUMENT_INDEX, i);
 	}
 

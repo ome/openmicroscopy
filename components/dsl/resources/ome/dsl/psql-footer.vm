@@ -500,6 +500,8 @@ update pixelstype set bitsize = 64 where value = 'double';
 update pixelstype set bitsize = 64 where value = 'complex';
 update pixelstype set bitsize = 128 where value = 'double-complex';
 
+update unitsfrequency set measurementsystem = 'SI.HERTZ';
+
 update unitslength set measurementsystem = 'SI.METRE';
 update unitslength set measurementsystem = 'Imperial.INCH'
     where value in ('thou', 'li', 'in', 'ft', 'yd', 'mi', 'pt');
@@ -516,6 +518,7 @@ update unitstime set measurementsystem = 'SI.SECOND';
 
 -- reactivate not null constraints
 alter table pixelstype alter column bitsize set not null;
+alter table unitsfrequency alter column measurementsystem set not null;
 alter table unitslength alter column measurementsystem set not null;
 alter table unitspressure alter column measurementsystem set not null;
 alter table unitstemperature alter column measurementsystem set not null;

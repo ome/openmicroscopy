@@ -22,7 +22,10 @@
  */
 package pojos;
 
+import static ome.xml.model.DetectorSettings.getReadOutRateUnitXsdDefault;
 import static ome.xml.model.LightSourceSettings.getWavelengthUnitXsdDefault;
+import static ome.formats.model.UnitsFactory.convertFrequency;
+import static ome.formats.model.UnitsFactory.makeFrequency;
 import static ome.formats.model.UnitsFactory.makeLength;
 
 import omero.RDouble;
@@ -32,6 +35,7 @@ import omero.model.ContrastMethod;
 import omero.model.DetectorSettings;
 import omero.model.DetectorSettingsI;
 import omero.model.FilterSet;
+import omero.model.Frequency;
 import omero.model.Illumination;
 import omero.model.Length;
 import omero.model.LightPath;
@@ -172,12 +176,14 @@ public class ChannelAcquisitionData
 	 * 
 	 * @return See above.
 	 */
+	@Deprecated
 	public Double getDetectorSettingsReadOutRate()
 	{
 		if (detectorSettings == null) return null;
-		RDouble value = detectorSettings.getReadOutRate();
+		Frequency value = detectorSettings.getReadOutRate();
 		if (value == null) return null;
-		return value.getValue();
+		return convertFrequency(value,
+		        getReadOutRateUnitXsdDefault()).getValue();
 	}
 	
 	/**
@@ -302,12 +308,14 @@ public class ChannelAcquisitionData
 	 * 
 	 * @param value The value to set.
 	 */
+	@Deprecated
 	public void setDetectorSettingsReadOutRate(double value)
 	{
 		detectorSettingsDirty = true;
 		if (detectorSettings == null) 
 			detectorSettings = new DetectorSettingsI();
-		detectorSettings.setReadOutRate(omero.rtypes.rdouble(value));
+		detectorSettings.setReadOutRate(makeFrequency(value,
+		        getReadOutRateUnitXsdDefault()));
 	}
 	
 	/**

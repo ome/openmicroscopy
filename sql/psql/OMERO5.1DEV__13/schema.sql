@@ -609,6 +609,7 @@
         owner_id int8 not null,
         update_id int8 not null,
         detector int8 not null,
+        readOutRateUnit int8,
         primary key (id)
     );;
 
@@ -1178,6 +1179,7 @@
         laserMedium int8 not null,
         pulse int8,
         pump int8,
+        repetitionRateUnit int8,
         type int8 not null,
         wavelengthUnit int8,
         primary key (lightsource_id)
@@ -2228,6 +2230,15 @@
         primary key (id)
     );;
 
+    create table unitsfrequency (
+        id int8 not null,
+        permissions int8 not null,
+        measurementSystem varchar(255) not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
     create table unitslength (
         id int8 not null,
         permissions int8 not null,
@@ -3005,6 +3016,11 @@
         add constraint FKdetectorsettings_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
+
+    alter table detectorsettings 
+        add constraint FKBBE4ADE9B965E6B1 
+        foreign key (readOutRateUnit) 
+        references unitsfrequency  ;;
 
     alter table detectorsettings 
         add constraint FKdetectorsettings_update_id_event 
@@ -3965,6 +3981,11 @@
         add constraint FKlaser_pump_lightsource 
         foreign key (pump) 
         references lightsource  ;;
+
+    alter table laser 
+        add constraint FK61FBECBAF8FC42A 
+        foreign key (repetitionRateUnit) 
+        references unitsfrequency  ;;
 
     alter table laser 
         add constraint FKlaser_laserMedium_lasermedium 
@@ -5825,6 +5846,11 @@
         add constraint FKtransmittancerange_owner_id_experimenter 
         foreign key (owner_id) 
         references experimenter  ;;
+
+    alter table unitsfrequency 
+        add constraint FKunitsfrequency_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
     alter table unitslength 
         add constraint FKunitslength_external_id_externalinfo 

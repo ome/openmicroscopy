@@ -65,6 +65,21 @@ namespace omero {
 
     };
 
+    class FrequencyObjectFactory : virtual public Ice::ObjectFactory {
+
+        public:
+        FrequencyObjectFactory() : Ice::ObjectFactory() { }
+
+        ~FrequencyObjectFactory() {}
+
+        Ice::ObjectPtr create(const std::string& /*type*/) {
+            return new omero::model::FrequencyI();
+        }
+
+        void destroy() {}
+
+    };
+
     class LengthObjectFactory : virtual public Ice::ObjectFactory {
 
         public:
@@ -135,6 +150,7 @@ namespace omero {
 
   void registerObjectFactory(const Ice::CommunicatorPtr ic) {
     conditionalAdd("::omero::model::Permissions", ic, new PermissionsObjectFactory());
+    conditionalAdd("::omero::model::Frequency", ic, new FrequencyObjectFactory());
     conditionalAdd("::omero::model::Length", ic, new LengthObjectFactory());
     conditionalAdd("::omero::model::Pressure", ic, new PressureObjectFactory());
     conditionalAdd("::omero::model::Temperature", ic, new TemperatureObjectFactory());

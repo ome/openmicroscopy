@@ -23,6 +23,8 @@ import static omero.rtypes.rstring;
 import static omero.rtypes.unwrap;
 import ome.units.unit.Unit;
 import ome.xml.model.enums.EnumerationException;
+import omero.model.Frequency;
+import omero.model.FrequencyI;
 import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.Pressure;
@@ -30,6 +32,8 @@ import omero.model.PressureI;
 import omero.model.Temperature;
 import omero.model.TemperatureI;
 import omero.model.Time;
+import omero.model.UnitsFrequency;
+import omero.model.UnitsFrequencyI;
 import omero.model.UnitsLength;
 import omero.model.UnitsLengthI;
 import omero.model.UnitsPressure;
@@ -41,6 +45,100 @@ import omero.model.UnitsTemperatureI;
  * Utility class to generate and convert unit objects.
  */
 public class UnitsFactory {
+
+    //
+    // FREQUENCY
+    //
+
+    public static Frequency makeFrequency(double d, String unit) {
+        UnitsFrequency ul = new UnitsFrequencyI();
+        ul.setValue(rstring(unit));
+        Frequency copy = new FrequencyI();
+        copy.setUnit(ul);
+        copy.setValue(d);
+        return copy;
+    }
+
+    public static ome.xml.model.enums.UnitsFrequency makeFrequencyUnitXML(String unit) {
+        try {
+            return ome.xml.model.enums.UnitsFrequency
+                    .fromString((String) unit);
+        } catch (EnumerationException e) {
+            throw new RuntimeException("Bad frequency unit: " + unit, e);
+        }
+    }
+
+    public static ome.units.quantity.Frequency makeFrequencyXML(double d, String unit) {
+        ome.units.unit.Unit<ome.units.quantity.Frequency> units =
+                ome.xml.model.enums.handlers.UnitsFrequencyEnumHandler
+                        .getBaseUnit(makeFrequencyUnitXML(unit));
+        return new ome.units.quantity.Frequency(d, units);
+    }
+
+    public static Frequency makeFrequency(double d,
+            Unit<ome.units.quantity.Frequency> unit) {
+        return makeFrequency(d, unit.getSymbol());
+    }
+
+    public static Frequency makeFrequency(double d, UnitsFrequency unit) {
+        Frequency copy = new FrequencyI();
+        copy.setUnit(unit);
+        copy.setValue(d);
+        return copy;
+    }
+
+    /**
+     * Convert a Bio-Formats {@link Frequency} to an OMERO Frequency. A null will be
+     * returned if the input is null.
+     */
+    public static Frequency convertFrequency(ome.units.quantity.Frequency value) {
+        if (value == null)
+            return null;
+        omero.model.UnitsFrequency ul = new omero.model.UnitsFrequencyI();
+        ul.setValue(rstring(value.unit().getSymbol()));
+
+        omero.model.Frequency l = new omero.model.FrequencyI();
+        l.setValue(value.value().doubleValue());
+        l.setUnit(ul);
+        return l;
+    }
+
+    /**
+     * FIXME: this should likely take a default so that locations which don't
+     * want an exception can have
+     * 
+     * log.warn("Using new PositiveFloat(1.0)!", e); return new
+     * PositiveFloat(1.0);
+     * 
+     * or similar.
+     */
+    public static ome.units.quantity.Frequency convertFrequency(Frequency t) {
+        if (t == null) {
+            return null;
+        }
+
+        Double frequency = t.getValue();
+        String u = (String) unwrap(t.getUnit().getValue());
+        ome.xml.model.enums.UnitsFrequency units = makeFrequencyUnitXML(u);
+        ome.units.unit.Unit<ome.units.quantity.Frequency> units2 =
+                ome.xml.model.enums.handlers.UnitsFrequencyEnumHandler
+                        .getBaseUnit(units);
+
+        return new ome.units.quantity.Frequency(frequency, units2);
+    }
+
+    public static Frequency convertFrequency(Frequency value, Unit<ome.units.quantity.Frequency> ul) {
+        return convertFrequency(value, ul.getSymbol());
+    }
+
+    public static Frequency convertFrequency(Frequency value, String target) {
+        String source = value.getUnit().getValue().getValue();
+        if (target.equals(source)) {
+            return value;
+        }
+        throw new RuntimeException(String.format(
+                "%d %s cannot be converted to %s", value.getValue(), source));
+    }
 
     //
     // LENGTH

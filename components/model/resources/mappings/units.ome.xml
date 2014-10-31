@@ -17,6 +17,30 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <types>
+	<enum id="ome.model.enums.UnitsFrequency">
+		<entry name="YHz"/>
+		<entry name="ZHz"/>
+		<entry name="EHz"/>
+		<entry name="PHz"/>
+		<entry name="THz"/>
+		<entry name="GHz"/>
+		<entry name="MHz"/>
+		<entry name="kHz"/>
+		<entry name="hHz"/>
+		<entry name="daHz"/>
+		<entry name="Hz"/>
+		<entry name="dHz"/>
+		<entry name="cHz"/>
+		<entry name="mHz"/>
+		<entry name="µHz"/>
+		<entry name="nHz"/>
+		<entry name="pHz"/>
+		<entry name="fHz"/>
+		<entry name="aHz"/>
+		<entry name="zHz"/>
+		<entry name="yHz"/>
+		<required name="measurementSystem" type="string"/>
+	</enum>
 	<enum id="ome.model.enums.UnitsLength">
 		<entry name="Ym"/>
 		<entry name="Zm"/>

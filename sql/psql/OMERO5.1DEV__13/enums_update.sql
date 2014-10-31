@@ -1429,6 +1429,90 @@ insert into renderingmodel (id,permissions,value)
     select ome_nextval('seq_renderingmodel'),-35,'greyscale' from renderingmodel where not exists(
         select 1 from renderingmodel where value = 'greyscale') limit 1;
 
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-35,'YHz' from unitsfrequency where not exists(
+        select 1 from unitsfrequency where value = 'YHz') limit 1;
+
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-35,'ZHz' from unitsfrequency where not exists(
+        select 1 from unitsfrequency where value = 'ZHz') limit 1;
+
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-35,'EHz' from unitsfrequency where not exists(
+        select 1 from unitsfrequency where value = 'EHz') limit 1;
+
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-35,'PHz' from unitsfrequency where not exists(
+        select 1 from unitsfrequency where value = 'PHz') limit 1;
+
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-35,'THz' from unitsfrequency where not exists(
+        select 1 from unitsfrequency where value = 'THz') limit 1;
+
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-35,'GHz' from unitsfrequency where not exists(
+        select 1 from unitsfrequency where value = 'GHz') limit 1;
+
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-35,'MHz' from unitsfrequency where not exists(
+        select 1 from unitsfrequency where value = 'MHz') limit 1;
+
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-35,'kHz' from unitsfrequency where not exists(
+        select 1 from unitsfrequency where value = 'kHz') limit 1;
+
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-35,'hHz' from unitsfrequency where not exists(
+        select 1 from unitsfrequency where value = 'hHz') limit 1;
+
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-35,'daHz' from unitsfrequency where not exists(
+        select 1 from unitsfrequency where value = 'daHz') limit 1;
+
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-35,'Hz' from unitsfrequency where not exists(
+        select 1 from unitsfrequency where value = 'Hz') limit 1;
+
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-35,'dHz' from unitsfrequency where not exists(
+        select 1 from unitsfrequency where value = 'dHz') limit 1;
+
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-35,'cHz' from unitsfrequency where not exists(
+        select 1 from unitsfrequency where value = 'cHz') limit 1;
+
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-35,'mHz' from unitsfrequency where not exists(
+        select 1 from unitsfrequency where value = 'mHz') limit 1;
+
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-35,'µHz' from unitsfrequency where not exists(
+        select 1 from unitsfrequency where value = 'µHz') limit 1;
+
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-35,'nHz' from unitsfrequency where not exists(
+        select 1 from unitsfrequency where value = 'nHz') limit 1;
+
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-35,'pHz' from unitsfrequency where not exists(
+        select 1 from unitsfrequency where value = 'pHz') limit 1;
+
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-35,'fHz' from unitsfrequency where not exists(
+        select 1 from unitsfrequency where value = 'fHz') limit 1;
+
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-35,'aHz' from unitsfrequency where not exists(
+        select 1 from unitsfrequency where value = 'aHz') limit 1;
+
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-35,'zHz' from unitsfrequency where not exists(
+        select 1 from unitsfrequency where value = 'zHz') limit 1;
+
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-35,'yHz' from unitsfrequency where not exists(
+        select 1 from unitsfrequency where value = 'yHz') limit 1;
+
 insert into unitslength (id,permissions,value)
     select ome_nextval('seq_unitslength'),-35,'Ym' from unitslength where not exists(
         select 1 from unitslength where value = 'Ym') limit 1;

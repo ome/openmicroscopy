@@ -347,6 +347,7 @@
   CREATE INDEX i_DetectorAnnotationLink_child ON detectorannotationlink(child);
   CREATE INDEX i_detectorsettings_owner ON detectorsettings(owner_id);
   CREATE INDEX i_detectorsettings_group ON detectorsettings(group_id);
+  CREATE INDEX i_DetectorSettings_readOutRate ON detectorsettings(readOutRate);
   CREATE INDEX i_DetectorSettings_binning ON detectorsettings(binning);
   CREATE INDEX i_DetectorSettings_detector ON detectorsettings(detector);
   CREATE INDEX i_dichroic_owner ON dichroic(owner_id);
@@ -450,6 +451,7 @@
   CREATE INDEX i_Laser_pulse ON laser(pulse);
   CREATE INDEX i_Laser_wavelength ON laser(wavelength);
   CREATE INDEX i_Laser_pump ON laser(pump);
+  CREATE INDEX i_Laser_repetitionRate ON laser(repetitionRate);
   CREATE INDEX i_lightpath_owner ON lightpath(owner_id);
   CREATE INDEX i_lightpath_group ON lightpath(group_id);
   CREATE INDEX i_LightPath_dichroic ON lightpath(dichroic);
@@ -900,6 +902,7 @@ CREATE SEQUENCE seq_stagelabel; INSERT INTO _lock_ids (name, id) SELECT 'seq_sta
 CREATE SEQUENCE seq_statsinfo; INSERT INTO _lock_ids (name, id) SELECT 'seq_statsinfo', nextval('_lock_seq');
 CREATE SEQUENCE seq_thumbnail; INSERT INTO _lock_ids (name, id) SELECT 'seq_thumbnail', nextval('_lock_seq');
 CREATE SEQUENCE seq_transmittancerange; INSERT INTO _lock_ids (name, id) SELECT 'seq_transmittancerange', nextval('_lock_seq');
+CREATE SEQUENCE seq_unitsfrequency; INSERT INTO _lock_ids (name, id) SELECT 'seq_unitsfrequency', nextval('_lock_seq');
 CREATE SEQUENCE seq_unitslength; INSERT INTO _lock_ids (name, id) SELECT 'seq_unitslength', nextval('_lock_seq');
 CREATE SEQUENCE seq_unitspressure; INSERT INTO _lock_ids (name, id) SELECT 'seq_unitspressure', nextval('_lock_seq');
 CREATE SEQUENCE seq_unitstemperature; INSERT INTO _lock_ids (name, id) SELECT 'seq_unitstemperature', nextval('_lock_seq');
@@ -2371,6 +2374,48 @@ insert into renderingmodel (id,permissions,value)
     select ome_nextval('seq_renderingmodel'),-52,'rgb';
 insert into renderingmodel (id,permissions,value)
     select ome_nextval('seq_renderingmodel'),-52,'greyscale';
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-52,'YHz';
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-52,'ZHz';
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-52,'EHz';
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-52,'PHz';
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-52,'THz';
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-52,'GHz';
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-52,'MHz';
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-52,'kHz';
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-52,'hHz';
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-52,'daHz';
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-52,'Hz';
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-52,'dHz';
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-52,'cHz';
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-52,'mHz';
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-52,'µHz';
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-52,'nHz';
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-52,'pHz';
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-52,'fHz';
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-52,'aHz';
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-52,'zHz';
+insert into unitsfrequency (id,permissions,value)
+    select ome_nextval('seq_unitsfrequency'),-52,'yHz';
 insert into unitslength (id,permissions,value)
     select ome_nextval('seq_unitslength'),-52,'Ym';
 insert into unitslength (id,permissions,value)
@@ -2571,6 +2616,8 @@ update pixelstype set bitsize = 64 where value = 'double';
 update pixelstype set bitsize = 64 where value = 'complex';
 update pixelstype set bitsize = 128 where value = 'double-complex';
 
+update unitsfrequency set measurementsystem = 'SI.HERTZ';
+
 update unitslength set measurementsystem = 'SI.METRE';
 update unitslength set measurementsystem = 'Imperial.INCH'
     where value in ('thou', 'li', 'in', 'ft', 'yd', 'mi', 'pt');
@@ -2587,6 +2634,7 @@ update unitstime set measurementsystem = 'SI.SECOND';
 
 -- reactivate not null constraints
 alter table pixelstype alter column bitsize set not null;
+alter table unitsfrequency alter column measurementsystem set not null;
 alter table unitslength alter column measurementsystem set not null;
 alter table unitspressure alter column measurementsystem set not null;
 alter table unitstemperature alter column measurementsystem set not null;

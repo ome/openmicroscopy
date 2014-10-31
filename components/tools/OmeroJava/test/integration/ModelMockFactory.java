@@ -8,6 +8,7 @@ package integration;
 
 import static omero.rtypes.rstring;
 
+import static ome.formats.model.UnitsFactory.makeFrequency;
 import static ome.formats.model.UnitsFactory.makeLength;
 import static ome.formats.model.UnitsFactory.makePressure;
 import static ome.formats.model.UnitsFactory.makeTemperature;
@@ -24,6 +25,7 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 
+import ome.units.UNITS;
 import ome.xml.model.TransmittanceRange;
 import omero.api.IPixelsPrx;
 import omero.model.*;
@@ -111,6 +113,10 @@ public class ModelMockFactory {
 
     /** Helper reference to the <code>IPixels</code> service. */
     private IPixelsPrx pixelsService;
+
+    private static Frequency hz(double d) {
+        return makeFrequency(d, UNITS.HZ);
+    }
 
     /**
      * Creates a new instance.
@@ -447,7 +453,7 @@ public class ModelMockFactory {
         settings.setDetector(detector);
         settings.setGain(omero.rtypes.rdouble(1));
         settings.setOffsetValue(omero.rtypes.rdouble(1));
-        settings.setReadOutRate(omero.rtypes.rdouble(1));
+        settings.setReadOutRate(hz(1));
         settings.setVoltage(omero.rtypes.rdouble(1));
         return settings;
     }
@@ -593,7 +599,7 @@ public class ModelMockFactory {
         laser.setTuneable(omero.rtypes.rbool(true));
         laser.setWavelength(makeLength(500.1, WAVE_UNIT));
         laser.setPower(omero.rtypes.rdouble(1));
-        laser.setRepetitionRate(omero.rtypes.rdouble(1));
+        laser.setRepetitionRate(hz(1));
         return laser;
     }
 

@@ -31,6 +31,7 @@ import static omero.rtypes.rlong;
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 
+import static ome.formats.model.UnitsFactory.convertFrequency;
 import static ome.formats.model.UnitsFactory.convertLength;
 import static ome.formats.model.UnitsFactory.convertPressure;
 import static ome.formats.model.UnitsFactory.convertTemperature;
@@ -73,6 +74,7 @@ import ome.formats.model.ShapeProcessor;
 import ome.formats.model.TargetProcessor;
 import ome.formats.model.WellProcessor;
 import ome.services.blitz.repo.ManagedImportRequestI;
+import ome.units.quantity.Frequency;
 import ome.units.quantity.Length;
 import ome.units.quantity.Pressure;
 import ome.units.quantity.Temperature;
@@ -3292,11 +3294,11 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setDetectorSettingsReadOutRate(java.lang.Double, int, int)
      */
     @Override
-    public void setDetectorSettingsReadOutRate(Double readOutRate,
+    public void setDetectorSettingsReadOutRate(Frequency readOutRate,
             int imageIndex, int channelIndex)
     {
         DetectorSettings o = getDetectorSettings(imageIndex, channelIndex);
-        o.setReadOutRate(toRType(readOutRate));
+        o.setReadOutRate(convertFrequency(readOutRate));
     }
 
     /* (non-Javadoc)
@@ -4598,11 +4600,11 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setLaserRepetitionRate(java.lang.Double, int, int)
      */
     @Override
-    public void setLaserRepetitionRate(Double repetitionRate,
+    public void setLaserRepetitionRate(Frequency repetitionRate,
             int instrumentIndex, int lightSourceIndex)
     {
         Laser o = getLaser(instrumentIndex, lightSourceIndex);
-        o.setRepetitionRate(toRType(repetitionRate));
+        o.setRepetitionRate(convertFrequency(repetitionRate));
     }
 
     /* (non-Javadoc)

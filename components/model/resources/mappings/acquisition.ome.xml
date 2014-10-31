@@ -234,7 +234,7 @@
 			<optional name="gain" type="double"/>
 			<optional name="offsetValue" type="double"/>
 			<!-- Note: offsetValue is called Offset in model-->
-			<optional name="readOutRate" type="double"/>
+			<optional name="readOutRate" type="ome.model.units.Frequency"/>
 			<optional name="binning" type="ome.model.enums.Binning"/>
 			<optional name="integration" type="PositiveInteger"/>
 			<optional name="zoom" type="double"/>
@@ -301,7 +301,7 @@
 			<optional name="wavelength" type="ome.model.units.Length"/>
 			<optional name="pockelCell" type="boolean"/>
 			<optional name="pump" type="ome.model.acquisition.LightSource"/>
-			<optional name="repetitionRate" type="double"/>
+			<optional name="repetitionRate" type="ome.model.units.Frequency"/>
 		</properties>
 	</type>
 	<type id="ome.model.acquisition.LightEmittingDiode" superclass="ome.model.acquisition.LightSource">

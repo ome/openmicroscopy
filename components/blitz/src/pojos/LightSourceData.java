@@ -30,6 +30,7 @@ import omero.model.Arc;
 import omero.model.ArcType;
 import omero.model.Filament;
 import omero.model.FilamentType;
+import omero.model.Frequency;
 import omero.model.Laser;
 import omero.model.LaserMedium;
 import omero.model.LaserType;
@@ -298,11 +299,12 @@ public class LightSourceData
 	 * 
 	 * @return See above.
 	 */
+	@Deprecated
 	public double getLaserRepetitionRate()
 	{
 		if (!LASER.equals(getKind())) return -1;
 		Laser laser = (Laser) asIObject();
-		RDouble value = laser.getRepetitionRate();
+		Frequency value = laser.getRepetitionRate();
 		if (value  == null) return -1;
 		return value.getValue();
 	}
