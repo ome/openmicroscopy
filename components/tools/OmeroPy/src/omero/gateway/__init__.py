@@ -6624,6 +6624,19 @@ class _ImageWrapper (BlitzObjectWrapper):
         self._obj = self._conn.getContainerService().getImages(
             self.OMERO_CLASS, (self._oid,), None, ctx)[0]
 
+    def getAcquisitionDate(self):
+        """
+        Returns the acquisition date for the image or None if not set.
+
+        :return:    A :meth:`datetime.datetime` object
+        :rtype:     datetime
+        """
+
+        t = unwrap(self._obj.acquisitionDate)
+        print t
+        if t is not None and t > 0:
+            return datetime.fromtimestamp(t/1000)
+
     def getInstrument(self):
         """
 
