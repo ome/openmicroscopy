@@ -62,7 +62,7 @@
             <div>
                 {% if image.getChannels %}
                     <div id="channel_names_display">
-                    {% for c in image.getChannels %}{% if not forloop.first %}, {% endif %}<span>{{ c.getLabel }}</span>{% endfor %}
+                    {% for c in image.getChannels %}{% if not forloop.first %}, {% endif %}<span>{{ c.getLabel|escape }}</span>{% endfor %}
                     </div>
                     <!-- form for editing channel names (initially hidden)-->
                     <form action="{% url 'edit_channel_names' image.id %}" method="POST" id="channel_names_edit" style="display:none">

@@ -100,5 +100,5 @@
 </div>
 
 <script>
-    tagging_form({{ selected_tags|safe }}, "{{ newtags_formset.prefix }}", "{{ form_tags.tags.auto_id }}", {{ ome.user.id }}, "{{ ome.user.firstName|escape }} {{ ome.user.lastName|escape }}");
+    tagging_form({{ selected_tags|escape }}, "{{ newtags_formset.prefix }}", "{{ form_tags.tags.auto_id }}", {{ ome.user.id }}, "{{ ome.user.firstName|escape }} {{ ome.user.lastName|escape }}");
 </script>

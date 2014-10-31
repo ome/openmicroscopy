@@ -275,7 +275,7 @@
 				
                 <div class="description">
                     <div class="data_heading">
-						<p><span>{{ manager.share.message|default:""|sharewikify|safe|linebreaks }}</span></p>
+						<p><span>{{ manager.share.message|default:""|escape|linebreaks }}</span></p>
 					</div>
                 </div>
                 
