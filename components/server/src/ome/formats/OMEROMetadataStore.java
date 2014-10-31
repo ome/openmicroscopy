@@ -2192,7 +2192,7 @@ public class OMEROMetadataStore
     			globalMinMax = channelGlobalMinMax[c];
     			channel = pixels.getChannel(c);
     			statsInfo = new StatsInfo();
-    			if (rgb && "unint8".equals(type)) {
+    			if (rgb && "uint8".equals(type)) {
     			    statsInfo.setGlobalMin(0.0);
                     statsInfo.setGlobalMax(255.0);
     			} else {
