@@ -339,6 +339,7 @@
   CREATE INDEX i_DatasetImageLink_child ON datasetimagelink(child);
   CREATE INDEX i_detector_owner ON detector(owner_id);
   CREATE INDEX i_detector_group ON detector(group_id);
+  CREATE INDEX i_Detector_voltage ON detector(voltage);
   CREATE INDEX i_Detector_type ON detector(type);
   CREATE INDEX i_Detector_instrument ON detector(instrument);
   CREATE INDEX i_detectorannotationlink_owner ON detectorannotationlink(owner_id);
@@ -347,6 +348,7 @@
   CREATE INDEX i_DetectorAnnotationLink_child ON detectorannotationlink(child);
   CREATE INDEX i_detectorsettings_owner ON detectorsettings(owner_id);
   CREATE INDEX i_detectorsettings_group ON detectorsettings(group_id);
+  CREATE INDEX i_DetectorSettings_voltage ON detectorsettings(voltage);
   CREATE INDEX i_DetectorSettings_readOutRate ON detectorsettings(readOutRate);
   CREATE INDEX i_DetectorSettings_binning ON detectorsettings(binning);
   CREATE INDEX i_DetectorSettings_detector ON detectorsettings(detector);
@@ -902,6 +904,7 @@ CREATE SEQUENCE seq_stagelabel; INSERT INTO _lock_ids (name, id) SELECT 'seq_sta
 CREATE SEQUENCE seq_statsinfo; INSERT INTO _lock_ids (name, id) SELECT 'seq_statsinfo', nextval('_lock_seq');
 CREATE SEQUENCE seq_thumbnail; INSERT INTO _lock_ids (name, id) SELECT 'seq_thumbnail', nextval('_lock_seq');
 CREATE SEQUENCE seq_transmittancerange; INSERT INTO _lock_ids (name, id) SELECT 'seq_transmittancerange', nextval('_lock_seq');
+CREATE SEQUENCE seq_unitselectricpotential; INSERT INTO _lock_ids (name, id) SELECT 'seq_unitselectricpotential', nextval('_lock_seq');
 CREATE SEQUENCE seq_unitsfrequency; INSERT INTO _lock_ids (name, id) SELECT 'seq_unitsfrequency', nextval('_lock_seq');
 CREATE SEQUENCE seq_unitslength; INSERT INTO _lock_ids (name, id) SELECT 'seq_unitslength', nextval('_lock_seq');
 CREATE SEQUENCE seq_unitspressure; INSERT INTO _lock_ids (name, id) SELECT 'seq_unitspressure', nextval('_lock_seq');
@@ -2374,6 +2377,48 @@ insert into renderingmodel (id,permissions,value)
     select ome_nextval('seq_renderingmodel'),-52,'rgb';
 insert into renderingmodel (id,permissions,value)
     select ome_nextval('seq_renderingmodel'),-52,'greyscale';
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-52,'YV';
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-52,'ZV';
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-52,'EV';
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-52,'PV';
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-52,'TV';
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-52,'GV';
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-52,'MV';
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-52,'kV';
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-52,'hV';
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-52,'daV';
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-52,'V';
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-52,'dV';
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-52,'cV';
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-52,'mV';
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-52,'µV';
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-52,'nV';
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-52,'pV';
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-52,'fV';
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-52,'aV';
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-52,'zV';
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-52,'yV';
 insert into unitsfrequency (id,permissions,value)
     select ome_nextval('seq_unitsfrequency'),-52,'YHz';
 insert into unitsfrequency (id,permissions,value)
@@ -2616,6 +2661,8 @@ update pixelstype set bitsize = 64 where value = 'double';
 update pixelstype set bitsize = 64 where value = 'complex';
 update pixelstype set bitsize = 128 where value = 'double-complex';
 
+update unitselectricpotential set measurementsystem = 'SI.VOLT';
+
 update unitsfrequency set measurementsystem = 'SI.HERTZ';
 
 update unitslength set measurementsystem = 'SI.METRE';
@@ -2634,6 +2681,7 @@ update unitstime set measurementsystem = 'SI.SECOND';
 
 -- reactivate not null constraints
 alter table pixelstype alter column bitsize set not null;
+alter table unitselectricpotential alter column measurementsystem set not null;
 alter table unitsfrequency alter column measurementsystem set not null;
 alter table unitslength alter column measurementsystem set not null;
 alter table unitspressure alter column measurementsystem set not null;

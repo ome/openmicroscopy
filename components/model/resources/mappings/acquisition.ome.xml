@@ -230,7 +230,7 @@
 	<type id="ome.model.acquisition.DetectorSettings">
 		<!-- Note: DetectorSettings are stored in DetectorRef in model-->
 		<properties>
-			<optional name="voltage" type="double"/>
+			<optional name="voltage" type="ome.model.units.ElectricPotential"/>
 			<optional name="gain" type="double"/>
 			<optional name="offsetValue" type="double"/>
 			<!-- Note: offsetValue is called Offset in model-->
@@ -324,7 +324,7 @@
 			<optional name="model" type="string"/>
 			<optional name="lotNumber" type="string"/>
 			<optional name="serialNumber" type="string"/>
-			<optional name="voltage" type="double"/>
+			<optional name="voltage" type="ome.model.units.ElectricPotential"/>
 			<optional name="gain" type="double"/>
 			<optional name="offsetValue" type="double"/>
 			<!-- Note: offsetValue is called Offset in model-->

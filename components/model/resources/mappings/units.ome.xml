@@ -17,6 +17,30 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <types>
+	<enum id="ome.model.enums.UnitsElectricPotential">
+		<entry name="YV"/>
+		<entry name="ZV"/>
+		<entry name="EV"/>
+		<entry name="PV"/>
+		<entry name="TV"/>
+		<entry name="GV"/>
+		<entry name="MV"/>
+		<entry name="kV"/>
+		<entry name="hV"/>
+		<entry name="daV"/>
+		<entry name="V"/>
+		<entry name="dV"/>
+		<entry name="cV"/>
+		<entry name="mV"/>
+		<entry name="µV"/>
+		<entry name="nV"/>
+		<entry name="pV"/>
+		<entry name="fV"/>
+		<entry name="aV"/>
+		<entry name="zV"/>
+		<entry name="yV"/>
+		<required name="measurementSystem" type="string"/>
+	</enum>
 	<enum id="ome.model.enums.UnitsFrequency">
 		<entry name="YHz"/>
 		<entry name="ZHz"/>

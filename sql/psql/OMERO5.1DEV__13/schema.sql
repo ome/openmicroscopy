@@ -574,6 +574,7 @@
         update_id int8 not null,
         instrument int8 not null,
         type int8 not null,
+        voltageUnit int8,
         primary key (id)
     );;
 
@@ -610,6 +611,7 @@
         update_id int8 not null,
         detector int8 not null,
         readOutRateUnit int8,
+        voltageUnit int8,
         primary key (id)
     );;
 
@@ -2230,6 +2232,15 @@
         primary key (id)
     );;
 
+    create table unitselectricpotential (
+        id int8 not null,
+        permissions int8 not null,
+        measurementSystem varchar(255) not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
     create table unitsfrequency (
         id int8 not null,
         permissions int8 not null,
@@ -2958,6 +2969,11 @@
         references externalinfo  ;;
 
     alter table detector 
+        add constraint FK3E7B17C64067255C 
+        foreign key (voltageUnit) 
+        references unitselectricpotential  ;;
+
+    alter table detector 
         add constraint FKdetector_type_detectortype 
         foreign key (type) 
         references detectortype  ;;
@@ -3036,6 +3052,11 @@
         add constraint FKdetectorsettings_binning_binning 
         foreign key (binning) 
         references binning  ;;
+
+    alter table detectorsettings 
+        add constraint FKBBE4ADE94067255C 
+        foreign key (voltageUnit) 
+        references unitselectricpotential  ;;
 
     alter table detectorsettings 
         add constraint FKdetectorsettings_group_id_experimentergroup 
@@ -5846,6 +5867,11 @@
         add constraint FKtransmittancerange_owner_id_experimenter 
         foreign key (owner_id) 
         references experimenter  ;;
+
+    alter table unitselectricpotential 
+        add constraint FKunitselectricpotential_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
     alter table unitsfrequency 
         add constraint FKunitsfrequency_external_id_externalinfo 

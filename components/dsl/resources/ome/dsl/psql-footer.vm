@@ -500,6 +500,8 @@ update pixelstype set bitsize = 64 where value = 'double';
 update pixelstype set bitsize = 64 where value = 'complex';
 update pixelstype set bitsize = 128 where value = 'double-complex';
 
+update unitselectricpotential set measurementsystem = 'SI.VOLT';
+
 update unitsfrequency set measurementsystem = 'SI.HERTZ';
 
 update unitslength set measurementsystem = 'SI.METRE';
@@ -518,6 +520,7 @@ update unitstime set measurementsystem = 'SI.SECOND';
 
 -- reactivate not null constraints
 alter table pixelstype alter column bitsize set not null;
+alter table unitselectricpotential alter column measurementsystem set not null;
 alter table unitsfrequency alter column measurementsystem set not null;
 alter table unitslength alter column measurementsystem set not null;
 alter table unitspressure alter column measurementsystem set not null;

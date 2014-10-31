@@ -23,8 +23,10 @@
 package pojos;
 
 import static ome.xml.model.DetectorSettings.getReadOutRateUnitXsdDefault;
+import static ome.xml.model.DetectorSettings.getVoltageUnitXsdDefault;
 import static ome.xml.model.LightSourceSettings.getWavelengthUnitXsdDefault;
 import static ome.formats.model.UnitsFactory.convertFrequency;
+import static ome.formats.model.UnitsFactory.makeElectricPotential;
 import static ome.formats.model.UnitsFactory.makeFrequency;
 import static ome.formats.model.UnitsFactory.makeLength;
 
@@ -34,6 +36,7 @@ import omero.model.Binning;
 import omero.model.ContrastMethod;
 import omero.model.DetectorSettings;
 import omero.model.DetectorSettingsI;
+import omero.model.ElectricPotential;
 import omero.model.FilterSet;
 import omero.model.Frequency;
 import omero.model.Illumination;
@@ -163,10 +166,11 @@ public class ChannelAcquisitionData
 	 * 
 	 * @return See above.
 	 */
+	@Deprecated
 	public Double getDetectorSettingsVoltage()
 	{
 		if (detectorSettings == null) return null;
-		RDouble value = detectorSettings.getVoltage();
+		ElectricPotential value = detectorSettings.getVoltage();
 		if (value == null) return null;
 		return value.getValue();
 	}
@@ -323,12 +327,14 @@ public class ChannelAcquisitionData
 	 * 
 	 * @param value The value to set.
 	 */
+	@Deprecated
 	public void setDetectorSettingsVoltage(double value)
 	{
 		detectorSettingsDirty = true;
 		if (detectorSettings == null) 
 			detectorSettings = new DetectorSettingsI();
-		detectorSettings.setVoltage(omero.rtypes.rdouble(value));
+		detectorSettings.setVoltage(makeElectricPotential(value,
+		        getVoltageUnitXsdDefault()));
 	}
 	
 	/**

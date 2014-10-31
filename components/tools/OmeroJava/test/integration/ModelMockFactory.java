@@ -8,6 +8,7 @@ package integration;
 
 import static omero.rtypes.rstring;
 
+import static ome.formats.model.UnitsFactory.makeElectricPotential;
 import static ome.formats.model.UnitsFactory.makeFrequency;
 import static ome.formats.model.UnitsFactory.makeLength;
 import static ome.formats.model.UnitsFactory.makePressure;
@@ -116,6 +117,10 @@ public class ModelMockFactory {
 
     private static Frequency hz(double d) {
         return makeFrequency(d, UNITS.HZ);
+    }
+
+    private static ElectricPotential volt(double d) {
+        return makeElectricPotential(d, UNITS.VOLT);
     }
 
     /**
@@ -454,7 +459,7 @@ public class ModelMockFactory {
         settings.setGain(omero.rtypes.rdouble(1));
         settings.setOffsetValue(omero.rtypes.rdouble(1));
         settings.setReadOutRate(hz(1));
-        settings.setVoltage(omero.rtypes.rdouble(1));
+        settings.setVoltage(volt(1));
         return settings;
     }
 

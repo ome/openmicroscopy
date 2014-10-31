@@ -23,6 +23,7 @@ import omero.util.ObjectFactoryRegistry;
 
 import omero.model.DetailsI;
 import omero.model.PermissionsI;
+import omero.model.ElectricPotentialI;
 import omero.model.FrequencyI;
 import omero.model.LengthI;
 import omero.model.PressureI;
@@ -42,6 +43,7 @@ public class ModelObjectFactoryRegistry extends ObjectFactoryRegistry {
         // Non-conditional
         ic.addObjectFactory(DetailsI.makeFactory(client), DetailsI.ice_staticId());
         ic.addObjectFactory(PermissionsI.Factory, PermissionsI.ice_staticId());
+        ic.addObjectFactory(ElectricPotentialI.makeFactory(client), FrequencyI.ice_staticId());
         ic.addObjectFactory(FrequencyI.makeFactory(client), FrequencyI.ice_staticId());
         ic.addObjectFactory(LengthI.makeFactory(client), LengthI.ice_staticId());
         ic.addObjectFactory(PressureI.makeFactory(client), PressureI.ice_staticId());
@@ -58,6 +60,7 @@ public class ModelObjectFactoryRegistry extends ObjectFactoryRegistry {
         // Non-conditional
         ic.addObjectFactory(DetailsI.Factory, DetailsI.ice_staticId());
         ic.addObjectFactory(PermissionsI.Factory, PermissionsI.ice_staticId());
+        ic.addObjectFactory(ElectricPotentialI.Factory, FrequencyI.ice_staticId());
         ic.addObjectFactory(FrequencyI.Factory, FrequencyI.ice_staticId());
         ic.addObjectFactory(LengthI.Factory, LengthI.ice_staticId());
         ic.addObjectFactory(PressureI.Factory, PressureI.ice_staticId());

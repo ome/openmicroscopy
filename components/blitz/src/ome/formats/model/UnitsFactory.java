@@ -23,6 +23,8 @@ import static omero.rtypes.rstring;
 import static omero.rtypes.unwrap;
 import ome.units.unit.Unit;
 import ome.xml.model.enums.EnumerationException;
+import omero.model.ElectricPotential;
+import omero.model.ElectricPotentialI;
 import omero.model.Frequency;
 import omero.model.FrequencyI;
 import omero.model.Length;
@@ -32,6 +34,8 @@ import omero.model.PressureI;
 import omero.model.Temperature;
 import omero.model.TemperatureI;
 import omero.model.Time;
+import omero.model.UnitsElectricPotential;
+import omero.model.UnitsElectricPotentialI;
 import omero.model.UnitsFrequency;
 import omero.model.UnitsFrequencyI;
 import omero.model.UnitsLength;
@@ -45,6 +49,72 @@ import omero.model.UnitsTemperatureI;
  * Utility class to generate and convert unit objects.
  */
 public class UnitsFactory {
+
+    //
+    // ELECTRICPOTENTIAL
+    //
+
+    public static ElectricPotential makeElectricPotential(double d, String unit) {
+        UnitsElectricPotential ul = new UnitsElectricPotentialI();
+        ul.setValue(rstring(unit));
+        ElectricPotential copy = new ElectricPotentialI();
+        copy.setUnit(ul);
+        copy.setValue(d);
+        return copy;
+    }
+
+    public static ome.xml.model.enums.UnitsElectricPotential makeElectricPotentialUnitXML(String unit) {
+        try {
+            return ome.xml.model.enums.UnitsElectricPotential
+                    .fromString((String) unit);
+        } catch (EnumerationException e) {
+            throw new RuntimeException("Bad potential unit: " + unit, e);
+        }
+    }
+
+    public static ome.units.quantity.ElectricPotential makeElectricPotentialXML(double d, String unit) {
+        ome.units.unit.Unit<ome.units.quantity.ElectricPotential> units =
+                ome.xml.model.enums.handlers.UnitsElectricPotentialEnumHandler
+                        .getBaseUnit(makeElectricPotentialUnitXML(unit));
+        return new ome.units.quantity.ElectricPotential(d, units);
+    }
+
+    public static ElectricPotential makeElectricPotential(double d,
+            Unit<ome.units.quantity.ElectricPotential> unit) {
+        return makeElectricPotential(d, unit.getSymbol());
+    }
+
+    public static ElectricPotential makeElectricPotential(double d, UnitsElectricPotential unit) {
+        ElectricPotential copy = new ElectricPotentialI();
+        copy.setUnit(unit);
+        copy.setValue(d);
+        return copy;
+    }
+
+    /**
+     * Convert a Bio-Formats {@link ElectricPotential} to an OMERO ElectricPotential. A null will be
+     * returned if the input is null.
+     */
+    public static ElectricPotential convertElectricPotential(ome.units.quantity.ElectricPotential value) {
+        if (value == null)
+            return null;
+        omero.model.UnitsElectricPotential ul = new omero.model.UnitsElectricPotentialI();
+        ul.setValue(rstring(value.unit().getSymbol()));
+
+        omero.model.ElectricPotential l = new omero.model.ElectricPotentialI();
+        l.setValue(value.value().doubleValue());
+        l.setUnit(ul);
+        return l;
+    }
+
+    public static ElectricPotential convertElectricPotential(ElectricPotential value, String target) {
+        String source = value.getUnit().getValue().getValue();
+        if (target.equals(source)) {
+            return value;
+        }
+        throw new RuntimeException(String.format(
+                "%d %s cannot be converted to %s", value.getValue(), source));
+    }
 
     //
     // FREQUENCY
@@ -106,10 +176,10 @@ public class UnitsFactory {
     /**
      * FIXME: this should likely take a default so that locations which don't
      * want an exception can have
-     * 
+     *
      * log.warn("Using new PositiveFloat(1.0)!", e); return new
      * PositiveFloat(1.0);
-     * 
+     *
      * or similar.
      */
     public static ome.units.quantity.Frequency convertFrequency(Frequency t) {
@@ -200,10 +270,10 @@ public class UnitsFactory {
     /**
      * FIXME: this should likely take a default so that locations which don't
      * want an exception can have
-     * 
+     *
      * log.warn("Using new PositiveFloat(1.0)!", e); return new
      * PositiveFloat(1.0);
-     * 
+     *
      * or similar.
      */
     public static ome.units.quantity.Length convertLength(Length t) {

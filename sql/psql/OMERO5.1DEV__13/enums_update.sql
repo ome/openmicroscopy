@@ -1429,6 +1429,90 @@ insert into renderingmodel (id,permissions,value)
     select ome_nextval('seq_renderingmodel'),-35,'greyscale' from renderingmodel where not exists(
         select 1 from renderingmodel where value = 'greyscale') limit 1;
 
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-35,'YV' from unitselectricpotential where not exists(
+        select 1 from unitselectricpotential where value = 'YV') limit 1;
+
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-35,'ZV' from unitselectricpotential where not exists(
+        select 1 from unitselectricpotential where value = 'ZV') limit 1;
+
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-35,'EV' from unitselectricpotential where not exists(
+        select 1 from unitselectricpotential where value = 'EV') limit 1;
+
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-35,'PV' from unitselectricpotential where not exists(
+        select 1 from unitselectricpotential where value = 'PV') limit 1;
+
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-35,'TV' from unitselectricpotential where not exists(
+        select 1 from unitselectricpotential where value = 'TV') limit 1;
+
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-35,'GV' from unitselectricpotential where not exists(
+        select 1 from unitselectricpotential where value = 'GV') limit 1;
+
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-35,'MV' from unitselectricpotential where not exists(
+        select 1 from unitselectricpotential where value = 'MV') limit 1;
+
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-35,'kV' from unitselectricpotential where not exists(
+        select 1 from unitselectricpotential where value = 'kV') limit 1;
+
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-35,'hV' from unitselectricpotential where not exists(
+        select 1 from unitselectricpotential where value = 'hV') limit 1;
+
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-35,'daV' from unitselectricpotential where not exists(
+        select 1 from unitselectricpotential where value = 'daV') limit 1;
+
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-35,'V' from unitselectricpotential where not exists(
+        select 1 from unitselectricpotential where value = 'V') limit 1;
+
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-35,'dV' from unitselectricpotential where not exists(
+        select 1 from unitselectricpotential where value = 'dV') limit 1;
+
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-35,'cV' from unitselectricpotential where not exists(
+        select 1 from unitselectricpotential where value = 'cV') limit 1;
+
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-35,'mV' from unitselectricpotential where not exists(
+        select 1 from unitselectricpotential where value = 'mV') limit 1;
+
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-35,'µV' from unitselectricpotential where not exists(
+        select 1 from unitselectricpotential where value = 'µV') limit 1;
+
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-35,'nV' from unitselectricpotential where not exists(
+        select 1 from unitselectricpotential where value = 'nV') limit 1;
+
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-35,'pV' from unitselectricpotential where not exists(
+        select 1 from unitselectricpotential where value = 'pV') limit 1;
+
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-35,'fV' from unitselectricpotential where not exists(
+        select 1 from unitselectricpotential where value = 'fV') limit 1;
+
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-35,'aV' from unitselectricpotential where not exists(
+        select 1 from unitselectricpotential where value = 'aV') limit 1;
+
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-35,'zV' from unitselectricpotential where not exists(
+        select 1 from unitselectricpotential where value = 'zV') limit 1;
+
+insert into unitselectricpotential (id,permissions,value)
+    select ome_nextval('seq_unitselectricpotential'),-35,'yV' from unitselectricpotential where not exists(
+        select 1 from unitselectricpotential where value = 'yV') limit 1;
+
 insert into unitsfrequency (id,permissions,value)
     select ome_nextval('seq_unitsfrequency'),-35,'YHz' from unitsfrequency where not exists(
         select 1 from unitsfrequency where value = 'YHz') limit 1;

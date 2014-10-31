@@ -65,6 +65,21 @@ namespace omero {
 
     };
 
+    class ElectricPotentialObjectFactory : virtual public Ice::ObjectFactory {
+
+        public:
+        ElectricPotentialObjectFactory() : Ice::ObjectFactory() { }
+
+        ~ElectricPotentialObjectFactory() {}
+
+        Ice::ObjectPtr create(const std::string& /*type*/) {
+            return new omero::model::ElectricPotentialI();
+        }
+
+        void destroy() {}
+
+    };
+
     class FrequencyObjectFactory : virtual public Ice::ObjectFactory {
 
         public:

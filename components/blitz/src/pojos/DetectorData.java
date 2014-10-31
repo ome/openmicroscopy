@@ -22,15 +22,14 @@
  */
 package pojos;
 
-//Java imports
+import static ome.xml.model.Detector.getVoltageUnitXsdDefault;
+import static ome.formats.model.UnitsFactory.convertElectricPotential;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.RDouble;
 import omero.RString;
 import omero.model.Detector;
 import omero.model.DetectorType;
+import omero.model.ElectricPotential;
 
 /**
  * Hosts a detector.
@@ -66,12 +65,13 @@ public class DetectorData
 	 * 
 	 * @return See above
 	 */
+	@Deprecated
 	public Double getVoltage()
 	{
 		Detector detector = (Detector) asIObject();
-		RDouble value = detector.getVoltage();
+		ElectricPotential value = detector.getVoltage();
 		if (value == null) return null;
-		return value.getValue();
+		return convertElectricPotential(value, getVoltageUnitXsdDefault()).getValue();
 	}
 	
 	/**

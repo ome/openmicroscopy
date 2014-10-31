@@ -79,6 +79,9 @@ public class IceMap {
         _ome2omero.put(ome.model.roi.Label.class, omero.model.SmartTextI.class);
 
         // Units
+        _ome2omero.put(ome.model.units.ElectricPotential.class, omero.model.ElectricPotentialI.class);
+        _omero2ome.put(omero.model.ElectricPotential.class, ome.model.units.ElectricPotential.class);
+        _omero2ome.put(omero.model.ElectricPotentialI.class, ome.model.units.ElectricPotential.class);
         _ome2omero.put(ome.model.units.Frequency.class, omero.model.FrequencyI.class);
         _omero2ome.put(omero.model.Frequency.class, ome.model.units.Frequency.class);
         _omero2ome.put(omero.model.FrequencyI.class, ome.model.units.Frequency.class);

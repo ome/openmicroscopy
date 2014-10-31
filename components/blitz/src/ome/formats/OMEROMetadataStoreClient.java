@@ -31,6 +31,7 @@ import static omero.rtypes.rlong;
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 
+import static ome.formats.model.UnitsFactory.convertElectricPotential;
 import static ome.formats.model.UnitsFactory.convertFrequency;
 import static ome.formats.model.UnitsFactory.convertLength;
 import static ome.formats.model.UnitsFactory.convertPressure;
@@ -74,6 +75,7 @@ import ome.formats.model.ShapeProcessor;
 import ome.formats.model.TargetProcessor;
 import ome.formats.model.WellProcessor;
 import ome.services.blitz.repo.ManagedImportRequestI;
+import ome.units.quantity.ElectricPotential;
 import ome.units.quantity.Frequency;
 import ome.units.quantity.Length;
 import ome.units.quantity.Pressure;
@@ -3200,11 +3202,11 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setDetectorVoltage(java.lang.Double, int, int)
      */
     @Override
-    public void setDetectorVoltage(Double voltage, int instrumentIndex,
+    public void setDetectorVoltage(ElectricPotential voltage, int instrumentIndex,
             int detectorIndex)
     {
         Detector o = getDetector(instrumentIndex, detectorIndex);
-        o.setVoltage(toRType(voltage));
+        o.setVoltage(convertElectricPotential(voltage));
     }
 
     /* (non-Javadoc)
@@ -3305,11 +3307,11 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setDetectorSettingsVoltage(java.lang.Double, int, int)
      */
     @Override
-    public void setDetectorSettingsVoltage(Double voltage, int imageIndex,
+    public void setDetectorSettingsVoltage(ElectricPotential voltage, int imageIndex,
             int channelIndex)
     {
         DetectorSettings o = getDetectorSettings(imageIndex, channelIndex);
-        o.setVoltage(toRType(voltage));
+        o.setVoltage(convertElectricPotential(voltage));
     }
 
     /* (non-Javadoc)
