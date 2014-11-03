@@ -1,0 +1,44 @@
+*** Settings ***
+
+Documentation       A test suite with a single test for valid login.
+...
+...                 This test has a workflow that is created using keywords in
+...                 the imported resource file.
+
+Resource            ../../resources/web/webadmin.txt
+Resource            ../../resources/config.txt
+
+Suite Setup         Open Browser And Log In As User
+Suite Teardown      Logout and Teardown
+
+
+*** Test Cases ***
+
+User Settings
+
+    Click Element           id=show_user_dropdown
+    Click Link              User settings
+    Location Should Be      ${WEBADMIN WELCOME URL}myaccount/edit/
+    ${middle_name}=         Unique name         middle_name
+    Input Text              id_middle_name      ${middle_name}
+    Click Button            Save
+    Page Should Contain Element   xpath=//input[@id='id_middle_name'][@value='${middle_name}']
+
+    # Edit Password
+    ${temp_password}=       Set Variable        tempPassword
+    Click Element           id=change_password
+    Input Text              id_old_password     ${PASSWORD}
+    Input Text              id_password         ${temp_password}
+    Input Text              id_confirmation     ${temp_password}
+    Click Element           xpath=//button[contains(@class, "ui-button")]/span[contains(text(), "OK")]
+    Wait Until Page Contains  Password reset OK
+
+    # Reset
+    Reload Page             # clears 'OK'
+    Click Element           id=change_password
+    Input Text              id_old_password     ${temp_password}
+    Input Text              id_password         ${PASSWORD}
+    Input Text              id_confirmation     ${PASSWORD}
+    Click Element           xpath=//button[contains(@class, "ui-button")]/span[contains(text(), "OK")]
+    Wait Until Page Contains  Password reset OK
+    
