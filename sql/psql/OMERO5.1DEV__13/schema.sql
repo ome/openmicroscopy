@@ -1291,7 +1291,7 @@
         lotNumber varchar(255),
         manufacturer varchar(255),
         model varchar(255),
-        power float8,
+        "power" float8,
         serialNumber varchar(255),
         version int4,
         creation_id int8 not null,
