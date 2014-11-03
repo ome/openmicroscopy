@@ -1,6 +1,16 @@
 OMERO version history
 =====================
 
+5.0.6 (November 2014)
+---------------------
+
+This is a critical security fix for the :secvuln:`2014-SV3-csrf`
+vulnerability.
+
+It is strongly suggested that you upgrade your server and
+follow the steps outlined on the security vulnerability
+pages.
+
 5.1.0-m1 (October 2014)
 -----------------------
 
