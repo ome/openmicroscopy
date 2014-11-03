@@ -18,6 +18,12 @@
 //
 
 \#include <omero/ObjectFactoryRegistrar.h>
+\#include <omero/model/ElectricPotentialI.h>
+\#include <omero/model/FrequencyI.h>
+\#include <omero/model/LengthI.h>
+\#include <omero/model/PressureI.h>
+\#include <omero/model/PowerI.h>
+\#include <omero/model/LengthI.h>
 \#include <omero/model/LengthI.h>
 \#include <omero/model/TemperatureI.h>
 \#include <omero/model/TimeI.h>
