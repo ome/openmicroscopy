@@ -171,6 +171,21 @@ class TestCsrf(object):
         logout_url = reverse('weblogout')
         _post_reponse(django_client, logout_url, {})
 
+    def test_forgot_password(self, itest, django_client):
+        """
+        CSRF protection does not check `GET` requests so we need to be sure
+        that this request results in an HTTP 405 (method not allowed) status
+        code.
+        """
+
+        request_url = reverse('waforgottenpassword')
+        data = {
+            'username': "omename",
+            'email': "email"
+        }
+        _post_reponse(django_client, request_url, {})
+        _csrf_post_reponse(django_client, request_url, {})
+
     def test_add_and_rename_container(self, django_client):
         """
         CSRF protection does not check `GET` requests so we need to be sure
