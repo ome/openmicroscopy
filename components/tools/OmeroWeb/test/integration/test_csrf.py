@@ -725,6 +725,24 @@ class TestCsrf(object):
         _post_reponse(django_root_client, request_url, data)
         _csrf_post_reponse(django_root_client, request_url, data, status_code=302)
 
+    def test_edit_group(self, itest, client, django_client):
+
+        user_id = client.getSession().getAdminService().getEventContext().userId
+        user = client.getSession().getAdminService().getExperimenter(user_id)
+        group_id = client.getSession().getAdminService().getEventContext().groupId
+        group = client.getSession().getAdminService().getGroup(group_id)
+
+        itest.add_groups(experimenter=user, groups=[group], owner=True)
+
+        request_url = reverse('wamanagegroupownerid', args=["save", group_id])
+        data = {
+            "members": user_id,
+            "owners": user_id,
+            "permissions": 0
+        }
+        _post_reponse(django_client, request_url, data)
+        _csrf_post_reponse(django_client, request_url, data, status_code=302)
+
     def test_change_password(self, itest, django_root_client):
         user = itest.new_user()
         request_url = reverse('wamanagechangepasswordid', args=[user.id.val])
