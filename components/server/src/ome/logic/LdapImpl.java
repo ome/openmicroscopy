@@ -62,7 +62,6 @@ import org.springframework.ldap.filter.EqualsFilter;
 import org.springframework.ldap.filter.Filter;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -234,11 +233,10 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
 
     @RolesAllowed("system")
     @Transactional(readOnly = false)
-    public void setDN(@NotNull
-    Long experimenterID, boolean enabled) {
+    public void setDN(long experimenterID, boolean isLdap) {
         Experimenter experimenter = iQuery.get(Experimenter.class,
                 experimenterID);
-        experimenter.setLdap(enabled);
+        experimenter.setLdap(isLdap);
         iUpdate.saveObject(experimenter);
     }
 
@@ -593,10 +591,27 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
     }
 
     @RolesAllowed("system")
-    @Deprecated
-    public Map<String, Experimenter> discover() {
-        throw new ApiUsageException("DNs aren't stored in the DB anymore. "
-                + "No mismatches possible.");
+    public List<Experimenter> discover() {
+        List<Experimenter> discoveredExperimenters = Lists.newArrayList();
+        Roles r = getSecuritySystem().getSecurityRoles();
+
+        List<Experimenter> localExperimenters = iQuery.findAllByQuery(
+                "select distinct e from Experimenter e "
+                        + "where id not in (:ids) and ldap = :ldap",
+                new Parameters()
+                        .addIds(Lists.newArrayList(r.getRootId(), r.getGuestId()))
+                        .addBoolean("ldap", false));
+
+        for (Experimenter e : localExperimenters) {
+            try {
+                findExperimenter(e.getOmeName());
+            } catch (ApiUsageException aue) {
+                // This user doesn't have an LDAP account
+                continue;
+            }
+            discoveredExperimenters.add(e);
+        }
+        return discoveredExperimenters;
     }
 
     // Helpers

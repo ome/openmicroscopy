@@ -9,7 +9,6 @@ import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.naming.NamingException;
@@ -22,8 +21,6 @@ import ome.logic.LdapImpl;
 import ome.model.meta.Experimenter;
 import ome.security.auth.LdapConfig;
 import ome.security.auth.LdapPasswordProvider;
-import ome.security.auth.PasswordProvider;
-import ome.security.auth.PasswordProviders;
 import ome.security.auth.PasswordUtil;
 import ome.security.auth.RoleProvider;
 import ome.services.util.Executor;
@@ -47,9 +44,6 @@ import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.util.ResourceUtils;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 
 /**
  * Uses LDIF text files along with property files of good and bad user names to
@@ -95,7 +89,11 @@ public class LdapTest extends MockObjectTestCase {
             return ldap.findExperimenter(username);
         }
 
-        public Map<String, Experimenter> discover() {
+        public void setDN(long experimenterID, boolean isLdap) {
+            ldap.setDN(experimenterID, isLdap);
+        }
+
+        public List<Experimenter> discover() {
             return ldap.discover();
         }
 
@@ -156,6 +154,9 @@ public class LdapTest extends MockObjectTestCase {
             assertPasses(fixture, good);
             assertFails(fixture, bad);
             assertCreateUserFromLdap(fixture, good);
+            if (!good.isEmpty()) {
+                assertDiscover(fixture, good);
+            }
         } finally {
             fixture.close();
         }
@@ -279,6 +280,28 @@ public class LdapTest extends MockObjectTestCase {
                 continue;
             }
             fail("This user shouldn't have been created!");
+        }
+    }
+
+    protected void assertDiscover(Fixture fixture,
+            Map<String, List<String>> users) {
+        for (String user : users.keySet()) {
+            Experimenter experimenter = fixture.findExperimenter(user);
+            assertNotNull(experimenter);
+
+            fixture.setDN(experimenter.getId(), false);
+            List<Experimenter> discoveredExperimenters = fixture.discover();
+            if (!discoveredExperimenters.isEmpty()) {
+                boolean discovered = false;
+                for (Experimenter e : discoveredExperimenters) {
+                    if (experimenter.getId().equals(e.getId())) {
+                        discovered = true;
+                        break;
+                    }
+                }
+                assertTrue(discovered);
+            }
+            fixture.setDN(experimenter.getId(), true);
         }
     }
 

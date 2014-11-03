@@ -27,9 +27,9 @@ module omero {
                 idempotent omero::model::Experimenter searchByDN(string userdn) throws ServerError;
                 idempotent string findDN(string username) throws ServerError;
                 idempotent omero::model::Experimenter findExperimenter(string username) throws ServerError;
-                idempotent void setDN(omero::RLong experimenterID, bool enabled) throws ServerError;
+                idempotent void setDN(long experimenterID, bool isLdap) throws ServerError;
                 idempotent bool getSetting() throws ServerError;
-                idempotent UserMap discover() throws ServerError;
+                idempotent ExperimenterList discover() throws ServerError;
                 omero::model::Experimenter createUser(string username) throws ServerError;
             };
 

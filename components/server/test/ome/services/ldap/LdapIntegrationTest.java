@@ -6,6 +6,7 @@
 package ome.services.ldap;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -230,8 +231,21 @@ public class LdapIntegrationTest extends LdapTest {
             }
 
             @Override
-            public Map<String, Experimenter> discover() {
-                return (Map<String, Experimenter>) executor.execute(p,
+            public void setDN(final long experimenterID,
+                    final boolean isLdap) {
+                executor.execute(p, new Executor.SimpleWork(this, "setDN") {
+                    @Transactional(readOnly = false)
+                    public Object doWork(org.hibernate.Session session,
+                            ServiceFactory sf) {
+                        ldap.setDN(experimenterID, isLdap);
+                        return null;
+                    }
+                });
+            }
+
+            @Override
+            public List<Experimenter> discover() {
+                return (List<Experimenter>) executor.execute(p,
                         new Executor.SimpleWork(this, "discover") {
                             @Transactional(readOnly = true)
                             public Object doWork(org.hibernate.Session session,

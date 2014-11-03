@@ -93,16 +93,15 @@ public class LdapI extends AbstractAmdServant implements _ILdapOperations {
         callInvokerOnRawArgs(__cb, __current, username);
     }
 
-    public void setDN_async(AMD_ILdap_setDN __cb, omero.RLong experimenterID,
-            boolean enabled, Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, experimenterID, enabled);
+    public void setDN_async(AMD_ILdap_setDN __cb, long experimenterID,
+            boolean isLdap, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, experimenterID, isLdap);
 
     }
 
     public void getSetting_async(AMD_ILdap_getSetting __cb, Current __current)
             throws ServerError {
         callInvokerOnRawArgs(__cb, __current);
-
     }
 
     public void createUser_async(AMD_ILdap_createUser __cb,

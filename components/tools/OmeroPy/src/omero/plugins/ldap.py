@@ -139,7 +139,7 @@ user never had a password, one will need to be set!""")
         if dn is not None and dn.strip():
             self.ctx.out(dn)
         else:
-            self.ctx.die(136, "DN Not found: %s" % dn)
+            self.ctx.die(136, "DN not found for %s" % args.username)
 
     def setdn(self, args):
         c = self.ctx.conn(args)
@@ -153,14 +153,32 @@ user never had a password, one will need to be set!""")
 
         import omero
         try:
-            ildap.setDN(exp.id, args.choice.lower()
+            ildap.setDN(exp.id.val, args.choice.lower()
                         in ("yes", "true", "t", "1"))
         except omero.SecurityViolation:
             self.error_admin_only(fatal=True)
 
     def discover(self, args):
-        self.ctx.out("DNs aren't stored in the DB anymore. No mismatches "
-                     + "possible.")
+        c = self.ctx.conn(args)
+        ildap = c.sf.getLdapService()
+        experimenters = {}
+
+        import omero
+        try:
+            experimenters = ildap.discover()
+        except omero.SecurityViolation:
+            self.ctx.die(131, "SecurityViolation: Admins only!")
+
+        if len(experimenters) > 0:
+            self.ctx.out("Following LDAP users are disabled in OMERO:")
+            for exp in experimenters:
+                if args.commands:
+                    self.ctx.out("%s ldap setdn %s true"
+                                 % (sys.argv[0], exp.getOmeName().getValue()))
+                else:
+                    self.ctx.out("Experimenter:%s\tomeName=%s"
+                                 % (exp.getId().getValue(),
+                                    exp.getOmeName().getValue()))
 
     def create(self, args):
         c = self.ctx.conn(args)
