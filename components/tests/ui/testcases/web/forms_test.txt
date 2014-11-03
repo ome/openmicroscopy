@@ -93,6 +93,10 @@ Test Basket Share
     Input Text                                  id_message      Edited Share Message
     Submit Form                                 edit_share_form
     Wait Until Page Contains                    Edited Share Message
+    # Add Comment
+    Input Text                                  id_comment      New Discussion Comment
+    Submit Form                                 add_share_comment_form
+    Wait Until Page Contains Element            xpath=//div[contains(@class, "commentText")][contains(text(), "New Discussion Comment")]
 
 
 Test Discussion
@@ -120,6 +124,10 @@ Test Discussion
     Wait Until Page Contains Element            xpath=//div[@id='dataTree']//li[@rel='discussion-locked']/a    60
     Click Element                               xpath=//div[@id='dataTree']//li[@rel='discussion-locked']/a
     Wait Until Page Contains                    Edited Discussion Message       60
+    # Add Comment
+    Input Text                                  id_comment      New Discussion Comment
+    Submit Form                                 add_share_comment_form
+    Wait Until Page Contains Element            xpath=//div[contains(@class, "commentText")][contains(text(), "New Discussion Comment")]
 
 
 Test Annotate
