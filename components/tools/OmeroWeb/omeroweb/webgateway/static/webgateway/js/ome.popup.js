@@ -70,10 +70,6 @@ String.prototype.capitalize = function() {
     return this.charAt(0).toUpperCase() + this.slice(1);
 };
 
-String.prototype.escapeHTML = function(){
-    return this.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
 jQuery.fn.alternateRowColors = function() {
     var $rows = $(this).children().children('tr');
     $rows.not('.hidden').filter(':odd').removeClass('even').addClass('odd');
