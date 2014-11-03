@@ -1733,6 +1733,90 @@ insert into unitslength (id,permissions,value)
     select ome_nextval('seq_unitslength'),-35,'reference frame' from unitslength where not exists(
         select 1 from unitslength where value = 'reference frame') limit 1;
 
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-35,'YW' from unitspower where not exists(
+        select 1 from unitspower where value = 'YW') limit 1;
+
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-35,'ZW' from unitspower where not exists(
+        select 1 from unitspower where value = 'ZW') limit 1;
+
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-35,'EW' from unitspower where not exists(
+        select 1 from unitspower where value = 'EW') limit 1;
+
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-35,'PW' from unitspower where not exists(
+        select 1 from unitspower where value = 'PW') limit 1;
+
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-35,'TW' from unitspower where not exists(
+        select 1 from unitspower where value = 'TW') limit 1;
+
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-35,'GW' from unitspower where not exists(
+        select 1 from unitspower where value = 'GW') limit 1;
+
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-35,'MW' from unitspower where not exists(
+        select 1 from unitspower where value = 'MW') limit 1;
+
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-35,'kW' from unitspower where not exists(
+        select 1 from unitspower where value = 'kW') limit 1;
+
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-35,'hW' from unitspower where not exists(
+        select 1 from unitspower where value = 'hW') limit 1;
+
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-35,'daW' from unitspower where not exists(
+        select 1 from unitspower where value = 'daW') limit 1;
+
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-35,'W' from unitspower where not exists(
+        select 1 from unitspower where value = 'W') limit 1;
+
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-35,'dW' from unitspower where not exists(
+        select 1 from unitspower where value = 'dW') limit 1;
+
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-35,'cW' from unitspower where not exists(
+        select 1 from unitspower where value = 'cW') limit 1;
+
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-35,'mW' from unitspower where not exists(
+        select 1 from unitspower where value = 'mW') limit 1;
+
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-35,'µW' from unitspower where not exists(
+        select 1 from unitspower where value = 'µW') limit 1;
+
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-35,'nW' from unitspower where not exists(
+        select 1 from unitspower where value = 'nW') limit 1;
+
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-35,'pW' from unitspower where not exists(
+        select 1 from unitspower where value = 'pW') limit 1;
+
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-35,'fW' from unitspower where not exists(
+        select 1 from unitspower where value = 'fW') limit 1;
+
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-35,'aW' from unitspower where not exists(
+        select 1 from unitspower where value = 'aW') limit 1;
+
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-35,'zW' from unitspower where not exists(
+        select 1 from unitspower where value = 'zW') limit 1;
+
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-35,'yW' from unitspower where not exists(
+        select 1 from unitspower where value = 'yW') limit 1;
+
 insert into unitspressure (id,permissions,value)
     select ome_nextval('seq_unitspressure'),-35,'YPa' from unitspressure where not exists(
         select 1 from unitspressure where value = 'YPa') limit 1;

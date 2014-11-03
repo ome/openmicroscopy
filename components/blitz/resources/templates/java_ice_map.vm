@@ -88,6 +88,9 @@ public class IceMap {
         _ome2omero.put(ome.model.units.Length.class, omero.model.LengthI.class);
         _omero2ome.put(omero.model.Length.class, ome.model.units.Length.class);
         _omero2ome.put(omero.model.LengthI.class, ome.model.units.Length.class);
+        _ome2omero.put(ome.model.units.Power.class, omero.model.PowerI.class);
+        _omero2ome.put(omero.model.Power.class, ome.model.units.Power.class);
+        _omero2ome.put(omero.model.PowerI.class, ome.model.units.Power.class);
         _ome2omero.put(ome.model.units.Pressure.class, omero.model.PressureI.class);
         _omero2ome.put(omero.model.Pressure.class, ome.model.units.Pressure.class);
         _omero2ome.put(omero.model.PressureI.class, ome.model.units.Pressure.class);

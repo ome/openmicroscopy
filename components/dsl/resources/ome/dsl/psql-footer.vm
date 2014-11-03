@@ -472,6 +472,7 @@ alter table event alter column experimentergroup set not null;
 -- temporarily disable the not null constraints
 alter table pixelstype alter column bitsize drop not null;
 alter table unitslength alter column measurementsystem drop not null;
+alter table unitspower alter column measurementsystem drop not null;
 alter table unitspressure alter column measurementsystem drop not null;
 alter table unitstemperature alter column measurementsystem drop not null;
 alter table unitstime alter column measurementsystem drop not null;
@@ -511,6 +512,8 @@ update unitslength set measurementsystem = 'Pixel'
     where value = 'pixel';
 update unitslength set measurementsystem = 'ReferenceFrame'
     where value = 'reference frame';
+
+update unitspower set measurementsystem = 'SI.WATT';
 
 update unitspressure set measurementsystem = 'SI.PASCAL';
 

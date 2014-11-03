@@ -34,6 +34,7 @@ import static omero.rtypes.rtime;
 import static ome.formats.model.UnitsFactory.convertElectricPotential;
 import static ome.formats.model.UnitsFactory.convertFrequency;
 import static ome.formats.model.UnitsFactory.convertLength;
+import static ome.formats.model.UnitsFactory.convertPower;
 import static ome.formats.model.UnitsFactory.convertPressure;
 import static ome.formats.model.UnitsFactory.convertTemperature;
 import static ome.formats.model.UnitsFactory.convertTime;
@@ -78,6 +79,7 @@ import ome.services.blitz.repo.ManagedImportRequestI;
 import ome.units.quantity.ElectricPotential;
 import ome.units.quantity.Frequency;
 import ome.units.quantity.Length;
+import ome.units.quantity.Power;
 import ome.units.quantity.Pressure;
 import ome.units.quantity.Temperature;
 import ome.units.quantity.Time;
@@ -2669,11 +2671,11 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setArcPower(java.lang.Double, int, int)
      */
     @Override
-    public void setArcPower(Double power, int instrumentIndex,
+    public void setArcPower(Power power, int instrumentIndex,
             int lightSourceIndex)
     {
         Arc o = getArc(instrumentIndex, lightSourceIndex);
-        o.setPower(toRType(power));
+        o.setPower(convertPower(power));
     }
 
     /* (non-Javadoc)
@@ -3827,11 +3829,11 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setFilamentPower(java.lang.Double, int, int)
      */
     @Override
-    public void setFilamentPower(Double power, int instrumentIndex,
+    public void setFilamentPower(Power power, int instrumentIndex,
             int lightSourceIndex)
     {
         Filament o = getFilament(instrumentIndex, lightSourceIndex);
-        o.setPower(toRType(power));
+        o.setPower(convertPower(power));
     }
 
     /* (non-Javadoc)
@@ -4152,9 +4154,9 @@ public class OMEROMetadataStoreClient
 
     // Power accessor from parent LightSource
     // @Override
-    public void setGenericExcitationSourcePower(Double power, int instrumentIndex, int lightSourceIndex) {
+    public void setGenericExcitationSourcePower(Power power, int instrumentIndex, int lightSourceIndex) {
         final GenericExcitationSource o = getGenericExcitationSource(instrumentIndex, lightSourceIndex);
-        o.setPower(toRType(power));
+        o.setPower(convertPower(power));
     }
 
     // SerialNumber accessor from parent LightSource
@@ -4569,11 +4571,11 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setLaserPower(java.lang.Double, int, int)
      */
     @Override
-    public void setLaserPower(Double power, int instrumentIndex,
+    public void setLaserPower(Power power, int instrumentIndex,
             int lightSourceIndex)
     {
         Laser o = getLaser(instrumentIndex, lightSourceIndex);
-        o.setPower(toRType(power));
+        o.setPower(convertPower(power));
     }
 
     /* (non-Javadoc)
@@ -4719,11 +4721,11 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setLightEmittingDiodePower(java.lang.Double, int, int)
      */
     @Override
-    public void setLightEmittingDiodePower(Double power, int instrumentIndex,
+    public void setLightEmittingDiodePower(Power power, int instrumentIndex,
             int lightSourceIndex)
     {
         LightEmittingDiode o = getLightEmittingDiode(instrumentIndex, lightSourceIndex);
-        o.setPower(toRType(power));
+        o.setPower(convertPower(power));
     }
 
     /* (non-Javadoc)

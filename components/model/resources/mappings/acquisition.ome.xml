@@ -274,7 +274,7 @@
 		<properties>
 			<optional name="manufacturer" type="string"/>
 			<optional name="model" type="string"/>
-			<optional name="power" type="double"/>
+			<optional name="power" type="ome.model.units.Power"/>
 			<optional name="lotNumber" type="string"/>
 			<optional name="serialNumber" type="string"/>
 			<manyone name="instrument" type="ome.model.acquisition.Instrument"/>

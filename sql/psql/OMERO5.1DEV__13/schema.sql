@@ -1291,7 +1291,7 @@
         lotNumber varchar(255),
         manufacturer varchar(255),
         model varchar(255),
-        "power" float8,
+        power float8,
         serialNumber varchar(255),
         version int4,
         creation_id int8 not null,
@@ -1300,6 +1300,7 @@
         owner_id int8 not null,
         update_id int8 not null,
         instrument int8 not null,
+        powerUnit int8,
         primary key (id)
     );;
 
@@ -2251,6 +2252,15 @@
     );;
 
     create table unitslength (
+        id int8 not null,
+        permissions int8 not null,
+        measurementSystem varchar(255) not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table unitspower (
         id int8 not null,
         permissions int8 not null,
         measurementSystem varchar(255) not null,
@@ -4244,6 +4254,11 @@
         references experimentergroup  ;;
 
     alter table lightsource 
+        add constraint FKA080F4B199B88287 
+        foreign key (powerUnit) 
+        references unitspower  ;;
+
+    alter table lightsource 
         add constraint FKlightsource_owner_id_experimenter 
         foreign key (owner_id) 
         references experimenter  ;;
@@ -5880,6 +5895,11 @@
 
     alter table unitslength 
         add constraint FKunitslength_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table unitspower 
+        add constraint FKunitspower_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo  ;;
 

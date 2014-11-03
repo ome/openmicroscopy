@@ -1,10 +1,15 @@
 package ome.formats.utests;
 
+import static ome.formats.model.UnitsFactory.convertPower;
+import static ome.formats.model.UnitsFactory.makePower;
+
 import junit.framework.TestCase;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.model.BlitzInstanceProvider;
+import ome.units.UNITS;
+import ome.units.quantity.Power;
 import ome.util.LSID;
 import ome.xml.model.enums.*;
 import ome.xml.model.primitives.*;
@@ -30,6 +35,10 @@ public class LightSourceSettingsLaserTest extends TestCase
 
 	private static final int CHANNEL_INDEX = 0;
 
+	Power watt(double d) {
+	    return convertPower(makePower(d, UNITS.WATT.getSymbol()));
+	}
+
 	@BeforeMethod
 	protected void setUp() throws Exception
 	{
@@ -48,7 +57,7 @@ public class LightSourceSettingsLaserTest extends TestCase
         // First Laser, First LightSourceSettings
 		store.setLaserModel("Model", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
 		store.setLaserID("Laser:0", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
-		store.setLaserPower(1.0, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
+		store.setLaserPower(watt(1.0), INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
 		store.setLaserFrequencyMultiplication(
 				new PositiveInteger(1), INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
 		store.setChannelLightSourceSettingsID(
@@ -59,7 +68,7 @@ public class LightSourceSettingsLaserTest extends TestCase
 		// Second Laser, Second LightSourceSettings
 		store.setLaserModel("Model", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
 		store.setLaserID("Laser:1", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
-		store.setLaserPower(1.0, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
+		store.setLaserPower(watt(1.0), INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
 		store.setLaserFrequencyMultiplication(
 				new PositiveInteger(1), INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
 		store.setChannelLightSourceSettingsID(

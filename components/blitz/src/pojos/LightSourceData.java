@@ -37,6 +37,7 @@ import omero.model.LaserType;
 import omero.model.Length;
 import omero.model.LightEmittingDiode;
 import omero.model.LightSource;
+import omero.model.Power;
 import omero.model.Pulse;
 
 /** 
@@ -145,11 +146,12 @@ public class LightSourceData
 	 * 
 	 * @return See above.
 	 */
+	@Deprecated
 	public double getPower()
 	{
 		LightSource light = (LightSource) asIObject();
 		if (light == null) return -1;
-		RDouble value = light.getPower();
+		Power value = light.getPower();
 		if (value == null) return -1;
 		return value.getValue();
 	}

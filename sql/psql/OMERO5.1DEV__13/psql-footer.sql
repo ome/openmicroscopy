@@ -476,6 +476,7 @@
   CREATE INDEX i_LightSettings_microbeamManipulation ON lightsettings(microbeamManipulation);
   CREATE INDEX i_lightsource_owner ON lightsource(owner_id);
   CREATE INDEX i_lightsource_group ON lightsource(group_id);
+  CREATE INDEX i_LightSource_power ON lightsource("power");
   CREATE INDEX i_LightSource_instrument ON lightsource(instrument);
   CREATE INDEX i_lightsourceannotationlink_owner ON lightsourceannotationlink(owner_id);
   CREATE INDEX i_lightsourceannotationlink_group ON lightsourceannotationlink(group_id);
@@ -907,6 +908,7 @@ CREATE SEQUENCE seq_transmittancerange; INSERT INTO _lock_ids (name, id) SELECT 
 CREATE SEQUENCE seq_unitselectricpotential; INSERT INTO _lock_ids (name, id) SELECT 'seq_unitselectricpotential', nextval('_lock_seq');
 CREATE SEQUENCE seq_unitsfrequency; INSERT INTO _lock_ids (name, id) SELECT 'seq_unitsfrequency', nextval('_lock_seq');
 CREATE SEQUENCE seq_unitslength; INSERT INTO _lock_ids (name, id) SELECT 'seq_unitslength', nextval('_lock_seq');
+CREATE SEQUENCE seq_unitspower; INSERT INTO _lock_ids (name, id) SELECT 'seq_unitspower', nextval('_lock_seq');
 CREATE SEQUENCE seq_unitspressure; INSERT INTO _lock_ids (name, id) SELECT 'seq_unitspressure', nextval('_lock_seq');
 CREATE SEQUENCE seq_unitstemperature; INSERT INTO _lock_ids (name, id) SELECT 'seq_unitstemperature', nextval('_lock_seq');
 CREATE SEQUENCE seq_unitstime; INSERT INTO _lock_ids (name, id) SELECT 'seq_unitstime', nextval('_lock_seq');
@@ -1660,6 +1662,7 @@ alter table event alter column experimentergroup set not null;
 -- temporarily disable the not null constraints
 alter table pixelstype alter column bitsize drop not null;
 alter table unitslength alter column measurementsystem drop not null;
+alter table unitspower alter column measurementsystem drop not null;
 alter table unitspressure alter column measurementsystem drop not null;
 alter table unitstemperature alter column measurementsystem drop not null;
 alter table unitstime alter column measurementsystem drop not null;
@@ -2529,6 +2532,48 @@ insert into unitslength (id,permissions,value)
     select ome_nextval('seq_unitslength'),-52,'pixel';
 insert into unitslength (id,permissions,value)
     select ome_nextval('seq_unitslength'),-52,'reference frame';
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-52,'YW';
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-52,'ZW';
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-52,'EW';
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-52,'PW';
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-52,'TW';
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-52,'GW';
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-52,'MW';
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-52,'kW';
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-52,'hW';
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-52,'daW';
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-52,'W';
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-52,'dW';
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-52,'cW';
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-52,'mW';
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-52,'µW';
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-52,'nW';
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-52,'pW';
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-52,'fW';
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-52,'aW';
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-52,'zW';
+insert into unitspower (id,permissions,value)
+    select ome_nextval('seq_unitspower'),-52,'yW';
 insert into unitspressure (id,permissions,value)
     select ome_nextval('seq_unitspressure'),-52,'YPa';
 insert into unitspressure (id,permissions,value)
@@ -2672,6 +2717,8 @@ update unitslength set measurementsystem = 'Pixel'
     where value = 'pixel';
 update unitslength set measurementsystem = 'ReferenceFrame'
     where value = 'reference frame';
+
+update unitspower set measurementsystem = 'SI.WATT';
 
 update unitspressure set measurementsystem = 'SI.PASCAL';
 

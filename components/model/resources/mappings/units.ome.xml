@@ -102,6 +102,30 @@
 		<entry name="reference frame"/>
 		<required name="measurementSystem" type="string"/>
 	</enum>
+	<enum id="ome.model.enums.UnitsPower">
+		<entry name="YW"/>
+		<entry name="ZW"/>
+		<entry name="EW"/>
+		<entry name="PW"/>
+		<entry name="TW"/>
+		<entry name="GW"/>
+		<entry name="MW"/>
+		<entry name="kW"/>
+		<entry name="hW"/>
+		<entry name="daW"/>
+		<entry name="W"/>
+		<entry name="dW"/>
+		<entry name="cW"/>
+		<entry name="mW"/>
+		<entry name="µW"/>
+		<entry name="nW"/>
+		<entry name="pW"/>
+		<entry name="fW"/>
+		<entry name="aW"/>
+		<entry name="zW"/>
+		<entry name="yW"/>
+		<required name="measurementSystem" type="string"/>
+	</enum>
 	<enum id="ome.model.enums.UnitsPressure">
 		<entry name="YPa"/>
 		<entry name="ZPa"/>

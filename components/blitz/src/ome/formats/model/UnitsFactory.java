@@ -29,6 +29,8 @@ import omero.model.Frequency;
 import omero.model.FrequencyI;
 import omero.model.Length;
 import omero.model.LengthI;
+import omero.model.Power;
+import omero.model.PowerI;
 import omero.model.Pressure;
 import omero.model.PressureI;
 import omero.model.Temperature;
@@ -40,6 +42,8 @@ import omero.model.UnitsFrequency;
 import omero.model.UnitsFrequencyI;
 import omero.model.UnitsLength;
 import omero.model.UnitsLengthI;
+import omero.model.UnitsPower;
+import omero.model.UnitsPowerI;
 import omero.model.UnitsPressure;
 import omero.model.UnitsPressureI;
 import omero.model.UnitsTemperature;
@@ -302,6 +306,64 @@ public class UnitsFactory {
         }
         throw new RuntimeException(String.format(
                 "%d %s cannot be converted to %s", value.getValue(), source));
+    }
+
+    //
+    // POWER
+    //
+
+    public static Power makePower(double d, String unit) {
+        UnitsPower ul = new UnitsPowerI();
+        ul.setValue(rstring(unit));
+        Power copy = new PowerI();
+        copy.setUnit(ul);
+        copy.setValue(d);
+        return copy;
+    }
+
+    public static Power makePower(double d, Unit<ome.units.quantity.Power> watt) {
+        return makePower(d, watt.getSymbol());
+    }
+
+    public static ome.xml.model.enums.UnitsPower makePowerUnitXML(String unit) {
+        try {
+            return ome.xml.model.enums.UnitsPower
+                    .fromString((String) unit);
+        } catch (EnumerationException e) {
+            throw new RuntimeException("Bad power unit: " + unit, e);
+        }
+    }
+
+    public static ome.units.quantity.Power convertPower(Power t) {
+
+        if (t == null) {
+            return null;
+        }
+
+        Double power = t.getValue();
+        String u = (String) unwrap(t.getUnit().getValue());
+        ome.xml.model.enums.UnitsPower units = makePowerUnitXML(u);
+        ome.units.unit.Unit<ome.units.quantity.Power> units2 =
+                ome.xml.model.enums.handlers.UnitsPowerEnumHandler
+                        .getBaseUnit(units);
+
+        return new ome.units.quantity.Power(power, units2);
+    }
+
+    /**
+     * Convert a Bio-Formats {@link Power} to an OMERO Power. A null will be
+     * returned if the input is null.
+     */
+    public static Power convertPower(ome.units.quantity.Power value) {
+        if (value == null)
+            return null;
+        omero.model.UnitsPower ul = new omero.model.UnitsPowerI();
+        ul.setValue(rstring(value.unit().getSymbol()));
+
+        omero.model.Power l = new omero.model.PowerI();
+        l.setValue(value.value().doubleValue());
+        l.setUnit(ul);
+        return l;
     }
 
     //

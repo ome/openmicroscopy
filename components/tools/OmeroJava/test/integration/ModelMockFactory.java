@@ -11,6 +11,7 @@ import static omero.rtypes.rstring;
 import static ome.formats.model.UnitsFactory.makeElectricPotential;
 import static ome.formats.model.UnitsFactory.makeFrequency;
 import static ome.formats.model.UnitsFactory.makeLength;
+import static ome.formats.model.UnitsFactory.makePower;
 import static ome.formats.model.UnitsFactory.makePressure;
 import static ome.formats.model.UnitsFactory.makeTemperature;
 
@@ -27,6 +28,7 @@ import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 
 import ome.units.UNITS;
+import ome.units.unit.Unit;
 import ome.xml.model.TransmittanceRange;
 import omero.api.IPixelsPrx;
 import omero.model.*;
@@ -121,6 +123,10 @@ public class ModelMockFactory {
 
     private static ElectricPotential volt(double d) {
         return makeElectricPotential(d, UNITS.VOLT);
+    }
+
+    private static Power watt(double d) {
+        return makePower(d, UNITS.WATT);
     }
 
     /**
@@ -527,7 +533,7 @@ public class ModelMockFactory {
         Filament filament = new FilamentI();
         filament.setManufacturer(omero.rtypes.rstring("manufacturer"));
         filament.setModel(omero.rtypes.rstring("model"));
-        filament.setPower(omero.rtypes.rdouble(1));
+        filament.setPower(watt(1));
         filament.setSerialNumber(omero.rtypes.rstring("serial number"));
         filament.setLotNumber(omero.rtypes.rstring("lot number"));
         filament.setType((FilamentType) types.get(0));
@@ -548,7 +554,7 @@ public class ModelMockFactory {
         Arc arc = new ArcI();
         arc.setManufacturer(omero.rtypes.rstring("manufacturer"));
         arc.setModel(omero.rtypes.rstring("model"));
-        arc.setPower(omero.rtypes.rdouble(1));
+        arc.setPower(watt(1));
         arc.setSerialNumber(omero.rtypes.rstring("serial number"));
         arc.setLotNumber(omero.rtypes.rstring("lot number"));
         arc.setType((ArcType) types.get(0));
@@ -567,7 +573,7 @@ public class ModelMockFactory {
         LightEmittingDiode light = new LightEmittingDiodeI();
         light.setManufacturer(omero.rtypes.rstring("manufacturer"));
         light.setModel(omero.rtypes.rstring("model"));
-        light.setPower(omero.rtypes.rdouble(1));
+        light.setPower(watt(1));
         light.setSerialNumber(omero.rtypes.rstring("serial number"));
         light.setLotNumber(omero.rtypes.rstring("lot number"));
         return light;
@@ -603,7 +609,7 @@ public class ModelMockFactory {
         laser.setPockelCell(omero.rtypes.rbool(false));
         laser.setTuneable(omero.rtypes.rbool(true));
         laser.setWavelength(makeLength(500.1, WAVE_UNIT));
-        laser.setPower(omero.rtypes.rdouble(1));
+        laser.setPower(watt(1));
         laser.setRepetitionRate(hz(1));
         return laser;
     }

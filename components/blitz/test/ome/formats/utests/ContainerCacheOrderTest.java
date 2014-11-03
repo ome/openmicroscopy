@@ -3,6 +3,8 @@ package ome.formats.utests;
 import static ome.xml.model.Channel.getEmissionWavelengthUnitXsdDefault;
 import static ome.formats.model.UnitsFactory.convertLength;
 import static ome.formats.model.UnitsFactory.makeLength;
+import static ome.formats.model.UnitsFactory.convertPower;
+import static ome.formats.model.UnitsFactory.makePower;
 
 import java.util.Map;
 
@@ -11,6 +13,8 @@ import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.model.BlitzInstanceProvider;
+import ome.units.UNITS;
+import ome.units.quantity.Power;
 import ome.util.LSID;
 import ome.xml.model.enums.*;
 import ome.xml.model.primitives.*;
@@ -41,6 +45,10 @@ public class ContainerCacheOrderTest extends TestCase
 
 	private static ome.units.quantity.Length makeWave(double d) {
 	    return convertLength(makeLength(d, EM_WAVE));
+	}
+
+	Power watt(double d) {
+	    return convertPower(makePower(d, UNITS.WATT.getSymbol()));
 	}
 
 	@BeforeMethod
@@ -75,7 +83,7 @@ public class ContainerCacheOrderTest extends TestCase
 		store.setLaserID(
 				"Laser:0", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
 		store.setLaserPower(
-        1.0, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
+        watt(1.0), INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
 		store.setLaserFrequencyMultiplication(
 				new PositiveInteger(1), INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
 		store.setChannelLightSourceSettingsID(
@@ -89,7 +97,7 @@ public class ContainerCacheOrderTest extends TestCase
 		store.setLaserID(
 				"Laser:1", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
 		store.setLaserPower(
-        1.0, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
+        watt(1.0), INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
 		store.setLaserFrequencyMultiplication(
 				new PositiveInteger(1), INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
 		store.setChannelLightSourceSettingsID(

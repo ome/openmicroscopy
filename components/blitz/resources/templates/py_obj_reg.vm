@@ -92,6 +92,19 @@ class LengthObjectFactory(Ice.ObjectFactory):
     def destroy(self):
         pass
 
+class PowerObjectFactory(Ice.ObjectFactory):
+
+    from omero_model_PowerI import PowerI
+
+    def __init__(self, client = None):
+        self.client = client
+
+    def create(self, type):
+        return self.PowerI(self.client)
+
+    def destroy(self):
+        pass
+
 class PressureObjectFactory(Ice.ObjectFactory):
 
     from omero_model_PressureI import PressureI
@@ -141,6 +154,7 @@ def registerObjectFactory(ic, client = None):
     conditionalAdd("::omero::model::ElectricPotential", ic, ElectricPotentialObjectFactory(client))
     conditionalAdd("::omero::model::Frequency", ic, FrequencyObjectFactory(client))
     conditionalAdd("::omero::model::Length", ic, LengthObjectFactory(client))
+    conditionalAdd("::omero::model::Power", ic, PowerObjectFactory(client))
     conditionalAdd("::omero::model::Pressure", ic, PressureObjectFactory(client))
     conditionalAdd("::omero::model::Temperature", ic, TemperatureObjectFactory(client))
     conditionalAdd("::omero::model::Time", ic, TimeObjectFactory(client))
