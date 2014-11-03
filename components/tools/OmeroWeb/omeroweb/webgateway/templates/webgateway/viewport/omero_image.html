@@ -90,7 +90,7 @@
 
 
 {% block title %}
-    {{ image.getName }}
+    {{ image.getName|escape }}
 {% endblock %}
 
 
@@ -234,8 +234,8 @@
       box.append('<button id="wblitz-ch'+i+'"\
                  class="squared' + (channels[i].active?' pressed':'') + '"\
                  style="background-color: #'+channels[i].color+'"\
-                 title="'+channels[i].label+'"\
-                 onclick="viewport.toggleChannel('+i+')">'+channels[i].label+'</button>');
+                 title="'+channels[i].label.escapeHTML()+'"\
+                 onclick="viewport.toggleChannel('+i+')">'+channels[i].label.escapeHTML()+'</button>');
 
     }
 
@@ -322,7 +322,7 @@
       .replace(/\$act/g, channels[i].active?'checked':'')
       .replace(/\$idx0/g, i) // Channel Index, 0 based
       .replace(/\$idx1/g, i+1) // Channel Index, 1 based
-      .replace(/\$cwl/g, channels[i].label) // Wavelength
+      .replace(/\$cwl/g, channels[i].label.escapeHTML()) // Wavelength
       .replace(/\$cls/g, i/2!=parseInt(i/2)?'even':'odd') // class
       );
       $('#wblitz-ch'+(i)+'-cw').rangewidget({
@@ -457,7 +457,7 @@
     }
     //var t = $('#rd-wblitz-ch'+idx).get(0);
     //if (t != undefined) t.checked=ch.active;
-    $('#wblitz-ch'+idx).css('background-color', ch.color).attr('title', ch.label);
+    $('#wblitz-ch'+idx).css('background-color', ch.color).attr('title', ch.label.escapeHTML());
   };
 
   /**
