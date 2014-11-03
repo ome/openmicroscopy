@@ -1253,7 +1253,7 @@ sizeOf ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 [$cpp]       Ice::Int ${PojoI}::sizeOf${PropertyName}($CPP_CURRENT_UNUSED) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) return -1;
-[$cpp]           return ${fieldName}.size();
+[$cpp]           return static_cast<Ice::Int>(${fieldName}.size());
 [$cpp]       }
 [$pyc]       def sizeOf${PropertyName}(self, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()

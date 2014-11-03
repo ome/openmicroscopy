@@ -23,11 +23,11 @@ namespace omero {
      * via "==" comparision when operator() is called.
      */
     template<class T> struct ContainsPointer {
-	const T test;
-    ContainsPointer(const T lookfor) : test(lookfor) {}
-	bool operator()(T const& o) {
-	    return o == test;
-	}
+        const T test;
+        ContainsPointer(const T lookfor) : test(lookfor) {}
+        bool operator()(T const& o) {
+            return o == test;
+        }
     };
 
     /**
@@ -35,18 +35,18 @@ namespace omero {
      * via std::find when operator() is called.
      */
     template<class T> struct VectorContainsPointer {
-	const std::vector<T> test;
-    VectorContainsPointer(const std::vector<T> lookfor) : test(lookfor) {}
-	bool operator()(T const& o) {
-	    return std::find(test.begin(), test.end(), o) != test.end();
-	}
+        const std::vector<T> test;
+        VectorContainsPointer(const std::vector<T> lookfor) : test(lookfor) {}
+        bool operator()(T const& o) {
+            return std::find(test.begin(), test.end(), o) != test.end();
+        }
     };
 
     /**
      * Return the index in the vector of the given element.
      */
     template<class T> int indexOf(const std::vector<T>& v, const T& t) {
-	return std::find(v.begin(), v.end(), t) - v.begin();
+        return static_cast<int>(std::find(v.begin(), v.end(), t) - v.begin());
     }
 
     /**
@@ -55,7 +55,7 @@ namespace omero {
     template<class T> std::vector<T> cast(omero::api::IObjectList& v) {
         std::vector<T> rv;
         omero::api::IObjectList::iterator beg = v.begin();
-	while (beg != v.end()) {
+        while (beg != v.end()) {
             rv.push_back(T::dynamicCast(*beg));
             beg++;
         }
