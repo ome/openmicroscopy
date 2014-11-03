@@ -68,7 +68,7 @@ Check User Form
     Page Should Contain Button              Save
 
 
-Create Group
+Create Edit Group
     [Documentation]     Tests group creation
     
     Go To                   ${USERS URL}
@@ -83,7 +83,21 @@ Create Group
     Select Radio Button     permissions     1
     
     Click Button            Save
+
+    Location Should Be      ${GROUPS URL}
+    Page Should Contain     ${group_name}
+    # To edit the same group again, sort by ID (reverse) and edit first row
+    Click Element           xpath=//th[contains(text(), "ID")]
+    Click Element           xpath=//th[contains(text(), "ID")]
+    Click Element           xpath=//table[@id="groupTable"]/tbody/tr[1]//a[contains(@class, "btn_edit")]
+    Page Should Contain Element   xpath=//input[@id='id_name'][@value='${group_name}']
+    Input Text              name    ${group_name}-Edited
+    Click Button            Save
+    Location Should Be      ${GROUPS URL}
+    Page Should Contain     ${group_name}-Edited
     
+
+Create Edit User
     Click Link              link=Users
     
     Click Link              link=Add new User
@@ -99,7 +113,26 @@ Create Group
     
     Click Element           xpath=//ul[@class='chzn-choices']
     Page Should Contain Element             xpath=//ul[@class='chzn-results']
-    Click Element           xpath=//ul[@class='chzn-results']/li[contains(text(),'${group_name}')]
+    Click Element           xpath=//ul[@class='chzn-results']/li[contains(text(),'test_group')]
     
-    Click Button    Save
+    Click Button            Save
+    Location Should Be      ${USERS URL}
+    Page Should Contain     ${user_name}
+    # To edit the same user again, sort by ID (reverse) and edit first row
+    Click Element           xpath=//th[contains(text(), "ID")]
+    Click Element           xpath=//th[contains(text(), "ID")]
+    Click Element           xpath=//table[@id="experimenterTable"]/tbody/tr[1]//a[contains(@class, "btn_edit")]
+    Page Should Contain Element   xpath=//input[@id='id_first_name'][@value='${user_name}']
 
+    # Edit Password
+    Click Element           id=change_password
+    Input Text              id_old_password     ${ROOT PASSWORD}
+    Input Text              id_password         ${user_name}new
+    Input Text              id_confirmation     ${user_name}new
+    Click Element           xpath=//button[contains(@class, "ui-button")]/span[contains(text(), "OK")]
+    Wait Until Page Contains  Password reset OK
+
+    Input Text              first_name    ${user_name}-Edited
+    Click Button            Save
+    Location Should Be      ${USERS URL}
+    Page Should Contain     ${user_name}-Edited
