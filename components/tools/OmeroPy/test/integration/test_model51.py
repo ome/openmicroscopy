@@ -55,4 +55,23 @@ class TestModel51(lib.ITest):
         assert "ms" == unwrap(unit.getValue())
 
     def testPhysicalSize(self):
-        raise Exception("FIXME")
+        img = self.importMIF(name="testPhysicalSize", physicalSizeZ=2.0)[0]
+        pixels = self.query.findByQuery((
+            "select pix from Pixels pix "
+            "join fetch pix.physicalSizeZ "
+            "join fetch pix.physicalSizeZ.unit "
+            "where pix.image.id = :id"), omero.sys.ParametersI().addId(img.id.val))
+        sizeZ = pixels.getPhysicalSizeZ()
+        unit = sizeZ.getUnit()
+        assert "SI.METRE" == unwrap(unit.getMeasurementSystem())
+        assert "µm" == unwrap(unit.getValue())
+
+        mm = self.query.findByQuery((
+            "select ul from UnitsLength ul "
+            "where ul.value = 'mm'"), None)
+
+        sizeZ.setUnit(mm)
+        pixels = self.update.saveAndReturnObject(pixels)
+        sizeZ = pixels.getPhysicalSizeZ()
+        unit = sizeZ.getUnit()
+        assert "mm" == unwrap(unit.getValue())
