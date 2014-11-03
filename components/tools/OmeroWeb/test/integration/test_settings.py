@@ -18,6 +18,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+"""
+Simple integration tests to ensure that the settings are working correctly.
+"""
 
 import unittest, os
 import omero
@@ -25,12 +28,10 @@ import omero
 from connector import Server, Connector
 
 # Test model
-class ServerModelTest (unittest.TestCase):
-
-    def setUp(self):
-        Server.reset()
+class TestServerModel (object):
 
     def test_constructor(self):
+        Server.reset()
         # Create object with alias
         Server(host=u'example.com', port=4064, server=u'ome')
 
@@ -40,28 +41,30 @@ class ServerModelTest (unittest.TestCase):
         # without any params
         try:
             Server()
-        except Exception:
-            pass
-        else:
-            self.fail('Error:Parameters required')
+        except TypeError as te:
+            assert str(te) == '__new__() takes at least 3 arguments (1 given)'
 
     def test_get_and_find(self):
+        Server.reset()
+
         SERVER_LIST = [[u'example1.com', 4064, u'omero1'], [u'example2.com', 4064, u'omero2'], [u'example3.com', 4064], [u'example4.com', 4064]]
         for s in SERVER_LIST:
             server = (len(s) > 2) and s[2] or None
             Server(host=s[0], port=s[1], server=server)
 
         s1 = Server.get(1)
-        self.assertEquals(s1.host, u'example1.com')
-        self.assertEquals(s1.port, 4064)
-        self.assertEquals(s1.server, u'omero1')
+        assert s1.host == u'example1.com'
+        assert s1.port == 4064
+        assert s1.server ==  u'omero1'
 
         s2 = Server.find('example2.com')[0]
-        self.assertEquals(s2.host, u'example2.com')
-        self.assertEquals(s2.port, 4064)
-        self.assertEquals(s2.server, u'omero2')
+        assert s2.host ==  u'example2.com'
+        assert s2.port == 4064
+        assert s2.server == u'omero2'
 
     def test_load_server_list(self):
+        Server.reset()
+
         SERVER_LIST = [[u'example1.com', 4064, u'omero1'], [u'example2.com', 4064, u'omero2'], [u'example3.com', 4064], [u'example4.com', 4064]]
         for s in SERVER_LIST:
             server = (len(s) > 2) and s[2] or None
@@ -70,9 +73,7 @@ class ServerModelTest (unittest.TestCase):
 
         try:
             Server(host=u'example5.com', port=4064)
-        except Exception:
-            pass
-        else:
-            self.fail('Error:No more instances allowed')
+        except TypeError as te:
+            assert str(te) == 'No more instances allowed'
 
         Server(host=u'example1.com', port=4064)
