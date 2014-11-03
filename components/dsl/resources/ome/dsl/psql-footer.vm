@@ -471,6 +471,8 @@ alter table event alter column experimentergroup set not null;
 
 -- temporarily disable the not null constraints
 alter table pixelstype alter column bitsize drop not null;
+alter table unitselectricpotential alter column measurementsystem drop not null;
+alter table unitsfrequency alter column measurementsystem drop not null;
 alter table unitslength alter column measurementsystem drop not null;
 alter table unitspower alter column measurementsystem drop not null;
 alter table unitspressure alter column measurementsystem drop not null;
