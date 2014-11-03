@@ -132,6 +132,10 @@ Test Rdef Copy Paste Save
     Mouse Over                              xpath=//div[@id='vakata-contextmenu']//a[@rel='renderingsettings']
     Click Element                           xpath=//div[@id='vakata-contextmenu']//li[6]//li[2]/a   # Paste
     Wait For Condition                      return ($("#image_icon-${imageId} img").attr('src') != '${thumbSrc}')
+    # Test Paste in Preview Panel in same way
+    ${thumbSrc}=                            Execute Javascript  return $("#image_icon-${imageId} img").attr('src')
+    Click Button                            css=button.paste_rdef
+    Wait For Condition                      return ($("#image_icon-${imageId} img").attr('src') != '${thumbSrc}')
     # Test Set Owner's in same way
     ${thumbSrc}=                            Execute Javascript  return $("#image_icon-${imageId} img").attr('src')
     Open Context Menu                       xpath=//li[@id='image-${imageId}']/a
