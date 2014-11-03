@@ -32,8 +32,10 @@ _omero = Ice.openModule("omero")
 _omero_model = Ice.openModule("omero.model")
 __name__ = "omero.model"
 
+from omero_model_UnitBase import UnitBase
 
-class FrequencyI(_omero_model.Frequency):
+
+class FrequencyI(_omero_model.Frequency, UnitBase):
 
     def getUnit(self, current=None):
         return self._unit
@@ -46,5 +48,8 @@ class FrequencyI(_omero_model.Frequency):
 
     def setValue(self, value, current=None):
         self._value = value
+
+    def __str__(self):
+        return self._base_string(self.getValue(), self.getUnit())
 
 _omero_model.FrequencyI = FrequencyI
