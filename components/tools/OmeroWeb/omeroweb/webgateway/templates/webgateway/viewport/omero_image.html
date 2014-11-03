@@ -667,7 +667,7 @@
               var theT =
                   typeof shape.theT === "undefined"? NOZT : shape.theT + 1;
               shapesHtml += "<td class='shape_cell'>" + theT + "</td>";
-              shapesHtml += "<td class='shape_cell shape_text' title=\""+ text +"\"><p>"+ truncate_text(text) + "</p></td>";
+              shapesHtml += "<td class='shape_cell shape_text' title=\""+ text +"\"><p>"+ truncate_text(text.escapeHTML()) + "</p></td>";
               shapesHtml += "<td class='shape_cell'>" + shapeThumbHtml + "</td>";
               shapesHtml += "</tr>";
               if (roiIcon == null) roiIcon = shape['type'];
