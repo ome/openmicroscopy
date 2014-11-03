@@ -45,7 +45,6 @@ include_directories("${PROJECT_SOURCE_DIR}/components/blitz/generated"
                     "${Ice_INCLUDE_DIRS}")
 
 option(debug-ice-generation "Dump results of generated Ice source globbing" OFF)
-option(fatal-warnings "Make all warnings fatal" OFF)
 
 # Find all static Ice slice definitions.
 file(GLOB_RECURSE ICE_API_STATIC_SOURCES RELATIVE    "${PROJECT_SOURCE_DIR}"
@@ -428,10 +427,6 @@ foreach(flag -Wno-switch-default -Wno-redundant-decls -Wno-overloaded-virtual -W
      set(ICE_FLAGS "${ICE_FLAGS} ${flag}")
   endif (${test_cxx_flag})
 endforeach(flag ${test_flags})
-
-if(fatal-warnings)
-  add_definitions("-Werror -Wno-deprecated-declarations")
-endif(fatal-warnings)
 
 set_source_files_properties(
     ${OMERO_ICE_SOURCES}
