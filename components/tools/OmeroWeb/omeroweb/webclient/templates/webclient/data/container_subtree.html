@@ -52,3 +52,17 @@
         {% endfor %}
     {% endif %}
 {% endif %}
+
+{% if share.imgSize %}
+{% for d in share.imageInShare %}
+    {% if d.loaded %}
+    <li id='image-{{ d.id }}' rel="image{% if not d.isOwned %}-locked{% endif %}" class="{{ d.getPermsCss }}" data-fileset="{{ d.fileset.id.val }}">
+      <a href="#" data-name="{{ d.name }}" >
+        {{ d.name|default:"Image" }}
+      </a>
+    </li>
+    {% else %}
+    <li>Object deleted.</li>
+    {% endif %}
+{% endfor %}
+{% endif %}
