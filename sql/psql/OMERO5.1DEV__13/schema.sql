@@ -2979,7 +2979,7 @@
         references externalinfo  ;;
 
     alter table detector 
-        add constraint FK3E7B17C64067255C 
+        add constraint FKdetector_voltageUnit_unitselectricpotential 
         foreign key (voltageUnit) 
         references unitselectricpotential  ;;
 
@@ -3044,7 +3044,7 @@
         references event  ;;
 
     alter table detectorsettings 
-        add constraint FKBBE4ADE9B965E6B1 
+        add constraint FKdetectorsettings_readOutRateUnit_unitsfrequency 
         foreign key (readOutRateUnit) 
         references unitsfrequency  ;;
 
@@ -3064,7 +3064,7 @@
         references binning  ;;
 
     alter table detectorsettings 
-        add constraint FKBBE4ADE94067255C 
+        add constraint FKdetectorsettings_voltageUnit_unitselectricpotential 
         foreign key (voltageUnit) 
         references unitselectricpotential  ;;
 
@@ -3824,7 +3824,7 @@
         references externalinfo  ;;
 
     alter table imagingenvironment 
-        add constraint FKCB554FBBE4886D25 
+        add constraint FKimagingenvironment_temperatureUnit_unitstemperature 
         foreign key (temperatureUnit) 
         references unitstemperature  ;;
 
@@ -3839,7 +3839,7 @@
         references experimenter  ;;
 
     alter table imagingenvironment 
-        add constraint FKCB554FBB2994F5BF 
+        add constraint FKimagingenvironment_airPressureUnit_unitspressure 
         foreign key (airPressureUnit) 
         references unitspressure  ;;
 
@@ -4014,7 +4014,7 @@
         references lightsource  ;;
 
     alter table laser 
-        add constraint FK61FBECBAF8FC42A 
+        add constraint FKlaser_repetitionRateUnit_unitsfrequency 
         foreign key (repetitionRateUnit) 
         references unitsfrequency  ;;
 
@@ -4024,7 +4024,7 @@
         references lasermedium  ;;
 
     alter table laser 
-        add constraint FK61FBECB6793E9B0 
+        add constraint FKlaser_wavelengthUnit_unitslength 
         foreign key (wavelengthUnit) 
         references unitslength  ;;
 
@@ -4209,7 +4209,7 @@
         references lightsource  ;;
 
     alter table lightsettings 
-        add constraint FK71827B396793E9B0 
+        add constraint FKlightsettings_wavelengthUnit_unitslength 
         foreign key (wavelengthUnit) 
         references unitslength  ;;
 
@@ -4254,7 +4254,7 @@
         references experimentergroup  ;;
 
     alter table lightsource 
-        add constraint FKA080F4B199B88287 
+        add constraint FKlightsource_powerUnit_unitspower 
         foreign key (powerUnit) 
         references unitspower  ;;
 
@@ -4339,7 +4339,7 @@
         references photometricinterpretation  ;;
 
     alter table logicalchannel 
-        add constraint FK8406F4DA5A95C867 
+        add constraint FKlogicalchannel_pinHoleSizeUnit_unitslength  
         foreign key (pinHoleSizeUnit) 
         references unitslength  ;;
 
@@ -4359,7 +4359,7 @@
         references experimentergroup  ;;
 
     alter table logicalchannel 
-        add constraint FK8406F4DAF9C88B24 
+        add constraint FKlogicalchannel_excitationWaveUnit_unitslength 
         foreign key (excitationWaveUnit) 
         references unitslength  ;;
 
@@ -4369,7 +4369,7 @@
         references otf  ;;
 
     alter table logicalchannel 
-        add constraint FK8406F4DAD028CF11 
+        add constraint FKlogicalchannel_emissionWaveUnit_unitslength 
         foreign key (emissionWaveUnit) 
         references unitslength  ;;
 
@@ -4634,7 +4634,7 @@
         references correction  ;;
 
     alter table objective 
-        add constraint FKA736B93927B31537 
+        add constraint FKobjective_workingDistanceUnit_unitslength 
         foreign key (workingDistanceUnit) 
         references unitslength  ;;
 
@@ -4849,7 +4849,7 @@
         references externalinfo  ;;
 
     alter table pixels 
-        add constraint FKC51E7EAD881A95FA 
+        add constraint FKpixels_timeIncrementUnit_unitstime  
         foreign key (timeIncrementUnit) 
         references unitstime  ;;
 
@@ -4869,7 +4869,7 @@
         references image  ;;
 
     alter table pixels 
-        add constraint FKC51E7EADBD80D7B2 
+        add constraint FKpixels_physicalSizeYUnit_unitslength 
         foreign key (physicalSizeYUnit) 
         references unitslength  ;;
 
@@ -4889,12 +4889,12 @@
         references dimensionorder  ;;
 
     alter table pixels 
-        add constraint FKC51E7EADBD72C031 
+        add constraint FKpixels_physicalSizeXUnit_unitslength 
         foreign key (physicalSizeXUnit) 
         references unitslength  ;;
 
     alter table pixels 
-        add constraint FKC51E7EADBD8EEF33 
+        add constraint FKpixels_physicalSizeZUnit_unitslength 
         foreign key (physicalSizeZUnit) 
         references unitslength  ;;
 
@@ -4944,12 +4944,12 @@
         references externalinfo  ;;
 
     alter table planeinfo 
-        add constraint FK7DA1B10ABB737681 
+        add constraint FKplaneinfo_positionYUnit_unitslength 
         foreign key (positionYUnit) 
         references unitslength  ;;
 
     alter table planeinfo 
-        add constraint FK7DA1B10AE3A7A20C 
+        add constraint FKplaneinfo_exposureTimeUnit_unitstime 
         foreign key (exposureTimeUnit) 
         references unitstime  ;;
 
@@ -4969,17 +4969,17 @@
         references externalinfo  ;;
 
     alter table planeinfo 
-        add constraint FK7DA1B10AA0467574 
+        add constraint FKplaneinfo_deltaTUnit_unitstime  
         foreign key (deltaTUnit) 
         references unitstime  ;;
 
     alter table planeinfo 
-        add constraint FK7DA1B10ABB655F00 
+        add constraint FKplaneinfo_positionXUnit_unitslength 
         foreign key (positionXUnit) 
         references unitslength  ;;
 
     alter table planeinfo 
-        add constraint FK7DA1B10ABB818E02 
+        add constraint FKplaneinfo_positionZUnit_unitslength 
         foreign key (positionZUnit) 
         references unitslength  ;;
 
@@ -5054,12 +5054,12 @@
         references externalinfo  ;;
 
     alter table plate 
-        add constraint FK65CDB16A2BB0916 
+        add constraint FKplate_wellOriginYUnit_unitslength 
         foreign key (wellOriginYUnit) 
         references unitslength  ;;
 
     alter table plate 
-        add constraint FK65CDB16A2ACF195 
+        add constraint FKplate_wellOriginXUnit_unitslength 
         foreign key (wellOriginXUnit) 
         references unitslength  ;;
 
@@ -5649,7 +5649,7 @@
         references externalinfo  ;;
 
     alter table shape 
-        add constraint FK6854FA17384E6E1 
+        add constraint FKshape_fontSizeUnit_unitslength  
         foreign key (fontSizeUnit) 
         references unitslength  ;;
 
@@ -5669,7 +5669,7 @@
         references roi  ;;
 
     alter table shape 
-        add constraint FK6854FA15674859F 
+        add constraint FKshape_strokeWidthUnit_unitslength 
         foreign key (strokeWidthUnit) 
         references unitslength  ;;
 
@@ -5739,7 +5739,7 @@
         references share  ;;
 
     alter table stagelabel 
-        add constraint FK436CEAB6BB737681 
+        add constraint FKstagelabel_positionYUnit_unitslength 
         foreign key (positionYUnit) 
         references unitslength  ;;
 
@@ -5759,12 +5759,12 @@
         references externalinfo  ;;
 
     alter table stagelabel 
-        add constraint FK436CEAB6BB655F00 
+        add constraint FKstagelabel_positionXUnit_unitslength 
         foreign key (positionXUnit) 
         references unitslength  ;;
 
     alter table stagelabel 
-        add constraint FK436CEAB6BB818E02 
+        add constraint FKstagelabel_positionZUnit_unitslength 
         foreign key (positionZUnit) 
         references unitslength  ;;
 
@@ -5844,12 +5844,12 @@
         references event  ;;
 
     alter table transmittancerange 
-        add constraint FK60026A0A8641C9DD 
+        add constraint FKtransmittancerange_cutOutUnit_unitslength 
         foreign key (cutOutUnit) 
         references unitslength  ;;
 
     alter table transmittancerange 
-        add constraint FK60026A0AFC9CDD78 
+        add constraint FKtransmittancerange_cutInUnit_unitslength 
         foreign key (cutInUnit) 
         references unitslength  ;;
 
@@ -5864,7 +5864,7 @@
         references externalinfo  ;;
 
     alter table transmittancerange 
-        add constraint FK60026A0AE231EC17 
+        add constraint FKtransmittancerange_cutInToleranceUnit_unitslength 
         foreign key (cutInToleranceUnit) 
         references unitslength  ;;
 
@@ -5874,7 +5874,7 @@
         references experimentergroup  ;;
 
     alter table transmittancerange 
-        add constraint FK60026A0A6502152 
+        add constraint FKtransmittancerange_cutOutToleranceUnit_unitslength  
         foreign key (cutOutToleranceUnit) 
         references unitslength  ;;
 
@@ -6029,7 +6029,7 @@
         references well  ;;
 
     alter table wellsample 
-        add constraint FKFB0AC3F8A7DE48B5 
+        add constraint FKwellsample_posXUnit_unitslength 
         foreign key (posXUnit) 
         references unitslength  ;;
 
@@ -6054,7 +6054,7 @@
         references externalinfo  ;;
 
     alter table wellsample 
-        add constraint FKFB0AC3F8A7EC6036 
+        add constraint FKwellsample_posYUnit_unitslength 
         foreign key (posYUnit) 
         references unitslength  ;;
 

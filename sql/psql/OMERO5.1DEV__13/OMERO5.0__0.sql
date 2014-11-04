@@ -1645,94 +1645,94 @@ ALTER TABLE unitstemperature
 	ADD CONSTRAINT unitstemperature_pkey PRIMARY KEY (id);
 
 ALTER TABLE detector
-	ADD CONSTRAINT fk3e7b17c64067255c FOREIGN KEY (voltageunit) REFERENCES unitselectricpotential(id);
+	ADD CONSTRAINT fkdetector_voltageunit_unitselectricpotentialFOREIGN KEY (voltageunit) REFERENCES unitselectricpotential(id);
 
 ALTER TABLE detectorsettings
-	ADD CONSTRAINT fkbbe4ade94067255c FOREIGN KEY (voltageunit) REFERENCES unitselectricpotential(id);
+	ADD CONSTRAINT fkdetectorsettings_voltageunit_unitselectricpotential FOREIGN KEY (voltageunit) REFERENCES unitselectricpotential(id);
 
 ALTER TABLE detectorsettings
-	ADD CONSTRAINT fkbbe4ade9b965e6b1 FOREIGN KEY (readoutrateunit) REFERENCES unitsfrequency(id);
+	ADD CONSTRAINT fkdetectorsettings_readoutrateunit_unitsfrequency FOREIGN KEY (readoutrateunit) REFERENCES unitsfrequency(id);
 
 ALTER TABLE imagingenvironment
-	ADD CONSTRAINT fkcb554fbb2994f5bf FOREIGN KEY (airpressureunit) REFERENCES unitspressure(id);
+	ADD CONSTRAINT fkimagingenvironment_airpressureunit_unitspressure FOREIGN KEY (airpressureunit) REFERENCES unitspressure(id);
 
 ALTER TABLE imagingenvironment
-	ADD CONSTRAINT fkcb554fbbe4886d25 FOREIGN KEY (temperatureunit) REFERENCES unitstemperature(id);
+	ADD CONSTRAINT fkimagingenvironment_temperatureunit_unitstemperature FOREIGN KEY (temperatureunit) REFERENCES unitstemperature(id);
 
 ALTER TABLE laser
-	ADD CONSTRAINT fk61fbecb6793e9b0 FOREIGN KEY (wavelengthunit) REFERENCES unitslength(id);
+	ADD CONSTRAINT fklaser_wavelengthunit_unitslength FOREIGN KEY (wavelengthunit) REFERENCES unitslength(id);
 
 ALTER TABLE laser
-	ADD CONSTRAINT fk61fbecbaf8fc42a FOREIGN KEY (repetitionrateunit) REFERENCES unitsfrequency(id);
+	ADD CONSTRAINT fklaser_repetitionrateunit_unitsfrequency FOREIGN KEY (repetitionrateunit) REFERENCES unitsfrequency(id);
 
 ALTER TABLE lightsettings
-	ADD CONSTRAINT fk71827b396793e9b0 FOREIGN KEY (wavelengthunit) REFERENCES unitslength(id);
+	ADD CONSTRAINT fklightsettings_wavelengthunit_unitslength FOREIGN KEY (wavelengthunit) REFERENCES unitslength(id);
 
 ALTER TABLE lightsource
-	ADD CONSTRAINT fka080f4b199b88287 FOREIGN KEY (powerunit) REFERENCES unitspower(id);
+	ADD CONSTRAINT fklightsource_powerunit_unitspower FOREIGN KEY (powerunit) REFERENCES unitspower(id);
 
 ALTER TABLE logicalchannel
-	ADD CONSTRAINT fk8406f4da5a95c867 FOREIGN KEY (pinholesizeunit) REFERENCES unitslength(id);
+	ADD CONSTRAINT fklogicalchannel_pinholesizeunit_unitslength FOREIGN KEY (pinholesizeunit) REFERENCES unitslength(id);
 
 ALTER TABLE logicalchannel
-	ADD CONSTRAINT fk8406f4dad028cf11 FOREIGN KEY (emissionwaveunit) REFERENCES unitslength(id);
+	ADD CONSTRAINT fklogicalchannel_emissionwaveunit_unitslength FOREIGN KEY (emissionwaveunit) REFERENCES unitslength(id);
 
 ALTER TABLE logicalchannel
-	ADD CONSTRAINT fk8406f4daf9c88b24 FOREIGN KEY (excitationwaveunit) REFERENCES unitslength(id);
+	ADD CONSTRAINT fklogicalchannel_excitationwaveunit_unitslength FOREIGN KEY (excitationwaveunit) REFERENCES unitslength(id);
 
 ALTER TABLE objective
-	ADD CONSTRAINT fka736b93927b31537 FOREIGN KEY (workingdistanceunit) REFERENCES unitslength(id);
+	ADD CONSTRAINT fkobjective_workingdistanceunit_unitslength FOREIGN KEY (workingdistanceunit) REFERENCES unitslength(id);
 
 ALTER TABLE pixels
-	ADD CONSTRAINT fkc51e7eadbd72c031 FOREIGN KEY (physicalsizexunit) REFERENCES unitslength(id);
+	ADD CONSTRAINT fkpixels_physicalsizexunit_unitslength FOREIGN KEY (physicalsizexunit) REFERENCES unitslength(id);
 
 ALTER TABLE pixels
-	ADD CONSTRAINT fkc51e7eadbd80d7b2 FOREIGN KEY (physicalsizeyunit) REFERENCES unitslength(id);
+	ADD CONSTRAINT fkpixels_physicalsizeyunit_unitslength FOREIGN KEY (physicalsizeyunit) REFERENCES unitslength(id);
 
 ALTER TABLE pixels
-	ADD CONSTRAINT fkc51e7eadbd8eef33 FOREIGN KEY (physicalsizezunit) REFERENCES unitslength(id);
+	ADD CONSTRAINT fkpixels_physicalsizezunit_unitslength FOREIGN KEY (physicalsizezunit) REFERENCES unitslength(id);
 
 ALTER TABLE planeinfo
-	ADD CONSTRAINT fk7da1b10abb655f00 FOREIGN KEY (positionxunit) REFERENCES unitslength(id);
+	ADD CONSTRAINT fkplaneinfo_positionxunit_unitslength FOREIGN KEY (positionxunit) REFERENCES unitslength(id);
 
 ALTER TABLE planeinfo
-	ADD CONSTRAINT fk7da1b10abb737681 FOREIGN KEY (positionyunit) REFERENCES unitslength(id);
+	ADD CONSTRAINT fkplaneinfo_positionyunit_unitslength FOREIGN KEY (positionyunit) REFERENCES unitslength(id);
 
 ALTER TABLE planeinfo
-	ADD CONSTRAINT fk7da1b10abb818e02 FOREIGN KEY (positionzunit) REFERENCES unitslength(id);
+	ADD CONSTRAINT fkplaneinfo_positionzunit_unitslength FOREIGN KEY (positionzunit) REFERENCES unitslength(id);
 
 ALTER TABLE plate
-	ADD CONSTRAINT fk65cdb16a2acf195 FOREIGN KEY (welloriginxunit) REFERENCES unitslength(id);
+	ADD CONSTRAINT fkplate_welloriginxunit_unitslength FOREIGN KEY (welloriginxunit) REFERENCES unitslength(id);
 
 ALTER TABLE plate
-	ADD CONSTRAINT fk65cdb16a2bb0916 FOREIGN KEY (welloriginyunit) REFERENCES unitslength(id);
+	ADD CONSTRAINT fkplate_welloriginyunit_unitslength FOREIGN KEY (welloriginyunit) REFERENCES unitslength(id);
 
 ALTER TABLE shape
-	ADD CONSTRAINT fk6854fa15674859f FOREIGN KEY (strokewidthunit) REFERENCES unitslength(id);
+	ADD CONSTRAINT fkshape_strokewidthunit_unitslength FOREIGN KEY (strokewidthunit) REFERENCES unitslength(id);
 
 ALTER TABLE shape
-	ADD CONSTRAINT fk6854fa17384e6e1 FOREIGN KEY (fontsizeunit) REFERENCES unitslength(id);
+	ADD CONSTRAINT fkshape_fontsizeunit_unitslength FOREIGN KEY (fontsizeunit) REFERENCES unitslength(id);
 
 ALTER TABLE stagelabel
-	ADD CONSTRAINT fk436ceab6bb655f00 FOREIGN KEY (positionxunit) REFERENCES unitslength(id);
+	ADD CONSTRAINT fkstagelabel_positionxunit_unitslength FOREIGN KEY (positionxunit) REFERENCES unitslength(id);
 
 ALTER TABLE stagelabel
-	ADD CONSTRAINT fk436ceab6bb737681 FOREIGN KEY (positionyunit) REFERENCES unitslength(id);
+	ADD CONSTRAINT fkstagelabel_positionyunit_unitslength FOREIGN KEY (positionyunit) REFERENCES unitslength(id);
 
 ALTER TABLE stagelabel
-	ADD CONSTRAINT fk436ceab6bb818e02 FOREIGN KEY (positionzunit) REFERENCES unitslength(id);
+	ADD CONSTRAINT fkstagelabel_positionzunit_unitslength FOREIGN KEY (positionzunit) REFERENCES unitslength(id);
 
 ALTER TABLE transmittancerange
-	ADD CONSTRAINT fk60026a0a6502152 FOREIGN KEY (cutouttoleranceunit) REFERENCES unitslength(id);
+	ADD CONSTRAINT fktransmittancerange_cutouttoleranceunit_unitslength FOREIGN KEY (cutouttoleranceunit) REFERENCES unitslength(id);
 
 ALTER TABLE transmittancerange
-	ADD CONSTRAINT fk60026a0a8641c9dd FOREIGN KEY (cutoutunit) REFERENCES unitslength(id);
+	ADD CONSTRAINT fktransmittancerange_cutoutunit_unitslength FOREIGN KEY (cutoutunit) REFERENCES unitslength(id);
 
 ALTER TABLE transmittancerange
-	ADD CONSTRAINT fk60026a0ae231ec17 FOREIGN KEY (cutintoleranceunit) REFERENCES unitslength(id);
+	ADD CONSTRAINT fktransmittancerange_cutintoleranceunit_unitslength FOREIGN KEY (cutintoleranceunit) REFERENCES unitslength(id);
 
 ALTER TABLE transmittancerange
-	ADD CONSTRAINT fk60026a0afc9cdd78 FOREIGN KEY (cutinunit) REFERENCES unitslength(id);
+	ADD CONSTRAINT fktransmittancerange_cutinunit_unitslength FOREIGN KEY (cutinunit) REFERENCES unitslength(id);
 
 ALTER TABLE unitselectricpotential
 	ADD CONSTRAINT unitselectricpotential_external_id_key UNIQUE (external_id);
@@ -1789,10 +1789,10 @@ ALTER TABLE unitstemperature
 	ADD CONSTRAINT fkunitstemperature_external_id_externalinfo FOREIGN KEY (external_id) REFERENCES externalinfo(id);
 
 ALTER TABLE wellsample
-	ADD CONSTRAINT fkfb0ac3f8a7de48b5 FOREIGN KEY (posxunit) REFERENCES unitslength(id);
+	ADD CONSTRAINT fkwellsample_posxunit_unitslength FOREIGN KEY (posxunit) REFERENCES unitslength(id);
 
 ALTER TABLE wellsample
-	ADD CONSTRAINT fkfb0ac3f8a7ec6036 FOREIGN KEY (posyunit) REFERENCES unitslength(id);
+	ADD CONSTRAINT fkwellsample_posyunit_unitslength FOREIGN KEY (posyunit) REFERENCES unitslength(id);
 
 CREATE INDEX i_detector_voltage ON detector USING btree (voltage);
 
