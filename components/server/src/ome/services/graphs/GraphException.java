@@ -30,7 +30,9 @@ public class GraphException extends Exception {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(super.toString());
-        sb.append("(message=" + message);
+        sb.append("(message=");
+        sb.append(message);
+        sb.append(')');
         return sb.toString();
     }
 }
