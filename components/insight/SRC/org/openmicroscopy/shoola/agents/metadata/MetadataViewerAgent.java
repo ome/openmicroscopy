@@ -296,8 +296,8 @@ public class MetadataViewerAgent
         while (i.hasNext()) {
             viewer = MetadataViewerFactory.getViewerFromId(
                     ImageData.class.getName(), i.next());
-            if (viewer != null) {
-                viewer.loadViewedBy();
+            if (viewer != null && viewer.isRendererLoaded()) {
+                viewer.resetRenderingControl();
             }
         }
     }
@@ -305,11 +305,10 @@ public class MetadataViewerAgent
     /**
      * Handles a {@link CopyRndSettings} event, i. e. passes the image
      * reference on to the {@link MetadataViewer}s.
-     * @param evt
+     * @param evt The event
      */
     private void handleCopyRndSettings(CopyRndSettings evt) {
-        MetadataViewerFactory.setCopyRenderingSettingsFrom(evt.getImage());
-        MetadataViewerFactory.setCopiedRndSettings(evt.getRndDef());
+        MetadataViewerFactory.setCopyRenderingSettingsFrom(evt.getImage(), evt.getRndDef());
     }
     
     /**

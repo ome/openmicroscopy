@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.DataHandlerView 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -37,7 +37,9 @@ import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import pojos.ExperimenterData;
+import pojos.ImageData;
 
 /** 
 * Provides methods to support annotation.
@@ -87,6 +89,27 @@ public interface DataHandlerView
 	 */
 	public CallHandle pasteRndSettings(SecurityContext ctx, long pixelsID,
 			Class rootNodeType, List<Long> ids, AgentEventListener observer);
+	
+	/**
+	 * Applies the rendering settings associated to the passed pixels set 
+	 * to the images contained in the specified datasets
+	 * if the rootType is <code>DatasetData</code>.
+	 * Applies the settings to the passed images if the type is 
+	 * <code>ImageData</code>.
+	 * 
+	 * @param ctx The security context.
+	 * @param pixelsID The id of the pixels set of reference.
+	 * @param rootNodeType The type of nodes. Can either be 
+	 * 						<code>ImageData</code>, <code>DatasetData</code>.
+	 * @param ids The identifiers of the nodes to apply settings to. 
+	 * 				Mustn't be <code>null</code>.
+	 * @param observer Call-back handler.
+         * @param def The 'pending' rendering settings
+         * @param refImage The image the rendering settings belong to
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle pasteRndSettings(SecurityContext ctx,
+                Class rootNodeType, List<Long> ids, RndProxyDef def, ImageData refImage, AgentEventListener observer);
 
 	/**
 	 * Applies the rendering settings associated to the passed pixels set 
