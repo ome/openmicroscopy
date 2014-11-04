@@ -39,6 +39,7 @@ import omero.cmd.IRequest;
 import omero.cmd.Request;
 import omero.cmd.Response;
 import omero.cmd.Status;
+import omero.cmd.graphs.GraphUtil;
 import omero.cmd.graphs.Preprocessor;
 
 /**
@@ -264,8 +265,10 @@ public class DoAllI extends DoAll implements IRequest {
             ctx.publishMessage(new ContextMessage.Push(this, allgroups));
             try {
                 final String isWrapGraphRequests = ctx.getProperty("omero.graphs.wrap");
-                if (!Boolean.parseBoolean(isWrapGraphRequests)) {
-                    // Process within -1 block.
+                // Process within -1 block.
+                if (Boolean.parseBoolean(isWrapGraphRequests)) {
+                    GraphUtil.combineFacadeRequests(this.requests);
+                } else {
                     new Preprocessor(this.requests, this.helper);
                 }
             } finally {
