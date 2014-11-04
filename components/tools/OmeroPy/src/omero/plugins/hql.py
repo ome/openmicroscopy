@@ -207,7 +207,13 @@ To quit, enter 'q' or just enter.
         # Filter out blacklisted items
         blacklisted_keys = [x for x in values if x in BLACKLISTED_KEYS]
         for key in blacklisted_keys:
-            values.pop(x)
+            values.pop(key)
+
+        # Filter out _Loaded keys
+        loaded_keys = [x for x in values if x.startswith("_")
+                       and x.endswith("Loaded")]
+        for key in loaded_keys:
+            values.pop(key)
 
         # Filter out details
         if "owner=None;group=None" == values.get("_details"):
