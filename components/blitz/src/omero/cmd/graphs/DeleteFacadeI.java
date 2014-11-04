@@ -71,14 +71,7 @@ public class DeleteFacadeI extends Delete implements IRequest {
      * @param id the model object's ID
      */
     public void addToTargets(String type, long id) {
-        if (type.charAt(0) == '/') {
-            type = type.substring(1);
-        }
-        final int firstSlash = type.indexOf('/');
-        if (firstSlash > 0) {
-            type = type.substring(0, firstSlash);
-        }
-        targetObjects.put(type, id);
+        targetObjects.put(GraphUtil.getFirstClassName(type), id);
     }
 
     @Override

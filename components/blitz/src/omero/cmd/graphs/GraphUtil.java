@@ -234,4 +234,20 @@ public class GraphUtil {
             return false;
         }
     }
+
+    /**
+     * Find the first class-name in a {@code /}-separated string.
+     * @param type a type path in the style of the original graph traversal code
+     * @return the first type found in the path
+     */
+    static String getFirstClassName(String type) {
+        while (type.charAt(0) == '/') {
+            type = type.substring(1);
+        }
+        final int firstSlash = type.indexOf('/');
+        if (firstSlash > 0) {
+            type = type.substring(0, firstSlash);
+        }
+        return type;
+    }
 }
