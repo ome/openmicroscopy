@@ -19,15 +19,18 @@
 
 package omero.cmd.graphs;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import omero.cmd.Delete;
 import omero.cmd.Delete2Response;
 import omero.cmd.DeleteRsp;
+import omero.cmd.ERR;
 import omero.cmd.GraphModify2;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
@@ -42,9 +45,9 @@ import omero.cmd.HandleI.Cancel;
 public class DeleteFacadeI extends Delete implements IRequest {
 
     private final GraphRequestFactory graphRequestFactory;
+    private final SetMultimap<String, Long> targetObjects = HashMultimap.create();
 
     private IRequest deleteRequest;
-
     private int steps;
 
     /**
@@ -61,17 +64,37 @@ public class DeleteFacadeI extends Delete implements IRequest {
        return deleteRequest.getCallContext();
     }
 
+    /**
+     * Add the given model object to the delete request's target objects.
+     * To be called <em>before</em> {@link #init(Helper)}.
+     * @param type the model object's type
+     * @param id the model object's ID
+     */
+    public void addToTargets(String type, long id) {
+        if (type.charAt(0) == '/') {
+            type = type.substring(1);
+        }
+        final int firstSlash = type.indexOf('/');
+        if (firstSlash > 0) {
+            type = type.substring(0, firstSlash);
+        }
+        targetObjects.put(type, id);
+    }
+
     @Override
     public void init(Helper helper) {
         /* find class name at start of type string */
         if (type.charAt(0) == '/') {
             type = type.substring(1);
         }
-        final int firstSlash = type.indexOf('/');
-        final String targetType = firstSlash < 0 ? type : type.substring(0, firstSlash);
         final Delete2I actualDelete = (Delete2I) deleteRequest;
         /* set target object then review options */
-        actualDelete.targetObjects = ImmutableMap.of(targetType, new long[] {id});
+        addToTargets(type, id);
+        actualDelete.targetObjects = new HashMap<String, long[]>();
+        for (final Map.Entry<String, Collection<Long>> oneClassToTarget : targetObjects.asMap().entrySet()) {
+            actualDelete.targetObjects.put(oneClassToTarget.getKey(), GraphUtil.idsToArray(oneClassToTarget.getValue()));
+        }
+        targetObjects.clear();
         GraphUtil.translateOptions(graphRequestFactory, options, actualDelete);
         /* check for root-anchored subgraph */
         final int lastSlash = type.lastIndexOf('/');
@@ -106,7 +129,13 @@ public class DeleteFacadeI extends Delete implements IRequest {
 
     @Override
     public Response getResponse() {
-        final Delete2Response actualResponse = (Delete2Response) deleteRequest.getResponse();
+        final Response responseToWrap = deleteRequest.getResponse();
+
+        if (responseToWrap instanceof ERR) {
+            return responseToWrap;
+        }
+
+        final Delete2Response actualResponse = (Delete2Response) responseToWrap;
         final DeleteRsp facadeResponse = new DeleteRsp();
 
         facadeResponse.warning = "";

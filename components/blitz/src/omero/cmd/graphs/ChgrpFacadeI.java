@@ -19,12 +19,16 @@
 
 package omero.cmd.graphs;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import omero.cmd.Chgrp;
+import omero.cmd.ERR;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
 import omero.cmd.OK;
@@ -39,6 +43,7 @@ import omero.cmd.HandleI.Cancel;
 public class ChgrpFacadeI extends Chgrp implements IRequest {
 
     private final GraphRequestFactory graphRequestFactory;
+    private final SetMultimap<String, Long> targetObjects = HashMultimap.create();
 
     private IRequest chgrpRequest;
 
@@ -56,17 +61,37 @@ public class ChgrpFacadeI extends Chgrp implements IRequest {
        return chgrpRequest.getCallContext();
     }
 
+    /**
+     * Add the given model object to the chgrp request's target objects.
+     * To be called <em>before</em> {@link #init(Helper)}.
+     * @param type the model object's type
+     * @param id the model object's ID
+     */
+    public void addToTargets(String type, long id) {
+        if (type.charAt(0) == '/') {
+            type = type.substring(1);
+        }
+        final int firstSlash = type.indexOf('/');
+        if (firstSlash > 0) {
+            type = type.substring(0, firstSlash);
+        }
+        targetObjects.put(type, id);
+    }
+
     @Override
     public void init(Helper helper) {
         /* find class name at start of type string */
         if (type.charAt(0) == '/') {
             type = type.substring(1);
         }
-        final int firstSlash = type.indexOf('/');
-        final String targetType = firstSlash < 0 ? type : type.substring(0, firstSlash);
         final Chgrp2I actualChgrp = (Chgrp2I) chgrpRequest;
         /* set target object and group then review options */
-        actualChgrp.targetObjects = ImmutableMap.of(targetType, new long[] {id});
+        addToTargets(type, id);
+        actualChgrp.targetObjects = new HashMap<String, long[]>();
+        for (final Map.Entry<String, Collection<Long>> oneClassToTarget : targetObjects.asMap().entrySet()) {
+            actualChgrp.targetObjects.put(oneClassToTarget.getKey(), GraphUtil.idsToArray(oneClassToTarget.getValue()));
+        }
+        targetObjects.clear();
         actualChgrp.groupId = grp;
         GraphUtil.translateOptions(graphRequestFactory, options, actualChgrp);
         /* check for root-anchored subgraph */
@@ -101,7 +126,13 @@ public class ChgrpFacadeI extends Chgrp implements IRequest {
 
     @Override
     public Response getResponse() {
-        chgrpRequest.getResponse();
+        final Response responseToWrap = chgrpRequest.getResponse();
+
+        if (responseToWrap instanceof ERR) {
+            return responseToWrap;
+        }
+
+        /* no actual wrapping needed */
         return new OK();
     }
 }
