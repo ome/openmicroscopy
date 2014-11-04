@@ -19,6 +19,7 @@ bin/omero login root@$HOSTNAME:$PORT -w $ROOT_PASSWORD
 bin/omero group add $GROUP_NAME --ignore-existing
 bin/omero group add $GROUP_NAME_2 --ignore-existing
 bin/omero user add $USER_NAME $USER_NAME $USER_NAME $GROUP_NAME $GROUP_NAME_2 --ignore-existing -P $USER_PASSWORD
+bin/omero user joingroup --name $USER_NAME --group-name $GROUP_NAME --as-owner
 bin/omero logout
 
 # Create fake file
