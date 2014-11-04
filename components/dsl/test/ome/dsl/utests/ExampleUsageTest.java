@@ -52,13 +52,13 @@ public class ExampleUsageTest extends TestCase {
     @Test
     public void testONE() {
         sr.parse();
-        List list = sr.process();
+        List<SemanticType> list = sr.process();
         log.info("Results of parse:" + list);
-        for (Iterator it = list.iterator(); it.hasNext();) {
+        for (Iterator<SemanticType> it = list.iterator(); it.hasNext();) {
             SemanticType st = (SemanticType) it.next();
             VelocityHelper vh = new VelocityHelper();
             vh.put("type", st);
-            Map h = new HashMap();
+            Map<String, String> h = new HashMap<String, String>();
             h.put("test", "this was a dynamic key test");
             vh.put("test", h);
             String s = vh.invoke(DSLTask.getStream("ome/dsl/object.vm"));
@@ -70,8 +70,8 @@ public class ExampleUsageTest extends TestCase {
     @Test
     public void testWithWriting() throws Exception {
         sr.parse();
-        List list = sr.process();
-        for (Iterator it = list.iterator(); it.hasNext();) {
+        List<SemanticType> list = sr.process();
+        for (Iterator<SemanticType> it = list.iterator(); it.hasNext();) {
             SemanticType st = (SemanticType) it.next();
             VelocityHelper vh = new VelocityHelper();
             vh.put("type", st);
@@ -105,9 +105,9 @@ public class ExampleUsageTest extends TestCase {
         SemanticType job = map.get("ome.Job");
         for (Property p : job.getProperties()) {
             if (p.getName().equals("jobThingLink")) {
-                assertFalse(p.getBidirectional());
+                assertFalse(p.getBidirectional().booleanValue());
             } else if (p.getName().equals("jobDoohickeyLink")) {
-                assertTrue(p.getBidirectional());
+                assertTrue(p.getBidirectional().booleanValue());
             } else if (p.getName().equals("details")) {
                 // Ignore this generated property
             } else {
@@ -144,7 +144,7 @@ public class ExampleUsageTest extends TestCase {
         log.error(mappings);
         SaxReader nsr = new SaxReader("psql", mappings);
         nsr.parse();
-        for (Iterator it = nsr.process().iterator(); it.hasNext();) {
+        for (Iterator<SemanticType> it = nsr.process().iterator(); it.hasNext();) {
             SemanticType st = (SemanticType) it.next();
             VelocityHelper vh = new VelocityHelper();
             vh.put("type", st);
