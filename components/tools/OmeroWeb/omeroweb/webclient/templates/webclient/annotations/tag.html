@@ -29,7 +29,9 @@
 -->
 {% endcomment %}
 
-<span class="tag_annotation_wrapper" id="tag_ann-{{ tag.id }}">
+<span class="tag_annotation_wrapper" id="tag_ann-{{ tag.id }}"
+    data-added-me="{{ tag.addedByMe }}"
+    data-added-others="{{ tag.addedByOthers }}">
 	
 		<div class="tag">
 	        <a class='tooltip tag_inner' href="{% url 'load_template' 'usertags' %}?show=tag-{{ tag.id }}" target="_top">
