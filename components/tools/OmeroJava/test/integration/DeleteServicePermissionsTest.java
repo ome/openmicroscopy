@@ -109,7 +109,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
                 null);
         dcs[4] = new Delete(DeleteServiceTest.REF_PLATE, plate.getId()
                 .getValue(), null);
-        delete(client, dcs);
+        delete(false, client, dcs);
 
         // Now log the original user back in
         disconnect();
@@ -142,7 +142,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
 
         // create another user and try to delete the image
         newUserInGroup();
-        delete(client, new Delete(DeleteServiceTest.REF_IMAGE, imageID, null));
+        delete(false, client, new Delete(DeleteServiceTest.REF_IMAGE, imageID, null));
 
         // check the image exists as the owner
         assertExists(img);
@@ -667,8 +667,8 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         newUserInGroup(ctx);
 
         // Now try to delete the project.
-        delete(client, new Delete(DeleteServiceTest.REF_SCREEN, screen.getId()
-                .getValue(), null));
+        delete(false, client, new Delete(DeleteServiceTest.REF_SCREEN,
+                screen.getId().getValue(), null));
         assertExists(screen);
         assertExists(plate);
     }
@@ -920,8 +920,8 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         // group owner deletes it
         disconnect();
         newUserInGroup(ownerEc);
-        delete(client, new Delete(DeleteServiceTest.REF_IMAGE, img.getId()
-                .getValue(), null));
+        delete(false, client, new Delete(DeleteServiceTest.REF_IMAGE,
+                img.getId().getValue(), null));
 
         assertExists(img);
     }
@@ -944,8 +944,8 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         // group owner deletes it
         disconnect();
         newUserInGroup(ownerEc);
-        delete(client, new Delete(DeleteServiceTest.REF_IMAGE, img.getId()
-                .getValue(), null));
+        delete(false, client, new Delete(DeleteServiceTest.REF_IMAGE,
+                img.getId().getValue(), null));
 
         assertExists(img);
     }
