@@ -1645,7 +1645,7 @@ ALTER TABLE unitstemperature
 	ADD CONSTRAINT unitstemperature_pkey PRIMARY KEY (id);
 
 ALTER TABLE detector
-	ADD CONSTRAINT fkdetector_voltageunit_unitselectricpotentialFOREIGN KEY (voltageunit) REFERENCES unitselectricpotential(id);
+	ADD CONSTRAINT fkdetector_voltageunit_unitselectricpotential FOREIGN KEY (voltageunit) REFERENCES unitselectricpotential(id);
 
 ALTER TABLE detectorsettings
 	ADD CONSTRAINT fkdetectorsettings_voltageunit_unitselectricpotential FOREIGN KEY (voltageunit) REFERENCES unitselectricpotential(id);
