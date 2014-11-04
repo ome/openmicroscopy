@@ -251,7 +251,7 @@ public class RequestObjectFactoryRegistry extends
                     	return new ResetPasswordRequestI(mailUtil, passwordUtil, sec, passwordProvider);
                     }
                 });
-        /* non-requests */
+        /* request parameters */
         factories.put(ChildOptionI.ice_staticId(),
                 new ObjectFactory(ChildOptionI.ice_staticId()) {
                     @Override
