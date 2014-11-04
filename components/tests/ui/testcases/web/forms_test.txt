@@ -162,6 +162,7 @@ Test Annotate
 Test Batch Annotate
     [Documentation]     Test Batch Annotation of 2 Projects that we create
 
+    Set Selenium Speed                          1 seconds
     Select Experimenter
     ${projectId}=                               Create Project      robot test batch annotate
     ${pId}=                                     Create Project      robot test batch annotate
