@@ -41,6 +41,11 @@ class TestHql(object):
         output = self.cli.controls["hql"].filter({key: 1})
         assert output == {}
 
+    @pytest.mark.parametrize("key", ["rois", "groupExperimenterMap"])
+    def testFilterLoaded(self, key):
+        output = self.cli.controls["hql"].filter({"_" + key + "Loaded": 1})
+        assert output == {}
+
     @pytest.mark.parametrize(
         ("value", "outcome"),
         [("owner=None;group=None", {}),
