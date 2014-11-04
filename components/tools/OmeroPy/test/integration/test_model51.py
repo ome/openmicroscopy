@@ -60,7 +60,8 @@ class TestModel51(lib.ITest):
             "select pix from Pixels pix "
             "join fetch pix.physicalSizeZ "
             "join fetch pix.physicalSizeZ.unit "
-            "where pix.image.id = :id"), omero.sys.ParametersI().addId(img.id.val))
+            "where pix.image.id = :id"),
+            omero.sys.ParametersI().addId(img.id.val))
         sizeZ = pixels.getPhysicalSizeZ()
         unit = sizeZ.getUnit()
         assert "SI.METRE" == unwrap(unit.getMeasurementSystem())
