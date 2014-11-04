@@ -811,11 +811,9 @@
 
                 <!-- display existing Tags -->
                 <div id="tags_container" class="lntags">
-                {% for tag in manager.tag_annotations %}
-                    {% with can_remove=tag.link.canDelete %}
-                        {% include "webclient/annotations/tag.html" %}
+                    {% with tags=manager.tag_annotations %}
+                        {% include "webclient/annotations/tags.html" %}
                     {% endwith %}
-                {% endfor %}
                 </div>
  
             </div>

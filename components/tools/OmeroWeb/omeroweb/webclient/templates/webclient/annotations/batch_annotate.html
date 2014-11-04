@@ -308,11 +308,7 @@
         {% endif %}
 				
         <div id="tags_container" class="lntags">
-            {% for t in batchAnns.Tag %}
-                {% with tag=t.ann links=t.links can_unlink_count=t.unlink can_remove=t.can_remove %}
-                    {% include "webclient/annotations/tag.html" %}
-                {% endwith %}
-            {% endfor %}
+            {% include "webclient/annotations/tags.html" %}
         </div>
  
     </div>
