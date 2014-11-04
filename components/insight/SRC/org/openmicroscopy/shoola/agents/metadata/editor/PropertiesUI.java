@@ -39,9 +39,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.NumberFormat;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -68,6 +71,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
 import org.apache.commons.lang.StringUtils;
@@ -145,11 +149,17 @@ public class PropertiesUI
     /** Action ID indicating to edit the channels.*/
     private static final int	EDIT_CHANNEL = 2;
     
+    /** Action ID indicating to save the description.*/
+    private static final int    SAVE_DESC = 3;
+    
     /** Text indicating to edit the name.*/
     private static final String EDIT_NAME_TEXT = "Edit the name";
     
     /** Text indicating to edit the description.*/
     private static final String EDIT_DESC_TEXT = "Edit the description.";
+    
+    /** Text indicating to save the description.*/
+    private static final String SAVE_DESC_TEXT = "Save the description.";
     
     /**Text indicating to edit the channels.*/
     private static final String EDIT_CHANNEL_TEXT = "Edit the channels.";
@@ -170,6 +180,8 @@ public class PropertiesUI
 	
 	/** Button to edit the description. */
 	private JButton				descriptionButtonEdit;
+	
+	private JButton        descriptionSaveButton;
 	
     /** The name before possible modification.*/
     private String				originalName;
@@ -348,6 +360,25 @@ public class PropertiesUI
     	namePane.addFocusListener(this);
     	f = namePane.getFont(); 
     	newFont = f.deriveFont(f.getStyle(), f.getSize()-2);
+    	namePane.addKeyListener(new KeyListener() {
+            
+            @Override
+            public void keyTyped(KeyEvent arg0) {
+                
+            }
+            
+            @Override
+            public void keyReleased(KeyEvent arg0) {
+                if(arg0.getKeyCode()==KeyEvent.VK_ENTER) {
+                    saveName();
+                }
+            }
+            
+            @Override
+            public void keyPressed(KeyEvent arg0) {
+                
+            }
+        });
     	
     	descriptionWiki = new OMEWikiComponent(false);
     	descriptionWiki.setDefaultText(DEFAULT_DESCRIPTION_TEXT);
@@ -381,6 +412,9 @@ public class PropertiesUI
 		formatButton(editName, EDIT_NAME_TEXT, EDIT_NAME);
 		descriptionButtonEdit = new JButton(icons.getIcon(IconManager.EDIT_12));
 		formatButton(descriptionButtonEdit, EDIT_DESC_TEXT, EDIT_DESC);
+		descriptionSaveButton = new JButton(icons.getIcon(IconManager.SAVE));
+                formatButton(descriptionSaveButton, SAVE_DESC_TEXT, SAVE_DESC);
+                descriptionSaveButton.setEnabled(false);
 		editChannel = new JButton(icons.getIcon(IconManager.EDIT_12));
 		formatButton(editChannel, EDIT_CHANNEL_TEXT, EDIT_CHANNEL);
 		editChannel.setEnabled(false);
@@ -935,18 +969,49 @@ public class PropertiesUI
         			ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         	descriptionScrollPane.setBorder(AnnotationUI.EDIT_BORDER);
         	
-        	double[][] design = new double[][]
-        			{
-        				{TableLayout.FILL, TableLayout.PREFERRED},
-        				{TableLayout.PREFERRED}
-        			};
+//        	double[][] design = new double[][]
+//        			{
+//        				{TableLayout.FILL, TableLayout.PREFERRED},
+//        				{TableLayout.PREFERRED}
+//        			};
+//        	
+//        	TableLayout table = new TableLayout(design);
+//        	descriptionPanel = new JPanel(table);
+//        	descriptionPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
+//        	descriptionPanel.add(descriptionScrollPane, "0, 0");
+//        	descriptionPanel.add(descriptionButtonEdit, "1, 0, c, t");
         	
-        	TableLayout table = new TableLayout(design);
-        	descriptionPanel = new JPanel(table);
-        	descriptionPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
-        	descriptionPanel.add(descriptionScrollPane, "0, 0");
-        	descriptionPanel.add(descriptionButtonEdit, "1, 0, c, t");
-        	expandDescriptionField(!descriptionWiki.getText().equals(DEFAULT_DESCRIPTION_TEXT));
+        	descriptionPanel = new JPanel(new GridBagLayout());
+                descriptionPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
+
+        	GridBagConstraints c = new GridBagConstraints();
+        	
+        	c.gridx = 0;
+        	c.gridy = 0;
+        	c.gridheight = 2;
+        	c.fill = GridBagConstraints.BOTH;
+        	c.weightx = 1;
+        	c.weighty = 1;
+        	c.anchor = GridBagConstraints.NORTHEAST;
+        	descriptionPanel.add(descriptionScrollPane, c);
+        	
+        	c.gridx = 1;
+        	c.gridy = 0;
+        	c.gridheight = 1;
+        	c.fill = GridBagConstraints.NONE;
+                c.weightx = 0;
+                c.weighty = 0;
+                c.anchor = GridBagConstraints.NORTH;
+        	descriptionPanel.add(descriptionButtonEdit, c);
+        	
+        	c.gridx = 1;
+        	c.gridy = 1;
+        	c.anchor = GridBagConstraints.SOUTH;
+        	descriptionPanel.add(descriptionSaveButton, c);
+        	
+        	boolean hasDescription = !descriptionWiki.getText().equals(DEFAULT_DESCRIPTION_TEXT);
+        	expandDescriptionField(hasDescription);
+        	
         	p.add(descriptionPanel);
             p.add(Box.createVerticalStrut(5));
          }
@@ -960,8 +1025,10 @@ public class PropertiesUI
         if (expand) {
             Dimension viewportSize = new Dimension(WIDTH, HEIGHT);
             descriptionScrollPane.getViewport().setPreferredSize(viewportSize);
+            descriptionSaveButton.setVisible(true);
         } else {
             descriptionScrollPane.getViewport().setPreferredSize(null);
+            descriptionSaveButton.setVisible(false);
         }
         revalidate();
     }
@@ -1220,11 +1287,95 @@ public class PropertiesUI
 		expandDescriptionField(!originalDescription.equals(DEFAULT_DESCRIPTION_TEXT));
         boolean b = model.canEdit();
         descriptionButtonEdit.setEnabled(b);
+        descriptionSaveButton.setEnabled(false);
         if (b) {
         	descriptionWiki.addDocumentListener(this);
         }
 	}
 
+	void saveName() {
+	    Object object =  model.getRefObject();
+            String name = modifiedName;
+            if (name != null) {
+                    if (name.equals(originalName) || name.equals(originalDisplayedName))
+                            name = "";
+            }
+            if (object instanceof ProjectData) {
+                    ProjectData p = (ProjectData) object;
+                    if (name.length() > 0) p.setName(name);
+            } else if (object instanceof DatasetData) {
+                    DatasetData p = (DatasetData) object;
+                    if (name.length() > 0) p.setName(name);
+            } else if (object instanceof ImageData) {
+                    ImageData p = (ImageData) object;
+                    if (name.length() > 0) p.setName(name);
+            } else if (object instanceof TagAnnotationData) {
+                    TagAnnotationData p = (TagAnnotationData) object;
+                    if (name.length() > 0) p.setTagValue(name);
+            } else if (object instanceof ScreenData) {
+                    ScreenData p = (ScreenData) object;
+                    if (name.length() > 0) p.setName(name);
+            } else if (object instanceof PlateData) {
+                    PlateData p = (PlateData) object;
+                    if (name.length() > 0) p.setName(name);
+            } else if (object instanceof WellSampleData) {
+                    WellSampleData well = (WellSampleData) object;
+                    ImageData img = well.getImage();
+                    if (name.length() > 0) img.setName(name);
+            } else if (object instanceof FileData) {
+                    FileData f = (FileData) object;
+                    if (f.getId() > 0) return;
+            } else if (object instanceof PlateAcquisitionData) {
+                    PlateAcquisitionData pa = (PlateAcquisitionData) object;
+                    if (name.length() > 0) pa.setName(name);
+            }
+	    model.fireAnnotationSaving(null, Collections.EMPTY_LIST, false);
+	    
+	}
+	
+	void saveDescription() {
+	    Object object =  model.getRefObject();
+            String value = descriptionWiki.getText().trim();
+            if (value != null) {
+                    String v = OMEWikiComponent.prepare(originalDescription.trim(),
+                                    true);
+                    String v2 = OMEWikiComponent.prepare(value.trim(), true);
+                    if (v2.equals(v)) value = "";
+            }
+            if (value == null) value = "";
+            if (object instanceof ProjectData) {
+                    ProjectData p = (ProjectData) object;
+                    p.setDescription(value);
+            } else if (object instanceof DatasetData) {
+                    DatasetData p = (DatasetData) object;
+                    p.setDescription(value);
+            } else if (object instanceof ImageData) {
+                    ImageData p = (ImageData) object;
+                    p.setDescription(value);
+            } else if (object instanceof TagAnnotationData) {
+                    TagAnnotationData p = (TagAnnotationData) object;
+                    p.setTagDescription(value);
+            } else if (object instanceof ScreenData) {
+                    ScreenData p = (ScreenData) object;
+                    p.setDescription(value);
+            } else if (object instanceof PlateData) {
+                    PlateData p = (PlateData) object;
+                    p.setDescription(value);
+            } else if (object instanceof WellSampleData) {
+                    WellSampleData well = (WellSampleData) object;
+                    ImageData img = well.getImage();
+                    img.setDescription(value);
+            } else if (object instanceof FileData) {
+                    FileData f = (FileData) object;
+                    if (f.getId() > 0) return;
+            } else if (object instanceof PlateAcquisitionData) {
+                    PlateAcquisitionData pa = (PlateAcquisitionData) object;
+                    pa.setDescription(value);
+            }
+            model.fireAnnotationSaving(null, Collections.EMPTY_LIST, false);
+            descriptionSaveButton.setEnabled(false);
+        }
+	
 	/** Updates the data object. */
 	void updateDataObject() 
 	{
@@ -1457,16 +1608,31 @@ public class PropertiesUI
 	 */
 	protected void setComponentTitle() {}
 	
-	/**
-	 * Fires property indicating that some text has been entered.
-	 * @see DocumentListener#insertUpdate(DocumentEvent)
-	 */
-	public void insertUpdate(DocumentEvent e)
-	{
-		handleNameChanged(e.getDocument());
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false),
-				Boolean.valueOf(true));
-	}
+        /**
+         * Fires property indicating that some text has been entered.
+         * 
+         * @see DocumentListener#insertUpdate(DocumentEvent)
+         */
+        public void insertUpdate(DocumentEvent e) {
+            if (e.getDocument() == namePane.getDocument()) {
+                modifiedName = namePane.getText();
+                firePropertyChange(EditorControl.SAVE_PROPERTY,
+                        Boolean.valueOf(false), Boolean.valueOf(true));
+            } else if (e.getDocument() == descriptionWiki.getDocument()) {
+                try {
+                    String desc = descriptionWiki.getDocument().getText(0,
+                            descriptionWiki.getDocument().getLength());
+                    if (!desc.equals(originalDescription)) {
+                        descriptionSaveButton.setEnabled(true);
+                    }
+                    else {
+                        descriptionSaveButton.setEnabled(false);
+                    }
+                } catch (BadLocationException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }
 
 	/**
 	 * Fires property indicating that some text has been entered.
@@ -1474,9 +1640,25 @@ public class PropertiesUI
 	 */
 	public void removeUpdate(DocumentEvent e)
 	{
-		handleNameChanged(e.getDocument());
+	    if (e.getDocument() == namePane.getDocument()) {
+	        modifiedName = namePane.getText();
 		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false),
 				Boolean.valueOf(true));
+	    }
+	    else if (e.getDocument() == descriptionWiki.getDocument()) {
+                try {
+                    String desc = descriptionWiki.getDocument().getText(0,
+                            descriptionWiki.getDocument().getLength());
+                    if (!desc.equals(originalDescription)) {
+                        descriptionSaveButton.setEnabled(true);
+                    }
+                    else {
+                        descriptionSaveButton.setEnabled(false);
+                    }
+                } catch (BadLocationException e1) {
+                    e1.printStackTrace();
+                }
+            } 
 	}
 
 	/** 
@@ -1494,6 +1676,10 @@ public class PropertiesUI
 	        expandDescriptionField(true);
 	        editField(descriptionPanel, descriptionWiki,
 	                descriptionButtonEdit, !descriptionWiki.isEnabled());
+	        break;
+	    case SAVE_DESC:
+	        // TODO: Save
+	        saveDescription();
 	        break;
 	    case EDIT_CHANNEL:
 	        editChannels();
@@ -1594,7 +1780,15 @@ public class PropertiesUI
 	 * implementation in our case.
 	 * @see DocumentListener#changedUpdate(DocumentEvent)
 	 */
-	public void changedUpdate(DocumentEvent e) {}
+	public void changedUpdate(DocumentEvent e) {
+	    if(e.getDocument()!=null) {
+	        try {
+                System.out.println(e.getDocument().getText(0, e.getDocument().getLength()));
+            } catch (BadLocationException e1) {
+                e1.printStackTrace();
+            }
+	    }
+	}
 
 	/** Displays the file set associated to the image. */
         void displayFileset() {

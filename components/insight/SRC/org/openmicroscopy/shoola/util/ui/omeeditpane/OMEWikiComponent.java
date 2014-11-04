@@ -47,6 +47,7 @@ import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.border.Border;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.Document;
 
 import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.lang.WordUtils;
@@ -619,5 +620,9 @@ public class OMEWikiComponent
 	@Override
 	public void addFocusListener(FocusListener l) {
 	    pane.addFocusListener(l);
+	}
+	
+	public Document getDocument() {
+	    return pane.getDocument();
 	}
 }
