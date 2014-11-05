@@ -55,6 +55,7 @@ namespace omero {
         id.properties->setProperty("Ice.Default.PreferSecure", "1");
         id.properties->setProperty("Ice.Plugin.IceSSL" , "IceSSL:createIceSSL");
         id.properties->setProperty("IceSSL.Ciphers" , "ADH");
+        id.properties->setProperty("IceSSL.Protocols" , "tls1");
         id.properties->setProperty("IceSSL.VerifyPeer" , "0");
 
         // Set the default encoding if this is Ice 3.5 or later
