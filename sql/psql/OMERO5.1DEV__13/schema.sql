@@ -717,6 +717,7 @@
         firstName varchar(255) not null,
         institution varchar(255),
         lastName varchar(255) not null,
+        ldap bool not null,
         middleName varchar(255),
         omeName varchar(255) not null unique,
         version int4,
