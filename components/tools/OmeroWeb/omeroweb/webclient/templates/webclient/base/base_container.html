@@ -44,6 +44,7 @@
 
 
 {% block script %}
+    <script type="text/javascript" src="{% static "3rdparty/prototype.js" %}"></script>
     {{ block.super }}
     <!-- required for the script_launch html below -->
     {% include "webclient/base/includes/script_launch_head.html" %}
