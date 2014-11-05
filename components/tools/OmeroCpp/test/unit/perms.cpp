@@ -65,11 +65,11 @@ TEST( PermsTest, invalidCreate ) {
     catch (ClientError e) {
         exceptionThrown = true;
     }
-    
+
     ASSERT_TRUE(exceptionThrown);
 }
 
-void testStringPerms( const char* perms, bool allOn ) {
+static void testStringPerms( const char* perms, bool allOn ) {
     PermissionsIPtr p = new PermissionsI(perms);
     ASSERT_EQ(p->isUserRead(), allOn);
     ASSERT_EQ(p->isUserWrite(), allOn);

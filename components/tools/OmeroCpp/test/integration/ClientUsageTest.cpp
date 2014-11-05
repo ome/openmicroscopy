@@ -5,7 +5,9 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
+#include <IceNoWarnPush.h>
 #include <Ice/Initialize.h>
+#include <IceNoWarnPop.h>
 #include <omero/fixture.h>
 #include <omero/client.h>
 #include <algorithm>

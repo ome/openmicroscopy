@@ -8,6 +8,7 @@
 #define OMERO_MODEL_OBJECTFACTORY_H
 
 #include <Ice/Ice.h>
+#include <Ice/Communicator.h>
 #include <IceUtil/IceUtil.h>
 
 namespace omero {
@@ -23,7 +24,12 @@ namespace omero {
          * itself. (Normal Ice logic is to throw an exception
          * if a type has already been registered.)
          */
-        void registerObjectFactory(const Ice::CommunicatorPtr ic);
+        void registerObjectFactory(const Ice::CommunicatorPtr& ic);
+
+        void conditionalAdd(
+                const std::string&,
+                const Ice::CommunicatorPtr&,
+                const Ice::ObjectFactoryPtr&);
 
     }
 }

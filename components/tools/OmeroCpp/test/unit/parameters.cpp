@@ -209,7 +209,7 @@ TEST( ParametersTest, AddLongRType )
     ASSERT_EQ(1, RLongPtr::dynamicCast(p->map["long"])->getValue());
 }
 
-void find(long i, omero::RListPtr test) {
+static void find(long i, omero::RListPtr test) {
 
     ASSERT_TRUE(test);
     omero::RTypeSeq seq = test->getValue();
@@ -220,8 +220,9 @@ void find(long i, omero::RListPtr test) {
 
     int count = 0;
     for (;beg!=end;beg++) {
-        count++;
-	omero::RTypePtr t = *beg;
+        omero::RTypePtr t = *beg;
+        omero::RLongPtr l = omero::RLongPtr::dynamicCast(t);
+        if (l->getValue() == i) count++;
     }
     ASSERT_NE(0, count);
 }

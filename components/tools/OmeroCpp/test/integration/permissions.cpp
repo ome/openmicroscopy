@@ -88,7 +88,7 @@ TEST( PermissionsTest, testClientSet ) {
     ASSERT_EQ("value", di->getCallContext()["test"]);
 }
 
-void assertPerms(const string& msg, const client_ptr& client,
+static void assertPerms(const string& msg, const client_ptr& client,
         const IObjectPtr& obj, bool ann, bool edit) {
 
     IQueryPrx query = client->getSession()->getQueryService();

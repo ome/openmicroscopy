@@ -58,13 +58,13 @@ public:
       return event;
     }
 
-    virtual void step(int complete, int total, const Ice::Current& current = Ice::Current()) {
-	IceUtil::RecMutex::Lock lock(mutex);
+    virtual void step(int /*complete*/, int /*total*/, const Ice::Current&) {
+        IceUtil::RecMutex::Lock lock(mutex);
         steps++;
     }
 
-    virtual void onFinished(const ResponsePtr& rsp,
-            const StatusPtr& s, const Ice::Current& current = Ice::Current()) {
+    virtual void onFinished(const ResponsePtr&,
+            const StatusPtr&, const Ice::Current&) {
         IceUtil::RecMutex::Lock lock(mutex);
         finished++;
         event.set();
@@ -72,7 +72,7 @@ public:
 
     void assertSteps() {
         IceUtil::RecMutex::Lock lock(mutex);
-        
+
         // Not guranteed to get called for all steps, as the callback can
         // get added on the server after the operation has already started
         // if there is network latency
@@ -122,12 +122,12 @@ public:
         ExperimenterPtr user = newUser(group);
         login(user->getOmeName()->getValue(), user->getOmeName()->getValue());
         HandlePrx handle = client->getSession()->submit(req);
-        
+
         if (addCbDelay > 0) {
             omero::util::concurrency::Event event;
             event.wait(IceUtil::Time::milliSeconds(addCbDelay));
         }
-        
+
         return new TestCB(client, handle);
     }
 

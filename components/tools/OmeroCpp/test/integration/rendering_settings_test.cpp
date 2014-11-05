@@ -24,7 +24,7 @@ private:
 public:
     MyIteration() : TileLoopIteration(){}
     ~MyIteration(){}
-    void run(const TileDataPtr& data, int z, int c, int t, int x, int y, int tileWidth, int tileHeight, int tileCount) const {
+    void run(const TileDataPtr& data, int z, int c, int t, int x, int y, int tileWidth, int tileHeight, int /*tileCount*/) const {
         Ice::ByteSeq buf(tileWidth*tileHeight*8);
         data->setTile(buf, z, c, t, x, y, tileWidth, tileHeight);
     }
