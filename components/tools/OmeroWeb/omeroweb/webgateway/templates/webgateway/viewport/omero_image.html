@@ -50,11 +50,8 @@
     {% endfor %}
 
     <!-- jquery -->
-    <script type="text/javascript" src="{% static "3rdparty/prototype.js" %}"></script>
-
     {% include "webgateway/base/includes/script_src_jquery.html" %}
-
-    <script type="text/javascript" src="{% static "webgateway/js/ome.popup.js" %}"></script>
+    {% include "webgateway/base/includes/script_src_popup.html" %}
 
 	<script type="text/javascript" src="{% static "3rdparty/aop.js" %}"></script>
 
