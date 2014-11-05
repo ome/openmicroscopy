@@ -263,6 +263,7 @@ public class SimpleRoleProvider implements RoleProvider {
         copy.setLastName(e.getLastName());
         copy.setEmail(e.getEmail());
         copy.setInstitution(e.getInstitution());
+        copy.setLdap(e.getLdap());
         if (e.getDetails() != null && e.getDetails().getPermissions() != null) {
             copy.getDetails().setPermissions(e.getDetails().getPermissions());
         }

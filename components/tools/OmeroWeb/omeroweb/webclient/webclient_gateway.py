@@ -2055,7 +2055,7 @@ class ExperimenterWrapper (OmeroWebObjectWrapper, omero.gateway.ExperimenterWrap
         @rtype: String
         """
 
-        if self.ldapUser == None:
+        if self.ldap:
             admin_serv = self._conn.getAdminService()
             self.ldapUser = admin_serv.lookupLdapAuthExperimenter(self.id)
         return self.ldapUser

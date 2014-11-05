@@ -6,8 +6,8 @@
  */
 package integration;
 
+import static omero.rtypes.rbool;
 import static omero.rtypes.rstring;
-import static omero.rtypes.rtime;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -95,6 +95,7 @@ public class CreatePojosFixture2 {
         fixture.e.setOmeName(rstring(fixture.TESTER));
         fixture.e.setFirstName(rstring("Mr."));
         fixture.e.setLastName(rstring("Allen"));
+        fixture.e.setLdap(rbool(false));
 
         ExperimenterGroup userGroup = rootAdmin.lookupGroup(USER_GROUP);
         List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();

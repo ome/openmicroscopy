@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.0__0 to OMERO5.1DEV__11.
+--- OMERO5 development release upgrade from OMERO5.0__0 to OMERO5.1DEV__12.
 ---
 
 BEGIN;
@@ -44,7 +44,7 @@ DROP FUNCTION omero_assert_db_version(varchar, int);
 
 
 INSERT INTO dbpatch (currentVersion, currentPatch,   previousVersion,     previousPatch)
-             VALUES ('OMERO5.1DEV',  11,             'OMERO5.0',          0);
+             VALUES ('OMERO5.1DEV',  12,             'OMERO5.0',          0);
 
 --
 -- Actual upgrade
@@ -1461,16 +1461,35 @@ update pixels set timeincrementunit = (select id from unitstime where value = 's
 update planeinfo set deltatunit = (select id from unitstime where value = 's')  where deltat is not null;
 update planeinfo set exposuretimeunit = (select id from unitstime where value = 's') where exposuretime is not null;
 
+-- #2587 LDAP: remove DN from OMERO DB.
+
+-- Add "ldap" column to "experimenter", default to false
+
+ALTER TABLE experimenter ADD COLUMN ldap BOOL NOT NULL DEFAULT false;
+
+-- Set "ldap" value based on "dn" from "password"
+
+UPDATE experimenter e SET ldap = true
+    FROM password p
+    WHERE e.id = p.experimenter_id AND
+          p.dn IS NOT NULL;
+
+-- Drop "dn" from "password" and delete entries that have a DN set
+-- and no password
+
+DELETE FROM password WHERE dn IS NOT NULL AND hash IS NULL;
+ALTER TABLE password DROP COLUMN dn;
+
 --
 -- FINISHED
 --
 
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
     WHERE currentVersion  = 'OMERO5.1DEV' AND
-          currentPatch    = 11            AND
+          currentPatch    = 12            AND
           previousVersion = 'OMERO5.0'    AND
           previousPatch   = 0;
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.1DEV__11'||CHR(10)||CHR(10)||CHR(10) AS Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.1DEV__12'||CHR(10)||CHR(10)||CHR(10) AS Status;
 
 COMMIT;

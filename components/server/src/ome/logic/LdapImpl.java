@@ -54,7 +54,6 @@ import org.slf4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.LdapOperations;
@@ -234,9 +233,11 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
 
     @RolesAllowed("system")
     @Transactional(readOnly = false)
-    public void setDN(@NotNull
-    Long experimenterID, String dn) {
-        sql.setUserDn(experimenterID, dn);
+    public void setDN(long experimenterID, boolean isLdap) {
+        Experimenter experimenter = iQuery.get(Experimenter.class,
+                experimenterID);
+        experimenter.setLdap(isLdap);
+        iUpdate.saveObject(experimenter);
     }
 
     @RolesAllowed("system")
@@ -460,7 +461,6 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
             grpOther[count] = new ExperimenterGroup(roles.getUserGroupId(),
                     false);
             long uid = provider.createExperimenter(exp, grp1, grpOther);
-            setDN(uid, dn.toString());
             return iQuery.get(Experimenter.class, uid);
         } else {
             return null;
@@ -551,32 +551,56 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
         }
     }
 
+    /**
+     * Queries the LDAP server and returns the DN for all OMERO users that have
+     * the <code>ldap</code> flag enabled.
+     *
+     * @return a list of DN to user ID maps.
+     */
     public List<Map<String, Object>> lookupLdapAuthExperimenters() {
-        return sql.dnExperimenterMaps();
+        List<Long> ldapExperimenters = sql.getLdapExperimenters();
+        List<Map<String, Object>> rv = Lists
+                .newArrayListWithExpectedSize(ldapExperimenters.size());
+        for (Long id : ldapExperimenters) {
+            Map<String, Object> values = Maps.newHashMap();
+            // This will break whenever the mapping in AdminI changes
+            values.put("dn", lookupLdapAuthExperimenter(id));
+            values.put("experimenter_id", id);
+            rv.add(values);
+        }
+        return rv;
     }
 
+    /**
+     * Queries the LDAP server and returns the DN for the specified OMERO user
+     * ID. The LDAP server is queried and the DN returned only for IDs that have
+     * the <code>ldap</code> flag enabled.
+     *
+     * @param id
+     *            The user ID.
+     * @return The DN as a String. Null if user isn't from LDAP.
+     */
     public String lookupLdapAuthExperimenter(Long id) {
-        String s = null;
-
-        try {
-            s = sql.dnForUser(id);
-        } catch (EmptyResultDataAccessException e) {
-            s = null;
+        // First, check that the supplied user ID is an LDAP user
+        String dn = null;
+        Experimenter experimenter = iQuery.get(Experimenter.class, id);
+        if (experimenter.getLdap()) {
+            dn = findDN(experimenter.getOmeName());
         }
-
-        return s;
+        return dn;
     }
 
     @RolesAllowed("system")
-    public Map<String, Experimenter> discover() {
+    public List<Experimenter> discover() {
+        List<Experimenter> discoveredExperimenters = Lists.newArrayList();
         Roles r = getSecuritySystem().getSecurityRoles();
-        Map<String, Experimenter> experimenterDNMap = Maps.newHashMap();
 
         List<Experimenter> localExperimenters = iQuery.findAllByQuery(
                 "select distinct e from Experimenter e "
-                        + "where id not in (:ids)",
-                new Parameters().addIds(Lists.newArrayList(r.getRootId(),
-                        r.getGuestId())));
+                        + "where id not in (:ids) and ldap = :ldap",
+                new Parameters()
+                        .addIds(Lists.newArrayList(r.getRootId(), r.getGuestId()))
+                        .addBoolean("ldap", false));
 
         for (Experimenter e : localExperimenters) {
             try {
@@ -585,13 +609,9 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
                 // This user doesn't have an LDAP account
                 continue;
             }
-            String localDN = lookupLdapAuthExperimenter(e.getId());
-            String ldapDN = findDN(e.getOmeName());
-            if (!ldapDN.equals(localDN)) {
-                experimenterDNMap.put(ldapDN, e);
-            }
+            discoveredExperimenters.add(e);
         }
-        return experimenterDNMap;
+        return discoveredExperimenters;
     }
 
     // Helpers
