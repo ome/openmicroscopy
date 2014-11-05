@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerModel
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -77,13 +77,18 @@ import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.finder.AdvancedFinder;
 import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.env.data.views.ImageDataView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
@@ -161,6 +166,9 @@ class TreeViewerModel
 	/** The image to copy the rendering settings from. */
 	private ImageData				refImage;
 
+        /** 'Pending' rendering settings */
+	private RndProxyDef refRndSettings;
+	
 	/** The viewer displaying the metadata. */
 	private MetadataViewer 			metadataViewer;
 	
@@ -349,6 +357,7 @@ class TreeViewerModel
 		browsers = new HashMap<Integer, Browser>();
 		recycled = false;
 		refImage = null;
+		refRndSettings = null;
 		importing = false;
 		sorter = new ViewerSorter();
 		Integer value = (Integer) TreeViewerAgent.getRegistry().lookup(
@@ -645,10 +654,12 @@ class TreeViewerModel
 	 * a collection of pixels set.
 	 * 
 	 * @param refImage The image to copy the rendering settings from.
+	 * @param rndProxyDef Copied 'pending' rendering settings (can be null)
 	 */
-	void setRndSettings(ImageData refImage)
+	void setRndSettings(ImageData refImage, RndProxyDef rndProxyDef)
 	{
 		this.refImage = refImage;
+		this.refRndSettings = rndProxyDef;
 	}
 
 	/**
@@ -657,7 +668,7 @@ class TreeViewerModel
 	 * 
 	 * @return See above.
 	 */
-	boolean hasRndSettingsToPaste() { return refImage != null; }
+	boolean hasRndSettingsToPaste() { return refRndSettings!=null || refImage != null; }
 
 	/**
 	 * Fires an asynchronous call to paste the rendering settings.
@@ -665,25 +676,23 @@ class TreeViewerModel
 	 * @param ids 	Collection of nodes identifiers.
 	 * @param klass The type of nodes to handle.
 	 */
-	void firePasteRenderingSettings(List<Long> ids, Class klass)
-	{
-		long id = refImage.getId();
-		List<Long> toKeep = new ArrayList<Long>();
-		Iterator<Long> i = ids.iterator();
-		long id1;
-		while (i.hasNext()) {
-			id1 = i.next();
-			if (id1 != id) toKeep.add(id1);
-		}
-		if (toKeep.size() == 0) return;
-		state = TreeViewer.SETTINGS_RND;
-		SecurityContext ctx = getSecurityContext();
-		if (ctx == null) {
-			ctx = new SecurityContext(refImage.getGroupId());
-		}
-		currentLoader = new RndSettingsSaver(component, ctx, klass, toKeep, 
-								refImage.getDefaultPixels().getId());
-		currentLoader.load();
+        void firePasteRenderingSettings(List<Long> ids, Class klass) {
+                long id = refImage.getId();
+                List<Long> toKeep = new ArrayList<Long>();
+                Iterator<Long> i = ids.iterator();
+                long id1;
+                while (i.hasNext()) {
+                        id1 = i.next();
+                        if (id1 != id) toKeep.add(id1);
+                }
+                if (toKeep.size() == 0) return;
+                state = TreeViewer.SETTINGS_RND;
+                SecurityContext ctx = getSecurityContext();
+                if (ctx == null) {
+                        ctx = new SecurityContext(refImage.getGroupId());
+                }
+                currentLoader = new RndSettingsSaver(component, ctx, klass, toKeep, refRndSettings, refImage);
+                currentLoader.load();
 	}
 
 	/**
@@ -696,7 +705,7 @@ class TreeViewerModel
 		state = TreeViewer.SETTINGS_RND;
 		SecurityContext ctx = getSecurityContext();
 		currentLoader = new RndSettingsSaver(component, ctx, ref, 
-				refImage.getDefaultPixels().getId());
+				refImage);
 		currentLoader.load();
 	}
 	
@@ -957,7 +966,7 @@ class TreeViewerModel
 	boolean areSettingsCompatible(long groupID)
 	{
 		if (refImage == null) return false;
-		return refImage.getGroupId() == groupID;
+		return refRndSettings!=null || refImage.getGroupId() == groupID;
 	}
 	
 	/**

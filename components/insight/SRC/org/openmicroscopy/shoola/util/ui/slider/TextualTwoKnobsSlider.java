@@ -123,10 +123,6 @@ public class TextualTwoKnobsSlider
 	
 	/** The field hosting the end value. */
 	private NumericalTextField 	endField;
-	
-	/** Factor by which to reduce the calculated text field length;
-         *  apparently the calculated text field length is just too large */
-        private final static double TEXTFIELD_LENGTH_CORRECTION = 0.75;
         
         /** Limit the textfield length (columns) to the given size */
         private static final int MAX_TEXTFIELD_LENGTH = 10;
@@ -280,7 +276,6 @@ public class TextualTwoKnobsSlider
             int result = formatValue(maxValue).length();
             if (result > MAX_TEXTFIELD_LENGTH)
                 result = MAX_TEXTFIELD_LENGTH;
-            result = (int)(result * TEXTFIELD_LENGTH_CORRECTION);
             return result;
         }
 	
@@ -568,12 +563,6 @@ public class TextualTwoKnobsSlider
 			case LAYOUT_SLIDER_FIELDS_X_AXIS:
 			    setLayout(new GridBagLayout());
 
-                            // have to set minimum size to preferred size, otherwise
-                            // textfields will collapse in GridBayLayout;
-                            // see: http://bugs.java.com/bugdatabase/view_bug.do?bug_id=4247013
-                            startField.setMinimumSize(startField.getPreferredSize());
-                            endField.setMinimumSize(endField.getPreferredSize());
-
                             GridBagConstraints c = new GridBagConstraints();
                             c.gridx = 0;
                             c.gridy = 0;
@@ -776,18 +765,6 @@ public class TextualTwoKnobsSlider
 	public int getColumns() { return startField.getColumns(); }
 	
 	/**
-	 * Sets the number of columns of the {@link #startField} and 
-	 * {@link #startField}.
-	 * 
-	 * @param columns The value to set.
-	 */
-	public void setColumns(int columns) 
-	{
-		startField.setColumns(columns);
-		endField.setColumns(columns);
-	}
-	
-	/**
 	 * Returns the text field corresponding to the passed index.
 	 * 
 	 * @param index The index identifying the component.
@@ -818,16 +795,6 @@ public class TextualTwoKnobsSlider
 		start = s;
 		end = e;
 		attachListeners();
-	}
-	
-	public void setPreferredSize(Dimension d)
-	{
-		super.setPreferredSize(d);
-		Dimension dim = endField.getPreferredSize();
-		int w = dim.width;
-		dim = startField.getPreferredSize();
-		w += dim.width;
-		slider.setPreferredSize(new Dimension(d.width-w, d.height));
 	}
 	
 	/**

@@ -2244,9 +2244,8 @@ class ImViewerComponent
 				return;
 		}
 		try {
-			model.saveRndSettings(false);
 			model.copyRenderingSettings();
-			saveBeforeCopy = true;
+			saveBeforeCopy = false;
 		} catch (Exception e) {
 			saveBeforeCopy = false;
 			failureToSave = true;
@@ -2830,7 +2829,6 @@ class ImViewerComponent
 					"invoked in the PASTING state.");
 		try {
 			model.resetMappingSettings(rndProxyDef);
-			saveRndSettings(false);
 			view.resetDefaults();
 			renderXYPlane();
 		} catch (Exception e) {

@@ -464,6 +464,7 @@ public class AdminServiceTest extends AbstractServerTest {
         e.setOmeName(omero.rtypes.rstring(uuid));
         e.setFirstName(omero.rtypes.rstring(name));
         e.setLastName(omero.rtypes.rstring(name));
+        e.setLdap(omero.rtypes.rbool(false));
         svc.updateExperimenter(e);
         e = (Experimenter) query.findByQuery(
                 "select distinct e from Experimenter e where e.id = :id", p);
@@ -509,7 +510,8 @@ public class AdminServiceTest extends AbstractServerTest {
         e.setOmeName(omero.rtypes.rstring(uuid));
         e.setFirstName(omero.rtypes.rstring(name));
         e.setLastName(omero.rtypes.rstring(name));
-        //
+        e.setLdap(omero.rtypes.rbool(false));
+
         // owner logs in.
         omero.client client = newOmeroClient();
         client.createSession(uuid, uuid);
@@ -560,7 +562,8 @@ public class AdminServiceTest extends AbstractServerTest {
         e.setOmeName(omero.rtypes.rstring(uuid));
         e.setFirstName(omero.rtypes.rstring(name));
         e.setLastName(omero.rtypes.rstring(name));
-        //
+        e.setLdap(omero.rtypes.rbool(false));
+
         // owner logs in.
         omero.client client = newOmeroClient();
         client.createSession(uuid, uuid);

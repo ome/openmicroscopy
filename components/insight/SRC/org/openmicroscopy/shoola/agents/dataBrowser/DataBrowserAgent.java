@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -241,7 +241,7 @@ public class DataBrowserAgent
      */
     private void handleCopyRndSettings(CopyRndSettings evt)
     {
-    	DataBrowserFactory.setRndSettingsToCopy(evt.getImage());
+    	DataBrowserFactory.setRndSettingsToCopy(evt.getImage(), evt.getRndDef());
     }
     
     /**

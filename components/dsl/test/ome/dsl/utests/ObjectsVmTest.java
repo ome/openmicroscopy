@@ -49,13 +49,13 @@ public class ObjectsVmTest extends TestCase {
     @Test
     public void testSimple() {
         sr.parse();
-        List list = sr.process();
+        List<SemanticType> list = sr.process();
         log.info("Results of parse:" + list);
-        for (Iterator it = list.iterator(); it.hasNext();) {
+        for (Iterator<SemanticType> it = list.iterator(); it.hasNext();) {
             SemanticType st = (SemanticType) it.next();
             VelocityHelper vh = new VelocityHelper();
             vh.put("type", st);
-            Map h = new HashMap();
+            Map<String, String> h = new HashMap<String, String>();
             h.put("test", "this was a dynamic key test");
             vh.put("test", h);
             String s = vh.invoke(DSLTask.getStream("ome/dsl/object.vm"));

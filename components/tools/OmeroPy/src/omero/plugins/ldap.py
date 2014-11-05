@@ -24,8 +24,8 @@ Examples:
   bin/omero ldap list
   bin/omero ldap getdn jack
   bin/omero ldap getdn beth || echo "No DN"
-  bin/omero ldap setdn jack uid=me,ou=example,o=com
-  bin/omero ldap setdn jack ""                  # Disables LDAP login.
+  bin/omero ldap setdn jack true                # Enable LDAP login.
+  bin/omero ldap setdn jack false               # Disable LDAP login.
   bin/omero ldap discover --commands
   bin/omero ldap create bob                     # User bob must exist in LDAP
 
@@ -52,18 +52,17 @@ class LdapControl(BaseControl):
         getdn = parser.add(sub, self.getdn, help="Get DN for user on stdout")
         setdn = parser.add(
             sub, self.setdn,
-            help="""Set DN for user (admins only)
+            help="""Enable LDAP login for user (admins only)
 
-Once the DN is set for a user, the password set via OMERO is
+Once LDAP login is enabled for a user, the password set via OMERO is
 ignored, and any attempt to change it will result in an error. When
-you remove the DN, the previous password will be in effect, but if the
+you disable LDAP login, the previous password will be in effect, but if the
 user never had a password, one will need to be set!""")
 
         for x in (getdn, setdn):
             x.add_argument("username", help="User's OMERO login name")
-        setdn.add_argument(
-            "dn", help="User's LDAP distinguished name. If empty, LDAP will"
-            " be disabled for the user")
+        setdn.add_argument("choice", action="store",
+                           help="Enable/disable LDAP login (true/false)")
 
         discover = parser.add(
             sub, self.discover,
@@ -133,7 +132,7 @@ user never had a password, one will need to be set!""")
         if dn is not None and dn.strip():
             self.ctx.out(dn)
         else:
-            self.ctx.die(136, "DN Not found: %s" % dn)
+            self.ctx.die(136, "DN not found for %s" % args.username)
 
     @admin_only
     def setdn(self, args):
@@ -157,16 +156,15 @@ user never had a password, one will need to be set!""")
         experimenters = ildap.discover()
 
         if len(experimenters) > 0:
-            self.ctx.out("Found mismatching DNs for the following users:")
-            for dn, exp in experimenters.iteritems():
+            self.ctx.out("Following LDAP users are disabled in OMERO:")
+            for exp in experimenters:
                 if args.commands:
-                    self.ctx.out("%s ldap setdn %s %s"
-                                 % (sys.argv[0], exp.getOmeName().getValue(),
-                                    dn))
+                    self.ctx.out("%s ldap setdn %s true"
+                                 % (sys.argv[0], exp.getOmeName().getValue()))
                 else:
-                    self.ctx.out("Experimenter:%s\tomeName=%s\t%s"
+                    self.ctx.out("Experimenter:%s\tomeName=%s"
                                  % (exp.getId().getValue(),
-                                    exp.getOmeName().getValue(), dn))
+                                    exp.getOmeName().getValue()))
 
     @admin_only
     def create(self, args):

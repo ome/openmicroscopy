@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsSaver 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -28,11 +28,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
@@ -40,8 +47,9 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-
+import org.openmicroscopy.shoola.env.rnd.data.DataSourceException;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -144,6 +152,75 @@ public class RenderingSettingsSaver
 			}
 		};
 	} 
+	
+	/**
+	 * Creates a {@link BatchCall} to paste the rendering settings.
+	 * 
+	 * @param rootType		The type of nodes. Can either be 
+	 * 						<code>ImageData</code>, <code>DatasetData</code>, 
+	 * 						<code>ProjectData</code>, <code>ScreenData</code>,
+	 * 						<code>PlateData</code>.
+	 * @param ids			The id of the nodes to apply settings to. 
+	 * @param def 		The rendering settings to paste
+         * @param refImage      The image the rendering settings belong to
+	 * @return The {@link BatchCall}.
+	 */
+        private BatchCall makeBatchCall(final Class rootType,
+                final List<Long> ids, final RndProxyDef def, final ImageData refImage) {
+            return new BatchCall("Modify the rendering settings: ") {
+                public void doCall() throws Exception {
+                    
+                    long userId = MetadataViewerAgent.getUserDetails().getId();
+                    
+                    OmeroImageService rds = context.getImageService();
+                               
+                    // load (the user's) original settings for the reference image             
+                    RndProxyDef original = null;
+                    Map<DataObject, Collection<RndProxyDef>> tmp = rds.getRenderingSettings(ctx, refImage.getDefaultPixels().getId(), userId);
+                    for(Entry<DataObject, Collection<RndProxyDef>> e : tmp.entrySet()) {
+                        if(e.getKey() instanceof ExperimenterData) {
+                            ExperimenterData exp = (ExperimenterData)e.getKey();
+                            if(exp.getId()==userId) {
+                                original = e.getValue().iterator().next();
+                                break;
+                            }
+                        }
+                    }
+                    
+                    // reload the Renderer for the reference image
+                    MetadataViewer viewer = MetadataViewerFactory
+                            .getViewer(refImage);
+                    viewer.reloadRenderingControl();
+                    
+                    Renderer rnd = null;
+                    if (viewer != null) {
+                        rnd = viewer.getRenderer();
+                        
+                        if (rnd != null) {
+                            try {
+                                // apply the pending rendering settings
+                                rnd.resetSettings(def, true);
+                                rnd.saveCurrentSettings();
+                            } catch (Throwable e) {
+                                throw new DataSourceException("Could not save pending rendering settings for image id "+refImage.getId());
+                            } 
+        
+                        }
+                    }
+                    
+                    // do the actual paste
+                    Map map = rds.pasteRenderingSettings(ctx, refImage.getDefaultPixels().getId(), rootType,
+                            ids);
+                    result = map;
+    
+                    if (rnd != null && original != null) {
+                        // reset the reference image to it's previous settings
+                        rnd.resetSettings(original, true);
+                        rnd.saveCurrentSettings();
+                    }
+                }
+            };
+        }
 
 	/**
 	 * Creates a {@link BatchCall} to paste the rendering settings.
@@ -276,6 +353,29 @@ public class RenderingSettingsSaver
 		this.ctx = ctx;
 		loadCall = makeBatchCall(pixelsID, rootNodeType, ids, PASTE);
 	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param ctx The security context.
+	 * @param pixelsID		The id of the pixels set of reference.
+	 * @param rootNodeType	The type of nodes. Can either be 
+	 * 						<code>ImageData</code>, <code>DatasetData</code>.
+	 * @param ids			The nodes to apply settings to. 
+	 * 						Mustn't be <code>null</code>.
+         * @param def The 'pending' rendering settings
+         * @param refImage The image the rendering settings belong to
+	 */
+        public RenderingSettingsSaver(SecurityContext ctx, Class rootNodeType, 
+                List<Long> ids, RndProxyDef def, final ImageData refImage) {
+            checkRootType(rootNodeType);
+            if (ids == null || ids.size() == 0)
+                throw new IllegalArgumentException("No nodes specified.");
+            if (refImage == null)
+                throw new IllegalArgumentException("No reference image provided.");
+            this.ctx = ctx;
+            loadCall = makeBatchCall(rootNodeType, ids, def, refImage);
+        }
 	
 	/**
 	 * Creates a new instance.

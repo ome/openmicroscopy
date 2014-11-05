@@ -135,8 +135,8 @@ class BaseShare(BaseController):
                 sh.annotation_counter = sh_annotation_counter.get(sh.id)
                 sh_list_with_counters.append(sh)
             
-            self.shares = sh_list_with_counters
-            self.shSize = len(self.shares)
+        self.shares = sh_list_with_counters
+        self.shSize = len(self.shares)
 
     def getComments(self, share_id):
         self.comments = list(self.conn.getComments(share_id))
@@ -154,12 +154,18 @@ class BaseShare(BaseController):
 
     def loadShareContent(self):
         content = self.conn.getContents(self.share.id)
-        
-        self.imageInShare = list()
 
+        imageInShare = list()
+
+        # The content images can be dead links and this is indicated
+        # by the getContents returning these:
+        # omero.gateway.BlitzObjectWrapper(self,None)
+        # These need to be appended like regular images to ensure that
+        # broken links get properly displayed. If there is a need to handle
+        # other content types, then this must be addressed by more special
+        # caseing or by updating getContent
         for ex in content:
-            if isinstance(ex._obj, omero.model.ImageI):
-                self.imageInShare.append(ex)
+            imageInShare.append(ex)
 
-        self.imgSize = len(self.imageInShare)
-    
+        self.containers = {'images': imageInShare}
+        self.c_size = len(imageInShare)

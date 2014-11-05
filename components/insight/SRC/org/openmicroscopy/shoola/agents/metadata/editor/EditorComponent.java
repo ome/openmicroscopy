@@ -686,6 +686,7 @@ class EditorComponent
 			setSelectedTab(GENERAL_TAB);
 			return;
 		}
+		
 		//is the rendering control for the correct pixels set
 		FigureDialog d = controller.getFigureDialog();
 		PixelsData data = model.getPixels();
@@ -698,8 +699,10 @@ class EditorComponent
 			return;
 		}
 		model.setRenderingControl(rndControl);
-		if (loaded) view.onSettingsApplied(false);
-		if (d == null) view.setRenderer();
+		if (loaded) 
+		    view.onSettingsApplied(false);
+		if (d == null) 
+		    view.setRenderer();
 		if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC)
 			loadChannelData();
 		model.getRenderer().addPropertyChangeListener(controller);
@@ -709,6 +712,7 @@ class EditorComponent
 			if (d.getDialogType() == FigureDialog.ROI_MOVIE)
 				model.firePlaneInfoLoading(EditorModel.DEFAULT_CHANNEL, 0);
 		}
+		model.getRenderer().refresh();
 		// load other users' rendering settings
 		model.getRenderer().retrieveRelatedSettings();
 		model.getRenderer().updatePasteAction();
@@ -716,7 +720,7 @@ class EditorComponent
 
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#loadRenderingControl()
+	 * @see Editor#loadRenderingControl(int)
 	 */
 	public void loadRenderingControl(int index)
 	{
@@ -737,6 +741,17 @@ class EditorComponent
 				value = index;
 		}
 		setStatus(model.fireRenderingControlLoading(pixels.getId(), value));
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#loadRenderingControl()
+	 */
+	public void loadRenderingControl() {
+	    ImageData image = model.getImage();
+            if (image == null || image.getId() < 0) return;
+            PixelsData pixels = image.getDefaultPixels();
+	    model.loadRenderingControl(pixels.getId());
 	}
 	
 	/** 

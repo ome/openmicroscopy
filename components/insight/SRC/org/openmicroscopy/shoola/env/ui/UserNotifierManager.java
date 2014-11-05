@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.ui.UserNotifierManager 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -341,6 +341,19 @@ class UserNotifierManager
 	{ 
 		if (activities == null) return 0;
 		return activities.size();
+	}
+	
+	/**
+	 * Removes all activities
+	 */
+	void clearActivities() {
+	    if (activities != null)
+	        activities.clear();
+	    
+	    if (activityDialog != null) {
+	        activityDialog.setVisible(false);
+	        activityDialog = null;
+	    }
 	}
 	
 	/** 

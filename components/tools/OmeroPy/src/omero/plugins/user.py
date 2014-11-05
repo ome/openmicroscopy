@@ -303,7 +303,7 @@ class UserControl(UserGroupControl):
         pasw = args.userpassword
 
         import omero
-        from omero.rtypes import rstring
+        from omero.rtypes import rbool, rstring
         from omero_model_ExperimenterI import ExperimenterI as Exp
         from omero_model_ExperimenterGroupI import ExperimenterGroupI as Grp
         c = self.ctx.conn(args)
@@ -314,6 +314,7 @@ class UserControl(UserGroupControl):
         e.middleName = rstring(middle)
         e.email = rstring(email)
         e.institution = rstring(inst)
+        e.ldap = rbool(False)
 
         # Fail-fast if no-password is passed and the server does not accept
         # empty passwords

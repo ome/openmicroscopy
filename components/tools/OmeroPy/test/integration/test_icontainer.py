@@ -31,7 +31,7 @@ from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_model_ImageAnnotationLinkI import ImageAnnotationLinkI
 from omero_model_CommentAnnotationI import CommentAnnotationI
-from omero.rtypes import rstring, rtime
+from omero.rtypes import rbool, rstring, rtime
 from uuid import uuid4
 
 
@@ -58,6 +58,7 @@ class TestIContainer(lib.ITest):
         new_exp.omeName = rstring("user1_%s" % uuid)
         new_exp.firstName = rstring("New")
         new_exp.lastName = rstring("Test")
+        new_exp.ldap = rbool(False)
 
         defaultGroup = admin.getGroup(gid)
         listOfGroups = list()
@@ -71,6 +72,7 @@ class TestIContainer(lib.ITest):
         new_exp2.omeName = rstring("user2_%s" % uuid)
         new_exp2.firstName = rstring("New2")
         new_exp2.lastName = rstring("Test2")
+        new_exp2.ldap = rbool(False)
 
         defaultGroup = admin.getGroup(gid)
         listOfGroups = list()
