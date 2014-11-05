@@ -342,6 +342,46 @@
                     return false;
                 });
 
+                // Filtering annotations added by 'me' or 'others' or 'all'
+                $("#annotationFilter").change(function(){
+                    var $this = $(this),
+                        val = $this.val();
+                        userId = "{{ ome.user.id }}";
+
+                    // select made smaller if only 'Show all' text
+                    if (val === "all") {
+                        $this.css('width', '80px');
+                    } else {
+                        $this.css('width', '180px');
+                    }
+
+                    $('.tag_annotation_wrapper, .file_ann_wrapper, .ann_comment_wrapper')
+                            .each(function() {
+                        var $ann = $(this),
+                            addby = $ann.attr('data-added-by').split(",");
+                        var show = false;
+                        switch (val) {
+                            case "me":
+                                show = ($.inArray(userId, addby) > -1)
+                                break;
+                            case "others":
+                                for (var i=0; i<addby.length; i++) {
+                                    if (addby[i] !== userId) {
+                                        show = true;
+                                    }
+                                }
+                                break;
+                            default:    // 'all'
+                                show = true;
+                        }
+                        if (show) {
+                            $ann.show();
+                        } else {
+                            $ann.hide();
+                        }
+                    });
+                });
+
                 // Channel name editing
             {% if manager.image or manager.well.getWellSample.image %}
                 var $chNameForm = $("#channel_names_edit");
@@ -767,9 +807,9 @@
                 Annotations
 
                 <select id="annotationFilter" title="Filter by user" style="float: right; width:80px">
-                    <option>Show all</option>
-                    <option>Show added by me</option>
-                    <option>Show added by others</option>
+                    <option value="all">Show all</option>
+                    <option value="me">Show added by me</option>
+                    <option value="others">Show added by others</option>
                 </select>
 
             </h2>
@@ -851,11 +891,9 @@
                 <!-- display existing file annotations -->
 
                     <ul id="fileanns_container" class="lnfiles">
-                        {% for fileann in manager.file_annotations %}
-                            {% with can_remove=fileann.link.canDelete %}
-                                {% include "webclient/annotations/fileann.html" %}
-                            {% endwith %}
-                        {% endfor %}
+                        {% with fileanns=manager.file_annotations %}
+                            {% include "webclient/annotations/fileanns.html" %}
+                        {% endwith %}
                     </ul>
 
             </div>
@@ -972,7 +1010,9 @@
                 
                     <div id="comments_container" class="lncomments">
                         {% for tann in manager.text_annotations %}
-                            {% include "webclient/annotations/comment.html" %}
+                            {% with added_by=tann.link.getDetails.getOwner.id %}
+                                {% include "webclient/annotations/comment.html" %}
+                            {% endwith %}
                         {% endfor %}
                     </div>
            

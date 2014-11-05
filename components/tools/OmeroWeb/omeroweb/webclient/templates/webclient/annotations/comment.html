@@ -29,7 +29,7 @@
 -->
 {% endcomment %}
 
-<div class="ann_comment_wrapper">
+<div class="ann_comment_wrapper" data-added-by="{{ added_by }}">
 
     <div class="avatar">
 		<img src="{% url 'avatar' tann.details.owner.id.val %}" alt="{{ tann.getOwner.getFullName }}" title="{{ tann.getOwner.getFullName }}" />
