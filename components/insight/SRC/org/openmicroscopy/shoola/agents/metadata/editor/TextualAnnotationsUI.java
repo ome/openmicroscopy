@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.TextualAnnotationsUI 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -37,36 +37,26 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 //Third-party libraries
-//import info.clearthought.layout.TableLayout; 
-
-
-
-
-
-
-
 import org.apache.commons.lang.StringUtils;
-import org.openmicroscopy.shoola.agents.metadata.IconManager;
-import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.SeparatorOneLineBorder;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
-
 import pojos.AnnotationData;
 import pojos.TextualAnnotationData;
+import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 
 
 /** 
@@ -91,9 +81,7 @@ class TextualAnnotationsUI
 	private static final int	MAX_LENGTH_TEXT = 200;
 	
 	/** The default description. */
-        private static final String	DEFAULT_TEXT_COMMENT = "Add comments";
-    
-        private static final String ADD_COMMENT_TEXT = "Add comment";
+        private static final String	DEFAULT_TEXT_COMMENT = "Add comment";
         
 	/** The title associated to this component. */
 	private static final String TITLE = "Comments ";
@@ -104,6 +92,7 @@ class TextualAnnotationsUI
 	/** Action id to show the previous comments. */
 	private static final int	MORE = 3;
 	
+	/** Action id to save the comment */
 	private static final int ADD_COMMENT = 4;
 	
 	/** Reference to the control. */
@@ -130,9 +119,6 @@ class TextualAnnotationsUI
 	/** Component hosting the previous comments. */
 	private JScrollPane			previousComments;
 	
-	/** Flag indicating to build the UI once. */
-	private boolean 			init;
-	
 	/** Flag indicating that the comments added by other users are visible. */
 	private boolean				expanded;
 	
@@ -151,8 +137,10 @@ class TextualAnnotationsUI
 	/** The collection of annotations to remove.*/
 	private List annotationToRemove;
 	
+	/** Scrollpane hosting the comment text field */
 	private JScrollPane pane;
 	
+	/** The add comment button */
 	private JButton addButton;
 	
 	/**
@@ -300,7 +288,7 @@ class TextualAnnotationsUI
 		setBackground(UIUtilities.BACKGROUND_COLOR);
 		
 		addButton = new JButton(IconManager.getInstance().getIcon(IconManager.SAVE));
-		formatButton(addButton, ADD_COMMENT_TEXT, ADD_COMMENT);
+		formatButton(addButton, DEFAULT_TEXT_COMMENT, ADD_COMMENT);
 	}
 	
 	/**
@@ -456,7 +444,6 @@ class TextualAnnotationsUI
 		this.controller = controller;
 		title = TITLE;
 		initComponents();
-		init = false; 
 	}
 	
 	/**
@@ -498,10 +485,7 @@ class TextualAnnotationsUI
 	 */
 	protected void buildUI()
 	{
-		//if (!init) {
-			buildGUI();
-			init = true;
-		//}
+		buildGUI();
 		if (model.isMultiSelection()) {
 			displayAnnotations(null);
 		} else {
@@ -615,9 +599,10 @@ class TextualAnnotationsUI
 		}
 	}
 	
+	/** Saves the comment */
 	private void saveComment() {
 	    List<AnnotationData> comments = getAnnotationToSave();
-	    model.fireAnnotationSaving(new DataToSave(comments, Collections.EMPTY_LIST), null, false);
+	    model.fireAnnotationSaving(new DataToSave(comments, Collections.emptyList()), null, false);
 	}
 
 	/**

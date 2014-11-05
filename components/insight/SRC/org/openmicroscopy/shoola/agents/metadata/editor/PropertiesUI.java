@@ -25,8 +25,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
-import info.clearthought.layout.TableLayout;
-
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -57,12 +55,9 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
@@ -72,7 +67,6 @@ import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
 
 import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.JXTaskPane;
@@ -82,7 +76,6 @@ import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEve
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.ROICountLoader;
-import org.openmicroscopy.shoola.agents.metadata.actions.ViewAction;
 import org.openmicroscopy.shoola.agents.metadata.util.FilesetInfoDialog;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
@@ -181,6 +174,7 @@ public class PropertiesUI
 	/** Button to edit the description. */
 	private JButton				descriptionButtonEdit;
 	
+	/** Button to save the description */
 	private JButton        descriptionSaveButton;
 	
     /** The name before possible modification.*/
@@ -245,9 +239,6 @@ public class PropertiesUI
 
 	/** ScrollPane hosting the {@link #descriptionWiki} component.*/
 	private JScrollPane			descriptionScrollPane;
-
-	/** The menu displaying the view options.*/
-	private JPopupMenu			viewMenu;
 
 	/** Flag indicating that the name is editable mode or not.*/
 	private boolean editableName;
@@ -969,18 +960,6 @@ public class PropertiesUI
         			ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         	descriptionScrollPane.setBorder(AnnotationUI.EDIT_BORDER);
         	
-//        	double[][] design = new double[][]
-//        			{
-//        				{TableLayout.FILL, TableLayout.PREFERRED},
-//        				{TableLayout.PREFERRED}
-//        			};
-//        	
-//        	TableLayout table = new TableLayout(design);
-//        	descriptionPanel = new JPanel(table);
-//        	descriptionPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
-//        	descriptionPanel.add(descriptionScrollPane, "0, 0");
-//        	descriptionPanel.add(descriptionButtonEdit, "1, 0, c, t");
-        	
         	descriptionPanel = new JPanel(new GridBagLayout());
                 descriptionPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
 
@@ -1018,6 +997,7 @@ public class PropertiesUI
          return p;
     }
     
+    /** Expands/Collapses the description text field */
     private void expandDescriptionField(boolean expand) {
         if (descriptionScrollPane == null)
             return;
@@ -1110,17 +1090,6 @@ public class PropertiesUI
 				descriptionScrollPane.setBorder(EDIT_BORDER);
 			}
 		}
-	}
-	
-	/**
-	 * Sets the new name of the edited object.
-	 * 
-	 * @param document The document to handle.
-	 */
-	private void handleNameChanged(Document document)
-	{
-		Document d = namePane.getDocument();
-		if (d == document) modifiedName = namePane.getText();
 	}
 	
 	/**
@@ -1329,7 +1298,7 @@ public class PropertiesUI
                     PlateAcquisitionData pa = (PlateAcquisitionData) object;
                     if (name.length() > 0) pa.setName(name);
             }
-	    model.fireAnnotationSaving(null, Collections.EMPTY_LIST, false);
+	    model.fireAnnotationSaving(null, Collections.emptyList(), false);
 	    
 	}
 	
@@ -1372,7 +1341,7 @@ public class PropertiesUI
                     PlateAcquisitionData pa = (PlateAcquisitionData) object;
                     pa.setDescription(value);
             }
-            model.fireAnnotationSaving(null, Collections.EMPTY_LIST, false);
+            model.fireAnnotationSaving(null, Collections.emptyList(), false);
             descriptionSaveButton.setEnabled(false);
         }
 	
@@ -1468,46 +1437,6 @@ public class PropertiesUI
 		channelsArea.setText(buffer.toString());
 		channelsArea.revalidate();
 		channelsArea.repaint();
-	}
-
-	/** 
-	 * Sets the extent size
-	 * 
-	 * @param width The value to set.
-	 */
-	void setExtentWidth(int width)
-	{
-		/*
-		int diff = 10;
-		int newWidth = width-diff;
-		
-		if (this.width != 0 && 
-				(this.width-diff <= newWidth && newWidth <= this.width+diff)) return;
-		
-		this.width = newWidth;
-		
-		if (descriptionPanel != null) {
-			Dimension viewportSize = new Dimension(width, HEIGHT);
-			pane.getViewport().setPreferredSize(viewportSize);
-			
-			Dimension paneSize = pane.getSize();
-			int h = paneSize.height;
-			if (h < HEIGHT) h = HEIGHT;
-			
-			String newLineStr = null;
-			if (pane.getVerticalScrollBar().isVisible())
-				newLineStr = "\n";
-		
-			Dimension descriptionSize = new Dimension(this.width, HEIGHT);
-			
-			descriptionPane.setSize(descriptionSize);
-			descriptionPane.setPreferredSize(descriptionSize);
-		    descriptionPane.wrapText(this.width, newLineStr);
-		    
-			descriptionPanel.setSize(descriptionSize);
-			descriptionPanel.setPreferredSize(descriptionSize);
-		}
-		*/
 	}
 	
 	/**
@@ -1629,7 +1558,6 @@ public class PropertiesUI
                         descriptionSaveButton.setEnabled(false);
                     }
                 } catch (BadLocationException e1) {
-                    e1.printStackTrace();
                 }
             }
         }
@@ -1656,7 +1584,6 @@ public class PropertiesUI
                         descriptionSaveButton.setEnabled(false);
                     }
                 } catch (BadLocationException e1) {
-                    e1.printStackTrace();
                 }
             } 
 	}
@@ -1678,7 +1605,6 @@ public class PropertiesUI
 	                descriptionButtonEdit, !descriptionWiki.isEnabled());
 	        break;
 	    case SAVE_DESC:
-	        // TODO: Save
 	        saveDescription();
 	        break;
 	    case EDIT_CHANNEL:
@@ -1728,7 +1654,8 @@ public class PropertiesUI
 	 * Listens to property changes fired by the {@link #descriptionWiki}.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */
-	public void propertyChange(PropertyChangeEvent evt)
+	@SuppressWarnings("unchecked")
+   	 public void propertyChange(PropertyChangeEvent evt)
 	{
 		String name = evt.getPropertyName();
 		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
@@ -1780,15 +1707,7 @@ public class PropertiesUI
 	 * implementation in our case.
 	 * @see DocumentListener#changedUpdate(DocumentEvent)
 	 */
-	public void changedUpdate(DocumentEvent e) {
-	    if(e.getDocument()!=null) {
-	        try {
-                System.out.println(e.getDocument().getText(0, e.getDocument().getLength()));
-            } catch (BadLocationException e1) {
-                e1.printStackTrace();
-            }
-	    }
-	}
+	public void changedUpdate(DocumentEvent e) {}
 
 	/** Displays the file set associated to the image. */
         void displayFileset() {

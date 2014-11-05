@@ -168,6 +168,7 @@ class ToolBar
 	/** The Button displaying the path to the file on the server.*/
 	private JMenuItem pathButton;
 	
+	/** Menu for displaying the 'Located in' information */
 	private JMenuItem locationButton;
 	
 	/** Button display the links like path, html.*/

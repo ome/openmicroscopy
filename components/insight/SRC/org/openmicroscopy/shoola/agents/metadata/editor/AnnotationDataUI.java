@@ -518,7 +518,6 @@ class AnnotationDataUI
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		content.add(p);
 		
-		
 		JPanel panel = new JPanel(new GridBagLayout());
 		panel.setBorder(null);
 		panel.setBackground(UIUtilities.BACKGROUND_COLOR);

@@ -41,7 +41,6 @@ import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.VerticalLayout;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
@@ -49,13 +48,10 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.DataObject;
-import pojos.DatasetData;
 import pojos.DoubleAnnotationData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.LongAnnotationData;
-import pojos.ProjectData;
-import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
 import pojos.TextualAnnotationData;
@@ -99,16 +95,16 @@ class GeneralPaneUI
 	
 	/** Component hosting the tags, rating, URLs and attachments. */
 	private AnnotationDataUI			annotationUI;
-
+	
 	/** The component hosting the {@link #browser}. */
-        private JXTaskPane                                      browserTaskPane;
-        
+	private JXTaskPane 					browserTaskPane;
+
 	/** The component hosting the {@link #propertiesUI}. */
 	private JXTaskPane 					propertiesTaskPane;
 	
 	/** The component hosting the annotation component. */
 	private JXTaskPane 					annotationTaskPane;
-        
+	
 	/** Collection of annotations UI components. */
 	private List<AnnotationUI>			components;
 	
@@ -215,50 +211,49 @@ class GeneralPaneUI
 		init = false;
 	}
 
-	/** Lays out the UI when data are loaded. */
-	void layoutUI()
-	{
-	    if (!init) {
+        /** Lays out the UI when data are loaded. */
+        void layoutUI() {
+            if (!init) {
                 buildGUI();
                 init = true;
-        }
-        propertiesUI.buildUI();
-        annotationUI.buildUI();
-        textualAnnotationsUI.buildUI();
-        propertiesTaskPane.setTitle(propertiesUI.getText()+DETAILS);
-
-        boolean multi = model.isMultiSelection();
-        Object refObject = model.getRefObject();
-        
-        if (refObject instanceof ImageData && !multi) {
+            }
+            propertiesUI.buildUI();
+            annotationUI.buildUI();
+            textualAnnotationsUI.buildUI();
+            propertiesTaskPane.setTitle(propertiesUI.getText() + DETAILS);
+    
+            boolean multi = model.isMultiSelection();
+            Object refObject = model.getRefObject();
+    
+            if (refObject instanceof ImageData && !multi) {
                 propertiesUI.onChannelDataLoading();
                 controller.loadChannelData();
-        } 
-        
-        if (refObject instanceof WellSampleData && !multi) {
+            }
+    
+            if (refObject instanceof WellSampleData && !multi) {
                 controller.loadChannelData();
-        } 
-        
-        if(browserTaskPane!=null)
-            container.remove(browserTaskPane);
-        
-        container.remove(propertiesTaskPane);
-        if (!multi) {
-                container.add(propertiesTaskPane, 0); //first index
-                
+            }
+    
+            if (browserTaskPane != null)
+                container.remove(browserTaskPane);
+    
+            container.remove(propertiesTaskPane);
+            if (!multi) {
+                container.add(propertiesTaskPane, 0); // first index
+    
                 if (refObject instanceof FileAnnotationData) {
-                    if(browserTaskPane == null) {
+                    if (browserTaskPane == null) {
                         browserTaskPane = EditorUtil.createTaskPane("Attached to");
                         browserTaskPane.add(model.getBrowser().getUI());
                         browserTaskPane.addPropertyChangeListener(controller);
                     }
                     container.add(browserTaskPane);
                     if (!browserTaskPane.isCollapsed())
-                            loadParents(true);
+                        loadParents(true);
+                }
             }
+    
         }
-        
-	}
 	
 	/**
 	* Get a reference to the PropertiesUI
@@ -400,9 +395,9 @@ class GeneralPaneUI
 	 */
 	void handleTaskPaneCollapsed(JXTaskPane source)
 	{
-	    if (source == null) return;
-            if  (source.equals(browserTaskPane)) 
-                    loadParents(!browserTaskPane.isCollapsed());
+		if (source == null) return;
+		if  (source.equals(browserTaskPane)) 
+			loadParents(!browserTaskPane.isCollapsed());
 	}
 
 	/**
@@ -527,12 +522,6 @@ class GeneralPaneUI
 	void onRelatedNodesSet()
 	{
 		annotationUI.onRelatedNodesSet();
-	}
-
-	void setExtentWidth(int width)
-	{
-		if (propertiesUI != null)
-			propertiesUI.setExtentWidth(width);
 	}
 	
 }

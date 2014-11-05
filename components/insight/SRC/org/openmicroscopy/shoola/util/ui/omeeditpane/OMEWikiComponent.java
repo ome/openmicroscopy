@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -622,6 +622,7 @@ public class OMEWikiComponent
 	    pane.addFocusListener(l);
 	}
 	
+	/** Get reference to the underlying {@link Document} */
 	public Document getDocument() {
 	    return pane.getDocument();
 	}

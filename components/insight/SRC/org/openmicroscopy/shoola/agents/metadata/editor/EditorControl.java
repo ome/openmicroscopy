@@ -912,8 +912,7 @@ class EditorControl
 				downloadMetadata();
 				break;
 			case SHOW_LOCATION:
-			    view.displayLocation();
-			    break;
+			    	view.displayLocation();
 		}
 	}
 
