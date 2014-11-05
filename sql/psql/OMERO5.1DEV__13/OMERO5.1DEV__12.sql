@@ -449,46 +449,6 @@ CREATE INDEX i_wellsample_posx ON wellsample USING btree (posx);
 
 CREATE INDEX i_wellsample_posy ON wellsample USING btree (posy);
 
-CREATE TRIGGER detector_annotation_link_event_trigger_insert
-	AFTER INSERT ON detectorannotationlink
-	FOR EACH ROW
-	EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.Detector');
-
-CREATE TRIGGER dichroic_annotation_link_event_trigger_insert
-	AFTER INSERT ON dichroicannotationlink
-	FOR EACH ROW
-	EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.Dichroic');
-
-CREATE TRIGGER filter_annotation_link_event_trigger_insert
-	AFTER INSERT ON filterannotationlink
-	FOR EACH ROW
-	EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.Filter');
-
-CREATE TRIGGER instrument_annotation_link_event_trigger_insert
-	AFTER INSERT ON instrumentannotationlink
-	FOR EACH ROW
-	EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.Instrument');
-
-CREATE TRIGGER lightpath_annotation_link_event_trigger_insert
-	AFTER INSERT ON lightpathannotationlink
-	FOR EACH ROW
-	EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.LightPath');
-
-CREATE TRIGGER lightsource_annotation_link_event_trigger_insert
-	AFTER INSERT ON lightsourceannotationlink
-	FOR EACH ROW
-	EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.LightSource');
-
-CREATE TRIGGER objective_annotation_link_event_trigger_insert
-	AFTER INSERT ON objectiveannotationlink
-	FOR EACH ROW
-	EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.Objective');
-
-CREATE TRIGGER shape_annotation_link_event_trigger_insert
-	AFTER INSERT ON shapeannotationlink
-	FOR EACH ROW
-	EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.roi.Shape');
-
 -- 5.1DEV__13: Manual adjustments, mostly from psql-footer.sql
 
 insert into unitselectricpotential (id,permissions,value,measurementsystem)
