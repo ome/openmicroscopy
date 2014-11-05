@@ -1459,6 +1459,27 @@ update pixels set timeincrementunit = (select id from unitstime where value = 's
 update planeinfo set deltatunit = (select id from unitstime where value = 's')  where deltat is not null;
 update planeinfo set exposuretimeunit = (select id from unitstime where value = 's') where exposuretime is not null;
 
+
+-- OMERO5.1DEV__12: #2587 LDAP: remove DN from OMERO DB.
+
+-- Add "ldap" column to "experimenter", default to false
+
+ALTER TABLE experimenter ADD COLUMN ldap BOOL NOT NULL DEFAULT false;
+
+-- Set "ldap" value based on "dn" from "password"
+
+UPDATE experimenter e SET ldap = true
+    FROM password p
+    WHERE e.id = p.experimenter_id AND
+          p.dn IS NOT NULL;
+
+-- Drop "dn" from "password" and delete entries that have a DN set
+-- and no password
+
+DELETE FROM password WHERE dn IS NOT NULL AND hash IS NULL;
+ALTER TABLE password DROP COLUMN dn;
+
+
 -- 5.1DEV__13: other units
 
 CREATE SEQUENCE seq_unitselectricpotential
