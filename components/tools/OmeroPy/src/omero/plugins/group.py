@@ -10,7 +10,7 @@
 
 import sys
 
-from omero.cli import UserGroupControl, CLI, ExceptionHandler
+from omero.cli import UserGroupControl, CLI, ExceptionHandler, admin_only
 
 HELP = """Group administration methods"""
 defaultperms = {
@@ -136,6 +136,7 @@ server-permissions.html
         except ValueError, ve:
             self.ctx.die(505, str(ve))
 
+    @admin_only
     def add(self, args):
 
         import omero
