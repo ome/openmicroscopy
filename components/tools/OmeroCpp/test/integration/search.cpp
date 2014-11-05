@@ -1617,7 +1617,7 @@ TEST(SearchTest, DISABLED_testMergedBatches) {
         ASSERT_EQ(expectedDesc, actualDesc); \
     }
 
-TEST(SearchTest, testOrderBy) {
+TEST(SearchTest, DISABLED_testOrderBy) {
 
     SearchFixture f;
     f.login();

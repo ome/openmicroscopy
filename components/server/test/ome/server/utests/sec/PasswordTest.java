@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.server.utests.sec;
@@ -139,6 +139,10 @@ public class PasswordTest extends MockObjectTestCase {
             public Experimenter createUser(String username,
                     String password, boolean checkPassword) {
                 return createdUser.get();
+            }
+            @Override
+            public String lookupLdapAuthExperimenter(Long id) {
+                return currentDn.get();
             }
         };
         mockLdap.expects(atLeastOnce()).method("getSetting").will(
@@ -689,7 +693,6 @@ public class PasswordTest extends MockObjectTestCase {
     }
 
     private void getDn(String value) {
-        mockSql.expects(once()).method("dnForUser").will(returnValue(value));
         currentDn.set(value);
     }
 

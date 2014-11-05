@@ -28,6 +28,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.Point;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -112,12 +113,13 @@ class ChannelSlider
 
 		        slider = new TextualTwoKnobsSlider(0, 100);
 		        
+		        slider.setValues((int)max, (int)min, (int)highestBound, (int)lowestBound,
+                                (int)max, (int)min, (int)s, (int)e);
+		        
 		        slider.layoutComponents(
                                 TextualTwoKnobsSlider.LAYOUT_SLIDER_FIELDS_X_AXIS);
                         slider.setBackground(UIUtilities.BACKGROUND_COLOR);
                         
-                        slider.setValues((int)max, (int)min, (int)highestBound, (int)lowestBound,
-                                (int)max, (int)min, (int)s, (int)e);
 		}
 		else {
 		    double absMin = model.getLowestValue(index);
@@ -132,12 +134,12 @@ class ChannelSlider
 
                     slider = new TextualTwoKnobsSlider(lowestBound, highestBound);
                     
+                    slider.setValues(max, min, highestBound, lowestBound,
+                            max, min, s, e);
+                    
                     slider.layoutComponents(
                             TextualTwoKnobsSlider.LAYOUT_SLIDER_FIELDS_X_AXIS);
                     slider.setBackground(UIUtilities.BACKGROUND_COLOR);
-                    
-                    slider.setValues(max, min, highestBound, lowestBound,
-                            max, min, s, e);
 		}
         
         slider.getSlider().setPaintLabels(false);
@@ -176,6 +178,7 @@ class ChannelSlider
                 GridBagConstraints c = new GridBagConstraints();
                 c.gridx = 0;
                 c.gridy = 0;
+                c.insets = new Insets(1, 2, 1, 2);
                 c.weightx = 0;
                 c.fill = GridBagConstraints.NONE;
                 
@@ -227,13 +230,6 @@ class ChannelSlider
 	 * @return See above.
 	 */
 	int getColumns() { return slider.getColumns(); }
-	
-	/**
-	 * Sets the number of columns.
-	 * 
-	 * @param columns The value to set.
-	 */
-	void setColumns(int columns) { slider.setColumns(columns); }
 	
 	/**
 	 * Returns the index of the channel.

@@ -26,8 +26,6 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -50,13 +48,9 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout;
-
 import org.apache.commons.collections.CollectionUtils;
-import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -227,15 +221,9 @@ class GraphicsPane
             List<ChannelData> channels = model.getChannelData();
             Iterator<ChannelData> i = channels.iterator();
             ChannelSlider slider;
-            int columns = 0;
             while (i.hasNext()) {
                 slider = new ChannelSlider(this, model, controller, i.next());
-                columns = Math.max(columns, slider.getColumns());
                 sliders.add(slider);
-            }
-            Iterator<ChannelSlider> j = sliders.iterator();
-            while (j.hasNext()) {
-                j.next().setColumns(columns);
             }
         }
         previewToolBar = new PreviewToolBar(controller, model);
@@ -279,9 +267,10 @@ class GraphicsPane
         GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.NORTHWEST;
         c.fill = GridBagConstraints.HORIZONTAL;
+        c.insets = new Insets(1, 2, 1, 2);
         c.gridy = 0;
         c.gridx = 0;
-        c.weightx = 0;
+        c.weightx = 1;
         c.weighty = 0;
         if (model.isGeneralIndex()) {
             content.add(previewToolBar, c);
@@ -304,7 +293,7 @@ class GraphicsPane
             c.gridy++;
         }
         
-        c.insets = new Insets(3, 0, 3, 0);
+        c.insets = new Insets(3, 1, 3, 1);
         content.add(controlsBar2, c);
         c.gridy++;
         

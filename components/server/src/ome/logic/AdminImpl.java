@@ -1107,7 +1107,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                 } else if (!e.getEmail().equals(email)) {
                     throw new AuthenticationException(
                             "Email address does not match.");
-                } else if (isDnById(e.getId())) {
+                } else if (passwordUtil.getDnById(e.getId())) {
                     throw new AuthenticationException(
                             "User is authenticated by LDAP server you cannot reset this password.");
                 } else {
@@ -1119,15 +1119,6 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                 }
             }
         });
-    }
-
-    private boolean isDnById(long id) {
-        String dn = passwordUtil.getDnById(id);
-        if (dn != null) {
-            return true;
-        } else {
-            return false;
-        }
     }
 
     private boolean sendEmail(Experimenter e, String newPassword) {

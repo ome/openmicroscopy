@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2007 University of Dundee. All rights reserved.
+ *   Copyright 2007-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -60,6 +60,7 @@ public class PersonContextMapper implements ContextMapper {
         person.setLastName(get("lastName", ctx));
         person.setInstitution(get("institution", ctx));
         person.setEmail(get("email", ctx));
+        person.setLdap(true);
 
         person.putAt(LDAP_DN, ctx.getNameInNamespace());
 

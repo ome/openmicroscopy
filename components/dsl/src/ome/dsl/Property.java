@@ -171,8 +171,6 @@ public abstract class Property { // TODO need to define equality so that two
      */
     private SemanticType actualType;
     
-    private final String profile;
-
     /**
      * The {@link SemanticType} instance which is the target of this property
      * (for collections)
@@ -362,7 +360,7 @@ public abstract class Property { // TODO need to define equality so that two
      * type of the link) and instead to use the
      * name of the link relationship.
      *
-     * @DEV.TODO In later versions, we could always use this value in order to
+     * TODO: In later versions, we could always use this value in order to
      * have everything more consistent and simple.
      */
     public String getFieldName() {
@@ -542,7 +540,7 @@ public abstract class Property { // TODO need to define equality so that two
 
     /**
      * @return the database definition for the property's type, or an empty string
-     * @see ticket:803
+     * @see "ticket:803"
      */
     public String getDef() {
         final String def = DBTYPES.get(type);
@@ -561,7 +559,6 @@ public abstract class Property { // TODO need to define equality so that two
      * VALUES. Subclassees may override these values
      */
     public Property(SemanticType st, Properties attrs) {
-        this.profile = st.profile;
         setSt(st);
         setName(attrs.getProperty("name", null));
         setType(attrs.getProperty("type", null));

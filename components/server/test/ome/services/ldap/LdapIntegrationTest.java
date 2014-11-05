@@ -6,6 +6,7 @@
 package ome.services.ldap;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -18,7 +19,6 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.Session;
 import ome.security.auth.LdapConfig;
 import ome.security.auth.LdapPasswordProvider;
-import ome.security.auth.PasswordProviders;
 import ome.security.auth.PasswordUtil;
 import ome.security.auth.RoleProvider;
 import ome.services.sessions.SessionManager;
@@ -231,22 +231,21 @@ public class LdapIntegrationTest extends LdapTest {
             }
 
             @Override
-            public void setDN(final String experimenterName, final String dn) {
+            public void setDN(final long experimenterID,
+                    final boolean isLdap) {
                 executor.execute(p, new Executor.SimpleWork(this, "setDN") {
                     @Transactional(readOnly = false)
                     public Object doWork(org.hibernate.Session session,
                             ServiceFactory sf) {
-                        Experimenter exp = sf.getAdminService()
-                                .lookupExperimenter(experimenterName);
-                        ldap.setDN(exp.getId(), dn);
+                        ldap.setDN(experimenterID, isLdap);
                         return null;
                     }
                 });
             }
 
             @Override
-            public Map<String, Experimenter> discover() {
-                return (Map<String, Experimenter>) executor.execute(p,
+            public List<Experimenter> discover() {
+                return (List<Experimenter>) executor.execute(p,
                         new Executor.SimpleWork(this, "discover") {
                             @Transactional(readOnly = true)
                             public Object doWork(org.hibernate.Session session,

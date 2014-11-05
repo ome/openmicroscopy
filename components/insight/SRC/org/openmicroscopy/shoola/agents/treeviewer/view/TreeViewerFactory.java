@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.env.data.events.SaveEventResponse;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.util.StringComparator;
 
@@ -208,14 +209,15 @@ public class TreeViewerFactory
 	 * Stores the image to copy the rendering settings from.
 	 * 
 	 * @param image The image to copy the rendering settings from.
+	 * @param settings Copied 'pending' rendering settings
 	 */
-	public static void copyRndSettings(ImageData image)
+	public static void copyRndSettings(ImageData image, RndProxyDef settings)
 	{
 		Iterator v = singleton.viewers.iterator();
 		TreeViewerComponent comp;
 		while (v.hasNext()) {
 			comp = (TreeViewerComponent) v.next();
-			comp.setRndSettings(image);
+			comp.setRndSettings(image, settings);
 		}
 	}
 

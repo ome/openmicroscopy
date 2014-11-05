@@ -340,6 +340,14 @@ class MetadataViewerComponent
 	}
 	
 	/** 
+         * Implemented as specified by the {@link MetadataViewer} interface.
+         * @see MetadataViewer#isRendererLoaded()
+         */
+	public boolean isRendererLoaded() {
+	    return model.getEditor().getRenderer() != null;
+	}
+	
+	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#getUI()
 	 */
@@ -1027,6 +1035,25 @@ class MetadataViewerComponent
 			firePropertyChange(CLOSE_RENDERER_PROPERTY, null, 
 					model.getRefObject());
 		}
+	}
+	
+	/**
+         * Implemented as specified by the {@link MetadataViewer} interface.
+         * @see MetadataViewer#resetRenderingControl()
+         */
+        public void resetRenderingControl()
+        {
+              model.getEditor().loadRenderingControl(
+                                        RenderingControlLoader.RESET);
+        }
+        
+	/**
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#reloadRenderingControl()
+	 */
+	public void reloadRenderingControl()
+	{
+	    model.getEditor().loadRenderingControl();
 	}
 
 	/**

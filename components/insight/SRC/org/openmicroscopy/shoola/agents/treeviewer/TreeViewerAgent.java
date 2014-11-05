@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treemng.TreeViewerAgent
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -265,7 +265,7 @@ public class TreeViewerAgent
      */
     private void handleCopyRndSettings(CopyRndSettings evt)
     {
-    	TreeViewerFactory.copyRndSettings(evt.getImage());
+    	TreeViewerFactory.copyRndSettings(evt.getImage(), evt.getRndDef());
     }
     
     /**

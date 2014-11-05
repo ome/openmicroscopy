@@ -35,7 +35,7 @@ from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_model_ProjectDatasetLinkI import ProjectDatasetLinkI
 from omero_sys_ParametersI import ParametersI
-from omero.rtypes import rstring, unwrap
+from omero.rtypes import rbool, rstring, unwrap
 
 
 class CallContextFixture(object):
@@ -363,6 +363,7 @@ class TestPermissions(lib.ITest):
         new_exp1.omeName = rstring("user1_%s" % uuid)
         new_exp1.firstName = rstring("New")
         new_exp1.lastName = rstring("Test")
+        new_exp1.ldap = rbool(False)
         new_exp1.email = rstring("newtest@emaildomain.com")
 
         uuid = self.uuid()

@@ -64,7 +64,7 @@ public abstract class SemanticType {
 
     public final static String ENUM = "enum";
 
-    public final static Set TYPES = new HashSet();
+    public final static Set<String> TYPES = new HashSet<String>();
     static {
         TYPES.add(ABSTRACT);
         TYPES.add(TYPE);
@@ -74,7 +74,8 @@ public abstract class SemanticType {
         TYPES.add(ENUM);
     }
 
-    public final static Map TYPES2CLASSES = new HashMap();
+    public final static Map<String, Class<?>> TYPES2CLASSES = new HashMap<String, Class<?>>();
+
     static {
         TYPES2CLASSES.put(ABSTRACT, AbstractType.class);
         TYPES2CLASSES.put(TYPE, BaseType.class);
@@ -87,7 +88,7 @@ public abstract class SemanticType {
     /**
      * Database profile, i.e. ${omero.db.profile}.
      *
-     * @see ticket:73
+     * @see "ticket:73"
      */
     public final String profile;
 
@@ -164,7 +165,7 @@ public abstract class SemanticType {
      */
     public static SemanticType makeNew(String profile, String element, Properties attributes)
             throws IllegalArgumentException, IllegalStateException {
-        Class klass = (Class) TYPES2CLASSES.get(element);
+        Class<?> klass = TYPES2CLASSES.get(element);
 
         if (null == klass) {
             throw new IllegalArgumentException(
@@ -188,8 +189,8 @@ public abstract class SemanticType {
     @Override
     public String toString() {
         String result = "\n" + getId();
-        for (Iterator it = getProperties().iterator(); it.hasNext();) {
-            Property element = (Property) it.next();
+        for (Iterator<Property> it = getProperties().iterator(); it.hasNext();) {
+            Property element = it.next();
             result += "\n  " + element.toString();
         }
         return result;
@@ -313,7 +314,7 @@ public abstract class SemanticType {
             if (typeAnnotation.contains("TextType")) {
                 typeAnnotation = "@org.hibernate.annotations.ColumnTransformer(read=\"to_char("+
                 columnName(p) + ")\")";
-            } else if ("java.lang.String".equals(p.getType()) && ! p.getNullable()) {
+            } else if ("java.lang.String".equals(p.getType()) && ! p.getNullable().booleanValue()) {
                 // See ticket:3884
                 typeAnnotation = "@org.hibernate.annotations.ColumnTransformer(write=\"coalesce(?, ' ')\")";
             }
@@ -458,8 +459,6 @@ public abstract class SemanticType {
 
     /**
      * Read-only method which currently filters out {@link EntryField}
-     * 
-     * @return
      */
     public List<Property> getClassProperties() {
         List<Property> rv = new ArrayList<Property>();
@@ -475,8 +474,6 @@ public abstract class SemanticType {
      * Read-only method which returns a set of this class's
      * {@link #getClassProperties()} as well as those of the entire inheritance
      * hierarchy.
-     * 
-     * @return
      */
     public List<Property> getPropertyClosure() {
         List<Property> rv = getClassProperties();
@@ -490,9 +487,9 @@ public abstract class SemanticType {
         List<Property> rv = new ArrayList<Property>();
         for (Property property : getClassProperties()) {
             boolean req = property.getRequired() == null ? false : property
-                    .getRequired();
+                    .getRequired().booleanValue();
             boolean col = property.getOne2Many() == null ? false : property
-                    .getOne2Many();
+                    .getOne2Many().booleanValue();
             if (req && !col) {
                 rv.add(property);
             }
@@ -516,8 +513,8 @@ public abstract class SemanticType {
      * Read-only field
      */
     public String getDetails() {
-        if (!getGlobal()) {
-            if (!getImmutable()) {
+        if (!getGlobal().booleanValue()) {
+            if (!getImmutable().booleanValue()) {
                 return "MutableDetails";
             }
             return "Details";

@@ -263,10 +263,12 @@ implements java.io.Serializable, IObject
         strategy=javax.persistence.GenerationType.SEQUENCE,
         generator="seq_${type.table}") 
     @org.hibernate.search.annotations.DocumentId
+    @Override
     public Long getId() {
         return this.id;
     }
 
+    @Override
     public void setId(Long id) {
         this.id = id;
     }
@@ -282,7 +284,7 @@ implements java.io.Serializable, IObject
 #if(!${type.immutable} && !${type.superclass})
     public final static String VERSION = "${type.id}_version";
 
-    protected Integer version = 0; // TODO?
+    protected Integer version = new Integer(0);
 
    /**
     * This version number is controlled by the database for optimisitic
@@ -291,11 +293,13 @@ implements java.io.Serializable, IObject
     @javax.persistence.Column(name="version") 
     // @javax.persistence.Version 
 //TODO mark off #118 if this succeeds, otherwise, completely remove versions and test updateEvent
+    @Override
     public Integer getVersion() {
         $errorIfUnloaded
         return this.version;
     }
 
+    @Override
     public void setVersion(Integer version) {
         $errorIfUnloaded
         this.version = version;
@@ -347,7 +351,7 @@ implements java.io.Serializable, IObject
 
    /**
     * The details of this object correspond to low-level system
-    * information. Owner, permissions, Details is always guaranteed 
+    * information. Owner, permissions, Details is always guaranteed
     * to be non-null, unless the user actively nulls it.
     *
     * Every entity also contains a Detail reference, which doesn't
@@ -377,13 +381,15 @@ implements java.io.Serializable, IObject
     */
     @javax.persistence.Embedded
     @org.hibernate.annotations.Target(Details.class)
+    @Override
     public ome.model.internal.Details getDetails() {
         $errorIfUnloaded
         return this.details;
     }
 
    /**
-    * Use the {@link Details\#copy(Details)} or {@link Details\#shallowCopy(Details)}
+    * Use the {@link ome.model.internal.Details#copy(ome.model.internal.Details)}
+    * or {@link ome.model.internal.Details#shallowCopy(ome.model.internal.Details)}
     * methods to set the {@link Details} instance instead.
     */
     protected void setDetails(ome.model.internal.Details details) {
@@ -510,7 +516,7 @@ implements java.io.Serializable, IObject
     }
 
     /**
-     * Returns an unmodifiable collection-view 
+     * Returns an unmodifiable collection-view
      */
     public java.util.Collection<${prop.type}> unmodifiable${prop.nameCapped}() {
         $errorIfUnloaded
@@ -519,7 +525,7 @@ implements java.io.Serializable, IObject
         }
         return java.util.Collections.unmodifiableCollection( get${prop.nameCapped}() );
     }
-    
+
     /**
      * takes a CBlock and calls the block once for each ${prop.type} while
      * collecting the results. If <code>block == null</code>, then the
@@ -680,9 +686,9 @@ implements java.io.Serializable, IObject
     }
 
     /**
-     * Sets the ${prop.type} at the given index. Adheres to the {@link List\#set(int ,E))}
-     * contract. To extend the list, use {@link #add${prop.shortType}()}.
-     * @see java.util.List\#set(int, E)
+     * Sets the ${prop.type} at the given index. Adheres to the {@link java.util.List\#set(int, Object)}
+     * contract. To extend the list, use {@link #add${prop.shortType}(${prop.shortType})}.
+     * @see java.util.List\#set(int, Object)
      */
     public ${prop.type} set${prop.shortType}(int index, ${prop.type} element)
     throws IndexOutOfBoundsException {
@@ -727,9 +733,9 @@ implements java.io.Serializable, IObject
     }
 
     /**
-     * Swaps the first element of ${prop.name} with the first instance of the 
-     * given element. If the given element is not in the list, an 
-     * {@link IndexOutBoundException} will be thrown. Returns the swapped 
+     * Swaps the first element of ${prop.name} with the first instance of the
+     * given element. If the given element is not in the list, an
+     * {@link IndexOutOfBoundsException} will be thrown. Returns the swapped
      * element. This method
      * will also throw an {@link ApiUsageException} if the collection is
      * unloaded. See {@link #sizeOf${prop.nameCapped}()} for more information.
@@ -801,8 +807,8 @@ implements java.io.Serializable, IObject
 
     /**
      * provides an iterator over the ${next} values of the ${prop.name}. Like
-     * with most Collection iterators, modificiations to the underlying collection
-     * while iterating will result in an {@link ConcurrentModificationException}.
+     * with most Collection iterators, modifications to the underlying collection
+     * while iterating will result in an {@link java.util.ConcurrentModificationException}.
      * Use {@link #linked${prop.targetName}List()} instead.
      */
      public java.util.Iterator<${prop.target}> linked${prop.targetName}Iterator() {
@@ -814,10 +820,12 @@ implements java.io.Serializable, IObject
         final java.util.Iterator<${LinkType}> it = get${prop.nameCapped}().iterator();
         return new java.util.Iterator<${prop.target}>() {
 
+            @Override
             public boolean hasNext() {
                 return it == null ? false : it.hasNext();
             }
 
+            @Override
             public ${prop.target} next() {
                 if ( it == null ) {
                     throw new java.util.NoSuchElementException( "${prop.name} is null; no elements." );
@@ -826,6 +834,7 @@ implements java.io.Serializable, IObject
                 return link.${other}();
             }
 
+            @Override
             public void remove() {
                 throw new UnsupportedOperationException("Cannot call remove on this iterator.");
             }
@@ -850,11 +859,11 @@ implements java.io.Serializable, IObject
         return result;
     }
 
-    /** 
-     * produces a {@link List}-copy of the underlying collection. Unlike,
-     * {@link #linked${prop.targetName}Iterator()}, while using the returned {@link List},
+    /**
+     * produces a {@link java.util.List}-copy of the underlying collection. Unlike,
+     * {@link #linked${prop.targetName}Iterator()}, while using the returned {@link java.util.List},
      * modifications can be made to the underlying collection without throwing
-     * {@link ConcurrentModificationExceptions}
+     * {@link java.util.ConcurrentModificationException}.
      */
     public java.util.List<${prop.target}> linked${prop.targetName}List() {
         $errorIfUnloaded
@@ -1061,10 +1070,12 @@ implements java.io.Serializable, IObject
 
     @javax.persistence.Transient
     // TODO what does this look like with Validator
+    @Override
     public boolean isValid() {
         return ome.util.Validator.validate(this).isValid();
     }
-  
+
+    @Override
     public ome.util.Validation validate() {
         return ome.util.Validator.validate(this);
     }
@@ -1075,7 +1086,7 @@ implements java.io.Serializable, IObject
 ## http://jboss.org/index.html?module=bb&op=viewtopic&t=83199
 ## http://www.jboss.org/index.html?module=bb&op=viewtopic&p=3950680
 ##
-    public ${type.id} newInstance() 
+    public ${type.id} newInstance()
     {
         return new ${type.id}();
     }
@@ -1086,6 +1097,7 @@ implements java.io.Serializable, IObject
 #end
 
     @SuppressWarnings("unchecked")
+    @Override
     public boolean acceptFilter(ome.util.Filter __filter){
         try {
 #if(!$type.superclass)
@@ -1130,13 +1142,14 @@ implements java.io.Serializable, IObject
         }
         return sb.toString();
     }
-  
+
     // FIELD-FIELDS
-  
+
+    @Override
     public java.util.Set<String> fields() {
         return ${type.id}.FIELDS;
     }
-  
+
 #foreach($prop in $type.classProperties)
 #if($prop.one2Many && $prop.isLink && !$prop.actualTarget.global)
     public final static String ${prop.name.toUpperCase()}COUNTPEROWNER = "${type.id}_${prop.name}CountPerOwner";
@@ -1164,15 +1177,15 @@ implements java.io.Serializable, IObject
 #end
        FIELDS = java.util.Collections.unmodifiableSet( raw );
     }
-    
-    
+
     // Dynamic Getter/Setter
 #if(!$type.superclass)
     // TODO is this searched for proxies?
     @javax.persistence.Transient
-    protected java.util.Map<String, Object> _dynamicFields; 
+    protected java.util.Map<String, Object> _dynamicFields;
 
 #end
+    @Override
     public Object retrieve(String field) {
         if (field == null) {
             return null;
@@ -1200,11 +1213,12 @@ implements java.io.Serializable, IObject
                 return _dynamicFields.get(field);
             }
             return null;
-#end            
+#end
         }
     }
-    
+
     @SuppressWarnings("unchecked")
+    @Override
     public void putAt(String field, Object value)
     {
         if (field == null) {
@@ -1246,6 +1260,7 @@ implements java.io.Serializable, IObject
     protected boolean _loaded = true;
 
     @javax.persistence.Transient
+    @Override
     public boolean isLoaded() {
         return _loaded;
     }
@@ -1256,6 +1271,7 @@ implements java.io.Serializable, IObject
 
 #end
 
+    @Override
     public void unload() {
         _loaded = false;
 #if(!${type.immutable} && !${type.superclass})
@@ -1277,6 +1293,7 @@ implements java.io.Serializable, IObject
     private transient ome.model.internal.GraphHolder _graphHolder;
 
     @javax.persistence.Transient
+    @Override
     public final ome.model.internal.GraphHolder getGraphHolder()
     {
         if (_graphHolder == null)
@@ -1329,7 +1346,7 @@ implements java.io.Serializable, IObject
     public $child child() {
         return ($child) getChild();
     }
-    
+
 #end
 ##
 #######################################################
@@ -1347,15 +1364,18 @@ implements java.io.Serializable, IObject
             super(contexts);
         }
 
+        @Override
         public ome.model.internal.Details newInstance() {
             return new Details(contexts);
         }
 
+        @Override
         @javax.persistence.Embedded
         public ome.model.internal.Permissions getPermissions() {
             return super.getPermissions();
         }
 
+        @Override
         @javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY, cascade = {${cascadeEjb}})
         @org.hibernate.annotations.Cascade({${cascadeHib}})
         @javax.persistence.JoinColumn(name = "external_id", nullable = true, unique = true, insertable = true, updatable = false)

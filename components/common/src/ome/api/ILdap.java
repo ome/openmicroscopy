@@ -8,7 +8,6 @@
 package ome.api;
 
 import java.util.List;
-import java.util.Map;
 
 import ome.annotations.NotNull;
 import ome.model.meta.Experimenter;
@@ -137,18 +136,18 @@ public interface ILdap extends ServiceInterface {
     String username);
 
     /**
-     * Searches all {@link ome.model.meta.Experimenter} in LDAP for objectClass =
-     * person
+     * Enables or disables LDAP login for the specified
+     * {@link ome.model.meta.Experimenter} ID by setting the value of the
+     * <code>ldap</code> property.
      *
-     * @param omeName
-     *            Name of the Experimenter
+     * @param experimenterID
+     *            ID of the Experimenter.
+     * @param isLdap
+     *            true if {@link ome.model.meta.Experimenter} has an LDAP
+     *            account, false otherwise.
      * @return an Experimenter. Never null.
-     * @throws ome.conditions.ApiUsageException
-     *             if omeName does not exist.
      */
-    void setDN(@NotNull
-    Long experimenterID, @NotNull
-    String dn);
+    void setDN(long experimenterID, boolean isLdap);
 
     /**
      * Gets config value from properties.
@@ -166,11 +165,11 @@ public interface ILdap extends ServiceInterface {
     Experimenter createUser(@NotNull String username);
 
     /**
-     * Discovers DNs for {@link ome.model.meta.Experimenter}s who are present in
-     * the remote LDAP server but their DN in the OMERO DB is missing or no
-     * longer matches.
+     * Discovers and lists {@link ome.model.meta.Experimenter}s who are present
+     * in the remote LDAP server and in the local DB but have the
+     * <code>ldap</code> property set to <code>false</code>.
      *
-     * @return list of DN-to-Experimenter maps.
+     * @return list of Experimenters.
      */
-     Map<String, Experimenter> discover();
+     List<Experimenter> discover();
 }
