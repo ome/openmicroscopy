@@ -21,6 +21,9 @@ If no query is given, then a shell is opened which will run any entered query
 with the current parameters.
 """
 
+BLACKLISTED_KEYS = ["_id", "_loaded"]
+WHITELISTED_VALUES = [0, False]
+
 
 class HqlControl(BaseControl):
 
@@ -200,17 +203,30 @@ To quit, enter 'q' or just enter.
 
     def filter(self, values):
         values = dict(values)
-        for x in ("_id", "_loaded"):
-            if x in values:
-                values.pop(x)
+
+        # Filter out blacklisted items
+        blacklisted_keys = [x for x in values if x in BLACKLISTED_KEYS]
+        for key in blacklisted_keys:
+            values.pop(key)
+
+        # Filter out _Loaded keys
+        loaded_keys = [x for x in values if x.startswith("_")
+                       and x.endswith("Loaded")]
+        for key in loaded_keys:
+            values.pop(key)
+
+        # Filter out details
         if "owner=None;group=None" == values.get("_details"):
             values.pop("_details")
+
+        # Filter out multi-valued and empty-valued items
         multi_valued = sorted([k for k in values
                                if isinstance(values[k], list)])
-        false_valued = sorted([k for k in values
-                               if not values[k] and values[k] is not 0])
+        empty_valued = sorted([
+            k for k in values if not values[k] and values[k] not in
+            WHITELISTED_VALUES])
 
-        for x in multi_valued + false_valued:
+        for x in multi_valued + empty_valued:
             if x in values:
                 values.pop(x)
 
