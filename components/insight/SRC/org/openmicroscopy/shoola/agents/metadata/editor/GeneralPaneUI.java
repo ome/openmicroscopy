@@ -99,16 +99,16 @@ class GeneralPaneUI
 	
 	/** Component hosting the tags, rating, URLs and attachments. */
 	private AnnotationDataUI			annotationUI;
-	
-	/** The component hosting the {@link #browser}. */
-	private JXTaskPane 					browserTaskPane;
 
+	/** The component hosting the {@link #browser}. */
+        private JXTaskPane                                      browserTaskPane;
+        
 	/** The component hosting the {@link #propertiesUI}. */
 	private JXTaskPane 					propertiesTaskPane;
 	
 	/** The component hosting the annotation component. */
 	private JXTaskPane 					annotationTaskPane;
-	
+        
 	/** Collection of annotations UI components. */
 	private List<AnnotationUI>			components;
 	
@@ -145,11 +145,11 @@ class GeneralPaneUI
 			VerticalLayout vl = (VerticalLayout) container.getLayout();
 			vl.setGap(0);
 		}
-		if (model.getBrowser() != null) {
-			browserTaskPane = EditorUtil.createTaskPane(Browser.TITLE);
-			browserTaskPane.add(model.getBrowser().getUI());
-			browserTaskPane.addPropertyChangeListener(controller);
-		}
+		if (model.getBrowser() != null && model.getRefObject() instanceof FileAnnotationData) {
+                    browserTaskPane = EditorUtil.createTaskPane("Attached to");
+                    browserTaskPane.add(model.getBrowser().getUI());
+                    browserTaskPane.addPropertyChangeListener(controller);
+                }
 		
 		propertiesUI = new PropertiesUI(model, controller);
 		textualAnnotationsUI = new TextualAnnotationsUI(model, controller);
@@ -218,65 +218,46 @@ class GeneralPaneUI
 	/** Lays out the UI when data are loaded. */
 	void layoutUI()
 	{
-		if (!init) {
-			buildGUI();
-			init = true;
-		}
-		propertiesUI.buildUI();
-		annotationUI.buildUI();
-		textualAnnotationsUI.buildUI();
-		propertiesTaskPane.setTitle(propertiesUI.getText()+DETAILS);
+	    if (!init) {
+                buildGUI();
+                init = true;
+        }
+        propertiesUI.buildUI();
+        annotationUI.buildUI();
+        textualAnnotationsUI.buildUI();
+        propertiesTaskPane.setTitle(propertiesUI.getText()+DETAILS);
 
-	
-		//TableLayout layout = (TableLayout) content.getLayout();
-		
-		double h = 0;
-		String s = Browser.TITLE;
-		boolean multi = model.isMultiSelection();
-		Object refObject = model.getRefObject();
-		if (refObject instanceof TagAnnotationData) {
-			TagAnnotationData tag = (TagAnnotationData) refObject;
-			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(
-					tag.getNameSpace())) {
-				browserTaskPane.setCollapsed(true);
-			} else {
-				if (!multi) {
-					h = 1;
-				}
-			}
-		} else if (refObject instanceof FileAnnotationData) {
-			if (!multi) {
-				h = 1;
-				s = "Attached to...";
-			}
-		} else if (refObject instanceof DatasetData) {
-			if (!multi) {
-				h = 1;
-			}
-		} else if (refObject instanceof ImageData) {
-			if (!multi) {
-				h = 1;
-				propertiesUI.onChannelDataLoading();
-				controller.loadChannelData();
-			}
-		} else if (refObject instanceof WellSampleData) {
-			if (!multi) controller.loadChannelData();
-		} else if ((refObject instanceof ProjectData) || 
-				(refObject instanceof ScreenData) ||
-				(refObject instanceof WellSampleData)) {
-			browserTaskPane.setCollapsed(true);
-		}
-		browserTaskPane.setTitle(s);
-		container.remove(browserTaskPane);
-		container.remove(propertiesTaskPane);
-		if (!multi) {
-			container.add(propertiesTaskPane, 0); //first index
-		}
-		if (h > 0) {
-			container.add(browserTaskPane);
-			if (!browserTaskPane.isCollapsed())
-				loadParents(true);
-		}
+        boolean multi = model.isMultiSelection();
+        Object refObject = model.getRefObject();
+        
+        if (refObject instanceof ImageData && !multi) {
+                propertiesUI.onChannelDataLoading();
+                controller.loadChannelData();
+        } 
+        
+        if (refObject instanceof WellSampleData && !multi) {
+                controller.loadChannelData();
+        } 
+        
+        if(browserTaskPane!=null)
+            container.remove(browserTaskPane);
+        
+        container.remove(propertiesTaskPane);
+        if (!multi) {
+                container.add(propertiesTaskPane, 0); //first index
+                
+                if (refObject instanceof FileAnnotationData) {
+                    if(browserTaskPane == null) {
+                        browserTaskPane = EditorUtil.createTaskPane("Attached to");
+                        browserTaskPane.add(model.getBrowser().getUI());
+                        browserTaskPane.addPropertyChangeListener(controller);
+                    }
+                    container.add(browserTaskPane);
+                    if (!browserTaskPane.isCollapsed())
+                            loadParents(true);
+            }
+        }
+        
 	}
 	
 	/**
@@ -419,9 +400,9 @@ class GeneralPaneUI
 	 */
 	void handleTaskPaneCollapsed(JXTaskPane source)
 	{
-		if (source == null) return;
-		if  (source.equals(browserTaskPane)) 
-			loadParents(!browserTaskPane.isCollapsed());
+	    if (source == null) return;
+            if  (source.equals(browserTaskPane)) 
+                    loadParents(!browserTaskPane.isCollapsed());
 	}
 
 	/**

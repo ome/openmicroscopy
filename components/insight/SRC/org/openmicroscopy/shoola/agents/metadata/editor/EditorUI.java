@@ -40,11 +40,16 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
+import javax.swing.plaf.PanelUI;
+
+
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
@@ -60,6 +65,8 @@ import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
+
 import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.DataObject;
@@ -1067,6 +1074,13 @@ class EditorUI
 	                    return;
 	            }
 	    }
+	}
+	
+	/**
+	 * Shows the location dialog
+	 */
+	void displayLocation() {
+	    toolBar.displayLocation();
 	}
 	
 	/**
