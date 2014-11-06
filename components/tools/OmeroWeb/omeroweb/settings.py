@@ -214,6 +214,7 @@ def leave_none_unset_int(s):
 
 CUSTOM_HOST = CUSTOM_SETTINGS.get("Ice.Default.Host", "localhost")
 CUSTOM_SETTINGS_MAPPINGS = {
+    "omero.qa.feedback" : ["FEEDBACK_URL", "http://qa.openmicroscopy.org.uk", str],
     "omero.web.login_logo": ["LOGIN_LOGO", None, leave_none_unset],
     "omero.web.apps": ["ADDITIONAL_APPS", '[]', json.loads],
     "omero.web.public.enabled": ["PUBLIC_ENABLED", "false", parse_boolean],
@@ -276,7 +277,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
             
     # E.g. Center plugin: ["Channel overlay", "webtest/webclient_plugins/center_plugin.overlay.js.html", "channel_overlay_panel"]
     "omero.web.ui.center_plugins": ["CENTER_PLUGINS", '['\
-            #'["Split View", "webclient/data/includes/center_plugin.splitview.js.html", "split_view_panel"],'\
+            #'["Split View", "webtest/webclient_plugins/center_plugin.splitview.js.html", "split_view_panel"],'\
             ']'
             , json.loads],
 
@@ -467,7 +468,6 @@ INSTALLED_APPS = (
     'omeroweb.webadmin',
     'omeroweb.webclient',
     'omeroweb.webgateway',
-    'omeroweb.webtest',
     'omeroweb.webredirect',
     'omeroweb.webstart',
     
@@ -497,12 +497,13 @@ for app in ADDITIONAL_APPS:  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
 
 logger.debug('INSTALLED_APPS=%s' % [INSTALLED_APPS])
 
-
 CSRF_FAILURE_VIEW = "omeroweb.feedback.views.csrf_failure"
 
-# FEEDBACK_URL: Used in feedback.sendfeedback.SendFeedback class in order to submit 
-# error or comment messages to https://qa.openmicroscopy.org.
-FEEDBACK_URL = "http://qa.openmicroscopy.org.uk"
+# # FEEDBACK - DO NOT MODIFY!
+# FEEDBACK_URL: Is now configurable for testing purpuse only. Used in
+# feedback.sendfeedback.SendFeedback class in order to submit errors or
+# comment messages to http://qa.openmicroscopy.org.uk.
+# FEEDBACK_APP: 6 = OMERO.web
 FEEDBACK_APP = 6
 
 # IGNORABLE_404_STARTS: 

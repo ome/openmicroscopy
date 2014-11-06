@@ -176,8 +176,22 @@ public class PasswordUtil {
         return sql.getPasswordHash(id);
     }
 
+    /**
+     * Get the user's ID
+     * @param name the user's name
+     * @return their ID, or {@code null} if they cannot be found
+     */
     public Long userId(String name) {
         return sql.getUserId(name);
+    }
+
+    /**
+     * Get the user's name
+     * @param id the user's ID
+     * @return their name, or {@code null} if they cannot be found
+     */
+    public String userName(long id) {
+        return sql.getUsername(id);
     }
 
     public List<String> userGroups(String name) {
