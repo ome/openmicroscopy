@@ -24,23 +24,27 @@
 
 """
 
-import Ice
 import sys
 import time
 import weakref
 import logging
 import subprocess
-import Glacier2
 
+import Ice
+import Glacier2
 import omero
 import omero.gateway
-
-from omero.util.temp_files import create_path
-from omero.rtypes import rbool, rstring, rtime, rint, unwrap
-from path import path
-
-from omero.cmd import DoAll, State, ERR, OK
+from omero.cmd import DoAll, State, ERR, OK, Chgrp, Delete
 from omero.callbacks import CmdCallbackI
+from omero.model import DatasetI, DatasetImageLinkI, ImageI, ProjectI
+from omero.model import DimensionOrderI, PixelsI, PixelsTypeI
+from omero.model import Experimenter, ExperimenterI
+from omero.model import ExperimenterGroup, ExperimenterGroupI
+from omero.model import ProjectDatasetLinkI
+from omero.model import PermissionsI
+from omero.rtypes import rbool, rstring, rtime, rint, unwrap
+from omero.util.temp_files import create_path
+from path import path
 
 
 class Clients(object):
@@ -138,10 +142,10 @@ class ITest(object):
     def new_group(self, experimenters=None, perms=None):
         admin = self.root.sf.getAdminService()
         gname = self.uuid()
-        group = omero.model.ExperimenterGroupI()
+        group = ExperimenterGroupI()
         group.name = rstring(gname)
         if perms:
-            group.details.permissions = omero.model.PermissionsI(perms)
+            group.details.permissions = PermissionsI(perms)
         gid = admin.createGroup(group)
         group = admin.getGroup(gid)
         self.add_experimenters(group, experimenters)
@@ -173,11 +177,10 @@ class ITest(object):
         rv = client.getStatefulServices()
         for prx in rv:
             prx.close()
-        client.sf.setSecurityContext(
-            omero.model.ExperimenterGroupI(gid, False))
+        client.sf.setSecurityContext(ExperimenterGroupI(gid, False))
 
     def new_image(self, name=""):
-        img = omero.model.ImageI()
+        img = ImageI()
         img.name = rstring(name)
         img.acquisitionDate = rtime(0)
         return img
@@ -295,7 +298,7 @@ class ITest(object):
         update = client.sf.getUpdateService()
         dsets = []
         for i in range(count):
-            ds = omero.model.DatasetI()
+            ds = DatasetI()
             suffix = " [" + str(i + 1) + "]"
             ds.name = rstring(baseName + suffix)
             dsets.append(ds)
@@ -306,7 +309,7 @@ class ITest(object):
         """
         Creates a test image of the required dimensions, where each pixel
         value is set to the value of x+y.
-        Returns the image (omero.model.ImageI)
+        Returns the image (ImageI)
         """
         from numpy import fromfunction, int16
         from omero.util import script_utils
@@ -423,7 +426,7 @@ class ITest(object):
         callback = omero.callbacks.CmdCallbackI(client, handle)
         callback.loop(loops, ms)  # throws on timeout
         rsp = callback.getResponse()
-        is_ok = isinstance(rsp, omero.cmd.OK)
+        is_ok = isinstance(rsp, OK)
         assert passes == is_ok, str(rsp)
         return callback
 
@@ -448,7 +451,7 @@ class ITest(object):
             g, group = self.group_and_name(group)
 
         # Create user
-        e = omero.model.ExperimenterI()
+        e = ExperimenterI()
         e.omeName = rstring(name)
         e.firstName = rstring(name)
         e.lastName = rstring(name)
@@ -461,8 +464,7 @@ class ITest(object):
         if admin:
             adminService.setGroupOwner(g, e)
         if system:
-            adminService.addGroups(e,
-                                   [omero.model.ExperimenterGroupI(0, False)])
+            adminService.addGroups(e, [ExperimenterGroupI(0, False)])
 
         return adminService.getExperimenter(uid)
 
@@ -516,7 +518,7 @@ class ITest(object):
     def group_and_name(self, group):
         group = unwrap(group)
         admin = self.root.sf.getAdminService()
-        if isinstance(group, omero.model.ExperimenterGroup):
+        if isinstance(group, ExperimenterGroup):
             if group.isLoaded():
                 name = group.name.val
                 group = admin.lookupGroup(name)
@@ -526,7 +528,7 @@ class ITest(object):
         elif isinstance(group, (str, unicode)):
             name = group
             group = admin.lookupGroup(name)
-        elif isinstance(group, omero.model.Experimenter):
+        elif isinstance(group, Experimenter):
             assert False,\
                 "group is a user! Try adding group= to your method invocation"
         else:
@@ -542,7 +544,7 @@ class ITest(object):
             ec = admin.getEventContext()
             name = ec.userName
             user = admin.lookupExperimenter(name)
-        elif isinstance(user, omero.model.Experimenter):
+        elif isinstance(user, Experimenter):
             if user.isLoaded():
                 name = user.omeName.val
                 user = admin.lookupExperimenter(name)
@@ -552,7 +554,7 @@ class ITest(object):
         elif isinstance(user, (str, unicode)):
             name = user
             user = admin.lookupExperimenter(name)
-        elif isinstance(user, omero.model.ExperimenterGroup):
+        elif isinstance(user, ExperimenterGroup):
             assert False,\
                 "user is a group! Try adding user= to your method invocation"
         else:
@@ -600,16 +602,16 @@ class ITest(object):
         No data is written.
         """
         image = self.new_image()
-        pixels = omero.model.PixelsI()
+        pixels = PixelsI()
         pixels.sizeX = rint(x)
         pixels.sizeY = rint(y)
         pixels.sizeZ = rint(z)
         pixels.sizeC = rint(c)
         pixels.sizeT = rint(t)
         pixels.sha1 = rstring("")
-        pixels.pixelsType = omero.model.PixelsTypeI()
+        pixels.pixelsType = PixelsTypeI()
         pixels.pixelsType.value = rstring("int8")
-        pixels.dimensionOrder = omero.model.DimensionOrderI()
+        pixels.dimensionOrder = DimensionOrderI()
         pixels.dimensionOrder.value = rstring("XYZCT")
         image.addPixels(pixels)
 
