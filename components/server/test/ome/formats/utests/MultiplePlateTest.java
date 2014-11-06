@@ -13,7 +13,14 @@ import java.util.Map;
 
 import ome.util.LSID;
 import ome.formats.OMEROMetadataStore;
+import ome.model.acquisition.Dichroic;
+import ome.model.acquisition.Filter;
+import ome.model.acquisition.Instrument;
+import ome.model.acquisition.LightPath;
+import ome.model.core.Channel;
 import ome.model.core.Image;
+import ome.model.core.LogicalChannel;
+import ome.model.core.Pixels;
 import ome.model.screen.Plate;
 import ome.model.screen.Well;
 import ome.model.screen.WellSample;
@@ -28,6 +35,38 @@ public class MultiplePlateTest extends TestCase
     {
         store = new OMEROMetadataStore();
         Map<String, Integer> indexes;
+        
+        Instrument instrument = new Instrument();
+        indexes =  new LinkedHashMap<String, Integer>();
+        indexes.put("instrumentIndex", 0);
+        store.updateObject("Instrument:0", instrument, indexes);
+
+        
+        for (int d = 0; d < 2; d++) {
+            Dichroic dichroic = new Dichroic();
+            dichroic.setModel("Dichroic:" + d);
+            indexes =  new LinkedHashMap<String, Integer>();
+            indexes.put("instrumentIndex", 0);
+            indexes.put("dichroicIndex", 0);
+            store.updateObject(
+                    String.format("Dichroic:0:%d", d), dichroic, indexes);
+        }
+
+        for (int f = 0; f < 8; f++) {
+            Filter filter = new Filter();
+            if (f % 2 == 0) {
+                filter.setModel("emFilter:" + f);
+            } else {
+                filter.setModel("exFilter" + f);
+            }
+            indexes =  new LinkedHashMap<String, Integer>();
+            indexes.put("instrumentIndex", 0);
+            indexes.put("filterIndex", f);
+            store.updateObject(
+                    String.format("Filter:%d:%d", 0, f),
+                    filter, indexes
+            );
+        }
 
         // We are using separate loops for the below metadata population to
         // better mimic exactly the order that OMERO.importer sends us data.
@@ -37,6 +76,51 @@ public class MultiplePlateTest extends TestCase
             indexes = new LinkedHashMap<String, Integer>();
             indexes.put("imageIndex", i);
             store.updateObject("Image:" + i, image, indexes);
+        }
+        // Populate Pixels
+        for (int p = 0; p < 9; p++) {
+            Pixels pixels = new Pixels();
+            indexes = new LinkedHashMap<String, Integer>();
+            indexes.put("imageIndex", p);
+            store.updateObject(
+                    String.format("Pixels:%d", p),
+                    pixels, indexes
+            );
+        }
+        // Populate Channels
+        for (int i = 0; i < 9; i++) {
+            for (int c = 0; c < 2; c++) {
+                Channel channel = new Channel();
+                channel.setVersion(c);
+                LogicalChannel logicalChannel = new LogicalChannel();
+
+                indexes = new LinkedHashMap<String, Integer>();
+                indexes.put("imageIndex", i);
+                indexes.put("channelIndex", c);
+                store.updateObject(
+                        String.format("Channel:%d:%d", i, c),
+                        channel, indexes
+                );
+
+                store.updateObject(
+                        String.format("LogicalChannel:%d:%d", i, c),
+                        logicalChannel,
+                        indexes
+                );
+            }
+        }
+        // Populate Light Path
+        for (int i = 0; i < 9; i++) {
+            for (int c = 0; c < 2; c++) {
+                LightPath lightPath = new LightPath();
+                indexes =  new LinkedHashMap<String, Integer>();
+                indexes.put("imageIndex", i);
+                indexes.put("channelIndex", c);
+                store.updateObject(
+                        String.format("LightPath:%d:%d", i, c),
+                        lightPath, indexes
+                );
+            }
         }
 
         for (int i = 0; i < 3; i++)
@@ -83,11 +167,47 @@ public class MultiplePlateTest extends TestCase
                         new String[] { "Image:" + ((i * 3) + j) });
             }
         }
+
+        for (int i = 0; i < 9; i++) {
+            referenceCache.put(
+                    String.format("Image:%d", i),
+                    new String [] {"Instrument:0"});
+
+            referenceCache.put(
+                    String.format("LightPath:%d:%d", i, 0),
+                    new String [] {
+                        "Filter:0:0:OMERO_EMISSION_FILTER",
+                        "Filter:0:1:OMERO_EXCITATION_FILTER",
+                        "Filter:0:2:OMERO_EMISSION_FILTER",
+                        "Filter:0:3:OMERO_EXCITATION_FILTER",
+                        "Dichroic:0:0",
+                    });
+            referenceCache.put(
+                    String.format("LightPath:%d:%d", i, 1),
+                    new String [] {
+                        "Filter:0:5:OMERO_EXCITATION_FILTER",
+                        "Filter:0:4:OMERO_EMISSION_FILTER",
+                        "Filter:0:7:OMERO_EXCITATION_FILTER",
+                        "Filter:0:6:OMERO_EMISSION_FILTER",
+                        "Dichroic:0:1"
+                    });
+        }
+
         store.updateReferences(referenceCache);
     }
 
+    /**
+     * Tests Objects and object References created in setUp();
+     * Checks that object exists and are correctly linked.
+     */
     public void testMetadata()
     {
+        Instrument instrument = (Instrument) store.getObjectByLSID(
+                new LSID("Instrument:0"));
+        assertNotNull(instrument);
+        assertEquals(8, instrument.sizeOfFilter());
+        assertEquals(2, instrument.sizeOfDichroic());
+
         for (int i = 0; i < 3; i++)
         {
             Plate plate = (Plate) store.getObjectByLSID(new LSID("Plate:" + i));
@@ -102,50 +222,53 @@ public class MultiplePlateTest extends TestCase
                 assertEquals(1, well.sizeOfWellSamples());
                 WellSample wellSample = well.iterateWellSamples().next();
                 assertNotNull(wellSample);
-                assertNotNull(wellSample.getImage());
+
+                Image image = wellSample.getImage();
+                assertNotNull(image);
+                Instrument imageInstrument = image.getInstrument();
+                assertNotNull(imageInstrument);
+                assertEquals(instrument, imageInstrument);
+                Pixels pixels = image.getPrimaryPixels();
+                assertNotNull(pixels);
+                assertEquals(2, pixels.sizeOfChannels());
+                for (Channel channel : pixels.<Channel>collectChannels(null)) {
+                    assertChannel(channel);
+                }
             }
         }
     }
+    
+    /**
+     * Checks that channel is linked to LogicalChannel and LightPath.
+     * Checks that LightPath is linked to correct Filters and Dichroic.
+     * @param channel Channel object.
+     */
+    public void assertChannel(Channel channel)
+    {
+        LogicalChannel logicalChannel = channel.getLogicalChannel();
+        assertNotNull(logicalChannel);
+        LightPath lightPath = logicalChannel.getLightPath();
+        assertNotNull(lightPath);
+        assertEquals(2, lightPath.sizeOfEmissionFilterLink());
+        assertEquals(2, lightPath.sizeOfExcitationFilterLink());
 
-    /*
-	public void testAddDetectorSettingsDetectorReference()
-	{
-	    Map<String, String[]> referenceCache = new HashMap<String, String[]>();
-	    referenceCache.put("DetectorSettings:0", new String[] { "Detector:0" });
-	    store.updateReferences(referenceCache);
-	    DetectorSettings detectorSettings = (DetectorSettings)
-	    	store.getObjectByLSID(new LSID("DetectorSettings:0"));
-	    assertNotNull(detectorSettings.getDetector());
-	}
-	
-	public void testAddObjectiveSettingsObjectiveReference()
-	{
-	    Map<String, String[]> referenceCache = new HashMap<String, String[]>();
-	    referenceCache.put("ObjectiveSettings:0",
-	    		           new String[] { "Objective:0" });
-	    store.updateReferences(referenceCache);
-	    ObjectiveSettings objectiveSettings = (ObjectiveSettings)
-	    	store.getObjectByLSID(new LSID("ObjectiveSettings:0"));
-	    assertNotNull(objectiveSettings.getObjective());
-	}
-	
-	public void testAddDetectorAndObjectiveSettingsReferences()
-	{
-	    Map<String, String[]> referenceCache = new HashMap<String, String[]>();
-	    
-	    referenceCache.put("DetectorSettings:0", new String[] { "Detector:0"});
-	    store.updateReferences(referenceCache);
-	    DetectorSettings detectorSettings = (DetectorSettings)
-	    	store.getObjectByLSID(new LSID("DetectorSettings:0"));
-	    
-	    referenceCache.put("ObjectiveSettings:0",
-	    		           new String[] { "Objective:0"});
-	    store.updateReferences(referenceCache);
-	    ObjectiveSettings objectiveSettings = (ObjectiveSettings)
-	    	store.getObjectByLSID(new LSID("ObjectiveSettings:0"));
-	    
-	    assertNotNull(objectiveSettings.getObjective());
-	    assertNotNull(detectorSettings.getDetector());
-	}
-	*/
+        for (Filter filter : lightPath.linkedEmissionFilterList()) {
+            String model = filter.getModel();
+            assertNotNull(model);
+            assertTrue(model.startsWith("emFilter"));
+        }
+
+        for (Filter filter : lightPath.linkedExcitationFilterList()) {
+            String model = filter.getModel();
+            assertNotNull(model);
+            assertTrue(model.startsWith("exFilter"));
+        }
+
+        Dichroic dichroic = lightPath.getDichroic();
+        assertNotNull(dichroic);
+        assertEquals(
+                "Dichroic:" + channel.getVersion(),
+                dichroic.getModel()
+            );
+    }
 }
