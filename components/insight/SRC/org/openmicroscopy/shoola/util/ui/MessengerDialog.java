@@ -422,6 +422,7 @@ public class MessengerDialog
         JScrollPane areaScrollPane = new JScrollPane(commentArea);
         areaScrollPane.setVerticalScrollBarPolicy(
         		JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        commentArea.setPreferredSize(new Dimension(300,100));
         JLabel label = new JLabel(comment);
         label.setOpaque(false);
         label.setDisplayedMnemonic(mnemonic);
@@ -819,4 +820,9 @@ public class MessengerDialog
 	 */
 	public void changedUpdate(DocumentEvent e) {}
 	
+	@Override
+	public void setVisible(boolean b) {
+		super.setVisible(b);
+		pack();
+	}
 }
