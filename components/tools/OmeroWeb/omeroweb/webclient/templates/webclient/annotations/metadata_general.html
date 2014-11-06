@@ -156,6 +156,7 @@
                         $('#comments_container').prepend( $comment ).show();
                         var textArea = $('#add_comment_form textarea');
                         textArea.val('');
+                        OME.filterAnnotationsAddedBy();
                     },
                 });
 
@@ -236,6 +237,7 @@
                         var $tag = $(data.trim());
                         $("#tags_container").empty().append($tag).hide_if_empty();
                         $(".tooltip", $tag).tooltip_init();
+                        OME.filterAnnotationsAddedBy();
                     }
                 });
 
@@ -256,6 +258,7 @@
                         var $fileanns = $(data)
                         $("#fileanns_container").prepend( $fileanns ).show();
                         $(".tooltip", $fileanns).tooltip_init();
+                        OME.filterAnnotationsAddedBy();
                     },
                     error: function(data){
                         $("#fileann_spinner").hide();
@@ -344,42 +347,7 @@
 
                 // Filtering annotations added by 'me' or 'others' or 'all'
                 $("#annotationFilter").change(function(){
-                    var $this = $(this),
-                        val = $this.val();
-                        userId = "{{ ome.user.id }}";
-
-                    // select made smaller if only 'Show all' text
-                    if (val === "all") {
-                        $this.css('width', '80px');
-                    } else {
-                        $this.css('width', '180px');
-                    }
-
-                    $('.tag_annotation_wrapper, .file_ann_wrapper, .ann_comment_wrapper, #custom_annotations tr')
-                            .each(function() {
-                        var $ann = $(this),
-                            addby = $ann.attr('data-added-by').split(",");
-                        var show = false;
-                        switch (val) {
-                            case "me":
-                                show = ($.inArray(userId, addby) > -1)
-                                break;
-                            case "others":
-                                for (var i=0; i<addby.length; i++) {
-                                    if (addby[i] !== userId) {
-                                        show = true;
-                                    }
-                                }
-                                break;
-                            default:    // 'all'
-                                show = true;
-                        }
-                        if (show) {
-                            $ann.show();
-                        } else {
-                            $ann.hide();
-                        }
-                    });
+                    OME.filterAnnotationsAddedBy();
                 });
 
                 // Channel name editing
@@ -802,19 +770,20 @@
         
     <!-- ANNOTATIONS -->
     <!--<h1>{% trans "Annotations" %}</h1>-->
-            
-            <h2>
-                Annotations
+            <div>
+                <h2 style="float: left">
+                    Annotations
+                </h2>
 
-                <select id="annotationFilter" title="Filter by user" style="float: right; width:80px">
+                <select id="annotationFilter" title="Filter by user" data-userId="{{ ome.user.id }}"
+                        style="float: right; width:80px">
                     <option value="all">Show all</option>
                     <option value="me">Show added by me</option>
                     <option value="others">Show added by others</option>
                 </select>
-
-            </h2>
-
-            <hr/>
+            </div>
+            <div style="clear:both"></div>
+            <hr style="margin-top:0" />
 
             <div class="annotations_section">
 

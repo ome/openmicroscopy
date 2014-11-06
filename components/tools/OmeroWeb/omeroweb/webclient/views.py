@@ -1331,7 +1331,7 @@ def annotate_comment(request, conn=None, **kwargs):
             else:
                 manager = BaseContainer(conn)
                 textAnn = manager.createCommentAnnotations(content, oids, well_index=index)
-            context = {'tann': textAnn, 'template':"webclient/annotations/comment.html"}
+            context = {'tann': textAnn, 'added_by':conn.getUserId(), 'template':"webclient/annotations/comment.html"}
             return context
     else:
         return HttpResponse(str(form_multi.errors))      # TODO: handle invalid form error

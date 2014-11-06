@@ -315,6 +315,47 @@ OME.deleteItem = function(event, domClass, url) {
     return false;
 };
 
+// Used to filter annotations in the metadata_general and batch_anntotate panels.
+// Assumes a single #annotationFilter select on the page.
+OME.filterAnnotationsAddedBy = function() {
+    var $this = $("#annotationFilter"),
+        val = $this.val(),
+        userId = $this.attr('data-userId');
+
+    // select made smaller if only 'Show all' text
+    if (val === "all") {
+        $this.css('width', '80px');
+    } else {
+        $this.css('width', '180px');
+    }
+
+    $('.tag_annotation_wrapper, .file_ann_wrapper, .ann_comment_wrapper, #custom_annotations tr')
+            .each(function() {
+        var $ann = $(this),
+            addby = $ann.attr('data-added-by').split(",");
+        var show = false;
+        switch (val) {
+            case "me":
+                show = ($.inArray(userId, addby) > -1)
+                break;
+            case "others":
+                for (var i=0; i<addby.length; i++) {
+                    if (addby[i] !== userId) {
+                        show = true;
+                    }
+                }
+                break;
+            default:    // 'all'
+                show = true;
+        }
+        if (show) {
+            $ann.show();
+        } else {
+            $ann.hide();
+        }
+    });
+};
+
 // More code that is shared between metadata_general and batch_annotate panels
 // Called when panel loaded. Does exactly what it says on the tin.
 OME.initToolbarDropdowns = function() {
