@@ -355,7 +355,7 @@
                         $this.css('width', '180px');
                     }
 
-                    $('.tag_annotation_wrapper, .file_ann_wrapper, .ann_comment_wrapper')
+                    $('.tag_annotation_wrapper, .file_ann_wrapper, .ann_comment_wrapper, #custom_annotations tr')
                             .each(function() {
                         var $ann = $(this),
                             addby = $ann.attr('data-added-by').split(",");
@@ -910,7 +910,8 @@
                     <!-- tool tips for each <td> is contained in child <span>, which are also hidden -->
                     <table id="custom_annotations">
                         {% for ann in manager.xml_annotations %}
-                        <tr><th>XML:</th>
+                        <tr data-added-by="{{ ann.link.getDetails.getOwner.id }}">
+                            <th>XML:</th>
                             <td>
                                 <div>{{ ann.getValue|escape|slice:"0:30" }}...</div>
                                 <div class="show_xml">Open in window</div><div>{{ ann.getValue }}</div>
@@ -923,7 +924,8 @@
                         {% endfor %}
                         
                         {% for ann in manager.boolean_annotations %}
-                        <tr><th>Boolean:</th>
+                        <tr data-added-by="{{ ann.link.getDetails.getOwner.id }}">
+                            <th>Boolean:</th>
                             <td>
                                 {{ ann.getValue }}
                                 <span class="tooltip_html" style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
@@ -934,7 +936,8 @@
                         </tr>
                         {% endfor %}
                         {% for ann in manager.double_annotations %}
-                        <tr><th>Double:</th>
+                        <tr data-added-by="{{ ann.link.getDetails.getOwner.id }}">
+                            <th>Double:</th>
                             <td>
                                 {{ ann.getValue }}
                                 <span class="tooltip_html" style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
@@ -945,7 +948,8 @@
                         </tr>
                         {% endfor %}
                         {% for ann in manager.long_annotations %}
-                        <tr><th>Long:</th>
+                        <tr data-added-by="{{ ann.link.getDetails.getOwner.id }}">
+                            <th>Long:</th>
                             <td>
                                 {{ ann.getValue }}
                                 <span class="tooltip_html" style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
@@ -956,7 +960,8 @@
                         </tr>
                         {% endfor %}
                         {% for ann in manager.term_annotations %}
-                        <tr><th>Term:</th>
+                        <tr data-added-by="{{ ann.link.getDetails.getOwner.id }}">
+                            <th>Term:</th>
                             <td>
                                 {{ ann.getValue }}
                                 <span class="tooltip_html" style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
@@ -967,7 +972,8 @@
                         </tr>
                         {% endfor %}
                         {% for ann in manager.time_annotations %}
-                        <tr><th>Time:</th>
+                        <tr data-added-by="{{ ann.link.getDetails.getOwner.id }}">
+                            <th>Time:</th>
                             <td>
                                 {{ ann.getValue }}
                                 <span class="tooltip_html" style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
