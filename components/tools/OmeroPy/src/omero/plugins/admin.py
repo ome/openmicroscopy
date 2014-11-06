@@ -29,12 +29,14 @@ from omero.cli import CLI
 from omero.cli import DirectoryType
 from omero.cli import NonZeroReturnCode
 from omero.cli import VERSION
+from omero.cli import UserGroupControl
 
 from omero.plugins.prefs import \
     WriteableConfigControl, with_config, with_rw_config
 
 from omero_ext import portalocker
 from omero_ext.which import whichall
+from omero_ext.argparse import FileType
 from omero_version import ice_compatibility
 
 try:
@@ -65,7 +67,7 @@ Configuration properties:
 """ + "\n" + "="*50 + "\n"
 
 
-class AdminControl(WriteableConfigControl):
+class AdminControl(WriteableConfigControl, UserGroupControl):
 
     def _complete(self, text, line, begidx, endidx):
         """
@@ -158,6 +160,49 @@ already be running. This may automatically restart some server components.""")
         diagnostics.add_argument(
             "--no-logs", action="store_true",
             help="Skip log parsing")
+
+        email = Action(
+            "email",
+            """Send administrative emails to users.
+
+Administrators can contact OMERO users and groups of
+users based on configured email settings.
+
+Examples:
+
+  # Send the contents of a file to everyone
+  bin/omero admin email --everyone Subject < some_file.text
+
+  # Contact a single group
+  bin/omero admin email --group-name system Subject short message
+
+  # Contact a list of users
+  bin/omero admin email --user-id 10 \\
+                        --user-name ralph \\
+                        Subject ...
+
+  # Include inactive users in the email
+  bin/omero admin email --inactive ...
+
+
+            """).parser
+        email.add_argument(
+            "subject",
+            help="Required subject for the mail")
+        email.add_argument(
+            "text", nargs="*",
+            help=("All further arguments are combined "
+                  "to form the body. stdin if none or '-' "
+                  "is given."))
+        email.add_argument(
+            "--everyone", action="store_true",
+            help="Contact everyone in the system.")
+        email.add_argument(
+            "--inactive", action="store_true",
+            help="Contact inactive users.")
+        self.add_user_and_group_arguments(email,
+                                          action="append",
+                                          exclusive=False)
 
         Action(
             "jvmcfg",
@@ -1251,6 +1296,93 @@ OMERO Diagnostics %s
             WebControl().status(args)
         except:
             self.ctx.out("OMERO.web not installed!")
+
+    def get_users_groups(self, args, iadmin):
+        users = []
+        groups = []
+
+        if args.user_name:
+            for user_name in args.user_name:
+                uid, u = self.find_user_by_name(
+                    iadmin, user_name, fatal=False)
+                if uid is not None:
+                    users.append(uid)
+
+        if args.user_id:
+            for user_id in args.user_id:
+                uid, u = self.find_user_by_id(
+                    iadmin, user_id, fatal=False)
+                if uid is not None:
+                    users.append(uid)
+
+        if args.group_name:
+            for group_name in args.group_name:
+                gid, g = self.find_group_by_name(
+                    iadmin, group_name, fatal=False)
+                if gid is not None:
+                    groups.append(gid)
+
+        if args.group_id:
+            for group_id in args.group_id:
+                gid, g = self.find_group_by_id(
+                    iadmin, group_id, fatal=False)
+                if gid is not None:
+                    groups.append(gid)
+
+        return users, groups
+
+    def email(self, args):
+        client = self.ctx.conn(args)
+        iadmin = client.sf.getAdminService()
+        users, groups = self.get_users_groups(args, iadmin)
+
+        if not args.text:
+            args.text = ("-")
+
+        text = " ".join(args.text)
+        if text == "-":
+            stdin = FileType("r")("-")
+            text = stdin.read()
+
+        req = omero.cmd.SendEmailRequest(
+            subject=args.subject,
+            body=text,
+            userIds=users,
+            groupIds=groups,
+            everyone=args.everyone,
+            inactive=args.inactive)
+
+        try:
+            cb = client.submit(
+                req, loops=10, ms=500,
+                failonerror=True, failontimeout=True)
+        except omero.CmdError, ce:
+            err = ce.err
+            if err.name == "no-body" and err.parameters:
+                sb = err.parameters.items()
+                sb = ["%s:%s" % (k, v) for k, v in sb]
+                sb = "\n".join(sb)
+                self.ctx.die(12, sb)
+            self.ctx.die(13, "Failed to send emails:\n%s" % err)
+
+        try:
+            rsp = cb.getResponse()
+            self.ctx.out(
+                "Successfully sent %s of %s emails" % (
+                    rsp.success, rsp.total
+                ))
+            if rsp.invalidusers:
+                self.ctx.out(
+                    "%s users had no email addresses" % len(
+                        rsp.invalidusers)
+                )
+            if rsp.invalidemails:
+                self.ctx.out(
+                    "%s email addresses were invalid" % len(
+                        rsp.invalidemails)
+                )
+        finally:
+            cb.close(True)
 
     def getdirsize(self, directory):
         total = 0
