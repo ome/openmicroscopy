@@ -35,7 +35,7 @@
 		<img src="{% url 'avatar' tann.details.owner.id.val %}" alt="{{ tann.getOwner.getFullName }}" title="{{ tann.getOwner.getFullName }}" />
 	</div>
 
-    <div class="ann_comment_text">
+    <div class="ann_comment_text tooltip">
         <div class="ann_comment_header">
             <strong>{{ tann.getOwner.getFullName }}</strong> 
             {% trans "at" %} 
@@ -51,5 +51,13 @@
         {{ tann.getTextValue|linebreaksbr }}
         </div>
     </div>
+
+    {% if tann.ns or tann.description %}
+    <span class="tooltip_html" style='display:none'>
+        <b>ID:</b> {{ tann.id }}<br />
+        {% if tann.ns %}<b>Namespace:</b> {{ tann.ns }}<br />{% endif %}
+        {% if tann.description %}<b>Description:</b> {{ tann.description|escape }}<br />{% endif %}
+    </span>
+    {% endif %}
 
 </div>
