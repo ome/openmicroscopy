@@ -336,7 +336,7 @@ OME.filterAnnotationsAddedBy = function() {
         var show = false;
         switch (val) {
             case "me":
-                show = ($.inArray(userId, addby) > -1)
+                show = ($.inArray(userId, addby) > -1);
                 break;
             case "others":
                 for (var i=0; i<addby.length; i++) {
