@@ -1054,7 +1054,6 @@
 			.removeComment {
 				float:right;
 				cursor:pointer;
-				display:none;
 				-webkit-border-radius:2px;
 				-webkit-border-radius:2px; /* Saf3+, Chrome */
 				   -moz-border-radius:2px; /* FF1+ */

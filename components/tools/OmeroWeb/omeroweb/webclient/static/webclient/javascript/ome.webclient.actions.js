@@ -40,7 +40,7 @@ jQuery.fn.hide_if_empty = function() {
 
 OME.addToBasket = function(selected, prefix) {
     var productListQuery = new Array("action=add");
-    if (selected != null && selected.length > 0) {
+    if (selected && selected.length > 0) {
         selected.each(function(i) {
             productListQuery[i+1]= $(this).attr('id').replace("-","=");
         });
@@ -125,7 +125,6 @@ OME.clear_selected = function(force_refresh) {
 OME.field_selection_changed = function(field) {
 
     var datatree = $.jstree._focused();
-    datatree.data.ui.last_selected;
     $("body")
         .data("selected_objects.ome", [{"id":datatree.data.ui.last_selected.attr("id"), "index":field}])
         .trigger("selection_change.ome", $(this).attr('id'));
@@ -137,7 +136,7 @@ OME.select_fileset_images = function(filesetId) {
     $("#dataTree li[data-fileset="+filesetId+"]").each(function(){
         datatree.select_node(this);
     });
-}
+};
 
 // actually called when share is edited, to refresh right-hand panel
 OME.share_selection_changed = function(share_id) {
@@ -247,7 +246,7 @@ OME.doPagination = function(view, page) {
     $("#dataTree").jstree("refresh", $('#'+rel[0]+'-'+rel[1]));
     $parent.children("a:eq(0)").click();    // this will cause center and right panels to update
     return false;
-}
+};
 
 
 
