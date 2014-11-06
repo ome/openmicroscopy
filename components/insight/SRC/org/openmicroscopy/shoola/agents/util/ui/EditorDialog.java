@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.util.ui.EditorDialog
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -49,18 +49,21 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.JTextComponent;
 
-
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
 
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.BooleanAnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.DoubleAnnotationData;
+import pojos.LongAnnotationData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.AnnotationData;
@@ -259,7 +262,8 @@ public class EditorDialog
         content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         String value = ", LEFT, TOP";
 
-        if (data instanceof XMLAnnotationData) {
+        if (data instanceof XMLAnnotationData || data instanceof DoubleAnnotationData ||
+        		data instanceof LongAnnotationData || data instanceof BooleanAnnotationData) {
             content.add(UIUtilities.setTextFont("Content"), "0, 2" + value);
             content.add(new JScrollPane(nameArea), "1, 2");
         } else if (data instanceof String) {
@@ -406,6 +410,38 @@ public class EditorDialog
             if (text.length() > 0) d.setTermDescription(text);
             data = d;
         }
+        else if(data instanceof DoubleAnnotationData) {
+        	DoubleAnnotationData d = (DoubleAnnotationData) data;
+        	try {
+				d.setDataValue(Double.parseDouble(name));
+			} catch (NumberFormatException e) {
+				MetadataViewerAgent.getRegistry().getUserNotifier().notifyError("Invalid input", 
+						"'"+name+"' is not a floating point number.");
+				return;
+			}
+        	data = d;
+        }
+        else if(data instanceof LongAnnotationData) {
+        	LongAnnotationData d = (LongAnnotationData) data;
+        	try {
+				d.setDataValue(Long.parseLong(name));
+			} catch (NumberFormatException e) {
+				MetadataViewerAgent.getRegistry().getUserNotifier().notifyError("Invalid input", 
+						"'"+name+"' is not an integer value.");
+				return;
+			}
+        	data = d;
+        }
+        else if(data instanceof BooleanAnnotationData) {
+        	BooleanAnnotationData d = (BooleanAnnotationData) data;
+        	if (!name.equalsIgnoreCase("true") && !name.equalsIgnoreCase("false")) {
+        		MetadataViewerAgent.getRegistry().getUserNotifier().notifyError("Invalid input", 
+        				"'"+name+"' is not a boolean value.");
+				return;
+        	}
+			d.setValue(Boolean.parseBoolean(name));
+        	data = d;
+        }
         if (withParent) firePropertyChange(CREATE_PROPERTY, null, data);
         else firePropertyChange(CREATE_NO_PARENT_PROPERTY, null, data);
         close();
@@ -426,7 +462,10 @@ public class EditorDialog
                 object instanceof TagAnnotationData ||
                 object instanceof TermAnnotationData ||
                 object instanceof XMLAnnotationData ||
-                object instanceof String) return;
+                object instanceof String ||
+                object instanceof DoubleAnnotationData ||
+                object instanceof LongAnnotationData ||
+                object instanceof BooleanAnnotationData) return;
         throw new IllegalArgumentException("Object not supported.");
     }
 
@@ -447,7 +486,14 @@ public class EditorDialog
                 data instanceof TermAnnotationData ||
                 data instanceof XMLAnnotationData)
             return ((AnnotationData) data).getContentAsString();
-        if (data instanceof String) return data.toString();
+        if (data instanceof DoubleAnnotationData)
+        	return ""+((DoubleAnnotationData)data).getDataValue();
+        if (data instanceof LongAnnotationData)
+        	return ""+((LongAnnotationData)data).getDataValue();
+        if (data instanceof BooleanAnnotationData)
+        	return ""+((BooleanAnnotationData)data).getValue();
+        if (data instanceof String) 
+        	return data.toString();
         return "";
     }
 
@@ -470,7 +516,8 @@ public class EditorDialog
             return ((TermAnnotationData) data).getTermDescription();
         if (data instanceof XMLAnnotationData)
             return ((XMLAnnotationData) data).getDescription();
-        if (data instanceof String) data.toString();
+        if (data instanceof String) 
+        	return data.toString();
         return "";
     }
 

@@ -738,6 +738,9 @@ class EditorModel
         		refObject instanceof DoubleAnnotationData) {
         	return "Numerical value";
         }
+        else if (refObject instanceof BooleanAnnotationData) {
+        	return "Boolean value";
+        }
 		return "";
 	}
 	
