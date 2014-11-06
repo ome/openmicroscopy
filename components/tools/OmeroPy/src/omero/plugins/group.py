@@ -3,7 +3,7 @@
 """
    Group administration plugin
 
-   Copyright 2009 Glencoe Software, Inc. All rights reserved.
+   Copyright 2009-2014 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -217,17 +217,17 @@ server-permissions.html
             groups.sort(key=lambda x: x.id.val)
 
         if args.long:
-            tb = TableBuilder("id", "name", "perms", "owner ids",
+            tb = TableBuilder("id", "name", "perms", "ldap", "owner ids",
                               "member ids")
         else:
-            tb = TableBuilder("id", "name", "perms", "# of owners",
+            tb = TableBuilder("id", "name", "perms", "ldap", "# of owners",
                               "# of members")
         if args.style:
             tb.set_style(args.style)
 
         for group in groups:
             row = [group.id.val, group.name.val,
-                   str(group.details.permissions)]
+                   str(group.details.permissions), group.ldap.val]
             ownerids = self.getownerids(group)
             memberids = self.getmemberids(group)
             if args.long:
