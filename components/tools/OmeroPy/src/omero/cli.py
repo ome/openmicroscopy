@@ -521,7 +521,8 @@ def admin_only(func):
         client = self.ctx.conn(plugin_args)
         ec = client.sf.getAdminService().getEventContext()
         if not ec.isAdmin:
-            self.ctx.die(111, "Admins only!")
+            self.error_admin_only(fatal=True)
+        return func(*args, **kwargs)
 
     from omero.util.decorators import wraps
     _check_admin = wraps(func)(_check_admin)
