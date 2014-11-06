@@ -335,12 +335,34 @@ class TaskBarView
 	{
 		JMenu help = new JMenu("Help");
 		help.setMnemonic(KeyEvent.VK_H);
-		help.add(copyItem((JMenuItem) buttons[HELP_MI]));
-		help.add(copyItem((JMenuItem) buttons[FORUM_MI]));
-		help.add(copyItem((JMenuItem) buttons[COMMENT_MI]));
+		
+		JMenuItem i = copyItem((JMenuItem) buttons[HELP_MI]);
+		if(i.getActionListeners().length==0) 
+			i.addActionListener(manager.getHelpMenuAction(HELP_MI));
+		help.add(i);
+		
+		i = copyItem((JMenuItem) buttons[FORUM_MI]);
+		if(i.getActionListeners().length==0) 
+			i.addActionListener(manager.getHelpMenuAction(FORUM_MI));
+		help.add(i);
+		
+		i = copyItem((JMenuItem) buttons[COMMENT_MI]);
+		if(i.getActionListeners().length==0) 
+			i.addActionListener(manager.getHelpMenuAction(COMMENT_MI));
+		help.add(i);
+		
 		help.add(new JSeparator(JSeparator.HORIZONTAL));
-		help.add(copyItem((JMenuItem) buttons[LOG_FILE_MI]));
-		help.add(copyItem((JMenuItem) buttons[UPDATES_MI]));
+		
+		i = copyItem((JMenuItem) buttons[LOG_FILE_MI]);
+		if(i.getActionListeners().length==0) 
+			i.addActionListener(manager.getHelpMenuAction(LOG_FILE_MI));
+		help.add(i);
+		
+		i = copyItem((JMenuItem) buttons[UPDATES_MI]);
+		if(i.getActionListeners().length==0) 
+			i.addActionListener(manager.getHelpMenuAction(UPDATES_MI));
+		help.add(i);
+		
 		return help;
 	}
 
