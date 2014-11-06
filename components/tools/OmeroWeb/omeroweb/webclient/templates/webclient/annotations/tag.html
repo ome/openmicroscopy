@@ -65,6 +65,7 @@
             </span>
             {% else %}
                 <span class="tooltip_html" style='display:none'>
+                    <b>ID:</b> {{ tag.id }}<br />
                     <b>Owner:</b> {{ tag.getOwner.getFullName }}<br />
                     <b>Linked by:</b> {{ tag.link.getDetails.getOwner.getFullName }}<br />
                     <b>On:</b> {{ tag.link.creationEventDate|date:"Y-m-d H:i:s" }}<br />
