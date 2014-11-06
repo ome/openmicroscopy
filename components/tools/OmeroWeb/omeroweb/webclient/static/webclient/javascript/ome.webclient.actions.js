@@ -258,7 +258,9 @@ OME.removeItem = function(event, domClass, url, parentId, index) {
     // /webclient/action/remove/comment/461/?parent=image-257
     var $parent = $(event.target).parents(domClass);
     var $annContainer = $parent.parent();
-    var confirm_remove = OME.confirm_dialog('Remove '+ dType + '?',
+    var r = 'Remove ';
+    if (dType === 'comment') r = 'Delete ';
+    var confirm_remove = OME.confirm_dialog(r + dType + '?',
         function() {
             if(confirm_remove.data("clicked_button") == "OK") {
                 $.ajax({
