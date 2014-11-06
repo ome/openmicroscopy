@@ -749,3 +749,66 @@ class ITest(object):
         self.root.killSession()
         self.root = None
         self.__clients.__del__()
+
+    def make_project(self, name=None, client=None):
+        if client is None:
+            client = self.client
+        project = ProjectI()
+        if name:
+            project.name = rstring(name)
+        else:
+            project.name = rstring(self.uuid())
+        return client.sf.getUpdateService().saveAndReturnObject(project)
+
+    def make_dataset(self, name=None, client=None):
+        if client is None:
+            client = self.client
+        dataset = DatasetI()
+        if name:
+            dataset.name = rstring(name)
+        else:
+            dataset.name = rstring(self.uuid())
+        return client.sf.getUpdateService().saveAndReturnObject(dataset)
+
+    def link(self, obj1, obj2, client=None):
+        if client is None:
+            client = self.client
+        if isinstance(obj1, ProjectI):
+            if isinstance(obj2, DatasetI):
+                link = ProjectDatasetLinkI()
+        elif isinstance(obj1, DatasetI):
+            if isinstance(obj2, ImageI):
+                link = DatasetImageLinkI()
+        link.setParent(obj1.proxy())
+        link.setChild(obj2.proxy())
+        client.sf.getUpdateService().saveAndReturnObject(link)
+
+    def delete(self, obj):
+        if isinstance(obj[0], ProjectI):
+            t = "/Project"
+        elif isinstance(obj[0], DatasetI):
+            t = "/Dataset"
+        elif isinstance(obj[0], ImageI):
+            t = "/Image"
+
+        commands = list()
+        for i in obj:
+            commands.append(Delete(t, i.id.val, None))
+
+        self.doAllSubmit(commands, self.client)
+
+    def change_group(self, obj, target, client=None):
+        if client is None:
+            client = self.client
+        if isinstance(obj[0], ProjectI):
+            t = "/Project"
+        elif isinstance(obj[0], DatasetI):
+            t = "/Dataset"
+        elif isinstance(obj[0], ImageI):
+            t = "/Image"
+
+        commands = list()
+        for i in obj:
+            commands.append(Chgrp(t, id=i.id.val, grp=target))
+
+        self.doAllSubmit(commands, client)
