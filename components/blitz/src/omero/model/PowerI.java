@@ -91,25 +91,8 @@ public class PowerI extends Power implements ModelBased {
 
     @Override
     public Filterable fillObject(ReverseModelMapper mapper) {
-        // This is a workaround for errors of the form:
-        //
-        //   org.hibernate.PropertyAccessException:
-        //   IllegalArgumentException occurred calling getter of ome.model.screen.Well.wellSamples
-        //
-        // when importing plates with multiple images. Likely this
-        // is caused by Hibernate trying through multiple paths
-        // to resolve the UnitsPower object and continually
-        // failing to do so.
-        ome.model.enums.UnitsPower ut = new ome.model.enums.UnitsPower();
-        if (getUnit().getId() != null) {
-            ut.setId(getUnit().getId().getValue());
-            ut.unload();
-        } else {
-            if (getUnit().getValue() != null) {
-                ut.setValue(getUnit().getValue().getValue());
-            }
-        }
-
+        ome.model.enums.UnitsPower ut = (ome.model.enums.UnitsPower)
+            mapper.reverse((UnitsPowerI) getUnit());
         ome.model.units.Power t = new ome.model.units.Power();
         t.setValue(getValue());
         t.setUnit(ut);

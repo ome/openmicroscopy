@@ -91,25 +91,8 @@ public class FrequencyI extends Frequency implements ModelBased {
 
     @Override
     public Filterable fillObject(ReverseModelMapper mapper) {
-        // This is a workaround for errors of the form:
-        //
-        //   org.hibernate.PropertyAccessException:
-        //   IllegalArgumentException occurred calling getter of ome.model.screen.Well.wellSamples
-        //
-        // when importing plates with multiple images. Likely this
-        // is caused by Hibernate trying through multiple paths
-        // to resolve the UnitsFrequency object and continually
-        // failing to do so.
-        ome.model.enums.UnitsFrequency ut = new ome.model.enums.UnitsFrequency();
-        if (getUnit().getId() != null) {
-            ut.setId(getUnit().getId().getValue());
-            ut.unload();
-        } else {
-            if (getUnit().getValue() != null) {
-                ut.setValue(getUnit().getValue().getValue());
-            }
-        }
-
+        ome.model.enums.UnitsFrequency ut = (ome.model.enums.UnitsFrequency)
+            mapper.reverse((UnitsFrequencyI) getUnit());
         ome.model.units.Frequency t = new ome.model.units.Frequency();
         t.setValue(getValue());
         t.setUnit(ut);

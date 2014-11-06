@@ -832,7 +832,9 @@ public class IceMapper extends ome.util.ModelMapper implements
     // ~ For Reversing (omero->ome). Copied from ReverseModelMapper.
     // =========================================================================
 
-    protected Map target2model = new IdentityHashMap();
+    protected Map<Object, Object> target2model = new IdentityHashMap<Object, Object>();
+
+    protected Map<Class, Map<Object, Object>> enumMap = new IdentityHashMap<Class, Map<Object, Object>>();
 
     public static omero.model.Permissions convert(ome.model.internal.Permissions p) {
         if (p == null) {
@@ -1017,8 +1019,35 @@ public class IceMapper extends ome.util.ModelMapper implements
 
             return (ome.model.IObject) target2model.get(source);
 
-        } else {
+        } else if (omero.model.UnitsLengthI.class.isAssignableFrom(source.getClass())) {
+            omero.model.UnitsLengthI ul = (omero.model.UnitsLengthI) source;
+            Map<Object, Object> lookup = enumMap.get(omero.model.UnitsLengthI.class);
+            if (lookup == null) {
+                    lookup = new HashMap<Object, Object>();
+                    enumMap.put(omero.model.UnitsLengthI.class, lookup);
+            }
+            Long id = (Long) omero.rtypes.unwrap(ul.getId());
+            String val = (String) omero.rtypes.unwrap(ul.getValue());
+            Object key = null;
+            if (id != null) {
+                key = id;
+            } else if (val != null) {
+                key = val;
+            } else {
+                throw new RuntimeException("Unknown unit missing id and value: " + ul);
+            }
 
+            if (lookup.containsKey(key)) {
+                return (Filterable) lookup.get(key);
+            }
+            // Copied from else below
+            Filterable object = source.fillObject(this);
+            target2model.put(source, object);
+            lookup.put(key, object);
+            return object;
+
+        } else {
+            // Copied in else above
             Filterable object = source.fillObject(this);
             target2model.put(source, object);
             return object;

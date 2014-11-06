@@ -91,25 +91,8 @@ public class PressureI extends Pressure implements ModelBased {
 
     @Override
     public Filterable fillObject(ReverseModelMapper mapper) {
-        // This is a workaround for errors of the form:
-        //
-        //   org.hibernate.PropertyAccessException:
-        //   IllegalArgumentException occurred calling getter of ome.model.screen.Well.wellSamples
-        //
-        // when importing plates with multiple images. Likely this
-        // is caused by Hibernate trying through multiple paths
-        // to resolve the UnitsPressure object and continually
-        // failing to do so.
-        ome.model.enums.UnitsPressure ut = new ome.model.enums.UnitsPressure();
-        if (getUnit().getId() != null) {
-            ut.setId(getUnit().getId().getValue());
-            ut.unload();
-        } else {
-            if (getUnit().getValue() != null) {
-                ut.setValue(getUnit().getValue().getValue());
-            }
-        }
-
+        ome.model.enums.UnitsPressure ut = (ome.model.enums.UnitsPressure)
+            mapper.reverse((UnitsPressureI) getUnit());
         ome.model.units.Pressure t = new ome.model.units.Pressure();
         t.setValue(getValue());
         t.setUnit(ut);
