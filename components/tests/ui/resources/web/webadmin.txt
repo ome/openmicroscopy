@@ -39,6 +39,7 @@ Open Browser To Webadmin And Log In As Root
     Page Should Be Open             ${USERS URL}                OMERO Users
 
 Log Out
+    Wait Until Page Contains Element  xpath=//div[@id='show_user_dropdown']/span
     Click Element                   xpath=//div[@id='show_user_dropdown']/span
     Click Link                      link=Logout
     Page Should Be Open             ${WEBCLIENT LOGIN URL}                OMERO.web - Login
