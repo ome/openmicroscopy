@@ -157,7 +157,7 @@
 
                 // set-up the attachment selection form to use AJAX. (requires jquery.form.js plugin)
                 if ($("#choose_attachments_form").length === 0) {
-                    $("<form id='choose_attachments_form' title='Choose Attachments' action='{% url 'annotate_file' %}' method='post'>")
+                    $("<form id='choose_attachments_form' title='Choose attachments' action='{% url 'annotate_file' %}' method='post'>")
                         .hide().appendTo('body');
                 }
                 $('#choose_attachments_form').ajaxForm({
