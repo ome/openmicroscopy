@@ -140,13 +140,14 @@ server-permissions.html
     def add(self, args):
 
         import omero
-        from omero.rtypes import rstring
+        from omero.rtypes import rbool, rstring
         from omero_model_ExperimenterGroupI import ExperimenterGroupI as Grp
 
         perms = self.parse_perms(args)
         c = self.ctx.conn(args)
         g = Grp()
         g.name = rstring(args.name)
+        g.ldap = rbool(False)
         g.details.permissions = perms
         admin = c.getSession().getAdminService()
         try:

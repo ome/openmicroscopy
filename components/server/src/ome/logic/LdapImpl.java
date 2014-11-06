@@ -479,7 +479,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
 
         if (!grpSpec.startsWith(":")) {
             // The default case is the original logic: use the spec as name
-            groups.add(provider.createGroup(grpSpec, null, false));
+            groups.add(provider.createGroup(grpSpec, null, false, true));
             return groups; // EARLY EXIT!
         }
 
