@@ -554,6 +554,21 @@
         border-top: solid 1px hsl(210,10%,90%);
     }
     
+    /* Rating */
+
+    .lnfiles:empty {
+        display: none;
+    }
+    .myRating img, .addRating img{
+        cursor: pointer;
+    }
+    .addRating .removeRating, .addRating .ratingOwner {
+        display: none;
+    }
+    #rating_annotations a {
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
         
         
     /* Tables */

@@ -450,6 +450,18 @@ class BaseContainer(BaseController):
         self.fileannSize = len(self.file_annotations)
         self.tgannSize = len(self.tag_annotations)
 
+
+    def getMyRating(self):
+        """
+        Returns a rating annotation added by current user or None if none exists.
+        NB: This should be called after annotationList() has loaded annotations.
+        """
+        userId = self.conn.getUserId()
+        for r in self.rating_annotations:
+            if r.getDetails().getOwner().id == userId:
+                return r
+
+
     def canUseOthersAnns(self):
         """
         Test to see whether other user's Tags, Files etc should be provided for annotating.
@@ -494,6 +506,8 @@ class BaseContainer(BaseController):
         
         # return, E.g {"Tag": {AnnId: {'ann': ObjWrapper, 'parents': [ImageWrapper, etc] } }, etc...}
         rv = {}
+        rv["UserRatings"] = {}
+        rv["OtherRatings"] = {}
         # populate empty return map
         for key, value in batchAnns.items():
             rv[value] = {}
@@ -516,13 +530,17 @@ class BaseContainer(BaseController):
                 objType = 'PlateAcquisition'
             for annLink in self.conn.getAnnotationLinks(objType, parent_ids=parent_ids, ann_ids=ann_ids, params=params):
                 ann = annLink.getAnnotation()
-                if ann.ns == omero.constants.metadata.NSINSIGHTRATING:
-                    continue    # TODO: Handle ratings
                 if ann.ns == omero.constants.namespaces.NSCOMPANIONFILE:
                     continue
                 annClass = ann._obj.__class__
                 if annClass in batchAnns:
-                    annotationsMap = rv[ batchAnns[annClass] ]      # E.g. map for 'Tags'
+                    if ann.ns == omero.constants.metadata.NSINSIGHTRATING:
+                        if ann.getDetails().owner.id.val == self.conn.getUserId():
+                            annotationsMap = rv["UserRatings"]
+                        else:
+                            annotationsMap = rv["OtherRatings"]
+                    else:
+                        annotationsMap = rv[ batchAnns[annClass] ]      # E.g. map for 'Tags'
                     if ann.getId() not in annotationsMap:
                         annotationsMap[ann.getId()] = {
                             'ann': ann,
