@@ -636,6 +636,128 @@ class TestDelete(lib.ITest):
         # ## assert filesetOneId in failedFilesets
         # ## assert filesetTwoId in failedFilesets
 
+    def testDeleteProjectWithOneEmptyDataset(self):
+        """
+        P->D
+        Delete P
+        P is deleted, D is deleted. OK.
+
+        See https://trac.openmicroscopy.org.uk/ome/ticket/12452
+        """
+        query = self.client.sf.getQueryService()
+
+        p = self.make_project()
+        d = self.make_dataset()
+        self.link(p, d)
+        self.delete([p])
+
+        assert not query.find("Project", p.id.val)
+        assert not query.find("Dataset", d.id.val)
+
+    @pytest.mark.xfail(reason="d is not deleted and link p2->d remains")
+    def testDeleteProjectWithEmptyDatasetLinkedToAnotherProject(self):
+        """
+        P1->D
+        P2->D
+        Delete P1
+        D1 is not deleted and link P2->D1 remains. FAIL.
+
+        See https://trac.openmicroscopy.org.uk/ome/ticket/12452
+        """
+        query = self.client.sf.getQueryService()
+
+        p1 = self.make_project()
+        p2 = self.make_project()
+        d = self.make_dataset()
+        self.link(p1, d)
+        self.link(p2, d)
+        self.delete([p1])
+
+        assert query.find("Project", p2.id.val)
+        assert not query.find("Project", p1.id.val)
+        assert not query.find("Dataset", d.id.val)
+
+    @pytest.mark.xfail(reason="d and i are not deleted, link p2->d remains")
+    def testDeleteProjectWithDatasetLinkedToAnotherProject(self):
+        """
+        P1->D->I
+        P2->D->I
+        Delete P1
+        D1 is not deleted, link P2->D1 remains, but I1 is deleted. FAIL.
+
+        See https://trac.openmicroscopy.org.uk/ome/ticket/12452
+        """
+        query = self.client.sf.getQueryService()
+        update = self.client.sf.getUpdateService()
+
+        p1 = self.make_project()
+        p2 = self.make_project()
+        d = self.make_dataset()
+        i = self.new_image()
+        i = update.saveAndReturnObject(i)
+        self.link(p1, d)
+        self.link(p2, d)
+        self.link(d, i)
+        self.delete([p1])
+
+        assert query.find("Project", p2.id.val)
+        assert not query.find("Project", p1.id.val)
+        assert not query.find("Dataset", d.id.val)
+        assert not query.find("Image", i.id.val)
+
+    def testDeleteDatasetLinkedToTwoProjects(self):
+        """
+        P1->D->I
+        P2->D->I
+        Delete D1
+        I1 is deleted. OK.
+
+        See https://trac.openmicroscopy.org.uk/ome/ticket/12452
+        """
+        query = self.client.sf.getQueryService()
+        update = self.client.sf.getUpdateService()
+
+        p1 = self.make_project()
+        p2 = self.make_project()
+        d = self.make_dataset()
+        i = self.new_image()
+        i = update.saveAndReturnObject(i)
+        self.link(p1, d)
+        self.link(p2, d)
+        self.link(d, i)
+        self.delete([d])
+
+        assert query.find("Project", p1.id.val)
+        assert query.find("Project", p2.id.val)
+        assert not query.find("Image", i.id.val)
+        assert not query.find("Dataset", d.id.val)
+
+    @pytest.mark.xfail(reason="d1 deleted, but i not deleted")
+    def testDeleteDatasetWithImageLinkedToAnotherDataset(self):
+        """
+        D1->I
+        D2->I
+        Delete D1
+        Exception is thrown: FAIL - For some reason not throwing exception
+        here but does from webclient and it looks exactly the same!?!
+
+        See https://trac.openmicroscopy.org.uk/ome/ticket/12452
+        """
+        query = self.client.sf.getQueryService()
+        update = self.client.sf.getUpdateService()
+
+        d1 = self.make_dataset()
+        d2 = self.make_dataset()
+        i = self.new_image()
+        i = update.saveAndReturnObject(i)
+        self.link(d1, i)
+        self.link(d2, i)
+        self.delete([d1])
+
+        assert not query.find("Dataset", d1.id.val)
+        assert query.find("Dataset", d2.id.val)
+        assert not query.find("Image", i.id.val)
+
 if __name__ == '__main__':
     if "TRACE" in os.environ:
         import trace
