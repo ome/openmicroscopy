@@ -20,10 +20,14 @@ User Settings
     Click Element           id=show_user_dropdown
     Click Link              User settings
     Location Should Be      ${WEBADMIN WELCOME URL}myaccount/edit/
+    ${orig_middle_name}=    Get Element Attribute     xpath=//input[@id='id_middle_name']@value
     ${middle_name}=         Unique name         middle_name
     Input Text              id_middle_name      ${middle_name}
     Click Button            Save
     Page Should Contain Element   xpath=//input[@id='id_middle_name'][@value='${middle_name}']
+    # reset
+    Input Text              id_middle_name      ${orig_middle_name}
+    Click Button            Save
 
     # Edit Password
     ${temp_password}=       Set Variable        tempPassword
