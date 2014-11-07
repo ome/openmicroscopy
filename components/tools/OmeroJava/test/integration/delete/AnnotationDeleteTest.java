@@ -228,8 +228,8 @@ public class AnnotationDeleteTest extends AbstractServerTest {
         newUserAndGroup("rw----");
         Annotation ann = (Annotation) iUpdate
                 .saveAndReturnObject(new TagAnnotationI());
-        annotateSaveDeleteAndCheck(ann, DeleteServiceTest.REF_ANN, ann.getId(),
-                false);
+        annotateSaveDeleteAndCheck(ann, DeleteServiceTest.REF_ANN,
+                ann.getId());
     }
 
     /**
