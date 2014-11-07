@@ -753,6 +753,13 @@ class ITest(object):
         self.__clients.__del__()
 
     def make_project(self, name=None, client=None):
+        """
+        Creates a new ProjectI instance and returns the persisted object.
+        If no name has been provided, a UUID string shall be used.
+
+        :param name: the name of the project
+        :param client: user context
+        """
         if client is None:
             client = self.client
         project = ProjectI()
@@ -763,6 +770,13 @@ class ITest(object):
         return client.sf.getUpdateService().saveAndReturnObject(project)
 
     def make_dataset(self, name=None, client=None):
+        """
+        Creates a new DatasetI instance and returns the persisted object.
+        If no name has been provided, a UUID string shall be used.
+
+        :param name: the name of the project
+        :param client: user context
+        """
         if client is None:
             client = self.client
         dataset = DatasetI()
@@ -773,6 +787,17 @@ class ITest(object):
         return client.sf.getUpdateService().saveAndReturnObject(dataset)
 
     def link(self, obj1, obj2, client=None):
+        """
+        Links two linkable model entities together by creating an instance
+        of the correct link entity (e.g. ProjectDatasetLinkI) and persisting
+        it in the DB. Accepts client instance to allow calls to happen
+        in correct user contexts. Limited to ProjectI-DatasetI
+        and DatasetI-ImageI links.
+
+        :param obj1: parent object
+        :param obj2: child object
+        :param client: user context
+        """
         if client is None:
             client = self.client
         if isinstance(obj1, ProjectI):
@@ -781,17 +806,29 @@ class ITest(object):
         elif isinstance(obj1, DatasetI):
             if isinstance(obj2, ImageI):
                 link = DatasetImageLinkI()
+        else:
+            assert False, "Object type not supported."
+
         link.setParent(obj1.proxy())
         link.setChild(obj2.proxy())
         client.sf.getUpdateService().saveAndReturnObject(link)
 
     def delete(self, obj):
+        """
+        Deletes a list of model entities (ProjectI, DatasetI or ImageI)
+        by creating Delete commands and calling
+        :func:`~test.ITest.doAllSubmit`.
+
+        :param obj: a list of objects to be deleted
+        """
         if isinstance(obj[0], ProjectI):
             t = "/Project"
         elif isinstance(obj[0], DatasetI):
             t = "/Dataset"
         elif isinstance(obj[0], ImageI):
             t = "/Image"
+        else:
+            assert False, "Object type not supported."
 
         commands = list()
         for i in obj:
@@ -800,6 +837,16 @@ class ITest(object):
         self.doAllSubmit(commands, self.client)
 
     def change_group(self, obj, target, client=None):
+        """
+        Moves a list of model entities (ProjectI, DatasetI or ImageI)
+        to the target group. Accepts a client instance to guarantee calls
+        in correct user contexts. Creates Chgrp commands and calls
+        :func:`~test.ITest.doAllSubmit`.
+
+        :param obj: a list of objects to be moved
+        :param target: the ID of the target group
+        :param client: user context
+        """
         if client is None:
             client = self.client
         if isinstance(obj[0], ProjectI):
@@ -808,6 +855,8 @@ class ITest(object):
             t = "/Dataset"
         elif isinstance(obj[0], ImageI):
             t = "/Image"
+        else:
+            assert False, "Object type not supported."
 
         commands = list()
         for i in obj:
