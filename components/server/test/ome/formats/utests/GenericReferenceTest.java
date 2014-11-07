@@ -10,6 +10,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.testng.Assert;
+
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ome.conditions.ApiUsageException;
@@ -32,9 +35,9 @@ import ome.model.screen.Plate;
 import ome.model.screen.Reagent;
 import ome.model.screen.Screen;
 import ome.model.screen.Well;
-import junit.framework.TestCase;
 
-public class GenericReferenceTest extends TestCase
+@Test
+public class GenericReferenceTest
 {
     private OMEROMetadataStore store;
 
@@ -98,7 +101,7 @@ public class GenericReferenceTest extends TestCase
 
     private Reagent reagent;
 
-    @Override
+    @BeforeMethod
     protected void setUp() throws Exception
     {
         store = new OMEROMetadataStore();
@@ -258,7 +261,7 @@ public class GenericReferenceTest extends TestCase
         Map<String, String[]> referenceCache = new HashMap<String, String[]>();
         referenceCache.put("Image:0", new String[] { "Instrument:0" });
         store.updateReferences(referenceCache);
-        assertEquals(image.getInstrument(), instrument);
+        Assert.assertEquals(image.getInstrument(), instrument);
     }
 
     public void testImageExperimentReference()
@@ -266,7 +269,7 @@ public class GenericReferenceTest extends TestCase
         Map<String, String[]> referenceCache = new HashMap<String, String[]>();
         referenceCache.put("Image:0", new String[] { "Experiment:0" });
         store.updateReferences(referenceCache);
-        assertEquals(image.getExperiment(), experiment);
+        Assert.assertEquals(image.getExperiment(), experiment);
     }
 
     public void testWellReagentReference()
@@ -274,9 +277,9 @@ public class GenericReferenceTest extends TestCase
         Map<String, String[]> referenceCache = new HashMap<String, String[]>();
         referenceCache.put("Well:0:0:0", new String[] { "Reagent:0:0" });
         store.updateReferences(referenceCache);
-        assertNotNull(well.linkedReagentList());
-        assertEquals(1, well.linkedReagentList().size());
-        assertEquals(well.linkedReagentList().get(0), reagent);
+        Assert.assertNotNull(well.linkedReagentList());
+        Assert.assertEquals(1, well.linkedReagentList().size());
+        Assert.assertEquals(well.linkedReagentList().get(0), reagent);
     }
 
     public void testLaserLaserReference()
@@ -284,7 +287,7 @@ public class GenericReferenceTest extends TestCase
         Map<String, String[]> referenceCache = new HashMap<String, String[]>();
         referenceCache.put("Laser:0:0", new String[] { "Laser:0:0" });
         store.updateReferences(referenceCache);
-        assertEquals(laser.getPump(), laser);
+        Assert.assertEquals(laser.getPump(), laser);
     }
 
     public void testLightSettingsLightSourceReference()
@@ -293,7 +296,7 @@ public class GenericReferenceTest extends TestCase
         referenceCache.put("LightSourceSettings:0:0",
                            new String[] { "Laser:0:0" });
         store.updateReferences(referenceCache);
-        assertEquals(lightSettings.getLightSource(), laser);
+        Assert.assertEquals(lightSettings.getLightSource(), laser);
     }
 
     public void testDetectorSettingsDetectorReference()
@@ -302,7 +305,7 @@ public class GenericReferenceTest extends TestCase
         referenceCache.put("DetectorSettings:0:0",
                            new String[] { "Detector:0:0" });
         store.updateReferences(referenceCache);
-        assertEquals(detectorSettings.getDetector(), detector);
+        Assert.assertEquals(detectorSettings.getDetector(), detector);
     }
 
     public void testLogicalChannelFilterSetReference()
@@ -311,7 +314,7 @@ public class GenericReferenceTest extends TestCase
         referenceCache.put("LogicalChannel:0:0",
                            new String[] { "FilterSet:0:0" });
         store.updateReferences(referenceCache);
-        assertEquals(logicalChannel.getFilterSet(), filterSet);
+        Assert.assertEquals(logicalChannel.getFilterSet(), filterSet);
     }
 
     public void testLogicalChannelFilterReference()
@@ -323,7 +326,7 @@ public class GenericReferenceTest extends TestCase
             referenceCache.put("LogicalChannel:0:0",
                     new String[] { "Filter:0:0" });
             store.updateReferences(referenceCache);
-            fail("Did not throw ApiUsageException.");
+            Assert.fail("Did not throw ApiUsageException.");
         }
         catch (ApiUsageException e)
         {
@@ -339,9 +342,10 @@ public class GenericReferenceTest extends TestCase
                 new String[] { "Filter:0:0:OMERO_EMISSION_FILTER" });
         store.updateReferences(referenceCache);
         LightPath lightPath = logicalChannel.getLightPath();
-        assertEquals(0, lightPath.sizeOfExcitationFilterLink());
-        assertEquals(1, lightPath.sizeOfEmissionFilterLink());
-        assertEquals(lightPath.linkedEmissionFilterIterator().next(), filter);
+        Assert.assertEquals(0, lightPath.sizeOfExcitationFilterLink());
+        Assert.assertEquals(1, lightPath.sizeOfEmissionFilterLink());
+        Assert.assertEquals(
+                lightPath.linkedEmissionFilterIterator().next(), filter);
     }
 
     public void testLogicalChannelSecondaryExcitationFilterReference()
@@ -352,9 +356,10 @@ public class GenericReferenceTest extends TestCase
                 new String[] { "Filter:0:0:OMERO_EXCITATION_FILTER" });
         store.updateReferences(referenceCache);
         LightPath lightPath = logicalChannel.getLightPath();
-        assertEquals(1, lightPath.sizeOfExcitationFilterLink());
-        assertEquals(0, lightPath.sizeOfEmissionFilterLink());
-        assertEquals(lightPath.linkedExcitationFilterIterator().next(), filter);
+        Assert.assertEquals(1, lightPath.sizeOfExcitationFilterLink());
+        Assert.assertEquals(0, lightPath.sizeOfEmissionFilterLink());
+        Assert.assertEquals(
+                lightPath.linkedExcitationFilterIterator().next(), filter);
     }
 
     public void testFilterSetDichroicReference()
@@ -363,6 +368,6 @@ public class GenericReferenceTest extends TestCase
         referenceCache.put("FilterSet:0:0",
                            new String[] { "Dichroic:0:0" });
         store.updateReferences(referenceCache);
-        assertEquals(filterSet.getDichroic(), dichroic);
+        Assert.assertEquals(filterSet.getDichroic(), dichroic);
     }
 }
