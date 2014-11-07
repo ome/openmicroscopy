@@ -677,13 +677,13 @@ class TestDelete(lib.ITest):
         assert not query.find("Project", p1.id.val)
         assert not query.find("Dataset", d.id.val)
 
-    @pytest.mark.xfail(reason="d and i are not deleted, link p2->d remains")
     def testDeleteProjectWithDatasetLinkedToAnotherProject(self):
         """
         P1->D->I
         P2->D->I
         Delete P1
-        FAIL: In Webclient this succeeds. It fails here.
+        FAIL?: Webclient happily removes P1 and I, leaving P2 and D.
+        In the test, however, only P1 is removed and P2, D and I remain.
 
         See https://trac.openmicroscopy.org.uk/ome/ticket/12452
         """
@@ -700,10 +700,10 @@ class TestDelete(lib.ITest):
         self.link(d, i)
         self.delete([p1])
 
-        assert query.find("Project", p2.id.val)
         assert not query.find("Project", p1.id.val)
-        assert not query.find("Dataset", d.id.val)
-        assert not query.find("Image", i.id.val)
+        assert query.find("Project", p2.id.val)
+        assert query.find("Dataset", d.id.val)
+        assert query.find("Image", i.id.val)
 
     def testDeleteDatasetLinkedToTwoProjects(self):
         """
