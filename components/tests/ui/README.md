@@ -74,9 +74,9 @@ generate this configuration file from a running server, you can use the CLI
 robot plugin, e.g. for a  local server:
 
 ```
-mv robot_ice.config ../components/tests/ui/resources/
-export ICE_CONFIG=$(pwd)/components/tests/ui/resources/robot_ice.config
-bin/omero --path ../components/tests/ui/plugins robot config > ../components/tests/ui/resources/config.txt
+cd ../
+mv dist/robot_ice.config components/tests/ui/resources/
+ICE_CONFIG=$(pwd)/components/tests/ui/resources/robot_ice.config dist/bin/omero --path components/tests/ui/plugins robot config > components/tests/ui/resources/config.txt
 ```
 
 Note this command will create the Robot configuration file using the
