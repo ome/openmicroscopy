@@ -158,6 +158,7 @@
         <bean parent="graphPolicyRule" p:matches="WS:WellSample[!D].image = I:[D]" p:error="may delete {I} only via {WS}"/>
         <bean parent="graphPolicyRule" p:matches="L:ILink.parent = X:[E]/!d, L.child = T:TagAnnotation[D]"
                                        p:error="may not delete {T} because {X} is tagged with it"/>
+        <bean parent="graphPolicyRule" p:matches="E:IEnum[E]" p:changes="E:[O]"/>
         <bean parent="graphPolicyRule" p:matches="[D] =? X:!ILink[E]{o}" p:changes="X:[D]"/>
         <bean parent="graphPolicyRule" p:matches="POFM:PixelsOriginalFileMap.parent = [D], POFM.child = P:Pixels[E]{r}"
                                        p:changes="P:{a}"/>
