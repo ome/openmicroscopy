@@ -55,7 +55,6 @@ Test Channel Rename
 
     Set Selenium Speed                          1 seconds
     Tree Should Be Visible
-    Wait For Node To Be Visible                 ${FULL NAME}
     Select And Expand Project
     Select And Expand Dataset
     ${imageId}=                                 Select And Expand Image
@@ -146,6 +145,7 @@ Test Annotate
     # Tags
     Click Element                               launch_tags_form
     Wait Until Page Contains Element            id_tag
+    Sleep                                       5                   # allow tags to load
     Input Text                                  id_tag     testSeleniumTag${pid}
     Click Element                               id_add_new_tag
     Click Element                               xpath=//button/span[contains(text(),'Save')]
@@ -177,6 +177,7 @@ Test Batch Annotate
     # Tags
     Click Element                               launch_tags_form
     Wait Until Page Contains Element            id_tag
+    Sleep                                       5                   # allow tags to load
     Input Text                                  id_tag     testSeleniumTag${pid}
     Click Element                               id_add_new_tag
     Click Element                               xpath=//button/span[contains(text(),'Save')]
