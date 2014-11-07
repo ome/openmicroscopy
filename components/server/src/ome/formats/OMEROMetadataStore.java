@@ -8,6 +8,8 @@
 package ome.formats;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1694,6 +1696,7 @@ public class OMEROMetadataStore
     	Set<ObjectiveSettings> objectiveSettings =
     		new HashSet<ObjectiveSettings>();
     	Set<LightSettings> lightSettings = new HashSet<LightSettings>();
+    	Set<LightPath> lightPaths = new HashSet<LightPath>();
     	Set<DetectorSettings> detectorSettings = 
     		new HashSet<DetectorSettings>();
     	Set<LogicalChannel> logicalChannels = new HashSet<LogicalChannel>();
@@ -1713,6 +1716,8 @@ public class OMEROMetadataStore
     					getUniqueLightSettings(lightSettings, lc));
     			lc.setDetectorSettings(
     					getUniqueDetectorSettings(detectorSettings, lc));
+    			lc.setLightPath(
+    					getUniqueLightPath(lightPaths, lc.getLightPath()));
     			channel.setLogicalChannel(
     					getUniqueLogicalChannel(logicalChannels, lc));
     		}
@@ -1720,6 +1725,7 @@ public class OMEROMetadataStore
     	log.info("Unique objective settings: " + objectiveSettings.size());
     	log.info("Unique light settings: " + lightSettings.size());
     	log.info("Unique detector settings: " + detectorSettings.size());
+    	log.info("Unique light paths: " + lightPaths.size());
     	log.info("Unique logical channels: " + logicalChannels.size());
     }
 
@@ -1871,6 +1877,47 @@ public class OMEROMetadataStore
     }
 
     /**
+     * Finds the matching unique light path.
+     * @param uniqueLightPaths Set of existing unique light paths.
+     * @param lp Light path to compare for uniqueness.
+     * @return Matched unique light path or <code>null</code> if
+     * <code>lp == null</code>.
+     */
+    private LightPath getUniqueLightPath(
+            Set<LightPath> uniqueLightPaths, LightPath lp)
+    {
+        if (lp == null)
+        {
+            return null;
+        }
+
+        for (LightPath lp2 : uniqueLightPaths)
+        {
+            if (lp.getDichroic() == lp2.getDichroic()) {
+                // Excitation filters are ordered - no sorting required.
+                List<Filter> exFilters = lp.linkedExcitationFilterList();
+                List<Filter> exFilters2 = lp2.linkedExcitationFilterList();
+                if (exFilters.equals(exFilters2)) {
+                    List<Filter> emFilters = lp.linkedEmissionFilterList();
+                    List<Filter> emFilters2 = lp2.linkedEmissionFilterList();
+                    // Emission filters are un-ordered - sorting required.  If
+                    // we do not sort out of order filters will cause
+                    // List.equals() to fail.
+                    Comparator<Filter> comparator = new ToStringComparator();
+                    Collections.sort(emFilters, comparator);
+                    Collections.sort(emFilters2, comparator);
+
+                    if (emFilters.equals(emFilters2)) {
+                        return lp2;
+                    }
+                }
+            }
+        }
+        uniqueLightPaths.add(lp);
+        return lp;
+    }
+
+    /**
      * Saves the current object graph to the database.
      * 
      * @return List of the Pixels objects with their attached object graphs
@@ -1938,5 +1985,18 @@ public class OMEROMetadataStore
     	}
     	Channel[] toSave = channelList.toArray(new Channel[channelList.size()]);
     	sf.getUpdateService().saveArray(toSave);
+    }
+
+    /**
+     * Simple comparator that compares two filters by their stringified value.
+     * @author Emil Rozbicki <emil@glencoesoftware.com>
+     *
+     */
+    class ToStringComparator implements Comparator<Filter>
+    {
+        @Override
+        public int compare(Filter a, Filter b) {
+            return a.toString().compareTo(b.toString());
+        }
     }
 }
