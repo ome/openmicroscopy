@@ -18,7 +18,10 @@ import ome.formats.OMEROMetadataStore;
 import ome.model.acquisition.Dichroic;
 import ome.model.acquisition.Filter;
 import ome.model.acquisition.Instrument;
+import ome.model.acquisition.Laser;
 import ome.model.acquisition.LightPath;
+import ome.model.acquisition.LightSettings;
+import ome.model.acquisition.LightSource;
 import ome.model.acquisition.Objective;
 import ome.model.acquisition.ObjectiveSettings;
 import ome.model.core.Channel;
@@ -53,6 +56,12 @@ public class MultiplePlateTest
         indexes.put("instrumentIndex", 0);
         indexes.put("objectiveIndex", 0);
         store.updateObject("Objective:0:0", objective, indexes);
+
+        LightSource lightSource = new Laser();
+        indexes =  new LinkedHashMap<String, Integer>();
+        indexes.put("instrumentIndex", 0);
+        indexes.put("lightSourceIndex", 0);
+        store.updateObject("LightSource:0:0", lightSource, indexes);
 
         for (int d = 0; d < 2; d++) {
             Dichroic dichroic = new Dichroic();
@@ -105,6 +114,7 @@ public class MultiplePlateTest
                 Channel channel = new Channel();
                 channel.setVersion(c);
                 LogicalChannel logicalChannel = new LogicalChannel();
+                LightSettings lightSettings = new LightSettings();
 
                 indexes = new LinkedHashMap<String, Integer>();
                 indexes.put("imageIndex", i);
@@ -117,6 +127,12 @@ public class MultiplePlateTest
                 store.updateObject(
                         String.format("LogicalChannel:%d:%d", i, c),
                         logicalChannel,
+                        indexes
+                );
+
+                store.updateObject(
+                        String.format("LightSettings:%d:%d", i, c),
+                        lightSettings,
                         indexes
                 );
             }
@@ -190,6 +206,14 @@ public class MultiplePlateTest
                     new String [] {"Objective:0:0"});
 
             referenceCache.put(
+                    String.format("LightSettings:%d:%d", i, 0),
+                    new String [] {"LightSource:0:0"});
+
+            referenceCache.put(
+                    String.format("LightSettings:%d:%d", i, 1),
+                    new String [] {"LightSource:0:0"});
+
+            referenceCache.put(
                     String.format("LightPath:%d:%d", i, 0),
                     new String [] {
                         "Filter:0:0:OMERO_EMISSION_FILTER",
@@ -225,9 +249,12 @@ public class MultiplePlateTest
         Assert.assertEquals(instrument.sizeOfFilter(), 8);
         Assert.assertEquals(instrument.sizeOfDichroic(), 2);
         Assert.assertEquals(instrument.sizeOfObjective(), 1);
+        Assert.assertEquals(instrument.sizeOfLightSource(), 1);
 
         Objective objective = instrument.iterateObjective().next();
         Assert.assertNotNull(objective);
+        LightSource lightSource = instrument.iterateLightSource().next();
+        Assert.assertNotNull(lightSource);
 
         for (int i = 0; i < 3; i++)
         {
@@ -258,7 +285,7 @@ public class MultiplePlateTest
                 Assert.assertNotNull(pixels);
                 Assert.assertEquals(pixels.sizeOfChannels(), 2);
                 for (Channel channel : pixels.<Channel>collectChannels(null)) {
-                    assertChannel(channel);
+                    assertChannel(channel, lightSource);
                 }
             }
         }
@@ -268,8 +295,9 @@ public class MultiplePlateTest
      * Checks that channel is linked to LogicalChannel and LightPath.
      * Checks that LightPath is linked to correct Filters and Dichroic.
      * @param channel Channel object.
+     * @param expectedLightSource LightSource from Instrument.
      */
-    public void assertChannel(Channel channel)
+    public void assertChannel(Channel channel, LightSource expectedLightSource)
     {
         LogicalChannel logicalChannel = channel.getLogicalChannel();
         Assert.assertNotNull(logicalChannel);
@@ -277,6 +305,11 @@ public class MultiplePlateTest
         Assert.assertNotNull(lightPath);
         Assert.assertEquals(lightPath.sizeOfEmissionFilterLink(), 2);
         Assert.assertEquals(lightPath.sizeOfExcitationFilterLink(), 2);
+        LightSettings lightSettings = logicalChannel.getLightSourceSettings();
+        Assert.assertNotNull(lightSettings);
+        LightSource lightSource = lightSettings.getLightSource();
+        Assert.assertNotNull(lightSource);
+        Assert.assertEquals(lightSource, expectedLightSource);
 
         for (Filter filter : lightPath.linkedEmissionFilterList()) {
             String model = filter.getModel();
@@ -305,6 +338,8 @@ public class MultiplePlateTest
 
         Set<LogicalChannel> uniqueLogicalChannels =
                 new HashSet<LogicalChannel>();
+        Set<LightSettings> uniqueLightSettings =
+                new HashSet<LightSettings>();
         Set<LightPath> uniqueLightPaths = new HashSet<LightPath>();
         Set<ObjectiveSettings> uniqueObjectiveSettings =
                 new HashSet<ObjectiveSettings>();
@@ -325,10 +360,13 @@ public class MultiplePlateTest
                     LogicalChannel logicalChannel = channel.getLogicalChannel();
                     uniqueLogicalChannels.add(logicalChannel);
                     uniqueLightPaths.add(logicalChannel.getLightPath());
+                    uniqueLightSettings.add(
+                            logicalChannel.getLightSourceSettings());
                 }
             }
         }
         Assert.assertEquals(uniqueObjectiveSettings.size(), 1);
+        Assert.assertEquals(uniqueLightSettings.size(), 1);
         Assert.assertEquals(uniqueLightPaths.size(), 2);
         Assert.assertEquals(uniqueLogicalChannels.size(), 2);
     }
