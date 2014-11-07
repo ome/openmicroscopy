@@ -245,10 +245,10 @@
 
     /* Image details */
     var tmp = getMetadata();
-    $('#wblitz-image-name').html(tmp.imageName);
-    $('#wblitz-image-description-content').html(tmp.imageDescription.replace(/\n/g, '<br />'));
+    $('#wblitz-image-name').html(tmp.imageName.escapeHTML());
+    $('#wblitz-image-description-content').html(tmp.imageDescription.escapeHTML().replace(/\n/g, '<br />'));
     $('#wblitz-image-author').html(tmp.imageAuthor);
-    $('#wblitz-image-pub').html(tmp.projectName);
+    $('#wblitz-image-pub').html(tmp.projectName.escapeHTML());
     $('#wblitz-image-pubid').html(tmp.projectId);
     $('#wblitz-image-timestamp').html(tmp.imageTimestamp);
 
