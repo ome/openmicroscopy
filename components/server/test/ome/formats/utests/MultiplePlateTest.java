@@ -211,21 +211,21 @@ public class MultiplePlateTest
         Instrument instrument = (Instrument) store.getObjectByLSID(
                 new LSID("Instrument:0"));
         Assert.assertNotNull(instrument);
-        Assert.assertEquals(8, instrument.sizeOfFilter());
-        Assert.assertEquals(2, instrument.sizeOfDichroic());
+        Assert.assertEquals(instrument.sizeOfFilter(), 8);
+        Assert.assertEquals(instrument.sizeOfDichroic(), 2);
 
         for (int i = 0; i < 3; i++)
         {
             Plate plate = (Plate) store.getObjectByLSID(new LSID("Plate:" + i));
             Assert.assertNotNull(plate);
             Assert.assertEquals("Plate:" + i, plate.getName());
-            Assert.assertEquals(3, plate.sizeOfWells());
+            Assert.assertEquals(plate.sizeOfWells(), 3);
             Iterator<Well> wellIterator = plate.iterateWells();
             while (wellIterator.hasNext())
             {
                 Well well = wellIterator.next();
                 Assert.assertNotNull(well);
-                Assert.assertEquals(1, well.sizeOfWellSamples());
+                Assert.assertEquals(well.sizeOfWellSamples(), 1);
                 WellSample wellSample = well.iterateWellSamples().next();
                 Assert.assertNotNull(wellSample);
 
@@ -236,7 +236,7 @@ public class MultiplePlateTest
                 Assert.assertEquals(instrument, imageInstrument);
                 Pixels pixels = image.getPrimaryPixels();
                 Assert.assertNotNull(pixels);
-                Assert.assertEquals(2, pixels.sizeOfChannels());
+                Assert.assertEquals(pixels.sizeOfChannels(), 2);
                 for (Channel channel : pixels.<Channel>collectChannels(null)) {
                     assertChannel(channel);
                 }
@@ -255,8 +255,8 @@ public class MultiplePlateTest
         Assert.assertNotNull(logicalChannel);
         LightPath lightPath = logicalChannel.getLightPath();
         Assert.assertNotNull(lightPath);
-        Assert.assertEquals(2, lightPath.sizeOfEmissionFilterLink());
-        Assert.assertEquals(2, lightPath.sizeOfExcitationFilterLink());
+        Assert.assertEquals(lightPath.sizeOfEmissionFilterLink(), 2);
+        Assert.assertEquals(lightPath.sizeOfExcitationFilterLink(), 2);
 
         for (Filter filter : lightPath.linkedEmissionFilterList()) {
             String model = filter.getModel();
