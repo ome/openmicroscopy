@@ -53,6 +53,11 @@ public class ChildOptionsPolicy {
     public static GraphPolicy getChildOptionsPolicy(final GraphPolicy graphPolicyToAdjust, final GraphPathBean graphPathBean,
             final ChildOptionI[] childOptions, final Set<GraphPolicy.Ability> requiredPermissions) {
 
+        if (childOptions == null || childOptions.length == 0) {
+            /* there are no adjustments to make to the policy */
+            return graphPolicyToAdjust;
+        }
+
         /* wrap the traversal policy so that the child options are effected */
 
         return new GraphPolicy() {
