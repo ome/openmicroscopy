@@ -94,6 +94,8 @@
         <bean parent="graphPolicyRule" p:matches="[I] == X:[D]" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="I:Image[E]{!a}.rois = [DI]" p:changes="I:{a}"/>
         <bean parent="graphPolicyRule" p:matches="I:Image[E]{!a}.stageLabel = [DI]" p:changes="I:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="P:Pixels[E]{!a}.relatedTo = [DI]" p:changes="P:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="Pixels[DI].relatedTo = P:[E]{!a}" p:changes="P:{a}"/>
         <bean parent="graphPolicyRule" p:matches="PlateAcquisition[DI].plate = C:[E]{!a}" p:changes="C:{a}"/>
         <bean parent="graphPolicyRule" p:matches="Well[DI].plate = C:[E]{!a}" p:changes="C:{a}"/>
         <bean parent="graphPolicyRule" p:matches="WellSample[DI].plateAcquisition = C:[E]{!a}" p:changes="C:{a}"/>
@@ -174,6 +176,8 @@
         <bean parent="graphPolicyRule" p:matches="L:ILink[!O]" p:changes="L:[*]"/>
         <bean parent="graphPolicyRule" p:matches="I:Image[E]{!a}.rois = [D]" p:changes="I:{a}"/>
         <bean parent="graphPolicyRule" p:matches="I:Image[E]{!a}.stageLabel = [D]" p:changes="I:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="P:Pixels[E]{!a}.relatedTo = [D]" p:changes="P:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="Pixels[D].relatedTo = P:[E]{!a}" p:changes="P:{a}"/>
         <bean parent="graphPolicyRule" p:matches="PlateAcquisition[D].plate = C:[E]{!a}" p:changes="C:{a}"/>
         <bean parent="graphPolicyRule" p:matches="Well[D].plate = C:[E]{!a}" p:changes="C:{a}"/>
         <bean parent="graphPolicyRule" p:matches="WellSample[D].plateAcquisition = C:[E]{!a}" p:changes="C:{a}"/>
