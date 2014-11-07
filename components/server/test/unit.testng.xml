@@ -11,6 +11,7 @@
       </run>        
     </groups>
     <packages>
+      <package name="ome.formats.*"/>
       <package name="ome.server.*"/>
       <package name="ome.services.*"/>
       <package name="omeis.*"/>
