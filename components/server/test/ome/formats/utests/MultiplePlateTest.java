@@ -19,6 +19,8 @@ import ome.model.acquisition.Dichroic;
 import ome.model.acquisition.Filter;
 import ome.model.acquisition.Instrument;
 import ome.model.acquisition.LightPath;
+import ome.model.acquisition.Objective;
+import ome.model.acquisition.ObjectiveSettings;
 import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
@@ -46,7 +48,12 @@ public class MultiplePlateTest
         indexes.put("instrumentIndex", 0);
         store.updateObject("Instrument:0", instrument, indexes);
 
-        
+        Objective objective = new Objective();
+        indexes =  new LinkedHashMap<String, Integer>();
+        indexes.put("instrumentIndex", 0);
+        indexes.put("objectiveIndex", 0);
+        store.updateObject("Objective:0:0", objective, indexes);
+
         for (int d = 0; d < 2; d++) {
             Dichroic dichroic = new Dichroic();
             dichroic.setModel("Dichroic:" + d);
@@ -81,15 +88,15 @@ public class MultiplePlateTest
             indexes = new LinkedHashMap<String, Integer>();
             indexes.put("imageIndex", i);
             store.updateObject("Image:" + i, image, indexes);
-        }
-        // Populate Pixels
-        for (int p = 0; p < 9; p++) {
             Pixels pixels = new Pixels();
-            indexes = new LinkedHashMap<String, Integer>();
-            indexes.put("imageIndex", p);
             store.updateObject(
-                    String.format("Pixels:%d", p),
+                    String.format("Pixels:%d", i),
                     pixels, indexes
+            );
+            ObjectiveSettings objectiveSettings = new ObjectiveSettings();
+            store.updateObject(
+                    String.format("ObjectiveSettings:%d", i),
+                    objectiveSettings, indexes
             );
         }
         // Populate Channels
@@ -179,6 +186,10 @@ public class MultiplePlateTest
                     new String [] {"Instrument:0"});
 
             referenceCache.put(
+                    String.format("ObjectiveSettings:%d", i),
+                    new String [] {"Objective:0:0"});
+
+            referenceCache.put(
                     String.format("LightPath:%d:%d", i, 0),
                     new String [] {
                         "Filter:0:0:OMERO_EMISSION_FILTER",
@@ -213,6 +224,10 @@ public class MultiplePlateTest
         Assert.assertNotNull(instrument);
         Assert.assertEquals(instrument.sizeOfFilter(), 8);
         Assert.assertEquals(instrument.sizeOfDichroic(), 2);
+        Assert.assertEquals(instrument.sizeOfObjective(), 1);
+
+        Objective objective = instrument.iterateObjective().next();
+        Assert.assertNotNull(objective);
 
         for (int i = 0; i < 3; i++)
         {
@@ -234,6 +249,11 @@ public class MultiplePlateTest
                 Instrument imageInstrument = image.getInstrument();
                 Assert.assertNotNull(imageInstrument);
                 Assert.assertEquals(instrument, imageInstrument);
+                ObjectiveSettings objectiveSettings =
+                        image.getObjectiveSettings();
+                Assert.assertNotNull(objectiveSettings);
+                Objective imageObjective = objectiveSettings.getObjective();
+                Assert.assertEquals(imageObjective, objective);
                 Pixels pixels = image.getPrimaryPixels();
                 Assert.assertNotNull(pixels);
                 Assert.assertEquals(pixels.sizeOfChannels(), 2);
@@ -286,6 +306,8 @@ public class MultiplePlateTest
         Set<LogicalChannel> uniqueLogicalChannels =
                 new HashSet<LogicalChannel>();
         Set<LightPath> uniqueLightPaths = new HashSet<LightPath>();
+        Set<ObjectiveSettings> uniqueObjectiveSettings =
+                new HashSet<ObjectiveSettings>();
         for (int i = 0; i < 3; i++)
         {
             Plate plate = (Plate) store.getObjectByLSID(new LSID("Plate:" + i));
@@ -297,6 +319,7 @@ public class MultiplePlateTest
                 Well well = wellIterator.next();
                 WellSample wellSample = well.iterateWellSamples().next();
                 Image image = wellSample.getImage();
+                uniqueObjectiveSettings.add(image.getObjectiveSettings());
                 Pixels pixels = image.getPrimaryPixels();
                 for (Channel channel : pixels.<Channel>collectChannels(null)) {
                     LogicalChannel logicalChannel = channel.getLogicalChannel();
@@ -305,6 +328,7 @@ public class MultiplePlateTest
                 }
             }
         }
+        Assert.assertEquals(uniqueObjectiveSettings.size(), 1);
         Assert.assertEquals(uniqueLightPaths.size(), 2);
         Assert.assertEquals(uniqueLogicalChannels.size(), 2);
     }
