@@ -51,14 +51,15 @@ import javax.swing.text.JTextComponent;
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
+import org.apache.commons.lang.StringUtils;
 
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import pojos.BooleanAnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -336,7 +337,10 @@ public class EditorDialog
                     "Create a new "+typeName+".", icon);
             break;
         case EDIT_TYPE:
-            tp = new TitlePanel("Edit "+typeName, "Edit the "+typeName+".",
+        	if (StringUtils.isEmpty(typeName)) 
+        		tp = new TitlePanel("Edit value", "", icon);
+        	else
+        		tp = new TitlePanel("Edit "+typeName, "Edit the "+typeName+".",
                     icon);
             break;
         case VIEW_TYPE:
@@ -436,7 +440,7 @@ public class EditorDialog
         	BooleanAnnotationData d = (BooleanAnnotationData) data;
         	if (!name.equalsIgnoreCase("true") && !name.equalsIgnoreCase("false")) {
         		MetadataViewerAgent.getRegistry().getUserNotifier().notifyError("Invalid input", 
-        				"'"+name+"' is not a boolean value.");
+        				"'"+name+"' is not a boolean value (valid input is either 'true' or 'false').");
 				return;
         	}
 			d.setValue(Boolean.parseBoolean(name));
