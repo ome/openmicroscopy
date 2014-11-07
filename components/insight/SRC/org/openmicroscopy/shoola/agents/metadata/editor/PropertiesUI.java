@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -36,8 +35,6 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
@@ -51,7 +48,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -64,16 +60,16 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JToggleButton;
-import javax.swing.JToolBar;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.text.BadLocationException;
 
 import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.JXTaskPane;
+import com.google.common.base.CharMatcher;
+
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEvent;
@@ -90,7 +86,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.WikiDataObject;
-
 import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.DatasetData;
@@ -871,7 +866,6 @@ public class PropertiesUI
     private JTextArea createTextPane()
     {
     	JTextArea pane = new JTextArea();
-    	pane.setWrapStyleWord(true);
     	pane.setOpaque(false);
     	pane.setBackground(UIUtilities.BACKGROUND_COLOR);
     	return pane;
@@ -1068,16 +1062,28 @@ public class PropertiesUI
 			editableName = editable;
 			namePane.setEditable(editable);
 			if (editable) {
-				panel.setBorder(EDIT_BORDER_BLACK);
+				namePane.setBorder(EDIT_BORDER_BLACK);
 				field.requestFocus();
 			} else {
-				panel.setBorder(defaultBorder);
+				namePane.setBorder(defaultBorder);
 			}
 			namePane.getDocument().removeDocumentListener(this);
 			String text = namePane.getText();
-			if (text != null) text = text.trim();
-			if (editable) namePane.setText(modifiedName);
-			else namePane.setText(UIUtilities.formatPartialName(text));
+			if (text != null) 
+				text = text.trim();
+			if (editable) {
+				// the user might have finished editing by hitting return key, therefore
+				// remove line break characters
+				modifiedName = CharMatcher.JAVA_ISO_CONTROL.removeFrom(modifiedName);
+				namePane.setText(modifiedName);
+				namePane.setMaximumSize(namePane.getSize());
+				namePane.setLineWrap(true);
+			}
+			else {
+				namePane.setText(UIUtilities.formatPartialName(text));
+				namePane.setMaximumSize(null);
+				namePane.setLineWrap(false);
+			}
 			namePane.getDocument().addDocumentListener(this);
 			namePane.select(0, 0);
 			namePane.setCaretPosition(0);
@@ -1196,6 +1202,9 @@ public class PropertiesUI
         originalDisplayedName = UIUtilities.formatPartialName(originalName);
         namePane.setText(originalDisplayedName);
         namePane.setToolTipText(originalName);
+        // disable line wrap and only enable it in editing mode;
+        // otherwise keeping it enabled has a weird effect on the layout
+        namePane.setLineWrap(false);
 
         boolean b = model.canEdit();
         String t = text;
