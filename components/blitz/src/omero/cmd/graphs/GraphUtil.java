@@ -28,6 +28,7 @@ import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 
+import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphOpts.Op;
 import omero.cmd.GraphModify;
 import omero.cmd.GraphModify2;
@@ -104,38 +105,50 @@ public class GraphUtil {
      * @param graphRequestFactory a means of instantiating new child options
      * @param options {@link GraphModify} options, may be {@code null}
      * @param request the request whose options should be updated
+     * @param isAdmin if the current user is a system administrator
+     * @throws GraphException if a non-administrator attempted to use {@link Op#FORCE}
      */
     static void translateOptions(GraphRequestFactory graphRequestFactory, Map<String, String> options,
-            GraphModify2 request) {
+            GraphModify2 request, boolean isAdmin) throws GraphException {
         if (options == null) {
             return;
         }
-        request.childOptions = new ChildOption[options.size()];
-        int index = 0;
+        final List<ChildOption> childOptions = new ArrayList<ChildOption>(options.size());
         for (final Map.Entry<String, String> option : options.entrySet()) {
-            request.childOptions[index] = graphRequestFactory.createChildOption();
+            final ChildOption childOption = graphRequestFactory.createChildOption();
             /* find type to which options apply */
             String optionType = option.getKey();
             if (optionType.charAt(0) == '/') {
                 optionType = optionType.substring(1);
             }
+            boolean notedType = false;
             for (final String optionValue : GraphUtil.splitList(';', option.getValue())) {
                 /* approximately translate each option */
                 if (Op.KEEP.toString().equals(optionValue)) {
-                    request.childOptions[index].excludeType = Collections.singletonList(optionType);
+                    childOption.excludeType = Collections.singletonList(optionType);
+                    notedType = true;
                 } else if (Op.HARD.toString().equals(optionValue)) {
-                    request.childOptions[index].includeType = Collections.singletonList(optionType);
+                    childOption.includeType = Collections.singletonList(optionType);
+                    notedType = true;
+                } else if (Op.FORCE.toString().equals(optionValue)) {
+                    if (!isAdmin) {
+                        throw new GraphException("only administrators may specify " + Op.FORCE);
+                    }
                 } else if (optionValue.startsWith("excludes=")) {
-                    if (request.childOptions[index].excludeNs == null) {
-                        request.childOptions[index].excludeNs = new ArrayList<String>();
+                    if (childOption.excludeNs == null) {
+                        childOption.excludeNs = new ArrayList<String>();
                     }
                     for (final String namespace : GraphUtil.splitList(',', optionValue.substring(9))) {
-                        request.childOptions[index].excludeNs.add(namespace);
+                        childOption.excludeNs.add(namespace);
                     }
                 }
             }
-            index++;
+            /* each child option must apply to specific types */
+            if (notedType) {
+                childOptions.add(childOption);
+            }
         }
+        request.childOptions = childOptions.isEmpty() ? null : childOptions.toArray(new ChildOption[childOptions.size()]);
     }
 
     /**

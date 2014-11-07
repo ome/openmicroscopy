@@ -27,6 +27,7 @@ import java.util.Map;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 
+import ome.services.graphs.GraphException;
 import omero.cmd.Delete;
 import omero.cmd.Delete2Response;
 import omero.cmd.DeleteRsp;
@@ -88,7 +89,11 @@ public class DeleteFacadeI extends Delete implements IRequest {
             actualDelete.targetObjects.put(oneClassToTarget.getKey(), GraphUtil.idsToArray(oneClassToTarget.getValue()));
         }
         targetObjects.clear();
-        GraphUtil.translateOptions(graphRequestFactory, options, actualDelete);
+        try {
+            GraphUtil.translateOptions(graphRequestFactory, options, actualDelete, helper.getEventContext().isCurrentUserAdmin());
+        } catch (GraphException e) {
+            throw helper.cancel(new ERR(), new IllegalArgumentException(), "could not accept request options");
+        }
         /* check for root-anchored subgraph */
         final int lastSlash = type.lastIndexOf('/');
         if (lastSlash > 0) {

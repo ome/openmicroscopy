@@ -27,6 +27,7 @@ import java.util.Map;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 
+import ome.services.graphs.GraphException;
 import omero.cmd.Chgrp;
 import omero.cmd.ERR;
 import omero.cmd.Helper;
@@ -86,7 +87,11 @@ public class ChgrpFacadeI extends Chgrp implements IRequest {
         }
         targetObjects.clear();
         actualChgrp.groupId = grp;
-        GraphUtil.translateOptions(graphRequestFactory, options, actualChgrp);
+        try {
+            GraphUtil.translateOptions(graphRequestFactory, options, actualChgrp, helper.getEventContext().isCurrentUserAdmin());
+        } catch (GraphException e) {
+            throw helper.cancel(new ERR(), new IllegalArgumentException(), "could not accept request options");
+        }
         /* check for root-anchored subgraph */
         final int lastSlash = type.lastIndexOf('/');
         if (lastSlash > 0) {
