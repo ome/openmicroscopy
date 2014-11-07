@@ -59,14 +59,14 @@ public class DetectorSettingsDetectorTest extends TestCase
         Map<String, Integer> channelIndexes = 
             new LinkedHashMap<String, Integer>();
         channelIndexes.put("imageIndex", IMAGE_INDEX);
-        channelIndexes.put("logicalChannelIndex", CHANNEL_INDEX);
+        channelIndexes.put("channelIndex", CHANNEL_INDEX);
         
         String logicalChannelLSID = "LogicalChannel:0";
         LogicalChannel logicalChannel = new LogicalChannel();
         Map<String, Integer> logicalChannelIndexes = 
             new LinkedHashMap<String, Integer>();
         logicalChannelIndexes.put("imageIndex", IMAGE_INDEX);
-        logicalChannelIndexes.put("logicalChannelIndex", CHANNEL_INDEX);
+        logicalChannelIndexes.put("channelIndex", CHANNEL_INDEX);
         
         String instrumentLSID = "Instrument:0";
         Instrument instrument = new Instrument();
@@ -93,7 +93,7 @@ public class DetectorSettingsDetectorTest extends TestCase
         Map<String, Integer> detectorSettingsIndexes = 
             new LinkedHashMap<String, Integer>();
         detectorSettingsIndexes.put("imageIndex", IMAGE_INDEX);
-        detectorSettingsIndexes.put("logicalChannelIndex", CHANNEL_INDEX);
+        detectorSettingsIndexes.put("channelIndex", CHANNEL_INDEX);
         
         String objectiveSettingsLSID = "ObjectiveSettings:0";
         ObjectiveSettings objectiveSettings = new ObjectiveSettings();
