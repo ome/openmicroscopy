@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -35,6 +36,8 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
@@ -60,6 +63,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
@@ -142,9 +146,6 @@ public class PropertiesUI
     /** Action ID indicating to edit the channels.*/
     private static final int	EDIT_CHANNEL = 2;
     
-    /** Action ID indicating to save the description.*/
-    private static final int    SAVE_DESC = 3;
-    
     /** Text indicating to edit the name.*/
     private static final String EDIT_NAME_TEXT = "Edit the name";
     
@@ -169,13 +170,10 @@ public class PropertiesUI
     private static final int WIDTH = 100;
     
     /** Button to edit the name. */
-	private JButton				editName;
+	private JToggleButton				editName;
 	
 	/** Button to edit the description. */
-	private JButton				descriptionButtonEdit;
-	
-	/** Button to save the description */
-	private JButton        descriptionSaveButton;
+	private JToggleButton				descriptionButtonEdit;
 	
     /** The name before possible modification.*/
     private String				originalName;
@@ -399,13 +397,11 @@ public class PropertiesUI
     	
     	channelsPane = channelsArea;
     	IconManager icons = IconManager.getInstance();
-		editName = new JButton(icons.getIcon(IconManager.EDIT_12));
+		editName = new JToggleButton(icons.getIcon(IconManager.EDIT_12));
 		formatButton(editName, EDIT_NAME_TEXT, EDIT_NAME);
-		descriptionButtonEdit = new JButton(icons.getIcon(IconManager.EDIT_12));
+		descriptionButtonEdit = new JToggleButton(icons.getIcon(IconManager.EDIT_12));
 		formatButton(descriptionButtonEdit, EDIT_DESC_TEXT, EDIT_DESC);
-		descriptionSaveButton = new JButton(icons.getIcon(IconManager.SAVE));
-                formatButton(descriptionSaveButton, SAVE_DESC_TEXT, SAVE_DESC);
-                descriptionSaveButton.setEnabled(false);
+		
 		editChannel = new JButton(icons.getIcon(IconManager.EDIT_12));
 		formatButton(editChannel, EDIT_CHANNEL_TEXT, EDIT_CHANNEL);
 		editChannel.setEnabled(false);
@@ -439,6 +435,23 @@ public class PropertiesUI
     {
     	button.setOpaque(false);
 		UIUtilities.unifiedButtonLookAndFeel(button);
+		button.setBackground(UIUtilities.BACKGROUND_COLOR);
+		button.setToolTipText(text);
+		button.addActionListener(this);
+		button.setActionCommand(""+actionID);
+    }
+    
+    /**
+     * Formats the specified button.
+     * 
+     * @param button The button to handle.
+     * @param text The tool tip text.
+     * @param actionID The action command id.
+     */
+    private void formatButton(JToggleButton button, String text, int actionID)
+    {
+    	button.setOpaque(false);
+		//UIUtilities.unifiedButtonLookAndFeel(button);
 		button.setBackground(UIUtilities.BACKGROUND_COLOR);
 		button.setToolTipText(text);
 		button.addActionListener(this);
@@ -889,14 +902,10 @@ public class PropertiesUI
         c.gridx++;
         
         if (button != null) {
-            JToolBar bar = new JToolBar();
-            bar.setBorder(null);
-            bar.setFloatable(false);
-            bar.setBackground(UIUtilities.BACKGROUND_COLOR);
-            bar.add(button);
-            c.fill = GridBagConstraints.NONE;
-            c.weightx = 0;
-            p.add(bar, c);
+        	c.fill = GridBagConstraints.NONE;
+        	c.weightx = 0;
+        	c.anchor = GridBagConstraints.EAST;
+            p.add(button, c);
         }
        
         return p;
@@ -983,11 +992,6 @@ public class PropertiesUI
                 c.anchor = GridBagConstraints.NORTH;
         	descriptionPanel.add(descriptionButtonEdit, c);
         	
-        	c.gridx = 1;
-        	c.gridy = 1;
-        	c.anchor = GridBagConstraints.SOUTH;
-        	descriptionPanel.add(descriptionSaveButton, c);
-        	
         	boolean hasDescription = !descriptionWiki.getText().equals(DEFAULT_DESCRIPTION_TEXT);
         	expandDescriptionField(hasDescription);
         	
@@ -1005,10 +1009,8 @@ public class PropertiesUI
         if (expand) {
             Dimension viewportSize = new Dimension(WIDTH, HEIGHT);
             descriptionScrollPane.getViewport().setPreferredSize(viewportSize);
-            descriptionSaveButton.setVisible(true);
         } else {
             descriptionScrollPane.getViewport().setPreferredSize(null);
-            descriptionSaveButton.setVisible(false);
         }
         revalidate();
     }
@@ -1056,12 +1058,10 @@ public class PropertiesUI
 	 * 
 	 * @param panel     The panel to handle.
 	 * @param field		The field to handle.
-	 * @param button	The button to handle.
 	 * @param editable	Pass <code>true</code> if  to <code>edit</code>,
 	 * 					<code>false</code> otherwise.
 	 */
-	private void editField(JPanel panel, JComponent field, JButton button,
-			boolean editable)
+	private void editField(JPanel panel, JComponent field, boolean editable)
 	{
 		if (field == namePane) {
 			//namePane.setEnabled(editable);
@@ -1256,7 +1256,6 @@ public class PropertiesUI
 		expandDescriptionField(!originalDescription.equals(DEFAULT_DESCRIPTION_TEXT));
         boolean b = model.canEdit();
         descriptionButtonEdit.setEnabled(b);
-        descriptionSaveButton.setEnabled(false);
         if (b) {
         	descriptionWiki.addDocumentListener(this);
         }
@@ -1299,7 +1298,8 @@ public class PropertiesUI
                     if (name.length() > 0) pa.setName(name);
             }
 	    model.fireAnnotationSaving(null, Collections.emptyList(), false);
-	    
+	    editName.setSelected(false);
+	    namePane.setBorder(defaultBorder);
 	}
 	
 	void saveDescription() {
@@ -1342,7 +1342,7 @@ public class PropertiesUI
                     pa.setDescription(value);
             }
             model.fireAnnotationSaving(null, Collections.emptyList(), false);
-            descriptionSaveButton.setEnabled(false);
+            descriptionButtonEdit.setSelected(false);
         }
 	
 	/** Updates the data object. */
@@ -1508,6 +1508,9 @@ public class PropertiesUI
 	    descriptionWiki.setText(originalDescription);
 	    expandDescriptionField(!originalDescription.equals(DEFAULT_DESCRIPTION_TEXT));
 	    namePane.getDocument().addDocumentListener(this);
+	    namePane.setBorder(defaultBorder);
+	    editName.setSelected(false);
+	    descriptionButtonEdit.setSelected(false);
 	    descriptionWiki.addDocumentListener(this);
 	    channelEditPane = null;
 	    editChannel.setEnabled(false);
@@ -1547,19 +1550,7 @@ public class PropertiesUI
                 modifiedName = namePane.getText();
                 firePropertyChange(EditorControl.SAVE_PROPERTY,
                         Boolean.valueOf(false), Boolean.valueOf(true));
-            } else if (e.getDocument() == descriptionWiki.getDocument()) {
-                try {
-                    String desc = descriptionWiki.getDocument().getText(0,
-                            descriptionWiki.getDocument().getLength());
-                    if (!desc.equals(originalDescription)) {
-                        descriptionSaveButton.setEnabled(true);
-                    }
-                    else {
-                        descriptionSaveButton.setEnabled(false);
-                    }
-                } catch (BadLocationException e1) {
-                }
-            }
+            } 
         }
 
 	/**
@@ -1573,19 +1564,6 @@ public class PropertiesUI
 		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false),
 				Boolean.valueOf(true));
 	    }
-	    else if (e.getDocument() == descriptionWiki.getDocument()) {
-                try {
-                    String desc = descriptionWiki.getDocument().getText(0,
-                            descriptionWiki.getDocument().getLength());
-                    if (!desc.equals(originalDescription)) {
-                        descriptionSaveButton.setEnabled(true);
-                    }
-                    else {
-                        descriptionSaveButton.setEnabled(false);
-                    }
-                } catch (BadLocationException e1) {
-                }
-            } 
 	}
 
 	/** 
@@ -1597,15 +1575,19 @@ public class PropertiesUI
 	    int index = Integer.parseInt(e.getActionCommand());
 	    switch (index) {
 	    case EDIT_NAME:
-	        editField(namePanel, namePane, editName, !editableName);
+	    	if(editName.isSelected())
+	    		editField(namePanel, namePane, !editableName);
+	    	else
+	    		saveName();
 	        break;
 	    case EDIT_DESC:
-	        expandDescriptionField(true);
-	        editField(descriptionPanel, descriptionWiki,
-	                descriptionButtonEdit, !descriptionWiki.isEnabled());
-	        break;
-	    case SAVE_DESC:
-	        saveDescription();
+	    	if(descriptionButtonEdit.isSelected()) {
+	    		expandDescriptionField(true);
+	        	editField(descriptionPanel, descriptionWiki, !descriptionWiki.isEnabled());
+	    	}
+	    	else {
+	    		saveDescription();
+	    	}
 	        break;
 	    case EDIT_CHANNEL:
 	        editChannels();
