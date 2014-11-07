@@ -10,6 +10,10 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import ome.util.LSID;
 import ome.formats.OMEROMetadataStore;
 import ome.model.acquisition.Detector;
@@ -21,9 +25,9 @@ import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
 import ome.model.core.Pixels;
-import junit.framework.TestCase;
 
-public class DetectorSettingsDetectorTest extends TestCase
+@Test
+public class DetectorSettingsDetectorTest
 {
     private OMEROMetadataStore store;
 
@@ -37,7 +41,7 @@ public class DetectorSettingsDetectorTest extends TestCase
 
     private static final int IMAGE_INDEX = 0;
 
-    @Override
+    @BeforeMethod
     protected void setUp() throws Exception
     {
         store = new OMEROMetadataStore();
@@ -122,7 +126,7 @@ public class DetectorSettingsDetectorTest extends TestCase
         store.updateReferences(referenceCache);
         DetectorSettings detectorSettings = (DetectorSettings)
             store.getObjectByLSID(new LSID("DetectorSettings:0"));
-        assertNotNull(detectorSettings.getDetector());
+        Assert.assertNotNull(detectorSettings.getDetector());
     }
 
     public void testAddObjectiveSettingsObjectiveReference()
@@ -133,7 +137,7 @@ public class DetectorSettingsDetectorTest extends TestCase
         store.updateReferences(referenceCache);
         ObjectiveSettings objectiveSettings = (ObjectiveSettings)
             store.getObjectByLSID(new LSID("ObjectiveSettings:0"));
-        assertNotNull(objectiveSettings.getObjective());
+        Assert.assertNotNull(objectiveSettings.getObjective());
     }
 
     public void testAddDetectorAndObjectiveSettingsReferences()
@@ -151,7 +155,7 @@ public class DetectorSettingsDetectorTest extends TestCase
         ObjectiveSettings objectiveSettings = (ObjectiveSettings)
             store.getObjectByLSID(new LSID("ObjectiveSettings:0"));
 
-        assertNotNull(objectiveSettings.getObjective());
-        assertNotNull(detectorSettings.getDetector());
+        Assert.assertNotNull(objectiveSettings.getObjective());
+        Assert.assertNotNull(detectorSettings.getDetector());
     }
 }
