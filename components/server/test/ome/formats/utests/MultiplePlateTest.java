@@ -7,9 +7,11 @@
 package ome.formats.utests;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import ome.util.LSID;
 import ome.formats.OMEROMetadataStore;
@@ -274,5 +276,36 @@ public class MultiplePlateTest
                 "Dichroic:" + channel.getVersion(),
                 dichroic.getModel()
             );
+    }
+
+    @Test
+    public void testCheckAndCollapseGraph()
+    {
+        store.checkAndCollapseGraph();
+
+        Set<LogicalChannel> uniqueLogicalChannels =
+                new HashSet<LogicalChannel>();
+        Set<LightPath> uniqueLightPaths = new HashSet<LightPath>();
+        for (int i = 0; i < 3; i++)
+        {
+            Plate plate = (Plate) store.getObjectByLSID(new LSID("Plate:" + i));
+            Assert.assertNotNull(plate);
+            Assert.assertEquals("Plate:" + i, plate.getName());
+            Iterator<Well> wellIterator = plate.iterateWells();
+            while (wellIterator.hasNext())
+            {
+                Well well = wellIterator.next();
+                WellSample wellSample = well.iterateWellSamples().next();
+                Image image = wellSample.getImage();
+                Pixels pixels = image.getPrimaryPixels();
+                for (Channel channel : pixels.<Channel>collectChannels(null)) {
+                    LogicalChannel logicalChannel = channel.getLogicalChannel();
+                    uniqueLogicalChannels.add(logicalChannel);
+                    uniqueLightPaths.add(logicalChannel.getLightPath());
+                }
+            }
+        }
+        Assert.assertEquals(uniqueLightPaths.size(), 2);
+        Assert.assertEquals(uniqueLogicalChannels.size(), 2);
     }
 }
