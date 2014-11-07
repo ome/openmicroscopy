@@ -640,7 +640,7 @@ class TestDelete(lib.ITest):
         """
         P->D
         Delete P
-        P is deleted, D is deleted. OK.
+        OK: P is deleted, D is deleted.
 
         See https://trac.openmicroscopy.org.uk/ome/ticket/12452
         """
@@ -660,7 +660,7 @@ class TestDelete(lib.ITest):
         P1->D
         P2->D
         Delete P1
-        D1 is not deleted and link P2->D1 remains. FAIL.
+        FAIL: Webclient allows for deleting P1.
 
         See https://trac.openmicroscopy.org.uk/ome/ticket/12452
         """
@@ -683,7 +683,7 @@ class TestDelete(lib.ITest):
         P1->D->I
         P2->D->I
         Delete P1
-        D1 is not deleted, link P2->D1 remains, but I1 is deleted. FAIL.
+        FAIL: In Webclient this succeeds. It fails here.
 
         See https://trac.openmicroscopy.org.uk/ome/ticket/12452
         """
@@ -709,8 +709,9 @@ class TestDelete(lib.ITest):
         """
         P1->D->I
         P2->D->I
-        Delete D1
-        I1 is deleted. OK.
+        Delete D
+        OK: Dataset and Image are deleted, but this isn't
+        possible in the Webclient.
 
         See https://trac.openmicroscopy.org.uk/ome/ticket/12452
         """
@@ -738,8 +739,8 @@ class TestDelete(lib.ITest):
         D1->I
         D2->I
         Delete D1
-        Exception is thrown: FAIL - For some reason not throwing exception
-        here but does from webclient and it looks exactly the same!?!
+        FAIL: Both this test and the Webclient fail to delete
+        the Dataset and Image.
 
         See https://trac.openmicroscopy.org.uk/ome/ticket/12452
         """

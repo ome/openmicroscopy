@@ -606,7 +606,7 @@ class TestChgrp(lib.ITest):
         """
         D->I
         ChGrp D
-        D hierarchy moved entirely. OK.
+        OK: D hierarchy moved entirely.
 
         See https://trac.openmicroscopy.org.uk/ome/ticket/12452
         """
@@ -635,7 +635,7 @@ class TestChgrp(lib.ITest):
         """
         P->D->I
         ChGrp P
-        P hierarchy moved entirely. OK.
+        OK: P hierarchy moved entirely.
 
         See https://trac.openmicroscopy.org.uk/ome/ticket/12452
         """
@@ -670,7 +670,7 @@ class TestChgrp(lib.ITest):
         D1->I
         D2->I
         ChGrp D1
-        Exception (1): FAIL. Good to see that something fails the same.
+        FAIL: Webclient fails with a GraphConstraintException.
 
         See https://trac.openmicroscopy.org.uk/ome/ticket/12452
         """
@@ -702,11 +702,11 @@ class TestChgrp(lib.ITest):
     @pytest.mark.xfail(reason="d1 group id doesn't match target_gid")
     def testChgrpProjectWithDatasetLinkedToImageWithOtherDataset(self):
         """
-        # P->D1->I
-        #    D2->I
-        # ChGrp P
-        # P moved, Image moved but orphaned, D1 not moved and orphaned: FAIL.
-        # Again different from webclient, this time, image is not moved either.
+        P->D1->I
+           D2->I
+        ChGrp P
+        FAIL: In Webclient P moved, Image not moved, D1 not moved
+        and both not orphaned.
 
         See https://trac.openmicroscopy.org.uk/ome/ticket/12452
         """
@@ -742,7 +742,7 @@ class TestChgrp(lib.ITest):
         P1->D->I
         P2->D->I
         ChGrp D
-        D Hierarchy moved entirely: OK.
+        OK: D Hierarchy moved entirely.
 
         See https://trac.openmicroscopy.org.uk/ome/ticket/12452
         """
@@ -782,9 +782,8 @@ class TestChgrp(lib.ITest):
         P1->D->I
         P2->D->I
         ChGrp P1
-        P1 moved, Image moved but orphaned, D1 not moved, but not orphaned
-        as in P2: FAIL
-        Different from webclient, image not moved either here.
+        FAIL: In Webclient P1 moved, Image not moved, D1 not moved
+        and both not orphaned.
 
         See https://trac.openmicroscopy.org.uk/ome/ticket/12452
         """
@@ -821,7 +820,7 @@ class TestChgrp(lib.ITest):
         P1->D
         P2->D
         ChGrp P1
-        P1 moved, D1 not moved, but not orphaned as in P2: FAIL.
+        FAIL: In Webclient P1 moved, D not moved, but not orphaned.
 
         See https://trac.openmicroscopy.org.uk/ome/ticket/12452
         """
@@ -851,7 +850,7 @@ class TestChgrp(lib.ITest):
         P->D1->I
         P->D2->I
         ChGrp P
-        P hierarchy moved entirely: OK.
+        OK: P hierarchy moved entirely.
 
         See https://trac.openmicroscopy.org.uk/ome/ticket/12452
         """
