@@ -24,13 +24,16 @@ import ome.model.core.Pixels;
 import ome.model.screen.Plate;
 import ome.model.screen.Well;
 import ome.model.screen.WellSample;
-import junit.framework.TestCase;
 
-public class MultiplePlateTest extends TestCase
+import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+public class MultiplePlateTest
 {
     private OMEROMetadataStore store;
 
-    @Override
+    @BeforeMethod
     protected void setUp() throws Exception
     {
         store = new OMEROMetadataStore();
@@ -200,44 +203,45 @@ public class MultiplePlateTest extends TestCase
      * Tests Objects and object References created in setUp();
      * Checks that object exists and are correctly linked.
      */
+    @Test
     public void testMetadata()
     {
         Instrument instrument = (Instrument) store.getObjectByLSID(
                 new LSID("Instrument:0"));
-        assertNotNull(instrument);
-        assertEquals(8, instrument.sizeOfFilter());
-        assertEquals(2, instrument.sizeOfDichroic());
+        Assert.assertNotNull(instrument);
+        Assert.assertEquals(8, instrument.sizeOfFilter());
+        Assert.assertEquals(2, instrument.sizeOfDichroic());
 
         for (int i = 0; i < 3; i++)
         {
             Plate plate = (Plate) store.getObjectByLSID(new LSID("Plate:" + i));
-            assertNotNull(plate);
-            assertEquals("Plate:" + i, plate.getName());
-            assertEquals(3, plate.sizeOfWells());
+            Assert.assertNotNull(plate);
+            Assert.assertEquals("Plate:" + i, plate.getName());
+            Assert.assertEquals(3, plate.sizeOfWells());
             Iterator<Well> wellIterator = plate.iterateWells();
             while (wellIterator.hasNext())
             {
                 Well well = wellIterator.next();
-                assertNotNull(well);
-                assertEquals(1, well.sizeOfWellSamples());
+                Assert.assertNotNull(well);
+                Assert.assertEquals(1, well.sizeOfWellSamples());
                 WellSample wellSample = well.iterateWellSamples().next();
-                assertNotNull(wellSample);
+                Assert.assertNotNull(wellSample);
 
                 Image image = wellSample.getImage();
-                assertNotNull(image);
+                Assert.assertNotNull(image);
                 Instrument imageInstrument = image.getInstrument();
-                assertNotNull(imageInstrument);
-                assertEquals(instrument, imageInstrument);
+                Assert.assertNotNull(imageInstrument);
+                Assert.assertEquals(instrument, imageInstrument);
                 Pixels pixels = image.getPrimaryPixels();
-                assertNotNull(pixels);
-                assertEquals(2, pixels.sizeOfChannels());
+                Assert.assertNotNull(pixels);
+                Assert.assertEquals(2, pixels.sizeOfChannels());
                 for (Channel channel : pixels.<Channel>collectChannels(null)) {
                     assertChannel(channel);
                 }
             }
         }
     }
-    
+
     /**
      * Checks that channel is linked to LogicalChannel and LightPath.
      * Checks that LightPath is linked to correct Filters and Dichroic.
@@ -246,27 +250,27 @@ public class MultiplePlateTest extends TestCase
     public void assertChannel(Channel channel)
     {
         LogicalChannel logicalChannel = channel.getLogicalChannel();
-        assertNotNull(logicalChannel);
+        Assert.assertNotNull(logicalChannel);
         LightPath lightPath = logicalChannel.getLightPath();
-        assertNotNull(lightPath);
-        assertEquals(2, lightPath.sizeOfEmissionFilterLink());
-        assertEquals(2, lightPath.sizeOfExcitationFilterLink());
+        Assert.assertNotNull(lightPath);
+        Assert.assertEquals(2, lightPath.sizeOfEmissionFilterLink());
+        Assert.assertEquals(2, lightPath.sizeOfExcitationFilterLink());
 
         for (Filter filter : lightPath.linkedEmissionFilterList()) {
             String model = filter.getModel();
-            assertNotNull(model);
-            assertTrue(model.startsWith("emFilter"));
+            Assert.assertNotNull(model);
+            Assert.assertTrue(model.startsWith("emFilter"));
         }
 
         for (Filter filter : lightPath.linkedExcitationFilterList()) {
             String model = filter.getModel();
-            assertNotNull(model);
-            assertTrue(model.startsWith("exFilter"));
+            Assert.assertNotNull(model);
+            Assert.assertTrue(model.startsWith("exFilter"));
         }
 
         Dichroic dichroic = lightPath.getDichroic();
-        assertNotNull(dichroic);
-        assertEquals(
+        Assert.assertNotNull(dichroic);
+        Assert.assertEquals(
                 "Dichroic:" + channel.getVersion(),
                 dichroic.getModel()
             );
