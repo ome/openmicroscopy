@@ -1925,7 +1925,7 @@ public class OMEROMetadataStore
      *   <li>Image --> Channel --> LogicalChannel --> DetectorSettings</li>
      * </ul>
      */
-    private void checkAndCollapseGraph()
+    public void checkAndCollapseGraph()
     {
     	// Ensure we're working with an SPW data set.
     	if (plateList.size() == 0)
