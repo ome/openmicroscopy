@@ -894,8 +894,13 @@ public class OMEROMetadataStoreClient
     private omero.model.Time toRType(Time timeIncrement) {
         if (timeIncrement == null) return null;
 
-        omero.model.UnitsTime ut = new omero.model.UnitsTimeI();
-        ut.setValue(rstring(timeIncrement.unit().getSymbol()));
+        ome.model.enums.UnitsTime internal =
+            ome.model.enums.UnitsTime.bySymbol(
+                    timeIncrement.unit().getSymbol());
+
+        omero.model.enums.UnitsTime ut =
+            omero.model.enums.UnitsTime.valueOf(
+                internal.toString());
 
         omero.model.Time t = new omero.model.TimeI();
         t.setValue(timeIncrement.value().doubleValue());

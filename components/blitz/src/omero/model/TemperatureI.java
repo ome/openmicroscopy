@@ -24,7 +24,7 @@ import ome.util.Filterable;
 import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;
 
-import omero.model.enums.Temperature;
+import omero.model.enums.UnitsTemperature;
 
 /**
  * Blitz wrapper around the {@link ome.model.util.Temperature} class.
@@ -93,7 +93,7 @@ public class TemperatureI extends Temperature implements ModelBased {
         if (model instanceof ome.model.units.Temperature) {
             ome.model.units.Temperature t = (ome.model.units.Temperature) model;
             this.value = t.getValue();
-            this.unit = (omero.model.UnitsTemperature) mapper.findTarget(t.getUnit());
+            this.unit = UnitsTemperature.valueOf(t.getUnit().toString());
         } else {
             throw new IllegalArgumentException(
               "Temperature cannot copy from " +
@@ -103,8 +103,7 @@ public class TemperatureI extends Temperature implements ModelBased {
 
     @Override
     public Filterable fillObject(ReverseModelMapper mapper) {
-        ome.model.enums.UnitsTemperature ut = (ome.model.enums.UnitsTemperature)
-                mapper.reverse((UnitsTemperature) getUnit());
+        ome.model.enums.UnitsTemperature ut = ome.model.enums.UnitsTemperature.valueOf(getUnit().toString());
         ome.model.units.Temperature t = new ome.model.units.Temperature();
         t.setValue(getValue());
         t.setUnit(ut);

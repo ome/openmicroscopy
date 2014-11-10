@@ -161,15 +161,15 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest {
 
         Time exposureTime = new Time();
         exposureTime.setValue(10);
-        exposureTime.setUnit(new UnitsTime("s"));
+        exposureTime.setUnit(UnitsTime.valueOf("s"));
 
         Time deltaT = new Time();
         exposureTime.setValue(-1);
-        exposureTime.setUnit(new UnitsTime("s"));
+        exposureTime.setUnit(UnitsTime.valueOf("s"));
 
         Time deltaTB = new Time();
         exposureTime.setValue(-193);
-        exposureTime.setUnit(new UnitsTime("s"));
+        exposureTime.setUnit(UnitsTime.valueOf("s"));
 
         pi1.setTheC(new Integer(1));
         pi1.setTheT(new Integer(1));

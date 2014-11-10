@@ -32,6 +32,8 @@ import ome.units.unit.Unit;
 import ome.xml.model.TransmittanceRange;
 import omero.api.IPixelsPrx;
 import omero.model.*;
+import omero.model.enums.UnitsLength;
+import omero.model.enums.UnitsTime;
 import pojos.DatasetData;
 import pojos.PlateAcquisitionData;
 import pojos.PlateData;
@@ -729,9 +731,7 @@ public class ModelMockFactory {
         planeInfo.setTheC(omero.rtypes.rint(c));
         planeInfo.setTheT(omero.rtypes.rint(t));
 
-        UnitsTime seconds = new UnitsTimeI();
-        seconds.setValue(rstring("s"));
-
+        UnitsTime seconds = UnitsTime.valueOf("s");
         Time deltaT = new TimeI();
         deltaT.setValue(0.5);
         deltaT.setUnit(seconds);
@@ -787,8 +787,7 @@ public class ModelMockFactory {
         if (order == null)
             order = (DimensionOrder) types.get(0);
 
-        UnitsLength mm = new UnitsLengthI();
-        mm.setValue(omero.rtypes.rstring("mm"));
+        UnitsLength mm = UnitsLength.valueOf("mm");
         Length mm1 = new LengthI();
         mm1.setValue(1.0);
         mm1.setUnit(mm);

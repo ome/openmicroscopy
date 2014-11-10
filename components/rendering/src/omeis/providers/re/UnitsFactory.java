@@ -34,8 +34,7 @@ public class UnitsFactory {
     //
 
     public static Length makeLength(double d, String unit) {
-        UnitsLength ul = new UnitsLength();
-        ul.setValue(unit);
+        UnitsLength ul = UnitsLength.valueOf(unit);
         Length copy = new Length();
         copy.setUnit(ul);
         copy.setValue(d);
@@ -77,9 +76,7 @@ public class UnitsFactory {
     public static Length convertLength(ome.units.quantity.Length value) {
         if (value == null)
             return null;
-        UnitsLength ul = new UnitsLength();
-        ul.setValue(value.unit().getSymbol());
-
+        UnitsLength ul = UnitsLength.bySymbol(value.unit().getSymbol());
         Length l = new Length();
         l.setValue(value.value().doubleValue());
         l.setUnit(ul);

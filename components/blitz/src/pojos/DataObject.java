@@ -43,8 +43,6 @@ import omero.model.Project;
 import omero.model.Screen;
 import omero.model.TagAnnotation;
 import omero.model.TermAnnotation;
-import omero.model.UnitsLength;
-import omero.model.UnitsLengthI;
 import omero.model.Well;
 import omero.model.WellSample;
 

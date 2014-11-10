@@ -24,7 +24,7 @@ import ome.util.Filterable;
 import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;
 
-import omero.model.enums.Frequency;
+import omero.model.enums.UnitsFrequency;
 
 /**
  * Blitz wrapper around the {@link ome.model.util.Frequency} class.
@@ -93,7 +93,7 @@ public class FrequencyI extends Frequency implements ModelBased {
         if (model instanceof ome.model.units.Frequency) {
             ome.model.units.Frequency t = (ome.model.units.Frequency) model;
             this.value = t.getValue();
-            this.unit = (omero.model.UnitsFrequency) mapper.findTarget(t.getUnit());
+            this.unit = UnitsFrequency.valueOf(t.getUnit().toString());
         } else {
             throw new IllegalArgumentException(
               "Frequency cannot copy from " +
@@ -103,8 +103,7 @@ public class FrequencyI extends Frequency implements ModelBased {
 
     @Override
     public Filterable fillObject(ReverseModelMapper mapper) {
-        ome.model.enums.UnitsFrequency ut = (ome.model.enums.UnitsFrequency)
-                mapper.reverse((UnitsFrequency) getUnit());
+        ome.model.enums.UnitsFrequency ut = ome.model.enums.UnitsFrequency.valueOf(getUnit().toString());
         ome.model.units.Frequency t = new ome.model.units.Frequency();
         t.setValue(getValue());
         t.setUnit(ut);

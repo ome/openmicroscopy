@@ -723,56 +723,6 @@ public class IceMapper extends ome.util.ModelMapper implements
         return filter;
     }
 
-    public omero.model.Length convert(ome.model.units.Length t) {
-        if (t == null) {
-            return null;
-        }
-        omero.model.LengthI copy = new omero.model.LengthI();
-        copy.setValue(t.getValue());
-        copy.setUnit((omero.model.UnitsLength) map(t.getUnit()));
-        return copy;
-    }
-
-     public ome.model.units.Length convert(omero.model.Length t) {
-        if (t == null) {
-            return null;
-        }
-        ome.model.units.Length copy = new ome.model.units.Length();
-        copy.setValue(t.getValue());
-        try {
-            copy.setUnit((ome.model.enums.UnitsLength) reverse(t.getUnit()));
-        } catch (ApiUsageException e) {
-            throw new IllegalArgumentException(
-                    "convert(omero.model.Length) failed", e);
-        }
-        return copy;
-     }
-
-    public omero.model.Time convert(ome.model.units.Time t) {
-        if (t == null) {
-            return null;
-        }
-        omero.model.TimeI copy = new omero.model.TimeI();
-        copy.setValue(t.getValue());
-        copy.setUnit((omero.model.UnitsTime) map(t.getUnit()));
-        return copy;
-    }
-
-     public ome.model.units.Time convert(omero.model.Time t) {
-        if (t == null) {
-            return null;
-        }
-        ome.model.units.Time copy = new ome.model.units.Time();
-        copy.setValue(t.getValue());
-        try {
-            copy.setUnit((ome.model.enums.UnitsTime) reverse(t.getUnit()));
-        } catch (ApiUsageException e) {
-            throw new IllegalArgumentException(
-                    "convert(omero.model.Time) failed", e);
-        }
-        return copy;
-     }
-
     /**
      * Convert a String&rarr;String map's values to {@link RString}s.
      * <code>null</code> values are dropped completely.
@@ -833,8 +783,6 @@ public class IceMapper extends ome.util.ModelMapper implements
     // =========================================================================
 
     protected Map<Object, Object> target2model = new IdentityHashMap<Object, Object>();
-
-    protected Map<Class, Map<Object, Object>> enumMap = new IdentityHashMap<Class, Map<Object, Object>>();
 
     public static omero.model.Permissions convert(ome.model.internal.Permissions p) {
         if (p == null) {
@@ -1019,35 +967,7 @@ public class IceMapper extends ome.util.ModelMapper implements
 
             return (ome.model.IObject) target2model.get(source);
 
-        } else if (omero.model.UnitsLengthI.class.isAssignableFrom(source.getClass())) {
-            omero.model.UnitsLengthI ul = (omero.model.UnitsLengthI) source;
-            Map<Object, Object> lookup = enumMap.get(omero.model.UnitsLengthI.class);
-            if (lookup == null) {
-                    lookup = new HashMap<Object, Object>();
-                    enumMap.put(omero.model.UnitsLengthI.class, lookup);
-            }
-            Long id = (Long) omero.rtypes.unwrap(ul.getId());
-            String val = (String) omero.rtypes.unwrap(ul.getValue());
-            Object key = null;
-            if (id != null) {
-                key = id;
-            } else if (val != null) {
-                key = val;
-            } else {
-                throw new RuntimeException("Unknown unit missing id and value: " + ul);
-            }
-
-            if (lookup.containsKey(key)) {
-                return (Filterable) lookup.get(key);
-            }
-            // Copied from else below
-            Filterable object = source.fillObject(this);
-            target2model.put(source, object);
-            lookup.put(key, object);
-            return object;
-
         } else {
-            // Copied in else above
             Filterable object = source.fillObject(this);
             target2model.put(source, object);
             return object;

@@ -24,7 +24,7 @@ import ome.util.Filterable;
 import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;
 
-import omero.model.enums.Length;
+import omero.model.enums.UnitsLength;
 
 /**
  * Blitz wrapper around the {@link ome.model.util.Length} class.
@@ -93,7 +93,7 @@ public class LengthI extends Length implements ModelBased {
         if (model instanceof ome.model.units.Length) {
             ome.model.units.Length t = (ome.model.units.Length) model;
             this.value = t.getValue();
-            this.unit = (omero.model.UnitsLength) mapper.findTarget(t.getUnit());
+            this.unit = UnitsLength.valueOf(t.getUnit().toString());
         } else {
             throw new IllegalArgumentException(
               "Length cannot copy from " +
@@ -103,8 +103,7 @@ public class LengthI extends Length implements ModelBased {
 
     @Override
     public Filterable fillObject(ReverseModelMapper mapper) {
-        ome.model.enums.UnitsLength ut = (ome.model.enums.UnitsLength)
-                mapper.reverse((UnitsLength) getUnit());
+        ome.model.enums.UnitsLength ut = ome.model.enums.UnitsLength.valueOf(getUnit().toString());
         ome.model.units.Length t = new ome.model.units.Length();
         t.setValue(getValue());
         t.setUnit(ut);

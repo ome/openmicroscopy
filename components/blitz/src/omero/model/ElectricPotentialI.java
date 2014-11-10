@@ -24,7 +24,7 @@ import ome.util.Filterable;
 import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;
 
-import omero.model.enums.ElectricPotential;
+import omero.model.enums.UnitsElectricPotential;
 
 /**
  * Blitz wrapper around the {@link ome.model.util.ElectricPotential} class.
@@ -93,7 +93,7 @@ public class ElectricPotentialI extends ElectricPotential implements ModelBased 
         if (model instanceof ome.model.units.ElectricPotential) {
             ome.model.units.ElectricPotential t = (ome.model.units.ElectricPotential) model;
             this.value = t.getValue();
-            this.unit = (omero.model.UnitsElectricPotential) mapper.findTarget(t.getUnit());
+            this.unit = UnitsElectricPotential.valueOf(t.getUnit().toString());
         } else {
             throw new IllegalArgumentException(
               "ElectricPotential cannot copy from " +
@@ -103,8 +103,7 @@ public class ElectricPotentialI extends ElectricPotential implements ModelBased 
 
     @Override
     public Filterable fillObject(ReverseModelMapper mapper) {
-        ome.model.enums.UnitsElectricPotential ut = (ome.model.enums.UnitsElectricPotential)
-                mapper.reverse((UnitsElectricPotential) getUnit());
+        ome.model.enums.UnitsElectricPotential ut = ome.model.enums.UnitsElectricPotential.valueOf(getUnit().toString());
         ome.model.units.ElectricPotential t = new ome.model.units.ElectricPotential();
         t.setValue(getValue());
         t.setUnit(ut);

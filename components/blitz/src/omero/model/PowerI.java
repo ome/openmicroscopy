@@ -24,7 +24,7 @@ import ome.util.Filterable;
 import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;
 
-import omero.model.enums.Power;
+import omero.model.enums.UnitsPower;
 
 /**
  * Blitz wrapper around the {@link ome.model.util.Power} class.
@@ -93,7 +93,7 @@ public class PowerI extends Power implements ModelBased {
         if (model instanceof ome.model.units.Power) {
             ome.model.units.Power t = (ome.model.units.Power) model;
             this.value = t.getValue();
-            this.unit = (omero.model.UnitsPower) mapper.findTarget(t.getUnit());
+            this.unit = UnitsPower.valueOf(t.getUnit().toString());
         } else {
             throw new IllegalArgumentException(
               "Power cannot copy from " +
@@ -103,8 +103,7 @@ public class PowerI extends Power implements ModelBased {
 
     @Override
     public Filterable fillObject(ReverseModelMapper mapper) {
-        ome.model.enums.UnitsPower ut = (ome.model.enums.UnitsPower)
-                mapper.reverse((UnitsPower) getUnit());
+        ome.model.enums.UnitsPower ut = ome.model.enums.UnitsPower.valueOf(getUnit().toString());
         ome.model.units.Power t = new ome.model.units.Power();
         t.setValue(getValue());
         t.setUnit(ut);

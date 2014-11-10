@@ -4,6 +4,8 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import ome.model.enums.*;
+
 public enum UNITS {
 
     ELECTRICPOTENTIAL(

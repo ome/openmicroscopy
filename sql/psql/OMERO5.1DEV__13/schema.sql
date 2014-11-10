@@ -2234,69 +2234,6 @@
         primary key (id)
     );;
 
-    create table unitselectricpotential (
-        id int8 not null,
-        permissions int8 not null,
-        measurementSystem varchar(255) not null,
-        value varchar(255) not null unique,
-        external_id int8 unique,
-        primary key (id)
-    );;
-
-    create table unitsfrequency (
-        id int8 not null,
-        permissions int8 not null,
-        measurementSystem varchar(255) not null,
-        value varchar(255) not null unique,
-        external_id int8 unique,
-        primary key (id)
-    );;
-
-    create table unitslength (
-        id int8 not null,
-        permissions int8 not null,
-        measurementSystem varchar(255) not null,
-        value varchar(255) not null unique,
-        external_id int8 unique,
-        primary key (id)
-    );;
-
-    create table unitspower (
-        id int8 not null,
-        permissions int8 not null,
-        measurementSystem varchar(255) not null,
-        value varchar(255) not null unique,
-        external_id int8 unique,
-        primary key (id)
-    );;
-
-    create table unitspressure (
-        id int8 not null,
-        permissions int8 not null,
-        measurementSystem varchar(255) not null,
-        value varchar(255) not null unique,
-        external_id int8 unique,
-        primary key (id)
-    );;
-
-    create table unitstemperature (
-        id int8 not null,
-        permissions int8 not null,
-        measurementSystem varchar(255) not null,
-        value varchar(255) not null unique,
-        external_id int8 unique,
-        primary key (id)
-    );;
-
-    create table unitstime (
-        id int8 not null,
-        permissions int8 not null,
-        measurementSystem varchar(255) not null,
-        value varchar(255) not null unique,
-        external_id int8 unique,
-        primary key (id)
-    );;
-
     create table uploadjob (
         job_id int8 not null,
         primary key (job_id)
@@ -5718,41 +5655,6 @@
         add constraint FKtransmittancerange_owner_id_experimenter 
         foreign key (owner_id) 
         references experimenter  ;;
-
-    alter table unitselectricpotential 
-        add constraint FKunitselectricpotential_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
-
-    alter table unitsfrequency 
-        add constraint FKunitsfrequency_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
-
-    alter table unitslength 
-        add constraint FKunitslength_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
-
-    alter table unitspower 
-        add constraint FKunitspower_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
-
-    alter table unitspressure 
-        add constraint FKunitspressure_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
-
-    alter table unitstemperature 
-        add constraint FKunitstemperature_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
-
-    alter table unitstime 
-        add constraint FKunitstime_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
 
     alter table uploadjob 
         add constraint FKuploadjob_job_id_job 

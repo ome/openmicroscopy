@@ -139,7 +139,7 @@ public class ObjectFactory {
 
                 Time deltaT = new Time();
                 deltaT.setValue(0.0);
-                deltaT.setUnit(new UnitsTime("s"));
+                deltaT.setUnit(UnitsTime.valueOf("s"));
                 pl[w].setDeltaT(deltaT);
                 p.addPlaneInfo(pl[w]);
 
@@ -152,7 +152,7 @@ public class ObjectFactory {
 
         Length mm1 = new Length();
         mm1.setValue(1.0);
-        mm1.setUnit(new UnitsLength("ms"));
+        mm1.setUnit(UnitsLength.valueOf("ms"));
         p.setSizeX(new Integer(1));
         p.setSizeY(new Integer(1));
         p.setSizeZ(new Integer(1));

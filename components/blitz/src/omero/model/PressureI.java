@@ -24,7 +24,7 @@ import ome.util.Filterable;
 import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;
 
-import omero.model.enums.Pressure;
+import omero.model.enums.UnitsPressure;
 
 /**
  * Blitz wrapper around the {@link ome.model.util.Pressure} class.
@@ -93,7 +93,7 @@ public class PressureI extends Pressure implements ModelBased {
         if (model instanceof ome.model.units.Pressure) {
             ome.model.units.Pressure t = (ome.model.units.Pressure) model;
             this.value = t.getValue();
-            this.unit = (omero.model.UnitsPressure) mapper.findTarget(t.getUnit());
+            this.unit = UnitsPressure.valueOf(t.getUnit().toString());
         } else {
             throw new IllegalArgumentException(
               "Pressure cannot copy from " +
@@ -103,8 +103,7 @@ public class PressureI extends Pressure implements ModelBased {
 
     @Override
     public Filterable fillObject(ReverseModelMapper mapper) {
-        ome.model.enums.UnitsPressure ut = (ome.model.enums.UnitsPressure)
-                mapper.reverse((UnitsPressure) getUnit());
+        ome.model.enums.UnitsPressure ut = ome.model.enums.UnitsPressure.valueOf(getUnit().toString());
         ome.model.units.Pressure t = new ome.model.units.Pressure();
         t.setValue(getValue());
         t.setUnit(ut);

@@ -24,7 +24,7 @@ import ome.util.Filterable;
 import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;
 
-import omero.model.enums.Time;
+import omero.model.enums.UnitsTime;
 
 /**
  * Blitz wrapper around the {@link ome.model.util.Time} class.
@@ -93,7 +93,7 @@ public class TimeI extends Time implements ModelBased {
         if (model instanceof ome.model.units.Time) {
             ome.model.units.Time t = (ome.model.units.Time) model;
             this.value = t.getValue();
-            this.unit = (omero.model.UnitsTime) mapper.findTarget(t.getUnit());
+            this.unit = UnitsTime.valueOf(t.getUnit().toString());
         } else {
             throw new IllegalArgumentException(
               "Time cannot copy from " +
@@ -103,8 +103,7 @@ public class TimeI extends Time implements ModelBased {
 
     @Override
     public Filterable fillObject(ReverseModelMapper mapper) {
-        ome.model.enums.UnitsTime ut = (ome.model.enums.UnitsTime)
-                mapper.reverse((UnitsTime) getUnit());
+        ome.model.enums.UnitsTime ut = ome.model.enums.UnitsTime.valueOf(getUnit().toString());
         ome.model.units.Time t = new ome.model.units.Time();
         t.setValue(getValue());
         t.setUnit(ut);
