@@ -1,4 +1,4 @@
-package ome.tools.hibernate;
+package ome.util;
 
 import org.hibernate.Hibernate;
 import org.hibernate.dialect.function.SQLFunctionTemplate;
