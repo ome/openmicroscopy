@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2010-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  *
  */
@@ -26,6 +26,7 @@ module omero {
                 idempotent ExperimenterList searchByAttributes(string dn, StringSet attributes, StringSet values) throws ServerError;
                 idempotent omero::model::Experimenter searchByDN(string userdn) throws ServerError;
                 idempotent string findDN(string username) throws ServerError;
+                idempotent string findGroupDN(string groupname) throws ServerError;
                 idempotent omero::model::Experimenter findExperimenter(string username) throws ServerError;
                 idempotent void setDN(long experimenterID, bool isLdap) throws ServerError;
                 idempotent bool getSetting() throws ServerError;

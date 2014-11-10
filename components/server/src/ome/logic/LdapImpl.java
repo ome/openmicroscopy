@@ -24,7 +24,6 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.ldap.InitialLdapContext;
 
-import ome.annotations.NotNull;
 import ome.annotations.RolesAllowed;
 import ome.api.ILdap;
 import ome.api.ServiceInterface;
@@ -40,6 +39,7 @@ import ome.security.SecuritySystem;
 import ome.security.auth.AttributeNewUserGroupBean;
 import ome.security.auth.AttributeSet;
 import ome.security.auth.GroupAttributeMapper;
+import ome.security.auth.GroupContextMapper;
 import ome.security.auth.LdapConfig;
 import ome.security.auth.NewUserGroupBean;
 import ome.security.auth.OrgUnitNewUserGroupBean;
@@ -122,7 +122,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
     @RolesAllowed("system")
     public List<Experimenter> searchAll() {
         return ldap.search(DistinguishedName.EMPTY_PATH, config.getUserFilter()
-                .encode(), getContextMapper());
+                .encode(), getPersonContextMapper());
     }
 
     @SuppressWarnings("unchecked")
@@ -142,7 +142,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
             AndFilter filter = new AndFilter();
             filter.and(config.getUserFilter());
             filter.and(new EqualsFilter(attr, value));
-            return ldap.search(dn, filter.encode(), getContextMapper());
+            return ldap.search(dn, filter.encode(), getPersonContextMapper());
         } else {
             return Collections.emptyList();
         }
@@ -151,19 +151,26 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
     @RolesAllowed("system")
     public Experimenter searchByDN(String dns) {
         DistinguishedName dn = new DistinguishedName(dns);
-        return (Experimenter) ldap.lookup(dn, getContextMapper());
+        return (Experimenter) ldap.lookup(dn, getPersonContextMapper());
     }
 
     @RolesAllowed("system")
     public String findDN(String username) {
-        PersonContextMapper mapper = getContextMapper();
+        PersonContextMapper mapper = getPersonContextMapper();
         Experimenter exp = mapUserName(username, mapper);
         return mapper.getDn(exp);
     }
 
     @RolesAllowed("system")
+    public String findGroupDN(String groupname) {
+        GroupContextMapper mapper = getGroupContextMapper();
+        ExperimenterGroup grp = mapGroupName(groupname, mapper);
+        return mapper.getDn(grp);
+    }
+
+    @RolesAllowed("system")
     public Experimenter findExperimenter(String username) {
-        PersonContextMapper mapper = getContextMapper();
+        PersonContextMapper mapper = getPersonContextMapper();
         return mapUserName(username, mapper);
     }
 
@@ -197,8 +204,24 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
             }
         }
         throw new ApiUsageException(
-                "Cannot find unique DistinguishedName: found=" + p.size());
+                "Cannot find unique user DistinguishedName: found=" + p.size());
+    }
 
+    @SuppressWarnings("unchecked")
+    private ExperimenterGroup mapGroupName(String groupname,
+            GroupContextMapper mapper) {
+        Filter filter = config.groupnameFilter(groupname);
+        List<ExperimenterGroup> g = ldap.search("", filter.encode(),
+                mapper.getControls(), mapper);
+
+        if (g.size() == 1 && g.get(0) != null) {
+            ExperimenterGroup grp = g.get(0);
+            if (grp.getName().equals(groupname)) {
+                return g.get(0);
+            }
+        }
+        throw new ApiUsageException(
+                "Cannot find unique group DistinguishedName: found=" + g.size());
     }
 
     @RolesAllowed("system")
@@ -228,7 +251,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
             filter.and(new EqualsFilter(attributes[i], values[i]));
         }
         return ldap.search(new DistinguishedName(dn), filter.encode(),
-                getContextMapper());
+                getPersonContextMapper());
     }
 
     @RolesAllowed("system")
@@ -264,7 +287,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
         Experimenter omeExp = iQuery.findByString(Experimenter.class,
                 "omeName", username);
         Experimenter ldapExp = findExperimenter(username);
-        String ldapDN = getContextMapper().getDn(ldapExp);
+        String ldapDN = getPersonContextMapper().getDn(ldapExp);
         DistinguishedName dn = new DistinguishedName(ldapDN);
         List<Long> ldapGroups = loadLdapGroups(username, dn);
         List<Object[]> omeGroups = iQuery
@@ -432,7 +455,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
         }
 
         Experimenter exp = findExperimenter(username);
-        String ldapDn = getContextMapper().getDn(exp);
+        String ldapDn = getPersonContextMapper().getDn(exp);
         DistinguishedName dn = new DistinguishedName(ldapDn);
 
         boolean access = true;
@@ -496,27 +519,27 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
 
         if ("ou".equals(type)) {
             bean = new OrgUnitNewUserGroupBean(dn);
-            attrSet = getAttributeSet(username, getContextMapper());
+            attrSet = getAttributeSet(username, getPersonContextMapper());
         } else if ("filtered_attribute".equals(type)) {
             bean = new AttributeNewUserGroupBean(data, true, false);
-            attrSet = getAttributeSet(username, getContextMapper(data));
+            attrSet = getAttributeSet(username, getPersonContextMapper(data));
         } else if ("attribute".equals(type)) {
             bean = new AttributeNewUserGroupBean(data, false, false);
-            attrSet = getAttributeSet(username, getContextMapper(data));
+            attrSet = getAttributeSet(username, getPersonContextMapper(data));
         } else if ("filtered_dn_attribute".equals(type)) {
             bean = new AttributeNewUserGroupBean(data, true, true);
-            attrSet = getAttributeSet(username, getContextMapper(data));
+            attrSet = getAttributeSet(username, getPersonContextMapper(data));
         } else if ("dn_attribute".equals(type)) {
             bean = new AttributeNewUserGroupBean(data, false, true);
-            attrSet = getAttributeSet(username, getContextMapper(data));
+            attrSet = getAttributeSet(username, getPersonContextMapper(data));
         } else if ("query".equals(type)) {
             bean = new QueryNewUserGroupBean(data);
-            attrSet = getAttributeSet(username, getContextMapper());
+            attrSet = getAttributeSet(username, getPersonContextMapper());
         } else if ("bean".equals(type)) {
             bean = appContext.getBean(data, NewUserGroupBean.class);
             // Likely, this should be added to the API in order to allow bean
             // implementations to provide an attribute set.
-            attrSet = getAttributeSet(username, getContextMapper());
+            attrSet = getAttributeSet(username, getPersonContextMapper());
         }
 
         groups.addAll(bean.groups(username, config, ldap, provider, attrSet));
@@ -617,12 +640,20 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
     // Helpers
     // =========================================================================
 
-    private PersonContextMapper getContextMapper() {
+    private PersonContextMapper getPersonContextMapper() {
         return new PersonContextMapper(config, getBase());
     }
 
-    private PersonContextMapper getContextMapper(String attr) {
+    private PersonContextMapper getPersonContextMapper(String attr) {
         return new PersonContextMapper(config, getBase(), attr);
+    }
+
+    private GroupContextMapper getGroupContextMapper() {
+        return new GroupContextMapper(config, getBase());
+    }
+
+    private GroupContextMapper getGroupContextMapper(String attr) {
+        return new GroupContextMapper(config, getBase(), attr);
     }
 
     /**
