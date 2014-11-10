@@ -1314,13 +1314,12 @@ public class PropertiesUI
 	void saveDescription() {
 	    Object object =  model.getRefObject();
             String value = descriptionWiki.getText().trim();
-            if (value != null) {
-                    String v = OMEWikiComponent.prepare(originalDescription.trim(),
-                                    true);
-                    String v2 = OMEWikiComponent.prepare(value.trim(), true);
-                    if (v2.equals(v)) value = "";
-            }
-            if (value == null) value = "";
+            if (value == null) 
+            	value = "";
+            
+            if (value.equals(originalDescription))
+            	return;
+            
             if (object instanceof ProjectData) {
                     ProjectData p = (ProjectData) object;
                     p.setDescription(value);
