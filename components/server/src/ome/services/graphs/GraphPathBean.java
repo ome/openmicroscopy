@@ -35,6 +35,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.commons.beanutils.NestedNullException;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.hibernate.engine.SessionFactoryImplementor;
 import org.hibernate.metadata.ClassMetadata;
@@ -265,6 +266,8 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
                         try {
                             PropertyUtils.getNestedProperty(classToInstantiate.newInstance(), propertyPath);
                         } catch (NoSuchMethodException e) {
+                            propertyIsAccessible = false;
+                        } catch (NestedNullException e) {
                             propertyIsAccessible = false;
                         }
                     } catch (/* TODO Java SE 7 ReflectiveOperation*/Exception e) {
