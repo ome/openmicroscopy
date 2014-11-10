@@ -12,7 +12,7 @@
 
 #include <string>
 
-#include <IceNoWarnPush.h>
+#include <omero/IceNoWarnPush.h>
 #include <Ice/Ice.h>
 #include <Ice/ObjectAdapter.h>
 #include <IceUtil/Monitor.h>
@@ -22,7 +22,7 @@
 #include <omero/api/IDelete.h>
 #include <omero/cmd/API.h>
 #include <omero/Scripts.h>
-#include <IceNoWarnPop.h>
+#include <omero/IceNoWarnPop.h>
 
 #include <omero/client.h>
 #include <omero/RTypesI.h>

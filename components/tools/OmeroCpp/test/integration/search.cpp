@@ -6,12 +6,12 @@
  *
  */
 
-#include <IceNoWarnPush.h>
+#include <omero/IceNoWarnPush.h>
 #include <IceUtil/UUID.h>
 #include <Glacier2/Glacier2.h>
 #include <omero/Collections.h>
 #include <omero/api/IAdmin.h>
-#include <IceNoWarnPop.h>
+#include <omero/IceNoWarnPop.h>
 
 #include <omero/fixture.h>
 #include <time.h>

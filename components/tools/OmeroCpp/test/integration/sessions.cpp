@@ -6,9 +6,9 @@
  *
  */
 
-#include <IceNoWarnPush.h>
+#include <omero/IceNoWarnPush.h>
 #include <Ice/Initialize.h>
-#include <IceNoWarnPop.h>
+#include <omero/IceNoWarnPop.h>
 #include <omero/client.h>
 #include <omero/model/ExperimenterI.h>
 #include <omero/model/GroupExperimenterMapI.h>

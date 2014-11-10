@@ -20,13 +20,13 @@
 #include <sstream>
 #include <stdexcept>
 
-#include <IceNoWarnPush.h>
+#include <omero/IceNoWarnPush.h>
 #include <omero/Constants.h>
 #include <omero/api/IAdmin.h>
 #include <omero/api/IConfig.h>
 #include <omero/api/ISession.h>
 #include <omero/model/IObject.h>
-#include <IceNoWarnPop.h>
+#include <omero/IceNoWarnPop.h>
 
 #include <omero/client.h>
 #include <omero/RTypesI.h>

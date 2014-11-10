@@ -9,12 +9,12 @@
 #ifndef OMERO_MODEL_DETAILSI_H
 #define OMERO_MODEL_DETAILSI_H
 
-#include <IceNoWarnPush.h>
+#include <omero/IceNoWarnPush.h>
 #include <omero/model/Details.h>
 #include <Ice/Ice.h>
 #include <IceUtil/Config.h>
 #include <Ice/Handle.h>
-#include <IceNoWarnPop.h>
+#include <omero/IceNoWarnPop.h>
 
 #include <omero/client.h>
 #include <omero/model/ExperimenterI.h>

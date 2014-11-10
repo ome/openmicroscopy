@@ -276,6 +276,8 @@ endif(MSVC)
 
 set(OMERO_COMMON_STATIC_HEADERS
     src/omero/ClientErrors.h
+    src/omero/IceNoWarnPop.h
+    src/omero/IceNoWarnPush.h
     src/omero/ObjectFactoryRegistrar.h
     src/omero/RTypesI.h
     src/omero/templates.h)
