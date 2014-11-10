@@ -149,7 +149,7 @@
 
 <div id="script_content">
 
-<form id="script_form" method="post" action="{% url 'script_run' scriptId %}">
+<form id="script_form" method="post" action="{% url 'script_run' scriptId %}">{% csrf_token %}
 
     <div style="margin-left:auto; margin-right:auto; width:500px">
     {% block script_form %}

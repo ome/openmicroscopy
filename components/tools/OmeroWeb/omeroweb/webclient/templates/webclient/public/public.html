@@ -251,7 +251,7 @@
                 })
                 .delegate("a", "dblclick", function(e) {
                     if ($(this).parent().attr('rel')=='image') {
-                        OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
+                        OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('/0/', "/"+$(this).attr('id').split("-")[1]+"/" ));
                     }
                 })
                 .bind("select_node.jstree deselect_node.jstree", function (e, data) {

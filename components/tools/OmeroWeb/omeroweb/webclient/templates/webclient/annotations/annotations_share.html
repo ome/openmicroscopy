@@ -275,7 +275,7 @@
 				
                 <div class="description">
                     <div class="data_heading">
-						<p><span>{{ manager.share.message|default:""|sharewikify|safe|linebreaks }}</span></p>
+						<p><span>{{ manager.share.message|default:""|escape|linebreaks }}</span></p>
 					</div>
                 </div>
                 
@@ -326,7 +326,7 @@
                         {% if manager.share.isExpired %}
                             This {{ manager.share.getShareType|lower }} has expired and you no longer can make any comments.
                         {% else %}
-                        <form id="add_share_comment_form" action="{% url 'annotate_comment' %}" method="post">
+                        <form id="add_share_comment_form" action="{% url 'annotate_comment' %}" method="post">{% csrf_token %}
                         <table>
                             <tr class="hiddenField"><td>{{ form_comment.share }}</td></tr>
                             <tr>

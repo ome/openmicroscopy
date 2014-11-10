@@ -18,4 +18,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 {% endcomment %}
-<div id="logout"><a href="{% url 'weblogout' %}">{% trans "Logout" %}</a></div>
+
+<form action="{% url 'weblogout' %}" method="post">{% csrf_token %}
+    <a href="javascript:;" onclick="parentNode.submit();">{% trans "Logout" %}</a>
+</form>

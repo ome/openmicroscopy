@@ -221,7 +221,7 @@
 
     {% if eid %}
     <!-- We are editing existing user -->
-    <form action="{% url 'wamanageexperimenterid' "save" eid %}" method="POST" class="standard_form settings_form">
+    <form action="{% url 'wamanageexperimenterid' "save" eid %}" method="POST" class="standard_form settings_form">{% csrf_token %}
 
         {% if ldapAuth %}
         <label>LDAP:</label> {{ ldapAuth }}
@@ -237,7 +237,7 @@
         <br />
     {% else %}
     <!-- We are creating new user -->
-    <form action="{% url 'wamanageexperimenterid' "create" %}" method="POST" class="standard_form settings_form">
+    <form action="{% url 'wamanageexperimenterid' "create" %}" method="POST" class="standard_form settings_form">{% csrf_token %}
     {% endif %}
 
     <p>{% trans "Fields marked in red are mandatory." %}</p>
@@ -278,7 +278,7 @@
     <!-- hidden dialog for password change - This is almost duplicated in myaccount.html-->
     <div id="password_change_dialog" title="Change Password">
 
-    <form id="change_password_form" action="{% url 'wamanagechangepasswordid' eid %}" method="POST">
+    <form id="change_password_form" action="{% url 'wamanagechangepasswordid' eid %}" method="POST">{% csrf_token %}
 
         <table>
             <tbody>

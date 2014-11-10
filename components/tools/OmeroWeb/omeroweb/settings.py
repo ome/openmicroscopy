@@ -398,7 +398,7 @@ USE_I18N = True
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    #'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
@@ -497,6 +497,7 @@ for app in ADDITIONAL_APPS:  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
 
 logger.debug('INSTALLED_APPS=%s' % [INSTALLED_APPS])
 
+CSRF_FAILURE_VIEW = "omeroweb.feedback.views.csrf_failure"
 
 # # FEEDBACK - DO NOT MODIFY!
 # FEEDBACK_URL: Is now configurable for testing purpuse only. Used in

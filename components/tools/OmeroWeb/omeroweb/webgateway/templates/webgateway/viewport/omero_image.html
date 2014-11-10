@@ -46,9 +46,8 @@
     <script type="text/javascript" src="{{ src }}"></script>
     {% endfor %}
     
-    <script type="text/javascript" src="{% static "3rdparty/jquery-1.7.2.js" %}"></script>
-    
-    <script type="text/javascript" src="{% static "webgateway/js/ome.popup.js" %}"></script>
+    {% include "webgateway/base/includes/script_src_jquery.html" %}
+    {% include "webgateway/base/includes/script_src_popup.html" %}
     
 	<script type="text/javascript" src="{% static "3rdparty/aop.js" %}"></script>
 
@@ -90,7 +89,7 @@
 
 
 {% block title %}
-    {{ image.getName }}
+    {{ image.getName|escape }}
 {% endblock %}
 
 
@@ -234,8 +233,8 @@
       box.append('<button id="wblitz-ch'+i+'"\
                  class="squared' + (channels[i].active?' pressed':'') + '"\
                  style="background-color: #'+channels[i].color+'"\
-                 title="'+channels[i].label+'"\
-                 onclick="viewport.toggleChannel('+i+')">'+channels[i].label+'</button>');
+                 title="'+channels[i].label.escapeHTML()+'"\
+                 onclick="viewport.toggleChannel('+i+')">'+channels[i].label.escapeHTML()+'</button>');
 
     }
 
@@ -246,10 +245,10 @@
 
     /* Image details */
     var tmp = getMetadata();
-    $('#wblitz-image-name').html(tmp.imageName);
-    $('#wblitz-image-description-content').html(tmp.imageDescription.replace(/\n/g, '<br />'));
+    $('#wblitz-image-name').html(tmp.imageName.escapeHTML());
+    $('#wblitz-image-description-content').html(tmp.imageDescription.escapeHTML().replace(/\n/g, '<br />'));
     $('#wblitz-image-author').html(tmp.imageAuthor);
-    $('#wblitz-image-pub').html(tmp.projectName);
+    $('#wblitz-image-pub').html(tmp.projectName.escapeHTML());
     $('#wblitz-image-pubid').html(tmp.projectId);
     $('#wblitz-image-timestamp').html(tmp.imageTimestamp);
 
@@ -322,7 +321,7 @@
       .replace(/\$act/g, channels[i].active?'checked':'')
       .replace(/\$idx0/g, i) // Channel Index, 0 based
       .replace(/\$idx1/g, i+1) // Channel Index, 1 based
-      .replace(/\$cwl/g, channels[i].label) // Wavelength
+      .replace(/\$cwl/g, channels[i].label.escapeHTML()) // Wavelength
       .replace(/\$cls/g, i/2!=parseInt(i/2)?'even':'odd') // class
       );
       $('#wblitz-ch'+(i)+'-cw').rangewidget({
@@ -457,7 +456,7 @@
     }
     //var t = $('#rd-wblitz-ch'+idx).get(0);
     //if (t != undefined) t.checked=ch.active;
-    $('#wblitz-ch'+idx).css('background-color', ch.color).attr('title', ch.label);
+    $('#wblitz-ch'+idx).css('background-color', ch.color).attr('title', ch.label.escapeHTML());
   };
 
   /**
@@ -667,7 +666,7 @@
               var theT =
                   typeof shape.theT === "undefined"? NOZT : shape.theT + 1;
               shapesHtml += "<td class='shape_cell'>" + theT + "</td>";
-              shapesHtml += "<td class='shape_cell shape_text' title=\""+ text +"\"><p>"+ truncate_text(text) + "</p></td>";
+              shapesHtml += "<td class='shape_cell shape_text' title=\""+ text +"\"><p>"+ truncate_text(text.escapeHTML()) + "</p></td>";
               shapesHtml += "<td class='shape_cell'>" + shapeThumbHtml + "</td>";
               shapesHtml += "</tr>";
               if (roiIcon == null) roiIcon = shape['type'];
@@ -1344,7 +1343,7 @@
     });
 
     $(".btn.paste_rdef").click(function() {
-        $.getJSON(copy_paste_rdef_url + "?toids={{ image.id }}", function(data){
+        $.post(copy_paste_rdef_url, {"toids":{{ image.id }}}, function(data){
           // refresh UI
           viewport.load({{ image.id }});
           // update thumbnails

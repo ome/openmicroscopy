@@ -54,10 +54,11 @@
             });
 
             $(".btn.paste_rdef").click(function() {
-                $.getJSON(copy_paste_rdef_url + "?toids={{ manager.image.id }}", function(data){
+                $.post(copy_paste_rdef_url, {"toids": {{ manager.image.id }}}, function(data){
                     // update thumbnails
                     OME.refreshThumbnails({{ manager.image.id }});
                 });
+
             });
 
         });

@@ -133,7 +133,7 @@ function gs_choiceModalDialog (message, choices, callback, blockui_opts, cancel_
     }
   }
   for (var i=0; i < choices.length; i++) {
-    message += '<input type="button" onclick="return gs_modal_cb('+i+');" value="'+choices[i].label+'" />'
+    message += '<input type="button" onclick="return gs_modal_cb('+i+');" value="'+choices[i].label.escapeHTML()+'" />'
   }
   if (!blockui_opts) {
     blockui_opts = {};
@@ -157,7 +157,7 @@ function gs_choiceModalJson (message, choices, callback, blockui_opts, cancel_ca
   }
   return gs_choiceModalDialog(message,choices,callback,blockui_opts,cancel_callback,gs_modalJson_cb);
 //  for (i in choices) {
-//    message += '<input type="button" onclick="return gs_modalJson_cb('+i+');" value="'+choices[i].label+'" />'
+//    message += '<input type="button" onclick="return gs_modalJson_cb('+i+');" value="'+choices[i].label.escapeHTML()+'" />'
 //  }
 //  if (!blockui_opts) {
 //    blockui_opts = {};

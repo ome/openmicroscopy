@@ -56,10 +56,13 @@ Select And Expand Image
     [Return]                                   ${firstNodeId}
 
 Create Project
-    Create Container    project
+    [Arguments]     ${newName}=testCreateContainerRobot
+    ${pid}=     Create Container    project    ${newName}
+    [Return]    ${pid}
 
 Create Dataset
-    Create Container    dataset
+    ${did}=     Create Container    dataset
+    [Return]    ${did}
 
 Create Button Should Be Enabled
     [Arguments]                 ${oType}
@@ -72,16 +75,17 @@ Create Button Should Be Disabled
 # Keywords Below are not available for Insight
 
 Create Container
-    [Arguments]                 ${dType}
+    [Arguments]                 ${dType}    ${newName}=testCreateContainerRobot
     Click Button                add${dType}Button
     Element Should Be Visible   new-container-form
-    Input Text                  name    testCreateContainerRobot
+    Input Text                  name    ${newName}
     Click Button                OK
     Set Selenium Speed          1
     Wait Until Page Contains Element    css=h2.data_heading_id
     Set Selenium Speed                  ${DELAY}
     ${newId}    Get Text                css=h2.data_heading_id>strong
     Wait Until Page Contains Element    css=#${dType}-${newId}>a.jstree-clicked
+    [Return]                            ${newId}
 
 Key Down
     [Arguments]    ${keyCode}    ${cssSelector}=body
