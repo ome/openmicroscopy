@@ -16,6 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
 package ome.model.units;
 
 import java.io.Serializable;
@@ -31,8 +32,8 @@ import org.hibernate.annotations.Parameter;
 import org.hibernate.annotations.Type;
 
 /**
- * class storing both a electricpotential and a unit for that potential
- * (e.g. C, K, etc.) encapsulated in a {@link UnitsElectricPotential} instance. As
+ * class storing both a ElectricPotential and a unit for that ElectricPotential
+ * (e.g. m, in, ly, etc.) encapsulated in a {@link UnitsElectricPotential} instance. As
  * also described in the remoting definition (.ice) for ElectricPotential, this is an
  * embedded class meaning that the columns here do not appear in their own
  * table but exist directly on the containing object. Like Details and
@@ -51,31 +52,33 @@ public class ElectricPotential implements Serializable, Filterable {
     // ~ Constructors
     // =========================================================================
 
-    public ElectricPotential() {
+    public ElectricPotential(double d, UnitsElectricPotential u) {
+        this.value = d;
+        this.unit = u;
     }
 
     // ~ Fields
     // =========================================================================
 
     /**
-     * positive float representation of the potential represented by this
+     * positive float representation of the ElectricPotential represented by this
      * field.
      */
     private double value;
 
     /**
      * representation of the units which should be considering when
-     * producing a representation of the {@link #electricPotential} field.
+     * producing a representation of the {@link #value} field.
      */
-    private UnitsElectricPotential unit;
+    private UnitsElectricPotential unit = null;
 
     // ~ Property accessors : used primarily by Hibernate
     // =========================================================================
 
     /**
      * value of this unit-field. It will be persisted to a column with the same
-     * name as the containing field. For example, detectorSettings.getVoltage()
-     * which is of type {@link ElectricPotential} will be stored in a column "detectorsettings.voltage".
+     * name as the containing field. For example, detectorSettings.getVolatage()
+     * which is of type {@link ElectricPotential} will be stored in a column "detectorSettingsvolatage".
      **/
     @Column(name = "value", nullable = false)
     public double getValue() {
@@ -85,8 +88,8 @@ public class ElectricPotential implements Serializable, Filterable {
     /**
      * Many-to-one field ome.model.units.ElectricPotential.unit (ome.model.enums.UnitsElectricPotential).
      * These values are stored in a column suffixed by "Unit". Whereas {@link #value}
-     * for physicalSizeX will be stored as "detectorsettings.voltage", the unit enum
-     * will be stored as "detectorsettings.voltageunit".
+     * for physicalSizeX will be stored as "detectorSettings.volatage", the unit enum
+     * will be stored as "detectorSettings.volatageUnit".
      */
     @javax.persistence.Column(name="unit", nullable=false,
         unique=false, insertable=true, updatable=true)
@@ -112,3 +115,4 @@ public class ElectricPotential implements Serializable, Filterable {
     }
 
 }
+

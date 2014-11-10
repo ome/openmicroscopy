@@ -16,6 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
 package ome.model.units;
 
 import java.io.Serializable;
@@ -31,8 +32,8 @@ import org.hibernate.annotations.Parameter;
 import org.hibernate.annotations.Type;
 
 /**
- * class storing both a temperature and a unit for that temperature
- * (e.g. C, K, etc.) encapsulated in a {@link UnitsTemperature} instance. As
+ * class storing both a Temperature and a unit for that Temperature
+ * (e.g. m, in, ly, etc.) encapsulated in a {@link UnitsTemperature} instance. As
  * also described in the remoting definition (.ice) for Temperature, this is an
  * embedded class meaning that the columns here do not appear in their own
  * table but exist directly on the containing object. Like Details and
@@ -51,23 +52,25 @@ public class Temperature implements Serializable, Filterable {
     // ~ Constructors
     // =========================================================================
 
-    public Temperature() {
+    public Temperature(double d, UnitsTemperature u) {
+        this.value = d;
+        this.unit = u;
     }
 
     // ~ Fields
     // =========================================================================
 
     /**
-     * positive float representation of the temperature represented by this
+     * positive float representation of the Temperature represented by this
      * field.
      */
     private double value;
 
     /**
      * representation of the units which should be considering when
-     * producing a representation of the {@link #temperature} field.
+     * producing a representation of the {@link #value} field.
      */
-    private UnitsTemperature unit;
+    private UnitsTemperature unit = null;
 
     // ~ Property accessors : used primarily by Hibernate
     // =========================================================================
@@ -75,7 +78,7 @@ public class Temperature implements Serializable, Filterable {
     /**
      * value of this unit-field. It will be persisted to a column with the same
      * name as the containing field. For example, imagingEnvironment.getTemperature()
-     * which is of type {@link Temperature} will be stored in a column "imagingEnvironment.temperature".
+     * which is of type {@link Temperature} will be stored in a column "imagingEnvironmenttemperature".
      **/
     @Column(name = "value", nullable = false)
     public double getValue() {
@@ -112,3 +115,4 @@ public class Temperature implements Serializable, Filterable {
     }
 
 }
+

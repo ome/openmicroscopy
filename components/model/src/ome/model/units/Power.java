@@ -16,6 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
 package ome.model.units;
 
 import java.io.Serializable;
@@ -31,8 +32,8 @@ import org.hibernate.annotations.Parameter;
 import org.hibernate.annotations.Type;
 
 /**
- * class storing both a power and a unit for that power
- * (e.g. C, K, etc.) encapsulated in a {@link UnitsPower} instance. As
+ * class storing both a Power and a unit for that Power
+ * (e.g. m, in, ly, etc.) encapsulated in a {@link UnitsPower} instance. As
  * also described in the remoting definition (.ice) for Power, this is an
  * embedded class meaning that the columns here do not appear in their own
  * table but exist directly on the containing object. Like Details and
@@ -51,23 +52,25 @@ public class Power implements Serializable, Filterable {
     // ~ Constructors
     // =========================================================================
 
-    public Power() {
+    public Power(double d, UnitsPower u) {
+        this.value = d;
+        this.unit = u;
     }
 
     // ~ Fields
     // =========================================================================
 
     /**
-     * positive float representation of the power represented by this
+     * positive float representation of the Power represented by this
      * field.
      */
     private double value;
 
     /**
      * representation of the units which should be considering when
-     * producing a representation of the {@link #power} field.
+     * producing a representation of the {@link #value} field.
      */
-    private UnitsPower unit;
+    private UnitsPower unit = null;
 
     // ~ Property accessors : used primarily by Hibernate
     // =========================================================================
@@ -75,7 +78,7 @@ public class Power implements Serializable, Filterable {
     /**
      * value of this unit-field. It will be persisted to a column with the same
      * name as the containing field. For example, lightSource.getPower()
-     * which is of type {@link Power} will be stored in a column "lightSource.power".
+     * which is of type {@link Power} will be stored in a column "lightSourcepower".
      **/
     @Column(name = "value", nullable = false)
     public double getValue() {
@@ -112,3 +115,4 @@ public class Power implements Serializable, Filterable {
     }
 
 }
+

@@ -16,6 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
 package ome.model.units;
 
 import java.io.Serializable;
@@ -31,8 +32,8 @@ import org.hibernate.annotations.Parameter;
 import org.hibernate.annotations.Type;
 
 /**
- * class storing both a time duration (double) and a unit for that duration
- * (e.g. ns, ms, s, etc.) encapsulated in a {@link UnitsTime} instance. As
+ * class storing both a Time and a unit for that Time
+ * (e.g. m, in, ly, etc.) encapsulated in a {@link UnitsTime} instance. As
  * also described in the remoting definition (.ice) for Time, this is an
  * embedded class meaning that the columns here do not appear in their own
  * table but exist directly on the containing object. Like Details and
@@ -51,31 +52,33 @@ public class Time implements Serializable, Filterable {
     // ~ Constructors
     // =========================================================================
 
-    public Time() {
+    public Time(double d, UnitsTime u) {
+        this.value = d;
+        this.unit = u;
     }
 
     // ~ Fields
     // =========================================================================
 
     /**
-     * float representation of the time, i.e. duration, represented by this
+     * positive float representation of the Time represented by this
      * field.
      */
     private double value;
 
     /**
      * representation of the units which should be considering when
-     * producing a representation of the {@link #time} field.
+     * producing a representation of the {@link #value} field.
      */
-    private UnitsTime unit;
+    private UnitsTime unit = null;
 
     // ~ Property accessors : used primarily by Hibernate
     // =========================================================================
 
     /**
      * value of this unit-field. It will be persisted to a column with the same
-     * name as the containing field. For example, planeInfo.getExposureTime()
-     * which is of type {@link Time} will be stored in a column "planeinfo.exposuretime".
+     * name as the containing field. For example, planeInfo.getExposuretime()
+     * which is of type {@link Time} will be stored in a column "planeInfoexposureTime".
      **/
     @Column(name = "value", nullable = false)
     public double getValue() {
@@ -85,8 +88,8 @@ public class Time implements Serializable, Filterable {
     /**
      * Many-to-one field ome.model.units.Time.unit (ome.model.enums.UnitsTime).
      * These values are stored in a column suffixed by "Unit". Whereas {@link #value}
-     * for exposureTime will be stored as "planeinfo.exposuretime", the unit enum
-     * will be stored as "planeinfo.exposuretimeunit".
+     * for physicalSizeX will be stored as "planeInfo.exposureTime", the unit enum
+     * will be stored as "planeInfo.exposureTimeUnit".
      */
     @javax.persistence.Column(name="unit", nullable=false,
         unique=false, insertable=true, updatable=true)
@@ -112,3 +115,4 @@ public class Time implements Serializable, Filterable {
     }
 
 }
+

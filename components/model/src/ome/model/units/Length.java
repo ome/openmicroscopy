@@ -16,6 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
 package ome.model.units;
 
 import java.io.Serializable;
@@ -31,7 +32,7 @@ import org.hibernate.annotations.Parameter;
 import org.hibernate.annotations.Type;
 
 /**
- * class storing both a length (PositiveFloat) and a unit for that length
+ * class storing both a Length and a unit for that Length
  * (e.g. m, in, ly, etc.) encapsulated in a {@link UnitsLength} instance. As
  * also described in the remoting definition (.ice) for Length, this is an
  * embedded class meaning that the columns here do not appear in their own
@@ -51,33 +52,34 @@ public class Length implements Serializable, Filterable {
     // ~ Constructors
     // =========================================================================
 
-    public Length() {
+    public Length(double d, UnitsLength u) {
+        this.value = d;
+        this.unit = u;
     }
 
     // ~ Fields
     // =========================================================================
 
     /**
-     * positive float representation of the length represented by this
+     * positive float representation of the Length represented by this
      * field.
      */
     private double value;
 
     /**
      * representation of the units which should be considering when
-     * producing a representation of the {@link #length} field.
+     * producing a representation of the {@link #value} field.
      */
-    private UnitsLength unit;
+    private UnitsLength unit = null;
 
     // ~ Property accessors : used primarily by Hibernate
     // =========================================================================
 
     /**
      * value of this unit-field. It will be persisted to a column with the same
-     * name as the containing field. For example, pixels.getPhysicalSizeX()
-     * which is of type {@link Length} will be stored in a column "pixels.physicalSizeX".
+     * name as the containing field. For example, pixels.getPhysicalsizex()
+     * which is of type {@link Length} will be stored in a column "pixelsphysicalSizeX".
      **/
-    // FIXME PositiveFloat
     @Column(name = "value", nullable = false)
     public double getValue() {
         return this.value;
@@ -113,3 +115,4 @@ public class Length implements Serializable, Filterable {
     }
 
 }
+

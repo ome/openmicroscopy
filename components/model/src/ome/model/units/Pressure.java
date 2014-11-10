@@ -16,6 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
 package ome.model.units;
 
 import java.io.Serializable;
@@ -31,8 +32,8 @@ import org.hibernate.annotations.Parameter;
 import org.hibernate.annotations.Type;
 
 /**
- * class storing both a pressure and a unit for that pressure
- * (e.g. C, K, etc.) encapsulated in a {@link UnitsPressure} instance. As
+ * class storing both a Pressure and a unit for that Pressure
+ * (e.g. m, in, ly, etc.) encapsulated in a {@link UnitsPressure} instance. As
  * also described in the remoting definition (.ice) for Pressure, this is an
  * embedded class meaning that the columns here do not appear in their own
  * table but exist directly on the containing object. Like Details and
@@ -51,23 +52,25 @@ public class Pressure implements Serializable, Filterable {
     // ~ Constructors
     // =========================================================================
 
-    public Pressure() {
+    public Pressure(double d, UnitsPressure u) {
+        this.value = d;
+        this.unit = u;
     }
 
     // ~ Fields
     // =========================================================================
 
     /**
-     * positive float representation of the pressure represented by this
+     * positive float representation of the Pressure represented by this
      * field.
      */
     private double value;
 
     /**
      * representation of the units which should be considering when
-     * producing a representation of the {@link #pressure} field.
+     * producing a representation of the {@link #value} field.
      */
-    private UnitsPressure unit;
+    private UnitsPressure unit = null;
 
     // ~ Property accessors : used primarily by Hibernate
     // =========================================================================
@@ -75,7 +78,7 @@ public class Pressure implements Serializable, Filterable {
     /**
      * value of this unit-field. It will be persisted to a column with the same
      * name as the containing field. For example, imagingEnvironment.getPressure()
-     * which is of type {@link Pressure} will be stored in a column "imagingEnvironment.pressure".
+     * which is of type {@link Pressure} will be stored in a column "imagingEnvironmentpressure".
      **/
     @Column(name = "value", nullable = false)
     public double getValue() {
@@ -112,3 +115,4 @@ public class Pressure implements Serializable, Filterable {
     }
 
 }
+

@@ -16,6 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
 package ome.model.units;
 
 import java.io.Serializable;
@@ -31,8 +32,8 @@ import org.hibernate.annotations.Parameter;
 import org.hibernate.annotations.Type;
 
 /**
- * class storing both a frequency and a unit for that frequency
- * (e.g. C, K, etc.) encapsulated in a {@link UnitsFrequency} instance. As
+ * class storing both a Frequency and a unit for that Frequency
+ * (e.g. m, in, ly, etc.) encapsulated in a {@link UnitsFrequency} instance. As
  * also described in the remoting definition (.ice) for Frequency, this is an
  * embedded class meaning that the columns here do not appear in their own
  * table but exist directly on the containing object. Like Details and
@@ -51,31 +52,33 @@ public class Frequency implements Serializable, Filterable {
     // ~ Constructors
     // =========================================================================
 
-    public Frequency() {
+    public Frequency(double d, UnitsFrequency u) {
+        this.value = d;
+        this.unit = u;
     }
 
     // ~ Fields
     // =========================================================================
 
     /**
-     * positive float representation of the frequency represented by this
+     * positive float representation of the Frequency represented by this
      * field.
      */
     private double value;
 
     /**
      * representation of the units which should be considering when
-     * producing a representation of the {@link #frequency} field.
+     * producing a representation of the {@link #value} field.
      */
-    private UnitsFrequency unit;
+    private UnitsFrequency unit = null;
 
     // ~ Property accessors : used primarily by Hibernate
     // =========================================================================
 
     /**
      * value of this unit-field. It will be persisted to a column with the same
-     * name as the containing field. For example, detectorSettings.getReadOutRate()
-     * which is of type {@link Frequency} will be stored in a column "detectorsettings.readoutrate".
+     * name as the containing field. For example, detectorSettings.getReadoutrate()
+     * which is of type {@link Frequency} will be stored in a column "detectorSettingsreadOutRate".
      **/
     @Column(name = "value", nullable = false)
     public double getValue() {
@@ -85,8 +88,8 @@ public class Frequency implements Serializable, Filterable {
     /**
      * Many-to-one field ome.model.units.Frequency.unit (ome.model.enums.UnitsFrequency).
      * These values are stored in a column suffixed by "Unit". Whereas {@link #value}
-     * for physicalSizeX will be stored as "detectorsettings.readoutrate", the unit enum
-     * will be stored as "detectorsettings.readoutrateunit".
+     * for physicalSizeX will be stored as "detectorSettings.readOutRate", the unit enum
+     * will be stored as "detectorSettings.readOutRateUnit".
      */
     @javax.persistence.Column(name="unit", nullable=false,
         unique=false, insertable=true, updatable=true)
@@ -112,3 +115,4 @@ public class Frequency implements Serializable, Filterable {
     }
 
 }
+
