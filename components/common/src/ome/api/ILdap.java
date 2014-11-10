@@ -121,6 +121,16 @@ public interface ILdap extends ServiceInterface {
     String username);
 
     /**
+     * Looks up the DN for a group.
+     *
+     * @return an String Distinguished Name. Never null.
+     * @throws ome.conditions.ApiUsageException
+     *             if more then one 'cn' under the specified base.
+     */
+    String findGroupDN(@NotNull
+    String groupname);
+
+    /**
      * Searches Experimenter by unique Distinguished Name -
      * {@link java.lang.String} in LDAP for Common Name equals username. Common
      * Name should be unique under the specified base. If list of cn's contains

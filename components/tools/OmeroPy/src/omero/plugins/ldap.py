@@ -10,7 +10,7 @@
 
 import sys
 
-from omero.cli import BaseControl, CLI, ExceptionHandler, admin_only
+from omero.cli import CLI, ExceptionHandler, admin_only, UserGroupControl
 
 HELP = """Administrative support for managing users' LDAP settings
 
@@ -20,19 +20,21 @@ Examples:
 
   bin/omero login root
   bin/omero ldap active
-  bin/omero ldap active     || echo "Not active!"
   bin/omero ldap list
-  bin/omero ldap getdn jack
-  bin/omero ldap getdn beth || echo "No DN"
-  bin/omero ldap setdn jack true                # Enable LDAP login.
-  bin/omero ldap setdn jack false               # Disable LDAP login.
-  bin/omero ldap discover --commands
+  bin/omero ldap getdn --user-name jack         # Get DN of user.
+  bin/omero ldap setdn --user-name jack true    # Enable LDAP login.
+  bin/omero ldap setdn --user-name jack false   # Disable LDAP login.
+  bin/omero ldap getdn --group-name mylab       # Get DN of user group.
+  bin/omero ldap setdn --group-name mylab true  # Mark group as LDAP group.
+  bin/omero ldap setdn --group-name mylab false # Mark group as local.
+  bin/omero ldap discover
+  bin/omero ldap discover --groups
   bin/omero ldap create bob                     # User bob must exist in LDAP
 
 """
 
 
-class LdapControl(BaseControl):
+class LdapControl(UserGroupControl):
 
     def _configure(self, parser):
 
@@ -60,26 +62,44 @@ you disable LDAP login, the previous password will be in effect, but if the
 user never had a password, one will need to be set!""")
 
         for x in (getdn, setdn):
-            x.add_argument("username", help="User's OMERO login name")
+            self.add_user_and_group_arguments(x)
         setdn.add_argument("choice", action="store",
                            help="Enable/disable LDAP login (true/false)")
 
         discover = parser.add(
             sub, self.discover,
-            help="Discover distinguished names for existing OMERO users")
+            help="""Discover DNs for existing OMERO users or groups
+
+This command works in the context of users or groups. Specifying
+--groups will only discover groups, that is check which group exists in
+the LDAP server and OMERO and has the "ldap" flag disabled - such groups
+will be presented to the user. Omitting --groups will apply the same logic
+to users.""")
         discover.add_argument(
             "--commands", action="store_true", default=False,
             help="Print setdn commands on standard out")
+        discover.add_argument("--groups", action="store_true", default=False,
+                              help="Discover LDAP groups, not users.")
 
         create = parser.add(
             sub, self.create,
             help="Create a local user based on LDAP username (admins only)"
-            )
+        )
         create.add_argument(
             "username", help="LDAP username of user to be created")
 
         for x in (active, list, getdn, setdn, discover, create):
             x.add_login_arguments()
+
+    def add_user_and_group_arguments(self, parser):
+        group = parser.add_argument_group("User/group arguments (mutually "
+                                          "exclusive)")
+        group.add_argument("--user-id", nargs="+", help="ID of the user.")
+        group.add_argument("--user-name", nargs="+", help="Name of the user.")
+        group.add_argument("--group-id", metavar="id", nargs="+",
+                           help="ID of the group.")
+        group.add_argument("--group-name", metavar="group", nargs="+",
+                           help="Name of the group.")
 
     @admin_only
     def active(self, args):
@@ -122,17 +142,44 @@ user never had a password, one will need to be set!""")
     def getdn(self, args):
         c = self.ctx.conn(args)
         iadmin = c.sf.getAdminService()
+        ildap = c.sf.getLdapService()
 
-        try:
-            exp = iadmin.lookupExperimenter(args.username)
-        except:
-            self.ctx.die(134, "Unknown user: %s" % args.username)
+        groups = []
+        users = []
+        dns = []
 
-        dn = iadmin.lookupLdapAuthExperimenter(exp.id.val)
-        if dn is not None and dn.strip():
-            self.ctx.out(dn)
-        else:
-            self.ctx.die(136, "DN not found for %s" % args.username)
+        if args.group_name:
+            for name in args.group_name:
+                [gid, g] = self.find_group_by_name(iadmin, name, fatal=True)
+                if g and g.getLdap().val:
+                    groups.append(g)
+        elif args.group_id:
+            for id in args.group_id:
+                [gid, g] = self.find_group_by_id(iadmin, id, fatal=True)
+                if g and g.getLdap().val:
+                    groups.append(g)
+        elif args.user_name:
+            for name in args.user_name:
+                [uid, u] = self.find_user_by_name(iadmin, name, fatal=True)
+                if u and u.getLdap().val:
+                    users.append(u)
+        elif args.user_id:
+            for id in args.user_id:
+                [uid, u] = self.find_user_by_id(iadmin, id, fatal=True)
+                if u and u.getLdap().val:
+                    users.append(u)
+
+        for g in groups:
+            name = g.getName().val
+            dns.append(name + ": " + ildap.findGroupDN(name))
+
+        for u in users:
+            name = u.getOmeName().val
+            dns.append(name + ": " + ildap.findDN(name))
+
+        for dn in dns:
+            if dn is not None and dn.strip():
+                self.ctx.out(dn)
 
     @admin_only
     def setdn(self, args):
@@ -141,14 +188,19 @@ user never had a password, one will need to be set!""")
         iadmin = c.sf.getAdminService()
 
         try:
-            exp = iadmin.lookupExperimenter(args.username)
+            exp = iadmin.lookupExperimenter(args.entry)
         except:
-            self.ctx.die(134, "Unknown user: %s" % args.username)
+            self.ctx.die(134, "Unknown user: %s" % args.entry)
 
         ildap.setDN(exp.id, args.dn)
 
     @admin_only
     def discover(self, args):
+        """
+        has to work for users and groups
+        :param args:
+        :return:
+        """
         c = self.ctx.conn(args)
         ildap = c.sf.getLdapService()
         experimenters = {}
