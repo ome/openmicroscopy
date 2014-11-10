@@ -76,21 +76,12 @@ class TextualAnnotationsUI
 	extends AnnotationUI
 	implements ActionListener, DocumentListener, FocusListener
 {
-    
-	/** The length of the text before hiding the comment. */
-	private static final int	MAX_LENGTH_TEXT = 200;
 	
 	/** The default description. */
-        private static final String	DEFAULT_TEXT_COMMENT = "Add comment";
+	private static final String	DEFAULT_TEXT_COMMENT = "Add comment";
         
 	/** The title associated to this component. */
 	private static final String TITLE = "Comments ";
-	
-	/** Action id to hide the previous comments. */
-	private static final int	HIDE = 2;
-	
-	/** Action id to show the previous comments. */
-	private static final int	MORE = 3;
 	
 	/** Action id to save the comment */
 	private static final int ADD_COMMENT = 4;
@@ -103,27 +94,9 @@ class TextualAnnotationsUI
 	 * the currently logged in user if any. 
 	 */
 	private OMEWikiComponent	commentArea;
-	
-	/** Display the other comments. */
-	private JPanel				moreComponent;
-	
-	/** Hide the other comments. */
-	private JPanel				hideComponent;
-	
-	/** Display comments between the first and last comments. */
-	private JButton				inBetweenComponent;
 
 	/** The text set in the {@link #commentArea}. */
 	private String				originalText;
-	
-	/** Component hosting the previous comments. */
-	private JScrollPane			previousComments;
-	
-	/** Flag indicating that the comments added by other users are visible. */
-	private boolean				expanded;
-	
-	/** Flag indicating that the latest comment was displayed or not. */
-	private boolean				partial;
 	
 	/** The constraints used to lay out the components. */
 	private GridBagConstraints constraints;
@@ -143,35 +116,6 @@ class TextualAnnotationsUI
 	/** The add comment button */
 	private JButton addButton;
 	
-	/**
-	 * Builds and lays out the component hosting all previous annotations.
-	 * 
-	 * @return See above.
-	 */
-	private JPanel displayAllPreviousComments()
-	{
-		JPanel p = new JPanel();
-		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		List list = annotationToDisplay;
-		if (list != null) {
-			Iterator i = list.iterator();
-			TextualAnnotationData data;
-			TextualAnnotationComponent comp;
-			int index = 0;
-			while (i.hasNext()) {
-				data = (TextualAnnotationData) i.next();
-				comp = new TextualAnnotationComponent(model, data);
-				comp.addPropertyChangeListener(controller);
-				if (index%2 == 0) 
-					comp.setAreaColor(UIUtilities.BACKGROUND_COLOUR_EVEN);
-				else comp.setAreaColor(UIUtilities.BACKGROUND_COLOUR_ODD);
-				p.add(comp);
-				index++;
-			}
-		}
-		return p;
-	}
 	
 	/** 
 	 * Builds and lays out the component hosting the first and last previous 
@@ -179,7 +123,7 @@ class TextualAnnotationsUI
 	 * 
 	 * @return See above.
 	 */
-	private JPanel displayPartialPreviousComments()
+	private JPanel displayComments()
 	{
 		JPanel p = new JPanel();
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -187,30 +131,22 @@ class TextualAnnotationsUI
 		List list = annotationToDisplay;
 		if (list == null || list.size() == 0) return p;
 		
-		//at least one.
-		TextualAnnotationData data = (TextualAnnotationData) list.get(0);
-		TextualAnnotationComponent 
-			comp = new TextualAnnotationComponent(model, data);
-		comp.addPropertyChangeListener(controller);
-		comp.setAreaColor(UIUtilities.BACKGROUND_COLOUR_EVEN);
-		p.add(comp);
-		
-		int n = list.size();
-		if (n == 1) return p;
 		Color c = UIUtilities.BACKGROUND_COLOUR_ODD;
-		if (n > 2) {
-			JPanel lp = UIUtilities.buildComponentPanel(inBetweenComponent, 0, 
-					0);
-			inBetweenComponent.setBackground(UIUtilities.BACKGROUND_COLOUR_ODD);
-			lp.setBackground(UIUtilities.BACKGROUND_COLOUR_ODD);
-			p.add(lp);
-			c = UIUtilities.BACKGROUND_COLOUR_EVEN;
+		
+		for(Object obj : annotationToDisplay) {
+			TextualAnnotationData data = (TextualAnnotationData) obj;
+			TextualAnnotationComponent 
+				comp = new TextualAnnotationComponent(model, data);
+			comp.addPropertyChangeListener(controller);
+			comp.setAreaColor(c);
+			p.add(comp);
+			
+			if (c == UIUtilities.BACKGROUND_COLOUR_ODD)
+				c = UIUtilities.BACKGROUND_COLOUR_EVEN;
+			else
+				c = UIUtilities.BACKGROUND_COLOUR_ODD;
 		}
-		data = (TextualAnnotationData) list.get(n-1);
-		comp = new TextualAnnotationComponent(model, data);
-		comp.addPropertyChangeListener(controller);
-		comp.setAreaColor(c);
-		p.add(comp);
+		
 		return p;
 	}
 
@@ -218,37 +154,7 @@ class TextualAnnotationsUI
 	private void initComponents()
 	{
 		set = false;
-		JButton moreButton = new JButton("more");
-		moreButton.setBorder(null);
-		UIUtilities.unifiedButtonLookAndFeel(moreButton);
-		moreButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-		moreButton.setForeground(UIUtilities.HYPERLINK_COLOR);
-		moreButton.setToolTipText("Display previous comments.");
-		moreButton.addActionListener(this);
-		moreButton.setActionCommand(""+MORE);
-		moreComponent = UIUtilities.buildComponentPanel(moreButton, 0, 0);
-		moreComponent.setBackground(UIUtilities.BACKGROUND_COLOR);
 
-		JButton hideButton = new JButton("less");
-		UIUtilities.unifiedButtonLookAndFeel(hideButton);
-		hideButton.setBorder(null);
-		hideButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-		hideButton.setForeground(UIUtilities.HYPERLINK_COLOR);
-		hideButton.setToolTipText("Hide previous comments.");
-		hideButton.addActionListener(this);
-		hideButton.setActionCommand(""+HIDE);
-		hideComponent = UIUtilities.buildComponentPanel(hideButton, 0, 0);
-		hideComponent.setBackground(UIUtilities.BACKGROUND_COLOR);
-		
-		inBetweenComponent = new JButton("...");
-		UIUtilities.unifiedButtonLookAndFeel(inBetweenComponent);
-		inBetweenComponent.setBorder(null);
-		inBetweenComponent.setBackground(UIUtilities.BACKGROUND_COLOR);
-		inBetweenComponent.setForeground(UIUtilities.HYPERLINK_COLOR);
-		inBetweenComponent.setToolTipText("Display all comments.");
-		inBetweenComponent.addActionListener(this);
-		inBetweenComponent.setActionCommand(""+MORE);
-		
 		commentArea = new OMEWikiComponent(false);
 		commentArea.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 		commentArea.addPropertyChangeListener(controller);
@@ -282,8 +188,6 @@ class TextualAnnotationsUI
                     }
                 });
 		
-		previousComments = new JScrollPane();
-		previousComments.setBorder(null);
 		setBorder(new SeparatorOneLineBorder());
 		setBackground(UIUtilities.BACKGROUND_COLOR);
 		
@@ -344,48 +248,6 @@ class TextualAnnotationsUI
                 constraints.fill = GridBagConstraints.HORIZONTAL;
                 constraints.anchor = GridBagConstraints.NORTHWEST;
 	}
-
-	/** Hides the previous comments. */
-	private void hidePreviousComments()
-	{
-		List l = annotationToDisplay;
-		if (partial) {
-			if (l != null && l.size() > 2) {
-				remove(hideComponent);
-				constraints.gridy = 2;
-				add(moreComponent, constraints);
-			}
-			constraints.gridy = 3;
-			previousComments.getViewport().add(
-					displayPartialPreviousComments());
-			add(previousComments, constraints);
-		} else {
-			remove(hideComponent);
-			constraints.gridy = 2;
-			add(moreComponent, constraints);
-			previousComments.getViewport().removeAll();
-		}
-		
-		revalidate();
-		repaint();
-	}
-	
-	/** Lays out the node. */
-	private void layoutPreviousComments()
-	{
-		List l = annotationToDisplay;
-		int n = 3;
-		if (!partial) n = 1;
-		if (l != null && l.size() >= n) {
-			remove(moreComponent);
-			constraints.gridy = 2;
-			add(hideComponent, constraints);
-		}
-		previousComments.getViewport().removeAll();
-		previousComments.getViewport().add(displayAllPreviousComments());
-		revalidate();
-		repaint();
-	}
 	
 	/**
 	 * Displays the annotations.
@@ -407,27 +269,11 @@ class TextualAnnotationsUI
 			enabled = !model.isAcrossGroups();
 		}
 		commentArea.setEnabled(enabled);
-		if (hasPrevious) {
-			TextualAnnotationData data = (TextualAnnotationData) list.get(0);
-			String text = data.getText();
-			if (!set) expanded = text.length() < MAX_LENGTH_TEXT;
-			//layout.setRow(3, TableLayout.PREFERRED);
-			constraints.gridy = 3;
-			add(previousComments, constraints);
-			if (expanded) {
-				partial = true;
-				previousComments.getViewport().add(
-						displayPartialPreviousComments());
-				if (list.size() > 2) {
-					constraints.gridy = 2;
-					add(moreComponent, constraints);
-				}
-			} else {
-				partial = false;
-				constraints.gridy = 2;
-				add(moreComponent, constraints);
-			}
-		}
+		
+		JPanel comments = displayComments();
+		
+		constraints.gridy = 2;
+		add(comments, constraints);
 	}
 	
 	/**
@@ -456,7 +302,6 @@ class TextualAnnotationsUI
 		if (annotationToRemove == null) annotationToRemove = new ArrayList();
 		annotationToRemove.clear();
 		annotationToRemove.add(annotation);
-		previousComments.getViewport().removeAll();
 		List l = model.getTextualAnnotationsByDate();
 		List toKeep = new ArrayList();
 		if (l != null) {
@@ -560,8 +405,6 @@ class TextualAnnotationsUI
 	{
 		if (annotationToRemove != null) annotationToRemove.clear();
 		annotationToDisplay = null;
-		if (previousComments != null)
-			previousComments.getViewport().removeAll();
 		originalText = DEFAULT_TEXT_COMMENT;
 		setAreaText(DEFAULT_TEXT_COMMENT, true);
 	}
@@ -583,16 +426,6 @@ class TextualAnnotationsUI
 	{
 		int index = Integer.parseInt(e.getActionCommand());
 		switch (index) {
-			case MORE:
-				set = true;
-				expanded = true;
-				layoutPreviousComments();
-				break;
-			case HIDE:
-				set = true;
-				expanded = false;
-				hidePreviousComments();
-				break;
 			case ADD_COMMENT:
 			    saveComment();
 			    break;
