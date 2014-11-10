@@ -99,7 +99,9 @@ public class UnitsFactory {
     public static ElectricPotential convertElectricPotential(ome.units.quantity.ElectricPotential value) {
         if (value == null)
             return null;
-        UnitsElectricPotential ul = UnitsElectricPotential.valueOf(value.unit().getSymbol());
+        ome.model.enums.UnitsElectricPotential internal =
+            ome.model.enums.UnitsElectricPotential.bySymbol(value.unit().getSymbol());
+        UnitsElectricPotential ul = UnitsElectricPotential.valueOf(internal.toString());
         omero.model.ElectricPotential l = new omero.model.ElectricPotentialI();
         l.setValue(value.value().doubleValue());
         l.setUnit(ul);
@@ -191,7 +193,9 @@ public class UnitsFactory {
     public static Frequency convertFrequency(ome.units.quantity.Frequency value) {
         if (value == null)
             return null;
-        UnitsFrequency ul = UnitsFrequency.valueOf(value.unit().getSymbol());
+        ome.model.enums.UnitsFrequency internal =
+            ome.model.enums.UnitsFrequency.bySymbol(value.unit().getSymbol());
+        UnitsFrequency ul = UnitsFrequency.valueOf(internal.toString());
         omero.model.Frequency l = new omero.model.FrequencyI();
         l.setValue(value.value().doubleValue());
         l.setUnit(ul);
@@ -283,7 +287,9 @@ public class UnitsFactory {
     public static Length convertLength(ome.units.quantity.Length value) {
         if (value == null)
             return null;
-        UnitsLength ul = UnitsLength.valueOf(value.unit().getSymbol());
+        ome.model.enums.UnitsLength internal =
+            ome.model.enums.UnitsLength.bySymbol(value.unit().getSymbol());
+        UnitsLength ul = UnitsLength.valueOf(internal.toString());
         omero.model.Length l = new omero.model.LengthI();
         l.setValue(value.value().doubleValue());
         l.setUnit(ul);
@@ -375,7 +381,9 @@ public class UnitsFactory {
     public static Power convertPower(ome.units.quantity.Power value) {
         if (value == null)
             return null;
-        UnitsPower ul = UnitsPower.valueOf(value.unit().getSymbol());
+        ome.model.enums.UnitsPower internal =
+            ome.model.enums.UnitsPower.bySymbol(value.unit().getSymbol());
+        UnitsPower ul = UnitsPower.valueOf(internal.toString());
         omero.model.Power l = new omero.model.PowerI();
         l.setValue(value.value().doubleValue());
         l.setUnit(ul);
@@ -467,7 +475,9 @@ public class UnitsFactory {
     public static Pressure convertPressure(ome.units.quantity.Pressure value) {
         if (value == null)
             return null;
-        UnitsPressure ul = UnitsPressure.valueOf(value.unit().getSymbol());
+        ome.model.enums.UnitsPressure internal =
+            ome.model.enums.UnitsPressure.bySymbol(value.unit().getSymbol());
+        UnitsPressure ul = UnitsPressure.valueOf(internal.toString());
         omero.model.Pressure l = new omero.model.PressureI();
         l.setValue(value.value().doubleValue());
         l.setUnit(ul);
@@ -559,7 +569,9 @@ public class UnitsFactory {
     public static Temperature convertTemperature(ome.units.quantity.Temperature value) {
         if (value == null)
             return null;
-        UnitsTemperature ul = UnitsTemperature.valueOf(value.unit().getSymbol());
+        ome.model.enums.UnitsTemperature internal =
+            ome.model.enums.UnitsTemperature.bySymbol(value.unit().getSymbol());
+        UnitsTemperature ul = UnitsTemperature.valueOf(internal.toString());
         omero.model.Temperature l = new omero.model.TemperatureI();
         l.setValue(value.value().doubleValue());
         l.setUnit(ul);
@@ -651,7 +663,9 @@ public class UnitsFactory {
     public static Time convertTime(ome.units.quantity.Time value) {
         if (value == null)
             return null;
-        UnitsTime ul = UnitsTime.valueOf(value.unit().getSymbol());
+        ome.model.enums.UnitsTime internal =
+            ome.model.enums.UnitsTime.bySymbol(value.unit().getSymbol());
+        UnitsTime ul = UnitsTime.valueOf(internal.toString());
         omero.model.Time l = new omero.model.TimeI();
         l.setValue(value.value().doubleValue());
         l.setUnit(ul);
