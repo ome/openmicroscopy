@@ -38,8 +38,9 @@ from django.core.urlresolvers import reverse
 
 try:
     from PIL import Image, ImageDraw  # see ticket:2597
-except ImportError:
-    import Image, ImageDraw  # see ticket:2597
+except ImportError:  # see ticket:2597
+    import Image
+    import ImageDraw
 
 from random import randint as rint
 import tempfile
