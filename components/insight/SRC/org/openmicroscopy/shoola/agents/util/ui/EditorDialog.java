@@ -446,8 +446,10 @@ public class EditorDialog
 			d.setValue(Boolean.parseBoolean(name));
         	data = d;
         }
-        if (withParent) firePropertyChange(CREATE_PROPERTY, null, data);
-        else firePropertyChange(CREATE_NO_PARENT_PROPERTY, null, data);
+        if (withParent) 
+        	firePropertyChange(CREATE_PROPERTY, null, data);
+        else 
+        	firePropertyChange(CREATE_NO_PARENT_PROPERTY, null, data);
         close();
     }
 

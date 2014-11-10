@@ -930,6 +930,8 @@ class DocComponent
 				data instanceof XMLAnnotationData) {
 				annotation = (AnnotationData) data;
 				text = annotation.getContentAsString();
+				text = EditorUtil.truncate(text, TEXT_LENGTH,
+				        false);
 			}
 			if(data instanceof DoubleAnnotationData) {
 				annotation = (AnnotationData) data;
