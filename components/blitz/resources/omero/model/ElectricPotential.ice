@@ -20,7 +20,7 @@
 #ifndef CLASS_ELECTRICPOTENTIAL
 #define CLASS_ELECTRICPOTENTIAL
 
-#include <omero/model/UnitsElectricPotential.ice>
+#include <omero/model/Units.ice>
 
 module omero {
 
@@ -42,7 +42,7 @@ module omero {
        */
       double value;
 
-      UnitsElectricPotential unit;
+      omero::model::units::ELECTRICPOTENTIAL unit;
 
       /**
        * Actual value for this unit-based field. The interpretation of
@@ -57,9 +57,9 @@ module omero {
        * [omero::model::UnitsElectricPotential] instance which is an [omero::model::IObject]
        * meaning that its ID is sufficient for identifying equality.
        **/
-      UnitsElectricPotential getUnit();
+      omero::model::units::ELETRICPOTENTIAL getUnit();
 
-      void setUnit(UnitsElectricPotential unit);
+      void setUnit(omero::model::units::ELECTRICPOTENTIAL unit);
 
       ElectricPotential copy();
 

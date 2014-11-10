@@ -27,6 +27,9 @@ import ome.model.enums.UnitsElectricPotential;
 import ome.util.Filter;
 import ome.util.Filterable;
 
+import org.hibernate.annotations.Parameter;
+import org.hibernate.annotations.Type;
+
 /**
  * class storing both a electricpotential and a unit for that potential
  * (e.g. C, K, etc.) encapsulated in a {@link UnitsElectricPotential} instance. As
@@ -85,11 +88,10 @@ public class ElectricPotential implements Serializable, Filterable {
      * for physicalSizeX will be stored as "detectorsettings.voltage", the unit enum
      * will be stored as "detectorsettings.voltageunit".
      */
-    @javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY,cascade = {javax.persistence.CascadeType.MERGE, javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.REFRESH},
-            targetEntity = ome.model.enums.UnitsElectricPotential.class)
-    @org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.LOCK, org.hibernate.annotations.CascadeType.MERGE, org.hibernate.annotations.CascadeType.PERSIST, org.hibernate.annotations.CascadeType.REPLICATE, org.hibernate.annotations.CascadeType.REFRESH, org.hibernate.annotations.CascadeType.SAVE_UPDATE, org.hibernate.annotations.CascadeType.EVICT})
-    @javax.persistence.JoinColumn(name="unit", nullable=false,
+    @javax.persistence.Column(name="unit", nullable=false,
         unique=false, insertable=true, updatable=true)
+    @Type(type="ome.model.units.GenericEnumType",
+          parameters=@Parameter(name="unit", value="ELECTRICPOTENTIAL"))
     public UnitsElectricPotential getUnit() {
         return this.unit;
     }

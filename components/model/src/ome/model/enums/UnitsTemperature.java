@@ -1,11 +1,11 @@
 
-package ome.model.units;
+package ome.model.enums;
 
 public enum UnitsTemperature {
+    K("K"),
     DEGREEC("°C"),
     DEGREEF("°F"),
-    DEGREER("°R"),
-    K("K");
+    DEGREER("°R");
 
     protected String value;
 

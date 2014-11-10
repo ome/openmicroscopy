@@ -1,5 +1,5 @@
 
-package ome.model.units;
+package ome.model.enums;
 
 public enum UnitsPower {
     YOTTAW("YW"),

@@ -27,6 +27,9 @@ import ome.model.enums.UnitsFrequency;
 import ome.util.Filter;
 import ome.util.Filterable;
 
+import org.hibernate.annotations.Parameter;
+import org.hibernate.annotations.Type;
+
 /**
  * class storing both a frequency and a unit for that frequency
  * (e.g. C, K, etc.) encapsulated in a {@link UnitsFrequency} instance. As
@@ -85,11 +88,10 @@ public class Frequency implements Serializable, Filterable {
      * for physicalSizeX will be stored as "detectorsettings.readoutrate", the unit enum
      * will be stored as "detectorsettings.readoutrateunit".
      */
-    @javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY,cascade = {javax.persistence.CascadeType.MERGE, javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.REFRESH},
-            targetEntity = ome.model.enums.UnitsFrequency.class)
-    @org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.LOCK, org.hibernate.annotations.CascadeType.MERGE, org.hibernate.annotations.CascadeType.PERSIST, org.hibernate.annotations.CascadeType.REPLICATE, org.hibernate.annotations.CascadeType.REFRESH, org.hibernate.annotations.CascadeType.SAVE_UPDATE, org.hibernate.annotations.CascadeType.EVICT})
-    @javax.persistence.JoinColumn(name="unit", nullable=false,
+    @javax.persistence.Column(name="unit", nullable=false,
         unique=false, insertable=true, updatable=true)
+    @Type(type="ome.model.units.GenericEnumType",
+          parameters=@Parameter(name="unit", value="FREQUENCY"))
     public UnitsFrequency getUnit() {
         return this.unit;
     }

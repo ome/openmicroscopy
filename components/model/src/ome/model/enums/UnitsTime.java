@@ -1,5 +1,5 @@
 
-package ome.model.units;
+package ome.model.enums;
 
 public enum UnitsTime {
     YOTTAS("Ys"),
@@ -23,7 +23,6 @@ public enum UnitsTime {
     AS("as"),
     ZS("zs"),
     YS("ys"),
-    SECOND("s"),
     MIN("min"),
     H("h"),
     D("d");

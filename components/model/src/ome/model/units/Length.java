@@ -27,6 +27,9 @@ import ome.model.enums.UnitsLength;
 import ome.util.Filter;
 import ome.util.Filterable;
 
+import org.hibernate.annotations.Parameter;
+import org.hibernate.annotations.Type;
+
 /**
  * class storing both a length (PositiveFloat) and a unit for that length
  * (e.g. m, in, ly, etc.) encapsulated in a {@link UnitsLength} instance. As
@@ -86,11 +89,10 @@ public class Length implements Serializable, Filterable {
      * for physicalSizeX will be stored as "pixels.physicalSizeX", the unit enum
      * will be stored as "pixels.physicalSizeXUnit".
      */
-    @javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY,cascade = {javax.persistence.CascadeType.MERGE, javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.REFRESH},
-            targetEntity = ome.model.enums.UnitsLength.class)
-    @org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.LOCK, org.hibernate.annotations.CascadeType.MERGE, org.hibernate.annotations.CascadeType.PERSIST, org.hibernate.annotations.CascadeType.REPLICATE, org.hibernate.annotations.CascadeType.REFRESH, org.hibernate.annotations.CascadeType.SAVE_UPDATE, org.hibernate.annotations.CascadeType.EVICT})
-    @javax.persistence.JoinColumn(name="unit", nullable=false,
+    @javax.persistence.Column(name="unit", nullable=false,
         unique=false, insertable=true, updatable=true)
+    @Type(type="ome.model.units.GenericEnumType",
+          parameters=@Parameter(name="unit", value="LENGTH"))
     public UnitsLength getUnit() {
         return this.unit;
     }

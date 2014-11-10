@@ -565,6 +565,7 @@
         offsetValue float8,
         serialNumber varchar(255),
         version int4,
+        voltageUnit UnitsElectricPotential,
         voltage float8,
         zoom float8,
         creation_id int8 not null,
@@ -574,7 +575,6 @@
         update_id int8 not null,
         instrument int8 not null,
         type int8 not null,
-        voltageUnit int8,
         primary key (id)
     );;
 
@@ -599,8 +599,10 @@
         gain float8,
         integration positive_int,
         offsetValue float8,
+        readOutRateUnit UnitsFrequency,
         readOutRate float8,
         version int4,
+        voltageUnit UnitsElectricPotential,
         voltage float8,
         zoom float8,
         binning int8,
@@ -610,8 +612,6 @@
         owner_id int8 not null,
         update_id int8 not null,
         detector int8 not null,
-        readOutRateUnit int8,
-        voltageUnit int8,
         primary key (id)
     );;
 
@@ -1052,19 +1052,19 @@
 
     create table imagingenvironment (
         id int8 not null,
+        airPressureUnit UnitsPressure,
         airPressure float8,
         co2percent percent_fraction,
         permissions int8 not null,
         humidity percent_fraction,
+        temperatureUnit UnitsTemperature,
         temperature float8,
         version int4,
-        airPressureUnit int8,
         creation_id int8 not null,
         external_id int8 unique,
         group_id int8 not null,
         owner_id int8 not null,
         update_id int8 not null,
-        temperatureUnit int8,
         primary key (id)
     );;
 
@@ -1175,16 +1175,16 @@
     create table laser (
         frequencyMultiplication positive_int,
         pockelCell bool,
+        repetitionRateUnit UnitsFrequency,
         repetitionRate float8,
         tuneable bool,
+        wavelengthUnit UnitsLength,
         wavelength float8,
         lightsource_id int8 not null,
         laserMedium int8 not null,
         pulse int8,
         pump int8,
-        repetitionRateUnit int8,
         type int8 not null,
-        wavelengthUnit int8,
         primary key (lightsource_id)
     );;
 
@@ -1274,6 +1274,7 @@
         attenuation percent_fraction,
         permissions int8 not null,
         version int4,
+        wavelengthUnit UnitsLength,
         wavelength float8,
         creation_id int8 not null,
         external_id int8 unique,
@@ -1282,7 +1283,6 @@
         update_id int8 not null,
         lightSource int8 not null,
         microbeamManipulation int8,
-        wavelengthUnit int8,
         primary key (id)
     );;
 
@@ -1292,6 +1292,7 @@
         lotNumber varchar(255),
         manufacturer varchar(255),
         model varchar(255),
+        powerUnit UnitsPower,
         "power" float8,
         serialNumber varchar(255),
         version int4,
@@ -1301,7 +1302,6 @@
         owner_id int8 not null,
         update_id int8 not null,
         instrument int8 not null,
-        powerUnit int8,
         primary key (id)
     );;
 
@@ -1335,11 +1335,14 @@
     create table logicalchannel (
         id int8 not null,
         permissions int8 not null,
+        emissionWaveUnit UnitsLength,
         emissionWave float8,
+        excitationWaveUnit UnitsLength,
         excitationWave float8,
         fluor varchar(255),
         name varchar(255),
         ndFilter float8,
+        pinHoleSizeUnit UnitsLength,
         pinHoleSize float8,
         pockelCellSetting int4,
         samplesPerPixel positive_int,
@@ -1351,8 +1354,6 @@
         owner_id int8 not null,
         update_id int8 not null,
         detectorSettings int8,
-        emissionWaveUnit int8,
-        excitationWaveUnit int8,
         filterSet int8,
         illumination int8,
         lightPath int8,
@@ -1360,7 +1361,6 @@
         "mode" int8,
         otf int8,
         photometricInterpretation int8,
-        pinHoleSizeUnit int8,
         primary key (id)
     );;
 
@@ -1504,6 +1504,7 @@
         nominalMagnification float8,
         serialNumber varchar(255),
         version int4,
+        workingDistanceUnit UnitsLength,
         workingDistance float8,
         correction int8 not null,
         creation_id int8 not null,
@@ -1513,7 +1514,6 @@
         update_id int8 not null,
         immersion int8 not null,
         instrument int8 not null,
-        workingDistanceUnit int8,
         primary key (id)
     );;
 
@@ -1627,8 +1627,11 @@
         id int8 not null,
         permissions int8 not null,
         methodology varchar(255),
+        physicalSizeXUnit UnitsLength,
         physicalSizeX float8,
+        physicalSizeYUnit UnitsLength,
         physicalSizeY float8,
+        physicalSizeZUnit UnitsLength,
         physicalSizeZ float8,
         sha1 varchar(255) not null,
         significantBits positive_int,
@@ -1637,6 +1640,7 @@
         sizeX positive_int not null,
         sizeY positive_int not null,
         sizeZ positive_int not null,
+        timeIncrementUnit UnitsTime,
         timeIncrement float8,
         version int4,
         waveIncrement int4,
@@ -1648,12 +1652,8 @@
         update_id int8 not null,
         dimensionOrder int8 not null,
         image int8 not null,
-        physicalSizeXUnit int8,
-        physicalSizeYUnit int8,
-        physicalSizeZUnit int8,
         pixelsType int8 not null,
         relatedTo int8,
-        timeIncrementUnit int8,
         image_index int4 not null,
         primary key (id),
         unique (image, image_index)
@@ -1685,27 +1685,27 @@
 
     create table planeinfo (
         id int8 not null,
+        deltaTUnit UnitsTime,
         deltaT float8,
         permissions int8 not null,
+        exposureTimeUnit UnitsTime,
         exposureTime float8,
+        positionXUnit UnitsLength,
         positionX float8,
+        positionYUnit UnitsLength,
         positionY float8,
+        positionZUnit UnitsLength,
         positionZ float8,
         theC nonnegative_int not null,
         theT nonnegative_int not null,
         theZ nonnegative_int not null,
         version int4,
-        deltaTUnit int8,
         creation_id int8 not null,
         external_id int8 unique,
         group_id int8 not null,
         owner_id int8 not null,
         update_id int8 not null,
-        exposureTimeUnit int8,
         pixels int8 not null,
-        positionXUnit int8,
-        positionYUnit int8,
-        positionZUnit int8,
         primary key (id)
     );;
 
@@ -1747,15 +1747,15 @@
         "rows" int4,
         status varchar(255),
         version int4,
+        wellOriginXUnit UnitsLength,
         wellOriginX float8,
+        wellOriginYUnit UnitsLength,
         wellOriginY float8,
         creation_id int8 not null,
         external_id int8 unique,
         group_id int8 not null,
         owner_id int8 not null,
         update_id int8 not null,
-        wellOriginXUnit int8,
-        wellOriginYUnit int8,
         primary key (id)
     );;
 
@@ -2066,6 +2066,7 @@
         fillColor int4,
         fillRule varchar(255),
         fontFamily varchar(255),
+        fontSizeUnit UnitsLength,
         fontSize float8,
         fontStretch varchar(255),
         fontStyle varchar(255),
@@ -2079,6 +2080,7 @@
         strokeLineCap varchar(255),
         strokeLineJoin varchar(255),
         strokeMiterLimit int4,
+        strokeWidthUnit UnitsLength,
         strokeWidth float8,
         theC int4,
         theT int4,
@@ -2114,9 +2116,7 @@
         group_id int8 not null,
         owner_id int8 not null,
         update_id int8 not null,
-        fontSizeUnit int8,
         roi int8 not null,
-        strokeWidthUnit int8,
         pixels int8,
         roi_index int4 not null,
         primary key (id),
@@ -2162,8 +2162,11 @@
         id int8 not null,
         permissions int8 not null,
         name varchar(255) not null,
+        positionXUnit UnitsLength,
         positionX float8,
+        positionYUnit UnitsLength,
         positionY float8,
+        positionZUnit UnitsLength,
         positionZ float8,
         version int4,
         creation_id int8 not null,
@@ -2171,9 +2174,6 @@
         group_id int8 not null,
         owner_id int8 not null,
         update_id int8 not null,
-        positionXUnit int8,
-        positionYUnit int8,
-        positionZUnit int8,
         primary key (id)
     );;
 
@@ -2215,17 +2215,17 @@
 
     create table transmittancerange (
         id int8 not null,
+        cutInUnit UnitsLength,
         cutIn float8,
+        cutInToleranceUnit UnitsLength,
         cutInTolerance float8,
+        cutOutUnit UnitsLength,
         cutOut float8,
+        cutOutToleranceUnit UnitsLength,
         cutOutTolerance float8,
         permissions int8 not null,
         transmittance percent_fraction,
         version int4,
-        cutInUnit int8,
-        cutInToleranceUnit int8,
-        cutOutUnit int8,
-        cutOutToleranceUnit int8,
         creation_id int8 not null,
         external_id int8 unique,
         group_id int8 not null,
@@ -2365,7 +2365,9 @@
     create table wellsample (
         id int8 not null,
         permissions int8 not null,
+        posXUnit UnitsLength,
         posX float8,
+        posYUnit UnitsLength,
         posY float8,
         timepoint timestamp,
         version int4,
@@ -2376,8 +2378,6 @@
         update_id int8 not null,
         image int8 not null,
         plateAcquisition int8,
-        posXUnit int8,
-        posYUnit int8,
         well int8 not null,
         well_index int4 not null,
         primary key (id),
@@ -2980,11 +2980,6 @@
         references externalinfo  ;;
 
     alter table detector 
-        add constraint FKdetector_voltageUnit_unitselectricpotential 
-        foreign key (voltageUnit) 
-        references unitselectricpotential  ;;
-
-    alter table detector 
         add constraint FKdetector_type_detectortype 
         foreign key (type) 
         references detectortype  ;;
@@ -3045,11 +3040,6 @@
         references event  ;;
 
     alter table detectorsettings 
-        add constraint FKdetectorsettings_readOutRateUnit_unitsfrequency 
-        foreign key (readOutRateUnit) 
-        references unitsfrequency  ;;
-
-    alter table detectorsettings 
         add constraint FKdetectorsettings_update_id_event 
         foreign key (update_id) 
         references event  ;;
@@ -3063,11 +3053,6 @@
         add constraint FKdetectorsettings_binning_binning 
         foreign key (binning) 
         references binning  ;;
-
-    alter table detectorsettings 
-        add constraint FKdetectorsettings_voltageUnit_unitselectricpotential 
-        foreign key (voltageUnit) 
-        references unitselectricpotential  ;;
 
     alter table detectorsettings 
         add constraint FKdetectorsettings_group_id_experimentergroup 
@@ -3825,11 +3810,6 @@
         references externalinfo  ;;
 
     alter table imagingenvironment 
-        add constraint FKimagingenvironment_temperatureUnit_unitstemperature 
-        foreign key (temperatureUnit) 
-        references unitstemperature  ;;
-
-    alter table imagingenvironment 
         add constraint FKimagingenvironment_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup  ;;
@@ -3838,11 +3818,6 @@
         add constraint FKimagingenvironment_owner_id_experimenter 
         foreign key (owner_id) 
         references experimenter  ;;
-
-    alter table imagingenvironment 
-        add constraint FKimagingenvironment_airPressureUnit_unitspressure 
-        foreign key (airPressureUnit) 
-        references unitspressure  ;;
 
     alter table imagingenvironment_map 
         add constraint FKimagingenvironment_map_map 
@@ -4015,19 +3990,9 @@
         references lightsource  ;;
 
     alter table laser 
-        add constraint FKlaser_repetitionRateUnit_unitsfrequency 
-        foreign key (repetitionRateUnit) 
-        references unitsfrequency  ;;
-
-    alter table laser 
         add constraint FKlaser_laserMedium_lasermedium 
         foreign key (laserMedium) 
         references lasermedium  ;;
-
-    alter table laser 
-        add constraint FKlaser_wavelengthUnit_unitslength 
-        foreign key (wavelengthUnit) 
-        references unitslength  ;;
 
     alter table laser 
         add constraint FKlaser_pulse_pulse 
@@ -4210,11 +4175,6 @@
         references lightsource  ;;
 
     alter table lightsettings 
-        add constraint FKlightsettings_wavelengthUnit_unitslength 
-        foreign key (wavelengthUnit) 
-        references unitslength  ;;
-
-    alter table lightsettings 
         add constraint FKlightsettings_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup  ;;
@@ -4253,11 +4213,6 @@
         add constraint FKlightsource_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup  ;;
-
-    alter table lightsource 
-        add constraint FKlightsource_powerUnit_unitspower 
-        foreign key (powerUnit) 
-        references unitspower  ;;
 
     alter table lightsource 
         add constraint FKlightsource_owner_id_experimenter 
@@ -4340,11 +4295,6 @@
         references photometricinterpretation  ;;
 
     alter table logicalchannel 
-        add constraint FKlogicalchannel_pinHoleSizeUnit_unitslength  
-        foreign key (pinHoleSizeUnit) 
-        references unitslength  ;;
-
-    alter table logicalchannel 
         add constraint FKlogicalchannel_lightPath_lightpath 
         foreign key (lightPath) 
         references lightpath  ;;
@@ -4360,19 +4310,9 @@
         references experimentergroup  ;;
 
     alter table logicalchannel 
-        add constraint FKlogicalchannel_excitationWaveUnit_unitslength 
-        foreign key (excitationWaveUnit) 
-        references unitslength  ;;
-
-    alter table logicalchannel 
         add constraint FKlogicalchannel_otf_otf 
         foreign key (otf) 
         references otf  ;;
-
-    alter table logicalchannel 
-        add constraint FKlogicalchannel_emissionWaveUnit_unitslength 
-        foreign key (emissionWaveUnit) 
-        references unitslength  ;;
 
     alter table logicalchannel 
         add constraint FKlogicalchannel_lightSourceSettings_lightsettings 
@@ -4635,11 +4575,6 @@
         references correction  ;;
 
     alter table objective 
-        add constraint FKobjective_workingDistanceUnit_unitslength 
-        foreign key (workingDistanceUnit) 
-        references unitslength  ;;
-
-    alter table objective 
         add constraint FKobjective_owner_id_experimenter 
         foreign key (owner_id) 
         references experimenter  ;;
@@ -4845,44 +4780,14 @@
         references event  ;;
 
     alter table pixels 
-        add constraint FKpixels_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
-
-    alter table pixels 
-        add constraint FKpixels_timeIncrementUnit_unitstime  
-        foreign key (timeIncrementUnit) 
-        references unitstime  ;;
-
-    alter table pixels 
-        add constraint FKpixels_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup  ;;
-
-    alter table pixels 
-        add constraint FKpixels_relatedTo_pixels 
-        foreign key (relatedTo) 
-        references pixels  ;;
-
-    alter table pixels 
-        add constraint FKpixels_image_image 
-        foreign key (image) 
-        references image  ;;
-
-    alter table pixels 
-        add constraint FKpixels_physicalSizeYUnit_unitslength 
-        foreign key (physicalSizeYUnit) 
-        references unitslength  ;;
-
-    alter table pixels 
-        add constraint FKpixels_pixelsType_pixelstype 
-        foreign key (pixelsType) 
-        references pixelstype  ;;
-
-    alter table pixels 
         add constraint FKpixels_update_id_event 
         foreign key (update_id) 
         references event  ;;
+
+    alter table pixels 
+        add constraint FKpixels_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
     alter table pixels 
         add constraint FKpixels_dimensionOrder_dimensionorder 
@@ -4890,14 +4795,24 @@
         references dimensionorder  ;;
 
     alter table pixels 
-        add constraint FKpixels_physicalSizeXUnit_unitslength 
-        foreign key (physicalSizeXUnit) 
-        references unitslength  ;;
+        add constraint FKpixels_relatedTo_pixels 
+        foreign key (relatedTo) 
+        references pixels  ;;
 
     alter table pixels 
-        add constraint FKpixels_physicalSizeZUnit_unitslength 
-        foreign key (physicalSizeZUnit) 
-        references unitslength  ;;
+        add constraint FKpixels_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table pixels 
+        add constraint FKpixels_image_image 
+        foreign key (image) 
+        references image  ;;
+
+    alter table pixels 
+        add constraint FKpixels_pixelsType_pixelstype 
+        foreign key (pixelsType) 
+        references pixelstype  ;;
 
     alter table pixels 
         add constraint FKpixels_owner_id_experimenter 
@@ -4945,16 +4860,6 @@
         references externalinfo  ;;
 
     alter table planeinfo 
-        add constraint FKplaneinfo_positionYUnit_unitslength 
-        foreign key (positionYUnit) 
-        references unitslength  ;;
-
-    alter table planeinfo 
-        add constraint FKplaneinfo_exposureTimeUnit_unitstime 
-        foreign key (exposureTimeUnit) 
-        references unitstime  ;;
-
-    alter table planeinfo 
         add constraint FKplaneinfo_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
@@ -4968,21 +4873,6 @@
         add constraint FKplaneinfo_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo  ;;
-
-    alter table planeinfo 
-        add constraint FKplaneinfo_deltaTUnit_unitstime  
-        foreign key (deltaTUnit) 
-        references unitstime  ;;
-
-    alter table planeinfo 
-        add constraint FKplaneinfo_positionXUnit_unitslength 
-        foreign key (positionXUnit) 
-        references unitslength  ;;
-
-    alter table planeinfo 
-        add constraint FKplaneinfo_positionZUnit_unitslength 
-        foreign key (positionZUnit) 
-        references unitslength  ;;
 
     alter table planeinfo 
         add constraint FKplaneinfo_pixels_pixels 
@@ -5053,16 +4943,6 @@
         add constraint FKplate_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo  ;;
-
-    alter table plate 
-        add constraint FKplate_wellOriginYUnit_unitslength 
-        foreign key (wellOriginYUnit) 
-        references unitslength  ;;
-
-    alter table plate 
-        add constraint FKplate_wellOriginXUnit_unitslength 
-        foreign key (wellOriginXUnit) 
-        references unitslength  ;;
 
     alter table plate 
         add constraint FKplate_group_id_experimentergroup 
@@ -5650,11 +5530,6 @@
         references externalinfo  ;;
 
     alter table shape 
-        add constraint FKshape_fontSizeUnit_unitslength  
-        foreign key (fontSizeUnit) 
-        references unitslength  ;;
-
-    alter table shape 
         add constraint FKmask_pixels_pixels 
         foreign key (pixels) 
         references pixels  ;;
@@ -5668,11 +5543,6 @@
         add constraint FKshape_roi_roi 
         foreign key (roi) 
         references roi  ;;
-
-    alter table shape 
-        add constraint FKshape_strokeWidthUnit_unitslength 
-        foreign key (strokeWidthUnit) 
-        references unitslength  ;;
 
     alter table shape 
         add constraint FKshape_owner_id_experimenter 
@@ -5740,11 +5610,6 @@
         references share  ;;
 
     alter table stagelabel 
-        add constraint FKstagelabel_positionYUnit_unitslength 
-        foreign key (positionYUnit) 
-        references unitslength  ;;
-
-    alter table stagelabel 
         add constraint FKstagelabel_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
@@ -5758,16 +5623,6 @@
         add constraint FKstagelabel_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo  ;;
-
-    alter table stagelabel 
-        add constraint FKstagelabel_positionXUnit_unitslength 
-        foreign key (positionXUnit) 
-        references unitslength  ;;
-
-    alter table stagelabel 
-        add constraint FKstagelabel_positionZUnit_unitslength 
-        foreign key (positionZUnit) 
-        references unitslength  ;;
 
     alter table stagelabel 
         add constraint FKstagelabel_group_id_experimentergroup 
@@ -5845,16 +5700,6 @@
         references event  ;;
 
     alter table transmittancerange 
-        add constraint FKtransmittancerange_cutOutUnit_unitslength 
-        foreign key (cutOutUnit) 
-        references unitslength  ;;
-
-    alter table transmittancerange 
-        add constraint FKtransmittancerange_cutInUnit_unitslength 
-        foreign key (cutInUnit) 
-        references unitslength  ;;
-
-    alter table transmittancerange 
         add constraint FKtransmittancerange_update_id_event 
         foreign key (update_id) 
         references event  ;;
@@ -5865,19 +5710,9 @@
         references externalinfo  ;;
 
     alter table transmittancerange 
-        add constraint FKtransmittancerange_cutInToleranceUnit_unitslength 
-        foreign key (cutInToleranceUnit) 
-        references unitslength  ;;
-
-    alter table transmittancerange 
         add constraint FKtransmittancerange_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup  ;;
-
-    alter table transmittancerange 
-        add constraint FKtransmittancerange_cutOutToleranceUnit_unitslength  
-        foreign key (cutOutToleranceUnit) 
-        references unitslength  ;;
 
     alter table transmittancerange 
         add constraint FKtransmittancerange_owner_id_experimenter 
@@ -6030,11 +5865,6 @@
         references well  ;;
 
     alter table wellsample 
-        add constraint FKwellsample_posXUnit_unitslength 
-        foreign key (posXUnit) 
-        references unitslength  ;;
-
-    alter table wellsample 
         add constraint FKwellsample_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
@@ -6053,11 +5883,6 @@
         add constraint FKwellsample_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo  ;;
-
-    alter table wellsample 
-        add constraint FKwellsample_posYUnit_unitslength 
-        foreign key (posYUnit) 
-        references unitslength  ;;
 
     alter table wellsample 
         add constraint FKwellsample_well_well 

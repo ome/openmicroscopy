@@ -27,6 +27,9 @@ import ome.model.enums.UnitsTime;
 import ome.util.Filter;
 import ome.util.Filterable;
 
+import org.hibernate.annotations.Parameter;
+import org.hibernate.annotations.Type;
+
 /**
  * class storing both a time duration (double) and a unit for that duration
  * (e.g. ns, ms, s, etc.) encapsulated in a {@link UnitsTime} instance. As
@@ -85,11 +88,10 @@ public class Time implements Serializable, Filterable {
      * for exposureTime will be stored as "planeinfo.exposuretime", the unit enum
      * will be stored as "planeinfo.exposuretimeunit".
      */
-    @javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY,cascade = {javax.persistence.CascadeType.MERGE, javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.REFRESH},
-            targetEntity = ome.model.enums.UnitsTime.class)
-    @org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.LOCK, org.hibernate.annotations.CascadeType.MERGE, org.hibernate.annotations.CascadeType.PERSIST, org.hibernate.annotations.CascadeType.REPLICATE, org.hibernate.annotations.CascadeType.REFRESH, org.hibernate.annotations.CascadeType.SAVE_UPDATE, org.hibernate.annotations.CascadeType.EVICT})
-    @javax.persistence.JoinColumn(name="unit", nullable=false,
+    @javax.persistence.Column(name="unit", nullable=false,
         unique=false, insertable=true, updatable=true)
+    @Type(type="ome.model.units.GenericEnumType",
+          parameters=@Parameter(name="unit", value="TIME"))
     public UnitsTime getUnit() {
         return this.unit;
     }
