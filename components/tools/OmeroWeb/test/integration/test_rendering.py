@@ -36,8 +36,8 @@ from django.core.urlresolvers import reverse
 @pytest.fixture(scope='function')
 def itest(request):
     """
-    Returns a new L{test.integration.library.ITest} instance.  With
-    attached finalizer so that pytest will clean it up.
+    Returns a new L{test.integration.library.ITest} instance. With attached
+    finalizer so that pytest will clean it up.
     """
     o = lib.ITest()
     o.setup_method(None)
@@ -47,11 +47,13 @@ def itest(request):
     request.addfinalizer(finalizer)
     return o
 
+
 @pytest.fixture(scope='function')
 def client(request, itest):
     """Returns a new user client in a read-only group."""
     # Use group read-only permissions (not private) by default
     return itest.new_client(perms='rwr---')
+
 
 @pytest.fixture(scope='function')
 def django_client(request, client):
@@ -81,35 +83,30 @@ def django_client(request, client):
     return django_client
 
 
-from omero.gateway import ImageWrapper
-
 class TestCsrf(object):
     """
     Tests to ensure that Django CSRF middleware for OMERO.web is enabled and
     working correctly.
     """
 
-
-    def test_copy_past_rendering_settings_from_image(self, itest, client, django_client):
-        """
-        CSRF protection does not check `GET` requests so we need to be sure
-        that this request results in an HTTP 405 (method not allowed) status
-        code.
-        """
+    def test_copy_past_rendering_settings_from_image(self, itest, client,
+                                                     django_client):
         # Create 2 images with 2 channels each
-        iid1 = itest.createTestImage(sizeC=2, session=client.getSession()).id.val
-        iid2 = itest.createTestImage(sizeC=2, session=client.getSession()).id.val
+        iid1 = itest.createTestImage(sizeC=2,
+                                     session=client.getSession()).id.val
+        iid2 = itest.createTestImage(sizeC=2,
+                                     session=client.getSession()).id.val
 
         conn = omero.gateway.BlitzGateway(client_obj=client)
 
-        # image1 set color model 
+        # image1 set color model
         image1 = conn.getObject("Image", iid1)
         image1.resetDefaults()
         image1.setColorRenderingModel()
         image1.saveDefaults()
         image1 = conn.getObject("Image", iid1)
 
-        # image2 set greyscale model 
+        # image2 set greyscale model
         image2 = conn.getObject("Image", iid2)
         image2.setGreyscaleRenderingModel()
         image2.saveDefaults()
@@ -135,34 +132,32 @@ class TestCsrf(object):
         image2 = conn.getObject("Image", iid2)
         assert False == image2.isGreyscaleRenderingModel()
 
-    def test_copy_past_rendering_settings_from_url(self, itest, client, django_client):
-        """
-        CSRF protection does not check `GET` requests so we need to be sure
-        that this request results in an HTTP 405 (method not allowed) status
-        code.
-        """
+    def test_copy_past_rendering_settings_from_url(self, itest, client,
+                                                   django_client):
         # Create 2 images with 2 channels each
-        iid1 = itest.createTestImage(sizeC=2, session=client.getSession()).id.val
-        iid2 = itest.createTestImage(sizeC=2, session=client.getSession()).id.val
+        iid1 = itest.createTestImage(sizeC=2,
+                                     session=client.getSession()).id.val
+        iid2 = itest.createTestImage(sizeC=2,
+                                     session=client.getSession()).id.val
 
         conn = omero.gateway.BlitzGateway(client_obj=client)
 
-        # image1 set color model 
+        # image1 set color model
         image1 = conn.getObject("Image", iid1)
         image1.resetDefaults()
         image1.setColorRenderingModel()
         image1.saveDefaults()
         image1 = conn.getObject("Image", iid1)
 
-        # image2 set greyscale model 
+        # image2 set greyscale model
         image2 = conn.getObject("Image", iid2)
         image2.setGreyscaleRenderingModel()
         image2.saveDefaults()
         image2 = conn.getObject("Image", iid2)
-        
+
         assert False == image1.isGreyscaleRenderingModel()
         assert True == image2.isGreyscaleRenderingModel()
-        
+
         def buildParamC(im):
             chs = []
             for i, ch in enumerate(im.getChannels()):
@@ -175,7 +170,6 @@ class TestCsrf(object):
 
         # build channel parameter e.g. 1|0:15$FF0000...
         old_c1 = buildParamC(image1)
-        old_c2 = buildParamC(image2)
 
         # copy rendering settings from image1 via URL
         request_url = reverse('webgateway.views.copy_image_rdef_json')
@@ -202,15 +196,16 @@ class TestCsrf(object):
 
         # reload image1
         image1 = conn.getObject("Image", iid1)
-        new_c1 = buildParamC(image1)
 
         # reload image2
         image2 = conn.getObject("Image", iid2)
         new_c2 = buildParamC(image2)
 
         # compare Channels
-        #old image1 1|0:15$FF0000,2|0:15$00FF00  image2 1|0:15$00FF00,2|0:15$00FF00
-        #new image1 1|0:15$FF0000,2|0:15$00FF00  image2 1|0:15$FF0000,2|0:15$00FF00
+        # old image1 1|0:15$FF0000,2|0:15$00FF00
+        # image2 1|0:15$00FF00,2|0:15$00FF00
+        # new image1 1|0:15$FF0000,2|0:15$00FF00
+        # image2 1|0:15$FF0000,2|0:15$00FF00
         assert old_c1 == new_c2
         # check if image2 rendering model changed from greyscale to color
         assert False == image2.isGreyscaleRenderingModel()
@@ -222,10 +217,12 @@ def _post_reponse(django_client, request_url, data, status_code=403):
     assert response.status_code == status_code
     return response
 
+
 def _csrf_post_reponse(django_client, request_url, data, status_code=200):
     csrf_token = django_client.cookies['csrftoken'].value
     data['csrfmiddlewaretoken'] = csrf_token
     return _post_reponse(django_client, request_url, data, status_code)
+
 
 def _get_reponse(django_client, request_url, query_string, status_code=405):
     query_string = urlencode(query_string.items())
@@ -233,7 +230,9 @@ def _get_reponse(django_client, request_url, query_string, status_code=405):
     assert response.status_code == status_code
     return response
 
-def _csrf_get_reponse(django_client, request_url, query_string, status_code=200):
+
+def _csrf_get_reponse(django_client, request_url, query_string,
+                      status_code=200):
     csrf_token = django_client.cookies['csrftoken'].value
     query_string['csrfmiddlewaretoken'] = csrf_token
     return _get_reponse(django_client, request_url, query_string, status_code)

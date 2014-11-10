@@ -37,18 +37,19 @@ from django.core.urlresolvers import reverse
 
 
 try:
-    from PIL import Image , ImageDraw# see ticket:2597
+    from PIL import Image, ImageDraw  # see ticket:2597
 except ImportError:
-    import Image, ImageDraw # see ticket:2597
+    import Image, ImageDraw  # see ticket:2597
 
 from random import randint as rint
 import tempfile
 
+
 @pytest.fixture(scope='function')
 def itest(request):
     """
-    Returns a new L{test.integration.library.ITest} instance.  With
-    attached finalizer so that pytest will clean it up.
+    Returns a new L{test.integration.library.ITest} instance. With attached
+    finalizer so that pytest will clean it up.
     """
     o = lib.ITest()
     o.setup_method(None)
@@ -91,6 +92,7 @@ def new_tag(request, itest, client):
     tag.ns = rstring("pytest")
     return client.getSession().getUpdateService().saveAndReturnObject(tag)
 
+
 @pytest.fixture(scope='function')
 def django_client(request, client):
     """Returns a logged in Django test client."""
@@ -118,6 +120,7 @@ def django_client(request, client):
     request.addfinalizer(finalizer)
     return django_client
 
+
 @pytest.fixture(scope='function')
 def django_root_client(request, itest):
     """Returns a logged in Django test client."""
@@ -131,7 +134,8 @@ def django_root_client(request, itest):
     data = {
         'server': 1,
         'username': 'root',
-        'password': itest.client.ic.getProperties().getProperty('omero.rootpass'),
+        'password': itest.client.ic.getProperties()
+                                   .getProperty('omero.rootpass'),
         'csrfmiddlewaretoken': csrf_token
     }
     response = django_client.post(login_url, data)
@@ -144,6 +148,7 @@ def django_root_client(request, itest):
         assert response.status_code == 302
     request.addfinalizer(finalizer)
     return django_client
+
 
 class TestCsrf(object):
     """
@@ -172,28 +177,20 @@ class TestCsrf(object):
         _post_reponse(django_client, logout_url, {})
 
     def test_forgot_password(self, itest, django_client):
-        """
-        CSRF protection does not check `GET` requests so we need to be sure
-        that this request results in an HTTP 405 (method not allowed) status
-        code.
-        """
 
         request_url = reverse('waforgottenpassword')
         data = {
             'username': "omename",
             'email': "email"
         }
-        _post_reponse(django_client, request_url, {})
-        _csrf_post_reponse(django_client, request_url, {})
+        _post_reponse(django_client, request_url, data)
+        _csrf_post_reponse(django_client, request_url, data)
 
     def test_add_and_rename_container(self, django_client):
-        """
-        CSRF protection does not check `GET` requests so we need to be sure
-        that this request results in an HTTP 405 (method not allowed) status
-        code.
-        """
+
         # Add project
-        request_url = reverse("manage_action_containers", args=["addnewcontainer"])
+        request_url = reverse("manage_action_containers",
+                              args=["addnewcontainer"])
         data = {
             'folder_type': 'project',
             'name': 'foobar'
@@ -203,7 +200,8 @@ class TestCsrf(object):
         pid = json.loads(response.content).get("id")
 
         # Add dataset to the project
-        request_url = reverse("manage_action_containers", args=["addnewcontainer", "project", pid])
+        request_url = reverse("manage_action_containers",
+                              args=["addnewcontainer", "project", pid])
         data = {
             'folder_type': 'dataset',
             'name': 'foobar'
@@ -212,7 +210,8 @@ class TestCsrf(object):
         _csrf_post_reponse(django_client, request_url, data)
 
         # Rename project
-        request_url = reverse("manage_action_containers", args=["savename", "project", pid])
+        request_url = reverse("manage_action_containers",
+                              args=["savename", "project", pid])
         data = {
             'name': 'anotherfoobar'
         }
@@ -220,21 +219,19 @@ class TestCsrf(object):
         _csrf_post_reponse(django_client, request_url, data)
 
         # Change project description
-        request_url = reverse("manage_action_containers", args=["savedescription", "project", pid])
+        request_url = reverse("manage_action_containers",
+                              args=["savedescription", "project", pid])
         data = {
             'description': 'anotherfoobar'
         }
         _post_reponse(django_client, request_url, data)
         _csrf_post_reponse(django_client, request_url, data)
 
-    def test_move_data(self, itest, client, django_root_client, image_with_channels):
-        """
-        CSRF protection does not check `GET` requests so we need to be sure
-        that this request results in an HTTP 405 (method not allowed) status
-        code.
-        """
+    def test_move_data(self, itest, client, django_root_client,
+                       image_with_channels):
 
-        user_id = client.getSession().getAdminService().getEventContext().userId
+        user_id = client.getSession().getAdminService() \
+                                     .getEventContext().userId
         user = client.getSession().getAdminService().getExperimenter(user_id)
         group_id = itest.new_group(experimenters=[user]).id.val
 
@@ -249,11 +246,7 @@ class TestCsrf(object):
 
     def test_add_and_remove_comment(
             self, django_client, image_with_channels):
-        """
-        CSRF protection does not check `GET` requests so we need to be sure
-        that this request results in an HTTP 405 (method not allowed) status
-        code.
-        """
+
         request_url = reverse('annotate_comment')
         data = {
             'comment': 'foobar',
@@ -263,15 +256,12 @@ class TestCsrf(object):
         _csrf_post_reponse(django_client, request_url, data)
 
         # Remove comment, see remove tag,
-        # http://trout.openmicroscopy.org/merge/webclient/action/remove/[comment|tag|file]/ID/
+        # http://trout.openmicroscopy.org/merge/webclient/action/remove/
+        # [comment|tag|file]/ID/
 
     def test_add_edit_and_remove_tag(
             self, django_client, image_with_channels, new_tag):
-        """
-        CSRF protection does not check `GET` requests so we need to be sure
-        that this request results in an HTTP 405 (method not allowed) status
-        code.
-        """
+
         # Add tag
         request_url = reverse('annotate_tags')
         data = {
@@ -291,11 +281,14 @@ class TestCsrf(object):
         _csrf_post_reponse(django_client, request_url, data)
 
         # Edit tag, see save container name and description
-        # http://trout.openmicroscopy.org/merge/webclient/action/savename/tag/ID/
-        # http://trout.openmicroscopy.org/merge/webclient/action/savedescription/tag/ID/
+        # http://trout.openmicroscopy.org/merge/webclient/action/
+        # savename/tag/ID/
+        # http://trout.openmicroscopy.org/merge/webclient/action
+        # /savedescription/tag/ID/
 
         # Remove tag
-        request_url = reverse("manage_action_containers", args=["remove", "tag", new_tag.id.val])
+        request_url = reverse("manage_action_containers",
+                              args=["remove", "tag", new_tag.id.val])
         data = {
             'index': 0,
             'parent': "image-%i" % image_with_channels.id.val
@@ -304,16 +297,12 @@ class TestCsrf(object):
         _csrf_post_reponse(django_client, request_url, data)
 
         # Delete tag
-        request_url = reverse("manage_action_containers", args=["delete", "tag", new_tag.id.val])
+        request_url = reverse("manage_action_containers",
+                              args=["delete", "tag", new_tag.id.val])
         _post_reponse(django_client, request_url, {})
         _csrf_post_reponse(django_client, request_url, {})
 
     def test_attach_file(self, django_client, image_with_channels):
-        """
-        CSRF protection does not check `GET` requests so we need to be sure
-        that this request results in an HTTP 405 (method not allowed) status
-        code.
-        """
 
         # Due to EOF both posts must be test separately
         # Bad post
@@ -351,17 +340,15 @@ class TestCsrf(object):
         # link existing annotation is handled by the same request.
 
         # Remove file, see remove tag,
-        # http://trout.openmicroscopy.org/merge/webclient/action/remove/[comment|tag|file]/ID/
+        # http://trout.openmicroscopy.org/merge/webclient/action/
+        # remove/[comment|tag|file]/ID/
 
     def test_paste_move_remove_deletamany_image(
             self, django_client, image_with_channels):
-        """
-        CSRF protection does not check `GET` requests so we need to be sure
-        that this request results in an HTTP 405 (method not allowed) status
-        code.
-        """
+
         # Add dataset
-        request_url = reverse("manage_action_containers", args=["addnewcontainer"])
+        request_url = reverse("manage_action_containers",
+                              args=["addnewcontainer"])
         data = {
             'folder_type': 'dataset',
             'name': 'foobar'
@@ -371,7 +358,9 @@ class TestCsrf(object):
         did = json.loads(response.content).get("id")
 
         # Copy image
-        request_url = reverse("manage_action_containers", args=["paste", "image", image_with_channels.id.val])
+        request_url = reverse("manage_action_containers",
+                              args=["paste", "image",
+                                    image_with_channels.id.val])
         data = {
             'destination': "dataset-%i" % did
         }
@@ -379,7 +368,9 @@ class TestCsrf(object):
         _csrf_post_reponse(django_client, request_url, data)
 
         # Move image
-        request_url = reverse("manage_action_containers", args=["move", "image", image_with_channels.id.val])
+        request_url = reverse("manage_action_containers",
+                              args=["move", "image",
+                                    image_with_channels.id.val])
         data = {
             'destination': 'orphaned-0',
             'parent': 'dataset-%i' % did
@@ -388,7 +379,9 @@ class TestCsrf(object):
         _csrf_post_reponse(django_client, request_url, data)
 
         # Remove image
-        request_url = reverse("manage_action_containers", args=["remove", "image", image_with_channels.id.val])
+        request_url = reverse("manage_action_containers",
+                              args=["remove", "image",
+                                    image_with_channels.id.val])
         data = {
             'parent': 'dataset-%i' % did
         }
@@ -404,21 +397,17 @@ class TestCsrf(object):
         _post_reponse(django_client, request_url, data)
         _csrf_post_reponse(django_client, request_url, data)
 
-    def test_basket_actions(self, itest, client, django_client, image_with_channels):
-        """
-        CSRF protection does not check `GET` requests so we need to be sure
-        that this request results in an HTTP 405 (method not allowed) status
-        code.
-        """
+    def test_basket_actions(self, itest, client, django_client,
+                            image_with_channels):
 
         user_to_share = itest.new_user()
 
         # Create discussion
         request_url = reverse("basket_action", args=["createdisc"])
         data = {
-            'enable':'on',
+            'enable': 'on',
             'members': user_to_share.id.val,
-            'message':'foobar'
+            'message': 'foobar'
         }
         _post_reponse(django_client, request_url, data)
         _csrf_post_reponse(django_client, request_url, data)
@@ -426,10 +415,10 @@ class TestCsrf(object):
         # Create share
         request_url = reverse("basket_action", args=["createshare"])
         data = {
-            'enable':'on',
+            'enable': 'on',
             'image': image_with_channels.id.val,
             'members': user_to_share.id.val,
-            'message':'foobar'
+            'message': 'foobar'
         }
 
         # edit share
@@ -446,42 +435,50 @@ class TestCsrf(object):
         _post_reponse(django_client, request_url, data)
         _csrf_post_reponse(django_client, request_url, data)
 
-        sid = client.getSession().getShareService().createShare("foobar", rtime(None), images, [user_to_share], [], True)
+        sid = client.getSession().getShareService() \
+                    .createShare("foobar", rtime(None), images,
+                                 [user_to_share], [], True)
 
-        request_url = reverse("manage_action_containers", args=["save", "share", sid])
+        request_url = reverse("manage_action_containers",
+                              args=["save", "share", sid])
 
         data = {
-            'enable':'on',
+            'enable': 'on',
             'image': [i.id.val for i in images],
             'members': user_to_share.id.val,
-            'message':'another foobar'
+            'message': 'another foobar'
         }
         _post_reponse(django_client, request_url, data)
         _csrf_post_reponse(django_client, request_url, data)
 
         # remove image from share
-        request_url = reverse("manage_action_containers", args=["removefromshare", "share", sid])
+        request_url = reverse("manage_action_containers",
+                              args=["removefromshare", "share", sid])
         data = {
-            'source':images[1].id.val,
+            'source': images[1].id.val,
         }
         _post_reponse(django_client, request_url, data)
         _csrf_post_reponse(django_client, request_url, data)
 
     def test_edit_channel_names(
             self, django_client, image_with_channels):
+
         """
         CSRF protection does not check `GET` requests so we need to be sure
         that this request results in an HTTP 405 (method not allowed) status
         code.
         """
+
         query_string = data = {'channel0': 'foobar'}
         request_url = reverse(
             'edit_channel_names', args=[image_with_channels.id.val]
         )
-        _csrf_get_reponse(django_client, request_url, query_string, status_code=405)
+        _csrf_get_reponse(django_client, request_url, query_string,
+                          status_code=405)
         _csrf_post_reponse(django_client, request_url, data)
 
     def test_copy_past_rendering_settings(self, itest, client, django_client):
+
         """
         CSRF protection does not check `GET` requests so we need to be sure
         that this request results in an HTTP 405 (method not allowed) status
@@ -505,6 +502,7 @@ class TestCsrf(object):
         _csrf_get_reponse(django_client, request_url, data, status_code=405)
 
     def test_reset_rendering_settings(self, itest, django_client):
+
         """
         CSRF protection does not check `GET` requests so we need to be sure
         that this request results in an HTTP 405 (method not allowed) status
@@ -513,7 +511,8 @@ class TestCsrf(object):
 
         img = itest.createTestImage()
 
-        # Reset through webclient as it is calling directly webgateway.reset_image_rdef_json
+        # Reset through webclient as it is calling directly
+        # webgateway.reset_image_rdef_json
         request_url = reverse('web_reset_image_rdef_json', args=[img.id.val])
         data = {
             'full': 'true'
@@ -524,12 +523,8 @@ class TestCsrf(object):
         _get_reponse(django_client, request_url, data)
         _csrf_get_reponse(django_client, request_url, data, status_code=405)
 
-    def test_apply_owners_rendering_settings(self, itest, client, django_root_client):
-        """
-        CSRF protection does not check `GET` requests so we need to be sure
-        that this request results in an HTTP 405 (method not allowed) status
-        code.
-        """
+    def test_apply_owners_rendering_settings(self, itest, client,
+                                             django_root_client):
 
         img = itest.createTestImage(session=client.getSession())
 
@@ -543,6 +538,7 @@ class TestCsrf(object):
         _csrf_post_reponse(django_root_client, request_url, data)
 
     def test_ome_tiff_script(self, itest, client, django_client):
+
         """
         CSRF protection does not check `GET` requests so we need to be sure
         that this request results in an HTTP 405 (method not allowed) status
@@ -552,22 +548,18 @@ class TestCsrf(object):
         img = itest.createTestImage(session=client.getSession())
 
         request_url = reverse('ome_tiff_script', args=[img.id.val])
-        
+
         _post_reponse(django_client, request_url, {})
         _csrf_post_reponse(django_client, request_url, {})
         _csrf_get_reponse(django_client, request_url, {}, status_code=405)
 
     def test_script(self, itest, client, django_client):
-        """
-        CSRF protection does not check `GET` requests so we need to be sure
-        that this request results in an HTTP 405 (method not allowed) status
-        code.
-        """
 
         img = itest.createTestImage(session=client.getSession())
 
         script_path = "omero/export_scripts/Batch_Image_Export.py"
-        script = client.getSession().getScriptService().getScriptID(script_path)
+        script = client.getSession().getScriptService() \
+                                    .getScriptID(script_path)
 
         request_url = reverse('script_run', args=[script])
         data = {
@@ -575,7 +567,7 @@ class TestCsrf(object):
             "IDs": img.id.val,
             "Choose_T_Section": "Default-T (last-viewed)",
             "Choose_Z_Section": "Default-Z (last-viewed)",
-            "Export_Individual_Channels":"on",
+            "Export_Individual_Channels": "on",
             "Export_Merged_Image": "on",
             "Folder_Name": "Batch_Image_Export",
             "Format": "JPEG",
@@ -584,16 +576,11 @@ class TestCsrf(object):
         _post_reponse(django_client, request_url, data)
         _csrf_post_reponse(django_client, request_url, data)
 
-
     # ADMIN
     def test_myaccount(self, itest, client, django_client):
-        """
-        CSRF protection does not check `GET` requests so we need to be sure
-        that this request results in an HTTP 405 (method not allowed) status
-        code.
-        """
 
-        user_id = client.getSession().getAdminService().getEventContext().userId
+        user_id = client.getSession().getAdminService() \
+                                     .getEventContext().userId
         user = client.getSession().getAdminService().getExperimenter(user_id)
 
         request_url = reverse('wamyaccount', args=["save"])
@@ -608,26 +595,21 @@ class TestCsrf(object):
         _csrf_post_reponse(django_client, request_url, data, status_code=302)
 
     def test_avatar(self, itest, client, django_client):
-        """
-        CSRF protection does not check `GET` requests so we need to be sure
-        that this request results in an HTTP 405 (method not allowed) status
-        code.
-        """
 
-        user_id = client.getSession().getAdminService().getEventContext().userId
-        user = client.getSession().getAdminService().getExperimenter(user_id)
+        user_id = client.getSession().getAdminService() \
+                                     .getEventContext().userId
 
         # Due to EOF both posts must be test separately
         # Bad post
         try:
             temp = tempfile.NamedTemporaryFile(suffix='.png')
 
-            img = Image.new("RGB", (200,200), "#FFFFFF")
+            img = Image.new("RGB", (200, 200), "#FFFFFF")
             draw = ImageDraw.Draw(img)
 
-            r,g,b = rint(0,255), rint(0,255), rint(0,255)
+            r, g, b = rint(0, 255), rint(0, 255), rint(0, 255)
             for i in range(200):
-                draw.line((i,0,i,200), fill=(int(r),int(g),int(b)))
+                draw.line((i, 0, i, 200), fill=(int(r), int(g), int(b)))
             img.save(temp, "PNG")
             temp.seek(0)
 
@@ -644,12 +626,12 @@ class TestCsrf(object):
         try:
             temp = tempfile.NamedTemporaryFile(suffix='.png')
 
-            img = Image.new("RGB", (200,200), "#FFFFFF")
+            img = Image.new("RGB", (200, 200), "#FFFFFF")
             draw = ImageDraw.Draw(img)
 
-            r,g,b = rint(0,255), rint(0,255), rint(0,255)
+            r, g, b = rint(0, 255), rint(0, 255), rint(0, 255)
             for i in range(200):
-                draw.line((i,0,i,200), fill=(int(r),int(g),int(b)))
+                draw.line((i, 0, i, 200), fill=(int(r), int(g), int(b)))
             img.save(temp, "PNG")
             temp.seek(0)
 
@@ -658,17 +640,18 @@ class TestCsrf(object):
                 'filename': 'avatar.png',
                 "photo": temp
             }
-            _csrf_post_reponse(django_client, request_url, data, status_code=302)
+            _csrf_post_reponse(django_client, request_url, data,
+                               status_code=302)
         finally:
             temp.close()
 
         # Crop avatar
         request_url = reverse('wamanageavatar', args=[user_id, "crop"])
         data = {
-            'x1':50,
-            'x2':150,
-            'y1':50,
-            'y2':150
+            'x1': 50,
+            'x2': 150,
+            'y1': 50,
+            'y2': 150
         }
         _post_reponse(django_client, request_url, data)
         _csrf_post_reponse(django_client, request_url, data, status_code=302)
@@ -677,12 +660,13 @@ class TestCsrf(object):
         uuid = itest.uuid()
         request_url = reverse('wamanagegroupid', args=["create"])
         data = {
-            "name":uuid,
-            "description":uuid,
-            "permissions":0
+            "name": uuid,
+            "description": uuid,
+            "permissions": 0
         }
         _post_reponse(django_root_client, request_url, data)
-        _csrf_post_reponse(django_root_client, request_url, data, status_code=302)
+        _csrf_post_reponse(django_root_client, request_url, data,
+                           status_code=302)
 
     def test_create_user(self, itest, django_root_client):
         uuid = itest.uuid()
@@ -699,7 +683,8 @@ class TestCsrf(object):
             "confirmation": uuid
         }
         _post_reponse(django_root_client, request_url, data)
-        _csrf_post_reponse(django_root_client, request_url, data, status_code=302)
+        _csrf_post_reponse(django_root_client, request_url, data,
+                           status_code=302)
 
     def test_edit_group(self, itest, django_root_client):
         group = itest.new_group(perms="rw----")
@@ -710,26 +695,31 @@ class TestCsrf(object):
             "permissions": 0
         }
         _post_reponse(django_root_client, request_url, data)
-        _csrf_post_reponse(django_root_client, request_url, data, status_code=302)
+        _csrf_post_reponse(django_root_client, request_url, data,
+                           status_code=302)
 
     def test_edit_user(self, itest, django_root_client):
         user = itest.new_user()
-        request_url = reverse('wamanageexperimenterid', args=["save", user.id.val])
+        request_url = reverse('wamanageexperimenterid',
+                              args=["save", user.id.val])
         data = {
             "omename": user.omeName.val,
-            "first_name":user.firstName.val,
-            "last_name":user.lastName.val,
+            "first_name": user.firstName.val,
+            "last_name": user.lastName.val,
             "default_group": user.copyGroupExperimenterMap()[0].parent.id.val,
             "other_groups": user.copyGroupExperimenterMap()[0].parent.id.val,
         }
         _post_reponse(django_root_client, request_url, data)
-        _csrf_post_reponse(django_root_client, request_url, data, status_code=302)
+        _csrf_post_reponse(django_root_client, request_url, data,
+                           status_code=302)
 
-    def test_edit_group(self, itest, client, django_client):
+    def test_edit_group_by_owner(self, itest, client, django_client):
 
-        user_id = client.getSession().getAdminService().getEventContext().userId
+        user_id = client.getSession().getAdminService() \
+                                     .getEventContext().userId
         user = client.getSession().getAdminService().getExperimenter(user_id)
-        group_id = client.getSession().getAdminService().getEventContext().groupId
+        group_id = client.getSession().getAdminService() \
+                                      .getEventContext().groupId
         group = client.getSession().getAdminService().getGroup(group_id)
 
         itest.add_groups(experimenter=user, groups=[group], owner=True)
@@ -747,14 +737,16 @@ class TestCsrf(object):
         user = itest.new_user()
         request_url = reverse('wamanagechangepasswordid', args=[user.id.val])
         data = {
-            "old_password": itest.client.ic.getProperties().getProperty('omero.rootpass'),
-            "password":"new",
+            "old_password": itest.client.ic.getProperties()
+                                           .getProperty('omero.rootpass'),
+            "password": "new",
             "confirmation": "new"
         }
         _post_reponse(django_root_client, request_url, data)
         _csrf_post_reponse(django_root_client, request_url, data)
 
     def test_su(self, itest, django_root_client):
+
         """
         CSRF protection does not check `GET` requests so we need to be sure
         that this request results in an HTTP 405 (method not allowed) status
@@ -769,16 +761,19 @@ class TestCsrf(object):
         _post_reponse(django_root_client, request_url, {})
         _csrf_post_reponse(django_root_client, request_url, {})
 
+
 # Helpers
 def _post_reponse(django_client, request_url, data, status_code=403):
     response = django_client.post(request_url, data=data)
     assert response.status_code == status_code
     return response
 
+
 def _csrf_post_reponse(django_client, request_url, data, status_code=200):
     csrf_token = django_client.cookies['csrftoken'].value
     data['csrfmiddlewaretoken'] = csrf_token
     return _post_reponse(django_client, request_url, data, status_code)
+
 
 def _get_reponse(django_client, request_url, query_string, status_code=405):
     query_string = urlencode(query_string.items())
@@ -786,7 +781,9 @@ def _get_reponse(django_client, request_url, query_string, status_code=405):
     assert response.status_code == status_code
     return response
 
-def _csrf_get_reponse(django_client, request_url, query_string, status_code=200):
+
+def _csrf_get_reponse(django_client, request_url, query_string,
+                      status_code=200):
     csrf_token = django_client.cookies['csrftoken'].value
     query_string['csrfmiddlewaretoken'] = csrf_token
     return _get_reponse(django_client, request_url, query_string, status_code)
