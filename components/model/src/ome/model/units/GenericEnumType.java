@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Properties;
 
 import org.hibernate.HibernateException;
@@ -69,9 +70,12 @@ public class GenericEnumType<E extends Enum<E>> implements UserType, Parameteriz
     public void nullSafeSet(PreparedStatement ps, Object obj, int index)
             throws HibernateException, SQLException {
         if (obj == null) {
-            ps.setNull(index, units.sqlType);
+            // Note: units.sqlType shouldn't be used since this
+            // doesn't actually get registered with the PG driver
+            // (apparently). Instead we use the official Types.OTHER
+            ps.setObject(index, null, Types.OTHER);
         } else {
-            ps.setObject(index, units.valueMap.get(obj), units.sqlType);
+            ps.setObject(index, obj, Types.OTHER);
         }
     }
 

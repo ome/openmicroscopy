@@ -11,31 +11,31 @@ public enum UNITS {
     ELECTRICPOTENTIAL(
             ElectricPotential.class,
             UnitsElectricPotential.class,
-            6001),
+            3001),
     FREQUENCY(
             Frequency.class,
             UnitsFrequency.class,
-            6002),
+            3002),
     LENGTH(
             Length.class,
             UnitsLength.class,
-            6003),
+            3003),
     PRESSURE(
             Pressure.class,
             UnitsPressure.class,
-            6004),
+            3004),
     POWER(
             Power.class,
             UnitsPower.class,
-            6005),
+            3005),
     TEMPERATURE(
             Temperature.class,
             UnitsTemperature.class,
-            6006),
+            3006),
     TIME(
             Time.class,
             UnitsTime.class,
-            6007);
+            3007);
 
     Class<?> quantityType;
     Class<? extends Enum<?>> enumType;
