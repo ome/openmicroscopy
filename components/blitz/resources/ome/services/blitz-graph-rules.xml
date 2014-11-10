@@ -144,7 +144,7 @@
         <bean parent="graphPolicyRule" p:matches="T:Thumbnail[E]{r}/!o.pixels = Pixels/o" p:changes="T:{o}/n"/>
         <bean parent="graphPolicyRule" p:matches="POFM:PixelsOriginalFileMap.parent = OF:[E]{r}, POFM.child = Pixels[E]/o"
                                        p:changes="OF:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="L:ILink.child = C:[E]{r}/!o" p:changes="C:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink.child = C:[E]{r}/!d" p:changes="C:{a}"/>
         <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [E]/o, L.child = C:[E]{r}" p:changes="C:{a}"/>
         <bean parent="graphPolicyRule" p:matches="!ILink[E]{ia} = X:[E]{r}" p:changes="X:{a}"/>
         <bean parent="graphPolicyRule" p:matches="X:[E]{r} == [E]{a}" p:changes="X:{a}"/>
