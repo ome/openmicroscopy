@@ -41,9 +41,11 @@ import ome.model.jobs.ImportJob;
 import ome.model.jobs.JobStatus;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.model.roi.Line;
 import ome.model.roi.Rect;
 import ome.model.roi.Roi;
 import ome.model.roi.Shape;
+import ome.model.units.Length;
 import ome.parameters.Parameters;
 import ome.services.util.Executor;
 import ome.system.ServiceFactory;
@@ -51,8 +53,6 @@ import ome.testing.ObjectFactory;
 
 import org.hibernate.LockOptions;
 import org.hibernate.Session;
-import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
-import org.springframework.orm.hibernate3.HibernateInterceptor;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.Test;
 
@@ -652,6 +652,16 @@ public class UpdateTest extends AbstractUpdateTest {
     @Test(groups = "ticket:2710")
     public void testRoiWithoutImage() {
         Roi r = new Roi();
+        iUpdate.saveAndReturnObject(r);
+    }
+
+    @Test
+    public void testRoiWithStrokeWidth() {
+        Roi r = new Roi();
+        Line l = new Line();
+        l.setStrokeWidth(new Length());
+        l.getStrokeWidth().setValue(1.0);
+        r.addShape(l);
         iUpdate.saveAndReturnObject(r);
     }
 
