@@ -22,10 +22,8 @@
 Simple integration tests to ensure that the settings are working correctly.
 """
 
-import unittest, os
-import omero
+from connector import Server
 
-from connector import Server, Connector
 
 # Test model
 class TestServerModel (object):
@@ -47,7 +45,10 @@ class TestServerModel (object):
     def test_get_and_find(self):
         Server.reset()
 
-        SERVER_LIST = [[u'example1.com', 4064, u'omero1'], [u'example2.com', 4064, u'omero2'], [u'example3.com', 4064], [u'example4.com', 4064]]
+        SERVER_LIST = [[u'example1.com', 4064, u'omero1'],
+                       [u'example2.com', 4064, u'omero2'],
+                       [u'example3.com', 4064],
+                       [u'example4.com', 4064]]
         for s in SERVER_LIST:
             server = (len(s) > 2) and s[2] or None
             Server(host=s[0], port=s[1], server=server)
@@ -55,17 +56,20 @@ class TestServerModel (object):
         s1 = Server.get(1)
         assert s1.host == u'example1.com'
         assert s1.port == 4064
-        assert s1.server ==  u'omero1'
+        assert s1.server == u'omero1'
 
         s2 = Server.find('example2.com')[0]
-        assert s2.host ==  u'example2.com'
+        assert s2.host == u'example2.com'
         assert s2.port == 4064
         assert s2.server == u'omero2'
 
     def test_load_server_list(self):
         Server.reset()
 
-        SERVER_LIST = [[u'example1.com', 4064, u'omero1'], [u'example2.com', 4064, u'omero2'], [u'example3.com', 4064], [u'example4.com', 4064]]
+        SERVER_LIST = [[u'example1.com', 4064, u'omero1'],
+                       [u'example2.com', 4064, u'omero2'],
+                       [u'example3.com', 4064],
+                       [u'example4.com', 4064]]
         for s in SERVER_LIST:
             server = (len(s) > 2) and s[2] or None
             Server(host=s[0], port=s[1], server=server)
