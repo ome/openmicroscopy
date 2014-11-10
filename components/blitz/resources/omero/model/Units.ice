@@ -17,6 +17,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+
+
 #ifndef CLASS_UNITS
 #define CLASS_UNITS
 
@@ -26,7 +28,7 @@ module omero {
 
         module units {
 
-            enum ELECTRICPOTENTIAL {
+            enum UNITSELECTRICPOTENTIAL {
                 YOTTAV,
                 ZETTAV,
                 EXAV,
@@ -50,7 +52,7 @@ module omero {
                 YV
             };
 
-            enum FREQUENCY {
+            enum UNITSFREQUENCY {
                 YOTTAHZ,
                 ZETTAHZ,
                 EXAHZ,
@@ -74,7 +76,7 @@ module omero {
                 YHZ
             };
 
-            enum LENGTH {
+            enum UNITSLENGTH {
                 YOTTAM,
                 ZETTAM,
                 EXAM,
@@ -97,21 +99,21 @@ module omero {
                 ZM,
                 YM,
                 ANGSTROM,
+                UA,
+                LY,
+                PC,
                 THOU,
                 LI,
                 IN,
                 FT,
                 YD,
                 MI,
-                UA,
-                LY,
-                PC,
                 PT,
                 PIXEL,
                 REFERENCEFRAME
             };
 
-            enum POWER {
+            enum UNITSPOWER {
                 YOTTAW,
                 ZETTAW,
                 EXAW,
@@ -135,7 +137,7 @@ module omero {
                 YW
             };
 
-            enum PRESSURE {
+            enum UNITSPRESSURE {
                 YOTTAPA,
                 ZETTAPA,
                 EXAPA,
@@ -146,7 +148,7 @@ module omero {
                 KPA,
                 HPA,
                 DAPA,
-                PETAA,
+                PA,
                 DPA,
                 CPA,
                 MPA,
@@ -157,6 +159,7 @@ module omero {
                 APA,
                 ZPA,
                 YPA,
+                BAR,
                 MEGABAR,
                 KBAR,
                 DBAR,
@@ -169,14 +172,14 @@ module omero {
                 MMHG
             };
 
-            enum TEMPERATURE {
-                DEGREEC,
+            enum UNITSTEMPERATURE {
                 K,
-                DEGREER,
-                DEGREEF
+                DEGREEC,
+                DEGREEF,
+                DEGREER
             };
 
-            enum TIME {
+            enum UNITSTIME {
                 YOTTAS,
                 ZETTAS,
                 EXAS,
@@ -208,3 +211,4 @@ module omero {
     };
 };
 #endif
+
