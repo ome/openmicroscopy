@@ -156,7 +156,9 @@ public class ContextFilter implements Filter {
     /** used when type is unknown. this is possibly omittable with generics */
     public Object filter(String fieldId, Object o) {
         Object result;
-        if (o instanceof Filterable) {
+        if (o instanceof Enum) {
+            result = o;
+        } else if (o instanceof Filterable) {
             result = filter(fieldId, (Filterable) o);
         } else if (o instanceof Collection) {
             result = filter(fieldId, (Collection) o);

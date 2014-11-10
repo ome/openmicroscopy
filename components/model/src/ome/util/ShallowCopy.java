@@ -57,7 +57,12 @@ class SetValues implements Filter {
         if (f == null) {
             return null;
         }
-        if (Details.class.isAssignableFrom(f.getClass())) {
+
+        else if (f instanceof Enum) {
+            target.putAt(fieldId, f);
+        }
+
+        else if (Details.class.isAssignableFrom(f.getClass())) {
             target.putAt(fieldId, ((Details) f).shallowCopy());
         }
 
@@ -115,7 +120,10 @@ class StoreValues implements Filter {
         if (f == null) {
             return null;
         }
-        if (Details.class.isAssignableFrom(f.getClass())) {
+        else if (f instanceof Enum) {
+            values.put(fieldId, f);
+        }
+        else if (Details.class.isAssignableFrom(f.getClass())) {
             values.put(fieldId, ((Details) f).shallowCopy());
         }
 
