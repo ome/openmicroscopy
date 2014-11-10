@@ -24,6 +24,8 @@ import ome.util.Filterable;
 import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;
 
+import omero.model.enums.Length;
+
 /**
  * Blitz wrapper around the {@link ome.model.util.Length} class.
  * Like {@link Details} and {@link Permissions}, this object
@@ -53,12 +55,22 @@ public class LengthI extends Length implements ModelBased {
 
     public final static Ice.ObjectFactory Factory = makeFactory(null);
 
+    public LengthI() {
+        super();
+    }
+
+    public LengthI(double d, UnitsLength unit) {
+        super();
+        this.setUnit(unit);
+        this.setValue(d);
+    }
+
     public double getValue(Ice.Current current) {
         return this.value;
     }
 
-    public void setValue(double length, Ice.Current current) {
-        this.value = length;
+    public void setValue(double value , Ice.Current current) {
+        this.value = value;
     }
 
     public UnitsLength getUnit(Ice.Current current) {
@@ -92,7 +104,7 @@ public class LengthI extends Length implements ModelBased {
     @Override
     public Filterable fillObject(ReverseModelMapper mapper) {
         ome.model.enums.UnitsLength ut = (ome.model.enums.UnitsLength)
-                mapper.reverse((UnitsLengthI) getUnit());
+                mapper.reverse((UnitsLength) getUnit());
         ome.model.units.Length t = new ome.model.units.Length();
         t.setValue(getValue());
         t.setUnit(ut);
@@ -100,3 +112,4 @@ public class LengthI extends Length implements ModelBased {
     }
 
 }
+

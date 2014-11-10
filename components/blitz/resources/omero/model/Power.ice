@@ -17,17 +17,18 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+
 #ifndef CLASS_POWER
 #define CLASS_POWER
 
-#include <omero/model/UnitsPower.ice>
+#include <omero/model/Units.ice>
 
 module omero {
 
     module model {
 
       /**
-       * Unit of pressure which is used through the model. This is not
+       * Unit of Power which is used through the model. This is not
        * an [omero::model::IObject] implementation and as such does
        * not have an ID value. Instead, the entire object is embedded
        * into the containing class, so that the value and unit rows
@@ -42,24 +43,24 @@ module omero {
        */
       double value;
 
-      UnitsPower unit;
+      omero::model::enums::UnitsPower unit;
 
       /**
        * Actual value for this unit-based field. The interpretation of
-       * the value is only possible along with the [omero::model::UnitsPower]
+       * the value is only possible along with the [omero::model::enums::UnitsPower]
        * enum.
        **/
       double getValue();
 
-      void setValue(double pressure);
+      void setValue(double value);
 
       /**
-       * [omero::model::UnitsPower] instance which is an [omero::model::IObject]
+       * [omero::model::enums::UnitsPower] instance which is an [omero::model::IObject]
        * meaning that its ID is sufficient for identifying equality.
        **/
-      UnitsPower getUnit();
+      omero::model::enums::UnitsPower getUnit();
 
-      void setUnit(UnitsPower unit);
+      void setUnit(omero::model::enums::UnitsPower unit);
 
       Power copy();
 
@@ -67,3 +68,4 @@ module omero {
   };
 };
 #endif
+

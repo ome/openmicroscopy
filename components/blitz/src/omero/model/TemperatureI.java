@@ -24,6 +24,8 @@ import ome.util.Filterable;
 import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;
 
+import omero.model.enums.Temperature;
+
 /**
  * Blitz wrapper around the {@link ome.model.util.Temperature} class.
  * Like {@link Details} and {@link Permissions}, this object
@@ -53,12 +55,22 @@ public class TemperatureI extends Temperature implements ModelBased {
 
     public final static Ice.ObjectFactory Factory = makeFactory(null);
 
+    public TemperatureI() {
+        super();
+    }
+
+    public TemperatureI(double d, UnitsTemperature unit) {
+        super();
+        this.setUnit(unit);
+        this.setValue(d);
+    }
+
     public double getValue(Ice.Current current) {
         return this.value;
     }
 
-    public void setValue(double temperature, Ice.Current current) {
-        this.value = temperature;
+    public void setValue(double value , Ice.Current current) {
+        this.value = value;
     }
 
     public UnitsTemperature getUnit(Ice.Current current) {
@@ -92,7 +104,7 @@ public class TemperatureI extends Temperature implements ModelBased {
     @Override
     public Filterable fillObject(ReverseModelMapper mapper) {
         ome.model.enums.UnitsTemperature ut = (ome.model.enums.UnitsTemperature)
-            mapper.reverse((UnitsTemperatureI) getUnit());
+                mapper.reverse((UnitsTemperature) getUnit());
         ome.model.units.Temperature t = new ome.model.units.Temperature();
         t.setValue(getValue());
         t.setUnit(ut);
@@ -100,3 +112,4 @@ public class TemperatureI extends Temperature implements ModelBased {
     }
 
 }
+

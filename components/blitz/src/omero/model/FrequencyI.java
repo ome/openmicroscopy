@@ -24,6 +24,8 @@ import ome.util.Filterable;
 import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;
 
+import omero.model.enums.Frequency;
+
 /**
  * Blitz wrapper around the {@link ome.model.util.Frequency} class.
  * Like {@link Details} and {@link Permissions}, this object
@@ -53,12 +55,22 @@ public class FrequencyI extends Frequency implements ModelBased {
 
     public final static Ice.ObjectFactory Factory = makeFactory(null);
 
+    public FrequencyI() {
+        super();
+    }
+
+    public FrequencyI(double d, UnitsFrequency unit) {
+        super();
+        this.setUnit(unit);
+        this.setValue(d);
+    }
+
     public double getValue(Ice.Current current) {
         return this.value;
     }
 
-    public void setValue(double frequency, Ice.Current current) {
-        this.value = frequency;
+    public void setValue(double value , Ice.Current current) {
+        this.value = value;
     }
 
     public UnitsFrequency getUnit(Ice.Current current) {
@@ -92,7 +104,7 @@ public class FrequencyI extends Frequency implements ModelBased {
     @Override
     public Filterable fillObject(ReverseModelMapper mapper) {
         ome.model.enums.UnitsFrequency ut = (ome.model.enums.UnitsFrequency)
-            mapper.reverse((UnitsFrequencyI) getUnit());
+                mapper.reverse((UnitsFrequency) getUnit());
         ome.model.units.Frequency t = new ome.model.units.Frequency();
         t.setValue(getValue());
         t.setUnit(ut);
@@ -100,3 +112,4 @@ public class FrequencyI extends Frequency implements ModelBased {
     }
 
 }
+

@@ -24,6 +24,8 @@ import ome.util.Filterable;
 import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;
 
+import omero.model.enums.ElectricPotential;
+
 /**
  * Blitz wrapper around the {@link ome.model.util.ElectricPotential} class.
  * Like {@link Details} and {@link Permissions}, this object
@@ -53,12 +55,22 @@ public class ElectricPotentialI extends ElectricPotential implements ModelBased 
 
     public final static Ice.ObjectFactory Factory = makeFactory(null);
 
+    public ElectricPotentialI() {
+        super();
+    }
+
+    public ElectricPotentialI(double d, UnitsElectricPotential unit) {
+        super();
+        this.setUnit(unit);
+        this.setValue(d);
+    }
+
     public double getValue(Ice.Current current) {
         return this.value;
     }
 
-    public void setValue(double potential, Ice.Current current) {
-        this.value = potential;
+    public void setValue(double value , Ice.Current current) {
+        this.value = value;
     }
 
     public UnitsElectricPotential getUnit(Ice.Current current) {
@@ -92,7 +104,7 @@ public class ElectricPotentialI extends ElectricPotential implements ModelBased 
     @Override
     public Filterable fillObject(ReverseModelMapper mapper) {
         ome.model.enums.UnitsElectricPotential ut = (ome.model.enums.UnitsElectricPotential)
-            mapper.reverse((UnitsElectricPotentialI) getUnit());
+                mapper.reverse((UnitsElectricPotential) getUnit());
         ome.model.units.ElectricPotential t = new ome.model.units.ElectricPotential();
         t.setValue(getValue());
         t.setUnit(ut);
@@ -100,3 +112,4 @@ public class ElectricPotentialI extends ElectricPotential implements ModelBased 
     }
 
 }
+

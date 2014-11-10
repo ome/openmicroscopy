@@ -24,6 +24,8 @@ import ome.util.Filterable;
 import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;
 
+import omero.model.enums.Time;
+
 /**
  * Blitz wrapper around the {@link ome.model.util.Time} class.
  * Like {@link Details} and {@link Permissions}, this object
@@ -53,12 +55,22 @@ public class TimeI extends Time implements ModelBased {
 
     public final static Ice.ObjectFactory Factory = makeFactory(null);
 
+    public TimeI() {
+        super();
+    }
+
+    public TimeI(double d, UnitsTime unit) {
+        super();
+        this.setUnit(unit);
+        this.setValue(d);
+    }
+
     public double getValue(Ice.Current current) {
         return this.value;
     }
 
-    public void setValue(double time, Ice.Current current) {
-        this.value = time;
+    public void setValue(double value , Ice.Current current) {
+        this.value = value;
     }
 
     public UnitsTime getUnit(Ice.Current current) {
@@ -92,7 +104,7 @@ public class TimeI extends Time implements ModelBased {
     @Override
     public Filterable fillObject(ReverseModelMapper mapper) {
         ome.model.enums.UnitsTime ut = (ome.model.enums.UnitsTime)
-            mapper.reverse((UnitsTimeI) getUnit());
+                mapper.reverse((UnitsTime) getUnit());
         ome.model.units.Time t = new ome.model.units.Time();
         t.setValue(getValue());
         t.setUnit(ut);
@@ -100,3 +112,4 @@ public class TimeI extends Time implements ModelBased {
     }
 
 }
+

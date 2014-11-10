@@ -24,6 +24,8 @@ import ome.util.Filterable;
 import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;
 
+import omero.model.enums.Power;
+
 /**
  * Blitz wrapper around the {@link ome.model.util.Power} class.
  * Like {@link Details} and {@link Permissions}, this object
@@ -53,12 +55,22 @@ public class PowerI extends Power implements ModelBased {
 
     public final static Ice.ObjectFactory Factory = makeFactory(null);
 
+    public PowerI() {
+        super();
+    }
+
+    public PowerI(double d, UnitsPower unit) {
+        super();
+        this.setUnit(unit);
+        this.setValue(d);
+    }
+
     public double getValue(Ice.Current current) {
         return this.value;
     }
 
-    public void setValue(double power, Ice.Current current) {
-        this.value = power;
+    public void setValue(double value , Ice.Current current) {
+        this.value = value;
     }
 
     public UnitsPower getUnit(Ice.Current current) {
@@ -92,7 +104,7 @@ public class PowerI extends Power implements ModelBased {
     @Override
     public Filterable fillObject(ReverseModelMapper mapper) {
         ome.model.enums.UnitsPower ut = (ome.model.enums.UnitsPower)
-            mapper.reverse((UnitsPowerI) getUnit());
+                mapper.reverse((UnitsPower) getUnit());
         ome.model.units.Power t = new ome.model.units.Power();
         t.setValue(getValue());
         t.setUnit(ut);
@@ -100,3 +112,4 @@ public class PowerI extends Power implements ModelBased {
     }
 
 }
+

@@ -17,17 +17,18 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+
 #ifndef CLASS_TEMPERATURE
 #define CLASS_TEMPERATURE
 
-#include <omero/model/UnitsTemperature.ice>
+#include <omero/model/Units.ice>
 
 module omero {
 
     module model {
 
       /**
-       * Unit of temperature which is used through the model. This is not
+       * Unit of Temperature which is used through the model. This is not
        * an [omero::model::IObject] implementation and as such does
        * not have an ID value. Instead, the entire object is embedded
        * into the containing class, so that the value and unit rows
@@ -42,24 +43,24 @@ module omero {
        */
       double value;
 
-      UnitsTemperature unit;
+      omero::model::enums::UnitsTemperature unit;
 
       /**
        * Actual value for this unit-based field. The interpretation of
-       * the value is only possible along with the [omero::model::UnitsTemperature]
+       * the value is only possible along with the [omero::model::enums::UnitsTemperature]
        * enum.
        **/
       double getValue();
 
-      void setValue(double temperature);
+      void setValue(double value);
 
       /**
-       * [omero::model::UnitsTemperature] instance which is an [omero::model::IObject]
+       * [omero::model::enums::UnitsTemperature] instance which is an [omero::model::IObject]
        * meaning that its ID is sufficient for identifying equality.
        **/
-      UnitsTemperature getUnit();
+      omero::model::enums::UnitsTemperature getUnit();
 
-      void setUnit(UnitsTemperature unit);
+      void setUnit(omero::model::enums::UnitsTemperature unit);
 
       Temperature copy();
 
@@ -67,3 +68,4 @@ module omero {
   };
 };
 #endif
+

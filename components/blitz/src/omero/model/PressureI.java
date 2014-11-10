@@ -24,6 +24,8 @@ import ome.util.Filterable;
 import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;
 
+import omero.model.enums.Pressure;
+
 /**
  * Blitz wrapper around the {@link ome.model.util.Pressure} class.
  * Like {@link Details} and {@link Permissions}, this object
@@ -53,12 +55,22 @@ public class PressureI extends Pressure implements ModelBased {
 
     public final static Ice.ObjectFactory Factory = makeFactory(null);
 
+    public PressureI() {
+        super();
+    }
+
+    public PressureI(double d, UnitsPressure unit) {
+        super();
+        this.setUnit(unit);
+        this.setValue(d);
+    }
+
     public double getValue(Ice.Current current) {
         return this.value;
     }
 
-    public void setValue(double pressure, Ice.Current current) {
-        this.value = pressure;
+    public void setValue(double value , Ice.Current current) {
+        this.value = value;
     }
 
     public UnitsPressure getUnit(Ice.Current current) {
@@ -92,7 +104,7 @@ public class PressureI extends Pressure implements ModelBased {
     @Override
     public Filterable fillObject(ReverseModelMapper mapper) {
         ome.model.enums.UnitsPressure ut = (ome.model.enums.UnitsPressure)
-            mapper.reverse((UnitsPressureI) getUnit());
+                mapper.reverse((UnitsPressure) getUnit());
         ome.model.units.Pressure t = new ome.model.units.Pressure();
         t.setValue(getValue());
         t.setUnit(ut);
@@ -100,3 +112,4 @@ public class PressureI extends Pressure implements ModelBased {
     }
 
 }
+

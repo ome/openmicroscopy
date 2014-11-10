@@ -17,17 +17,18 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+
 #ifndef CLASS_LENGTH
 #define CLASS_LENGTH
 
-#include <omero/model/UnitsLength.ice>
+#include <omero/model/Units.ice>
 
 module omero {
 
     module model {
 
       /**
-       * Unit of length which is used through the model. This is not
+       * Unit of Length which is used through the model. This is not
        * an [omero::model::IObject] implementation and as such does
        * not have an ID value. Instead, the entire object is embedded
        * into the containing class, so that the value and unit rows
@@ -42,28 +43,29 @@ module omero {
        */
       double value;
 
-      UnitsLength unit;
+      omero::model::enums::UnitsLength unit;
 
       /**
        * Actual value for this unit-based field. The interpretation of
-       * the value is only possible along with the [omero::model::UnitsLength]
+       * the value is only possible along with the [omero::model::enums::UnitsLength]
        * enum.
        **/
       double getValue();
 
-      void setValue(double length);
+      void setValue(double value);
 
       /**
-       * [omero::model::UnitsLength] instance which is an [omero::model::IObject]
+       * [omero::model::enums::UnitsLength] instance which is an [omero::model::IObject]
        * meaning that its ID is sufficient for identifying equality.
        **/
-      UnitsLength getUnit();
+      omero::model::enums::UnitsLength getUnit();
 
-      void setUnit(UnitsLength unit);
+      void setUnit(omero::model::enums::UnitsLength unit);
 
       Length copy();
 
     };
   };
 };
-#endif 
+#endif
+

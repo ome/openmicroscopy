@@ -26,9 +26,9 @@ module omero {
 
     module model {
 
-        module units {
+        module enums {
 
-            enum UNITSELECTRICPOTENTIAL {
+            enum UnitsElectricPotential {
                 YOTTAV,
                 ZETTAV,
                 EXAV,
@@ -52,7 +52,7 @@ module omero {
                 YV
             };
 
-            enum UNITSFREQUENCY {
+            enum UnitsFrequency {
                 YOTTAHZ,
                 ZETTAHZ,
                 EXAHZ,
@@ -76,7 +76,7 @@ module omero {
                 YHZ
             };
 
-            enum UNITSLENGTH {
+            enum UnitsLength {
                 YOTTAM,
                 ZETTAM,
                 EXAM,
@@ -113,7 +113,7 @@ module omero {
                 REFERENCEFRAME
             };
 
-            enum UNITSPOWER {
+            enum UnitsPower {
                 YOTTAW,
                 ZETTAW,
                 EXAW,
@@ -137,7 +137,7 @@ module omero {
                 YW
             };
 
-            enum UNITSPRESSURE {
+            enum UnitsPressure {
                 YOTTAPA,
                 ZETTAPA,
                 EXAPA,
@@ -172,14 +172,14 @@ module omero {
                 MMHG
             };
 
-            enum UNITSTEMPERATURE {
+            enum UnitsTemperature {
                 K,
                 DEGREEC,
                 DEGREEF,
                 DEGREER
             };
 
-            enum UNITSTIME {
+            enum UnitsTime {
                 YOTTAS,
                 ZETTAS,
                 EXAS,
