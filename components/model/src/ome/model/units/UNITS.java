@@ -75,4 +75,27 @@ public enum UNITS {
         }
     }
 
+    /**
+     * Map from the CODE-based enums which are used in Java, Ice, etc.
+     * to the SYMBOL-based enum present in the DB which contain invalid
+     * characters for most languages.
+     *
+     * @param obj can't be null
+     */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public String todbvalue(Object obj) {
+        Enum e = Enum.valueOf((Class)enumType, obj.toString());
+        return valueMap.get(e);
+    }
+
+    /**
+     * Perform the reverse lookup from {@link #todbvalue(Object)} converting
+     * the DB's enums which contain invalid characters to the upper-cased
+     * CODE-based enums used elsewhere.
+     */
+    @SuppressWarnings("rawtypes")
+    public Enum fromdbvalue(String obj) {
+        return enumMap.get(obj);
+    }
+
 }

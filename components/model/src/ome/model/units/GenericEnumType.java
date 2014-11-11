@@ -62,7 +62,7 @@ public class GenericEnumType<E extends Enum<E>> implements UserType, Parameteriz
             throws HibernateException, SQLException {
         String value = rs.getString(names[0]);
         if (!rs.wasNull()) {
-            return units.enumMap.get(value);
+            return units.fromdbvalue(value);
         }
         return null;
     }
@@ -75,7 +75,7 @@ public class GenericEnumType<E extends Enum<E>> implements UserType, Parameteriz
             // (apparently). Instead we use the official Types.OTHER
             ps.setObject(index, null, Types.OTHER);
         } else {
-            ps.setObject(index, obj, Types.OTHER);
+            ps.setObject(index, units.todbvalue(obj), Types.OTHER);
         }
     }
 
