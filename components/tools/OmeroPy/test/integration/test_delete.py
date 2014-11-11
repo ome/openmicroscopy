@@ -619,9 +619,9 @@ class TestDelete(lib.ITest):
         for i in (imagesFsOne, imagesFsTwo):
             self.link(ds.proxy(), i[0].proxy(), client)
 
-        # delete should fail...
+        # delete should remove only the Dataset
         delete = omero.cmd.Delete("/Dataset", ds.id.val, None)
-        self.doAllSubmit([delete], client, test_should_pass=False)
+        self.doAllSubmit([delete], client)
 
         # 10846 - multiple constraints are no longer being collected.
         # in fact, even single constraints are not being directly directed
@@ -635,6 +635,15 @@ class TestDelete(lib.ITest):
         # ##     "Delete should fail due to a Two Filesets"
         # ## assert filesetOneId in failedFilesets
         # ## assert filesetTwoId in failedFilesets
+
+        query = client.sf.getQueryService()
+
+        # The dataset should be deleted.
+        assert not query.find("Dataset", ds.id.val)
+
+        # Neither image should be deleted.
+        for i in (imagesFsOne[0], imagesFsTwo[0]):
+            assert i.id.val == query.find("Image", i.id.val).id.val
 
     def testDeleteProjectWithOneEmptyDataset(self):
         """
