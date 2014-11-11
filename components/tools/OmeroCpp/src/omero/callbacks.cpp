@@ -76,17 +76,17 @@ namespace omero {
             return result; // Possibly empty
         }
 
-        void ProcessCallbackI::processCancelled(bool success, const Ice::Current& current) {
+        void ProcessCallbackI::processCancelled(bool /*success*/, const Ice::Current&) {
             result = CANCELLED;
             event.set();
         }
 
-        void ProcessCallbackI::processFinished(int returncode, const Ice::Current& current) {
+        void ProcessCallbackI::processFinished(int /*returncode*/, const Ice::Current&) {
             result = FINISHED;
             event.set();
         }
 
-        void ProcessCallbackI::processKilled(bool success, const Ice::Current& current) {
+        void ProcessCallbackI::processKilled(bool /*success*/, const Ice::Current&) {
             result = KILLED;
             event.set();
         }
@@ -211,7 +211,7 @@ namespace omero {
             pollThread = NULL;
         }
 
-        void CmdCallbackI::step(int complete, int total, const Ice::Current& current) {
+        void CmdCallbackI::step(int /*complete*/, int /*total*/, const Ice::Current&) {
             // no-op
         }
 
@@ -223,8 +223,8 @@ namespace omero {
             onFinished(rsp, status, current);
         }
 
-        void CmdCallbackI::onFinished(const omero::cmd::ResponsePtr& rsp,
-                const omero::cmd::StatusPtr& status, const Ice::Current& current) {
+        void CmdCallbackI::onFinished(const omero::cmd::ResponsePtr&,
+                const omero::cmd::StatusPtr&, const Ice::Current&) {
             // no-op
         }
     }

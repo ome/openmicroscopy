@@ -11,6 +11,8 @@
 #define OMERO_CALLBACKS_H
 
 #include <string>
+
+#include <omero/IceNoWarnPush.h>
 #include <Ice/Ice.h>
 #include <Ice/ObjectAdapter.h>
 #include <IceUtil/Monitor.h>
@@ -21,6 +23,11 @@
 #include <omero/RTypesI.h>
 #include <omero/Scripts.h>
 #include <omero/cmd/API.h>
+#include <omero/Scripts.h>
+#include <omero/IceNoWarnPop.h>
+
+#include <omero/client.h>
+#include <omero/RTypesI.h>
 #include <omero/util/concurrency.h>
 
 #ifndef OMERO_CLIENT
@@ -174,7 +181,7 @@ namespace omero {
             typedef IceUtil::Handle<PollThread> PollThreadPtr;
             PollThreadPtr pollThread;
 
-	protected:
+        protected:
 
             Ice::ObjectAdapterPtr adapter;
 

@@ -547,6 +547,7 @@ public class AbstractServerTest extends AbstractTest {
         e.setOmeName(omero.rtypes.rstring(uuid));
         e.setFirstName(omero.rtypes.rstring("integration"));
         e.setLastName(omero.rtypes.rstring("tester"));
+        e.setLdap(omero.rtypes.rbool(false));
         long id = newUserInGroupWithPassword(e, group, uuid);
         e = rootAdmin.getExperimenter(id);
         rootAdmin.addGroups(e, Arrays.asList(group));
@@ -1746,6 +1747,7 @@ public class AbstractServerTest extends AbstractTest {
         experimenter.setOmeName(rtypes.rstring(omeName));
         experimenter.setFirstName(rtypes.rstring(firstName));
         experimenter.setLastName(rtypes.rstring(lastName));
+        experimenter.setLdap(rtypes.rbool(false));
         return experimenter;
     }
 

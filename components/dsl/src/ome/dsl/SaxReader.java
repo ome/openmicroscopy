@@ -7,7 +7,6 @@
 
 package ome.dsl;
 
-// Java imports
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -27,16 +26,12 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-// Application-internal dependencies
-
 /**
 * reads semantic-type-xml and produces a Set of SemanticType objects. Most
-* logic is passed off to the {@see ome.dsl.SemanticType ST} and
-* {@see ome.dsl.Property Property} classes.
+* logic is passed off to the {@link ome.dsl.SemanticType ST} and
+* {@link ome.dsl.Property Property} classes.
 */
 public class SaxReader {
-
-private static Log log = LogFactory.getLog(SaxReader.class);
 
 /** input file */
 URL xmlFile;

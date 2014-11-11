@@ -10,7 +10,7 @@
 
 import sys
 
-from omero.cli import BaseControl, CLI, ExceptionHandler
+from omero.cli import BaseControl, CLI, ExceptionHandler, admin_only
 
 HELP = """Administrative support for managing users' LDAP settings
 
@@ -24,8 +24,8 @@ Examples:
   bin/omero ldap list
   bin/omero ldap getdn jack
   bin/omero ldap getdn beth || echo "No DN"
-  bin/omero ldap setdn jack uid=me,ou=example,o=com
-  bin/omero ldap setdn jack ""                  # Disables LDAP login.
+  bin/omero ldap setdn jack true                # Enable LDAP login.
+  bin/omero ldap setdn jack false               # Disable LDAP login.
   bin/omero ldap discover --commands
   bin/omero ldap create bob                     # User bob must exist in LDAP
 
@@ -52,18 +52,17 @@ class LdapControl(BaseControl):
         getdn = parser.add(sub, self.getdn, help="Get DN for user on stdout")
         setdn = parser.add(
             sub, self.setdn,
-            help="""Set DN for user (admins only)
+            help="""Enable LDAP login for user (admins only)
 
-Once the DN is set for a user, the password set via OMERO is
+Once LDAP login is enabled for a user, the password set via OMERO is
 ignored, and any attempt to change it will result in an error. When
-you remove the DN, the previous password will be in effect, but if the
+you disable LDAP login, the previous password will be in effect, but if the
 user never had a password, one will need to be set!""")
 
         for x in (getdn, setdn):
             x.add_argument("username", help="User's OMERO login name")
-        setdn.add_argument(
-            "dn", help="User's LDAP distinguished name. If empty, LDAP will"
-            " be disabled for the user")
+        setdn.add_argument("choice", action="store",
+                           help="Enable/disable LDAP login (true/false)")
 
         discover = parser.add(
             sub, self.discover,
@@ -82,51 +81,44 @@ user never had a password, one will need to be set!""")
         for x in (active, list, getdn, setdn, discover, create):
             x.add_login_arguments()
 
+    @admin_only
     def active(self, args):
         c = self.ctx.conn(args)
         ildap = c.sf.getLdapService()
 
-        import omero
-        try:
-            if ildap.getSetting():
-                self.ctx.out("Yes")
-            else:
-                self.ctx.die(1, "No")
-        except omero.SecurityViolation:
-            self.error_admin_only(fatal=True)
+        if ildap.getSetting():
+            self.ctx.out("Yes")
+        else:
+            self.ctx.die(1, "No")
 
+    @admin_only
     def list(self, args):
         c = self.ctx.conn(args)
         iadmin = c.sf.getAdminService()
 
-        import omero
         from omero.rtypes import unwrap
         from omero.util.text import TableBuilder
-        try:
+        list_of_dn_user_maps = unwrap(iadmin.lookupLdapAuthExperimenters())
+        if list_of_dn_user_maps is None:
+            return
 
-            list_of_dn_user_maps = unwrap(iadmin.lookupLdapAuthExperimenters())
-            if list_of_dn_user_maps is None:
-                return
+        count = 0
+        tb = TableBuilder("#")
+        if args.style:
+            tb.set_style(args.style)
+        tb.cols(["Id", "OmeName", "DN"])
+        for map in list_of_dn_user_maps:
+            for dn, id in map.items():
+                try:
+                    exp = iadmin.getExperimenter(id)
+                except:
+                    self.ctx.err("Bad experimenter: %s" % id)
 
-            count = 0
-            tb = TableBuilder("#")
-            if args.style:
-                tb.set_style(args.style)
-            tb.cols(["Id", "OmeName", "DN"])
-            for map in list_of_dn_user_maps:
-                for dn, id in map.items():
-                    try:
-                        exp = iadmin.getExperimenter(id)
-                    except:
-                        self.ctx.err("Bad experimenter: %s" % id)
+                tb.row(count, *(id, exp.omeName.val, dn))
+                count += 1
+        self.ctx.out(str(tb.build()))
 
-                    tb.row(count, *(id, exp.omeName.val, dn))
-                    count += 1
-            self.ctx.out(str(tb.build()))
-
-        except omero.SecurityViolation:
-            self.error_admin_only(fatal=True)
-
+    @admin_only
     def getdn(self, args):
         c = self.ctx.conn(args)
         iadmin = c.sf.getAdminService()
@@ -140,8 +132,9 @@ user never had a password, one will need to be set!""")
         if dn is not None and dn.strip():
             self.ctx.out(dn)
         else:
-            self.ctx.die(136, "DN Not found: %s" % dn)
+            self.ctx.die(136, "DN not found for %s" % args.username)
 
+    @admin_only
     def setdn(self, args):
         c = self.ctx.conn(args)
         ildap = c.sf.getLdapService()
@@ -152,35 +145,28 @@ user never had a password, one will need to be set!""")
         except:
             self.ctx.die(134, "Unknown user: %s" % args.username)
 
-        import omero
-        try:
-            ildap.setDN(exp.id, args.dn)
-        except omero.SecurityViolation:
-            self.error_admin_only(fatal=True)
+        ildap.setDN(exp.id, args.dn)
 
+    @admin_only
     def discover(self, args):
         c = self.ctx.conn(args)
         ildap = c.sf.getLdapService()
         experimenters = {}
 
-        import omero
-        try:
-            experimenters = ildap.discover()
-        except omero.SecurityViolation:
-            self.ctx.die(131, "SecurityViolation: Admins only!")
+        experimenters = ildap.discover()
 
         if len(experimenters) > 0:
-            self.ctx.out("Found mismatching DNs for the following users:")
-            for dn, exp in experimenters.iteritems():
+            self.ctx.out("Following LDAP users are disabled in OMERO:")
+            for exp in experimenters:
                 if args.commands:
-                    self.ctx.out("%s ldap setdn %s %s"
-                                 % (sys.argv[0], exp.getOmeName().getValue(),
-                                    dn))
+                    self.ctx.out("%s ldap setdn %s true"
+                                 % (sys.argv[0], exp.getOmeName().getValue()))
                 else:
-                    self.ctx.out("Experimenter:%s\tomeName=%s\t%s"
+                    self.ctx.out("Experimenter:%s\tomeName=%s"
                                  % (exp.getId().getValue(),
-                                    exp.getOmeName().getValue(), dn))
+                                    exp.getOmeName().getValue()))
 
+    @admin_only
     def create(self, args):
         c = self.ctx.conn(args)
         ildap = c.sf.getLdapService()
@@ -193,8 +179,6 @@ user never had a password, one will need to be set!""")
             dn = iadmin.lookupLdapAuthExperimenter(exp.id.val)
             self.ctx.out("Added user %s (id=%s) with DN=%s" %
                          (exp.omeName.val, exp.id.val, dn))
-        except omero.SecurityViolation:
-            self.ctx.die(131, "SecurityViolation: Admins only!")
         except omero.ValidationException as ve:
             self.ctx.die(132, ve.message)
         except Ice.RequestFailedException as rfe:

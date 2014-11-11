@@ -158,4 +158,6 @@ public class NullUserNotifier
 	public void notifyError(String title, String summary, String email, 
 		List<ImportErrorObject> toSubmit, PropertyChangeListener listener) {}
 
+        public void clearActivities() {}
+        
 }

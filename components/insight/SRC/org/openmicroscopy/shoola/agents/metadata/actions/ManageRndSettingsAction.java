@@ -308,7 +308,7 @@ public class ManageRndSettingsAction
             CopyRndSettings evt;
             if (model.isModified()) {
                 // copy the current 'pending' rendering settings
-                evt = new CopyRndSettings(model.getRndSettingsCopy());
+                evt = new CopyRndSettings(model.getRefImage(), model.getRndSettingsCopy());
             }
             else {
                 // copy the saved rendering settings from the image

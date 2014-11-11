@@ -291,7 +291,7 @@ public class ImViewerAgent
     public void handleCopyRndSettingsEvent(CopyRndSettings evt)
     {
         if (evt == null) return;
-        ImViewerFactory.copyRndSettings(evt.getImage());
+        ImViewerFactory.copyRndSettings(evt.getImage(), evt.getRndDef());
     }
 
     /**

@@ -17,7 +17,7 @@ THISPATH = os.path.dirname(os.path.abspath(__file__))
 
 import warnings
 from types import IntType, LongType, UnicodeType, ListType
-from types import TupleType, StringType, StringTypes
+from types import BooleanType, TupleType, StringType, StringTypes
 from datetime import datetime
 from cStringIO import StringIO
 import ConfigParser
@@ -66,6 +66,7 @@ def omero_type(val):
     Converts rtypes from static factory methods:
      - StringType to rstring
      - UnicodeType to rstring
+     - BooleanType to rbool
      - IntType to rint
      - LongType to rlong
 
@@ -80,6 +81,8 @@ def omero_type(val):
         return rstring(val)
     elif isinstance(val, UnicodeType):
         return rstring(val.encode('utf-8'))
+    elif isinstance(val, BooleanType):
+        return rbool(val)
     elif isinstance(val, IntType):
         return rint(val)
     elif isinstance(val, LongType):

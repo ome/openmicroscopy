@@ -979,6 +979,9 @@ class MetadataViewerModel
 	    if(copyRenderingSettingsFrom==null)
 	        return;
 	    
+	    if(ctx==null) 
+	        ctx = retrieveContext((DataObject)refObject);
+	    
             RenderingSettingsLoader loader = new RenderingSettingsLoader(component,
                     ctx, copyRenderingSettingsFrom.getDefaultPixels().getId(), loaderID,
                     RenderingSettingsLoader.TASK_COPY_PASTE);

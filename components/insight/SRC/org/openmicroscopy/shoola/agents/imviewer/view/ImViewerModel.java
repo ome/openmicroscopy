@@ -553,6 +553,16 @@ class ImViewerModel
 				MetadataViewer.RND_SPECIFIC);
 		metadataViewer.setRootObject(image, metadataViewer.getUserID(),
 				getSecurityContext());
+		
+		// there might already exist another MetadataViewer with modified
+		// rendering settings; if so copy it's original settings
+                MetadataViewer otherViewer = MetadataViewerFactory.getViewerFromId(
+                        ImageData.class.getName(), image.getId());
+                if (otherViewer != null) {
+                    Renderer otherRenderer = otherViewer.getRenderer();
+                    if (otherRenderer != null)
+                        originalDef = otherRenderer.getInitialRndSettings();
+                }
 	}
 	
 	/**
@@ -1041,6 +1051,7 @@ class ImViewerModel
 		state = ImViewer.READY;
 		Renderer rnd = metadataViewer.getRenderer();
 		
+		
 		if (rnd != null && isBigImage()) {
 			resolutions = rnd.getResolutionDescriptions();
 			setSelectedResolutionLevel(getDefaultResolutionLevel());
@@ -1053,7 +1064,7 @@ class ImViewerModel
 			if (alternativeSettings != null && rnd != null)
 				rnd.resetSettings(alternativeSettings, false);
 			alternativeSettings = null;
-			if (rnd != null) originalDef = rnd.getRndSettingsCopy();
+			if (rnd != null && originalDef == null) originalDef = rnd.getRndSettingsCopy();
 		} catch (Exception e) {}
 	}
 	
@@ -1744,8 +1755,7 @@ class ImViewerModel
 	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
-		originalDef = settings;
-		rnd.resetSettings(settings, false);
+		rnd.resetSettings(settings, true);
 	}
 
 	/**
@@ -1783,12 +1793,15 @@ class ImViewerModel
 	 */
 	void fireLoadRndSettingsToPaste()
 	{
-		long id = ImViewerFactory.getRefImage().getDefaultPixels().getId();
-		if (id < 0) return;
+            state = ImViewer.PASTING;
+	    if(ImViewerFactory.getRefSettings()==null) {
 		RenderingSettingsLoader loader = new RenderingSettingsLoader(component,
-				ctx, id, true);
+				ctx, ImViewerFactory.getRefImage().getDefaultPixels().getId(), true);
 		loader.load();
-		state = ImViewer.PASTING;
+	    }
+	    else {
+	        component.setSettingsToPaste(ImViewerFactory.getRefSettings());
+	    }
 	}
 
 	/** Resets the default settings. */
@@ -1828,9 +1841,15 @@ class ImViewerModel
 	/** Posts a {@link CopyRndSettings} event. */
 	void copyRenderingSettings()
 	{
-		CopyRndSettings evt = new CopyRndSettings(getImage());
-		EventBus bus = ImViewerAgent.getRegistry().getEventBus();
-		bus.post(evt);
+            RndProxyDef rndDef = null;
+            Renderer rnd = metadataViewer.getRenderer();
+            if (rnd != null && rnd.isModified()) {
+                rndDef = rnd.getRndSettingsCopy();
+            }
+            
+            CopyRndSettings evt = new CopyRndSettings(getImage(), rndDef);
+            EventBus bus = ImViewerAgent.getRegistry().getEventBus();
+            bus.post(evt);
 	}
 
 	/**

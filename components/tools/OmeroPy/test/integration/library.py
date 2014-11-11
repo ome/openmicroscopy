@@ -36,7 +36,7 @@ import omero
 import omero.gateway
 
 from omero.util.temp_files import create_path
-from omero.rtypes import rstring, rtime, rint, unwrap
+from omero.rtypes import rbool, rstring, rtime, rint, unwrap
 from path import path
 
 from omero.cmd import DoAll, State, ERR, OK
@@ -452,6 +452,7 @@ class ITest(object):
         e.omeName = rstring(name)
         e.firstName = rstring(name)
         e.lastName = rstring(name)
+        e.ldap = rbool(False)
         listOfGroups = list()
         listOfGroups.append(adminService.lookupGroup('user'))
         uid = adminService.createExperimenterWithPassword(

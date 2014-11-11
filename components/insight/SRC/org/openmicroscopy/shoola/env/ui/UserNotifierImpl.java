@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.ui.UserNotifierImpl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -456,6 +456,15 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 		return manager.getRunningActivitiesCount() > 0;
 	}
 
+	/**
+	 * Implemented as specified by {@link UserNotifier}.
+         * 
+         * @see UserNotifier#clearActivities()
+	 */
+	public void clearActivities() {
+	    manager.clearActivities();
+	}
+	
 	/**
 	 * Implemented as specified by {@link UserNotifier}.
 	 * 

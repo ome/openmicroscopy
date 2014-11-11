@@ -276,6 +276,8 @@ endif(MSVC)
 
 set(OMERO_COMMON_STATIC_HEADERS
     src/omero/ClientErrors.h
+    src/omero/IceNoWarnPop.h
+    src/omero/IceNoWarnPush.h
     src/omero/ObjectFactoryRegistrar.h
     src/omero/RTypesI.h
     src/omero/templates.h)
@@ -419,5 +421,20 @@ configure_file(${PROJECT_SOURCE_DIR}/components/bioformats/cpp/cmake/TemplateCon
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/omero-client-config.cmake
         DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/cmake)
 
+foreach(flag -Wno-switch-default -Wno-redundant-decls -Wno-overloaded-virtual -Wno-old-style-cast -Wno-deprecated-declarations)
+  string(REPLACE "/" "_" flag_var "${flag}")
+  set(test_cxx_flag "CXX_FLAG${flag_var}")
+  CHECK_CXX_COMPILER_FLAG(${flag} "${test_cxx_flag}")
+  if (${test_cxx_flag})
+     set(ICE_FLAGS "${ICE_FLAGS} ${flag}")
+  endif (${test_cxx_flag})
+endforeach(flag ${test_flags})
+
+set_source_files_properties(
+    ${OMERO_ICE_SOURCES}
+    PROPERTIES
+    COMPILE_FLAGS "${ICE_FLAGS}")
+
+# Last so that variables are propagated
 add_subdirectory(test)
 add_subdirectory(utils)

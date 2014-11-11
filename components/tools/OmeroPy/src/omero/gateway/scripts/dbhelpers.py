@@ -70,8 +70,8 @@ class BadGroupPermissionsException(Exception):
 class UserEntry (object):
 
     def __init__(self, name, passwd, firstname='', middlename='', lastname='',
-                 email='', groupname=None, groupperms=None, groupowner=False,
-                 admin=False):
+                 email='', ldap=False, groupname=None, groupperms=None,
+                 groupowner=False, admin=False):
         """
         If no groupperms are passed, then check_group_perms will do nothing.
         The default perms for newly created groups is defined
@@ -82,6 +82,7 @@ class UserEntry (object):
         self.firstname = firstname
         self.middlename = middlename
         self.lastname = lastname
+        self.ldap = ldap
         self.email = email
         self.admin = admin
         self.groupname = groupname
@@ -192,6 +193,7 @@ class UserEntry (object):
         u.setFirstName(omero.gateway.omero_type(self.firstname))
         u.setMiddleName(omero.gateway.omero_type(self.middlename))
         u.setLastName(omero.gateway.omero_type(self.lastname))
+        u.setLdap(omero.gateway.omero_type(self.ldap))
         u.setEmail(omero.gateway.omero_type(self.email))
         a.createUser(u, g.getName().val)
         u = a.lookupExperimenter(self.name)

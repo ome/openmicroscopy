@@ -63,7 +63,7 @@ public class CopyRndSettings
 	 */
 	public CopyRndSettings(ImageData image)
 	{
-		this.image = image;
+		this(image, null);
 	}
 	
 	/**
@@ -71,11 +71,23 @@ public class CopyRndSettings
          * Used for copying 'pending' rendering settings, i. e.
          * which have not yet been saved with an image.
          * 
-         * @param rndDef The copied rendering settings 
+         * @param image The image the rendering settings belong to.
+         * @param rndDef The copied rendering settings (can be null, in this case 
+         *                 the image's current rendering settings will be used)
          */
-        public CopyRndSettings(RndProxyDef rndDef)
+        public CopyRndSettings(ImageData image, RndProxyDef rndDef)
         {
+                this.image = image;
                 this.rndDef = rndDef;
+                
+                if (rndDef != null
+                        && rndDef.getData().getPixels().getId().getValue() != image
+                                .getDefaultPixels().getId())
+                    throw new IllegalArgumentException(
+                            "The provided rendering settings (pixels id="
+                                    + rndDef.getData().getPixels().getId().getValue()
+                                    + " don't belong to the given image (pixels id="
+                                    + image.getDefaultPixels().getId() + ")");
         }
 
 	/**
@@ -83,7 +95,7 @@ public class CopyRndSettings
 	 * 
 	 * @return See above. 
 	 */
-    public ImageData getImage() { return image; }
+        public ImageData getImage() { return image; }
 
     	/**
     	 * Returns the copied rendering settings;

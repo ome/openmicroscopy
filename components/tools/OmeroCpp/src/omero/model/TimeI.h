@@ -20,8 +20,10 @@
 #ifndef OMERO_MODEL_TIMEI_H
 #define OMERO_MODEL_TIMEI_H
 
+#include <omero/IceNoWarnPush.h>
 #include <omero/model/Time.h>
 #include <omero/model/UnitsTime.h>
+#include <omero/IceNoWarnPop.h>
 
 #ifndef OMERO_CLIENT
 #   ifdef OMERO_CLIENT_EXPORTS

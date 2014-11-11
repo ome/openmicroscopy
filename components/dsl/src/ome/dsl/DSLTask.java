@@ -147,6 +147,7 @@ public class DSLTask extends Task {
             }
         } else {
             java.util.Collections.sort(types, new java.util.Comparator<SemanticType>() {
+                    @Override
                     public int compare(SemanticType lhs, SemanticType rhs) {
                         return lhs.getShortname().compareTo(rhs.getShortname());
                     }
@@ -163,6 +164,7 @@ public class DSLTask extends Task {
 
     }
 
+    @SuppressWarnings("resource")
     public static InputStream getStream(String str) {
         InputStream in = null;
         try {
