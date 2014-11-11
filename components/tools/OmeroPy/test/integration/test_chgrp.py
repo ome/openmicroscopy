@@ -469,9 +469,9 @@ class TestChgrp(lib.ITest):
             link.setChild(i[0].proxy())
             link = update.saveAndReturnObject(link)
 
-        # chgrp should fail...
+        # chgrp should succeed with the Dataset only
         chgrp = omero.cmd.Chgrp(type="/Dataset", id=ds.id.val, grp=target_gid)
-        self.doAllSubmit([chgrp], client, test_should_pass=False)
+        self.doAllSubmit([chgrp], client)
 
         # 10846 - multiple constraints are no longer being collected.
         # in fact, even single constraints are not being directly directed
@@ -486,6 +486,21 @@ class TestChgrp(lib.ITest):
         # ##     "chgrp should fail due to a Two Filesets"
         # ## self.assertTrue(filesetOneId in failedFilesets)
         # ## self.assertTrue(filesetTwoId in failedFilesets)
+
+        queryService = client.sf.getQueryService()
+
+        # Check Images not moved
+        for i in (imagesFsOne[0], imagesFsTwo[0]):
+            image = queryService.get('Image', i.id.val)
+            assert target_gid != image.details.group.id.val,\
+                "Image should not be in group: %s" % target_gid
+
+        ctx = {'omero.group': str(target_gid)}  # query in the target group
+
+        # Check Dataset moved
+        dataset = queryService.get('Dataset', ds.id.val, ctx)
+        assert target_gid == dataset.details.group.id.val,\
+            "Dataset should be in group: %s" % target_gid
 
     def testChgrpDatasetCheckFsGroup(self):
         """
