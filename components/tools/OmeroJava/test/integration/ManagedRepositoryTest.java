@@ -162,7 +162,7 @@ public class ManagedRepositoryTest extends AbstractServerTest {
      * @throws Exception
      *             unexpected
      */
-    ImportLocation importFileset(List<String> srcPaths) throws Exception {
+    ImportRequest importFileset(List<String> srcPaths) throws Exception {
         return importFileset(srcPaths, srcPaths.size());
     }
 
@@ -173,11 +173,11 @@ public class ManagedRepositoryTest extends AbstractServerTest {
      *            the source paths
      * @param numberToUpload
      *            how many of the source paths to actually upload
-     * @return the resulting import location
+     * @return the resulting import request
      * @throws Exception
      *             unexpected
      */
-    ImportLocation importFileset(List<String> srcPaths, int numberToUpload)
+    ImportRequest importFileset(List<String> srcPaths, int numberToUpload)
             throws Exception {
 
         // Setup that should be easier, most likely a single ctor on IL
@@ -215,7 +215,7 @@ public class ManagedRepositoryTest extends AbstractServerTest {
         final ImportCallback cb = lib.createCallback(proc, handle, container);
         cb.loop(60 * 60, 1000); // Wait 1 hr per step.
         assertNotNull(cb.getImportResponse());
-        return req.location;
+        return req;
     }
 
     /**
@@ -286,12 +286,12 @@ public class ManagedRepositoryTest extends AbstractServerTest {
 
         // Completely new file
         srcPaths.add(file1.getAbsolutePath());
-        ImportLocation data = importFileset(srcPaths);
+        ImportLocation data = importFileset(srcPaths).location;
         assertEndsWith(pathToUsedFile(data, 0), destPath1);
 
         // Different files that should go in same directory
         srcPaths.add(file2.getAbsolutePath());
-        data = importFileset(srcPaths);
+        data = importFileset(srcPaths).location;
         assertEndsWith(pathToUsedFile(data, 0), destPath1);
         assertEndsWith(pathToUsedFile(data, 1), destPath2);
         for (final String usedFile : data.usedFiles) {
@@ -302,12 +302,12 @@ public class ManagedRepositoryTest extends AbstractServerTest {
 
         // Same file that should go in new directory
         srcPaths.remove(0);
-        data = importFileset(srcPaths);
+        data = importFileset(srcPaths).location;
         assertEndsWith(pathToUsedFile(data, 0), destPath2);
         assertTrue(usedFile2s.add(pathToUsedFile(data, 0)));
 
         // Same file again that should go in new directory
-        data = importFileset(srcPaths);
+        data = importFileset(srcPaths).location;
         assertEndsWith(pathToUsedFile(data, 0), destPath2);
         assertTrue(usedFile2s.add(pathToUsedFile(data, 0)));
     }
@@ -353,7 +353,7 @@ public class ManagedRepositoryTest extends AbstractServerTest {
         srcPaths.add(file2.getAbsolutePath());
         destPaths.add(destPath1);
         destPaths.add(destPath2);
-        ImportLocation data = importFileset(srcPaths);
+        ImportLocation data = importFileset(srcPaths).location;
         assertTrue(data.usedFiles.size() == destPaths.size());
         for (int i = 0; i < data.usedFiles.size(); i++) {
             assertEndsWith(pathToUsedFile(data, i), destPaths.get(i));
@@ -367,7 +367,7 @@ public class ManagedRepositoryTest extends AbstractServerTest {
         // One identical file both should go in a new directory
         srcPaths.set(1, file3.getAbsolutePath());
         destPaths.set(1, destPath3);
-        data = importFileset(srcPaths);
+        data = importFileset(srcPaths).location;
         assertTrue(data.usedFiles.size() == destPaths.size());
         for (int i = 0; i < data.usedFiles.size(); i++) {
             assertEndsWith(pathToUsedFile(data, i), destPaths.get(i));
@@ -383,7 +383,7 @@ public class ManagedRepositoryTest extends AbstractServerTest {
         srcPaths.set(1, file5.getAbsolutePath());
         destPaths.set(0, destPath4);
         destPaths.set(1, destPath5);
-        data = importFileset(srcPaths);
+        data = importFileset(srcPaths).location;
         assertTrue(data.usedFiles.size() == destPaths.size());
         for (int i = 0; i < data.usedFiles.size(); i++) {
             assertEndsWith(pathToUsedFile(data, i), destPaths.get(i));
@@ -395,7 +395,7 @@ public class ManagedRepositoryTest extends AbstractServerTest {
         assertTrue(sharedPaths.add(data.sharedPath));
 
         // Two identical files that should go in a new directory
-        data = importFileset(srcPaths);
+        data = importFileset(srcPaths).location;
         assertTrue(data.usedFiles.size() == destPaths.size());
         for (int i = 0; i < data.usedFiles.size(); i++) {
             assertEndsWith(pathToUsedFile(data, i), destPaths.get(i));
@@ -454,14 +454,14 @@ public class ManagedRepositoryTest extends AbstractServerTest {
         destPaths.add(destFsFile1.toString());
         destPaths.add(destFsFile2.toString());
         destPaths.add(destFsFile3.toString());
-        ImportLocation data1 = importFileset(srcPaths);
+        ImportLocation data1 = importFileset(srcPaths).location;
         assertTrue(data1.usedFiles.size() == destPaths.size());
         for (int i = 0; i < data1.usedFiles.size(); i++) {
             assertEndsWith(pathToUsedFile(data1, i), destPaths.get(i));
         }
 
         // Same files should go into new directory
-        ImportLocation data2 = importFileset(srcPaths);
+        ImportLocation data2 = importFileset(srcPaths).location;
         assertTrue(data2.usedFiles.size() == destPaths.size());
         for (int i = 0; i < data2.usedFiles.size(); i++) {
             assertEndsWith(pathToUsedFile(data2, i), destPaths.get(i));
@@ -488,7 +488,7 @@ public class ManagedRepositoryTest extends AbstractServerTest {
         final List<String> srcPaths = new ArrayList<String>();
 
         srcPaths.add(file1.getAbsolutePath());
-        ImportLocation data = importFileset(srcPaths);
+        ImportLocation data = importFileset(srcPaths).location;
 
         for (int index = 0; index < data.usedFiles.size(); index++) {
             assertFileExists("Upload failed. File does not exist: ",
@@ -522,7 +522,7 @@ public class ManagedRepositoryTest extends AbstractServerTest {
 
         srcPaths.add(file1.getAbsolutePath());
         srcPaths.add(file2.getAbsolutePath());
-        ImportLocation data = importFileset(srcPaths);
+        ImportLocation data = importFileset(srcPaths).location;
 
         for (int index = 0; index < data.usedFiles.size(); index++) {
             assertFileExists("Upload failed. File does not exist: ",
@@ -558,7 +558,7 @@ public class ManagedRepositoryTest extends AbstractServerTest {
         srcPaths.add(file2.getAbsolutePath());
         // TODO: due to verifyUpload one cannot obtain the import location
         // without uploading both files
-        ImportLocation data = importFileset(srcPaths, 2);
+        ImportLocation data = importFileset(srcPaths, 2).location;
 
         assertFileExists("Upload failed. File does not exist: ",
                 pathToUsedFile(data, 0));
@@ -601,7 +601,7 @@ public class ManagedRepositoryTest extends AbstractServerTest {
         srcPaths.add(file1.getAbsolutePath());
         srcPaths.add(file2.getAbsolutePath());
         srcPaths.add(file3.getAbsolutePath());
-        ImportLocation data = importFileset(srcPaths);
+        ImportLocation data = importFileset(srcPaths).location;
 
         for (int index = 0; index < data.usedFiles.size(); index++) {
             assertFileExists("Upload failed. File does not exist: ",
@@ -640,11 +640,11 @@ public class ManagedRepositoryTest extends AbstractServerTest {
 
         srcPaths.add(file1.getAbsolutePath());
         srcPaths.add(file2.getAbsolutePath());
-        ImportLocation data1 = importFileset(srcPaths);
+        ImportLocation data1 = importFileset(srcPaths).location;
 
         srcPaths.set(0, file3.getAbsolutePath());
         srcPaths.set(1, file4.getAbsolutePath());
-        ImportLocation data2 = importFileset(srcPaths);
+        ImportLocation data2 = importFileset(srcPaths).location;
 
         for (int index = 0; index < data1.usedFiles.size(); index++) {
             assertFileExists("Upload failed. File does not exist: ",
