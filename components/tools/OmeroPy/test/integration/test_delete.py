@@ -459,7 +459,8 @@ class TestDelete(lib.ITest):
         query = client.sf.getQueryService()
 
         # Now delete one image
-        omero.cmd.Delete("/Image", images[0].id.val, None)
+        delete = omero.cmd.Delete("/Image", images[0].id.val, None)
+        self.doAllSubmit([delete], client, test_should_pass=False)
 
         # 10846 - multiple constraints are no longer being collected.
         # in fact, even single constraints are not being directly directed
