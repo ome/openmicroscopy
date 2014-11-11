@@ -24,6 +24,9 @@ import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
+import ome.units.unit.Unit;
+import ome.xml.model.enums.EnumerationException;
+
 import ome.model.enums.UnitsTemperature;
 import ome.util.Filter;
 import ome.util.Filterable;
@@ -49,12 +52,88 @@ public class Temperature implements Serializable, Filterable {
 
     public final static String UNIT = "ome.model.units.Temperature_unit";
 
+    public static ome.xml.model.enums.UnitsTemperature makeTemperatureUnitXML(String unit) {
+        try {
+            return ome.xml.model.enums.UnitsTemperature
+                    .fromString((String) unit);
+        } catch (EnumerationException e) {
+            throw new RuntimeException("Bad Temperature unit: " + unit, e);
+        }
+    }
+
+    public static ome.units.quantity.Temperature makeTemperatureXML(double d, String unit) {
+        ome.units.unit.Unit<ome.units.quantity.Temperature> units =
+                ome.xml.model.enums.handlers.UnitsTemperatureEnumHandler
+                        .getBaseUnit(makeTemperatureUnitXML(unit));
+        return new ome.units.quantity.Temperature(d, units);
+    }
+
+    /**
+     * FIXME: this should likely take a default so that locations which don't
+     * want an exception can have
+     *
+     * log.warn("Using new PositiveFloat(1.0)!", e); return new
+     * PositiveFloat(1.0);
+     *
+     * or similar.
+     */
+    public static ome.units.quantity.Temperature convertTemperature(Temperature t) {
+        if (t == null) {
+            return null;
+        }
+
+        Double length = t.getValue();
+        String u = t.getUnit().getValue();
+        ome.xml.model.enums.UnitsTemperature units = makeTemperatureUnitXML(u);
+        ome.units.unit.Unit<ome.units.quantity.Temperature> units2 =
+                ome.xml.model.enums.handlers.UnitsTemperatureEnumHandler
+                        .getBaseUnit(units);
+
+        return new ome.units.quantity.Temperature(length, units2);
+    }
+
+    public static Temperature convertTemperature(Temperature value, Unit<ome.units.quantity.Temperature> ul) {
+        return convertTemperature(value, ul.getSymbol());
+    }
+
+    public static Temperature convertTemperature(Temperature value, String target) {
+        String source = value.getUnit().getValue();
+        if (target.equals(source)) {
+            return value;
+        }
+        throw new RuntimeException(String.format(
+                "%d %s cannot be converted to %s", value.getValue(), source));
+    }
+
     // ~ Constructors
     // =========================================================================
+
+    /**
+     * no-arg constructor to keep Hibernate happy.
+     */
+    @Deprecated
+    public Temperature() {
+        // no-op
+    }
+
+    public Temperature(double d, String u) {
+        this.value = d;
+        this.unit = UnitsTemperature.valueOf(u);
+    }
 
     public Temperature(double d, UnitsTemperature u) {
         this.value = d;
         this.unit = u;
+    }
+
+    public Temperature(double d,
+            Unit<ome.units.quantity.Temperature> unit) {
+        this(d, UnitsTemperature.bySymbol(unit.getSymbol()));
+    }
+
+    public Temperature(ome.units.quantity.Temperature value) {
+        this(value.value().doubleValue(),
+            UnitsTemperature.bySymbol(value.unit().getSymbol()));
     }
 
     // ~ Fields

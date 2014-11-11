@@ -24,6 +24,9 @@ import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
+import ome.units.unit.Unit;
+import ome.xml.model.enums.EnumerationException;
+
 import ome.model.enums.UnitsTime;
 import ome.util.Filter;
 import ome.util.Filterable;
@@ -49,12 +52,88 @@ public class Time implements Serializable, Filterable {
 
     public final static String UNIT = "ome.model.units.Time_unit";
 
+    public static ome.xml.model.enums.UnitsTime makeTimeUnitXML(String unit) {
+        try {
+            return ome.xml.model.enums.UnitsTime
+                    .fromString((String) unit);
+        } catch (EnumerationException e) {
+            throw new RuntimeException("Bad Time unit: " + unit, e);
+        }
+    }
+
+    public static ome.units.quantity.Time makeTimeXML(double d, String unit) {
+        ome.units.unit.Unit<ome.units.quantity.Time> units =
+                ome.xml.model.enums.handlers.UnitsTimeEnumHandler
+                        .getBaseUnit(makeTimeUnitXML(unit));
+        return new ome.units.quantity.Time(d, units);
+    }
+
+    /**
+     * FIXME: this should likely take a default so that locations which don't
+     * want an exception can have
+     *
+     * log.warn("Using new PositiveFloat(1.0)!", e); return new
+     * PositiveFloat(1.0);
+     *
+     * or similar.
+     */
+    public static ome.units.quantity.Time convertTime(Time t) {
+        if (t == null) {
+            return null;
+        }
+
+        Double length = t.getValue();
+        String u = t.getUnit().getValue();
+        ome.xml.model.enums.UnitsTime units = makeTimeUnitXML(u);
+        ome.units.unit.Unit<ome.units.quantity.Time> units2 =
+                ome.xml.model.enums.handlers.UnitsTimeEnumHandler
+                        .getBaseUnit(units);
+
+        return new ome.units.quantity.Time(length, units2);
+    }
+
+    public static Time convertTime(Time value, Unit<ome.units.quantity.Time> ul) {
+        return convertTime(value, ul.getSymbol());
+    }
+
+    public static Time convertTime(Time value, String target) {
+        String source = value.getUnit().getValue();
+        if (target.equals(source)) {
+            return value;
+        }
+        throw new RuntimeException(String.format(
+                "%d %s cannot be converted to %s", value.getValue(), source));
+    }
+
     // ~ Constructors
     // =========================================================================
+
+    /**
+     * no-arg constructor to keep Hibernate happy.
+     */
+    @Deprecated
+    public Time() {
+        // no-op
+    }
+
+    public Time(double d, String u) {
+        this.value = d;
+        this.unit = UnitsTime.valueOf(u);
+    }
 
     public Time(double d, UnitsTime u) {
         this.value = d;
         this.unit = u;
+    }
+
+    public Time(double d,
+            Unit<ome.units.quantity.Time> unit) {
+        this(d, UnitsTime.bySymbol(unit.getSymbol()));
+    }
+
+    public Time(ome.units.quantity.Time value) {
+        this(value.value().doubleValue(),
+            UnitsTime.bySymbol(value.unit().getSymbol()));
     }
 
     // ~ Fields

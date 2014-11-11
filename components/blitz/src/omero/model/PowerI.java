@@ -104,9 +104,7 @@ public class PowerI extends Power implements ModelBased {
     @Override
     public Filterable fillObject(ReverseModelMapper mapper) {
         ome.model.enums.UnitsPower ut = ome.model.enums.UnitsPower.valueOf(getUnit().toString());
-        ome.model.units.Power t = new ome.model.units.Power();
-        t.setValue(getValue());
-        t.setUnit(ut);
+        ome.model.units.Power t = new ome.model.units.Power(getValue(), ut);
         return t;
     }
 

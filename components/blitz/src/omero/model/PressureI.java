@@ -104,9 +104,7 @@ public class PressureI extends Pressure implements ModelBased {
     @Override
     public Filterable fillObject(ReverseModelMapper mapper) {
         ome.model.enums.UnitsPressure ut = ome.model.enums.UnitsPressure.valueOf(getUnit().toString());
-        ome.model.units.Pressure t = new ome.model.units.Pressure();
-        t.setValue(getValue());
-        t.setUnit(ut);
+        ome.model.units.Pressure t = new ome.model.units.Pressure(getValue(), ut);
         return t;
     }
 

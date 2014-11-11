@@ -104,9 +104,7 @@ public class LengthI extends Length implements ModelBased {
     @Override
     public Filterable fillObject(ReverseModelMapper mapper) {
         ome.model.enums.UnitsLength ut = ome.model.enums.UnitsLength.valueOf(getUnit().toString());
-        ome.model.units.Length t = new ome.model.units.Length();
-        t.setValue(getValue());
-        t.setUnit(ut);
+        ome.model.units.Length t = new ome.model.units.Length(getValue(), ut);
         return t;
     }
 

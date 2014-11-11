@@ -24,6 +24,9 @@ import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
+import ome.units.unit.Unit;
+import ome.xml.model.enums.EnumerationException;
+
 import ome.model.enums.UnitsLength;
 import ome.util.Filter;
 import ome.util.Filterable;
@@ -49,12 +52,88 @@ public class Length implements Serializable, Filterable {
 
     public final static String UNIT = "ome.model.units.Length_unit";
 
+    public static ome.xml.model.enums.UnitsLength makeLengthUnitXML(String unit) {
+        try {
+            return ome.xml.model.enums.UnitsLength
+                    .fromString((String) unit);
+        } catch (EnumerationException e) {
+            throw new RuntimeException("Bad Length unit: " + unit, e);
+        }
+    }
+
+    public static ome.units.quantity.Length makeLengthXML(double d, String unit) {
+        ome.units.unit.Unit<ome.units.quantity.Length> units =
+                ome.xml.model.enums.handlers.UnitsLengthEnumHandler
+                        .getBaseUnit(makeLengthUnitXML(unit));
+        return new ome.units.quantity.Length(d, units);
+    }
+
+    /**
+     * FIXME: this should likely take a default so that locations which don't
+     * want an exception can have
+     *
+     * log.warn("Using new PositiveFloat(1.0)!", e); return new
+     * PositiveFloat(1.0);
+     *
+     * or similar.
+     */
+    public static ome.units.quantity.Length convertLength(Length t) {
+        if (t == null) {
+            return null;
+        }
+
+        Double length = t.getValue();
+        String u = t.getUnit().getValue();
+        ome.xml.model.enums.UnitsLength units = makeLengthUnitXML(u);
+        ome.units.unit.Unit<ome.units.quantity.Length> units2 =
+                ome.xml.model.enums.handlers.UnitsLengthEnumHandler
+                        .getBaseUnit(units);
+
+        return new ome.units.quantity.Length(length, units2);
+    }
+
+    public static Length convertLength(Length value, Unit<ome.units.quantity.Length> ul) {
+        return convertLength(value, ul.getSymbol());
+    }
+
+    public static Length convertLength(Length value, String target) {
+        String source = value.getUnit().getValue();
+        if (target.equals(source)) {
+            return value;
+        }
+        throw new RuntimeException(String.format(
+                "%d %s cannot be converted to %s", value.getValue(), source));
+    }
+
     // ~ Constructors
     // =========================================================================
+
+    /**
+     * no-arg constructor to keep Hibernate happy.
+     */
+    @Deprecated
+    public Length() {
+        // no-op
+    }
+
+    public Length(double d, String u) {
+        this.value = d;
+        this.unit = UnitsLength.valueOf(u);
+    }
 
     public Length(double d, UnitsLength u) {
         this.value = d;
         this.unit = u;
+    }
+
+    public Length(double d,
+            Unit<ome.units.quantity.Length> unit) {
+        this(d, UnitsLength.bySymbol(unit.getSymbol()));
+    }
+
+    public Length(ome.units.quantity.Length value) {
+        this(value.value().doubleValue(),
+            UnitsLength.bySymbol(value.unit().getSymbol()));
     }
 
     // ~ Fields

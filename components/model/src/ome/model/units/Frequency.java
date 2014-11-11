@@ -24,6 +24,9 @@ import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
+import ome.units.unit.Unit;
+import ome.xml.model.enums.EnumerationException;
+
 import ome.model.enums.UnitsFrequency;
 import ome.util.Filter;
 import ome.util.Filterable;
@@ -49,12 +52,88 @@ public class Frequency implements Serializable, Filterable {
 
     public final static String UNIT = "ome.model.units.Frequency_unit";
 
+    public static ome.xml.model.enums.UnitsFrequency makeFrequencyUnitXML(String unit) {
+        try {
+            return ome.xml.model.enums.UnitsFrequency
+                    .fromString((String) unit);
+        } catch (EnumerationException e) {
+            throw new RuntimeException("Bad Frequency unit: " + unit, e);
+        }
+    }
+
+    public static ome.units.quantity.Frequency makeFrequencyXML(double d, String unit) {
+        ome.units.unit.Unit<ome.units.quantity.Frequency> units =
+                ome.xml.model.enums.handlers.UnitsFrequencyEnumHandler
+                        .getBaseUnit(makeFrequencyUnitXML(unit));
+        return new ome.units.quantity.Frequency(d, units);
+    }
+
+    /**
+     * FIXME: this should likely take a default so that locations which don't
+     * want an exception can have
+     *
+     * log.warn("Using new PositiveFloat(1.0)!", e); return new
+     * PositiveFloat(1.0);
+     *
+     * or similar.
+     */
+    public static ome.units.quantity.Frequency convertFrequency(Frequency t) {
+        if (t == null) {
+            return null;
+        }
+
+        Double length = t.getValue();
+        String u = t.getUnit().getValue();
+        ome.xml.model.enums.UnitsFrequency units = makeFrequencyUnitXML(u);
+        ome.units.unit.Unit<ome.units.quantity.Frequency> units2 =
+                ome.xml.model.enums.handlers.UnitsFrequencyEnumHandler
+                        .getBaseUnit(units);
+
+        return new ome.units.quantity.Frequency(length, units2);
+    }
+
+    public static Frequency convertFrequency(Frequency value, Unit<ome.units.quantity.Frequency> ul) {
+        return convertFrequency(value, ul.getSymbol());
+    }
+
+    public static Frequency convertFrequency(Frequency value, String target) {
+        String source = value.getUnit().getValue();
+        if (target.equals(source)) {
+            return value;
+        }
+        throw new RuntimeException(String.format(
+                "%d %s cannot be converted to %s", value.getValue(), source));
+    }
+
     // ~ Constructors
     // =========================================================================
+
+    /**
+     * no-arg constructor to keep Hibernate happy.
+     */
+    @Deprecated
+    public Frequency() {
+        // no-op
+    }
+
+    public Frequency(double d, String u) {
+        this.value = d;
+        this.unit = UnitsFrequency.valueOf(u);
+    }
 
     public Frequency(double d, UnitsFrequency u) {
         this.value = d;
         this.unit = u;
+    }
+
+    public Frequency(double d,
+            Unit<ome.units.quantity.Frequency> unit) {
+        this(d, UnitsFrequency.bySymbol(unit.getSymbol()));
+    }
+
+    public Frequency(ome.units.quantity.Frequency value) {
+        this(value.value().doubleValue(),
+            UnitsFrequency.bySymbol(value.unit().getSymbol()));
     }
 
     // ~ Fields

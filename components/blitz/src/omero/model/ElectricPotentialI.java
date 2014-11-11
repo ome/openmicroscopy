@@ -104,9 +104,7 @@ public class ElectricPotentialI extends ElectricPotential implements ModelBased 
     @Override
     public Filterable fillObject(ReverseModelMapper mapper) {
         ome.model.enums.UnitsElectricPotential ut = ome.model.enums.UnitsElectricPotential.valueOf(getUnit().toString());
-        ome.model.units.ElectricPotential t = new ome.model.units.ElectricPotential();
-        t.setValue(getValue());
-        t.setUnit(ut);
+        ome.model.units.ElectricPotential t = new ome.model.units.ElectricPotential(getValue(), ut);
         return t;
     }
 

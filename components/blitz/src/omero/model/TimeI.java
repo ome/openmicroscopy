@@ -104,9 +104,7 @@ public class TimeI extends Time implements ModelBased {
     @Override
     public Filterable fillObject(ReverseModelMapper mapper) {
         ome.model.enums.UnitsTime ut = ome.model.enums.UnitsTime.valueOf(getUnit().toString());
-        ome.model.units.Time t = new ome.model.units.Time();
-        t.setValue(getValue());
-        t.setUnit(ut);
+        ome.model.units.Time t = new ome.model.units.Time(getValue(), ut);
         return t;
     }
 

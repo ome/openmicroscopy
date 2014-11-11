@@ -659,8 +659,7 @@ public class UpdateTest extends AbstractUpdateTest {
     public void testRoiWithStrokeWidth() {
         Roi r = new Roi();
         Line l = new Line();
-        l.setStrokeWidth(new Length());
-        l.getStrokeWidth().setValue(1.0);
+        l.setStrokeWidth(new Length(1.0, "mm"));
         r.addShape(l);
         iUpdate.saveAndReturnObject(r);
     }

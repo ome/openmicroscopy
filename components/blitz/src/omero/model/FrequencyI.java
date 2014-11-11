@@ -104,9 +104,7 @@ public class FrequencyI extends Frequency implements ModelBased {
     @Override
     public Filterable fillObject(ReverseModelMapper mapper) {
         ome.model.enums.UnitsFrequency ut = ome.model.enums.UnitsFrequency.valueOf(getUnit().toString());
-        ome.model.units.Frequency t = new ome.model.units.Frequency();
-        t.setValue(getValue());
-        t.setUnit(ut);
+        ome.model.units.Frequency t = new ome.model.units.Frequency(getValue(), ut);
         return t;
     }
 

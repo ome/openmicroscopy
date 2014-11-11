@@ -7,8 +7,6 @@
 
 package omeis.providers.re;
 
-import static omeis.providers.re.UnitsFactory.makeLength;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -346,25 +344,25 @@ public class ColorsFactory {
     	TransmittanceRange transmittance = filter.getTransmittanceRange();
     	if (transmittance == null) return null;
     	Length cutIn = transmittance.getCutIn();
-    	
+
     	if (emission) {
     		if (cutIn == null) return null;
-        	return makeLength(cutIn.getValue()+RANGE, cutIn.getUnit());
+        	return new Length(cutIn.getValue()+RANGE, cutIn.getUnit());
     	}
     	Length cutOut = transmittance.getCutOut();
     	if (cutOut == null) return null;
     	if (cutIn == null || cutIn.getValue() == 0)
-    	    cutIn = makeLength(cutOut.getValue()-2*RANGE, cutOut.getUnit());
+    	    cutIn = new Length(cutOut.getValue()-2*RANGE, cutOut.getUnit());
     	// FIXME: are these in the same unit?
-    	Length v = makeLength((cutIn.getValue()+cutOut.getValue()/2), cutOut.getUnit());
-    	if (v.getValue() < 0) return makeLength(0, cutOut.getUnit());
+    	Length v = new Length((cutIn.getValue()+cutOut.getValue()/2), cutOut.getUnit());
+    	if (v.getValue() < 0) return new Length(0, cutOut.getUnit());
     	return v;
     }
-    
+
     /**
      * Returns <code>true</code> if the channel has emission metadata,
      * <code>false</code> otherwise.
-     * 
+     *
      * @param f The filter to handle.
      * @return See above.
      */

@@ -24,6 +24,9 @@ import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
+import ome.units.unit.Unit;
+import ome.xml.model.enums.EnumerationException;
+
 import ome.model.enums.UnitsElectricPotential;
 import ome.util.Filter;
 import ome.util.Filterable;
@@ -49,12 +52,88 @@ public class ElectricPotential implements Serializable, Filterable {
 
     public final static String UNIT = "ome.model.units.ElectricPotential_unit";
 
+    public static ome.xml.model.enums.UnitsElectricPotential makeElectricPotentialUnitXML(String unit) {
+        try {
+            return ome.xml.model.enums.UnitsElectricPotential
+                    .fromString((String) unit);
+        } catch (EnumerationException e) {
+            throw new RuntimeException("Bad ElectricPotential unit: " + unit, e);
+        }
+    }
+
+    public static ome.units.quantity.ElectricPotential makeElectricPotentialXML(double d, String unit) {
+        ome.units.unit.Unit<ome.units.quantity.ElectricPotential> units =
+                ome.xml.model.enums.handlers.UnitsElectricPotentialEnumHandler
+                        .getBaseUnit(makeElectricPotentialUnitXML(unit));
+        return new ome.units.quantity.ElectricPotential(d, units);
+    }
+
+    /**
+     * FIXME: this should likely take a default so that locations which don't
+     * want an exception can have
+     *
+     * log.warn("Using new PositiveFloat(1.0)!", e); return new
+     * PositiveFloat(1.0);
+     *
+     * or similar.
+     */
+    public static ome.units.quantity.ElectricPotential convertElectricPotential(ElectricPotential t) {
+        if (t == null) {
+            return null;
+        }
+
+        Double length = t.getValue();
+        String u = t.getUnit().getValue();
+        ome.xml.model.enums.UnitsElectricPotential units = makeElectricPotentialUnitXML(u);
+        ome.units.unit.Unit<ome.units.quantity.ElectricPotential> units2 =
+                ome.xml.model.enums.handlers.UnitsElectricPotentialEnumHandler
+                        .getBaseUnit(units);
+
+        return new ome.units.quantity.ElectricPotential(length, units2);
+    }
+
+    public static ElectricPotential convertElectricPotential(ElectricPotential value, Unit<ome.units.quantity.ElectricPotential> ul) {
+        return convertElectricPotential(value, ul.getSymbol());
+    }
+
+    public static ElectricPotential convertElectricPotential(ElectricPotential value, String target) {
+        String source = value.getUnit().getValue();
+        if (target.equals(source)) {
+            return value;
+        }
+        throw new RuntimeException(String.format(
+                "%d %s cannot be converted to %s", value.getValue(), source));
+    }
+
     // ~ Constructors
     // =========================================================================
+
+    /**
+     * no-arg constructor to keep Hibernate happy.
+     */
+    @Deprecated
+    public ElectricPotential() {
+        // no-op
+    }
+
+    public ElectricPotential(double d, String u) {
+        this.value = d;
+        this.unit = UnitsElectricPotential.valueOf(u);
+    }
 
     public ElectricPotential(double d, UnitsElectricPotential u) {
         this.value = d;
         this.unit = u;
+    }
+
+    public ElectricPotential(double d,
+            Unit<ome.units.quantity.ElectricPotential> unit) {
+        this(d, UnitsElectricPotential.bySymbol(unit.getSymbol()));
+    }
+
+    public ElectricPotential(ome.units.quantity.ElectricPotential value) {
+        this(value.value().doubleValue(),
+            UnitsElectricPotential.bySymbol(value.unit().getSymbol()));
     }
 
     // ~ Fields

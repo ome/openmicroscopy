@@ -104,9 +104,7 @@ public class TemperatureI extends Temperature implements ModelBased {
     @Override
     public Filterable fillObject(ReverseModelMapper mapper) {
         ome.model.enums.UnitsTemperature ut = ome.model.enums.UnitsTemperature.valueOf(getUnit().toString());
-        ome.model.units.Temperature t = new ome.model.units.Temperature();
-        t.setValue(getValue());
-        t.setUnit(ut);
+        ome.model.units.Temperature t = new ome.model.units.Temperature(getValue(), ut);
         return t;
     }
 

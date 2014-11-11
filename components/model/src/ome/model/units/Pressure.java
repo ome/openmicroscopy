@@ -24,6 +24,9 @@ import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
+import ome.units.unit.Unit;
+import ome.xml.model.enums.EnumerationException;
+
 import ome.model.enums.UnitsPressure;
 import ome.util.Filter;
 import ome.util.Filterable;
@@ -49,12 +52,88 @@ public class Pressure implements Serializable, Filterable {
 
     public final static String UNIT = "ome.model.units.Pressure_unit";
 
+    public static ome.xml.model.enums.UnitsPressure makePressureUnitXML(String unit) {
+        try {
+            return ome.xml.model.enums.UnitsPressure
+                    .fromString((String) unit);
+        } catch (EnumerationException e) {
+            throw new RuntimeException("Bad Pressure unit: " + unit, e);
+        }
+    }
+
+    public static ome.units.quantity.Pressure makePressureXML(double d, String unit) {
+        ome.units.unit.Unit<ome.units.quantity.Pressure> units =
+                ome.xml.model.enums.handlers.UnitsPressureEnumHandler
+                        .getBaseUnit(makePressureUnitXML(unit));
+        return new ome.units.quantity.Pressure(d, units);
+    }
+
+    /**
+     * FIXME: this should likely take a default so that locations which don't
+     * want an exception can have
+     *
+     * log.warn("Using new PositiveFloat(1.0)!", e); return new
+     * PositiveFloat(1.0);
+     *
+     * or similar.
+     */
+    public static ome.units.quantity.Pressure convertPressure(Pressure t) {
+        if (t == null) {
+            return null;
+        }
+
+        Double length = t.getValue();
+        String u = t.getUnit().getValue();
+        ome.xml.model.enums.UnitsPressure units = makePressureUnitXML(u);
+        ome.units.unit.Unit<ome.units.quantity.Pressure> units2 =
+                ome.xml.model.enums.handlers.UnitsPressureEnumHandler
+                        .getBaseUnit(units);
+
+        return new ome.units.quantity.Pressure(length, units2);
+    }
+
+    public static Pressure convertPressure(Pressure value, Unit<ome.units.quantity.Pressure> ul) {
+        return convertPressure(value, ul.getSymbol());
+    }
+
+    public static Pressure convertPressure(Pressure value, String target) {
+        String source = value.getUnit().getValue();
+        if (target.equals(source)) {
+            return value;
+        }
+        throw new RuntimeException(String.format(
+                "%d %s cannot be converted to %s", value.getValue(), source));
+    }
+
     // ~ Constructors
     // =========================================================================
+
+    /**
+     * no-arg constructor to keep Hibernate happy.
+     */
+    @Deprecated
+    public Pressure() {
+        // no-op
+    }
+
+    public Pressure(double d, String u) {
+        this.value = d;
+        this.unit = UnitsPressure.valueOf(u);
+    }
 
     public Pressure(double d, UnitsPressure u) {
         this.value = d;
         this.unit = u;
+    }
+
+    public Pressure(double d,
+            Unit<ome.units.quantity.Pressure> unit) {
+        this(d, UnitsPressure.bySymbol(unit.getSymbol()));
+    }
+
+    public Pressure(ome.units.quantity.Pressure value) {
+        this(value.value().doubleValue(),
+            UnitsPressure.bySymbol(value.unit().getSymbol()));
     }
 
     // ~ Fields
