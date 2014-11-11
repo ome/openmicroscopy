@@ -27,8 +27,6 @@ import test.integration.library as lib
 import pytest
 import omero
 
-from omero.rtypes import unwrap
-
 
 class TestModel51(lib.ITest):
 
