@@ -59,6 +59,7 @@ import ome.model.stats.StatsInfo;
 import ome.system.ServiceFactory;
 import ome.conditions.ApiUsageException;
 import ome.util.LSID;
+import ome.util.SqlAction;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,6 +86,8 @@ public class OMEROMetadataStore
 
     /** OMERO service factory; all other services are retrieved from here. */
     private ServiceFactory sf;
+
+    private SqlAction sql;
 
     /** A map of imageIndex vs. Image object ordered by first access. */
     private Map<Integer, Image> imageList = 
@@ -1841,12 +1844,13 @@ public class OMEROMetadataStore
      * @throws MetadataStoreException if the factory is null or there
      *             is another error instantiating required services.
      */
-    public OMEROMetadataStore(ServiceFactory factory)
+    public OMEROMetadataStore(ServiceFactory factory, SqlAction sql)
     	throws Exception
     {
-        if (factory == null)
-            throw new Exception("Factory argument cannot be null.");
+        if (factory == null || sql == null)
+            throw new Exception("arguments cannot be null.");
         sf = factory;
+        this.sql = sql;
     }
 
     /*
@@ -2147,7 +2151,6 @@ public class OMEROMetadataStore
      */
     public void populateMinMax(double[][][] imageChannelGlobalMinMax)
     {
-    	List<Channel> channelList = new ArrayList<Channel>();
     	double[][] channelGlobalMinMax;
     	double[] globalMinMax;
     	Channel channel;
@@ -2165,12 +2168,8 @@ public class OMEROMetadataStore
     			statsInfo = new StatsInfo();
     			statsInfo.setGlobalMin(globalMinMax[0]);
     			statsInfo.setGlobalMax(globalMinMax[1]);
-    			channel.setStatsInfo(statsInfo);
-    			channel.setPixels(unloadedPixels);
-    			channelList.add(channel);
+    			sql.setStatsInfo(channel, statsInfo);
     		}
     	}
-    	Channel[] toSave = channelList.toArray(new Channel[channelList.size()]);
-    	sf.getUpdateService().saveArray(toSave);
     }
 }
