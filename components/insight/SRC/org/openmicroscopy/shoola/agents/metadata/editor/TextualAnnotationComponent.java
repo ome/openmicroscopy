@@ -28,14 +28,17 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -43,13 +46,19 @@ import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JTextArea;
 
 //Third-party libraries
+
+
+
+
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
+
 import pojos.TextualAnnotationData;
 
 /** 
@@ -77,7 +86,7 @@ class TextualAnnotationComponent
 	private static final int DELETE = 1;
 	
 	/** Area displaying the textual annotation. */
-	private OMEWikiComponent 		area;
+	private JTextArea 		area;
 	
 	/** The annotation to handle. */
 	private TextualAnnotationData	data;
@@ -109,18 +118,14 @@ class TextualAnnotationComponent
 	/** Initializes the UI components. */
 	private void initialize()
 	{
-		area = new OMEWikiComponent(false);
+		area = new JTextArea();
         area.setEnabled(false);
         area.setOpaque(true);
 		area.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
         area.setText(data.getText());
-        //area.wrapText(getSize().width);
-        addComponentListener(new ComponentAdapter() {
+        area.setLineWrap(true);
+        area.setWrapStyleWord(true);
 
-			public void componentResized(ComponentEvent e) {
-				area.wrapText(getSize().width, null);
-			}
-		});
 		IconManager icons = IconManager.getInstance();
 		if (model.canEdit(data)) {
 			
@@ -184,13 +189,17 @@ class TextualAnnotationComponent
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		//if (menuButton != null) add(menuButton);
-		JPanel p = new JPanel();
-		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		p.add(buildToolBar());
-		p.add(area);
-		add(p);
+		setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		c.gridy = 0;
+		c.weightx = 1;
+		
+		add(buildToolBar(), c);
+		c.gridy++;
+		
+		add(area, c);
 	}
 	
 	/**
