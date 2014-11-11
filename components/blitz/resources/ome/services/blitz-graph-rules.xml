@@ -144,9 +144,9 @@
         <bean parent="graphPolicyRule" p:matches="T:Thumbnail[E]{r}/!o.pixels = Pixels/o" p:changes="T:{o}/n"/>
         <bean parent="graphPolicyRule" p:matches="POFM:PixelsOriginalFileMap.parent = OF:[E]{r}, POFM.child = Pixels[E]/o"
                                        p:changes="OF:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="L:ILink.child = C:[E]{r}/!d" p:changes="C:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [E]/o, L.child = C:[E]{r}" p:changes="C:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="!ILink[E]{ia} = X:[E]{r}" p:changes="X:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink[!D].child = C:[E]{r}/!d" p:changes="C:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink[!D].parent = [E]/o, L.child = C:[E]{r}" p:changes="C:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="!ILink[E]{ia} = X:!ILink[E]{r}" p:changes="X:{a}"/>
         <bean parent="graphPolicyRule" p:matches="X:[E]{r} == [E]{a}" p:changes="X:{a}"/>
         <bean parent="graphPolicyRule" p:matches="[DI].instrument == I:Instrument[E]{r}" p:changes="I:{a}"/>
         <bean parent="graphPolicyRule" p:matches="C:Channel[E]{r}.pixels = Pixels[E]{i}" p:changes="C:{a}"/>
@@ -209,10 +209,10 @@
         <bean parent="graphPolicyRule" p:matches="T:Thumbnail[E]{r}/!d.pixels = Pixels/d" p:changes="T:{o}/n"/>
         <bean parent="graphPolicyRule" p:matches="POFM:PixelsOriginalFileMap.parent = OF:[E]{r}, POFM.child = Pixels[E]/d"
                                        p:changes="OF:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="L:ILink.child = C:[E]{r}/!d" p:changes="C:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [E]/d, L.child = C:[E]{r}" p:changes="C:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [E], L.child = C:TagAnnotation[E]{r}" p:changes="C:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="!ILink[E]{ia} = X:[E]{r}" p:changes="X:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink[!D].child = C:[E]{r}/!d" p:changes="C:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink[!D].parent = [E]/d, L.child = C:[E]{r}" p:changes="C:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink[!D].parent = [E], L.child = C:TagAnnotation[E]{r}" p:changes="C:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="!ILink[E]{ia} = X:!ILink[E]{r}" p:changes="X:{a}"/>
         <bean parent="graphPolicyRule" p:matches="X:[E]{r} == [E]{a}" p:changes="X:{a}"/>
         <bean parent="graphPolicyRule" p:matches="[D].instrument == I:Instrument[E]{r}" p:changes="I:{a}"/>
         <bean parent="graphPolicyRule" p:matches="L:ILink[E]{a}.parent = [D]" p:changes="L:[D]/n"/>
