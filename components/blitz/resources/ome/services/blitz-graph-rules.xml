@@ -92,6 +92,8 @@
         <bean parent="graphPolicyRule" p:matches="L:ILink[!I].parent = [DI], L.child = C:[E]/!o" p:changes="L:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="[I] == X:[E]{o}" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="[I] == X:[D]" p:changes="X:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="F:Fileset[E]{r}.images = Image[E]{i}" p:changes="F:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="F:Fileset[E]{r}.images = Image[D]" p:changes="F:{a}"/>
         <bean parent="graphPolicyRule" p:matches="I:Image[E]{!a}.rois = [DI]" p:changes="I:{a}"/>
         <bean parent="graphPolicyRule" p:matches="I:Image[E]{!a}.stageLabel = [DI]" p:changes="I:{a}"/>
         <bean parent="graphPolicyRule" p:matches="P:Pixels[E]{!a}.relatedTo = [DI]" p:changes="P:{a}"/>
@@ -122,8 +124,6 @@
         <bean parent="graphPolicyRule" p:matches="Fileset[I] = I:Image[ED].fileset" p:changes="I:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Fileset[D] = I:Image[E].fileset" p:changes="I:[D]"/>
         <bean parent="graphPolicyRule" p:matches="F:Fileset[E]{i}.images = Image[I]" p:changes="F:{r}"/>
-        <bean parent="graphPolicyRule" p:matches="F:Fileset[E]{r}.images = Image[E]{i}" p:changes="F:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="F:Fileset[E]{r}.images = Image[D]" p:changes="F:{a}"/>
         <bean parent="graphPolicyRule" p:matches="F:Fileset[E]{o}.images = Image[I]" p:changes="F:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Fileset[I] = E:FilesetEntry[ED].fileset" p:changes="E:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Pixels[I].channels = C:Channel[ED]" p:changes="C:[I]"/>
@@ -174,6 +174,7 @@
         <bean parent="graphPolicyRule" p:matches="L:ILink[E].parent = [E], L.child = C:[D]" p:changes="L:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:ILink[!D].parent = [D], L.child = [D]" p:changes="L:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:ILink[!O]" p:changes="L:[*]"/>
+        <bean parent="graphPolicyRule" p:matches="F:Fileset[E]{r}.images = Image[E]{i}" p:changes="F:{a}"/>
         <bean parent="graphPolicyRule" p:matches="I:Image[E]{!a}.rois = [D]" p:changes="I:{a}"/>
         <bean parent="graphPolicyRule" p:matches="I:Image[E]{!a}.stageLabel = [D]" p:changes="I:{a}"/>
         <bean parent="graphPolicyRule" p:matches="P:Pixels[E]{!a}.relatedTo = [D]" p:changes="P:{a}"/>
@@ -199,7 +200,6 @@
         <bean parent="graphPolicyRule" p:matches="X:!ILink[E]/!d == [D]" p:changes="X:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="Fileset[D] = I:Image[E].fileset" p:changes="I:[D]"/>
         <bean parent="graphPolicyRule" p:matches="F:Fileset[E]{i}.images = Image[D]" p:changes="F:{r}"/>
-        <bean parent="graphPolicyRule" p:matches="F:Fileset[E]{r}.images = Image[E]{i}" p:changes="F:{a}"/>
         <bean parent="graphPolicyRule" p:matches="F:Fileset[E]{o}.images = Image[D]" p:changes="F:[D]"/>
         <bean parent="graphPolicyRule" p:matches="PlateAcquisition[D].wellSample = WS:WellSample[E]" p:changes="WS:[D]"/>
         <bean parent="graphPolicyRule" p:matches="Well[D].wellSamples = WS:WellSample[E]" p:changes="WS:[D]"/>
