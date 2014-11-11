@@ -5,12 +5,16 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  *
  */
+
+#include <omero/IceNoWarnPush.h>
 #include <IceUtil/UUID.h>
 #include <Glacier2/Glacier2.h>
-#include <omero/fixture.h>
-#include <time.h>
 #include <omero/Collections.h>
 #include <omero/api/IAdmin.h>
+#include <omero/IceNoWarnPop.h>
+
+#include <omero/fixture.h>
+#include <time.h>
 #include <omero/model/ImageI.h>
 #include <omero/model/ImageAnnotationLinkI.h>
 #include <omero/model/BooleanAnnotationI.h>
@@ -30,33 +34,37 @@ using namespace omero::model;
 using namespace omero::rtypes;
 using namespace omero::sys;
 
-void byAnnotatedWith(SearchPrx search, AnnotationPtr a) {
+static void byAnnotatedWith(SearchPrx search, AnnotationPtr a) {
     omero::api::AnnotationList list;
     list.push_back(a);
     search->byAnnotatedWith(list);
 }
-omero::sys::LongList ids(long id){
+
+static omero::sys::LongList ids(long id){
     omero::sys::LongList ll;
     ll.push_back(id);
     return ll;
 }
-omero::sys::LongList ids(long id, long id2){
+
+static omero::sys::LongList ids(long id, long id2){
     omero::sys::LongList ll = ids(id);
     ll.push_back(id2);
     return ll;
 }
-StringSet stringSet(string s) {
+
+static StringSet stringSet(string s) {
     StringSet ss;
     ss.push_back(s);
     return ss;
 }
-StringSet stringSet(string s, string s2){
+
+static StringSet stringSet(string s, string s2){
     StringSet ss = stringSet(s);
     ss.push_back(s2);
     return ss;
 }
 
-StringSet stringSet(string s, string s2, string s3){
+static StringSet stringSet(string s, string s2, string s3){
     StringSet ss = stringSet(s, s2);
     ss.push_back(s3);
     return ss;
@@ -104,7 +112,7 @@ public:
 /*
  * Clears one result from the current queue.
  */
-void
+static void
 assertResults(int count, SearchPrx& search, bool exact = true)
 {
     if (count > 0) {
@@ -121,7 +129,7 @@ assertResults(int count, SearchPrx& search, bool exact = true)
     }
 }
 
-void
+static void
 assertAtLeastResults(int count, SearchPrx& search)
 {
   assertResults(count, search, false);
@@ -465,7 +473,7 @@ namespace
             v.push_back(s1);
         if (s2)
             v.push_back(s2);
-    
+
         return v;
     }
 }
@@ -1621,12 +1629,12 @@ TEST(SearchTest, DISABLED_testOrderBy) {
 
     SearchFixture f;
     f.login();
-    
+
     string uuid = f.uuid();
-    
+
     TagAnnotationIPtr tag = new TagAnnotationI();
     tag->setTextValue(rstring(uuid));
-    
+
     // create some test images
     vector<ImagePtr> images;
     for (int i = 0; i < 2; ++i) {
@@ -1637,13 +1645,13 @@ TEST(SearchTest, DISABLED_testOrderBy) {
         image->setDescription(rstring(desc));
         image->linkAnnotation(tag);
         images.push_back(image);
-        
+
         images[i] = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(images[i]));
     }
-    
+
     for (size_t i = 0; i < images.size(); i++)
         f.rootUpdate()->indexObject(images[i]);
-    
+
     tag = new TagAnnotationI();
     tag->setTextValue(rstring(uuid));
 
@@ -1653,11 +1661,11 @@ TEST(SearchTest, DISABLED_testOrderBy) {
     // Order by description
     search->unordered();
     search->addOrderByDesc("description");
-    
+
     // full text
     search->byFullText(uuid);
     assertImageResults(images, search, false);
-    
+
     // annotated with
     byAnnotatedWith(search, tag);
     assertImageResults(images, search, true);
@@ -1665,11 +1673,11 @@ TEST(SearchTest, DISABLED_testOrderBy) {
     // Order by descript asc
     search->unordered();
     search->addOrderByAsc("description");
-    
+
     // full text
     search->byFullText(uuid);
     assertImageResults(images, search, false);
-    
+
     // annotated with
     byAnnotatedWith(search, tag);
     assertImageResults(images, search, false);
@@ -1677,11 +1685,11 @@ TEST(SearchTest, DISABLED_testOrderBy) {
     // Ordered by id
     search->unordered();
     search->addOrderByDesc("id");
-    
+
     // full text
     search->byFullText(uuid);
     assertImageResults(images, search, false);
-    
+
     // annotated with
     byAnnotatedWith(search, tag);
     assertImageResults(images, search, true);
@@ -1689,11 +1697,11 @@ TEST(SearchTest, DISABLED_testOrderBy) {
     // Ordered by creation event id
     search->unordered();
     search->addOrderByDesc("details.creationEvent.id");
-    
+
     // full text
     search->byFullText(uuid);
     assertImageResults(images, search, false);
-    
+
     // annotated with
     byAnnotatedWith(search, tag);
     assertImageResults(images, search, true);
@@ -1701,7 +1709,7 @@ TEST(SearchTest, DISABLED_testOrderBy) {
     // ordered by creation event time
     search->unordered();
     search->addOrderByDesc("details.creationEvent.time");
-    
+
     // annotated with
     byAnnotatedWith(search, tag);
     assertImageResults(images, search, true);
@@ -1716,9 +1724,9 @@ TEST(SearchTest, DISABLED_testOrderBy) {
     i3->linkAnnotation(tag);
     i3 = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i3));
     images.push_back(i3);
-    
+
     f.rootUpdate()->indexObject(i3);
-    
+
     tag = new TagAnnotationI();
     tag->setTextValue(rstring(uuid));
 
@@ -1726,12 +1734,12 @@ TEST(SearchTest, DISABLED_testOrderBy) {
     search->unordered();
     search->addOrderByAsc("description");
     search->addOrderByDesc("id");
-    
+
     // annotated with
     byAnnotatedWith(search, tag);
     int is[] = {2, 0, 1};
     assertImageResultsList(images, search, is);
-    
+
     // full text
     search->byFullText(uuid);
     assertImageResults(images, search, false);

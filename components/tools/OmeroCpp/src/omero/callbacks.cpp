@@ -77,17 +77,17 @@ namespace omero {
             return result; // Possibly empty
         }
 
-        void ProcessCallbackI::processCancelled(bool success, const Ice::Current& current) {
+        void ProcessCallbackI::processCancelled(bool /*success*/, const Ice::Current&) {
             result = CANCELLED;
             event.set();
         }
 
-        void ProcessCallbackI::processFinished(int returncode, const Ice::Current& current) {
+        void ProcessCallbackI::processFinished(int /*returncode*/, const Ice::Current&) {
             result = FINISHED;
             event.set();
         }
 
-        void ProcessCallbackI::processKilled(bool success, const Ice::Current& current) {
+        void ProcessCallbackI::processKilled(bool /*success*/, const Ice::Current&) {
             result = KILLED;
             event.set();
         }
@@ -184,7 +184,7 @@ namespace omero {
             pollThread = new PollThread(this);
             pollThread->start();
         }
-        
+
         void CmdCallbackI::close() {
             if (adapter) {
                 adapter->remove(id); // OK ADAPTER USAGE
@@ -263,17 +263,17 @@ namespace omero {
 
         void CmdCallbackI::poll() {
             IceUtil::RecMutex::Lock lock(mutex);
-            
+
             omero::cmd::ResponsePtr rsp = handle->getResponse();
             if (rsp) {
                 omero::cmd::StatusPtr s = handle->getStatus();
                 finished(rsp, s, Ice::Current()); // Only time that current should be null.
             }
-            
+
             pollThread = NULL;
         }
 
-        void CmdCallbackI::step(int complete, int total, const Ice::Current& current) {
+        void CmdCallbackI::step(int /*complete*/, int /*total*/, const Ice::Current&) {
             // no-op
         }
 
@@ -285,8 +285,8 @@ namespace omero {
             onFinished(rsp, status, current);
         }
 
-        void CmdCallbackI::onFinished(const omero::cmd::ResponsePtr& rsp,
-                const omero::cmd::StatusPtr& status, const Ice::Current& current) {
+        void CmdCallbackI::onFinished(const omero::cmd::ResponsePtr&,
+                const omero::cmd::StatusPtr&, const Ice::Current&) {
             // no-op
         }
     }

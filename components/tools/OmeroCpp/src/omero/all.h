@@ -7,6 +7,7 @@
 #ifndef OMERO_IMPORT_STYLE
 #define OMERO_IMPORT_STYLE 'A'
 #include<omero/min.h>
+#include<omero/IceNoWarnPush.h>
 #include<omero/Repositories.h>
 #include<omero/SharedResources.h>
 #include<omero/Scripts.h>
@@ -40,4 +41,5 @@
 #include<omero/api/RenderingEngine.h>
 #include<omero/api/Search.h>
 #include<omero/api/ThumbnailStore.h>
+#include<omero/IceNoWarnPop.h>
 #endif

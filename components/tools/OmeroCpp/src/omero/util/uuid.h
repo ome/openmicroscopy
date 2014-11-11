@@ -5,7 +5,9 @@
 #ifndef OMERO_UUID_H
 #define OMERO_UUID_H
 
+#include <omero/IceNoWarnPush.h>
 #include <Ice/Ice.h>
+#include <omero/IceNoWarnPop.h>
 #include <string>
 
 #ifndef OMERO_CLIENT

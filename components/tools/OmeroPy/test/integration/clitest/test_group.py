@@ -77,6 +77,15 @@ class TestGroup(CLITest):
             groups.sort(key=lambda x: x.id.val)
         assert ids == [group.id.val for group in groups]
 
+    def testAddAdminOnly(self, capsys):
+        group_name = self.uuid()
+        self.args += ["add", group_name]
+
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
+        out, err = capsys.readouterr()
+        assert err.endswith("SecurityViolation: Admins only!\n")
+
 
 class TestGroupRoot(RootCLITest):
 

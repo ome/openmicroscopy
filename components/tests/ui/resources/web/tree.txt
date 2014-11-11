@@ -90,14 +90,14 @@ Key Down
     Execute Javascript    var e = jQuery.Event("keydown");e.which = 40;$("${cssSelector}").trigger(e);
 
 Popup Menu Item Should Be Enabled
-    [Arguments]                 ${menuItem}    ${enabled}
+    [Arguments]                         ${menuItem}    ${enabled}
     # Right Click on the currently selected tree node ('tree-clicked')
-    Open Context Menu           xpath=//a[contains(@class, 'tree-clicked')]
-    Element Should Be Visible   vakata-contextmenu
-    Run Keyword If              ${enabled}     Xpath Should Match X Times    //li[contains(@class, 'jstree-contextmenu-disabled')]/a[contains(text(), '${menuItem}')]    0
-    ...                         ELSE           Xpath Should Match X Times    //li[contains(@class, 'jstree-contextmenu-disabled')]/a[contains(text(), '${menuItem}')]    1
+    Open Context Menu                   xpath=//a[contains(@class, 'tree-clicked')]
+    Wait Until Page Contains Element    vakata-contextmenu
+    Run Keyword If                      ${enabled}     Xpath Should Match X Times    //li[contains(@class, 'jstree-contextmenu-disabled')]/a[contains(text(), '${menuItem}')]    0
+    ...                                 ELSE           Xpath Should Match X Times    //li[contains(@class, 'jstree-contextmenu-disabled')]/a[contains(text(), '${menuItem}')]    1
     # Click elsewhere to hide the context menu
-    Click Element               content
+    Click Element                       content
 
 Select Experimenter
     Select Node By Id    experimenter-0
