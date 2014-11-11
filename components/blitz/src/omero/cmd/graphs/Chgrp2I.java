@@ -227,13 +227,14 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
      */
     private final class InternalProcessor extends BaseGraphTraversalProcessor {
 
+        private final ExperimenterGroup group = new ExperimenterGroup(groupId, false);
+
         public InternalProcessor() {
             super(helper.getSession());
         }
 
         @Override
         public void processInstances(String className, Collection<Long> ids) {
-            final ExperimenterGroup group = (ExperimenterGroup) session.load(ExperimenterGroup.class, groupId);
             final String update = "UPDATE " + className + " SET details.group = :group WHERE id IN (:ids)";
             session.createQuery(update).setParameter("group", group).setParameterList("ids", ids).executeUpdate();
         }
