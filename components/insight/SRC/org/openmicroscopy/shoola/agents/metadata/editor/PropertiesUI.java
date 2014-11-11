@@ -37,6 +37,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
@@ -116,7 +118,7 @@ import pojos.WellSampleData;
  */
 public class PropertiesUI
 	extends AnnotationUI
-	implements ActionListener, DocumentListener, FocusListener, 
+	implements DocumentListener, FocusListener, 
 	PropertyChangeListener
 {
     
@@ -132,23 +134,11 @@ public class PropertiesUI
     /** The text for the owner. */
     private static final String OWNER_TEXT = "Owner: ";
     
-    /** Action ID indicating to edit the name.*/
-    private static final int	EDIT_NAME = 0;
-    
-    /** Action ID indicating to edit the description.*/
-    private static final int	EDIT_DESC = 1;
-    
-    /** Action ID indicating to edit the channels.*/
-    private static final int	EDIT_CHANNEL = 2;
-    
     /** Text indicating to edit the name.*/
     private static final String EDIT_NAME_TEXT = "Edit the name";
     
     /** Text indicating to edit the description.*/
     private static final String EDIT_DESC_TEXT = "Edit the description.";
-    
-    /** Text indicating to save the description.*/
-    private static final String SAVE_DESC_TEXT = "Save the description.";
     
     /**Text indicating to edit the channels.*/
     private static final String EDIT_CHANNEL_TEXT = "Edit the channels.";
@@ -232,9 +222,6 @@ public class PropertiesUI
 
 	/** ScrollPane hosting the {@link #descriptionWiki} component.*/
 	private JScrollPane			descriptionScrollPane;
-
-	/** Flag indicating that the name is editable mode or not.*/
-	private boolean editableName;
 	
 	/** Button to edit the channels. */
 	private JButton editChannel;
@@ -338,7 +325,6 @@ public class PropertiesUI
        	ownerLabel.setFont(f.deriveFont(Font.BOLD));
     	namePane = createTextPane();
     	namePane.setEditable(false);
-    	editableName = false;
     	typePane = createTextPane();
     	typePane.setEditable(false);
     	namePane.addFocusListener(this);
@@ -354,7 +340,7 @@ public class PropertiesUI
             @Override
             public void keyReleased(KeyEvent arg0) {
                 if(arg0.getKeyCode()==KeyEvent.VK_ENTER) {
-                    saveName();
+                	save();
                 }
             }
             
@@ -393,14 +379,45 @@ public class PropertiesUI
     	channelsPane = channelsArea;
     	IconManager icons = IconManager.getInstance();
 		editName = new JToggleButton(icons.getIcon(IconManager.EDIT_12));
-		formatButton(editName, EDIT_NAME_TEXT, EDIT_NAME);
+		formatButton(editName, EDIT_NAME_TEXT);
 		descriptionButtonEdit = new JToggleButton(icons.getIcon(IconManager.EDIT_12));
-		formatButton(descriptionButtonEdit, EDIT_DESC_TEXT, EDIT_DESC);
+		formatButton(descriptionButtonEdit, EDIT_DESC_TEXT);
 		
 		editChannel = new JButton(icons.getIcon(IconManager.EDIT_12));
-		formatButton(editChannel, EDIT_CHANNEL_TEXT, EDIT_CHANNEL);
-		editChannel.setEnabled(false);
+		formatButton(editChannel, EDIT_CHANNEL_TEXT);
 		descriptionWiki.setEnabled(false);
+		
+		ItemListener l = new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getSource() instanceof JToggleButton) {
+					JToggleButton b = (JToggleButton) e.getSource();
+					System.out.println(b.getToolTipText() + " "
+							+ b.isSelected());
+					if (b == editName) {
+						if (b.isSelected())
+							editField(namePanel, namePane);
+						else
+							save();
+					} else if (b == descriptionButtonEdit) {
+						if (b.isSelected()) {
+							expandDescriptionField(true);
+							editField(descriptionPanel, descriptionWiki);
+						} else
+							save();
+					}
+				}	
+			}
+		};
+		
+		editName.addItemListener(l);
+		descriptionButtonEdit.addItemListener(l);
+		
+		editChannel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				editChannels();
+			}
+		});
+		
     }
     
     /**
@@ -426,14 +443,12 @@ public class PropertiesUI
      * @param text The tool tip text.
      * @param actionID The action command id.
      */
-    private void formatButton(JButton button, String text, int actionID)
+    private void formatButton(JButton button, String text)
     {
     	button.setOpaque(false);
 		UIUtilities.unifiedButtonLookAndFeel(button);
 		button.setBackground(UIUtilities.BACKGROUND_COLOR);
 		button.setToolTipText(text);
-		button.addActionListener(this);
-		button.setActionCommand(""+actionID);
     }
     
     /**
@@ -443,14 +458,11 @@ public class PropertiesUI
      * @param text The tool tip text.
      * @param actionID The action command id.
      */
-    private void formatButton(JToggleButton button, String text, int actionID)
+    private void formatButton(JToggleButton button, String text)
     {
     	button.setOpaque(false);
-		//UIUtilities.unifiedButtonLookAndFeel(button);
 		button.setBackground(UIUtilities.BACKGROUND_COLOR);
 		button.setToolTipText(text);
-		button.addActionListener(this);
-		button.setActionCommand(""+actionID);
     }
     
     /**
@@ -1055,46 +1067,32 @@ public class PropertiesUI
 	 * @param editable	Pass <code>true</code> if  to <code>edit</code>,
 	 * 					<code>false</code> otherwise.
 	 */
-	private void editField(JPanel panel, JComponent field, boolean editable)
+	private void editField(JPanel panel, JComponent field)
 	{
 		if (field == namePane) {
-			//namePane.setEnabled(editable);
-			editableName = editable;
-			namePane.setEditable(editable);
-			if (editable) {
-				namePane.setBorder(EDIT_BORDER_BLACK);
-				field.requestFocus();
-			} else {
-				namePane.setBorder(defaultBorder);
-			}
+			namePane.setEditable(true);
+			namePane.setBorder(EDIT_BORDER_BLACK);
+			field.requestFocus();
+
 			namePane.getDocument().removeDocumentListener(this);
 			String text = namePane.getText();
 			if (text != null) 
 				text = text.trim();
-			if (editable) {
-				// the user might have finished editing by hitting return key, therefore
-				// remove line break characters
-				modifiedName = CharMatcher.JAVA_ISO_CONTROL.removeFrom(modifiedName);
-				namePane.setText(modifiedName);
-				namePane.setMaximumSize(namePane.getSize());
-				namePane.setLineWrap(true);
-			}
-			else {
-				namePane.setText(UIUtilities.formatPartialName(text));
-				namePane.setMaximumSize(null);
-				namePane.setLineWrap(false);
-			}
+			
+			// the user might have finished editing by hitting return key, therefore
+			// remove line break characters
+			modifiedName = CharMatcher.JAVA_ISO_CONTROL.removeFrom(modifiedName);
+			namePane.setText(modifiedName);
+			namePane.setMaximumSize(namePane.getSize());
+			namePane.setLineWrap(true);
+
 			namePane.getDocument().addDocumentListener(this);
 			namePane.select(0, 0);
 			namePane.setCaretPosition(0);
 		} else if (field == descriptionWiki) {
-			descriptionWiki.setEnabled(editable); //was editable
-			if (editable) {
-				descriptionScrollPane.setBorder(EDIT_BORDER_BLACK);
-				field.requestFocus();
-			} else {
-				descriptionScrollPane.setBorder(EDIT_BORDER);
-			}
+			descriptionWiki.setEnabled(true);
+			descriptionScrollPane.setBorder(EDIT_BORDER_BLACK);
+			field.requestFocus();
 		}
 	}
 	
@@ -1180,7 +1178,6 @@ public class PropertiesUI
         namePane.setEnabled(b);
         editName.setEnabled(b);
         descriptionButtonEdit.setEnabled(b);
-        editChannel.setEnabled(b);
     }
 
     /**
@@ -1190,7 +1187,6 @@ public class PropertiesUI
     protected void buildUI()
     {
         removeAll();
-        editableName = false;
         namePane.setEditable(false);
         Object refObject = model.getRefObject();
         text = model.getObjectTypeAsString(refObject);
@@ -1265,93 +1261,18 @@ public class PropertiesUI
 		expandDescriptionField(!originalDescription.equals(DEFAULT_DESCRIPTION_TEXT));
         boolean b = model.canEdit();
         descriptionButtonEdit.setEnabled(b);
+        descriptionButtonEdit.setSelected(false);
+        editName.setEnabled(b);
+        editName.setSelected(false);
         if (b) {
         	descriptionWiki.addDocumentListener(this);
         }
 	}
-
-	void saveName() {
-	    Object object =  model.getRefObject();
-            String name = modifiedName;
-            if (name != null) {
-                    if (name.equals(originalName) || name.equals(originalDisplayedName))
-                            name = "";
-            }
-            if (object instanceof ProjectData) {
-                    ProjectData p = (ProjectData) object;
-                    if (name.length() > 0) p.setName(name);
-            } else if (object instanceof DatasetData) {
-                    DatasetData p = (DatasetData) object;
-                    if (name.length() > 0) p.setName(name);
-            } else if (object instanceof ImageData) {
-                    ImageData p = (ImageData) object;
-                    if (name.length() > 0) p.setName(name);
-            } else if (object instanceof TagAnnotationData) {
-                    TagAnnotationData p = (TagAnnotationData) object;
-                    if (name.length() > 0) p.setTagValue(name);
-            } else if (object instanceof ScreenData) {
-                    ScreenData p = (ScreenData) object;
-                    if (name.length() > 0) p.setName(name);
-            } else if (object instanceof PlateData) {
-                    PlateData p = (PlateData) object;
-                    if (name.length() > 0) p.setName(name);
-            } else if (object instanceof WellSampleData) {
-                    WellSampleData well = (WellSampleData) object;
-                    ImageData img = well.getImage();
-                    if (name.length() > 0) img.setName(name);
-            } else if (object instanceof FileData) {
-                    FileData f = (FileData) object;
-                    if (f.getId() > 0) return;
-            } else if (object instanceof PlateAcquisitionData) {
-                    PlateAcquisitionData pa = (PlateAcquisitionData) object;
-                    if (name.length() > 0) pa.setName(name);
-            }
-	    model.fireAnnotationSaving(null, Collections.emptyList(), false);
-	    editName.setSelected(false);
-	    namePane.setBorder(defaultBorder);
-	}
 	
-	void saveDescription() {
-	    Object object =  model.getRefObject();
-            String value = descriptionWiki.getText().trim();
-            if (value == null) 
-            	value = "";
-            
-            if (value.equals(originalDescription))
-            	return;
-            
-            if (object instanceof ProjectData) {
-                    ProjectData p = (ProjectData) object;
-                    p.setDescription(value);
-            } else if (object instanceof DatasetData) {
-                    DatasetData p = (DatasetData) object;
-                    p.setDescription(value);
-            } else if (object instanceof ImageData) {
-                    ImageData p = (ImageData) object;
-                    p.setDescription(value);
-            } else if (object instanceof TagAnnotationData) {
-                    TagAnnotationData p = (TagAnnotationData) object;
-                    p.setTagDescription(value);
-            } else if (object instanceof ScreenData) {
-                    ScreenData p = (ScreenData) object;
-                    p.setDescription(value);
-            } else if (object instanceof PlateData) {
-                    PlateData p = (PlateData) object;
-                    p.setDescription(value);
-            } else if (object instanceof WellSampleData) {
-                    WellSampleData well = (WellSampleData) object;
-                    ImageData img = well.getImage();
-                    img.setDescription(value);
-            } else if (object instanceof FileData) {
-                    FileData f = (FileData) object;
-                    if (f.getId() > 0) return;
-            } else if (object instanceof PlateAcquisitionData) {
-                    PlateAcquisitionData pa = (PlateAcquisitionData) object;
-                    pa.setDescription(value);
-            }
-            model.fireAnnotationSaving(null, Collections.emptyList(), false);
-            descriptionButtonEdit.setSelected(false);
-        }
+	void save() {
+		updateDataObject();
+		model.fireAnnotationSaving(null, Collections.emptyList(), false);
+	}
 	
 	/** Updates the data object. */
 	void updateDataObject() 
@@ -1360,54 +1281,43 @@ public class PropertiesUI
 		Object object =  model.getRefObject();
 		String name = modifiedName;
 		String desc = descriptionWiki.getText().trim();
-		if (name != null) {
-			if (name.equals(originalName) || name.equals(originalDisplayedName))
-				name = "";
-		}
-		String value = desc;
-		if (desc != null) {
-			String v = OMEWikiComponent.prepare(originalDescription.trim(),
-					true);
-			String v2 = OMEWikiComponent.prepare(desc.trim(), true);
-			if (v2.equals(v)) value = "";
-		}
-		if (value == null) value = "";
+		if (desc == null) desc = "";
 		if (object instanceof ProjectData) {
 			ProjectData p = (ProjectData) object;
 			if (name.length() > 0) p.setName(name);
-			p.setDescription(value);
+			p.setDescription(desc);
 		} else if (object instanceof DatasetData) {
 			DatasetData p = (DatasetData) object;
 			if (name.length() > 0) p.setName(name);
-			p.setDescription(value);
+			p.setDescription(desc);
 		} else if (object instanceof ImageData) {
 			ImageData p = (ImageData) object;
 			if (name.length() > 0) p.setName(name);
-			p.setDescription(value);
+			p.setDescription(desc);
 		} else if (object instanceof TagAnnotationData) {
 			TagAnnotationData p = (TagAnnotationData) object;
 			if (name.length() > 0) p.setTagValue(name);
-			p.setTagDescription(value);
+			p.setTagDescription(desc);
 		} else if (object instanceof ScreenData) {
 			ScreenData p = (ScreenData) object;
 			if (name.length() > 0) p.setName(name);
-			p.setDescription(value);
+			p.setDescription(desc);
 		} else if (object instanceof PlateData) {
 			PlateData p = (PlateData) object;
 			if (name.length() > 0) p.setName(name);
-			p.setDescription(value);
+			p.setDescription(desc);
 		} else if (object instanceof WellSampleData) {
 			WellSampleData well = (WellSampleData) object;
 			ImageData img = well.getImage();
 			if (name.length() > 0) img.setName(name);
-			img.setDescription(value);
+			img.setDescription(desc);
 		} else if (object instanceof FileData) {
 			FileData f = (FileData) object;
 			if (f.getId() > 0) return;
 		} else if (object instanceof PlateAcquisitionData) {
 			PlateAcquisitionData pa = (PlateAcquisitionData) object;
 			if (name.length() > 0) pa.setName(name);
-			pa.setDescription(value);
+			pa.setDescription(desc);
 		}
 	}
 	
@@ -1504,7 +1414,6 @@ public class PropertiesUI
 	 */
 	protected void clearData(Object oldObject)
 	{
-	    editableName = false;
 	    originalName = model.getRefObjectName();
 	    originalDisplayedName = originalName;
 	    originalDescription = model.getRefObjectDescription();
@@ -1521,7 +1430,6 @@ public class PropertiesUI
 	    descriptionButtonEdit.setSelected(false);
 	    descriptionWiki.addDocumentListener(this);
 	    channelEditPane = null;
-	    editChannel.setEnabled(false);
 	    descriptionWiki.setEnabled(false);
 	    editNames();
 	    if (oldObject == null) return;
@@ -1571,34 +1479,6 @@ public class PropertiesUI
 	        modifiedName = namePane.getText();
 		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false),
 				Boolean.valueOf(true));
-	    }
-	}
-
-	/** 
-	 * Edits the components displaying the name and description
-	 * @see ActionListener#actionPerformed(ActionEvent)
-	 */
-	public void actionPerformed(ActionEvent e)
-	{
-	    int index = Integer.parseInt(e.getActionCommand());
-	    switch (index) {
-	    case EDIT_NAME:
-	    	if(editName.isSelected())
-	    		editField(namePanel, namePane, !editableName);
-	    	else
-	    		saveName();
-	        break;
-	    case EDIT_DESC:
-	    	if(descriptionButtonEdit.isSelected()) {
-	    		expandDescriptionField(true);
-	        	editField(descriptionPanel, descriptionWiki, !descriptionWiki.isEnabled());
-	    	}
-	    	else {
-	    		saveDescription();
-	    	}
-	        break;
-	    case EDIT_CHANNEL:
-	        editChannels();
 	    }
 	}
 	

@@ -225,7 +225,7 @@ class GeneralPaneUI
             boolean multi = model.isMultiSelection();
             Object refObject = model.getRefObject();
     
-            if (refObject instanceof ImageData && !multi) {
+            if (refObject instanceof ImageData && !multi && model.getChannelData()==null) {
                 propertiesUI.onChannelDataLoading();
                 controller.loadChannelData();
             }
