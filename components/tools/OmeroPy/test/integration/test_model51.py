@@ -24,6 +24,7 @@ Basic tests for additions/changes to the 5.1 model.
 """
 
 import test.integration.library as lib
+import pytest
 import omero
 
 from omero.rtypes import unwrap
@@ -36,43 +37,52 @@ class TestModel51(lib.ITest):
         plane_info = self.query.findByQuery((
             "select pi from PlaneInfo pi "
             "join fetch pi.exposureTime "
-            "join fetch pi.exposureTime.unit "
             "join pi.pixels as pix join pix.image as img "
             "where img.id = :id"), omero.sys.ParametersI().addId(img.id.val))
         exposure = plane_info.getExposureTime()
         unit = exposure.getUnit()
-        assert "SI.SECOND" == unwrap(unit.getMeasurementSystem())
-        assert "s" == unwrap(unit.getValue())
+        assert omero.model.enums.UnitsTime.S == unit
 
-        micros = self.query.findByQuery((
-            "select ut from UnitsTime ut "
-            "where ut.value = 'ms'"), None)
+        micros = omero.model.enums.UnitsTime.MICROS
 
         exposure.setUnit(micros)
         plane_info = self.update.saveAndReturnObject(plane_info)
         exposure = plane_info.getExposureTime()
         unit = exposure.getUnit()
-        assert "ms" == unwrap(unit.getValue())
+        assert omero.model.enums.UnitsTime.MICROS == unit
 
     def testPhysicalSize(self):
         img = self.importMIF(name="testPhysicalSize", physicalSizeZ=2.0)[0]
         pixels = self.query.findByQuery((
             "select pix from Pixels pix "
             "join fetch pix.physicalSizeZ "
-            "join fetch pix.physicalSizeZ.unit "
             "where pix.image.id = :id"),
             omero.sys.ParametersI().addId(img.id.val))
         sizeZ = pixels.getPhysicalSizeZ()
         unit = sizeZ.getUnit()
-        assert "SI.METRE" == unwrap(unit.getMeasurementSystem())
-        assert "µm" == unwrap(unit.getValue())
+        assert omero.model.enums.UnitsLength.MICROM == unit
 
-        mm = self.query.findByQuery((
-            "select ul from UnitsLength ul "
-            "where ul.value = 'mm'"), None)
+        mm = omero.model.enums.UnitsLength.MM
 
         sizeZ.setUnit(mm)
         pixels = self.update.saveAndReturnObject(pixels)
         sizeZ = pixels.getPhysicalSizeZ()
         unit = sizeZ.getUnit()
-        assert "mm" == unwrap(unit.getValue())
+        assert omero.model.enums.UnitsLength.MM == unit
+
+    UL = omero.model.enums.UnitsLength
+    UL = sorted(UL._enumerators.values())
+
+    @pytest.mark.parametrize("ul", UL)
+    def testAllLengths(self, ul):
+        one = omero.model.LengthI()
+        one.setValue(1.0)
+        one.setUnit(ul)
+        roi = omero.model.RoiI()
+        line = omero.model.LineI()
+        line.setStrokeWidth(one)
+        roi.addShape(line)
+        roi = self.update.saveAndReturnObject(roi)
+        line = roi.copyShapes()[0]
+        stroke = line.getStrokeWidth()
+        assert ul == stroke.getUnit()
