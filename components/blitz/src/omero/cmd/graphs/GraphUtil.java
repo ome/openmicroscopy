@@ -239,7 +239,9 @@ public class GraphUtil {
      * @return if the target model object of the second request was successfully merged into those of the first request
      */
     private static boolean isCombined(DeleteFacadeI delete1, DeleteFacadeI delete2) {
-        if (delete1.type.equals(delete2.type) &&
+        /* in deleting original files, order is significant */
+        if (!delete1.type.endsWith("/OriginalFile") &&
+            delete1.type.equals(delete2.type) &&
             isEqualMaps(delete1.options, delete2.options)) {
             delete1.addToTargets(delete2.type, delete2.id);
             return true;
