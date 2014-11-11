@@ -426,7 +426,7 @@ class TestDelete(lib.ITest):
 
         # Now delete one dataset
         delete = omero.cmd.Delete("/Dataset", datasets[0].id.val, None)
-        self.doAllSubmit([delete], client, test_should_pass=False)
+        self.doAllSubmit([delete], client)
 
         # 10846 - multiple constraints are no longer being collected.
         # in fact, even single constraints are not being directly directed
@@ -441,9 +441,8 @@ class TestDelete(lib.ITest):
         # ## assert failedFilesets[0] ==  filesetId,\
         # ##     "delete should fail due to this Fileset"
 
-        # Neither image or the dataset should be deleted.
-        assert datasets[0].id.val == \
-            query.find("Dataset", datasets[0].id.val).id.val
+        # The dataset should be deleted, but not any images.
+        assert not query.find("Dataset", datasets[0].id.val)
         assert images[0].id.val == query.find("Image", images[0].id.val).id.val
         assert images[1].id.val == query.find("Image", images[1].id.val).id.val
 
