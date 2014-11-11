@@ -9,12 +9,12 @@
 #ifndef OMERO_RTYPESI_H
 #define OMERO_RTYPESI_H
 
-#include <IceNoWarnPush.h>
+#include <omero/IceNoWarnPush.h>
 #include <omero/RTypes.h>
 #include <omero/model/RTypes.h>
 #include <omero/Scripts.h>
 #include <Ice/Ice.h>
-#include <IceNoWarnPop.h>
+#include <omero/IceNoWarnPop.h>
 
 #include <IceUtil/Config.h>
 #include <Ice/Handle.h>

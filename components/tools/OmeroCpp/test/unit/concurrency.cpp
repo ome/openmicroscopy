@@ -1,10 +1,10 @@
 #include <list>
 
-#include <IceNoWarnPush.h>
+#include <omero/IceNoWarnPush.h>
 #include <IceUtil/Thread.h>
 #include <IceUtil/Config.h>
 #include <IceUtil/Handle.h>
-#include <IceNoWarnPop.h>
+#include <omero/IceNoWarnPop.h>
 
 #include <omero/util/concurrency.h>
 #include <omero/fixture.h>

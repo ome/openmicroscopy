@@ -9,7 +9,7 @@
 #ifndef OMERO_CLIENT_H
 #define OMERO_CLIENT_H
 
-#include <IceNoWarnPush.h>
+#include <omero/IceNoWarnPush.h>
 #include <omero/API.h>
 #include <omero/Collections.h>
 #include <omero/Constants.h>
@@ -20,7 +20,7 @@
 #include <Ice/Ice.h>
 #include <IceUtil/RecMutex.h>
 #include <Glacier2/Glacier2.h>
-#include <IceNoWarnPop.h>
+#include <omero/IceNoWarnPop.h>
 
 #include <omero/clientF.h>
 #include <omero/ClientErrors.h>
