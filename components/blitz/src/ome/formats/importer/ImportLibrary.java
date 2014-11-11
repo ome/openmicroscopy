@@ -41,7 +41,6 @@ import ome.formats.importer.transfers.UploadFileTransfer;
 import ome.formats.importer.util.ErrorHandler;
 import ome.formats.importer.util.ProportionalTimeEstimatorImpl;
 import ome.formats.importer.util.TimeEstimator;
-import ome.services.blitz.gateway.services.util.ServiceUtilities;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.FilePathRestrictionInstance;
 import ome.services.blitz.repo.path.FilePathRestrictions;
@@ -616,9 +615,7 @@ public class ImportLibrary implements IObservable
             settings.checksumAlgorithm = ChecksumAlgorithmMapper
                     .getChecksumAlgorithm(hasher.getValue().getValue());
         } catch (IOException e) {
-            // impossible
-            ServiceUtilities.handleException(e,
-                    "IO exception from operation without IO");
+            throw new Exception("IO exception from operation without IO");
         }
 
         ImportProcessPrx proc = repo.importFileset(fs, settings);
