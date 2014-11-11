@@ -230,20 +230,6 @@ class TestChgrp(lib.ITest):
             type="/Image", id=images[0].id.val, grp=target_gid)
         self.doAllSubmit([chgrp], client, test_should_pass=False)
 
-        # 10846 - multiple constraints are no longer being collected.
-        # in fact, even single constraints are not being directly directed
-        # since fileset cleanup is happening at the end of the transaction
-        # disabling and marking in ticket.
-        # The delete should fail due to the fileset
-        # The chgrp should fail due to the fileset
-        # ## assert 'Fileset' in rsp.constraints,\
-        # ##     "chgrp should fail due to 'Fileset' constraints"
-        # ## failedFilesets = rsp.constraints['Fileset']
-        # ## assert len(failedFilesets) ==  1,\
-        # ##     "chgrp should fail due to a single Fileset"
-        # ## assert failedFilesets[0] ==  filesetId,\
-        # ##     "chgrp should fail due to this Fileset"
-
     def testChgrpAllImagesFilesetOK(self):
         """
         Simple example of the MIF chgrp bad case:
@@ -299,20 +285,6 @@ class TestChgrp(lib.ITest):
         chgrp = omero.cmd.Chgrp(
             type="/Dataset", id=datasets[0].id.val, grp=target_gid)
         self.doAllSubmit([chgrp], client)
-
-        # 10846 - multiple constraints are no longer being collected.
-        # in fact, even single constraints are not being directly directed
-        # since fileset cleanup is happening at the end of the transaction
-        # disabling and marking in ticket.
-        # The delete should fail due to the fileset
-        # ...due to the fileset
-        # ## assert 'Fileset' in rsp.constraints,
-        # ##     "chgrp should fail due to 'Fileset' constraints"
-        # ## failedFilesets = rsp.constraints['Fileset']
-        # ## assert len(failedFilesets) ==  1,\
-        # ##     "chgrp should fail due to a single Fileset"
-        # ## assert failedFilesets[0] ==  filesetId,
-        # ##     "chgrp should fail due to this Fileset"
 
         queryService = client.sf.getQueryService()
 
@@ -431,20 +403,6 @@ class TestChgrp(lib.ITest):
             type="/Image", id=imagesFsTwo[0].id.val, grp=target_gid)
         self.doAllSubmit([chgrp1, chgrp2], client, test_should_pass=False)
 
-        # 10846 - multiple constraints are no longer being collected.
-        # in fact, even single constraints are not being directly directed
-        # since fileset cleanup is happening at the end of the transaction
-        # disabling and marking in ticket.
-        # The delete should fail due to the fileset
-        # ...due to the filesets
-        # ## assert 'Fileset' in rsp.constraints,
-        # ##     "chgrp should fail due to 'Fileset' constraints"
-        # ## failedFilesets = rsp.constraints['Fileset']
-        # ## assert len(failedFilesets) ==  2,\
-        # ##     "chgrp should fail due to a Two Filesets"
-        # ## self.assertTrue(filesetOneId in failedFilesets)
-        # ## self.assertTrue(filesetTwoId in failedFilesets)
-
     def testChgrpDatasetTwoFilesetsErr(self):
         """
         If we try to 'split' 2 Filesets, both should be returned
@@ -472,20 +430,6 @@ class TestChgrp(lib.ITest):
         # chgrp should succeed with the Dataset only
         chgrp = omero.cmd.Chgrp(type="/Dataset", id=ds.id.val, grp=target_gid)
         self.doAllSubmit([chgrp], client)
-
-        # 10846 - multiple constraints are no longer being collected.
-        # in fact, even single constraints are not being directly directed
-        # since fileset cleanup is happening at the end of the transaction
-        # disabling and marking in ticket.
-        # The delete should fail due to the fileset
-        # ...due to the filesets
-        # ## assert 'Fileset' in rsp.constraints,
-        # ##     "chgrp should fail due to 'Fileset' constraints"
-        # ## failedFilesets = rsp.constraints['Fileset']
-        # ## assert len(failedFilesets) ==  2,\
-        # ##     "chgrp should fail due to a Two Filesets"
-        # ## self.assertTrue(filesetOneId in failedFilesets)
-        # ## self.assertTrue(filesetTwoId in failedFilesets)
 
         queryService = client.sf.getQueryService()
 

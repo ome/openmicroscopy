@@ -428,19 +428,6 @@ class TestDelete(lib.ITest):
         delete = omero.cmd.Delete("/Dataset", datasets[0].id.val, None)
         self.doAllSubmit([delete], client)
 
-        # 10846 - multiple constraints are no longer being collected.
-        # in fact, even single constraints are not being directly directed
-        # since fileset cleanup is happening at the end of the transaction
-        # disabling and marking in ticket.
-        # The delete should fail due to the fileset
-        # ## assert 'Fileset' in rsp.constraints,\
-        # ##     "delete should fail due to 'Fileset' constraints"
-        # ## failedFilesets = rsp.constraints['Fileset']
-        # ## assert len(failedFilesets) ==  1,\
-        # ##     "delete should fail due to a single Fileset"
-        # ## assert failedFilesets[0] ==  filesetId,\
-        # ##     "delete should fail due to this Fileset"
-
         # The dataset should be deleted, but not any images.
         assert not query.find("Dataset", datasets[0].id.val)
         assert images[0].id.val == query.find("Image", images[0].id.val).id.val
@@ -461,19 +448,6 @@ class TestDelete(lib.ITest):
         # Now delete one image
         delete = omero.cmd.Delete("/Image", images[0].id.val, None)
         self.doAllSubmit([delete], client, test_should_pass=False)
-
-        # 10846 - multiple constraints are no longer being collected.
-        # in fact, even single constraints are not being directly directed
-        # since fileset cleanup is happening at the end of the transaction
-        # disabling and marking in ticket.
-        # ## # The delete should fail due to the fileset
-        # ## assert 'Fileset' in rsp.constraints,\
-        # ##     "delete should fail due to 'Fileset' constraints"
-        # ## failedFilesets = rsp.constraints['Fileset']
-        # ## assert len(failedFilesets) ==  1,\
-        # ##     "delete should fail due to a single Fileset"
-        # ## assert failedFilesets[0] ==  filesetId,\
-        # ##     "delete should fail due to this Fileset"
 
         # Neither image should be deleted.
         assert images[0].id.val == query.find("Image", images[0].id.val).id.val
@@ -590,19 +564,6 @@ class TestDelete(lib.ITest):
         delete2 = omero.cmd.Delete("/Image", imagesFsTwo[0].id.val, None)
         self.doAllSubmit([delete1, delete2], client, test_should_pass=False)
 
-        # 10846 - multiple constraints are no longer being collected.
-        # in fact, even single constraints are not being directly directed
-        # since fileset cleanup is happening at the end of the transaction
-        # disabling and marking in ticket.
-        # ...due to the filesets
-        # ## assert 'Fileset' in rsp.constraints,\
-        # ##     "Delete should fail due to 'Fileset' constraints"
-        # ## failedFilesets = rsp.constraints['Fileset']
-        # ## assert len(failedFilesets) ==  2,\
-        # ##     "Delete should fail due to a Two Filesets"
-        # ## assert filesetOneId in failedFilesets
-        # ## assert filesetTwoId in failedFilesets
-
     def testDeleteDatasetTwoFilesetsErr(self):
         """
         If we try to partially delete 2 Filesets, both should be returned
@@ -622,19 +583,6 @@ class TestDelete(lib.ITest):
         # delete should remove only the Dataset
         delete = omero.cmd.Delete("/Dataset", ds.id.val, None)
         self.doAllSubmit([delete], client)
-
-        # 10846 - multiple constraints are no longer being collected.
-        # in fact, even single constraints are not being directly directed
-        # since fileset cleanup is happening at the end of the transaction
-        # disabling and marking in ticket.
-        # ...due to the filesets
-        # ## assert 'Fileset' in rsp.constraints,\
-        # ##     "Delete should fail due to 'Fileset' constraints"
-        # ## failedFilesets = rsp.constraints['Fileset']
-        # ## assert len(failedFilesets) ==  2,\
-        # ##     "Delete should fail due to a Two Filesets"
-        # ## assert filesetOneId in failedFilesets
-        # ## assert filesetTwoId in failedFilesets
 
         query = client.sf.getQueryService()
 
