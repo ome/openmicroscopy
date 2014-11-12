@@ -7019,7 +7019,7 @@ class _ImageWrapper (BlitzObjectWrapper):
                     tb.resetDefaultSettings(True, ctx)
                 except omero.ConcurrencyException, ce:
                     logger.info(
-                        "ConcurrencyException: resetDefaults() failed "
+                        "ConcurrencyException: resetDefaultSettings() failed "
                         "in _prepareTB with backOff: %s" % ce.backOff)
                     return tb
                 tb.setPixelsId(pid, ctx)
