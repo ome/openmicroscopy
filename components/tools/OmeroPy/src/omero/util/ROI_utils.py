@@ -78,7 +78,9 @@ class ShapeSettingsData:
         self.BLACK = 0
         self.GREY = 11184810
         self.strokeColour = rint(self.GREY)
-        self.strokeWidth = rint(1)
+        self.strokeWidth = omero.model.LengthI()
+        self.strokeWidth.setValue(1)
+        self.strokeWidth.setUnit(omero.model.enums.UnitsLength.PT)
         self.strokeDashArray = rstring('')
         self.strokeDashOffset = rint(0)
         self.strokeLineCap = rstring('')
@@ -110,7 +112,9 @@ class ShapeSettingsData:
     #
     def setStrokeSettings(self, colour, width=1):
         self.strokeColour = rint(colour)
-        self.strokeWidth = rint(width)
+        self.strokeWidth = omero.model.LengthI()
+        self.strokeWidth.setValue(width)
+        self.strokeWidth.setUnit(omero.model.enums.UnitsLength.PT)
 
     ###
     # Set the Fill Settings for the ShapeSettings.
