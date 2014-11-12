@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * from the OMERO 2.3 Reader available from: <a href="https://skyking.microscopy.wisc.edu/trac/java/browser/trunk/components/ome-io/src/loci/ome/io"
  * >https://skyking.microscopy.wisc.edu/trac/java/browser/trunk/components/ome-
  * io/src/loci/ome/io</a>
- * 
+ *
  * @since Beta4.1
  * @see <a href="https://skyking.microscopy.wisc.edu/trac/java/browser/trunk/components/bio-formats/utils/MinimumWriter.java">MinimumWriter</a>
  * @see <a href="https://skyking.microscopy.wisc.edu/trac/java/browser/trunk/components/bio-formats/src/loci/formats/tools/ImageConverter.java">ImageConverter</a>
@@ -51,14 +51,14 @@ public class OmeroReader extends FormatReader {
     private final RawPixelsStorePrx prx;
 
     private final Pixels pix;
-    
+
     public final int sizeX, sizeY, sizeZ, sizeT, sizeC, planes;
 
     private OmeroReader(Pixels pix, RawPixelsStore raw, RawPixelsStorePrx prx) {
         super("OMERO", "*");
         this.pix = pix;
-	this.prx = prx;
-	this.raw = raw;
+        this.prx = prx;
+        this.raw = raw;
         sizeX = pix.getSizeX().getValue();
         sizeY = pix.getSizeY().getValue();
         sizeZ = pix.getSizeZ().getValue();
@@ -91,7 +91,7 @@ public class OmeroReader extends FormatReader {
 
     public byte[] openBytes(int no, byte[] buf, int x1, int y1, int w1, int h1)
             throws FormatException, IOException {
-        
+
         FormatTools.assertId(currentId, true, 1);
         FormatTools.checkPlaneNumber(this, no);
         FormatTools.checkBufferSize(this, buf.length);

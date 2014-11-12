@@ -1,5 +1,5 @@
 /*
- * pojos.ChannelData 
+ * pojos.ChannelData
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
@@ -60,7 +60,7 @@ public class ChannelData
     extends DataObject
 {
 
-    /** Identifies the {@link Channel#ANNOTATIONLINKS} field. */
+    /** Identifies the {@link ome.model.core.Channel#ANNOTATIONLINKS} field. */
     public final static String ANNOTATIONS = ChannelI.ANNOTATIONLINKS;
 
     /** The index of the channel. */
@@ -75,8 +75,8 @@ public class ChannelData
     /** The contrast method. */
     private ContrastMethod contrastMethod;
 
-    /** 
-     * Creates a new instance. 
+    /**
+     * Creates a new instance.
      *
      * @param index The index of the channel.
      */
@@ -97,7 +97,7 @@ public class ChannelData
      */
     public ChannelData(int index, Channel channel)
     {
-        if (channel == null) 
+        if (channel == null)
             throw new IllegalArgumentException("Object cannot null.");
         this.index = index;
         setValue(channel);
@@ -106,7 +106,7 @@ public class ChannelData
 
     /**
      * Returns the channel's index.
-     * 
+     *
      * @return See above.
      */
     public int getIndex() { return index; }
@@ -114,14 +114,14 @@ public class ChannelData
     /**
      * Returns the label of the channel.
      * Following the specification: Name>Fluor>Emission wavelength>index.
-     * 
+     *
      * @return See above.
      */
     public String getChannelLabeling()
     {
         String value = getName();
         if (StringUtils.isNotBlank(value)) return value;
-        value = getFluor(); 
+        value = getFluor();
         if (StringUtils.isNotBlank(value)) return value;
         double v = getEmissionWavelength();
         if (v > 0) {
@@ -137,7 +137,7 @@ public class ChannelData
 
     /**
      * Sets the name of the logical channel.
-     * 
+     *
      * @param name The name of the channel.
      */
     public void setName(String name)
@@ -149,7 +149,7 @@ public class ChannelData
 
     /**
      * Returns the name of the channel.
-     * 
+     *
      * @return See above.
      */
     public String getName()
@@ -163,12 +163,12 @@ public class ChannelData
 
     /**
      * Returns the emission wavelength of the channel.
-     * 
+     *
      * @return See above
      */
     @Deprecated
     public double getEmissionWavelength()
-    { 
+    {
         LogicalChannel lc = asChannel().getLogicalChannel();
         if (lc == null) return index;
         Length value  = lc.getEmissionWave();
@@ -179,12 +179,12 @@ public class ChannelData
 
     /**
      * Returns the excitation wavelength of the channel.
-     * 
+     *
      * @return See above
      */
     @Deprecated
     public double getExcitationWavelength()
-    { 
+    {
         LogicalChannel lc = asChannel().getLogicalChannel();
         if (lc == null) return getEmissionWavelength();
         Length value = lc.getExcitationWave();
@@ -195,12 +195,12 @@ public class ChannelData
 
     /**
      * Returns the pin hole size of the channel.
-     * 
+     *
      * @return See above
      */
     @Deprecated
     public double getPinholeSize()
-    { 
+    {
         LogicalChannel lc = asChannel().getLogicalChannel();
         if (lc == null) return -1;
         Length value = lc.getPinHoleSize();
@@ -257,7 +257,7 @@ public class ChannelData
      * @return See above.
      */
     public String getIllumination()
-    { 
+    {
         if (illumination != null) return illumination.getValue().getValue();
         LogicalChannel lc = asChannel().getLogicalChannel();
         if (lc == null) return null;
@@ -272,7 +272,7 @@ public class ChannelData
      * @return See above.
      */
     public String getContrastMethod()
-    { 
+    {
         if (contrastMethod != null) return contrastMethod.getValue().getValue();
         LogicalChannel lc = asChannel().getLogicalChannel();
         if (lc == null) return null;
@@ -287,7 +287,7 @@ public class ChannelData
      * @return See above.
      */
     public String getMode()
-    { 
+    {
         if (mode != null) return mode.getValue().getValue();
         LogicalChannel lc = asChannel().getLogicalChannel();
         if (lc == null) return null;
@@ -296,13 +296,13 @@ public class ChannelData
         return null;
     }
 
-    /** 
+    /**
      * Returns the global minimum of the channel i.e. the minimum of all minima.
      *
      * @return See above.
      */
     public double getGlobalMin()
-    { 
+    {
         StatsInfo stats = asChannel().getStatsInfo();
         if (stats == null) return 0.0;
         RDouble object = stats.getGlobalMin();
@@ -310,13 +310,13 @@ public class ChannelData
         return 0.0;
     }
 
-    /** 
+    /**
      * Returns the global maximum of the channel i.e. the maximum of all maxima.
      *
      * @return See above.
      */
     public double getGlobalMax()
-    { 
+    {
         StatsInfo stats = asChannel().getStatsInfo();
         if (stats == null) return 0.0;
         RDouble object = stats.getGlobalMax();
@@ -327,7 +327,7 @@ public class ChannelData
     /**
      * Returns <code>true</code> if the channel has some channel information
      * <code>false</code> otherwise.
-     * 
+     *
      * @return See above.
      */
     public boolean hasStats() { return asChannel().getStatsInfo() != null; }
@@ -372,7 +372,7 @@ public class ChannelData
 
     /**
      * Sets the emission wavelength.
-     * 
+     *
      * @param value The value to set.
      */
     @Deprecated

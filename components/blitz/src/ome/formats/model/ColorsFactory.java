@@ -315,7 +315,6 @@ public class ColorsFactory {
      * Determines the color corresponding to the passed value.
      *
      * @param value The value to handle.
-     * @return
      */
     public static int[] determineColor(Length value)
     {

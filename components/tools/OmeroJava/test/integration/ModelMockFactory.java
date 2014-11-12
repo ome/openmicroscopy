@@ -488,8 +488,6 @@ public class ModelMockFactory {
      * @param excitationFilter
      *            The excitation filter or <code>null</code>.
      * @return See above.
-     * @throws Exception
-     *             Thrown if an error occurred.
      */
     public LightPath createLightPath(Filter emissionFilter, Dichroic dichroic,
             Filter excitationFilter) {
@@ -635,7 +633,7 @@ public class ModelMockFactory {
      *
      * @param light
      *            The type of light source.
-     * @param withPump
+     * @param pump
      *            Pass the type of light source of the pump or <code>null</code>
      *            .
      * @return See above.
@@ -1010,8 +1008,6 @@ public class ModelMockFactory {
 
     /**
      * Returns an Image with a Roi and one Rect attached.
-     *
-     * @return
      */
     public Image createImageWithRoi() throws Exception {
         Roi roi = new RoiI();

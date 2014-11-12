@@ -190,7 +190,7 @@ public class PixelsProcessor implements ModelProcessor
                 saveName = userSpecifiedName;
 
                 if (reader.getSeriesCount() > 1) {
-                    if (imageName == null) { 
+                    if (imageName == null) {
                         imageName = Integer.toString(imageIndex);
                     }
                     saveName += " [" + imageName + "]";

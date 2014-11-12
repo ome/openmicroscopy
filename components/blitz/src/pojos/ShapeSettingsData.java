@@ -258,7 +258,7 @@ public class ShapeSettingsData
 	/**
 	 * Set the stroke dashes.
 	 * 
-	 * @param See above.
+	 * @param dashArray See above.
 	 */
 	public void setStrokeDashArray(double [] dashArray)
 	{
@@ -350,8 +350,6 @@ public class ShapeSettingsData
 
 	/**
 	 * Returns the stroke.
-	 * 
-	 * @return See above.
 	 */
 	public void setFontFamily(String fontFamily)
 	{
@@ -382,8 +380,6 @@ public class ShapeSettingsData
 
     /**
 	 * Set the size of the font.
-	 * 
-	 * @return See above.
 	 */
 	@Deprecated
 	public void setFontSize(int fontSize)
@@ -413,8 +409,6 @@ public class ShapeSettingsData
 
 	/**
 	 * Sets the style of the font.
-	 * 
-	 * @return See above.
 	 */
 	public void setFontStyle(String fontStyle)
 	{
@@ -460,7 +454,7 @@ public class ShapeSettingsData
 	/**
 	 * Returns the marker end.
 	 * 
-	 * @param start The value to set.
+	 * @param end The value to set.
 	 */
 	public String setMarkerEnd(String end)
 	{
