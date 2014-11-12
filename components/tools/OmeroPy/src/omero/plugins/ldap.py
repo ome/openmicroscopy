@@ -11,6 +11,7 @@
 import sys
 
 from omero.cli import CLI, ExceptionHandler, admin_only, UserGroupControl
+from omero.rtypes import rbool
 
 HELP = """Administrative support for managing users' LDAP settings
 
@@ -92,14 +93,11 @@ to users.""")
             x.add_login_arguments()
 
     def add_user_and_group_arguments(self, parser):
-        group = parser.add_argument_group("User/group arguments (mutually "
-                                          "exclusive)")
-        group.add_argument("--user-id", nargs="+", help="ID of the user.")
-        group.add_argument("--user-name", nargs="+", help="Name of the user.")
-        group.add_argument("--group-id", metavar="id", nargs="+",
-                           help="ID of the group.")
-        group.add_argument("--group-name", metavar="group", nargs="+",
-                           help="Name of the group.")
+        group = parser.add_mutually_exclusive_group()
+        group.add_argument("--user-id", help="ID of the user.")
+        group.add_argument("--user-name", help="Name of the user.")
+        group.add_argument("--group-id", help="ID of the group.")
+        group.add_argument("--group-name", help="Name of the group.")
 
     @admin_only
     def active(self, args):
@@ -144,42 +142,33 @@ to users.""")
         iadmin = c.sf.getAdminService()
         ildap = c.sf.getLdapService()
 
-        groups = []
-        users = []
-        dns = []
+        dn = None
 
-        if args.group_name:
-            for name in args.group_name:
-                [gid, g] = self.find_group_by_name(iadmin, name, fatal=True)
-                if g and g.getLdap().val:
-                    groups.append(g)
-        elif args.group_id:
-            for id in args.group_id:
-                [gid, g] = self.find_group_by_id(iadmin, id, fatal=True)
-                if g and g.getLdap().val:
-                    groups.append(g)
-        elif args.user_name:
-            for name in args.user_name:
-                [uid, u] = self.find_user_by_name(iadmin, name, fatal=True)
-                if u and u.getLdap().val:
-                    users.append(u)
+        if args.user_name:
+            [uid, u] = self.find_user_by_name(iadmin, args.user_name,
+                                              fatal=True)
+            if u and u.getLdap().val:
+                name = u.getOmeName().val
+                dn = name + ": " + ildap.findDN(name)
         elif args.user_id:
-            for id in args.user_id:
-                [uid, u] = self.find_user_by_id(iadmin, id, fatal=True)
-                if u and u.getLdap().val:
-                    users.append(u)
+            [uid, u] = self.find_user_by_id(iadmin, args.user_id, fatal=True)
+            if u and u.getLdap().val:
+                name = u.getOmeName().val
+                dn = name + ": " + ildap.findDN(name)
+        elif args.group_name:
+            [gid, g] = self.find_group_by_name(iadmin, args.group_name,
+                                               fatal=True)
+            if g and g.getLdap().val:
+                name = g.getName().val
+                dn = name + ": " + ildap.findGroupDN(name)
+        elif args.group_id:
+            [gid, g] = self.find_group_by_id(iadmin, args.group_id, fatal=True)
+            if g and g.getLdap().val:
+                name = g.getName().val
+                dn = name + ": " + ildap.findGroupDN(name)
 
-        for g in groups:
-            name = g.getName().val
-            dns.append(name + ": " + ildap.findGroupDN(name))
-
-        for u in users:
-            name = u.getOmeName().val
-            dns.append(name + ": " + ildap.findDN(name))
-
-        for dn in dns:
-            if dn is not None and dn.strip():
-                self.ctx.out(dn)
+        if dn is not None and dn.strip():
+            self.ctx.out(dn)
 
     @admin_only
     def setdn(self, args):
@@ -187,37 +176,59 @@ to users.""")
         iupdate = c.sf.getUpdateService()
         iadmin = c.sf.getAdminService()
 
-        try:
-            exp = iadmin.lookupExperimenter(args.entry)
-        except:
-            self.ctx.die(134, "Unknown user: %s" % args.entry)
+        obj = None
 
-        exp.setLdap(args.choice.lower() in ("yes", "true", "t", "1"))
-        iupdate.saveObject(exp)
+        if args.user_name:
+            [uid, obj] = self.find_user_by_name(iadmin, args.user_name,
+                                                fatal=True)
+        elif args.user_id:
+            [uid, obj] = self.find_user_by_id(iadmin, args.user_id, fatal=True)
+        elif args.group_name:
+            [gid, obj] = self.find_group_by_name(iadmin, args.group_name,
+                                                 fatal=True)
+        elif args.group_id:
+            [gid, obj] = self.find_group_by_id(iadmin, args.group_id,
+                                               fatal=True)
+
+        if obj is not None:
+            obj.setLdap(rbool(args.choice.lower()
+                              in ("yes", "true", "t", "1")))
+            iupdate.saveObject(obj)
 
     @admin_only
     def discover(self, args):
-        """
-        has to work for users and groups
-        :param args:
-        :return:
-        """
         c = self.ctx.conn(args)
         ildap = c.sf.getLdapService()
-        experimenters = {}
+        elements = {}
+        element_name = "users"
 
-        experimenters = ildap.discover()
+        if args.groups:
+            element_name = "groups"
+            elements = ildap.discoverGroups()
+        else:
+            elements = ildap.discover()
 
-        if len(experimenters) > 0:
-            self.ctx.out("Following LDAP users are disabled in OMERO:")
-            for exp in experimenters:
-                if args.commands:
-                    self.ctx.out("%s ldap setdn %s true"
-                                 % (sys.argv[0], exp.getOmeName().getValue()))
+        if len(elements) > 0:
+            self.ctx.out("Following LDAP %s are disabled in OMERO:"
+                         % element_name)
+            for e in elements:
+                if args.groups:
+                    if args.commands:
+                        self.ctx.out("%s ldap setdn --group-name %s true"
+                                     % (sys.argv[0], e.getName().getValue()))
+                    else:
+                        self.ctx.out("Group=%s\tname=%s"
+                                     % (e.getId().getValue(),
+                                        e.getName().getValue()))
                 else:
-                    self.ctx.out("Experimenter:%s\tomeName=%s"
-                                 % (exp.getId().getValue(),
-                                    exp.getOmeName().getValue()))
+                    if args.commands:
+                        self.ctx.out("%s ldap setdn --user-name %s true"
+                                     % (sys.argv[0],
+                                        e.getOmeName().getValue()))
+                    else:
+                        self.ctx.out("Experimenter=%s\tomeName=%s"
+                                     % (e.getId().getValue(),
+                                        e.getOmeName().getValue()))
 
     @admin_only
     def create(self, args):

@@ -15,8 +15,10 @@ import ome.services.blitz.util.BlitzExecutor;
 import omero.ServerError;
 import omero.api.AMD_ILdap_createUser;
 import omero.api.AMD_ILdap_discover;
+import omero.api.AMD_ILdap_discoverGroups;
 import omero.api.AMD_ILdap_findDN;
 import omero.api.AMD_ILdap_findExperimenter;
+import omero.api.AMD_ILdap_findGroup;
 import omero.api.AMD_ILdap_findGroupDN;
 import omero.api.AMD_ILdap_getSetting;
 import omero.api.AMD_ILdap_searchAll;
@@ -94,6 +96,11 @@ public class LdapI extends AbstractAmdServant implements _ILdapOperations {
         callInvokerOnRawArgs(__cb, __current, username);
     }
 
+    public void findGroup_async(AMD_ILdap_findGroup __cb, String groupname,
+            Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, groupname);
+    }
+
     public void setDN_async(AMD_ILdap_setDN __cb, omero.RLong experimenterID,
             String dn, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, experimenterID, dn);
@@ -111,6 +118,11 @@ public class LdapI extends AbstractAmdServant implements _ILdapOperations {
 
     public void discover_async(AMD_ILdap_discover __cb, Current __current)
             throws ServerError {
+        callInvokerOnRawArgs(__cb, __current);
+    }
+
+    public void discoverGroups_async(AMD_ILdap_discoverGroups __cb,
+            Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current);
     }
 

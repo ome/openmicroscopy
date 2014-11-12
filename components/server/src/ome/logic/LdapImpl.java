@@ -158,21 +158,25 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
     @RolesAllowed("system")
     public String findDN(String username) {
         PersonContextMapper mapper = getPersonContextMapper();
-        Experimenter exp = mapUserName(username, mapper);
-        return mapper.getDn(exp);
+        return mapper.getDn(findExperimenter(username));
     }
 
     @RolesAllowed("system")
     public String findGroupDN(String groupname) {
         GroupContextMapper mapper = getGroupContextMapper();
-        ExperimenterGroup grp = mapGroupName(groupname, mapper);
-        return mapper.getDn(grp);
+        return mapper.getDn(findGroup(groupname));
     }
 
     @RolesAllowed("system")
     public Experimenter findExperimenter(String username) {
         PersonContextMapper mapper = getPersonContextMapper();
         return mapUserName(username, mapper);
+    }
+
+    @RolesAllowed("system")
+    public ExperimenterGroup findGroup(String groupname) {
+        GroupContextMapper mapper = getGroupContextMapper();
+        return mapGroupName(groupname, mapper);
     }
 
     /**
@@ -637,6 +641,31 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
             discoveredExperimenters.add(e);
         }
         return discoveredExperimenters;
+    }
+
+    @RolesAllowed("system")
+    public List<ExperimenterGroup> discoverGroups() {
+        List<ExperimenterGroup> discoveredGroups = Lists.newArrayList();
+        Roles r = getSecuritySystem().getSecurityRoles();
+
+        List<ExperimenterGroup> localGroups = iQuery.findAllByQuery(
+                "select distinct g from ExperimenterGroup g "
+                        + "where id not in (:ids) and ldap = :ldap",
+                new Parameters().addIds(
+                        Lists.newArrayList(r.getGuestGroupId(),
+                                r.getSystemGroupId(), r.getUserGroupId()))
+                        .addBoolean("ldap", false));
+
+        for (ExperimenterGroup g : localGroups) {
+            try {
+                findGroup(g.getName());
+            } catch (ApiUsageException aue) {
+                // This group doesn't exist in the LDAP server
+                continue;
+            }
+            discoveredGroups.add(g);
+        }
+        return discoveredGroups;
     }
 
     // Helpers
