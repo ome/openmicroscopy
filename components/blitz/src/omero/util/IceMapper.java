@@ -955,7 +955,6 @@ public class IceMapper extends ome.util.ModelMapper implements
      * Copied from {@link ReverseModelMapper#map(ModelBased)}
      * 
      * @param source
-     * @return
      */
     public Filterable reverse(ModelBased source) {
 
@@ -965,7 +964,7 @@ public class IceMapper extends ome.util.ModelMapper implements
 
         } else if (target2model.containsKey(source)) {
 
-            return (ome.model.IObject) target2model.get(source);
+            return (Filterable) target2model.get(source);
 
         } else {
             Filterable object = source.fillObject(this);
