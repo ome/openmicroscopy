@@ -299,14 +299,14 @@ class TestRDefs (object):
         self.image.saveDefaults()
 
         # resetDefaults without saving - shouldn't be greyscale
-        self.image.resetDefaultSettings(save=False)
+        self.image.resetDefaults(save=False)
         assert not self.image.isGreyscaleRenderingModel()
 
         # retrieve the image again... Should still be greyscale
         self.image = gatewaywrapper.getTestImage()
         assert self.image.isGreyscaleRenderingModel()
         # Then reset and Save
-        self.image.resetDefaultSettings(save=True)
+        self.image.resetDefaults()
 
         # retrieve the image again... Should not be greyscale
         self.image = gatewaywrapper.getTestImage()
