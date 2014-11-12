@@ -222,6 +222,12 @@ class BlitzObjectWrapper (object):
             return '<%s id=%s>' % (self.__class__.__name__, str(self._oid))
         return super(BlitzObjectWrapper, self).__repr__()
 
+    def _unwrapunits(self, unit, default=None):
+        # FIXME: This should handle returning units
+        if unit is not None:
+            return unit.getValue()
+        return default
+
     def _getQueryString(self):
         """
         Used for building queries in generic methods
@@ -6391,10 +6397,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
         """
 
         lc = self.getLogicalChannel()
-        wave = lc.emissionWave
-        if wave is not None and int(wave) == wave:
-            wave = int(wave)
-        return wave
+        return self._unwrapunit(lc.emissionWave)
 
     def getExcitationWave(self):
         """
@@ -6405,10 +6408,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
         """
 
         lc = self.getLogicalChannel()
-        wave = lc.excitationWave
-        if wave is not None and int(wave) == wave:
-            wave = int(wave)
-        return wave
+        return self._unwrapunits(lc.excitationWave)
 
     def getColor(self):
         """
@@ -8307,8 +8307,8 @@ class _ImageWrapper (BlitzObjectWrapper):
         :return:    Size of pixel in x or O
         :rtype:     float
         """
-        rv = self._obj.getPrimaryPixels().getPhysicalSizeX()
-        return rv is not None and rv.val or 0
+        return self._unwrapunits(
+            self._obj.getPrimaryPixels().getPhysicalSizeX(), 0)
 
     @assert_pixels
     def getPixelSizeY(self):
@@ -8318,9 +8318,8 @@ class _ImageWrapper (BlitzObjectWrapper):
         :return:    Size of pixel in y or O
         :rtype:     float
         """
-
-        rv = self._obj.getPrimaryPixels().getPhysicalSizeY()
-        return rv is not None and rv.val or 0
+        return self._unwrapunits(
+            self._obj.getPrimaryPixels().getPhysicalSizeY(), 0)
 
     @assert_pixels
     def getPixelSizeZ(self):
@@ -8330,9 +8329,8 @@ class _ImageWrapper (BlitzObjectWrapper):
         :return:    Size of pixel in z or O
         :rtype:     float
         """
-
-        rv = self._obj.getPrimaryPixels().getPhysicalSizeZ()
-        return rv is not None and rv.val or 0
+        return self._unwrapunits(
+            self._obj.getPrimaryPixels().getPhysicalSizeZ(), 0)
 
     @assert_pixels
     def getSizeX(self):
