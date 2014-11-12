@@ -37,7 +37,7 @@ class TestThumbs(lib.ITest):
         pix = self.missing_pyramid()
         tb = self.client.sf.createThumbnailStore()
         tb.setPixelsId(pix.id.val)
-        tb.resetDefaultSettings(True)  # Sets new missingPyramid flag
+        tb.resetDefaults()
         return tb
 
     def testCreateThumbnails(self):
