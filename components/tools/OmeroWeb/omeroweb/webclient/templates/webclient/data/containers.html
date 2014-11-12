@@ -293,13 +293,20 @@
                     selected.each(function(){
                         ids.push(this.id.split('-')[1]);
                     });
-                    rdef_url += "?toids=" + ids.join("&toids=");
+                    data = {'toids': ids};
                     if (rel === 'dataset' || rel === 'plate' || rel === 'acquisition') {
-                        rdef_url += '&to_type='+ rel;
+                        data['to_type'] = rel;
                     }
-                    $.getJSON(rdef_url, function(data){
-                        // update thumbnails
-                        OME.refreshThumbnails();
+                    $.ajax({
+                        type: "POST",
+                        dataType: 'text',
+                        traditional: true,
+                        url: rdef_url,
+                        data: data,
+                        success: function(data){
+                            // update thumbnails
+                            OME.refreshThumbnails();
+                        }
                     });
                 }
 
@@ -1031,7 +1038,7 @@
                 .delegate("a", "dblclick", function(e) {
                     var obj_rel = $(this).parent().attr('rel');
                     if ((obj_rel=='image') || (obj_rel=='image-locked')) {
-                        OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
+                        OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('/0/', "/"+$(this).attr('id').split("-")[1]+"/" ));
                     }
                 })
                 .bind("select_node.jstree deselect_node.jstree", function (e, data) {
@@ -1281,7 +1288,7 @@
         </form>
 
         <!-- hidden form for chgrp -->
-        <form id="chgrp-form" title="Move to Group" action="{% url 'chgrp' %}" style="display:none" method="POST">
+        <form id="chgrp-form" title="Move to Group" action="{% url 'chgrp' %}" style="display:none" method="POST">{% csrf_token %}
             <div id="move_group_tree" class="gray_border">
             </div>
         </form>

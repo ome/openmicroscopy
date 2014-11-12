@@ -29,7 +29,7 @@ Open Browser To Login Page
     Page Should Be Open         ${login url}    OMERO.web - Login
 
 Open Browser And Log In As User
-    Open Browser To Login Page      ${WELCOME URL}          ${LOGIN URL}
+    Open Browser To Login Page      ${LOGIN URL}          ${LOGIN URL}
     Log In As                       ${USERNAME}             ${PASSWORD}         ${SERVER_ID}
     Page Should Be Open             ${WELCOME URL}          Webclient
 
@@ -41,7 +41,7 @@ Open Browser To Webadmin And Log In As Root
 Log Out
     Click Element                   xpath=//div[@id='show_user_dropdown']/span
     Click Link                      link=Logout
-    Page Should Be Open             ${LOGIN URL}?url=%2Fwebclient%2F                OMERO.web - Login
+    Page Should Be Open             ${WEBCLIENT LOGIN URL}                OMERO.web - Login
 
 Logout and Teardown
     Log Out

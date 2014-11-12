@@ -1,7 +1,7 @@
 *** Settings ***
 
 Library   SwingLibrary
-Resource  ../../config.txt
+Resource  ../../../resources/config.txt
 Resource  ../../../resources/insight/login.txt
 Resource  ../../../resources/insight/state.txt
 Resource  ../../../resources/insight/tree.txt

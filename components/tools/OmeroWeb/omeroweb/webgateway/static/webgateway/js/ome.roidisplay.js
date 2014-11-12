@@ -107,7 +107,7 @@ $.fn.roi_display = function(options) {
             }
             else if (shape['type'] == 'Label') {
               if (shape['textValue']) {
-                  newShape = paper.text(shape['x'], shape['y'], shape['textValue']).attr({'text-anchor':'start'});
+                  newShape = paper.text(shape['x'], shape['y'], shape['textValue'].escapeHTML()).attr({'text-anchor':'start'});
               }
             }
             // handle transforms. Insight supports: translate(354.05 83.01) and rotate(0 407.0 79.0)
@@ -303,12 +303,12 @@ $.fn.roi_display = function(options) {
                                     var bb = newShape.getBBox();
                                     var textx = bb.x + (bb.width/2);
                                     var texty = bb.y + (bb.height/2);
-                                    var text_string = formatShapeText(shape['textValue'])
+                                    var text_string = formatShapeText(shape['textValue'].escapeHTML())
                                     var txt = paper.text(textx, texty, text_string);    // draw a 'dummy' paragraph to work out it's dimensions
                                     var newY = (texty-txt.getBBox().height/2)+9;
                                     // moving the existing text to newY doesn't seem to work - instead, remove and draw a new one
                                     txt.remove();
-                                    txt = paper.text(textx, newY, formatShapeText(shape['textValue'])).attr({'cursor':'default', 'fill': '#000'});
+                                    txt = paper.text(textx, newY, formatShapeText(shape['textValue'].escapeHTML())).attr({'cursor':'default', 'fill': '#000'});
                                     txt_box = txt.getBBox();
                                     var txt_w = txt_box.width*1.3;
                                     var txt_h = txt_box.height*1.3;

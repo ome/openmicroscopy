@@ -223,7 +223,7 @@
 	
 	<div class="left_panel_inner">
 	    
-		<form id="searching_form" class="standard_form" action="{% url 'load_searching' 'form' %}">
+		<form id="searching_form" class="standard_form" action="{% url 'load_searching' 'form' %}">{% csrf_token %}
 					
 					<h2>{% trans "General Search" %}</h2>
 

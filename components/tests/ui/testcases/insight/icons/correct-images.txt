@@ -3,7 +3,7 @@
 Library   SwingLibrary
 Library   org.openmicroscopy.shoola.keywords.IconCheckLibrary
 Library   org.openmicroscopy.shoola.keywords.JTreeLibrary
-Resource  ../../config.txt
+Resource  ../../../resources/config.txt
 Resource  ../../../resources/insight/login.txt
 Resource  ../../../resources/insight/state.txt
 

@@ -27,20 +27,20 @@
     
     {% for i in manager.containers.images %}
         <li id='image-{{ i.id }}' rel="image{% if not i.isOwned %}-locked{% endif %}" class="{{ i.getPermsCss }}">
-            <a href="#" data-name="{{ i.name }}" >
-            {{ i.name|default:"Image" }}
+            <a href="#" data-name="{{ i.name|escape }}" >
+            {{ i.name|default:"Image"|escape }}
           </a>
         </li>
     {% endfor %}
     
     {% for c in manager.containers.projects %}
     <li id='project-{{ c.id }}' rel="project{% if not c.isOwned %}-locked{% endif %}" class="{{ c.getPermsCss }}">
-        <a href="#">{{ c.name|truncatebefor:"35" }}</a>
+        <a href="#">{{ c.name|escape|truncatebefor:"35" }}</a>
         <ul>
             {% if c.countChildren %}
             {% for d in c.listChildren %}
                 <li id='dataset-{{ d.id }}' rel="dataset{% if not d.isOwned %}-locked{% endif %}" class="{{ c.getPermsCss }}{% if d.countChildren %} jstree-closed{% endif %}">
-                    <a href="#">{{ d.name|truncatebefor:"35" }}</a>
+                    <a href="#">{{ d.name|escape|truncatebefor:"35" }}</a>
                 </li>
             {% endfor %}
             {% endif %}
@@ -50,18 +50,18 @@
 
     {% for d in manager.containers.datasets %}
         <li id='dataset-{{ d.id }}' rel="dataset{% if not d.isOwned %}-locked{% endif %}" class="{{ c.getPermsCss }}{% if d.countChildren %} jstree-closed{% endif %}">
-            <a href="#">{{ d.name|truncatebefor:"35" }}</a>
+            <a href="#">{{ d.name|escape|truncatebefor:"35" }}</a>
         </li>
     {% endfor %}
 
     {% for c in manager.containers.screens %}
     <li id='screen-{{ c.id }}' rel="screen{% if not c.isOwned %}-locked{% endif %}" class="{{ c.getPermsCss }}">
-        <a href="#">{{ c.name|truncatebefor:"35" }}</a>
+        <a href="#">{{ c.name|escape|truncatebefor:"35" }}</a>
         <ul>
             {% if c.countChildren %}
             {% for d in c.listChildren %}
                 <li id='plate-{{ d.id }}' rel="plate{% if not d.isOwned %}-locked{% endif %}" class="{{ d.getPermsCss }}">
-                    <a href="#">{{ d.name|truncatebefor:"35" }}</a>
+                    <a href="#">{{ d.name|escape|truncatebefor:"35" }}</a>
                 </li>
             {% endfor %}
             {% endif %}
@@ -71,12 +71,12 @@
     
     {% for d in manager.containers.plates %}
         <li id='plate-{{ d.id }}' rel="plate{% if not d.isOwned %}-locked{% endif %}" class="{{ d.getPermsCss }}">
-            <a href="#">{{ d.name|truncatebefor:"35" }}</a>
+            <a href="#">{{ d.name|escape|truncatebefor:"35" }}</a>
             {% if d.countPlateAcquisitions %}
             <ul>
                 {% for e in d.listPlateAcquisitions %}
                     <li id='acquisition-{{ e.id }}' rel="acquisition{% if not e.isOwned %}-locked{% endif %}" class="{{ e.getPermsCss }}">
-                        <a href="#">{{ e.name|truncatebefor:"35" }}</a>
+                        <a href="#">{{ e.name|escape|truncatebefor:"35" }}</a>
                     </li>
                 {% endfor %}
             </ul>
@@ -86,7 +86,7 @@
 
     {% for a in manager.containers.aquisitions %}
         <li id='acquisition-{{ a.id }}' rel="acquisition{% if not a.isOwned %}-locked{% endif %}" class="{{ a.getPermsCss }}">
-            <a href="#">{{ a.name|truncatebefor:"35" }}</a>
+            <a href="#">{{ a.name|escape|truncatebefor:"35" }}</a>
         </li>
     {% endfor %}
 

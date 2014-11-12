@@ -50,6 +50,8 @@ from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_str
 from django.core.servers.basehttp import FileWrapper
 
+from django.views.decorators.http import require_http_methods, require_GET, require_POST
+
 from webclient_utils import _formatReport, _purgeCallback
 from forms import GlobalSearchForm, ShareForm, BasketShareForm, \
                     ContainerForm, ContainerNameForm, ContainerDescriptionForm, \
@@ -279,20 +281,25 @@ def switch_active_group(request, active_group=None):
 def logout(request, conn=None, **kwargs):
     """ Logout of the session and redirects to the homepage (will redirect to login first) """
 
-    if request.session.get('active_group') is not None:
+    if request.method == "POST":
+        if request.session.get('active_group') is not None:
+            try:
+                conn.setDefaultGroup(request.session.get('active_group'))
+            except:
+                logger.error('Exception during logout.', exc_info=True)
         try:
-            conn.setDefaultGroup(request.session.get('active_group'))
-        except:
-            logger.error('Exception during logout.', exc_info=True)
-    try:
-        try:
-            conn.seppuku()
-        except:
-            logger.error('Exception during logout.', exc_info=True)
-    finally:
-        request.session.flush()
-    return HttpResponseRedirect(reverse("webindex"))
-
+            try:
+                conn.seppuku()
+            except:
+                logger.error('Exception during logout.', exc_info=True)
+        finally:
+            request.session.flush()
+        return HttpResponseRedirect(reverse("webindex"))
+    else:
+        context = {'url':reverse('weblogout'), 'submit': "Do you want to log out?"}
+        t = template_loader.get_template('webgateway/base/includes/post_form.html')
+        c = Context(request, context)
+        return HttpResponse(t.render(c))
 
 ###########################################################################
 @login_required()
@@ -1250,10 +1257,12 @@ def annotate_comment(request, conn=None, **kwargs):
             'shares':oids['share']}
 
     # Use the first object we find to set context (assume all objects are in same group!)
-    for obs in oids.values():
-        if len(obs) > 0:
-            conn.SERVICE_OPTS.setOmeroGroup(obs[0].getDetails().group.id.val)
-            break
+    # this does not aplly to share
+    if len(oids['share']) < 1:
+        for obs in oids.values():
+            if len(obs) > 0:
+                conn.SERVICE_OPTS.setOmeroGroup(obs[0].getDetails().group.id.val)
+                break
 
     # Handle form submission...
     form_multi = CommentAnnotationForm(initial=initial, data=request.REQUEST.copy())
@@ -1423,7 +1432,7 @@ def annotate_tags(request, conn=None, **kwargs):
     context['template'] = template
     return context
 
-
+@require_POST
 @login_required()
 @render_response()
 def edit_channel_names(request, imageId, conn=None, **kwargs):
@@ -1942,18 +1951,18 @@ def load_public(request, share_id=None, conn=None, **kwargs):
 
     if share_id is not None:
         if view == 'tree':
-            template = "webclient/public/share_subtree.html"
+            template = "webclient/data/container_subtree.html"
         elif view == 'icon':
-            template = "webclient/public/share_content_icon.html"
+            template = "webclient/data/containers_icon.html"
         controller = BaseShare(conn, share_id)
         controller.loadShareContent()
 
     else:
-        template = "webclient/public/share_tree.html"
+        template = "webclient/data/containers_tree.html"
         controller = BaseShare(conn)
         controller.getShares()
 
-    context = {'share':controller}
+    context = {'share':controller, 'manager': controller}
     context['isLeader'] = conn.isLeader()
     context['template'] = template
     return context
@@ -2882,6 +2891,7 @@ def script_run(request, scriptId, conn=None, **kwargs):
     return HttpResponse(json.dumps(rsp), mimetype='json')
 
 
+@require_POST
 @login_required(setGroupContext=True)
 def ome_tiff_script(request, imageId, conn=None, **kwargs):
     """
@@ -2889,8 +2899,6 @@ def ome_tiff_script(request, imageId, conn=None, **kwargs):
     image and attach this as a file annotation to the image.
     Script will show up in the 'Activities' for users to monitor and download result etc.
     """
-    #if not request.method == 'POST':
-    #    return HttpResponse("Need to use POST")
 
     scriptService = conn.getScriptService()
     sId = scriptService.getScriptID("/omero/export_scripts/Batch_Image_Export.py")

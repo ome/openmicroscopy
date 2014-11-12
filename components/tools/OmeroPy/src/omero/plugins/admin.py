@@ -1378,6 +1378,7 @@ OMERO Diagnostics %s
             if k in cfg:
                 v = cfg[k]
                 xargs.append("-D%s=%s" % (k, v))
+
         if "omero.data.dir" in cfg:
             xargs.append("-Domero.data.dir=%s" % cfg["omero.data.dir"])
         for k, v in cfg.items():
@@ -1462,6 +1463,15 @@ OMERO Diagnostics %s
         debug = False
         if getattr(args, "jdwp"):
             debug = True
+
+        # Pass omero.db.pass using JAVA_OPTS environment variable
+        if "omero.db.pass" in cfg:
+            dbpassargs = "-Domero.db.pass=%s" % cfg["omero.db.pass"]
+            if "JAVA_OPTS" not in os.environ:
+                os.environ['JAVA_OPTS'] = dbpassargs
+            else:
+                os.environ['JAVA_OPTS'] = "%s %s" % (
+                    os.environ.get('JAVA_OPTS'), dbpassargs)
 
         self.ctx.dbg(
             "Launching Java: %s, debug=%s, xargs=%s" % (cmd, debug, xargs))

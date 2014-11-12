@@ -30,6 +30,24 @@
 
     <!-- set-up left-panel tabs, jsTree, toolbar etc -->
     <script type="text/javascript">
+
+        $(document).ready(function() 
+        {
+
+            // Disable the groups/users dropdown menu.
+            $("#groupsUsersButton")
+                .css('background-image', 'url()')
+                .attr('title', 'Use "Scope" in form below to search within specific Groups / Users');
+            setTimeout(function(){
+                // make sure we remove click handler AFTER it's been added
+                $("#groupsUsersButton").off('click');
+            },500);
+        });
+
+    </script>
+
+    <script type="text/javascript">
+
         $(function() 
             {
                 $("#left_panel_tabs").tabs({
@@ -111,6 +129,16 @@
                                         "image" : '{% static "webclient/image/icon_user.png" %}'
                                     },
                                     "create_node" : false,
+                                    "start_drag" : false,
+                                    "move_node" : false,
+                                    "remove" : false
+                                },
+                                "experimenter-locked" : {
+                                    "valid_children" : [ "share", "share-locked", "discussion", "discussion-locked" ],
+                                    "icon" : {
+                                        "image" : '{% static "webclient/image/icon_user.png" %}'
+                                    },
+                                       "create_node" : false,
                                     "start_drag" : false,
                                     "move_node" : false,
                                     "remove" : false
@@ -223,7 +251,7 @@
                 })
                 .delegate("a", "dblclick", function(e) {
                     if ($(this).parent().attr('rel')=='image') {
-                        OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
+                        OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('/0/', "/"+$(this).attr('id').split("-")[1]+"/" ));
                     }
                 })
                 .bind("select_node.jstree deselect_node.jstree", function (e, data) {
@@ -293,48 +321,13 @@
 
 {% block left %}
 
-<div id="user_selection">
-	
-    <!-- Switch Group / User -->
-    <script>
-        $(document).ready(function(){
-
-            $('body').click(function(event) {
-                if (event.target.id != 'groupsUsersButton') {
-                    $("#groupList").css('visibility', 'hidden');
-                }
-            });
-            // Loading Scripts with AJAX for drop-down menu, (only the first time we click)
-            // based on example at http://css-tricks.com/2282-simple-jquery-dropdowns/
-            $("#groupsUsersButton").click(function(e){
-                // show menu
-                $('#groupList').css('visibility', 'visible');
-            });
-            // on hover-out, hide drop-down menus
-            $("#groupList").hover(function(){}, function(){
-                $(this).css('visibility', 'hidden');
-            });
-                
-                
-
-        });
-    </script>
-	
-	
-	{% include "webclient/base/includes/group_user_dropdown.html" %}
-	
-</div>
-
 <div id="left_panel_tabs" class="absolute_fill">
-    
     <ul id="left_panel_tab_list">
         <li><a href="{% url 'load_template' 'userdata' %}">{% trans "Explore" %}</a></li>
         <li><a href="{% url 'load_template' 'usertags' %}">{% trans "Tags" %}</a></li>
 		<!-- <li><a href="{% url 'load_template' 'usertags' %}">{% trans "History" %}</a></li> -->
         <li><a href="#Public" title="Public">{% trans "Public" %}</a></li>
     </ul>
-	
-	
 
     <div id="Public">
         <div class="toolbar">
