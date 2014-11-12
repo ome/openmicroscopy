@@ -20,14 +20,16 @@
 package omero.model;
 
 import ome.model.ModelBased;
+import ome.units.unit.Unit;
 import ome.util.Filterable;
 import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;
+import ome.xml.model.enums.EnumerationException;
 
 import omero.model.enums.UnitsLength;
 
 /**
- * Blitz wrapper around the {@link ome.model.util.Length} class.
+ * Blitz wrapper around the {@link ome.model.units.Length} class.
  * Like {@link Details} and {@link Permissions}, this object
  * is embedded into other objects and does not have a full life
  * cycle of its own.
@@ -53,6 +55,58 @@ public class LengthI extends Length implements ModelBased {
         };
     };
 
+    //
+    // CONVERSIONS
+    //
+
+    public static ome.xml.model.enums.UnitsLength makeXMLUnit(String unit) {
+        try {
+            return ome.xml.model.enums.UnitsLength
+                    .fromString((String) unit);
+        } catch (EnumerationException e) {
+            throw new RuntimeException("Bad Length unit: " + unit, e);
+        }
+    }
+
+    public static ome.units.quantity.Length makeXMLQuantity(double d, String unit) {
+        ome.units.unit.Unit<ome.units.quantity.Length> units =
+                ome.xml.model.enums.handlers.UnitsLengthEnumHandler
+                        .getBaseUnit(makeXMLUnit(unit));
+        return new ome.units.quantity.Length(d, units);
+    }
+
+   /**
+    * FIXME: this should likely take a default so that locations which don't
+    * want an exception can have
+    *
+    * log.warn("Using new PositiveFloat(1.0)!", e); return new
+    * PositiveFloat(1.0);
+    *
+    * or similar.
+    */
+   public static ome.units.quantity.Length convert(Length t) {
+       if (t == null) {
+           return null;
+       }
+
+       Double v = t.getValue();
+       // Use the code/symbol-mapping in the ome.model.enums files
+       // to convert to the specification value.
+       String u = ome.model.enums.UnitsLength.valueOf(
+               t.getUnit().toString()).getSymbol();
+       ome.xml.model.enums.UnitsLength units = makeXMLUnit(u);
+       ome.units.unit.Unit<ome.units.quantity.Length> units2 =
+               ome.xml.model.enums.handlers.UnitsLengthEnumHandler
+                       .getBaseUnit(units);
+
+       return new ome.units.quantity.Length(v, units2);
+   }
+
+
+    //
+    // REGULAR ICE CLASS
+    //
+
     public final static Ice.ObjectFactory Factory = makeFactory(null);
 
     public LengthI() {
@@ -63,6 +117,61 @@ public class LengthI extends Length implements ModelBased {
         super();
         this.setUnit(unit);
         this.setValue(d);
+    }
+
+    public LengthI(double d,
+            Unit<ome.units.quantity.Length> unit) {
+        this(d, ome.model.enums.UnitsLength.bySymbol(unit.getSymbol()));
+    }
+
+   /**
+    * Copy constructor that converts the given {@link omero.model.Length}
+    * based on the given ome-xml enum
+    */
+   public LengthI(Length value, Unit<ome.units.quantity.Length> ul) {
+       this(value,
+            ome.model.enums.UnitsLength.bySymbol(ul.getSymbol()).toString());
+   }
+
+   public LengthI(double d, ome.model.enums.UnitsLength ul) {
+        this(d, UnitsLength.valueOf(ul.toString()));
+    }
+
+   /**
+    * Copy constructor that converts the given {@link omero.model.Length}
+    * based on the given enum string.
+    *
+    * @param target String representation of the CODE enum
+    */
+    public LengthI(Length value, String target) {
+       String source = value.getUnit().toString();
+       if (!target.equals(source)) {
+            throw new RuntimeException(String.format(
+               "%f %s cannot be converted to %s",
+               value.getValue(), value.getUnit(), target));
+       }
+       setValue(value.getValue());
+       setUnit(value.getUnit());
+    }
+
+   /**
+    * Copy constructor that converts between units if possible.
+    *
+    * @param target unit that is desired. non-null.
+    */
+    public LengthI(Length value, UnitsLength target) {
+        this(value, target.toString());
+    }
+
+    /**
+     * Convert a Bio-Formats {@link Length} to an OMERO Length.
+     */
+    public LengthI(ome.units.quantity.Length value) {
+        ome.model.enums.UnitsLength internal =
+            ome.model.enums.UnitsLength.bySymbol(value.unit().getSymbol());
+        UnitsLength ul = UnitsLength.valueOf(internal.toString());
+        setValue(value.value().doubleValue());
+        setUnit(ul);
     }
 
     public double getValue(Ice.Current current) {

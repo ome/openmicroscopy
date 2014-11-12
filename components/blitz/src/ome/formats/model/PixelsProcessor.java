@@ -28,9 +28,6 @@ import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 
 import static ome.formats.model.UnitsFactory.makeLength;
-import static ome.xml.model.Pixels.getPhysicalSizeXUnitXsdDefault;
-import static ome.xml.model.Pixels.getPhysicalSizeYUnitXsdDefault;
-import static ome.xml.model.Pixels.getPhysicalSizeZUnitXsdDefault;
 
 import java.io.File;
 import java.sql.Timestamp;
@@ -41,6 +38,7 @@ import java.util.Map;
 
 import loci.formats.IFormatReader;
 import ome.formats.Index;
+import ome.formats.model.UnitsFactory;
 import ome.util.LSID;
 import omero.metadatastore.IObjectContainer;
 import omero.model.Annotation;
@@ -118,19 +116,19 @@ public class PixelsProcessor implements ModelProcessor
 			&& pixels.getPhysicalSizeX() == null)
 		{
 			pixels.setPhysicalSizeX(makeLength(physicalPixelSizes[0],
-			        getPhysicalSizeXUnitXsdDefault()));
+			        UnitsFactory.Pixels_PhysicalSizeX));
 		}
 		if (physicalPixelSizes[1] != null
 			&& pixels.getPhysicalSizeY() == null)
 		{
 			pixels.setPhysicalSizeY(makeLength(physicalPixelSizes[1],
-			        getPhysicalSizeYUnitXsdDefault()));
+			        UnitsFactory.Pixels_PhysicalSizeY));
 		}
 		if (physicalPixelSizes[2] != null
 			&& pixels.getPhysicalSizeZ() == null)
 		{
 			pixels.setPhysicalSizeZ(makeLength(physicalPixelSizes[2],
-			        getPhysicalSizeZUnitXsdDefault()));
+			        UnitsFactory.Pixels_PhysicalSizeZ));
 		}
             }
 

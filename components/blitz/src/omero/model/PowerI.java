@@ -20,14 +20,16 @@
 package omero.model;
 
 import ome.model.ModelBased;
+import ome.units.unit.Unit;
 import ome.util.Filterable;
 import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;
+import ome.xml.model.enums.EnumerationException;
 
 import omero.model.enums.UnitsPower;
 
 /**
- * Blitz wrapper around the {@link ome.model.util.Power} class.
+ * Blitz wrapper around the {@link ome.model.units.Power} class.
  * Like {@link Details} and {@link Permissions}, this object
  * is embedded into other objects and does not have a full life
  * cycle of its own.
@@ -53,6 +55,58 @@ public class PowerI extends Power implements ModelBased {
         };
     };
 
+    //
+    // CONVERSIONS
+    //
+
+    public static ome.xml.model.enums.UnitsPower makeXMLUnit(String unit) {
+        try {
+            return ome.xml.model.enums.UnitsPower
+                    .fromString((String) unit);
+        } catch (EnumerationException e) {
+            throw new RuntimeException("Bad Power unit: " + unit, e);
+        }
+    }
+
+    public static ome.units.quantity.Power makeXMLQuantity(double d, String unit) {
+        ome.units.unit.Unit<ome.units.quantity.Power> units =
+                ome.xml.model.enums.handlers.UnitsPowerEnumHandler
+                        .getBaseUnit(makeXMLUnit(unit));
+        return new ome.units.quantity.Power(d, units);
+    }
+
+   /**
+    * FIXME: this should likely take a default so that locations which don't
+    * want an exception can have
+    *
+    * log.warn("Using new PositiveFloat(1.0)!", e); return new
+    * PositiveFloat(1.0);
+    *
+    * or similar.
+    */
+   public static ome.units.quantity.Power convert(Power t) {
+       if (t == null) {
+           return null;
+       }
+
+       Double v = t.getValue();
+       // Use the code/symbol-mapping in the ome.model.enums files
+       // to convert to the specification value.
+       String u = ome.model.enums.UnitsPower.valueOf(
+               t.getUnit().toString()).getSymbol();
+       ome.xml.model.enums.UnitsPower units = makeXMLUnit(u);
+       ome.units.unit.Unit<ome.units.quantity.Power> units2 =
+               ome.xml.model.enums.handlers.UnitsPowerEnumHandler
+                       .getBaseUnit(units);
+
+       return new ome.units.quantity.Power(v, units2);
+   }
+
+
+    //
+    // REGULAR ICE CLASS
+    //
+
     public final static Ice.ObjectFactory Factory = makeFactory(null);
 
     public PowerI() {
@@ -63,6 +117,61 @@ public class PowerI extends Power implements ModelBased {
         super();
         this.setUnit(unit);
         this.setValue(d);
+    }
+
+    public PowerI(double d,
+            Unit<ome.units.quantity.Power> unit) {
+        this(d, ome.model.enums.UnitsPower.bySymbol(unit.getSymbol()));
+    }
+
+   /**
+    * Copy constructor that converts the given {@link omero.model.Power}
+    * based on the given ome-xml enum
+    */
+   public PowerI(Power value, Unit<ome.units.quantity.Power> ul) {
+       this(value,
+            ome.model.enums.UnitsPower.bySymbol(ul.getSymbol()).toString());
+   }
+
+   public PowerI(double d, ome.model.enums.UnitsPower ul) {
+        this(d, UnitsPower.valueOf(ul.toString()));
+    }
+
+   /**
+    * Copy constructor that converts the given {@link omero.model.Power}
+    * based on the given enum string.
+    *
+    * @param target String representation of the CODE enum
+    */
+    public PowerI(Power value, String target) {
+       String source = value.getUnit().toString();
+       if (!target.equals(source)) {
+            throw new RuntimeException(String.format(
+               "%f %s cannot be converted to %s",
+               value.getValue(), value.getUnit(), target));
+       }
+       setValue(value.getValue());
+       setUnit(value.getUnit());
+    }
+
+   /**
+    * Copy constructor that converts between units if possible.
+    *
+    * @param target unit that is desired. non-null.
+    */
+    public PowerI(Power value, UnitsPower target) {
+        this(value, target.toString());
+    }
+
+    /**
+     * Convert a Bio-Formats {@link Length} to an OMERO Length.
+     */
+    public PowerI(ome.units.quantity.Power value) {
+        ome.model.enums.UnitsPower internal =
+            ome.model.enums.UnitsPower.bySymbol(value.unit().getSymbol());
+        UnitsPower ul = UnitsPower.valueOf(internal.toString());
+        setValue(value.value().doubleValue());
+        setUnit(ul);
     }
 
     public double getValue(Ice.Current current) {

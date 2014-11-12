@@ -1,22 +1,23 @@
 package ome.formats.utests;
 
 import static ome.formats.model.UnitsFactory.convertPower;
-import static ome.formats.model.UnitsFactory.makePower;
-
 import junit.framework.TestCase;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.model.BlitzInstanceProvider;
-import ome.units.UNITS;
+import ome.formats.model.UnitsFactory;
 import ome.units.quantity.Power;
 import ome.util.LSID;
-import ome.xml.model.enums.*;
-import ome.xml.model.primitives.*;
+import ome.xml.model.enums.LaserMedium;
+import ome.xml.model.enums.LaserType;
+import ome.xml.model.primitives.PercentFraction;
+import ome.xml.model.primitives.PositiveInteger;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Laser;
 import omero.model.LightSettings;
 import omero.model.Pixels;
+import omero.model.PowerI;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -36,7 +37,7 @@ public class LightSourceSettingsLaserTest extends TestCase
 	private static final int CHANNEL_INDEX = 0;
 
 	Power watt(double d) {
-	    return convertPower(makePower(d, UNITS.WATT.getSymbol()));
+	    return convertPower(new PowerI(d, UnitsFactory.LightSource_Power));
 	}
 
 	@BeforeMethod

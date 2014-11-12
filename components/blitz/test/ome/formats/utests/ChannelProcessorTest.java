@@ -22,9 +22,6 @@
  */
 package ome.formats.utests;
 
-import static ome.formats.model.UnitsFactory.convertLength;
-import static ome.formats.model.UnitsFactory.makeLength;
-
 import junit.framework.TestCase;
 import loci.formats.FormatTools;
 import ome.formats.OMEROMetadataStoreClient;
@@ -33,12 +30,14 @@ import ome.formats.importer.OMEROWrapper;
 import ome.formats.model.BlitzInstanceProvider;
 import ome.formats.model.ChannelData;
 import ome.formats.model.ChannelProcessor;
-import ome.units.quantity.Length;
-import ome.xml.model.Channel;
-import ome.xml.model.TransmittanceRange;
-import ome.xml.model.enums.*;
-import ome.xml.model.primitives.*;
+import ome.formats.model.UnitsFactory;
+import ome.xml.model.enums.FilamentType;
+import ome.xml.model.enums.LaserType;
+import ome.xml.model.primitives.PercentFraction;
+import ome.xml.model.primitives.PositiveInteger;
 import omero.api.ServiceFactoryPrx;
+import omero.model.LengthI;
+import omero.model.enums.UnitsLength;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -51,12 +50,6 @@ import org.testng.annotations.Test;
 public class ChannelProcessorTest
 	extends TestCase
 {
-
-    private static final String CUT_UNIT = TransmittanceRange.getCutInUnitXsdDefault();
-
-    private static final String EM_UNIT = Channel.getEmissionWavelengthUnitXsdDefault();
-
-    private static final String EX_UNIT = Channel.getExcitationWavelengthUnitXsdDefault();
 
 	/** Reference to the wrapper. */
 	private OMEROWrapper wrapper;
@@ -88,12 +81,12 @@ public class ChannelProcessorTest
 
     private static ome.units.quantity.Length makeWave(double d)
     {
-        return convertLength(makeLength(d, EM_UNIT));
+        return LengthI.convert(new LengthI(d, UnitsLength.NM));
     }
 
     private static ome.units.quantity.Length makeCut(double d)
     {
-        return convertLength(makeLength(d, CUT_UNIT));
+        return LengthI.convert(new LengthI(d, UnitsFactory.TransmittanceRange_CutIn));
     }
 
     /**

@@ -19,10 +19,7 @@
 
 package ome.formats.model;
 
-import static omero.rtypes.rstring;
-import static omero.rtypes.unwrap;
 import ome.units.unit.Unit;
-import ome.xml.model.enums.EnumerationException;
 import omero.model.ElectricPotential;
 import omero.model.ElectricPotentialI;
 import omero.model.Frequency;
@@ -48,6 +45,10 @@ import omero.model.enums.UnitsTime;
 
 /**
  * Utility class to generate and convert unit objects.
+ *
+ * Be especially careful when using methods which take a string
+ * since there are 2 types of enumerations, CODE-based and
+ * SYMBOL-based.
  */
 public class UnitsFactory {
 
@@ -56,40 +57,21 @@ public class UnitsFactory {
     // ElectricPotential
     //
 
-    public static ElectricPotential makeElectricPotential(double d, String unit) {
-        UnitsElectricPotential ul = UnitsElectricPotential.valueOf(unit);
-        ElectricPotential copy = new ElectricPotentialI();
-        copy.setUnit(ul);
-        copy.setValue(d);
-        return copy;
-    }
-
     public static ome.xml.model.enums.UnitsElectricPotential makeElectricPotentialUnitXML(String unit) {
-        try {
-            return ome.xml.model.enums.UnitsElectricPotential
-                    .fromString((String) unit);
-        } catch (EnumerationException e) {
-            throw new RuntimeException("Bad ElectricPotential unit: " + unit, e);
-        }
+        return ElectricPotentialI.makeXMLUnit(unit);
     }
 
     public static ome.units.quantity.ElectricPotential makeElectricPotentialXML(double d, String unit) {
-        ome.units.unit.Unit<ome.units.quantity.ElectricPotential> units =
-                ome.xml.model.enums.handlers.UnitsElectricPotentialEnumHandler
-                        .getBaseUnit(makeElectricPotentialUnitXML(unit));
-        return new ome.units.quantity.ElectricPotential(d, units);
+        return ElectricPotentialI.makeXMLQuantity(d, unit);
     }
 
     public static ElectricPotential makeElectricPotential(double d,
             Unit<ome.units.quantity.ElectricPotential> unit) {
-        return makeElectricPotential(d, unit.getSymbol());
+        return new ElectricPotentialI(d, unit);
     }
 
     public static ElectricPotential makeElectricPotential(double d, UnitsElectricPotential unit) {
-        ElectricPotential copy = new ElectricPotentialI();
-        copy.setUnit(unit);
-        copy.setValue(d);
-        return copy;
+        return new ElectricPotentialI(d, unit);
     }
 
     /**
@@ -99,91 +81,52 @@ public class UnitsFactory {
     public static ElectricPotential convertElectricPotential(ome.units.quantity.ElectricPotential value) {
         if (value == null)
             return null;
-        ome.model.enums.UnitsElectricPotential internal =
-            ome.model.enums.UnitsElectricPotential.bySymbol(value.unit().getSymbol());
-        UnitsElectricPotential ul = UnitsElectricPotential.valueOf(internal.toString());
-        omero.model.ElectricPotential l = new omero.model.ElectricPotentialI();
-        l.setValue(value.value().doubleValue());
-        l.setUnit(ul);
-        return l;
+        String internal = xmlElectricPotentialEnumToOMERO(value.unit().getSymbol());
+        UnitsElectricPotential ul = UnitsElectricPotential.valueOf(internal);
+        return new omero.model.ElectricPotentialI(value.value().doubleValue(), ul);
     }
 
-   /**
-    * FIXME: this should likely take a default so that locations which don't
-    * want an exception can have
-    *
-    * log.warn("Using new PositiveFloat(1.0)!", e); return new
-    * PositiveFloat(1.0);
-    *
-    * or similar.
-    */
-   public static ome.units.quantity.ElectricPotential convertElectricPotential(ElectricPotential t) {
-       if (t == null) {
-           return null;
-       }
+    public static ome.units.quantity.ElectricPotential convertElectricPotential(ElectricPotential t) {
+        return ElectricPotentialI.convert(t);
+    }
 
-       Double v = t.getValue();
-       String u = t.getUnit().toString();
-       ome.xml.model.enums.UnitsElectricPotential units = makeElectricPotentialUnitXML(u);
-       ome.units.unit.Unit<ome.units.quantity.ElectricPotential> units2 =
-               ome.xml.model.enums.handlers.UnitsElectricPotentialEnumHandler
-                       .getBaseUnit(units);
+    public static ElectricPotential convertElectricPotential(ElectricPotential value, Unit<ome.units.quantity.ElectricPotential> ul) {
+        return convertElectricPotentialXML(value, ul.getSymbol());
+    }
 
-       return new ome.units.quantity.ElectricPotential(v, units2);
-   }
+    public static ElectricPotential convertElectricPotentialXML(ElectricPotential value, String xml) {
+        String omero = xmlElectricPotentialEnumToOMERO(xml);
+        return new ElectricPotentialI(value, omero);
+    }
 
-   public static ElectricPotential convertElectricPotential(ElectricPotential value, Unit<ome.units.quantity.ElectricPotential> ul) {
-       return convertElectricPotential(value, ul.getSymbol());
-   }
+    public static String xmlElectricPotentialEnumToOMERO(Unit<ome.units.quantity.ElectricPotential> xml) {
+        return ome.model.enums.UnitsElectricPotential.bySymbol(xml.getSymbol()).toString();
+    }
 
-   public static ElectricPotential convertElectricPotential(ElectricPotential value, String target) {
-       String source = value.getUnit().toString();
-       if (target.equals(source)) {
-           return value;
-       }
-       throw new RuntimeException(String.format(
-               "%d %s cannot be converted to %s", value.getValue(), source));
-   }
+    public static String xmlElectricPotentialEnumToOMERO(String xml) {
+        return ome.model.enums.UnitsElectricPotential.bySymbol(xml).toString();
+    }
 
 
     //
     // Frequency
     //
 
-    public static Frequency makeFrequency(double d, String unit) {
-        UnitsFrequency ul = UnitsFrequency.valueOf(unit);
-        Frequency copy = new FrequencyI();
-        copy.setUnit(ul);
-        copy.setValue(d);
-        return copy;
-    }
-
     public static ome.xml.model.enums.UnitsFrequency makeFrequencyUnitXML(String unit) {
-        try {
-            return ome.xml.model.enums.UnitsFrequency
-                    .fromString((String) unit);
-        } catch (EnumerationException e) {
-            throw new RuntimeException("Bad Frequency unit: " + unit, e);
-        }
+        return FrequencyI.makeXMLUnit(unit);
     }
 
     public static ome.units.quantity.Frequency makeFrequencyXML(double d, String unit) {
-        ome.units.unit.Unit<ome.units.quantity.Frequency> units =
-                ome.xml.model.enums.handlers.UnitsFrequencyEnumHandler
-                        .getBaseUnit(makeFrequencyUnitXML(unit));
-        return new ome.units.quantity.Frequency(d, units);
+        return FrequencyI.makeXMLQuantity(d, unit);
     }
 
     public static Frequency makeFrequency(double d,
             Unit<ome.units.quantity.Frequency> unit) {
-        return makeFrequency(d, unit.getSymbol());
+        return new FrequencyI(d, unit);
     }
 
     public static Frequency makeFrequency(double d, UnitsFrequency unit) {
-        Frequency copy = new FrequencyI();
-        copy.setUnit(unit);
-        copy.setValue(d);
-        return copy;
+        return new FrequencyI(d, unit);
     }
 
     /**
@@ -193,91 +136,52 @@ public class UnitsFactory {
     public static Frequency convertFrequency(ome.units.quantity.Frequency value) {
         if (value == null)
             return null;
-        ome.model.enums.UnitsFrequency internal =
-            ome.model.enums.UnitsFrequency.bySymbol(value.unit().getSymbol());
-        UnitsFrequency ul = UnitsFrequency.valueOf(internal.toString());
-        omero.model.Frequency l = new omero.model.FrequencyI();
-        l.setValue(value.value().doubleValue());
-        l.setUnit(ul);
-        return l;
+        String internal = xmlFrequencyEnumToOMERO(value.unit().getSymbol());
+        UnitsFrequency ul = UnitsFrequency.valueOf(internal);
+        return new omero.model.FrequencyI(value.value().doubleValue(), ul);
     }
 
-   /**
-    * FIXME: this should likely take a default so that locations which don't
-    * want an exception can have
-    *
-    * log.warn("Using new PositiveFloat(1.0)!", e); return new
-    * PositiveFloat(1.0);
-    *
-    * or similar.
-    */
-   public static ome.units.quantity.Frequency convertFrequency(Frequency t) {
-       if (t == null) {
-           return null;
-       }
+    public static ome.units.quantity.Frequency convertFrequency(Frequency t) {
+        return FrequencyI.convert(t);
+    }
 
-       Double v = t.getValue();
-       String u = t.getUnit().toString();
-       ome.xml.model.enums.UnitsFrequency units = makeFrequencyUnitXML(u);
-       ome.units.unit.Unit<ome.units.quantity.Frequency> units2 =
-               ome.xml.model.enums.handlers.UnitsFrequencyEnumHandler
-                       .getBaseUnit(units);
+    public static Frequency convertFrequency(Frequency value, Unit<ome.units.quantity.Frequency> ul) {
+        return convertFrequencyXML(value, ul.getSymbol());
+    }
 
-       return new ome.units.quantity.Frequency(v, units2);
-   }
+    public static Frequency convertFrequencyXML(Frequency value, String xml) {
+        String omero = xmlFrequencyEnumToOMERO(xml);
+        return new FrequencyI(value, omero);
+    }
 
-   public static Frequency convertFrequency(Frequency value, Unit<ome.units.quantity.Frequency> ul) {
-       return convertFrequency(value, ul.getSymbol());
-   }
+    public static String xmlFrequencyEnumToOMERO(Unit<ome.units.quantity.Frequency> xml) {
+        return ome.model.enums.UnitsFrequency.bySymbol(xml.getSymbol()).toString();
+    }
 
-   public static Frequency convertFrequency(Frequency value, String target) {
-       String source = value.getUnit().toString();
-       if (target.equals(source)) {
-           return value;
-       }
-       throw new RuntimeException(String.format(
-               "%d %s cannot be converted to %s", value.getValue(), source));
-   }
+    public static String xmlFrequencyEnumToOMERO(String xml) {
+        return ome.model.enums.UnitsFrequency.bySymbol(xml).toString();
+    }
 
 
     //
     // Length
     //
 
-    public static Length makeLength(double d, String unit) {
-        UnitsLength ul = UnitsLength.valueOf(unit);
-        Length copy = new LengthI();
-        copy.setUnit(ul);
-        copy.setValue(d);
-        return copy;
-    }
-
     public static ome.xml.model.enums.UnitsLength makeLengthUnitXML(String unit) {
-        try {
-            return ome.xml.model.enums.UnitsLength
-                    .fromString((String) unit);
-        } catch (EnumerationException e) {
-            throw new RuntimeException("Bad Length unit: " + unit, e);
-        }
+        return LengthI.makeXMLUnit(unit);
     }
 
     public static ome.units.quantity.Length makeLengthXML(double d, String unit) {
-        ome.units.unit.Unit<ome.units.quantity.Length> units =
-                ome.xml.model.enums.handlers.UnitsLengthEnumHandler
-                        .getBaseUnit(makeLengthUnitXML(unit));
-        return new ome.units.quantity.Length(d, units);
+        return LengthI.makeXMLQuantity(d, unit);
     }
 
     public static Length makeLength(double d,
             Unit<ome.units.quantity.Length> unit) {
-        return makeLength(d, unit.getSymbol());
+        return new LengthI(d, unit);
     }
 
     public static Length makeLength(double d, UnitsLength unit) {
-        Length copy = new LengthI();
-        copy.setUnit(unit);
-        copy.setValue(d);
-        return copy;
+        return new LengthI(d, unit);
     }
 
     /**
@@ -287,94 +191,52 @@ public class UnitsFactory {
     public static Length convertLength(ome.units.quantity.Length value) {
         if (value == null)
             return null;
-        ome.model.enums.UnitsLength internal =
-            ome.model.enums.UnitsLength.bySymbol(value.unit().getSymbol());
-        UnitsLength ul = UnitsLength.valueOf(internal.toString());
-        omero.model.Length l = new omero.model.LengthI();
-        l.setValue(value.value().doubleValue());
-        l.setUnit(ul);
-        return l;
+        String internal = xmlLengthEnumToOMERO(value.unit().getSymbol());
+        UnitsLength ul = UnitsLength.valueOf(internal);
+        return new omero.model.LengthI(value.value().doubleValue(), ul);
     }
 
-   /**
-    * FIXME: this should likely take a default so that locations which don't
-    * want an exception can have
-    *
-    * log.warn("Using new PositiveFloat(1.0)!", e); return new
-    * PositiveFloat(1.0);
-    *
-    * or similar.
-    */
-   public static ome.units.quantity.Length convertLength(Length t) {
-       if (t == null) {
-           return null;
-       }
+    public static ome.units.quantity.Length convertLength(Length t) {
+        return LengthI.convert(t);
+    }
 
-       Double v = t.getValue();
-       // Use the code/symbol-mapping in the ome.model.enums files
-       // to convert to the specification value.
-       String u = ome.model.enums.UnitsLength.valueOf(
-               t.getUnit().toString()).toString();
-       ome.xml.model.enums.UnitsLength units = makeLengthUnitXML(u);
-       ome.units.unit.Unit<ome.units.quantity.Length> units2 =
-               ome.xml.model.enums.handlers.UnitsLengthEnumHandler
-                       .getBaseUnit(units);
+    public static Length convertLength(Length value, Unit<ome.units.quantity.Length> ul) {
+        return convertLengthXML(value, ul.getSymbol());
+    }
 
-       return new ome.units.quantity.Length(v, units2);
-   }
+    public static Length convertLengthXML(Length value, String xml) {
+        String omero = xmlLengthEnumToOMERO(xml);
+        return new LengthI(value, omero);
+    }
 
-   public static Length convertLength(Length value, Unit<ome.units.quantity.Length> ul) {
-       return convertLength(value, ul.getSymbol());
-   }
+    public static String xmlLengthEnumToOMERO(Unit<ome.units.quantity.Length> xml) {
+        return ome.model.enums.UnitsLength.bySymbol(xml.getSymbol()).toString();
+    }
 
-   public static Length convertLength(Length value, String target) {
-       String source = value.getUnit().toString();
-       if (target.equals(source)) {
-           return value;
-       }
-       throw new RuntimeException(String.format(
-               "%d %s cannot be converted to %s", value.getValue(), source));
-   }
+    public static String xmlLengthEnumToOMERO(String xml) {
+        return ome.model.enums.UnitsLength.bySymbol(xml).toString();
+    }
 
 
     //
     // Power
     //
 
-    public static Power makePower(double d, String unit) {
-        UnitsPower ul = UnitsPower.valueOf(unit);
-        Power copy = new PowerI();
-        copy.setUnit(ul);
-        copy.setValue(d);
-        return copy;
-    }
-
     public static ome.xml.model.enums.UnitsPower makePowerUnitXML(String unit) {
-        try {
-            return ome.xml.model.enums.UnitsPower
-                    .fromString((String) unit);
-        } catch (EnumerationException e) {
-            throw new RuntimeException("Bad Power unit: " + unit, e);
-        }
+        return PowerI.makeXMLUnit(unit);
     }
 
     public static ome.units.quantity.Power makePowerXML(double d, String unit) {
-        ome.units.unit.Unit<ome.units.quantity.Power> units =
-                ome.xml.model.enums.handlers.UnitsPowerEnumHandler
-                        .getBaseUnit(makePowerUnitXML(unit));
-        return new ome.units.quantity.Power(d, units);
+        return PowerI.makeXMLQuantity(d, unit);
     }
 
     public static Power makePower(double d,
             Unit<ome.units.quantity.Power> unit) {
-        return makePower(d, unit.getSymbol());
+        return new PowerI(d, unit);
     }
 
     public static Power makePower(double d, UnitsPower unit) {
-        Power copy = new PowerI();
-        copy.setUnit(unit);
-        copy.setValue(d);
-        return copy;
+        return new PowerI(d, unit);
     }
 
     /**
@@ -384,91 +246,52 @@ public class UnitsFactory {
     public static Power convertPower(ome.units.quantity.Power value) {
         if (value == null)
             return null;
-        ome.model.enums.UnitsPower internal =
-            ome.model.enums.UnitsPower.bySymbol(value.unit().getSymbol());
-        UnitsPower ul = UnitsPower.valueOf(internal.toString());
-        omero.model.Power l = new omero.model.PowerI();
-        l.setValue(value.value().doubleValue());
-        l.setUnit(ul);
-        return l;
+        String internal = xmlPowerEnumToOMERO(value.unit().getSymbol());
+        UnitsPower ul = UnitsPower.valueOf(internal);
+        return new omero.model.PowerI(value.value().doubleValue(), ul);
     }
 
-   /**
-    * FIXME: this should likely take a default so that locations which don't
-    * want an exception can have
-    *
-    * log.warn("Using new PositiveFloat(1.0)!", e); return new
-    * PositiveFloat(1.0);
-    *
-    * or similar.
-    */
-   public static ome.units.quantity.Power convertPower(Power t) {
-       if (t == null) {
-           return null;
-       }
+    public static ome.units.quantity.Power convertPower(Power t) {
+        return PowerI.convert(t);
+    }
 
-       Double v = t.getValue();
-       String u = t.getUnit().toString();
-       ome.xml.model.enums.UnitsPower units = makePowerUnitXML(u);
-       ome.units.unit.Unit<ome.units.quantity.Power> units2 =
-               ome.xml.model.enums.handlers.UnitsPowerEnumHandler
-                       .getBaseUnit(units);
+    public static Power convertPower(Power value, Unit<ome.units.quantity.Power> ul) {
+        return convertPowerXML(value, ul.getSymbol());
+    }
 
-       return new ome.units.quantity.Power(v, units2);
-   }
+    public static Power convertPowerXML(Power value, String xml) {
+        String omero = xmlPowerEnumToOMERO(xml);
+        return new PowerI(value, omero);
+    }
 
-   public static Power convertPower(Power value, Unit<ome.units.quantity.Power> ul) {
-       return convertPower(value, ul.getSymbol());
-   }
+    public static String xmlPowerEnumToOMERO(Unit<ome.units.quantity.Power> xml) {
+        return ome.model.enums.UnitsPower.bySymbol(xml.getSymbol()).toString();
+    }
 
-   public static Power convertPower(Power value, String target) {
-       String source = value.getUnit().toString();
-       if (target.equals(source)) {
-           return value;
-       }
-       throw new RuntimeException(String.format(
-               "%d %s cannot be converted to %s", value.getValue(), source));
-   }
+    public static String xmlPowerEnumToOMERO(String xml) {
+        return ome.model.enums.UnitsPower.bySymbol(xml).toString();
+    }
 
 
     //
     // Pressure
     //
 
-    public static Pressure makePressure(double d, String unit) {
-        UnitsPressure ul = UnitsPressure.valueOf(unit);
-        Pressure copy = new PressureI();
-        copy.setUnit(ul);
-        copy.setValue(d);
-        return copy;
-    }
-
     public static ome.xml.model.enums.UnitsPressure makePressureUnitXML(String unit) {
-        try {
-            return ome.xml.model.enums.UnitsPressure
-                    .fromString((String) unit);
-        } catch (EnumerationException e) {
-            throw new RuntimeException("Bad Pressure unit: " + unit, e);
-        }
+        return PressureI.makeXMLUnit(unit);
     }
 
     public static ome.units.quantity.Pressure makePressureXML(double d, String unit) {
-        ome.units.unit.Unit<ome.units.quantity.Pressure> units =
-                ome.xml.model.enums.handlers.UnitsPressureEnumHandler
-                        .getBaseUnit(makePressureUnitXML(unit));
-        return new ome.units.quantity.Pressure(d, units);
+        return PressureI.makeXMLQuantity(d, unit);
     }
 
     public static Pressure makePressure(double d,
             Unit<ome.units.quantity.Pressure> unit) {
-        return makePressure(d, unit.getSymbol());
+        return new PressureI(d, unit);
     }
 
     public static Pressure makePressure(double d, UnitsPressure unit) {
-        Pressure copy = new PressureI();
-        copy.setUnit(unit);
-        copy.setValue(d);
-        return copy;
+        return new PressureI(d, unit);
     }
 
     /**
@@ -478,91 +301,52 @@ public class UnitsFactory {
     public static Pressure convertPressure(ome.units.quantity.Pressure value) {
         if (value == null)
             return null;
-        ome.model.enums.UnitsPressure internal =
-            ome.model.enums.UnitsPressure.bySymbol(value.unit().getSymbol());
-        UnitsPressure ul = UnitsPressure.valueOf(internal.toString());
-        omero.model.Pressure l = new omero.model.PressureI();
-        l.setValue(value.value().doubleValue());
-        l.setUnit(ul);
-        return l;
+        String internal = xmlPressureEnumToOMERO(value.unit().getSymbol());
+        UnitsPressure ul = UnitsPressure.valueOf(internal);
+        return new omero.model.PressureI(value.value().doubleValue(), ul);
     }
 
-   /**
-    * FIXME: this should likely take a default so that locations which don't
-    * want an exception can have
-    *
-    * log.warn("Using new PositiveFloat(1.0)!", e); return new
-    * PositiveFloat(1.0);
-    *
-    * or similar.
-    */
-   public static ome.units.quantity.Pressure convertPressure(Pressure t) {
-       if (t == null) {
-           return null;
-       }
+    public static ome.units.quantity.Pressure convertPressure(Pressure t) {
+        return PressureI.convert(t);
+    }
 
-       Double v = t.getValue();
-       String u = t.getUnit().toString();
-       ome.xml.model.enums.UnitsPressure units = makePressureUnitXML(u);
-       ome.units.unit.Unit<ome.units.quantity.Pressure> units2 =
-               ome.xml.model.enums.handlers.UnitsPressureEnumHandler
-                       .getBaseUnit(units);
+    public static Pressure convertPressure(Pressure value, Unit<ome.units.quantity.Pressure> ul) {
+        return convertPressureXML(value, ul.getSymbol());
+    }
 
-       return new ome.units.quantity.Pressure(v, units2);
-   }
+    public static Pressure convertPressureXML(Pressure value, String xml) {
+        String omero = xmlPressureEnumToOMERO(xml);
+        return new PressureI(value, omero);
+    }
 
-   public static Pressure convertPressure(Pressure value, Unit<ome.units.quantity.Pressure> ul) {
-       return convertPressure(value, ul.getSymbol());
-   }
+    public static String xmlPressureEnumToOMERO(Unit<ome.units.quantity.Pressure> xml) {
+        return ome.model.enums.UnitsPressure.bySymbol(xml.getSymbol()).toString();
+    }
 
-   public static Pressure convertPressure(Pressure value, String target) {
-       String source = value.getUnit().toString();
-       if (target.equals(source)) {
-           return value;
-       }
-       throw new RuntimeException(String.format(
-               "%d %s cannot be converted to %s", value.getValue(), source));
-   }
+    public static String xmlPressureEnumToOMERO(String xml) {
+        return ome.model.enums.UnitsPressure.bySymbol(xml).toString();
+    }
 
 
     //
     // Temperature
     //
 
-    public static Temperature makeTemperature(double d, String unit) {
-        UnitsTemperature ul = UnitsTemperature.valueOf(unit);
-        Temperature copy = new TemperatureI();
-        copy.setUnit(ul);
-        copy.setValue(d);
-        return copy;
-    }
-
     public static ome.xml.model.enums.UnitsTemperature makeTemperatureUnitXML(String unit) {
-        try {
-            return ome.xml.model.enums.UnitsTemperature
-                    .fromString((String) unit);
-        } catch (EnumerationException e) {
-            throw new RuntimeException("Bad Temperature unit: " + unit, e);
-        }
+        return TemperatureI.makeXMLUnit(unit);
     }
 
     public static ome.units.quantity.Temperature makeTemperatureXML(double d, String unit) {
-        ome.units.unit.Unit<ome.units.quantity.Temperature> units =
-                ome.xml.model.enums.handlers.UnitsTemperatureEnumHandler
-                        .getBaseUnit(makeTemperatureUnitXML(unit));
-        return new ome.units.quantity.Temperature(d, units);
+        return TemperatureI.makeXMLQuantity(d, unit);
     }
 
     public static Temperature makeTemperature(double d,
             Unit<ome.units.quantity.Temperature> unit) {
-        return makeTemperature(d, unit.getSymbol());
+        return new TemperatureI(d, unit);
     }
 
     public static Temperature makeTemperature(double d, UnitsTemperature unit) {
-        Temperature copy = new TemperatureI();
-        copy.setUnit(unit);
-        copy.setValue(d);
-        return copy;
+        return new TemperatureI(d, unit);
     }
 
     /**
@@ -572,91 +356,52 @@ public class UnitsFactory {
     public static Temperature convertTemperature(ome.units.quantity.Temperature value) {
         if (value == null)
             return null;
-        ome.model.enums.UnitsTemperature internal =
-            ome.model.enums.UnitsTemperature.bySymbol(value.unit().getSymbol());
-        UnitsTemperature ul = UnitsTemperature.valueOf(internal.toString());
-        omero.model.Temperature l = new omero.model.TemperatureI();
-        l.setValue(value.value().doubleValue());
-        l.setUnit(ul);
-        return l;
+        String internal = xmlTemperatureEnumToOMERO(value.unit().getSymbol());
+        UnitsTemperature ul = UnitsTemperature.valueOf(internal);
+        return new omero.model.TemperatureI(value.value().doubleValue(), ul);
     }
 
-   /**
-    * FIXME: this should likely take a default so that locations which don't
-    * want an exception can have
-    *
-    * log.warn("Using new PositiveFloat(1.0)!", e); return new
-    * PositiveFloat(1.0);
-    *
-    * or similar.
-    */
-   public static ome.units.quantity.Temperature convertTemperature(Temperature t) {
-       if (t == null) {
-           return null;
-       }
+    public static ome.units.quantity.Temperature convertTemperature(Temperature t) {
+        return TemperatureI.convert(t);
+    }
 
-       Double v = t.getValue();
-       String u = t.getUnit().toString();
-       ome.xml.model.enums.UnitsTemperature units = makeTemperatureUnitXML(u);
-       ome.units.unit.Unit<ome.units.quantity.Temperature> units2 =
-               ome.xml.model.enums.handlers.UnitsTemperatureEnumHandler
-                       .getBaseUnit(units);
+    public static Temperature convertTemperature(Temperature value, Unit<ome.units.quantity.Temperature> ul) {
+        return convertTemperatureXML(value, ul.getSymbol());
+    }
 
-       return new ome.units.quantity.Temperature(v, units2);
-   }
+    public static Temperature convertTemperatureXML(Temperature value, String xml) {
+        String omero = xmlTemperatureEnumToOMERO(xml);
+        return new TemperatureI(value, omero);
+    }
 
-   public static Temperature convertTemperature(Temperature value, Unit<ome.units.quantity.Temperature> ul) {
-       return convertTemperature(value, ul.getSymbol());
-   }
+    public static String xmlTemperatureEnumToOMERO(Unit<ome.units.quantity.Temperature> xml) {
+        return ome.model.enums.UnitsTemperature.bySymbol(xml.getSymbol()).toString();
+    }
 
-   public static Temperature convertTemperature(Temperature value, String target) {
-       String source = value.getUnit().toString();
-       if (target.equals(source)) {
-           return value;
-       }
-       throw new RuntimeException(String.format(
-               "%d %s cannot be converted to %s", value.getValue(), source));
-   }
+    public static String xmlTemperatureEnumToOMERO(String xml) {
+        return ome.model.enums.UnitsTemperature.bySymbol(xml).toString();
+    }
 
 
     //
     // Time
     //
 
-    public static Time makeTime(double d, String unit) {
-        UnitsTime ul = UnitsTime.valueOf(unit);
-        Time copy = new TimeI();
-        copy.setUnit(ul);
-        copy.setValue(d);
-        return copy;
-    }
-
     public static ome.xml.model.enums.UnitsTime makeTimeUnitXML(String unit) {
-        try {
-            return ome.xml.model.enums.UnitsTime
-                    .fromString((String) unit);
-        } catch (EnumerationException e) {
-            throw new RuntimeException("Bad Time unit: " + unit, e);
-        }
+        return TimeI.makeXMLUnit(unit);
     }
 
     public static ome.units.quantity.Time makeTimeXML(double d, String unit) {
-        ome.units.unit.Unit<ome.units.quantity.Time> units =
-                ome.xml.model.enums.handlers.UnitsTimeEnumHandler
-                        .getBaseUnit(makeTimeUnitXML(unit));
-        return new ome.units.quantity.Time(d, units);
+        return TimeI.makeXMLQuantity(d, unit);
     }
 
     public static Time makeTime(double d,
             Unit<ome.units.quantity.Time> unit) {
-        return makeTime(d, unit.getSymbol());
+        return new TimeI(d, unit);
     }
 
     public static Time makeTime(double d, UnitsTime unit) {
-        Time copy = new TimeI();
-        copy.setUnit(unit);
-        copy.setValue(d);
-        return copy;
+        return new TimeI(d, unit);
     }
 
     /**
@@ -666,53 +411,69 @@ public class UnitsFactory {
     public static Time convertTime(ome.units.quantity.Time value) {
         if (value == null)
             return null;
-        ome.model.enums.UnitsTime internal =
-            ome.model.enums.UnitsTime.bySymbol(value.unit().getSymbol());
-        UnitsTime ul = UnitsTime.valueOf(internal.toString());
-        omero.model.Time l = new omero.model.TimeI();
-        l.setValue(value.value().doubleValue());
-        l.setUnit(ul);
-        return l;
+        String internal = xmlTimeEnumToOMERO(value.unit().getSymbol());
+        UnitsTime ul = UnitsTime.valueOf(internal);
+        return new omero.model.TimeI(value.value().doubleValue(), ul);
     }
 
-   /**
-    * FIXME: this should likely take a default so that locations which don't
-    * want an exception can have
-    *
-    * log.warn("Using new PositiveFloat(1.0)!", e); return new
-    * PositiveFloat(1.0);
-    *
-    * or similar.
-    */
-   public static ome.units.quantity.Time convertTime(Time t) {
-       if (t == null) {
-           return null;
-       }
+    public static ome.units.quantity.Time convertTime(Time t) {
+        return TimeI.convert(t);
+    }
 
-       Double v = t.getValue();
-       String u = t.getUnit().toString();
-       ome.xml.model.enums.UnitsTime units = makeTimeUnitXML(u);
-       ome.units.unit.Unit<ome.units.quantity.Time> units2 =
-               ome.xml.model.enums.handlers.UnitsTimeEnumHandler
-                       .getBaseUnit(units);
+    public static Time convertTime(Time value, Unit<ome.units.quantity.Time> ul) {
+        return convertTimeXML(value, ul.getSymbol());
+    }
 
-       return new ome.units.quantity.Time(v, units2);
-   }
+    public static Time convertTimeXML(Time value, String xml) {
+        String omero = xmlTimeEnumToOMERO(xml);
+        return new TimeI(value, omero);
+    }
 
-   public static Time convertTime(Time value, Unit<ome.units.quantity.Time> ul) {
-       return convertTime(value, ul.getSymbol());
-   }
+    public static String xmlTimeEnumToOMERO(Unit<ome.units.quantity.Time> xml) {
+        return ome.model.enums.UnitsTime.bySymbol(xml.getSymbol()).toString();
+    }
 
-   public static Time convertTime(Time value, String target) {
-       String source = value.getUnit().toString();
-       if (target.equals(source)) {
-           return value;
-       }
-       throw new RuntimeException(String.format(
-               "%d %s cannot be converted to %s", value.getValue(), source));
-   }
+    public static String xmlTimeEnumToOMERO(String xml) {
+        return ome.model.enums.UnitsTime.bySymbol(xml).toString();
+    }
 
 
+
+    public static UnitsLength Plane_PositionX = UnitsLength.valueOf(xmlLengthEnumToOMERO(ome.xml.model.Plane.getPositionXUnitXsdDefault()));
+    public static UnitsLength Plane_PositionZ = UnitsLength.valueOf(xmlLengthEnumToOMERO(ome.xml.model.Plane.getPositionZUnitXsdDefault()));
+    public static UnitsLength Plane_PositionY = UnitsLength.valueOf(xmlLengthEnumToOMERO(ome.xml.model.Plane.getPositionYUnitXsdDefault()));
+    public static UnitsTime Plane_DeltaT = UnitsTime.valueOf(xmlTimeEnumToOMERO(ome.xml.model.Plane.getDeltaTUnitXsdDefault()));
+    public static UnitsTime Plane_ExposureTime = UnitsTime.valueOf(xmlTimeEnumToOMERO(ome.xml.model.Plane.getExposureTimeUnitXsdDefault()));
+    public static UnitsLength Shape_StrokeWidth = UnitsLength.valueOf(xmlLengthEnumToOMERO(ome.xml.model.Shape.getStrokeWidthUnitXsdDefault()));
+    public static UnitsLength Shape_FontSize = UnitsLength.valueOf(xmlLengthEnumToOMERO(ome.xml.model.Shape.getFontSizeUnitXsdDefault()));
+    public static UnitsElectricPotential DetectorSettings_Voltage = UnitsElectricPotential.valueOf(xmlElectricPotentialEnumToOMERO(ome.xml.model.DetectorSettings.getVoltageUnitXsdDefault()));
+    public static UnitsFrequency DetectorSettings_ReadOutRate = UnitsFrequency.valueOf(xmlFrequencyEnumToOMERO(ome.xml.model.DetectorSettings.getReadOutRateUnitXsdDefault()));
+    public static UnitsTemperature ImagingEnvironment_Temperature = UnitsTemperature.valueOf(xmlTemperatureEnumToOMERO(ome.xml.model.ImagingEnvironment.getTemperatureUnitXsdDefault()));
+    public static UnitsPressure ImagingEnvironment_AirPressure = UnitsPressure.valueOf(xmlPressureEnumToOMERO(ome.xml.model.ImagingEnvironment.getAirPressureUnitXsdDefault()));
+    public static UnitsLength LightSourceSettings_Wavelength = UnitsLength.valueOf(xmlLengthEnumToOMERO(ome.xml.model.LightSourceSettings.getWavelengthUnitXsdDefault()));
+    public static UnitsLength Plate_WellOriginX = UnitsLength.valueOf(xmlLengthEnumToOMERO(ome.xml.model.Plate.getWellOriginXUnitXsdDefault()));
+    public static UnitsLength Plate_WellOriginY = UnitsLength.valueOf(xmlLengthEnumToOMERO(ome.xml.model.Plate.getWellOriginYUnitXsdDefault()));
+    public static UnitsLength Objective_WorkingDistance = UnitsLength.valueOf(xmlLengthEnumToOMERO(ome.xml.model.Objective.getWorkingDistanceUnitXsdDefault()));
+    public static UnitsLength Pixels_PhysicalSizeX = UnitsLength.valueOf(xmlLengthEnumToOMERO(ome.xml.model.Pixels.getPhysicalSizeXUnitXsdDefault()));
+    public static UnitsLength Pixels_PhysicalSizeZ = UnitsLength.valueOf(xmlLengthEnumToOMERO(ome.xml.model.Pixels.getPhysicalSizeZUnitXsdDefault()));
+    public static UnitsLength Pixels_PhysicalSizeY = UnitsLength.valueOf(xmlLengthEnumToOMERO(ome.xml.model.Pixels.getPhysicalSizeYUnitXsdDefault()));
+    public static UnitsTime Pixels_TimeIncrement = UnitsTime.valueOf(xmlTimeEnumToOMERO(ome.xml.model.Pixels.getTimeIncrementUnitXsdDefault()));
+    public static UnitsLength StageLabel_Z = UnitsLength.valueOf(xmlLengthEnumToOMERO(ome.xml.model.StageLabel.getZUnitXsdDefault()));
+    public static UnitsLength StageLabel_Y = UnitsLength.valueOf(xmlLengthEnumToOMERO(ome.xml.model.StageLabel.getYUnitXsdDefault()));
+    public static UnitsLength StageLabel_X = UnitsLength.valueOf(xmlLengthEnumToOMERO(ome.xml.model.StageLabel.getXUnitXsdDefault()));
+    public static UnitsPower LightSource_Power = UnitsPower.valueOf(xmlPowerEnumToOMERO(ome.xml.model.LightSource.getPowerUnitXsdDefault()));
+    public static UnitsElectricPotential Detector_Voltage = UnitsElectricPotential.valueOf(xmlElectricPotentialEnumToOMERO(ome.xml.model.Detector.getVoltageUnitXsdDefault()));
+    public static UnitsLength WellSample_PositionX = UnitsLength.valueOf(xmlLengthEnumToOMERO(ome.xml.model.WellSample.getPositionXUnitXsdDefault()));
+    public static UnitsLength WellSample_PositionY = UnitsLength.valueOf(xmlLengthEnumToOMERO(ome.xml.model.WellSample.getPositionYUnitXsdDefault()));
+    public static UnitsLength Channel_EmissionWavelength = UnitsLength.valueOf(xmlLengthEnumToOMERO(ome.xml.model.Channel.getEmissionWavelengthUnitXsdDefault()));
+    public static UnitsLength Channel_PinholeSize = UnitsLength.valueOf(xmlLengthEnumToOMERO(ome.xml.model.Channel.getPinholeSizeUnitXsdDefault()));
+    public static UnitsLength Channel_ExcitationWavelength = UnitsLength.valueOf(xmlLengthEnumToOMERO(ome.xml.model.Channel.getExcitationWavelengthUnitXsdDefault()));
+    public static UnitsLength TransmittanceRange_CutOutTolerance = UnitsLength.valueOf(xmlLengthEnumToOMERO(ome.xml.model.TransmittanceRange.getCutOutToleranceUnitXsdDefault()));
+    public static UnitsLength TransmittanceRange_CutInTolerance = UnitsLength.valueOf(xmlLengthEnumToOMERO(ome.xml.model.TransmittanceRange.getCutInToleranceUnitXsdDefault()));
+    public static UnitsLength TransmittanceRange_CutOut = UnitsLength.valueOf(xmlLengthEnumToOMERO(ome.xml.model.TransmittanceRange.getCutOutUnitXsdDefault()));
+    public static UnitsLength TransmittanceRange_CutIn = UnitsLength.valueOf(xmlLengthEnumToOMERO(ome.xml.model.TransmittanceRange.getCutInUnitXsdDefault()));
+    public static UnitsFrequency Laser_RepetitionRate = UnitsFrequency.valueOf(xmlFrequencyEnumToOMERO(ome.xml.model.Laser.getRepetitionRateUnitXsdDefault()));
+    public static UnitsLength Laser_Wavelength = UnitsLength.valueOf(xmlLengthEnumToOMERO(ome.xml.model.Laser.getWavelengthUnitXsdDefault()));
 
 }
 

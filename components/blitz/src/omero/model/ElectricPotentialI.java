@@ -20,14 +20,16 @@
 package omero.model;
 
 import ome.model.ModelBased;
+import ome.units.unit.Unit;
 import ome.util.Filterable;
 import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;
+import ome.xml.model.enums.EnumerationException;
 
 import omero.model.enums.UnitsElectricPotential;
 
 /**
- * Blitz wrapper around the {@link ome.model.util.ElectricPotential} class.
+ * Blitz wrapper around the {@link ome.model.units.ElectricPotential} class.
  * Like {@link Details} and {@link Permissions}, this object
  * is embedded into other objects and does not have a full life
  * cycle of its own.
@@ -53,6 +55,58 @@ public class ElectricPotentialI extends ElectricPotential implements ModelBased 
         };
     };
 
+    //
+    // CONVERSIONS
+    //
+
+    public static ome.xml.model.enums.UnitsElectricPotential makeXMLUnit(String unit) {
+        try {
+            return ome.xml.model.enums.UnitsElectricPotential
+                    .fromString((String) unit);
+        } catch (EnumerationException e) {
+            throw new RuntimeException("Bad ElectricPotential unit: " + unit, e);
+        }
+    }
+
+    public static ome.units.quantity.ElectricPotential makeXMLQuantity(double d, String unit) {
+        ome.units.unit.Unit<ome.units.quantity.ElectricPotential> units =
+                ome.xml.model.enums.handlers.UnitsElectricPotentialEnumHandler
+                        .getBaseUnit(makeXMLUnit(unit));
+        return new ome.units.quantity.ElectricPotential(d, units);
+    }
+
+   /**
+    * FIXME: this should likely take a default so that locations which don't
+    * want an exception can have
+    *
+    * log.warn("Using new PositiveFloat(1.0)!", e); return new
+    * PositiveFloat(1.0);
+    *
+    * or similar.
+    */
+   public static ome.units.quantity.ElectricPotential convert(ElectricPotential t) {
+       if (t == null) {
+           return null;
+       }
+
+       Double v = t.getValue();
+       // Use the code/symbol-mapping in the ome.model.enums files
+       // to convert to the specification value.
+       String u = ome.model.enums.UnitsElectricPotential.valueOf(
+               t.getUnit().toString()).getSymbol();
+       ome.xml.model.enums.UnitsElectricPotential units = makeXMLUnit(u);
+       ome.units.unit.Unit<ome.units.quantity.ElectricPotential> units2 =
+               ome.xml.model.enums.handlers.UnitsElectricPotentialEnumHandler
+                       .getBaseUnit(units);
+
+       return new ome.units.quantity.ElectricPotential(v, units2);
+   }
+
+
+    //
+    // REGULAR ICE CLASS
+    //
+
     public final static Ice.ObjectFactory Factory = makeFactory(null);
 
     public ElectricPotentialI() {
@@ -63,6 +117,61 @@ public class ElectricPotentialI extends ElectricPotential implements ModelBased 
         super();
         this.setUnit(unit);
         this.setValue(d);
+    }
+
+    public ElectricPotentialI(double d,
+            Unit<ome.units.quantity.ElectricPotential> unit) {
+        this(d, ome.model.enums.UnitsElectricPotential.bySymbol(unit.getSymbol()));
+    }
+
+   /**
+    * Copy constructor that converts the given {@link omero.model.ElectricPotential}
+    * based on the given ome-xml enum
+    */
+   public ElectricPotentialI(ElectricPotential value, Unit<ome.units.quantity.ElectricPotential> ul) {
+       this(value,
+            ome.model.enums.UnitsElectricPotential.bySymbol(ul.getSymbol()).toString());
+   }
+
+   public ElectricPotentialI(double d, ome.model.enums.UnitsElectricPotential ul) {
+        this(d, UnitsElectricPotential.valueOf(ul.toString()));
+    }
+
+   /**
+    * Copy constructor that converts the given {@link omero.model.ElectricPotential}
+    * based on the given enum string.
+    *
+    * @param target String representation of the CODE enum
+    */
+    public ElectricPotentialI(ElectricPotential value, String target) {
+       String source = value.getUnit().toString();
+       if (!target.equals(source)) {
+            throw new RuntimeException(String.format(
+               "%f %s cannot be converted to %s",
+               value.getValue(), value.getUnit(), target));
+       }
+       setValue(value.getValue());
+       setUnit(value.getUnit());
+    }
+
+   /**
+    * Copy constructor that converts between units if possible.
+    *
+    * @param target unit that is desired. non-null.
+    */
+    public ElectricPotentialI(ElectricPotential value, UnitsElectricPotential target) {
+        this(value, target.toString());
+    }
+
+    /**
+     * Convert a Bio-Formats {@link Length} to an OMERO Length.
+     */
+    public ElectricPotentialI(ome.units.quantity.ElectricPotential value) {
+        ome.model.enums.UnitsElectricPotential internal =
+            ome.model.enums.UnitsElectricPotential.bySymbol(value.unit().getSymbol());
+        UnitsElectricPotential ul = UnitsElectricPotential.valueOf(internal.toString());
+        setValue(value.value().doubleValue());
+        setUnit(ul);
     }
 
     public double getValue(Ice.Current current) {

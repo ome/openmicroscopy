@@ -22,16 +22,9 @@
  */
 package pojos;
 
-import static ome.xml.model.Channel.getEmissionWavelengthUnitXsdDefault;
-import static ome.xml.model.Channel.getExcitationWavelengthUnitXsdDefault;
-import static ome.xml.model.Channel.getPinholeSizeUnitXsdDefault;
-import static ome.formats.model.UnitsFactory.convertLength;
-import static ome.formats.model.UnitsFactory.makeLength;
-
 import java.math.RoundingMode;
-import org.apache.commons.lang.StringUtils;
-import com.google.common.math.DoubleMath;
 
+import ome.formats.model.UnitsFactory;
 import omero.RDouble;
 import omero.RInt;
 import omero.RString;
@@ -41,11 +34,16 @@ import omero.model.ChannelI;
 import omero.model.ContrastMethod;
 import omero.model.Illumination;
 import omero.model.Length;
+import omero.model.LengthI;
 import omero.model.LogicalChannel;
 import omero.model.StatsInfo;
 
-/** 
- * The data that makes up an <i>OME</i> Channel along with links to its logical 
+import org.apache.commons.lang.StringUtils;
+
+import com.google.common.math.DoubleMath;
+
+/**
+ * The data that makes up an <i>OME</i> Channel along with links to its logical
  * channel.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -174,8 +172,8 @@ public class ChannelData
         LogicalChannel lc = asChannel().getLogicalChannel();
         if (lc == null) return index;
         Length value  = lc.getEmissionWave();
-        if (value != null) return convertLength(value,
-                getEmissionWavelengthUnitXsdDefault()).getValue();
+        if (value != null) return new LengthI(value,
+                UnitsFactory.Channel_EmissionWavelength).getValue();
         return -1;
     }
 
@@ -190,8 +188,8 @@ public class ChannelData
         LogicalChannel lc = asChannel().getLogicalChannel();
         if (lc == null) return getEmissionWavelength();
         Length value = lc.getExcitationWave();
-        if (value != null) return convertLength(value,
-                getExcitationWavelengthUnitXsdDefault()).getValue();
+        if (value != null) return new LengthI(value,
+                UnitsFactory.Channel_ExcitationWavelength).getValue();
         return -1;
     }
 
@@ -206,8 +204,8 @@ public class ChannelData
         LogicalChannel lc = asChannel().getLogicalChannel();
         if (lc == null) return -1;
         Length value = lc.getPinHoleSize();
-        if (value != null) return convertLength(value,
-                getPinholeSizeUnitXsdDefault()).getValue();
+        if (value != null) return new LengthI(value,
+                UnitsFactory.Channel_PinholeSize).getValue();
         return -1;
     }
 
@@ -345,7 +343,7 @@ public class ChannelData
         if (value < 0) return;
         setDirty(true);
         asChannel().getLogicalChannel().setPinHoleSize(
-                makeLength(value, getPinholeSizeUnitXsdDefault()));
+                new LengthI(value, UnitsFactory.Channel_PinholeSize));
     }
 
     /**
@@ -383,7 +381,7 @@ public class ChannelData
         if (value < 0) return;
         setDirty(true);
         asChannel().getLogicalChannel().setEmissionWave(
-                makeLength(value, getEmissionWavelengthUnitXsdDefault()));
+                new LengthI(value, UnitsFactory.Channel_EmissionWavelength));
     }
 
     /**
@@ -397,7 +395,7 @@ public class ChannelData
         if (value < 0) return;
         setDirty(true);
         asChannel().getLogicalChannel().setExcitationWave(
-                makeLength(value, getExcitationWavelengthUnitXsdDefault()));
+                new LengthI(value, UnitsFactory.Channel_ExcitationWavelength));
     }
 
     /**

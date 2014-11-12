@@ -1,32 +1,32 @@
 package ome.formats.utests;
 
-import static ome.xml.model.LightSourceSettings.getWavelengthUnitXsdDefault;
 import static ome.formats.model.UnitsFactory.convertFrequency;
 import static ome.formats.model.UnitsFactory.convertLength;
 import static ome.formats.model.UnitsFactory.makeFrequency;
-import static ome.formats.model.UnitsFactory.makeLength;
 
 import java.util.LinkedHashMap;
 
+import junit.framework.TestCase;
 import ome.formats.Index;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.model.BlitzInstanceProvider;
+import ome.formats.model.UnitsFactory;
 import ome.units.UNITS;
 import ome.units.quantity.Frequency;
 import ome.units.quantity.Length;
-import ome.xml.model.enums.*;
+import ome.xml.model.enums.LaserMedium;
+import ome.xml.model.enums.LaserType;
+import ome.xml.model.enums.Pulse;
 import omero.api.ServiceFactoryPrx;
 import omero.metadatastore.IObjectContainer;
 import omero.model.Laser;
-import junit.framework.TestCase;
+import omero.model.LengthI;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class LaserTest extends TestCase
 {
-
-    private static final String WAVE_UNIT = getWavelengthUnitXsdDefault();
 
 	private OMEROMetadataStoreClient store;
 
@@ -35,7 +35,7 @@ public class LaserTest extends TestCase
 	private static final int INSTRUMENT_INDEX = 0;
 	
 	private static Length makeWave(double d) {
-	    return convertLength(makeLength(d, WAVE_UNIT));
+	    return convertLength(new LengthI(d, UnitsFactory.Channel_EmissionWavelength));
 	}
 
 	private static Frequency hz(double d) {

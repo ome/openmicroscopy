@@ -22,15 +22,6 @@
  */
 package org.openmicroscopy.shoola.env.data;
 
-import static ome.xml.model.ImagingEnvironment.getAirPressureUnitXsdDefault;
-import static ome.xml.model.ImagingEnvironment.getTemperatureUnitXsdDefault;
-import static ome.xml.model.StageLabel.getXUnitXsdDefault;
-import static ome.xml.model.StageLabel.getYUnitXsdDefault;
-import static ome.xml.model.StageLabel.getZUnitXsdDefault;
-import static ome.formats.model.UnitsFactory.makeLength;
-import static ome.formats.model.UnitsFactory.makePressure;
-import static ome.formats.model.UnitsFactory.makeTemperature;
-
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -41,19 +32,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
-
-
-//Third-party libraries
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.ListUtils;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-
-
-//Application-internal dependencies
+import ome.formats.model.UnitsFactory;
 import omero.cmd.OriginalMetadataRequest;
 import omero.cmd.Request;
 import omero.model.Annotation;
@@ -69,6 +51,7 @@ import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImagingEnvironment;
 import omero.model.ImagingEnvironmentI;
+import omero.model.LengthI;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
 import omero.model.Medium;
@@ -77,16 +60,20 @@ import omero.model.ObjectiveSettings;
 import omero.model.ObjectiveSettingsI;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
+import omero.model.PressureI;
 import omero.model.ProjectAnnotationLink;
 import omero.model.StageLabel;
 import omero.model.StageLabelI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
+import omero.model.TemperatureI;
 import omero.model.TermAnnotation;
 import omero.model.XmlAnnotation;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.ListUtils;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AnnotationLinkData;
@@ -121,6 +108,9 @@ import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
 import pojos.TextualAnnotationData;
 import pojos.XMLAnnotationData;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 
 /** 
  * Implementation of the {@link OmeroMetadataService} I/F.
@@ -334,13 +324,13 @@ class OmeroMetadataServiceImpl
 			Object o = data.getPositionX();
 			Float f = (Float) o;
 			if (o != null)
-				label.setPositionX(makeLength(f.doubleValue(), getXUnitXsdDefault()));
+				label.setPositionX(new LengthI(f.doubleValue(), UnitsFactory.StageLabel_X));
 			o = data.getPositionY();
 			if (o != null)
-				label.setPositionY(makeLength(f.doubleValue(), getYUnitXsdDefault()));
+				label.setPositionY(new LengthI(f.doubleValue(), UnitsFactory.StageLabel_Y));
 			o = data.getPositionZ();
 			if (o != null)
-				label.setPositionZ(makeLength(f.doubleValue(), getZUnitXsdDefault()));
+				label.setPositionZ(new LengthI(f.doubleValue(), UnitsFactory.StageLabel_Z));
 		}
 		//Environment
 		if (data.isImagingEnvironmentDirty()) {
@@ -354,14 +344,14 @@ class OmeroMetadataServiceImpl
 						ImagingEnvironment.class.getName(), id);
 				toUpdate.add(condition);
 			}
-			condition.setAirPressure(makePressure(data.getAirPressure(),
-			        getAirPressureUnitXsdDefault()));
+			condition.setAirPressure(new PressureI(data.getAirPressure(),
+			        UnitsFactory.ImagingEnvironment_AirPressure));
 			condition.setHumidity(omero.rtypes.rdouble(
 					data.getHumidity()));
 			Object o = data.getTemperature();
 			if (o != null)
-				condition.setTemperature(makeTemperature(((Float) o).doubleValue(),
-				        getTemperatureUnitXsdDefault()));
+				condition.setTemperature(new TemperatureI(((Float) o).doubleValue(),
+				        UnitsFactory.ImagingEnvironment_Temperature));
 			condition.setCo2percent(omero.rtypes.rdouble(
 					data.getCo2Percent()));
 		}

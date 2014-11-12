@@ -1,10 +1,7 @@
 package ome.formats.utests;
 
-import static ome.xml.model.Channel.getEmissionWavelengthUnitXsdDefault;
 import static ome.formats.model.UnitsFactory.convertLength;
-import static ome.formats.model.UnitsFactory.makeLength;
 import static ome.formats.model.UnitsFactory.convertPower;
-import static ome.formats.model.UnitsFactory.makePower;
 
 import java.util.Map;
 
@@ -13,22 +10,24 @@ import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.model.BlitzInstanceProvider;
-import ome.units.UNITS;
+import ome.formats.model.UnitsFactory;
 import ome.units.quantity.Power;
 import ome.util.LSID;
-import ome.xml.model.enums.*;
-import ome.xml.model.primitives.*;
+import ome.xml.model.enums.LaserMedium;
+import ome.xml.model.enums.LaserType;
+import ome.xml.model.primitives.PercentFraction;
+import ome.xml.model.primitives.PositiveInteger;
 import omero.api.ServiceFactoryPrx;
 import omero.metadatastore.IObjectContainer;
+import omero.model.LengthI;
 import omero.model.Plate;
+import omero.model.PowerI;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class ContainerCacheOrderTest extends TestCase
 {
-    private final static String EM_WAVE = getEmissionWavelengthUnitXsdDefault();
-
 	private OMEROWrapper wrapper;
 
 	private OMEROMetadataStoreClient store;
@@ -44,11 +43,11 @@ public class ContainerCacheOrderTest extends TestCase
 	private static final int OBJECTIVE_INDEX = 0;
 
 	private static ome.units.quantity.Length makeWave(double d) {
-	    return convertLength(makeLength(d, EM_WAVE));
+	    return convertLength(new LengthI(d, UnitsFactory.Channel_EmissionWavelength));
 	}
 
 	Power watt(double d) {
-	    return convertPower(makePower(d, UNITS.WATT.getSymbol()));
+	    return convertPower(new PowerI(d, UnitsFactory.LightSource_Power));
 	}
 
 	@BeforeMethod

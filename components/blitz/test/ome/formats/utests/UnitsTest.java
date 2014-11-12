@@ -18,18 +18,33 @@
 
 package ome.formats.utests;
 
-import ome.formats.model.UnitsFactory;
+import ome.units.UNITS;
+import omero.model.LengthI;
 
 import org.testng.annotations.Test;
 
-public class UnitsFactoryTest {
+public class UnitsTest {
+
+    protected omero.model.Length mm(double d) {
+        omero.model.Length l = new omero.model.LengthI();
+        l.setUnit(omero.model.enums.UnitsLength.MM);
+        l.setValue(d);
+        return l;
+    }
 
     @Test
     public void testLengthConversion() {
-        omero.model.Length l = new omero.model.LengthI();
-        l.setUnit(omero.model.enums.UnitsLength.MM);
-        l.setValue(1.0);
-        UnitsFactory.convertLength(l);
+        LengthI.convert(mm(1));
+    }
+
+    @Test(groups = "broken") // These conversions need to be implemented
+    public void testLengthMapping() {
+        new LengthI(mm(1), UNITS.M);
+    }
+
+    @Test
+    public void testLengthNoOpMapping() {
+        new LengthI(mm(1), UNITS.MM);
     }
 
 }

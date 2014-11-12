@@ -22,14 +22,13 @@
  */
 package pojos;
 
-import static ome.xml.model.Detector.getVoltageUnitXsdDefault;
-import static ome.formats.model.UnitsFactory.convertElectricPotential;
-
+import ome.formats.model.UnitsFactory;
 import omero.RDouble;
 import omero.RString;
 import omero.model.Detector;
 import omero.model.DetectorType;
 import omero.model.ElectricPotential;
+import omero.model.ElectricPotentialI;
 
 /**
  * Hosts a detector.
@@ -71,7 +70,7 @@ public class DetectorData
 		Detector detector = (Detector) asIObject();
 		ElectricPotential value = detector.getVoltage();
 		if (value == null) return null;
-		return convertElectricPotential(value, getVoltageUnitXsdDefault()).getValue();
+		return new ElectricPotentialI(value, UnitsFactory.Detector_Voltage).getValue();
 	}
 	
 	/**

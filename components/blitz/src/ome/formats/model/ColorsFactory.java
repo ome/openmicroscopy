@@ -216,7 +216,7 @@ public class ColorsFactory {
 	    cutIn = makeLength(cutOut.getValue()-2*RANGE, cutOut.getUnit());
 	// FIXME: are these in the same unit?
 	Length v = makeLength((cutIn.getValue()+cutOut.getValue())/2, cutIn.getUnit());
-	if (v.getValue() < 0) return makeLength(0.0, ome.xml.model.TransmittanceRange.getCutInUnitXsdDefault());
+	if (v.getValue() < 0) return makeLength(0.0, ome.formats.model.UnitsFactory.TransmittanceRange_CutIn);
 	return v;
     }
 

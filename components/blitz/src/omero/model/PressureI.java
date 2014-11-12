@@ -20,14 +20,16 @@
 package omero.model;
 
 import ome.model.ModelBased;
+import ome.units.unit.Unit;
 import ome.util.Filterable;
 import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;
+import ome.xml.model.enums.EnumerationException;
 
 import omero.model.enums.UnitsPressure;
 
 /**
- * Blitz wrapper around the {@link ome.model.util.Pressure} class.
+ * Blitz wrapper around the {@link ome.model.units.Pressure} class.
  * Like {@link Details} and {@link Permissions}, this object
  * is embedded into other objects and does not have a full life
  * cycle of its own.
@@ -53,6 +55,58 @@ public class PressureI extends Pressure implements ModelBased {
         };
     };
 
+    //
+    // CONVERSIONS
+    //
+
+    public static ome.xml.model.enums.UnitsPressure makeXMLUnit(String unit) {
+        try {
+            return ome.xml.model.enums.UnitsPressure
+                    .fromString((String) unit);
+        } catch (EnumerationException e) {
+            throw new RuntimeException("Bad Pressure unit: " + unit, e);
+        }
+    }
+
+    public static ome.units.quantity.Pressure makeXMLQuantity(double d, String unit) {
+        ome.units.unit.Unit<ome.units.quantity.Pressure> units =
+                ome.xml.model.enums.handlers.UnitsPressureEnumHandler
+                        .getBaseUnit(makeXMLUnit(unit));
+        return new ome.units.quantity.Pressure(d, units);
+    }
+
+   /**
+    * FIXME: this should likely take a default so that locations which don't
+    * want an exception can have
+    *
+    * log.warn("Using new PositiveFloat(1.0)!", e); return new
+    * PositiveFloat(1.0);
+    *
+    * or similar.
+    */
+   public static ome.units.quantity.Pressure convert(Pressure t) {
+       if (t == null) {
+           return null;
+       }
+
+       Double v = t.getValue();
+       // Use the code/symbol-mapping in the ome.model.enums files
+       // to convert to the specification value.
+       String u = ome.model.enums.UnitsPressure.valueOf(
+               t.getUnit().toString()).getSymbol();
+       ome.xml.model.enums.UnitsPressure units = makeXMLUnit(u);
+       ome.units.unit.Unit<ome.units.quantity.Pressure> units2 =
+               ome.xml.model.enums.handlers.UnitsPressureEnumHandler
+                       .getBaseUnit(units);
+
+       return new ome.units.quantity.Pressure(v, units2);
+   }
+
+
+    //
+    // REGULAR ICE CLASS
+    //
+
     public final static Ice.ObjectFactory Factory = makeFactory(null);
 
     public PressureI() {
@@ -63,6 +117,61 @@ public class PressureI extends Pressure implements ModelBased {
         super();
         this.setUnit(unit);
         this.setValue(d);
+    }
+
+    public PressureI(double d,
+            Unit<ome.units.quantity.Pressure> unit) {
+        this(d, ome.model.enums.UnitsPressure.bySymbol(unit.getSymbol()));
+    }
+
+   /**
+    * Copy constructor that converts the given {@link omero.model.Pressure}
+    * based on the given ome-xml enum
+    */
+   public PressureI(Pressure value, Unit<ome.units.quantity.Pressure> ul) {
+       this(value,
+            ome.model.enums.UnitsPressure.bySymbol(ul.getSymbol()).toString());
+   }
+
+   public PressureI(double d, ome.model.enums.UnitsPressure ul) {
+        this(d, UnitsPressure.valueOf(ul.toString()));
+    }
+
+   /**
+    * Copy constructor that converts the given {@link omero.model.Pressure}
+    * based on the given enum string.
+    *
+    * @param target String representation of the CODE enum
+    */
+    public PressureI(Pressure value, String target) {
+       String source = value.getUnit().toString();
+       if (!target.equals(source)) {
+            throw new RuntimeException(String.format(
+               "%f %s cannot be converted to %s",
+               value.getValue(), value.getUnit(), target));
+       }
+       setValue(value.getValue());
+       setUnit(value.getUnit());
+    }
+
+   /**
+    * Copy constructor that converts between units if possible.
+    *
+    * @param target unit that is desired. non-null.
+    */
+    public PressureI(Pressure value, UnitsPressure target) {
+        this(value, target.toString());
+    }
+
+    /**
+     * Convert a Bio-Formats {@link Length} to an OMERO Length.
+     */
+    public PressureI(ome.units.quantity.Pressure value) {
+        ome.model.enums.UnitsPressure internal =
+            ome.model.enums.UnitsPressure.bySymbol(value.unit().getSymbol());
+        UnitsPressure ul = UnitsPressure.valueOf(internal.toString());
+        setValue(value.value().doubleValue());
+        setUnit(ul);
     }
 
     public double getValue(Ice.Current current) {

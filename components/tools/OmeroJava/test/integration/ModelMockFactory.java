@@ -8,13 +8,6 @@ package integration;
 
 import static omero.rtypes.rstring;
 
-import static ome.formats.model.UnitsFactory.makeElectricPotential;
-import static ome.formats.model.UnitsFactory.makeFrequency;
-import static ome.formats.model.UnitsFactory.makeLength;
-import static ome.formats.model.UnitsFactory.makePower;
-import static ome.formats.model.UnitsFactory.makePressure;
-import static ome.formats.model.UnitsFactory.makeTemperature;
-
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.lang.reflect.Method;
@@ -27,9 +20,8 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 
+import ome.formats.model.UnitsFactory;
 import ome.units.UNITS;
-import ome.units.unit.Unit;
-import ome.xml.model.TransmittanceRange;
 import omero.api.IPixelsPrx;
 import omero.model.*;
 import omero.model.enums.UnitsLength;
@@ -52,20 +44,6 @@ import pojos.ScreenData;
  * @since 3.0-Beta4
  */
 public class ModelMockFactory {
-
-    static final String AIR_UNIT = ome.xml.model.ImagingEnvironment.getAirPressureUnitXsdDefault();
-
-    static final String TEMP_UNIT = ome.xml.model.ImagingEnvironment.getTemperatureUnitXsdDefault();
-
-    static final String EM_UNIT = ome.xml.model.Channel.getEmissionWavelengthUnitXsdDefault();
-
-    static final String CUT_UNIT = TransmittanceRange.getCutInUnitXsdDefault();
-
-    static final String OBJ_UNIT = ome.xml.model.Objective.getWorkingDistanceUnitXsdDefault();
-
-    static final String POS_UNIT = ome.xml.model.StageLabel.getXUnitXsdDefault();
-
-    static final String WAVE_UNIT = ome.xml.model.LightSourceSettings.getWavelengthUnitXsdDefault();
 
     /** The default width of an image. */
     static final int WIDTH = 100;
@@ -120,15 +98,15 @@ public class ModelMockFactory {
     private IPixelsPrx pixelsService;
 
     private static Frequency hz(double d) {
-        return makeFrequency(d, UNITS.HZ);
+        return new FrequencyI(d, UNITS.HZ);
     }
 
     private static ElectricPotential volt(double d) {
-        return makeElectricPotential(d, UNITS.VOLT);
+        return new ElectricPotentialI(d, UNITS.VOLT);
     }
 
     private static Power watt(double d) {
-        return makePower(d, UNITS.WATT);
+        return new PowerI(d, UNITS.WATT);
     }
 
     /**
@@ -328,10 +306,10 @@ public class ModelMockFactory {
         filter.setType((FilterType) types.get(0));
 
         TransmittanceRangeI transmittance = new TransmittanceRangeI();
-        transmittance.setCutIn(makeLength(cutIn, CUT_UNIT));
-        transmittance.setCutOut(makeLength(cutOut, CUT_UNIT));
-        transmittance.setCutInTolerance(makeLength(1, CUT_UNIT));
-        transmittance.setCutOutTolerance(makeLength(1, CUT_UNIT));
+        transmittance.setCutIn(new LengthI(cutIn, UnitsFactory.TransmittanceRange_CutIn));
+        transmittance.setCutOut(new LengthI(cutOut, UnitsFactory.TransmittanceRange_CutOut));
+        transmittance.setCutInTolerance(new LengthI(1, UnitsFactory.TransmittanceRange_CutInTolerance));
+        transmittance.setCutOutTolerance(new LengthI(1, UnitsFactory.TransmittanceRange_CutOutTolerance));
         filter.setTransmittanceRange(transmittance);
         return filter;
     }
@@ -394,7 +372,7 @@ public class ModelMockFactory {
         objective.setIris(omero.rtypes.rbool(true));
         objective.setLensNA(omero.rtypes.rdouble(0.5));
         objective.setNominalMagnification(omero.rtypes.rdouble(1));
-        objective.setWorkingDistance(makeLength(1, OBJ_UNIT));
+        objective.setWorkingDistance(new LengthI(1, UnitsFactory.Objective_WorkingDistance));
         return objective;
     }
 
@@ -428,9 +406,9 @@ public class ModelMockFactory {
     public StageLabel createStageLabel() {
         StageLabel label = new StageLabelI();
         label.setName(omero.rtypes.rstring("label"));
-        label.setPositionX(makeLength(1, POS_UNIT));
-        label.setPositionY(makeLength(1, POS_UNIT));
-        label.setPositionZ(makeLength(1, POS_UNIT));
+        label.setPositionX(new LengthI(1, UnitsFactory.StageLabel_X));
+        label.setPositionY(new LengthI(1, UnitsFactory.StageLabel_Y));
+        label.setPositionZ(new LengthI(1, UnitsFactory.StageLabel_Z));
         return label;
     }
 
@@ -441,10 +419,10 @@ public class ModelMockFactory {
      */
     public ImagingEnvironment createImageEnvironment() {
         ImagingEnvironment env = new ImagingEnvironmentI();
-        env.setAirPressure(makePressure(1, AIR_UNIT));
+        env.setAirPressure(new PressureI(1, UnitsFactory.ImagingEnvironment_AirPressure));
         env.setCo2percent(omero.rtypes.rdouble(0.5));
         env.setHumidity(omero.rtypes.rdouble(0.5));
-        env.setTemperature(makeTemperature(1, TEMP_UNIT));
+        env.setTemperature(new TemperatureI(1, UnitsFactory.ImagingEnvironment_Temperature));
         return env;
     }
 
@@ -496,7 +474,7 @@ public class ModelMockFactory {
         exp.setType((ExperimentType) types.get(0));
         mm.setExperiment(exp);
         // settings.setMicrobeamManipulation(mm);
-        settings.setWavelength(makeLength(500.1, WAVE_UNIT));
+        settings.setWavelength(new LengthI(500.1, UnitsFactory.LightSourceSettings_Wavelength));
         return settings;
     }
 
@@ -610,7 +588,7 @@ public class ModelMockFactory {
         laser.setFrequencyMultiplication(omero.rtypes.rint(1));
         laser.setPockelCell(omero.rtypes.rbool(false));
         laser.setTuneable(omero.rtypes.rbool(true));
-        laser.setWavelength(makeLength(500.1, WAVE_UNIT));
+        laser.setWavelength(new LengthI(500.1, UnitsFactory.Laser_Wavelength));
         laser.setPower(watt(1));
         laser.setRepetitionRate(hz(1));
         return laser;
@@ -832,7 +810,7 @@ public class ModelMockFactory {
     public Channel createChannel(int w) throws Exception {
         Channel channel = new ChannelI();
         LogicalChannel lc = new LogicalChannelI();
-        lc.setEmissionWave(makeLength(200.1, EM_UNIT));
+        lc.setEmissionWave(new LengthI(200.1, UnitsFactory.Channel_EmissionWavelength));
         List<IObject> types = pixelsService
                 .getAllEnumerations(ContrastMethod.class.getName());
         ContrastMethod cm = (ContrastMethod) types.get(0);

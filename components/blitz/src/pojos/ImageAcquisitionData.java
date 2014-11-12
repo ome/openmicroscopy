@@ -22,28 +22,23 @@
  */
 package pojos;
 
-import static ome.xml.model.ImagingEnvironment.getAirPressureUnitXsdDefault;
-import static ome.xml.model.ImagingEnvironment.getTemperatureUnitXsdDefault;
-import static ome.xml.model.StageLabel.getXUnitXsdDefault;
-import static ome.xml.model.StageLabel.getYUnitXsdDefault;
-import static ome.xml.model.StageLabel.getZUnitXsdDefault;
-import static ome.formats.model.UnitsFactory.makeLength;
-import static ome.formats.model.UnitsFactory.makePressure;
-import static ome.formats.model.UnitsFactory.makeTemperature;
-
+import ome.formats.model.UnitsFactory;
 import omero.RDouble;
 import omero.RLong;
 import omero.model.Image;
 import omero.model.ImagingEnvironment;
 import omero.model.ImagingEnvironmentI;
 import omero.model.Length;
+import omero.model.LengthI;
 import omero.model.Medium;
 import omero.model.ObjectiveSettings;
 import omero.model.ObjectiveSettingsI;
 import omero.model.Pressure;
+import omero.model.PressureI;
 import omero.model.StageLabel;
 import omero.model.StageLabelI;
 import omero.model.Temperature;
+import omero.model.TemperatureI;
 
 /** 
  * Object hosting the acquisition metadata.
@@ -285,7 +280,7 @@ public class ImageAcquisitionData
 	{
 		labelDirty = true;
 		if (label == null) label = new StageLabelI();
-		label.setPositionX(makeLength(value, getXUnitXsdDefault()));
+		label.setPositionX(new LengthI(value, UnitsFactory.StageLabel_X));
 	}
 	
 	/**
@@ -297,7 +292,7 @@ public class ImageAcquisitionData
 	{
 		labelDirty = true;
 		if (label == null) label = new StageLabelI();
-		label.setPositionY(makeLength(value, getYUnitXsdDefault()));
+		label.setPositionY(new LengthI(value, UnitsFactory.StageLabel_Y));
 	}
 	
 	/**
@@ -309,7 +304,7 @@ public class ImageAcquisitionData
 	{
 		labelDirty = true;
 		if (label == null) label = new StageLabelI();
-		label.setPositionZ(makeLength(value, getZUnitXsdDefault()));
+		label.setPositionZ(new LengthI(value, UnitsFactory.StageLabel_Z));
 	}
 	
 	/**
@@ -322,8 +317,8 @@ public class ImageAcquisitionData
 	{
 		imagingEnvironmentDirty = true;
 		if (environment == null) environment = new ImagingEnvironmentI();
-		environment.setTemperature(makeTemperature(temperature,
-		        getTemperatureUnitXsdDefault()));
+		environment.setTemperature(new TemperatureI(temperature,
+		        UnitsFactory.ImagingEnvironment_Temperature));
 	}
 	
 	/**
@@ -336,8 +331,8 @@ public class ImageAcquisitionData
 	{
 		imagingEnvironmentDirty = true;
 		if (environment == null) environment = new ImagingEnvironmentI();
-		environment.setAirPressure(makePressure(pressure,
-		        getAirPressureUnitXsdDefault()));
+		environment.setAirPressure(new PressureI(pressure,
+		        UnitsFactory.ImagingEnvironment_AirPressure));
 	}
 	
 	/**

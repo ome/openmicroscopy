@@ -22,9 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.util;
 
-import static ome.xml.model.LightSourceSettings.getWavelengthUnitXsdDefault;
-import static ome.formats.model.UnitsFactory.makeLength;
-
 import java.awt.Color;
 import java.awt.Font;
 import java.sql.Timestamp;
@@ -45,7 +42,6 @@ import javax.swing.JPanel;
 import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.JXTaskPane;
 
-import omero.RDouble;
 import omero.model.Length;
 import omero.model.PlaneInfo;
 

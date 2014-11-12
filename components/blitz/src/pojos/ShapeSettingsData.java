@@ -22,8 +22,6 @@
  */
 package pojos;
 
-import static ome.xml.model.Shape.getStrokeWidthUnitXsdDefault;
-import static ome.xml.model.Shape.getFontSizeUnitXsdDefault;
 import static ome.formats.model.UnitsFactory.convertLength;
 import static ome.formats.model.UnitsFactory.makeLength;
 
@@ -31,13 +29,13 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 
-
+import ome.formats.model.UnitsFactory;
 import ome.units.UNITS;
-import ome.units.unit.Unit;
 import omero.RInt;
 import omero.RString;
 import omero.rtypes;
 import omero.model.Length;
+import omero.model.LengthI;
 import omero.model.Shape;
 
 /**
@@ -221,7 +219,7 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		Length value = shape.getStrokeWidth();
 		if (value == null) return 1.0;
-		return convertLength(value, getStrokeWidthUnitXsdDefault()).getValue();
+		return new LengthI(value, UnitsFactory.Shape_StrokeWidth).getValue();
 	}
 
 	/**
@@ -235,7 +233,7 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		shape.setStrokeWidth(makeLength(strokeWidth, getStrokeWidthUnitXsdDefault()));
+		shape.setStrokeWidth(new LengthI(strokeWidth, UnitsFactory.Shape_StrokeWidth));
 		setDirty(true);
 	}
 	

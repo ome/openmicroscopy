@@ -20,14 +20,16 @@
 package omero.model;
 
 import ome.model.ModelBased;
+import ome.units.unit.Unit;
 import ome.util.Filterable;
 import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;
+import ome.xml.model.enums.EnumerationException;
 
 import omero.model.enums.UnitsTime;
 
 /**
- * Blitz wrapper around the {@link ome.model.util.Time} class.
+ * Blitz wrapper around the {@link ome.model.units.Time} class.
  * Like {@link Details} and {@link Permissions}, this object
  * is embedded into other objects and does not have a full life
  * cycle of its own.
@@ -53,6 +55,58 @@ public class TimeI extends Time implements ModelBased {
         };
     };
 
+    //
+    // CONVERSIONS
+    //
+
+    public static ome.xml.model.enums.UnitsTime makeXMLUnit(String unit) {
+        try {
+            return ome.xml.model.enums.UnitsTime
+                    .fromString((String) unit);
+        } catch (EnumerationException e) {
+            throw new RuntimeException("Bad Time unit: " + unit, e);
+        }
+    }
+
+    public static ome.units.quantity.Time makeXMLQuantity(double d, String unit) {
+        ome.units.unit.Unit<ome.units.quantity.Time> units =
+                ome.xml.model.enums.handlers.UnitsTimeEnumHandler
+                        .getBaseUnit(makeXMLUnit(unit));
+        return new ome.units.quantity.Time(d, units);
+    }
+
+   /**
+    * FIXME: this should likely take a default so that locations which don't
+    * want an exception can have
+    *
+    * log.warn("Using new PositiveFloat(1.0)!", e); return new
+    * PositiveFloat(1.0);
+    *
+    * or similar.
+    */
+   public static ome.units.quantity.Time convert(Time t) {
+       if (t == null) {
+           return null;
+       }
+
+       Double v = t.getValue();
+       // Use the code/symbol-mapping in the ome.model.enums files
+       // to convert to the specification value.
+       String u = ome.model.enums.UnitsTime.valueOf(
+               t.getUnit().toString()).getSymbol();
+       ome.xml.model.enums.UnitsTime units = makeXMLUnit(u);
+       ome.units.unit.Unit<ome.units.quantity.Time> units2 =
+               ome.xml.model.enums.handlers.UnitsTimeEnumHandler
+                       .getBaseUnit(units);
+
+       return new ome.units.quantity.Time(v, units2);
+   }
+
+
+    //
+    // REGULAR ICE CLASS
+    //
+
     public final static Ice.ObjectFactory Factory = makeFactory(null);
 
     public TimeI() {
@@ -63,6 +117,61 @@ public class TimeI extends Time implements ModelBased {
         super();
         this.setUnit(unit);
         this.setValue(d);
+    }
+
+    public TimeI(double d,
+            Unit<ome.units.quantity.Time> unit) {
+        this(d, ome.model.enums.UnitsTime.bySymbol(unit.getSymbol()));
+    }
+
+   /**
+    * Copy constructor that converts the given {@link omero.model.Time}
+    * based on the given ome-xml enum
+    */
+   public TimeI(Time value, Unit<ome.units.quantity.Time> ul) {
+       this(value,
+            ome.model.enums.UnitsTime.bySymbol(ul.getSymbol()).toString());
+   }
+
+   public TimeI(double d, ome.model.enums.UnitsTime ul) {
+        this(d, UnitsTime.valueOf(ul.toString()));
+    }
+
+   /**
+    * Copy constructor that converts the given {@link omero.model.Time}
+    * based on the given enum string.
+    *
+    * @param target String representation of the CODE enum
+    */
+    public TimeI(Time value, String target) {
+       String source = value.getUnit().toString();
+       if (!target.equals(source)) {
+            throw new RuntimeException(String.format(
+               "%f %s cannot be converted to %s",
+               value.getValue(), value.getUnit(), target));
+       }
+       setValue(value.getValue());
+       setUnit(value.getUnit());
+    }
+
+   /**
+    * Copy constructor that converts between units if possible.
+    *
+    * @param target unit that is desired. non-null.
+    */
+    public TimeI(Time value, UnitsTime target) {
+        this(value, target.toString());
+    }
+
+    /**
+     * Convert a Bio-Formats {@link Length} to an OMERO Length.
+     */
+    public TimeI(ome.units.quantity.Time value) {
+        ome.model.enums.UnitsTime internal =
+            ome.model.enums.UnitsTime.bySymbol(value.unit().getSymbol());
+        UnitsTime ul = UnitsTime.valueOf(internal.toString());
+        setValue(value.value().doubleValue());
+        setUnit(ul);
     }
 
     public double getValue(Ice.Current current) {

@@ -22,14 +22,7 @@
  */
 package pojos;
 
-import static ome.xml.model.DetectorSettings.getReadOutRateUnitXsdDefault;
-import static ome.xml.model.DetectorSettings.getVoltageUnitXsdDefault;
-import static ome.xml.model.LightSourceSettings.getWavelengthUnitXsdDefault;
-import static ome.formats.model.UnitsFactory.convertFrequency;
-import static ome.formats.model.UnitsFactory.makeElectricPotential;
-import static ome.formats.model.UnitsFactory.makeFrequency;
-import static ome.formats.model.UnitsFactory.makeLength;
-
+import ome.formats.model.UnitsFactory;
 import omero.RDouble;
 import omero.model.AcquisitionMode;
 import omero.model.Binning;
@@ -37,10 +30,13 @@ import omero.model.ContrastMethod;
 import omero.model.DetectorSettings;
 import omero.model.DetectorSettingsI;
 import omero.model.ElectricPotential;
+import omero.model.ElectricPotentialI;
 import omero.model.FilterSet;
 import omero.model.Frequency;
+import omero.model.FrequencyI;
 import omero.model.Illumination;
 import omero.model.Length;
+import omero.model.LengthI;
 import omero.model.LightPath;
 import omero.model.LightSettings;
 import omero.model.LightSettingsI;
@@ -186,8 +182,8 @@ public class ChannelAcquisitionData
 		if (detectorSettings == null) return null;
 		Frequency value = detectorSettings.getReadOutRate();
 		if (value == null) return null;
-		return convertFrequency(value,
-		        getReadOutRateUnitXsdDefault()).getValue();
+		return new FrequencyI(value, UnitsFactory.DetectorSettings_ReadOutRate)
+		    .getValue();
 	}
 	
 	/**
@@ -277,7 +273,8 @@ public class ChannelAcquisitionData
 	{
 		lightSourceSettingsDirty = true;
 		if (lightSettings == null) lightSettings = new LightSettingsI();
-		lightSettings.setWavelength(makeLength(value, getWavelengthUnitXsdDefault()));
+		lightSettings.setWavelength(new LengthI(value,
+		        UnitsFactory.LightSourceSettings_Wavelength));
 	}
 	
 	
@@ -318,8 +315,8 @@ public class ChannelAcquisitionData
 		detectorSettingsDirty = true;
 		if (detectorSettings == null) 
 			detectorSettings = new DetectorSettingsI();
-		detectorSettings.setReadOutRate(makeFrequency(value,
-		        getReadOutRateUnitXsdDefault()));
+		detectorSettings.setReadOutRate(new FrequencyI(value,
+		        UnitsFactory.DetectorSettings_ReadOutRate));
 	}
 	
 	/**
@@ -333,8 +330,8 @@ public class ChannelAcquisitionData
 		detectorSettingsDirty = true;
 		if (detectorSettings == null) 
 			detectorSettings = new DetectorSettingsI();
-		detectorSettings.setVoltage(makeElectricPotential(value,
-		        getVoltageUnitXsdDefault()));
+		detectorSettings.setVoltage(new ElectricPotentialI(value,
+		        UnitsFactory.Detector_Voltage));
 	}
 	
 	/**
