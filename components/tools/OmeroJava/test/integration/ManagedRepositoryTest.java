@@ -61,16 +61,24 @@ import omero.cmd.HandlePrx;
 import omero.grid.ImportLocation;
 import omero.grid.ImportProcessPrx;
 import omero.grid.ImportRequest;
+import omero.grid.ImportSettings;
 import omero.grid.ManagedRepositoryPrx;
 import omero.grid.ManagedRepositoryPrxHelper;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.model.ChecksumAlgorithm;
+import omero.model.Fileset;
+import omero.model.FilesetEntry;
+import omero.model.Image;
+import omero.model.Instrument;
+import omero.model.Objective;
+import omero.model.ObjectiveSettings;
 import omero.model.OriginalFile;
 import omero.sys.EventContext;
 import omero.sys.Parameters;
 import omero.util.TempFileManager;
 
+import org.springframework.util.ResourceUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -217,6 +225,54 @@ public class ManagedRepositoryTest extends AbstractServerTest {
         assertNotNull(cb.getImportResponse());
         return req;
     }
+
+    /**
+     * Reimport metadata of the given fileset.
+     *
+     * @param filesetIf
+     *            the source fileset
+     * @return the resulting import request
+     * @throws Exception
+     *             unexpected
+     */
+    public ImportRequest reimportFileset(Long filesetId) throws Exception {
+        // Setup that should be easier, most likely a single ctor on IL
+           OMEROMetadataStoreClient client = new OMEROMetadataStoreClient();
+           client.initialize(this.client);
+           OMEROWrapper wrapper = new OMEROWrapper(new ImportConfig());
+           ImportLibrary lib = new ImportLibrary(client, wrapper);
+
+           Fileset fs = lib.loadFileset(filesetId);
+
+           // The following is largely a copy of ImportLibrary.importImage
+           List<String> paths = new ArrayList<String>();
+           List<String> hashs = new ArrayList<String>();
+           for (FilesetEntry fse : fs.copyUsedFiles()) {
+               paths.add(fse.getOriginalFile().getPath().getValue());
+               hashs.add(fse.getOriginalFile().getHash().getValue());
+           }
+
+           final ImportSettings settings = new ImportSettings();
+           settings.reimportFileset = fs.sizeOfImages() > 0;
+
+           final ImportContainer container = new ImportContainer(null /* file */,
+                   null /* target */, null /* userPixels */,
+                   "Unknown" /* reader */,
+                   paths.toArray(new String[paths.size()]), false /* spw */);
+           container.setReimportFileset(settings.reimportFileset);
+
+           // Now actually use the library.
+           ImportProcessPrx proc = lib.createReimport(fs, container, settings);
+
+           // At this point the import is running, check handle for number of
+           // steps.
+           final HandlePrx handle = proc.verifyUpload(hashs);
+           final ImportRequest req = (ImportRequest) handle.getRequest();
+           final ImportCallback cb = lib.createCallback(proc, handle, container);
+           cb.loop(60 * 60, 1000); // Wait 1 hr per step.
+           assertNotNull(cb.getImportResponse());
+           return req;
+       }
 
     /**
      * Make sure that the given filename exists in the given directory, creating
@@ -945,4 +1001,53 @@ public class ManagedRepositoryTest extends AbstractServerTest {
         Assert.assertEqualsNoOrder(failedVerificationIds.toArray(), corruptedFileIds.toArray(),
                 "expected the exactly corrupted files to fail checksum verification");
     }
+
+
+    private Fileset loadFileset(Long filesetID) throws ServerError {
+        String query = "select fs from Fileset as fs "
+                + "left outer join fetch fs.images as im "
+                + "left outer join im.pixels as p "
+                + "left outer join p.channels as c "
+                + "left outer join c.logicalChannel as lc "
+                + "where fs.id = :fid ";
+
+        final Parameters params = new Parameters();
+        params.map = ImmutableMap.<String, omero.RType> of("fid",
+                omero.rtypes.rlong(filesetID));
+        return (Fileset) iQuery.findByQuery(query, params);
+    }
+
+    public void testReimportMetadata() throws Exception {
+
+        final File file = ResourceUtils.getFile("classpath:tinyTest.d3d.dv");
+
+        final List<String> srcPaths = new ArrayList<String>();
+
+        // Completely new file
+        srcPaths.add(file.getAbsolutePath());
+        Long filesetID = importFileset(srcPaths).activity.getParent().getId()
+                .getValue();
+
+        Fileset oldFileset = loadFileset(filesetID);
+
+        ObjectiveSettings oldObjSet = null;
+        for (Image i : oldFileset.copyImages()) {
+            oldObjSet = i.getObjectiveSettings();
+            i.setObjectiveSettings(null);
+            iUpdate.saveObject(i);
+        }
+
+        reimportFileset(filesetID);
+        Fileset newFileset = loadFileset(filesetID);
+
+        for (Image i : newFileset.copyImages()) {
+            assertNotNull(i.getObjectiveSettings());
+            Objective newObj = i.getObjectiveSettings().getObjective();
+            assertNotNull(newObj);
+            assertEquals(newObj.getManufacturer(), oldObjSet.getObjective().getManufacturer());
+            assertEquals(newObj.getNominalMagnification(), oldObjSet.getObjective().getNominalMagnification());
+        }
+
+    }
+
 }
