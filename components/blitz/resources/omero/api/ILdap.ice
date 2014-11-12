@@ -28,7 +28,10 @@ module omero {
                 idempotent string findDN(string username) throws ServerError;
                 idempotent string findGroupDN(string groupname) throws ServerError;
                 idempotent omero::model::Experimenter findExperimenter(string username) throws ServerError;
-                idempotent void setDN(long experimenterID, bool isLdap) throws ServerError;
+
+                ["deprecated:setDN() is deprecated. Set the LDAP flag on model objects instead."]
+                idempotent void setDN(omero::RLong experimenterID, string dn) throws ServerError;
+
                 idempotent bool getSetting() throws ServerError;
                 idempotent ExperimenterList discover() throws ServerError;
                 omero::model::Experimenter createUser(string username) throws ServerError;

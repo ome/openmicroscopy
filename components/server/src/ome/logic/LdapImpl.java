@@ -50,6 +50,7 @@ import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.util.SqlAction;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -256,10 +257,11 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
 
     @RolesAllowed("system")
     @Transactional(readOnly = false)
-    public void setDN(long experimenterID, boolean isLdap) {
+    @Deprecated
+    public void setDN(Long experimenterID, String dn) {
         Experimenter experimenter = iQuery.get(Experimenter.class,
                 experimenterID);
-        experimenter.setLdap(isLdap);
+        experimenter.setLdap(StringUtils.isNotBlank(dn));
         iUpdate.saveObject(experimenter);
     }
 

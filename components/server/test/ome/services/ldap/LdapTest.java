@@ -89,8 +89,8 @@ public class LdapTest extends MockObjectTestCase {
             return ldap.findExperimenter(username);
         }
 
-        public void setDN(long experimenterID, boolean isLdap) {
-            ldap.setDN(experimenterID, isLdap);
+        public void setDN(Long experimenterID, String dn) {
+            ldap.setDN(experimenterID, dn);
         }
 
         public List<Experimenter> discover() {
@@ -289,7 +289,7 @@ public class LdapTest extends MockObjectTestCase {
             Experimenter experimenter = fixture.findExperimenter(user);
             assertNotNull(experimenter);
 
-            fixture.setDN(experimenter.getId(), false);
+            fixture.setDN(experimenter.getId(), null);
             List<Experimenter> discoveredExperimenters = fixture.discover();
             if (!discoveredExperimenters.isEmpty()) {
                 boolean discovered = false;
@@ -301,7 +301,7 @@ public class LdapTest extends MockObjectTestCase {
                 }
                 assertTrue(discovered);
             }
-            fixture.setDN(experimenter.getId(), true);
+            fixture.setDN(experimenter.getId(), "dn");
         }
     }
 
