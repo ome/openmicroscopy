@@ -556,12 +556,8 @@ public class ImportLibrary implements IObservable
             }
         }
     }
-    
-    public List<Pixels> reimportFileset(ImportConfig config)
-            throws FormatException, IOException, Throwable {
 
-        HandlePrx handle;
-
+    public Fileset loadFileset(final Long fsid) throws ServerError, IOException {
         checkManagedRepo();
 
         String query = "select fs from Fileset as fs "
@@ -576,7 +572,7 @@ public class ImportLibrary implements IObservable
 
         Parameters params = new Parameters();
         params.map = new HashMap<String, omero.RType>();
-        params.map.put("fid", rlong(config.targetId.get()));
+        params.map.put("fid", rlong(fsid));
         Fileset fs = (Fileset) store.getIQuery().findByQuery(query, params);
 
         // work around to load fileset jobs
@@ -591,6 +587,32 @@ public class ImportLibrary implements IObservable
                         params2));
             }
         }
+        return fs;
+    }
+
+    public ImportProcessPrx createReimport(Fileset fs,
+            ImportContainer container, ImportSettings settings)
+            throws ServerError, IOException {
+
+        try {
+            ChecksumAlgorithm hasher = fs.copyUsedFiles().get(0)
+                    .getOriginalFile().getHasher();
+            container.fillData(settings, fs, nopClientTransformer);
+            settings.checksumAlgorithm = ChecksumAlgorithmMapper
+                    .getChecksumAlgorithm(hasher.getValue().getValue());
+        } catch (IOException e) {
+            throw new IOException("IO exception from operation without IO");
+        }
+
+        return repo.importFileset(fs, settings);
+    }
+
+    public List<Pixels> reimportFileset(ImportConfig config)
+            throws FormatException, IOException, Throwable {
+
+        HandlePrx handle;
+
+        Fileset fs = loadFileset(config.targetId.get());
 
         List<String> paths = new ArrayList<String>();
         List<String> hashs = new ArrayList<String>();
@@ -608,17 +630,7 @@ public class ImportLibrary implements IObservable
                 paths.toArray(new String[paths.size()]), false /* spw */);
         container.setReimportFileset(settings.reimportFileset);
 
-        try {
-            ChecksumAlgorithm hasher = fs.copyUsedFiles().get(0).getOriginalFile()
-                    .getHasher();
-            container.fillData(settings, fs, nopClientTransformer);
-            settings.checksumAlgorithm = ChecksumAlgorithmMapper
-                    .getChecksumAlgorithm(hasher.getValue().getValue());
-        } catch (IOException e) {
-            throw new Exception("IO exception from operation without IO");
-        }
-
-        ImportProcessPrx proc = repo.importFileset(fs, settings);
+        ImportProcessPrx proc = createReimport(fs, container, settings);
 
         Map<Integer, String> failingChecksums = new HashMap<Integer, String>();
 
