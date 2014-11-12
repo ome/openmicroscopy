@@ -146,6 +146,20 @@ public interface ILdap extends ServiceInterface {
     String username);
 
     /**
+     * Looks up a specific {@link ome.model.meta.ExperimenterGroup} in LDAP
+     * using the provided group name. It is expected that the group name will be
+     * unique in the searched LDAP base tree. If more than one group with the
+     * specified name has been found, an exception will be thrown.
+     *
+     * @param groupname
+     * @return an ExperimenterGroup. Never <code>null</null>.
+     * @throws ome.conditions.ApiUsageException
+     *             if more then one group name matches under the specified base.
+     */
+    ExperimenterGroup findGroup(@NotNull
+    String groupname);
+
+    /**
      * Sets the value of the <code>dn</code> column in the <code>password</code>
      * table to the supplied string, for the supplied
      * {@link ome.model.meta.Experimenter} ID.
@@ -183,4 +197,13 @@ public interface ILdap extends ServiceInterface {
      * @return list of Experimenters.
      */
      List<Experimenter> discover();
+
+     /**
+     * Discovers and lists {@link ome.model.meta.ExperimenterGroup}s which are
+     * present in the remote LDAP server and in the local DB but have the
+     * <code>ldap</code> property set to <code>false</code>.
+     *
+     * @return list of ExperimenterGroups.
+     */
+     List<ExperimenterGroup> discoverGroups();
 }
