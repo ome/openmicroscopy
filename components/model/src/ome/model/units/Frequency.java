@@ -44,7 +44,7 @@ import org.hibernate.annotations.Type;
  * persisted on their own.
  */
 @Embeddable
-public class Frequency implements Serializable, Filterable {
+public class Frequency implements Serializable, Filterable, ome.model.units.Unit {
 
     private static final long serialVersionUID = 1L;
 

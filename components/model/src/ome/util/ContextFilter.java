@@ -158,6 +158,8 @@ public class ContextFilter implements Filter {
         Object result;
         if (o instanceof Enum) {
             result = o;
+        } else if (o instanceof ome.model.units.Unit) {
+            result = o;
         } else if (o instanceof Filterable) {
             result = filter(fieldId, (Filterable) o);
         } else if (o instanceof Collection) {
