@@ -55,18 +55,18 @@ public enum UnitsTime {
 
     static {
         for (UnitsTime t : UnitsTime.values()) {
-            bySymbol.put(t.value, t);
+            bySymbol.put(t.symbol, t);
         }
     }
 
-    protected String value;
+    protected String symbol;
 
-    private UnitsTime(String value) {
-        this.value = value;
+    private UnitsTime(String symbol) {
+        this.symbol = symbol;
     }
 
-    public String getValue() {
-        return value;
+    public String getSymbol() {
+        return symbol;
     }
 
     public static UnitsTime bySymbol(String symbol) {

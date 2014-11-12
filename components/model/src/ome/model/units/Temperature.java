@@ -83,7 +83,7 @@ public class Temperature implements Serializable, Filterable, ome.model.units.Un
         }
 
         Double length = t.getValue();
-        String u = t.getUnit().getValue();
+        String u = t.getUnit().getSymbol();
         ome.xml.model.enums.UnitsTemperature units = makeTemperatureUnitXML(u);
         ome.units.unit.Unit<ome.units.quantity.Temperature> units2 =
                 ome.xml.model.enums.handlers.UnitsTemperatureEnumHandler
@@ -97,12 +97,13 @@ public class Temperature implements Serializable, Filterable, ome.model.units.Un
     }
 
     public static Temperature convertTemperature(Temperature value, String target) {
-        String source = value.getUnit().getValue();
+        String source = value.getUnit().getSymbol();
         if (target.equals(source)) {
             return value;
         }
         throw new RuntimeException(String.format(
-                "%d %s cannot be converted to %s", value.getValue(), source));
+                "%f %s cannot be converted to %s",
+                value.getValue(), value.getUnit().getSymbol(), source));
     }
 
     // ~ Constructors

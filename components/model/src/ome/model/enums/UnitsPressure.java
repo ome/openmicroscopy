@@ -63,18 +63,18 @@ public enum UnitsPressure {
 
     static {
         for (UnitsPressure t : UnitsPressure.values()) {
-            bySymbol.put(t.value, t);
+            bySymbol.put(t.symbol, t);
         }
     }
 
-    protected String value;
+    protected String symbol;
 
-    private UnitsPressure(String value) {
-        this.value = value;
+    private UnitsPressure(String symbol) {
+        this.symbol = symbol;
     }
 
-    public String getValue() {
-        return value;
+    public String getSymbol() {
+        return symbol;
     }
 
     public static UnitsPressure bySymbol(String symbol) {

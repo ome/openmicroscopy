@@ -83,7 +83,7 @@ public class Time implements Serializable, Filterable, ome.model.units.Unit {
         }
 
         Double length = t.getValue();
-        String u = t.getUnit().getValue();
+        String u = t.getUnit().getSymbol();
         ome.xml.model.enums.UnitsTime units = makeTimeUnitXML(u);
         ome.units.unit.Unit<ome.units.quantity.Time> units2 =
                 ome.xml.model.enums.handlers.UnitsTimeEnumHandler
@@ -97,12 +97,13 @@ public class Time implements Serializable, Filterable, ome.model.units.Unit {
     }
 
     public static Time convertTime(Time value, String target) {
-        String source = value.getUnit().getValue();
+        String source = value.getUnit().getSymbol();
         if (target.equals(source)) {
             return value;
         }
         throw new RuntimeException(String.format(
-                "%d %s cannot be converted to %s", value.getValue(), source));
+                "%f %s cannot be converted to %s",
+                value.getValue(), value.getUnit().getSymbol(), source));
     }
 
     // ~ Constructors

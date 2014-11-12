@@ -311,7 +311,10 @@ public class UnitsFactory {
        }
 
        Double v = t.getValue();
-       String u = t.getUnit().toString();
+       // Use the code/symbol-mapping in the ome.model.enums files
+       // to convert to the specification value.
+       String u = ome.model.enums.UnitsLength.valueOf(
+               t.getUnit().toString()).toString();
        ome.xml.model.enums.UnitsLength units = makeLengthUnitXML(u);
        ome.units.unit.Unit<ome.units.quantity.Length> units2 =
                ome.xml.model.enums.handlers.UnitsLengthEnumHandler

@@ -35,18 +35,18 @@ public enum UnitsTemperature {
 
     static {
         for (UnitsTemperature t : UnitsTemperature.values()) {
-            bySymbol.put(t.value, t);
+            bySymbol.put(t.symbol, t);
         }
     }
 
-    protected String value;
+    protected String symbol;
 
-    private UnitsTemperature(String value) {
-        this.value = value;
+    private UnitsTemperature(String symbol) {
+        this.symbol = symbol;
     }
 
-    public String getValue() {
-        return value;
+    public String getSymbol() {
+        return symbol;
     }
 
     public static UnitsTemperature bySymbol(String symbol) {

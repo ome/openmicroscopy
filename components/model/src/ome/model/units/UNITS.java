@@ -52,11 +52,11 @@ public enum UNITS {
         enumMap = new HashMap<String, Enum<? extends Enum<?>>>();
         valueMap = new HashMap<Enum<? extends Enum<?>>, String>();
         try {
-            Method m = this.enumType.getMethod("getValue");
+            Method m = this.enumType.getMethod("getSymbol");
             for (Enum<? extends Enum<?>> e : values) {
-                String value = (String) m.invoke(e);
-                enumMap.put(value, e);
-                valueMap.put(e, value);
+                String symbol = (String) m.invoke(e);
+                enumMap.put(symbol, e);
+                valueMap.put(e, symbol);
             }
         } catch (Exception e) {
             throw new RuntimeException("Failed to parse units", e);

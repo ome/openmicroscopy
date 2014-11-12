@@ -65,18 +65,18 @@ public enum UnitsLength {
 
     static {
         for (UnitsLength t : UnitsLength.values()) {
-            bySymbol.put(t.value, t);
+            bySymbol.put(t.symbol, t);
         }
     }
 
-    protected String value;
+    protected String symbol;
 
-    private UnitsLength(String value) {
-        this.value = value;
+    private UnitsLength(String symbol) {
+        this.symbol = symbol;
     }
 
-    public String getValue() {
-        return value;
+    public String getSymbol() {
+        return symbol;
     }
 
     public static UnitsLength bySymbol(String symbol) {

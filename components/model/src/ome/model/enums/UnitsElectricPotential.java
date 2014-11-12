@@ -52,18 +52,18 @@ public enum UnitsElectricPotential {
 
     static {
         for (UnitsElectricPotential t : UnitsElectricPotential.values()) {
-            bySymbol.put(t.value, t);
+            bySymbol.put(t.symbol, t);
         }
     }
 
-    protected String value;
+    protected String symbol;
 
-    private UnitsElectricPotential(String value) {
-        this.value = value;
+    private UnitsElectricPotential(String symbol) {
+        this.symbol = symbol;
     }
 
-    public String getValue() {
-        return value;
+    public String getSymbol() {
+        return symbol;
     }
 
     public static UnitsElectricPotential bySymbol(String symbol) {

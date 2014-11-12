@@ -83,7 +83,7 @@ public class ElectricPotential implements Serializable, Filterable, ome.model.un
         }
 
         Double length = t.getValue();
-        String u = t.getUnit().getValue();
+        String u = t.getUnit().getSymbol();
         ome.xml.model.enums.UnitsElectricPotential units = makeElectricPotentialUnitXML(u);
         ome.units.unit.Unit<ome.units.quantity.ElectricPotential> units2 =
                 ome.xml.model.enums.handlers.UnitsElectricPotentialEnumHandler
@@ -97,12 +97,13 @@ public class ElectricPotential implements Serializable, Filterable, ome.model.un
     }
 
     public static ElectricPotential convertElectricPotential(ElectricPotential value, String target) {
-        String source = value.getUnit().getValue();
+        String source = value.getUnit().getSymbol();
         if (target.equals(source)) {
             return value;
         }
         throw new RuntimeException(String.format(
-                "%d %s cannot be converted to %s", value.getValue(), source));
+                "%f %s cannot be converted to %s",
+                value.getValue(), value.getUnit().getSymbol(), source));
     }
 
     // ~ Constructors

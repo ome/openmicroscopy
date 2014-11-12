@@ -52,18 +52,18 @@ public enum UnitsFrequency {
 
     static {
         for (UnitsFrequency t : UnitsFrequency.values()) {
-            bySymbol.put(t.value, t);
+            bySymbol.put(t.symbol, t);
         }
     }
 
-    protected String value;
+    protected String symbol;
 
-    private UnitsFrequency(String value) {
-        this.value = value;
+    private UnitsFrequency(String symbol) {
+        this.symbol = symbol;
     }
 
-    public String getValue() {
-        return value;
+    public String getSymbol() {
+        return symbol;
     }
 
     public static UnitsFrequency bySymbol(String symbol) {
