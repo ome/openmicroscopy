@@ -48,7 +48,7 @@ import Ice
 import omero.gateway
 import omero.scripts
 
-from omero.rtypes import rint, rstring, rlong, rlist, rtime, unwrap
+from omero.rtypes import rbool, rint, rstring, rlong, rlist, rtime, unwrap
 from omero.model import \
                         ExperimenterI, ExperimenterGroupI
 
@@ -886,6 +886,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         experimenter.lastName = rstring(str(lastName))
         experimenter.email = rstring(str(email))
         experimenter.institution = (institution!="" and institution is not None) and rstring(str(institution)) or None
+        experimenter.ldap = rbool(False)
 
         listOfGroups = list()
         # system group
