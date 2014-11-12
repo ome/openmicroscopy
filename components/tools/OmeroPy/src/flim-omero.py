@@ -336,8 +336,12 @@ def getProject(containerService, projectId):
     return projectList[0]
 
 
-def getImage(gateway, imageId):
-    return gateway.getImage(imageId)
+def getImage(queryService, imageId):
+    return queryService.findByQuery(
+        ("select i from Image i "
+         "join fetch i.pixels p "
+         "where i.id = :id"),
+        omero.sys.ParametersI().addId(imageId))
 
 
 def attachFileToDataset(containerService, queryService,
@@ -360,9 +364,9 @@ def attachFileToProject(containerService, queryService,
                                             origFilePathName=None)
 
 
-def attachFileToImage(gateway, queryService,
+def attachFileToImage(queryService,
                       updateService, rawFileStore, imageID, localName):
-    image = getImage(gateway, imageID)
+    image = getImage(queryService, imageID)
     return script_utils.uploadAndAttachFile(queryService, updateService,
                                             rawFileStore, image, localName,
                                             'CSV', description=None,
@@ -370,8 +374,11 @@ def attachFileToImage(gateway, queryService,
                                             origFilePathName=None)
 
 
-def getImageIdFromPixels(gateway, pixelsId):
-    return gateway.getPixels(pixelsId).getImage().getId().getValue()
+def getImageIdFromPixels(queryService, pixelsId):
+    return unwrap(queryService.projection(
+        ("select i.id from Image i join i.pixels p "
+         "where p.id = :id"),
+        omero.sys.ParametersI().addId(pixelsId))
 
 
 def mpi_run(argv):
@@ -426,7 +433,6 @@ def mpi_run(argv):
     queryService = session.getQueryService()
     rawFileStore = session.createRawFileStore()
     rawPixelsStore = session.createRawPixelsStore()
-    gateway = session.createGateway()
     containerService = session.getContainerService()
     a_rawfiles = []
     # for the NO FRET control and FRET positive subdirectories get the names
@@ -687,22 +693,22 @@ def mpi_run(argv):
             npy.savetxt(
                 s_dir + 'out/gc_' + str(s_id) + '.txt',
                 gc, fmt='%10.5f', delimiter=',')
-            attachFileToImage(gateway, queryService,  updateService,
+            attachFileToImage(queryService,  updateService,
                               rawFileStore, s_id,
                               s_dir + 'out/gg_' + str(s_id) + '.txt')
-            attachFileToImage(gateway, queryService,  updateService,
+            attachFileToImage(queryService,  updateService,
                               rawFileStore, s_id,
                               s_dir + 'out/ga1_' + str(s_id) + '.txt')
-            attachFileToImage(gateway, queryService,  updateService,
+            attachFileToImage(queryService,  updateService,
                               rawFileStore, s_id,
                               s_dir + 'out/gk1_' + str(s_id) + '.txt')
-            attachFileToImage(gateway, queryService,  updateService,
+            attachFileToImage(queryService,  updateService,
                               rawFileStore, s_id,
                               s_dir + 'out/gf_' + str(s_id) + '.txt')
-            attachFileToImage(gateway, queryService,  updateService,
+            attachFileToImage(queryService,  updateService,
                               rawFileStore, s_id,
                               s_dir + 'out/gb_' + str(s_id) + '.txt')
-            attachFileToImage(gateway, queryService,  updateService,
+            attachFileToImage(queryService,  updateService,
                               rawFileStore, s_id,
                               s_dir + 'out/gc_' + str(s_id) + '.txt')
             if i_mode > 1:
@@ -720,10 +726,10 @@ def mpi_run(argv):
                 npy.savetxt(
                     s_dir + 'out/gk2_' + str(s_id) + '.txt',
                     gk2, fmt='%10.5f', delimiter=',')
-                attachFileToImage(gateway, queryService,  updateService,
+                attachFileToImage(queryService,  updateService,
                                   rawFileStore, s_id,
                                   s_dir + 'out/ga2_' + str(s_id) + '.txt')
-                attachFileToImage(gateway, queryService,  updateService,
+                attachFileToImage(queryService,  updateService,
                                   rawFileStore, s_id,
                                   s_dir + 'out/gk2_' + str(s_id) + '.txt')
 
