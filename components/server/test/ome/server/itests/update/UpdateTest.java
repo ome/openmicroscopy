@@ -37,6 +37,7 @@ import ome.model.display.Thumbnail;
 import ome.model.enums.Correction;
 import ome.model.enums.Immersion;
 import ome.model.enums.Medium;
+import ome.model.enums.UnitsLength;
 import ome.model.jobs.ImportJob;
 import ome.model.jobs.JobStatus;
 import ome.model.meta.Experimenter;
@@ -395,7 +396,7 @@ public class UpdateTest extends AbstractUpdateTest {
         iUpdate.saveObject(p1);
 
     }
-    
+
     @Test(enabled=false)
     public void testMultiThreadedPostJta() throws Exception {
         class T extends Thread {
@@ -412,9 +413,9 @@ public class UpdateTest extends AbstractUpdateTest {
         for (T t : ts) {
             t.join();
         }
-        
+
     }
-    
+
     @Test
     public void testPixelsIndexStartsWith0() throws Exception {
         Pixels p = ObjectFactory.createPixelGraph(null);
@@ -423,7 +424,7 @@ public class UpdateTest extends AbstractUpdateTest {
         assertEquals(1, i.sizeOfPixels());
         assertNotNull(i.collectPixels(null).get(0));
     }
-    
+
     @Test(groups ="ticket:1183")
     public void testSaveAndReturnWithAnnotation() {
         Project p = new Project("ticket:1183");
@@ -432,7 +433,7 @@ public class UpdateTest extends AbstractUpdateTest {
         p.setDescription("something else");
         iUpdate.saveAndReturnObject(p);
     }
-    
+
     @Test(groups ="ticket:1183")
     public void testImageWithObjectSettings() {
         Image i = ObjectFactory.createPixelGraph(null).getImage();
@@ -451,7 +452,7 @@ public class UpdateTest extends AbstractUpdateTest {
         assertNotNull(i.getObjectiveSettings());
         i.setObjectiveSettings(new ObjectiveSettings(i.getObjectiveSettings().getId(),false));
         i = iUpdate.saveAndReturnObject(i);
-    }    
+    }
 
     @Test(groups = "ticket:2547")
     public void testChannelMoveWithFullArrayGoesToEnd() {
@@ -648,7 +649,7 @@ public class UpdateTest extends AbstractUpdateTest {
         */
 
     }
-    
+
     @Test(groups = "ticket:2710")
     public void testRoiWithoutImage() {
         Roi r = new Roi();
@@ -659,7 +660,7 @@ public class UpdateTest extends AbstractUpdateTest {
     public void testRoiWithStrokeWidth() {
         Roi r = new Roi();
         Line l = new Line();
-        l.setStrokeWidth(new Length(1.0, "mm"));
+        l.setStrokeWidth(new Length(1.0, UnitsLength.MM));
         r.addShape(l);
         iUpdate.saveAndReturnObject(r);
     }
