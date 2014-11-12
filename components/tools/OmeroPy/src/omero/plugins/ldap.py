@@ -184,7 +184,7 @@ to users.""")
     @admin_only
     def setdn(self, args):
         c = self.ctx.conn(args)
-        ildap = c.sf.getLdapService()
+        iupdate = c.sf.getUpdateService()
         iadmin = c.sf.getAdminService()
 
         try:
@@ -192,7 +192,8 @@ to users.""")
         except:
             self.ctx.die(134, "Unknown user: %s" % args.entry)
 
-        ildap.setDN(exp.id, args.dn)
+        exp.setLdap(args.choice.lower() in ("yes", "true", "t", "1"))
+        iupdate.saveObject(exp)
 
     @admin_only
     def discover(self, args):

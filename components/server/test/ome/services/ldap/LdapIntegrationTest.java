@@ -231,13 +231,12 @@ public class LdapIntegrationTest extends LdapTest {
             }
 
             @Override
-            public void setDN(final long experimenterID,
-                    final boolean isLdap) {
+            public void setDN(final Long experimenterID, final String dn) {
                 executor.execute(p, new Executor.SimpleWork(this, "setDN") {
                     @Transactional(readOnly = false)
                     public Object doWork(org.hibernate.Session session,
                             ServiceFactory sf) {
-                        ldap.setDN(experimenterID, isLdap);
+                        ldap.setDN(experimenterID, dn);
                         return null;
                     }
                 });

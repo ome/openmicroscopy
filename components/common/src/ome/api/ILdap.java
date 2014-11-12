@@ -146,18 +146,19 @@ public interface ILdap extends ServiceInterface {
     String username);
 
     /**
-     * Enables or disables LDAP login for the specified
-     * {@link ome.model.meta.Experimenter} ID by setting the value of the
-     * <code>ldap</code> property.
+     * Sets the value of the <code>dn</code> column in the <code>password</code>
+     * table to the supplied string, for the supplied
+     * {@link ome.model.meta.Experimenter} ID.
      *
      * @param experimenterID
-     *            ID of the Experimenter.
-     * @param isLdap
-     *            true if {@link ome.model.meta.Experimenter} has an LDAP
-     *            account, false otherwise.
-     * @return an Experimenter. Never null.
+     * @param dn
+     * @deprecated As of release 5.1, relevant model objects have the "ldap"
+     *             property added to their state.
      */
-    void setDN(long experimenterID, boolean isLdap);
+    @Deprecated
+    void setDN(@NotNull
+    Long experimenterID, @NotNull
+    String dn);
 
     /**
      * Gets config value from properties.
