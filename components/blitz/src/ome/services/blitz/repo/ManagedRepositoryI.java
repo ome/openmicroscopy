@@ -279,7 +279,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
             container.fillData(new ImportConfig(), settings, fs, nopClientTransformer);
             settings.checksumAlgorithm = this.checksumAlgorithms.get(0);
         } catch (IOException e) {
-            throw new IceMapper().handleServerError(e, null); // FIXME
+            throw new IceMapper().handleServerError(e, context);
         }
 
         return importFileset(fs, settings, __current);
