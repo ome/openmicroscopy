@@ -140,13 +140,23 @@ module omero {
 
         /**
          * Options that modify GraphModify2 request execution.
+         * By default, a user's related "orphaned" objects are typically
+         * included in a request's operation. These options override that
+         * behavior, allowing the client to specify whether to always or
+         * never include given kinds of child object regardless of if they
+         * are orphans.
+         * For annotations, each override is limited to specific annotation
+         * namespaces. (If no namespaces are specified, defaults apply
+         * according to the configuration of the graph request factory.)
          **/
         module graphOptions {
 
             /**
-             * How GraphModify2 requests should deal with kinds of children, related to the target objects.
+             * How GraphModify2 requests should deal with kinds of children,
+             * related to the target objects.
              * By default, it is usual for only orphans to be operated on.
-             * At least one of includeType or excludeType must be used.
+             * At least one of includeType or excludeType must be used;
+             * if a type matches both, then it is included.
              * No more than one of includeNs and excludeNs may be used.
              **/
             class ChildOption {
@@ -162,30 +172,35 @@ module omero {
                 omero::api::StringSet excludeType;
 
                 /**
-                 * For annotations, limit the applicability of this option to only those in these namespaces.
+                 * For annotations, limit the applicability of this option
+                 * to only those in these namespaces.
                  **/
                 omero::api::StringSet includeNs;
 
                 /**
-                 * For annotations, limit the applicability of this option to only those not in these namespaces.
+                 * For annotations, limit the applicability of this option
+                 * to only those not in these namespaces.
                  **/
                 omero::api::StringSet excludeNs;
             };
 
             /**
-             * A list of if GraphModify2 requests should operate on specific kinds of children.
+             * A list of if GraphModify2 requests should operate on
+             * specific kinds of children.
              * Only the first applicable option takes effect.
              **/
             sequence<ChildOption> ChildOptions;
         };
 
         /**
-         * Base class for new requests for operating upon the model object graph.
+         * Base class for new requests for operating upon the model object
+         * graph.
          **/
         class GraphModify2 extends Request {
 
             /**
-             * The model objects upon which to operate. Related model objects may also be targeted.
+             * The model objects upon which to operate.
+             * Related model objects may also be targeted.
              **/
             omero::api::IdListMap targetObjects;
 
@@ -196,25 +211,31 @@ module omero {
             graphOptions::ChildOptions childOptions;
 
             /**
-             * If this request should skip the phases in which model objects are operated upon.
-             * The response is still as if the operation actually occurred.
+             * If this request should skip the phases in which model
+             * objects are operated upon.
+             * The response is still as if the operation actually occurred,
+             * indicating what would have been done to which objects.
              **/
             bool dryRun;
         };
 
         /**
          * Move model objects into a different experimenter group.
+         * The user must be either an administrator,
+         * or the owner of the objects and a member of the target group.
          **/
         class Chgrp2 extends GraphModify2 {
 
             /**
-             * The ID of the experimenter group into which to move the model objects.
+             * The ID of the experimenter group into which to move the model
+             * objects.
              **/
             long groupId;
         };
 
         /**
-         * Result of moving model objects into a different experimenter group.
+         * Result of moving model objects into a different experimenter
+         * group.
          **/
         class Chgrp2Response extends OK {
 
@@ -247,18 +268,31 @@ module omero {
         };
 
         /**
-         * Perform a request skipping the top-most model objects in the graph.
-         * (The result is as from the given request.)
+         * Perform a request skipping the top-most model objects in the
+         * graph. This permits operating upon the (possibly indirect)
+         * children of given objects. The arguments of this SkipHead
+         * request override those of the given request only until the
+         * targeted children are reached, except that if this SkipHead
+         * request's dryRun is set to true then the dryRun override
+         * persists throughout the operation. The response from SkipHead
+         * is as from the given request.
          **/
         class SkipHead extends GraphModify2 {
 
             /**
-             * Classes of model objects from which to actually start the operation.
+             * Classes of model objects from which to actually start the
+             * operation. These are children, directly or indirectly, of
+             * the target objects. These children become the true target
+             * objects of the underlying request.
              **/
             omero::api::StringSet startFrom;
 
             /**
              * The operation to perform on the targeted model objects.
+             * The given request's targetObjects property is ignored: it
+             * is the SkipHead request that specifies the parent objects.
+             * Only specific request types are supported
+             * (those implementing WrappableRequest).
              **/
             GraphModify2 request;
         };
