@@ -57,8 +57,8 @@ public enum UnitsLength {
     YD("yd"),
     MI("mi"),
     PT("pt"),
-    PIXEL("Pixel"),
-    REFERENCEFRAME("ReferenceFrame");
+    PIXEL("pixel"),
+    REFERENCEFRAME("reference frame");
 
     private static final Map<String, UnitsLength> bySymbol
         = new HashMap<String, UnitsLength>();
