@@ -290,7 +290,7 @@ class TestRDefs (object):
 
     def testResetDefaults(self, gatewaywrapper):
         """
-        Test we can resetDefaultSettingss with or without saving.
+        Test we can resetDefaultSettings with or without saving.
         """
         # Author saves Rdef (greyscale)
         gatewaywrapper.loginAsAuthor()

@@ -1024,7 +1024,7 @@ def getRenderingEngine(session, pixelsId):
     renderingEngine = session.createRenderingEngine()
     renderingEngine.lookupPixels(pixelsId)
     if(renderingEngine.lookupRenderingDef(pixelsId) == 0):
-        renderingEngine.resetDefaultsettings(True)
+        renderingEngine.resetDefaultSettings(True)
     renderingEngine.lookupRenderingDef(pixelsId)
     renderingEngine.load()
     return renderingEngine
