@@ -180,16 +180,7 @@ class InputServerStrategy
 		if (roi.getNamespaces().size() != 0) {
 			String s = roi.getNamespaces().get(0);
 			newROI.setAnnotation(AnnotationKeys.NAMESPACE, s);
-			if (roi.getNamespaceKeywords().size() != 0)
-				newROI.setAnnotation(AnnotationKeys.KEYWORDS, 
-						UIUtilities.listToCSV(roi.getNamespaceKeywords(s)));
 		}
-			
-		if (roi.getNamespaceKeywords().size() != 0)
-			newROI.setAnnotation(AnnotationKeys.KEYWORDS, 
-					UIUtilities.listToCSV(roi.getNamespaceKeywords(
-							roi.getNamespaces().get(0))));
-							
 		ROIShape shape;
 		ShapeData shapeData;
 		Iterator<List<ShapeData>> i = roi.getIterator();
