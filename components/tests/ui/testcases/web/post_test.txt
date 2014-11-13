@@ -142,17 +142,17 @@ Test Rdef Copy Paste Save
     Go To                                   ${WELCOME URL}img_detail/${imageId}
     # Toggle the color, then paste settings and check it has reverted
     Wait Until Page Contains Element        id=wblitz-ch0
-    ${color1}=                              Get Element Attribute       id=wblitz-rmodel@checked
+    ${color1}=                              Execute Javascript  return $("#wblitz-rmodel").attr('checked')
     Click Element                           id=wblitz-rmodel
-    ${color2}=                              Get Element Attribute       id=wblitz-rmodel@checked
+    ${color2}=                              Execute Javascript  return $("#wblitz-rmodel").attr('checked')
     Should Not Be True                      "${color1}" == "${color2}"
+    Click Link                              Edit
     Click Element                           xpath=//button[contains(@class, "paste_rdef")]
-    ${selector}=                            Set Variable If    "${color1}" == "true"     [@checked='checked']    [not(@checked='checked')]
-    Wait Until Page Contains Element        //input[@id='wblitz-rmodel']${selector}
+    ${selector}=                            Set Variable If    "${color1}" == "None"     undefined    "checked"
+    Wait For Condition                      return ($("#wblitz-rmodel").attr('checked') == ${selector})
 
     # Toggle the color again, Save, refresh page to check
     Click Element                           id=wblitz-rmodel
-    Click Link                              Edit
     Wait Until Page Contains Element        id=rdef-setdef-btn
     Click Element                           id=rdef-setdef-btn
     # Wait for response
@@ -160,6 +160,6 @@ Test Rdef Copy Paste Save
     Wait For Condition                      return ($(".blockUI").length == 0)
     Reload Page
     Wait Until Page Contains Element        id=wblitz-ch0
-    ${color3}=                              Get Element Attribute       id=wblitz-rmodel@checked
+    ${color3}=                              Execute Javascript  return $("#wblitz-rmodel").attr('checked')
     Should Be True                          "${color2}" == "${color3}"
 
