@@ -138,7 +138,7 @@ public class ImporterTest extends AbstractServerTest {
         assertEquals(objective.getNominalMagnification().getValue(),
                 xml.getNominalMagnification());
         assertEquals(objective.getWorkingDistance().getValue(),
-                xml.getWorkingDistance());
+                xml.getWorkingDistance().value());
     }
 
     /**
