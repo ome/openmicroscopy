@@ -747,8 +747,13 @@
         margin: 2px 1px;
     }
     
-    
-    
+    .exposureTimeData {
+        border-width: 0
+    }
+
+    .exposureTimeData td {
+        white-space: nowrap;
+    }
         
         
     /* Tags, Attachments, Ratings, Comments */
