@@ -20,8 +20,10 @@
 #ifndef OMERO_MODEL_ELECTRICPOTENTIALI_H
 #define OMERO_MODEL_ELECTRICPOTENTIALI_H
 
+#include <omero/IceNoWarnPush.h>
 #include <omero/model/ElectricPotential.h>
-#include <omero/model/UnitsElectricPotential.h>
+#include <omero/model/Units.h>
+#include <omero/IceNoWarnPop.h>
 
 #ifndef OMERO_CLIENT
 #   ifdef OMERO_CLIENT_EXPORTS
@@ -54,17 +56,25 @@ namespace omero {
     public:
         ElectricPotentialI();
 
-        virtual Ice::Double getValue(const Ice::Current& current = Ice::Current());
+        virtual Ice::Double getValue(
+                const Ice::Current& current = Ice::Current());
 
-        virtual void setValue(Ice::Double value, const Ice::Current& current = Ice::Current());
+        virtual void setValue(
+                Ice::Double value,
+                const Ice::Current& current = Ice::Current());
 
-        virtual UnitsElectricPotentialPtr getUnit(const Ice::Current& current = Ice::Current());
+        virtual omero::model::enums::UnitsElectricPotential getUnit(
+                const Ice::Current& current = Ice::Current());
 
-        virtual void setUnit(const UnitsElectricPotentialPtr& time, const Ice::Current& current = Ice::Current());
+        virtual void setUnit(
+                omero::model::enums::UnitsElectricPotential unit,
+                const Ice::Current& current = Ice::Current());
 
-        virtual ElectricPotentialPtr copy(const Ice::Current& = Ice::Current());
+        virtual ElectricPotentialPtr copy(
+                const Ice::Current& = Ice::Current());
 
     };
   }
 }
 #endif // OMERO_MODEL_ELECTRICPOTENTIALI_H
+

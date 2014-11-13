@@ -38,11 +38,11 @@ namespace omero {
             value = _value;
         }
 
-        UnitsElectricPotentialPtr ElectricPotentialI::getUnit(const Ice::Current& /* current */) {
+        omero::model::enums::UnitsElectricPotential ElectricPotentialI::getUnit(const Ice::Current& /* current */) {
             return unit;
         }
 
-        void ElectricPotentialI::setUnit(const UnitsElectricPotentialPtr& _unit, const Ice::Current& /* current */) {
+        void ElectricPotentialI::setUnit(omero::model::enums::UnitsElectricPotential _unit, const Ice::Current& /* current */) {
             unit = _unit;
         }
 
@@ -54,3 +54,4 @@ namespace omero {
         }
     }
 }
+

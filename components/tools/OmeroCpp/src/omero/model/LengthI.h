@@ -20,8 +20,10 @@
 #ifndef OMERO_MODEL_LENGTHI_H
 #define OMERO_MODEL_LENGTHI_H
 
+#include <omero/IceNoWarnPush.h>
 #include <omero/model/Length.h>
-#include <omero/model/UnitsLength.h>
+#include <omero/model/Units.h>
+#include <omero/IceNoWarnPop.h>
 
 #ifndef OMERO_CLIENT
 #   ifdef OMERO_CLIENT_EXPORTS
@@ -54,17 +56,25 @@ namespace omero {
     public:
         LengthI();
 
-        virtual Ice::Double getValue(const Ice::Current& current = Ice::Current());
+        virtual Ice::Double getValue(
+                const Ice::Current& current = Ice::Current());
 
-        virtual void setValue(Ice::Double value, const Ice::Current& current = Ice::Current());
+        virtual void setValue(
+                Ice::Double value,
+                const Ice::Current& current = Ice::Current());
 
-        virtual UnitsLengthPtr getUnit(const Ice::Current& current = Ice::Current());
+        virtual omero::model::enums::UnitsLength getUnit(
+                const Ice::Current& current = Ice::Current());
 
-        virtual void setUnit(const UnitsLengthPtr& time, const Ice::Current& current = Ice::Current());
+        virtual void setUnit(
+                omero::model::enums::UnitsLength unit,
+                const Ice::Current& current = Ice::Current());
 
-        virtual LengthPtr copy(const Ice::Current& = Ice::Current());
+        virtual LengthPtr copy(
+                const Ice::Current& = Ice::Current());
 
     };
   }
 }
 #endif // OMERO_MODEL_LENGTHI_H
+

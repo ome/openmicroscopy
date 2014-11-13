@@ -20,8 +20,10 @@
 #ifndef OMERO_MODEL_PRESSUREI_H
 #define OMERO_MODEL_PRESSUREI_H
 
+#include <omero/IceNoWarnPush.h>
 #include <omero/model/Pressure.h>
-#include <omero/model/UnitsPressure.h>
+#include <omero/model/Units.h>
+#include <omero/IceNoWarnPop.h>
 
 #ifndef OMERO_CLIENT
 #   ifdef OMERO_CLIENT_EXPORTS
@@ -54,17 +56,25 @@ namespace omero {
     public:
         PressureI();
 
-        virtual Ice::Double getValue(const Ice::Current& current = Ice::Current());
+        virtual Ice::Double getValue(
+                const Ice::Current& current = Ice::Current());
 
-        virtual void setValue(Ice::Double value, const Ice::Current& current = Ice::Current());
+        virtual void setValue(
+                Ice::Double value,
+                const Ice::Current& current = Ice::Current());
 
-        virtual UnitsPressurePtr getUnit(const Ice::Current& current = Ice::Current());
+        virtual omero::model::enums::UnitsPressure getUnit(
+                const Ice::Current& current = Ice::Current());
 
-        virtual void setUnit(const UnitsPressurePtr& time, const Ice::Current& current = Ice::Current());
+        virtual void setUnit(
+                omero::model::enums::UnitsPressure unit,
+                const Ice::Current& current = Ice::Current());
 
-        virtual PressurePtr copy(const Ice::Current& = Ice::Current());
+        virtual PressurePtr copy(
+                const Ice::Current& = Ice::Current());
 
     };
   }
 }
 #endif // OMERO_MODEL_PRESSUREI_H
+

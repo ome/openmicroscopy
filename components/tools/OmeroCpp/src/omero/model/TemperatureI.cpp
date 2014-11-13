@@ -38,11 +38,11 @@ namespace omero {
             value = _value;
         }
 
-        UnitsTemperaturePtr TemperatureI::getUnit(const Ice::Current& /* current */) {
+        omero::model::enums::UnitsTemperature TemperatureI::getUnit(const Ice::Current& /* current */) {
             return unit;
         }
 
-        void TemperatureI::setUnit(const UnitsTemperaturePtr& _unit, const Ice::Current& /* current */) {
+        void TemperatureI::setUnit(omero::model::enums::UnitsTemperature _unit, const Ice::Current& /* current */) {
             unit = _unit;
         }
 
@@ -54,3 +54,4 @@ namespace omero {
         }
     }
 }
+

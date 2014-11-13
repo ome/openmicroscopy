@@ -20,8 +20,10 @@
 #ifndef OMERO_MODEL_TEMPERATUREI_H
 #define OMERO_MODEL_TEMPERATUREI_H
 
+#include <omero/IceNoWarnPush.h>
 #include <omero/model/Temperature.h>
-#include <omero/model/UnitsTemperature.h>
+#include <omero/model/Units.h>
+#include <omero/IceNoWarnPop.h>
 
 #ifndef OMERO_CLIENT
 #   ifdef OMERO_CLIENT_EXPORTS
@@ -54,17 +56,25 @@ namespace omero {
     public:
         TemperatureI();
 
-        virtual Ice::Double getValue(const Ice::Current& current = Ice::Current());
+        virtual Ice::Double getValue(
+                const Ice::Current& current = Ice::Current());
 
-        virtual void setValue(Ice::Double value, const Ice::Current& current = Ice::Current());
+        virtual void setValue(
+                Ice::Double value,
+                const Ice::Current& current = Ice::Current());
 
-        virtual UnitsTemperaturePtr getUnit(const Ice::Current& current = Ice::Current());
+        virtual omero::model::enums::UnitsTemperature getUnit(
+                const Ice::Current& current = Ice::Current());
 
-        virtual void setUnit(const UnitsTemperaturePtr& time, const Ice::Current& current = Ice::Current());
+        virtual void setUnit(
+                omero::model::enums::UnitsTemperature unit,
+                const Ice::Current& current = Ice::Current());
 
-        virtual TemperaturePtr copy(const Ice::Current& = Ice::Current());
+        virtual TemperaturePtr copy(
+                const Ice::Current& = Ice::Current());
 
     };
   }
 }
 #endif // OMERO_MODEL_TEMPERATUREI_H
+

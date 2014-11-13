@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2014 University of Dundee & Open Microscopy Environment
  * All rights reserved.
@@ -21,8 +20,10 @@
 #ifndef OMERO_MODEL_FREQUENCYI_H
 #define OMERO_MODEL_FREQUENCYI_H
 
+#include <omero/IceNoWarnPush.h>
 #include <omero/model/Frequency.h>
-#include <omero/model/UnitsFrequency.h>
+#include <omero/model/Units.h>
+#include <omero/IceNoWarnPop.h>
 
 #ifndef OMERO_CLIENT
 #   ifdef OMERO_CLIENT_EXPORTS
@@ -55,17 +56,25 @@ namespace omero {
     public:
         FrequencyI();
 
-        virtual Ice::Double getValue(const Ice::Current& current = Ice::Current());
+        virtual Ice::Double getValue(
+                const Ice::Current& current = Ice::Current());
 
-        virtual void setValue(Ice::Double value, const Ice::Current& current = Ice::Current());
+        virtual void setValue(
+                Ice::Double value,
+                const Ice::Current& current = Ice::Current());
 
-        virtual UnitsFrequencyPtr getUnit(const Ice::Current& current = Ice::Current());
+        virtual omero::model::enums::UnitsFrequency getUnit(
+                const Ice::Current& current = Ice::Current());
 
-        virtual void setUnit(const UnitsFrequencyPtr& time, const Ice::Current& current = Ice::Current());
+        virtual void setUnit(
+                omero::model::enums::UnitsFrequency unit,
+                const Ice::Current& current = Ice::Current());
 
-        virtual FrequencyPtr copy(const Ice::Current& = Ice::Current());
+        virtual FrequencyPtr copy(
+                const Ice::Current& = Ice::Current());
 
     };
   }
 }
 #endif // OMERO_MODEL_FREQUENCYI_H
+

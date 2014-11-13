@@ -38,11 +38,11 @@ namespace omero {
             value = _value;
         }
 
-        UnitsPowerPtr PowerI::getUnit(const Ice::Current& /* current */) {
+        omero::model::enums::UnitsPower PowerI::getUnit(const Ice::Current& /* current */) {
             return unit;
         }
 
-        void PowerI::setUnit(const UnitsPowerPtr& _unit, const Ice::Current& /* current */) {
+        void PowerI::setUnit(omero::model::enums::UnitsPower _unit, const Ice::Current& /* current */) {
             unit = _unit;
         }
 
@@ -54,3 +54,4 @@ namespace omero {
         }
     }
 }
+

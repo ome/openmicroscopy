@@ -20,8 +20,10 @@
 #ifndef OMERO_MODEL_POWERI_H
 #define OMERO_MODEL_POWERI_H
 
+#include <omero/IceNoWarnPush.h>
 #include <omero/model/Power.h>
-#include <omero/model/UnitsPower.h>
+#include <omero/model/Units.h>
+#include <omero/IceNoWarnPop.h>
 
 #ifndef OMERO_CLIENT
 #   ifdef OMERO_CLIENT_EXPORTS
@@ -54,17 +56,25 @@ namespace omero {
     public:
         PowerI();
 
-        virtual Ice::Double getValue(const Ice::Current& current = Ice::Current());
+        virtual Ice::Double getValue(
+                const Ice::Current& current = Ice::Current());
 
-        virtual void setValue(Ice::Double value, const Ice::Current& current = Ice::Current());
+        virtual void setValue(
+                Ice::Double value,
+                const Ice::Current& current = Ice::Current());
 
-        virtual UnitsPowerPtr getUnit(const Ice::Current& current = Ice::Current());
+        virtual omero::model::enums::UnitsPower getUnit(
+                const Ice::Current& current = Ice::Current());
 
-        virtual void setUnit(const UnitsPowerPtr& time, const Ice::Current& current = Ice::Current());
+        virtual void setUnit(
+                omero::model::enums::UnitsPower unit,
+                const Ice::Current& current = Ice::Current());
 
-        virtual PowerPtr copy(const Ice::Current& = Ice::Current());
+        virtual PowerPtr copy(
+                const Ice::Current& = Ice::Current());
 
     };
   }
 }
 #endif // OMERO_MODEL_POWERI_H
+

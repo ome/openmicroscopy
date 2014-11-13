@@ -38,11 +38,11 @@ namespace omero {
             value = _value;
         }
 
-        UnitsFrequencyPtr FrequencyI::getUnit(const Ice::Current& /* current */) {
+        omero::model::enums::UnitsFrequency FrequencyI::getUnit(const Ice::Current& /* current */) {
             return unit;
         }
 
-        void FrequencyI::setUnit(const UnitsFrequencyPtr& _unit, const Ice::Current& /* current */) {
+        void FrequencyI::setUnit(omero::model::enums::UnitsFrequency _unit, const Ice::Current& /* current */) {
             unit = _unit;
         }
 
@@ -54,3 +54,4 @@ namespace omero {
         }
     }
 }
+

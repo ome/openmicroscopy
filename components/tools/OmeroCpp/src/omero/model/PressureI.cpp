@@ -38,11 +38,11 @@ namespace omero {
             value = _value;
         }
 
-        UnitsPressurePtr PressureI::getUnit(const Ice::Current& /* current */) {
+        omero::model::enums::UnitsPressure PressureI::getUnit(const Ice::Current& /* current */) {
             return unit;
         }
 
-        void PressureI::setUnit(const UnitsPressurePtr& _unit, const Ice::Current& /* current */) {
+        void PressureI::setUnit(omero::model::enums::UnitsPressure _unit, const Ice::Current& /* current */) {
             unit = _unit;
         }
 
@@ -54,3 +54,4 @@ namespace omero {
         }
     }
 }
+

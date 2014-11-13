@@ -7,7 +7,6 @@
 
 #include <algorithm>
 #include <omero/fixture.h>
-#include <omero/model/UnitsLengthI.h>
 #include <omero/model/LengthI.h>
 #include <omero/model/PixelsTypeI.h>
 #include <omero/model/PhotometricInterpretationI.h>
@@ -21,6 +20,7 @@
 
 using namespace omero::api;
 using namespace omero::model;
+using namespace omero::model::enums;
 using namespace omero::rtypes;
 
 omero::model::ImagePtr new_ImageI()
@@ -154,7 +154,7 @@ omero::model::PixelsIPtr Fixture::pixels() {
 
     lc->setPhotometricInterpretation( pi );
 
-    UnitsLengthPtr mm = UnitsLength::valueof("MM");
+    UnitsLength mm = UnitsLength::MM;
     LengthPtr mm1 = new LengthI();
     mm1->setUnit(mm);
     mm1->setValue(1.0);
