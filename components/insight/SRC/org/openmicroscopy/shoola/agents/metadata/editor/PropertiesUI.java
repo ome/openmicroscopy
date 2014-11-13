@@ -391,8 +391,6 @@ public class PropertiesUI
 			public void itemStateChanged(ItemEvent e) {
 				if (e.getSource() instanceof JToggleButton) {
 					JToggleButton b = (JToggleButton) e.getSource();
-					System.out.println(b.getToolTipText() + " "
-							+ b.isSelected());
 					if (b == editName) {
 						if (b.isSelected())
 							editField(namePanel, namePane);

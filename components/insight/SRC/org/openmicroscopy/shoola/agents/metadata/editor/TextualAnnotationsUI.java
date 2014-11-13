@@ -38,16 +38,14 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 //Third-party libraries
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -115,40 +113,6 @@ class TextualAnnotationsUI
 	
 	/** The add comment button */
 	private JButton addButton;
-	
-	
-	/** 
-	 * Builds and lays out the component hosting the first and last previous 
-	 * annotations.
-	 * 
-	 * @return See above.
-	 */
-	private JPanel displayComments()
-	{
-		JPanel p = new JPanel();
-		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		List list = annotationToDisplay;
-		if (list == null || list.size() == 0) return p;
-		
-		Color c = UIUtilities.BACKGROUND_COLOUR_ODD;
-		
-		for(Object obj : annotationToDisplay) {
-			TextualAnnotationData data = (TextualAnnotationData) obj;
-			TextualAnnotationComponent 
-				comp = new TextualAnnotationComponent(model, data);
-			comp.addPropertyChangeListener(controller);
-			comp.setAreaColor(c);
-			p.add(comp);
-			
-			if (c == UIUtilities.BACKGROUND_COLOUR_ODD)
-				c = UIUtilities.BACKGROUND_COLOUR_EVEN;
-			else
-				c = UIUtilities.BACKGROUND_COLOUR_ODD;
-		}
-		
-		return p;
-	}
 
 	/** Initializes the components. */
 	private void initComponents()
@@ -166,24 +130,18 @@ class TextualAnnotationsUI
 		commentArea.setComponentBorder(EDIT_BORDER);
 		commentArea.addFocusListener(new FocusListener() {
                     
-                    @Override
                     public void focusLost(FocusEvent arg0) {
                         if(StringUtils.isEmpty(commentArea.getText()) || commentArea.getText().equals(DEFAULT_TEXT)) {
                             pane.getViewport().setPreferredSize(null);
-                            revalidate();
                             pane.revalidate();
-                            ((JComponent)getParent()).revalidate();
                             addButton.setVisible(false);
                         }
                     }
                     
-                    @Override
                     public void focusGained(FocusEvent arg0) {
                         Dimension d = pane.getPreferredSize();
                         pane.getViewport().setPreferredSize(new Dimension(d.width, 60));
-                        revalidate();
                         pane.revalidate();
-                        ((JComponent)getParent()).revalidate();
                         addButton.setVisible(true);
                     }
                 });
@@ -193,6 +151,8 @@ class TextualAnnotationsUI
 		
 		addButton = new JButton(IconManager.getInstance().getIcon(IconManager.SAVE));
 		formatButton(addButton, DEFAULT_TEXT_COMMENT, ADD_COMMENT);
+		addButton.setVisible(false);
+        addButton.setEnabled(false);
 	}
 	
 	/**
@@ -214,19 +174,21 @@ class TextualAnnotationsUI
 	private void buildGUI()
 	{
 		removeAll();
-    	        if (!model.isAnnotationLoaded()) 
-    	            return;
+		
+    	if (!model.isAnnotationLoaded()) 
+    		return;
     	
 		pane = new JScrollPane(commentArea);
 		pane.getViewport().setPreferredSize(null);
-    	        pane.setBorder(null);
+    	pane.setBorder(null);
+    	
 		setLayout(new GridBagLayout());
 		
 		constraints = new GridBagConstraints();
-		
+		constraints.insets = new Insets(2, 0, 2, 0);
 		constraints.fill = GridBagConstraints.BOTH;
 		constraints.anchor = GridBagConstraints.NORTHWEST;
-		constraints.insets = new Insets(2, 2, 2, 2);
+		constraints.gridx = 0;
 		constraints.gridy = 0;
 		constraints.weightx = 1; 
 		constraints.weighty = 1; 
@@ -236,17 +198,16 @@ class TextualAnnotationsUI
 		constraints.weightx = 0;
 		constraints.weighty = 0; 
 		constraints.fill = GridBagConstraints.NONE;
-                constraints.anchor = GridBagConstraints.SOUTH;
-                add(addButton, constraints);
-                addButton.setVisible(false);
-                addButton.setEnabled(false);
-                
-                constraints.gridx = 0;
-                constraints.weightx = 1;
-                constraints.weighty = 0; 
-                constraints.gridwidth = 2;
-                constraints.fill = GridBagConstraints.HORIZONTAL;
-                constraints.anchor = GridBagConstraints.NORTHWEST;
+        constraints.anchor = GridBagConstraints.SOUTH;
+        add(addButton, constraints);
+        
+        constraints.gridx = 0;
+        constraints.gridy = 1;
+        constraints.weightx = 1;
+        constraints.weighty = 0; 
+        constraints.gridwidth = 2;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.anchor = GridBagConstraints.NORTHWEST;
 	}
 	
 	/**
@@ -257,9 +218,7 @@ class TextualAnnotationsUI
 	private void displayAnnotations(List list)
 	{
 		annotationToDisplay = list;
-		boolean hasPrevious = true;
-		if (list == null || list.size() == 0) hasPrevious = false;
-		if (!hasPrevious) {
+		if (CollectionUtils.isEmpty(list)) {
 			originalText = DEFAULT_TEXT_COMMENT;
 			setAreaText(DEFAULT_TEXT_COMMENT, true);
 		}
@@ -270,10 +229,23 @@ class TextualAnnotationsUI
 		}
 		commentArea.setEnabled(enabled);
 		
-		JPanel comments = displayComments();
-		
-		constraints.gridy = 2;
-		add(comments, constraints);
+		if (!CollectionUtils.isEmpty(list)) {
+			Color c = UIUtilities.BACKGROUND_COLOUR_ODD;
+			for(Object obj : annotationToDisplay) {
+				TextualAnnotationData data = (TextualAnnotationData) obj;
+				TextualAnnotationComponent 
+					comp = new TextualAnnotationComponent(model, data);
+				comp.addPropertyChangeListener(controller);
+				comp.setAreaColor(c);
+				add(comp, constraints);
+				constraints.gridy++;
+				
+				if (c == UIUtilities.BACKGROUND_COLOUR_ODD)
+					c = UIUtilities.BACKGROUND_COLOUR_EVEN;
+				else
+					c = UIUtilities.BACKGROUND_COLOUR_ODD;
+			}
+		}
 	}
 	
 	/**
@@ -407,6 +379,8 @@ class TextualAnnotationsUI
 		annotationToDisplay = null;
 		originalText = DEFAULT_TEXT_COMMENT;
 		setAreaText(DEFAULT_TEXT_COMMENT, true);
+		addButton.setEnabled(false);
+		addButton.setVisible(false);
 	}
 	
 	/**
@@ -444,8 +418,8 @@ class TextualAnnotationsUI
 	 */
 	public void insertUpdate(DocumentEvent e)
 	{
-	        addButton.setEnabled(!commentArea.getText().equals(DEFAULT_TEXT_COMMENT));
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
+	        addButton.setEnabled(hasDataToSave());
+	        firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
 						Boolean.TRUE);
 	}
 
@@ -455,8 +429,8 @@ class TextualAnnotationsUI
 	 */
 	public void removeUpdate(DocumentEvent e)
 	{
-	        addButton.setEnabled(!commentArea.getText().equals(DEFAULT_TEXT_COMMENT));
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
+	        addButton.setEnabled(hasDataToSave());
+	        firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
 							Boolean.TRUE);
 	}
 	
