@@ -163,11 +163,13 @@ module omero {
 
                 /**
                  * Include in the operation all children of these types.
+                 * Cf. use of HARD in GraphModify's options.
                  **/
                 omero::api::StringSet includeType;
 
                 /**
                  * Include in the operation no children of these types.
+                 * Cf. use of KEEP in GraphModify's options.
                  **/
                 omero::api::StringSet excludeType;
 
