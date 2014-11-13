@@ -130,13 +130,17 @@ Test Rdef Copy Paste Save
     ${thumbSrc}=                            Execute Javascript  return $("#image_icon-${imageId} img").attr('src')
     Open Context Menu                       xpath=//li[@id='image-${imageId}']/a
     Mouse Over                              xpath=//div[@id='vakata-contextmenu']//a[@rel='renderingsettings']
-    Click Element                           xpath=//div[@id='vakata-contextmenu']//li[6]//li[2]/a   # Paste
+    Click Element                           xpath=//div[@id='vakata-contextmenu']//a[contains(text(), "Paste and Save")]    #li[6]//li[2]/a   # Paste
+    # Confirm dialog (make sure we pick the currently visible dialog)
+    Click Element                           xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//button/span[contains(text(), 'OK')]
     Wait For Condition                      return ($("#image_icon-${imageId} img").attr('src') != '${thumbSrc}')
     # Test Set Owner's in same way
     ${thumbSrc}=                            Execute Javascript  return $("#image_icon-${imageId} img").attr('src')
     Open Context Menu                       xpath=//li[@id='image-${imageId}']/a
     Mouse Over                              xpath=//div[@id='vakata-contextmenu']//a[@rel='renderingsettings']
-    Click Element                           xpath=//div[@id='vakata-contextmenu']//li[6]//li[3]/a   # Set Owner's
+    Click Element                           xpath=//div[@id='vakata-contextmenu']//a[contains(text(), "Set Owner")]   # Set Owner's
+    # Confirm dialog (make sure we pick the currently visible dialog)
+    Click Element                           xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//button/span[contains(text(), 'OK')]
     Wait For Condition                      return ($("#image_icon-${imageId} img").attr('src') != '${thumbSrc}')
 
     Go To                                   ${WELCOME URL}img_detail/${imageId}
