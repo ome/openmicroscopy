@@ -36,6 +36,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+
 //Third-party libraries
 import static org.jhotdraw.draw.AttributeKeys.FILL_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.FONT_BOLD;
@@ -46,6 +47,8 @@ import static org.jhotdraw.draw.AttributeKeys.STROKE_CAP;
 import static org.jhotdraw.draw.AttributeKeys.STROKE_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.TEXT_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.STROKE_WIDTH;
+
+import org.apache.commons.lang.StringUtils;
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.geom.BezierPath.Node;
 
@@ -168,7 +171,6 @@ class InputServerStrategy
 		throws NoSuchROIException, ROICreationException
 	{
 		long id = roi.getId();
-		//ROI newROI = component.createROI(id, readOnly);
 		boolean edit = roi.canEdit();
 		if (edit) {
 			edit = roi.getOwner().getId() == userID;
@@ -179,7 +181,9 @@ class InputServerStrategy
 		
 		if (roi.getNamespaces().size() != 0) {
 			String s = roi.getNamespaces().get(0);
-			newROI.setAnnotation(AnnotationKeys.NAMESPACE, s);
+			if (StringUtils.isNotBlank(s)) {
+			    newROI.setAnnotation(AnnotationKeys.NAMESPACE, s);
+			}
 		}
 		ROIShape shape;
 		ShapeData shapeData;
