@@ -6148,9 +6148,7 @@ class _PixelsWrapper (BlitzObjectWrapper):
         params.map["pid"] = rlong(self._obj.id)
         query = "select info from PlaneInfo as info" \
                 " join fetch info.deltaT as dt" \
-                " join fetch dt.unit" \
                 " join fetch info.exposureTime as et" \
-                " join fetch et.unit" \
                 " where info.pixels.id=:pid"
         if theC is not None:
             params.map["theC"] = rint(theC)
