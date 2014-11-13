@@ -6397,7 +6397,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
         """
 
         lc = self.getLogicalChannel()
-        return self._unwrapunit(lc.emissionWave)
+        return self._unwrapunits(lc.emissionWave)
 
     def getExcitationWave(self):
         """
