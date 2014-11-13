@@ -7016,10 +7016,10 @@ class _ImageWrapper (BlitzObjectWrapper):
                     ctx.setOmeroUser(self.details.owner.id.val)
                 try:
                     # E.g. May throw Missing Pyramid Exception
-                    tb.resetDefaultSettings(True, ctx)
+                    tb.resetDefaults(ctx)
                 except omero.ConcurrencyException, ce:
                     logger.info(
-                        "ConcurrencyException: resetDefaultSettings() failed "
+                        "ConcurrencyException: resetDefaults() failed "
                         "in _prepareTB with backOff: %s" % ce.backOff)
                     return tb
                 tb.setPixelsId(pid, ctx)
