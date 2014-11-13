@@ -224,7 +224,6 @@ class InputServerStrategy
 	{
 		int z = data.getZ();
 		int t = data.getT();
-		if (z < 0 || t < 0) return null;
 		Coord3D coord = new Coord3D(z, t);
 		ROIFigure fig = createROIFigure(data);
 		fig.setReadOnly(data.isReadOnly());
