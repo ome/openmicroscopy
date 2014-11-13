@@ -112,7 +112,7 @@
         <bean parent="graphPolicyRule" p:matches="X:!ILink[E]/!o == [I]" p:changes="X:[I]/n"/>
         <bean parent="graphPolicyRule" p:matches="!ILink[E]{r} = X:[E]{i}" p:changes="X:{r}"/>
         <bean parent="graphPolicyRule" p:matches="!ILink[I] = X:[E]{i}" p:changes="X:{r}"/>
-        <bean parent="graphPolicyRule" p:matches="L:ILink[!O]" p:changes="L:[*]"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink[!O]" p:changes="L:[-]"/>
         <bean parent="graphPolicyRule" p:matches="L:ILink[!I].parent = [I], L.child = [I]" p:changes="L:[I]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:ILink[E].parent = [E], L.child = [I]" p:changes="L:[D]"/>
         <bean parent="graphPolicyRule" p:matches="L:ILink/o.parent = [I], L.child = C:[D]/o" p:changes="C:[I]"/>
@@ -176,7 +176,7 @@
         <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [D], L.child = C:Job[E]{o}" p:changes="C:[D]"/>
         <bean parent="graphPolicyRule" p:matches="L:ILink[E].parent = [E], L.child = C:[D]" p:changes="L:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:ILink[!D].parent = [D], L.child = [D]" p:changes="L:[D]/n"/>
-        <bean parent="graphPolicyRule" p:matches="L:ILink[!O]" p:changes="L:[*]"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink[!O]" p:changes="L:[-]"/>
         <bean parent="graphPolicyRule" p:matches="F:Fileset[E]{r}.images = Image[E]{i}" p:changes="F:{a}"/>
         <bean parent="graphPolicyRule" p:matches="I:Image[E]{!a}.rois = [D]" p:changes="I:{a}"/>
         <bean parent="graphPolicyRule" p:matches="I:Image[E]{!a}.stageLabel = [D]" p:changes="I:{a}"/>
