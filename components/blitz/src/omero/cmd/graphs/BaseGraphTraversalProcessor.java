@@ -34,6 +34,8 @@ import org.hibernate.Session;
 import com.google.common.collect.Maps;
 
 import ome.model.IObject;
+import ome.model.internal.Details;
+import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphTraversal;
 
 /**
@@ -87,5 +89,10 @@ public abstract class BaseGraphTraversalProcessor implements GraphTraversal.Proc
     public void deleteInstances(String className, Collection<Long> ids) {
         final String update = "DELETE FROM " + className + " WHERE id IN (:ids)";
         session.createQuery(update).setParameterList("ids", ids).executeUpdate();
+    }
+
+    @Override
+    public void assertMayProcess(Details details) throws GraphException {
+        /* no check */
     }
 }

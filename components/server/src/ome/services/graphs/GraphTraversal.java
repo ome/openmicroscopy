@@ -357,7 +357,7 @@ public class GraphTraversal {
         final SetMultimap<CI, CI> afters = HashMultimap.create();
         final Map<CI, Set<CI>> blockedBy = new HashMap<CI, Set<CI>>();
         /* permissions, unused for system users */
-        final Set<CI> detailsNoted = new HashSet<CI>();
+        final Map<CI, ome.model.internal.Details> detailsNoted = new HashMap<CI, ome.model.internal.Details>();
         final Set<CI> mayUpdate = new HashSet<CI>();
         final Set<CI> mayDelete = new HashSet<CI>();
         final Set<CI> owns = new HashSet<CI>();
@@ -406,6 +406,13 @@ public class GraphTraversal {
          * @return the permissions required for processing instances with {@link #processInstances(String, Collection)}
          */
         Set<Ability> getRequiredPermissions();
+
+        /**
+         * Assert that an object with the given details may be processed. Called only if the user is not an administrator.
+         * @param details the object's details
+         * @throws GraphException if the object may not be processed
+         */
+        void assertMayProcess(ome.model.internal.Details details) throws GraphException;
     }
 
     private final Session session;
@@ -608,10 +615,9 @@ public class GraphTraversal {
             /* allowLoad ensures that BasicEventContext.groupPermissionsMap is populated */
             aclVoter.allowLoad(session, objectInstance.getClass(), objectDetails, object.id);
         }
-        if (!planning.detailsNoted.add(object)) {
+        if (planning.detailsNoted.put(object, objectDetails) != null) {
             return;
         }
-
         if (!eventContext.isCurrentUserAdmin()) {
             if (aclVoter.allowUpdate(objectInstance, objectDetails)) {
                 planning.mayUpdate.add(object);
@@ -1033,6 +1039,11 @@ public class GraphTraversal {
             public Set<Ability> getRequiredPermissions() {
                 return processor.getRequiredPermissions();
             }
+
+            @Override
+            public void assertMayProcess(ome.model.internal.Details details) throws GraphException {
+                processor.assertMayProcess(details);
+            }
         };
     }
 
@@ -1060,7 +1071,17 @@ public class GraphTraversal {
      */
     private void assertMayBeProcessed(String className, Collection<Long> ids) throws GraphException {
         if (!isSystemType(className)) {
-            assertPermissions(idsToCIs(className, ids), processor.getRequiredPermissions());
+            final Set<CI> objects = idsToCIs(className, ids);
+            assertPermissions(objects, processor.getRequiredPermissions());
+            if (!eventContext.isCurrentUserAdmin()) {
+                for (final CI object : Sets.difference(objects, planning.overrides)) {
+                    try {
+                        processor.assertMayProcess(planning.detailsNoted.get(object));
+                    } catch (GraphException e) {
+                        throw new GraphException("cannot process " + object + ": " + e.message);
+                    }
+                }
+            }
         }
     }
 
