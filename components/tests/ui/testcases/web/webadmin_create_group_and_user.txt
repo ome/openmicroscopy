@@ -113,7 +113,7 @@ Create Edit User
     
     Click Element           xpath=//ul[@class='chosen-choices']
     Page Should Contain Element             xpath=//ul[@class='chosen-results']
-    Click Element           xpath=//ul[@class='chosen-results']/li[contains(text(),test_group')]
+    Click Element           xpath=//ul[@class='chosen-results']/li[contains(text(),'test_group')]
 
     Click Button            Save
     Location Should Be      ${USERS URL}
