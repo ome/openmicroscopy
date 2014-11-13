@@ -31,6 +31,8 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.BorderFactory;
@@ -38,6 +40,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -133,6 +136,9 @@ public class EditorDialog
     /** Area where to enter the description of the <code>DataObject</code>. */
     private JTextArea descriptionArea;
 
+    /** Component for editing boolean values */
+    private JComboBox<String> checkBox;
+    
     /** Button to close the dialog. */
     private JButton cancelButton;
 
@@ -218,6 +224,18 @@ public class EditorDialog
         }
         nameArea.getDocument().addDocumentListener(this);
         
+        if (data instanceof BooleanAnnotationData) {
+	        checkBox = new JComboBox<String>();
+	        checkBox.addItem(Boolean.TRUE.toString());
+	        checkBox.addItem(Boolean.FALSE.toString());
+	        checkBox.setSelectedItem(((BooleanAnnotationData)data).getValue().toString());
+	        checkBox.addItemListener(new ItemListener() {
+				public void itemStateChanged(ItemEvent e) {
+					enableSave();
+				}
+			});
+        }
+        
         cancelButton = new JButton("Cancel");
         cancelButton.setName("cancel button");
         cancelButton.setToolTipText("Close the dialog.");
@@ -264,10 +282,14 @@ public class EditorDialog
         String value = ", LEFT, TOP";
 
         if (data instanceof XMLAnnotationData || data instanceof DoubleAnnotationData ||
-        		data instanceof LongAnnotationData || data instanceof BooleanAnnotationData) {
+        		data instanceof LongAnnotationData) {
             content.add(UIUtilities.setTextFont("Content"), "0, 2" + value);
             content.add(new JScrollPane(nameArea), "1, 2");
-        } else if (data instanceof String) {
+        }
+        else if (data instanceof BooleanAnnotationData) {
+        	content.add(checkBox, "1, 2");
+        }
+        else if (data instanceof String) {
             content.add(new JScrollPane(nameArea), "1, 2");
         } else {
             content.add(UIUtilities.setTextFont("Name"), "0, 0" + value);
@@ -379,7 +401,7 @@ public class EditorDialog
         String name = nameArea.getText();
         if (name == null) return;
         name = name.trim();
-        if (name.length() == 0) return;
+        if (name.length() == 0 && !(data instanceof BooleanAnnotationData)) return;
         if (data instanceof ProjectData) {
             ProjectData p  = (ProjectData) data;
             p.setName(name);
@@ -438,12 +460,7 @@ public class EditorDialog
         }
         else if(data instanceof BooleanAnnotationData) {
         	BooleanAnnotationData d = (BooleanAnnotationData) data;
-        	if (!name.equalsIgnoreCase("true") && !name.equalsIgnoreCase("false")) {
-        		MetadataViewerAgent.getRegistry().getUserNotifier().notifyError("Invalid input", 
-        				"'"+name+"' is not a boolean value (valid input is either 'true' or 'false').");
-				return;
-        	}
-			d.setValue(Boolean.parseBoolean(name));
+			d.setValue(Boolean.parseBoolean(checkBox.getSelectedItem().toString()));
         	data = d;
         }
         if (withParent) 
@@ -496,8 +513,6 @@ public class EditorDialog
         	return ""+((DoubleAnnotationData)data).getDataValue();
         if (data instanceof LongAnnotationData)
         	return ""+((LongAnnotationData)data).getDataValue();
-        if (data instanceof BooleanAnnotationData)
-        	return ""+((BooleanAnnotationData)data).getValue();
         if (data instanceof String) 
         	return data.toString();
         return "";
@@ -540,7 +555,10 @@ public class EditorDialog
                 saveButton.setEnabled(l > 0);
             }
         } else if (type == EDIT_TYPE) {
-            if (!originalText.equals(name)) {
+        	if(data instanceof BooleanAnnotationData) {
+        		saveButton.setEnabled(!checkBox.getSelectedItem().toString().equals(((BooleanAnnotationData)data).getValue().toString()));
+        	}
+        	else if (!originalText.equals(name)) {
                 name = name.trim();
                 int l = name.length();
                 saveButton.setEnabled(l > 0);
