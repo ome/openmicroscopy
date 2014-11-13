@@ -702,6 +702,26 @@ create trigger _fs_log_delete
 after delete on originalfile
     for each row execute procedure _fs_log_delete();
 
+ALTER TABLE laser
+    ALTER COLUMN wavelength TYPE positive_float;
+
+ALTER TABLE lightsettings
+    ALTER COLUMN wavelength TYPE positive_float;
+
+ALTER TABLE logicalchannel
+    ALTER COLUMN emissionwave TYPE positive_float,
+    ALTER COLUMN excitationwave TYPE positive_float;
+
+ALTER TABLE pixels
+    ALTER COLUMN physicalsizex TYPE positive_float,
+    ALTER COLUMN physicalsizey TYPE positive_float,
+    ALTER COLUMN physicalsizez TYPE positive_float;
+
+ALTER TABLE transmittancerange
+    ALTER COLUMN cutin TYPE positive_float,
+    ALTER COLUMN cutintolerance TYPE nonnegative_int,
+    ALTER COLUMN cutout TYPE positive_float,
+    ALTER COLUMN cutouttolerance TYPE nonnegative_int;
 
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
