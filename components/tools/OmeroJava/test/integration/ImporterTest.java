@@ -234,14 +234,10 @@ public class ImporterTest extends AbstractServerTest {
                 .getValue());
         TransmittanceRange tr = filter.getTransmittanceRange();
         ome.xml.model.TransmittanceRange xmlTr = xml.getTransmittanceRange();
-        assertEquals(tr.getCutIn().getValue(), xmlTr.getCutIn().value()
-                .intValue());
-        assertEquals(tr.getCutOut().getValue(), xmlTr.getCutOut().value()
-                .intValue());
-        assertEquals(tr.getCutInTolerance().getValue(), xmlTr
-                .getCutInTolerance().value().intValue());
-        assertEquals(tr.getCutOutTolerance().getValue(), xmlTr
-                .getCutOutTolerance().value().intValue());
+        assertEquals(tr.getCutIn().getValue(), xmlTr.getCutIn().value());
+        assertEquals(tr.getCutOut().getValue(), xmlTr.getCutOut().value());
+        assertEquals(tr.getCutInTolerance().getValue(), xmlTr .getCutInTolerance().value());
+        assertEquals(tr.getCutOutTolerance().getValue(), xmlTr .getCutOutTolerance().value());
     }
 
     /**
