@@ -164,7 +164,7 @@ public class PowerI extends Power implements ModelBased {
     }
 
     /**
-     * Convert a Bio-Formats {@link Length} to an OMERO Length.
+     * Convert a Bio-Formats {@link Power} to an OMERO Power.
      */
     public PowerI(ome.units.quantity.Power value) {
         ome.model.enums.UnitsPower internal =

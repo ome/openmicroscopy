@@ -82,14 +82,14 @@ public class Length implements Serializable, Filterable, ome.model.units.Unit {
             return null;
         }
 
-        Double length = t.getValue();
+        Double v = t.getValue();
         String u = t.getUnit().getSymbol();
         ome.xml.model.enums.UnitsLength units = makeLengthUnitXML(u);
         ome.units.unit.Unit<ome.units.quantity.Length> units2 =
                 ome.xml.model.enums.handlers.UnitsLengthEnumHandler
                         .getBaseUnit(units);
 
-        return new ome.units.quantity.Length(length, units2);
+        return new ome.units.quantity.Length(v, units2);
     }
 
     public static Length convertLength(Length value, Unit<ome.units.quantity.Length> ul) {

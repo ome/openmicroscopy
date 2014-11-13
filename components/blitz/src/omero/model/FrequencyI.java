@@ -164,7 +164,7 @@ public class FrequencyI extends Frequency implements ModelBased {
     }
 
     /**
-     * Convert a Bio-Formats {@link Length} to an OMERO Length.
+     * Convert a Bio-Formats {@link Frequency} to an OMERO Frequency.
      */
     public FrequencyI(ome.units.quantity.Frequency value) {
         ome.model.enums.UnitsFrequency internal =

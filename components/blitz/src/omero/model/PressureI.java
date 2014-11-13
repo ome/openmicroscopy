@@ -164,7 +164,7 @@ public class PressureI extends Pressure implements ModelBased {
     }
 
     /**
-     * Convert a Bio-Formats {@link Length} to an OMERO Length.
+     * Convert a Bio-Formats {@link Pressure} to an OMERO Pressure.
      */
     public PressureI(ome.units.quantity.Pressure value) {
         ome.model.enums.UnitsPressure internal =

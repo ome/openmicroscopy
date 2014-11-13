@@ -82,14 +82,14 @@ public class ElectricPotential implements Serializable, Filterable, ome.model.un
             return null;
         }
 
-        Double length = t.getValue();
+        Double v = t.getValue();
         String u = t.getUnit().getSymbol();
         ome.xml.model.enums.UnitsElectricPotential units = makeElectricPotentialUnitXML(u);
         ome.units.unit.Unit<ome.units.quantity.ElectricPotential> units2 =
                 ome.xml.model.enums.handlers.UnitsElectricPotentialEnumHandler
                         .getBaseUnit(units);
 
-        return new ome.units.quantity.ElectricPotential(length, units2);
+        return new ome.units.quantity.ElectricPotential(v, units2);
     }
 
     public static ElectricPotential convertElectricPotential(ElectricPotential value, Unit<ome.units.quantity.ElectricPotential> ul) {

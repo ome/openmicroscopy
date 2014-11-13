@@ -82,14 +82,14 @@ public class Temperature implements Serializable, Filterable, ome.model.units.Un
             return null;
         }
 
-        Double length = t.getValue();
+        Double v = t.getValue();
         String u = t.getUnit().getSymbol();
         ome.xml.model.enums.UnitsTemperature units = makeTemperatureUnitXML(u);
         ome.units.unit.Unit<ome.units.quantity.Temperature> units2 =
                 ome.xml.model.enums.handlers.UnitsTemperatureEnumHandler
                         .getBaseUnit(units);
 
-        return new ome.units.quantity.Temperature(length, units2);
+        return new ome.units.quantity.Temperature(v, units2);
     }
 
     public static Temperature convertTemperature(Temperature value, Unit<ome.units.quantity.Temperature> ul) {

@@ -164,7 +164,7 @@ public class TimeI extends Time implements ModelBased {
     }
 
     /**
-     * Convert a Bio-Formats {@link Length} to an OMERO Length.
+     * Convert a Bio-Formats {@link Time} to an OMERO Time.
      */
     public TimeI(ome.units.quantity.Time value) {
         ome.model.enums.UnitsTime internal =

@@ -164,7 +164,7 @@ public class TemperatureI extends Temperature implements ModelBased {
     }
 
     /**
-     * Convert a Bio-Formats {@link Length} to an OMERO Length.
+     * Convert a Bio-Formats {@link Temperature} to an OMERO Temperature.
      */
     public TemperatureI(ome.units.quantity.Temperature value) {
         ome.model.enums.UnitsTemperature internal =

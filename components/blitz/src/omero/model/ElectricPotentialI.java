@@ -164,7 +164,7 @@ public class ElectricPotentialI extends ElectricPotential implements ModelBased 
     }
 
     /**
-     * Convert a Bio-Formats {@link Length} to an OMERO Length.
+     * Convert a Bio-Formats {@link ElectricPotential} to an OMERO ElectricPotential.
      */
     public ElectricPotentialI(ome.units.quantity.ElectricPotential value) {
         ome.model.enums.UnitsElectricPotential internal =

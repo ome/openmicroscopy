@@ -82,14 +82,14 @@ public class Frequency implements Serializable, Filterable, ome.model.units.Unit
             return null;
         }
 
-        Double length = t.getValue();
+        Double v = t.getValue();
         String u = t.getUnit().getSymbol();
         ome.xml.model.enums.UnitsFrequency units = makeFrequencyUnitXML(u);
         ome.units.unit.Unit<ome.units.quantity.Frequency> units2 =
                 ome.xml.model.enums.handlers.UnitsFrequencyEnumHandler
                         .getBaseUnit(units);
 
-        return new ome.units.quantity.Frequency(length, units2);
+        return new ome.units.quantity.Frequency(v, units2);
     }
 
     public static Frequency convertFrequency(Frequency value, Unit<ome.units.quantity.Frequency> ul) {

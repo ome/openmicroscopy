@@ -82,14 +82,14 @@ public class Time implements Serializable, Filterable, ome.model.units.Unit {
             return null;
         }
 
-        Double length = t.getValue();
+        Double v = t.getValue();
         String u = t.getUnit().getSymbol();
         ome.xml.model.enums.UnitsTime units = makeTimeUnitXML(u);
         ome.units.unit.Unit<ome.units.quantity.Time> units2 =
                 ome.xml.model.enums.handlers.UnitsTimeEnumHandler
                         .getBaseUnit(units);
 
-        return new ome.units.quantity.Time(length, units2);
+        return new ome.units.quantity.Time(v, units2);
     }
 
     public static Time convertTime(Time value, Unit<ome.units.quantity.Time> ul) {

@@ -82,14 +82,14 @@ public class Power implements Serializable, Filterable, ome.model.units.Unit {
             return null;
         }
 
-        Double length = t.getValue();
+        Double v = t.getValue();
         String u = t.getUnit().getSymbol();
         ome.xml.model.enums.UnitsPower units = makePowerUnitXML(u);
         ome.units.unit.Unit<ome.units.quantity.Power> units2 =
                 ome.xml.model.enums.handlers.UnitsPowerEnumHandler
                         .getBaseUnit(units);
 
-        return new ome.units.quantity.Power(length, units2);
+        return new ome.units.quantity.Power(v, units2);
     }
 
     public static Power convertPower(Power value, Unit<ome.units.quantity.Power> ul) {

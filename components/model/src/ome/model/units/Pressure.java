@@ -82,14 +82,14 @@ public class Pressure implements Serializable, Filterable, ome.model.units.Unit 
             return null;
         }
 
-        Double length = t.getValue();
+        Double v = t.getValue();
         String u = t.getUnit().getSymbol();
         ome.xml.model.enums.UnitsPressure units = makePressureUnitXML(u);
         ome.units.unit.Unit<ome.units.quantity.Pressure> units2 =
                 ome.xml.model.enums.handlers.UnitsPressureEnumHandler
                         .getBaseUnit(units);
 
-        return new ome.units.quantity.Pressure(length, units2);
+        return new ome.units.quantity.Pressure(v, units2);
     }
 
     public static Pressure convertPressure(Pressure value, Unit<ome.units.quantity.Pressure> ul) {
