@@ -156,8 +156,10 @@ bin/omero web start
 
 # Test simple Web connection
 brew install wget
-post_data="username=root&password=$ROOT_PASSWORD&server=1&noredirect=1"
-resp=$(wget --post-data $post_data http://localhost:$HTTPPORT/webclient/login/)
+wget --keep-session-cookies --save-cookies cookies.txt http://localhost:$HTTPPORT/webclient/login/ -O csrf_index.html
+csrf=$(cat csrf_index.html | grep "name=\'csrfmiddlewaretoken\'"  | sed "s/.* value=\'\(.*\)\'.*/\1/")
+post_data="username=root&password=$ROOT_PASSWORD&csrfmiddlewaretoken=$csrf&server=1&noredirect=1"
+resp=$(wget --keep-session-cookies --load-cookies cookies.txt --post-data $post_data http://localhost:$HTTPPORT/webclient/login/)
 echo "$resp"
 
 # Stop OMERO.web
