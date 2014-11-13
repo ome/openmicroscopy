@@ -66,10 +66,6 @@ class SetValues implements Filter {
             target.putAt(fieldId, f);
         }
 
-        else if (f instanceof ome.model.units.Unit) {
-            target.putAt(fieldId, f);
-        }
-
         else if (Details.class.isAssignableFrom(f.getClass())) {
             target.putAt(fieldId, ((Details) f).shallowCopy());
         }
