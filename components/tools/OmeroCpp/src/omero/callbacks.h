@@ -19,8 +19,6 @@
 #include <IceUtil/Config.h>
 #include <IceUtil/Thread.h>
 #include <Ice/Handle.h>
-#include <omero/client.h>
-#include <omero/RTypesI.h>
 #include <omero/Scripts.h>
 #include <omero/cmd/API.h>
 #include <omero/Scripts.h>
@@ -217,6 +215,10 @@ namespace omero {
             bool closeHandle;
 
             omero::cmd::StatusPtr getStatusOrThrow();
+
+            int count(
+                    omero::cmd::StateList list,
+                    omero::cmd::State s);
 
             void doinit(std::string category);
 

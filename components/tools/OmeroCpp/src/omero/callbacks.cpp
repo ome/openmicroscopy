@@ -6,11 +6,14 @@
 
 */
 
-#include <omero/ClientErrors.h>
 #include <omero/callbacks.h>
-#include <omero/RTypesI.h>
 #include <omero/util/uuid.h>
+
+#include <omero/IceNoWarnPush.h>
+#include <omero/ClientErrors.h>
+#include <omero/RTypesI.h>
 #include <IceUtil/Time.h>
+#include <omero/IceNoWarnPop.h>
 
 using namespace std;
 using namespace IceUtil;
@@ -151,7 +154,7 @@ namespace omero {
             return s;
         }
 
-        int count(omero::cmd::StateList list, omero::cmd::State s) {
+        int CmdCallbackI::count(omero::cmd::StateList list, omero::cmd::State s) {
             int c = 0;
             omero::cmd::StateList::iterator it;
             for (it=list.begin(); it != list.end(); it++) {
