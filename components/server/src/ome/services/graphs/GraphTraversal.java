@@ -116,7 +116,14 @@ public class GraphTraversal {
 
         @Override
         public String toString() {
-            return subjectAsCI + "/" + (action == Action.EXCLUDE ? orphan : action);
+            final StringBuffer sb = new StringBuffer();
+            sb.append(subjectAsCI);
+            sb.append('/');
+            sb.append(action == Action.EXCLUDE ? orphan : action);
+            if (!isCheckPermissions) {
+                sb.append('*');
+            }
+            return sb.toString();
         }
     }
 
