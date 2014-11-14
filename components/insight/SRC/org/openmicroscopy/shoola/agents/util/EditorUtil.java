@@ -715,9 +715,24 @@ public class EditorUtil
             details.put(TIMEPOINTS, ""+data.getSizeT());
             details.put(CHANNELS, ""+data.getSizeC());
             try {
-                details.put(PIXEL_SIZE_X, ""+data.getPixelSizeX());
-                details.put(PIXEL_SIZE_Y, ""+data.getPixelSizeY());
-                details.put(PIXEL_SIZE_Z, ""+data.getPixelSizeZ());
+            	Length l = data.getPixelSizeXAsLength();
+            	if(l==null)
+            		details.put(PIXEL_SIZE_X, "0");
+            	else 
+            		details.put(PIXEL_SIZE_X, ""+UnitsFactory.convertLength(l, UNITS.MICROM).getValue());
+            	
+            	l = data.getPixelSizeYAsLength();
+            	if(l==null)
+            		details.put(PIXEL_SIZE_Y, "0");
+            	else 
+            		details.put(PIXEL_SIZE_Y, ""+UnitsFactory.convertLength(l, UNITS.MICROM).getValue());
+                
+            	l = data.getPixelSizeZAsLength();
+            	if(l==null)
+            		details.put(PIXEL_SIZE_Z, "0");
+            	else 
+            		details.put(PIXEL_SIZE_Z, ""+UnitsFactory.convertLength(l, UNITS.MICROM).getValue());
+            	
                 details.put(PIXEL_TYPE,
                         PIXELS_TYPE_DESCRIPTION.get(""+data.getPixelType()));
             } catch (Exception e) {
