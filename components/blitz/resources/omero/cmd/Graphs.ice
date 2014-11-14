@@ -253,6 +253,37 @@ module omero {
         };
 
         /**
+         * Change the ownership of model objects.
+         * The user must be either an administrator,
+         * or the owner of the objects with
+         * the target user a member of the objects' group.
+         **/
+        class Chown2 extends GraphModify2 {
+
+            /**
+             * The ID of the experimenter to which to give the model
+             * objects.
+             **/
+            long userId;
+        };
+
+        /**
+         * Result of changing the ownership of model objects.
+         **/
+        class Chown2Response extends OK {
+
+            /**
+             * The model objects that were given.
+             **/
+            omero::api::IdListMap includedObjects;
+
+            /**
+             * The model objects that were deleted.
+             **/
+            omero::api::IdListMap deletedObjects;
+        };
+
+        /**
          * Delete model objects.
          **/
         class Delete2 extends GraphModify2 {
