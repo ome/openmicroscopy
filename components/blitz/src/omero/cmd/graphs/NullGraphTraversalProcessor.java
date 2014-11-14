@@ -23,6 +23,8 @@ import java.util.Collection;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import ome.model.internal.Details;
+import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPolicy.Ability;
 import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphTraversal;
@@ -61,4 +63,7 @@ public class NullGraphTraversalProcessor implements GraphTraversal.Processor {
     public Set<Ability> getRequiredPermissions() {
         return requiredAbilities;
     }
+
+    @Override
+    public void assertMayProcess(Details details) throws GraphException { }
 }
