@@ -44,6 +44,8 @@ import org.jdesktop.swingx.JXTaskPane;
 
 import ome.formats.model.UnitsFactory;
 import ome.units.UNITS;
+import omero.model.ElectricPotential;
+import omero.model.Frequency;
 import omero.model.Length;
 import omero.model.PlaneInfo;
 import omero.model.Pressure;
@@ -1828,15 +1830,15 @@ public class EditorUtil
         else v = f;
         details.put(ATTENUATION, v*PERCENT_FRACTION);
 
-        Double wave = data.getLightSettingsWavelength();
+        Length wl = data.getLightSettingsWavelengthAsLength();
         if (details.containsKey(WAVELENGTH)) {
-            if (wave != null) { //override the value.
-                details.put(WAVELENGTH, wave);
+            if (wl != null) { //override the value.
+                details.put(WAVELENGTH, UnitsFactory.convertLength(wl, UNITS.NM).getValue());
             }
         } else {
             Double vi = 0.0;
-            if (wave == null) notSet.add(WAVELENGTH);
-            else vi = wave;
+            if (wl == null) notSet.add(WAVELENGTH);
+            else vi = UnitsFactory.convertLength(wl, UNITS.NM).getValue();
             details.put(WAVELENGTH, vi);
         }
         details.put(NOT_SET, notSet);
@@ -2089,8 +2091,9 @@ public class EditorUtil
             notSet.remove(GAIN);
         }
 
-        f = data.getDetectorSettingsVoltage();
-        if (f != null) {
+        ElectricPotential p = data.getDetectorSettingsVoltageAsElectricPotential();
+        if (p != null) {
+        	f = UnitsFactory.convertElectricPotential(p, UNITS.VOLT).getValue();
             notSet.remove(VOLTAGE);
             details.put(VOLTAGE, UIUtilities.roundTwoDecimals(f));
         }
@@ -2101,12 +2104,12 @@ public class EditorUtil
             details.put(OFFSET, UIUtilities.roundTwoDecimals(f));
         }
 
-        f = data.getDetectorSettingsReadOutRate();
+        Frequency freq = data.getDetectorSettingsReadOutRateAsFrequency();
         double v = 0;
-        if (f == null) {
+        if (freq == null) {
             v = 0;
             notSet.add(READ_OUT_RATE);
-        } else v = UIUtilities.roundTwoDecimals(f);
+        } else v = UIUtilities.roundTwoDecimals(UnitsFactory.convertFrequency(freq, UNITS.HZ).getValue());
         details.put(READ_OUT_RATE, v);
         String s = data.getDetectorSettingsBinning();
         if (StringUtils.isBlank(s)) {
