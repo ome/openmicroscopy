@@ -46,6 +46,8 @@ import ome.formats.model.UnitsFactory;
 import ome.units.UNITS;
 import omero.model.Length;
 import omero.model.PlaneInfo;
+import omero.model.Pressure;
+import omero.model.Temperature;
 import omero.model.enums.UnitsLength;
 
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
@@ -1563,16 +1565,22 @@ public class EditorUtil
             details.put(NOT_SET, notSet);
             return details;
         }
-        Object o = data.getTemperature();
+        Temperature t = data.getTemperatureAsTemperature();
         double f = 0;
-        if (o == null) {
+        if (t == null) {
             notSet.add(TEMPERATURE);
-        } else f = (Double) o;
+        } else {
+        	f = UnitsFactory.convertTemperature(t, UNITS.DEGREEC).getValue();
+        }
         details.put(TEMPERATURE, f);
-        f = data.getAirPressure();
-        if (f < 0) {
+        
+        Pressure p = data.getAirPressureAsPressure();
+        if (p == null) {
             notSet.add(AIR_PRESSURE);
             f = 0;
+        }
+        else {
+        	f = UnitsFactory.convertPressure(p, UNITS.HPA).getValue();
         }
         details.put(AIR_PRESSURE, f);
         f = data.getHumidity();
@@ -1620,21 +1628,25 @@ public class EditorUtil
         if (StringUtils.isBlank(s))
             notSet.add(NAME);
         details.put(NAME, s);
-        Object o = data.getPositionX();
+        Length p = data.getPositionXAsLength();
         double f = 0;
-        if (o == null) {
+        if (p == null) {
             notSet.add(POSITION_X);
-        } else f = (Double) o;
+        } else f = UnitsFactory.convertLength(p, UNITS.MICROM).getValue();
         details.put(POSITION_X, f);
+        
+        p = data.getPositionYAsLength();
         f = 0;
-        if (o == null) {
+        if (p == null) {
             notSet.add(POSITION_Y);
-        } else f = (Double) o;
+        } else f = UnitsFactory.convertLength(p, UNITS.MICROM).getValue();
         details.put(POSITION_Y, f);
+        
+        p = data.getPositionZAsLength();
         f = 0;
-        if (o == null) {
+        if (p == null) {
             notSet.add(POSITION_Z);
-        } else f = (Double) o;
+        } else f = UnitsFactory.convertLength(p, UNITS.MICROM).getValue();
         details.put(POSITION_Z, f);
 
         details.put(NOT_SET, notSet);
