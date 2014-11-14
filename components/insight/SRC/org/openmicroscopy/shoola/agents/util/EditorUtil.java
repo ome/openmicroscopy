@@ -42,8 +42,11 @@ import javax.swing.JPanel;
 import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.JXTaskPane;
 
+import ome.formats.model.UnitsFactory;
+import ome.units.UNITS;
 import omero.model.Length;
 import omero.model.PlaneInfo;
+import omero.model.enums.UnitsLength;
 
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
@@ -1213,34 +1216,36 @@ public class EditorUtil
             notSet.add(NAME);
         details.put(NAME, s);
 
-        Double wave =  data.getEmissionWavelength();
-        if (wave == null) {
+        Length wl = data.getEmissionWavelengthAsLength();
+        if (wl == null) {
             details.put(EMISSION, null);
         } else {
+        	double wave =  UnitsFactory.convertLength(wl, UNITS.NM).getValue();
             if (wave <= 100) {
                 notSet.add(EMISSION);
                 details.put(EMISSION, Integer.valueOf(0));
             } else {
                 //First check if the wave is a int
                 if (DoubleMath.isMathematicalInteger(wave)) {
-                    details.put(EMISSION, new Integer(wave.intValue()));
+                    details.put(EMISSION, (int)wave);
                 } else {
                     details.put(EMISSION, wave);
                 }
             }
         }
 
-        wave =  data.getExcitationWavelength();
-        if (wave == null) {
+        wl = data.getExcitationWavelengthAsLength();
+        if (wl == null) {
             details.put(EXCITATION, null);
         } else {
+        	double wave =  UnitsFactory.convertLength(wl, UNITS.NM).getValue();
             if (wave <= 100) {
                 notSet.add(EXCITATION);
                 details.put(EXCITATION, Integer.valueOf(0));
             } else {
               //First check if the wave is a int
                 if (DoubleMath.isMathematicalInteger(wave)) {
-                    details.put(EXCITATION, new Integer(wave.intValue()));
+                    details.put(EXCITATION, (int)wave);
                 } else {
                     details.put(EXCITATION, wave);
                 }
@@ -1253,12 +1258,17 @@ public class EditorUtil
             notSet.add(ND_FILTER);
         }
         details.put(ND_FILTER, f*100);
-        f = data.getPinholeSize();
-        if (f < 0) {
+
+        Length ph = data.getPinholeSizeAsLength();
+        if (ph == null) {
             f = 0;
             notSet.add(PIN_HOLE_SIZE);
-        };
+        }
+        else {
+        	f = UnitsFactory.convertLength(ph, UNITS.MICROM).getValue();
+        }
         details.put(PIN_HOLE_SIZE, f);
+        
         s = data.getFluor();
         if (StringUtils.isBlank(s))
             notSet.add(FLUOR);
