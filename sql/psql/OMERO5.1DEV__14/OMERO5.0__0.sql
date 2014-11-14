@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.0__0 to OMERO5.1DEV__13.
+--- OMERO5 development release upgrade from OMERO5.0__0 to OMERO5.1DEV__14.
 ---
 
 BEGIN;
@@ -44,7 +44,7 @@ DROP FUNCTION omero_assert_db_version(varchar, int);
 
 
 INSERT INTO dbpatch (currentVersion, currentPatch,   previousVersion,     previousPatch)
-             VALUES ('OMERO5.1DEV',  13,             'OMERO5.0',          0);
+             VALUES ('OMERO5.1DEV',  14,             'OMERO5.0',          0);
 
 --
 -- Actual upgrade
@@ -1643,6 +1643,15 @@ ALTER TABLE transmittancerange
         ALTER COLUMN cutin TYPE positive_float /* TYPE change - table: transmittancerange original: positive_int new: positive_float */,
         ALTER COLUMN cutout TYPE positive_float /* TYPE change - table: transmittancerange original: positive_int new: positive_float */;
 
+-- #6719 LDAP: Add DN for groups
+
+-- Add "ldap" column to "experimentergroup", default to false
+
+ALTER TABLE experimentergroup ADD COLUMN ldap BOOL NOT NULL DEFAULT false;
+
+-- Set "ldap" value for each group to be false
+
+UPDATE experimentergroup SET ldap = false;
 
 --
 -- FINISHED
@@ -1650,10 +1659,10 @@ ALTER TABLE transmittancerange
 
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
     WHERE currentVersion  = 'OMERO5.1DEV' AND
-          currentPatch    = 13            AND
+          currentPatch    = 14            AND
           previousVersion = 'OMERO5.0'    AND
           previousPatch   = 0;
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.1DEV__13'||CHR(10)||CHR(10)||CHR(10) AS Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.1DEV__14'||CHR(10)||CHR(10)||CHR(10) AS Status;
 
 COMMIT;
