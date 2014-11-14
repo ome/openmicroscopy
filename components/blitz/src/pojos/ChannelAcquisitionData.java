@@ -22,23 +22,21 @@
  */
 package pojos;
 
-
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
+import ome.formats.model.UnitsFactory;
 import omero.RDouble;
-import omero.RFloat;
-import omero.RInt;
 import omero.model.AcquisitionMode;
 import omero.model.Binning;
 import omero.model.ContrastMethod;
 import omero.model.DetectorSettings;
 import omero.model.DetectorSettingsI;
+import omero.model.ElectricPotential;
+import omero.model.ElectricPotentialI;
 import omero.model.FilterSet;
+import omero.model.Frequency;
+import omero.model.FrequencyI;
 import omero.model.Illumination;
+import omero.model.Length;
+import omero.model.LengthI;
 import omero.model.LightPath;
 import omero.model.LightSettings;
 import omero.model.LightSettingsI;
@@ -164,10 +162,11 @@ public class ChannelAcquisitionData
 	 * 
 	 * @return See above.
 	 */
+	@Deprecated
 	public Double getDetectorSettingsVoltage()
 	{
 		if (detectorSettings == null) return null;
-		RDouble value = detectorSettings.getVoltage();
+		ElectricPotential value = detectorSettings.getVoltage();
 		if (value == null) return null;
 		return value.getValue();
 	}
@@ -177,12 +176,14 @@ public class ChannelAcquisitionData
 	 * 
 	 * @return See above.
 	 */
+	@Deprecated
 	public Double getDetectorSettingsReadOutRate()
 	{
 		if (detectorSettings == null) return null;
-		RDouble value = detectorSettings.getReadOutRate();
+		Frequency value = detectorSettings.getReadOutRate();
 		if (value == null) return null;
-		return value.getValue();
+		return new FrequencyI(value, UnitsFactory.DetectorSettings_ReadOutRate)
+		    .getValue();
 	}
 	
 	/**
@@ -217,10 +218,11 @@ public class ChannelAcquisitionData
 	 * 
 	 * @return See above.
 	 */
+	@Deprecated
 	public Double getLightSettingsWavelength()
 	{
 		if (lightSettings == null) return null;
-		RDouble value = lightSettings.getWavelength();
+		Length value = lightSettings.getWavelength();
 		if (value == null) return null;
 		return value.getValue();
 	}
@@ -266,11 +268,13 @@ public class ChannelAcquisitionData
 	 * 
 	 * @param value The value to set.
 	 */
+	@Deprecated
 	public void setLightSettingsWavelength(double value)
 	{
 		lightSourceSettingsDirty = true;
 		if (lightSettings == null) lightSettings = new LightSettingsI();
-		lightSettings.setWavelength(omero.rtypes.rdouble(value));
+		lightSettings.setWavelength(new LengthI(value,
+		        UnitsFactory.LightSourceSettings_Wavelength));
 	}
 	
 	
@@ -305,12 +309,14 @@ public class ChannelAcquisitionData
 	 * 
 	 * @param value The value to set.
 	 */
+	@Deprecated
 	public void setDetectorSettingsReadOutRate(double value)
 	{
 		detectorSettingsDirty = true;
 		if (detectorSettings == null) 
 			detectorSettings = new DetectorSettingsI();
-		detectorSettings.setReadOutRate(omero.rtypes.rdouble(value));
+		detectorSettings.setReadOutRate(new FrequencyI(value,
+		        UnitsFactory.DetectorSettings_ReadOutRate));
 	}
 	
 	/**
@@ -318,12 +324,14 @@ public class ChannelAcquisitionData
 	 * 
 	 * @param value The value to set.
 	 */
+	@Deprecated
 	public void setDetectorSettingsVoltage(double value)
 	{
 		detectorSettingsDirty = true;
 		if (detectorSettings == null) 
 			detectorSettings = new DetectorSettingsI();
-		detectorSettings.setVoltage(omero.rtypes.rdouble(value));
+		detectorSettings.setVoltage(new ElectricPotentialI(value,
+		        UnitsFactory.Detector_Voltage));
 	}
 	
 	/**

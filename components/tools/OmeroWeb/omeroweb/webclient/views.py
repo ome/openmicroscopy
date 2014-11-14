@@ -864,7 +864,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
     else:
         context = {'manager':manager, 'form_comment':form_comment, 'index':index,
             'share_id':share_id, 'share_owned': share_owned}
-            
+
     context['figScripts'] = figScripts
     context['template'] = template
     context['webclient_path'] = request.build_absolute_uri(reverse('webindex'))
@@ -1025,7 +1025,26 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
                 color = ch.getColor()
                 channel['color'] = color is not None and color.getHtml() or None
                 planeInfo = manager.image and manager.image.getPrimaryPixels().copyPlaneInfo(theC=theC, theZ=0)
-                channel['plane_info'] = list(planeInfo)
+                plane_info = []
+
+                def unwrapUnit(q):
+                    if q:
+                        u = str(q.getUnit())
+                        v = q.getValue()
+                        return (v, u)
+                    return (None, None)
+
+                for pi in planeInfo:
+                    deltaT, deltaTUnit = unwrapUnit(pi.getDeltaT())
+                    exposure, exposureUnit = unwrapUnit(pi.getExposureTime())
+                    plane_info.append({
+                        'theT': pi.theT,
+                        'deltaT': deltaT,
+                        'exposureTime': exposure,
+                        'deltaTUnit': deltaTUnit,
+                        'exposureTimeUnit': exposureUnit})
+                channel['plane_info'] = plane_info
+
                 form_channels.append(channel)
 
         try:

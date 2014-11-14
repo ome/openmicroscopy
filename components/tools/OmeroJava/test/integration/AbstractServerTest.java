@@ -33,6 +33,7 @@ import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
+import ome.formats.importer.util.ErrorHandler;
 import ome.io.nio.SimpleBackOff;
 import ome.services.blitz.repo.path.FsFile;
 import omero.ApiUsageException;
@@ -1043,12 +1044,21 @@ public class AbstractServerTest extends AbstractTest {
         OMEROWrapper reader = new OMEROWrapper(config);
         IObserver o = new IObserver() {
             public void update(IObservable importLibrary, ImportEvent event) {
-
+                if (event instanceof ErrorHandler.EXCEPTION_EVENT) {
+                    Exception ex = ((ErrorHandler.EXCEPTION_EVENT) event).exception;
+                    if (ex instanceof RuntimeException) {
+                        throw (RuntimeException) ex;
+                    } else {
+                        throw new RuntimeException(ex);
+                    }
+                }
             }
         };
         ImportCandidates candidates = new ImportCandidates(reader, paths, o);
 
         ImportLibrary library = new ImportLibrary(importer, reader);
+        library.addObserver(o);
+
         ImportContainer ic = candidates.getContainers().get(0);
         // new ImportContainer(
         // file, null, target, false, null, null, null, null);

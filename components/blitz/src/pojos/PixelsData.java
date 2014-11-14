@@ -7,13 +7,10 @@
 
 package pojos;
 
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import static omero.rtypes.*;
+import static ome.formats.model.UnitsFactory.makeLength;
+
+import ome.units.UNITS;
 import omero.model.Pixels;
 import omero.model.PixelsI;
 import omero.model.PixelsType;
@@ -230,7 +227,7 @@ public class PixelsData extends DataObject {
      */
     public void setPixelSizeX(double pixelSizeX) {
         setDirty(true);
-        asPixels().setPhysicalSizeX(rdouble(pixelSizeX));
+        asPixels().setPhysicalSizeX(makeLength(pixelSizeX, UNITS.MICROM));
     }
 
     /**
@@ -251,7 +248,7 @@ public class PixelsData extends DataObject {
      */
     public void setPixelSizeY(double pixelSizeY) {
         setDirty(true);
-        asPixels().setPhysicalSizeY(rdouble(pixelSizeY));
+        asPixels().setPhysicalSizeY(makeLength(pixelSizeY, UNITS.MICROM));
     }
 
     /**
@@ -272,7 +269,7 @@ public class PixelsData extends DataObject {
      */
     public void setPixelSizeZ(double pixelSizeZ) {
         setDirty(true);
-        asPixels().setPhysicalSizeZ(rdouble(pixelSizeZ));
+        asPixels().setPhysicalSizeZ(makeLength(pixelSizeZ, UNITS.MICROM));
     }
 
     /**

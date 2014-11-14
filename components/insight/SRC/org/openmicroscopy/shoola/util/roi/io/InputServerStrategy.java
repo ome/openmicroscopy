@@ -584,7 +584,7 @@ class InputServerStrategy
 		STROKE_COLOR.set(figure, data.getStroke());
 		FILL_COLOR.set(figure, data.getFill());
 		FONT_FACE.set(figure, data.getFont());
-		FONT_SIZE.set(figure, new Double(data.getFontSize()));
+		FONT_SIZE.set(figure, data.getFontSize());
 		FONT_ITALIC.set(figure, data.isFontItalic());
 		FONT_BOLD.set(figure, data.isFontBold());
 		STROKE_CAP.set(figure, data.getLineCap());

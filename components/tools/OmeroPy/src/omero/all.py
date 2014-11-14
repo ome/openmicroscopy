@@ -61,5 +61,6 @@ if omero.__import_style__ is None:
     IceImport.load("omero_cmd_FS_ice")
     IceImport.load("omero_cmd_Graphs_ice")
     IceImport.load("omero_cmd_Mail_ice")
+    IceImport.load("omero_model_Units_ice")
     import omero_sys_ParametersI
     import omero_model_PermissionsI

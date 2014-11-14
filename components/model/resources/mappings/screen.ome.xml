@@ -37,14 +37,14 @@
 		<!-- Note: Name is optional in model-->
 		<properties>
 			<!-- Note: the following are not (yet) in model -->
-                        <optional name="defaultSample" type="int"/><!-- index of well sample which is currently selected-->
-                        <optional name="columnNamingConvention" type="string"/><!-- first column name to indicate naming convention-->
-                        <optional name="rowNamingConvention" type="string"/><!-- first row name to indicate naming convention-->
-                        <optional name="wellOriginX" type="double"/><!-- percent width offset from top left-->
-                        <optional name="wellOriginY" type="double"/><!-- percent height offset from top left-->
+			<optional name="defaultSample" type="int"/><!-- index of well sample which is currently selected-->
+			<optional name="columnNamingConvention" type="string"/><!-- first column name to indicate naming convention-->
+			<optional name="rowNamingConvention" type="string"/><!-- first row name to indicate naming convention-->
+			<optional name="wellOriginX" type="ome.model.units.Length"/><!-- percent width offset from top left-->
+			<optional name="wellOriginY" type="ome.model.units.Length"/><!-- percent height offset from top left-->
 			<optional name="rows" type="int"/>
 			<optional name="columns" type="int"/>
-                        <!-- end not in model -->
+			<!-- end not in model -->
 			<optional name="status" type="string"/>
 			<optional name="externalIdentifier" type="string"/>
 			<parent name="screenLinks" type="ome.model.screen.ScreenPlateLink" target="ome.model.screen.Screen"/>
@@ -77,8 +77,8 @@
 <!-- A WellSample is effectively a WellImageLink -->
 	<type id="ome.model.screen.WellSample">
 		<properties>
-			<optional name="posX" type="double"/>
-			<optional name="posY" type="double"/>
+			<optional name="posX" type="ome.model.units.Length"/>
+			<optional name="posY" type="ome.model.units.Length"/>
 			<optional name="timepoint" type="timestamp"/>
 			<optional name="plateAcquisition" type="ome.model.screen.PlateAcquisition"/>
 			<manyone name="well" type="ome.model.screen.Well" inverse="wellSamples" ordered="true"/>
