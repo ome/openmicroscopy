@@ -49,7 +49,7 @@ import omero.cmd.IRequest;
 import omero.cmd.Response;
 
 /**
- * An experimental Delete for exercising the {@link ome.services.graphs.GraphPathBean} from clients.
+ * Request to delete model objects, reimplementing {@link DeleteI}.
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.1.0
  */

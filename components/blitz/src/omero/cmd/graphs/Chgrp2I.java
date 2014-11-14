@@ -49,7 +49,7 @@ import omero.cmd.IRequest;
 import omero.cmd.Response;
 
 /**
- * An experimental Chgrp for exercising the {@link ome.services.graphs.GraphPathBean} from clients.
+ * Request to move model objects to a different experiment group, reimplementing {@link ChgrpI}.
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.1.0
  */
