@@ -1760,29 +1760,29 @@ public class EditorUtil
         if (StringUtils.isBlank(s))
             notSet.add(FILTER_WHEEL);
         details.put(FILTER_WHEEL, s);
-        Integer v = data.getCutIn();
+        Length wl = data.getCutInAsLength();
         int i = 0;
-        if (v == null) notSet.add(CUT_IN);
-        else i = v;
+        if (wl == null) notSet.add(CUT_IN);
+        else i = (int)UnitsFactory.convertLength(wl, UNITS.NM).getValue();
         details.put(CUT_IN, i);
-        v = data.getCutOut();
-        if (v == null) {
+        wl = data.getCutOutAsLength();
+        if (wl == null) {
             notSet.add(CUT_OUT);
             i = 0;
-        } else i = v;
+        } else i = (int)UnitsFactory.convertLength(wl, UNITS.NM).getValue();
         details.put(CUT_OUT, i);
-        v = data.getCutInTolerance();
-        if (v == null) {
+        wl = data.getCutInToleranceAsLength();
+        if (wl == null) {
             i = 0;
             notSet.add(CUT_IN_TOLERANCE);
-        } else i = v;
+        } else i = (int)UnitsFactory.convertLength(wl, UNITS.NM).getValue();
         details.put(CUT_IN_TOLERANCE, i);
 
-        v = data.getCutOutTolerance();
-        if (v == null) {
+        wl = data.getCutOutToleranceAsLength();
+        if (wl == null) {
             i = 0;
             notSet.add(CUT_OUT_TOLERANCE);
-        } else i = v;
+        } else i = (int)UnitsFactory.convertLength(wl, UNITS.NM).getValue();
         details.put(CUT_OUT_TOLERANCE, i);
 
         Double d = data.getTransmittance();

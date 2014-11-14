@@ -70,6 +70,20 @@ public class FilterData
 	 * 
 	 * @return See above.
 	 */
+	public Length getCutInAsLength()
+	{
+		Filter f = (Filter) asIObject();
+		TransmittanceRange range = f.getTransmittanceRange();
+		if (range == null)
+			return null;
+		return range.getCutIn();
+	}
+	
+	/**
+	 * Returns the cut in value or <code>null</code>.
+	 * 
+	 * @return See above.
+	 */
 	@Deprecated
 	public Integer getCutIn()
 	{
@@ -79,6 +93,20 @@ public class FilterData
 		Length value = range.getCutIn();
 		if (value == null) return null;
 		return (int) value.getValue();
+	}
+	
+	/**
+	 * Returns the cut in tolerance value or <code>null</code>.
+	 * 
+	 * @return See above.
+	 */
+	public Length getCutInToleranceAsLength()
+	{
+		Filter f = (Filter) asIObject();
+		TransmittanceRange range = f.getTransmittanceRange();
+		if (range == null) 
+			return null;
+		return range.getCutInTolerance();
 	}
 	
 	/**
@@ -102,6 +130,20 @@ public class FilterData
 	 * 
 	 * @return See above.
 	 */
+	public Length getCutOutAsLength()
+	{
+		Filter f = (Filter) asIObject();
+		TransmittanceRange range = f.getTransmittanceRange();
+		if (range == null)
+			return null;
+		return range.getCutOut();
+	}
+	
+	/**
+	 * Returns the cut out value or <code>null</code>.
+	 * 
+	 * @return See above.
+	 */
 	@Deprecated
 	public Integer getCutOut()
 	{
@@ -111,6 +153,20 @@ public class FilterData
 		Length value = range.getCutOut();
 		if (value == null) return null;
 		return (int) value.getValue();
+	}
+	
+	/**
+	 * Returns the cut out tolerance value or <code>null</code>.
+	 * 
+	 * @return See above.
+	 */
+	public Length getCutOutToleranceAsLength()
+	{
+		Filter f = (Filter) asIObject();
+		TransmittanceRange range = f.getTransmittanceRange();
+		if (range == null) 
+			return null;
+		return range.getCutOutTolerance();
 	}
 	
 	/**
