@@ -723,31 +723,6 @@ public class IceMapper extends ome.util.ModelMapper implements
         return filter;
     }
 
-    public omero.model.Time convert(ome.model.units.Time t) {
-        if (t == null) {
-            return null;
-        }
-        omero.model.TimeI copy = new omero.model.TimeI();
-        copy.setValue(t.getValue());
-        copy.setUnit((omero.model.UnitsTime) map(t.getUnit()));
-        return copy;
-    }
-
-     public ome.model.units.Time convert(omero.model.Time t) {
-        if (t == null) {
-            return null;
-        }
-        ome.model.units.Time copy = new ome.model.units.Time();
-        copy.setValue(t.getValue());
-        try {
-            copy.setUnit((ome.model.enums.UnitsTime) reverse(t.getUnit()));
-        } catch (ApiUsageException e) {
-            throw new IllegalArgumentException(
-                    "convert(omero.model.Time) failed", e);
-        }
-        return copy;
-     }
-
     /**
      * Convert a String&rarr;String map's values to {@link RString}s.
      * <code>null</code> values are dropped completely.
@@ -807,7 +782,7 @@ public class IceMapper extends ome.util.ModelMapper implements
     // ~ For Reversing (omero->ome). Copied from ReverseModelMapper.
     // =========================================================================
 
-    protected Map target2model = new IdentityHashMap();
+    protected Map<Object, Object> target2model = new IdentityHashMap<Object, Object>();
 
     public static omero.model.Permissions convert(ome.model.internal.Permissions p) {
         if (p == null) {
@@ -980,7 +955,6 @@ public class IceMapper extends ome.util.ModelMapper implements
      * Copied from {@link ReverseModelMapper#map(ModelBased)}
      * 
      * @param source
-     * @return
      */
     public Filterable reverse(ModelBased source) {
 
@@ -990,10 +964,9 @@ public class IceMapper extends ome.util.ModelMapper implements
 
         } else if (target2model.containsKey(source)) {
 
-            return (ome.model.IObject) target2model.get(source);
+            return (Filterable) target2model.get(source);
 
         } else {
-
             Filterable object = source.fillObject(this);
             target2model.put(source, object);
             return object;

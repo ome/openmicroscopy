@@ -1,5 +1,5 @@
 /*
- * pojos.ChannelData 
+ * pojos.ChannelData
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
@@ -22,17 +22,9 @@
  */
 package pojos;
 
-
-
-//Java imports
-
-//Third-party libraries
 import java.math.RoundingMode;
-import org.apache.commons.lang.StringUtils;
-import com.google.common.math.DoubleMath;
 
-
-//Application-internal dependencies
+import ome.formats.model.UnitsFactory;
 import omero.RDouble;
 import omero.RInt;
 import omero.RString;
@@ -41,11 +33,17 @@ import omero.model.Channel;
 import omero.model.ChannelI;
 import omero.model.ContrastMethod;
 import omero.model.Illumination;
+import omero.model.Length;
+import omero.model.LengthI;
 import omero.model.LogicalChannel;
 import omero.model.StatsInfo;
 
-/** 
- * The data that makes up an <i>OME</i> Channel along with links to its logical 
+import org.apache.commons.lang.StringUtils;
+
+import com.google.common.math.DoubleMath;
+
+/**
+ * The data that makes up an <i>OME</i> Channel along with links to its logical
  * channel.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -62,7 +60,7 @@ public class ChannelData
     extends DataObject
 {
 
-    /** Identifies the {@link Channel#ANNOTATIONLINKS} field. */
+    /** Identifies the {@link ome.model.core.Channel#ANNOTATIONLINKS} field. */
     public final static String ANNOTATIONS = ChannelI.ANNOTATIONLINKS;
 
     /** The index of the channel. */
@@ -77,8 +75,8 @@ public class ChannelData
     /** The contrast method. */
     private ContrastMethod contrastMethod;
 
-    /** 
-     * Creates a new instance. 
+    /**
+     * Creates a new instance.
      *
      * @param index The index of the channel.
      */
@@ -99,7 +97,7 @@ public class ChannelData
      */
     public ChannelData(int index, Channel channel)
     {
-        if (channel == null) 
+        if (channel == null)
             throw new IllegalArgumentException("Object cannot null.");
         this.index = index;
         setValue(channel);
@@ -108,7 +106,7 @@ public class ChannelData
 
     /**
      * Returns the channel's index.
-     * 
+     *
      * @return See above.
      */
     public int getIndex() { return index; }
@@ -116,17 +114,18 @@ public class ChannelData
     /**
      * Returns the label of the channel.
      * Following the specification: Name>Fluor>Emission wavelength>index.
-     * 
+     *
      * @return See above.
      */
     public String getChannelLabeling()
     {
         String value = getName();
         if (StringUtils.isNotBlank(value)) return value;
-        value = getFluor(); 
+        value = getFluor();
         if (StringUtils.isNotBlank(value)) return value;
         double v = getEmissionWavelength();
         if (v > 0) {
+            // FIXME: Do we always append the symbol here?
             if (DoubleMath.isMathematicalInteger(v)) {
                 return ""+ DoubleMath.roundToInt(v, RoundingMode.DOWN);
             }
@@ -138,7 +137,7 @@ public class ChannelData
 
     /**
      * Sets the name of the logical channel.
-     * 
+     *
      * @param name The name of the channel.
      */
     public void setName(String name)
@@ -150,7 +149,7 @@ public class ChannelData
 
     /**
      * Returns the name of the channel.
-     * 
+     *
      * @return See above.
      */
     public String getName()
@@ -164,43 +163,49 @@ public class ChannelData
 
     /**
      * Returns the emission wavelength of the channel.
-     * 
+     *
      * @return See above
      */
+    @Deprecated
     public double getEmissionWavelength()
-    { 
+    {
         LogicalChannel lc = asChannel().getLogicalChannel();
         if (lc == null) return index;
-        RDouble value  = lc.getEmissionWave();
-        if (value != null) return value.getValue();
+        Length value  = lc.getEmissionWave();
+        if (value != null) return new LengthI(value,
+                UnitsFactory.Channel_EmissionWavelength).getValue();
         return -1;
     }
 
     /**
      * Returns the excitation wavelength of the channel.
-     * 
+     *
      * @return See above
      */
+    @Deprecated
     public double getExcitationWavelength()
-    { 
+    {
         LogicalChannel lc = asChannel().getLogicalChannel();
         if (lc == null) return getEmissionWavelength();
-        RDouble value = lc.getExcitationWave();
-        if (value != null) return value.getValue();
+        Length value = lc.getExcitationWave();
+        if (value != null) return new LengthI(value,
+                UnitsFactory.Channel_ExcitationWavelength).getValue();
         return -1;
     }
 
     /**
      * Returns the pin hole size of the channel.
-     * 
+     *
      * @return See above
      */
+    @Deprecated
     public double getPinholeSize()
-    { 
+    {
         LogicalChannel lc = asChannel().getLogicalChannel();
         if (lc == null) return -1;
-        RDouble value = lc.getPinHoleSize();
-        if (value != null) return value.getValue();
+        Length value = lc.getPinHoleSize();
+        if (value != null) return new LengthI(value,
+                UnitsFactory.Channel_PinholeSize).getValue();
         return -1;
     }
 
@@ -252,7 +257,7 @@ public class ChannelData
      * @return See above.
      */
     public String getIllumination()
-    { 
+    {
         if (illumination != null) return illumination.getValue().getValue();
         LogicalChannel lc = asChannel().getLogicalChannel();
         if (lc == null) return null;
@@ -267,7 +272,7 @@ public class ChannelData
      * @return See above.
      */
     public String getContrastMethod()
-    { 
+    {
         if (contrastMethod != null) return contrastMethod.getValue().getValue();
         LogicalChannel lc = asChannel().getLogicalChannel();
         if (lc == null) return null;
@@ -282,7 +287,7 @@ public class ChannelData
      * @return See above.
      */
     public String getMode()
-    { 
+    {
         if (mode != null) return mode.getValue().getValue();
         LogicalChannel lc = asChannel().getLogicalChannel();
         if (lc == null) return null;
@@ -291,13 +296,13 @@ public class ChannelData
         return null;
     }
 
-    /** 
+    /**
      * Returns the global minimum of the channel i.e. the minimum of all minima.
      *
      * @return See above.
      */
     public double getGlobalMin()
-    { 
+    {
         StatsInfo stats = asChannel().getStatsInfo();
         if (stats == null) return 0.0;
         RDouble object = stats.getGlobalMin();
@@ -305,13 +310,13 @@ public class ChannelData
         return 0.0;
     }
 
-    /** 
+    /**
      * Returns the global maximum of the channel i.e. the maximum of all maxima.
      *
      * @return See above.
      */
     public double getGlobalMax()
-    { 
+    {
         StatsInfo stats = asChannel().getStatsInfo();
         if (stats == null) return 0.0;
         RDouble object = stats.getGlobalMax();
@@ -322,22 +327,23 @@ public class ChannelData
     /**
      * Returns <code>true</code> if the channel has some channel information
      * <code>false</code> otherwise.
-     * 
+     *
      * @return See above.
      */
     public boolean hasStats() { return asChannel().getStatsInfo() != null; }
 
     /**
-     * Sets the pinhole size. 
+     * Sets the pinhole size.
      *
      * @param value The value to set.
      */
+    @Deprecated
     public void setPinholeSize(double value)
     {
         if (value < 0) return;
         setDirty(true);
         asChannel().getLogicalChannel().setPinHoleSize(
-                omero.rtypes.rdouble(value));
+                new LengthI(value, UnitsFactory.Channel_PinholeSize));
     }
 
     /**
@@ -366,15 +372,16 @@ public class ChannelData
 
     /**
      * Sets the emission wavelength.
-     * 
+     *
      * @param value The value to set.
      */
+    @Deprecated
     public void setEmissionWavelength(double value)
     {
         if (value < 0) return;
         setDirty(true);
         asChannel().getLogicalChannel().setEmissionWave(
-                omero.rtypes.rdouble(value));
+                new LengthI(value, UnitsFactory.Channel_EmissionWavelength));
     }
 
     /**
@@ -382,12 +389,13 @@ public class ChannelData
      *
      * @param value The value to set.
      */
+    @Deprecated
     public void setExcitationWavelength(double value)
     {
         if (value < 0) return;
         setDirty(true);
         asChannel().getLogicalChannel().setExcitationWave(
-                omero.rtypes.rdouble(value));
+                new LengthI(value, UnitsFactory.Channel_ExcitationWavelength));
     }
 
     /**

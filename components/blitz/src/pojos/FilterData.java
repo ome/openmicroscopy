@@ -33,6 +33,7 @@ import omero.RInt;
 import omero.RString;
 import omero.model.Filter;
 import omero.model.FilterType;
+import omero.model.Length;
 import omero.model.TransmittanceRange;
 
 /** 
@@ -69,14 +70,15 @@ public class FilterData
 	 * 
 	 * @return See above.
 	 */
+	@Deprecated
 	public Integer getCutIn()
 	{
 		Filter f = (Filter) asIObject();
 		TransmittanceRange range = f.getTransmittanceRange();
 		if (range == null) return null;
-		RInt value = range.getCutIn();
+		Length value = range.getCutIn();
 		if (value == null) return null;
-		return value.getValue();
+		return (int) value.getValue();
 	}
 	
 	/**
@@ -84,14 +86,15 @@ public class FilterData
 	 * 
 	 * @return See above.
 	 */
+	@Deprecated
 	public Integer getCutInTolerance()
 	{
 		Filter f = (Filter) asIObject();
 		TransmittanceRange range = f.getTransmittanceRange();
 		if (range == null) return null;
-		RInt value = range.getCutInTolerance();
+		Length value = range.getCutInTolerance();
 		if (value == null) return null;
-		return value.getValue();
+		return (int) value.getValue();
 	}
 	
 	/**
@@ -99,14 +102,15 @@ public class FilterData
 	 * 
 	 * @return See above.
 	 */
+	@Deprecated
 	public Integer getCutOut()
 	{
 		Filter f = (Filter) asIObject();
 		TransmittanceRange range = f.getTransmittanceRange();
 		if (range == null) return null;
-		RInt value = range.getCutOut();
+		Length value = range.getCutOut();
 		if (value == null) return null;
-		return value.getValue();
+		return (int) value.getValue();
 	}
 	
 	/**
@@ -114,14 +118,15 @@ public class FilterData
 	 * 
 	 * @return See above.
 	 */
+	@Deprecated
 	public Integer getCutOutTolerance()
 	{
 		Filter f = (Filter) asIObject();
 		TransmittanceRange range = f.getTransmittanceRange();
 		if (range == null) return null;
-		RInt value = range.getCutOutTolerance();
+		Length value = range.getCutOutTolerance();
 		if (value == null) return null;
-		return value.getValue();
+		return (int) value.getValue();
 	}
 	
 	/**

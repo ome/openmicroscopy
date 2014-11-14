@@ -22,7 +22,7 @@
 
 #include <omero/IceNoWarnPush.h>
 #include <omero/model/Time.h>
-#include <omero/model/UnitsTime.h>
+#include <omero/model/Units.h>
 #include <omero/IceNoWarnPop.h>
 
 #ifndef OMERO_CLIENT
@@ -56,17 +56,25 @@ namespace omero {
     public:
         TimeI();
 
-        virtual Ice::Double getValue(const Ice::Current& current = Ice::Current());
+        virtual Ice::Double getValue(
+                const Ice::Current& current = Ice::Current());
 
-        virtual void setValue(Ice::Double value, const Ice::Current& current = Ice::Current());
+        virtual void setValue(
+                Ice::Double value,
+                const Ice::Current& current = Ice::Current());
 
-        virtual UnitsTimePtr getUnit(const Ice::Current& current = Ice::Current());
+        virtual omero::model::enums::UnitsTime getUnit(
+                const Ice::Current& current = Ice::Current());
 
-        virtual void setUnit(const UnitsTimePtr& time, const Ice::Current& current = Ice::Current());
+        virtual void setUnit(
+                omero::model::enums::UnitsTime unit,
+                const Ice::Current& current = Ice::Current());
 
-        virtual TimePtr copy(const Ice::Current& = Ice::Current());
+        virtual TimePtr copy(
+                const Ice::Current& = Ice::Current());
 
     };
   }
 }
 #endif // OMERO_MODEL_TIMEI_H
+

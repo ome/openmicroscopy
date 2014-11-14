@@ -468,12 +468,8 @@ alter table event alter column experimentergroup set not null;
 ##insert into event (id,version,name,e) select next, 0 as version, 'Bootstrap'
 ##  as name, next from (select ome_nextval('seq_event') as next) as nv;
 
-## ENUMS
-
 -- temporarily disable the not null constraints
 alter table pixelstype alter column bitsize drop not null;
-alter table unitstime alter column measurementsystem drop not null;
-
 
 #foreach($enum in $types)
 #foreach($prop in $enum.properties)
@@ -498,11 +494,8 @@ update pixelstype set bitsize = 64 where value = 'double';
 update pixelstype set bitsize = 64 where value = 'complex';
 update pixelstype set bitsize = 128 where value = 'double-complex';
 
-update unitstime set measurementsystem = 'SI.SECOND';
-
 -- reactivate not null constraints
 alter table pixelstype alter column bitsize set not null;
-alter table unitstime alter column measurementsystem set not null;
 
 --
 -- Cryptographic functions for specifying UUID
@@ -709,6 +702,26 @@ create trigger _fs_log_delete
 after delete on originalfile
     for each row execute procedure _fs_log_delete();
 
+ALTER TABLE laser
+    ALTER COLUMN wavelength TYPE positive_float;
+
+ALTER TABLE lightsettings
+    ALTER COLUMN wavelength TYPE positive_float;
+
+ALTER TABLE logicalchannel
+    ALTER COLUMN emissionwave TYPE positive_float,
+    ALTER COLUMN excitationwave TYPE positive_float;
+
+ALTER TABLE pixels
+    ALTER COLUMN physicalsizex TYPE positive_float,
+    ALTER COLUMN physicalsizey TYPE positive_float,
+    ALTER COLUMN physicalsizez TYPE positive_float;
+
+ALTER TABLE transmittancerange
+    ALTER COLUMN cutin TYPE positive_float,
+    ALTER COLUMN cutintolerance TYPE nonnegative_int,
+    ALTER COLUMN cutout TYPE positive_float,
+    ALTER COLUMN cutouttolerance TYPE nonnegative_int;
 
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()

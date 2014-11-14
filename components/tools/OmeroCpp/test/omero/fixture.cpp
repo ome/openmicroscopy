@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <omero/fixture.h>
+#include <omero/model/LengthI.h>
 #include <omero/model/PixelsTypeI.h>
 #include <omero/model/PhotometricInterpretationI.h>
 #include <omero/model/AcquisitionModeI.h>
@@ -19,6 +20,7 @@
 
 using namespace omero::api;
 using namespace omero::model;
+using namespace omero::model::enums;
 using namespace omero::rtypes;
 
 omero::model::ImagePtr new_ImageI()
@@ -152,6 +154,11 @@ omero::model::PixelsIPtr Fixture::pixels() {
 
     lc->setPhotometricInterpretation( pi );
 
+    UnitsLength mm = UnitsLength::MM;
+    LengthPtr mm1 = new LengthI();
+    mm1->setUnit(mm);
+    mm1->setValue(1.0);
+
     pix->setSizeX( rint(1) );
     pix->setSizeY( rint(1) );
     pix->setSizeZ( rint(1) );
@@ -160,9 +167,9 @@ omero::model::PixelsIPtr Fixture::pixels() {
     pix->setSha1 (rstring("09bc7b2dcc9a510f4ab3a40c47f7a4cb77954356") ); // for "pixels"
     pix->setPixelsType( pt );
     pix->setDimensionOrder( d0 );
-    pix->setPhysicalSizeX( rdouble(1.0) );
-    pix->setPhysicalSizeY( rdouble(1.0) );
-    pix->setPhysicalSizeZ( rdouble(1.0) );
+    pix->setPhysicalSizeX(mm1);
+    pix->setPhysicalSizeY(mm1);
+    pix->setPhysicalSizeZ(mm1);
 
     pix->addChannel( c );
     c->setLogicalChannel( lc) ;

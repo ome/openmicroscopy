@@ -38,11 +38,11 @@ namespace omero {
             value = _value;
         }
 
-        UnitsTimePtr TimeI::getUnit(const Ice::Current& /* current */) {
+        omero::model::enums::UnitsTime TimeI::getUnit(const Ice::Current& /* current */) {
             return unit;
         }
 
-        void TimeI::setUnit(const UnitsTimePtr& _unit, const Ice::Current& /* current */) {
+        void TimeI::setUnit(omero::model::enums::UnitsTime _unit, const Ice::Current& /* current */) {
             unit = _unit;
         }
 
@@ -54,3 +54,4 @@ namespace omero {
         }
     }
 }
+
