@@ -72,7 +72,7 @@
 
 -->
 
-    <util:list id="chgrpRules" value-type="ome.services.graphs.GraphPolicyRule">
+    <util:list id="chgrpChownRules" value-type="ome.services.graphs.GraphPolicyRule">
         <bean parent="graphPolicyRule" p:matches="F:Fileset[!I].images = [I], F.images = [!I]" p:error="may not split {F}"/>
         <bean parent="graphPolicyRule" p:matches="F:Fileset[!D].images = [D], F.images = [!D]" p:error="may not split {F}"/>
         <bean parent="graphPolicyRule" p:matches="Image[I].instrument = IN:Instrument, Image[!I].instrument = IN"
