@@ -35,6 +35,7 @@ import com.google.common.collect.Sets;
 import ome.security.ACLVoter;
 import ome.security.SystemTypes;
 import ome.services.delete.Deletion;
+import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphTraversal;
@@ -219,7 +220,7 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
         }
 
         @Override
-        public void processInstances(String className, Collection<Long> ids) {
+        public void processInstances(String className, Collection<Long> ids) throws GraphException {
             deleteInstances(className, ids);
         }
 

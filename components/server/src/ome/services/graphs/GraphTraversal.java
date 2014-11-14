@@ -392,15 +392,17 @@ public class GraphTraversal {
          * Delete the given instances.
          * @param className full name of mapped Hibernate class
          * @param ids applicable instances of class, no more than {@link #BATCH_SIZE}
+         * @throws GraphException if not all the instances could be deleted
          */
-        void deleteInstances(String className, Collection<Long> ids);
+        void deleteInstances(String className, Collection<Long> ids) throws GraphException;
 
         /**
          * Process the given instances. They will have been sufficiently unlinked by the other methods.
          * @param className full name of mapped Hibernate class
          * @param ids applicable instances of class, no more than {@link #BATCH_SIZE}
+         * @throws GraphException if not all the instances could be processed
          */
-        void processInstances(String className, Collection<Long> ids);
+        void processInstances(String className, Collection<Long> ids) throws GraphException;
 
         /**
          * @return the permissions required for processing instances with {@link #processInstances(String, Collection)}
@@ -1014,7 +1016,7 @@ public class GraphTraversal {
             }
 
             @Override
-            public void deleteInstances(String className, Collection<Long> ids) {
+            public void deleteInstances(String className, Collection<Long> ids) throws GraphException {
                 if (!(ids instanceof SortedSet)) {
                     ids = new TreeSet<Long>(ids);
                 }
@@ -1025,7 +1027,7 @@ public class GraphTraversal {
             }
 
             @Override
-            public void processInstances(String className, Collection<Long> ids) {
+            public void processInstances(String className, Collection<Long> ids) throws GraphException {
                 if (!(ids instanceof SortedSet)) {
                     ids = new TreeSet<Long>(ids);
                 }

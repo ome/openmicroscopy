@@ -35,6 +35,7 @@ import ome.model.meta.ExperimenterGroup;
 import ome.security.ACLVoter;
 import ome.security.SystemTypes;
 import ome.services.delete.Deletion;
+import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphTraversal;
@@ -234,9 +235,13 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
         }
 
         @Override
-        public void processInstances(String className, Collection<Long> ids) {
+        public void processInstances(String className, Collection<Long> ids) throws GraphException {
             final String update = "UPDATE " + className + " SET details.group = :group WHERE id IN (:ids)";
-            session.createQuery(update).setParameter("group", group).setParameterList("ids", ids).executeUpdate();
+            final int count =
+                    session.createQuery(update).setParameter("group", group).setParameterList("ids", ids).executeUpdate();
+            if (count != ids.size()) {
+                throw new GraphException("not all the objects of type " + className + " could be processed");
+            }
         }
 
         @Override

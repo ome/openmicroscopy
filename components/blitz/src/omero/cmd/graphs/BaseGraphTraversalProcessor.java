@@ -86,9 +86,12 @@ public abstract class BaseGraphTraversalProcessor implements GraphTraversal.Proc
     }
 
     @Override
-    public void deleteInstances(String className, Collection<Long> ids) {
+    public void deleteInstances(String className, Collection<Long> ids) throws GraphException {
         final String update = "DELETE FROM " + className + " WHERE id IN (:ids)";
-        session.createQuery(update).setParameterList("ids", ids).executeUpdate();
+        final int count = session.createQuery(update).setParameterList("ids", ids).executeUpdate();
+        if (count != ids.size()) {
+            throw new GraphException("not all the objects of type " + className + " could be deleted");
+        }
     }
 
     @Override
