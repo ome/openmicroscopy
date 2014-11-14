@@ -21,7 +21,6 @@ package omero.cmd.graphs;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -114,7 +113,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
             acceptableGroups = null;
         } else {
             final IAdmin iAdmin = helper.getServiceFactory().getAdminService();
-            acceptableGroups = new HashSet<Long>(iAdmin.getMemberOfGroupIds(new Experimenter(userId, false)));
+            acceptableGroups = ImmutableSet.copyOf(iAdmin.getMemberOfGroupIds(new Experimenter(userId, false)));
         }
 
         final ChildOptionI[] childOptions = ChildOptionI.castChildOptions(this.childOptions);
@@ -255,9 +254,9 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
 
         @Override
         public void assertMayProcess(Details details) throws GraphException {
-            final Long objectGroup = details.getGroup().getId();
-            if (!(acceptableGroups == null || acceptableGroups.contains(objectGroup))) {
-                throw new GraphException("user " + user + " is not a member of group " + objectGroup);
+            final Long objectGroupId = details.getGroup().getId();
+            if (!(acceptableGroups == null || acceptableGroups.contains(objectGroupId))) {
+                throw new GraphException("user " + userId + " is not a member of group " + objectGroupId);
             }
         }
     }
