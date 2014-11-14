@@ -264,52 +264,52 @@ update pixels set timeincrementunit = 's'::unitstime where timeincrement is not 
 update planeinfo set deltatunit = 's'::unitstime where deltat is not null;
 update planeinfo set exposuretimeunit = 's'::unitstime where exposuretime is not null;
 
-update detector set voltageunit = 'V'::unitselectricpotential where  voltageunit is not null;
+update detector set voltageunit = 'V'::unitselectricpotential where  voltage is not null;
 
-update detectorsettings set readoutrateunit = 'MHz'::unitsfrequency where readoutrateunit is not null;
-update detectorsettings set voltageunit = 'V'::unitselectricpotential where voltageunit is not null;
+update detectorsettings set readoutrateunit = 'MHz'::unitsfrequency where readoutrate is not null;
+update detectorsettings set voltageunit = 'V'::unitselectricpotential where voltage is not null;
 
-update imagingenvironment set airpressureunit = 'mbar'::unitspressure where airpressureunit is not null;
-update imagingenvironment set temperatureunit = '°C'::unitstemperature where temperatureunit is not null;
+update imagingenvironment set airpressureunit = 'mbar'::unitspressure where airpressure is not null;
+update imagingenvironment set temperatureunit = '°C'::unitstemperature where temperature is not null;
 
-update laser set repetitionrateunit = 'Hz'::unitsfrequency where repetitionrateunit is not null;
-update laser set wavelengthunit = 'nm'::unitslength where wavelengthunit is not null;
+update laser set repetitionrateunit = 'Hz'::unitsfrequency where repetitionrate is not null;
+update laser set wavelengthunit = 'nm'::unitslength where wavelength is not null;
 
-update lightsettings set wavelengthunit = 'nm'::unitslength where wavelengthunit is not null;
+update lightsettings set wavelengthunit = 'nm'::unitslength where wavelength is not null;
 
-update lightsource set powerunit = 'mW'::unitspower where powerunit is not null;
+update lightsource set powerunit = 'mW'::unitspower where power is not null;
 
-update logicalchannel set emissionwaveunit = 'nm'::unitslength where emissionwaveunit is not null;
-update logicalchannel set excitationwaveunit = 'nm'::unitslength where excitationwaveunit is not null;
-update logicalchannel set pinholesizeunit = 'µm'::unitslength where pinholesizeunit is not null;
+update logicalchannel set emissionwaveunit = 'nm'::unitslength where emissionwave is not null;
+update logicalchannel set excitationwaveunit = 'nm'::unitslength where excitationwave is not null;
+update logicalchannel set pinholesizeunit = 'µm'::unitslength where pinholesize is not null;
 
-update objective set workingdistanceunit = 'µm'::unitslength where workingdistanceunit is not null;
+update objective set workingdistanceunit = 'µm'::unitslength where workingdistance is not null;
 
-update pixels set physicalsizexunit = 'µm'::unitslength where physicalsizexunit is not null;
-update pixels set physicalsizeyunit = 'µm'::unitslength where physicalsizeyunit is not null;
-update pixels set physicalsizezunit = 'µm'::unitslength where physicalsizezunit is not null;
+update pixels set physicalsizexunit = 'µm'::unitslength where physicalsizex is not null;
+update pixels set physicalsizeyunit = 'µm'::unitslength where physicalsizey is not null;
+update pixels set physicalsizezunit = 'µm'::unitslength where physicalsizez is not null;
 
-update planeinfo set positionxunit = 'reference frame'::unitslength where positionxunit is not null;
-update planeinfo set positionyunit = 'reference frame'::unitslength where positionyunit is not null;
-update planeinfo set positionzunit = 'reference frame'::unitslength where positionzunit is not null;
+update planeinfo set positionxunit = 'reference frame'::unitslength where positionx is not null;
+update planeinfo set positionyunit = 'reference frame'::unitslength where positiony is not null;
+update planeinfo set positionzunit = 'reference frame'::unitslength where positionz is not null;
 
-update plate set welloriginxunit = 'reference frame'::unitslength where welloriginxunit is not null;
-update plate set welloriginyunit = 'reference frame'::unitslength where welloriginyunit is not null;
+update plate set welloriginxunit = 'reference frame'::unitslength where welloriginx is not null;
+update plate set welloriginyunit = 'reference frame'::unitslength where welloriginy is not null;
 
-update shape set fontsizeunit = 'pt'::unitslength  where fontsizeunit is not null;
-update shape set strokewidthunit = 'pixel'::unitslength  where strokewidthunit is not null;
+update shape set fontsizeunit = 'pt'::unitslength  where fontsize is not null;
+update shape set strokewidthunit = 'pixel'::unitslength  where strokewidth is not null;
 
-update stagelabel set positionxunit = 'reference frame'::unitslength where positionxunit is not null;
-update stagelabel set positionyunit = 'reference frame'::unitslength where positionyunit is not null;
-update stagelabel set positionzunit = 'reference frame'::unitslength where positionzunit is not null;
+update stagelabel set positionxunit = 'reference frame'::unitslength where positionx is not null;
+update stagelabel set positionyunit = 'reference frame'::unitslength where positiony is not null;
+update stagelabel set positionzunit = 'reference frame'::unitslength where positionz is not null;
 
-update transmittancerange set cutinunit = 'nm'::unitslength where cutinunit is not null;
-update transmittancerange set cutintoleranceunit = 'nm'::unitslength where cutintoleranceunit is not null;
-update transmittancerange set cutoutunit = 'nm'::unitslength where cutoutunit is not null;
-update transmittancerange set cutouttoleranceunit = 'nm'::unitslength where cutouttoleranceunit is not null;
+update transmittancerange set cutinunit = 'nm'::unitslength where cutin is not null;
+update transmittancerange set cutintoleranceunit = 'nm'::unitslength where cutintolerance is not null;
+update transmittancerange set cutoutunit = 'nm'::unitslength where cutout is not null;
+update transmittancerange set cutouttoleranceunit = 'nm'::unitslength where cutouttolerance is not null;
 
-update wellsample set posxunit = 'reference frame'::unitslength where posxunit is not null;
-update wellsample set posyunit = 'reference frame'::unitslength where posyunit is not null;
+update wellsample set posxunit = 'reference frame'::unitslength where posx is not null;
+update wellsample set posyunit = 'reference frame'::unitslength where posy is not null;
 
 -- reactivate not null constraints
 alter table pixelstype alter column bitsize set not null;
