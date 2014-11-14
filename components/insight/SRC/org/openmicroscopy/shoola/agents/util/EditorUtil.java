@@ -2183,12 +2183,12 @@ public class EditorUtil
             omero.model.Time t = plane.getDeltaT();
             if (t != null)  {
                 notSet.remove(DELTA_T);
-                details.put(DELTA_T, roundValue(t.getValue()));
+                details.put(DELTA_T, roundValue(UnitsFactory.convertTime(t, UNITS.S).getValue()));
             }
             t = plane.getExposureTime();
             if (t != null) {
                 notSet.remove(EXPOSURE_TIME);
-                details.put(EXPOSURE_TIME, roundValue(t.getValue()));
+                details.put(EXPOSURE_TIME, roundValue(UnitsFactory.convertTime(t, UNITS.S).getValue()));
             }
 
             Length o = plane.getPositionX();
