@@ -22,16 +22,13 @@
  */
 package pojos;
 
-//Java imports
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import static omero.rtypes.*;
+import omero.model.Length;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.PlateI;
@@ -354,9 +351,10 @@ public class PlateData extends DataObject {
      * 
      * @return See above
      */
+    @Deprecated
     public double getWellOriginX()
     {
-    	omero.RDouble value = asPlate().getWellOriginX();
+    	Length value = asPlate().getWellOriginX();
     	if (value == null) return 0;
     	return value.getValue();
     }
@@ -366,9 +364,10 @@ public class PlateData extends DataObject {
      * 
      * @return See above
      */
+    @Deprecated
     public double getWellOriginY()
     {
-    	omero.RDouble value = asPlate().getWellOriginY();
+    	Length value = asPlate().getWellOriginY();
     	if (value == null) return 0;
     	return value.getValue();
     }

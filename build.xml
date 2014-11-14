@@ -984,11 +984,6 @@ omero.version=${omero.version}
         <hotdeploy component="${server.comp}" targets="${targets}"/>
     </target>
 
-    <target name="hot-bioformats" depends="init" description="Re-launch running bioformats with new bioformats.jar">
-        <property name="targets" value="dist"/>
-        <hotdeploy component="${basedir}/components/bioformats" targets="${targets}"/>
-    </target>
-
 
     <macrodef name="hotdeploy">
         <attribute name="targets"/>

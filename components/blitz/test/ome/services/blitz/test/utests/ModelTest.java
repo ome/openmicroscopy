@@ -9,6 +9,8 @@ package ome.services.blitz.test.utests;
 import static omero.rtypes.rdouble;
 import static omero.rtypes.rstring;
 
+import static ome.formats.model.UnitsFactory.makePower;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,6 +21,7 @@ import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.units.UNITS;
 import omero.model.ArcI;
 import omero.model.ChannelI;
 import omero.model.DatasetI;
@@ -40,7 +43,7 @@ public class ModelTest extends TestCase {
     public void testInheritanceInConcreteClasses() throws Exception {
         ArcI arcI = new ArcI();
         // arcI.unload();
-        arcI.setPower(rdouble(1.0f));
+        arcI.setPower(makePower(1.0f, UNITS.WATT));
     }
 
     @Test

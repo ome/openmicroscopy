@@ -28,11 +28,15 @@ import omero
 import omero.gateway
 import test.integration.library as lib
 import pytest
-from omero.rtypes import rstring
+from omero.model import DatasetI, DatasetImageLinkI, ExperimenterGroupI, ImageI
+from omero.model import FileAnnotationI, ImageAnnotationLinkI, TagAnnotationI
+from omero.model import ProjectDatasetLinkI, ProjectI, PlateI, ScreenI
+from omero.rtypes import rstring, unwrap
 from omero.api import Save
 
 PRIVATE = 'rw----'
 READONLY = 'rwr---'
+READANNOTATE = 'rwra--'
 COLLAB = 'rwrw--'
 
 
@@ -59,7 +63,7 @@ class TestChgrp(lib.ITest):
 
         # Change our context to new group...
         admin = client.sf.getAdminService()
-        admin.setDefaultGroup(exp, omero.model.ExperimenterGroupI(gid, False))
+        admin.setDefaultGroup(exp, ExperimenterGroupI(gid, False))
         self.set_context(client, gid)
         # ...check image
         img = client.sf.getQueryService().get("Image", image.id.val)
@@ -80,13 +84,13 @@ class TestChgrp(lib.ITest):
         first_gid = admin.getEventContext().groupId
 
         # Create a dataset in the 'first group'
-        ds = omero.model.DatasetI()
+        ds = DatasetI()
         ds.name = rstring("testChgrpImage_target")
         ds = update.saveAndReturnObject(ds)
         ds_id = ds.id.val
 
         # Change our context to new group and create image
-        admin.setDefaultGroup(exp, omero.model.ExperimenterGroupI(gid, False))
+        admin.setDefaultGroup(exp, ExperimenterGroupI(gid, False))
         self.set_context(client, gid)
         update = client.sf.getUpdateService()   # do we need to get this again?
         img = self.new_image()
@@ -97,16 +101,15 @@ class TestChgrp(lib.ITest):
             type="/Image", id=img.id.val, options=None, grp=first_gid)
 
         # Link to Save
-        link = omero.model.DatasetImageLinkI()
-        link.child = omero.model.ImageI(img.id.val, False)
-        link.parent = omero.model.DatasetI(ds_id, False)
+        link = DatasetImageLinkI()
+        link.child = ImageI(img.id.val, False)
+        link.parent = DatasetI(ds_id, False)
         save = Save()
         save.obj = link
         requests = [chgrp, save]        # we're going to chgrp THEN save DIlink
 
         # Change our context to original group...
-        admin.setDefaultGroup(
-            exp, omero.model.ExperimenterGroupI(first_gid, False))
+        admin.setDefaultGroup(exp, ExperimenterGroupI(first_gid, False))
         self.set_context(client, first_gid)
 
         # We have to be in destination group for link Save to work
@@ -137,18 +140,18 @@ class TestChgrp(lib.ITest):
         # Data Setup (image in the P/D hierarchy)
         img = self.new_image()
         img = update.saveAndReturnObject(img)
-        project = omero.model.ProjectI()
+        project = ProjectI()
         project.setName(rstring("chgrp-test"))
         project = update.saveAndReturnObject(project)
-        dataset = omero.model.DatasetI()
+        dataset = DatasetI()
         dataset.setName(rstring("chgrp-test"))
         dataset = update.saveAndReturnObject(dataset)
         links = []
-        link = omero.model.DatasetImageLinkI()
+        link = DatasetImageLinkI()
         link.setChild(img)
         link.setParent(dataset)
         links.append(link)
-        l = omero.model.ProjectDatasetLinkI()
+        l = ProjectDatasetLinkI()
         l.setChild(dataset.proxy())
         l.setParent(project.proxy())
         links.append(l)
@@ -161,7 +164,7 @@ class TestChgrp(lib.ITest):
 
         # Change our context to new group...
         admin = client.sf.getAdminService()
-        admin.setDefaultGroup(exp, omero.model.ExperimenterGroupI(gid, False))
+        admin.setDefaultGroup(exp, ExperimenterGroupI(gid, False))
         self.set_context(client, gid)
         # ...check image
         img = client.sf.getQueryService().get("Image", img.id.val)
@@ -287,7 +290,7 @@ class TestChgrp(lib.ITest):
             2, "testChgrpOneDatasetFilesetErr", client=client)
         images = self.importMIF(2, client=client)
         for i in range(2):
-            link = omero.model.DatasetImageLinkI()
+            link = DatasetImageLinkI()
             link.setParent(datasets[i].proxy())
             link.setChild(images[i].proxy())
             link = update.saveAndReturnObject(link)
@@ -327,7 +330,7 @@ class TestChgrp(lib.ITest):
             2, "testChgrpAllDatasetsFilesetOK", client=client)
         images = self.importMIF(2, client=client)
         for i in range(2):
-            link = omero.model.DatasetImageLinkI()
+            link = DatasetImageLinkI()
             link.setParent(datasets[i].proxy())
             link.setChild(images[i].proxy())
             link = update.saveAndReturnObject(link)
@@ -362,12 +365,12 @@ class TestChgrp(lib.ITest):
         target_gid = target_grp.id.val
 
         update = client.sf.getUpdateService()
-        ds = omero.model.DatasetI()
+        ds = DatasetI()
         ds.name = rstring("testChgrpOneDatasetFilesetOK")
         ds = update.saveAndReturnObject(ds)
         images = self.importMIF(2, client=client)
         for i in range(2):
-            link = omero.model.DatasetImageLinkI()
+            link = DatasetImageLinkI()
             link.setParent(ds.proxy())
             link.setChild(images[i].proxy())
             link = update.saveAndReturnObject(link)
@@ -436,12 +439,12 @@ class TestChgrp(lib.ITest):
         imagesFsTwo = self.importMIF(2, client=client)
 
         update = client.sf.getUpdateService()
-        ds = omero.model.DatasetI()
+        ds = DatasetI()
         ds.name = rstring("testChgrpDatasetTwoFilesetsErr")
         ds = update.saveAndReturnObject(ds)
         self.importMIF(2, client=client)
         for i in (imagesFsOne, imagesFsTwo):
-            link = omero.model.DatasetImageLinkI()
+            link = DatasetImageLinkI()
             link.setParent(ds.proxy())
             link.setChild(i[0].proxy())
             link = update.saveAndReturnObject(link)
@@ -477,12 +480,12 @@ class TestChgrp(lib.ITest):
         target_gid = target_grp.id.val
 
         update = client.sf.getUpdateService()
-        ds = omero.model.DatasetI()
+        ds = DatasetI()
         ds.name = rstring("testChgrpDatasetCheckFsGroup")
         ds = update.saveAndReturnObject(ds)
         images = self.importMIF(2, client=client)
         for i in range(2):
-            link = omero.model.DatasetImageLinkI()
+            link = DatasetImageLinkI()
             link.setParent(ds.proxy())
             link.setChild(images[i].proxy())
             link = update.saveAndReturnObject(link)
@@ -542,12 +545,12 @@ class TestChgrp(lib.ITest):
         client, user = self.new_client_and_user(perms=PRIVATE)
 
         update = client.sf.getUpdateService()
-        ds = omero.model.DatasetI()
+        ds = DatasetI()
         ds.name = rstring("testChgrp11000")
         ds = update.saveAndReturnObject(ds)
         images = self.importMIF(2, client=client)
         for i in range(2):
-            link = omero.model.DatasetImageLinkI()
+            link = DatasetImageLinkI()
             link.setParent(ds.proxy())
             link.setChild(images[i].proxy())
             link = update.saveAndReturnObject(link)
@@ -563,8 +566,8 @@ class TestChgrp(lib.ITest):
         entry1 = fs.getFilesetEntry(0)
         ofile = entry1.getOriginalFile()
         for i in range(2):
-            link = omero.model.ImageAnnotationLinkI()
-            ann = omero.model.FileAnnotationI()
+            link = ImageAnnotationLinkI()
+            ann = FileAnnotationI()
             ann.file = ofile.proxy()
             link.setParent(images[i].proxy())
             link.setChild(ann)
@@ -582,9 +585,9 @@ class TestChgrp(lib.ITest):
         admin.getEventContext()  # Refresh
 
         update = client.sf.getUpdateService()
-        plate = omero.model.PlateI()
+        plate = PlateI()
         plate.name = rstring("testChgrp11109")
-        screen = omero.model.ScreenI()
+        screen = ScreenI()
         screen.name = rstring("testChgrp11109")
         link = screen.linkPlate(plate)
         link = update.saveAndReturnObject(link)
@@ -599,6 +602,359 @@ class TestChgrp(lib.ITest):
         with pytest.raises(omero.ValidationException):
             query.get("ScreenPlateLink", link.id.val, {"omero.group": "-1"})
 
+    def testChgrpDatasetWithImage(self):
+        """
+        D->I
+        ChGrp D
+        OK: D hierarchy moved entirely.
+
+        See https://trac.openmicroscopy.org.uk/ome/ticket/12452
+        """
+        client, user = self.new_client_and_user(perms=PRIVATE)
+        admin = client.sf.getAdminService()
+        target_grp = self.new_group([user], perms=PRIVATE)
+        target_gid = target_grp.id.val
+        admin.getEventContext()  # Refresh
+
+        query = client.sf.getQueryService()
+        update = client.sf.getUpdateService()
+
+        d = self.make_dataset(client=client)
+        i = self.new_image()
+        i = update.saveAndReturnObject(i)
+        self.link(d, i, client)
+        self.change_group([d], target_gid, client)
+
+        ctx = {'omero.group': '-1'}
+        assert target_gid == query.get("Image",
+                                       i.id.val, ctx).details.group.id.val
+        assert target_gid == query.get("Dataset",
+                                       d.id.val, ctx).details.group.id.val
+
+    def testChgrpPDIReverseLinkOrder(self):
+        """
+        P->D->I
+        ChGrp P
+        OK: P hierarchy moved entirely.
+
+        See https://trac.openmicroscopy.org.uk/ome/ticket/12452
+        """
+        client, user = self.new_client_and_user(perms=PRIVATE)
+        admin = client.sf.getAdminService()
+        target_grp = self.new_group([user], perms=PRIVATE)
+        target_gid = target_grp.id.val
+        admin.getEventContext()  # Refresh
+
+        query = client.sf.getQueryService()
+        update = client.sf.getUpdateService()
+
+        p = self.make_project(client=client)
+        d = self.make_dataset(client=client)
+        i = self.new_image()
+        i = update.saveAndReturnObject(i)
+        self.link(p, d, client)
+        self.link(d, i, client)
+        self.change_group([p], target_gid, client)
+
+        ctx = {'omero.group': '-1'}
+        assert target_gid == query.get("Project",
+                                       p.id.val, ctx).details.group.id.val
+        assert target_gid == query.get("Dataset",
+                                       d.id.val, ctx).details.group.id.val
+        assert target_gid == query.get("Image",
+                                       i.id.val, ctx).details.group.id.val
+
+    @pytest.mark.xfail(reason="d2 group id doesn't match target_gid")
+    def testChgrpTwoDatasetsLinkedToSingleImage(self):
+        """
+        D1->I
+        D2->I
+        ChGrp D1
+        FAIL: Webclient fails with a GraphConstraintException.
+
+        See https://trac.openmicroscopy.org.uk/ome/ticket/12452
+        """
+        client, user = self.new_client_and_user(perms=PRIVATE)
+        admin = client.sf.getAdminService()
+        target_grp = self.new_group([user], perms=PRIVATE)
+        target_gid = target_grp.id.val
+        admin.getEventContext()  # Refresh
+
+        query = client.sf.getQueryService()
+        update = client.sf.getUpdateService()
+
+        d1 = self.make_dataset(client=client)
+        d2 = self.make_dataset(client=client)
+        i = self.new_image()
+        i = update.saveAndReturnObject(i)
+        self.link(d1, i, client)
+        self.link(d2, i, client)
+        self.change_group([d1], target_gid, client)
+
+        ctx = {'omero.group': '-1'}
+        assert target_gid == query.get("Dataset",
+                                       d1.id.val, ctx).details.group.id.val
+        assert target_gid == query.get("Dataset",
+                                       d2.id.val, ctx).details.group.id.val
+        assert target_gid == query.get("Image",
+                                       i.id.val, ctx).details.group.id.val
+
+    @pytest.mark.xfail(reason="d1 group id doesn't match target_gid")
+    def testChgrpProjectWithDatasetLinkedToImageWithOtherDataset(self):
+        """
+        P->D1->I
+           D2->I
+        ChGrp P
+        FAIL: In Webclient P moved, Image not moved, D1 not moved
+        and both not orphaned.
+
+        See https://trac.openmicroscopy.org.uk/ome/ticket/12452
+        """
+        client, user = self.new_client_and_user(perms=PRIVATE)
+        admin = client.sf.getAdminService()
+        target_grp = self.new_group([user], perms=PRIVATE)
+        target_gid = target_grp.id.val
+        admin.getEventContext()  # Refresh
+
+        query = client.sf.getQueryService()
+        update = client.sf.getUpdateService()
+
+        p = self.make_project(client=client)
+        d1 = self.make_dataset(client=client)
+        d2 = self.make_dataset(client=client)
+        i = self.new_image()
+        i = update.saveAndReturnObject(i)
+        self.link(d1, i, client)
+        self.link(d2, i, client)
+        self.link(p, d1, client)
+        self.change_group([p], target_gid, client)
+
+        ctx = {'omero.group': '-1'}
+        assert target_gid == query.get("Project",
+                                       p.id.val, ctx).details.group.id.val
+        assert target_gid == query.get("Dataset",
+                                       d1.id.val, ctx).details.group.id.val
+        assert target_gid == query.get("Image",
+                                       i.id.val, ctx).details.group.id.val
+
+    def testChgrpDatasetWithImageLinkedToTwoProjects(self):
+        """
+        P1->D->I
+        P2->D->I
+        ChGrp D
+        OK: D Hierarchy moved entirely.
+
+        See https://trac.openmicroscopy.org.uk/ome/ticket/12452
+        """
+        client, user = self.new_client_and_user(perms=PRIVATE)
+        admin = client.sf.getAdminService()
+        target_grp = self.new_group([user], perms=PRIVATE)
+        target_gid = target_grp.id.val
+        admin.getEventContext()  # Refresh
+
+        query = client.sf.getQueryService()
+        update = client.sf.getUpdateService()
+
+        p1 = self.make_project(client=client)
+        p2 = self.make_project(client=client)
+        d = self.make_dataset(client=client)
+        i = self.new_image()
+        i = update.saveAndReturnObject(i)
+        self.link(p1, d, client)
+        self.link(p2, d, client)
+        self.link(d, i, client)
+        self.change_group([d], target_gid, client)
+
+        ctx = {'omero.group': '-1'}
+
+        assert not target_gid == query.get("Project",
+                                           p1.id.val, ctx).details.group.id.val
+        assert not target_gid == query.get("Project",
+                                           p2.id.val, ctx).details.group.id.val
+        assert target_gid == query.get("Dataset",
+                                       d.id.val, ctx).details.group.id.val
+        assert target_gid == query.get("Image",
+                                       i.id.val, ctx).details.group.id.val
+
+    @pytest.mark.xfail(reason="d not moved to new group.")
+    def testChgrpProjectLinkedToDatasetAndImage(self):
+        """
+        P1->D->I
+        P2->D->I
+        ChGrp P1
+        FAIL: In Webclient P1 moved, Image not moved, D1 not moved
+        and both not orphaned.
+
+        See https://trac.openmicroscopy.org.uk/ome/ticket/12452
+        """
+        client, user = self.new_client_and_user(perms=PRIVATE)
+        admin = client.sf.getAdminService()
+        target_grp = self.new_group([user], perms=PRIVATE)
+        target_gid = target_grp.id.val
+        admin.getEventContext()  # Refresh
+
+        query = client.sf.getQueryService()
+        update = client.sf.getUpdateService()
+
+        p1 = self.make_project(client=client)
+        p2 = self.make_project(client=client)
+        d = self.make_dataset(client=client)
+        i = self.new_image()
+        i = update.saveAndReturnObject(i)
+        self.link(p1, d, client)
+        self.link(p2, d, client)
+        self.link(d, i, client)
+        self.change_group([p1], target_gid, client)
+
+        ctx = {'omero.group': '-1'}
+        assert target_gid == query.get("Project",
+                                       p1.id.val, ctx).details.group.id.val
+        assert target_gid == query.get("Dataset",
+                                       d.id.val, ctx).details.group.id.val
+        assert target_gid == query.get("Image",
+                                       i.id.val, ctx).details.group.id.val
+
+    @pytest.mark.xfail(reason="d not moved to new group.")
+    def testChgrpProjectLinkedToDataset(self):
+        """
+        P1->D
+        P2->D
+        ChGrp P1
+        FAIL: In Webclient P1 moved, D not moved, but not orphaned.
+
+        See https://trac.openmicroscopy.org.uk/ome/ticket/12452
+        """
+        client, user = self.new_client_and_user(perms=PRIVATE)
+        admin = client.sf.getAdminService()
+        target_grp = self.new_group([user], perms=PRIVATE)
+        target_gid = target_grp.id.val
+        admin.getEventContext()  # Refresh
+
+        query = client.sf.getQueryService()
+
+        p1 = self.make_project(client=client)
+        p2 = self.make_project(client=client)
+        d = self.make_dataset(client=client)
+        self.link(p1, d, client)
+        self.link(p2, d, client)
+        self.change_group([p1], target_gid, client)
+
+        ctx = {'omero.group': '-1'}
+        assert target_gid == query.get("Project",
+                                       p1.id.val, ctx).details.group.id.val
+        assert target_gid == query.get("Dataset",
+                                       d.id.val, ctx).details.group.id.val
+
+    def testChgrpProjectLinkedToTwoDatasetsAndImage(self):
+        """
+        P->D1->I
+        P->D2->I
+        ChGrp P
+        OK: P hierarchy moved entirely.
+
+        See https://trac.openmicroscopy.org.uk/ome/ticket/12452
+        """
+        client, user = self.new_client_and_user(perms=PRIVATE)
+        admin = client.sf.getAdminService()
+        target_grp = self.new_group([user], perms=PRIVATE)
+        target_gid = target_grp.id.val
+        admin.getEventContext()  # Refresh
+
+        query = client.sf.getQueryService()
+        update = client.sf.getUpdateService()
+
+        p = self.make_project(client=client)
+        d1 = self.make_dataset(client=client)
+        d2 = self.make_dataset(client=client)
+        i = self.new_image()
+        i = update.saveAndReturnObject(i)
+        self.link(p, d1, client)
+        self.link(p, d2, client)
+        self.link(d1, i, client)
+        self.link(d2, i, client)
+        self.change_group([p], target_gid, client)
+
+        ctx = {'omero.group': '-1'}
+        assert target_gid == query.get("Project",
+                                       p.id.val, ctx).details.group.id.val
+        assert target_gid == query.get("Dataset",
+                                       d1.id.val, ctx).details.group.id.val
+        assert target_gid == query.get("Dataset",
+                                       d2.id.val, ctx).details.group.id.val
+        assert target_gid == query.get("Image",
+                                       i.id.val, ctx).details.group.id.val
+
+    @pytest.mark.xfail(reason="See ticket #12544")
+    def testIntergroupLinks(self):
+        # create read-annotate group 'read-annotate' with implicit owner
+        ra_group = self.new_group(perms=READANNOTATE)
+        self.new_user(group=ra_group, admin=True)
+
+        # create private group 'private' with implicit owner
+        p_group = self.new_group(perms=PRIVATE)
+        self.new_user(group=p_group, admin=True)
+
+        # create new user 'image-owner' who is a member of both 'read-annotate'
+        # and 'private'
+        io_client, image_owner = self.new_client_and_user(group=ra_group)
+        self.add_groups(image_owner, [p_group])
+
+        # create new user 'tag-owner' who is a member of both 'read-annotate'
+        # and 'private'
+        to_client, tag_owner = self.new_client_and_user(group=ra_group)
+        self.add_groups(tag_owner, [p_group])
+
+        # switch user to 'image-owner'
+        # import two images into 'read-annotate'
+        images = []
+        for x in range(0, 2):
+            images.append(self.importSingleImage(client=io_client))
+            image = io_client.sf.getQueryService().get("Image",
+                                                       images[x].id.val)
+            assert ra_group.id.val == image.details.group.id.val
+
+        # switch user to tag-owner
+        # tag both image-owner's images with the same new tag
+        tag = TagAnnotationI()
+        tag.textValue = rstring("tag from user %s" %
+                                tag_owner.getOmeName().val)
+        tag = to_client.sf.getUpdateService().saveAndReturnObject(tag)
+        assert tag_owner.id.val == tag.details.owner.id.val
+        links = []
+        for image in images:
+            link = ImageAnnotationLinkI()
+            link.setParent(image)
+            link.setChild(tag)
+            links.append(to_client.sf.getUpdateService()
+                         .saveAndReturnObject(link))
+
+        # (shell) as root
+        # run bin/omero hql --all 'select parent.details.group.id,
+        # child.details.group.id from ImageAnnotationLink'
+        # and observe that for each row
+        # the group ID in Col1 matches that in Col2
+        for link in links:
+            assert link.parent.details.group.id == link.child.details.group.id
+
+        # switch user to image-owner
+        # right-click one of the images and move it to private
+        self.change_group([images[0]], p_group.id.val, io_client)
+
+        # (shell) as root
+        # run bin/omero hql --all 'select parent.details.group.id,
+        # child.details.group.id from ImageAnnotationLink' and recoil in horror
+        params = omero.sys.ParametersI()
+        params.addId(tag.id.val)
+        ctx = {"omero.group": "-1"}
+        query = "select parent.details.group.id,"
+        query += " child.details.group.id from ImageAnnotationLink"
+        query += " where child.id = :id"
+        links = unwrap(self.root.sf.getQueryService().projection(query, params,
+                                                                 ctx))
+        assert links is not None
+        for link in links:
+            assert link[0] == link[1]
+
 
 class TestChgrpTarget(lib.ITest):
 
@@ -609,7 +965,7 @@ class TestChgrpTarget(lib.ITest):
             client = self.client
         ctx = {'omero.group': str(gid)}
         update = client.sf.getUpdateService()
-        ds = omero.model.DatasetI()
+        ds = DatasetI()
         ds.name = rstring(name)
         return update.saveAndReturnObject(ds, ctx)
 
@@ -632,9 +988,9 @@ class TestChgrpTarget(lib.ITest):
         for i in images:
             chgrp = omero.cmd.Chgrp(type="/Image", id=i.id.val, grp=target_gid)
             requests.append(chgrp)
-            link = omero.model.DatasetImageLinkI()
-            link.child = omero.model.ImageI(i.id.val, False)
-            link.parent = omero.model.DatasetI(ds.id.val, False)
+            link = DatasetImageLinkI()
+            link.child = ImageI(i.id.val, False)
+            link.parent = DatasetI(ds.id.val, False)
             save = Save()
             save.obj = link
             saves.append(save)
@@ -689,7 +1045,7 @@ class TestChgrpTarget(lib.ITest):
 
         # create Dataset in original group
         old_ds = self.createDSInGroup(old_gid, client=client)
-        link = omero.model.DatasetImageLinkI()
+        link = DatasetImageLinkI()
         link.parent = old_ds.proxy()
         link.child = images[0].proxy()
 
