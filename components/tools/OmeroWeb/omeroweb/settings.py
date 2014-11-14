@@ -473,7 +473,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
         "The javascript loads data into ``$('#div_id')``."],
     "omero.web.ui.center_plugins":
         ["CENTER_PLUGINS",'['\
-                            #'["Split View", "webclient/data/includes/center_plugin.splitview.js.html", "split_view_panel"],'\
+                            #'["Split View", "webtest/webclient_plugins/center_plugin.splitview.js.html", "split_view_panel"],'\
                             ']' , json.loads,
         "Add plugins to the center panels. Plugins are " \
         "``['Channel overlay', 'webtest/webclient_plugins/center_plugin.overlay.js.html', 'channel_overlay_panel']``. " \
