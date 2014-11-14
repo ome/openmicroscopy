@@ -40,6 +40,8 @@ import omero.cmd.graphs.ChgrpFacadeI;
 import omero.cmd.graphs.ChildOptionI;
 import omero.cmd.graphs.ChmodI;
 import omero.cmd.graphs.ChownI;
+import omero.cmd.graphs.Chown2I;
+import omero.cmd.graphs.ChownFacadeI;
 import omero.cmd.graphs.DeleteI;
 import omero.cmd.graphs.Delete2I;
 import omero.cmd.graphs.DeleteFacadeI;
@@ -180,11 +182,23 @@ public class RequestObjectFactoryRegistry extends
                 new ObjectFactory(ChownI.ice_staticId()) {
                     @Override
                     public Ice.Object create(String name) {
-                        ClassPathXmlApplicationContext specs = new ClassPathXmlApplicationContext(
-                                new String[] { "classpath:ome/services/spec.xml" },
-                                ctx);
-                        ChownStepFactory factory = new ChownStepFactory(ctx, em, roles);
-                        return new ChownI(ic, factory, specs);
+                        if (graphRequestFactory.isGraphsWrap()) {
+                            return new ChownFacadeI(graphRequestFactory);
+                        } else {
+                            final ClassPathXmlApplicationContext specs = new ClassPathXmlApplicationContext(
+                                    new String[] { "classpath:ome/services/spec.xml" },
+                                    ctx);
+                            final ChownStepFactory factory = new ChownStepFactory(ctx, em, roles);
+                            return new ChownI(ic, factory, specs);
+                        }
+                    }
+
+                });
+        factories.put(Chown2I.ice_staticId(),
+                new ObjectFactory(Chown2I.ice_staticId()) {
+                    @Override
+                    public Ice.Object create(String name) {
+                        return graphRequestFactory.getRequest(Chown2I.class);
                     }
 
                 });
@@ -199,6 +213,7 @@ public class RequestObjectFactoryRegistry extends
                             return new DeleteI(ic, d);
                         }
                     }
+
                 });
         factories.put(Delete2I.ice_staticId(),
                 new ObjectFactory(Delete2I.ice_staticId()) {
