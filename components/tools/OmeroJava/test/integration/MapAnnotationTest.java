@@ -18,6 +18,8 @@
  */
 package integration;
 
+import static omero.rtypes.rbool;
+import static omero.rtypes.rstring;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
@@ -53,9 +55,10 @@ public class MapAnnotationTest extends AbstractServerTest {
         IQueryPrx queryService = root.getSession().getQueryService();
         IUpdatePrx updateService = root.getSession().getUpdateService();
         ExperimenterGroup group = new ExperimenterGroupI();
-        group.setName(omero.rtypes.rstring(uuid));
+        group.setName(rstring(uuid));
+        group.setLdap(rbool(false));
         group.setConfig(new HashMap<String, omero.RString>());
-        group.getConfig().put("foo", omero.rtypes.rstring("bar"));
+        group.getConfig().put("foo", rstring("bar"));
         group = (ExperimenterGroup) updateService.saveAndReturnObject(group);
         group = (ExperimenterGroup) queryService.findByQuery(
                 "select g from ExperimenterGroup g join fetch g.config " +
@@ -73,9 +76,10 @@ public class MapAnnotationTest extends AbstractServerTest {
         IQueryPrx queryService = root.getSession().getQueryService();
         IUpdatePrx updateService = root.getSession().getUpdateService();
         ExperimenterGroup group = new ExperimenterGroupI();
-        group.setName(omero.rtypes.rstring(uuid));
+        group.setName(rstring(uuid));
+        group.setLdap(rbool(false));
         group.setConfig(new HashMap<String, omero.RString>());
-        group.getConfig().put("foo", omero.rtypes.rstring(""));
+        group.getConfig().put("foo", rstring(""));
         group = (ExperimenterGroup) updateService.saveAndReturnObject(group);
         group = (ExperimenterGroup) queryService.findByQuery(
                 "select g from ExperimenterGroup g join fetch g.config " +
@@ -93,9 +97,10 @@ public class MapAnnotationTest extends AbstractServerTest {
         IQueryPrx queryService = root.getSession().getQueryService();
         IUpdatePrx updateService = root.getSession().getUpdateService();
         ExperimenterGroup group = new ExperimenterGroupI();
-        group.setName(omero.rtypes.rstring(uuid));
+        group.setName(rstring(uuid));
+        group.setLdap(rbool(false));
         group.setConfig(new HashMap<String, omero.RString>());
-        group.getConfig().put("foo", omero.rtypes.rstring(""));
+        group.getConfig().put("foo", rstring(""));
         group.getConfig().put("bar", null);
         group = (ExperimenterGroup) updateService.saveAndReturnObject(group);
         group = (ExperimenterGroup) queryService.findByQuery(

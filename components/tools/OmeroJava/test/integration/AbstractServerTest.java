@@ -314,6 +314,7 @@ public class AbstractServerTest extends AbstractTest {
         String uuid = UUID.randomUUID().toString();
         ExperimenterGroup g = new ExperimenterGroupI();
         g.setName(omero.rtypes.rstring(uuid));
+        g.setLdap(omero.rtypes.rbool(false));
         g.getDetails().setPermissions(perms);
         g = new ExperimenterGroupI(rootAdmin.createGroup(g), false);
         return newUserInGroup(g, owner);
@@ -390,6 +391,7 @@ public class AbstractServerTest extends AbstractTest {
         String uuid = UUID.randomUUID().toString();
         ExperimenterGroup g = new ExperimenterGroupI();
         g.setName(omero.rtypes.rstring(uuid));
+        g.setLdap(omero.rtypes.rbool(false));
         g.getDetails().setPermissions(perms);
         g = new ExperimenterGroupI(rootAdmin.createGroup(g), false);
         return addUsers(g, experimenterIds, owner);
