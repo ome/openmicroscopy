@@ -29,7 +29,6 @@ package pojos;
 //Application-internal dependencies
 import omero.RBool;
 import omero.RDouble;
-import omero.RInt;
 import omero.RString;
 import omero.model.Correction;
 import omero.model.Immersion;
@@ -63,6 +62,17 @@ public class ObjectiveData
 		if (objective == null)
 			throw new IllegalArgumentException("No objective.");
 		setValue(objective);
+	}
+	
+	/**
+	 * Returns the working distance.
+	 * 
+	 * @return See above.
+	 */
+	public Length getWorkingDistanceAsLength()
+	{
+		Objective obj = ((Objective) asIObject());
+		return obj.getWorkingDistance();
 	}
 	
 	/**

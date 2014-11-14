@@ -1475,10 +1475,13 @@ public class EditorUtil
         if (StringUtils.isBlank(s))
             notSet.add(CORRECTION);
         details.put(CORRECTION, s);
-        f = data.getWorkingDistance();
-        if (f < 0) {
+        Length wd = data.getWorkingDistanceAsLength();
+        if (wd==null) {
             f = 0;
             notSet.add(WORKING_DISTANCE);
+        }
+        else {
+        	f = UnitsFactory.convertLength(wd, UNITS.MM).getValue();
         }
         details.put(WORKING_DISTANCE, f);
         details.put(NOT_SET, notSet);
