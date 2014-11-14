@@ -2025,11 +2025,11 @@ public class EditorUtil
         if (f == null) notSet.add(GAIN);
         else v = f.doubleValue();
         details.put(GAIN, v);
-        f = data.getVoltage();
-        if (f == null) {
+        ElectricPotential p = data.getVoltageAsElectricPotential();
+        if (p == null) {
             v = 0;
             notSet.add(VOLTAGE);
-        } else v = f.doubleValue();
+        } else v = UnitsFactory.convertElectricPotential(p, UNITS.VOLT).getValue();
         details.put(VOLTAGE, v);
         f = data.getOffset();
         if (f == null) {

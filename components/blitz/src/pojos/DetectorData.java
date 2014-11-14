@@ -64,6 +64,17 @@ public class DetectorData
 	 * 
 	 * @return See above
 	 */
+	public ElectricPotential getVoltageAsElectricPotential()
+	{
+		Detector detector = (Detector) asIObject();
+		return detector.getVoltage();
+	}
+	
+	/**
+	 * Returns the voltage of the detector.
+	 * 
+	 * @return See above
+	 */
 	@Deprecated
 	public Double getVoltage()
 	{
