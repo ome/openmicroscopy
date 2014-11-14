@@ -658,7 +658,6 @@ INSTALLED_APPS = (
     'omeroweb.webadmin',
     'omeroweb.webclient',
     'omeroweb.webgateway',
-    'omeroweb.webtest',
     'omeroweb.webredirect',
     'omeroweb.webstart',
     'pipeline',
