@@ -48,6 +48,7 @@ import omero.model.ElectricPotential;
 import omero.model.Frequency;
 import omero.model.Length;
 import omero.model.PlaneInfo;
+import omero.model.Power;
 import omero.model.Pressure;
 import omero.model.Temperature;
 import omero.model.enums.UnitsLength;
@@ -1894,11 +1895,14 @@ public class EditorUtil
 
         s = data.getKind();
         details.put(LIGHT_TYPE, s);
-        double f = data.getPower();
-        if (f < 0) {
+        Power p = data.getPowerAsPower();
+        double f = 0;
+        if (p == null) {
             notSet.add(POWER);
             f = 0;
         }
+        else
+        	f = UnitsFactory.convertPower(p, UNITS.W).getValue();
         details.put(POWER, f);
         s = data.getType();
         if (StringUtils.isBlank(s))
@@ -1928,10 +1932,14 @@ public class EditorUtil
                 notSet.add(MEDIUM);
             details.put(MEDIUM, s);
 
-            Double wave = data.getLaserWavelength();
-            if (wave != null && wave < 0) {
-                wave = Double.valueOf(0);
+            Length wl = data.getLaserWavelengthAsLength();
+            double wave = 0;
+            if (wl == null) {
+                wave = 0;
                 notSet.add(WAVELENGTH);
+            }
+            else {
+            	wave = UnitsFactory.convertLength(wl, UNITS.NM).getValue();
             }
             details.put(WAVELENGTH, new Float(wave)); 
             int i = data.getLaserFrequencyMultiplication();
@@ -1950,11 +1958,13 @@ public class EditorUtil
             if (StringUtils.isBlank(s))
                 notSet.add(PULSE);
             details.put(PULSE, s);
-            f = data.getLaserRepetitionRate();
-            if (f < 0) {
+            Frequency freq = data.getLaserRepetitionRateAsFrequency();
+            if (freq == null) {
                 f = 0;
                 notSet.add(REPETITION_RATE);
             }
+            else
+            	f = UnitsFactory.convertFrequency(freq, UNITS.HZ).getValue();
             details.put(REPETITION_RATE, f);
             o = data.getLaserPockelCell();
             if (o == null) {
