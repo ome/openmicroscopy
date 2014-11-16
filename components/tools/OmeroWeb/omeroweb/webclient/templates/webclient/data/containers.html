@@ -43,6 +43,7 @@
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.fields_plugin.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.omecut_plugin.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.ometools_plugin.js" %}"></script>
+   <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.childcount_plugin.js" %}"></script>
 
     <!-- set-up jstree etc -->
     <script type="text/javascript">
@@ -475,13 +476,7 @@
                 node.type === 'screen' ||
                 node.type === 'plate') {
 
-                // Update the display name
-                var text = node.data.obj.name + '<span class="children_count">';
-                if (count > 0) {
-                    text = text + count;
-                }
-                text = text + '</span>';
-                node.text = text;
+                node.data.obj.childCount = count;
                 tree.redraw_node(node, false, false);
             }
         };
@@ -1235,7 +1230,7 @@
                 .jstree({
                     'plugins': ['types', 'contextmenu', 'dnd', 'sort', 'locate',
                                 'ometools', 'conditionalselect', 'pagination', 'fields',
-                                'omecut'],
+                                'childcount', 'omecut'],
                     // The jstree core
                     'locate' : {
                         // Returns a key for this node
@@ -1286,6 +1281,7 @@
                             'dots': false,
                             'variant': 'ome'
                         },
+                        'force_text': true,
                         'data' : {
                             // Configure URL for request
                             'url' : function(node) {
@@ -1374,15 +1370,6 @@
                                     var data = JSON.parse(json);
                                     var jstree_data = [];
 
-                                    var countSpan = function(childCount) {
-                                        var count = '<span class="children_count">';
-                                        if (childCount > 0) {
-                                            count = count + childCount;
-                                        }
-                                        count = count + '</span>';
-                                        return count;
-                                    }
-
                                     // Add experimenters to the jstree data structure
                                     if (data.hasOwnProperty('experimenters')) {
                                         $.each(data.experimenters, function(index, value) {
@@ -1394,7 +1381,6 @@
                                                 'state': {
                                                 },
                                                 'li_attr': {
-                                                    // 'class': 'experimenter',
                                                     'data-id': value.id
                                                 }
                                             };
@@ -1415,11 +1401,10 @@
                                         $.each(data.projects, function(index, value) {
                                             var node = {
                                                 'data': {'id': value.id, 'obj': value},
-                                                'text': value.name + countSpan(value.childCount),
+                                                'text': value.name,
                                                 'children': value.childCount > 0 ? true : false,
                                                 'type': 'project',
                                                 'li_attr': {
-                                                    // 'class': 'project',
                                                     'data-id': value.id
                                                 }
                                             };
@@ -1432,11 +1417,10 @@
                                         $.each(data.datasets, function(index, value) {
                                             var node = {
                                                 'data': {'id': value.id, 'obj': value},
-                                                'text': value.name + countSpan(value.childCount),
+                                                'text': value.name,
                                                 'children': value.childCount > 0 ? true : false,
                                                 'type': 'dataset',
                                                 'li_attr': {
-                                                    // 'class': 'dataset',
                                                     'data-id': value.id
                                                 }
                                             };
@@ -1453,7 +1437,6 @@
                                                 'children': false,
                                                 'type': 'image',
                                                 'li_attr': {
-                                                    // 'class': 'image',
                                                     'data-id': value.id
                                                 }
                                             };
@@ -1466,11 +1449,10 @@
                                         $.each(data.screens, function(index, value) {
                                              var node = {
                                                 'data': {'id': value.id, 'obj': value},
-                                                'text': value.name + countSpan(value.childCount),
+                                                'text': value.name,
                                                 'children': value.childCount > 0 ? true : false,
                                                 'type': 'screen',
                                                 'li_attr': {
-                                                    // 'class': 'screen',
                                                     'data-id': value.id
                                                 }
                                              };
@@ -1483,11 +1465,10 @@
                                         $.each(data.plates, function(index, value) {
                                              var node = {
                                                 'data': {'id': value.id, 'obj': value},
-                                                'text': value.name + countSpan(value.childCount),
+                                                'text': value.name,
                                                 'children': value.childCount > 0 ? true : false,
                                                 'type': 'plate',
                                                 'li_attr': {
-                                                    // 'class': 'plate',
                                                     'data-id': value.id
                                                 }
                                              };
@@ -1504,7 +1485,6 @@
                                                 'children': false,
                                                 'type': 'acquisition',
                                                 'li_attr': {
-                                                    // 'class': 'acquisition',
                                                     'data-id': value.id
                                                 }
                                              };
