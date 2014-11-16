@@ -6371,6 +6371,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
         if rv is None or len(rv.strip()) == 0:
             rv = lc.emissionWave
             if rv is not None:
+                rv = rv.getValue()  # Igore rv.getUnit() for now
                 # Don't show as double if it's really an int
                 if int(rv) == rv:
                     rv = int(rv)
