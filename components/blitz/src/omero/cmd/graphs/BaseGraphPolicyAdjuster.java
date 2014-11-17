@@ -23,6 +23,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.hibernate.Session;
+
 import ome.model.IObject;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPolicy;
@@ -64,8 +66,8 @@ public abstract class BaseGraphPolicyAdjuster extends GraphPolicy {
     }
 
     @Override
-    public void noteDetails(IObject object, String realClass, long id) {
-        graphPolicy.noteDetails(object, realClass, id);
+    public void noteDetails(Session session, IObject object, String realClass, long id) {
+        graphPolicy.noteDetails(session, object, realClass, id);
     }
 
     @Override

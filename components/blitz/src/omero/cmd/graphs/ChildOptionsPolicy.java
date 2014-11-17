@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,9 +72,10 @@ public class ChildOptionsPolicy {
                      * Note each annotation's namespace.
                      */
                     @Override
-                    public void noteDetails(IObject object, String realClass, long id) {
+                    public void noteDetails(Session session, IObject object, String realClass, long id) {
                         if (object instanceof Annotation) {
-                            final String namespace = ((Annotation) object).getNs();
+                            final String query = "SELECT ns FROM Annotation WHERE id = :id";
+                            final String namespace = (String) session.createQuery(query).setParameter("id", id).uniqueResult();
                             if (namespace != null) {
                                 String cachedNamespace = namespaceCache.get(namespace);
                                 if (cachedNamespace == null) {
@@ -83,7 +85,7 @@ public class ChildOptionsPolicy {
                                 objectNamespaces.put(Maps.immutableEntry(realClass, id), cachedNamespace);
                             }
                         }
-                        super.noteDetails(object, realClass, id);
+                        super.noteDetails(session, object, realClass, id);
                     }
 
                     /**

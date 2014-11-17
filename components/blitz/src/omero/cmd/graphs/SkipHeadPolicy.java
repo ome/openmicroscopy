@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,8 +96,8 @@ public class SkipHeadPolicy {
 
         return new GraphPolicy() {
             @Override
-            public void noteDetails(IObject object, String realClass, long id) {
-                graphPolicy.noteDetails(object, realClass, id);
+            public void noteDetails(Session session, IObject object, String realClass, long id) {
+                graphPolicy.noteDetails(session, object, realClass, id);
             }
 
             @Override

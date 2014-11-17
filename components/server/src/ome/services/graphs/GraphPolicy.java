@@ -23,6 +23,8 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.hibernate.Session;
+
 import ome.model.IObject;
  
 /**
@@ -158,19 +160,13 @@ public abstract class GraphPolicy {
      * Any model object about which policy may be asked is first passed to {@link #noteDetails(IObject, String, long)} before
      * {@link #review(Map, Details, Map, Set)}. Each object is passed only once.
      * Subclasses overriding this method probably ought also override {@link #getCleanInstance()}.
-     * @param object a model object about which policy may be asked;
-     *               it is a Hibernate proxy object loaded without any extra joins on retrieval
+     * @param session the Hibernate session, for obtaining more information about the object
+     * @param object a model object about which policy may be asked
      * @param realClass the real class name of the object
      * @param id the ID of the object
      */
-    public void noteDetails(IObject object, String realClass, long id) {
+    public void noteDetails(Session session, IObject object, String realClass, long id) {
         /* This method is a no-op that subclasses may override. */
-
-        /* TODO: If no subclasses require the IObject and PR 3000 is merged,
-         * investigate replacing GraphTraversal's Hibernate.getClass with
-         * HQL that uses Hibernate 4's type function, and then only if
-         * GraphPathBean.getSubclassesOf does not return an empty set.
-         */
     }
 
     /**

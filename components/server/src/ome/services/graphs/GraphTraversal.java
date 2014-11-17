@@ -484,7 +484,7 @@ public class GraphTraversal {
         for (final IObject instance : objectInstances) {
             if (instance instanceof HibernateProxy) {
                 final CI object = new CI(instance);
-                noteDetails(instance, object);
+                noteDetails(object, instance.getDetails());
                 targetSet.add(object);
             } else {
                 objectsToQuery.put(instance.getClass().getName(), instance.getId());
@@ -596,11 +596,12 @@ public class GraphTraversal {
 
     /**
      * Note the details of the given object.
-     * @param objectInstance a Hibernate proxy object
      * @param object the class and ID of the object instance
+     * @param objectDetails the details of the object instance
+     * @throws GraphException if the object could not be converted to an unloaded instance
      */
-    private void noteDetails(IObject objectInstance, CI object) {
-        final ome.model.internal.Details objectDetails = objectInstance.getDetails();
+    private void noteDetails(CI object, ome.model.internal.Details objectDetails) throws GraphException {
+        final IObject objectInstance = object.toIObject();
 
         if (planning.detailsNoted.isEmpty()) {
             /* allowLoad ensures that BasicEventContext.groupPermissionsMap is populated */
@@ -622,7 +623,7 @@ public class GraphTraversal {
             }
         }
 
-        policy.noteDetails(objectInstance, object.className, object.id);
+        policy.noteDetails(session, objectInstance, object.className, object.id);
     }
 
     /**
@@ -642,7 +643,7 @@ public class GraphTraversal {
                 for (final Object proxy : session.createQuery(query).setParameterList("ids", ids).list()) {
                     final IObject instance = (IObject) proxy;
                     final CI object = new CI(instance);
-                    noteDetails(instance, object);
+                    noteDetails(object, instance.getDetails());
                     returnValue.add(object);
                     remainingCount--;
                 }
@@ -658,8 +659,9 @@ public class GraphTraversal {
      * Load object instances and their links into the various cache fields of {@link Planning}.
      * @param session a Hibernate session
      * @param toCache the objects to cache
+     * @throws GraphException if the objects could not be converted to unloaded instances
      */
-    private void cache(Session session, Collection<CI> toCache) {
+    private void cache(Session session, Collection<CI> toCache) throws GraphException {
         /* note which links to query, organized for batch querying */
         final SetMultimap<CP, Long> forwardLinksWanted = HashMultimap.create();
         final SetMultimap<CP, Long> backwardLinksWanted = HashMultimap.create();
@@ -687,7 +689,7 @@ public class GraphTraversal {
                     final IObject linkedInstance = (IObject) resultRow[1];
                     final CI linker = new CI(linkerInstance);
                     final CI linked = new CI(linkedInstance);
-                    noteDetails(linkedInstance, linked);
+                    noteDetails(linked, linkedInstance.getDetails());
                     planning.forwardLinksCached.put(linkProperty.toCPI(linker.id), linked);
                     if (propertyIsAccessible) {
                         planning.befores.put(linked, linker);
@@ -711,7 +713,7 @@ public class GraphTraversal {
                     final IObject linkedInstance = (IObject) resultRow[1];
                     final CI linker = new CI(linkerInstance);
                     final CI linked = new CI(linkedInstance);
-                    noteDetails(linkerInstance, linker);
+                    noteDetails(linker, linkerInstance.getDetails());
                     planning.backwardLinksCached.put(linkProperty.toCPI(linked.id), linker);
                     if (propertyIsAccessible) {
                         planning.befores.put(linked, linker);
