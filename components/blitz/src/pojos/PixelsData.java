@@ -224,6 +224,7 @@ public class PixelsData extends DataObject {
      * 
      * @param pixelSizeX
      *            The dimension of a pixel along the X-axis.
+     * @deprecated Replaced by {@link #setPixelSizeX(Length)}
      */
     @Deprecated
     public void setPixelSizeX(double pixelSizeX) {
@@ -248,6 +249,7 @@ public class PixelsData extends DataObject {
      * microns.
      * 
      * @return See above.
+     * @deprecated Replaced by {@link #getPixelSizeXAsLength()}
      */
     @Deprecated
     public double getPixelSizeX() {
@@ -269,6 +271,7 @@ public class PixelsData extends DataObject {
      * 
      * @param pixelSizeY
      *            The dimension of a pixel along the Y-axis.
+     * @deprecated Replaced by {@link #setPixelSizeY(Length)}
      */
     @Deprecated
     public void setPixelSizeY(double pixelSizeY) {
@@ -292,6 +295,7 @@ public class PixelsData extends DataObject {
      * microns.
      * 
      * @return See above.
+     * @deprecated Replaced by {@link #getPixelSizeYAsLength()}
      */
     @Deprecated
     public double getPixelSizeY() {
@@ -313,6 +317,7 @@ public class PixelsData extends DataObject {
      * 
      * @param pixelSizeZ
      *            The dimension of a pixel along the Z-axis.
+     * @deprecated Replaced by {@link #setPixelSizeZ(Length)}
      */
     @Deprecated
     public void setPixelSizeZ(double pixelSizeZ) {
@@ -336,6 +341,7 @@ public class PixelsData extends DataObject {
      * microns.
      * 
      * @return See above.
+     * @deprecated Replaced by {@link #getPixelSizeZAsLength()}
      */
     @Deprecated
     public double getPixelSizeZ() {

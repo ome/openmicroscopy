@@ -74,6 +74,7 @@ public class DetectorData
 	 * Returns the voltage of the detector.
 	 * 
 	 * @return See above
+	 * @deprecated Replaced by {@link #getVoltageAsElectricPotential()}
 	 */
 	@Deprecated
 	public Double getVoltage()

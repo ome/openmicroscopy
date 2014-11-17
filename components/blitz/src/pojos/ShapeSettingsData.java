@@ -212,6 +212,7 @@ public class ShapeSettingsData
 	 * Returns the stroke's width.
 	 * 
 	 * @return See above.
+	 * @deprecated Replaced by {@link #getStrokeWidthAsLength()}
 	 */
 	@Deprecated
 	public double getStrokeWidth()
@@ -241,6 +242,7 @@ public class ShapeSettingsData
 	 * Set the stroke width.
 	 * 
 	 * @param strokeWidth See above.
+	 * @deprecated Replaced by {@link #setStrokeWidth(Length)}
 	 */
 	@Deprecated
 	public void setStrokeWidth(Double strokeWidth)
@@ -395,6 +397,7 @@ public class ShapeSettingsData
 	 * Returns the stroke.
 	 * 
 	 * @return See above.
+	 * @deprecated Replaced by {@link #getFontSizeAsLength()}
 	 */
 	@Deprecated
 	public double getFontSize()
@@ -426,6 +429,7 @@ public class ShapeSettingsData
 
     /**
 	 * Set the size of the font.
+	 * @deprecated Replaced by {@link #setFontSize(Length)}
 	 */
 	@Deprecated
 	public void setFontSize(int fontSize)

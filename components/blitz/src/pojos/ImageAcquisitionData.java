@@ -138,6 +138,7 @@ public class ImageAcquisitionData
 	 * Returns the x-coordinate in the frame microscope.
 	 * 
 	 * @return See above.
+	 * @deprecated Replaced by {@link #getPositionXAsLength()}
 	 */
 	@Deprecated
 	public Object getPositionX()
@@ -164,6 +165,7 @@ public class ImageAcquisitionData
 	 * Returns the y-coordinate in the frame microscope.
 	 * 
 	 * @return See above.
+	 * @deprecated Replaced by {@link #getPositionYAsLength()}
 	 */
 	@Deprecated
 	public Object getPositionY()
@@ -190,6 +192,7 @@ public class ImageAcquisitionData
 	 * Returns the z-coordinate in the frame microscope.
 	 * 
 	 * @return See above.
+	 * @deprecated Replaced by {@link #getPositionZAsLength()}
 	 */
 	@Deprecated
 	public Object getPositionZ()
@@ -216,6 +219,7 @@ public class ImageAcquisitionData
 	 * Returns the temperature in Celcius.
 	 * 
 	 * @return See above.
+	 * @deprecated Replaced by {@link #getTemperatureAsTemperature()}
 	 */
 	@Deprecated
 	public Object getTemperature()
@@ -242,6 +246,7 @@ public class ImageAcquisitionData
 	 * Returns the air pressure in bar
 	 * 
 	 * @return See above.
+	 * @deprecated Replaced by {@link #getAirPressureAsPressure()}
 	 */
 	@Deprecated
 	public double getAirPressure()
@@ -346,6 +351,7 @@ public class ImageAcquisitionData
 	 * Sets the x-position.
 	 * 
 	 * @param value The value to set.
+	 * @deprecated Replaced by {@link #setPositionX(Length)}
 	 */
 	@Deprecated
 	public void setPositionX(double value)
@@ -371,6 +377,7 @@ public class ImageAcquisitionData
 	 * Sets the y-position.
 	 * 
 	 * @param value The value to set.
+	 * @deprecated Replaced by {@link #setPositionY(Length)}
 	 */
 	@Deprecated
 	public void setPositionY(double value)
@@ -396,6 +403,7 @@ public class ImageAcquisitionData
 	 * Sets the z-position.
 	 * 
 	 * @param value The value to set.
+	 * @deprecated Replaced by {@link #setPositionZ(Length)}
 	 */
 	@Deprecated
 	public void setPositionZ(double value)
@@ -421,6 +429,7 @@ public class ImageAcquisitionData
 	 * Sets the temperature.
 	 * 
 	 * @param temperature The value to set.
+	 * @deprecated Replaced by {@link #setTemperature(Temperature)}
 	 */
 	@Deprecated
 	public void setTemperature(double temperature)
@@ -447,6 +456,7 @@ public class ImageAcquisitionData
 	 * Sets the air pressure.
 	 * 
 	 * @param pressure The value to set.
+	 * @deprecated Replaced by {@link #setAirPressure(Pressure)}
 	 */
 	@Deprecated
 	public void setAirPressure(double pressure)

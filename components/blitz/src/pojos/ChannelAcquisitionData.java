@@ -173,8 +173,9 @@ public class ChannelAcquisitionData
 	 * Returns the voltage set on the detector.
 	 * 
 	 * @return See above.
+	 * @deprecated Replaced by {@link #getDetectorSettingsVoltageAsElectricPotential()}
 	 */
-	@Deprecated
+	@Deprecated 
 	public Double getDetectorSettingsVoltage()
 	{
 		if (detectorSettings == null) return null;
@@ -198,6 +199,7 @@ public class ChannelAcquisitionData
 	 * Returns the Read out rate set on the detector.
 	 * 
 	 * @return See above.
+	 * @deprecated Replaced by {@link #getDetectorSettingsReadOutRateAsFrequency()}
 	 */
 	@Deprecated
 	public Double getDetectorSettingsReadOutRate()
@@ -251,6 +253,7 @@ public class ChannelAcquisitionData
 	 * Returns the wavelength of the light source.
 	 * 
 	 * @return See above.
+	 * @deprecated Replaced by {@link #getLightSettingsWavelengthAsLength()}
 	 */
 	@Deprecated
 	public Double getLightSettingsWavelength()
@@ -313,6 +316,7 @@ public class ChannelAcquisitionData
 	 * Sets the wavelength of the light source.
 	 * 
 	 * @param value The value to set.
+	 * @deprecated Replaced by {@link #setLightSettingsWavelength(Length)}
 	 */
 	@Deprecated
 	public void setLightSettingsWavelength(double value)
@@ -367,6 +371,7 @@ public class ChannelAcquisitionData
 	 * Sets the detector setting's read out rate.
 	 * 
 	 * @param value The value to set.
+	 * @deprecated Replaced by {@link #setDetectorSettingsReadOutRate(Frequency)}
 	 */
 	@Deprecated
 	public void setDetectorSettingsReadOutRate(double value)
@@ -395,6 +400,7 @@ public class ChannelAcquisitionData
 	 * Sets the detector setting's voltage.
 	 * 
 	 * @param value The value to set.
+	 * @deprecated Replaced by {@link #setDetectorSettingsVoltage(ElectricPotential)}
 	 */
 	@Deprecated
 	public void setDetectorSettingsVoltage(double value)

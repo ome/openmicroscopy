@@ -178,6 +178,7 @@ public class ChannelData
      * Returns the emission wavelength of the channel.
      *
      * @return See above
+     * @deprecated Replaced by {@link #getEmissionWavelengthAsLength()}
      */
     @Deprecated
     public double getEmissionWavelength()
@@ -207,6 +208,7 @@ public class ChannelData
      * Returns the excitation wavelength of the channel.
      *
      * @return See above
+     * @deprecated Replaced by {@link #getExcitationWavelengthAsLength()}
      */
     @Deprecated
     public double getExcitationWavelength()
@@ -236,6 +238,7 @@ public class ChannelData
      * Returns the pin hole size of the channel.
      *
      * @return See above
+     * @deprecated Replaced by {@link #getPinholeSizeAsLength()}
      */
     @Deprecated
     public double getPinholeSize()
@@ -388,6 +391,7 @@ public class ChannelData
      * Sets the pinhole size.
      *
      * @param value The value to set.
+     * @deprecated Replaced by {@link #setPinholeSize(Length)}
      */
     @Deprecated
     public void setPinholeSize(double value)
@@ -439,6 +443,7 @@ public class ChannelData
      * Sets the emission wavelength.
      *
      * @param value The value to set.
+     * @deprecated Replaced by {@link #setEmissionWavelength(Length)}
      */
     @Deprecated
     public void setEmissionWavelength(double value)
@@ -466,6 +471,7 @@ public class ChannelData
      * Sets the excitation wavelength.
      *
      * @param value The value to set.
+     * @deprecated Replaced by {@link #setExcitationWavelength(Length)}
      */
     @Deprecated
     public void setExcitationWavelength(double value)

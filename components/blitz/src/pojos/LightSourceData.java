@@ -158,6 +158,7 @@ public class LightSourceData
 	 * Returns the power of the light source.
 	 * 
 	 * @return See above.
+	 * @deprecated Replaced by {@link #getPowerAsPower()}
 	 */
 	@Deprecated
 	public double getPower()
@@ -224,6 +225,7 @@ public class LightSourceData
 	 * Returns the laser's wavelength.
 	 * 
 	 * @return See above.
+	 * @deprecated Replaced by {@link #getLaserWavelengthAsLength()}
 	 */
 	@Deprecated
 	public double getLaserWavelength()
@@ -338,6 +340,7 @@ public class LightSourceData
 	 * Returns the repetition rate (Hz) if the laser is repetitive.
 	 * 
 	 * @return See above.
+	 * @deprecated Replaced by {@link #getLaserRepetitionRateAsFrequency()}
 	 */
 	@Deprecated
 	public double getLaserRepetitionRate()

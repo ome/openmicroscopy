@@ -366,6 +366,7 @@ public class PlateData extends DataObject {
      * Returns the x-coordinate in 2D-space of the well.
      * 
      * @return See above
+     * @deprecated Replaced by {@link #getWellOriginXAsLength()}
      */
     @Deprecated
     public double getWellOriginX()
@@ -393,6 +394,7 @@ public class PlateData extends DataObject {
      * Returns the y-coordinate in 2D-space of the well.
      * 
      * @return See above
+     * @deprecated Replaced by {@link #getWellOriginYAsLength()}
      */
     @Deprecated
     public double getWellOriginY()

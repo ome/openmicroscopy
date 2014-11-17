@@ -126,6 +126,7 @@ public class WellSampleData extends DataObject {
      * Returns the position X.
      * 
      * @return See above.
+     * @deprecated Replaced by {@link #getPositionXAsLength()}
      */
     @Deprecated
     public double getPositionX()
@@ -153,6 +154,7 @@ public class WellSampleData extends DataObject {
      * Returns the position Y.
      * 
      * @return See above.
+     * @deprecated Replaced by {@link #getPositionYAsLength()}
      */
     @Deprecated
     public double getPositionY()

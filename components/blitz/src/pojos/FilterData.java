@@ -83,6 +83,7 @@ public class FilterData
 	 * Returns the cut in value or <code>null</code>.
 	 * 
 	 * @return See above.
+	 * @deprecated Replaced by {@link #getCutInAsLength()}
 	 */
 	@Deprecated
 	public Integer getCutIn()
@@ -113,6 +114,7 @@ public class FilterData
 	 * Returns the cut in tolerance value or <code>null</code>.
 	 * 
 	 * @return See above.
+	 * @deprecated Replaced by {@link #getCutInToleranceAsLength()}
 	 */
 	@Deprecated
 	public Integer getCutInTolerance()
@@ -143,6 +145,7 @@ public class FilterData
 	 * Returns the cut out value or <code>null</code>.
 	 * 
 	 * @return See above.
+	 * @deprecated Replaced by {@link #getCutOutAsLength()}
 	 */
 	@Deprecated
 	public Integer getCutOut()
@@ -173,6 +176,7 @@ public class FilterData
 	 * Returns the cut out tolerance value or <code>null</code>.
 	 * 
 	 * @return See above.
+	 * @deprecated Replaced by {@link #getCutOutToleranceAsLength()}
 	 */
 	@Deprecated
 	public Integer getCutOutTolerance()

@@ -79,6 +79,7 @@ public class ObjectiveData
 	 * Returns the working distance.
 	 * 
 	 * @return See above.
+	 * @deprecated Replaced by {@link #getWorkingDistanceAsLength()}
 	 */
 	@Deprecated
 	public double getWorkingDistance()
