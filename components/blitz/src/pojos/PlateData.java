@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.Set;
 
 import static omero.rtypes.*;
+import ome.formats.model.UnitsFactory;
+import ome.units.UNITS;
 import omero.model.Length;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
@@ -351,12 +353,40 @@ public class PlateData extends DataObject {
      * 
      * @return See above
      */
+    public Length getWellOriginXAsLength()
+    {
+    	Length value = asPlate().getWellOriginX();
+    	if (value == null) 
+    		return UnitsFactory.makeLength(0, UNITS.REFERENCEFRAME);
+    	else 
+    		return value;
+    }
+    
+    /**
+     * Returns the x-coordinate in 2D-space of the well.
+     * 
+     * @return See above
+     */
     @Deprecated
     public double getWellOriginX()
     {
     	Length value = asPlate().getWellOriginX();
     	if (value == null) return 0;
     	return value.getValue();
+    }
+    
+    /**
+     * Returns the y-coordinate in 2D-space of the well.
+     * 
+     * @return See above
+     */
+    public Length getWellOriginYAsLength()
+    {
+    	Length value = asPlate().getWellOriginY();
+    	if (value == null)
+    		return UnitsFactory.makeLength(0, UNITS.REFERENCEFRAME);
+    	else
+    		return value;
     }
     
     /**
