@@ -18,8 +18,9 @@ import json
 import omero
 import omero.clients
 
-from django.http import HttpResponse, HttpResponseServerError, HttpResponseRedirect, Http404
+from django.http import HttpResponse, HttpResponseServerError, HttpResponseRedirect, HttpResponseNotAllowed, Http404
 from django.template import loader as template_loader
+from django.views.decorators.http import require_http_methods, require_GET, require_POST
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.template import RequestContext as Context
@@ -1434,6 +1435,7 @@ def search_json (request, conn=None, **kwargs):
     logger.debug(rv)
     return rv
 
+@require_POST
 @login_required()
 def save_image_rdef_json (request, iid, conn=None, **kwargs):
     """
@@ -1511,6 +1513,7 @@ def list_compatible_imgs_json (request, iid, conn=None, **kwargs):
     return HttpJavascriptResponse(json_data)
 
 
+@require_POST
 @login_required()
 @jsonp
 def reset_rdef_json (request, toOwners=False, conn=None, **kwargs):
@@ -1522,7 +1525,7 @@ def reset_rdef_json (request, toOwners=False, conn=None, **kwargs):
     @param toOwners:    if True, default to the owner's settings.
     """
 
-    r = request.REQUEST
+    r = request.POST
     toids = r.getlist('toids')
     to_type = str(r.get('to_type', 'image'))
     to_type = to_type.title()
@@ -1565,12 +1568,14 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
 
     server_id = request.session['connector'].server_id
     json_data = False
-    r = request.REQUEST
-    fromid = r.get('fromid', None)
-    toids = r.getlist('toids')
-    to_type = str(r.get('to_type', 'image'))
+
+    fromid = request.GET.get('fromid', None)
+    toids = request.POST.getlist('toids')
+    to_type = str(request.POST.get('to_type', 'image'))
+
     if to_type not in ('dataset', 'plate', 'acquisition'):
         to_type = "Image"  # default is image
+
     # Only 'fromid' is given, simply save to session
     if fromid is not None and len(toids) == 0:
         request.session.modified = True
@@ -1580,21 +1585,21 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
         return True
 
     # If we've got an rdef encoded in request instead of ImageId...
-    if r.get('c') is not None:
+    if request.GET.get('c') is not None:
         # make a map of settings we need
         rdef = {
-            'c': str(r.get('c'))    # channels
+            'c': str(request.GET.get('c'))    # channels
         }
-        if r.get('pixel_range'):
-            rdef['pixel_range'] = str(r.get('pixel_range'))
-        if r.get('m'):
-            rdef['m'] = str(r.get('m'))   # model (grey)
-        if r.get('z'):
-            rdef['z'] = str(r.get('z'))    # z & t pos
-        if r.get('t'):
-            rdef['t'] = str(r.get('t'))
-        if r.get('imageId'):
-            rdef['imageId'] = int(r.get('imageId'))
+        if request.GET.get('pixel_range'):
+            rdef['pixel_range'] = str(request.GET.get('pixel_range'))
+        if request.GET.get('m'):
+            rdef['m'] = str(request.GET.get('m'))   # model (grey)
+        if request.GET.get('z'):
+            rdef['z'] = str(request.GET.get('z'))    # z & t pos
+        if request.GET.get('t'):
+            rdef['t'] = str(request.GET.get('t'))
+        if request.POST.get('imageId'):
+            rdef['imageId'] = int(request.POST.get('imageId'))
         request.session.modified = True
         request.session['rdef'] = rdef
         # remove any previous rdef we may have via 'fromId'
@@ -1634,43 +1639,47 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
             image._re.setDefaultT(long(rdef['t'])-1)
         image.saveDefaults()
 
-    originalSettings = None
-    fromImage = None
-    if fromid is None:
-        # if we have rdef, save to source image, then use that image as 'fromId', then revert.
-        if request.session.get('rdef') is not None and len(toids) > 0:
-            rdef = request.session.get('rdef')
-            fromImage = conn.getObject("Image", rdef['imageId'])
-            if fromImage is not None:
-                # copy orig settings
-                originalSettings = getRenderingSettings(fromImage)
-                applyRenderingSettings(fromImage, rdef)
-                fromid = fromImage.getId()
 
-    # If we have both, apply settings...
-    try:
-        fromid = long(fromid)
-        toids = map(lambda x: long(x), toids)
-    except TypeError:
-        fromid = None
-    except ValueError:
-        fromid = None
-    if fromid is not None and len(toids) > 0:
-        fromimg = conn.getObject("Image", fromid)
-        userid = fromimg.getOwner().getId()
-        json_data = conn.applySettingsToSet(fromid, to_type, toids)
-        if json_data and True in json_data:
-            for iid in json_data[True]:
-                img = conn.getObject("Image", iid)
-                img is not None and webgateway_cache.invalidateObject(server_id, userid, img)
+    if request.method == "POST":
+        originalSettings = None
+        fromImage = None
+        if fromid is None:
+            # if we have rdef, save to source image, then use that image as 'fromId', then revert.
+            if request.session.get('rdef') is not None and len(toids) > 0:
+                rdef = request.session.get('rdef')
+                fromImage = conn.getObject("Image", rdef['imageId'])
+                if fromImage is not None:
+                    # copy orig settings
+                    originalSettings = getRenderingSettings(fromImage)
+                    applyRenderingSettings(fromImage, rdef)
+                    fromid = fromImage.getId()
 
-    # finally - if we temporarily saved rdef to original image, revert
-    # if we're sure that from-image is not in the target set (Dataset etc)
-    if to_type == "Image" and fromid not in toids:
-        if originalSettings is not None and fromImage is not None:
-            applyRenderingSettings(fromImage, originalSettings)
-    return json_data
+        # If we have both, apply settings...
+        try:
+            fromid = long(fromid)
+            toids = map(lambda x: long(x), toids)
+        except TypeError:
+            fromid = None
+        except ValueError:
+            fromid = None
+        if fromid is not None and len(toids) > 0:
+            fromimg = conn.getObject("Image", fromid)
+            userid = fromimg.getOwner().getId()
+            json_data = conn.applySettingsToSet(fromid, to_type, toids)
+            if json_data and True in json_data:
+                for iid in json_data[True]:
+                    img = conn.getObject("Image", iid)
+                    img is not None and webgateway_cache.invalidateObject(server_id, userid, img)
 
+        # finally - if we temporarily saved rdef to original image, revert
+        # if we're sure that from-image is not in the target set (Dataset etc)
+        if to_type == "Image" and fromid not in toids:
+            if originalSettings is not None and fromImage is not None:
+                applyRenderingSettings(fromImage, originalSettings)
+        return json_data
+
+    else:
+        return HttpResponseNotAllowed(["POST"])
 
 @login_required()
 @jsonp
