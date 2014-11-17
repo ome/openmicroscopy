@@ -24,22 +24,10 @@ Multiple inheritance class that can be re-used by all of
 the unit implementations.
 """
 
-from omero.rtypes import unwrap
-
 
 class UnitBase(object):
 
-    def _base_unit(self, u):
-        if u is not None:
-            if u.isLoaded():
-                u = unwrap(u.getValue())
-            else:
-                u = "(%s:%s)" % (u.__class__.__name__,
-                                 u.id.val)
-        return u
-
     def _base_string(self, v, u):
-        print v
         if v is not None:
-            return "%s %s" % (v, self._base_unit(u))
+            return "%s %s" % (v, str(u))
         return ""
