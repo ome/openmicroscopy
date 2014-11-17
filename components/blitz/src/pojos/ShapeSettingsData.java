@@ -221,6 +221,21 @@ public class ShapeSettingsData
 		if (value == null) return 1.0;
 		return new LengthI(value, UnitsFactory.Shape_StrokeWidth).getValue();
 	}
+	
+	/**
+	 * Returns the stroke's width (or 1 px if it's not set or <= 0)
+	 * 
+	 * @return See above.
+	 */
+	public Length getStrokeWidthAsLength()
+	{
+		Shape shape = (Shape) asIObject();
+		Length value = shape.getStrokeWidth();
+		if (value == null || value.getValue()<=0) 
+			return UnitsFactory.makeLength(1, UNITS.PIXEL);
+		else
+			return value;
+	}
 
 	/**
 	 * Set the stroke width.
@@ -234,6 +249,20 @@ public class ShapeSettingsData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		shape.setStrokeWidth(new LengthI(strokeWidth, UnitsFactory.Shape_StrokeWidth));
+		setDirty(true);
+	}
+	
+	/**
+	 * Set the stroke width.
+	 * 
+	 * @param strokeWidth See above.
+	 */
+	public void setStrokeWidth(Length strokeWidth)
+	{
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setStrokeWidth(strokeWidth);
 		setDirty(true);
 	}
 	
@@ -377,6 +406,23 @@ public class ShapeSettingsData
 		if (size != null) return convertLength(size, UNITS.PT).getValue();
 		return DEFAULT_FONT_SIZE;
 	}
+	
+	/**
+	 * Returns the stroke.
+	 * 
+	 * @return See above.
+	 */
+	public Length getFontSizeAsLength()
+	{
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		Length size = shape.getFontSize();
+		if (size != null) 
+			return size;
+		else 
+			return UnitsFactory.makeLength(DEFAULT_FONT_SIZE, UNITS.PT);
+	}
 
     /**
 	 * Set the size of the font.
@@ -389,6 +435,21 @@ public class ShapeSettingsData
 			throw new IllegalArgumentException("No shape specified.");
 		if (fontSize <= 0) fontSize = DEFAULT_FONT_SIZE;
 		shape.setFontSize(makeLength(fontSize, UNITS.PT));
+		setDirty(true);
+	}
+	
+	/**
+	 * Set the size of the font.
+	 */
+	public void setFontSize(Length fontSize)
+	{
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		if (fontSize ==null) 
+			fontSize = makeLength(DEFAULT_FONT_SIZE, UNITS.PT);
+		else
+			shape.setFontSize(fontSize);
 		setDirty(true);
 	}
 	

@@ -32,6 +32,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeMap;
 
+import ome.formats.model.UnitsFactory;
+
+import ome.units.UNITS;
+
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.geom.BezierPath;
@@ -53,6 +57,7 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.EllipseData;
 import pojos.ImageData;
 import pojos.LineData;
@@ -523,7 +528,7 @@ class OutputServerStrategy
 					MeasurementAttributes.STROKE_COLOR.get(fig));
 		if (MeasurementAttributes.STROKE_WIDTH.get(fig) != null)
 			settings.setStrokeWidth(
-					MeasurementAttributes.STROKE_WIDTH.get(fig));
+					UnitsFactory.makeLength(MeasurementAttributes.STROKE_WIDTH.get(fig), UNITS.PIXEL));
 		if (MeasurementAttributes.FONT_FACE.get(fig) != null) {
 			settings.setFontFamily(UIUtilities.convertFont(
 					MeasurementAttributes.FONT_FACE.get(fig).getName()));
@@ -531,9 +536,9 @@ class OutputServerStrategy
 			settings.setFontFamily(ShapeSettingsData.DEFAULT_FONT_FAMILY);
 		if (MeasurementAttributes.FONT_SIZE.get(fig) != null)
 			settings.setFontSize(
-					MeasurementAttributes.FONT_SIZE.get(fig).intValue());
+					UnitsFactory.makeLength(MeasurementAttributes.FONT_SIZE.get(fig), UNITS.PT));
 		else
-			settings.setFontSize(ShapeSettingsData.DEFAULT_FONT_SIZE);
+			settings.setFontSize(UnitsFactory.makeLength(ShapeSettingsData.DEFAULT_FONT_SIZE, UNITS.PT));
 		bold = MeasurementAttributes.FONT_BOLD.get(fig);
 		italic = MeasurementAttributes.FONT_ITALIC.get(fig);
 		if (bold != null) {
