@@ -6,6 +6,11 @@
  */
 package integration.delete;
 
+import static omero.rtypes.rbool;
+import static omero.rtypes.rstring;
+import integration.AbstractServerTest;
+import integration.DeleteServiceTest;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -17,8 +22,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import integration.AbstractServerTest;
-import integration.DeleteServiceTest;
 import ome.parameters.Parameters;
 import omero.RLong;
 import omero.RType;
@@ -57,7 +60,6 @@ import omero.sys.ParametersI;
 import org.apache.commons.collections.CollectionUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
@@ -74,7 +76,7 @@ import com.google.common.collect.Multimap;
 @Test(groups = "ticket:2615")
 public class HierarchyDeleteTest extends AbstractServerTest {
 
-    private final static omero.RString t3031 = omero.rtypes.rstring("#3031");
+    private final static omero.RString t3031 = rstring("#3031");
 
     /**
      * Test to delete a dataset containing an image also contained in another
@@ -288,7 +290,8 @@ public class HierarchyDeleteTest extends AbstractServerTest {
 
         final String normalGroupName = UUID.randomUUID().toString();
         ExperimenterGroup normalGroup = new ExperimenterGroupI();
-        normalGroup.setName(omero.rtypes.rstring(normalGroupName));
+        normalGroup.setName(rstring(normalGroupName));
+        normalGroup.setLdap(rbool(false));
         normalGroup = rootAdminSvc.getGroup(rootAdminSvc.createGroup(normalGroup));
 
         /* Create a new user in that group. */

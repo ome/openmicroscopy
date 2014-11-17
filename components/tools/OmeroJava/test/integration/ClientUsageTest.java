@@ -6,6 +6,7 @@
  */
 package integration;
 
+import static omero.rtypes.rbool;
 import static omero.rtypes.rstring;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
@@ -45,12 +46,13 @@ public class ClientUsageTest extends AbstractServerTest {
         IAdminPrx svc = root.getSession().getAdminService();
         String uuid = UUID.randomUUID().toString();
         Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid));
-        e.setFirstName(omero.rtypes.rstring("integration"));
-        e.setLastName(omero.rtypes.rstring("tester"));
-        e.setLdap(omero.rtypes.rbool(false));
+        e.setOmeName(rstring(uuid));
+        e.setFirstName(rstring("integration"));
+        e.setLastName(rstring("tester"));
+        e.setLdap(rbool(false));
         ExperimenterGroup g = new ExperimenterGroupI();
-        g.setName(omero.rtypes.rstring(uuid));
+        g.setName(rstring(uuid));
+        g.setLdap(rbool(false));
         g.getDetails().setPermissions(new PermissionsI("rw----"));
         g = svc.getGroup(svc.createGroup(g));
         long uid = newUserInGroupWithPassword(e, g, uuid);
@@ -70,12 +72,13 @@ public class ClientUsageTest extends AbstractServerTest {
         IAdminPrx svc = root.getSession().getAdminService();
         String uuid = UUID.randomUUID().toString();
         Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid));
-        e.setFirstName(omero.rtypes.rstring("integration"));
-        e.setLastName(omero.rtypes.rstring("tester"));
-        e.setLdap(omero.rtypes.rbool(false));
+        e.setOmeName(rstring(uuid));
+        e.setFirstName(rstring("integration"));
+        e.setLastName(rstring("tester"));
+        e.setLdap(rbool(false));
         ExperimenterGroup g = new ExperimenterGroupI();
-        g.setName(omero.rtypes.rstring(uuid));
+        g.setName(rstring(uuid));
+        g.setLdap(rbool(false));
         g.getDetails().setPermissions(new PermissionsI("rw----"));
         g = svc.getGroup(svc.createGroup(g));
         long uid = newUserInGroupWithPassword(e, g, uuid);
@@ -102,12 +105,13 @@ public class ClientUsageTest extends AbstractServerTest {
         IAdminPrx svc = root.getSession().getAdminService();
         String uuid = UUID.randomUUID().toString();
         Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid));
-        e.setFirstName(omero.rtypes.rstring("integration"));
-        e.setLastName(omero.rtypes.rstring("tester"));
-        e.setLdap(omero.rtypes.rbool(false));
+        e.setOmeName(rstring(uuid));
+        e.setFirstName(rstring("integration"));
+        e.setLastName(rstring("tester"));
+        e.setLdap(rbool(false));
         ExperimenterGroup g = new ExperimenterGroupI();
-        g.setName(omero.rtypes.rstring(uuid));
+        g.setName(rstring(uuid));
+        g.setLdap(rbool(false));
         g.getDetails().setPermissions(new PermissionsI("rw----"));
         g = svc.getGroup(svc.createGroup(g));
         long uid = newUserInGroupWithPassword(e, g, uuid);

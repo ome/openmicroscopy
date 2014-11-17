@@ -1,46 +1,27 @@
 /*
- *   $Id$
- *
  *   Copyright 2007-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
 package ome.security.auth;
 
-import java.util.Set;
-
 import javax.naming.directory.SearchControls;
 
 import ome.model.meta.Experimenter;
 
-import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.DirContextAdapter;
 
 /**
  * Specialized OME Experimenter context mapper.
  */
-public class PersonContextMapper implements ContextMapper {
-
-    private static final String LDAP_DN = "LDAP_DN";
-
-    private static final String LDAP_ATTR = "LDAP_ATTR";
-
-    private static final String LDAP_PROPS = "LDAP_PROPS";
-
-    private final LdapConfig cfg;
-
-    private final String base;
-
-    private final String attribute;
+public class PersonContextMapper extends OmeroModelContextMapper {
 
     public PersonContextMapper(LdapConfig cfg, String base) {
         this(cfg, base, null);
     }
 
     public PersonContextMapper(LdapConfig cfg, String base, String attribute) {
-        this.cfg = cfg;
-        this.base = base;
-        this.attribute = attribute;
+        super(cfg, base, attribute);
     }
 
     public String get(String attribute, DirContextAdapter context) {
@@ -51,6 +32,7 @@ public class PersonContextMapper implements ContextMapper {
         return null;
     }
 
+    @Override
     public Object mapFromContext(Object obj) {
         DirContextAdapter ctx = (DirContextAdapter) obj;
 
@@ -70,20 +52,6 @@ public class PersonContextMapper implements ContextMapper {
 
         person.putAt(LDAP_PROPS, new AttributeSet(ctx));
         return person;
-    }
-
-    public String getDn(Experimenter person) {
-        return (String) person.retrieve(LDAP_DN);
-    }
-
-    @SuppressWarnings("unchecked")
-    public Set<String> getAttribute(Experimenter person) {
-        return (Set<String>) person.retrieve(LDAP_ATTR);
-    }
-
-    @SuppressWarnings("unchecked")
-    public AttributeSet getAttributeSet(Experimenter person) {
-        return (AttributeSet) person.retrieve(LDAP_PROPS);
     }
 
     public SearchControls getControls() {
@@ -108,6 +76,4 @@ public class PersonContextMapper implements ContextMapper {
         controls.setReturningAttributes(attrs);
         return controls;
     }
-
-
 }

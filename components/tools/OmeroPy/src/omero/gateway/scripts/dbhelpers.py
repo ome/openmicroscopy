@@ -156,7 +156,7 @@ class UserEntry (object):
             client._waitOnCmd(client.chmodGroup(g.id.val, groupperms))
 
     @staticmethod
-    def _getOrCreateGroup(client, groupname, groupperms=None):
+    def _getOrCreateGroup(client, groupname, ldap=False, groupperms=None):
 
         # Default on class is None
         if groupperms is None:
@@ -168,6 +168,7 @@ class UserEntry (object):
         except:
             g = omero.model.ExperimenterGroupI()
             g.setName(omero.gateway.omero_type(groupname))
+            g.setLdap(omero.gateway.omero_type(ldap))
             p = omero.model.PermissionsI(groupperms)
             g.details.setPermissions(p)
             a.createGroup(g)

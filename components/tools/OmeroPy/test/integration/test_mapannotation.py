@@ -29,7 +29,7 @@ import pytest
 import omero
 
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
-from omero.rtypes import rstring
+from omero.rtypes import rbool, rstring
 from omero.rtypes import unwrap
 
 
@@ -41,6 +41,7 @@ class TestMapAnnotation(lib.ITest):
         updateService = self.root.getSession().getUpdateService()
         group = ExperimenterGroupI()
         group.setName(rstring(uuid))
+        group.setLdap(rbool(False))
         group.setConfig(dict())
         group.getConfig()["language"] = rstring("python")
         group = updateService.saveAndReturnObject(group)

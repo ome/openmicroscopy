@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2007-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.server.itests.sec;
@@ -89,7 +89,7 @@ public class SessionManagerTest extends AbstractManagedContextTest {
         assertEquals("system", iAdmin.getEventContext().getCurrentGroupName());
 
         String uuid = uuid();
-        ExperimenterGroup newGroup = new ExperimenterGroup(uuid);
+        ExperimenterGroup newGroup = new ExperimenterGroup(uuid, false);
         long gid = iAdmin.createGroup(newGroup);
         iAdmin.addGroups(new Experimenter(0L, false), new ExperimenterGroup(
                 gid, false));

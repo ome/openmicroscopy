@@ -744,6 +744,7 @@
         id int8 not null,
         description text,
         permissions int8 not null,
+        ldap bool not null,
         name varchar(255) not null unique,
         version int4,
         external_id int8 unique,
