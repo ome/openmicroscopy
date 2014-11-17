@@ -154,7 +154,7 @@ omero::model::PixelsIPtr Fixture::pixels() {
 
     lc->setPhotometricInterpretation( pi );
 
-    UnitsLength mm = UnitsLength::MM;
+    UnitsLength mm = omero::model::enums::MM;
     LengthPtr mm1 = new LengthI();
     mm1->setUnit(mm);
     mm1->setValue(1.0);
