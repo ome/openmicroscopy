@@ -25,16 +25,14 @@ import static omero.rtypes.rstring;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import ome.formats.importer.transfers.FileTransfer;
 import ome.formats.importer.transfers.UploadFileTransfer;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.FsFile;
-
-import omero.RString;
+import omero.api.NamedValue;
 import omero.constants.namespaces.NSAUTOCLOSE;
 import omero.constants.namespaces.NSFILETRANSFER;
 import omero.grid.ImportSettings;
@@ -347,8 +345,8 @@ public class ImportContainer
         }
 
         // Fill BF info
-        final Map<String, RString> clientVersionInfo = new HashMap<String, RString>();
-        clientVersionInfo.put(ImportConfig.VersionInfo.BIO_FORMATS_READER.key, rstring(reader));
+        final List<NamedValue> clientVersionInfo = new ArrayList<NamedValue>();
+        clientVersionInfo.add(new NamedValue(ImportConfig.VersionInfo.BIO_FORMATS_READER.key, rstring(reader)));
         config.fillVersionInfo(clientVersionInfo);
         UploadJob upload = new UploadJobI();
         upload.setVersionInfo(clientVersionInfo);

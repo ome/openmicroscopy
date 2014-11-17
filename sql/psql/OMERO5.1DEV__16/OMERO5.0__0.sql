@@ -1653,13 +1653,105 @@ ALTER TABLE experimentergroup ADD COLUMN ldap BOOL NOT NULL DEFAULT false;
 
 UPDATE experimentergroup SET ldap = false;
 
--- 5.1DEV__15
+-- 5.1DEV__15: fix missing nonnegative_float domain
 
 CREATE DOMAIN nonnegative_float AS DOUBLE PRECISION CHECK (VALUE >= 0);
 
 ALTER TABLE transmittancerange
     ALTER COLUMN cutintolerance TYPE nonnegative_float,
     ALTER COLUMN cutouttolerance TYPE nonnegative_float;
+
+-- 5.1DEV__16: ordered maps
+
+ALTER TABLE annotation_mapvalue
+	DROP CONSTRAINT annotation_mapvalue_pkey;
+
+ALTER TABLE experimentergroup_config
+	DROP CONSTRAINT experimentergroup_config_pkey;
+
+ALTER TABLE genericexcitationsource_map
+	DROP CONSTRAINT genericexcitationsource_map_pkey;
+
+ALTER TABLE imagingenvironment_map
+	DROP CONSTRAINT imagingenvironment_map_pkey;
+
+ALTER TABLE metadataimportjob_versioninfo
+	DROP CONSTRAINT metadataimportjob_versioninfo_pkey;
+
+ALTER TABLE uploadjob_versioninfo
+	DROP CONSTRAINT uploadjob_versioninfo_pkey;
+
+ALTER TABLE annotation_mapvalue
+	RENAME COLUMN mapvalue_key TO name;
+
+ALTER TABLE annotation_mapvalue
+	RENAME COLUMN mapvalue TO "value";
+
+ALTER TABLE annotation_mapvalue
+	ADD COLUMN index integer NOT NULL;
+
+ALTER TABLE experimentergroup_config
+	RENAME COLUMN config_key to name;
+
+ALTER TABLE experimentergroup_config
+	RENAME COLUMN config TO "value";
+
+ALTER TABLE experimentergroup_config
+	ADD COLUMN index integer NOT NULL;
+
+ALTER TABLE genericexcitationsource_map
+	RENAME COLUMN map_key TO name;
+
+ALTER TABLE genericexcitationsource_map
+	RENAME COLUMN "map" TO "value";
+
+ALTER TABLE genericexcitationsource_map
+	ADD COLUMN index integer NOT NULL;
+
+ALTER TABLE imagingenvironment_map
+	RENAME COLUMN map_key TO name;
+
+ALTER TABLE imagingenvironment_map
+	RENAME COLUMN "map" TO "value";
+
+ALTER TABLE imagingenvironment_map
+	ADD COLUMN index integer NOT NULL;
+
+ALTER TABLE metadataimportjob_versioninfo
+	RENAME COLUMN versioninfo_key TO name;
+
+ALTER TABLE metadataimportjob_versioninfo
+	RENAME COLUMN versioninfo TO "value";
+
+ALTER TABLE metadataimportjob_versioninfo
+	ADD COLUMN index integer NOT NULL;
+
+ALTER TABLE uploadjob_versioninfo
+	RENAME COLUMN versioninfo_key TO name;
+
+ALTER TABLE uploadjob_versioninfo
+	RENAME COLUMN versioninfo TO "value";
+
+ALTER TABLE uploadjob_versioninfo
+	ADD COLUMN index integer NOT NULL;
+
+ALTER TABLE annotation_mapvalue
+	ADD CONSTRAINT annotation_mapvalue_pkey PRIMARY KEY (annotation_id, index);
+
+ALTER TABLE experimentergroup_config
+	ADD CONSTRAINT experimentergroup_config_pkey PRIMARY KEY (experimentergroup_id, index);
+
+ALTER TABLE genericexcitationsource_map
+	ADD CONSTRAINT genericexcitationsource_map_pkey PRIMARY KEY (genericexcitationsource_id, index);
+
+ALTER TABLE imagingenvironment_map
+	ADD CONSTRAINT imagingenvironment_map_pkey PRIMARY KEY (imagingenvironment_id, index);
+
+ALTER TABLE metadataimportjob_versioninfo
+	ADD CONSTRAINT metadataimportjob_versioninfo_pkey PRIMARY KEY (metadataimportjob_id, index);
+
+ALTER TABLE uploadjob_versioninfo
+	ADD CONSTRAINT uploadjob_versioninfo_pkey PRIMARY KEY (uploadjob_id, index);
 
 --
 -- FINISHED

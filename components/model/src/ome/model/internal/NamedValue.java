@@ -1,0 +1,105 @@
+/*
+ * Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+ * All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+package ome.model.internal;
+
+import java.io.Serializable;
+
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+
+import org.hibernate.annotations.Parameter;
+import org.hibernate.annotations.Type;
+
+/**
+ * class to store a single value in an ordered list.
+ */
+@Embeddable
+public class NamedValue<T> implements Serializable, Primitive {
+
+    private static final long serialVersionUID = 1L;
+
+    // ~ Constructors
+    // =========================================================================
+
+    /**
+     * no-arg constructor to keep Hibernate happy.
+     */
+    @Deprecated
+    public NamedValue() {
+        // no-op
+    }
+
+    public NamedValue(String name, T value) {
+        this.name = name;
+        this.value = value;
+    }
+
+    // ~ Fields
+    // =========================================================================
+
+    /**
+     * Key of a map-like entry.
+     */
+    private String name = null;
+
+    /**
+     * Value of a map-like entry.
+     */
+    private T value = null;
+
+    // ~ Property accessors : used primarily by Hibernate
+    // =========================================================================
+
+    @Column(name = "name", nullable = false)
+    public String getName() {
+        return this.name;
+    }
+
+    @Column(name = "value", nullable = false)
+    public T getValue() {
+        return this.value;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setValue(T value) {
+        this.value = value;
+    }
+
+    // ~ Java overrides
+    // =========================================================================
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + ((value == null) ? 0 : value.hashCode());
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "NamedValue<" + name+ ", " + value+ ">";
+    }
+
+}

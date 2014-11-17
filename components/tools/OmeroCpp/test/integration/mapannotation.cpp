@@ -29,8 +29,18 @@ using namespace omero::sys;
 using namespace omero::rtypes;
 using namespace omero::util;
 
+
+static void assertFooBar(const ExperimenterGroupPtr& group)
+{
+    NamedValue nv = group->getConfig()[0];
+    string bar = omero::RStringPtr::dynamicCast(nv.value)->getValue();
+    ASSERT_EQ("foo", nv.name);
+    ASSERT_EQ("bar", bar);
+}
+
 TEST(MapAnnotationTest, mapStringField)
 {
+
     Fixture f;
     f.login();
 
@@ -41,16 +51,19 @@ TEST(MapAnnotationTest, mapStringField)
     string uuid = generate_uuid();
     ExperimenterGroupPtr group = new ExperimenterGroupI();
     ParametersIPtr params = new ParametersI();
-    StringRStringMap map = StringRStringMap();
+    NamedValueList map;
+    NamedValue nv;
+    nv.name = "foo";
+    nv.value = rstring("bar");
     group->setName(rstring(uuid));
-    map["foo"] = rstring("bar");
+    map.push_back(nv);
     // Setting must happen after map updated, since a copy is made
     group->setConfig(map);
-    ASSERT_EQ("bar", group->getConfig()["foo"]->getValue());
+    assertFooBar(group);
 
     group = ExperimenterGroupPtr::dynamicCast(u->saveAndReturnObject(group));
     params->addId(group->getId()->getValue());
     group = ExperimenterGroupPtr::dynamicCast(q->findByQuery(
             "select g from ExperimenterGroup g left outer join fetch g.config where g.id = :id", params));
-    ASSERT_EQ("bar", group->getConfig()["foo"]->getValue());
+    assertFooBar(group);
 }

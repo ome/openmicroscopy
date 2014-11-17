@@ -31,6 +31,7 @@ import omero
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero.rtypes import rbool, rstring
 from omero.rtypes import unwrap
+from omero.api import NamedValue as NV
 
 
 class TestMapAnnotation(lib.ITest):
@@ -42,20 +43,19 @@ class TestMapAnnotation(lib.ITest):
         group = ExperimenterGroupI()
         group.setName(rstring(uuid))
         group.setLdap(rbool(False))
-        group.setConfig(dict())
-        group.getConfig()["language"] = rstring("python")
+        group.setConfig([NV("language", rstring("python"))])
         group = updateService.saveAndReturnObject(group)
         group = queryService.findByQuery(
             ("select g from ExperimenterGroup g join fetch g.config "
              "where g.id = %s" % group.getId().getValue()), None)
-        assert "python" == group.getConfig().get("language").val
+        assert "language" == group.getConfig()[0].name
+        assert "python" == group.getConfig()[0].value.val
 
     @pytest.mark.parametrize("data", (
-        ({"a": rstring("")}, {"a": ""}),
-        ({"a": None}, {}),
-        ({"a": rstring("b")}, {"a": "b"}),
+        ([NV("a", rstring(""))], [NV("a", rstring(""))]),
+        ([NV("a", rstring("b"))], [NV("a", rstring("b"))]),
     ))
-    def testGroupConfig(self, data):
+    def testGroupConfigA(self, data):
 
         save_value, expect_value = data
 
@@ -80,8 +80,58 @@ class TestMapAnnotation(lib.ITest):
 
         assert expect_value == config
 
-        print queryService.projection(
+        name, value = unwrap(queryService.projection(
             """
-            select m from ExperimenterGroup g
-            left outer join g.config m where index(m) = 'a'
-            """, None)
+            select m.name, m.value from ExperimenterGroup g
+            left outer join g.config m where m.name = 'a'
+            and g.id = :id
+            """, omero.sys.ParametersI().addId(gid))[0])
+
+        assert name == expect_value[0].name
+        assert value == expect_value[0].value.val
+
+    def testGroupConfigEdit(self):
+
+        _ = rstring
+
+        before = [
+            NV("a", _("b")),
+            NV("c", _("d")),
+            NV("e", _("f"))
+        ]
+
+        remove_one = [
+            NV("a", _("b")),
+            NV("e", _("f"))
+        ]
+
+        swapped = [
+            NV("e", _("f")),
+            NV("a", _("b"))
+        ]
+
+        edited  = [
+            NV("e", _("f")),
+            NV("a", _("x"))
+        ]
+
+        root_update = self.root.sf.getUpdateService()
+
+        group = self.new_group()
+        group.setConfig(before)
+        group = root_update.saveAndReturnObject(group)
+        assert before == group.getConfig()
+
+        del group.getConfig()[1]
+        group = root_update.saveAndReturnObject(group)
+        assert remove_one == group.getConfig()
+
+        old = list(group.getConfig())
+        assert old == remove_one
+        group.setConfig([old[1], old[0]])
+        group = root_update.saveAndReturnObject(group)
+        assert swapped == group.getConfig()
+
+        group.getConfig()[1].value = rstring("x")
+        group = root_update.saveAndReturnObject(group)
+        assert edited == group.getConfig()

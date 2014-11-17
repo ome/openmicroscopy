@@ -17,16 +17,11 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package ome.model.units;
-
-import ome.model.internal.Primitive;
+package ome.model.internal;
 
 /**
- * marker interface for all of ome.model.unit types.
+ * marker interface for all non-filterable types.
  */
-public interface Unit extends Primitive {
-
-    public double getValue();
-    public void setValue(double d);
+public interface Primitive {
 
 }

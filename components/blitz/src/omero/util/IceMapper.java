@@ -54,6 +54,7 @@ import omero.RTime;
 import omero.RType;
 import omero.ServerError;
 import omero.rtypes.Conversion;
+import omero.api.NamedValue;
 import omero.model.PermissionsI;
 import omero.romio.BlueBand;
 import omero.romio.GreenBand;
@@ -723,6 +724,32 @@ public class IceMapper extends ome.util.ModelMapper implements
         return filter;
     }
 
+    public static List<NamedValue> convertNamedValueList(List<ome.model.internal.NamedValue<String>> map) {
+        if (map == null) {
+            return null;
+        }
+        final List<NamedValue> nvl = new ArrayList<NamedValue>(map.size());
+        for (final ome.model.internal.NamedValue<String> nv : map) {
+            final String name = nv.getName();
+            final String value = nv.getValue();
+            nvl.add(new NamedValue(name, rstring(value)));
+        }
+        return nvl;
+    }
+
+    public static List<NamedValue> convertMapPairs(List<ome.xml.model.MapPair> map) {
+        if (map == null) {
+            return null;
+        }
+        final List<NamedValue> nvl = new ArrayList<NamedValue>(map.size());
+        for (final ome.xml.model.MapPair nv : map) {
+            final String name = nv.getName();
+            final String value = nv.getValue();
+            nvl.add(new NamedValue(name, rstring(value)));
+        }
+        return nvl;
+    }
+
     /**
      * Convert a String&rarr;String map's values to {@link RString}s.
      * <code>null</code> values are dropped completely.
@@ -994,6 +1021,21 @@ public class IceMapper extends ome.util.ModelMapper implements
             }
         }
         return map;
+    }
+
+    public static List<ome.model.internal.NamedValue<String>> reverseNamedList(List<NamedValue> map) {
+        if (map == null) {
+            return null;
+        }
+        final List<ome.model.internal.NamedValue<String>> nvl = new ArrayList<ome.model.internal.NamedValue<String>>(map.size());
+        for (final NamedValue nv : map) {
+            final String name = nv.name;
+            // FIXME: once we start supporting other types, this will need
+            // to be a generic method with more smarts.
+            final String value = (String) omero.rtypes.unwrap(nv.value);
+            nvl.add(new ome.model.internal.NamedValue(name, value));
+        }
+        return nvl;
     }
 
     public void store(Object source, Object target) {

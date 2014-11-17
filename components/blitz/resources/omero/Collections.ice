@@ -156,6 +156,15 @@ module omero {
         dictionary<long,   AnnotationList>             LongAnnotationListMap;
         dictionary<long,   BooleanLongListMap>         IdBooleanLongListMapMap;
 
+        // Named-Value List
+
+        struct NamedValue {
+            string name;
+            omero::RType value;
+        };
+        ["java:type:java.util.ArrayList<omero.api.NamedValue>:java.util.List<omero.api.NamedValue>"]
+        sequence<NamedValue> NamedValueList;
+
     };
 
 };

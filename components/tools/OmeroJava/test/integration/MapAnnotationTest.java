@@ -24,6 +24,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -31,6 +32,7 @@ import java.util.UUID;
 import omero.ServerError;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
+import omero.api.NamedValue;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.MapAnnotation;
@@ -55,15 +57,16 @@ public class MapAnnotationTest extends AbstractServerTest {
         IQueryPrx queryService = root.getSession().getQueryService();
         IUpdatePrx updateService = root.getSession().getUpdateService();
         ExperimenterGroup group = new ExperimenterGroupI();
-        group.setName(rstring(uuid));
+        group.setName(omero.rtypes.rstring(uuid));
         group.setLdap(rbool(false));
-        group.setConfig(new HashMap<String, omero.RString>());
-        group.getConfig().put("foo", rstring("bar"));
+        group.setConfig(new ArrayList<NamedValue>());
+        group.getConfig().add(new NamedValue("foo", omero.rtypes.rstring("bar")));
         group = (ExperimenterGroup) updateService.saveAndReturnObject(group);
         group = (ExperimenterGroup) queryService.findByQuery(
                 "select g from ExperimenterGroup g join fetch g.config " +
                 "where g.id = " + group.getId().getValue(), null);
-        assertEquals("bar", group.getConfig().get("foo").getValue());
+        assertEquals("name", group.getConfig().get(0).name);
+        assertEquals("bar", group.getConfig().get(0).value);
     }
 
     /**
@@ -76,15 +79,16 @@ public class MapAnnotationTest extends AbstractServerTest {
         IQueryPrx queryService = root.getSession().getQueryService();
         IUpdatePrx updateService = root.getSession().getUpdateService();
         ExperimenterGroup group = new ExperimenterGroupI();
-        group.setName(rstring(uuid));
+        group.setName(omero.rtypes.rstring(uuid));
         group.setLdap(rbool(false));
-        group.setConfig(new HashMap<String, omero.RString>());
-        group.getConfig().put("foo", rstring(""));
+        group.setConfig(new ArrayList<NamedValue>());
+        group.getConfig().add(new NamedValue("foo", omero.rtypes.rstring("")));
         group = (ExperimenterGroup) updateService.saveAndReturnObject(group);
         group = (ExperimenterGroup) queryService.findByQuery(
                 "select g from ExperimenterGroup g join fetch g.config " +
                 "where g.id = " + group.getId().getValue(), null);
-        assertEquals("", group.getConfig().get("foo").getValue());
+        assertEquals("foo", group.getConfig().get(0).name);
+        assertEquals("", group.getConfig().get(0).value);
     }
 
     /**
@@ -97,16 +101,17 @@ public class MapAnnotationTest extends AbstractServerTest {
         IQueryPrx queryService = root.getSession().getQueryService();
         IUpdatePrx updateService = root.getSession().getUpdateService();
         ExperimenterGroup group = new ExperimenterGroupI();
-        group.setName(rstring(uuid));
+        group.setName(omero.rtypes.rstring(uuid));
         group.setLdap(rbool(false));
-        group.setConfig(new HashMap<String, omero.RString>());
-        group.getConfig().put("foo", rstring(""));
-        group.getConfig().put("bar", null);
+        group.setConfig(new ArrayList<NamedValue>());
+        group.getConfig().add(new NamedValue("foo", omero.rtypes.rstring("")));
+        group.getConfig().add(new NamedValue("bar", null));
         group = (ExperimenterGroup) updateService.saveAndReturnObject(group);
         group = (ExperimenterGroup) queryService.findByQuery(
                 "select g from ExperimenterGroup g join fetch g.config " +
                 "where g.id = " + group.getId().getValue(), null);
-        assertTrue(group.getConfig().containsKey("foo"));
-        assertFalse(group.getConfig().containsKey("bar"));
+        assertEquals(group.getConfig().size(), 1);
+        assertEquals(group.getConfig().get(0).name, "foo");
+        assertEquals(group.getConfig().get(0).value, "");
     }
 }

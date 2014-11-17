@@ -31,9 +31,10 @@
 
     create table annotation_mapValue (
         annotation_id int8 not null,
-        mapValue varchar(255) not null,
-        mapValue_KEY varchar(255),
-        primary key (annotation_id, mapValue_KEY)
+        name varchar(255) not null,
+        value varchar(255) not null,
+        index int4 not null,
+        primary key (annotation_id, index)
     );;
 
     create table annotationannotationlink (
@@ -753,9 +754,10 @@
 
     create table experimentergroup_config (
         experimentergroup_id int8 not null,
-        config varchar(255) not null,
-        config_KEY varchar(255),
-        primary key (experimentergroup_id, config_KEY)
+        name varchar(255) not null,
+        value varchar(255) not null,
+        index int4 not null,
+        primary key (experimentergroup_id, index)
     );;
 
     create table experimentergroupannotationlink (
@@ -985,9 +987,10 @@
 
     create table genericexcitationsource_map (
         genericexcitationsource_id int8 not null,
-        map varchar(255) not null,
-        map_KEY varchar(255),
-        primary key (genericexcitationsource_id, map_KEY)
+        name varchar(255) not null,
+        value varchar(255) not null,
+        index int4 not null,
+        primary key (genericexcitationsource_id, index)
     );;
 
     create table groupexperimentermap (
@@ -1071,9 +1074,10 @@
 
     create table imagingenvironment_map (
         imagingenvironment_id int8 not null,
-        map varchar(255) not null,
-        map_KEY varchar(255),
-        primary key (imagingenvironment_id, map_KEY)
+        name varchar(255) not null,
+        value varchar(255) not null,
+        index int4 not null,
+        primary key (imagingenvironment_id, index)
     );;
 
     create table immersion (
@@ -1380,9 +1384,10 @@
 
     create table metadataimportjob_versionInfo (
         metadataimportjob_id int8 not null,
-        versionInfo varchar(255) not null,
-        versionInfo_KEY varchar(255),
-        primary key (metadataimportjob_id, versionInfo_KEY)
+        name varchar(255) not null,
+        value varchar(255) not null,
+        index int4 not null,
+        primary key (metadataimportjob_id, index)
     );;
 
     create table microbeammanipulation (
@@ -2242,9 +2247,10 @@
 
     create table uploadjob_versionInfo (
         uploadjob_id int8 not null,
-        versionInfo varchar(255) not null,
-        versionInfo_KEY varchar(255),
-        primary key (uploadjob_id, versionInfo_KEY)
+        name varchar(255) not null,
+        value varchar(255) not null,
+        index int4 not null,
+        primary key (uploadjob_id, index)
     );;
 
     create table well (

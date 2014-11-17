@@ -22,7 +22,7 @@ import com.google.common.collect.ImmutableMap;
 
 /**
  * represents the <b>definition</b> of a property within a SemanticType
- * 
+ *
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
@@ -170,7 +170,7 @@ public abstract class Property { // TODO need to define equality so that two
      * The {@link SemanticType} instance which this property points at
      */
     private SemanticType actualType;
-    
+
     /**
      * The {@link SemanticType} instance which is the target of this property
      * (for collections)
@@ -291,7 +291,7 @@ public abstract class Property { // TODO need to define equality so that two
         }
         return t;
     }
-    
+
     /**
      * Returns the actual type with no modification. {@link #getType()} is
      * probably poorly named, but changing it would require changing all the
@@ -843,9 +843,9 @@ class MapField extends Property {
     @Override
     public String getFieldType() {
         StringBuilder sb = new StringBuilder();
-        sb.append("java.util.Map<String, ");
+        sb.append("java.util.List<ome.model.internal.NamedValue<");
         sb.append(getType());
-        sb.append(">");
+        sb.append(">>");
         return sb.toString();
     }
 

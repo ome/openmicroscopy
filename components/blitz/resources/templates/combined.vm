@@ -1010,11 +1010,11 @@ Properties used throughout the accessor generation
 [$Ice]       omero::RTime ${property.name};
 
 #elseif( $property.class.name == "ome.dsl.MapField" )
-#set( $javaType = "java.util.Map<String, omero.RString>");
-#set( $iceType = "omero::api::StringRStringMap" )
+#set( $javaType = "java.util.List<omero.api.NamedValue>");
+#set( $iceType = "omero::api::NamedValueList" )
 #set( $cppType = "${iceType}" )
-#set( $copyMethod = "this.${fieldName} = omero.util.IceMapper.convertStringStringMap(source.get${PropertyName}());" );
-[$Ice]       omero::api::StringRStringMap ${property.name};
+#set( $copyMethod = "this.${fieldName} = omero.util.IceMapper.convertNamedValueList(source.get${PropertyName}());" );
+[$Ice]       omero::api::NamedValueList ${property.name};
 
 #elseif( $javaType.startsWith("java.lang.String")) ## for Event
 #set( $javaType = "omero.RString");
@@ -1152,6 +1152,8 @@ ticket:684 This is necessary to map back and forth from sets.
 [$jav]             target.set${PropertyName}( this.get${PropertyName}() == null ? null : java.util.Arrays.asList(this.get${PropertyName}() ));
 #elseif( $javaType.startsWith("java.util.Map"))
 [$jav]             target.set${PropertyName}( omero.util.IceMapper.reverseStringStringMap(this.get${PropertyName}() ));
+#elseif( $property.class.name == "ome.dsl.MapField" )
+[$jav]             target.set${PropertyName}( omero.util.IceMapper.reverseNamedList(this.get${PropertyName}() ));
 #else
 [$jav]             target.set${PropertyName}( this.get${PropertyName}() );
 #end
