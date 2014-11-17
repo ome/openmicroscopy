@@ -1501,7 +1501,7 @@ public class EditorUtil
             notSet.add(WORKING_DISTANCE);
         }
         else {
-        	f = UnitsFactory.convertLength(wd, UNITS.MM).getValue();
+        	f = UnitsFactory.convertLength(wd, UNITS.MICROM).getValue();
         }
         details.put(WORKING_DISTANCE, f);
         details.put(NOT_SET, notSet);
@@ -1598,7 +1598,7 @@ public class EditorUtil
             f = 0;
         }
         else {
-        	f = UnitsFactory.convertPressure(p, UNITS.HPA).getValue();
+        	f = UnitsFactory.convertPressure(p, UNITS.MBAR).getValue();
         }
         details.put(AIR_PRESSURE, f);
         f = data.getHumidity();
@@ -1650,21 +1650,21 @@ public class EditorUtil
         double f = 0;
         if (p == null) {
             notSet.add(POSITION_X);
-        } else f = UnitsFactory.convertLength(p, UNITS.MICROM).getValue();
+        } else f = UnitsFactory.convertLength(p, UNITS.REFERENCEFRAME).getValue();
         details.put(POSITION_X, f);
         
         p = data.getPositionYAsLength();
         f = 0;
         if (p == null) {
             notSet.add(POSITION_Y);
-        } else f = UnitsFactory.convertLength(p, UNITS.MICROM).getValue();
+        } else f = UnitsFactory.convertLength(p, UNITS.REFERENCEFRAME).getValue();
         details.put(POSITION_Y, f);
         
         p = data.getPositionZAsLength();
         f = 0;
         if (p == null) {
             notSet.add(POSITION_Z);
-        } else f = UnitsFactory.convertLength(p, UNITS.MICROM).getValue();
+        } else f = UnitsFactory.convertLength(p, UNITS.REFERENCEFRAME).getValue();
         details.put(POSITION_Z, f);
 
         details.put(NOT_SET, notSet);
@@ -1917,7 +1917,7 @@ public class EditorUtil
             f = 0;
         }
         else
-        	f = UnitsFactory.convertPower(p, UNITS.W).getValue();
+        	f = UnitsFactory.convertPower(p, UNITS.MW).getValue();
         details.put(POWER, f);
         s = data.getType();
         if (StringUtils.isBlank(s))
@@ -2134,7 +2134,7 @@ public class EditorUtil
         if (freq == null) {
             v = 0;
             notSet.add(READ_OUT_RATE);
-        } else v = UIUtilities.roundTwoDecimals(UnitsFactory.convertFrequency(freq, UNITS.HZ).getValue());
+        } else v = UIUtilities.roundTwoDecimals(UnitsFactory.convertFrequency(freq, UNITS.MHZ).getValue());
         details.put(READ_OUT_RATE, v);
         String s = data.getDetectorSettingsBinning();
         if (StringUtils.isBlank(s)) {

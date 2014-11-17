@@ -448,8 +448,7 @@ public class ShapeSettingsData
 			throw new IllegalArgumentException("No shape specified.");
 		if (fontSize ==null) 
 			fontSize = makeLength(DEFAULT_FONT_SIZE, UNITS.PT);
-		else
-			shape.setFontSize(fontSize);
+		shape.setFontSize(fontSize);
 		setDirty(true);
 	}
 	
