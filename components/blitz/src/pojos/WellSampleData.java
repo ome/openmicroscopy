@@ -29,6 +29,8 @@ package pojos;
 // Third-party libraries
 
 // Application-internal dependencies
+import ome.formats.model.UnitsFactory;
+import ome.units.UNITS;
 import omero.RDouble;
 import omero.RTime;
 import omero.model.Length;
@@ -111,12 +113,40 @@ public class WellSampleData extends DataObject {
      * 
      * @return See above.
      */
+    public Length getPositionXAsLength()
+    {
+    	Length value = asWellSample().getPosX();
+    	if (value == null) 
+    		return UnitsFactory.makeLength(0, UNITS.REFERENCEFRAME);
+    	else
+    		return value;
+    }	
+    
+    /**
+     * Returns the position X.
+     * 
+     * @return See above.
+     */
     @Deprecated
     public double getPositionX()
     {
     	Length value = asWellSample().getPosX();
     	if (value == null) return 0;
     	return value.getValue();
+    }
+    
+    /**
+     * Returns the position Y.
+     * 
+     * @return See above.
+     */
+    public Length getPositionYAsLength()
+    {
+    	Length value = asWellSample().getPosY();
+    	if (value == null)
+    		return UnitsFactory.makeLength(0, UNITS.REFERENCEFRAME);
+    	else
+    		return value;
     }
     
     /**

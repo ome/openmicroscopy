@@ -97,7 +97,7 @@ public class WellSampleNode
 	public double getPositionX()
 	{
 		WellSampleData data = (WellSampleData) getHierarchyObject();
-		return data.getPositionX();
+		return data.getPositionXAsLength().getValue();
 	}
 	
 	/**
@@ -108,7 +108,7 @@ public class WellSampleNode
 	public double getPositionY()
 	{
 		WellSampleData data = (WellSampleData) getHierarchyObject();
-		return data.getPositionY();
+		return data.getPositionYAsLength().getValue();
 	}
 	
 	/**
