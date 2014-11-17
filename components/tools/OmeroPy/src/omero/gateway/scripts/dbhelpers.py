@@ -188,7 +188,7 @@ class UserEntry (object):
         if self.groupname is None:
             self.groupname = self.name + '_group'
         g = UserEntry._getOrCreateGroup(
-            client, self.groupname, self.groupperms)
+            client, self.groupname, groupperms=self.groupperms)
         u = omero.model.ExperimenterI()
         u.setOmeName(omero.gateway.omero_type(self.name))
         u.setFirstName(omero.gateway.omero_type(self.firstname))
@@ -224,7 +224,8 @@ class UserEntry (object):
                     client.getUserId())]:
                 admin_gateway = loginAsRoot()
                 a = admin_gateway.getAdminService()
-            g = UserEntry._getOrCreateGroup(client, groupname, groupperms)
+            g = UserEntry._getOrCreateGroup(
+                client, groupname, groupperms=groupperms)
             a.addGroups(a.getExperimenter(client.getUserId()), (g,))
         finally:
             # Always clean up the results of login
@@ -291,7 +292,8 @@ class ProjectEntry (ObjectEntry):
                 groupname = 'project_test'
 
             s = loginAsRoot()
-            UserEntry._getOrCreateGroup(s, groupname, self.group_perms)
+            UserEntry._getOrCreateGroup(
+                s, groupname, groupperms=self.group_perms)
             try:
                 UserEntry.addGroupToUser(s, groupname, self.group_perms)
             finally:
