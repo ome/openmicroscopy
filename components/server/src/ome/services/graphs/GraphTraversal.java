@@ -29,9 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.SortedSet;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.slf4j.Logger;
@@ -378,15 +376,6 @@ public class GraphTraversal {
          * @param ids applicable instances of class, no more than {@link #BATCH_SIZE}
          */
         void nullProperties(String className, String propertyName, Collection<Long> ids);
-
-        /**
-         * Remove elements from the given property's {@link Collection}
-         * @param className full name of mapped Hibernate class
-         * @param propertyName HQL-style property name of class
-         * @param ids applicable instances of class, no more keys than {@link #BATCH_SIZE},
-         *        values indicating those to remove from the {@link Collection}
-         */
-        void filterProperties(String className, String propertyName, Collection<Entry<Long, Collection<Entry<String, Long>>>> ids);
 
         /**
          * Delete the given instances.
@@ -994,28 +983,6 @@ public class GraphTraversal {
             }
 
             @Override
-            public void filterProperties(String className, String propertyName,
-                    Collection<Entry<Long, Collection<Entry<String, Long>>>> ids) {
-                final SortedMap<Long, Collection<Entry<String, Long>>> idMap = new TreeMap<Long, Collection<Entry<String, Long>>>();
-                for (final Entry<Long, Collection<Entry<String, Long>>> entry : ids) {
-                    idMap.put(entry.getKey(), entry.getValue());
-                }
-                ids = idMap.entrySet();
-                if (log.isDebugEnabled()) {
-                    final StringBuffer sb = new StringBuffer();
-                    sb.append("processor: collection removal from " + className + "." + propertyName + ":");
-                    for (final Entry<Long, Collection<Entry<String, Long>>> removal : ids) {
-                        sb.append(" from [" + removal.getKey() + "] remove");
-                        for (final Entry<String, Long> target : removal.getValue()) {
-                            sb.append(" " + target.getKey() + "[" + target.getValue() + "]");
-                        }
-                    }
-                    log.debug(sb.toString());
-                }
-                processor.filterProperties(className, propertyName, ids);
-            }
-
-            @Override
             public void deleteInstances(String className, Collection<Long> ids) throws GraphException {
                 if (!(ids instanceof SortedSet)) {
                     ids = new TreeSet<Long>(ids);
@@ -1256,15 +1223,7 @@ public class GraphTraversal {
             final CP linker = removeCurr.getKey();
             final Collection<Long> allIds = removeCurr.getValue().keySet();
             assertMayBeUpdated(linker.className, allIds);
-            for (final List<Entry<Long, Collection<Entry<String, Long>>>> idMap :
-                Iterables.partition(removeCurr.getValue().asMap().entrySet(), BATCH_SIZE)) {
-                processor.filterProperties(linker.className, linker.propertyName, idMap);
-                final Collection<Long> ids = new HashSet<Long>();
-                for (final Entry<Long, Collection<Entry<String, Long>>> idMapEntry : idMap) {
-                    ids.add(idMapEntry.getKey());
-                }
-                refreshHibernateCache(linker.className, ids);
-            }
+            throw new GraphException("cannot remove elements from collection " + linker);
         }
     }
 

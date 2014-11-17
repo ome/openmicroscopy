@@ -20,7 +20,6 @@
 package omero.cmd.graphs;
 
 import java.util.Collection;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import ome.model.internal.Details;
@@ -48,10 +47,6 @@ public class NullGraphTraversalProcessor implements GraphTraversal.Processor {
 
     @Override
     public void nullProperties(String className, String propertyName, Collection<Long> ids) { }
-
-    @Override
-    public void filterProperties(String className, String propertyName,
-            Collection<Entry<Long, Collection<Entry<String, Long>>>> ids) { }
 
     @Override
     public void deleteInstances(String className, Collection<Long> ids) { }

@@ -20,20 +20,9 @@
 package omero.cmd.graphs;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
-import org.apache.commons.beanutils.PropertyUtils;
-import org.hibernate.Hibernate;
 import org.hibernate.Session;
-import com.google.common.collect.Maps;
 
-import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphTraversal;
@@ -55,34 +44,6 @@ public abstract class BaseGraphTraversalProcessor implements GraphTraversal.Proc
             Collection<Long> ids) {
         final String update = "UPDATE " + className + " SET " + propertyName + " = NULL WHERE id IN (:ids)";
         session.createQuery(update).setParameterList("ids", ids).executeUpdate();
-    }
-
-    @Override
-    public void filterProperties(String className, String propertyName,
-            Collection<Entry<Long, Collection<Entry<String, Long>>>> ids) {
-        final Map<Long, Collection<Entry<String, Long>>> idMap = new HashMap<Long, Collection<Entry<String, Long>>>(2 * ids.size());
-        for (final Entry<Long, Collection<Entry<String, Long>>> idEntry : ids) {
-            idMap.put(idEntry.getKey(), idEntry.getValue());
-        }
-        final String query = "FROM " + className + " root LEFT JOIN FETCH root." + propertyName + " WHERE root.id IN (:ids)";
-        final List<IObject> retrieved = session.createQuery(query).setParameterList("ids", idMap.keySet()).list();
-        for (final IObject proxy : retrieved) {
-            final Set<Entry<String, Long>> toRemove = new HashSet<Entry<String, Long>>(idMap.get(proxy.getId()));
-            final Collection<IObject> items;
-            try {
-                items = (Collection<IObject>) PropertyUtils.getNestedProperty(proxy, propertyName);
-            } catch (/* TODO Java SE 7 ReflectiveOperation*/Exception e) {
-                throw new RuntimeException(Hibernate.getClass(proxy).getName() + "[" + proxy.getId() +
-                        "] has no accessible object collection property " + propertyName, e);
-            }
-            final Iterator<IObject> itemIterator = items.iterator();
-            while (itemIterator.hasNext()) {
-                final IObject item = itemIterator.next();
-                if (toRemove.contains(Maps.immutableEntry(Hibernate.getClass(item), item.getId()))) {
-                    itemIterator.remove();
-                }
-            }
-        }
     }
 
     @Override
