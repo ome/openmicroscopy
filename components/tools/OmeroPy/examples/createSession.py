@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-#------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 #  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
 #
 #
@@ -13,16 +13,15 @@
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
-#  
+#
 #  You should have received a copy of the GNU General Public License along
 #  with this program; if not, write to the Free Software Foundation, Inc.,
 #  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-#------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 #
 import omero
 
 client = omero.client(["--Ice.Config=./ice.config"])
-session = client.createSession("root","omero")
+session = client.createSession("root", "omero")
 client.getSession().createRawPixelsStore()
-
