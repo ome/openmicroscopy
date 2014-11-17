@@ -2596,7 +2596,7 @@ class _BlitzGateway (object):
                 yield ExperimenterGroupWrapper(self, e)
 
     def createGroup(self, name, owner_Ids=None, member_Ids=None, perms=None,
-                    description=None):
+                    description=None, ldap=False):
         """
         Creates a new ExperimenterGroup.
         Must have Admin permissions to call this.
@@ -2610,6 +2610,7 @@ class _BlitzGateway (object):
                             E.g. 'rw----' (private), 'rwr---'(read-only),
                             'rwrw--'
         :param description: Group description
+        :param ldap:        Group ldap setting
         """
         admin_serv = self.getAdminService()
 
@@ -2620,6 +2621,7 @@ class _BlitzGateway (object):
             and rstring(str(description)) or None)
         if perms is not None:
             group.details.permissions = omero.model.PermissionsI(perms)
+        group.ldap = rbool(ldap)
 
         gr_id = admin_serv.createGroup(group)
 
