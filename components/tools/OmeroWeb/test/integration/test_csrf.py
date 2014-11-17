@@ -514,9 +514,10 @@ class TestCsrf(object):
 
         # Reset through webclient as it is calling directly
         # webgateway.reset_image_rdef_json
-        request_url = reverse('web_reset_image_rdef_json', args=[img.id.val])
+        request_url = reverse('reset_owners_rdef_json')
         data = {
-            'full': 'true'
+            'toids': img.id.val,
+            'to_type': 'image'
         }
 
         _post_reponse(django_client, request_url, data)
@@ -529,7 +530,7 @@ class TestCsrf(object):
 
         img = itest.createTestImage(session=client.getSession())
 
-        request_url = reverse('webgateway.views.apply_owners_rdef_json')
+        request_url = reverse('reset_owners_rdef_json')
         data = {
             'toids': img.id.val,
             'to_type': 'image'
