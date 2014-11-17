@@ -185,6 +185,8 @@ public class GraphUtil {
             final boolean isCombined;
             if (request1 instanceof ChgrpFacadeI && request2 instanceof ChgrpFacadeI) {
                 isCombined = isCombined((ChgrpFacadeI) request1, (ChgrpFacadeI) request2);
+            } else if (request1 instanceof ChownFacadeI && request2 instanceof ChownFacadeI) {
+                    isCombined = isCombined((ChownFacadeI) request1, (ChownFacadeI) request2);
             } else if (request1 instanceof DeleteFacadeI && request2 instanceof DeleteFacadeI) {
                 isCombined = isCombined((DeleteFacadeI) request1, (DeleteFacadeI) request2);
             } else {
@@ -226,6 +228,23 @@ public class GraphUtil {
             isEqualMaps(chgrp1.options, chgrp2.options) &&
             chgrp1.grp == chgrp2.grp) {
             chgrp1.addToTargets(chgrp2.type, chgrp2.id);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Combine the two chown requests should they be sufficiently similar.
+     * @param chown1 the first request
+     * @param chown2 the second request
+     * @return if the target model object of the second request was successfully merged into those of the first request
+     */
+    private static boolean isCombined(ChownFacadeI chown1, ChownFacadeI chown2) {
+        if (chown1.type.equals(chown2.type) &&
+            isEqualMaps(chown1.options, chown2.options) &&
+            chown1.user == chown2.user) {
+            chown1.addToTargets(chown2.type, chown2.id);
             return true;
         } else {
             return false;
