@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2010-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -91,6 +91,14 @@ public class LdapConfig {
         AndFilter filter = new AndFilter();
         filter.and(getUserFilter());
         filter.and(new EqualsFilter(attributeKey, username));
+        return filter;
+    }
+
+    public Filter groupnameFilter(String groupname) {
+        String attributeKey = getGroupAttribute("name");
+        AndFilter filter = new AndFilter();
+        filter.and(getGroupFilter());
+        filter.and(new EqualsFilter(attributeKey, groupname));
         return filter;
     }
 

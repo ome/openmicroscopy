@@ -1131,6 +1131,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         new_gr = ExperimenterGroupI()
         new_gr.name = rstring(str(name))
         new_gr.description = (description!="" and description is not None) and rstring(str(description)) or None
+        new_gr.ldap = rbool(False)
         new_gr.details.permissions = permissions
         
         admin_serv = self.getAdminService()
@@ -1166,7 +1167,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         up_gr.name = rstring(str(name))
         up_gr.description = (description!="" and description is not None) and rstring(str(description)) or None
 
-        
         # old list of owners
         old_owners = list()
         for oex in up_gr.copyGroupExperimenterMap():

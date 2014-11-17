@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2007-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.services.blitz.test.utests;
@@ -51,7 +51,8 @@ public class ModelTest extends TestCase {
 
         Experimenter e = new Experimenter();
         e.setOmeName("hi");
-        e.linkExperimenterGroup(new ExperimenterGroup("foo"));
+        e.setLdap(false);
+        e.linkExperimenterGroup(new ExperimenterGroup("foo", false));
 
         IceMapper mapper = new IceMapper();
         ExperimenterI ei = (ExperimenterI) mapper.map(e);
@@ -64,7 +65,8 @@ public class ModelTest extends TestCase {
     public void testCopyObject() throws Exception {
         Experimenter e = new Experimenter();
         e.setOmeName("hi");
-        e.linkExperimenterGroup(new ExperimenterGroup("foo"));
+        e.setLdap(false);
+        e.linkExperimenterGroup(new ExperimenterGroup("foo", false));
         ExperimenterI ei = new ExperimenterI();
         ei.copyObject(e, new IceMapper());
         // This may not hold without being called from the top level mapper

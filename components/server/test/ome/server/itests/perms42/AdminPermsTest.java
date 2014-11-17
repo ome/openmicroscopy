@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2010-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.server.itests.perms42;
@@ -75,6 +75,7 @@ public class AdminPermsTest extends PermissionsTest {
         fixture.make_leader();
         ExperimenterGroup g = fixture.group();
         g.setName(uuid());
+        g.setLdap(false);
         // g.getDetails().setPermissions(Permissions.SHARED);
         iAdmin.updateGroup(g);
     }
@@ -415,6 +416,7 @@ public class AdminPermsTest extends PermissionsTest {
         // Now create a group via IUpdate and see what permissions it gets.
         ExperimenterGroup g2 = new ExperimenterGroup();
         g2.setName(uuid());
+        g2.setLdap(false);
         g2 = iUpdate.saveAndReturnObject(g2);
         assertTrue(grpPerms.identical(g.getDetails().getPermissions()));
         //
@@ -485,6 +487,7 @@ public class AdminPermsTest extends PermissionsTest {
         e.setOmeName(uuid());
         e.setFirstName(uuid());
         e.setLastName(uuid());
+        e.setLdap(false);
         return e;
     }
 
@@ -495,6 +498,7 @@ public class AdminPermsTest extends PermissionsTest {
     private ExperimenterGroup newGroup(Permissions p) {
         ExperimenterGroup g2 = new ExperimenterGroup();
         g2.setName(uuid());
+        g2.setLdap(false);
         g2.getDetails().setPermissions(p);
         g2 = iAdmin.getGroup(iAdmin.createGroup(g2));
         return g2;

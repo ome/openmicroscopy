@@ -1,12 +1,12 @@
 [submodule "components/bioformats"]
 	path = components/bioformats
-	url = git://github.com/openmicroscopy/bioformats.git
+	url = git://github.com/snoopycrimecop/bioformats.git
 	ignore = dirty
 [submodule "docs/sphinx"]
 	path = docs/sphinx
-	url = git://github.com/openmicroscopy/ome-documentation.git
+	url = git://github.com/snoopycrimecop/ome-documentation.git
 	ignore = dirty
 [submodule "components/tools/OmeroPy/scripts"]
 	path = components/tools/OmeroPy/scripts
-	url = git://github.com/ome/scripts.git
+	url = git://github.com/snoopycrimecop/scripts.git
 	ignore = dirty

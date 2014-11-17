@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2010-2011 Glencoe Software, Inc. All rights reserved.
+ *   Copyright (C) 2010-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.services.db;
@@ -74,6 +74,7 @@ public class HibernateTest extends TestCase {
         e.setOmeName(UUID.randomUUID().toString());
         e.setFirstName("Model");
         e.setLastName("Test");
+        e.setLdap(false);
         e = (Experimenter) s.merge(e);
         ExperimenterGroup g = (ExperimenterGroup) s.get(
                 ExperimenterGroup.class, 0L);
