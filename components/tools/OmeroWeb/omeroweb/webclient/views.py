@@ -48,6 +48,8 @@ from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_str
 from django.core.servers.basehttp import FileWrapper
 
+from django.views.decorators.http import require_http_methods, require_GET, require_POST
+
 from webclient_utils import _formatReport, _purgeCallback
 from forms import GlobalSearchForm, ShareForm, BasketShareForm, \
                     ContainerForm, ContainerNameForm, ContainerDescriptionForm, \
@@ -281,20 +283,25 @@ def switch_active_group(request, active_group=None):
 def logout(request, conn=None, **kwargs):
     """ Logout of the session and redirects to the homepage (will redirect to login first) """
 
-    if request.session.get('active_group') is not None:
+    if request.method == "POST":
+        if request.session.get('active_group') is not None:
+            try:
+                conn.setDefaultGroup(request.session.get('active_group'))
+            except:
+                logger.error('Exception during logout.', exc_info=True)
         try:
-            conn.setDefaultGroup(request.session.get('active_group'))
-        except:
-            logger.error('Exception during logout.', exc_info=True)
-    try:
-        try:
-            conn.seppuku()
-        except:
-            logger.error('Exception during logout.', exc_info=True)
-    finally:
-        request.session.flush()
-    return HttpResponseRedirect(reverse("webindex"))
-
+            try:
+                conn.seppuku()
+            except:
+                logger.error('Exception during logout.', exc_info=True)
+        finally:
+            request.session.flush()
+        return HttpResponseRedirect(reverse("webindex"))
+    else:
+        context = {'url':reverse('weblogout'), 'submit': "Do you want to log out?"}
+        t = template_loader.get_template('webgateway/base/includes/post_form.html')
+        c = Context(request, context)
+        return HttpResponse(t.render(c))
 
 ###########################################################################
 @login_required()
@@ -864,7 +871,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
     else:
         context = {'manager':manager, 'form_comment':form_comment, 'index':index,
             'share_id':share_id, 'share_owned': share_owned}
-            
+
     context['figScripts'] = figScripts
     context['template'] = template
     context['webclient_path'] = request.build_absolute_uri(reverse('webindex'))
@@ -1485,7 +1492,7 @@ def annotate_tags(request, conn=None, **kwargs):
     context['template'] = template
     return context
 
-
+@require_POST
 @login_required()
 @render_response()
 def edit_channel_names(request, imageId, conn=None, **kwargs):
@@ -2946,6 +2953,7 @@ def script_run(request, scriptId, conn=None, **kwargs):
     return HttpJsonResponse(rsp)
 
 
+@require_POST
 @login_required()
 def ome_tiff_script(request, imageId, conn=None, **kwargs):
     """
@@ -2953,8 +2961,6 @@ def ome_tiff_script(request, imageId, conn=None, **kwargs):
     image and attach this as a file annotation to the image.
     Script will show up in the 'Activities' for users to monitor and download result etc.
     """
-    #if not request.method == 'POST':
-    #    return HttpResponse("Need to use POST")
 
     scriptService = conn.getScriptService()
     sId = scriptService.getScriptID("/omero/export_scripts/Batch_Image_Export.py")

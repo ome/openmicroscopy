@@ -27,7 +27,7 @@
 
     <p class="error">This share has expired. You must choose an expiry date in the future before you can edit the share</p>
 
-    <form id='edit_share_form' title="Edit Share" action="{% url 'manage_action_containers' 'save' 'share' share.share.id %}" method="post" class="standard_form">
+    <form id='edit_share_form' title="Edit Share" action="{% url 'manage_action_containers' 'save' 'share' share.share.id %}" method="post" class="standard_form">{% csrf_token %}
         
         <!-- if the share has expired, we only want to show the Date Expiry field -->
         {% for field in form %}
@@ -43,7 +43,7 @@
 
 {% else %}
 
-    <form id='edit_share_form' title="Edit Share" action="{% url 'manage_action_containers' 'save' 'share' share.share.id %}" method="post" class="standard_form">
+    <form id='edit_share_form' title="Edit Share" action="{% url 'manage_action_containers' 'save' 'share' share.share.id %}" method="post" class="standard_form">{% csrf_token %}
 
         <p>{% trans "Fields marked in red are mandatory." %}</p>
         

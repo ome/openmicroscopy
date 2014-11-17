@@ -1054,7 +1054,7 @@
                 .delegate("a", "dblclick", function(e) {
                     var obj_rel = $(this).parent().attr('rel');
                     if ((obj_rel=='image') || (obj_rel=='image-locked')) {
-                        OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
+                        OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('/0/', "/"+$(this).attr('id').split("-")[1]+"/" ));
                     }
                 })
                 .bind("select_node.jstree deselect_node.jstree", function (e, data) {
@@ -1301,7 +1301,7 @@
         </form>
 
         <!-- hidden form for chgrp -->
-        <form id="chgrp-form" title="Move to Group" action="{% url 'chgrp' %}" style="display:none" method="POST">
+        <form id="chgrp-form" title="Move to Group" action="{% url 'chgrp' %}" style="display:none" method="POST">{% csrf_token %}
             <div id="move_group_tree" class="gray_border">
             </div>
         </form>

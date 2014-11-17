@@ -51,8 +51,7 @@
 
     <!-- jquery -->
     {% include "webgateway/base/includes/script_src_jquery.html" %}
-
-    <script type="text/javascript" src="{% static "webgateway/js/ome.popup.js" %}"></script>
+    {% include "webgateway/base/includes/script_src_popup.html" %}
 
 	<script type="text/javascript" src="{% static "3rdparty/aop.js" %}"></script>
 
@@ -459,7 +458,7 @@
               var theT =
                   typeof shape.theT === "undefined"? NOZT : shape.theT + 1;
               shapesHtml += "<td class='shape_cell'>" + theT + "</td>";
-              shapesHtml += "<td class='shape_cell shape_text' title=\""+ text +"\"><p>"+ truncate_text(text) + "</p></td>";
+              shapesHtml += "<td class='shape_cell shape_text' title=\""+ text +"\"><p>"+ truncate_text(text.escapeHTML()) + "</p></td>";
               shapesHtml += "<td class='shape_cell'>" + shapeThumbHtml + "</td>";
               shapesHtml += "</tr>";
               if (roiIcon == null) roiIcon = shape['type'];

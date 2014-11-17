@@ -72,6 +72,30 @@ Number.prototype.lengthformat = function () {
     }
 }
 
+String.prototype.escapeHTML = function(){
+    /*
+    HTML Escape Before Inserting Untrusted Data into HTML Element Content
+    https://www.owasp.org/index.php/XSS_%28Cross_Site_Scripting%29_Prevention
+    _Cheat_Sheet#RULE_.231_-_HTML_Escape_Before_Inserting_Untrusted_Data_into
+    _HTML_Element_Content
+    */
+    var s = this;
+    if (!s) {
+        return "";
+    }
+    s = s + "";
+    return s.replace(/[\&"<>\\]/g, function(s) {
+        switch(s) {
+            case "&": return "&amp;";
+            case "\\": return "\\\\";
+            case '"': return '\"';
+            case "<": return "&lt;";
+            case ">": return "&gt;";
+            default: return s;
+        }
+    });
+}
+
 String.prototype.capitalize = function() {
     return this.charAt(0).toUpperCase() + this.slice(1);
 };

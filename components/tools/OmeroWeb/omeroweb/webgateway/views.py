@@ -1725,7 +1725,7 @@ def full_viewer (request, iid, conn=None, **kwargs):
              'opts': rid,
              'build_year': build_year,
              'roiCount': image.getROICount(),
-             'viewport_server': kwargs.get('viewport_server', reverse('webgateway')),
+             'viewport_server': kwargs.get('viewport_server', reverse('webgateway')).rstrip('/'),# remove any trailing slash
              'object': 'image:%i' % int(iid)}
 
         template = kwargs.get('template', "webgateway/viewport/omero_image.html")
@@ -1986,16 +1986,22 @@ def su (request, user, conn=None, **kwargs):
     @param **kwargs:    Can be used to specify the html 'template' for rendering
     @return:            Boolean
     """
-    conn.setGroupNameForSession('system')
-    connector = request.session['connector']
-    connector = Connector(connector.server_id, connector.is_secure)
-    session = conn.getSessionService().getSession(conn._sessionUuid)
-    ttl = session.getTimeToIdle().val
-    connector.omero_session_key = conn.suConn(user, ttl=ttl)._sessionUuid
-    request.session['connector'] = connector
-    conn.revertGroupForSession()
-    conn.seppuku()
-    return True
+    if request.method == "POST":
+        conn.setGroupNameForSession('system')
+        connector = request.session['connector']
+        connector = Connector(connector.server_id, connector.is_secure)
+        session = conn.getSessionService().getSession(conn._sessionUuid)
+        ttl = session.getTimeToIdle().val
+        connector.omero_session_key = conn.suConn(user, ttl=ttl)._sessionUuid
+        request.session['connector'] = connector
+        conn.revertGroupForSession()
+        conn.seppuku()
+        return True
+    else:
+        context = {'url':reverse('webgateway_su', args=[user]), 'submit': "Do you want to su to %s" % user}
+        t = template_loader.get_template('webgateway/base/includes/post_form.html')
+        c = Context(request, context)
+        return HttpResponse(t.render(c))
 
 
 def _annotations(request, objtype, objid, conn=None, **kwargs):
