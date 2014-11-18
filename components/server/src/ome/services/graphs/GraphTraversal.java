@@ -35,19 +35,23 @@ import java.util.TreeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.hibernate.Hibernate;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.proxy.HibernateProxy;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 
 import ome.model.IObject;
+import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 import ome.security.ACLVoter;
 import ome.security.SystemTypes;
 import ome.services.graphs.GraphPathBean.PropertyKind;
@@ -627,6 +631,49 @@ public class GraphTraversal {
     }
 
     /**
+     * Build a query for noting a class' details such that {@link #noteDetailsFromQuery(Map, List)} can construct
+     * {@link ome.model.internal.Details} objects from the query results.
+     * @param className the class name whose detauls are to be queried
+     * @return HQL for querying the class' details
+     */
+    private String buildDetailsQuery(String className) {
+        final Set<Entry<String, String>> forwardLinks = model.getLinkedTo(className);
+        final Set<String> linkProperties = new HashSet<String>();
+        for (final Entry<String, String> forwardLink : forwardLinks) {
+            linkProperties.add(forwardLink.getValue());
+        }
+        final List<String> soughtProperties = ImmutableList.of("details.owner", "details.group", "details.permissions");
+        final List<String> selectTerms = new ArrayList<String>(soughtProperties.size() + 1);
+        selectTerms.add("root.id");
+        for (final String soughtProperty : soughtProperties) {
+            if (linkProperties.contains(soughtProperty)) {
+                selectTerms.add("root." + soughtProperty);
+            } else {
+                selectTerms.add("NULLIF(0,0)");  /* a simple NULL doesn't work in Hibernate 3.5 */
+            }
+        }
+        return "SELECT " + Joiner.on(',').join(selectTerms) + " FROM " + className +" AS root WHERE root.id IN (:ids)";
+    }
+
+    /**
+     * Construct and note {@link ome.model.internal.Details} objects from the results of a query as constructed by
+     * {@link #buildDetailsQuery(String)}.
+     * @param detailsToSeek a map of the IDs of the queried model objects, to the objects
+     * @param results the results of the HQL query
+     * @throws GraphException if an object could not be converted to an unloaded instance
+     */
+    private void noteDetailsFromQuery(Map<Long, CI> detailsToSeek, List<Object[]> results) throws GraphException {
+        for (final Object[] result : results) {
+            final ome.model.internal.Details details = ome.model.internal.Details.create();
+            final Long id = (Long) result[0];
+            details.setOwner((Experimenter) result[1]);
+            details.setGroup((ExperimenterGroup) result[2]);
+            details.setPermissions((Permissions) result[3]);
+            noteDetails(detailsToSeek.get(id), details);
+        }
+    }
+
+    /**
      * Convert the indicated objects to {@link CI}s with their actual class identified.
      * @param session a Hibernate session
      * @param objects the objects to query
@@ -637,22 +684,57 @@ public class GraphTraversal {
         final List<CI> returnValue = new ArrayList<CI>(objects.size());
         for (final Entry<String, Collection<Long>> oneQueryClass : objects.asMap().entrySet()) {
             final String queryClassName = oneQueryClass.getKey();
-            final String query = "FROM " + queryClassName + " WHERE id IN (:ids)";
+            final String rootQuery = "FROM " + queryClassName + " WHERE id IN (:ids)";
+            final String detailsQuery = buildDetailsQuery(queryClassName);
             for (final List<Long> ids : Iterables.partition(oneQueryClass.getValue(), BATCH_SIZE)) {
+                final Map<Long, CI> detailsToSeek = new HashMap<Long, CI>();
                 int remainingCount = ids.size();
-                for (final Object proxy : session.createQuery(query).setParameterList("ids", ids).list()) {
-                    final IObject instance = (IObject) proxy;
-                    final CI object = new CI(instance);
-                    noteDetails(object, instance.getDetails());
+                final Iterator<IObject> proxies = session.createQuery(rootQuery).setParameterList("ids", ids).iterate();
+                while (proxies.hasNext()) {
+                    final IObject proxy = proxies.next();
+                    final CI object = new CI(proxy);
                     returnValue.add(object);
+                    if (!planning.detailsNoted.containsKey(object)) {
+                        detailsToSeek.put(object.id, object);
+                    }
                     remainingCount--;
                 }
                 if (remainingCount > 0) {
                     throw new GraphException("cannot read all the specified objects of class " + queryClassName);
                 }
+                final Query actualQuery = session.createQuery(detailsQuery).setParameterList("ids", detailsToSeek.keySet());
+                noteDetailsFromQuery(detailsToSeek, actualQuery.list());
             }
         }
         return returnValue;
+    }
+
+    /**
+     * Given a class and a property of that class, determine to which class it links.
+     * @param linkProperty a class and property name
+     * @return the class linked to
+     */
+    private String getLinkedClass(CP linkProperty) {
+        for (final Entry<String, String> forwardLink : model.getLinkedTo(linkProperty.className)) {
+            if (linkProperty.propertyName.equals(forwardLink.getValue())) {
+                return forwardLink.getKey();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Given a class and a property linking to that class, determine from which class it is linked.
+     * @param linkProperty a class and property name
+     * @return the linking class
+     */
+    private String getLinkerClass(CP linkProperty) {
+        for (final Entry<String, String> backwardLink : model.getLinkedBy(linkProperty.className)) {
+            if (linkProperty.propertyName.equals(backwardLink.getValue())) {
+                return backwardLink.getKey();
+            }
+        }
+        return null;
     }
 
     /**
@@ -681,15 +763,21 @@ public class GraphTraversal {
         for (final Entry<CP, Collection<Long>> forwardLink : forwardLinksWanted.asMap().entrySet()) {
             final CP linkProperty = forwardLink.getKey();
             final boolean propertyIsAccessible = model.isPropertyAccessible(linkProperty.className, linkProperty.propertyName);
-            final String query = "SELECT linker, linked FROM " + linkProperty.className + " AS linker " +
+            final String rootQuery = "SELECT linker, linked FROM " + linkProperty.className + " AS linker " +
                     "JOIN linker." + linkProperty.propertyName + " AS linked WHERE linker.id IN (:ids)";
+            final String detailsQuery = buildDetailsQuery(getLinkedClass(linkProperty));
             for (final List<Long> ids : Iterables.partition(forwardLink.getValue(), BATCH_SIZE)) {
-                for (final Object[] resultRow : (List<Object[]>) session.createQuery(query).setParameterList("ids", ids).list()) {
-                    final IObject linkerInstance = (IObject) resultRow[0];
-                    final IObject linkedInstance = (IObject) resultRow[1];
+                final Map<Long, CI> detailsToSeek = new HashMap<Long, CI>();
+                final Iterator<IObject[]> proxies = session.createQuery(rootQuery).setParameterList("ids", ids).iterate();
+                while (proxies.hasNext()) {
+                    final IObject[] proxyPair = proxies.next();
+                    final IObject linkerInstance = (IObject) proxyPair[0];
+                    final IObject linkedInstance = (IObject) proxyPair[1];
                     final CI linker = new CI(linkerInstance);
                     final CI linked = new CI(linkedInstance);
-                    noteDetails(linked, linkedInstance.getDetails());
+                    if (!planning.detailsNoted.containsKey(linked)) {
+                        detailsToSeek.put(linked.id, linked);
+                    }
                     planning.forwardLinksCached.put(linkProperty.toCPI(linker.id), linked);
                     if (propertyIsAccessible) {
                         planning.befores.put(linked, linker);
@@ -699,21 +787,29 @@ public class GraphTraversal {
                         log.debug(linkProperty.toCPI(linker.id) + " links to " + linked);
                     }
                 }
+                final Query hibernateQuery = session.createQuery(detailsQuery).setParameterList("ids", detailsToSeek.keySet());
+                noteDetailsFromQuery(detailsToSeek, hibernateQuery.list());
             }
         }
         /* query and cache backward links */
         for (final Entry<CP, Collection<Long>> backwardLink : backwardLinksWanted.asMap().entrySet()) {
             final CP linkProperty = backwardLink.getKey();
             final boolean propertyIsAccessible = model.isPropertyAccessible(linkProperty.className, linkProperty.propertyName);
-            final String query = "SELECT linker, linked FROM " + linkProperty.className + " AS linker " +
+            final String rootQuery = "SELECT linker, linked FROM " + linkProperty.className + " AS linker " +
                     "JOIN linker." + linkProperty.propertyName + " AS linked WHERE linked.id IN (:ids)";
+            final String detailsQuery = buildDetailsQuery(getLinkerClass(linkProperty));
             for (final List<Long> ids : Iterables.partition(backwardLink.getValue(), BATCH_SIZE)) {
-                for (final Object[] resultRow : (List<Object[]>) session.createQuery(query).setParameterList("ids", ids).list()) {
-                    final IObject linkerInstance = (IObject) resultRow[0];
-                    final IObject linkedInstance = (IObject) resultRow[1];
+                final Map<Long, CI> detailsToSeek = new HashMap<Long, CI>();
+                final Iterator<IObject[]> proxies = session.createQuery(rootQuery).setParameterList("ids", ids).iterate();
+                while (proxies.hasNext()) {
+                    final IObject[] proxyPair = proxies.next();
+                    final IObject linkerInstance = (IObject) proxyPair[0];
+                    final IObject linkedInstance = (IObject) proxyPair[1];
                     final CI linker = new CI(linkerInstance);
                     final CI linked = new CI(linkedInstance);
-                    noteDetails(linker, linkerInstance.getDetails());
+                    if (!planning.detailsNoted.containsKey(linker)) {
+                        detailsToSeek.put(linker.id, linker);
+                    }
                     planning.backwardLinksCached.put(linkProperty.toCPI(linked.id), linker);
                     if (propertyIsAccessible) {
                         planning.befores.put(linked, linker);
@@ -723,6 +819,8 @@ public class GraphTraversal {
                         log.debug(linkProperty.toCPI(linker.id) + " links to " + linked);
                     }
                 }
+                final Query hibernateQuery = session.createQuery(detailsQuery).setParameterList("ids", detailsToSeek.keySet());
+                noteDetailsFromQuery(detailsToSeek, hibernateQuery.list());
             }
         }
         /* note cached objects for further processing */
