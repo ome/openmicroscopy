@@ -51,7 +51,6 @@ import omero.model.PlaneInfo;
 import omero.model.Power;
 import omero.model.Pressure;
 import omero.model.Temperature;
-import omero.model.enums.UnitsLength;
 
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;

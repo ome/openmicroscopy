@@ -23,7 +23,6 @@
 package pojos;
 
 import omero.RBool;
-import omero.RDouble;
 import omero.RInt;
 import omero.RString;
 import omero.model.Arc;

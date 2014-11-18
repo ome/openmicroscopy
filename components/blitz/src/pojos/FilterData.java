@@ -2,7 +2,7 @@
  * pojos.FilterData 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -29,7 +29,6 @@ package pojos;
 
 //Application-internal dependencies
 import omero.RDouble;
-import omero.RInt;
 import omero.RString;
 import omero.model.Filter;
 import omero.model.FilterType;
