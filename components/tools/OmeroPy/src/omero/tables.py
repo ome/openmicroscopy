@@ -408,12 +408,22 @@ class HdfStorage(object):
 
     @locked
     @modifies
-    def add_meta_map(self, m):
-        if not m:
-            return
+    def add_meta_map(self, m, replace=False):
         self.__initcheck()
         attr = self.__mea.attrs
+        if replace:
+            for f in list(attr._v_attrnamesuser):
+                if f not in ('initialized', 'version'):
+                    del attr[f]
+        if not m:
+            return
         for k, v in m.items():
+            if not isinstance(v, (
+                    omero.RString, omero.RLong, omero.RInt, omero.RFloat)):
+                raise omero.ValidationException(
+                    "Unsupported type: %s" % type(v))
+            # This uses the default pytables type conversion, which may
+            # convert it to a numpy type or keep it as a native Python type
             attr[k] = unwrap(v)
 
     @locked
@@ -847,7 +857,7 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     @perf
     def setAllMetadata(self, value, current=None):
         self.assert_write()
-        self.storage.add_meta_map({"key": wrap(value)})
+        self.storage.add_meta_map(value, replace=True)
         self.logger.info("%s.setMetadata() => number=%s", self, slen(value))
 
     # Column methods missing

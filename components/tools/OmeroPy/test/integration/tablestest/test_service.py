@@ -192,6 +192,14 @@ class TestTables(lib.ITest):
             assert 1 == unwrap(table.getMetadata("f"))
             assert {"s": "b", "i": 1, "f": 1} == clean(table.getAllMetadata())
 
+            # Replace all user-metadata
+            table.setAllMetadata({})
+            assert {} == clean(table.getAllMetadata())
+
+            table.setAllMetadata({"s2": rstring("b2"), "l2": rlong(3)})
+            assert {"s2": "b2", "l2": 3} == clean(table.getAllMetadata())
+            assert table.getMetadata("s") is None
+
         finally:
             table.close()
 
