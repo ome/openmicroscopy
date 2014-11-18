@@ -642,7 +642,7 @@ public class GraphTraversal {
         for (final Entry<String, String> forwardLink : forwardLinks) {
             linkProperties.add(forwardLink.getValue());
         }
-        final List<String> soughtProperties = ImmutableList.of("details.owner", "details.group", "details.permissions");
+        final List<String> soughtProperties = ImmutableList.of("details.owner", "details.group");
         final List<String> selectTerms = new ArrayList<String>(soughtProperties.size() + 1);
         selectTerms.add("root.id");
         for (final String soughtProperty : soughtProperties) {
@@ -652,6 +652,7 @@ public class GraphTraversal {
                 selectTerms.add("NULLIF(0,0)");  /* a simple NULL doesn't work in Hibernate 3.5 */
             }
         }
+        selectTerms.add("root.details.permissions");  /* to include among soughtProperties once GraphPathBean knows of it */
         return "SELECT " + Joiner.on(',').join(selectTerms) + " FROM " + className +" AS root WHERE root.id IN (:ids)";
     }
 
