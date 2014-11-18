@@ -40,10 +40,10 @@ class TestLDAP(CLITest):
         """Test ldap active subcommand"""
 
         self.args += [subcommand]
-        if subcommand in ["getdn", "setdn", "create"]:
+        if subcommand in ["create"]:
             self.args += [self.uuid()]
         if subcommand in ["setdn"]:
-            self.args += [self.uuid()]
+            self.args += ["true"]
 
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
