@@ -22,7 +22,7 @@ import omero.callbacks
 
 # For ease of use
 from omero.columns import columns2definition
-from omero.rtypes import rfloat, rint, rlong, rstring, unwrap, wrap
+from omero.rtypes import rfloat, rint, rlong, rstring, unwrap
 from omero.util.decorators import remoted, locked, perf
 from omero_ext import portalocker
 from omero_ext.functional import wraps
@@ -393,13 +393,13 @@ class HdfStorage(object):
         keys = list(self.__mea.attrs._v_attrnamesuser)
         for key in keys:
             val = attr[key]
-            if type(val) == numpy.float64:
+            if isinstance(val, float):
                 val = rfloat(val)
-            elif type(val) == numpy.int32:
+            elif isinstance(val, int):
                 val = rint(val)
-            elif type(val) == numpy.int64:
+            elif isinstance(val, long):
                 val = rlong(val)
-            elif type(val) == numpy.string_:
+            elif isinstance(val, str):
                 val = rstring(val)
             else:
                 raise omero.ValidationException("BAD TYPE: %s" % type(val))
