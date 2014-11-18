@@ -176,6 +176,9 @@ class mock_storage(object):
     def decr(self, *args):
         self.down = True
 
+    def size(self):
+        return 0
+
 
 class TestTables(lib.TestCase):
 
