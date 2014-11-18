@@ -28,13 +28,13 @@ import java.util.Map;
 import java.util.Set;
 
 import static omero.rtypes.*;
-import ome.formats.model.UnitsFactory;
-import ome.units.UNITS;
 import omero.model.Length;
+import omero.model.LengthI;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.PlateI;
 import omero.model.ScreenPlateLink;
+import omero.model.enums.UnitsLength;
 
 /**
  * The data that makes up an <i>OME</i> Plate along with links to its contained
@@ -357,7 +357,7 @@ public class PlateData extends DataObject {
     {
     	Length value = asPlate().getWellOriginX();
     	if (value == null) 
-    		return UnitsFactory.makeLength(0, UNITS.REFERENCEFRAME);
+    		return new LengthI(0, UnitsLength.REFERENCEFRAME);
     	else 
     		return value;
     }
@@ -385,7 +385,7 @@ public class PlateData extends DataObject {
     {
     	Length value = asPlate().getWellOriginY();
     	if (value == null)
-    		return UnitsFactory.makeLength(0, UNITS.REFERENCEFRAME);
+    		return new LengthI(0, UnitsLength.REFERENCEFRAME);
     	else
     		return value;
     }

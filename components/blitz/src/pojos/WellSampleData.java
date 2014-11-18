@@ -29,13 +29,12 @@ package pojos;
 // Third-party libraries
 
 // Application-internal dependencies
-import ome.formats.model.UnitsFactory;
-import ome.units.UNITS;
-import omero.RDouble;
 import omero.RTime;
 import omero.model.Length;
+import omero.model.LengthI;
 import omero.model.WellSample;
 import omero.model.WellSampleI;
+import omero.model.enums.UnitsLength;
 
 /**
  * The data that makes up an <i>OME</i> WellSample along with links to its
@@ -117,7 +116,7 @@ public class WellSampleData extends DataObject {
     {
     	Length value = asWellSample().getPosX();
     	if (value == null) 
-    		return UnitsFactory.makeLength(0, UNITS.REFERENCEFRAME);
+    		return new LengthI(0, UnitsLength.REFERENCEFRAME);
     	else
     		return value;
     }	
@@ -145,7 +144,7 @@ public class WellSampleData extends DataObject {
     {
     	Length value = asWellSample().getPosY();
     	if (value == null)
-    		return UnitsFactory.makeLength(0, UNITS.REFERENCEFRAME);
+    		return new LengthI(0, UnitsLength.REFERENCEFRAME);
     	else
     		return value;
     }

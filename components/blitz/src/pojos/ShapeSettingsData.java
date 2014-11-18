@@ -22,21 +22,18 @@
  */
 package pojos;
 
-import static ome.formats.model.UnitsFactory.convertLength;
-import static ome.formats.model.UnitsFactory.makeLength;
-
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 
 import ome.formats.model.UnitsFactory;
-import ome.units.UNITS;
 import omero.RInt;
 import omero.RString;
 import omero.rtypes;
 import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.Shape;
+import omero.model.enums.UnitsLength;
 
 /**
  * Stores the settings related to a given shape.
@@ -233,7 +230,7 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		Length value = shape.getStrokeWidth();
 		if (value == null || value.getValue()<=0) 
-			return UnitsFactory.makeLength(1, UNITS.PIXEL);
+			return new LengthI(1, UnitsLength.PIXEL);
 		else
 			return value;
 	}
@@ -406,7 +403,7 @@ public class ShapeSettingsData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		Length size = shape.getFontSize();
-		if (size != null) return convertLength(size, UNITS.PT).getValue();
+		if (size != null) return (new LengthI(size, UnitsLength.PT)).getValue();
 		return DEFAULT_FONT_SIZE;
 	}
 	
@@ -424,7 +421,7 @@ public class ShapeSettingsData
 		if (size != null) 
 			return size;
 		else 
-			return UnitsFactory.makeLength(DEFAULT_FONT_SIZE, UNITS.PT);
+			return new LengthI(DEFAULT_FONT_SIZE, UnitsLength.PT);
 	}
 
     /**
@@ -438,7 +435,7 @@ public class ShapeSettingsData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		if (fontSize <= 0) fontSize = DEFAULT_FONT_SIZE;
-		shape.setFontSize(makeLength(fontSize, UNITS.PT));
+		shape.setFontSize(new LengthI(fontSize, UnitsLength.PT));
 		setDirty(true);
 	}
 	
@@ -451,7 +448,7 @@ public class ShapeSettingsData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		if (fontSize ==null) 
-			fontSize = makeLength(DEFAULT_FONT_SIZE, UNITS.PT);
+			fontSize = new LengthI(DEFAULT_FONT_SIZE, UnitsLength.PT);
 		shape.setFontSize(fontSize);
 		setDirty(true);
 	}

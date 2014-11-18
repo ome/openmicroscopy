@@ -8,12 +8,12 @@
 package pojos;
 
 import static omero.rtypes.*;
-import static ome.formats.model.UnitsFactory.makeLength;
-import ome.units.UNITS;
 import omero.model.Length;
+import omero.model.LengthI;
 import omero.model.Pixels;
 import omero.model.PixelsI;
 import omero.model.PixelsType;
+import omero.model.enums.UnitsLength;
 
 /**
  * The data that makes up an <i>OME</i> Pixels object along with a back pointer
@@ -229,7 +229,7 @@ public class PixelsData extends DataObject {
     @Deprecated
     public void setPixelSizeX(double pixelSizeX) {
         setDirty(true);
-        asPixels().setPhysicalSizeX(makeLength(pixelSizeX, UNITS.MICROM));
+        asPixels().setPhysicalSizeX(new LengthI(pixelSizeX, UnitsLength.MICROM));
     }
 
     /**
@@ -276,7 +276,7 @@ public class PixelsData extends DataObject {
     @Deprecated
     public void setPixelSizeY(double pixelSizeY) {
         setDirty(true);
-        asPixels().setPhysicalSizeY(makeLength(pixelSizeY, UNITS.MICROM));
+        asPixels().setPhysicalSizeY(new LengthI(pixelSizeY, UnitsLength.MICROM));
     }
     
     /**
@@ -322,7 +322,7 @@ public class PixelsData extends DataObject {
     @Deprecated
     public void setPixelSizeZ(double pixelSizeZ) {
         setDirty(true);
-        asPixels().setPhysicalSizeZ(makeLength(pixelSizeZ, UNITS.MICROM));
+        asPixels().setPhysicalSizeZ(new LengthI(pixelSizeZ, UnitsLength.MICROM));
     }
 
     /**
