@@ -994,8 +994,17 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         QuantumDef qDefTo = settingsTo.getQuantization();
 
         qDefTo.setBitResolution(qDefFrom.getBitResolution());
-        qDefTo.setCdEnd(qDefFrom.getCdEnd());
-        qDefTo.setCdStart(qDefFrom.getCdStart());
+        //Check if end > start
+        Integer end = qDefFrom.getCdEnd();
+        Integer start = qDefFrom.getCdStart();
+        if (end != null && start != null) {
+            if (end < start) {
+                end = start;
+                start =  qDefFrom.getCdEnd();
+            }
+        }
+        qDefTo.setCdEnd(end);
+        qDefTo.setCdStart(start);
 
         Iterator<ChannelBinding> i = settingsFrom.iterateWaveRendering();
         Iterator<ChannelBinding> iTo = settingsTo.iterateWaveRendering();
