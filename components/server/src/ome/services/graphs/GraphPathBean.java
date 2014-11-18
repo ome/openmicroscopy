@@ -401,7 +401,7 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
     /**
      * Get the classes and properties to which the given class links.
      * @param className the name of a class
-     * @return the classes and properties to which the given class links, never {@code null}
+     * @return the classes to which the given class links, and by which properties; never {@code null}
      */
     public Set<Entry<String, String>> getLinkedTo(String className) {
         return linkedTo.get(className);
@@ -410,7 +410,7 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
     /**
      * Get the classes and properties that link to the given class.
      * @param className the name of a class
-     * @return the classes and properties that link to the given class, never {@code null}
+     * @return the classes that link to the given class, and by which properties; never {@code null}
      */
     public Set<Entry<String, String>> getLinkedBy(String className) {
         return linkedBy.get(className);
