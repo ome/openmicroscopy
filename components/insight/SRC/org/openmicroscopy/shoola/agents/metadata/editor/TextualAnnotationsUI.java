@@ -131,7 +131,7 @@ class TextualAnnotationsUI
 		commentArea.addFocusListener(new FocusListener() {
                     
                     public void focusLost(FocusEvent arg0) {
-                        if(StringUtils.isEmpty(commentArea.getText()) || commentArea.getText().equals(DEFAULT_TEXT)) {
+                        if(StringUtils.isEmpty(commentArea.getText()) || commentArea.getText().equals(DEFAULT_TEXT_COMMENT)) {
                             pane.getViewport().setPreferredSize(null);
                             pane.revalidate();
                             addButton.setVisible(false);
