@@ -128,20 +128,68 @@
                 {% elif manager.well.getWellSample.image %}
                 original_file_paths_url = "{% url 'original_file_paths' manager.well.getWellSample.image.id %}";
                 {% endif %}
+
+                var $toolbar_info_panel = $("#toolbar_info_panel"),
+                        // $panel_textarea = $("#toolbar_info_panel textarea"),
+                        $panel_title = $("#toolbar_info_panel .panel_title"),
+                        $panel_div = $("#toolbar_info_panel .panel_div");
+
                 $("#show_fs_files_btn").click(function(){
-                    $("#fs_paths_popup").show();
-                    var fs_input = $("#fs_paths_popup textarea");
+
+                    // If we're already showing Image file info, toggle hide
+                    if ($toolbar_info_panel.is(":visible") && 
+                            $panel_title.text().split("Image file").length > 1) {
+                        $toolbar_info_panel.hide();
+                        return;
+                    }
+                    $("#toolbar_info_panel").show();
+                    $panel_title.html("Loading...");
+                    $panel_div.empty();
                     if (original_file_paths_url) {
                         $.getJSON(original_file_paths_url,
                             function(data) {
-                                fs_input.val(data.join("\n"));
-                                fs_input.attr("cols", 150);
-                                fs_input.attr("rows", Math.max(3, data.length));
+                                $panel_title.html(data.length + " Image file" + (data.length>1 ? "s:" : ":"));
+                                $("<textarea readonly='true'></textarea")
+                                    .val(data.join("\n"))
+                                    .attr("cols", 150)
+                                    .attr("rows", Math.max(3, data.length))
+                                    .appendTo($panel_div);
                             });
                     }
                 });
-                $("#fs_paths_popup img").click(function(){
-                    $("#fs_paths_popup").hide();
+
+                var hierarchy_url;
+                {% if manager.image %}
+                hierarchy_url = "{% url 'load_metadata_hierarchy' 'image' manager.image.id %}";
+                {% elif manager.well %}
+                hierarchy_url = "{% url 'load_metadata_hierarchy' 'image' manager.well.getWellSample.image.id %}";
+                {% endif %}
+                
+                // show Image hierarchy Project/Dataset tree.
+                $("#show_image_hierarchy").click(function(){
+
+                    // If we're already showing Image file info, toggle hide
+                    if ($toolbar_info_panel.is(":visible") && 
+                            $panel_title.text().split("contained").length > 1) {
+                        $toolbar_info_panel.hide();
+                        return;
+                    }
+                    $("#toolbar_info_panel").show();
+
+                    $panel_title.html("Loading...");
+                    $panel_div.empty();
+                    if (hierarchy_url) {
+                        $panel_div.load(hierarchy_url);
+                        $panel_div.load(hierarchy_url,
+                            function(data) {
+                                $panel_title.html("Image contained in:");
+                            });
+                    }
+                });
+
+
+                $("#toolbar_info_panel img").click(function(){
+                    $("#toolbar_info_panel").hide();
                 });
 
                 // handle submit of Add Comment form
@@ -436,6 +484,17 @@
                 {% include "webclient/annotations/includes/toolbar.html" %}
             {% endwith %}
 
+
+            <!-- panel for extra info shown by toolbar buttons if needed - Duplicated under well below -->
+            <div id="toolbar_info_panel" style="display:none; background: #fff; border: solid 1px #ddd; margin:5px 0">
+                <img title="Close" src="{% static 'webgateway/img/close.gif' %}" style="float:right; margin:3px"/>
+                <div class="panel_title" style="margin: 4px">
+                    <!-- text loaded here -->
+                </div>
+                <div class="panel_div"></div>
+                <div style="clear:both"></div>
+            </div>
+
             <!-- Image Name -->
             {% with obj=manager.image nameText=manager.image.name %}
                 {% include "webclient/annotations/includes/name.html" %}
@@ -461,16 +520,6 @@
                 </div>
 
             </div>
-
-            {% if manager.image.showOriginalFilePaths %}
-            <div style="clear:both"></div>
-            <div id="fs_paths_popup" style="display:none; background: #fff; border: solid 1px #ddd; margin-bottom:5px">
-                <img title="Close" src="{% static 'webgateway/img/close.gif' %}" style="float:right; margin:3px"/>
-                <div style="margin: 4px">{{ manager.image.getImportedFilesInfo.count }} Image file{{ manager.image.getImportedFilesInfo.count|pluralize:'s'}}:</div>
-                <textarea readonly="true" style="width:99%; float:right; resize:none; border:none; padding:5px 0 0 0; margin:0px"></textarea>
-                <div style="clear:both"></div>
-            </div>
-            {% endif %}
 
             <div style="clear:both"></div>
             <div style="padding-bottom:6px; position:relative">
@@ -590,6 +639,17 @@
                 {% include "webclient/annotations/includes/toolbar.html" %}
             {% endwith %}
 
+
+            <!-- panel for extra info shown by toolbar buttons if needed - Duplicated under image above -->
+            <div id="toolbar_info_panel" style="display:none; background: #fff; border: solid 1px #ddd; margin:5px 0">
+                <img title="Close" src="{% static 'webgateway/img/close.gif' %}" style="float:right; margin:3px"/>
+                <div class="panel_title" style="margin: 4px">
+                    <!-- text loaded here -->
+                </div>
+                <div class="panel_div"></div>
+                <div style="clear:both"></div>
+            </div>
+
                         <!-- Image (in WellSample) Description -->
             {% with obj=manager.well.getWellSample.image nameText=manager.well.getWellSample.image.name %}
                 {% include "webclient/annotations/includes/name.html" %}
@@ -610,17 +670,6 @@
             </button>
             
             <div style="clear:both"></div>
-
-            {% if manager.well.getWellSample.image.showOriginalFilePaths %}
-            <!-- duplicated under 'image' above -->
-            <div style="clear:both"></div>
-            <div id="fs_paths_popup" style="display:none; background: #fff; border: solid 1px #ddd; margin-bottom:5px">
-                <img title="Close" src="{% static 'webgateway/img/close.gif' %}" style="float:right; margin:3px"/>
-                <div style="margin: 4px">{{ manager.well.getWellSample.image.getImportedFilesInfo.count }} Image file{{ manager.well.getWellSample.image.getImportedFilesInfo.count|pluralize:'s'}}:</div>
-                <textarea readonly="true" style="width:99%; float:right; resize:none; border:none; padding:5px 0 0 0; margin:0px"></textarea>
-                <div style="clear:both"></div>
-            </div>
-            {% endif %}
 
             <hr/>
             
@@ -974,23 +1023,6 @@
                     </div>
            
             <div class="clear"></div>          
-
-
-
-
-
-
-            <div class="annotations_section">
-                {% if manager.image %}
-                <!-- HIERARCHY - Contained In -->
-                <h2>Image Contained in:</h2>
-                <div id="hierarchy-pane">
-                    <!-- content is loaded by ajax when this tab is first displayed -->
-                    <a id="hierarchy-link" href="{% url 'load_metadata_hierarchy' 'image' manager.image.id %}">Load hierarchy...</a>
-                    <img id="hierarchy-spinner" style="display:none" src="{% static "webgateway/img/spinner.gif" %}" />
-                </div>
-                {% endif %}
-            </div>
             
         </div>
         {% endif %}

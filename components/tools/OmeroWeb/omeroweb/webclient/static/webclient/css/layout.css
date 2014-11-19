@@ -522,7 +522,15 @@
         
         
             
-            
+    #toolbar_info_panel textarea {
+    	width:99%;
+    	float:right;
+    	resize:none;
+    	border:none;
+    	padding:5px 0 0 0;
+    	margin:0px;
+    }
+
     
 
 
