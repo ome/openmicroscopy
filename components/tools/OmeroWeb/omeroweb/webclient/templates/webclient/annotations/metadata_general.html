@@ -530,6 +530,13 @@
                     <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
                 </div>
 
+                <table style="float:left; width:100px; clear:left">
+                    <tr>
+                        <th>Owner:</th>
+                        <td id='owner_fullname'>{{ manager.image.getOwner.getFullName }}</td>
+                    </tr>
+                </table>
+
             </div>
 
             <div style="clear:both"></div>
@@ -679,6 +686,14 @@
                 {% trans "Launch full viewer" %} 
                 </span>
             </button>
+
+            <table style="float:left; width:100px; clear:left">
+                <tr>
+                    <th>Owner:</th>
+                    <td id='owner_fullname'>{{ manager.well.getWellSample.getOwner.getFullName }}</td>
+                </tr>
+            </table>
+            <div style="clear: both"></div>
             
             <div style="clear:both"></div>
 
