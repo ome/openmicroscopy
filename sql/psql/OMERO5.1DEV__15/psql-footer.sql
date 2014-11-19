@@ -1591,7 +1591,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.1DEV',  14,    'OMERO5.1DEV',   0,             'Initializing');
+             values ('OMERO5.1DEV',  15,    'OMERO5.1DEV',   0,             'Initializing');
 
 --
 -- Temporarily make event columns nullable; restored below.
@@ -2607,14 +2607,14 @@ ALTER TABLE pixels
 
 ALTER TABLE transmittancerange
     ALTER COLUMN cutin TYPE positive_float,
-    ALTER COLUMN cutintolerance TYPE nonnegative_int,
+    ALTER COLUMN cutintolerance TYPE nonnegative_float,
     ALTER COLUMN cutout TYPE positive_float,
-    ALTER COLUMN cutouttolerance TYPE nonnegative_int;
+    ALTER COLUMN cutouttolerance TYPE nonnegative_float;
 
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
   where currentVersion = 'OMERO5.1DEV' and
-        currentPatch = 14 and
+        currentPatch = 15 and
         previousVersion = 'OMERO5.1DEV' and
         previousPatch = 0;
 

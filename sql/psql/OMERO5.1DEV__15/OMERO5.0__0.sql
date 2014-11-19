@@ -1653,6 +1653,14 @@ ALTER TABLE experimentergroup ADD COLUMN ldap BOOL NOT NULL DEFAULT false;
 
 UPDATE experimentergroup SET ldap = false;
 
+-- 5.1DEV__15
+
+CREATE DOMAIN nonnegative_float AS DOUBLE PRECISION CHECK (VALUE >= 0);
+
+ALTER TABLE transmittancerange
+    ALTER COLUMN cutintolerance TYPE nonnegative_float,
+    ALTER COLUMN cutouttolerance TYPE nonnegative_float;
+
 --
 -- FINISHED
 --
