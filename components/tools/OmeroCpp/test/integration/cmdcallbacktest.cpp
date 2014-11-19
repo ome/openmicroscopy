@@ -80,37 +80,45 @@ public:
     }
 
     void assertFinished(bool testSteps = true) {
-        IceUtil::RecMutex::Lock lock(mutex);
-        ASSERT_EQ(1, finished);
-        ASSERT_FALSE(isCancelled());
-        ASSERT_FALSE(isFailure());
-        ResponsePtr rsp = getResponse();
-        if (!rsp) {
-            FAIL() << "null response";
-        }
-        ERRPtr err = ERRPtr::dynamicCast(rsp);
-        if (err) {
-            ostringstream ss;
-            omero::cmd::StringMap::iterator it;
-            for (it=err->parameters.begin(); it != err->parameters.end(); it++ ) {
-                ss << (*it).first << " => " << (*it).second << endl;
+        try {
+            IceUtil::RecMutex::Lock lock(mutex);
+            ASSERT_EQ(1, finished);
+            ASSERT_FALSE(isCancelled());
+            ASSERT_FALSE(isFailure());
+            ResponsePtr rsp = getResponse();
+            if (!rsp) {
+                FAIL() << "null response";
             }
-            FAIL()
-             << "ERR!"
-             << "cat:" << err->category << "\n"
-             << "name:" << err->name << "\n"
-             << "params:" << ss.str() << "\n";
-        }
+            ERRPtr err = ERRPtr::dynamicCast(rsp);
+            if (err) {
+                ostringstream ss;
+                omero::cmd::StringMap::iterator it;
+                for (it=err->parameters.begin(); it != err->parameters.end(); it++ ) {
+                    ss << (*it).first << " => " << (*it).second << endl;
+                }
+                FAIL()
+                << "ERR!"
+                << "cat:" << err->category << "\n"
+                << "name:" << err->name << "\n"
+                << "params:" << ss.str() << "\n";
+            }
 
-        if (testSteps) {
-            assertSteps();
+            if (testSteps) {
+                assertSteps();
+            }
+        } catch (const omero::ValidationException& ve) {
+            FAIL() << "validation exception:" << ve.message;
         }
     }
 
     void assertCancelled() {
-        IceUtil::RecMutex::Lock lock(mutex);
-        ASSERT_EQ(1, finished);
-        ASSERT_TRUE(isCancelled());
+        try {
+            IceUtil::RecMutex::Lock lock(mutex);
+            ASSERT_EQ(1, finished);
+            ASSERT_TRUE(isCancelled());
+        } catch (const omero::ValidationException& ve) {
+            FAIL() << "validation exception:" << ve.message;
+        }
     }
 };
 
