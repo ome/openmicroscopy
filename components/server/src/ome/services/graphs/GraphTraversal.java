@@ -37,6 +37,8 @@ import org.slf4j.LoggerFactory;
 import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.proxy.HibernateProxy;
+import org.hibernate.proxy.LazyInitializer;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
@@ -658,18 +660,40 @@ public class GraphTraversal {
             for (final List<Long> idsBatch : Iterables.partition(idsToQuery, BATCH_SIZE)) {
                 final Iterator<Object> objectInstances = session.createQuery(rootQuery).setParameterList("ids", idsBatch).iterate();
                 while (objectInstances.hasNext()) {
-                    final Object objectInstance = objectInstances.next();
-                    final CI object = new CI((IObject) objectInstance);  /* TODO (for Hibernate 4) ...but this step loads them */
+                    /*final*/ Object objectInstance = objectInstances.next();
+                    if (objectInstance instanceof HibernateProxy) {
+                        /* TODO: this is an awkward hack pending Hibernate 4's type() function */
+                       final LazyInitializer initializer = ((HibernateProxy) objectInstance).getHibernateLazyInitializer();
+                       final Long id = (Long) initializer.getIdentifier();
+                       String realClassName = initializer.getEntityName();
+                       boolean lookForSubclass = true;
+                       while (lookForSubclass) {
+                           lookForSubclass = false;
+                           for (final String subclassName : model.getSubclassesOf(realClassName)) {
+                               final String classQuery = "FROM " + subclassName + " WHERE id = :id";
+                               final Iterator<Object> instance = session.createQuery(classQuery).setParameter("id", id).iterate();
+                               if (instance.hasNext()) {
+                                   realClassName = subclassName;
+                                   lookForSubclass = true;
+                                   break;
+                               }
+                           }
+                       }
+                       objectInstance = new CI(realClassName, id).toIObject();
+                    }
+                    final CI object = new CI((IObject) objectInstance);
                     objectsById.put(object.id, object);
                     planning.aliases.put(new CI(className, object.id), object);
                 }
             }
 
             /* construct query according to which details may be queried */
-            final Set<Entry<String, String>> forwardLinks = model.getLinkedTo(className);
             final Set<String> linkProperties = new HashSet<String>();
-            for (final Entry<String, String> forwardLink : forwardLinks) {
-                linkProperties.add(forwardLink.getValue());
+            for (final String superclassName : model.getSuperclassesOfReflexive(className)) {
+                final Set<Entry<String, String>> forwardLinks = model.getLinkedTo(superclassName);
+                for (final Entry<String, String> forwardLink : forwardLinks) {
+                    linkProperties.add(forwardLink.getValue());
+                }
             }
             final List<String> soughtProperties = ImmutableList.of("details.owner", "details.group");
             final List<String> selectTerms = new ArrayList<String>(soughtProperties.size() + 1);
