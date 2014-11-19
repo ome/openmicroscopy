@@ -69,7 +69,12 @@ class TestModel51(lib.ITest):
         assert omero.model.enums.UnitsLength.MM == unit
 
     UL = omero.model.enums.UnitsLength
-    UL = sorted(UL._enumerators.values())
+    try:
+        UL = sorted(UL._enumerators.values())
+    except:
+        # TODO: this occurs on Ice 3.4 and can be removed
+        # once it has been dropped.
+        UL = [getattr(UL, x) for x in sorted(UL._names)]
 
     @pytest.mark.parametrize("ul", UL)
     def testAllLengths(self, ul):

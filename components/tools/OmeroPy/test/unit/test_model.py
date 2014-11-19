@@ -331,3 +331,15 @@ class TestModel(object):
         link = DatasetImageLinkI()
         link.setParent("Dataset:1")
         link.setChild("Image:1")
+
+    UL = omero.model.enums.UnitsLength
+    try:
+        UL = sorted(UL._enumerators.values())
+    except:
+        # TODO: this occurs on Ice 3.4 and can be removed
+        # once it has been dropped.
+        UL = [getattr(UL, x) for x in sorted(UL._names)]
+
+    @pytest.mark.parametrize("ul", UL)
+    def testEnumerators(self, ul):
+        assert hasattr(omero.model.enums.UnitsLength, str(ul))
