@@ -2133,7 +2133,7 @@ public class EditorUtil
         if (freq == null) {
             v = 0;
             notSet.add(READ_OUT_RATE);
-        } else v = UIUtilities.roundTwoDecimals(UnitsFactory.convertFrequency(freq, UNITS.MHZ).getValue());
+        } else v = UIUtilities.roundTwoDecimals(UnitsFactory.convertFrequency(freq, UNITS.MEGAHZ).getValue());
         details.put(READ_OUT_RATE, v);
         String s = data.getDetectorSettingsBinning();
         if (StringUtils.isBlank(s)) {
