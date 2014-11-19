@@ -31,6 +31,7 @@ package pojos;
 // Application-internal dependencies
 import omero.RDouble;
 import omero.RTime;
+import omero.model.Length;
 import omero.model.WellSample;
 import omero.model.WellSampleI;
 
@@ -110,9 +111,10 @@ public class WellSampleData extends DataObject {
      * 
      * @return See above.
      */
+    @Deprecated
     public double getPositionX()
     {
-    	RDouble value = asWellSample().getPosX();
+    	Length value = asWellSample().getPosX();
     	if (value == null) return 0;
     	return value.getValue();
     }
@@ -122,9 +124,10 @@ public class WellSampleData extends DataObject {
      * 
      * @return See above.
      */
+    @Deprecated
     public double getPositionY()
     {
-    	RDouble value = asWellSample().getPosY();
+    	Length value = asWellSample().getPosY();
     	if (value == null) return 0;
     	return value.getValue();
     }

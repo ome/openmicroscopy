@@ -25,6 +25,7 @@
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/formats-bsd/src" />
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/specification/src" />
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/ome-xml/src" />
+	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/ome-xml/target/generated-sources"/>
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/stubs/lwf-stubs/src" />
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/formats-api/src" />
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/test-suite/src" />

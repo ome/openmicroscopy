@@ -115,7 +115,7 @@ public class MetadataStoreI extends AbstractCloseableAmdServant implements
     @Override
     public void onSetOmeroContext(final OmeroContext ctx) throws Exception {
         ServiceFactory sf = new InternalServiceFactory(ctx);
-        this.store = new OMEROMetadataStore(sf);
+        this.store = new OMEROMetadataStore(sf, sql);
     }
 
     @SuppressWarnings("unchecked")

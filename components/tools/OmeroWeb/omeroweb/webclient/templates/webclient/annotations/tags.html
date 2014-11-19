@@ -4,7 +4,7 @@
 
 {% comment %}
 <!--
-  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  Copyright (C) 2011-2014 University of Dundee & Open Microscopy Environment.
   All rights reserved.
 
   This program is free software: you can redistribute it and/or modify
@@ -31,13 +31,13 @@
 
 {% if batch_ann %}
     {% for t in batchAnns.Tag %}
-        {% with tag=t.ann links=t.links can_unlink_count=t.unlink can_remove=t.can_remove %}
+        {% with tag=t.ann links=t.links can_unlink_count=t.unlink can_remove=t.can_remove added_by=t.added_by %}
             {% include "webclient/annotations/tag.html" %}
         {% endwith %}
     {% endfor %}
 {% else %}
     {% for tag in tags %}
-        {% with can_remove=tag.link.canDelete %}
+        {% with can_remove=tag.link.canDelete added_by=tag.link.getDetails.getOwner.id %}
             {% include "webclient/annotations/tag.html" %}
         {% endwith %}
     {% endfor %}

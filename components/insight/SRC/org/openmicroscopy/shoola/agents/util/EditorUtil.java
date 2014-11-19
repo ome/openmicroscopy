@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.util;
 
-
-//Java imports
 import java.awt.Color;
 import java.awt.Font;
 import java.sql.Timestamp;
@@ -42,12 +40,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.apache.commons.lang.StringUtils;
-//Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
 
-
-//Application-internal dependencies
-import omero.RDouble;
+import omero.model.Length;
 import omero.model.PlaneInfo;
 
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
@@ -1807,16 +1802,16 @@ public class EditorUtil
         if (f == null) notSet.add(ATTENUATION);
         else v = f;
         details.put(ATTENUATION, v*PERCENT_FRACTION);
- 
+
         Double wave = data.getLightSettingsWavelength();
         if (details.containsKey(WAVELENGTH)) {
             if (wave != null) { //override the value.
-                details.put(WAVELENGTH, new Float(wave));
+                details.put(WAVELENGTH, wave);
             }
         } else {
-            float vi = 0;
+            Double vi = 0.0;
             if (wave == null) notSet.add(WAVELENGTH);
-            else vi = new Float(wave);
+            else vi = wave;
             details.put(WAVELENGTH, vi);
         }
         details.put(NOT_SET, notSet);
@@ -2143,7 +2138,7 @@ public class EditorUtil
                 details.put(EXPOSURE_TIME, roundValue(t.getValue()));
             }
 
-            omero.RDouble o = plane.getPositionX();
+            Length o = plane.getPositionX();
             if (o != null) {
                 notSet.remove(POSITION_X);
                 details.put(POSITION_X, roundValue(o.getValue()));

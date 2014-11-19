@@ -8,7 +8,9 @@ set -x
 export PSQL_DIR=${PSQL_DIR:-/usr/local/var/postgres}
 export OMERO_DATA_DIR=${OMERO_DATA_DIR:-/tmp/var/OMERO.data}
 export SCRIPT_NAME=${SCRIPT_NAME:-OMERO.sql}
+export ROOT_PASSWORD=${ROOT_PASSWORD:-omero}
 export ICE=${ICE:-3.5}
+export HTTPPORT=${HTTPPORT:-8080}
 
 # Test whether this script is run in a job environment
 JOB_NAME=${JOB_NAME:-}
@@ -24,7 +26,7 @@ TESTING_MODE=${TESTING_MODE:-$DEFAULT_TESTING_MODE}
 ###################################################################
 
 # Install Homebrew in /usr/local
-ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"
+ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 cd /usr/local
 
 # Install git if not already installed
@@ -75,7 +77,7 @@ cd /usr/local
 
 # Install Bio-Formats
 bin/brew install bioformats
-showinf -version
+VERBOSE=1 bin/brew test bioformats
 
 ###################################################################
 # OMERO installation
@@ -84,14 +86,17 @@ showinf -version
 # Install PostgreSQL and OMERO
 OMERO_PYTHONPATH=$(bin/brew --prefix omero)/lib/python
 if [ "$ICE" == "3.4" ]; then
-    bin/brew install omero --with-ice34
+    bin/brew install omero --with-ice34 --with-nginx
     ICE_HOME=$(bin/brew --prefix zeroc-ice34)
     export PYTHONPATH=$OMERO_PYTHONPATH:$ICE_HOME/python
     export DYLD_LIBRARY_PATH=$ICE_HOME/lib
 else
-    bin/brew install omero
+    bin/brew install omero --with-nginx
     export PYTHONPATH=$OMERO_PYTHONPATH
 fi
+VERBOSE=1 bin/brew test omero
+
+# Install PostgreSQL
 bin/brew install postgres
 
 # Install OMERO Python dependencies
@@ -120,7 +125,7 @@ bin/omero config set omero.db.user db_user
 bin/omero config set omero.db.pass db_password
 
 # Run DB script
-bin/omero db script "" "" root_password -f $SCRIPT_NAME
+bin/omero db script "" "" $ROOT_PASSWORD -f $SCRIPT_NAME
 bin/psql -h localhost -U db_user omero_database < $SCRIPT_NAME
 rm $SCRIPT_NAME
 
@@ -132,7 +137,27 @@ bin/omero config set omero.data.dir $OMERO_DATA_DIR
 bin/omero admin start
 
 # Test simple fake import
-bin/omero login -s localhost -u root -w root_password
+bin/omero login -s localhost -u root -w $ROOT_PASSWORD
 touch test.fake
 bin/omero import test.fake
 bin/omero logout
+
+# Start OMERO.web
+bin/omero config set omero.web.application_server "fastcgi-tcp"
+bin/omero config set omero.web.debug True
+bin/omero web config nginx --http $HTTPPORT > $(bin/brew --prefix omero)/etc/nginx.conf
+nginx -c $(bin/brew --prefix omero)/etc/nginx.conf
+bin/omero web start
+
+# Test simple Web connection
+brew install wget
+post_data="username=root&password=$ROOT_PASSWORD&server=1&noredirect=1"
+resp=$(wget --post-data $post_data http://localhost:$HTTPPORT/webclient/login/)
+echo "$resp"
+
+# Stop OMERO.web
+bin/omero web stop
+nginx -c $(bin/brew --prefix omero)/etc/nginx.conf -s stop
+
+# Stop the server
+bin/omero admin stop

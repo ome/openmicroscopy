@@ -36,6 +36,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+
 //Third-party libraries
 import static org.jhotdraw.draw.AttributeKeys.FILL_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.FONT_BOLD;
@@ -46,6 +47,8 @@ import static org.jhotdraw.draw.AttributeKeys.STROKE_CAP;
 import static org.jhotdraw.draw.AttributeKeys.STROKE_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.TEXT_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.STROKE_WIDTH;
+
+import org.apache.commons.lang.StringUtils;
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.geom.BezierPath.Node;
 
@@ -168,7 +171,6 @@ class InputServerStrategy
 		throws NoSuchROIException, ROICreationException
 	{
 		long id = roi.getId();
-		//ROI newROI = component.createROI(id, readOnly);
 		boolean edit = roi.canEdit();
 		if (edit) {
 			edit = roi.getOwner().getId() == userID;
@@ -179,17 +181,10 @@ class InputServerStrategy
 		
 		if (roi.getNamespaces().size() != 0) {
 			String s = roi.getNamespaces().get(0);
-			newROI.setAnnotation(AnnotationKeys.NAMESPACE, s);
-			if (roi.getNamespaceKeywords().size() != 0)
-				newROI.setAnnotation(AnnotationKeys.KEYWORDS, 
-						UIUtilities.listToCSV(roi.getNamespaceKeywords(s)));
+			if (StringUtils.isNotBlank(s)) {
+			    newROI.setAnnotation(AnnotationKeys.NAMESPACE, s);
+			}
 		}
-			
-		if (roi.getNamespaceKeywords().size() != 0)
-			newROI.setAnnotation(AnnotationKeys.KEYWORDS, 
-					UIUtilities.listToCSV(roi.getNamespaceKeywords(
-							roi.getNamespaces().get(0))));
-							
 		ROIShape shape;
 		ShapeData shapeData;
 		Iterator<List<ShapeData>> i = roi.getIterator();
@@ -229,7 +224,6 @@ class InputServerStrategy
 	{
 		int z = data.getZ();
 		int t = data.getT();
-		if (z < 0 || t < 0) return null;
 		Coord3D coord = new Coord3D(z, t);
 		ROIFigure fig = createROIFigure(data);
 		fig.setReadOnly(data.isReadOnly());
@@ -584,7 +578,7 @@ class InputServerStrategy
 		STROKE_COLOR.set(figure, data.getStroke());
 		FILL_COLOR.set(figure, data.getFill());
 		FONT_FACE.set(figure, data.getFont());
-		FONT_SIZE.set(figure, new Double(data.getFontSize()));
+		FONT_SIZE.set(figure, data.getFontSize());
 		FONT_ITALIC.set(figure, data.isFontItalic());
 		FONT_BOLD.set(figure, data.isFontBold());
 		STROKE_CAP.set(figure, data.getLineCap());

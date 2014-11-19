@@ -33,6 +33,7 @@ import omero.RInt;
 import omero.RString;
 import omero.model.Correction;
 import omero.model.Immersion;
+import omero.model.Length;
 import omero.model.Objective;
 
 /**
@@ -69,10 +70,11 @@ public class ObjectiveData
 	 * 
 	 * @return See above.
 	 */
+	@Deprecated
 	public double getWorkingDistance()
 	{
 		Objective obj = ((Objective) asIObject());
-		RDouble value = obj.getWorkingDistance();
+		Length value = obj.getWorkingDistance();
 		if (value == null) return -1;
 		return value.getValue();
 	}

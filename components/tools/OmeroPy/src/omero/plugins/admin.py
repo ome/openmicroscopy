@@ -902,7 +902,7 @@ present, the user will enter a console""")
 
     @with_config
     def diagnostics(self, args, config):
-        self.check_access()
+        self.check_access(os.R_OK)
         config = config.as_map()
         omero_data_dir = '/OMERO'
         try:

@@ -541,6 +541,7 @@ class BaseContainer(BaseController):
             for annId, annDict in annMap.items():
                 # ann is {'ann':AnnWrapper, 'links'[AnnotationLinkWrapper, ..]}
                 annDict['links'].sort(key=lambda x: x.parent.id.val)    # Each ann has links to several objects
+                annDict['added_by'] = ",".join([str(l.getDetails().getOwner().id) for l in annDict['links']])
                 annDict['can_remove'] = annDict['unlink'] > 0
                 annList.append(annDict)
             batchAnns[key] = annList
