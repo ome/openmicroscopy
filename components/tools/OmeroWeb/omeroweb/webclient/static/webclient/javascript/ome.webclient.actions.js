@@ -43,6 +43,16 @@ jQuery.fn.hide_if_empty = function() {
   return this;
 };
 
+// Function to enable measuring of a specific text element in jquery
+$.fn.textWidth = function(text, font) {
+    if (!$.fn.textWidth.fakeEl) $.fn.textWidth.fakeEl = $('<span>').appendTo(document.body);
+    var htmlText = text || this.val() || this.text();
+    htmlText = $.fn.textWidth.fakeEl.text(htmlText).html(); //encode to Html
+    htmlText = htmlText.replace(/\s/g, "&nbsp;"); //replace trailing and leading spaces
+    $.fn.textWidth.fakeEl.html(htmlText).css('font', font || this.css('font'));
+    return $.fn.textWidth.fakeEl.width();
+};
+
 // called from OME.tree_selection_changed() below
 OME.handle_tree_selection = function(data, event) {
 
@@ -393,52 +403,6 @@ OME.refreshThumbnails = function(options) {
         OME.preview_viewport.load(OME.preview_viewport.loadedImg.id);
     }
 };
-
-OME.truncateNames = (function(){
-    var insHtml;
-    // Resizing of left panel dynamically truncates image names
-    // NB: no images loaded when page first laods. Do everything on resize...
-    var truncateNames = function() {
-        if (!insHtml) {
-            // use the first image to get the html
-            var $ins = $('.jstree li[rel^="image"] a ins').first();
-            if ($ins.length > 0) {
-                insHtml = $ins.get(0).outerHTML;
-            }
-        }
-        // get the panel width, and number of chars that will fit
-        var lp_width = $("#left_panel").width() - 20;  // margin
-        // Go through all images, truncating names...
-        // When we find matching size for a name length, save it...
-        var maxChars;
-        $('.jstree li[rel^="image"] a').each(function(){
-            var $this = $(this),
-                ofs = $this.offset(),
-                name = $this.attr('data-name'),
-                truncatedName,
-                chars = name.length;
-            name = name.escapeHTML();
-            // if we know maxChars and we're longer than that...
-            if (maxChars && name.length > maxChars) {
-                chars = maxChars;
-                truncatedName = "..." + name.slice(-chars);
-                $this.html(insHtml + truncatedName);
-            } else {
-                // if needed, trim the full name until it fits and save maxChars
-                $this.html(insHtml + name);
-                var w = $this.width() + ofs.left;
-                while (w > lp_width && chars > 2) {
-                    chars = chars-2;
-                    truncatedName = "..." + name.slice(-chars);
-                    $this.html(insHtml + truncatedName);
-                    w = $this.width() + ofs.left;
-                    maxChars = chars;
-                }
-            }
-        });
-    };
-    return truncateNames;
-}());
 
 
 // Handle deletion of selected objects in jsTree in container_tags.html and containers.html

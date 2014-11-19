@@ -45,6 +45,7 @@
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.omecut_plugin.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.ometools_plugin.js" %}"></script>
    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.childcount_plugin.js" %}"></script>
+   <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.truncatetext_plugin.js" %}"></script>
 
     <script type="text/javascript" src="{% static 'webclient/javascript/ome.chgrp.js'|add:url_suffix %}"></script>
 
@@ -631,14 +632,10 @@
                     apply_owners_rdef_url = "{% url 'reset_owners_rdef_json' %}",
                     reset_rdef_json = "{% url 'reset_rdef_json' %}";
 
-                // We truncate images when the left panel resizes...
-                $("#left_panel").on('resize', OME.truncateNames);
-                // and also when we load new data in the tree
-                // TODO Is load_node correct? Maybe now it is when they have been drawn
-                // or if it is going to be static, could handle in the convert function
-                $("#dataTree").on('load_node.jstree', function() {
-                    // wait for images to render, then truncate:
-                    setTimeout(OME.truncateNames, 30);
+                // We (un)truncate images when the left panel resizes...
+                $("#left_panel").on('resize', function(event) {
+                    var inst = $.jstree.reference('#dataTree');
+                    inst.redraw(true);
                 });
 
                 // Copy the selected Image ID to the 'session' (right-click menu only allows this on 'image')
@@ -1243,7 +1240,7 @@
                 .jstree({
                     'plugins': ['types', 'contextmenu', 'dnd', 'sort', 'locate',
                                 'ometools', 'conditionalselect', 'pagination', 'fields',
-                                'childcount', 'omecut'],
+                                'truncatetext', 'childcount', 'omecut'],
                     // The jstree core
                     'locate' : {
                         // Returns a key for this node
