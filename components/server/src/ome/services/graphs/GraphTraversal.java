@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
 import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.proxy.HibernateProxy;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
@@ -352,6 +351,7 @@ public class GraphTraversal {
         final Set<CI> findIfLast = new HashSet<CI>();
         final Map<CI, Boolean> foundIfLast = new HashMap<CI, Boolean>();
         /* links */
+        final Map<CI, CI> aliases = new HashMap<CI, CI>();
         final Set<CI> cached = new HashSet<CI>();
         final SetMultimap<CPI, CI> forwardLinksCached = HashMultimap.create();
         final SetMultimap<CPI, CI> backwardLinksCached = HashMultimap.create();
@@ -486,7 +486,7 @@ public class GraphTraversal {
         /* note the object instances for processing */
         final SetMultimap<String, Long> objectsToQuery = HashMultimap.create();
         for (final IObject instance : objectInstances) {
-            if (instance instanceof HibernateProxy) {
+            if (instance.isLoaded()) {
                 final CI object = new CI(instance);
                 noteDetails(object, instance.getDetails());
                 targetSet.add(object);
@@ -640,22 +640,31 @@ public class GraphTraversal {
      */
     private Map<Long, CI> findObjectDetails(String className, Collection<Long> ids) throws GraphException {
         final Map<Long, CI> objectsById = new HashMap<Long, CI>();
-        final Set<Long> detailsToNote = new HashSet<Long>();
+        final Set<Long> idsToQuery = new HashSet<Long>();
 
-        /* query persisted object instances without loading them */
-        final String rootQuery = "FROM " + className + " WHERE id IN (:ids)";
-        for (final List<Long> idsBatch : Iterables.partition(ids, BATCH_SIZE)) {
-            final Iterator<Object> proxies = session.createQuery(rootQuery).setParameterList("ids", idsBatch).iterate();
-            while (proxies.hasNext()) {
-                final CI object = new CI((IObject) proxies.next());
-                objectsById.put(object.id, object);
-                if (!planning.detailsNoted.containsKey(object)) {
-                    detailsToNote.add(object.id);
-                }
+        for (final Long id : ids) {
+            final CI object = new CI(className, id);
+            final CI alias = planning.aliases.get(object);
+            if (alias == null) {
+                idsToQuery.add(id);
+            } else {
+                objectsById.put(object.id, alias);
             }
         }
 
-        if (!detailsToNote.isEmpty()) {
+        if (!idsToQuery.isEmpty()) {
+            /* query persisted object instances without loading them */
+            final String rootQuery = "FROM " + className + " WHERE id IN (:ids)";
+            for (final List<Long> idsBatch : Iterables.partition(idsToQuery, BATCH_SIZE)) {
+                final Iterator<Object> objectInstances = session.createQuery(rootQuery).setParameterList("ids", idsBatch).iterate();
+                while (objectInstances.hasNext()) {
+                    final Object objectInstance = objectInstances.next();
+                    final CI object = new CI((IObject) objectInstance);  /* TODO (for Hibernate 4) ...but this step loads them */
+                    objectsById.put(object.id, object);
+                    planning.aliases.put(new CI(className, object.id), object);
+                }
+            }
+
             /* construct query according to which details may be queried */
             final Set<Entry<String, String>> forwardLinks = model.getLinkedTo(className);
             final Set<String> linkProperties = new HashSet<String>();
@@ -677,7 +686,7 @@ public class GraphTraversal {
                     "SELECT " + Joiner.on(',').join(selectTerms) + " FROM " + className +" AS root WHERE root.id IN (:ids)";
 
             /* query and note details of objects */
-            for (final List<Long> idsBatch : Iterables.partition(detailsToNote, BATCH_SIZE)) {
+            for (final List<Long> idsBatch : Iterables.partition(idsToQuery, BATCH_SIZE)) {
                 final Query hibernateQuery = session.createQuery(detailsQuery).setParameterList("ids", idsBatch);
                 for (final Object[] result : (List<Object[]>) hibernateQuery.list()) {
                     final ome.model.internal.Details details = ome.model.internal.Details.create();
