@@ -27,8 +27,6 @@ import ome.services.delete.Deletion;
 import ome.services.graphs.GraphException;
 import ome.system.EventContext;
 
-import omero.api.delete.DeleteCommand;
-import omero.api.delete.DeleteReport;
 import omero.cmd.Delete;
 import omero.cmd.DeleteRsp;
 import omero.cmd.ERR;
@@ -64,19 +62,6 @@ public class DeleteI extends Delete implements IGraphModifyRequest {
     //
     public Deletion getDeletion() {
         return delegate;
-    }
-
-    public DeleteReport getDeleteReport() {
-        DeleteReport rpt = new DeleteReport();
-        rpt.command = new DeleteCommand(type, id, options);
-        rpt.actualDeletes = delegate.getActualDeletes();
-        rpt.error = delegate.getError();
-        rpt.scheduledDeletes = delegate.getScheduledDeletes();
-        rpt.start = delegate.getStart();
-        rpt.stop = delegate.getStop();
-        rpt.undeletedFiles = delegate.getUndeletedFiles();
-        rpt.warning = delegate.getWarning();
-        return rpt;
     }
 
     //

@@ -6736,7 +6736,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             rdid = self._getRDef()
         if rdid is None:
             if not re.lookupRenderingDef(pid, ctx):
-                re.resetDefaults(ctx)
+                re.resetDefaultSettings(True, ctx)
                 re.lookupRenderingDef(pid, ctx)
             self._onResetDefaults(re.getRenderingDefId(ctx))
         else:

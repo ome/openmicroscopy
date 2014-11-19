@@ -2,13 +2,12 @@
 #include <iostream>
 #include <omero/client.h>
 #include <omero/callbacks.h>
-#include <omero/api/IDelete.h>
 
 using namespace std;
 
 namespace OA = omero::api;
-namespace OAD = omero::api::_cpp_delete;
 namespace OC = omero::callbacks;
+namespace OCMD = omero::cmd;
 
 
 /**
@@ -20,15 +19,12 @@ int main(int argc, char* argv[]) {
     OA::ServiceFactoryPrx s = c->createSession();
 
     {
-        OA::IDeletePrx deleteServicePrx = s->getDeleteService();
-        OAD::DeleteCommand dc;
+        OCMD::Delete dc;
         dc.type = "/Image";
         dc.id = 1;
-        OAD::DeleteCommands dcs;
-        dcs.push_back(dc);
 
-        OAD::DeleteHandlePrx deleteHandlePrx = deleteServicePrx->queueDelete(dcs);
-        OC::DeleteCallbackIPtr cb = new OC::DeleteCallbackI(c->getObjectAdapter(), deleteHandlePrx); // Closed by destructor
+        OCMD::HandlePrx handlePrx = s->submit(dc);
+        OC::CmdCallbackIPtr cb = new OC::CmdCallbackI(c->getObjectAdapter(), handlePrx); // Closed by destructor
 
         try {
             cb->loop(10, 500);
@@ -39,7 +35,7 @@ int main(int argc, char* argv[]) {
             cout << ",deleted=" << r->actualDeletes << endl;
         } catch (const omero::LockTimeout& lt) {
             cout << "Not finished in 5 seconds. Cancelling..." << endl;
-            if (!deleteHandlePrx->cancel()) {
+            if (!handlePrx->cancel()) {
                 cout << "ERROR: Failed to cancel" << endl;
             }
         }

@@ -45,14 +45,10 @@ import omero.api.AMD_RenderingEngine_lookupRenderingDef;
 import omero.api.AMD_RenderingEngine_removeCodomainMap;
 import omero.api.AMD_RenderingEngine_render;
 import omero.api.AMD_RenderingEngine_renderAsPackedInt;
-import omero.api.AMD_RenderingEngine_renderAsPackedIntAsRGBA;
 import omero.api.AMD_RenderingEngine_renderCompressed;
 import omero.api.AMD_RenderingEngine_renderProjectedAsPackedInt;
 import omero.api.AMD_RenderingEngine_renderProjectedCompressed;
-import omero.api.AMD_RenderingEngine_resetDefaults;
-import omero.api.AMD_RenderingEngine_resetDefaultsNoSave;
 import omero.api.AMD_RenderingEngine_resetDefaultSettings;
-import omero.api.AMD_RenderingEngine_resetDefaultsSettings;
 import omero.api.AMD_RenderingEngine_saveAsNewSettings;
 import omero.api.AMD_RenderingEngine_saveCurrentSettings;
 import omero.api.AMD_RenderingEngine_setActive;
@@ -335,12 +331,6 @@ public class RenderingEngineI extends AbstractPyramidServant implements
         callInvokerOnRawArgs(__cb, __current, def);
     }
 
-    public void renderAsPackedIntAsRGBA_async(
-            AMD_RenderingEngine_renderAsPackedIntAsRGBA __cb, PlaneDef def,
-            Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, def);
-    }
-
     public void renderCompressed_async(
             AMD_RenderingEngine_renderCompressed __cb, PlaneDef def,
             Current __current) throws ServerError {
@@ -368,22 +358,6 @@ public class RenderingEngineI extends AbstractPyramidServant implements
         callInvokerOnRawArgs(__cb, __current, def);
     }
 
-    public void resetDefaultsNoSave_async(
-            AMD_RenderingEngine_resetDefaultsNoSave __cb, Current __current)
-            throws ServerError {
-        callInvokerOnRawArgs(__cb, __current);
-    }
-
-    public void resetDefaults_async(AMD_RenderingEngine_resetDefaults __cb,
-            Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current);
-    }
-
-    public void resetDefaultsSettings_async(AMD_RenderingEngine_resetDefaultsSettings __cb,
-            boolean save, Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, save);
-    }
-    
     public void resetDefaultSettings_async(AMD_RenderingEngine_resetDefaultSettings __cb,
             boolean save, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, save);

@@ -23,7 +23,6 @@ import ome.services.util.MailUtil;
 import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
 import omero.RType;
-import omero.api.IDeletePrx;
 import omero.cmd.ERR;
 import omero.cmd.HandleI;
 import omero.cmd.IRequest;
@@ -37,9 +36,6 @@ import omero.sys.ParametersI;
 
 
 /**
- * Tests call to {@link IDeletePrx}, especially important for testing the
- * {@link IDeletePrx#queueDelete(omero.api.delete.DeleteCommand[]) since it is
- * not available from {@link ome.api.IDelete}
  */
 public class AbstractGraphTest extends AbstractServantTest {
 

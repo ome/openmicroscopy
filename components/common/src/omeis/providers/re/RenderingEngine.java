@@ -94,26 +94,6 @@ public interface RenderingEngine extends StatefulServiceInterface {
      * @see render()
      */
     public int[] renderAsPackedInt(PlaneDef pd);
-    
-	/**
- 	* Renders the data selected by <code>pd</code> according to the current
- 	* rendering settings. The passed argument selects a plane orthogonal to one
- 	* of the <i>X</i>, <i>Y</i>, or <i>Z</i> axes. How many wavelengths are
- 	* rendered and what color model is used depends on the current rendering
- 	* settings.
- 	* 
- 	* @param pd
- 	*            Selects a plane orthogonal to one of the <i>X</i>, <i>Y</i>,
- 	*            or <i>Z</i> axes.
- 	* @return An <i>RGB</i> image ready to be displayed on screen, using packed 
- 	* 			int in the format RGBA, note that java uses colour format of
- 	* 			ARGB.
- 	* @throws ValidationException
- 	*             If <code>pd</code> is <code>null</code>.
- 	* @see render()
- 	*/
-	public int[] renderAsPackedIntAsRGBA(PlaneDef pd);
-
 
     /**
      * Renders the data selected by <code>pd</code> according to the current
@@ -514,19 +494,6 @@ public interface RenderingEngine extends StatefulServiceInterface {
      * into the current {@link RenderingEngine}.
      */
     public long saveAsNewSettings();
-
-    /**
-     * Resets the default settings i.e. the default values internal to the
-     * Rendering engine. The settings will be saved.
-     */
-    public void resetDefaults();
-    
-    /**
-     * Resets the default settings i.e. the default values internal to the
-     * Rendering engine. In this case, the rendering settings will not 
-     * be saved.
-     */
-    public void resetDefaultsNoSave();
 
     /**
      * Resets the default settings i.e. the default values internal to the

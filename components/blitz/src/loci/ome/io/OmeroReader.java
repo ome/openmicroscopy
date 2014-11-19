@@ -9,15 +9,15 @@
  * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 2 of the 
+ * published by the Free Software Foundation, either version 2 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public 
+ *
+ * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-2.0.html>.
  * #L%
@@ -30,6 +30,7 @@ import static ome.formats.model.UnitsFactory.convertTime;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Arrays;
 import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.List;
@@ -47,7 +48,6 @@ import ome.xml.model.primitives.Timestamp;
 import omero.RString;
 import omero.RTime;
 import omero.ServerError;
-import omero.api.GatewayPrx;
 import omero.api.IAdminPrx;
 import omero.api.IQueryPrx;
 import omero.api.RawPixelsStorePrx;
@@ -310,8 +310,8 @@ public class OmeroReader extends FormatReader {
 
       store = serviceFactory.createRawPixelsStore();
 
-      final GatewayPrx gateway = serviceFactory.createGateway();
-      img = gateway.getImage(iid);
+      img = (Image) serviceFactory.getContainerService()
+        .getImages("Image", Arrays.asList(iid), null).get(0);
 
       if (img == null) {
         throw new FormatException("Could not find Image with ID=" + iid +
@@ -320,9 +320,9 @@ public class OmeroReader extends FormatReader {
 
       long pixelsId = img.getPixels(0).getId().getValue();
 
+      pix = serviceFactory.getPixelsService().retrievePixDescription(pixelsId);
       store.setPixelsId(pixelsId, false);
 
-      pix = gateway.getPixels(pixelsId);
       final int sizeX = pix.getSizeX().getValue();
       final int sizeY = pix.getSizeY().getValue();
       final int sizeZ = pix.getSizeZ().getValue();

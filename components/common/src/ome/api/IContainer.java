@@ -425,25 +425,4 @@ public interface IContainer extends ServiceInterface {
     public IObject[] updateDataObjects(@NotNull IObject[] dataObjects, 
     		Parameters options);
 
-    /**
-     * Deletes a data object. Currently this method takes a very conservative
-     * approach and only tries to delete a single object (no cascading). The
-     * user will have to delete objects in the appropriate order to prevent
-     * database not null exceptions.
-     * 
-     * @param dataObject
-     * @param options
-     */
-    public void deleteDataObject(@NotNull IObject dataObject, Parameters options);
-
-    /**
-     * convenience method to save network calls. Loops over the array of
-     * IObjects calling deleteDataObjects
-     * 
-     * @param dataObjects
-     * @param options
-     *            Parameters as above.
-     */
-    public void deleteDataObjects(@NotNull IObject[] dataObjects, Parameters options);
-
 }
