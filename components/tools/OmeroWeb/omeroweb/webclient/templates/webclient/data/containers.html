@@ -1305,19 +1305,19 @@
                                 // Request the list of children from that url, adding any relevant filters
 
                                 if (node.type === 'experimenter') {
-                                    return '{% url 'api_containers' %}'
+                                    return '{% url 'api_containers' %}';
                                 } else if (node.type === 'project') {
-                                    return '{% url 'api_datasets' %}'
+                                    return '{% url 'api_datasets' %}';
                                 } else if (node.type === 'dataset') {
-                                    return '{% url 'api_images' %}'
+                                    return '{% url 'api_images' %}';
                                 } else if (node.type === 'screen') {
-                                    return '{% url 'api_plates' %}'
+                                    return '{% url 'api_plates' %}';
                                 } else if (node.type === 'plate') {
-                                    return '{% url 'api_plate_acquisitions' %}'
+                                    return '{% url 'api_plate_acquisitions' %}';
                                 } else if (node.type === 'orphaned') {
-                                    return '{% url 'api_images' %}'
+                                    return '{% url 'api_images' %}';
                                 } else if (node.id === '#') {
-                                    return '{% url 'api_experimenters' %}'
+                                    return '{% url 'api_experimenters' %}';
                                 }
                             },
                             // Gather data for request

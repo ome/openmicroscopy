@@ -78,6 +78,8 @@ $(document).ready(function() {
                     // Only load plates if it does not have child acquisitions
                     if (!inst.is_parent(node)) {
                         url += 'load_data/' + nodeType + '/' + nodeId;
+                    } else {
+                        url = undefined;
                     }
                     break;
                 case 'acquisition':
