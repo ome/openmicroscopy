@@ -208,6 +208,16 @@
                     },
                 });
 
+                // Comment field - show/hide placeholder and submit button.
+                $("#add_comment_wrapper label").inFieldLabels();
+                $("#id_comment")
+                    .blur(function(){
+                        $("#add_comment_form input[type='submit']").hide();
+                    })
+                    .focus(function(){
+                        $("#add_comment_form input[type='submit']").show();
+                    });
+
                 // bind removeItem to various [-] buttons
                 $("#comments_container").on("click", ".removeComment", function(event){
                     var url = $(this).attr('url');
@@ -993,7 +1003,6 @@
             
             <!-- COMMENTS -->
             <div class="annotations_section">
-                <h2>{% trans "Comment:" %}</h2>
                 
                     {% if manager.canAnnotate %}
                     <form id="add_comment_form" action="{% url 'annotate_comment' %}" method="post">
@@ -1006,10 +1015,15 @@
                         <tr class="hiddenField"><td>{{ form_comment.acquisition }}</td></tr>
                         <tr class="hiddenField"><td>{{ form_comment.well }}</td></tr>
                         <tr>
-                            <td>{{ form_comment.comment }}</td>
+                            <td>
+                                <div id="add_comment_wrapper" style="position: relative">
+                                    <label class="inline_label" for="id_comment">Add Comment:</label>
+                                    {{ form_comment.comment }}
+                                </div>
+                            </td>
                         </tr>
                         <tr>
-                            <td><input type="submit" value="{% trans 'Add Comment' %}" /></td>
+                            <td><input type="submit" value="{% trans 'Add Comment' %}" style="display:none" /></td>
                         </tr>
                     </table>
                     </form>
