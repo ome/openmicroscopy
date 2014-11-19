@@ -335,6 +335,13 @@ public class Factory
 		if (img == null) return null;
 		int width = (int) (img.getWidth()*level)+w;
 		int height = (int) (img.getHeight()*level)+w;
+		
+		// image must be at least 3x3px
+		if (width < 3)
+			width = 3;
+		if (height < 3)
+			height = 3;
+
 		if (interpolate) {
 		    ResampleOp  resampleOp = new ResampleOp(width, height);
                     return resampleOp.filter(img, null);
