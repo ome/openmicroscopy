@@ -65,6 +65,7 @@ import javax.swing.JToggleButton;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -460,7 +461,7 @@ public class PropertiesUI
     {
     	button.setOpaque(false);
 		button.setBackground(UIUtilities.BACKGROUND_COLOR);
-		button.setBorder(null);
+		button.setBorder(new EmptyBorder(2, 2, 2, 2));
 		button.setToolTipText(text);
     }
     

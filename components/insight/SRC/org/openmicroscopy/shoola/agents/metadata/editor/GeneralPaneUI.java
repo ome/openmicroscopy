@@ -25,21 +25,23 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.JXTaskPane;
-import org.jdesktop.swingx.JXTaskPaneContainer;
-import org.jdesktop.swingx.VerticalLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
@@ -114,9 +116,6 @@ class GeneralPaneUI
 	
 	/** Flag indicating to build the UI once. */
 	private boolean 					init;
-
-	/** The container hosting the <code>JXTaskPane</code>. */
-	private JXTaskPaneContainer 		container;
 	
 	/** The tool bar.*/
 	private ToolBar toolbar;
@@ -136,17 +135,14 @@ class GeneralPaneUI
     /** Initializes the UI components. */
 	private void initComponents()
 	{
-		container  = new JXTaskPaneContainer();
-		container.setBackground(UIUtilities.BACKGROUND);
-		if (container.getLayout() instanceof VerticalLayout) {
-			VerticalLayout vl = (VerticalLayout) container.getLayout();
-			vl.setGap(0);
-		}
+		browserTaskPane = EditorUtil.createTaskPane("Attached to");
+		browserTaskPane.addPropertyChangeListener(controller);
+		browserTaskPane.setVisible(false);
+		 
 		if (model.getBrowser() != null && model.getRefObject() instanceof FileAnnotationData) {
-                    browserTaskPane = EditorUtil.createTaskPane("Attached to");
-                    browserTaskPane.add(model.getBrowser().getUI());
-                    browserTaskPane.addPropertyChangeListener(controller);
-                }
+             browserTaskPane.add(model.getBrowser().getUI());
+             browserTaskPane.setVisible(true);
+        }
 		
 		propertiesUI = new PropertiesUI(model, controller);
 		textualAnnotationsUI = new TextualAnnotationsUI(model, controller);
@@ -165,6 +161,7 @@ class GeneralPaneUI
 		propertiesTaskPane = EditorUtil.createTaskPane("");
 		propertiesTaskPane.setCollapsed(false);
 		propertiesTaskPane.add(propertiesUI);
+		
 		annotationTaskPane = EditorUtil.createTaskPane("Annotations");
 		annotationTaskPane.setCollapsed(false);
 		JPanel p = new JPanel();
@@ -187,11 +184,32 @@ class GeneralPaneUI
 	/** Builds and lays out the components. */
 	private void buildGUI()
 	{
-		setLayout(new BorderLayout(0, 0));
-		container.add(propertiesTaskPane);
-		container.add(annotationTaskPane);
-		add(toolbar, BorderLayout.NORTH);
-    	        add(container, BorderLayout.CENTER);
+		JPanel container = new JPanel();
+		container.setBackground(UIUtilities.BACKGROUND_COLOR);
+		container.setLayout(new GridBagLayout());
+		
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridx = 0;
+		c.gridy = 0;
+		c.weightx = 1;
+		c.weighty = 0;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.NORTH;
+		
+		container.add(toolbar, c);
+		c.gridy++;
+		
+		container.add(propertiesTaskPane, c);
+		c.gridy++;
+		
+		container.add(browserTaskPane, c);
+		c.gridy++;
+		
+		container.add(annotationTaskPane, c);
+		
+		setLayout(new BorderLayout());
+		setBackground(UIUtilities.BACKGROUND_COLOR);
+		add(container, BorderLayout.NORTH);
 	}
 
 	/**
@@ -231,7 +249,7 @@ class GeneralPaneUI
             annotationUI.buildUI();
             textualAnnotationsUI.buildUI();
             propertiesTaskPane.setTitle(propertiesUI.getText() + DETAILS);
-    
+            
             boolean multi = model.isMultiSelection();
             Object refObject = model.getRefObject();
     
@@ -244,25 +262,22 @@ class GeneralPaneUI
                 controller.loadChannelData();
             }
     
-            if (browserTaskPane != null)
-                container.remove(browserTaskPane);
-    
-            container.remove(propertiesTaskPane);
+            browserTaskPane.setVisible(false);
+            propertiesTaskPane.setVisible(false);
+            
             if (!multi) {
-                container.add(propertiesTaskPane, 0); // first index
-    
+            	propertiesTaskPane.setVisible(true);
+            	
                 if (refObject instanceof FileAnnotationData) {
-                    if (browserTaskPane == null) {
-                        browserTaskPane = EditorUtil.createTaskPane("Attached to");
-                        browserTaskPane.add(model.getBrowser().getUI());
-                        browserTaskPane.addPropertyChangeListener(controller);
-                    }
-                    container.add(browserTaskPane);
+                    browserTaskPane.removeAll();
+                	browserTaskPane.add(model.getBrowser().getUI());
+                    browserTaskPane.setVisible(true);
                     if (!browserTaskPane.isCollapsed())
                         loadParents(true);
                 }
             }
     
+            revalidate();
         }
 	
 	/**
