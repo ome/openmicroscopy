@@ -636,7 +636,6 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
                 unwrap(self.file_obj.id) if self.file_obj else None)
             return
 
-        size = self.storage.size()  # Size to reset the server object to
         modified = self.storage.modified()
 
         try:
@@ -656,6 +655,9 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
                 "omero.group": str(gid),
                 omero.constants.CLIENTUUID: client_uuid}
             try:
+                # Size to reset the server object to (must be checked after
+                # the underlying HDF file has been closed)
+                size = self.storage.size()
                 rfs = self.factory.createRawFileStore(ctx)
                 try:
                     rfs.setFileId(fid, ctx)
