@@ -334,11 +334,12 @@
                 // show dialog for choosing file to attach...
                 $("#choose_file_anns").click(function() {
                     // show dialog first, then do the AJAX call to load files...
-                    var attach_form = $( "#choose_attachments_form" );
-                    attach_form.dialog( "open" );
+                    var $attach_form = $( "#choose_attachments_form" );
+                    $attach_form.dialog( "open" );
                     // load form via AJAX...
                     var load_url = $(this).attr('href');
-                    attach_form.load(load_url);
+                    $attach_form.html("<img src='{% static 'webgateway/img/spinner_big.gif' %}' />");
+                    $attach_form.load(load_url);
                     return false;
                 });
 
