@@ -597,6 +597,13 @@
                 <h2 class="data_heading_id">
                     {{ manager.obj_type }} ID: <strong>{{ manager.obj_id }}</strong>
                 </h2>
+                <table style="float:left; width:100px; clear:left">
+                    <tr>
+                        <th>Owner:</th>
+                        <td id='owner_fullname'>{{ manager.dataset.getOwner.getFullName }}</td>
+                    </tr>
+                </table>
+                <div style="clear: both"></div>
 
                 <hr/>
                 
@@ -606,10 +613,6 @@
                 {% endwith %}
                 
                 <table>
-                    <tr>
-                        <th>Owner:</th>
-                        <td id='owner_fullname'>{{ manager.dataset.getOwner.getFullName }}</td>
-                    </tr>
                     <tr>
                         <th>Creation Date:</th>
                         <td id='creation_date'>{{ manager.dataset.getDate|date:"Y-m-d H:i:s" }}</td>
@@ -629,6 +632,13 @@
                     <h2 class="data_heading_id">
                         {{ manager.obj_type }} ID: <strong>{{ manager.obj_id }}</strong>
                     </h2>
+                    <table style="float:left; width:100px; clear:left">
+                        <tr>
+                            <th>Owner:</th>
+                            <td id='owner_fullname'>{{ manager.project.getOwner.getFullName }}</td>
+                        </tr>
+                    </table>
+                    <div style="clear: both"></div>
 
                     <hr/>
                     
@@ -638,10 +648,6 @@
                     {% endwith %}
                     
                     <table>
-                        <tr>
-                            <th>Owner:</th>
-                            <td id='owner_fullname'>{{ manager.project.getOwner.getFullName }}</td>
-                        </tr>
                         <tr>
                             <th>Creation Date:</th>
                             <td id='creation_date'>{{ manager.project.getDate|date:"Y-m-d H:i:s" }}</td>
@@ -731,6 +737,13 @@
                         <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
                     </div>
                 </h2>
+                <table style="float:left; width:100px; clear:left">
+                    <tr>
+                        <th>Owner:</th>
+                        <td id='owner_fullname'>{{ manager.acquisition.getOwner.getFullName }}</td>
+                    </tr>
+                </table>
+                <div style="clear: both"></div>
 
                 <hr/>
                 
@@ -740,10 +753,6 @@
                 {% endwith %}
                 
                 <table>
-                    <tr>
-                        <th>Owner:</th>
-                        <td id='owner_fullname'>{{ manager.acquisition.getOwner.getFullName }}</td>
-                    </tr>
                     <tr>
                         <th>Creation Date:</th>
                         <td id='creation_date'>{{ manager.acquisition.getDate|date:"Y-m-d H:i:s" }}</td>
@@ -763,6 +772,13 @@
                     <h2 class="data_heading_id">
                         {{ manager.obj_type }} ID: <strong>{{ manager.obj_id }}</strong>
                     </h2>
+                    <table style="float:left; width:100px; clear:left">
+                        <tr>
+                            <th>Owner:</th>
+                            <td id='owner_fullname'>{{ manager.plate.getOwner.getFullName }}</td>
+                        </tr>
+                    </table>
+                    <div style="clear: both"></div>
                     
                     <hr/>
                     
@@ -773,10 +789,6 @@
 
 
                     <table>
-                        <tr>
-                            <th>Owner:</th>
-                            <td id='owner_fullname'>{{ manager.plate.getOwner.getFullName }}</td>
-                        </tr>
                         <tr>
                             <th>Creation Date:</th>
                             <td id='creation_date'>{{ manager.plate.getDate|date:"Y-m-d H:i:s" }}</td>
@@ -801,6 +813,13 @@
                         <h2 class="data_heading_id">
                             {{ manager.obj_type }} ID: <strong>{{ manager.obj_id }}</strong>
                         </h2>
+                        <table style="float:left; width:100px; clear:left">
+                            <tr>
+                                <th>Owner:</th>
+                                <td id='owner_fullname'>{{ manager.screen.getOwner.getFullName }}</td>
+                            </tr>
+                        </table>
+                        <div style="clear: both"></div>
                             
                         <hr/>   
                             
@@ -812,16 +831,12 @@
 
                         <table>
                             <tr>
-                                <th>Owner:</th>
-                                <td id='owner_fullname'>{{ manager.screen.getOwner.getFullName }}</td>
-                            </tr>
-                            <tr>
                                 <th>Creation Date:</th>
                                 <td id='creation_date'>{{ manager.screen.getDate|date:"Y-m-d H:i:s" }}</td>
                             </tr>                    
                             <tr>
-                                <th>Screen Count:</th>
-                                <td id='child_count'>{{ manager.screen.countChildren }} {% plural manager.screen.countChildren 'screen' 'screens' %}</td>
+                                <th>Plate Count:</th>
+                                <td id='child_count'>{{ manager.screen.countChildren }} {% plural manager.screen.countChildren 'plate' 'plates' %}</td>
                             </tr>
                         </table>
                         {% endif %}
@@ -1074,8 +1089,16 @@
                     {% include "webclient/annotations/includes/name.html" %}
                 {% endwith %}
 
-        
-
+                <h2 class="data_heading_id">
+                    {{ manager.obj_type }} ID: <strong>{{ manager.obj_id }}</strong>
+                </h2>
+                <table style="float:left; width:100px; clear:left">
+                    <tr>
+                        <th>Owner:</th>
+                        <td id='owner_fullname'>{{ manager.tag.getOwner.getFullName }}</td>
+                    </tr>
+                </table>
+                <div style="clear: both"></div>
 
                 <hr/>
 
