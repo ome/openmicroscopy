@@ -421,51 +421,6 @@ OME.refreshThumbnails = function(options) {
     }
 };
 
-OME.truncateNames = (function(){
-    var insHtml;
-    // Resizing of left panel dynamically truncates image names
-    // NB: no images loaded when page first laods. Do everything on resize...
-    var truncateNames = function() {
-        if (!insHtml) {
-            // use the first image to get the html
-            var $ins = $('.jstree li[rel^="image"] a ins').first();
-            if ($ins.length > 0) {
-                insHtml = $ins.get(0).outerHTML;
-            }
-        }
-        // get the panel width, and number of chars that will fit
-        var lp_width = $("#left_panel").width() - 20;  // margin
-        // Go through all images, truncating names...
-        // When we find matching size for a name length, save it...
-        var maxChars;
-        $('.jstree li[rel^="image"] a').each(function(){
-            var $this = $(this),
-                ofs = $this.offset(),
-                name = $this.attr('data-name'),
-                truncatedName,
-                chars = name.length;
-            // if we know maxChars and we're longer than that...
-            if (maxChars && name.length > maxChars) {
-                chars = maxChars;
-                truncatedName = "..." + name.slice(-chars);
-                $this.html(insHtml + truncatedName);
-            } else {
-                // if needed, trim the full name until it fits and save maxChars
-                $this.html(insHtml + name);
-                var w = $this.width() + ofs.left;
-                while (w > lp_width && chars > 2) {
-                    chars = chars-2;
-                    truncatedName = "..." + name.slice(-chars);
-                    $this.html(insHtml + truncatedName);
-                    w = $this.width() + ofs.left;
-                    maxChars = chars;
-                }
-            }
-        });
-    };
-    return truncateNames;
-}());
-
 OME.nodeHasPermission = function(node, permission, activeGroup) {
     // Special case isOwned permission for now as it is not part of permsCss
     // perhaps it should be. Also, there are no perms on experimenter so it
