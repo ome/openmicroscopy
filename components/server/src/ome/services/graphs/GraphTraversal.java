@@ -158,7 +158,11 @@ public class GraphTraversal {
          * @param object a persisted object instance
          */
         CI(IObject object) {
-            this.className = Hibernate.getClass(object).getName();
+            if (object instanceof HibernateProxy) {
+                this.className = Hibernate.getClass(object).getName();
+            } else {
+                this.className = object.getClass().getName();
+            }
             this.id = object.getId();
         }
 
