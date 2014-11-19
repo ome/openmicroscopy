@@ -83,6 +83,7 @@ public class CreatePojosFixture2 {
             G_NAME = UUID.randomUUID().toString();
             fixture.g = new ExperimenterGroupI();
             fixture.g.setName(rstring(G_NAME));
+            fixture.g.setLdap(rbool(false));
             fixture.g = new ExperimenterGroupI(
                     rootAdmin.createGroup(fixture.g), false);
         } else {

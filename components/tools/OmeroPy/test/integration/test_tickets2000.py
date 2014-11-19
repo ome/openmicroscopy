@@ -351,6 +351,7 @@ class TestTickets2000(lib.ITest):
         # group1
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("group1_%s" % uuid)
+        new_gr1.ldap = rbool(False)
         gid = admin.createGroup(new_gr1)
 
         # new user1

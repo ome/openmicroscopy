@@ -13,6 +13,7 @@
 		<!-- Note: relates to Group in model-->
 		<properties>
 			<required name="name" type="string" unique="true"/><!-- unique required so not 'named' -->
+			<required name="ldap" type="boolean"/>
 			<child name="groupExperimenterMap" type="ome.model.meta.GroupExperimenterMap" target="ome.model.meta.Experimenter"/>
 			<map name="config" type="string"/>
 		</properties>

@@ -23,6 +23,7 @@ from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
 from omero_model_ScriptJobI import ScriptJobI
 from omero_model_DetailsI import DetailsI
+from omero.rtypes import rbool
 from omero.rtypes import rlong
 from omero.rtypes import rstring
 from omero.rtypes import rtime
@@ -203,6 +204,7 @@ class TestModel(object):
         user.setFirstName(rstring("test"))
         user.setLastName(rstring("user"))
         user.setOmeName(rstring("UUID"))
+        user.setLdap(rbool(False))
 
         # possibly setOmeName() and setOmeName(string) ??
         # and then don't need omero/types.h
