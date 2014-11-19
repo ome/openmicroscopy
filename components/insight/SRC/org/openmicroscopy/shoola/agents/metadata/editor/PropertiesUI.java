@@ -460,6 +460,7 @@ public class PropertiesUI
     {
     	button.setOpaque(false);
 		button.setBackground(UIUtilities.BACKGROUND_COLOR);
+		button.setBorder(null);
 		button.setToolTipText(text);
     }
     
@@ -897,7 +898,7 @@ public class PropertiesUI
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
         c.anchor = GridBagConstraints.WEST;
-        c.insets = new Insets(0, 2, 0, 0);
+        c.insets = new Insets(2, 2, 2, 2);
         c.gridy = 0;
         c.gridx = 0;
         c.weightx = 1;
@@ -977,6 +978,7 @@ public class PropertiesUI
                 descriptionPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
 
         	GridBagConstraints c = new GridBagConstraints();
+        	c.insets = new Insets(2, 2, 2, 2);
         	
         	c.gridx = 0;
         	c.gridy = 0;
