@@ -34,8 +34,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
+
+
+
+import javax.swing.JSeparator;
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
@@ -46,6 +53,7 @@ import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.DataObject;
@@ -166,6 +174,7 @@ class GeneralPaneUI
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		p.add(annotationUI);
+		p.add(new JSeparator());
 		p.add(textualAnnotationsUI);
 		annotationTaskPane.add(p);
 	}
