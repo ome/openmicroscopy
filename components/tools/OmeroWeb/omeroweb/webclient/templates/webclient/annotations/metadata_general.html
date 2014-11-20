@@ -348,7 +348,7 @@
                     $attach_form.dialog( "open" );
                     // load form via AJAX...
                     var load_url = $(this).attr('href');
-                    $attach_form.html("<img src='{% static 'webgateway/img/spinner_big.gif' %}' />");
+                    $attach_form.html("&nbsp<br><img src='{% static 'webgateway/img/spinner.gif' %}' /> Loading attachments");
                     $attach_form.load(load_url);
                     return false;
                 });
