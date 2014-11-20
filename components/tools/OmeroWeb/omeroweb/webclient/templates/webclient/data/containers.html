@@ -295,9 +295,9 @@
                     selected.each(function(){
                         ids.push(this.id.split('-')[1]);
                     });
-                    rdef_url += "?toids=" + ids.join("&toids=");
+                    data = {'toids': ids};
                     if (rel === 'dataset' || rel === 'plate' || rel === 'acquisition') {
-                        rdef_url += '&to_type='+ rel;
+                        data['to_type'] = rel;
                     }
 
                     var confirmMsg = "This will save new rendering settings to " +
@@ -309,9 +309,16 @@
                         function() {
                             var clicked_button_text = rdef_confirm_dialog.data("clicked_button");
                             if (clicked_button_text === "OK") {
-                                $.getJSON(rdef_url, function(data){
-                                    // update thumbnails
-                                    OME.refreshThumbnails();
+                                $.ajax({
+                                    type: "POST",
+                                    dataType: 'text',
+                                    traditional: true,
+                                    url: rdef_url,
+                                    data: data,
+                                    success: function(data){
+                                        // update thumbnails
+                                        OME.refreshThumbnails();
+                                    }
                                 });
                             }
                         },
