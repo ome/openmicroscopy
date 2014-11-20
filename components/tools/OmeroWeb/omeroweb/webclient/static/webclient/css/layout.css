@@ -531,6 +531,9 @@
     	margin:0px;
     }
 
+    #toolbar_info_panel .panel_div {
+        border-top: solid #ddd 1px;
+    }
     
 
 
