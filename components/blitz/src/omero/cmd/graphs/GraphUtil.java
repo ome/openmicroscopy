@@ -51,7 +51,7 @@ public class GraphUtil {
      * @param list the list
      * @return a means of iterating over the list items
      */
-    static Iterable<String> splitList(char separator, String list) {
+    private static Iterable<String> splitList(char separator, String list) {
         return Splitter.on(separator).trimResults().omitEmptyStrings().split(list);
     }
 
@@ -168,6 +168,22 @@ public class GraphUtil {
     }
 
     /**
+     * Find the first class-name in a {@code /}-separated string.
+     * @param type a type path in the style of the original graph traversal code
+     * @return the first type found in the path
+     */
+    static String getFirstClassName(String type) {
+        while (type.charAt(0) == '/') {
+            type = type.substring(1);
+        }
+        final int firstSlash = type.indexOf('/');
+        if (firstSlash > 0) {
+            type = type.substring(0, firstSlash);
+        }
+        return type;
+    }
+
+    /**
      * Combine consecutive facade requests with the same options into one request with the union of the target model objects.
      * Does not adjust {@link GraphModify2} requests because they already allow the caller to specify multiple target model objects
      * should they wish those objects to be processed together.
@@ -267,21 +283,5 @@ public class GraphUtil {
         } else {
             return false;
         }
-    }
-
-    /**
-     * Find the first class-name in a {@code /}-separated string.
-     * @param type a type path in the style of the original graph traversal code
-     * @return the first type found in the path
-     */
-    static String getFirstClassName(String type) {
-        while (type.charAt(0) == '/') {
-            type = type.substring(1);
-        }
-        final int firstSlash = type.indexOf('/');
-        if (firstSlash > 0) {
-            type = type.substring(0, firstSlash);
-        }
-        return type;
     }
 }
