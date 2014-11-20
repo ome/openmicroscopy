@@ -747,8 +747,9 @@ public class PropertiesUI
     	content.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
     	content.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.anchor = GridBagConstraints.WEST;
+		c.fill = GridBagConstraints.NONE;
+		c.weightx = 1;
+		c.anchor = GridBagConstraints.NORTHWEST;
 		c.insets = new Insets(0, 2, 2, 2);
 		c.gridy = 0;
 		c.gridx = 0;
@@ -845,11 +846,11 @@ public class PropertiesUI
     		label = UIUtilities.setTextFont(EditorUtil.CHANNELS+":",
     				Font.BOLD, size);
     		c.gridx = 0;
-    		c.anchor = GridBagConstraints.NORTHEAST;
         	content.add(label, c);
-        	c.anchor = GridBagConstraints.CENTER;
         	c.gridx++;
+        	c.fill = GridBagConstraints.HORIZONTAL;
         	content.add(channelsPane, c);
+        	c.fill = GridBagConstraints.NONE;
         	c.gridx++;
         	content.add(editChannel, c);
         	c.gridy++;
@@ -1350,10 +1351,10 @@ public class PropertiesUI
 		StringBuffer buffer = new StringBuffer();
 		while (k.hasNext()) {
 			buffer.append(((ChannelData) k.next()).getChannelLabeling());
-			if (j != n) buffer.append(", ");
+			if (j != n) buffer.append("<br>");
 			j++;
 		}
-		channelsArea.setText(buffer.toString());
+		channelsArea.setText("<html>"+buffer.toString()+"</html>");
 		channelsArea.revalidate();
 		channelsArea.repaint();
 	}
