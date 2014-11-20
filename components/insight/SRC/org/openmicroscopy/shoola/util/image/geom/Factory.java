@@ -342,13 +342,14 @@ public class Factory
 		if (height < 3)
 			height = 3;
 
-		if (interpolate) {
+		if (interpolate && img.getWidth() >= 3 && img.getHeight() >= 3) {
 		    ResampleOp  resampleOp = new ResampleOp(width, height);
                     return resampleOp.filter(img, null);
 		}
 		else {
-		    // Use plain Graphics2D, as ResampleOp apparently doesn't provide an option
-		    // for disabling interpolation
+			// Use plain Graphics2D, as ResampleOp apparently doesn't provide an option
+			// for disabling interpolation; also have to use Graphics2D for
+			// images < 3px (ResampleOp will fail in this case)
 		    BufferedImage result = new BufferedImage(width, height, img.getType());
 		    Graphics2D g = result.createGraphics();
 		    g.getRenderingHints().add(new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF));
