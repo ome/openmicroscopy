@@ -211,8 +211,10 @@
                 // Comment field - show/hide placeholder and submit button.
                 $("#add_comment_wrapper label").inFieldLabels();
                 $("#id_comment")
-                    .blur(function(){
-                        $("#add_comment_form input[type='submit']").hide();
+                    .blur(function(event){
+                        setTimeout(function(){
+                            $("#add_comment_form input[type='submit']").hide();
+                        }, 200);    // Delay allows clicking on the submit button!
                     })
                     .focus(function(){
                         $("#add_comment_form input[type='submit']").show();
