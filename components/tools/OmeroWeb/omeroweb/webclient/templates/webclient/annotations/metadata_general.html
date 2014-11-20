@@ -508,49 +508,15 @@
                 <div style="clear:both"></div>
             </div>
 
-            <!-- Image Name -->
+            <div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
+                <input type="text" size="30">
+                <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
+            </div>
+
+            <!-- Image Name, ID, owner -->
             {% with obj=manager.image nameText=manager.image.name %}
                 {% include "webclient/annotations/includes/name.html" %}
             {% endwith %}
-            
-
-            <div style="padding-bottom:6px; position:relative">
-
-                <h2 class="data_heading_id" style="float:left">
-                    {{ manager.obj_type }} ID: <strong>{{ manager.obj_id }}</strong>
-                </h2>
-
-                <div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
-                    <input type="text" size="30">
-                    <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
-                </div>
-
-                <table style="float:left; width:100px; clear:left">
-                    <tr>
-                        <th>Owner:</th>
-                        <td id='owner_fullname'>{{ manager.image.getOwner.getFullName }}</td>
-                    </tr>
-                </table>
-
-            </div>
-
-            <div style="clear:both"></div>
-            <div style="padding-bottom:6px; position:relative">
-
-
-                {% if manager.openAstexViewerCompatible %}
-                
-                <button style="float:right; margin-right:5px" class="btn silver btn_text" href="#" onclick="return OME.openPopup('{% url 'open_astex_viewer' 'image_8bit' manager.image.id %}')"
-                        title="Open with Open Astex Viewer">
-                    <span>
-                    {% trans "Volume viewer" %} 
-                    </span>
-                </button>
-                {% endif %}
-                
-            </div>
-                  
-            <div style="clear:both"></div>
                   
 
             <hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
@@ -582,23 +548,10 @@
 
                 {% include "webclient/annotations/includes/toolbar.html" %}
 
-                <!-- Dataset Name -->
+                <!-- Dataset Name, ID, Owner -->
                 {% with obj=manager.dataset nameText=manager.dataset.name %}
                     {% include "webclient/annotations/includes/name.html" %}
                 {% endwith %}
-
-
-                
-                <h2 class="data_heading_id">
-                    {{ manager.obj_type }} ID: <strong>{{ manager.obj_id }}</strong>
-                </h2>
-                <table style="float:left; width:100px; clear:left">
-                    <tr>
-                        <th>Owner:</th>
-                        <td id='owner_fullname'>{{ manager.dataset.getOwner.getFullName }}</td>
-                    </tr>
-                </table>
-                <div style="clear: both"></div>
 
                 <hr/>
                 
@@ -618,22 +571,10 @@
 
                     {% include "webclient/annotations/includes/toolbar.html" %}
 
-                    <!-- Project Name -->
+                    <!-- Project Name, ID, Owner -->
                     {% with obj=manager.project nameText=manager.project.name %}
                         {% include "webclient/annotations/includes/name.html" %}
                     {% endwith %}
-
-                    
-                    <h2 class="data_heading_id">
-                        {{ manager.obj_type }} ID: <strong>{{ manager.obj_id }}</strong>
-                    </h2>
-                    <table style="float:left; width:100px; clear:left">
-                        <tr>
-                            <th>Owner:</th>
-                            <td id='owner_fullname'>{{ manager.project.getOwner.getFullName }}</td>
-                        </tr>
-                    </table>
-                    <div style="clear: both"></div>
 
                     <hr/>
                     
@@ -669,27 +610,10 @@
                 <div style="clear:both"></div>
             </div>
 
-                        <!-- Image (in WellSample) Description -->
-            {% with obj=manager.well.getWellSample.image nameText=manager.well.getWellSample.image.name %}
+            <!-- Image (in WellSample) Name, ID, Owner -->
+            {% with obj=manager.well.getWellSample.image nameText=manager.well.getWellSample.image.name wellImageId=manager.well.getWellSample.image.id %}
                 {% include "webclient/annotations/includes/name.html" %}
             {% endwith %}
-
-                   
-
-             <h2 class="data_heading_id" style="float:left">
-                Image ID: <strong>{{ manager.well.getWellSample.image.id }}</strong>
-                Well ID: <strong>{{ manager.well.id }}</strong>
-            </h2>
-
-            <table style="float:left; width:100px; clear:left">
-                <tr>
-                    <th>Owner:</th>
-                    <td id='owner_fullname'>{{ manager.well.getWellSample.getOwner.getFullName }}</td>
-                </tr>
-            </table>
-            <div style="clear: both"></div>
-            
-            <div style="clear:both"></div>
 
             <hr/>
             
@@ -751,22 +675,10 @@
 
                     {% include "webclient/annotations/includes/toolbar.html" %}
 
-                    <!-- Plate Name -->
+                    <!-- Plate Name, ID, Owner -->
                     {% with obj=manager.plate nameText=manager.plate.name %}
                         {% include "webclient/annotations/includes/name.html" %}
                     {% endwith %}
-
-
-                    <h2 class="data_heading_id">
-                        {{ manager.obj_type }} ID: <strong>{{ manager.obj_id }}</strong>
-                    </h2>
-                    <table style="float:left; width:100px; clear:left">
-                        <tr>
-                            <th>Owner:</th>
-                            <td id='owner_fullname'>{{ manager.plate.getOwner.getFullName }}</td>
-                        </tr>
-                    </table>
-                    <div style="clear: both"></div>
                     
                     <hr/>
                     
@@ -793,21 +705,10 @@
 
                         {% include "webclient/annotations/includes/toolbar.html" %}
 
-                        <!-- Screen Name -->
+                        <!-- Screen Name, ID, Owner -->
                         {% with obj=manager.screen nameText=manager.screen.name %}
                             {% include "webclient/annotations/includes/name.html" %}
                         {% endwith %}
-
-                        <h2 class="data_heading_id">
-                            {{ manager.obj_type }} ID: <strong>{{ manager.obj_id }}</strong>
-                        </h2>
-                        <table style="float:left; width:100px; clear:left">
-                            <tr>
-                                <th>Owner:</th>
-                                <td id='owner_fullname'>{{ manager.screen.getOwner.getFullName }}</td>
-                            </tr>
-                        </table>
-                        <div style="clear: both"></div>
                             
                         <hr/>   
                             
@@ -1072,21 +973,10 @@
             {% include "webclient/annotations/includes/toolbar.html" %}
 
 
-                <!-- Tag TextValue -->
+                <!-- Tag TextValue, ID, Owner -->
                 {% with obj=manager.tag nameText=manager.tag.getValue %}
                     {% include "webclient/annotations/includes/name.html" %}
                 {% endwith %}
-
-                <h2 class="data_heading_id">
-                    {{ manager.obj_type }} ID: <strong>{{ manager.obj_id }}</strong>
-                </h2>
-                <table style="float:left; width:100px; clear:left">
-                    <tr>
-                        <th>Owner:</th>
-                        <td id='owner_fullname'>{{ manager.tag.getOwner.getFullName }}</td>
-                    </tr>
-                </table>
-                <div style="clear: both"></div>
 
                 <hr/>
 
