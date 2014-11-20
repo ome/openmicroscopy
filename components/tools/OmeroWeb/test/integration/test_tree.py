@@ -139,7 +139,7 @@ def expected_projects(user, projects):
         expected.append({
             'id': project.id.val,
             'name': project.name.val,
-            'isOwned': project.details.owner.id.val == user[1].id.val,
+            'ownerId': project.details.owner.id.val,
             'childCount': len(project.linkedDatasetList()),
             'permsCss': get_perms(user[1], project)
         })
@@ -152,7 +152,7 @@ def expected_datasets(user, datasets):
         expected.append({
             'id': dataset.id.val,
             'name': dataset.name.val,
-            'isOwned': dataset.details.owner.id.val == user[1].id.val,
+            'ownerId': dataset.details.owner.id.val,
             'childCount': len(dataset.linkedImageList()),
             'permsCss': get_perms(user[1], dataset)
         })
@@ -167,7 +167,7 @@ def expected_images(user, images):
         i = {
             'id': image.id.val,
             'name': image.name.val,
-            'isOwned': image.details.owner.id.val == user[1].id.val,
+            'ownerId': image.details.owner.id.val,
             'permsCss': get_perms(user[1], image),
         }
         if image.fileset is not None:
@@ -182,7 +182,7 @@ def expected_screens(user, screens):
         expected.append({
             'id': screen.id.val,
             'name': screen.name.val,
-            'isOwned': screen.details.owner.id.val == user[1].id.val,
+            'ownerId': screen.details.owner.id.val,
             'childCount': len(screen.linkedPlateList()),
             'permsCss': get_perms(user[1], screen)
         })
@@ -195,7 +195,7 @@ def expected_plates(user, plates):
         expected.append({
             'id': plate.id.val,
             'name': plate.name.val,
-            'isOwned': plate.details.owner.id.val == user[1].id.val,
+            'ownerId': plate.details.owner.id.val,
             'childCount': len(plate.copyPlateAcquisitions()),
             'permsCss': get_perms(user[1], plate)
         })
@@ -218,7 +218,7 @@ def expected_plate_acquisitions(user, plate_acquisitions):
         expected.append({
             'id': acq.id.val,
             'name': acq_name,
-            'isOwned': acq.details.owner.id.val == user[1].id.val,
+            'ownerId': acq.details.owner.id.val,
             'permsCss': get_perms(user[1], acq)
         })
     return expected
@@ -242,7 +242,7 @@ def expected_tags(user, tags):
             'id': tag.id.val,
             'value': tag.textValue.val,
             'description': description,
-            'isOwned': tag.details.owner.id.val == user[1].id.val,
+            'ownerId': tag.details.owner.id.val,
             'permsCss': get_perms(user[1], tag)
         }
 
@@ -274,7 +274,7 @@ def expected_shares(user, shares):
     for share in shares:
         expected.append({
             'id': share.id.val,
-            'isOwned': share.owner.id.val == user[1].id.val,
+            'ownerId': share.owner.id.val,
             'childCount': share.getItemCount().val
         })
     return expected
@@ -285,7 +285,7 @@ def expected_discussions(user, discussions):
     for discussion in discussions:
         expected.append({
             'id': discussion.id.val,
-            'isOwned': discussion.owner.id.val == user[1].id.val
+            'ownerId': discussion.owner.id.val
         })
     return expected
 
