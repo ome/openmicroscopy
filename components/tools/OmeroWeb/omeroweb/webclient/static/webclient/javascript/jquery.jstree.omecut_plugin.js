@@ -104,28 +104,29 @@
                         if (parent.type !== 'experimenter' &&
                             parent.type !== 'orphaned') {
 
-                            // If an object has multiple paths, but they share a common immediatate parent
+                            // If an object has multiple paths, but they share a common immediate parent
                             // then that needs to be discounted as that will also get deleted
                             var unique = [];
                             $.each(json.paths, function(index, path) {
-                                 if (unique.indexOf(path[-1]) === -1) {
-                                    unique.push(path[-1]);
+                                var immediateParent = path[path.length - 2];
+                                 if (unique.indexOf(immediateParent.type + '-' + immediateParent.id) === -1) {
+                                    unique.push(immediateParent.type + '-' + immediateParent.id);
                                  }
                             });
-                            var uniqueCount = unique.length;
 
-                            if (uniqueCount === 1) {
-
-                                var experimenter = inst.get_node(inst.get_path(node, false, true)[0]);
+                            if (unique.length === 1) {
+                                // Get the experimenter that owns this object
+                                var ownerExperimenter = inst.locate_node('experimenter-' + node.data.obj.ownerId)[0];
                                 // Newly orphaned objects get moved to the appropriate location
                                 if (node.type === 'dataset' ||
                                     node.type === 'plate') {
-                                    // Get the experimenter
-                                    inst.move_node(node, experimenter);
+                                    inst.move_node(node, ownerExperimenter);
 
                                 } else if (node.type === 'image') {
                                     // Get the orphaned directory for this experimenter
-                                    var orphaned = inst.locate_node('orphaned-' + experimenter.data.obj.id)[0];
+                                    var orphaned = inst.locate_node('orphaned-' + ownerExperimenter.data.obj.id)[0];
+                                    // TODO Could optimize by only moving if orphans is loaded. Instead just
+                                    // update its child count
                                     inst.move_node(node, orphaned);
                                 }
 
@@ -196,6 +197,8 @@
                         var parent = inst.get_node(inst.get_parent(located[0]));
                         if (parent.type === 'experimenter' || parent.type === 'orphaned') {
                             inst.delete_node(located);
+                            // Update child count
+                            OME.updateNodeChildCount(inst, parent);
                         }
                     }
 
@@ -215,11 +218,8 @@
                         update_thumbnails_panel(e, data);
                     });
 
-                    // Update the child count
-                    // OME.updateNodeChildCount(inst, parent);
-
                     // Add to other identical nodes as well
-                    // updateParentInsertNode(inst, node, inst.get_node(parent), pos);
+                    updateParentInsertNode(inst, node, obj, pos);
 
                     newNodes.push(node);
                 });

@@ -478,7 +478,8 @@
             if (node.type === 'project' ||
                 node.type === 'dataset' ||
                 node.type === 'screen' ||
-                node.type === 'plate') {
+                node.type === 'plate' ||
+                node.type === 'orphaned') {
 
                 node.data.obj.childCount = count;
                 tree.redraw_node(node, false, false);
@@ -532,9 +533,13 @@
                     // Check if the target is a suitable container for pasteing it
                     var buffer = inst.get_buffer();
                     $.each(buffer.node, function(index, node) {
+                        // Never allow pasteing into orphaned or experimenter
+                        // TODO What about pasteing a project from one experimenter to another?
                         // Run the standard jstree check to determine if paste is allowed as if using
                         // drag'n'drop.
-                        if (inst.check(buffer.mode, node, selected[0], 0)) {
+                        if (inst.get_node(selected[0]).type !== 'orphaned' &&
+                            inst.get_node(selected[0]).type !== 'experimenter' &&
+                            inst.check(buffer.mode, node, selected[0], 0)) {
                             toolbar_config['paste'] = true;
                         } else {
                             // Break out of $.each as if one item can't paste, we can't paste
@@ -1525,10 +1530,7 @@
                             // are loaded. This is important as it allows us to weed out potential
                             // conflicts in the copy, i.e. where a link to the object already exists
                             // Called once per item being moved
-                            // TODO Handle case when all links were removed, they should pop up in experimenter/orphans
                             // TODO Should be impossible to delete a link from orphans
-                            // TODO What about if the users moves an image/dataset to orphans/experimenter, should
-                            // that remove all of its links? Or disallow?
                             var inst = $.jstree.reference(node);
 
                             // Sometimes '#' pops up in the destination of d'n'd, discount this

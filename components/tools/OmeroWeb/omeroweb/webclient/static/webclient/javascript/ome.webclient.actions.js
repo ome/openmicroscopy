@@ -527,8 +527,13 @@ OME.nodeHasPermission = function(node, permission, activeGroup) {
         return true;
     }
 
-    if (permission === 'isOwned' && node.type === 'experimenter' && node.data.id == activeGroup) {
-        return true;
+    if (permission === 'isOwned') {
+        if (node.data.obj.hasOwnProperty('ownerId') && node.data.obj.ownerId === activeUserId()) {
+            return node.data.obj.isOwned;
+        } else if (node.type === 'experimenter' && node.data.id == activeGroup) {
+            return true;
+        }
+        return false;
     }
 
     // Check if the node data has permissions data

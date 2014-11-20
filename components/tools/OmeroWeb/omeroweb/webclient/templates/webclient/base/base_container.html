@@ -122,6 +122,17 @@
             
             OME.setupAjaxError("{% url 'fsend' %}");      // AJAX 500 need feedback form url
         });
+
+        // The active user's ID. This is located here because static javascript files
+        // are not preprocessed by django
+        function activeUserId() {
+            {% if ome.user.id %}
+                return {{ ome.user.id }}
+            {% else %}
+                return undefined;
+            {% endif %}
+        };
+
     </script>
 
     <!-- keep-alive ping so that OMERO session doesn't die -->

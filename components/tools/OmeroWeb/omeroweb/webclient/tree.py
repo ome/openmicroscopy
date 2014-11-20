@@ -274,6 +274,7 @@ def _marshal_project(conn, row):
     project = dict()
     project['id'] = unwrap(project_id)
     project['name'] = unwrap(name)
+    project['ownerId'] = unwrap(owner_id)
     project['childCount'] = unwrap(child_count)
     project['permsCss'] = \
         parse_permissions_css(permissions, unwrap(owner_id), conn)
@@ -352,6 +353,7 @@ def _marshal_dataset(conn, row):
     dataset = dict()
     dataset['id'] = unwrap(dataset_id)
     dataset['name'] = unwrap(name)
+    dataset['ownerId'] = unwrap(owner_id)
     dataset['childCount'] = unwrap(child_count)
     dataset['permsCss'] = \
         parse_permissions_css(permissions, unwrap(owner_id), conn)
@@ -468,6 +470,7 @@ def _marshal_image(conn, row, row_pixels=None):
     image = dict()
     image['id'] = unwrap(image_id)
     image['name'] = unwrap(name)
+    image['ownerId'] = unwrap(owner_id)
     image['permsCss'] = parse_permissions_css(permissions, unwrap(owner_id), conn)
     fileset_id_val = unwrap(fileset_id)
     if fileset_id_val is not None:
@@ -588,9 +591,13 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
                         not exists (
                             select dilink from DatasetImageLink as dilink
                             where dilink.child = image.id
+
                         """
-        if experimenter_id is not None and experimenter_id != -1:
-            orphan_where += ' and dilink.parent.details.owner.id = :id '
+        # This is what is necessary if an orphan means that it has no
+        # container that belongs to the image owner. This corresponds
+        # to marshal_orphaned as well because of the child count
+        # if experimenter_id is not None and experimenter_id != -1:
+        #     orphan_where += ' and dilink.parent.details.owner.id = :id '
 
         orphan_where += ') '
         where_clause.append(orphan_where)
@@ -671,6 +678,7 @@ def _marshal_screen(conn, row):
     screen = dict()
     screen['id'] = unwrap(screen_id)
     screen['name'] = unwrap(name)
+    screen['ownerId'] = unwrap(owner_id)
     screen['childCount'] = unwrap(child_count)
     screen['permsCss'] = \
         parse_permissions_css(permissions, unwrap(owner_id), conn)
@@ -752,6 +760,7 @@ def _marshal_plate(conn, row):
     plate = dict()
     plate['id'] = unwrap(plate_id)
     plate['name'] = unwrap(name)
+    plate['ownerId'] = unwrap(owner_id)
     plate['childCount'] = unwrap(child_count)
     plate['permsCss'] = \
         parse_permissions_css(permissions, unwrap(owner_id), conn)
@@ -872,6 +881,7 @@ def _marshal_plate_acquisition(conn, row):
     else:
         plate_acquisition['name'] = 'Run %d' % unwrap(pa_id)
 
+    plate_acquisition['ownerId'] = unwrap(owner_id)
     plate_acquisition['permsCss'] = \
         parse_permissions_css(permissions, unwrap(owner_id), conn)
     return plate_acquisition
@@ -977,11 +987,10 @@ def marshal_orphaned(conn, group_id=-1, experimenter_id=-1, page=1,
             where dilink.child.id = image.id
         '''
 
-    # TODO If this is restricted by a user then potentially we want
-    # to show orphans that are are not linked by any user instead of just that
-    # particular user?
-    q += ' and dilink.parent.details.owner.id = :id '
-    q += '''
+    # This corresponse to the user specific orphan restriction described
+    # in the orphan section of marshal_images
+    # q += ' and dilink.parent.details.owner.id = :id '
+    q+= '''
         )
         and not exists (
                 select ws from WellSample ws
@@ -1021,6 +1030,7 @@ def _marshal_tag(conn, row):
     tag['value'] = unwrap(text_value)
     # TODO What about None descriptions? Should it simply be not present?
     tag['description'] = unwrap(description)
+    tag['ownerId'] = unwrap(owner_id)
     tag['permsCss'] = parse_permissions_css(permissions, unwrap(owner_id), conn)
 
     if namespace and unwrap(namespace) == \
@@ -1311,6 +1321,7 @@ def _marshal_share(conn, row):
     share_id, owner_id, child_count = row
     share = dict()
     share['id'] = unwrap(share_id)
+    share['ownerId'] = unwrap(owner_id)
     share['childCount'] = unwrap(child_count)
     return share
 
@@ -1378,6 +1389,7 @@ def _marshal_discussion(conn, row):
     discussion_id, owner_id = row
     discussion = dict()
     discussion['id'] = unwrap(discussion_id)
+    discussion['ownerId'] = unwrap(owner_id)
     return discussion
 
 
