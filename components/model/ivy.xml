@@ -42,14 +42,13 @@
     <dependency org="javassist" name="javassist" rev="${versions.javassist}" conf="build,server->default"/>
     <!-- Hibernate -->
     <dependency org="${omero.db.org}" name="${omero.db.jar}" rev="${omero.db.jar_version}" conf="build,server->default"/>
+    <dependency org="org.hibernate" name="hibernate-commons-annotations" rev="${versions.hibernate-annotations}" conf="build,server->default"/>
     <dependency org="org.hibernate" name="hibernate-core" rev="${versions.hibernate}" conf="build,server->default"/>
     <dependency org="org.hibernate" name="hibernate-search" rev="${versions.hibernate-search}" conf="build,server->default"/>
     <dependency org="org.hibernate" name="hibernate-validator" rev="${versions.hibernate-validator}" conf="build,server->default"/>
     <dependency org="org.hibernate.javax.persistence" name="hibernate-jpa-2.0-api" rev="${versions.persistence-api}" conf="build,server->default"/>
     <dependency org="org.apache.lucene" name="lucene-core" rev="${versions.lucene}" conf="build,server->default"/>
-    <dependency org="org.apache.lucene" name="lucene-highlighter" rev="${versions.lucene}" conf="build,server->default"/>
-    <dependency org="org.apache.lucene" name="lucene-spellchecker" rev="${versions.lucene}" conf="build,server->default"/>
-    <dependency org="org.apache.lucene" name="lucene-misc" rev="${versions.lucene}" conf="build,server->default"/>
+    <dependency org="org.apache.lucene" name="lucene-analyzers" rev="${versions.lucene}" conf="build,server->default"/>
     <!-- build only -->
     <dependency org="org.hibernate" name="hibernate-tools" rev="${versions.hibernate-tools}" conf="build->default"/>
     <dependency org="freemarker" name="freemarker" rev="${versions.freemarker}" conf="build->default"/>

@@ -56,6 +56,6 @@
     <dependency org="org.springframework.security" name="spring-security-core" rev="${versions.spring-security}"/>
     <dependency org="org.springframework.security" name="spring-security-config" rev="${versions.spring-security}"/>
     <dependency org="org.springframework.security" name="spring-security-ldap" rev="${versions.spring-security}"/>
-    <dependency org="org.springframework.ldap" name="spring-ldap" rev="${versions.spring-ldap}-all"/>
+    <dependency org="org.springframework.ldap" name="spring-ldap-core" rev="${versions.spring-ldap}"/>
   </dependencies>
 </ivy-module>

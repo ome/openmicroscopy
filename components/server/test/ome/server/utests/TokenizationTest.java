@@ -6,10 +6,11 @@
  */
 package ome.server.utests;
 
+import static org.apache.lucene.util.Version.LUCENE_30;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,8 +18,8 @@ import java.util.Map;
 import ome.services.fulltext.FullTextAnalyzer;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.Token;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.TermAttribute;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.CorruptIndexException;
@@ -31,17 +32,16 @@ import org.apache.lucene.search.Searcher;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 import org.jmock.MockObjectTestCase;
-import org.springframework.expression.spel.ast.Indexer;
 import org.testng.annotations.Test;
 
 @Test(timeOut = 1000) // Lucene initialization takes longer than default 200ms.
 public class TokenizationTest extends MockObjectTestCase {
 
     void assertTokenizes(String text, String... tokens) {
-        List<Token> results = tokenize(text);
+        List<String> results = tokenize(text);
         assertEquals(tokens.length, results.size());
         for (int i = 0; i < tokens.length; i++) {
-            String term = results.get(i).term();
+            String term = results.get(i);
             assertEquals(String.format("%s!=%s:%s", tokens[i], term,
                     results.toString()), tokens[i], term);
         }
@@ -98,7 +98,7 @@ public class TokenizationTest extends MockObjectTestCase {
             queryToResults.put("\"GFP H2B\"", 2);
             queryToResults.put("\"H2B GFP\"", 0);
 
-            QueryParser parser = new QueryParser("contents", analyzer);
+            QueryParser parser = new QueryParser(LUCENE_30, "contents", analyzer);
             for (String queryStr : queryToResults.keySet()) {
                 Query query = parser.parse(queryStr);
                 System.out.println("Query: " + query.toString("contents"));
@@ -129,23 +129,32 @@ public class TokenizationTest extends MockObjectTestCase {
         writer.close();
     }
 
-    private List<Token> tokenize(String a) {
+    private List<String> tokenize(String a) {
         // StandardAnalyzer sa = new StandardAnalyzer();
         FullTextAnalyzer sa = new FullTextAnalyzer();
-        TokenStream ts = sa.tokenStream("field", new StringReader(a));
-        List<Token> tokens = new ArrayList<Token>();
         try {
-            while (true) {
-                Token t = new Token();
-                t = ts.next(t);
-                if (t == null) {
-                    break;
+            TokenStream ts = sa.tokenStream("field", new StringReader(a));
+            List<String> tokens = new ArrayList<String>();
+            try {
+                ts.reset();
+                // OffsetAttribute offsetAttribute = ts.getAttribute(OffsetAttribute.class);
+                TermAttribute termAttribute = ts.getAttribute(TermAttribute.class);
+                while (ts.incrementToken()) {
+                    /*
+                    int startOffset = offsetAttribute.startOffset();
+                    int endOffset = offsetAttribute.endOffset();
+                    */
+                    String term = termAttribute.term();
+                    tokens.add(term);
                 }
-                tokens.add(t);
+                ts.end();
+                ts.close();
+            } catch (IOException io) {
+                // ok
             }
-        } catch (IOException io) {
-            // ok
+            return tokens;
+        } finally {
+            sa.close();
         }
-        return tokens;
     }
 }

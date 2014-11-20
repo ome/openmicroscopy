@@ -257,7 +257,7 @@ public interface IQuery extends ServiceInterface {
      * </ul>
      * 
      * For more information, see
-     * <a href="http://lucene.apache.org/java/docs/queryparsersyntax.html">Query Parser Synax</a>
+     * <a href="http://lucene.apache.org/core/4_9_0/queryparser/org/apache/lucene/queryparser/classic/package-summary.html">Query Parser Synax</a>
      * 
      * The return values are first filtered by the security system.
      * 
