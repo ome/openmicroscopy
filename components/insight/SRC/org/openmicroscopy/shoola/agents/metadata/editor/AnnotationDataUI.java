@@ -526,45 +526,17 @@ class AnnotationDataUI
 		//c.fill = GridBagConstraints.HORIZONTAL;
 		c.anchor = GridBagConstraints.WEST;
 		c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-		c.fill = GridBagConstraints.NONE;      //reset to default
-		c.insets = new Insets(0, 0, 2, 0);
+		c.fill = GridBagConstraints.HORIZONTAL;      //reset to default
+		c.insets = new Insets(2, 0, 2, 0);
 		c.gridy = 0;
+		
+		// rating
 		c.gridx = 0;
-		
-		//rating
-                p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-                p.setBackground(UIUtilities.BACKGROUND_COLOR);
-                p.add(UIUtilities.setTextFont("Rating:", Font.BOLD, size));
-                p.add(createBar(unrateButton, null));
-                panel.add(p, c);
-                c.gridy++;
-                
-		//tags
 		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.add(UIUtilities.setTextFont("Tags:", Font.BOLD, size));
-		p.add(createBar(addTagsButton, removeTagsButton));
+		p.add(UIUtilities.setTextFont("Rating:", Font.BOLD, size));
+		p.add(createBar(unrateButton, null));
 		panel.add(p, c);
-		c.gridy++;
-		
-		//attachment
-		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.add(UIUtilities.setTextFont("Attachments:", Font.BOLD, size));
-		p.add(createBar(addDocsButton, removeDocsButton));
-		panel.add(p, c);
-		c.gridy++;
-		
-		//other
-		if (!CollectionUtils.isEmpty(model.getAllOtherAnnotations())) {
-                    p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-                    p.setBackground(UIUtilities.BACKGROUND_COLOR);
-                    p.add(UIUtilities.setTextFont("Others:", Font.BOLD, size));
-                    p.add(createBar(null, removeOtherAnnotationsButton));
-                    panel.add(p, c);
-		}
-		
-		c.gridy = 0;
 		c.gridx = 1;
 		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -573,16 +545,40 @@ class AnnotationDataUI
         p.add(Box.createHorizontalStrut(2));
         p.add(otherRating);
 		panel.add(p, c);
-                c.gridy++;
+		c.gridy++;
+		
+		//tags
+		c.gridx = 0;
+		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+		p.add(UIUtilities.setTextFont("Tags:", Font.BOLD, size));
+		p.add(createBar(addTagsButton, removeTagsButton));
+		panel.add(p, c);
+		c.gridx = 1;
 		panel.add(tagsPane, c);
+		c.gridy++;
+		
+		//attachment
+		c.gridx = 0;
+		c.gridwidth = 2;
+		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+		p.add(UIUtilities.setTextFont("Attachments:", Font.BOLD, size));
+		p.add(createBar(addDocsButton, removeDocsButton));
+		panel.add(p, c);
 		c.gridy++;
 		panel.add(docRef, c);
 		c.gridy++;
 		
-		if (!CollectionUtils.isEmpty(model.getAllOtherAnnotations()))  {
-			c.gridx=0;
+		//other
+		if (!CollectionUtils.isEmpty(model.getAllOtherAnnotations())) {
+			c.gridx = 0;
+			p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+			p.setBackground(UIUtilities.BACKGROUND_COLOR);
+			p.add(UIUtilities.setTextFont("Others:", Font.BOLD, size));
+			p.add(createBar(null, removeOtherAnnotationsButton));
+			panel.add(p, c);
 			c.gridy++;
-			c.gridwidth = 2;
 		    panel.add(otherPane, c);
 		}
 
@@ -741,17 +737,8 @@ class AnnotationDataUI
 			filesDocList.add(doc);
 			docPane.add(doc);
 		}
-		int n = docPane.getComponentCount();
 		docRef = docPane;
 		
-		if (n >= MAX) {
-			Dimension d = docPane.getPreferredSize();
-			JScrollPane sp = new JScrollPane(docPane);
-			int width = d.width+20;
-			if (width < COLUMN_WIDTH) width = COLUMN_WIDTH;
-			sp.getViewport().setPreferredSize(new Dimension(width, h*MAX));
-			docRef = sp;	
-		} 
 		docPane.revalidate();
 		docPane.repaint();
 	}
