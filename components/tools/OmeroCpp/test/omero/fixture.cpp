@@ -118,6 +118,7 @@ omero::model::ExperimenterGroupPtr Fixture::newGroup(const std::string& perms) {
     std::string gname = uuid();
     ExperimenterGroupPtr group = new ExperimenterGroupI();
     group->setName( rstring(gname) );
+    group->setLdap( rbool(false) );
     if (!perms.empty()) {
         group->getDetails()->setPermissions( new PermissionsI(perms) );
     }
