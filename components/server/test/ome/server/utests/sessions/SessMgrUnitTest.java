@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2007-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.server.utests.sessions;
@@ -145,6 +145,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         session.setId(1L);
 
         user.setOmeName(principal.getName());
+        user.setLdap(false);
     }
 
     @AfterMethod

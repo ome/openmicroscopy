@@ -26,7 +26,6 @@ import ome.services.blitz.fire.AopContextInitializer;
 import ome.services.blitz.impl.AbstractAmdServant;
 import ome.services.blitz.impl.AdminI;
 import ome.services.blitz.impl.ConfigI;
-import ome.services.blitz.impl.DeleteI;
 import ome.services.blitz.impl.QueryI;
 import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.blitz.impl.ShareI;
@@ -76,7 +75,6 @@ public class ManagedContextFixture {
     // Servants
     public final AdminI admin;
     public final ConfigI config;
-    public final DeleteI delete;
     public final QueryI query;
     public final ShareI share;
     public final UpdateI update;
@@ -111,7 +109,7 @@ public class ManagedContextFixture {
     public ManagedContextFixture(OmeroContext ctx, boolean newUser, String permissions)
         throws Exception {
         this.ctx = ctx;
-        
+
         sm = (SessionManager) ctx.getBean("sessionManager");
         ss = (SecuritySystem) ctx.getBean("securitySystem");
         be = (BlitzExecutor) ctx.getBean("throttlingStrategy");
@@ -136,13 +134,12 @@ public class ManagedContextFixture {
             loginNewUserNewGroup(permissions);
         }
 
-        
 
-      
+
+
         sf = createServiceFactoryI();
         init = new AopContextInitializer(
                 new ServiceFactory(ctx), login.p, new AtomicBoolean(true));
-        delete = delete();
 
         ServiceFactory regular = new ServiceFactory(ctx);
         update = new UpdateI(regular.getUpdateService(), be);
@@ -150,7 +147,6 @@ public class ManagedContextFixture {
         admin = new AdminI(regular.getAdminService(), be);
         config = new ConfigI(regular.getConfigService(), be);
         share = new ShareI(regular.getShareService(), be);
-        configure(delete, init);
         configure(update, init);
         configure(query, init);
         configure(admin, init);
@@ -184,17 +180,6 @@ public class ManagedContextFixture {
                 new omero.util.ServantHolder(getPrincipal().getName()), null, ctx, mgr, ex,
                 getPrincipal(), new ArrayList<HardWiredInterceptor>(), null, null);
         return factory;
-    }
-
-
-    protected DeleteI delete() throws Exception {
-        String out = ctx.getProperty("omero.threads.cancel_timeout");
-        int timeout = Integer.valueOf(out);
-        DeleteI d = new DeleteI(em, managedSf.getDeleteService(), be,
-                ctx.getBean("threadPool", ThreadPool.class),
-                timeout, ctx.getProperty("omero.data.dir"));
-        d.setServiceFactory(sf);
-        return d;
     }
 
     protected void configure(AbstractAmdServant servant,
@@ -294,7 +279,7 @@ public class ManagedContextFixture {
     public void setCurrentUser(String user) {
         setCurrentUserAndGroup(user, "user");
     }
-    
+
     public void setCurrentUserAndGroup(String user, String group) {
         Principal p = new Principal(user, group, "Test");
         Session s = mgr.createWithAgent(p, "ManagedFixture", "127.0.0.1");

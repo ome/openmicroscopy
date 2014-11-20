@@ -2596,7 +2596,7 @@ class _BlitzGateway (object):
                 yield ExperimenterGroupWrapper(self, e)
 
     def createGroup(self, name, owner_Ids=None, member_Ids=None, perms=None,
-                    description=None):
+                    description=None, ldap=False):
         """
         Creates a new ExperimenterGroup.
         Must have Admin permissions to call this.
@@ -2610,6 +2610,7 @@ class _BlitzGateway (object):
                             E.g. 'rw----' (private), 'rwr---'(read-only),
                             'rwrw--'
         :param description: Group description
+        :param ldap:        Group ldap setting
         """
         admin_serv = self.getAdminService()
 
@@ -2620,6 +2621,7 @@ class _BlitzGateway (object):
             and rstring(str(description)) or None)
         if perms is not None:
             group.details.permissions = omero.model.PermissionsI(perms)
+        group.ldap = rbool(ldap)
 
         gr_id = admin_serv.createGroup(group)
 
@@ -6371,6 +6373,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
         if rv is None or len(rv.strip()) == 0:
             rv = lc.emissionWave
             if rv is not None:
+                rv = rv.getValue()  # FIXME: units ignored for wavelength
                 # Don't show as double if it's really an int
                 if int(rv) == rv:
                     rv = int(rv)
@@ -6630,6 +6633,19 @@ class _ImageWrapper (BlitzObjectWrapper):
         self._obj = self._conn.getContainerService().getImages(
             self.OMERO_CLASS, (self._oid,), None, ctx)[0]
 
+    def getAcquisitionDate(self):
+        """
+        Returns the acquisition date for the image or None if not set.
+
+        :return:    A :meth:`datetime.datetime` object
+        :rtype:     datetime
+        """
+
+        t = unwrap(self._obj.acquisitionDate)
+        print t
+        if t is not None and t > 0:
+            return datetime.fromtimestamp(t/1000)
+
     def getInstrument(self):
         """
 
@@ -6722,7 +6738,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             rdid = self._getRDef()
         if rdid is None:
             if not re.lookupRenderingDef(pid, ctx):
-                re.resetDefaults(ctx)
+                re.resetDefaultSettings(True, ctx)
                 re.lookupRenderingDef(pid, ctx)
             self._onResetDefaults(re.getRenderingDefId(ctx))
         else:

@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2010-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -66,7 +66,7 @@ public class QueryNewUserGroupBean implements NewUserGroupBean {
 
         List<Long> groups = new ArrayList<Long>(groupNames.size());
         for (String groupName : groupNames) {
-            groups.add(provider.createGroup(groupName, null, false));
+            groups.add(provider.createGroup(groupName, null, false, true));
         }
         return groups;
 

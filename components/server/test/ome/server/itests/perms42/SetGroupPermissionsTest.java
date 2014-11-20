@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2010-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.server.itests.perms42;
@@ -27,6 +27,7 @@ public class SetGroupPermissionsTest extends PermissionsTest {
         String name = "privateGroup-" + uuid();
         ExperimenterGroup privateGroup = new ExperimenterGroup();
         privateGroup.setName(name);
+        privateGroup.setLdap(false);
         privateGroup.getDetails().setPermissions(Permissions.USER_PRIVATE);
         long gid = iAdmin.createGroup(privateGroup);
         privateGroup = iAdmin.getGroup(gid);
@@ -142,6 +143,7 @@ public class SetGroupPermissionsTest extends PermissionsTest {
         String uuid = iAdmin.getEventContext().getCurrentSessionUuid();
         ExperimenterGroup new_gr1 = new ExperimenterGroup();
         new_gr1.setName("group1_"+uuid);
+        new_gr1.setLdap(false);
         Permissions p = Permissions.COLLAB_READLINK;
         new_gr1.getDetails().setPermissions(p);
         long g1_id = iAdmin.createGroup(new_gr1);

@@ -115,6 +115,7 @@ class TestPermissions(lib.ITest):
         uuid = self.uuid()
         g = ExperimenterGroupI()
         g.name = rstring(uuid)
+        g.ldap = rbool(False)
         g.details.permissions = PermissionsI("rwrwrw")
         self.root.sf.getAdminService().createGroup(g)
 
@@ -162,6 +163,7 @@ class TestPermissions(lib.ITest):
         # create group1
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("group1_%s" % uuid)
+        new_gr1.ldap = rbool(False)
         p = PermissionsI()
         p.setUserRead(True)
         p.setUserWrite(True)
@@ -192,6 +194,7 @@ class TestPermissions(lib.ITest):
         # create group1
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("group1_%s" % uuid)
+        new_gr1.ldap = rbool(False)
         p = PermissionsI()
         p.setUserRead(True)
         p.setUserWrite(True)
@@ -221,6 +224,7 @@ class TestPermissions(lib.ITest):
         # create group1
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("group1_%s" % uuid)
+        new_gr1.ldap = rbool(False)
         p = PermissionsI()
         p.setUserRead(True)
         p.setUserWrite(True)
@@ -251,6 +255,7 @@ class TestPermissions(lib.ITest):
         # create group1
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("group1_%s" % uuid)
+        new_gr1.ldap = rbool(False)
         p = PermissionsI()
         p.setUserRead(True)
         p.setUserWrite(True)
@@ -280,6 +285,7 @@ class TestPermissions(lib.ITest):
         # create group1
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("group1_%s" % uuid)
+        new_gr1.ldap = rbool(False)
         p = PermissionsI()
         p.setUserRead(True)
         p.setUserWrite(True)
@@ -345,6 +351,7 @@ class TestPermissions(lib.ITest):
         # create group1
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("group1_%s" % uuid)
+        new_gr1.ldap = rbool(False)
         p = PermissionsI()
         p.setUserRead(True)
         p.setUserWrite(True)
@@ -369,6 +376,7 @@ class TestPermissions(lib.ITest):
         uuid = self.uuid()
         uuidGroup = ExperimenterGroupI()
         uuidGroup.name = rstring(uuid)
+        uuidGroup.ldap = rbool(False)
         uuidGroupId = admin.createGroup(uuidGroup)
         uuidGroup = ExperimenterGroupI(uuidGroupId, False)
         listOfGroups = list()
