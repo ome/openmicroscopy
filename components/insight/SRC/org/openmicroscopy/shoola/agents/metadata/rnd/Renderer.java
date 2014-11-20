@@ -138,6 +138,12 @@ public interface Renderer
     public static final String SAVE_SETTINGS_PROPERTY = "saveSettings";
 
     /** 
+     * Bound property indicating that the rendering settings have been 
+     * copied.
+     */
+    public static final String COPY_SETTINGS_PROPERTY = "copySettings";
+    
+    /** 
      * Sets the pixels intensity interval for the
      * currently selected channel.
      * 
@@ -333,6 +339,11 @@ public interface Renderer
      */
     void onSettingsApplied(RenderingControl rndControl);
 
+    /** 
+     * Notifies that the rendering settings have been copied.
+     */
+    void onSettingsCopied();
+    
     /**
      * Returns the sizeX.
      * 
@@ -569,6 +580,12 @@ public interface Renderer
     void setChannelWindow(int index, double start, double end);
 
     /**
+     * Checks if the image pixel type is integer
+     * @return See above
+     */
+    boolean isIntegerPixelData();
+    
+    /**
      * Renders the specified plane.
      * 
      * @param pDef The plane to render.
@@ -785,4 +802,10 @@ public interface Renderer
      * @return See above.
      */
     boolean isModified();
+    
+    /**
+     * Enables/Disables the paste action
+     */
+    void updatePasteAction();
+    
 }

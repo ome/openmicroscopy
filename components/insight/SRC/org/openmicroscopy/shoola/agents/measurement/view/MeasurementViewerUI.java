@@ -49,17 +49,19 @@ import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
-import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.DelegationSelectionTool;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.Figure;
@@ -80,11 +82,12 @@ import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
+import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
+import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
-import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureMaskFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
@@ -94,6 +97,7 @@ import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
+import org.openmicroscopy.shoola.util.ui.graphutils.ChartObject;
 
 /** 
  * The {@link MeasurementViewer} view.
@@ -222,13 +226,7 @@ class MeasurementViewerUI
     
     /** The map holding the work-flow objects. */
     private Map<String, String> workflowsUIMap;
-    
-    /** 
-     * Flag indicating that the measurement was shown before adding 
-     * a new figure.
-     */
-    private Boolean measurementShown;
-    
+
     /**
      * Scrolls to the passed figure.
      * 
@@ -475,9 +473,9 @@ class MeasurementViewerUI
 					roiManager.getComponentIcon(), roiManager);
 		tabs.addTab(roiInspector.getComponentName(),
 			roiInspector.getComponentIcon(), roiInspector);
+		tabs.addTab(roiResults.getComponentName(),
+                roiResults.getComponentIcon(), roiResults);
 		if (!model.isBigImage()) {
-			tabs.addTab(roiResults.getComponentName(),
-				roiResults.getComponentIcon(), roiResults);
 			tabs.addTab(graphPane.getComponentName(),
 				graphPane.getComponentIcon(), graphPane);
 			tabs.addTab(intensityView.getComponentName(),
@@ -1029,16 +1027,7 @@ class MeasurementViewerUI
     		if (!isDuplicate) {
 	    		MeasurementAttributes.SHOWTEXT.set(figure,
 	    					roiInspector.isShowText());
-	    		if (figure instanceof MeasureLineFigure) {
-	    			measurementShown = roiInspector.isShowMeasurement();
-	    			MeasurementAttributes.SHOWMEASUREMENT.set(figure, true);
-	    		} else {
-	    			boolean b = roiInspector.isShowMeasurement();
-	    			if (measurementShown != null)
-	    				b = measurementShown.booleanValue();
-	    			MeasurementAttributes.SHOWMEASUREMENT.set(figure, b);
-	    			measurementShown = null;
-	    		}
+                MeasurementAttributes.SHOWMEASUREMENT.set(figure, true);
     		}
     		getDrawingView().unsetDuplicate();
     	} catch (Exception e) {
@@ -1503,12 +1492,12 @@ class MeasurementViewerUI
 	{
 		Collection<Figure> figures = model.getSelectedFigures();
 		if (figures != null) {
+		    boolean show = roiInspector.isShowMeasurement();
 			Iterator<Figure> i = figures.iterator();
 			Figure f;
 			while (i.hasNext()) {
 				f = i.next();
-				if (measurementShown != null && measurementShown.booleanValue())
-					MeasurementAttributes.SHOWMEASUREMENT.set(f, true);
+				MeasurementAttributes.SHOWMEASUREMENT.set(f, show);
 			}
 		}
 		
@@ -1581,7 +1570,13 @@ class MeasurementViewerUI
 		intensityView.onAnalysed(analyse);
 		toolBar.onAnalysed(analyse);
 	}
-	
+
+	/** Updates view when the zoom factor is modified.*/
+	void onMagnificationChanged()
+	{
+	    toolBar.onMagnificationChanged();
+	}
+
     /** 
      * Overridden to the set the location of the {@link MeasurementViewer}.
      * @see TopWindow#setOnScreen() 
@@ -1603,4 +1598,31 @@ class MeasurementViewerUI
 		super.setVisible(value);
 	}
 
+ 	/**
+         * Opens a file chooser dialog and exports the graph as JPEG or PNG.
+         */
+        public void exportGraph() {
+            List<FileFilter> filterList = new ArrayList<FileFilter>();
+            filterList.add(new JPEGFilter());
+            filterList.add(new PNGFilter());
+            FileChooser chooser = new FileChooser(
+                    (JFrame) SwingUtilities.windowForComponent(this),
+                    FileChooser.SAVE, "Save Graph",
+                    "Save the graph as JPEG or PNG", filterList);
+            try {
+                File f = UIUtilities.getDefaultFolder();
+                if (f != null)
+                    chooser.setCurrentDirectory(f);
+            } catch (Exception ex) {
+            }
+            if (chooser.showDialog() != JFileChooser.APPROVE_OPTION)
+                return;
+            File file = chooser.getFormattedSelectedFile();
+            FileFilter filter = chooser.getSelectedFilter();
+    
+            int type = (filter instanceof JPEGFilter) ? ChartObject.SAVE_AS_JPEG
+                    : ChartObject.SAVE_AS_PNG;
+    
+            graphPane.saveGraph(file, type);
+        }
 }

@@ -35,6 +35,7 @@ except:
     from md5 import md5
 
 from cStringIO import StringIO
+import tempfile
 
 from omero import ApiUsageException
 from omero.util.decorators import timeit, TimeIt
@@ -54,6 +55,7 @@ import logging, os, traceback, time, zipfile, shutil
 
 from omeroweb.decorators import login_required, ConnCleaningHttpResponse
 from omeroweb.connector import Connector
+from omeroweb.webgateway.util import zip_archived_files
 
 logger = logging.getLogger(__name__)
 
@@ -953,7 +955,6 @@ def render_movie (request, iid, axis, pos, conn=None, **kwargs):
         logger.debug('rendering movie for img %s with axis %s, pos %i and opts %s' % (iid, axis, pos, opts))
         #fpath, rpath = webgateway_tempfile.newdir()
         if fpath is None:
-            import tempfile
             fo, fn = tempfile.mkstemp()
         else:
             fn = fpath #os.path.join(fpath, img.getName())
@@ -1679,11 +1680,12 @@ def get_image_rdef_json (request, conn=None, **kwargs):
     returns it as json
     """
     rdef = request.session.get('rdef')
+    image = None
     if (rdef is None):
         fromid = request.session.get('fromid', None)
-        print 'fromid', fromid
-        # We only have an Image to copy rdefs from
-        image = conn.getObject("Image", fromid)
+        if fromid is not None:
+            # We only have an Image to copy rdefs from
+            image = conn.getObject("Image", fromid)
         if image is not None:
             rv = imageMarshal(image, None)
             # return rv
@@ -1779,7 +1781,6 @@ def download_as(request, iid=None, conn=None, **kwargs):
         rsp['Content-Length'] = len(jpeg_data)
         rsp['Content-Disposition'] = 'attachment; filename=%s.jpg' % (images[0].getName().replace(" ","_"))
     else:
-        import tempfile
         temp = tempfile.NamedTemporaryFile(suffix='.download_as')
 
         def makeImageName(originalName, extension, folder_name):
@@ -1881,41 +1882,15 @@ def archived_files(request, iid=None, conn=None, **kwargs):
         rsp = ConnCleaningHttpResponse(orig_file.getFileInChunks())
         rsp.conn = conn
         rsp['Content-Length'] = orig_file.getSize()
-        rsp['Content-Disposition'] = 'attachment; filename=%s' % (orig_file.getName().replace(" ","_"))
+        fname = orig_file.getName().replace(" ","_").replace(",", ".")      # ',' in name causes duplicate headers
+        rsp['Content-Disposition'] = 'attachment; filename=%s' % (fname)
     else:
-        import tempfile
+
         temp = tempfile.NamedTemporaryFile(suffix='.archive')
         zipName = request.REQUEST.get('zipname', image.getName())
-        if not zipName.endswith('.zip'):
-            zipName = "%s.zip" % zipName
-        try:
-            temp_zip_dir = tempfile.mkdtemp()
-            logger.debug("download dir: %s" % temp_zip_dir)
-            try:
-                for a in files:
-                    # Need to be sure that the zip name does not match any file within it
-                    # since OS X will unzip as a single file instead of a directory
-                    if zipName == "%s.zip" % a.name:
-                        zipName = "%s_folder.zip" % a.name
-                    temp_f = os.path.join(temp_zip_dir, a.name)
-                    f = open(str(temp_f),"wb")
-                    try:
-                        for chunk in a.getFileInChunks():
-                            f.write(chunk)
-                    finally:
-                        f.close()
 
-                # create zip
-                zip_file = zipfile.ZipFile(temp, 'w', zipfile.ZIP_DEFLATED)
-                try:
-                    a_files = os.path.join(temp_zip_dir, "*")
-                    for name in glob.glob(a_files):
-                        zip_file.write(name, os.path.basename(name))
-                finally:
-                    zip_file.close()
-                    # delete temp dir
-            finally:
-                shutil.rmtree(temp_zip_dir, ignore_errors=True)
+        try:
+            zipName = zip_archived_files(images, temp, zipName)
 
             # return the zip or single file
             archivedFile_data = FileWrapper(temp)

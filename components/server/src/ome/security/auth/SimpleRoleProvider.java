@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2009-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -10,13 +10,12 @@ package ome.security.auth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
 import ome.model.IObject;
 import ome.model.internal.Permissions;
-import ome.model.internal.Permissions.Right;
-import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
@@ -26,17 +25,17 @@ import ome.tools.hibernate.HibernateUtils;
 import ome.tools.hibernate.SecureMerge;
 import ome.tools.hibernate.SessionFactory;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implements {@link RoleProvider}.
- * 
+ *
  * Note: All implementations were originally copied from AdminImpl for
  * ticket:1226.
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 4.0
  */
@@ -49,9 +48,17 @@ public class SimpleRoleProvider implements RoleProvider {
 
     final protected SessionFactory sf;
 
+    private AtomicBoolean ignoreCaseLookup;
+
     public SimpleRoleProvider(SecuritySystem sec, SessionFactory sf) {
+        this(sec, sf, new AtomicBoolean(false));
+    }
+
+    public SimpleRoleProvider(SecuritySystem sec, SessionFactory sf,
+            AtomicBoolean ignoreCaseLookup) {
         this.sec = sec;
         this.sf = sf;
+        this.ignoreCaseLookup = ignoreCaseLookup;
     }
 
     public String nameById(long id) {
@@ -62,12 +69,18 @@ public class SimpleRoleProvider implements RoleProvider {
     }
 
     public long createGroup(String name, Permissions perms, boolean strict) {
+        return this.createGroup(name, perms, strict, false);
+    }
+
+    public long createGroup(String name, Permissions perms, boolean strict,
+            boolean isLdap) {
         Session s = sf.getSession();
         ExperimenterGroup g = groupByName(name, s);
 
         if (g == null) {
             g = new ExperimenterGroup();
             g.setName(name);
+            g.setLdap(isLdap);
             if (perms == null) {
                 perms = Permissions.USER_PRIVATE; // ticket:1434
             }
@@ -101,11 +114,14 @@ public class SimpleRoleProvider implements RoleProvider {
         SecureAction action = new SecureMerge(session);
 
         Experimenter e = copyUser(experimenter);
+        if (isIgnoreCaseLookup()) {
+            e.setOmeName(e.getOmeName().toLowerCase());
+        }
         e.getDetails().copy(sec.newTransientDetails(e));
         e = sec.doAction(action, e);
         session.flush();
 
-        GroupExperimenterMap link = linkGroupAndUser(defaultGroup, e, false);
+        linkGroupAndUser(defaultGroup, e, false);
         if (null != otherGroups) {
             for (ExperimenterGroup group : otherGroups) {
                 linkGroupAndUser(group, e, false);
@@ -205,6 +221,10 @@ public class SimpleRoleProvider implements RoleProvider {
         session.flush();
     }
 
+    public boolean isIgnoreCaseLookup() {
+        return ignoreCaseLookup.get();
+    }
+
     // ~ Helpers
     // =========================================================================
 
@@ -232,8 +252,8 @@ public class SimpleRoleProvider implements RoleProvider {
         link.getDetails().copy(sec.newTransientDetails(link));
 
         Session session = sf.getSession();
-        sec.doAction(new SecureMerge(session), userById(e.getId(), session),
-                link);
+        sec.<IObject> doAction(new SecureMerge(session),
+                userById(e.getId(), session), link);
         session.flush();
         return link;
     }
@@ -249,6 +269,7 @@ public class SimpleRoleProvider implements RoleProvider {
         copy.setLastName(e.getLastName());
         copy.setEmail(e.getEmail());
         copy.setInstitution(e.getInstitution());
+        copy.setLdap(e.getLdap());
         if (e.getDetails() != null && e.getDetails().getPermissions() != null) {
             copy.getDetails().setPermissions(e.getDetails().getPermissions());
         }
@@ -265,6 +286,7 @@ public class SimpleRoleProvider implements RoleProvider {
         ExperimenterGroup copy = new ExperimenterGroup();
         copy.setDescription(g.getDescription());
         copy.setName(g.getName());
+        copy.setLdap(g.getLdap());
         copy.getDetails().copy(sec.newTransientDetails(g));
         copy.getDetails().setPermissions(g.getDetails().getPermissions());
         // TODO see shallow copy comment on copy user

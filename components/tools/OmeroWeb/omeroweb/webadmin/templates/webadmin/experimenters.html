@@ -103,7 +103,7 @@
             <td>
                   {% if experimenter.isAdmin %}<img src="{% static "webadmin/image/admin.png" %}" alt="admin" title="admin"> {% endif %}
                   {% if experimenter.isGuest %}<img src="{% static "webadmin/image/guest.png" %}" alt="guest" title="guest"> {% endif %}
-                  {% if experimenter.isLdapUser %}<img src="{% static "webadmin/image/ldap.png" %}" alt="ldap" title="ldap"> {% endif %}
+                  {% if experimenter.ldap %}<img src="{% static "webadmin/image/ldap.png" %}" alt="ldap" title="ldap"> {% endif %}
                   {% if experimenter.isActive %}<img src="{% static "webadmin/image/active.png" %}" alt="active" title="active">{% else %}<img src="{% static "webadmin/image/notactive.png" %}" alt="inactive" title="inactive">{% endif %}
             </td>
             <td>

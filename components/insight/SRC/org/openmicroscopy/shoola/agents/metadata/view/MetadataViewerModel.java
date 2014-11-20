@@ -161,7 +161,7 @@ class MetadataViewerModel
 	
 	/** The active loaders.*/
 	private Map<Integer, MetadataLoader> loaders;
-
+	
     /**
      * Creates a new context if <code>null</code>.
      *
@@ -933,8 +933,8 @@ class MetadataViewerModel
 	}
 	
 	/**
-	 * Starts an asynchronous call to load the rendering settings
-	 * associated to the image.
+	 * Starts an asynchronous call to load all rendering settings
+	 * associated to the image and triggers the viewedby items creation
 	 */
 	void fireViewedByLoading()
 	{
@@ -952,9 +952,41 @@ class MetadataViewerModel
 		loaderID++;
 		ctx = retrieveContext(img);
 		RenderingSettingsLoader loader = new RenderingSettingsLoader(component,
-				ctx, img.getDefaultPixels().getId(), loaderID);
+				ctx, img.getDefaultPixels().getId(), loaderID, RenderingSettingsLoader.TASK_VIEWEDBY);
 		loaders.put(loaderID, loader);
 		loader.load();
+	}
+	
+	/**
+	 * Starts an asynchronous call to load the rendering settings of
+	 * an image to copy the settings from, and applies the settings to
+	 * the renderer (does not save them).
+	 * See also {@link #setCopyRenderingSettingsFrom(ImageData)}
+	 */
+	void fireLoadRndSettings() {
+	    
+	    if(!hasRndSettingsCopied())
+	        return;
+	    
+	    ImageData copyRenderingSettingsFrom = MetadataViewerFactory.getCopyRenderingSettingsFrom();
+	    RndProxyDef copiedRndSettings = MetadataViewerFactory.getCopiedRndSettings();
+	        
+	    if (copiedRndSettings != null) {
+	        applyRenderingSettings(copiedRndSettings);
+	        return;
+	    }
+	    
+	    if(copyRenderingSettingsFrom==null)
+	        return;
+	    
+	    if(ctx==null) 
+	        ctx = retrieveContext((DataObject)refObject);
+	    
+            RenderingSettingsLoader loader = new RenderingSettingsLoader(component,
+                    ctx, copyRenderingSettingsFrom.getDefaultPixels().getId(), loaderID,
+                    RenderingSettingsLoader.TASK_COPY_PASTE);
+            loaders.put(loaderID, loader);
+            loader.load();
 	}
 	
 	/** Starts an asynchronous retrieval of the thumbnails. */
@@ -989,7 +1021,6 @@ class MetadataViewerModel
 	{
 		Renderer rnd = getEditor().getRenderer();
 		if (rnd != null) { 
-		    rnd.makeHistorySnapshot();
 		    rnd.resetSettings(rndDef, true);
 		}
 	}
@@ -1100,5 +1131,23 @@ class MetadataViewerModel
 
     /** Loads the rendering engine.*/
     void loadRnd() { editor.loadRnd(); }
-
+    
+    /**
+     * Returns if there are copied rendering settings which could be pasted.
+     * 
+     * @return See above
+     */
+    public boolean hasRndSettingsCopied() {
+        Renderer rnd = component.getRenderer();
+        ImageData img = getImage();
+        
+        ImageData copyRenderingSettingsFrom = MetadataViewerFactory.getCopyRenderingSettingsFrom();
+        RndProxyDef copiedRndSettings = MetadataViewerFactory.getCopiedRndSettings();
+        
+        return (copiedRndSettings != null && rnd != null &&
+                !rnd.isSameSettings(copiedRndSettings, false))
+                || (copyRenderingSettingsFrom != null && img != null &&
+                copyRenderingSettingsFrom.getId() != img.getId());
+    }
+    
 }

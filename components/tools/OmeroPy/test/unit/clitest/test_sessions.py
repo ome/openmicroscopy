@@ -42,3 +42,27 @@ class TestSessions(object):
     def testSubcommandHelp(self, subcommand):
         self.args += [subcommand, "-h"]
         self.cli.invoke(self.args, strict=True)
+
+    def testStoreSessionDir(self, tmpdir, monkeypatch):
+        from argparse import Namespace
+        from omero.util import get_user_dir
+        from path import path
+
+        # Default store sessions dir is under user dir
+        store = self.cli.controls['sessions'].store(None)
+        assert store.dir == path(get_user_dir()) / 'omero' / 'sessions'
+
+        # args.session_dir sets the sessions dir
+        args = Namespace()
+        args.session_dir = tmpdir / 'session_dir'
+        store = self.cli.controls['sessions'].store(args)
+        assert store.dir == path(args.session_dir) / 'omero' / 'sessions'
+
+        # OMERO_SESSION_DIR with no args.session_dir sets the sessions dir
+        monkeypatch.setenv("OMERO_SESSION_DIR", tmpdir / 'envvar')
+        store = self.cli.controls['sessions'].store(None)
+        assert store.dir == path(tmpdir) / 'envvar' / 'omero' / 'sessions'
+
+        # args.session_dir overrides OMERO_SESSION_DIR
+        store = self.cli.controls['sessions'].store(args)
+        assert store.dir == path(args.session_dir) / 'omero' / 'sessions'

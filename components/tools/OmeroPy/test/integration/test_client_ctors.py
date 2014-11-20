@@ -133,7 +133,7 @@ class TestClientConstructors(lib.ITest):
         c2 = omero.client(host=self.host, port=self.port)
         try:
             user = self.new_user()
-            c2.createSession(user.omeName.val, "ome")
+            c2.createSession(user.omeName.val, user.omeName.val)
             c2.closeSession()
         finally:
             c2.__del__()

@@ -86,6 +86,8 @@ class TestHelperObjects (object):
         assert isinstance(omero_type(u'rstring'), omero.RString)
         assert isinstance(omero_type(1), omero.RInt)
         assert isinstance(omero_type(1L), omero.RLong)
+        assert isinstance(omero_type(False), omero.RBool)
+        assert isinstance(omero_type(True), omero.RBool)
         assert not isinstance(omero_type((1,2,'a')), omero.RType)
 
     def testSplitHTMLColor (self):

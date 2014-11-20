@@ -11,17 +11,21 @@
 #define OMERO_CALLBACKS_H
 
 #include <string>
+
+#include <omero/IceNoWarnPush.h>
 #include <Ice/Ice.h>
 #include <Ice/ObjectAdapter.h>
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Config.h>
 #include <IceUtil/Thread.h>
 #include <Ice/Handle.h>
+#include <omero/Scripts.h>
+#include <omero/cmd/API.h>
+#include <omero/Scripts.h>
+#include <omero/IceNoWarnPop.h>
+
 #include <omero/client.h>
 #include <omero/RTypesI.h>
-#include <omero/Scripts.h>
-#include <omero/api/IDelete.h>
-#include <omero/cmd/API.h>
 #include <omero/util/concurrency.h>
 
 #ifndef OMERO_CLIENT
@@ -34,9 +38,8 @@
 
 namespace omero {
     namespace callbacks {
-	class ProcessCallbackI;
-	class DeleteCallbackI;
-	class CmdCallbackI;
+        class ProcessCallbackI;
+        class CmdCallbackI;
     }
 }
 
@@ -50,7 +53,7 @@ namespace omero {
     namespace callbacks {
 
         // TODO: use shared_ptr instead of Ice handle
-        
+
         // This wrapper allows for having two different destructors for callbacks
         // one that is called when Ice frees the callback and one when other code does
         // In the case where Ice does the freeing, we don't need to do anything in the destructor,
@@ -61,7 +64,7 @@ namespace omero {
         public:
             CallbackWrapper(T* p) : IceUtil::Handle<T>(p) {}
             CallbackWrapper() {}
-            
+
             ~CallbackWrapper() {
                 // When our last non Ice reference goes out of scope, we need to close the callback
                 // this would be a ref count of 2 or less, as Ice always holds a refernce to this object while it's active
@@ -76,10 +79,9 @@ namespace omero {
                 }
             }
         };
-        
+
         typedef CallbackWrapper<CmdCallbackI> CmdCallbackIPtr;
         typedef CallbackWrapper<ProcessCallbackI> ProcessCallbackIPtr;
-        typedef CallbackWrapper<DeleteCallbackI> DeleteCallbackIPtr;
 
         /*
          * Simple callback which registers itself with the given process.
@@ -103,7 +105,7 @@ namespace omero {
             omero::grid::ProcessPrx process;
         public:
             ProcessCallbackI(const Ice::ObjectAdapterPtr& adapter, const omero::grid::ProcessPrx& process, bool poll = true);
-            
+
             /**
              * First removes self from the adapter so as to no longer receive notifications
              *
@@ -132,61 +134,6 @@ namespace omero {
 
         };
 
-
-        namespace OME_API_DEL = omero::api::_cpp_delete;
-
-        /*
-         * Callback used for waiting until DeleteHandlePrx will return true on
-         * finished(). The block(long) method will wait the given number of
-         * milliseconds and then return the number of errors if any or None
-         * if the delete is not yet complete.
-         *
-         * Example usage:
-         *
-         *     DeleteCallbackI cb(client, handle);
-         *     omero::RTypePtr errors;
-         *     while (!errors) {
-         *         errors = cb.block(500);
-         *     }
-         */
-        
-        class OMERO_CLIENT DeleteCallbackI : virtual public IceUtil::Shared {
-
-        // Preventing copy-construction and assigning by value.
-        private:
-            DeleteCallbackI& operator=(const DeleteCallbackI& rv);
-            DeleteCallbackI(DeleteCallbackI&);
-            // State
-            omero::util::concurrency::Event event;
-            Ice::ObjectAdapterPtr adapter;
-            bool poll;
-            omero::RIntPtr result;
-	protected:
-            /**
-             * Proxy passed to this instance on creation. Can be used by subclasses
-             * freely. The object will not be nulled, but may be closed server-side.
-             */
-            OME_API_DEL::DeleteHandlePrx handle;
-        public:
-            DeleteCallbackI(const Ice::ObjectAdapterPtr& adapter, const OME_API_DEL::DeleteHandlePrx handle, bool pool = true);
-            
-            /**
-             * closes the remote handle
-             *
-             * WARNING:
-             * This cannot be called from the destructor, because during session destruction,
-             * the Ice ServantManager will delete this class, and that would cause a
-             * double delete, as we'd be calling back into the servant manager to remove us,
-             * when it's already in the process of doing the remove/deletion.
-             */
-            void close();
-            
-            virtual omero::RIntPtr block(long ms);
-            virtual omero::api::_cpp_delete::DeleteReports loop(int loops, long ms);
-            virtual void finished(int errors);
-        };
-
-
         /*
          * Callback used for waiting until omero::cmd::HandlePrx will return
          * a non-empty Response. The block(long) method will wait the given number of
@@ -212,9 +159,9 @@ namespace omero {
         private:
             CmdCallbackI& operator=(const CmdCallbackI& rv);
             CmdCallbackI(CmdCallbackI&);
-            
+
             // TODO: use std thread instead of Ice thread
-            
+
             // Thread to allow async poll, to ensure onFinished is called after the ctor finishes,
             // as virtual function calls do not work from constructors
             class PollThread : public IceUtil::Thread {
@@ -222,7 +169,7 @@ namespace omero {
                 PollThread(CmdCallbackIPtr callback) :
                     callback(callback)
                 {}
-                
+
                 virtual void run() {
                     callback->poll();
                 }
@@ -231,8 +178,8 @@ namespace omero {
             };
             typedef IceUtil::Handle<PollThread> PollThreadPtr;
             PollThreadPtr pollThread;
-            
-	protected:
+
+        protected:
 
             Ice::ObjectAdapterPtr adapter;
 
@@ -269,6 +216,10 @@ namespace omero {
 
             omero::cmd::StatusPtr getStatusOrThrow();
 
+            int count(
+                    omero::cmd::StateList list,
+                    omero::cmd::State s);
+
             void doinit(std::string category);
 
         public:
@@ -291,7 +242,7 @@ namespace omero {
              * when it's already in the process of doing the remove/deletion.
              */
             void close();
-            
+
             //
             // Local invcations
             //

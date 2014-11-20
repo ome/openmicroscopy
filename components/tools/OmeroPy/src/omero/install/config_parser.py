@@ -53,6 +53,15 @@ TOP = \
 Configuration properties glossary
 =================================
 
+.. contents::
+  :depth: 1
+  :local:
+
+.. _introduction_configuration:
+
+Introduction
+------------
+
 The primary form of configuration is via the use of key/value properties,
 stored in :file:`etc/grid/config.xml` and read on server startup. Backing up
 and copying these properties is as easy as copying this file to a new server
@@ -60,12 +69,52 @@ version.
 
 The :source:`etc/omero.properties` file of your distribution defines all the
 default configuration properties used by the server. Changes made to the file
-are *not* recognized by the server. Instead, the :omerocmd:`config` command is
-used to change those properties that you would like to customize.
+are *not* recognized by the server. Instead, configuration options can be set
+using the :omerocmd:`config set` command:
+
+::
+
+    $ bin/omero config set <parameter> <value>
+
+When supplying a value with spaces or multiple elements, use **single
+quotes**. The quotes will not be saved as part of the value (see below).
+
+To remove a configuration option (to return to default values where
+mentioned), simply omit the value:
+
+::
+
+    $ bin/omero config set <parameter>
+
+These options will be stored in a file: ``etc/grid/config.xml`` which
+you can read for reference. **DO NOT** edit this file directly.
+
+You can also review all your settings by using:
+
+::
+
+    $ bin/omero config get
+
+which should return values without quotation marks.
+
+A final useful option of :omerocmd:`config edit` is:
+
+::
+
+    $ bin/omero config edit
+
+which will allow for editing the configuration in a system-default text
+editor.
+
+.. note::
+    Please use the **escape sequence** ``\\"`` for nesting double quotes (e.g.
+    ``"[\\"foo\\", \\"bar\\"]"``) or wrap with ``'`` (e.g. ``'["foo",
+    "bar"]'``).
 
 Examples of doing this are on the main :doc:`Unix <unix/server-installation>`
 and :doc:`Windows <windows/server-installation>` pages, as well as the
 :doc:`LDAP installation <server-ldap>` page.
+
 """
 
 HEADER = \
@@ -73,8 +122,6 @@ HEADER = \
 
 %(header)s
 %(hline)s
-
-.. glossary::
 
 %(properties)s"""
 
@@ -263,24 +310,31 @@ class PropertyParser(object):
         for k, v in sorted(headers.items()):
             print "%s (%s)" % (k, len(v))
 
+    def underline(self, size):
+        return '^' * size
+
     def print_rst(self):
-        space4 = " " * 4
-        space6 = " " * 6
         print TOP
         headers = self.headers()
         for header in sorted(headers):
             properties = ""
-            for p in headers[header]:
-                properties += "%s%s\n" % (space4, p.key)
+            # Filter properties marked as DEVELOPMENT
+            props = [p for p in headers[header]
+                     if not p.txt.startswith('DEVELOPMENT')]
+            for p in props:
+                properties += ".. property:: %s\n" % (p.key)
+                properties += "\n"
+                properties += "%s\n" % p.key
+                properties += "%s\n" % self.underline(len(p.key))
                 for line in p.txt.split("\n"):
                     if line:
-                        properties += "%s%s\n" % (space6, line)
+                        properties += "%s\n" % (line)
                     else:
                         properties += "\n"
                 v = p.val
                 if not p.val:
                     v = "[empty]"
-                properties += "%sDefault: `%s`\n\n" % (space6, v)
+                properties += "Default: `%s`\n\n" % (v)
 
             hline = "-" * len(header)
             m = {"header": header,

@@ -14,7 +14,6 @@
 """
 
 import sys
-import portalocker
 
 from path import path
 from omero.cli import CLI
@@ -24,6 +23,8 @@ from omero.cli import NonZeroReturnCode
 from omero.config import ConfigXml
 from omero.util import edit_path, get_user_dir
 from omero.util.decorators import wraps
+from omero_ext import portalocker
+
 import omero.java
 
 HELP = """Commands for server configuration
@@ -163,7 +164,8 @@ class PrefsControl(BaseControl):
 
         parse = parser.add(
             sub, self.parse,
-            "Parse the etc/omero.properties file for readability")
+            "Parse the configuration properties from the etc/omero.properties"
+            " file for readability.")
         parse.add_argument(
             "-f", "--file", type=ExistingFile('r'),
             help="Alternative location for a Java properties file")
@@ -173,7 +175,7 @@ class PrefsControl(BaseControl):
             help="Show key/value configuration defaults")
         parse_group.add_argument(
             "--rst", action="store_true",
-            help="Generate reStructuredText from omero.properties)")
+            help="Generate reStructuredText from omero.properties")
         parse_group.add_argument(
             "--keys", action="store_true",
             help="Print just the keys from omero.properties")
@@ -358,6 +360,8 @@ class PrefsControl(BaseControl):
             pp.print_keys()
         elif args.rst:
             pp.print_rst()
+            from omero.install.web_parser import WebSettings
+            WebSettings().print_rst()
         else:
             pp.print_defaults()
 

@@ -418,6 +418,7 @@ Examples:
             tb.row(idx, *tuple(values))
         self.ctx.out(str(tb.build()))
 
+    @admin_only
     def rename(self, args):
         """Moves an existing fileset to a new location (admin-only)
 
@@ -428,12 +429,9 @@ moved.
 """
         fid = args.fileset.id.val
         client = self.ctx.conn(args)
-        uid = self.ctx._event_context.userId
-        isAdmin = self.ctx._event_context.isAdmin
+        uid = self.ctx.get_event_context().userId
+        isAdmin = self.ctx.get_event_context().isAdmin
         query = client.sf.getQueryService()
-
-        if not isAdmin:
-            self.error_admin_only(fatal=True)
 
         try:
             fileset = query.get("Fileset", fid, {"omero.group": "-1"})
@@ -484,7 +482,7 @@ moved.
                 raw.args = [from_path, to_path]
                 self.ctx.err("Moving %s to %s" % (from_path, to_path))
                 try:
-                    self.ctx._client.submit(raw)
+                    self.ctx.get_client().submit(raw)
                 except CmdError, ce:
                     self.ctx.die(114, ce.err)
         else:

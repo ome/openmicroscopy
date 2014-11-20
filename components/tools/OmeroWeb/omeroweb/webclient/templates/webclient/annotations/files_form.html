@@ -31,7 +31,7 @@
 <script type="text/javascript">
     $(document).ready(function(){
         $(":button:contains('Accept')",
-            $("#choose_attachments_form").parent()).attr("disabled", "disabled").addClass(
+            $("#choose_attachments_form").parent()).prop("disabled", true).addClass(
                 'ui-state-disabled');
         
         $('#id_annotation_file, #id_files').change(
@@ -39,11 +39,11 @@
                 if ($(this).val()){
                     $(":button:contains('Accept')",
                         $("#choose_attachments_form").parent()
-                            ).removeAttr("disabled").removeClass('ui-state-disabled');
+                            ).prop("disabled", false).removeClass('ui-state-disabled');
                 }
                 else {
                     $(":button:contains('Accept')",
-                        $("#choose_attachments_form").parent()).attr("disabled", "disabled").addClass(
+                        $("#choose_attachments_form").parent()).prop("disabled", true).addClass(
                             'ui-state-disabled');
             }
         });
@@ -59,7 +59,7 @@
 </div>
 
 <p>
-    <h1>And/Or Attach an existing File:</h1>
+    <h1>And/or attach an existing File:</h1>
     <span>Select the attachments to add</span>
     
     <div>{{ form_file.files }}</div>

@@ -25,14 +25,24 @@ package org.openmicroscopy.shoola.agents.metadata.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
+import java.util.Arrays;
 import javax.swing.Action;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
+import org.openmicroscopy.shoola.agents.metadata.view.RndSettingsPasted;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
+import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
+import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
+import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 
 /** 
  * Handles the rendering settings.
@@ -71,12 +81,18 @@ public class ManageRndSettingsAction
 	
 	/** Indicates to redo the changes. */
         public static final int REDO = 7;
+        
+	/** Indicates to copy the rendering settings. */
+	public static final int COPY = 8;
+	
+	/** Indicates to paste the rendering settings */
+	public static final int PASTE = 9;
 
 	/** The description of the action if {@link #SAVE}. */
 	public static final String NAME_SAVE = "Save";
 
 	/** The description of the action if {@link #APPLY_TO_ALL}. */
-	private static final String NAME_APPLY_TO_ALL = "Apply to All";
+	private static final String NAME_APPLY_TO_ALL = "Save to All";
 	
 	/** The description of the action if {@link #ABSOLUTE_MIN_MAX}. */
 	private static final String NAME_ABSOLUTE_MIN_MAX = "Full Range";
@@ -91,7 +107,13 @@ public class ManageRndSettingsAction
         private static final String NAME_REDO = "Redo";
 	
 	/** The description of the action if {@link #RESET}. */
-	private static final String NAME_RESET = "Reset";
+	private static final String NAME_RESET = "Imported";
+	
+	/** The name of the action if {@link #COPY} */
+	private static final String NAME_COPY = "Copy";
+	
+	/** The name of the action if {@link #PASTE} */
+	private static final String NAME_PASTE = "Paste";
 	
 	/** The description of the action if {@link #MIN_MAX}. */
 	private static final String DESCRIPTION_MIN_MAX = 
@@ -113,7 +135,13 @@ public class ManageRndSettingsAction
 	
 	/** The description of the action if {@link #APPLY_TO_ALL}. */
 	private static final String DESCRIPTION_APPLY_TO_ALL = 
-		"Apply the rendering settings to all images.";
+		"Apply and save the rendering settings to all images.";
+	
+	/** The description of the action if {@link #COPY}. */
+	private static final String DESCRIPTION_COPY = "Copy the current settings";
+	
+	/** The description of the action if {@link #PASTE}. */
+	private static final String DESCRIPTION_PASTE = "Paste rendering settings";
 	
     /** 
      * The description of the action if the index is {@link #SET_OWNER_SETTING}. 
@@ -196,6 +224,20 @@ public class ManageRndSettingsAction
 				putValue(Action.SMALL_ICON, 
 						icons.getIcon(IconManager.SAVE));
 				break;
+			case COPY:
+			        putValue(Action.NAME, NAME_COPY);
+                                putValue(Action.SHORT_DESCRIPTION, 
+                                                UIUtilities.formatToolTipText(DESCRIPTION_COPY));
+                                putValue(Action.SMALL_ICON, 
+                                                icons.getIcon(IconManager.COPY));
+                                break;
+			case PASTE:
+			        putValue(Action.NAME, NAME_PASTE);
+			        putValue(Action.SHORT_DESCRIPTION, 
+                                            UIUtilities.formatToolTipText(DESCRIPTION_PASTE));
+			        putValue(Action.SMALL_ICON, 
+                                            icons.getIcon(IconManager.PASTE));
+			        break;
 			default:
 				throw new IllegalArgumentException("Index not valid.");
 		}
@@ -241,8 +283,48 @@ public class ManageRndSettingsAction
 				model.applyToAll();
 				break;
 			case SAVE:
-				model.saveSettings();
+				saveRndSettings();
+				break;
+			case COPY:
+    			        copyRndSettings();
+    			        break;
+			case PASTE:
+			        pasteRndSettings();
 		}
 	}
 
+	/**
+	 * Save the rendering settings
+         */
+	private void saveRndSettings() {
+	    model.saveSettings();
+	}
+	
+    /** 
+     * Posts a {@link CopyRndSettings} event on the EventBus
+     */ 
+    private void copyRndSettings() {
+
+            CopyRndSettings evt;
+            if (model.isModified()) {
+                // copy the current 'pending' rendering settings
+                evt = new CopyRndSettings(model.getRefImage(), model.getRndSettingsCopy());
+            }
+            else {
+                // copy the saved rendering settings from the image
+                evt = new CopyRndSettings(model.getRefImage());
+            }
+            
+            EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
+            bus.post(evt);
+            
+    }
+
+    /** 
+     * Posts a {@link RndSettingsPasted} event on the EventBus
+     */ 
+    private void pasteRndSettings() {
+        EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
+        bus.post(new RndSettingsPasted(model.getRefImage().getId()));
+    }
 }

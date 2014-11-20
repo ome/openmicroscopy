@@ -564,7 +564,7 @@ public interface RenderingControl
 
     /**
      * Resets the rendering settings.
-     * 
+     * (Does not reset Z and T settings)
      * @param settings The settings to set.
      * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
@@ -572,6 +572,21 @@ public interface RenderingControl
      */
     public void resetSettings(RndProxyDef settings)
     	throws RenderingServiceException, DSOutOfServiceException;
+    
+    /**
+     * Resets the rendering settings.
+     * 
+     * @param settings
+     *            The settings to set.
+     * @param includeZT Pass <code>true</code> to also reset Z and T setting,
+     *         <code>false</code> to ignore Z and T
+     * @throws RenderingServiceException
+     *             If an error occurred while setting the value.
+     * @throws DSOutOfServiceException
+     *             If the connection is broken.
+     */
+    public void resetSettings(RndProxyDef rndDef, boolean includeZT)
+            throws RenderingServiceException, DSOutOfServiceException;
     
     /**
      * Returns <code>true</code> if the pixels type is signed, 
@@ -789,21 +804,6 @@ public interface RenderingControl
 	 */
 	public TextureData renderAsTexture(PlaneDef pDef)
 		throws RenderingServiceException, DSOutOfServiceException;
-
-	/**
-	 * Returns the list of settings previously saved.
-	 * 
-	 * @return See above.
-	 */
-	public List<RndProxyDef> getPreviousRenderingSettings();
-	
-	/**
-	 * Returns a map whose keys are the name of the settings and the values
-	 * the corresponding rendering settings.
-	 * 
-	 * @return See above.
-	 */
-	public Map<String, List<RndProxyDef>> getRenderingSettings();
 	
 	/**
 	 * Returns the possible resolution levels. This method should only be used

@@ -37,16 +37,16 @@ import java.util.Map;
 
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
+import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
-
-import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlShutDown;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -666,32 +666,6 @@ class RendererModel
 	}
 
 	/**
-	 * Returns the rounding factor used for the input value.
-	 *
-	 * @return See above.
-	 */
-	int getRoundFactor()
-	{
-		return getRoundFactor(selectedChannelIndex);
-	}
-	
-	/**
-	 * Returns the rounding factor used for the input value.
-	 *
-	 * @param channel The channel to handle.
-	 * @return See above.
-	 */
-	int getRoundFactor(int channel)
-	{
-		double min = getGlobalMin(channel);
-		double max = getGlobalMax(channel);
-		double rmin = UIUtilities.roundTwoDecimals(min);
-		double rmax = UIUtilities.roundTwoDecimals(max);
-		if (rmin == min && rmax == max) return 1;
-		return 100;
-	}
-
-	/**
 	 * Returns the global maximum of the currently selected channel
 	 * or of all channels if the number of channels is greater
 	 * {@link Renderer#MAX_CHANNELS}.
@@ -1294,7 +1268,7 @@ class RendererModel
 	 */
 	void makeHistorySnapshot() {
 	        if (rndControl != null ) {
-	            if (history.getCurrent()==null || !rndControl.isSameSettings(history.getCurrent(), true))
+	            if (history.getCurrent()==null || !rndControl.isSameSettings(history.getCurrent(), false))
 	                history.add(rndControl.getRndSettingsCopy());
 	            else 
 	                history.resetPrevAction();
@@ -1415,7 +1389,7 @@ class RendererModel
         */
 	boolean isModified() {
 	    if(rndControl!=null) {
-	        return !rndControl.isSameSettings(rndDef, true);
+	        return !rndControl.isSameSettings(rndDef, false);
 	    }
 	    return false;
 	}
@@ -1732,4 +1706,30 @@ class RendererModel
             }
         }
     }
+	
+	/**
+         * Set the color mode to greyscale or RGB
+         *
+         * @param b <code>true</code> for switching to greyscale, RGB otherwise 
+         */
+	void setGreyscale(boolean b) {
+	    if(b)
+	        component.setColorModel(Renderer.GREY_SCALE_MODEL, true);
+	    else
+	        component.setColorModel(Renderer.RGB_MODEL, true);
+	}
+	
+	/**
+	 * Checks if the image pixel type is integer
+	 * @return See above
+	 */
+	boolean isIntegerPixelData() {
+        String t = image.getDefaultPixels().getPixelType();
+        return t.equals(OmeroImageService.INT_8)
+                || t.equals(OmeroImageService.UINT_8)
+                || t.equals(OmeroImageService.INT_16)
+                || t.equals(OmeroImageService.UINT_16)
+                || t.equals(OmeroImageService.INT_32)
+                || t.equals(OmeroImageService.UINT_32);
+	}
 }

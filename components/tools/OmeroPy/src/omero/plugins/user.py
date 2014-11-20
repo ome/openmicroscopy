@@ -3,14 +3,14 @@
 """
    User administration plugin
 
-   Copyright 2009 Glencoe Software, Inc. All rights reserved.
+   Copyright 2009-2014 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
 
 import sys
 
-from omero.cli import UserGroupControl, CLI, ExceptionHandler
+from omero.cli import UserGroupControl, CLI, ExceptionHandler, admin_only
 from omero.rtypes import unwrap as _
 
 HELP = "Support for adding and managing users"
@@ -191,7 +191,7 @@ class UserControl(UserGroupControl):
         import omero
         from omero.rtypes import rstring
         client = self.ctx.conn(args)
-        own_name = self.ctx._event_context.userName
+        own_name = self.ctx.get_event_context().userName
         admin = client.sf.getAdminService()
 
         # tickets 3202, 5841
@@ -229,11 +229,11 @@ class UserControl(UserGroupControl):
         from omero.util.text import TableBuilder
         if args.count:
             tb = TableBuilder("id", "login", "first name", "last name",
-                              "email", "active", "admin",
+                              "email", "active", "ldap", "admin",
                               "# group memberships", "# group ownerships")
         else:
             tb = TableBuilder("id", "login", "first name", "last name",
-                              "email", "active", "admin", "member of",
+                              "email", "active", "ldap", "admin", "member of",
                               "owner of")
         if args.style:
             tb.set_style(args.style)
@@ -256,6 +256,7 @@ class UserControl(UserGroupControl):
             row.append(user.email and user.email.val or "")
             active = ""
             admin = ""
+            ldap = user.ldap.val
             member_of = []
             leader_of = []
             for x in user.copyGroupExperimenterMap():
@@ -272,6 +273,7 @@ class UserControl(UserGroupControl):
                     member_of.append(str(gid))
 
             row.append(active)
+            row.append(ldap)
             row.append(admin)
 
             if member_of:
@@ -292,6 +294,7 @@ class UserControl(UserGroupControl):
             tb.row(*tuple(row))
         self.ctx.out(str(tb.build()))
 
+    @admin_only
     def add(self, args):
         email = args.email
         login = args.username
@@ -302,7 +305,7 @@ class UserControl(UserGroupControl):
         pasw = args.userpassword
 
         import omero
-        from omero.rtypes import rstring
+        from omero.rtypes import rbool, rstring
         from omero_model_ExperimenterI import ExperimenterI as Exp
         from omero_model_ExperimenterGroupI import ExperimenterGroupI as Grp
         c = self.ctx.conn(args)
@@ -313,8 +316,19 @@ class UserControl(UserGroupControl):
         e.middleName = rstring(middle)
         e.email = rstring(email)
         e.institution = rstring(inst)
-        admin = c.getSession().getAdminService()
+        e.ldap = rbool(False)
 
+        # Fail-fast if no-password is passed and the server does not accept
+        # empty passwords
+        configService = c.getSession().getConfigService()
+        password_required = configService.getConfigValue(
+            "omero.security.password_required").lower()
+        if args.no_password and password_required != 'false':
+            self.ctx.die(502, "Server does not allow user creation with empty"
+                         " passwords")
+
+        # Check user existence
+        admin = c.getSession().getAdminService()
         try:
             usr = admin.lookupExperimenter(login)
             if usr:
@@ -344,8 +358,8 @@ class UserControl(UserGroupControl):
                              % (login, id))
             else:
                 if pasw is None:
-                    self._ask_for_password(" for your new user (%s)"
-                                           % login, strict=True)
+                    pasw = self._ask_for_password(" for your new user (%s)"
+                                                  % login, strict=True)
                 id = admin.createExperimenterWithPassword(e, rstring(pasw),
                                                           group, groups)
                 self.ctx.out("Added user %s (id=%s) with password"
@@ -368,7 +382,7 @@ class UserControl(UserGroupControl):
             user = getattr(args, "name", None)
             return self.find_user_by_name(a, user, fatal=True)
         else:
-            user = self.ctx._event_context.userName
+            user = self.ctx.get_event_context().userName
             return self.find_user_by_name(a, user, fatal=True)
 
     def list_groups(self, a, args):

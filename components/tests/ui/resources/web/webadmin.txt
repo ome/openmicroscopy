@@ -41,7 +41,7 @@ Open Browser To Webadmin And Log In As Root
 Log Out
     Click Element                   xpath=//div[@id='show_user_dropdown']/span
     Click Link                      link=Logout
-    Page Should Be Open             ${LOGIN URL}?url=%2Fwebclient%2F                OMERO.web - Login
+    Page Should Be Open             ${WEBCLIENT LOGIN URL}                OMERO.web - Login
 
 Logout and Teardown
     Log Out

@@ -279,7 +279,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
       //_this.refresh();
       if (!_this.loadedImg.current.query.zm && !_this.loadedImg.tiles) {
         var size = getSizeDict();
-        _this.viewportimg.get(0).setZoomToFit(true, size.width, size.height);
+        _this.viewportimg.get(0).setZoomToFit(false, size.width, size.height);
       }
       if (_this.loadedImg.current.query.lp) {
         _this.refreshPlot();
@@ -1067,7 +1067,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
           t = t[1].split('$');
           var window = t[0].split(':');
           if (window.length == 2) {
-            this.setChannelWindow(idx, parseInt(window[0], 10), parseInt(window[1], 10), true);
+            this.setChannelWindow(idx, parseFloat(window[0], 10), parseFloat(window[1], 10), true);
           }
         }
         if (t.length > 1) {

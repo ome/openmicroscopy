@@ -232,95 +232,92 @@ public class IconManager
     /** The <code>Download 12x12</code> icon. */
     public static final int           DOWNLOAD_12 = 59;
     
-    /** The <code>Editor 12x12</code> icon. */
-    public static final int           EDITOR_12 = 60;
-    
     /** The <code>Create Movie</code> icon. */
-    public static final int           MOVIE = 61;
+    public static final int           MOVIE = 60;
     
     /** The <code>Histogram</code> image. */
-    public static final int 		  TEMPORARY_HISTOGRAM = 62;
+    public static final int 		  TEMPORARY_HISTOGRAM = 61;
     
     /** The <code>Histogram</code> icon. */
-    public static  final int          HISTOGRAM = 63;
+    public static  final int          HISTOGRAM = 62;
    
     /** The <code>Contrast Stretching</code> icon. */
-    public static  final int          CONTRAST_STRETCHING = 64;
+    public static  final int          CONTRAST_STRETCHING = 63;
     
     /** The <code>Plane slicing</code> icon. */
-    public static  final int          PLANE_SLICING = 65;
+    public static  final int          PLANE_SLICING = 64;
     
     /** The  <code>codomain</code> icon. */
-    public  static final int          CODOMAIN = 66;
+    public  static final int          CODOMAIN = 65;
     
     /** The  <code>domain</code> icon. */
-    public  static final int          DOMAIN = 67;
+    public  static final int          DOMAIN = 66;
     
     /** The <code>Renderer</code> icon. */
-    public  static final int          RENDERER = 68;
+    public  static final int          RENDERER = 67;
     
     /** The <code>GreyScale</code> icon. */
-    public static  final int          GRAYSCALE = 69;
+    public static  final int          GRAYSCALE = 68;
     
     /** The <code>RGB</code> icon. */
-    public static  final int          RGB = 70;
+    public static  final int          RGB = 69;
     
     /** The <code>Analyze</code> icon. */
-    public static  final int          ANALYSE = 71;
+    public static  final int          ANALYSE = 70;
     
     /** The <code>Analyze 48x48</code> icon. */
-    public static  final int          ANALYSE_48 = 72;
+    public static  final int          ANALYSE_48 = 71;
     
     /** The <code>Export</code> icon. */
-    public static final int           EXPORT_AS_OMETIFF = 73;
+    public static final int           EXPORT_AS_OMETIFF = 72;
     
     /** The <code>Export 48x48</code> icon. */
-    public static final int           EXPORT_AS_OMETIFF_48 = 74;
+    public static final int           EXPORT_AS_OMETIFF_48 = 73;
     
     /** A 22x22 version of the <code>movie</code> icon. */
-    public static final int 		  MOVIE_22 = 75;
+    public static final int 		  MOVIE_22 = 74;
     
     /** A 22x22 version of the <code>Export</code> icon. */
-    public static final int 		  EXPORT_22 = 76;
+    public static final int 		  EXPORT_22 = 75;
     
     /** A 22x22 version of the <code>Download</code> icon. */
-    public static final int           DOWNLOAD_22 = 77;
+    public static final int           DOWNLOAD_22 = 76;
     
     /** A 48x48 version of the <code>Download</code> icon. */
-    public static final int           DOWNLOAD_48 = 78;
+    public static final int           DOWNLOAD_48 = 77;
     
     /** The <code>publishing</code> icon. */
-    public static final int           PUBLISHING = 79;
+    public static final int           PUBLISHING = 78;
     
     /** The <code>Split View</code> icon. */
-    public static final int           SPLIT_VIEW = 80;
+    public static final int           SPLIT_VIEW = 79;
     
     /** The 48x48 <code>Split View</code> icon. */
-    public static final int           SPLIT_VIEW_48 = 81;
+    public static final int           SPLIT_VIEW_48 = 80;
     
     /** The <code>Analysis</code> icon. */
-    public static final int           ANALYSIS = 82;
+    public static final int           ANALYSIS = 81;
     
     /** The 12x12 <code>Delete</code> icon. */
-    public static final int           DELETE_12 = 83;
+    public static final int           DELETE_12 = 82;
     
     /** The <code>FRAP</code> icon. */
-    public static final int           ANALYSE_FRAP = 84;
+    public static final int           ANALYSE_FRAP = 83;
     
     /** The 22x22 <code>FRAP</code> icon. */
-    public static final int           ANALYSE_FRAP_22 = 85;
+    public static final int           ANALYSE_FRAP_22 = 84;
     
     /** The 48x48 <code>FRAP</code> icon. */
-    public static final int           ANALYSE_FRAP_48 = 86;
+    public static final int           ANALYSE_FRAP_48 = 85;
     
     /** The <code>Python</code> icon. */
-    public static final int           PYTHON = 87;
+    public static final int           PYTHON = 86;
     
     /** The <code>Java</code> icon. */
-    public static final int           JAVA = 88;
+    public static final int           JAVA = 87;
     
     /** The <code>Matlab</code> icon. */
-    public static final int           MATLAB = 89;
+    public static final int           MATLAB = 88;
 
     /** The <code>C++</code> icon. */
     public static final int           CPP = 89;
@@ -433,11 +430,17 @@ public class IconManager
     /** The <code>Inplace Import</code> icon. */
     public static final int INPLACE_IMPORT = 125;
     
+    /** The <code>Copy</code> icon. */
+    public static final int COPY = 126;
+    
+    /** The <code>Paste</code> icon. */
+    public static final int PASTE = 127;
+    
     /** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing.
 	 */
-	private static final int          MAX_ID = 125;
+	private static final int          MAX_ID = 127;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -501,8 +504,7 @@ public class IconManager
         relPaths[MINUS_12] = "minus11.png";
         relPaths[TAG_SET] = "nuvola_knotesRedRed16.png";
         relPaths[DOWNLOAD_12] = "nuvola_download_manager11.png";
-        relPaths[EDITOR_12] = "omeroEditor12.png";
-        relPaths[MOVIE] = "crystal_video16.png";//"openOffice_stock_insert-video-plugin-16.png";
+        relPaths[MOVIE] = "crystal_video16.png";
         relPaths[TEMPORARY_HISTOGRAM] = "histogram_temporary.png";
         relPaths[HISTOGRAM] = "histogram16.png";
         relPaths[CONTRAST_STRETCHING] = "openOffice_stock_new-drawing-16.png";
@@ -569,6 +571,8 @@ public class IconManager
         relPaths[FILE_PATH] = "icon_fs_path16.png";
         relPaths[LINK] = "nuvola_enhanced_browsing16.png";
         relPaths[INPLACE_IMPORT] = "red-link-icon-16.png";
+        relPaths[COPY] = "eclipse_copy_edit16.png";
+        relPaths[PASTE] = "eclipse_paste_edit16.png";
 	}
    
 	/** The sole instance. */

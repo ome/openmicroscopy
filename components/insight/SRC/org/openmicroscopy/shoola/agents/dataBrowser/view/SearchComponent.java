@@ -33,7 +33,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -46,20 +45,15 @@ import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.view.SearchEvent;
-import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
-import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.util.SearchParameters;
-import org.openmicroscopy.shoola.env.event.AgentEvent;
-import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.GroupContext;
 import org.openmicroscopy.shoola.util.ui.search.SearchContext;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
-import pojos.ExperimenterData;
 import pojos.GroupData;
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 
 /** 
  * Component with advanced search options.
@@ -139,9 +133,6 @@ public class SearchComponent
 	/** Bound property indicating to cancel the search. */
 	public static final String 		CANCEL_SEARCH_PROPERTY = "cancelSearch";
 	
-	/** Bound property indicating to select the owner. */
-	public static final String 		OWNER_PROPERTY = "owner";
-    
 	/** Bound property indicating that nodes are expanded. */
 	public static final String 		NODES_EXPANDED_PROPERTY = "nodesExpanded";
 
@@ -159,15 +150,6 @@ public class SearchComponent
 	
 	/** Action command ID indicating to set the date. */
 	static final int 				DATE = 4;
-	
-	/** Action command ID indicating to select the user who owns the object. */
-	static final int 				OWNER = 5;
-
-	/** 
-	 * Action command ID indicating to select the user who annotated the 
-	 * object. 
-	 */
-	static final int 				ANNOTATOR = 6;
 	
 	/** 
          * Action command ID indicating to reset the date fields
@@ -197,9 +179,6 @@ public class SearchComponent
 	
 	/** The possible types. */
 	private List<SearchObject>		types;
-	
-	/** Either {@link #ANNOTATOR} or {@link #OWNER}. */
-	private int						userIndex;
 	
 	/** The default search context. */
 	private SearchContext 			searchContext;
@@ -445,9 +424,14 @@ public class SearchComponent
             List<Integer> scope = uiDelegate.getScope();
             SearchContext ctx;
     
-
-                // Terms cannot be null
                 String query = uiDelegate.getQuery();
+                
+                if(query.trim().equals("*")) {
+                    String msg = "Wildcard searches (*) must contain more than a single wildcard.";
+                    DataBrowserAgent.getRegistry().getUserNotifier().notifyWarning("Cannot perform search", msg);
+                    return;
+                }
+                
                 ctx = new SearchContext(query, scope);
     
                 Timestamp start = uiDelegate.getFromDate();
@@ -472,18 +456,6 @@ public class SearchComponent
                 ctx.setType(uiDelegate.getType());
             
                 firePropertyChange(SEARCH_PROPERTY, null, ctx);
-        }
-	
-        
-        /**
-         * Returns the current user's details.
-         * 
-         * @return See above.
-         */
-        private ExperimenterData getUserDetails()
-        { 
-                return (ExperimenterData) FinderFactory.getRegistry().lookup(
-                                LookupNames.CURRENT_USER_DETAILS);
         }
         
 	/**
@@ -581,16 +553,6 @@ public class SearchComponent
 				break;
 			case SEARCH:
 				search();
-				break;
-			case OWNER:
-				userIndex = OWNER;
-				firePropertyChange(OWNER_PROPERTY, Boolean.valueOf(false), 
-						Boolean.valueOf(true));
-				break;
-			case ANNOTATOR:
-				userIndex = ANNOTATOR;
-				firePropertyChange(OWNER_PROPERTY, Boolean.valueOf(false), 
-						Boolean.valueOf(true));
 				break;
 			case HELP:
 				help();

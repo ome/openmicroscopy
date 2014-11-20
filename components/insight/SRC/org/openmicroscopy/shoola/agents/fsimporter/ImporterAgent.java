@@ -285,8 +285,6 @@ public class ImporterAgent
     {
         if (evt == null) return;
         displayMode = evt.getDisplayMode();
-        Environment env = (Environment) registry.lookup(LookupNames.ENV);
-        if (!env.isServerAvailable()) return;
         ImporterFactory.setDiplayMode(displayMode);
     }
 

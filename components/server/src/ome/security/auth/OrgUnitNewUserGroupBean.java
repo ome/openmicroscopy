@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2010-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -50,7 +50,7 @@ public class OrgUnitNewUserGroupBean implements NewUserGroupBean {
             LdapRdn name = names.get(i-1);
             if ("ou".equals(name.getKey())) {
                 final String grpName = name.getValue("ou");
-                groups.add(provider.createGroup(grpName, null, false));
+                groups.add(provider.createGroup(grpName, null, false, true));
                 break;
             }
         }

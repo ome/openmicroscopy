@@ -31,7 +31,11 @@ using namespace omero::sys;
 
 // http://stackoverflow.com/questions/2333728/stdmap-default-value
 template <typename K, typename V>
-V GetWithDef(const std::map <K,V> & m, const K & key, const V & defval, const Ice::LoggerPtr& logger = Ice::LoggerPtr() ) {
+V GetWithDef(const std::map <K,V> & m, const K & key, const V & defval, const Ice::LoggerPtr&
+#ifdef DEBUG
+        logger = Ice::LoggerPtr()
+#endif
+) {
     typename std::map<K,V>::const_iterator it = m.find( key );
     if ( it == m.end() ) {
 #ifdef DEBUG
@@ -166,7 +170,7 @@ public:
         req->options = options;
     }
 
-    void ctrlc(int sig) {
+    void ctrlc(int /*sig*/) {
         cout << "Attempting cancel..." << endl;
         wait = 0;
         if (handle->cancel()) {

@@ -1,6 +1,42 @@
 OMERO version history
 =====================
 
+5.1.0-m1 (October 2014)
+-----------------------
+
+Developer preview release - 1 of 3 development milestones being released in
+the lead up to 5.1.0. **Only intended as a developer preview for updating code
+before the full public release of 5.1.0. Use at your own risk**.
+
+Model changes include:
+
+-  channel value has changed from an int to a float
+-  acquisitionDate on Image is now optional
+-  Pixels and WellSample types are no longer annotatable
+-  the following types are now annotatable: Detector, Dichroic, Filter,
+   Instrument, LightSource, Objective, Shape
+-  introduction of a "Map" type which permits storing key-value pairs, and a
+   Map annotation type which allows linking a Map on any annotatable object
+
+Other changes that may affect developers include:
+
+-  strict flake8'ing of all Python code
+-  C++ build is now based on CMake and is hopefully much more user-friendly
+-  new APIs: SendEmail and DiskUsage
+-  the password table now has a "changed" field
+
+5.0.5 / 4.4.12 (September 2014)
+-------------------------------
+
+This is a critical security fix for two vulnerabilities:
+
+-  :secvuln:`2014-SV1-unicode-passwords`
+-  :secvuln:`2014-SV2-empty-passwords`
+
+It is highly suggested that you upgrade your server and
+follow the steps outlined on the security vulnerability
+pages.
+
 5.0.4 (September 2014)
 ----------------------
 
@@ -160,7 +196,11 @@ This is a bug-fix release addressing a number of issues across all components.
 4.4.3 (August 2012)
 -------------------
 
-This is security release - anyone using OMERO 4.4.2 or earlier with LDAP
+This is a critical security fix for:
+
+-  :secvuln:`2012-SV1-ldap-authentication`
+
+Anyone using OMERO 4.4.2 or earlier with LDAP
 authentication should immediately upgrade to 4.4.3.
 
 4.4.2 (August 2012)

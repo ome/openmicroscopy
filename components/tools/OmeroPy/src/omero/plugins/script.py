@@ -317,7 +317,7 @@ class ScriptControl(BaseControl):
                     self.ctx.dbg(traceback.format_exc())
 
         client = self.ctx.conn(args)
-        current_user = self.ctx._event_context.userId
+        current_user = self.ctx.get_event_context().userId
         query = "select o from OriginalFile o where o.hash = '%s' and" \
             " o.details.owner.id = %s" % (sha1, current_user)
         files = client.sf.getQueryService().findAllByQuery(query, None)
@@ -800,7 +800,7 @@ omero.pass=%(omero.sess)s
         for key, factory in WHO_FACTORY.items():
             if who.startswith(key):
                 if who == key:
-                    id = WHO_CURRENT[key](self.ctx._event_context)
+                    id = WHO_CURRENT[key](self.ctx.get_event_context())
                     return factory(id, False)
                 else:
                     parts = who.split("=")

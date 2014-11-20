@@ -40,6 +40,8 @@ import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewerFactory;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
+import org.openmicroscopy.shoola.agents.metadata.view.RndSettingsPasted;
+import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -247,8 +249,6 @@ public class MetadataViewerAgent
     private void handleUserGroupSwitched(UserGroupSwitched evt)
     {
     	if (evt == null) return;
-    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
-    	if (!env.isServerAvailable()) return;
     	MetadataViewerFactory.onGroupSwitched(evt.isSuccessful());
     }
     
@@ -259,8 +259,6 @@ public class MetadataViewerAgent
      */
     private void handleReconnectedEvent(ReconnectedEvent evt)
     {
-    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
-    	if (!env.isServerAvailable()) return;
     	MetadataViewerFactory.onGroupSwitched(true);
     }
     
@@ -271,8 +269,6 @@ public class MetadataViewerAgent
      */
     private void handleChannelSavedEvent(ChannelSavedEvent evt)
     {
-    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
-    	if (!env.isServerAvailable()) return;
     	List<ChannelData> channels = evt.getChannels();
     	Iterator<Long> i = evt.getImageIds().iterator();
     	MetadataViewer viewer;
@@ -300,10 +296,29 @@ public class MetadataViewerAgent
         while (i.hasNext()) {
             viewer = MetadataViewerFactory.getViewerFromId(
                     ImageData.class.getName(), i.next());
-            if (viewer != null) {
-                viewer.loadViewedBy();
+            if (viewer != null && viewer.isRendererLoaded()) {
+                viewer.resetRenderingControl();
             }
         }
+    }
+    
+    /**
+     * Handles a {@link CopyRndSettings} event, i. e. passes the image
+     * reference on to the {@link MetadataViewer}s.
+     * @param evt The event
+     */
+    private void handleCopyRndSettings(CopyRndSettings evt) {
+        MetadataViewerFactory.setCopyRenderingSettingsFrom(evt.getImage(), evt.getRndDef());
+    }
+    
+    /**
+     * Handles a {@link RndSettingsPasted} event, i. e. notifies 
+     * the {@link MetadataViewer}s to apply the settings of an
+     * previously set image; see also {@link CopyRndSettings}
+     * @param e
+     */
+    private void handleRndSettingsPasted(RndSettingsPasted e) {
+        MetadataViewerFactory.applyCopiedRndSettings(e.getImageId());
     }
     
     /**
@@ -314,8 +329,6 @@ public class MetadataViewerAgent
     private void handleDisplayModeEvent(DisplayModeEvent evt)
     {
     	displayMode = evt.getDisplayMode();
-    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
-    	if (!env.isServerAvailable()) return;
     	MetadataViewerFactory.setDiplayMode(displayMode);
     }
     
@@ -352,6 +365,8 @@ public class MetadataViewerAgent
         bus.register(this, ChannelSavedEvent.class);
         bus.register(this, DisplayModeEvent.class);
         bus.register(this, RndSettingsCopied.class);
+        bus.register(this, CopyRndSettings.class);
+        bus.register(this, RndSettingsPasted.class);
     }
 
     /**
@@ -395,7 +410,11 @@ public class MetadataViewerAgent
 		else if (e instanceof DisplayModeEvent)
 			handleDisplayModeEvent((DisplayModeEvent) e);
 		else if (e instanceof RndSettingsCopied)
-	            handleRndSettingsCopied((RndSettingsCopied) e);
+	            	handleRndSettingsCopied((RndSettingsCopied) e);
+		else if (e instanceof CopyRndSettings) 
+                   	 handleCopyRndSettings((CopyRndSettings) e);
+		else if (e instanceof RndSettingsPasted) 
+                    	handleRndSettingsPasted((RndSettingsPasted) e);
 	}
 
 }

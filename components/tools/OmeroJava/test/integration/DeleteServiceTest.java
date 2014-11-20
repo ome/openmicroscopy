@@ -1,8 +1,6 @@
 /*
- * $Id$
- *
- *   Copyright 2006-2013 University of Dundee. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ * Copyright 2006-2014 University of Dundee. All rights reserved.
+ * Use is subject to license terms supplied in LICENSE.txt
  */
 package integration;
 
@@ -25,7 +23,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import junit.framework.AssertionFailedError;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.specification.XMLMockObjects;
 import ome.specification.XMLWriter;
@@ -40,6 +37,7 @@ import omero.grid.Column;
 import omero.grid.LongColumn;
 import omero.grid.TablePrx;
 import omero.model.Annotation;
+import omero.model.Arc;
 import omero.model.Channel;
 import omero.model.Dataset;
 import omero.model.DatasetAnnotationLink;
@@ -51,6 +49,7 @@ import omero.model.Detector;
 import omero.model.DetectorSettings;
 import omero.model.Dichroic;
 import omero.model.Experiment;
+import omero.model.Filament;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.Filter;
@@ -63,6 +62,7 @@ import omero.model.ImageI;
 import omero.model.ImagingEnvironment;
 import omero.model.Instrument;
 import omero.model.Laser;
+import omero.model.LightEmittingDiode;
 import omero.model.LightPath;
 import omero.model.LightSettings;
 import omero.model.LightSource;
@@ -154,6 +154,27 @@ public class DeleteServiceTest extends AbstractServerTest {
 
     /** Identifies the plate as root. */
     public static final String REF_PLATE = "/Plate";
+
+    /** Identifies the detector as root. */
+    public static final String REF_DETECTOR = "/Detector";
+
+    /** Identifies the detector as root. */
+    public static final String REF_FILAMENT = "/Filament";
+
+    /** Identifies the detector as root. */
+    public static final String REF_ARC = "/Arc";
+
+    /** Identifies the detector as root. */
+    public static final String REF_LED = "/LightEmittingDiode";
+
+    /** Identifies the detector as root. */
+    public static final String REF_LASER = "/Laser";
+
+    /** Identifies the instrument as root. */
+    public static final String REF_INSTRUMENT = "/Instrument";
+
+    /** Identifies the light source as root. */
+    public static final String REF_LIGHTSOURCE = "/LightSource";
 
     /** Identifies the ROI as root. */
     public static final String REF_ROI = "/Roi";
@@ -271,7 +292,56 @@ public class DeleteServiceTest extends AbstractServerTest {
                 .simplePlateData().asIObject()));
         objects.put(REF_SCREEN, iUpdate.saveAndReturnObject(mmFactory
                 .simpleScreenData().asIObject()));
+ //       objects.put(REF_INSTRUMENT, iUpdate.saveAndReturnObject(mmFactory
+ //               .createInstrument()));
+        // Create another instrument to hold the detector to be deleted
+        Instrument instrument = (Instrument) iUpdate
+                .saveAndReturnObject(mmFactory.createInstrument());
+        Detector detector = mmFactory.createDetector();
+        detector.setInstrument((Instrument) instrument.proxy());
+        detector = (Detector) iUpdate.saveAndReturnObject(detector);
+        // add detector to the list
+        objects.put(REF_DETECTOR, detector);
+
+        Filament lightFilament = mmFactory.createFilament();
+        lightFilament.setInstrument((Instrument) instrument.proxy());
+        lightFilament = (Filament) iUpdate.saveAndReturnObject(lightFilament);
+        // add light to the list
+        objects.put(REF_FILAMENT, lightFilament);
+
+        Arc lightArc = mmFactory.createArc();
+        lightArc.setInstrument((Instrument) instrument.proxy());
+        lightArc = (Arc) iUpdate.saveAndReturnObject(lightArc);
+        // add light to the list
+        objects.put(REF_ARC, lightArc);
+
+        LightEmittingDiode lightLed = mmFactory.createLightEmittingDiode();
+        lightLed.setInstrument((Instrument) instrument.proxy());
+        lightLed = (LightEmittingDiode) iUpdate.saveAndReturnObject(lightLed);
+        // add light to the list
+        objects.put(REF_LED, lightLed);
+
+        Laser lightLaser = mmFactory.createLaser();
+        lightLaser.setInstrument((Instrument) instrument.proxy());
+        lightLaser = (Laser) iUpdate.saveAndReturnObject(lightLaser);
+        // add light to the list
+        objects.put(REF_LASER, lightLaser);
+
         return objects;
+    }
+
+    /**
+     * Converts the key.
+     *
+     * @param value The value to convert.
+     * @return
+     */
+    private String convert(String value)
+    {
+        if (REF_FILAMENT.equals(value) || REF_ARC.equals(value) ||
+                REF_LED.equals(value) || REF_LASER.equals(value))
+            return REF_LIGHTSOURCE;
+        return value;
     }
 
     /**
@@ -292,12 +362,24 @@ public class DeleteServiceTest extends AbstractServerTest {
             return "select p from Plate as p where p.id = :id";
         } else if (Screen.class.isAssignableFrom(k)) {
             return "select s from Screen as s where s.id = :id";
+        } else if (Detector.class.isAssignableFrom(k)) {
+            return "select d from Detector as d where d.id = :id";
+        } else if (Instrument.class.isAssignableFrom(k)) {
+            return "select i from Instrument as i where i.id = :id";
+        } else if (Filament.class.isAssignableFrom(k)) {
+            return "select l from LightSource as l where l.id = :id";
+        } else if (Arc.class.isAssignableFrom(k)) {
+            return "select l from LightSource as l where l.id = :id";
+        } else if (LightEmittingDiode.class.isAssignableFrom(k)) {
+            return "select l from LightSource as l where l.id = :id";
+        } else if (Laser.class.isAssignableFrom(k)) {
+            return "select l from LightSource as l where l.id = :id";
         }
         throw new UnsupportedOperationException("Unknown type: " + k);
     }
 
     /**
-     * Test to delete an image w/o pixels.
+     * Test to delete an image w/o pixels. 
      *
      * @throws Exception
      *             Thrown if an error occurred.
@@ -319,6 +401,65 @@ public class DeleteServiceTest extends AbstractServerTest {
         assertNull(img);
     }
 
+    /**
+     * Test to delete an empty instrument.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteBasicInstrument() throws Exception {
+        Instrument ins = (Instrument) iUpdate.saveAndReturnObject(mmFactory
+                .createInstrument());
+        assertNotNull(ins);
+        long id = ins.getId().getValue();
+        delete(new Delete(REF_INSTRUMENT, id, null));
+        ParametersI param = new ParametersI();
+        param.addId(id);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("select i from Instrument i ");
+        sb.append("where i.id = :id");
+        ins = (Instrument) iQuery.findByQuery(sb.toString(), param);
+        assertNull(ins);
+    }
+
+    /**
+     * Test to delete an empty instrument.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteBasicDetector() throws Exception {
+        // Create an instrument to hold the detector to be deleted
+        Instrument instrument = (Instrument) iUpdate
+                .saveAndReturnObject(mmFactory.createInstrument());
+        Detector detector = mmFactory.createDetector();
+        assertNotNull(detector);
+        detector.setInstrument((Instrument) instrument.proxy());
+        detector = (Detector) iUpdate.saveAndReturnObject(detector);
+        assertNotNull(detector);
+
+        // find detector
+        long id = detector.getId().getValue();
+        ParametersI param = new ParametersI();
+        param.addId(id);
+        StringBuilder sb = new StringBuilder();
+        sb.append("select d from Detector d ");
+        sb.append("where d.id = :id");
+
+        detector = (Detector) iQuery.findByQuery(sb.toString(), param);
+        assertNotNull(detector);
+
+        // delete detector
+        delete(new Delete(REF_DETECTOR, id, null));
+
+        // fail to find detector
+        detector = (Detector) iQuery.findByQuery(sb.toString(), param);
+        assertNull(detector);
+}
+    
     /**
      * Test to delete a simple plate i.e. w/o wells or acquisition.
      *
@@ -1176,7 +1317,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         String sql;
         List<IObject> l;
         for (Map.Entry<String, IObject> entry : objects.entrySet()) {
-            type = entry.getKey();
+            type = convert(entry.getKey());
             obj = entry.getValue();
             id = obj.getId().getValue();
             annotationIds = createNonSharableAnnotation(obj, null);
@@ -1215,7 +1356,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         for (int j = 0; j < values.length; j++) {
             Map<String, IObject> objects = createIObjects();
             for (Map.Entry<String, IObject> entry : objects.entrySet()) {
-                type = entry.getKey();
+                type = convert(entry.getKey());
                 obj = entry.getValue();
                 id = obj.getId().getValue();
                 annotationIds = createSharableAnnotation(obj, null);
@@ -1286,11 +1427,11 @@ public class DeleteServiceTest extends AbstractServerTest {
                 annotationIds.addAll(r);
             for (int f = 0; f < well.sizeOfWellSamples(); f++) {
                 field = well.getWellSample(f);
-                r = createSharableAnnotation(field, null);
+                assertNotNull(field.getImage());
+                r = createSharableAnnotation(field.getImage(), null);
                 if (r.size() > 0)
                     annotationIds.addAll(r);
                 wellSampleIds.add(field.getId().getValue());
-                assertNotNull(field.getImage());
                 imageIds.add(field.getImage().getId().getValue());
             }
         }
@@ -1458,11 +1599,11 @@ public class DeleteServiceTest extends AbstractServerTest {
                         annotationIds.addAll(r);
                     for (int f = 0; f < well.sizeOfWellSamples(); f++) {
                         field = well.getWellSample(f);
-                        r = createSharableAnnotation(field, null);
+                        assertNotNull(field.getImage());
+                        r = createSharableAnnotation(field.getImage(), null);
                         if (r.size() > 0)
                             annotationIds.addAll(r);
                         wellSampleIds.add(field.getId().getValue());
-                        assertNotNull(field.getImage());
                         imageIds.add(field.getImage().getId().getValue());
                     }
                 }
@@ -2182,113 +2323,6 @@ public class DeleteServiceTest extends AbstractServerTest {
 
     /**
      * Test to delete an object with annotations with namespace. All annotations
-     * matching the given namespace should be deleted, but all others not.
-     *
-     * Example usage: delete everything except for the movies.
-     *
-     * @throws Exception
-     *             Thrown if an error occurred.
-     */
-    @Test(groups = { "broken", "ticket:2837" })
-    public void testDeleteObjectWithAnnotationWithNS() throws Exception {
-        Map<String, IObject> objects = createIObjects();
-        IObject obj = null;
-        Long id = null;
-        String type = null;
-        List<Long> annotationIds;
-        List<Long> annotationIdsNS;
-        ParametersI param;
-        String sql;
-        List<IObject> l;
-        Map<String, String> options;
-        for (Map.Entry<String, IObject> entry : objects.entrySet()) {
-            type = entry.getKey();
-            obj = entry.getValue();
-            id = obj.getId().getValue();
-            annotationIds = createNonSharableAnnotation(obj, null);
-            annotationIdsNS = createNonSharableAnnotation(obj, NAMESPACE);
-
-            options = new HashMap<String, String>();
-            options.put(REF_ANN, KEEP + SEPARATOR + INCLUDE + NAMESPACE);
-            delete(new Delete(type, id, options));
-
-            param = new ParametersI();
-            param.addId(obj.getId().getValue());
-            sql = createBasicContainerQuery(obj.getClass());
-            assertNull(iQuery.findByQuery(sql, param));
-            param = new ParametersI();
-            param.addIds(annotationIds);
-            assertTrue(annotationIds.size() > 0);
-            sql = "select i from Annotation as i where i.id in (:ids)";
-            l = iQuery.findAllByQuery(sql, param);
-            assertEquals(obj + "-->" + l.toString(), 0, l.size());
-            param = new ParametersI();
-            param.addIds(annotationIdsNS);
-            assertTrue(annotationIdsNS.size() > 0);
-            sql = "select i from Annotation as i where i.id in (:ids)";
-            l = iQuery.findAllByQuery(sql, param);
-            assertEquals(obj + "-->" + l.toString(), annotationIdsNS.size(),
-                    l.size());
-        }
-    }
-
-    /**
-     * Test to delete an object with annotations with namespace. All annotations
-     * matching the given namespace should be deleted, but all others not.
-     *
-     * Example usage: delete everything except for the movies.
-     *
-     * @throws Exception
-     *             Thrown if an error occurred.
-     */
-    @Test(groups = { "broken", "ticket:2837" })
-    public void testDeleteObjectWithAnnotationWithNSMultipleNS()
-            throws Exception {
-        Map<String, IObject> objects = createIObjects();
-        IObject obj = null;
-        Long id = null;
-        String type = null;
-        List<Long> annotationIds;
-        List<Long> annotationIdsNS = new ArrayList<Long>();
-        ParametersI param;
-        String sql;
-        List<IObject> l;
-        Map<String, String> options;
-        for (Map.Entry<String, IObject> entry : objects.entrySet()) {
-            type = entry.getKey();
-            obj = entry.getValue();
-            id = obj.getId().getValue();
-            annotationIds = createNonSharableAnnotation(obj, null);
-            annotationIdsNS.addAll(createNonSharableAnnotation(obj, NAMESPACE));
-            annotationIdsNS
-                    .addAll(createNonSharableAnnotation(obj, NAMESPACE_2));
-            options = new HashMap<String, String>();
-            options.put(REF_ANN, KEEP + SEPARATOR + INCLUDE + NAMESPACE
-                    + NS_SEPARATOR + NAMESPACE_2);
-            delete(new Delete(type, id, options));
-
-            param = new ParametersI();
-            param.addId(obj.getId().getValue());
-            sql = createBasicContainerQuery(obj.getClass());
-            assertNull(iQuery.findByQuery(sql, param));
-            param = new ParametersI();
-            param.addIds(annotationIds);
-            assertTrue(annotationIds.size() > 0);
-            sql = "select i from Annotation as i where i.id in (:ids)";
-            l = iQuery.findAllByQuery(sql, param);
-            assertEquals(obj + "-->" + l.toString(), 0, l.size());
-            param = new ParametersI();
-            param.addIds(annotationIdsNS);
-            assertTrue(annotationIdsNS.size() > 0);
-            sql = "select i from Annotation as i where i.id in (:ids)";
-            l = iQuery.findAllByQuery(sql, param);
-            assertEquals(obj + "-->" + l.toString(), annotationIdsNS.size(),
-                    l.size());
-        }
-    }
-
-    /**
-     * Test to delete an object with annotations with namespace. All annotations
      * which do not have the given namespace should be deleted; others should be
      * kept.
      *
@@ -2310,7 +2344,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         List<IObject> l;
         Map<String, String> options;
         for (Map.Entry<String, IObject> entry : objects.entrySet()) {
-            type = entry.getKey();
+            type = convert(entry.getKey());
             obj = entry.getValue();
             id = obj.getId().getValue();
             annotationIds = createNonSharableAnnotation(obj, null);
@@ -2362,7 +2396,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         List<IObject> l;
         Map<String, String> options;
         for (Map.Entry<String, IObject> entry : objects.entrySet()) {
-            type = entry.getKey();
+            type = convert(entry.getKey());
             obj = entry.getValue();
             id = obj.getId().getValue();
             annotationIds = createNonSharableAnnotation(obj, null);
@@ -2749,7 +2783,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         while (i.hasNext()) {
             ws = (WellSample) i.next();
             imageIds.add(ws.getImage().getId().getValue());
-            annotationIds.addAll(createNonSharableAnnotation(ws, null));
+            annotationIds.addAll(createNonSharableAnnotation(ws.getImage(), null));
         }
         assertTrue(imageIds.size() == fields);
         assertTrue(annotationIds.size() > 0);
@@ -3251,7 +3285,7 @@ public class DeleteServiceTest extends AbstractServerTest {
      * After a discussion Sept. 2010, this is expected to fail. An Image in a
      * Well can only be deleted via the Well or the Plate.
      */
-    @Test(groups = {"ticket:2768", "broken"})
+    @Test(groups = {"ticket:2768"})
     public void testDeleteImageThatsInAWell() throws Exception {
 
         Plate p = (Plate) iUpdate.saveAndReturnObject(mmFactory.createPlate(1,
@@ -3268,7 +3302,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         try {
             delete(dc);
             fail("Should not be allowed.");
-        } catch (AssertionFailedError afe) {
+        } catch (AssertionError afe) {
             // Ok.
         }
 
@@ -3527,7 +3561,7 @@ public class DeleteServiceTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(groups = {"ticket:2917", "broken"})
+    @Test(groups = {"ticket:2917"})
     public void testTxIntegrity() throws Exception {
         List<IObject> images = new ArrayList<IObject>();
         images.add(mmFactory.createImage());
@@ -3546,7 +3580,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         try {
             delete(new Delete(REF_IMAGE, image0.getId().getValue(), null));
             fail("Should throw on constraint violation");
-        } catch (AssertionFailedError e) {
+        } catch (AssertionError e) {
             // ok. constraint violation was thrown, there for the delete()
             // method failed, so now we can test that the tx was actually
             // rolled back.

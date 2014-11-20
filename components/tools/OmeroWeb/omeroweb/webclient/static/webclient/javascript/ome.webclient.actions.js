@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+// Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 // All rights reserved.
 //
 // This program is free software: you can redistribute it and/or modify
@@ -40,7 +40,7 @@ jQuery.fn.hide_if_empty = function() {
 
 OME.addToBasket = function(selected, prefix) {
     var productListQuery = new Array("action=add");
-    if (selected != null && selected.length > 0) {
+    if (selected && selected.length > 0) {
         selected.each(function(i) {
             productListQuery[i+1]= $(this).attr('id').replace("-","=");
         });
@@ -125,7 +125,6 @@ OME.clear_selected = function(force_refresh) {
 OME.field_selection_changed = function(field) {
 
     var datatree = $.jstree._focused();
-    datatree.data.ui.last_selected;
     $("body")
         .data("selected_objects.ome", [{"id":datatree.data.ui.last_selected.attr("id"), "index":field}])
         .trigger("selection_change.ome", $(this).attr('id'));
@@ -137,7 +136,7 @@ OME.select_fileset_images = function(filesetId) {
     $("#dataTree li[data-fileset="+filesetId+"]").each(function(){
         datatree.select_node(this);
     });
-}
+};
 
 // actually called when share is edited, to refresh right-hand panel
 OME.share_selection_changed = function(share_id) {
@@ -247,7 +246,7 @@ OME.doPagination = function(view, page) {
     $("#dataTree").jstree("refresh", $('#'+rel[0]+'-'+rel[1]));
     $parent.children("a:eq(0)").click();    // this will cause center and right panels to update
     return false;
-}
+};
 
 
 
@@ -259,7 +258,9 @@ OME.removeItem = function(event, domClass, url, parentId, index) {
     // /webclient/action/remove/comment/461/?parent=image-257
     var $parent = $(event.target).parents(domClass);
     var $annContainer = $parent.parent();
-    var confirm_remove = OME.confirm_dialog('Remove '+ dType + '?',
+    var r = 'Remove ';
+    if (dType === 'comment') r = 'Delete ';
+    var confirm_remove = OME.confirm_dialog(r + dType + '?',
         function() {
             if(confirm_remove.data("clicked_button") == "OK") {
                 $.ajax({
@@ -315,6 +316,47 @@ OME.deleteItem = function(event, domClass, url) {
     return false;
 };
 
+// Used to filter annotations in the metadata_general and batch_anntotate panels.
+// Assumes a single #annotationFilter select on the page.
+OME.filterAnnotationsAddedBy = function() {
+    var $this = $("#annotationFilter"),
+        val = $this.val(),
+        userId = $this.attr('data-userId');
+
+    // select made smaller if only 'Show all' text
+    if (val === "all") {
+        $this.css('width', '80px');
+    } else {
+        $this.css('width', '180px');
+    }
+
+    $('.tag_annotation_wrapper, .file_ann_wrapper, .ann_comment_wrapper, #custom_annotations tr')
+            .each(function() {
+        var $ann = $(this),
+            addby = $ann.attr('data-added-by').split(",");
+        var show = false;
+        switch (val) {
+            case "me":
+                show = ($.inArray(userId, addby) > -1);
+                break;
+            case "others":
+                for (var i=0; i<addby.length; i++) {
+                    if (addby[i] !== userId) {
+                        show = true;
+                    }
+                }
+                break;
+            default:    // 'all'
+                show = true;
+        }
+        if (show) {
+            $ann.show();
+        } else {
+            $ann.hide();
+        }
+    });
+};
+
 // More code that is shared between metadata_general and batch_annotate panels
 // Called when panel loaded. Does exactly what it says on the tin.
 OME.initToolbarDropdowns = function() {
@@ -351,19 +393,15 @@ OME.refreshThumbnails = function(options) {
     options = options || {};
     var rdm = Math.random(),
         thumbs_selector = "#dataIcons img",
+        search_selector = ".search_thumb",
         spw_selector = "#spw img";
-    // handle Dataset thumbs
+    // handle Dataset thumbs, search rusults and SPW thumbs
     if (options.imageId) {
-        thumbs_selector += "#"+options.imageId;
-        spw_selector += "#image-"+options.imageId;
+        thumbs_selector = "#image_icon-" + options.imageId + " img";
+        search_selector = "#image-" + options.imageId + " img.search_thumb";
+        spw_selector += "#image-" + options.imageId;
     }
-    $(thumbs_selector).each(function(){
-        var $this = $(this),
-            base_src = $this.attr('src').split('?')[0];
-        $this.attr('src', base_src + "?_="+rdm);
-    });
-    // handle SPW thumbs
-    $(spw_selector).each(function(){
+    $(thumbs_selector + ", " + spw_selector + ", " + search_selector).each(function(){
         var $this = $(this),
             base_src = $this.attr('src').split('?')[0];
         $this.attr('src', base_src + "?_="+rdm);
@@ -422,16 +460,13 @@ OME.truncateNames = (function(){
 
 jQuery.fn.tooltip_init = function() {
     $(this).tooltip({
-        bodyHandler: function() {
-                return $(this).parent().children("span.tooltip_html").html();
-            },
+        items: '.tooltip',
+        content: function() {
+            return $(this).parent().children("span.tooltip_html").html();
+        },
         track: true,
-        delay: 0,
-        showURL: false,
-        fixPNG: true,
-        showBody: " - ",
-        top: 10,
-        left: -100
+        show: false,
+        hide: false
     });
   return this;
 };

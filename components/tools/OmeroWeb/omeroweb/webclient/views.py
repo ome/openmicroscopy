@@ -381,20 +381,15 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
 
     myGroups = list(conn.getGroupsMemberOf())
     myGroups.sort(key=lambda x: x.getName().lower())
-    if conn.isAdmin():  # Admin can see all groups
-        groups = [g for g in conn.getObjects("ExperimenterGroup") if g.getName() not in ("user", "guest")]
-        groups.sort(key=lambda x: x.getName().lower())
-    else:
-        groups = myGroups
-    new_container_form = ContainerForm()
+    groups = myGroups
 
-    for g in groups:
-        g.groupSummary()    # load leaders / members
+    new_container_form = ContainerForm()
 
     # colleagues required for search.html page only.
     myColleagues = {}
     if menu == "search":
         for g in groups:
+            g.groupSummary()
             for c in g.leaders + g.colleagues:
                 myColleagues[c.id] = c
         myColleagues = myColleagues.values()
@@ -410,6 +405,31 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     context['current_url'] = url
     context['template'] = template
 
+    return context
+
+
+@login_required()
+@render_response()
+def group_user_content(request, url=None, conn=None, **kwargs):
+    """
+    Loads html content of the Groups/Users drop-down menu on main webclient pages.
+    Url should be supplied in request, as target for redirect after switching group.
+    """
+
+    myGroups = list(conn.getGroupsMemberOf())
+    myGroups.sort(key=lambda x: x.getName().lower())
+    if conn.isAdmin():  # Admin can see all groups
+        groups = [g for g in conn.getObjects("ExperimenterGroup") if g.getName() not in ("user", "guest")]
+        groups.sort(key=lambda x: x.getName().lower())
+    else:
+        groups = myGroups
+
+    for g in groups:
+        g.groupSummary()    # load leaders / members
+
+    context = {'template': 'webclient/base/includes/group_user_content.html',
+               'current_url':url,
+               'groups':groups, 'myGroups':myGroups}
     return context
 
 
@@ -818,6 +838,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
 
     form_comment = None
     figScripts = None
+    share_owned = False
     if c_type in ("share", "discussion"):
         template = "webclient/annotations/annotations_share.html"
         manager = BaseShare(conn, c_id)
@@ -835,14 +856,15 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
             figScripts = manager.listFigureScripts()
             form_comment = CommentAnnotationForm(initial=initial)
         else:
+            share_owned = BaseShare(conn, share_id).share.isOwned()
             template = "webclient/annotations/annotations_share.html"
 
     if c_type in ("tag", "tagset"):
         context = {'manager':manager, 'insight_ns': omero.rtypes.rstring(omero.constants.metadata.NSINSIGHTTAGSET).val}
     else:
         context = {'manager':manager, 'form_comment':form_comment, 'index':index,
-            'share_id':share_id}
-            
+            'share_id':share_id, 'share_owned': share_owned}
+
     context['figScripts'] = figScripts
     context['template'] = template
     context['webclient_path'] = request.build_absolute_uri(reverse('webindex'))
@@ -865,7 +887,17 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None, **kwa
     if c_type == "well":
         manager.image = manager.well.getImage(index)
 
-    rdefs = manager.image.getAllRenderingDefs()
+    allRdefs = manager.image.getAllRenderingDefs()
+    rdefs = {}
+    rdefId = manager.image.getRenderingDefId()
+    # remove duplicates per user
+    for r in allRdefs:
+        ownerId = r['owner']['id']
+        r['current'] = r['id'] == rdefId
+        # if duplicate rdefs for user, pick one with highest ID
+        if ownerId not in rdefs or rdefs[ownerId]['id'] < r['id']:
+            rdefs[ownerId] = r
+    rdefs = rdefs.values()
     # format into rdef strings, E.g. {c: '1|3118:35825$FF0000,2|2086:18975$FFFF00', m: 'c'}
     rdefQueries = []
     for r in rdefs:
@@ -957,6 +989,7 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
             if logicalChannel is not None:
                 channel = dict()
                 channel['form'] = MetadataChannelForm(initial={'logicalChannel': logicalChannel,
+                                        'excitationWave': ch.getExcitationWave(), 'emissionWave': ch.getEmissionWave(),
                                         'illuminations': list(conn.getEnumerationEntries("IlluminationI")),
                                         'contrastMethods': list(conn.getEnumerationEntries("ContrastMethodI")),
                                         'modes': list(conn.getEnumerationEntries("AcquisitionModeI"))})
@@ -992,7 +1025,26 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
                 color = ch.getColor()
                 channel['color'] = color is not None and color.getHtml() or None
                 planeInfo = manager.image and manager.image.getPrimaryPixels().copyPlaneInfo(theC=theC, theZ=0)
-                channel['plane_info'] = list(planeInfo)
+                plane_info = []
+
+                def unwrapUnit(q):
+                    if q:
+                        u = str(q.getUnit())
+                        v = q.getValue()
+                        return (v, u)
+                    return (None, None)
+
+                for pi in planeInfo:
+                    deltaT, deltaTUnit = unwrapUnit(pi.getDeltaT())
+                    exposure, exposureUnit = unwrapUnit(pi.getExposureTime())
+                    plane_info.append({
+                        'theT': pi.theT,
+                        'deltaT': deltaT,
+                        'exposureTime': exposure,
+                        'deltaTUnit': deltaTUnit,
+                        'exposureTimeUnit': exposureUnit})
+                channel['plane_info'] = plane_info
+
                 form_channels.append(channel)
 
         try:
@@ -1156,9 +1208,11 @@ def batch_annotate(request, conn=None, **kwargs):
 
     context = {'form_comment':form_comment, 'obj_string':obj_string, 'link_string': link_string,
             'obj_labels': obj_labels, 'batchAnns': batchAnns, 'batch_ann':True, 'index': index,
-            'figScripts':figScripts, 'filesetInfo': filesetInfo, 'annotationBlocked': annotationBlocked}
+            'figScripts':figScripts, 'filesetInfo': filesetInfo, 'annotationBlocked': annotationBlocked,
+            'differentGroups':False}
     if len(groupIds) > 1:
         context['annotationBlocked'] = "Can't add annotations because objects are in different groups"
+        context['differentGroups'] = True       # E.g. don't run scripts etc
     context['template'] = "webclient/annotations/batch_annotate.html"
     context['webclient_path'] = request.build_absolute_uri(reverse('webindex'))
     return context
@@ -1275,10 +1329,12 @@ def annotate_comment(request, conn=None, **kwargs):
             'shares':oids['share']}
 
     # Use the first object we find to set context (assume all objects are in same group!)
-    for obs in oids.values():
-        if len(obs) > 0:
-            conn.SERVICE_OPTS.setOmeroGroup(obs[0].getDetails().group.id.val)
-            break
+    # this does not aplly to share
+    if len(oids['share']) < 1:
+        for obs in oids.values():
+            if len(obs) > 0:
+                conn.SERVICE_OPTS.setOmeroGroup(obs[0].getDetails().group.id.val)
+                break
 
     # Handle form submission...
     form_multi = CommentAnnotationForm(initial=initial, data=request.REQUEST.copy())
@@ -1294,7 +1350,7 @@ def annotate_comment(request, conn=None, **kwargs):
             else:
                 manager = BaseContainer(conn)
                 textAnn = manager.createCommentAnnotations(content, oids, well_index=index)
-            context = {'tann': textAnn, 'template':"webclient/annotations/comment.html"}
+            context = {'tann': textAnn, 'added_by':conn.getUserId(), 'template':"webclient/annotations/comment.html"}
             return context
     else:
         return HttpResponse(str(form_multi.errors))      # TODO: handle invalid form error
@@ -1952,18 +2008,18 @@ def load_public(request, share_id=None, conn=None, **kwargs):
 
     if share_id is not None:
         if view == 'tree':
-            template = "webclient/public/share_subtree.html"
+            template = "webclient/data/container_subtree.html"
         elif view == 'icon':
-            template = "webclient/public/share_content_icon.html"
+            template = "webclient/data/containers_icon.html"
         controller = BaseShare(conn, share_id)
         controller.loadShareContent()
 
     else:
-        template = "webclient/public/share_tree.html"
+        template = "webclient/data/containers_tree.html"
         controller = BaseShare(conn)
         controller.getShares()
 
-    context = {'share':controller}
+    context = {'share':controller, 'manager': controller}
     context['isLeader'] = conn.isLeader()
     context['template'] = template
     return context
@@ -2601,7 +2657,7 @@ def script_ui(request, scriptId, conn=None, **kwargs):
     return {'template':'webclient/scripts/script_ui.html', 'paramData': paramData, 'scriptId': scriptId}
 
 
-@login_required(setGroupContext=True)       # group ctx used for getting Tags etc.
+@login_required()
 @render_response()
 def figure_script(request, scriptName, conn=None, **kwargs):
     """
@@ -2621,6 +2677,10 @@ def figure_script(request, scriptName, conn=None, **kwargs):
         filteredIds = [iid for iid in ints if iid in validObjs.keys()]
         if len(filteredIds) == 0:
             raise Http404("No %ss found with IDs %s" % (dtype, ids))
+        else:
+            # Now we can specify group context - All should be same group
+            gid = validObjs.values()[0].getDetails().group.id.val
+            conn.SERVICE_OPTS.setOmeroGroup(gid)
         return filteredIds, validObjs
 
     context = {}
@@ -2887,12 +2947,25 @@ def script_run(request, scriptId, conn=None, **kwargs):
                     logger.debug("Invalid entry for '%s' : %s" % (key, value))
                     continue
 
+    # If we have objects specified via 'IDs' and 'DataType', try to pick correct group
+    if 'IDs' in inputMap.keys() and 'Data_Type' in inputMap.keys():
+        gid = conn.SERVICE_OPTS.getOmeroGroup()
+        conn.SERVICE_OPTS.setOmeroGroup('-1')
+        try:
+            firstObj = conn.getObject(inputMap['Data_Type'].val, unwrap(inputMap['IDs'])[0])
+            newGid = firstObj.getDetails().group.id.val
+            conn.SERVICE_OPTS.setOmeroGroup(newGid)
+        except Exception, x:
+            logger.debug(traceback.format_exc())
+            # if inputMap values not as expected or firstObj is None
+            conn.SERVICE_OPTS.setOmeroGroup(gid)
+
     logger.debug("Running script %s with params %s" % (scriptName, inputMap))
     rsp = run_script(request, conn, sId, inputMap, scriptName)
     return HttpJsonResponse(rsp)
 
 
-@login_required(setGroupContext=True)
+@login_required()
 def ome_tiff_script(request, imageId, conn=None, **kwargs):
     """
     Uses the scripting service (Batch Image Export script) to generate OME-TIFF for an
@@ -2905,6 +2978,10 @@ def ome_tiff_script(request, imageId, conn=None, **kwargs):
     scriptService = conn.getScriptService()
     sId = scriptService.getScriptID("/omero/export_scripts/Batch_Image_Export.py")
 
+    image = conn.getObject("Image", imageId)
+    if image is not None:
+        gid = image.getDetails().group.id.val
+        conn.SERVICE_OPTS.setOmeroGroup(gid)
     imageIds = [long(imageId)]
     inputMap = {'Data_Type': wrap('Image'), 'IDs': wrap(imageIds)}
     inputMap['Format'] = wrap('OME-TIFF')

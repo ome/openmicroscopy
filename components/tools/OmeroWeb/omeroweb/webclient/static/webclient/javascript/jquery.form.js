@@ -265,11 +265,6 @@ $.fn.ajaxSubmit = function(options) {
                     el = $(form[a[i].name]);
                     el.prop('disabled', false);
                 }
-            } else {
-                for (i=0; i < a.length; i++) {
-                    el = $(form[a[i].name]);
-                    el.removeAttr('disabled');
-                }
             }
         }
 

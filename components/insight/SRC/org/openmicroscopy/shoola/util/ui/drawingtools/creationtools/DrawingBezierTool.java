@@ -27,6 +27,8 @@ import java.util.Map;
 
 //Third-party libraries
 
+
+import org.jhotdraw.draw.AttributeKey;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.BezierTextFigure;
 
@@ -70,8 +72,20 @@ public class DrawingBezierTool
 	public DrawingBezierTool(BezierTextFigure prototype, Map attributes)
 	{
 		super(prototype, attributes);
+		
 	}
-	
+
+	/**
+     * Sets the attributes.
+     *
+     * @param attributes The CreationTool applies these attributes to the
+     * prototype after having applied the default attributes from the DrawingEditor.
+     */
+    public void setAttributes(Map<AttributeKey, Object> attributes)
+    {
+        this.attributes = attributes;
+    }
+
 	/** 
 	 * Overridden to only fired event if the {@link #resetToSelect} is
 	 * <code>true</code>.

@@ -27,6 +27,8 @@ import static omero.rtypes.rdouble;
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 
+import static ome.formats.model.UnitsFactory.makeLength;
+
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -36,6 +38,7 @@ import java.util.Map;
 
 import loci.formats.IFormatReader;
 import ome.formats.Index;
+import ome.formats.model.UnitsFactory;
 import ome.util.LSID;
 import omero.metadatastore.IObjectContainer;
 import omero.model.Annotation;
@@ -44,6 +47,8 @@ import omero.model.Pixels;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import pojos.DataObject;
 
 /**
  * Processes the pixels sets of an IObjectContainerStore and ensures
@@ -110,17 +115,20 @@ public class PixelsProcessor implements ModelProcessor
 		if (physicalPixelSizes[0] != null
 			&& pixels.getPhysicalSizeX() == null)
 		{
-			pixels.setPhysicalSizeX(rdouble(physicalPixelSizes[0]));
+			pixels.setPhysicalSizeX(makeLength(physicalPixelSizes[0],
+			        UnitsFactory.Pixels_PhysicalSizeX));
 		}
 		if (physicalPixelSizes[1] != null
 			&& pixels.getPhysicalSizeY() == null)
 		{
-			pixels.setPhysicalSizeY(rdouble(physicalPixelSizes[1]));
+			pixels.setPhysicalSizeY(makeLength(physicalPixelSizes[1],
+			        UnitsFactory.Pixels_PhysicalSizeY));
 		}
 		if (physicalPixelSizes[2] != null
 			&& pixels.getPhysicalSizeZ() == null)
 		{
-			pixels.setPhysicalSizeZ(rdouble(physicalPixelSizes[2]));
+			pixels.setPhysicalSizeZ(makeLength(physicalPixelSizes[2],
+			        UnitsFactory.Pixels_PhysicalSizeZ));
 		}
             }
 
@@ -182,7 +190,7 @@ public class PixelsProcessor implements ModelProcessor
                 saveName = userSpecifiedName;
 
                 if (reader.getSeriesCount() > 1) {
-                    if (imageName == null) { 
+                    if (imageName == null) {
                         imageName = Integer.toString(imageIndex);
                     }
                     saveName += " [" + imageName + "]";

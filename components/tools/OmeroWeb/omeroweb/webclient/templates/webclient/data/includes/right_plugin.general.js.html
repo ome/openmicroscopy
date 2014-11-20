@@ -29,8 +29,8 @@
 **/
 
 $(function () {
-    
-    $("#annotation_tabs").tabs({cache: true});
+
+    $("#annotation_tabs").tabs({cache: true, disabled: true});
     var $metadata_general = $("#metadata_general");
     var general_tab_index = 0;
 
@@ -49,10 +49,6 @@ $(function () {
             var productListQuery = new Array();
             var well_index;
             for (var i=0; i<selected.length; i++) {
-                // if any items don't have the canAnnotate class, we don't show batch annotation
-                if (typeof selected[i]['class'] != 'undefined' && selected[i]['class'].indexOf("canAnnotate") < 0) {
-                    return;
-                }
                 productListQuery[i] = selected[i]["id"].replace("-","=");
                 well_index = well_index || selected[i]["index"];
             }
@@ -137,9 +133,11 @@ $(function () {
     }
 
     // update tabs when tabs switch
-    $("#annotation_tabs").bind( "tabsshow", function(tab_ui, tab){
-        if (tab.index == general_tab_index) {
-            $metadata_general.show();   // sometimes this doesn't get shown until too late
+    $("#annotation_tabs").on( "tabsactivate", function(event, ui){
+        // we get a "tabsactivate" event, but need to check if 'this' tab was chosen...
+        if (ui.newTab.index() == general_tab_index) {
+            // sometimes this doesn't get shown until too late, so the :visible check above failed
+            $metadata_general.show();
             update_metadata_general_tab();
         }
     });

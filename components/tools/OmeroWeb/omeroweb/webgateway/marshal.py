@@ -100,6 +100,7 @@ def imageMarshal (image, key=None):
                      'wellId': well and well.id.val or '',
                      'imageTimestamp': time.mktime(image.getDate().timetuple()),
                      'imageId': image.id,
+                     'pixelsType': image.getPixelsType(),
             },
             'perms': {'canAnnotate': image.canAnnotate(),
                 'canEdit': image.canEdit(),
@@ -272,7 +273,9 @@ def shapeMarshal(shape):
     stroke_color = unwrap(shape.getStrokeColor())
     if stroke_color is not None:
         rv['strokeColor'], rv['strokeAlpha'] = rgb_int2css(stroke_color)
-    set_if('strokeWidth', shape.getStrokeWidth())
+    if shape.getStrokeWidth() is not None:
+        # FIXME: units ignored for stroke width
+        set_if('strokeWidth', shape.getStrokeWidth().getValue())
     return rv
 
 def stringToSvg(string):

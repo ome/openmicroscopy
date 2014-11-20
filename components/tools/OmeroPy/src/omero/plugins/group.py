@@ -3,14 +3,14 @@
 """
    Group administration plugin
 
-   Copyright 2009 Glencoe Software, Inc. All rights reserved.
+   Copyright 2009-2014 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
 
 import sys
 
-from omero.cli import UserGroupControl, CLI, ExceptionHandler
+from omero.cli import UserGroupControl, CLI, ExceptionHandler, admin_only
 
 HELP = """Group administration methods"""
 defaultperms = {
@@ -136,16 +136,18 @@ server-permissions.html
         except ValueError, ve:
             self.ctx.die(505, str(ve))
 
+    @admin_only
     def add(self, args):
 
         import omero
-        from omero.rtypes import rstring
+        from omero.rtypes import rbool, rstring
         from omero_model_ExperimenterGroupI import ExperimenterGroupI as Grp
 
         perms = self.parse_perms(args)
         c = self.ctx.conn(args)
         g = Grp()
         g.name = rstring(args.name)
+        g.ldap = rbool(False)
         g.details.permissions = perms
         admin = c.getSession().getAdminService()
         try:
@@ -215,17 +217,17 @@ server-permissions.html
             groups.sort(key=lambda x: x.id.val)
 
         if args.long:
-            tb = TableBuilder("id", "name", "perms", "owner ids",
+            tb = TableBuilder("id", "name", "perms", "ldap", "owner ids",
                               "member ids")
         else:
-            tb = TableBuilder("id", "name", "perms", "# of owners",
+            tb = TableBuilder("id", "name", "perms", "ldap", "# of owners",
                               "# of members")
         if args.style:
             tb.set_style(args.style)
 
         for group in groups:
             row = [group.id.val, group.name.val,
-                   str(group.details.permissions)]
+                   str(group.details.permissions), group.ldap.val]
             ownerids = self.getownerids(group)
             memberids = self.getmemberids(group)
             if args.long:

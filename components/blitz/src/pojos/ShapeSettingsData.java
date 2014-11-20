@@ -22,17 +22,20 @@
  */
 package pojos;
 
-//Java imports
+import static ome.formats.model.UnitsFactory.convertLength;
+import static ome.formats.model.UnitsFactory.makeLength;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 
-//Third-party libraries
-
-//Application-internal dependencies
+import ome.formats.model.UnitsFactory;
+import ome.units.UNITS;
 import omero.RInt;
 import omero.RString;
 import omero.rtypes;
+import omero.model.Length;
+import omero.model.LengthI;
 import omero.model.Shape;
 
 /**
@@ -72,8 +75,8 @@ public class ShapeSettingsData
 	public final static Color DEFAULT_STROKE_COLOUR = new Color(196, 196, 196, 
 			196);
 
-	/** The default font size. */
-	public static final int 	DEFAULT_FONT_SIZE = 12;
+	/** The default font size in "pt". */
+	public static final int DEFAULT_FONT_SIZE = 12;
 	
 	/** The default font family. */
 	public static final String 	DEFAULT_FONT_FAMILY = "sans-serif";
@@ -210,12 +213,13 @@ public class ShapeSettingsData
 	 * 
 	 * @return See above.
 	 */
+	@Deprecated
 	public double getStrokeWidth()
 	{
 		Shape shape = (Shape) asIObject();
-		RInt value = shape.getStrokeWidth();
-		if (value == null) return 1;
-		return value.getValue();
+		Length value = shape.getStrokeWidth();
+		if (value == null) return 1.0;
+		return new LengthI(value, UnitsFactory.Shape_StrokeWidth).getValue();
 	}
 
 	/**
@@ -223,12 +227,13 @@ public class ShapeSettingsData
 	 * 
 	 * @param strokeWidth See above.
 	 */
-	public void setStrokeWidth(double strokeWidth)
+	@Deprecated
+	public void setStrokeWidth(Double strokeWidth)
 	{
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		shape.setStrokeWidth(rtypes.rint((int)strokeWidth));
+		shape.setStrokeWidth(new LengthI(strokeWidth, UnitsFactory.Shape_StrokeWidth));
 		setDirty(true);
 	}
 	
@@ -253,7 +258,7 @@ public class ShapeSettingsData
 	/**
 	 * Set the stroke dashes.
 	 * 
-	 * @param See above.
+	 * @param dashArray See above.
 	 */
 	public void setStrokeDashArray(double [] dashArray)
 	{
@@ -325,7 +330,7 @@ public class ShapeSettingsData
 			style = style | Font.BOLD;
 		if (isFontItalic())
 			style = style | Font.ITALIC;
-		return new Font(getFontFamily(), style, getFontSize());
+		return new Font(getFontFamily(), style, (int) getFontSize());
 	}
 	
 	/**
@@ -345,8 +350,6 @@ public class ShapeSettingsData
 
 	/**
 	 * Returns the stroke.
-	 * 
-	 * @return See above.
 	 */
 	public void setFontFamily(String fontFamily)
 	{
@@ -364,28 +367,28 @@ public class ShapeSettingsData
 	 * 
 	 * @return See above.
 	 */
-	public int getFontSize()
+	@Deprecated
+	public double getFontSize()
 	{
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		RInt size = shape.getFontSize();
-		if (size != null) return size.getValue();
+		Length size = shape.getFontSize();
+		if (size != null) return convertLength(size, UNITS.PT).getValue();
 		return DEFAULT_FONT_SIZE;
 	}
 
-	/**
+    /**
 	 * Set the size of the font.
-	 * 
-	 * @return See above.
 	 */
+	@Deprecated
 	public void setFontSize(int fontSize)
 	{
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		if (fontSize <= 0) fontSize = DEFAULT_FONT_SIZE;
-		shape.setFontSize(rtypes.rint(fontSize));
+		shape.setFontSize(makeLength(fontSize, UNITS.PT));
 		setDirty(true);
 	}
 	
@@ -406,8 +409,6 @@ public class ShapeSettingsData
 
 	/**
 	 * Sets the style of the font.
-	 * 
-	 * @return See above.
 	 */
 	public void setFontStyle(String fontStyle)
 	{
@@ -453,7 +454,7 @@ public class ShapeSettingsData
 	/**
 	 * Returns the marker end.
 	 * 
-	 * @param start The value to set.
+	 * @param end The value to set.
 	 */
 	public String setMarkerEnd(String end)
 	{

@@ -45,6 +45,7 @@
             <fileset dir="src" includes="**/*.py"/>
             <fileset dir="src" includes="omero/gateway/pilfonts/*"/>
             <fileset dir="src" includes="omero/gateway/scripts/imgs/*"/>
+            <fileset dir="${basedir}" includes="omero_version.py"/>
         </copy>
         <if><not><available file="${basedir}/../lib/fallback/IPython"/></not>
         <then>

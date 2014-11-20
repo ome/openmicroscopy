@@ -63,8 +63,6 @@ urlpatterns = patterns('',
     (r'^(?i)url/', include('omeroweb.webredirect.urls')),
     (r'^(?i)feedback/', include('omeroweb.feedback.urls')),
     
-    (r'^(?i)webtest/', include('omeroweb.webtest.urls')),
-
     url( r'^index/$', 'omeroweb.webstart.views.custom_index', name="webindex_custom" ),
 )
 

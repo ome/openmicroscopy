@@ -7,7 +7,11 @@
 
 package integration;
 
+import static omero.rtypes.rbool;
+import static omero.rtypes.rdouble;
+import static omero.rtypes.rlong;
 import static omero.rtypes.rstring;
+import static omero.rtypes.rtime;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
@@ -79,8 +83,6 @@ import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.PermissionsI;
 import omero.model.Pixels;
-import omero.model.PixelsAnnotationLink;
-import omero.model.PixelsAnnotationLinkI;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionAnnotationLink;
@@ -116,13 +118,6 @@ import omero.sys.Roles;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import Glacier2.CannotCreateSessionException;
-import Glacier2.PermissionDeniedException;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Sets;
-
 import pojos.BooleanAnnotationData;
 import pojos.ChannelAcquisitionData;
 import pojos.DoubleAnnotationData;
@@ -133,6 +128,12 @@ import pojos.LongAnnotationData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
 import pojos.XMLAnnotationData;
+import Glacier2.CannotCreateSessionException;
+import Glacier2.PermissionDeniedException;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 
 /**
  * Collections of tests for the <code>IMetadata</code> service.
@@ -340,7 +341,7 @@ public class MetadataServiceTest extends AbstractServerTest {
         String ns = "include";
         FileAnnotationI fa = new FileAnnotationI();
         fa.setFile(of);
-        fa.setNs(omero.rtypes.rstring(ns));
+        fa.setNs(rstring(ns));
         FileAnnotation data = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
         assertNotNull(data);
 
@@ -400,7 +401,7 @@ public class MetadataServiceTest extends AbstractServerTest {
     @Test
     public void testLoadSpecifiedAnnotationsVariousTypes() throws Exception {
         TagAnnotation tag = new TagAnnotationI();
-        tag.setTextValue(omero.rtypes.rstring("tag"));
+        tag.setTextValue(rstring("tag"));
         TagAnnotation tagReturned = (TagAnnotation) iUpdate
                 .saveAndReturnObject(tag);
         Parameters param = new Parameters();
@@ -428,7 +429,7 @@ public class MetadataServiceTest extends AbstractServerTest {
         assertNotNull(tagData);
         // comment
         CommentAnnotation comment = new CommentAnnotationI();
-        comment.setTextValue(omero.rtypes.rstring("comment"));
+        comment.setTextValue(rstring("comment"));
         CommentAnnotation commentReturned = (CommentAnnotation) iUpdate
                 .saveAndReturnObject(comment);
         result = iMetadata.loadSpecifiedAnnotations(
@@ -450,7 +451,7 @@ public class MetadataServiceTest extends AbstractServerTest {
 
         // boolean
         BooleanAnnotation bool = new BooleanAnnotationI();
-        bool.setBoolValue(omero.rtypes.rbool(true));
+        bool.setBoolValue(rbool(true));
         BooleanAnnotation boolReturned = (BooleanAnnotation) iUpdate
                 .saveAndReturnObject(bool);
         result = iMetadata.loadSpecifiedAnnotations(
@@ -472,7 +473,7 @@ public class MetadataServiceTest extends AbstractServerTest {
 
         // long
         LongAnnotation l = new LongAnnotationI();
-        l.setLongValue(omero.rtypes.rlong(1));
+        l.setLongValue(rlong(1));
         LongAnnotation lReturned = (LongAnnotation) iUpdate
                 .saveAndReturnObject(l);
         result = iMetadata.loadSpecifiedAnnotations(
@@ -492,7 +493,7 @@ public class MetadataServiceTest extends AbstractServerTest {
         assertNotNull(lData);
         // double
         DoubleAnnotation d = new DoubleAnnotationI();
-        d.setDoubleValue(omero.rtypes.rdouble(1));
+        d.setDoubleValue(rdouble(1));
         DoubleAnnotation dReturned = (DoubleAnnotation) iUpdate
                 .saveAndReturnObject(d);
         result = iMetadata.loadSpecifiedAnnotations(
@@ -524,13 +525,13 @@ public class MetadataServiceTest extends AbstractServerTest {
 
         // Create a tag set.
         TagAnnotation tagSet = new TagAnnotationI();
-        tagSet.setTextValue(omero.rtypes.rstring("tagSet"));
-        tagSet.setNs(omero.rtypes.rstring(TagAnnotationData.INSIGHT_TAGSET_NS));
+        tagSet.setTextValue(rstring("tagSet"));
+        tagSet.setNs(rstring(TagAnnotationData.INSIGHT_TAGSET_NS));
         TagAnnotation tagSetReturned = (TagAnnotation) iUpdate
                 .saveAndReturnObject(tagSet);
         // create a tag and link it to the tag set
         TagAnnotation tag = new TagAnnotationI();
-        tag.setTextValue(omero.rtypes.rstring("tag"));
+        tag.setTextValue(rstring("tag"));
         TagAnnotation tagReturned = (TagAnnotation) iUpdate
                 .saveAndReturnObject(tag);
         AnnotationAnnotationLinkI link = new AnnotationAnnotationLinkI();
@@ -540,7 +541,7 @@ public class MetadataServiceTest extends AbstractServerTest {
         iUpdate.saveAndReturnObject(link);
 
         ParametersI param = new ParametersI();
-        param.exp(omero.rtypes.rlong(self));
+        param.exp(rlong(self));
         param.noOrphan(); // no tag loaded
 
         List<IObject> result = iMetadata.loadTagSets(param);
@@ -571,13 +572,13 @@ public class MetadataServiceTest extends AbstractServerTest {
 
         // Create a tag set.
         TagAnnotation tagSet = new TagAnnotationI();
-        tagSet.setTextValue(omero.rtypes.rstring("tagSet"));
-        tagSet.setNs(omero.rtypes.rstring(TagAnnotationData.INSIGHT_TAGSET_NS));
+        tagSet.setTextValue(rstring("tagSet"));
+        tagSet.setNs(rstring(TagAnnotationData.INSIGHT_TAGSET_NS));
         TagAnnotation tagSetReturned = (TagAnnotation) iUpdate
                 .saveAndReturnObject(tagSet);
         // create a tag and link it to the tag set
         TagAnnotation tag = new TagAnnotationI();
-        tag.setTextValue(omero.rtypes.rstring("tag"));
+        tag.setTextValue(rstring("tag"));
         TagAnnotation tagReturned = (TagAnnotation) iUpdate
                 .saveAndReturnObject(tag);
         AnnotationAnnotationLinkI link = new AnnotationAnnotationLinkI();
@@ -585,7 +586,7 @@ public class MetadataServiceTest extends AbstractServerTest {
         link.setParent(tagSetReturned);
 
         tag = new TagAnnotationI();
-        tag.setTextValue(omero.rtypes.rstring("tag2"));
+        tag.setTextValue(rstring("tag2"));
         TagAnnotation orphaned = (TagAnnotation) iUpdate
                 .saveAndReturnObject(tag);
 
@@ -595,7 +596,7 @@ public class MetadataServiceTest extends AbstractServerTest {
         tagsIds.add(orphaned.getId().getValue());
 
         ParametersI param = new ParametersI();
-        param.exp(omero.rtypes.rlong(self));
+        param.exp(rlong(self));
         param.orphan(); // no tag loaded
 
         List<IObject> result = iMetadata.loadTagSets(param);
@@ -631,13 +632,13 @@ public class MetadataServiceTest extends AbstractServerTest {
 
         // Create a tag set.
         TagAnnotation tagSet = new TagAnnotationI();
-        tagSet.setTextValue(omero.rtypes.rstring("tagSet"));
-        tagSet.setNs(omero.rtypes.rstring(TagAnnotationData.INSIGHT_TAGSET_NS));
+        tagSet.setTextValue(rstring("tagSet"));
+        tagSet.setNs(rstring(TagAnnotationData.INSIGHT_TAGSET_NS));
         TagAnnotation tagSetReturned = (TagAnnotation) iUpdate
                 .saveAndReturnObject(tagSet);
         // create a tag and link it to the tag set
         TagAnnotation tag = new TagAnnotationI();
-        tag.setTextValue(omero.rtypes.rstring("tag"));
+        tag.setTextValue(rstring("tag"));
         TagAnnotation tagReturned = (TagAnnotation) iUpdate
                 .saveAndReturnObject(tag);
         AnnotationAnnotationLinkI link = new AnnotationAnnotationLinkI();
@@ -647,7 +648,7 @@ public class MetadataServiceTest extends AbstractServerTest {
         iUpdate.saveAndReturnObject(link);
 
         CommentAnnotation comment = new CommentAnnotationI();
-        comment.setTextValue(omero.rtypes.rstring("comment"));
+        comment.setTextValue(rstring("comment"));
         comment = (CommentAnnotation) iUpdate.saveAndReturnObject(comment);
         link = new AnnotationAnnotationLinkI();
         link.setChild(comment);
@@ -655,7 +656,7 @@ public class MetadataServiceTest extends AbstractServerTest {
         iUpdate.saveAndReturnObject(link);
 
         ParametersI param = new ParametersI();
-        param.exp(omero.rtypes.rlong(self));
+        param.exp(rlong(self));
         param.orphan(); // no tag loaded
 
         List<IObject> result = iMetadata.loadTagSets(param);
@@ -696,25 +697,30 @@ public class MetadataServiceTest extends AbstractServerTest {
         String uuid = UUID.randomUUID().toString();
         String uuid2 = UUID.randomUUID().toString();
         Experimenter e1 = new ExperimenterI();
-        e1.setOmeName(omero.rtypes.rstring(uuid));
-        e1.setFirstName(omero.rtypes.rstring("integration"));
-        e1.setLastName(omero.rtypes.rstring("tester"));
+        e1.setOmeName(rstring(uuid));
+        e1.setFirstName(rstring("integration"));
+        e1.setLastName(rstring("tester"));
+        e1.setLdap(rbool(false));
         Experimenter e2 = new ExperimenterI();
-        e2.setOmeName(omero.rtypes.rstring(uuid2));
-        e2.setFirstName(omero.rtypes.rstring("integration"));
-        e2.setLastName(omero.rtypes.rstring("tester"));
+        e2.setOmeName(rstring(uuid2));
+        e2.setFirstName(rstring("integration"));
+        e2.setLastName(rstring("tester"));
+        e2.setLdap(rbool(false));
 
         ExperimenterGroup g = new ExperimenterGroupI();
-        g.setName(omero.rtypes.rstring(uuid));
+        g.setName(rstring(uuid));
+        g.setLdap(rbool(false));
         g.getDetails().setPermissions(new PermissionsI("rwrw--"));
-        svc.createGroup(g);
-        long id1 = svc.createUser(e1, uuid);
-        long id2 = svc.createUser(e2, uuid);
+        g = svc.getGroup(svc.createGroup(g));
+        long id1 = newUserInGroupWithPassword(e1, g, uuid);
+        long id2 = newUserInGroupWithPassword(e2, g, uuid2);
+        svc.setDefaultGroup(svc.getExperimenter(id1), g);
+        svc.setDefaultGroup(svc.getExperimenter(id2), g);
         client = new omero.client();
         ServiceFactoryPrx f = client.createSession(uuid2, uuid2);
         // Create a tag annotation as another user.
         TagAnnotation tag = new TagAnnotationI();
-        tag.setTextValue(omero.rtypes.rstring("tag1"));
+        tag.setTextValue(rstring("tag1"));
         IObject tagData = f.getUpdateService().saveAndReturnObject(tag);
         assertNotNull(tagData);
         // make sure we are not the owner of the tag.
@@ -763,7 +769,7 @@ public class MetadataServiceTest extends AbstractServerTest {
     @Test
     public void testLoadTagContent() throws Exception {
         TagAnnotation tag = new TagAnnotationI();
-        tag.setTextValue(omero.rtypes.rstring("tag1"));
+        tag.setTextValue(rstring("tag1"));
         Annotation tagData = (Annotation) iUpdate.saveAndReturnObject(tag);
         Image img = (Image) iUpdate.saveAndReturnObject(mmFactory
                 .simpleImage());
@@ -789,7 +795,7 @@ public class MetadataServiceTest extends AbstractServerTest {
 
         long self = iAdmin.getEventContext().userId;
         ParametersI param = new ParametersI();
-        param.exp(omero.rtypes.rlong(self));
+        param.exp(rlong(self));
         Map result = iMetadata.loadTagContent(
                 Arrays.asList(tagData.getId().getValue()), param);
         assertNotNull(result);
@@ -1101,13 +1107,13 @@ public class MetadataServiceTest extends AbstractServerTest {
 
         // Create a tag set.
         TagAnnotation tagSet = new TagAnnotationI();
-        tagSet.setTextValue(omero.rtypes.rstring("tagSet"));
-        tagSet.setNs(omero.rtypes.rstring(TagAnnotationData.INSIGHT_TAGSET_NS));
+        tagSet.setTextValue(rstring("tagSet"));
+        tagSet.setNs(rstring(TagAnnotationData.INSIGHT_TAGSET_NS));
         TagAnnotation tagSetReturned = (TagAnnotation) iUpdate
                 .saveAndReturnObject(tagSet);
         // create a tag and link it to the tag set
         TagAnnotation tag = new TagAnnotationI();
-        tag.setTextValue(omero.rtypes.rstring("tag"));
+        tag.setTextValue(rstring("tag"));
         TagAnnotation tagReturned = (TagAnnotation) iUpdate
                 .saveAndReturnObject(tag);
         AnnotationAnnotationLinkI link = new AnnotationAnnotationLinkI();
@@ -1117,13 +1123,13 @@ public class MetadataServiceTest extends AbstractServerTest {
         iUpdate.saveAndReturnObject(link);
 
         tagSet = new TagAnnotationI();
-        tagSet.setTextValue(omero.rtypes.rstring("tagSet"));
-        tagSet.setNs(omero.rtypes.rstring(TagAnnotationData.INSIGHT_TAGSET_NS));
+        tagSet.setTextValue(rstring("tagSet"));
+        tagSet.setNs(rstring(TagAnnotationData.INSIGHT_TAGSET_NS));
         TagAnnotation tagSetReturned_2 = (TagAnnotation) iUpdate
                 .saveAndReturnObject(tagSet);
 
         ParametersI param = new ParametersI();
-        param.exp(omero.rtypes.rlong(self));
+        param.exp(rlong(self));
         param.orphan(); // no tag loaded
 
         List<IObject> result = iMetadata.loadTagSets(param);
@@ -1158,13 +1164,13 @@ public class MetadataServiceTest extends AbstractServerTest {
 
         // Create a tag set.
         TagAnnotation tagSet = new TagAnnotationI();
-        tagSet.setTextValue(omero.rtypes.rstring("tagSet"));
-        tagSet.setNs(omero.rtypes.rstring(TagAnnotationData.INSIGHT_TAGSET_NS));
+        tagSet.setTextValue(rstring("tagSet"));
+        tagSet.setNs(rstring(TagAnnotationData.INSIGHT_TAGSET_NS));
         TagAnnotation tagSetReturned = (TagAnnotation) iUpdate
                 .saveAndReturnObject(tagSet);
         // create a tag and link it to the tag set
         TagAnnotation tag = new TagAnnotationI();
-        tag.setTextValue(omero.rtypes.rstring("tag"));
+        tag.setTextValue(rstring("tag"));
         TagAnnotation tagReturned = (TagAnnotation) iUpdate
                 .saveAndReturnObject(tag);
         AnnotationAnnotationLinkI link = new AnnotationAnnotationLinkI();
@@ -1177,19 +1183,19 @@ public class MetadataServiceTest extends AbstractServerTest {
         List<Long> tagsIds = new ArrayList<Long>();
 
         tag = new TagAnnotationI();
-        tag.setTextValue(omero.rtypes.rstring("tag2"));
+        tag.setTextValue(rstring("tag2"));
         TagAnnotation orphaned = (TagAnnotation) iUpdate
                 .saveAndReturnObject(tag);
         tagsIds.add(orphaned.getId().getValue());
 
         tag = new TagAnnotationI();
-        tag.setNs(omero.rtypes.rstring(""));
-        tag.setTextValue(omero.rtypes.rstring("tag2"));
+        tag.setNs(rstring(""));
+        tag.setTextValue(rstring("tag2"));
         orphaned = (TagAnnotation) iUpdate.saveAndReturnObject(tag);
         tagsIds.add(orphaned.getId().getValue());
 
         ParametersI param = new ParametersI();
-        param.exp(omero.rtypes.rlong(self));
+        param.exp(rlong(self));
         param.orphan(); // no tag loaded
 
         List<IObject> result = iMetadata.loadTagSets(param);
@@ -1278,7 +1284,7 @@ public class MetadataServiceTest extends AbstractServerTest {
         String ns = "include";
         FileAnnotationI fa = new FileAnnotationI();
         fa.setFile(of);
-        fa.setNs(omero.rtypes.rstring(ns));
+        fa.setNs(rstring(ns));
         FileAnnotation data = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
         assertNotNull(data);
 
@@ -1323,7 +1329,7 @@ public class MetadataServiceTest extends AbstractServerTest {
                 .simpleImage());
 
         LongAnnotation data1 = new LongAnnotationI();
-        data1.setLongValue(omero.rtypes.rlong(1L));
+        data1.setLongValue(rlong(1L));
         data1 = (LongAnnotation) iUpdate.saveAndReturnObject(data1);
         ImageAnnotationLink l = new ImageAnnotationLinkI();
         l.setParent((Image) img1.proxy());
@@ -1331,7 +1337,7 @@ public class MetadataServiceTest extends AbstractServerTest {
         iUpdate.saveAndReturnObject(l);
 
         LongAnnotation data2 = new LongAnnotationI();
-        data2.setLongValue(omero.rtypes.rlong(1L));
+        data2.setLongValue(rlong(1L));
         data2 = (LongAnnotation) iUpdate.saveAndReturnObject(data2);
         l = new ImageAnnotationLinkI();
         l.setParent((Image) img2.proxy());
@@ -1340,7 +1346,7 @@ public class MetadataServiceTest extends AbstractServerTest {
 
         // Add a comment annotation
         CommentAnnotation comment = new CommentAnnotationI();
-        comment.setTextValue(omero.rtypes.rstring("comment"));
+        comment.setTextValue(rstring("comment"));
         comment = (CommentAnnotation) iUpdate.saveAndReturnObject(comment);
         l = new ImageAnnotationLinkI();
         l.setParent((Image) img2.proxy());
@@ -1387,7 +1393,7 @@ public class MetadataServiceTest extends AbstractServerTest {
         d2 = (Dataset) iUpdate.saveAndReturnObject(d2);
 
         CommentAnnotation data1 = new CommentAnnotationI();
-        data1.setTextValue(omero.rtypes.rstring("1"));
+        data1.setTextValue(rstring("1"));
         data1 = (CommentAnnotation) iUpdate.saveAndReturnObject(data1);
         DatasetAnnotationLink l = new DatasetAnnotationLinkI();
         l.setParent((Dataset) d1.proxy());
@@ -1395,7 +1401,7 @@ public class MetadataServiceTest extends AbstractServerTest {
         iUpdate.saveAndReturnObject(l);
 
         CommentAnnotation data2 = new CommentAnnotationI();
-        data2.setTextValue(omero.rtypes.rstring("1"));
+        data2.setTextValue(rstring("1"));
         data2 = (CommentAnnotation) iUpdate.saveAndReturnObject(data2);
         l = new DatasetAnnotationLinkI();
         l.setParent((Dataset) d2.proxy());
@@ -1403,7 +1409,7 @@ public class MetadataServiceTest extends AbstractServerTest {
         iUpdate.saveAndReturnObject(l);
 
         LongAnnotation c = new LongAnnotationI();
-        c.setLongValue(omero.rtypes.rlong(1L));
+        c.setLongValue(rlong(1L));
         c = (LongAnnotation) iUpdate.saveAndReturnObject(c);
         l = new DatasetAnnotationLinkI();
         l.setParent((Dataset) d2.proxy());
@@ -1450,7 +1456,7 @@ public class MetadataServiceTest extends AbstractServerTest {
         d2 = (Project) iUpdate.saveAndReturnObject(d2);
 
         TermAnnotation data1 = new TermAnnotationI();
-        data1.setTermValue(omero.rtypes.rstring("Term 1"));
+        data1.setTermValue(rstring("Term 1"));
         data1 = (TermAnnotation) iUpdate.saveAndReturnObject(data1);
         ProjectAnnotationLink l = new ProjectAnnotationLinkI();
         l.setParent((Project) d1.proxy());
@@ -1458,7 +1464,7 @@ public class MetadataServiceTest extends AbstractServerTest {
         iUpdate.saveAndReturnObject(l);
 
         TermAnnotation data2 = new TermAnnotationI();
-        data2.setTermValue(omero.rtypes.rstring("Term 1"));
+        data2.setTermValue(rstring("Term 1"));
         data2 = (TermAnnotation) iUpdate.saveAndReturnObject(data2);
         l = new ProjectAnnotationLinkI();
         l.setParent((Project) d2.proxy());
@@ -1466,7 +1472,7 @@ public class MetadataServiceTest extends AbstractServerTest {
         iUpdate.saveAndReturnObject(l);
 
         LongAnnotation c = new LongAnnotationI();
-        c.setLongValue(omero.rtypes.rlong(1L));
+        c.setLongValue(rlong(1L));
         c = (LongAnnotation) iUpdate.saveAndReturnObject(c);
         l = new ProjectAnnotationLinkI();
         l.setParent((Project) d2.proxy());
@@ -1513,7 +1519,7 @@ public class MetadataServiceTest extends AbstractServerTest {
         d2 = (Screen) iUpdate.saveAndReturnObject(d2);
 
         TagAnnotation data1 = new TagAnnotationI();
-        data1.setTextValue(omero.rtypes.rstring("Tag 1"));
+        data1.setTextValue(rstring("Tag 1"));
         data1 = (TagAnnotation) iUpdate.saveAndReturnObject(data1);
         ScreenAnnotationLink l = new ScreenAnnotationLinkI();
         l.setParent((Screen) d1.proxy());
@@ -1521,7 +1527,7 @@ public class MetadataServiceTest extends AbstractServerTest {
         iUpdate.saveAndReturnObject(l);
 
         TagAnnotation data2 = new TagAnnotationI();
-        data2.setTextValue(omero.rtypes.rstring("Tag 1"));
+        data2.setTextValue(rstring("Tag 1"));
         data2 = (TagAnnotation) iUpdate.saveAndReturnObject(data2);
         l = new ScreenAnnotationLinkI();
         l.setParent((Screen) d2.proxy());
@@ -1529,7 +1535,7 @@ public class MetadataServiceTest extends AbstractServerTest {
         iUpdate.saveAndReturnObject(l);
 
         LongAnnotation c = new LongAnnotationI();
-        c.setLongValue(omero.rtypes.rlong(1L));
+        c.setLongValue(rlong(1L));
         c = (LongAnnotation) iUpdate.saveAndReturnObject(c);
         l = new ScreenAnnotationLinkI();
         l.setParent((Screen) d2.proxy());
@@ -1576,7 +1582,7 @@ public class MetadataServiceTest extends AbstractServerTest {
         d2 = (Plate) iUpdate.saveAndReturnObject(d2);
 
         BooleanAnnotation data1 = new BooleanAnnotationI();
-        data1.setBoolValue(omero.rtypes.rbool(true));
+        data1.setBoolValue(rbool(true));
         data1 = (BooleanAnnotation) iUpdate.saveAndReturnObject(data1);
         PlateAnnotationLink l = new PlateAnnotationLinkI();
         l.setParent((Plate) d1.proxy());
@@ -1584,7 +1590,7 @@ public class MetadataServiceTest extends AbstractServerTest {
         iUpdate.saveAndReturnObject(l);
 
         BooleanAnnotation data2 = new BooleanAnnotationI();
-        data1.setBoolValue(omero.rtypes.rbool(true));
+        data1.setBoolValue(rbool(true));
         data2 = (BooleanAnnotation) iUpdate.saveAndReturnObject(data2);
         l = new PlateAnnotationLinkI();
         l.setParent((Plate) d2.proxy());
@@ -1592,7 +1598,7 @@ public class MetadataServiceTest extends AbstractServerTest {
         iUpdate.saveAndReturnObject(l);
 
         LongAnnotation c = new LongAnnotationI();
-        c.setLongValue(omero.rtypes.rlong(1L));
+        c.setLongValue(rlong(1L));
         c = (LongAnnotation) iUpdate.saveAndReturnObject(c);
         l = new PlateAnnotationLinkI();
         l.setParent((Plate) d2.proxy());
@@ -1644,7 +1650,7 @@ public class MetadataServiceTest extends AbstractServerTest {
         d2 = (PlateAcquisition) iUpdate.saveAndReturnObject(d2);
 
         XmlAnnotation data1 = new XmlAnnotationI();
-        data1.setTextValue(omero.rtypes.rstring("xml annotation"));
+        data1.setTextValue(rstring("xml annotation"));
         data1 = (XmlAnnotation) iUpdate.saveAndReturnObject(data1);
         PlateAcquisitionAnnotationLink l = new PlateAcquisitionAnnotationLinkI();
         l.setParent((PlateAcquisition) d1.proxy());
@@ -1652,7 +1658,7 @@ public class MetadataServiceTest extends AbstractServerTest {
         iUpdate.saveAndReturnObject(l);
 
         XmlAnnotation data2 = new XmlAnnotationI();
-        data1.setTextValue(omero.rtypes.rstring("xml annotation"));
+        data1.setTextValue(rstring("xml annotation"));
         data2 = (XmlAnnotation) iUpdate.saveAndReturnObject(data2);
         l = new PlateAcquisitionAnnotationLinkI();
         l.setParent((PlateAcquisition) d2.proxy());
@@ -1660,7 +1666,7 @@ public class MetadataServiceTest extends AbstractServerTest {
         iUpdate.saveAndReturnObject(l);
 
         LongAnnotation c = new LongAnnotationI();
-        c.setLongValue(omero.rtypes.rlong(1L));
+        c.setLongValue(rlong(1L));
         c = (LongAnnotation) iUpdate.saveAndReturnObject(c);
         l = new PlateAcquisitionAnnotationLinkI();
         l.setParent((PlateAcquisition) d2.proxy());
@@ -1729,7 +1735,7 @@ public class MetadataServiceTest extends AbstractServerTest {
         iUpdate.saveAndReturnObject(l);
 
         LongAnnotation c = new LongAnnotationI();
-        c.setLongValue(omero.rtypes.rlong(1L));
+        c.setLongValue(rlong(1L));
         c = (LongAnnotation) iUpdate.saveAndReturnObject(c);
         l = new WellAnnotationLinkI();
         l.setParent((Well) w2.proxy());
@@ -1772,8 +1778,8 @@ public class MetadataServiceTest extends AbstractServerTest {
                 .simpleImage());
 
         XmlAnnotation data1 = new XmlAnnotationI();
-        data1.setTextValue(omero.rtypes.rstring("with modulo ns"));
-        data1.setNs(omero.rtypes.rstring(XMLAnnotationData.MODULO_NS));
+        data1.setTextValue(rstring("with modulo ns"));
+        data1.setNs(rstring(XMLAnnotationData.MODULO_NS));
         data1 = (XmlAnnotation) iUpdate.saveAndReturnObject(data1);
         ImageAnnotationLink l = new ImageAnnotationLinkI();
         l.setParent((Image) img1.proxy());
@@ -1781,7 +1787,7 @@ public class MetadataServiceTest extends AbstractServerTest {
         iUpdate.saveAndReturnObject(l);
 
         XmlAnnotation data2 = new XmlAnnotationI();
-        data2.setTextValue(omero.rtypes.rstring("w/o modulo ns"));
+        data2.setTextValue(rstring("w/o modulo ns"));
         data2 = (XmlAnnotation) iUpdate.saveAndReturnObject(data2);
         l = new ImageAnnotationLinkI();
         l.setParent((Image) img1.proxy());
@@ -1822,67 +1828,6 @@ public class MetadataServiceTest extends AbstractServerTest {
     }
 
     /**
-     * Tests the retrieval of a specified long annotation linked to pixels.
-     *
-     * @throws Exception
-     *             Thrown if an error occurred.
-     */
-    @Test
-    public void testLoadSpecifiedAnnotationLinkedToPixels() throws Exception {
-        Image img1 = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .createImage());
-        Image img2 = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .createImage());
-        Pixels px1 = img1.getPrimaryPixels();
-        Pixels px2 = img2.getPrimaryPixels();
-
-        LongAnnotation data1 = new LongAnnotationI();
-        data1.setLongValue(omero.rtypes.rlong(1L));
-        data1 = (LongAnnotation) iUpdate.saveAndReturnObject(data1);
-        PixelsAnnotationLink l = new PixelsAnnotationLinkI();
-        l.setParent((Pixels) px1.proxy());
-        l.setChild((Annotation) data1.proxy());
-        iUpdate.saveAndReturnObject(l);
-
-        LongAnnotation data2 = new LongAnnotationI();
-        data2.setLongValue(omero.rtypes.rlong(1L));
-        data2 = (LongAnnotation) iUpdate.saveAndReturnObject(data2);
-        l = new PixelsAnnotationLinkI();
-        l.setParent((Pixels) px2.proxy());
-        l.setChild((Annotation) data2.proxy());
-        iUpdate.saveAndReturnObject(l);
-
-        // Add a comment annotation
-        CommentAnnotation comment = new CommentAnnotationI();
-        comment.setTextValue(omero.rtypes.rstring("comment"));
-        comment = (CommentAnnotation) iUpdate.saveAndReturnObject(comment);
-        l = new PixelsAnnotationLinkI();
-        l.setParent((Pixels) px2.proxy());
-        l.setChild((Annotation) comment.proxy());
-        iUpdate.saveAndReturnObject(l);
-
-        Parameters param = new Parameters();
-        List<String> include = new ArrayList<String>();
-        List<String> exclude = new ArrayList<String>();
-
-        Map<Long, List<Annotation>> map = iMetadata
-                .loadSpecifiedAnnotationsLinkedTo(LongAnnotation.class
-                        .getName(), include, exclude, Pixels.class.getName(),
-                        Arrays.asList(px1.getId().getValue(), px2.getId()
-                                .getValue()), param);
-
-        assertNotNull(map);
-
-        assertEquals(map.size(), 2);
-        List<Annotation> result = map.get(px1.getId().getValue());
-        assertEquals(result.size(), 1);
-        assertEquals(result.get(0).getId().getValue(), data1.getId().getValue());
-        result = map.get(px2.getId().getValue());
-        assertEquals(result.size(), 1);
-        assertEquals(result.get(0).getId().getValue(), data2.getId().getValue());
-    }
-
-    /**
      * Creates a new finished upload job, without persisting it.
      * @return the new job
      * @throws ServerError unexpected
@@ -1890,15 +1835,15 @@ public class MetadataServiceTest extends AbstractServerTest {
     private UploadJob getNewUploadJob() throws ServerError {
         final Roles roles = iAdmin.getSecurityRoles();
         final UploadJob uploadJob = new UploadJobI();
-        uploadJob.setUsername(omero.rtypes.rstring(roles.rootName));
-        uploadJob.setGroupname(omero.rtypes.rstring(roles.systemGroupName));
-        uploadJob.setSubmitted(omero.rtypes.rtime(System.currentTimeMillis()));
-        uploadJob.setScheduledFor(omero.rtypes.rtime(System.currentTimeMillis()));
-        uploadJob.setStarted(omero.rtypes.rtime(System.currentTimeMillis()));
-        uploadJob.setFinished(omero.rtypes.rtime(System.currentTimeMillis()));
-        uploadJob.setMessage(omero.rtypes.rstring(getClass().getSimpleName()));
+        uploadJob.setUsername(rstring(roles.rootName));
+        uploadJob.setGroupname(rstring(roles.systemGroupName));
+        uploadJob.setSubmitted(rtime(System.currentTimeMillis()));
+        uploadJob.setScheduledFor(rtime(System.currentTimeMillis()));
+        uploadJob.setStarted(rtime(System.currentTimeMillis()));
+        uploadJob.setFinished(rtime(System.currentTimeMillis()));
+        uploadJob.setMessage(rstring(getClass().getSimpleName()));
         uploadJob.setStatus((JobStatus) factory.getTypesService().getEnumeration(JobStatus.class.getName(), JobHandle.FINISHED));
-        uploadJob.setType(omero.rtypes.rstring("Test"));
+        uploadJob.setType(rstring("Test"));
         return uploadJob;
     }
 
@@ -1941,16 +1886,16 @@ public class MetadataServiceTest extends AbstractServerTest {
         final long uploadJob2Id = uploadJob2.getId().getValue();
 
         OriginalFile importLog1 = new OriginalFileI();
-        importLog1.setMimetype(omero.rtypes.rstring("application/omero-log-file"));
-        importLog1.setName(omero.rtypes.rstring("import log"));
-        importLog1.setPath(omero.rtypes.rstring("import one"));
+        importLog1.setMimetype(rstring("application/omero-log-file"));
+        importLog1.setName(rstring("import log"));
+        importLog1.setPath(rstring("import one"));
         importLog1 = (OriginalFile) iUpdate.saveAndReturnObject(importLog1);
         final long importLog1Id = importLog1.getId().getValue();
 
         OriginalFile importLog2 = new OriginalFileI();
-        importLog2.setMimetype(omero.rtypes.rstring("application/omero-log-file"));
-        importLog2.setName(omero.rtypes.rstring("import log"));
-        importLog2.setPath(omero.rtypes.rstring("import two"));
+        importLog2.setMimetype(rstring("application/omero-log-file"));
+        importLog2.setName(rstring("import log"));
+        importLog2.setPath(rstring("import two"));
         importLog2 = (OriginalFile) iUpdate.saveAndReturnObject(importLog2);
         final long importLog2Id = importLog2.getId().getValue();
 
@@ -1980,19 +1925,19 @@ public class MetadataServiceTest extends AbstractServerTest {
         final long fileset2Id = fileset2.getId().getValue();
 
         Image image1 = new ImageI();
-        image1.setName(omero.rtypes.rstring("image alpha from fileset one"));
+        image1.setName(rstring("image alpha from fileset one"));
         image1.setFileset(fileset1);
         image1 = (Image) iUpdate.saveAndReturnObject(image1);
         final long image1Id = image1.getId().getValue();
 
         Image image2 = new ImageI();
-        image2.setName(omero.rtypes.rstring("image alpha from fileset two"));
+        image2.setName(rstring("image alpha from fileset two"));
         image2.setFileset(fileset2);
         image2 = (Image) iUpdate.saveAndReturnObject(image2);
         final long image2Id = image2.getId().getValue();
 
         Image image3 = new ImageI();
-        image3.setName(omero.rtypes.rstring("image beta from fileset two"));
+        image3.setName(rstring("image beta from fileset two"));
         image3.setFileset(fileset2);
         image3 = (Image) iUpdate.saveAndReturnObject(image3);
         final long image3Id = image3.getId().getValue();

@@ -147,7 +147,10 @@ public final class SplashScreenInit
         
         boolean b = false;
         Integer v = (Integer) reg.lookup(LookupNames.ENTRY_POINT);
-		if (v != null) b = v.intValue() != LookupNames.EDITOR_ENTRY;
+		if (v != null) {
+		    b = v.intValue() == LookupNames.INSIGHT_ENTRY ||
+	                    v.intValue() == LookupNames.IMPORTER_ENTRY;
+		}
         if (!b) {
         	splashScreen.close();
         	return;

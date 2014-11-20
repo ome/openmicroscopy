@@ -145,7 +145,7 @@
         gs_modalJson(viewport.viewport_server + '/saveImgRDef/'+viewport.loadedImg.id+'/?'+viewport.getQuery(true),
             {},
             function(success, rv) {
-                $(obj).html(old).attr('disabled', false);
+                $(obj).html(old).prop('disabled', false);
                 if (!(success && rv)) {
                     alert('Setting image defaults failed.');
                 }
@@ -207,7 +207,7 @@
         $('#wblitz-t-count').html(viewport.getTCount());
         $('#wblitz-z-count').html(viewport.getZCount());
 
-        if (viewport.hasLinePlot() || $('#wblitz-lp-enable').attr('checked')) {
+        if (viewport.hasLinePlot() || $('#wblitz-lp-enable').prop('checked')) {
             viewport.refreshPlot();
         }
     };
@@ -239,31 +239,27 @@
         hidePicker();
 
         updateUndoRedo(viewport);
-        $('#rd-wblitz-rmodel').attr('checked', viewport.isGreyModel());
+        $('#rd-wblitz-rmodel').prop('checked', viewport.isGreyModel());
         syncChannelsActive(viewport);
     };
 
     window.updateUndoRedo = function(viewport) {
         // update disabled status of undo/redo buttons
         if (viewport.has_channels_undo()) {
-            $('#rdef-undo-btn').removeClass('button-disabled')
-                .removeAttr('disabled');
+            $('#rdef-undo-btn').prop('disabled', false);
         } else {
-            $('#rdef-undo-btn').addClass('button-disabled')
-                .attr('disabled', 'disabled');
+            $('#rdef-undo-btn').prop('disabled', true);
         }
         if (viewport.has_channels_redo()) {
-            $('#rdef-redo-btn').removeClass('button-disabled')
-                .removeAttr('disabled');
+            $('#rdef-redo-btn').prop('disabled', false);
         } else {
-            $('#rdef-redo-btn').addClass('button-disabled')
-                .attr('disabled', 'disabled');
+            $('#rdef-redo-btn').prop('disabled', true);
         }
         var canSaveRdef = viewport.loadedImg.perms.canAnnotate;
         if (viewport.getSaved() || !canSaveRdef) {
-            $("#rdef-setdef-btn").attr('disabled', 'disabled');
+            $("#rdef-setdef-btn").prop('disabled', true);
         } else {
-            $("#rdef-setdef-btn").removeAttr('disabled');
+            $("#rdef-setdef-btn").prop('disabled', false);
         }
     };
 
@@ -303,14 +299,14 @@
     window._refresh_cb = function (ev, viewport) {
         /* Sync inputs with initial values */
 
-        $('#wblitz-rmodel').attr('checked', viewport.isGreyModel());
-        $('#wblitz-invaxis').attr('checked', viewport.loadedImg.rdefs.invertAxis);
+        $('#wblitz-rmodel').prop('checked', viewport.isGreyModel());
+        $('#wblitz-invaxis').prop('checked', viewport.loadedImg.rdefs.invertAxis);
 
         var q = viewport.getQuality();
         if (q) {
-            var qr = $('#wblitz-quality > [value="+q.toFixed(1)+"]');
+            var qr = $('#wblitz-quality > option[value="' + q.toFixed(1) + '"]');
             if (qr.length) {
-                qr.attr('selected','selected');
+                qr.prop('selected',true);
             }
         }
 
@@ -338,7 +334,7 @@
 
         // disable 'split' view for single channel images.
         if (channels.length < 2) {
-            $("input[value='split']").attr('disabled', 'disabled');
+            $("#wblitz input[value='split']").prop('disabled', true);
         }
 
         /* Image details */
@@ -434,10 +430,24 @@
                 show_change($('#wblitz-ch'+i+'-cw-end').get(0), channels[i].window.end, 'changed');
             };
         };
+        var slide_start_cb = function() {
+            // Note starting values, so we can tell which handle/value changed
+            // This is for floating point data where ui.values may not be what we set
+            return function(event, ui) {
+                $(this).data('channel_start', ui.values[0])
+                    .data('channel_end', ui.values[1]);
+            };
+        };
         var slide_cb = function() {
             return function(event, ui) {
-                $('#wblitz-ch'+$(event.target).data('channel-idx')+'-cw-start').val(ui.values[0]).change();
-                $('#wblitz-ch'+$(event.target).data('channel-idx')+'-cw-end').val(ui.values[1]).change();
+                // Only update the value that changed
+                var s = $(this).data('channel_start');
+                var e = $(this).data('channel_end');
+                if (ui.values[0] !== s) {
+                    $('#wblitz-ch'+$(event.target).data('channel-idx')+'-cw-start').val(ui.values[0]).change();
+                } else if (ui.values[1] !== e) {
+                    $('#wblitz-ch'+$(event.target).data('channel-idx')+'-cw-end').val(ui.values[1]).change();
+                }
             };
         };
         var stop_cb = function() {
@@ -453,6 +463,30 @@
             };
         };
 
+        var init_ch_slider = function(i, channels) {
+            var min = Math.min(channels[i].window.min, channels[i].window.start),  // range may extend outside min/max pixel
+                max = Math.max(channels[i].window.max, channels[i].window.end),
+                start = channels[i].window.start,
+                end = channels[i].window.end,
+                ptype = viewport.loadedImg.meta.pixelsType,
+                step = 1;
+            if (ptype == "float") {
+                var STEPS = 100;
+                step = (max - min) / STEPS;
+            }
+
+            $('#wblitz-ch'+i+'-cwslider').slider({
+                range: true,
+                step: step,
+                min: min,
+                max: max,
+                values: [ start, end ],
+                start: slide_start_cb(),
+                slide: slide_cb(),
+                stop: stop_cb(),
+                }).data('channel-idx', i);
+        };
+
         for (i=channels.length-1; i>=0; i--) {
 
             var btnClass = channels[i].active?'pressed':'';
@@ -460,8 +494,10 @@
                 btnClass += " fontWhite";
             }
 
-            var lbl = channels[i].label.slice(0, 4);
-            lbl = lbl + (channels[i].label.length > 4 ? ".." : "");
+            var lbl = channels[i].label;
+            if (lbl.length > 7) {
+                lbl = lbl.slice(0, 5) + "...";
+            }
             tmp.after(template
                 .replace(/\$class/g, btnClass)
                 .replace(/\$col/g, rgbToHex(channels[i].color))
@@ -478,14 +514,7 @@
                 template: '<td width="10%"><span class="min" title="min: $min">$start</span></td><td><div class="rangeslider" id="wblitz-ch'+i+'-cwslider"></div></td> <td width="10%"><span class="max" title="max: $max">$end</span></td>',
                 lblStart: '',
                 lblEnd: ''});
-            $('#wblitz-ch'+i+'-cwslider').slider({
-                range: true,
-                min: Math.min(channels[i].window.min, channels[i].window.start+1),  // range may extend outside min/max pixel
-                max: Math.max(channels[i].window.max, channels[i].window.end-1),
-                values: [ channels[i].window.start+1, channels[i].window.end-1 ],
-                slide: slide_cb(),
-                stop: stop_cb(),
-                }).data('channel-idx', i);
+            init_ch_slider(i, channels);
             $('#wblitz-ch'+i+'-cw-start').val(channels[i].window.start).unbind('change').bind('change', start_cb(i));
             $('#wblitz-ch'+i+'-cw-start').keyup(keyup_cb());
             $('#wblitz-ch'+i+'-cw-end').val(channels[i].window.end).unbind('change').bind('change', end_cb(i));
@@ -508,7 +537,7 @@
                   offset = t.offset();
                   offset.left += t.width();
                 } else {
-                  offset = {'top':'200px', 'right': '300px'};
+                  offset = {'top':'300px', 'left': window.innerWidth-250+'px'};
                 }
                 $('#cbpicker-box').css(offset);
                 $('.picker-selected').html('&nbsp;');

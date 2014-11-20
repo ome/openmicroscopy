@@ -92,13 +92,6 @@
         </copy>
         <copy todir="${target.dir}">
             <fileset dir="${basedir}/OUT/dist"
-                     includes="OMERO.editor-${omero.version}-*.zip"/>
-            <mapper type="regexp"
-                    from="^OMERO.editor-${omero.version}-(.*).zip"
-                    to="editor-\1.zip"/>
-        </copy>
-        <copy todir="${target.dir}">
-            <fileset dir="${basedir}/OUT/dist"
                      includes="OMERO.importer-${omero.version}-*.zip"/>
             <mapper type="regexp"
                     from="^OMERO.importer-${omero.version}-(.*).zip"

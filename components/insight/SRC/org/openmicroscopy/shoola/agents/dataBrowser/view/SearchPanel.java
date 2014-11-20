@@ -48,7 +48,6 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.JToolBar;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
@@ -101,48 +100,6 @@ public class SearchPanel extends JPanel {
     private static final String DATE_TOOLTIP = "<html>Please select a date from the drop-down menu or enter<br> a date in the format YYYY-MM-DD (e. g. 2014-07-10)</html>";
  
     private static final String DATE_TYPE_TOOLTIP = "Select the type of date (Acquisition date applies to images only)";
-    
-    /** Possible time options. */
-    private static String[] dateOptions;
-
-    /** The maximum number of results returned. */
-    private static String[] numberOfResults;
-
-    /** The file formats. */
-    private static String[] fileFormats;
-
-    static {
-        dateOptions = new String[SearchContext.MAX + 1];
-        dateOptions[SearchContext.ANY_DATE] = "Any date";
-        dateOptions[SearchContext.LAST_TWO_WEEKS] = "Last two weeks";
-        dateOptions[SearchContext.LAST_MONTH] = "Last 30 days";
-        dateOptions[SearchContext.LAST_TWO_MONTHS] = "Last 60 days";
-        dateOptions[SearchContext.ONE_YEAR] = "1 year";
-        dateOptions[SearchContext.RANGE] = "Specify date range " + "("
-                + UIUtilities.DATE_FORMAT.toUpperCase() + ")";
-        numberOfResults = new String[SearchContext.MAX_RESULTS + 1];
-        numberOfResults[SearchContext.LEVEL_ONE] = SearchContext.LEVEL_ONE_VALUE
-                + " results";
-        numberOfResults[SearchContext.LEVEL_TWO] = SearchContext.LEVEL_TWO_VALUE
-                + " results";
-        numberOfResults[SearchContext.LEVEL_THREE] = SearchContext.LEVEL_THREE_VALUE
-                + " results";
-        numberOfResults[SearchContext.LEVEL_FOUR] = SearchContext.LEVEL_FOUR_VALUE
-                + " results";
-
-        fileFormats = new String[SearchContext.MAX_FORMAT + 1];
-        fileFormats[SearchContext.ALL_FORMATS] = "All formats";
-        fileFormats[SearchContext.HTML] = "HTML (.htm, .html)";
-        fileFormats[SearchContext.PDF] = "Adobe PDF (.pdf)";
-        fileFormats[SearchContext.EXCEL] = "Microsoft Excel (.xls)";
-        fileFormats[SearchContext.POWER_POINT] = "Microsoft PowerPoint (.ppt)";
-        fileFormats[SearchContext.WORD] = "Microsoft Word (.doc)";
-        fileFormats[SearchContext.XML] = "RSS/XML (.xml)";
-        fileFormats[SearchContext.TEXT] = "Text Format (.txt)";
-    }
-
-    /** Possible dates. */
-    private JComboBox dates;
 
     /** The terms to search for. */
     private JTextField fullTextArea;
@@ -215,16 +172,25 @@ public class SearchPanel extends JPanel {
         fromDate.setBackground(UIUtilities.BACKGROUND_COLOR);
         fromDate.addPropertyChangeListener("date",
                 new PropertyChangeListener() {
-
                     @Override
                     public void propertyChange(PropertyChangeEvent evt) {
                         Date d = (Date) evt.getNewValue();
-                        if (d != null && d.after(new Date())) {
-                            UserNotifier un = DataBrowserAgent.getRegistry()
-                                    .getUserNotifier();
-                            un.notifyWarning("Invalid Date",
-                                    "Selecting a future 'From' date doesn't make any sense.");
-                            fromDate.setDate(null);
+                        if (d != null) {
+                            if (d.after(new Date())) {
+                                UserNotifier un = DataBrowserAgent
+                                        .getRegistry().getUserNotifier();
+                                un.notifyWarning("Invalid Date",
+                                        "Selecting a future 'From' date doesn't make any sense.");
+                                fromDate.setDate(null);
+                            }
+                            if (toDate.getDate() != null
+                                    && d.after(toDate.getDate())) {
+                                UserNotifier un = DataBrowserAgent
+                                        .getRegistry().getUserNotifier();
+                                un.notifyWarning("Invalid Date",
+                                        "Cannot set a 'From' date which is more recent than the 'To' date.");
+                                fromDate.setDate(null);
+                            }
                         }
                     }
                 });
@@ -233,6 +199,21 @@ public class SearchPanel extends JPanel {
         toDate = UIUtilities.createDatePicker(true, DATE_PICKER_FORMAT);
         toDate.setBackground(UIUtilities.BACKGROUND_COLOR);
         toDate.setToolTipText(DATE_TOOLTIP);
+        toDate.addPropertyChangeListener("date", new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                Date d = (Date) evt.getNewValue();
+                if (d != null) {
+                    if (fromDate.getDate() != null && d.before(fromDate.getDate())) {
+                        UserNotifier un = DataBrowserAgent.getRegistry()
+                                .getUserNotifier();
+                        un.notifyWarning("Invalid Date",
+                                "Cannot set a 'To' date which is prior to the 'From' date.");
+                        toDate.setDate(null);
+                    }
+                }
+            }
+        });
         
         clearDate = new JButton(icons.getIcon(IconManager.CLOSE));
         clearDate.setToolTipText("Reset the dates");
@@ -256,10 +237,6 @@ public class SearchPanel extends JPanel {
             }
         });
 
-        dates = new JComboBox(dateOptions);
-        dates.setBackground(UIUtilities.BACKGROUND_COLOR);
-        dates.addActionListener(model);
-        dates.setActionCommand("" + SearchComponent.DATE);
 
         helpBasicButton = new JButton(icons.getIcon(IconManager.HELP));
         helpBasicButton.setToolTipText("Search Tips.");
@@ -271,10 +248,6 @@ public class SearchPanel extends JPanel {
         SearchContext ctx = model.getSearchContext();
         if (ctx == null)
             return;
-
-        int dateIndex = ctx.getDateIndex();
-        if (dateIndex != -1)
-            dates.setSelectedIndex(dateIndex);
     }
 
     /**

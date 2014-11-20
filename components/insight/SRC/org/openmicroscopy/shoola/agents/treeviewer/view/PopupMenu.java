@@ -123,9 +123,6 @@ class PopupMenu
 	/** Button to reset default Rnd settings. */
 	private JMenuItem resetRndElement;
 	
-	/** Button to set the min/max for each channel. */
-	private JMenuItem setMinMaxElement;
-	
 	/** Button to reset default Rnd settings. */
 	private JMenuItem setOwnerRndElement;
 	
@@ -162,14 +159,8 @@ class PopupMenu
 	/** Button to view an Image. */
 	private JMenuItem view;
 	
-	/** Button to open the Editor. */
-	private JMenuItem editFile;
-	
 	/** Button to open the Tag wizard. */
 	private JMenuItem tagElement;
-	
-	/** Button to open the new Editor. */
-	private JMenuItem newExperimentElement;
 	
 	/** Button to view an Image using plug-in. */
 	private JMenuItem viewInPlugin;
@@ -258,10 +249,6 @@ class PopupMenu
 					viewInPlugin = new JMenuItem(a);
 					initMenuItem(viewInPlugin, a.getActionName());
 				}
-				a = controller.getAction(
-						TreeViewerControl.EDITOR_WITH_SELECTION);
-				editFile = new JMenuItem(a);
-				initMenuItem(editFile, a.getActionName());
 				a = controller.getAction(TreeViewerControl.DOWNLOAD);
 				downloadElement = new JMenuItem(a);
 				initMenuItem(downloadElement, a.getActionName());
@@ -318,18 +305,11 @@ class PopupMenu
 				resetRndElement = new JMenuItem(a);
 				initMenuItem(resetRndElement, a.getActionName());
 				a = controller.getAction(TreeViewerControl.SET_RND_SETTINGS);
-				setMinMaxElement = new JMenuItem(a);
-				initMenuItem(setMinMaxElement, a.getActionName());
 				a = controller.getAction(
 						TreeViewerControl.SET_OWNER_RND_SETTINGS);
 				setOwnerRndElement = new JMenuItem(a);
 				initMenuItem(setOwnerRndElement, a.getActionName());
-				
-				a = controller.getAction(
-						TreeViewerControl.EDITOR_NEW_WITH_SELECTION);
-				newExperimentElement = new JMenuItem(a);
-				initMenuItem(newExperimentElement, a.getActionName());
-				
+
 				a = controller.getAction(TreeViewerControl.CREATE_TOP_PROJECT);
 				createProject = new JMenuItem(a);
 				initMenuItem(createProject, a.getActionName());
@@ -535,7 +515,6 @@ class PopupMenu
 		menu.add(copyRndElement);
 		menu.add(pasteRndElement);
 		menu.add(resetRndElement);
-		menu.add(setMinMaxElement);
 		menu.add(setOwnerRndElement);
 		return menu;
 	}
@@ -556,7 +535,6 @@ class PopupMenu
 					add(menu);
 				} else add(view);
 				add(openWithMenu);
-				add(editFile);
 				add(downloadElement);
 				add(new JSeparator(JSeparator.HORIZONTAL));
 				add(importElement);
@@ -567,7 +545,6 @@ class PopupMenu
 				if (m != null) add(m);
 				add(new JSeparator(JSeparator.HORIZONTAL));
 				add(tagElement);
-				add(newExperimentElement);
 				add(new JSeparator(JSeparator.HORIZONTAL));
 				add(buildRenderingSettingsMenu());
 				add(removeGroupElement);

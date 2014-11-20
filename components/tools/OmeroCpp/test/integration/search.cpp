@@ -5,12 +5,16 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  *
  */
+
+#include <omero/IceNoWarnPush.h>
 #include <IceUtil/UUID.h>
 #include <Glacier2/Glacier2.h>
-#include <omero/fixture.h>
-#include <time.h>
 #include <omero/Collections.h>
 #include <omero/api/IAdmin.h>
+#include <omero/IceNoWarnPop.h>
+
+#include <omero/fixture.h>
+#include <time.h>
 #include <omero/model/ImageI.h>
 #include <omero/model/ImageAnnotationLinkI.h>
 #include <omero/model/BooleanAnnotationI.h>
@@ -30,33 +34,37 @@ using namespace omero::model;
 using namespace omero::rtypes;
 using namespace omero::sys;
 
-void byAnnotatedWith(SearchPrx search, AnnotationPtr a) {
+static void byAnnotatedWith(SearchPrx search, AnnotationPtr a) {
     omero::api::AnnotationList list;
     list.push_back(a);
     search->byAnnotatedWith(list);
 }
-omero::sys::LongList ids(long id){
+
+static omero::sys::LongList ids(long id){
     omero::sys::LongList ll;
     ll.push_back(id);
     return ll;
 }
-omero::sys::LongList ids(long id, long id2){
+
+static omero::sys::LongList ids(long id, long id2){
     omero::sys::LongList ll = ids(id);
     ll.push_back(id2);
     return ll;
 }
-StringSet stringSet(string s) {
+
+static StringSet stringSet(string s) {
     StringSet ss;
     ss.push_back(s);
     return ss;
 }
-StringSet stringSet(string s, string s2){
+
+static StringSet stringSet(string s, string s2){
     StringSet ss = stringSet(s);
     ss.push_back(s2);
     return ss;
 }
 
-StringSet stringSet(string s, string s2, string s3){
+static StringSet stringSet(string s, string s2, string s3){
     StringSet ss = stringSet(s, s2);
     ss.push_back(s3);
     return ss;
@@ -104,7 +112,7 @@ public:
 /*
  * Clears one result from the current queue.
  */
-void
+static void
 assertResults(int count, SearchPrx& search, bool exact = true)
 {
     if (count > 0) {
@@ -121,13 +129,13 @@ assertResults(int count, SearchPrx& search, bool exact = true)
     }
 }
 
-void
+static void
 assertAtLeastResults(int count, SearchPrx& search)
 {
   assertResults(count, search, false);
 }
 
-TEST(SearchTest, RootSearch )
+TEST(SearchTest, DISABLED_RootSearch)
 {
     try {
         SearchFixture f;
@@ -149,7 +157,7 @@ TEST(SearchTest, RootSearch )
     }
 }
 
-TEST(SearchTest, IQuerySearch )
+TEST(SearchTest, DISABLED_IQuerySearch)
 {
     SearchFixture f;
     f.login();
@@ -170,7 +178,7 @@ TEST(SearchTest, IQuerySearch )
 }
 
 
-TEST(SearchTest, Filtering )
+TEST(SearchTest, DISABLED_Filtering)
 {
     try {
         SearchFixture f;
@@ -238,7 +246,7 @@ TEST(SearchTest, Filtering )
 // This section tests each query method with various combinations of
 // restrictions
 
-TEST( SearchTest, testByGroupForTags ) {
+TEST( SearchTest, DISABLED_testByGroupForTags) {
     try {
     // Set up user and group
     SearchFixture f;
@@ -327,7 +335,7 @@ TEST( SearchTest, testByGroupForTags ) {
     }
 }
 
-TEST(SearchTest, testByTagForGroup ) {
+TEST(SearchTest, DISABLED_testByTagForGroup) {
     try {
     // Set up user and group
     SearchFixture f;
@@ -417,7 +425,7 @@ TEST(SearchTest, testByTagForGroup ) {
     }
 }
 
-TEST(SearchTest, testSimpleFullTextSearch ) {
+TEST(SearchTest, DISABLED_testSimpleFullTextSearch) {
 
     try {
     SearchFixture f;
@@ -465,12 +473,12 @@ namespace
             v.push_back(s1);
         if (s2)
             v.push_back(s2);
-    
+
         return v;
     }
 }
 
-TEST(SearchTest, testSomeMustNone ) {
+TEST(SearchTest, DISABLED_testSomeMustNone) {
     SearchFixture f;
     f.login();
 
@@ -598,7 +606,7 @@ TEST(SearchTest, testSomeMustNone ) {
 }
 
 
-TEST(SearchTest, testAnnotatedWith ) {
+TEST(SearchTest, DISABLED_testAnnotatedWith) {
     try {
     SearchFixture f;
     f.login();
@@ -658,7 +666,7 @@ TEST(SearchTest, testAnnotatedWith ) {
     }
 }
 
-TEST(SearchTest, testAnnotatedWithMultiple ) {
+TEST(SearchTest, DISABLED_testAnnotatedWithMultiple) {
     try {
     ImagePtr i1 = new_ImageI();
     i1->setName( rstring("i1") );
@@ -715,7 +723,7 @@ TEST(SearchTest, testAnnotatedWithMultiple ) {
 // The tests in the following sections should include all the by* methods
 // each testing a specific restriction
 
-TEST(SearchTest, testOnlyIds ) {
+TEST(SearchTest, DISABLED_testOnlyIds) {
 
     // ignored by
     // byTagForGroups, byGroupForTags
@@ -789,7 +797,7 @@ TEST(SearchTest, testOnlyIds ) {
     //assertResults(2, search);
 }
 
-TEST(SearchTest, testOnlyOwnedByOwner ) {
+TEST(SearchTest, DISABLED_testOnlyOwnedByOwner) {
 
     SearchFixture f;
 
@@ -901,7 +909,7 @@ TEST(SearchTest, testOnlyOwnedByOwner ) {
     assertResults(0, search);
 }
 
-TEST(SearchTest, testOnlyOwnedByGroup ) {
+TEST(SearchTest, DISABLED_testOnlyOwnedByGroup) {
 
     SearchFixture f;
     ExperimenterPtr e = f.newUser();
@@ -1041,7 +1049,7 @@ namespace
     }
 }
 
-TEST(SearchTest, testOnlyCreateBetween ) {
+TEST(SearchTest, DISABLED_testOnlyCreateBetween) {
     SearchFixture f;
     f.login();
 
@@ -1153,7 +1161,7 @@ TEST(SearchTest, testOnlyCreateBetween ) {
     assertResults(1, search);
 }
 
-TEST(SearchTest, testOnlyModifiedBetween ) {
+TEST(SearchTest, DISABLED_testOnlyModifiedBetween) {
 
     // Ignored by
     // byTagForGroups, byGroupForTags (tags are immutable) results always 1
@@ -1269,7 +1277,7 @@ TEST(SearchTest, testOnlyModifiedBetween ) {
     assertResults(1, search);
 }
 
-TEST(SearchTest, testOnlyAnnotatedBetween ) {
+TEST(SearchTest, DISABLED_testOnlyAnnotatedBetween) {
 
     SearchFixture f;
     f.login();
@@ -1382,7 +1390,7 @@ TEST(SearchTest, testOnlyAnnotatedBetween ) {
     assertResults(1, search);
 }
 
-TEST(SearchTest, testOnlyAnnotatedBy ) {
+TEST(SearchTest, DISABLED_testOnlyAnnotatedBy) {
 
     SearchFixture f;
     f.login();
@@ -1455,7 +1463,7 @@ TEST(SearchTest, testOnlyAnnotatedBy ) {
     assertResults(1, search);
 }
 
-TEST(SearchTest, testOnlyAnnotatedWith ) {
+TEST(SearchTest, DISABLED_testOnlyAnnotatedWith) {
 
     // ignored by byAnnotatedWith
     // ignored by byTagForGroups, byGroupForTags
@@ -1569,7 +1577,7 @@ TEST(SearchTest, DISABLED_testOnlyAnnotatedWithMultiple ) {
 // other
 // =========================================================================
 
-TEST(SearchTest, testMergedBatches ) {
+TEST(SearchTest, DISABLED_testMergedBatches) {
 
     SearchFixture f;
     f.login();
@@ -1617,16 +1625,16 @@ TEST(SearchTest, testMergedBatches ) {
         ASSERT_EQ(expectedDesc, actualDesc); \
     }
 
-TEST(SearchTest, testOrderBy) {
+TEST(SearchTest, DISABLED_testOrderBy) {
 
     SearchFixture f;
     f.login();
-    
+
     string uuid = f.uuid();
-    
+
     TagAnnotationIPtr tag = new TagAnnotationI();
     tag->setTextValue(rstring(uuid));
-    
+
     // create some test images
     vector<ImagePtr> images;
     for (int i = 0; i < 2; ++i) {
@@ -1637,13 +1645,13 @@ TEST(SearchTest, testOrderBy) {
         image->setDescription(rstring(desc));
         image->linkAnnotation(tag);
         images.push_back(image);
-        
+
         images[i] = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(images[i]));
     }
-    
+
     for (size_t i = 0; i < images.size(); i++)
         f.rootUpdate()->indexObject(images[i]);
-    
+
     tag = new TagAnnotationI();
     tag->setTextValue(rstring(uuid));
 
@@ -1653,11 +1661,11 @@ TEST(SearchTest, testOrderBy) {
     // Order by description
     search->unordered();
     search->addOrderByDesc("description");
-    
+
     // full text
     search->byFullText(uuid);
     assertImageResults(images, search, false);
-    
+
     // annotated with
     byAnnotatedWith(search, tag);
     assertImageResults(images, search, true);
@@ -1665,11 +1673,11 @@ TEST(SearchTest, testOrderBy) {
     // Order by descript asc
     search->unordered();
     search->addOrderByAsc("description");
-    
+
     // full text
     search->byFullText(uuid);
     assertImageResults(images, search, false);
-    
+
     // annotated with
     byAnnotatedWith(search, tag);
     assertImageResults(images, search, false);
@@ -1677,11 +1685,11 @@ TEST(SearchTest, testOrderBy) {
     // Ordered by id
     search->unordered();
     search->addOrderByDesc("id");
-    
+
     // full text
     search->byFullText(uuid);
     assertImageResults(images, search, false);
-    
+
     // annotated with
     byAnnotatedWith(search, tag);
     assertImageResults(images, search, true);
@@ -1689,11 +1697,11 @@ TEST(SearchTest, testOrderBy) {
     // Ordered by creation event id
     search->unordered();
     search->addOrderByDesc("details.creationEvent.id");
-    
+
     // full text
     search->byFullText(uuid);
     assertImageResults(images, search, false);
-    
+
     // annotated with
     byAnnotatedWith(search, tag);
     assertImageResults(images, search, true);
@@ -1701,7 +1709,7 @@ TEST(SearchTest, testOrderBy) {
     // ordered by creation event time
     search->unordered();
     search->addOrderByDesc("details.creationEvent.time");
-    
+
     // annotated with
     byAnnotatedWith(search, tag);
     assertImageResults(images, search, true);
@@ -1716,9 +1724,9 @@ TEST(SearchTest, testOrderBy) {
     i3->linkAnnotation(tag);
     i3 = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i3));
     images.push_back(i3);
-    
+
     f.rootUpdate()->indexObject(i3);
-    
+
     tag = new TagAnnotationI();
     tag->setTextValue(rstring(uuid));
 
@@ -1726,18 +1734,18 @@ TEST(SearchTest, testOrderBy) {
     search->unordered();
     search->addOrderByAsc("description");
     search->addOrderByDesc("id");
-    
+
     // annotated with
     byAnnotatedWith(search, tag);
     int is[] = {2, 0, 1};
     assertImageResultsList(images, search, is);
-    
+
     // full text
     search->byFullText(uuid);
     assertImageResults(images, search, false);
 }
 
-TEST(SearchTest, testFetchAnnotations ) {
+TEST(SearchTest, DISABLED_testFetchAnnotations) {
     try {
     SearchFixture f;
     f.login();
@@ -1846,7 +1854,7 @@ TEST(SearchTest, testFetchAnnotations ) {
     }
 }
 
-TEST(SearchTest, testCommentAnnotationDoesntTryToLoadUpdateEvent ) {
+TEST(SearchTest, DISABLED_testCommentAnnotationDoesntTryToLoadUpdateEvent) {
     SearchFixture f;
     f.login();
 
@@ -1867,7 +1875,7 @@ TEST(SearchTest, testCommentAnnotationDoesntTryToLoadUpdateEvent ) {
 
 // Test failing due to OMERO server bug
 // https://trac.openmicroscopy.org.uk/ome/ticket/10408
-TEST(SearchTest, DISABLED_testExperimenterDoesntTryToLoadOwner ) {
+TEST(SearchTest, DISABLED_testExperimenterDoesntTryToLoadOwner) {
     SearchFixture f;
     SearchPrx search = f.search();
     search->onlyType("Experimenter");
@@ -1877,7 +1885,7 @@ TEST(SearchTest, DISABLED_testExperimenterDoesntTryToLoadOwner ) {
 
 // Test failing due to OMERO server bug
 // https://trac.openmicroscopy.org.uk/ome/ticket/10408
-TEST(SearchTest, DISABLED_testLookingForExperimenterWithOwner ) {
+TEST(SearchTest, DISABLED_testLookingForExperimenterWithOwner) {
     SearchFixture f;
     SearchPrx search = f.search();
     search->onlyType("Experimenter");

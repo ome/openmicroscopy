@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.util;
 
-
-//Java imports
 import java.awt.Color;
 import java.awt.Font;
 import java.sql.Timestamp;
@@ -42,18 +40,16 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.apache.commons.lang.StringUtils;
-//Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
 
-//Application-internal dependencies
-import omero.RDouble;
+import omero.model.Length;
 import omero.model.PlaneInfo;
+
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.util.filter.file.CppFilter;
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
-import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.JavaFilter;
 import org.openmicroscopy.shoola.util.filter.file.MatlabFilter;
 import org.openmicroscopy.shoola.util.filter.file.PythonFilter;
@@ -61,6 +57,8 @@ import org.openmicroscopy.shoola.util.ui.OMEComboBox;
 import org.openmicroscopy.shoola.util.ui.OMEComboBoxUI;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.UnitsObject;
+
+import com.google.common.math.DoubleMath;
 
 import pojos.AnnotationData;
 import pojos.ChannelAcquisitionData;
@@ -410,6 +408,9 @@ public class EditorUtil
     /** Identifies the unset fields. */
     public static final String NOT_SET = "NotSet";
 
+    /** Identifies the ROI count field. */
+    public static final String ROI_COUNT = "ROI Count";
+    
     /** The text for the external identifier. */
     public static final String EXTERNAL_IDENTIFIER = "External Identifier";
 
@@ -541,9 +542,9 @@ public class EditorUtil
         PIXELS_TYPE_DESCRIPTION.put(OmeroImageService.UINT_32,
                 "Unsigned 32-bit (4 byte)");
         PIXELS_TYPE_DESCRIPTION.put(OmeroImageService.FLOAT,
-                "Floating precision");
+                "Float");
         PIXELS_TYPE_DESCRIPTION.put(OmeroImageService.DOUBLE,
-                "Double precision");
+                "Double");
         PIXELS_TYPE = new LinkedHashMap<String, String>();
         Entry<String, String> entry;
         Iterator<Entry<String, String>>
@@ -566,9 +567,6 @@ public class EditorUtil
         COLORS_BAR.put(Color.BLUE, "Blue");
         COLORS_BAR.put(Color.WHITE, "White");
     }
-
-    /** The filter to determine if a file is an editor file or not. */
-    private static final EditorFileFilter editorFilter = new EditorFileFilter();
 
     /**
      * Transforms the size and returns the value and units.
@@ -1187,8 +1185,8 @@ public class EditorUtil
         details = new LinkedHashMap<String, Object>(10);
         List<String> notSet = new ArrayList<String>();
         details.put(NAME, "");
-        details.put(EXCITATION, Float.valueOf(0));
-        details.put(EMISSION, Float.valueOf(0));
+        details.put(EXCITATION, Integer.valueOf(0));
+        details.put(EMISSION, Integer.valueOf(0));
         details.put(ND_FILTER, Float.valueOf(0));
         details.put(PIN_HOLE_SIZE, Float.valueOf(0));
         details.put(FLUOR, "");
@@ -1221,9 +1219,14 @@ public class EditorUtil
         } else {
             if (wave <= 100) {
                 notSet.add(EMISSION);
-                details.put(EMISSION, new Float(0));
+                details.put(EMISSION, Integer.valueOf(0));
             } else {
-                details.put(EMISSION, new Float(wave));
+                //First check if the wave is a int
+                if (DoubleMath.isMathematicalInteger(wave)) {
+                    details.put(EMISSION, new Integer(wave.intValue()));
+                } else {
+                    details.put(EMISSION, wave);
+                }
             }
         }
 
@@ -1233,9 +1236,14 @@ public class EditorUtil
         } else {
             if (wave <= 100) {
                 notSet.add(EXCITATION);
-                details.put(EXCITATION, new Float(0));
+                details.put(EXCITATION, Integer.valueOf(0));
             } else {
-                details.put(EXCITATION, new Float(wave));
+              //First check if the wave is a int
+                if (DoubleMath.isMathematicalInteger(wave)) {
+                    details.put(EXCITATION, new Integer(wave.intValue()));
+                } else {
+                    details.put(EXCITATION, wave);
+                }
             }
         }
 
@@ -1794,16 +1802,16 @@ public class EditorUtil
         if (f == null) notSet.add(ATTENUATION);
         else v = f;
         details.put(ATTENUATION, v*PERCENT_FRACTION);
- 
+
         Double wave = data.getLightSettingsWavelength();
         if (details.containsKey(WAVELENGTH)) {
             if (wave != null) { //override the value.
-                details.put(WAVELENGTH, new Float(wave));
+                details.put(WAVELENGTH, wave);
             }
         } else {
-            float vi = 0;
+            Double vi = 0.0;
             if (wave == null) notSet.add(WAVELENGTH);
-            else vi = new Float(wave);
+            else vi = wave;
             details.put(WAVELENGTH, vi);
         }
         details.put(NOT_SET, notSet);
@@ -2119,17 +2127,18 @@ public class EditorUtil
         notSet.add(POSITION_Z);
         details.put(NOT_SET, notSet);
         if (plane != null) {
-            RDouble o = plane.getDeltaT();
-            if (o != null)  {
+            omero.model.Time t = plane.getDeltaT();
+            if (t != null)  {
                 notSet.remove(DELTA_T);
-                details.put(DELTA_T, roundValue(o.getValue()));
+                details.put(DELTA_T, roundValue(t.getValue()));
             }
-            o = plane.getExposureTime();
-            if (o != null) {
+            t = plane.getExposureTime();
+            if (t != null) {
                 notSet.remove(EXPOSURE_TIME);
-                details.put(EXPOSURE_TIME, roundValue(o.getValue()));
+                details.put(EXPOSURE_TIME, roundValue(t.getValue()));
             }
-            o = plane.getPositionX();
+
+            Length o = plane.getPositionX();
             if (o != null) {
                 notSet.remove(POSITION_X);
                 details.put(POSITION_X, roundValue(o.getValue()));
@@ -2225,18 +2234,6 @@ public class EditorUtil
     public static JXTaskPane createTaskPane(String title)
     {
         return UIUtilities.createTaskPane(title, UIUtilities.BACKGROUND_COLOR);
-    }
-
-    /**
-     * Returns <code>true</code> if the passed name is the name of an
-     * editor file, <code>false</code> otherwise.
-     *
-     * @param fileName The name of the file.
-     * @return See above.
-     */
-    public static boolean isEditorFile(String fileName)
-    {
-        return editorFilter.accept(fileName);
     }
 
     /**

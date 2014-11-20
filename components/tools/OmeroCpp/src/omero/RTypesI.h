@@ -9,10 +9,13 @@
 #ifndef OMERO_RTYPESI_H
 #define OMERO_RTYPESI_H
 
-#include <omero/Scripts.h>
+#include <omero/IceNoWarnPush.h>
 #include <omero/RTypes.h>
 #include <omero/model/RTypes.h>
+#include <omero/Scripts.h>
 #include <Ice/Ice.h>
+#include <omero/IceNoWarnPop.h>
+
 #include <IceUtil/Config.h>
 #include <Ice/Handle.h>
 #include <string>
@@ -358,6 +361,8 @@ namespace omero {
             virtual Ice::ObjectPtr create(const std::string& id) = 0;
             virtual void destroy() { } // No-op
         };
+
+        Ice::Int compareRTypes(const RTypeSeq& lhs, const omero::RTypeSeq& rhs);
 
         // Object factories
         // =========================================================================

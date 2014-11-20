@@ -7,7 +7,9 @@
 
 #include <omero/util/tiles.h>
 #include <omero/ClientErrors.h>
+#include <omero/IceNoWarnPush.h>
 #include <omero/api/IPixels.h>
+#include <omero/IceNoWarnPop.h>
 
 namespace omero {
     namespace util {

@@ -31,9 +31,9 @@
         // Loading Scripts with AJAX for drop-down menu, (only the first time we click)
 
         // handles clicking on a script (if href is not '#')
-        $("#scriptList").on("click", ".sub_menu a", OME.openScriptWindow);
+        $("#scriptList.sub_menu").on('click', 'a', OME.openScriptWindow);
 
-        $("#scriptList").on("click", ".sub_menu a", function(event) {
+        $("#scriptList.sub_menu").on('click', 'a', function(event) {
             var $a = $(event.target),
                 script_url = $a.attr('href');
             if (script_url != "#") {

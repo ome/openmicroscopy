@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treemng.TreeViewerAgent
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -265,7 +265,7 @@ public class TreeViewerAgent
      */
     private void handleCopyRndSettings(CopyRndSettings evt)
     {
-    	TreeViewerFactory.copyRndSettings(evt.getImage());
+    	TreeViewerFactory.copyRndSettings(evt.getImage(), evt.getRndDef());
     }
     
     /**
@@ -297,8 +297,6 @@ public class TreeViewerAgent
      */
     private void handleActivityProcessed(ActivityProcessEvent evt)
     {
-    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
-    	if (!env.isServerAvailable()) return;
     	ExperimenterData exp = (ExperimenterData) registry.lookup(
 			        				LookupNames.CURRENT_USER_DETAILS);
     	if (exp == null) return;
@@ -324,8 +322,6 @@ public class TreeViewerAgent
      */
     private void handleDataObjectSelectionEvent(DataObjectSelectionEvent evt)
     {
-    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
-    	if (!env.isServerAvailable()) return;
     	ExperimenterData exp = (ExperimenterData) registry.lookup(
 			        				LookupNames.CURRENT_USER_DETAILS);
     	if (exp == null) return;
@@ -343,8 +339,6 @@ public class TreeViewerAgent
     private void handleUserGroupSwitched(UserGroupSwitched evt)
     {
     	if (evt == null) return;
-    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
-    	if (!env.isServerAvailable()) return;
     	TreeViewerFactory.onGroupSwitched(evt.isSuccessful());
     }
     
@@ -355,9 +349,6 @@ public class TreeViewerAgent
      */
     private void handleViewObjectEvent(ViewObjectEvent evt)
     {
-    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
-    	if (!env.isServerAvailable()) return;
-    	
     	if (evt == null) return;
     	Object o = evt.getObject();
     	if (!evt.browseObject()) return;
@@ -386,8 +377,6 @@ public class TreeViewerAgent
     public void handleImportStatusEvent(ImportStatusEvent evt)
     {
     	if (evt == null) return;
-    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
-    	if (!env.isServerAvailable()) return;
     	ExperimenterData exp = (ExperimenterData) registry.lookup(
 			        				LookupNames.CURRENT_USER_DETAILS);
     	if (exp == null) return;
@@ -405,8 +394,6 @@ public class TreeViewerAgent
     private void handleBrowseContainer(BrowseContainer evt)
     {
     	if (evt == null) return;
-    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
-    	if (!env.isServerAvailable()) return;
     	ExperimenterData exp = (ExperimenterData) registry.lookup(
 			        				LookupNames.CURRENT_USER_DETAILS);
     	if (exp == null) return;
@@ -423,8 +410,6 @@ public class TreeViewerAgent
     private void handleNodeToRefreshEvent(NodeToRefreshEvent evt)
     {
     	if (evt == null) return;
-    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
-    	if (!env.isServerAvailable()) return;
     	ExperimenterData exp = (ExperimenterData) registry.lookup(
 			        				LookupNames.CURRENT_USER_DETAILS);
     	if (exp == null) return;
@@ -440,8 +425,6 @@ public class TreeViewerAgent
      */
     private void handleReconnectedEvent(ReconnectedEvent evt)
     {
-    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
-    	if (!env.isServerAvailable()) return;
     	//First check that the need to re-activate.
     	if (TreeViewerFactory.onReconnected()) return;
     }
@@ -467,8 +450,6 @@ public class TreeViewerAgent
      */
     private void handleAnnotatedEvent(AnnotatedEvent evt)
     {
-    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
-    	if (!env.isServerAvailable()) return;
     	TreeViewerFactory.onAnnotated(evt.getData(), evt.getCount());
     }
     
@@ -505,7 +486,6 @@ public class TreeViewerAgent
     	if (!master) return;
     	Environment env = (Environment) registry.lookup(LookupNames.ENV);
     	if (env == null) return;
-    	if (!env.isServerAvailable()) return;
     	ExperimenterData exp = (ExperimenterData) registry.lookup(
 			        				LookupNames.CURRENT_USER_DETAILS);
     	if (exp == null) return;

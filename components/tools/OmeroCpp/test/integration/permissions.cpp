@@ -88,7 +88,7 @@ TEST( PermissionsTest, testClientSet ) {
     ASSERT_EQ("value", di->getCallContext()["test"]);
 }
 
-void assertPerms(const string& msg, const client_ptr& client,
+static void assertPerms(const string& msg, const client_ptr& client,
         const IObjectPtr& obj, bool ann, bool edit) {
 
     IQueryPrx query = client->getSession()->getQueryService();
@@ -104,7 +104,7 @@ TEST( PermissionsTest, testAdjustPermissions ) {
     ExperimenterGroupPtr group = f.newGroup("rwr---");
     ExperimenterPtr user1 = f.newUser(group);
     ExperimenterPtr user2 = f.newUser(group);
-    f.login(user1);
+    f.login(user1, user1->getOmeName()->getValue());
     IQueryPrx query = f.client->getSession()->getQueryService();
     IUpdatePrx update = f.client->getSession()->getUpdateService();
 
@@ -112,7 +112,7 @@ TEST( PermissionsTest, testAdjustPermissions ) {
     c = CommentAnnotationPtr::dynamicCast( update->saveAndReturnObject(c) );
 
     assertPerms("creator can ann/edit", f.client, c, true, true);
-    f.login(user2);
+    f.login(user2, user2->getOmeName()->getValue());
     assertPerms("group member can't ann/edit", f.client, c, false, false);
 
     // Search all groups for the annotation

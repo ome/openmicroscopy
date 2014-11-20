@@ -46,7 +46,6 @@ import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ActivatedUserAction;
-import org.openmicroscopy.shoola.agents.dataBrowser.actions.CreateExperimentAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.FieldsViewAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ManageObjectAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ManageRndSettingsAction;
@@ -137,9 +136,6 @@ class DataBrowserControl
     /** Identifies the <code>Tag</code> action. */
     static final Integer TAG = Integer.valueOf(11);
 
-    /** Identifies the <code>New Experiment</code> action. */
-    static final Integer NEW_EXPERIMENT = Integer.valueOf(12);
-
     /** Identifies the <code>Fields View</code> action. */
     static final Integer FIELDS_VIEW = Integer.valueOf(13);
 
@@ -212,7 +208,6 @@ class DataBrowserControl
                         ManageRndSettingsAction.SET_OWNER));
         actionsMap.put(SAVE_AS, new SaveAction(model));
         actionsMap.put(TAG, new TaggingAction(model));
-        actionsMap.put(NEW_EXPERIMENT, new CreateExperimentAction(model));
         actionsMap.put(FIELDS_VIEW, new FieldsViewAction(model));
         actionsMap.put(OPEN_WITH, new ViewOtherAction(model, null));
         actionsMap.put(SEND_FEEDBACK, new SendFeedbackAction(model));

@@ -369,11 +369,28 @@ CREATE TRIGGER ${type.tableName()}_${prop.name}_map_entry_delete_trigger
 -- done #12317
 --
 
--- First, we install a unique constraint so that it is only possible
--- to go from versionA/patchA to versionB/patchB once.
--- message is included so that in-patch adjustments may still be noted in the table.
+-- First, we install a trigger to ensure users may go
+-- from versionA/patchA to versionB/patchB once only.
 --
-alter table dbpatch add constraint unique_dbpatch unique (currentVersion, currentPatch, previousVersion, previousPatch, message);
+CREATE FUNCTION dbpatch_versions_trigger_function() RETURNS TRIGGER AS $$
+BEGIN
+    IF (NEW.currentversion <> NEW.previousversion OR NEW.currentpatch <> NEW.previouspatch) AND
+       (SELECT COUNT(*) FROM dbpatch WHERE id <> NEW.id AND
+        (currentversion <> previousversion OR currentpatch <> previouspatch) AND
+        ((currentversion = NEW.currentversion AND currentpatch = NEW.currentpatch) OR
+         (previousversion = NEW.previousversion AND previouspatch = NEW.previouspatch))) > 0 THEN
+        RAISE 'upgrades cannot be repeated';
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER dbpatch_versions_trigger
+    BEFORE INSERT OR UPDATE ON dbpatch
+    FOR EACH ROW
+    EXECUTE PROCEDURE dbpatch_versions_trigger_function();
+
 
 --
 -- Since this is a table that we will be using in DB-specific ways, we're also going
@@ -399,6 +416,8 @@ alter table event alter column experimentergroup drop not null;
 --
 -- Here we will create the root account and the necessary groups
 --
+alter table experimenter alter ldap set default false;
+alter table experimentergroup alter ldap set default false;
 insert into experimenter (id,permissions,version,omename,firstname,lastname)
         values (0,0,0,'root','root','root');
 insert into experimenter (id,permissions,version,omename,firstname,lastname)
@@ -450,7 +469,9 @@ alter table event alter column experimentergroup set not null;
 ##insert into event (id,version,name,e) select next, 0 as version, 'Bootstrap'
 ##  as name, next from (select ome_nextval('seq_event') as next) as nv;
 
-## ENUMS
+-- temporarily disable the not null constraints
+alter table pixelstype alter column bitsize drop not null;
+
 #foreach($enum in $types)
 #foreach($prop in $enum.properties)
 #set($table = ${enum.typeToColumn($enum.id)} )
@@ -473,6 +494,8 @@ update pixelstype set bitsize = 32 where value = 'float';
 update pixelstype set bitsize = 64 where value = 'double';
 update pixelstype set bitsize = 64 where value = 'complex';
 update pixelstype set bitsize = 128 where value = 'double-complex';
+
+-- reactivate not null constraints
 alter table pixelstype alter column bitsize set not null;
 
 --
@@ -529,7 +552,8 @@ create index eventlog_entitytype on eventlog(entitytype);
 create index eventlog_entityid on eventlog(entityid);
 create index eventlog_action on eventlog(action);
 
-create table password ( experimenter_id bigint primary key REFERENCES experimenter (id), hash char(24), dn text );
+create table password ( experimenter_id bigint primary key REFERENCES experimenter (id), hash VARCHAR(255),
+    changed TIMESTAMP WITHOUT TIME ZONE);
 insert into password values (0,'@ROOTPASS@');
 insert into password values (1,'');
 -- root can now login with omero.rootpass property value
@@ -679,6 +703,26 @@ create trigger _fs_log_delete
 after delete on originalfile
     for each row execute procedure _fs_log_delete();
 
+ALTER TABLE laser
+    ALTER COLUMN wavelength TYPE positive_float;
+
+ALTER TABLE lightsettings
+    ALTER COLUMN wavelength TYPE positive_float;
+
+ALTER TABLE logicalchannel
+    ALTER COLUMN emissionwave TYPE positive_float,
+    ALTER COLUMN excitationwave TYPE positive_float;
+
+ALTER TABLE pixels
+    ALTER COLUMN physicalsizex TYPE positive_float,
+    ALTER COLUMN physicalsizey TYPE positive_float,
+    ALTER COLUMN physicalsizez TYPE positive_float;
+
+ALTER TABLE transmittancerange
+    ALTER COLUMN cutin TYPE positive_float,
+    ALTER COLUMN cutintolerance TYPE nonnegative_int,
+    ALTER COLUMN cutout TYPE positive_float,
+    ALTER COLUMN cutouttolerance TYPE nonnegative_int;
 
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()

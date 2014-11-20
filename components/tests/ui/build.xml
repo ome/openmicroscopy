@@ -104,24 +104,6 @@
         </copy>
     </target>
 
-    <!-- Populates the db. This target will be removed when the set-up is in place. -->
-    <target name="setup-db">
-        <!-- extract images to import -->
-         <mkdir dir="${target.images}" />
-        <unjar src="${basedir}/../../../target/test-repository/common-test-${omero.version}.jar" dest="${target.images}">
-            <patternset>
-                <include name="*.dv"/>
-                <include name="*.bmp"/>
-                <include name="*.jpg"/>
-                <include name="*.png"/>
-            </patternset>
-        </unjar>
-        <exec executable="python" failonerror="${test.with.fail}">
-            <env key="PYTHONPATH" path="${basedir}/library/python:${env.PYTHONPATH}"/>    
-            <arg value="setup.py"/>
-            <arg value="${target.images}"/>
-        </exec>
-    </target>
     <!--  run the web, insight and CLI tests -->
     <target name="test-all" unless="env.NOPYTHON">
         <antcall target="ui-test-insight" inheritRefs="true" inheritAll="true"/>
@@ -147,8 +129,14 @@
         </if>
     </target>
 
+	<target name="check-config-file">
+	    <property file="${basedir}/resources/config.txt" />
+	    <available file="${basedir}/resources/config.txt" property="hasconfig" />
+	    <fail unless="hasconfig" message="The configuration file ${basedir}/resources/config.txt does not exist. Please follow instructions under ${basedir}/README.md." />
+	</target>
+
     <!-- run the cli tests. -->
-    <target name="test-cli">
+    <target name="test-cli" depends="check-config-file">
         <mkdir dir="${reports.cli}" />
         <!--<touch file="${reports.cli}/error.log"/>-->
         <var name="target" value="cli/"/>
@@ -211,7 +199,7 @@
     </target>
 
     <!--  run the insight tests -->
-    <target name="ui-test-insight">
+    <target name="ui-test-insight" depends="check-config-file">
         <if><isset property="TEST"/><then>
             <antcall target="run_folder_insight" inheritRefs="true" inheritAll="true"/></then>
             <else>
@@ -227,7 +215,7 @@
     </target>
 
    <!-- test with firefox -->
-    <target name="web-firefox">
+    <target name="web-firefox" depends="check-config-file">
         <var name="output" value="${reports.web}/firefox"/>
         <mkdir dir="${output}"/>
         <var name="target" value="web/"/>
@@ -247,7 +235,7 @@
     </target>
 
     <!-- test with chrome This requires the chrome driver to be installed-->
-    <target name="web-chrome"> 
+    <target name="web-chrome" depends="check-config-file">
         <var name="output" value="${reports.web}/chrome"/>
         <mkdir dir="${output}"/>
         <var name="target" value="web/"/>

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.ChannelSlider 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -24,23 +24,24 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 
 //Java imports
-import info.clearthought.layout.TableLayout;
-
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Point;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JPanel;
 
-
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
+import org.openmicroscopy.shoola.util.ui.IconManager;
+import org.openmicroscopy.shoola.util.ui.JLabelButton;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
@@ -68,9 +69,6 @@ class ChannelSlider
 	/** The default color. */
 	static final Color		GRADIENT_COLOR = Color.BLACK;
 	
-	/** The default size of the button. */
-	private static final Dimension	DEFAULT_SIZE = new Dimension(20, 20);
-	
 	/** Reference to the model. */
 	private RendererModel 			model;
 	
@@ -84,40 +82,65 @@ class ChannelSlider
 	private ChannelData 			channel;
 	
 	/** Selection slider. */
-	private TextualTwoKnobsSlider 	slider;
+	private TextualTwoKnobsSlider     slider;
 
 	/** Turn on/off the channel, when used in the viewer. */
 	private ChannelButton			channelSelection;
 	
+	/** Button for opening the color picker */
+	private JLabelButton colorPicker;
+	
 	/** Initializes the component composing the display. */
 	private void initComponents()
 	{
-		int index = channel.getIndex();
-		int f = model.getRoundFactor(index);
-    	int s = (int) (model.getWindowStart(index)*f);
-        int e = (int) (model.getWindowEnd(index)*f);
-        int min = (int) (channel.getGlobalMin()*f);
-        int max = (int) (channel.getGlobalMax()*f);
-        slider = new TextualTwoKnobsSlider();
-        slider.layoutComponents(
-        		TextualTwoKnobsSlider.LAYOUT_SLIDER_FIELDS_X_AXIS);
-        slider.setBackground(UIUtilities.BACKGROUND_COLOR);
+		final int index = channel.getIndex();
+		double s = model.getWindowStart(index);
+		double e = model.getWindowEnd(index);
+		double min = channel.getGlobalMin();
+		double max = channel.getGlobalMax();
+        
+		boolean intMode = model.isIntegerPixelData();
+		
+		if (intMode) {
+		        int absMin = (int) (model.getLowestValue(index));
+		        int absMax = (int) (model.getHighestValue(index));
+		        if (!channel.hasStats()) {
+		                min = absMin;
+		                max = absMax;
+		        }
+		        int lowestBound = absMin;
+		        int highestBound = absMax;
 
-        int absMin = (int) (model.getLowestValue(index)*f);
-        int absMax = (int) (model.getHighestValue(index)*f);
-        if (!channel.hasStats()) {
-        	min = absMin;
-        	max = absMax;
-        }
-        double range = (max-min)*GraphicsPane.RATIO;
-        int lowestBound = (int) (min-range);
-        //if (lowestBound < absMin) lowestBound = absMin;
-        lowestBound = absMin;
-        int highestBound = (int) (max+range);
-        //if (highestBound > absMax) highestBound = absMax;
-        highestBound = absMax;
-        slider.setValues(max, min, highestBound, lowestBound,
-        		max, min, s, e, f);
+		        slider = new TextualTwoKnobsSlider(0, 100);
+		        
+		        slider.setValues((int)max, (int)min, (int)highestBound, (int)lowestBound,
+                                (int)max, (int)min, (int)s, (int)e);
+		        
+		        slider.layoutComponents(
+                                TextualTwoKnobsSlider.LAYOUT_SLIDER_FIELDS_X_AXIS);
+                        slider.setBackground(UIUtilities.BACKGROUND_COLOR);
+                        
+		}
+		else {
+		    double absMin = model.getLowestValue(index);
+		    double absMax = model.getHighestValue(index);
+                    if (!channel.hasStats()) {
+                            min = absMin;
+                            max = absMax;
+                    }
+                    
+                    double lowestBound = absMin;
+                    double highestBound = absMax;
+
+                    slider = new TextualTwoKnobsSlider(lowestBound, highestBound);
+                    
+                    slider.setValues(max, min, highestBound, lowestBound,
+                            max, min, s, e);
+                    
+                    slider.layoutComponents(
+                            TextualTwoKnobsSlider.LAYOUT_SLIDER_FIELDS_X_AXIS);
+                    slider.setBackground(UIUtilities.BACKGROUND_COLOR);
+		}
         
         slider.getSlider().setPaintLabels(false);
         slider.getSlider().setPaintEndLabels(false);
@@ -134,37 +157,44 @@ class ChannelSlider
         list.add("max: "+max);
         slider.getSlider().setToolTipText(UIUtilities.formatToolTipText(list));
         
-        if (!model.isGeneralIndex()) {
-        	channelSelection = new ChannelButton("", c, index);
-        	channelSelection.setPreferredSize(DEFAULT_SIZE);
-        	channelSelection.setSelected(model.isChannelActive(index));
-        	channelSelection.addPropertyChangeListener(controller);
-        }
+    	channelSelection = new ChannelButton(channel.getChannelLabeling(), c, index);
+    	channelSelection.setPreferredSize(ChannelButton.DEFAULT_MAX_SIZE);
+    	channelSelection.setSelected(model.isChannelActive(index));
+    	channelSelection.setRightClickSupported(false);
+    	channelSelection.addPropertyChangeListener(controller);
+        
+    	
+    	colorPicker = new JLabelButton(IconManager.getInstance().getIcon(IconManager.COLOR_PICKER), true);
+    	colorPicker.addPropertyChangeListener(this);
+    	
 	}
 	
 	/** Builds and lays out the UI. */
-	private void buildGUI()
-	{
-		int w = 320;
-		if (model.isGeneralIndex()) {
-			double size[][] = {{w},{TableLayout.PREFERRED}}; // Rows
-			setLayout(new TableLayout(size));
-			add(slider, "0, 0");
-		} else {
-			JPanel p = new JPanel();
-			p.setBorder(null);
-			double size[][] = {{w},  // Columns
-	    	{TableLayout.PREFERRED}}; // Rows
-			p.setLayout(new TableLayout(size));
-			p.add(slider, "0, 0");
-			Dimension d = slider.getPreferredSize();
-			channelSelection.setPreferredSize(new Dimension(d.height, d.height));
-			setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-			add(channelSelection);
-			add(p);
-			setBackground(p.getBackground());
-		}
-	}
+        private void buildGUI()
+        {       
+                setBackground(UIUtilities.BACKGROUND_COLOR);
+                
+                setLayout(new GridBagLayout());
+                GridBagConstraints c = new GridBagConstraints();
+                c.gridx = 0;
+                c.gridy = 0;
+                c.insets = new Insets(1, 2, 1, 2);
+                c.weightx = 0;
+                c.fill = GridBagConstraints.NONE;
+                
+                add(channelSelection, c);
+                c.gridx++;
+                
+                c.weightx = 1;
+                c.fill = GridBagConstraints.HORIZONTAL;
+                add(slider, c);
+                c.gridx++;
+                
+                c.weightx = 0;
+                c.fill = GridBagConstraints.NONE;
+                add(colorPicker, c);
+                
+        }
 	
 	/**
 	 * Creates a new instance.
@@ -202,13 +232,6 @@ class ChannelSlider
 	int getColumns() { return slider.getColumns(); }
 	
 	/**
-	 * Sets the number of columns.
-	 * 
-	 * @param columns The value to set.
-	 */
-	void setColumns(int columns) { slider.setColumns(columns); }
-	
-	/**
 	 * Returns the index of the channel.
 	 * 
 	 * @return See above.
@@ -221,7 +244,7 @@ class ChannelSlider
 	 * @param s The lowest bound of the interval.
 	 * @param e The upper bound of the interval.
 	 */
-	void setInterval(int s, int e)
+	void setInterval(double s, double e)
 	{
 		slider.setInterval(s, e);
 	}
@@ -235,14 +258,14 @@ class ChannelSlider
 	void setInputRange(boolean absolute)
 	{
 		int index = channel.getIndex();
-		int f = model.getRoundFactor(index);
-    	int s = (int) (model.getWindowStart(index)*f);
-        int e = (int) (model.getWindowEnd(index)*f);
-        int min = (int) (channel.getGlobalMin()*f);
-        int max = (int) (channel.getGlobalMax()*f);
+    	double s = model.getWindowStart(index);
+    	double e = model.getWindowEnd(index);
+    	double min = channel.getGlobalMin();
+    	double max = channel.getGlobalMax();
        
-        int absMin = (int) (model.getLowestValue(index)*f);
-        int absMax = (int) (model.getHighestValue(index)*f);
+    	double absMin = model.getLowestValue(index);
+    	double absMax = model.getHighestValue(index);
+    	
         if (absolute)
         	slider.getSlider().setValues(absMax, absMin, absMax, absMin, s, e);
         else 
@@ -272,8 +295,6 @@ class ChannelSlider
     	if (channelSelection == null) return;
     	channelSelection.setSelected(model.isChannelActive(getIndex()));
     	channelSelection.setColor(model.getChannelColor(getIndex()));
-    	channelSelection.setGrayedOut(
-				 Renderer.GREY_SCALE_MODEL.equals(model.getColorModel()));
     }
     
 	/**
@@ -297,6 +318,14 @@ class ChannelSlider
 						slider.getEndValue(), channel.getIndex());
 			} 
 		}
+		
+		if (evt.getSource() == colorPicker && name.equals(JLabelButton.SELECTED_PROPERTY)) {
+		    Point p = colorPicker.getLocationOnScreen();
+		    // as the icon is on the far right, move the dialog a bit
+		    // to left (and bottom so that the icon is still visible)
+		    p.translate(-300, +10);
+		    controller.showColorPicker(channel.getIndex(), p);
+		}
 	}
-
+	
 }

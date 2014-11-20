@@ -1,21 +1,26 @@
-function stack = getStack(session, image, c, t)
+function stack = getStack(varargin)
 % GETSTACK Retrieve stack from an image on the OMERO server
 %
-%   stack = getStack(session, image, c, t) returns the stack from input
+%   stack = getStack(session, image, c, t) returns the stack from an input
 %   image at the input c, t coordinates.
 %
-%   stack = getStack(session, imageID, z, c, t) returns the stack from
+%   stack = getStack(session, imageID, z, c, t) returns the stack from ab
 %   input image identifier at the input c, t coordinates.
+%
+%   stack = getStack(pixels, store, z, c, t) returns the stack from a
+%   pixels object and an initialized pixels store at the input c, t
+%   coordinates.
 %
 %
 %   Examples:
 %
 %      stack = getStack(session, image, c, t);
 %      stack = getStack(session, imageID, c, t);
+%      stack = getStack(pixels, store, c, t);
 %
 % See also: GETRAWPIXELSSTORE, GETPLANE, GETTILE
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -32,8 +37,17 @@ function stack = getStack(session, image, c, t)
 % with this program; if not, write to the Free Software Foundation, Inc.,
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-% Initialize raw pixels store
-[store, pixels] = getRawPixelsStore(session, image);
+% Check number of arguments and retrieve store and pixels
+narginchk(4, 4);
+if ~isa(varargin{1}, 'omero.model.PixelsI')
+    % Initialize raw pixels store
+    [store, pixels] = getRawPixelsStore(varargin{1}, varargin{2});
+else
+    pixels = varargin{1};
+    store = varargin{2};
+    store.setPixelsId(pixels.getId().getValue(), false);
+end
+
 sizeC = pixels.getSizeC().getValue();
 sizeT = pixels.getSizeT().getValue();
 
@@ -42,11 +56,13 @@ ip = inputParser;
 isposint = @(x) isnumeric(x) & x >= 0 & abs(round(x)) == x;
 ip.addRequired('c', @(x) isposint(x) && x < sizeC);
 ip.addRequired('t', @(x) isposint(x) && x < sizeT);
-ip.parse(c, t);
+ip.parse(varargin{3:end});
 
 % Read stack
-stack = store.getStack(c, t);
+stack = store.getStack(ip.Results.c, ip.Results.t);
 stack = permute(toMatrix(stack, pixels), [2 1 3]);
 
-% Close the store
-store.close();
+if ~isa(varargin{1}, 'omero.model.PixelsI')
+    % Close the store if initialized from a session and image input
+    store.close();
+end

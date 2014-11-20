@@ -81,12 +81,6 @@ $.fn.postit = function(cfg) {
       var target;
       if (cfg && cfg.resizeTarget) {
         target = $(cfg.resizeTarget, self);
-        if (!$.browser.firefox) {
-          target.bind('resize', function (e) {
-              w = $(e.target).width();
-              $(e.target).parents('.postit').css('width',w+8);
-            });
-        }
           target.resizable({minHeight: 200, minWidth: 200, containment: 'document'});
       } else {
         target = self;

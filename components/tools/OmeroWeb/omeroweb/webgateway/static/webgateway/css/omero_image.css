@@ -354,10 +354,6 @@ cursor: default !important;
   clear: both;
 }
 
-INPUT.changed { 
-  background-color: #FF9999;
-}
-
 #cbpicker-box { 
   _width: 197px;
 }
@@ -540,6 +536,7 @@ td.title {
 .rangeslider {
   background: white;
   margin: 0.2em 1em 0.2em 1em;
+  border: solid #333 1px;
 }
 
 .postit-help-btn {
@@ -571,7 +568,7 @@ a#rdef-postit-help {
 
 .ui-slider-handle.ui-state-default {
   background:#FEE7D6 none repeat scroll 0 0;
-  border-color:#A9A916;
+  border: solid #666 1px;
 }
 
 .ui-slider-handle.ui-state-focus, .ui-slider-handle.ui-state-hover {

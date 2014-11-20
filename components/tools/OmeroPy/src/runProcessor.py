@@ -13,6 +13,6 @@ import omero
 from omero.processor import ProcessorI
 
 if __name__ == "__main__":
-    app = omero.util.Server(ProcessorI, "ProcessorAdapter", Ice.Identity("Processor",""))
+    app = omero.util.Server(
+        ProcessorI, "ProcessorAdapter", Ice.Identity("Processor", ""))
     sys.exit(app.main(sys.argv))
-

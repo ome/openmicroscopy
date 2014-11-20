@@ -56,9 +56,6 @@ public class WikiDataObject
 	/** Identifies a <code>Thumbnail</code>. */
 	public static final int THUMBNAIL = 3;
 	
-	/** Identifies a <code>Protocol</code>. */
-	public static final int PROTOCOL = 4;
-	
 	/** Identifies a <code>URL</code>. */
 	public static final int URL = 5;
 	
@@ -95,7 +92,6 @@ public class WikiDataObject
 			case DATASET:
 			case IMAGE:
 			case THUMBNAIL:
-			case PROTOCOL:
 				break;
 			default:
 				throw new IllegalArgumentException("Index not supported.");

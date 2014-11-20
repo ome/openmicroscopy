@@ -81,12 +81,17 @@ import org.openmicroscopy.shoola.agents.metadata.rnd.RendererFactory;
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.AdminService;
+import org.openmicroscopy.shoola.env.data.DSAccessException;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.data.FSAccessException;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.AnnotationLinkData;
@@ -99,6 +104,7 @@ import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
+import org.openmicroscopy.shoola.env.data.views.ImageDataView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -713,12 +719,6 @@ class EditorModel
         else if (refObject instanceof PlateAcquisitionData)
         	return"Plate Run";
         else if (refObject instanceof FileAnnotationData) {
-        	FileAnnotationData fa = (FileAnnotationData) refObject;
-        	String ns = fa.getNameSpace();
-        	if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(ns))
-        		return "Experiment";
-        	else if (FileAnnotationData.EDITOR_PROTOCOL_NS.equals(ns))
-        		return "Protocol";
         	return "File";
         } else if (refObject instanceof WellSampleData) return "Field";
         else if (refObject instanceof TagAnnotationData) {
@@ -737,6 +737,9 @@ class EditorModel
         } else if (refObject instanceof LongAnnotationData ||
         		refObject instanceof DoubleAnnotationData) {
         	return "Numerical value";
+        }
+        else if (refObject instanceof BooleanAnnotationData) {
+        	return "Boolean value";
         }
 		return "";
 	}
@@ -3477,10 +3480,32 @@ class EditorModel
 		if (isRendererLoaded() && index == RenderingControlLoader.LOAD) 
 			return false;
 		RenderingControlLoader loader = new RenderingControlLoader(component, 
-				parent.getSecurityContext(), pixelsID, index);
+		        new SecurityContext(((DataObject)refObject).getGroupId()), pixelsID, index);
 		loader.load();
 		return true;
 	}
+	
+	/**
+         * Reloads the {@link RenderingControl} for the given pixelsID
+         * (Note: This is a blocking method, for asynchronous call use 
+         *   {@link fireRenderingControlLoading(long, int)} instead
+         * @param pixelsID The id of the pixels set.
+         */
+        void loadRenderingControl(long pixelsID) {
+            OmeroImageService rds = MetadataViewerAgent.getRegistry()
+                    .getImageService();
+            try {
+                RenderingControl ctrl = rds.loadRenderingControl(
+                        new SecurityContext(((DataObject)refObject).getGroupId()), pixelsID);
+                setRenderingControl(ctrl);
+            } catch (Throwable e) {
+                LogMessage msg = new LogMessage();
+                msg.print("Could not reload RenderingControl for pixelsId="+pixelsID);
+                msg.print(e);
+                MetadataViewerAgent.getRegistry().getLogger().warn(this, msg);
+            }
+    
+        }
 	
 	/**
 	 * Sets the rendering control.
@@ -4276,6 +4301,9 @@ class EditorModel
 	 */
 	void updateChannels(List<ChannelData> channels)
 	{
+	    if (channelAcquisitionDataMap != null) {
+	        channelAcquisitionDataMap.clear();
+	    }
 		List l = sorter.sort(channels); 
 		emissionsWavelengths = new LinkedHashMap();
 		Iterator i = l.iterator();

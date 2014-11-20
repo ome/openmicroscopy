@@ -8,7 +8,6 @@
 package ome.api;
 
 import java.util.List;
-import java.util.Map;
 
 import ome.annotations.NotNull;
 import ome.model.meta.Experimenter;
@@ -122,6 +121,16 @@ public interface ILdap extends ServiceInterface {
     String username);
 
     /**
+     * Looks up the DN for a group.
+     *
+     * @return an String Distinguished Name. Never null.
+     * @throws ome.conditions.ApiUsageException
+     *             if more then one 'cn' under the specified base.
+     */
+    String findGroupDN(@NotNull
+    String groupname);
+
+    /**
      * Searches Experimenter by unique Distinguished Name -
      * {@link java.lang.String} in LDAP for Common Name equals username. Common
      * Name should be unique under the specified base. If list of cn's contains
@@ -137,15 +146,30 @@ public interface ILdap extends ServiceInterface {
     String username);
 
     /**
-     * Searches all {@link ome.model.meta.Experimenter} in LDAP for objectClass =
-     * person
+     * Looks up a specific {@link ome.model.meta.ExperimenterGroup} in LDAP
+     * using the provided group name. It is expected that the group name will be
+     * unique in the searched LDAP base tree. If more than one group with the
+     * specified name has been found, an exception will be thrown.
      *
-     * @param omeName
-     *            Name of the Experimenter
-     * @return an Experimenter. Never null.
+     * @param groupname
+     * @return an ExperimenterGroup. Never <code>null</null>.
      * @throws ome.conditions.ApiUsageException
-     *             if omeName does not exist.
+     *             if more then one group name matches under the specified base.
      */
+    ExperimenterGroup findGroup(@NotNull
+    String groupname);
+
+    /**
+     * Sets the value of the <code>dn</code> column in the <code>password</code>
+     * table to the supplied string, for the supplied
+     * {@link ome.model.meta.Experimenter} ID.
+     *
+     * @param experimenterID
+     * @param dn
+     * @deprecated As of release 5.1, relevant model objects have the "ldap"
+     *             property added to their state.
+     */
+    @Deprecated
     void setDN(@NotNull
     Long experimenterID, @NotNull
     String dn);
@@ -166,11 +190,20 @@ public interface ILdap extends ServiceInterface {
     Experimenter createUser(@NotNull String username);
 
     /**
-     * Discovers DNs for {@link ome.model.meta.Experimenter}s who are present in
-     * the remote LDAP server but their DN in the OMERO DB is missing or no
-     * longer matches.
+     * Discovers and lists {@link ome.model.meta.Experimenter}s who are present
+     * in the remote LDAP server and in the local DB but have the
+     * <code>ldap</code> property set to <code>false</code>.
      *
-     * @return list of DN-to-Experimenter maps.
+     * @return list of Experimenters.
      */
-     Map<String, Experimenter> discover();
+     List<Experimenter> discover();
+
+     /**
+     * Discovers and lists {@link ome.model.meta.ExperimenterGroup}s which are
+     * present in the remote LDAP server and in the local DB but have the
+     * <code>ldap</code> property set to <code>false</code>.
+     *
+     * @return list of ExperimenterGroups.
+     */
+     List<ExperimenterGroup> discoverGroups();
 }

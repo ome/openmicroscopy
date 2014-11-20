@@ -116,7 +116,17 @@ var tagging_form = function(
             }
         }
         div_all_tags.append(html);
-        $(".tag_selection div").on('click', tag_click).tooltip();
+        // TODO This tooltip application is used until the extra data has loaded
+        // at which point the tooltips are updated and this handler is replaced?
+        $(".tag_selection div").on('click', tag_click).tooltip({
+            track: false,
+            show: false,
+            hide: false,
+            items: '[data-content]',
+            content: function() {
+                return $(this).data('content');
+            }
+        });
     };
 
     var update_selected_labels = function() {
@@ -153,10 +163,14 @@ var tagging_form = function(
                 link_owner = 'you and ' + link_owner;
             }
         }
-        this.setAttribute("title", create_tag_title(
-            tag.d, owners[tag.o], parent_id ? parent_id.t : null,
-            link_owner));
-        $this.tooltip();
+        var title = create_tag_title(tag.d, owners[tag.o], parent_id ? parent_id.t : null,
+            link_owner);
+        $this.tooltip({
+            track: false,
+            show: false,
+            hide: false,
+            content: title
+        });
     };
 
     var update_html_list = function(list) {
@@ -193,7 +207,7 @@ var tagging_form = function(
         };
 
         $(":button:contains('Reset'),:button:contains('Save')",
-            $("#add_tags_form").parent()).attr("disabled", "disabled").addClass(
+            $("#add_tags_form").parent()).prop("disabled", true).addClass(
             'ui-state-disabled');
 
         progressbar_label.text("Initializing");
@@ -349,7 +363,7 @@ var tagging_form = function(
         if (loaded) {
             $(":button:contains('Reset'),:button:contains('Save')",
               $("#add_tags_form").parent()
-              ).removeAttr("disabled").removeClass('ui-state-disabled');
+              ).prop("disabled", false).removeClass('ui-state-disabled');
         }
     };
 
@@ -388,9 +402,8 @@ var tagging_form = function(
             html += " data-description='" + encode_html(description) + "'";
         }
         var title = create_tag_title(description, owner, tagset);
-        if (title) {
-            html += " title='" + title.replace(/'/g, "&#39;") + "'";
-        }
+        // Add content even if it is empty and handle case for no tooltip in the tooltip code
+        html += " data-content='" + title.replace(/'/g, "&#39;") + "'";
         html += ">" + encode_html(text) + "</div>";
         return html;
     };
@@ -630,7 +643,15 @@ var tagging_form = function(
             var div = $(create_tag_html(
                 text, description, my_name, new_tag_counter,
                 tagset ? tagset.attr('data-id') : null));
-            div.addClass('ui-selected').on('click', tag_click).tooltip();
+            div.addClass('ui-selected').on('click', tag_click).tooltip({
+                track: true,
+                show: false,
+                hide: false,
+                items: '[data-content]',
+                content: function() {
+                    return $(this).data('content');
+                }
+            });
             $("div.ui-selected", div_selected_tags).removeClass('ui-selected');
             div_selected_tags.append(div);
             tag_input.val('').focus();
@@ -647,7 +668,7 @@ var tagging_form = function(
     };
 
     var add_new_tag_on_enter_key = function(event) {
-        if (event.which === 13 && !$("#id_add_new_tag").attr('disabled')) {
+        if (event.which === 13 && !$("#id_add_new_tag").prop('disabled')) {
             add_new_tag(event);
         }
     };
@@ -689,9 +710,9 @@ var tagging_form = function(
     var update_add_new_button_state = function() {
         if (loaded && tag_input.val() !== '' &&
             tag_input.val() !== tag_input.attr('placeholder')) {
-            $("#id_add_new_tag").removeAttr('disabled');
+            $("#id_add_new_tag").prop('disabled', false);
         } else {
-            $("#id_add_new_tag").attr('disabled','disabled');
+            $("#id_add_new_tag").prop('disabled', true);
         }
     };
 
@@ -706,11 +727,6 @@ var tagging_form = function(
     $("select[name=filter_mode],select[name=filter_owner_mode]").change(
         update_filter);
 
-    $("#id_tag_info_button").on('click', function(event) {
-        event.preventDefault();
-    }).tooltip();
-
-    //load_tags();
     loader();
 
     // placeholder fixes - should probably be in a more generic place

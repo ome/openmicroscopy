@@ -1,7 +1,7 @@
 *** Settings ***
 Documentation     Test login using command line.
 ...
-Resource          ../config.txt
+Resource          ../../resources/config.txt
 Resource          ../../resources/cli/login.txt
 
 *** Test Cases ***

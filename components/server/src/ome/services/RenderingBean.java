@@ -13,7 +13,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +21,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.annotations.RolesAllowed;
-import ome.api.IPixels;
 import ome.api.IRenderingSettings;
 import ome.api.IUpdate;
 import ome.api.ServiceInterface;
@@ -43,7 +41,6 @@ import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
-import ome.model.internal.Permissions;
 import ome.parameters.Parameters;
 import ome.security.SecuritySystem;
 import ome.services.util.Executor;
@@ -501,34 +498,6 @@ public class RenderingBean implements RenderingEngine, Serializable {
         }
     }
 
-	/**
-     * Implemented as specified by the {@link RenderingEngine} interface.
-     * 
-     * @see RenderingEngine#render(PlaneDef)
-     */
-    @RolesAllowed("user")
-    public int[] renderAsPackedIntAsRGBA(PlaneDef pd) {
-    	rwl.writeLock().lock();
-
-    	try {
-    		errorIfInvalidState();
-            checkPlaneDef(pd);
-            if (resolutionLevel != null)
-            {
-                renderer.setResolutionLevel(resolutionLevel);
-            }
-    		return renderer.renderAsPackedIntAsRGBA(pd, null);
-    	} catch (IOException e) {
-    	    log.error("IO error while rendering.", e);
-    	    throw new ResourceError(e.getMessage());
-    	} catch (QuantizationException e) {
-    	    log.error("Quantization exception while rendering.", e);
-    	    throw new InternalException(e.getMessage());
-    	} finally {
-    		rwl.writeLock().unlock();
-    	}
-    }
-
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
      * 
@@ -667,36 +636,6 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
     // ~ Settings
     // =========================================================================
-
-    /**
-     * Implemented as specified by the {@link RenderingEngine} interface.
-     * 
-     * @see RenderingEngine#resetDefaults()
-     */
-    @RolesAllowed("user")
-    public void resetDefaults() {
-        internalReset(true);
-    }
-
-    /**
-     * Implemented as specified by the {@link RenderingEngine} interface.
-     * 
-     * @see RenderingEngine#resetDefaults()
-     */
-    @RolesAllowed("user")
-    public void resetDefaultsNoSave() {
-        internalReset(false);
-    }
-
-    /**
-     * Implemented as specified by the {@link RenderingEngine} interface.
-     * 
-     * @see RenderingEngine#resetDefaultsSettings(boolean)
-     */
-    @RolesAllowed("user")
-    public long resetDefaultsSettings(boolean save) {
-        return internalReset(save);
-    }
 
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
@@ -997,7 +936,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
         try {
             errorIfInvalidState();
             ChannelBinding[] cb = renderer.getChannelBindings();
-            return cb[w].getInputEnd().intValue();
+            return cb[w].getInputEnd().doubleValue();
         } finally {
             rwl.readLock().unlock();
         }
@@ -1015,7 +954,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
         try {
             errorIfInvalidState();
             ChannelBinding[] cb = renderer.getChannelBindings();
-            return cb[w].getInputStart().intValue();
+            return cb[w].getInputStart().doubleValue();
         } finally {
             rwl.readLock().unlock();
         }

@@ -204,6 +204,12 @@ class WebControl(BaseControl):
                     fastcgi_external = '-socket "%s/var/django_fcgi.sock"' % \
                         self.ctx.dir
                 d["FASTCGI_EXTERNAL"] = fastcgi_external
+                try:
+                    d["REWRITERULE"] = \
+                        "RewriteEngine on\nRewriteRule ^/?$ %s/ [R]\n"\
+                        % settings.FORCE_SCRIPT_NAME.rstrip("/")
+                except:
+                    d["REWRITERULE"] = ""
                 d["NOW"] = str(datetime.now())
 
             self.ctx.out(c % d)
@@ -216,7 +222,8 @@ class WebControl(BaseControl):
         if not args.appname:
             apps = [x.name for x in filter(
                 lambda x: x.isdir() and
-                (x / 'scripts' / 'enable.py').exists(), location.listdir())]
+                (x / 'scripts' / 'enable.py').exists(),
+                location.listdir(unreadable_as_empty=True))]
             iapps = map(lambda x: x.startswith('omeroweb.') and x[9:] or
                         x, settings.INSTALLED_APPS)
             apps = filter(lambda x: x not in iapps, apps)

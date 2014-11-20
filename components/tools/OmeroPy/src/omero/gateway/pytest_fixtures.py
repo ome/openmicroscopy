@@ -14,12 +14,14 @@ from omero.gateway.scripts.testdb_create import TestDBHelper, dbhelpers
 
 import pytest
 
+
 class GatewayWrapper (TestDBHelper):
-    def __init__ (self):
+
+    def __init__(self):
         super(GatewayWrapper, self).__init__()
         self.setUp(skipTestDB=False, skipTestImages=True)
 
-    def createTestImg_generated (self):
+    def createTestImg_generated(self):
         ds = self.getTestDataset()
         assert ds
         testimg = self.createTestImage(dataset=ds)
@@ -27,12 +29,13 @@ class GatewayWrapper (TestDBHelper):
 
 
 @pytest.fixture(scope='class')
-def gatewaywrapper (request):
+def gatewaywrapper(request):
     """
     Returns a test helper gateway object.
     """
     g = GatewayWrapper()
-    def fin ():
+
+    def fin():
         g.tearDown()
         dbhelpers.cleanup()
     request.addfinalizer(fin)
@@ -40,7 +43,7 @@ def gatewaywrapper (request):
 
 
 @pytest.fixture(scope='function')
-def author_testimg_generated (request, gatewaywrapper):
+def author_testimg_generated(request, gatewaywrapper):
     """
     logs in as Author and returns the test image, creating it first if needed.
     """
@@ -48,8 +51,9 @@ def author_testimg_generated (request, gatewaywrapper):
     rv = gatewaywrapper.createTestImg_generated()
     return rv
 
+
 @pytest.fixture(scope='function')
-def author_testimg_tiny (request, gatewaywrapper):
+def author_testimg_tiny(request, gatewaywrapper):
     """
     logs in as Author and returns the test image, creating it first if needed.
     """
@@ -57,8 +61,9 @@ def author_testimg_tiny (request, gatewaywrapper):
     rv = gatewaywrapper.getTinyTestImage(autocreate=True)
     return rv
 
+
 @pytest.fixture(scope='function')
-def author_testimg_tiny2 (request, gatewaywrapper):
+def author_testimg_tiny2(request, gatewaywrapper):
     """
     logs in as Author and returns the test image, creating it first if needed.
     """
@@ -66,8 +71,9 @@ def author_testimg_tiny2 (request, gatewaywrapper):
     rv = gatewaywrapper.getTinyTestImage2(autocreate=True)
     return rv
 
+
 @pytest.fixture(scope='function')
-def author_testimg (request, gatewaywrapper):
+def author_testimg(request, gatewaywrapper):
     """
     logs in as Author and returns the test image, creating it first if needed.
     """
@@ -75,8 +81,9 @@ def author_testimg (request, gatewaywrapper):
     rv = gatewaywrapper.getTestImage(autocreate=True)
     return rv
 
+
 @pytest.fixture(scope='function')
-def author_testimg_bad (request, gatewaywrapper):
+def author_testimg_bad(request, gatewaywrapper):
     """
     logs in as Author and returns the test image, creating it first if needed.
     """
@@ -84,8 +91,9 @@ def author_testimg_bad (request, gatewaywrapper):
     rv = gatewaywrapper.getBadTestImage(autocreate=True)
     return rv
 
+
 @pytest.fixture(scope='function')
-def author_testimg_big (request, gatewaywrapper):
+def author_testimg_big(request, gatewaywrapper):
     """
     logs in as Author and returns the test image, creating it first if needed.
     """

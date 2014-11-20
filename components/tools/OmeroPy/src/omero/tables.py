@@ -6,33 +6,31 @@
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
-import os
 import Ice
 import time
 import numpy
-import signal
 import logging
 import threading
 import traceback
-import subprocess
-import portalocker # Third-party
 
 from path import path
 
 
-import omero # Do we need both??
+import omero  # Do we need both??
 import omero.clients
 import omero.callbacks
 
 # For ease of use
-from omero.columns import *
-from omero.rtypes import *
+from omero.columns import columns2definition
+from omero.rtypes import rfloat, rint, rlong, rstring, unwrap, wrap
 from omero.util.decorators import remoted, locked, perf
+from omero_ext import portalocker
 from omero_ext.functional import wraps
 
 
-sys = __import__("sys") # Python sys
-tables = __import__("tables") # Pytables
+sys = __import__("sys")  # Python sys
+tables = __import__("tables")  # Pytables
+
 
 def slen(rv):
     """
@@ -43,7 +41,8 @@ def slen(rv):
         return None
     return len(rv)
 
-def stamped(func, update = False):
+
+def stamped(func, update=False):
     """
     Decorator which takes the first argument after "self" and compares
     that to the last modification time. If the stamp is older, then the
@@ -59,15 +58,17 @@ def stamped(func, update = False):
         self = args[0]
         stamp = args[1]
         if stamp < self._stamp:
-            raise omero.OptimisticLockException(None, None, "Resource modified by another thread")
+            raise omero.OptimisticLockException(
+                None, None, "Resource modified by another thread")
 
         try:
             return func(*args, **kwargs)
         finally:
             if update:
                 self._stamp = time.time()
-    checked_and_update_stamp = wraps(func)(check_and_update_stamp)
+    check_and_update_stamp = wraps(func)(check_and_update_stamp)
     return locked(check_and_update_stamp)
+
 
 def modifies(func):
     """
@@ -84,6 +85,7 @@ def modifies(func):
 
 
 class HdfList(object):
+
     """
     Since two calls to tables.openFile() return non-equal files
     with equal fileno's, portalocker cannot be used to prevent
@@ -106,21 +108,25 @@ class HdfList(object):
     def addOrThrow(self, hdfpath, hdfstorage):
 
         if hdfpath in self.__locks:
-            raise omero.LockTimeout(None, None, "Path already in HdfList: %s" % hdfpath)
+            raise omero.LockTimeout(
+                None, None, "Path already in HdfList: %s" % hdfpath)
 
         parent = path(hdfpath).parent
         if not parent.exists():
-            raise omero.ApiUsageException(None, None, "Parent directory does not exist: %s" % parent)
+            raise omero.ApiUsageException(
+                None, None, "Parent directory does not exist: %s" % parent)
 
         lock = None
         try:
             lock = open(hdfpath, "a+")
-            portalocker.lock(lock, portalocker.LOCK_NB|portalocker.LOCK_EX)
+            portalocker.lock(lock, portalocker.LOCK_NB | portalocker.LOCK_EX)
             self.__locks[hdfpath] = lock
-        except portalocker.LockException, le:
+        except portalocker.LockException:
             if lock:
                 lock.close()
-            raise omero.LockTimeout(None, None, "Cannot acquire exclusive lock on: %s" % hdfpath, 0)
+            raise omero.LockTimeout(
+                None, None,
+                "Cannot acquire exclusive lock on: %s" % hdfpath, 0)
         except:
             if lock:
                 lock.close()
@@ -130,7 +136,8 @@ class HdfList(object):
         fileno = hdffile.fileno()
         if fileno in self.__filenos.keys():
             hdffile.close()
-            raise omero.LockTimeout(None, None, "File already opened by process: %s" % hdfpath, 0)
+            raise omero.LockTimeout(
+                None, None, "File already opened by process: %s" % hdfpath, 0)
         else:
             self.__filenos[fileno] = hdfstorage
             self.__paths[hdfpath] = hdfstorage
@@ -142,7 +149,7 @@ class HdfList(object):
         try:
             return self.__paths[hdfpath]
         except KeyError:
-            return HdfStorage(hdfpath, self._lock) # Adds itself.
+            return HdfStorage(hdfpath, self._lock)  # Adds itself.
 
     @locked
     def remove(self, hdfpath, hdffile):
@@ -155,21 +162,22 @@ class HdfList(object):
                     lock.close()
                 finally:
                     del self.__locks[hdfpath]
-        except Exception, e:
-            self.logger.warn("Exception on remove(%s)" % hdfpath, exc_info=True)
+        except Exception:
+            self.logger.warn("Exception on remove(%s)" %
+                             hdfpath, exc_info=True)
 
 # Global object for maintaining files
 HDFLIST = HdfList()
 
+
 class HdfStorage(object):
+
     """
     Provides HDF-storage for measurement results. At most a single
     instance will be available for any given physical HDF5 file.
     """
 
-
     def __init__(self, file_path, hdf5lock):
-
         """
         file_path should be the path to a file in a valid directory where
         this HDF instance can be stored (Not None or Empty). Once this
@@ -217,9 +225,10 @@ class HdfStorage(object):
         try:
             if self.__hdf_path.exists() and self.__hdf_path.size == 0:
                 mode = "w"
-            return tables.openFile(str(self.__hdf_path), mode=mode,\
-                title="OMERO HDF Measurement Storage", rootUEP="/")
-        except (tables.HDF5ExtError, IOError), io:
+            return tables.openFile(str(self.__hdf_path), mode=mode,
+                                   title="OMERO HDF Measurement Storage",
+                                   rootUEP="/")
+        except (tables.HDF5ExtError, IOError):
             msg = "HDFStorage initialized with bad path: %s" % self.__hdf_path
             self.logger.error(msg)
             raise omero.ValidationException(None, None, msg)
@@ -243,19 +252,24 @@ class HdfStorage(object):
                 maxcol = max(colNumbers)
                 totcol = self.__width()
                 if maxcol >= totcol:
-                    raise omero.ApiUsageException(None, None, "Column overflow: %s >= %s" % (maxcol, totcol))
+                    raise omero.ApiUsageException(
+                        None, None, "Column overflow: %s >= %s"
+                        % (maxcol, totcol))
             else:
-                raise omero.ApiUsageException(None, None, "Columns not specified: %s" % colNumbers)
-
+                raise omero.ApiUsageException(
+                    None, None, "Columns not specified: %s" % colNumbers)
 
         if rowNumbers is not None:
             if len(rowNumbers) > 0:
                 maxrow = max(rowNumbers)
                 totrow = self.__length()
                 if maxrow >= totrow:
-                    raise omero.ApiUsageException(None, None, "Row overflow: %s >= %s" % (maxrow, totrow))
+                    raise omero.ApiUsageException(
+                        None, None, "Row overflow: %s >= %s"
+                        % (maxrow, totrow))
             else:
-                raise omero.ApiUsageException(None, None, "Rows not specified: %s" % rowNumbers)
+                raise omero.ApiUsageException(
+                    None, None, "Rows not specified: %s" % rowNumbers)
 
     #
     # Locked methods
@@ -273,11 +287,12 @@ class HdfStorage(object):
 
     @locked
     @modifies
-    def initialize(self, cols, metadata = None):
+    def initialize(self, cols, metadata=None):
         """
 
         """
-        if metadata is None: metadata = {}
+        if metadata is None:
+            metadata = {}
 
         if self.__initialized:
             raise omero.ValidationException(None, None, "Already initialized.")
@@ -287,16 +302,20 @@ class HdfStorage(object):
 
         for c in cols:
             if not c.name:
-                raise omero.ApiUsageException(None, None, "Column unnamed: %s" % c)
+                raise omero.ApiUsageException(
+                    None, None, "Column unnamed: %s" % c)
 
         self.__definition = columns2definition(cols)
         self.__ome = self.__hdf_file.createGroup("/", "OME")
-        self.__mea = self.__hdf_file.createTable(self.__ome, "Measurements", self.__definition)
+        self.__mea = self.__hdf_file.createTable(
+            self.__ome, "Measurements", self.__definition)
 
-        self.__types = [ x.ice_staticId() for x in cols ]
-        self.__descriptions = [ (x.description != None) and x.description or "" for x in cols ]
+        self.__types = [x.ice_staticId() for x in cols]
+        self.__descriptions = [
+            (x.description is not None) and x.description or "" for x in cols]
         self.__hdf_file.createArray(self.__ome, "ColumnTypes", self.__types)
-        self.__hdf_file.createArray(self.__ome, "ColumnDescriptions", self.__descriptions)
+        self.__hdf_file.createArray(
+            self.__ome, "ColumnDescriptions", self.__descriptions)
 
         self.__mea.attrs.version = "v1"
         self.__mea.attrs.initialized = time.time()
@@ -311,7 +330,8 @@ class HdfStorage(object):
     @locked
     def incr(self, table):
         sz = len(self.__tables)
-        self.logger.info("Size: %s - Attaching %s to %s" % (sz, table, self.__hdf_path))
+        self.logger.info("Size: %s - Attaching %s to %s" %
+                         (sz, table, self.__hdf_path))
         if table in self.__tables:
             self.logger.warn("Already added")
             raise omero.ApiUsageException(None, None, "Already added")
@@ -321,7 +341,8 @@ class HdfStorage(object):
     @locked
     def decr(self, table):
         sz = len(self.__tables)
-        self.logger.info("Size: %s - Detaching %s from %s", sz, table, self.__hdf_path)
+        self.logger.info(
+            "Size: %s - Detaching %s from %s", sz, table, self.__hdf_path)
         if not (table in self.__tables):
             self.logger.warn("Unknown table")
             raise omero.ApiUsageException(None, None, "Unknown table")
@@ -357,7 +378,8 @@ class HdfStorage(object):
                 cols.append(col)
             except:
                 msg = traceback.format_exc()
-                raise omero.ValidationException(None, msg, "BAD COLUMN TYPE: %s for %s" % (t,n))
+                raise omero.ValidationException(
+                    None, msg, "BAD COLUMN TYPE: %s for %s" % (t, n))
         return cols
 
     @locked
@@ -404,10 +426,11 @@ class HdfStorage(object):
                 sz = col.getsize()
             else:
                 if sz != col.getsize():
-                    raise omero.ValidationException("Columns are of differing length")
+                    raise omero.ValidationException(
+                        "Columns are of differing length")
             arrays.extend(col.arrays())
             dtypes.extend(col.dtypes())
-            col.append(self.__mea) # Potential corruption !!!
+            col.append(self.__mea)  # Potential corruption !!!
 
         # Convert column-wise data to row-wise records
         records = numpy.array(zip(*arrays), dtype=dtypes)
@@ -428,10 +451,12 @@ class HdfStorage(object):
                     getattr(self.__mea.cols, col.name)[rn] = col.values[i]
 
     @stamped
-    def getWhereList(self, stamp, condition, variables, unused, start, stop, step):
+    def getWhereList(self, stamp, condition, variables, unused,
+                     start, stop, step):
         self.__initcheck()
         try:
-            return self.__mea.getWhereList(condition, variables, None, start, stop, step).tolist()
+            return self.__mea.getWhereList(condition, variables, None,
+                                           start, stop, step).tolist()
         except (NameError, SyntaxError, TypeError, ValueError), err:
             aue = omero.ApiUsageException()
             aue.message = "Bad condition: %s, %s" % (condition, variables)
@@ -446,7 +471,8 @@ class HdfStorage(object):
         data = omero.grid.Data()
         data.columns = cols
         data.rowNumbers = rowNumbers
-        data.lastModification = long(self._stamp*1000) # Convert to millis since epoch
+        # Convert to millis since epoch
+        data.lastModification = long(self._stamp * 1000)
         return data
 
     @stamped
@@ -466,14 +492,14 @@ class HdfStorage(object):
 
         rows = self._getrows(start, stop)
         rv, l = self._rowstocols(rows, colNumbers, cols)
-        return self._as_data(rv, range(start, start+l))
+        return self._as_data(rv, range(start, start + l))
 
     def _getrows(self, start, stop):
         return self.__mea.read(start, stop)
 
     def _rowstocols(self, rows, colNumbers, cols):
         l = 0
-        rv   = []
+        rv = []
         for i in colNumbers:
             col = cols[i]
             col.fromrows(rows)
@@ -493,7 +519,7 @@ class HdfStorage(object):
 
         self.__sizecheck(colNumbers, rowNumbers)
         cols = self.cols(None, current)
-        rv   = []
+        rv = []
         for i in colNumbers:
             col = cols[i]
             col.readCoordinates(self.__mea, rowNumbers)
@@ -518,24 +544,26 @@ class HdfStorage(object):
             HDFLIST.remove(self.__hdf_path, self.__hdf_file)
         hdffile = self.__hdf_file
         self.__hdf_file = None
-        hdffile.close() # Resources freed
+        hdffile.close()  # Resources freed
 
 # End class HdfStorage
 
 
 class TableI(omero.grid.Table, omero.util.SimpleServant):
+
     """
     Spreadsheet implementation based on pytables.
     """
 
-    def __init__(self, ctx, file_obj, factory, storage, uuid = "unknown", \
-            call_context = None):
+    def __init__(self, ctx, file_obj, factory, storage, uuid="unknown",
+                 call_context=None):
         self.uuid = uuid
         self.file_obj = file_obj
         self.factory = factory
         self.storage = storage
         self.call_context = call_context
-        self.can_write = factory.getAdminService().canUpdate(file_obj, call_context)
+        self.can_write = factory.getAdminService().canUpdate(
+            file_obj, call_context)
         omero.util.SimpleServant.__init__(self, ctx)
 
         self.stamp = time.time()
@@ -544,12 +572,11 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         self._closed = False
 
         if (not self.file_obj.isLoaded() or
-            self.file_obj.getDetails() is None or
-            self.file_obj.details.group is None):
+                self.file_obj.getDetails() is None or
+                self.file_obj.details.group is None):
             self.file_obj = self.ctx.getSession().getQueryService().get(
                 'omero.model.OriginalFileI', unwrap(file_obj.id),
                 {"omero.group": "-1"})
-
 
     def assert_write(self):
         """
@@ -560,7 +587,8 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         ticket:2910
         """
         if not self.can_write:
-            raise omero.SecurityViolation("Current user cannot write to file %s" % self.file_obj.id.val)
+            raise omero.SecurityViolation(
+                "Current user cannot write to file %s" % self.file_obj.id.val)
 
     def check(self):
         """
@@ -600,7 +628,7 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
 
     @remoted
     @perf
-    def close(self, current = None):
+    def close(self, current=None):
 
         if self._closed:
             self.logger.warn(
@@ -608,7 +636,6 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
                 unwrap(self.file_obj.id) if self.file_obj else None)
             return
 
-        size = self.storage.size() # Size to reset the server object to
         modified = self.storage.modified()
 
         try:
@@ -624,14 +651,19 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         if self.file_obj is not None and self.can_write and modified:
             gid = unwrap(self.file_obj.details.group.id)
             client_uuid = self.factory.ice_getIdentity().category[8:]
-            ctx = {"omero.group": str(gid), omero.constants.CLIENTUUID: client_uuid}
+            ctx = {
+                "omero.group": str(gid),
+                omero.constants.CLIENTUUID: client_uuid}
             try:
+                # Size to reset the server object to (must be checked after
+                # the underlying HDF file has been closed)
+                size = self.storage.size()
                 rfs = self.factory.createRawFileStore(ctx)
                 try:
                     rfs.setFileId(fid, ctx)
                     if size:
                         rfs.truncate(size, ctx)     # May do nothing
-                        rfs.write([], size, 0, ctx) # Force an update
+                        rfs.write([], size, 0, ctx)  # Force an update
                     else:
                         rfs.write([], 0, 0, ctx)    # No-op
                     file_obj = rfs.save(ctx)
@@ -646,12 +678,11 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         else:
             self.logger.info("File object %s not updated", fid)
 
-
     # TABLES READ API ============================
 
     @remoted
     @perf
-    def getOriginalFile(self, current = None):
+    def getOriginalFile(self, current=None):
         msg = "unknown"
         if self.file_obj:
             if self.file_obj.id:
@@ -661,36 +692,41 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
 
     @remoted
     @perf
-    def getHeaders(self, current = None):
+    def getHeaders(self, current=None):
         rv = self.storage.cols(None, current)
         self.logger.info("%s.getHeaders() => size=%s", self, slen(rv))
         return rv
 
     @remoted
     @perf
-    def getNumberOfRows(self, current = None):
+    def getNumberOfRows(self, current=None):
         rv = self.storage.rows()
         self.logger.info("%s.getNumberOfRows() => %s", self, rv)
         return long(rv)
 
     @remoted
     @perf
-    def getWhereList(self, condition, variables, start, stop, step, current = None):
+    def getWhereList(self, condition, variables,
+                     start, stop, step, current=None):
         variables = unwrap(variables)
         if stop == 0:
             stop = None
         if step == 0:
             step = None
-        rv = self.storage.getWhereList(self.stamp, condition, variables, None, start, stop, step)
-        self.logger.info("%s.getWhereList(%s, %s, %s, %s, %s) => size=%s", self, condition, variables, start, stop, step, slen(rv))
+        rv = self.storage.getWhereList(
+            self.stamp, condition, variables, None, start, stop, step)
+        self.logger.info("%s.getWhereList(%s, %s, %s, %s, %s) => size=%s",
+                         self, condition, variables,
+                         start, stop, step, slen(rv))
         return rv
 
     @remoted
     @perf
-    def readCoordinates(self, rowNumbers, current = None):
+    def readCoordinates(self, rowNumbers, current=None):
         self.logger.info("%s.readCoordinates(size=%s)", self, slen(rowNumbers))
         try:
-            return self.storage.readCoordinates(self.stamp, rowNumbers, current)
+            return self.storage.readCoordinates(self.stamp, rowNumbers,
+                                                current)
         except tables.HDF5ExtError, err:
             aue = omero.ApiUsageException()
             aue.message = "Error reading coordinates. Most likely out of range"
@@ -700,12 +736,13 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
 
     @remoted
     @perf
-    def read(self, colNumbers, start, stop, current = None):
+    def read(self, colNumbers, start, stop, current=None):
         self.logger.info("%s.read(%s, %s, %s)", self, colNumbers, start, stop)
         if start == 0L and stop == 0L:
             stop = None
         try:
-            return self.storage.read(self.stamp, colNumbers, start, stop, current)
+            return self.storage.read(self.stamp, colNumbers,
+                                     start, stop, current)
         except tables.HDF5ExtError, err:
             aue = omero.ApiUsageException()
             aue.message = "Error reading coordinates. Most likely out of range"
@@ -715,15 +752,17 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
 
     @remoted
     @perf
-    def slice(self, colNumbers, rowNumbers, current = None):
-        self.logger.info("%s.slice(size=%s, size=%s)", self, slen(colNumbers), slen(rowNumbers))
+    def slice(self, colNumbers, rowNumbers, current=None):
+        self.logger.info(
+            "%s.slice(size=%s, size=%s)", self,
+            slen(colNumbers), slen(rowNumbers))
         return self.storage.slice(self.stamp, colNumbers, rowNumbers, current)
 
     # TABLES WRITE API ===========================
 
     @remoted
     @perf
-    def initialize(self, cols, current = None):
+    def initialize(self, cols, current=None):
         self.assert_write()
         self.storage.initialize(cols)
         if cols:
@@ -731,34 +770,36 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
 
     @remoted
     @perf
-    def addColumn(self, col, current = None):
+    def addColumn(self, col, current=None):
         self.assert_write()
         raise omero.ApiUsageException(None, None, "NYI")
 
     @remoted
     @perf
-    def addData(self, cols, current = None):
+    def addData(self, cols, current=None):
         self.assert_write()
         self.storage.append(cols)
-        sz = 0
         if cols and cols[0] and cols[0].getsize():
-            self.logger.info("Added %s row(s) of data to %s", cols[0].getsize(), self)
+            self.logger.info(
+                "Added %s row(s) of data to %s", cols[0].getsize(), self)
 
     @remoted
     @perf
-    def update(self, data, current = None):
+    def update(self, data, current=None):
         self.assert_write()
         if data:
             self.storage.update(self.stamp, data)
-            self.logger.info("Updated %s row(s) of data to %s", slen(data.rowNumbers), self)
+            self.logger.info(
+                "Updated %s row(s) of data to %s", slen(data.rowNumbers), self)
 
     @remoted
     @perf
-    def delete(self, current = None):
+    def delete(self, current=None):
         self.assert_write()
         self.close()
         prx = self.factory.getDeleteService()
-        dc = omero.api.delete.DeleteCommand("/OriginalFile", self.file_obj.id.val, None)
+        dc = omero.api.delete.DeleteCommand(
+            "/OriginalFile", self.file_obj.id.val, None)
         handle = prx.queueDelete([dc])
         self.file_obj = None
         # TODO: possible just return handle?
@@ -775,12 +816,11 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
                     return
         raise omero.InternalException(None, None, "delete timed-out")
 
-
     # TABLES METADATA API ===========================
 
     @remoted
     @perf
-    def getMetadata(self, key, current = None):
+    def getMetadata(self, key, current=None):
         rv = self.storage.get_meta_map()
         rv = rv.get(key)
         self.logger.info("%s.getMetadata() => %s", self, unwrap(rv))
@@ -788,28 +828,30 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
 
     @remoted
     @perf
-    def getAllMetadata(self, current = None):
+    def getAllMetadata(self, current=None):
         rv = self.storage.get_meta_map()
         self.logger.info("%s.getMetadata() => size=%s", self, slen(rv))
         return rv
 
     @remoted
     @perf
-    def setMetadata(self, key, value, current = None):
+    def setMetadata(self, key, value, current=None):
         self.assert_write()
         self.storage.add_meta_map({key: value})
         self.logger.info("%s.setMetadata() => %s=%s", self, key, unwrap(value))
 
     @remoted
     @perf
-    def setAllMetadata(self, value, current = None):
+    def setAllMetadata(self, value, current=None):
         self.assert_write()
         self.storage.add_meta_map({"key": wrap(value)})
         self.logger.info("%s.setMetadata() => number=%s", self, slen(value))
 
     # Column methods missing
 
+
 class TablesI(omero.grid.Tables, omero.util.Servant):
+
     """
     Implementation of the omero.grid.Tables API. Provides
     spreadsheet like functionality across the OMERO.grid.
@@ -821,12 +863,12 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
     is reachable.
     """
 
-    def __init__(self,\
-        ctx,\
-        table_cast = omero.grid.TablePrx.uncheckedCast,\
-        internal_repo_cast = omero.grid.InternalRepositoryPrx.checkedCast):
+    def __init__(
+            self, ctx,
+            table_cast=omero.grid.TablePrx.uncheckedCast,
+            internal_repo_cast=omero.grid.InternalRepositoryPrx.checkedCast):
 
-        omero.util.Servant.__init__(self, ctx, needs_session = True)
+        omero.util.Servant.__init__(self, ctx, needs_session=True)
 
         # Storing these methods, mainly to allow overriding via
         # test methods. Static methods are evil.
@@ -844,17 +886,21 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         directory. If this is not created, then a required server has
         not started, and so this instance will not start.
         """
-        wait = int(self.communicator.getProperties().getPropertyWithDefault("omero.repo.wait", "1"))
-        self.repo_dir = self.communicator.getProperties().getProperty("omero.repo.dir")
+        wait = int(self.communicator.getProperties().getPropertyWithDefault(
+            "omero.repo.wait", "1"))
+        self.repo_dir = self.communicator.getProperties().getProperty(
+            "omero.repo.dir")
 
         if not self.repo_dir:
             # Implies this is the legacy directory. Obtain from server
-            self.repo_dir = self.ctx.getSession().getConfigService().getConfigValue("omero.data.dir")
+            self.repo_dir = self.ctx.getSession(
+                ).getConfigService().getConfigValue("omero.data.dir")
 
         self.repo_cfg = path(self.repo_dir) / ".omero" / "repository"
         start = time.time()
         while not self.repo_cfg.exists() and wait < (time.time() - start):
-            self.logger.info("%s doesn't exist; waiting 5 seconds..." % self.repo_cfg)
+            self.logger.info(
+                "%s doesn't exist; waiting 5 seconds..." % self.repo_cfg)
             self.stop_event.wait(5)
         if not self.repo_cfg.exists():
             msg = "No repository found: %s" % self.repo_cfg
@@ -878,21 +924,25 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         create a proxy for the InternalRepository attached to that.
         """
 
-        # Get and parse the uuid from the RandomAccessFile format from FileMaker
+        # Get and parse the uuid from the RandomAccessFile format from
+        # FileMaker
         self.repo_uuid = (self.instance / "repo_uuid").lines()[0].strip()
         if len(self.repo_uuid) != 38:
-            raise omero.ResourceError("Poorly formed UUID: %s" % self.repo_uuid)
+            raise omero.ResourceError(
+                "Poorly formed UUID: %s" % self.repo_uuid)
         self.repo_uuid = self.repo_uuid[2:]
 
         # Using the repo_uuid, find our OriginalFile object
-        self.repo_obj = self.ctx.getSession().getQueryService().findByQuery("select f from OriginalFile f where hash = :uuid",
+        self.repo_obj = self.ctx.getSession().getQueryService().findByQuery(
+            "select f from OriginalFile f where hash = :uuid",
             omero.sys.ParametersI().add("uuid", rstring(self.repo_uuid)))
-        self.repo_mgr = self.communicator.stringToProxy("InternalRepository-%s" % self.repo_uuid)
+        self.repo_mgr = self.communicator.stringToProxy(
+            "InternalRepository-%s" % self.repo_uuid)
         self.repo_mgr = self._internal_repo_cast(self.repo_mgr)
         self.repo_svc = self.repo_mgr.getProxy()
 
     @remoted
-    def getRepository(self, current = None):
+    def getRepository(self, current=None):
         """
         Returns the Repository object for this Tables server.
         """
@@ -900,7 +950,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
 
     @remoted
     @perf
-    def getTable(self, file_obj, factory, current = None):
+    def getTable(self, file_obj, factory, current=None):
         """
         Create and/or register a table servant.
         """
@@ -919,8 +969,8 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         storage = HDFLIST.getOrCreate(file_path)
         id = Ice.Identity()
         id.name = Ice.generateUUID()
-        table = TableI(self.ctx, file_obj, factory, storage, uuid = id.name, \
-                call_context=current.ctx)
+        table = TableI(self.ctx, file_obj, factory, storage, uuid=id.name,
+                       call_context=current.ctx)
         self.resources.add(table)
 
         prx = current.adapter.add(table, id)

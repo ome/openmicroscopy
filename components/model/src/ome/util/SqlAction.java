@@ -417,17 +417,39 @@ public interface SqlAction {
 
     List<Long> getShapeIds(long roiId);
 
-    String dnForUser(Long id);
-
-    List<Map<String, Object>> dnExperimenterMaps();
-
-    void setUserDn(Long experimenterID, String dn);
-
     boolean setUserPassword(Long experimenterID, String password);
 
     String getPasswordHash(Long experimenterID);
 
+    /**
+     * Get the user's ID
+     * @param userName the user's name
+     * @return their ID, or {@code null} if they cannot be found
+     */
     Long getUserId(String userName);
+
+    /**
+     * Get the user's name
+     * @param userId the user's ID
+     * @return their name, or {@code null} if they cannot be found
+     */
+    String getUsername(long userId);
+
+    /**
+     * Gets the experimenters who have the <code>ldap</code> attribute enabled.
+     * @return a list of user IDs.
+     */
+    List<Long> getLdapExperimenters();
+
+    /**
+     * Checks whether the specified experimenter ID has the <code>ldap</code>
+     * flag set.
+     *
+     * @param id
+     *            The experimenter ID.
+     * @return true if the experimenter is an LDAP user; false otherwise.
+     */
+    boolean isLdapExperimenter(Long id);
 
     Map<String, Long> getGroupIds(Collection<String> names);
 
@@ -542,6 +564,26 @@ public interface SqlAction {
      */
     void addMessageWithinDbPatchEnd(String version, int patch, String message);
 
+    /**
+     * Sets the given permissions bit to {@code 1}. Note: Actually sets the bit to {@code 1} in the value stored in the database,
+     * does not adopt the inverse convention associated with permissions flags.
+     * @param table the table in which to find the row
+     * @param id the value of the table's {@code id} column that identifies the row to update
+     * @param bit the bit number to set to {@code 1}, counting from {@code 0} as the least significant bit
+     * @return if the row was found in the table, regardless of the given bit's previous value
+     */
+    boolean setPermissionsBit(String table, long id, int bit);
+
+    /**
+     * Sets the given permissions bit to {@code 0}. Note: Actually sets the bit to {@code 0} in the value stored in the database,
+     * does not adopt the inverse convention associated with permissions flags.
+     * @param table the table in which to find the row
+     * @param id the value of the table's {@code id} column that identifies the row to update
+     * @param bit the bit number to set to {@code 0}, counting from {@code 0} as the least significant bit
+     * @return if the row was found in the table, regardless of the given bit's previous value
+     */
+    boolean clearPermissionsBit(String table, long id, int bit);
+
     //
     // End PgArrayHelper
     //
@@ -626,7 +668,7 @@ public interface SqlAction {
                     password, experimenterID);
             if (results < 1) {
                 results = _jdbc().update(_lookup("insert_password"), //$NON-NLS-1$
-                        experimenterID, password, null);
+                        experimenterID, password);
             }
             return results >= 1;
         }
@@ -640,6 +682,20 @@ public interface SqlAction {
             String sql = _lookup("update_permissions_for_table");
             sql = String.format(sql, table);
             return _jdbc().update(sql, internal, id);
+        }
+
+        @Override
+        public boolean setPermissionsBit(String table, long id, int bit) {
+            String sql = _lookup("set_permissions_bit");
+            sql = String.format(sql, table);
+            return _jdbc().update(sql, bit, id) > 0;
+        }
+
+        @Override
+        public boolean clearPermissionsBit(String table, long id, int bit) {
+            String sql = _lookup("clear_permissions_bit");
+            sql = String.format(sql, table);
+            return _jdbc().update(sql, bit, id) > 0;
         }
 
         //
@@ -849,6 +905,32 @@ public interface SqlAction {
             return id;
         }
 
+        @Override
+        public String getUsername(long userId) {
+            String name;
+            try {
+                name = _jdbc().queryForObject(_lookup("user_name"), //$NON-NLS-1$
+                        String.class, userId);
+            } catch (EmptyResultDataAccessException e) {
+                name = null; // This means there's not one.
+            }
+            return name;
+        }
+
+        @Override
+        public List<Long> getLdapExperimenters() {
+            return _jdbc().query(
+                    _lookup("get_ldap_experimenters"), new IdRowMapper()); //$NON-NLS-1$
+        }
+
+        @Override
+        public boolean isLdapExperimenter(Long id) {
+            String query = _lookup("is_ldap_experimenter"); //$NON-NLS-1$
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("id", id);
+            return _jdbc().queryForObject(query, Boolean.class, params);
+        }
+
         public List<String> getUserGroups(String userName) {
             List<String> roles;
             try {
@@ -1018,54 +1100,6 @@ public interface SqlAction {
             final Map<String, Object> parameters =
                     ImmutableMap.<String, Object>of("version", version, "patch", patch, "message", message);
             _jdbc().update(_lookup("adjust_within_patch.end"), parameters);
-        }
-
-        //
-        // DISTINGUISHED NAME (DN)
-        // These methods guarantee that an empty or whitespace only string
-        // will be treated as a null DN. See #4833. For maximum protection,
-        // we are performing checks here in code as well as in the SQL.
-        //
-
-        public String dnForUser(Long id) {
-            String dn;
-            try {
-                dn = _jdbc().queryForObject(
-                        _lookup("dn_for_user"), String.class, id); //$NON-NLS-1$
-            } catch (EmptyResultDataAccessException e) {
-                dn = null; // This means there's not one.
-            }
-
-            if (dn == null || dn.trim().length() == 0) {
-                return null;
-            }
-            return dn;
-        }
-
-        public List<Map<String, Object>> dnExperimenterMaps() {
-            List<Map<String, Object>> maps = _jdbc().queryForList(_lookup("dn_exp_maps")); //$NON-NLS-1$
-            List<Map<String, Object>> copy = new ArrayList<Map<String, Object>>();
-            for (Map<String, Object> map : maps) {
-                if (map.keySet().iterator().next().trim().length() > 0) {
-                    copy.add(map);
-                }
-            }
-            return copy;
-        }
-
-        public void setUserDn(Long experimenterID, String dn) {
-
-            if (dn != null && dn.trim().length() == 0) {
-                dn = null; // #4833
-            }
-
-            int results = _jdbc().update(_lookup("set_user_dn"), //$NON-NLS-1$
-                    dn, experimenterID);
-            if (results < 1) {
-                results = _jdbc().update(_lookup("insert_password"), //$NON-NLS-1$
-                        experimenterID, null, dn);
-            }
-
         }
 
         public Map<Long, byte[]> getShareData(List<Long> ids) {

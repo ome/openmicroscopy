@@ -26,18 +26,19 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
+import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
 //Third-party libraries
-
-
 import org.apache.commons.collections.CollectionUtils;
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
@@ -92,8 +93,18 @@ class RendererUI
     {
         setBackground(UIUtilities.BACKGROUND_COLOR);
         DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
-        setLayout(new BorderLayout());
-        add(pane, BorderLayout.NORTH);
+        pane.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+        
+        setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        c.anchor = GridBagConstraints.NORTHWEST;
+        c.gridx = 0;
+        c.gridy = 0;
+        c.weightx = 1;
+        c.weighty = 1;
+        c.fill = GridBagConstraints.BOTH;
+        add(pane, c);
+        
     }
 
     /**

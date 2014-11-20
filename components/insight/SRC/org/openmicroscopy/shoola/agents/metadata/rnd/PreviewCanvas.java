@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.PreviewCanvas 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 
 //Java imports
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -33,6 +34,7 @@ import javax.swing.JPanel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
 
 /** 
  * Component displaying the preview image. 
@@ -58,7 +60,6 @@ class PreviewCanvas
 	PreviewCanvas()
 	{
 		setDoubleBuffered(true);
-		setToolTipText("Double-click to launch the Viewer.");
 	}
 	
 	/**
@@ -78,11 +79,31 @@ class PreviewCanvas
      */
     public void paintComponent(Graphics g)
     {
-    	 if (image == null) return;
-         Graphics2D g2D = (Graphics2D) g;
-         ImagePaintingFactory.setGraphicRenderingSettings(g2D);
-         g2D.drawImage(image, null, 0, 0); 
-         g2D.dispose();
+        if (image == null)
+            return;
+
+        Dimension d = getSize();
+        double xFactor = (double)d.width/(double)image.getWidth();
+        double yFactor = (double)d.height/(double)image.getHeight();
+        double factor = xFactor < yFactor ? xFactor : yFactor;
+        int w = (int)(image.getWidth()*factor);
+        int h = (int)(image.getHeight()*factor);
+        BufferedImage scaledImage = Factory.scaleBufferedImage(image, w, h);
+
+        int x = (d.width - scaledImage.getWidth()) / 2;
+        int y = (d.height - scaledImage.getHeight()) / 2;
+
+        Graphics2D g2D = (Graphics2D) g;
+        
+        // paint the background
+        g2D.setColor(getBackground());
+        g2D.fillRect(0, 0, getWidth(), getHeight());
+        g2D.setColor(getForeground());
+        
+        // paint the image
+        ImagePaintingFactory.setGraphicRenderingSettings(g2D);
+        g2D.drawImage(scaledImage, null, x, y);
+        g2D.dispose();
     }
     
 }

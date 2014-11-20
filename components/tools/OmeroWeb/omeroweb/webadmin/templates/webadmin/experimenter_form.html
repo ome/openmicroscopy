@@ -87,7 +87,7 @@
         $("#id_other_groups").chosen({placeholder_text:'Type group names to add...'}).change(function(evt, data) {
             if (data && data.deselected) {
                 if (data.deselected === "0") {
-                    $("input[name='administrator']").attr('checked', false);
+                    $("input[name='administrator']").prop('checked', false);
                 }
                 $df = $('#id_default_group')
                 if ($df.val() === data.deselected){
@@ -95,7 +95,7 @@
                 } 
             } else if (data && data.selected) {
                 if (data.selected === "0") {
-                    $("input[name='administrator']").attr('checked', true);
+                    $("input[name='administrator']").prop('checked', true);
                 }
                 $("li.search-choice").click(selectDefaultGroup);
                 // In case we've added the system group:

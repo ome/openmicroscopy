@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -29,6 +29,7 @@ package org.openmicroscopy.shoola.agents.events.iviewer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.event.RequestEvent;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import pojos.ImageData;
 
 /** 
@@ -51,21 +52,58 @@ public class CopyRndSettings
 	/** The image to copy the renderig settings from. */
 	private ImageData		image;
 	
+	/** 'Pending' rendering settings */
+	private RndProxyDef rndDef;
+	
 	/**
 	 * Creates a new instance.
+	 * Used to copy saved rendering settings from an other image.
 	 * 
 	 * @param image The image to copy the rendering settings from.
 	 */
 	public CopyRndSettings(ImageData image)
 	{
-		this.image = image;
+		this(image, null);
 	}
+	
+	/**
+         * Creates a new instance.
+         * Used for copying 'pending' rendering settings, i. e.
+         * which have not yet been saved with an image.
+         * 
+         * @param image The image the rendering settings belong to.
+         * @param rndDef The copied rendering settings (can be null, in this case 
+         *                 the image's current rendering settings will be used)
+         */
+        public CopyRndSettings(ImageData image, RndProxyDef rndDef)
+        {
+                this.image = image;
+                this.rndDef = rndDef;
+                
+                if (rndDef != null
+                        && rndDef.getData().getPixels().getId().getValue() != image
+                                .getDefaultPixels().getId())
+                    throw new IllegalArgumentException(
+                            "The provided rendering settings (pixels id="
+                                    + rndDef.getData().getPixels().getId().getValue()
+                                    + " don't belong to the given image (pixels id="
+                                    + image.getDefaultPixels().getId() + ")");
+        }
 
 	/**
 	 * Returns the image to copy the rendering settings from.
 	 * 
 	 * @return See above. 
 	 */
-    public ImageData getImage() { return image; }
+        public ImageData getImage() { return image; }
+
+    	/**
+    	 * Returns the copied rendering settings;
+    	 * @return
+    	 */
+   	 public RndProxyDef getRndDef() {
+  	      return rndDef;
+  	 }
+    
     
 }

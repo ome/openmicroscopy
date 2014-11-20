@@ -35,7 +35,7 @@ from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_model_ProjectDatasetLinkI import ProjectDatasetLinkI
 from omero_sys_ParametersI import ParametersI
-from omero.rtypes import rstring, unwrap
+from omero.rtypes import rbool, rstring, unwrap
 
 
 class CallContextFixture(object):
@@ -115,6 +115,7 @@ class TestPermissions(lib.ITest):
         uuid = self.uuid()
         g = ExperimenterGroupI()
         g.name = rstring(uuid)
+        g.ldap = rbool(False)
         g.details.permissions = PermissionsI("rwrwrw")
         self.root.sf.getAdminService().createGroup(g)
 
@@ -123,7 +124,7 @@ class TestPermissions(lib.ITest):
         ec = self.client.sf.getAdminService().getEventContext()
         public_client = omero.client(rv)
         public_client.getImplicitContext().put("omero.group", uuid)
-        sf = public_client.createSession(ec.userName, "foo")
+        sf = public_client.createSession(ec.userName, ec.userName)
         ec = sf.getAdminService().getEventContext()
         assert uuid == ec.groupName
 
@@ -162,6 +163,7 @@ class TestPermissions(lib.ITest):
         # create group1
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("group1_%s" % uuid)
+        new_gr1.ldap = rbool(False)
         p = PermissionsI()
         p.setUserRead(True)
         p.setUserWrite(True)
@@ -192,6 +194,7 @@ class TestPermissions(lib.ITest):
         # create group1
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("group1_%s" % uuid)
+        new_gr1.ldap = rbool(False)
         p = PermissionsI()
         p.setUserRead(True)
         p.setUserWrite(True)
@@ -221,6 +224,7 @@ class TestPermissions(lib.ITest):
         # create group1
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("group1_%s" % uuid)
+        new_gr1.ldap = rbool(False)
         p = PermissionsI()
         p.setUserRead(True)
         p.setUserWrite(True)
@@ -251,6 +255,7 @@ class TestPermissions(lib.ITest):
         # create group1
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("group1_%s" % uuid)
+        new_gr1.ldap = rbool(False)
         p = PermissionsI()
         p.setUserRead(True)
         p.setUserWrite(True)
@@ -280,6 +285,7 @@ class TestPermissions(lib.ITest):
         # create group1
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("group1_%s" % uuid)
+        new_gr1.ldap = rbool(False)
         p = PermissionsI()
         p.setUserRead(True)
         p.setUserWrite(True)
@@ -345,6 +351,7 @@ class TestPermissions(lib.ITest):
         # create group1
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("group1_%s" % uuid)
+        new_gr1.ldap = rbool(False)
         p = PermissionsI()
         p.setUserRead(True)
         p.setUserWrite(True)
@@ -363,11 +370,13 @@ class TestPermissions(lib.ITest):
         new_exp1.omeName = rstring("user1_%s" % uuid)
         new_exp1.firstName = rstring("New")
         new_exp1.lastName = rstring("Test")
+        new_exp1.ldap = rbool(False)
         new_exp1.email = rstring("newtest@emaildomain.com")
 
         uuid = self.uuid()
         uuidGroup = ExperimenterGroupI()
         uuidGroup.name = rstring(uuid)
+        uuidGroup.ldap = rbool(False)
         uuidGroupId = admin.createGroup(uuidGroup)
         uuidGroup = ExperimenterGroupI(uuidGroupId, False)
         listOfGroups = list()
@@ -552,7 +561,7 @@ class TestPermissions(lib.ITest):
                 user = this.test.new_user()
                 props = this.test.client.getPropertyMap()
                 props["omero.user"] = user.omeName.val
-                props["omero.pass"] = "xxx"
+                props["omero.pass"] = user.omeName.val
                 client = omero.client(props, ["--omero.group=-1"])
                 self._ITest__clients.add(client)
                 client.setAgent("OMERO.py.new_client_test")

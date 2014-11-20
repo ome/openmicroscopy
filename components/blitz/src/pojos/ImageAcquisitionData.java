@@ -22,29 +22,23 @@
  */
 package pojos;
 
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
-import omero.RBool;
+import ome.formats.model.UnitsFactory;
 import omero.RDouble;
-import omero.RInt;
 import omero.RLong;
-import omero.RString;
-import omero.model.Correction;
 import omero.model.Image;
 import omero.model.ImagingEnvironment;
 import omero.model.ImagingEnvironmentI;
-import omero.model.Immersion;
+import omero.model.Length;
+import omero.model.LengthI;
 import omero.model.Medium;
-import omero.model.Objective;
-import omero.model.ObjectiveI;
 import omero.model.ObjectiveSettings;
 import omero.model.ObjectiveSettingsI;
+import omero.model.Pressure;
+import omero.model.PressureI;
 import omero.model.StageLabel;
 import omero.model.StageLabelI;
+import omero.model.Temperature;
+import omero.model.TemperatureI;
 
 /** 
  * Object hosting the acquisition metadata.
@@ -133,10 +127,11 @@ public class ImageAcquisitionData
 	 * 
 	 * @return See above.
 	 */
+	@Deprecated
 	public Object getPositionX()
 	{
 		if (label == null) return null;
-		RDouble value = label.getPositionX();
+		Length value = label.getPositionX();
 		if (value == null) return null;
 		return value.getValue();
 	}
@@ -146,10 +141,11 @@ public class ImageAcquisitionData
 	 * 
 	 * @return See above.
 	 */
+	@Deprecated
 	public Object getPositionY()
 	{
 		if (label == null) return null;
-		RDouble value = label.getPositionY();
+		Length value = label.getPositionY();
 		if (value == null) return null;
 		return value.getValue();
 	}
@@ -159,10 +155,11 @@ public class ImageAcquisitionData
 	 * 
 	 * @return See above.
 	 */
+	@Deprecated
 	public Object getPositionZ()
 	{
 		if (label == null) return null;
-		RDouble value = label.getPositionZ();
+		Length value = label.getPositionZ();
 		if (value == null) return null;
 		return value.getValue();
 	}
@@ -172,10 +169,11 @@ public class ImageAcquisitionData
 	 * 
 	 * @return See above.
 	 */
+	@Deprecated
 	public Object getTemperature()
 	{
 		if (environment == null) return null;
-		RDouble value = environment.getTemperature();
+		Temperature value = environment.getTemperature();
 		if (value == null) return null;
 		return value.getValue();
 	}
@@ -185,10 +183,11 @@ public class ImageAcquisitionData
 	 * 
 	 * @return See above.
 	 */
+	@Deprecated
 	public double getAirPressure()
 	{
 		if (environment == null) return -1;
-		RDouble value = environment.getAirPressure();
+		Pressure value = environment.getAirPressure();
 		if (value == null) return -1;
 		return value.getValue();
 	}
@@ -276,11 +275,12 @@ public class ImageAcquisitionData
 	 * 
 	 * @param value The value to set.
 	 */
+	@Deprecated
 	public void setPositionX(double value)
 	{
 		labelDirty = true;
 		if (label == null) label = new StageLabelI();
-		label.setPositionX(omero.rtypes.rdouble(value));
+		label.setPositionX(new LengthI(value, UnitsFactory.StageLabel_X));
 	}
 	
 	/**
@@ -292,7 +292,7 @@ public class ImageAcquisitionData
 	{
 		labelDirty = true;
 		if (label == null) label = new StageLabelI();
-		label.setPositionY(omero.rtypes.rdouble(value));
+		label.setPositionY(new LengthI(value, UnitsFactory.StageLabel_Y));
 	}
 	
 	/**
@@ -304,7 +304,7 @@ public class ImageAcquisitionData
 	{
 		labelDirty = true;
 		if (label == null) label = new StageLabelI();
-		label.setPositionZ(omero.rtypes.rdouble(value));
+		label.setPositionZ(new LengthI(value, UnitsFactory.StageLabel_Z));
 	}
 	
 	/**
@@ -312,11 +312,13 @@ public class ImageAcquisitionData
 	 * 
 	 * @param temperature The value to set.
 	 */
+	@Deprecated
 	public void setTemperature(double temperature)
 	{
 		imagingEnvironmentDirty = true;
 		if (environment == null) environment = new ImagingEnvironmentI();
-		environment.setTemperature(omero.rtypes.rdouble(temperature));
+		environment.setTemperature(new TemperatureI(temperature,
+		        UnitsFactory.ImagingEnvironment_Temperature));
 	}
 	
 	/**
@@ -324,11 +326,13 @@ public class ImageAcquisitionData
 	 * 
 	 * @param pressure The value to set.
 	 */
+	@Deprecated
 	public void setAirPressure(double pressure)
 	{
 		imagingEnvironmentDirty = true;
 		if (environment == null) environment = new ImagingEnvironmentI();
-		environment.setAirPressure(omero.rtypes.rdouble(pressure));
+		environment.setAirPressure(new PressureI(pressure,
+		        UnitsFactory.ImagingEnvironment_AirPressure));
 	}
 	
 	/**

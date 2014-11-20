@@ -17,6 +17,22 @@
   <dependencies defaultconfmapping="build,client,server->default">
     <!-- Internal -->
     <dependency name="dsl" rev="${omero.version}" changing="true" conf="build->build;client->runtime;server->runtime"/>
+    <!-- Bioformats -->
+    <dependency org="ome" name="bio-formats" rev="${omero.version}" changing="true" conf="build,server,client->build">
+        <artifact name="formats-api"/>
+        <artifact name="formats-bsd"/>
+        <artifact name="formats-common"/>
+        <artifact name="formats-gpl"/>
+        <artifact name="ome-xml"/>
+        <artifact name="specification"/>
+        <!-- forks & stubs -->
+        <artifact name="jai_imageio"/>
+        <artifact name="lwf-stubs"/>
+        <artifact name="mdbtools-java"/>
+        <artifact name="metakit"/>
+        <artifact name="ome-poi"/>
+        <artifact name="turbojpeg"/>
+    </dependency>
     <!-- Hibernate server -->
     <dependency org="antlr" name="antlr" rev="${versions.antlr}" conf="build,server->default"/>
     <dependency org="asm" name="asm-attrs" rev="${versions.asm}" conf="build,server->default"/>

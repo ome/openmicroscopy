@@ -15,6 +15,7 @@ import static org.testng.AssertJUnit.fail;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -32,6 +33,7 @@ import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
+import ome.formats.importer.util.ErrorHandler;
 import ome.io.nio.SimpleBackOff;
 import ome.services.blitz.repo.path.FsFile;
 import omero.ApiUsageException;
@@ -54,6 +56,7 @@ import omero.cmd.Request;
 import omero.cmd.Response;
 import omero.cmd.State;
 import omero.cmd.Status;
+import omero.model.Arc;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
 import omero.model.ChannelBinding;
@@ -62,11 +65,15 @@ import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetAnnotationLink;
 import omero.model.DatasetAnnotationLinkI;
+import omero.model.Detector;
+import omero.model.DetectorAnnotationLink;
+import omero.model.DetectorAnnotationLinkI;
 import omero.model.Experiment;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
+import omero.model.Filament;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.Fileset;
@@ -75,9 +82,19 @@ import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
+import omero.model.Instrument;
+import omero.model.InstrumentAnnotationLink;
+import omero.model.InstrumentAnnotationLinkI;
+import omero.model.Laser;
+import omero.model.LightEmittingDiode;
+import omero.model.LightSource;
+import omero.model.LightSourceAnnotationLink;
+import omero.model.LightSourceAnnotationLinkI;
 import omero.model.LongAnnotation;
 import omero.model.LongAnnotationI;
 import omero.model.OriginalFile;
+import omero.model.OriginalFileAnnotationLink;
+import omero.model.OriginalFileAnnotationLinkI;
 import omero.model.Permissions;
 import omero.model.PermissionsI;
 import omero.model.Pixels;
@@ -103,13 +120,13 @@ import omero.model.Well;
 import omero.model.WellAnnotationLink;
 import omero.model.WellAnnotationLinkI;
 import omero.model.WellSample;
-import omero.model.WellSampleAnnotationLink;
-import omero.model.WellSampleAnnotationLinkI;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+
+import com.google.common.collect.Lists;
 
 import spec.AbstractTest;
 
@@ -297,6 +314,7 @@ public class AbstractServerTest extends AbstractTest {
         String uuid = UUID.randomUUID().toString();
         ExperimenterGroup g = new ExperimenterGroupI();
         g.setName(omero.rtypes.rstring(uuid));
+        g.setLdap(omero.rtypes.rbool(false));
         g.getDetails().setPermissions(perms);
         g = new ExperimenterGroupI(rootAdmin.createGroup(g), false);
         return newUserInGroup(g, owner);
@@ -373,6 +391,7 @@ public class AbstractServerTest extends AbstractTest {
         String uuid = UUID.randomUUID().toString();
         ExperimenterGroup g = new ExperimenterGroupI();
         g.setName(omero.rtypes.rstring(uuid));
+        g.setLdap(omero.rtypes.rbool(false));
         g.getDetails().setPermissions(perms);
         g = new ExperimenterGroupI(rootAdmin.createGroup(g), false);
         return addUsers(g, experimenterIds, owner);
@@ -531,7 +550,8 @@ public class AbstractServerTest extends AbstractTest {
         e.setOmeName(omero.rtypes.rstring(uuid));
         e.setFirstName(omero.rtypes.rstring("integration"));
         e.setLastName(omero.rtypes.rstring("tester"));
-        long id = rootAdmin.createUser(e, group.getName().getValue());
+        e.setLdap(omero.rtypes.rbool(false));
+        long id = newUserInGroupWithPassword(e, group, uuid);
         e = rootAdmin.getExperimenter(id);
         rootAdmin.addGroups(e, Arrays.asList(group));
         if (owner) {
@@ -540,6 +560,38 @@ public class AbstractServerTest extends AbstractTest {
         omero.client client = newOmeroClient();
         client.createSession(uuid, uuid);
         return init(client);
+    }
+
+    /**
+     * Creates the specified user in the specified groups. Also adds the user
+     * to the default user group. Requires a password.
+     *
+     * @param experimenter The pre-populated Experimenter object.
+     * @param groups The target groups.
+     * @param password The user password.
+     * @return long The created user ID.
+     */
+    protected long newUserInGroupWithPassword(Experimenter experimenter,
+            List<ExperimenterGroup> groups, String password) throws Exception {
+        IAdminPrx rootAdmin = root.getSession().getAdminService();
+        ExperimenterGroup userGroup = rootAdmin.lookupGroup(USER_GROUP);
+        return rootAdmin.createExperimenterWithPassword(experimenter,
+                omero.rtypes.rstring(password), userGroup, groups);
+    }
+
+    /**
+     * Creates the specified user in the specified group. Also adds the user
+     * to the default user group. Requires a password.
+     *
+     * @param experimenter The pre-populated Experimenter object.
+     * @param group The target group.
+     * @param password The user password.
+     * @return long The created user ID.
+     */
+    protected long newUserInGroupWithPassword(Experimenter experimenter,
+            ExperimenterGroup group, String password) throws Exception {
+        return newUserInGroupWithPassword(experimenter,
+                Lists.newArrayList(group), password);
     }
 
     /**
@@ -559,8 +611,6 @@ public class AbstractServerTest extends AbstractTest {
     /**
      * Logs in the user.
      *
-     * @param ownerEc
-     *            The context of the user.
      * @param g
      *            The group to log into.
      * @throws Exception
@@ -569,7 +619,7 @@ public class AbstractServerTest extends AbstractTest {
     protected EventContext loginUser(ExperimenterGroup g) throws Exception {
         EventContext ec = iAdmin.getEventContext();
         omero.client client = newOmeroClient();
-        client.createSession(ec.userName, "dummy");
+        client.createSession(ec.userName, ec.userName);
         client.getSession().setSecurityContext(
                 new ExperimenterGroupI(g.getId(), false));
         return init(client);
@@ -585,7 +635,7 @@ public class AbstractServerTest extends AbstractTest {
      */
     protected void loginUser(EventContext ownerEc) throws Exception {
         omero.client client = newOmeroClient();
-        client.createSession(ownerEc.userName, "dummy");
+        client.createSession(ownerEc.userName, ownerEc.userName);
         init(client);
     }
 
@@ -661,7 +711,7 @@ public class AbstractServerTest extends AbstractTest {
      */
     protected EventContext init(EventContext ec) throws Exception {
         omero.client c = newOmeroClient();
-        factoryEncrypted = c.createSession(ec.userName, null);
+        factoryEncrypted = c.createSession(ec.userName, ec.userName);
         return init(c);
     }
 
@@ -996,12 +1046,21 @@ public class AbstractServerTest extends AbstractTest {
         OMEROWrapper reader = new OMEROWrapper(config);
         IObserver o = new IObserver() {
             public void update(IObservable importLibrary, ImportEvent event) {
-
+                if (event instanceof ErrorHandler.EXCEPTION_EVENT) {
+                    Exception ex = ((ErrorHandler.EXCEPTION_EVENT) event).exception;
+                    if (ex instanceof RuntimeException) {
+                        throw (RuntimeException) ex;
+                    } else {
+                        throw new RuntimeException(ex);
+                    }
+                }
             }
         };
         ImportCandidates candidates = new ImportCandidates(reader, paths, o);
 
         ImportLibrary library = new ImportLibrary(importer, reader);
+        library.addObserver(o);
+
         ImportContainer ic = candidates.getContainers().get(0);
         // new ImportContainer(
         // file, null, target, false, null, null, null, null);
@@ -1341,32 +1400,6 @@ public class AbstractServerTest extends AbstractTest {
                 link.setParent((Well) parent2);
                 links.add(link);
             }
-        } else if (parent1 instanceof WellSample) {
-            WellSampleAnnotationLink link = new WellSampleAnnotationLinkI();
-            link.setChild(new TagAnnotationI(c.getId().getValue(), false));
-            link.setParent((WellSample) parent1);
-            links.add(link);
-            link = new WellSampleAnnotationLinkI();
-            link.setChild(new TermAnnotationI(t.getId().getValue(), false));
-            link.setParent((WellSample) parent1);
-            links.add(link);
-            link = new WellSampleAnnotationLinkI();
-            link.setChild(new FileAnnotationI(f.getId().getValue(), false));
-            link.setParent((WellSample) parent1);
-            links.add(link);
-            if (parent2 != null) {
-                link.setChild(new TagAnnotationI(c.getId().getValue(), false));
-                link.setParent((WellSample) parent2);
-                links.add(link);
-                link = new WellSampleAnnotationLinkI();
-                link.setChild(new TermAnnotationI(t.getId().getValue(), false));
-                link.setParent((WellSample) parent2);
-                links.add(link);
-                link = new WellSampleAnnotationLinkI();
-                link.setChild(new FileAnnotationI(f.getId().getValue(), false));
-                link.setParent((WellSample) parent2);
-                links.add(link);
-            }
         } else if (parent1 instanceof PlateAcquisition) {
             PlateAcquisitionAnnotationLink link = new PlateAcquisitionAnnotationLinkI();
             link.setChild(new TagAnnotationI(c.getId().getValue(), false));
@@ -1393,6 +1426,138 @@ public class AbstractServerTest extends AbstractTest {
                 link.setParent((PlateAcquisition) parent2);
                 links.add(link);
             }
+        } else if (parent1 instanceof Detector) {
+            DetectorAnnotationLink link = new DetectorAnnotationLinkI();
+            link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+            link.setParent((Detector) parent1);
+            links.add(link);
+            link = new DetectorAnnotationLinkI();
+            link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+            link.setParent((Detector) parent1);
+            links.add(link);
+            link = new DetectorAnnotationLinkI();
+            link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+            link.setParent((Detector) parent1);
+            links.add(link);
+            if (parent2 != null) {
+                link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+                link.setParent((Detector) parent2);
+                links.add(link);
+                link = new DetectorAnnotationLinkI();
+                link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+                link.setParent((Detector) parent2);
+                links.add(link);
+                link = new DetectorAnnotationLinkI();
+                link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+                link.setParent((Detector) parent2);
+                links.add(link);
+            }
+        } else if (parent1 instanceof Detector) {
+            DetectorAnnotationLink link = new DetectorAnnotationLinkI();
+            link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+            link.setParent((Detector) parent1);
+            links.add(link);
+            link = new DetectorAnnotationLinkI();
+            link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+            link.setParent((Detector) parent1);
+            links.add(link);
+            link = new DetectorAnnotationLinkI();
+            link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+            link.setParent((Detector) parent1);
+            links.add(link);
+            if (parent2 != null) {
+                link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+                link.setParent((Detector) parent2);
+                links.add(link);
+                link = new DetectorAnnotationLinkI();
+                link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+                link.setParent((Detector) parent2);
+                links.add(link);
+                link = new DetectorAnnotationLinkI();
+                link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+                link.setParent((Detector) parent2);
+                links.add(link);
+            }
+        } else if (parent1 instanceof LightSource) {
+            LightSourceAnnotationLink link = new LightSourceAnnotationLinkI();
+            link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+            link.setParent((LightSource) parent1);
+            links.add(link);
+            link = new LightSourceAnnotationLinkI();
+            link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+            link.setParent((LightSource) parent1);
+            links.add(link);
+            link = new LightSourceAnnotationLinkI();
+            link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+            link.setParent((LightSource) parent1);
+            links.add(link);
+            if (parent2 != null) {
+                link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+                link.setParent((LightSource) parent2);
+                links.add(link);
+                link = new LightSourceAnnotationLinkI();
+                link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+                link.setParent((LightSource) parent2);
+                links.add(link);
+                link = new LightSourceAnnotationLinkI();
+                link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+                link.setParent((LightSource) parent2);
+                links.add(link);
+            }
+        } else if (parent1 instanceof Instrument) {
+            InstrumentAnnotationLink link = new InstrumentAnnotationLinkI();
+            link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+            link.setParent((Instrument) parent1);
+            links.add(link);
+            link = new InstrumentAnnotationLinkI();
+            link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+            link.setParent((Instrument) parent1);
+            links.add(link);
+            link = new InstrumentAnnotationLinkI();
+            link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+            link.setParent((Instrument) parent1);
+            links.add(link);
+            if (parent2 != null) {
+                link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+                link.setParent((Instrument) parent2);
+                links.add(link);
+                link = new InstrumentAnnotationLinkI();
+                link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+                link.setParent((Instrument) parent2);
+                links.add(link);
+                link = new InstrumentAnnotationLinkI();
+                link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+                link.setParent((Instrument) parent2);
+                links.add(link);
+            }
+        } else if (parent1 instanceof OriginalFile) {
+            OriginalFileAnnotationLink link = new OriginalFileAnnotationLinkI();
+            link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+            link.setParent((OriginalFile) parent1);
+            links.add(link);
+            link = new OriginalFileAnnotationLinkI();
+            link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+            link.setParent((OriginalFile) parent1);
+            links.add(link);
+            link = new OriginalFileAnnotationLinkI();
+            link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+            link.setParent((OriginalFile) parent1);
+            links.add(link);
+            if (parent2 != null) {
+                link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+                link.setParent((OriginalFile) parent2);
+                links.add(link);
+                link = new OriginalFileAnnotationLinkI();
+                link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+                link.setParent((OriginalFile) parent2);
+                links.add(link);
+                link = new OriginalFileAnnotationLinkI();
+                link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+                link.setParent((OriginalFile) parent2);
+                links.add(link);
+            }
+        } else {
+            throw new UnsupportedOperationException("Unknown parent type: " + parent1);
         }
         if (links.size() > 0)
             iUpdate.saveAndReturnArray(links);
@@ -1522,19 +1687,6 @@ public class AbstractServerTest extends AbstractTest {
             link.setChild(b);
             link.setParent((Well) parent);
             links.add(link);
-        } else if (parent instanceof WellSample) {
-            WellSampleAnnotationLink link = new WellSampleAnnotationLinkI();
-            link.setChild(c);
-            link.setParent((WellSample) parent);
-            links.add(link);
-            link = new WellSampleAnnotationLinkI();
-            link.setChild(l);
-            link.setParent((WellSample) parent);
-            links.add(link);
-            link = new WellSampleAnnotationLinkI();
-            link.setChild(b);
-            link.setParent((WellSample) parent);
-            links.add(link);
         } else if (parent instanceof PlateAcquisition) {
             PlateAcquisitionAnnotationLink link = new PlateAcquisitionAnnotationLinkI();
             link.setChild(c);
@@ -1548,6 +1700,47 @@ public class AbstractServerTest extends AbstractTest {
             link.setChild(b);
             link.setParent((PlateAcquisition) parent);
             links.add(link);
+        } else if (parent instanceof Detector) {
+            DetectorAnnotationLink link = new DetectorAnnotationLinkI();
+            link.setChild(c);
+            link.setParent((Detector) parent);
+            links.add(link);
+            link = new DetectorAnnotationLinkI();
+            link.setChild(l);
+            link.setParent((Detector) parent);
+            links.add(link);
+            link = new DetectorAnnotationLinkI();
+            link.setChild(b);
+            link.setParent((Detector) parent);
+            links.add(link);
+        } else if (parent instanceof Instrument) {
+            InstrumentAnnotationLink link = new InstrumentAnnotationLinkI();
+            link.setChild(c);
+            link.setParent((Instrument) parent);
+            links.add(link);
+            link = new InstrumentAnnotationLinkI();
+            link.setChild(l);
+            link.setParent((Instrument) parent);
+            links.add(link);
+            link = new InstrumentAnnotationLinkI();
+            link.setChild(b);
+            link.setParent((Instrument) parent);
+            links.add(link);
+        } else if (parent instanceof LightSource) {
+            LightSourceAnnotationLink link = new LightSourceAnnotationLinkI();
+            link.setChild(c);
+            link.setParent((LightSource) parent);
+            links.add(link);
+            link = new LightSourceAnnotationLinkI();
+            link.setChild(l);
+            link.setParent((LightSource) parent);
+            links.add(link);
+            link = new LightSourceAnnotationLinkI();
+            link.setChild(b);
+            link.setParent((LightSource) parent);
+            links.add(link);
+        } else {
+            throw new UnsupportedOperationException("Unknown parent type: " + parent);
         }
         if (links.size() > 0)
             iUpdate.saveAndReturnArray(links);
@@ -1566,6 +1759,7 @@ public class AbstractServerTest extends AbstractTest {
         experimenter.setOmeName(rtypes.rstring(omeName));
         experimenter.setFirstName(rtypes.rstring(firstName));
         experimenter.setLastName(rtypes.rstring(lastName));
+        experimenter.setLdap(rtypes.rbool(false));
         return experimenter;
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2013 Glencoe Software, Inc. All rights reserved.
+ * Copyright (C) 2009-2014 Glencoe Software, Inc. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,6 +65,12 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
 
     protected final PasswordUtil util;
 
+    /**
+     * Possibly null {@link PasswordUtil} instance which will be used as a
+     * fallback for password checks if the {@link #util} instance fails.
+     */
+    protected /*final*/ PasswordUtil legacyUtil;
+
     protected OmeroContext ctx;
 
     /**
@@ -95,6 +101,10 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
     public void setApplicationContext(ApplicationContext ctx)
             throws BeansException {
         this.ctx = (OmeroContext) ctx;
+    }
+
+    public void setLegacyUtil(PasswordUtil legacy) {
+        this.legacyUtil = legacy;
     }
 
     protected Boolean loginAttempt(String user, Boolean success) {
@@ -141,7 +151,7 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
      * {@link #comparePasswords(String, String)}
      */
     public String encodePassword(String newPassword) {
-        return util.preparePassword(newPassword);
+        return encodePassword(null, newPassword, false, util);
     }
 
     /**
@@ -150,6 +160,11 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
      * with the given userId if it's provided.
      */
     public String encodeSaltedPassword(Long userId, String newPassword) {
+        return encodePassword(userId, newPassword, salt, util);
+    }
+
+    protected String encodePassword(Long userId, String newPassword,
+            boolean salt, PasswordUtil util) {
         if (salt) {
             return util.prepareSaltedPassword(userId, newPassword);
         } else {
@@ -178,19 +193,44 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
      * {@link Boolean.FALSE}. If the trusted password is empty (only
      * whitespace), return {@link Boolean.TRUE}. Otherwise return the results of
      * {@link String#equals(Object)}.
+     *
+     * If {@link #legacyUtil} is non-null, and {@link #util} return
      */
     public Boolean comparePasswords(Long userId, String trusted, String provided) {
-        if (trusted == null) {
-            return Boolean.FALSE;
-        } else if ("".equals(trusted.trim())) {
-            return Boolean.TRUE;
-        } else {
-            if (userId != null && salt) {
-                if (trusted.equals(encodeSaltedPassword(userId, provided))) {
-                    return Boolean.TRUE;
+        if(comparePasswords(userId, trusted, provided, util)) {
+            return true;
+        } else if (legacyUtil != null) {
+            if (comparePasswords(userId, trusted, provided, legacyUtil)) {
+                log.error("Matched LEGACY password for Experimenter:{}!", userId);
+                final String username = util.userName(userId);
+                if (username != null) {
+                    try {
+                        changePassword(username, provided);
+                        log.info("Upgraded password for Experimenter:{}", userId);
+                    } catch (PasswordChangeException e) {
+                        /* this password provider cannot change the password */
+                    }
                 }
+                return true;
             }
-            return trusted.equals(encodePassword(provided)); // ok unsalted.
+        }
+        return false;
+    }
+
+    protected boolean comparePasswords(Long userId, String trusted,
+            String provided, PasswordUtil util) {
+        if (trusted == null) {
+            return false;
+        } else if ("".equals(trusted.trim())) {
+            return !util.isPasswordRequired(userId);
+        } else {
+            boolean salt = (userId != null && this.salt);
+            String encoded = encodePassword(userId, provided, salt, util);
+            if (trusted.equals(encoded)) {
+                return true;
+            }
+            encoded = encodePassword(userId, provided, false, util);
+            return trusted.equals(encoded); // ok unsalted.
         }
     }
 

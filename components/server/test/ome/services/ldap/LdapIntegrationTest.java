@@ -6,8 +6,10 @@
 package ome.services.ldap;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
@@ -31,6 +33,7 @@ import ome.tools.spring.InternalServiceFactory;
 import ome.util.SqlAction;
 
 import org.springframework.aop.target.HotSwappableTargetSource;
+import org.springframework.beans.BeansException;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.LdapContextSource;
@@ -228,22 +231,20 @@ public class LdapIntegrationTest extends LdapTest {
             }
 
             @Override
-            public void setDN(final String experimenterName, final String dn) {
+            public void setDN(final Long experimenterID, final String dn) {
                 executor.execute(p, new Executor.SimpleWork(this, "setDN") {
                     @Transactional(readOnly = false)
                     public Object doWork(org.hibernate.Session session,
                             ServiceFactory sf) {
-                        Experimenter exp = sf.getAdminService()
-                                .lookupExperimenter(experimenterName);
-                        ldap.setDN(exp.getId(), dn);
+                        ldap.setDN(experimenterID, dn);
                         return null;
                     }
                 });
             }
 
             @Override
-            public Map<String, Experimenter> discover() {
-                return (Map<String, Experimenter>) executor.execute(p,
+            public List<Experimenter> discover() {
+                return (List<Experimenter>) executor.execute(p,
                         new Executor.SimpleWork(this, "discover") {
                             @Transactional(readOnly = true)
                             public Object doWork(org.hibernate.Session session,
@@ -275,6 +276,14 @@ public class LdapIntegrationTest extends LdapTest {
         fixture.applicationContext = this.mCtx;
         fixture.template = (LdapTemplate) mCtx.getBean("ldapTemplate");
         fixture.template.setContextSource(source);
+        try {
+            fixture.ignoreCaseLookup = fixture.ctx.getBean("testIgnoreCase",
+                    Boolean.class);
+            fixture.applicationContext.getBean("atomicIgnoreCase",
+                    AtomicBoolean.class).set(fixture.ignoreCaseLookup);
+        } catch (BeansException be) {
+            // skip this fixture
+        }
 
         InternalServiceFactory isf = new InternalServiceFactory(mCtx);
         SqlAction sql = (SqlAction) mCtx.getBean("simpleSqlAction");

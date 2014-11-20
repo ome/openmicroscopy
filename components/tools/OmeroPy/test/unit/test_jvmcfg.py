@@ -161,6 +161,24 @@ class TestStrategy(object):
         assert table[0] == 2**15
         assert table[1] == 2**15*15/100
 
+    def test_heap_dump_on(self):
+        settings = Settings({"heap_dump": "on"})
+        strategy = PercentStrategy("blitz", settings)
+        hd = strategy.get_heap_dump()
+        append = strategy.get_append()
+        assert " " not in hd
+        assert "HeapDumpPath" not in hd
+        assert not append
+
+    def test_heap_dump_tmp(self):
+        settings = Settings({"heap_dump": "tmp"})
+        strategy = PercentStrategy("blitz", settings)
+        hd = strategy.get_heap_dump()
+        append = strategy.get_append()
+        assert " " not in hd
+        assert "HeapDumpPath" not in hd
+        assert "HeapDumpPath" in "".join(append)
+
 
 class AdjustFixture(object):
 

@@ -382,7 +382,7 @@ class BaseContainer(BaseController):
         params = omero.sys.ParametersI()
         if page is not None:
             params.page((int(page)-1)*settings.PAGE, settings.PAGE)
-        im_list = list(self.conn.listOrphans("Image", eid=eid, params=params))
+        im_list = list(self.conn.listOrphans("Image", eid=eid, params=params, loadPixels=True))
         im_list.sort(key=lambda x: x.getName().lower())
         self.containers = {'orphaned': True, 'images': im_list}
         self.c_size = self.conn.countOrphans("Image", eid=eid)
@@ -541,6 +541,7 @@ class BaseContainer(BaseController):
             for annId, annDict in annMap.items():
                 # ann is {'ann':AnnWrapper, 'links'[AnnotationLinkWrapper, ..]}
                 annDict['links'].sort(key=lambda x: x.parent.id.val)    # Each ann has links to several objects
+                annDict['added_by'] = ",".join([str(l.getDetails().getOwner().id) for l in annDict['links']])
                 annDict['can_remove'] = annDict['unlink'] > 0
                 annList.append(annDict)
             batchAnns[key] = annList

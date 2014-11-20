@@ -129,11 +129,10 @@ class GraphicsPaneUI
 		double codomainMax = model.getCodomainEnd();
 		//double domainGlobalMin = model.getGlobalMin();
 		//double domainGlobalMax = model.getGlobalMax();
-		int f = model.getRoundFactor();
 		double domainGlobalMin = view.getPartialMinimum();
 		double domainGlobalMax = view.getPartialMaximum();
-		double domainMin = model.getWindowStart()*f;
-		double domainMax = model.getWindowEnd()*f;
+		double domainMin = model.getWindowStart();
+		double domainMax = model.getWindowEnd();
 		//Added jmarie 03/10/07
 		if (domainMin < domainGlobalMin) domainMin = domainGlobalMin;
 		if (domainMax > domainGlobalMax) domainMax = domainGlobalMax;

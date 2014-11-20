@@ -6,8 +6,8 @@
  */
 package integration;
 
+import static omero.rtypes.rbool;
 import static omero.rtypes.rstring;
-import static omero.rtypes.rtime;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,6 +51,10 @@ import Glacier2.PermissionDeniedException;
  */
 public class CreatePojosFixture2 {
 
+    private static final String TESTER_PASS = "ome";
+
+    private static final String USER_GROUP = "user";
+
     /**
      * creates a new fixture logged in as a newly created user. requires an
      * admin service factory in order to create user and should NOT be used from
@@ -79,6 +83,7 @@ public class CreatePojosFixture2 {
             G_NAME = UUID.randomUUID().toString();
             fixture.g = new ExperimenterGroupI();
             fixture.g.setName(rstring(G_NAME));
+            fixture.g.setLdap(rbool(false));
             fixture.g = new ExperimenterGroupI(
                     rootAdmin.createGroup(fixture.g), false);
         } else {
@@ -91,12 +96,19 @@ public class CreatePojosFixture2 {
         fixture.e.setOmeName(rstring(fixture.TESTER));
         fixture.e.setFirstName(rstring("Mr."));
         fixture.e.setLastName(rstring("Allen"));
-        fixture.e = new ExperimenterI(rootAdmin.createUser(fixture.e, G_NAME),
+        fixture.e.setLdap(rbool(false));
+
+        ExperimenterGroup userGroup = rootAdmin.lookupGroup(USER_GROUP);
+        List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
+        groups.add(fixture.g);
+        fixture.e = new ExperimenterI(
+                rootAdmin.createExperimenterWithPassword(fixture.e,
+                        omero.rtypes.rstring(TESTER_PASS), userGroup, groups),
                 false);
 
         java.util.Map<String, String> m = new HashMap<String, String>();
         m.put("omero.user", fixture.TESTER);
-        m.put("omero.pass", "ome");
+        m.put("omero.pass", TESTER_PASS);
         m.put("omero.group", G_NAME);
         m.put("Ice.Default.Router", root.getProperty("Ice.Default.Router"));
         omero.client client = new omero.client(m);

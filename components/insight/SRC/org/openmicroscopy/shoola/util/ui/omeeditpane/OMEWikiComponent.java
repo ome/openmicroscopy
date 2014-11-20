@@ -95,10 +95,7 @@ public class OMEWikiComponent
 	
 	/** Regular expression defining Project. */
 	public static final String PROJECTREGEX = OMEWikiConstants.PROJECTREGEX;
-	
-	/** Regular expression defining Protocol. */
-	public static final String PROTOCOLREGEX = OMEWikiConstants.PROTOCOLREGEX;
-	
+
 	/** Regular expression defining Image. */
 	public static final String IMAGEREGEX = OMEWikiConstants.IMAGEREGEX;
 	
@@ -396,10 +393,6 @@ public class OMEWikiComponent
 				new FormatSelectionAction(
 						new ColourFormatter(Formatter.DEFAULT_LINK, false), 
 						new ElementSelectionAction(WikiDataObject.IMAGE)));
-		pane.addFormatter(PROTOCOLREGEX, 
-				new FormatSelectionAction(
-						new ColourFormatter(Formatter.DEFAULT_LINK, false), 
-						new ElementSelectionAction(WikiDataObject.PROTOCOL)));
 		pane.addFormatter(DATASETREGEX, 
 				new FormatSelectionAction(
 						new ColourFormatter(Formatter.DEFAULT_LINK, false), 

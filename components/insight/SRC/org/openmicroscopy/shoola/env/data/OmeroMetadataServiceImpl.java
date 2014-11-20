@@ -22,9 +22,6 @@
  */
 package org.openmicroscopy.shoola.env.data;
 
-
-
-//Java imports
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -35,19 +32,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
-
-
-//Third-party libraries
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.ListUtils;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-
-
-//Application-internal dependencies
+import ome.formats.model.UnitsFactory;
 import omero.cmd.OriginalMetadataRequest;
 import omero.cmd.Request;
 import omero.model.Annotation;
@@ -63,6 +51,7 @@ import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImagingEnvironment;
 import omero.model.ImagingEnvironmentI;
+import omero.model.LengthI;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
 import omero.model.Medium;
@@ -71,16 +60,20 @@ import omero.model.ObjectiveSettings;
 import omero.model.ObjectiveSettingsI;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
+import omero.model.PressureI;
 import omero.model.ProjectAnnotationLink;
 import omero.model.StageLabel;
 import omero.model.StageLabelI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
+import omero.model.TemperatureI;
 import omero.model.TermAnnotation;
 import omero.model.XmlAnnotation;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.ListUtils;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AnnotationLinkData;
@@ -115,6 +108,9 @@ import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
 import pojos.TextualAnnotationData;
 import pojos.XMLAnnotationData;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 
 /** 
  * Implementation of the {@link OmeroMetadataService} I/F.
@@ -326,14 +322,15 @@ class OmeroMetadataServiceImpl
 			}
 			label.setName(omero.rtypes.rstring(data.getLabelName()));
 			Object o = data.getPositionX();
+			Float f = (Float) o;
 			if (o != null)
-				label.setPositionX(omero.rtypes.rdouble((Float) o));
+				label.setPositionX(new LengthI(f.doubleValue(), UnitsFactory.StageLabel_X));
 			o = data.getPositionY();
 			if (o != null)
-				label.setPositionY(omero.rtypes.rdouble((Float) o));
+				label.setPositionY(new LengthI(f.doubleValue(), UnitsFactory.StageLabel_Y));
 			o = data.getPositionZ();
 			if (o != null)
-				label.setPositionZ(omero.rtypes.rdouble((Float) o));
+				label.setPositionZ(new LengthI(f.doubleValue(), UnitsFactory.StageLabel_Z));
 		}
 		//Environment
 		if (data.isImagingEnvironmentDirty()) {
@@ -347,13 +344,14 @@ class OmeroMetadataServiceImpl
 						ImagingEnvironment.class.getName(), id);
 				toUpdate.add(condition);
 			}
-			condition.setAirPressure(omero.rtypes.rdouble(
-					data.getAirPressure()));
+			condition.setAirPressure(new PressureI(data.getAirPressure(),
+			        UnitsFactory.ImagingEnvironment_AirPressure));
 			condition.setHumidity(omero.rtypes.rdouble(
 					data.getHumidity()));
 			Object o = data.getTemperature();
 			if (o != null)
-				condition.setTemperature(omero.rtypes.rdouble((Float) o));
+				condition.setTemperature(new TemperatureI(((Float) o).doubleValue(),
+				        UnitsFactory.ImagingEnvironment_Temperature));
 			condition.setCo2percent(omero.rtypes.rdouble(
 					data.getCo2Percent()));
 		}
@@ -2074,15 +2072,6 @@ class OmeroMetadataServiceImpl
 	{
 		if (file == null) 
 			throw new IllegalArgumentException("No file to save.");
-		String ns = null;
-		switch (index) {
-			case EDITOR_PROTOCOL:
-				ns = FileAnnotationData.EDITOR_PROTOCOL_NS;
-				break;
-			case EDITOR_EXPERIMENT:
-				ns = FileAnnotationData.EDITOR_EXPERIMENT_NS;
-				break;
-		}
 		if (fileAnnotation == null) return null;
 		ctx = gateway.checkContext(ctx, fileAnnotation);
 		//Upload the file back to the server
@@ -2097,8 +2086,6 @@ class OmeroMetadataServiceImpl
 			fa = new FileAnnotationI();
 			fa.setFile(of);
 			if (desc != null) fa.setDescription(omero.rtypes.rstring(desc));
-			if (ns != null)
-				fa.setNs(omero.rtypes.rstring(ns));
 			IObject object = gateway.createObject(ctx, fa);
 			id = object.getId().getValue();
 		} else {
@@ -2106,8 +2093,6 @@ class OmeroMetadataServiceImpl
 				gateway.findIObject(ctx, FileAnnotation.class.getName(), id);
 			fa.setFile(of);
 			if (desc != null) fa.setDescription(omero.rtypes.rstring(desc));
-			if (ns != null)
-				fa.setNs(omero.rtypes.rstring(ns));
 			gateway.updateObject(ctx, fa, new Parameters());
 		}
 		fa = (FileAnnotation) 
@@ -2154,12 +2139,6 @@ class OmeroMetadataServiceImpl
 		List<String> include = new ArrayList<String>();
 		List<String> exclude = new ArrayList<String>();
 		switch (fileType) {
-			case EDITOR_PROTOCOL:
-				include.add(FileAnnotationData.EDITOR_PROTOCOL_NS);
-				break;
-			case EDITOR_EXPERIMENT:
-				include.add(FileAnnotationData.EDITOR_EXPERIMENT_NS);
-				break;
 			case MOVIE:
 				include.add(FileAnnotationData.MOVIE_NS);
 				break;
@@ -2168,8 +2147,6 @@ class OmeroMetadataServiceImpl
 						TagAnnotationData.class, userID);
 			case OTHER:
 			default:
-				exclude.add(FileAnnotationData.EDITOR_PROTOCOL_NS);
-				exclude.add(FileAnnotationData.EDITOR_EXPERIMENT_NS);
 				exclude.add(FileAnnotationData.MOVIE_NS);
 				exclude.add(FileAnnotationData.COMPANION_FILE_NS);
 				exclude.add(FileAnnotationData.MEASUREMENT_NS);
@@ -2195,12 +2172,6 @@ class OmeroMetadataServiceImpl
 		ParametersI po = new ParametersI();
 		if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
 		switch (fileType) {
-			case EDITOR_PROTOCOL:
-				include.add(FileAnnotationData.EDITOR_PROTOCOL_NS);
-				break;
-			case EDITOR_EXPERIMENT:
-				include.add(FileAnnotationData.EDITOR_EXPERIMENT_NS);
-				break;
 			case MOVIE:
 				include.add(FileAnnotationData.MOVIE_NS);
 				break;
@@ -2210,8 +2181,6 @@ class OmeroMetadataServiceImpl
 			case OTHER:
 			default:
 				exclude.add(FileAnnotationData.MOVIE_NS);
-				exclude.add(FileAnnotationData.EDITOR_PROTOCOL_NS);
-				exclude.add(FileAnnotationData.EDITOR_EXPERIMENT_NS);
 				exclude.add(FileAnnotationData.COMPANION_FILE_NS);
 				exclude.add(FileAnnotationData.MEASUREMENT_NS);
 				exclude.add(FileAnnotationData.FLIM_NS);

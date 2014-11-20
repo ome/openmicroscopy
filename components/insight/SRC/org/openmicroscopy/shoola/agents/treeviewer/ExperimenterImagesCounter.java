@@ -133,21 +133,15 @@ public class ExperimenterImagesCounter
                 file = (TreeFileSet) node;
                 ref = new TimeRefObject(userID, TimeRefObject.FILE);
                 switch (file.getType()) {
-                case TreeFileSet.PROTOCOL:
-                    ref.setFileType(MetadataHandlerView.EDITOR_PROTOCOL);
-                    break;
-                case TreeFileSet.EXPERIMENT:
-                    ref.setFileType(MetadataHandlerView.EDITOR_EXPERIMENT);
-                    break;
-                case TreeFileSet.MOVIE:
-                    ref.setFileType(MetadataHandlerView.MOVIE);
-                    break;
-                case TreeFileSet.TAG:
-                    ref.setFileType(MetadataHandlerView.TAG_NOT_OWNED);
-                    break;
-                case TreeFileSet.OTHER:
-                default:
-                    ref.setFileType(MetadataHandlerView.OTHER);
+                    case TreeFileSet.MOVIE:
+                        ref.setFileType(MetadataHandlerView.MOVIE);
+                        break;
+                    case TreeFileSet.TAG:
+                        ref.setFileType(MetadataHandlerView.TAG_NOT_OWNED);
+                        break;
+                    case TreeFileSet.OTHER:
+                    default:
+                        ref.setFileType(MetadataHandlerView.OTHER);
                 }
                 m.put(file.getType(), ref);
             }

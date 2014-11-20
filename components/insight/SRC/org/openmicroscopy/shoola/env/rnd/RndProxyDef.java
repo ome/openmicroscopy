@@ -343,4 +343,26 @@ public class RndProxyDef
      */
     public RenderingDef getData() { return data; }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getName() + "\n");
+        Iterator<Integer> i = channels.keySet().iterator();
+        int index;
+        while (i.hasNext()) {
+            index = i.next();
+            ChannelBindingsProxy channel = this.getChannel(index);
+            int[] rgba = channel.getRGBA();
+            if (channel.isActive())
+                sb.append("* ");
+            else
+                sb.append(" ");
+            sb.append("[" + rgba[0] + "," + rgba[1] + "," + rgba[2] + ","
+                    + rgba[3] + "] ");
+            sb.append(" start=" + channel.getInputStart() + ", end="
+                    + channel.getInputEnd() + " \n");
+        }
+        return sb.toString();
+    }
+    
 }

@@ -147,7 +147,7 @@ public abstract class ShapeData
 			t = new StringTokenizer(tt.nextToken(), " ");
 			n = t.countTokens();
 			for (int j = 0; j < n; j++) {
-				points.add(new Integer(t.nextToken()));
+				points.add(Double.valueOf(t.nextToken()).intValue());
 			}
 		}
 		return points;

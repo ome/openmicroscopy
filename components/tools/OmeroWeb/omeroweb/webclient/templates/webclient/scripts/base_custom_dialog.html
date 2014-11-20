@@ -37,7 +37,6 @@
     {% include "webgateway/base/includes/script_src_popup.html" %}
     {% include "webgateway/base/includes/jquery-ui.html" %}
 
-    <link rel="stylesheet" href="{% static "3rdparty/jquery-ui-1.8.19/themes/base/jquery.ui.base.css" %}" type="text/css" />
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.form.js" %}"></script>
 
     <script>
@@ -46,7 +45,7 @@
 
             $('#script_form').ajaxForm({
                 beforeSubmit: function() {
-                    $("#submit").attr('disabled', 'disabled');
+                    $("#submit").prop('disabled', true);
                 },
                 success: function(data) {
                     window.opener.OME.showActivities();

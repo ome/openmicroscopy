@@ -200,7 +200,10 @@ class SplashScreenManager
     {
     	Integer v = (Integer) container.getRegistry().lookup(
 				LookupNames.ENTRY_POINT);
-		if (v != null) return v.intValue() != LookupNames.EDITOR_ENTRY;
+		if (v != null) {
+		    return v.intValue() == LookupNames.INSIGHT_ENTRY ||
+		            v.intValue() == LookupNames.IMPORTER_ENTRY;
+		}
 		return false;
     }
     
@@ -225,9 +228,6 @@ class SplashScreenManager
 					LookupNames.ENTRY_POINT);
 			if (v != null) {
 				switch (v.intValue()) {
-					case LookupNames.EDITOR_ENTRY:
-						splashscreen = IconManager.getEditorSplashScreen();
-						break;
 					case LookupNames.IMPORTER_ENTRY:
 						splashscreen = IconManager.getImporterSplashScreen();
 						break;

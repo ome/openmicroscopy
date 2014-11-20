@@ -115,6 +115,16 @@
         </constructor-arg>
     </bean>
 
+    <bean parent="graphSpec" name="/Shape">
+        <constructor-arg>
+            <list>
+                <value>/Shape/ShapeAnnotationLink;FORCE</value>
+                <value>/Annotation;SOFT;/Shape/ShapeAnnotationLink</value>
+                <value>/Shape</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
     <bean parent="graphSpec" name="/Image/Pixels/RenderingDef" class="ome.services.graphs.RenderingDefGraphSpec">
         <description>
         Describes a rendering def based on the image id from where it comes.
@@ -136,7 +146,7 @@
         </description>
         <constructor-arg>
           <list>
-            <value>/Arc</value>
+             <value>/Arc</value>
             <value>/Filament</value>
             <value>/Laser</value>
             <value>/LightEmittingDiode</value>
@@ -185,8 +195,30 @@
                 <value>/Instrument/OTF</value> <!--  related to filterSet and Objective -->
                 <value>/Instrument/Objective</value>
                 <value>/Instrument/FilterSet</value>
+                <value>/Instrument/InstrumentAnnotationLink;FORCE</value>
+                <value>/Annotation;SOFT;/Instrument/InstrumentAnnotationLink</value>
                 <value>/Instrument</value>
                 <value>/Instrument/Microscope</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean parent="graphSpec" name="/Detector">
+        <constructor-arg>
+            <list>
+                <value>/Detector/DetectorAnnotationLink;FORCE</value>
+                <value>/Annotation;SOFT;/Detector/DetectorAnnotationLink</value>
+                <value>/Detector</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean parent="graphSpec" name="/Dichroic">
+        <constructor-arg>
+            <list>
+                <value>/Dichroic/DichroicAnnotationLink;FORCE</value>
+                <value>/Annotation;SOFT;/Dichroic/DichroicAnnotationLink</value>
+                <value>/Dichroic</value>
             </list>
         </constructor-arg>
     </bean>
@@ -197,6 +229,36 @@
                 <value>/Experiment/MicrobeamManipulation/LightSettings</value>
                 <value>/Experiment/MicrobeamManipulation</value>
                 <value>/Experiment</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean parent="graphSpec" name="/Filter">
+        <constructor-arg>
+            <list>
+                <value>/Filter/FilterAnnotationLink;FORCE</value>
+                <value>/Annotation;SOFT;/Filter/FilterAnnotationLink</value>
+                <value>/Filter</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean parent="graphSpec" name="/LightPath">
+        <constructor-arg>
+            <list>
+                <value>/LightPath/LightPathAnnotationLink;FORCE</value>
+                <value>/Annotation;SOFT;/LightPath/LightPathAnnotationLink</value>
+                <value>/LightPath</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean parent="graphSpec" name="/Objective">
+        <constructor-arg>
+            <list>
+                <value>/Objective/ObjectiveAnnotationLink;FORCE</value>
+                <value>/Annotation;SOFT;/Objective/ObjectiveAnnotationLink</value>
+                <value>/Objective</value>
             </list>
         </constructor-arg>
     </bean>
@@ -232,8 +294,6 @@
                 <value>/Image/Pixels/RenderingDef;FORCE</value>
                 <value>/Image/Pixels/Channel</value>
                 <value>/Image/Pixels/Thumbnail;FORCE</value>
-                <value>/Image/Pixels/PixelsAnnotationLink;FORCE</value>
-                <value>/Annotation;SOFT;/Image/Pixels/PixelsAnnotationLink</value>
                 <value>/Image/Pixels;NULL</value>
                 <value>/Image/ImageAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Image/ImageAnnotationLink</value>
@@ -308,8 +368,6 @@
     <bean parent="graphSpec" name="/Well+WithSamples">
         <constructor-arg>
             <list>
-                <value>/Well/WellSample/WellSampleAnnotationLink;FORCE</value>
-                <value>/Annotation;SOFT;/Well/WellSample/WellSampleAnnotationLink</value>
                 <value>/Well/WellSample</value>
                 <value>/Image;;/Well/WellSample</value>
                 <value>/Well</value>
@@ -356,8 +414,6 @@
             <list>
                 <value>/PlateAcquisition/PlateAcquisitionAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/PlateAcquisition/PlateAcquisitionAnnotationLink</value>
-                <value>/PlateAcquisition/WellSample/WellSampleAnnotationLink;FORCE</value>
-                <value>/Annotation;SOFT;/PlateAcquisition/WellSample/WellSampleAnnotationLink</value>
                 <value>/PlateAcquisition/WellSample</value>
                 <value>/Image;;/PlateAcquisition/WellSample</value>
                 <value>/Well;SOFT;/PlateAcquisition/WellSample</value>
@@ -400,14 +456,20 @@
     <bean parent="graphSpec" name="/AnnotationAnnotationLink"> <constructor-arg> <list> <value>/AnnotationAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="graphSpec" name="/ChannelAnnotationLink"> <constructor-arg> <list> <value>/ChannelAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="graphSpec" name="/DatasetAnnotationLink"> <constructor-arg> <list> <value>/DatasetAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="graphSpec" name="/DetectorAnnotationLink"> <constructor-arg> <list> <value>/DetectorAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="graphSpec" name="/DichroicAnnotationLink"> <constructor-arg> <list> <value>/DichroicAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="graphSpec" name="/ExperimenterAnnotationLink"> <constructor-arg> <list> <value>/ExperimenterAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="graphSpec" name="/ExperimenterGroupAnnotationLink"> <constructor-arg> <list> <value>/ExperimenterGroupAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="graphSpec" name="/FilesetAnnotationLink"> <constructor-arg> <list> <value>/FilesetAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="graphSpec" name="/FilterAnnotationLink"> <constructor-arg> <list> <value>/FilterAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="graphSpec" name="/ImageAnnotationLink"> <constructor-arg> <list> <value>/ImageAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="graphSpec" name="/InstrumentAnnotationLink"> <constructor-arg> <list> <value>/InstrumentAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="graphSpec" name="/LightPathAnnotationLink"> <constructor-arg> <list> <value>/LightPathAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="graphSpec" name="/LightSourceAnnotationLink"> <constructor-arg> <list> <value>/LightSourceAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="graphSpec" name="/NamespaceAnnotationLink"> <constructor-arg> <list> <value>/NamespaceAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="graphSpec" name="/NodeAnnotationLink"> <constructor-arg> <list> <value>/NodeAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="graphSpec" name="/ObjectiveAnnotationLink"> <constructor-arg> <list> <value>/ObjectiveAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="graphSpec" name="/OriginalFileAnnotationLink"> <constructor-arg> <list> <value>/OriginalFileAnnotationLink</value> </list> </constructor-arg> </bean>
-    <bean parent="graphSpec" name="/PixelsAnnotationLink"> <constructor-arg> <list> <value>/PixelsAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="graphSpec" name="/PlaneinfoAnnotationLink"> <constructor-arg> <list> <value>/PlaneinfoAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="graphSpec" name="/PlateAcquisitionAnnotationLink"> <constructor-arg> <list> <value>/PlateAcquisitionAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="graphSpec" name="/PlateAnnotationLink"> <constructor-arg> <list> <value>/PlateAnnotationLink</value> </list> </constructor-arg> </bean>
@@ -416,7 +478,43 @@
     <bean parent="graphSpec" name="/RoiAnnotationLink"> <constructor-arg> <list> <value>/RoiAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="graphSpec" name="/ScreenAnnotationLink"> <constructor-arg> <list> <value>/ScreenAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="graphSpec" name="/SessionAnnotationLink"> <constructor-arg> <list> <value>/SessionAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="graphSpec" name="/ShapeAnnotationLink"> <constructor-arg> <list> <value>/ShapeAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="graphSpec" name="/WellAnnotationLink"> <constructor-arg> <list> <value>/WellAnnotationLink</value> </list> </constructor-arg> </bean>
-    <bean parent="graphSpec" name="/WellSampleAnnotationLink"> <constructor-arg> <list> <value>/WellSampleAnnotationLink</value> </list> </constructor-arg> </bean>
 
+    <bean parent="graphSpec" name="/Arc">
+        <constructor-arg>
+            <list>
+                <value>/Arc/LightSourceAnnotationLink;FORCE</value>
+                <value>/Annotation;SOFT;/Arc/LightSourceAnnotationLink</value>
+                <value>/Arc</value>
+            </list>
+        </constructor-arg>
+    </bean>
+    <bean parent="graphSpec" name="/Filament">
+        <constructor-arg>
+            <list>
+                <value>/Filament/LightSourceAnnotationLink;FORCE</value>
+                <value>/Annotation;SOFT;/Filament/LightSourceAnnotationLink</value>
+                <value>/Filament</value>
+            </list>
+        </constructor-arg>
+    </bean>
+    <bean parent="graphSpec" name="/Laser">
+        <constructor-arg>
+            <list>
+                <value>/Laser/LightSourceAnnotationLink;FORCE</value>
+                <value>/Annotation;SOFT;/Laser/LightSourceAnnotationLink</value>
+                <value>/Laser</value>
+            </list>
+        </constructor-arg>
+    </bean>
+    <bean parent="graphSpec" name="/LightEmittingDiode">
+        <constructor-arg>
+            <list>
+                <value>/LightEmittingDiode/LightSourceAnnotationLink;FORCE</value>
+                <value>/Annotation;SOFT;/LightEmittingDiode/LightSourceAnnotationLink</value>
+                <value>/LightEmittingDiode</value>
+            </list>
+        </constructor-arg>
+    </bean>
 </beans>

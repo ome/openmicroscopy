@@ -6,6 +6,7 @@
  */
 package integration;
 
+import static omero.rtypes.rbool;
 import static omero.rtypes.rstring;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
@@ -138,7 +139,8 @@ public class AdminServiceTest extends AbstractServerTest {
     public void testCreateGroupRW() throws Exception {
         String uuid = UUID.randomUUID().toString();
         ExperimenterGroup g = new ExperimenterGroupI();
-        g.setName(omero.rtypes.rstring(uuid));
+        g.setName(rstring(uuid));
+        g.setLdap(rbool(false));
         g.getDetails().setPermissions(new PermissionsI("rw----"));
         IAdminPrx svc = root.getSession().getAdminService();
         long id = svc.createGroup(g);
@@ -171,7 +173,8 @@ public class AdminServiceTest extends AbstractServerTest {
     public void testCreateGroupRWR() throws Exception {
         String uuid = UUID.randomUUID().toString();
         ExperimenterGroup g = new ExperimenterGroupI();
-        g.setName(omero.rtypes.rstring(uuid));
+        g.setName(rstring(uuid));
+        g.setLdap(rbool(false));
         g.getDetails().setPermissions(new PermissionsI("rwr---"));
         IAdminPrx svc = root.getSession().getAdminService();
         long id = svc.createGroup(g);
@@ -204,7 +207,8 @@ public class AdminServiceTest extends AbstractServerTest {
     public void testCreateGroupRWRW() throws Exception {
         String uuid = UUID.randomUUID().toString();
         ExperimenterGroup g = new ExperimenterGroupI();
-        g.setName(omero.rtypes.rstring(uuid));
+        g.setName(rstring(uuid));
+        g.setLdap(rbool(false));
         g.getDetails().setPermissions(new PermissionsI("rwrw--"));
         IAdminPrx svc = root.getSession().getAdminService();
         long id = svc.createGroup(g);
@@ -242,7 +246,8 @@ public class AdminServiceTest extends AbstractServerTest {
 
         // Create a group and add the experimenter to that group
         ExperimenterGroup g = new ExperimenterGroupI();
-        g.setName(omero.rtypes.rstring(uuid));
+        g.setName(rstring(uuid));
+        g.setLdap(rbool(false));
         g.getDetails().setPermissions(new PermissionsI("rw----"));
         IAdminPrx svc = root.getSession().getAdminService();
         long id = svc.createGroup(g);
@@ -306,7 +311,8 @@ public class AdminServiceTest extends AbstractServerTest {
 
         // Create a group and add the experimenter to that group
         ExperimenterGroup g = new ExperimenterGroupI();
-        g.setName(omero.rtypes.rstring(uuid));
+        g.setName(rstring(uuid));
+        g.setLdap(rbool(false));
         g.getDetails().setPermissions(new PermissionsI("rw----"));
         IAdminPrx svc = root.getSession().getAdminService();
         long id = svc.createGroup(g);
@@ -324,8 +330,8 @@ public class AdminServiceTest extends AbstractServerTest {
         ExperimenterGroup userGroup = svc.lookupGroup(USER_GROUP);
         groups.add(eg);
         groups.add(userGroup);
-        id = svc.createExperimenterWithPassword(e,
-                omero.rtypes.rstring(PASSWORD), eg, groups);
+        id = svc.createExperimenterWithPassword(e, rstring(PASSWORD), eg,
+                groups);
         // Check if we have a user
         p = new ParametersI();
         p.addId(id);
@@ -370,7 +376,8 @@ public class AdminServiceTest extends AbstractServerTest {
 
         // already tested
         ExperimenterGroup g = new ExperimenterGroupI();
-        g.setName(omero.rtypes.rstring(uuid));
+        g.setName(rstring(uuid));
+        g.setLdap(rbool(false));
         g.getDetails().setPermissions(new PermissionsI("rw----"));
         long groupId = svc.createGroup(g);
 
@@ -445,7 +452,8 @@ public class AdminServiceTest extends AbstractServerTest {
 
         // already tested
         ExperimenterGroup g = new ExperimenterGroupI();
-        g.setName(omero.rtypes.rstring(uuid));
+        g.setName(rstring(uuid));
+        g.setLdap(rbool(false));
         g.getDetails().setPermissions(new PermissionsI("rw----"));
 
         // create group.
@@ -461,9 +469,10 @@ public class AdminServiceTest extends AbstractServerTest {
 
         String name = "userModified";
         uuid = UUID.randomUUID().toString();
-        e.setOmeName(omero.rtypes.rstring(uuid));
-        e.setFirstName(omero.rtypes.rstring(name));
-        e.setLastName(omero.rtypes.rstring(name));
+        e.setOmeName(rstring(uuid));
+        e.setFirstName(rstring(name));
+        e.setLastName(rstring(name));
+        e.setLdap(rbool(false));
         svc.updateExperimenter(e);
         e = (Experimenter) query.findByQuery(
                 "select distinct e from Experimenter e where e.id = :id", p);
@@ -489,13 +498,15 @@ public class AdminServiceTest extends AbstractServerTest {
 
         // already tested
         ExperimenterGroup g = new ExperimenterGroupI();
-        g.setName(omero.rtypes.rstring(uuid));
+        g.setName(rstring(uuid));
+        g.setLdap(rbool(false));
         g.getDetails().setPermissions(new PermissionsI("rw----"));
 
         // create group.
-        svc.createGroup(g);
+        g = svc.getGroup(svc.createGroup(g));
 
-        long id = svc.createUser(e, uuid);
+        long id = newUserInGroupWithPassword(e, g, uuid);
+        svc.setDefaultGroup(svc.getExperimenter(id), g);
         IQueryPrx query = root.getSession().getQueryService();
         ParametersI p = new ParametersI();
         p.addId(id);
@@ -505,10 +516,11 @@ public class AdminServiceTest extends AbstractServerTest {
 
         String name = "userModified";
         // uuid = UUID.randomUUID().toString();
-        e.setOmeName(omero.rtypes.rstring(uuid));
-        e.setFirstName(omero.rtypes.rstring(name));
-        e.setLastName(omero.rtypes.rstring(name));
-        //
+        e.setOmeName(rstring(uuid));
+        e.setFirstName(rstring(name));
+        e.setLastName(rstring(name));
+        e.setLdap(rbool(false));
+
         // owner logs in.
         omero.client client = newOmeroClient();
         client.createSession(uuid, uuid);
@@ -539,13 +551,15 @@ public class AdminServiceTest extends AbstractServerTest {
 
         // already tested
         ExperimenterGroup g = new ExperimenterGroupI();
-        g.setName(omero.rtypes.rstring(uuid));
+        g.setName(rstring(uuid));
+        g.setLdap(rbool(false));
         g.getDetails().setPermissions(new PermissionsI("rw----"));
 
         // create group.
-        svc.createGroup(g);
+        g = svc.getGroup(svc.createGroup(g));
 
-        long id = svc.createUser(e, uuid);
+        long id = newUserInGroupWithPassword(e, g, uuid);
+        svc.setDefaultGroup(svc.getExperimenter(id), g);
         IQueryPrx query = root.getSession().getQueryService();
         ParametersI p = new ParametersI();
         p.addId(id);
@@ -555,10 +569,11 @@ public class AdminServiceTest extends AbstractServerTest {
 
         String name = "userModified";
         // uuid = UUID.randomUUID().toString();
-        e.setOmeName(omero.rtypes.rstring(uuid));
-        e.setFirstName(omero.rtypes.rstring(name));
-        e.setLastName(omero.rtypes.rstring(name));
-        //
+        e.setOmeName(rstring(uuid));
+        e.setFirstName(rstring(name));
+        e.setLastName(rstring(name));
+        e.setLdap(rbool(false));
+
         // owner logs in.
         omero.client client = newOmeroClient();
         client.createSession(uuid, uuid);
@@ -587,7 +602,8 @@ public class AdminServiceTest extends AbstractServerTest {
 
         // already tested
         ExperimenterGroup g = new ExperimenterGroupI();
-        g.setName(omero.rtypes.rstring(uuid));
+        g.setName(rstring(uuid));
+        g.setLdap(rbool(false));
         g.getDetails().setPermissions(new PermissionsI("rw----"));
 
         // create group.
@@ -612,12 +628,14 @@ public class AdminServiceTest extends AbstractServerTest {
         // Create 2 groups and add a user
         String uuid1 = UUID.randomUUID().toString();
         ExperimenterGroup g1 = new ExperimenterGroupI();
-        g1.setName(omero.rtypes.rstring(uuid1));
+        g1.setName(rstring(uuid1));
+        g1.setLdap(rbool(false));
         g1.getDetails().setPermissions(new PermissionsI("rw----"));
 
         String uuid2 = UUID.randomUUID().toString();
         ExperimenterGroup g2 = new ExperimenterGroupI();
-        g2.setName(omero.rtypes.rstring(uuid2));
+        g2.setName(rstring(uuid2));
+        g2.setLdap(rbool(false));
         g2.getDetails().setPermissions(new PermissionsI("rw----"));
 
         IAdminPrx svc = root.getSession().getAdminService();
@@ -676,7 +694,8 @@ public class AdminServiceTest extends AbstractServerTest {
 
         // already tested
         ExperimenterGroup g = new ExperimenterGroupI();
-        g.setName(omero.rtypes.rstring(uuid));
+        g.setName(rstring(uuid));
+        g.setLdap(rbool(false));
         g.getDetails().setPermissions(new PermissionsI("rw----"));
 
         // create group.
@@ -706,7 +725,8 @@ public class AdminServiceTest extends AbstractServerTest {
 
         // already tested
         ExperimenterGroup g = new ExperimenterGroupI();
-        g.setName(omero.rtypes.rstring(uuid));
+        g.setName(rstring(uuid));
+        g.setLdap(rbool(false));
         g.getDetails().setPermissions(new PermissionsI("rw----"));
 
         // create group.
@@ -737,7 +757,8 @@ public class AdminServiceTest extends AbstractServerTest {
 
         // already tested
         ExperimenterGroup g = new ExperimenterGroupI();
-        g.setName(omero.rtypes.rstring(uuid));
+        g.setName(rstring(uuid));
+        g.setLdap(rbool(false));
         g.getDetails().setPermissions(new PermissionsI("rw----"));
 
         // create group.
@@ -782,13 +803,15 @@ public class AdminServiceTest extends AbstractServerTest {
 
         // already tested
         ExperimenterGroup g = new ExperimenterGroupI();
-        g.setName(omero.rtypes.rstring(uuid));
+        g.setName(rstring(uuid));
+        g.setLdap(rbool(false));
         g.getDetails().setPermissions(new PermissionsI("rw----"));
 
         // create group.
-        svc.createGroup(g);
+        g = svc.getGroup(svc.createGroup(g));
         // create the user.
-        svc.createUser(e, uuid);
+        long uid = newUserInGroupWithPassword(e, g, uuid);
+        svc.setDefaultGroup(svc.getExperimenter(uid), g);
         omero.client client = new omero.client(root.getPropertyMap());
         try {
             client.createSession(uuid, uuid);
@@ -815,25 +838,27 @@ public class AdminServiceTest extends AbstractServerTest {
         // First create a user in two groups, one rwrw-- and one rwr---
         ExperimenterGroup rwr = new ExperimenterGroupI();
         rwr.setName(rstring(uuid));
+        rwr.setLdap(rbool(false));
         rwr.getDetails().setPermissions(new PermissionsI("rwr---"));
         long rwrID = prx.createGroup(rwr);
         rwr = prx.getGroup(rwrID);
 
         ExperimenterGroup rwrw = new ExperimenterGroupI();
         rwrw.setName(rstring(UUID.randomUUID().toString()));
+        rwrw.setLdap(rbool(false));
         rwr.getDetails().setPermissions(new PermissionsI("rwrw--"));
         long rwrwID = prx.createGroup(rwrw);
         rwrw = prx.getGroup(rwrwID);
 
         Experimenter e = createExperimenterI(uuid, "user", "user");
-        long userID = prx.createUser(e, rwrw.getName().getValue());
+        long userID = newUserInGroupWithPassword(e, rwrw, uuid);
         e = prx.getExperimenter(userID);
 
         prx.addGroups(e, Arrays.asList(rwr));
 
         omero.client client = new omero.client(root.getPropertyMap());
         try {
-            client.createSession(e.getOmeName().getValue(), "foo");
+            client.createSession(uuid, uuid);
             prx = client.getSession().getAdminService();
             prx.uploadMyUserPhoto("/tmp/foto.jpg", "image/jpeg",
                     new byte[] { 1 });
@@ -904,7 +929,7 @@ public class AdminServiceTest extends AbstractServerTest {
         Experimenter normalExperimenter = createExperimenterI(userName, "a", "user");
         normalExperimenter = proxy.getExperimenter(proxy.createUser(normalExperimenter, roles.userGroupName));
 
-        final RString newName = omero.rtypes.rstring(UUID.randomUUID().toString());
+        final RString newName = rstring(UUID.randomUUID().toString());
 
         for (final Experimenter specialExperimenter : ImmutableList.of(rootExperimenter, guestExperimenter)) {
             try {
@@ -934,11 +959,12 @@ public class AdminServiceTest extends AbstractServerTest {
 
         final String groupName = UUID.randomUUID().toString();
         ExperimenterGroup normalGroup = new ExperimenterGroupI();
-        normalGroup.setName(omero.rtypes.rstring(groupName));
+        normalGroup.setName(rstring(groupName));
+        normalGroup.setLdap(rbool(false));
         normalGroup.getDetails().setPermissions(new PermissionsI("rw----"));
         normalGroup = proxy.getGroup(proxy.createGroup(normalGroup));
 
-        final RString newName = omero.rtypes.rstring(UUID.randomUUID().toString());
+        final RString newName = rstring(UUID.randomUUID().toString());
 
         for (final ExperimenterGroup specialGroup : ImmutableList.of(userGroup, systemGroup, guestGroup)) {
             try {
@@ -969,24 +995,28 @@ public class AdminServiceTest extends AbstractServerTest {
         final String normalGroupName1α = UUID.randomUUID().toString();
         final String normalGroupName1β = UUID.randomUUID().toString();
         ExperimenterGroup normalGroup1 = new ExperimenterGroupI();
-        normalGroup1.setName(omero.rtypes.rstring(normalGroupName1α));
+        normalGroup1.setName(rstring(normalGroupName1α));
+        normalGroup1.setLdap(rbool(false));
         normalGroup1 = proxy.getGroup(proxy.createGroup(normalGroup1));
 
         final String normalGroupName2 = UUID.randomUUID().toString();
         ExperimenterGroup normalGroup2 = new ExperimenterGroupI();
-        normalGroup2.setName(omero.rtypes.rstring(normalGroupName2));
+        normalGroup2.setName(rstring(normalGroupName2));
+        normalGroup2.setLdap(rbool(false));
         normalGroup2 = proxy.getGroup(proxy.createGroup(normalGroup2));
 
         final String userName1 = UUID.randomUUID().toString();
         Experimenter experimenter1 = createExperimenterI(userName1, "1", "user");
-        final long experimenterId1 = proxy.createUser(experimenter1, normalGroupName1α);
+        final long experimenterId1 = newUserInGroupWithPassword(experimenter1,
+                normalGroup1, userName1);
         experimenter1 = proxy.getExperimenter(experimenterId1);
         proxy.addGroups(experimenter1, ImmutableList.of(userGroup, systemGroup, normalGroup1, normalGroup2));
         experimenter1 = proxy.getExperimenter(experimenterId1);
 
         final String userName2 = UUID.randomUUID().toString();
         Experimenter experimenter2 = createExperimenterI(userName2, "2", "user");
-        final long experimenterId2 = proxy.createUser(experimenter2, normalGroupName1α);
+        final long experimenterId2 = newUserInGroupWithPassword(experimenter2,
+                normalGroup1, userName2);
         experimenter2 = proxy.getExperimenter(experimenterId2);
         proxy.addGroups(experimenter2, ImmutableList.of(userGroup, normalGroup1, normalGroup2));
         experimenter2 = proxy.getExperimenter(experimenterId2);
@@ -994,20 +1024,20 @@ public class AdminServiceTest extends AbstractServerTest {
         final omero.client client1 = newOmeroClient();
         final omero.client client2 = newOmeroClient();
 
-        client1.createSession(userName1, null);
-        client2.createSession(userName2, null);
+        client1.createSession(userName1, userName1);
+        client2.createSession(userName2, userName2);
 
         proxy = client1.getSession().getAdminService();
         try {
             /* test that the current group cannot be renamed */
-            normalGroup1.setName(omero.rtypes.rstring(normalGroupName1β));
+            normalGroup1.setName(rstring(normalGroupName1β));
             proxy.updateGroup(normalGroup1);
             fail("the current group may not be renamed");
         } catch (ValidationException e) { }
         /* switch current group */
         proxy.setDefaultGroup(experimenter1, normalGroup2);
         client1.closeSession();
-        client1.createSession(userName1, null);
+        client1.createSession(userName1, userName1);
         proxy = client1.getSession().getAdminService();
         /* test that the same group can be renamed if no longer current */
         proxy.updateGroup(normalGroup1);
@@ -1038,7 +1068,8 @@ public class AdminServiceTest extends AbstractServerTest {
 
         final String normalGroupName = UUID.randomUUID().toString();
         ExperimenterGroup normalGroup = new ExperimenterGroupI();
-        normalGroup.setName(omero.rtypes.rstring(normalGroupName));
+        normalGroup.setName(rstring(normalGroupName));
+        normalGroup.setLdap(rbool(false));
         normalGroup = proxy.getGroup(proxy.createGroup(normalGroup));
 
         proxy.addGroups(rootExperimenter, ImmutableList.of(normalGroup));
@@ -1046,14 +1077,16 @@ public class AdminServiceTest extends AbstractServerTest {
 
         final String userName1 = UUID.randomUUID().toString();
         Experimenter experimenter1 = createExperimenterI(userName1, "1", "user");
-        final long experimenterId1 = proxy.createUser(experimenter1, normalGroupName);
+        final long experimenterId1 = newUserInGroupWithPassword(experimenter1,
+                normalGroup, userName1);
         experimenter1 = proxy.getExperimenter(experimenterId1);
         proxy.addGroups(experimenter1, ImmutableList.of(userGroup, systemGroup, normalGroup));
         experimenter1 = proxy.getExperimenter(experimenterId1);
 
         final String userName2 = UUID.randomUUID().toString();
         Experimenter experimenter2 = createExperimenterI(userName2, "2", "user");
-        final long experimenterId2 = proxy.createUser(experimenter2, normalGroupName);
+        final long experimenterId2 = newUserInGroupWithPassword(experimenter2,
+                normalGroup, userName2);
         experimenter2 = proxy.getExperimenter(experimenterId2);
         proxy.addGroups(experimenter2, ImmutableList.of(userGroup, systemGroup, normalGroup));
         experimenter2 = proxy.getExperimenter(experimenterId2);
@@ -1068,7 +1101,7 @@ public class AdminServiceTest extends AbstractServerTest {
 
         final omero.client client = newOmeroClient();
 
-        client.createSession(userName1, null);
+        client.createSession(userName1, userName1);
         proxy = client.getSession().getAdminService();
 
         try {
@@ -1109,19 +1142,22 @@ public class AdminServiceTest extends AbstractServerTest {
 
         final String normalGroupName = UUID.randomUUID().toString();
         ExperimenterGroup normalGroup = new ExperimenterGroupI();
-        normalGroup.setName(omero.rtypes.rstring(normalGroupName));
+        normalGroup.setName(rstring(normalGroupName));
+        normalGroup.setLdap(rbool(false));
         normalGroup = proxy.getGroup(proxy.createGroup(normalGroup));
 
         final String userName1 = UUID.randomUUID().toString();
         Experimenter experimenter1 = createExperimenterI(userName1, "1", "user");
-        final long experimenterId1 = proxy.createUser(experimenter1, normalGroupName);
+        final long experimenterId1 = newUserInGroupWithPassword(experimenter1,
+                normalGroup, userName1);
         experimenter1 = proxy.getExperimenter(experimenterId1);
         proxy.addGroups(experimenter1, ImmutableList.of(userGroup, systemGroup, normalGroup));
         experimenter1 = proxy.getExperimenter(experimenterId1);
 
         final String userName2 = UUID.randomUUID().toString();
         Experimenter experimenter2 = createExperimenterI(userName2, "2", "user");
-        final long experimenterId2 = proxy.createUser(experimenter2, normalGroupName);
+        final long experimenterId2 = newUserInGroupWithPassword(experimenter2,
+                normalGroup, userName2);
         experimenter2 = proxy.getExperimenter(experimenterId2);
         proxy.addGroups(experimenter2, ImmutableList.of(userGroup, systemGroup, normalGroup));
         experimenter2 = proxy.getExperimenter(experimenterId2);
@@ -1135,7 +1171,7 @@ public class AdminServiceTest extends AbstractServerTest {
 
         final omero.client client = newOmeroClient();
 
-        client.createSession(userName1, null);
+        client.createSession(userName1, userName1);
         proxy = client.getSession().getAdminService();
 
         try {
@@ -1176,7 +1212,8 @@ public class AdminServiceTest extends AbstractServerTest {
 
         final String normalGroupName = UUID.randomUUID().toString();
         ExperimenterGroup normalGroup = new ExperimenterGroupI();
-        normalGroup.setName(omero.rtypes.rstring(normalGroupName));
+        normalGroup.setName(rstring(normalGroupName));
+        normalGroup.setLdap(rbool(false));
         normalGroup = proxy.getGroup(proxy.createGroup(normalGroup));
 
         final String userName1 = UUID.randomUUID().toString();
@@ -1225,12 +1262,14 @@ public class AdminServiceTest extends AbstractServerTest {
 
         final String normalGroupName1 = UUID.randomUUID().toString();
         ExperimenterGroup normalGroup1 = new ExperimenterGroupI();
-        normalGroup1.setName(omero.rtypes.rstring(normalGroupName1));
+        normalGroup1.setName(rstring(normalGroupName1));
+        normalGroup1.setLdap(rbool(false));
         normalGroup1 = proxy.getGroup(proxy.createGroup(normalGroup1));
 
         final String normalGroupName2 = UUID.randomUUID().toString();
         ExperimenterGroup normalGroup2 = new ExperimenterGroupI();
-        normalGroup2.setName(omero.rtypes.rstring(normalGroupName2));
+        normalGroup2.setName(rstring(normalGroupName2));
+        normalGroup2.setLdap(rbool(false));
         normalGroup2 = proxy.getGroup(proxy.createGroup(normalGroup2));
 
         final String userName1 = UUID.randomUUID().toString();
@@ -1273,6 +1312,7 @@ public class AdminServiceTest extends AbstractServerTest {
         // First group rwr---
         ExperimenterGroup g = new ExperimenterGroupI();
         g.setName(rstring(uuid));
+        g.setLdap(rbool(false));
         String representation = "rwr---";
         g.getDetails().setPermissions(new PermissionsI(representation));
         long id = prx.createGroup(g);
@@ -1314,6 +1354,7 @@ public class AdminServiceTest extends AbstractServerTest {
         // First group rwr---
         ExperimenterGroup g = new ExperimenterGroupI();
         g.setName(rstring(uuid));
+        g.setLdap(rbool(false));
         String representation = "rwr---";
         g.getDetails().setPermissions(new PermissionsI(representation));
         long id = prx.createGroup(g);
@@ -1355,6 +1396,7 @@ public class AdminServiceTest extends AbstractServerTest {
         // First group rwr---
         ExperimenterGroup g = new ExperimenterGroupI();
         g.setName(rstring(uuid));
+        g.setLdap(rbool(false));
         String representation = "rwra--";
         g.getDetails().setPermissions(new PermissionsI(representation));
         long id = prx.createGroup(g);
@@ -1394,6 +1436,7 @@ public class AdminServiceTest extends AbstractServerTest {
         // First group rwr---
         ExperimenterGroup g = new ExperimenterGroupI();
         g.setName(rstring(uuid));
+        g.setLdap(rbool(false));
         String representation = "rw----";
         g.getDetails().setPermissions(new PermissionsI(representation));
         long id = prx.createGroup(g);
@@ -1432,6 +1475,7 @@ public class AdminServiceTest extends AbstractServerTest {
         // First create a user in two groups, one rwrw-- and one rwr---
         ExperimenterGroup g = new ExperimenterGroupI();
         g.setName(rstring(uuid));
+        g.setLdap(rbool(false));
         String representation = "rw----";
         g.getDetails().setPermissions(new PermissionsI(representation));
         long id = prx.createGroup(g);
@@ -1466,6 +1510,7 @@ public class AdminServiceTest extends AbstractServerTest {
         // First create a user in two groups, one rwrw-- and one rwr---
         ExperimenterGroup g = new ExperimenterGroupI();
         g.setName(rstring(uuid));
+        g.setLdap(rbool(false));
         String representation = "rw----";
         g.getDetails().setPermissions(new PermissionsI(representation));
         long id = prx.createGroup(g);
@@ -1500,41 +1545,38 @@ public class AdminServiceTest extends AbstractServerTest {
      */
     @Test
     public void testOwnerAddExistingExperimenterToGroup() throws Exception {
+        IAdminPrx svc = root.getSession().getAdminService();
+
         // First create a new user.
         String uuid = UUID.randomUUID().toString();
         Experimenter e = createExperimenterI(uuid, "user", "user");
-        IAdminPrx svc = root.getSession().getAdminService();
-
-        // already tested
         ExperimenterGroup g = new ExperimenterGroupI();
-        g.setName(omero.rtypes.rstring(uuid));
+        g.setName(rstring(uuid));
+        g.setLdap(rbool(false));
         g.getDetails().setPermissions(new PermissionsI("rw----"));
-
-        // create group.
-        long groupId = svc.createGroup(g);
-        g = svc.lookupGroup(uuid);
-        // create the user.
-        long expId = svc.createUser(e, uuid);
+        long gId = svc.createGroup(g);
+        g = svc.getGroup(gId);
+        newUserInGroupWithPassword(e, g, uuid);
         Experimenter owner = svc.lookupExperimenter(uuid);
-        // set the user as the group owner.
         svc.setGroupOwner(g, owner);
+        svc.setDefaultGroup(owner, g);
 
         // create another group and user
-        String uuidGroup = UUID.randomUUID().toString();
-        ExperimenterGroup g2 = new ExperimenterGroupI();
-        g2.setName(omero.rtypes.rstring(uuidGroup));
-        g2.getDetails().setPermissions(new PermissionsI("rw----"));
-        svc.createGroup(g2);
-
         String uuid2 = UUID.randomUUID().toString();
         e = createExperimenterI(uuid2, "user", "user");
-        expId = svc.createUser(e, uuidGroup);
+        ExperimenterGroup g2 = new ExperimenterGroupI();
+        g2.setName(rstring(uuid2));
+        g2.setLdap(rbool(false));
+        g2.getDetails().setPermissions(new PermissionsI("rw----"));
+        long g2Id = svc.createGroup(g2);
+        g2 = svc.getGroup(g2Id);
+        newUserInGroupWithPassword(e, g2, uuid2);
         e = svc.lookupExperimenter(uuid2);
-        // owner logs in.
+
         omero.client client = newOmeroClient();
         client.createSession(uuid, uuid);
         init(client);
-        // iAdmin.
+
         List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
         groups.add(g);
         iAdmin.addGroups(e, groups);
@@ -1556,28 +1598,32 @@ public class AdminServiceTest extends AbstractServerTest {
 
         // already tested
         ExperimenterGroup g = new ExperimenterGroupI();
-        g.setName(omero.rtypes.rstring(uuid));
+        g.setName(rstring(uuid));
+        g.setLdap(rbool(false));
         g.getDetails().setPermissions(new PermissionsI("rw----"));
 
         // needed because e cannot be left only in the user group
         String uuid2 = UUID.randomUUID().toString();
         ExperimenterGroup g2 = new ExperimenterGroupI();
-        g2.setName(omero.rtypes.rstring(uuid2));
+        g2.setName(rstring(uuid2));
+        g2.setLdap(rbool(false));
         g2.getDetails().setPermissions(new PermissionsI("rw----"));
 
         // create group.
         long groupId = svc.createGroup(g);
-        g = svc.lookupGroup(uuid);
+        g = svc.getGroup(groupId);
         // create the user.
-        long expId = svc.createUser(e, uuid);
+        long expId = newUserInGroupWithPassword(e, g, uuid);
         Experimenter owner = svc.lookupExperimenter(uuid);
         // set the user as the group owner.
         svc.setGroupOwner(g, owner);
+        svc.setDefaultGroup(owner, g);
 
         // create another group and user
         String uuid3 = UUID.randomUUID().toString();
         e = createExperimenterI(uuid3, "user", "user");
-        expId = svc.createUser(e, uuid);
+        //expId = svc.createUser(e, uuid);
+        expId = newUserInGroupWithPassword(e, g, uuid3);
         e = svc.lookupExperimenter(uuid3);
         g2 = svc.getGroup(svc.createGroup(g2));
         svc.addGroups(e, Collections.singletonList(g2));
@@ -1608,7 +1654,8 @@ public class AdminServiceTest extends AbstractServerTest {
 
         // already tested
         ExperimenterGroup g = new ExperimenterGroupI();
-        g.setName(omero.rtypes.rstring(uuid));
+        g.setName(rstring(uuid));
+        g.setLdap(rbool(false));
         g.getDetails().setPermissions(new PermissionsI("rw----"));
         long groupId = svc.createGroup(g);
 
@@ -1616,7 +1663,8 @@ public class AdminServiceTest extends AbstractServerTest {
 
         String uuid2 = UUID.randomUUID().toString();
         g = new ExperimenterGroupI();
-        g.setName(omero.rtypes.rstring(uuid2));
+        g.setName(rstring(uuid2));
+        g.setLdap(rbool(false));
         g.getDetails().setPermissions(new PermissionsI("rw----"));
         long id2 = svc.createGroup(g);
         IQueryPrx query = root.getSession().getQueryService();

@@ -52,6 +52,7 @@ import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -680,9 +681,18 @@ class RendererComponent
 		if (rndControl == null) return;
 		loadingAttempt = 0;
 		model.setRenderingControl(rndControl);
+		controller.updatePasteAction();
 		//TODO: changes state.
 	}
 
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#onSettingsCopied()
+     */
+	public void onSettingsCopied() {
+	    controller.updatePasteAction();
+	}
+	
     /** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#getDefaultT()
@@ -898,6 +908,7 @@ class RendererComponent
 	public void resetSettings(RndProxyDef settings, boolean update)
 	{
 		try {
+		        model.makeHistorySnapshot();
 			model.resetSettings(settings);
 			if (update) {
 				view.resetDefaultRndSettings();
@@ -905,6 +916,7 @@ class RendererComponent
 						Boolean.valueOf(false), Boolean.valueOf(true));
 				firePropertyChange(COLOR_MODEL_PROPERTY, Boolean.valueOf(false), 
 	   		 			Boolean.valueOf(true));
+				controller.updatePasteAction();
 			}
 		} catch (Throwable e) {
 			handleException(e);
@@ -919,7 +931,6 @@ class RendererComponent
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 	        RndProxyDef def = model.saveCurrentSettings();
-	        controller.enableActions();
 		return def;
 	}
 
@@ -967,6 +978,16 @@ class RendererComponent
 			handleException(e);
 		}
 	}
+	
+    /**
+     * Implemented as specified by the {@link Renderer} interface.
+     * 
+     * @see Renderer#isIntegerPixelData()
+     */
+    public boolean isIntegerPixelData() {
+        return model.isIntegerPixelData();
+    };
+        
 	
 	/** 
      * Implemented as specified by the {@link Renderer} interface.
@@ -1320,4 +1341,12 @@ class RendererComponent
 	 * @see Renderer#getModuloT()
 	 */
 	public ModuloInfo getModuloT() { return model.getModuloT(); }
+	
+	/**
+         * Implemented as specified by the {@link Renderer} interface.
+         * @see Renderer#updatePasteAction()
+         */
+	public void updatePasteAction() {
+	    controller.updatePasteAction();
+	}
 }

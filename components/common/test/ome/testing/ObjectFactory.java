@@ -6,8 +6,6 @@
  */
 package ome.testing;
 
-import java.sql.Timestamp;
-
 import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
@@ -22,11 +20,14 @@ import ome.model.display.Thumbnail;
 import ome.model.enums.AcquisitionMode;
 import ome.model.enums.DimensionOrder;
 import ome.model.enums.Family;
-import ome.model.enums.Format;
 import ome.model.enums.PhotometricInterpretation;
 import ome.model.enums.PixelsType;
 import ome.model.enums.RenderingModel;
+import ome.model.enums.UnitsLength;
+import ome.model.enums.UnitsTime;
 import ome.model.stats.StatsInfo;
+import ome.model.units.Length;
+import ome.model.units.Time;
 
 /**
  * these method serve as a both client and test data store. An object that has
@@ -135,7 +136,9 @@ public class ObjectFactory {
                 pl[w].setTheC(new Integer(w));
                 pl[w].setTheZ(new Integer(0));
                 pl[w].setTheT(new Integer(0));
-                pl[w].setDeltaT(new Double(0.0));
+
+                Time deltaT = new Time(0.0, "S");
+                pl[w].setDeltaT(deltaT);
                 p.addPlaneInfo(pl[w]);
 
             }
@@ -144,20 +147,19 @@ public class ObjectFactory {
             i.addPixels(p);
 
         }
+
+        Length mm1 = new Length(1.0, "MM");
         p.setSizeX(new Integer(1));
         p.setSizeY(new Integer(1));
         p.setSizeZ(new Integer(1));
         p.setSizeC(new Integer(1));
         p.setSizeT(new Integer(1));
-        p.setPhysicalSizeX(1.0);
-        p.setPhysicalSizeY(1.0);
-        p.setPhysicalSizeZ(1.0);
+        p.setPhysicalSizeX(mm1);
+        p.setPhysicalSizeY(mm1);
+        p.setPhysicalSizeZ(mm1);
         p.setSha1("09bc7b2dcc9a510f4ab3a40c47f7a4cb77954356"); // "pixels"
         p.setPixelsType(pt);
         p.setDimensionOrder(dO);
-        p.setPhysicalSizeX(new Double(1.0));
-        p.setPhysicalSizeY(new Double(1.0));
-        p.setPhysicalSizeZ(new Double(1.0));
         p.setImage(i);
 
         for (int w = 0; w < channelCount; w++) {

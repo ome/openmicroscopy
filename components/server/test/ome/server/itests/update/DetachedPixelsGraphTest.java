@@ -9,6 +9,8 @@ package ome.server.itests.update;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.model.core.PlaneInfo;
+import ome.model.enums.UnitsTime;
+import ome.model.units.Time;
 import ome.parameters.Parameters;
 import ome.testing.ObjectFactory;
 
@@ -157,19 +159,23 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest {
         // PREPARE -------------------------------------------------
         PlaneInfo pi1 = new PlaneInfo(), pi2 = new PlaneInfo();
 
+        Time exposureTime = new Time(10, UnitsTime.S);
+        Time deltaT = new Time(-1, UnitsTime.S);
+        Time deltaTB = new Time(-193, UnitsTime.S);
+
         pi1.setTheC(new Integer(1));
         pi1.setTheT(new Integer(1));
         pi1.setTheZ(new Integer(1));
         pi1.setPixels(p);
-        pi1.setExposureTime(new Double(10));
-        pi1.setDeltaT(new Double(-11));
+        pi1.setExposureTime(exposureTime);
+        pi1.setDeltaT(deltaT);
 
         pi2.setTheC(new Integer(1));
         pi2.setTheT(new Integer(1));
         pi2.setTheZ(new Integer(1));
         pi2.setPixels(p);
-        pi2.setExposureTime(new Double(100));
-        pi2.setDeltaT(new Double(-193));
+        pi2.setExposureTime(exposureTime);
+        pi2.setDeltaT(deltaTB);
 
         p.addPlaneInfo(pi1);
         p.addPlaneInfo(pi2);

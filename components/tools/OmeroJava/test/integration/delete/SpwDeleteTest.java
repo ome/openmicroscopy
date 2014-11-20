@@ -38,7 +38,7 @@ import ome.specification.XMLWriter;
 @Test(groups = "ticket:2615")
 public class SpwDeleteTest extends AbstractServerTest {
 
-    @Test(groups = {"ticket:3102", "ticket:11540"})
+    @Test(groups = {"ticket12601", "ticket:3102", "ticket:11540"})
     public void testScreen() throws Exception {
 
         newUserAndGroup("rw----");
@@ -139,7 +139,7 @@ public class SpwDeleteTest extends AbstractServerTest {
 
     }
 
-    @Test(groups = "ticket:3890")
+    @Test(groups = {"ticket12601", "ticket:3890"})
     public void testImportMultiplePlates() throws Exception {
         create(new Creator() {
             public OME create(XMLMockObjects xml) {

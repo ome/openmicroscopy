@@ -235,6 +235,14 @@ class MetadataViewerComponent
 		} 
 	}
 
+        /** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#applyRenderingSettings(RndProxyDef)
+	 */
+	public void applyRenderingSettings(RndProxyDef rndDef) {
+	    model.applyRenderingSettings(rndDef);
+	}
+	
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#discard()
@@ -329,6 +337,14 @@ class MetadataViewerComponent
 			throw new IllegalStateException("This method cannot be invoked " +
 					"in the DISCARDED state.");
 		return model.getEditor().getUI();
+	}
+	
+	/** 
+         * Implemented as specified by the {@link MetadataViewer} interface.
+         * @see MetadataViewer#isRendererLoaded()
+         */
+	public boolean isRendererLoaded() {
+	    return model.getEditor().getRenderer() != null;
 	}
 	
 	/** 
@@ -1020,6 +1036,25 @@ class MetadataViewerComponent
 					model.getRefObject());
 		}
 	}
+	
+	/**
+         * Implemented as specified by the {@link MetadataViewer} interface.
+         * @see MetadataViewer#resetRenderingControl()
+         */
+        public void resetRenderingControl()
+        {
+              model.getEditor().loadRenderingControl(
+                                        RenderingControlLoader.RESET);
+        }
+        
+	/**
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#reloadRenderingControl()
+	 */
+	public void reloadRenderingControl()
+	{
+	    model.getEditor().loadRenderingControl();
+	}
 
 	/**
 	 * Implemented as specified by the {@link MetadataViewer} interface.
@@ -1247,5 +1282,23 @@ class MetadataViewerComponent
 	 * @see #toString()
 	 */
 	public String toString() { return model.getInstanceToSave(); }
-
+	
+	/**
+         * Implemented as specified by the {@link MetadataViewer} interface.
+         * @see MetadataViewer#hasRndSettingsCopied()
+         */
+        public boolean hasRndSettingsCopied() {
+            return model.hasRndSettingsCopied();
+        }
+	
+	/**
+         * Implemented as specified by the {@link MetadataViewer} interface.
+         * @see MetadataViewer#applyCopiedRndSettings()
+         */
+	public void applyCopiedRndSettings() {
+	    if(getRenderer()==null)
+	        return;
+	    
+	    model.fireLoadRndSettings();
+	}
 }

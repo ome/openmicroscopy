@@ -75,6 +75,16 @@
       #rdef-active-area td {
         padding: 0 0 4px 0;
       }
+      button.rdef {
+        border: solid transparent 1px;
+        background: transparent;
+      }
+      button.clicked {
+        border-color: blue;
+      }
+      .rdef .owner {
+        color: blue;
+      }
     </style>
 
 
@@ -123,11 +133,35 @@
 
             // copy and paste refs is in browser via query string,
             // but we also save to session in case of page reload etc
-            $("input.copy_rdef").click(function() {
+            $("button.copy_rdef").click(function() {
                 copyRdefs(OME.preview_viewport);
+                $("button.paste_rdef").removeAttr('disabled');
             });
-            $("input.paste_rdef").click(function() {
+            $("button.paste_rdef").click(function() {
                 pasteRdefs(OME.preview_viewport);
+            });
+            // once image loads, check session via /getImgRDef/ to see if we can paste
+            OME.preview_viewport.bind('imageLoad', function() {
+              $.getJSON(OME.preview_viewport.viewport_server + "/getImgRDef/",
+                function(data){
+                    if (data.rdef) {
+                      var channels = data.rdef.c.split(","); // c=1|3336:38283$FF0000,2|1649:17015$00FF00
+                      if (channels.length != OME.preview_viewport.getChannels().length ||
+                        data.rdef.pixel_range != OME.preview_viewport.loadedImg.pixel_range.join(":")) {
+                          // images are not compatible
+                          $("button.paste_rdef")
+                            .attr('title', 'Copied settings are not compatible with this image');
+                          return;
+                        }
+                        $("button.paste_rdef").removeAttr('disabled');
+                    }
+                }
+              );
+
+              // disable 'Full Range' button if pixelsType is 'float' or 'double'
+              if ($.inArray(OME.preview_viewport.loadedImg.meta.pixelsType, ["float", "double"]) > -1) {
+                $("#rdef-fullrange-btn").attr("disabled", "disabled");
+              }
             });
 
             // handle 'Color' checkbox
@@ -176,8 +210,11 @@
             // All button events are delegated, so will also apply to new buttons
             $( "#rdef-buttons" )
             .on( "click", "button", function() {
-              var rdid = $(this).attr('data-rdid'),     // might not know this (if button created by js)
-                ownerid = $(this).attr('data-ownerid');
+              var $this = $(this),
+                rdid = $this.attr('data-rdid'),     // might not know this (if button created by js)
+                ownerid = $this.attr('data-ownerid');
+              $( "#rdef-buttons button" ).removeClass('clicked');
+              $this.addClass('clicked');
               for (var r = 0; r < rdefs.length; r++) {
                 if (rdefs[r].id+"" === rdid || rdefs[r].owner.id+"" === ownerid) {
                   OME.preview_viewport.setQuery(rdefs[r]);
@@ -199,11 +236,13 @@
                 kv = settings[s].split("=");
                 defs[kv[0]] = kv[1];
               }
+              $( "#rdef-buttons button" ).removeClass('clicked');
 
               var src = "{% url 'render_thumbnail' manager.image.id %}?_=" + Math.random();
               // if we already have a button, update thumb
               var $btn = $("button.rdef[data-ownerid='{{ ome.user.id }}']");
               if ($btn.length > 0) {
+                $btn.addClass('clicked');
                 // we don't know rdefid but default thumb will be 'ours'
                 $('img.rdef', $btn)
                     .attr('src', src)
@@ -224,7 +263,9 @@
                     .attr('data-ownerid','{{ ome.user.id }}')
                     .appendTo($lastBtn.parent());
                   $newBtn.children('img').attr('src', src);
-                  $newBtn.children('span').text("{{ ome.user.getFullName }}");
+                  $newBtn.children('span').text("{{ ome.user.getFullName }}")
+                      .removeClass('owner');
+                  $newBtn.addClass('clicked');
 
                   rdefs.push({
                     'owner': {'id':{{ ome.user.id }}},
@@ -246,7 +287,7 @@
             if (pid) {
               $("#rdef-save-all")
                 .attr('title', "Apply and Save settings to all images in " + pid)
-                .removeAttr("disabled")
+                .prop("disabled", false)
                 .click(function(){
                   var $span = $('span', this),
                     spanTxt = $span.text();
@@ -306,39 +347,49 @@
     </div>
 
 
-    <ul class="toolbar" style="border-right-width: 0; margin-top: 5px; margin-bottom: 8px">
+    <ul class="toolbar preview-toolbar">
       <li>
-        <button id="rdef-setdef-btn" class="editor" disabled='true'
+        <button id="rdef-setdef-btn" class="toolbar-btn" disabled='true'
             {% if manager.image.canAnnotate %}
               title="Saves the current settings."
             {% else %}
             title="You don't have permission to save settings."
             {% endif %}
             >
-          <img src="{% static 'webclient/image/icon_save.png' %}" style="position:relative; top:2px" />
-          <span>
+          <img src="{% static 'webclient/image/icon_save.png' %}" style="position:relative; top:2px" /><br>
             Save
-          </span>
         </button>
 
-        <button id="rdef-save-all" disabled="true" title="Cannot apply settings to other images">
-          <img src="{% static 'webclient/image/icon_save.png' %}" style="position:relative; top:2px" />
-          <span>
+        <button id="rdef-save-all" class="toolbar-btn" disabled="true"
+            title="Cannot apply settings to other images">
+          <img src="{% static 'webclient/image/icon_save.png' %}" style="position:relative; top:2px" /><br>
             Save to All
-          </span>
         </button>
       </li>
 
 
-      <!-- class='button-disabled' -->
-      <li><input id="rdef-undo-btn" class="button" type="image" src="{% static "webclient/image/icon_undo16.png" %}" title="Undo the last changes to settings" /> </li>
-      <li><input id="rdef-redo-btn" class="button" type="image" src="{% static "webclient/image/icon_redo16.png" %}" title="Redo the last changes to settings" /> </li>
+      <li><button id="rdef-undo-btn" class="toolbar-btn" disabled="true"
+          title="Undo the last changes to settings">
+        <img src="{% static "webclient/image/icon_undo16.png" %}" /><br>
+        Undo
+      </button> </li>
+      <li><button id="rdef-redo-btn" class="toolbar-btn" disabled="true"
+          title="Redo the last changes to settings">
+        <img src="{% static "webclient/image/icon_redo16.png" %}" /><br>
+        Redo
+      </button></li>
       
       <li class="seperator"></li>
 
-      <!-- class='button-disabled' -->
-      <li><input class="copy_rdef button" type="image" src="{% static "webclient/image/icon_toolbar_copy.png" %}" title="Copy Rendering Settings" /> </li>
-      <li><input class="paste_rdef button" type="image" src="{% static "webclient/image/icon_toolbar_paste.png" %}" title="Paste Rendering Settings" /> </li>
+      <li><button class="copy_rdef button toolbar-btn" title="Copy Rendering Settings">
+        <img src="{% static "webclient/image/icon_toolbar_copy.png" %}"/><br>
+        Copy
+      </button></li>
+      <li><button class="paste_rdef button toolbar-btn"
+        disabled='disabled' title="Paste Rendering Settings">
+        <img src="{% static "webclient/image/icon_toolbar_paste.png" %}"/><br>
+        Paste
+      </button></li>
     </ul>
 
     <div id="rdef-postit">
@@ -367,13 +418,16 @@
 
       <hr class="thin-margin"/>
 
-      <h3 style="margin-bottom:2px; margin-top:4px">Select User Settings:</h3>
+      <h3 style="margin-bottom:2px; margin-top:4px">User Settings:</h3>
 
       <li id='rdef-buttons'>
         {% for rdef in rdefs %}
-          <button class='rdef' data-ownerid="{{ rdef.owner.id }}" data-rdid="{{ rdef.id }}">
+          <button class='rdef {% if rdef.current %}clicked{% endif %}'
+            data-ownerid="{{ rdef.owner.id }}" data-rdid="{{ rdef.id }}">
             <img class='rdef' src="{% url 'render_thumbnail' manager.image.id %}?rdefId={{ rdef.id }}"/><br>
-            <span>{{ rdef.owner.firstName }} {{ rdef.owner.lastName }}</span>
+            <span {% ifequal manager.image.getDetails.owner.id.val rdef.owner.id %}class="owner"{% endifequal %}>
+              {{ rdef.owner.firstName }} {{ rdef.owner.lastName }}
+            </span>
           </button>
         {% endfor %}
       </li>

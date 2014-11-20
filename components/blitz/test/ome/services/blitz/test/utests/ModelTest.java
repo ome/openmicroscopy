@@ -1,13 +1,15 @@
 /*
  *   $Id$
  *
- *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2007-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.services.blitz.test.utests;
 
 import static omero.rtypes.rdouble;
 import static omero.rtypes.rstring;
+
+import static ome.formats.model.UnitsFactory.makePower;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +21,7 @@ import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.units.UNITS;
 import omero.model.ArcI;
 import omero.model.ChannelI;
 import omero.model.DatasetI;
@@ -40,7 +43,7 @@ public class ModelTest extends TestCase {
     public void testInheritanceInConcreteClasses() throws Exception {
         ArcI arcI = new ArcI();
         // arcI.unload();
-        arcI.setPower(rdouble(1.0f));
+        arcI.setPower(makePower(1.0f, UNITS.WATT));
     }
 
     @Test
@@ -48,7 +51,8 @@ public class ModelTest extends TestCase {
 
         Experimenter e = new Experimenter();
         e.setOmeName("hi");
-        e.linkExperimenterGroup(new ExperimenterGroup("foo"));
+        e.setLdap(false);
+        e.linkExperimenterGroup(new ExperimenterGroup("foo", false));
 
         IceMapper mapper = new IceMapper();
         ExperimenterI ei = (ExperimenterI) mapper.map(e);
@@ -61,7 +65,8 @@ public class ModelTest extends TestCase {
     public void testCopyObject() throws Exception {
         Experimenter e = new Experimenter();
         e.setOmeName("hi");
-        e.linkExperimenterGroup(new ExperimenterGroup("foo"));
+        e.setLdap(false);
+        e.linkExperimenterGroup(new ExperimenterGroup("foo", false));
         ExperimenterI ei = new ExperimenterI();
         ei.copyObject(e, new IceMapper());
         // This may not hold without being called from the top level mapper

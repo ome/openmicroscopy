@@ -23,11 +23,13 @@
 
 package omeis.providers.re.quantum;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.collect.Range;
 
 import ome.model.display.QuantumDef;
 import ome.model.enums.PixelsType;
@@ -47,9 +49,6 @@ import ome.model.enums.PixelsType;
  * @since OME5.1
  */
 public class Quantization_32_bit extends QuantumStrategy {
-
-    /** The logger for this particular class */
-    private static Logger log = LoggerFactory.getLogger(Quantization_32_bit.class);
 
     /** The lowest pixel intensity value. */
     private int min;
@@ -85,7 +84,7 @@ public class Quantization_32_bit extends QuantumStrategy {
     private int cdStart, cdEnd;
 
     /** The mapped values.*/
-    private Map<Double, Integer> values;
+    private LoadingCache<Double, Integer> values;
 
     /**
      * Initializes the coefficient of the normalize mapping operation.
@@ -162,38 +161,21 @@ public class Quantization_32_bit extends QuantumStrategy {
     /** The input window size changed, re-map the values. */
     @Override
     protected void onWindowChange() {
-        values.clear();
+        values.invalidateAll();
     }
 
     /**
-     * Creates a new strategy.
+     * Maps the value.
      *
-     * @param qd
-     *            Quantum definition object, contained mapping data.
-     * @param type
-     *            The pixel type;
+     * @param value The value to handle.
+     * @return The mapped value.
+     * @throws QuantizationException Thrown if an error occurred during
+     *                               the mapping.
      */
-    public Quantization_32_bit(QuantumDef qd, PixelsType type) {
-        super(qd, type);
-        values = new HashMap<Double, Integer>();
-    }
-
-    /**
-     * Implemented as specified in {@link QuantumStrategy}.
-     *
-     * @see QuantumStrategy#quantize(double)
-     */
-    @Override
-    public int quantize(double value) throws QuantizationException {
-        if (values.containsKey(value)) {
-            return values.get(value).intValue();
-        }
+    private int _quantize(double value)
+                throws QuantizationException
+    {
         double dStart = getWindowStart(), dEnd = getWindowEnd();
-        if (value < dStart) {
-            return ((byte) cdStart) & 0xFF;
-        } else if (value > dEnd) {
-            return ((byte) cdEnd) & 0xFF;
-        }
         double k = getCurveCoefficient();
         double a1 = (qDef.getCdEnd().intValue() - qDef.getCdStart().intValue())
                 / qDef.getBitResolution().doubleValue();
@@ -217,9 +199,43 @@ public class Quantization_32_bit extends QuantumStrategy {
         v = aNormalized * (valueMapper.transform(v, k) - ysNormalized);
         v = Math.round(v);
         v = Math.round(a1 * v + cdStart);
-        int x = ((byte) v) & 0xFF;
-        values.put(value, x);
-        return x;
+        return ((byte) v) & 0xFF;
+    }
+
+    /**
+     * Creates a new strategy.
+     *
+     * @param qd
+     *            Quantum definition object, contained mapping data.
+     * @param type
+     *            The pixel type;
+     */
+    public Quantization_32_bit(QuantumDef qd, PixelsType type) {
+        super(qd, type);
+        values = CacheBuilder.newBuilder()
+                .maximumSize(MAX-MIN+1)
+                .expireAfterWrite(10, TimeUnit.MINUTES)
+                .build(new CacheLoader<Double, Integer>() {
+                    public Integer load(Double key) throws Exception {
+                        return _quantize(key);
+                    }
+                });
+    }
+
+    /**
+     * Implemented as specified in {@link QuantumStrategy}.
+     *
+     * @see QuantumStrategy#quantize(double)
+     */
+    @Override
+    public int quantize(double value) throws QuantizationException {
+        try {
+            Range<Double> r = getRange(value);
+            double v = (r.upperEndpoint()+r.lowerEndpoint())/2;
+            return values.get(v);
+        } catch (ExecutionException e) {
+            throw new QuantizationException(e);
+        }
     }
 
 }

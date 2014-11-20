@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -46,11 +46,13 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.ImageData;
 
 /** 
  * Defines the interface provided by the viewer component. 
@@ -224,6 +226,13 @@ public interface MetadataViewer
 	 */
 	public void activate(Map channelData);
 
+        /**
+	 * Applies the specified rendering settings.
+	 * 
+	 * @param rndDef The rendering settings to apply.
+	 */
+	public void applyRenderingSettings(RndProxyDef rndDef);
+	
 	/**
 	 * Transitions the viewer to the {@link #DISCARDED} state.
 	 * Any ongoing data loading is canceled.
@@ -266,6 +275,12 @@ public interface MetadataViewer
 	 * @return See above.
 	 */
 	public JComponent getEditorUI();
+	
+	/**
+	 * Checks if the renderer has already been initialized
+	 * @return See above.
+	 */
+	public boolean isRendererLoaded();
 	
 	/**
 	 * Returns the component hosted by the view.
@@ -543,13 +558,20 @@ public interface MetadataViewer
 	public void manageScript(ScriptObject script, int index);
 	
 	/**
-	 * Reloads the renderer if the passed value is <code>true</code>,
-	 * discards the components if <code>false</code>.
+	 * Reloads the renderer (asynchronous) if the passed value is
+         * <code>true</code>, discards the components if <code>false</code>.
 	 * 
 	 * @param value Pass <code>true</code> to reload, 
 	 * 				<code>false</code> to discard.
 	 */
 	public void reloadRenderingControl(boolean value);
+	
+	public void resetRenderingControl();
+	 
+	/**
+	 * Reloads the renderer (synchronous)
+         */
+	void reloadRenderingControl();
 	
 	/** 
 	 * Indicates that the color of the passed channel has changed.
@@ -678,5 +700,18 @@ public interface MetadataViewer
 	 * @return See above.
 	 */
 	ExperimenterData getCurrentUser();
-
+	
+	/**
+         * Applies the settings of a previous set image to
+         * the renderer (does not save them).
+         * See also {@link #setRndSettingsToCopy(ImageData)}
+         */
+	void applyCopiedRndSettings();
+	
+        /**
+         * Returns if there are copied rendering settings which could be pasted.
+         * 
+         * @return
+         */
+        boolean hasRndSettingsCopied();
 }

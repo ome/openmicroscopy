@@ -128,9 +128,6 @@ class RenderingControlProxy
     /** Local copy of the rendering settings used to speed-up the client. */
     private RndProxyDef rndDef;
     
-    /** Local copy of the rendering settings used to speed-up the client. */
-    private List<RndProxyDef> rndDefs;
-    
     /** Indicates if the compression level. */
     private int compression;
     
@@ -866,8 +863,6 @@ class RenderingControlProxy
         selectedResolutionLevel = -1;
         lastAction = System.currentTimeMillis();
         shutDown = false;
-        if (rndDefs == null) rndDefs = new ArrayList<RndProxyDef>();
-        this.rndDefs = rndDefs;
         this.cacheSize = cacheSize;
         this.context = context;
         servant = re;
@@ -1646,11 +1641,17 @@ class RenderingControlProxy
      */
 	public RndProxyDef getRndSettingsCopy() { return rndDef.copy(); }
 	
+	public void resetSettings(RndProxyDef rndDef)
+                throws RenderingServiceException, DSOutOfServiceException
+        {
+	    resetSettings(rndDef, false);
+        }
+	
 	/** 
      * Implemented as specified by {@link RenderingControl}.
-     * @see RenderingControl#resetSettings(RndProxyDef)
+     * @see RenderingControl#resetSettings(RndProxyDef, boolean)
      */
-	public void resetSettings(RndProxyDef rndDef)
+	public void resetSettings(RndProxyDef rndDef, boolean includeZT)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (rndDef == null)
@@ -1659,8 +1660,10 @@ class RenderingControlProxy
 		if (rndDef.getNumberOfChannels() != getPixelsDimensionsC())
 			throw new IllegalArgumentException("Rendering settings not " +
 					"compatible.");
-		setDefaultT(rndDef.getDefaultT());
-		setDefaultZ(rndDef.getDefaultZ());
+		if (includeZT) {
+		    setDefaultT(rndDef.getDefaultT());
+		    setDefaultZ(rndDef.getDefaultZ());
+		}
 		setModel(rndDef.getColorModel());
 		setCodomainInterval(rndDef.getCdStart(), rndDef.getCdEnd());
 		setQuantumStrategy(rndDef.getBitResolution());
@@ -1806,7 +1809,7 @@ class RenderingControlProxy
 	{
 		isSessionAlive();
 		try {
-    		servant.resetDefaultsNoSave();
+    		servant.resetDefaultSettings(false);
     		if (getPixelsDimensionsC() > 1) setModel(RGB);
     		List list = servant.getAvailableFamilies();
     		ChannelData m;
@@ -1966,6 +1969,7 @@ class RenderingControlProxy
 		if (def.getCdEnd() != getCodomainEnd()) return false;
 		if (def.getCdStart() != getCodomainStart()) return false;
 		if (!def.getColorModel().equals(getModel())) return false;
+		if (def.getNumberOfChannels() != getPixelsDimensionsC()) return false;
 		ChannelBindingsProxy channel;
 		int[] rgba;
 		Color color;
@@ -2089,46 +2093,6 @@ class RenderingControlProxy
 			handleException(e, ERROR+"overlays.");
 		}
 		
-	}
-
-	/** 
-	 * Implemented as specified by {@link RenderingControl}.
-	 * @see RenderingControl#getPreviousRenderingSettings()
-	 */
-	public List<RndProxyDef> getPreviousRenderingSettings()
-	{
-		List<RndProxyDef> list = new ArrayList<RndProxyDef>();
-		if (rndDefs.size() <= 1) return list;
-		list.addAll(rndDefs);
-		list.remove(0);
-		return list;
-	}
-	
-	/** 
-	 * Implemented as specified by {@link RenderingControl}.
-	 * @see RenderingControl#getRenderingSettings()
-	 */
-	public Map<String, List<RndProxyDef>> getRenderingSettings()
-	{
-		if (settings != null) return settings;
-		settings = new HashMap<String, List<RndProxyDef>>();
-		Iterator<RndProxyDef> i = rndDefs.iterator();
-		RndProxyDef def;
-		String name;
-		List<RndProxyDef> l;
-		while (i.hasNext()) {
-			def = i.next();
-			name = def.getName();
-			if (name == null || name.trim().length() == 0)
-				name = DEFAULT_NAME;
-			l = settings.get(name);
-			if (l == null) {
-				l = new ArrayList<RndProxyDef>();
-				settings.put(name, l);
-			}
-			l.add(def);
-		}
-		return settings;
 	}
 
 	/** 

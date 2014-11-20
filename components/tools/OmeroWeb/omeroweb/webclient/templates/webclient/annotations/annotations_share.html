@@ -68,21 +68,18 @@
                         textArea.val('');
                     },
                 });
-                
+
                 $(".tooltip").parent().children("span").hide(); // hide tool tip source
                 $(".tooltip").tooltip({
-                    bodyHandler: function() {
-                            return $(this).parent().children("span").html();
-                        },
+                    items: '.tooltip',
+                    content: function() {
+                        return $(this).parent().children("span").html();
+                    },
                     track: true,
-                    delay: 0,
-                    showURL: false,
-                    fixPNG: true,
-                    showBody: " - ",
-                    top: 10,
-                    left: -100
+                    show: false,
+                    hide: false
                 });
-                
+
                 $(".removeComment").click(function(event) {
                     removeItem(event, "ann_comment_wrapper");
                 });
@@ -160,15 +157,10 @@
                             }
                         });
                         $('#id_expiration').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd', minDate: 0});
-                        $("#markup_c, #enable, #expire").tooltip({ 
-                              track: true, 
-                              delay: 0, 
-                              showURL: false, 
-                              opacity: 1, 
-                              fixPNG: true, 
-                              showBody: " - ", 
-                              top: -15, 
-                              left: 5 
+                        $("#markup_c, #enable, #expire").tooltip({
+                              track: true,
+                              show: false,
+                              hide: false
                           });
                     });
                     return false;
@@ -205,7 +197,13 @@
             <h2 class="data_heading_id">Image ID: <strong>{{ manager.image.id }}</strong></h2>    
             <!-- open-image link -->
 			
-			<button class="btn silver btn_text" href="#" onclick="return OME.openPopup('{% if share_id %}{% url 'web_image_viewer' share_id manager.image.id %}{% else %}{% url 'web_image_viewer' manager.image.id %}{% endif %}')" alt="View" title="Open full viewer">
+			<button class="btn silver btn_text" href="#"
+                {% if share_owned %}
+                    onclick="return OME.openPopup('{% url 'web_image_viewer' manager.image.id %}')"
+                {% else %}
+                    onclick="return OME.openPopup('{% url 'web_image_viewer' share_id manager.image.id %}')"
+                {% endif %}
+                alt="View" title="Open full viewer">
 				<span>
                 {% trans "Launch full viewer" %} 
 				</span>

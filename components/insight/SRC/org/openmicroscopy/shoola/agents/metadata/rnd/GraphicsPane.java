@@ -24,12 +24,14 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 
 //Java imports
+import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -39,22 +41,20 @@ import java.util.Iterator;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout;
-
 import org.apache.commons.collections.CollectionUtils;
-import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.WrapLayout;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
 import pojos.ChannelData;
@@ -84,7 +84,7 @@ class GraphicsPane
     static final double RATIO = 0.2;
     
     /** The title of the viewedby taskpane */
-    static final String VIEWEDBY_TITLE = "Saved by";
+    static final String VIEWEDBY_TITLE = "User Settings:";
 
     /** Slider to select a sub-interval of [0, 255]. */
     private TwoKnobsSlider codomainSlider;
@@ -119,14 +119,20 @@ class GraphicsPane
     /** The equation of the vertical line. */
     private int verticalLine = -1;
 
+    /** Checkbox for switching between greyscale and rgb mode */
+    private JCheckBox greyScale;
+    
     /** Hosts the sliders controlling the pixels intensity values. */
     private List<ChannelSlider> sliders;
 
     /** The component displaying the controls. */
     private PreviewControlBar controlsBar;
+    
+    /** The lower control pane */
+    private PreviewControlBar2 controlsBar2;
 
     /** The Tasks pane, only visible if already viewed by others. */
-    private JXTaskPane viewedBy;
+    private JPanel viewedBy;
 
     /** The preview tool bar. */
     private PreviewToolBar previewToolBar;
@@ -142,27 +148,28 @@ class GraphicsPane
      */
     private String formatValue(double value)
     {
-        if (model.getRoundFactor() == 1) return ""+(int) value;
-        return UIUtilities.formatToDecimal(value);
+        if (model.isIntegerPixelData())
+            return ""+(int) value;
+        else
+            return UIUtilities.formatToDecimal(value);
     }
 
     /** Initializes the domain slider. */
     private void initDomainSlider()
     {
-        int f = model.getRoundFactor();
-        int s = (int) (model.getWindowStart()*f);
-        int e = (int) (model.getWindowEnd()*f);
-        int absMin = (int) (model.getLowestValue()*f);
-        int absMax = (int) (model.getHighestValue()*f);
-        int min = (int) (model.getGlobalMin()*f);
-        int max = (int) (model.getGlobalMax()*f);
+        int s = (int) model.getWindowStart();
+        int e = (int) model.getWindowEnd();
+        int absMin = (int) model.getLowestValue();
+        int absMax = (int) model.getHighestValue();
+        int min = (int) model.getGlobalMin();
+        int max = (int) model.getGlobalMax();
         double range = (max-min)*RATIO;
         int lowestBound = (int) (min-range);
         if (lowestBound < absMin) lowestBound = absMin;
         int highestBound = (int) (max+range);
         if (highestBound > absMax) highestBound = absMax;
         domainSlider.setValues(max, min, highestBound, lowestBound,
-                max, min, s, e, f);
+                max, min, s, e);
         if (model.getMaxC() > Renderer.MAX_CHANNELS)
             domainSlider.setInterval(min, max);
     }
@@ -170,13 +177,13 @@ class GraphicsPane
     /** Initializes the components. */
     private void initComponents()
     {
-        IconManager icons = IconManager.getInstance();
-        viewedBy = new JXTaskPane();
+        viewedBy = new JPanel();
         Font font = viewedBy.getFont();
         viewedBy.setFont(font.deriveFont(font.getSize2D()-2));
-        viewedBy.setTitle(VIEWEDBY_TITLE);
-        viewedBy.setIcon(icons.getIcon(IconManager.RND_OWNER));
+        viewedBy.setBackground(UIUtilities.BACKGROUND_COLOR);
+        viewedBy.setLayout(new BorderLayout());
         controlsBar = new PreviewControlBar(controller, model);
+        controlsBar2 = new PreviewControlBar2(controller);
         uiDelegate = new GraphicsPaneUI(this, model);
         codomainSlider = new TwoKnobsSlider(RendererModel.CD_START,
                 RendererModel.CD_END, model.getCodomainStart(),
@@ -199,20 +206,24 @@ class GraphicsPane
         minLabel = new JLabel(formatValue(model.getGlobalMin()));
         maxLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
         minLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
+        
+        greyScale = new JCheckBox("Grayscale");
+        greyScale.setSelected(model.isGreyScale());
+        greyScale.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                model.setGreyscale(greyScale.isSelected());
+            }
+        });
+        
         sliders = new ArrayList<ChannelSlider>();
         if (model.getModuloT() != null || !model.isLifetimeImage()) {
             List<ChannelData> channels = model.getChannelData();
             Iterator<ChannelData> i = channels.iterator();
             ChannelSlider slider;
-            int columns = 0;
             while (i.hasNext()) {
                 slider = new ChannelSlider(this, model, controller, i.next());
-                columns = Math.max(columns, slider.getColumns());
                 sliders.add(slider);
-            }
-            Iterator<ChannelSlider> j = sliders.iterator();
-            while (j.hasNext()) {
-                j.next().setColumns(columns);
             }
         }
         previewToolBar = new PreviewToolBar(controller, model);
@@ -222,14 +233,23 @@ class GraphicsPane
     private void buildGUI()
     {
         setBackground(UIUtilities.BACKGROUND_COLOR);
-        double size[][] = {{TableLayout.FILL},  // Columns
-                {TableLayout.PREFERRED, 5, TableLayout.FILL}}; // Rows
-        setLayout(new TableLayout(size));
+        setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = 0;
+        c.anchor = GridBagConstraints.NORTHWEST;
+        c.weightx = 1;
+        c.weighty = 1;
+        c.fill = GridBagConstraints.BOTH;
         if (model.isGeneralIndex()) {
-            add(buildGeneralPane(), "0, 0");
+            add(buildGeneralPane(), c);
         } else {
-            add(buildPane(), "0, 0");
-            add(buildGeneralPane(), "0, 2");
+            c.weightx = 0;
+            add(buildPane(), c);
+            
+            c.weightx = 1;
+            c.gridx++;
+            add(buildGeneralPane(), c);
         }
     }
 
@@ -242,40 +262,56 @@ class GraphicsPane
     {
         JPanel content = new JPanel();
         content.setBackground(UIUtilities.BACKGROUND_COLOR);
-        content.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        content.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
         content.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
-        c.anchor = GridBagConstraints.WEST;
-        c.insets = new Insets(0, 2, 2, 0);
+        c.anchor = GridBagConstraints.NORTHWEST;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.insets = new Insets(1, 2, 1, 2);
         c.gridy = 0;
         c.gridx = 0;
+        c.weightx = 1;
+        c.weighty = 0;
         if (model.isGeneralIndex()) {
             content.add(previewToolBar, c);
             c.gridy++;
-            c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-            c.fill = GridBagConstraints.HORIZONTAL;
             content.add(new JSeparator(), c);
             c.gridy++;
         }
         content.add(controlsBar, c);
-        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-        c.fill = GridBagConstraints.NONE;//reset to default
-        c.weightx = 0.0;  
-
+        c.gridy++;
+        
+        content.add(new JSeparator(), c);
+        c.gridy++;
+        
+        content.add(greyScale, c);
+        c.gridy++;
+        
         Iterator<ChannelSlider> i = sliders.iterator();
         while (i.hasNext())  {
-            c.gridy++;
             content.add(i.next(), c);
+            c.gridy++;
         }
+        
+        c.insets = new Insets(3, 1, 3, 1);
+        content.add(controlsBar2, c);
         c.gridy++;
-        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+        
+        c.insets = new Insets(0, 0, 0, 0);
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1;
+        c.weighty = 0;
+        content.add(new JSeparator(), c);
+        c.gridy++;
+      
+        content.add(new JLabel(VIEWEDBY_TITLE), c);
+        c.gridy++;
+      
         c.fill = GridBagConstraints.BOTH;
-        c.weightx = 1.0;
-        c.weighty = 1.0;
+        c.weighty = 1;
         content.add(viewedBy, c);
-        JPanel p = UIUtilities.buildComponentPanel(content);
-        p.setBackground(content.getBackground());
-        return p;
+        
+        return content;
     }
 
     /** 
@@ -329,14 +365,13 @@ class GraphicsPane
     /** Sets the pixels intensity interval. */
     void setInputInterval()
     {
-        int f, s, e;
+        double s, e;
         Iterator<ChannelSlider> i = sliders.iterator();
         ChannelSlider slider;
         while (i.hasNext()) {
             slider = i.next();
-            f = model.getRoundFactor(slider.getIndex());
-            s = (int) (model.getWindowStart(slider.getIndex())*f);
-            e = (int) (model.getWindowEnd(slider.getIndex())*f);
+            s = model.getWindowStart(slider.getIndex());
+            e = model.getWindowEnd(slider.getIndex());
             slider.setInterval(s, e);
         }
     }
@@ -388,7 +423,7 @@ class GraphicsPane
      * 
      * @return See above.
      */
-    boolean isLiveUpdate() { return controlsBar.isLiveUpdate(); }
+    boolean isLiveUpdate() { return previewToolBar!=null ? previewToolBar.isLiveUpdate() : false; }
 
     /**
      * Returns <code>true</code> if a vertical line has
@@ -429,7 +464,7 @@ class GraphicsPane
      */
     int getPartialMinimum()
     { 
-        return domainSlider.getSlider().getPartialMinimum();
+        return (int)domainSlider.getSlider().getPartialMinimum();
     }
 
     /**
@@ -439,7 +474,7 @@ class GraphicsPane
      */
     int getPartialMaximum()
     { 
-        return domainSlider.getSlider().getPartialMaximum();
+        return (int)domainSlider.getSlider().getPartialMaximum();
     }
 
     /** 
@@ -501,41 +536,25 @@ class GraphicsPane
         Collections.sort(this.viewedByItems, new ViewedByItemComparator());
         
         JPanel p = new JPanel();
-        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+        p.setLayout(new WrapLayout(WrapLayout.LEFT));
         p.setBackground(UIUtilities.BACKGROUND_COLOR);
         Iterator<ViewedByItem> i = viewedByItems.iterator();
-        JPanel row = null;
-        int index = 0;
         ViewedByItem item;
-        int maxPerRow = 2;
         while (i.hasNext()) {
             item = i.next();
             item.addPropertyChangeListener(this);
-            if (index == 0) {
-                row = new JPanel();
-                row.setBackground(UIUtilities.BACKGROUND_COLOR);
-                row.setLayout(new FlowLayout(FlowLayout.LEFT));
-                row.add(createViewedByPanel(item));
-                index++;
-            } else if (index == maxPerRow) {
-                row.add(createViewedByPanel(item));
-                p.add(row);
-                index = 0;
-            } else {
-                row.add(createViewedByPanel(item));
-                index++;
-            }
+            p.add(createViewedByPanel(item));       
         }
-        if (index > 0) p.add(row);
         
         if(activeRndDef!=null) {
             highlight(activeRndDef);
         }
         
+        p.setSize(viewedBy.getSize());
+        
         viewedBy.removeAll();
-        JPanel content = UIUtilities.buildComponentPanel(p);
-        content.setBackground(UIUtilities.BACKGROUND_COLOR);
-        viewedBy.add(content);
+        viewedBy.add(p, BorderLayout.CENTER);
+        viewedBy.validate();
     }
 
     /**
@@ -581,7 +600,7 @@ class GraphicsPane
     {
         String name = evt.getPropertyName();
         Object source = evt.getSource();
-        if (!controlsBar.isLiveUpdate()) {
+        if (!previewToolBar.isLiveUpdate()) {
             if (TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name)) {
                 paintHorizontal = false;
                 paintVertical = false;
@@ -590,34 +609,32 @@ class GraphicsPane
                             domainSlider.getEndValue());
                     onCurveChange();
                 } else if (source.equals(codomainSlider)) {
-                    int s = codomainSlider.getStartValue();
-                    int e = codomainSlider.getEndValue();
+                    int s = codomainSlider.getStartValueAsInt();
+                    int e = codomainSlider.getEndValueAsInt();
                     controller.setCodomainInterval(s, e);
                     onCurveChange();
                 }
             } else if (TwoKnobsSlider.LEFT_MOVED_PROPERTY.equals(name)){
                 if (source.equals(domainSlider)) {
-                    verticalLine = (int) (domainSlider.getStartValue()
-                                    *domainSlider.getRoundingFactor());
+                    verticalLine = (int) (domainSlider.getStartValue());
                     paintHorizontal = false;
                     paintVertical = true;
                     onCurveChange();
                 } else if (source.equals(codomainSlider)) {
-                    horizontalLine = codomainSlider.getEndValue();
+                    horizontalLine = codomainSlider.getEndValueAsInt();
                     paintHorizontal = true;
                     paintVertical = false;
                     onCurveChange();
                 }
             } else if (TwoKnobsSlider.RIGHT_MOVED_PROPERTY.equals(name)) {
                 if (source.equals(domainSlider)) {
-                    verticalLine = (int) (domainSlider.getEndValue()
-                            *domainSlider.getRoundingFactor());
+                    verticalLine = (int) (domainSlider.getEndValue());
                     horizontalLine = -1;
                     paintHorizontal = false;
                     paintVertical = true;
                     onCurveChange();
                 } else if (source.equals(codomainSlider)) {
-                    horizontalLine = codomainSlider.getStartValue();
+                    horizontalLine = codomainSlider.getStartValueAsInt();
                     verticalLine = -1;
                     paintHorizontal = true;
                     paintVertical = false;
@@ -634,8 +651,8 @@ class GraphicsPane
                             domainSlider.getEndValue());
                     onCurveChange();
                 } else if (source.equals(codomainSlider)) {
-                    int s = codomainSlider.getStartValue();
-                    int e = codomainSlider.getEndValue();
+                    int s = codomainSlider.getStartValueAsInt();
+                    int e = codomainSlider.getEndValueAsInt();
                     controller.setCodomainInterval(s, e);
                     onCurveChange();
                 }
@@ -644,8 +661,8 @@ class GraphicsPane
                     controller.setInputInterval(domainSlider.getStartValue(),
                             domainSlider.getEndValue());
                 } else if (source.equals(codomainSlider)) {
-                    int s = codomainSlider.getStartValue();
-                    int e = codomainSlider.getEndValue();
+                    int s = codomainSlider.getStartValueAsInt();
+                    int e = codomainSlider.getEndValueAsInt();
                     controller.setCodomainInterval(s, e);
                     onCurveChange();
                 }
@@ -655,6 +672,14 @@ class GraphicsPane
             RndProxyDef def = (RndProxyDef)evt.getNewValue();
             highlight(def);
         }
+    }
+    
+    /**
+     * Checks/Unchecks the greyscale checkbox when the color model has changed
+     * @param b Pass <code>true</code> if color model is greyscale
+     */
+    void updateGreyScale(boolean b) {
+        greyScale.setSelected(b);
     }
 
     /**

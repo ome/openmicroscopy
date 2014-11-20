@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.ui.UserNotifierManager 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -132,14 +132,10 @@ class UserNotifierManager
 		Registry reg = container.getRegistry();
 		String master = (String) reg.lookup(LookupNames.MASTER);
 		if (comment) {
-			if (LookupNames.MASTER_EDITOR.equals(master))
-				return "editor_comments";
 			if (LookupNames.MASTER_IMPORTER.equals(master))
 				return "importer_comments";
 			return "insight_comments";
 		}
-		if (LookupNames.MASTER_EDITOR.equals(master))
-			return "editor_bugs";
 		if (LookupNames.MASTER_IMPORTER.equals(master))
 			return "importer_bugs";
 		return "insight_bugs";
@@ -345,6 +341,19 @@ class UserNotifierManager
 	{ 
 		if (activities == null) return 0;
 		return activities.size();
+	}
+	
+	/**
+	 * Removes all activities
+	 */
+	void clearActivities() {
+	    if (activities != null)
+	        activities.clear();
+	    
+	    if (activityDialog != null) {
+	        activityDialog.setVisible(false);
+	        activityDialog = null;
+	    }
 	}
 	
 	/** 
