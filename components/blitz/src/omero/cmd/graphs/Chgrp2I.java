@@ -25,6 +25,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
@@ -228,6 +231,8 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
      */
     private final class InternalProcessor extends BaseGraphTraversalProcessor {
 
+        private final Logger LOGGER = LoggerFactory.getLogger(InternalProcessor.class);
+
         private final ExperimenterGroup group = new ExperimenterGroup(groupId, false);
 
         public InternalProcessor() {
@@ -240,7 +245,7 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
             final int count =
                     session.createQuery(update).setParameter("group", group).setParameterList("ids", ids).executeUpdate();
             if (count != ids.size()) {
-                throw new GraphException("not all the objects of type " + className + " could be processed");
+                LOGGER.warn("not all the objects of type " + className + " could be processed");
             }
         }
 

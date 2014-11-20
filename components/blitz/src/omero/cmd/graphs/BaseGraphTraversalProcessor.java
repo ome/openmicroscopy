@@ -22,6 +22,8 @@ package omero.cmd.graphs;
 import java.util.Collection;
 
 import org.hibernate.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ome.model.internal.Details;
 import ome.services.graphs.GraphException;
@@ -33,6 +35,9 @@ import ome.services.graphs.GraphTraversal;
  * @since 5.1.0
  */
 public abstract class BaseGraphTraversalProcessor implements GraphTraversal.Processor {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BaseGraphTraversalProcessor.class);
+
     protected final Session session;
 
     public BaseGraphTraversalProcessor(Session session) {
@@ -51,7 +56,7 @@ public abstract class BaseGraphTraversalProcessor implements GraphTraversal.Proc
         final String update = "DELETE FROM " + className + " WHERE id IN (:ids)";
         final int count = session.createQuery(update).setParameterList("ids", ids).executeUpdate();
         if (count != ids.size()) {
-            throw new GraphException("not all the objects of type " + className + " could be deleted");
+            LOGGER.warn("not all the objects of type " + className + " could be deleted");
         }
     }
 
