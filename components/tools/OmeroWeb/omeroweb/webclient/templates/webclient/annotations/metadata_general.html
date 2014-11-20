@@ -520,13 +520,6 @@
                     {{ manager.obj_type }} ID: <strong>{{ manager.obj_id }}</strong>
                 </h2>
 
-                <button class="btn silver btn_text" href="#" style="float:right"
-                        onclick="return OME.openPopup('{% url 'web_image_viewer' manager.image.id %}')"
-                        title="Open full image viewer in new window">
-                    <span>
-                         {% trans "Launch Full viewer" %}
-                    </span>
-                </button>
                 <div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
                     <input type="text" size="30">
                     <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
@@ -687,13 +680,6 @@
                 Image ID: <strong>{{ manager.well.getWellSample.image.id }}</strong>
                 Well ID: <strong>{{ manager.well.id }}</strong>
             </h2>
-            
-            <button class="btn silver btn_text" href="#" style="float:right"
-                onclick="return OME.openPopup('{% url 'web_image_viewer' manager.well.getWellSample.image.id %}')" alt="View" title="Open full viewer">
-                <span>
-                {% trans "Launch full viewer" %} 
-                </span>
-            </button>
 
             <table style="float:left; width:100px; clear:left">
                 <tr>
