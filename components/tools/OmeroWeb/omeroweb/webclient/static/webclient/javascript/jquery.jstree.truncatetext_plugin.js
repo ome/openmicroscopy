@@ -11,27 +11,34 @@
             obj = parent.redraw_node.apply(this, arguments);
 
             if(obj) {
-                var node = inst.get_node(obj);
-                var anchor = $(obj).children('a.jstree-anchor');
+                var node = inst.get_node(obj),
+                    $obj = $(obj),
+                    anchor = $obj.children('a.jstree-anchor');
 
-                // Truncate where necessary
-                var lp_width = $("#left_panel").width() - 170;  // margins
+                // Timout allows element to be painted so offset() is available
+                setTimeout(function(){
+                    var offset = $("#" + node.id).offset();
+                    var left = offset ? offset.left : 36;
 
-                if (anchor.textWidth(node.text) > lp_width) {
-                    // Optimize by calculating the estimated reduction required
-                    var letterWidth = anchor.textWidth('a');
-                    // +3 for the '...'
-                    var truncated = node.text.slice(3 + Math.floor((anchor.textWidth(node.text) - lp_width) / letterWidth));
+                    // Truncate where necessary
+                    var lp_width = $("#left_panel").width() - left - 75;  // margins
 
-                    // If it's still too long, iterate until it isn't
-                    while (anchor.textWidth(truncated) > lp_width) {
-                        truncated = truncated.slice(1);
+                    if (anchor.textWidth(node.text) > lp_width) {
+                        // Optimize by calculating the estimated reduction required
+                        var letterWidth = anchor.textWidth('a');
+                        // +3 for the '...'
+                        var truncated = node.text.slice(3 + Math.floor((anchor.textWidth(node.text) - lp_width) / letterWidth));
+
+                        // If it's still too long, iterate until it isn't
+                        while (anchor.textWidth(truncated) > lp_width) {
+                            truncated = truncated.slice(1);
+                        }
+
+                        anchor.contents().filter(function(){
+                            return this.nodeType == 3;
+                        }).replaceWith(document.createTextNode('...' + truncated));
                     }
-
-                    anchor.contents().filter(function(){
-                        return this.nodeType == 3;
-                    }).replaceWith(document.createTextNode('...' + truncated));
-                }
+                },10);
             }
             return obj;
         };
