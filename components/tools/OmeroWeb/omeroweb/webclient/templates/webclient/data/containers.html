@@ -1183,7 +1183,7 @@
                         case 37:
                             e.preventDefault();
                             if(!datatree.is_open(this)) {
-                                var prev = datatree.get_prev_dom(this);
+                                var prev = datatree.get_parent(this);
                                 if(prev && prev.length) {
                                     datatree.deselect_all();
                                     datatree.select_node(prev);
