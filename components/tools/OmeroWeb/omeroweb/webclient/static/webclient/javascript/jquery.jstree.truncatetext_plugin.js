@@ -15,7 +15,7 @@
                 var anchor = $(obj).children('a.jstree-anchor');
 
                 // Truncate where necessary
-                var lp_width = $("#left_panel").width() - 120;  // margins
+                var lp_width = $("#left_panel").width() - 170;  // margins
 
                 if (anchor.textWidth(node.text) > lp_width) {
                     // Optimize by calculating the estimated reduction required
@@ -25,7 +25,7 @@
 
                     // If it's still too long, iterate until it isn't
                     while (anchor.textWidth(truncated) > lp_width) {
-                        var truncated = truncated.slice(1);
+                        truncated = truncated.slice(1);
                     }
 
                     anchor.contents().filter(function(){
