@@ -1605,6 +1605,7 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
         # remove any previous rdef we may have via 'fromId'
         if request.session.get('fromid') is not None:
             del request.session['fromid']
+        return True
 
     # Check session for 'fromid'
     if fromid is None:
