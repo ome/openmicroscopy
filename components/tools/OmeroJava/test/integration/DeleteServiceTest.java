@@ -3841,7 +3841,6 @@ public class DeleteServiceTest extends AbstractServerTest {
      * Simulates an SVS import in which many Pixels are attached to a single,
      * archived OriginalFile.
      */
-    @Test(groups = { "ticket:5237", "ticket:11348", "broken" })
     public void testDeletePixelsAndFiles() throws Exception {
         Image img1 = mmFactory.createImage();
         Image img2 = mmFactory.createImage();
