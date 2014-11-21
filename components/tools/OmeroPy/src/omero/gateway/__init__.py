@@ -5803,7 +5803,7 @@ class _WellSampleWrapper (BlitzObjectWrapper):
         """
         rv = self._conn.getQueryService().findAllByQuery(
             ("select w from Well w "
-             "left outer join fetch w.wellSamples as ws"
+             "left outer join fetch w.wellSamples as ws "
              "where ws.id=%d" % self.getId()),
             None, self._conn.SERVICE_OPTS)
         if not len(rv):
