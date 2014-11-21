@@ -13,6 +13,7 @@
     <packages>
       <package name="ome.formats.*"/>
       <package name="ome.services.*"/>
+      <package name="omero.cmd.graphs.*"/>
       <package name="omero.util.*"/>
     </packages>
   </test>
