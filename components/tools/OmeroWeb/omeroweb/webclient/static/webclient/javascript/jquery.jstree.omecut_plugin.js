@@ -116,7 +116,9 @@
 
                             if (unique.length === 1) {
                                 // Get the experimenter that owns this object
-                                var ownerExperimenter = inst.locate_node('experimenter-' + node.data.obj.ownerId)[0];
+                                // This handles the multi-experimenters shown case
+                                // var ownerExperimenter = inst.locate_node('experimenter-' + node.data.obj.ownerId)[0];
+                                var ownerExperimenter = inst.locate_node('experimenter-' + activeUserId())[0];
                                 // Newly orphaned objects get moved to the appropriate location
                                 if (node.type === 'dataset' ||
                                     node.type === 'plate') {
@@ -129,7 +131,6 @@
                                     // update its child count
                                     inst.move_node(node, orphaned);
                                 }
-
 
                             // Anything which has not become an orphan (and wasn't one to begin with)
                             // is simply unlinked and then deleted
