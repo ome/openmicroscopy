@@ -85,7 +85,7 @@ class TestTree(object):
         ]
         expected = {
             'id': 1L,
-            'isOwned': True,
+            'ownerId': 1L,
             'name': 'Run 1',
             'permsCss': 'canEdit canAnnotate canLink canDelete canChgrp'
         }
@@ -105,7 +105,7 @@ class TestTree(object):
         ]
         expected = {
             'id': 1L,
-            'isOwned': True,
+            'ownerId': 1L,
             'name': 'name',
             'permsCss': 'canEdit canAnnotate canLink canDelete canChgrp'
         }
@@ -125,7 +125,7 @@ class TestTree(object):
         ]
         expected = {
             'id': 1L,
-            'isOwned': True,
+            'ownerId': 1L,
             'name': '2014-05-08 10:37:02 - 2014-05-08 10:38:30',
             'permsCss': 'canEdit canAnnotate canLink canDelete canChgrp'
         }
@@ -145,7 +145,7 @@ class TestTree(object):
         ]
         expected = {
             'id': 1L,
-            'isOwned': False,
+            'ownerId': 2L,
             'name': 'Run 1',
             'permsCss': 'canEdit canAnnotate canLink canDelete'
         }
@@ -196,7 +196,7 @@ class TestTree(object):
         ]
         expected = {
             'id': 1L,
-            'isOwned': True,
+            'ownerId': 1L,
             'name': 'name',
             'permsCss': 'canEdit canAnnotate canLink canDelete canChgrp',
             'childCount': 1
@@ -215,7 +215,7 @@ class TestTree(object):
         ]
         expected = {
             'id': 1L,
-            'isOwned': False,
+            'ownerId': 2L,
             'name': 'name',
             'permsCss': 'canEdit canAnnotate canLink canDelete',
             'childCount': 1
@@ -234,7 +234,7 @@ class TestTree(object):
         ]
         expected = {
             'id': 1L,
-            'isOwned': True,
+            'ownerId': 1L,
             'name': 'name',
             'permsCss': 'canEdit canAnnotate canLink canDelete canChgrp',
             'childCount': 2
@@ -253,7 +253,7 @@ class TestTree(object):
         ]
         expected = {
             'id': 1L,
-            'isOwned': False,
+            'ownerId': 2L,
             'name': 'name',
             'permsCss': 'canEdit canAnnotate canLink canDelete',
             'childCount': 2
