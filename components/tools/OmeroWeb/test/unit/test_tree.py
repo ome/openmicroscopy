@@ -88,6 +88,7 @@ class TestTree(object):
         ]
         expected = {
             'id': 1L,
+            'ownerId': 1L,
             'name': 'Run 1',
             'permsCss':
                 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
@@ -108,6 +109,7 @@ class TestTree(object):
         ]
         expected = {
             'id': 1L,
+            'ownerId': 1L,
             'name': 'name',
             'permsCss':
                 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
@@ -128,6 +130,7 @@ class TestTree(object):
         ]
         expected = {
             'id': 1L,
+            'ownerId': 1L,
             'name': '2014-05-08 10:37:02 - 2014-05-08 10:38:30',
             'permsCss':
                 'canEdit canAnnotate canLink canDelete isOwned canChgrp'
@@ -148,6 +151,7 @@ class TestTree(object):
         ]
         expected = {
             'id': 1L,
+            'ownerId': 2L,
             'name': 'Run 1',
             'permsCss': 'canEdit canAnnotate canLink canDelete'
         }
@@ -200,6 +204,7 @@ class TestTree(object):
         ]
         expected = {
             'id': 1L,
+            'ownerId': 1L,
             'name': 'name',
             'permsCss':
                 'canEdit canAnnotate canLink canDelete isOwned canChgrp',
@@ -219,6 +224,7 @@ class TestTree(object):
         ]
         expected = {
             'id': 1L,
+            'ownerId': 2L,
             'name': 'name',
             'permsCss': 'canEdit canAnnotate canLink canDelete',
             'childCount': 1
@@ -237,6 +243,7 @@ class TestTree(object):
         ]
         expected = {
             'id': 1L,
+            'ownerId': 1L,
             'name': 'name',
             'permsCss':
                 'canEdit canAnnotate canLink canDelete isOwned canChgrp',
@@ -256,6 +263,7 @@ class TestTree(object):
         ]
         expected = {
             'id': 1L,
+            'ownerId': 2L,
             'name': 'name',
             'permsCss': 'canEdit canAnnotate canLink canDelete',
             'childCount': 2
