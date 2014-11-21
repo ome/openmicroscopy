@@ -863,7 +863,6 @@ class TestChgrp(lib.ITest):
         assert target_gid == query.get("Image",
                                        i.id.val, ctx).details.group.id.val
 
-    @pytest.mark.xfail(reason="See ticket #12544")
     def testIntergroupLinks(self):
         # create read-annotate group 'read-annotate' with implicit owner
         ra_group = self.new_group(perms=READANNOTATE)
