@@ -1319,7 +1319,9 @@
                                 } else if (node.type === 'orphaned') {
                                     return '{% url 'api_images' %}';
                                 } else if (node.id === '#') {
-                                    return '{% url 'api_experimenters' %}';
+                                    // This will display a list of experimenters instead of just the active one
+                                    // return '{% url 'api_experimenters' %}';
+                                    return '{% url 'api_experimenter' active_user.id %}';
                                 }
                             },
                             // Gather data for request
@@ -1389,29 +1391,49 @@
                                     var jstree_data = [];
 
                                     // Add experimenters to the jstree data structure
-                                    if (data.hasOwnProperty('experimenters')) {
-                                        $.each(data.experimenters, function(index, value) {
-                                            var node = {
-                                                'data': {'id': value.id, 'obj': value},
-                                                'text': value.firstName + ' ' + value.lastName,
-                                                'children': true,
-                                                'type': 'experimenter',
-                                                'state': {
-                                                },
-                                                'li_attr': {
-                                                    'data-id': value.id
-                                                }
-                                            };
+                                    // This handles multiple experimenters in the tree
+                                    // if (data.hasOwnProperty('experimenters')) {
+                                    //     $.each(data.experimenters, function(index, value) {
+                                    //         var node = {
+                                    //             'data': {'id': value.id, 'obj': value},
+                                    //             'text': value.firstName + ' ' + value.lastName,
+                                    //             'children': true,
+                                    //             'type': 'experimenter',
+                                    //             'state': {
+                                    //             },
+                                    //             'li_attr': {
+                                    //                 'data-id': value.id
+                                    //             }
+                                    //         };
 
-                                            // Add 'state' opened for the current user by default
-                                            {% if active_user %}
-                                                if (value.id == {{ active_user.getId }}) {
-                                                    node.state['opened'] = true;
-                                                }
-                                            {% endif %}
+                                    //         // Add 'state' opened for the current user by default
+                                    //         {% if active_user %}
+                                    //             if (value.id == {{ active_user.getId }}) {
+                                    //                 node.state['opened'] = true;
+                                    //             }
+                                    //         {% endif %}
 
-                                            jstree_data.push(node);
-                                        });
+                                    //         jstree_data.push(node);
+                                    //     });
+                                    // }
+                                    if (data.hasOwnProperty('experimenter')) {
+                                        var value = data.experimenter;
+                                        var node = {
+                                            'data': {'id': value.id, 'obj': value},
+                                            'text': value.firstName + ' ' + value.lastName,
+                                            'children': true,
+                                            'type': 'experimenter',
+                                            'state': {
+                                            },
+                                            'li_attr': {
+                                                'data-id': value.id
+                                            }
+                                        };
+
+                                        // Always open the experimenter
+                                        node.state['opened'] = true;
+
+                                        jstree_data.push(node);
                                     }
 
                                     // Add projects to the jstree data structure
