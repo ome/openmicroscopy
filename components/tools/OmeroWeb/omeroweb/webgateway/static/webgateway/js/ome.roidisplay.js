@@ -246,7 +246,7 @@ $.fn.roi_display = function(options) {
         load_rois = function(display_rois) {
             if (json_url == undefined) return;
             
-            $.getJSON(json_url, function(data) {
+            $.getJSON(json_url+'?callback=?', function(data) {
                 roi_json = data;
 
                 // plot the rois

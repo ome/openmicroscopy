@@ -1929,6 +1929,7 @@ def original_file_paths(request, iid, conn=None, **kwargs):
 
 
 @login_required()
+@jsonp
 def get_shape_json(request, roiId, shapeId, conn=None, **kwargs):
     roiId = int(roiId)
     shapeId = int(shapeId)
@@ -1944,6 +1945,7 @@ def get_shape_json(request, roiId, shapeId, conn=None, **kwargs):
     return HttpJsonResponse(shapeMarshal(shape))
 
 @login_required()
+@jsonp
 def get_rois_json(request, imageId, conn=None, **kwargs):
     """
     Returns json data of the ROIs in the specified image.
@@ -1970,7 +1972,7 @@ def get_rois_json(request, imageId, conn=None, **kwargs):
 
     rois.sort(key=lambda x: x['id']) # sort by ID - same as in measurement tool.
 
-    return HttpJsonResponse(rois)
+    return rois
 
 @login_required(isAdmin=True)
 @jsonp

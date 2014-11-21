@@ -634,7 +634,7 @@ jQuery.fn.viewportImage = function(options) {
             viewerBean.tileUrlProvider = myProvider;
             viewerBean.update_url();
         }
-        cur_zoom = viewerBean.zoomLevel;
+        cur_zoom = viewerBean.currentScale() * 100;
     };
 
     // Simply causes all tiles to refresh their src
