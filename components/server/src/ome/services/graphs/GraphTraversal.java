@@ -63,7 +63,8 @@ import ome.services.graphs.GraphPolicy.Orphan;
 import ome.system.EventContext;
 
 /**
- * An experimental re-implementation of graph traversal functionality.
+ * An alternative implementation of model object graph traversal, relying on SELECTing in advance for making decisions,
+ * instead of rolling back to savepoints to recover from failed attempts to act.
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.1.0
  */
