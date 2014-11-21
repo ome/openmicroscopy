@@ -1298,254 +1298,273 @@
                             'variant': 'ome'
                         },
                         'force_text': true,
-                        'data' : {
-                            // Configure URL for request
-                            'url' : function(node) {
-                                //TODO
-                                // Get the type of the node being expanded
-                                // Figure out what type of children it should have
-                                // Request the list of children from that url, adding any relevant filters
-
-                                if (node.type === 'experimenter') {
-                                    return '{% url 'api_containers' %}';
-                                } else if (node.type === 'project') {
-                                    return '{% url 'api_datasets' %}';
-                                } else if (node.type === 'dataset') {
-                                    return '{% url 'api_images' %}';
-                                } else if (node.type === 'screen') {
-                                    return '{% url 'api_plates' %}';
-                                } else if (node.type === 'plate') {
-                                    return '{% url 'api_plate_acquisitions' %}';
-                                } else if (node.type === 'orphaned') {
-                                    return '{% url 'api_images' %}';
-                                } else if (node.id === '#') {
-                                    // This will display a list of experimenters instead of just the active one
-                                    // return '{% url 'api_experimenters' %}';
-                                    return '{% url 'api_experimenter' active_user.id %}';
+                        // Make use of function for 'data' because there are some scenarios in which
+                        // an ajax call is not used to get the data. Namely, the all-user view
+                        'data' : function(node, callback) {
+                            // Get the data for this query
+                            var payload = {};
+                            // Exception to this for orphans as in the case of api_images, id is a dataset
+                            if (node.hasOwnProperty('data') && node.type != 'orphaned') {
+                                if (node.data.hasOwnProperty('obj')) {
+                                    payload['id'] = node.data.obj.id;
                                 }
-                            },
-                            // Gather data for request
-                            'data' : function(node) {
-
-                                var payload = {};
-
-                                // Get the data for this query
-                                // Exception to this for orphans as in the case of api_images, id is a dataset
-                                if (node.hasOwnProperty('data') && node.type != 'orphaned') {
-                                    if (node.data.hasOwnProperty('obj')) {
-                                        payload['id'] = node.data.obj.id;
-                                    }
-                                }
-                                // Work back up the tree to obtain the id of the user we are viewing,
-                                // this is useful in the case of orphaned image listing in particular.
-                                // It may also be appropriate to use it to filter the queries in other
-                                // places as well.
-                                var inst = this;
-
-                                // This path does not include the root node so the first entry is always
-                                // the experimenter node except on inital load in which case it is false
-                                var path = inst.get_path(node, false, true);
-                                // Include the experimenter_id if we are loading an experimenter or
-                                // orphaned node
-                                if (path && (node.type === 'experimenter' || node.type === 'orphaned')) {
-                                    payload['experimenter_id'] = inst.get_node(path[0]).data.obj.id;
-                                }
-
-                                // If this is a node which can have paged results then either specify that
-                                // we want the first page or the specific page
-                                if (node.type === 'dataset' || node.type === 'orphaned') {
-                                    // Attempt to get the current page desired if there is one
-                                    var page = inst.get_page(node);
-                                    if (page) {
-                                        payload['page'] = page;
-                                    // Otherwise, always get page 1
-                                    } else {
-                                        payload['page'] = 1;
-                                    }
-                                }
-
-                                // Specify that orphans are specifically sought
-                                if (node.type === 'orphaned') {
-                                    payload['orphaned'] = true;
-                                }
-
-                                // Always add the group_id from the current context
-                                payload['group_id'] = {{ active_group.id }};
-
-
-                                return payload;
-                            },
-                            'cache': false,
-
-                            'error': function() {
-                                // TODO What do we do now if there is an error from the REST API?
-                                // Launch the Error Dialog?
-                                console.log('ERROR IN AJAX');
-
-                            },
-                            // Converter is required because the JSON format being returned is not
-                            // jstree specific.
-                            'converters' : {
-                                "text json": function (json) {
-                                    var data = JSON.parse(json);
-                                    var jstree_data = [];
-
-                                    // Add experimenters to the jstree data structure
-                                    // This handles multiple experimenters in the tree
-                                    // if (data.hasOwnProperty('experimenters')) {
-                                    //     $.each(data.experimenters, function(index, value) {
-                                    //         var node = {
-                                    //             'data': {'id': value.id, 'obj': value},
-                                    //             'text': value.firstName + ' ' + value.lastName,
-                                    //             'children': true,
-                                    //             'type': 'experimenter',
-                                    //             'state': {
-                                    //             },
-                                    //             'li_attr': {
-                                    //                 'data-id': value.id
-                                    //             }
-                                    //         };
-
-                                    //         // Add 'state' opened for the current user by default
-                                    //         {% if active_user %}
-                                    //             if (value.id == {{ active_user.getId }}) {
-                                    //                 node.state['opened'] = true;
-                                    //             }
-                                    //         {% endif %}
-
-                                    //         jstree_data.push(node);
-                                    //     });
-                                    // }
-                                    if (data.hasOwnProperty('experimenter')) {
-                                        var value = data.experimenter;
-                                        var node = {
-                                            'data': {'id': value.id, 'obj': value},
-                                            'text': value.firstName + ' ' + value.lastName,
-                                            'children': true,
-                                            'type': 'experimenter',
-                                            'state': {
-                                            },
-                                            'li_attr': {
-                                                'data-id': value.id
-                                            }
-                                        };
-
-                                        // Always open the experimenter
-                                        node.state['opened'] = true;
-
-                                        jstree_data.push(node);
-                                    }
-
-                                    // Add projects to the jstree data structure
-                                    if (data.hasOwnProperty('projects')) {
-                                        $.each(data.projects, function(index, value) {
-                                            var node = {
-                                                'data': {'id': value.id, 'obj': value},
-                                                'text': value.name,
-                                                'children': value.childCount > 0 ? true : false,
-                                                'type': 'project',
-                                                'li_attr': {
-                                                    'data-id': value.id
-                                                }
-                                            };
-                                            jstree_data.push(node);
-                                        });
-                                    }
-
-                                    // Add datasets to the jstree data structure
-                                    if (data.hasOwnProperty('datasets')) {
-                                        $.each(data.datasets, function(index, value) {
-                                            var node = {
-                                                'data': {'id': value.id, 'obj': value},
-                                                'text': value.name,
-                                                'children': value.childCount > 0 ? true : false,
-                                                'type': 'dataset',
-                                                'li_attr': {
-                                                    'data-id': value.id
-                                                }
-                                            };
-                                            jstree_data.push(node);
-                                        });
-                                    }
-
-                                    // Add images to the jstree data structure
-                                    if (data.hasOwnProperty('images')) {
-                                        $.each(data.images, function(index, value) {
-                                            var node = {
-                                                'data': {'id': value.id, 'obj': value},
-                                                'text': value.name,
-                                                'children': false,
-                                                'type': 'image',
-                                                'li_attr': {
-                                                    'data-id': value.id
-                                                }
-                                            };
-                                            jstree_data.push(node);
-                                        });
-                                    }
-
-                                    // Add screens to the jstree data structure
-                                    if (data.hasOwnProperty('screens')) {
-                                        $.each(data.screens, function(index, value) {
-                                             var node = {
-                                                'data': {'id': value.id, 'obj': value},
-                                                'text': value.name,
-                                                'children': value.childCount > 0 ? true : false,
-                                                'type': 'screen',
-                                                'li_attr': {
-                                                    'data-id': value.id
-                                                }
-                                             };
-                                             jstree_data.push(node);
-                                        });
-                                    }
-
-                                    // Add plates to the jstree data structure
-                                    if (data.hasOwnProperty('plates')) {
-                                        $.each(data.plates, function(index, value) {
-                                             var node = {
-                                                'data': {'id': value.id, 'obj': value},
-                                                'text': value.name,
-                                                'children': value.childCount > 0 ? true : false,
-                                                'type': 'plate',
-                                                'li_attr': {
-                                                    'data-id': value.id
-                                                }
-                                             };
-                                             jstree_data.push(node);
-                                        });
-                                    }
-
-                                    // Add plates to the jstree data structure
-                                    if (data.hasOwnProperty('acquisitions')) {
-                                        $.each(data.acquisitions, function(index, value) {
-                                             var node = {
-                                                'data': {'id': value.id, 'obj': value},
-                                                'text': value.name,
-                                                'children': false,
-                                                'type': 'acquisition',
-                                                'li_attr': {
-                                                    'data-id': value.id
-                                                }
-                                             };
-                                             jstree_data.push(node);
-                                        });
-                                    }
-
-                                    if (data.hasOwnProperty('orphaned')) {
-                                        var node = {
-                                            'data': {'obj': data.orphaned},
-                                            'text': 'Orphaned Images',
-                                            'children': data.orphaned.childCount > 0 ? true : false,
-                                            'type': 'orphaned'
-                                        };
-                                        jstree_data.push(node);
-                                    }
-
-                                    return jstree_data;
-                                }
-
                             }
+                            // Work back up the tree to obtain the id of the user we are viewing,
+                            // this is useful in the case of orphaned image listing in particular.
+                            // It may also be appropriate to use it to filter the queries in other
+                            // places as well.
+                            var inst = this;
+
+                            // This path does not include the root node so the first entry is always
+                            // the experimenter node except on inital load in which case it is false
+                            var path = inst.get_path(node, false, true);
+                            // Include the experimenter_id if we are loading an experimenter or
+                            // orphaned node
+                            if (path && (node.type === 'experimenter' || node.type === 'orphaned')) {
+                                payload['experimenter_id'] = inst.get_node(path[0]).data.obj.id;
+                            }
+
+                            // If this is a node which can have paged results then either specify that
+                            // we want the first page or the specific page
+                            if (node.type === 'dataset' || node.type === 'orphaned') {
+                                // Attempt to get the current page desired if there is one
+                                var page = inst.get_page(node);
+                                if (page) {
+                                    payload['page'] = page;
+                                // Otherwise, always get page 1
+                                } else {
+                                    payload['page'] = 1;
+                                }
+                            }
+
+                            // Specify that orphans are specifically sought
+                            if (node.type === 'orphaned') {
+                                payload['orphaned'] = true;
+                            }
+
+                            // Always add the group_id from the current context
+                            payload['group_id'] = {{ active_group.id }};
+
+
+                            // Configure URL for request
+                            // Get the type of the node being expanded
+                            // Figure out what type of children it should have
+                            // Request the list of children from that url, adding any relevant filters
+                            var url;
+                            if (node.type === 'experimenter') {
+                                url = '{% url 'api_containers' %}';
+                            } else if (node.type === 'project') {
+                                url = '{% url 'api_datasets' %}';
+                            } else if (node.type === 'dataset') {
+                                url = '{% url 'api_images' %}';
+                            } else if (node.type === 'screen') {
+                                url = '{% url 'api_plates' %}';
+                            } else if (node.type === 'plate') {
+                                url = '{% url 'api_plate_acquisitions' %}';
+                            } else if (node.type === 'orphaned') {
+                                url = '{% url 'api_images' %}';
+                            } else if (node.id === '#') {
+                                // This handles multiple experimenters in the tree
+                                // url = '{% url 'api_experimenters' %}';
+                                {% if active_user and active_user.id and active_user.id != -1 %}
+                                    url = '{% url 'api_experimenter' active_user.id %}';
+                                {% else %}
+                                    var node = {
+                                        'data': {'id': -1, 'obj': {'id': -1}},
+                                        'text': 'All members',
+                                        'children': true,
+                                        'type': 'experimenter',
+                                        'state': {
+                                            'opened': true
+                                        },
+                                        'li_attr': {
+                                            'data-id': -1
+                                        }
+                                    };
+
+                                    callback.call(this, [node]);
+                                    return;
+                                {% endif %}
+                            }
+
+                            if (url === undefined) {
+                                return;
+                            }
+
+                            $.ajax({
+                                url: url,
+                                data: payload,
+                                cache: false,
+                                success: function (data, textStatus, jqXHR) {
+                                    callback.call(this, data);
+                                },
+                                error: function (jqXHR, textStatus, errorThrown) {
+                                    // TODO What do we do now if there is an error from the REST API?
+                                    // Launch the Error Dialog?
+                                    console.log('ERROR IN AJAX');
+                                },
+                                // Converter is required because the JSON format being returned is not
+                                // jstree specific.
+                                'converters' : {
+                                    "text json": function (json) {
+                                        var data = JSON.parse(json);
+                                        var jstree_data = [];
+
+                                        // Add experimenters to the jstree data structure
+                                        // This handles multiple experimenters in the tree
+                                        // if (data.hasOwnProperty('experimenters')) {
+                                        //     $.each(data.experimenters, function(index, value) {
+                                        //         var node = {
+                                        //             'data': {'id': value.id, 'obj': value},
+                                        //             'text': value.firstName + ' ' + value.lastName,
+                                        //             'children': true,
+                                        //             'type': 'experimenter',
+                                        //             'state': {
+                                        //             },
+                                        //             'li_attr': {
+                                        //                 'data-id': value.id
+                                        //             }
+                                        //         };
+
+                                        //         // Add 'state' opened for the current user by default
+                                        //         {% if active_user %}
+                                        //             if (value.id == {{ active_user.getId }}) {
+                                        //                 node.state['opened'] = true;
+                                        //             }
+                                        //         {% endif %}
+
+                                        //         jstree_data.push(node);
+                                        //     });
+                                        // }
+                                        if (data.hasOwnProperty('experimenter')) {
+                                            var value = data.experimenter;
+                                            var node = {
+                                                'data': {'id': value.id, 'obj': value},
+                                                'text': value.firstName + ' ' + value.lastName,
+                                                'children': true,
+                                                'type': 'experimenter',
+                                                'state': {
+                                                    'opened': true
+                                                },
+                                                'li_attr': {
+                                                    'data-id': value.id
+                                                }
+                                            };
+
+                                            jstree_data.push(node);
+                                        }
+
+                                        // Add projects to the jstree data structure
+                                        if (data.hasOwnProperty('projects')) {
+                                            $.each(data.projects, function(index, value) {
+                                                var node = {
+                                                    'data': {'id': value.id, 'obj': value},
+                                                    'text': value.name,
+                                                    'children': value.childCount > 0 ? true : false,
+                                                    'type': 'project',
+                                                    'li_attr': {
+                                                        'data-id': value.id
+                                                    }
+                                                };
+                                                jstree_data.push(node);
+                                            });
+                                        }
+
+                                        // Add datasets to the jstree data structure
+                                        if (data.hasOwnProperty('datasets')) {
+                                            $.each(data.datasets, function(index, value) {
+                                                var node = {
+                                                    'data': {'id': value.id, 'obj': value},
+                                                    'text': value.name,
+                                                    'children': value.childCount > 0 ? true : false,
+                                                    'type': 'dataset',
+                                                    'li_attr': {
+                                                        'data-id': value.id
+                                                    }
+                                                };
+                                                jstree_data.push(node);
+                                            });
+                                        }
+
+                                        // Add images to the jstree data structure
+                                        if (data.hasOwnProperty('images')) {
+                                            $.each(data.images, function(index, value) {
+                                                var node = {
+                                                    'data': {'id': value.id, 'obj': value},
+                                                    'text': value.name,
+                                                    'children': false,
+                                                    'type': 'image',
+                                                    'li_attr': {
+                                                        'data-id': value.id
+                                                    }
+                                                };
+                                                jstree_data.push(node);
+                                            });
+                                        }
+
+                                        // Add screens to the jstree data structure
+                                        if (data.hasOwnProperty('screens')) {
+                                            $.each(data.screens, function(index, value) {
+                                                 var node = {
+                                                    'data': {'id': value.id, 'obj': value},
+                                                    'text': value.name,
+                                                    'children': value.childCount > 0 ? true : false,
+                                                    'type': 'screen',
+                                                    'li_attr': {
+                                                        'data-id': value.id
+                                                    }
+                                                 };
+                                                 jstree_data.push(node);
+                                            });
+                                        }
+
+                                        // Add plates to the jstree data structure
+                                        if (data.hasOwnProperty('plates')) {
+                                            $.each(data.plates, function(index, value) {
+                                                 var node = {
+                                                    'data': {'id': value.id, 'obj': value},
+                                                    'text': value.name,
+                                                    'children': value.childCount > 0 ? true : false,
+                                                    'type': 'plate',
+                                                    'li_attr': {
+                                                        'data-id': value.id
+                                                    }
+                                                 };
+                                                 jstree_data.push(node);
+                                            });
+                                        }
+
+                                        // Add plates to the jstree data structure
+                                        if (data.hasOwnProperty('acquisitions')) {
+                                            $.each(data.acquisitions, function(index, value) {
+                                                 var node = {
+                                                    'data': {'id': value.id, 'obj': value},
+                                                    'text': value.name,
+                                                    'children': false,
+                                                    'type': 'acquisition',
+                                                    'li_attr': {
+                                                        'data-id': value.id
+                                                    }
+                                                 };
+                                                 jstree_data.push(node);
+                                            });
+                                        }
+
+                                        if (data.hasOwnProperty('orphaned')) {
+                                            var node = {
+                                                'data': {'obj': data.orphaned},
+                                                'text': 'Orphaned Images',
+                                                'children': data.orphaned.childCount > 0 ? true : false,
+                                                'type': 'orphaned'
+                                            };
+                                            jstree_data.push(node);
+                                        }
+
+                                        return jstree_data;
+                                    }
+
+                                }
+                            });
                         },
                         'check_callback': function(operation, node, node_parent, node_position, more) {
                             // Before this (and thus before the copy and the paste) the nodes children

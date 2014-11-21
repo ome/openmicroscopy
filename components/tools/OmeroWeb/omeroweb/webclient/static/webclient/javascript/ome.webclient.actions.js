@@ -528,7 +528,7 @@ OME.nodeHasPermission = function(node, permission, activeGroup) {
     }
 
     if (permission === 'isOwned') {
-        if (node.data.obj.hasOwnProperty('ownerId') && node.data.obj.ownerId === activeUserId()) {
+        if (node.data.obj.hasOwnProperty('ownerId') && node.data.obj.ownerId === currentUserId()) {
             return node.data.obj.isOwned;
         } else if (node.type === 'experimenter' && node.data.id == activeGroup) {
             return true;
