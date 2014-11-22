@@ -421,15 +421,15 @@ OME.refreshThumbnails = function(options) {
     }
 };
 
-OME.nodeHasPermission = function(node, permission, activeGroup) {
-    // Special case isOwned permission for now as it is not part of permsCss
-    // perhaps it should be. Also, there are no perms on experimenter so it
-    // is necessary to compare the active user to the id of the user in question
+OME.nodeHasPermission = function(node, permission) {
+    /*
+    * Check the permissions on a node
+    */
 
     // Require that all nodes have the necessary permissions
     if ($.isArray(node)) {
         for (index in node) {
-            if (!OME.nodeHasPermission(node[index], permission, activeGroup)) {
+            if (!OME.nodeHasPermission(node[index], permission)) {
                 return false;
             }
         }
@@ -440,7 +440,7 @@ OME.nodeHasPermission = function(node, permission, activeGroup) {
     if (permission === 'isOwned') {
         if (node.data.obj.hasOwnProperty('ownerId') && node.data.obj.ownerId === currentUserId()) {
             return node.data.obj.isOwned;
-        } else if (node.type === 'experimenter' && node.data.id == activeGroup) {
+        } else if (node.type === 'experimenter' && node.data.id == currentUserId()) {
             return true;
         }
         return false;
@@ -457,15 +457,15 @@ OME.nodeHasPermission = function(node, permission, activeGroup) {
     return false;
 };
 
-OME.iconHasPermission = function(icon, permission, activeGroup) {
-    // Special case isOwned permission for now as it is not part of permsCss
-    // perhaps it should be. Also, there are no perms on experimenter so it
-    // is necessary to compare the active user to the id of the user in question
+OME.iconHasPermission = function(icon, permission) {
+    /*
+    * Check the permissions on a thumbnail
+    */
 
     // Require that all nodes have the necessary permissions
     if ($.isArray(icon)) {
         for (index in node) {
-            if (!OME.iconHasPermission(node[index], permission, activeGroup)) {
+            if (!OME.iconHasPermission(node[index], permission)) {
                 return false;
             }
         }
@@ -478,10 +478,7 @@ OME.iconHasPermission = function(icon, permission, activeGroup) {
             if (icon.data('owned') === 'True') {
                 return true;
             }
-
-        //TODO node.data.id == activeGroup ({{ active_group.id }}). Surely this is comparing
-        // an experimenter id to a group id???
-        } else if (icon.data('type') === 'experimenter' && icon.data('id') == activeGroup) {
+        } else if (icon.data('type') === 'experimenter' && icon.data('id') == currentUserId()) {
             return true;
         }
         return false;
