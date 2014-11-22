@@ -24,7 +24,7 @@
             if (node.id in field_map) {
                 return field_map[node.id];
             }
-            return false;
+            return 0;
         }
 
         this.set_field = function(node, field) {
