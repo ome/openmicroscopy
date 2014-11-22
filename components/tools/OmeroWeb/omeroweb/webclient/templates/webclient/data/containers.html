@@ -523,7 +523,7 @@
                 // TODO Admin will have delete permissions on user
                 // probably they should not be able to delete the
                 // user from there
-                if(OME.nodeHasPermission(selected, 'canDelete', {{ active_group.id }})) {
+                if(OME.nodeHasPermission(selected, 'canDelete')) {
                     toolbar_config['delete'] = true;
                 }
 
@@ -759,7 +759,7 @@
                     $.each(selected, function(index, node) {
                          if (node.type === 'image' &&
                              inst.get_node(inst.get_parent(node)).type === 'orphaned' &&
-                             OME.nodeHasPermission(node, 'canLink', {{ active_group.id }})) {
+                             OME.nodeHasPermission(node, 'canLink')) {
                             img_ids.push(node.data.obj.id);
                             orphaned_image_nodes.push(node);
                          }
@@ -1595,7 +1595,7 @@
                                 // Check that the user has permission to list on the new parent
                                 // or that their user themselves is the new parent
                                 // or that their 'orphaned' directory is the new parent
-                                if (!OME.nodeHasPermission(node_parent, 'canLink', {{ active_group.id }}) &&
+                                if (!OME.nodeHasPermission(node_parent, 'canLink') &&
                                     node_parent.type !== 'experimenter' &&
                                     node_parent.type !== 'orphaned' &&
                                     node_parent.data.obj.id !== {{ active_group.id }}) {
@@ -1604,7 +1604,7 @@
                                 return true;
                             // For dnd checking if it can copy/move
                             } else if (operation === 'copy_node' || operation === 'move_node') {
-                                if (!OME.nodeHasPermission(node_parent, 'canLink', {{ active_group.id }})) {
+                                if (!OME.nodeHasPermission(node_parent, 'canLink')) {
                                     return false;
                                 }
 
@@ -1671,7 +1671,7 @@
                             // 'canLink' permission. All must pass
                             for (index in nodes) {
                                 if (!inst.get_rules(nodes[index]).draggable ||
-                                      !OME.nodeHasPermission(nodes[index], 'canLink', {{ active_group.id }})
+                                      !OME.nodeHasPermission(nodes[index], 'canLink')
                                     ) {
                                     return false;
                                 }
@@ -1680,11 +1680,8 @@
                         }
                     },
                     'contextmenu': {
-                        // TODO This is true in the current webclient, but it seems clumsy
                         'select_node': true,
                         'show_at_node': false,
-                        //TODO Convention for naming jquery objects, maybe this should be $node
-                        // If that is the case, fix in other places
                         'items' : function(node){
                             var config = {};
 
@@ -1822,21 +1819,17 @@
                             // those nodes
 
                             // Disable delete if no canDelete permission
-                            if (!OME.nodeHasPermission(node, 'canDelete', {{ active_group.id }})) {
+                            if (!OME.nodeHasPermission(node, 'canDelete')) {
                                 config["delete"]["_disabled"] = true;
                             }
 
                             // Disable chGrp if no permission to change groups ('canChgrp')
-                            if(!OME.nodeHasPermission(node, 'canChgrp', {{ active_group.id }})) {
+                            if(!OME.nodeHasPermission(node, 'canChgrp')) {
                                 config["chgrp"]["_disabled"] = true;
                             }
 
                             // For next section:
-                            // locked is equivalent to saying that the item is not owned
-                            // Basically, permission: canCreate = isOwned
-                            // In my tree this can be checked by:
-                            // node.data.obj.isOwned
-                            // locked (isOwned) should perhaps jsut be another permission?
+                            // Basically, permission: canCreate == isOwned
 
                             // Disable all the menus except createNew if an experimenter is the node
                             // Also disable createNew if that permission is not present
@@ -1859,7 +1852,7 @@
                                     config["create"]["submenu"]["screen"]["_disabled"] = true;
                                 }
 
-                            } else if (!OME.nodeHasPermission(node, 'canLink', {{ active_group.id }})) {
+                            } else if (!OME.nodeHasPermission(node, 'canLink')) {
                                 // Without 'canLink' disable create, basked and edit menus
                                 // TODO Shouldn't Move To Group require canLink?
                                 // see #8879 config["ccp"]["_disabled"] = true;

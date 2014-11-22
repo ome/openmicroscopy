@@ -512,14 +512,15 @@ OME.handleDelete = function() {
     });
 };
 
-OME.nodeHasPermission = function(node, permission, activeGroup) {
-    // Special case isOwned permission: There are no perms on experimenter so it
-    // is necessary to compare the active user to the id of the user in question
+OME.nodeHasPermission = function(node, permission) {
+    /*
+    * Check the permissions on a node
+    */
 
     // Require that all nodes have the necessary permissions
     if ($.isArray(node)) {
         for (var index in node) {
-            if (!OME.nodeHasPermission(node[index], permission, activeGroup)) {
+            if (!OME.nodeHasPermission(node[index], permission)) {
                 return false;
             }
         }
@@ -530,7 +531,7 @@ OME.nodeHasPermission = function(node, permission, activeGroup) {
     if (permission === 'isOwned') {
         if (node.data.obj.hasOwnProperty('ownerId') && node.data.obj.ownerId === currentUserId()) {
             return node.data.obj.isOwned;
-        } else if (node.type === 'experimenter' && node.data.id == activeGroup) {
+        } else if (node.type === 'experimenter' && node.data.id == currentUserId()) {
             return true;
         }
         return false;
