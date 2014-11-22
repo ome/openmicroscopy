@@ -882,6 +882,10 @@
   margin-right: 0;
 }
 
+.jstree-contextmenu {
+    z-index: 10;
+}
+
 .children_count {
     opacity:.6;
     background-color:rgba(0,0,0,.05);
