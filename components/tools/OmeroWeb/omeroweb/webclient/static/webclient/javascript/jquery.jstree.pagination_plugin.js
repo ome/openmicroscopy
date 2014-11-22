@@ -25,7 +25,7 @@
             if (node.id in page_map) {
                 return page_map[node.id];
             }
-            return false;
+            return 1;
         }
 
         this._set_page = function(node, page) {
