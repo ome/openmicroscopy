@@ -1053,162 +1053,320 @@ class MetadataDetectorForm(forms.Form):
         # Manufacturer
         try:
             if kwargs['initial']['detector'] is not None:
-                self.fields['manufacturer'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'manufacturer\', this.value);'}), initial=kwargs['initial']['detector'].manufacturer, required=False)
+                self.fields['manufacturer'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'manufacturer\', this.value);'}),
+                    initial=kwargs['initial']['detector'].manufacturer,
+                    required=False)
             else:
-                self.fields['manufacturer'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'manufacturer\', this.value);'}), required=False)
+                self.fields['manufacturer'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'manufacturer\', this.value);'}),
+                    required=False)
             self.fields['manufacturer'].widget.attrs['disabled'] = True 
             self.fields['manufacturer'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            self.fields['manufacturer'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
+            self.fields['manufacturer'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size':25}),
+                initial="N/A",
+                required=False)
             self.fields['manufacturer'].widget.attrs['disabled'] = True 
             self.fields['manufacturer'].widget.attrs['class'] = 'disabled-metadata'
         
         # Model
         try:
             if kwargs['initial']['detector'] is not None:
-                self.fields['model'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'model\', this.value);'}), initial=kwargs['initial']['detector'].model, required=False)
+                self.fields['model'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'model\', this.value);'}),
+                    initial=kwargs['initial']['detector'].model,
+                    required=False)
             else:
-                self.fields['model'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'model\', this.value);'}), required=False)
+                self.fields['model'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'model\', this.value);'}),
+                    required=False)
             self.fields['model'].widget.attrs['disabled'] = True 
             self.fields['model'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            self.fields['model'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
+            self.fields['model'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size':25}),
+                initial="N/A",
+                required=False)
             self.fields['model'].widget.attrs['disabled'] = True 
             self.fields['model'].widget.attrs['class'] = 'disabled-metadata'
         
         # SN
         try:
             if kwargs['initial']['detector'] is not None:
-                self.fields['serialNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'serialNumber\', this.value);'}), initial=kwargs['initial']['detector'].serialNumber, required=False)
+                self.fields['serialNumber'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'serialNumber\', this.value);'}),
+                    initial=kwargs['initial']['detector'].serialNumber,
+                    required=False)
             else:
-                self.fields['serialNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'serialNumber\', this.value);'}), required=False)
+                self.fields['serialNumber'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'serialNumber\', this.value);'}),
+                    required=False)
             self.fields['serialNumber'].widget.attrs['disabled'] = True 
             self.fields['serialNumber'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            self.fields['serialNumber'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
+            self.fields['serialNumber'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size':25}),
+                initial="N/A",
+                required=False)
             self.fields['serialNumber'].widget.attrs['disabled'] = True 
             self.fields['serialNumber'].widget.attrs['class'] = 'disabled-metadata'
         
         # Lot number (NB. Untill OMERO model is updated in 4.3, this will throw since lotNumber is not yet supported)
         try:
             if kwargs['initial']['detector'] is not None:
-                self.fields['lotNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'lotNumber\', this.value);'}), initial=kwargs['initial']['detector'].lotNumber, required=False)
+                self.fields['lotNumber'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'lotNumber\', this.value);'}),
+                    initial=kwargs['initial']['detector'].lotNumber,
+                    required=False)
             else:
-                self.fields['lotNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'lotNumber\', this.value);'}), required=False)
+                self.fields['lotNumber'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'lotNumber\', this.value);'}),
+                    required=False)
             self.fields['lotNumber'].widget.attrs['disabled'] = True 
             self.fields['lotNumber'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            self.fields['lotNumber'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
+            self.fields['lotNumber'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size':25}),
+                initial="N/A",
+                required=False)
             self.fields['lotNumber'].widget.attrs['disabled'] = True 
             self.fields['lotNumber'].widget.attrs['class'] = 'disabled-metadata'
             
         # Type
         try:
             if kwargs['initial']['detector'].getDetectorType() is not None:
-                self.fields['type'] = MetadataModelChoiceField(queryset=kwargs['initial']['types'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['detector'].id)+', \'type\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['detector'].getDetectorType().value, required=False) 
+                self.fields['type'] = MetadataModelChoiceField(
+                    queryset=kwargs['initial']['types'],
+                    empty_label=u"Not set",
+                    widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['detector'].id)+', \'type\', this.options[this.selectedIndex].value);'}),
+                    initial=kwargs['initial']['detector'].getDetectorType().value,
+                    required=False) 
             else:
-                self.fields['type'] = MetadataModelChoiceField(queryset=kwargs['initial']['types'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['detector'].id)+', \'type\', this.options[this.selectedIndex].value);'}), required=False) 
+                self.fields['type'] = MetadataModelChoiceField(
+                    queryset=kwargs['initial']['types'],
+                    empty_label=u"Not set",
+                    widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['detector'].id)+', \'type\', this.options[this.selectedIndex].value);'}),
+                    required=False) 
             self.fields['type'].widget.attrs['disabled'] = True 
             self.fields['type'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            self.fields['type'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
+            self.fields['type'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size':25}),
+                initial="N/A",
+                required=False)
             self.fields['type'].widget.attrs['disabled'] = True 
             self.fields['type'].widget.attrs['class'] = 'disabled-metadata'
         
         # Gain
         try:
             if kwargs['initial']['detectorSettings'] is not None:
-                self.fields['gain'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'gain\', this.value);'}), initial=kwargs['initial']['detectorSettings'].gain, required=False)
+                self.fields['gain'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'gain\', this.value);'}),
+                    initial=kwargs['initial']['detectorSettings'].gain,
+                    required=False)
             elif kwargs['initial']['detector'] is not None:
-                self.fields['gain'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'gain\', this.value);'}), initial=kwargs['initial']['detector'].gain, required=False)
+                self.fields['gain'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'gain\', this.value);'}),
+                    initial=kwargs['initial']['detector'].gain,
+                    required=False)
             else:
-                self.fields['gain'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'gain\', this.value);'}), required=False)
+                self.fields['gain'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'gain\', this.value);'}),
+                    required=False)
             self.fields['gain'].widget.attrs['disabled'] = True 
             self.fields['gain'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            self.fields['gain'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
+            self.fields['gain'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size':25}),
+                initial="N/A",
+                required=False)
             self.fields['gain'].widget.attrs['disabled'] = True 
             self.fields['gain'].widget.attrs['class'] = 'disabled-metadata'
         
         # Voltage
         try:
             if kwargs['initial']['detectorSettings'] is not None:
-                self.fields['voltage'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'voltage\', this.value);'}), initial=kwargs['initial']['detectorSettings'].voltage, required=False)
+                self.fields['voltage'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'voltage\', this.value);'}),
+                    initial=kwargs['initial']['detectorSettings'].voltage,
+                    required=False)
             elif kwargs['initial']['detector'] is not None:
-                self.fields['voltage'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'voltage\', this.value);'}), initial=kwargs['initial']['detector'].voltage, required=False)
+                self.fields['voltage'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'voltage\', this.value);'}),
+                    initial=kwargs['initial']['detector'].voltage,
+                    required=False)
             else:
-                self.fields['voltage'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'voltage\', this.value);'}), required=False)
+                self.fields['voltage'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'voltage\', this.value);'}),
+                    required=False)
             self.fields['voltage'].widget.attrs['disabled'] = True 
             self.fields['voltage'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            self.fields['voltage'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
+            self.fields['voltage'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size':25}),
+                initial="N/A",
+                required=False)
             self.fields['voltage'].widget.attrs['disabled'] = True 
             self.fields['voltage'].widget.attrs['class'] = 'disabled-metadata'
         
         # Offset
         try:
             if kwargs['initial']['detectorSettings'] is not None:
-                self.fields['offsetValue'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'offsetValue\', this.value);'}), initial=kwargs['initial']['detectorSettings'].offsetValue, label="Offset", required=False)
+                self.fields['offsetValue'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'offsetValue\', this.value);'}),
+                    initial=kwargs['initial']['detectorSettings'].offsetValue,
+                    label="Offset",
+                    required=False)
             elif kwargs['initial']['detector'] is not None:
-                self.fields['offsetValue'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'offsetValue\', this.value);'}), initial=kwargs['initial']['detector'].offsetValue, label="Offset", required=False)
+                self.fields['offsetValue'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'offsetValue\', this.value);'}),
+                    initial=kwargs['initial']['detector'].offsetValue,
+                    label="Offset",
+                    required=False)
             else:
-                self.fields['offsetValue'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'offsetValue\', this.value);'}), label="Offset", required=False)
+                self.fields['offsetValue'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'offsetValue\', this.value);'}),
+                    label="Offset",
+                    required=False)
             self.fields['offsetValue'].widget.attrs['disabled'] = True 
             self.fields['offsetValue'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            self.fields['offsetValue'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Offset", required=False)
+            self.fields['offsetValue'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size':25}),
+                initial="N/A",
+                label="Offset",
+                required=False)
             self.fields['offsetValue'].widget.attrs['disabled'] = True 
             self.fields['offsetValue'].widget.attrs['class'] = 'disabled-metadata'
         
         # Zoom
         try:
             if kwargs['initial']['detector'] is not None:
-                self.fields['zoom'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'zoom\', this.value);'}), initial=kwargs['initial']['detector'].zoom, required=False)
+                self.fields['zoom'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'zoom\', this.value);'}),
+                    initial=kwargs['initial']['detector'].zoom,
+                    required=False)
             else:
-                self.fields['zoom'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'voltage\', this.value);'}), required=False)
+                self.fields['zoom'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'voltage\', this.value);'}),
+                    required=False)
             self.fields['zoom'].widget.attrs['disabled'] = True 
             self.fields['zoom'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            self.fields['zoom'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
+            self.fields['zoom'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size':25}),
+                initial="N/A",
+                required=False)
             self.fields['zoom'].widget.attrs['disabled'] = True 
             self.fields['zoom'].widget.attrs['class'] = 'disabled-metadata'
         
         # Amplification gain
         try:
             if kwargs['initial']['detector'] is not None:
-                self.fields['amplificationGain'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'amplificationGain\', this.value);'}), initial=kwargs['initial']['detector'].amplificationGain, label="Amplification gain", required=False)
+                self.fields['amplificationGain'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'amplificationGain\', this.value);'}),
+                    initial=kwargs['initial']['detector'].amplificationGain,
+                    label="Amplification gain",
+                    required=False)
             else:
-                self.fields['amplificationGain'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'amplificationGain\', this.value);'}), label="Amplification gain", required=False)
+                self.fields['amplificationGain'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'amplificationGain\', this.value);'}),
+                    label="Amplification gain",
+                    required=False)
             self.fields['amplificationGain'].widget.attrs['disabled'] = True 
             self.fields['amplificationGain'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            self.fields['amplificationGain'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Amplification gain", required=False)
+            self.fields['amplificationGain'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size':25}),
+                initial="N/A",
+                label="Amplification gain",
+                required=False)
             self.fields['amplificationGain'].widget.attrs['disabled'] = True 
             self.fields['amplificationGain'].widget.attrs['class'] = 'disabled-metadata'
         
         # Read out rate
         try:
             if kwargs['initial']['detectorSettings'] is not None:
-                self.fields['readOutRate'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'readOutRate\', this.value);'}), initial=kwargs['initial']['detectorSettings'].readOutRate, label="Read out rate", required=False)
+                self.fields['readOutRate'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'readOutRate\', this.value);'}),
+                    initial=kwargs['initial']['detectorSettings'].readOutRate,
+                    label="Read out rate",
+                    required=False)
             else:
-                self.fields['readOutRate'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'readOutRate\', this.value);'}), label="Read out rate", required=False)
+                self.fields['readOutRate'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'readOutRate\', this.value);'}),
+                    label="Read out rate",
+                    required=False)
             self.fields['readOutRate'].widget.attrs['disabled'] = True 
             self.fields['readOutRate'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            self.fields['readOutRate'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Read out rate", required=False)
+            self.fields['readOutRate'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size':25}),
+                initial="N/A",
+                label="Read out rate",
+                required=False)
             self.fields['readOutRate'].widget.attrs['disabled'] = True 
             self.fields['readOutRate'].widget.attrs['class'] = 'disabled-metadata'
             
         # Binning
         try:
             if kwargs['initial']['detectorSettings'] is not None:
-                self.fields['binning'] = MetadataModelChoiceField(queryset=kwargs['initial']['binnings'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'type\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['detectorSettings'].getBinning().value, required=False) 
+                self.fields['binning'] = MetadataModelChoiceField(
+                    queryset=kwargs['initial']['binnings'],
+                    empty_label=u"Not set",
+                    widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'type\', this.options[this.selectedIndex].value);'}),
+                    initial=kwargs['initial']['detectorSettings'].getBinning().value,
+                    required=False) 
             else:
-                self.fields['binning'] = MetadataModelChoiceField(queryset=kwargs['initial']['binnings'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'type\', this.options[this.selectedIndex].value);'}), required=False) 
+                self.fields['binning'] = MetadataModelChoiceField(
+                    queryset=kwargs['initial']['binnings'],
+                    empty_label=u"Not set",
+                    widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'type\', this.options[this.selectedIndex].value);'}),
+                    required=False) 
             self.fields['binning'].widget.attrs['disabled'] = True 
             self.fields['binning'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            self.fields['binning'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
+            self.fields['binning'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size':25}),
+                initial="N/A",
+                required=False)
             self.fields['binning'].widget.attrs['disabled'] = True 
             self.fields['binning'].widget.attrs['class'] = 'disabled-metadata'
             
