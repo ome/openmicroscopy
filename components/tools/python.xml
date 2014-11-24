@@ -58,9 +58,21 @@ build_year = "${python_build_year}"
 
     <target name="python-test-suite" unless="TEST">
         <mkdir dir="${testreports.dir}"/>
-        <py_test target="${basedir}/test/unit">
-            <optionalArgs/>
-        </py_test>
+        <if>
+            <isset property="MARK"/>
+            <then>
+                <py_test target="${basedir}/test/unit">
+                    <optionalArgs>
+                        <arg value="-m ${MARK}"/>
+                    </optionalArgs>
+                </py_test>
+            </then>
+            <else>
+                <py_test target="${basedir}/test/unit">
+                    <optionalArgs/>
+                </py_test>
+            </else>
+        </if>
     </target>
 
     <target name="python-integration" unless="env.NOPYTHON">
