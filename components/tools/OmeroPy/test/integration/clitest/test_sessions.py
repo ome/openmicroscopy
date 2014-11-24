@@ -94,7 +94,7 @@ class TestSessions(CLITest):
         ec = self.cli.get_event_context()
         assert ec.userName == user.omeName.val
 
-    @pytest.mark.xfail(reason="NYI")  # This must be implemented
+    @pytest.mark.broken(reason="NYI")  # This must be implemented
     def testLoginAsGroupAdmin(self):
         group = self.new_group()
         grp_admin = self.new_user(group=group, admin=True)

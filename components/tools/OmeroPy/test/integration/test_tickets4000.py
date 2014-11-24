@@ -17,7 +17,7 @@ from omero.rtypes import rstring
 
 class TestTickets4000(lib.ITest):
 
-    @pytest.mark.xfail(reason="See ticket #11539")
+    @pytest.mark.broken(ticket="11539")
     def test3138(self):
         """
         Try multiple logins to see if they slow down

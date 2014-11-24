@@ -223,7 +223,7 @@ class TestITimeline(lib.ITest):
     # If the ticket is still valid then this test should presumably pass
     # after the ticket is closed but not before then. If the issue is not
     # to be addressed then this test should be removed.
-    @pytest.mark.xfail(reason="ticket 1225")
+    @pytest.mark.broken(ticket="1225")
     def test1225(self):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         update = self.root.sf.getUpdateService()

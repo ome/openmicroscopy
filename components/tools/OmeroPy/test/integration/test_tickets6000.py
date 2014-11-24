@@ -18,7 +18,7 @@ from omero.rtypes import rstring
 
 class TestTickets6000(lib.ITest):
 
-    @pytest.mark.xfail(reason="See ticket #11539")
+    @pytest.mark.broken(ticket="11539")
     def test5684(self):
         """
         Similar to integration.tickets4000.TestTickets4000.test3138
