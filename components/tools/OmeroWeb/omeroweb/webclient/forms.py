@@ -1583,7 +1583,8 @@ class MetadataLightSourceForm(forms.Form):
                 self.fields['wavelength'] = forms.CharField(
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(lightSource.id)+', \'wavelength\', this.value);'}),
-                    initial=lightSource.wavelength,
+                    initial=lightSource.wavelength.getValue(),
+                    label = "Wavelength (%s)" % lightSource.wavelength.getUnit(),
                     required=False)
             else:
                 self.fields['wavelength'] = forms.CharField(
