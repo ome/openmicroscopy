@@ -413,7 +413,6 @@
                                         update_thumbnails_panel(e, data);
                                     });
 
-
                                     datatree.delete_node(selected);
 
                                     // Update the central panel with new selection
@@ -894,21 +893,50 @@
                         var remove = data.update.remove;
                         var childless = data.update.childless;
 
-                        // Find and remove
-                        for (property in remove) {
-                            if (remove.hasOwnProperty(property)) {
-                                $.each(remove[property], function(index, id) {
-                                    var removeLocated = inst.locate_node(property + '-' + id);
-                                    // If some nodes were found, delete them. The most likely reason
-                                    // that nodes are not found is that a delete_node in this loop
-                                    // has already deleted them as they are children of another node
-                                    if (removeLocated) {
-                                        inst.delete_node(removeLocated);
-                                    }
-                                });
-                            }
+                        var removalClosure = [];
+                        var unremovedParentClosure;
+                        var removeType = function(type, ids) {
+                            $.each(ids, function(index, id) {
+                                var removeLocated = inst.locate_node(type + '-' + id);
+                                if (removeLocated) {
+                                    $.each(removeLocated, function(index, val) {
+                                        if (unremovedParentClosure !== undefined &&
+                                            val.id === unremovedParentClosure.id) {
+                                            // The new selection is also to be deleted, so select its parent
+                                            unremovedParentClosure = inst.get_node(inst.get_parent(val));
+                                        }
+                                        else if (inst.is_selected(val)) {
+                                            // This node was selected, mark its parent to be selected instead
+                                            unremovedParentClosure = inst.get_node(inst.get_parent(val));
+                                        }
+                                    // Accumulate nodes for deletion so the new selection can occur before delete
+                                    removalClosure.push(val);
+                                    });
+                                }
+                            });
+                        };
 
-                        }
+                        // Find and remove
+                        // This is done in a specific order so that the correct node can be selected
+                        var typeOrder = ['image', 'acquisition', 'dataset', 'plate', 'project', 'screen'];
+                        $.each(typeOrder, function(index, type) {
+                            if (remove.hasOwnProperty(type)) {
+                                removeType(type, remove[type]);
+                            }
+                        });
+
+                        // Select the closest parent that was not part of the chgrp
+                        inst.deselect_all(true);
+                        inst.select_node(unremovedParentClosure);
+
+                        // Update the central panel in case chgrp removes an icon
+                        $.each(removalClosure, function(index, node) {
+                            var e = {'type': 'delete_node'}
+                            var data = {'node': node,
+                                        'old_parent': inst.get_parent(node)};
+                            update_thumbnails_panel(e, data);
+                            inst.delete_node(node);
+                        });
 
                         // Find and mark childless
                         for (property in childless) {
