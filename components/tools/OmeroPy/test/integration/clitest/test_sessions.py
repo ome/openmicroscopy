@@ -47,7 +47,7 @@ class TestSessions(CLITest):
 
     def check_sudoer(self, target_user, sudoer, group=None):
         self.set_login_args(target_user)
-        self.args += ["--sudo", sudoer.omeName.val]
+        self.args += ["-C", "--sudo", sudoer.omeName.val]
         self.args += ["-w", sudoer.omeName.val]
         if group:
             self.args += ["-g", group.name.val]
