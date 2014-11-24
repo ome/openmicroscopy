@@ -35,12 +35,7 @@ build_java()
 
 build_python()
 {
-    flake8 -v components/tools/OmeroPy/src
-    flake8 -v components/tools/OmeroPy/test
-    flake8 -v components/tools/OmeroFS/src
-    flake8 -v components/tools/OmeroFS/test
-    flake8 -v components/tools/OmeroWeb/omeroweb
-    flake8 -v components/tools/OmeroWeb/test
+    flake8 -v components/tools
     ./build.py build-default
     ./build.py -py test -Dtest.with.fail=true
     ./build.py -fs test -Dtest.with.fail=true
