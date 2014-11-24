@@ -113,15 +113,16 @@ class TestSessions(CLITest):
         owner = self.new_user(group1, owner=True)  # Owner of first group
         admin = self.new_user(system=True)  # System administrator
 
-        # Administrator are in the list of sudoers
+        # Administrator is in the list of sudoers
         self.check_sudoer(user, admin)
         self.check_sudoer(user, admin, group1)
         self.check_sudoer(user, admin, group2)
 
         # Group owner is in the list of sudoers
         self.check_sudoer(user, owner)
-        self.check_sudoer(user, admin, group1)
-        self.check_sudoer(user, admin, group2)
+        self.check_sudoer(user, owner, group1)
+        with pytest.raises(NonZeroReturnCode):
+            self.check_sudoer(user, owner, group2)
 
         # Other group members are not sudoers
         with pytest.raises(NonZeroReturnCode):
