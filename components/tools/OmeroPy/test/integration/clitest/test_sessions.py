@@ -21,6 +21,7 @@
 
 from test.integration.clitest.cli import CLITest
 from omero.cli import NonZeroReturnCode
+from omero import SecurityViolation
 import pytest
 
 permissions = ["rw----", "rwr---", "rwra--", "rwrw--"]
@@ -100,28 +101,45 @@ class TestSessions(CLITest):
         owner = self.new_user(group1, owner=True)  # Owner of first group
         admin = self.new_user(system=True)  # System administrator
 
-        def check_sudoer(sudoer, target_group=""):
+        def check_sudoer(sudoer, login_group="", can_switch=False):
             self.set_login_args(user)
             self.args += ["-C", "--sudo", sudoer.omeName.val]
             self.args += ["-w", sudoer.omeName.val]
-            if target_group:
-                self.args += ["-g", target_group.name.val]
+            if login_group:
+                self.args += ["-g", login_group.name.val]
+            else:
+                login_group = group1
+
+            if login_group == group1:
+                target_group = group2
+            else:
+                target_group = group1
 
             try:
                 # Check login and test group
                 self.cli.invoke(self.args, strict=True)
                 ec = self.cli.controls["sessions"].ctx._event_context
                 assert ec.userName == user.omeName.val
-                if target_group:
-                    assert ec.groupName == target_group.name.val
+                assert ec.groupName == login_group.name.val
 
+                # Test switch group
+                switch_cmd = ["sessions", "group",
+                              "%s" % target_group.name.val]
+                if can_switch:
+                    self.cli.invoke(switch_cmd, strict=True)
+                    ec = self.cli.controls["sessions"].ctx._event_context
+                    assert ec.userName == user.omeName.val
+                    assert ec.groupName == target_group.name.val
+                else:
+                    with pytest.raises(SecurityViolation):
+                        self.cli.invoke(switch_cmd, strict=True)
             finally:
                 self.cli.invoke(["sessions", "logout"], strict=True)
 
         # Administrator is in the list of sudoers
-        check_sudoer(admin)
-        check_sudoer(admin, group1)
-        check_sudoer(admin, group2)
+        check_sudoer(admin, can_switch=True)
+        check_sudoer(admin, group1, can_switch=True)
+        check_sudoer(admin, group2, can_switch=True)
 
         # Group owner is in the list of sudoers
         check_sudoer(owner)
