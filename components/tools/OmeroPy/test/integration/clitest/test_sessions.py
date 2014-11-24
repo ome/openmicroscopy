@@ -45,19 +45,6 @@ class TestSessions(CLITest):
             'Current group: %s\n' % (ec.sessionUuid, self.conn_string,
                                      ec.groupName)
 
-    def check_sudoer(self, target_user, sudoer, group=None):
-        self.set_login_args(target_user)
-        self.args += ["-C", "--sudo", sudoer.omeName.val]
-        self.args += ["-w", sudoer.omeName.val]
-        if group:
-            self.args += ["-g", group.name.val]
-        self.cli.invoke(self.args, strict=True)
-        ec = self.cli.controls["sessions"].ctx._event_context
-        assert ec.userName == target_user.omeName.val
-        if group:
-            assert ec.groupName == group.name.val
-        self.cli.invoke(["sessions", "logout"], strict=True)
-
     # Login subcommand
     # ========================================================================
     @pytest.mark.parametrize("quiet", [True, False])
@@ -113,20 +100,38 @@ class TestSessions(CLITest):
         owner = self.new_user(group1, owner=True)  # Owner of first group
         admin = self.new_user(system=True)  # System administrator
 
+        def check_sudoer(sudoer, target_group=""):
+            self.set_login_args(user)
+            self.args += ["-C", "--sudo", sudoer.omeName.val]
+            self.args += ["-w", sudoer.omeName.val]
+            if target_group:
+                self.args += ["-g", target_group.name.val]
+
+            try:
+                # Check login and test group
+                self.cli.invoke(self.args, strict=True)
+                ec = self.cli.controls["sessions"].ctx._event_context
+                assert ec.userName == user.omeName.val
+                if target_group:
+                    assert ec.groupName == target_group.name.val
+
+            finally:
+                self.cli.invoke(["sessions", "logout"], strict=True)
+
         # Administrator is in the list of sudoers
-        self.check_sudoer(user, admin)
-        self.check_sudoer(user, admin, group1)
-        self.check_sudoer(user, admin, group2)
+        check_sudoer(admin)
+        check_sudoer(admin, group1)
+        check_sudoer(admin, group2)
 
         # Group owner is in the list of sudoers
-        self.check_sudoer(user, owner)
-        self.check_sudoer(user, owner, group1)
+        check_sudoer(owner)
+        check_sudoer(owner, group1)
         with pytest.raises(NonZeroReturnCode):
-            self.check_sudoer(user, owner, group2)
+            check_sudoer(owner, group2)
 
         # Other group members are not sudoers
         with pytest.raises(NonZeroReturnCode):
-            self.check_sudoer(user, member)
+            check_sudoer(member)
 
     @pytest.mark.parametrize('with_sudo', [True, False])
     @pytest.mark.parametrize('with_group', [True, False])
