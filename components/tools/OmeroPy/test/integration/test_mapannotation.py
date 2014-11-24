@@ -110,7 +110,7 @@ class TestMapAnnotation(lib.ITest):
             NV("a", _("b"))
         ]
 
-        edited  = [
+        edited = [
             NV("e", _("f")),
             NV("a", _("x"))
         ]
