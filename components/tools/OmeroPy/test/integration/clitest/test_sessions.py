@@ -107,9 +107,8 @@ class TestSessions(CLITest):
 
         group1 = self.new_group(perms=perms)
         group2 = self.new_group(perms=perms)
-        admin = self.root.sf.getAdminService()
         user = self.new_user(group1, owner=False)  # Member of two groups
-        admin.addGroups(user, [group2])
+        self.root.sf.getAdminService().addGroups(user, [group2])
         member = self.new_user(group1, owner=False)  # Member of first gourp
         owner = self.new_user(group1, owner=True)  # Owner of first group
         admin = self.new_user(system=True)  # System administrator
