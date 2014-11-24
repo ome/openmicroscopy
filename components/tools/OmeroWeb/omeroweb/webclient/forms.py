@@ -280,17 +280,18 @@ class MetadataChannelForm(forms.Form):
         # Logical channel
         
         # Name
+        logicalCh = kwargs['initial']['logicalChannel']
         try:
-            if kwargs['initial']['logicalChannel'] is not None:
+            if logicalCh is not None:
                 self.fields['name'] = forms.CharField(
                     max_length=100,
-                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'name\', this.value);'}),
-                    initial=kwargs['initial']['logicalChannel'].name,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(logicalCh.id)+', \'name\', this.value);'}),
+                    initial=logicalCh.name,
                     required=False)
             else:
                 self.fields['name'] = forms.CharField(
                     max_length=100,
-                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'name\', this.value);'}),
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(logicalCh.id)+', \'name\', this.value);'}),
                     required=False)
             self.fields['name'].widget.attrs['disabled'] = True 
             self.fields['name'].widget.attrs['class'] = 'disabled-metadata'
@@ -305,17 +306,17 @@ class MetadataChannelForm(forms.Form):
         
         # excitationWave
         try:
-            if kwargs['initial']['logicalChannel'] is not None:
+            if logicalCh is not None:
                 self.fields['excitationWave'] = forms.CharField(
                     max_length=100,
-                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'name\', this.value);'}),
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(logicalCh.id)+', \'name\', this.value);'}),
                     initial=kwargs['initial']['excitationWave'],
                     label="Excitation",
                     required=False)
             else:
                 self.fields['excitationWave'] = forms.CharField(
                     max_length=100,
-                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'name\', this.value);'}),
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(logicalCh.id)+', \'name\', this.value);'}),
                     label="Excitation",
                     required=False)
             self.fields['excitationWave'].widget.attrs['disabled'] = True 
@@ -332,17 +333,17 @@ class MetadataChannelForm(forms.Form):
         
         # emissionWave
         try:
-            if kwargs['initial']['logicalChannel'] is not None:
+            if logicalCh is not None:
                 self.fields['emissionWave'] = forms.CharField(
                     max_length=100,
-                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'name\', this.value);'}),
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(logicalCh.id)+', \'name\', this.value);'}),
                     initial=kwargs['initial']['emissionWave'],
                     label="Emission",
                     required=False)
             else:
                 self.fields['emissionWave'] = forms.CharField(
                     max_length=100,
-                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'name\', this.value);'}),
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(logicalCh.id)+', \'name\', this.value);'}),
                     label="Emission",
                     required=False)
             self.fields['emissionWave'].widget.attrs['disabled'] = True 
@@ -359,17 +360,17 @@ class MetadataChannelForm(forms.Form):
         
         # ndFilter
         try:
-            if kwargs['initial']['logicalChannel'] is not None:
+            if logicalCh is not None:
                 self.fields['ndFilter'] = forms.CharField(
                     max_length=100,
-                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'name\', this.value);'}),
-                    initial=kwargs['initial']['logicalChannel'].ndFilter,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(logicalCh.id)+', \'name\', this.value);'}),
+                    initial=logicalCh.ndFilter,
                     label="ND filter [%]",
                     required=False)
             else:
                 self.fields['ndFilter'] = forms.CharField(
                     max_length=100,
-                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'name\', this.value);'}),
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(logicalCh.id)+', \'name\', this.value);'}),
                     label="ND filter [%]",
                     required=False)
             self.fields['ndFilter'].widget.attrs['disabled'] = True 
@@ -384,17 +385,17 @@ class MetadataChannelForm(forms.Form):
         
         # pinHoleSize
         try:
-            if kwargs['initial']['logicalChannel'] is not None:
+            if logicalCh is not None:
                 self.fields['pinHoleSize'] = forms.CharField(
                     max_length=100,
-                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'name\', this.value);'}),
-                    initial=kwargs['initial']['logicalChannel'].pinHoleSize,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(logicalCh.id)+', \'name\', this.value);'}),
+                    initial=logicalCh.pinHoleSize,
                     label="Pin hole size",
                     required=False)
             else:
                 self.fields['pinHoleSize'] = forms.CharField(
                     max_length=100,
-                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'name\', this.value);'}),
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(logicalCh.id)+', \'name\', this.value);'}),
                     label="Pin hole size",
                     required=False)
             self.fields['pinHoleSize'].widget.attrs['disabled'] = True 
@@ -409,16 +410,16 @@ class MetadataChannelForm(forms.Form):
         
         # fluor
         try:
-            if kwargs['initial']['logicalChannel'] is not None:
+            if logicalCh is not None:
                 self.fields['fluor'] = forms.CharField(
                     max_length=100,
-                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'name\', this.value);'}),
-                    initial=kwargs['initial']['logicalChannel'].fluor,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(logicalCh.id)+', \'name\', this.value);'}),
+                    initial=logicalCh.fluor,
                     required=False)
             else:
                 self.fields['fluor'] = forms.CharField(
                     max_length=100,
-                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'name\', this.value);'}),
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(logicalCh.id)+', \'name\', this.value);'}),
                     required=False)
             self.fields['fluor'].widget.attrs['disabled'] = True
         except:
@@ -431,18 +432,18 @@ class MetadataChannelForm(forms.Form):
         
         # Illumination
         try:
-            if kwargs['initial']['logicalChannel'].getIllumination() is not None:
+            if logicalCh.getIllumination() is not None:
                 self.fields['illumination'] = MetadataModelChoiceField(
                     queryset=kwargs['initial']['illuminations'],
                     empty_label=u"Not set",
-                    widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'illumination\', this.options[this.selectedIndex].value);'}),
-                    initial=kwargs['initial']['logicalChannel'].getIllumination(),
+                    widget=forms.Select(attrs={'onchange':'saveMetadata('+str(logicalCh.id)+', \'illumination\', this.options[this.selectedIndex].value);'}),
+                    initial=logicalCh.getIllumination(),
                     required=False) 
             else:
                 self.fields['illumination'] = MetadataModelChoiceField(
                     queryset=kwargs['initial']['illuminations'],
                     empty_label=u"Not set",
-                    widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'illumination\', this.options[this.selectedIndex].value);'}),
+                    widget=forms.Select(attrs={'onchange':'saveMetadata('+str(logicalCh.id)+', \'illumination\', this.options[this.selectedIndex].value);'}),
                     required=False) 
             self.fields['illumination'].widget.attrs['disabled'] = True
         except:
@@ -455,19 +456,19 @@ class MetadataChannelForm(forms.Form):
         
         # contrastMethods
         try:
-            if kwargs['initial']['logicalChannel'].contrastMethod is not None:
+            if logicalCh.contrastMethod is not None:
                 self.fields['contrastMethod'] = MetadataModelChoiceField(
                     queryset=kwargs['initial']['contrastMethods'],
                     empty_label=u"Not set",
-                    widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'contrastMethod\', this.options[this.selectedIndex].value);'}),
-                    initial=kwargs['initial']['logicalChannel'].getContrastMethod(),
+                    widget=forms.Select(attrs={'onchange':'saveMetadata('+str(logicalCh.id)+', \'contrastMethod\', this.options[this.selectedIndex].value);'}),
+                    initial=logicalCh.getContrastMethod(),
                     label="Contrast method",
                     required=False) 
             else:
                 self.fields['contrastMethod'] = MetadataModelChoiceField(
                     queryset=kwargs['initial']['contrastMethods'],
                     empty_label=u"Not set",
-                    widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'contrastMethod\', this.options[this.selectedIndex].value);'}),
+                    widget=forms.Select(attrs={'onchange':'saveMetadata('+str(logicalCh.id)+', \'contrastMethod\', this.options[this.selectedIndex].value);'}),
                     label="Contrast method",
                     required=False) 
             self.fields['contrastMethod'].widget.attrs['disabled'] = True 
@@ -484,18 +485,18 @@ class MetadataChannelForm(forms.Form):
         
         # Mode
         try:
-            if kwargs['initial']['logicalChannel'].getMode() is not None:
+            if logicalCh.getMode() is not None:
                 self.fields['mode'] = MetadataModelChoiceField(
                     queryset=kwargs['initial']['modes'],
                     empty_label=u"Not set",
-                    widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'mode\', this.options[this.selectedIndex].value);'}),
-                    initial=kwargs['initial']['logicalChannel'].getMode().value,
+                    widget=forms.Select(attrs={'onchange':'saveMetadata('+str(logicalCh.id)+', \'mode\', this.options[this.selectedIndex].value);'}),
+                    initial=logicalCh.getMode().value,
                     required=False) 
             else:
                 self.fields['mode'] = MetadataModelChoiceField(
                     queryset=kwargs['initial']['modes'],
                     empty_label=u"Not set",
-                    widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'mode\', this.options[this.selectedIndex].value);'}),
+                    widget=forms.Select(attrs={'onchange':'saveMetadata('+str(logicalCh.id)+', \'mode\', this.options[this.selectedIndex].value);'}),
                     required=False) 
             self.fields['mode'].widget.attrs['disabled'] = True 
             self.fields['mode'].widget.attrs['class'] = 'disabled-metadata'
@@ -510,17 +511,17 @@ class MetadataChannelForm(forms.Form):
         
         # pockelCellSetting
         try:
-            if kwargs['initial']['logicalChannel'].pockelCellSetting is not None:
+            if logicalCh.pockelCellSetting is not None:
                 self.fields['pockelCellSetting'] = forms.CharField(
                     max_length=100,
-                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'name\', this.value);'}),
-                    initial=kwargs['initial']['logicalChannel'].pockelCellSetting,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(logicalCh.id)+', \'name\', this.value);'}),
+                    initial=logicalCh.pockelCellSetting,
                     label="Pockel cell",
                     required=False)
             else:
                 self.fields['pockelCellSetting'] = forms.CharField(
                     max_length=100,
-                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'name\', this.value);'}),
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(logicalCh.id)+', \'name\', this.value);'}),
                     label="Pockel cell",
                     required=False)
             self.fields['pockelCellSetting'].widget.attrs['disabled'] = True 
