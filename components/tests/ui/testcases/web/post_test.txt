@@ -121,11 +121,13 @@ Test Rdef Copy Paste Save
 
     Select Experimenter
     Select And Expand Image
-    Wait Until Page Contains Element        css=.data_heading_id strong
-    ${imageId}=                             Get Text                    css=.data_heading_id strong
+    Wait Until Page Contains Element        xpath=//h2[contains(@class, 'data_heading_id')][contains(text(), 'image')]
+    ${imageId}=                             Get Text                    xpath=//h2[contains(@class, 'data_heading_id')]/strong
     Click Link                              Preview
     Wait Until Page Contains Element        id=viewport-img
+    Sleep                                   0.5
     Click Element                           xpath=//button[contains(@class, "copy_rdef")]
+    Wait Until Page Contains Element        xpath=//button[contains(@class, "paste_rdef")][not(@disabled="disabled")]
     # Test success of paste in right-click menu by thumbnail refresh
     ${thumbSrc}=                            Execute Javascript  return $("#image_icon-${imageId} img").attr('src')
     Open Context Menu                       xpath=//li[@id='image-${imageId}']/a
@@ -146,16 +148,18 @@ Test Rdef Copy Paste Save
     Go To                                   ${WELCOME URL}img_detail/${imageId}
     # Toggle the color, then paste settings and check it has reverted
     Wait Until Page Contains Element        id=wblitz-ch0
-    ${color1}=                              Execute Javascript  return $("#wblitz-rmodel").attr('checked')
+    ${checked1}=                            Execute Javascript  return ($("#wblitz-rmodel:checked").length == 1)
     Click Element                           id=wblitz-rmodel
-    ${color2}=                              Execute Javascript  return $("#wblitz-rmodel").attr('checked')
-    Should Not Be True                      "${color1}" == "${color2}"
+    ${checked2}=                            Execute Javascript  return ($("#wblitz-rmodel:checked").length == 1)
+    Should Not Be True                      "${checked1}" == "${checked2}"
     Click Link                              Edit
     Click Element                           xpath=//button[contains(@class, "paste_rdef")]
-    ${selector}=                            Set Variable If    "${color1}" == "None"     undefined    "checked"
-    Wait For Condition                      return ($("#wblitz-rmodel").attr('checked') == ${selector})
+    ${selector}=                            Set Variable If    ${checked1}    1    0
+    Log   ${selector}
+    Wait For Condition                      return ($("#wblitz-rmodel:checked").length == ${selector})
 
     # Toggle the color again, Save, refresh page to check
+    Set Selenium Speed                      0.5
     Click Element                           id=wblitz-rmodel
     Wait Until Page Contains Element        id=rdef-setdef-btn
     Click Element                           id=rdef-setdef-btn
@@ -164,6 +168,6 @@ Test Rdef Copy Paste Save
     Wait For Condition                      return ($(".blockUI").length == 0)
     Reload Page
     Wait Until Page Contains Element        id=wblitz-ch0
-    ${color3}=                              Execute Javascript  return $("#wblitz-rmodel").attr('checked')
-    Should Be True                          "${color2}" == "${color3}"
+    ${checked3}=                            Execute Javascript  return ($("#wblitz-rmodel:checked").length == 1)
+    Should Be True                          "${checked2}" == "${checked3}"
 
