@@ -1598,8 +1598,8 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
             rdef['z'] = str(request.GET.get('z'))    # z & t pos
         if request.GET.get('t'):
             rdef['t'] = str(request.GET.get('t'))
-        if request.POST.get('imageId'):
-            rdef['imageId'] = int(request.POST.get('imageId'))
+        if request.GET.get('imageId'):
+            rdef['imageId'] = int(request.GET.get('imageId'))
         request.session.modified = True
         request.session['rdef'] = rdef
         # remove any previous rdef we may have via 'fromId'
