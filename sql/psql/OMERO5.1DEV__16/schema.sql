@@ -1472,7 +1472,7 @@
 
     create table node (
         id int8 not null,
-        conn varchar(255) not null,
+        conn text not null,
         permissions int8 not null,
         down timestamp,
         scale int4,
