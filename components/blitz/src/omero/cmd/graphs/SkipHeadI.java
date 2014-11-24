@@ -26,6 +26,7 @@ import java.util.Map;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 
 import ome.model.IObject;
 import ome.services.graphs.GraphException;
@@ -39,6 +40,7 @@ import omero.cmd.IRequest;
 import omero.cmd.GraphModify2;
 import omero.cmd.Response;
 import omero.cmd.SkipHead;
+import omero.cmd.State;
 import omero.cmd.Status;
 
 /**
@@ -50,6 +52,8 @@ import omero.cmd.Status;
 public class SkipHeadI extends SkipHead implements IRequest {
 
     private static final ImmutableMap<String, String> ALL_GROUPS_CONTEXT = ImmutableMap.of(Login.OMERO_GROUP, "-1");
+
+    private static final ImmutableSet<State> REQUEST_FAILURE_FLAGS = ImmutableSet.of(State.CANCELLED, State.FAILURE);
 
     private final GraphPathBean graphPathBean;
     private final GraphRequestFactory graphRequestFactory;
@@ -126,8 +130,15 @@ public class SkipHeadI extends SkipHead implements IRequest {
     public Object step(int step) throws Cancel {
         helper.assertStep(step);
         if (step < graphRequestSkipStatus.steps) {
-            /* do a skip-head step */
-            graphRequestSkipObjects.add(((IRequest) graphRequestSkip).step(step));
+            try {
+                /* do a skip-head step */
+                graphRequestSkipObjects.add(((IRequest) graphRequestSkip).step(step));
+            } catch (Cancel e) {
+                /* the step failed, so propagate the error response to this request */
+                helper.getStatus().flags.addAll(REQUEST_FAILURE_FLAGS);
+                helper.setResponseIfNull(((IRequest) graphRequestSkip).getResponse());
+                throw e;
+            }
         } else {
             final int substep = step - graphRequestSkipStatus.steps;
             if (substep == 0) {
@@ -162,8 +173,15 @@ public class SkipHeadI extends SkipHead implements IRequest {
                 }
             }
             if (substep < graphRequestPerformStatus.steps) {
-                /* do a tail step */
-                graphRequestPerformObjects.add(((IRequest) graphRequestPerform).step(substep));
+                try {
+                    /* do a tail step */
+                    graphRequestPerformObjects.add(((IRequest) graphRequestPerform).step(substep));
+                } catch (Cancel e) {
+                    /* the step failed, so propagate the error response to this request */
+                    helper.getStatus().flags.addAll(REQUEST_FAILURE_FLAGS);
+                    helper.setResponseIfNull(((IRequest) graphRequestPerform).getResponse());
+                    throw e;
+                }
             } else {
                 throw helper.cancel(new ERR(), new IllegalArgumentException(), "model object graph operation has no step " + step);
             }
