@@ -70,19 +70,10 @@ import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
  * </small>
  * @since OME3.0
  */
-class TextualAnnotationsUI 
-	extends AnnotationUI
-	implements ActionListener, DocumentListener, FocusListener
-{
-	
-	/** The default description. */
-	private static final String	DEFAULT_TEXT_COMMENT = "Add comment";
-        
+class TextualAnnotationsUI extends AnnotationUI implements DocumentListener
+{       
 	/** The title associated to this component. */
 	private static final String TITLE = "Comments ";
-	
-	/** Action id to save the comment */
-	private static final int ADD_COMMENT = 4;
 	
 	/** Reference to the control. */
 	private EditorControl 		controller;
@@ -92,9 +83,6 @@ class TextualAnnotationsUI
 	 * the currently logged in user if any. 
 	 */
 	private OMEWikiComponent	commentArea;
-
-	/** The text set in the {@link #commentArea}. */
-	private String				originalText;
 	
 	/** The constraints used to lay out the components. */
 	private GridBagConstraints constraints;
@@ -122,36 +110,37 @@ class TextualAnnotationsUI
 		commentArea = new OMEWikiComponent(false);
 		commentArea.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 		commentArea.addPropertyChangeListener(controller);
-		originalText = DEFAULT_TEXT_COMMENT;
-		commentArea.setDefaultText(originalText);
-		commentArea.setText(originalText);
 		//commentArea.setBackground(UIUtilities.BACKGROUND_COLOR);
 		commentArea.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
 		commentArea.setComponentBorder(EDIT_BORDER);
 		commentArea.addFocusListener(new FocusListener() {
                     
                     public void focusLost(FocusEvent arg0) {
-                        if(StringUtils.isEmpty(commentArea.getText()) || commentArea.getText().equals(DEFAULT_TEXT_COMMENT)) {
+                        if(StringUtils.isBlank(commentArea.getText())) {
                             pane.getViewport().setPreferredSize(null);
-                            pane.revalidate();
-                            addButton.setVisible(false);
+	                    	revalidate();
+	                    	pane.revalidate();
                         }
                     }
                     
                     public void focusGained(FocusEvent arg0) {
-                        Dimension d = pane.getPreferredSize();
+                    	Dimension d = commentArea.getSize();
                         pane.getViewport().setPreferredSize(new Dimension(d.width, 60));
-                        pane.revalidate();
-                        addButton.setVisible(true);
+                    	revalidate();
+                    	pane.revalidate();
                     }
                 });
 		
 		setBorder(new SeparatorOneLineBorder());
 		setBackground(UIUtilities.BACKGROUND_COLOR);
 		
-		addButton = new JButton(IconManager.getInstance().getIcon(IconManager.SAVE));
-		formatButton(addButton, DEFAULT_TEXT_COMMENT, ADD_COMMENT);
-		addButton.setVisible(false);
+		addButton = new JButton("Add comment"); 
+		addButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				saveComment();
+			}
+		});
         addButton.setEnabled(false);
 	}
 	
@@ -159,14 +148,11 @@ class TextualAnnotationsUI
 	 * Sets the text of the {@link #commentArea}.
 	 * 
 	 * @param text 			The value to set.
-	 * @param addDefault 	Pass <code>true</code> to set the default text,
-	 * 						<code>false</code> otherwise.
 	 */
-	private void setAreaText(String text, boolean addDefault)
+	private void setAreaText(String text)
 	{
 		commentArea.removeDocumentListener(this);
 		commentArea.setText(text);
-		if (addDefault) commentArea.setDefaultText(text);
 		commentArea.addDocumentListener(this);
 	}
 	
@@ -179,7 +165,6 @@ class TextualAnnotationsUI
     		return;
     	
 		pane = new JScrollPane(commentArea);
-		pane.getViewport().setPreferredSize(null);
     	pane.setBorder(null);
     	
 		setLayout(new GridBagLayout());
@@ -193,19 +178,17 @@ class TextualAnnotationsUI
 		constraints.weightx = 1; 
 		constraints.weighty = 1; 
 		add(pane, constraints);
+		constraints.gridy++;
 		
-		constraints.gridx = 1;
 		constraints.weightx = 0;
 		constraints.weighty = 0; 
 		constraints.fill = GridBagConstraints.NONE;
-        constraints.anchor = GridBagConstraints.SOUTH;
+        constraints.anchor = GridBagConstraints.WEST;
         add(addButton, constraints);
+        constraints.gridy++;
         
-        constraints.gridx = 0;
-        constraints.gridy = 1;
         constraints.weightx = 1;
         constraints.weighty = 0; 
-        constraints.gridwidth = 2;
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.anchor = GridBagConstraints.NORTHWEST;
 	}
@@ -218,10 +201,6 @@ class TextualAnnotationsUI
 	private void displayAnnotations(List list)
 	{
 		annotationToDisplay = list;
-		if (CollectionUtils.isEmpty(list)) {
-			originalText = DEFAULT_TEXT_COMMENT;
-			setAreaText(DEFAULT_TEXT_COMMENT, true);
-		}
 		
 		boolean enabled = model.canAnnotate();
 		if (enabled && model.isMultiSelection()) {
@@ -338,12 +317,8 @@ class TextualAnnotationsUI
 	{
 		List<AnnotationData> l = new ArrayList<AnnotationData>();
 		String text = commentArea.getText();
-		if (text == null) return l;
-		text = text.trim();
-		if (text.length() == 0) return l;
-		if (text.equals(originalText) || text.equals(DEFAULT_TEXT_COMMENT)) 
-			return l;
-		l.add(new TextualAnnotationData(text));
+		if(!StringUtils.isBlank(text))
+				l.add(new TextualAnnotationData(text));
 		return l;
 	}
 	
@@ -355,12 +330,7 @@ class TextualAnnotationsUI
 	protected boolean hasDataToSave()
 	{
 		String text = commentArea.getText();
-		if (text == null) return false;
-		text = text.trim();
-		if (text.length() == 0 && originalText != null) return true;
-		if (originalText.equals(text) || text.equals(DEFAULT_TEXT_COMMENT)) 
-			return false;
-		return true;
+		return !StringUtils.isBlank(text);
 	}
 	
 	/**
@@ -377,10 +347,8 @@ class TextualAnnotationsUI
 	{
 		if (annotationToRemove != null) annotationToRemove.clear();
 		annotationToDisplay = null;
-		originalText = DEFAULT_TEXT_COMMENT;
-		setAreaText(DEFAULT_TEXT_COMMENT, true);
+		setAreaText("");
 		addButton.setEnabled(false);
-		addButton.setVisible(false);
 	}
 	
 	/**
@@ -392,19 +360,6 @@ class TextualAnnotationsUI
 		title = TITLE;
 	}
 	
-	/**
-	 * Orders the previous annotation either by date or by user.
-	 * @see ActionListener#actionPerformed(ActionEvent)
-	 */
-	public void actionPerformed(ActionEvent e)
-	{
-		int index = Integer.parseInt(e.getActionCommand());
-		switch (index) {
-			case ADD_COMMENT:
-			    saveComment();
-			    break;
-		}
-	}
 	
 	/** Saves the comment */
 	private void saveComment() {
@@ -433,29 +388,7 @@ class TextualAnnotationsUI
 	        firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
 							Boolean.TRUE);
 	}
-	
-	/**
-	 * Resets the default text of the text fields if <code>null</code> or
-	 * length <code>0</code>.
-	 * @see FocusListener#focusLost(FocusEvent)
-	 */
-	public void focusLost(FocusEvent e)
-	{
-		Object src = e.getSource();
-		String text;
-		if (src == commentArea) {
-			text = commentArea.getText();
-			boolean b = false;
-			if (text == null || text.length() == 0) {
-				text = DEFAULT_TEXT_COMMENT;
-				b = true;
-			}
-			text = text.trim();
-			originalText = text;
-			setAreaText(DEFAULT_TEXT_COMMENT, b);
-		}
-	}
-	
+
 	/**
 	 * Required by the {@link DocumentListener} I/F but no-op implementation
 	 * in our case.
@@ -463,31 +396,4 @@ class TextualAnnotationsUI
 	 */
 	public void changedUpdate(DocumentEvent e) {}
 
-	/**
-	 * Required by the {@link FocusListener} I/F but no-op implementation 
-	 * in our case.
-	 * @see FocusListener#focusGained(FocusEvent)
-	 */
-	public void focusGained(FocusEvent e) {
-	}
-	
-        /**
-         * Formats the specified button.
-         * 
-         * @param button
-         *            The button to handle.
-         * @param text
-         *            The tool tip text.
-         * @param actionID
-         *            The action command id.
-         */
-        private void formatButton(JButton button, String text, int actionID) {
-            button.setOpaque(false);
-            UIUtilities.unifiedButtonLookAndFeel(button);
-            button.setBackground(UIUtilities.BACKGROUND_COLOR);
-            button.setToolTipText(text);
-            button.addActionListener(this);
-            button.setActionCommand("" + actionID);
-        }
-	
 }
