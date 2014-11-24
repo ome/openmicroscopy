@@ -23,22 +23,30 @@ import json
 
 from django.http import HttpResponse, HttpResponseServerError
 
+
 class HttpJavascriptResponse(HttpResponse):
-    def __init__(self,content):
+    def __init__(self, content):
         HttpResponse.__init__(self, content, content_type="text/javascript")
 
+
 class HttpJavascriptResponseServerError(HttpResponseServerError):
-    def __init__(self,content):
-        HttpResponseServerError.__init__(self, content, content_type="text/javascript")
+    def __init__(self, content):
+        HttpResponseServerError.__init__(
+            self, content, content_type="text/javascript")
+
 
 class HttpJsonResponse(HttpResponse):
-    def __init__(self,content):
-        HttpResponse.__init__(self, json.dumps(content), content_type="application/json")
+    def __init__(self, content):
+        HttpResponse.__init__(
+            self, json.dumps(content), content_type="application/json")
+
 
 class HttpJNLPResponse(HttpResponse):
-    def __init__(self,content):
-        HttpResponse.__init__(self, content, content_type="application/x-java-jnlp-file")
+    def __init__(self, content):
+        HttpResponse.__init__(
+            self, content, content_type="application/x-java-jnlp-file")
+
 
 class HttpJPEGResponse(HttpResponse):
-    def __init__(self,content):
+    def __init__(self, content):
         HttpResponse.__init__(self, content, content_type="image/jpeg")
