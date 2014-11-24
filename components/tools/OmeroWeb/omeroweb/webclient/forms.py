@@ -664,7 +664,12 @@ class MetadataObjectiveForm(forms.Form):
         # Working Distance
         try:
             if kwargs['initial']['objective'].workingDistance is not None:
-                self.fields['workingDistance'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objective'].id)+', \'workingDistance\', this.value);'}), initial=kwargs['initial']['objective'].workingDistance, label="Working distance", required=False)
+                self.fields['workingDistance'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objective'].id)+', \'workingDistance\', this.value);'}),
+                    initial=kwargs['initial']['objective'].workingDistance.getValue(),
+                    label="Working distance (%s)" % kwargs['initial']['objective'].workingDistance.getUnit(),
+                    required=False)
             else:
                 self.fields['workingDistance'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objective'].id)+', \'workingDistance\', this.value);'}), label="Working distance", required=False)
             self.fields['workingDistance'].widget.attrs['disabled'] = True 
