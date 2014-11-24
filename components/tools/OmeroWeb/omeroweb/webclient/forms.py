@@ -29,8 +29,6 @@ import logging
 
 from django.conf import settings
 from django import forms
-from django.forms.widgets import Textarea
-from django.forms.widgets import HiddenInput
 from django.forms.formsets import formset_factory
 from django.core.urlresolvers import reverse
 
