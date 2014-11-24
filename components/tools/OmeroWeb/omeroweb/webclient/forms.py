@@ -908,13 +908,14 @@ class MetadataFilterForm(forms.Form):
             self.fields['type'].widget.attrs['class'] = 'disabled-metadata'
         
         # Cut in
+        tr = kwargs['initial']['filter'].getTransmittanceRange()
         try:
-            if kwargs['initial']['filter'].transmittanceRange is not None:
+            if tr is not None and tr.cutIn is not None:
                 self.fields['cutIn'] = forms.CharField(
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['filter'].id)+', \'cutIn\', this.value);'}),
-                    initial=kwargs['initial']['filter'].getTransmittanceRange().cutIn,
-                    label="Cut in",
+                    initial=kwargs['initial']['filter'].getTransmittanceRange().cutIn.getValue(),
+                    label="Cut in (%s)" % tr.cutIn.getUnit(),
                     required=False)
             else:
                 self.fields['cutIn'] = forms.CharField(
@@ -936,12 +937,12 @@ class MetadataFilterForm(forms.Form):
         
         # Cut out
         try:
-            if kwargs['initial']['filter'].transmittanceRange is not None:
+            if tr is not None and tr.cutOut is not None:
                 self.fields['cutOut'] = forms.CharField(
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['filter'].id)+', \'cutOut\', this.value);'}),
-                    initial=kwargs['initial']['filter'].getTransmittanceRange().cutOut,
-                    label="Cut out",
+                    initial=tr.cutOut.getValue(),
+                    label="Cut out (%s)" % tr.cutOut.getUnit(),
                     required=False)
             else:
                 self.fields['cutOut'] = forms.CharField(
@@ -963,12 +964,12 @@ class MetadataFilterForm(forms.Form):
         
         # Cut in tolerance
         try:
-            if kwargs['initial']['filter'].transmittanceRange is not None:
+            if tr is not None and tr.cutInTolerance is not None:
                 self.fields['cutInTolerance'] = forms.CharField(
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['filter'].id)+', \'cutInTolerance\', this.value);'}),
-                    initial=kwargs['initial']['filter'].getTransmittanceRange().cutInTolerance,
-                    label="Cut in tolerance",
+                    initial=tr.cutInTolerance.getValue(),
+                    label="Cut in tolerance (%s)" % tr.cutInTolerance.getUnit(),
                     required=False)
             else:
                 self.fields['cutInTolerance'] = forms.CharField(
@@ -990,12 +991,12 @@ class MetadataFilterForm(forms.Form):
         
         # Cut on tolerance
         try:
-            if kwargs['initial']['filter'].transmittanceRange is not None:
+            if tr is not None and tr.cutOutTolerance is not None:
                 self.fields['cutOutTolerance'] = forms.CharField(
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['filter'].id)+', \'cutOut\', this.value);'}),
-                    initial=kwargs['initial']['filter'].getTransmittanceRange().cutOutTolerance,
-                    label="Cut out tolerance",
+                    initial=tr.cutOutTolerance.getValue(),
+                    label="Cut out tolerance (%s)" % tr.cutOutTolerance.getUnit(),
                     required=False)
             else:
                 self.fields['cutOutTolerance'] = forms.CharField(
