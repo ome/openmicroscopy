@@ -196,9 +196,8 @@ public class DetectorData
 	 */
 	public String getLotNumber()
 	{
-		// TODO: What is this!?
 		Detector detector = (Detector) asIObject();
-		RString value = null;//detector.getLotNumber();
+		RString value = detector.getLotNumber();
 		if (value == null) return "";
 		return value.getValue();
 	}
