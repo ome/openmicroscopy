@@ -1396,184 +1396,365 @@ class MetadataLightSourceForm(forms.Form):
         # Manufacturer
         try:
             if kwargs['initial']['lightSource'].manufacturer is not None:
-                self.fields['manufacturer'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'model\', this.value);'}), initial=kwargs['initial']['lightSource'].manufacturer, required=False)
+                self.fields['manufacturer'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'model\', this.value);'}),
+                    initial=kwargs['initial']['lightSource'].manufacturer,
+                    required=False)
             else:
-                self.fields['manufacturer'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'model\', this.value);'}), required=False)
+                self.fields['manufacturer'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'model\', this.value);'}),
+                    required=False)
             self.fields['manufacturer'].widget.attrs['disabled'] = True 
             self.fields['manufacturer'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            self.fields['manufacturer'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
+            self.fields['manufacturer'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size':25}),
+                initial="N/A",
+                required=False)
             self.fields['manufacturer'].widget.attrs['disabled'] = True 
             self.fields['manufacturer'].widget.attrs['class'] = 'disabled-metadata'
         
         # Model
         try:
             if kwargs['initial']['lightSource'].model is not None:
-                self.fields['model'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'model\', this.value);'}), initial=kwargs['initial']['lightSource'].model, required=False)
+                self.fields['model'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'model\', this.value);'}),
+                    initial=kwargs['initial']['lightSource'].model,
+                    required=False)
             else:
-                self.fields['model'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'model\', this.value);'}), required=False)
+                self.fields['model'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'model\', this.value);'}),
+                    required=False)
             self.fields['model'].widget.attrs['disabled'] = True 
             self.fields['model'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            self.fields['model'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
+            self.fields['model'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size':25}),
+                initial="N/A",
+                required=False)
             self.fields['model'].widget.attrs['disabled'] = True 
             self.fields['model'].widget.attrs['class'] = 'disabled-metadata'
         
         # Serial Number
         try:
             if kwargs['initial']['lightSource'].serialNumber is not None:
-                self.fields['serialNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'serialNumber\', this.value);'}), initial=kwargs['initial']['lightSource'].serialNumber, label="Serial number", required=False)
+                self.fields['serialNumber'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'serialNumber\', this.value);'}),
+                    initial=kwargs['initial']['lightSource'].serialNumber,
+                    label="Serial number",
+                    required=False)
             else:
-                self.fields['serialNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'serialNumber\', this.value);'}), label="Serial number", required=False)
+                self.fields['serialNumber'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'serialNumber\', this.value);'}),
+                    label="Serial number",
+                    required=False)
             self.fields['serialNumber'].widget.attrs['disabled'] = True 
             self.fields['serialNumber'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            self.fields['serialNumber'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Serial number", required=False)
+            self.fields['serialNumber'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size':25}),
+                initial="N/A",
+                label="Serial number",
+                required=False)
             self.fields['serialNumber'].widget.attrs['disabled'] = True 
             self.fields['serialNumber'].widget.attrs['class'] = 'disabled-metadata'
         
         # Lot Number
         try:
             if kwargs['initial']['lightSource'].lotNumber is not None:
-                self.fields['lotNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'lotNumber\', this.value);'}), initial=kwargs['initial']['lightSource'].lotNumber, label="Lot number", required=False)
+                self.fields['lotNumber'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'lotNumber\', this.value);'}),
+                    initial=kwargs['initial']['lightSource'].lotNumber,
+                    label="Lot number",
+                    required=False)
             else:
-                self.fields['lotNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'lotNumber\', this.value);'}), label="Lot number", required=False)
+                self.fields['lotNumber'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'lotNumber\', this.value);'}),
+                    label="Lot number",
+                    required=False)
             self.fields['lotNumber'].widget.attrs['disabled'] = True 
             self.fields['lotNumber'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            self.fields['lotNumber'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Lot number", required=False)
+            self.fields['lotNumber'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size':25}),
+                initial="N/A",
+                label="Lot number",
+                required=False)
             self.fields['lotNumber'].widget.attrs['disabled'] = True 
             self.fields['lotNumber'].widget.attrs['class'] = 'disabled-metadata'
         
         # Power
         try:
             if kwargs['initial']['lightSource'].power is not None:
-                self.fields['power'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'power\', this.value);'}), initial=kwargs['initial']['lightSource'].power, required=False)
+                self.fields['power'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'power\', this.value);'}),
+                    initial=kwargs['initial']['lightSource'].power,
+                    required=False)
             else:
-                self.fields['power'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'power\', this.value);'}), required=False)
+                self.fields['power'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'power\', this.value);'}),
+                    required=False)
             self.fields['power'].widget.attrs['disabled'] = True 
             self.fields['power'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            self.fields['power'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
+            self.fields['power'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size':25}),
+                initial="N/A",
+                required=False)
             self.fields['power'].widget.attrs['disabled'] = True 
             self.fields['power'].widget.attrs['class'] = 'disabled-metadata'
         
         # Type
         try:
             if kwargs['initial']['lightSource'].getLightSourceType() is not None:
-                self.fields['lstype'] = MetadataModelChoiceField(queryset=kwargs['initial']['lstypes'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'type\', this.options[this.selectedIndex].value);'}), label="Type", initial=kwargs['initial']['lightSource'].getLightSourceType().value, required=False) 
+                self.fields['lstype'] = MetadataModelChoiceField(
+                    queryset=kwargs['initial']['lstypes'],
+                    empty_label=u"Not set",
+                    widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'type\', this.options[this.selectedIndex].value);'}),
+                    label="Type",
+                    initial=kwargs['initial']['lightSource'].getLightSourceType().value,
+                    required=False) 
             else:
-                self.fields['lstype'] = MetadataModelChoiceField(queryset=kwargs['initial']['lstypes'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'type\', this.options[this.selectedIndex].value);'}), label="Type", required=False) 
+                self.fields['lstype'] = MetadataModelChoiceField(
+                    queryset=kwargs['initial']['lstypes'],
+                    empty_label=u"Not set",
+                    widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'type\', this.options[this.selectedIndex].value);'}),
+                    label="Type",
+                    required=False) 
             self.fields['lstype'].widget.attrs['disabled'] = True 
             self.fields['lstype'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            self.fields['lstype'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Type", required=False)
+            self.fields['lstype'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size':25}),
+                initial="N/A",
+                label="Type",
+                required=False)
             self.fields['lstype'].widget.attrs['disabled'] = True 
             self.fields['lstype'].widget.attrs['class'] = 'disabled-metadata'
         
         # Medium
         try:
             if kwargs['initial']['lightSource'].getLaserMedium() is not None:
-                self.fields['lmedium'] = MetadataModelChoiceField(queryset=kwargs['initial']['mediums'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['lightSource'].getLaserMedium().value, label="Medium", required=False) 
+                self.fields['lmedium'] = MetadataModelChoiceField(
+                    queryset=kwargs['initial']['mediums'],
+                    empty_label=u"Not set",
+                    widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'medium\', this.options[this.selectedIndex].value);'}),
+                    initial=kwargs['initial']['lightSource'].getLaserMedium().value,
+                    label="Medium",
+                    required=False) 
             else:
-                self.fields['lmedium'] = MetadataModelChoiceField(queryset=kwargs['initial']['mediums'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), label="Medium", required=False) 
+                self.fields['lmedium'] = MetadataModelChoiceField(
+                    queryset=kwargs['initial']['mediums'],
+                    empty_label=u"Not set",
+                    widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'medium\', this.options[this.selectedIndex].value);'}),
+                    label="Medium",
+                    required=False) 
             self.fields['lmedium'].widget.attrs['disabled'] = True 
             self.fields['lmedium'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            self.fields['lmedium'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Medium", required=False)
+            self.fields['lmedium'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size':25}),
+                initial="N/A",
+                label="Medium",
+                required=False)
             self.fields['lmedium'].widget.attrs['disabled'] = True 
             self.fields['lmedium'].widget.attrs['class'] = 'disabled-metadata'
         
         # Wavelength
         try:
             if kwargs['initial']['lightSource'].wavelength is not None:
-                self.fields['wavelength'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'wavelength\', this.value);'}), initial=kwargs['initial']['lightSource'].wavelength, required=False)
+                self.fields['wavelength'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'wavelength\', this.value);'}),
+                    initial=kwargs['initial']['lightSource'].wavelength,
+                    required=False)
             else:
-                self.fields['wavelength'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'wavelength\', this.value);'}), required=False)
+                self.fields['wavelength'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'wavelength\', this.value);'}),
+                    required=False)
             self.fields['wavelength'].widget.attrs['disabled'] = True 
             self.fields['wavelength'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            self.fields['wavelength'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
+            self.fields['wavelength'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size':25}),
+                initial="N/A",
+                required=False)
             self.fields['wavelength'].widget.attrs['disabled'] = True 
             self.fields['wavelength'].widget.attrs['class'] = 'disabled-metadata'
         
         # FrequencyMultiplication
         try:
             if kwargs['initial']['lightSource'].frequencyMultiplication is not None:
-                self.fields['frequencyMultiplication'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'frequencyMultiplication\', this.value);'}), initial=kwargs['initial']['lightSource'].frequencyMultiplication, label="Frequency Multiplication", required=False)
+                self.fields['frequencyMultiplication'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'frequencyMultiplication\', this.value);'}),
+                    initial=kwargs['initial']['lightSource'].frequencyMultiplication,
+                    label="Frequency Multiplication",
+                    required=False)
             else:
-                self.fields['frequencyMultiplication'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'frequencyMultiplication\', this.value);'}), label="Frequency Multiplication", required=False)
+                self.fields['frequencyMultiplication'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'frequencyMultiplication\', this.value);'}),
+                    label="Frequency Multiplication",
+                    required=False)
             self.fields['frequencyMultiplication'].widget.attrs['disabled'] = True 
             self.fields['frequencyMultiplication'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            self.fields['frequencyMultiplication'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Frequency Multiplication", required=False)
+            self.fields['frequencyMultiplication'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size':25}),
+                initial="N/A",
+                label="Frequency Multiplication",
+                required=False)
             self.fields['frequencyMultiplication'].widget.attrs['disabled'] = True 
             self.fields['frequencyMultiplication'].widget.attrs['class'] = 'disabled-metadata'
         
         # Tuneable
         try:
             if kwargs['initial']['lightSource'].tuneable is not None:
-                self.fields['tuneable'] = forms.ChoiceField(choices=self.BOOLEAN_CHOICES,  widget=forms.Select(attrs={'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'tuneable\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['lightSource'].tuneable, required=False)
+                self.fields['tuneable'] = forms.ChoiceField(
+                    choices=self.BOOLEAN_CHOICES, 
+                    widget=forms.Select(attrs={'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'tuneable\', this.options[this.selectedIndex].value);'}),
+                    initial=kwargs['initial']['lightSource'].tuneable,
+                    required=False)
             else:
-                self.fields['tuneable'] = forms.ChoiceField(choices=self.BOOLEAN_CHOICES,  widget=forms.Select(attrs={'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'tuneable\', this.options[this.selectedIndex].value);'}), required=False)
+                self.fields['tuneable'] = forms.ChoiceField(
+                    choices=self.BOOLEAN_CHOICES, 
+                    widget=forms.Select(attrs={'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'tuneable\', this.options[this.selectedIndex].value);'}),
+                    required=False)
             self.fields['tuneable'].widget.attrs['disabled'] = True 
             self.fields['tuneable'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            self.fields['tuneable'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
+            self.fields['tuneable'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size':25}),
+                initial="N/A",
+                required=False)
             self.fields['tuneable'].widget.attrs['disabled'] = True 
             self.fields['tuneable'].widget.attrs['class'] = 'disabled-metadata'
         
         # Pulse
         try:
             if kwargs['initial']['lightSource'].pulse is not None:
-                self.fields['pulse'] = MetadataModelChoiceField(queryset=kwargs['initial']['pulses'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'pulse\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['lightSource'].pulse, required=False) 
+                self.fields['pulse'] = MetadataModelChoiceField(
+                    queryset=kwargs['initial']['pulses'],
+                    empty_label=u"Not set",
+                    widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'pulse\', this.options[this.selectedIndex].value);'}),
+                    initial=kwargs['initial']['lightSource'].pulse,
+                    required=False) 
             else:
-                self.fields['pulse'] = MetadataModelChoiceField(queryset=kwargs['initial']['pulses'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'pulse\', this.options[this.selectedIndex].value);'}), required=False) 
+                self.fields['pulse'] = MetadataModelChoiceField(
+                    queryset=kwargs['initial']['pulses'],
+                    empty_label=u"Not set",
+                    widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'pulse\', this.options[this.selectedIndex].value);'}),
+                    required=False) 
             self.fields['pulse'].widget.attrs['disabled'] = True 
             self.fields['pulse'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            self.fields['pulse'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
+            self.fields['pulse'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size':25}),
+                initial="N/A",
+                required=False)
             self.fields['pulse'].widget.attrs['disabled'] = True 
             self.fields['pulse'].widget.attrs['class'] = 'disabled-metadata'
         
         # Repetition Rate
         try:
             if kwargs['initial']['lightSource'].repetitionRate is not None:
-                self.fields['repetitionRate'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'repetitionRate\', this.value);'}), initial=kwargs['initial']['lightSource'].repetitionRate, label="Repetition rate", required=False)
+                self.fields['repetitionRate'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'repetitionRate\', this.value);'}),
+                    initial=kwargs['initial']['lightSource'].repetitionRate,
+                    label="Repetition rate",
+                    required=False)
             else:
-                self.fields['repetitionRate'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'repetitionRate\', this.value);'}), label="Repetition rate", required=False)
+                self.fields['repetitionRate'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'repetitionRate\', this.value);'}),
+                    label="Repetition rate",
+                    required=False)
             self.fields['repetitionRate'].widget.attrs['disabled'] = True 
             self.fields['repetitionRate'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            self.fields['repetitionRate'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Repetition rate", required=False)
+            self.fields['repetitionRate'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size':25}),
+                initial="N/A",
+                label="Repetition rate",
+                required=False)
             self.fields['repetitionRate'].widget.attrs['disabled'] = True 
             self.fields['repetitionRate'].widget.attrs['class'] = 'disabled-metadata'
         
         # Pockel Cell
         try:
             if kwargs['initial']['lightSource'].pockelCell is not None:
-                self.fields['pockelCell'] = forms.ChoiceField(choices=self.BOOLEAN_CHOICES,  widget=forms.Select(attrs={'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'pockelCell\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['lightSource'].pockelCell, label="Pockel Cell", required=False)
+                self.fields['pockelCell'] = forms.ChoiceField(
+                    choices=self.BOOLEAN_CHOICES, 
+                    widget=forms.Select(attrs={'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'pockelCell\', this.options[this.selectedIndex].value);'}),
+                    initial=kwargs['initial']['lightSource'].pockelCell,
+                    label="Pockel Cell",
+                    required=False)
             else:
-                self.fields['pockelCell'] = forms.ChoiceField(choices=self.BOOLEAN_CHOICES,  widget=forms.Select(attrs={'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'pockelCell\', this.options[this.selectedIndex].value);'}), label="Pockel Cell", required=False)
+                self.fields['pockelCell'] = forms.ChoiceField(
+                    choices=self.BOOLEAN_CHOICES, 
+                    widget=forms.Select(attrs={'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'pockelCell\', this.options[this.selectedIndex].value);'}),
+                    label="Pockel Cell",
+                    required=False)
             self.fields['pockelCell'].widget.attrs['disabled'] = True 
             self.fields['pockelCell'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            self.fields['pockelCell'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Pockel Cell", required=False)
+            self.fields['pockelCell'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size':25}),
+                initial="N/A",
+                label="Pockel Cell",
+                required=False)
             self.fields['pockelCell'].widget.attrs['disabled'] = True 
             self.fields['pockelCell'].widget.attrs['class'] = 'disabled-metadata'
         
         # Attenuation
-        #try:
-        #    if kwargs['initial']['lightSource'].attenuation is not None:
-        #        self.fields['attenuation'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'attenuation\', this.value);'}), initial=kwargs['initial']['lightSource'].attenuation, required=False)
-        #    else:
-        #        self.fields['attenuation'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'attenuation\', this.value);'}), required=False)
-        #    self.fields['attenuation'].widget.attrs['disabled'] = True 
-        #    self.fields['attenuation'].widget.attrs['class'] = 'disabled-metadata'
-        #except:
-        #    self.fields['attenuation'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
-        #    self.fields['attenuation'].widget.attrs['disabled'] = True 
-        #    self.fields['attenuation'].widget.attrs['class'] = 'disabled-metadata'
+        # try:
+        #     if kwargs['initial']['lightSource'].attenuation is not None:
+        #         self.fields['attenuation'] = forms.CharField(
+        #             max_length=100,
+        #             widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'attenuation\', this.value);'}),
+        #             initial=kwargs['initial']['lightSource'].attenuation,
+        #             required=False)
+        #     else:
+        #         self.fields['attenuation'] = forms.CharField(
+        #             max_length=100,
+        #             widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'attenuation\', this.value);'}),
+        #             required=False)
+        #     self.fields['attenuation'].widget.attrs['disabled'] = True 
+        #     self.fields['attenuation'].widget.attrs['class'] = 'disabled-metadata'
+        # except:
+        #     self.fields['attenuation'] = forms.CharField(
+        #         max_length=10,
+        #         widget=forms.TextInput(attrs={'size':25}),
+        #         initial="N/A",
+        #         required=False)
+        #     self.fields['attenuation'].widget.attrs['disabled'] = True 
+        #     self.fields['attenuation'].widget.attrs['class'] = 'disabled-metadata'
         
         self.fields.keyOrder = ['manufacturer', 'model', 'serialNumber', 'lotNumber', 'power', 'lstype', 'lmedium', 'wavelength', 'frequencyMultiplication', 'tuneable', 'pulse' , 'repetitionRate', 'pockelCell']
     
