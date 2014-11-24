@@ -1203,18 +1203,24 @@ class MetadataDetectorForm(forms.Form):
             self.fields['gain'].widget.attrs['class'] = 'disabled-metadata'
         
         # Voltage
+        detSet = kwargs['initial']['detectorSettings']
+        det = kwargs['initial']['detector']
         try:
-            if kwargs['initial']['detectorSettings'] is not None:
+            if detSet is not None and detSet.voltage is not None:
+                print detSet.voltage.getValue(), 'val'
+                print detSet.voltage.getUnit(), 'unit'
                 self.fields['voltage'] = forms.CharField(
                     max_length=100,
-                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'voltage\', this.value);'}),
-                    initial=kwargs['initial']['detectorSettings'].voltage,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(detSet.id)+', \'voltage\', this.value);'}),
+                    initial=detSet.voltage.getValue(),
+                    label="Voltage (%s)" % detSet.voltage.getUnit(),
                     required=False)
-            elif kwargs['initial']['detector'] is not None:
+            elif det is not None:
                 self.fields['voltage'] = forms.CharField(
                     max_length=100,
-                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'voltage\', this.value);'}),
-                    initial=kwargs['initial']['detector'].voltage,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(det.id)+', \'voltage\', this.value);'}),
+                    initial=det.voltage.getValue(),
+                    label="Voltage (%s)" % det.voltage.getUnit(),
                     required=False)
             else:
                 self.fields['voltage'] = forms.CharField(
