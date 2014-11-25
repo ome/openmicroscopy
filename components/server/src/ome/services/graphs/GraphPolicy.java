@@ -101,6 +101,18 @@ public abstract class GraphPolicy {
         /** the unloaded instance */
         public final IObject subject;
 
+        /**
+         * the ID of the object's {@link ome.model.meta.Experimenter},
+         * or {@code null} if the object does not have an owner 
+         */
+        public final Long ownerId;
+
+        /**
+         * the ID of the object's {@link ome.model.meta.ExperimenterGroup},
+         * or {@code null} if the object does not have a group
+         */
+        public final Long groupId;
+
         /** the current permissions on the object */
         public final Set<Ability> permissions;
 
@@ -120,6 +132,8 @@ public abstract class GraphPolicy {
          * Construct a note of an object and its details.
          * {@link #equals(Object)} and {@link #hashCode()} consider only the subject, not the action or orphan.
          * @param subject the object whose details these are
+         * @param ownerId the ID of the object's owner
+         * @param groupId the ID of the object's group
          * @param action the current plan for the object
          * @param orphan the current <q>orphan</q> state of the object
          * @param mayUpdate if the object may be updated
@@ -127,9 +141,11 @@ public abstract class GraphPolicy {
          * @param isOwner if the user owns the object
          * @param isCheckPermissions if the user is expected to have the permissions required to process the object
          */
-        Details(IObject subject, Action action, Orphan orphan, boolean mayUpdate, boolean mayDelete, boolean isOwner,
-                boolean isCheckPermissions) {
+        Details(IObject subject, Long ownerId, Long groupId, Action action, Orphan orphan,
+                boolean mayUpdate, boolean mayDelete, boolean isOwner, boolean isCheckPermissions) {
             this.subject = subject;
+            this.ownerId = ownerId;
+            this.groupId = groupId;
             this.action = action;
             this.orphan = orphan;
 
