@@ -88,6 +88,8 @@ public class GraphTraversal {
          * Construct a note of an object and its details.
          * {@link #equals(Object)} and {@link #hashCode()} consider only the subject, not the action or orphan.
          * @param subject the object whose details these are
+         * @param ownerId the ID of the object's owner
+         * @param groupId the ID of the object's group
          * @param action the current plan for the object
          * @param orphan the current <q>orphan</q> state of the object
          * @param mayUpdate if the object may be updated
@@ -95,9 +97,9 @@ public class GraphTraversal {
          * @param isOwner if the user owns the object
          * @param isCheckPermissions if the user is expected to have the permissions required to process the object
          */
-        DetailsWithCI(IObject subject, Action action, Orphan orphan, boolean mayUpdate, boolean mayDelete, boolean isOwner,
-                boolean isCheckPermissions) {
-            super(subject, action, orphan, mayUpdate, mayDelete, isOwner, isCheckPermissions);
+        DetailsWithCI(IObject subject, Long ownerId, Long groupId, Action action, Orphan orphan,
+                boolean mayUpdate, boolean mayDelete, boolean isOwner, boolean isCheckPermissions) {
+            super(subject, ownerId, groupId, action, orphan, mayUpdate, mayDelete, isOwner, isCheckPermissions);
             this.subjectAsCI = new CI(subject);
         }
 
@@ -942,13 +944,19 @@ public class GraphTraversal {
         Details details = cache.get(object);
 
         if (details == null) {
+            final ome.model.internal.Details objectDetails = planning.detailsNoted.get(object);
+            final Experimenter owner = objectDetails.getOwner();
+            final ExperimenterGroup group = objectDetails.getGroup();
+            final Long ownerId = owner == null ? null : owner.getId();
+            final Long groupId = group == null ? null : group.getId();
+
             final Action action = getAction(object);
             final Orphan orphan = action == Action.EXCLUDE ? getOrphan(object) : Orphan.IRRELEVANT;
 
             if (eventContext.isCurrentUserAdmin()) {
-                details = new DetailsWithCI(object.toIObject(), action, orphan, true, true, true, true);
+                details = new DetailsWithCI(object.toIObject(), ownerId, groupId, action, orphan, true, true, true, true);
             } else {
-                details = new DetailsWithCI(object.toIObject(), action, orphan,
+                details = new DetailsWithCI(object.toIObject(), ownerId, groupId, action, orphan,
                         planning.mayUpdate.contains(object), planning.mayDelete.contains(object), planning.owns.contains(object),
                         !planning.overrides.contains(object));
             }
