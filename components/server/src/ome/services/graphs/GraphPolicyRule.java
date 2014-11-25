@@ -237,6 +237,7 @@ public class GraphPolicyRule {
         private final TermMatch rightTerm;
         private final String propertyName;
         private final Boolean notNullable;
+        private final Boolean sameOwner;
 
         /**
          * Construct a new relationship match.
@@ -244,12 +245,15 @@ public class GraphPolicyRule {
          * @param rightTerm the match for the right term (the linked object)
          * @param propertyName the name of the property of the left term that has the right term as its value
          * @param notNullable if the property is not nullable (or {@code null} if either is permitted)
+         * @param sameOwner if the two terms must have the same owner
+         * ({@code null} if it doesn't matter, {@code false} if they must differ)
          */
-        RelationshipMatch(TermMatch leftTerm, TermMatch rightTerm, String propertyName, Boolean notNullable) {
+        RelationshipMatch(TermMatch leftTerm, TermMatch rightTerm, String propertyName, Boolean notNullable, Boolean sameOwner) {
             this.leftTerm = leftTerm;
             this.rightTerm = rightTerm;
             this.propertyName = propertyName == null ? null : '.' + propertyName;
             this.notNullable = notNullable;
+            this.sameOwner = sameOwner;
         }
 
         /**
@@ -267,7 +271,9 @@ public class GraphPolicyRule {
          */
         boolean isMatch(Map<String, Details> namedTerms, MutableBoolean isCheckAllPermissions,
                 Details leftDetails, Details rightDetails, String classProperty, boolean notNullable) {
-            if ((this.notNullable != null && this.notNullable != notNullable) ||
+            if ((this.sameOwner != null && leftDetails.ownerId != null && rightDetails.ownerId != null &&
+                    this.sameOwner != (leftDetails.ownerId == rightDetails.ownerId)) ||
+                (this.notNullable != null && this.notNullable != notNullable) ||
                 (this.propertyName != null && !classProperty.endsWith(propertyName))) {
                 return false;
             }
@@ -536,6 +542,14 @@ public class GraphPolicyRule {
     private static RelationshipMatch parseRelationshipMatch(GraphPathBean graphPathBean,
             String leftTerm, String equals, String rightTerm)
             throws GraphException {
+        final Boolean sameOwner;
+        final int slash = equals.indexOf('/');
+        if (slash < 0) {
+            sameOwner = null;
+        } else {
+            sameOwner = equals.endsWith("/o");
+            equals = equals.substring(0, slash);
+        }
         final Boolean notNullable;
         if ("=".equals(equals)) {
             notNullable = null;
@@ -561,7 +575,7 @@ public class GraphPolicyRule {
         }
         final TermMatch leftTermMatch = parseTermMatch(graphPathBean, leftTerm);
         final TermMatch rightTermMatch = parseTermMatch(graphPathBean, rightTerm);
-        return new RelationshipMatch(leftTermMatch, rightTermMatch, propertyName, notNullable);
+        return new RelationshipMatch(leftTermMatch, rightTermMatch, propertyName, notNullable, sameOwner);
     }
 
     /**

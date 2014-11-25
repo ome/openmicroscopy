@@ -66,6 +66,7 @@
             == is not nullable
             =? is nullable
             =  is either of the above
+        A /o suffix means that the two objects must have the same owner.
 
     Rules are executed in the order in which they are listed. However, if depending on order, note that rules
     based on multiple relationships cannot match when the common linking object is not the object being processed.
