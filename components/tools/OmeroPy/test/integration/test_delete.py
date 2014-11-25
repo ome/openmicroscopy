@@ -299,7 +299,7 @@ class TestDelete(lib.ITest):
                       omero.model.ImageI(iid, False))
 
         # log in as group owner:
-        client_o, owner = self.new_client_and_user(group=group, admin=True)
+        client_o, owner = self.new_client_and_user(group=group, owner=True)
         query_o = client_o.sf.getQueryService()
 
         handlers = list()

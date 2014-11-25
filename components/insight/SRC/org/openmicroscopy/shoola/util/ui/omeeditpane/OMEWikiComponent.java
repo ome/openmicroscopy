@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -32,6 +32,7 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusListener;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -46,6 +47,7 @@ import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.border.Border;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.Document;
 
 import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.lang.WordUtils;
@@ -615,4 +617,13 @@ public class OMEWikiComponent
 		}
 	}
 	
+	@Override
+	public void addFocusListener(FocusListener l) {
+	    pane.addFocusListener(l);
+	}
+	
+	/** Get reference to the underlying {@link Document} */
+	public Document getDocument() {
+	    return pane.getDocument();
+	}
 }

@@ -37,8 +37,8 @@ class BaseChmodTest(lib.ITest):
 
     def init(self, from_perms, to_perms):
         self.group = self.new_group(perms=from_perms)
-        self.owner = self.new_client(group=self.group, admin=True)
-        self.member = self.new_client(group=self.group, admin=False)
+        self.owner = self.new_client(group=self.group, owner=True)
+        self.member = self.new_client(group=self.group, owner=False)
         self.from_perms = from_perms
         self.to_perms = to_perms
 

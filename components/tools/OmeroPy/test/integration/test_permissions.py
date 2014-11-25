@@ -138,7 +138,7 @@ class TestPermissions(lib.ITest):
 
         uuid = self.uuid()
         group = self.new_group(perms="rw----")
-        client, user = self.new_client_and_user(group=group, admin=True)
+        client, user = self.new_client_and_user(group=group, owner=True)
         update = client.sf.getUpdateService()
 
         project = ProjectI()
@@ -957,7 +957,7 @@ class TestPermissionProjections(lib.ITest):
             return self._system_admin
         elif who == "group-owner":
             self._group_owner = self.new_client(
-                group=self._group, admin=True)
+                group=self._group, owner=True)
             return self._group_owner
         else:
             self._other[who] = self.new_client(group=self._group)

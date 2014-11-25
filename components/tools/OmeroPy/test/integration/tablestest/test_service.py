@@ -534,5 +534,6 @@ class TestTables(lib.ITest):
 
         table = grid.openTable(omero.model.OriginalFileI(tid))
         assert table
+        table.close()
 
 # TODO: Add tests for error conditions
