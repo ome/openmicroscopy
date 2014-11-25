@@ -166,6 +166,20 @@ public class ChannelData
      *
      * @return See above
      */
+    public Length getEmissionWavelengthAsLength()
+    {
+        LogicalChannel lc = asChannel().getLogicalChannel();
+        if (lc == null) 
+        	return null;
+        return lc.getEmissionWave();
+    }
+    
+    /**
+     * Returns the emission wavelength of the channel.
+     *
+     * @return See above
+     * @deprecated Replaced by {@link #getEmissionWavelengthAsLength()}
+     */
     @Deprecated
     public double getEmissionWavelength()
     {
@@ -182,6 +196,20 @@ public class ChannelData
      *
      * @return See above
      */
+    public Length getExcitationWavelengthAsLength()
+    {
+        LogicalChannel lc = asChannel().getLogicalChannel();
+        if (lc == null) 
+        	return getEmissionWavelengthAsLength();
+        return lc.getExcitationWave();
+    }
+    
+    /**
+     * Returns the excitation wavelength of the channel.
+     *
+     * @return See above
+     * @deprecated Replaced by {@link #getExcitationWavelengthAsLength()}
+     */
     @Deprecated
     public double getExcitationWavelength()
     {
@@ -197,6 +225,20 @@ public class ChannelData
      * Returns the pin hole size of the channel.
      *
      * @return See above
+     */
+    public Length getPinholeSizeAsLength()
+    {
+        LogicalChannel lc = asChannel().getLogicalChannel();
+        if (lc == null) 
+        	return null;
+        return lc.getPinHoleSize();
+    }
+    
+    /**
+     * Returns the pin hole size of the channel.
+     *
+     * @return See above
+     * @deprecated Replaced by {@link #getPinholeSizeAsLength()}
      */
     @Deprecated
     public double getPinholeSize()
@@ -337,6 +379,20 @@ public class ChannelData
      *
      * @param value The value to set.
      */
+    public void setPinholeSize(Length value)
+    {
+        if (value == null) 
+        	return;
+        setDirty(true);
+        asChannel().getLogicalChannel().setPinHoleSize(value);
+    }
+    
+    /**
+     * Sets the pinhole size.
+     *
+     * @param value The value to set.
+     * @deprecated Replaced by {@link #setPinholeSize(Length)}
+     */
     @Deprecated
     public void setPinholeSize(double value)
     {
@@ -375,6 +431,20 @@ public class ChannelData
      *
      * @param value The value to set.
      */
+    public void setEmissionWavelength(Length value)
+    {
+        if (value == null) 
+        	return;
+        setDirty(true);
+        asChannel().getLogicalChannel().setEmissionWave(value);
+    }
+    
+    /**
+     * Sets the emission wavelength.
+     *
+     * @param value The value to set.
+     * @deprecated Replaced by {@link #setEmissionWavelength(Length)}
+     */
     @Deprecated
     public void setEmissionWavelength(double value)
     {
@@ -388,6 +458,20 @@ public class ChannelData
      * Sets the excitation wavelength.
      *
      * @param value The value to set.
+     */
+    public void setExcitationWavelength(Length value)
+    {
+        if (value == null) 
+        	return;
+        setDirty(true);
+        asChannel().getLogicalChannel().setExcitationWave(value);
+    }
+    
+    /**
+     * Sets the excitation wavelength.
+     *
+     * @param value The value to set.
+     * @deprecated Replaced by {@link #setExcitationWavelength(Length)}
      */
     @Deprecated
     public void setExcitationWavelength(double value)
