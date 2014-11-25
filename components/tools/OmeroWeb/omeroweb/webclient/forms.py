@@ -1931,8 +1931,8 @@ class MetadataEnvironmentForm(forms.Form):
                 self.fields['airPressure'] = forms.CharField(
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'airPressure\', this.value);'}),
-                    initial=imagingEnv.airPressure,
-                    label="Air Pressure",
+                    initial=imagingEnv.airPressure.getValue(),
+                    label="Air Pressure (%s)" % imagingEnv.airPressure.getUnit(),
                     required=False)
             else:
                 self.fields['airPressure'] = forms.CharField(
