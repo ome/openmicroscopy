@@ -1457,12 +1457,12 @@ class MetadataDetectorForm(forms.Form):
         
         # Read out rate
         try:
-            if detSet is not None:
+            if detSet is not None and detSet.readOutRate is not None:
                 self.fields['readOutRate'] = forms.CharField(
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(detSet.id)+', \'readOutRate\', this.value);'}),
-                    initial=detSet.readOutRate,
-                    label="Read out rate",
+                    initial=detSet.readOutRate.getValue(),
+                    label="Read out rate (%s)" % detSet.readOutRate.getUnit(),
                     required=False)
             else:
                 self.fields['readOutRate'] = forms.CharField(
