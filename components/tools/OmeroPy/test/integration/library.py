@@ -432,10 +432,10 @@ class ITest(object):
         return callback
 
     def new_user(self, group=None, perms=None,
-                 admin=False, system=False):
+                 owner=False, system=False):
         """
-        admin: If user is to be an admin of the created group
-        system: If user is to be a system admin
+        :owner: If user is to be an owner of the created group
+        :system: If user is to be a system admin
         """
 
         if not self.root:
@@ -462,7 +462,7 @@ class ITest(object):
         uid = adminService.createExperimenterWithPassword(
             e, rstring(name), g, listOfGroups)
         e = adminService.lookupExperimenter(name)
-        if admin:
+        if owner:
             adminService.setGroupOwner(g, e)
         if system:
             adminService.addGroups(e, [ExperimenterGroupI(0, False)])
@@ -470,7 +470,7 @@ class ITest(object):
         return adminService.getExperimenter(uid)
 
     def new_client(self, group=None, user=None, perms=None,
-                   admin=False, system=False, session=None, password=None):
+                   owner=False, system=False, session=None, password=None):
         """
         Like new_user() but returns an active client.
 
@@ -489,7 +489,7 @@ class ITest(object):
             if user is not None:
                 user, name = self.user_and_name(user)
             else:
-                user = self.new_user(group, perms, admin, system=system)
+                user = self.new_user(group, perms, owner=owner, system=system)
             props["omero.user"] = user.omeName.val
             if password is not None:
                 props["omero.pass"] = password
@@ -503,10 +503,10 @@ class ITest(object):
         return client
 
     def new_client_and_user(self, group=None, perms=None,
-                            admin=False, system=False):
-        user = self.new_user(group, admin=admin, system=system, perms=perms)
+                            owner=False, system=False):
+        user = self.new_user(group, owner=owner, system=system, perms=perms)
         client = self.new_client(
-            group, user, perms=perms, admin=admin, system=system)
+            group, user, perms=perms, owner=owner, system=system)
         return client, user
 
     def timeit(self, func, *args, **kwargs):
