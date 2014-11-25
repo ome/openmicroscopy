@@ -385,12 +385,12 @@ class MetadataChannelForm(forms.Form):
         
         # pinHoleSize
         try:
-            if logicalCh is not None:
+            if logicalCh is not None and logicalCh.pinHoleSize is not None:
                 self.fields['pinHoleSize'] = forms.CharField(
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(logicalCh.id)+', \'name\', this.value);'}),
-                    initial=logicalCh.pinHoleSize,
-                    label="Pin hole size",
+                    initial=logicalCh.pinHoleSize.getValue(),
+                    label="Pin hole size (%s)" % logicalCh.pinHoleSize.getUnit(),
                     required=False)
             else:
                 self.fields['pinHoleSize'] = forms.CharField(
