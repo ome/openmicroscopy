@@ -32,6 +32,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -39,7 +41,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -50,11 +51,10 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
-
-
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
@@ -75,6 +75,7 @@ import org.openmicroscopy.shoola.util.filter.file.JavaFilter;
 import org.openmicroscopy.shoola.util.filter.file.MatlabFilter;
 import org.openmicroscopy.shoola.util.filter.file.PythonFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -167,6 +168,9 @@ class ToolBar
 	/** The Button displaying the path to the file on the server.*/
 	private JMenuItem pathButton;
 	
+	/** Menu for displaying the 'Located in' information */
+	private JMenuItem locationButton;
+	
 	/** Button display the links like path, html.*/
 	private JButton linkButton;
 	
@@ -192,12 +196,22 @@ class ToolBar
     	if (linkMenu != null) return linkMenu;
     	linkMenu = new JPopupMenu();
 		IconManager icons = IconManager.getInstance();
+		
 		pathButton = new JMenuItem(icons.getIcon(IconManager.FILE_PATH));
 		pathButton.setText("Show File Paths...");
 		pathButton.setToolTipText("Show file paths on the server.");
 		pathButton.addActionListener(controller);
 		pathButton.setActionCommand(""+EditorControl.FILE_PATH_TOOLBAR);
 		pathButton.setEnabled(model.isSingleMode() && model.getImage() != null);
+		
+		locationButton = new JMenuItem(icons.getIcon(IconManager.DATASET));
+		locationButton.setText("Show Location...");
+		locationButton.setToolTipText("Show location in data hierarchy.");
+		locationButton.addActionListener(controller);
+		locationButton.setActionCommand(""+EditorControl.SHOW_LOCATION);
+		locationButton.setEnabled(model.isSingleMode() && model.getImage() != null);
+		
+		linkMenu.add(locationButton);
 		linkMenu.add(pathButton);
     	return linkMenu;
     }
@@ -819,6 +833,42 @@ class ToolBar
             FilesetInfoDialog d = new FilesetInfoDialog();
             d.setData(model.getFileset(), model.isInplaceImport());
             d.open(location);
+        }
+        
+        /**
+         * Shows the location dialog
+         */
+        void displayLocation() {
+            JComponent comp = model.getBrowser().getUI();
+            model.loadParents();      
+            SwingUtilities.convertPointToScreen(location, component);
+            TinyDialog d = new TinyDialog(null, new JScrollPane(comp), TinyDialog.CLOSE_ONLY);
+            d.getContentPane().setBackground(comp.getBackground());
+            d.setLocation(location);
+            d.setSize(new Dimension(400,130));
+            d.setResizable(true);
+            d.addWindowFocusListener(new WindowFocusListener() {
+
+                /**
+                 * Closes the dialog when the window loses focus.
+                 * 
+                 * @see WindowFocusListener#windowLostFocus(WindowEvent)
+                 */
+                public void windowLostFocus(WindowEvent evt) {
+                    TinyDialog d = (TinyDialog) evt.getSource();
+                    d.setClosed(true);
+                    d.closeWindow();
+                }
+
+                /**
+                 * Required by the I/F but no-operation in our case.
+                 * 
+                 * @see WindowFocusListener#windowGainedFocus(WindowEvent)
+                 */
+                public void windowGainedFocus(WindowEvent evt) {
+                }
+            });
+            d.setVisible(true);
         }
 }
 

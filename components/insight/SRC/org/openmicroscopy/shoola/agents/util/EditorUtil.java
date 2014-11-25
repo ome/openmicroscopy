@@ -244,10 +244,10 @@ public class EditorUtil
     public static final String NAME = "Name";
 
     /** Identifies the <code>Acquisition date</code> field. */
-    public static final String ACQUISITION_DATE = "Acquired";
+    public static final String ACQUISITION_DATE = "Acquisition Date";
 
     /** Identifies the <code>Imported date</code> field. */
-    public static final String IMPORTED_DATE = "Imported";
+    public static final String IMPORTED_DATE = "Import Date";
 
     /** Identifies the <code>Archived</code> field. */
     public static final String ARCHIVED = "Archived";
@@ -256,7 +256,7 @@ public class EditorUtil
     public static final String XY_DIMENSION = "Dimensions (XY)";
 
     /** Identifies the <code>Z-sections/Timepoints</code> field. */
-    public static final String Z_T_FIELDS = "z-sections/timepoints";
+    public static final String Z_T_FIELDS = "Z-sections/Timepoints";
 
     /** Identifies the <code>Lifetime</code> field. */
     public static final String SMALL_T_VARIABLE = "t";
