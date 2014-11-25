@@ -1906,7 +1906,8 @@ class MetadataEnvironmentForm(forms.Form):
                 self.fields['temperature'] = forms.CharField(
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'temperature\', this.value);'}),
-                    initial=imagingEnv.temperature,
+                    initial=imagingEnv.temperature.getValue(),
+                    label = "Temperature (%s)" % imagingEnv.temperature.getUnit(),
                     required=False)
             else:
                 self.fields['temperature'] = forms.CharField(
