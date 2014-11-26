@@ -44,15 +44,23 @@
         <td id='pixels_type'>{{ image.getPixelsType }}</td>
     </tr>
     <tr>
-        <th>Pixels Size (XYZ) ({{ image.getPixelSizeX|lengthunit}}):</th>
+        {% with x=image.getPixelSizeXWithUnits y=image.getPixelSizeYWithUnits z=image.getPixelSizeZWithUnits %}
+        <th>Pixels Size (XYZ)
+            {% if x.1 == y.1 %}
+                ({{ x.1 }}):
+            {% else %}
+                ({{ x.1 }}, {{ y.1 }}):
+            {% endif %}
+        </th>
         <td id='pixels_size'>
-            <div class='tooltip'>{{ image.getPixelSizeX|lengthformat|floatformat:2 }} x {{ image.getPixelSizeY|lengthformat|floatformat:2 }} 
-                {% if image.getPixelSizeZ %} x {{ image.getPixelSizeZ|lengthformat|floatformat:2 }} {% endif %}
+            <div class='tooltip'>{{ x.0|floatformat:2 }} x {{ y.0|floatformat:2 }} 
+                {% if z.0 %} x {{ z.0|floatformat:2 }} {% endif %}
             </div>
-            <span class="tooltip_html" style='display:none'>{{ image.getPixelSizeX }} x {{ image.getPixelSizeY }}
-                {% if image.getPixelSizeZ %} x {{ image.getPixelSizeZ }} {% endif %} (&#181m)
+            <span class="tooltip_html" style='display:none'>{{ x.0 }} x {{ y.0 }}
+                {% if z.0 %} x {{ z.0 }} {% endif %}
             </span>
         </td>
+        {% endwith %}
     </tr>
     <tr>
         <th>Z-sections/Timepoints:</th>
