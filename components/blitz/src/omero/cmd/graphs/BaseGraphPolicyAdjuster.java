@@ -66,6 +66,16 @@ public abstract class BaseGraphPolicyAdjuster extends GraphPolicy {
     }
 
     @Override
+    public void setCondition(String name) {
+        graphPolicy.setCondition(name);
+    }
+
+    @Override
+    public boolean isCondition(String name) {
+        return graphPolicy.isCondition(name);
+    }
+
+    @Override
     public void noteDetails(Session session, IObject object, String realClass, long id) {
         graphPolicy.noteDetails(session, object, realClass, id);
     }

@@ -173,6 +173,19 @@ public abstract class GraphPolicy {
     }
 
     /**
+     * Set a named condition,
+     * @param name the name of the condition
+     */
+    public abstract void setCondition(String name);
+
+    /**
+     * Check if a condition has been set.
+     * @param name the name of the condition
+     * @return if the condition is set
+     */
+    public abstract boolean isCondition(String name);
+
+    /**
      * Any model object about which policy may be asked is first passed to {@link #noteDetails(IObject, String, long)} before
      * {@link #review(Map, Details, Map, Set)}. Each object is passed only once.
      * Subclasses overriding this method probably ought also override {@link #getCleanInstance()}.
