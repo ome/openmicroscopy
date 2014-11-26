@@ -89,7 +89,6 @@ public class SpwDeleteTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(groups = "broken")
     public void testScreenKeepPlates() throws Exception {
 
         newUserAndGroup("rw----");
