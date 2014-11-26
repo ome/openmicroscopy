@@ -10,7 +10,7 @@ before the full public release of 5.1.0. Use at your own risk**.
 
 Model changes include:
 
-- unit support
+-  units support, meaning units now have real enums
 
 Other changes that may affect developers include:
 
