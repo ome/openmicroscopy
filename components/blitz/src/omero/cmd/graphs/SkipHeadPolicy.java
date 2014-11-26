@@ -97,7 +97,7 @@ public class SkipHeadPolicy {
         return new GraphPolicy() {
             @Override
             public GraphPolicy getCleanInstance() {
-                return graphPolicy.getCleanInstance();
+                throw new IllegalStateException("not expecting to provide a clean instance");
             }
 
             @Override
