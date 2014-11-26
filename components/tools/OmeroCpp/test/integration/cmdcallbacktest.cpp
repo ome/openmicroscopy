@@ -49,7 +49,10 @@ public:
     int finished;
 
     TestCB(const omero::client_ptr client, const HandlePrx& handle) :
-        CmdCallbackI(client, handle), steps(0), finished(0) {}
+        CmdCallbackI(client, handle), steps(0), finished(0) {
+            cout << client->getSessionId() << endl;
+        }
+
     ~TestCB(){}
 
     // Expose protected event member.
@@ -130,13 +133,14 @@ public:
         ExperimenterPtr user = newUser(group);
         login(user->getOmeName()->getValue(), user->getOmeName()->getValue());
         HandlePrx handle = client->getSession()->submit(req);
+        TestCBPtr rv = new TestCB(client, handle);
 
         if (addCbDelay > 0) {
             omero::util::concurrency::Event event;
             event.wait(IceUtil::Time::milliSeconds(addCbDelay));
         }
 
-        return new TestCB(client, handle);
+        return rv;
     }
 
     // Timing
@@ -161,7 +165,7 @@ public:
         for (int i = 0; i < count; i++) {
             omero::cmd::TimingPtr t = new omero::cmd::Timing();
             t->steps = 3;
-            t->millisPerStep = 2;
+            t->millisPerStep = 50;
             timings.push_back(t);
         }
         omero::cmd::DoAllPtr all = new omero::cmd::DoAll();
