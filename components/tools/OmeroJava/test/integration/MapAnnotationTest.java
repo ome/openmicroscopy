@@ -65,8 +65,8 @@ public class MapAnnotationTest extends AbstractServerTest {
         group = (ExperimenterGroup) queryService.findByQuery(
                 "select g from ExperimenterGroup g join fetch g.config " +
                 "where g.id = " + group.getId().getValue(), null);
-        assertEquals("name", group.getConfig().get(0).name);
-        assertEquals("bar", group.getConfig().get(0).value);
+        assertEquals("foo", group.getConfig().get(0).name);
+        assertEquals("bar", omero.rtypes.unwrap(group.getConfig().get(0).value));
     }
 
     /**
@@ -88,14 +88,14 @@ public class MapAnnotationTest extends AbstractServerTest {
                 "select g from ExperimenterGroup g join fetch g.config " +
                 "where g.id = " + group.getId().getValue(), null);
         assertEquals("foo", group.getConfig().get(0).name);
-        assertEquals("", group.getConfig().get(0).value);
+        assertEquals("", omero.rtypes.unwrap(group.getConfig().get(0).value));
     }
 
     /**
      * Test persistence of a bar &rarr; <code>null</code> map.
      * @throws ServerError unexpected
      */
-    @Test
+    @Test(expectedExceptions = omero.ValidationException.class)
     public void testNulledMapValue() throws Exception {
         String uuid = UUID.randomUUID().toString();
         IQueryPrx queryService = root.getSession().getQueryService();
@@ -106,12 +106,6 @@ public class MapAnnotationTest extends AbstractServerTest {
         group.setConfig(new ArrayList<NamedValue>());
         group.getConfig().add(new NamedValue("foo", omero.rtypes.rstring("")));
         group.getConfig().add(new NamedValue("bar", null));
-        group = (ExperimenterGroup) updateService.saveAndReturnObject(group);
-        group = (ExperimenterGroup) queryService.findByQuery(
-                "select g from ExperimenterGroup g join fetch g.config " +
-                "where g.id = " + group.getId().getValue(), null);
-        assertEquals(group.getConfig().size(), 1);
-        assertEquals(group.getConfig().get(0).name, "foo");
-        assertEquals(group.getConfig().get(0).value, "");
+        updateService.saveAndReturnObject(group);
     }
 }
