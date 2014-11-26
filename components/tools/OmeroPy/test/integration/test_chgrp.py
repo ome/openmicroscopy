@@ -1006,11 +1006,11 @@ class TestChgrp(lib.ITest):
     def testIntergroupLinks(self):
         # create read-annotate group 'read-annotate' with implicit owner
         ra_group = self.new_group(perms=READANNOTATE)
-        self.new_user(group=ra_group, admin=True)
+        self.new_user(group=ra_group, owner=True)
 
         # create private group 'private' with implicit owner
         p_group = self.new_group(perms=PRIVATE)
-        self.new_user(group=p_group, admin=True)
+        self.new_user(group=p_group, owner=True)
 
         # create new user 'image-owner' who is a member of both 'read-annotate'
         # and 'private'
