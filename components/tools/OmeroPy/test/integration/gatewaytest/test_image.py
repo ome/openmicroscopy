@@ -159,6 +159,12 @@ class TestImage (object):
         assert badimage.getPixelSizeX() is None
         assert badimage.getChannels() is None
 
+    def testPixelSizeUnits(self):
+        """
+        Tests the pixel sizes and thier units
+        """
+        assert self.image.getPixelSizeX() == 0
+
     def testShortname(self):
         """ Test the shortname method """
         name = self.image.name
