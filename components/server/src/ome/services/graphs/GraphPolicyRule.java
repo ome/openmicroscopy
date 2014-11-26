@@ -290,6 +290,26 @@ public class GraphPolicyRule {
     }
 
     /**
+     * Matches conditions available via {@link GraphPolicy#isCondition(String)}.
+     * @author m.t.b.carroll@dundee.ac.uk
+     * @since 5.1.0
+     */
+    private static class ConditionMatch {
+        final boolean set;
+        final String name;
+
+        /**
+         * Construct a new condition match.
+         * @param set if the condition should be set
+         * @param name the name of the condition
+         */
+        ConditionMatch(boolean set, String name) {
+            this.set = set;
+            this.name = name;
+        }
+    }
+
+    /**
      * A change to effect if a rule's matchers match.
      * @author m.t.b.carroll@dundee.ac.uk
      * @since 5.1.0
@@ -354,6 +374,7 @@ public class GraphPolicyRule {
         final String asString;
         final List<TermMatch> termMatchers;
         final List<RelationshipMatch> relationshipMatchers;
+        final List<ConditionMatch> conditionMatchers;
         final List<Change> changes;
         final String errorMessage;
 
@@ -363,13 +384,15 @@ public class GraphPolicyRule {
          * recognizably corresponding to its original text-based configuration.
          * @param termMatchers the term matchers that must apply if the changes are to be applied
          * @param relationshipMatchers the relationship matchers that must apply if the changes are to be applied
+         * @param conditionMatchers the condition matchers that must apply if the changes are to be applied
          * @param changes the effects of this rule, guarded by the matchers
          */
         ParsedPolicyRule(String asString, List<TermMatch> termMatchers, List<RelationshipMatch> relationshipMatchers,
-                List<Change> changes) {
+                List<ConditionMatch> conditionMatchers, List<Change> changes) {
             this.asString = asString;
             this.termMatchers = termMatchers;
             this.relationshipMatchers = relationshipMatchers;
+            this.conditionMatchers = conditionMatchers;
             this.changes = changes;
             this.errorMessage = null;
         }
@@ -380,13 +403,15 @@ public class GraphPolicyRule {
          * recognizably corresponding to its original text-based configuration.
          * @param termMatchers the term matchers that must apply if the changes are to be applied
          * @param relationshipMatchers the relationship matchers that must apply if the changes are to be applied
+         * @param conditionMatchers the condition matchers that must apply if the changes are to be applied
          * @param changes the effects of this rule, guarded by the matchers
          */
         ParsedPolicyRule(String asString, List<TermMatch> termMatchers, List<RelationshipMatch> relationshipMatchers,
-                String errorMessage) {
+                List<ConditionMatch> conditionMatchers, String errorMessage) {
             this.asString = asString;
             this.termMatchers = termMatchers;
             this.relationshipMatchers = relationshipMatchers;
+            this.conditionMatchers = conditionMatchers;
             this.changes = Collections.emptyList();
             this.errorMessage = errorMessage;
         }
@@ -677,15 +702,22 @@ public class GraphPolicyRule {
      */
     public static GraphPolicy parseRules(GraphPathBean graphPathBean,
             Collection<GraphPolicyRule> rules) throws GraphException {
-        /* parse the rules */
         final List<ParsedPolicyRule> policyRules = new ArrayList<ParsedPolicyRule>();
         for (final GraphPolicyRule policyRule : rules) {
             final List<TermMatch> termMatches = new ArrayList<TermMatch>();
             final List<RelationshipMatch> relationshipMatches = new ArrayList<RelationshipMatch>();
+            final List<ConditionMatch> conditionMatches = new ArrayList<ConditionMatch>();
             for (final String match : policyRule.matches) {
                 final String[] words = match.trim().split("\\s+");
                 if (words.length == 1) {
-                    termMatches.add(parseTermMatch(graphPathBean, words[0]));
+                    final String word = words[0];
+                    if (word.startsWith("$")) {
+                        conditionMatches.add(new ConditionMatch(true, word.substring(1)));
+                    } else if (word.startsWith("!$")) {
+                        conditionMatches.add(new ConditionMatch(false, word.substring(2)));
+                    } else {
+                        termMatches.add(parseTermMatch(graphPathBean, word));
+                    }
                 } else if (words.length == 3) {
                     relationshipMatches.add(parseRelationshipMatch(graphPathBean, words[0], words[1], words[2]));
                 } else {
@@ -697,29 +729,65 @@ public class GraphPolicyRule {
                 for (final String change : policyRule.changes) {
                     changes.add(parseChange(change.trim()));
                 }
-                policyRules.add(new ParsedPolicyRule(policyRule.toString(), termMatches, relationshipMatches, changes));
+                policyRules.add(new ParsedPolicyRule(policyRule.toString(), termMatches, relationshipMatches, conditionMatches,
+                        changes));
             } else {
-                policyRules.add(new ParsedPolicyRule(policyRule.toString(), termMatches, relationshipMatches,
+                policyRules.add(new ParsedPolicyRule(policyRule.toString(), termMatches, relationshipMatches, conditionMatches,
                         policyRule.errorMessage));
             }
         }
-        /* construct the graph policy */
-        return new GraphPolicy() {
-            @Override
-            public Set<Details> review(Map<String, Set<Details>> linkedFrom,
-                    Details rootObject, Map<String, Set<Details>> linkedTo,
-                    Set<String> notNullable) throws GraphException {
-                final Set<Details> changedObjects = new HashSet<Details>();
-                for (final ParsedPolicyRule policyRule : policyRules) {
+        return new CleanGraphPolicy(policyRules);
+    }
+
+    private static class CleanGraphPolicy extends GraphPolicy {
+        private final List<ParsedPolicyRule> policyRules;
+        private final Set<String> conditions = new HashSet<String>();
+
+        CleanGraphPolicy(List<ParsedPolicyRule> policyRules) {
+            this.policyRules = policyRules;
+        }
+
+        @Override
+        public GraphPolicy getCleanInstance() {
+            return new CleanGraphPolicy(policyRules);
+        }
+
+        @Override
+        public void setCondition(String name) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("set graph policy condition: " + name);
+            }
+            conditions.add(name);
+        }
+
+        @Override
+        public boolean isCondition(String name) {
+            return conditions.contains(name);
+        }
+
+        @Override
+        public Set<Details> review(Map<String, Set<Details>> linkedFrom,
+                Details rootObject, Map<String, Set<Details>> linkedTo,
+                Set<String> notNullable) throws GraphException {
+            final Set<Details> changedObjects = new HashSet<Details>();
+            for (final ParsedPolicyRule policyRule : policyRules) {
+                boolean conditionsSatisfied = true;
+                for (final ConditionMatch matcher : policyRule.conditionMatchers) {
+                    if (matcher.set != isCondition(matcher.name)) {
+                        conditionsSatisfied = false;
+                        break;
+                    }
+                }
+                if (conditionsSatisfied) {
                     if (policyRule.termMatchers.size() + policyRule.relationshipMatchers.size() == 1) {
                         reviewWithSingleMatch(linkedFrom, rootObject, linkedTo, notNullable, policyRule, changedObjects);
                     } else {
                         reviewWithManyMatches(linkedFrom, rootObject, linkedTo, notNullable, policyRule, changedObjects);
                     }
                 }
-                return changedObjects;
             }
-        };
+            return changedObjects;
+        }
     }
 
     /**
