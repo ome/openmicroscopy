@@ -33,7 +33,6 @@ import com.google.common.collect.Sets;
 
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
-import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
 
@@ -61,91 +60,70 @@ public class ChildOptionsPolicy {
 
         /* wrap the traversal policy so that the child options are effected */
 
-        return new GraphPolicy() {
+        return new BaseGraphPolicyAdjuster(graphPolicyToAdjust) {
+            private final Map<String, String> namespaceCache = new HashMap<String, String>();
+            private final Map<Entry<String, Long>, String> objectNamespaces = new HashMap<Entry<String, Long>, String>();
+
+            /**
+             * Note each annotation's namespace.
+             */
             @Override
-            public GraphPolicy getCleanInstance() {
-                return new BaseGraphPolicyAdjuster(graphPolicyToAdjust) {
-                    private final Map<String, String> namespaceCache = new HashMap<String, String>();
-                    private final Map<Entry<String, Long>, String> objectNamespaces = new HashMap<Entry<String, Long>, String>();
-
-                    /**
-                     * Note each annotation's namespace.
-                     */
-                    @Override
-                    public void noteDetails(Session session, IObject object, String realClass, long id) {
-                        if (object instanceof Annotation) {
-                            final String query = "SELECT ns FROM Annotation WHERE id = :id";
-                            final String namespace = (String) session.createQuery(query).setParameter("id", id).uniqueResult();
-                            if (namespace != null) {
-                                String cachedNamespace = namespaceCache.get(namespace);
-                                if (cachedNamespace == null) {
-                                    cachedNamespace = namespace;
-                                    namespaceCache.put(namespace, cachedNamespace);
-                                }
-                                objectNamespaces.put(Maps.immutableEntry(realClass, id), cachedNamespace);
-                            }
+            public void noteDetails(Session session, IObject object, String realClass, long id) {
+                if (object instanceof Annotation) {
+                    final String query = "SELECT ns FROM Annotation WHERE id = :id";
+                    final String namespace = (String) session.createQuery(query).setParameter("id", id).uniqueResult();
+                    if (namespace != null) {
+                        String cachedNamespace = namespaceCache.get(namespace);
+                        if (cachedNamespace == null) {
+                            cachedNamespace = namespace;
+                            namespaceCache.put(namespace, cachedNamespace);
                         }
-                        super.noteDetails(session, object, realClass, id);
+                        objectNamespaces.put(Maps.immutableEntry(realClass, id), cachedNamespace);
                     }
+                }
+                super.noteDetails(session, object, realClass, id);
+            }
 
-                    /**
-                     * Check if the given object is in the target annotation namespace.
-                     * @param childOption the child option whose target annotation namespace applies
-                     * @param object the object to check
-                     * @return if the annotation is in the target namespace or if the object is not an annotation
-                     */
-                    private boolean isTargetNamespace(ChildOptionI childOption, IObject object) {
-                        if (object instanceof Annotation) {
-                            final Entry<String, Long> classAndId = Maps.immutableEntry(object.getClass().getName(), object.getId());
-                            return childOption.isTargetNamespace(objectNamespaces.get(classAndId));
-                        } else {
+            /**
+             * Check if the given object is in the target annotation namespace.
+             * @param childOption the child option whose target annotation namespace applies
+             * @param object the object to check
+             * @return if the annotation is in the target namespace or if the object is not an annotation
+             */
+            private boolean isTargetNamespace(ChildOptionI childOption, IObject object) {
+                if (object instanceof Annotation) {
+                    final Entry<String, Long> classAndId = Maps.immutableEntry(object.getClass().getName(), object.getId());
+                    return childOption.isTargetNamespace(objectNamespaces.get(classAndId));
+                } else {
+                    return true;
+                }
+            }
+
+            @Override
+            protected boolean isAdjustedBeforeReview(Details object) {
+                if (object.action == GraphPolicy.Action.EXCLUDE &&
+                        object.orphan != GraphPolicy.Orphan.IS_LAST && object.orphan != GraphPolicy.Orphan.IS_NOT_LAST) {
+                    /* the model object is [E]{ir} */
+                    for (final ChildOptionI childOption : childOptions) {
+                        final Boolean isIncludeVerdict = childOption.isIncludeType(object.subject.getClass());
+                        if (isIncludeVerdict == Boolean.TRUE && (requiredPermissions == null ||
+                                Sets.difference(requiredPermissions, object.permissions).isEmpty()) &&
+                                isTargetNamespace(childOption, object.subject)) {
+                            object.orphan = GraphPolicy.Orphan.IS_LAST;
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("including all children of its type, so making " + object);
+                            }
+                            return true;
+                        } else if (isIncludeVerdict == Boolean.FALSE && isTargetNamespace(childOption, object.subject)) {
+                            object.orphan = GraphPolicy.Orphan.IS_NOT_LAST;
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("excluding all children of its type, so making " + object);
+                            }
                             return true;
                         }
                     }
-
-                    @Override
-                    protected boolean isAdjustedBeforeReview(Details object) {
-                        if (object.action == GraphPolicy.Action.EXCLUDE &&
-                                object.orphan != GraphPolicy.Orphan.IS_LAST && object.orphan != GraphPolicy.Orphan.IS_NOT_LAST) {
-                            /* the model object is [E]{ir} */
-                            for (final ChildOptionI childOption : childOptions) {
-                                final Boolean isIncludeVerdict = childOption.isIncludeType(object.subject.getClass());
-                                if (isIncludeVerdict == Boolean.TRUE && (requiredPermissions == null ||
-                                        Sets.difference(requiredPermissions, object.permissions).isEmpty()) &&
-                                        isTargetNamespace(childOption, object.subject)) {
-                                    object.orphan = GraphPolicy.Orphan.IS_LAST;
-                                    if (LOGGER.isDebugEnabled()) {
-                                        LOGGER.debug("including all children of its type, so making " + object);
-                                    }
-                                    return true;
-                                } else if (isIncludeVerdict == Boolean.FALSE && isTargetNamespace(childOption, object.subject)) {
-                                    object.orphan = GraphPolicy.Orphan.IS_NOT_LAST;
-                                    if (LOGGER.isDebugEnabled()) {
-                                        LOGGER.debug("excluding all children of its type, so making " + object);
-                                    }
-                                    return true;
-                                }
-                            }
-                        }
-                        return false;
-                    }
-                };
-            }
-
-            @Override
-            public Set<Details> review(Map<String, Set<Details>> linkedFrom, Details rootObject, Map<String, Set<Details>> linkedTo,
-                    Set<String> notNullable) throws GraphException {
-                throw new RuntimeException("usable instances only from getCleanInstance method");
-            }
-
-            @Override
-            public void setCondition(String name) {
-                throw new RuntimeException("usable instances only from getCleanInstance method");
-            }
-
-            @Override
-            public boolean isCondition(String name) {
-                throw new RuntimeException("usable instances only from getCleanInstance method");
+                }
+                return false;
             }
         };
     }
