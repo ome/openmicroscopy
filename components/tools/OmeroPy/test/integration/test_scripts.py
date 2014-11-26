@@ -48,7 +48,7 @@ class TestScripts(lib.ITest):
         self.client.setInput("a", rstring("a"))
         self.client.getInput("a")
 
-    @pytest.mark.xfail(reason="See ticket #11539")
+    @pytest.mark.broken(ticket="11539")
     def testUploadAndPing(self):
         name = str(self.pingfile())
         file = self.client.upload(name, type="text/x-python")
@@ -114,7 +114,7 @@ class TestScripts(lib.ITest):
         # There should now be one fewer
         assert scrCount + noOfScripts - 1 == len(svc.getScripts())
 
-    @pytest.mark.xfail(reason="ticket 11610")
+    @pytest.mark.broken(ticket="11610")
     def testParseErrorTicket2185(self):
         svc = self.root.sf.getScriptService()
         impl = omero.processor.usermode_processor(self.root)
@@ -351,7 +351,7 @@ client.closeSession()
             assert s.path.val + \
                 s.name.val != validPath, "getScripts() returns invalid script"
 
-    @pytest.mark.xfail(reason="See ticket #11539")
+    @pytest.mark.broken(ticket="11539")
     def testAutoFillTicket2326(self):
         SCRIPT = """if True:
         import omero.scripts
@@ -385,7 +385,7 @@ client.closeSession()
         finally:
             impl.cleanup()
 
-    @pytest.mark.xfail(reason="See ticket #11539")
+    @pytest.mark.broken(ticket="11539")
     def testParamLoadingPerformanceTicket2285(self):
         svc = self.root.sf.getScriptService()
         SCRIPT = """if True:
@@ -495,7 +495,7 @@ client.closeSession()
     # omero.group support in scripts
     # See story ticket:3527. The permission
 
-    @pytest.mark.xfail(reason="ticket 11610")
+    @pytest.mark.broken(ticket="11610")
     def test3527(self):
         SCRIPT = """if True:
         import omero.scripts

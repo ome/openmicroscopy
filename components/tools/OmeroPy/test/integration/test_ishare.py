@@ -189,7 +189,7 @@ class TestIShare(lib.ITest):
         for e in res:
             assert e.id.val == img.id.val
 
-    @pytest.mark.xfail(reason="See ticket #12562")
+    @pytest.mark.broken(ticket="12562")
     def testCanAnntotate(self):
 
         # Users in Private and Read-annotate groups

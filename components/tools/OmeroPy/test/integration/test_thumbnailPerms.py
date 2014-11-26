@@ -246,7 +246,7 @@ class TestThumbnailPerms(lib.ITest):
         grp_ctx = {"omero.group": str(group.id.val)}
         self.assert10618(group, member, False, grp_ctx)
 
-    @pytest.mark.xfail(reason="requires thumbnail work")
+    @pytest.mark.broken(reason="requires thumbnail work")
     def testPrivate10618RootWithNoCtx(self):
         """
         This would require the server to try omero.group=-1

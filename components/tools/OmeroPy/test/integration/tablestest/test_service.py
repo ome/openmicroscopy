@@ -121,7 +121,7 @@ class TestTables(lib.ITest):
 
         self.checkMaskCol(data.columns[0])
 
-    @pytest.mark.xfail(reason="see ticket 11534")
+    @pytest.mark.broken(ticket="11534")
     def test2098(self):
         """
         Creates and downloads an HDF file and checks
@@ -228,7 +228,7 @@ class TestTables(lib.ITest):
         with pytest.raises(omero.SecurityViolation):
             table.setAllMetadata({})
 
-    @pytest.mark.xfail(reason="ticket 11610")
+    @pytest.mark.broken(ticket="11610")
     def testDelete(self):
         group = self.new_group(perms="rwr---")
         user1 = self.new_client(group)
