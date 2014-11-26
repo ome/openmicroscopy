@@ -124,9 +124,11 @@ public class GraphRequestFactory {
                 final Constructor<R> constructor = requestClass.getConstructor(GraphPathBean.class, GraphRequestFactory.class);
                 request = constructor.newInstance(graphPathBean, this);
             } else {
-                final GraphPolicy graphPolicy = graphPolicies.get(requestClass);
+                GraphPolicy graphPolicy = graphPolicies.get(requestClass);
                 if (graphPolicy == null) {
                     throw new IllegalArgumentException("no graph traversal policy rules defined for request class " + requestClass);
+                } else {
+                    graphPolicy = graphPolicy.getCleanInstance();
                 }
                 final Constructor<R> constructor = requestClass.getConstructor(ACLVoter.class, SystemTypes.class,
                         GraphPathBean.class, Deletion.class, GraphPolicy.class, SetMultimap.class);

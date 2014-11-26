@@ -449,7 +449,7 @@ public class GraphTraversal {
         this.model = graphPathBean;
         this.unnullable = unnullable;
         this.planning = new Planning();
-        this.policy = policy.getCleanInstance();
+        this.policy = policy;
         this.processor = log.isDebugEnabled() ? debugWrap(processor) : processor;
     }
 
