@@ -34,6 +34,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.SetMultimap;
 
+import ome.model.internal.Permissions;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.ACLVoter;
 import ome.security.SystemTypes;
@@ -118,6 +119,14 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
             for (final ChildOptionI childOption : childOptions) {
                 childOption.init();
             }
+        }
+
+        final ExperimenterGroup destinationGroup = (ExperimenterGroup) helper.getSession().get(ExperimenterGroup.class, groupId);
+        final Permissions destinationGroupPermissions = destinationGroup.getDetails().getPermissions();
+        final boolean isToGroupReadable = destinationGroupPermissions.isGranted(Permissions.Role.GROUP, Permissions.Right.READ);
+
+        if (!isToGroupReadable) {
+            graphPolicy.setCondition("to_private");
         }
 
         GraphPolicy graphPolicyWithOptions = graphPolicy;
