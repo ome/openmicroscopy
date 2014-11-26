@@ -137,6 +137,16 @@ public class ChildOptionsPolicy {
                     Set<String> notNullable) throws GraphException {
                 throw new RuntimeException("usable instances only from getCleanInstance method");
             }
+
+            @Override
+            public void setCondition(String name) {
+                throw new RuntimeException("usable instances only from getCleanInstance method");
+            }
+
+            @Override
+            public boolean isCondition(String name) {
+                throw new RuntimeException("usable instances only from getCleanInstance method");
+            }
         };
     }
 }
