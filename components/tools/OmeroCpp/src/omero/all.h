@@ -15,11 +15,9 @@
 #include<omero/cmd/API.h>
 #include<omero/cmd/Basic.h>
 #include<omero/cmd/Graphs.h>
-#include<omero/api/Gateway.h>
 #include<omero/api/IAdmin.h>
 #include<omero/api/IConfig.h>
 #include<omero/api/IContainer.h>
-#include<omero/api/IDelete.h>
 #include<omero/api/ILdap.h>
 #include<omero/api/IMetadata.h>
 #include<omero/api/IPixels.h>

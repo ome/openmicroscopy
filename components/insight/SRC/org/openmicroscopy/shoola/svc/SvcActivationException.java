@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.svc.SvcActivationException 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -31,7 +31,7 @@ package org.openmicroscopy.shoola.svc;
 /** 
  * Reports an error occurred while activating a service.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
@@ -41,18 +41,18 @@ package org.openmicroscopy.shoola.svc;
  * </small>
  * @since OME3.0
  */
-public class SvcActivationException    
-	extends Exception
+public class SvcActivationException
+    extends Exception
 {
 
-	/** Creates a new exception. */
+    /** Creates a new exception. */
     public SvcActivationException() { super(); }
 
-	/**
-	 * Constructs a new exception with the specified detail message.
-	 * 
-	 * @param message	Short explanation of the problem.
-	 */
+    /**
+     * Constructs a new exception with the specified detail message.
+     * 
+     * @param message Short explanation of the problem.
+     */
     public SvcActivationException(String message)
     {
         super(message);
@@ -61,19 +61,19 @@ public class SvcActivationException
     /**
      * Constructs a new exception with the specified cause.
      * 
-     * @param cause     The exception that caused this one to be risen.
+     * @param cause The exception that caused this one to be risen.
      */
     public SvcActivationException(Throwable cause)
     {
         super(cause);
     }
 
-	/**
-	 * Constructs a new exception with the specified detail message and cause.
-	 * 
-	 * @param message	Short explanation of the problem.
-	 * @param cause		The exception that caused this one to be risen.
-	 */
+    /**
+     * Constructs a new exception with the specified detail message and cause.
+     * 
+     * @param message Short explanation of the problem.
+     * @param cause The exception that caused this one to be risen.
+     */
     public SvcActivationException(String message, Throwable cause)
     {
         super(message, cause);

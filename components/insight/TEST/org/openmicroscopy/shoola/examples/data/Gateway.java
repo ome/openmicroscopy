@@ -396,7 +396,7 @@ public class Gateway
 			reServices.put(pixelsID, service);
 			service.lookupPixels(pixelsID);
 			if (!(service.lookupRenderingDef(pixelsID))) {
-				service.resetDefaults();
+				service.resetDefaultSettings(true);
 				service.lookupRenderingDef(pixelsID);
 			}
 			service.load();

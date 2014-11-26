@@ -50,7 +50,7 @@ public class ThumbnailServiceTest extends AbstractManagedContextTest {
             re = factory.createRenderingEngine();
             re.lookupPixels(pixelsID);
             if (!(re.lookupRenderingDef(pixelsID))) {
-               re.resetDefaults();
+               re.resetDefaultSettings(true);
                re.lookupRenderingDef(pixelsID);
             }
             re.load();
@@ -201,7 +201,7 @@ public class ThumbnailServiceTest extends AbstractManagedContextTest {
         ts = sf.createThumbnailService();
         re.lookupPixels(pix.getId());
         if (!re.lookupRenderingDef(pix.getId())) {
-            re.resetDefaults();
+            re.resetDefaultSettings(true);
             re.lookupRenderingDef(pix.getId());
         }
         re.load();
@@ -256,7 +256,7 @@ public class ThumbnailServiceTest extends AbstractManagedContextTest {
         IPixels psExp1 = sf.getPixelsService();
         re.lookupPixels(pix.getId());
         if (!re.lookupRenderingDef(pix.getId())) {
-            re.resetDefaults();
+            re.resetDefaultSettings(true);
             re.lookupRenderingDef(pix.getId());
         }
         re.load();
@@ -271,7 +271,7 @@ public class ThumbnailServiceTest extends AbstractManagedContextTest {
         ts = sf.createThumbnailService();
         re.lookupPixels(pix.getId());
         if (!re.lookupRenderingDef(pix.getId())) {
-            re.resetDefaults();
+            re.resetDefaultSettings(true);
             re.lookupRenderingDef(pix.getId());
         }
         re.load();

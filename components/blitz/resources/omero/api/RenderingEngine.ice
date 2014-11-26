@@ -26,11 +26,6 @@ module omero {
             {
                 omero::romio::RGBBuffer render(omero::romio::PlaneDef def) throws ServerError;
                 Ice::IntSeq renderAsPackedInt(omero::romio::PlaneDef def) throws ServerError;
-                /**
-                 * The method provided here is deprecated in OMERO 4.3.
-                 * <code>renderAsPackedInt</code> should be used instead.
-                 **/
-                ["deprecated:renderAsPackedIntAsRGBA() is deprecated"] Ice::IntSeq renderAsPackedIntAsRGBA(omero::romio::PlaneDef def) throws ServerError;
                 Ice::IntSeq renderProjectedAsPackedInt(omero::constants::projection::ProjectionType algorithm, int timepoint, int stepping, int start, int end) throws ServerError;
                 Ice::ByteSeq renderCompressed(omero::romio::PlaneDef def) throws ServerError;
                 Ice::ByteSeq renderProjectedCompressed(omero::constants::projection::ProjectionType algorithm, int timepoint, int stepping, int start, int end) throws ServerError;
@@ -69,9 +64,6 @@ module omero {
                 void removeCodomainMap(omero::romio::CodomainMapContext mapCtx) throws ServerError;
                 void saveCurrentSettings() throws ServerError;
                 long saveAsNewSettings() throws ServerError;
-                ["deprecated:resetDefaults() is deprecated"] void resetDefaults() throws ServerError;
-                ["deprecated:resetDefaultsNoSave() is deprecated"] void resetDefaultsNoSave() throws ServerError;
-                ["deprecated:resetDefaultsSettings() is deprecated"] long resetDefaultsSettings(bool save) throws ServerError;
                 long resetDefaultSettings(bool save) throws ServerError;
                 void setCompressionLevel(float percentage) throws ServerError;
                 float getCompressionLevel() throws ServerError;

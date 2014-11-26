@@ -615,11 +615,12 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     def cleanup(self):
         """
         Decrements the counter on the held storage to allow it to
-        be cleaned up.
+        be cleaned up. Returns the current file-size.
         """
         if self.storage:
             try:
                 self.storage.decr(self)
+                return self.storage.size()
             finally:
                 self.storage = None
 
@@ -639,7 +640,7 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         modified = self.storage.modified()
 
         try:
-            self.cleanup()
+            size = self.cleanup()
             self.logger.info("Closed %s", self)
         except:
             self.logger.warn("Closed %s with errors", self)
@@ -657,7 +658,6 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
             try:
                 # Size to reset the server object to (must be checked after
                 # the underlying HDF file has been closed)
-                size = self.storage.size()
                 rfs = self.factory.createRawFileStore(ctx)
                 try:
                     rfs.setFileId(fid, ctx)

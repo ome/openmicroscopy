@@ -3,7 +3,7 @@
 """
    User administration plugin
 
-   Copyright 2009 Glencoe Software, Inc. All rights reserved.
+   Copyright 2009-2014 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -229,11 +229,11 @@ class UserControl(UserGroupControl):
         from omero.util.text import TableBuilder
         if args.count:
             tb = TableBuilder("id", "login", "first name", "last name",
-                              "email", "active", "admin",
+                              "email", "active", "ldap", "admin",
                               "# group memberships", "# group ownerships")
         else:
             tb = TableBuilder("id", "login", "first name", "last name",
-                              "email", "active", "admin", "member of",
+                              "email", "active", "ldap", "admin", "member of",
                               "owner of")
         if args.style:
             tb.set_style(args.style)
@@ -256,6 +256,7 @@ class UserControl(UserGroupControl):
             row.append(user.email and user.email.val or "")
             active = ""
             admin = ""
+            ldap = user.ldap.val
             member_of = []
             leader_of = []
             for x in user.copyGroupExperimenterMap():
@@ -272,6 +273,7 @@ class UserControl(UserGroupControl):
                     member_of.append(str(gid))
 
             row.append(active)
+            row.append(ldap)
             row.append(admin)
 
             if member_of:

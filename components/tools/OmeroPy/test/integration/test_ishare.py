@@ -189,7 +189,7 @@ class TestIShare(lib.ITest):
         for e in res:
             assert e.id.val == img.id.val
 
-    @pytest.mark.xfail(reason="See ticket #12562")
+    @pytest.mark.broken(ticket="12562")
     def testCanAnntotate(self):
 
         # Users in Private and Read-annotate groups
@@ -607,9 +607,9 @@ class TestIShare(lib.ITest):
         # Member of user1's group
         gmember = self.new_client(group=group)
         # Owner of user1's group
-        gowner = self.new_client(group=group, admin=True)
+        gowner = self.new_client(group=group, owner=True)
         # Admin of a different group
-        oowner = self.new_client(admin=True)
+        oowner = self.new_client(owner=True)
 
         # login as user1
         share1 = owner.sf.getShareService()

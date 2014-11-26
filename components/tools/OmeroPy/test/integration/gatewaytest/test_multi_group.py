@@ -58,7 +58,7 @@ class TestHistory (object):
         assert logCount == dataCount, \
             "Logs count should match number of objects"
 
-    @pytest.mark.xfail(reason="ticket 11494")
+    @pytest.mark.broken(ticket="11494")
     def testCreateHistory(self, gatewaywrapper):
 
         # Login as user...
@@ -124,7 +124,7 @@ class TestScript (object):
             groupperms=READWRITE)
         dbhelpers.bootstrap(onlyUsers=True)
 
-    @pytest.mark.xfail(reason="ticket 11610")
+    @pytest.mark.broken(ticket="11610")
     def testRunScript(self, gatewaywrapper):
         # Login as user...
         gatewaywrapper.doLogin(dbhelpers.USERS['script_test_user'])

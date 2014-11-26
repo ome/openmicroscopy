@@ -2,7 +2,7 @@
  * pojos.FilterData 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -29,7 +29,6 @@ package pojos;
 
 //Application-internal dependencies
 import omero.RDouble;
-import omero.RInt;
 import omero.RString;
 import omero.model.Filter;
 import omero.model.FilterType;
@@ -70,6 +69,21 @@ public class FilterData
 	 * 
 	 * @return See above.
 	 */
+	public Length getCutInAsLength()
+	{
+		Filter f = (Filter) asIObject();
+		TransmittanceRange range = f.getTransmittanceRange();
+		if (range == null)
+			return null;
+		return range.getCutIn();
+	}
+	
+	/**
+	 * Returns the cut in value or <code>null</code>.
+	 * 
+	 * @return See above.
+	 * @deprecated Replaced by {@link #getCutInAsLength()}
+	 */
 	@Deprecated
 	public Integer getCutIn()
 	{
@@ -85,6 +99,21 @@ public class FilterData
 	 * Returns the cut in tolerance value or <code>null</code>.
 	 * 
 	 * @return See above.
+	 */
+	public Length getCutInToleranceAsLength()
+	{
+		Filter f = (Filter) asIObject();
+		TransmittanceRange range = f.getTransmittanceRange();
+		if (range == null) 
+			return null;
+		return range.getCutInTolerance();
+	}
+	
+	/**
+	 * Returns the cut in tolerance value or <code>null</code>.
+	 * 
+	 * @return See above.
+	 * @deprecated Replaced by {@link #getCutInToleranceAsLength()}
 	 */
 	@Deprecated
 	public Integer getCutInTolerance()
@@ -102,6 +131,21 @@ public class FilterData
 	 * 
 	 * @return See above.
 	 */
+	public Length getCutOutAsLength()
+	{
+		Filter f = (Filter) asIObject();
+		TransmittanceRange range = f.getTransmittanceRange();
+		if (range == null)
+			return null;
+		return range.getCutOut();
+	}
+	
+	/**
+	 * Returns the cut out value or <code>null</code>.
+	 * 
+	 * @return See above.
+	 * @deprecated Replaced by {@link #getCutOutAsLength()}
+	 */
 	@Deprecated
 	public Integer getCutOut()
 	{
@@ -117,6 +161,21 @@ public class FilterData
 	 * Returns the cut out tolerance value or <code>null</code>.
 	 * 
 	 * @return See above.
+	 */
+	public Length getCutOutToleranceAsLength()
+	{
+		Filter f = (Filter) asIObject();
+		TransmittanceRange range = f.getTransmittanceRange();
+		if (range == null) 
+			return null;
+		return range.getCutOutTolerance();
+	}
+	
+	/**
+	 * Returns the cut out tolerance value or <code>null</code>.
+	 * 
+	 * @return See above.
+	 * @deprecated Replaced by {@link #getCutOutToleranceAsLength()}
 	 */
 	@Deprecated
 	public Integer getCutOutTolerance()

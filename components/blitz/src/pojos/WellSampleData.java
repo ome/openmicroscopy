@@ -2,7 +2,7 @@
  * pojos.WellSampleData 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -29,11 +29,12 @@ package pojos;
 // Third-party libraries
 
 // Application-internal dependencies
-import omero.RDouble;
 import omero.RTime;
 import omero.model.Length;
+import omero.model.LengthI;
 import omero.model.WellSample;
 import omero.model.WellSampleI;
+import omero.model.enums.UnitsLength;
 
 /**
  * The data that makes up an <i>OME</i> WellSample along with links to its
@@ -111,6 +112,21 @@ public class WellSampleData extends DataObject {
      * 
      * @return See above.
      */
+    public Length getPositionXAsLength()
+    {
+    	Length value = asWellSample().getPosX();
+    	if (value == null) 
+    		return new LengthI(0, UnitsLength.REFERENCEFRAME);
+    	else
+    		return value;
+    }	
+    
+    /**
+     * Returns the position X.
+     * 
+     * @return See above.
+     * @deprecated Replaced by {@link #getPositionXAsLength()}
+     */
     @Deprecated
     public double getPositionX()
     {
@@ -123,6 +139,21 @@ public class WellSampleData extends DataObject {
      * Returns the position Y.
      * 
      * @return See above.
+     */
+    public Length getPositionYAsLength()
+    {
+    	Length value = asWellSample().getPosY();
+    	if (value == null)
+    		return new LengthI(0, UnitsLength.REFERENCEFRAME);
+    	else
+    		return value;
+    }
+    
+    /**
+     * Returns the position Y.
+     * 
+     * @return See above.
+     * @deprecated Replaced by {@link #getPositionYAsLength()}
      */
     @Deprecated
     public double getPositionY()
