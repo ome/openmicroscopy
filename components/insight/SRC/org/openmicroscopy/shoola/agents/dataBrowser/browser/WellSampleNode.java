@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -97,7 +97,7 @@ public class WellSampleNode
 	public double getPositionX()
 	{
 		WellSampleData data = (WellSampleData) getHierarchyObject();
-		return data.getPositionX();
+		return data.getPositionXAsLength().getValue();
 	}
 	
 	/**
@@ -108,7 +108,7 @@ public class WellSampleNode
 	public double getPositionY()
 	{
 		WellSampleData data = (WellSampleData) getHierarchyObject();
-		return data.getPositionY();
+		return data.getPositionYAsLength().getValue();
 	}
 	
 	/**

@@ -56,6 +56,7 @@ TEST(MapAnnotationTest, mapStringField)
     nv.name = "foo";
     nv.value = rstring("bar");
     group->setName(rstring(uuid));
+    group->setLdap(rbool(true));
     map.push_back(nv);
     // Setting must happen after map updated, since a copy is made
     group->setConfig(map);

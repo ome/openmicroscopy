@@ -98,7 +98,7 @@ class TestCliImport(lib.ITest):
         pix = fixture.load_pixels(pix)
         self.assertGroup(fixture.context.groupId, dataset, pix)
 
-    @pytest.mark.xfail(reason="See ticket #11539")
+    @pytest.mark.broken(ticket="11539")
     def testTargetInDifferentGroup(self):
         fixture = Fixture(*self.new_client_and_user())
         group = self.new_group(experimenters=[fixture.user])

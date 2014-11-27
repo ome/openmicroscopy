@@ -42,8 +42,15 @@ import javax.swing.JPanel;
 import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.JXTaskPane;
 
+import ome.formats.model.UnitsFactory;
+import ome.units.UNITS;
+import omero.model.ElectricPotential;
+import omero.model.Frequency;
 import omero.model.Length;
 import omero.model.PlaneInfo;
+import omero.model.Power;
+import omero.model.Pressure;
+import omero.model.Temperature;
 
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
@@ -237,10 +244,10 @@ public class EditorUtil
     public static final String NAME = "Name";
 
     /** Identifies the <code>Acquisition date</code> field. */
-    public static final String ACQUISITION_DATE = "Acquired";
+    public static final String ACQUISITION_DATE = "Acquisition Date";
 
     /** Identifies the <code>Imported date</code> field. */
-    public static final String IMPORTED_DATE = "Imported";
+    public static final String IMPORTED_DATE = "Import Date";
 
     /** Identifies the <code>Archived</code> field. */
     public static final String ARCHIVED = "Archived";
@@ -249,7 +256,7 @@ public class EditorUtil
     public static final String XY_DIMENSION = "Dimensions (XY)";
 
     /** Identifies the <code>Z-sections/Timepoints</code> field. */
-    public static final String Z_T_FIELDS = "z-sections/timepoints";
+    public static final String Z_T_FIELDS = "Z-sections/Timepoints";
 
     /** Identifies the <code>Lifetime</code> field. */
     public static final String SMALL_T_VARIABLE = "t";
@@ -707,9 +714,24 @@ public class EditorUtil
             details.put(TIMEPOINTS, ""+data.getSizeT());
             details.put(CHANNELS, ""+data.getSizeC());
             try {
-                details.put(PIXEL_SIZE_X, ""+data.getPixelSizeX());
-                details.put(PIXEL_SIZE_Y, ""+data.getPixelSizeY());
-                details.put(PIXEL_SIZE_Z, ""+data.getPixelSizeZ());
+            	Length l = data.getPixelSizeXAsLength();
+            	if(l==null)
+            		details.put(PIXEL_SIZE_X, "0");
+            	else 
+            		details.put(PIXEL_SIZE_X, ""+UnitsFactory.convertLength(l, UNITS.MICROM).getValue());
+            	
+            	l = data.getPixelSizeYAsLength();
+            	if(l==null)
+            		details.put(PIXEL_SIZE_Y, "0");
+            	else 
+            		details.put(PIXEL_SIZE_Y, ""+UnitsFactory.convertLength(l, UNITS.MICROM).getValue());
+                
+            	l = data.getPixelSizeZAsLength();
+            	if(l==null)
+            		details.put(PIXEL_SIZE_Z, "0");
+            	else 
+            		details.put(PIXEL_SIZE_Z, ""+UnitsFactory.convertLength(l, UNITS.MICROM).getValue());
+            	
                 details.put(PIXEL_TYPE,
                         PIXELS_TYPE_DESCRIPTION.get(""+data.getPixelType()));
             } catch (Exception e) {
@@ -1213,34 +1235,36 @@ public class EditorUtil
             notSet.add(NAME);
         details.put(NAME, s);
 
-        Double wave =  data.getEmissionWavelength();
-        if (wave == null) {
+        Length wl = data.getEmissionWavelengthAsLength();
+        if (wl == null) {
             details.put(EMISSION, null);
         } else {
+        	double wave =  UnitsFactory.convertLength(wl, UNITS.NM).getValue();
             if (wave <= 100) {
                 notSet.add(EMISSION);
                 details.put(EMISSION, Integer.valueOf(0));
             } else {
                 //First check if the wave is a int
                 if (DoubleMath.isMathematicalInteger(wave)) {
-                    details.put(EMISSION, new Integer(wave.intValue()));
+                    details.put(EMISSION, (int)wave);
                 } else {
                     details.put(EMISSION, wave);
                 }
             }
         }
 
-        wave =  data.getExcitationWavelength();
-        if (wave == null) {
+        wl = data.getExcitationWavelengthAsLength();
+        if (wl == null) {
             details.put(EXCITATION, null);
         } else {
+        	double wave =  UnitsFactory.convertLength(wl, UNITS.NM).getValue();
             if (wave <= 100) {
                 notSet.add(EXCITATION);
                 details.put(EXCITATION, Integer.valueOf(0));
             } else {
               //First check if the wave is a int
                 if (DoubleMath.isMathematicalInteger(wave)) {
-                    details.put(EXCITATION, new Integer(wave.intValue()));
+                    details.put(EXCITATION, (int)wave);
                 } else {
                     details.put(EXCITATION, wave);
                 }
@@ -1253,12 +1277,17 @@ public class EditorUtil
             notSet.add(ND_FILTER);
         }
         details.put(ND_FILTER, f*100);
-        f = data.getPinholeSize();
-        if (f < 0) {
+
+        Length ph = data.getPinholeSizeAsLength();
+        if (ph == null) {
             f = 0;
             notSet.add(PIN_HOLE_SIZE);
-        };
+        }
+        else {
+        	f = UnitsFactory.convertLength(ph, UNITS.MICROM).getValue();
+        }
         details.put(PIN_HOLE_SIZE, f);
+        
         s = data.getFluor();
         if (StringUtils.isBlank(s))
             notSet.add(FLUOR);
@@ -1465,10 +1494,13 @@ public class EditorUtil
         if (StringUtils.isBlank(s))
             notSet.add(CORRECTION);
         details.put(CORRECTION, s);
-        f = data.getWorkingDistance();
-        if (f < 0) {
+        Length wd = data.getWorkingDistanceAsLength();
+        if (wd==null) {
             f = 0;
             notSet.add(WORKING_DISTANCE);
+        }
+        else {
+        	f = UnitsFactory.convertLength(wd, UNITS.MICROM).getValue();
         }
         details.put(WORKING_DISTANCE, f);
         details.put(NOT_SET, notSet);
@@ -1550,16 +1582,22 @@ public class EditorUtil
             details.put(NOT_SET, notSet);
             return details;
         }
-        Object o = data.getTemperature();
+        Temperature t = data.getTemperatureAsTemperature();
         double f = 0;
-        if (o == null) {
+        if (t == null) {
             notSet.add(TEMPERATURE);
-        } else f = (Double) o;
+        } else {
+        	f = UnitsFactory.convertTemperature(t, UNITS.DEGREEC).getValue();
+        }
         details.put(TEMPERATURE, f);
-        f = data.getAirPressure();
-        if (f < 0) {
+        
+        Pressure p = data.getAirPressureAsPressure();
+        if (p == null) {
             notSet.add(AIR_PRESSURE);
             f = 0;
+        }
+        else {
+        	f = UnitsFactory.convertPressure(p, UNITS.MBAR).getValue();
         }
         details.put(AIR_PRESSURE, f);
         f = data.getHumidity();
@@ -1607,21 +1645,25 @@ public class EditorUtil
         if (StringUtils.isBlank(s))
             notSet.add(NAME);
         details.put(NAME, s);
-        Object o = data.getPositionX();
+        Length p = data.getPositionXAsLength();
         double f = 0;
-        if (o == null) {
+        if (p == null) {
             notSet.add(POSITION_X);
-        } else f = (Double) o;
+        } else f = UnitsFactory.convertLength(p, UNITS.REFERENCEFRAME).getValue();
         details.put(POSITION_X, f);
+        
+        p = data.getPositionYAsLength();
         f = 0;
-        if (o == null) {
+        if (p == null) {
             notSet.add(POSITION_Y);
-        } else f = (Double) o;
+        } else f = UnitsFactory.convertLength(p, UNITS.REFERENCEFRAME).getValue();
         details.put(POSITION_Y, f);
+        
+        p = data.getPositionZAsLength();
         f = 0;
-        if (o == null) {
+        if (p == null) {
             notSet.add(POSITION_Z);
-        } else f = (Double) o;
+        } else f = UnitsFactory.convertLength(p, UNITS.REFERENCEFRAME).getValue();
         details.put(POSITION_Z, f);
 
         details.put(NOT_SET, notSet);
@@ -1735,29 +1777,29 @@ public class EditorUtil
         if (StringUtils.isBlank(s))
             notSet.add(FILTER_WHEEL);
         details.put(FILTER_WHEEL, s);
-        Integer v = data.getCutIn();
+        Length wl = data.getCutInAsLength();
         int i = 0;
-        if (v == null) notSet.add(CUT_IN);
-        else i = v;
+        if (wl == null) notSet.add(CUT_IN);
+        else i = (int)UnitsFactory.convertLength(wl, UNITS.NM).getValue();
         details.put(CUT_IN, i);
-        v = data.getCutOut();
-        if (v == null) {
+        wl = data.getCutOutAsLength();
+        if (wl == null) {
             notSet.add(CUT_OUT);
             i = 0;
-        } else i = v;
+        } else i = (int)UnitsFactory.convertLength(wl, UNITS.NM).getValue();
         details.put(CUT_OUT, i);
-        v = data.getCutInTolerance();
-        if (v == null) {
+        wl = data.getCutInToleranceAsLength();
+        if (wl == null) {
             i = 0;
             notSet.add(CUT_IN_TOLERANCE);
-        } else i = v;
+        } else i = (int)UnitsFactory.convertLength(wl, UNITS.NM).getValue();
         details.put(CUT_IN_TOLERANCE, i);
 
-        v = data.getCutOutTolerance();
-        if (v == null) {
+        wl = data.getCutOutToleranceAsLength();
+        if (wl == null) {
             i = 0;
             notSet.add(CUT_OUT_TOLERANCE);
-        } else i = v;
+        } else i = (int)UnitsFactory.convertLength(wl, UNITS.NM).getValue();
         details.put(CUT_OUT_TOLERANCE, i);
 
         Double d = data.getTransmittance();
@@ -1803,15 +1845,15 @@ public class EditorUtil
         else v = f;
         details.put(ATTENUATION, v*PERCENT_FRACTION);
 
-        Double wave = data.getLightSettingsWavelength();
+        Length wl = data.getLightSettingsWavelengthAsLength();
         if (details.containsKey(WAVELENGTH)) {
-            if (wave != null) { //override the value.
-                details.put(WAVELENGTH, wave);
+            if (wl != null) { //override the value.
+                details.put(WAVELENGTH, UnitsFactory.convertLength(wl, UNITS.NM).getValue());
             }
         } else {
             Double vi = 0.0;
-            if (wave == null) notSet.add(WAVELENGTH);
-            else vi = wave;
+            if (wl == null) notSet.add(WAVELENGTH);
+            else vi = UnitsFactory.convertLength(wl, UNITS.NM).getValue();
             details.put(WAVELENGTH, vi);
         }
         details.put(NOT_SET, notSet);
@@ -1867,11 +1909,14 @@ public class EditorUtil
 
         s = data.getKind();
         details.put(LIGHT_TYPE, s);
-        double f = data.getPower();
-        if (f < 0) {
+        Power p = data.getPowerAsPower();
+        double f = 0;
+        if (p == null) {
             notSet.add(POWER);
             f = 0;
         }
+        else
+        	f = UnitsFactory.convertPower(p, UNITS.MW).getValue();
         details.put(POWER, f);
         s = data.getType();
         if (StringUtils.isBlank(s))
@@ -1901,10 +1946,14 @@ public class EditorUtil
                 notSet.add(MEDIUM);
             details.put(MEDIUM, s);
 
-            Double wave = data.getLaserWavelength();
-            if (wave != null && wave < 0) {
-                wave = Double.valueOf(0);
+            Length wl = data.getLaserWavelengthAsLength();
+            double wave = 0;
+            if (wl == null) {
+                wave = 0;
                 notSet.add(WAVELENGTH);
+            }
+            else {
+            	wave = UnitsFactory.convertLength(wl, UNITS.NM).getValue();
             }
             details.put(WAVELENGTH, new Float(wave)); 
             int i = data.getLaserFrequencyMultiplication();
@@ -1923,11 +1972,13 @@ public class EditorUtil
             if (StringUtils.isBlank(s))
                 notSet.add(PULSE);
             details.put(PULSE, s);
-            f = data.getLaserRepetitionRate();
-            if (f < 0) {
+            Frequency freq = data.getLaserRepetitionRateAsFrequency();
+            if (freq == null) {
                 f = 0;
                 notSet.add(REPETITION_RATE);
             }
+            else
+            	f = UnitsFactory.convertFrequency(freq, UNITS.HZ).getValue();
             details.put(REPETITION_RATE, f);
             o = data.getLaserPockelCell();
             if (o == null) {
@@ -1998,11 +2049,11 @@ public class EditorUtil
         if (f == null) notSet.add(GAIN);
         else v = f.doubleValue();
         details.put(GAIN, v);
-        f = data.getVoltage();
-        if (f == null) {
+        ElectricPotential p = data.getVoltageAsElectricPotential();
+        if (p == null) {
             v = 0;
             notSet.add(VOLTAGE);
-        } else v = f.doubleValue();
+        } else v = UnitsFactory.convertElectricPotential(p, UNITS.VOLT).getValue();
         details.put(VOLTAGE, v);
         f = data.getOffset();
         if (f == null) {
@@ -2064,8 +2115,9 @@ public class EditorUtil
             notSet.remove(GAIN);
         }
 
-        f = data.getDetectorSettingsVoltage();
-        if (f != null) {
+        ElectricPotential p = data.getDetectorSettingsVoltageAsElectricPotential();
+        if (p != null) {
+        	f = UnitsFactory.convertElectricPotential(p, UNITS.VOLT).getValue();
             notSet.remove(VOLTAGE);
             details.put(VOLTAGE, UIUtilities.roundTwoDecimals(f));
         }
@@ -2076,12 +2128,12 @@ public class EditorUtil
             details.put(OFFSET, UIUtilities.roundTwoDecimals(f));
         }
 
-        f = data.getDetectorSettingsReadOutRate();
+        Frequency freq = data.getDetectorSettingsReadOutRateAsFrequency();
         double v = 0;
-        if (f == null) {
+        if (freq == null) {
             v = 0;
             notSet.add(READ_OUT_RATE);
-        } else v = UIUtilities.roundTwoDecimals(f);
+        } else v = UIUtilities.roundTwoDecimals(UnitsFactory.convertFrequency(freq, UNITS.MEGAHZ).getValue());
         details.put(READ_OUT_RATE, v);
         String s = data.getDetectorSettingsBinning();
         if (StringUtils.isBlank(s)) {
@@ -2130,12 +2182,12 @@ public class EditorUtil
             omero.model.Time t = plane.getDeltaT();
             if (t != null)  {
                 notSet.remove(DELTA_T);
-                details.put(DELTA_T, roundValue(t.getValue()));
+                details.put(DELTA_T, roundValue(UnitsFactory.convertTime(t, UNITS.S).getValue()));
             }
             t = plane.getExposureTime();
             if (t != null) {
                 notSet.remove(EXPOSURE_TIME);
-                details.put(EXPOSURE_TIME, roundValue(t.getValue()));
+                details.put(EXPOSURE_TIME, roundValue(UnitsFactory.convertTime(t, UNITS.S).getValue()));
             }
 
             Length o = plane.getPositionX();

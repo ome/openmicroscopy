@@ -66,6 +66,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 
 //Third-party libraries
+import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
@@ -82,6 +83,7 @@ import pojos.LongAnnotationData;
 import pojos.RatingAnnotationData;
 import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
+import pojos.TimeAnnotationData;
 import pojos.XMLAnnotationData;
 
 /** 
@@ -123,9 +125,9 @@ class AnnotationDataUI
 	
 	static {
 		NAMES = new String[3];
-		NAMES[SHOW_ALL] = "All";
-		NAMES[ADDED_BY_ME] = "Added by Me";
-		NAMES[ADDED_BY_OTHERS] = "Added by Others";
+		NAMES[SHOW_ALL] = "Show all";
+		NAMES[ADDED_BY_ME] = "Show added by me";
+		NAMES[ADDED_BY_OTHERS] = "Show added by others";
 	}
 	
 	/** Component used to rate the object. */
@@ -142,9 +144,6 @@ class AnnotationDataUI
 	
 	/** The initial value of the rating. */
 	private int 							initialValue;
-
-	/** The index of the tag row. */
-	private int								tagRow;
 
 	/** The UI component hosting the various annotations. */
 	private JPanel							content;
@@ -456,7 +455,7 @@ class AnnotationDataUI
 			}
 		});
 		otherPane = new JPanel();
-		otherPane.setLayout(new BoxLayout(otherPane, BoxLayout.Y_AXIS));
+		otherPane.setLayout(new GridBagLayout());
 		otherPane.setBackground(UIUtilities.BACKGROUND_COLOR);
 	}
 	
@@ -519,16 +518,6 @@ class AnnotationDataUI
 				createBar(filterButton, null), 0, 0);
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		content.add(p);
-		//rating
-		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.add(UIUtilities.setTextFont("rate", Font.BOLD, size));
-		p.add(createBar(unrateButton, null));
-		p.add(Box.createHorizontalStrut(2));
-		p.add(rating);
-		p.add(Box.createHorizontalStrut(2));
-		p.add(otherRating);
-		content.add(p);
 		
 		JPanel panel = new JPanel(new GridBagLayout());
 		panel.setBorder(null);
@@ -537,48 +526,63 @@ class AnnotationDataUI
 		//c.fill = GridBagConstraints.HORIZONTAL;
 		c.anchor = GridBagConstraints.WEST;
 		c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-		c.fill = GridBagConstraints.NONE;      //reset to default
-		c.insets = new Insets(0, 2, 2, 0);
+		c.fill = GridBagConstraints.HORIZONTAL;      //reset to default
+		c.insets = new Insets(2, 0, 2, 0);
 		c.gridy = 0;
+		
+		// rating
 		c.gridx = 0;
+		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+		p.add(UIUtilities.setTextFont("Rating:", Font.BOLD, size));
+		p.add(createBar(unrateButton, null));
+		panel.add(p, c);
+		c.gridx = 1;
+		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+		p.add(Box.createHorizontalStrut(2));
+        p.add(rating);
+        p.add(Box.createHorizontalStrut(2));
+        p.add(otherRating);
+		panel.add(p, c);
+		c.gridy++;
 		
 		//tags
+		c.gridx = 0;
 		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.add(UIUtilities.setTextFont("tag", Font.BOLD, size));
+		p.add(UIUtilities.setTextFont("Tags:", Font.BOLD, size));
 		p.add(createBar(addTagsButton, removeTagsButton));
 		panel.add(p, c);
+		c.gridx = 1;
+		panel.add(tagsPane, c);
+		c.gridy++;
 		
 		//attachment
+		c.gridx = 0;
+		c.gridwidth = 2;
 		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.add(UIUtilities.setTextFont("attachment", Font.BOLD, size));
+		p.add(UIUtilities.setTextFont("Attachments:", Font.BOLD, size));
 		p.add(createBar(addDocsButton, removeDocsButton));
-		c.gridy += 3;
 		panel.add(p, c);
+		c.gridy++;
+		panel.add(docRef, c);
+		c.gridy++;
 		
 		//other
-		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.add(UIUtilities.setTextFont("others", Font.BOLD, size));
-		p.add(createBar(null, removeOtherAnnotationsButton));
-		c.gridy += 3;
-		panel.add(p, c);
-		
-		c.gridy = 0;
-		c.gridx++;
-		//c.ipady = 2;
-		c.gridheight = 2;
-		panel.add(tagsPane, c);
-		c.gridy += 3;
-		panel.add(docRef, c);
-		c.gridy += 3;
-		panel.add(otherPane, c);
+		if (!CollectionUtils.isEmpty(model.getAllOtherAnnotations())) {
+			c.gridx = 0;
+			p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+			p.setBackground(UIUtilities.BACKGROUND_COLOR);
+			p.add(UIUtilities.setTextFont("Others:", Font.BOLD, size));
+			p.add(createBar(null, removeOtherAnnotationsButton));
+			panel.add(p, c);
+			c.gridy++;
+		    panel.add(otherPane, c);
+		}
 
-		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.add(panel);
-		content.add(p);
+		content.add(panel);
 		
 		
 		//analysis results
@@ -733,17 +737,8 @@ class AnnotationDataUI
 			filesDocList.add(doc);
 			docPane.add(doc);
 		}
-		int n = docPane.getComponentCount();
 		docRef = docPane;
 		
-		if (n >= MAX) {
-			Dimension d = docPane.getPreferredSize();
-			JScrollPane sp = new JScrollPane(docPane);
-			int width = d.width+20;
-			if (width < COLUMN_WIDTH) width = COLUMN_WIDTH;
-			sp.getViewport().setPreferredSize(new Dimension(width, h*MAX));
-			docRef = sp;	
-		} 
 		docPane.revalidate();
 		docPane.repaint();
 	}
@@ -851,86 +846,70 @@ class AnnotationDataUI
 		otherPane.removeAll();
 		otherList.clear();
 		DocComponent doc;
-		if (list != null && list.size() > 0) {
+		
+		GridBagConstraints c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.WEST;
+		c.insets = new Insets(1, 2, 1, 2);
+		c.gridx = 0;
+		c.gridy = 0;
+		c.weightx = 0;
+		c.weighty = 0;
+		c.fill = GridBagConstraints.NONE;		
+		
+		if(!CollectionUtils.isEmpty(list)) {
+			
 			Iterator i = list.iterator();
-			int width = 0;
-			JPanel p = initRow();
-			DataObject data;
-			switch (filter) {
-				case SHOW_ALL:
-					while (i.hasNext()) {
-						doc = new DocComponent(i.next(), model);
-						doc.addPropertyChangeListener(controller);
-						otherList.add(doc);
-						if (width+doc.getPreferredSize().width >= COLUMN_WIDTH)
-						{
-							otherPane.add(p);
-							p = initRow();
-							width = 0;
-						} else {
-							width += doc.getPreferredSize().width;
-							width += 2;
-						}
-						p.add(doc);
-					}
-					break;
-				case ADDED_BY_ME:
-					while (i.hasNext()) {
-						data = (DataObject) i.next();
-						doc = new DocComponent(data, model);
-						doc.addPropertyChangeListener(controller);
-						otherList.add(doc);
-						if (model.isLinkOwner(data)) {
-							if (width+doc.getPreferredSize().width 
-									>= COLUMN_WIDTH) {
-								otherPane.add(p);
-								p = initRow();
-								width = 0;
-							} else {
-								width += doc.getPreferredSize().width;
-								width += 2;
-							}
-							p.add(doc);
-						}
-					}
-					break;
-				case ADDED_BY_OTHERS:
-					while (i.hasNext()) {
-						data = (DataObject) i.next();
-						doc = new DocComponent(data, model);
-						doc.addPropertyChangeListener(controller);
-						otherList.add(doc);
-						if (model.isAnnotatedByOther(data)) {
-							if (width+doc.getPreferredSize().width 
-									>= COLUMN_WIDTH) {
-								otherPane.add(p);
-								p = initRow();
-								width = 0;
-							} else {
-								width += doc.getPreferredSize().width;
-								width += 2;
-							}
-							p.add(doc);
-						}
-					}
-			}
-			if (p.getComponentCount() == 0) {
-				switch (filter) {
-					case ADDED_BY_OTHERS:
-					case ADDED_BY_ME:
-						doc = new DocComponent(null, model);
-						otherList.add(doc);
-						otherPane.add(doc);
+			while (i.hasNext()) {
+				
+				c.gridx = 0;
+				c.weightx = 0;
+				c.fill = GridBagConstraints.NONE;
+				
+				DataObject item = (DataObject) i.next();
+				if(filter==SHOW_ALL || (filter==ADDED_BY_ME && model.isLinkOwner(item)) || (filter==ADDED_BY_OTHERS && model.isAnnotatedByOther(item))) {
+					doc = new DocComponent(item, model);
+					doc.addPropertyChangeListener(controller);
+					
+					otherList.add(doc);
+					
+					otherPane.add(new JLabel(getType((AnnotationData)item)+":"), c);
+					
+					c.gridx = 1;
+					c.weightx = 1;
+					c.fill = GridBagConstraints.HORIZONTAL;
+					otherPane.add(doc, c);
+					
+					c.gridy++;
 				}
-			} else otherPane.add(p);
+					
+			}
 		}
-		if (otherList.size() == 0) {
-			doc = new DocComponent(null, model);
-			otherList.add(doc);
-			otherPane.add(doc);
-		}
+		
 		otherPane.revalidate();
 		otherPane.repaint();
+	}
+	
+	/**
+	 * Gets a readable name for the type of Annotation
+	 * 
+	 * @param d
+	 *            The Annotation
+	 * @return See above.
+	 */
+	private String getType(AnnotationData d) {
+		if (d instanceof XMLAnnotationData)
+			return "XML";
+		if (d instanceof BooleanAnnotationData)
+			return "Boolean";
+		if (d instanceof DoubleAnnotationData)
+			return "Double";
+		if (d instanceof LongAnnotationData)
+			return "Long";
+		if (d instanceof TermAnnotationData)
+			return "Term";
+		if (d instanceof TimeAnnotationData)
+			return "Time";
+		return "";
 	}
 	
 	/**

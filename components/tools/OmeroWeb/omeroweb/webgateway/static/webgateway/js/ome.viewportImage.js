@@ -356,6 +356,8 @@ jQuery.fn.viewportImage = function(options) {
         }, 20);
       }
       image.trigger("instant_zoom", [cur_zoom]);
+      dragdiv.width(width);
+      dragdiv.height(height);
       image.attr({width: width, height: height});
       overlay.attr({width: width, height: height});
      };
@@ -618,6 +620,9 @@ jQuery.fn.viewportImage = function(options) {
             }
             if (!viewerBean.roi_control) {
                 viewerBean.roi_control = new ROIControl(viewerBean);
+            }
+            if (!viewerBean.scalebar_control) {
+                viewerBean.scalebar_control = new ScaleBarControl(viewerBean);
             }
             
             // not supported elements

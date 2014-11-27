@@ -66,7 +66,7 @@ class TestScriptRepo(lib.ITest):
             [omero.model.ExperimenterI(oid, False)])
         assert sid in [x.id.val for x in myUserScripts]
 
-    @pytest.mark.xfail(reason="ticket 11494")
+    @pytest.mark.broken(ticket="11494")
     def testGetGroupScripts(self):
         prx = self.scriptPrx()
         admin = self.client.sf.getAdminService()
