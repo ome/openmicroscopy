@@ -304,7 +304,7 @@ public class ImportConfig {
         /* fill any useful information for Ice to serialize */
         for (final Map.Entry<VersionInfo, String> property : properties.entrySet()) {
             if (StringUtils.isNotEmpty(property.getValue())) {
-                versionInfo.add(new NamedValue(property.getKey().key, rstring(property.getValue())));
+                versionInfo.add(new NamedValue(property.getKey().key, property.getValue()));
             }
         }
     }

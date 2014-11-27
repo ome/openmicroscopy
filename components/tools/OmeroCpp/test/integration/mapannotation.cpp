@@ -33,9 +33,8 @@ using namespace omero::util;
 static void assertFooBar(const ExperimenterGroupPtr& group)
 {
     NamedValue nv = group->getConfig()[0];
-    string bar = omero::RStringPtr::dynamicCast(nv.value)->getValue();
     ASSERT_EQ("foo", nv.name);
-    ASSERT_EQ("bar", bar);
+    ASSERT_EQ("bar", nv.value);
 }
 
 TEST(MapAnnotationTest, mapStringField)
@@ -54,7 +53,7 @@ TEST(MapAnnotationTest, mapStringField)
     NamedValueList map;
     NamedValue nv;
     nv.name = "foo";
-    nv.value = rstring("bar");
+    nv.value = "bar";
     group->setName(rstring(uuid));
     group->setLdap(rbool(true));
     map.push_back(nv);

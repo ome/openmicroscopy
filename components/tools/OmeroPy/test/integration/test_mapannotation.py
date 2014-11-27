@@ -43,7 +43,7 @@ class TestMapAnnotation(lib.ITest):
         group = ExperimenterGroupI()
         group.setName(rstring(uuid))
         group.setLdap(rbool(False))
-        group.setConfig([NV("language", rstring("python"))])
+        group.setConfig([NV("language", "python")])
         group = updateService.saveAndReturnObject(group)
         group = queryService.findByQuery(
             ("select g from ExperimenterGroup g join fetch g.config "
@@ -52,8 +52,8 @@ class TestMapAnnotation(lib.ITest):
         assert "python" == group.getConfig()[0].value.val
 
     @pytest.mark.parametrize("data", (
-        ([NV("a", rstring(""))], [NV("a", rstring(""))]),
-        ([NV("a", rstring("b"))], [NV("a", rstring("b"))]),
+        ([NV("a", "")], [NV("a", "")]),
+        ([NV("a", "b")], [NV("a", "b")]),
     ))
     def testGroupConfigA(self, data):
 
@@ -92,27 +92,25 @@ class TestMapAnnotation(lib.ITest):
 
     def testGroupConfigEdit(self):
 
-        _ = rstring
-
         before = [
-            NV("a", _("b")),
-            NV("c", _("d")),
-            NV("e", _("f"))
+            NV("a", "b"),
+            NV("c", "d"),
+            NV("e", "f")
         ]
 
         remove_one = [
-            NV("a", _("b")),
-            NV("e", _("f"))
+            NV("a", "b"),
+            NV("e", "f")
         ]
 
         swapped = [
-            NV("e", _("f")),
-            NV("a", _("b"))
+            NV("e", "f"),
+            NV("a", "b")
         ]
 
         edited = [
-            NV("e", _("f")),
-            NV("a", _("x"))
+            NV("e", "f"),
+            NV("a", "x")
         ]
 
         root_update = self.root.sf.getUpdateService()

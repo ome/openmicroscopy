@@ -24,14 +24,11 @@ import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
-import org.hibernate.annotations.Parameter;
-import org.hibernate.annotations.Type;
-
 /**
  * class to store a single value in an ordered list.
  */
 @Embeddable
-public class NamedValue<T> implements Serializable, Primitive {
+public class NamedValue implements Serializable, Primitive {
 
     private static final long serialVersionUID = 1L;
 
@@ -46,7 +43,7 @@ public class NamedValue<T> implements Serializable, Primitive {
         // no-op
     }
 
-    public NamedValue(String name, T value) {
+    public NamedValue(String name, String value) {
         this.name = name;
         this.value = value;
     }
@@ -62,7 +59,7 @@ public class NamedValue<T> implements Serializable, Primitive {
     /**
      * Value of a map-like entry.
      */
-    private T value = null;
+    private String value = null;
 
     // ~ Property accessors : used primarily by Hibernate
     // =========================================================================
@@ -73,7 +70,7 @@ public class NamedValue<T> implements Serializable, Primitive {
     }
 
     @Column(name = "value", nullable = false)
-    public T getValue() {
+    public String getValue() {
         return this.value;
     }
 
@@ -81,7 +78,7 @@ public class NamedValue<T> implements Serializable, Primitive {
         this.name = name;
     }
 
-    public void setValue(T value) {
+    public void setValue(String value) {
         this.value = value;
     }
 

@@ -56,13 +56,13 @@ public class MapAnnotationTest extends AbstractServerTest {
         group.setName(omero.rtypes.rstring(uuid));
         group.setLdap(rbool(false));
         group.setConfig(new ArrayList<NamedValue>());
-        group.getConfig().add(new NamedValue("foo", omero.rtypes.rstring("bar")));
+        group.getConfig().add(new NamedValue("foo", "bar"));
         group = (ExperimenterGroup) updateService.saveAndReturnObject(group);
         group = (ExperimenterGroup) queryService.findByQuery(
                 "select g from ExperimenterGroup g join fetch g.config " +
                 "where g.id = " + group.getId().getValue(), null);
         assertEquals("foo", group.getConfig().get(0).name);
-        assertEquals("bar", omero.rtypes.unwrap(group.getConfig().get(0).value));
+        assertEquals("bar", group.getConfig().get(0).value);
     }
 
     /**
@@ -78,13 +78,13 @@ public class MapAnnotationTest extends AbstractServerTest {
         group.setName(omero.rtypes.rstring(uuid));
         group.setLdap(rbool(false));
         group.setConfig(new ArrayList<NamedValue>());
-        group.getConfig().add(new NamedValue("foo", omero.rtypes.rstring("")));
+        group.getConfig().add(new NamedValue("foo", ""));
         group = (ExperimenterGroup) updateService.saveAndReturnObject(group);
         group = (ExperimenterGroup) queryService.findByQuery(
                 "select g from ExperimenterGroup g join fetch g.config " +
                 "where g.id = " + group.getId().getValue(), null);
         assertEquals("foo", group.getConfig().get(0).name);
-        assertEquals("", omero.rtypes.unwrap(group.getConfig().get(0).value));
+        assertEquals("", group.getConfig().get(0).value);
     }
 
     /**
@@ -100,7 +100,7 @@ public class MapAnnotationTest extends AbstractServerTest {
         group.setName(omero.rtypes.rstring(uuid));
         group.setLdap(rbool(false));
         group.setConfig(new ArrayList<NamedValue>());
-        group.getConfig().add(new NamedValue("foo", omero.rtypes.rstring("")));
+        group.getConfig().add(new NamedValue("foo", ""));
         group.getConfig().add(new NamedValue("bar", null));
         updateService.saveAndReturnObject(group);
     }

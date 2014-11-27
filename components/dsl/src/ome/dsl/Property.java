@@ -843,9 +843,7 @@ class MapField extends Property {
     @Override
     public String getFieldType() {
         StringBuilder sb = new StringBuilder();
-        sb.append("java.util.List<ome.model.internal.NamedValue<");
-        sb.append(getType());
-        sb.append(">>");
+        sb.append("java.util.List<ome.model.internal.NamedValue>");
         return sb.toString();
     }
 

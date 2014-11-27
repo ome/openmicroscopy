@@ -525,7 +525,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
                 	if (nv != null &&
                 			ImportConfig.VersionInfo.BIO_FORMATS_READER.key.equals(
                 					nv.name)) {
-                		readerName = (String) omero.rtypes.unwrap(nv.value);
+                		readerName = nv.value;
                 	}
                 }
                 if (readerName == null) {

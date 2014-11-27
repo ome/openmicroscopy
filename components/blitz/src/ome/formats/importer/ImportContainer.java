@@ -346,7 +346,7 @@ public class ImportContainer
 
         // Fill BF info
         final List<NamedValue> clientVersionInfo = new ArrayList<NamedValue>();
-        clientVersionInfo.add(new NamedValue(ImportConfig.VersionInfo.BIO_FORMATS_READER.key, rstring(reader)));
+        clientVersionInfo.add(new NamedValue(ImportConfig.VersionInfo.BIO_FORMATS_READER.key, reader));
         config.fillVersionInfo(clientVersionInfo);
         UploadJob upload = new UploadJobI();
         upload.setVersionInfo(clientVersionInfo);

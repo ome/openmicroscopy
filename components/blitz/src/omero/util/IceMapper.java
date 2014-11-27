@@ -724,15 +724,15 @@ public class IceMapper extends ome.util.ModelMapper implements
         return filter;
     }
 
-    public static List<NamedValue> convertNamedValueList(List<ome.model.internal.NamedValue<String>> map) {
+    public static List<NamedValue> convertNamedValueList(List<ome.model.internal.NamedValue> map) {
         if (map == null) {
             return null;
         }
         final List<NamedValue> nvl = new ArrayList<NamedValue>(map.size());
-        for (final ome.model.internal.NamedValue<String> nv : map) {
+        for (final ome.model.internal.NamedValue nv : map) {
             final String name = nv.getName();
             final String value = nv.getValue();
-            nvl.add(new NamedValue(name, rstring(value)));
+            nvl.add(new NamedValue(name, value));
         }
         return nvl;
     }
@@ -745,7 +745,7 @@ public class IceMapper extends ome.util.ModelMapper implements
         for (final ome.xml.model.MapPair nv : map) {
             final String name = nv.getName();
             final String value = nv.getValue();
-            nvl.add(new NamedValue(name, rstring(value)));
+            nvl.add(new NamedValue(name, value));
         }
         return nvl;
     }
@@ -1023,16 +1023,14 @@ public class IceMapper extends ome.util.ModelMapper implements
         return map;
     }
 
-    public static List<ome.model.internal.NamedValue<String>> reverseNamedList(List<NamedValue> map) {
+    public static List<ome.model.internal.NamedValue> reverseNamedList(List<NamedValue> map) {
         if (map == null) {
             return null;
         }
-        final List<ome.model.internal.NamedValue<String>> nvl = new ArrayList<ome.model.internal.NamedValue<String>>(map.size());
+        final List<ome.model.internal.NamedValue> nvl = new ArrayList<ome.model.internal.NamedValue>(map.size());
         for (final NamedValue nv : map) {
             final String name = nv.name;
-            // FIXME: once we start supporting other types, this will need
-            // to be a generic method with more smarts.
-            final String value = (String) omero.rtypes.unwrap(nv.value);
+            final String value = nv.value;
             nvl.add(new ome.model.internal.NamedValue(name, value));
         }
         return nvl;

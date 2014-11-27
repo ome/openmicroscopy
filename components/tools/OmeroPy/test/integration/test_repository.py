@@ -182,14 +182,14 @@ class AbstractRepoTest(lib.ITest):
         system, node, release, version, machine, processor = platform.uname()
 
         clientVersionInfo = [
-            NV('omero.version', rstring(omero_version)),
-            NV('os.name', rstring(system)),
-            NV('os.version', rstring(release)),
-            NV('os.architecture', rstring(machine))
+            NV('omero.version', omero_version),
+            NV('os.name', system),
+            NV('os.version', release),
+            NV('os.architecture', machine)
         ]
         try:
             clientVersionInfo.append(
-                NV('locale', rstring(locale.getdefaultlocale()[0])))
+                NV('locale', locale.getdefaultlocale()[0]))
         except:
             pass
 
