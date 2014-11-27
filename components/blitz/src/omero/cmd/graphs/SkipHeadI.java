@@ -185,12 +185,6 @@ public class SkipHeadI extends SkipHead implements IRequest {
             } else {
                 throw helper.cancel(new ERR(), new IllegalArgumentException(), "model object graph operation has no step " + step);
             }
-            if (substep == graphRequestPerformStatus.steps - 1) {
-                /* now completed the last step, so construct the response */
-                for (int i = 0; i < graphRequestPerformStatus.steps; i++) {
-                    ((IRequest) graphRequestPerform).buildResponse(i, graphRequestPerformObjects.get(i));
-                }
-            }
         }
         return null;
     }
@@ -204,7 +198,11 @@ public class SkipHeadI extends SkipHead implements IRequest {
         helper.assertResponse(step);
         if (step == 0) {
             /* use the response of the tail half */
-            final Response response = ((IRequest) graphRequestPerform).getResponse();
+            final IRequest tailHalf = (IRequest) graphRequestPerform;
+            for (int substep = 0; substep < graphRequestPerformStatus.steps; substep++) {
+                tailHalf.buildResponse(substep, graphRequestPerformObjects.get(substep));
+            }
+            final Response response = tailHalf.getResponse();
             helper.setResponseIfNull(response);
         }
     }
