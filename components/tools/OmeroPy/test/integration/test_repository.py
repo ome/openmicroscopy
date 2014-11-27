@@ -16,6 +16,7 @@ import test.integration.library as lib
 import omero
 
 from omero import CmdError
+from omero.api import NamedValue as NV
 from omero.callbacks import CmdCallbackI
 from omero.gateway import BlitzGateway
 from omero.rtypes import rbool
@@ -180,14 +181,15 @@ class AbstractRepoTest(lib.ITest):
         # Fill version info
         system, node, release, version, machine, processor = platform.uname()
 
-        clientVersionInfo = {
-            'omero.version': rstring(omero_version),
-            'os.name': rstring(system),
-            'os.version': rstring(release),
-            'os.architecture': rstring(machine)
-        }
+        clientVersionInfo = [
+            NV('omero.version', rstring(omero_version)),
+            NV('os.name', rstring(system)),
+            NV('os.version', rstring(release)),
+            NV('os.architecture', rstring(machine))
+        ]
         try:
-            clientVersionInfo['locale'] = rstring(locale.getdefaultlocale()[0])
+            clientVersionInfo.append(
+                NV('locale', rstring(locale.getdefaultlocale()[0])))
         except:
             pass
 
