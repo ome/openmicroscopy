@@ -31,7 +31,7 @@ ROIControl.prototype.createDOMElements = function() {
 
     this.dom_element = document.createElement('div');
     this.dom_element.id = canvas_id;
-    this.dom_element.className = 'roi_canvas_big';
+    this.dom_element.className = 'weblitz-viewport-roi';
     this.dom_element.setAttribute("style", PanoJS.CONTROL_ROI_STYLE);
     de.appendChild(this.dom_element); 
     

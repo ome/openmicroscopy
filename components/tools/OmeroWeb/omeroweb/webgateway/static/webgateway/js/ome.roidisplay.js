@@ -16,6 +16,8 @@ $.fn.roi_display = function(options) {
 
         var tiles =  (options.tiles ? options.tiles : false);
 
+        var canvas_class = (options.canvas_class ? options.canvas_class : 'weblitz-viewport-roi');
+
         if (!tiles) {
             // add our ROI canvas as a sibling to the image plane. Parent is the 'draggable' div
             var $dragdiv = $viewportimg.parent();
@@ -25,8 +27,6 @@ $.fn.roi_display = function(options) {
             var canvas_name = (options.canvas_name ? options.canvas_name : viewerId + '-tiles-roi');
             var $canvas = $('#'+viewerId + '-tiles-roi')
         }
-
-        var canvas_class = (options.canvas_class ? options.canvas_class : 'roi_canvas');
 
         if (options != null) {
             var orig_width = options.width;
