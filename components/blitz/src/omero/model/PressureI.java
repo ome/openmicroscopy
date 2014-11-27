@@ -5131,8 +5131,8 @@ public class PressureI extends Pressure implements ModelBased {
                         value.getValue(), value.getUnit(), target));
             }
             setValue(c.apply(value.getValue()));
+            setUnit(UnitsPressure.valueOf(target));
        }
-       setUnit(value.getUnit());
     }
 
    /**

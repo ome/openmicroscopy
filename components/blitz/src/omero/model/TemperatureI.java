@@ -231,8 +231,8 @@ public class TemperatureI extends Temperature implements ModelBased {
                         value.getValue(), value.getUnit(), target));
             }
             setValue(c.apply(value.getValue()));
+            setUnit(UnitsTemperature.valueOf(target));
        }
-       setUnit(value.getUnit());
     }
 
    /**

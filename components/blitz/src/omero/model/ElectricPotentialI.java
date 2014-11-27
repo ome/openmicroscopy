@@ -2271,8 +2271,8 @@ public class ElectricPotentialI extends ElectricPotential implements ModelBased 
                         value.getValue(), value.getUnit(), target));
             }
             setValue(c.apply(value.getValue()));
+            setUnit(UnitsElectricPotential.valueOf(target));
        }
-       setUnit(value.getUnit());
     }
 
    /**

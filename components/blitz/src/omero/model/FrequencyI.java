@@ -2271,8 +2271,8 @@ public class FrequencyI extends Frequency implements ModelBased {
                         value.getValue(), value.getUnit(), target));
             }
             setValue(c.apply(value.getValue()));
+            setUnit(UnitsFrequency.valueOf(target));
        }
-       setUnit(value.getUnit());
     }
 
    /**

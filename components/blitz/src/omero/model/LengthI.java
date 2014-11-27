@@ -5781,8 +5781,8 @@ public class LengthI extends Length implements ModelBased {
                         value.getValue(), value.getUnit(), target));
             }
             setValue(c.apply(value.getValue()));
+            setUnit(UnitsLength.valueOf(target));
        }
-       setUnit(value.getUnit());
     }
 
    /**
