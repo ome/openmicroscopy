@@ -29,6 +29,7 @@ import omero
 
 from omero.model import NamedValue as NV
 
+
 class TestModel51(lib.ITest):
 
     def testExposureTime(self):
