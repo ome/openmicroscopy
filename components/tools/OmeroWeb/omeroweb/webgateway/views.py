@@ -1585,21 +1585,23 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
         return True
 
     # If we've got an rdef encoded in request instead of ImageId...
-    if request.GET.get('c') is not None:
+    if request.REQUEST.get('c') is not None:
         # make a map of settings we need
         rdef = {
-            'c': str(request.GET.get('c'))    # channels
+            'c': str(request.REQUEST.get('c'))    # channels
         }
-        if request.GET.get('pixel_range'):
-            rdef['pixel_range'] = str(request.GET.get('pixel_range'))
-        if request.GET.get('m'):
-            rdef['m'] = str(request.GET.get('m'))   # model (grey)
-        if request.GET.get('z'):
-            rdef['z'] = str(request.GET.get('z'))    # z & t pos
-        if request.GET.get('t'):
-            rdef['t'] = str(request.GET.get('t'))
-        if request.GET.get('imageId'):
-            rdef['imageId'] = int(request.GET.get('imageId'))
+        if request.REQUEST.get('pixel_range'):
+            rdef['pixel_range'] = str(request.REQUEST.get('pixel_range'))
+        if request.REQUEST.get('m'):
+            rdef['m'] = str(request.REQUEST.get('m'))   # model (grey)
+        if request.REQUEST.get('z'):
+            rdef['z'] = str(request.REQUEST.get('z'))    # z & t pos
+        if request.REQUEST.get('t'):
+            rdef['t'] = str(request.REQUEST.get('t'))
+        if request.REQUEST.get('imageId'):
+            rdef['imageId'] = int(request.REQUEST.get('imageId'))
+
+    if request.method == "GET":
         request.session.modified = True
         request.session['rdef'] = rdef
         # remove any previous rdef we may have via 'fromId'
