@@ -94,7 +94,6 @@ public class MapAnnotationTest extends AbstractServerTest {
     @Test(expectedExceptions = omero.ValidationException.class)
     public void testNulledMapValue() throws Exception {
         String uuid = UUID.randomUUID().toString();
-        IQueryPrx queryService = root.getSession().getQueryService();
         IUpdatePrx updateService = root.getSession().getUpdateService();
         ExperimenterGroup group = new ExperimenterGroupI();
         group.setName(omero.rtypes.rstring(uuid));
@@ -103,5 +102,14 @@ public class MapAnnotationTest extends AbstractServerTest {
         group.getConfig().add(new NamedValue("foo", ""));
         group.getConfig().add(new NamedValue("bar", null));
         updateService.saveAndReturnObject(group);
+    }
+    
+    @Test
+    public void testMapGetters() throws Exception {
+        ExperimenterGroup group = new ExperimenterGroupI();
+        group.setConfig(new ArrayList<NamedValue>());
+        group.getConfig().add(new NamedValue("foo", ""));
+        group.getConfig().add(new NamedValue("bar", null));
+        group.getConfigAsMap();
     }
 }

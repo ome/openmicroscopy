@@ -32,9 +32,9 @@ using namespace omero::util;
 
 static void assertFooBar(const ExperimenterGroupPtr& group)
 {
-    NamedValue nv = group->getConfig()[0];
-    ASSERT_EQ("foo", nv.name);
-    ASSERT_EQ("bar", nv.value);
+    NamedValuePtr nv = group->getConfig()[0];
+    ASSERT_EQ("foo", nv->name);
+    ASSERT_EQ("bar", nv->value);
 }
 
 TEST(MapAnnotationTest, mapStringField)
@@ -51,9 +51,9 @@ TEST(MapAnnotationTest, mapStringField)
     ExperimenterGroupPtr group = new ExperimenterGroupI();
     ParametersIPtr params = new ParametersI();
     NamedValueList map;
-    NamedValue nv;
-    nv.name = "foo";
-    nv.value = "bar";
+    NamedValuePtr nv = new NamedValue();
+    nv->name = "foo";
+    nv->value = "bar";
     group->setName(rstring(uuid));
     group->setLdap(rbool(true));
     map.push_back(nv);
@@ -66,4 +66,17 @@ TEST(MapAnnotationTest, mapStringField)
     group = ExperimenterGroupPtr::dynamicCast(q->findByQuery(
             "select g from ExperimenterGroup g left outer join fetch g.config where g.id = :id", params));
     assertFooBar(group);
+}
+
+TEST(MapAnnotationTest, asMapMethod)
+{
+    ExperimenterGroupPtr group = new ExperimenterGroupI();
+    NamedValueList nvl;
+    NamedValuePtr nv = new NamedValue();
+    nv->name = "foo";
+    nv->value = "bar";
+    nvl.push_back(nv);
+    group->setConfig(nvl);
+    omero::api::StringStringMap asMap = group->getConfigAsMap();
+    ASSERT_EQ("bar", asMap["foo"]);
 }
