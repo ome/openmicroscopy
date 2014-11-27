@@ -102,6 +102,7 @@
         <bean parent="graphPolicyRule" p:matches="F:Fileset[E]{r}.images = Image[D]" p:changes="F:{a}"/>
         <bean parent="graphPolicyRule" p:matches="I:Image[E]{!a}.rois = [DI]" p:changes="I:{a}"/>
         <bean parent="graphPolicyRule" p:matches="I:Image[E]{!a}.stageLabel = [DI]" p:changes="I:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="P:Pixels[E]{!a}.settings = [DI]" p:changes="P:{a}"/>
         <bean parent="graphPolicyRule" p:matches="P:Pixels[E]{!a}.relatedTo = [DI]" p:changes="P:{a}"/>
         <bean parent="graphPolicyRule" p:matches="Pixels[DI].relatedTo = P:[E]{!a}" p:changes="P:{a}"/>
         <bean parent="graphPolicyRule" p:matches="PlateAcquisition[DI].plate = C:[E]{!a}" p:changes="C:{a}"/>
@@ -193,6 +194,7 @@
         <bean parent="graphPolicyRule" p:matches="F:Fileset[E]{r}.images = Image[D]" p:changes="F:{a}"/>
         <bean parent="graphPolicyRule" p:matches="I:Image[E]{!a}.rois = [DI]" p:changes="I:{a}"/>
         <bean parent="graphPolicyRule" p:matches="I:Image[E]{!a}.stageLabel = [DI]" p:changes="I:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="P:Pixels[E]{!a}.settings = [DI]" p:changes="P:{a}"/>
         <bean parent="graphPolicyRule" p:matches="P:Pixels[E]{!a}.relatedTo = [DI]" p:changes="P:{a}"/>
         <bean parent="graphPolicyRule" p:matches="Pixels[DI].relatedTo = P:[E]{!a}" p:changes="P:{a}"/>
         <bean parent="graphPolicyRule" p:matches="PlateAcquisition[DI].plate = C:[E]{!a}" p:changes="C:{a}"/>
@@ -260,6 +262,7 @@
         <bean parent="graphPolicyRule" p:matches="L:ILink.parent = X:[E]/!d, L.child = T:TagAnnotation[D]"
                                        p:error="may not delete {T} because {X} is tagged with it"/>
         <bean parent="graphPolicyRule" p:matches="E:IEnum[E]" p:changes="E:[O]"/>
+        <bean parent="graphPolicyRule" p:matches="RD:RenderingDef[D]/!no.pixels = [ED]/o" p:changes="RD:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="[D] =? X:!ILink[E]{o}" p:changes="X:[D]"/>
         <bean parent="graphPolicyRule" p:matches="POFM:PixelsOriginalFileMap[!D].parent = [E]/!d, POFM.child = Pixels[D]"
                                        p:changes="POFM:[D]/n"/>
@@ -276,6 +279,7 @@
         <bean parent="graphPolicyRule" p:matches="F:Fileset[E]{r}.images = Image[E]{i}" p:changes="F:{a}"/>
         <bean parent="graphPolicyRule" p:matches="I:Image[E]{!a}.rois = [D]" p:changes="I:{a}"/>
         <bean parent="graphPolicyRule" p:matches="I:Image[E]{!a}.stageLabel = [D]" p:changes="I:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="P:Pixels[E]{!a}.settings = [D]" p:changes="P:{a}"/>
         <bean parent="graphPolicyRule" p:matches="P:Pixels[E]{!a}.relatedTo = [D]" p:changes="P:{a}"/>
         <bean parent="graphPolicyRule" p:matches="Pixels[D].relatedTo = P:[E]{!a}" p:changes="P:{a}"/>
         <bean parent="graphPolicyRule" p:matches="PlateAcquisition[D].plate = C:[E]{!a}" p:changes="C:{a}"/>
