@@ -649,7 +649,7 @@ class TestDelete(lib.ITest):
 
         delete = omero.cmd.Delete(
             type="/Project", id=p1.id.val, options={"/Dataset": "HARD"})
-        self.doSubmit(delete, self.client);
+        self.doSubmit(delete, self.client)
 
         assert query.find("Project", p2.id.val)
         assert not query.find("Project", p1.id.val)
@@ -750,7 +750,7 @@ class TestDelete(lib.ITest):
 
         delete = omero.cmd.Delete(
             type="/Dataset", id=d1.id.val, options={"/Image": "HARD"})
-        self.doSubmit(delete, self.client);
+        self.doSubmit(delete, self.client)
 
         assert not query.find("Dataset", d1.id.val)
         assert query.find("Dataset", d2.id.val)

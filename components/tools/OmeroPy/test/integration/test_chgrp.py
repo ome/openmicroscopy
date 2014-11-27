@@ -701,7 +701,7 @@ class TestChgrp(lib.ITest):
         chgrp = omero.cmd.Chgrp(
             type="/Dataset", id=d1.id.val, grp=target_gid,
             options={"/Image": "HARD"})
-        self.doSubmit(chgrp, client);
+        self.doSubmit(chgrp, client)
 
         ctx = {'omero.group': '-1'}
         assert target_gid == query.get("Dataset",
@@ -775,7 +775,7 @@ class TestChgrp(lib.ITest):
         chgrp = omero.cmd.Chgrp(
             type="/Project", id=p.id.val, grp=target_gid,
             options={"/Image": "HARD"})
-        self.doSubmit(chgrp, client);
+        self.doSubmit(chgrp, client)
 
         ctx = {'omero.group': '-1'}
         assert target_gid == query.get("Project",
@@ -889,7 +889,7 @@ class TestChgrp(lib.ITest):
         chgrp = omero.cmd.Chgrp(
             type="/Project", id=p1.id.val, grp=target_gid,
             options={"/Dataset": "HARD"})
-        self.doSubmit(chgrp, client);
+        self.doSubmit(chgrp, client)
 
         ctx = {'omero.group': '-1'}
         assert target_gid == query.get("Project",
@@ -955,7 +955,7 @@ class TestChgrp(lib.ITest):
         chgrp = omero.cmd.Chgrp(
             type="/Project", id=p1.id.val, grp=target_gid,
             options={"/Dataset": "HARD"})
-        self.doSubmit(chgrp, client);
+        self.doSubmit(chgrp, client)
 
         ctx = {'omero.group': '-1'}
         assert target_gid == query.get("Project",

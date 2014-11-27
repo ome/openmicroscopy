@@ -12,7 +12,6 @@
 
 """
 
-import pytest
 import omero
 from omero.rtypes import rstring
 from omero.cmd import State, ERR, OK
