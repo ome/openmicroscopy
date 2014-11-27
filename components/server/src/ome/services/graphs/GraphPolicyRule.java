@@ -57,7 +57,7 @@ public class GraphPolicyRule {
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphPolicyRule.class);
 
     private static final Pattern NEW_TERM_PATTERN =
-            Pattern.compile("(\\w+\\:)?(\\!?[\\w]+)?(\\[\\!?[EDIO]+\\])?(\\{\\!?[iroa]+\\})?(\\/\\!?[udo]+)?");
+            Pattern.compile("(\\w+\\:)?(\\!?[\\w]+)?(\\[\\!?[EDIO]+\\])?(\\{\\!?[iroa]+\\})?(\\/\\!?[udon]+)?");
     private static final Pattern EXISTING_TERM_PATTERN = Pattern.compile("(\\w+)");
     private static final Pattern CHANGE_PATTERN = Pattern.compile("(\\w+\\:)(\\[[EDIO\\-]\\])?(\\{[iroa]\\})?(\\/n)?");
 
@@ -155,6 +155,7 @@ public class GraphPolicyRule {
         private final Collection<GraphPolicy.Orphan> permittedOrphans;
         private final Set<GraphPolicy.Ability> requiredAbilities;
         private final Set<GraphPolicy.Ability> prohibitedAbilities;
+        private final Boolean isCheckPermissions;
 
         /**
          * Construct a new term match. All arguments may be {@code null}.
@@ -166,10 +167,12 @@ public class GraphPolicyRule {
          * @param permittedOrphans the orphan statuses permitted for the object
          * @param requiredAbilities the abilities that the user must have to operate upon the object
          * @param prohibitedAbilities the abilities that the user must not have to operate upon the object
+         * @param isCheckPermissions if permissions are being checked for the object, may be {@code null}
          */
         NewTermMatch(String termName, Class<? extends IObject> requiredClass, Class<? extends IObject> prohibitedClass,
                 Collection<GraphPolicy.Action> permittedActions, Collection<GraphPolicy.Orphan> permittedOrphans,
-                Collection<GraphPolicy.Ability> requiredAbilities, Collection<GraphPolicy.Ability> prohibitedAbilities) {
+                Collection<GraphPolicy.Ability> requiredAbilities, Collection<GraphPolicy.Ability> prohibitedAbilities,
+                Boolean isCheckPermissions) {
             this.termName = termName;
             this.requiredClass = requiredClass;
             this.prohibitedClass = prohibitedClass;
@@ -194,6 +197,7 @@ public class GraphPolicyRule {
             } else {
                 this.prohibitedAbilities = ImmutableSet.copyOf(prohibitedAbilities);
             }
+            this.isCheckPermissions = isCheckPermissions;
         }
 
         public boolean isMatch(Map<String, Details> namedTerms, MutableBoolean isCheckAllPermissions, Details details) {
@@ -208,7 +212,8 @@ public class GraphPolicyRule {
                 permittedActions.contains(details.action) &&
                 (details.action != GraphPolicy.Action.EXCLUDE || permittedOrphans.contains(details.orphan)) &&
                 Sets.difference(requiredAbilities, details.permissions).isEmpty() &&
-                Sets.intersection(prohibitedAbilities, details.permissions).isEmpty()) {
+                Sets.intersection(prohibitedAbilities, details.permissions).isEmpty() &&
+                (isCheckPermissions == null || isCheckPermissions == details.isCheckPermissions)) {
                 if (termName == null) {
                     return true;
                 } else {
@@ -447,6 +452,7 @@ public class GraphPolicyRule {
         final Collection<GraphPolicy.Orphan> permittedOrphans;
         final Collection<GraphPolicy.Ability> requiredAbilities;
         final Collection<GraphPolicy.Ability> prohibitedAbilities;
+        Boolean isCheckPermissions = null;
 
         /* parse term name, if any */
 
@@ -519,7 +525,7 @@ public class GraphPolicyRule {
             permittedOrphans = invert ? EnumSet.complementOf(orphans) : orphans;
         }
 
-        /* parse abilities, if any */
+        /* parse abilities, if any; also permissions checking */
 
         final String abilityGroup = newTermMatcher.group(5);
         if (abilityGroup == null) {
@@ -535,6 +541,8 @@ public class GraphPolicyRule {
                     abilities.add(GraphPolicy.Ability.DELETE);
                 } else if (ability == 'o') {
                     abilities.add(GraphPolicy.Ability.OWN);
+                } else if (ability == 'n') {
+                    isCheckPermissions = !required;
                 } else if (ability == '!') {
                     required = false;
                 }
@@ -551,7 +559,7 @@ public class GraphPolicyRule {
         /* construct new term match */
 
         return new NewTermMatch(termName, requiredClass, prohibitedClass, permittedActions, permittedOrphans,
-                requiredAbilities, prohibitedAbilities);
+                requiredAbilities, prohibitedAbilities, isCheckPermissions);
 
     }
 
