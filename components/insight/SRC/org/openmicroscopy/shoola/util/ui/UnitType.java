@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.measurement.util.model;
+package org.openmicroscopy.shoola.util.ui;
 
 //Java imports
 

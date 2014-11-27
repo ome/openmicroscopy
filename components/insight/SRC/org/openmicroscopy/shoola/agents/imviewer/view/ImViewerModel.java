@@ -71,7 +71,6 @@ import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.ChannelPlayer;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.Player;
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
-import org.openmicroscopy.shoola.agents.measurement.util.model.UnitType;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
@@ -92,6 +91,7 @@ import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.UnitType;
 
 import pojos.ChannelData;
 import pojos.DataObject;

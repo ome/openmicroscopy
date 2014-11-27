@@ -88,9 +88,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.jdesktop.swingx.JXDatePicker;
 import org.jdesktop.swingx.JXTaskPane;
-
-import org.openmicroscopy.shoola.agents.measurement.util.model.UnitType;
 import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
+
 import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.enums.UnitsLength;

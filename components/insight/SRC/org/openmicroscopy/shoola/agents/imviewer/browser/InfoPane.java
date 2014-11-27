@@ -26,15 +26,18 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 //Java imports
 import java.awt.FlowLayout;
+
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
 
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.agents.measurement.util.model.UnitType;
+import org.openmicroscopy.shoola.util.ui.UnitType;
 
 
 

@@ -60,7 +60,6 @@ import omero.model.enums.UnitsPressure;
 import omero.model.enums.UnitsTemperature;
 
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
-import org.openmicroscopy.shoola.agents.measurement.util.model.UnitType;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.util.filter.file.CppFilter;
@@ -71,6 +70,7 @@ import org.openmicroscopy.shoola.util.filter.file.PythonFilter;
 import org.openmicroscopy.shoola.util.ui.OMEComboBox;
 import org.openmicroscopy.shoola.util.ui.OMEComboBoxUI;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.UnitType;
 
 import com.google.common.math.DoubleMath;
 
