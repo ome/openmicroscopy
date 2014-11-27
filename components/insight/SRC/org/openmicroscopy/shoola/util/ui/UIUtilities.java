@@ -52,7 +52,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
-
 import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -88,8 +87,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.jdesktop.swingx.JXDatePicker;
 import org.jdesktop.swingx.JXTaskPane;
-import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 
+import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.enums.UnitsLength;

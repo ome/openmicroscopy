@@ -25,11 +25,9 @@ package org.openmicroscopy.shoola.agents.measurement.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
-
 import javax.swing.Action;
 
 //Third-party libraries
-
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;

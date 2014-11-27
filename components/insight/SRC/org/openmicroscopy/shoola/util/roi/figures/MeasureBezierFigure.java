@@ -39,7 +39,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.FigureListener;
@@ -56,7 +55,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.UnitType;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.BezierTextFigure;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
-
 import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.enums.UnitsLength;

@@ -52,7 +52,6 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomGridAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.imviewer.view.ViewerPreferences;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;

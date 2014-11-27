@@ -30,12 +30,9 @@ import java.awt.Point;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
@@ -52,7 +49,6 @@ import org.openmicroscopy.shoola.util.roi.model.util.UnitPoint;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.PointTextFigure;
-
 import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.enums.UnitsLength;

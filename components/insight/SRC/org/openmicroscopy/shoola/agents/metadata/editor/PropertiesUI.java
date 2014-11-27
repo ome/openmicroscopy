@@ -50,7 +50,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -70,11 +69,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import info.clearthought.layout.TableLayout;
-
 import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.JXTaskPane;
-
 import com.google.common.base.CharMatcher;
 
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
@@ -93,7 +89,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.UnitType;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.WikiDataObject;
-
 import omero.model.Length;
 import pojos.AnnotationData;
 import pojos.ChannelData;
