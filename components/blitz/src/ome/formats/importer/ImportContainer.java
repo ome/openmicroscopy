@@ -32,7 +32,6 @@ import ome.formats.importer.transfers.FileTransfer;
 import ome.formats.importer.transfers.UploadFileTransfer;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.FsFile;
-import omero.api.NamedValue;
 import omero.constants.namespaces.NSAUTOCLOSE;
 import omero.constants.namespaces.NSFILETRANSFER;
 import omero.grid.ImportSettings;
@@ -45,6 +44,7 @@ import omero.model.Fileset;
 import omero.model.FilesetEntry;
 import omero.model.FilesetEntryI;
 import omero.model.IObject;
+import omero.model.NamedValue;
 import omero.model.UploadJob;
 import omero.model.UploadJobI;
 

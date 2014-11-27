@@ -104,6 +104,9 @@ module omero {
         ["java:type:java.util.ArrayList<omero.model.ChecksumAlgorithm>:java.util.List<omero.model.ChecksumAlgorithm>"]
             sequence<omero::model::ChecksumAlgorithm> ChecksumAlgorithmList;
 
+        ["java:type:java.util.ArrayList<omero.model.NamedValue>:java.util.List<omero.model.NamedValue>"]
+        sequence<omero::model::NamedValue> NamedValueList;
+
         // Arrays
 
         sequence<bool> BoolArray;
@@ -155,15 +158,6 @@ module omero {
         dictionary<int,    ShapeList>                  IntShapeListMap;
         dictionary<long,   AnnotationList>             LongAnnotationListMap;
         dictionary<long,   BooleanLongListMap>         IdBooleanLongListMapMap;
-
-        // Named-Value List
-
-        struct NamedValue {
-            string name;
-            omero::RType value;
-        };
-        ["java:type:java.util.ArrayList<omero.api.NamedValue>:java.util.List<omero.api.NamedValue>"]
-        sequence<NamedValue> NamedValueList;
 
     };
 

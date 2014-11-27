@@ -54,7 +54,7 @@ import omero.RTime;
 import omero.RType;
 import omero.ServerError;
 import omero.rtypes.Conversion;
-import omero.api.NamedValue;
+import omero.model.NamedValue;
 import omero.model.PermissionsI;
 import omero.romio.BlueBand;
 import omero.romio.GreenBand;

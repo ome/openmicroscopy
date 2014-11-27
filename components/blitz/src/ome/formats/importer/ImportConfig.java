@@ -31,8 +31,8 @@ import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.IniFileLoader;
 import ome.system.PreferenceContext;
 import ome.system.UpgradeCheck;
-import omero.api.NamedValue;
 import omero.model.Annotation;
+import omero.model.NamedValue;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;

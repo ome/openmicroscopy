@@ -19,23 +19,19 @@
 package integration;
 
 import static omero.rtypes.rbool;
-import static omero.rtypes.rstring;
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 import omero.ServerError;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
-import omero.api.NamedValue;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.MapAnnotation;
+import omero.model.NamedValue;
 
 import org.testng.annotations.Test;
 

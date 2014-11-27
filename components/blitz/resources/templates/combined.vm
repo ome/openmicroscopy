@@ -1010,7 +1010,7 @@ Properties used throughout the accessor generation
 [$Ice]       omero::RTime ${property.name};
 
 #elseif( $property.class.name == "ome.dsl.MapField" )
-#set( $javaType = "java.util.List<omero.api.NamedValue>");
+#set( $javaType = "java.util.List<omero.model.NamedValue>");
 #set( $iceType = "omero::api::NamedValueList" )
 #set( $cppType = "${iceType}" )
 #set( $copyMethod = "this.${fieldName} = omero.util.IceMapper.convertNamedValueList(source.get${PropertyName}());" );
