@@ -33,10 +33,12 @@ def image_should_be_blank(path, expected=True):
 
     if expected:
         if not blank:
-            raise AssertionError("Image %s is not blank. min: %s, max: %s" % (path, minVals, maxVals))
+            raise AssertionError("Image %s is not blank. min: %s, max: %s"
+                                 % (path, minVals, maxVals))
     else:
         if blank:
-            raise AssertionError("Image %s is blank. min: %s, max: %s" % (path, minVals, maxVals))
+            raise AssertionError("Image %s is blank. min: %s, max: %s"
+                                 % (path, minVals, maxVals))
 
 
 def image_should_not_be_blank(path):
