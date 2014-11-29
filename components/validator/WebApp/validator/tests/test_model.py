@@ -6,7 +6,7 @@
 # choice for testing, because you can use an in-memory database
 # which is very fast.
 
-from turbogears import testutil, database
+# from turbogears import testutil, database
 # from validator.model import YourDataClass, User
 
 # database.set_db_uri("sqlite:///:memory:")
@@ -21,4 +21,3 @@ from turbogears import testutil, database
 #                       display_name = "Mr Creosote",
 #                       password = "Wafer-thin Mint")
 #         assert obj.display_name == "Mr Creosote"
-
