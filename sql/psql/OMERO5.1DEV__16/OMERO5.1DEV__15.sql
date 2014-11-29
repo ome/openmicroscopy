@@ -50,6 +50,8 @@ INSERT INTO dbpatch (currentVersion, currentPatch,   previousVersion,     previo
 -- Actual upgrade
 --
 
+-- drop all constraints for the map tables
+
 ALTER TABLE annotation_mapvalue
 	DROP CONSTRAINT annotation_mapvalue_pkey;
 
@@ -68,11 +70,7 @@ ALTER TABLE metadataimportjob_versioninfo
 ALTER TABLE uploadjob_versioninfo
 	DROP CONSTRAINT uploadjob_versioninfo_pkey;
 
-ALTER TABLE annotation_mapvalue
-	RENAME COLUMN mapvalue_key TO name;
-
-ALTER TABLE annotation_mapvalue
-	RENAME COLUMN mapvalue TO "value";
+-- annotation_mapvalue
 
 ALTER TABLE annotation_mapvalue
 	ADD COLUMN index integer;
@@ -89,11 +87,13 @@ UPDATE annotation_mapvalue
 ALTER TABLE annotation_mapvalue
     ALTER COLUMN index SET NOT NULL;
 
-ALTER TABLE experimentergroup_config
-	RENAME COLUMN config_key to name;
+ALTER TABLE annotation_mapvalue
+	RENAME COLUMN mapvalue_key TO name;
 
-ALTER TABLE experimentergroup_config
-	RENAME COLUMN config TO "value";
+ALTER TABLE annotation_mapvalue
+	RENAME COLUMN mapvalue TO "value";
+
+-- experimentergroup_config
 
 ALTER TABLE experimentergroup_config
 	ADD COLUMN index integer;
@@ -108,13 +108,15 @@ UPDATE experimentergroup_config
     AND experimentergroup_config.config_key = x.config_key;
 
 ALTER TABLE experimentergroup_config
+	RENAME COLUMN config_key to name;
+
+ALTER TABLE experimentergroup_config
+	RENAME COLUMN config TO "value";
+
+ALTER TABLE experimentergroup_config
     ALTER COLUMN index SET NOT NULL;
 
-ALTER TABLE genericexcitationsource_map
-	RENAME COLUMN map_key TO name;
-
-ALTER TABLE genericexcitationsource_map
-	RENAME COLUMN "map" TO "value";
+-- genericexcitation_map
 
 ALTER TABLE genericexcitationsource_map
 	ADD COLUMN index integer;
@@ -129,13 +131,15 @@ UPDATE genericexcitationsource_map
     AND genericexcitationsource_map.map_key = x.map_key;
 
 ALTER TABLE genericexcitationsource_map
-    ALTER COLUMN index SET NOT NULL;
-
-ALTER TABLE imagingenvironment_map
 	RENAME COLUMN map_key TO name;
 
-ALTER TABLE imagingenvironment_map
+ALTER TABLE genericexcitationsource_map
 	RENAME COLUMN "map" TO "value";
+
+ALTER TABLE genericexcitationsource_map
+    ALTER COLUMN index SET NOT NULL;
+
+-- imagingenvironment_map
 
 ALTER TABLE imagingenvironment_map
 	ADD COLUMN index integer;
@@ -150,13 +154,15 @@ UPDATE imagingenvironment_map
     AND imagingenvironment_map.map_key = x.map_key;
 
 ALTER TABLE imagingenvironment_map
+	RENAME COLUMN map_key TO name;
+
+ALTER TABLE imagingenvironment_map
+	RENAME COLUMN "map" TO "value";
+
+ALTER TABLE imagingenvironment_map
     ALTER COLUMN index SET NOT NULL;
 
-ALTER TABLE metadataimportjob_versioninfo
-	RENAME COLUMN versioninfo_key TO name;
-
-ALTER TABLE metadataimportjob_versioninfo
-	RENAME COLUMN versioninfo TO "value";
+-- metadataimportjob_versioninfo
 
 ALTER TABLE metadataimportjob_versioninfo
 	ADD COLUMN index integer;
@@ -171,13 +177,15 @@ UPDATE metadataimportjob_versioninfo
     AND metadataimportjob_versioninfo.versioninfo_key = x.versioninfo_key;
 
 ALTER TABLE metadataimportjob_versioninfo
-    ALTER COLUMN index SET NOT NULL;
-
-ALTER TABLE uploadjob_versioninfo
 	RENAME COLUMN versioninfo_key TO name;
 
-ALTER TABLE uploadjob_versioninfo
+ALTER TABLE metadataimportjob_versioninfo
 	RENAME COLUMN versioninfo TO "value";
+
+ALTER TABLE metadataimportjob_versioninfo
+    ALTER COLUMN index SET NOT NULL;
+
+-- uploadjob_versioninfo
 
 ALTER TABLE uploadjob_versioninfo
 	ADD COLUMN index integer;
@@ -192,7 +200,15 @@ UPDATE uploadjob_versioninfo
     AND uploadjob_versioninfo.versioninfo_key = x.versioninfo_key;
 
 ALTER TABLE uploadjob_versioninfo
+	RENAME COLUMN versioninfo_key TO name;
+
+ALTER TABLE uploadjob_versioninfo
+	RENAME COLUMN versioninfo TO "value";
+
+ALTER TABLE uploadjob_versioninfo
     ALTER COLUMN index SET NOT NULL;
+
+-- add new constraints
 
 ALTER TABLE annotation_mapvalue
 	ADD CONSTRAINT annotation_mapvalue_pkey PRIMARY KEY (annotation_id, index);
@@ -211,6 +227,7 @@ ALTER TABLE metadataimportjob_versioninfo
 
 ALTER TABLE uploadjob_versioninfo
 	ADD CONSTRAINT uploadjob_versioninfo_pkey PRIMARY KEY (uploadjob_id, index);
+
 --
 -- FINISHED
 --
