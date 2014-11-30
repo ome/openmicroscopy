@@ -34,16 +34,12 @@ import omero.ServerError;
 import omero.api.ClientCallbackPrx;
 import omero.api.ExporterPrx;
 import omero.api.ExporterPrxHelper;
-import omero.api.GatewayPrx;
-import omero.api.GatewayPrxHelper;
 import omero.api.IAdminPrx;
 import omero.api.IAdminPrxHelper;
 import omero.api.IConfigPrx;
 import omero.api.IConfigPrxHelper;
 import omero.api.IContainerPrx;
 import omero.api.IContainerPrxHelper;
-import omero.api.IDeletePrx;
-import omero.api.IDeletePrxHelper;
 import omero.api.ILdapPrx;
 import omero.api.ILdapPrxHelper;
 import omero.api.IMetadataPrx;
@@ -93,9 +89,7 @@ import omero.api._StatefulServiceInterfaceOperations;
 import omero.constants.ADMINSERVICE;
 import omero.constants.CONFIGSERVICE;
 import omero.constants.CONTAINERSERVICE;
-import omero.constants.DELETESERVICE;
 import omero.constants.EXPORTERSERVICE;
-import omero.constants.GATEWAYSERVICE;
 import omero.constants.JOBHANDLE;
 import omero.constants.LDAPSERVICE;
 import omero.constants.METADATASERVICE;
@@ -292,11 +286,6 @@ public final class ServiceFactoryI extends omero.cmd.SessionI implements _Servic
                 current));
     }
 
-    public IDeletePrx getDeleteService(Ice.Current current) throws ServerError {
-        return IDeletePrxHelper.uncheckedCast(getByName(DELETESERVICE.value,
-                current));
-    }
-
     public ILdapPrx getLdapService(Ice.Current current) throws ServerError {
         return ILdapPrxHelper.uncheckedCast(getByName(LDAPSERVICE.value,
                 current));
@@ -385,11 +374,6 @@ public final class ServiceFactoryI extends omero.cmd.SessionI implements _Servic
     public ExporterPrx createExporter(Current current) throws ServerError {
         return ExporterPrxHelper.uncheckedCast(createByName(
                 EXPORTERSERVICE.value, current));
-    }
-
-    public GatewayPrx createGateway(Ice.Current current) throws ServerError {
-        return GatewayPrxHelper.uncheckedCast(createByName(
-                GATEWAYSERVICE.value, current));
     }
 
     public JobHandlePrx createJobHandle(Ice.Current current) throws ServerError {

@@ -143,6 +143,7 @@ public class PermissionsTestAll extends AbstractServerTest {
 
                 ExperimenterGroup group = new ExperimenterGroupI();
                 group.setName(omero.rtypes.rstring(groupName));
+                group.setLdap(omero.rtypes.rbool(false));
                 final Permissions perms = new PermissionsI(
                         groupTypeName.getKey());
                 group.getDetails().setPermissions(perms);

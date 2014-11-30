@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.server.itests.update;
@@ -164,9 +164,12 @@ public class UpdateTest extends AbstractUpdateTest {
         e.setOmeName("j.b." + System.currentTimeMillis());
         e.setFirstName(" Joe ");
         e.setLastName(" Brown ");
+        e.setLdap(false);
 
         g_1.setName("DEFAULT: " + System.currentTimeMillis());
         g_2.setName("NOTDEFAULT: " + System.currentTimeMillis());
+        g_1.setLdap(false);
+        g_2.setLdap(false);
 
         // The instances must be unloaded to prevent spurious deletes!
         // Need versions. See:

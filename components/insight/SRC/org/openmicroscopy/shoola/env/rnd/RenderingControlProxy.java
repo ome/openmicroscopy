@@ -1809,7 +1809,7 @@ class RenderingControlProxy
 	{
 		isSessionAlive();
 		try {
-    		servant.resetDefaultsNoSave();
+    		servant.resetDefaultSettings(false);
     		if (getPixelsDimensionsC() > 1) setModel(RGB);
     		List list = servant.getAvailableFamilies();
     		ChannelData m;

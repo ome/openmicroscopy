@@ -2,7 +2,7 @@
  * pojos.DetectorData
  *
  *------------------------------------------------------------------------------
- * Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ * Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -63,6 +63,18 @@ public class DetectorData
 	 * Returns the voltage of the detector.
 	 * 
 	 * @return See above
+	 */
+	public ElectricPotential getVoltageAsElectricPotential()
+	{
+		Detector detector = (Detector) asIObject();
+		return detector.getVoltage();
+	}
+	
+	/**
+	 * Returns the voltage of the detector.
+	 * 
+	 * @return See above
+	 * @deprecated Replaced by {@link #getVoltageAsElectricPotential()}
 	 */
 	@Deprecated
 	public Double getVoltage()
@@ -185,7 +197,7 @@ public class DetectorData
 	public String getLotNumber()
 	{
 		Detector detector = (Detector) asIObject();
-		RString value = null;//detector.getLotNumber();
+		RString value = detector.getLotNumber();
 		if (value == null) return "";
 		return value.getValue();
 	}

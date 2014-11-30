@@ -90,9 +90,7 @@ module omero {
     const string ANALYSISSERVICE  = "omero.api.IAnalysis";
     const string CONFIGSERVICE    = "omero.api.IConfig";
     const string CONTAINERSERVICE = "omero.api.IContainer";
-    const string GATEWAYSERVICE   = "omero.api.Gateway";
     const string EXPORTERSERVICE  = "omero.api.Exporter";
-    const string DELETESERVICE    = "omero.api.IDelete";
     const string LDAPSERVICE      = "omero.api.ILdap";
     const string PIXELSSERVICE    = "omero.api.IPixels";
     const string PROJECTIONSERVICE= "omero.api.IProjection";

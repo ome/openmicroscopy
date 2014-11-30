@@ -63,9 +63,7 @@ import org.openmicroscopy.shoola.agents.util.DataObjectListCellRenderer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
-import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
-import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.filter.file.BMPFilter;
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
@@ -89,6 +87,7 @@ import pojos.FileAnnotationData;
 import pojos.LongAnnotationData;
 import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
+import pojos.TimeAnnotationData;
 import pojos.XMLAnnotationData;
 
 /** 
@@ -683,6 +682,14 @@ class DocComponent
 			}
 			else if (data instanceof BooleanAnnotationData) {
 				BooleanAnnotationData tag = (BooleanAnnotationData) data;
+				label.setText(tag.getContentAsString());
+				label.setToolTipText(formatToolTip(tag, null));
+				if (tag.getId() < 0)
+					label.setForeground(
+						DataObjectListCellRenderer.NEW_FOREGROUND_COLOR);
+			}
+			else if (data instanceof TimeAnnotationData) {
+				TimeAnnotationData tag = (TimeAnnotationData) data;
 				label.setText(tag.getContentAsString());
 				label.setToolTipText(formatToolTip(tag, null));
 				if (tag.getId() < 0)

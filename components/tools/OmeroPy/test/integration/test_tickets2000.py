@@ -56,7 +56,7 @@ class TestTickets2000(lib.ITest):
         self.client.sf.getAdminService().getEventContext().sessionUuid
         self.client.sf.getAdminService().lookupLdapAuthExperimenters()
 
-    @pytest.mark.xfail(reason="See ticket #11539")
+    @pytest.mark.broken(ticket="11539")
     def test1069(self):
         unique = rstring(self.uuid())
         project = ProjectI()
@@ -351,6 +351,7 @@ class TestTickets2000(lib.ITest):
         # group1
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("group1_%s" % uuid)
+        new_gr1.ldap = rbool(False)
         gid = admin.createGroup(new_gr1)
 
         # new user1
@@ -405,7 +406,7 @@ class TestTickets2000(lib.ITest):
                 # type(m.copyGroupExperimenterMap()[0].parent),
                 # m.copyGroupExperimenterMap()[0].parent.id.val
 
-    @pytest.mark.xfail(reason="See ticket #11539")
+    @pytest.mark.broken(ticket="11539")
     def test1163(self):
         uuid = self.uuid()
         new_gr1 = self.new_group(perms="rw----")
@@ -428,7 +429,7 @@ class TestTickets2000(lib.ITest):
         res = search1.results()
         assert 1 == len(res)
 
-    @pytest.mark.xfail(reason="ticket 11543")
+    @pytest.mark.broken(ticket="11543")
     def test1184(self):
         uuid = self.uuid()
         client = self.new_client(perms="rw----")

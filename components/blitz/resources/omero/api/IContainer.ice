@@ -39,12 +39,6 @@ module omero {
                 IObjectList link(IObjectList links, omero::sys::Parameters options) throws ServerError;
                 omero::model::IObject updateDataObject(omero::model::IObject obj, omero::sys::Parameters options) throws ServerError;
                 IObjectList updateDataObjects(IObjectList objs, omero::sys::Parameters options) throws ServerError;
-
-                ["deprecated: use omero::model::IDelete::queueDelete instead"]
-                void deleteDataObject(omero::model::IObject obj, omero::sys::Parameters options) throws ServerError;
-
-                ["deprecated: use omero::model::IDelete::queueDelete instead"]
-                void deleteDataObjects(IObjectList objs, omero::sys::Parameters options) throws ServerError;
             };
 
     };

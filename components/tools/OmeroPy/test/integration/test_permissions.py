@@ -115,6 +115,7 @@ class TestPermissions(lib.ITest):
         uuid = self.uuid()
         g = ExperimenterGroupI()
         g.name = rstring(uuid)
+        g.ldap = rbool(False)
         g.details.permissions = PermissionsI("rwrwrw")
         self.root.sf.getAdminService().createGroup(g)
 
@@ -137,7 +138,7 @@ class TestPermissions(lib.ITest):
 
         uuid = self.uuid()
         group = self.new_group(perms="rw----")
-        client, user = self.new_client_and_user(group=group, admin=True)
+        client, user = self.new_client_and_user(group=group, owner=True)
         update = client.sf.getUpdateService()
 
         project = ProjectI()
@@ -162,6 +163,7 @@ class TestPermissions(lib.ITest):
         # create group1
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("group1_%s" % uuid)
+        new_gr1.ldap = rbool(False)
         p = PermissionsI()
         p.setUserRead(True)
         p.setUserWrite(True)
@@ -192,6 +194,7 @@ class TestPermissions(lib.ITest):
         # create group1
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("group1_%s" % uuid)
+        new_gr1.ldap = rbool(False)
         p = PermissionsI()
         p.setUserRead(True)
         p.setUserWrite(True)
@@ -221,6 +224,7 @@ class TestPermissions(lib.ITest):
         # create group1
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("group1_%s" % uuid)
+        new_gr1.ldap = rbool(False)
         p = PermissionsI()
         p.setUserRead(True)
         p.setUserWrite(True)
@@ -251,6 +255,7 @@ class TestPermissions(lib.ITest):
         # create group1
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("group1_%s" % uuid)
+        new_gr1.ldap = rbool(False)
         p = PermissionsI()
         p.setUserRead(True)
         p.setUserWrite(True)
@@ -280,6 +285,7 @@ class TestPermissions(lib.ITest):
         # create group1
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("group1_%s" % uuid)
+        new_gr1.ldap = rbool(False)
         p = PermissionsI()
         p.setUserRead(True)
         p.setUserWrite(True)
@@ -345,6 +351,7 @@ class TestPermissions(lib.ITest):
         # create group1
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("group1_%s" % uuid)
+        new_gr1.ldap = rbool(False)
         p = PermissionsI()
         p.setUserRead(True)
         p.setUserWrite(True)
@@ -369,6 +376,7 @@ class TestPermissions(lib.ITest):
         uuid = self.uuid()
         uuidGroup = ExperimenterGroupI()
         uuidGroup.name = rstring(uuid)
+        uuidGroup.ldap = rbool(False)
         uuidGroupId = admin.createGroup(uuidGroup)
         uuidGroup = ExperimenterGroupI(uuidGroupId, False)
         listOfGroups = list()
@@ -463,7 +471,7 @@ class TestPermissions(lib.ITest):
         # If the user tries that, there will be an exception
         get_tag(query, {"omero.group": "-1"})
 
-    @pytest.mark.xfail(reason="ticket 11494")
+    @pytest.mark.broken(ticket="11494")
     def test3136(self):
         """
         Calls to updateGroup were taking too long
@@ -571,7 +579,7 @@ class TestPermissions(lib.ITest):
     # ==============================================
 
     # See ticket 11374
-    @pytest.mark.xfail(reason="ticket 11374")
+    @pytest.mark.broken(ticket="11374")
     def testSaveWithNegOneExplicit(self):
 
         # Get a user and services
@@ -610,7 +618,7 @@ class TestPermissions(lib.ITest):
             update.saveAndReturnObject(tag, all_context)
 
     # See ticket 11374
-    @pytest.mark.xfail(reason="ticket 11374")
+    @pytest.mark.broken(ticket="11374")
     def testSaveWithNegBadLink(self):  # ticket:8194
 
         # Get a user and services
@@ -640,7 +648,7 @@ class TestPermissions(lib.ITest):
 
     # The following test is spun off from the one above Without
     # the -1 a GSV should be raised. See ticket 11375
-    @pytest.mark.xfail(reason="ticket 11375")
+    @pytest.mark.broken(ticket="11375")
     def testSaveBadLink(self):
 
         # Get a user and services
@@ -830,7 +838,7 @@ class TestPermissions(lib.ITest):
         self.assertValidScript(lambda v: {'omero.group':
                                           str(v.details.group.id.val)})
 
-    @pytest.mark.xfail(reason="See ticket #11539")
+    @pytest.mark.broken(ticket="11539")
     def testUseOfRawFileBeanScriptReadCorrectGroupAndUser(self):
         self.assertValidScript(lambda v: {
             'omero.group': str(v.details.group.id.val),
@@ -949,7 +957,7 @@ class TestPermissionProjections(lib.ITest):
             return self._system_admin
         elif who == "group-owner":
             self._group_owner = self.new_client(
-                group=self._group, admin=True)
+                group=self._group, owner=True)
             return self._group_owner
         else:
             self._other[who] = self.new_client(group=self._group)
@@ -966,7 +974,7 @@ class TestPermissionProjections(lib.ITest):
             expected_arr.append(expected)
         assert expected_arr == found_arr
 
-    @pytest.mark.xfail(reason="See ticket #12474")
+    @pytest.mark.broken(ticket="12474")
     @pytest.mark.parametrize("fixture", PFS)
     def testProjectionPermissions(self, fixture):
         writer = self.writer(fixture)

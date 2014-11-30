@@ -97,6 +97,7 @@ omero::model::ExperimenterPtr Fixture::newUser(const omero::model::ExperimenterG
     if (!g) {
         g = new omero::model::ExperimenterGroupI();
         g->setName( name );
+        g->setLdap( rbool(false) );
         gid = admin->createGroup(g);
     } else {
         gid = g->getId()->getValue();
@@ -106,6 +107,7 @@ omero::model::ExperimenterPtr Fixture::newUser(const omero::model::ExperimenterG
     e->setOmeName( name );
     e->setFirstName( name );
     e->setLastName( name );
+    e->setLdap( rbool(false) );
     std::vector<ExperimenterGroupPtr> groups;
     omero::model::ExperimenterGroupPtr userGroup = admin->lookupGroup("user");
     groups.push_back(userGroup);
@@ -118,6 +120,7 @@ omero::model::ExperimenterGroupPtr Fixture::newGroup(const std::string& perms) {
     std::string gname = uuid();
     ExperimenterGroupPtr group = new ExperimenterGroupI();
     group->setName( rstring(gname) );
+    group->setLdap( rbool(false) );
     if (!perms.empty()) {
         group->getDetails()->setPermissions( new PermissionsI(perms) );
     }
@@ -154,7 +157,7 @@ omero::model::PixelsIPtr Fixture::pixels() {
 
     lc->setPhotometricInterpretation( pi );
 
-    UnitsLength mm = UnitsLength::MM;
+    UnitsLength mm = omero::model::enums::MM;
     LengthPtr mm1 = new LengthI();
     mm1->setUnit(mm);
     mm1->setValue(1.0);

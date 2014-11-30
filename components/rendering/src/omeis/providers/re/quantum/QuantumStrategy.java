@@ -150,13 +150,16 @@ public abstract class QuantumStrategy {
      * 
      * The min value and max value could be out of pixel type range b/c of an
      * error occurred during the calculations of the statistics.
-     * 
+     * Returns <code>true</code> if the interval is valid according to the
+     * pixels type, <code>false</code> otherwise.
+     *
      * @param min
      *            The lower bound of the interval.
      * @param max
      *            The upper bound of the interval.
+     * @return See above.
      */
-    private void verifyInterval(double min, double max) {
+    private boolean verifyInterval(double min, double max) {
         boolean b = false;
         if (min <= max) {
             double range = max - min;
@@ -183,10 +186,7 @@ public abstract class QuantumStrategy {
                 b = true;
             }
         }
-        if (!b) {
-            throw new IllegalArgumentException(
-            	"Min: " + min + " Max: " + max + " Interval not supported");
-        }
+        return b;
     }
 
     /** 
@@ -270,7 +270,11 @@ public abstract class QuantumStrategy {
             globalMax = pixelsTypeMax;
         if (Double.isInfinite(globalMin) || globalMin < pixelsTypeMin)
             globalMin = pixelsTypeMin;
-        verifyInterval(globalMin, globalMax);
+        //Check if outside the pixel range so we set to the pixels type
+        if (!verifyInterval(globalMin, globalMax)) {
+            globalMax = pixelsTypeMax;
+            globalMin = pixelsTypeMin;
+        }
         this.globalMin = globalMin;
         this.globalMax = globalMax;
         this.windowStart = globalMin;
@@ -288,6 +292,11 @@ public abstract class QuantumStrategy {
      */
     public void setWindow(double start, double end) {
         verifyInterval(start, end);
+       //Check if outside the pixel range so we set to the pixels type
+        if (!verifyInterval(start, end)) {
+            end = pixelsTypeMax;
+            start = pixelsTypeMin;
+        }
         if (start < pixelsTypeMin) start = pixelsTypeMin;
         if (end > pixelsTypeMax) end = pixelsTypeMax;
         windowStart = start;

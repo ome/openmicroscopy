@@ -24,7 +24,7 @@ class TestWrapper(object):
         gatewaywrapper.loginAsAuthor()
         self.TESTIMG = gatewaywrapper.getTestImage()
 
-    @pytest.mark.xfail(reason="ticket 11610")
+    @pytest.mark.broken(ticket="11610")
     def testAllObjectsWrapped(self, author_testimg):
         """
         Blitz object wrapper should ensure that all values returned are also

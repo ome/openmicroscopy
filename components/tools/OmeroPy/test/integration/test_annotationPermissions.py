@@ -49,7 +49,7 @@ class AnnotationPermissions(lib.ITest):
         # create group and users
         self.group = self.new_group(perms=perms)
         self.exps = {}
-        self.exps["owner"] = self.new_user(group=self.group, admin=True)
+        self.exps["owner"] = self.new_user(group=self.group, owner=True)
         self.exps["member1"] = self.new_user(group=self.group)
         self.exps["member2"] = self.new_user(group=self.group)
         self.exps["admin"] = self.new_user(group=self.group, system=True)

@@ -71,7 +71,7 @@ class TestPixelsService(lib.ITest):
         # Now use the RE to load
         re = self.client.sf.createRenderingEngine()
         re.lookupPixels(pixels_id)
-        re.resetDefaults()
+        re.resetDefaultSettings(save=True)
         re.lookupPixels(pixels_id)
         re.lookupRenderingDef(pixels_id)
         re.getPixels()

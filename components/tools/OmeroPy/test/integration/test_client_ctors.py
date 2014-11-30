@@ -55,7 +55,7 @@ class TestClientConstructors(lib.ITest):
         except:
             c.__del__()
 
-    @pytest.mark.xfail(reason="See ticket #11541")
+    @pytest.mark.broken(ticket="11541")
     def testInitializationDataConstructor(self):
         id = Ice.InitializationData()
         id.properties = Ice.createProperties()
