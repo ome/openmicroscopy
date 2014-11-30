@@ -8,7 +8,7 @@ Documentation       A test suite with a single test for valid login.
 Resource            ../../resources/web/webadmin.txt
 Resource            ../../resources/config.txt
 
-Suite Setup         Open Browser And Log In As User
+Suite Setup         Run Keywords    Open Browser And Log In As User     Maximize Browser Window
 Suite Teardown      Logout and Teardown
 
 
