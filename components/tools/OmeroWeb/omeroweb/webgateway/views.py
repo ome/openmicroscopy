@@ -1572,6 +1572,7 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
     fromid = request.GET.get('fromid', None)
     toids = request.POST.getlist('toids')
     to_type = str(request.POST.get('to_type', 'image'))
+    rdef = None
 
     if to_type not in ('dataset', 'plate', 'acquisition'):
         to_type = "Image"  # default is image
@@ -1643,13 +1644,15 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
         image.saveDefaults()
 
 
+    # Use rdef from above or previously saved one...
+    if rdef is None:
+        rdef = request.session.get('rdef')
     if request.method == "POST":
         originalSettings = None
         fromImage = None
         if fromid is None:
             # if we have rdef, save to source image, then use that image as 'fromId', then revert.
-            if request.session.get('rdef') is not None and len(toids) > 0:
-                rdef = request.session.get('rdef')
+            if rdef is not None and len(toids) > 0:
                 fromImage = conn.getObject("Image", rdef['imageId'])
                 if fromImage is not None:
                     # copy orig settings
