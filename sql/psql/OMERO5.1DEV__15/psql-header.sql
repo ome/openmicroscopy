@@ -16,6 +16,7 @@
 BEGIN;
 
 CREATE DOMAIN nonnegative_int AS INTEGER CHECK (VALUE >= 0);
+CREATE DOMAIN nonnegative_float AS DOUBLE PRECISION CHECK (VALUE >= 0);
 CREATE DOMAIN positive_int AS INTEGER CHECK (VALUE > 0);
 CREATE DOMAIN positive_float AS DOUBLE PRECISION CHECK (VALUE > 0);
 CREATE DOMAIN percent_fraction AS DOUBLE PRECISION CHECK (VALUE >= 0 AND VALUE <= 1);
@@ -33,4 +34,3 @@ CREATE TYPE UnitsPressure AS ENUM ('YPa','ZPa','EPa','PPa','TPa','GPa','MPa','kP
 CREATE TYPE UnitsTemperature AS ENUM ('K','°C','°F','°R');
 
 CREATE TYPE UnitsTime AS ENUM ('Ys','Zs','Es','Ps','Ts','Gs','Ms','ks','hs','das','s','ds','cs','ms','µs','ns','ps','fs','as','zs','ys','min','h','d');
-

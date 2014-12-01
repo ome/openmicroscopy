@@ -2,7 +2,7 @@
  * pojos.PlateData 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -29,10 +29,12 @@ import java.util.Set;
 
 import static omero.rtypes.*;
 import omero.model.Length;
+import omero.model.LengthI;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.PlateI;
 import omero.model.ScreenPlateLink;
+import omero.model.enums.UnitsLength;
 
 /**
  * The data that makes up an <i>OME</i> Plate along with links to its contained
@@ -351,6 +353,21 @@ public class PlateData extends DataObject {
      * 
      * @return See above
      */
+    public Length getWellOriginXAsLength()
+    {
+    	Length value = asPlate().getWellOriginX();
+    	if (value == null) 
+    		return new LengthI(0, UnitsLength.REFERENCEFRAME);
+    	else 
+    		return value;
+    }
+    
+    /**
+     * Returns the x-coordinate in 2D-space of the well.
+     * 
+     * @return See above
+     * @deprecated Replaced by {@link #getWellOriginXAsLength()}
+     */
     @Deprecated
     public double getWellOriginX()
     {
@@ -363,6 +380,21 @@ public class PlateData extends DataObject {
      * Returns the y-coordinate in 2D-space of the well.
      * 
      * @return See above
+     */
+    public Length getWellOriginYAsLength()
+    {
+    	Length value = asPlate().getWellOriginY();
+    	if (value == null)
+    		return new LengthI(0, UnitsLength.REFERENCEFRAME);
+    	else
+    		return value;
+    }
+    
+    /**
+     * Returns the y-coordinate in 2D-space of the well.
+     * 
+     * @return See above
+     * @deprecated Replaced by {@link #getWellOriginYAsLength()}
      */
     @Deprecated
     public double getWellOriginY()

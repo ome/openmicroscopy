@@ -26,36 +26,41 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
+
+
+
+import javax.swing.JSeparator;
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.JXTaskPane;
-import org.jdesktop.swingx.JXTaskPaneContainer;
-import org.jdesktop.swingx.VerticalLayout;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.DataObject;
-import pojos.DatasetData;
 import pojos.DoubleAnnotationData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.LongAnnotationData;
-import pojos.ProjectData;
-import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
 import pojos.TextualAnnotationData;
@@ -117,9 +122,6 @@ class GeneralPaneUI
 	
 	/** Flag indicating to build the UI once. */
 	private boolean 					init;
-
-	/** The container hosting the <code>JXTaskPane</code>. */
-	private JXTaskPaneContainer 		container;
 	
 	/** The tool bar.*/
 	private ToolBar toolbar;
@@ -139,17 +141,14 @@ class GeneralPaneUI
     /** Initializes the UI components. */
 	private void initComponents()
 	{
-		container  = new JXTaskPaneContainer();
-		container.setBackground(UIUtilities.BACKGROUND);
-		if (container.getLayout() instanceof VerticalLayout) {
-			VerticalLayout vl = (VerticalLayout) container.getLayout();
-			vl.setGap(0);
-		}
-		if (model.getBrowser() != null) {
-			browserTaskPane = EditorUtil.createTaskPane(Browser.TITLE);
-			browserTaskPane.add(model.getBrowser().getUI());
-			browserTaskPane.addPropertyChangeListener(controller);
-		}
+		browserTaskPane = EditorUtil.createTaskPane("Attached to");
+		browserTaskPane.addPropertyChangeListener(controller);
+		browserTaskPane.setVisible(false);
+		 
+		if (model.getBrowser() != null && model.getRefObject() instanceof FileAnnotationData) {
+             browserTaskPane.add(model.getBrowser().getUI());
+             browserTaskPane.setVisible(true);
+        }
 		
 		propertiesUI = new PropertiesUI(model, controller);
 		textualAnnotationsUI = new TextualAnnotationsUI(model, controller);
@@ -168,24 +167,56 @@ class GeneralPaneUI
 		propertiesTaskPane = EditorUtil.createTaskPane("");
 		propertiesTaskPane.setCollapsed(false);
 		propertiesTaskPane.add(propertiesUI);
+		
 		annotationTaskPane = EditorUtil.createTaskPane("Annotations");
 		annotationTaskPane.setCollapsed(false);
 		JPanel p = new JPanel();
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		p.add(annotationUI);
+		p.add(new JSeparator());
 		p.add(textualAnnotationsUI);
 		annotationTaskPane.add(p);
+	}
+	
+	@Override
+	public Dimension getPreferredSize() {
+		// Workaround:
+		// Without this, the JTextAreas displaying comments will expand, when the slider is moved
+		// to the left, but never shrink again, when the slider is again moved to the right.
+		// TODO: Replace if a better solution for this is found
+		return new Dimension(getParent().getSize().width, super.getPreferredSize().height);
 	}
 	
 	/** Builds and lays out the components. */
 	private void buildGUI()
 	{
-		setLayout(new BorderLayout(0, 0));
-		container.add(propertiesTaskPane);
-		container.add(annotationTaskPane);
-		add(toolbar, BorderLayout.NORTH);
-    	        add(container, BorderLayout.CENTER);
+		JPanel container = new JPanel();
+		container.setBackground(UIUtilities.BACKGROUND_COLOR);
+		container.setLayout(new GridBagLayout());
+		
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridx = 0;
+		c.gridy = 0;
+		c.weightx = 1;
+		c.weighty = 0;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.NORTH;
+		
+		container.add(toolbar, c);
+		c.gridy++;
+		
+		container.add(propertiesTaskPane, c);
+		c.gridy++;
+		
+		container.add(browserTaskPane, c);
+		c.gridy++;
+		
+		container.add(annotationTaskPane, c);
+		
+		setLayout(new BorderLayout());
+		setBackground(UIUtilities.BACKGROUND_COLOR);
+		add(container, BorderLayout.NORTH);
 	}
 
 	/**
@@ -215,69 +246,46 @@ class GeneralPaneUI
 		init = false;
 	}
 
-	/** Lays out the UI when data are loaded. */
-	void layoutUI()
-	{
-		if (!init) {
-			buildGUI();
-			init = true;
-		}
-		propertiesUI.buildUI();
-		annotationUI.buildUI();
-		textualAnnotationsUI.buildUI();
-		propertiesTaskPane.setTitle(propertiesUI.getText()+DETAILS);
-
-	
-		//TableLayout layout = (TableLayout) content.getLayout();
-		
-		double h = 0;
-		String s = Browser.TITLE;
-		boolean multi = model.isMultiSelection();
-		Object refObject = model.getRefObject();
-		if (refObject instanceof TagAnnotationData) {
-			TagAnnotationData tag = (TagAnnotationData) refObject;
-			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(
-					tag.getNameSpace())) {
-				browserTaskPane.setCollapsed(true);
-			} else {
-				if (!multi) {
-					h = 1;
-				}
-			}
-		} else if (refObject instanceof FileAnnotationData) {
-			if (!multi) {
-				h = 1;
-				s = "Attached to...";
-			}
-		} else if (refObject instanceof DatasetData) {
-			if (!multi) {
-				h = 1;
-			}
-		} else if (refObject instanceof ImageData) {
-			if (!multi) {
-				h = 1;
-				propertiesUI.onChannelDataLoading();
-				controller.loadChannelData();
-			}
-		} else if (refObject instanceof WellSampleData) {
-			if (!multi) controller.loadChannelData();
-		} else if ((refObject instanceof ProjectData) || 
-				(refObject instanceof ScreenData) ||
-				(refObject instanceof WellSampleData)) {
-			browserTaskPane.setCollapsed(true);
-		}
-		browserTaskPane.setTitle(s);
-		container.remove(browserTaskPane);
-		container.remove(propertiesTaskPane);
-		if (!multi) {
-			container.add(propertiesTaskPane, 0); //first index
-		}
-		if (h > 0) {
-			container.add(browserTaskPane);
-			if (!browserTaskPane.isCollapsed())
-				loadParents(true);
-		}
-	}
+        /** Lays out the UI when data are loaded. */
+        void layoutUI() {
+            if (!init) {
+                buildGUI();
+                init = true;
+            }
+            propertiesUI.buildUI();
+            annotationUI.buildUI();
+            textualAnnotationsUI.buildUI();
+            propertiesTaskPane.setTitle(propertiesUI.getText() + DETAILS);
+            
+            boolean multi = model.isMultiSelection();
+            Object refObject = model.getRefObject();
+    
+            if (refObject instanceof ImageData && !multi && model.getChannelData()==null) {
+                propertiesUI.onChannelDataLoading();
+                controller.loadChannelData();
+            }
+    
+            if (refObject instanceof WellSampleData && !multi) {
+                controller.loadChannelData();
+            }
+    
+            browserTaskPane.setVisible(false);
+            propertiesTaskPane.setVisible(false);
+            
+            if (!multi) {
+            	propertiesTaskPane.setVisible(true);
+            	
+                if (refObject instanceof FileAnnotationData) {
+                    browserTaskPane.removeAll();
+                	browserTaskPane.add(model.getBrowser().getUI());
+                    browserTaskPane.setVisible(true);
+                    if (!browserTaskPane.isCollapsed())
+                        loadParents(true);
+                }
+            }
+    
+            revalidate();
+        }
 	
 	/**
 	* Get a reference to the PropertiesUI
@@ -334,25 +342,10 @@ class GeneralPaneUI
 			init = true;
 		}	
 		clearData(oldObject);
-		textualAnnotationsUI.clearDisplay();
 		propertiesUI.clearDisplay();
 		annotationUI.clearDisplay();
-    	textualAnnotationsUI.clearDisplay();
-    	//propertiesUI.buildUI();
-    	Object uo = model.getRefObject();
-    	
-    	int annotation = 0;
-    	if (!(uo instanceof AnnotationData)) { //hide everything
-    		annotation = 1;
-    	}
-		container.remove(annotationTaskPane);
-		//container.remove(protocolTaskPane);
-		if (annotation > 0) 
-			container.add(annotationTaskPane);
-		/*
-		if (protocolTaskPane.getComponentCount() > 0)
-			container.add(protocolTaskPane);
-		*/
+    	        textualAnnotationsUI.clearDisplay();
+
 		revalidate();
 		repaint();
 	}
@@ -561,12 +554,6 @@ class GeneralPaneUI
 	void onRelatedNodesSet()
 	{
 		annotationUI.onRelatedNodesSet();
-	}
-
-	void setExtentWidth(int width)
-	{
-		if (propertiesUI != null)
-			propertiesUI.setExtentWidth(width);
 	}
 	
 }

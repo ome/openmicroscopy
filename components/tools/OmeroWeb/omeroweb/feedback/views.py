@@ -37,6 +37,7 @@ from django.conf import settings
 from django.template import loader as template_loader
 from django.http import HttpResponse, HttpResponseRedirect
 from django.http import HttpResponseServerError, HttpResponseNotFound
+from django.http import HttpResponseForbidden
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.views.defaults import page_not_found
@@ -154,6 +155,13 @@ def custom_server_error(request, error500):
 
 ##############################################################################
 # handlers
+
+
+def csrf_failure(request, reason=""):
+    logger.error('csrf_failure: Forbidden')
+    t = template_loader.get_template("403_csrf.html")
+    c = RequestContext(request, {})
+    return HttpResponseForbidden(t.render(c))
 
 
 def handler500(request):

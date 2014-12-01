@@ -107,9 +107,9 @@
 
 
 {% if gid %}
-    <form action="{% url 'wamanagegroupid' "save" gid %}"  class="standard_form settings_form" method="POST">
+    <form action="{% url 'wamanagegroupid' "save" gid %}"  class="standard_form settings_form" method="POST">{% csrf_token %}
 {% else %}
-    <form action="{% url 'wamanagegroupid' "create" %}" class="standard_form settings_form" method="POST">
+    <form action="{% url 'wamanagegroupid' "create" %}" class="standard_form settings_form" method="POST">{% csrf_token %}
 {% endif %}
 
         <p>{% trans "Fields marked in red are mandatory." %}</p>

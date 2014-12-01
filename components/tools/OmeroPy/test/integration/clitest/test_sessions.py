@@ -20,7 +20,11 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from test.integration.clitest.cli import CLITest
+from omero.cli import NonZeroReturnCode
+from omero import SecurityViolation
 import pytest
+
+permissions = ["rw----", "rwr---", "rwra--", "rwrw--"]
 
 
 class TestSessions(CLITest):
@@ -85,27 +89,67 @@ class TestSessions(CLITest):
         else:
             assert e == 'Joined ' + self.get_connection_string()
 
-    def testLoginAsRoot(self):
-        user = self.new_user()
-        self.set_login_args(user)
-        self.args += ["-w", self.root.getProperty("omero.rootpass")]
-        self.args += ["--sudo", "root"]
-        self.cli.invoke(self.args, strict=True)
-        ec = self.cli.get_event_context()
-        assert ec.userName == user.omeName.val
+    @pytest.mark.parametrize("perms", permissions)
+    def testLoginAs(self, perms):
+        """Test the login --sudo functionality"""
 
-    @pytest.mark.xfail(reason="NYI")  # This must be implemented
-    def testLoginAsGroupAdmin(self):
-        group = self.new_group()
-        grp_admin = self.new_user(group=group, admin=True)
-        admin = grp_admin.omeName.val
-        user = self.new_user(group=group)
-        self.set_login_args(user)
-        self.args += ["--sudo", admin]
-        self.args += ["-w", admin]
-        self.cli.invoke(self.args, strict=True)
-        ec = self.cli.get_event_context()
-        assert ec.userName == user.omeName.val
+        group1 = self.new_group(perms=perms)
+        group2 = self.new_group(perms=perms)
+        user = self.new_user(group1, owner=False)  # Member of two groups
+        self.root.sf.getAdminService().addGroups(user, [group2])
+        member = self.new_user(group1, owner=False)  # Member of first gourp
+        owner = self.new_user(group1, owner=True)  # Owner of first group
+        admin = self.new_user(system=True)  # System administrator
+
+        def check_sudoer(sudoer, login_group="", can_switch=False):
+            self.set_login_args(user)
+            self.args += ["-C", "--sudo", sudoer.omeName.val]
+            self.args += ["-w", sudoer.omeName.val]
+            if login_group:
+                self.args += ["-g", login_group.name.val]
+            else:
+                login_group = group1
+
+            if login_group == group1:
+                target_group = group2
+            else:
+                target_group = group1
+
+            try:
+                # Check login and test group
+                self.cli.invoke(self.args, strict=True)
+                ec = self.cli.controls["sessions"].ctx._event_context
+                assert ec.userName == user.omeName.val
+                assert ec.groupName == login_group.name.val
+
+                # Test switch group
+                switch_cmd = ["sessions", "group",
+                              "%s" % target_group.name.val]
+                if can_switch:
+                    self.cli.invoke(switch_cmd, strict=True)
+                    ec = self.cli.controls["sessions"].ctx._event_context
+                    assert ec.userName == user.omeName.val
+                    assert ec.groupName == target_group.name.val
+                else:
+                    with pytest.raises(SecurityViolation):
+                        self.cli.invoke(switch_cmd, strict=True)
+            finally:
+                self.cli.invoke(["sessions", "logout"], strict=True)
+
+        # Administrator is in the list of sudoers
+        check_sudoer(admin, can_switch=True)
+        check_sudoer(admin, group1, can_switch=True)
+        check_sudoer(admin, group2, can_switch=True)
+
+        # Group owner is in the list of sudoers
+        check_sudoer(owner)
+        check_sudoer(owner, group1)
+        with pytest.raises(NonZeroReturnCode):
+            check_sudoer(owner, group2)
+
+        # Other group members are not sudoers
+        with pytest.raises(NonZeroReturnCode):
+            check_sudoer(member)
 
     @pytest.mark.parametrize('with_sudo', [True, False])
     @pytest.mark.parametrize('with_group', [True, False])

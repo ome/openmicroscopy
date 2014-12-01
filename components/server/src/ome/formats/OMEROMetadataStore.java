@@ -43,6 +43,7 @@ import ome.model.core.LogicalChannel;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.core.PlaneInfo;
+import ome.model.enums.Format;
 import ome.model.experiment.Experiment;
 import ome.model.experiment.MicrobeamManipulation;
 import ome.model.fs.Fileset;
@@ -81,6 +82,9 @@ import org.perf4j.StopWatch;
  */
 public class OMEROMetadataStore
 {
+    /** List of graphics domains we are checking.*/
+    private static String[] DOMAINS = {"jpeg", "png", "bmp", "gif", "tiff"};
+
     /** Logger for this class. */
     private static Logger log = LoggerFactory.getLogger(OMEROMetadataStore.class);
 
@@ -2143,7 +2147,25 @@ public class OMEROMetadataStore
     	//s2.stop();
    		return toReturn;
     }
-    
+
+    /**
+     * Checks if the format is a graphics format or not.
+     *
+     * @param value The value to check
+     * @return See above.
+     */
+    private boolean isRGB(String value)
+    {
+        if (value == null) return false;
+        value = value.toLowerCase();
+        for (int i = 0; i < DOMAINS.length; i++) {
+            if (DOMAINS[i].equals(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Synchronize the minimum and maximum intensity values with those
      * specified by the client and save them in the DB.
@@ -2160,14 +2182,26 @@ public class OMEROMetadataStore
     	{
     		channelGlobalMinMax = imageChannelGlobalMinMax[i];
     		pixels = pixelsList.get(i);
+    		Format f = pixels.getImage().getFormat();
+    		String v = null;
+    		if (f != null) {
+    		    v = f.getValue();
+    		}
+    		boolean rgb = isRGB(v);
+    		String type = pixels.getPixelsType().getValue();
     		unloadedPixels = new Pixels(pixels.getId(), false);
     		for (int c = 0; c < channelGlobalMinMax.length; c++)
     		{
     			globalMinMax = channelGlobalMinMax[c];
     			channel = pixels.getChannel(c);
     			statsInfo = new StatsInfo();
-    			statsInfo.setGlobalMin(globalMinMax[0]);
-    			statsInfo.setGlobalMax(globalMinMax[1]);
+    			if (rgb && "uint8".equals(type)) {
+    			    statsInfo.setGlobalMin(0.0);
+                    statsInfo.setGlobalMax(255.0);
+    			} else {
+    			    statsInfo.setGlobalMin(globalMinMax[0]);
+                    statsInfo.setGlobalMax(globalMinMax[1]);
+    			}
     			sql.setStatsInfo(channel, statsInfo);
     		}
     	}

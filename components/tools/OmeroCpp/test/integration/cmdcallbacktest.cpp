@@ -49,7 +49,10 @@ public:
     int finished;
 
     TestCB(const omero::client_ptr client, const HandlePrx& handle) :
-        CmdCallbackI(client, handle), steps(0), finished(0) {}
+        CmdCallbackI(client, handle), steps(0), finished(0) {
+            cout << client->getSessionId() << endl;
+        }
+
     ~TestCB(){}
 
     // Expose protected event member.
@@ -80,37 +83,45 @@ public:
     }
 
     void assertFinished(bool testSteps = true) {
-        IceUtil::RecMutex::Lock lock(mutex);
-        ASSERT_EQ(1, finished);
-        ASSERT_FALSE(isCancelled());
-        ASSERT_FALSE(isFailure());
-        ResponsePtr rsp = getResponse();
-        if (!rsp) {
-            FAIL() << "null response";
-        }
-        ERRPtr err = ERRPtr::dynamicCast(rsp);
-        if (err) {
-            ostringstream ss;
-            omero::cmd::StringMap::iterator it;
-            for (it=err->parameters.begin(); it != err->parameters.end(); it++ ) {
-                ss << (*it).first << " => " << (*it).second << endl;
+        try {
+            IceUtil::RecMutex::Lock lock(mutex);
+            ASSERT_EQ(1, finished);
+            ASSERT_FALSE(isCancelled());
+            ASSERT_FALSE(isFailure());
+            ResponsePtr rsp = getResponse();
+            if (!rsp) {
+                FAIL() << "null response";
             }
-            FAIL()
-             << "ERR!"
-             << "cat:" << err->category << "\n"
-             << "name:" << err->name << "\n"
-             << "params:" << ss.str() << "\n";
-        }
+            ERRPtr err = ERRPtr::dynamicCast(rsp);
+            if (err) {
+                ostringstream ss;
+                omero::cmd::StringMap::iterator it;
+                for (it=err->parameters.begin(); it != err->parameters.end(); it++ ) {
+                    ss << (*it).first << " => " << (*it).second << endl;
+                }
+                FAIL()
+                << "ERR!"
+                << "cat:" << err->category << "\n"
+                << "name:" << err->name << "\n"
+                << "params:" << ss.str() << "\n";
+            }
 
-        if (testSteps) {
-            assertSteps();
+            if (testSteps) {
+                assertSteps();
+            }
+        } catch (const omero::ValidationException& ve) {
+            FAIL() << "validation exception:" << ve.message;
         }
     }
 
     void assertCancelled() {
-        IceUtil::RecMutex::Lock lock(mutex);
-        ASSERT_EQ(1, finished);
-        ASSERT_TRUE(isCancelled());
+        try {
+            IceUtil::RecMutex::Lock lock(mutex);
+            ASSERT_EQ(1, finished);
+            ASSERT_TRUE(isCancelled());
+        } catch (const omero::ValidationException& ve) {
+            FAIL() << "validation exception:" << ve.message;
+        }
     }
 };
 
@@ -122,13 +133,14 @@ public:
         ExperimenterPtr user = newUser(group);
         login(user->getOmeName()->getValue(), user->getOmeName()->getValue());
         HandlePrx handle = client->getSession()->submit(req);
+        TestCBPtr rv = new TestCB(client, handle);
 
         if (addCbDelay > 0) {
             omero::util::concurrency::Event event;
             event.wait(IceUtil::Time::milliSeconds(addCbDelay));
         }
 
-        return new TestCB(client, handle);
+        return rv;
     }
 
     // Timing
@@ -153,7 +165,7 @@ public:
         for (int i = 0; i < count; i++) {
             omero::cmd::TimingPtr t = new omero::cmd::Timing();
             t->steps = 3;
-            t->millisPerStep = 2;
+            t->millisPerStep = 50;
             timings.push_back(t);
         }
         omero::cmd::DoAllPtr all = new omero::cmd::DoAll();

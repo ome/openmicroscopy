@@ -36,10 +36,11 @@ build_java()
 build_python()
 {
     flake8 -v components/tools
+    flake8 -v components/validator
     ./build.py build-default
-    ./build.py -py test -Dtest.with.fail=true
-    ./build.py -fs test -Dtest.with.fail=true
-    ./build.py -web test -Dtest.with.fail=true
+    ./build.py -py test -Dtest.with.fail=true -DMARK="not broken"
+    ./build.py -fs test -Dtest.with.fail=true -DMARK="not broken"
+    ./build.py -web test -Dtest.with.fail=true -DMARK="not broken"
     # make sure all OmeroWeb Python modules can be imported
     # (this will find invalid imports that flake8 does not check for)
     echo Checking OmeroWeb Python imports

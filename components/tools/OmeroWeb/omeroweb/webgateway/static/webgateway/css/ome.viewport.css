@@ -53,6 +53,21 @@ div.weblitz-viewport-tiles img {
   height: 15px;
 }
 
+.weblitz-viewport-scalebar {
+  display: none;
+  font-size: 12px;
+  font-color:#000;
+  text-align: center;
+  border: 1px solid #000;
+  background: rgba(255, 255, 255, 0.7);
+  position: absolute;
+  bottom: 50px;
+  left: 50px;
+  width: 0px;
+  height: 15px;
+  z-index: 1000;
+}
+
 .weblitz-viewport-msg {
   display: none;
   color: #F30;
