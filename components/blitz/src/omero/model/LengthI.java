@@ -52,7 +52,7 @@ public class LengthI extends Length implements ModelBased {
 
         c.put("AM:ANGSTROM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "AM:ANGSTROM"));
+                  return Math.pow(10, -8) * value;
               }});
 
         c.put("AM:CM", new Function<Double, Double>() {
@@ -217,32 +217,32 @@ public class LengthI extends Length implements ModelBased {
 
         c.put("ANGSTROM:AM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "ANGSTROM:AM"));
+                  return Math.pow(10, 8) * value;
               }});
 
         c.put("ANGSTROM:CM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "ANGSTROM:CM"));
+                  return Math.pow(10, -8) * value;
               }});
 
         c.put("ANGSTROM:DAM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "ANGSTROM:DAM"));
+                  return Math.pow(10, -11) * value;
               }});
 
         c.put("ANGSTROM:DM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "ANGSTROM:DM"));
+                  return Math.pow(10, -9) * value;
               }});
 
         c.put("ANGSTROM:EXAM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "ANGSTROM:EXAM"));
+                  return Math.pow(10, -28) * value;
               }});
 
         c.put("ANGSTROM:FM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "ANGSTROM:FM"));
+                  return Math.pow(10, 5) * value;
               }});
 
         c.put("ANGSTROM:FT", new Function<Double, Double>() {
@@ -252,12 +252,12 @@ public class LengthI extends Length implements ModelBased {
 
         c.put("ANGSTROM:GIGAM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "ANGSTROM:GIGAM"));
+                  return Math.pow(10, -19) * value;
               }});
 
         c.put("ANGSTROM:HM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "ANGSTROM:HM"));
+                  return Math.pow(10, -12) * value;
               }});
 
         c.put("ANGSTROM:IN", new Function<Double, Double>() {
@@ -267,7 +267,7 @@ public class LengthI extends Length implements ModelBased {
 
         c.put("ANGSTROM:KM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "ANGSTROM:KM"));
+                  return Math.pow(10, -13) * value;
               }});
 
         c.put("ANGSTROM:LI", new Function<Double, Double>() {
@@ -282,12 +282,12 @@ public class LengthI extends Length implements ModelBased {
 
         c.put("ANGSTROM:M", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "ANGSTROM:M"));
+                  return Math.pow(10, -10) * value;
               }});
 
         c.put("ANGSTROM:MEGAM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "ANGSTROM:MEGAM"));
+                  return Math.pow(10, -16) * value;
               }});
 
         c.put("ANGSTROM:MI", new Function<Double, Double>() {
@@ -297,17 +297,17 @@ public class LengthI extends Length implements ModelBased {
 
         c.put("ANGSTROM:MICROM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "ANGSTROM:MICROM"));
+                  return Math.pow(10, -4) * value;
               }});
 
         c.put("ANGSTROM:MM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "ANGSTROM:MM"));
+                  return Math.pow(10, -7) * value;
               }});
 
         c.put("ANGSTROM:NM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "ANGSTROM:NM"));
+                  return Math.pow(10, -1) * value;
               }});
 
         c.put("ANGSTROM:PC", new Function<Double, Double>() {
@@ -317,7 +317,7 @@ public class LengthI extends Length implements ModelBased {
 
         c.put("ANGSTROM:PETAM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "ANGSTROM:PETAM"));
+                  return Math.pow(10, -25) * value;
               }});
 
         c.put("ANGSTROM:PIXEL", new Function<Double, Double>() {
@@ -327,7 +327,7 @@ public class LengthI extends Length implements ModelBased {
 
         c.put("ANGSTROM:PM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "ANGSTROM:PM"));
+                  return Math.pow(10, 2) * value;
               }});
 
         c.put("ANGSTROM:PT", new Function<Double, Double>() {
@@ -342,7 +342,7 @@ public class LengthI extends Length implements ModelBased {
 
         c.put("ANGSTROM:TERAM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "ANGSTROM:TERAM"));
+                  return Math.pow(10, -22) * value;
               }});
 
         c.put("ANGSTROM:THOU", new Function<Double, Double>() {
@@ -362,22 +362,22 @@ public class LengthI extends Length implements ModelBased {
 
         c.put("ANGSTROM:YM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "ANGSTROM:YM"));
+                  return Math.pow(10, 14) * value;
               }});
 
         c.put("ANGSTROM:YOTTAM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "ANGSTROM:YOTTAM"));
+                  return Math.pow(10, -34) * value;
               }});
 
         c.put("ANGSTROM:ZETTAM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "ANGSTROM:ZETTAM"));
+                  return Math.pow(10, -31) * value;
               }});
 
         c.put("ANGSTROM:ZM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "ANGSTROM:ZM"));
+                  return Math.pow(10, 11) * value;
               }});
 
         c.put("CM:AM", new Function<Double, Double>() {
@@ -387,7 +387,7 @@ public class LengthI extends Length implements ModelBased {
 
         c.put("CM:ANGSTROM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "CM:ANGSTROM"));
+                  return Math.pow(10, 8) * value;
               }});
 
         c.put("CM:DAM", new Function<Double, Double>() {
@@ -552,7 +552,7 @@ public class LengthI extends Length implements ModelBased {
 
         c.put("DAM:ANGSTROM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "DAM:ANGSTROM"));
+                  return Math.pow(10, 11) * value;
               }});
 
         c.put("DAM:CM", new Function<Double, Double>() {
@@ -717,7 +717,7 @@ public class LengthI extends Length implements ModelBased {
 
         c.put("DM:ANGSTROM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "DM:ANGSTROM"));
+                  return Math.pow(10, 9) * value;
               }});
 
         c.put("DM:CM", new Function<Double, Double>() {
@@ -882,7 +882,7 @@ public class LengthI extends Length implements ModelBased {
 
         c.put("EXAM:ANGSTROM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "EXAM:ANGSTROM"));
+                  return Math.pow(10, 28) * value;
               }});
 
         c.put("EXAM:CM", new Function<Double, Double>() {
@@ -1047,7 +1047,7 @@ public class LengthI extends Length implements ModelBased {
 
         c.put("FM:ANGSTROM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "FM:ANGSTROM"));
+                  return Math.pow(10, -5) * value;
               }});
 
         c.put("FM:CM", new Function<Double, Double>() {
@@ -1377,7 +1377,7 @@ public class LengthI extends Length implements ModelBased {
 
         c.put("GIGAM:ANGSTROM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "GIGAM:ANGSTROM"));
+                  return Math.pow(10, 19) * value;
               }});
 
         c.put("GIGAM:CM", new Function<Double, Double>() {
@@ -1542,7 +1542,7 @@ public class LengthI extends Length implements ModelBased {
 
         c.put("HM:ANGSTROM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "HM:ANGSTROM"));
+                  return Math.pow(10, 12) * value;
               }});
 
         c.put("HM:CM", new Function<Double, Double>() {
@@ -1872,7 +1872,7 @@ public class LengthI extends Length implements ModelBased {
 
         c.put("KM:ANGSTROM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "KM:ANGSTROM"));
+                  return Math.pow(10, 13) * value;
               }});
 
         c.put("KM:CM", new Function<Double, Double>() {
@@ -2367,7 +2367,7 @@ public class LengthI extends Length implements ModelBased {
 
         c.put("M:ANGSTROM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "M:ANGSTROM"));
+                  return Math.pow(10, 10) * value;
               }});
 
         c.put("M:CM", new Function<Double, Double>() {
@@ -2532,7 +2532,7 @@ public class LengthI extends Length implements ModelBased {
 
         c.put("MEGAM:ANGSTROM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MEGAM:ANGSTROM"));
+                  return Math.pow(10, 16) * value;
               }});
 
         c.put("MEGAM:CM", new Function<Double, Double>() {
@@ -2862,7 +2862,7 @@ public class LengthI extends Length implements ModelBased {
 
         c.put("MICROM:ANGSTROM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MICROM:ANGSTROM"));
+                  return Math.pow(10, 4) * value;
               }});
 
         c.put("MICROM:CM", new Function<Double, Double>() {
@@ -3027,7 +3027,7 @@ public class LengthI extends Length implements ModelBased {
 
         c.put("MM:ANGSTROM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MM:ANGSTROM"));
+                  return Math.pow(10, 7) * value;
               }});
 
         c.put("MM:CM", new Function<Double, Double>() {
@@ -3192,7 +3192,7 @@ public class LengthI extends Length implements ModelBased {
 
         c.put("NM:ANGSTROM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "NM:ANGSTROM"));
+                  return 10 * value;
               }});
 
         c.put("NM:CM", new Function<Double, Double>() {
@@ -3522,7 +3522,7 @@ public class LengthI extends Length implements ModelBased {
 
         c.put("PETAM:ANGSTROM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "PETAM:ANGSTROM"));
+                  return Math.pow(10, 25) * value;
               }});
 
         c.put("PETAM:CM", new Function<Double, Double>() {
@@ -3852,7 +3852,7 @@ public class LengthI extends Length implements ModelBased {
 
         c.put("PM:ANGSTROM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "PM:ANGSTROM"));
+                  return Math.pow(10, -2) * value;
               }});
 
         c.put("PM:CM", new Function<Double, Double>() {
@@ -4347,7 +4347,7 @@ public class LengthI extends Length implements ModelBased {
 
         c.put("TERAM:ANGSTROM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "TERAM:ANGSTROM"));
+                  return Math.pow(10, 22) * value;
               }});
 
         c.put("TERAM:CM", new Function<Double, Double>() {
@@ -5007,7 +5007,7 @@ public class LengthI extends Length implements ModelBased {
 
         c.put("YM:ANGSTROM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "YM:ANGSTROM"));
+                  return Math.pow(10, -14) * value;
               }});
 
         c.put("YM:CM", new Function<Double, Double>() {
@@ -5172,7 +5172,7 @@ public class LengthI extends Length implements ModelBased {
 
         c.put("YOTTAM:ANGSTROM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "YOTTAM:ANGSTROM"));
+                  return Math.pow(10, 34) * value;
               }});
 
         c.put("YOTTAM:CM", new Function<Double, Double>() {
@@ -5337,7 +5337,7 @@ public class LengthI extends Length implements ModelBased {
 
         c.put("ZETTAM:ANGSTROM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "ZETTAM:ANGSTROM"));
+                  return Math.pow(10, 31) * value;
               }});
 
         c.put("ZETTAM:CM", new Function<Double, Double>() {
@@ -5502,7 +5502,7 @@ public class LengthI extends Length implements ModelBased {
 
         c.put("ZM:ANGSTROM", new Function<Double, Double>() {
               public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "ZM:ANGSTROM"));
+                  return Math.pow(10, -11) * value;
               }});
 
         c.put("ZM:CM", new Function<Double, Double>() {
