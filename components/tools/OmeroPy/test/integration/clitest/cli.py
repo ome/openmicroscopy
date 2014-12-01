@@ -29,10 +29,11 @@ from omero_ext.mox import Mox
 
 class AbstractCLITest(ITest):
 
-    def setup_method(self, method):
-        super(AbstractCLITest, self).setup_method(method)
-        self.cli = CLI()
-        self.cli.register("sessions", SessionsControl, "TEST")
+    @classmethod
+    def setup_class(cls):
+        super(AbstractCLITest, cls).setup_class()
+        cls.cli = CLI()
+        cls.cli.register("sessions", SessionsControl, "TEST")
 
     def setup_mock(self):
         self.mox = Mox()
@@ -45,12 +46,10 @@ class AbstractCLITest(ITest):
 class CLITest(AbstractCLITest):
 
     def setup_method(self, method):
-        super(CLITest, self).setup_method(method)
         self.args = self.login_args()
 
 
 class RootCLITest(AbstractCLITest):
 
     def setup_method(self, method):
-        super(RootCLITest, self).setup_method(method)
         self.args = self.root_login_args()

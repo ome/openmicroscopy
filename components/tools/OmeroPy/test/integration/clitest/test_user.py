@@ -40,9 +40,14 @@ password_prefixes = [None, '-P', '--userpassword']
 
 class TestUser(CLITest):
 
+    @classmethod
+    def setup_class(self):
+        super(TestUser, self).setup_class()
+        self.cli.register("user", UserControl, "TEST")
+        self.users = self.sf.getAdminService().lookupExperimenters()
+
     def setup_method(self, method):
         super(TestUser, self).setup_method(method)
-        self.cli.register("user", UserControl, "TEST")
         self.args += ["user"]
 
     # List subcommand
@@ -77,18 +82,17 @@ class TestUser(CLITest):
                 last_value = new_value
 
         # Check all users are listed
-        users = self.sf.getAdminService().lookupExperimenters()
         if sort_key == 'login':
-            users.sort(key=lambda x: x.omeName.val)
+            sorted_list = sorted(self.users, key=lambda x: x.omeName.val)
         elif sort_key == 'first-name':
-            users.sort(key=lambda x: x.firstName.val)
+            sorted_list = sorted(self.users, key=lambda x: x.firstName.val)
         elif sort_key == 'last-name':
-            users.sort(key=lambda x: x.lastName.val)
+            sorted_list = sorted(self.users, key=lambda x: x.lastName.val)
         elif sort_key == 'email':
-            users.sort(key=lambda x: (x.email and x.email.val or ""))
+            sorted_list = sorted(self.users, key=lambda x: (x.email and x.email.val or ""))
         else:
-            users.sort(key=lambda x: x.id.val)
-        assert ids == [user.id.val for user in users]
+            sorted_list = sorted(self.users, key=lambda x: x.id.val)
+        assert ids == [user.id.val for user in sorted_list]
 
     @pytest.mark.parametrize("style", [None, "sql", "csv", "plain"])
     def testListWithStyles(self, capsys, style):
@@ -110,8 +114,7 @@ class TestUser(CLITest):
         out, err = capsys.readouterr()
 
         # Check all users are listed
-        users = self.sf.getAdminService().lookupExperimenters()
-        emails = [x.email.val for x in users if x.email and x.email.val]
+        emails = [x.email.val for x in self.users if x.email and x.email.val]
         if oneperline_arg:
             assert out.strip() == "\n".join(emails)
         else:
@@ -174,9 +177,14 @@ class TestUser(CLITest):
 
 class TestUserRoot(RootCLITest):
 
+    @classmethod
+    def setup_class(self):
+        super(TestUserRoot, self).setup_class()
+        self.cli.register("user", UserControl, "TEST")
+        self.users = self.sf.getAdminService().lookupExperimenters()
+
     def setup_method(self, method):
         super(TestUserRoot, self).setup_method(method)
-        self.cli.register("user", UserControl, "TEST")
         self.args += ["user"]
 
     def getuserids(self, gid):
