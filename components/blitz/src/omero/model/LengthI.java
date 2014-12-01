@@ -5773,6 +5773,7 @@ public class LengthI extends Length implements ModelBased {
        String source = value.getUnit().toString();
        if (target.equals(source)) {
            setValue(value.getValue());
+           setUnit(value.getUnit());
         } else {
             Function<Double, Double> c = conversions.get(source + ":" + target);
             if (c == null) {
