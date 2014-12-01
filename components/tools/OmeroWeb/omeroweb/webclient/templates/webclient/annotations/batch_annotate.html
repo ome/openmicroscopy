@@ -187,6 +187,7 @@
                     },
                     error: function(data){
                         $("#fileann_spinner").hide();
+                        alert("Upload failed [" + data.status + " " + data.statusText + "]");
                     }
                 });
                 // prepare dialog for choosing file to attach...
