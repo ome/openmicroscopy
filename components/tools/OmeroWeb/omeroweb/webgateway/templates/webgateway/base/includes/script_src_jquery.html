@@ -20,3 +20,15 @@
 
 <script type="text/javascript" src="{% static "3rdparty/jquery-1.11.1.js" %}"></script>
 <script type="text/javascript" src="{% static "3rdparty/jquery-migrate-1.2.1.js" %}"></script>
+
+<script type="text/javascript">
+  // Function to enable measuring of a specific text element in jquery
+  $.fn.textWidth = function(text, font) {
+    if (!$.fn.textWidth.fakeEl) $.fn.textWidth.fakeEl = $('<span>').appendTo(document.body);
+    var htmlText = text || this.val() || this.text();
+    htmlText = $.fn.textWidth.fakeEl.text(htmlText).html(); //encode to Html
+    htmlText = htmlText.replace(/\s/g, "&nbsp;"); //replace trailing and leading spaces
+    $.fn.textWidth.fakeEl.html(htmlText).css('font', font || this.css('font'));
+    return $.fn.textWidth.fakeEl.width();
+  };
+</script>

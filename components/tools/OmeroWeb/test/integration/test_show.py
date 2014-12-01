@@ -20,7 +20,7 @@ from omero.gateway import BlitzGateway, ProjectWrapper, DatasetWrapper, \
 from omero.model import ProjectI, DatasetI, TagAnnotationI, ScreenI, PlateI, \
     WellI, WellSampleI, PlateAcquisitionI
 from omero.rtypes import rstring, rint
-from omeroweb.webclient.show import Show, IncorrectMenuError
+from omeroweb.webclient.show import Show, IncorrectMenuError, paths_to_object
 from django.test.client import RequestFactory
 
 
@@ -122,6 +122,105 @@ def project_dataset_image(request, itest, update_service):
     dataset.linkImage(image)
     project.linkDataset(dataset)
     return update_service.saveAndReturnObject(project)
+
+
+@pytest.fixture(scope='function')
+def project_dataset_image_multi_link(conn, request, itest, update_service):
+
+    # Create a project and dataset and link them
+    project1 = ProjectI()
+    project1.name = rstring(itest.uuid())
+    dataset1 = DatasetI()
+    dataset1.name = rstring(itest.uuid())
+    project1.linkDataset(dataset1)
+
+    # Add an image to the dataset as well
+    image1 = itest.new_image(name=itest.uuid())
+    dataset1.linkImage(image1)
+
+    # Add a second dataset
+    dataset2 = DatasetI()
+    dataset2.name = rstring(itest.uuid())
+    dataset2.linkImage(image1)
+    project1.linkDataset(dataset2)
+
+    # Save project and all its children
+    project1 = update_service.saveAndReturnObject(project1)
+
+    # Create another project and attempt to link the same project
+    project2 = ProjectI()
+    project2.name = rstring(itest.uuid())
+
+    # Get the dataset1 from the saved project item
+    dataset1, dataset2 = project1.linkedDatasetList()
+    project2.linkDataset(dataset1)
+    project2 = update_service.saveAndReturnObject(project2)
+
+    # As dataset1 has been resaved, need to use that version
+    dataset1, = project2.linkedDatasetList()
+
+    # Create an orphan dataset
+    dataset3 = DatasetI()
+    dataset3.name = rstring(itest.uuid())
+    # As image1 has already been saved, need to use that version
+    image1, = dataset1.linkedImageList()
+    dataset3.linkImage(image1)
+
+    # This always works
+    # dataset3.linkImage(ImageI(image1.id.val, False))
+
+    dataset3 = update_service.saveAndReturnObject(dataset3)
+
+    # # Print project1
+    # qs = conn.getQueryService()
+    # params = omero.sys.ParametersI()
+    # params.add('pid', rlong(project1.id.val))
+    # q = '''
+    #     select project.id,
+    #            pdlink.child.id,
+    #            dilink.child.id
+    #     from Project project
+    #     left outer join project.datasetLinks pdlink
+    #     left outer join pdlink.child.imageLinks dilink
+    #     where project.id = :pid
+    # '''
+    # print 'project1: project, dataset, image'
+    # for e in qs.projection(q, params, conn.SERVICE_OPTS):
+    #     print e[0].val, e[1].val, e[2].val
+
+    # # Print project2
+    # qs = conn.getQueryService()
+    # params = omero.sys.ParametersI()
+    # params.add('pid', rlong(project2.id.val))
+    # q = '''
+    #     select project.id,
+    #            pdlink.child.id,
+    #            dilink.child.id
+    #     from Project project
+    #     left outer join project.datasetLinks pdlink
+    #     left outer join pdlink.child.imageLinks dilink
+    #     where project.id = :pid
+    # '''
+    # print 'project2: project, dataset, image'
+    # for e in qs.projection(q, params, conn.SERVICE_OPTS):
+    #     print e[0].val, e[1].val, e[2].val
+
+    # # Print dataset3
+    # qs = conn.getQueryService()
+    # params = omero.sys.ParametersI()
+    # params.add('did', rlong(dataset3.id.val))
+    # q = '''
+    #     select dataset.id,
+    #            dilink.child.id
+    #     from Dataset dataset
+    #     left outer join dataset.imageLinks dilink
+    #     where dataset.id = :did
+    # '''
+    # print 'dataset3: dataset, image'
+    # for e in qs.projection(q, params, conn.SERVICE_OPTS):
+    #     print e[0].val, e[1].val
+
+    return [project1, project2, dataset1, dataset2, dataset3, image1]
 
 
 @pytest.fixture(scope='function', params=[1, 2])
@@ -234,6 +333,92 @@ def screen_plate_run_well(request, itest, update_service):
     plate.addWell(well_a)
     plate.addWell(well_b)
     screen.linkPlate(plate)
+    return update_service.saveAndReturnObject(screen)
+
+
+@pytest.fixture(scope='function')
+def screen_plate_run_well_multi(request, itest, update_service):
+    """
+    Returns a new OMERO Screen, linked Plate, linked Well, linked WellSample,
+    linked Image populate by an L{test.integration.library.ITest} instance and
+    linked PlateAcquisition with all required fields set.
+
+    # 2 WellSamples (fields) for a single well in 2 runs
+    screen->plate->acquisition1->wellsampleA1
+    screen->plate->acquisition1->wellsampleB1
+    screen->plate->acquisition2->wellsampleA2
+    screen->plate->acquisition2->wellSampleB2
+
+    # 1 WellSample (field) for a single well in first run only
+    screen->plate->acquisition1->wellSampleC1
+
+    """
+    # Create a screen
+    screen = ScreenI()
+    screen.name = rstring(itest.uuid())
+
+    # Create a link a plate
+    plate = PlateI()
+    plate.name = rstring(itest.uuid())
+    screen.linkPlate(plate)
+
+    # Create and link pair of plate acquisitions
+    plate_acquisition1 = PlateAcquisitionI()
+    plate_acquisition2 = PlateAcquisitionI()
+    plate_acquisition1.plate = plate
+    plate_acquisition2.plate = plate
+
+    # Create Well A10 (will have two WellSamples 'fields' in both runs)
+    # and link
+    well_a = WellI()
+    well_a.row = rint(0)
+    well_a.column = rint(9)
+    plate.addWell(well_a)
+
+    # Create Well A11 (will not have any WellSample 'fields') and link
+    well_b = WellI()
+    well_b.row = rint(0)
+    well_b.column = rint(10)
+    plate.addWell(well_b)
+
+    # Create Well A12 (will have one WellSample 'field' in the first run
+    # only ) and link
+    well_c = WellI()
+    well_c.row = rint(0)
+    well_c.column = rint(11)
+    plate.addWell(well_c)
+
+    # Create a pair of well samples with images and link for each of the
+    # plate acquisitions for Well A10
+    ws_a1 = WellSampleI()
+    ws_b1 = WellSampleI()
+    ws_a2 = WellSampleI()
+    ws_b2 = WellSampleI()
+    image_a1 = itest.new_image(name=itest.uuid())
+    image_b1 = itest.new_image(name=itest.uuid())
+    image_a2 = itest.new_image(name=itest.uuid())
+    image_b2 = itest.new_image(name=itest.uuid())
+    ws_a1.image = image_a1
+    ws_b1.image = image_b1
+    ws_a2.image = image_a2
+    ws_b2.image = image_b2
+    ws_a1.plateAcquisition = plate_acquisition1
+    ws_b1.plateAcquisition = plate_acquisition1
+    ws_a2.plateAcquisition = plate_acquisition2
+    ws_b2.plateAcquisition = plate_acquisition2
+    well_a.addWellSample(ws_a1)
+    well_a.addWellSample(ws_b1)
+    well_a.addWellSample(ws_a2)
+    well_a.addWellSample(ws_b2)
+
+    # Create a well sample with image and link for only the first plate
+    # acquisition for Well A12
+    ws_c1 = WellSampleI()
+    image_c1 = itest.new_image(name=itest.uuid())
+    ws_c1.image = image_c1
+    ws_c1.plateAcquisition = plate_acquisition1
+    well_c.addWellSample(ws_c1)
+
     return update_service.saveAndReturnObject(screen)
 
 
@@ -692,7 +877,7 @@ class TestShow(object):
         assert show.initially_open_owner is None
         assert show._first_selected is None
 
-    def test_empty_path(self, empty_request):
+    def test_empty_path(self, conn, empty_request):
         show = Show(conn, empty_request['request'], None)
         self.assert_instantiation(show, empty_request, conn)
         first_selected = show.first_selected
@@ -1053,3 +1238,865 @@ class TestShow(object):
         assert show.initially_open is None
         assert show.initially_select == \
             screen_plate_run_illegal_run_request['initially_select']
+
+    def test_empty_path_to_object(self, conn):
+        """
+        Test empty path
+        """
+        paths = paths_to_object(conn)
+        expected = []
+        assert paths == expected
+
+    def test_project_dataset_image(self, conn, project_dataset_image):
+        """
+        Test project/dataset/image path
+        """
+        project = project_dataset_image
+        dataset, = project.linkedDatasetList()
+        image, = dataset.linkedImageList()
+
+        paths = paths_to_object(conn, None, project.id.val, dataset.id.val,
+                                image.id.val)
+
+        expected = [
+            [{'type': 'experimenter', 'id': project.details.owner.id.val},
+             {'type': 'project', 'id': project.id.val},
+             {'type': 'dataset', 'id': dataset.id.val},
+             {'type': 'image', 'id': image.id.val}]]
+
+        assert paths == expected
+
+    def test_image(self, conn, project_dataset_image):
+        """
+        Test image path
+        """
+        project = project_dataset_image
+        dataset, = project.linkedDatasetList()
+        image, = dataset.linkedImageList()
+
+        paths = paths_to_object(conn, None, None, None, image.id.val)
+
+        expected = [
+            [{'type': 'experimenter', 'id': project.details.owner.id.val},
+             {'type': 'project', 'id': project.id.val},
+             {'type': 'dataset', 'id': dataset.id.val},
+             {'type': 'image', 'id': image.id.val}]]
+
+        assert paths == expected
+
+    def test_image_orphan(self, conn, image):
+        """
+        Test image path for orphaned Image
+        """
+        paths = paths_to_object(conn, None, None, None, image.id.val)
+
+        expected = [
+            [{'type': 'experimenter', 'id': image.details.owner.id.val},
+             {'type': 'orphaned', 'id': image.details.owner.id.val},
+             {'type': 'image', 'id': image.id.val}]]
+
+        assert paths == expected
+
+    def test_image_multi_link(self, conn, project_dataset_image_multi_link):
+        """
+        Test image path in multi-link environment
+        """
+        project1, project2, dataset1, dataset2, dataset3, image1 = \
+            project_dataset_image_multi_link
+
+        paths = paths_to_object(conn, None, None, None, image1.id.val)
+
+        expected = [
+            [{'type': 'experimenter', 'id': project1.details.owner.id.val},
+             {'type': 'project', 'id': project1.id.val},
+             {'type': 'dataset', 'id': dataset1.id.val},
+             {'type': 'image', 'id': image1.id.val}],
+            [{'type': 'experimenter', 'id': project1.details.owner.id.val},
+             {'type': 'project', 'id': project1.id.val},
+             {'type': 'dataset', 'id': dataset2.id.val},
+             {'type': 'image', 'id': image1.id.val}],
+            [{'type': 'experimenter', 'id': project2.details.owner.id.val},
+             {'type': 'project', 'id': project2.id.val},
+             {'type': 'dataset', 'id': dataset1.id.val},
+             {'type': 'image', 'id': image1.id.val}],
+            [{'type': 'experimenter', 'id': dataset3.details.owner.id.val},
+             {'type': 'dataset', 'id': dataset3.id.val},
+             {'type': 'image', 'id': image1.id.val}]]
+
+        for e in expected:
+            try:
+                paths.remove(e)
+            except ValueError:
+                assert False, 'Did not find in results: %s' % str(e)
+
+        assert len(paths) == 0, 'More results than expected found \n %s' \
+            % paths
+
+    def test_image_multi_link_restrict_dataset(
+            self, conn, project_dataset_image_multi_link):
+
+        """
+        Test image path with dataset restriciton in multi-link environment
+        """
+        project1, project2, dataset1, dataset2, dataset3, image1 = \
+            project_dataset_image_multi_link
+
+        paths = paths_to_object(conn, None, None, dataset2.id.val,
+                                image1.id.val)
+
+        expected = [
+            [{'type': 'experimenter', 'id': project1.details.owner.id.val},
+             {'type': 'project', 'id': project1.id.val},
+             {'type': 'dataset', 'id': dataset2.id.val},
+             {'type': 'image', 'id': image1.id.val}]]
+
+        assert paths == expected
+
+    def test_image_multi_link_restrict_dataset_project(
+            self, conn, project_dataset_image_multi_link):
+        """
+        Test image path with dataset and project restriction in multi-link
+        environment
+        """
+        project1, project2, dataset1, dataset2, dataset3, image1 = \
+            project_dataset_image_multi_link
+
+        paths = paths_to_object(conn, None, project1.id.val, dataset2.id.val,
+                                image1.id.val)
+
+        expected = [
+            [{'type': 'experimenter', 'id': project1.details.owner.id.val},
+             {'type': 'project', 'id': project1.id.val},
+             {'type': 'dataset', 'id': dataset2.id.val},
+             {'type': 'image', 'id': image1.id.val}]]
+
+        assert paths == expected
+
+    def test_image_multi_link_restrict_project(
+            self, conn, project_dataset_image_multi_link):
+        """
+        Test image path with project restriction in multi-link enviroment
+        """
+        project1, project2, dataset1, dataset2, dataset3, image1 = \
+            project_dataset_image_multi_link
+
+        paths = paths_to_object(conn, None, project2.id.val, None,
+                                image1.id.val)
+
+        expected = [
+            [{'type': 'experimenter', 'id': project2.details.owner.id.val},
+             {'type': 'project', 'id': project2.id.val},
+             {'type': 'dataset', 'id': dataset1.id.val},
+             {'type': 'image', 'id': image1.id.val}]]
+
+        assert paths == expected
+
+    def test_dataset(self, conn, project_dataset_image):
+        """
+        Test dataset path
+        """
+        project = project_dataset_image
+        dataset, = project.linkedDatasetList()
+
+        paths = paths_to_object(conn, None, None, dataset.id.val)
+
+        expected = [
+            [{'type': 'experimenter', 'id': project.details.owner.id.val},
+             {'type': 'project', 'id': project.id.val},
+             {'type': 'dataset', 'id': dataset.id.val}]]
+
+        assert paths == expected
+
+    def test_dataset_multi_link(self, conn, project_dataset_image_multi_link):
+        """
+        Test dataset path in multi-link environment
+        """
+        project1, project2, dataset1, dataset2, dataset3, image1 = \
+            project_dataset_image_multi_link
+
+        paths = paths_to_object(conn, None, None, dataset1.id.val)
+
+        expected = [
+            [{'type': 'experimenter', 'id': project1.details.owner.id.val},
+             {'type': 'project', 'id': project1.id.val},
+             {'type': 'dataset', 'id': dataset1.id.val}],
+            [{'type': 'experimenter', 'id': project2.details.owner.id.val},
+             {'type': 'project', 'id': project2.id.val},
+             {'type': 'dataset', 'id': dataset1.id.val}]]
+
+        for e in expected:
+            try:
+                paths.remove(e)
+            except ValueError:
+                assert False, 'Did not find in results: %s' % str(e)
+
+        assert len(paths) == 0, 'More results than expected found \n %s' \
+            % paths
+
+    def test_dataset_multi_link_restrict_project(
+            self, conn, project_dataset_image_multi_link):
+        """
+        Test dataset/image path with project restriction in multi-link
+        environment
+        """
+        project1, project2, dataset1, dataset2, dataset3, image1 = \
+            project_dataset_image_multi_link
+
+        paths = paths_to_object(conn, None, project1.id.val, dataset2.id.val)
+
+        expected = [
+            [{'type': 'experimenter', 'id': project1.details.owner.id.val},
+             {'type': 'project', 'id': project1.id.val},
+             {'type': 'dataset', 'id': dataset2.id.val}]]
+
+        assert paths == expected
+
+    def test_dataset_orphan(self, conn, project_dataset_image_multi_link):
+        """
+        Test dataset path for orphan dataset
+        """
+        project1, project2, dataset1, dataset2, dataset3, image1 = \
+            project_dataset_image_multi_link
+
+        paths = paths_to_object(conn, None, None, dataset3.id.val)
+
+        expected = [
+            [{'type': 'experimenter', 'id': dataset3.details.owner.id.val},
+             {'type': 'dataset', 'id': dataset3.id.val}]]
+
+        assert paths == expected
+
+    def test_project(self, conn, project_dataset_image):
+        """
+        Test dataset path
+        """
+        project = project_dataset_image
+
+        paths = paths_to_object(conn, None, project.id.val)
+
+        expected = [
+            [{'type': 'experimenter', 'id': project.details.owner.id.val},
+             {'type': 'project', 'id': project.id.val}]]
+
+        assert paths == expected
+
+    def test_acquisition(self, conn, screen_plate_run_well):
+        """
+        Test acquisition path
+        """
+        screen = screen_plate_run_well
+        plate, = screen.linkedPlateList()
+        well_a, well_b = \
+            sorted(plate.copyWells(), cmp_well_column)
+        ws_a, ws_b, = well_a.copyWellSamples()
+        plate_acquisition = ws_a.plateAcquisition
+
+        paths = paths_to_object(conn, None, None, None, None, None, None,
+                                plate_acquisition.id.val)
+
+        expected = [
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val},
+             {'type': 'acquisition', 'id': plate_acquisition.id.val}]]
+
+        assert paths == expected
+
+    def test_acquisition_restrict_plate(self, conn, screen_plate_run_well):
+        """
+        Test acquisition path with plate restriction
+        """
+        screen = screen_plate_run_well
+        plate, = screen.linkedPlateList()
+        well_a, well_b = \
+            sorted(plate.copyWells(), cmp_well_column)
+        ws_a, ws_b, = well_a.copyWellSamples()
+        plate_acquisition = ws_a.plateAcquisition
+
+        paths = paths_to_object(conn, None, None, None, None, None,
+                                plate.id.val,
+                                plate_acquisition.id.val)
+
+        expected = [
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val},
+             {'type': 'acquisition', 'id': plate_acquisition.id.val}]]
+
+        assert paths == expected
+
+    def test_acquisition_restrict_screen(self, conn,
+                                         screen_plate_run_well):
+        """
+        Test acquisition path with plate restriction
+        """
+        screen = screen_plate_run_well
+        plate, = screen.linkedPlateList()
+        well_a, well_b = \
+            sorted(plate.copyWells(), cmp_well_column)
+        ws_a, ws_b, = well_a.copyWellSamples()
+        plate_acquisition = ws_a.plateAcquisition
+
+        paths = paths_to_object(conn, None, None, None, None,
+                                screen.id.val,
+                                None,
+                                plate_acquisition.id.val)
+
+        expected = [
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val},
+             {'type': 'acquisition', 'id': plate_acquisition.id.val}]]
+
+        assert paths == expected
+
+    def test_acquisition_restrict_plate_screen(self, conn,
+                                               screen_plate_run_well):
+        """
+        Test acquisition path with plate and screen restrictions
+        """
+        screen = screen_plate_run_well
+        plate, = screen.linkedPlateList()
+        well_a, well_b = \
+            sorted(plate.copyWells(), cmp_well_column)
+        ws_a, ws_b, = well_a.copyWellSamples()
+        plate_acquisition = ws_a.plateAcquisition
+
+        paths = paths_to_object(conn, None, None, None, None,
+                                screen.id.val,
+                                plate.id.val,
+                                plate_acquisition.id.val)
+
+        expected = [
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val},
+             {'type': 'acquisition', 'id': plate_acquisition.id.val}]]
+
+        assert paths == expected
+
+    def test_well(self, conn, screen_plate_run_well):
+        """
+        Test well path
+        """
+        screen = screen_plate_run_well
+        plate, = screen.linkedPlateList()
+        well_a, well_b = \
+            sorted(plate.copyWells(), cmp_well_column)
+        ws_a, ws_b, = well_a.copyWellSamples()
+        plate_acquisition = ws_a.plateAcquisition
+
+        paths = paths_to_object(conn, None, None, None, None, None, None,
+                                None, well_a.id.val)
+
+        expected = [
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val},
+             {'type': 'acquisition', 'id': plate_acquisition.id.val},
+             {'type': 'wellsample', 'id': ws_a.id.val}],
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val},
+             {'type': 'acquisition', 'id': plate_acquisition.id.val},
+             {'type': 'wellsample', 'id': ws_b.id.val}]]
+
+        for e in expected:
+            try:
+                paths.remove(e)
+            except ValueError:
+                assert False, 'Did not find in results: %s' % str(e)
+
+        assert len(paths) == 0, 'More results than expected found \n %s' \
+            % paths
+
+    # TODO Perhaps screen_plate_run_well_multi should just replace
+    # screen_plate_run_well as it is the same with some additional stuff?
+    # It's not really 'multi' as the multi-links idea does not really apply
+
+    def test_well_multi(self, conn, screen_plate_run_well_multi):
+        """
+        Test well path in multi-link environment
+        """
+
+        screen = screen_plate_run_well_multi
+        plate, = screen.linkedPlateList()
+        well_a, well_b, well_c = \
+            sorted(plate.copyWells(), cmp_well_column)
+
+        ws_a1, ws_b1, ws_a2, ws_b2 = well_a.copyWellSamples()
+
+        ws_c1, = well_c.copyWellSamples()
+        plate_acquisition1 = ws_a1.plateAcquisition
+        plate_acquisition2 = ws_a2.plateAcquisition
+
+        paths = paths_to_object(conn, None, None, None, None, None, None,
+                                None, well_a.id.val)
+
+        expected = [
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val},
+             {'type': 'acquisition', 'id': plate_acquisition1.id.val},
+             {'type': 'wellsample', 'id': ws_a1.id.val}],
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val},
+             {'type': 'acquisition', 'id': plate_acquisition1.id.val},
+             {'type': 'wellsample', 'id': ws_b1.id.val}],
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val},
+             {'type': 'acquisition', 'id': plate_acquisition2.id.val},
+             {'type': 'wellsample', 'id': ws_a2.id.val}],
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val},
+             {'type': 'acquisition', 'id': plate_acquisition2.id.val},
+             {'type': 'wellsample', 'id': ws_b2.id.val}]]
+
+        for e in expected:
+            try:
+                paths.remove(e)
+            except ValueError:
+                assert False, 'Did not find in results: %s' % str(e)
+
+        assert len(paths) == 0, 'More results than expected found \n %s' \
+            % paths
+
+    def test_well_restrict_acquisition_multi(self, conn,
+                                             screen_plate_run_well_multi):
+        """
+        Test well path with acquisition restriction in multi-link
+        environment
+        """
+
+        screen = screen_plate_run_well_multi
+        plate, = screen.linkedPlateList()
+        well_a, well_b, well_c = \
+            sorted(plate.copyWells(), cmp_well_column)
+
+        ws_a1, ws_b1, ws_a2, ws_b2 = well_a.copyWellSamples()
+
+        ws_c1, = well_c.copyWellSamples()
+        plate_acquisition1 = ws_a1.plateAcquisition
+        # plate_acquisition2 = ws_a2.plateAcquisition
+
+        paths = paths_to_object(conn, None, None, None, None, None, None,
+                                plate_acquisition1.id.val, well_a.id.val)
+
+        expected = [
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val},
+             {'type': 'acquisition', 'id': plate_acquisition1.id.val},
+             {'type': 'wellsample', 'id': ws_a1.id.val}],
+
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val},
+             {'type': 'acquisition', 'id': plate_acquisition1.id.val},
+             {'type': 'wellsample', 'id': ws_b1.id.val}]]
+
+        for e in expected:
+            try:
+                paths.remove(e)
+            except ValueError:
+                assert False, 'Did not find in results: %s' % str(e)
+
+        assert len(paths) == 0, 'More results than expected found \n %s' \
+            % paths
+
+    def test_well_restrict_plate_multi(self, conn,
+                                       screen_plate_run_well_multi):
+        """
+        Test well path with plate restriction in multi-link environment
+        """
+
+        screen = screen_plate_run_well_multi
+        plate, = screen.linkedPlateList()
+        well_a, well_b, well_c = \
+            sorted(plate.copyWells(), cmp_well_column)
+
+        ws_a1, ws_b1, ws_a2, ws_b2 = well_a.copyWellSamples()
+
+        ws_c1, = well_c.copyWellSamples()
+        plate_acquisition1 = ws_a1.plateAcquisition
+        plate_acquisition2 = ws_a2.plateAcquisition
+
+        paths = paths_to_object(conn, None, None, None, None, None,
+                                plate.id.val, None, well_a.id.val)
+
+        expected = [
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val},
+             {'type': 'acquisition', 'id': plate_acquisition1.id.val},
+             {'type': 'wellsample', 'id': ws_a1.id.val}],
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val},
+             {'type': 'acquisition', 'id': plate_acquisition1.id.val},
+             {'type': 'wellsample', 'id': ws_b1.id.val}],
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val},
+             {'type': 'acquisition', 'id': plate_acquisition2.id.val},
+             {'type': 'wellsample', 'id': ws_a2.id.val}],
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val},
+             {'type': 'acquisition', 'id': plate_acquisition2.id.val},
+             {'type': 'wellsample', 'id': ws_b2.id.val}]]
+
+        for e in expected:
+            try:
+                paths.remove(e)
+            except ValueError:
+                assert False, 'Did not find in results: %s' % str(e)
+
+        assert len(paths) == 0, 'More results than expected found \n %s' \
+            % paths
+
+    def test_well_restrict_screen_multi(self, conn,
+                                        screen_plate_run_well_multi):
+        """
+        Test well path with screen restriction in multi-link environment
+        """
+
+        screen = screen_plate_run_well_multi
+        plate, = screen.linkedPlateList()
+        well_a, well_b, well_c = \
+            sorted(plate.copyWells(), cmp_well_column)
+
+        ws_a1, ws_b1, ws_a2, ws_b2 = well_a.copyWellSamples()
+
+        ws_c1, = well_c.copyWellSamples()
+        plate_acquisition1 = ws_a1.plateAcquisition
+        plate_acquisition2 = ws_a2.plateAcquisition
+
+        paths = paths_to_object(conn, None, None, None, None, screen.id.val,
+                                None, None, well_a.id.val)
+
+        expected = [
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val},
+             {'type': 'acquisition', 'id': plate_acquisition1.id.val},
+             {'type': 'wellsample', 'id': ws_a1.id.val}],
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val},
+             {'type': 'acquisition', 'id': plate_acquisition1.id.val},
+             {'type': 'wellsample', 'id': ws_b1.id.val}],
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val},
+             {'type': 'acquisition', 'id': plate_acquisition2.id.val},
+             {'type': 'wellsample', 'id': ws_a2.id.val}],
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val},
+             {'type': 'acquisition', 'id': plate_acquisition2.id.val},
+             {'type': 'wellsample', 'id': ws_b2.id.val}]]
+
+        for e in expected:
+            try:
+                paths.remove(e)
+            except ValueError:
+                assert False, 'Did not find in results: %s' % str(e)
+
+        assert len(paths) == 0, 'More results than expected found \n %s' \
+            % paths
+
+    def test_well_restrict_acquisition_plate_multi(
+            self, conn, screen_plate_run_well_multi):
+        """
+        Test well path with acquisition and plate restriction in multi-link
+        environment
+        """
+
+        screen = screen_plate_run_well_multi
+        plate, = screen.linkedPlateList()
+        well_a, well_b, well_c = \
+            sorted(plate.copyWells(), cmp_well_column)
+
+        ws_a1, ws_b1, ws_a2, ws_b2 = well_a.copyWellSamples()
+
+        ws_c1, = well_c.copyWellSamples()
+        plate_acquisition1 = ws_a1.plateAcquisition
+        # plate_acquisition2 = ws_a2.plateAcquisition
+
+        paths = paths_to_object(conn, None, None, None, None, None,
+                                plate.id.val, plate_acquisition1.id.val,
+                                well_a.id.val)
+
+        expected = [
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val},
+             {'type': 'acquisition', 'id': plate_acquisition1.id.val},
+             {'type': 'wellsample', 'id': ws_a1.id.val}],
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val},
+             {'type': 'acquisition', 'id': plate_acquisition1.id.val},
+             {'type': 'wellsample', 'id': ws_b1.id.val}]]
+
+        for e in expected:
+            try:
+                paths.remove(e)
+            except ValueError:
+                assert False, 'Did not find in results: %s' % str(e)
+
+        assert len(paths) == 0, 'More results than expected found \n %s' \
+            % paths
+
+    def test_well_restrict_acquisition_screen_multi(
+            self, conn, screen_plate_run_well_multi):
+        """
+        Test well path with acquisition and screen restriction in multi-link
+        environment
+        """
+
+        screen = screen_plate_run_well_multi
+        plate, = screen.linkedPlateList()
+        well_a, well_b, well_c = \
+            sorted(plate.copyWells(), cmp_well_column)
+
+        ws_a1, ws_b1, ws_a2, ws_b2 = well_a.copyWellSamples()
+
+        ws_c1, = well_c.copyWellSamples()
+        plate_acquisition1 = ws_a1.plateAcquisition
+        # plate_acquisition2 = ws_a2.plateAcquisition
+
+        paths = paths_to_object(conn, None, None, None, None, screen.id.val,
+                                None, plate_acquisition1.id.val,
+                                well_a.id.val)
+
+        expected = [
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val},
+             {'type': 'acquisition', 'id': plate_acquisition1.id.val},
+             {'type': 'wellsample', 'id': ws_a1.id.val}],
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val},
+             {'type': 'acquisition', 'id': plate_acquisition1.id.val},
+             {'type': 'wellsample', 'id': ws_b1.id.val}]]
+
+        for e in expected:
+            try:
+                paths.remove(e)
+            except ValueError:
+                assert False, 'Did not find in results: %s' % str(e)
+
+        assert len(paths) == 0, 'More results than expected found \n %s' \
+            % paths
+
+    def test_well_restrict_acquisition_plate_screen_multi(
+            self, conn, screen_plate_run_well_multi):
+        """
+        Test well path with acquisition, plate and screen restriction in
+        multi-link environment
+        """
+
+        screen = screen_plate_run_well_multi
+        plate, = screen.linkedPlateList()
+        well_a, well_b, well_c = \
+            sorted(plate.copyWells(), cmp_well_column)
+
+        ws_a1, ws_b1, ws_a2, ws_b2 = well_a.copyWellSamples()
+
+        ws_c1, = well_c.copyWellSamples()
+        plate_acquisition1 = ws_a1.plateAcquisition
+        # plate_acquisition2 = ws_a2.plateAcquisition
+
+        paths = paths_to_object(conn, None, None, None, None, screen.id.val,
+                                plate.id.val, plate_acquisition1.id.val,
+                                well_a.id.val)
+
+        expected = [
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val},
+             {'type': 'acquisition', 'id': plate_acquisition1.id.val},
+             {'type': 'wellsample', 'id': ws_a1.id.val}],
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val},
+             {'type': 'acquisition', 'id': plate_acquisition1.id.val},
+             {'type': 'wellsample', 'id': ws_b1.id.val}]]
+
+        print paths
+
+        for e in expected:
+            try:
+                paths.remove(e)
+            except ValueError:
+                assert False, 'Did not find in results: %s' % str(e)
+
+        assert len(paths) == 0, 'More results than expected found \n %s' \
+            % paths
+
+    def test_well_restrict_plate_screen_multi(
+            self, conn, screen_plate_run_well_multi):
+        """
+        Test well path with plate and screen restriction in multi-link
+        environment
+        """
+
+        screen = screen_plate_run_well_multi
+        plate, = screen.linkedPlateList()
+        well_a, well_b, well_c = \
+            sorted(plate.copyWells(), cmp_well_column)
+
+        ws_a1, ws_b1, ws_a2, ws_b2 = well_a.copyWellSamples()
+
+        ws_c1, = well_c.copyWellSamples()
+        plate_acquisition1 = ws_a1.plateAcquisition
+        plate_acquisition2 = ws_a2.plateAcquisition
+
+        paths = paths_to_object(conn, None, None, None, None, screen.id.val,
+                                plate.id.val, None,
+                                well_a.id.val)
+
+        expected = [
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val},
+             {'type': 'acquisition', 'id': plate_acquisition1.id.val},
+             {'type': 'wellsample', 'id': ws_a1.id.val}],
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val},
+             {'type': 'acquisition', 'id': plate_acquisition1.id.val},
+             {'type': 'wellsample', 'id': ws_b1.id.val}],
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val},
+             {'type': 'acquisition', 'id': plate_acquisition2.id.val},
+             {'type': 'wellsample', 'id': ws_a2.id.val}],
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val},
+             {'type': 'acquisition', 'id': plate_acquisition2.id.val},
+             {'type': 'wellsample', 'id': ws_b2.id.val}]]
+
+        print paths
+
+        for e in expected:
+            try:
+                paths.remove(e)
+            except ValueError:
+                assert False, 'Did not find in results: %s' % str(e)
+
+        assert len(paths) == 0, 'More results than expected found \n %s' \
+            % paths
+
+    # def test_well_restrict_plate(self, conn, screen_plate_well):
+    #     """
+    #     Test well path
+    #     """
+    #     screen = screen_plate_well
+    #     plate, = screen.linkedPlateList()
+    #     well, = plate.copyWells()
+
+    #     paths = paths_to_object(conn, None, None, None, None, None,
+    #                             plate.id.val,
+    #                             None, well.id.val)
+
+    #     expected = [
+    #         [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+    #          {'type': 'screen', 'id': screen.id.val},
+    #          {'type': 'plate', 'id': plate.id.val},
+    #          {'type': 'well', 'id': well.id.val}]]
+
+    #     assert paths == expected
+
+    # def test_well_restrict_screen(self, conn, screen_plate_well):
+    #     """
+    #     Test well path
+    #     """
+    #     screen = screen_plate_well
+    #     plate, = screen.linkedPlateList()
+    #     well, = plate.copyWells()
+
+    #     paths = paths_to_object(conn, None, None, None, None, screen.id.val,
+    #                             None, None, well.id.val)
+
+    #     expected = [
+    #         [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+    #          {'type': 'screen', 'id': screen.id.val},
+    #          {'type': 'plate', 'id': plate.id.val},
+    #          {'type': 'well', 'id': well.id.val}]]
+
+    #     assert paths == expected
+
+    # def test_well_restrict_plate_screen(self, conn, screen_plate_well):
+    #     """
+    #     Test well path
+    #     """
+    #     screen = screen_plate_well
+    #     plate, = screen.linkedPlateList()
+    #     well, = plate.copyWells()
+
+    #     paths = paths_to_object(conn, None, None, None, None, screen.id.val,
+    #                             plate.id.val, None, well.id.val)
+
+    #     expected = [
+    #         [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+    #          {'type': 'screen', 'id': screen.id.val},
+    #          {'type': 'plate', 'id': plate.id.val},
+    #          {'type': 'well', 'id': well.id.val}]]
+
+    #     assert paths == expected
+
+    def test_plate(self, conn, screen_plate):
+        """
+        Test plate path
+        """
+        screen = screen_plate
+        plate, = screen.linkedPlateList()
+
+        paths = paths_to_object(conn, None, None, None, None, None,
+                                plate.id.val)
+
+        expected = [
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val}]]
+
+        assert paths == expected
+
+    def test_plate_restrict_screen(self, conn, screen_plate):
+        """
+        Test plate path
+        """
+        screen = screen_plate
+        plate, = screen.linkedPlateList()
+
+        paths = paths_to_object(conn, None, None, None, None,
+                                screen.id.val,
+                                plate.id.val)
+
+        expected = [
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val}]]
+
+        assert paths == expected
+
+    def test_screen(self, conn, screen):
+        """
+        Test screen path
+        """
+        paths = paths_to_object(conn, None, None, None, None,
+                                screen.id.val)
+
+        expected = [
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val}]]
+
+        assert paths == expected

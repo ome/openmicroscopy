@@ -1,7 +1,7 @@
 /**
  * jquery-plugin-slider - Slider plugin for jQuery
  *
- * Depends on jquery, jquery.dimensions.js
+ * Depends on jquery
  *
  * Copyright (c) 2007, 2008, 2009 Glencoe Software, Inc. All rights reserved.
  * 
