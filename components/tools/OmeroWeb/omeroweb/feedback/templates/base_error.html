@@ -18,7 +18,7 @@
 {% block body %}
 <div class="bodyWrapper">
     <div><h1>
-        {% trans "Go back to" %}: <a href="{% url 'waindex' %}">{% trans "Webadmin" %}</a>, <a href="{% url 'webindex' %}">{% trans "Webclient" %}</a> {% trans "or" %}  <a href="{% url 'weblogout' %}">{% trans "Logout" %}</a>
+        {% trans "Go back to" %} <a href="{% url 'webindex' %}">{% trans "OMERO.web" %}</a>
     </h1>
     {% block content %}{% endblock %}
     </div>

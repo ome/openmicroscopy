@@ -470,6 +470,7 @@
           <property name="Ice.Plugin.IceSSL" value="IceSSL:createIceSSL"/>
           <property name="IceSSL.Ciphers" value="ADH"/>
           <property name="IceSSL.VerifyPeer" value="0"/>
+          <property name="IceSSL.Protocols" value="tls1"/>
           <property name="Glacier2.Client.Endpoints" value="${client-endpoints}"/>
           <property name="Glacier2.Server.Endpoints" value="${server-endpoints}"/>
           <property name="Glacier2.InstanceName" value="${instance-name}"/>
