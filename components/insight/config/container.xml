@@ -167,8 +167,8 @@
          This entry specifies the name of the server and 
          and e-mail address to submit comment.
     -->
-    <entry name="/services/DEBUGGER/hostnameToken">http://qa.openmicroscopy.org.uk/qa/initial/</entry>
-    <entry name="/services/DEBUGGER/hostnameProcessing">http://qa.openmicroscopy.org.uk/qa/upload_processing/</entry>
+    <entry name="/services/DEBUGGER/hostnameToken">@QA_BASEURL@/initial/</entry>
+    <entry name="/services/DEBUGGER/hostnameProcessing">@QA_BASEURL@/upload_processing/</entry>
     <entry name="/services/DEBUGGER/applicationNameBug">4</entry>
     <entry name="/services/DEBUGGER/applicationNameComment">3</entry>
     <entry name="/services/DEBUGGER/postTimeout" type="integer">2000</entry>

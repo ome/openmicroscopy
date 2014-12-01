@@ -34,7 +34,7 @@
 	
 		<div class="tag">
 	        <a class='tooltip tag_inner' href="{% url 'load_template' 'usertags' %}?show=tag-{{ tag.id }}" target="_top">
-	            {{ tag.textValue }}
+                {{ tag.textValue|escape }}
 	        </a>
 		
 			{% if can_remove %}
@@ -51,7 +51,7 @@
                     {% if forloop.counter < 20 %}
                         <div>
                             <b>{{ l.getParent.OMERO_CLASS }} {{ l.getParent.id }}:</b> 
-                            {{ l.getParent.name|truncatebefor:"28" }}
+                            {{ l.getParent.name|escape|truncatebefor:"28" }}
                             {% ifnotequal ome.user.id l.details.owner.id.val %}<b> ({{ l.getDetails.getOwner.getNameWithInitial }})</b>{% endifnotequal %}
                         </div>
                     {% else %}
@@ -69,7 +69,7 @@
                     <b>Owner:</b> {{ tag.getOwner.getFullName }}<br />
                     <b>Linked by:</b> {{ tag.link.getDetails.getOwner.getFullName }}<br />
                     <b>On:</b> {{ tag.link.creationEventDate|date:"Y-m-d H:i:s" }}<br />
-                    <b>Description:</b> {{ tag.description|default:""|truncatewords:10  }}
+                    <b>Description:</b> {{ tag.description|escape|default:""|truncatewords:10 }}
                 </span>
 			{% endif %}
 			
