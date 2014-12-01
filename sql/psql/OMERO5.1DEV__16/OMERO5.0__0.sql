@@ -1663,6 +1663,8 @@ ALTER TABLE transmittancerange
 
 -- 5.1DEV__16: ordered maps
 
+-- drop all constraints for the map tables
+
 ALTER TABLE annotation_mapvalue
 	DROP CONSTRAINT annotation_mapvalue_pkey;
 
@@ -1681,14 +1683,42 @@ ALTER TABLE metadataimportjob_versioninfo
 ALTER TABLE uploadjob_versioninfo
 	DROP CONSTRAINT uploadjob_versioninfo_pkey;
 
+-- annotation_mapvalue
+
+ALTER TABLE annotation_mapvalue
+	ADD COLUMN index integer;
+
+UPDATE annotation_mapvalue
+    SET index = x.rn
+   FROM (
+        SELECT -1 + row_number() over (partition by annotation_id order by mapvalue_key) as rn,
+               annotation_id, mapvalue_key
+          FROM annotation_mapvalue) as x
+  WHERE annotation_mapvalue.annotation_id = x.annotation_id
+    AND annotation_mapvalue.mapvalue_key = x.mapvalue_key;
+
+ALTER TABLE annotation_mapvalue
+    ALTER COLUMN index SET NOT NULL;
+
 ALTER TABLE annotation_mapvalue
 	RENAME COLUMN mapvalue_key TO name;
 
 ALTER TABLE annotation_mapvalue
 	RENAME COLUMN mapvalue TO "value";
 
-ALTER TABLE annotation_mapvalue
-	ADD COLUMN index integer NOT NULL;
+-- experimentergroup_config
+
+ALTER TABLE experimentergroup_config
+	ADD COLUMN index integer;
+
+UPDATE experimentergroup_config
+    SET index = x.rn
+   FROM (
+        SELECT -1 + row_number() over (partition by experimentergroup_id order by config_key) as rn,
+               experimentergroup_id, config_key
+          FROM experimentergroup_config) as x
+  WHERE experimentergroup_config.experimentergroup_id = x.experimentergroup_id
+    AND experimentergroup_config.config_key = x.config_key;
 
 ALTER TABLE experimentergroup_config
 	RENAME COLUMN config_key to name;
@@ -1697,7 +1727,21 @@ ALTER TABLE experimentergroup_config
 	RENAME COLUMN config TO "value";
 
 ALTER TABLE experimentergroup_config
-	ADD COLUMN index integer NOT NULL;
+    ALTER COLUMN index SET NOT NULL;
+
+-- genericexcitation_map
+
+ALTER TABLE genericexcitationsource_map
+	ADD COLUMN index integer;
+
+UPDATE genericexcitationsource_map
+    SET index = x.rn
+   FROM (
+        SELECT -1 + row_number() over (partition by genericexcitationsource_id order by map_key) as rn,
+               genericexcitationsource_id, map_key
+          FROM genericexcitationsource_map) as x
+  WHERE genericexcitationsource_map.genericexcitationsource_id = x.genericexcitationsource_id
+    AND genericexcitationsource_map.map_key = x.map_key;
 
 ALTER TABLE genericexcitationsource_map
 	RENAME COLUMN map_key TO name;
@@ -1706,7 +1750,21 @@ ALTER TABLE genericexcitationsource_map
 	RENAME COLUMN "map" TO "value";
 
 ALTER TABLE genericexcitationsource_map
-	ADD COLUMN index integer NOT NULL;
+    ALTER COLUMN index SET NOT NULL;
+
+-- imagingenvironment_map
+
+ALTER TABLE imagingenvironment_map
+	ADD COLUMN index integer;
+
+UPDATE imagingenvironment_map
+    SET index = x.rn
+   FROM (
+        SELECT -1 + row_number() over (partition by imagingenvironment_id order by map_key) as rn,
+               imagingenvironment_id, map_key
+          FROM imagingenvironment_map) as x
+  WHERE imagingenvironment_map.imagingenvironment_id = x.imagingenvironment_id
+    AND imagingenvironment_map.map_key = x.map_key;
 
 ALTER TABLE imagingenvironment_map
 	RENAME COLUMN map_key TO name;
@@ -1715,7 +1773,21 @@ ALTER TABLE imagingenvironment_map
 	RENAME COLUMN "map" TO "value";
 
 ALTER TABLE imagingenvironment_map
-	ADD COLUMN index integer NOT NULL;
+    ALTER COLUMN index SET NOT NULL;
+
+-- metadataimportjob_versioninfo
+
+ALTER TABLE metadataimportjob_versioninfo
+	ADD COLUMN index integer;
+
+UPDATE metadataimportjob_versioninfo
+    SET index = x.rn
+   FROM (
+        SELECT -1 + row_number() over (partition by metadataimportjob_id order by versioninfo_key) as rn,
+               metadataimportjob_id, versioninfo_key
+          FROM metadataimportjob_versioninfo) as x
+  WHERE metadataimportjob_versioninfo.metadataimportjob_id = x.metadataimportjob_id
+    AND metadataimportjob_versioninfo.versioninfo_key = x.versioninfo_key;
 
 ALTER TABLE metadataimportjob_versioninfo
 	RENAME COLUMN versioninfo_key TO name;
@@ -1724,7 +1796,21 @@ ALTER TABLE metadataimportjob_versioninfo
 	RENAME COLUMN versioninfo TO "value";
 
 ALTER TABLE metadataimportjob_versioninfo
-	ADD COLUMN index integer NOT NULL;
+    ALTER COLUMN index SET NOT NULL;
+
+-- uploadjob_versioninfo
+
+ALTER TABLE uploadjob_versioninfo
+	ADD COLUMN index integer;
+
+UPDATE uploadjob_versioninfo
+    SET index = x.rn
+   FROM (
+        SELECT -1 + row_number() over (partition by uploadjob_id order by versioninfo_key) as rn,
+               uploadjob_id, versioninfo_key
+          FROM uploadjob_versioninfo) as x
+  WHERE uploadjob_versioninfo.uploadjob_id = x.uploadjob_id
+    AND uploadjob_versioninfo.versioninfo_key = x.versioninfo_key;
 
 ALTER TABLE uploadjob_versioninfo
 	RENAME COLUMN versioninfo_key TO name;
@@ -1733,7 +1819,9 @@ ALTER TABLE uploadjob_versioninfo
 	RENAME COLUMN versioninfo TO "value";
 
 ALTER TABLE uploadjob_versioninfo
-	ADD COLUMN index integer NOT NULL;
+    ALTER COLUMN index SET NOT NULL;
+
+-- add new constraints
 
 ALTER TABLE annotation_mapvalue
 	ADD CONSTRAINT annotation_mapvalue_pkey PRIMARY KEY (annotation_id, index);
