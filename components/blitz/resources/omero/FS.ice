@@ -160,7 +160,7 @@ module omero {
      */
 
     interface FileServer {
-        
+
         /*
          * Directory level methods
          * -----------------------
@@ -168,7 +168,7 @@ module omero {
 
         /**
          * Get an absolute directory from an OMERO.fs server.
-         * 
+         *
          * The returned list will contain just the file names for each directory entry.
          *
          * An exception will be raised if the path does not exist or is inaccessible to the
@@ -182,10 +182,10 @@ module omero {
          **/
         idempotent Ice::StringSeq getDirectory(string absPath, string filter)
             throws omero::OmeroFSError;
-            
+
         /**
-         * Get an absolute directory from an OMERO.fs server. 
-         * 
+         * Get an absolute directory from an OMERO.fs server.
+         *
          * The returned list will contain the file stats for each directory entry.
          *
          * An exception will be raised if the path does not exist or is inaccessible to the
@@ -461,7 +461,7 @@ module omero {
 
 
 
-    }; /* end interface MonitorServer */    
+    }; /* end interface MonitorServer */
   }; /* end module monitors */
  }; /* end module grid */
 }; /* end module omero */
