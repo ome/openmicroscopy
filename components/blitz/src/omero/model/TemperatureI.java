@@ -112,6 +112,16 @@ public class TemperatureI extends Temperature implements ModelBased {
         conversions = Collections.unmodifiableMap(c);
     }
 
+    private static final Map<UnitsTemperature, String> SYMBOLS;
+    static {
+        Map<UnitsTemperature, String> s = new HashMap<UnitsTemperature, String>();
+        s.put(UnitsTemperature.DEGREEC, "°C");
+        s.put(UnitsTemperature.DEGREEF, "°F");
+        s.put(UnitsTemperature.DEGREER, "°R");
+        s.put(UnitsTemperature.K, "K");
+        SYMBOLS = s;
+    }
+
     public static final Ice.ObjectFactory makeFactory(final omero.client client) {
 
         return new Ice.ObjectFactory() {
@@ -270,6 +280,10 @@ public class TemperatureI extends Temperature implements ModelBased {
 
     public void setUnit(UnitsTemperature unit, Ice.Current current) {
         this.unit = unit;
+    }
+
+    public String getSymbol() {
+        return SYMBOLS.get(this.unit);
     }
 
     public Temperature copy(Ice.Current ignore) {

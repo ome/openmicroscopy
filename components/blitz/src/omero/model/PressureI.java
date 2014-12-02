@@ -5012,6 +5012,44 @@ public class PressureI extends Pressure implements ModelBased {
         conversions = Collections.unmodifiableMap(c);
     }
 
+    private static final Map<UnitsPressure, String> SYMBOLS;
+    static {
+        Map<UnitsPressure, String> s = new HashMap<UnitsPressure, String>();
+        s.put(UnitsPressure.APA, "aPa");
+        s.put(UnitsPressure.ATM, "atm");
+        s.put(UnitsPressure.BAR, "bar");
+        s.put(UnitsPressure.CBAR, "cbar");
+        s.put(UnitsPressure.CPA, "cPa");
+        s.put(UnitsPressure.DAPA, "daPa");
+        s.put(UnitsPressure.DBAR, "dbar");
+        s.put(UnitsPressure.DPA, "dPa");
+        s.put(UnitsPressure.EXAPA, "EPa");
+        s.put(UnitsPressure.FPA, "fPa");
+        s.put(UnitsPressure.GIGAPA, "GPa");
+        s.put(UnitsPressure.HPA, "hPa");
+        s.put(UnitsPressure.KBAR, "kBar");
+        s.put(UnitsPressure.KPA, "kPa");
+        s.put(UnitsPressure.MBAR, "mbar");
+        s.put(UnitsPressure.MEGABAR, "Mbar");
+        s.put(UnitsPressure.MEGAPA, "MPa");
+        s.put(UnitsPressure.MICROPA, "µPa");
+        s.put(UnitsPressure.MMHG, "mm Hg");
+        s.put(UnitsPressure.MPA, "mPa");
+        s.put(UnitsPressure.MTORR, "mTorr");
+        s.put(UnitsPressure.NPA, "nPa");
+        s.put(UnitsPressure.PA, "Pa");
+        s.put(UnitsPressure.PETAPA, "PPa");
+        s.put(UnitsPressure.PPA, "pPa");
+        s.put(UnitsPressure.PSI, "psi");
+        s.put(UnitsPressure.TERAPA, "TPa");
+        s.put(UnitsPressure.TORR, "Torr");
+        s.put(UnitsPressure.YOTTAPA, "YPa");
+        s.put(UnitsPressure.YPA, "yPa");
+        s.put(UnitsPressure.ZETTAPA, "ZPa");
+        s.put(UnitsPressure.ZPA, "zPa");
+        SYMBOLS = s;
+    }
+
     public static final Ice.ObjectFactory makeFactory(final omero.client client) {
 
         return new Ice.ObjectFactory() {
@@ -5170,6 +5208,10 @@ public class PressureI extends Pressure implements ModelBased {
 
     public void setUnit(UnitsPressure unit, Ice.Current current) {
         this.unit = unit;
+    }
+
+    public String getSymbol() {
+        return SYMBOLS.get(this.unit);
     }
 
     public Pressure copy(Ice.Current ignore) {

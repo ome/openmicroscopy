@@ -2152,6 +2152,33 @@ public class FrequencyI extends Frequency implements ModelBased {
         conversions = Collections.unmodifiableMap(c);
     }
 
+    private static final Map<UnitsFrequency, String> SYMBOLS;
+    static {
+        Map<UnitsFrequency, String> s = new HashMap<UnitsFrequency, String>();
+        s.put(UnitsFrequency.AHZ, "aHz");
+        s.put(UnitsFrequency.CHZ, "cHz");
+        s.put(UnitsFrequency.DAHZ, "daHz");
+        s.put(UnitsFrequency.DHZ, "dHz");
+        s.put(UnitsFrequency.EXAHZ, "EHz");
+        s.put(UnitsFrequency.FHZ, "fHz");
+        s.put(UnitsFrequency.GIGAHZ, "GHz");
+        s.put(UnitsFrequency.HHZ, "hHz");
+        s.put(UnitsFrequency.HZ, "Hz");
+        s.put(UnitsFrequency.KHZ, "kHz");
+        s.put(UnitsFrequency.MEGAHZ, "MHz");
+        s.put(UnitsFrequency.MHZ, "mHz");
+        s.put(UnitsFrequency.MICROHZ, "µHz");
+        s.put(UnitsFrequency.NHZ, "nHz");
+        s.put(UnitsFrequency.PETAHZ, "PHz");
+        s.put(UnitsFrequency.PHZ, "pHz");
+        s.put(UnitsFrequency.TERAHZ, "THz");
+        s.put(UnitsFrequency.YHZ, "yHz");
+        s.put(UnitsFrequency.YOTTAHZ, "YHz");
+        s.put(UnitsFrequency.ZETTAHZ, "ZHz");
+        s.put(UnitsFrequency.ZHZ, "zHz");
+        SYMBOLS = s;
+    }
+
     public static final Ice.ObjectFactory makeFactory(final omero.client client) {
 
         return new Ice.ObjectFactory() {
@@ -2310,6 +2337,10 @@ public class FrequencyI extends Frequency implements ModelBased {
 
     public void setUnit(UnitsFrequency unit, Ice.Current current) {
         this.unit = unit;
+    }
+
+    public String getSymbol() {
+        return SYMBOLS.get(this.unit);
     }
 
     public Frequency copy(Ice.Current ignore) {

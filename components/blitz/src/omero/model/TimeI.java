@@ -2812,6 +2812,36 @@ public class TimeI extends Time implements ModelBased {
         conversions = Collections.unmodifiableMap(c);
     }
 
+    private static final Map<UnitsTime, String> SYMBOLS;
+    static {
+        Map<UnitsTime, String> s = new HashMap<UnitsTime, String>();
+        s.put(UnitsTime.AS, "as");
+        s.put(UnitsTime.CS, "cs");
+        s.put(UnitsTime.D, "d");
+        s.put(UnitsTime.DAS, "das");
+        s.put(UnitsTime.DS, "ds");
+        s.put(UnitsTime.EXAS, "Es");
+        s.put(UnitsTime.FS, "fs");
+        s.put(UnitsTime.GIGAS, "Gs");
+        s.put(UnitsTime.H, "h");
+        s.put(UnitsTime.HS, "hs");
+        s.put(UnitsTime.KS, "ks");
+        s.put(UnitsTime.MEGAS, "Ms");
+        s.put(UnitsTime.MICROS, "µs");
+        s.put(UnitsTime.MIN, "min");
+        s.put(UnitsTime.MS, "ms");
+        s.put(UnitsTime.NS, "ns");
+        s.put(UnitsTime.PETAS, "Ps");
+        s.put(UnitsTime.PS, "ps");
+        s.put(UnitsTime.S, "s");
+        s.put(UnitsTime.TERAS, "Ts");
+        s.put(UnitsTime.YOTTAS, "Ys");
+        s.put(UnitsTime.YS, "ys");
+        s.put(UnitsTime.ZETTAS, "Zs");
+        s.put(UnitsTime.ZS, "zs");
+        SYMBOLS = s;
+    }
+
     public static final Ice.ObjectFactory makeFactory(final omero.client client) {
 
         return new Ice.ObjectFactory() {
@@ -2970,6 +3000,10 @@ public class TimeI extends Time implements ModelBased {
 
     public void setUnit(UnitsTime unit, Ice.Current current) {
         this.unit = unit;
+    }
+
+    public String getSymbol() {
+        return SYMBOLS.get(this.unit);
     }
 
     public Time copy(Ice.Current ignore) {

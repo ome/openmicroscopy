@@ -5662,6 +5662,46 @@ public class LengthI extends Length implements ModelBased {
         conversions = Collections.unmodifiableMap(c);
     }
 
+    private static final Map<UnitsLength, String> SYMBOLS;
+    static {
+        Map<UnitsLength, String> s = new HashMap<UnitsLength, String>();
+        s.put(UnitsLength.AM, "am");
+        s.put(UnitsLength.ANGSTROM, "Å");
+        s.put(UnitsLength.CM, "cm");
+        s.put(UnitsLength.DAM, "dam");
+        s.put(UnitsLength.DM, "dm");
+        s.put(UnitsLength.EXAM, "Em");
+        s.put(UnitsLength.FM, "fm");
+        s.put(UnitsLength.FT, "ft");
+        s.put(UnitsLength.GIGAM, "Gm");
+        s.put(UnitsLength.HM, "hm");
+        s.put(UnitsLength.IN, "in");
+        s.put(UnitsLength.KM, "km");
+        s.put(UnitsLength.LI, "li");
+        s.put(UnitsLength.LY, "ly");
+        s.put(UnitsLength.M, "m");
+        s.put(UnitsLength.MEGAM, "Mm");
+        s.put(UnitsLength.MI, "mi");
+        s.put(UnitsLength.MICROM, "µm");
+        s.put(UnitsLength.MM, "mm");
+        s.put(UnitsLength.NM, "nm");
+        s.put(UnitsLength.PC, "pc");
+        s.put(UnitsLength.PETAM, "Pm");
+        s.put(UnitsLength.PIXEL, "pixel");
+        s.put(UnitsLength.PM, "pm");
+        s.put(UnitsLength.PT, "pt");
+        s.put(UnitsLength.REFERENCEFRAME, "reference frame");
+        s.put(UnitsLength.TERAM, "Tm");
+        s.put(UnitsLength.THOU, "thou");
+        s.put(UnitsLength.UA, "ua");
+        s.put(UnitsLength.YD, "yd");
+        s.put(UnitsLength.YM, "ym");
+        s.put(UnitsLength.YOTTAM, "Ym");
+        s.put(UnitsLength.ZETTAM, "Zm");
+        s.put(UnitsLength.ZM, "zm");
+        SYMBOLS = s;
+    }
+
     public static final Ice.ObjectFactory makeFactory(final omero.client client) {
 
         return new Ice.ObjectFactory() {
@@ -5820,6 +5860,10 @@ public class LengthI extends Length implements ModelBased {
 
     public void setUnit(UnitsLength unit, Ice.Current current) {
         this.unit = unit;
+    }
+
+    public String getSymbol() {
+        return SYMBOLS.get(this.unit);
     }
 
     public Length copy(Ice.Current ignore) {

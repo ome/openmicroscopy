@@ -2152,6 +2152,33 @@ public class PowerI extends Power implements ModelBased {
         conversions = Collections.unmodifiableMap(c);
     }
 
+    private static final Map<UnitsPower, String> SYMBOLS;
+    static {
+        Map<UnitsPower, String> s = new HashMap<UnitsPower, String>();
+        s.put(UnitsPower.AW, "aW");
+        s.put(UnitsPower.CW, "cW");
+        s.put(UnitsPower.DAW, "daW");
+        s.put(UnitsPower.DW, "dW");
+        s.put(UnitsPower.EXAW, "EW");
+        s.put(UnitsPower.FW, "fW");
+        s.put(UnitsPower.GIGAW, "GW");
+        s.put(UnitsPower.HW, "hW");
+        s.put(UnitsPower.KW, "kW");
+        s.put(UnitsPower.MEGAW, "MW");
+        s.put(UnitsPower.MICROW, "µW");
+        s.put(UnitsPower.MW, "mW");
+        s.put(UnitsPower.NW, "nW");
+        s.put(UnitsPower.PETAW, "PW");
+        s.put(UnitsPower.PW, "pW");
+        s.put(UnitsPower.TERAW, "TW");
+        s.put(UnitsPower.W, "W");
+        s.put(UnitsPower.YOTTAW, "YW");
+        s.put(UnitsPower.YW, "yW");
+        s.put(UnitsPower.ZETTAW, "ZW");
+        s.put(UnitsPower.ZW, "zW");
+        SYMBOLS = s;
+    }
+
     public static final Ice.ObjectFactory makeFactory(final omero.client client) {
 
         return new Ice.ObjectFactory() {
@@ -2310,6 +2337,10 @@ public class PowerI extends Power implements ModelBased {
 
     public void setUnit(UnitsPower unit, Ice.Current current) {
         this.unit = unit;
+    }
+
+    public String getSymbol() {
+        return SYMBOLS.get(this.unit);
     }
 
     public Power copy(Ice.Current ignore) {

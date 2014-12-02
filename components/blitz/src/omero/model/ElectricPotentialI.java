@@ -2152,6 +2152,33 @@ public class ElectricPotentialI extends ElectricPotential implements ModelBased 
         conversions = Collections.unmodifiableMap(c);
     }
 
+    private static final Map<UnitsElectricPotential, String> SYMBOLS;
+    static {
+        Map<UnitsElectricPotential, String> s = new HashMap<UnitsElectricPotential, String>();
+        s.put(UnitsElectricPotential.AV, "aV");
+        s.put(UnitsElectricPotential.CV, "cV");
+        s.put(UnitsElectricPotential.DAV, "daV");
+        s.put(UnitsElectricPotential.DV, "dV");
+        s.put(UnitsElectricPotential.EXAV, "EV");
+        s.put(UnitsElectricPotential.FV, "fV");
+        s.put(UnitsElectricPotential.GIGAV, "GV");
+        s.put(UnitsElectricPotential.HV, "hV");
+        s.put(UnitsElectricPotential.KV, "kV");
+        s.put(UnitsElectricPotential.MEGAV, "MV");
+        s.put(UnitsElectricPotential.MICROV, "µV");
+        s.put(UnitsElectricPotential.MV, "mV");
+        s.put(UnitsElectricPotential.NV, "nV");
+        s.put(UnitsElectricPotential.PETAV, "PV");
+        s.put(UnitsElectricPotential.PV, "pV");
+        s.put(UnitsElectricPotential.TERAV, "TV");
+        s.put(UnitsElectricPotential.V, "V");
+        s.put(UnitsElectricPotential.YOTTAV, "YV");
+        s.put(UnitsElectricPotential.YV, "yV");
+        s.put(UnitsElectricPotential.ZETTAV, "ZV");
+        s.put(UnitsElectricPotential.ZV, "zV");
+        SYMBOLS = s;
+    }
+
     public static final Ice.ObjectFactory makeFactory(final omero.client client) {
 
         return new Ice.ObjectFactory() {
@@ -2310,6 +2337,10 @@ public class ElectricPotentialI extends ElectricPotential implements ModelBased 
 
     public void setUnit(UnitsElectricPotential unit, Ice.Current current) {
         this.unit = unit;
+    }
+
+    public String getSymbol() {
+        return SYMBOLS.get(this.unit);
     }
 
     public ElectricPotential copy(Ice.Current ignore) {

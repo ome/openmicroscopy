@@ -22,6 +22,7 @@ package omero.model;
 import java.io.IOException;
 
 import junit.framework.TestCase;
+import omero.model.enums.UnitsLength;
 import omero.model.enums.UnitsPower;
 
 import org.testng.annotations.Test;
@@ -36,4 +37,9 @@ public class UnitsTest extends TestCase {
         assertEquals(1.001, p2.getValue());
     }
 
+    @Test
+    public void testLengthSymbol() throws IOException {
+        LengthI l = new LengthI(100.1, UnitsLength.MICROM);
+        assertEquals("µm", l.getSymbol());
+    }
 }
