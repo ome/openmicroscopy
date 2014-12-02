@@ -149,7 +149,7 @@ module omero {
          * namespaces. (If no namespaces are specified, defaults apply
          * according to the configuration of the graph request factory.)
          **/
-        module graphOptions {
+        module graphs {
 
             /**
              * How GraphModify2 requests should deal with kinds of children,
@@ -210,7 +210,7 @@ module omero {
              * If the request should operate on specific kinds of children.
              * Only the first applicable option takes effect.
              **/
-            graphOptions::ChildOptions childOptions;
+            graphs::ChildOptions childOptions;
 
             /**
              * If this request should skip the phases in which model

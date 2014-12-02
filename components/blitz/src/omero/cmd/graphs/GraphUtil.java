@@ -33,7 +33,7 @@ import ome.services.graphs.GraphOpts.Op;
 import omero.cmd.GraphModify;
 import omero.cmd.GraphModify2;
 import omero.cmd.Request;
-import omero.cmd.graphOptions.ChildOption;
+import omero.cmd.graphs.ChildOption;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.HashMultimap;
