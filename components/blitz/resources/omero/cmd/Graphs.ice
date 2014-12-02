@@ -216,7 +216,8 @@ module omero {
              * If this request should skip the phases in which model
              * objects are operated upon.
              * The response is still as if the operation actually occurred,
-             * indicating what would have been done to which objects.
+             * indicating what would have been done to which objects, except
+             * for that various permissions checks are omitted.
              **/
             bool dryRun;
         };
