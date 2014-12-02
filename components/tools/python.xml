@@ -5,6 +5,7 @@
 
     <property name="env.DESTDIR"    value="${up-two}/target/"/>
     <property name="env.ICE_CONFIG" value="${basedir}/../../../etc/ice.config"/>
+    <property name="MARK" value=""/>
 
     <defineVariables/>
 
