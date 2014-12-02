@@ -13,6 +13,7 @@
 """
 
 import omero
+from omero.rtypes import wrap, unwrap
 import time
 
 
@@ -73,3 +74,48 @@ class TestDelete (object):
         ids = [x.id.val for x in q.findAllByQuery(
                "from CommentAnnotation where ns='%s'" % ns, None)]
         assert len(ids) == 0
+
+    def testDeleteAnnotatedFileAnnotation(self, gatewaywrapper):
+        """ See trac:11939 """
+        ns = 'testDeleteObjects-' + str(time.time())
+        gatewaywrapper.loginAsAuthor()
+        us = gatewaywrapper.gateway.getUpdateService()
+        qs = gatewaywrapper.gateway.getQueryService()
+
+        tag = omero.model.TagAnnotationI()
+        tag.setNs(wrap(ns))
+        tag.setTextValue(wrap('tag'))
+        tag = us.saveAndReturnObject(tag)
+
+        project = omero.model.ProjectI()
+        project.setName(wrap('project'))
+        project = us.saveAndReturnObject(project)
+        pid = unwrap(project.getId())
+
+        ofile = omero.model.OriginalFileI()
+        ofile.setName(wrap('filename'))
+        ofile.setPath(wrap('filepath'))
+        ofile = us.saveAndReturnObject(ofile)
+        oid = unwrap(ofile.getId())
+
+        tagAnnLink = omero.model.OriginalFileAnnotationLinkI()
+        tagAnnLink.link(omero.model.OriginalFileI(oid, False), tag)
+        tagAnnLink = us.saveAndReturnObject(tagAnnLink)
+
+        fileAnn = omero.model.FileAnnotationI()
+        fileAnn.setFile(omero.model.OriginalFileI(oid, False))
+        fileAnn.setNs(wrap(ns))
+        fileAnn.setDescription(wrap('file attachment'))
+
+        fileAnnLink = omero.model.ProjectAnnotationLinkI()
+        fileAnnLink.link(omero.model.ProjectI(pid, False), fileAnn)
+        fileAnnLink = us.saveAndReturnObject(fileAnnLink)
+
+        # Delete the file
+        handle = gatewaywrapper.gateway.deleteObjects(
+            'OriginalFile', [oid], True, True)
+        gatewaywrapper.gateway._waitOnCmd(handle)
+        handle.close()
+
+        assert qs.find('OriginalFile', oid) is None
+        assert qs.find('FileAnnotation', unwrap(fileAnn.getId())) is None
