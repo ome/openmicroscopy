@@ -49,7 +49,7 @@ class TestMapAnnotation(lib.ITest):
             ("select g from ExperimenterGroup g join fetch g.config "
              "where g.id = %s" % group.getId().getValue()), None)
         assert "language" == group.getConfig()[0].name
-        assert "python" == group.getConfig()[0].value.val
+        assert "python" == group.getConfig()[0].value
 
     @pytest.mark.parametrize("data", (
         ([NV("a", "")], [NV("a", "")]),
@@ -88,7 +88,7 @@ class TestMapAnnotation(lib.ITest):
             """, omero.sys.ParametersI().addId(gid))[0])
 
         assert name == expect_value[0].name
-        assert value == expect_value[0].value.val
+        assert value == expect_value[0].value
 
     def testGroupConfigEdit(self):
 
