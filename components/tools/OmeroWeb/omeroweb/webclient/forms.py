@@ -1524,6 +1524,9 @@ class MetadataLightSourceForm(forms.Form):
         super(MetadataLightSourceForm, self).__init__(*args, **kwargs)
         
         lightSource = kwargs['initial']['lightSource']
+        lightSourceSettings = None
+        if 'lightSourceSettings' in kwargs['initial']:
+            lightSourceSettings = kwargs['initial']['lightSourceSettings']
         
         # Manufacturer
         try:
@@ -1712,7 +1715,14 @@ class MetadataLightSourceForm(forms.Form):
         
         # Wavelength
         try:
-            if lightSource.wavelength is not None:
+            if lightSourceSettings is not None and lightSourceSettings.wavelength is not None:
+                self.fields['wavelength'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(lightSourceSettings.id)+', \'wavelength\', this.value);'}),
+                    initial=lightSourceSettings.wavelength.getValue(),
+                    label = "Wavelength (%s)" % lightSourceSettings.wavelength.getUnit(),
+                    required=False)
+            elif lightSource.wavelength is not None:
                 self.fields['wavelength'] = forms.CharField(
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(lightSource.id)+', \'wavelength\', this.value);'}),
