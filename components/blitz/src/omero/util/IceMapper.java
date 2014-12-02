@@ -730,9 +730,13 @@ public class IceMapper extends ome.util.ModelMapper implements
         }
         final List<NamedValue> nvl = new ArrayList<NamedValue>(map.size());
         for (final ome.model.internal.NamedValue nv : map) {
-            final String name = nv.getName();
-            final String value = nv.getValue();
-            nvl.add(new NamedValue(name, value));
+            if (nv == null) {
+                nvl.add(null);
+            } else {
+                final String name = nv.getName();
+                final String value = nv.getValue();
+                nvl.add(new NamedValue(name, value));
+            }
         }
         return nvl;
     }
@@ -743,9 +747,13 @@ public class IceMapper extends ome.util.ModelMapper implements
         }
         final List<NamedValue> nvl = new ArrayList<NamedValue>(map.size());
         for (final ome.xml.model.MapPair nv : map) {
-            final String name = nv.getName();
-            final String value = nv.getValue();
-            nvl.add(new NamedValue(name, value));
+            if (nv == null) {
+                nvl.add(null);
+            } else {
+                final String name = nv.getName();
+                final String value = nv.getValue();
+                nvl.add(new NamedValue(name, value));
+            }
         }
         return nvl;
     }
@@ -1029,9 +1037,13 @@ public class IceMapper extends ome.util.ModelMapper implements
         }
         final List<ome.model.internal.NamedValue> nvl = new ArrayList<ome.model.internal.NamedValue>(map.size());
         for (final NamedValue nv : map) {
-            final String name = nv.name;
-            final String value = nv.value;
-            nvl.add(new ome.model.internal.NamedValue(name, value));
+            if (nv == null) {
+                nvl.add(null);
+            } else {
+                final String name = nv.name;
+                final String value = nv.value;
+                nvl.add(new ome.model.internal.NamedValue(name, value));
+            }
         }
         return nvl;
     }
