@@ -1818,8 +1818,8 @@ class MetadataLightSourceForm(forms.Form):
                 self.fields['repetitionRate'] = forms.CharField(
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(lightSource.id)+', \'repetitionRate\', this.value);'}),
-                    initial=lightSource.repetitionRate,
-                    label="Repetition rate",
+                    initial=lightSource.repetitionRate.getValue(),
+                    label="Repetition rate (%s)" % lightSource.repetitionRate.getUnit(),
                     required=False)
             else:
                 self.fields['repetitionRate'] = forms.CharField(
