@@ -5,7 +5,7 @@
 
     <property name="env.DESTDIR"    value="${up-two}/target/"/>
     <property name="env.ICE_CONFIG" value="${basedir}/../../../etc/ice.config"/>
-    <property name="MARK" value=""/>
+    <property name="MARK" value="not (long_running or broken)"/>
 
     <defineVariables/>
 
@@ -60,7 +60,9 @@ build_year = "${python_build_year}"
     <target name="python-test-suite" unless="TEST">
         <mkdir dir="${testreports.dir}"/>
         <if>
-            <isset property="MARK"/>
+            <not>
+                <equals arg1="${MARK}" arg2=""/>
+            </not>
             <then>
                 <py_test target="${basedir}/test/unit">
                     <optionalArgs>
@@ -79,7 +81,9 @@ build_year = "${python_build_year}"
     <target name="python-integration" unless="env.NOPYTHON">
         <mkdir dir="${testreports.dir}"/>
         <if>
-            <isset property="MARK"/>
+            <not>
+                <equals arg1="${MARK}" arg2=""/>
+            </not>
             <then>
                 <py_test target="${basedir}/test/integration">
                     <optionalArgs>
