@@ -85,7 +85,7 @@ class TemperatureI(_omero_model.Temperature, UnitBase):
                     msg = "%s %s cannot be converted to %s" % t
                     raise Exception(msg)
                 self.setValue(c(value.getValue()))
-                self.setUnit(UnitsTemperature.valueOf(target))
+                self.setUnit(getattr(UnitsTemperature, str(target)))
         else:
             self.setValue(value)
             self.setUnit(unit)

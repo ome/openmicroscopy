@@ -2305,7 +2305,7 @@ class LengthI(_omero_model.Length, UnitBase):
                     msg = "%s %s cannot be converted to %s" % t
                     raise Exception(msg)
                 self.setValue(c(value.getValue()))
-                self.setUnit(UnitsLength.valueOf(target))
+                self.setUnit(getattr(UnitsLength, str(target)))
         else:
             self.setValue(value)
             self.setUnit(unit)

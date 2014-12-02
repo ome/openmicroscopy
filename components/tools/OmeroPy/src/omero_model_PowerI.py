@@ -901,7 +901,7 @@ class PowerI(_omero_model.Power, UnitBase):
                     msg = "%s %s cannot be converted to %s" % t
                     raise Exception(msg)
                 self.setValue(c(value.getValue()))
-                self.setUnit(UnitsPower.valueOf(target))
+                self.setUnit(getattr(UnitsPower, str(target)))
         else:
             self.setValue(value)
             self.setUnit(unit)

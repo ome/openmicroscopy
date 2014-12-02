@@ -901,7 +901,7 @@ class ElectricPotentialI(_omero_model.ElectricPotential, UnitBase):
                     msg = "%s %s cannot be converted to %s" % t
                     raise Exception(msg)
                 self.setValue(c(value.getValue()))
-                self.setUnit(UnitsElectricPotential.valueOf(target))
+                self.setUnit(getattr(UnitsElectricPotential, str(target)))
         else:
             self.setValue(value)
             self.setUnit(unit)

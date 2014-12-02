@@ -2045,7 +2045,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
                     msg = "%s %s cannot be converted to %s" % t
                     raise Exception(msg)
                 self.setValue(c(value.getValue()))
-                self.setUnit(UnitsPressure.valueOf(target))
+                self.setUnit(getattr(UnitsPressure, str(target)))
         else:
             self.setValue(value)
             self.setUnit(unit)
