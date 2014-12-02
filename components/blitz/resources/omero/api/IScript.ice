@@ -213,6 +213,7 @@ module omero {
                  * </p>
                  *
                  **/
+                idempotent
                 bool canRunScript(long scriptID) throws ServerError;
 
                 /**
@@ -225,6 +226,7 @@ module omero {
                  *
                  * A valid script will be returned if it exists; otherwise null.
                  **/
+                idempotent
                 omero::model::OriginalFile validateScript(omero::model::Job j, omero::api::IObjectList acceptsList) throws ServerError;
 
                 // Planned methods
