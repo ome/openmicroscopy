@@ -36,6 +36,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+
 //Third-party libraries
 import static org.jhotdraw.draw.AttributeKeys.FILL_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.FONT_BOLD;
@@ -46,13 +47,15 @@ import static org.jhotdraw.draw.AttributeKeys.STROKE_CAP;
 import static org.jhotdraw.draw.AttributeKeys.STROKE_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.TEXT_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.STROKE_WIDTH;
+
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.geom.BezierPath.Node;
 import org.apache.commons.lang.StringUtils;
 
+
 //Application-internal dependencies
-import ome.formats.model.UnitsFactory;
-import ome.units.UNITS;
+import omero.model.enums.UnitsLength;
+
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
@@ -573,11 +576,11 @@ class InputServerStrategy
 	 */
 	private void addShapeSettings(ROIFigure figure, ShapeSettingsData data)
 	{
-		STROKE_WIDTH.set(figure, UnitsFactory.convertLength(data.getStrokeWidthAsLength(), UNITS.PIXEL).getValue());
+		STROKE_WIDTH.set(figure, data.getStrokeWidth(UnitsLength.PIXEL).getValue());
 		STROKE_COLOR.set(figure, data.getStroke());
 		FILL_COLOR.set(figure, data.getFill());
 		FONT_FACE.set(figure, data.getFont());
-		FONT_SIZE.set(figure, UnitsFactory.convertLength(data.getFontSizeAsLength(), UNITS.PT).getValue());
+		FONT_SIZE.set(figure, data.getFontSize(UnitsLength.PT).getValue());
 		FONT_ITALIC.set(figure, data.isFontItalic());
 		FONT_BOLD.set(figure, data.isFontBold());
 		STROKE_CAP.set(figure, data.getLineCap());
