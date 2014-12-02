@@ -11,9 +11,11 @@ before the full public release of 5.1.0. Use at your own risk**.
 Model changes include:
 
 -  units support, meaning units now have real enums
+-  minor fixes for model changes introduced in m1
 
 Other changes that may affect developers include:
 
+-  ongoing C++ implementation improvements
 -  ongoing work to add unit support in OMERO.insight
 -  further flake8 work
 -  removal of webtest app from OMERO.web to a separate repository
