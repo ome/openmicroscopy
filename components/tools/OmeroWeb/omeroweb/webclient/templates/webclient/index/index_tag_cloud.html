@@ -28,7 +28,7 @@
               
 				<span class="tag_annotation_wrapper">
 					<div class="tag">
-						<a class="tag_inner" href="{% url 'load_template' "usertags" %}{% if not value.obj.isOwned %}?experimenter={{  value.obj.getOwner.id }}{% endif %}" class="tag" target="_top">{{ value.obj.textValue }}</a>
+						<a class="tag_inner" href="{% url 'load_template' "usertags" %}{% if not value.obj.isOwned %}?experimenter={{  value.obj.getOwner.id }}{% endif %}" class="tag" target="_top">{{ value.obj.textValue|escape }}</a>
 					</div>
 				</span>	
            

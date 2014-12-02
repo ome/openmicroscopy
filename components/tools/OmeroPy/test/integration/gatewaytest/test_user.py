@@ -112,7 +112,7 @@ class TestUser (object):
             # Revert group permissions and remove user from group
             admin.changePermissions(g._obj, omero.model.PermissionsI(perms))
 
-    @pytest.mark.xfail(reason="ticket 11545")
+    @pytest.mark.broken(ticket="11545")
     def testCrossGroupRead(self, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()
         p = gatewaywrapper.getTestProject()

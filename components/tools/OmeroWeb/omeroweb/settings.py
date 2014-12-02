@@ -1,28 +1,28 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-# #                Django settings for OMERO.web project.               # # 
+#
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# 
-# 
-# Copyright (c) 2008-2014 University of Dundee. 
-# 
+# #                Django settings for OMERO.web project.               # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#
+#
+# Copyright (c) 2008-2014 University of Dundee.
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-# 
+#
 # Author: Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>, 2008.
-# 
+#
 # Version: 1.0
 #
 
@@ -47,7 +47,7 @@ logger = logging.getLogger(__name__)
 # A boolean that turns on/off debug mode.
 # handler404 and handler500 works only when False
 if os.environ.has_key('OMERO_HOME'):
-    OMERO_HOME =os.environ.get('OMERO_HOME') 
+    OMERO_HOME =os.environ.get('OMERO_HOME')
 else:
     OMERO_HOME = os.path.join(os.path.dirname(__file__), '..', '..', '..')
     OMERO_HOME = os.path.normpath(OMERO_HOME)
@@ -87,7 +87,7 @@ LOGGING = {
             'maxBytes': 1024*1024*5, # 5 MB
             'backupCount': 5,
             'formatter':'standard',
-        },  
+        },
         'request_handler': {
             'level':'DEBUG',
             'class':'logging.handlers.RotatingFileHandler',
@@ -217,10 +217,10 @@ CUSTOM_HOST = CUSTOM_SETTINGS.get("Ice.Default.Host", "localhost")
 INTERNAL_SETTINGS_MAPPING = {
     "omero.qa.feedback" : ["FEEDBACK_URL", "http://qa.openmicroscopy.org.uk", str, None],
     "omero.upgrades.url": ["UPGRADES_URL", "http://upgrade.openmicroscopy.org.uk/", str, None],
-    
+
     # Allowed hosts: https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
     "omero.web.allowed_hosts": ["ALLOWED_HOSTS", '["*"]', json.loads, None],
-    
+
     # WEBSTART
     "omero.web.webstart_template": ["WEBSTART_TEMPLATE", None, identity, None],
     "omero.web.webstart_jar": ["WEBSTART_JAR", "omero.insight.jar", str, None],
@@ -233,7 +233,7 @@ INTERNAL_SETTINGS_MAPPING = {
     "omero.web.webstart_vendor": ["WEBSTART_VENDOR", "The Open Microscopy Environment", str, None],
     "omero.web.webstart_homepage": ["WEBSTART_HOMEPAGE", "http://www.openmicroscopy.org", str, None],
     "omero.web.nanoxml_jar": ["NANOXML_JAR", "nanoxml.jar", str, None],
-    
+
     # Deprecated
     "omero.web.send_broken_link_emails": ["SEND_BROKEN_LINK_EMAILS", "true", parse_boolean, None],
 }
@@ -287,7 +287,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
         "user closes their browser. See `Django Browser-length sessions vs. " \
         "persistent sessions documentation " \
         " <https://docs.djangoproject.com/en/1.6/topics/http/sessions/#browser-length-vs-persistent-sessions>`_ for more details."],
-    
+
     "omero.web.caches":
         ["CACHES",
         '{"default": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"}}', json.loads,
@@ -368,7 +368,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.public.cache.timeout": ["PUBLIC_CACHE_TIMEOUT", 60 * 60 * 24, int, None],
 
     # Application configuration
-    "omero.web.server_list": 
+    "omero.web.server_list":
         ["SERVER_LIST",
         '[["%s", 4064, "omero"]]' % CUSTOM_HOST, json.loads,
         "A list of servers the Web client can connect to."],
@@ -385,8 +385,8 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.open_astex_max_voxels": ["OPEN_ASTEX_MAX_VOXELS", 27000000, int, None],  # 300 x 300 x 300
 
     # PIPELINE 1.3.20
-    # Pipeline is an asset packaging library for Django, providing both CSS and JavaScript 
-    # concatenation and compression, built-in JavaScript template support, and optional 
+    # Pipeline is an asset packaging library for Django, providing both CSS and JavaScript
+    # concatenation and compression, built-in JavaScript template support, and optional
     # data-URI image and font embedding.
     "omero.web.pipeline_js_compressor":
         ["PIPELINE_JS_COMPRESSOR",
@@ -404,7 +404,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
         "The file storage engine to use when collecting static files with the " \
         "collectstatic management command. See `the documentation " \
         "<http://django-pipeline.readthedocs.org/en/latest/storages.html>`_ for more details."],
-    
+
     # Customisation
     "omero.web.login_logo":
         ["LOGIN_LOGO",
@@ -495,7 +495,7 @@ del CUSTOM_HOST
 # a ticket that needs to be resolved before a release either by moving the
 # setting to CUSTOM_SETTINGS_MAPPINGS or by removing the setting at all.
 DEVELOPMENT_SETTINGS_MAPPINGS = {
-    
+
     # Rename Orphans in data manager; default: '{"NAME":"Orphaned images", "DESCRIPTION":"This is a virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container."}'
     "omero.web.ui.tree.orphaned": ["UI_TREE_ORPHANED",'{"NAME":"Orphaned images", "DESCRIPTION":"This is a virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container."}', json.loads, None],
     "omero.web.webstart_admins_only": ["WEBSTART_ADMINS_ONLY", "false", parse_boolean, None],
@@ -536,10 +536,10 @@ if not DEBUG:  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
     LOGGING['loggers']['django']['level'] = 'INFO'
     LOGGING['loggers']['']['level'] = 'INFO'
 
-# TEMPLATE_DEBUG: A boolean that turns on/off template debug mode. If this is True, the fancy 
-# error page will display a detailed report for any TemplateSyntaxError. This report contains 
+# TEMPLATE_DEBUG: A boolean that turns on/off template debug mode. If this is True, the fancy
+# error page will display a detailed report for any TemplateSyntaxError. This report contains
 # the relevant snippet of the template, with the appropriate line highlighted.
-# Note that Django only displays fancy error pages if DEBUG is True, alternatively error 
+# Note that Django only displays fancy error pages if DEBUG is True, alternatively error
 # is handled by:
 #    handler404 = "omeroweb.feedback.views.handler404"
 #    handler500 = "omeroweb.feedback.views.handler500"
@@ -572,61 +572,61 @@ FIRST_DAY_OF_WEEK = 0     # 0-Monday, ... 6-Sunday
 # in standard language format. For example, U.S. English is "en-us".
 LANGUAGE_CODE = 'en-gb'
 
-# SECRET_KEY: A secret key for this particular Django installation. Used to provide a seed 
-# in secret-key hashing algorithms. Set this to a random string -- the longer, the better. 
-# django-admin.py startproject creates one automatically. 
+# SECRET_KEY: A secret key for this particular Django installation. Used to provide a seed
+# in secret-key hashing algorithms. Set this to a random string -- the longer, the better.
+# django-admin.py startproject creates one automatically.
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '@@k%g#7=%4b6ib7yr1tloma&g0s2nni6ljf!m0h&x9c712c7yj'
 
-# USE_I18N: A boolean that specifies whether Django's internationalization system should be enabled. 
+# USE_I18N: A boolean that specifies whether Django's internationalization system should be enabled.
 # This provides an easy way to turn it off, for performance. If this is set to False, Django will
 # make some optimizations so as not to load the internationalization machinery.
 USE_I18N = True
 
-# MIDDLEWARE_CLASSES: A tuple of middleware classes to use. 
+# MIDDLEWARE_CLASSES: A tuple of middleware classes to use.
 # See https://docs.djangoproject.com/en/1.3/topics/http/middleware/.
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    #'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
 
-# ROOT_URLCONF: A string representing the full Python import path to your root URLconf. 
+# ROOT_URLCONF: A string representing the full Python import path to your root URLconf.
 # For example: "mydjangoapps.urls". Can be overridden on a per-request basis by setting
 # the attribute urlconf on the incoming HttpRequest object.
 ROOT_URLCONF = 'omeroweb.urls'
 
-# STATICFILES_FINDERS: The list of finder backends that know how to find static files 
-# in various locations. The default will find files stored in the STATICFILES_DIRS setting 
-# (using django.contrib.staticfiles.finders.FileSystemFinder) and in a static subdirectory 
+# STATICFILES_FINDERS: The list of finder backends that know how to find static files
+# in various locations. The default will find files stored in the STATICFILES_DIRS setting
+# (using django.contrib.staticfiles.finders.FileSystemFinder) and in a static subdirectory
 # of each app (using django.contrib.staticfiles.finders.AppDirectoriesFinder)
 STATICFILES_FINDERS = (
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 )
 
-# STATIC_URL: URL to use when referring to static files located in STATIC_ROOT. 
+# STATIC_URL: URL to use when referring to static files located in STATIC_ROOT.
 # Example: "/site_media/static/" or "http://static.example.com/".
-# If not None, this will be used as the base path for media definitions and the staticfiles 
+# If not None, this will be used as the base path for media definitions and the staticfiles
 # app. It must end in a slash if set to a non-empty value.
 # This var is configurable by omero.web.static_url STATIC_URL = '/static/'
 
-# STATIC_ROOT: The absolute path to the directory where collectstatic will collect static 
-# files for deployment. If the staticfiles contrib app is enabled (default) the collectstatic 
+# STATIC_ROOT: The absolute path to the directory where collectstatic will collect static
+# files for deployment. If the staticfiles contrib app is enabled (default) the collectstatic
 # management command will collect static files into this directory.
 STATIC_ROOT = os.path.join(os.path.dirname(__file__), 'static').replace('\\','/')
 
-# STATICFILES_DIRS: This setting defines the additional locations the staticfiles app will 
-# traverse if the FileSystemFinder finder is enabled, e.g. if you use the collectstatic or 
+# STATICFILES_DIRS: This setting defines the additional locations the staticfiles app will
+# traverse if the FileSystemFinder finder is enabled, e.g. if you use the collectstatic or
 # findstatic management command or use the static file serving view.
 if WEBSTART:
     # from CUSTOM_SETTINGS_MAPPINGS
     STATICFILES_DIRS += (("webstart/jars", INSIGHT_JARS),)  # noqa
 
-# TEMPLATE_CONTEXT_PROCESSORS: A tuple of callables that are used to populate the context 
-# in RequestContext. These callables take a request object as their argument and return 
+# TEMPLATE_CONTEXT_PROCESSORS: A tuple of callables that are used to populate the context
+# in RequestContext. These callables take a request object as their argument and return
 # a dictionary of items to be merged into the context.
 TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.debug",
@@ -636,17 +636,17 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.contrib.messages.context_processors.messages"
 )
 
-# TEMPLATE_LOADERS: A tuple of template loader classes, specified as strings. Each Loader class 
-# knows how to import templates from a particular source. Optionally, a tuple can be used 
-# instead of a string. The first item in the tuple should be the Loader's module, subsequent items 
+# TEMPLATE_LOADERS: A tuple of template loader classes, specified as strings. Each Loader class
+# knows how to import templates from a particular source. Optionally, a tuple can be used
+# instead of a string. The first item in the tuple should be the Loader's module, subsequent items
 # are passed to the Loader during initialization.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
 )
 
-# INSTALLED_APPS: A tuple of strings designating all applications that are enabled in this Django 
-# installation. Each string should be a full Python path to a Python package that contains 
+# INSTALLED_APPS: A tuple of strings designating all applications that are enabled in this Django
+# installation. Each string should be a full Python path to a Python package that contains
 # a Django application, as created by django-admin.py startapp.
 INSTALLED_APPS = (
     'django.contrib.staticfiles',
@@ -716,8 +716,11 @@ PIPELINE_JS = {
         'source_filenames': (
             '3rdparty/jquery-1.11.1.js',
             '3rdparty/jquery-migrate-1.2.1.js',
+            '3rdparty/jquery-ui-1.10.4/js/jquery-ui.1.10.4.js',
             'webgateway/js/ome.popup.js',
             '3rdparty/aop.js',
+            '3rdparty/raphael/raphael.js',
+            '3rdparty/raphael/scale.raphael.js',
             '3rdparty/panojs/utils.js',
             '3rdparty/panojs/PanoJS.js',
             '3rdparty/panojs/controls.js',
@@ -728,11 +731,13 @@ PIPELINE_JS = {
             '3rdparty/panojs/control_info.js',
             '3rdparty/panojs/control_svg.js',
             '3rdparty/panojs/control_roi.js',
+            '3rdparty/panojs/control_scalebar.js',
             'webgateway/js/ome.gs_utils.js',
             'webgateway/js/ome.viewportImage.js',
             'webgateway/js/ome.gs_slider.js',
             'webgateway/js/ome.viewport.js',
-            '3rdparty/jquery-ui-1.10.4/js/jquery-ui.1.10.4.js',
+            'webgateway/js/ome.roidisplay.js',
+            'webgateway/js/ome.scalebardisplay.js',
             'webgateway/js/ome.smartdialog.js',
             '3rdparty/JQuerySpinBtn/JQuerySpinBtn.js',
             'webgateway/js/ome.colorbtn.js',
@@ -740,14 +745,13 @@ PIPELINE_JS = {
             '3rdparty/jquery.selectboxes.js',
             'webgateway/js/ome.rangewidget.js',
             '3rdparty/farbtastic/farbtastic.js',
-            '3rdparty/raphael/raphael-min.js',
-            '3rdparty/raphael/scale.raphael.js',
-            'webgateway/js/ome.roidisplay.js',
             '3rdparty/jquery.mousewheel.js',
         ),
         'output_filename': 'omeroweb.viewer.min.js',
     }
 }
+
+CSRF_FAILURE_VIEW = "omeroweb.feedback.views.csrf_failure"
 
 # FEEDBACK - DO NOT MODIFY!
 # FEEDBACK_URL: Is now configurable for testing purpuse only. Used in
@@ -756,20 +760,20 @@ PIPELINE_JS = {
 # FEEDBACK_APP: 6 = OMERO.web
 FEEDBACK_APP = 6
 
-# IGNORABLE_404_STARTS: 
+# IGNORABLE_404_STARTS:
 # Default: ('/cgi-bin/', '/_vti_bin', '/_vti_inf')
-# IGNORABLE_404_ENDS: 
+# IGNORABLE_404_ENDS:
 # Default: ('mail.pl', 'mailform.pl', 'mail.cgi', 'mailform.cgi', 'favicon.ico', '.php')
 
 # SESSION_FILE_PATH: If you're using file-based session storage, this sets the directory in which Django
-# will store session data. When the default value (None) is used, Django will use the standard temporary 
+# will store session data. When the default value (None) is used, Django will use the standard temporary
 # directory for the system.
 SESSION_FILE_PATH = tempfile.gettempdir()
 
 # FILE_UPLOAD_TEMP_DIR: The directory to store data temporarily while uploading files.
 FILE_UPLOAD_TEMP_DIR = tempfile.gettempdir()
 
-# # FILE_UPLOAD_MAX_MEMORY_SIZE: The maximum size (in bytes) that an upload will be before it gets streamed 
+# # FILE_UPLOAD_MAX_MEMORY_SIZE: The maximum size (in bytes) that an upload will be before it gets streamed
 # to the file system.
 FILE_UPLOAD_MAX_MEMORY_SIZE = 2621440 #default 2621440 (i.e. 2.5 MB).
 
@@ -781,18 +785,18 @@ DEFAULT_IMG = os.path.join(os.path.dirname(__file__), 'webgateway', 'static', 'w
 # avatar while experimenter photo can't be retrieved from the server.
 DEFAULT_USER = os.path.join(os.path.dirname(__file__), 'webgateway', 'static', 'webgateway', 'img', 'personal32.png').replace('\\','/')
 
-# MANAGERS: A tuple in the same format as ADMINS that specifies who should get broken-link notifications when 
+# MANAGERS: A tuple in the same format as ADMINS that specifies who should get broken-link notifications when
 # SEND_BROKEN_LINK_EMAILS=True.
 MANAGERS = ADMINS  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
 
 
 EMAIL_TEMPLATES = {
     'create_share': {
-        'html_content':'<p>Hi,</p><p>I would like to share some of my data with you.<br/>Please find it on the <a href="%s?server=%i">%s?server=%i</a>.</p><p>%s</p>', 
+        'html_content':'<p>Hi,</p><p>I would like to share some of my data with you.<br/>Please find it on the <a href="%s?server=%i">%s?server=%i</a>.</p><p>%s</p>',
         'text_content':'Hi, I would like to share some of my data with you. Please find it on the %s?server=%i. /n %s'
     },
     'add_member_to_share': {
-        'html_content':'<p>Hi,</p><p>I would like to share some of my data with you.<br/>Please find it on the <a href="%s?server=%i">%s?server=%i</a>.</p><p>%s</p>', 
+        'html_content':'<p>Hi,</p><p>I would like to share some of my data with you.<br/>Please find it on the <a href="%s?server=%i">%s?server=%i</a>.</p><p>%s</p>',
         'text_content':'Hi, I would like to share some of my data with you. Please find it on the %s?server=%i. /n %s'
     },
     'remove_member_from_share': {
@@ -809,7 +813,7 @@ EMAIL_TEMPLATES = {
 # JSON serializer, which is now the default, cannot handle omeroweb.connector.Connector object
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
 
-# Load server list and freeze 
+# Load server list and freeze
 from connector import Server
 def load_server_list():
     for s in SERVER_LIST:  # from CUSTOM_SETTINGS_MAPPINGS  # noqa

@@ -109,7 +109,8 @@ class TestISession(lib.ITest):
 #        guest_sess = guest_client.createSession("guest",sess.uuid)
 #        guest_client.closeSession()
 
-    @pytest.mark.xfail(reason="See tickets #11494 and #11542")
+    @pytest.mark.broken(reason="See tickets #11494 and #11542",
+                        ticket="11494,11542")
     def test1018CreationDestructionClosing(self):
         c1, c2, c3, c4 = None, None, None, None
         try:

@@ -25,7 +25,7 @@ from omero.rtypes import rstring, rlong
 
 class TestPerformance (object):
 
-    @pytest.mark.xfail(reason="ticket 11494")
+    @pytest.mark.broken(ticket="11494")
     def testListFileAnnotations(self, gatewaywrapper):
         """
         testListFileAnnotations: test speed of getObjects('FileAnnotation') vv
