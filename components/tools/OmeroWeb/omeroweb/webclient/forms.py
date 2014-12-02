@@ -1633,7 +1633,8 @@ class MetadataLightSourceForm(forms.Form):
                 self.fields['power'] = forms.CharField(
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(lightSource.id)+', \'power\', this.value);'}),
-                    initial=lightSource.power,
+                    initial=lightSource.power.getValue(),
+                    label="Power (%s)" % lightSource.power.getUnit(),
                     required=False)
             else:
                 self.fields['power'] = forms.CharField(
