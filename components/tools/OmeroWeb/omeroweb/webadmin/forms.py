@@ -1,23 +1,23 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# 
-# Copyright (c) 2008-2014 University of Dundee. 
-# 
+#
+# Copyright (c) 2008-2014 University of Dundee.
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-# 
+#
 # Author: Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>, 2008.
-# 
+#
 # Version: 1.0
 #
 
@@ -25,23 +25,18 @@ import logging
 
 from django.conf import settings
 from django import forms
-from django.forms import ModelForm
-from django.forms.widgets import Textarea, SelectMultiple
-from django.forms.widgets import MultipleHiddenInput
+from django.forms.widgets import Textarea
 from django.core.mail import get_connection, EmailMultiAlternatives
 from django.contrib import messages
 from smtplib import SMTPException
-from django.core.validators import validate_email
 
 from omeroweb.connector import Server
 
 from omeroweb.custom_forms import NonASCIIForm
 
-from custom_forms import ServerModelChoiceField, \
-        GroupModelChoiceField, GroupModelMultipleChoiceField, \
-        ExperimenterModelChoiceField, ExperimenterModelMultipleChoiceField, \
-        DefaultGroupField, OmeNameField, MultiEmailField
-from custom_widgets import DefaultGroupRadioSelect
+from custom_forms import ServerModelChoiceField, GroupModelChoiceField
+from custom_forms import GroupModelMultipleChoiceField, OmeNameField
+from custom_forms import ExperimenterModelMultipleChoiceField, MultiEmailField
 
 from .webadmin_utils import resolveExperimenters, removeUnaddressable
 
@@ -50,72 +45,133 @@ logger = logging.getLogger(__name__)
 #################################################################
 # Non-model Form
 
+
 class LoginForm(NonASCIIForm):
-    
+
     def __init__(self, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
-        self.fields['server'] = ServerModelChoiceField(Server, empty_label=None)
-        
+        self.fields['server'] = ServerModelChoiceField(
+            Server, empty_label=None)
+
         self.fields.keyOrder = ['server', 'username', 'password', 'ssl']
-            
-    username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':22}))
-    password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':22, 'autocomplete': 'off'}))
-    ssl = forms.BooleanField(required=False, help_text='<img src="%swebgateway/img/nuvola_encrypted_grey16.png" title="Real-time encrypted data transfer can be turned on by checking the box, but it will slow down the data access. Turning it off does not affect the connection to the server which is always secure." alt="SSL"/>' % settings.STATIC_URL)
+
+    username = forms.CharField(
+        max_length=50, widget=forms.TextInput(attrs={'size': 22}))
+    password = forms.CharField(
+        max_length=50,
+        widget=forms.PasswordInput(attrs={'size': 22, 'autocomplete': 'off'}))
+    ssl = forms.BooleanField(
+        required=False,
+        help_text='<img src="%swebgateway/img/nuvola_encrypted_grey16.png"'
+        ' title="Real-time encrypted data transfer can be turned on by'
+        ' checking the box, but it will slow down the data access. Turning'
+        ' it off does not affect the connection to the server which is always'
+        ' secure." alt="SSL"/>' % settings.STATIC_URL)
+
 
 class ForgottonPasswordForm(NonASCIIForm):
-    
+
     server = ServerModelChoiceField(Server, empty_label=None)
-    username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':28, 'autocomplete': 'off'}))
-    email = forms.EmailField(widget=forms.TextInput(attrs={'size':28, 'autocomplete': 'off'}))
+    username = forms.CharField(
+        max_length=50,
+        widget=forms.TextInput(attrs={'size': 28, 'autocomplete': 'off'}))
+    email = forms.EmailField(
+        widget=forms.TextInput(attrs={'size': 28, 'autocomplete': 'off'}))
+
 
 class ExperimenterForm(NonASCIIForm):
 
-    def __init__(self, name_check=False, email_check=False, experimenter_is_me_or_system=False, *args, **kwargs):
+    def __init__(self, name_check=False, email_check=False,
+                 experimenter_is_me_or_system=False, *args, **kwargs):
         super(ExperimenterForm, self).__init__(*args, **kwargs)
-        self.name_check=name_check
-        self.email_check=email_check 
+        self.name_check = name_check
+        self.email_check = email_check
 
         try:
-            self.fields['other_groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['groups'], initial=kwargs['initial']['other_groups'], required=False, label="Groups")
+            self.fields['other_groups'] = GroupModelMultipleChoiceField(
+                queryset=kwargs['initial']['groups'],
+                initial=kwargs['initial']['other_groups'], required=False,
+                label="Groups")
         except:
-            self.fields['other_groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['groups'], required=False, label="Groups")
+            self.fields['other_groups'] = GroupModelMultipleChoiceField(
+                queryset=kwargs['initial']['groups'], required=False,
+                label="Groups")
 
         try:
-            if kwargs['initial']['default_group']: pass
-            self.fields['default_group'] = GroupModelChoiceField(queryset=kwargs['initial']['groups'], initial=kwargs['initial']['default_group'], empty_label=u"---------", required=False)
+            if kwargs['initial']['default_group']:
+                pass
+            self.fields['default_group'] = GroupModelChoiceField(
+                queryset=kwargs['initial']['groups'],
+                initial=kwargs['initial']['default_group'],
+                empty_label=u"---------", required=False)
         except:
-            self.fields['default_group'] = GroupModelChoiceField(queryset=kwargs['initial']['groups'], empty_label=u"---------", required=False)
+            self.fields['default_group'] = GroupModelChoiceField(
+                queryset=kwargs['initial']['groups'],
+                empty_label=u"---------", required=False)
         self.fields['default_group'].widget.attrs['class'] = 'hidden'
-        
-        if kwargs['initial'].has_key('with_password') and kwargs['initial']['with_password']:
-            self.fields['password'] = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
-            self.fields['confirmation'] = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
 
-            self.fields.keyOrder = ['omename', 'password', 'confirmation', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'default_group', 'other_groups']
+        if ('with_password' in kwargs['initial'] and
+                kwargs['initial']['with_password']):
+            self.fields['password'] = forms.CharField(
+                max_length=50,
+                widget=forms.PasswordInput(attrs={'size': 30,
+                                                  'autocomplete': 'off'}))
+            self.fields['confirmation'] = forms.CharField(
+                max_length=50,
+                widget=forms.PasswordInput(attrs={'size': 30,
+                                                  'autocomplete': 'off'}))
+
+            self.fields.keyOrder = [
+                'omename', 'password', 'confirmation', 'first_name',
+                'middle_name', 'last_name', 'email', 'institution',
+                'administrator', 'active', 'default_group', 'other_groups']
         else:
-            self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'default_group', 'other_groups']
+            self.fields.keyOrder = [
+                'omename', 'first_name', 'middle_name', 'last_name', 'email',
+                'institution', 'administrator', 'active', 'default_group',
+                'other_groups']
         if experimenter_is_me_or_system:
             self.fields['omename'].widget.attrs['readonly'] = True
-            self.fields['omename'].widget.attrs['title'] = "Changing of system username would be un-doable"
+            self.fields['omename'].widget.attrs['title'] = \
+                "Changing of system username would be un-doable"
             self.fields['administrator'].widget.attrs['disabled'] = True
-            self.fields['administrator'].widget.attrs['title'] = "Removal of your own admin rights would be un-doable"
+            self.fields['administrator'].widget.attrs['title'] = \
+                "Removal of your own admin rights would be un-doable"
             self.fields['active'].widget.attrs['disabled'] = True
-            self.fields['active'].widget.attrs['title'] = "You cannot disable yourself"
+            self.fields['active'].widget.attrs['title'] = \
+                "You cannot disable yourself"
 
-    omename = OmeNameField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), label="Username")
-    first_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))
-    middle_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
-    last_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))
-    email = forms.EmailField(widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
-    institution = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
-    administrator = forms.CharField(widget=forms.CheckboxInput(), required=False)
+    omename = OmeNameField(
+        max_length=250,
+        widget=forms.TextInput(attrs={'size': 30, 'autocomplete': 'off'}),
+        label="Username")
+    first_name = forms.CharField(
+        max_length=250,
+        widget=forms.TextInput(attrs={'size': 30, 'autocomplete': 'off'}))
+    middle_name = forms.CharField(max_length=250, widget=forms.TextInput(
+        attrs={'size': 30, 'autocomplete': 'off'}), required=False)
+    last_name = forms.CharField(
+        max_length=250,
+        widget=forms.TextInput(attrs={'size': 30, 'autocomplete': 'off'}))
+    email = forms.EmailField(
+        widget=forms.TextInput(attrs={'size': 30, 'autocomplete': 'off'}),
+        required=False)
+    institution = forms.CharField(
+        max_length=250,
+        widget=forms.TextInput(attrs={'size': 30, 'autocomplete': 'off'}),
+        required=False)
+    administrator = forms.CharField(
+        widget=forms.CheckboxInput(), required=False)
     active = forms.CharField(widget=forms.CheckboxInput(), required=False)
 
     def clean_confirmation(self):
-        if self.cleaned_data.get('password') or self.cleaned_data.get('confirmation'):
+        if (self.cleaned_data.get('password') or
+                self.cleaned_data.get('confirmation')):
             if len(self.cleaned_data.get('password')) < 3:
-                raise forms.ValidationError('Password must be at least 3 characters long.')
-            if self.cleaned_data.get('password') != self.cleaned_data.get('confirmation'):
+                raise forms.ValidationError(
+                    'Password must be at least 3 characters long.')
+            if (self.cleaned_data.get('password') !=
+                    self.cleaned_data.get('confirmation')):
                 raise forms.ValidationError('Passwords do not match')
             else:
                 return self.cleaned_data.get('password')
@@ -131,8 +187,10 @@ class ExperimenterForm(NonASCIIForm):
         return self.cleaned_data.get('email')
 
     def clean_other_groups(self):
-        if self.cleaned_data.get('other_groups') is None or len(self.cleaned_data.get('other_groups')) <= 0:
-            raise forms.ValidationError('User must be a member of at least one group.')
+        if (self.cleaned_data.get('other_groups') is None or
+                len(self.cleaned_data.get('other_groups')) <= 0):
+            raise forms.ValidationError(
+                'User must be a member of at least one group.')
         else:
             return self.cleaned_data.get('other_groups')
 
@@ -143,39 +201,58 @@ PERMISSION_CHOICES = (
     ('2', 'Read-Annotate'),
 )
 
+
 class GroupForm(NonASCIIForm):
-    
-    def __init__(self, name_check=False, group_is_current_or_system=False, *args, **kwargs):
+
+    def __init__(self, name_check=False, group_is_current_or_system=False,
+                 *args, **kwargs):
         super(GroupForm, self).__init__(*args, **kwargs)
-        self.name_check=name_check
+        self.name_check = name_check
         try:
-            if kwargs['initial']['owners']: pass
-            self.fields['owners'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], initial=kwargs['initial']['owners'], required=False)
+            if kwargs['initial']['owners']:
+                pass
+            self.fields['owners'] = ExperimenterModelMultipleChoiceField(
+                queryset=kwargs['initial']['experimenters'],
+                initial=kwargs['initial']['owners'], required=False)
         except:
-            self.fields['owners'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], required=False)
-        
+            self.fields['owners'] = ExperimenterModelMultipleChoiceField(
+                queryset=kwargs['initial']['experimenters'], required=False)
+
         try:
-            if kwargs['initial']['members']: pass
-            self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], initial=kwargs['initial']['members'], required=False)
+            if kwargs['initial']['members']:
+                pass
+            self.fields['members'] = ExperimenterModelMultipleChoiceField(
+                queryset=kwargs['initial']['experimenters'],
+                initial=kwargs['initial']['members'], required=False)
         except:
-            self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], required=False)
+            self.fields['members'] = ExperimenterModelMultipleChoiceField(
+                queryset=kwargs['initial']['experimenters'], required=False)
 
+        self.fields['permissions'] = forms.ChoiceField(
+            choices=PERMISSION_CHOICES, widget=forms.RadioSelect(),
+            required=True, label="Permissions")
 
-        self.fields['permissions'] = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions")
-        
         if group_is_current_or_system:
             self.fields['name'].widget.attrs['readonly'] = True
-            self.fields['name'].widget.attrs['title'] = "Changing of system groupname would be un-doable"
-            
-        self.fields.keyOrder = ['name', 'description', 'owners', 'members', 'permissions']
+            self.fields['name'].widget.attrs['title'] = \
+                "Changing of system groupname would be un-doable"
 
-    name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'autocomplete': 'off'}))
-    description = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':25, 'autocomplete': 'off'}), required=False) 
-    
+        self.fields.keyOrder = [
+            'name', 'description', 'owners', 'members', 'permissions']
+
+    name = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={'size': 25, 'autocomplete': 'off'}))
+    description = forms.CharField(
+        max_length=250,
+        widget=forms.TextInput(attrs={'size': 25, 'autocomplete': 'off'}),
+        required=False)
+
     def clean_name(self):
         if self.name_check:
             raise forms.ValidationError('This name already exist.')
         return self.cleaned_data.get('name')
+
 
 class GroupOwnerForm(forms.Form):
 
@@ -183,39 +260,74 @@ class GroupOwnerForm(forms.Form):
         super(GroupOwnerForm, self).__init__(*args, **kwargs)
 
         try:
-            if kwargs['initial']['owners']: pass
-            self.fields['owners'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], initial=kwargs['initial']['owners'], required=False)
+            if kwargs['initial']['owners']:
+                pass
+            self.fields['owners'] = ExperimenterModelMultipleChoiceField(
+                queryset=kwargs['initial']['experimenters'],
+                initial=kwargs['initial']['owners'], required=False)
         except:
-            self.fields['owners'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], required=False)
+            self.fields['owners'] = ExperimenterModelMultipleChoiceField(
+                queryset=kwargs['initial']['experimenters'], required=False)
 
         try:
-            if kwargs['initial']['members']: pass
-            self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], initial=kwargs['initial']['members'], required=False)
+            if kwargs['initial']['members']:
+                pass
+            self.fields['members'] = ExperimenterModelMultipleChoiceField(
+                queryset=kwargs['initial']['experimenters'],
+                initial=kwargs['initial']['members'], required=False)
         except:
-            self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], required=False)
+            self.fields['members'] = ExperimenterModelMultipleChoiceField(
+                queryset=kwargs['initial']['experimenters'], required=False)
 
         self.fields.keyOrder = ['owners', 'members', 'permissions']
-            
-    permissions = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions")
-    
+
+    permissions = forms.ChoiceField(
+        choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True,
+        label="Permissions")
+
+
 class MyAccountForm(NonASCIIForm):
-        
+
     def __init__(self, email_check=False, *args, **kwargs):
         super(MyAccountForm, self).__init__(*args, **kwargs)
-        self.email_check=email_check
+        self.email_check = email_check
         try:
-            if kwargs['initial']['default_group']: pass
-            self.fields['default_group'] = GroupModelChoiceField(queryset=kwargs['initial']['groups'], initial=kwargs['initial']['default_group'], empty_label=None)
+            if kwargs['initial']['default_group']:
+                pass
+            self.fields['default_group'] = GroupModelChoiceField(
+                queryset=kwargs['initial']['groups'],
+                initial=kwargs['initial']['default_group'],
+                empty_label=None)
         except:
-            self.fields['default_group'] = GroupModelChoiceField(queryset=kwargs['initial']['groups'], empty_label=None)
-        self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'default_group']
+            self.fields['default_group'] = GroupModelChoiceField(
+                queryset=kwargs['initial']['groups'],
+                empty_label=None)
+        self.fields.keyOrder = [
+            'omename', 'first_name', 'middle_name', 'last_name', 'email',
+            'institution', 'default_group']
 
-    omename = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'onfocus':'this.blur()', 'size':30, 'autocomplete': 'off'}), label="Username")
-    first_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))
-    middle_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
-    last_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))
-    email = forms.EmailField(widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
-    institution = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
+    omename = forms.CharField(
+        max_length=50,
+        widget=forms.TextInput(attrs={'onfocus': 'this.blur()', 'size': 30,
+                                      'autocomplete': 'off'}),
+        label="Username")
+    first_name = forms.CharField(
+        max_length=250,
+        widget=forms.TextInput(attrs={'size': 30, 'autocomplete': 'off'}))
+    middle_name = forms.CharField(
+        max_length=250,
+        widget=forms.TextInput(attrs={'size': 30, 'autocomplete': 'off'}),
+        required=False)
+    last_name = forms.CharField(
+        max_length=250,
+        widget=forms.TextInput(attrs={'size': 30, 'autocomplete': 'off'}))
+    email = forms.EmailField(
+        widget=forms.TextInput(attrs={'size': 30, 'autocomplete': 'off'}),
+        required=False)
+    institution = forms.CharField(
+        max_length=250,
+        widget=forms.TextInput(attrs={'size': 30, 'autocomplete': 'off'}),
+        required=False)
 
     def clean_email(self):
         if self.email_check:
@@ -227,62 +339,101 @@ class ContainedExperimentersForm(NonASCIIForm):
 
     def __init__(self, *args, **kwargs):
         super(ContainedExperimentersForm, self).__init__(*args, **kwargs)
-        
+
         try:
-            if kwargs['initial']['members']: pass
-            self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], initial=kwargs['initial']['members'], required=False)
+            if kwargs['initial']['members']:
+                pass
+            self.fields['members'] = ExperimenterModelMultipleChoiceField(
+                queryset=kwargs['initial']['experimenters'],
+                initial=kwargs['initial']['members'],
+                required=False)
         except:
-            self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], required=False)
+            self.fields['members'] = ExperimenterModelMultipleChoiceField(
+                queryset=kwargs['initial']['experimenters'],
+                required=False)
 
         self.fields.keyOrder = ['members']
 
 
 class UploadPhotoForm(forms.Form):
-    
+
     photo = forms.FileField(required=False)
 
     def clean_photo(self):
         if self.cleaned_data.get('photo') is None:
-            raise forms.ValidationError('No image selected. Supported image formats (file extensions allowed): jpeg, jpg, gif, png. The maximum image size allowed is 200KB.')
-        if not self.cleaned_data.get('photo').content_type.startswith("image"):
-            raise forms.ValidationError('Supported image formats (file extensions allowed): jpeg, jpg, gif, png.')
+            raise forms.ValidationError(
+                'No image selected. Supported image formats (file extensions'
+                ' allowed): jpeg, jpg, gif, png. The maximum image size'
+                ' allowed is 200KB.')
+        if not self.cleaned_data.get(
+                'photo').content_type.startswith("image"):
+            raise forms.ValidationError(
+                'Supported image formats (file extensions allowed):'
+                ' jpeg, jpg, gif, png.')
         if self.cleaned_data.get('photo').size > 204800:
-            raise forms.ValidationError('The maximum image size allowed is 200KB.')
-        return self.cleaned_data.get('photo') 
+            raise forms.ValidationError(
+                'The maximum image size allowed is 200KB.')
+        return self.cleaned_data.get('photo')
+
 
 class ChangePassword(NonASCIIForm):
 
-    old_password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}), label="Current password")
-    password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}), label="New password")
-    confirmation = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}), label="Confirm password")
-    
+    old_password = forms.CharField(
+        max_length=50,
+        widget=forms.PasswordInput(attrs={'size': 30, 'autocomplete': 'off'}),
+        label="Current password")
+    password = forms.CharField(
+        max_length=50,
+        widget=forms.PasswordInput(attrs={'size': 30, 'autocomplete': 'off'}),
+        label="New password")
+    confirmation = forms.CharField(
+        max_length=50,
+        widget=forms.PasswordInput(attrs={'size': 30, 'autocomplete': 'off'}),
+        label="Confirm password")
+
     def clean_confirmation(self):
-        if self.cleaned_data.get('password') or self.cleaned_data.get('confirmation'):
+        if (self.cleaned_data.get('password') or
+                self.cleaned_data.get('confirmation')):
             if len(self.cleaned_data.get('password')) < 3:
-                raise forms.ValidationError('Password must be at least 3 characters long.')
-            if self.cleaned_data.get('password') != self.cleaned_data.get('confirmation'):
+                raise forms.ValidationError('Password must be at least 3'
+                                            ' characters long.')
+            if (self.cleaned_data.get('password') !=
+                    self.cleaned_data.get('confirmation')):
                 raise forms.ValidationError('Passwords do not match')
             else:
-                return self.cleaned_data.get('password')    
-    
+                return self.cleaned_data.get('password')
+
+
 class EnumerationEntry(NonASCIIForm):
-    
-    new_entry = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
+
+    new_entry = forms.CharField(
+        max_length=250,
+        widget=forms.TextInput(attrs={'size': 30}))
 
 
 class EnumerationEntries(NonASCIIForm):
-    
+
     def __init__(self, entries, *args, **kwargs):
-        super(EnumerationEntries, self).__init__(*args, **kwargs)        
-        for i,e in enumerate(entries):
+        super(EnumerationEntries, self).__init__(*args, **kwargs)
+        for i, e in enumerate(entries):
             try:
                 if kwargs['initial']['entries']:
-                    self.fields[str(e.id)] = forms.CharField(max_length=250, initial=e.value, widget=forms.TextInput(attrs={'size':30}), label=i+1)
+                    self.fields[str(e.id)] = forms.CharField(
+                        max_length=250,
+                        initial=e.value,
+                        widget=forms.TextInput(attrs={'size': 30}),
+                        label=i+1)
                 else:
-                    self.fields[str(e.id)] = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), label=i+1)
+                    self.fields[str(e.id)] = forms.CharField(
+                        max_length=250,
+                        widget=forms.TextInput(attrs={'size': 30}),
+                        label=i+1)
             except:
-                self.fields[str(e.id)] = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), label=i+1)
-                    
+                self.fields[str(e.id)] = forms.CharField(
+                    max_length=250,
+                    widget=forms.TextInput(attrs={'size': 30}),
+                    label=i+1)
+
         self.fields.keyOrder = [str(k) for k in self.fields.keys()]
 
 
@@ -295,7 +446,7 @@ class EmailForm(forms.Form):
     error_css_class = 'field-error'
     required_css_class = 'field-required'
 
-    #Define these as None just so I can order them
+    # Define these as None just so I can order them
     everyone = forms.BooleanField(required=False, label='All Users')
 
     experimenters = forms.TypedMultipleChoiceField(
@@ -320,14 +471,14 @@ class EmailForm(forms.Form):
     def __init__(self, experimenters, groups, conn, request, *args, **kwargs):
         super(EmailForm, self).__init__(*args, **kwargs)
         # Process Experimenters/Groups into choices (lists of tuples)
-        self.fields['experimenters'].choices = \
-            [(experimenter.id, experimenter.firstName + \
-             ' ' + experimenter.lastName + ' (' + experimenter.omeName + ')' + \
-             (' - Inactive' if not experimenter.isActive() else '')) \
-             for experimenter in experimenters]
+        self.fields['experimenters'].choices = [
+            (experimenter.id, experimenter.firstName +
+             ' ' + experimenter.lastName + ' (' + experimenter.omeName + ')' +
+             (' - Inactive' if not experimenter.isActive() else ''))
+            for experimenter in experimenters]
 
-        self.fields['groups'].choices = [(group.id, group.name) \
-            for group in groups]
+        self.fields['groups'].choices = [(group.id, group.name)
+                                         for group in groups]
 
         # TODO If these are adapted to support inactive users for experimenters
         # and not show the permissions for groups, can use these:
@@ -351,7 +502,6 @@ class EmailForm(forms.Form):
         self.conn = conn
         self.request = request
 
-
     def clean(self):
         cleaned_data = super(EmailForm, self).clean()
         everyone = cleaned_data.get("everyone")
@@ -366,7 +516,6 @@ class EmailForm(forms.Form):
                                         "specified in one or more of 'all',"
                                         " 'user', 'group' or 'cc'")
 
-
         # Email resolution should be done in clean so that an error can
         # be thrown if there are inactive experimenters in the explicit
         # addressee list
@@ -375,7 +524,8 @@ class EmailForm(forms.Form):
 
         # Resolve experimenters and groups to addresses
         if everyone:
-            exp_active, exp_inactive = resolveExperimenters(self.conn, everyone)
+            exp_active, exp_inactive = resolveExperimenters(
+                self.conn, everyone)
 
             # Include active recipients
             self.recipients.update(removeUnaddressable(exp_active))
@@ -395,9 +545,9 @@ class EmailForm(forms.Form):
 
             if exp_inactive and not inactive:
                 raise forms.ValidationError(
-                    "Inactive users were explicitly specified but emailing " \
-                    "of inactive users is disabled. Either remove the " \
-                    "inactive users from the experimenters list or enable " \
+                    "Inactive users were explicitly specified but emailing "
+                    "of inactive users is disabled. Either remove the "
+                    "inactive users from the experimenters list or enable "
                     "emailing of inactive users"
                 )
 
@@ -425,13 +575,9 @@ class EmailForm(forms.Form):
 
     def send_email(self):
         cleaned_data = self.cleaned_data
-        everyone = cleaned_data.get("everyone")
-        experimenters = cleaned_data.get("experimenters")
-        groups = cleaned_data.get("groups")
         cc = cleaned_data.get("cc")
         subject = cleaned_data.get('subject')
         message = cleaned_data.get('message')
-        inactive = cleaned_data.get('inactive')
 
         # Get sender 'from' address from settings
         sender = settings.SERVER_EMAIL
@@ -446,7 +592,7 @@ class EmailForm(forms.Form):
         # Add cc (using set to remove any duplicates)
         addresses.update(cc)
 
-        connection = get_connection(fail_silently=False)
+        get_connection(fail_silently=False)
 
         for address in addresses:
             try:
@@ -463,7 +609,8 @@ class EmailForm(forms.Form):
                 logger.error("Email \"%s\" to %s failed" % (subject, address))
 
         if sent_count > 0:
-            messages.success(self.request, "%s message%s sent" % (sent_count, 's' if sent_count > 1 else ''))
+            messages.success(self.request, "%s message%s sent"
+                             % (sent_count, 's' if sent_count > 1 else ''))
         else:
             messages.warning(self.request, "No messages sent")
 
@@ -472,4 +619,3 @@ class EmailForm(forms.Form):
             messages.warning(self.request,
                              "%s messages failed to: %s" %
                              (failed_count, ', '.join(failed_addresses)))
-
