@@ -19,8 +19,10 @@
 
 package omero.cmd.graphs;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -71,6 +73,7 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
     private GraphPolicy graphPolicy;  /* not final because of adjustGraphPolicy */
     private final SetMultimap<String, String> unnullable;
 
+    private List<Function<GraphPolicy, GraphPolicy>> graphPolicyAdjusters = new ArrayList<Function<GraphPolicy, GraphPolicy>>();
     private Helper helper;
     private GraphTraversal graphTraversal;
 
@@ -105,7 +108,7 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
     @Override
     public void init(Helper helper) {
         this.helper = helper;
-        helper.setSteps(3);
+        helper.setSteps(dryRun ? 1 : 3);
 
         /* check that the user is a member of the destination group */
         final EventContext eventContext = helper.getEventContext();
@@ -133,6 +136,11 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
 
         graphPolicyWithOptions = ChildOptionsPolicy.getChildOptionsPolicy(graphPolicyWithOptions, graphPathBean, childOptions,
                 REQUIRED_ABILITIES);
+
+        for (final Function<GraphPolicy, GraphPolicy> adjuster : graphPolicyAdjusters) {
+            graphPolicyWithOptions = adjuster.apply(graphPolicyWithOptions);
+        }
+        graphPolicyAdjusters = null;
 
         graphTraversal = new GraphTraversal(helper.getSession(), eventContext, aclVoter, systemTypes, graphPathBean, unnullable,
                 graphPolicyWithOptions, dryRun ? new NullGraphTraversalProcessor(REQUIRED_ABILITIES) : new InternalProcessor());
@@ -225,7 +233,16 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
 
     @Override
     public void adjustGraphPolicy(Function<GraphPolicy, GraphPolicy> adjuster) {
-        this.graphPolicy = adjuster.apply(this.graphPolicy);
+        if (graphPolicyAdjusters == null) {
+            throw new IllegalStateException("request is already initialized");
+        } else {
+            graphPolicyAdjusters.add(adjuster);
+        }
+    }
+
+    @Override
+    public GraphPolicy.Action getActionForStarting() {
+        return GraphPolicy.Action.INCLUDE;
     }
 
     @Override

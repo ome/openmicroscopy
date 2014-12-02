@@ -41,9 +41,15 @@ public interface WrappableRequest<X> extends IRequest {
 
     /**
      * Transform the currently applicable graph policy for this request by the given function.
+     * Must be called before {@link #init(omero.cmd.Helper)}.
      * @param adjuster a transformation function for graph policies
      */
     void adjustGraphPolicy(Function<GraphPolicy, GraphPolicy> adjuster);
+
+    /**
+     * @return the action associated with nodes qualifying as start objects
+     */
+    GraphPolicy.Action getActionForStarting();
 
     /**
      * From the response of the head-skipping request, determine which model objects are the targets of the operation.

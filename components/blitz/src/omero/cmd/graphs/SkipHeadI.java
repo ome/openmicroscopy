@@ -25,8 +25,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.base.Function;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.SetMultimap;
 
 import ome.model.IObject;
 import ome.services.graphs.GraphException;
@@ -85,6 +87,8 @@ public class SkipHeadI extends SkipHead implements IRequest {
 
     @Override
     public void init(Helper helper) {
+        final GraphPolicy.Action startAction;
+
         if (request == null) {
             throw new RuntimeException(new GraphException("must pass a request argument"));
         } else if (!(request instanceof WrappableRequest)) {
@@ -94,6 +98,7 @@ public class SkipHeadI extends SkipHead implements IRequest {
             /* create the two wrapped requests */
             final Class<? extends GraphModify2> requestClass = request.getClass();
             final WrappableRequest<GraphModify2> wrappedRequest = (WrappableRequest<GraphModify2>) request;
+            startAction = wrappedRequest.getActionForStarting();
             graphRequestSkip = graphRequestFactory.getRequest(requestClass);
             graphRequestPerform = graphRequestFactory.getRequest(requestClass);
             wrappedRequest.copyFieldsTo(graphRequestPerform);
@@ -106,21 +111,31 @@ public class SkipHeadI extends SkipHead implements IRequest {
             }
         }
 
-        /* initialize the two wrapped requests */
-        ((IRequest) graphRequestSkip).init(helper.subhelper(graphRequestSkip, graphRequestSkipStatus));
-        ((IRequest) graphRequestPerform).init(helper.subhelper(graphRequestPerform, graphRequestPerformStatus));
-
-        /* adjust skip-head half to stop when it reaches the model objects from which to start */
+        /* adjust the requests' graph traversal policies */
+        final SetMultimap<String, Long> permissionsOverrides = HashMultimap.create();
         ((WrappableRequest<?>) graphRequestSkip).adjustGraphPolicy(new Function<GraphPolicy, GraphPolicy>() {
             @Override
             public GraphPolicy apply(GraphPolicy graphPolicy) {
                 try {
-                    return SkipHeadPolicy.getSkipHeadPolicy(graphPolicy, graphPathBean, startFrom);
+                    /* adjust skip-head half to stop when it reaches the model objects from which to start */
+                    return SkipHeadPolicy.getSkipHeadPolicySkip(graphPolicy, graphPathBean, startFrom, startAction,
+                            permissionsOverrides);
                 } catch (GraphException e) {
                     throw new RuntimeException("graph traversal policy adjustment failed: " + e, e);
                 }
             }
         });
+        ((WrappableRequest<?>) graphRequestPerform).adjustGraphPolicy(new Function<GraphPolicy, GraphPolicy>() {
+            @Override
+            public GraphPolicy apply(GraphPolicy graphPolicy) {
+                /* adjust tail half to propagate permissions overrides from skip-head half */
+                return SkipHeadPolicy.getSkipHeadPolicyPerform(graphPolicy, permissionsOverrides);
+            }
+        });
+
+        /* initialize the two wrapped requests */
+        ((IRequest) graphRequestSkip).init(helper.subhelper(graphRequestSkip, graphRequestSkipStatus));
+        ((IRequest) graphRequestPerform).init(helper.subhelper(graphRequestPerform, graphRequestPerformStatus));
 
         this.helper = helper;
         helper.setSteps(graphRequestSkipStatus.steps + graphRequestPerformStatus.steps);
