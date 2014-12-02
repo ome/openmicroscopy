@@ -111,6 +111,8 @@ class TestDelete (object):
         fileAnnLink.link(omero.model.ProjectI(pid, False), fileAnn)
         fileAnnLink = us.saveAndReturnObject(fileAnnLink)
 
+        faid = unwrap(fileAnnLink.getChild().getId())
+
         # Delete the file
         handle = gatewaywrapper.gateway.deleteObjects(
             'OriginalFile', [oid], True, True)
@@ -118,4 +120,4 @@ class TestDelete (object):
         handle.close()
 
         assert qs.find('OriginalFile', oid) is None
-        assert qs.find('FileAnnotation', unwrap(fileAnn.getId())) is None
+        assert qs.find('FileAnnotation', faid) is None
