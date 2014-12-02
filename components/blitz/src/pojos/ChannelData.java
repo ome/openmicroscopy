@@ -37,6 +37,7 @@ import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.LogicalChannel;
 import omero.model.StatsInfo;
+import omero.model.enums.UnitsLength;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -123,11 +124,11 @@ public class ChannelData
         if (StringUtils.isNotBlank(value)) return value;
         value = getFluor();
         if (StringUtils.isNotBlank(value)) return value;
-        double v = getEmissionWavelength();
-        if (v > 0) {
-            // FIXME: Do we always append the symbol here?
-            if (DoubleMath.isMathematicalInteger(v)) {
-                return ""+ DoubleMath.roundToInt(v, RoundingMode.DOWN);
+        Length v = getEmissionWavelengthAsLength();
+        if (v != null) {
+        	Length nm = new LengthI(v, UnitsLength.NM);
+            if (DoubleMath.isMathematicalInteger(nm.getValue())) {
+                return ""+ DoubleMath.roundToInt(nm.getValue(), RoundingMode.DOWN);
             }
             return ""+v;
         }
