@@ -885,6 +885,29 @@ class FrequencyI(_omero_model.Frequency, UnitBase):
     CONVERSIONS["ZHZ:ZETTAHZ"] = \
         lambda value: (10 ** -42) * value
 
+    SYMBOLS = dict()
+    SYMBOLS["AHZ"] = "aHz"
+    SYMBOLS["CHZ"] = "cHz"
+    SYMBOLS["DAHZ"] = "daHz"
+    SYMBOLS["DHZ"] = "dHz"
+    SYMBOLS["EXAHZ"] = "EHz"
+    SYMBOLS["FHZ"] = "fHz"
+    SYMBOLS["GIGAHZ"] = "GHz"
+    SYMBOLS["HHZ"] = "hHz"
+    SYMBOLS["HZ"] = "Hz"
+    SYMBOLS["KHZ"] = "kHz"
+    SYMBOLS["MEGAHZ"] = "MHz"
+    SYMBOLS["MHZ"] = "mHz"
+    SYMBOLS["MICROHZ"] = "µHz"
+    SYMBOLS["NHZ"] = "nHz"
+    SYMBOLS["PETAHZ"] = "PHz"
+    SYMBOLS["PHZ"] = "pHz"
+    SYMBOLS["TERAHZ"] = "THz"
+    SYMBOLS["YHZ"] = "yHz"
+    SYMBOLS["YOTTAHZ"] = "YHz"
+    SYMBOLS["ZETTAHZ"] = "ZHz"
+    SYMBOLS["ZHZ"] = "zHz"
+
     def __init__(self, value=None, unit=None):
         _omero_model.Frequency.__init__(self)
         if isinstance(value, _omero_model.FrequencyI):
@@ -911,6 +934,9 @@ class FrequencyI(_omero_model.Frequency, UnitBase):
 
     def getValue(self, current=None):
         return self._value
+
+    def getSymbol(self):
+        return self.SYMBOLS.get(str(self.getUnit()))
 
     def setUnit(self, unit, current=None):
         self._unit = unit

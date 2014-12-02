@@ -885,6 +885,29 @@ class ElectricPotentialI(_omero_model.ElectricPotential, UnitBase):
     CONVERSIONS["ZV:ZETTAV"] = \
         lambda value: (10 ** -42) * value
 
+    SYMBOLS = dict()
+    SYMBOLS["AV"] = "aV"
+    SYMBOLS["CV"] = "cV"
+    SYMBOLS["DAV"] = "daV"
+    SYMBOLS["DV"] = "dV"
+    SYMBOLS["EXAV"] = "EV"
+    SYMBOLS["FV"] = "fV"
+    SYMBOLS["GIGAV"] = "GV"
+    SYMBOLS["HV"] = "hV"
+    SYMBOLS["KV"] = "kV"
+    SYMBOLS["MEGAV"] = "MV"
+    SYMBOLS["MICROV"] = "µV"
+    SYMBOLS["MV"] = "mV"
+    SYMBOLS["NV"] = "nV"
+    SYMBOLS["PETAV"] = "PV"
+    SYMBOLS["PV"] = "pV"
+    SYMBOLS["TERAV"] = "TV"
+    SYMBOLS["V"] = "V"
+    SYMBOLS["YOTTAV"] = "YV"
+    SYMBOLS["YV"] = "yV"
+    SYMBOLS["ZETTAV"] = "ZV"
+    SYMBOLS["ZV"] = "zV"
+
     def __init__(self, value=None, unit=None):
         _omero_model.ElectricPotential.__init__(self)
         if isinstance(value, _omero_model.ElectricPotentialI):
@@ -911,6 +934,9 @@ class ElectricPotentialI(_omero_model.ElectricPotential, UnitBase):
 
     def getValue(self, current=None):
         return self._value
+
+    def getSymbol(self):
+        return self.SYMBOLS.get(str(self.getUnit()))
 
     def setUnit(self, unit, current=None):
         self._unit = unit

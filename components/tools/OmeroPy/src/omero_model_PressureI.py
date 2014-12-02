@@ -2029,6 +2029,40 @@ class PressureI(_omero_model.Pressure, UnitBase):
     CONVERSIONS["ZPA:ZETTAPA"] = \
         lambda value: (10 ** -42) * value
 
+    SYMBOLS = dict()
+    SYMBOLS["APA"] = "aPa"
+    SYMBOLS["ATM"] = "atm"
+    SYMBOLS["BAR"] = "bar"
+    SYMBOLS["CBAR"] = "cbar"
+    SYMBOLS["CPA"] = "cPa"
+    SYMBOLS["DAPA"] = "daPa"
+    SYMBOLS["DBAR"] = "dbar"
+    SYMBOLS["DPA"] = "dPa"
+    SYMBOLS["EXAPA"] = "EPa"
+    SYMBOLS["FPA"] = "fPa"
+    SYMBOLS["GIGAPA"] = "GPa"
+    SYMBOLS["HPA"] = "hPa"
+    SYMBOLS["KBAR"] = "kBar"
+    SYMBOLS["KPA"] = "kPa"
+    SYMBOLS["MBAR"] = "mbar"
+    SYMBOLS["MEGABAR"] = "Mbar"
+    SYMBOLS["MEGAPA"] = "MPa"
+    SYMBOLS["MICROPA"] = "µPa"
+    SYMBOLS["MMHG"] = "mm Hg"
+    SYMBOLS["MPA"] = "mPa"
+    SYMBOLS["MTORR"] = "mTorr"
+    SYMBOLS["NPA"] = "nPa"
+    SYMBOLS["PA"] = "Pa"
+    SYMBOLS["PETAPA"] = "PPa"
+    SYMBOLS["PPA"] = "pPa"
+    SYMBOLS["PSI"] = "psi"
+    SYMBOLS["TERAPA"] = "TPa"
+    SYMBOLS["TORR"] = "Torr"
+    SYMBOLS["YOTTAPA"] = "YPa"
+    SYMBOLS["YPA"] = "yPa"
+    SYMBOLS["ZETTAPA"] = "ZPa"
+    SYMBOLS["ZPA"] = "zPa"
+
     def __init__(self, value=None, unit=None):
         _omero_model.Pressure.__init__(self)
         if isinstance(value, _omero_model.PressureI):
@@ -2055,6 +2089,9 @@ class PressureI(_omero_model.Pressure, UnitBase):
 
     def getValue(self, current=None):
         return self._value
+
+    def getSymbol(self):
+        return self.SYMBOLS.get(str(self.getUnit()))
 
     def setUnit(self, unit, current=None):
         self._unit = unit

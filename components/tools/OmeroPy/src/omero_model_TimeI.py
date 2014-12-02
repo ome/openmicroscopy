@@ -1149,6 +1149,32 @@ class TimeI(_omero_model.Time, UnitBase):
     CONVERSIONS["ZS:ZETTAS"] = \
         lambda value: (10 ** -42) * value
 
+    SYMBOLS = dict()
+    SYMBOLS["AS"] = "as"
+    SYMBOLS["CS"] = "cs"
+    SYMBOLS["D"] = "d"
+    SYMBOLS["DAS"] = "das"
+    SYMBOLS["DS"] = "ds"
+    SYMBOLS["EXAS"] = "Es"
+    SYMBOLS["FS"] = "fs"
+    SYMBOLS["GIGAS"] = "Gs"
+    SYMBOLS["H"] = "h"
+    SYMBOLS["HS"] = "hs"
+    SYMBOLS["KS"] = "ks"
+    SYMBOLS["MEGAS"] = "Ms"
+    SYMBOLS["MICROS"] = "µs"
+    SYMBOLS["MIN"] = "min"
+    SYMBOLS["MS"] = "ms"
+    SYMBOLS["NS"] = "ns"
+    SYMBOLS["PETAS"] = "Ps"
+    SYMBOLS["PS"] = "ps"
+    SYMBOLS["S"] = "s"
+    SYMBOLS["TERAS"] = "Ts"
+    SYMBOLS["YOTTAS"] = "Ys"
+    SYMBOLS["YS"] = "ys"
+    SYMBOLS["ZETTAS"] = "Zs"
+    SYMBOLS["ZS"] = "zs"
+
     def __init__(self, value=None, unit=None):
         _omero_model.Time.__init__(self)
         if isinstance(value, _omero_model.TimeI):
@@ -1175,6 +1201,9 @@ class TimeI(_omero_model.Time, UnitBase):
 
     def getValue(self, current=None):
         return self._value
+
+    def getSymbol(self):
+        return self.SYMBOLS.get(str(self.getUnit()))
 
     def setUnit(self, unit, current=None):
         self._unit = unit

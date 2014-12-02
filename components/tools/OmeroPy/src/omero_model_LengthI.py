@@ -2289,6 +2289,42 @@ class LengthI(_omero_model.Length, UnitBase):
     CONVERSIONS["ZM:ZETTAM"] = \
         lambda value: (10 ** -42) * value
 
+    SYMBOLS = dict()
+    SYMBOLS["AM"] = "am"
+    SYMBOLS["ANGSTROM"] = "Å"
+    SYMBOLS["CM"] = "cm"
+    SYMBOLS["DAM"] = "dam"
+    SYMBOLS["DM"] = "dm"
+    SYMBOLS["EXAM"] = "Em"
+    SYMBOLS["FM"] = "fm"
+    SYMBOLS["FT"] = "ft"
+    SYMBOLS["GIGAM"] = "Gm"
+    SYMBOLS["HM"] = "hm"
+    SYMBOLS["IN"] = "in"
+    SYMBOLS["KM"] = "km"
+    SYMBOLS["LI"] = "li"
+    SYMBOLS["LY"] = "ly"
+    SYMBOLS["M"] = "m"
+    SYMBOLS["MEGAM"] = "Mm"
+    SYMBOLS["MI"] = "mi"
+    SYMBOLS["MICROM"] = "µm"
+    SYMBOLS["MM"] = "mm"
+    SYMBOLS["NM"] = "nm"
+    SYMBOLS["PC"] = "pc"
+    SYMBOLS["PETAM"] = "Pm"
+    SYMBOLS["PIXEL"] = "pixel"
+    SYMBOLS["PM"] = "pm"
+    SYMBOLS["PT"] = "pt"
+    SYMBOLS["REFERENCEFRAME"] = "reference frame"
+    SYMBOLS["TERAM"] = "Tm"
+    SYMBOLS["THOU"] = "thou"
+    SYMBOLS["UA"] = "ua"
+    SYMBOLS["YD"] = "yd"
+    SYMBOLS["YM"] = "ym"
+    SYMBOLS["YOTTAM"] = "Ym"
+    SYMBOLS["ZETTAM"] = "Zm"
+    SYMBOLS["ZM"] = "zm"
+
     def __init__(self, value=None, unit=None):
         _omero_model.Length.__init__(self)
         if isinstance(value, _omero_model.LengthI):
@@ -2315,6 +2351,9 @@ class LengthI(_omero_model.Length, UnitBase):
 
     def getValue(self, current=None):
         return self._value
+
+    def getSymbol(self):
+        return self.SYMBOLS.get(str(self.getUnit()))
 
     def setUnit(self, unit, current=None):
         self._unit = unit

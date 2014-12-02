@@ -69,6 +69,12 @@ class TemperatureI(_omero_model.Temperature, UnitBase):
     CONVERSIONS["K:DEGREER"] = \
         lambda: noconversion("K", "DEGREER")
 
+    SYMBOLS = dict()
+    SYMBOLS["DEGREEC"] = "°C"
+    SYMBOLS["DEGREEF"] = "°F"
+    SYMBOLS["DEGREER"] = "°R"
+    SYMBOLS["K"] = "K"
+
     def __init__(self, value=None, unit=None):
         _omero_model.Temperature.__init__(self)
         if isinstance(value, _omero_model.TemperatureI):
@@ -95,6 +101,9 @@ class TemperatureI(_omero_model.Temperature, UnitBase):
 
     def getValue(self, current=None):
         return self._value
+
+    def getSymbol(self):
+        return self.SYMBOLS.get(str(self.getUnit()))
 
     def setUnit(self, unit, current=None):
         self._unit = unit

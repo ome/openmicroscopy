@@ -885,6 +885,29 @@ class PowerI(_omero_model.Power, UnitBase):
     CONVERSIONS["ZW:ZETTAW"] = \
         lambda value: (10 ** -42) * value
 
+    SYMBOLS = dict()
+    SYMBOLS["AW"] = "aW"
+    SYMBOLS["CW"] = "cW"
+    SYMBOLS["DAW"] = "daW"
+    SYMBOLS["DW"] = "dW"
+    SYMBOLS["EXAW"] = "EW"
+    SYMBOLS["FW"] = "fW"
+    SYMBOLS["GIGAW"] = "GW"
+    SYMBOLS["HW"] = "hW"
+    SYMBOLS["KW"] = "kW"
+    SYMBOLS["MEGAW"] = "MW"
+    SYMBOLS["MICROW"] = "µW"
+    SYMBOLS["MW"] = "mW"
+    SYMBOLS["NW"] = "nW"
+    SYMBOLS["PETAW"] = "PW"
+    SYMBOLS["PW"] = "pW"
+    SYMBOLS["TERAW"] = "TW"
+    SYMBOLS["W"] = "W"
+    SYMBOLS["YOTTAW"] = "YW"
+    SYMBOLS["YW"] = "yW"
+    SYMBOLS["ZETTAW"] = "ZW"
+    SYMBOLS["ZW"] = "zW"
+
     def __init__(self, value=None, unit=None):
         _omero_model.Power.__init__(self)
         if isinstance(value, _omero_model.PowerI):
@@ -911,6 +934,9 @@ class PowerI(_omero_model.Power, UnitBase):
 
     def getValue(self, current=None):
         return self._value
+
+    def getSymbol(self):
+        return self.SYMBOLS.get(str(self.getUnit()))
 
     def setUnit(self, unit, current=None):
         self._unit = unit

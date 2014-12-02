@@ -351,3 +351,7 @@ class TestModel(object):
         nm = LengthI(1.0, omero.model.enums.UnitsLength.NM)
         ang = LengthI(nm, omero.model.enums.UnitsLength.ANGSTROM)
         assert nm.getValue() == ang.getValue() / 10
+
+    def testLengthGetSymbol(self):
+        um = LengthI(1.0, omero.model.enums.UnitsLength.MICROM)
+        assert "µm" == um.getSymbol()
