@@ -36,7 +36,6 @@ build_java()
 build_python()
 {
     flake8 -v components/tools
-    flake8 -v components/validator
     ./build.py build-default
     ./build.py -py test -Dtest.with.fail=true -DMARK="not broken"
     ./build.py -fs test -Dtest.with.fail=true -DMARK="not broken"
