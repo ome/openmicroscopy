@@ -97,13 +97,6 @@ public class PlateData extends DataObject {
      * then this set will be empty &#151; but never <code>null</code>.
      */
     private Set<PlateAcquisitionData> plateAcquisitions;
-    
-    /**
-     * The number of annotations attached to this Plate. This field may be
-     * <code>null</code> meaning no count retrieved, and it may be less than
-     * the actual number if filtered by user.
-     */
-    private Long annotationCount;
 
     /**
      * Returns the index corresponding to the passed value.
@@ -351,22 +344,25 @@ public class PlateData extends DataObject {
     /**
      * Returns the x-coordinate in 2D-space of the well.
      * 
+     * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
      * @return See above
      */
-    public Length getWellOriginXAsLength()
+    public Length getWellOriginX(UnitsLength unit)
     {
     	Length value = asPlate().getWellOriginX();
     	if (value == null) 
     		return new LengthI(0, UnitsLength.REFERENCEFRAME);
     	else 
-    		return value;
+    		return unit == null ? value : new LengthI(value, unit);
     }
     
     /**
      * Returns the x-coordinate in 2D-space of the well.
      * 
      * @return See above
-     * @deprecated Replaced by {@link #getWellOriginXAsLength()}
+     * @deprecated Replaced by {@link #getWellOriginX(UnitsLength)}
      */
     @Deprecated
     public double getWellOriginX()
@@ -379,22 +375,25 @@ public class PlateData extends DataObject {
     /**
      * Returns the y-coordinate in 2D-space of the well.
      * 
+     * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
      * @return See above
      */
-    public Length getWellOriginYAsLength()
+    public Length getWellOriginY(UnitsLength unit)
     {
     	Length value = asPlate().getWellOriginY();
     	if (value == null)
     		return new LengthI(0, UnitsLength.REFERENCEFRAME);
     	else
-    		return value;
+    		return unit == null ? value : new LengthI(value, unit);
     }
     
     /**
      * Returns the y-coordinate in 2D-space of the well.
      * 
      * @return See above
-     * @deprecated Replaced by {@link #getWellOriginYAsLength()}
+     * @deprecated Replaced by {@link #getWellOriginY(UnitsLength)}
      */
     @Deprecated
     public double getWellOriginY()

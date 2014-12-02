@@ -29,6 +29,7 @@ import omero.model.Detector;
 import omero.model.DetectorType;
 import omero.model.ElectricPotential;
 import omero.model.ElectricPotentialI;
+import omero.model.enums.UnitsElectricPotential;
 
 /**
  * Hosts a detector.
@@ -62,19 +63,23 @@ public class DetectorData
 	/**
 	 * Returns the voltage of the detector.
 	 * 
+	 * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
 	 * @return See above
 	 */
-	public ElectricPotential getVoltageAsElectricPotential()
+	public ElectricPotential getVoltage(UnitsElectricPotential unit)
 	{
 		Detector detector = (Detector) asIObject();
-		return detector.getVoltage();
+		ElectricPotential e = detector.getVoltage();
+		return e == null ? e : new ElectricPotentialI(e, unit);
 	}
 	
 	/**
 	 * Returns the voltage of the detector.
 	 * 
 	 * @return See above
-	 * @deprecated Replaced by {@link #getVoltageAsElectricPotential()}
+	 * @deprecated Replaced by {@link #getVoltage(UnitsElectricPotential)}
 	 */
 	@Deprecated
 	public Double getVoltage()

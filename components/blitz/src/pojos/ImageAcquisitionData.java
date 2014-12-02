@@ -39,6 +39,9 @@ import omero.model.StageLabel;
 import omero.model.StageLabelI;
 import omero.model.Temperature;
 import omero.model.TemperatureI;
+import omero.model.enums.UnitsLength;
+import omero.model.enums.UnitsPressure;
+import omero.model.enums.UnitsTemperature;
 
 /** 
  * Object hosting the acquisition metadata.
@@ -125,20 +128,24 @@ public class ImageAcquisitionData
 	/**
 	 * Returns the x-coordinate in the frame microscope.
 	 * 
+	 * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
 	 * @return See above.
 	 */
-	public Length getPositionXAsLength()
+	public Length getPositionX(UnitsLength unit)
 	{
 		if (label == null) 
 			return null;
-		return label.getPositionX();
+		Length l = label.getPositionX();
+		return unit == null ? l : new LengthI(l, unit);
 	}
 	
 	/**
 	 * Returns the x-coordinate in the frame microscope.
 	 * 
 	 * @return See above.
-	 * @deprecated Replaced by {@link #getPositionXAsLength()}
+	 * @deprecated Replaced by {@link #getPositionX(UnitsLength)}
 	 */
 	@Deprecated
 	public Object getPositionX()
@@ -152,20 +159,24 @@ public class ImageAcquisitionData
 	/**
 	 * Returns the y-coordinate in the frame microscope.
 	 * 
+	 * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
 	 * @return See above.
 	 */
-	public Length getPositionYAsLength()
+	public Length getPositionY(UnitsLength unit)
 	{
 		if (label == null) 
 			return null;
-		return label.getPositionY();
+		Length l = label.getPositionY();
+		return unit == null ? l : new LengthI(l, unit);
 	}
 	
 	/**
 	 * Returns the y-coordinate in the frame microscope.
 	 * 
 	 * @return See above.
-	 * @deprecated Replaced by {@link #getPositionYAsLength()}
+	 * @deprecated Replaced by {@link #getPositionY(UnitsLength)}
 	 */
 	@Deprecated
 	public Object getPositionY()
@@ -179,20 +190,24 @@ public class ImageAcquisitionData
 	/**
 	 * Returns the z-coordinate in the frame microscope.
 	 * 
+	 * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
 	 * @return See above.
 	 */
-	public Length getPositionZAsLength()
+	public Length getPositionZ(UnitsLength unit)
 	{
 		if (label == null) 
 			return null;
-		return label.getPositionZ();
+		Length l = label.getPositionZ();
+		return unit == null ? l : new LengthI(l, unit);
 	}
 	
 	/**
 	 * Returns the z-coordinate in the frame microscope.
 	 * 
 	 * @return See above.
-	 * @deprecated Replaced by {@link #getPositionZAsLength()}
+	 * @deprecated Replaced by {@link #getPositionZ(UnitsLength)}
 	 */
 	@Deprecated
 	public Object getPositionZ()
@@ -206,20 +221,24 @@ public class ImageAcquisitionData
 	/**
 	 * Returns the temperature in Celcius.
 	 * 
+	 * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
 	 * @return See above.
 	 */
-	public Temperature getTemperatureAsTemperature()
+	public Temperature getTemperature(UnitsTemperature unit)
 	{
 		if (environment == null) 
 			return null;
-		return environment.getTemperature();
+		Temperature t = environment.getTemperature();
+		return unit == null ? t : new TemperatureI(t, unit);
 	}
 	
 	/**
 	 * Returns the temperature in Celcius.
 	 * 
 	 * @return See above.
-	 * @deprecated Replaced by {@link #getTemperatureAsTemperature()}
+	 * @deprecated Replaced by {@link #getTemperature(UnitsTemperature)}
 	 */
 	@Deprecated
 	public Object getTemperature()
@@ -233,20 +252,26 @@ public class ImageAcquisitionData
 	/**
 	 * Returns the air pressure in bar
 	 * 
+	 * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
 	 * @return See above.
 	 */
-	public Pressure getAirPressureAsPressure()
+	public Pressure getAirPressure(UnitsPressure unit)
 	{
 		if (environment == null) 
 			return null;
-		return environment.getAirPressure();
+		Pressure p = environment.getAirPressure();
+		if (p == null)
+			return null;
+		return unit == null ? p : new PressureI(p, unit);
 	}
 	
 	/**
 	 * Returns the air pressure in bar
 	 * 
 	 * @return See above.
-	 * @deprecated Replaced by {@link #getAirPressureAsPressure()}
+	 * @deprecated Replaced by {@link #getAirPressure(UnitsPressure)}
 	 */
 	@Deprecated
 	public double getAirPressure()

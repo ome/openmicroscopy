@@ -110,22 +110,25 @@ public class WellSampleData extends DataObject {
     /**
      * Returns the position X.
      * 
+     * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
      * @return See above.
      */
-    public Length getPositionXAsLength()
+    public Length getPositionX(UnitsLength unit)
     {
     	Length value = asWellSample().getPosX();
     	if (value == null) 
     		return new LengthI(0, UnitsLength.REFERENCEFRAME);
     	else
-    		return value;
+    		return unit == null ? value : new LengthI(value, unit);
     }	
     
     /**
      * Returns the position X.
      * 
      * @return See above.
-     * @deprecated Replaced by {@link #getPositionXAsLength()}
+     * @deprecated Replaced by {@link #getPositionX(UnitsLength)}
      */
     @Deprecated
     public double getPositionX()
@@ -138,22 +141,25 @@ public class WellSampleData extends DataObject {
     /**
      * Returns the position Y.
      * 
+     * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
      * @return See above.
      */
-    public Length getPositionYAsLength()
+    public Length getPositionY(UnitsLength unit)
     {
     	Length value = asWellSample().getPosY();
     	if (value == null)
     		return new LengthI(0, UnitsLength.REFERENCEFRAME);
     	else
-    		return value;
+    		return unit == null ? value : new LengthI(value, unit);
     }
     
     /**
      * Returns the position Y.
      * 
      * @return See above.
-     * @deprecated Replaced by {@link #getPositionYAsLength()}
+     * @deprecated Replaced by {@link #getPositionY(UnitsLength)}
      */
     @Deprecated
     public double getPositionY()

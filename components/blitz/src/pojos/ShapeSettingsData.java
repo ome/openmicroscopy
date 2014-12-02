@@ -209,7 +209,7 @@ public class ShapeSettingsData
 	 * Returns the stroke's width.
 	 * 
 	 * @return See above.
-	 * @deprecated Replaced by {@link #getStrokeWidthAsLength()}
+	 * @deprecated Replaced by {@link #getStrokeWidth(UnitsLength)}
 	 */
 	@Deprecated
 	public double getStrokeWidth()
@@ -223,16 +223,19 @@ public class ShapeSettingsData
 	/**
 	 * Returns the stroke's width (or 1 px if it's not set or <= 0)
 	 * 
+	 * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
 	 * @return See above.
 	 */
-	public Length getStrokeWidthAsLength()
+	public Length getStrokeWidth(UnitsLength unit)
 	{
 		Shape shape = (Shape) asIObject();
 		Length value = shape.getStrokeWidth();
 		if (value == null || value.getValue()<=0) 
 			return new LengthI(1, UnitsLength.PIXEL);
 		else
-			return value;
+			return unit == null ? value : new LengthI(value, unit);
 	}
 
 	/**
@@ -394,7 +397,7 @@ public class ShapeSettingsData
 	 * Returns the stroke.
 	 * 
 	 * @return See above.
-	 * @deprecated Replaced by {@link #getFontSizeAsLength()}
+	 * @deprecated Replaced by {@link #getFontSize(UnitsLength)}
 	 */
 	@Deprecated
 	public double getFontSize()
@@ -410,16 +413,19 @@ public class ShapeSettingsData
 	/**
 	 * Returns the stroke.
 	 * 
+	 * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
 	 * @return See above.
 	 */
-	public Length getFontSizeAsLength()
+	public Length getFontSize(UnitsLength unit)
 	{
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		Length size = shape.getFontSize();
 		if (size != null) 
-			return size;
+			return unit == null ? size : new LengthI(size, unit);
 		else 
 			return new LengthI(DEFAULT_FONT_SIZE, UnitsLength.PT);
 	}

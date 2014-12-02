@@ -124,11 +124,10 @@ public class ChannelData
         if (StringUtils.isNotBlank(value)) return value;
         value = getFluor();
         if (StringUtils.isNotBlank(value)) return value;
-        Length v = getEmissionWavelengthAsLength();
+        Length v = getEmissionWavelength(UnitsLength.NM);
         if (v != null) {
-        	Length nm = new LengthI(v, UnitsLength.NM);
-            if (DoubleMath.isMathematicalInteger(nm.getValue())) {
-                return ""+ DoubleMath.roundToInt(nm.getValue(), RoundingMode.DOWN);
+            if (DoubleMath.isMathematicalInteger(v.getValue())) {
+                return ""+ DoubleMath.roundToInt(v.getValue(), RoundingMode.DOWN);
             }
             return ""+v;
         }
@@ -165,21 +164,28 @@ public class ChannelData
     /**
      * Returns the emission wavelength of the channel.
      *
+     * param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
      * @return See above
      */
-    public Length getEmissionWavelengthAsLength()
+    public Length getEmissionWavelength(UnitsLength unit)
     {
         LogicalChannel lc = asChannel().getLogicalChannel();
         if (lc == null) 
         	return null;
-        return lc.getEmissionWave();
+        
+        Length l = lc.getEmissionWave();
+        if (l == null)
+        	return null;
+        return unit == null ? l : new LengthI(l, unit);
     }
     
     /**
      * Returns the emission wavelength of the channel.
      *
      * @return See above
-     * @deprecated Replaced by {@link #getEmissionWavelengthAsLength()}
+     * @deprecated Replaced by {@link #getEmissionWavelength(UnitsLength)}
      */
     @Deprecated
     public double getEmissionWavelength()
@@ -195,21 +201,28 @@ public class ChannelData
     /**
      * Returns the excitation wavelength of the channel.
      *
+     * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
      * @return See above
      */
-    public Length getExcitationWavelengthAsLength()
+    public Length getExcitationWavelength(UnitsLength unit)
     {
         LogicalChannel lc = asChannel().getLogicalChannel();
         if (lc == null) 
-        	return getEmissionWavelengthAsLength();
-        return lc.getExcitationWave();
+        	return getEmissionWavelength(unit);
+        Length l = lc.getExcitationWave();
+        if (l == null)
+        	return null;
+        
+        return unit == null ? l : new LengthI(l, unit);
     }
     
     /**
      * Returns the excitation wavelength of the channel.
      *
      * @return See above
-     * @deprecated Replaced by {@link #getExcitationWavelengthAsLength()}
+     * @deprecated Replaced by {@link #getExcitationWavelength(UnitsLength)}
      */
     @Deprecated
     public double getExcitationWavelength()
@@ -225,21 +238,29 @@ public class ChannelData
     /**
      * Returns the pin hole size of the channel.
      *
+     * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
      * @return See above
      */
-    public Length getPinholeSizeAsLength()
+    public Length getPinholeSize(UnitsLength unit)
     {
         LogicalChannel lc = asChannel().getLogicalChannel();
         if (lc == null) 
         	return null;
-        return lc.getPinHoleSize();
+        
+        Length l = lc.getPinHoleSize();
+        if (l == null)
+        	return null;
+        
+        return unit == null ? l : new LengthI(l, unit);
     }
     
     /**
      * Returns the pin hole size of the channel.
      *
      * @return See above
-     * @deprecated Replaced by {@link #getPinholeSizeAsLength()}
+     * @deprecated Replaced by {@link #getPinholeSize(UnitsLength)}
      */
     @Deprecated
     public double getPinholeSize()

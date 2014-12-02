@@ -33,7 +33,9 @@ import omero.RString;
 import omero.model.Filter;
 import omero.model.FilterType;
 import omero.model.Length;
+import omero.model.LengthI;
 import omero.model.TransmittanceRange;
+import omero.model.enums.UnitsLength;
 
 /** 
  * Object hosting a filter.
@@ -67,22 +69,26 @@ public class FilterData
 	/**
 	 * Returns the cut in value or <code>null</code>.
 	 * 
+	 * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
 	 * @return See above.
 	 */
-	public Length getCutInAsLength()
+	public Length getCutIn(UnitsLength unit)
 	{
 		Filter f = (Filter) asIObject();
 		TransmittanceRange range = f.getTransmittanceRange();
 		if (range == null)
 			return null;
-		return range.getCutIn();
+		Length l = range.getCutIn();
+		return unit == null ? l : new LengthI(l, unit);
 	}
 	
 	/**
 	 * Returns the cut in value or <code>null</code>.
 	 * 
 	 * @return See above.
-	 * @deprecated Replaced by {@link #getCutInAsLength()}
+	 * @deprecated Replaced by {@link #getCutIn(UnitsLength)}
 	 */
 	@Deprecated
 	public Integer getCutIn()
@@ -98,22 +104,26 @@ public class FilterData
 	/**
 	 * Returns the cut in tolerance value or <code>null</code>.
 	 * 
+	 * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
 	 * @return See above.
 	 */
-	public Length getCutInToleranceAsLength()
+	public Length getCutInTolerance(UnitsLength unit)
 	{
 		Filter f = (Filter) asIObject();
 		TransmittanceRange range = f.getTransmittanceRange();
 		if (range == null) 
 			return null;
-		return range.getCutInTolerance();
+		Length l = range.getCutInTolerance();
+		return unit == null ? l : new LengthI(l, unit);
 	}
 	
 	/**
 	 * Returns the cut in tolerance value or <code>null</code>.
 	 * 
 	 * @return See above.
-	 * @deprecated Replaced by {@link #getCutInToleranceAsLength()}
+	 * @deprecated Replaced by {@link #getCutInTolerance(UnitsLength)}
 	 */
 	@Deprecated
 	public Integer getCutInTolerance()
@@ -129,22 +139,26 @@ public class FilterData
 	/**
 	 * Returns the cut out value or <code>null</code>.
 	 * 
+	 * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
 	 * @return See above.
 	 */
-	public Length getCutOutAsLength()
+	public Length getCutOut(UnitsLength unit)
 	{
 		Filter f = (Filter) asIObject();
 		TransmittanceRange range = f.getTransmittanceRange();
 		if (range == null)
 			return null;
-		return range.getCutOut();
+		Length l = range.getCutOut();
+		return unit == null ? l : new LengthI(l, unit);
 	}
 	
 	/**
 	 * Returns the cut out value or <code>null</code>.
 	 * 
 	 * @return See above.
-	 * @deprecated Replaced by {@link #getCutOutAsLength()}
+	 * @deprecated Replaced by {@link #getCutOut(UnitsLength)}
 	 */
 	@Deprecated
 	public Integer getCutOut()
@@ -160,22 +174,26 @@ public class FilterData
 	/**
 	 * Returns the cut out tolerance value or <code>null</code>.
 	 * 
+	 * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
 	 * @return See above.
 	 */
-	public Length getCutOutToleranceAsLength()
+	public Length getCutOutTolerance(UnitsLength unit)
 	{
 		Filter f = (Filter) asIObject();
 		TransmittanceRange range = f.getTransmittanceRange();
 		if (range == null) 
 			return null;
-		return range.getCutOutTolerance();
+		Length l = range.getCutOutTolerance();
+		return unit == null ? l : new LengthI(l, unit);
 	}
 	
 	/**
 	 * Returns the cut out tolerance value or <code>null</code>.
 	 * 
 	 * @return See above.
-	 * @deprecated Replaced by {@link #getCutOutToleranceAsLength()}
+	 * @deprecated Replaced by {@link #getCutOutTolerance(UnitsLength)}
 	 */
 	@Deprecated
 	public Integer getCutOutTolerance()
