@@ -89,9 +89,9 @@ public class MapAnnotationTest extends AbstractServerTest {
 
     /**
      * Test persistence of a bar &rarr; <code>null</code> map.
-     * @throws ServerError unexpected
+     * These null fields get converted to the empty string by Ice.
      */
-    @Test(expectedExceptions = omero.ValidationException.class)
+    @Test
     public void testNulledMapValue() throws Exception {
         String uuid = UUID.randomUUID().toString();
         IUpdatePrx updateService = root.getSession().getUpdateService();
@@ -101,9 +101,10 @@ public class MapAnnotationTest extends AbstractServerTest {
         group.setConfig(new ArrayList<NamedValue>());
         group.getConfig().add(new NamedValue("foo", ""));
         group.getConfig().add(new NamedValue("bar", null));
-        updateService.saveAndReturnObject(group);
+        group = (ExperimenterGroup) updateService.saveAndReturnObject(group);
+        assertEquals("", group.getConfig().get(0).value);
     }
-    
+
     @Test
     public void testMapGetters() throws Exception {
         ExperimenterGroup group = new ExperimenterGroupI();

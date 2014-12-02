@@ -31,7 +31,7 @@ import omero
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero.rtypes import rbool, rstring
 from omero.rtypes import unwrap
-from omero.api import NamedValue as NV
+from omero.model import NamedValue as NV
 
 
 class TestMapAnnotation(lib.ITest):

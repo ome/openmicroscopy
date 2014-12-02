@@ -16,7 +16,7 @@ import test.integration.library as lib
 import omero
 
 from omero import CmdError
-from omero.api import NamedValue as NV
+from omero.model import NamedValue as NV
 from omero.callbacks import CmdCallbackI
 from omero.gateway import BlitzGateway
 from omero.rtypes import rbool

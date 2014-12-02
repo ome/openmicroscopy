@@ -26,6 +26,7 @@ Basic tests for additions/changes to the 5.1 model.
 import test.integration.library as lib
 import pytest
 import omero
+import omero.model
 
 from omero.model import NamedValue as NV
 
@@ -95,7 +96,7 @@ class TestModel51(lib.ITest):
     def testAsMapMethod(self):
         g = omero.model.ExperimenterGroupI()
         g.setConfig(
-            NV("foo", "bar")
+            [NV("foo", "bar")]
         )
         m = g.getConfigAsMap()
         assert m["foo"] == "bar"
