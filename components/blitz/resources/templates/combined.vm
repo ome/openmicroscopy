@@ -1110,7 +1110,9 @@ the special set methods are added.
 [$jav]           errorIfUnloaded();
 [$jav]           java.util.Map<String, String> rv = new java.util.HashMap<String, String>();
 [$jav]           for (omero.model.NamedValue nv : $getter) {
-[$jav]               rv.put(nv.name, nv.value);
+[$jav]               if (nv != null) {
+[$jav]                   rv.put(nv.name, nv.value);
+[$jav]               }
 [$jav]           }
 [$jav]           return rv;
 [$jav]       }
@@ -1201,7 +1203,9 @@ ticket:684 This is necessary to map back and forth from sets.
 [$cpp]           omero::api::StringStringMap rv;
 [$cpp]           for (omero::api::NamedValueList::const_iterator it = config.begin(); it != config.end(); ++it) {
 [$cpp]               omero::model::NamedValuePtr target = *it;
-[$cpp]               rv[target->name] = target->value;
+[$cpp]               if (target) {
+[$cpp]                   rv[target->name] = target->value;
+[$cpp]               }
 [$cpp]           }
 [$cpp]           return rv;
 [$cpp]       }
@@ -1232,7 +1236,8 @@ It's unclear if these methods are useful at all, but for the moment lowering the
 [$pyc]           self.errorIfUnloaded()
 [$pyc]           rv = dict()
 [$pyc]           for nv in self._${property.name}:
-[$pyc]               rv[nv.name] = nv.value
+[$pyc]               if nv is not None:
+[$pyc]                   rv[nv.name] = nv.value
 [$pyc]           return rv
 [$pyc]
 #end

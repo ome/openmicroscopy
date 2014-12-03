@@ -29,12 +29,22 @@ import pytest
 import omero
 
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
+from omero_model_MapAnnotationI import MapAnnotationI
 from omero.rtypes import rbool, rstring
 from omero.rtypes import unwrap
 from omero.model import NamedValue as NV
 
 
 class TestMapAnnotation(lib.ITest):
+
+    def assertNV(self, nv, name, value):
+        assert name == nv.name
+        assert value == nv.value
+
+    def assertNVs(self, nvl1, nvl2):
+        for i in range(max(len(nvl1), len(nvl2))):
+            assert nvl1[i].name == nvl2[i].name
+            assert nvl1[i].value == nvl2[i].value
 
     def testMapStringField(self):
         uuid = self.uuid()
@@ -48,8 +58,7 @@ class TestMapAnnotation(lib.ITest):
         group = queryService.findByQuery(
             ("select g from ExperimenterGroup g join fetch g.config "
              "where g.id = %s" % group.getId().getValue()), None)
-        assert "language" == group.getConfig()[0].name
-        assert "python" == group.getConfig()[0].value
+        self.assertNV(group.getConfig()[0], "language", "python")
 
     @pytest.mark.parametrize("data", (
         ([NV("a", "")], [NV("a", "")]),
@@ -78,7 +87,7 @@ class TestMapAnnotation(lib.ITest):
         group = load_group(gid)
         config = unwrap(group.config)
 
-        assert expect_value == config
+        self.assertNVs(expect_value, config)
 
         name, value = unwrap(queryService.projection(
             """
@@ -87,8 +96,7 @@ class TestMapAnnotation(lib.ITest):
             and g.id = :id
             """, omero.sys.ParametersI().addId(gid))[0])
 
-        assert name == expect_value[0].name
-        assert value == expect_value[0].value
+        self.assertNV(expect_value[0], name, value)
 
     def testGroupConfigEdit(self):
 
@@ -118,18 +126,31 @@ class TestMapAnnotation(lib.ITest):
         group = self.new_group()
         group.setConfig(before)
         group = root_update.saveAndReturnObject(group)
-        assert before == group.getConfig()
+        self.assertNVs(before, group.getConfig())
 
         del group.getConfig()[1]
         group = root_update.saveAndReturnObject(group)
-        assert remove_one == group.getConfig()
+        self.assertNVs(remove_one, group.getConfig())
 
         old = list(group.getConfig())
-        assert old == remove_one
+        self.assertNVs(old, remove_one)
         group.setConfig([old[1], old[0]])
         group = root_update.saveAndReturnObject(group)
-        assert swapped == group.getConfig()
+        self.assertNVs(swapped, group.getConfig())
 
-        group.getConfig()[1].value = rstring("x")
+        group.getConfig()[1].value = "x"
         group = root_update.saveAndReturnObject(group)
-        assert edited == group.getConfig()
+        self.assertNVs(edited, group.getConfig())
+
+    def testEmptyItem(self):
+        a = MapAnnotationI()
+        a.setMapValue([NV('Name1', 'Value1'), NV('Name2', 'Value2')])
+        a = self.update.saveAndReturnObject(a)
+        m = self.query.findAllByQuery((
+            "from MapAnnotation m "
+            "join fetch m.mapValue a "
+            "where a.name='Name2'"), None)[0]
+        l1 = m.getMapValue()
+        assert l1[0] is None
+        self.assertNV(l1[1], "Name2", "Value2")
+        assert {"Name2": "Value2"} == m.getMapValueAsMap()
