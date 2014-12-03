@@ -29,7 +29,7 @@ module omero {
                 IObjectList saveAndReturnArray(IObjectList graph) throws ServerError;
                 omero::sys::LongList saveAndReturnIds(IObjectList graph) throws ServerError;
                 void deleteObject(omero::model::IObject row) throws ServerError;
-                void indexObject(omero::model::IObject row) throws ServerError;
+                idempotent void indexObject(omero::model::IObject row) throws ServerError;
             };
 
         class Save extends omero::cmd::Request {

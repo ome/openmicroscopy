@@ -32,7 +32,7 @@ module omero {
                 idempotent StringSet getEnumerationTypes() throws ServerError;
                 idempotent StringSet getAnnotationTypes() throws ServerError;
                 idempotent IObjectListMap getEnumerationsWithEntries() throws ServerError;
-                IObjectList getOriginalEnumerations() throws ServerError;
+                idempotent IObjectList getOriginalEnumerations() throws ServerError;
                 void resetEnumerations(string enumClass) throws ServerError;
             };
 

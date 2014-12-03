@@ -28,17 +28,17 @@
         <ul>
             {% for t in manager.tags %}
             {% ifequal t.ns insight_ns %}
-            <li id='tagset-{{ t.id }}' rel="tagset{% if not t.isOwned %}-locked{% endif %}" {% if t.countTagsInTagset %}class="jstree-closed"{% endif %}><a href="#">{{ t.textValue|truncatebefor:"35" }}</a>
+            <li id='tagset-{{ t.id }}' rel="tagset{% if not t.isOwned %}-locked{% endif %}" {% if t.countTagsInTagset %}class="jstree-closed"{% endif %}><a href="#">{{ t.textValue|escape|truncatebefor:"35" }}</a>
                 {% if t.countTagsInTagset %}
                 <ul>    
                     {% for d in t.listTagsInTagset %}
-                        <li id='tag-{{ d.id }}' rel="tag{% if not d.isOwned %}-locked{% endif %}" class="jstree-closed"><a href="#">{{ d.textValue|truncatebefor:"35" }}</a></li>
+                        <li id='tag-{{ d.id }}' rel="tag{% if not d.isOwned %}-locked{% endif %}" class="jstree-closed"><a href="#">{{ d.textValue|escape|truncatebefor:"35" }}</a></li>
                     {% endfor %}
                 </ul>
                 {% endif %}
             </li>
             {% else %}
-            <li id='tag-{{ t.id }}' rel="tag{% if not t.isOwned %}-locked{% endif %}" class="jstree-closed"><a href="#">{{ t.textValue|truncatebefor:"35" }}</a></li>
+            <li id='tag-{{ t.id }}' rel="tag{% if not t.isOwned %}-locked{% endif %}" class="jstree-closed"><a href="#">{{ t.textValue|escape|truncatebefor:"35" }}</a></li>
             {% endifequal %}
             {% endfor %}            
         </ul>

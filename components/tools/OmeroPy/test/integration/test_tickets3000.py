@@ -71,8 +71,8 @@ class TestTickets3000(lib.ITest):
     # This test is no longer valid as it should not be possible to remove
     # users from their only remaining group. It would be easy to make the
     # test pass by adding extra groups but that would defeat the purpose
-    # of this test. Marking as xfail until the test has been reviewed.
-    @pytest.mark.xfail(reason="Is this test still valid? See #11465")
+    # of this test. Marking as broken until the test has been reviewed.
+    @pytest.mark.broken(reason="Is this test still valid?", ticket="11465")
     def test2547(self):
         admin = self.root.sf.getAdminService()
         user = self.new_user()
@@ -106,7 +106,7 @@ class TestTickets3000(lib.ITest):
         # Only IQuery.projection can return non-IObject types
         q.projection(sql, p1)
 
-    @pytest.mark.xfail(reason="See ticket #11539")
+    @pytest.mark.broken(ticket="11539")
     def test2952(self):
 
         la = omero.model.LongAnnotationI()
@@ -122,7 +122,7 @@ class TestTickets3000(lib.ITest):
 
         assert la.id.val in [x.id.val for x in res]
 
-    @pytest.mark.xfail(reason="See ticket #11539")
+    @pytest.mark.broken(ticket="11539")
     def test2762(self):
         """
         Test that the page (limit/offset) settings on a ParametersI

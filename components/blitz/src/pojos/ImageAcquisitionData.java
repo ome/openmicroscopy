@@ -2,7 +2,7 @@
  * pojos.ImageAcquisitionData 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -127,6 +127,19 @@ public class ImageAcquisitionData
 	 * 
 	 * @return See above.
 	 */
+	public Length getPositionXAsLength()
+	{
+		if (label == null) 
+			return null;
+		return label.getPositionX();
+	}
+	
+	/**
+	 * Returns the x-coordinate in the frame microscope.
+	 * 
+	 * @return See above.
+	 * @deprecated Replaced by {@link #getPositionXAsLength()}
+	 */
 	@Deprecated
 	public Object getPositionX()
 	{
@@ -140,6 +153,19 @@ public class ImageAcquisitionData
 	 * Returns the y-coordinate in the frame microscope.
 	 * 
 	 * @return See above.
+	 */
+	public Length getPositionYAsLength()
+	{
+		if (label == null) 
+			return null;
+		return label.getPositionY();
+	}
+	
+	/**
+	 * Returns the y-coordinate in the frame microscope.
+	 * 
+	 * @return See above.
+	 * @deprecated Replaced by {@link #getPositionYAsLength()}
 	 */
 	@Deprecated
 	public Object getPositionY()
@@ -155,6 +181,19 @@ public class ImageAcquisitionData
 	 * 
 	 * @return See above.
 	 */
+	public Length getPositionZAsLength()
+	{
+		if (label == null) 
+			return null;
+		return label.getPositionZ();
+	}
+	
+	/**
+	 * Returns the z-coordinate in the frame microscope.
+	 * 
+	 * @return See above.
+	 * @deprecated Replaced by {@link #getPositionZAsLength()}
+	 */
 	@Deprecated
 	public Object getPositionZ()
 	{
@@ -169,6 +208,19 @@ public class ImageAcquisitionData
 	 * 
 	 * @return See above.
 	 */
+	public Temperature getTemperatureAsTemperature()
+	{
+		if (environment == null) 
+			return null;
+		return environment.getTemperature();
+	}
+	
+	/**
+	 * Returns the temperature in Celcius.
+	 * 
+	 * @return See above.
+	 * @deprecated Replaced by {@link #getTemperatureAsTemperature()}
+	 */
 	@Deprecated
 	public Object getTemperature()
 	{
@@ -182,6 +234,19 @@ public class ImageAcquisitionData
 	 * Returns the air pressure in bar
 	 * 
 	 * @return See above.
+	 */
+	public Pressure getAirPressureAsPressure()
+	{
+		if (environment == null) 
+			return null;
+		return environment.getAirPressure();
+	}
+	
+	/**
+	 * Returns the air pressure in bar
+	 * 
+	 * @return See above.
+	 * @deprecated Replaced by {@link #getAirPressureAsPressure()}
 	 */
 	@Deprecated
 	public double getAirPressure()
@@ -275,6 +340,19 @@ public class ImageAcquisitionData
 	 * 
 	 * @param value The value to set.
 	 */
+	public void setPositionX(Length value)
+	{
+		labelDirty = true;
+		if (label == null) label = new StageLabelI();
+		label.setPositionX(value);
+	}
+	
+	/**
+	 * Sets the x-position.
+	 * 
+	 * @param value The value to set.
+	 * @deprecated Replaced by {@link #setPositionX(Length)}
+	 */
 	@Deprecated
 	public void setPositionX(double value)
 	{
@@ -288,6 +366,20 @@ public class ImageAcquisitionData
 	 * 
 	 * @param value The value to set.
 	 */
+	public void setPositionY(Length value)
+	{
+		labelDirty = true;
+		if (label == null) label = new StageLabelI();
+		label.setPositionY(value);
+	}
+	
+	/**
+	 * Sets the y-position.
+	 * 
+	 * @param value The value to set.
+	 * @deprecated Replaced by {@link #setPositionY(Length)}
+	 */
+	@Deprecated
 	public void setPositionY(double value)
 	{
 		labelDirty = true;
@@ -300,6 +392,20 @@ public class ImageAcquisitionData
 	 * 
 	 * @param value The value to set.
 	 */
+	public void setPositionZ(Length value)
+	{
+		labelDirty = true;
+		if (label == null) label = new StageLabelI();
+		label.setPositionZ(value);
+	}
+	
+	/**
+	 * Sets the z-position.
+	 * 
+	 * @param value The value to set.
+	 * @deprecated Replaced by {@link #setPositionZ(Length)}
+	 */
+	@Deprecated
 	public void setPositionZ(double value)
 	{
 		labelDirty = true;
@@ -311,6 +417,19 @@ public class ImageAcquisitionData
 	 * Sets the temperature.
 	 * 
 	 * @param temperature The value to set.
+	 */
+	public void setTemperature(Temperature temperature)
+	{
+		imagingEnvironmentDirty = true;
+		if (environment == null) environment = new ImagingEnvironmentI();
+		environment.setTemperature(temperature);
+	}
+	
+	/**
+	 * Sets the temperature.
+	 * 
+	 * @param temperature The value to set.
+	 * @deprecated Replaced by {@link #setTemperature(Temperature)}
 	 */
 	@Deprecated
 	public void setTemperature(double temperature)
@@ -325,6 +444,19 @@ public class ImageAcquisitionData
 	 * Sets the air pressure.
 	 * 
 	 * @param pressure The value to set.
+	 */
+	public void setAirPressure(Pressure pressure)
+	{
+		imagingEnvironmentDirty = true;
+		if (environment == null) environment = new ImagingEnvironmentI();
+		environment.setAirPressure(pressure);
+	}
+	
+	/**
+	 * Sets the air pressure.
+	 * 
+	 * @param pressure The value to set.
+	 * @deprecated Replaced by {@link #setAirPressure(Pressure)}
 	 */
 	@Deprecated
 	public void setAirPressure(double pressure)

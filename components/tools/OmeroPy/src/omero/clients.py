@@ -195,6 +195,7 @@ class BaseClient(object):
         id.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL:createIceSSL")
         id.properties.setProperty("IceSSL.Ciphers", "ADH")
         id.properties.setProperty("IceSSL.VerifyPeer", "0")
+        id.properties.setProperty("IceSSL.Protocols", "tls1")
 
         # Setting block size
         blockSize = id.properties.getProperty("omero.block_size")

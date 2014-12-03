@@ -43,6 +43,7 @@ TEST(MapAnnotationTest, mapStringField)
     ParametersIPtr params = new ParametersI();
     StringRStringMap map = StringRStringMap();
     group->setName(rstring(uuid));
+    group->setLdap(rbool(true));
     map["foo"] = rstring("bar");
     // Setting must happen after map updated, since a copy is made
     group->setConfig(map);

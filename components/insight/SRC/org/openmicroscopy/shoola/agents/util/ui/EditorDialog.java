@@ -137,7 +137,7 @@ public class EditorDialog
     private JTextArea descriptionArea;
 
     /** Component for editing boolean values */
-    private JComboBox<String> checkBox;
+    private JComboBox checkBox;
     
     /** Button to close the dialog. */
     private JButton cancelButton;
@@ -225,7 +225,7 @@ public class EditorDialog
         nameArea.getDocument().addDocumentListener(this);
         
         if (data instanceof BooleanAnnotationData) {
-	        checkBox = new JComboBox<String>();
+	        checkBox = new JComboBox();
 	        checkBox.addItem(Boolean.TRUE.toString());
 	        checkBox.addItem(Boolean.FALSE.toString());
 	        checkBox.setSelectedItem(((BooleanAnnotationData)data).getValue().toString());

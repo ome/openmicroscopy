@@ -28,7 +28,7 @@ module omero {
              * up. The uuid is an internal value and does not
              * correspond to a session.
              **/
-             string getNodeUuid();
+             idempotent string getNodeUuid();
 
             /**
              * Let all cluster nodes know that the instance with this

@@ -57,7 +57,7 @@ class TestRepoRawFileStore(AbstractRepoTest):
             pass
         assert rfs.size() == 0
 
-    @pytest.mark.xfail(reason="ticket 11610")
+    @pytest.mark.broken(ticket="11610")
     def testFailedWriteNoFile(self):
         # Without a single write, no file is produced
         rfs = self.repoPrx.file(self.repo_filename, "rw")  # create empty file

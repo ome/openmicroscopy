@@ -221,6 +221,8 @@ class EditorControl
 	/** Action ID to load the file path triggered by click on inplace import icon.*/
         static final int FILE_PATH_INPLACE_ICON = 27;
         
+        /** Action ID to load the file path triggered by click on inplace import icon.*/
+        static final int SHOW_LOCATION = 28;
 	
     /** Reference to the Model. */
     private Editor		model;
@@ -908,6 +910,9 @@ class EditorControl
 				break;
 			case DOWNLOAD_METADATA:
 				downloadMetadata();
+				break;
+			case SHOW_LOCATION:
+			    	view.displayLocation();
 		}
 	}
 

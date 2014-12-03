@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.svc.transport.TransportException 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -36,23 +36,20 @@ package org.openmicroscopy.shoola.svc.transport;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
-public class TransportException 
-	extends Exception
+public class TransportException
+    extends Exception
 {
 
-	/** Creates a new exception. */
+    /** Creates a new exception. */
     public TransportException() { super(); }
 
-	/**
-	 * Constructs a new exception with the specified detail message.
-	 * 
-	 * @param message	Short explanation of the problem.
-	 */
+    /**
+     * Constructs a new exception with the specified detail message.
+     * 
+     * @param message Short explanation of the problem.
+     */
     public TransportException(String message)
     {
         super(message);
@@ -61,22 +58,22 @@ public class TransportException
     /**
      * Constructs a new exception with the specified cause.
      * 
-     * @param cause     The exception that caused this one to be risen.
+     * @param cause The exception that caused this one to be risen.
      */
     public TransportException(Throwable cause)
     {
         super(cause);
     }
 
-	/**
-	 * Constructs a new exception with the specified detail message and cause.
-	 * 
-	 * @param message	Short explanation of the problem.
-	 * @param cause		The exception that caused this one to be risen.
-	 */
+    /**
+     * Constructs a new exception with the specified detail message and cause.
+     * 
+     * @param message Short explanation of the problem.
+     * @param cause The exception that caused this one to be risen.
+     */
     public TransportException(String message, Throwable cause)
     {
         super(message, cause);
     }
-    
+
 }
