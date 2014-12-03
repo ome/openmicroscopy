@@ -161,9 +161,16 @@ class TestImage (object):
 
     def testPixelSizeUnits(self):
         """
-        Tests the pixel sizes and thier units
+        Tests the pixel sizes and their units
         """
-        assert self.image.getPixelSizeX() == 0
+        # Test pre-units behaviour
+        sizeXMicrons = 0.10639449954032898
+        assert self.image.getPixelSizeX() == sizeXMicrons
+
+        assert self.image.getPixelSizeX(units=True)[0] == sizeXMicrons
+        assert self.image.getPixelSizeX(units=True)[1] == "µm"
+        assert self.image.getPixelSizeX(units=True)[2] == "MICROM"
+
 
     def testShortname(self):
         """ Test the shortname method """
