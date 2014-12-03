@@ -241,6 +241,8 @@ public class UIUtilities
 	
 	/** Pixels string. */
 	public final static String  			PIXELS_SYMBOL = "px";
+	
+	public final static String				DEGREE_SYMBOL = "°";
     
 	/** Background color of the highlighted node. */
 	public static final Color				HIGHLIGHT = new Color(204, 255, 
@@ -2512,7 +2514,6 @@ public class UIUtilities
      * @return The transformed value
      */
 	public static Length transformSize(Length value) {
-		// TODO: Use Josh's conversion methods instead of the following code
 		
 		if(value.getUnit().equals(UnitsLength.MICROM)) { 
 			double v = value.getValue();
@@ -2554,8 +2555,6 @@ public class UIUtilities
      */
 	public static Length transformSquareSize(Length value)
     {
-		// TODO: Use Josh's conversion methods instead of the following code
-		
 		if(value.getUnit().equals(UnitsLength.MICROM)) { 
 	        double v = value.getValue();
 	        double pow = Math.pow(10, 6);
@@ -2629,11 +2628,16 @@ public class UIUtilities
 		if (v==null)
 			return "";
 		
-		v += UnitType.getUnitType(converted.getUnit());
+		v += ((LengthI)converted).getSymbol();
 		if (squared && !value.getUnit().equals(UnitsLength.PIXEL))
 			v += UIUtilities.SQUARED_SYMBOL;
 		
 		return v;
+	}
+	
+	public static String getSymbol(UnitsLength unit) {
+		LengthI tmp = new LengthI(1, unit);
+		return tmp.getSymbol();
 	}
     
 	/**

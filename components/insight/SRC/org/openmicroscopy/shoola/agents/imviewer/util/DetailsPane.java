@@ -26,16 +26,19 @@ package org.openmicroscopy.shoola.agents.imviewer.util;
 
 //Java imports
 import java.awt.FlowLayout;
+
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
 
+import omero.model.enums.UnitsLength;
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.UnitType;
 
 
 /** 
@@ -62,13 +65,13 @@ class DetailsPane
     private static final String SIZE_Y = "Size Y";
     
     /** Identifies the <code>PixelSizeX</code> field. */
-    private static final String PIXEL_SIZE_X = "Pixel size X "+UnitType.MICRON;
+    private static final String PIXEL_SIZE_X = "Pixel size X "+UIUtilities.getSymbol(UnitsLength.MICROM);
     
     /** Identifies the <code>PixelSizeY</code> field. */
-    private static final String PIXEL_SIZE_Y = "Pixel size Y "+UnitType.MICRON;
+    private static final String PIXEL_SIZE_Y = "Pixel size Y "+UIUtilities.getSymbol(UnitsLength.MICROM);
     
     /** Identifies the <code>PixelSizeZ</code> field. */
-    private static final String PIXEL_SIZE_Z = "Pixel size Z "+UnitType.MICRON;
+    private static final String PIXEL_SIZE_Z = "Pixel size Z "+UIUtilities.getSymbol(UnitsLength.MICROM);
     
     /**
      * Creates a non-editable text field.

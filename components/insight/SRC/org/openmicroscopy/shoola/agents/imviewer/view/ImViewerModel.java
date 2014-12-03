@@ -91,7 +91,6 @@ import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.UnitType;
 
 import pojos.ChannelData;
 import pojos.DataObject;
@@ -327,7 +326,7 @@ class ImViewerModel
     private int planeSize;
 
     /** The units corresponding to the pixels size.*/
-    private UnitType refUnits;
+    private String refUnit;
     
     /**
      * Returns the default resolution level.
@@ -2983,14 +2982,17 @@ class ImViewerModel
      */
 	String getUnits()
 	{
-		if (refUnits != null) return refUnits.toString();
+		if (refUnit != null) 
+			return refUnit;
+		
 		double size = getPixelsSizeX();
 		if (size < 0) 
-			return UnitType.MICRON.toString();
+			return UIUtilities.getSymbol(UnitsLength.MICROM);
+		
 		Length tmp = new LengthI(size, UnitsLength.MICROM);
 		tmp = UIUtilities.transformSize(tmp);
-		refUnits = UnitType.getUnitType(tmp.getUnit());
-		return refUnits.toString();
+		refUnit = ((LengthI)tmp).getSymbol();
+		return refUnit;
 	}
 	
 	/**

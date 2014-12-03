@@ -26,16 +26,19 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 //Java imports
 import java.awt.FlowLayout;
+
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
 
+import omero.model.enums.UnitsLength;
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.UnitType;
 
 
 
@@ -57,7 +60,7 @@ class InfoPane
 {
 	
     /** String to represent the micron symbol. */
-    private static final String MICRONS = "(in " + UnitType.MICRON.toString() + ")";
+    private static final String MICRONS = "(in " + UIUtilities.getSymbol(UnitsLength.MICROM) + ")";
     
     /** Identifies the <code>SizeX</code> field. */
     private static final String SIZE_X = "Size X";

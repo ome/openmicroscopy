@@ -25,14 +25,20 @@ package org.openmicroscopy.shoola.agents.measurement.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
+
 import javax.swing.Action;
 
 //Third-party libraries
 
+
+
+import omero.model.Length;
+
+import omero.model.enums.UnitsLength;
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.UnitType;
 
 /** 
  * Sets the unit either in the reference units or in pixels.
@@ -97,20 +103,20 @@ public class UnitsAction
 	 * 
 	 * @param units The units of reference.
 	 */
-	public void setRefUnits(String units)
+	public void setRefUnits(Length ref)
 	{
 		String value = NAME_MICRONS;
-		if (UnitType.CENTIMETER.equals(units)) {
+		if (ref.getUnit().equals(UnitsLength.CM)) {
 			value = "in Centimeters";
-		} else if (UnitType.MILLIMETER.equals(units)) {
+		} else if (ref.getUnit().equals(UnitsLength.MM)) {
 			value = "in Millimeters";
-		} else if (UnitType.METER.equals(units)) {
+		} else if (ref.getUnit().equals(UnitsLength.M)) {
 			value = "in Meters";
-		} else if (UnitType.NANOMETER.equals(units)) {
+		} else if (ref.getUnit().equals(UnitsLength.NM)) {
 			value = "in Nanometers";
-		} else if (UnitType.PICOMETER.equals(units)) {
+		} else if (ref.getUnit().equals(UnitsLength.PM)) {
 			value = "in Picometers";
-		} else if (UnitType.ANGSTROM.equals(units)) {
+		} else if (ref.getUnit().equals(UnitsLength.ANGSTROM)) {
 			value = "in Angstroms";
 		}
 		name = value;

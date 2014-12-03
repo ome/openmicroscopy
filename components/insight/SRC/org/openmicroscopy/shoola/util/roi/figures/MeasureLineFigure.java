@@ -54,7 +54,6 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.roi.model.util.UnitPoint;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.UnitType;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.LineTextFigure;
 import omero.model.Length;
@@ -272,7 +271,7 @@ public class MeasureLineFigure
 				if (x != (n-1)) v +="+";
 			}
 			v += "="+formatter.format(total);
-			v += UnitType.getUnitType(getUnit());
+			v += UIUtilities.getSymbol((getUnit()));
 			if (n > 2) {
 				List<Point> l = getPoints();
 				Iterator<Point> j = l.iterator();
@@ -372,7 +371,7 @@ public class MeasureLineFigure
 	 */
 	public String addDegrees(String str)
 	{
-		return str + UnitType.DEGREE;
+		return str + UIUtilities.DEGREE_SYMBOL;
 	}
 		
 	/**

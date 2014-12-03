@@ -52,6 +52,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BoxLayout;
@@ -69,15 +70,21 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
+
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
+
 import com.sun.opengl.util.texture.TextureData;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
+
+import omero.model.LengthI;
 //Application-internal dependencies
 import omero.model.PlaneInfo;
 import omero.model.Length;
+
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
@@ -103,9 +110,9 @@ import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.ColorCheckBoxMenuItem;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.UnitType;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
+
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.GroupData;
@@ -1329,7 +1336,7 @@ class ImViewerUI
 				buffer.append(" ("+UIUtilities.roundTwoDecimals(o.getValue()));
 				buffer.append("-");
 				o = UIUtilities.transformSize(m*d);
-				units = UnitType.getUnitType(o.getUnit()).toString();
+				units = ((LengthI)o).getSymbol();
 				buffer.append(UIUtilities.roundTwoDecimals(o.getValue()));
 				buffer.append(units+")");
 			}
@@ -1340,7 +1347,7 @@ class ImViewerUI
 			buffer.append("Z="+(n+1));
 			if (d > 0 && max > 0) {
 				o = UIUtilities.transformSize(n*d);
-				units = UnitType.getUnitType(o.getUnit()).toString();
+				units = ((LengthI)o).getSymbol();
 				buffer.append(" ("+UIUtilities.roundTwoDecimals(o.getValue()));
 				buffer.append(units+")");
 			}

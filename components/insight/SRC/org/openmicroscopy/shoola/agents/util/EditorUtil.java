@@ -70,7 +70,6 @@ import org.openmicroscopy.shoola.util.filter.file.PythonFilter;
 import org.openmicroscopy.shoola.util.ui.OMEComboBox;
 import org.openmicroscopy.shoola.util.ui.OMEComboBoxUI;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.UnitType;
 
 import com.google.common.math.DoubleMath;
 
@@ -206,10 +205,10 @@ public class EditorUtil
     public static final String EMAIL = "E-mail";
 
     /** String to represent the micron symbol. */
-    public static final String MICRONS_NO_BRACKET = UnitType.MICRON.toString();
+    public static final String MICRONS_NO_BRACKET = UIUtilities.getSymbol(UnitsLength.MICROM);
 
     /** String to represent the micron symbol. */
-    public static final String MICRONS = "("+UnitType.MICRON.toString()+")";
+    public static final String MICRONS = "("+MICRONS_NO_BRACKET+")";
 
     /** String to represent the celsius symbol. */
     public static final String CELSIUS = "(℃)";
@@ -602,19 +601,19 @@ public class EditorUtil
         try {
         	x = UIUtilities.transformSize(x);
             dx = x.getValue();
-            units = UnitType.getUnitType(x.getUnit()).toString();
+            units = ((LengthI)x).getSymbol();
         } catch (Exception e) {
         }
         try {
         	y = UIUtilities.transformSize(y);
             dy = y.getValue();
-            if (units == null) units = UnitType.getUnitType(x.getUnit()).toString();
+            if (units == null) units = ((LengthI)y).getSymbol();
         } catch (Exception e) {
         }
         try {
         	z = UIUtilities.transformSize(z);
             dz = z.getValue();
-            if (units == null) units = UnitType.getUnitType(x.getUnit()).toString();
+            if (units == null) units = ((LengthI)z).getSymbol();
         } catch (Exception e) {
         }
 
@@ -636,7 +635,7 @@ public class EditorUtil
         }
         label += ") ";
         if (value.length() == 0) return null;
-        if (units == null) units = UnitType.MICRON.toString();
+        if (units == null) units = UIUtilities.getSymbol(UnitsLength.MICROM);
         return label+units+": </b>"+value;
     }
 

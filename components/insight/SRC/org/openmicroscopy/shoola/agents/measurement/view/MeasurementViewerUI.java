@@ -96,7 +96,6 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.UnitType;
 import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.graphutils.ChartObject;
@@ -462,7 +461,7 @@ class MeasurementViewerUI
         UnitsAction a = (UnitsAction)
         controller.getAction(MeasurementViewerControl.IN_MICRONS);
         Length tmp = UIUtilities.transformSize(model.getPixelSizeX());
-        a.setRefUnits(UnitType.getUnitType(tmp.getUnit()).toString());
+        a.setRefUnits(tmp);
         setName("measurement viewer window");
     }
     

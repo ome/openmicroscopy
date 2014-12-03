@@ -50,6 +50,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -71,6 +72,7 @@ import javax.swing.event.DocumentListener;
 
 import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.JXTaskPane;
+
 import com.google.common.base.CharMatcher;
 
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
@@ -86,10 +88,12 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.ui.ClickableTooltip;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.UnitType;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.WikiDataObject;
+
 import omero.model.Length;
+import omero.model.LengthI;
+import omero.model.enums.UnitsLength;
 import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.DatasetData;
@@ -677,21 +681,21 @@ public class PropertiesUI
     	try {
     		x = UIUtilities.transformSize(x);
 			dx = x.getValue();
-			units = UnitType.getUnitType(x.getUnit()).toString();
+			units = ((LengthI)x).getSymbol();
 		} catch (Exception e) {
 			number = false;
 		}
 		try {
 			y = UIUtilities.transformSize(y);
 			dy = y.getValue();
-			if (units == null) units = UnitType.getUnitType(y.getUnit()).toString();
+			if (units == null) units = ((LengthI)y).getSymbol();
 		} catch (Exception e) {
 			number = false;
 		}
 		try {
 			z = UIUtilities.transformSize(z);
 			dz = z.getValue();
-			if (units == null) units = UnitType.getUnitType(z.getUnit()).toString();
+			if (units == null) units = ((LengthI)z).getSymbol();
 		} catch (Exception e) {
 			number = false;
 		}
@@ -725,7 +729,7 @@ public class PropertiesUI
     	}
     	if (value.length() == 0) return null;
     	component.setText(value);
-    	if (units == null) units = UnitType.MICRON.toString();
+    	if (units == null) units = UIUtilities.getSymbol(UnitsLength.MICROM);
     	label += "("+units+")";
     	return label+":";
     }
