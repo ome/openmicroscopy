@@ -70,16 +70,19 @@ if not os.path.isdir(LOGDIR):
 # DEBUG: Never deploy a site into production with DEBUG turned on.
 # Logging levels: logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR
 # logging.CRITICAL
-# FORMAT: 2010-01-01 00:00:00,000 INFO  [omeroweb.webadmin.webadmin_utils
-# ] (proc.1308 ) getGuestConnection:20 Open connection is not available
+# FORMAT: 2010-01-01 00:00:00,000 INFO  [omeroweb.webadmin.webadmin_utils]
+# (proc.1308 ) getGuestConnection:20 Open connection is not available
+
+STANDARD_LOGFORMAT = (
+    '%(asctime)s %(levelname)5.5s [%(name)40.40s]'
+    ' (proc.%(process)5.5d) %(funcName)s:%(lineno)d %(message)s')
 
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
         'standard': {
-            'format': '%(asctime)s %(levelname)5.5s [%(name)40.40s]'
-            ' (proc.%(process)5.5d) %(funcName)s:%(lineno)d %(message)s'
+            'format': STANDARD_LOGFORMAT
         },
     },
     'handlers': {
