@@ -774,9 +774,9 @@ public class EditorUtil
             details.put(SECTIONS, ""+data.getSizeZ());
             details.put(TIMEPOINTS, ""+data.getSizeT());
             try {
-                details.put(PIXEL_SIZE_X, nf.format(data.getPixelSizeX()));
-                details.put(PIXEL_SIZE_Y, nf.format(data.getPixelSizeY()));
-                details.put(PIXEL_SIZE_Z, nf.format(data.getPixelSizeZ()));
+                details.put(PIXEL_SIZE_X, nf.format(data.getPixelSizeX(UnitsLength.MICROM)));
+                details.put(PIXEL_SIZE_Y, nf.format(data.getPixelSizeY(UnitsLength.MICROM)));
+                details.put(PIXEL_SIZE_Z, nf.format(data.getPixelSizeZ(UnitsLength.MICROM)));
                 details.put(PIXEL_TYPE,
                         PIXELS_TYPE_DESCRIPTION.get(""+data.getPixelType()));
             } catch (Exception e) {
