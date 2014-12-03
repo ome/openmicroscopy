@@ -226,7 +226,11 @@ class BlitzObjectWrapper (object):
         """
         Unwrap the value of the Value + Unit object. Returns single value
         or default if object is None.
-        If withUnits is true, return a tuple of (value, unit).
+        If units is true, return a tuple of (value, defaultUnitSymbol, defaultUnit),
+        E.g. (10, "nm", "NM")
+        If units specifies a valid unit for the type of value, then we convert
+        E.g. _unwrapunits(obj, units="MICROM")
+        will return  (10000, "µm", "MICROM")
 
         :param obj:         The Value + Unit object
         :param default:     Default value if obj is None
@@ -6124,6 +6128,47 @@ class _LightPathWrapper (BlitzObjectWrapper):
 LightPathWrapper = _LightPathWrapper
 
 
+class _PlaneInfoWrapper (BlitzObjectWrapper):
+    """
+    omero_model_PlaneInfo class wrapper extends BlitzObjectWrapper.
+    """
+
+    def __bstrap__(self):
+        self.OMERO_CLASS = "PlaneInfo"
+
+    def getDeltaT(self, units=None):
+        """
+        Gets the PlaneInfo deltaT with units support
+        If units is True, return tuple including default symbol and units
+        E.g. (5, "s", "S")
+        If units specifies a different unit E.g. "MS", we convert
+        E.g. (5000, "ms", "MS")
+
+        :param units:       Option to include units in tuple
+        :type units:        True or unit string
+
+        :return:            DeltaT value or tuple
+        """
+        return self._unwrapunits(self._obj.getDeltaT(), units=units)
+
+    def getExposureTime(self, units=None):
+        """
+        Gets the PlaneInfo ExposureTime with units support
+        If units is True, return tuple including default symbol and units
+        E.g. (5, "s", "S")
+        If units specifies a different unit E.g. "MS", we convert
+        E.g. (5000, "ms", "MS")
+
+        :param units:       Option to include units in tuple
+        :type units:        True or unit string
+
+        :return:            ExposureTime value or tuple
+        """
+        return self._unwrapunits(self._obj.getExposureTime(), units=units)
+
+PlaneInfoWrapper = _PlaneInfoWrapper
+
+
 class _PixelsWrapper (BlitzObjectWrapper):
     """
     omero_model_PixelsI class wrapper extends BlitzObjectWrapper.
@@ -6187,7 +6232,7 @@ class _PixelsWrapper (BlitzObjectWrapper):
         result = queryService.findAllByQuery(
             query, params, self._conn.SERVICE_OPTS)
         for pi in result:
-            yield BlitzObjectWrapper(self._conn, pi)
+            yield PlaneInfoWrapper(self._conn, pi)
 
     def getPlanes(self, zctList):
         """
