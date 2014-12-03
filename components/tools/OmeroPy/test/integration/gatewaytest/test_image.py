@@ -187,19 +187,16 @@ class TestImage (object):
 
     def testExposureTimeUnits(self):
         """
-        Tests the gatewayWrapper _unwrapunits() method with times.
-        NB: BlitzGateway doesn't use _unwrapunits for any time attributes yet,
-        so we do it manually here:
+        Tests PlaneInfo ExposureTimes and units
         """
         eTime = 0.33500000834465027
-        uwrp = self.image._unwrapunits
 
         for theC in range(self.image.getSizeC()):
             pInfo = self.image.getPrimaryPixels().copyPlaneInfo(theC=0, theZ=0)
             for pi in pInfo:
-                assert uwrp(pi.getExposureTime()) == eTime
-                assert uwrp(pi.getExposureTime(), units=True) == (eTime, 's', 'S')
-                assert uwrp(pi.getExposureTime(), units="MS") == (eTime * 1000, 'ms', 'MS')
+                assert pi.getExposureTime() == eTime
+                assert pi.getExposureTime(units=True) == (eTime, 's', 'S')
+                assert pi.getExposureTime(units="MS") == (eTime * 1000, 'ms', 'MS')
 
     def testShortname(self):
         """ Test the shortname method """
