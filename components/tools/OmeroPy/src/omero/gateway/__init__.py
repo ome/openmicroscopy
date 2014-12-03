@@ -235,12 +235,15 @@ class BlitzObjectWrapper (object):
         """
         if obj is None:
             if units:
-                return (default, "")
+                return (default, "", "")
             return default
-        if units:
+        if units is not None:
+            # If units is an attribute of the same Class as our obj...
             try:
-                unitEnum = getattr(omero.model.enums.UnitsLength, str(units))
-                obj = omero.model.LengthI(obj, unitEnum)
+                unitClass = obj.getUnit().__class__
+                unitEnum = getattr(unitClass, str(units))
+                # ... we can convert units
+                obj = obj.__class__(obj, unitEnum)
             except AttributeError:
                 pass
             return obj.getValue(), obj.getSymbol(), str(obj.getUnit())
