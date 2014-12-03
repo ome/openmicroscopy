@@ -185,6 +185,22 @@ class TestImage (object):
             assert ch.getExcitationWave(units="ANGSTROM") == (waves[0] * 10, "Å", "ANGSTROM")
             assert ch.getEmissionWave(units="ANGSTROM") == (waves[1] * 10, "Å", "ANGSTROM")
 
+    def testExposureTimeUnits(self):
+        """
+        Tests the gatewayWrapper _unwrapunits() method with times.
+        NB: BlitzGateway doesn't use _unwrapunits for any time attributes yet,
+        so we do it manually here:
+        """
+        eTime = 0.33500000834465027
+        uwrp = self.image._unwrapunits
+
+        for theC in range(self.image.getSizeC()):
+            pInfo = self.image.getPrimaryPixels().copyPlaneInfo(theC=0, theZ=0)
+            for pi in pInfo:
+                assert uwrp(pi.getExposureTime()) == eTime
+                assert uwrp(pi.getExposureTime(), units=True) == (eTime, 's', 'S')
+                assert uwrp(pi.getExposureTime(), units="MS") == (eTime * 1000, 'ms', 'MS')
+
     def testShortname(self):
         """ Test the shortname method """
         name = self.image.name
