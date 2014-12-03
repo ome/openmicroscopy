@@ -167,9 +167,10 @@ class TestImage (object):
         sizeXMicrons = 0.10639449954032898
         assert self.image.getPixelSizeX() == sizeXMicrons
 
-        assert self.image.getPixelSizeX(units=True)[0] == sizeXMicrons
-        assert self.image.getPixelSizeX(units=True)[1] == "µm"
-        assert self.image.getPixelSizeX(units=True)[2] == "MICROM"
+        assert self.image.getPixelSizeX(units=True) == (sizeXMicrons, "µm", "MICROM")
+
+        assert self.image.getPixelSizeX(units="NM") == (sizeXMicrons * 1000, "nm", "NM")
+        assert self.image.getPixelSizeX(units="ANGSTROM") == (sizeXMicrons * 10000, "Å", "ANGSTROM")
 
 
     def testShortname(self):
