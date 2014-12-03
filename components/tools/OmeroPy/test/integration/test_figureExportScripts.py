@@ -619,7 +619,7 @@ def addRectangleRoi(updateService, x, y, width, height, imageId):
     rect.locked = omero.rtypes.rbool(True)        # don't allow editing
     rect.strokeWidth = omero.model.LengthI()
     rect.strokeWidth.setValue(1.0)
-    rect.strokeWidth.setUnit(omero.model.enums.UnitsLength.PT)
+    rect.strokeWidth.setUnit(omero.model.enums.UnitsLength.POINT)
 
     # link the rectangle to the ROI and save it
     rect.setRoi(r)
