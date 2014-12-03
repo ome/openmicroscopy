@@ -911,28 +911,31 @@ DEFAULT_USER = os.path.join(
 MANAGERS = ADMINS  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
 
 
-CREATE_SHARE_HTML = """
-<p>Hi,</p><p>I would like to share some of my data with you.<br/>
-Please find it on the <a href="%s?server=%i">%s?server=%i</a>.</p><p>%s</p>"""
-CREATE_SHARE_TEXT = """"
-Hi, I would like to share some of my data with you. Please find it on the
- %s?server=%i. /n %s"""
-ADD_MEMBER_TO_SHARE_HTML = """
-<p>Hi,</p><p>I would like to share some of my data with you.<br/>
-Please find it on the <a href="%s?server=%i">%s?server=%i</a>.</p><p>%s</p>"""
-ADD_MEMBER_TO_SHARE_TEXT = """"
-Hi, I would like to share some of my data with you. Please find it on the
- %s?server=%i. /n %s"""
-REMOVE_MEMBER_FROM_SHARE_HTML = """
-<p>You were removed from the share <a href="%s?server=%i">%s?server=%i</a>.
- This share is no longer available for you.</p>"""
-REMOVE_MEMBER_FROM_SHARE_TEXT = """"
-You were removed from the share %s?server=%i. This share is no longer
- available for you."""
-ADD_COMMENT_TO_SHARE_HTML = """
-<p>New comment is available on share <a href="%s?server=%i">%s?server=%i</a>.
-</p>"""
-ADD_COMMENT_TO_SHARE_TEXT = "New comment is available on share %s?server=%i."
+CREATE_SHARE_HTML = (
+    '<p>Hi,</p><p>I would like to share some of my data with you.<br/>'
+    ' Please find it on the'
+    ' <a href="%s?server=%i">%s?server=%i</a>.</p><p>%s</p>')
+CREATE_SHARE_TEXT = (
+    'Hi, I would like to share some of my data with you. Please find it on'
+    ' the %s?server=%i. /n %s')
+ADD_MEMBER_TO_SHARE_HTML = (
+    '<p>Hi,</p><p>I would like to share some of my data with you.<br/>'
+    ' Please find it on the'
+    ' <a href="%s?server=%i">%s?server=%i</a>.</p><p>%s</p>')
+ADD_MEMBER_TO_SHARE_TEXT = (
+    'Hi, I would like to share some of my data with you. Please find it on'
+    ' the %s?server=%i. /n %s')
+REMOVE_MEMBER_FROM_SHARE_HTML = (
+    '<p>You were removed from the share'
+    ' <a href="%s?server=%i">%s?server=%i</a>.'
+    ' This share is no longer available for you.</p>')
+REMOVE_MEMBER_FROM_SHARE_TEXT = (
+    'You were removed from the share %s?server=%i. This share is no longer'
+    ' available for you.')
+ADD_COMMENT_TO_SHARE_HTML = (
+    '<p>New comment is available on share'
+    ' <a href="%s?server=%i">%s?server=%i</a>.</p>')
+ADD_COMMENT_TO_SHARE_TEXT = 'New comment is available on share %s?server=%i.'
 
 
 EMAIL_TEMPLATES = {
