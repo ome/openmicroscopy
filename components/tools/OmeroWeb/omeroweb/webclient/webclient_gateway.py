@@ -2204,17 +2204,17 @@ class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
     and catch exceptions.
     """
 
-    def getPixelSizeXWithUnits (self):
-        """ Helper for calling getPixelSizeX(withUnits=True) in templates """
-        return self.getPixelSizeX(withUnits=True)
+    def getPixelSizeXMicrons (self):
+        """ Helper for calling getPixelSizeX(units="MICROM") in templates """
+        return self.getPixelSizeX(units="MICROM")[0]
 
-    def getPixelSizeYWithUnits (self):
-        """ Helper for calling getPixelSizeX(withUnits=True) in templates """
-        return self.getPixelSizeY(withUnits=True)
+    def getPixelSizeYMicrons (self):
+        """ Helper for calling getPixelSizeX(units="MICROM") in templates """
+        return self.getPixelSizeY(units="MICROM")[0]
 
-    def getPixelSizeZWithUnits (self):
-        """ Helper for calling getPixelSizeX(withUnits=True) in templates """
-        return self.getPixelSizeZ(withUnits=True)
+    def getPixelSizeZMicrons (self):
+        """ Helper for calling getPixelSizeX(units="MICROM") in templates """
+        return self.getPixelSizeZ(units="MICROM")[0]
 
     def getChannels (self):
         try:
