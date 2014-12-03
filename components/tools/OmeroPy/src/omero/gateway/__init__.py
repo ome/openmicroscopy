@@ -222,7 +222,7 @@ class BlitzObjectWrapper (object):
             return '<%s id=%s>' % (self.__class__.__name__, str(self._oid))
         return super(BlitzObjectWrapper, self).__repr__()
 
-    def _unwrapunits(self, obj, default=None, withUnits=False):
+    def _unwrapunits(self, obj, default=None, units=None):
         """
         Unwrap the value of the Value + Unit object. Returns single value
         or default if object is None.
@@ -230,15 +230,15 @@ class BlitzObjectWrapper (object):
 
         :param obj:         The Value + Unit object
         :param default:     Default value if obj is None
-        :param withUnits:   If true, return (value, unit) tuple
+        :param units:       If true, return (value, unit) tuple
         :return:            Value or (Value, Unit)
         """
         if obj is None:
-            if withUnits:
+            if units:
                 return (default, "")
             return default
-        if withUnits:
-            return obj.getValue(), obj.getUnit()
+        if units:
+            return obj.getValue(), obj.getSymbol(), str(obj.getUnit())
         return obj.getValue()
 
     def _getQueryString(self):
@@ -8332,40 +8332,40 @@ class _ImageWrapper (BlitzObjectWrapper):
         return rv is not None and rv.val or 'unknown'
 
     @assert_pixels
-    def getPixelSizeX(self, withUnits=False):
+    def getPixelSizeX(self, units=None):
         """
         Gets the physical size X of pixels in microns.
-        If withUnits is True, return tuple of (size, unit).
+        If units is True, return tuple of (size, unit).
 
         :return:    Size of pixel in x or O
         :rtype:     float or (float, unit) tuple
         """
         return self._unwrapunits(
-            self._obj.getPrimaryPixels().getPhysicalSizeX(), 0, withUnits)
+            self._obj.getPrimaryPixels().getPhysicalSizeX(), 0, units)
 
     @assert_pixels
-    def getPixelSizeY(self, withUnits=False):
+    def getPixelSizeY(self, units=None):
         """
         Gets the physical size Y of pixels in microns.
-        If withUnits is True, return tuple of (size, unit).
+        If units is True, return tuple of (size, unit).
 
         :return:    Size of pixel in y or O
         :rtype:     float or (float, unit) tuple
         """
         return self._unwrapunits(
-            self._obj.getPrimaryPixels().getPhysicalSizeY(), 0, withUnits)
+            self._obj.getPrimaryPixels().getPhysicalSizeY(), 0, units)
 
     @assert_pixels
-    def getPixelSizeZ(self, withUnits=False):
+    def getPixelSizeZ(self, units=None):
         """
         Gets the physical size Z of pixels in microns.
-        If withUnits is True, return tuple of (size, unit).
+        If units is True, return tuple of (size, unit).
 
         :return:    Size of pixel in z or O
         :rtype:     float or (float, unit) tuple
         """
         return self._unwrapunits(
-            self._obj.getPrimaryPixels().getPhysicalSizeZ(), 0, withUnits)
+            self._obj.getPrimaryPixels().getPhysicalSizeZ(), 0, units)
 
     @assert_pixels
     def getSizeX(self):
