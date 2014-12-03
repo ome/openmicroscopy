@@ -172,6 +172,18 @@ class TestImage (object):
         assert self.image.getPixelSizeX(units="NM") == (sizeXMicrons * 1000, "nm", "NM")
         assert self.image.getPixelSizeX(units="ANGSTROM") == (sizeXMicrons * 10000, "Å", "ANGSTROM")
 
+    def testChannelWavelengthUnits(self):
+        """
+        Tests Channel excitation / emmisssion wavelengths and units
+        """
+        wavelengths = [[360.0, 457.0],[490.0, 528.0]]
+        for ch, waves in zip(self.image.getChannels(), wavelengths):
+            assert ch.getExcitationWave() == waves[0]
+            assert ch.getEmissionWave() == waves[1]
+            assert ch.getExcitationWave(units=True) == (waves[0], "nm", "NM")
+            assert ch.getEmissionWave(units=True) == (waves[1], "nm", "NM")
+            assert ch.getExcitationWave(units="ANGSTROM") == (waves[0] * 10, "Å", "ANGSTROM")
+            assert ch.getEmissionWave(units="ANGSTROM") == (waves[1] * 10, "Å", "ANGSTROM")
 
     def testShortname(self):
         """ Test the shortname method """
