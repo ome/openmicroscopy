@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2014 Glencoe Software, Inc. All rights reserved.
+ * Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+ * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,35 +17,29 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package ome.formats.utests;
+package omero.model;
 
-import ome.units.UNITS;
-import omero.model.LengthI;
+import java.io.IOException;
+
+import junit.framework.TestCase;
+import omero.model.enums.UnitsLength;
+import omero.model.enums.UnitsPower;
 
 import org.testng.annotations.Test;
 
-public class UnitsTest {
+@Test(groups = "unit")
+public class UnitsTest extends TestCase {
 
-    protected omero.model.Length mm(double d) {
-        omero.model.Length l = new omero.model.LengthI();
-        l.setUnit(omero.model.enums.UnitsLength.MM);
-        l.setValue(d);
-        return l;
+    @Test
+    public void testPowerConversion() throws IOException {
+        Power p1 = new PowerI(100.1, UnitsPower.CW);
+        Power p2 = new PowerI(p1, UnitsPower.W);
+        assertEquals(1.001, p2.getValue());
     }
 
     @Test
-    public void testLengthConversion() {
-        LengthI.convert(mm(1));
+    public void testLengthSymbol() throws IOException {
+        LengthI l = new LengthI(100.1, UnitsLength.MICROM);
+        assertEquals("µm", l.getSymbol());
     }
-
-    @Test
-    public void testLengthMapping() {
-        new LengthI(mm(1), UNITS.M);
-    }
-
-    @Test
-    public void testLengthNoOpMapping() {
-        new LengthI(mm(1), UNITS.MM);
-    }
-
 }

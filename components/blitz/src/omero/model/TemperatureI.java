@@ -19,6 +19,12 @@
 
 package omero.model;
 
+import java.util.Collections;
+import java.util.Map;
+import java.util.HashMap;
+
+import com.google.common.base.Function;
+
 import ome.model.ModelBased;
 import ome.units.unit.Unit;
 import ome.util.Filterable;
@@ -39,6 +45,82 @@ import omero.model.enums.UnitsTemperature;
 public class TemperatureI extends Temperature implements ModelBased {
 
     private static final long serialVersionUID = 1L;
+
+    private static final Map<String, Function<Double, Double>> conversions;
+    static {
+        Map<String, Function<Double, Double>> c = new HashMap<String, Function<Double, Double>>();
+
+        c.put("DEGREEC:DEGREEF", new Function<Double, Double>() {
+              public Double apply(Double value) {
+                  throw new RuntimeException(String.format("Unsupported conversion: %s", "DEGREEC:DEGREEF"));
+              }});
+
+        c.put("DEGREEC:DEGREER", new Function<Double, Double>() {
+              public Double apply(Double value) {
+                  throw new RuntimeException(String.format("Unsupported conversion: %s", "DEGREEC:DEGREER"));
+              }});
+
+        c.put("DEGREEC:K", new Function<Double, Double>() {
+              public Double apply(Double value) {
+                  throw new RuntimeException(String.format("Unsupported conversion: %s", "DEGREEC:K"));
+              }});
+
+        c.put("DEGREEF:DEGREEC", new Function<Double, Double>() {
+              public Double apply(Double value) {
+                  throw new RuntimeException(String.format("Unsupported conversion: %s", "DEGREEF:DEGREEC"));
+              }});
+
+        c.put("DEGREEF:DEGREER", new Function<Double, Double>() {
+              public Double apply(Double value) {
+                  throw new RuntimeException(String.format("Unsupported conversion: %s", "DEGREEF:DEGREER"));
+              }});
+
+        c.put("DEGREEF:K", new Function<Double, Double>() {
+              public Double apply(Double value) {
+                  throw new RuntimeException(String.format("Unsupported conversion: %s", "DEGREEF:K"));
+              }});
+
+        c.put("DEGREER:DEGREEC", new Function<Double, Double>() {
+              public Double apply(Double value) {
+                  throw new RuntimeException(String.format("Unsupported conversion: %s", "DEGREER:DEGREEC"));
+              }});
+
+        c.put("DEGREER:DEGREEF", new Function<Double, Double>() {
+              public Double apply(Double value) {
+                  throw new RuntimeException(String.format("Unsupported conversion: %s", "DEGREER:DEGREEF"));
+              }});
+
+        c.put("DEGREER:K", new Function<Double, Double>() {
+              public Double apply(Double value) {
+                  throw new RuntimeException(String.format("Unsupported conversion: %s", "DEGREER:K"));
+              }});
+
+        c.put("K:DEGREEC", new Function<Double, Double>() {
+              public Double apply(Double value) {
+                  throw new RuntimeException(String.format("Unsupported conversion: %s", "K:DEGREEC"));
+              }});
+
+        c.put("K:DEGREEF", new Function<Double, Double>() {
+              public Double apply(Double value) {
+                  throw new RuntimeException(String.format("Unsupported conversion: %s", "K:DEGREEF"));
+              }});
+
+        c.put("K:DEGREER", new Function<Double, Double>() {
+              public Double apply(Double value) {
+                  throw new RuntimeException(String.format("Unsupported conversion: %s", "K:DEGREER"));
+              }});
+        conversions = Collections.unmodifiableMap(c);
+    }
+
+    private static final Map<UnitsTemperature, String> SYMBOLS;
+    static {
+        Map<UnitsTemperature, String> s = new HashMap<UnitsTemperature, String>();
+        s.put(UnitsTemperature.DEGREEC, "°C");
+        s.put(UnitsTemperature.DEGREEF, "°F");
+        s.put(UnitsTemperature.DEGREER, "°R");
+        s.put(UnitsTemperature.K, "K");
+        SYMBOLS = s;
+    }
 
     public static final Ice.ObjectFactory makeFactory(final omero.client client) {
 
@@ -133,6 +215,10 @@ public class TemperatureI extends Temperature implements ModelBased {
             ome.model.enums.UnitsTemperature.bySymbol(ul.getSymbol()).toString());
    }
 
+   /**
+    * Copy constructor that converts the given {@link omero.model.Temperature}
+    * based on the given ome.model enum
+    */
    public TemperatureI(double d, ome.model.enums.UnitsTemperature ul) {
         this(d, UnitsTemperature.valueOf(ul.toString()));
     }
@@ -145,13 +231,19 @@ public class TemperatureI extends Temperature implements ModelBased {
     */
     public TemperatureI(Temperature value, String target) {
        String source = value.getUnit().toString();
-       if (!target.equals(source)) {
-            throw new RuntimeException(String.format(
-               "%f %s cannot be converted to %s",
-               value.getValue(), value.getUnit(), target));
+       if (target.equals(source)) {
+           setValue(value.getValue());
+           setUnit(value.getUnit());
+        } else {
+            Function<Double, Double> c = conversions.get(source + ":" + target);
+            if (c == null) {
+                throw new RuntimeException(String.format(
+                    "%f %s cannot be converted to %s",
+                        value.getValue(), value.getUnit(), target));
+            }
+            setValue(c.apply(value.getValue()));
+            setUnit(UnitsTemperature.valueOf(target));
        }
-       setValue(value.getValue());
-       setUnit(value.getUnit());
     }
 
    /**
@@ -164,7 +256,7 @@ public class TemperatureI extends Temperature implements ModelBased {
     }
 
     /**
-     * Convert a Bio-Formats {@link Temperature} to an OMERO Temperature.
+     * Convert a Bio-Formats {@link Length} to an OMERO Length.
      */
     public TemperatureI(ome.units.quantity.Temperature value) {
         ome.model.enums.UnitsTemperature internal =
@@ -188,6 +280,10 @@ public class TemperatureI extends Temperature implements ModelBased {
 
     public void setUnit(UnitsTemperature unit, Ice.Current current) {
         this.unit = unit;
+    }
+
+    public String getSymbol() {
+        return SYMBOLS.get(this.unit);
     }
 
     public Temperature copy(Ice.Current ignore) {
