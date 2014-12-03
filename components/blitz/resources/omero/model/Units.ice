@@ -103,12 +103,12 @@ module omero {
                 LY,
                 PC,
                 THOU,
-                LI,
-                IN,
-                FT,
-                YD,
-                MI,
-                PT,
+                LINE,
+                INCH,
+                FOOT,
+                YARD,
+                MILE,
+                POINT,
                 PIXEL,
                 REFERENCEFRAME
             };
