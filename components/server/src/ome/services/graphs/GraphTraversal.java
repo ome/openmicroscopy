@@ -543,7 +543,7 @@ public class GraphTraversal {
                         optimisticReprocess = null;
                     }
                     for (final CI nextObject : toProcess) {
-                        reviewObject(nextObject);
+                        reviewObject(nextObject, false);
                     }
                     continue;
                 }
@@ -560,7 +560,7 @@ public class GraphTraversal {
                     final Set<CI> previousToProcess = new HashSet<CI>(planning.toProcess);
                     final Set<CI> previousFindIfLast = new HashSet<CI>(planning.findIfLast);
                     for (final CI nextObject : previousToProcess) {
-                        reviewObject(nextObject);
+                        reviewObject(nextObject, false);
                     }
                     /* This condition is tricky. We do want to reprocess objects that are suggested for such, while
                      * avoiding an infinite loop that comes of such processing not resolving any orphan status. */
@@ -604,6 +604,10 @@ public class GraphTraversal {
                     log.debug("marked " + object + " as " + Orphan.RELEVANT + " to verify " + Orphan.IS_NOT_LAST + " status");
                 }
             }
+        }
+        /* review objects for error conditions */
+        for (final CI object : planning.cached) {
+            reviewObject(object, true);
         }
     }
 
@@ -970,9 +974,10 @@ public class GraphTraversal {
     /**
      * Process the object, adjusting the planning state accordingly.
      * @param object an object
+     * @param isErrorRules if {@link GraphPolicy#review(Map, Details, Map, Set)} should apply final checks instead of normal rules
      * @throws GraphException on detecting the policy attempting an illegal change of {@link Action}
      */
-    private void reviewObject(CI object) throws GraphException {
+    private void reviewObject(CI object, boolean isErrorRules) throws GraphException {
         /* note the object's details */
         final Map<CI, Details> detailsCache = new HashMap<CI, Details>();
         final Details objectDetails = getDetails(detailsCache, object);
@@ -1013,7 +1018,7 @@ public class GraphTraversal {
                 }
             }
         }
-        final Set<Details> changes = policy.review(linkedFromDetails, objectDetails, linkedToDetails, notNullable);
+        final Set<Details> changes = policy.review(linkedFromDetails, objectDetails, linkedToDetails, notNullable, isErrorRules);
         /* object is now processed */
         planning.toProcess.remove(object);
         if (changes == null) {

@@ -82,7 +82,7 @@ public abstract class BaseGraphPolicyAdjuster extends GraphPolicy {
 
     @Override
     public final Set<Details> review(Map<String, Set<Details>> linkedFrom, Details rootObject, Map<String, Set<Details>> linkedTo,
-            Set<String> notNullable) throws GraphException {
+            Set<String> notNullable, boolean isErrorRules) throws GraphException {
         /* note all the model objects that may be adjusted in review */
         final Set<Details> allTerms = new HashSet<Details>();
         allTerms.add(rootObject);
@@ -100,7 +100,7 @@ public abstract class BaseGraphPolicyAdjuster extends GraphPolicy {
             }
         }
         /* do the review */
-        changedTerms.addAll(graphPolicy.review(linkedFrom, rootObject, linkedTo, notNullable));
+        changedTerms.addAll(graphPolicy.review(linkedFrom, rootObject, linkedTo, notNullable, isErrorRules));
         /* allow isAdjustedAfterReview to adjust objects after review */
         for (final Details object : allTerms) {
             if (isAdjustedAfterReview(object)) {

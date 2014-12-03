@@ -213,9 +213,10 @@ public abstract class GraphPolicy {
      * @param rootObject the object at the center of this review
      * @param linkedTo map from class property to objects to which the property links from the root object
      * @param notNullable which properties from the linkedFrom and linkedTo map keys are not nullable
+     * @param isErrorRules if final checks should be performed instead of normal rule matching
      * @return changes to make, included unchanged details typically cause review as root object
      * @throws GraphException if there was a problem in applying the policy
      */
     public abstract Set<Details> review(Map<String, Set<Details>> linkedFrom, Details rootObject,
-            Map<String, Set<Details>> linkedTo, Set<String> notNullable) throws GraphException;
+            Map<String, Set<Details>> linkedTo, Set<String> notNullable, boolean isErrorRules) throws GraphException;
 }

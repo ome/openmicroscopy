@@ -121,7 +121,7 @@ public class SkipHeadPolicy {
 
             @Override
             public final Set<Details> review(Map<String, Set<Details>> linkedFrom, Details rootObject,
-                    Map<String, Set<Details>> linkedTo, Set<String> notNullable) throws GraphException {
+                    Map<String, Set<Details>> linkedTo, Set<String> notNullable, boolean isErrorRules) throws GraphException {
                 if (rootObject.action == startAction && isStartFrom.apply(rootObject.subject)) {
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("deferring review of " + rootObject);
@@ -138,7 +138,7 @@ public class SkipHeadPolicy {
                     return Collections.emptySet();
                 } else {
                     /* do the review */
-                    return graphPolicy.review(linkedFrom, rootObject, linkedTo, notNullable);
+                    return graphPolicy.review(linkedFrom, rootObject, linkedTo, notNullable, isErrorRules);
                 }
             }
         };

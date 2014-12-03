@@ -747,17 +747,50 @@ public class GraphPolicyRule {
         return new CleanGraphPolicy(policyRules);
     }
 
+    /**
+     * A clean instance of a graph policy implementing the parsed rules.
+     * @author m.t.b.carroll@dundee.ac.uk
+     * @since 5.1.0
+     */
     private static class CleanGraphPolicy extends GraphPolicy {
-        private final List<ParsedPolicyRule> policyRules;
+        private final ImmutableList<ParsedPolicyRule> policyRulesChange;
+        private final ImmutableList<ParsedPolicyRule> policyRulesError;
         private final Set<String> conditions = new HashSet<String>();
 
+        /**
+         * Construct a clean instance of a graph policy.
+         * @param policyRules the parsed policy rules
+         */
         CleanGraphPolicy(List<ParsedPolicyRule> policyRules) {
-            this.policyRules = policyRules;
+            final ImmutableList.Builder<ParsedPolicyRule> policyRulesChangeBuilder = ImmutableList.builder();
+            final ImmutableList.Builder<ParsedPolicyRule> policyRulesErrorBuilder = ImmutableList.builder();
+
+            for (final ParsedPolicyRule policyRule : policyRules) {
+                if (policyRule.errorMessage == null) {
+                    policyRulesChangeBuilder.add(policyRule);
+                } else {
+                    policyRulesErrorBuilder.add(policyRule);
+                }
+            }
+
+            this.policyRulesChange = policyRulesChangeBuilder.build();
+            this.policyRulesError = policyRulesErrorBuilder.build();
+        }
+
+        /**
+         * Construct a clean instance of a graph policy.
+         * @param policyRulesChange the parsed policy rules whose consequence is graph node state changes
+         * @param policyRulesError the parsed policy rules whose consequence is an error condition
+         */
+        private CleanGraphPolicy(ImmutableList<ParsedPolicyRule> policyRulesChange,
+                ImmutableList<ParsedPolicyRule> policyRulesError) {
+            this.policyRulesChange = policyRulesChange;
+            this.policyRulesError = policyRulesError;
         }
 
         @Override
         public GraphPolicy getCleanInstance() {
-            return new CleanGraphPolicy(policyRules);
+            return new CleanGraphPolicy(policyRulesChange, policyRulesError);
         }
 
         @Override
@@ -776,9 +809,9 @@ public class GraphPolicyRule {
         @Override
         public Set<Details> review(Map<String, Set<Details>> linkedFrom,
                 Details rootObject, Map<String, Set<Details>> linkedTo,
-                Set<String> notNullable) throws GraphException {
+                Set<String> notNullable, boolean isErrorRules) throws GraphException {
             final Set<Details> changedObjects = new HashSet<Details>();
-            for (final ParsedPolicyRule policyRule : policyRules) {
+            for (final ParsedPolicyRule policyRule : isErrorRules ? policyRulesError : policyRulesChange) {
                 boolean conditionsSatisfied = true;
                 for (final ConditionMatch matcher : policyRule.conditionMatchers) {
                     if (matcher.set != isCondition(matcher.name)) {
