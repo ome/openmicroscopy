@@ -982,7 +982,13 @@ public class GraphTraversal {
         final Map<CI, Details> detailsCache = new HashMap<CI, Details>();
         final Details objectDetails = getDetails(detailsCache, object);
         if (log.isDebugEnabled()) {
-            log.debug("reviewing " + objectDetails);
+            final StringBuffer sb = new StringBuffer();
+            sb.append("reviewing ");
+            sb.append(objectDetails);
+            if (isErrorRules) {
+                sb.append(" for error conditions");
+            }
+            log.debug(sb.toString());
         }
         /* review the object's links */
         final Map<String, Set<Details>> linkedFromDetails = new HashMap<String, Set<Details>>();
