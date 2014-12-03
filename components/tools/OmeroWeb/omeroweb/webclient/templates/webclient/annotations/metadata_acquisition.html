@@ -337,8 +337,8 @@
                     {% for pi in ch.plane_info %}
                         <td>
                             <div>t={{ pi.theT }} </div>
-                            <div>{{ pi.deltaT|floatformat:2 }} {{ pi.deltaTUnit }} </div>
-                            <div>{{ pi.exposureTime|floatformat:2 }} {{ pi.exposureTimeUnit }} </div>
+                            <div>{{ pi.deltaT|timeformat }} </div>
+                            <div>{{ pi.exposureTime|timeformat }}</div>
                         </td>
                     {% endfor %}
                 </tr></table>

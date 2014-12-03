@@ -1027,22 +1027,13 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
                 planeInfo = manager.image and manager.image.getPrimaryPixels().copyPlaneInfo(theC=theC, theZ=0)
                 plane_info = []
 
-                def unwrapUnit(q):
-                    if q:
-                        u = str(q.getUnit())
-                        v = q.getValue()
-                        return (v, u)
-                    return (None, None)
-
                 for pi in planeInfo:
-                    deltaT, deltaTUnit = unwrapUnit(pi.getDeltaT())
-                    exposure, exposureUnit = unwrapUnit(pi.getExposureTime())
+                    deltaT = pi.getDeltaT(units="S")[0]
+                    exposure = pi.getExposureTime(units="S")[0]
                     plane_info.append({
                         'theT': pi.theT,
                         'deltaT': deltaT,
-                        'exposureTime': exposure,
-                        'deltaTUnit': deltaTUnit,
-                        'exposureTimeUnit': exposureUnit})
+                        'exposureTime': exposure})
                 channel['plane_info'] = plane_info
 
                 form_channels.append(channel)
