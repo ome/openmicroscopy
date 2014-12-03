@@ -238,6 +238,11 @@ class BlitzObjectWrapper (object):
                 return (default, "")
             return default
         if units:
+            try:
+                unitEnum = getattr(omero.model.enums.UnitsLength, str(units))
+                obj = omero.model.LengthI(obj, unitEnum)
+            except AttributeError:
+                pass
             return obj.getValue(), obj.getSymbol(), str(obj.getUnit())
         return obj.getValue()
 
