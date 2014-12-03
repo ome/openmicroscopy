@@ -6415,7 +6415,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
         if rv is not None:
             return unicode(rv)
 
-    def getEmissionWave(self):
+    def getEmissionWave(self, units=None):
         """
         Returns the emission wave or None.
 
@@ -6424,9 +6424,9 @@ class _ChannelWrapper (BlitzObjectWrapper):
         """
 
         lc = self.getLogicalChannel()
-        return self._unwrapunits(lc.emissionWave)
+        return self._unwrapunits(lc.emissionWave, units=units)
 
-    def getExcitationWave(self):
+    def getExcitationWave(self, units=None):
         """
         Returns the excitation wave or None.
 
@@ -6435,7 +6435,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
         """
 
         lc = self.getLogicalChannel()
-        return self._unwrapunits(lc.excitationWave)
+        return self._unwrapunits(lc.excitationWave, units=units)
 
     def getColor(self):
         """
