@@ -55,6 +55,11 @@ namespace omero {
         static std::map<omero::model::enums::UnitsPressure, std::string> SYMBOLS;
 
     public:
+
+        static std::string lookupSymbol(omero::model::enums::UnitsPressure unit) {
+            return SYMBOLS[unit];
+        }
+
         PressureI();
 
         virtual Ice::Double getValue(

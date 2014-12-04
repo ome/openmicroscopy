@@ -55,6 +55,11 @@ namespace omero {
         static std::map<omero::model::enums::UnitsFrequency, std::string> SYMBOLS;
 
     public:
+
+        static std::string lookupSymbol(omero::model::enums::UnitsFrequency unit) {
+            return SYMBOLS[unit];
+        }
+
         FrequencyI();
 
         virtual Ice::Double getValue(

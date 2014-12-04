@@ -2355,6 +2355,10 @@ class LengthI(_omero_model.Length, UnitBase):
     def getSymbol(self, current=None):
         return self.SYMBOLS.get(str(self.getUnit()))
 
+    @staticmethod
+    def lookupSymbol(unit):
+        return LengthI.SYMBOLS.get(str(unit))
+
     def setUnit(self, unit, current=None):
         self._unit = unit
 

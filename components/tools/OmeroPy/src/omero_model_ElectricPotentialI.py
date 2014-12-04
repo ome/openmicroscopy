@@ -938,6 +938,10 @@ class ElectricPotentialI(_omero_model.ElectricPotential, UnitBase):
     def getSymbol(self, current=None):
         return self.SYMBOLS.get(str(self.getUnit()))
 
+    @staticmethod
+    def lookupSymbol(unit):
+        return ElectricPotentialI.SYMBOLS.get(str(unit))
+
     def setUnit(self, unit, current=None):
         self._unit = unit
 

@@ -105,6 +105,10 @@ class TemperatureI(_omero_model.Temperature, UnitBase):
     def getSymbol(self, current=None):
         return self.SYMBOLS.get(str(self.getUnit()))
 
+    @staticmethod
+    def lookupSymbol(unit):
+        return TemperatureI.SYMBOLS.get(str(unit))
+
     def setUnit(self, unit, current=None):
         self._unit = unit
 

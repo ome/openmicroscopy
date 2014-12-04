@@ -55,6 +55,11 @@ namespace omero {
         static std::map<omero::model::enums::UnitsTime, std::string> SYMBOLS;
 
     public:
+
+        static std::string lookupSymbol(omero::model::enums::UnitsTime unit) {
+            return SYMBOLS[unit];
+        }
+
         TimeI();
 
         virtual Ice::Double getValue(
