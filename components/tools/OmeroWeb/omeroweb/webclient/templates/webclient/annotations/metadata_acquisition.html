@@ -192,7 +192,7 @@
                 {% endfor %}
                 {% for form in form_lasers %}
                 <table class="metadata_details">
-                    <tr><th><br/>{% trans "Laser" %}:</th><th colspan="2"></th></tr>
+                    <tr><th><br/>{{ form.lightSourceType }}:</th><th colspan="2"></th></tr>
                     {% for field in form %}
                     <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
                         <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
@@ -278,7 +278,7 @@
                     {% endfor %}
                     {% endif %}                
                     {% if ch.form_light_source %}
-                    <tr><th><br/>{% trans "Laser" %}:</th><th colspan="2"></th></tr>
+                    <tr><th><br/>{{ ch.form_light_source.lightSourceType }}:</th><th colspan="2"></th></tr>
                     {% for field in ch.form_light_source %}
                     <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
                         <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>

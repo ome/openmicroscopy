@@ -1527,6 +1527,8 @@ class MetadataLightSourceForm(forms.Form):
         lightSourceSettings = None
         if 'lightSourceSettings' in kwargs['initial']:
             lightSourceSettings = kwargs['initial']['lightSourceSettings']
+
+        self.lightSourceType = lightSource.OMERO_CLASS
         
         # Manufacturer
         try:
