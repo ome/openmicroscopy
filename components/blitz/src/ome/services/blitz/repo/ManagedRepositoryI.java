@@ -41,7 +41,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import loci.formats.FormatReader;
-
 import ome.api.IAdmin;
 import ome.api.IUpdate;
 import ome.conditions.ApiUsageException;
@@ -78,6 +77,7 @@ import omero.model.IndexingJobI;
 import omero.model.Job;
 import omero.model.MetadataImportJob;
 import omero.model.MetadataImportJobI;
+import omero.model.NamedValue;
 import omero.model.PixelDataJobI;
 import omero.model.ThumbnailGenerationJob;
 import omero.model.ThumbnailGenerationJobI;
@@ -89,6 +89,9 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import Ice.Current;
+
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -99,8 +102,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import com.google.common.math.IntMath;
-
-import Ice.Current;
 
 /**
  * Extension of the PublicRepository API which only manages files
@@ -433,7 +434,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
         // Initialization version info
         final ImportConfig config = new ImportConfig();
-        final Map<String, RString> serverVersionInfo = new HashMap<String, RString>();
+        final List<NamedValue> serverVersionInfo = new ArrayList<NamedValue>();
         config.fillVersionInfo(serverVersionInfo);
 
         // Create and validate jobs
@@ -513,11 +514,23 @@ public class ManagedRepositoryI extends PublicRepositoryI
     protected Class<? extends FormatReader> getReaderClass(Fileset fs, Current __current) {
         for (final Job job : fs.linkedJobList()) {
             if (job instanceof UploadJob) {
-                final Map<String, RString> versionInfo = ((UploadJob) job).getVersionInfo(__current);
-                if (versionInfo == null || !versionInfo.containsKey(ImportConfig.VersionInfo.BIO_FORMATS_READER.key)) {
-                    continue;
+                final List<NamedValue> versionInfo = ((UploadJob) job).getVersionInfo(__current);
+
+                if (versionInfo == null) {
+                	continue;
                 }
-                final String readerName = versionInfo.get(ImportConfig.VersionInfo.BIO_FORMATS_READER.key).getValue();
+                
+                String readerName = null;
+                for (NamedValue nv : versionInfo) {
+                	if (nv != null &&
+                			ImportConfig.VersionInfo.BIO_FORMATS_READER.key.equals(
+                					nv.name)) {
+                		readerName = nv.value;
+                	}
+                }
+                if (readerName == null) {
+                	continue;
+                }
                 Class<?> potentialReaderClass;
                 try {
                     potentialReaderClass = Class.forName(readerName);

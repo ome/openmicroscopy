@@ -20,7 +20,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 """
-Hand-coded omero.model.TemperatureI implementation,
+Code-generated omero.model.Temperature implementation,
 based on omero.model.PermissionsI
 """
 
@@ -33,15 +33,77 @@ _omero_model = Ice.openModule("omero.model")
 __name__ = "omero.model"
 
 from omero_model_UnitBase import UnitBase
+from omero.model.enums import UnitsTemperature
+
+
+def noconversion(cfrom, cto):
+    raise Exception(("Unsupported conversion: "
+                     "%s:%s") % cfrom, cto)
 
 
 class TemperatureI(_omero_model.Temperature, UnitBase):
+
+    CONVERSIONS = dict()
+    CONVERSIONS["DEGREEC:DEGREEF"] = \
+        lambda: noconversion("DEGREEC", "DEGREEF")
+    CONVERSIONS["DEGREEC:DEGREER"] = \
+        lambda: noconversion("DEGREEC", "DEGREER")
+    CONVERSIONS["DEGREEC:K"] = \
+        lambda: noconversion("DEGREEC", "K")
+    CONVERSIONS["DEGREEF:DEGREEC"] = \
+        lambda: noconversion("DEGREEF", "DEGREEC")
+    CONVERSIONS["DEGREEF:DEGREER"] = \
+        lambda: noconversion("DEGREEF", "DEGREER")
+    CONVERSIONS["DEGREEF:K"] = \
+        lambda: noconversion("DEGREEF", "K")
+    CONVERSIONS["DEGREER:DEGREEC"] = \
+        lambda: noconversion("DEGREER", "DEGREEC")
+    CONVERSIONS["DEGREER:DEGREEF"] = \
+        lambda: noconversion("DEGREER", "DEGREEF")
+    CONVERSIONS["DEGREER:K"] = \
+        lambda: noconversion("DEGREER", "K")
+    CONVERSIONS["K:DEGREEC"] = \
+        lambda: noconversion("K", "DEGREEC")
+    CONVERSIONS["K:DEGREEF"] = \
+        lambda: noconversion("K", "DEGREEF")
+    CONVERSIONS["K:DEGREER"] = \
+        lambda: noconversion("K", "DEGREER")
+
+    SYMBOLS = dict()
+    SYMBOLS["DEGREEC"] = "°C"
+    SYMBOLS["DEGREEF"] = "°F"
+    SYMBOLS["DEGREER"] = "°R"
+    SYMBOLS["K"] = "K"
+
+    def __init__(self, value=None, unit=None):
+        _omero_model.Temperature.__init__(self)
+        if isinstance(value, _omero_model.TemperatureI):
+            # This is a copy-constructor call.
+            target = str(unit)
+            source = str(value.getUnit())
+            if target == source:
+                self.setValue(value.getValue())
+                self.setUnit(value.getUnit())
+            else:
+                c = self.CONVERSIONS.get("%s:%s" % (source, target))
+                if c is None:
+                    t = (value.getValue(), value.getUnit(), target)
+                    msg = "%s %s cannot be converted to %s" % t
+                    raise Exception(msg)
+                self.setValue(c(value.getValue()))
+                self.setUnit(getattr(UnitsTemperature, str(target)))
+        else:
+            self.setValue(value)
+            self.setUnit(unit)
 
     def getUnit(self, current=None):
         return self._unit
 
     def getValue(self, current=None):
         return self._value
+
+    def getSymbol(self):
+        return self.SYMBOLS.get(str(self.getUnit()))
 
     def setUnit(self, unit, current=None):
         self._unit = unit

@@ -94,7 +94,7 @@
 		
 	</dl>
 	
-    <form action="{% url 'wamanagegroupownerid' "save" gid %}" method="POST" id="" class="standard_form settings_form">
+    <form action="{% url 'wamanagegroupownerid' "save" gid %}" method="POST" id="" class="standard_form settings_form">{% csrf_token %}
         
         <p>{% trans "Fields marked in red are mandatory." %}</p>
         <br/>

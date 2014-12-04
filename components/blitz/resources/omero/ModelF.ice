@@ -39,6 +39,7 @@ module omero {
         class JobStatus;
         class Laser;
         class LogicalChannel;
+        class NamedValue;
         class OriginalFile;
         class Permissions;
         class Pixels;

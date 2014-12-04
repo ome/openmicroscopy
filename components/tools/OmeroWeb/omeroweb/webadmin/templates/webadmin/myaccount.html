@@ -240,7 +240,7 @@
     <div id="personal_settings" class="settings_content">
 
 
-       <form class="standard_form settings_form" action="{% url 'wamyaccount' "save" %}" method="POST">
+       <form class="standard_form settings_form" action="{% url 'wamyaccount' "save" %}" method="POST">{% csrf_token %}
 
            <p>{% trans "Fields marked in red are mandatory." %}</p>
            <br/>
@@ -296,7 +296,7 @@
            <!-- hidden dialog for password change -->
            <div id="password_change_dialog" title="Change Password">
 
-               <form id="change_password_form" action="{% url 'wamanagechangepasswordid' ome.eventContext.userId %}" method="POST">
+               <form id="change_password_form" action="{% url 'wamanagechangepasswordid' ome.eventContext.userId %}" method="POST">{% csrf_token %}
 
                    <table>
                        <tbody>
