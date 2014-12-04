@@ -1201,7 +1201,7 @@ ticket:684 This is necessary to map back and forth from sets.
 #if( $property.class.name == "ome.dsl.MapField" )
 [$cpp]       omero::api::StringStringMap ${PojoI}::get${property.nameCapped}AsMap($CPP_CURRENT_UNUSED) {
 [$cpp]           omero::api::StringStringMap rv;
-[$cpp]           for (omero::api::NamedValueList::const_iterator it = config.begin(); it != config.end(); ++it) {
+[$cpp]           for (omero::api::NamedValueList::const_iterator it = ${fieldName}.begin(); it != ${fieldName}.end(); ++it) {
 [$cpp]               omero::model::NamedValuePtr target = *it;
 [$cpp]               if (target) {
 [$cpp]                   rv[target->name] = target->value;
