@@ -365,13 +365,13 @@ class MetadataChannelForm(forms.Form):
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(logicalCh.id)+', \'name\', this.value);'}),
                     initial=logicalCh.ndFilter,
-                    label="ND filter [%]",
+                    label="ND filter (%)",
                     required=False)
             else:
                 self.fields['ndFilter'] = forms.CharField(
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(logicalCh.id)+', \'name\', this.value);'}),
-                    label="ND filter [%]",
+                    label="ND filter (%)",
                     required=False)
             self.fields['ndFilter'].widget.attrs['disabled'] = True 
         except:
@@ -379,7 +379,7 @@ class MetadataChannelForm(forms.Form):
                 max_length=10,
                 widget=forms.TextInput(attrs={'size':25}),
                 initial="N/A",
-                label="ND filter [%]",
+                label="ND filter (%)",
                 required=False)
             self.fields['ndFilter'].widget.attrs['disabled'] = True
         
@@ -1994,13 +1994,13 @@ class MetadataEnvironmentForm(forms.Form):
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'co2percent\', this.value);'}),
                     initial=imagingEnv.co2percent,
-                    label="CO2 [%]",
+                    label="CO2 (%)",
                     required=False)
             else:
                 self.fields['co2percent'] = forms.CharField(
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'co2percent\', this.value);'}),
-                    label="CO2 [%]",
+                    label="CO2 (%)",
                     required=False)
             self.fields['co2percent'].widget.attrs['disabled'] = True 
             self.fields['co2percent'].widget.attrs['class'] = 'disabled-metadata'
@@ -2009,7 +2009,7 @@ class MetadataEnvironmentForm(forms.Form):
                 max_length=10,
                 widget=forms.TextInput(attrs={'size':25}),
                 initial="N/A",
-                label="CO2 [%]",
+                label="CO2 (%)",
                 required=False)
             self.fields['co2percent'].widget.attrs['disabled'] = True 
             self.fields['co2percent'].widget.attrs['class'] = 'disabled-metadata'
