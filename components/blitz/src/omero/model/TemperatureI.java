@@ -48,18 +48,10 @@ public class TemperatureI extends Temperature implements ModelBased {
     static {
         Map<String, double[][]> c = new HashMap<String, double[][]>();
 
-        c.put("DEGREEC:DEGREEF", new double[][]{null});
-        c.put("DEGREEC:DEGREER", new double[][]{null});
-        c.put("DEGREEC:K", new double[][]{null});
-        c.put("DEGREEF:DEGREEC", new double[][]{null});
-        c.put("DEGREEF:DEGREER", new double[][]{null});
-        c.put("DEGREEF:K", new double[][]{null});
-        c.put("DEGREER:DEGREEC", new double[][]{null});
-        c.put("DEGREER:DEGREEF", new double[][]{null});
-        c.put("DEGREER:K", new double[][]{null});
-        c.put("K:DEGREEC", new double[][]{null});
-        c.put("K:DEGREEF", new double[][]{null});
-        c.put("K:DEGREER", new double[][]{null});
+        c.put("DEGREEC:DEGREEF", new double[][]{new double[]{32, 1}, new double[]{1.8, 1}});
+        c.put("DEGREEC:K", new double[][]{new double[]{273.15, 1}, new double[]{0, 1}});
+        c.put("DEGREEF:DEGREEC", new double[][]{new double[]{-17.777777777, 1}, new double[]{0.55555555555, 1}});
+        c.put("K:DEGREEC", new double[][]{new double[]{-273.15, 1}, new double[]{0, 1}});
         conversions = Collections.unmodifiableMap(c);
     }
 
