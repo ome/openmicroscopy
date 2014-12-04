@@ -23,8 +23,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.HashMap;
 
-import com.google.common.base.Function;
-
 import ome.model.ModelBased;
 import ome.units.unit.Unit;
 import ome.util.Filterable;
@@ -46,69 +44,22 @@ public class TemperatureI extends Temperature implements ModelBased {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Map<String, Function<Double, Double>> conversions;
+    private static final Map<String, double[][]> conversions;
     static {
-        Map<String, Function<Double, Double>> c = new HashMap<String, Function<Double, Double>>();
+        Map<String, double[][]> c = new HashMap<String, double[][]>();
 
-        c.put("DEGREEC:DEGREEF", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "DEGREEC:DEGREEF"));
-              }});
-
-        c.put("DEGREEC:DEGREER", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "DEGREEC:DEGREER"));
-              }});
-
-        c.put("DEGREEC:K", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "DEGREEC:K"));
-              }});
-
-        c.put("DEGREEF:DEGREEC", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "DEGREEF:DEGREEC"));
-              }});
-
-        c.put("DEGREEF:DEGREER", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "DEGREEF:DEGREER"));
-              }});
-
-        c.put("DEGREEF:K", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "DEGREEF:K"));
-              }});
-
-        c.put("DEGREER:DEGREEC", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "DEGREER:DEGREEC"));
-              }});
-
-        c.put("DEGREER:DEGREEF", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "DEGREER:DEGREEF"));
-              }});
-
-        c.put("DEGREER:K", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "DEGREER:K"));
-              }});
-
-        c.put("K:DEGREEC", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "K:DEGREEC"));
-              }});
-
-        c.put("K:DEGREEF", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "K:DEGREEF"));
-              }});
-
-        c.put("K:DEGREER", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "K:DEGREER"));
-              }});
+        c.put("DEGREEC:DEGREEF", new double[][]{null});
+        c.put("DEGREEC:DEGREER", new double[][]{null});
+        c.put("DEGREEC:K", new double[][]{null});
+        c.put("DEGREEF:DEGREEC", new double[][]{null});
+        c.put("DEGREEF:DEGREER", new double[][]{null});
+        c.put("DEGREEF:K", new double[][]{null});
+        c.put("DEGREER:DEGREEC", new double[][]{null});
+        c.put("DEGREER:DEGREEF", new double[][]{null});
+        c.put("DEGREER:K", new double[][]{null});
+        c.put("K:DEGREEC", new double[][]{null});
+        c.put("K:DEGREEF", new double[][]{null});
+        c.put("K:DEGREER", new double[][]{null});
         conversions = Collections.unmodifiableMap(c);
     }
 
@@ -239,13 +190,29 @@ public class TemperatureI extends Temperature implements ModelBased {
            setValue(value.getValue());
            setUnit(value.getUnit());
         } else {
-            Function<Double, Double> c = conversions.get(source + ":" + target);
-            if (c == null) {
+            double[][] coeffs = conversions.get(source + ":" + target);
+            if (coeffs == null) {
                 throw new RuntimeException(String.format(
                     "%f %s cannot be converted to %s",
                         value.getValue(), value.getUnit(), target));
             }
-            setValue(c.apply(value.getValue()));
+            double orig = value.getValue();
+            double k, p, v;
+            if (coeffs.length == 0) {
+                v = orig;
+            } else if (coeffs.length == 2){
+                k = coeffs[0][0];
+                p = coeffs[0][1];
+                v = Math.pow(k, p);
+
+                k = coeffs[1][0];
+                p = coeffs[1][1];
+                v += Math.pow(k, p) * orig;
+            } else {
+                throw new RuntimeException("coefficients of unknown length: " +  coeffs.length);
+            }
+
+            setValue(v);
             setUnit(UnitsTemperature.valueOf(target));
        }
     }
