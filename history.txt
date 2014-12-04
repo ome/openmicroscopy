@@ -13,6 +13,26 @@ Model changes include:
 -  units support, meaning units now have real enums
 -  minor fixes for model changes introduced in m1
 
+The units changes mean that the following fields have changed:
+
+-  Plane.PositionX, Y, Z; Plane.DeltaT; Plane.ExposureTime
+-  Shape.StrokeWidth; Shape.FontSize
+-  DetectorSettings.Voltage; DetectorSettings.ReadOutRate
+-  ImagingEnvironment.Temperature; ImagingEnvironment.AirPressure
+-  LightSourceSettings.Wavelength
+-  Plate.WellOriginX, Y
+-  Objective.WorkingDistance
+-  Pixels.PhysicalSizeX, Y, Z; Pixels.TimeIncrement
+-  StageLabel.X, Y, Z
+-  LightSource.Power
+-  Detector.Voltage
+-  WellSample.PositionX, Y
+-  Channel.EmissionWavelength; Channel.PinholeSize; 
+   Channel.ExcitationWavelength
+-  TransmittanceRange.CutOutTolerance; TransmittanceRange.CutInTolerance;
+   TransmittanceRange.CutOut; TransmittanceRange.CutIn
+-  Laser.RepetitionRate; Laser.Wavelength
+
 Other changes that may affect developers include:
 
 -  ongoing C++ implementation improvements
