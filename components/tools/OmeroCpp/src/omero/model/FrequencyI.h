@@ -52,6 +52,7 @@ namespace omero {
 
     protected:
         virtual ~FrequencyI(); // protected as outlined in Ice docs.
+        static std::map<omero::model::enums::UnitsFrequency, std::string> SYMBOLS;
 
     public:
         FrequencyI();
@@ -68,6 +69,9 @@ namespace omero {
 
         virtual void setUnit(
                 omero::model::enums::UnitsFrequency unit,
+                const Ice::Current& current = Ice::Current());
+
+        virtual std::string getSymbol(
                 const Ice::Current& current = Ice::Current());
 
         virtual FrequencyPtr copy(

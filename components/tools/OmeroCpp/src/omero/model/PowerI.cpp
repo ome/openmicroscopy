@@ -25,6 +25,30 @@ namespace omero {
 
     namespace model {
 
+        std::map<omero::model::enums::UnitsPower, std::string> PowerI::SYMBOLS= {
+            {omero::model::enums::UnitsPower::AW, "aW"},
+            {omero::model::enums::UnitsPower::CW, "cW"},
+            {omero::model::enums::UnitsPower::DAW, "daW"},
+            {omero::model::enums::UnitsPower::DW, "dW"},
+            {omero::model::enums::UnitsPower::EXAW, "EW"},
+            {omero::model::enums::UnitsPower::FW, "fW"},
+            {omero::model::enums::UnitsPower::GIGAW, "GW"},
+            {omero::model::enums::UnitsPower::HW, "hW"},
+            {omero::model::enums::UnitsPower::KW, "kW"},
+            {omero::model::enums::UnitsPower::MEGAW, "MW"},
+            {omero::model::enums::UnitsPower::MICROW, "µW"},
+            {omero::model::enums::UnitsPower::MW, "mW"},
+            {omero::model::enums::UnitsPower::NW, "nW"},
+            {omero::model::enums::UnitsPower::PETAW, "PW"},
+            {omero::model::enums::UnitsPower::PW, "pW"},
+            {omero::model::enums::UnitsPower::TERAW, "TW"},
+            {omero::model::enums::UnitsPower::W, "W"},
+            {omero::model::enums::UnitsPower::YOTTAW, "YW"},
+            {omero::model::enums::UnitsPower::YW, "yW"},
+            {omero::model::enums::UnitsPower::ZETTAW, "ZW"},
+            {omero::model::enums::UnitsPower::ZW, "zW"},
+        };
+
         PowerI::~PowerI() {}
 
         PowerI::PowerI() : Power() {
@@ -44,6 +68,10 @@ namespace omero {
 
         void PowerI::setUnit(omero::model::enums::UnitsPower _unit, const Ice::Current& /* current */) {
             unit = _unit;
+        }
+
+        std::string PowerI::getSymbol(const Ice::Current& /* current */) {
+            return SYMBOLS[unit];
         }
 
         PowerPtr PowerI::copy(const Ice::Current& /* current */) {

@@ -25,6 +25,13 @@ namespace omero {
 
     namespace model {
 
+        std::map<omero::model::enums::UnitsTemperature, std::string> TemperatureI::SYMBOLS= {
+            {omero::model::enums::UnitsTemperature::DEGREEC, "°C"},
+            {omero::model::enums::UnitsTemperature::DEGREEF, "°F"},
+            {omero::model::enums::UnitsTemperature::DEGREER, "°R"},
+            {omero::model::enums::UnitsTemperature::K, "K"},
+        };
+
         TemperatureI::~TemperatureI() {}
 
         TemperatureI::TemperatureI() : Temperature() {
@@ -44,6 +51,10 @@ namespace omero {
 
         void TemperatureI::setUnit(omero::model::enums::UnitsTemperature _unit, const Ice::Current& /* current */) {
             unit = _unit;
+        }
+
+        std::string TemperatureI::getSymbol(const Ice::Current& /* current */) {
+            return SYMBOLS[unit];
         }
 
         TemperaturePtr TemperatureI::copy(const Ice::Current& /* current */) {
