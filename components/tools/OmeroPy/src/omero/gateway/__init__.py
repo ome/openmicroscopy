@@ -226,8 +226,8 @@ class BlitzObjectWrapper (object):
         """
         Unwrap the value of the Value + Unit object. Returns single value
         or default if object is None.
-        If units is true, return a tuple of (value, defaultUnitSymbol, defaultUnit),
-        E.g. (10, "nm", "NM")
+        If units is true, return a tuple of
+        (value, defaultUnitSymbol, defaultUnit), E.g. (10, "nm", "NM")
         If units specifies a valid unit for the type of value, then we convert
         E.g. _unwrapunits(obj, units="MICROM")
         will return  (10000, "µm", "MICROM")
