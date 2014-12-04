@@ -352,6 +352,8 @@ public class LightSourceData
 		if (!LASER.equals(getKind())) return null;
 		Laser laser = (Laser) asIObject();
 		Frequency f = laser.getRepetitionRate();
+		if (f==null)
+			return null;
 		return unit == null ? f : new FrequencyI(f, unit);
 	}
 	
