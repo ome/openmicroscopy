@@ -2297,29 +2297,29 @@ class LengthI(_omero_model.Length, UnitBase):
     SYMBOLS["DM"] = "dm"
     SYMBOLS["EXAM"] = "Em"
     SYMBOLS["FM"] = "fm"
-    SYMBOLS["FT"] = "ft"
+    SYMBOLS["FOOT"] = "ft"
     SYMBOLS["GIGAM"] = "Gm"
     SYMBOLS["HM"] = "hm"
-    SYMBOLS["IN"] = "in"
+    SYMBOLS["INCH"] = "in"
     SYMBOLS["KM"] = "km"
-    SYMBOLS["LI"] = "li"
+    SYMBOLS["LINE"] = "li"
     SYMBOLS["LY"] = "ly"
     SYMBOLS["M"] = "m"
     SYMBOLS["MEGAM"] = "Mm"
-    SYMBOLS["MI"] = "mi"
     SYMBOLS["MICROM"] = "µm"
+    SYMBOLS["MILE"] = "mi"
     SYMBOLS["MM"] = "mm"
     SYMBOLS["NM"] = "nm"
     SYMBOLS["PC"] = "pc"
     SYMBOLS["PETAM"] = "Pm"
     SYMBOLS["PIXEL"] = "pixel"
     SYMBOLS["PM"] = "pm"
-    SYMBOLS["PT"] = "pt"
+    SYMBOLS["POINT"] = "pt"
     SYMBOLS["REFERENCEFRAME"] = "reference frame"
     SYMBOLS["TERAM"] = "Tm"
     SYMBOLS["THOU"] = "thou"
     SYMBOLS["UA"] = "ua"
-    SYMBOLS["YD"] = "yd"
+    SYMBOLS["YARD"] = "yd"
     SYMBOLS["YM"] = "ym"
     SYMBOLS["YOTTAM"] = "Ym"
     SYMBOLS["ZETTAM"] = "Zm"
@@ -2352,8 +2352,12 @@ class LengthI(_omero_model.Length, UnitBase):
     def getValue(self, current=None):
         return self._value
 
-    def getSymbol(self):
+    def getSymbol(self, current=None):
         return self.SYMBOLS.get(str(self.getUnit()))
+
+    @staticmethod
+    def lookupSymbol(unit):
+        return LengthI.SYMBOLS.get(str(unit))
 
     def setUnit(self, unit, current=None):
         self._unit = unit

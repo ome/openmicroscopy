@@ -62,6 +62,12 @@ module omero {
 
       void setUnit(omero::model::enums::UnitsPower unit);
 
+      /**
+       * Returns the possibly unicode representation of the "unit"
+       * value for display.
+       **/
+      string getSymbol();
+
       Power copy();
 
     };

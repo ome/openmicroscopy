@@ -25,6 +25,30 @@ namespace omero {
 
     namespace model {
 
+        std::map<omero::model::enums::UnitsFrequency, std::string> FrequencyI::SYMBOLS= {
+            {omero::model::enums::UnitsFrequency::AHZ, "aHz"},
+            {omero::model::enums::UnitsFrequency::CHZ, "cHz"},
+            {omero::model::enums::UnitsFrequency::DAHZ, "daHz"},
+            {omero::model::enums::UnitsFrequency::DHZ, "dHz"},
+            {omero::model::enums::UnitsFrequency::EXAHZ, "EHz"},
+            {omero::model::enums::UnitsFrequency::FHZ, "fHz"},
+            {omero::model::enums::UnitsFrequency::GIGAHZ, "GHz"},
+            {omero::model::enums::UnitsFrequency::HHZ, "hHz"},
+            {omero::model::enums::UnitsFrequency::HZ, "Hz"},
+            {omero::model::enums::UnitsFrequency::KHZ, "kHz"},
+            {omero::model::enums::UnitsFrequency::MEGAHZ, "MHz"},
+            {omero::model::enums::UnitsFrequency::MHZ, "mHz"},
+            {omero::model::enums::UnitsFrequency::MICROHZ, "µHz"},
+            {omero::model::enums::UnitsFrequency::NHZ, "nHz"},
+            {omero::model::enums::UnitsFrequency::PETAHZ, "PHz"},
+            {omero::model::enums::UnitsFrequency::PHZ, "pHz"},
+            {omero::model::enums::UnitsFrequency::TERAHZ, "THz"},
+            {omero::model::enums::UnitsFrequency::YHZ, "yHz"},
+            {omero::model::enums::UnitsFrequency::YOTTAHZ, "YHz"},
+            {omero::model::enums::UnitsFrequency::ZETTAHZ, "ZHz"},
+            {omero::model::enums::UnitsFrequency::ZHZ, "zHz"},
+        };
+
         FrequencyI::~FrequencyI() {}
 
         FrequencyI::FrequencyI() : Frequency() {
@@ -44,6 +68,10 @@ namespace omero {
 
         void FrequencyI::setUnit(omero::model::enums::UnitsFrequency _unit, const Ice::Current& /* current */) {
             unit = _unit;
+        }
+
+        std::string FrequencyI::getSymbol(const Ice::Current& /* current */) {
+            return SYMBOLS[unit];
         }
 
         FrequencyPtr FrequencyI::copy(const Ice::Current& /* current */) {

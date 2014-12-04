@@ -52,8 +52,14 @@ namespace omero {
 
     protected:
         virtual ~ElectricPotentialI(); // protected as outlined in Ice docs.
+        static std::map<omero::model::enums::UnitsElectricPotential, std::string> SYMBOLS;
 
     public:
+
+        static std::string lookupSymbol(omero::model::enums::UnitsElectricPotential unit) {
+            return SYMBOLS[unit];
+        }
+
         ElectricPotentialI();
 
         virtual Ice::Double getValue(
@@ -68,6 +74,9 @@ namespace omero {
 
         virtual void setUnit(
                 omero::model::enums::UnitsElectricPotential unit,
+                const Ice::Current& current = Ice::Current());
+
+        virtual std::string getSymbol(
                 const Ice::Current& current = Ice::Current());
 
         virtual ElectricPotentialPtr copy(

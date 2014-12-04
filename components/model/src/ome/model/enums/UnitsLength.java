@@ -51,12 +51,12 @@ public enum UnitsLength {
     LY("ly"),
     PC("pc"),
     THOU("thou"),
-    LI("li"),
-    IN("in"),
-    FT("ft"),
-    YD("yd"),
-    MI("mi"),
-    PT("pt"),
+    LINE("li"),
+    INCH("in"),
+    FOOT("ft"),
+    YARD("yd"),
+    MILE("mi"),
+    POINT("pt"),
     PIXEL("pixel"),
     REFERENCEFRAME("reference frame");
 

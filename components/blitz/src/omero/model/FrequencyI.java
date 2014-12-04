@@ -2179,6 +2179,10 @@ public class FrequencyI extends Frequency implements ModelBased {
         SYMBOLS = s;
     }
 
+    public static String lookupSymbol(UnitsFrequency unit) {
+        return SYMBOLS.get(unit);
+    }
+
     public static final Ice.ObjectFactory makeFactory(final omero.client client) {
 
         return new Ice.ObjectFactory() {
@@ -2339,7 +2343,7 @@ public class FrequencyI extends Frequency implements ModelBased {
         this.unit = unit;
     }
 
-    public String getSymbol() {
+    public String getSymbol(Ice.Current current) {
         return SYMBOLS.get(this.unit);
     }
 

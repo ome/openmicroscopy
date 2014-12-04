@@ -403,7 +403,7 @@ public class ShapeSettingsData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		Length size = shape.getFontSize();
-		if (size != null) return (new LengthI(size, UnitsLength.PT)).getValue();
+		if (size != null) return (new LengthI(size, UnitsLength.POINT)).getValue();
 		return DEFAULT_FONT_SIZE;
 	}
 	
@@ -420,8 +420,8 @@ public class ShapeSettingsData
 		Length size = shape.getFontSize();
 		if (size != null) 
 			return size;
-		else 
-			return new LengthI(DEFAULT_FONT_SIZE, UnitsLength.PT);
+		else
+			return new LengthI(DEFAULT_FONT_SIZE, UnitsLength.POINT);
 	}
 
     /**
@@ -435,7 +435,7 @@ public class ShapeSettingsData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		if (fontSize <= 0) fontSize = DEFAULT_FONT_SIZE;
-		shape.setFontSize(new LengthI(fontSize, UnitsLength.PT));
+		shape.setFontSize(new LengthI(fontSize, UnitsLength.POINT));
 		setDirty(true);
 	}
 	
@@ -447,8 +447,8 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		if (fontSize ==null) 
-			fontSize = new LengthI(DEFAULT_FONT_SIZE, UnitsLength.PT);
+		if (fontSize ==null)
+			fontSize = new LengthI(DEFAULT_FONT_SIZE, UnitsLength.POINT);
 		shape.setFontSize(fontSize);
 		setDirty(true);
 	}
