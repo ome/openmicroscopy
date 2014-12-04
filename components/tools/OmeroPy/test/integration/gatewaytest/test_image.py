@@ -159,6 +159,12 @@ class TestImage (object):
         assert badimage.getPixelSizeX() is None
         assert badimage.getChannels() is None
 
+    def assertUnits(self, result, expected):
+        """ helper to compare str(Unit enum) with expected units """
+        assert result[0] == expected[0]         # value
+        assert result[1] == expected[1]         # symbol
+        assert str(result[2]) == expected[2]    # unit vv string
+
     def testPixelSizeUnits(self):
         """
         Tests the pixel sizes and their units
@@ -166,14 +172,12 @@ class TestImage (object):
         # Test pre-units behaviour
         sizeXMicrons = 0.10639449954032898
         assert self.image.getPixelSizeX() == sizeXMicrons
-
-        assert self.image.getPixelSizeX(units=True) == (
-            sizeXMicrons, "µm", "MICROM")
-
-        assert self.image.getPixelSizeX(units="NM") == (
-            sizeXMicrons * 1000, "nm", "NM")
-        assert self.image.getPixelSizeX(units="ANGSTROM") == (
-            sizeXMicrons * 10000, "Å", "ANGSTROM")
+        self.assertUnits(self.image.getPixelSizeX(units=True),
+                         (sizeXMicrons, "µm", "MICROM"))
+        self.assertUnits(self.image.getPixelSizeX(units="NM"),
+                         (sizeXMicrons * 1000, "nm", "NM"))
+        self.assertUnits(self.image.getPixelSizeX(units="ANGSTROM"),
+                         (sizeXMicrons * 10000, "Å", "ANGSTROM"))
 
     def testChannelWavelengthUnits(self):
         """
@@ -183,26 +187,28 @@ class TestImage (object):
         for ch, waves in zip(self.image.getChannels(), wavelengths):
             assert ch.getExcitationWave() == waves[0]
             assert ch.getEmissionWave() == waves[1]
-            assert ch.getExcitationWave(units=True) == (waves[0], "nm", "NM")
-            assert ch.getEmissionWave(units=True) == (waves[1], "nm", "NM")
-            assert ch.getExcitationWave(units="ANGSTROM") == (
-                waves[0] * 10, "Å", "ANGSTROM")
-            assert ch.getEmissionWave(units="ANGSTROM") == (
-                waves[1] * 10, "Å", "ANGSTROM")
+            self.assertUnits(ch.getExcitationWave(units=True),
+                             (waves[0], "nm", "NM"))
+            self.assertUnits(ch.getEmissionWave(units=True),
+                             (waves[1], "nm", "NM"))
+            self.assertUnits(ch.getExcitationWave(units="ANGSTROM"),
+                             (waves[0] * 10, "Å", "ANGSTROM"))
+            self.assertUnits(ch.getEmissionWave(units="ANGSTROM"),
+                             (waves[1] * 10, "Å", "ANGSTROM"))
 
     def testExposureTimeUnits(self):
         """
         Tests PlaneInfo ExposureTimes and units
         """
         eTime = 0.33500000834465027
-
         for theC in range(self.image.getSizeC()):
             pInfo = self.image.getPrimaryPixels().copyPlaneInfo(theC=0, theZ=0)
             for pi in pInfo:
                 assert pi.getExposureTime() == eTime
-                assert pi.getExposureTime(units=True) == (eTime, 's', 'S')
-                assert pi.getExposureTime(units="MS") == (
-                    eTime * 1000, 'ms', 'MS')
+                self.assertUnits(pi.getExposureTime(units=True),
+                                 (eTime, 's', 'S'))
+                self.assertUnits(pi.getExposureTime(units="MS"),
+                                 (eTime * 1000, 'ms', 'MS'))
 
     def testShortname(self):
         """ Test the shortname method """
