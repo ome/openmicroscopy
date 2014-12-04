@@ -2842,6 +2842,10 @@ public class TimeI extends Time implements ModelBased {
         SYMBOLS = s;
     }
 
+    public static String lookupSymbol(UnitsTime unit) {
+        return SYMBOLS.get(unit);
+    }
+
     public static final Ice.ObjectFactory makeFactory(final omero.client client) {
 
         return new Ice.ObjectFactory() {

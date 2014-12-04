@@ -304,9 +304,14 @@ TEST(ModelTest, OrderedCollectionsTicket2547 ) {
     ASSERT_EQ(1, pixels->sizeOfChannels());
 }
 
-TEST(ModelTest, LengthSymbol) {
+TEST(ModelTest, LengthGetSymbol) {
     LengthPtr l = new LengthI();
     l->setValue(1.0);
     l->setUnit(omero::model::enums::UnitsLength::MICROM);
     ASSERT_EQ("µm", l->getSymbol());
+}
+
+TEST(ModelTest, LengthLookupSymbol) {
+    ASSERT_EQ("µm", LengthI::lookupSymbol(
+            omero::model::enums::UnitsLength::MICROM));
 }

@@ -55,6 +55,11 @@ namespace omero {
         static std::map<omero::model::enums::UnitsElectricPotential, std::string> SYMBOLS;
 
     public:
+
+        static std::string lookupSymbol(omero::model::enums::UnitsElectricPotential unit) {
+            return SYMBOLS[unit];
+        }
+
         ElectricPotentialI();
 
         virtual Ice::Double getValue(

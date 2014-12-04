@@ -55,6 +55,11 @@ namespace omero {
         static std::map<omero::model::enums::UnitsTemperature, std::string> SYMBOLS;
 
     public:
+
+        static std::string lookupSymbol(omero::model::enums::UnitsTemperature unit) {
+            return SYMBOLS[unit];
+        }
+
         TemperatureI();
 
         virtual Ice::Double getValue(
