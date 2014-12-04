@@ -526,6 +526,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
                 			ImportConfig.VersionInfo.BIO_FORMATS_READER.key.equals(
                 					nv.name)) {
                 		readerName = nv.value;
+                		break;
                 	}
                 }
                 if (readerName == null) {
