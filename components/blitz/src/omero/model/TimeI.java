@@ -23,8 +23,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.HashMap;
 
-import com.google.common.base.Function;
-
 import ome.model.ModelBased;
 import ome.units.unit.Unit;
 import ome.util.Filterable;
@@ -46,2769 +44,562 @@ public class TimeI extends Time implements ModelBased {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Map<String, Function<Double, Double>> conversions;
+    private static final Map<String, double[][]> conversions;
     static {
-        Map<String, Function<Double, Double>> c = new HashMap<String, Function<Double, Double>>();
-
-        c.put("AS:CS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -16) * value;
-              }});
-
-        c.put("AS:D", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "AS:D"));
-              }});
-
-        c.put("AS:DAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -19) * value;
-              }});
-
-        c.put("AS:DS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -17) * value;
-              }});
-
-        c.put("AS:EXAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -36) * value;
-              }});
-
-        c.put("AS:FS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("AS:GIGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -27) * value;
-              }});
-
-        c.put("AS:H", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "AS:H"));
-              }});
-
-        c.put("AS:HS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -20) * value;
-              }});
-
-        c.put("AS:KS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -21) * value;
-              }});
-
-        c.put("AS:MEGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -24) * value;
-              }});
-
-        c.put("AS:MICROS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("AS:MIN", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "AS:MIN"));
-              }});
-
-        c.put("AS:MS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("AS:NS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("AS:PETAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -33) * value;
-              }});
-
-        c.put("AS:PS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("AS:S", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -18) * value;
-              }});
-
-        c.put("AS:TERAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -30) * value;
-              }});
-
-        c.put("AS:YOTTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -42) * value;
-              }});
-
-        c.put("AS:YS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("AS:ZETTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -39) * value;
-              }});
-
-        c.put("AS:ZS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("CS:AS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 16) * value;
-              }});
-
-        c.put("CS:D", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "CS:D"));
-              }});
-
-        c.put("CS:DAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("CS:DS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -1) * value;
-              }});
-
-        c.put("CS:EXAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -20) * value;
-              }});
-
-        c.put("CS:FS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 13) * value;
-              }});
-
-        c.put("CS:GIGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -11) * value;
-              }});
-
-        c.put("CS:H", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "CS:H"));
-              }});
-
-        c.put("CS:HS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -4) * value;
-              }});
-
-        c.put("CS:KS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -5) * value;
-              }});
-
-        c.put("CS:MEGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -8) * value;
-              }});
-
-        c.put("CS:MICROS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 4) * value;
-              }});
-
-        c.put("CS:MIN", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "CS:MIN"));
-              }});
-
-        c.put("CS:MS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return 10 * value;
-              }});
-
-        c.put("CS:NS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 7) * value;
-              }});
-
-        c.put("CS:PETAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -17) * value;
-              }});
-
-        c.put("CS:PS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 10) * value;
-              }});
-
-        c.put("CS:S", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -2) * value;
-              }});
-
-        c.put("CS:TERAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -14) * value;
-              }});
-
-        c.put("CS:YOTTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -26) * value;
-              }});
-
-        c.put("CS:YS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 22) * value;
-              }});
-
-        c.put("CS:ZETTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -23) * value;
-              }});
-
-        c.put("CS:ZS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 19) * value;
-              }});
-
-        c.put("D:AS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "D:AS"));
-              }});
-
-        c.put("D:CS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "D:CS"));
-              }});
-
-        c.put("D:DAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "D:DAS"));
-              }});
-
-        c.put("D:DS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "D:DS"));
-              }});
-
-        c.put("D:EXAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "D:EXAS"));
-              }});
-
-        c.put("D:FS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "D:FS"));
-              }});
-
-        c.put("D:GIGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "D:GIGAS"));
-              }});
-
-        c.put("D:H", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "D:H"));
-              }});
-
-        c.put("D:HS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "D:HS"));
-              }});
-
-        c.put("D:KS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "D:KS"));
-              }});
-
-        c.put("D:MEGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "D:MEGAS"));
-              }});
-
-        c.put("D:MICROS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "D:MICROS"));
-              }});
-
-        c.put("D:MIN", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "D:MIN"));
-              }});
-
-        c.put("D:MS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "D:MS"));
-              }});
-
-        c.put("D:NS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "D:NS"));
-              }});
-
-        c.put("D:PETAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "D:PETAS"));
-              }});
-
-        c.put("D:PS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "D:PS"));
-              }});
-
-        c.put("D:S", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "D:S"));
-              }});
-
-        c.put("D:TERAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "D:TERAS"));
-              }});
-
-        c.put("D:YOTTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "D:YOTTAS"));
-              }});
-
-        c.put("D:YS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "D:YS"));
-              }});
-
-        c.put("D:ZETTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "D:ZETTAS"));
-              }});
-
-        c.put("D:ZS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "D:ZS"));
-              }});
-
-        c.put("DAS:AS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 19) * value;
-              }});
-
-        c.put("DAS:CS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("DAS:D", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "DAS:D"));
-              }});
-
-        c.put("DAS:DS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 2) * value;
-              }});
-
-        c.put("DAS:EXAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -17) * value;
-              }});
-
-        c.put("DAS:FS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 16) * value;
-              }});
-
-        c.put("DAS:GIGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -8) * value;
-              }});
-
-        c.put("DAS:H", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "DAS:H"));
-              }});
-
-        c.put("DAS:HS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -1) * value;
-              }});
-
-        c.put("DAS:KS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -2) * value;
-              }});
-
-        c.put("DAS:MEGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -5) * value;
-              }});
-
-        c.put("DAS:MICROS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 7) * value;
-              }});
-
-        c.put("DAS:MIN", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "DAS:MIN"));
-              }});
-
-        c.put("DAS:MS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 4) * value;
-              }});
-
-        c.put("DAS:NS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 10) * value;
-              }});
-
-        c.put("DAS:PETAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -14) * value;
-              }});
-
-        c.put("DAS:PS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 13) * value;
-              }});
-
-        c.put("DAS:S", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return 10 * value;
-              }});
-
-        c.put("DAS:TERAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -11) * value;
-              }});
-
-        c.put("DAS:YOTTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -23) * value;
-              }});
-
-        c.put("DAS:YS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 25) * value;
-              }});
-
-        c.put("DAS:ZETTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -20) * value;
-              }});
-
-        c.put("DAS:ZS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 22) * value;
-              }});
-
-        c.put("DS:AS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 17) * value;
-              }});
-
-        c.put("DS:CS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return 10 * value;
-              }});
-
-        c.put("DS:D", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "DS:D"));
-              }});
-
-        c.put("DS:DAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -2) * value;
-              }});
-
-        c.put("DS:EXAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -19) * value;
-              }});
-
-        c.put("DS:FS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 14) * value;
-              }});
-
-        c.put("DS:GIGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -10) * value;
-              }});
-
-        c.put("DS:H", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "DS:H"));
-              }});
-
-        c.put("DS:HS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("DS:KS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -4) * value;
-              }});
-
-        c.put("DS:MEGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -7) * value;
-              }});
-
-        c.put("DS:MICROS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 5) * value;
-              }});
-
-        c.put("DS:MIN", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "DS:MIN"));
-              }});
-
-        c.put("DS:MS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 2) * value;
-              }});
-
-        c.put("DS:NS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 8) * value;
-              }});
-
-        c.put("DS:PETAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -16) * value;
-              }});
-
-        c.put("DS:PS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 11) * value;
-              }});
-
-        c.put("DS:S", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -1) * value;
-              }});
-
-        c.put("DS:TERAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -13) * value;
-              }});
-
-        c.put("DS:YOTTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -25) * value;
-              }});
-
-        c.put("DS:YS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 23) * value;
-              }});
-
-        c.put("DS:ZETTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -22) * value;
-              }});
-
-        c.put("DS:ZS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 20) * value;
-              }});
-
-        c.put("EXAS:AS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 36) * value;
-              }});
-
-        c.put("EXAS:CS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 20) * value;
-              }});
-
-        c.put("EXAS:D", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "EXAS:D"));
-              }});
-
-        c.put("EXAS:DAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 17) * value;
-              }});
-
-        c.put("EXAS:DS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 19) * value;
-              }});
-
-        c.put("EXAS:FS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 33) * value;
-              }});
-
-        c.put("EXAS:GIGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("EXAS:H", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "EXAS:H"));
-              }});
-
-        c.put("EXAS:HS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 16) * value;
-              }});
-
-        c.put("EXAS:KS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("EXAS:MEGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("EXAS:MICROS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 24) * value;
-              }});
-
-        c.put("EXAS:MIN", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "EXAS:MIN"));
-              }});
-
-        c.put("EXAS:MS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 21) * value;
-              }});
-
-        c.put("EXAS:NS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 27) * value;
-              }});
-
-        c.put("EXAS:PETAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("EXAS:PS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 30) * value;
-              }});
-
-        c.put("EXAS:S", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 18) * value;
-              }});
-
-        c.put("EXAS:TERAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("EXAS:YOTTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("EXAS:YS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 42) * value;
-              }});
-
-        c.put("EXAS:ZETTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("EXAS:ZS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 39) * value;
-              }});
-
-        c.put("FS:AS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("FS:CS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -13) * value;
-              }});
-
-        c.put("FS:D", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "FS:D"));
-              }});
-
-        c.put("FS:DAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -16) * value;
-              }});
-
-        c.put("FS:DS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -14) * value;
-              }});
-
-        c.put("FS:EXAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -33) * value;
-              }});
-
-        c.put("FS:GIGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -24) * value;
-              }});
-
-        c.put("FS:H", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "FS:H"));
-              }});
-
-        c.put("FS:HS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -17) * value;
-              }});
-
-        c.put("FS:KS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -18) * value;
-              }});
-
-        c.put("FS:MEGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -21) * value;
-              }});
-
-        c.put("FS:MICROS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("FS:MIN", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "FS:MIN"));
-              }});
-
-        c.put("FS:MS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("FS:NS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("FS:PETAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -30) * value;
-              }});
-
-        c.put("FS:PS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("FS:S", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("FS:TERAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -27) * value;
-              }});
-
-        c.put("FS:YOTTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -39) * value;
-              }});
-
-        c.put("FS:YS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("FS:ZETTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -36) * value;
-              }});
-
-        c.put("FS:ZS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("GIGAS:AS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 27) * value;
-              }});
-
-        c.put("GIGAS:CS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 11) * value;
-              }});
-
-        c.put("GIGAS:D", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "GIGAS:D"));
-              }});
-
-        c.put("GIGAS:DAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 8) * value;
-              }});
-
-        c.put("GIGAS:DS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 10) * value;
-              }});
-
-        c.put("GIGAS:EXAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("GIGAS:FS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 24) * value;
-              }});
-
-        c.put("GIGAS:H", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "GIGAS:H"));
-              }});
-
-        c.put("GIGAS:HS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 7) * value;
-              }});
-
-        c.put("GIGAS:KS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("GIGAS:MEGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("GIGAS:MICROS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("GIGAS:MIN", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "GIGAS:MIN"));
-              }});
-
-        c.put("GIGAS:MS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("GIGAS:NS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 18) * value;
-              }});
-
-        c.put("GIGAS:PETAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("GIGAS:PS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 21) * value;
-              }});
-
-        c.put("GIGAS:S", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("GIGAS:TERAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("GIGAS:YOTTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("GIGAS:YS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 33) * value;
-              }});
-
-        c.put("GIGAS:ZETTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("GIGAS:ZS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 30) * value;
-              }});
-
-        c.put("H:AS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "H:AS"));
-              }});
-
-        c.put("H:CS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "H:CS"));
-              }});
-
-        c.put("H:D", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "H:D"));
-              }});
-
-        c.put("H:DAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "H:DAS"));
-              }});
-
-        c.put("H:DS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "H:DS"));
-              }});
-
-        c.put("H:EXAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "H:EXAS"));
-              }});
-
-        c.put("H:FS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "H:FS"));
-              }});
-
-        c.put("H:GIGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "H:GIGAS"));
-              }});
-
-        c.put("H:HS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "H:HS"));
-              }});
-
-        c.put("H:KS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "H:KS"));
-              }});
-
-        c.put("H:MEGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "H:MEGAS"));
-              }});
-
-        c.put("H:MICROS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "H:MICROS"));
-              }});
-
-        c.put("H:MIN", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "H:MIN"));
-              }});
-
-        c.put("H:MS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "H:MS"));
-              }});
-
-        c.put("H:NS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "H:NS"));
-              }});
-
-        c.put("H:PETAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "H:PETAS"));
-              }});
-
-        c.put("H:PS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "H:PS"));
-              }});
-
-        c.put("H:S", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "H:S"));
-              }});
-
-        c.put("H:TERAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "H:TERAS"));
-              }});
-
-        c.put("H:YOTTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "H:YOTTAS"));
-              }});
-
-        c.put("H:YS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "H:YS"));
-              }});
-
-        c.put("H:ZETTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "H:ZETTAS"));
-              }});
-
-        c.put("H:ZS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "H:ZS"));
-              }});
-
-        c.put("HS:AS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 20) * value;
-              }});
-
-        c.put("HS:CS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 4) * value;
-              }});
-
-        c.put("HS:D", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "HS:D"));
-              }});
-
-        c.put("HS:DAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return 10 * value;
-              }});
-
-        c.put("HS:DS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("HS:EXAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -16) * value;
-              }});
-
-        c.put("HS:FS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 17) * value;
-              }});
-
-        c.put("HS:GIGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -7) * value;
-              }});
-
-        c.put("HS:H", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "HS:H"));
-              }});
-
-        c.put("HS:KS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -1) * value;
-              }});
-
-        c.put("HS:MEGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -4) * value;
-              }});
-
-        c.put("HS:MICROS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 8) * value;
-              }});
-
-        c.put("HS:MIN", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "HS:MIN"));
-              }});
-
-        c.put("HS:MS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 5) * value;
-              }});
-
-        c.put("HS:NS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 11) * value;
-              }});
-
-        c.put("HS:PETAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -13) * value;
-              }});
-
-        c.put("HS:PS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 14) * value;
-              }});
-
-        c.put("HS:S", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 2) * value;
-              }});
-
-        c.put("HS:TERAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -10) * value;
-              }});
-
-        c.put("HS:YOTTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -22) * value;
-              }});
-
-        c.put("HS:YS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 26) * value;
-              }});
-
-        c.put("HS:ZETTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -19) * value;
-              }});
-
-        c.put("HS:ZS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 23) * value;
-              }});
-
-        c.put("KS:AS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 21) * value;
-              }});
-
-        c.put("KS:CS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 5) * value;
-              }});
-
-        c.put("KS:D", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "KS:D"));
-              }});
-
-        c.put("KS:DAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 2) * value;
-              }});
-
-        c.put("KS:DS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 4) * value;
-              }});
-
-        c.put("KS:EXAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("KS:FS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 18) * value;
-              }});
-
-        c.put("KS:GIGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("KS:H", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "KS:H"));
-              }});
-
-        c.put("KS:HS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return 10 * value;
-              }});
-
-        c.put("KS:MEGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("KS:MICROS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("KS:MIN", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "KS:MIN"));
-              }});
-
-        c.put("KS:MS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("KS:NS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("KS:PETAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("KS:PS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("KS:S", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("KS:TERAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("KS:YOTTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -21) * value;
-              }});
-
-        c.put("KS:YS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 27) * value;
-              }});
-
-        c.put("KS:ZETTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -18) * value;
-              }});
-
-        c.put("KS:ZS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 24) * value;
-              }});
-
-        c.put("MEGAS:AS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 24) * value;
-              }});
-
-        c.put("MEGAS:CS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 8) * value;
-              }});
-
-        c.put("MEGAS:D", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MEGAS:D"));
-              }});
-
-        c.put("MEGAS:DAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 5) * value;
-              }});
-
-        c.put("MEGAS:DS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 7) * value;
-              }});
-
-        c.put("MEGAS:EXAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("MEGAS:FS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 21) * value;
-              }});
-
-        c.put("MEGAS:GIGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("MEGAS:H", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MEGAS:H"));
-              }});
-
-        c.put("MEGAS:HS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 4) * value;
-              }});
-
-        c.put("MEGAS:KS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("MEGAS:MICROS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("MEGAS:MIN", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MEGAS:MIN"));
-              }});
-
-        c.put("MEGAS:MS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("MEGAS:NS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("MEGAS:PETAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("MEGAS:PS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 18) * value;
-              }});
-
-        c.put("MEGAS:S", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("MEGAS:TERAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("MEGAS:YOTTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -18) * value;
-              }});
-
-        c.put("MEGAS:YS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 30) * value;
-              }});
-
-        c.put("MEGAS:ZETTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("MEGAS:ZS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 27) * value;
-              }});
-
-        c.put("MICROS:AS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("MICROS:CS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -4) * value;
-              }});
-
-        c.put("MICROS:D", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MICROS:D"));
-              }});
-
-        c.put("MICROS:DAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -7) * value;
-              }});
-
-        c.put("MICROS:DS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -5) * value;
-              }});
-
-        c.put("MICROS:EXAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -24) * value;
-              }});
-
-        c.put("MICROS:FS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("MICROS:GIGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("MICROS:H", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MICROS:H"));
-              }});
-
-        c.put("MICROS:HS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -8) * value;
-              }});
-
-        c.put("MICROS:KS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("MICROS:MEGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("MICROS:MIN", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MICROS:MIN"));
-              }});
-
-        c.put("MICROS:MS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("MICROS:NS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("MICROS:PETAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -21) * value;
-              }});
-
-        c.put("MICROS:PS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("MICROS:S", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("MICROS:TERAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -18) * value;
-              }});
-
-        c.put("MICROS:YOTTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -30) * value;
-              }});
-
-        c.put("MICROS:YS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 18) * value;
-              }});
-
-        c.put("MICROS:ZETTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -27) * value;
-              }});
-
-        c.put("MICROS:ZS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("MIN:AS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MIN:AS"));
-              }});
-
-        c.put("MIN:CS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MIN:CS"));
-              }});
-
-        c.put("MIN:D", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MIN:D"));
-              }});
-
-        c.put("MIN:DAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MIN:DAS"));
-              }});
-
-        c.put("MIN:DS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MIN:DS"));
-              }});
-
-        c.put("MIN:EXAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MIN:EXAS"));
-              }});
-
-        c.put("MIN:FS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MIN:FS"));
-              }});
-
-        c.put("MIN:GIGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MIN:GIGAS"));
-              }});
-
-        c.put("MIN:H", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MIN:H"));
-              }});
-
-        c.put("MIN:HS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MIN:HS"));
-              }});
-
-        c.put("MIN:KS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MIN:KS"));
-              }});
-
-        c.put("MIN:MEGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MIN:MEGAS"));
-              }});
-
-        c.put("MIN:MICROS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MIN:MICROS"));
-              }});
-
-        c.put("MIN:MS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MIN:MS"));
-              }});
-
-        c.put("MIN:NS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MIN:NS"));
-              }});
-
-        c.put("MIN:PETAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MIN:PETAS"));
-              }});
-
-        c.put("MIN:PS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MIN:PS"));
-              }});
-
-        c.put("MIN:S", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MIN:S"));
-              }});
-
-        c.put("MIN:TERAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MIN:TERAS"));
-              }});
-
-        c.put("MIN:YOTTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MIN:YOTTAS"));
-              }});
-
-        c.put("MIN:YS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MIN:YS"));
-              }});
-
-        c.put("MIN:ZETTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MIN:ZETTAS"));
-              }});
-
-        c.put("MIN:ZS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MIN:ZS"));
-              }});
-
-        c.put("MS:AS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("MS:CS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -1) * value;
-              }});
-
-        c.put("MS:D", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MS:D"));
-              }});
-
-        c.put("MS:DAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -4) * value;
-              }});
-
-        c.put("MS:DS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -2) * value;
-              }});
-
-        c.put("MS:EXAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -21) * value;
-              }});
-
-        c.put("MS:FS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("MS:GIGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("MS:H", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MS:H"));
-              }});
-
-        c.put("MS:HS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -5) * value;
-              }});
-
-        c.put("MS:KS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("MS:MEGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("MS:MICROS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("MS:MIN", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "MS:MIN"));
-              }});
-
-        c.put("MS:NS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("MS:PETAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -18) * value;
-              }});
-
-        c.put("MS:PS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("MS:S", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("MS:TERAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("MS:YOTTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -27) * value;
-              }});
-
-        c.put("MS:YS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 21) * value;
-              }});
-
-        c.put("MS:ZETTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -24) * value;
-              }});
-
-        c.put("MS:ZS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 18) * value;
-              }});
-
-        c.put("NS:AS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("NS:CS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -7) * value;
-              }});
-
-        c.put("NS:D", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "NS:D"));
-              }});
-
-        c.put("NS:DAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -10) * value;
-              }});
-
-        c.put("NS:DS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -8) * value;
-              }});
-
-        c.put("NS:EXAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -27) * value;
-              }});
-
-        c.put("NS:FS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("NS:GIGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -18) * value;
-              }});
-
-        c.put("NS:H", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "NS:H"));
-              }});
-
-        c.put("NS:HS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -11) * value;
-              }});
-
-        c.put("NS:KS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("NS:MEGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("NS:MICROS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("NS:MIN", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "NS:MIN"));
-              }});
-
-        c.put("NS:MS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("NS:PETAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -24) * value;
-              }});
-
-        c.put("NS:PS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("NS:S", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("NS:TERAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -21) * value;
-              }});
-
-        c.put("NS:YOTTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -33) * value;
-              }});
-
-        c.put("NS:YS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("NS:ZETTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -30) * value;
-              }});
-
-        c.put("NS:ZS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("PETAS:AS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 33) * value;
-              }});
-
-        c.put("PETAS:CS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 17) * value;
-              }});
-
-        c.put("PETAS:D", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "PETAS:D"));
-              }});
-
-        c.put("PETAS:DAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 14) * value;
-              }});
-
-        c.put("PETAS:DS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 16) * value;
-              }});
-
-        c.put("PETAS:EXAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("PETAS:FS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 30) * value;
-              }});
-
-        c.put("PETAS:GIGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("PETAS:H", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "PETAS:H"));
-              }});
-
-        c.put("PETAS:HS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 13) * value;
-              }});
-
-        c.put("PETAS:KS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("PETAS:MEGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("PETAS:MICROS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 21) * value;
-              }});
-
-        c.put("PETAS:MIN", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "PETAS:MIN"));
-              }});
-
-        c.put("PETAS:MS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 18) * value;
-              }});
-
-        c.put("PETAS:NS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 24) * value;
-              }});
-
-        c.put("PETAS:PS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 27) * value;
-              }});
-
-        c.put("PETAS:S", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("PETAS:TERAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("PETAS:YOTTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("PETAS:YS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 39) * value;
-              }});
-
-        c.put("PETAS:ZETTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("PETAS:ZS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 36) * value;
-              }});
-
-        c.put("PS:AS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("PS:CS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -10) * value;
-              }});
-
-        c.put("PS:D", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "PS:D"));
-              }});
-
-        c.put("PS:DAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -13) * value;
-              }});
-
-        c.put("PS:DS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -11) * value;
-              }});
-
-        c.put("PS:EXAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -30) * value;
-              }});
-
-        c.put("PS:FS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("PS:GIGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -21) * value;
-              }});
-
-        c.put("PS:H", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "PS:H"));
-              }});
-
-        c.put("PS:HS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -14) * value;
-              }});
-
-        c.put("PS:KS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("PS:MEGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -18) * value;
-              }});
-
-        c.put("PS:MICROS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("PS:MIN", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "PS:MIN"));
-              }});
-
-        c.put("PS:MS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("PS:NS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("PS:PETAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -27) * value;
-              }});
-
-        c.put("PS:S", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("PS:TERAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -24) * value;
-              }});
-
-        c.put("PS:YOTTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -36) * value;
-              }});
-
-        c.put("PS:YS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("PS:ZETTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -33) * value;
-              }});
-
-        c.put("PS:ZS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("S:AS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 18) * value;
-              }});
-
-        c.put("S:CS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 2) * value;
-              }});
-
-        c.put("S:D", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "S:D"));
-              }});
-
-        c.put("S:DAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -1) * value;
-              }});
-
-        c.put("S:DS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return 10 * value;
-              }});
-
-        c.put("S:EXAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -18) * value;
-              }});
-
-        c.put("S:FS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("S:GIGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("S:H", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "S:H"));
-              }});
-
-        c.put("S:HS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -2) * value;
-              }});
-
-        c.put("S:KS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("S:MEGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("S:MICROS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("S:MIN", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "S:MIN"));
-              }});
-
-        c.put("S:MS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("S:NS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("S:PETAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("S:PS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("S:TERAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("S:YOTTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -24) * value;
-              }});
-
-        c.put("S:YS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 24) * value;
-              }});
-
-        c.put("S:ZETTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -21) * value;
-              }});
-
-        c.put("S:ZS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 21) * value;
-              }});
-
-        c.put("TERAS:AS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 30) * value;
-              }});
-
-        c.put("TERAS:CS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 14) * value;
-              }});
-
-        c.put("TERAS:D", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "TERAS:D"));
-              }});
-
-        c.put("TERAS:DAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 11) * value;
-              }});
-
-        c.put("TERAS:DS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 13) * value;
-              }});
-
-        c.put("TERAS:EXAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("TERAS:FS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 27) * value;
-              }});
-
-        c.put("TERAS:GIGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("TERAS:H", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "TERAS:H"));
-              }});
-
-        c.put("TERAS:HS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 10) * value;
-              }});
-
-        c.put("TERAS:KS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("TERAS:MEGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("TERAS:MICROS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 18) * value;
-              }});
-
-        c.put("TERAS:MIN", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "TERAS:MIN"));
-              }});
-
-        c.put("TERAS:MS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("TERAS:NS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 21) * value;
-              }});
-
-        c.put("TERAS:PETAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("TERAS:PS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 24) * value;
-              }});
-
-        c.put("TERAS:S", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("TERAS:YOTTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("TERAS:YS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 36) * value;
-              }});
-
-        c.put("TERAS:ZETTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("TERAS:ZS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 33) * value;
-              }});
-
-        c.put("YOTTAS:AS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 42) * value;
-              }});
-
-        c.put("YOTTAS:CS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 26) * value;
-              }});
-
-        c.put("YOTTAS:D", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "YOTTAS:D"));
-              }});
-
-        c.put("YOTTAS:DAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 23) * value;
-              }});
-
-        c.put("YOTTAS:DS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 25) * value;
-              }});
-
-        c.put("YOTTAS:EXAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("YOTTAS:FS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 39) * value;
-              }});
-
-        c.put("YOTTAS:GIGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("YOTTAS:H", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "YOTTAS:H"));
-              }});
-
-        c.put("YOTTAS:HS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 22) * value;
-              }});
-
-        c.put("YOTTAS:KS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 21) * value;
-              }});
-
-        c.put("YOTTAS:MEGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 18) * value;
-              }});
-
-        c.put("YOTTAS:MICROS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 30) * value;
-              }});
-
-        c.put("YOTTAS:MIN", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "YOTTAS:MIN"));
-              }});
-
-        c.put("YOTTAS:MS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 27) * value;
-              }});
-
-        c.put("YOTTAS:NS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 33) * value;
-              }});
-
-        c.put("YOTTAS:PETAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("YOTTAS:PS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 36) * value;
-              }});
-
-        c.put("YOTTAS:S", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 24) * value;
-              }});
-
-        c.put("YOTTAS:TERAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("YOTTAS:YS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 48) * value;
-              }});
-
-        c.put("YOTTAS:ZETTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("YOTTAS:ZS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 45) * value;
-              }});
-
-        c.put("YS:AS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("YS:CS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -22) * value;
-              }});
-
-        c.put("YS:D", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "YS:D"));
-              }});
-
-        c.put("YS:DAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -25) * value;
-              }});
-
-        c.put("YS:DS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -23) * value;
-              }});
-
-        c.put("YS:EXAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -42) * value;
-              }});
-
-        c.put("YS:FS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("YS:GIGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -33) * value;
-              }});
-
-        c.put("YS:H", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "YS:H"));
-              }});
-
-        c.put("YS:HS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -26) * value;
-              }});
-
-        c.put("YS:KS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -27) * value;
-              }});
-
-        c.put("YS:MEGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -30) * value;
-              }});
-
-        c.put("YS:MICROS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -18) * value;
-              }});
-
-        c.put("YS:MIN", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "YS:MIN"));
-              }});
-
-        c.put("YS:MS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -21) * value;
-              }});
-
-        c.put("YS:NS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("YS:PETAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -39) * value;
-              }});
-
-        c.put("YS:PS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("YS:S", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -24) * value;
-              }});
-
-        c.put("YS:TERAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -36) * value;
-              }});
-
-        c.put("YS:YOTTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -48) * value;
-              }});
-
-        c.put("YS:ZETTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -45) * value;
-              }});
-
-        c.put("YS:ZS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("ZETTAS:AS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 39) * value;
-              }});
-
-        c.put("ZETTAS:CS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 23) * value;
-              }});
-
-        c.put("ZETTAS:D", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "ZETTAS:D"));
-              }});
-
-        c.put("ZETTAS:DAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 20) * value;
-              }});
-
-        c.put("ZETTAS:DS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 22) * value;
-              }});
-
-        c.put("ZETTAS:EXAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("ZETTAS:FS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 36) * value;
-              }});
-
-        c.put("ZETTAS:GIGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("ZETTAS:H", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "ZETTAS:H"));
-              }});
-
-        c.put("ZETTAS:HS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 19) * value;
-              }});
-
-        c.put("ZETTAS:KS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 18) * value;
-              }});
-
-        c.put("ZETTAS:MEGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("ZETTAS:MICROS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 27) * value;
-              }});
-
-        c.put("ZETTAS:MIN", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "ZETTAS:MIN"));
-              }});
-
-        c.put("ZETTAS:MS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 24) * value;
-              }});
-
-        c.put("ZETTAS:NS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 30) * value;
-              }});
-
-        c.put("ZETTAS:PETAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("ZETTAS:PS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 33) * value;
-              }});
-
-        c.put("ZETTAS:S", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 21) * value;
-              }});
-
-        c.put("ZETTAS:TERAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("ZETTAS:YOTTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("ZETTAS:YS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 45) * value;
-              }});
-
-        c.put("ZETTAS:ZS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 42) * value;
-              }});
-
-        c.put("ZS:AS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("ZS:CS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -19) * value;
-              }});
-
-        c.put("ZS:D", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "ZS:D"));
-              }});
-
-        c.put("ZS:DAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -22) * value;
-              }});
-
-        c.put("ZS:DS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -20) * value;
-              }});
-
-        c.put("ZS:EXAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -39) * value;
-              }});
-
-        c.put("ZS:FS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("ZS:GIGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -30) * value;
-              }});
-
-        c.put("ZS:H", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "ZS:H"));
-              }});
-
-        c.put("ZS:HS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -23) * value;
-              }});
-
-        c.put("ZS:KS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -24) * value;
-              }});
-
-        c.put("ZS:MEGAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -27) * value;
-              }});
-
-        c.put("ZS:MICROS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("ZS:MIN", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  throw new RuntimeException(String.format("Unsupported conversion: %s", "ZS:MIN"));
-              }});
-
-        c.put("ZS:MS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -18) * value;
-              }});
-
-        c.put("ZS:NS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("ZS:PETAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -36) * value;
-              }});
-
-        c.put("ZS:PS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("ZS:S", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -21) * value;
-              }});
-
-        c.put("ZS:TERAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -33) * value;
-              }});
-
-        c.put("ZS:YOTTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -45) * value;
-              }});
-
-        c.put("ZS:YS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("ZS:ZETTAS", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -42) * value;
-              }});
+        Map<String, double[][]> c = new HashMap<String, double[][]>();
+
+        c.put("AS:CS", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
+        c.put("AS:D", new double[][]{null});
+        c.put("AS:DAS", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
+        c.put("AS:DS", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
+        c.put("AS:EXAS", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
+        c.put("AS:FS", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("AS:GIGAS", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
+        c.put("AS:H", new double[][]{null});
+        c.put("AS:HS", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
+        c.put("AS:KS", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
+        c.put("AS:MEGAS", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
+        c.put("AS:MICROS", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("AS:MIN", new double[][]{null});
+        c.put("AS:MS", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("AS:NS", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("AS:PETAS", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
+        c.put("AS:PS", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("AS:S", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
+        c.put("AS:TERAS", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
+        c.put("AS:YOTTAS", new double[][]{new double[]{0, 1}, new double[]{10, -42}});
+        c.put("AS:YS", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("AS:ZETTAS", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
+        c.put("AS:ZS", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("CS:AS", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
+        c.put("CS:D", new double[][]{null});
+        c.put("CS:DAS", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("CS:DS", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
+        c.put("CS:EXAS", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
+        c.put("CS:FS", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
+        c.put("CS:GIGAS", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
+        c.put("CS:H", new double[][]{null});
+        c.put("CS:HS", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
+        c.put("CS:KS", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
+        c.put("CS:MEGAS", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
+        c.put("CS:MICROS", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
+        c.put("CS:MIN", new double[][]{null});
+        c.put("CS:MS", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
+        c.put("CS:NS", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
+        c.put("CS:PETAS", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
+        c.put("CS:PS", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
+        c.put("CS:S", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
+        c.put("CS:TERAS", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
+        c.put("CS:YOTTAS", new double[][]{new double[]{0, 1}, new double[]{10, -26}});
+        c.put("CS:YS", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
+        c.put("CS:ZETTAS", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
+        c.put("CS:ZS", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
+        c.put("D:AS", new double[][]{null});
+        c.put("D:CS", new double[][]{null});
+        c.put("D:DAS", new double[][]{null});
+        c.put("D:DS", new double[][]{null});
+        c.put("D:EXAS", new double[][]{null});
+        c.put("D:FS", new double[][]{null});
+        c.put("D:GIGAS", new double[][]{null});
+        c.put("D:H", new double[][]{null});
+        c.put("D:HS", new double[][]{null});
+        c.put("D:KS", new double[][]{null});
+        c.put("D:MEGAS", new double[][]{null});
+        c.put("D:MICROS", new double[][]{null});
+        c.put("D:MIN", new double[][]{null});
+        c.put("D:MS", new double[][]{null});
+        c.put("D:NS", new double[][]{null});
+        c.put("D:PETAS", new double[][]{null});
+        c.put("D:PS", new double[][]{null});
+        c.put("D:S", new double[][]{null});
+        c.put("D:TERAS", new double[][]{null});
+        c.put("D:YOTTAS", new double[][]{null});
+        c.put("D:YS", new double[][]{null});
+        c.put("D:ZETTAS", new double[][]{null});
+        c.put("D:ZS", new double[][]{null});
+        c.put("DAS:AS", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
+        c.put("DAS:CS", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("DAS:D", new double[][]{null});
+        c.put("DAS:DS", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
+        c.put("DAS:EXAS", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
+        c.put("DAS:FS", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
+        c.put("DAS:GIGAS", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
+        c.put("DAS:H", new double[][]{null});
+        c.put("DAS:HS", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
+        c.put("DAS:KS", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
+        c.put("DAS:MEGAS", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
+        c.put("DAS:MICROS", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
+        c.put("DAS:MIN", new double[][]{null});
+        c.put("DAS:MS", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
+        c.put("DAS:NS", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
+        c.put("DAS:PETAS", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
+        c.put("DAS:PS", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
+        c.put("DAS:S", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
+        c.put("DAS:TERAS", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
+        c.put("DAS:YOTTAS", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
+        c.put("DAS:YS", new double[][]{new double[]{0, 1}, new double[]{10, 25}});
+        c.put("DAS:ZETTAS", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
+        c.put("DAS:ZS", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
+        c.put("DS:AS", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
+        c.put("DS:CS", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
+        c.put("DS:D", new double[][]{null});
+        c.put("DS:DAS", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
+        c.put("DS:EXAS", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
+        c.put("DS:FS", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
+        c.put("DS:GIGAS", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
+        c.put("DS:H", new double[][]{null});
+        c.put("DS:HS", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("DS:KS", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
+        c.put("DS:MEGAS", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
+        c.put("DS:MICROS", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
+        c.put("DS:MIN", new double[][]{null});
+        c.put("DS:MS", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
+        c.put("DS:NS", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
+        c.put("DS:PETAS", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
+        c.put("DS:PS", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
+        c.put("DS:S", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
+        c.put("DS:TERAS", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
+        c.put("DS:YOTTAS", new double[][]{new double[]{0, 1}, new double[]{10, -25}});
+        c.put("DS:YS", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
+        c.put("DS:ZETTAS", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
+        c.put("DS:ZS", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
+        c.put("EXAS:AS", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
+        c.put("EXAS:CS", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
+        c.put("EXAS:D", new double[][]{null});
+        c.put("EXAS:DAS", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
+        c.put("EXAS:DS", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
+        c.put("EXAS:FS", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
+        c.put("EXAS:GIGAS", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("EXAS:H", new double[][]{null});
+        c.put("EXAS:HS", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
+        c.put("EXAS:KS", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("EXAS:MEGAS", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("EXAS:MICROS", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
+        c.put("EXAS:MIN", new double[][]{null});
+        c.put("EXAS:MS", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
+        c.put("EXAS:NS", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
+        c.put("EXAS:PETAS", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("EXAS:PS", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
+        c.put("EXAS:S", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
+        c.put("EXAS:TERAS", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("EXAS:YOTTAS", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("EXAS:YS", new double[][]{new double[]{0, 1}, new double[]{10, 42}});
+        c.put("EXAS:ZETTAS", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("EXAS:ZS", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
+        c.put("FS:AS", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("FS:CS", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
+        c.put("FS:D", new double[][]{null});
+        c.put("FS:DAS", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
+        c.put("FS:DS", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
+        c.put("FS:EXAS", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
+        c.put("FS:GIGAS", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
+        c.put("FS:H", new double[][]{null});
+        c.put("FS:HS", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
+        c.put("FS:KS", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
+        c.put("FS:MEGAS", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
+        c.put("FS:MICROS", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("FS:MIN", new double[][]{null});
+        c.put("FS:MS", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("FS:NS", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("FS:PETAS", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
+        c.put("FS:PS", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("FS:S", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("FS:TERAS", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
+        c.put("FS:YOTTAS", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
+        c.put("FS:YS", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("FS:ZETTAS", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
+        c.put("FS:ZS", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("GIGAS:AS", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
+        c.put("GIGAS:CS", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
+        c.put("GIGAS:D", new double[][]{null});
+        c.put("GIGAS:DAS", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
+        c.put("GIGAS:DS", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
+        c.put("GIGAS:EXAS", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("GIGAS:FS", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
+        c.put("GIGAS:H", new double[][]{null});
+        c.put("GIGAS:HS", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
+        c.put("GIGAS:KS", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("GIGAS:MEGAS", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("GIGAS:MICROS", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("GIGAS:MIN", new double[][]{null});
+        c.put("GIGAS:MS", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("GIGAS:NS", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
+        c.put("GIGAS:PETAS", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("GIGAS:PS", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
+        c.put("GIGAS:S", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("GIGAS:TERAS", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("GIGAS:YOTTAS", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("GIGAS:YS", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
+        c.put("GIGAS:ZETTAS", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("GIGAS:ZS", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
+        c.put("H:AS", new double[][]{null});
+        c.put("H:CS", new double[][]{null});
+        c.put("H:D", new double[][]{null});
+        c.put("H:DAS", new double[][]{null});
+        c.put("H:DS", new double[][]{null});
+        c.put("H:EXAS", new double[][]{null});
+        c.put("H:FS", new double[][]{null});
+        c.put("H:GIGAS", new double[][]{null});
+        c.put("H:HS", new double[][]{null});
+        c.put("H:KS", new double[][]{null});
+        c.put("H:MEGAS", new double[][]{null});
+        c.put("H:MICROS", new double[][]{null});
+        c.put("H:MIN", new double[][]{null});
+        c.put("H:MS", new double[][]{null});
+        c.put("H:NS", new double[][]{null});
+        c.put("H:PETAS", new double[][]{null});
+        c.put("H:PS", new double[][]{null});
+        c.put("H:S", new double[][]{null});
+        c.put("H:TERAS", new double[][]{null});
+        c.put("H:YOTTAS", new double[][]{null});
+        c.put("H:YS", new double[][]{null});
+        c.put("H:ZETTAS", new double[][]{null});
+        c.put("H:ZS", new double[][]{null});
+        c.put("HS:AS", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
+        c.put("HS:CS", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
+        c.put("HS:D", new double[][]{null});
+        c.put("HS:DAS", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
+        c.put("HS:DS", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("HS:EXAS", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
+        c.put("HS:FS", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
+        c.put("HS:GIGAS", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
+        c.put("HS:H", new double[][]{null});
+        c.put("HS:KS", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
+        c.put("HS:MEGAS", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
+        c.put("HS:MICROS", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
+        c.put("HS:MIN", new double[][]{null});
+        c.put("HS:MS", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
+        c.put("HS:NS", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
+        c.put("HS:PETAS", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
+        c.put("HS:PS", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
+        c.put("HS:S", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
+        c.put("HS:TERAS", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
+        c.put("HS:YOTTAS", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
+        c.put("HS:YS", new double[][]{new double[]{0, 1}, new double[]{10, 26}});
+        c.put("HS:ZETTAS", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
+        c.put("HS:ZS", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
+        c.put("KS:AS", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
+        c.put("KS:CS", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
+        c.put("KS:D", new double[][]{null});
+        c.put("KS:DAS", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
+        c.put("KS:DS", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
+        c.put("KS:EXAS", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("KS:FS", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
+        c.put("KS:GIGAS", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("KS:H", new double[][]{null});
+        c.put("KS:HS", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
+        c.put("KS:MEGAS", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("KS:MICROS", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("KS:MIN", new double[][]{null});
+        c.put("KS:MS", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("KS:NS", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("KS:PETAS", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("KS:PS", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("KS:S", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("KS:TERAS", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("KS:YOTTAS", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
+        c.put("KS:YS", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
+        c.put("KS:ZETTAS", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
+        c.put("KS:ZS", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
+        c.put("MEGAS:AS", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
+        c.put("MEGAS:CS", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
+        c.put("MEGAS:D", new double[][]{null});
+        c.put("MEGAS:DAS", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
+        c.put("MEGAS:DS", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
+        c.put("MEGAS:EXAS", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("MEGAS:FS", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
+        c.put("MEGAS:GIGAS", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("MEGAS:H", new double[][]{null});
+        c.put("MEGAS:HS", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
+        c.put("MEGAS:KS", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("MEGAS:MICROS", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("MEGAS:MIN", new double[][]{null});
+        c.put("MEGAS:MS", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("MEGAS:NS", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("MEGAS:PETAS", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("MEGAS:PS", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
+        c.put("MEGAS:S", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("MEGAS:TERAS", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("MEGAS:YOTTAS", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
+        c.put("MEGAS:YS", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
+        c.put("MEGAS:ZETTAS", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("MEGAS:ZS", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
+        c.put("MICROS:AS", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("MICROS:CS", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
+        c.put("MICROS:D", new double[][]{null});
+        c.put("MICROS:DAS", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
+        c.put("MICROS:DS", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
+        c.put("MICROS:EXAS", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
+        c.put("MICROS:FS", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("MICROS:GIGAS", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("MICROS:H", new double[][]{null});
+        c.put("MICROS:HS", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
+        c.put("MICROS:KS", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("MICROS:MEGAS", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("MICROS:MIN", new double[][]{null});
+        c.put("MICROS:MS", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("MICROS:NS", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("MICROS:PETAS", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
+        c.put("MICROS:PS", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("MICROS:S", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("MICROS:TERAS", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
+        c.put("MICROS:YOTTAS", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
+        c.put("MICROS:YS", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
+        c.put("MICROS:ZETTAS", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
+        c.put("MICROS:ZS", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("MIN:AS", new double[][]{null});
+        c.put("MIN:CS", new double[][]{null});
+        c.put("MIN:D", new double[][]{null});
+        c.put("MIN:DAS", new double[][]{null});
+        c.put("MIN:DS", new double[][]{null});
+        c.put("MIN:EXAS", new double[][]{null});
+        c.put("MIN:FS", new double[][]{null});
+        c.put("MIN:GIGAS", new double[][]{null});
+        c.put("MIN:H", new double[][]{null});
+        c.put("MIN:HS", new double[][]{null});
+        c.put("MIN:KS", new double[][]{null});
+        c.put("MIN:MEGAS", new double[][]{null});
+        c.put("MIN:MICROS", new double[][]{null});
+        c.put("MIN:MS", new double[][]{null});
+        c.put("MIN:NS", new double[][]{null});
+        c.put("MIN:PETAS", new double[][]{null});
+        c.put("MIN:PS", new double[][]{null});
+        c.put("MIN:S", new double[][]{null});
+        c.put("MIN:TERAS", new double[][]{null});
+        c.put("MIN:YOTTAS", new double[][]{null});
+        c.put("MIN:YS", new double[][]{null});
+        c.put("MIN:ZETTAS", new double[][]{null});
+        c.put("MIN:ZS", new double[][]{null});
+        c.put("MS:AS", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("MS:CS", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
+        c.put("MS:D", new double[][]{null});
+        c.put("MS:DAS", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
+        c.put("MS:DS", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
+        c.put("MS:EXAS", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
+        c.put("MS:FS", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("MS:GIGAS", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("MS:H", new double[][]{null});
+        c.put("MS:HS", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
+        c.put("MS:KS", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("MS:MEGAS", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("MS:MICROS", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("MS:MIN", new double[][]{null});
+        c.put("MS:NS", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("MS:PETAS", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
+        c.put("MS:PS", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("MS:S", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("MS:TERAS", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("MS:YOTTAS", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
+        c.put("MS:YS", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
+        c.put("MS:ZETTAS", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
+        c.put("MS:ZS", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
+        c.put("NS:AS", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("NS:CS", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
+        c.put("NS:D", new double[][]{null});
+        c.put("NS:DAS", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
+        c.put("NS:DS", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
+        c.put("NS:EXAS", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
+        c.put("NS:FS", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("NS:GIGAS", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
+        c.put("NS:H", new double[][]{null});
+        c.put("NS:HS", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
+        c.put("NS:KS", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("NS:MEGAS", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("NS:MICROS", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("NS:MIN", new double[][]{null});
+        c.put("NS:MS", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("NS:PETAS", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
+        c.put("NS:PS", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("NS:S", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("NS:TERAS", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
+        c.put("NS:YOTTAS", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
+        c.put("NS:YS", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("NS:ZETTAS", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
+        c.put("NS:ZS", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("PETAS:AS", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
+        c.put("PETAS:CS", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
+        c.put("PETAS:D", new double[][]{null});
+        c.put("PETAS:DAS", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
+        c.put("PETAS:DS", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
+        c.put("PETAS:EXAS", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("PETAS:FS", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
+        c.put("PETAS:GIGAS", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("PETAS:H", new double[][]{null});
+        c.put("PETAS:HS", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
+        c.put("PETAS:KS", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("PETAS:MEGAS", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("PETAS:MICROS", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
+        c.put("PETAS:MIN", new double[][]{null});
+        c.put("PETAS:MS", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
+        c.put("PETAS:NS", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
+        c.put("PETAS:PS", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
+        c.put("PETAS:S", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("PETAS:TERAS", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("PETAS:YOTTAS", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("PETAS:YS", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
+        c.put("PETAS:ZETTAS", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("PETAS:ZS", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
+        c.put("PS:AS", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("PS:CS", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
+        c.put("PS:D", new double[][]{null});
+        c.put("PS:DAS", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
+        c.put("PS:DS", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
+        c.put("PS:EXAS", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
+        c.put("PS:FS", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("PS:GIGAS", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
+        c.put("PS:H", new double[][]{null});
+        c.put("PS:HS", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
+        c.put("PS:KS", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("PS:MEGAS", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
+        c.put("PS:MICROS", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("PS:MIN", new double[][]{null});
+        c.put("PS:MS", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("PS:NS", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("PS:PETAS", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
+        c.put("PS:S", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("PS:TERAS", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
+        c.put("PS:YOTTAS", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
+        c.put("PS:YS", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("PS:ZETTAS", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
+        c.put("PS:ZS", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("S:AS", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
+        c.put("S:CS", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
+        c.put("S:D", new double[][]{null});
+        c.put("S:DAS", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
+        c.put("S:DS", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
+        c.put("S:EXAS", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
+        c.put("S:FS", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("S:GIGAS", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("S:H", new double[][]{null});
+        c.put("S:HS", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
+        c.put("S:KS", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("S:MEGAS", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("S:MICROS", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("S:MIN", new double[][]{null});
+        c.put("S:MS", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("S:NS", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("S:PETAS", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("S:PS", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("S:TERAS", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("S:YOTTAS", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
+        c.put("S:YS", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
+        c.put("S:ZETTAS", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
+        c.put("S:ZS", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
+        c.put("TERAS:AS", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
+        c.put("TERAS:CS", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
+        c.put("TERAS:D", new double[][]{null});
+        c.put("TERAS:DAS", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
+        c.put("TERAS:DS", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
+        c.put("TERAS:EXAS", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("TERAS:FS", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
+        c.put("TERAS:GIGAS", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("TERAS:H", new double[][]{null});
+        c.put("TERAS:HS", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
+        c.put("TERAS:KS", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("TERAS:MEGAS", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("TERAS:MICROS", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
+        c.put("TERAS:MIN", new double[][]{null});
+        c.put("TERAS:MS", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("TERAS:NS", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
+        c.put("TERAS:PETAS", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("TERAS:PS", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
+        c.put("TERAS:S", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("TERAS:YOTTAS", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("TERAS:YS", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
+        c.put("TERAS:ZETTAS", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("TERAS:ZS", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
+        c.put("YOTTAS:AS", new double[][]{new double[]{0, 1}, new double[]{10, 42}});
+        c.put("YOTTAS:CS", new double[][]{new double[]{0, 1}, new double[]{10, 26}});
+        c.put("YOTTAS:D", new double[][]{null});
+        c.put("YOTTAS:DAS", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
+        c.put("YOTTAS:DS", new double[][]{new double[]{0, 1}, new double[]{10, 25}});
+        c.put("YOTTAS:EXAS", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("YOTTAS:FS", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
+        c.put("YOTTAS:GIGAS", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("YOTTAS:H", new double[][]{null});
+        c.put("YOTTAS:HS", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
+        c.put("YOTTAS:KS", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
+        c.put("YOTTAS:MEGAS", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
+        c.put("YOTTAS:MICROS", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
+        c.put("YOTTAS:MIN", new double[][]{null});
+        c.put("YOTTAS:MS", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
+        c.put("YOTTAS:NS", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
+        c.put("YOTTAS:PETAS", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("YOTTAS:PS", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
+        c.put("YOTTAS:S", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
+        c.put("YOTTAS:TERAS", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("YOTTAS:YS", new double[][]{new double[]{0, 1}, new double[]{10, 48}});
+        c.put("YOTTAS:ZETTAS", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("YOTTAS:ZS", new double[][]{new double[]{0, 1}, new double[]{10, 45}});
+        c.put("YS:AS", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("YS:CS", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
+        c.put("YS:D", new double[][]{null});
+        c.put("YS:DAS", new double[][]{new double[]{0, 1}, new double[]{10, -25}});
+        c.put("YS:DS", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
+        c.put("YS:EXAS", new double[][]{new double[]{0, 1}, new double[]{10, -42}});
+        c.put("YS:FS", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("YS:GIGAS", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
+        c.put("YS:H", new double[][]{null});
+        c.put("YS:HS", new double[][]{new double[]{0, 1}, new double[]{10, -26}});
+        c.put("YS:KS", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
+        c.put("YS:MEGAS", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
+        c.put("YS:MICROS", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
+        c.put("YS:MIN", new double[][]{null});
+        c.put("YS:MS", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
+        c.put("YS:NS", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("YS:PETAS", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
+        c.put("YS:PS", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("YS:S", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
+        c.put("YS:TERAS", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
+        c.put("YS:YOTTAS", new double[][]{new double[]{0, 1}, new double[]{10, -48}});
+        c.put("YS:ZETTAS", new double[][]{new double[]{0, 1}, new double[]{10, -45}});
+        c.put("YS:ZS", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("ZETTAS:AS", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
+        c.put("ZETTAS:CS", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
+        c.put("ZETTAS:D", new double[][]{null});
+        c.put("ZETTAS:DAS", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
+        c.put("ZETTAS:DS", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
+        c.put("ZETTAS:EXAS", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("ZETTAS:FS", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
+        c.put("ZETTAS:GIGAS", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("ZETTAS:H", new double[][]{null});
+        c.put("ZETTAS:HS", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
+        c.put("ZETTAS:KS", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
+        c.put("ZETTAS:MEGAS", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("ZETTAS:MICROS", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
+        c.put("ZETTAS:MIN", new double[][]{null});
+        c.put("ZETTAS:MS", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
+        c.put("ZETTAS:NS", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
+        c.put("ZETTAS:PETAS", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("ZETTAS:PS", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
+        c.put("ZETTAS:S", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
+        c.put("ZETTAS:TERAS", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("ZETTAS:YOTTAS", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("ZETTAS:YS", new double[][]{new double[]{0, 1}, new double[]{10, 45}});
+        c.put("ZETTAS:ZS", new double[][]{new double[]{0, 1}, new double[]{10, 42}});
+        c.put("ZS:AS", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("ZS:CS", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
+        c.put("ZS:D", new double[][]{null});
+        c.put("ZS:DAS", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
+        c.put("ZS:DS", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
+        c.put("ZS:EXAS", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
+        c.put("ZS:FS", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("ZS:GIGAS", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
+        c.put("ZS:H", new double[][]{null});
+        c.put("ZS:HS", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
+        c.put("ZS:KS", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
+        c.put("ZS:MEGAS", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
+        c.put("ZS:MICROS", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("ZS:MIN", new double[][]{null});
+        c.put("ZS:MS", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
+        c.put("ZS:NS", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("ZS:PETAS", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
+        c.put("ZS:PS", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("ZS:S", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
+        c.put("ZS:TERAS", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
+        c.put("ZS:YOTTAS", new double[][]{new double[]{0, 1}, new double[]{10, -45}});
+        c.put("ZS:YS", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("ZS:ZETTAS", new double[][]{new double[]{0, 1}, new double[]{10, -42}});
         conversions = Collections.unmodifiableMap(c);
     }
 
@@ -2959,13 +750,29 @@ public class TimeI extends Time implements ModelBased {
            setValue(value.getValue());
            setUnit(value.getUnit());
         } else {
-            Function<Double, Double> c = conversions.get(source + ":" + target);
-            if (c == null) {
+            double[][] coeffs = conversions.get(source + ":" + target);
+            if (coeffs == null) {
                 throw new RuntimeException(String.format(
                     "%f %s cannot be converted to %s",
                         value.getValue(), value.getUnit(), target));
             }
-            setValue(c.apply(value.getValue()));
+            double orig = value.getValue();
+            double k, p, v;
+            if (coeffs.length == 0) {
+                v = orig;
+            } else if (coeffs.length == 2){
+                k = coeffs[0][0];
+                p = coeffs[0][1];
+                v = Math.pow(k, p);
+
+                k = coeffs[1][0];
+                p = coeffs[1][1];
+                v += Math.pow(k, p) * orig;
+            } else {
+                throw new RuntimeException("coefficients of unknown length: " +  coeffs.length);
+            }
+
+            setValue(v);
             setUnit(UnitsTime.valueOf(target));
        }
     }
