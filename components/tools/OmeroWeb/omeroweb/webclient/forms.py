@@ -390,7 +390,7 @@ class MetadataChannelForm(forms.Form):
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(logicalCh.id)+', \'name\', this.value);'}),
                     initial=logicalCh.pinHoleSize.getValue(),
-                    label="Pin hole size (%s)" % logicalCh.pinHoleSize.getUnit(),
+                    label="Pin hole size (%s)" % logicalCh.pinHoleSize.getSymbol(),
                     required=False)
             else:
                 self.fields['pinHoleSize'] = forms.CharField(
@@ -801,7 +801,7 @@ class MetadataObjectiveForm(forms.Form):
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objective'].id)+', \'workingDistance\', this.value);'}),
                     initial=kwargs['initial']['objective'].workingDistance.getValue(),
-                    label="Working distance (%s)" % kwargs['initial']['objective'].workingDistance.getUnit(),
+                    label="Working distance (%s)" % kwargs['initial']['objective'].workingDistance.getSymbol(),
                     required=False)
             else:
                 self.fields['workingDistance'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objective'].id)+', \'workingDistance\', this.value);'}), label="Working distance", required=False)
@@ -1050,7 +1050,7 @@ class MetadataFilterForm(forms.Form):
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['filter'].id)+', \'cutIn\', this.value);'}),
                     initial=kwargs['initial']['filter'].getTransmittanceRange().cutIn.getValue(),
-                    label="Cut in (%s)" % tr.cutIn.getUnit(),
+                    label="Cut in (%s)" % tr.cutIn.getSymbol(),
                     required=False)
             else:
                 self.fields['cutIn'] = forms.CharField(
@@ -1077,7 +1077,7 @@ class MetadataFilterForm(forms.Form):
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['filter'].id)+', \'cutOut\', this.value);'}),
                     initial=tr.cutOut.getValue(),
-                    label="Cut out (%s)" % tr.cutOut.getUnit(),
+                    label="Cut out (%s)" % tr.cutOut.getSymbol(),
                     required=False)
             else:
                 self.fields['cutOut'] = forms.CharField(
@@ -1104,7 +1104,7 @@ class MetadataFilterForm(forms.Form):
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['filter'].id)+', \'cutInTolerance\', this.value);'}),
                     initial=tr.cutInTolerance.getValue(),
-                    label="Cut in tolerance (%s)" % tr.cutInTolerance.getUnit(),
+                    label="Cut in tolerance (%s)" % tr.cutInTolerance.getSymbol(),
                     required=False)
             else:
                 self.fields['cutInTolerance'] = forms.CharField(
@@ -1131,7 +1131,7 @@ class MetadataFilterForm(forms.Form):
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['filter'].id)+', \'cutOut\', this.value);'}),
                     initial=tr.cutOutTolerance.getValue(),
-                    label="Cut out tolerance (%s)" % tr.cutOutTolerance.getUnit(),
+                    label="Cut out tolerance (%s)" % tr.cutOutTolerance.getSymbol(),
                     required=False)
             else:
                 self.fields['cutOutTolerance'] = forms.CharField(
@@ -1345,14 +1345,14 @@ class MetadataDetectorForm(forms.Form):
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(detSet.id)+', \'voltage\', this.value);'}),
                     initial=detSet.voltage.getValue(),
-                    label="Voltage (%s)" % detSet.voltage.getUnit(),
+                    label="Voltage (%s)" % detSet.voltage.getSymbol(),
                     required=False)
             elif detector is not None:
                 self.fields['voltage'] = forms.CharField(
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(detector.id)+', \'voltage\', this.value);'}),
                     initial=detector.voltage.getValue(),
-                    label="Voltage (%s)" % detector.voltage.getUnit(),
+                    label="Voltage (%s)" % detector.voltage.getSymbol(),
                     required=False)
             else:
                 self.fields['voltage'] = forms.CharField(
@@ -1462,7 +1462,7 @@ class MetadataDetectorForm(forms.Form):
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(detSet.id)+', \'readOutRate\', this.value);'}),
                     initial=detSet.readOutRate.getValue(),
-                    label="Read out rate (%s)" % detSet.readOutRate.getUnit(),
+                    label="Read out rate (%s)" % detSet.readOutRate.getSymbol(),
                     required=False)
             else:
                 self.fields['readOutRate'] = forms.CharField(
@@ -1637,7 +1637,7 @@ class MetadataLightSourceForm(forms.Form):
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(lightSource.id)+', \'power\', this.value);'}),
                     initial=lightSource.power.getValue(),
-                    label="Power (%s)" % lightSource.power.getUnit(),
+                    label="Power (%s)" % lightSource.power.getSymbol(),
                     required=False)
             else:
                 self.fields['power'] = forms.CharField(
@@ -1720,14 +1720,14 @@ class MetadataLightSourceForm(forms.Form):
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(lightSourceSettings.id)+', \'wavelength\', this.value);'}),
                     initial=lightSourceSettings.wavelength.getValue(),
-                    label = "Wavelength (%s)" % lightSourceSettings.wavelength.getUnit(),
+                    label = "Wavelength (%s)" % lightSourceSettings.wavelength.getSymbol(),
                     required=False)
             elif lightSource.wavelength is not None:
                 self.fields['wavelength'] = forms.CharField(
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(lightSource.id)+', \'wavelength\', this.value);'}),
                     initial=lightSource.wavelength.getValue(),
-                    label = "Wavelength (%s)" % lightSource.wavelength.getUnit(),
+                    label = "Wavelength (%s)" % lightSource.wavelength.getSymbol(),
                     required=False)
             else:
                 self.fields['wavelength'] = forms.CharField(
@@ -1829,7 +1829,7 @@ class MetadataLightSourceForm(forms.Form):
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(lightSource.id)+', \'repetitionRate\', this.value);'}),
                     initial=lightSource.repetitionRate.getValue(),
-                    label="Repetition rate (%s)" % lightSource.repetitionRate.getUnit(),
+                    label="Repetition rate (%s)" % lightSource.repetitionRate.getSymbol(),
                     required=False)
             else:
                 self.fields['repetitionRate'] = forms.CharField(
@@ -1918,7 +1918,7 @@ class MetadataEnvironmentForm(forms.Form):
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'temperature\', this.value);'}),
                     initial=imagingEnv.temperature.getValue(),
-                    label = "Temperature (%s)" % imagingEnv.temperature.getUnit(),
+                    label = "Temperature (%s)" % imagingEnv.temperature.getSymbol(),
                     required=False)
             else:
                 self.fields['temperature'] = forms.CharField(
@@ -1943,7 +1943,7 @@ class MetadataEnvironmentForm(forms.Form):
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'airPressure\', this.value);'}),
                     initial=imagingEnv.airPressure.getValue(),
-                    label="Air Pressure (%s)" % imagingEnv.airPressure.getUnit(),
+                    label="Air Pressure (%s)" % imagingEnv.airPressure.getSymbol(),
                     required=False)
             else:
                 self.fields['airPressure'] = forms.CharField(
