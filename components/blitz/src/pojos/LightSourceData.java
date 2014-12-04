@@ -231,6 +231,8 @@ public class LightSourceData
 			return null;
 		Laser laser = (Laser) asIObject();
 		Length l = laser.getWavelength();
+		if (l==null)
+			return null;
 		return unit == null ? l : new LengthI(l, unit);
 	}
 	

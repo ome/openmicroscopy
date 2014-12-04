@@ -78,6 +78,8 @@ public class ObjectiveData
 	{
 		Objective obj = ((Objective) asIObject());
 		Length l = obj.getWorkingDistance();
+		if (l==null)
+			return null;
 		return unit == null ? l : new LengthI(l, unit);
 	}
 	

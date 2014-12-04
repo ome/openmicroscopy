@@ -120,8 +120,7 @@ public class WellSampleData extends DataObject {
     	Length value = asWellSample().getPosX();
     	if (value == null) 
     		return new LengthI(0, UnitsLength.REFERENCEFRAME);
-    	else
-    		return unit == null ? value : new LengthI(value, unit);
+    	return unit == null ? value : new LengthI(value, unit);
     }	
     
     /**
@@ -151,8 +150,7 @@ public class WellSampleData extends DataObject {
     	Length value = asWellSample().getPosY();
     	if (value == null)
     		return new LengthI(0, UnitsLength.REFERENCEFRAME);
-    	else
-    		return unit == null ? value : new LengthI(value, unit);
+    	return unit == null ? value : new LengthI(value, unit);
     }
     
     /**

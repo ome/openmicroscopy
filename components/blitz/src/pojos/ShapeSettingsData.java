@@ -234,8 +234,7 @@ public class ShapeSettingsData
 		Length value = shape.getStrokeWidth();
 		if (value == null || value.getValue()<=0) 
 			return new LengthI(1, UnitsLength.PIXEL);
-		else
-			return unit == null ? value : new LengthI(value, unit);
+		return unit == null ? value : new LengthI(value, unit);
 	}
 
 	/**
@@ -426,8 +425,7 @@ public class ShapeSettingsData
 		Length size = shape.getFontSize();
 		if (size != null) 
 			return unit == null ? size : new LengthI(size, unit);
-		else 
-			return new LengthI(DEFAULT_FONT_SIZE, UnitsLength.POINT);
+		return new LengthI(DEFAULT_FONT_SIZE, UnitsLength.POINT);
 	}
 
     /**

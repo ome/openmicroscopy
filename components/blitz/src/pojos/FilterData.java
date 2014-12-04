@@ -116,6 +116,8 @@ public class FilterData
 		if (range == null) 
 			return null;
 		Length l = range.getCutInTolerance();
+		if (l==null)
+			return null;
 		return unit == null ? l : new LengthI(l, unit);
 	}
 	
@@ -186,6 +188,8 @@ public class FilterData
 		if (range == null) 
 			return null;
 		Length l = range.getCutOutTolerance();
+		if (l==null)
+			return null;
 		return unit == null ? l : new LengthI(l, unit);
 	}
 	

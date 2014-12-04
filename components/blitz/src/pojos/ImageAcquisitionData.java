@@ -138,6 +138,8 @@ public class ImageAcquisitionData
 		if (label == null) 
 			return null;
 		Length l = label.getPositionX();
+		if (l==null)
+			return null;
 		return unit == null ? l : new LengthI(l, unit);
 	}
 	
@@ -169,6 +171,8 @@ public class ImageAcquisitionData
 		if (label == null) 
 			return null;
 		Length l = label.getPositionY();
+		if (l==null)
+			return null;
 		return unit == null ? l : new LengthI(l, unit);
 	}
 	
@@ -200,6 +204,8 @@ public class ImageAcquisitionData
 		if (label == null) 
 			return null;
 		Length l = label.getPositionZ();
+		if (l==null)
+			return null;
 		return unit == null ? l : new LengthI(l, unit);
 	}
 	
@@ -231,6 +237,8 @@ public class ImageAcquisitionData
 		if (environment == null) 
 			return null;
 		Temperature t = environment.getTemperature();
+		if (t==null)
+			return null;
 		return unit == null ? t : new TemperatureI(t, unit);
 	}
 	
