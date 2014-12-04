@@ -39,6 +39,7 @@ Other changes that may affect developers include:
 -  ongoing work to add unit support in OMERO.insight
 -  further flake8 work
 -  removal of webtest app from OMERO.web to a separate repository
+-  removal of deprecated methods e.g. IDelete
 -  Blitz gateway fixes
 -  CLI fixes
 -  ROI and tables work
