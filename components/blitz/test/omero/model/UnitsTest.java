@@ -23,6 +23,7 @@ import java.io.IOException;
 
 import junit.framework.TestCase;
 import omero.model.enums.UnitsLength;
+import omero.model.enums.UnitsTemperature;
 import omero.model.enums.UnitsPower;
 
 import org.testng.annotations.Test;
@@ -41,5 +42,15 @@ public class UnitsTest extends TestCase {
     public void testLengthSymbol() throws IOException {
         LengthI l = new LengthI(100.1, UnitsLength.MICROM);
         assertEquals("µm", l.getSymbol());
+    }
+
+    @Test
+    public void testTemperatureConversion() throws IOException {
+        Temperature f = new TemperatureI(32, UnitsTemperature.DEGREEF);
+        Temperature c = new TemperatureI(f, UnitsTemperature.DEGREEC);
+        Temperature k = new TemperatureI(c, UnitsTemperature.K);
+
+        assertEquals(0, c.getValue(), 1e-5);
+        assertEquals(273.15, k.getValue(), 1e-5);
     }
 }
