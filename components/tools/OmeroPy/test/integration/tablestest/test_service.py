@@ -167,6 +167,8 @@ class TestTables(lib.ITest):
             easier testing.
             """
             m = unwrap(m)
+            assert "initialized" in m
+            assert "version" in m
             del m["initialized"]
             del m["version"]
             return m
@@ -193,12 +195,12 @@ class TestTables(lib.ITest):
             assert {"s": "b", "i": 1, "f": 1} == clean(table.getAllMetadata())
 
             # Replace all user-metadata
-            table.setAllMetadata({})
-            assert {} == clean(table.getAllMetadata())
-
             table.setAllMetadata({"s2": rstring("b2"), "l2": rlong(3)})
             assert {"s2": "b2", "l2": 3} == clean(table.getAllMetadata())
             assert table.getMetadata("s") is None
+
+            table.setAllMetadata({})
+            assert {} == clean(table.getAllMetadata())
 
         finally:
             table.close()
