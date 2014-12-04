@@ -27,7 +27,7 @@ The units changes mean that the following fields have changed:
 -  LightSource.Power
 -  Detector.Voltage
 -  WellSample.PositionX, Y
--  Channel.EmissionWavelength; Channel.PinholeSize; 
+-  Channel.EmissionWavelength; Channel.PinholeSize;
    Channel.ExcitationWavelength
 -  TransmittanceRange.CutOutTolerance; TransmittanceRange.CutInTolerance;
    TransmittanceRange.CutOut; TransmittanceRange.CutIn
@@ -39,6 +39,8 @@ Other changes that may affect developers include:
 -  ongoing work to add unit support in OMERO.insight
 -  further flake8 work
 -  removal of webtest app from OMERO.web to a separate repository
+-  removal of deprecated methods in IContainer and RenderingEngine
+-  removal of deprecated services IDelete and Gateway
 -  Blitz gateway fixes
 -  CLI fixes
 -  ROI and tables work
