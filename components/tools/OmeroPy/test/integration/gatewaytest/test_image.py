@@ -178,6 +178,9 @@ class TestImage (object):
                          (sizeXMicrons * 1000, "nm", "NM"))
         self.assertUnits(self.image.getPixelSizeX(units="ANGSTROM"),
                          (sizeXMicrons * 10000, "Å", "ANGSTROM"))
+        # Can't convert from Length to Seconds
+        with pytest.raises(AttributeError):
+            self.image.getPixelSizeX(units="S")
 
     def testChannelWavelengthUnits(self):
         """
