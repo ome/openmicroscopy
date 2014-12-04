@@ -50,7 +50,6 @@ public:
 
     TestCB(const omero::client_ptr client, const HandlePrx& handle) :
         CmdCallbackI(client, handle), steps(0), finished(0) {
-            cout << client->getSessionId() << endl;
         }
 
     ~TestCB(){}
