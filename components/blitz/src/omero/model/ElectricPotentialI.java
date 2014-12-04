@@ -2339,7 +2339,7 @@ public class ElectricPotentialI extends ElectricPotential implements ModelBased 
         this.unit = unit;
     }
 
-    public String getSymbol() {
+    public String getSymbol(Ice.Current current) {
         return SYMBOLS.get(this.unit);
     }
 

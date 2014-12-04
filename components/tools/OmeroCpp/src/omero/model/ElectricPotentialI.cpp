@@ -25,6 +25,30 @@ namespace omero {
 
     namespace model {
 
+        std::map<omero::model::enums::UnitsElectricPotential, std::string> ElectricPotentialI::SYMBOLS= {
+            {omero::model::enums::UnitsElectricPotential::AV, "aV"},
+            {omero::model::enums::UnitsElectricPotential::CV, "cV"},
+            {omero::model::enums::UnitsElectricPotential::DAV, "daV"},
+            {omero::model::enums::UnitsElectricPotential::DV, "dV"},
+            {omero::model::enums::UnitsElectricPotential::EXAV, "EV"},
+            {omero::model::enums::UnitsElectricPotential::FV, "fV"},
+            {omero::model::enums::UnitsElectricPotential::GIGAV, "GV"},
+            {omero::model::enums::UnitsElectricPotential::HV, "hV"},
+            {omero::model::enums::UnitsElectricPotential::KV, "kV"},
+            {omero::model::enums::UnitsElectricPotential::MEGAV, "MV"},
+            {omero::model::enums::UnitsElectricPotential::MICROV, "µV"},
+            {omero::model::enums::UnitsElectricPotential::MV, "mV"},
+            {omero::model::enums::UnitsElectricPotential::NV, "nV"},
+            {omero::model::enums::UnitsElectricPotential::PETAV, "PV"},
+            {omero::model::enums::UnitsElectricPotential::PV, "pV"},
+            {omero::model::enums::UnitsElectricPotential::TERAV, "TV"},
+            {omero::model::enums::UnitsElectricPotential::V, "V"},
+            {omero::model::enums::UnitsElectricPotential::YOTTAV, "YV"},
+            {omero::model::enums::UnitsElectricPotential::YV, "yV"},
+            {omero::model::enums::UnitsElectricPotential::ZETTAV, "ZV"},
+            {omero::model::enums::UnitsElectricPotential::ZV, "zV"},
+        };
+
         ElectricPotentialI::~ElectricPotentialI() {}
 
         ElectricPotentialI::ElectricPotentialI() : ElectricPotential() {
@@ -44,6 +68,10 @@ namespace omero {
 
         void ElectricPotentialI::setUnit(omero::model::enums::UnitsElectricPotential _unit, const Ice::Current& /* current */) {
             unit = _unit;
+        }
+
+        std::string ElectricPotentialI::getSymbol(const Ice::Current& /* current */) {
+            return SYMBOLS[unit];
         }
 
         ElectricPotentialPtr ElectricPotentialI::copy(const Ice::Current& /* current */) {

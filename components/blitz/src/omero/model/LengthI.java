@@ -5862,7 +5862,7 @@ public class LengthI extends Length implements ModelBased {
         this.unit = unit;
     }
 
-    public String getSymbol() {
+    public String getSymbol(Ice.Current current) {
         return SYMBOLS.get(this.unit);
     }
 

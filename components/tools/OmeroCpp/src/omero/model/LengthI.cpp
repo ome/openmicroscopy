@@ -25,6 +25,43 @@ namespace omero {
 
     namespace model {
 
+        std::map<omero::model::enums::UnitsLength, std::string> LengthI::SYMBOLS= {
+            {omero::model::enums::UnitsLength::AM, "am"},
+            {omero::model::enums::UnitsLength::ANGSTROM, "Å"},
+            {omero::model::enums::UnitsLength::CM, "cm"},
+            {omero::model::enums::UnitsLength::DAM, "dam"},
+            {omero::model::enums::UnitsLength::DM, "dm"},
+            {omero::model::enums::UnitsLength::EXAM, "Em"},
+            {omero::model::enums::UnitsLength::FM, "fm"},
+            {omero::model::enums::UnitsLength::FOOT, "ft"},
+            {omero::model::enums::UnitsLength::GIGAM, "Gm"},
+            {omero::model::enums::UnitsLength::HM, "hm"},
+            {omero::model::enums::UnitsLength::INCH, "in"},
+            {omero::model::enums::UnitsLength::KM, "km"},
+            {omero::model::enums::UnitsLength::LINE, "li"},
+            {omero::model::enums::UnitsLength::LY, "ly"},
+            {omero::model::enums::UnitsLength::M, "m"},
+            {omero::model::enums::UnitsLength::MEGAM, "Mm"},
+            {omero::model::enums::UnitsLength::MICROM, "µm"},
+            {omero::model::enums::UnitsLength::MILE, "mi"},
+            {omero::model::enums::UnitsLength::MM, "mm"},
+            {omero::model::enums::UnitsLength::NM, "nm"},
+            {omero::model::enums::UnitsLength::PC, "pc"},
+            {omero::model::enums::UnitsLength::PETAM, "Pm"},
+            {omero::model::enums::UnitsLength::PIXEL, "pixel"},
+            {omero::model::enums::UnitsLength::PM, "pm"},
+            {omero::model::enums::UnitsLength::POINT, "pt"},
+            {omero::model::enums::UnitsLength::REFERENCEFRAME, "reference frame"},
+            {omero::model::enums::UnitsLength::TERAM, "Tm"},
+            {omero::model::enums::UnitsLength::THOU, "thou"},
+            {omero::model::enums::UnitsLength::UA, "ua"},
+            {omero::model::enums::UnitsLength::YARD, "yd"},
+            {omero::model::enums::UnitsLength::YM, "ym"},
+            {omero::model::enums::UnitsLength::YOTTAM, "Ym"},
+            {omero::model::enums::UnitsLength::ZETTAM, "Zm"},
+            {omero::model::enums::UnitsLength::ZM, "zm"},
+        };
+
         LengthI::~LengthI() {}
 
         LengthI::LengthI() : Length() {
@@ -44,6 +81,10 @@ namespace omero {
 
         void LengthI::setUnit(omero::model::enums::UnitsLength _unit, const Ice::Current& /* current */) {
             unit = _unit;
+        }
+
+        std::string LengthI::getSymbol(const Ice::Current& /* current */) {
+            return SYMBOLS[unit];
         }
 
         LengthPtr LengthI::copy(const Ice::Current& /* current */) {

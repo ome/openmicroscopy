@@ -1202,7 +1202,7 @@ class TimeI(_omero_model.Time, UnitBase):
     def getValue(self, current=None):
         return self._value
 
-    def getSymbol(self):
+    def getSymbol(self, current=None):
         return self.SYMBOLS.get(str(self.getUnit()))
 
     def setUnit(self, unit, current=None):

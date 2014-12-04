@@ -52,6 +52,7 @@ namespace omero {
 
     protected:
         virtual ~PressureI(); // protected as outlined in Ice docs.
+        static std::map<omero::model::enums::UnitsPressure, std::string> SYMBOLS;
 
     public:
         PressureI();
@@ -68,6 +69,9 @@ namespace omero {
 
         virtual void setUnit(
                 omero::model::enums::UnitsPressure unit,
+                const Ice::Current& current = Ice::Current());
+
+        virtual std::string getSymbol(
                 const Ice::Current& current = Ice::Current());
 
         virtual PressurePtr copy(
