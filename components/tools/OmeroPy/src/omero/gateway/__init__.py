@@ -227,10 +227,10 @@ class BlitzObjectWrapper (object):
         Unwrap the value of the Value + Unit object. Returns single value
         or default if object is None.
         If units is true, return a tuple of
-        (value, defaultUnitSymbol, defaultUnit), E.g. (10, "nm", "NM")
+        (value, defaultUnitSymbol, defaultUnit enum), E.g. (10, "nm", NM)
         If units specifies a valid unit for the type of value, then we convert
         E.g. _unwrapunits(obj, units="MICROM")
-        will return  (10000, "µm", "MICROM")
+        will return  (10000, "µm", MICROM)
 
         :param obj:         The Value + Unit object
         :param default:     Default value if obj is None
@@ -239,18 +239,16 @@ class BlitzObjectWrapper (object):
         """
         if obj is None:
             if units:
-                return (default, "", "")
+                return (default, "", None)
             return default
         if units is not None:
             # If units is an attribute of the same Class as our obj...
-            try:
+            if isinstance(units, basestring):
                 unitClass = obj.getUnit().__class__
                 unitEnum = getattr(unitClass, str(units))
                 # ... we can convert units
                 obj = obj.__class__(obj, unitEnum)
-            except AttributeError:
-                pass
-            return obj.getValue(), obj.getSymbol(), str(obj.getUnit())
+            return obj.getValue(), obj.getSymbol(), obj.getUnit()
         return obj.getValue()
 
     def _getQueryString(self):
