@@ -25,32 +25,37 @@ namespace omero {
 
     namespace model {
 
-        std::map<omero::model::enums::UnitsTime, std::string> TimeI::SYMBOLS= {
-            {omero::model::enums::UnitsTime::AS, "as"},
-            {omero::model::enums::UnitsTime::CS, "cs"},
-            {omero::model::enums::UnitsTime::D, "d"},
-            {omero::model::enums::UnitsTime::DAS, "das"},
-            {omero::model::enums::UnitsTime::DS, "ds"},
-            {omero::model::enums::UnitsTime::EXAS, "Es"},
-            {omero::model::enums::UnitsTime::FS, "fs"},
-            {omero::model::enums::UnitsTime::GIGAS, "Gs"},
-            {omero::model::enums::UnitsTime::H, "h"},
-            {omero::model::enums::UnitsTime::HS, "hs"},
-            {omero::model::enums::UnitsTime::KS, "ks"},
-            {omero::model::enums::UnitsTime::MEGAS, "Ms"},
-            {omero::model::enums::UnitsTime::MICROS, "µs"},
-            {omero::model::enums::UnitsTime::MIN, "min"},
-            {omero::model::enums::UnitsTime::MS, "ms"},
-            {omero::model::enums::UnitsTime::NS, "ns"},
-            {omero::model::enums::UnitsTime::PETAS, "Ps"},
-            {omero::model::enums::UnitsTime::PS, "ps"},
-            {omero::model::enums::UnitsTime::S, "s"},
-            {omero::model::enums::UnitsTime::TERAS, "Ts"},
-            {omero::model::enums::UnitsTime::YOTTAS, "Ys"},
-            {omero::model::enums::UnitsTime::YS, "ys"},
-            {omero::model::enums::UnitsTime::ZETTAS, "Zs"},
-            {omero::model::enums::UnitsTime::ZS, "zs"},
+
+        static std::map<omero::model::enums::UnitsTime, std::string> makeSymbols(){
+            std::map<omero::model::enums::UnitsTime, std::string> s;
+            s[omero::model::enums::AS] = "as";
+            s[omero::model::enums::CS] = "cs";
+            s[omero::model::enums::D] = "d";
+            s[omero::model::enums::DAS] = "das";
+            s[omero::model::enums::DS] = "ds";
+            s[omero::model::enums::EXAS] = "Es";
+            s[omero::model::enums::FS] = "fs";
+            s[omero::model::enums::GIGAS] = "Gs";
+            s[omero::model::enums::H] = "h";
+            s[omero::model::enums::HS] = "hs";
+            s[omero::model::enums::KS] = "ks";
+            s[omero::model::enums::MEGAS] = "Ms";
+            s[omero::model::enums::MICROS] = "µs";
+            s[omero::model::enums::MIN] = "min";
+            s[omero::model::enums::MS] = "ms";
+            s[omero::model::enums::NS] = "ns";
+            s[omero::model::enums::PETAS] = "Ps";
+            s[omero::model::enums::PS] = "ps";
+            s[omero::model::enums::S] = "s";
+            s[omero::model::enums::TERAS] = "Ts";
+            s[omero::model::enums::YOTTAS] = "Ys";
+            s[omero::model::enums::YS] = "ys";
+            s[omero::model::enums::ZETTAS] = "Zs";
+            s[omero::model::enums::ZS] = "zs";
+            return s;
         };
+
+        std::map<omero::model::enums::UnitsTime, std::string> TimeI::SYMBOLS = makeSymbols();
 
         TimeI::~TimeI() {}
 

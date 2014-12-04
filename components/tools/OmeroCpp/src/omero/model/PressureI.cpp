@@ -25,40 +25,45 @@ namespace omero {
 
     namespace model {
 
-        std::map<omero::model::enums::UnitsPressure, std::string> PressureI::SYMBOLS= {
-            {omero::model::enums::UnitsPressure::APA, "aPa"},
-            {omero::model::enums::UnitsPressure::ATM, "atm"},
-            {omero::model::enums::UnitsPressure::BAR, "bar"},
-            {omero::model::enums::UnitsPressure::CBAR, "cbar"},
-            {omero::model::enums::UnitsPressure::CPA, "cPa"},
-            {omero::model::enums::UnitsPressure::DAPA, "daPa"},
-            {omero::model::enums::UnitsPressure::DBAR, "dbar"},
-            {omero::model::enums::UnitsPressure::DPA, "dPa"},
-            {omero::model::enums::UnitsPressure::EXAPA, "EPa"},
-            {omero::model::enums::UnitsPressure::FPA, "fPa"},
-            {omero::model::enums::UnitsPressure::GIGAPA, "GPa"},
-            {omero::model::enums::UnitsPressure::HPA, "hPa"},
-            {omero::model::enums::UnitsPressure::KBAR, "kBar"},
-            {omero::model::enums::UnitsPressure::KPA, "kPa"},
-            {omero::model::enums::UnitsPressure::MBAR, "mbar"},
-            {omero::model::enums::UnitsPressure::MEGABAR, "Mbar"},
-            {omero::model::enums::UnitsPressure::MEGAPA, "MPa"},
-            {omero::model::enums::UnitsPressure::MICROPA, "µPa"},
-            {omero::model::enums::UnitsPressure::MMHG, "mm Hg"},
-            {omero::model::enums::UnitsPressure::MPA, "mPa"},
-            {omero::model::enums::UnitsPressure::MTORR, "mTorr"},
-            {omero::model::enums::UnitsPressure::NPA, "nPa"},
-            {omero::model::enums::UnitsPressure::PA, "Pa"},
-            {omero::model::enums::UnitsPressure::PETAPA, "PPa"},
-            {omero::model::enums::UnitsPressure::PPA, "pPa"},
-            {omero::model::enums::UnitsPressure::PSI, "psi"},
-            {omero::model::enums::UnitsPressure::TERAPA, "TPa"},
-            {omero::model::enums::UnitsPressure::TORR, "Torr"},
-            {omero::model::enums::UnitsPressure::YOTTAPA, "YPa"},
-            {omero::model::enums::UnitsPressure::YPA, "yPa"},
-            {omero::model::enums::UnitsPressure::ZETTAPA, "ZPa"},
-            {omero::model::enums::UnitsPressure::ZPA, "zPa"},
+
+        static std::map<omero::model::enums::UnitsPressure, std::string> makeSymbols(){
+            std::map<omero::model::enums::UnitsPressure, std::string> s;
+            s[omero::model::enums::APA] = "aPa";
+            s[omero::model::enums::ATM] = "atm";
+            s[omero::model::enums::BAR] = "bar";
+            s[omero::model::enums::CBAR] = "cbar";
+            s[omero::model::enums::CPA] = "cPa";
+            s[omero::model::enums::DAPA] = "daPa";
+            s[omero::model::enums::DBAR] = "dbar";
+            s[omero::model::enums::DPA] = "dPa";
+            s[omero::model::enums::EXAPA] = "EPa";
+            s[omero::model::enums::FPA] = "fPa";
+            s[omero::model::enums::GIGAPA] = "GPa";
+            s[omero::model::enums::HPA] = "hPa";
+            s[omero::model::enums::KBAR] = "kBar";
+            s[omero::model::enums::KPA] = "kPa";
+            s[omero::model::enums::MBAR] = "mbar";
+            s[omero::model::enums::MEGABAR] = "Mbar";
+            s[omero::model::enums::MEGAPA] = "MPa";
+            s[omero::model::enums::MICROPA] = "µPa";
+            s[omero::model::enums::MMHG] = "mm Hg";
+            s[omero::model::enums::MPA] = "mPa";
+            s[omero::model::enums::MTORR] = "mTorr";
+            s[omero::model::enums::NPA] = "nPa";
+            s[omero::model::enums::PA] = "Pa";
+            s[omero::model::enums::PETAPA] = "PPa";
+            s[omero::model::enums::PPA] = "pPa";
+            s[omero::model::enums::PSI] = "psi";
+            s[omero::model::enums::TERAPA] = "TPa";
+            s[omero::model::enums::TORR] = "Torr";
+            s[omero::model::enums::YOTTAPA] = "YPa";
+            s[omero::model::enums::YPA] = "yPa";
+            s[omero::model::enums::ZETTAPA] = "ZPa";
+            s[omero::model::enums::ZPA] = "zPa";
+            return s;
         };
+
+        std::map<omero::model::enums::UnitsPressure, std::string> PressureI::SYMBOLS = makeSymbols();
 
         PressureI::~PressureI() {}
 
