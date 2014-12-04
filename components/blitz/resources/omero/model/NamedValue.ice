@@ -17,16 +17,24 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package ome.model.units;
+#ifndef CLASS_NAMEDVALUE
+#define CLASS_NAMEDVALUE
 
-import ome.model.internal.Primitive;
 
-/**
- * marker interface for all of ome.model.unit types.
- */
-public interface Unit extends Primitive {
+module omero {
 
-    public double getValue();
-    public void setValue(double d);
+  module model {
 
-}
+    /**
+     * Simple Pair-like container which is
+     * used in a sequence to support ordered maps.
+     **/
+    class NamedValue {
+        string name;
+        string value;
+    };
+
+  };
+
+};
+#endif

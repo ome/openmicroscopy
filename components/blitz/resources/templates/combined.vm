@@ -96,6 +96,7 @@ DECLARATION BLOCK:
 [$hdr] \#include <omero/IceNoWarnPop.h>
 [$hdr] \#include <omero/ClientErrors.h>
 [$hdr] \#include <omero/model/DetailsI.h>
+[$hdr] \#include <omero/model/NamedValue.h>
 [$hdr] \#include <omero/templates.h>
 [$hdr] \#include <IceUtil/Config.h>
 [$hdr] \#if ICE_INT_VERSION / 100 >= 304
@@ -1010,11 +1011,12 @@ Properties used throughout the accessor generation
 [$Ice]       omero::RTime ${property.name};
 
 #elseif( $property.class.name == "ome.dsl.MapField" )
-#set( $javaType = "java.util.Map<String, omero.RString>");
-#set( $iceType = "omero::api::StringRStringMap" )
+#set( $javaType = "java.util.List<omero.model.NamedValue>");
+#set( $iceType = "omero::api::NamedValueList" )
 #set( $cppType = "${iceType}" )
-#set( $copyMethod = "this.${fieldName} = omero.util.IceMapper.convertStringStringMap(source.get${PropertyName}());" );
-[$Ice]       omero::api::StringRStringMap ${property.name};
+#set( $copyMethod = "this.${fieldName} = omero.util.IceMapper.convertNamedValueList(source.get${PropertyName}());" );
+[$Ice]       omero::api::NamedValueList ${property.name};
+[$Ice]       omero::api::StringStringMap get${PropertyName}AsMap();
 
 #elseif( $javaType.startsWith("java.lang.String")) ## for Event
 #set( $javaType = "omero.RString");
@@ -1103,6 +1105,19 @@ the special set methods are added.
 [$jav]           return $getter;
 [$jav]       }
 [$jav]
+#if( $property.class.name == "ome.dsl.MapField" )
+[$jav]       public java.util.Map<String, String> get${property.nameCapped}AsMap($JAV_CURRENT) throws omero.UnloadedEntityException {
+[$jav]           errorIfUnloaded();
+[$jav]           java.util.Map<String, String> rv = new java.util.HashMap<String, String>();
+[$jav]           for (omero.model.NamedValue nv : $getter) {
+[$jav]               if (nv != null) {
+[$jav]                   rv.put(nv.name, nv.value);
+[$jav]               }
+[$jav]           }
+[$jav]           return rv;
+[$jav]       }
+[$jav]
+#end
 [$jav]       $access void set${PropertyName}($javaType $property.name, $JAV_CURRENT) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
 [$jav]           this.$fieldName = $setter;
@@ -1152,6 +1167,8 @@ ticket:684 This is necessary to map back and forth from sets.
 [$jav]             target.set${PropertyName}( this.get${PropertyName}() == null ? null : java.util.Arrays.asList(this.get${PropertyName}() ));
 #elseif( $javaType.startsWith("java.util.Map"))
 [$jav]             target.set${PropertyName}( omero.util.IceMapper.reverseStringStringMap(this.get${PropertyName}() ));
+#elseif( $property.class.name == "ome.dsl.MapField" )
+[$jav]             target.set${PropertyName}( omero.util.IceMapper.reverseNamedList(this.get${PropertyName}() ));
 #else
 [$jav]             target.set${PropertyName}( this.get${PropertyName}() );
 #end
@@ -1164,6 +1181,9 @@ ticket:684 This is necessary to map back and forth from sets.
 #end
 [$hdr]       virtual $cppType get${property.nameCapped}($HDR_CURRENT);
 [$hdr]       virtual void set${PropertyName}(const $cppType& _$property.name, $HDR_CURRENT);
+#if( $property.class.name == "ome.dsl.MapField" )
+[$hdr]       virtual omero::api::StringStringMap get${property.nameCapped}AsMap($HDR_CURRENT);
+#end
 #if($access == "protected" )
 [$hdr]     public:
 #end
@@ -1178,6 +1198,18 @@ ticket:684 This is necessary to map back and forth from sets.
 [$cpp]           $fieldName = $!{prefix}_${property.name}$!{suffix};
 [$cpp]           $unloadedCpp
 [$cpp]       }
+#if( $property.class.name == "ome.dsl.MapField" )
+[$cpp]       omero::api::StringStringMap ${PojoI}::get${property.nameCapped}AsMap($CPP_CURRENT_UNUSED) {
+[$cpp]           omero::api::StringStringMap rv;
+[$cpp]           for (omero::api::NamedValueList::const_iterator it = ${fieldName}.begin(); it != ${fieldName}.end(); ++it) {
+[$cpp]               omero::model::NamedValuePtr target = *it;
+[$cpp]               if (target) {
+[$cpp]                   rv[target->name] = target->value;
+[$cpp]               }
+[$cpp]           }
+[$cpp]           return rv;
+[$cpp]       }
+#end
 
 #set($pyaccess = "")
 #if($property.one2Many)
@@ -1199,6 +1231,16 @@ It's unclear if these methods are useful at all, but for the moment lowering the
 [$pyc]           self._${fieldName} = _${property.name}
 [$pyc]           $unloadedPython
 [$pyc]
+#if( $property.class.name == "ome.dsl.MapField" )
+[$pyc]       def ${pyaccess}get${property.nameCapped}AsMap(self, $PYC_CURRENT):
+[$pyc]           self.errorIfUnloaded()
+[$pyc]           rv = dict()
+[$pyc]           for nv in self._${property.name}:
+[$pyc]               if nv is not None:
+[$pyc]                   rv[nv.name] = nv.value
+[$pyc]           return rv
+[$pyc]
+#end
 
 
 One-to-many extras:

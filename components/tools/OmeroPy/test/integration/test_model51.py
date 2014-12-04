@@ -26,6 +26,9 @@ Basic tests for additions/changes to the 5.1 model.
 import test.integration.library as lib
 import pytest
 import omero
+import omero.model
+
+from omero.model import NamedValue as NV
 
 
 class TestModel51(lib.ITest):
@@ -89,3 +92,11 @@ class TestModel51(lib.ITest):
         line = roi.copyShapes()[0]
         stroke = line.getStrokeWidth()
         assert ul == stroke.getUnit()
+
+    def testAsMapMethod(self):
+        g = omero.model.ExperimenterGroupI()
+        g.setConfig(
+            [NV("foo", "bar")]
+        )
+        m = g.getConfigAsMap()
+        assert m["foo"] == "bar"

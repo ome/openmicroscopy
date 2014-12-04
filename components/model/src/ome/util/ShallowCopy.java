@@ -62,7 +62,7 @@ class SetValues implements Filter {
             target.putAt(fieldId, f);
         }
 
-        else if (f instanceof ome.model.units.Unit) {
+        else if (f instanceof ome.model.internal.Primitive) {
             target.putAt(fieldId, f);
         }
 
