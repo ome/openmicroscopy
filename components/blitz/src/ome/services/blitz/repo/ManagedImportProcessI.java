@@ -202,8 +202,13 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
     // ICE INTERFACE METHODS
     //
 
-    public RawFileStorePrx getUploader(int i, Current ignore)
+    public RawFileStorePrx getUploader(int i, Current current)
             throws ServerError {
+
+        String mode = "rw";
+        if (current != null && current.ctx != null) {
+            mode = current.ctx.getOrDefault("omero.fs.mode", mode);
+        }
 
         UploadState state = uploaders.get(i);
         if (state != null) {
@@ -213,7 +218,7 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
         final String path = location.sharedPath + FsFile.separatorChar + location.usedFiles.get(i);
 
         boolean success = false;
-        RawFileStorePrx prx = repo.file(path, "rw", this.current);
+        RawFileStorePrx prx = repo.file(path, mode, this.current);
         registerCallback(prx, i);
 
         try {
