@@ -325,16 +325,16 @@ public class EditorUtil
     public static final String REFRACTIVE_INDEX = "Refractive index";
 
     /** Identifies the Environment <code>temperature</code> field. */
-    public static final String TEMPERATURE = "Temperature "+CELSIUS;
+    public static final String TEMPERATURE = "Temperature";
 
     /** Identifies the Environment <code>Air pressure</code> field. */
-    public static final String AIR_PRESSURE = "Air Pressure "+MILLIBARS;
+    public static final String AIR_PRESSURE = "Air Pressure";
 
     /** Identifies the Environment <code>Humidity</code> field. */
-    public static final String HUMIDITY = "Humidity "+PERCENT;
+    public static final String HUMIDITY = "Humidity";
 
     /** Identifies the Environment <code>CO2 Percent</code> field. */
-    public static final String CO2_PERCENT = "CO2 Percent "+PERCENT;
+    public static final String CO2_PERCENT = "CO2 Percent";
 
     /** Identifies the <code>Model</code> field. */
     public static final String MODEL = "Model";
@@ -403,7 +403,7 @@ public class EditorUtil
     public static final String POCKEL_CELL = "PockelCell";
 
     /** Identifies the <code>Repetition rate</code> of the laser. */
-    public static final String REPETITION_RATE = "Repetition Rate (Hz)";
+    public static final String REPETITION_RATE = "Repetition Rate";
 
     /** Identifies the <code>Repetition rate</code> of the laser. */
     public static final String PUMP = "Pump";
