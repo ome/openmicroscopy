@@ -222,25 +222,24 @@ class BlitzObjectWrapper (object):
             return '<%s id=%s>' % (self.__class__.__name__, str(self._oid))
         return super(BlitzObjectWrapper, self).__repr__()
 
-    def _unwrapunits(self, obj, default=None, units=None):
+    def _unwrapunits(self, obj, units=None):
         """
-        Unwrap the value of the Value + Unit object. Returns single value
-        or default if object is None.
-        If units is true, return a tuple of
-        (value, defaultUnitSymbol, defaultUnit enum), E.g. (10, "nm", NM)
+        Returns the value of the Value + Unit object.
+        If units is true, return the omero model unit object,
+        e.g. omero.model.LengthI
+        e.g. _unwrapunits(obj).getValue() == 10
+        e.g. _unwrapunits(obj).getUnit() == NM # unit enum
+        e.g. _unwrapunits(obj).getSymbol() == "nm"
         If units specifies a valid unit for the type of value, then we convert
-        E.g. _unwrapunits(obj, units="MICROM")
-        will return  (10000, "µm", MICROM)
+        E.g. _unwrapunits(obj, units="MICROM").getValue() == 10000
 
         :param obj:         The Value + Unit object
         :param default:     Default value if obj is None
         :param units:       If true, return (value, unit) tuple
-        :return:            Value or (Value, Unit)
+        :return:            Value or omero.model units
         """
         if obj is None:
-            if units:
-                return (default, "", None)
-            return default
+            return None
         if units is not None:
             # If units is an attribute of the same Class as our obj...
             if isinstance(units, basestring):
@@ -248,7 +247,7 @@ class BlitzObjectWrapper (object):
                 unitEnum = getattr(unitClass, str(units))
                 # ... we can convert units
                 obj = obj.__class__(obj, unitEnum)
-            return obj.getValue(), obj.getSymbol(), obj.getUnit()
+            return obj
         return obj.getValue()
 
     def _getQueryString(self):
@@ -6137,30 +6136,26 @@ class _PlaneInfoWrapper (BlitzObjectWrapper):
     def getDeltaT(self, units=None):
         """
         Gets the PlaneInfo deltaT with units support
-        If units is True, return tuple including default symbol and units
-        E.g. (5, "s", "S")
+        If units is True, return omero.model.TimeI
         If units specifies a different unit E.g. "MS", we convert
-        E.g. (5000, "ms", "MS")
 
         :param units:       Option to include units in tuple
-        :type units:        True or unit string
+        :type units:        True or unit string, e.g. "S"
 
-        :return:            DeltaT value or tuple
+        :return:            DeltaT value or omero.model.TimeI
         """
         return self._unwrapunits(self._obj.getDeltaT(), units=units)
 
     def getExposureTime(self, units=None):
         """
         Gets the PlaneInfo ExposureTime with units support
-        If units is True, return tuple including default symbol and units
-        E.g. (5, "s", "S")
+        If units is True, return omero.model.TimeI
         If units specifies a different unit E.g. "MS", we convert
-        E.g. (5000, "ms", "MS")
 
         :param units:       Option to include units in tuple
         :type units:        True or unit string
 
-        :return:            ExposureTime value or tuple
+        :return:            ExposureTime value or omero.model.TimeI
         """
         return self._unwrapunits(self._obj.getExposureTime(), units=units)
 
@@ -6461,9 +6456,11 @@ class _ChannelWrapper (BlitzObjectWrapper):
     def getEmissionWave(self, units=None):
         """
         Returns the emission wave or None.
+        If units is true, returns omero.model.LengthI
+        If units specifies a unit e,g, "M", we convert.
 
         :return:    Emission wavelength or None
-        :rtype:     int
+        :rtype:     float or omero.model.LengthI
         """
 
         lc = self.getLogicalChannel()
@@ -6472,9 +6469,11 @@ class _ChannelWrapper (BlitzObjectWrapper):
     def getExcitationWave(self, units=None):
         """
         Returns the excitation wave or None.
+        If units is true, returns omero.model.LengthI
+        If units specifies a unit e,g, "M", we convert.
 
         :return:    Excitation wavelength or None
-        :rtype:     int
+        :rtype:     float or omero.model.LengthI
         """
 
         lc = self.getLogicalChannel()
@@ -8386,37 +8385,37 @@ class _ImageWrapper (BlitzObjectWrapper):
     def getPixelSizeX(self, units=None):
         """
         Gets the physical size X of pixels in microns.
-        If units is True, return tuple of (size, unit).
+        If units is True, return omero.model.LengthI.
 
-        :return:    Size of pixel in x or O
-        :rtype:     float or (float, unit) tuple
+        :return:    Size of pixel in x or None
+        :rtype:     float or omero.model.LengthI
         """
         return self._unwrapunits(
-            self._obj.getPrimaryPixels().getPhysicalSizeX(), 0, units)
+            self._obj.getPrimaryPixels().getPhysicalSizeX(), units)
 
     @assert_pixels
     def getPixelSizeY(self, units=None):
         """
         Gets the physical size Y of pixels in microns.
-        If units is True, return tuple of (size, unit).
+        If units is True, return omero.model.LengthI.
 
-        :return:    Size of pixel in y or O
-        :rtype:     float or (float, unit) tuple
+        :return:    Size of pixel in y or None
+        :rtype:     float or omero.model.LengthI
         """
         return self._unwrapunits(
-            self._obj.getPrimaryPixels().getPhysicalSizeY(), 0, units)
+            self._obj.getPrimaryPixels().getPhysicalSizeY(), units)
 
     @assert_pixels
     def getPixelSizeZ(self, units=None):
         """
         Gets the physical size Z of pixels in microns.
-        If units is True, return tuple of (size, unit).
+        If units is True, return omero.model.LengthI.
 
-        :return:    Size of pixel in z or O
-        :rtype:     float or (float, unit) tuple
+        :return:    Size of pixel in z or None
+        :rtype:     float or omero.model.LengthI
         """
         return self._unwrapunits(
-            self._obj.getPrimaryPixels().getPhysicalSizeZ(), 0, units)
+            self._obj.getPrimaryPixels().getPhysicalSizeZ(), units)
 
     @assert_pixels
     def getSizeX(self):
