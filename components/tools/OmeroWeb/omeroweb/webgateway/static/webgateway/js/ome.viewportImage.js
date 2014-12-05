@@ -524,12 +524,13 @@ jQuery.fn.viewportImage = function(options) {
         myProvider.thumbnailUrl(thref);
         
         if (viewerBean == null) {
-            $('<div id="weblitz-viewport-tiles" class="viewer" style="width: 100%; height: 100%;" ></div>').appendTo(wrapdiv);
+            var viewerBeanId = this.id + '-tiles';
+            $('<div id="'+viewerBeanId+'" class="viewer" style="width: 100%; height: 100%;" ></div>').appendTo(wrapdiv);
             
             PanoJS.CREATE_CONTROL_MAXIMIZE = true;
             PanoJS.PRE_CACHE_AMOUNT = 2;
             PanoJS.USE_WHEEL_FOR_ZOOM = true;
-            viewerBean = new PanoJS('weblitz-viewport-tiles', {
+            viewerBean = new PanoJS(viewerBeanId, {
                 tileUrlProvider : myProvider,
                 xTileSize       : myPyramid.xtilesize,
                 yTileSize       : myPyramid.ytilesize,
@@ -634,7 +635,7 @@ jQuery.fn.viewportImage = function(options) {
             viewerBean.tileUrlProvider = myProvider;
             viewerBean.update_url();
         }
-        cur_zoom = viewerBean.zoomLevel;
+        cur_zoom = viewerBean.currentScale() * 100;
     };
 
     // Simply causes all tiles to refresh their src
@@ -645,7 +646,7 @@ jQuery.fn.viewportImage = function(options) {
     };
     
     this.destroyTiles = function () {
-        jQuery('#weblitz-viewport-tiles').remove();
+        jQuery(viewerBeanId).remove();
         viewerBean = null;
     };
 

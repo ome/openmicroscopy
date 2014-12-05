@@ -8,25 +8,30 @@ $.fn.roi_display = function(options) {
     return this.each(function(){
 
         var self = this;
-        var canvas_name = (options.canvas_name ? options.canvas_name : 'roi_canvas');
-        var tiles =  (options.tiles ? options.tiles : false);
-        
-        if (options != null) {
-            var orig_width = options.width;
-            var orig_height = options.height;
-            var json_url = options.json_url;
-        }
+        var viewerId = this.id;
 
         var $viewportimg = $(this);
         var width = $viewportimg.attr('width');   // 0 initially
         var height = $viewportimg.attr('height');
 
+        var tiles =  (options.tiles ? options.tiles : false);
+
+        var canvas_class = (options.canvas_class ? options.canvas_class : 'weblitz-viewport-roi');
+
         if (!tiles) {
             // add our ROI canvas as a sibling to the image plane. Parent is the 'draggable' div
             var $dragdiv = $viewportimg.parent();
-            var $canvas =   $('<div id="'+canvas_name+'" class="'+canvas_name+'">').appendTo($dragdiv);
+            var canvas_name = (options.canvas_name ? options.canvas_name : viewerId + '-roi');
+            var $canvas =   $('<div id="'+canvas_name+'" class="'+canvas_class+'">').appendTo($dragdiv);
         } else {
-            var $canvas = $('#'+canvas_name)
+            var canvas_name = (options.canvas_name ? options.canvas_name : viewerId + '-tiles-roi');
+            var $canvas = $('#'+viewerId + '-tiles-roi')
+        }
+
+        if (options != null) {
+            var orig_width = options.width;
+            var orig_height = options.height;
+            var json_url = options.json_url;
         }
 
         var roi_json = null;          // load ROI data as json when needed
@@ -246,7 +251,7 @@ $.fn.roi_display = function(options) {
         load_rois = function(display_rois) {
             if (json_url == undefined) return;
             
-            $.getJSON(json_url, function(data) {
+            $.getJSON(json_url+'?callback=?', function(data) {
                 roi_json = data;
 
                 // plot the rois
