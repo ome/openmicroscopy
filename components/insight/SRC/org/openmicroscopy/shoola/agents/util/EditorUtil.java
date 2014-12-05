@@ -1567,7 +1567,7 @@ public class EditorUtil
             details.put(NOT_SET, notSet);
             return details;
         }
-        Temperature t = data.getTemperature(UnitsTemperature.DEGREEC);
+        Temperature t = data.getTemperature(null);
         double f = 0;
         if (t == null) {
             notSet.add(TEMPERATURE);
@@ -1576,7 +1576,7 @@ public class EditorUtil
         	details.put(TEMPERATURE, f+NONBRSPACE+t.getSymbol());
         }
         
-        Pressure p = data.getAirPressure(UnitsPressure.MBAR);
+        Pressure p = data.getAirPressure(null);
         if (p == null) {
             notSet.add(AIR_PRESSURE);
         }
@@ -1910,7 +1910,7 @@ public class EditorUtil
 
         s = data.getKind();
         details.put(LIGHT_TYPE, s);
-        Power p = data.getPower(UnitsPower.MW);
+        Power p = data.getPower(null);
         double f = 0;
         if (p == null) {
             notSet.add(POWER);
@@ -1974,7 +1974,7 @@ public class EditorUtil
             if (StringUtils.isBlank(s))
                 notSet.add(PULSE);
             details.put(PULSE, s);
-            Frequency freq = data.getLaserRepetitionRate(UnitsFrequency.MEGAHZ);
+            Frequency freq = data.getLaserRepetitionRate(null);
             if (freq == null) {
                 notSet.add(REPETITION_RATE);
             }
@@ -2051,7 +2051,7 @@ public class EditorUtil
         if (f == null) notSet.add(GAIN);
         else v = f.doubleValue();
         details.put(GAIN, v);
-        ElectricPotential p = data.getVoltage(UnitsElectricPotential.V);
+        ElectricPotential p = data.getVoltage(null);
         if (p == null) {
             notSet.add(VOLTAGE);
         } 
@@ -2126,7 +2126,7 @@ public class EditorUtil
             notSet.remove(GAIN);
         }
 
-        ElectricPotential p = data.getDetectorSettingsVoltage(UnitsElectricPotential.V);
+        ElectricPotential p = data.getDetectorSettingsVoltage(null);
         if (p != null) {
         	f = p.getValue();
             notSet.remove(VOLTAGE);
@@ -2139,7 +2139,7 @@ public class EditorUtil
             details.put(OFFSET, UIUtilities.roundTwoDecimals(f));
         }
 
-        Frequency freq = data.getDetectorSettingsReadOutRate(UnitsFrequency.HZ);
+        Frequency freq = data.getDetectorSettingsReadOutRate(null);
         double v = 0;
         if (freq == null) {
             notSet.add(READ_OUT_RATE);
