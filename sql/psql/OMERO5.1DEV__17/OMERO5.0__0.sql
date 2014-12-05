@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.0__0 to OMERO5.1DEV__16.
+--- OMERO5 development release upgrade from OMERO5.0__0 to OMERO5.1DEV__17.
 ---
 
 BEGIN;
@@ -44,7 +44,7 @@ DROP FUNCTION omero_assert_db_version(varchar, int);
 
 
 INSERT INTO dbpatch (currentVersion, currentPatch,   previousVersion,     previousPatch)
-             VALUES ('OMERO5.1DEV',  16,             'OMERO5.0',          0);
+             VALUES ('OMERO5.1DEV',  17,             'OMERO5.0',          0);
 
 --
 -- Actual upgrade
@@ -1841,16 +1841,30 @@ ALTER TABLE metadataimportjob_versioninfo
 ALTER TABLE uploadjob_versioninfo
 	ADD CONSTRAINT uploadjob_versioninfo_pkey PRIMARY KEY (uploadjob_id, index);
 
+
+-- 5.1DEV__17: node, deletelogs, etc.
+
+ALTER TABLE node
+    ALTER COLUMN conn TYPE text;
+
+create index _fs_deletelog_event on _fs_deletelog(event_id);
+create index _fs_deletelog_file on _fs_deletelog(file_id);
+create index _fs_deletelog_owner on _fs_deletelog(owner_id);
+create index _fs_deletelog_group on _fs_deletelog(group_id);
+create index _fs_deletelog_path on _fs_deletelog(path);
+create index _fs_deletelog_name on _fs_deletelog(name);
+create index _fs_deletelog_repo on _fs_deletelog(repo);
+
 --
 -- FINISHED
 --
 
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
     WHERE currentVersion  = 'OMERO5.1DEV' AND
-          currentPatch    = 16            AND
+          currentPatch    = 17            AND
           previousVersion = 'OMERO5.0'    AND
           previousPatch   = 0;
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.1DEV__16'||CHR(10)||CHR(10)||CHR(10) AS Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.1DEV__17'||CHR(10)||CHR(10)||CHR(10) AS Status;
 
 COMMIT;

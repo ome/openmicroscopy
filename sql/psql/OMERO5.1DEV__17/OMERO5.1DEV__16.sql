@@ -53,6 +53,14 @@ INSERT INTO dbpatch (currentVersion, currentPatch,   previousVersion,     previo
 ALTER TABLE node
     ALTER COLUMN conn TYPE text;
 
+create index _fs_deletelog_event on _fs_deletelog(event_id);
+create index _fs_deletelog_file on _fs_deletelog(file_id);
+create index _fs_deletelog_owner on _fs_deletelog(owner_id);
+create index _fs_deletelog_group on _fs_deletelog(group_id);
+create index _fs_deletelog_path on _fs_deletelog(path);
+create index _fs_deletelog_name on _fs_deletelog(name);
+create index _fs_deletelog_repo on _fs_deletelog(repo);
+
 --
 -- FINISHED
 --
