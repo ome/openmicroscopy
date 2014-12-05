@@ -459,12 +459,14 @@ CUSTOM_SETTINGS_MAPPINGS = {
     # template support, and optional data-URI image and font embedding.
     "omero.web.pipeline_js_compressor":
         ["PIPELINE_JS_COMPRESSOR",
-         None, identity,
+         None,
+         identity,
          ("Compressor class to be applied to JavaScript files. If empty or "
           "None, JavaScript files won't be compressed.")],
     "omero.web.pipeline_css_compressor":
         ["PIPELINE_CSS_COMPRESSOR",
-         None, identity,
+         None,
+         identity,
          ("Compressor class to be applied to CSS files. If empty or None,"
           " CSS files won't be compressed.")],
     "omero.web.pipeline_staticfile_storage":
