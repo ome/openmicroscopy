@@ -74,7 +74,7 @@ public class DetectorData
 		ElectricPotential e = detector.getVoltage();
 		if (e==null)
 			return null;
-		return e == null ? e : new ElectricPotentialI(e, unit);
+		return unit == null ? e : new ElectricPotentialI(e, unit);
 	}
 	
 	/**
