@@ -798,6 +798,21 @@ public class RepositoryDaoImpl implements RepositoryDao {
         });
     }
 
+    @SuppressWarnings("unchecked")
+    public List<List<DeleteLog>> findRepoDeleteLogs(final List<DeleteLog> templates, Current current) {
+        return (List<List<DeleteLog>>) executor.execute(current.ctx, currentUser(current),
+                new Executor.SimpleWork(this, "findRepoDeleteLogs", templates) {
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+                List<List<DeleteLog>> rv = new ArrayList<List<DeleteLog>>();
+                for (DeleteLog template : templates) {
+                    rv.add(getSqlAction().findRepoDeleteLogs(template));
+                }
+                return rv;
+            }
+        });
+    }
+
     public int deleteRepoDeleteLogs(final DeleteLog template, Current current) {
         return (Integer) executor.execute(current.ctx, currentUser(current),
                 new Executor.SimpleWork(this, "deleteRepoDeleteLogs", template) {
@@ -1063,4 +1078,5 @@ public class RepositoryDaoImpl implements RepositoryDao {
             }
         });
     }
+
 }

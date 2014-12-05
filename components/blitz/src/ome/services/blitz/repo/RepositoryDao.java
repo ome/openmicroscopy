@@ -259,6 +259,16 @@ public interface RepositoryDao {
     List<DeleteLog> findRepoDeleteLogs(DeleteLog template, final Ice.Current current);
 
     /**
+     * As {@link #findRepoDeleteLogs(DeleteLog, Current)} but for a collection
+     * of templates.
+     *
+     * @param templates not null.
+     * @param current not null.
+     * @return all the rows found which match the non-null fields on templates
+     */
+    List<List<DeleteLog>> findRepoDeleteLogs(List<DeleteLog> templates, final Ice.Current current);
+
+    /**
      * Call {@link SqlAction.deleteRepoDeleteLogs(DeleteLog)} with the current
      * context.
      *
