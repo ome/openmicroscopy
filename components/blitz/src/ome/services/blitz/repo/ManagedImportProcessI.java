@@ -205,9 +205,12 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
     public RawFileStorePrx getUploader(int i, Current current)
             throws ServerError {
 
-        String mode = "rw";
+        String mode = null;
         if (current != null && current.ctx != null) {
-            mode = current.ctx.getOrDefault("omero.fs.mode", mode);
+            mode = current.ctx.get("omero.fs.mode");
+            if (mode == null) {
+                mode = "rw";
+            }
         }
 
         UploadState state = uploaders.get(i);
