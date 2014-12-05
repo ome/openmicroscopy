@@ -298,6 +298,25 @@ class TestTables(lib.ITest):
         # Load the group explicitly
         sr.openTable(ofile, {"omero.group": gid1})
 
+    def testGetHeaders(self):
+        """
+        Check all required fields are included in the headers
+        """
+        grid = self.client.sf.sharedResources()
+        table = grid.newTable(1, "/test")
+        assert table
+
+        cols = [columns.LongColumnI('no desc'),
+                columns.LongColumnI('scalar', 'scalar desc'),
+                columns.LongArrayColumnI('array', 'array desc', 3)]
+        table.initialize(cols)
+        h = table.getHeaders()
+        assert len(h) == 3
+        assert (h[0].name, h[0].description) == ('no desc', '')
+        assert (h[1].name, h[1].description) == ('scalar', 'scalar desc')
+        assert (h[2].name, h[2].description, h[2].size) == (
+            'array', 'array desc', 3)
+
     def test10049openTableUnreadable(self):
         """
         Fail nicely when openTable is passed an OriginalFile that isn't
