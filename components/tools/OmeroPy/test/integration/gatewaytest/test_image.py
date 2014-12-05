@@ -161,9 +161,9 @@ class TestImage (object):
 
     def assertUnits(self, result, expected):
         """ helper to compare str(Unit enum) with expected units """
-        assert result[0] == expected[0]         # value
-        assert result[1] == expected[1]         # symbol
-        assert str(result[2]) == expected[2]    # unit vv string
+        assert result.getValue() == expected[0]
+        assert result.getSymbol() == expected[1]
+        assert str(result.getUnit()) == expected[2]
 
     def testPixelSizeUnits(self):
         """
