@@ -124,12 +124,9 @@ public class ChannelData
         if (StringUtils.isNotBlank(value)) return value;
         value = getFluor();
         if (StringUtils.isNotBlank(value)) return value;
-        Length v = getEmissionWavelength(UnitsLength.NM);
+        Length v = getEmissionWavelength(null);
         if (v != null) {
-            if (DoubleMath.isMathematicalInteger(v.getValue())) {
-                return ""+ DoubleMath.roundToInt(v.getValue(), RoundingMode.DOWN);
-            }
-            return ""+v;
+        	return ""+ DoubleMath.roundToInt(v.getValue(), RoundingMode.DOWN);
         }
         return ""+index;
     }
