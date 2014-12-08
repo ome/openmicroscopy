@@ -8390,8 +8390,10 @@ class _ImageWrapper (BlitzObjectWrapper):
         :return:    Size of pixel in x or None
         :rtype:     float or omero.model.LengthI
         """
-        return self._unwrapunits(
-            self._obj.getPrimaryPixels().getPhysicalSizeX(), units)
+        size = self._obj.getPrimaryPixels().getPhysicalSizeX()
+        if size is None and units is None:
+            return 0        # preserve pre-units behaviour
+        return self._unwrapunits(size, units)
 
     @assert_pixels
     def getPixelSizeY(self, units=None):
@@ -8402,8 +8404,10 @@ class _ImageWrapper (BlitzObjectWrapper):
         :return:    Size of pixel in y or None
         :rtype:     float or omero.model.LengthI
         """
-        return self._unwrapunits(
-            self._obj.getPrimaryPixels().getPhysicalSizeY(), units)
+        size = self._obj.getPrimaryPixels().getPhysicalSizeY()
+        if size is None and units is None:
+            return 0        # preserve pre-units behaviour
+        return self._unwrapunits(size, units)
 
     @assert_pixels
     def getPixelSizeZ(self, units=None):
@@ -8414,8 +8418,10 @@ class _ImageWrapper (BlitzObjectWrapper):
         :return:    Size of pixel in z or None
         :rtype:     float or omero.model.LengthI
         """
-        return self._unwrapunits(
-            self._obj.getPrimaryPixels().getPhysicalSizeZ(), units)
+        size = self._obj.getPrimaryPixels().getPhysicalSizeZ()
+        if size is None and units is None:
+            return 0        # preserve pre-units behaviour
+        return self._unwrapunits(size, units)
 
     @assert_pixels
     def getSizeX(self):

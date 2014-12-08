@@ -181,8 +181,9 @@ class TestImage (object):
         # Can't convert from Length to Seconds
         with pytest.raises(AttributeError):
             self.image.getPixelSizeX(units="S")
-
-        assert author_testimg_generated.getPixelSizeX() == None
+        # Return 0 if no data (same behaviour as pre-units API)
+        assert author_testimg_generated.getPixelSizeX() == 0
+        # But with units, return None if no data
         assert author_testimg_generated.getPixelSizeX(units=True) == None
         assert author_testimg_generated.getPixelSizeX(units="NM") == None
 
