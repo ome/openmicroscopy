@@ -27,9 +27,9 @@ package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 
 //Third-party libraries
 
-import omero.model.enums.UnitsLength;
 //Application-internal dependencies
 import pojos.WellSampleData;
+import omero.model.enums.UnitsLength;
 
 /** 
  * Display the primary image associated to the wellSample.

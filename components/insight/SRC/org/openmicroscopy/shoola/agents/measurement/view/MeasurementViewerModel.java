@@ -700,7 +700,7 @@ class MeasurementViewerModel
 	}
 	
 	/**
-	 * Returns the size in microns of a pixel along the X-axis.
+	 * Returns the size of a pixel along the X-axis.
 	 * 
 	 * @return See above.
 	 */
@@ -710,7 +710,7 @@ class MeasurementViewerModel
 	}
 	
 	/**
-	 * Returns the size in microns of a pixel along the Y-axis.
+	 * Returns the size of a pixel along the Y-axis.
 	 * 
 	 * @return See above.
 	 */
@@ -720,7 +720,7 @@ class MeasurementViewerModel
 	}
 	
 	/**
-	 * Returns the size in microns of a pixel along the Z-axis.
+	 * Returns the size of a pixel along the Z-axis.
 	 * 
 	 * @return See above.
 	 */

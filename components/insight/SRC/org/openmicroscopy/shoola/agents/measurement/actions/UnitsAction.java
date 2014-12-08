@@ -25,20 +25,15 @@ package org.openmicroscopy.shoola.agents.measurement.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
-
 import javax.swing.Action;
 
 //Third-party libraries
 
-
-
-import omero.model.Length;
-
-import omero.model.enums.UnitsLength;
-
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import omero.model.Length;
+import omero.model.enums.UnitsLength;
 
 /** 
  * Sets the unit either in the reference units or in pixels.

@@ -80,14 +80,12 @@ import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.TabSet;
 import javax.swing.text.TabStop;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.jdesktop.swingx.JXDatePicker;
 import org.jdesktop.swingx.JXTaskPane;
-
 import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 import omero.model.Length;
 import omero.model.LengthI;
@@ -242,6 +240,7 @@ public class UIUtilities
 	/** Pixels string. */
 	public final static String  			PIXELS_SYMBOL = "px";
 	
+	/** Degree symbol */
 	public final static String				DEGREE_SYMBOL = "°";
     
 	/** Background color of the highlighted node. */

@@ -26,22 +26,17 @@ package org.openmicroscopy.shoola.agents.imviewer.util;
 
 //Java imports
 import java.awt.FlowLayout;
-
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-
-
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
-import omero.model.LengthI;
-import omero.model.enums.UnitsLength;
-
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
+import omero.model.LengthI;
+import omero.model.enums.UnitsLength;
 
 /** 
  * Displays information about the displayed image.

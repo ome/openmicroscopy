@@ -52,12 +52,7 @@ import omero.model.PlaneInfo;
 import omero.model.Power;
 import omero.model.Pressure;
 import omero.model.Temperature;
-import omero.model.enums.UnitsElectricPotential;
-import omero.model.enums.UnitsFrequency;
 import omero.model.enums.UnitsLength;
-import omero.model.enums.UnitsPower;
-import omero.model.enums.UnitsPressure;
-import omero.model.enums.UnitsTemperature;
 
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
@@ -1833,6 +1828,7 @@ public class EditorUtil
         if (details.containsKey(WAVELENGTH)) {
             if (wl != null) { //override the value.
                 details.put(WAVELENGTH, wl.getValue()+NONBRSPACE+wl.getSymbol());
+                notSet.remove(WAVELENGTH);
             }
         } else {
             Double vi = 0.0;
@@ -1841,6 +1837,7 @@ public class EditorUtil
             else  {
             	vi = wl.getValue();
             	details.put(WAVELENGTH, vi+NONBRSPACE+wl.getSymbol());
+            	notSet.remove(WAVELENGTH);
             }
         }
         details.put(NOT_SET, notSet);
