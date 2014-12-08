@@ -181,12 +181,10 @@ class TestImage (object):
         # Can't convert from Length to Seconds
         with pytest.raises(AttributeError):
             self.image.getPixelSizeX(units="S")
-        # Return 0 if no data (same behaviour as pre-units API)
-        assert author_testimg_generated.getPixelSizeX() == 0
-        # But with units, return None if no data
-        assert author_testimg_generated.getPixelSizeX(units=True) == None
-        assert author_testimg_generated.getPixelSizeX(units="NM") == None
-
+        # return None if no data
+        assert author_testimg_generated.getPixelSizeX() is None
+        assert author_testimg_generated.getPixelSizeX(units=True) is None
+        assert author_testimg_generated.getPixelSizeX(units="NM") is None
 
     def testChannelWavelengthUnits(self, author_testimg_generated):
         """
@@ -206,10 +204,10 @@ class TestImage (object):
                              (waves[1] * 10, "Å", "ANGSTROM"))
         # Check we get None for image with no data
         for ch, waves in zip(
-                    author_testimg_generated.getChannels(), wavelengths):
-            assert ch.getExcitationWave() == None
-            assert ch.getExcitationWave(units=True) == None
-            assert ch.getExcitationWave(units="ANGSTROM") == None
+                author_testimg_generated.getChannels(), wavelengths):
+            assert ch.getExcitationWave() is None
+            assert ch.getExcitationWave(units=True) is None
+            assert ch.getExcitationWave(units="ANGSTROM") is None
 
     def testExposureTimeUnits(self):
         """
