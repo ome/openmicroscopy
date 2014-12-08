@@ -8385,43 +8385,40 @@ class _ImageWrapper (BlitzObjectWrapper):
     def getPixelSizeX(self, units=None):
         """
         Gets the physical size X of pixels in microns.
-        If units is True, return omero.model.LengthI.
+        If units is True, or a valid length, e.g. "M"
+        return omero.model.LengthI.
 
         :return:    Size of pixel in x or None
         :rtype:     float or omero.model.LengthI
         """
-        size = self._obj.getPrimaryPixels().getPhysicalSizeX()
-        if size is None and units is None:
-            return 0        # preserve pre-units behaviour
-        return self._unwrapunits(size, units)
+        return self._unwrapunits(
+            self._obj.getPrimaryPixels().getPhysicalSizeX(), units)
 
     @assert_pixels
     def getPixelSizeY(self, units=None):
         """
         Gets the physical size Y of pixels in microns.
-        If units is True, return omero.model.LengthI.
+        If units is True, or a valid length, e.g. "M"
+        return omero.model.LengthI.
 
         :return:    Size of pixel in y or None
         :rtype:     float or omero.model.LengthI
         """
-        size = self._obj.getPrimaryPixels().getPhysicalSizeY()
-        if size is None and units is None:
-            return 0        # preserve pre-units behaviour
-        return self._unwrapunits(size, units)
+        return self._unwrapunits(
+            self._obj.getPrimaryPixels().getPhysicalSizeY(), units)
 
     @assert_pixels
     def getPixelSizeZ(self, units=None):
         """
         Gets the physical size Z of pixels in microns.
-        If units is True, return omero.model.LengthI.
+        If units is True, or a valid length, e.g. "M"
+        return omero.model.LengthI.
 
         :return:    Size of pixel in z or None
         :rtype:     float or omero.model.LengthI
         """
-        size = self._obj.getPrimaryPixels().getPhysicalSizeZ()
-        if size is None and units is None:
-            return 0        # preserve pre-units behaviour
-        return self._unwrapunits(size, units)
+        return self._unwrapunits(
+            self._obj.getPrimaryPixels().getPhysicalSizeZ(), units)
 
     @assert_pixels
     def getSizeX(self):
