@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.collect.Iterables;
 
 import Ice.Current;
-
 import ome.api.IQuery;
 import ome.api.JobHandle;
 import ome.api.RawFileStore;
@@ -39,7 +38,6 @@ import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
 import ome.util.SqlAction.DeleteLog;
-
 import omero.RMap;
 import omero.RType;
 import omero.SecurityViolation;
@@ -819,6 +817,22 @@ public class RepositoryDaoImpl implements RepositoryDao {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
                 return getSqlAction().deleteRepoDeleteLogs(template);
+            }
+        });
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Integer> deleteRepoDeleteLogs(final List<DeleteLog> templates, Current current) {
+        return (List<Integer>) executor.execute(current.ctx, currentUser(current),
+                new Executor.SimpleWork(this, "deleteRepoDeleteLogs", templates) {
+            @Transactional(readOnly = false)
+            public Object doWork(Session session, ServiceFactory sf) {
+                List<Integer> rv = new ArrayList<Integer>();
+                for (DeleteLog template : templates) {
+                    Integer i = getSqlAction().deleteRepoDeleteLogs(template);
+                    rv.add(i);
+                }
+                return rv;
             }
         });
     }

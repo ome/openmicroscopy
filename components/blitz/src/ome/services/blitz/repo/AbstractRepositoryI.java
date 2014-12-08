@@ -140,10 +140,12 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
         final List<List<DeleteLog>> logs = dao.findRepoDeleteLogs(templates,
                 rootCurrent);
 
+        final Map<DeleteLog, DeleteLogMessage> successes =
+                new HashMap<DeleteLog, DeleteLogMessage>();
+
         for (int i = 0; i < dlms.size(); i++) {
             final DeleteLogMessage dlm = dlms.get(i);
             final List<DeleteLog> dls = logs.get(i);
-            final DeleteLog template = templates.get(i);
 
             for (DeleteLog dl : dls) {
                 // Copied from RawAccessRequestI.local
@@ -163,16 +165,24 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
                     dlm.error(dl, t);
                 }
                 if (!dlm.isError(dl)) {
-                    // Only remove the logs if req.local was successful
-                    int count = dao.deleteRepoDeleteLogs(template, rootCurrent);
-                    if (count != logs.size()) {
-                        log.warn(String.format(
-                            "Failed to remove all delete log entries: %s instead of %s",
-                            count, logs.size()));
-                    }
-                    dlm.success(dl);
+                    successes.put(dl, dlm);
                 }
             }
+        }
+
+        // Only remove the logs if req.local was successful
+        List<DeleteLog> copies = new ArrayList<DeleteLog>(successes.keySet());
+        List<Integer> counts = dao.deleteRepoDeleteLogs(copies, rootCurrent);
+        for (int i = 0; i < copies.size(); i++) {
+            DeleteLog copy = copies.get(i);
+            DeleteLogMessage dlm = successes.get(copy);
+            Integer count = counts.get(i);
+            if (count.intValue() != logs.size()) {
+                log.warn(String.format(
+                    "Failed to remove all delete log entries: %s instead of %s",
+                    count, logs.size()));
+            }
+            dlm.success(copy);
         }
     }
 

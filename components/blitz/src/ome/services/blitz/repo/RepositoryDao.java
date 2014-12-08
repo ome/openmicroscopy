@@ -279,6 +279,16 @@ public interface RepositoryDao {
     int deleteRepoDeleteLogs(DeleteLog template, final Ice.Current current);
 
     /**
+     * Call {@link SqlAction.deleteRepoDeleteLogs(DeleteLog)} with the current
+     * context for a number of templates.
+     *
+     * @param templates not null.
+     * @param current not null.
+     * @return A list containing the number of rows deleted
+     */
+    List<Integer> deleteRepoDeleteLogs(List<DeleteLog> templates, final Ice.Current current);
+
+    /**
      * Create a number of directories in a single transaction, using the
      * {@link PublicRepositoryI} instance as a callback for implementation
      * specific logic. Applies the <q>real user</q>'s event context when
