@@ -813,3 +813,33 @@ class TestOriginalMetadata(AbstractRepoTest):
             assert dict == type(rsp.seriesMetadata)
         finally:
             handle.close()
+
+class TestDeletePerformance(AbstractRepoTest):
+
+    def testImport(self):
+        import time
+        s1 = time.time()
+        client = self.new_client()
+        mrepo = self.getManagedRepo(client)
+        folder = create_path(folder=True)
+        for x in range(100):
+            name = "%s.unknown" % x
+            (folder / name).touch()
+        paths = folder.files()
+        proc = mrepo.importPaths(paths)
+        hashes = self.upload_folder(proc, folder)
+        handle = proc.verifyUpload(hashes)
+        req = handle.getRequest()
+        fs = req.activity.getParent()
+        cb = CmdCallbackI(client, handle)
+        self.assertError(cb)
+
+        delete = omero.cmd.Delete()
+        delete.type = "/Fileset"
+        delete.id = fs.id.val
+        s2 = time.time()
+        print s2 - s1,
+        t1 = time.time()
+        cb2 = client.submit(delete, loops=200)
+        t2 = time.time()
+        print " ", t2-t1,
