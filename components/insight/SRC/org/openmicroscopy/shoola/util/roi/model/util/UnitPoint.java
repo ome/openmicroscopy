@@ -36,8 +36,15 @@ public class UnitPoint {
 	 */
 	public UnitPoint(Length x, Length y) {
 		if(!x.getUnit().equals(y.getUnit())) {
-			// TODO: Do some transformation
-			throw new IllegalArgumentException();
+			// check if units are compatible:
+			try {
+				new LengthI(y, x.getUnit());
+			} catch (Exception e) {
+				throw new IllegalArgumentException("Units "
+						+ LengthI.lookupSymbol(x.getUnit()) + " and "
+						+ LengthI.lookupSymbol(y.getUnit())
+						+ " are not compatible!");
+			}
 		}
 		this.x = x;
 		this.y = y;
@@ -65,12 +72,14 @@ public class UnitPoint {
 	 * @return See above
 	 */
 	public Length getDistance(UnitPoint other) {
-		if(!other.getUnit().equals(getUnit())) {
-			// TODO: Do some transformation
-			throw new IllegalArgumentException();
-		}
-		Point2D p1 = new Point2D.Double(x.getValue(), y.getValue());
-		Point2D p2 = new Point2D.Double(other.x.getValue(), other.y.getValue());
+		// make sure all vars have the same unit, taking x as base unit
+		Length myX = new LengthI(x, x.getUnit());
+		Length myY = new LengthI(y, x.getUnit());
+		Length otherX = new LengthI(other.x, x.getUnit());
+		Length otherY = new LengthI(other.y, x.getUnit());
+
+		Point2D p1 = new Point2D.Double(myX.getValue(), myY.getValue());
+		Point2D p2 = new Point2D.Double(otherX.getValue(), otherY.getValue());
 		return new LengthI(p1.distance(p2), getUnit());
 	}
 	
