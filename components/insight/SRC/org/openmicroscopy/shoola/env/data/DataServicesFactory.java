@@ -654,8 +654,6 @@ public class DataServicesFactory
             GroupData defaultGroup = null;
             long gid = exp.getDefaultGroup().getId();
         	SecurityContext ctx = new SecurityContext(gid);
-            ldap = omeroGateway.lookupLdapAuthExperimenter(ctx, exp.getId());
-            registry.bind(LookupNames.USER_AUTHENTICATION, ldap);
         	groups = omeroGateway.getAvailableGroups(ctx, exp);
         	registry.bind(LookupNames.SYSTEM_ROLES,
                     omeroGateway.getSystemRoles(ctx));
@@ -715,7 +713,6 @@ public class DataServicesFactory
 			agentInfo = (AgentInfo) kk.next();
 			if (agentInfo.isActive()) {
 				reg = agentInfo.getRegistry();
-				reg.bind(LookupNames.USER_AUTHENTICATION, ldap);
 				reg.bind(LookupNames.CURRENT_USER_DETAILS, exp);
 				reg.bind(LookupNames.USER_GROUP_DETAILS, available);
 				reg.bind(LookupNames.USERS_DETAILS, exps);
