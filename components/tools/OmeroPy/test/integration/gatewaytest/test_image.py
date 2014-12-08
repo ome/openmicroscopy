@@ -165,7 +165,7 @@ class TestImage (object):
         assert result.getSymbol() == expected[1]
         assert str(result.getUnit()) == expected[2]
 
-    def testPixelSizeUnits(self):
+    def testPixelSizeUnits(self, author_testimg_generated):
         """
         Tests the pixel sizes and their units
         """
@@ -182,7 +182,12 @@ class TestImage (object):
         with pytest.raises(AttributeError):
             self.image.getPixelSizeX(units="S")
 
-    def testChannelWavelengthUnits(self):
+        assert author_testimg_generated.getPixelSizeX() == None
+        assert author_testimg_generated.getPixelSizeX(units=True) == None
+        assert author_testimg_generated.getPixelSizeX(units="NM") == None
+
+
+    def testChannelWavelengthUnits(self, author_testimg_generated):
         """
         Tests Channel excitation / emmisssion wavelengths and units
         """
@@ -198,6 +203,12 @@ class TestImage (object):
                              (waves[0] * 10, "Å", "ANGSTROM"))
             self.assertUnits(ch.getEmissionWave(units="ANGSTROM"),
                              (waves[1] * 10, "Å", "ANGSTROM"))
+        # Check we get None for image with no data
+        for ch, waves in zip(
+                    author_testimg_generated.getChannels(), wavelengths):
+            assert ch.getExcitationWave() == None
+            assert ch.getExcitationWave(units=True) == None
+            assert ch.getExcitationWave(units="ANGSTROM") == None
 
     def testExposureTimeUnits(self):
         """
