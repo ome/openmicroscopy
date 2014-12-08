@@ -84,7 +84,7 @@ public:
     void assertFinished(bool testSteps = true) {
         try {
             IceUtil::RecMutex::Lock lock(mutex);
-            if (1 != finished) {
+            if (0 == finished) {
                 // If things work as expected, then
                 // the callback is added to the server
                 // in time for onFinished to be called.
@@ -95,6 +95,8 @@ public:
                 if (!getResponse()) {
                     FAIL() << "finished uncalled";
                 }
+            } else {
+                ASSERT_EQ(1, finished);
             }
             ASSERT_FALSE(isCancelled());
             ASSERT_FALSE(isFailure());
@@ -127,7 +129,20 @@ public:
     void assertCancelled() {
         try {
             IceUtil::RecMutex::Lock lock(mutex);
-            ASSERT_EQ(1, finished);
+            if (0 == finished) {
+                // If things work as expected, then
+                // the callback is added to the server
+                // in time for onFinished to be called.
+                // If that has failed, then we try again
+                // since there seems to be some race
+                // condition in C++.
+                poll();
+                if (!getResponse()) {
+                    FAIL() << "finished uncalled";
+                }
+            } else {
+                ASSERT_EQ(1, finished);
+            }
             ASSERT_TRUE(isCancelled());
         } catch (const omero::ValidationException& ve) {
             FAIL() << "validation exception:" << ve.message;
