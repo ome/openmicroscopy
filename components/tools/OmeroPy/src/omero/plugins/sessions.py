@@ -212,12 +212,6 @@ class SessionsControl(BaseControl):
         create = getattr(args, "create", None)
         store = self.store(args)
         previous = store.get_current()
-        try:
-            previous_props = store.get(*previous)
-            previous_port = previous_props.get(
-                "omero.port", str(omero.constants.GLACIER2PORT))
-        except:
-            previous_port = str(omero.constants.GLACIER2PORT)
 
         # Basic props, don't get fiddled with
         props = {}
@@ -281,7 +275,7 @@ class SessionsControl(BaseControl):
 
                 server_differs = (server is not None and server != previous[0])
                 name_differs = (name is not None and name != previous[1])
-                port_differs = (port is not None and port != previous_port)
+                port_differs = (port is not None and port != previous[3])
 
                 if not create and not server_differs and not name_differs \
                         and not port_differs:
@@ -295,19 +289,19 @@ class SessionsControl(BaseControl):
                                 self.ctx.dbg("Not attaching because of"
                                              " conflicts: %s" % conflicts)
                             else:
-                                rv = store.attach(*previous)
+                                rv = store.attach(*previous[:-1])
                                 return self.handle(rv, "Using")
                         self.ctx.out("Previously logged in to %s:%s as %s"
-                                     % (previous[0], previous_port,
+                                     % (previous[0], previous[3],
                                         previous[1]))
                     except Exception, e:
                         self.ctx.out("Previous session expired for %s on"
                                      " %s:%s" % (previous[1], previous[0],
-                                                 previous_port))
+                                                 previous[3]))
                         self.ctx.dbg("Exception on attach: %s"
                                      % traceback.format_exc(e))
                         try:
-                            store.remove(*previous)
+                            store.remove(*previous[:-1])
                         except OSError, ose:
                             self.ctx.dbg("Session file missing: %s" % ose)
                         except:
@@ -467,11 +461,11 @@ class SessionsControl(BaseControl):
         previous = store.get_current()
 
         try:
-            rv = store.attach(*previous)
+            rv = store.attach(*previous[:-1])
             rv[0].killSession()
         except Exception, e:
             self.ctx.dbg("Exception on logout: %s" % e)
-        store.remove(*previous)
+        store.remove(*previous[:-1])
         # Last is still useful. Not resetting.
         # store.set_current("", "", "")
 
