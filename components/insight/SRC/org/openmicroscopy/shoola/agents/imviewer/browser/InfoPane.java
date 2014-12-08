@@ -32,10 +32,12 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 
+
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
-
+import omero.model.LengthI;
 import omero.model.enums.UnitsLength;
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -60,7 +62,7 @@ class InfoPane
 {
 	
     /** String to represent the micron symbol. */
-    private static final String MICRONS = "(in " + UIUtilities.getSymbol(UnitsLength.MICROM) + ")";
+    private static final String MICRONS = "(in " + LengthI.lookupSymbol(UnitsLength.MICROM) + ")";
     
     /** Identifies the <code>SizeX</code> field. */
     private static final String SIZE_X = "Size X";

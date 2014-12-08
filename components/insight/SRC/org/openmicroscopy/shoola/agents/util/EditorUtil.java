@@ -205,7 +205,7 @@ public class EditorUtil
     public static final String EMAIL = "E-mail";
 
     /** String to represent the micron symbol. */
-    public static final String MICRONS_NO_BRACKET = UIUtilities.getSymbol(UnitsLength.MICROM);
+    public static final String MICRONS_NO_BRACKET = LengthI.lookupSymbol(UnitsLength.MICROM);
 
     /** String to represent the micron symbol. */
     public static final String MICRONS = "("+MICRONS_NO_BRACKET+")";
@@ -635,7 +635,7 @@ public class EditorUtil
         }
         label += ") ";
         if (value.length() == 0) return null;
-        if (units == null) units = UIUtilities.getSymbol(UnitsLength.MICROM);
+        if (units == null) units = LengthI.lookupSymbol(UnitsLength.MICROM);
         return label+units+": </b>"+value;
     }
 

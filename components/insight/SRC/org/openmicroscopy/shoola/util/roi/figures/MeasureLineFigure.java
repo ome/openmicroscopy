@@ -271,7 +271,7 @@ public class MeasureLineFigure
 				if (x != (n-1)) v +="+";
 			}
 			v += "="+formatter.format(total);
-			v += UIUtilities.getSymbol((getUnit()));
+			v += LengthI.lookupSymbol((getUnit()));
 			if (n > 2) {
 				List<Point> l = getPoints();
 				Iterator<Point> j = l.iterator();

@@ -32,10 +32,12 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 
+
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
-
+import omero.model.LengthI;
 import omero.model.enums.UnitsLength;
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -65,13 +67,13 @@ class DetailsPane
     private static final String SIZE_Y = "Size Y";
     
     /** Identifies the <code>PixelSizeX</code> field. */
-    private static final String PIXEL_SIZE_X = "Pixel size X "+UIUtilities.getSymbol(UnitsLength.MICROM);
+    private static final String PIXEL_SIZE_X = "Pixel size X "+LengthI.lookupSymbol(UnitsLength.MICROM);
     
     /** Identifies the <code>PixelSizeY</code> field. */
-    private static final String PIXEL_SIZE_Y = "Pixel size Y "+UIUtilities.getSymbol(UnitsLength.MICROM);
+    private static final String PIXEL_SIZE_Y = "Pixel size Y "+LengthI.lookupSymbol(UnitsLength.MICROM);
     
     /** Identifies the <code>PixelSizeZ</code> field. */
-    private static final String PIXEL_SIZE_Z = "Pixel size Z "+UIUtilities.getSymbol(UnitsLength.MICROM);
+    private static final String PIXEL_SIZE_Z = "Pixel size Z "+LengthI.lookupSymbol(UnitsLength.MICROM);
     
     /**
      * Creates a non-editable text field.

@@ -2634,11 +2634,6 @@ public class UIUtilities
 		
 		return v;
 	}
-	
-	public static String getSymbol(UnitsLength unit) {
-		LengthI tmp = new LengthI(1, unit);
-		return tmp.getSymbol();
-	}
     
 	/**
      * Formats the passed value in seconds.

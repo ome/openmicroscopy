@@ -2987,7 +2987,7 @@ class ImViewerModel
 		
 		double size = getPixelsSizeX();
 		if (size < 0) 
-			return UIUtilities.getSymbol(UnitsLength.MICROM);
+			return LengthI.lookupSymbol(UnitsLength.MICROM);
 		
 		Length tmp = new LengthI(size, UnitsLength.MICROM);
 		tmp = UIUtilities.transformSize(tmp);
