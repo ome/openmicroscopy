@@ -2206,15 +2206,24 @@ class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
 
     def getPixelSizeXMicrons (self):
         """ Helper for calling getPixelSizeX(units="MICROM") in templates """
-        return self.getPixelSizeX(units="MICROM")[0]
+        size = self.getPixelSizeX(units="MICROM")
+        if size is None:
+            return 0
+        return size.getValue()
 
     def getPixelSizeYMicrons (self):
         """ Helper for calling getPixelSizeX(units="MICROM") in templates """
-        return self.getPixelSizeY(units="MICROM")[0]
+        size = self.getPixelSizeY(units="MICROM")
+        if size is None:
+            return 0
+        return size.getValue()
 
     def getPixelSizeZMicrons (self):
         """ Helper for calling getPixelSizeX(units="MICROM") in templates """
-        return self.getPixelSizeZ(units="MICROM")[0]
+        size = self.getPixelSizeZ(units="MICROM")
+        if size is None:
+            return 0
+        return size.getValue()
 
     def getChannels (self):
         try:
