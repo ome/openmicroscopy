@@ -82,7 +82,7 @@ class ShapeSettingsData:
         self.strokeColour = rint(self.GREY)
         self.strokeWidth = LengthI()
         self.strokeWidth.setValue(1)
-        self.strokeWidth.setUnit(UnitsLength.PT)
+        self.strokeWidth.setUnit(UnitsLength.POINT)
         self.strokeDashArray = rstring('')
         self.strokeDashOffset = rint(0)
         self.strokeLineCap = rstring('')
@@ -116,7 +116,7 @@ class ShapeSettingsData:
         self.strokeColour = rint(colour)
         self.strokeWidth = LengthI()
         self.strokeWidth.setValue(width)
-        self.strokeWidth.setUnit(UnitsLength.PT)
+        self.strokeWidth.setUnit(UnitsLength.POINT)
 
     ###
     # Set the Fill Settings for the ShapeSettings.

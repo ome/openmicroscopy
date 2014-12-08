@@ -2,7 +2,7 @@
  * pojos.ObjectiveData
  *
  *------------------------------------------------------------------------------
- * Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ * Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -29,12 +29,13 @@ package pojos;
 //Application-internal dependencies
 import omero.RBool;
 import omero.RDouble;
-import omero.RInt;
 import omero.RString;
 import omero.model.Correction;
 import omero.model.Immersion;
 import omero.model.Length;
+import omero.model.LengthI;
 import omero.model.Objective;
+import omero.model.enums.UnitsLength;
 
 /**
  * Hosts an objective used to capture an image.
@@ -68,7 +69,25 @@ public class ObjectiveData
 	/**
 	 * Returns the working distance.
 	 * 
+	 * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
 	 * @return See above.
+	 */
+	public Length getWorkingDistance(UnitsLength unit)
+	{
+		Objective obj = ((Objective) asIObject());
+		Length l = obj.getWorkingDistance();
+		if (l==null)
+			return null;
+		return unit == null ? l : new LengthI(l, unit);
+	}
+	
+	/**
+	 * Returns the working distance.
+	 * 
+	 * @return See above.
+	 * @deprecated Replaced by {@link #getWorkingDistance(UnitsLength)}
 	 */
 	@Deprecated
 	public double getWorkingDistance()

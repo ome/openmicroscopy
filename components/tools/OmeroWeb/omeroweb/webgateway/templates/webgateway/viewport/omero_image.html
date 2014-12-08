@@ -51,8 +51,7 @@
 
     <!-- jquery -->
     {% include "webgateway/base/includes/script_src_jquery.html" %}
-
-    <script type="text/javascript" src="{% static "webgateway/js/ome.popup.js" %}"></script>
+    {% include "webgateway/base/includes/script_src_popup.html" %}
 
 	<script type="text/javascript" src="{% static "3rdparty/aop.js" %}"></script>
 
@@ -73,6 +72,8 @@
     <script type="text/javascript" src="{% static "webgateway/js/ome.rangewidget.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/farbtastic/farbtastic.js" %}"></script>
     <script type="text/javascript" src="{% static "webgateway/js/ome.gs_utils.js" %}"></script>
+    
+    <script type="text/javascript" src="{% static "webgateway/js/ome.scalebardisplay.js" %}"></script>
     <!-- for display of ROIs over the image -->
     <script type="text/javascript" src="{% static "webgateway/js/ome.roidisplay.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/raphael/raphael-min.js" %}"></script>
@@ -91,6 +92,7 @@
     <script type="text/javascript" src="{% static "3rdparty/panojs/control_info.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/panojs/control_svg.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/panojs/control_roi.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/panojs/control_scalebar.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.mousewheel.js" %}"></script>
 
     <!-- hammer.js for tablet gestures -->
@@ -316,6 +318,28 @@
     }
   }
 
+
+  var show_scalebar = function () {
+    {% if image.getPixelSizeX %}
+    if (!viewport.viewportimg.get(0).show_scalebar) {
+    // if the Scalebar plugin has not been initialised (method not available...) init and load Scalebar...
+        var options = {'pixSizeX': viewport.getPixelSizes().x,
+                       'imageWidth': viewport.getSizes().width};
+        if (viewport.loadedImg.tiles) {
+            options['tiles'] = true;
+        }
+        viewport.viewportimg.scalebar_display(options);
+    }
+    
+    viewport.viewportimg.get(0).setScalebarZoom(viewport.getZoom()/100 );
+    viewport.viewportimg.get(0).show_scalebar();
+    {% endif %}
+  }
+  
+  var hide_scalebar = function () {
+      viewport.viewportimg.get(0).hide_scalebar();
+  }
+  
   /**
   *     ROI load & table methods
   */
@@ -340,7 +364,6 @@
                      'json_url':'{% url 'webgateway_get_rois_json' image.id %}'};
           if (viewport.loadedImg.tiles) {
               options['tiles'] = true;
-              options['canvas_name'] = 'roi_canvas_big';
           }
           viewport.viewportimg.roi_display(options);
           viewport.viewportimg.get(0).setRoiZoom(viewport.viewportimg.get(0).getZoom());
@@ -459,7 +482,7 @@
               var theT =
                   typeof shape.theT === "undefined"? NOZT : shape.theT + 1;
               shapesHtml += "<td class='shape_cell'>" + theT + "</td>";
-              shapesHtml += "<td class='shape_cell shape_text' title=\""+ text +"\"><p>"+ truncate_text(text) + "</p></td>";
+              shapesHtml += "<td class='shape_cell shape_text' title=\""+ text +"\"><p>"+ truncate_text(text.escapeHTML()) + "</p></td>";
               shapesHtml += "<td class='shape_cell'>" + shapeThumbHtml + "</td>";
               shapesHtml += "</tr>";
               if (roiIcon == null) roiIcon = shape['type'];
@@ -877,10 +900,16 @@
             T: <span id="wblitz-t-curr">1</span>/<span id="wblitz-t-count">1</span>
             </span>
           </div>
+          {% if image.getPixelSizeX %}
           <div class="odd row">
+            <label for="wblitz-scalebar">Scalebar</label>
+            <input id="wblitz-scalebar" type="checkbox" disabled/>
+          </div>
+          {% endif %}
+          <div class="even row">
             <a href="#" onclick="$('#metadata-postit').toggle(); return false;">Image Information</a><br />
           </div>
-          <div class="even row">
+          <div class="odd row">
                       <a href="#" onmouseover="this.href=viewport.getUrl('img_detail')"
                       onclick="show_image_link();
                         show_tooltip(this, 'curr-link'); return false;">
@@ -1090,6 +1119,9 @@
         if (viewport.viewportimg.get(0).setRoiZoom) {
             viewport.viewportimg.get(0).setRoiZoom(percent);
         }
+        if (viewport.viewportimg.get(0).setScalebarZoom) {
+            viewport.viewportimg.get(0).setScalebarZoom(percent/100);
+        }
     });
 
     var copy_paste_rdef_url = "{% url 'webgateway.views.copy_image_rdef_json' %}";
@@ -1288,7 +1320,16 @@
     // we can bind events to viewportimg for roi_display-plugin to trigger (plugin not created yet)
     viewport.viewportimg.bind("shape_click", handle_shape_selection);
     viewport.viewportimg.bind("rois_loaded", handle_rois_loaded);
-
+    
+    // 'Scalebar' checkbox to left of image
+    $("#wblitz-scalebar").change(function() {
+        if(this.checked) {
+            show_scalebar();
+        } else {
+            hide_scalebar();
+        }
+    });
+  
     // set up handlers for 'Save' button
     $("#rdef-setdef-btn").click(function(){
       setImageDefaults(viewport, this, function() {

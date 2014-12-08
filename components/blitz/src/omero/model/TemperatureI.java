@@ -19,6 +19,10 @@
 
 package omero.model;
 
+import java.util.Collections;
+import java.util.Map;
+import java.util.HashMap;
+
 import ome.model.ModelBased;
 import ome.units.unit.Unit;
 import ome.util.Filterable;
@@ -39,6 +43,31 @@ import omero.model.enums.UnitsTemperature;
 public class TemperatureI extends Temperature implements ModelBased {
 
     private static final long serialVersionUID = 1L;
+
+    private static final Map<String, double[][]> conversions;
+    static {
+        Map<String, double[][]> c = new HashMap<String, double[][]>();
+
+        c.put("DEGREEC:DEGREEF", new double[][]{new double[]{32, 1}, new double[]{1.8, 1}});
+        c.put("DEGREEC:K", new double[][]{new double[]{273.15, 1}, new double[]{0, 1}});
+        c.put("DEGREEF:DEGREEC", new double[][]{new double[]{-17.777777777, 1}, new double[]{0.55555555555, 1}});
+        c.put("K:DEGREEC", new double[][]{new double[]{-273.15, 1}, new double[]{0, 1}});
+        conversions = Collections.unmodifiableMap(c);
+    }
+
+    private static final Map<UnitsTemperature, String> SYMBOLS;
+    static {
+        Map<UnitsTemperature, String> s = new HashMap<UnitsTemperature, String>();
+        s.put(UnitsTemperature.DEGREEC, "°C");
+        s.put(UnitsTemperature.DEGREEF, "°F");
+        s.put(UnitsTemperature.DEGREER, "°R");
+        s.put(UnitsTemperature.K, "K");
+        SYMBOLS = s;
+    }
+
+    public static String lookupSymbol(UnitsTemperature unit) {
+        return SYMBOLS.get(unit);
+    }
 
     public static final Ice.ObjectFactory makeFactory(final omero.client client) {
 
@@ -133,6 +162,10 @@ public class TemperatureI extends Temperature implements ModelBased {
             ome.model.enums.UnitsTemperature.bySymbol(ul.getSymbol()).toString());
    }
 
+   /**
+    * Copy constructor that converts the given {@link omero.model.Temperature}
+    * based on the given ome.model enum
+    */
    public TemperatureI(double d, ome.model.enums.UnitsTemperature ul) {
         this(d, UnitsTemperature.valueOf(ul.toString()));
     }
@@ -145,13 +178,35 @@ public class TemperatureI extends Temperature implements ModelBased {
     */
     public TemperatureI(Temperature value, String target) {
        String source = value.getUnit().toString();
-       if (!target.equals(source)) {
-            throw new RuntimeException(String.format(
-               "%f %s cannot be converted to %s",
-               value.getValue(), value.getUnit(), target));
+       if (target.equals(source)) {
+           setValue(value.getValue());
+           setUnit(value.getUnit());
+        } else {
+            double[][] coeffs = conversions.get(source + ":" + target);
+            if (coeffs == null) {
+                throw new RuntimeException(String.format(
+                    "%f %s cannot be converted to %s",
+                        value.getValue(), value.getUnit(), target));
+            }
+            double orig = value.getValue();
+            double k, p, v;
+            if (coeffs.length == 0) {
+                v = orig;
+            } else if (coeffs.length == 2){
+                k = coeffs[0][0];
+                p = coeffs[0][1];
+                v = Math.pow(k, p);
+
+                k = coeffs[1][0];
+                p = coeffs[1][1];
+                v += Math.pow(k, p) * orig;
+            } else {
+                throw new RuntimeException("coefficients of unknown length: " +  coeffs.length);
+            }
+
+            setValue(v);
+            setUnit(UnitsTemperature.valueOf(target));
        }
-       setValue(value.getValue());
-       setUnit(value.getUnit());
     }
 
    /**
@@ -164,7 +219,7 @@ public class TemperatureI extends Temperature implements ModelBased {
     }
 
     /**
-     * Convert a Bio-Formats {@link Temperature} to an OMERO Temperature.
+     * Convert a Bio-Formats {@link Length} to an OMERO Length.
      */
     public TemperatureI(ome.units.quantity.Temperature value) {
         ome.model.enums.UnitsTemperature internal =
@@ -188,6 +243,10 @@ public class TemperatureI extends Temperature implements ModelBased {
 
     public void setUnit(UnitsTemperature unit, Ice.Current current) {
         this.unit = unit;
+    }
+
+    public String getSymbol(Ice.Current current) {
+        return SYMBOLS.get(this.unit);
     }
 
     public Temperature copy(Ice.Current ignore) {

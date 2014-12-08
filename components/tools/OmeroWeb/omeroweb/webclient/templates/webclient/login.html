@@ -69,7 +69,7 @@
 
 <div id="login">
     {% block login %}
-    <form class="standard_form inlined" action="{% url 'weblogin' %}{% if url %}?{{url}}{% endif %}" method="post">
+    <form class="standard_form inlined" action="{% url 'weblogin' %}{% if url %}?{{url}}{% endif %}" method="post">{% csrf_token %}
         
 			
             {% if error %}

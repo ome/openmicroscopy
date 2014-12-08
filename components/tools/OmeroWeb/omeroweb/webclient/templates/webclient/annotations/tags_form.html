@@ -99,6 +99,7 @@
 
 </div>
 
+
 <script>
-    tagging_form({{ selected_tags|safe }}, "{{ newtags_formset.prefix }}", "{{ form_tags.tags.auto_id }}", {{ ome.user.id }}, "{{ ome.user.firstName|escape }} {{ ome.user.lastName|escape }}");
+    tagging_form([{% for st in selected_tags %}[{{ st.0 }},{{ st.1 }},"{{ st.2|escape }}", {{ st.3|lower }}, "{{ st.4 }}", {{ st.5|lower }}],{% endfor %}], "{{ newtags_formset.prefix }}", "{{ form_tags.tags.auto_id }}", {{ ome.user.id }}, "{{ ome.user.firstName|escape }} {{ ome.user.lastName|escape }}");
 </script>

@@ -8,25 +8,30 @@ $.fn.roi_display = function(options) {
     return this.each(function(){
 
         var self = this;
-        var canvas_name = (options.canvas_name ? options.canvas_name : 'roi_canvas');
-        var tiles =  (options.tiles ? options.tiles : false);
-        
-        if (options != null) {
-            var orig_width = options.width;
-            var orig_height = options.height;
-            var json_url = options.json_url;
-        }
+        var viewerId = this.id;
 
         var $viewportimg = $(this);
         var width = $viewportimg.attr('width');   // 0 initially
         var height = $viewportimg.attr('height');
 
+        var tiles =  (options.tiles ? options.tiles : false);
+
+        var canvas_class = (options.canvas_class ? options.canvas_class : 'weblitz-viewport-roi');
+
         if (!tiles) {
             // add our ROI canvas as a sibling to the image plane. Parent is the 'draggable' div
             var $dragdiv = $viewportimg.parent();
-            var $canvas =   $('<div id="'+canvas_name+'" class="'+canvas_name+'">').appendTo($dragdiv);
+            var canvas_name = (options.canvas_name ? options.canvas_name : viewerId + '-roi');
+            var $canvas =   $('<div id="'+canvas_name+'" class="'+canvas_class+'">').appendTo($dragdiv);
         } else {
-            var $canvas = $('#'+canvas_name)
+            var canvas_name = (options.canvas_name ? options.canvas_name : viewerId + '-tiles-roi');
+            var $canvas = $('#'+viewerId + '-tiles-roi')
+        }
+
+        if (options != null) {
+            var orig_width = options.width;
+            var orig_height = options.height;
+            var json_url = options.json_url;
         }
 
         var roi_json = null;          // load ROI data as json when needed
@@ -107,7 +112,7 @@ $.fn.roi_display = function(options) {
             }
             else if (shape['type'] == 'Label') {
               if (shape['textValue']) {
-                  newShape = paper.text(shape['x'], shape['y'], shape['textValue']).attr({'text-anchor':'start'});
+                  newShape = paper.text(shape['x'], shape['y'], shape['textValue'].escapeHTML()).attr({'text-anchor':'start'});
               }
             }
             // handle transforms. Insight supports: translate(354.05 83.01) and rotate(0 407.0 79.0)
@@ -246,7 +251,7 @@ $.fn.roi_display = function(options) {
         load_rois = function(display_rois) {
             if (json_url == undefined) return;
             
-            $.getJSON(json_url, function(data) {
+            $.getJSON(json_url+'?callback=?', function(data) {
                 roi_json = data;
 
                 // plot the rois
@@ -303,12 +308,12 @@ $.fn.roi_display = function(options) {
                                     var bb = newShape.getBBox();
                                     var textx = bb.x + (bb.width/2);
                                     var texty = bb.y + (bb.height/2);
-                                    var text_string = formatShapeText(shape['textValue'])
+                                    var text_string = formatShapeText(shape['textValue'].escapeHTML())
                                     var txt = paper.text(textx, texty, text_string);    // draw a 'dummy' paragraph to work out it's dimensions
                                     var newY = (texty-txt.getBBox().height/2)+9;
                                     // moving the existing text to newY doesn't seem to work - instead, remove and draw a new one
                                     txt.remove();
-                                    txt = paper.text(textx, newY, formatShapeText(shape['textValue'])).attr({'cursor':'default', 'fill': '#000'});
+                                    txt = paper.text(textx, newY, formatShapeText(shape['textValue'].escapeHTML())).attr({'cursor':'default', 'fill': '#000'});
                                     txt_box = txt.getBBox();
                                     var txt_w = txt_box.width*1.3;
                                     var txt_h = txt_box.height*1.3;

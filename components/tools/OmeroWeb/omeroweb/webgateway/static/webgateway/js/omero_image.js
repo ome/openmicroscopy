@@ -392,6 +392,9 @@
         $('#wblitz-image-pixel-size-y').html(tmp.y===0?'-':(tmp.y.lengthformat()));
         $('#wblitz-image-pixel-size-z').html(tmp.z===0?'-':(tmp.z.lengthformat()));
 
+        if (tmp.x!==0) {
+            $("#wblitz-scalebar").prop("disabled", false);
+        }
         /* Fill in the Rendering Details box */
 
         $(".picker").unbind('prepared').unbind('showing').unbind('hiding');

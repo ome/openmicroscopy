@@ -2,7 +2,7 @@
  * pojos.ShapeSettingsData
  *
  *------------------------------------------------------------------------------
- * Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ * Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -22,21 +22,18 @@
  */
 package pojos;
 
-import static ome.formats.model.UnitsFactory.convertLength;
-import static ome.formats.model.UnitsFactory.makeLength;
-
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 
 import ome.formats.model.UnitsFactory;
-import ome.units.UNITS;
 import omero.RInt;
 import omero.RString;
 import omero.rtypes;
 import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.Shape;
+import omero.model.enums.UnitsLength;
 
 /**
  * Stores the settings related to a given shape.
@@ -212,6 +209,7 @@ public class ShapeSettingsData
 	 * Returns the stroke's width.
 	 * 
 	 * @return See above.
+	 * @deprecated Replaced by {@link #getStrokeWidth(UnitsLength)}
 	 */
 	@Deprecated
 	public double getStrokeWidth()
@@ -221,11 +219,29 @@ public class ShapeSettingsData
 		if (value == null) return 1.0;
 		return new LengthI(value, UnitsFactory.Shape_StrokeWidth).getValue();
 	}
+	
+	/**
+	 * Returns the stroke's width (or 1 px if it's not set or <= 0)
+	 * 
+	 * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
+	 * @return See above.
+	 */
+	public Length getStrokeWidth(UnitsLength unit)
+	{
+		Shape shape = (Shape) asIObject();
+		Length value = shape.getStrokeWidth();
+		if (value == null || value.getValue()<=0) 
+			return new LengthI(1, UnitsLength.PIXEL);
+		return unit == null ? value : new LengthI(value, unit);
+	}
 
 	/**
 	 * Set the stroke width.
 	 * 
 	 * @param strokeWidth See above.
+	 * @deprecated Replaced by {@link #setStrokeWidth(Length)}
 	 */
 	@Deprecated
 	public void setStrokeWidth(Double strokeWidth)
@@ -234,6 +250,20 @@ public class ShapeSettingsData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		shape.setStrokeWidth(new LengthI(strokeWidth, UnitsFactory.Shape_StrokeWidth));
+		setDirty(true);
+	}
+	
+	/**
+	 * Set the stroke width.
+	 * 
+	 * @param strokeWidth See above.
+	 */
+	public void setStrokeWidth(Length strokeWidth)
+	{
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setStrokeWidth(strokeWidth);
 		setDirty(true);
 	}
 	
@@ -366,6 +396,7 @@ public class ShapeSettingsData
 	 * Returns the stroke.
 	 * 
 	 * @return See above.
+	 * @deprecated Replaced by {@link #getFontSize(UnitsLength)}
 	 */
 	@Deprecated
 	public double getFontSize()
@@ -374,12 +405,32 @@ public class ShapeSettingsData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		Length size = shape.getFontSize();
-		if (size != null) return convertLength(size, UNITS.PT).getValue();
+		if (size != null) return (new LengthI(size, UnitsLength.POINT)).getValue();
 		return DEFAULT_FONT_SIZE;
+	}
+	
+	/**
+	 * Returns the stroke.
+	 * 
+	 * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
+	 * @return See above.
+	 */
+	public Length getFontSize(UnitsLength unit)
+	{
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		Length size = shape.getFontSize();
+		if (size != null) 
+			return unit == null ? size : new LengthI(size, unit);
+		return new LengthI(DEFAULT_FONT_SIZE, UnitsLength.POINT);
 	}
 
     /**
 	 * Set the size of the font.
+	 * @deprecated Replaced by {@link #setFontSize(Length)}
 	 */
 	@Deprecated
 	public void setFontSize(int fontSize)
@@ -388,7 +439,21 @@ public class ShapeSettingsData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		if (fontSize <= 0) fontSize = DEFAULT_FONT_SIZE;
-		shape.setFontSize(makeLength(fontSize, UNITS.PT));
+		shape.setFontSize(new LengthI(fontSize, UnitsLength.POINT));
+		setDirty(true);
+	}
+	
+	/**
+	 * Set the size of the font.
+	 */
+	public void setFontSize(Length fontSize)
+	{
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		if (fontSize ==null)
+			fontSize = new LengthI(DEFAULT_FONT_SIZE, UnitsLength.POINT);
+		shape.setFontSize(fontSize);
 		setDirty(true);
 	}
 	

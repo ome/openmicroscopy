@@ -42,6 +42,9 @@ import omero.model.LightSettings;
 import omero.model.LightSettingsI;
 import omero.model.LightSource;
 import omero.model.LogicalChannel;
+import omero.model.enums.UnitsElectricPotential;
+import omero.model.enums.UnitsFrequency;
+import omero.model.enums.UnitsLength;
 
 /** 
  * Object hosting the acquisition related to a logical channel.
@@ -160,9 +163,30 @@ public class ChannelAcquisitionData
 	/**
 	 * Returns the voltage set on the detector.
 	 * 
+	 * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
 	 * @return See above.
 	 */
-	@Deprecated
+	public ElectricPotential getDetectorSettingsVoltage(UnitsElectricPotential unit)
+	{
+		if (detectorSettings == null) 
+			return null;
+		
+		ElectricPotential e = detectorSettings.getVoltage();
+		if (e == null)
+			return null;
+		
+		return unit == null ? e : new ElectricPotentialI(e, unit);
+	}
+	
+	/**
+	 * Returns the voltage set on the detector.
+	 * 
+	 * @return See above.
+	 * @deprecated Replaced by {@link #getDetectorSettingsVoltage(UnitsElectricPotential)}
+	 */
+	@Deprecated 
 	public Double getDetectorSettingsVoltage()
 	{
 		if (detectorSettings == null) return null;
@@ -174,7 +198,25 @@ public class ChannelAcquisitionData
 	/**
 	 * Returns the Read out rate set on the detector.
 	 * 
+	 * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
 	 * @return See above.
+	 */
+	public Frequency getDetectorSettingsReadOutRate(UnitsFrequency unit)
+	{
+		if (detectorSettings == null) return null;
+		Frequency f = detectorSettings.getReadOutRate();
+		if (f == null)
+			return null;
+		return unit == null ? f : new FrequencyI(f, unit);
+	}
+	
+	/**
+	 * Returns the Read out rate set on the detector.
+	 * 
+	 * @return See above.
+	 * @deprecated Replaced by {@link #getDetectorSettingsReadOutRate(UnitsFrequency)}
 	 */
 	@Deprecated
 	public Double getDetectorSettingsReadOutRate()
@@ -216,7 +258,25 @@ public class ChannelAcquisitionData
 	/**
 	 * Returns the wavelength of the light source.
 	 * 
+	 * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
 	 * @return See above.
+	 */
+	public Length getLightSettingsWavelength(UnitsLength unit)
+	{
+		if (lightSettings == null) return null;
+		Length l = lightSettings.getWavelength();
+		if (l==null)
+			return null;
+		return unit == null ? l : new LengthI(l, unit);
+	}
+	
+	/**
+	 * Returns the wavelength of the light source.
+	 * 
+	 * @return See above.
+	 * @deprecated Replaced by {@link #getLightSettingsWavelength(UnitsLength)}
 	 */
 	@Deprecated
 	public Double getLightSettingsWavelength()
@@ -268,6 +328,19 @@ public class ChannelAcquisitionData
 	 * 
 	 * @param value The value to set.
 	 */
+	public void setLightSettingsWavelength(Length value)
+	{
+		lightSourceSettingsDirty = true;
+		if (lightSettings == null) lightSettings = new LightSettingsI();
+		lightSettings.setWavelength(value);
+	}
+	
+	/**
+	 * Sets the wavelength of the light source.
+	 * 
+	 * @param value The value to set.
+	 * @deprecated Replaced by {@link #setLightSettingsWavelength(Length)}
+	 */
 	@Deprecated
 	public void setLightSettingsWavelength(double value)
 	{
@@ -309,6 +382,20 @@ public class ChannelAcquisitionData
 	 * 
 	 * @param value The value to set.
 	 */
+	public void setDetectorSettingsReadOutRate(Frequency value)
+	{
+		detectorSettingsDirty = true;
+		if (detectorSettings == null) 
+			detectorSettings = new DetectorSettingsI();
+		detectorSettings.setReadOutRate(value);
+	}
+	
+	/**
+	 * Sets the detector setting's read out rate.
+	 * 
+	 * @param value The value to set.
+	 * @deprecated Replaced by {@link #setDetectorSettingsReadOutRate(Frequency)}
+	 */
 	@Deprecated
 	public void setDetectorSettingsReadOutRate(double value)
 	{
@@ -323,6 +410,20 @@ public class ChannelAcquisitionData
 	 * Sets the detector setting's voltage.
 	 * 
 	 * @param value The value to set.
+	 */
+	public void setDetectorSettingsVoltage(ElectricPotential value)
+	{
+		detectorSettingsDirty = true;
+		if (detectorSettings == null) 
+			detectorSettings = new DetectorSettingsI();
+		detectorSettings.setVoltage(value);
+	}
+	
+	/**
+	 * Sets the detector setting's voltage.
+	 * 
+	 * @param value The value to set.
+	 * @deprecated Replaced by {@link #setDetectorSettingsVoltage(ElectricPotential)}
 	 */
 	@Deprecated
 	public void setDetectorSettingsVoltage(double value)

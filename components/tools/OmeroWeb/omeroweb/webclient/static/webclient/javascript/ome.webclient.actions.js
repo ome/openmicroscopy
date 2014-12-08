@@ -436,6 +436,7 @@ OME.truncateNames = (function(){
                 name = $this.attr('data-name'),
                 truncatedName,
                 chars = name.length;
+            name = name.escapeHTML();
             // if we know maxChars and we're longer than that...
             if (maxChars && name.length > maxChars) {
                 chars = maxChars;

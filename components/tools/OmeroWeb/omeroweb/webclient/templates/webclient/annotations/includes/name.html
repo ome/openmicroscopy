@@ -23,7 +23,7 @@
         <div>
             <h1>
                 <span id="{{ manager.obj_type }}name-{{ manager.obj_id }}-name" style="word-wrap: break-word;">
-                    {{ nameText }}
+                    {{ nameText|escape }}
                 </span>
             </h1>
             <button class="btn silver btn_edit" alt="e" title="edit">
@@ -32,5 +32,5 @@
         </div>
     </div>
 {% else %}
-    <h1 style="word-wrap: break-word;">{{ nameText }}</h1>
+    <h1 style="word-wrap: break-word;">{{ nameText|escape }}</h1>
 {% endif %}

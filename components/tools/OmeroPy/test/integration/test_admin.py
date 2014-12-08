@@ -102,7 +102,8 @@ class TestAdmin(lib.ITest):
         whenFoo = query.projection(hql, getOnlyOne)[0][0].val
         assert whenFoo > whenOme
 
-    @pytest.mark.xfail(reason="Empty password disabled by config")
+    @pytest.mark.broken(reason="Empty password disabled by config",
+                        ticket="3201")
     def testChangePasswordWhenUnset(self):
         """
         Shows that it's possible to use the
@@ -169,7 +170,7 @@ class TestAdmin(lib.ITest):
         assert len(ec1.memberOfGroups)+1 == len(ec2.memberOfGroups)
         assert group.id.val in ec2.memberOfGroups
 
-    @pytest.mark.xfail(reason="This test fails since #11465")
+    @pytest.mark.broken(reason="This test fails since #11465", ticket="11465")
     def testUserRoles4056(self):
         """
         Tests for optimistic lock exception when modifying roles.
@@ -230,8 +231,8 @@ class TestAdmin(lib.ITest):
     # This test is no longer valid as it shpuld not be possible to remove
     # users from their only remaining group. It would be easy to may the
     # test pass by adding extra groups but that would defeat the purpose
-    # of this test. Marking as xfail until the test has been reviewed.
-    @pytest.mark.xfail(reason="Is this test still valid? See #11465")
+    # of this test. Marking as broken until the test has been reviewed.
+    @pytest.mark.broken(reason="Is this test still valid?", ticket="11465")
     def test9193(self):
         # Test the removal of removing users
         # from a group when the group in question

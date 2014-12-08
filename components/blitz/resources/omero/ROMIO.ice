@@ -45,7 +45,7 @@ module romio
       int width;
       int height;
     };
-    
+
     const int XY = 0;
     const int ZY = 1;
     const int XZ = 2;
@@ -61,8 +61,6 @@ module romio
       int stride;
     };
 
-
-    
     class CodomainMapContext
     {
     };

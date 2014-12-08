@@ -25,6 +25,33 @@ namespace omero {
 
     namespace model {
 
+        std::map<omero::model::enums::UnitsTime, std::string> TimeI::SYMBOLS= {
+            {omero::model::enums::UnitsTime::AS, "as"},
+            {omero::model::enums::UnitsTime::CS, "cs"},
+            {omero::model::enums::UnitsTime::D, "d"},
+            {omero::model::enums::UnitsTime::DAS, "das"},
+            {omero::model::enums::UnitsTime::DS, "ds"},
+            {omero::model::enums::UnitsTime::EXAS, "Es"},
+            {omero::model::enums::UnitsTime::FS, "fs"},
+            {omero::model::enums::UnitsTime::GIGAS, "Gs"},
+            {omero::model::enums::UnitsTime::H, "h"},
+            {omero::model::enums::UnitsTime::HS, "hs"},
+            {omero::model::enums::UnitsTime::KS, "ks"},
+            {omero::model::enums::UnitsTime::MEGAS, "Ms"},
+            {omero::model::enums::UnitsTime::MICROS, "µs"},
+            {omero::model::enums::UnitsTime::MIN, "min"},
+            {omero::model::enums::UnitsTime::MS, "ms"},
+            {omero::model::enums::UnitsTime::NS, "ns"},
+            {omero::model::enums::UnitsTime::PETAS, "Ps"},
+            {omero::model::enums::UnitsTime::PS, "ps"},
+            {omero::model::enums::UnitsTime::S, "s"},
+            {omero::model::enums::UnitsTime::TERAS, "Ts"},
+            {omero::model::enums::UnitsTime::YOTTAS, "Ys"},
+            {omero::model::enums::UnitsTime::YS, "ys"},
+            {omero::model::enums::UnitsTime::ZETTAS, "Zs"},
+            {omero::model::enums::UnitsTime::ZS, "zs"},
+        };
+
         TimeI::~TimeI() {}
 
         TimeI::TimeI() : Time() {
@@ -44,6 +71,10 @@ namespace omero {
 
         void TimeI::setUnit(omero::model::enums::UnitsTime _unit, const Ice::Current& /* current */) {
             unit = _unit;
+        }
+
+        std::string TimeI::getSymbol(const Ice::Current& /* current */) {
+            return SYMBOLS[unit];
         }
 
         TimePtr TimeI::copy(const Ice::Current& /* current */) {

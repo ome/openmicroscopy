@@ -341,8 +341,6 @@ class EditorUI
 		setDataToSave(false);
 		toolBar.buildUI();
 		tabPane.setToolTipTextAt(RND_INDEX, RENDERER_DESCRIPTION);
-		boolean preview = false;
-		int selected = getSelectedTab();
 		if (!(uo instanceof DataObject)) {
 			//saved = false;
 			setDataToSave(false);
@@ -1073,6 +1071,13 @@ class EditorUI
 	}
 	
 	/**
+	 * Shows the location dialog
+	 */
+	void displayLocation() {
+	    toolBar.displayLocation();
+	}
+	
+	/**
 	 * Returns the file set.
 	 * 
 	 * @return See above.
@@ -1114,18 +1119,5 @@ class EditorUI
 	void setLDAPDetails(String result) {
 	    userUI.setLDAPDetails(result);
 	}
-
-	/**
-	 * Overridden to wrap the description.
-	 * @see JComponent#setSize(Dimension)
-	 */
-	public void setSize(Dimension d)
-	{
-		super.setSize(d);
-		if (generalPane != null) 
-			generalPane.setExtentWidth(getVisibleRect().width);
-	}
-
-
 
 }

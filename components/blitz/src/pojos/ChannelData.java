@@ -37,6 +37,7 @@ import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.LogicalChannel;
 import omero.model.StatsInfo;
+import omero.model.enums.UnitsLength;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -123,13 +124,9 @@ public class ChannelData
         if (StringUtils.isNotBlank(value)) return value;
         value = getFluor();
         if (StringUtils.isNotBlank(value)) return value;
-        double v = getEmissionWavelength();
-        if (v > 0) {
-            // FIXME: Do we always append the symbol here?
-            if (DoubleMath.isMathematicalInteger(v)) {
-                return ""+ DoubleMath.roundToInt(v, RoundingMode.DOWN);
-            }
-            return ""+v;
+        Length v = getEmissionWavelength(null);
+        if (v != null) {
+        	return ""+ DoubleMath.roundToInt(v.getValue(), RoundingMode.DOWN);
         }
         return ""+index;
     }
@@ -164,7 +161,28 @@ public class ChannelData
     /**
      * Returns the emission wavelength of the channel.
      *
+     * param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
      * @return See above
+     */
+    public Length getEmissionWavelength(UnitsLength unit)
+    {
+        LogicalChannel lc = asChannel().getLogicalChannel();
+        if (lc == null) 
+        	return null;
+        
+        Length l = lc.getEmissionWave();
+        if (l == null)
+        	return null;
+        return unit == null ? l : new LengthI(l, unit);
+    }
+    
+    /**
+     * Returns the emission wavelength of the channel.
+     *
+     * @return See above
+     * @deprecated Replaced by {@link #getEmissionWavelength(UnitsLength)}
      */
     @Deprecated
     public double getEmissionWavelength()
@@ -180,7 +198,28 @@ public class ChannelData
     /**
      * Returns the excitation wavelength of the channel.
      *
+     * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
      * @return See above
+     */
+    public Length getExcitationWavelength(UnitsLength unit)
+    {
+        LogicalChannel lc = asChannel().getLogicalChannel();
+        if (lc == null) 
+        	return getEmissionWavelength(unit);
+        Length l = lc.getExcitationWave();
+        if (l == null)
+        	return null;
+        
+        return unit == null ? l : new LengthI(l, unit);
+    }
+    
+    /**
+     * Returns the excitation wavelength of the channel.
+     *
+     * @return See above
+     * @deprecated Replaced by {@link #getExcitationWavelength(UnitsLength)}
      */
     @Deprecated
     public double getExcitationWavelength()
@@ -196,7 +235,29 @@ public class ChannelData
     /**
      * Returns the pin hole size of the channel.
      *
+     * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
      * @return See above
+     */
+    public Length getPinholeSize(UnitsLength unit)
+    {
+        LogicalChannel lc = asChannel().getLogicalChannel();
+        if (lc == null) 
+        	return null;
+        
+        Length l = lc.getPinHoleSize();
+        if (l == null)
+        	return null;
+        
+        return unit == null ? l : new LengthI(l, unit);
+    }
+    
+    /**
+     * Returns the pin hole size of the channel.
+     *
+     * @return See above
+     * @deprecated Replaced by {@link #getPinholeSize(UnitsLength)}
      */
     @Deprecated
     public double getPinholeSize()
@@ -337,6 +398,20 @@ public class ChannelData
      *
      * @param value The value to set.
      */
+    public void setPinholeSize(Length value)
+    {
+        if (value == null) 
+        	return;
+        setDirty(true);
+        asChannel().getLogicalChannel().setPinHoleSize(value);
+    }
+    
+    /**
+     * Sets the pinhole size.
+     *
+     * @param value The value to set.
+     * @deprecated Replaced by {@link #setPinholeSize(Length)}
+     */
     @Deprecated
     public void setPinholeSize(double value)
     {
@@ -375,6 +450,20 @@ public class ChannelData
      *
      * @param value The value to set.
      */
+    public void setEmissionWavelength(Length value)
+    {
+        if (value == null) 
+        	return;
+        setDirty(true);
+        asChannel().getLogicalChannel().setEmissionWave(value);
+    }
+    
+    /**
+     * Sets the emission wavelength.
+     *
+     * @param value The value to set.
+     * @deprecated Replaced by {@link #setEmissionWavelength(Length)}
+     */
     @Deprecated
     public void setEmissionWavelength(double value)
     {
@@ -388,6 +477,20 @@ public class ChannelData
      * Sets the excitation wavelength.
      *
      * @param value The value to set.
+     */
+    public void setExcitationWavelength(Length value)
+    {
+        if (value == null) 
+        	return;
+        setDirty(true);
+        asChannel().getLogicalChannel().setExcitationWave(value);
+    }
+    
+    /**
+     * Sets the excitation wavelength.
+     *
+     * @param value The value to set.
+     * @deprecated Replaced by {@link #setExcitationWavelength(Length)}
      */
     @Deprecated
     public void setExcitationWavelength(double value)

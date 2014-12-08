@@ -27,9 +27,11 @@ ROIControl.prototype.init = function() {
 ROIControl.prototype.createDOMElements = function() {
     var de = this.viewer.surface;
 
+    var canvas_id = this.viewer.viewer.id+'-roi';
+
     this.dom_element = document.createElement('div');
-    this.dom_element.id = 'roi_canvas_big';
-    this.dom_element.className = 'roi_canvas_big';
+    this.dom_element.id = canvas_id;
+    this.dom_element.className = 'weblitz-viewport-roi';
     this.dom_element.setAttribute("style", PanoJS.CONTROL_ROI_STYLE);
     de.appendChild(this.dom_element); 
     
@@ -51,9 +53,10 @@ ROIControl.prototype.viewerMoved = function(e) {
     this.x = e.x;
     this.y = e.y;
     this.updateDOMElements();
-    
+
     //notify the viewer
-    var vp = $.WeblitzViewport($(this.dom_element).closest('.weblitz-viewport-top').parent());
+    var vp = $.WeblitzViewport($(this.viewer.viewer).parent().parent().parent());
+
     var theT = vp.getTPos();
     var theZ = vp.getZPos();
     

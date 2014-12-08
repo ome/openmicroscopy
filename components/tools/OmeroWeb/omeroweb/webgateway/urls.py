@@ -221,13 +221,13 @@ webgateway_search_json = url(r'^search/$', 'webgateway.views.search_json', name=
 json method: returns search results. All parameters in request. See L{views.search_json}
 """
 
-get_rois_json = url( r'^get_rois_json/(?P<imageId>[0-9]+)$', 'webgateway.views.get_rois_json', name='webgateway_get_rois_json' )
+get_rois_json = url( r'^get_rois_json/(?P<imageId>[0-9]+)/$', 'webgateway.views.get_rois_json', name='webgateway_get_rois_json' )
 """
 gets all the ROIs for an Image as json. Image-ID is request: imageId=123
 [{'id':123, 'shapes':[{'type':'Rectangle', 'theZ':5, 'theT':0, 'x':250, 'y':100, 'width':10 'height':45} ]
 """
 
-get_shape_json = url( r'^get_shape_json/(?P<roiId>[0-9]+)/(?P<shapeId>[0-9]+)$', 'webgateway.views.get_shape_json', name='webgateway_get_shape_json' )
+get_shape_json = url( r'^get_shape_json/(?P<roiId>[0-9]+)/(?P<shapeId>[0-9]+)/$', 'webgateway.views.get_shape_json', name='webgateway_get_shape_json' )
 """
 gets a Shape as json. ROI-ID, Shape-ID is request: roiId=123 and shapeId=123
 {'type':'Rectangle', 'theZ':5, 'theT':0, 'x':250, 'y':100, 'width':10,

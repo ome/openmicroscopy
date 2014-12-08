@@ -52,8 +52,14 @@ namespace omero {
 
     protected:
         virtual ~LengthI(); // protected as outlined in Ice docs.
+        static std::map<omero::model::enums::UnitsLength, std::string> SYMBOLS;
 
     public:
+
+        static std::string lookupSymbol(omero::model::enums::UnitsLength unit) {
+            return SYMBOLS[unit];
+        }
+
         LengthI();
 
         virtual Ice::Double getValue(
@@ -68,6 +74,9 @@ namespace omero {
 
         virtual void setUnit(
                 omero::model::enums::UnitsLength unit,
+                const Ice::Current& current = Ice::Current());
+
+        virtual std::string getSymbol(
                 const Ice::Current& current = Ice::Current());
 
         virtual LengthPtr copy(

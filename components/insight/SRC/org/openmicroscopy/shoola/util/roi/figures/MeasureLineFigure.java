@@ -164,6 +164,8 @@ public class MeasureLineFigure
 	private String formatValue(double value, boolean degree)
 	{
 	    NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
+	    if (degree) 
+	    	return addDegrees(formatter.format(value));
 	    if (units.isInMicrons()){ 
 	        UnitsObject v = UIUtilities.transformSize(value);
 	        StringBuffer buffer = new StringBuffer();
@@ -171,7 +173,6 @@ public class MeasureLineFigure
 	        buffer.append(v.getUnits());
 	        return buffer.toString();
 	    }
-	    if (degree) return addDegrees(formatter.format(value));
 	    else return addUnits(formatter.format(value));
 	}
 

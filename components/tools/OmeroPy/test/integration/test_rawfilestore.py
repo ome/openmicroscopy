@@ -39,7 +39,7 @@ class TestRFS(lib.ITest):
         assert ofile.size.val != -1
         assert ofile.hash.val != ""
 
-    @pytest.mark.xfail(reason="see ticket 11534")
+    @pytest.mark.broken(ticket="11534")
     def testTicket1961Basic(self):
         ofile = self.file()
         rfs = self.client.sf.createRawFileStore()
@@ -48,7 +48,7 @@ class TestRFS(lib.ITest):
         rfs.close()
         self.check_file(ofile)
 
-    @pytest.mark.xfail(reason="see ticket 11534")
+    @pytest.mark.broken(ticket="11534")
     def testTicket1961WithKillSession(self):
         ofile = self.file()
         grp = self.client.sf.getAdminService().getEventContext().groupName
@@ -66,7 +66,7 @@ class TestRFS(lib.ITest):
         c.killSession()
         self.check_file(ofile)
 
-    @pytest.mark.xfail(reason="see ticket 11534")
+    @pytest.mark.broken(ticket="11534")
     def testTicket2161Save(self):
         ofile = self.file()
         rfs = self.client.sf.createRawFileStore()
@@ -79,7 +79,7 @@ class TestRFS(lib.ITest):
         assert ofile.details.updateEvent.id.val \
             == ofile2.details.updateEvent.id.val
 
-    @pytest.mark.xfail(reason="see ticket 11534")
+    @pytest.mark.broken(ticket="11534")
     def testNoWrite(self):
 
         group = self.new_group(perms="rwr---")

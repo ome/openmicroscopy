@@ -295,13 +295,24 @@
                   var typeId = pid.split("-");
                   var rdefQry = OME.preview_viewport.getQuery();
                   // need to paste current settings to all images...
-                  var url = "{% url 'webgateway.views.copy_image_rdef_json' %}";
-                  url += "?toids=" + typeId[1] + "&to_type=" + typeId[0];
-                  url += "&" + rdefQry + "&imageId=" + OME.preview_viewport.loadedImg.id;   // Need imageId for 'apply to all'
-                  $.getJSON(url, function() {
-                    $span.text(spanTxt);
-                    OME.refreshThumbnails({'ignorePreview': true});
-                    updateMyRdef(OME.preview_viewport.getQuery());
+                  var url = "{% url 'webgateway.views.copy_image_rdef_json' %}"+ "?" + rdefQry;
+                  data = {
+                      "toids": typeId[1],
+                      "to_type": typeId[0],
+                      "imageId": OME.preview_viewport.loadedImg.id // Need imageId for 'apply to all'
+                  }
+                  $.ajax({
+                      type: "POST",
+                      dataType: 'text',
+                      traditional: true,
+                      url: url,
+                      data: data,
+                      success: function(data){
+                          $span.text(spanTxt);
+                          // update thumbnails
+                          OME.refreshThumbnails({'ignorePreview': true});
+                          updateMyRdef(OME.preview_viewport.getQuery());
+                      }
                   });
                 });
             }

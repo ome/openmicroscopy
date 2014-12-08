@@ -25,6 +25,41 @@ namespace omero {
 
     namespace model {
 
+        std::map<omero::model::enums::UnitsPressure, std::string> PressureI::SYMBOLS= {
+            {omero::model::enums::UnitsPressure::APA, "aPa"},
+            {omero::model::enums::UnitsPressure::ATM, "atm"},
+            {omero::model::enums::UnitsPressure::BAR, "bar"},
+            {omero::model::enums::UnitsPressure::CBAR, "cbar"},
+            {omero::model::enums::UnitsPressure::CPA, "cPa"},
+            {omero::model::enums::UnitsPressure::DAPA, "daPa"},
+            {omero::model::enums::UnitsPressure::DBAR, "dbar"},
+            {omero::model::enums::UnitsPressure::DPA, "dPa"},
+            {omero::model::enums::UnitsPressure::EXAPA, "EPa"},
+            {omero::model::enums::UnitsPressure::FPA, "fPa"},
+            {omero::model::enums::UnitsPressure::GIGAPA, "GPa"},
+            {omero::model::enums::UnitsPressure::HPA, "hPa"},
+            {omero::model::enums::UnitsPressure::KBAR, "kBar"},
+            {omero::model::enums::UnitsPressure::KPA, "kPa"},
+            {omero::model::enums::UnitsPressure::MBAR, "mbar"},
+            {omero::model::enums::UnitsPressure::MEGABAR, "Mbar"},
+            {omero::model::enums::UnitsPressure::MEGAPA, "MPa"},
+            {omero::model::enums::UnitsPressure::MICROPA, "µPa"},
+            {omero::model::enums::UnitsPressure::MMHG, "mm Hg"},
+            {omero::model::enums::UnitsPressure::MPA, "mPa"},
+            {omero::model::enums::UnitsPressure::MTORR, "mTorr"},
+            {omero::model::enums::UnitsPressure::NPA, "nPa"},
+            {omero::model::enums::UnitsPressure::PA, "Pa"},
+            {omero::model::enums::UnitsPressure::PETAPA, "PPa"},
+            {omero::model::enums::UnitsPressure::PPA, "pPa"},
+            {omero::model::enums::UnitsPressure::PSI, "psi"},
+            {omero::model::enums::UnitsPressure::TERAPA, "TPa"},
+            {omero::model::enums::UnitsPressure::TORR, "Torr"},
+            {omero::model::enums::UnitsPressure::YOTTAPA, "YPa"},
+            {omero::model::enums::UnitsPressure::YPA, "yPa"},
+            {omero::model::enums::UnitsPressure::ZETTAPA, "ZPa"},
+            {omero::model::enums::UnitsPressure::ZPA, "zPa"},
+        };
+
         PressureI::~PressureI() {}
 
         PressureI::PressureI() : Pressure() {
@@ -44,6 +79,10 @@ namespace omero {
 
         void PressureI::setUnit(omero::model::enums::UnitsPressure _unit, const Ice::Current& /* current */) {
             unit = _unit;
+        }
+
+        std::string PressureI::getSymbol(const Ice::Current& /* current */) {
+            return SYMBOLS[unit];
         }
 
         PressurePtr PressureI::copy(const Ice::Current& /* current */) {

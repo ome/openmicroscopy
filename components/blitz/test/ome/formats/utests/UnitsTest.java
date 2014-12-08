@@ -37,7 +37,7 @@ public class UnitsTest {
         LengthI.convert(mm(1));
     }
 
-    @Test(groups = "broken") // These conversions need to be implemented
+    @Test
     public void testLengthMapping() {
         new LengthI(mm(1), UNITS.M);
     }

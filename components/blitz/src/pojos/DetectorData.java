@@ -2,7 +2,7 @@
  * pojos.DetectorData
  *
  *------------------------------------------------------------------------------
- * Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ * Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -29,6 +29,7 @@ import omero.model.Detector;
 import omero.model.DetectorType;
 import omero.model.ElectricPotential;
 import omero.model.ElectricPotentialI;
+import omero.model.enums.UnitsElectricPotential;
 
 /**
  * Hosts a detector.
@@ -62,7 +63,25 @@ public class DetectorData
 	/**
 	 * Returns the voltage of the detector.
 	 * 
+	 * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
 	 * @return See above
+	 */
+	public ElectricPotential getVoltage(UnitsElectricPotential unit)
+	{
+		Detector detector = (Detector) asIObject();
+		ElectricPotential e = detector.getVoltage();
+		if (e==null)
+			return null;
+		return unit == null ? e : new ElectricPotentialI(e, unit);
+	}
+	
+	/**
+	 * Returns the voltage of the detector.
+	 * 
+	 * @return See above
+	 * @deprecated Replaced by {@link #getVoltage(UnitsElectricPotential)}
 	 */
 	@Deprecated
 	public Double getVoltage()
@@ -185,7 +204,7 @@ public class DetectorData
 	public String getLotNumber()
 	{
 		Detector detector = (Detector) asIObject();
-		RString value = null;//detector.getLotNumber();
+		RString value = detector.getLotNumber();
 		if (value == null) return "";
 		return value.getValue();
 	}

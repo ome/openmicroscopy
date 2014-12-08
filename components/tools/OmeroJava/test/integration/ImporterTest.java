@@ -174,7 +174,7 @@ public class ImporterTest extends AbstractServerTest {
         assertEquals(arc.getModel().getValue(), xml.getModel());
         assertEquals(arc.getSerialNumber().getValue(), xml.getSerialNumber());
         assertEquals(arc.getLotNumber().getValue(), xml.getLotNumber());
-        assertEquals(arc.getPower().getValue(), xml.getPower());
+        assertEquals(arc.getPower().getValue(), xml.getPower().value());
         assertEquals(arc.getType().getValue().getValue(),
                 XMLMockObjects.ARC_TYPE.getValue());
     }
@@ -192,7 +192,7 @@ public class ImporterTest extends AbstractServerTest {
         assertEquals(laser.getModel().getValue(), xml.getModel());
         assertEquals(laser.getSerialNumber().getValue(), xml.getSerialNumber());
         assertEquals(laser.getLotNumber().getValue(), xml.getLotNumber());
-        assertEquals(laser.getPower().getValue(), xml.getPower());
+        assertEquals(laser.getPower().getValue(), xml.getPower().value());
         assertEquals(laser.getType().getValue().getValue(),
                 XMLMockObjects.LASER_TYPE.getValue());
     }
@@ -212,7 +212,7 @@ public class ImporterTest extends AbstractServerTest {
         assertEquals(filament.getSerialNumber().getValue(),
                 xml.getSerialNumber());
         assertEquals(filament.getLotNumber().getValue(), xml.getLotNumber());
-        assertEquals(filament.getPower().getValue(), xml.getPower());
+        assertEquals(filament.getPower().getValue(), xml.getPower().value());
         assertEquals(filament.getType().getValue().getValue(),
                 XMLMockObjects.FILAMENT_TYPE.getValue());
     }
@@ -271,7 +271,7 @@ public class ImporterTest extends AbstractServerTest {
         assertEquals(diode.getModel().getValue(), xml.getModel());
         assertEquals(diode.getSerialNumber().getValue(), xml.getSerialNumber());
         assertEquals(diode.getLotNumber().getValue(), xml.getLotNumber());
-        assertEquals(diode.getPower().getValue(), xml.getPower());
+        assertEquals(diode.getPower().getValue(), xml.getPower().value());
     }
 
     /**
@@ -288,8 +288,9 @@ public class ImporterTest extends AbstractServerTest {
                 .getBinning().getValue());
         assertEquals(settings.getGain().getValue(), xml.getGain());
         assertEquals(settings.getOffsetValue().getValue(), xml.getOffset());
-        assertEquals(settings.getReadOutRate().getValue(), xml.getReadOutRate());
-        assertEquals(settings.getVoltage().getValue(), xml.getVoltage());
+        assertEquals(settings.getReadOutRate().getValue(),
+                xml.getReadOutRate().value());
+        assertEquals(settings.getVoltage().getValue(), xml.getVoltage().value());
     }
 
     /**

@@ -333,6 +333,8 @@ public class SessMgrUnitTest extends MockObjectTestCase {
     @Test
     public void testReplacesNullGroupAndType() throws Exception {
         prepareForCreateSession();
+        sf.mockAdmin.expects(atLeastOnce()).method("getDefaultGroup")
+            .will(returnValue(group));
         Session session = mgr.createWithAgent(new Principal("fake", null, null),
                 credentials, "Test", "127.0.0.1");
         assertNotNull(session.getDefaultEventType());
