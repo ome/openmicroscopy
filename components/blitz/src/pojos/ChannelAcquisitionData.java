@@ -42,6 +42,9 @@ import omero.model.LightSettings;
 import omero.model.LightSettingsI;
 import omero.model.LightSource;
 import omero.model.LogicalChannel;
+import omero.model.enums.UnitsElectricPotential;
+import omero.model.enums.UnitsFrequency;
+import omero.model.enums.UnitsLength;
 
 /** 
  * Object hosting the acquisition related to a logical channel.
@@ -160,20 +163,28 @@ public class ChannelAcquisitionData
 	/**
 	 * Returns the voltage set on the detector.
 	 * 
+	 * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
 	 * @return See above.
 	 */
-	public ElectricPotential getDetectorSettingsVoltageAsElectricPotential()
+	public ElectricPotential getDetectorSettingsVoltage(UnitsElectricPotential unit)
 	{
 		if (detectorSettings == null) 
 			return null;
-		return detectorSettings.getVoltage();
+		
+		ElectricPotential e = detectorSettings.getVoltage();
+		if (e == null)
+			return null;
+		
+		return unit == null ? e : new ElectricPotentialI(e, unit);
 	}
 	
 	/**
 	 * Returns the voltage set on the detector.
 	 * 
 	 * @return See above.
-	 * @deprecated Replaced by {@link #getDetectorSettingsVoltageAsElectricPotential()}
+	 * @deprecated Replaced by {@link #getDetectorSettingsVoltage(UnitsElectricPotential)}
 	 */
 	@Deprecated 
 	public Double getDetectorSettingsVoltage()
@@ -187,19 +198,25 @@ public class ChannelAcquisitionData
 	/**
 	 * Returns the Read out rate set on the detector.
 	 * 
+	 * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
 	 * @return See above.
 	 */
-	public Frequency getDetectorSettingsReadOutRateAsFrequency()
+	public Frequency getDetectorSettingsReadOutRate(UnitsFrequency unit)
 	{
 		if (detectorSettings == null) return null;
-		return detectorSettings.getReadOutRate();
+		Frequency f = detectorSettings.getReadOutRate();
+		if (f == null)
+			return null;
+		return unit == null ? f : new FrequencyI(f, unit);
 	}
 	
 	/**
 	 * Returns the Read out rate set on the detector.
 	 * 
 	 * @return See above.
-	 * @deprecated Replaced by {@link #getDetectorSettingsReadOutRateAsFrequency()}
+	 * @deprecated Replaced by {@link #getDetectorSettingsReadOutRate(UnitsFrequency)}
 	 */
 	@Deprecated
 	public Double getDetectorSettingsReadOutRate()
@@ -241,19 +258,25 @@ public class ChannelAcquisitionData
 	/**
 	 * Returns the wavelength of the light source.
 	 * 
+	 * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
 	 * @return See above.
 	 */
-	public Length getLightSettingsWavelengthAsLength()
+	public Length getLightSettingsWavelength(UnitsLength unit)
 	{
 		if (lightSettings == null) return null;
-		return lightSettings.getWavelength();
+		Length l = lightSettings.getWavelength();
+		if (l==null)
+			return null;
+		return unit == null ? l : new LengthI(l, unit);
 	}
 	
 	/**
 	 * Returns the wavelength of the light source.
 	 * 
 	 * @return See above.
-	 * @deprecated Replaced by {@link #getLightSettingsWavelengthAsLength()}
+	 * @deprecated Replaced by {@link #getLightSettingsWavelength(UnitsLength)}
 	 */
 	@Deprecated
 	public Double getLightSettingsWavelength()

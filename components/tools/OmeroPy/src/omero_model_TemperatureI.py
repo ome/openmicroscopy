@@ -45,13 +45,13 @@ class TemperatureI(_omero_model.Temperature, UnitBase):
 
     CONVERSIONS = dict()
     CONVERSIONS["DEGREEC:DEGREEF"] = \
-        lambda: noconversion("DEGREEC", "DEGREEF")
+        lambda value: 32+1.8 * value
     CONVERSIONS["DEGREEC:DEGREER"] = \
         lambda: noconversion("DEGREEC", "DEGREER")
     CONVERSIONS["DEGREEC:K"] = \
-        lambda: noconversion("DEGREEC", "K")
+        lambda value: 273.15
     CONVERSIONS["DEGREEF:DEGREEC"] = \
-        lambda: noconversion("DEGREEF", "DEGREEC")
+        lambda value: -17.777777777+0.55555555555 * value
     CONVERSIONS["DEGREEF:DEGREER"] = \
         lambda: noconversion("DEGREEF", "DEGREER")
     CONVERSIONS["DEGREEF:K"] = \
@@ -63,7 +63,7 @@ class TemperatureI(_omero_model.Temperature, UnitBase):
     CONVERSIONS["DEGREER:K"] = \
         lambda: noconversion("DEGREER", "K")
     CONVERSIONS["K:DEGREEC"] = \
-        lambda: noconversion("K", "DEGREEC")
+        lambda value: -273.15
     CONVERSIONS["K:DEGREEF"] = \
         lambda: noconversion("K", "DEGREEF")
     CONVERSIONS["K:DEGREER"] = \
@@ -102,8 +102,12 @@ class TemperatureI(_omero_model.Temperature, UnitBase):
     def getValue(self, current=None):
         return self._value
 
-    def getSymbol(self):
+    def getSymbol(self, current=None):
         return self.SYMBOLS.get(str(self.getUnit()))
+
+    @staticmethod
+    def lookupSymbol(unit):
+        return TemperatureI.SYMBOLS.get(str(unit))
 
     def setUnit(self, unit, current=None):
         self._unit = unit

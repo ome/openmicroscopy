@@ -355,3 +355,8 @@ class TestModel(object):
     def testLengthGetSymbol(self):
         um = LengthI(1.0, omero.model.enums.UnitsLength.MICROM)
         assert "µm" == um.getSymbol()
+
+    def testLengthLookupSymbol(self):
+        um = omero.model.enums.UnitsLength.MICROM
+        sym = LengthI.lookupSymbol(um)
+        assert "µm" == sym

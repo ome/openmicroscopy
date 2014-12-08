@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 
 //Third-party libraries
 
+import omero.model.enums.UnitsLength;
 //Application-internal dependencies
 import pojos.WellSampleData;
 
@@ -97,7 +98,7 @@ public class WellSampleNode
 	public double getPositionX()
 	{
 		WellSampleData data = (WellSampleData) getHierarchyObject();
-		return data.getPositionXAsLength().getValue();
+		return data.getPositionX(UnitsLength.REFERENCEFRAME).getValue();
 	}
 	
 	/**
@@ -108,7 +109,7 @@ public class WellSampleNode
 	public double getPositionY()
 	{
 		WellSampleData data = (WellSampleData) getHierarchyObject();
-		return data.getPositionYAsLength().getValue();
+		return data.getPositionY(UnitsLength.REFERENCEFRAME).getValue();
 	}
 	
 	/**

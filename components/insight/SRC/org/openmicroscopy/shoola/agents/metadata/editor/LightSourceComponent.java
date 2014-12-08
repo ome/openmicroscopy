@@ -308,6 +308,13 @@ class LightSourceComponent
             	((OMETextArea) area).setEditedColor(
             			UIUtilities.EDITED_COLOR);
             }
+            else {
+            	area = UIUtilities.createComponent(OMETextArea.class, null);
+            	((OMETextArea) area).setEditable(false);
+            	((OMETextArea) area).setText((String) value);
+            	((OMETextArea) area).setEditedColor(
+            			UIUtilities.EDITED_COLOR);
+            }
             if (area != null) {
             	area.setEnabled(!set);
             	comp = new DataComponent(label, area);

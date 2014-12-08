@@ -51,6 +51,12 @@ import omero.model.PlaneInfo;
 import omero.model.Power;
 import omero.model.Pressure;
 import omero.model.Temperature;
+import omero.model.enums.UnitsElectricPotential;
+import omero.model.enums.UnitsFrequency;
+import omero.model.enums.UnitsLength;
+import omero.model.enums.UnitsPower;
+import omero.model.enums.UnitsPressure;
+import omero.model.enums.UnitsTemperature;
 
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
@@ -268,7 +274,7 @@ public class EditorUtil
     public static final String EXCITATION = "Excitation";
 
     /** Identifies the <code>Pin hole size</code> field. */
-    public static final String PIN_HOLE_SIZE = "Pinhole size "+MICRONS;
+    public static final String PIN_HOLE_SIZE = "Pinhole size";
 
     /** Identifies the <code>ND filter</code> field. */
     public static final String ND_FILTER = "NDFilter "+PERCENT;
@@ -319,16 +325,16 @@ public class EditorUtil
     public static final String REFRACTIVE_INDEX = "Refractive index";
 
     /** Identifies the Environment <code>temperature</code> field. */
-    public static final String TEMPERATURE = "Temperature "+CELSIUS;
+    public static final String TEMPERATURE = "Temperature";
 
     /** Identifies the Environment <code>Air pressure</code> field. */
-    public static final String AIR_PRESSURE = "Air Pressure "+MILLIBARS;
+    public static final String AIR_PRESSURE = "Air Pressure";
 
     /** Identifies the Environment <code>Humidity</code> field. */
-    public static final String HUMIDITY = "Humidity "+PERCENT;
+    public static final String HUMIDITY = "Humidity";
 
     /** Identifies the Environment <code>CO2 Percent</code> field. */
-    public static final String CO2_PERCENT = "CO2 Percent "+PERCENT;
+    public static final String CO2_PERCENT = "CO2 Percent";
 
     /** Identifies the <code>Model</code> field. */
     public static final String MODEL = "Model";
@@ -397,7 +403,7 @@ public class EditorUtil
     public static final String POCKEL_CELL = "PockelCell";
 
     /** Identifies the <code>Repetition rate</code> of the laser. */
-    public static final String REPETITION_RATE = "Repetition Rate (Hz)";
+    public static final String REPETITION_RATE = "Repetition Rate";
 
     /** Identifies the <code>Repetition rate</code> of the laser. */
     public static final String PUMP = "Pump";
@@ -511,6 +517,9 @@ public class EditorUtil
     /** Identifies the <code>Violet</code> color. */
     private static final Color VIOLET = new Color(238, 130, 238);
 
+    /** Unicode character for a non-breaking space */
+    public static final String NONBRSPACE = "\u00A0";
+    
     /** 
      * The value to multiply the server value by when it is a percent fraction.
      */
@@ -713,33 +722,14 @@ public class EditorUtil
             details.put(SECTIONS, ""+data.getSizeZ());
             details.put(TIMEPOINTS, ""+data.getSizeT());
             details.put(CHANNELS, ""+data.getSizeC());
-            try {
-            	Length l = data.getPixelSizeXAsLength();
-            	if(l==null)
-            		details.put(PIXEL_SIZE_X, "0");
-            	else 
-            		details.put(PIXEL_SIZE_X, ""+UnitsFactory.convertLength(l, UNITS.MICROM).getValue());
-            	
-            	l = data.getPixelSizeYAsLength();
-            	if(l==null)
-            		details.put(PIXEL_SIZE_Y, "0");
-            	else 
-            		details.put(PIXEL_SIZE_Y, ""+UnitsFactory.convertLength(l, UNITS.MICROM).getValue());
-                
-            	l = data.getPixelSizeZAsLength();
-            	if(l==null)
-            		details.put(PIXEL_SIZE_Z, "0");
-            	else 
-            		details.put(PIXEL_SIZE_Z, ""+UnitsFactory.convertLength(l, UNITS.MICROM).getValue());
-            	
-                details.put(PIXEL_TYPE,
-                        PIXELS_TYPE_DESCRIPTION.get(""+data.getPixelType()));
-            } catch (Exception e) {
-                details.put(PIXEL_SIZE_X, "");
-                details.put(PIXEL_SIZE_Y, "");
-                details.put(PIXEL_SIZE_Z, "");
-                details.put(PIXEL_TYPE, "");
-            }
+            Length l = data.getPixelSizeX(UnitsLength.MICROM);
+			details.put(PIXEL_SIZE_X,  l == null ? "0" : ""+l.getValue());
+			l = data.getPixelSizeY(UnitsLength.MICROM);
+			details.put(PIXEL_SIZE_Y,  l == null ? "0" : ""+l.getValue());
+			l = data.getPixelSizeZ(UnitsLength.MICROM);
+			details.put(PIXEL_SIZE_Z,  l == null ? "0" : ""+l.getValue());
+			details.put(PIXEL_TYPE,
+					PIXELS_TYPE_DESCRIPTION.get("" + data.getPixelType()));
         }
         details.put(EMISSION+" "+WAVELENGTH+"s", "");
         return details;
@@ -787,9 +777,9 @@ public class EditorUtil
             details.put(SECTIONS, ""+data.getSizeZ());
             details.put(TIMEPOINTS, ""+data.getSizeT());
             try {
-                details.put(PIXEL_SIZE_X, nf.format(data.getPixelSizeX()));
-                details.put(PIXEL_SIZE_Y, nf.format(data.getPixelSizeY()));
-                details.put(PIXEL_SIZE_Z, nf.format(data.getPixelSizeZ()));
+                details.put(PIXEL_SIZE_X, nf.format(data.getPixelSizeX(UnitsLength.MICROM)));
+                details.put(PIXEL_SIZE_Y, nf.format(data.getPixelSizeY(UnitsLength.MICROM)));
+                details.put(PIXEL_SIZE_Z, nf.format(data.getPixelSizeZ(UnitsLength.MICROM)));
                 details.put(PIXEL_TYPE,
                         PIXELS_TYPE_DESCRIPTION.get(""+data.getPixelType()));
             } catch (Exception e) {
@@ -1235,58 +1225,54 @@ public class EditorUtil
             notSet.add(NAME);
         details.put(NAME, s);
 
-        Length wl = data.getEmissionWavelengthAsLength();
+        Length wl = data.getEmissionWavelength(UnitsLength.NM);
         if (wl == null) {
-            details.put(EMISSION, null);
+        	notSet.add(EMISSION);
         } else {
-        	double wave =  UnitsFactory.convertLength(wl, UNITS.NM).getValue();
+        	double wave = wl.getValue();
             if (wave <= 100) {
                 notSet.add(EMISSION);
-                details.put(EMISSION, Integer.valueOf(0));
             } else {
                 //First check if the wave is a int
                 if (DoubleMath.isMathematicalInteger(wave)) {
-                    details.put(EMISSION, (int)wave);
+                    details.put(EMISSION, (int)wave+NONBRSPACE+wl.getSymbol());
                 } else {
-                    details.put(EMISSION, wave);
+                    details.put(EMISSION, wave+NONBRSPACE+wl.getSymbol());
                 }
             }
         }
 
-        wl = data.getExcitationWavelengthAsLength();
+        wl = data.getExcitationWavelength(UnitsLength.NM);
         if (wl == null) {
-            details.put(EXCITATION, null);
+        	notSet.add(EXCITATION);
         } else {
-        	double wave =  UnitsFactory.convertLength(wl, UNITS.NM).getValue();
+        	double wave =  wl.getValue();
             if (wave <= 100) {
                 notSet.add(EXCITATION);
-                details.put(EXCITATION, Integer.valueOf(0));
             } else {
               //First check if the wave is a int
                 if (DoubleMath.isMathematicalInteger(wave)) {
-                    details.put(EXCITATION, (int)wave);
+                    details.put(EXCITATION, ((int)wave)+ NONBRSPACE + wl.getSymbol());
                 } else {
-                    details.put(EXCITATION, wave);
+                    details.put(EXCITATION, wave+ NONBRSPACE +wl.getSymbol());
                 }
             }
         }
 
         double f = data.getNDFilter();
-        if (f < 0) {
-            f = 0;
+        if (f < 0) 
             notSet.add(ND_FILTER);
-        }
-        details.put(ND_FILTER, f*100);
+        else
+        	details.put(ND_FILTER, f*100);
 
-        Length ph = data.getPinholeSizeAsLength();
+        Length ph = data.getPinholeSize(UnitsLength.MICROM);
         if (ph == null) {
-            f = 0;
             notSet.add(PIN_HOLE_SIZE);
         }
         else {
-        	f = UnitsFactory.convertLength(ph, UNITS.MICROM).getValue();
+        	f = ph.getValue();
+        	details.put(PIN_HOLE_SIZE, f+NONBRSPACE+ph.getSymbol());
         }
-        details.put(PIN_HOLE_SIZE, f);
         
         s = data.getFluor();
         if (StringUtils.isBlank(s))
@@ -1494,15 +1480,14 @@ public class EditorUtil
         if (StringUtils.isBlank(s))
             notSet.add(CORRECTION);
         details.put(CORRECTION, s);
-        Length wd = data.getWorkingDistanceAsLength();
+        Length wd = data.getWorkingDistance(UnitsLength.MICROM);
         if (wd==null) {
-            f = 0;
             notSet.add(WORKING_DISTANCE);
         }
         else {
-        	f = UnitsFactory.convertLength(wd, UNITS.MICROM).getValue();
+        	f = wd.getValue();
+        	details.put(WORKING_DISTANCE, f+NONBRSPACE+wd.getSymbol());
         }
-        details.put(WORKING_DISTANCE, f);
         details.put(NOT_SET, notSet);
         return details;
     }
@@ -1582,36 +1567,38 @@ public class EditorUtil
             details.put(NOT_SET, notSet);
             return details;
         }
-        Temperature t = data.getTemperatureAsTemperature();
+        Temperature t = data.getTemperature(null);
         double f = 0;
         if (t == null) {
             notSet.add(TEMPERATURE);
         } else {
-        	f = UnitsFactory.convertTemperature(t, UNITS.DEGREEC).getValue();
+        	f = t.getValue();
+        	details.put(TEMPERATURE, f+NONBRSPACE+t.getSymbol());
         }
-        details.put(TEMPERATURE, f);
         
-        Pressure p = data.getAirPressureAsPressure();
+        Pressure p = data.getAirPressure(null);
         if (p == null) {
             notSet.add(AIR_PRESSURE);
-            f = 0;
         }
         else {
-        	f = UnitsFactory.convertPressure(p, UNITS.MBAR).getValue();
+        	f = p.getValue();
+        	details.put(AIR_PRESSURE, f+NONBRSPACE+p.getSymbol());
         }
-        details.put(AIR_PRESSURE, f);
+        
         f = data.getHumidity();
         if (f < 0) {
             notSet.add(HUMIDITY);
-            f = 0;
         }
-        details.put(HUMIDITY, f*PERCENT_FRACTION);
+        else {
+        	details.put(HUMIDITY, (f*PERCENT_FRACTION)+NONBRSPACE+"%");
+        }
         f = data.getCo2Percent();
         if (f < 0) {
             notSet.add(CO2_PERCENT);
-            f = 0;
         }
-        details.put(CO2_PERCENT, f*PERCENT_FRACTION);
+        else {
+        	details.put(CO2_PERCENT, (f*PERCENT_FRACTION)+NONBRSPACE+"%");
+        }
         details.put(NOT_SET, notSet);
         return details;
      }
@@ -1645,25 +1632,25 @@ public class EditorUtil
         if (StringUtils.isBlank(s))
             notSet.add(NAME);
         details.put(NAME, s);
-        Length p = data.getPositionXAsLength();
+        Length p = data.getPositionX(UnitsLength.REFERENCEFRAME);
         double f = 0;
         if (p == null) {
             notSet.add(POSITION_X);
-        } else f = UnitsFactory.convertLength(p, UNITS.REFERENCEFRAME).getValue();
+        } else f = p.getValue();
         details.put(POSITION_X, f);
         
-        p = data.getPositionYAsLength();
+        p = data.getPositionY(UnitsLength.REFERENCEFRAME);
         f = 0;
         if (p == null) {
             notSet.add(POSITION_Y);
-        } else f = UnitsFactory.convertLength(p, UNITS.REFERENCEFRAME).getValue();
+        } else f = p.getValue();
         details.put(POSITION_Y, f);
         
-        p = data.getPositionZAsLength();
+        p = data.getPositionZ(UnitsLength.REFERENCEFRAME);
         f = 0;
         if (p == null) {
             notSet.add(POSITION_Z);
-        } else f = UnitsFactory.convertLength(p, UNITS.REFERENCEFRAME).getValue();
+        } else f = p.getValue();
         details.put(POSITION_Z, f);
 
         details.put(NOT_SET, notSet);
@@ -1777,31 +1764,42 @@ public class EditorUtil
         if (StringUtils.isBlank(s))
             notSet.add(FILTER_WHEEL);
         details.put(FILTER_WHEEL, s);
-        Length wl = data.getCutInAsLength();
+        Length wl = data.getCutIn(UnitsLength.NM);
         int i = 0;
-        if (wl == null) notSet.add(CUT_IN);
-        else i = (int)UnitsFactory.convertLength(wl, UNITS.NM).getValue();
-        details.put(CUT_IN, i);
-        wl = data.getCutOutAsLength();
+        if (wl == null) 
+        	notSet.add(CUT_IN);
+        else  {
+        	i = (int)wl.getValue();
+        	 details.put(CUT_IN, i+NONBRSPACE+wl.getSymbol());
+        }
+       
+        wl = data.getCutOut(UnitsLength.NM);
         if (wl == null) {
             notSet.add(CUT_OUT);
-            i = 0;
-        } else i = (int)UnitsFactory.convertLength(wl, UNITS.NM).getValue();
-        details.put(CUT_OUT, i);
-        wl = data.getCutInToleranceAsLength();
+        } 
+        else {
+        	i = (int)wl.getValue();
+        	details.put(CUT_OUT, i+NONBRSPACE+wl.getSymbol());
+        }
+       
+        wl = data.getCutInTolerance(UnitsLength.NM);
         if (wl == null) {
-            i = 0;
             notSet.add(CUT_IN_TOLERANCE);
-        } else i = (int)UnitsFactory.convertLength(wl, UNITS.NM).getValue();
-        details.put(CUT_IN_TOLERANCE, i);
-
-        wl = data.getCutOutToleranceAsLength();
+        } 
+        else {
+        	i = (int)wl.getValue();
+        	details.put(CUT_IN_TOLERANCE, i+NONBRSPACE+wl.getSymbol());
+        }
+        
+        wl = data.getCutOutTolerance(UnitsLength.NM);
         if (wl == null) {
-            i = 0;
             notSet.add(CUT_OUT_TOLERANCE);
-        } else i = (int)UnitsFactory.convertLength(wl, UNITS.NM).getValue();
-        details.put(CUT_OUT_TOLERANCE, i);
-
+        }
+        else {
+        	i = (int)wl.getValue();
+        	details.put(CUT_OUT_TOLERANCE, i+NONBRSPACE+wl.getSymbol());
+        }
+        
         Double d = data.getTransmittance();
         double dv = 0;
         if (d == null) {
@@ -1845,16 +1843,19 @@ public class EditorUtil
         else v = f;
         details.put(ATTENUATION, v*PERCENT_FRACTION);
 
-        Length wl = data.getLightSettingsWavelengthAsLength();
+        Length wl = data.getLightSettingsWavelength(UnitsLength.NM);
         if (details.containsKey(WAVELENGTH)) {
             if (wl != null) { //override the value.
-                details.put(WAVELENGTH, UnitsFactory.convertLength(wl, UNITS.NM).getValue());
+                details.put(WAVELENGTH, wl.getValue()+NONBRSPACE+wl.getSymbol());
             }
         } else {
             Double vi = 0.0;
-            if (wl == null) notSet.add(WAVELENGTH);
-            else vi = UnitsFactory.convertLength(wl, UNITS.NM).getValue();
-            details.put(WAVELENGTH, vi);
+            if (wl == null) 
+            	notSet.add(WAVELENGTH);
+            else  {
+            	vi = wl.getValue();
+            	details.put(WAVELENGTH, vi+NONBRSPACE+wl.getSymbol());
+            }
         }
         details.put(NOT_SET, notSet);
         return details;
@@ -1909,15 +1910,15 @@ public class EditorUtil
 
         s = data.getKind();
         details.put(LIGHT_TYPE, s);
-        Power p = data.getPowerAsPower();
+        Power p = data.getPower(null);
         double f = 0;
         if (p == null) {
             notSet.add(POWER);
-            f = 0;
         }
-        else
-        	f = UnitsFactory.convertPower(p, UNITS.MW).getValue();
-        details.put(POWER, f);
+        else {
+        	f = p.getValue();
+        	details.put(POWER, f+NONBRSPACE+p.getSymbol());
+        }
         s = data.getType();
         if (StringUtils.isBlank(s))
             notSet.add(TYPE);
@@ -1946,22 +1947,23 @@ public class EditorUtil
                 notSet.add(MEDIUM);
             details.put(MEDIUM, s);
 
-            Length wl = data.getLaserWavelengthAsLength();
+            Length wl = data.getLaserWavelength(UnitsLength.NM);
             double wave = 0;
             if (wl == null) {
-                wave = 0;
                 notSet.add(WAVELENGTH);
             }
             else {
-            	wave = UnitsFactory.convertLength(wl, UNITS.NM).getValue();
+            	wave = wl.getValue();
+            	details.put(WAVELENGTH, (new Float(wave))+NONBRSPACE+wl.getSymbol()); 
             }
-            details.put(WAVELENGTH, new Float(wave)); 
+            
             int i = data.getLaserFrequencyMultiplication();
             if (i < 0) {
-                i = 0;
                 notSet.add(FREQUENCY_MULTIPLICATION);
             }
-            details.put(FREQUENCY_MULTIPLICATION, i);
+            else {
+            	details.put(FREQUENCY_MULTIPLICATION, i);
+            }
             Object o = data.getLaserTuneable();
             if (o == null) {
                 notSet.add(TUNEABLE);
@@ -1972,14 +1974,14 @@ public class EditorUtil
             if (StringUtils.isBlank(s))
                 notSet.add(PULSE);
             details.put(PULSE, s);
-            Frequency freq = data.getLaserRepetitionRateAsFrequency();
+            Frequency freq = data.getLaserRepetitionRate(null);
             if (freq == null) {
-                f = 0;
                 notSet.add(REPETITION_RATE);
             }
-            else
-            	f = UnitsFactory.convertFrequency(freq, UNITS.HZ).getValue();
-            details.put(REPETITION_RATE, f);
+            else {
+            	f = freq.getValue();
+            	details.put(REPETITION_RATE, f+NONBRSPACE+freq.getSymbol()); 
+            }
             o = data.getLaserPockelCell();
             if (o == null) {
                 notSet.add(POCKEL_CELL);
@@ -2049,34 +2051,43 @@ public class EditorUtil
         if (f == null) notSet.add(GAIN);
         else v = f.doubleValue();
         details.put(GAIN, v);
-        ElectricPotential p = data.getVoltageAsElectricPotential();
+        ElectricPotential p = data.getVoltage(null);
         if (p == null) {
-            v = 0;
             notSet.add(VOLTAGE);
-        } else v = UnitsFactory.convertElectricPotential(p, UNITS.VOLT).getValue();
-        details.put(VOLTAGE, v);
+        } 
+        else {
+        	v = p.getValue();
+        	details.put(VOLTAGE, v+NONBRSPACE+p.getSymbol());
+        }
         f = data.getOffset();
         if (f == null) {
-            v = 0;
             notSet.add(OFFSET);
-        } else v = f.doubleValue();
-        details.put(OFFSET, v);
+        } 
+        else {
+        	v = f.doubleValue();
+        	details.put(OFFSET, v);
+        }
         f = data.getZoom();
         if (f == null) {
-            v = 0;
             notSet.add(ZOOM);
-        } else v = f.doubleValue();
-        details.put(ZOOM, v);
+        } 
+        else {
+        	v = f.doubleValue();
+        	details.put(ZOOM, v);
+        }
         f = data.getAmplificationGain();
         if (f == null) {
-            v = 0;
             notSet.add(AMPLIFICATION);
-        } else v = f.doubleValue();
-        details.put(AMPLIFICATION, v);
+        } 
+        else {
+        	v = f.doubleValue();
+        	 details.put(AMPLIFICATION, v);
+        }
         s = data.getType();
         if (StringUtils.isBlank(s))
             notSet.add(TYPE);
-        details.put(TYPE, s); 
+        else 
+        	details.put(TYPE, s); 
         details.put(NOT_SET, notSet);
         return details;
     }
@@ -2115,11 +2126,11 @@ public class EditorUtil
             notSet.remove(GAIN);
         }
 
-        ElectricPotential p = data.getDetectorSettingsVoltageAsElectricPotential();
+        ElectricPotential p = data.getDetectorSettingsVoltage(null);
         if (p != null) {
-        	f = UnitsFactory.convertElectricPotential(p, UNITS.VOLT).getValue();
+        	f = p.getValue();
             notSet.remove(VOLTAGE);
-            details.put(VOLTAGE, UIUtilities.roundTwoDecimals(f));
+            details.put(VOLTAGE, UIUtilities.roundTwoDecimals(f)+NONBRSPACE+p.getSymbol());
         }
 
         f = data.getDetectorSettingsOffset();
@@ -2128,13 +2139,15 @@ public class EditorUtil
             details.put(OFFSET, UIUtilities.roundTwoDecimals(f));
         }
 
-        Frequency freq = data.getDetectorSettingsReadOutRateAsFrequency();
+        Frequency freq = data.getDetectorSettingsReadOutRate(null);
         double v = 0;
         if (freq == null) {
-            v = 0;
             notSet.add(READ_OUT_RATE);
-        } else v = UIUtilities.roundTwoDecimals(UnitsFactory.convertFrequency(freq, UNITS.MEGAHZ).getValue());
-        details.put(READ_OUT_RATE, v);
+        } 
+        else {
+        	v = UIUtilities.roundTwoDecimals(freq.getValue());
+        	details.put(READ_OUT_RATE, v+NONBRSPACE+freq.getSymbol());
+        }
         String s = data.getDetectorSettingsBinning();
         if (StringUtils.isBlank(s)) {
             notSet.add(BINNING);

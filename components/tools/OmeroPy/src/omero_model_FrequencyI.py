@@ -935,8 +935,12 @@ class FrequencyI(_omero_model.Frequency, UnitBase):
     def getValue(self, current=None):
         return self._value
 
-    def getSymbol(self):
+    def getSymbol(self, current=None):
         return self.SYMBOLS.get(str(self.getUnit()))
+
+    @staticmethod
+    def lookupSymbol(unit):
+        return FrequencyI.SYMBOLS.get(str(unit))
 
     def setUnit(self, unit, current=None):
         self._unit = unit
