@@ -159,6 +159,7 @@ public class ImporterTest extends AbstractServerTest {
         assertEquals(detector.getAmplificationGain().getValue(), xml
                 .getAmplificationGain().doubleValue());
         assertEquals(detector.getGain().getValue(), xml.getGain());
+        assertEquals(detector.getZoom().getValue(), xml.getZoom());
     }
 
     /**
@@ -195,6 +196,18 @@ public class ImporterTest extends AbstractServerTest {
         assertEquals(laser.getPower().getValue(), xml.getPower().value());
         assertEquals(laser.getType().getValue().getValue(),
                 XMLMockObjects.LASER_TYPE.getValue());
+        assertEquals(laser.getFrequencyMultiplication().getValue(),
+                xml.getFrequencyMultiplication().getValue().intValue());
+        assertEquals(laser.getLaserMedium().getValue().getValue(),
+               xml.getLaserMedium().getValue());
+        assertEquals(laser.getPockelCell().getValue(),
+                xml.getPockelCell().booleanValue());
+        assertEquals(laser.getTuneable().getValue(),
+                xml.getTuneable().booleanValue());
+        assertEquals(laser.getRepetitionRate().getValue(),
+                xml.getRepetitionRate().value());
+        assertEquals(laser.getWavelength().getValue(),
+                xml.getWavelength().value());
     }
 
     /**
@@ -236,8 +249,9 @@ public class ImporterTest extends AbstractServerTest {
         ome.xml.model.TransmittanceRange xmlTr = xml.getTransmittanceRange();
         assertEquals(tr.getCutIn().getValue(), xmlTr.getCutIn().value());
         assertEquals(tr.getCutOut().getValue(), xmlTr.getCutOut().value());
-        assertEquals(tr.getCutInTolerance().getValue(), xmlTr .getCutInTolerance().value());
-        assertEquals(tr.getCutOutTolerance().getValue(), xmlTr .getCutOutTolerance().value());
+        assertEquals(tr.getCutInTolerance().getValue(), xmlTr.getCutInTolerance().value());
+        assertEquals(tr.getCutOutTolerance().getValue(), xmlTr.getCutOutTolerance().value());
+        assertEquals(tr.getTransmittance().getValue(), xmlTr.getTransmittance().getValue().doubleValue());
     }
 
     /**
