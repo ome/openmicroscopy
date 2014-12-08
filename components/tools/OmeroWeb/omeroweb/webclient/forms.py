@@ -1880,29 +1880,23 @@ class MetadataLightSourceForm(forms.Form):
         
         # Attenuation
         # try:
-        #     if lightSource.attenuation is not None:
-        #         self.fields['attenuation'] = forms.CharField(
-        #             max_length=100,
-        #             widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(lightSource.id)+', \'attenuation\', this.value);'}),
-        #             initial=lightSource.attenuation,
-        #             required=False)
-        #     else:
-        #         self.fields['attenuation'] = forms.CharField(
-        #             max_length=100,
-        #             widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(lightSource.id)+', \'attenuation\', this.value);'}),
-        #             required=False)
-        #     self.fields['attenuation'].widget.attrs['disabled'] = True 
-        #     self.fields['attenuation'].widget.attrs['class'] = 'disabled-metadata'
-        # except:
-        #     self.fields['attenuation'] = forms.CharField(
-        #         max_length=10,
-        #         widget=forms.TextInput(attrs={'size':25}),
-        #         initial="N/A",
-        #         required=False)
-        #     self.fields['attenuation'].widget.attrs['disabled'] = True 
-        #     self.fields['attenuation'].widget.attrs['class'] = 'disabled-metadata'
-        
-        self.fields.keyOrder = ['manufacturer', 'model', 'serialNumber', 'lotNumber', 'power', 'lstype', 'lmedium', 'wavelength', 'frequencyMultiplication', 'tuneable', 'pulse' , 'repetitionRate', 'pockelCell']
+        if lightSourceSettings is not None and lightSourceSettings.attenuation is not None:
+            self.fields['attenuation'] = forms.CharField(
+                max_length=100,
+                widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(lightSourceSettings.id)+', \'attenuation\', this.value);'}),
+                initial=lightSourceSettings.attenuation,
+                label="Attenuation (%)",
+                required=False)
+        else:
+            self.fields['attenuation'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size':25}),
+                initial="N/A",
+                required=False)
+            self.fields['attenuation'].widget.attrs['disabled'] = True
+            self.fields['attenuation'].widget.attrs['class'] = 'disabled-metadata'
+
+        self.fields.keyOrder = ['manufacturer', 'model', 'serialNumber', 'lotNumber', 'power', 'lstype', 'lmedium', 'wavelength', 'frequencyMultiplication', 'tuneable', 'pulse' , 'repetitionRate', 'pockelCell', 'attenuation']
     
 
 class MetadataEnvironmentForm(forms.Form):
