@@ -371,6 +371,8 @@ public class MeasureLineFigure
 	 */
 	public String addDegrees(String str)
 	{
+		if (str == null)
+			str = "0";
 		return str + UIUtilities.DEGREE_SYMBOL;
 	}
 		
