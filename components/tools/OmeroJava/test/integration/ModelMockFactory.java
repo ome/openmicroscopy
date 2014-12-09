@@ -763,7 +763,7 @@ public class ModelMockFactory {
         if (order == null)
             order = (DimensionOrder) types.get(0);
 
-        UnitsLength mm = UnitsLength.MM;
+        UnitsLength mm = UnitsLength.MILLIMETER;
         Length mm1 = new LengthI();
         mm1.setValue(1.0);
         mm1.setUnit(mm);

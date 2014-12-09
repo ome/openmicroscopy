@@ -63,13 +63,13 @@ class TestModel51(lib.ITest):
         unit = sizeZ.getUnit()
         assert omero.model.enums.UnitsLength.MICROMETER == unit
 
-        mm = omero.model.enums.UnitsLength.MM
+        mm = omero.model.enums.UnitsLength.MILLIMETER
 
         sizeZ.setUnit(mm)
         pixels = self.update.saveAndReturnObject(pixels)
         sizeZ = pixels.getPhysicalSizeZ()
         unit = sizeZ.getUnit()
-        assert omero.model.enums.UnitsLength.MM == unit
+        assert omero.model.enums.UnitsLength.MILLIMETER == unit
 
     UL = omero.model.enums.UnitsLength
     try:
