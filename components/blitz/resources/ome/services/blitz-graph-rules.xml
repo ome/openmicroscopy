@@ -80,6 +80,10 @@
         <bean parent="graphPolicyRule" p:matches="F:Fileset[!D].images = [D], F.images = [!D]" p:error="may not split {F}"/>
         <bean parent="graphPolicyRule" p:matches="Image[I].instrument = IN:Instrument, Image[!I].instrument = IN"
                                        p:error="may not split images that share {IN}"/>
+        <bean parent="graphPolicyRule" p:matches="FileAnnotation[I].file = OF:OriginalFile, FileAnnotation[!I].file = OF"
+                                       p:error="may not split file annotations that share {OF}"/>
+        <bean parent="graphPolicyRule" p:matches="PixelsOriginalFileMap[D].parent = OF:OriginalFile[E]"
+                                       p:error="may not split images that share archived file {OF}"/>
         <bean parent="graphPolicyRule" p:matches="WS:WellSample[!I].image = I:[I]" p:error="may move {I} only via {WS}"/>
         <bean parent="graphPolicyRule" p:matches="WS:WellSample[!D].image = I:[D]" p:error="may delete {I} only via {WS}"/>
         <bean parent="graphPolicyRule" p:matches="G:IGlobal[E]" p:changes="G:[O]"/>
@@ -174,6 +178,10 @@
         <bean parent="graphPolicyRule" p:matches="F:Fileset[!D].images = [D], F.images = [!D]" p:error="may not split {F}"/>
         <bean parent="graphPolicyRule" p:matches="Image[I].instrument = IN:Instrument, Image[!I].instrument = IN"
                                        p:error="may not split images that share {IN}"/>
+        <bean parent="graphPolicyRule" p:matches="FileAnnotation[I].file = OF:OriginalFile, FileAnnotation[!I].file = OF"
+                                       p:error="may not split file annotations that share {OF}"/>
+        <bean parent="graphPolicyRule" p:matches="PixelsOriginalFileMap[D].parent = OF:OriginalFile[E]"
+                                       p:error="may not split images that share archived file {OF}"/>
         <bean parent="graphPolicyRule" p:matches="WS:WellSample[!I].image = I:[I]" p:error="may give {I} only via {WS}"/>
         <bean parent="graphPolicyRule" p:matches="WS:WellSample[!D].image = I:[D]" p:error="may delete {I} only via {WS}"/>
         <bean parent="graphPolicyRule" p:matches="G:IGlobal[E]" p:changes="G:[O]"/>
