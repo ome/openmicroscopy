@@ -1225,7 +1225,7 @@ public class EditorUtil
             notSet.add(NAME);
         details.put(NAME, s);
 
-        Length wl = data.getEmissionWavelength(UnitsLength.NM);
+        Length wl = data.getEmissionWavelength(UnitsLength.NANOMETER);
         if (wl == null) {
         	notSet.add(EMISSION);
         } else {
@@ -1242,7 +1242,7 @@ public class EditorUtil
             }
         }
 
-        wl = data.getExcitationWavelength(UnitsLength.NM);
+        wl = data.getExcitationWavelength(UnitsLength.NANOMETER);
         if (wl == null) {
         	notSet.add(EXCITATION);
         } else {
@@ -1764,7 +1764,7 @@ public class EditorUtil
         if (StringUtils.isBlank(s))
             notSet.add(FILTER_WHEEL);
         details.put(FILTER_WHEEL, s);
-        Length wl = data.getCutIn(UnitsLength.NM);
+        Length wl = data.getCutIn(UnitsLength.NANOMETER);
         int i = 0;
         if (wl == null) 
         	notSet.add(CUT_IN);
@@ -1773,7 +1773,7 @@ public class EditorUtil
         	 details.put(CUT_IN, i+NONBRSPACE+wl.getSymbol());
         }
        
-        wl = data.getCutOut(UnitsLength.NM);
+        wl = data.getCutOut(UnitsLength.NANOMETER);
         if (wl == null) {
             notSet.add(CUT_OUT);
         } 
@@ -1782,7 +1782,7 @@ public class EditorUtil
         	details.put(CUT_OUT, i+NONBRSPACE+wl.getSymbol());
         }
        
-        wl = data.getCutInTolerance(UnitsLength.NM);
+        wl = data.getCutInTolerance(UnitsLength.NANOMETER);
         if (wl == null) {
             notSet.add(CUT_IN_TOLERANCE);
         } 
@@ -1791,7 +1791,7 @@ public class EditorUtil
         	details.put(CUT_IN_TOLERANCE, i+NONBRSPACE+wl.getSymbol());
         }
         
-        wl = data.getCutOutTolerance(UnitsLength.NM);
+        wl = data.getCutOutTolerance(UnitsLength.NANOMETER);
         if (wl == null) {
             notSet.add(CUT_OUT_TOLERANCE);
         }
@@ -1843,7 +1843,7 @@ public class EditorUtil
         else v = f;
         details.put(ATTENUATION, v*PERCENT_FRACTION);
 
-        Length wl = data.getLightSettingsWavelength(UnitsLength.NM);
+        Length wl = data.getLightSettingsWavelength(UnitsLength.NANOMETER);
         if (details.containsKey(WAVELENGTH)) {
             if (wl != null) { //override the value.
                 details.put(WAVELENGTH, wl.getValue()+NONBRSPACE+wl.getSymbol());
@@ -1947,7 +1947,7 @@ public class EditorUtil
                 notSet.add(MEDIUM);
             details.put(MEDIUM, s);
 
-            Length wl = data.getLaserWavelength(UnitsLength.NM);
+            Length wl = data.getLaserWavelength(UnitsLength.NANOMETER);
             double wave = 0;
             if (wl == null) {
                 notSet.add(WAVELENGTH);

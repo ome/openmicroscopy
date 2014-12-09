@@ -348,7 +348,7 @@ class TestModel(object):
         assert hasattr(omero.model.enums.UnitsLength, str(ul))
 
     def testCtorConversions(self):
-        nm = LengthI(1.0, omero.model.enums.UnitsLength.NM)
+        nm = LengthI(1.0, omero.model.enums.UnitsLength.NANOMETER)
         ang = LengthI(nm, omero.model.enums.UnitsLength.ANGSTROM)
         assert nm.getValue() == ang.getValue() / 10
 

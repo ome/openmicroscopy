@@ -66,7 +66,7 @@ try
         channelName = ['Channel ' num2str(i)'];
         emissionWave = omero.model.LengthI;
         emissionWave.setValue(550);
-        emissionWave.setUnit(omero.model.enums.UnitsLength.NM);
+        emissionWave.setUnit(omero.model.enums.UnitsLength.NANOMETER);
         channels(i).getLogicalChannel().setName(rstring(channelName));
         channels(i).getLogicalChannel().setEmissionWave(emissionWave);
     end
