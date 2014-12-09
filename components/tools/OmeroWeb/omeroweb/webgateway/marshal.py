@@ -262,7 +262,8 @@ def shapeMarshal(shape):
         # only populate json with font styles if we have some text
         rv['textValue'] = text_value
         # FIXME: units ignored for font size
-        set_if('fontSize', shape.getFontSize().getValue())
+        if shape.getFontSize() is not None:
+            set_if('fontSize', shape.getFontSize().getValue())
         set_if('fontStyle', shape.getFontStyle())
         set_if('fontFamily', shape.getFontFamily())
 
