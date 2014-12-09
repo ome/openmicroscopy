@@ -336,7 +336,7 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
     /**
      * public for testing purposes.
      */
-    public String getResultsString(Object o, IdentityHashMap<Object, String> cache) {
+    public static String getResultsString(Object o, IdentityHashMap<Object, String> cache) {
 
         if (o == null) {
             return "null";
