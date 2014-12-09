@@ -704,14 +704,20 @@ class MeasurementViewerModel
 	 * 
 	 * @return See above.
 	 */
-	Length getPixelSizeX() { return pixels.getPixelSizeX(UnitsLength.MICROM); }
+	Length getPixelSizeX() {
+		Length l = pixels.getPixelSizeX(UnitsLength.MICROM);
+		return l != null ? l : new LengthI(1, UnitsLength.PIXEL);
+	}
 	
 	/**
 	 * Returns the size in microns of a pixel along the Y-axis.
 	 * 
 	 * @return See above.
 	 */
-	Length getPixelSizeY() { return pixels.getPixelSizeY(UnitsLength.MICROM); }
+	Length getPixelSizeY() {
+		Length l = pixels.getPixelSizeY(UnitsLength.MICROM);
+		return l != null ? l : new LengthI(1, UnitsLength.PIXEL);
+	}
 	
 	/**
 	 * Returns the size in microns of a pixel along the Z-axis.
