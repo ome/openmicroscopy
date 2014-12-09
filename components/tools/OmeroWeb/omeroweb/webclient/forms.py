@@ -1879,7 +1879,6 @@ class MetadataLightSourceForm(forms.Form):
             self.fields['pockelCell'].widget.attrs['class'] = 'disabled-metadata'
         
         # Attenuation
-        # try:
         if lightSourceSettings is not None and lightSourceSettings.attenuation is not None:
             self.fields['attenuation'] = forms.CharField(
                 max_length=100,
