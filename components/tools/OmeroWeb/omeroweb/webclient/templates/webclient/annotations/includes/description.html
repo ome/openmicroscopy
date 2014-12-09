@@ -31,7 +31,11 @@
                 </button>
             </p>
         </div>
-    {% else %}
-        <span id='image_desc'>{{ obj.description|default:""|escape|linebreaksbr }} </span>
+    {% elif obj.description %}
+      <div class="data_heading">
+        <p>
+          <span id='image_desc'>{{ obj.description|default:""|escape|linebreaksbr }} </span>
+        </p>
+      </div>
     {% endif %}
 </div>
