@@ -40,11 +40,13 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
+
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
@@ -60,6 +62,7 @@ import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.DataObject;
@@ -1106,6 +1109,15 @@ class EditorUI
 	FileAnnotationData getOriginalMetadata()
 	{
 		return model.getOriginalMetadata();
+	}
+
+	/**
+     * Sets the LDAP details.
+     *
+     * @param userID The user's id.
+     */
+	void setLDAPDetails(String result) {
+	    userUI.setLDAPDetails(result);
 	}
 
 }

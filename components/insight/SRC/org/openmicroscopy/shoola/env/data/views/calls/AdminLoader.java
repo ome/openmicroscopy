@@ -253,6 +253,26 @@ public class AdminLoader
             }
         };
     }
+
+    /**
+     * Creates a {@link BatchCall} to load the experimenters contained 
+     * within the specified group.
+     * 
+     * @param ctx The security context.
+     * @param id The id of the user.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall lookupExperimenter(final SecurityContext ctx,
+            final long id)
+    {
+        return new BatchCall("lookupLdapAuthExperimenter") {
+            public void doCall() throws Exception
+            {
+                AdminService os = context.getAdminService();
+                result = os.lookupLdapAuthExperimenter(ctx, id);
+            }
+        };
+    }
     
     /**
      * Creates a {@link BatchCall} to update the specified experimenters.
@@ -473,6 +493,17 @@ public class AdminLoader
         if (group == null)
             throw new IllegalArgumentException("No group indicated.");
         loadCall = changeGroup(ctx, group, experimenter);
+    }
+
+    /**
+     * Creates a new instance.
+     * 
+     * @param ctx The security context.
+     * @param userID The experimenter to handle.
+     */
+    public AdminLoader(SecurityContext ctx, long userID)
+    {
+        loadCall = lookupExperimenter(ctx, userID);
     }
 
 }
