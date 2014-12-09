@@ -229,7 +229,7 @@ public class PixelsData extends DataObject {
     @Deprecated
     public void setPixelSizeX(double pixelSizeX) {
         setDirty(true);
-        asPixels().setPhysicalSizeX(new LengthI(pixelSizeX, UnitsLength.MICROM));
+        asPixels().setPhysicalSizeX(new LengthI(pixelSizeX, UnitsLength.MICROMETER));
     }
 
     /**
@@ -281,7 +281,7 @@ public class PixelsData extends DataObject {
     @Deprecated
     public void setPixelSizeY(double pixelSizeY) {
         setDirty(true);
-        asPixels().setPhysicalSizeY(new LengthI(pixelSizeY, UnitsLength.MICROM));
+        asPixels().setPhysicalSizeY(new LengthI(pixelSizeY, UnitsLength.MICROMETER));
     }
     
     /**
@@ -332,7 +332,7 @@ public class PixelsData extends DataObject {
     @Deprecated
     public void setPixelSizeZ(double pixelSizeZ) {
         setDirty(true);
-        asPixels().setPhysicalSizeZ(new LengthI(pixelSizeZ, UnitsLength.MICROM));
+        asPixels().setPhysicalSizeZ(new LengthI(pixelSizeZ, UnitsLength.MICROMETER));
     }
 
     /**

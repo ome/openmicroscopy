@@ -705,21 +705,21 @@ class MeasurementViewerModel
 	 * 
 	 * @return See above.
 	 */
-	double getPixelSizeX() { return pixels.getPixelSizeX(UnitsLength.MICROM).getValue(); }
+	double getPixelSizeX() { return pixels.getPixelSizeX(UnitsLength.MICROMETER).getValue(); }
 	
 	/**
 	 * Returns the size in microns of a pixel along the Y-axis.
 	 * 
 	 * @return See above.
 	 */
-	double getPixelSizeY() { return pixels.getPixelSizeY(UnitsLength.MICROM).getValue(); }
+	double getPixelSizeY() { return pixels.getPixelSizeY(UnitsLength.MICROMETER).getValue(); }
 	
 	/**
 	 * Returns the size in microns of a pixel along the Z-axis.
 	 * 
 	 * @return See above.
 	 */
-	double getPixelSizeZ() { return pixels.getPixelSizeZ(UnitsLength.MICROM).getValue(); }
+	double getPixelSizeZ() { return pixels.getPixelSizeZ(UnitsLength.MICROMETER).getValue(); }
 	
 	/**
 	 * Returns the number of z sections in an image.

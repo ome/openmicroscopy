@@ -722,11 +722,11 @@ public class EditorUtil
             details.put(SECTIONS, ""+data.getSizeZ());
             details.put(TIMEPOINTS, ""+data.getSizeT());
             details.put(CHANNELS, ""+data.getSizeC());
-            Length l = data.getPixelSizeX(UnitsLength.MICROM);
+            Length l = data.getPixelSizeX(UnitsLength.MICROMETER);
 			details.put(PIXEL_SIZE_X,  l == null ? "0" : ""+l.getValue());
-			l = data.getPixelSizeY(UnitsLength.MICROM);
+			l = data.getPixelSizeY(UnitsLength.MICROMETER);
 			details.put(PIXEL_SIZE_Y,  l == null ? "0" : ""+l.getValue());
-			l = data.getPixelSizeZ(UnitsLength.MICROM);
+			l = data.getPixelSizeZ(UnitsLength.MICROMETER);
 			details.put(PIXEL_SIZE_Z,  l == null ? "0" : ""+l.getValue());
 			details.put(PIXEL_TYPE,
 					PIXELS_TYPE_DESCRIPTION.get("" + data.getPixelType()));
@@ -777,9 +777,9 @@ public class EditorUtil
             details.put(SECTIONS, ""+data.getSizeZ());
             details.put(TIMEPOINTS, ""+data.getSizeT());
             try {
-                details.put(PIXEL_SIZE_X, nf.format(data.getPixelSizeX(UnitsLength.MICROM)));
-                details.put(PIXEL_SIZE_Y, nf.format(data.getPixelSizeY(UnitsLength.MICROM)));
-                details.put(PIXEL_SIZE_Z, nf.format(data.getPixelSizeZ(UnitsLength.MICROM)));
+                details.put(PIXEL_SIZE_X, nf.format(data.getPixelSizeX(UnitsLength.MICROMETER)));
+                details.put(PIXEL_SIZE_Y, nf.format(data.getPixelSizeY(UnitsLength.MICROMETER)));
+                details.put(PIXEL_SIZE_Z, nf.format(data.getPixelSizeZ(UnitsLength.MICROMETER)));
                 details.put(PIXEL_TYPE,
                         PIXELS_TYPE_DESCRIPTION.get(""+data.getPixelType()));
             } catch (Exception e) {
@@ -1265,7 +1265,7 @@ public class EditorUtil
         else
         	details.put(ND_FILTER, f*100);
 
-        Length ph = data.getPinholeSize(UnitsLength.MICROM);
+        Length ph = data.getPinholeSize(UnitsLength.MICROMETER);
         if (ph == null) {
             notSet.add(PIN_HOLE_SIZE);
         }
@@ -1480,7 +1480,7 @@ public class EditorUtil
         if (StringUtils.isBlank(s))
             notSet.add(CORRECTION);
         details.put(CORRECTION, s);
-        Length wd = data.getWorkingDistance(UnitsLength.MICROM);
+        Length wd = data.getWorkingDistance(UnitsLength.MICROMETER);
         if (wd==null) {
             notSet.add(WORKING_DISTANCE);
         }

@@ -61,7 +61,7 @@ class TestModel51(lib.ITest):
             omero.sys.ParametersI().addId(img.id.val))
         sizeZ = pixels.getPhysicalSizeZ()
         unit = sizeZ.getUnit()
-        assert omero.model.enums.UnitsLength.MICROM == unit
+        assert omero.model.enums.UnitsLength.MICROMETER == unit
 
         mm = omero.model.enums.UnitsLength.MM
 

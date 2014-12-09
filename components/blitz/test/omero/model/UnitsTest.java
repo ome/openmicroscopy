@@ -40,7 +40,7 @@ public class UnitsTest extends TestCase {
 
     @Test
     public void testLengthSymbol() throws IOException {
-        LengthI l = new LengthI(100.1, UnitsLength.MICROM);
+        LengthI l = new LengthI(100.1, UnitsLength.MICROMETER);
         assertEquals("µm", l.getSymbol());
     }
 
