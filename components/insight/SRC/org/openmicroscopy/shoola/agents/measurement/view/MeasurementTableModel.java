@@ -114,7 +114,8 @@ public class MeasurementTableModel extends AbstractTableModel
         if (value instanceof List) {
             List<Object> l = (List<Object>) value;
             
-            if (l.size() == 1) return l.get(0);
+            if (l.size() == 1) 
+            	return l.get(0);
             StringBuilder buffer = new StringBuilder();
             Iterator<Object> i = l.iterator();
             Object v;
@@ -164,7 +165,9 @@ public class MeasurementTableModel extends AbstractTableModel
      * Overridden to return the number of rows.
      * @see AbstractTableModel#getRowCount()
      */
-    public int getRowCount() { return values.size(); }
+    public int getRowCount() { 
+    	return values.size();
+    	}
     
     /**
      * Overridden so that the cell is not editable.

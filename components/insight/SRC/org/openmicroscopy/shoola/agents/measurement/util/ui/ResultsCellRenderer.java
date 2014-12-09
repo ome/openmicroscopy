@@ -237,11 +237,14 @@ public class ResultsCellRenderer
 		JLabel label = new JLabel();
 		label.setOpaque(true);
 		
+		
+		MeasurementTableModel tm = (MeasurementTableModel) table.getModel();
+		KeyDescription key = tm.getColumnNames().get(column);
+        String k = key.getKey();
+        System.out.println(row+","+column+" : "+k+"="+value);
+        
 		if (value instanceof Length)
 		{
-		    MeasurementTableModel tm = (MeasurementTableModel) table.getModel();
-	        KeyDescription key = tm.getColumnNames().get(column);
-	        String k = key.getKey();
 	        MeasurementUnits units = tm.getUnitsType();
 	        Length n = (Length) value;
 		    String s;
@@ -257,7 +260,8 @@ public class ResultsCellRenderer
                 }
 		    }
     		thisComponent = label;
-		} else if (value instanceof FigureType || value instanceof String) {
+		}
+		else if (value instanceof FigureType || value instanceof String) {
 			thisComponent = makeShapeIcon(label, ""+value);
     	} else if (value instanceof Color)  {
     		label.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
@@ -270,6 +274,21 @@ public class ResultsCellRenderer
     	} else if(value instanceof ArrayList) {
     		thisComponent = createList(value);
     		//return list;
+    	}
+    	else if (value instanceof Number) {
+    		String s;
+    		if(value instanceof Integer || value instanceof Long) {
+    			s = ""+value;
+    		}
+    		else {
+    			s = UIUtilities.twoDecimalPlaces(((Number) value).doubleValue());
+    		}
+    		label.setText(s);
+    		thisComponent = label;
+    	}
+    	else if (value instanceof String) {
+    		label.setText((String)value);
+    		thisComponent = label;
     	}
 		if (!(value instanceof Color)) {
 			RendererUtils.setRowColor(thisComponent, table.getSelectedRow(), 
