@@ -140,8 +140,8 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
         final List<List<DeleteLog>> logs = dao.findRepoDeleteLogs(templates,
                 rootCurrent);
 
-        final Map<DeleteLog, DeleteLogMessage> successes =
-                new HashMap<DeleteLog, DeleteLogMessage>();
+        final Map<DeleteLog, Integer> successes =
+                new HashMap<DeleteLog, Integer>();
 
         for (int i = 0; i < dlms.size(); i++) {
             final DeleteLogMessage dlm = dlms.get(i);
@@ -165,7 +165,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
                     dlm.error(dl, t);
                 }
                 if (!dlm.isError(dl)) {
-                    successes.put(dl, dlm);
+                    successes.put(dl, i);
                 }
             }
         }
@@ -175,12 +175,14 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
         List<Integer> counts = dao.deleteRepoDeleteLogs(copies, rootCurrent);
         for (int i = 0; i < copies.size(); i++) {
             DeleteLog copy = copies.get(i);
-            DeleteLogMessage dlm = successes.get(copy);
-            Integer count = counts.get(i);
-            if (count.intValue() != logs.size()) {
+            Integer index = successes.get(copy);
+            DeleteLogMessage dlm = dlms.get(index);
+            int expected = logs.get(index).size();
+            int actual = counts.get(i);
+            if (actual != expected) {
                 log.warn(String.format(
                     "Failed to remove all delete log entries: %s instead of %s",
-                    count, logs.size()));
+                    actual, expected));
             }
             dlm.success(copy);
         }
