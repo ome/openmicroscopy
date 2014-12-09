@@ -44,13 +44,13 @@ class TestModel51(lib.ITest):
         unit = exposure.getUnit()
         assert omero.model.enums.UnitsTime.SECOND == unit
 
-        micros = omero.model.enums.UnitsTime.MICROS
+        micros = omero.model.enums.UnitsTime.MICROSECOND
 
         exposure.setUnit(micros)
         plane_info = self.update.saveAndReturnObject(plane_info)
         exposure = plane_info.getExposureTime()
         unit = exposure.getUnit()
-        assert omero.model.enums.UnitsTime.MICROS == unit
+        assert omero.model.enums.UnitsTime.MICROSECOND == unit
 
     def testPhysicalSize(self):
         img = self.importMIF(name="testPhysicalSize", physicalSizeZ=2.0)[0]
