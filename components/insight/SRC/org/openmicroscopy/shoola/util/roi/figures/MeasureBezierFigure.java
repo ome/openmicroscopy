@@ -52,12 +52,12 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.roi.model.util.UnitPoint;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.BezierTextFigure;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.enums.UnitsLength;
+import org.openmicroscopy.shoola.agents.measurement.util.model.UnitType;
 
 /** 
  * Bezier figure with measurement.
@@ -446,7 +446,7 @@ public class MeasureBezierFigure
 	 */
 	public String addDegrees(String str)
 	{
-		return str + UnitsObject.DEGREES;
+		return str + UnitType.DEGREE;
 	}
 	
 	/**

@@ -47,13 +47,11 @@ import org.apache.commons.lang.StringUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
-import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationDescription;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementTableModel;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 import omero.model.Length;
 import omero.model.enums.UnitsLength;
@@ -248,27 +246,10 @@ public class ResultsCellRenderer
 	        Length n = (Length) value;
 		    String s;
 		    if (!units.getUnit().equals(UnitsLength.PIXEL)) {
-		        UnitsObject object;
-	            StringBuffer buffer = new StringBuffer();
-	            object = UIUtilities.transformSize(n.getValue());
-	            s = twoDecimalPlaces(object.getValue());
-	            if (StringUtils.isNotBlank(s)) {
-	                buffer.append(s);
-	                if (!(AnnotationKeys.ANGLE.getKey().equals(k) ||
-	                        AnnotationDescription.ZSECTION_STRING.equals(k) ||
-	                        AnnotationDescription.ROIID_STRING.equals(k) ||
-	                        AnnotationDescription.TIME_STRING.equals(k))) {
-	                    buffer.append(object.getUnits());
-	                }
-	                if (AnnotationKeys.AREA.getKey().equals(k)) {
-	                    buffer = new StringBuffer();
-	                    object = UIUtilities.transformSquareSize(n.getValue());
-	                    s = twoDecimalPlaces(object.getValue());
-	                    buffer.append(s);
-	                    buffer.append(object.getUnits());
-	                }
-	                label.setText(buffer.toString());
-	            }
+	           	s = UIUtilities.formatValue(n, AnnotationKeys.AREA.getKey().equals(k));
+	            
+	            if (StringUtils.isNotBlank(s)) 
+	                label.setText(s);
 		    } else {
 		        s = UIUtilities.twoDecimalPlaces(n.getValue());
                 if (StringUtils.isNotBlank(s)) {

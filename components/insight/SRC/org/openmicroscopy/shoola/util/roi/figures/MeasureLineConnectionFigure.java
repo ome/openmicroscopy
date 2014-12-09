@@ -34,7 +34,6 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
-
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.FigureListener;
@@ -48,10 +47,9 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.roi.model.util.UnitPoint;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.LineConnectionTextFigure;
-
+import org.openmicroscopy.shoola.agents.measurement.util.model.UnitType;
 import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.enums.UnitsLength;
@@ -187,7 +185,7 @@ public class MeasureLineConnectionFigure
 				if (angle > 90)
 					angle = Math.abs(angle-180);
 				angleArray.add(angle);
-				String lineAngle = UIUtilities.twoDecimalPlaces(angle)+""+UnitsObject.DEGREES;
+				String lineAngle = UIUtilities.twoDecimalPlaces(angle)+""+UnitType.DEGREE;
 				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineAngle,
 						g);
 				Point2D.Double lengthPoint = getLengthPosition(0, 1);
@@ -202,7 +200,7 @@ public class MeasureLineConnectionFigure
 			{
 				double angle = getAngle(x-1, x, x+1);
 				angleArray.add(angle);
-				String lineAngle = UIUtilities.twoDecimalPlaces(angle)+""+UnitsObject.DEGREES;
+				String lineAngle = UIUtilities.twoDecimalPlaces(angle)+""+UnitType.DEGREE;
 				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineAngle,
 						g);
 				Rectangle2D bounds = new Rectangle2D.Double(getPoint(x).x, 

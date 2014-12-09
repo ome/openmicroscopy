@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.measurement.util.model.UnitType 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.measurement.util.model;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.model.enums.UnitsLength;
 
 /** 
  * 
@@ -43,13 +44,56 @@ package org.openmicroscopy.shoola.agents.measurement.util.model;
  */
 public enum UnitType
 {
-	PIXELS,
-	MICRONS,
-	METERS,
-	CENTIMETERS,
-	NANOMETERS,
-	PICOMETERS,
-	MILLIMETERS,
-	ANGSTROMS,
-	DEGREES
+	
+	// TODO: This class will be needless once omero model units 
+	//    will have symbols attached
+	
+	DEGREE("°"),
+	PIXEL("px"),
+	MICRON("µm"),
+	METER("m"),
+	CENTIMETER("cm"),
+	NANOMETER("nm"),
+	PICOMETER("pm"),
+	MILLIMETER("mm"),
+	ANGSTROM("Å");
+    
+	private String symbol;
+	
+	private UnitType(String symbol) {
+		this.symbol = symbol;
+	}
+	
+	@Override
+	public String toString() {
+		return symbol;
+	}
+	
+	public static UnitType getUnitType(UnitsLength unit) {
+		if(unit.equals(UnitsLength.PIXEL)) {
+    		return PIXEL;
+    	}
+    	if(unit.equals(UnitsLength.M)) {
+    		return METER;
+    	}
+    	if(unit.equals(UnitsLength.CM)) {
+    		return CENTIMETER;
+    	}
+    	if(unit.equals(UnitsLength.MM)) {
+    		return MILLIMETER;
+    	}
+    	if(unit.equals(UnitsLength.MICROM)) {
+    		return MICRON;
+    	}
+    	if(unit.equals(UnitsLength.NM)) {
+    		return NANOMETER;
+    	}
+    	if(unit.equals(UnitsLength.ANGSTROM)) {
+    		return ANGSTROM;
+    	}
+    	if(unit.equals(UnitsLength.PM)) {
+    		return PICOMETER;
+    	}
+    	return null;
+	}
 }

@@ -28,9 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
-
 import org.openmicroscopy.shoola.agents.measurement.util.model.MeasurementObject;
-import org.openmicroscopy.shoola.agents.measurement.util.ui.AttributeUnits;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.KeyDescription;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -153,12 +151,8 @@ public class MeasurementTableModel extends AbstractTableModel
      */
     public String getColumnName(int col) 
     {
-        String s = columnNames.get(col).getKey();
-        if (AttributeUnits.getUnits(s, unitsType).equals(""))
-            return columnNames.get(col).getDescription();
-        else
-            return columnNames.get(col).getDescription()+
-        " (" + AttributeUnits.getUnits(s, unitsType)+")"; }
+    	return columnNames.get(col).getDescription();
+     }
     
     /**
      * Overridden to return the number of columns.

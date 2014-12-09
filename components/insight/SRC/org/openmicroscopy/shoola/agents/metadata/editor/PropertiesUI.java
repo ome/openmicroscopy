@@ -69,6 +69,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import info.clearthought.layout.TableLayout;
 import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.JXTaskPane;
 import com.google.common.base.CharMatcher;
@@ -76,6 +77,7 @@ import com.google.common.base.CharMatcher;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEvent;
+import org.openmicroscopy.shoola.agents.measurement.util.model.UnitType;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.ROICountLoader;
@@ -86,9 +88,9 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.ui.ClickableTooltip;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.WikiDataObject;
+import omero.model.Length;
 import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.DatasetData;
@@ -666,35 +668,31 @@ public class PropertiesUI
      */
     private String formatPixelsSize(Map details, JLabel component)
     {
-    	String x = (String) details.get(EditorUtil.PIXEL_SIZE_X);
-    	String y = (String) details.get(EditorUtil.PIXEL_SIZE_Y);
-    	String z = (String) details.get(EditorUtil.PIXEL_SIZE_Z);
+    	Length x = (Length) details.get(EditorUtil.PIXEL_SIZE_X);
+    	Length y = (Length) details.get(EditorUtil.PIXEL_SIZE_Y);
+    	Length z = (Length) details.get(EditorUtil.PIXEL_SIZE_Z);
     	Double dx = null, dy = null, dz = null;
     	boolean number = true;
     	NumberFormat nf = NumberFormat.getInstance();
     	String units = null;
-    	UnitsObject o;
     	try {
-			dx = Double.parseDouble(x);
-			o = EditorUtil.transformSize(dx);
-			units = o.getUnits();
-			dx = o.getValue();
+    		x = UIUtilities.transformSize(x);
+			dx = x.getValue();
+			units = UnitType.getUnitType(x.getUnit()).toString();
 		} catch (Exception e) {
 			number = false;
 		}
 		try {
-			dy = Double.parseDouble(y);
-			o = EditorUtil.transformSize(dy);
-			if (units == null) units = o.getUnits();
-			dy = o.getValue();
+			y = UIUtilities.transformSize(y);
+			dy = y.getValue();
+			if (units == null) units = UnitType.getUnitType(y.getUnit()).toString();
 		} catch (Exception e) {
 			number = false;
 		}
 		try {
-			dz = Double.parseDouble(z);
-			o = EditorUtil.transformSize(dz);
-			if (units == null) units = o.getUnits();
-			dz = o.getValue();
+			z = UIUtilities.transformSize(z);
+			dz = z.getValue();
+			if (units == null) units = UnitType.getUnitType(z.getUnit()).toString();
 		} catch (Exception e) {
 			number = false;
 		}
@@ -728,7 +726,7 @@ public class PropertiesUI
     	}
     	if (value.length() == 0) return null;
     	component.setText(value);
-    	if (units == null) units = UnitsObject.MICRONS;
+    	if (units == null) units = UnitType.MICRON.toString();
     	label += "("+units+")";
     	return label+":";
     }

@@ -45,6 +45,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
@@ -73,7 +74,9 @@ import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.UnitsAction;
+import org.openmicroscopy.shoola.agents.measurement.util.model.UnitType;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import omero.model.Length;
 import pojos.WorkflowData;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
@@ -459,8 +462,8 @@ class MeasurementViewerUI
         initComponents();
         UnitsAction a = (UnitsAction)
         	controller.getAction(MeasurementViewerControl.IN_MICRONS);
-    	a.setRefUnits(EditorUtil.transformSize(
-    			model.getPixelSizeX().getValue()).getUnits());
+        Length tmp = UIUtilities.transformSize(model.getPixelSizeX());
+    	a.setRefUnits(UnitType.getUnitType(tmp.getUnit()).toString());
         setName("measurement viewer window");
     }
     

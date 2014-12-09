@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.measurement.actions.UnitsAction 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -32,7 +32,7 @@ import javax.swing.Action;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.UnitsObject;
+import org.openmicroscopy.shoola.agents.measurement.util.model.UnitType;
 
 /** 
  * Sets the unit either in the reference units or in pixels.
@@ -100,17 +100,17 @@ public class UnitsAction
 	public void setRefUnits(String units)
 	{
 		String value = NAME_MICRONS;
-		if (UnitsObject.CENTIMETER.equals(units)) {
+		if (UnitType.CENTIMETER.equals(units)) {
 			value = "in Centimeters";
-		} else if (UnitsObject.MILLIMETER.equals(units)) {
+		} else if (UnitType.MILLIMETER.equals(units)) {
 			value = "in Millimeters";
-		} else if (UnitsObject.METER.equals(units)) {
+		} else if (UnitType.METER.equals(units)) {
 			value = "in Meters";
-		} else if (UnitsObject.NANOMETER.equals(units)) {
+		} else if (UnitType.NANOMETER.equals(units)) {
 			value = "in Nanometers";
-		} else if (UnitsObject.PICOMETER.equals(units)) {
+		} else if (UnitType.PICOMETER.equals(units)) {
 			value = "in Picometers";
-		} else if (UnitsObject.ANGSTROM.equals(units)) {
+		} else if (UnitType.ANGSTROM.equals(units)) {
 			value = "in Angstroms";
 		}
 		name = value;

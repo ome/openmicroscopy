@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.browser.InfoPane 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -29,13 +29,12 @@ import java.awt.FlowLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.UnitsObject;
+import org.openmicroscopy.shoola.agents.measurement.util.model.UnitType;
 
 
 
@@ -57,7 +56,7 @@ class InfoPane
 {
 	
     /** String to represent the micron symbol. */
-    private static final String MICRONS = "(in " + UnitsObject.MICRONS + ")";
+    private static final String MICRONS = "(in " + UnitType.MICRON.toString() + ")";
     
     /** Identifies the <code>SizeX</code> field. */
     private static final String SIZE_X = "Size X";

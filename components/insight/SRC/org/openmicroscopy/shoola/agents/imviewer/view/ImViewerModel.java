@@ -43,7 +43,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import omero.model.Length;
+import omero.model.LengthI;
 import omero.model.PlaneInfo;
+import omero.model.enums.UnitsLength;
 import omero.romio.PlaneDef;
 
 import org.apache.commons.io.FilenameUtils;
@@ -68,6 +71,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.ChannelPlayer;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.Player;
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
+import org.openmicroscopy.shoola.agents.measurement.util.model.UnitType;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
@@ -88,7 +92,6 @@ import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.UnitsObject;
 
 import pojos.ChannelData;
 import pojos.DataObject;
@@ -308,9 +311,6 @@ class ImViewerModel
 	/** The security context.*/
     private SecurityContext ctx;
     
-    /** The units corresponding to the pixels size.*/
-    private UnitsObject refUnits;
-    
     /** The channels.*/
     private List<ChannelData> channels;
     
@@ -326,6 +326,9 @@ class ImViewerModel
     /** The default plane size.*/
     private int planeSize;
 
+    /** The units corresponding to the pixels size.*/
+    private UnitType refUnits;
+    
     /**
      * Returns the default resolution level.
      * 
@@ -2980,11 +2983,14 @@ class ImViewerModel
      */
 	String getUnits()
 	{
-		if (refUnits != null) return refUnits.getUnits();
+		if (refUnits != null) return refUnits.toString();
 		double size = getPixelsSizeX();
-		if (size < 0) return UnitsObject.MICRONS;
-		refUnits = EditorUtil.transformSize(size);
-		return refUnits.getUnits();
+		if (size < 0) 
+			return UnitType.MICRON.toString();
+		Length tmp = new LengthI(size, UnitsLength.MICROM);
+		tmp = UIUtilities.transformSize(tmp);
+		refUnits = UnitType.getUnitType(tmp.getUnit());
+		return refUnits.toString();
 	}
 	
 	/**
