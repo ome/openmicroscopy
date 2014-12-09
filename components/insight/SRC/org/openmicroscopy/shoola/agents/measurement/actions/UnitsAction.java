@@ -56,7 +56,7 @@ public class UnitsAction
 	private static final String NAME_PIXELS = "in Pixels";
 	
 	/** Show the pixels in Microns. */
-	private static final String NAME_MICRONS = "in Microns";
+	private static final String NAME_MICRONS = "calibrated";
 	
 	/** The description of the action for microns. */
 	private static final String DESCRIPTION_MICRONS = "Show the measurement " +
@@ -91,33 +91,6 @@ public class UnitsAction
 			putValue(Action.SHORT_DESCRIPTION, 
 				UIUtilities.formatToolTipText(DESCRIPTION_PIXELS));
 		}
-	}
-	
-	/**
-	 * Sets the reference units.
-	 * 
-	 * @param units The units of reference.
-	 */
-	public void setRefUnits(Length ref)
-	{
-		String value = NAME_MICRONS;
-		if (ref.getUnit().equals(UnitsLength.CM)) {
-			value = "in Centimeters";
-		} else if (ref.getUnit().equals(UnitsLength.MM)) {
-			value = "in Millimeters";
-		} else if (ref.getUnit().equals(UnitsLength.M)) {
-			value = "in Meters";
-		} else if (ref.getUnit().equals(UnitsLength.NM)) {
-			value = "in Nanometers";
-		} else if (ref.getUnit().equals(UnitsLength.PM)) {
-			value = "in Picometers";
-		} else if (ref.getUnit().equals(UnitsLength.ANGSTROM)) {
-			value = "in Angstroms";
-		}
-		name = value;
-		putValue(Action.NAME, value);
-		putValue(Action.SHORT_DESCRIPTION, 
-        UIUtilities.formatToolTipText(DESCRIPTION_MICRONS+value));
 	}
 	
 	/** 

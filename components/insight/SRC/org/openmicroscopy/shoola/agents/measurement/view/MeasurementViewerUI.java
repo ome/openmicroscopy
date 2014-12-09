@@ -458,10 +458,7 @@ class MeasurementViewerUI
         		IconManager.MEASUREMENT_TOOL);
         if (icon != null) setIconImage(icon.getImage());
         initComponents();
-        UnitsAction a = (UnitsAction)
         controller.getAction(MeasurementViewerControl.IN_MICRONS);
-        Length tmp = UIUtilities.transformSize(model.getPixelSizeX());
-        a.setRefUnits(tmp);
         setName("measurement viewer window");
     }
     
