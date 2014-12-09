@@ -707,7 +707,7 @@ public class ModelMockFactory {
         planeInfo.setTheC(omero.rtypes.rint(c));
         planeInfo.setTheT(omero.rtypes.rint(t));
 
-        UnitsTime seconds = UnitsTime.S;
+        UnitsTime seconds = UnitsTime.SECOND;
         Time deltaT = new TimeI();
         deltaT.setValue(0.5);
         deltaT.setUnit(seconds);

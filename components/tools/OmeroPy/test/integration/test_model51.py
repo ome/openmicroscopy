@@ -42,7 +42,7 @@ class TestModel51(lib.ITest):
             "where img.id = :id"), omero.sys.ParametersI().addId(img.id.val))
         exposure = plane_info.getExposureTime()
         unit = exposure.getUnit()
-        assert omero.model.enums.UnitsTime.S == unit
+        assert omero.model.enums.UnitsTime.SECOND == unit
 
         micros = omero.model.enums.UnitsTime.MICROS
 
