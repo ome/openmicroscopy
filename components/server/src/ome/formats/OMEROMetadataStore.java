@@ -1682,6 +1682,7 @@ public class OMEROMetadataStore
      * <ul>
      *   <li>Image --> ObjectiveSettings</li>
      *   <li>Image --> Channel --> LogicalChannel --> LightSettings</li>
+     *   <li>Image --> Channel --> LogicalChannel --> LightPath</li>
      *   <li>Image --> Channel --> LogicalChannel --> DetectorSettings</li>
      * </ul>
      */
