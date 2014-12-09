@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.measurement.util.ui.ResultsCellRenderer 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -31,7 +31,6 @@ import java.awt.Component;
 import java.awt.FlowLayout;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.Icon;
@@ -43,11 +42,9 @@ import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
-
-
-
 //Third-party libraries
 import org.apache.commons.lang.StringUtils;
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationDescription;
@@ -58,6 +55,8 @@ import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
+import omero.model.Length;
+import omero.model.enums.UnitsLength;
 
 /** 
  * Basic cell renderer displaying analysis results.
@@ -207,6 +206,13 @@ public class ResultsCellRenderer
 					return list;
 				model.addElement(v);
 			}
+			else if (element instanceof Length)
+			{
+				v = twoDecimalPlaces(((Length) element).getValue());
+				if (v == null)
+					return list;
+				model.addElement(v);
+			}
 		}
 		list.setModel(model);
 		return list;
@@ -233,18 +239,18 @@ public class ResultsCellRenderer
 		JLabel label = new JLabel();
 		label.setOpaque(true);
 		
-		if (value instanceof Number)
+		if (value instanceof Length)
 		{
 		    MeasurementTableModel tm = (MeasurementTableModel) table.getModel();
 	        KeyDescription key = tm.getColumnNames().get(column);
 	        String k = key.getKey();
 	        MeasurementUnits units = tm.getUnitsType();
-		    Number n = (Number) value;
+	        Length n = (Length) value;
 		    String s;
-		    if (units.isInMicrons()) {
+		    if (!units.getUnit().equals(UnitsLength.PIXEL)) {
 		        UnitsObject object;
 	            StringBuffer buffer = new StringBuffer();
-	            object = UIUtilities.transformSize(n.doubleValue());
+	            object = UIUtilities.transformSize(n.getValue());
 	            s = twoDecimalPlaces(object.getValue());
 	            if (StringUtils.isNotBlank(s)) {
 	                buffer.append(s);
@@ -256,7 +262,7 @@ public class ResultsCellRenderer
 	                }
 	                if (AnnotationKeys.AREA.getKey().equals(k)) {
 	                    buffer = new StringBuffer();
-	                    object = UIUtilities.transformSquareSize(n.doubleValue());
+	                    object = UIUtilities.transformSquareSize(n.getValue());
 	                    s = twoDecimalPlaces(object.getValue());
 	                    buffer.append(s);
 	                    buffer.append(object.getUnits());
@@ -264,7 +270,7 @@ public class ResultsCellRenderer
 	                label.setText(buffer.toString());
 	            }
 		    } else {
-		        s = UIUtilities.twoDecimalPlaces(n.doubleValue());
+		        s = UIUtilities.twoDecimalPlaces(n.getValue());
                 if (StringUtils.isNotBlank(s)) {
                     label.setText(s);
                 }

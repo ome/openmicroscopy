@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -37,7 +37,6 @@ import java.util.Arrays;
 import java.util.List;
 
 
-
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.FigureListener;
@@ -49,10 +48,14 @@ import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
+import org.openmicroscopy.shoola.util.roi.model.util.UnitPoint;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.PointTextFigure;
+
+import omero.model.Length;
+import omero.model.LengthI;
+import omero.model.enums.UnitsLength;
 
 /** 
  * Point with measurement.
@@ -110,9 +113,6 @@ public class MeasurePointFigure
     /** Flag indicating if the user can move or resize the shape.*/
     private boolean interactable;
 
-    /** The units of reference.*/
-    private String refUnits;
-
     /**
      * Creates a new instance.
      * 
@@ -145,7 +145,6 @@ public class MeasurePointFigure
         this.annotatable = annotatable;
         this.editable = editable;
         interactable = true;
-        refUnits = UnitsObject.MICRONS;
     }
 
     /** 
@@ -189,13 +188,9 @@ public class MeasurePointFigure
      * 
      * @return see above.
      */
-    public double getMeasurementX()
+    public Length getMeasurementX()
     {
-        if (units.isInMicrons()) {
-            return UIUtilities.transformSize(
-                    getX()*units.getMicronsPixelX(), refUnits);
-        }
-        return getX();
+        return transformX(getX());
     }
 
     /** 
@@ -203,16 +198,10 @@ public class MeasurePointFigure
      * 
      * @return see above.
      */
-    public Point2D getMeasurementCentre()
+    public UnitPoint getMeasurementCentre()
     {
-        if (units.isInMicrons()){
-            double tx = UIUtilities.transformSize(
-                    getCentre().getX()*units.getMicronsPixelX(), refUnits);
-            double ty = UIUtilities.transformSize(
-                    getCentre().getY()*units.getMicronsPixelY(), refUnits);
-            return new Point2D.Double(tx, ty);
-        }
-        return getCentre();
+    	Point2D p = getCentre();
+        return new UnitPoint(transformX(p.getX()), transformY(p.getY()));
     }
 
     /** 
@@ -220,13 +209,9 @@ public class MeasurePointFigure
      * 
      * @return see above.
      */
-    public double getMeasurementY()
+    public Length getMeasurementY()
     {
-        if (units.isInMicrons()) {
-            return UIUtilities.transformSize(
-                    getY()*units.getMicronsPixelY(), refUnits);
-        }
-        return getY();
+        return new LengthI(transformY(getY()), getUnit());
     }
 
     /** 
@@ -234,13 +219,9 @@ public class MeasurePointFigure
      * 
      * @return see above.
      */
-    public double getMeasurementWidth()
+    public Length getMeasurementWidth()
     {
-        if (units.isInMicrons()) {
-            return UIUtilities.transformSize(
-                    getWidth()*units.getMicronsPixelX(), refUnits);
-        }
-        return getWidth();
+        return transformX(getWidth());
     }
 
     /**
@@ -248,13 +229,9 @@ public class MeasurePointFigure
      * 
      * @return see above.
      */
-    public double getMeasurementHeight()
+    public Length getMeasurementHeight()
     {
-        if (units.isInMicrons()) {
-            return UIUtilities.transformSize(
-                    getHeight()*units.getMicronsPixelY(), refUnits);
-        }
-        return getHeight();
+        return transformY(getHeight());
     }
 
     /**
@@ -292,10 +269,9 @@ public class MeasurePointFigure
         if(MeasurementAttributes.SHOWMEASUREMENT.get(this) ||
                 MeasurementAttributes.SHOWID.get(this))
         {
-            NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
             String pointCentre = 
-                    "("+formatter.format(getMeasurementCentre().getX())
-                    + ","+formatter.format(getMeasurementCentre().getY())+")";
+                    "("+UIUtilities.formatValue(getMeasurementCentre().x)
+                    + ","+UIUtilities.formatValue(getMeasurementCentre().y)+")";
             Double sz = (Double) getAttribute(MeasurementAttributes.FONT_SIZE);
             Font font = (Font) getAttribute(MeasurementAttributes.FONT_FACE);
             if (font != null) g.setFont(font.deriveFont(sz.floatValue()));
@@ -393,19 +369,6 @@ public class MeasurePointFigure
         return newBounds;
     }
 
-    /**
-     * Add units to the string
-     * @param str see above.
-     * @return returns the string with the units added.
-     */
-    public String addUnits(String str)
-    {
-        if (shape == null) return str;
-        if (units.isInMicrons())
-            return str+refUnits+UIUtilities.SQUARED_SYMBOL;
-        return str+UIUtilities.PIXELS_SYMBOL+UIUtilities.SQUARED_SYMBOL;
-    }
-
     /** 
      * Calculate the centre of the figure.
      * @return see above.
@@ -447,8 +410,9 @@ public class MeasurePointFigure
     public void calculateMeasurements()
     {
         if (shape == null) return;
-        AnnotationKeys.CENTREX.set(shape, getMeasurementCentre().getX());
-        AnnotationKeys.CENTREY.set(shape, getMeasurementCentre().getY());
+        UnitPoint c = getMeasurementCentre();
+        AnnotationKeys.CENTREX.set(shape, transformX(c.x.getValue()));
+        AnnotationKeys.CENTREY.set(shape, transformY(c.y.getValue()));
     }
 
     /**
@@ -464,8 +428,6 @@ public class MeasurePointFigure
     public void setMeasurementUnits(MeasurementUnits units)
     {
         this.units = units;
-        refUnits = UIUtilities.transformSize(
-                units.getMicronsPixelX()).getUnits();
     }
 
     /**
@@ -619,4 +581,51 @@ public class MeasurePointFigure
      */
     public boolean canInteract() { return interactable; }
 
+    /**
+	 * Transforms the given x pixel value into a unit object
+	 * @param x A pixel value in x direction
+	 */
+	private Length transformX(double x) {
+		return transformX((int)x);
+	}
+	
+	/**
+	 * Transforms the given y pixel value into a unit object
+	 * @param y A pixel value in y direction
+	 */
+	private Length transformY(double y) {
+		return transformY((int)y);
+	}
+	
+	/**
+	 * Transforms the given x pixel value into a unit object
+	 * @param x A pixel value in x direction
+	 */
+	private Length transformX(int x) {
+		if(units.getPixelSizeX()!=null) 
+			return new LengthI(x*units.getPixelSizeX().getValue(), units.getPixelSizeX().getUnit());
+		else
+			return new LengthI(x, UnitsLength.PIXEL);
+	}
+	
+	/**
+	 * Transforms the given x pixel value into a unit object
+	 * @param x A pixel value in x direction
+	 */
+	private Length transformY(int y) {
+		if(units.getPixelSizeY()!=null) 
+			return new LengthI(y*units.getPixelSizeY().getValue(), units.getPixelSizeY().getUnit());
+		else
+			return new LengthI(y, UnitsLength.PIXEL);
+	}
+	
+	/**
+	 * Get the unit which is used for the pixel sizes
+	 */
+	private UnitsLength getUnit() {
+		if(units.getPixelSizeX()!=null)
+			return units.getPixelSizeX().getUnit();
+		else
+			return UnitsLength.PIXEL;
+	}
 }

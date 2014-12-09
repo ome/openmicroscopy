@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.measurement.util.ui.AttributeUnits 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -23,19 +23,15 @@
 package org.openmicroscopy.shoola.agents.measurement.util.ui;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
-import org.jhotdraw.draw.AttributeKeys;
-import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationDescription;
+import omero.model.enums.UnitsLength;
+
 import org.openmicroscopy.shoola.agents.measurement.util.model.UnitType;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
-import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.UnitsObject;
-import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 
 //Java imports
 
@@ -117,8 +113,8 @@ public class AttributeUnits
 		UnitType unitType;
 		if (!units.containsKey(key)) return "";
 		Map<UnitType, String> unitMap = units.get(key);
-		if (type.isInMicrons()) {
-			UnitsObject uo = UIUtilities.transformSize(type.getMicronsPixelX());
+		if (!type.getUnit().equals(UnitsLength.PIXEL)) {
+			UnitsObject uo = UIUtilities.transformSize(type.getPixelSizeX().getValue());
 			String v = uo.getUnits();
 			unitType = UnitType.MICRONS;
 			if (UnitsObject.ANGSTROM.equals(v))

@@ -82,6 +82,9 @@ import javax.swing.text.StyledDocument;
 import javax.swing.text.TabSet;
 import javax.swing.text.TabStop;
 
+import omero.model.Length;
+import omero.model.enums.UnitsLength;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -2563,6 +2566,33 @@ public class UIUtilities
 		return new UnitsObject(units, v);
 	}
 
+	public static Length transformSize(Length value) {
+		// TODO: Use Josh's conversion methods
+		return value;
+	}
+	
+	public static String formatValue(Length value) {
+		return formatValue(value, false);
+	}
+	
+	public static String formatValue(Length value, boolean squared) {
+		Length converted = UIUtilities.transformSize(value);
+		String v;
+		if (value.getUnit().equals(UnitsLength.PIXEL))
+			v = ""+((int)converted.getValue());
+		else
+			v = UIUtilities.twoDecimalPlaces(converted.getValue());
+		
+		if (v==null)
+			return "";
+		
+		v += UnitsObject.getSymbol(converted.getUnit());
+		if (squared && !value.getUnit().equals(UnitsLength.PIXEL))
+			v += UIUtilities.SQUARED_SYMBOL;
+		
+		return v;
+	}
+	
     /**
      * Transforms the size and returns the value and units.
      * 

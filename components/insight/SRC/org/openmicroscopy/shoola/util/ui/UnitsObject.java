@@ -23,6 +23,8 @@
  */
 package org.openmicroscopy.shoola.util.ui;
 
+import omero.model.enums.UnitsLength;
+
 //Java imports
 
 //Third-party libraries
@@ -38,6 +40,9 @@ package org.openmicroscopy.shoola.util.ui;
  */
 public class UnitsObject 
 {
+	
+	// TODO: Remove this class once unit symbols are 
+	//       available from the API
 
 	/** Unicode for the degrees symbol. */
 	public final static String DEGREES = "°";
@@ -63,11 +68,42 @@ public class UnitsObject
     /** String to represent the meter symbol. */
     public static final String METER = "m";
     
+    /** String to represent the meter symbol. */
+    public static final String PIXEL = "px";
+    
     /** The unit for the corresponding value.*/
     private String units;
     
     /** The value to display.*/
     private double value;
+    
+    public static String getSymbol(UnitsLength l) {
+    	if(l.equals(UnitsLength.PIXEL)) {
+    		return UnitsObject.PIXEL;
+    	}
+    	if(l.equals(UnitsLength.M)) {
+    		return UnitsObject.METER;
+    	}
+    	if(l.equals(UnitsLength.CM)) {
+    		return UnitsObject.CENTIMETER;
+    	}
+    	if(l.equals(UnitsLength.MM)) {
+    		return UnitsObject.MILLIMETER;
+    	}
+    	if(l.equals(UnitsLength.MICROM)) {
+    		return UnitsObject.MICRONS;
+    	}
+    	if(l.equals(UnitsLength.NM)) {
+    		return UnitsObject.NANOMETER;
+    	}
+    	if(l.equals(UnitsLength.ANGSTROM)) {
+    		return UnitsObject.ANGSTROM;
+    	}
+    	if(l.equals(UnitsLength.PM)) {
+    		return UnitsObject.PICOMETER;
+    	}
+    	return "";
+    }
     
     /**
      * Stores the units and the value.

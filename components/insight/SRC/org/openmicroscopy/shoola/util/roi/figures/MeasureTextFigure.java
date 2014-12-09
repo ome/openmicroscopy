@@ -44,7 +44,6 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 
@@ -264,8 +263,6 @@ public class MeasureTextFigure
 	public void setMeasurementUnits(MeasurementUnits units)
 	{
 		this.units = units;
-		refUnits = UIUtilities.transformSize(
-				units.getMicronsPixelX()).getUnits();
 	}
 	
 	/**
